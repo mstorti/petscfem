@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.6 2002/07/31 02:59:29 mstorti Exp $
+//$Id: nssupg.cpp,v 1.7 2002/07/31 20:35:40 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -94,16 +94,6 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } 
   double &alpha = glob_param->alpha;
 
-  FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
-    locstate(2,nel,ndof), locstate2(2,nel,ndof),
-    veccontr(2,nel,ndof),
-    eta(1,nel2), eta_new(1,nel2), 
-    w(1,nel2), w_new(1,nel2), w_star(1,nel2), 
-    res(1,nel2), matlocf(4,nel,ndof,nel,ndof),xloc(2,nel2,ndim),
-    res_pg, res_pgg, n(1,ndim), tmp, tmp1, grad_eta, tmp2, 
-    mass_mat(2,nel2,nel2), lap_mat(2,nel2,nel2),
-    tmp3, tmp4, eta_star(1,nel2), Jaco;
-
   int ndimel = ndim-1;
   // Unpack nodedata
   int nu=nodedata->nu;
@@ -112,6 +102,16 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   GPdata gp_data(geometry.c_str(),ndimel,nel2,npg,GP_FASTMAT2);
+
+  FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
+    locstate(2,nel,ndof), locstate2(2,nel,ndof),
+    veccontr(2,nel,ndof),
+    eta(1,nel2), eta_new(1,nel2), 
+    w(1,nel2), w_new(1,nel2), w_star(1,nel2), 
+    res(1,nel2), matlocf(4,nel,ndof,nel,ndof),xloc(2,nel2,ndim),
+    res_pg, res_pgg, n(1,ndim), tmp, tmp1, grad_eta, tmp2, 
+    mass_mat(2,nel2,nel2), lap_mat(2,nel2,nel2),
+    tmp3, tmp4, eta_star(1,nel2), Jaco, iJaco, dshapex(2,ndimel,nel2);
 
   veccontr.set(0.);
   matlocf.set(0.);
@@ -185,17 +185,22 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // loop over Gauss points
       for (int ipg=0; ipg<npg; ipg++) {
 	
+	assert(normal_dir==3);
+	xloc.is(2,1,2);
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-	double detJaco = mydetsur(Jaco,n);
+	xloc.rs();
+	double detJaco = Jaco.det();
+	iJaco.inv(Jaco);
 	double wpgdet = detJaco*WPG;
 
+	dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 	// Residual of equation (eta^{n+1}-eta^n)/Dt - w = 0
 	res_pg.prod(tmp,SHAPE,-1,-1);
 	res_pgg.set(SHAPE).scale(res_pg.get()*wpgdet);
 
 #if 1
-	grad_eta.prod(DSHAPEXI,eta_star,1,-1,-1);
-	tmp2.prod(DSHAPEXI,grad_eta,-1,1,-1);
+	grad_eta.prod(dshapex,eta_star,1,-1,-1);
+	tmp2.prod(dshapex,grad_eta,-1,1,-1);
 	res_pgg.axpy(tmp2,-free_surface_damp*wpgdet);
 #endif
 	veccontr.add(res_pgg);
@@ -204,7 +209,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp3.prod(SHAPE,SHAPE,1,2);
 	mass_mat.axpy(tmp3,wpgdet);
 #if 1
-	tmp4.prod(DSHAPEXI,DSHAPEXI,-1,1,-1,2);
+	tmp4.prod(dshapex,dshapex,-1,1,-1,2);
 	lap_mat.axpy(tmp4,wpgdet);
 #endif
       }
