@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.115 2002/11/28 17:53:03 mstorti Exp $
+//$Id: ns.cpp,v 1.116 2002/11/28 18:27:02 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -828,7 +828,7 @@ int main(int argc,char **args) {
 
     }
 
-    update_mesh(dx,dofmap,mesh,displ_factor);
+    update_mesh(x,dofmap,mesh,displ_factor);
     write_mesh("remeshing.dat",dofmap,mesh,1);
     write_mesh("lastmesh.dat",dofmap,mesh,0);
 

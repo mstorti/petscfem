@@ -19,19 +19,20 @@ solver "petsc"
 # solver "iisd"
 iisd_subpart 1
 #endif
-nnwt 1
+nnwt 5
 pc_lu_fill 8.
 rtol 1e-4
 atol 1e-10
+tol_newton 0
 maxits 100
 Dt 1
 steady
 c_volume 0.
 
-<:$nstep = 5;:>//
+<:$nstep = 1;:>//
 nstep <:=$nstep:>
 displ_factor <:=1./$nstep:>
-
+# initial_state "mmove.ini.tmp"
 # print_linear_system_and_stop
 
 __END_HASH__

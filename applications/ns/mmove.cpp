@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.3 2002/11/28 17:53:03 mstorti Exp $
+//$Id: mmove.cpp,v 1.4 2002/11/28 18:27:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -117,7 +117,8 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   double distor,distor_p,distor_m,eps=1e-4,
     distor_pp,distor_pm,distor_mp,distor_mm, d2f;
   int nen = nel*ndim;
-  xloc0.reshape(2,nel,ndim).set(xloc).reshape(1,nel*ndim);
+  // xloc0.reshape(2,nel,ndim).set(xloc).reshape(1,nel*ndim);
+  xloc0.reshape(2,nel,ndim).set(xloc).add(state_new).reshape(1,nel*ndim);
   distor = distor_fun(xloc0);
 
   res.reshape(1,nel*ndim);
@@ -170,7 +171,7 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   }
 
   mat.reshape(4,nel,ndim,nel,ndim);
-  res_Dir.prod(mat,state_new,1,2,-1,-2,-1,-2);
-  res.axpy(res_Dir,-1.);
+//    res_Dir.prod(mat,state_new,1,2,-1,-2,-1,-2);
+//    res.axpy(res_Dir,-1.);
     
 }
