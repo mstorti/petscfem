@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.5 2001/10/16 18:33:45 mstorti Exp $
+//$Id: nssup.h,v 1.6 2001/10/16 23:00:31 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -51,11 +51,19 @@ public:
 class linear_restriction : public LagrangeMult {
 private:
   /// Coefficients of the restrictions. 
-  vector<double> coef;
+  FastMat2 coef,w,b;
+  /// Number of restrictions
+  int nres_m;
+  /// Flags whether the coefs. have been read
+  int was_loaded;
+  /// Local nodes, dofs to be used as Lagrange multipliers
+  vector<int> node_lm;
+  /// Local nodes, dofs to be used as Lagrange multipliers
+  vector<int> dofs_lm;
 public:
-  linear_restriction() : LagrangeMult() { coef=NULL;};
+  linear_restriction() : LagrangeMult() { was_loaded=0;};
   /// Number of restrictions 
-  int nres();
+  int nres() {return nres_m;};
   /** Return the node/dof pair to be used as lagrange multiplier for
       the #jr#-th restriction. 
   */
