@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.12 2005/02/18 00:46:41 mstorti Exp $
+;;; $Id: test5.scm,v 1.13 2005/02/18 00:57:57 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -80,7 +80,7 @@
 ;; This is the more efficient algorithm, constructing the table.
 ;; In this form the algorithm is `n^3' (I think). 
 (define (nparts3 n)
-  (let* (
+  (letrec (
 	 ;; This is the table that stores the previous values.
 	 (table (make-array 0 n n))
 	 ;; Auxiliary function that retrieves the value stored in the table
@@ -88,6 +88,7 @@
 	 (np-ref (lambda (n p) 
 		   (cond ((<= n 1) 1)
 			 ((= p 1) 1)
+			 ((> p n) (np-ref n n))
 			 (#t (array-ref table (- n 1) (- p 1))))))
 	 ;; Auxiliary function that sets the entry in the table
 	 ;; for the pair `(n p)'
@@ -108,20 +109,22 @@
       (cond ((> p m) (loop (+ m 1) 1))
 	    ((> m n) (np-ref n n))
 	    (#t 
-	     (np-set! (compute-1 m p) m p)
-	     (loop m (+ p 1)))))))
+	     (let ((val (compute-1 m p)))
+;	       (format #t "(m ~A, p ~A) -> val ~A\n" m p val)
+	       (np-set! val m p)
+	       (loop m (+ p 1))))))))
 
 #!
-(let loop ((n 1))
-  (cond ((> n 15))
-	(#t (format #t "(~A -> ~A ~A ~A)\n" 
-		    n (nparts n) (nparts2 n) (nparts3 n))
-	    (loop (+ n 1)))))
-
-(let ((n 5))
+(let ((n 7))
       (format #t "(nparts3 ~A) ~A\n" n (nparts3 n)))
 
 (let ((n 8))
       (format #t "(partition ~A) ~A\n" n (partition n)))
 !#
+
+(let loop ((n 1))
+  (cond ((> n 15))
+	(#t (format #t "(~A -> ~A ~A ~A)\n" 
+		    n (nparts n) (nparts2 n) (nparts3 n))
+	    (loop (+ n 1)))))
 
