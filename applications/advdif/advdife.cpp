@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.68 2003/06/01 15:55:35 mstorti Exp $
+//$Id: advdife.cpp,v 1.69 2003/06/08 14:42:55 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -282,7 +282,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     grad_U(ndimel,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Un(ndof), 
     Ho(ndof),Hn(ndof);
-  // These are edclared but not used
+  // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
