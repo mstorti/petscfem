@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.58 2003/11/11 02:15:43 mstorti Exp $
+//$Id: advdif.cpp,v 1.58.2.1 2003/11/25 00:31:05 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -52,7 +52,7 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  if (!strcmp(args[1],"-bubbly")) return bubbly_main();
+  if (argc>1 && !strcmp(args[1],"-bubbly")) return bubbly_main();
   
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
