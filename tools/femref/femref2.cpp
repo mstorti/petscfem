@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.2 2004/12/05 22:49:42 mstorti Exp $
+// $Id: femref2.cpp,v 1.3 2004/12/06 02:47:23 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -495,24 +495,85 @@ read(const char *node_file,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define MAX_NODE 1000
 void UniformMesh::
 refine(RefineFunction f) {
+  // The stack of geometrical objects while
+  // traversing the tree
   list<GeomObject> go_stack;
-  GeomObject go;
+  // The stack of splitters
+  list<ElemRef::iterator> split_stack;
+  // The stack of indices on each splitting node
+  list<int> split_indx_stack;
+  // The stack of node indices 
+  dvector<int> go_nodes;
+  // The stack of positions in go_nodes
+  list<int> go_nodes_pos;
+  // Initialize first `refined' node
+  last_ref_node = nnod;
+
+  list<GeomObject>::iterator w;
+  // Loop over elements
   for (int k=0; k<nelem; k++) {
+    // Clear all stacks
     go_stack.clear();
+    split_stack.clear();
+    split_indx_stack.clear();
+    ElemRef &etree = *elem_ref.e(k);
+
     go_stack.insert(go_stack.begin(),GeomObject());
-    list<GeomObject>::iterator w = go_stack.begin();
+    w = go_stack.begin();
     w->init(tmpl->type,&connec.e(k,0));
     w->print();
-    ElemRef &etree = *elem_ref.e(k);
-    ElemRef::iterator q = etree.begin();
-    while (q!=etree.end()) {
+    split_stack
+      .insert(split_stack.begin(),
+	      etree.begin());
+    split_indx_stack
+      .insert(split_indx_stack.begin(),0);
+    const int *w_nodes = w->nodes();
+    for (int j=0; j<w->size(); j++)
+      go_nodes.push(w_nodes[j]);
+    go_nodes_pos.push(0);
+
+    while(1) {
+      w = go_stack.begin();
+      // here visit w...
+      ElemRef::iterator q = *split_stack.begin();
+      
+      
+#if 0
+      while (q!=etree.end()) {
       // Each node of the `etree' is a splitter!!
       // create the nodes needed by this splitting
-      Splitter *split = *q;
-      int sz = split->(
+      const Splitter *split = *q;
+      int sz = split->size();
+      for (int k=0; k<sz; k++) {
+	GeomObject::Type t;
+	const int *so_local_nodes = split->nodes(k,t);
+	GeomObject sgo(t);
+	int sgo_sz = sgo.size();
+	sgo_nodes.resize(sgo_sz);
+	for (int k=0; k<sgo_sz; k++) {
+	  int n1 = so_local_nodes[2*k];
+	  if (n1<w->size()) 
+	    sgo_nodes.e(k) = w_nodes[k];
+	  else {
+	    n2 = so_local_nodes[2*k];
+	    n = n1*MAX_NODE+n2;
+	    map<int,int>::iterator q = hash2node.find(n);
+	    int ref_node;
+	    if (q==hash2node.end()) {
+	      ref_node = last_ref_node++;
+	      hash2node[n] = ref_node;
+	    } else {
+	      ref_node = q->second;
+	    }
+	    sgo_nodes.e(k) = ref_node;
+	  }
+	}
+      }
       q = q.lchild();
     }
+#endif
   }
 }
