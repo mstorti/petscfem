@@ -2012,3 +2012,7 @@ tag: beta-3.13.pl4 on Sat, 28 Dec 2002 19:55:09 -0300 by mstorti in spider
 ----------
 tag: beta-3.13.pl5 on Sun, 29 Dec 2002 19:27:40 -0300 by mstorti in spider
      > Starts making interaction between visccous and potential. 
+----------
+tag: beta-3.13.pl6 on Mon, 30 Dec 2002 00:07:21 -0300 by mstorti in spider
+     > Woeking on interaction between visccous and potential.
+     > Writing fifo interfaces.
