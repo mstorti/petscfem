@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.194 2003/12/08 12:34:08 mstorti Exp $
+#$Id: Makefile.base,v 1.195 2003/12/11 17:32:15 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -185,7 +185,7 @@ libpetscfem: force
 
 local_depend: force 	
 ifneq ($(SRCS),)	
-	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > makefile.d
+	${CXX} -MM  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > makefile.d
 endif
 
 #w Creates the dependency file makefile.d
