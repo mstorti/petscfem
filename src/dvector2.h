@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.30 2005/01/17 16:02:12 mstorti Exp $
+// $Id: dvector2.h,v 1.31 2005/01/17 18:37:24 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -548,7 +548,25 @@ int dvector<T>::pos(int j,va_list ap) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
+int dvector<T>::
+pos(vector<int> &indx) const {
+  assert(indx.size()==rank_m);
+  int poss = 0;
+  for (int k=0; k<rank_m; k++) 
+    poss = poss*shape_p[k]+indx[k];
+  return poss;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
 T& dvector<T>::e(int j,...) {
+  va_list ap;
+  va_start(ap,j);
+  return ev(j,ap);
+}
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+const T& dvector<T>::e(int j,...) const {
   va_list ap;
   va_start(ap,j);
   return ev(j,ap);
@@ -556,10 +574,14 @@ T& dvector<T>::e(int j,...) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-const T& dvector<T>::e(int j,...) const {
-  va_list ap;
-  va_start(ap,j);
-  return ev(j,ap);
+T& dvector<T>::e(vector<int> &indx) {
+  return ref(pos(indx));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+const T& dvector<T>::e(vector<int> &indx) const {
+  return ref(pos(indx));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: dvectori.cpp,v 1.11 2005/01/17 16:01:23 mstorti Exp $
+// $Id: dvectori.cpp,v 1.12 2005/01/17 18:37:04 mstorti Exp $
 
 #define DV_INT
 #define TYPE int

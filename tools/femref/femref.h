@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.62 2005/01/17 15:43:26 mstorti Exp $
+// $Id: femref.h,v 1.63 2005/01/17 18:37:04 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -545,6 +545,13 @@ elem2nod_proj(GetSurfCtx &ctx,
 	      const dvector<double> &ue,
 	      dvector<double> &un);
 
+void
+nod2elem_proj(GetSurfCtx &ctx,
+	      const dvector<int> &icone,
+	      const dvector<double> &un,
+	      dvector<double> &ue);
+
+#if 0
 void 
 fem_smooth(GetSurfCtx &ctx,
 	   const dvector<int> &surf_con,
@@ -554,5 +561,6 @@ fem_smooth(GetSurfCtx &ctx,
 	   dvector<double> &us,
 	   int niter,
 	   int verbose);
+#endif
 
 #endif

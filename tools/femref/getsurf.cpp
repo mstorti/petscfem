@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.29 2005/01/17 15:43:26 mstorti Exp $
+// $Id: getsurf.cpp,v 1.30 2005/01/17 18:37:04 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -271,13 +271,6 @@ elem2nod_proj(GetSurfCtx &ctx,
 	      const dvector<double> &node_mass,
 	      const dvector<double> &ue,
 	      dvector<double> &un) {
-#if 0
-  printf("icone shape %d, %d\n",
-	 icone.size(0),icone.size(1));
-  printf("ue shape %d, %d\n",
-	 ue.size(0),ue.size(1));
-#endif
-#if 1
   assert(icone.rank()==2);
   int nelem = icone.size(0);
   int nel = icone.size(1);
@@ -287,12 +280,12 @@ elem2nod_proj(GetSurfCtx &ctx,
   assert(un.size(1)==ndof);
   int nnod = un.size(0);
   
-  for (int jface=0; jface<nelem; jface++) {
-    double nod_area = elem_mass.ref(jface)/double(nel);
+  for (int jelem=0; jelem<nelem; jelem++) {
+    double nod_area = elem_mass.ref(jelem)/double(nel);
     for (int j=0; j<nel; j++) {
-      int node = icone.e(jface,j);
+      int node = icone.e(jelem,j);
       double *to = &un.e(node,0);
-      const double *from = &ue.e(jface,0);
+      const double *from = &ue.e(jelem,0);
       for (int k=0; k<ndof; k++) 
 	to[k] += from[k]*nod_area;
     }
@@ -302,20 +295,46 @@ elem2nod_proj(GetSurfCtx &ctx,
     for (int k=0; k<ndof; k++) 
       un.e(node,k) /= nod_area;
   }
-#endif
 }
 
 void 
+nod2elem_proj(GetSurfCtx &ctx,
+	      const dvector<int> &icone,
+	      const dvector<double> &un,
+	      dvector<double> &ue) {
+
+  assert(icone.rank()==2);
+  int nelem = icone.size(0);
+  int nel = icone.size(1);
+  assert(ue.size(0)==nelem);
+  int ndof = ue.size(1);
+  assert(un.rank()==2);
+  assert(un.size(1)==ndof);
+  int nnod = un.size(0);
+  ue.set(0.);
+  double dnel = double(nel);
+  for (int jelem=0; jelem<nelem; jelem++) {
+    double *to = &ue.e(jelem,0);
+    for (int j=0; j<nel; j++) {
+      int node = icone.e(jelem,j);
+      const double *from = &un.e(node,0);
+      for (int k=0; k<ndof; k++) 
+	to[k] += from[k];
+    }
+    for (int k=0; k<ndof; k++) 
+      to[k] /= dnel;
+  }
+}
+
+#if 0
+void 
 fem_smooth(GetSurfCtx &ctx,
 	   const dvector<int> &surf_cono,
-	   const dvector<double> &elem_mass,
-	   const dvector<double> &node_mass,
 	   const dvector<double> &u,
 	   dvector<double> &us,
 	   int niter,
 	   int verbose) {
 
-#if 0
   int jiter=0;
   int nnod=ctx.nnod;
   int nfaces = surf_con.size(0);
@@ -360,5 +379,5 @@ fem_smooth(GetSurfCtx &ctx,
 	to[k] /= double(face_nel);
     }
   }
-#endif
 }
+#endif

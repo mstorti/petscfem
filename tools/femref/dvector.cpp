@@ -140,9 +140,6 @@ DVECTOR_SET_W2_FUN(SCM s_w,SCM s_j,SCM s_v) {
               s_w, SCM_ARG1, __FUN__);
   dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
 
-  SCM_ASSERT(SCM_INUMP (s_j),s_j,SCM_ARG2,__FUN__);
-  int j = SCM_INUM(s_j);
-  
   TYPE v;
 #if defined DV_INT
   SCM_ASSERT(SCM_INUMP (s_v),s_v,SCM_ARG3,__FUN__);
@@ -154,7 +151,16 @@ DVECTOR_SET_W2_FUN(SCM s_w,SCM s_j,SCM s_v) {
 #error undefined type!! 
 #endif
 
-  w->ref(j) = v;
+  if (SCM_INUMP(s_j)) {
+    int j = SCM_INUM(s_j);
+    w->ref(j) = v;
+  } else if (scm_list_p(s_j)) {
+    vector<int> indx;
+    scmlist2vec(s_j,indx);
+    w->e(indx) = v;
+  } else {
+    scm_wrong_type_arg(__FUN__,2,s_j);
+  }
   return SCM_UNSPECIFIED;
 }
 
@@ -167,7 +173,7 @@ DVECTOR_REF_FUN(SCM s_w,SCM s_j) {
               s_w, SCM_ARG1, __FUN__);
   dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
 
-  SCM_ASSERT(SCM_INUMP (s_j),s_j,SCM_ARG2,__FUN__);
+  SCM_ASSERT(SCM_INUMP(s_j),s_j,SCM_ARG2,__FUN__);
   int j = SCM_INUM(s_j);
 
   TYPE v = w->ref(j);

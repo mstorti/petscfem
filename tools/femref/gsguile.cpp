@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gsguile.cpp,v 1.8 2005/01/17 15:43:26 mstorti Exp $
+// $Id: gsguile.cpp,v 1.9 2005/01/17 18:37:04 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -157,6 +157,7 @@ SCM_DEFINE(comp_matrices_w, "comp-matrices", 6, 1, 0,
 #undef FUNC_NAME
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 SCM_DEFINE(fem_smooth_w, "fem-smooth-w", 8, 0, 0,
 	   (SCM s_ctx, 
 	   SCM s_surf_con, 
@@ -183,6 +184,7 @@ SCM_DEFINE(fem_smooth_w, "fem-smooth-w", 8, 0, 0,
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 SCM_DEFINE(elem2nod_proj_w,"elem->nod-proj", 6, 0, 0,
@@ -202,6 +204,30 @@ SCM_DEFINE(elem2nod_proj_w,"elem->nod-proj", 6, 0, 0,
   DVDBLARG(ue,5);
   DVDBLARG(un,6);
   elem2nod_proj(*ctx,*icone,*elem_mass,*node_mass,*ue,*un);
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// void
+// nod2elem_proj(GetSurfCtx &ctx,
+// 	      const dvector<int> &icone,
+// 	      const dvector<double> &un,
+// 	      dvector<double> &ue);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+SCM_DEFINE(nod2elem_proj_w,"nod->elem-proj", 4, 0, 0,
+	   (SCM s_ctx,
+	    SCM s_icone,
+	    SCM s_un,
+	    SCM s_ue),
+	   "Projects per-element values to per-node values.")
+#define FUNC_NAME s_nod2elem_proj_w
+{
+  MY_SCM_GET_ARG(ctx,GetSurfCtxTag,GetSurfCtx *,1);
+  DVINTARG(icone,2);
+  DVDBLARG(un,3);
+  DVDBLARG(ue,4);
+  nod2elem_proj(*ctx,*icone,*un,*ue);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME

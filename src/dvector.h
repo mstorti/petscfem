@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.25 2005/01/17 16:02:12 mstorti Exp $
+// $Id: dvector.h,v 1.26 2005/01/17 18:37:24 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -64,9 +64,15 @@ private:
   /** Same as #ev(i,ap)# but used interally. Both versions,
       const and non-const refer internally to this. 
       @param j (input) first index
-      @param ap (input) remaiing indices
+      @param ap (input) remaining indices
       @return reference to the element */ 
   int pos(int j,va_list ap) const;
+
+  /** Same as #pos(j,ap)# but indices are passed 
+      via a #vector<int>#. 
+      @param indx (input) the indices of position. 
+      @return reference to the element */ 
+  int pos(vector<int> &indx) const;
 
 public:
   /** Constructor 
@@ -250,6 +256,16 @@ public:
       @param i,j,k,l (input) indices 
       @return a reference to the internal element */ 
   T& e(int j,...);
+
+  /** Gets a particular element of the array
+      @param indx (input) vector of indices 
+      @return a reference to the internal element */ 
+  T& e(vector<int> &indx);
+
+  /** Gets a particular element of the array. Const version. 
+      @param indx (input) vector of indices 
+      @return a reference to the internal element */ 
+  const T& e(vector<int> &indx) const;
 
   /** Same as #e(i,j,k,...)# but the list of arguments is passed as
       a variadic macro. 
