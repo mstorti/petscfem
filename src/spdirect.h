@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spdirect.h,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+// $Id: spdirect.h,v 1.3 2002/02/20 22:13:06 mstorti Exp $
 #ifndef SPDIRECT_H
 #define SPDIRECT_H
 
@@ -89,7 +89,7 @@ public:
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type) {return 0;};
   /// Duplicate matrices (currently not implemented for IISDMat)
-  int duplicate(MatDuplicateOption op,const PFMat &B);
+  int duplicate_a(MatDuplicateOption op,const PFMat &B);
 };
 
 #endif

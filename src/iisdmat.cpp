@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -68,8 +68,8 @@ PFPETScMat::~PFPETScMat() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFMat::duplicate"
-int PFPETScMat::duplicate(MatDuplicateOption op,const PFMat &A) {
+#define __FUNC__ "PFPETScMat::duplicate_a"
+int PFPETScMat::duplicate_a(MatDuplicateOption op,const PFMat &A) {
   PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
 		 "for \"%s\" PFMat derived type\n",
 		 typeid(*this).name());

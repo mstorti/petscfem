@@ -1069,4 +1069,4 @@ tag: beta-2.90 on Tue Feb 19 22:48:07 -0300 2002, by mstorti in spider
 ----------
 tag: beta-2.91 on Wed Feb 20 00:03:12 -0300 2002, by mstorti in spider
      > -- STABLE FOR DOC --
-     > [ Runs all doc pdf/html/ps ]
+     > [ Creates all doc pdf/html/ps ]

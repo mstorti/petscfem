@@ -1,6 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.63 2002/02/18 16:44:00 mstorti Exp $
- 
+//$Id: ns.cpp,v 1.64 2002/02/20 22:12:43 mstorti Exp $
+
+//#define ROCKET_MODULE 
+#ifndef ROCKET_MODULE 
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -608,3 +610,4 @@ int main(int argc,char **args) {
   exit(0);
 }
 
+#endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: pfmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
 
 #include <mat.h>
 
@@ -154,6 +154,18 @@ int PFMat::solve_only(Vec &res,Vec &dx) {
   fsm->solve_only(); CHKERRQ(ierr); 
   return 0;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::duplicate"
+int PFMat::duplicate(MatDuplicateOption op,const PFMat &A) {
+  fsm->clear(); 
+  duplicate_a(op,A);
+  fsm->set_profile();
+  fsm->set_value(); 
+  return 0;
+}
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

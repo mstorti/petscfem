@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+// $Id: petscmat.h,v 1.3 2002/02/20 22:13:06 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -83,7 +83,7 @@ public:
   */ 
   int create_a();
   /// Duplicate matrices 
-  int duplicate(MatDuplicateOption op,const PFMat &A);
+  int duplicate_a(MatDuplicateOption op,const PFMat &A);
   int view(Viewer viewer=VIEWER_STDOUT_WORLD);
 };
 

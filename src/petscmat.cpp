@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: petscmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -17,8 +17,8 @@ PETScMat::~PETScMat() {clear();};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::duplicate"
-int PETScMat::duplicate(MatDuplicateOption op,const PFMat &B) {
+#define __FUNC__ "PETScMat::duplicate_a"
+int PETScMat::duplicate_a(MatDuplicateOption op,const PFMat &B) {
   const PETScMat *BB = dynamic_cast<const PETScMat *> (&B);
   if (!BB) {
     PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.32 2002/01/14 03:45:06 mstorti Exp $
+// $Id: pfmat.h,v 1.33 2002/02/20 22:13:06 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -20,10 +20,11 @@ class PFMat {
   friend class pfmatFSMContext;
   /// Pointers to pass args to solver routines through the FSM layer
   Vec *res_p,*dx_p;
-protected:
 
+protected:
   /// Print Finite State Machine transitions
   int print_fsm_transition_info;
+
   /// Allows to pass PETSc error codes through the FSM layer
   int ierr;
   pfmatFSM *fsm;
@@ -60,6 +61,11 @@ protected:
 
   /// clear profile memory 
   virtual int clean_prof_a()=0;
+
+  /// duplicate matrix
+  virtual int duplicate_a(MatDuplicateOption op,const PFMat &A) {
+    printf("Not implemented yet\n"); assert(0);
+  }
   //@}
 
   /// Factorizes matrix and solves linear system. Args are passed via pointers.
@@ -150,7 +156,7 @@ public:
   virtual int view(Viewer viewer=VIEWER_STDOUT_WORLD)=0;
 
   /// Duplicate matrices (currently not implemented for IISDMat)
-  virtual int duplicate(MatDuplicateOption op,const PFMat &A)=0;
+  int duplicate(MatDuplicateOption op,const PFMat &A);
 
   virtual void set_option(const char *key,const char *value)=0;
   virtual void set_option(const char *name,int *val,int n=1)=0;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spdirect.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: spdirect.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -51,7 +51,7 @@ int SparseDirect::set_value_a(int row,int col,Scalar value,
   return 0;
 }
 
-int SparseDirect::duplicate(MatDuplicateOption op,const PFMat &B) {
+int SparseDirect::duplicate_a(MatDuplicateOption op,const PFMat &B) {
   const SparseDirect * BB = dynamic_cast<const SparseDirect *>(&B);
   assert(BB);
 #if 0
