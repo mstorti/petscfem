@@ -2319,3 +2319,7 @@ tag: beta-3.16.pl2 on Sat,  8 Feb 2003 11:28:20 -0300 by mstorti in spider
 ----------
 tag: beta-3.16.pl3 on Sat,  8 Feb 2003 13:09:02 -0300 by mstorti in spider
      > Runs dxhook with sequencer
+----------
+tag: beta-3.16.pl4 on Sat,  8 Feb 2003 20:14:22 -0300 by mstorti in spider
+     > Example `test/gasflow/socket2.cpp' waits a connection to
+     > a socket through a thread OK.
