@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.37 2002/04/24 22:12:28 mstorti Exp $
+#$Id: Makefile,v 1.38 2002/06/26 21:10:31 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -191,6 +191,12 @@ save:
 	else rm  $(TARFILE).tara ;						\
 	fi ;									\
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
+
+#w Count lines in `.cpp' and `.h' files
+line_count:
+	@echo -n 'Lines, word, chars in source files: ' ; \
+	cat `find . -name '*.cpp'` `find . -name '*.h'` \
+	`find . -name '*.c'` `find . -name '*.f'` | wc 
 
 #w Makes a new release
 tag:
