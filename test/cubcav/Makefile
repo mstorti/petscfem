@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.78 2003/12/03 11:52:20 mstorti Exp $ 
+# $Id: Makefile,v 1.79 2003/12/06 17:13:51 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,8 +6,8 @@
 default: plain
 
 plain:
-	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bpl0.tmp
-	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bpl1.tmp
+	$(MAKE) CASE=cubcav case=plain_bupl0 run # > cubcav.out.plain_bpl0.tmp
+#	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bpl1.tmp
 
 #default case
 # case := laplace
@@ -47,7 +47,7 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
-NP := 1
+NP := 2
 export NP
 
 run_subdir_test:

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.11 2003/07/02 03:36:13 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.12 2003/12/06 17:13:48 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -330,7 +330,6 @@ extern "C" void dgefa_(double *a,int *lda,int *n,int *ipvt,int *info);
 extern "C" void dgesl_(double *a,int *lda,int *n,int *ipvt,double *b,int *job);
 
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::inv(const FastMat2 & A) {
 
@@ -480,6 +479,68 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 #undef A
 #undef iA
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double FastMat2::trace() {
+  FastMatCache *cache;
+
+if (was_cached) {
+  cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+  printf ("reusing cache: ");
+#endif
+} else if (!use_cache) {
+  cache = new FastMatCache;
+} else {
+  cache = new FastMatCache;
+  cache_list->push_back(cache);
+  cache_list_begin = &*cache_list->begin();
+  cache_list->list_size =
+    cache_list_size = cache_list->size();
+  position_in_cache++;
+#ifdef FM2_CACHE_DBG
+  printf ("defining cache: ");
+#endif
+}
+#ifdef FM2_CACHE_DBG
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
+       cache_list,cache,position_in_cache-1);
+#endif
+;
+  if (!was_cached) {
+    assert(defined);
+    Indx Adims;
+    get_dims(Adims);
+    int ndims = Adims.size();
+    assert (ndims==2);
+    assert (Adims[0] == Adims[1]);
+    int n= Adims[0];
+
+    Indx indx;
+    cache->to_elems.resize(n);
+    for (int j=1; j<=n; j++) {
+      indx = Indx(2,j);
+      cache->to_elems[j-1] = location(indx);
+    } 
+    cache->nelems = n;
+    cache->pto = &*cache->to_elems.begin();
+    op_count.put += n;
+    ;
+  
+  }
+
+  double **pto = cache->pto;
+  double **pto_end = pto + cache->nelems;
+
+  double tr = 0.0;
+  while (pto < pto_end) {
+    tr += **pto++;
+  }
+
+  if (!use_cache) delete cache;
+  return tr;
 }
 
 // DON'T EDIT MANUALLY THIS FILE !!!!!!

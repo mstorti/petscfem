@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep2.cpp,v 1.8 2003/07/02 03:36:13 mstorti Exp $
+//$Id: fmat2ep2.cpp,v 1.9 2003/12/06 17:13:48 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -414,7 +414,47 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
 }
 //EOF
 _//>
-
 //< print template_subst($inv); //>//
+
+//<$trace=<<'//EOF';
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double FastMat2::trace() {
+  __CACHE_OPERATIONS__;
+  if (!was_cached) {
+    assert(defined);
+    Indx Adims;
+    get_dims(Adims);
+    int ndims = Adims.size();
+    assert (ndims==2);
+    assert (Adims[0] == Adims[1]);
+    int n= Adims[0];
+
+    Indx indx;
+    cache->to_elems.resize(n);
+    for (int j=1; j<=n; j++) {
+      indx = Indx(2,j);
+      cache->to_elems[j-1] = location(indx);
+    } 
+    cache->nelems = n;
+    cache->pto = &*cache->to_elems.begin();
+    op_count.put += n;
+    __COUNT_OPER__;
+  
+  }
+
+  double **pto = cache->pto;
+  double **pto_end = pto + cache->nelems;
+
+  double tr = 0.0;
+  while (pto < pto_end) {
+    tr += **pto++;
+  }
+
+  if (!use_cache) delete cache;
+  return tr;
+}
+//EOF
+_//>
+//< print template_subst($trace); //>//
 
 //<=$warn_dont_modify //>

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.104 2003/12/06 16:00:25 mstorti Exp $
+//$Id: readmesh.cpp,v 1.105 2003/12/06 17:13:48 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -849,8 +849,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 
   }
   PETSCFEM_ASSERT(fstack->last_error()==FileStack::eof,
-		  "Couldn't process correctly main data file\"%s\"\n",
-		  fstack->file_name());  
+		  "Couldn't process correctly main data "
+		  "file \"%s\"\n",fstack->file_name());  
   PETSCFEM_ASSERT0(nnod>0,"No nodes read");  
   PETSCFEM_ASSERT0(da_length(mesh->elemsetlist)>0,
 		   "No elemsets read");  

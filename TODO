@@ -4,8 +4,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Write a FastMat2::trace() (tensorial sense)
 * Bad parallel error reporting when not known elemset type 
-in NS (and advdif??)
+      in NS (and advdif??)
    > not known elemset type: "ns_id"
    > rm_l_8_1498:  p4_error: net_recv read:  probable EOF on socket: 1
    > not known elemset type: "ns_id"
@@ -16,13 +17,14 @@ in NS (and advdif??)
    > rm_l_4_1450:  p4_error: net_recv read:  probable EOF on socket: 1
    > not known elemset type: "ns_id"
    > not known elemset type: "ns_id"
-* Write a FastMat2::trace()
+  Sat, 06 Dec 2003 13:07:34 -0300: Hey!! can't reproduce
 * Sends multiple messages (from all processors) when can't open file
     in 
     > Couldn't open file "spillwgc.bcconv-all.tmp"!!
     > Couldn't open file "spillwgc.bcconv-all.tmp"!!
     > Assertion failed: "ierr==0"
     > Couldn't find __END_ELEMSET__ tag
+    Sat, 06 Dec 2003 13:15:41 -0300: Can't reproduce
 * Add `start_step' feature. 
 * List grants in doc
 * Add `dataflow.obj' to doc.

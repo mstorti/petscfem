@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.28 2003/10/08 11:45:58 mstorti Exp $
+//$Id: fastmat2.h,v 1.29 2003/12/06 17:13:48 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -647,6 +647,13 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & ctr(const FastMat2 & A,const int m,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Trace of tensor for a two index tensor. 
+      @param A (input) The matrix to take the trace
+      @return the trace of #A#
+  */ 
+  double trace();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Product operation. {\tt (*this) = A * B} (generalized by index contraction)
