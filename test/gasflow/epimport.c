@@ -21,7 +21,7 @@ static Error doLeaf(Object *, Object *);
 int
 ExtProgImport_worker(
     int, char *,
-    int, int *);
+    int, double *);
 
 #if defined (__cplusplus) || defined (c_plusplus)
 extern "C"
@@ -49,15 +49,21 @@ m_ExtProgImport(Object *in, Object *out)
 
 
   /*
-   * Output "value" is a value; set up an appropriate array
+   * Since output "output_field" is structure Field/Group, it initially
+   * is a copy of input "socket_name".
    */
-  out[0] = (Object)DXNewArray(TYPE_INT, CATEGORY_REAL, 0, 0);
+  out[0] = DXCopy(in[0], COPY_STRUCTURE);
   if (! out[0])
     goto error;
-  if (! DXAddArrayData((Array)out[0], 0, 1, NULL))
-    goto error;
-  memset(DXGetArrayData((Array)out[0]), 0, 1*DXGetItemSize((Array)out[0]));
 
+  /*
+   * If in[0] was an array, then no copy is actually made - Copy 
+   * returns a pointer to the input object.  Since this can't be written to
+   * we postpone explicitly copying it until the leaf level, when we'll need
+   * to be creating writable arrays anyway.
+   */
+  if (out[0] == in[0])
+    out[0] = NULL;
 
   /*
    * Call the hierarchical object traversal routine
@@ -121,8 +127,11 @@ traverse(Object *in, Object *out)
           * child input object list.
           */
 
-          /* input "socket_name" is Value */
-          new_in[0] = in[0];
+          /* input "socket_name" is Field/Group */
+          if (in[0])
+            new_in[0] = DXGetEnumeratedMember((Group)in[0], i, NULL);
+          else
+            new_in[0] = NULL;
 
          /*
           * For all outputs that are Values, pass them to 
@@ -132,11 +141,19 @@ traverse(Object *in, Object *out)
           * be NULL (unlike inputs, which can default).
           */
 
-          /* output "value" is Value */
-          new_out[0] = out[0];
+          /* output "output_field" is Field/Group */
+          new_out[0] = DXGetEnumeratedMember((Group)out[0], i, NULL);
 
           if (! traverse(new_in, new_out))
             return ERROR;
+
+         /*
+          * Now for each output that is not a Value, replace
+          * the updated child into the object in the parent.
+          */
+
+          /* output "output_field" is Field/Group */
+          DXSetEnumeratedMember((Group)out[0], i, new_out[0]);
 
         }
       return OK;
@@ -155,8 +172,11 @@ traverse(Object *in, Object *out)
        * get the corresponding decendents.
        */
 
-      /* input "socket_name" is Value */
-      new_in[0] = in[0];
+      /* input "socket_name" is Field/Group */
+      if (in[0])
+        DXGetXformInfo((Xform)in[0], &new_in[0], NULL);
+      else
+        new_in[0] = NULL;
 
       /*
        * For all outputs that are Values, copy them to 
@@ -166,11 +186,19 @@ traverse(Object *in, Object *out)
        * be NULL (unlike inputs, which can default).
        */
 
-      /* output "value" is Value */
-      new_out[0] = out[0];
+      /* output "output_field" is Field/Group */
+      DXGetXformInfo((Xform)out[0], &new_out[0], NULL);
 
       if (! traverse(new_in, new_out))
         return ERROR;
+
+      /*
+       * Now for each output that is not a Value replace
+       * the updated child into the object in the parent.
+       */
+
+      /* output "output_field" is Field/Group */
+      DXSetXformObject((Xform)out[0], new_out[0]);
 
       return OK;
     }
@@ -188,8 +216,11 @@ traverse(Object *in, Object *out)
        * get the corresponding decendents.
        */
 
-      /* input "socket_name" is Value */
-      new_in[0] = in[0];
+      /* input "socket_name" is Field/Group */
+      if (in[0])
+        DXGetScreenInfo((Screen)in[0], &new_in[0], NULL, NULL);
+      else
+        new_in[0] = NULL;
 
 
       /*
@@ -200,11 +231,19 @@ traverse(Object *in, Object *out)
        * be NULL (unlike inputs, which can default).
        */
 
-       /* output "value" is Value */
-       new_out[0] = out[0];
+       /* output "output_field" is Field/Group */
+       DXGetScreenInfo((Screen)out[0], &new_out[0], NULL, NULL);
 
        if (! traverse(new_in, new_out))
          return ERROR;
+
+      /*
+       * Now for each output that is not a Value, replace
+       * the updated child into the object in the parent.
+       */
+
+      /* output "output_field" is Field/Group */
+       DXSetScreenObject((Screen)out[0], new_out[0]);
 
        return OK;
      }
@@ -215,8 +254,11 @@ traverse(Object *in, Object *out)
        Object new_in[1], new_out[1];
 
 
-       /* input "socket_name" is Value */
-       new_in[0] = in[0];
+       /* input "socket_name" is Field/Group */
+       if (in[0])
+         DXGetClippedInfo((Clipped)in[0], &new_in[0], NULL);
+       else
+         new_in[0] = NULL;
 
 
       /*
@@ -227,11 +269,19 @@ traverse(Object *in, Object *out)
        * be NULL (unlike inputs, which can default).
        */
 
-       /* output "value" is Value */
-       new_out[0] = out[0];
+       /* output "output_field" is Field/Group */
+       DXGetClippedInfo((Clipped)out[0], &new_out[0], NULL);
 
        if (! traverse(new_in, new_out))
          return ERROR;
+
+      /*
+       * Now for each output that is not a Value, replace
+       * the updated child into the object in the parent.
+       */
+
+       /* output "output_field" is Field/Group */
+       DXSetClippedObjects((Clipped)out[0], new_out[0], NULL);
 
        return OK;
      }
@@ -347,6 +397,22 @@ doLeaf(Object *in, Object *out)
       }
     }
 
+    /* 
+     * get the dependency of the data component
+     */
+    attr = DXGetAttribute((Object)array, "dep");
+    if (! attr)
+    {
+      DXSetError(ERROR_MISSING_DATA, "data component of \"socket_name\" has no dependency");
+      goto error;
+    }
+
+    if (DXGetObjectClass(attr) != CLASS_STRING)
+    {
+      DXSetError(ERROR_BAD_CLASS, "dependency attribute of data component of \"socket_name\"");
+      goto error;
+    }
+
 
     if (DXGetObjectClass(in[0]) != CLASS_STRING)    {
        DXGetArrayInfo(array, &in_knt[0], &type, &category, &rank, &shape);
@@ -363,27 +429,55 @@ doLeaf(Object *in, Object *out)
 
     }
   }
-  if (! out[0])
-  {
-    DXSetError(ERROR_INTERNAL, "Value output 0 (\"value\") is NULL");
+  /*
+   * Create an output data array typed according to the
+   * specification given
+   */
+  array = DXNewArray(TYPE_DOUBLE, CATEGORY_REAL, 0, 0);
+  if (! array)
     goto error;
-  }
-  if (DXGetObjectClass(out[0]) != CLASS_ARRAY)
-  {
-    DXSetError(ERROR_INTERNAL, "Value output 0 (\"value\") is not an array");
+
+  /*
+   * Set the dependency of the array to the same as the first input
+   */
+  if (src_dependency_attr != NULL)
+    if (! DXSetAttribute((Object)array, "dep", src_dependency_attr))
+      goto error;
+
+  /*
+   * The size and dependency of this output data array will 
+   * match that of input[0]
+   */
+  out_knt[0] = in_knt[0];
+  /*
+   * Actually allocate the array data space
+   */
+  if (! DXAddArrayData(array, 0, out_knt[0], NULL))
     goto error;
-  }
 
-  array = (Array)out[0];
-
-  DXGetArrayInfo(array, &out_knt[0], &type, &category, &rank, &shape);
-  if (type != TYPE_INT || category != CATEGORY_REAL ||
-      !((rank == 0) || ((rank == 1)&&(shape == 1))))
+  /*
+   * If the output vector slot is not NULL, then it better be a field, and
+   * we'll add the new array to it as its data component (delete any prior
+   * data component so that its attributes won't overwrite the new component's)
+   * Otherwise, place the new array into the out vector.
+   */
+  if (out[0])
   {
-    DXSetError(ERROR_DATA_INVALID, "Value output \"value\" has bad type");
-    goto error;
-  }
+    if (DXGetObjectClass(out[0]) != CLASS_FIELD)
+    {
+      DXSetError(ERROR_INTERNAL, "non-field object found in output vector");
+      goto error;
+    }
 
+    if (DXGetComponentValue((Field)out[0], "data"))
+      DXDeleteComponent((Field)out[0], "data");
+
+    if (! DXSetComponentValue((Field)out[0], "data", (Object)array))
+      goto error;
+
+  }
+  else
+    out[0] = (Object)array;
   /*
    * Now get the pointer to the contents of the array
    */
@@ -396,7 +490,7 @@ doLeaf(Object *in, Object *out)
    */
   result = ExtProgImport_worker(
     in_knt[0], (char *)in_data[0],
-    out_knt[0], (int *)out_data[0]);
+    out_knt[0], (double *)out_data[0]);
 
   if (! result)
      if (DXGetError()==ERROR_NONE)
@@ -413,7 +507,7 @@ error:
 int
 ExtProgImport_worker(
     int socket_name_knt, char *socket_name_data,
-    int value_knt, int *value_data)
+    int output_field_knt, double *output_field_data)
 {
   /*
    * The arguments to this routine are:
@@ -432,13 +526,34 @@ ExtProgImport_worker(
    *     connections component in the first input, and
    *     the data type.
    *
-   * value_knt, value_data:  count and pointer for output "value"
+   * output_field_knt, output_field_data:  count and pointer for output "output_field"
    */
 
   /*
    * User's code goes here
    */
-  *value_data = 3141;
+  
+  /* Creates a field with a NxN squares quads and a scalar 
+     field with a Gauss bell
+   */
+  int N=10, *icone_p, j,k,base, elem=0;
+  Array icone=NULL; 
+  Field f=NULL; 
+  icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1,4);
+  if (!icone) goto error;
+  icone = DXAddArrayData(icone, 0, N*N, NULL);
+  if (!icone) goto error;
+  icone_p = (int *)DXGetArrayData(icone);
+  /* Define connectivities    */
+  for (j=0; j<N; j++) {
+    for (k=0; k<N; k++) {
+      base = j*(N+1)+k;
+      *icone_p++ = base;
+      *icone_p++ = base+1;
+      *icone_p++ = base+N+1;
+      *icone_p++ = base+N+2;
+    }
+  }
      
   /*
    * successful completion
