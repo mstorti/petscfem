@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.6 2003/08/28 22:22:05 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.7 2003/08/28 22:43:16 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,7 +37,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 1
+#if 0
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
@@ -227,7 +227,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      *RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
 	  }      
 	}
-	values.print();
+	// values.print();
 	if (pfmat) {
 	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
 				      values.buff(),ADD_VALUES); 
@@ -237,8 +237,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 			      values.buff(),ADD_VALUES);
 	  CHKERRQ(ierr); 
 	}
-	PetscFinalize();
-	exit(0);
       }
     }
  

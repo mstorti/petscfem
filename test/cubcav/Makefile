@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.53 2003/08/28 15:37:25 mstorti Exp $ 
+# $Id: Makefile,v 1.54 2003/08/28 22:43:20 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -92,3 +92,7 @@ cubcav_post:
 		do echo "gzipping $$f" ; gzip -f $$f ; done
 
 cubcav_close:
+
+link:
+	$(MAKE) -C ../../ ns
+	ln -f $(PROG) ns
