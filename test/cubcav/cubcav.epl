@@ -15,7 +15,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 50;			# Number of elements per dimension
+$N = 26;			# Number of elements per dimension
 $graph_chunk_size  = $N**3;
 $graph_chunk_size = 
     ($graph_chunk_size < 20000 ? 20000 : 
@@ -77,7 +77,8 @@ if (scalar $case =~ /weak_form_(\d)/) {
     die "don't know case \"$case\"\n";
 }
 $CASE = $case;
-$fracstep = 1;
+$fracstep = 0;
+$maxits=200;
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
@@ -107,10 +108,10 @@ solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
 iisd_subpart 100
-maxits 100
+maxits 200
 report_consumed_time
 activate_debug_print
-use_interface_full_preco 1
+use_interface_full_preco 0
 print_interface_full_preco_conv 0
 interface_full_preco_maxits 5
 # activate_debug

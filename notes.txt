@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $
+$Id: notes.txt,v 1.144 2002/07/27 03:36:58 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $ 
+! # $Id: notes.txt,v 1.144 2002/07/27 03:36:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $ 
+! # $Id: notes.txt,v 1.144 2002/07/27 03:36:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $ 
+  # $Id: notes.txt,v 1.144 2002/07/27 03:36:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4660,7 +4660,11 @@ con `use_interface_full_preco', mientras que tarda 120secs sin
 %
 23:45:37: Aumentando el iisd_subpart a 100 (estaba en 50) el tiempo de
 resolucion baja a 70 con `use_interface_full_preco=0' y a 50secs con
-`use_interface_full_preco=1'. Las iterciones bajan a la mitad.  
+`use_interface_full_preco=1'. Las iteraciones bajan a la mitad.  
+%
+00:05:49: Con NS tarda unos 70secs de resolucion con una malla de 26^3
+y `iisd_subpart=100' y con `use_interface_full_preco=1'. Tarda entre
+110 y 125 secs con `use_interface_full_preco=0'.
 
 
 %# Current line ===========  
