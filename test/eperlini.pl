@@ -137,9 +137,9 @@ EOM
 /`/;
     foreach $v (@_) {
 	print "# \$$v: ${$v}\n";
-	print OCT "$v = ${$v};\n";
+	print OCT "$v = ${$v};\n" if $octtmpfile;
     }
-    close OCT;
+    close OCT if $octtmpfile;
 }
 
 print <<'EOM';
