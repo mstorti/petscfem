@@ -1,8 +1,8 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.61 2003/09/14 00:23:19 mstorti Exp $
+//$Id: advective.h,v 1.62 2003/10/16 19:13:42 mstorti Exp $
  
-//#define CHECK_JAC // Computes also the FD Jacobian for debugging
+#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
@@ -346,6 +346,13 @@ public:
   */
   virtual int dim() const { return -1; }
 
+  /** Returns the Riemann Invariants and jacobians 
+      for Adv-Diff absorbent condition
+  */
+  virtual void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+			   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
+
+
   virtual ~NewAdvDifFF()=0;
   //@}
 };
@@ -497,7 +504,8 @@ public:							\
 
 ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
 ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
-ADVDIF_ELEMSET(swfm2t);	        // shallow water turbulent
+ADVDIF_ELEMSET(swfm2t);	        // shallow water 2d turbulent
+//ADVDIF_ELEMSET(swfm1t);	        // shallow water 1d supg
 
 class wall_swfm2t : NewElemset { 
 public: 

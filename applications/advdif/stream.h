@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.20 2002/10/21 15:43:01 mstorti Exp $
+// $Id: stream.h,v 1.21 2003/10/16 19:13:42 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -57,12 +57,12 @@ public:
   /** For a given water depth (with respect to the bottom of the
       channel) give the fluid area, cross sectional water-line and wet
       channel perimeter.
-      @param u (input) the water depth
+      @param h (input) the water depth
       @param A (ouput) the fluid cross sectional area
       @param w (ouput) the fluid cross sectional water line
       @param P (ouput) the fluid cross sectional perimeter
   */
-  virtual void geometry(double u,double &A,double &w,double &P)=0;
+  virtual void geometry(double h,double &A,double &w,double &P)=0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -88,17 +88,17 @@ public:
   /** For a given water depth (with respect to the bottom of the
       channel) give the fluid area, cross sectional water-line and wet
       channel perimeter.
-      @param u (input) the water depth
+      @param h (input) the water depth
       @param area (ouput) the fluid cross sectional area
       @param wl_width (ouput) the fluid cross sectional water line
       @param perimeter (ouput) the fluid cross sectional perimeter
   */
-  void geometry(double u,double &area,
+  void geometry(double h,double &area,
 		double &wl_width,double &perimeter) {
-    assert(u>=0.);
-    area = u*width;
+    assert(h>=0.);
+    area = h*width;
     wl_width = width;
-    perimeter = width+2*u;
+    perimeter = width+2*h;
   }
 
 };
@@ -124,24 +124,85 @@ public:
   /** For a given water depth (with respect to the bottom of the
       channel) give the fluid area, cross sectional water-line and wet
       channel perimeter.
-      @param u (input) the water depth
+      @param h (input) the water depth
       @param area (ouput) the fluid cross sectional area
       @param wl_width (ouput) the fluid cross sectional water line
       @param perimeter (ouput) the fluid cross sectional perimeter
   */
-  void geometry(double u,double &area,
+  void geometry(double h,double &area,
 		double &wl_width,double &perimeter) {
-    assert(u>=0.);
-    assert(u<radius);
-    double cos_phi = (radius-u)/radius;
+    assert(h>=0.);
+    assert(h<radius);
+    double cos_phi = (radius-h)/radius;
     double phi = acos(cos_phi);
     double sin_phi = sin(phi);
     area = radius*radius*(phi-sin_phi*cos_phi);
     wl_width = 2*radius*sin_phi;
     perimeter = 2*phi*radius;
   }
-
 };
+
+/// Triangular shaped channel
+class triang_channel : public ChannelShape {
+  Property wall_angle_prop;
+  double wall_angle;//wall orientation with horizontal terrain
+public:
+  triang_channel(const NewElemset *e) : ChannelShape(e) {}
+
+  /// Initializes the object
+  void init() { 
+    //o Width & Height of the channel
+    GETOPT_PROP(double,wall_angle,<required>);
+    elemset->get_prop(wall_angle_prop,"wall_angle"); 
+  }
+
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    wall_angle = elemset->prop_val(element,wall_angle_prop); 
+  }
+  void geometry(double h,double &area,
+		double &wl_width,double &perimeter) {
+    assert(h>=0.);
+    assert(wall_angle>0.);
+    wl_width=2.*h/tan(wall_angle);
+    area=h*wl_width/2.;
+    perimeter=2.*(h/sin(wall_angle));
+  }
+};
+
+/// Trapezoidal shaped channel
+class trap_channel : public ChannelShape {
+  Property wall_angle_prop;
+  Property width_bottom_prop;
+  double wall_angle;
+  double width_bottom;
+public:
+  trap_channel(const NewElemset *e) : ChannelShape(e) {}
+
+  /// Initializes the object
+  void init() { 
+    //o Width & Height of the channel
+    GETOPT_PROP(double,wall_angle,<required>);
+    elemset->get_prop(wall_angle_prop,"wall_angle"); 
+    GETOPT_PROP(double,width_bottom,<required>);
+    elemset->get_prop(width_bottom_prop,"width_bottom"); 
+  }
+
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    wall_angle=elemset->prop_val(element,wall_angle_prop); 
+    width_bottom=elemset->prop_val(element,width_bottom_prop); 
+  }
+  void geometry(double h,double &area,
+		double &wl_width,double &perimeter) {
+    assert(h>=0.);
+    assert(wall_angle>0.);
+    wl_width=2.*h/tan(wall_angle)+width_bottom;
+    area=h*(wl_width+width_bottom)/2.;
+    perimeter=2.*(h/sin(wall_angle))+width_bottom;
+  }
+};
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Abstract class representing all friction laws
@@ -149,6 +210,10 @@ class FrictionLaw {
 protected:
   const NewElemset *elemset;
 public:
+  // Friction term for G_source
+  double Sf;
+  // Friction model constant terms  for C_jac
+  double c_Sf_jac_1,c_Sf_jac_2;
   /// fixme:= This should be private
   FrictionLaw(const NewElemset *e);
 
@@ -172,6 +237,9 @@ public:
   */ 
   virtual void flow(double area,double perimeter,
 		    double S,double &Q,double &C) const =0;
+
+  virtual void flow_Sf(const double area, const double perimeter, const double u,
+	       double &Sf, FastMat2 &Sf_jac) const=0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -187,8 +255,9 @@ public:
   // Initialize properties
   void init() { 
     //o Chezy roughness coefficient
-    GETOPT_PROP(double,Ch,<required>); }
-
+    GETOPT_PROP(double,Ch,<required>);
+  }
+  
   /// Read local element properties
   void element_hook(ElementIterator element) {
     Ch = elemset->prop_val(element,Ch_prop);
@@ -209,6 +278,17 @@ public:
     double gamma = Ch*sqrt(S/perimeter);
     Q = gamma*pow(area,m);
     C = Q*m/area;
+  }
+  
+  void flow_Sf(const double area, const double perimeter, const double u,
+	       double &Sf, FastMat2 &Sf_jac) const {
+    double tmpp=perimeter/(SQ(Ch)*area);
+    double tmpp2=perimeter/SQ(Ch);
+    Sf=SQ(u)*tmpp;
+    Sf_jac.set(0.0);
+    //pongo los jacobianos solo de los terminos que provienen de
+    // g*A*Sf
+    Sf_jac.setel(2.*u*tmpp2,1,1);//falta multiplicar por g
   }    
 };
 
@@ -216,6 +296,7 @@ public:
 /// This implements the Manning friction law
 class Manning : public FrictionLaw {
   /// Manning friction coefficient property
+
   Property roughness_prop;
   /// Manning friction coefficient value
   double roughness;
@@ -242,13 +323,24 @@ public:
       @param C (output) derivative of volumetric flow w.r.t. A,
       i.e. #C = dQ/dQ#
   */ 
-  void flow(double area,double perimeter,
-	    double S,double &Q,double &C) const {
+  void flow(double area,double perimeter, double S,double &Q,double &C) const {
     double m = 5./3.;
     double gamma = a_bar/roughness*sqrt(S)/pow(perimeter,2./3.);
     Q = gamma*pow(area,m);
     C = Q*m/area;
-  }    
+  }
+  
+  void flow_Sf(const double area, const double perimeter, const double u,
+	       double &Sf, FastMat2 &Sf_jac) const {
+    double tempp1=SQ(roughness/a_bar)*pow(perimeter/area,4./3.);
+    double tempp2=SQ(roughness/a_bar)*pow(perimeter,4./3.)/pow(area,1./3.);
+    Sf=SQ(u)*tempp1;
+    //pongo los jacobianos solo de los terminos que provienen de
+    // g*A*Sf
+    Sf_jac.set(0.0);
+    Sf_jac.setel(2.*u*tempp2,1,1);//falta multiplicar por g 
+    Sf_jac.setel(SQ(u)*tempp1/3.,1,2); //falta mult por wl_width y g
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -257,11 +349,11 @@ public:
 */ 
 class stream_ff : public AdvDifFFWEnth {
   /// The local depth of the fluid
-  double u;
+  double h;
   /// The slope of the channel
   // double S;
   /** Local state of the fluid obtained from geometrical parameters
-      from the water depth `u'
+      from the water depth `h'
   */
   double area,wl_width,perimeter;
   /// The local wave velocity C:= dQ/dA
@@ -358,6 +450,7 @@ public:
 		  FastMat2 &N,double w);
 
   void enthalpy(FastMat2 &H);
+
   void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
@@ -389,6 +482,7 @@ class StreamLossFilmFun : public HFilmFun {
   double k;
   /// If set to 1 then Rf = infty
   int impermeable;
+  int ndof; //hacer el getopt de esto!!!!!!!!!!!!!!
 public:
   StreamLossFilmFun(GenLoad *e) : HFilmFun(e) {}
   // Only defines the double layer source term
@@ -403,7 +497,8 @@ public:
     //          loss to the aquifer. 
     // _END
     elemset->get_prop(Rf_prop,"Rf"); 
-    int ierr;
+    int ierr,nel,nelprops;
+    elemset->elem_params(nel,ndof,nelprops);
     //o Flag whether the element is impermeable ($R_f\to\infty$) or not. 
     EGETOPTDEF_ND(elemset,int,impermeable,0);
     assert(ierr==0);

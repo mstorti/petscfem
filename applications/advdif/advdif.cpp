@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.56 2003/09/14 00:21:52 mstorti Exp $
+//$Id: advdif.cpp,v 1.57 2003/10/16 19:13:42 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -24,7 +24,8 @@ extern int MY_RANK,SIZE;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
-  comp_mat_each_time_step_g=0;
+  comp_mat_each_time_step_g=0,
+  verify_jacobian_with_numerical_one;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
@@ -55,6 +56,7 @@ int main(int argc,char **args) {
   
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
+  PFMat *A_tet, *A_tet_c;
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
   int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
@@ -171,6 +173,8 @@ int main(int argc,char **args) {
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
+  //o Update jacobian each $n$-th time step. 
+  GETOPTDEF(int,update_jacobian_steps,0);
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
   //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
@@ -245,6 +249,21 @@ int main(int argc,char **args) {
   GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
+  //
+  GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
+  //
+#define INF INT_MAX
+  //o Update jacobian each $n$-th time step. 
+  GETOPTDEF(int,update_jacobian_start_steps,INF);
+  //o Update jacobian only until n-th Newton subiteration. 
+  // Don't update if null. 
+  GETOPTDEF(int,update_jacobian_iters,1);
+  assert(update_jacobian_iters>=1);
+  //o Update jacobian each $n$-th Newton iteration
+  GETOPTDEF(int,update_jacobian_start_iters,INF);
+  assert(update_jacobian_start_iters>=0);
+#undef INF
+
 
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
@@ -329,6 +348,7 @@ int main(int argc,char **args) {
   Chrono chrono; 
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
+  int update_jacobian_this_step,update_jacobian_this_iter;
   for (int tstep=1; tstep<=nstep; tstep++) {
     time_star.set(time.time()+alpha*Dt);
     // Take cputime statistics
@@ -423,6 +443,45 @@ int main(int argc,char **args) {
 	}
       }
 
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+      // FEM matrix jacobian debug  (perturbation)
+#if 0
+	PetscViewer matlab;
+	if (verify_jacobian_with_numerical_one) {
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+				      "system.dat.tmp",&matlab); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,
+					      "atet"); CHKERRA(ierr);
+	  
+	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
+	  
+	  ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
+	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
+	  
+	  argl.clear();
+	  argl.arg_add(&x,PERT_VECTOR);
+	  argl.arg_add(&xold,IN_VECTOR);
+	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
+	  
+	  argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	  argl.arg_add(&hmin,VECTOR_MIN);
+
+	  argl.arg_add(&glob_param,USER_DATA);
+	  argl.arg_add(wall_data,USER_DATA);
+	  ierr = assemble(mesh,argl,dofmap,jobinfo,
+			  &time_star); CHKERRA(ierr);
+	  
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+					      PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
+	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
+	  
+	  PetscFinalize();
+	  exit(0);
+	}
+#endif
+      
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,

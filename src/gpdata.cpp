@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.30 2003/07/26 00:57:56 mstorti Exp $
+//$Id: gpdata.cpp,v 1.31 2003/10/16 19:13:49 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -109,7 +109,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
   //          space. For instance, a boundary element (for imposed
   //          flux or convection boundary condition) has a dimension
   //          lower than the spatial dimension.
-  
+
+  // that's me....
+  // this is no true for elements that are points (bccconvs for 1D elements).
+
   // Shape function
   shape = new RowVector[npg];
   // Weights
@@ -360,7 +363,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     if (npg1d!=2 && npg1d!=1 && ndimel>0) GPERROR;
     
     if (ndimel==0 && npg==1) {
-
+      // for bccconv 0D elements npg=1, ndimel=0, nel=1, geom=cartesian0d.
+      // the value for shape function is a ndim x nel x npg vector equal to 1.0 at this point 
+      // and gradient of shape func is undefined (then dim=0)
+      
       shape[0] = RowVector(nel);
       shape[0](1)=1.;
       wpg[0]=1.;

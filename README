@@ -45,6 +45,7 @@ LICENSE
 
 INSTALLATION
   Platforms
+
     Currently, PETSc-FEM is known to run only on Beowulf class clusters
     based on Intel processors, running the GNU/Linux OS. Off course, you can
     also install PETSc-FEM in a single GNU/Linux box, for use in sequential
@@ -58,25 +59,26 @@ INSTALLATION
     flavours.
 
   Required Software
+
     Before installing PETSc-FEM, please verify you have the following
     packages correctly installed in your system.
 
     MPI This is the Message Passing Interface. We are currently using MPICH
-        1.2.1 ("http://www.mcs.anl.gov/mpich") but I think there will be not
+        1.2.1 (`http://www.mcs.anl.gov/mpich') but I think there will be not
         problem with LAM MPI.
 
     PETSC
         This is the 'Portable, Extensible Toolkit for Scientific
-        Computation' and can be found at "http://www.mcs.anl.gov/petsc/".
+        Computation' and can be found at `http://www.mcs.anl.gov/petsc/'.
         Current version of PETSc-FEM compiles with PETSc 2.1.6.
 
     LAPACK
         This is, in fact, a prerequisiste to install PETSc and can be found
-        at "http://www.netlib.org/lapack/".
+        at `http://www.netlib.org/lapack/'.
 
     Libretto
         This is a C library of generic containers and can be found at
-        "http://pobox.com/~aaronc/tech/libretto/". I have learned recently
+        `http://pobox.com/~aaronc/tech/libretto/'. I have learned recently
         that development of Libretto has been stopped since it has been
         superseded by GLIB, so that I think that in a future I will replace
         the Libretto code by GLIB. Also, the STL library (that comes with
@@ -87,13 +89,13 @@ INSTALLATION
     GLIB
         GLIB is a library which includes support routines for C such as
         lists, trees, hashes, memory allocation, and many other things. The
-        official web site is "http://www.gtk.org/". [RedHat RPM packages:
-        "GLIB", "glib-devel"]
+        official web site is `http://www.gtk.org/'. [RedHat RPM packages:
+        `GLIB', `glib-devel']
 
     Newmat
         This is a matrix library to be used mainly at the element routine
         level, i.e. for small matrices and can be found at
-        "http://webnz.com/robert/". It is not mandatory to use Newmat for
+        `http://webnz.com/robert/'. It is not mandatory to use Newmat for
         all element calculations. In fact there is included a matrix class
         called FastMat2 that is more performant, but Newmat is still used in
         some internal parts and has much more functions, so that you have to
@@ -105,7 +107,7 @@ INSTALLATION
     METIS
         METIS is a software package for partitioning unstructured graphs,
         partitioning meshes, and computing fill-reducing orderings of sparse
-        matrices. It can be found at "http://www.cs.umn.edu/~metis".
+        matrices. It can be found at `http://www.cs.umn.edu/~metis'.
 
     Meschach
         The Meschach Library is a numerical library of C routines for
@@ -118,32 +120,32 @@ INSTALLATION
     ePerl
         ePerl (for *embedded Perl*) is a preprocessor much like the C
         language preprocessor (home page:
-        "http://www.engelschall.com/sw/eperl/"). ePerl allows you to embed
+        `http://www.engelschall.com/sw/eperl/'). ePerl allows you to embed
         arbitrary Perl code in your document. It is not required at all, but
         is is very useful for preprocessing the data files. [RedHat RPM
-        package: "eperl"]. NEW: from version 3.18.pl44 on the Perl based
-        version of "eperl" is include in the <tools> directory. So that it
+        package: `eperl']. NEW: from version 3.18.pl44 on the Perl based
+        version of `eperl' is include in the <tools> directory. So that it
         is not needed to install it!! The Perl based version can be
-        marginally different from the "C" version. If you want to specify
-        your own "eperl" preprocessor then you have to modify the "EPERL"
-        variable in "Makefile.base". The Perl version of ePerl is written
-        and maintained by David Ljung Madison "<DaveSource.com>"
-        "http://MarginalHacks.com". License: GPL (See
-        "tools/eperl_license.txt").
+        marginally different from the `C' version. If you want to specify
+        your own `eperl' preprocessor then you have to modify the `EPERL'
+        variable in `Makefile.base'. The Perl version of ePerl is written
+        and maintained by David Ljung Madison `<DaveSource.com>'
+        `http://MarginalHacks.com'. License: GPL (See
+        `tools/eperl_license.txt').
 
     Perl
         If you want to use ePerl then you need to have Perl installed.
-        [RedHat RPM package: "perl"].
+        [RedHat RPM package: `perl'].
 
     SuperLU (optional)
         A collection of ANSI C routines to solve sparse linear systems of
-        equations. Can be found at "http://www.nersc.gov/~xiaoye/SuperLU/".
+        equations. Can be found at `http://www.nersc.gov/~xiaoye/SuperLU/'.
         This package is optional, install it if you think that SuperLU is
         faster than PETSc for direct factorization of sparse matrices.
 
     ANN (optional)
         This is the *Approximate Nearest Neighbor Library* and can be found
-        at "http://www.cs.umd.edu/~mount/ANN". Currently it is only used in
+        at `http://www.cs.umd.edu/~mount/ANN'. Currently it is only used in
         the Navier-Stokes module for calculating the damping functions in
         the Smagorinsky model. However, in a future it may be used more
         widely for some mesh manipulations. Currently it is optional.
@@ -163,10 +165,11 @@ INSTALLATION
         communication with the IBM Data Explorer visualization tool, but but
         it might be used for other things in a near future. [Current
         verision: 2.11a Tue Mar 6 09:46:16 EST 2001] [Note: If you do a web
-        search you can find it as a file "COSMIC.tar.gz" or "ssl.tar.gz"].
+        search you can find it as a file `COSMIC.tar.gz' or `ssl.tar.gz'].
 
   Unpacking
-    Once you got the "petscfem-xxx.tar.gz" package ("xxx" stands for the
+
+    Once you got the `petscfem-xxx.tar.gz' package (`xxx' stands for the
     version), gunzip and untar it like this:
 
       $ gunzip petscfem-xxx.tar.gz
@@ -176,32 +179,35 @@ INSTALLATION
     included.
 
   Makefile variables
-    "$(PETSCFEM_DIR)"
+
+    `$(PETSCFEM_DIR)'
         The root of the PETSc-FEM package
 
-    "$(PETSC_ARCH)", "$(PETSC_HOME)"
+    `$(PETSC_ARCH)', `$(PETSC_HOME)'
         These are variables relative to PETSc. See documentation.
 
   Configuring
-    Once you have all the software mentioned in "Required Software"
-    installed, you have to define the variables in the CONFIGURATION
-    VARIABLES section in file $(PETSCFEM_DIR)/Makefile.base.
 
-    *   First you have to set the "PETSC_BOPT" variable which is the default
-        value for the "PETSc" "BOPT" variable, which sets the optimization
+    Once you have all the software mentioned in the Required Software entry
+    elsewhere in this document installed, you have to define the variables
+    in the CONFIGURATION VARIABLES section in file
+    $(PETSCFEM_DIR)/Makefile.base.
+
+    *   First you have to set the `PETSC_BOPT' variable which is the default
+        value for the `PETSc' `BOPT' variable, which sets the optimization
         level to be used in compilation. You can set it to
 
-        "PETSC_BOPT = g_c++"
+        `PETSC_BOPT = g_c++'
             Compiles for debugging.
 
-        "PETSC_BOPT = O_c++"
+        `PETSC_BOPT = O_c++'
             Compiles with optimization enabled.
 
-        The optimization level is inherited by the "PETSc" libraries so that
-        if you compile with "PETSC_BOPT=O_c++" then not only "PETSc-FEM"
-        will be compiled with optimization, but also the "PETSc" optimized
+        The optimization level is inherited by the `PETSc' libraries so that
+        if you compile with `PETSC_BOPT=O_c++' then not only `PETSc-FEM'
+        will be compiled with optimization, but also the `PETSc' optimized
         libraries will be used. The specific optimization options are set in
-        "$(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables" ("OCXX_COPTFLAGS"
+        `$(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables' (`OCXX_COPTFLAGS'
         variable). According to our experience maximum optimization is
         achieved with <BOPT=-O2 -funroll-loops>.
 
@@ -210,17 +216,17 @@ INSTALLATION
           $ make BOPT=O_c++ ns
 
         This compiles the Navier-Stokes module with optimization enabled
-        independently of the "PETSC_BOPT" default value.
+        independently of the `PETSC_BOPT' default value.
 
-    *   The "PROF_FLAGS" variables allows you to turn on profiling. By
+    *   The `PROF_FLAGS' variables allows you to turn on profiling. By
         default, profiling is deactivated.
 
-    *   Other configuration variables are defined in a file "Makefile.defs",
+    *   Other configuration variables are defined in a file `Makefile.defs',
         but normally they are set only when you first install PETSc-FEM, so
-        the best is to put "Makefile.defs" in the directory inmediately
-        above PETSc-FEM directory (i.e. "$(PETSCFEM_DIR)/.."). So that, if
+        the best is to put `Makefile.defs' in the directory inmediately
+        above PETSc-FEM directory (i.e. `$(PETSCFEM_DIR)/..'). So that, if
         you install another version of PETSc-FEM, the settings will be seen
-        immediately by the new version. A version of "Makefile.defs" is
+        immediately by the new version. A version of `Makefile.defs' is
         included in the PETSc-FEM directory. Copy it to the directory
         _above_ the PETSC-FEM directory and configure the variables inside.
         If you install another version of PETSc-FEM then probably you have
@@ -228,7 +234,8 @@ INSTALLATION
         been added or you have moved it.
 
   Compiling
-    "cd" to directory "$(PETSCFEM_DIR)" and do
+
+    `cd' to directory `$(PETSCFEM_DIR)' and do
 
       $ make depend
       $ make libpetscfem        # to build the library
@@ -241,45 +248,43 @@ INSTALLATION
     can help you on other useful targets.
 
     If nothing goes wrong you will end with a src/libpetscfem.a library and
-    application binaries (ending in ".bin") in their respective directories,
+    application binaries (ending in `.bin') in their respective directories,
     e.g. applications/ns/ns.bin is the Navier-Stokes binary.
 
 DOCUMENTATION
-    Documentation for *PETSc-FEM* is included in the "$(PETSCFEM_DIR)/doc"
+    Documentation for *PETSc-FEM* is included in the `$(PETSCFEM_DIR)/doc'
     directory. There is basically a reference manual written in *LaTeX*
     (doc/petscfem.tex), and embedded documentation for the routines to be
-    used with "Doc++". In the standard distrib you should find both of them
-    converted to HTML ("LaTeX" is converted with "latex2html") and
+    used with `Doc++'. In the standard distrib you should find both of them
+    converted to HTML (`LaTeX' is converted with `latex2html') and
     accessible from doc/index.html. Other formats (perhaps PostScript and
-    PDF) may be also found in the "doc" directory.
+    PDF) may be also found in the `doc' directory.
 
 TESTS AND EXAMPLES
-    Many tests and examples are in the "$(PETSCFEM_DIR)/test" directory.
+    Many tests and examples are in the `$(PETSCFEM_DIR)/test' directory.
 
 WRITING A NEW APPLICATION MODULE
     The best way to start coding an application program is to duplicate a
-    directory (for instance "applications/advdif") or (for instance
-    "applications/ns") to a directory from your own (i.e. outside the
-    "$(PETSCFEM_DIR)" tree, say "/your/appl/path". Configure the
-    "$(PETSCFEM_DIR)" variable in the local makefile (i.e.
-    "/your/appl/path/Makefile").You should have to configure other variables
-    as well, perhaps "$(MYOBJS)" (this is a list of the object (".o") files
-    in this local directory) and "$(PROG)" (the name of the program to be
-    built, without the suffix ".bin").
+    directory (for instance `applications/advdif') or (for instance
+    `applications/ns') to a directory from your own (i.e. outside the
+    `$(PETSCFEM_DIR)' tree, say `/your/appl/path'. Configure the
+    `$(PETSCFEM_DIR)' variable in the local makefile (i.e.
+    `/your/appl/path/Makefile').You should have to configure other variables
+    as well, perhaps `$(MYOBJS)' (this is a list of the object (`.o') files
+    in this local directory) and `$(PROG)' (the name of the program to be
+    built, without the suffix `.bin').
 
 AUTHORS
-    Mario A. Storti* "<mstorti@intec.unl.edu.ar>"
+    Mario A. Storti* `<mstorti@intec.unl.edu.ar>'
         PETSc-FEM kernel, NS and AdvDif modules.
 
-    Norberto M. Nigro* "<nnigro@intec.unl.edu.ar""
+    Norberto M. Nigro* `<nnigro@intec.unl.edu.ar"'
         PETSc-FEM kernel, NS and AdvDif modules.
 
-    Rodrigo P. Paz* "<rodrigop@intec.unl.edu.ar>"
+    Rodrigo P. Paz* `<rodrigop@intec.unl.edu.ar>'
         AdvDif module, specially the hydrology module.
 
     * CIMEC, Internacional Center for Computational Methods in Engineering,
-    Santa Fe, Argentina.
-    <http://www.cimec.org.ar/petscfem|http://www.cimec.org.ar/petscfem>
-    Ordinary mail: Mario Storti, CIMEC-INTEC, Guemes 3450, 3000 Santa Fe,
-    Argentina.
+    Santa Fe, Argentina. http://www.cimec.org.ar/petscfem Ordinary mail:
+    Mario Storti, CIMEC-INTEC, Guemes 3450, 3000 Santa Fe, Argentina.
 

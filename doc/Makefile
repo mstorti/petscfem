@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.34 2003/09/15 01:18:06 mstorti Exp $
+#$Id: Makefile,v 1.35 2003/10/16 19:13:46 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -12,7 +12,7 @@ all: latex index.html all_html ps pdf readme eps
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
 
-ODOCFILES = odocadv.tex odocadvdif.tex odocadvdife.tex \
+ODOCFILES = odocadv.tex odocadvdif.tex odocadvdif2.tex odocadvdife.tex \
 	odocadve.tex odocadvfe.tex odocadvfm2.tex odocadvfs.tex \
 	odocburgers.tex odocgenl.tex \
 	odocns.tex odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex odocswfm2t.tex \
@@ -99,7 +99,7 @@ petscfem.tex: petscfem.in.tex force
 # Run  `$ make ltx2h_opt=-no_images' in order to not wait so much time...
 petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 	$(MAKE) EPERLFLAGS="-d html=1" petscfem.tex
-	$(LATEX2HTML) $(ltx2h_opt) -init_file latex2html.init petscfem
+	/usr/bin/latex2html/latex2html $(ltx2h_opt) -init_file latex2html.init petscfem
 # balance tags due to a bug in latex2html. 
 	cd petscfem ; for f in *.html ; do  ../fixul.pl $$f ; done
 
@@ -119,7 +119,7 @@ odocall.tex: $(allcpp)
 
 #w Make html home-page
 index.html: index.tex
-	$(LATEX2HTML) -init_file latex2html.init -no_subdir -split 0 index
+	/usr/bin/latex2html/latex2html -init_file latex2html.init -no_subdir -split 0 index
 
 #w Make the README in text and html format
 readme: ../README ../README.html

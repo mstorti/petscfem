@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.73 2003/10/11 23:57:14 mstorti Exp $
+//$Id: advdife.cpp,v 1.74 2003/10/16 19:13:42 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -161,13 +161,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   if (comp_res) {
     int j=-1;
-    stateo = &arg_data_v[++j];
-    staten = &arg_data_v[++j];
-    retval  = &arg_data_v[++j];
-    jdtmin = ++j;
+    stateo = &arg_data_v[++j]; //[0]
+    staten = &arg_data_v[++j]; //[1]
+    retval  = &arg_data_v[++j];//[2]
+    jdtmin = ++j;//[3]
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
-    Ajac = &arg_data_v[++j];
+    Ajac = &arg_data_v[++j];//[4]
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
     rec_Dt_m = 1./DT;
     if (glob_param->steady) rec_Dt_m = 0.;
@@ -314,9 +314,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   if (axi) assert(ndim==3);
 
-  //#define COMPUTE_FD_ADV_JACOBIAN
+#define COMPUTE_FD_ADV_JACOBIAN
 #ifdef COMPUTE_FD_ADV_JACOBIAN
-  FastMat2 A_fd_jac(3,ndim,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
+  FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
 #endif
   FastMat2 U0(1,ndof);
   double u0[] = {1.,1.,1.,2.,0.,0.,0.1,0.1};
@@ -491,11 +491,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  COMP_SOURCE | COMP_UPWIND);
 
 #ifdef COMPUTE_FD_ADV_JACOBIAN
-	double eps_fd=1e-8;
+	double eps_fd=1e-4;
 	for (int jdof=1; jdof<=ndof; jdof++) {
 	  U_pert.set(U).is(1,jdof).add(eps_fd).rs();
 	  adv_diff_ff->set_state(U_pert,grad_U);
-	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
+	  adv_diff_ff->compute_flux(U_pert,iJaco,H,grad_H,flux_pert,fluxd,
 				    A_grad_U,grad_U,G_source,
 				    tau_supg,delta_sc,
 				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
@@ -781,6 +781,12 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
 
 void NewAdvDifFF::set_profile(FastMat2 &seed) {
   seed.set(1.);
+}
+
+void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+			      FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_){
+  int ppp=0;
+  assert(ppp==0);
 }
 
 #undef SHAPE

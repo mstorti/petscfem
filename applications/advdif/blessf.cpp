@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.11 2003/05/26 03:08:06 mstorti Exp $
+//$Id: blessf.cpp,v 1.12 2003/10/16 19:13:42 mstorti Exp $
 
 #include <set>
 
@@ -23,6 +23,9 @@
 #include "gasflow.h"
 #include "advdfgth.h"
 #include "smoke.h"
+#include "streamsw1d.h"
+#include "nonlres.h"
+#include "id.h"
 
 #include <time.h>
 
@@ -45,6 +48,10 @@ void bless_elemset(char *type,Elemset *& elemset) {
     // Turbulent shallow water
     SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
     SET_ELEMSET_TYPE(advdif_swfm2t)
+      //    SET_ELEMSET_TYPE(advdif_swfm1t)
+    SET_ELEMSET_TYPE(streamsw1d)
+    SET_ELEMSET_TYPE(streamsw1d_abso)
+
     SET_ELEMSET_TYPE(wall_swfm2t)
 
     SET_ELEMSET_TYPE(lin_gen_load)
@@ -61,6 +68,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(gasflow_bcconv)
 
     SET_ELEMSET_TYPE(flow_rate_integrator)
+    SET_ELEMSET_TYPE(id)
 
     SET_ELEMSET_TYPE(smoke)
     {
