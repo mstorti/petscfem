@@ -922,3 +922,7 @@ tag: beta-2.71 on Sun Feb  3 21:55:31 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.72 on Mon Feb  4 15:40:08 ART 2002, by mstorti in minerva.arcride.edu.ar
      > Added corrections to `wallke' from Beto.
+----------
+tag: beta-2.72.pl1 on Mon Feb  4 21:59:02 ARST 2002, by mstorti in spider
+     > `eta' is now passed as `H' variable, and `slope' `S' 
+     > is computed from `grad_H'. 
