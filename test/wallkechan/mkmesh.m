@@ -1,3 +1,5 @@
+#__INSERT_LICENSE__
+
 source("data.m.tmp");
 
 hav=L/N;
@@ -20,7 +22,8 @@ ywall = xnod(1:Ny+1,2);
 #ywall = (ywall(1:Ny)+ywall(2:Ny+1))/2;
 xi = ywall/uwall_match_len;
 uwall = (3/4*((2*xi-1)-(2*xi-1).^3/3)+.5).*(xi<1) + (xi>=1);
-uwall=1-uwall;
+epsuw = .1;
+uwall=(1-epsuw)*(1-uwall);
 
 icone=icone(:,[1 4 3 2]);
 if peri

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.12 2001/06/23 16:42:35 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.13 2001/07/02 14:24:15 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -22,6 +22,26 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 //#define SQ(n) ((n)*(n))
 #define SQ(n) square(n)
+
+inline double ctff(double x, double tol=1e-5) {
+  double r=x/tol-1.; 
+  double ee,ret;
+//    if (r>60) {
+//      return x;
+//    } else if (r<-60) {
+//      return 0;
+//    } else 
+  if (fabs(r)<1e-7) {
+    ret = (1.+0.5*exp(r)/(1+(1./6.)*r*r))*tol;
+  } else if (r>0) {
+    ret =  (x-tol)/(1.-exp(-2.*r))+tol;
+  } else {
+    ee = exp(2.*r);
+    ret = (x-tol)*ee/(ee-1.)+tol;
+    // printf("ctff(%g,%g) = %g\n",x,tol,ret);
+  }
+  return ret;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -167,6 +187,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,sigma_k,1.);
   //o sigma_e 
   SGETOPTDEF(double,sigma_e,1.3);
+  //o Cutoff value for $k$
+  SGETOPTDEF(double,kap_ctff_val,1e-20);
+  //o Cutoff value for $\epsilon$
+  SGETOPTDEF(double,eps_ctff_val,1e-20);
 
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
@@ -406,7 +430,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
 	kap = double(tmp8.prod(SHAPE,kapcol,-1,-1));
+	kap = ctff(kap,kap_ctff_val);
 	eps = double(tmp8.prod(SHAPE,epscol,-1,-1));
+	eps = ctff(eps,eps_ctff_val);
 
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	kap_star = double(tmp8.prod(SHAPE,kapcol_star,-1,-1));

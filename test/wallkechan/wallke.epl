@@ -2,8 +2,8 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #
 $L = 1;                         # Semi distance between plates
-$N = 16;                        # Number of elements in 'y' direction
-$hratio = 5;                    # refinement near the wall
+$N = 16;                        # Number of elements in transversal 'x' direction
+$hratio = 20;                    # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
 $Ny = 40;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size in the y direction
@@ -12,11 +12,11 @@ $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
 $turb_prod_coef=1;              # activate/deactivate turbulence production terms
-$uwall_match_len = 1;           # u at the wall is matched to 0 (from the inlet) at
+$uwall_match_len = .3;           # u at the wall is matched to 0 (from the inlet) at
                                 # this distance 
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
-    $Re_l = 5;                 # laminar Re
+    $Re_l = 5;                  # laminar Re
     $Umax = 1;                  # Max vel in the channel
     $Uav = 1.5*$Umax;           # Aver vel 
     $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
@@ -26,15 +26,14 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-    $Re = 4e5;                  # laminar Re
-#    $Re = 0.1;                  # laminar Re
+    $Re = 1e5;                  # laminar Re
     $Uav = 1;
     $nu = $Uav*2*$L/$Re;        # kinematic visc.
     $g = 0;                     # body force
     $y_wall_plus = 50 ;         # non-dim. distance to the wall
     $y_wall = .01;
     $turbulence_coef=1;         # mask turbulence
-    $turb_prod_coef=0;          # mask turbulence production terms
+    $turb_prod_coef=1;          # mask turbulence production terms
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
     $Uwall = 1;                 # half relative velocity of the plates
@@ -65,7 +64,7 @@ maxits 100
 save_file_pattern "outvector%d.out"
 nsaverot 1
 
-#if 0
+#if 1
 initial_state "save.state"
 #elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"
@@ -79,12 +78,14 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 20
+nstep 5
 nnwt 4
 tol_newton 0
 preco_type "lu"
 Dt 0.1
 steady
+kap_ctff_val 1e-3
+eps_ctff_val 1e-3
 #pspg_advection_factor 0.
 #pspg_factor 2.
 
@@ -93,7 +94,7 @@ steady
 #solve_system 0
 #print_dofmap_id
 
-lumped_wallke 1
+lumped_wallke 0
 y_wall_plus <:=$y_wall_plus:>
 y_wall <:=$y_wall:>
 turbulence_coef <:=$turbulence_coef:>

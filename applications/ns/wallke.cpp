@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.12 2001/06/29 20:19:22 mstorti Exp $
+//$Id: wallke.cpp,v 1.13 2001/07/02 14:24:15 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -95,7 +95,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,turbulence_coef,1.);
   //o Use lumped mass matric for the wall element contribution. Avoids
   // oscillations due to ``reactive type'' wall contributions. 
-  SGETOPTDEF(int,lumped_wallke,1);
+  SGETOPTDEF(int,lumped_wallke,0);
 
   SGETOPTDEF(double,viscosity,0.); //o
   PETSCFEM_ASSERT0(viscosity>0.,
