@@ -4,6 +4,7 @@
 #include <libguile.h>
 
 #include <src/dvector.h>
+#include "./dvector2.h"
 
 scm_t_bits TAG;
 
@@ -47,6 +48,21 @@ DVECTOR_RESIZE_FUN(SCM s_w,SCM s_n) {
   int n = SCM_INUM(s_n);
 
   w->resize(n);
+  return SCM_UNSPECIFIED;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
+#define __FUN__ DVTYPE "-reshape!"
+static SCM
+DVECTOR_RESHAPE_FUN(SCM s_w,SCM s_shape) {
+  SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
+              s_w, SCM_ARG1, __FUN__);
+  dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
+  vector<int> shape;
+  scmlist2vec(s_shape,shape);
+  printf("rank %d\n",shape.size());
+  w->reshape(shape);
   return SCM_UNSPECIFIED;
 }
 
@@ -270,6 +286,7 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-push!", 2, 0, 0, scm_fun(DVECTOR_PUSH_FUN));
   scm_c_define_gsubr(DVTYPE "-size", 1, 0, 0, scm_fun(DVECTOR_SIZE_FUN));
   scm_c_define_gsubr(DVTYPE "-resize!", 2, 0, 0, scm_fun(DVECTOR_RESIZE_FUN));
+  scm_c_define_gsubr(DVTYPE "-reshape!", 1, 0, 1, scm_fun(DVECTOR_RESHAPE_FUN));
   scm_c_define_gsubr(DVTYPE "-set!", 3, 0, 0, scm_fun(DVECTOR_SET_FUN));
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: dvectori.cpp,v 1.7 2005/01/16 19:06:05 mstorti Exp $
+// $Id: dvectori.cpp,v 1.8 2005/01/17 02:47:47 mstorti Exp $
 
 #define DV_INT
 #define TYPE int
@@ -20,6 +20,7 @@
 #define DVECTOR_READ_FUN dvint_read_x
 #define DVECTOR_CAT_FUN dvint_cat_x
 #define DVECTOR_DUMP_FUN dvint_dump
+#define DVECTOR_RESHAPE_FUN dvint_reshape
 
 #define INIT_DVECTOR_FUN dvint_init
 
