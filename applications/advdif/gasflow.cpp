@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.19 2005/01/26 18:40:53 mstorti Exp $
+//$Id: gasflow.cpp,v 1.20 2005/01/27 01:49:21 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -96,6 +96,9 @@ void gasflow_ff::start_chunk(int &ret_options) {
     assert(Uref_v.size()==ndof);
     Uref.set(&Uref_v[0]);
     }
+  } else {
+    ierr = elemset->
+      get_double("Uref",*Uref.storage_begin(),1,ndof);
   }
   dUabso.resize(1,ndof);
 
@@ -161,10 +164,12 @@ void gasflow_ff::element_hook(ElementIterator &element) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-gasflow_ff::gasflow_ff(NewElemset *e) : AdvDifFFWEnth(e) {}
+gasflow_ff::gasflow_ff(NewElemset *e) 
+  : AdvDifFFWEnth(e), old_elemset(NULL) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-gasflow_ff::gasflow_ff(Elemset *e) : old_elemset(e) {}
+gasflow_ff::gasflow_ff(Elemset *e) 
+  : old_elemset(e) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 gasflow_ff::~gasflow_ff() { }

@@ -101,7 +101,7 @@ __END_HASH__
 __INCLUDE__ gfabso2dn.con-abso0.tmp
 __END_ELEMSET__
 
-elemset gasflow_abso2 5
+elemset gasflow_abso 5
 dx 0
 normaln <:=$norx:> <:=$nory:>
 __END_HASH__
