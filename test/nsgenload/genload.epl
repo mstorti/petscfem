@@ -33,7 +33,7 @@ preco_type "lu"
 
 steady
 nstep 1
-
+print_dofmap_id
 __END_HASH__
 
 #===========================================================

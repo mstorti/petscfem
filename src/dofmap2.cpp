@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.4 2002/12/22 20:47:52 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.5 2002/12/24 03:32:15 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -66,12 +66,9 @@ void Dofmap::set_constraint(const Constraint &constraint) {
     // gets row
     row_t row;
     it = &(constraint[k]);
-    get_row(it->node,it->field,row); 
-    // Look if row is regular (it doesn't point to other edof's)
-    if (row.size()!=1) continue;
-    row_t::iterator q = row.begin();
     int edoff = edof(it->node,it->field);
-    if (q->first!=edoff) continue;
+    // Look if row is regular (it doesn't point to other edof's)
+    if (col_is_null(edoff)) continue;
     // Update maximum
     double cc=fabs(constraint[k].coef);
     if (!set_flag || cc>cmax) {
@@ -89,8 +86,23 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   for (int k=0; k<length; k++) {
     if (k==jmax) continue;
     it = &(constraint[k]);
-    row0.insert(pair<int,double>(edof(it->node,it->field),-it->coef/coef0));
+    int edoff = edof(it->node,it->field);
+    if (col_is_null(edoff)) {
+      // If new constraint contains references to already eliminated
+      // dof's then eliminate them
+      row_t row_e;
+      get_row(it->node,it->field,row_e); 
+      axpy(row0,-it->coef/coef0,row_e);
+    } else {
+      // If edof has not been eliminated then insert directly in the new row
+      row0.insert(pair<int,double>(edof(it->node,it->field),
+				   -it->coef/coef0));
+    }
   }
+#define DEBUG_ELIM
+#ifdef DEBUG_ELIM
+  print(row0,"row to elim:");
+#endif
   row_set(it0->node,it0->field,row0);
 
   // Now check for recursive contraints, i.e.  Dofs to be eliminated
@@ -153,7 +165,7 @@ void Dofmap::set_constraint(const Constraint &constraint) {
     }
   }
 
-#if 0
+#ifdef DEBUG_ELIM
   // Prints set of edofs to be eliminated for this constraint
   printf("to_elim:");
   for (set<int>::iterator q=to_elim.begin(); 
@@ -213,7 +225,7 @@ void Dofmap::set_constraint(const Constraint &constraint) {
     assert(fabs(Q.get(r,r))>tol);
   }
 
-#if 0
+#ifdef DEBUG_ELIM
   // Print Q and B matrices
   Q.print("Q:");
   for (int k=0; k<nelim; k++) {
