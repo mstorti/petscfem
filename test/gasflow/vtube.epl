@@ -4,7 +4,7 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 
-$closed_tube = 1;		# simulate the tube closed (no inlet/outlet)
+$closed_tube = 0;		# simulate the tube closed (no inlet/outlet)
 $use_tetra = 0;
 $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
@@ -14,15 +14,20 @@ $R0 = 0.047;			# [m] Radius of tube
 $L0 = 0.520;			# [m] Length of tube
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
-$z_ratio = 4;			# refinement in `z' (axial) direction
+$z_ratio = 8;			# refinement in `z' (axial) direction
 $r_ratio = 4;			# refinement in radial direction
 
 $Dz_h = 0.02*$L0;		# [m] Axial span of hot outlet
-$A_in = 3.63e-4;		# [m2] inlet area
-$Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
+if (0) {
+    $A_in = 3.63e-4;		# [m2] inlet area
+    $Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
+} else {
+    $Dz_in = $Dz_h;		# [m] Axial span of inlet
+    $A_in = (2*$PI*$R0)*$Dz_in;	# [m2] inlet area
+}
 
 ## Mesh parameters
-$refine = 4;			# scale all N's by this
+$refine = 3;			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -47,12 +52,14 @@ $gravity = -9.8;		# [m/s2] normal acceleration of gravity
 $rho_in = $p_in/($Rgas*$T_in);	# [kg/m3] density
 $u_rad_in = $mass_flow_in/
     ($A_in*$rho_in);		# [m/s] radial velocity
-$u_circunf_in = 10*$u_rad_in;	# [m/s] tangential velocity
+
+$rho_in = 1;
+$u_rad_in = 0;
+$u_circunf_in = 200;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
-$u_circunf_in = 200;		# [m/s] tangential velocity
 $Re = 1e4;			# [1] Reynolds based on diameter
-$visco   =  $rho_in
+$visco = $rho_in
     *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
@@ -91,7 +98,7 @@ save_file "vtube.state.tmp"
 nsave 1
 
 save_file_pattern "vtube.state_%d.tmp"
-nsaverot 10
+nsaverot 1
 nrec 1
 nfile 100000000
 
@@ -111,12 +118,12 @@ tol_newton 1e-10
 atol 0
 rtol 0
 dtol 1e3
-nnwt 3
+nnwt 2
 # omega_newton 0.01
 
 print_internal_loop_conv
 
-Dt 0.002
+Dt 0.01
 weak_form 0
 temporal_stability_factor 0
 

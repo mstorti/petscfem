@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.4 2003/01/19 20:02:49 mstorti Exp $
+## $Id: mkvtube.m,v 1.5 2003/01/20 01:11:07 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -60,6 +60,9 @@ done = 0;
 nn = rows(x3d);			# total number of nodes
 if axisymm; nn=nn/2; endif	# number of nodes in the first layer
 
+inlets = 0;
+
+n_in=n_h=n_c=n_wall=0;
 for k=1:nn
   if k/rows(x3d) > done+0.1;
     done = done+0.1;
@@ -75,19 +78,26 @@ for k=1:nn
     er = er/l2(er);
     et = [-er(2) +er(1)];
     u = -u_rad_in * er + u_circunf_in * et;
-    if compressible, fprintf(fid,"%d %d    %f\n",k,1,rho_in); endif
+    if inlets && compressible; fprintf(fid,"%d %d    %f\n",k,1,rho_in); endif
     fprintf(fid,"%d %d    %f\n",k,u_dof,u(1));
     fprintf(fid,"%d %d    %f\n",k,u_dof+1,u(2));
     fprintf(fid,"%d %d    %f\n",k,u_dof+2,0);
-  elseif !closed_tube && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
+    n_in = n_in+1;
+  elseif inlets && !closed_tube && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
-  elseif !closed_tube && z(k)<tol && rho(k)<=Rc
+    n_h = n_h+1;
+  elseif inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
+    n_c = n_c+1;
   elseif is_wall
+    n_wall = n_wall+1;
     for l=1:3; fprintf(fid,"%d %d    %f\n",k,u_dof+l-1,0); endfor
   endif
 endfor
 fclose(fid);
+printf(["Nodes at boundary %d, at inlet %d, at hot outlet %d," \
+	" at cold outlet %d, at wall %d\n"],
+       nn,n_in,n_h,n_c,n_wall);
 
 ## axisymmetric constraints
 if axisymm
@@ -113,7 +123,7 @@ endif
 Omega = u_circunf_in/R0;
 nnod = rows(x3d);
 if !compressible, p_in=0; endif
-uini = ones(nnod,4)*diag([0,0,0,p_in]);
+uini = ones(nnod,4)*diag([0,0,0,p_h]);
 uini(:,1:2) = [-Omega*x3d(:,2),+Omega*x3d(:,1)];
 if compressible
   uini = [rho_in*ones(nnod,1) uini];
