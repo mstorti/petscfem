@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.1.2.2 2001/12/20 18:21:55 mstorti Exp $
+//$Id: mmove.cpp,v 1.1.2.3 2001/12/20 18:49:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -33,24 +33,30 @@ void mesh_move::init() {
   assert(nel==ndim+1); // Only for triangles in 2D, tetras in 3D
   J.resize(2,ndim,ndim);
   dNdxi.resize(2,ndim,nel);
-  assert(ndim==2);
-  GGG.ReSize(ndim,ndim);
+
   GG.ReSize(ndim);
   D.ReSize(ndim);
 
-  dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
-  dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,1);
-  dNdxi.setel(+sin(M_PI/3)*cos(M_PI/6),1,2);
-  dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,2);
-  dNdxi.setel(0                       ,1,3);
-  dNdxi.setel(+sin(M_PI/3)            ,2,3);
-
+  if (ndim==2) {
+    dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
+    dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,1);
+    dNdxi.setel(+sin(M_PI/3)*cos(M_PI/6),1,2);
+    dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,2);
+    dNdxi.setel(0                       ,1,3);
+    dNdxi.setel(+sin(M_PI/3)            ,2,3);
+  } else {
+    dNdxi.set(0.);
+    for (int k=1; k<=3; k++) dNdxi.setel(1.,k,k);
+    dNdxi.setel(-1.,1,4);
+    dNdxi.setel(-1.,2,4);
+    dNdxi.setel(-1.,3,4);
+  }
   res_Dir.resize(2,nel,ndim);
   
 }
 
 double mesh_move::distor_fun(FastMat2 & xlocp) {
-  double df,la1,la2,vol,volref;
+  double df,la1,la2,la3,vol,volref;
 
   xlocp.reshape(2,nel,ndim);
   J.prod(xlocp,dNdxi,-1,1,2,-1);
@@ -60,17 +66,22 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
       GG(i,j) = G.get(i,j);
     }
   }
-  //    G.export_vals(GGG);
-  //    GG = GGG;
-  // EigenValues(GG,D);
-  Jacobi(GG,D);
+  EigenValues(GG,D);
   la1 = D(1,1);
   la2 = D(2,2);
+  if (ndim==3) la3 = D(3,3);
 
   volref=1.;
-  vol = la1*la2;
-  df = c_distor * pow((la1-la2)*(la1-la2)/(la1*la2),distor_exp)
-    + c_volume*(vol-volref)*(vol-volref);
+  if (ndim==2) {
+    vol = la1*la2;
+    df = c_distor * pow((la1-la2)*(la1-la2)/(la1*la2),distor_exp)
+      + c_volume*(vol-volref)*(vol-volref);
+  } else {
+    vol = la1*la2*la3;
+    double sum = (la1-la2)*(la1-la2) + (la2-la3)*(la2-la3) + (la1-la3)*(la1-la3);
+    df = c_distor * pow(sum/pow(vol,2./3.),distor_exp)
+      + c_volume*(vol-volref)*(vol-volref);
+  }
   xlocp.reshape(1,nel*ndim);
 
   return df;
