@@ -2,8 +2,8 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 50;			# nbr of elements in x-y dir
-$Ny = 50;
+$Nx = 30;			# nbr of elements in x-y dir
+$Ny = 30;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
 $rho_liq = 1;			# density of liquid
@@ -14,8 +14,8 @@ $KN = 0.6788e-5;
 $Rgas = 8.314;			# Gas const
 $Tgas = 293.0;			# Temperature
 $nu_t = 0.1;			# turbulent viscosity
-$hm_fac = 0.0;			# factor controlling gas-liquid exchange
-$L_inject = 4;			# Length of injection
+$hm_fac = 1.0;			# factor controlling gas-liquid exchange
+$L_inject = 2;			# Length of injection
 $x_inject = 4;			# Position of center of injection
 $u = 0.2;			# lateral velocity
 $rb = 0.01;			# radius of bubble at inlet
@@ -31,10 +31,10 @@ $Nb = $alpha/$vb;		# Nbr of bubbles
 $pgas = $patm + 
      $rho_liq*$gravity*$Ly;	# hydrostatic pressure at bottom
 $C = $patm*$alpha/($Rgas*$Tgas);# Total conc. of gas at bottom
-$CO = $C*$xO_in;		# Conc. of O2 at bottom
-$CN = $C-$CO;			# Conc. of N2 at bottom
-$CdO = $KO*$patm*$xO_in;	# Conc. of O2 diss. at bottom
-$CdN = $KN*$patm*(1.0-$xO_in);	# Conc. of O2 diss. at bottom
+$CO = $C*$xO_in;		# Conc. of O2 inlet
+$CN = $C-$CO;			# Conc. of N2 inlet
+$CdO = $KO*$patm*$xO_in;	# unperturbed conc. of diss O2 
+$CdN = $KN*$patm*(1.0-$xO_in);	# unperturbed conc. of diss N2
 
 $Nb_ctff = $ctff_fac*$Nb;
 $CO_ctff = $ctff_fac*$CO;

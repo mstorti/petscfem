@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.4 2003/11/11 15:41:13 mstorti Exp $
+## $Id: mkmesh.m,v 1.5 2003/11/12 12:47:02 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -24,27 +24,25 @@ for k=1:Ny+1
   for l=1:5
     fprintf(fid,"%f %d %d   %f %d %d\n",-1,nodep,l,+1,node,l);
   endfor
-  fprintf(fid,"%d %d %f\n",node,1,Nb_fac*Nb);
-  fprintf(fid,"%d %d %f\n",node,2,CO);
-  fprintf(fid,"%d %d %f\n",node,3,CN);
-  fprintf(fid,"%d %d %f\n",node,4,CdO);
-  fprintf(fid,"%d %d %f\n",node,5,CdN);
+  fprintf(fidlat,"%d %d %f\n",node,1,Nb_fac*Nb);
+  fprintf(fidlat,"%d %d %f\n",node,2,Nb_fac*CO);
+  fprintf(fidlat,"%d %d %f\n",node,3,Nb_fac*CN);
+  fprintf(fidlat,"%d %d %f\n",node,4,CdO);
+  fprintf(fidlat,"%d %d %f\n",node,5,CdN);
 endfor
 fclose(fid);
 fclose(fidlat);
 
+## Imposed values at bottom
+## Only impose Nb at inlet
 fid = fopen("pool.fixa.tmp","w");
 for k=1:Nx+1
   node = k;
-  Nbb = Nb_fac*Nb;
   if abs(xnod(node,1)-x_inject)<L_inject/2
-    Nbb = Nb;
+    fprintf(fid,"%d %d %f\n",node,1,Nb);
+    fprintf(fid,"%d %d %f\n",node,2,CO);
+    fprintf(fid,"%d %d %f\n",node,3,CN);
   endif
-  fprintf(fid,"%d %d %f\n",node,1,Nbb);
-  fprintf(fid,"%d %d %f\n",node,2,CO);
-  fprintf(fid,"%d %d %f\n",node,3,CN);
-  fprintf(fid,"%d %d %f\n",node,4,CdO);
-  fprintf(fid,"%d %d %f\n",node,5,CdN);
 endfor
 fclose(fid);
 
