@@ -3295,7 +3295,7 @@ tag: beta-3.31.12 on Sat, 25 Sep 2004 06:38:26 -0300 by mstorti in spider
 tag: beta-3.31.13 on Sat, 25 Sep 2004 08:33:17 -0300 by mstorti in spider
      > Runs all tests with g_c++
 ----------
-tag: beta-3.32 on Sat, 25 Sep 2004 13:22:40 -0300 by mstorti in spider
+tag: beta-3.33 on Sat, 25 Sep 2004 13:22:40 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Merged from hydro2-branch
      > Changed MatAssemblybegin() and end()
@@ -3308,18 +3308,7 @@ tag: beta-3.32 on Sat, 25 Sep 2004 13:22:40 -0300 by mstorti in spider
      >    instead of www.cimec.org.ar.
      > Fixed `delayed_flush' problem. 
 ----------
-tag: beta-3.33.1 on Sat, 25 Sep 2004 13:27:53 -0300 by mstorti in spider
-     > Administrative tag.
-----------
-tag: beta-3.33.2 on Sat, 25 Sep 2004 13:34:41 -0300 by mstorti in spider
-     > Changed Version Policy. 
-     > Updated doc/versions-tree.fig'
-----------
-tag: beta-3.33.3 on Sat, 25 Sep 2004 13:58:05 -0300 by mstorti in spider
-     > Removed old makefiles in `./make'. 
-     > Removed `DRH60' compilation flag.
-----------
-tag: beta-3.33.4 on Sat, 25 Sep 2004 20:11:56 -0300 by mstorti in spider
-     > Eliminated totally RH60 compilation flag. 
-     > Added `quiet' flag to `FileStack' class. 
-     > Set FileStack::quiet to 1 in slaves. 
+tag: mpe-0.0.1 on Sat, 25 Sep 2004 20:20:42 -0300 by mstorti in spider
+     > Added all modifications for resolving the 
+     > 	problem of efficiency. 
+     > Also contains modifications to do some basic MPE logging. 
