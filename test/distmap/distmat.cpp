@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.4 2001/08/02 01:52:33 mstorti Exp $
+// $Id: distmat.cpp,v 1.5 2001/08/02 19:50:26 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,7 +12,7 @@
 
 #include <petsc.h>
 
-extern int SIZE, MYRANK, M;
+int SIZE, MYRANK, M;
 
 int proc(int l) { return int((l*SIZE)/M);}
 

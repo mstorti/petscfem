@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.25 2001/08/02 01:54:01 mstorti Exp $
+//$Id: lusubd.cpp,v 1.26 2001/08/02 19:50:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -31,19 +31,6 @@ const int IISDMat::I=1;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int petscfem_null_monitor(KSP ksp,int n,
 			  double rnorm,void *A_) {return 0;}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "int DistMatrix::processor(const DistMatrix::iterator k) const"
-int DistMatrix::processor(const DistMatrix::iterator k) const {
-  const int &row = k->first;
-  const int *startproc = dofmap->startproc;
-  const int *neqproc = dofmap->neqproc;
-  int proc;
-  for (proc = 0; proc < size; proc++) 
-    if (row < startproc[proc]+neqproc[proc]) 
-      return proc;
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -94,6 +81,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
   dofmap = dofmap_;
+  A_LL_other = new DistMatrix(dofmap);
   const int &neq = dofmap->neq;
   
   Node *nodep;
@@ -451,31 +439,31 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
   Row::iterator J,J1,J2;
   int row_indx,col_indx,row_t,col_t;
 
-  A_LL_other.scatter();
+  A_LL_other->scatter();
 
-  I1 = A_LL_other.begin();
-  I2 = A_LL_other.end();
+  I1 = A_LL_other->begin();
+  I2 = A_LL_other->end();
   for (I = I1; I != I2; I++) {
     map_dof(I->first,row_t,row_indx);
     const Row &row = I->second;
     for (J = J1; J != J2; J++) {
       map_dof(J->first,col_t,col_indx);
-      if (row_t == L && col_t == L) {
-	row_indx -= n_locp;
-	col_indx -= n_locp;
-	if (row_indx < 0 || row_indx >= n_loc
-	    || col_indx < 0 || col_indx >= n_loc) {
-	  printf("[%d] LL element not in this proc, \n"
-		 "global/local row: %d/%d, column %d/%d,  n_loc: %d, "
-		 "n_locp: %d\n",MY_RANK,I->first,row_indx,
-		 J->first,col_indx,n_loc,n_locp);
-	  MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
-	}
+      assert (row_t == L && col_t == L);
+      row_indx -= n_locp;
+      col_indx -= n_locp;
+      if (row_indx < 0 || row_indx >= n_loc
+	  || col_indx < 0 || col_indx >= n_loc) {
+	printf("[%d] LL element not in this proc, \n"
+	       "global/local row: %d/%d, column %d/%d,  n_loc: %d, "
+	       "n_locp: %d\n",MY_RANK,I->first,row_indx,
+	       J->first,col_indx,n_loc,n_locp);
+	MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
       } 
+      printf("[%d] debuffering (%d,%d) -> %f\n",I->first,J->first,J->second);
       MatSetValues(A_LL,1,&row_indx,1,&col_indx,&J->second,insert_mode);
     }
   }
-  A_LL_other.clear();
+  A_LL_other->clear();
 
   ierr = MatAssemblyBegin(A_LI,type); CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_II,type); CHKERRQ(ierr);
@@ -551,6 +539,8 @@ void IISDMat::clear() {
 
   ierr = MatDestroy(A); 
   PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
+  delete A_LL_other;
+  A_LL_other = NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -574,14 +564,15 @@ void IISDMat::set_value(int row,int col,Scalar value,
   int row_indx,col_indx,row_t,col_t;
   map_dof(row,row_t,row_indx);
   map_dof(col,col_t,col_indx);
-  int error_code=2;
+  // int error_code=2; ??????????
   if (row_t == L && col_t == L) {
     row_indx -= n_locp;
     col_indx -= n_locp;
     if (row_indx < 0 || row_indx >= n_loc
 	|| col_indx < 0 || col_indx >= n_loc) {
       insert_mode = mode;  
-      A_LL_other.insert_val(row,col,value);
+      printf("[%d] buffering (%d,%d) -> %f\n",row,col,value);
+      A_LL_other->insert_val(row,col,value);
     }
   } 
   MatSetValues(*(AA[row_t][col_t]),

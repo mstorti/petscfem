@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.8 2001/08/02 01:54:01 mstorti Exp $
+// $Id: distmap.h,v 1.9 2001/08/02 19:50:22 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -9,6 +9,14 @@
 #include <mpi.h>
 
 #include <vecmacros.h>
+
+class Partitioner {
+public:
+  virtual ~Partitioner()=0;
+  virtual int epart(int elem) {return 0;};
+  virtual int npart(int node) {return 0;};
+  virtual int dofpart(int node) {return 0;};
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard
@@ -20,9 +28,12 @@ class DistMap : public map<Key,Val> {
  protected:
   /// MPI communicator
   MPI_Comm comm;
+  /// This returns the number of processor for a given dof
+  Partitioner *part;
   /// size and rank in the comunicator
   int size,myrank;
  public:
+  DistMap(Partitioner *p) : part(p) {};
   /** Constructor from a communicator
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.

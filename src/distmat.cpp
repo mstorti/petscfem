@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.2 2001/08/02 01:54:01 mstorti Exp $
+// $Id: distmat.cpp,v 1.3 2001/08/02 19:50:22 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,7 +12,7 @@
 #include <maximizr.h>
 #include <distmat.h>
 
-int SIZE, MYRANK, M;
+Partitioner::~Partitioner() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DistMat::
@@ -36,6 +36,8 @@ pack(const int &k,const Row &row,char *&buff) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void DistMat::unpack(int &,Row &,const char *&)"
 void DistMat::
 unpack(int &k,Row &row,const char *&buff) {
   int n,j,key;
@@ -48,6 +50,24 @@ unpack(int &k,Row &row,const char *&buff) {
     row[key] += val;
   }
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int DistMat::processor(const DistMatrix::iterator ) const"
+int DistMat::processor(const DistMat::iterator k) const {
+  return part->dofpart(k->first);
+}
+#if 0
+int DistMat::processor(const DistMat::iterator k) const {
+  const int &row = k->first;
+  const int *startproc = dofmap->startproc;
+  const int *neqproc = dofmap->neqproc;
+  int proc;
+  for (proc = 0; proc < size; proc++) 
+    if (row < startproc[proc]+neqproc[proc]) 
+      return proc;
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DistMat::
@@ -103,3 +123,16 @@ double DistMatrix::val(int i,int j) {
   }
 }  
 
+DofmapPartitioner::
+DofmapPartitioner(const Dofmap *dfm) :  dofmap(dfm) {};
+
+int DofmapPartitioner::dofpart(int row) {
+  const int *startproc = dofmap->startproc;
+  const int *neqproc = dofmap->neqproc;
+  int proc;
+  for (proc = 0; proc < dofmap->size; proc++) 
+    if (row < startproc[proc]+neqproc[proc]) 
+      return proc;
+}
+
+DofmapPartitioner::~DofmapPartitioner() {};

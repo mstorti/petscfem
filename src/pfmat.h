@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.8 2001/08/02 01:54:01 mstorti Exp $
+// $Id: pfmat.h,v 1.9 2001/08/02 19:50:22 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -206,7 +206,7 @@ class IISDMat : public PFMat {
   /** Here we put all non-local things that are in the loca-local
       block on other processors
   */
-  DistMatrix A_LL_other;
+  DistMatrix *A_LL_other;
   /// The mode we are inserting values
   InsertMode insert_mode;
   /// Auxiliar MPI vector that contains all local dof's
@@ -289,6 +289,7 @@ public:
       @param dx (input) the solution vector
   */ 
   int solve(Vec res,Vec dx);
+  IISDMat() : A_LL_other(NULL) {};
 };
 
 #endif
