@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.15 2002/05/06 21:55:41 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.16 2002/05/07 02:46:32 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -46,6 +46,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			       Dofmap *dofmap,const char *jobinfo,int myrank,
 			       int el_start,int el_last,int iter_mode,
 			       const TimeData *time_) {
+  HPChrono chrono;
 
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
@@ -325,6 +326,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   int computed_elems=0;
+  chrono.start();
+  PetscPrintf(PETSC_COMM_WORLD,"Start chrono...\n");
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     computed_elems++;
@@ -1062,7 +1065,9 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
   }
   PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
-			  "[%d] computed_elems %d\n",MY_RANK,computed_elems);
+			  "[%d] computed_elems %d, elapsed %f, rate %f[secs/Kelem]\n",
+			  MY_RANK,computed_elems,chrono.elapsed(),
+			  chrono.elapsed()/double(computed_elems)*1e3);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();

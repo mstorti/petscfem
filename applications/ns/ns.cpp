@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.78 2002/05/04 23:54:13 mstorti Exp $
+//$Id: ns.cpp,v 1.79 2002/05/07 02:46:32 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -431,7 +431,12 @@ int main(int argc,char **args) {
       }
 
       debug.trace("Before residual computation...");
-      ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
+      HPChrono chrono;
+      chrono.start();
+      ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
+      CHKERRA(ierr);
+      MPI_Barrier(PETSC_COMM_WORLD);
+      PetscPrintf(PETSC_COMM_WORLD,"Elapsed %f\n",chrono.elapsed());
       debug.trace("After residual computation.");
 
 #if 0

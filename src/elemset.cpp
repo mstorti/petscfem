@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.37 2002/05/04 23:56:23 mstorti Exp $
+//$Id: elemset.cpp,v 1.38 2002/05/07 02:46:32 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -366,7 +366,7 @@ int assemble(Mesh *mesh,arg_list argl,
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
   Nodedata *nodedata = mesh->nodedata;
-  HPChrono hpchrono,hpc2;
+  HPChrono hpchrono,hpc2,hpcassmbl;
   Chrono chrono;
   Stat out_of_loop, in_loop, assemble, wait;
 
@@ -374,6 +374,9 @@ int assemble(Mesh *mesh,arg_list argl,
   hpchrono.start();
   //o Debug the process of building the matrix profile. 
   TGETOPTDEF(mesh->global_options,int,debug_compute_prof,0);
+  //o Debug the process of building the matrix profile. 
+  TGETOPTDEF(mesh->global_options,int,report_assembly_time,0);
+  PetscPrintf(PETSC_COMM_WORLD,"report_assembly_time %d\n",report_assembly_time); 
 
   // This is the argument list to be passed to the element routine
   int narg = argl.size();
@@ -517,13 +520,18 @@ int assemble(Mesh *mesh,arg_list argl,
     // that epsilon=1e-7*(typical magnitude of the
     // variable)
     TGETOPTDEF(elemset->thash,double,epsilon_fdj,EPSILON_FDJ);
-
-    // int chunk_size = ELEM_CHUNK_SIZE;
-    // ierr = get_int(elemset->thash,"chunk_size",&chunk_size,1);
+    //o Report consumed time for the elemset. Useful for building
+    // the table of weights per processor. 
+    TGETOPTDEF(elemset->thash,int,report_consumed_time,0);
 
     int local_chunk_size;
     // scaled chunk_size in order to balance processors 
-    local_chunk_size = (int)(chunk_size*dofmap->tpwgts[myrank]/w_max) +1 ;
+    local_chunk_size = 
+      (int)(chunk_size*dofmap->tpwgts[myrank]/w_max) +1;
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "[%d] type %s, chunk_size %d, local_chunk_size %d\n",
+			    MY_RANK,elemset->type,chunk_size,local_chunk_size);
+    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 
     CHKERRQ(ierr);
     // This fixes the 'bug100' bug: If the number of ghost_elements is
@@ -718,7 +726,9 @@ int assemble(Mesh *mesh,arg_list argl,
       hpchrono.start();
   
       for (j=0; j<narg; j++) {
+	
 	if (argl[j].options & ASSEMBLY_MATRIX) {
+	  if (report_assembly_time) hpcassmbl.start();
 	  if (argl[j].options & PFMAT) {
 	    ierr = (ARGVJ.pfA)
 	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
@@ -729,6 +739,12 @@ int assemble(Mesh *mesh,arg_list argl,
 				    MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	    ierr = MatAssemblyEnd(*(ARGVJ.A),
 				  MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	  }
+	  if (report_assembly_time) {
+	    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+				    "[%d] Assembly time %f secs.\n",
+				    MY_RANK,hpcassmbl.elapsed());
+	    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 	  }
 	}
       }
@@ -763,9 +779,6 @@ int assemble(Mesh *mesh,arg_list argl,
       if (global_has_finished) break;
     } // end loop over chunks
 
-    //o Report consumed time for the elemset. Useful for building
-    // the table of weights per processor. 
-    TGETOPTDEF(elemset->thash,int,report_consumed_time,0);
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Performance report for elemset \"%s\" task \"%s\"\n"
