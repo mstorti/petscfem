@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.81 2003/06/08 21:42:01 mstorti Exp $ 
+# $Id: Makefile,v 1.82 2003/07/02 03:36:13 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -56,7 +56,7 @@ fm2eperl.cpp: fmat2ep.cpp prep.pl
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 fm2eperl2$(osfx).o: fm2eperl2.cpp
-fm2eperl2.cpp: fmat2ep2.cpp prep.pl
+fm2eperl2.cpp: fmat2ep2.cpp prep.pl fmat2.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 

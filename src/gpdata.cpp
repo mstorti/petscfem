@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.26 2003/04/01 22:47:19 mstorti Exp $
+//$Id: gpdata.cpp,v 1.27 2003/07/02 03:36:13 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -97,7 +97,7 @@ void cart_prod(int npg,int nel,int nel_lay,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
-	       mat_version_=GP_NEWMAT) {
+	       mat_version_) {
   mat_version = mat_version_;
   npg= npg_;
   int ipg;

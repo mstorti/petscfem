@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fstack.h,v 1.10 2003/02/12 19:32:09 mstorti Exp $
+//$Id: fstack.h,v 1.11 2003/07/02 03:36:13 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -19,6 +19,8 @@
 #include <libretto/darray.h>
 #include <libretto/autostr.h>
 #include <libretto/autobuf.h>
+
+using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Allows reading from a set of files with preprocessing

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.10 2002/12/22 23:09:21 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.11 2003/07/02 03:36:13 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -45,8 +45,8 @@ void dgeev_(const char *jobvl,const char *jobvr,int *n,double *a,int *lda,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 &
-FastMat2::eig(const FastMat2 & A, FastMat2 *VR=NULL, FastMat2 *VL=NULL, 
-	      int crev=0, int clev=0) { 
+FastMat2::eig(const FastMat2 & A, FastMat2 *VR, FastMat2 *VL, 
+	      int crev, int clev) { 
 
   FastMatCache *cache;
 
@@ -60,7 +60,7 @@ if (was_cached) {
 } else {
   cache = new FastMatCache;
   cache_list->push_back(cache);
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
   cache_list->list_size =
     cache_list_size = cache_list->size();
   position_in_cache++;
@@ -214,7 +214,7 @@ extern "C" void dsyev_(const char*jobz,const char *uplo,int *n,double *a,int *ld
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 &
-FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors=1) { 
+FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors) { 
 
   FastMatCache *cache;
 
@@ -228,7 +228,7 @@ if (was_cached) {
 } else {
   cache = new FastMatCache;
   cache_list->push_back(cache);
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
   cache_list->list_size =
     cache_list_size = cache_list->size();
   position_in_cache++;
@@ -346,7 +346,7 @@ if (was_cached) {
 } else {
   cache = new FastMatCache;
   cache_list->push_back(cache);
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
   cache_list->list_size =
     cache_list_size = cache_list->size();
   position_in_cache++;
@@ -378,9 +378,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     if (m<=3) {
       cache->nelems=m*m;
       cache->from_elems.resize(cache->nelems);
-      cache->pfrom=cache->from_elems.begin();
+      cache->pfrom = &*cache->from_elems.begin();
       cache->to_elems.resize(cache->nelems);
-      cache->pto=cache->to_elems.begin();
+      cache->pto = &*cache->to_elems.begin();
       int jj=0;
       Indx indx(2,0);
       for (int j=1; j<=m; j++) {

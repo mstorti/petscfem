@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getarray.cpp,v 1.8 2001/05/30 18:21:53 mstorti Exp $
+//$Id: getarray.cpp,v 1.9 2003/07/02 03:36:13 mstorti Exp $
 
 #include <cstdio>
 #include <ctype.h>
@@ -10,6 +10,8 @@
 
 #include "getarray.h"
 #include "getarrgr.tab.h"
+
+using namespace std;
 
 vector<int> *prop_len;
 vector<string> *prop_name;

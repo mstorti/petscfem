@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.11 2002/09/30 02:30:52 mstorti Exp $
+//$Id: getprop.cpp,v 1.12 2003/07/02 03:36:13 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -31,7 +31,7 @@ void load_props(double *propel,int *elprpsindx,int nprops,double
 #undef __FUNC__
 #define __FUNC__ "get_double"
 int get_double(TextHashTable *thash,const char *name,
-	       double *retval,int defval=0,int n=1) {
+	       double *retval,int defval,int n) {
   if (n==0) return 0;
   const char *value;
   static const char *bsp=" \t";
@@ -70,7 +70,7 @@ int get_double(TextHashTable *thash,const char *name,
 #undef __FUNC__
 #define __FUNC__ "get_int"
 int get_int(TextHashTable *thash,const char *name,
-	       int *retval,int defval=0,int n=1) {
+	       int *retval,int defval,int n) {
   if (n==0) return 0;
   const char *value; 
   static const char *bsp=" \t";
@@ -138,7 +138,7 @@ int get_string_from_string(string &buf,string &ret) {
 #undef __FUNC__
 #define __FUNC__ "get_string"
 int get_string(TextHashTable *thash,const char *name,
-	       string &ret,int defval=0,int n=1) {
+	       string &ret,int defval,int n) {
   if (n==0) return 0;
   const char *value_;
   int k;

@@ -1,5 +1,5 @@
 # -*- mode: C++ -*-
-# $Id: fmat2.pl,v 1.1 2002/11/28 15:13:25 mstorti Exp $
+# $Id: fmat2.pl,v 1.2 2003/07/02 03:36:13 mstorti Exp $
 $cache_op=<<'//EOF';
 FastMatCache *cache;
 
@@ -13,7 +13,7 @@ if (was_cached) {
 } else {
   cache = new FastMatCache;
   cache_list->push_back(cache);
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
   cache_list->list_size =
     cache_list_size = cache_list->size();
   position_in_cache++;

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.26 2003/07/02 02:32:47 mstorti Exp $
+//$Id: fastmat2.h,v 1.27 2003/07/02 03:36:13 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -1161,8 +1161,7 @@ private:
   /// dimensions
   DimArray dims;
   /// Pointer to dims, as an array
-  // IndexFilter *dims_p;
-  DimArray::iterator dims_p;
+  IndexFilter *dims_p;
   /// Size of dims array
   int n_dims;
   /// Permutation of indices(transposing)
@@ -1182,8 +1181,7 @@ private:
   /// Position in cache\_list
   static int position_in_cache;
   /// begin of cache\_list
-  // static FastMatCache **cache_list_begin;
-  static vector<FastMatCache*>::iterator cache_list_begin;
+  static FastMatCache **cache_list_begin;
   /// size of cache list
   static int cache_list_size;
   /// Use cache?

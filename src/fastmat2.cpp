@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.16 2003/07/02 02:32:47 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.17 2003/07/02 03:36:13 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -29,7 +29,7 @@ void FastMat2::branch(void) {
   } else {
     cache = new FastMatCache;
     cache_list->push_back(cache);
-    cache_list_begin = cache_list->begin();
+    cache_list_begin = &*(cache_list->begin());
     cache_list->list_size =
       cache_list_size = cache_list->size();
 #ifdef FM2_CACHE_DBG
@@ -78,7 +78,7 @@ void FastMat2::choose(const int j) {
   cache_list = cache->branch[j];
 
   was_cached = cache_list->list_size > 0;
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*(cache_list->begin());
   position_in_cache = 0;
 #ifdef FM2_CACHE_DBG
     printf("was_cached: %d\n",was_cached);
@@ -101,7 +101,7 @@ void FastMat2::leave(void) {
   position_in_cache = last_pos->second+1;
   //was_cached = cache_list->size() > position_in_cache;
   was_cached = cache_list->list_size > position_in_cache;
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
 #ifdef FM2_CACHE_DBG
   printf(", resuming at cache_list %p, position %d, was_cached: %d\n",
 	 cache_list,position_in_cache,was_cached);
@@ -127,7 +127,7 @@ void FastMat2::jump_to(FastMatCachePosition &pos) {
   position_in_cache = pos.second;
   //was_cached = cache_list->size() > position_in_cache;
   was_cached = cache_list->list_size > position_in_cache;
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
 #ifdef FM2_CACHE_DBG
   printf(", resuming at cache_list %p, position %d, was_cached: %d\n",
 	 cache_list,position_in_cache,was_cached);
@@ -157,8 +157,7 @@ int FastMat2::use_cache = 0;
 int FastMat2::was_cached = 0;
 int FastMat2::was_cached_save = 0;
 int FastMat2::position_in_cache=0;
-// FastMatCache **FastMat2::cache_list_begin=NULL;
-vector<FastMatCache*>::iterator cache_list_begin(NULL);
+FastMatCache **FastMat2::cache_list_begin=NULL;
 int FastMat2::cache_list_size;
 vector<FastMatCachePosition> FastMat2::cache_list_stack;
 OperationCount FastMat2::op_count;
@@ -181,7 +180,7 @@ void FastMat2::reset_cache(void) {
 	   cache_list->size(), cache_list->list_size);
 #endif
     position_in_cache = 0; 
-    cache_list_begin = cache_list->begin();
+    cache_list_begin = &*cache_list->begin();
   }
 }
 
@@ -211,7 +210,7 @@ void FastMat2::activate_cache(FastMatCacheList *cache_list_) {
   if (cache_list_!=NULL) {
     cache_list = cache_list_root = cache_list_;
     position_in_cache = 0;
-    cache_list_begin = cache_list->begin();
+    cache_list_begin = &*cache_list->begin();
   } else {
     was_cached=was_cached_save;
   }
@@ -219,16 +218,14 @@ void FastMat2::activate_cache(FastMatCacheList *cache_list_) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void purge_cache_list(FastMatCacheList *cache_list) {
-  // FastMatCache **cache_list_begin,*cache;
-  vector<FastMatCache*>::iterator cache_list_begin;
-  FastMatCache *cache;
+  FastMatCache **cache_list_begin,*cache;
   FastMatCacheList cl;
   if (!cache_list) return;
 #ifdef FM2_CACHE_DBG
   printf(" ---> purging cache_list %p\n",cache_list);
 #endif
   int size=cache_list->size();
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
   for (int j=0; j<size; j++) {
     cache = *(cache_list_begin + j);
 #ifdef FM2_CACHE_DBG
@@ -341,7 +338,7 @@ FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS_ND) {
   perm = Perm(ndims);
   set_indx = Indx(ndims,0);
   dims.resize(ndims);
-  dims_p = dims.begin();
+  dims_p = &*dims.begin();
   n_dims = ndims;
   IndexFilter pp;
   for (int jd=0; jd<ndims; jd++) {
@@ -418,7 +415,7 @@ void FastMat2::create_from_indx(const Indx & dims_) {
     perm[jd] = jd;
   }
   n_dims = ndims;
-  dims_p = dims.begin();
+  dims_p = &*dims.begin();
   define_matrix();
 }
 
