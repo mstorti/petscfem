@@ -1,0 +1,23 @@
+# The following example describes an irregular grid. Note that the values
+# of the "positions" component and "connections" component are irregular,
+# and so must be enumerated.
+#
+# The irregular positions, which are ... three-dimensional points.
+object 1 class array type float rank 1 shape 3 items 1331 data file stabi.nod.tmp
+
+# The irregular connections, which are tetrahedra
+object 2 class array type int rank 1 shape 4 items 5000 data file stabi.con-tet.tmp
+
+attribute "element type" string "tetrahedra"
+attribute "ref" string "positions"
+# The data, which is in a one-to-one correspondence with the positions
+object 3 class array type float rank 0 items 1331 data file pp.tmp
+
+attribute "dep" string "positions"
+# the field, with three components: "positions", "connections", and
+# "data"
+object "irregular positions irregular connections" class field
+component "positions" value 1
+component "connections" value 2
+component "data" value 3
+end
