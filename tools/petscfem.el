@@ -39,6 +39,8 @@
     ("^\\w+\\>" . font-lock-variable-name-face)
     ("^__\w*__\\>" . font-lock-keyword-face)
     ("<:.*?:>" . font-lock-warning-face)
+    ("^>>\\(if\\|elsif\\|endif\\|else\\)\\>" . font-lock-warning-face)
+;;    ("\#if" . font-lock-warning-face)
     font-lock-keyword-face
     )
   "Basic colorization scheme for PETSc-FEM. ")
