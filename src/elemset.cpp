@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.42 2002/07/13 20:32:25 mstorti Exp $
+//$Id: elemset.cpp,v 1.43 2002/08/07 23:11:35 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -972,4 +972,18 @@ int NewElemset::get_vec_double(const char *name,
   if (!value ) return 0;
   read_double_array(retval,value);
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Elemset *Mesh::find(const string &name) {
+  int nelemsets = da_length(elemsetlist);
+  Elemset *vol_elem = NULL;
+  for (int k=0; k<nelemsets; k++) {
+    Elemset *e = *(Elemset **) da_ref(elemsetlist,k);
+    if (!strcmp(e->name(),name.c_str())) {
+      vol_elem = e;
+      break;
+    }
+  }
+  return vol_elem;
 }

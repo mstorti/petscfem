@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.24 2001/10/02 19:31:23 mstorti Exp $
+//$Id: fem.h,v 1.25 2002/08/07 23:11:35 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -346,6 +346,7 @@ public:
   int nnod,ndim,nu;
 };
 
+class Elemset;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Contains a list of the elemsets, node information and a hash table
     of global options. 
@@ -356,9 +357,14 @@ public:
 */ 
 class Mesh {
 public:
+  /// The list of elemsets
   Darray *elemsetlist;
+  /// The array of nodes
   Nodedata *nodedata;
+  /// The option table
   TextHashTable *global_options;
+  /// Finds an elemset give its name
+  Elemset *find(const string &name);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.10 2002/08/07 19:43:19 mstorti Exp $
+//$Id: embgath.cpp,v 1.11 2002/08/07 23:11:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,44 +13,62 @@ extern Mesh *GLOBAL_MESH;
 extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Contains the three non-trivial face orientations. All
+    other may be obtained by reflections ad rotations. */
 const int Quad2Hexa::faces[][8] = {
   0,1,2,3,4,5,6,7,
   1,5,6,2,0,4,7,3,
   0,4,5,1,3,7,6,2};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Surf2Vol::map_mask(const int *map_fc,int *vicorow) {
+/** Remaps the volume connectivity #vol_conn# so that the face
+    is in a standard position. 
+    @param surf_map (input) the nodes of the volume element
+    that are on the face. 
+    @param vol_conn (input/output) the connectivity of the
+    volume element. Is remapped so that the face is in a
+    standard position. 
+*/ 
+void Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
   int nel_surf, nel_vol, nf = nfaces(nel_surf,nel_vol);
   int match=0;
   const int *fc, *vol;
+  // Loop over all face orientation posibilities until
+  // one of them matches
   for (int f=0; f<nf; f++) {
     face(f,fc,vol);
     match = 1;
     for (int l=0; l<nel_surf; l++) {
-      if (map_fc[l] != fc[l]) {
+      if (surf_map[l] != fc[l]) {
 	match=0;
 	break;
       }
     }
     if (match) break;
   }
+  // Verify that one of the oientations must match
   assert(match);
-  vector<int> vicorow_c(nel_vol);
-  for (int j=0; j<nel_vol; j++) vicorow_c[j] = vicorow[vol[j]];
-  for (int j=0; j<nel_vol; j++) vicorow[j] = vicorow_c[j];
+  // Remap volume connectivity
+  vector<int> vol_conn_c(nel_vol);
+  for (int j=0; j<nel_vol; j++) vol_conn_c[j] = vol_conn[vol[j]];
+  for (int j=0; j<nel_vol; j++) vol_conn[j] = vol_conn_c[j];
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) { 
-  int spin,rota,k,m;
+  // Changes quad numbering orientation. 
   int spin_map[] = {0,3,2,1};
+  // Splits face number j into a triplet: spin(0/1) - rota (0-3) - k (0-2)
+  int spin,rota,k,m;
   spin = modulo(j,2,&m);
   rota = modulo(m,4,&k);
+  // Construct volume connectivity corresponding to k/rota
   for (int l=0; l<4; l++) {
     int ll = modulo(l+rota,4);
     vol[l] = faces[k][ll];
     vol[l+4] = faces[k][ll+4];
   }
+  // Change orientation if needed. 
   if (spin) {
     for (int l=0; l<4; l++) {
       vol_r[l] = vol[4+spin_map[l]];
@@ -59,6 +77,8 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
     vol_ret = vol_r;
   } else vol_ret = vol;
 
+  // Face are the first 4 nodes.
+  // Rotate depending on `use_exterior_normal'
   for (int k=0; k<4; k++) 
     this_face[k] = (use_exterior_normal() ? 
 		    vol_ret[spin_map[k]] : vol_ret[k]);
@@ -66,7 +86,15 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Surf2Vol::Surf2Vol(const char *geom,int ndim,int nel,
+		   int npg,int mat_version=GP_NEWMAT,
+		   int use_exterior_normal_a=0) 
+  : GPdata(geom,ndim,nel,npg,mat_version),
+    use_exterior_normal_m(use_exterior_normal_a) {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
+  // Only accepts the `gather' jobinfo. 
   skip_elemset = 1;
   DONT_SKIP_JOBINFO(gather);
   return 0;
@@ -74,27 +102,22 @@ int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void embedded_gatherer::initialize() {
+  // For each face element, finds the volume element
   int ierr;
-  //o The name of the friend volume elemset
+  //o The name of the volume elemset where to find
+  // the volume element.
   TGETOPTDEF_S(thash,string,volume_elemset,);
 
-  assert(volume_elemset.size()>0);
+  // Verifiy that the elemset name was given
+  PETSCFEM_ASSERT0(volume_elemset.size()>0,
+		   "embedded_gatherer: volume element name not given\n");
   int nelemsets = da_length(GLOBAL_MESH->elemsetlist);
-  Elemset *vol_elem = NULL;
-  for (int k=0; k<nelemsets; k++) {
-    Elemset *e = *(Elemset **) da_ref(GLOBAL_MESH->elemsetlist,k);
-    if (!strcmp(e->name(),volume_elemset.c_str())) {
-      vol_elem = e;
-      break;
-    }
-  }
-  if (!vol_elem) {
-    PetscPrintf(PETSC_COMM_WORLD,
-		"embedded_gatherer: Couldn't find volume_elemset = %s\n",
-		volume_elemset.c_str());
-    PetscFinalize();
-    exit(0);
-  }
+
+  // Find volume elemset
+  Elemset *vol_elem = GLOBAL_MESH->find(volume_elemset);
+  // Verifiy that the elemset was found
+  PETSCFEM_ASSERT(vol_elem,"Can't find volume element name: %s\n",
+		  volume_elemset.c_str())
 
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
@@ -309,7 +332,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       detJaco = mydetsur(Jacosur,n);
       Jaco.rs();
       n.scale(1./detJaco);
-      n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
+      // n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
 
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
@@ -343,6 +366,21 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void visc_force_integrator::init() {
+  int ierr;
+  //o Dimension of the embedding space
+  TGETOPTNDEF(thash,int,ndim,none);
+  compute_moment = (gather_length==2*ndim);
+  force.resize(1,ndim);
+  moment.resize(1,ndim);
+  x_center.resize(1,ndim).set(0.);
+  dx.resize(1,ndim);
+  //o _T: double[ndim] _N: moment_center _D: null vector 
+  // _DOC: Center of moments. _END
+  get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void visc_force_integrator
 ::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
@@ -354,7 +392,6 @@ void visc_force_integrator
   // export forces to return vector
   force.export_vals(pg_values.begin());
 
-#if 0
   if (compute_moment) {
     // Position offset of local point to center of moments
     dx.set(xpg).rest(x_center);
@@ -362,15 +399,7 @@ void visc_force_integrator
     moment.cross(force,dx);
     // export forces to return vector
     moment.export_vals(pg_values.begin()+ndim_m);
-#if 0
-#define SHM(name) name.print(#name ": ")
-    SHM(xpg);
-    SHM(dx);
-    SHM(force);
-    SHM(moment);
-#endif
   }
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

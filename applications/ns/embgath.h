@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.7 2002/08/07 22:02:48 mstorti Exp $
+//$Id: embgath.h,v 1.8 2002/08/07 23:11:32 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -27,11 +27,9 @@ public:
       oriented so that the normal to it points towards the interior or
       the exterior of the exterior of the volume element. 
   */
-  Surf2Vol(const char *geom,int ndim,int nel,
-	   int npg,int mat_version=GP_NEWMAT,
-	   int use_exterior_normal=0) 
-    : GPdata(geom,ndim,nel,npg,mat_version),
-  use_exterior_normal_m(use_exterior_normal_a) {}
+  Surf2Vol(const char *geom,int ndim,int nel,int npg,
+	   int mat_version=GP_NEWMAT,int use_exterior_normal=0);
+
   /** @name Call back functions. 
   */ 
   //@{
@@ -143,7 +141,7 @@ public:
   /** Number of surface nodes, desired number of
       nodes in the volume element. */
   virtual void surface_nodes(int &nel_surf,int &nel_vol)=0;
-  /// Called \textbf{before} the element loop. 
+  /// Called \emph{before} the element loop. 
   virtual void init() { }
 
   /** Called for each element, \emph{before} the Gauss point loop. 
@@ -177,8 +175,14 @@ public:
 class visc_force_integrator : public embedded_gatherer { 
 private:
   /// Auxiliary matrix, contains the force on the Gauss point. 
-  FastMat2 force;
+  FastMat2 force, moment, x_center, dx;
+  /// Flag to compute moments or not, number of dimensions
+  int compute_moment, ndim_m;
+  /// Viscosity
+  double viscosity;
 public:
+  /// Get dimension number, define #compute_moment#, viscosity
+  void init();
   /** Adds force (pressure+viscous) for a given Gauss point. 
       @param (input)
       @return a reference to the matrix.
