@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.54.2.1 2001/12/20 02:32:24 mstorti Exp $
+//$Id: ns.cpp,v 1.54.2.2 2001/12/20 18:21:55 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -592,6 +592,7 @@ int main(int argc,char **args) {
 #endif
       update_mesh(dx,dofmap,mesh,displ_factor);
       write_mesh("remeshing.dat",dofmap,mesh,1);
+      write_mesh("lastmesh.dat",dofmap,mesh,0);
 
 #if 0
       ierr = VecView(x,VIEWER_STDOUT_WORLD); CHKERRA(ierr);
