@@ -1,6 +1,6 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
-$N = 20; 
+$N = 10; 
 $nnod = ($N+1)**3; 
 $nelem = $N**3*5;
 $nfaces = $nelem*4;

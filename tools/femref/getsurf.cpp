@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.15 2005/01/14 21:01:21 mstorti Exp $
+// $Id: getsurf.cpp,v 1.16 2005/01/14 23:26:26 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -31,45 +31,17 @@ typedef multimap<int,FaceIterator> face_table_t;
 typedef pair<int,FaceIterator> ft_pair_t;
 
 extern "C"
-void getsurf() {
+void getsurf(SCM s_iconef,SCM s_xnodf, SCM s_statef,
+	     SCM s_sconf, SCM s_graduf, SCM s_base) {
 
-  const char *iconef = NULL, *xnodf = NULL, 
-    *statef = NULL, *sconf = NULL, *graduf = NULL;
-  int base=0, nread; 
+  const char *iconef = SCM_STRING_CHARS(s_iconef);
+  const char *xnodf  = SCM_STRING_CHARS(s_xnodf);
+  const char *statef = SCM_STRING_CHARS(s_statef);
+  const char *sconf = SCM_STRING_CHARS(s_sconf);
+  const char *graduf = SCM_STRING_CHARS(s_graduf);
+  int base = SCM_INUM(s_base);
+  int nread; 
   char c;
-#if 0
-  while ((c = getopt (argc, argv, "b:c:x:u:s:g:")) != -1) {
-    switch (c) {
-    case 'b':
-      nread = sscanf(optarg,"%d",&base);
-      assert(nread==1);
-      break;
-    case 'c':
-      iconef = optarg;
-      break;
-    case 'x':
-      xnodf = optarg;
-      break;
-    case 'u':
-      statef = optarg;
-      break;
-    case 's':
-      sconf = optarg;
-      break;
-    case 'g':
-      graduf = optarg;
-      break;
-    default:
-      abort ();
-    }
-  }
-#else
-  iconef = "./cube.con.tmp";
-  xnodf = "./cube.nod.tmp";
-  statef = "./cube.state.tmp";
-  sconf = "cube.surf-con.tmp";
-  graduf = "cube.grad-u.tmp";
-#endif
 
   assert(xnodf);
   assert(iconef);
@@ -369,5 +341,5 @@ void getsurf() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" void
 init_femref(void) {
-  scm_c_define_gsubr("getsurf",0,0,0,scm_fun(getsurf));
+  scm_c_define_gsubr("getsurf",6,0,0,scm_fun(getsurf));
 }

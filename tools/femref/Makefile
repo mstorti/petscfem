@@ -73,21 +73,25 @@ cube:
 	make-depl cube.dx.epl cube2.dx
 
 getsurf:
+ifeq (1,0)
 	$(GETSURF) -b 1 -x ./cube.nod.tmp	\
 	-c ./cube.con.tmp -u ./cube.state.tmp	\
 	-s cube.surf-con.tmp -g cube.grad-u.tmp
+else
+	guile -s femref.scm
+endif
 
-ifeq (1,0)
+ifeq (1,1)
 # LD_LIBRARY_PATH += ../../src/libpetscfem_g.a
 libfemref.so: getsurf.o $(CPP_FILES:=.o)
 	${CXX_CLINKER} -g -shared				\
 		-o $@ getsurf.o $(CPP_FILES:=.o)		\
-		$(EFN_LDFLAGS) `guile-config link` -lstdc++
+		`guile-config link` $(LDFLAGS_NO_PROG_LIB)
 else
 libfemref.so: getsurf2.o
-	${CXX_CLINKER} -g -shared -Wl$(EFN_LIBRARY_PATH)	\
-		-o $@ getsurf2.o  $(EFN_LDFLAGS)	\
-		`guile-config link`
+	${CXX_CLINKER} -g -shared			\
+		-o $@ getsurf2.o `guile-config link`	\
+		$(LDFLAGS_NO_PROG_LIB)
 endif
 
 yuv_compress:
