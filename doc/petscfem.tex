@@ -1,14 +1,28 @@
 %__INSERT_LICENSE__
-\documentclass[dvips,a4paper,11pt]{article} 
+\documentclass[a4paper,11pt]{article} 
 %
 %Section{
+\newif\ifpdf 
+\ifx\pdfoutput\undefined
+  \pdffalse % we are not running PDFLaTeX 
+%<: } :>
+  \usepackage[dvips]{graphicx}
+%<: if (! $plain ) {:>
+  \def\EPSPDF{eps}
+\else
+  \pdfoutput=1 % we are running PDFLaTeX 
+  \pdftrue 
+  \usepackage[pdftex]{graphicx} \pdfcompresslevel=9
+  \def\EPSPDF{pdf}
+\fi
 %\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
-\usepackage[dvips]{graphicx}
-\usepackage[dvips]{changebar}
+%\usepackage[dvips]{graphicx}
+%\usepackage[dvips]{changebar}
 \usepackage{html,htmllist,heqn}
 \usepackage{algorithm,algorithmic}
 \usepackage{amsmath,alltt,mstorti,moreverb,url}
+\usepackage{hyperref,nameref}
 %
 \scrollmode
 \sloppy
@@ -110,7 +124,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.tex,v 1.18 2001/05/26 17:00:35 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.tex,v 1.19 2001/05/26 22:18:30 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc

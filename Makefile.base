@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.31 2001/05/26 20:54:32 mstorti Exp $
+#$Id: Makefile.base,v 1.32 2001/05/26 22:20:11 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -183,3 +183,5 @@ endif
 OMKFLS = $(PETSCFEM_DIR)/Makefile.base
 
 #w Prints all main targets for 'make' along with a brief description
+what:
+	@$(PETSCFEM_DIR)/tools/makewhat.pl -s Makefile $(OMKFLS)

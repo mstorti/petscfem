@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.17 2001/05/26 17:00:34 mstorti Exp $
+#$Id: Makefile,v 1.18 2001/05/26 22:18:30 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
-all: latex index.html html ps readme eps
+all: latex index.html html ps pdf readme eps
 
 #p [in doc/Makefile]
 #s Main targets
@@ -27,6 +27,9 @@ uncomment:
 #w make petscfem.ps.gz, manual.ps.gz
 ps: petscfem.ps.gz manual.ps.gz
 
+#w make PDF
+pdf: petscfem.pdf
+
 #w Makes PS version of the guide
 #e petscfem.ps.gz
 
@@ -39,6 +42,9 @@ petscfem.ps: petscfem.dvi
 
 petscfem.dvi: *.tex
 	$(MAKE) latex
+
+petscfem.pdf: latex *.tex
+	pdflatex petscfem
 
 manual.ps.gz: force
 	$(MAKE) -C manual ps
@@ -61,11 +67,13 @@ manual_html:
 
 #w process LaTeX on reference
 latex: force eps odoc
-	latex petscfem
-	-bibtex petscfem
-	-makeindex petscfem.idx
-	latex petscfem
-	latex petscfem
+	for j in 1 2 3 4 ; \
+	do echo "On run $$j -------------------------------" ; \
+		latex petscfem ; \
+		bibtex petscfem ; \
+		makeindex petscfem.idx ; \
+		if ! grep 'LaTeX Warning: .* Rerun ' petscfem.log ; then break ; fi ; \
+	done
 
 #w make .eps version of the figures
 eps:
@@ -116,13 +124,13 @@ CLEAN_DIRS = manual OBJ
 
 local_clean:: local_dist_clean
 	-rm -rf *.ps.gz index petscfem icons index.html index.css \
-		version.tex
+		version.tex *.pdf
 
 #w Clean leaving PS and HTML
 local_dist_clean::
 	-putex
 	-rm -rf tz*.tex .*.db \
-              pod2html-{dir,item}cache
+              pod2html-{dir,item}cache petscfem.out
 
 fm2ex.cpp: ../test/testfm2c.cpp
 	eperl -B '//<' -E '//>' $< > $@
