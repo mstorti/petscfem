@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.47 2002/02/13 16:21:21 mstorti Exp $ 
+# $Id: Makefile,v 1.44.2.1 2002/02/16 15:31:18 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -34,31 +34,23 @@ TAGFLAGS =
 
 include $(PETSCFEM_DIR)/Makefile.base
 
-LIBPETSCFEM := libpetscfem_$(opt_level).a
+all: libpetscfem.a
 
-all: compile
+compile:  libpetscfem.a
 
-compile:  $(LIBPETSCFEM)
-
-$(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
+libpetscfem.a: libpetscfem.a($(LIBOBJS))
 	ranlib $@
 
-$(LIBPETSCFEM)(%.o): %.o
-#	If object does not have the appropriate debugging level recompile
-#	[ OK. This is very tricky... I don't know the portability of this ]
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
-		> /dev/null ; then						\
-		obj_optl='O' ;							\
-		else								\
-		obj_optl='g' ;							\
-	fi ;									\
-	if [ ! "x$(opt_level)"="x$$obj_optl" ] ; then				\
-		echo "OptLevelCheck: object $< does not match optimization "	\
-				"level BOPT: $(BOPT)" ;				\
-		rm $< ;								\
-		$(MAKE) $< ;							\
-	fi ;									\
+libpetscfem.a(%.o): %.o
 	ar ru $@ $<
+
+#libpetscfem($(LIBOBJS)): $(LIBOBJS)
+#libpetscfem.a: $(LIBOBJS)
+#	ar -ru $@ $(LIBOBJS)
+#	ranlib $@
+
+#spline.o: spline.f
+#	g77 -c $(FFLAGS) -O0 $<
 
 .SECONDARY: fm2eperl.cpp
 
@@ -93,8 +85,11 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 # measperf.o: measperf.cpp
 #	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
+debug.o pfmat.o : CCPPFLAGS += -O0
+
 local_clean:: local_dist_clean
-	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
+	-rm -f version.cpp libpetscfem.a # &> /dev/null
+
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	eperl readlist.eperl > readlist.h
@@ -142,6 +137,3 @@ $(DOC_DIR)/odocelems.tex: elemset.cpp
 
 $(DOC_DIR)/odocrmsh.tex: readmesh.cpp
 	$(run_odoc)
-
-pp:
-	echo $(LIBPETSCFEM)
