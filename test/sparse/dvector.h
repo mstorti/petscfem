@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.1 2002/07/21 13:02:14 mstorti Exp $
+// $Id: dvector.h,v 1.2 2002/07/21 13:26:53 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 
@@ -147,12 +147,6 @@ public:
   void resize(int new_size) { resize(new_size,T()); }
   /// Resizes to null size.
   void clear(void) { shrink(0); }
-  /**  Sort the elements in range #first#, #last-1#. 
-       Uses ``heap-sort'' algorithm. 
-       @param first (input) first position in range to be sorted
-       @param last (input) past to the end position in range to be sorted
-  */  
-  int (const T &t,int first=0, int last=-1) {
   /** Binary search algorithm. Finds #t# in the range #first# to
       #last-1#.  
       @param t (input) element to find
@@ -181,12 +175,16 @@ public:
       @return true/false if the element is or is not in the vector. 
   */ 
   int find(const T &t,int first=0, int last=-1) {
-    return find(t,first,last)!=last;
+    int lastt;
+    lastt = (last==-1 ? size() : last);
+    int indx = bsearch(t,first,lastt);
+    return indx!=lastt && ref(indx)==t;
   }
-  /** 
-      @param (input)
-      @return a reference to the matrix.
-  */ 
+  /**  Sort the elements in range #first#, #last-1#. 
+       Uses ``heap-sort'' algorithm. 
+       @param first (input) first position in range to be sorted
+       @param last (input) past to the end position in range to be sorted
+  */  
   void sort(int first=0, int last=-1) {
     if (last==-1) last=size();
     int i, j, n = last-first;
