@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.203 2004/09/24 20:44:20 mstorti Exp $
+#$Id: Makefile.base,v 1.204 2004/09/25 16:57:47 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -92,10 +92,6 @@ endif
 CFLAGS	         =
 FFLAGS	         = 
 
-ifdef RH60
-   RH60 = -DRH60
-endif
-
 BISON = bison -d
 
 ifeq ($(TAGINCL),)
@@ -109,7 +105,7 @@ include ${PETSC_DIR}/bmake/common/base
 endif
 
 # here goes -frepo if needed
-# CPPFLAGS         := -frepo $(PROF_FLAGS) $(RH60)
+# CPPFLAGS         := -frepo $(PROF_FLAGS)
 
 ifeq ($(LIBRETTO_I),)
 LIBRETTO_INCLUDE_FLAGS = 
@@ -118,7 +114,7 @@ LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_I)
 endif
 
 CPPFLAGS         := 					\
-		 $(PROF_FLAGS) $(RH60)			\
+		 $(PROF_FLAGS)        			\
 		 -Wno-deprecated			\
                  -I$(PETSC_DIR)/include			\
                  -I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\

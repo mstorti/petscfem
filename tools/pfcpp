@@ -1,32 +1,20 @@
 #!/bin/bash
 #__INSERT_LICENSE__
-#$Id: pfcpp,v 1.4 2001/11/15 02:49:01 mstorti Exp $
+#$Id: pfcpp,v 1.5 2004/09/25 16:57:57 mstorti Exp $
 
 TMP=./pfcpp_temp.cpp
-#  if [ -f $TMP ] 
-#  	then exit 1
-#  fi
+
 cat > $TMP
-g++ -C -E -DRH60 \
-    -I$PETSCFEM_DIR \
-    -I$HOME/PETSC/petsc-2.0.24/include \
-    -I$HOME/PETSC/petsc-2.0.24/bmake/linux \
-    -I/usr/local/mpi/include -I/usr/lib/glib/include \
-    -I/usr/include/glib-1.2 \
-    -I$HOME/SOFT/NEWMAT/src -I$HOME/SOFT/metis-4.0/Lib \
+
+g++ -C -E						    \
+    -I$PETSCFEM_DIR					    \
+    -I$HOME/PETSC/petsc-2.0.24/include			    \
+    -I$HOME/PETSC/petsc-2.0.24/bmake/linux		    \
+    -I/usr/local/mpi/include -I/usr/lib/glib/include	    \
+    -I/usr/include/glib-1.2				    \
+    -I$HOME/SOFT/NEWMAT/src -I$HOME/SOFT/metis-4.0/Lib	    \
     -I../src -I$HOME/SOFT/meschach-1.2 -I/usr/local/include \
-    -I$HOME/PETSC/ann_0.2/include \
-    -I$PETSCFEM_DIR/src \
-    -I$HOME/SOFT/SuperLU \
+    -I$HOME/PETSC/ann_0.2/include			    \
+    -I$PETSCFEM_DIR/src					    \
+    -I$HOME/SOFT/SuperLU				    \
     $TMP
-
-#  echo command: g++ -C -E -DRH60 -I$HOME/PETSC/petsc-2.0.24/include \
-#  -I$HOME/PETSC/petsc-2.0.24/bmake/linux \
-#  -I/usr/local/mpi/include -I/usr/lib/glib/include \
-#  -I$HOME/SOFT/NEWMAT/src -I$HOME/SOFT/metis-4.0/Lib \
-#  -I../src -I$HOME/SOFT/meschach-1.2 -I/usr/local/include \
-#  -I$HOME/PETSC/ann_0.2/include \
-#  -I$PETSCFEM_DIR/src -I./ \
-#  $TMP
-
-#rm $TMP

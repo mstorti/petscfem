@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.60 2003/12/04 12:21:04 mstorti Exp $ 
+ # $Id: Makefile,v 1.61 2004/09/25 16:57:50 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -26,7 +26,7 @@ SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 
-CPPFLAGS += -DROSI_COUPLING_MODULE
+# CPPFLAGS += -DROSI_COUPLING_MODULE
 
 %.cppi: %.cpp
 	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
