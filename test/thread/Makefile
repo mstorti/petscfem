@@ -1,10 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/11/28 02:17:31 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2003/02/08 22:15:18 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
 tests: graph
 
+.PHONY: tryme
 tryme: tryme.bin
 
 SRCS = tryme.cpp
