@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.13 2002/09/05 18:23:52 mstorti Exp $
+//$Id: testfm2.cpp,v 1.14 2002/09/05 22:28:35 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -50,7 +50,7 @@ int main() {
   FastMatCacheList cache_list;
   FastMatCachePosition cp1,cp2;
   //  int n=3,Nin=1000,Nout=1000;
-  int n=3,Nin=10,Nout=10000000;
+  int n=3,Nin=10,Nout=10;
   FastMat2 AA(2,n,n),A(2,3,3),B,C,D,E(2,3,3),G,H,K,L,M,P,Q,R,S,T,U,V,
     W,X,XX(2,n,n),Y,Z,Z1,Z2(1,3),Z3,Z4(2,3,3),Z121,Z20(2,3,5),Z21(3,3,5,5);
   FastMat2 Z5(2,20,20),Z6;

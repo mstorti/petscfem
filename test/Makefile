@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.60 2002/08/27 13:47:38 mstorti Exp $ 
+# $Id: Makefile,v 1.61 2002/09/05 22:28:35 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -7,6 +7,9 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
 	pfmat  aquifer nutatcyl
+
+qqq:
+	$(MAKE) -C sector qqq
 
 SRCS = $(wildcard *.cpp)
 
@@ -33,6 +36,9 @@ all: tests
 PETSCFEM_DIR = ..
 #PFEMUP = ../..
 include $(PETSCFEM_DIR)/Makefile.base
+
+rrr:
+	echo $(LD_LIBRARY_PATH)
 
 ctest: $(DATAFILE) force
 	$(MAKE) $(NS)
@@ -65,7 +71,9 @@ runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
 	sparse graph sqcav pfmat aquifer nutatcyl
 
-runtests_p: sparse graph sqcav pfmat aquifer nutatcyl
+runtests_p: constraint_bug fstack triangle \
+	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
+	sparse graph sqcav pfmat aquifer nutatcyl
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

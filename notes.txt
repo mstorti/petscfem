@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.167 2002/09/02 16:11:03 mstorti Exp $
+$Id: notes.txt,v 1.168 2002/09/05 22:28:30 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.167 2002/09/02 16:11:03 mstorti Exp $ 
+! # $Id: notes.txt,v 1.168 2002/09/05 22:28:30 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.167 2002/09/02 16:11:03 mstorti Exp $ 
+! # $Id: notes.txt,v 1.168 2002/09/05 22:28:30 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.167 2002/09/02 16:11:03 mstorti Exp $ 
+  # $Id: notes.txt,v 1.168 2002/09/05 22:28:30 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5018,6 +5018,32 @@ tarda 130secs/Dt.
 > PROJECTION-  residual computation.  =   36.65
 > PROJECTION-  solving linear system. =    2.14
 > Total                               =  232.57
+
+%===Thu,  5 Sep 2002 17:26:35 -0300 mstorti@minerva
+%
+Actualizando para petsc-2.1.3
+> 
+> perl -pi.bak -e 's/sles\.h/petscsles.h/g'; `find . -name '*.h' | xargs grep -l 'sles\.h' `
+> perl -pi.bak -e 's/sles\.h/petscsles.h/g;' `find . -name '*.h' | xargs grep -l 'sles\.h' `
+> perl -pi.bak -e 's/vec\.h/petscvec.h/g;' `find . -name '*.h' | xargs grep -l 'sles\.h' `
+> perl -pi.bak -e 's/sles\.h/petscsles.h/g;' `find . -name '*.h' | xargs grep -l 'sles\.h' `
+> perl -pi.bak -e 's/sles\.h/petscsles.h/g;' `find . -name '*.cpp' | xargs grep -l 'sles\.h' `
+> perl -pi.bak -e 's/vec\.h/petscvec.h/g;' `find . \( -name '*.cpp' -o -name '*.h' \) | xargs grep -l 'vec\.h' `
+> perl -pi.bak -e 's/petscpetscsles/petscsles/g;' `find . \( -name '*.cpp' -o -name '*.h' \) | xargs grep -l 'petscpetscsles' `
+> perl -pi.bak -e 's/mat\.h/petscmat.h/g;' `find . \( -name '*.cpp' -o -name '*.h' \) | xargs grep -l 'mat\.h' `
+> perl -pi.bak -e 's/petscmat\.h/mat.h/g;' `find . \( -name '*.cpp' -o -name '*.h' \) | xargs grep -l 'petscmat\.h' `
+> perl -pi.bak -e 's/<mat\.h/<petscmat.h/g;' `find . \( -name '*.cpp' -o -name '*.h' \) | xargs grep -l 'mat\.h' `
+> perl -pi.bak -e 's/adpetscvec\.h/advec.h/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> perl -pi.bak -e 's/(\W)Scalar(\W)/$1PetscScalar$2/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> perl -pi.bak -e 's/(\W)Scalar(\W)/$1PetscScalar$2/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> perl -pi.bak -e 's/(\W)Viewer(\W)/$1PetscViewer$2/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> perl -pi.bak -e 's/VIEWER/PETSC_VIEWER/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> history | grep perl | tail
+>  perl -pi.bak -e 's/OptionsGetString/PetscOptionsGetString/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> history | grep perl | tail
+> perl -pi.bak -e 's/PETSC_VIEWER_FORMAT_ASCII_MATLAB/PETSC_VIEWER_ASCII_MATLAB/g;' `find . \( -name '*.cpp' -o -name '*.h' \)`
+> 
+
 
 %# Current line ===========  
 # Local Variables: $
