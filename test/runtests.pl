@@ -694,6 +694,10 @@ expect("sqcav/check.iisd.verif.np1.tmp",
        "Square cavity, IISD part. in 1 proc.",read_file("sqcav/sqcav.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.g_body.tmp",
+       "Square cavity, test G_body term.",read_file("sqcav/g_body.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.iisd.verif.np2.tmp",
        "Square cavity, IISD part. in 2 proc.",read_file("sqcav/sqcav.ans.np2.txt"));
 

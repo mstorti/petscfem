@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2001/12/13 14:48:16 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/12/20 00:32:49 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -53,6 +53,10 @@ runq: force
 runs: CASE := sqcav
 test_big:
 	time $(MAKE) case=big runs
+
+test_g_body:
+	$(MAKE) case=g_body runs
+	octave -q < check.g_body.m > check.g_body.verif.tmp
 
 # tests the square cavity in a 20x20 mesh at Re=1000
 # with respect with a reference solution obtained also with Petscfem and

@@ -1,13 +1,13 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.57 2001/12/13 14:48:43 mstorti Exp $
+#$Id: Makefile.base,v 1.58 2001/12/20 00:33:38 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 
-BOPT = O_c++
+BOPT = g_c++
 export BOPT
 
 GNU_C_COMPILER = gcc  # gcc or egcs
