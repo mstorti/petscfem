@@ -2991,3 +2991,6 @@ tag: beta-3.23.pl2 on Sun, 14 Sep 2003 18:49:26 -0300 by mstorti in spider
 ----------
 tag: beta-3.23.pl3 on Sun, 14 Sep 2003 22:18:36 -0300 by mstorti in spider
      > Written `odoc.pl' complete list of options. 
+----------
+tag: beta-3.23.pl4 on Tue, 16 Sep 2003 18:17:14 -0300 by mstorti in node1.beowulf.gtm
+     > Adding locker support to adaptor. 
