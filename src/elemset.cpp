@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.46 2002/08/28 19:55:37 mstorti Exp $
+//$Id: elemset.cpp,v 1.47 2002/08/31 19:40:15 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -164,6 +164,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   for (iele=el_start; iele<=el_last; iele++) {
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
+    int q=0;
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(iele,kloc);
       for (kdof=0; kdof<ndof; kdof++) {
@@ -220,6 +221,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	  for (lloc=0; lloc<nel; lloc++) {
 	    nodel = ICONE(iele,lloc);
 	    for (ldof=0; ldof<ndof; ldof++) {
+	      if (MASK(kloc,kdof,lloc,ldof)) {
 	      vall = RETVALMAT(iele_here,kloc,kdof,lloc,ldof);
 	      dofmap->get_row(nodel,ldof+1,rowc_v);
 
@@ -229,7 +231,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		if (locdofl>neq) continue; // only load for free dof's
 		
 		val = (entry_v->coef) * (entryc_v->coef) * vall;
-		if (MASK(kloc,kdof,lloc,ldof)) {
 		  if (comp_prof) {
 		    int kd=locdof-1,kdl=locdofl-1;
 		    // be sure that profile is symmetric
@@ -527,6 +528,9 @@ int assemble(Mesh *mesh,arg_list argl,
     TGETOPTDEF(elemset->thash,int,report_consumed_time,0);
     //o Print statistics about time spent in communication and residual evaluation
     TGETOPTDEF(mesh->global_options,int,report_consumed_time_stat,0);
+    //o Use compact method to return matrices (i.e. only return
+    // non-null values in profile)
+    TGETOPTDEF(elemset->thash,int,use_compact_return_mat,0);
 
     int local_chunk_size;
     // scaled chunk_size in order to balance processors 
@@ -556,6 +560,16 @@ int assemble(Mesh *mesh,arg_list argl,
     chunk_size = mini(2,local_chunk_size,max_chunk_size);
       
     for (j=0; j<narg; j++) {
+      if (argl[j].options & (ASSEMBLY_MATRIX | UPLOAD_PROFILE)) {
+	ARGVJ.profile = new double[ndoft*ndoft];
+	for (int kk=0; kk<ndoft*ndoft; kk++) ARGVJ.profile[kk] = 1.;
+      }
+    }
+
+    // Perform some tasks depending on jobinfo
+    elemset->init_jobinfo(arg_data_v,nodedata,dofmap,jobinfo,myrank);
+
+    for (j=0; j<narg; j++) {
       if (argl[j].options & DOWNLOAD_VECTOR) 
 	ARGVJ.locst = new double[chunk_size*ndoft];
       if (argl[j].options & UPLOAD_VECTOR_LOCST ) {
@@ -568,11 +582,13 @@ int assemble(Mesh *mesh,arg_list argl,
 	ARGVJ.retval = new double[chunk_size*ndoft];
 	ARGVJ.refres = new double[chunk_size*ndoft];
       }
-      if (argl[j].options & ALLOC_MATRIX)
-	ARGVJ.retval  = new double[chunk_size*ndoft*ndoft];
-      if (argl[j].options & (ASSEMBLY_MATRIX | UPLOAD_PROFILE)) {
-	ARGVJ.profile = new double[ndoft*ndoft];
-	for (int kk=0; kk<ndoft*ndoft; kk++) ARGVJ.profile[kk] = 1.;
+      if (argl[j].options & ALLOC_MATRIX) {
+	// Compute how many non-null elements are in the profile and
+	// dimension retval-matrices accordingly
+	int retvalmat_size = 0;
+	for (k=0; k<ndoft*ndoft; k++) 
+	  if (!use_compact_return_mat || ARGVJ.profile[k]) retvalmat_size++;
+	ARGVJ.retval  = new double[chunk_size*retvalmat_size];
       }
     }
 

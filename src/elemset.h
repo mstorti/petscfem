@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.19 2002/05/04 23:56:23 mstorti Exp $
+//$Id: elemset.h,v 1.20 2002/08/31 19:40:15 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -72,6 +72,9 @@ public:
 
   /// Returns the list of "real" nodes (this is used for computing the graph)
   virtual int real_nodes(int iele,const int *&nodes);
+
+  // Perform some tasks depending on jobinfo
+  virtual void init_jobinfo(arg_data_v,nodedata,dofmap,jobinfo,myrank) {}
 
   /** Assembles residuals, matrices, scalars and other quantities. 
       @author M. Storti
