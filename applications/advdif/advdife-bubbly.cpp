@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife-bubbly.cpp,v 1.1.4.1 2004/05/21 23:31:12 mstorti Exp $
+//$Id: advdife-bubbly.cpp,v 1.1.4.2 2004/05/21 23:46:28 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -17,8 +17,15 @@ extern int MY_RANK,SIZE;
 
 #include "nwadvdif.h"
 
-
 #define MAXPROP 100
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void detj_error(double &detJaco,int elem) {
+  printf("Jacobian of element %d is negative or null\n"
+	 " Jacobian: %f\n",elem,detJaco);
+  detJaco = -detJaco;
+  if (detJaco==0.) detJaco = 1.0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -47,7 +54,7 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
     read_int_array(log_vars_v,log_vars_entry);
   }
   nlog_vars=log_vars_v.size();
-  log_vars = log_vars_v.begin();
+  log_vars = &*log_vars_v.begin();
   int ierr=0;
   for (int j=0; j<nlog_vars; j++) {
     if (log_vars_v[j]<=0) {
@@ -88,11 +95,20 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
   true_lstate.ir(2);
 }
 
-NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_=NULL)
+NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_)
     : elemset(elemset_), enthalpy_fun(NULL) {
   // This is ugly!!
   // assert(new_adv_dif_elemset);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "NewAdvDif::before_assemble"
+void NewAdvDif::
+before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		Dofmap *dofmap, const char *jobinfo,int myrank,
+		int el_start,int el_last,int iter_mode,
+		const TimeData *time_data) { }
 
 void NewAdvDifFF::get_C(FastMat2 &C) {
   PetscPrintf(PETSC_COMM_WORLD,
@@ -994,6 +1010,12 @@ extern const char * jobinfo_fields;
   FastMat2::deactivate_cache();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "NewAdvDif::after_assemble"
+void NewAdvDif::
+after_assemble(const char *jobinfo) { }
+
 double NewAdvDif::volume() const {
   if (volume_flag) {
     return Volume;
@@ -1031,6 +1053,10 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
 void NewAdvDifFF::set_profile(FastMat2 &seed) {
   seed.set(1.);
 }
+
+void NewAdvDifFF::
+Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_) { }
 
 #undef SHAPE
 #undef DSHAPEXI
