@@ -94,8 +94,17 @@ diffusive_jacobians \
 <:die "not known dif_type: $dif_type\n":>
 #endif
 
-reactive_jacobians_type "full"
-reactive_jacobians <:=$R:>  0. 0. 0. <:=3*$R:>  0. 0. 0. <:=10*$R:>
+#reactive_jacobians_type "<:=$reac_type="full":>"
+reactive_jacobians_type "<:=$reac_type="global_scalar":>"
+
+#if $reac_type eq 'full'
+reactive_jacobians <:=$R:>  0. 0. 0. <:=$R:>  0. 0. 0. <:=$R:>
+#reactive_jacobians <:=$R:>  0. 0. 0. <:=3*$R:>  0. 0. 0. <:=10*$R:>
+#elsif $reac_type eq 'global_scalar'
+reactive_jacobians <:=$R:>
+#else
+<:die "not known reac_type: $reac_type\n":>
+#endif
 
 __END_HASH__
 

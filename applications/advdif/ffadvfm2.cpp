@@ -40,7 +40,7 @@ newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_)
   full_adv_jac(*this), full_dif_jac(*this),
   scalar_dif_per_field(*this), global_scalar_djac(*this),
   global_dif_tensor(*this), per_field_dif_tensor(*this),
-  full_c_jac(*this)
+  full_c_jac(*this), scalar_c_jac(*this)
 {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -62,6 +62,29 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {
   tmp26.set(P_supg).scale(w);
   tmp27.prod(N,ff.C_jac,1,2,3); // tmp27 = N * C_jac 
+  N_P_C.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * N
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::ScalarCJac
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
+  tmp2.set(N).scale(w*(*ff.reacjac));
+  tmp.prod(tmp2,N,1,2);
+  N_N_C.prod(tmp,ff.eye_ndof,1,3,2,4);
+}
+
+void newadvecfm2_ff_t::ScalarCJac::
+comp_G_source(FastMat2 &G_source, FastMat2 &U) {
+  G_source.set(U).scale(*ff.reacjac);
+}
+
+void newadvecfm2_ff_t::ScalarCJac::
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+	   FastMat2 &N,double w) {
+  tmp26.set(P_supg).scale(w*(*ff.reacjac));
+  // perhaps this may be optimized by computing the following
+  // operations in reverse order
+  tmp27.prod(N,ff.eye_ndof,1,2,3);        // tmp27 = N * C_jac 
   N_P_C.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * N
 }
 
@@ -297,6 +320,7 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   tmp2.resize(1,ndof).set(1.);
   tmp3.set(tmp2);
   dif_per_field.resize(1,ndof);
+  eye_ndof.resize(2,ndof,ndof).eye();
 
   ret_options &= !SCALAR_TAU; // tell the advective element routine
 
@@ -372,10 +396,8 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   if (diffusive_jacobians_type==string("global_scalar") &&
       diffusive_jacobians_prop.length == 1) {
     d_jac =  &global_scalar_djac;
-    eye_ndof.resize(2,ndof,ndof).eye();
   } else if (diffusive_jacobians_type==string("global_tensor") &&
 	     diffusive_jacobians_prop.length == ndim*ndim) {
-    eye_ndof.resize(2,ndof,ndof).eye();
     D_jac.resize(2,ndim,ndim);
     d_jac =  &global_dif_tensor;
   } else if (diffusive_jacobians_type==string("per_field_tensor") &&
@@ -423,7 +445,7 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   }
   if (reactive_jacobians_type==string("global_scalar") &&
       reactive_jacobians_prop.length == 1) {
-    assert(0);
+    c_jac =  &scalar_c_jac;
   } else if (reactive_jacobians_type==string("scalar_per_field") &&
 	     reactive_jacobians_prop.length == ndof) {
     assert(0);

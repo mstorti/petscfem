@@ -78,6 +78,21 @@ public:
   };
   FullCJac full_c_jac;
 
+  /// Global scalar reactive Jacobian
+  class ScalarCJac;
+  friend class ScalarCJac;
+  class ScalarCJac : public CJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 tmp,tmp2,tmp26,tmp27;
+  public:
+    ScalarCJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w);
+    void comp_G_source(FastMat2 &G_source, FastMat2 &U);
+    void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+		    FastMat2 &N,double w);
+  };
+  ScalarCJac scalar_c_jac;
+
   /// One velocity per field
   class UPerField;
   friend class UPerField;
