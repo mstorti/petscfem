@@ -11,19 +11,19 @@ $L=10;
 $u0=0.;
 $h0=1.;
 $alpha = 1.0;
-$Courant = 1.0;
+$Courant = 1.;
 $h = $L/$Nx;
-$gravity = 9.81;
+$gravity = 1.;
 $urms=sqrt($gravity*$h0);
-$Dt = $Courant*$h/$urms;
-$Tend = 10.;
-#$Dt=0.005/3;
+#$Dt = $Courant*$h/$urms;
+$Tend = 5;
+$Dt=0.1;
 $nstep = ceil($Tend/$Dt);
 #$nstep = 1;
-$wall_angle = 20;
-$pi = 3.14159;
+#$wall_angle = 20;
+#$pi = 3.14159;
 #__END_TRANSCRIPT__
-@vars = qw(wall_angle nx Nx L u0 h0 nstep case_name Courant alpha Tend Dt gravity);
+@vars = qw(nx Nx L u0 h0 nstep case_name Courant alpha Tend Dt gravity);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">canal1d.data.m.tmp",@vars);
 #system "octave -qH canal1d.m";
@@ -45,15 +45,16 @@ steady 0
 initial_state "canal1d.ini.tmp"
 
 # "rotary saving" 
-nsaverot 10
+nsaverot 1
 nfile 1
 nrec 10000
-save_file_pattern "canal1d%d.out005s3.tmp"
+#save_file_pattern "canal1d%d.out005s3.tmp"
+save_file_pattern "canal1d.rslt.tmp"
 save_file "save.state.tmp"
 
 tol_newton 0
 solver "petsc"
-preco_type "lu"
+preco_type "jacobi"
 
 # convergence parameters. Internal GMRES loop. 
 rtol 0
@@ -81,10 +82,10 @@ table physical_data
 <:pr('gravity'):>
 friction_law "Chezy"
 Ch 110.
-shape "triangular"
+shape "rectangular"
 #radius 2
-#width 1.
-wall_angle <:=$wall_angle*$pi/180:>
+width 1.
+#wall_angle <:=$wall_angle*$pi/180:>
 cfric 0.
 ndim 2
 __END_HASH__

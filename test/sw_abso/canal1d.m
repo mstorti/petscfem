@@ -1,4 +1,4 @@
-#$Id: canal1d.m,v 1.3 2004/07/07 16:52:15 rodrigop Exp $
+#$Id: canal1d.m,v 1.4 2004/07/15 18:33:23 rodrigop Exp $
 #crea malla y condiciones de borde e iniciales  de sw-1d
 #condiciones absorbentes
 ## Number os elements in x, acordarse de poner nodos dummy
@@ -34,7 +34,7 @@ xc=nod(round(nx/2),1);
 mu=L/2;
 sig=0.04*L;
 rc=.1*L;
-A=3.; % ahora es la altura del bump en el centro, no una relacion de aspecto.
+A=2.; % ahora es la altura del bump en el centro, no una relacion de aspecto.
 #rmax=0.;
 for i=1:nnodes,
 h_ini(i)=1.+A*((1/(sqrt(2.*pi)))*exp(-0.5*((nod(i,1)-mu)/sig)^2));

@@ -4,7 +4,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'igrec' unless $case_name;
-$nx = 50;
+$nx = 200;
 $L = 100;
 $ds = $L/$nx;
 $u0 = 0.3;

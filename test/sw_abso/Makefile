@@ -8,8 +8,8 @@ CASE=canal1d
 # PETSCFEM_DIR := /u/rodrigop/PETSC/petscfem-hydro
 PETSCFEM_DIR := ../..
 
-NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-NP := 1
+#NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+NP := 3
 
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -19,7 +19,7 @@ SRCS =
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
-# ADVDIF = $(APPDIR)/advdif/advdif_g.bin
+ADVDIF = $(APPDIR)/advdif/advdif_O.bin
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for abso shallow water 1d
@@ -27,7 +27,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 test_abso:
 	$(MAKE) $(CASE).depl
 	$(OCTAVE) $(CASE).m
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl
+	-$(MPIRUN) -np $(NP)  -machinefile ./machi.dat $(ADVDIF) -case $(CASE).depl
 	$(OCTAVE)  check_test_abso.m
 
 chiquito:
