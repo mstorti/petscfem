@@ -1,0 +1,57 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+$case="advec";                   # case name
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+#__END_TRANSCRIPT__
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+chunk_size 4
+save_file "save.state"
+steady
+solver "iisd"
+iisd_subpart 1
+
+nnwt 1
+
+local_time_step 0
+consistent_supg_matrix 1
+auto_time_step 0
+
+alpha 1.
+weak_form 1
+
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes   2  2  1
+__INCLUDE__ plano.nod
+__END_NODES__
+
+#===========================================================
+elemset advec 4
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ plano.con
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+1   1 0.
+2   1 0.
+201 1 1.
+202 1 1.
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

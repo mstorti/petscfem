@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.4 2002/03/04 21:15:58 mstorti Exp $
+//$Id: blessf.cpp,v 1.5 2002/07/11 02:10:50 mstorti Exp $
 
 #include <set>
 
@@ -18,6 +18,7 @@
 #include "aquifer.h"
 #include "stream.h"
 #include "bubbly.h"
+#include "advec.h"
 
 #include <time.h>
 
@@ -50,6 +51,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(bubbly)
     SET_ELEMSET_TYPE(bubbly_bcconv)
+
+    SET_ELEMSET_TYPE(advec)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);

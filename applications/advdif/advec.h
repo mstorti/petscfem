@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: advec.h,v 1.1 2002/07/11 00:34:32 mstorti Exp $
+//$Id: advec.h,v 1.2 2002/07/11 02:10:50 mstorti Exp $
 #ifndef ADVEC_H
 #define ADVEC_H
 
@@ -8,10 +8,15 @@
 
 class advec_ff : public NewAdvDifFF {
   int ndim;
-  double diff;
-  FastMat2 u,A,D,uu,tmp1;
+  double diff,uu,tau,tau_fac;
+  FastMat2 u,A,D,tmp1,Uintri,tmp0;
+  const NewAdvDif* e;
  public:
+  advec_ff(const NewAdvDif *e) : NewAdvDifFF(e)
+  { enthalpy_fun = &identity_ef; }
+  ~advec_ff() {}
   void start_chunk(int &options) {
+    int ierr;
     options &= ~SCALAR_TAU;
     ndim = 2;
     u.resize(1,ndim);
@@ -19,6 +24,9 @@ class advec_ff : public NewAdvDifFF {
     uu = sqrt(u.sum_square_all());
     A.resize(1,ndim).set(u).reshape(3,ndim,1,1);
     D.resize(2,ndim,ndim).eye(diff).reshape(4,ndim,ndim,1,1);
+    e = dynamic_cast<const NewAdvDif *>(elemset); 
+    Uintri.resize(1,ndim);
+    EGETOPTDEF_ND(elemset,double,tau_fac,1.); //nd
   }
   void element_hook(ElementIterator &element) {}
   void comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
@@ -42,27 +50,48 @@ class advec_ff : public NewAdvDifFF {
     tau_supg.set(0.);
     delta_sc = 0.;
     lam_max = uu;
+    Uintri.prod(iJaco,u,1,-1,-1);
+    double Uh = sqrt(Uintri.sum_square_all());
+    double tau;
+    FastMat2::branch();
+    if (uu*uu > 1e-5*Uh*diff) { // remove singularity when v=0
+      FastMat2::choose(0);
+      double Pe  = uu*uu/(Uh*diff);	// Peclet number
+      // magic function
+      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
+      tau = tau_fac/Uh*magic; // intrinsic time
+    } else {
+      FastMat2::choose(1);
+      double h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());
+      tau = tau_fac*h*h/(12.*diff);
+    }
+    FastMat2::leave();
   }
   void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			    FastMat2 & grad_N,double w) {
-    tmp1.set(dshapex).scale(w*diff);
+    tmp1.set(grad_N).scale(w*diff);
     grad_N_D_grad_N.ir(2,1).ir(4,1);
-    grad_N_D_grad_N.prod(tmp1,dshapex,-1,1,-1,2);
+    grad_N_D_grad_N.prod(tmp1,grad_N,-1,1,-1,2);
     grad_N_D_grad_N.rs();
   }
   void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
     N_N_C.set(0.);
   }
-  comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+  void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	     FastMat2 &N,double w) {
     N_P_C.set(0.);
   }
   void comp_P_supg(FastMat2 &P_supg) {
-    tmp2.prod(A,grad_N(),-1,2,3,-1,1);
-    P_supg.prod(tmp2,,1,-1,-1,2);
+    P_supg.prod(A,*e->grad_N(),-1,2,3,-1,1).scale(tau);
   }
   
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// The `advec' (river or channel) element.
+class advec : public NewAdvDif {
+public:
+  advec() :  NewAdvDif(new advec_ff(this)) {};
+};
 
 #endif

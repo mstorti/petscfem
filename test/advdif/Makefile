@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.23 2001/05/05 01:20:48 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2002/07/11 02:10:54 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -13,7 +13,10 @@ include ../Makefile.base.test
 SRCS = 
 
 #s Test/Advdif tests
-ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
+#ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
+LOC_PROG := advdif
+CASE_NAME := advec
+PROG := $(ADVDIF)
 
 #case := sine
 #case := burgers
@@ -93,6 +96,10 @@ sine_crank_nic_npp:
 
 plano.con plano.nod: plano.m
 	octave -q plano.m
+
+advec: advec.depl
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+			-case advec.depl
 
 # .gdbinit:
 # 	echo file advdif >$@
