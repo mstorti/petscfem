@@ -69,6 +69,9 @@ cdepend:
 	gcc -MM *.c > makefilec.d
 
 GETSURF := ./getsurf.bin
+cube:
+	make-depl cube.dx.epl cube.dx
+
 getsurf:
 	$(GETSURF) -b 1 -x ./cube.nod.tmp	\
 	-c ./cube.con.tmp -u ./cube.state.tmp	\

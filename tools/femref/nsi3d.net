@@ -1,5 +1,5 @@
 //
-// time: Wed Jan 12 18:32:41 2005
+// time: Thu Jan 13 13:01:24 2005
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -20,7 +20,7 @@
 // page assignment: camera	order=9, windowed=0, showing=0
 // page assignment: image	order=10, windowed=0, showing=0
 // page assignment: import	order=2, windowed=0, showing=1
-// workspace: width = 711, height = 597
+// workspace: width = 711, height = 690
 // layout: snap = 0, width = 20, height = 20, align = NN
 //
 macro main(
@@ -28,7 +28,7 @@ macro main(
 ) {
     // 
     // node Import[11]: x = 427, y = 30, inputs = 6, label = Import
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cube.dx"
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cub.dx"
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "ns_field_t"
     // input[3]: defaulting = 0, visible = 1, type = 32, value = "dx"
     // page group: import
@@ -144,7 +144,7 @@ main_Toggle_4_out_1[cache: 2] =
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 20
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 3100 20 0 500 1 }
     // page group: import
-    // vcr[1]: min = 0, max = 3100, beg = 0, end = 500, cur = 380, inc = 20, loop = off, step = on, pal = off
+    // vcr[1]: min = 0, max = 3100, beg = 0, end = 500, cur = 400, inc = 20, loop = off, step = on, pal = off
     // window: position = (0.6016,0.0534), size = 0.3496x0.1055
     //
     main_Sequencer_1_in_3 = @frame;
@@ -194,8 +194,8 @@ main_Select_1_out_1 =
     ) [instance: 1, cache: 1];
     // 
     // node Import[10]: x = 304, y = 61, inputs = 6, label = Import
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cube.dx"
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "ns_field_t"
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "cub.dx"
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "ns_vol"
     // input[3]: defaulting = 0, visible = 1, type = 32, value = "dx"
     // page group: import
     //
@@ -563,66 +563,20 @@ main_ClipBox_1_out_1 =
     main_ClipBox_1_in_2
     ) [instance: 1, cache: 1];
     // 
-    // node ShowConnections[2]: x = 334, y = 446, inputs = 1, label = ShowConnections
-    // page group: import
-    //
-main_ShowConnections_2_out_1 = 
-    ShowConnections(
-    main_Compute_45_out_1
-    ) [instance: 2, cache: 1];
-    // 
-    // node ColorBar[3]: x = 591, y = 380, inputs = 16, label = ColorBar
-    // page group: import
-    //
-main_ColorBar_3_out_1 = 
-    ColorBar(
-    main_AutoColor_1_out_2,
-    main_ColorBar_3_in_2,
-    main_ColorBar_3_in_3,
-    main_ColorBar_3_in_4,
-    main_ColorBar_3_in_5,
-    main_ColorBar_3_in_6,
-    main_ColorBar_3_in_7,
-    main_ColorBar_3_in_8,
-    main_ColorBar_3_in_9,
-    main_ColorBar_3_in_10,
-    main_ColorBar_3_in_11,
-    main_ColorBar_3_in_12,
-    main_ColorBar_3_in_13,
-    main_ColorBar_3_in_14,
-    main_ColorBar_3_in_15,
-    main_ColorBar_3_in_16
-    ) [instance: 3, cache: 1];
-    // 
-    // node Collect[12]: x = 489, y = 435, inputs = 3, label = Collect
-    // page group: import
-    //
-main_Collect_12_out_1 = 
-    Collect(
-    main_ShowConnections_2_out_1,
-    main_AutoColor_1_out_1,
-    main_ColorBar_3_out_1
-    ) [instance: 12, cache: 1];
-    // 
-    // node Transmitter[37]: x = 432, y = 535, inputs = 1, label = surf_data
-    // page group: import
-    //
-surf_data = main_Collect_12_out_1;
-    // 
-    // node Receiver[44]: x = 288, y = 17, inputs = 1, label = surf_data
+    // node Receiver[44]: x = 288, y = 17, inputs = 1, label = scalar_field
     // page group: ProcScalar
     //
-main_Receiver_44_out_1[cache: 0] = surf_data;
+main_Receiver_44_out_1[cache: 0] = scalar_field;
     // 
     // node Scalar[3]: x = 581, y = 41, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_3"
     // input[2]: defaulting = 1, visible = 1, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 3000.0
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1.0
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 3000.0
+    // output[1]: visible = 1, type = 5, value = 1.0
     // page group: ProcScalar
     //
     // 
@@ -669,15 +623,15 @@ main_ShowBoundary_1_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_1"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 3000.0
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 1, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 3000.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 1.0 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 3000.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.0
     // input[19]: visible = 1
     // page group: ProcScalar
     // window: position = (0.0771,0.2070), size = 0.6348x0.5859
@@ -744,7 +698,7 @@ main_ShowConnections_1_out_1 =
 main_Collect_5_out_1 = 
     Collect(
     main_Collect_5_in_1,
-    main_ClipBox_2_out_1,
+    main_Color_3_out_1,
     main_ShowConnections_1_out_1,
     main_Collect_5_in_4,
     main_Collect_5_in_5,
@@ -809,23 +763,85 @@ main_ClipPlane_2_out_1 =
     main_ClipPlane_2_in_3
     ) [instance: 2, cache: 1];
     // 
-    // node Receiver[55]: x = 392, y = 175, inputs = 1, label = surf_data
+    // node Transmitter[5]: x = 140, y = 600, inputs = 1, label = colored_scalar
+    // page group: ProcScalar
+    //
+colored_scalar = main_Collect_5_out_1;
+    // 
+    // node Receiver[6]: x = 40, y = 160, inputs = 1, label = colored_scalar
+    // page group: image
+    //
+main_Receiver_6_out_1[cache: 0] = colored_scalar;
+    // 
+    // node ShowConnections[2]: x = 334, y = 446, inputs = 1, label = ShowConnections
+    // page group: import
+    //
+main_ShowConnections_2_out_1 = 
+    ShowConnections(
+    main_Compute_45_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node ColorBar[3]: x = 591, y = 380, inputs = 16, label = ColorBar
+    // page group: import
+    //
+main_ColorBar_3_out_1 = 
+    ColorBar(
+    main_AutoColor_1_out_2,
+    main_ColorBar_3_in_2,
+    main_ColorBar_3_in_3,
+    main_ColorBar_3_in_4,
+    main_ColorBar_3_in_5,
+    main_ColorBar_3_in_6,
+    main_ColorBar_3_in_7,
+    main_ColorBar_3_in_8,
+    main_ColorBar_3_in_9,
+    main_ColorBar_3_in_10,
+    main_ColorBar_3_in_11,
+    main_ColorBar_3_in_12,
+    main_ColorBar_3_in_13,
+    main_ColorBar_3_in_14,
+    main_ColorBar_3_in_15,
+    main_ColorBar_3_in_16
+    ) [instance: 3, cache: 1];
+    // 
+    // node Collect[12]: x = 489, y = 435, inputs = 3, label = Collect
+    // page group: import
+    //
+main_Collect_12_out_1 = 
+    Collect(
+    main_ShowConnections_2_out_1,
+    main_AutoColor_1_out_1,
+    main_ColorBar_3_out_1
+    ) [instance: 12, cache: 1];
+    // 
+    // node Translate[1]: x = 480, y = 532, inputs = 2, label = Translate
+    // input[2]: defaulting = 0, visible = 1, type = 8, value = [3 0 0]
+    // page group: import
+    //
+main_Translate_1_out_1 = 
+    Translate(
+    main_Collect_12_out_1,
+    main_Translate_1_in_2
+    ) [instance: 1, cache: 1];
+    // 
+    // node Transmitter[37]: x = 471, y = 628, inputs = 1, label = surf_data
+    // page group: import
+    //
+surf_data = main_Translate_1_out_1;
+    // 
+    // node Receiver[55]: x = 228, y = 225, inputs = 1, label = surf_data
     // page group: image
     //
 main_Receiver_55_out_1[cache: 0] = surf_data;
     // 
-    // node Collect[2]: x = 160, y = 320, inputs = 7, label = Collect
+    // node Collect[2]: x = 199, y = 314, inputs = 3, label = Collect
     // page group: image
     //
 main_Collect_2_out_1 = 
     Collect(
-    main_Collect_2_in_1,
-    main_Collect_2_in_2,
-    main_Collect_2_in_3,
-    main_Collect_2_in_4,
-    main_Collect_2_in_5,
+    main_Receiver_6_out_1,
     main_Receiver_55_out_1,
-    main_Collect_2_in_7
+    main_Collect_2_in_3
     ) [instance: 2, cache: 1];
     // 
     // node Import[7]: x = 62, y = 35, inputs = 6, label = Import
@@ -1182,16 +1198,16 @@ main_Compute_36_out_1 =
     //
 main_Receiver_52_out_1[cache: 0] = seq_step;
     // 
-    // node Image[6]: x = 204, y = 432, inputs = 49, label = Image
+    // node Image[6]: x = 211, y = 445, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_6"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [-0.451253 0.292851 0.463086]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [5.08117 -2.40424 7.55976]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 0.734987
-    // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
-    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.635732 0.412573 0.652402]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 4.4806
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [2.46443 1.10041 -0.493634]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [5.87947 -4.11865 5.57887]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 3.81401
+    // input[8]: defaulting = 0, visible = 0, type = 1, value = 640
+    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.75
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.391109 0.577694 0.716452]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 24.7133
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -1207,10 +1223,10 @@ main_Receiver_52_out_1[cache: 0] = seq_step;
     // input[27]: defaulting = 0, visible = 0, type = 1, value = 1024
     // input[28]: defaulting = 0, visible = 0, type = 5, value = 0.75
     // input[29]: defaulting = 1, visible = 0, type = 3, value = 0
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "panzoom"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "rotate"
     // page group: image
     // depth: value = 16
-    // window: position = (0.0000,0.0000), size = 0.9902x0.9648
+    // window: position = (0.0801,0.1992), size = 0.6387x0.6823
     // internal caching: 1
     //
 main_Image_6_out_1,
@@ -1279,15 +1295,15 @@ main_Format_2_out_1 =
     main_Image_6_out_1
     ) [instance: 2, cache: 1];
     // 
-    // node Transmitter[5]: x = 140, y = 600, inputs = 1, label = colored_scalar
-    // page group: ProcScalar
-    //
-colored_scalar = main_Collect_5_out_1;
-    // 
-    // node Receiver[6]: x = 40, y = 160, inputs = 1, label = colored_scalar
+    // node Print[1]: x = 407, y = 494, inputs = 3, label = Print
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "rd"
     // page group: image
     //
-main_Receiver_6_out_1[cache: 0] = colored_scalar;
+    Print(
+    main_Collect_2_out_1,
+    main_Print_1_in_2,
+    main_Print_1_in_3
+    ) [instance: 1, cache: 1];
     // 
     // node Toggle[3]: x = 40, y = 260, inputs = 6, label = Toggle
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Toggle_3"
@@ -1353,7 +1369,7 @@ main_Switch_6_out_1 =
     //
 streamlines = main_Switch_6_out_1;
     // 
-    // node Receiver[46]: x = 20, y = 320, inputs = 1, label = streamlines
+    // node Receiver[46]: x = 41, y = 327, inputs = 1, label = streamlines
     // page group: image
     //
 main_Receiver_46_out_1[cache: 0] = streamlines;
@@ -1465,7 +1481,7 @@ abs_u = main_Compute_29_out_1;
 // network: end of macro body
 CacheScene(main_Image_6_in_1, main_Image_6_out_1, main_Image_6_out_2);
 }
-main_Import_11_in_1 = "cube.dx";
+main_Import_11_in_1 = "cub.dx";
 main_Import_11_in_2 = "ns_field_t";
 main_Import_11_in_3 = "dx";
 main_Import_11_in_4 = NULL;
@@ -1530,8 +1546,8 @@ main_ExtProgImport_1_out_2 = NULL;
 main_Select_1_in_2 = "viscous_fluid_elemset_state";
 main_Select_1_in_3 = NULL;
 main_Select_1_out_1 = NULL;
-main_Import_10_in_1 = "cube.dx";
-main_Import_10_in_2 = "ns_field_t";
+main_Import_10_in_1 = "cub.dx";
+main_Import_10_in_2 = "ns_vol";
 main_Import_10_in_3 = "dx";
 main_Import_10_in_4 = NULL;
 main_Import_10_in_5 = NULL;
@@ -1630,29 +1646,10 @@ main_Glyph_1_in_7 = NULL;
 main_Glyph_1_out_1 = NULL;
 main_ClipBox_1_in_2 = {[-2,-2,0.45],[2,2,0.55]};
 main_ClipBox_1_out_1 = NULL;
-main_ShowConnections_2_out_1 = NULL;
-main_ColorBar_3_in_2 = NULL;
-main_ColorBar_3_in_3 = NULL;
-main_ColorBar_3_in_4 = NULL;
-main_ColorBar_3_in_5 = NULL;
-main_ColorBar_3_in_6 = NULL;
-main_ColorBar_3_in_7 = NULL;
-main_ColorBar_3_in_8 = NULL;
-main_ColorBar_3_in_9 = NULL;
-main_ColorBar_3_in_10 = NULL;
-main_ColorBar_3_in_11 = NULL;
-main_ColorBar_3_in_12 = NULL;
-main_ColorBar_3_in_13 = NULL;
-main_ColorBar_3_in_14 = NULL;
-main_ColorBar_3_in_15 = NULL;
-main_ColorBar_3_in_16 = NULL;
-main_ColorBar_3_out_1 = NULL;
-main_Collect_12_out_1 = NULL;
-main_Transmitter_37_out_1 = NULL;
 main_Receiver_44_out_1 = NULL;
 main_Scalar_3_in_1 = "Scalar_3";
 main_Scalar_3_in_2 = NULL;
-main_Scalar_3_in_3 = 3000.0;
+main_Scalar_3_in_3 = 1.0;
 main_Scalar_3_in_4 = NULL;
 main_Scalar_3_in_5 = NULL;
 main_Scalar_3_in_6 = NULL;
@@ -1661,7 +1658,7 @@ main_Scalar_3_in_8 = NULL;
 main_Scalar_3_in_9 = NULL;
 main_Scalar_3_in_10 = NULL;
 main_Scalar_3_in_11 = NULL;
-main_Scalar_3_out_1 = 3000.0;
+main_Scalar_3_out_1 = 1.0;
 main_Scalar_6_in_1 = "Scalar_6";
 main_Scalar_6_in_2 = NULL;
 main_Scalar_6_in_3 = 0.0;
@@ -1687,13 +1684,13 @@ main_Colormap_1_in_6 = NULL;
 main_Colormap_1_in_9 = NULL;
 main_Colormap_1_in_10 = NULL;
 main_Colormap_1_in_11 = NULL;
-main_Colormap_1_in_12 = { 0.0 3000.0 };
+main_Colormap_1_in_12 = { 0.0 1.0 };
 main_Colormap_1_in_13 = NULL;
 main_Colormap_1_in_14 = NULL;
 main_Colormap_1_in_15 = NULL;
 main_Colormap_1_in_16 = NULL;
 main_Colormap_1_in_17 = 0.0;
-main_Colormap_1_in_18 = 3000.0;
+main_Colormap_1_in_18 = 1.0;
 main_Colormap_1_in_19 = NULL;
 main_Colormap_1_out_1 = NULL;
 main_Color_3_in_3 = 1.0;
@@ -1701,7 +1698,6 @@ main_Color_3_in_4 = NULL;
 main_Color_3_in_5 = NULL;
 main_Color_3_out_1 = NULL;
 main_ClipBox_2_in_2 = {[-0.3,-0.3,-0.3],[1.0,0.3,0.3]};
-main_ClipBox_2_out_1 = NULL;
 main_ShowConnections_1_out_1 = NULL;
 main_Collect_5_in_1 = NULL;
 main_Collect_5_in_4 = NULL;
@@ -1727,13 +1723,31 @@ main_Receiver_48_out_1 = NULL;
 main_Compute_35_in_1 = "[0, $0, 0]";
 main_Compute_35_out_1 = NULL;
 main_ClipPlane_2_in_3 = [0 -1 0];
+main_Transmitter_5_out_1 = NULL;
+main_Receiver_6_out_1 = NULL;
+main_ShowConnections_2_out_1 = NULL;
+main_ColorBar_3_in_2 = NULL;
+main_ColorBar_3_in_3 = NULL;
+main_ColorBar_3_in_4 = NULL;
+main_ColorBar_3_in_5 = NULL;
+main_ColorBar_3_in_6 = NULL;
+main_ColorBar_3_in_7 = NULL;
+main_ColorBar_3_in_8 = NULL;
+main_ColorBar_3_in_9 = NULL;
+main_ColorBar_3_in_10 = NULL;
+main_ColorBar_3_in_11 = NULL;
+main_ColorBar_3_in_12 = NULL;
+main_ColorBar_3_in_13 = NULL;
+main_ColorBar_3_in_14 = NULL;
+main_ColorBar_3_in_15 = NULL;
+main_ColorBar_3_in_16 = NULL;
+main_ColorBar_3_out_1 = NULL;
+main_Collect_12_out_1 = NULL;
+main_Translate_1_in_2 = [3 0 0];
+main_Translate_1_out_1 = NULL;
+main_Transmitter_37_out_1 = NULL;
 main_Receiver_55_out_1 = NULL;
-main_Collect_2_in_1 = NULL;
-main_Collect_2_in_2 = NULL;
 main_Collect_2_in_3 = NULL;
-main_Collect_2_in_4 = NULL;
-main_Collect_2_in_5 = NULL;
-main_Collect_2_in_7 = NULL;
 main_Collect_2_out_1 = NULL;
 main_Import_7_in_1 = "sstart.dx";
 main_Import_7_in_2 = "sstart01";
@@ -2173,12 +2187,12 @@ macro Image(
 main_Image_6_in_1 = "Image_6";
 main_Image_6_in_3 = "X16,,";
 main_Image_6_in_4 = 1;
-main_Image_6_in_5 = [-0.451253 0.292851 0.463086];
-main_Image_6_in_6 = [5.08117 -2.40424 7.55976];
-main_Image_6_in_7 = 0.734987;
-main_Image_6_in_8 = 1000;
-main_Image_6_in_9 = 0.697;
-main_Image_6_in_10 = [-0.635732 0.412573 0.652402];
+main_Image_6_in_5 = [2.46443 1.10041 -0.493634];
+main_Image_6_in_6 = [5.87947 -4.11865 5.57887];
+main_Image_6_in_7 = 3.81401;
+main_Image_6_in_8 = 640;
+main_Image_6_in_9 = 0.75;
+main_Image_6_in_10 = [-0.391109 0.577694 0.716452];
 main_Image_6_in_11 = NULL;
 main_Image_6_in_12 = 0;
 main_Image_6_in_13 = NULL;
@@ -2208,7 +2222,7 @@ main_Image_6_in_37 = NULL;
 main_Image_6_in_38 = NULL;
 main_Image_6_in_39 = NULL;
 main_Image_6_in_40 = NULL;
-main_Image_6_in_41 = "panzoom";
+main_Image_6_in_41 = "rotate";
 main_Image_6_in_42 = NULL;
 main_Image_6_in_43 = NULL;
 main_Image_6_in_44 = NULL;
@@ -2220,7 +2234,8 @@ main_Image_6_in_49 = NULL;
 main_Image_6_out_1 = NULL;
 main_Format_2_in_1 = "make yuv_compress dx_step=%d";
 main_Format_2_out_1 = NULL;
-main_Transmitter_5_out_1 = NULL;
+main_Print_1_in_2 = "rd";
+main_Print_1_in_3 = NULL;
 main_Toggle_3_in_1 = "Toggle_3";
 main_Toggle_3_in_2 = 1;
 main_Toggle_3_in_3 = 1;
