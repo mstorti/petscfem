@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.3 2001/09/20 20:40:24 mstorti Exp $
+//$Id: sparse.cpp,v 1.4 2001/09/20 23:43:26 mstorti Exp $
 
 #include "sparse.h"
 
@@ -31,7 +31,25 @@ void SeqMat::create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0) {
 }
 #endif
 
+
 namespace Sparse {
+
+  Indx::Indx(int m,int n=-1,int k=1) {
+    int j,v;
+    if (n==-1) {
+      n=m;
+      m=1;
+    }
+    assert(k*(n-m)>0);
+    resize((n-m)/k);
+    v = m;
+    j = 0;
+    while (k*(v-n) <= 0) {
+      (*this)[j++] = v;
+      v += k;
+    }
+  }
+
   Vec::Vec(const Indx &I,const Vec &v) {
     assert(0); // code here
   };
@@ -61,9 +79,13 @@ namespace Sparse {
       len = j+1;
     }
     if (J == end()) {
-      insert(VecP(j,v));
+      if (v!=0) insert(VecP(j,v));
     } else {
-      J->second = v;
+      if (v==0) {
+	erase(J);
+      } else {
+	J->second = v;
+      }
     }
     return *this;
   }
@@ -71,8 +93,9 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "Vec::print"
-  void Vec::print() {
+  void Vec::print(char * s = NULL) {
     VecCIt J;
+    if (s) printf("%s",s);
     printf("length: %d\n",len);
     for (J=begin(); J!=end(); J++) {
       printf("%d -> %f\n", J->first, J->second);
@@ -81,10 +104,27 @@ namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "Vec::set"
-  Vec & Vec::set(Indx &I,const Vec v) {
-    
+#define __FUNC__ "Vec::resize"
+  Vec & Vec::resize(int n) {
+    VecIt i;
+    assert(n>=0);
+    for (i=begin(); i!= end(); i++) 
+      if (i->first >= n) erase(i);
+    len = n;
+    return *this;
+  }
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::set"
+  Vec & Vec::set(const Indx &I,const Vec v) {
+    IndxCIt i,e;
+    e = I.end();
+    for (i=I.begin(); i!=e; i++) {
+      set(I[i],i->second);
+    }
+    return *this;
+  }
 }
 
 /*
