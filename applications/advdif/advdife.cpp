@@ -40,7 +40,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int advective::ask(char *,int &)"
-int AdvDif::ask(char *jobinfo,int &skip_elemset) {
+int AdvDif::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
@@ -59,9 +59,6 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
-#define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
-#define LOCSTO(iele,j,k) VEC3(locsto,iele,j,nel,k,ndof)
-#define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retval,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define RETVALMATT(iele,j,k,p,q) VEC5(retvalt,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define RETVAL_FDJ(iele,j,k) VEC3(retval_fdj,iele,j,nel,k,ndof)
@@ -102,10 +99,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
-  double *locst,*locsto,*retval,*retvalt;
-#ifdef CHECK_JAC
-  double *retval_fdj;
-#endif
+  double *retvalt;
+
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 
   vector<double> *dtmin;
@@ -115,24 +110,25 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // The trapezoidal rule integration parameter 
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  
+  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof;
   if (comp_res) {
     int j=-1;
-    locsto = arg_data_v[++j].locst;
-    locst = arg_data_v[++j].locst;
-    retval = arg_data_v[++j].retval;
+    stateo = &arg_data_v[++j];
+    staten = &arg_data_v[++j];
+    retval  = &arg_data_v[++j];
     jdtmin = ++j;
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
     if (comp_mat_each_time_step_g) retvalt = arg_data_v[++j].retval;
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
 #ifdef CHECK_JAC
-    retval_fdj = arg_data_v[++j].retval;
+    fdj_jac = &arg_data_v[++j];
 #endif
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof);
   if (comp_prof) {
+    jac_prof = &arg_data_v[0];
     retvalt = arg_data_v[0].retval;
     matlocf.set(1.);
   }
@@ -152,6 +148,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
     locstateo(nel,ndof),locstaten(nel,ndof),
     matloc,eye_ndof(ndof,ndof);
+  FastMat2 locstateo2(2,nel,ndof);
 
   eye_ndof.set(0.).eye(1.);
 //    if (ndof != ndim+1) {
@@ -186,12 +183,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
-#ifdef USE_FASTMAT2_CACHE
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-#endif
 
-  int ielh=-1;
   int start_chunk=1;
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin(); 
@@ -201,12 +195,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     element.position(k,ielh);
     // printf("[%d] glob: %d loc: %d\n",MY_RANK,k,ielh);
 
-#ifdef USE_FASTMAT2_CACHE
     FastMat2::reset_cache();
-#endif
-    //    load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
-    //    printf("element %d, prop %f\n",k,ELEMPROPS(k,0));
-    // Load local node coordinates in local vector
+
+#if 0
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
       for (jdim=0; jdim<ndim; jdim++) 
@@ -215,6 +206,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Hloc.setel(NODEDATA(node-1,ndim+ih-1),kloc+1,ih);
     }
 
+    element_node_data(element,nodedata,xloc.storage_begin(),
+		      Hloc.storage_begin());
+#endif
+    element.node_data(nodedata,xloc.storage_begin(),
+		       Hloc.storage_begin());
+
     if (comp_prof) {
       matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
       continue;
@@ -222,8 +219,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_res) {
       lambda_max=0;
-      locstateo.set(&(LOCSTO(ielh,0,0))); // State at time t_n
-      locstaten.set(&(LOCST(ielh,0,0))); // State at time t_{n+1}
+      locstateo.set(element.vector_values(*stateo));
+      locstaten.set(element.vector_values(*staten));
     }
     
     // State at time t_{n+\alpha}
@@ -413,9 +410,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
 #endif
 
-      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
-      veccontr.export_vals(&(RETVAL_FDJ(ielh,0,0)));
+      veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
       if (comp_mat_each_time_step_g) 
 	matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
@@ -431,4 +428,3 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #undef SHAPE    
 #undef DSHAPEXI 
 #undef WPG      
-

@@ -35,7 +35,7 @@ extern int comp_mat_each_time_step_g,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int BcconvAdv::ask(char *,int &)"
-int BcconvAdv::ask(char *jobinfo,int &skip_elemset) {
+int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    int ierr;
@@ -160,10 +160,8 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     A_jac_n(2,ndof,ndof);
   FastMat2 tmp1,tmp2,tmp3;
 
-#ifdef USE_FASTMAT2_CACHE
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-#endif
 
   int ielh=-1;
   int start_chunk=1;

@@ -1,6 +1,7 @@
 PROJECTS: 
 =========
 
+* Document the element locker function
 * Access connectivities and properties for elements as methods of the
       elemset. 
 * For boundary dependent temporal conditions we should have arguments

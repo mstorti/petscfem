@@ -21,7 +21,7 @@
 
 */
  
-//#define CHECK_JAC // Computes also the FD Jacobian for debugging
+#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
@@ -208,9 +208,6 @@ ADVECTIVE_ELEMSET(advec);
 #endif
 ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
 ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
-
-// use FastMat2 cache or not in advecfm2/eulerfm2.cpp
-#define USE_FASTMAT2_CACHE
 
 // Global parameters
 struct GlobParam {

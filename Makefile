@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2001/01/04 22:45:44 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/01/08 12:11:10 mstorti Exp $ 
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -64,12 +64,14 @@ CLEANDIRS = src applications/laplace applications/advective \
 SRCDIRS = src applications/ns applications/advective applications/advdif \
 		applications/laplace test 
 
+SRCS = 
+
 DEPEND_DIRS = $(SRCDIRS)
 
-depend:
+#depend:
 #	for dir in $(SRCDIRS) ; do touch $$dir/makefile.d ; done ; \
 #		for dir in $(SRCDIRS) ; do $(MAKE) -C $$dir depend ; done
-	for dir in $(SRCDIRS) ; do $(MAKE) -C $$dir depend ; done 
+#	for dir in $(SRCDIRS) ; do $(MAKE) -C $$dir depend ; done 
 
 sync_version: 	
 	$(MAKE) -C src version.cpp
