@@ -116,11 +116,8 @@ nnwt 3
 #endif
 tol_newton 0
 #if $case eq 'iisd' 
-#use_iisd
-#if $local_solver eq 'superlu'
-solver "iisd_superlu"
-#else
-solver "iisd_petsc"
+#if $local_solver ne ''
+solver "<:=$local_solver:>"
 #endif
 pc_lu_fill 8.
 preco_type "<:=$preco:>"

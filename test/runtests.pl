@@ -819,6 +819,12 @@ expect("distmap/distmat.sal.tmp",
 error < tol OK \? yes
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("lupart/check_direct_superlu.verif.tmp",
+       "SuperLU direct solver (SparseDirect class)",<<'EOT');
+Direct/SuperLU  OK \? > 1, 
+EOT
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -1157,7 +1163,7 @@ IISD on 2 processors with CGS OK \? > 1,
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("lupart/check_superlu.verif.tmp",
+expect("lupart/check_iisd_superlu.verif.tmp",
        "IISD/SuperLU solver",<<'EOT');
 __EXACT_MATCH__
 IISD/SuperLU on 1 processors OK ? > 1, 
