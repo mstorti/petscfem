@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.27 2005/01/15 12:57:23 mstorti Exp $
+// $Id: femref2.cpp,v 1.28 2005/01/15 17:26:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -437,20 +437,22 @@ set_conn(const dvector<int> &icone,
   // Reads connectivity file and resizes
   int sz = icone.size();
   connec.resize(sz).defrag();
-  for (int j=0; j<sz; j++)
-    connec.ref(j) = icone.ref(j);
-  // Gets number of nodes
-  nnod = coords.size(0);
+  connec.recompute_shape();
+  // Copy connectivity to internal buffer
+  // Compute number of nodes 
+  nnod = -1;
+  for (int j=0; j<sz; j++) {
+    int n = icone.ref(j)-base;
+    connec.ref(j) = n;
+    if (n>nnod) nnod = n;
+  }
+  nnod++;
   // Gets number of elements per node.
   // This comes from the specified shape. 
   nel = connec.size(1);
   // Add connections to graph
   lgraph.init(nnod);
   nelem = connec.size(0);
-  if (base) {
-    for (int j=0; j<connec.size(); j++)
-      connec.ref(j) -= base;
-  }
   for (int ele=0; ele<nelem; ele++) {
     for (int k=0; k<nel; k++) {
       int node = connec.e(ele,k);

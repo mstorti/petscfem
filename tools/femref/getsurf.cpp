@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.19 2005/01/15 13:44:59 mstorti Exp $
+// $Id: getsurf.cpp,v 1.20 2005/01/15 17:26:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -31,8 +31,6 @@ typedef pair<int,FaceIterator> ft_pair_t;
 
 void getsurf(const dvector<int> &icone,int base) {
 
-  printf("icone size %d, base %d\n",icone.size(),base);
-#if 0
   int nread; 
   char c;
 
@@ -153,6 +151,7 @@ void getsurf(const dvector<int> &icone,int base) {
     nsurf_nodes = 0;
   dvector<int> surf_nodes;
   dvector<int> surf_con;
+  surf_con.a_resize(2,nfaces,face_nel);
   int surf_elem=0;
 
   for (q=q1; q!=q2; q++) {
@@ -192,7 +191,6 @@ void getsurf(const dvector<int> &icone,int base) {
       printf("opposing node %d\n",opp_node);
     }
   }
-#endif
 }
 
 #if 0
