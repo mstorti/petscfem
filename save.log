@@ -1565,3 +1565,6 @@ tag: beta-3.04 on Fri,  6 Sep 2002 11:35:46 -0300, by mstorti in minerva.arcride
 ----------
 tag: beta-3.04.pl1 on Sat,  7 Sep 2002 12:34:01 -0300 by mstorti in spider
      > Fixed the `KSPGMRESSetOrthogonalization()' bug. 
+----------
+tag: beta-3.04.pl2 on Sat,  7 Sep 2002 17:46:53 -0300 by mstorti in spider
+     > Added fractional step test. 
