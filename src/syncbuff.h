@@ -1,11 +1,10 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.8 2004/01/18 22:53:23 mstorti Exp $
+// $Id: syncbuff.h,v 1.9 2004/01/21 18:37:39 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
 #include <src/distcont2.h>
-#include <src/debug.h>
 #include <algorithm>
 #include <cassert>
 #include <cstdio>

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff2.h,v 1.2 2004/01/12 01:42:55 mstorti Exp $
+// $Id: syncbuff2.h,v 1.3 2004/01/21 18:37:39 mstorti Exp $
 #ifndef PETSCFEM_SYNCBUFF2_H
 #define PETSCFEM_SYNCBUFF2_H
 
@@ -8,7 +8,6 @@
 #include <iostream>
 #include <src/distcont.h>
 #include <src/distcont2.h>
-#include <src/debug.h>
 #include <algorithm>
 #include <cassert>
 #include <cstdio>

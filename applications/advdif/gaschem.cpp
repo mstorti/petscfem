@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.11 2003/12/10 23:05:21 mstorti Exp $
+//$Id: gaschem.cpp,v 1.12 2004/01/21 18:37:39 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -43,6 +43,9 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,Nb_scale,1.0);
   //o A source for #Nb# ([=] #bubbles/m3 sec# ). 
   EGETOPTDEF_ND(elemset,double,Nb_source,0.0);
+  //o Molar fraction of gas source.
+  EGETOPTDEF_ND(elemset,double,XO_source,0.2);
+  assert(XO_source>=0.0 && XO_source<=1.0);
 
   // Values for KO and KN from [Buscaglia et.al. 2002]
   //are in mol/m3/bar
@@ -147,11 +150,14 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   Nb = Nb*Nb_scale;
   
   double pgas = H.get(ndim+1);
-  double rb;
+  double rb, vb;
   if (bubble_radius==0.) {
-    double vb = (CO+CN)*Rgas*Tgas/(pgas*Nb);
+    vb = (CO+CN)*Rgas*Tgas/(pgas*Nb);
     rb = pow(vb*3.0/(4.0*M_PI),(1.0/3.0));
-  } else rb = bubble_radius;
+  } else {
+    rb = bubble_radius;
+    vb = (4./3.)*M_PI*pow(rb,3.0);
+  }
   double vslip = (rb<7e-4 ? 4474*pow(rb,1.357) :
 		  rb<5.1e-3 ? 0.23 : 4.202*pow(rb,0.547));
   u_gas.set(u_liq).addel(vslip,g_dir);
@@ -252,9 +258,12 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     double coef = 3.0*(CO+CN)*Rgas*Tgas*hm/(pgas*rb);
     double xO = CO/(CO+CN);
     double xN = 1.0-xO;
-    
-    double SO = coef*(CdO-KO*pgas*xO);
-    double SN = coef*(CdN-KN*pgas*xN);
+
+    double fac = pgas*vb/(Rgas*Tgas)*Nb_source;
+    double SO_source = fac * XO_source;
+    double SN_source = fac * (1.0-XO_source);
+    double SO = coef*(CdO-KO*pgas*xO) + SO_source;
+    double SN = coef*(CdN-KN*pgas*xN) + SN_source;
     
     G_source.setel(Nb_source,1);
     G_source.setel(SO,2);
