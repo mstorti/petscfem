@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.59 2003/11/25 01:13:36 mstorti Exp $
+//$Id: dxhook.cpp,v 1.60 2003/11/25 02:10:22 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -142,22 +142,22 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 			   const char *name_a) {
   int ierr;
   char skthost[10];
-  //o TCP/IP port for communicating with DX ({\tt 5000 < dx\_port < 65536}). 
+  //o TCP/IP port for communicating with DX ( #5000 < dx_port < 65536# ). 
   TGETOPTDEF(mesh_a.global_options,int,dx_port,5314);
-  //o Initial value for the {\tt steps} parameter. 
+  //o Initial value for the #steps# parameter. 
   TGETOPTDEF(mesh_a.global_options,int,dx_steps,1);
   //o Mesh where updated coordinates must be read
   TGETOPTDEF_S_ND(mesh_a.global_options,string,dx_node_coordinates,<none>);
   read_coords = (dx_node_coordinates != "<none>");
   //o Coefficient affecting the new displacements read. 
-  //  New coordinates are \verb|c0*x0+c*u| where
-  //   #c0=dx_coords_scale_factor0# ,  #c1=dx_coords_scale_factor# ,
-  //   #x0#  are the initial coordinates and  #u#  are the coordinates read
+  //  New coordinates are #c0*x0+c*u# where
+  //  #c0=dx_coords_scale_factor0# ,  #c1=dx_coords_scale_factor# ,
+  //  #x0#  are the initial coordinates and  #u#  are the coordinates read
   //  from the given file. 
   TGETOPTDEF(mesh_a.global_options,double,dx_coords_scale_factor,1.);
   coef = dx_coords_scale_factor;
   //o Coefficient affecting the original coordinates. See doc for
-  //   #dx_coords_scale_factor# 
+  //  #dx_coords_scale_factor# 
   TGETOPTDEF(mesh_a.global_options,double,dx_coords_scale_factor0,1.);
   coef0 = dx_coords_scale_factor0;
 
@@ -183,7 +183,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   //o Read states from file instead of computing them . Normally
   //  this is done to analyze a previous run. If 1 the file is
   //  ASCII, if 2 then it is a binary file. In both cases the order
-  //  *of the* _elements must_ be: #u(1,1),# #u(1,2),# #u(1,3),#
+  //  of the elements must be: #u(1,1),# #u(1,2),# #u(1,3),#
   //  #u(1,ndof),# #u(2,1),# ... #u(nnod,ndof)# where #u(i,j)# is
   //  the value of field #j# at node #i.# 
   TGETOPTDEF_ND(go,int,dx_read_state_from_file,0);

@@ -428,7 +428,7 @@ Scale Nb eq. with this
 \index{Nb\_source@\verb+Nb_source+}
 \item\verb+double Nb_source+ {\rm(default=\verb|0.0|)}:
 
-A source for \verb+Nb+ ([=] #bubbles/m3 sec#). 
+A source for \verb+Nb+ ([=] \verb+bubbles/m3 sec+ ). 
  (found in file: \verb+../applications/advdif/gaschem.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Poisson\_ratio@\verb+Poisson_ratio+}
@@ -1106,7 +1106,7 @@ mstrix profile.
 
 Compute finite difference jacobian of fluxes for checking the
  analytical one. For each element the following norms are printed:
- analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and te
+ analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and the
  difference \verb+|A_a-A_n|+ . Incrementing \verb+compute_fd_adv_jacobian==1+
  increases the verbosity. If \verb+=1+ the maximum values over all the
  elemset are printed. If \verb+=2+ the errors for all elements are
@@ -1447,9 +1447,9 @@ Uses DX cache if possible in order to avoid sending the coordinates
 \item\verb+double dx_coords_scale_factor+ {\rm(default=\verb|1.|)}:
 
 Coefficient affecting the new displacements read. 
- New coordinates are \verb|c0*x0+c*u| where
-  #c0=dx_coords_scale_factor0# ,  #c1=dx_coords_scale_factor# ,
-  #x0#  are the initial coordinates and  \verb+u+  are the coordinates read
+ New coordinates are \verb+c0*x0+c*u+ where
+ \verb+c0=dx_coords_scale_factor0+ ,  \verb+c1=dx_coords_scale_factor+ ,
+ \verb+x0+  are the initial coordinates and  \verb+u+  are the coordinates read
  from the given file. 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -1457,7 +1457,7 @@ Coefficient affecting the new displacements read.
 \item\verb+double dx_coords_scale_factor0+ {\rm(default=\verb|1.|)}:
 
 Coefficient affecting the original coordinates. See doc for
-  \verb+dx_coords_scale_factor+ 
+ \verb+dx_coords_scale_factor+ 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{dx\_do\_make\_command@\verb+dx_do_make_command+}
@@ -1490,16 +1490,6 @@ tetras according to the rule. {\tt 1 2 3 4 5 4 6 2 2 6 3 4
 tetrahedra}. If you need to split the element in different geometries,
 you can use the syntax {\tt node-list-1 dx-geom-1 node-list-2
 dx-geom-2 ... node-list-n dx-geom-n}. 
-% If the element may be split in only one type of
-% geometry, then The number of nodes in \verb+node-list-j+ must be a multiple
-% of the number of nodes in each \verb+dx_type_j+ is of the form #subel_1
-% subel_2 ...  dx_type#, \verb+dx_type+ may be #quads#, #cubes#, with #k =
-% nsubelem * subnel#. For instance a prism may be slit in 3 tetras with
-% a line like #tetrahedra 3 4 1 2 3 4 5 4 6 2 2 6 3 4#.  For instance,
-% for quads one should enter {\tt dx_indices 1 2 4 3 quads} and for
-% cubes {\tt dx_indices 1 2 4 3 5 6 8 7}. [Note: DX wants 0-based
-% (C-sytle) node numbers, whereas PETSc-FEM uses 1-based (Fortran
-% style).  However they must be entered 1-based for this option.]
   (found in file: \verb+../src/dxelmst.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{dx\_node\_coordinates@\verb+dx_node_coordinates+}
@@ -1511,7 +1501,7 @@ Mesh where updated coordinates must be read
 \index{dx\_port@\verb+dx_port+}
 \item\verb+int dx_port+ {\rm(default=\verb|5314|)}:
 
-TCP/IP port for communicating with DX ({\tt 5000 < dx\_port < 65536}). 
+TCP/IP port for communicating with DX ( \verb+5000 < dx_port < 65536+ ). 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{dx\_read\_state\_from\_file@\verb+dx_read_state_from_file+}
@@ -1520,8 +1510,8 @@ TCP/IP port for communicating with DX ({\tt 5000 < dx\_port < 65536}).
 Read states from file instead of computing them . Normally
  this is done to analyze a previous run. If 1 the file is
  ASCII, if 2 then it is a binary file. In both cases the order
- \textbf{of the} \emph{elements must} be: #u(1,1),# #u(1,2),# #u(1,3),#
- #u(1,ndof),# #u(2,1),# ... #u(nnod,ndof)# where #u(i,j)# is
+ of the elements must be: \verb+u(1,1),+ \verb+u(1,2),+ \verb+u(1,3),+
+ \verb+u(1,ndof),+ \verb+u(2,1),+ ... \verb+u(nnod,ndof)+ where \verb+u(i,j)+ is
  the value of field \verb+j+ at node \verb+i.+ 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -1540,7 +1530,7 @@ Generates a DX field with the whole state (all ndof fields)
 \index{dx\_steps@\verb+dx_steps+}
 \item\verb+int dx_steps+ {\rm(default=\verb|1|)}:
 
-Initial value for the {\tt steps} parameter. 
+Initial value for the \verb+steps+ parameter. 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{element\_weight@\verb+element_weight+}
@@ -2057,7 +2047,7 @@ Threshold value for $h$ while computing turbulence model.
 
 The width of the Gaussian, i.e. the time value such that the
 relative amplitude falls from the peak value to one half
-(#half_width = 0.83255 * sigma#)
+( \verb+half_width = 0.83255 * sigma+ )
  (found in file: \verb+../src/tempfun2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ hfilm_coeff+ {\rm(default=\verb| no default|)}:
@@ -3108,7 +3098,7 @@ The absolute peak value of the Gaussian
 \index{phieq@\verb+phieq+}
 \item\verb+double phieq+ {\rm(default=\verb|0.|)}:
 
-Equilibrium value (#+phieq#, and #-phieq#). 
+Equilibrium value
  (found in file: \verb+../applications/advdif/smoke.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{preco\_side@\verb+preco_side+}
@@ -3986,7 +3976,7 @@ Steady flag
 
 If this flag is activated the code stops when a negative 
  value for density or pressure is found. Setting either
- \verb+p_thrsh+ or \verb+rho_thrsh+ deactivates #stop_on_neg_val#. 
+ \verb+p_thrsh+ or \verb+rho_thrsh+ deactivates \verb+stop_on_neg_val+ . 
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{t0@\verb+t0+}
@@ -4571,13 +4561,13 @@ Use a weak form for the gradient of pressure term.
 \index{wet\_aquifer\_width\_min@\verb+wet_aquifer_width_min+}
 \item\verb+double wet_aquifer_width_min+ {\rm(default=\verb|0.|)}:
 
-Threshold for wet aquifer width (#phi-eta#)
+Threshold for wet aquifer width ( \verb+phi-eta+ )
  (found in file: \verb+../applications/advdif/aquifer.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{wet\_aquifer\_width\_min@\verb+wet_aquifer_width_min+}
 \item\verb+double wet_aquifer_width_min+ {\rm(default=\verb|0.|)}:
 
-Threshold for wet aquifer width (#phi-eta#)
+Threshold for wet aquifer width ( \verb+phi-eta+ )
  (found in file: \verb+../applications/advdif/aquifer.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{y\_wall@\verb+y_wall+}

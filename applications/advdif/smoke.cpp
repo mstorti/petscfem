@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: smoke.cpp,v 1.5 2003/06/06 20:43:41 mstorti Exp $
+// $Id: smoke.cpp,v 1.6 2003/11/25 02:10:22 mstorti Exp $
 
 #include "./smoke.h"
 
@@ -16,7 +16,7 @@ void smoke_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(new_adv_dif_elemset,double,omega,0.);
   //o Coefficient scaling the reaction 
   EGETOPTDEF_ND(new_adv_dif_elemset,double,Cr,0.);
-  //o Equilibrium value (#+phieq#, and #-phieq#). 
+  //o Equilibrium value
   EGETOPTDEF_ND(new_adv_dif_elemset,double,phieq,0.);
 
   assert(omega>0.);

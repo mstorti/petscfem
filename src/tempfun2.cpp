@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.3 2003/07/26 00:57:56 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.4 2003/11/25 02:10:22 mstorti Exp $
 
 #include <math.h>
 
@@ -40,7 +40,7 @@ public:
 
     //o The width of the Gaussian, i.e. the time value such that the
     // relative amplitude falls from the peak value to one half
-    // (#half_width = 0.83255 * sigma#)
+    // ( #half_width = 0.83255 * sigma# )
     TGETOPTDEF_ND(thash,double,half_width,0.5);
     assert(ierr==0);
 

@@ -30,4 +30,4 @@ make-info.log
 options.info
 options2.texi
 options3.texi
-
+*.log

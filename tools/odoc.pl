@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.23 2003/11/25 01:13:37 mstorti Exp $
+# $Id: odoc.pl,v 1.24 2003/11/25 02:07:05 mstorti Exp $
 
 @odoc=();
 
@@ -48,10 +48,15 @@ sub get_section {
 
 sub wiki2 {
     my ($ref,$wc,$pre,$post) = @_;
-    $text = $$ref;
+    my $text = $$ref;
     my $processed = "";
-    while ($text =~ /(\s)$wc(\S)$wc(\s)/ ||
-	   $text =~ /(\s)$wc(\S.*?\S)$wc(\s)/ ) {
+    while ($text =~ /(\s)$wc(\S)$wc(\s)/) {
+	$processed .= "$`$1$pre$2$post";
+	$text = "$3$'";
+    }
+    $text = "$processed$text";
+    $processed = "";
+    while ($text =~ /(\s)$wc(\S.*?\S)$wc(\s)/) {
 	$processed .= "$`$1$pre$2$post";
 	$text = "$3$'";
     }

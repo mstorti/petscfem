@@ -148,6 +148,8 @@ tetras according to the rule. {\tt 1 2 3 4 5 4 6 2 2 6 3 4
 tetrahedra}. If you need to split the element in different geometries,
 you can use the syntax {\tt node-list-1 dx-geom-1 node-list-2
 dx-geom-2 ... node-list-n dx-geom-n}. 
+%end_section
+
 % If the element may be split in only one type of
 % geometry, then The number of nodes in #node-list-j# must be a multiple
 % of the number of nodes in each #dx_type_j# is of the form #subel_1
@@ -158,4 +160,3 @@ dx-geom-2 ... node-list-n dx-geom-n}.
 % cubes {\tt dx_indices 1 2 4 3 5 6 8 7}. [Note: DX wants 0-based
 % (C-sytle) node numbers, whereas PETSc-FEM uses 1-based (Fortran
 % style).  However they must be entered 1-based for this option.]
-%end_section

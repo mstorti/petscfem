@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.9 2003/11/19 17:56:34 mstorti Exp $
+//$Id: gaschem.cpp,v 1.10 2003/11/25 02:10:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -41,7 +41,7 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,CdN_ctff,0.0);
   //o Scale Nb eq. with this
   EGETOPTDEF_ND(elemset,double,Nb_scale,1.0);
-  //o A source for #Nb# ([=] #bubbles/m3 sec#). 
+  //o A source for #Nb# ([=] #bubbles/m3 sec# ). 
   EGETOPTDEF_ND(elemset,double,Nb_source,0.0);
 
   // Values for KO and KN from [Buscaglia et.al. 2002]

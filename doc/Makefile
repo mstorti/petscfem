@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.44 2003/11/25 01:13:36 mstorti Exp $
+#$Id: Makefile,v 1.45 2003/11/25 02:09:51 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -116,13 +116,14 @@ odoc:
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 allcpp = $(shell find .. -name '*.cpp')
 odoc_all: 
-	$(ODOC) -o odocall.tex $(allcpp)
+	$(ODOC) -o odocall.tex $(allcpp) &> odocall.log
+	-rm odocall.log
 
 info: 
 	@$(ODOC) -e options2.texi $(allcpp) &> odoc.log
 	emacs -batch -q -l make-info.el &> make-info.log
 	makeinfo --no-split options3.texi
-# 	-rm options2.texi options3.texi odoc.log make-info.log
+	-rm options2.texi options3.texi odoc.log make-info.log odoc.log
 
 #w Make html home-page
 index.html: index.tex

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.83 2003/11/23 16:42:53 mstorti Exp $
+//$Id: advdife.cpp,v 1.84 2003/11/25 02:10:22 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -113,7 +113,7 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   int ierr;
   //o Compute finite difference jacobian of fluxes for checking the
   //  analytical one. For each element the following norms are printed:
-  //  analytical jacobian #|A_a|# , numerical jacobian #|A_n|# and te
+  //  analytical jacobian #|A_a|# , numerical jacobian #|A_n|# and the
   //  difference #|A_a-A_n|# . Incrementing #compute_fd_adv_jacobian==1#
   //  increases the verbosity. If #=1# the maximum values over all the
   //  elemset are printed. If #=2# the errors for all elements are

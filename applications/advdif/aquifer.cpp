@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.16 2003/11/14 00:16:39 mstorti Exp $
+//$Id: aquifer.cpp,v 1.17 2003/11/25 02:10:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -15,12 +15,12 @@ void aquifer_ff::start_chunk() {
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd
   //o Constant rain
   EGETOPTDEF_ND(elemset,double,rain,0.); 
-  //o Threshold for wet aquifer width (#phi-eta#)
+  //o Threshold for wet aquifer width ( #phi-eta# )
   EGETOPTDEF_ND(elemset,double,wet_aquifer_width_min,0.); 
   assert(wet_aquifer_width_min>=0.);
   //o Flag ehether to stop on dry aquifer
   EGETOPTDEF_ND(elemset,int,dry_aquifer_stop,0); 
-  //o Threshold for wet aquifer width (#phi-eta#)
+  //o Threshold for wet aquifer width ( #phi-eta# )
   EGETOPTDEF_ND(elemset,double,wet_aquifer_width_min,0.); 
   assert(wet_aquifer_width_min>=0.);
   //o Flag ehether to stop on dry aquifer

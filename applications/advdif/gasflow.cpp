@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.7 2003/10/11 23:57:14 mstorti Exp $
+//$Id: gasflow.cpp,v 1.8 2003/11/25 02:10:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -37,7 +37,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,p_thrsh,0.);
   //o If this flag is activated the code stops when a negative 
   //  value for density or pressure is found. Setting either
-  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val#. 
+  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# . 
   EGETOPTDEF_ND(elemset,int,stop_on_neg_val,1);
   PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");  
   PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");  
