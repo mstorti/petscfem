@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.77 2003/11/15 16:05:10 mstorti Exp $
+//$Id: advdife.cpp,v 1.78 2003/11/15 17:32:54 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -102,9 +102,52 @@ NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_)
   // assert(new_adv_dif_elemset);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "NewAdvDif::before_assemble"
+void NewAdvDif::
+before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		Dofmap *dofmap, const char *jobinfo,int myrank,
+		int el_start,int el_last,int iter_mode,
+		const TimeData *time_data) {
+  int ierr;
+  //o Compute finite difference jacobian of fluxes for checking the
+  //  analytical one. For each element the following norms are printed:
+  //  analytical jacobian #|A_a|# , numerical jacobian #|A_n|# and te
+  //  difference #|A_a-A_n|# . Incrementing #compute_fd_adv_jacobian==1#
+  //  increases the verbosity. If #=1# the maximum values over all the
+  //  elemset are printed. If #=2# only those whose relative errors are
+  //  greater than #compute_fd_adv_jacobian_rel_err_threshold# are
+  //  reported. If #=3# the errors for all elements are
+  //  reported. Finally, if #=4# also the jacobians themselves are
+  //  printed. For 3 and 4, if #compute_fd_adv_jacobian_elem_list# is
+  //  set, then only those elements are printed. Also, be warned that when
+  //  run in parallel, printing for a lot of elements in different
+  //  processors may be messy.
+  NSGETOPTDEF_ND(int,compute_fd_adv_jacobian,0);
+  //o The perturbation scale for computing the numerical jacobian
+  //  (see #compute_fd_adv_jacobian# ).
+  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_eps,1e-4);
+  assert(compute_fd_adv_jacobian_eps > 0.);
+  //o Report elements whose relative error in computing
+  //  flux jacobians exceed these value. 
+  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,1e-4);
+
+  A_fd_jac_norm_max = 0.;
+  A_fd_jac_norm_min = DBL_MAX;
+  A_jac_norm_max = 0.;
+  A_jac_norm_min = DBL_MAX;
+  A_jac_err_norm_max = 0.;
+  A_jac_err_norm_min = DBL_MAX;
+  A_jac_rel_err_min = 0.;
+  A_jac_rel_err_max = DBL_MAX;
+  checked=0;
+
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
-#define __FUNC__ "advective::assemble"
+#define __FUNC__ "NewAdvDif::assemble"
 void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
@@ -176,9 +219,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
   }
 
-  FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
-  FastMat2 prof_nodes(2,nel,nel),prof_fields(2,ndof,ndof),matlocf_fix(4,nel,ndof,nel,ndof);
-  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),prof_fields_diag_fixed(2,ndof,ndof);
+  FastMat2 matlocf(4,nel,ndof,nel,ndof),
+    matlocf_mass(4,nel,ndof,nel,ndof);
+  FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof), 
+    matlocf_fix(4,nel,ndof,nel,ndof);
+  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),
+    prof_fields_diag_fixed(2,ndof,ndof);
 
   //o Use the weak form for the Galerkin part of the advective term.
   NSGETOPTDEF(int,weak_form,1);
@@ -314,10 +360,15 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   if (axi) assert(ndim==3);
 
-  //#define COMPUTE_FD_ADV_JACOBIAN
-#ifdef COMPUTE_FD_ADV_JACOBIAN
-  FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
-#endif
+  // For the computation of the jacobian with 
+  // finite differences
+  FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),
+    flux_pert(2,ndof,ndimel),A_jac_err, A_jac(3,ndimel,ndof,ndof), 
+    Id_ndim(2,ndim,ndim);
+  Id_ndim.eye();
+
+  // Position of current element in elemset and in chunk
+  int k_elem, k_chunk;
 
   Uo.resize(1,ndof);
   Id_ndof.set(0.);
@@ -330,13 +381,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
 
+    element.position(k_elem,k_chunk);
     FastMat2::reset_cache();
 
     // Initialize element
     adv_diff_ff->element_hook(element);
     // Get nodedata info (coords. etc...)
     element.node_data(nodedata,xloc.storage_begin(),
-		       Hloc.storage_begin());
+		      Hloc.storage_begin());
 
     if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
@@ -485,23 +537,56 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
 
-#ifdef COMPUTE_FD_ADV_JACOBIAN
-	double eps_fd=1e-4;
-	for (int jdof=1; jdof<=ndof; jdof++) {
-	  U_pert.set(U).is(1,jdof).add(eps_fd).rs();
-	  adv_diff_ff->set_state(U_pert,grad_U);
-	  adv_diff_ff->compute_flux(U_pert,iJaco,H,grad_H,flux_pert,fluxd,
-				    A_grad_U,grad_U,G_source,
-				    tau_supg,delta_sc,
-				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-	  flux_pert.rest(flux).scale(1./eps_fd);
-	  flux_pert.t();
-	  A_fd_jac.ir(3,jdof).set(flux_pert).rs();
-	  flux_pert.rs();
+	int check_this = 1, print_this=1;
+	if (compute_fd_adv_jacobian && check_this) {
+	  checked++;
+	  double &eps_fd = compute_fd_adv_jacobian_eps;
+	  for (int jdof=1; jdof<=ndof; jdof++) {
+	    U_pert.set(U).is(1,jdof).add(eps_fd).rs();
+	    adv_diff_ff->set_state(U_pert,grad_U);
+	    adv_diff_ff->compute_flux(U_pert,iJaco,H,grad_H,flux_pert,fluxd,
+				      A_grad_U,grad_U,G_source,
+				      tau_supg,delta_sc,
+				      lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
+	    flux_pert.rest(flux).scale(1./eps_fd);
+	    flux_pert.t();
+	    A_fd_jac.ir(3,jdof).set(flux_pert).rs();
+	    flux_pert.rs();
+	  }
+	  for (int j=1; j<=ndof; j++) {
+	    Id_ndim.ir(2,j);
+	    A_jac.ir(1,j);
+	    adv_diff_ff->comp_A_jac_n(A_jac,Id_ndim);
+	  }
+	  Id_ndim.rs();
+	  A_jac.rs();
+	  A_jac_err.set(A_jac).rest(A_fd_jac);
+#define FM2_NORM sum_abs_all
+	  double A_jac_norm = A_jac.FM2_NORM();
+	  double A_jac_err_norm = A_jac_err.FM2_NORM();
+	  double A_fd_jac_norm = A_fd_jac.FM2_NORM();
+
+#define CHK_MAX(cur,val) if(val>cur) cur=val
+#define CHK_MIN(cur,val) if(val<cur) cur=val
+	  CHK_MAX(A_jac_norm_max,A_jac_norm);
+	  CHK_MIN(A_jac_norm_min,A_jac_norm);
+	  CHK_MAX(A_jac_err_norm_max,A_jac_norm);
+	  CHK_MIN(A_jac_err_norm_min,A_jac_norm);
+#undef CHK_MAX
+#undef CHK_MIN
+
+	  if (compute_fd_adv_jacobian>=2 && print_this) {
+	    printf("elem %d, |A_a|=%g, |A_n|=%g, |A_a-A_n|=%g, (rel.err %g)\n",
+		   k_elem,A_jac_norm,A_fd_jac_norm,A_jac_err_norm,
+		   A_jac_err_norm/A_fd_jac_norm);
+	  }
+	  if (compute_fd_adv_jacobian>=3  && print_this) {
+	    A_jac.print("A_a: ");
+	    A_fd_jac.print("A_n: ");
+	  }
+	  // Reset state in flux function to state U
+	  adv_diff_ff->set_state(U,grad_U);
 	}
-	// Last call for set_state with state U
-	adv_diff_ff->set_state(U,grad_U);
-#endif
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
@@ -741,6 +826,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   set_error(1);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "NewAdvDif::after_assemble"
+void NewAdvDif::
+after_assemble(const char *jobinfo) {
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double NewAdvDif::volume() const {
   if (volume_flag) {
     return Volume;
@@ -749,6 +842,7 @@ double NewAdvDif::volume() const {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const FastMat2 *NewAdvDif::grad_N() const {
   return &dshapex;
 }
@@ -764,6 +858,7 @@ void NewAdvDif::comp_P_supg(int is_tau_scalar) {
 }
 #endif
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   assert(new_adv_dif_elemset);
   const NewAdvDif *e = new_adv_dif_elemset;
@@ -775,10 +870,12 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void NewAdvDifFF::set_profile(FastMat2 &seed) {
   seed.set(1.);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 			      FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_){
   int ppp=0;
