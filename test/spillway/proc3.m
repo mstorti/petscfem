@@ -32,7 +32,7 @@ for k=1:columns(yfs)
   plot(xfs(:,k),yfs(:,k));
   pause(0.2);
 endfor
-axis
+axis;
 
 ## Average level history
 ylh = sum(yfs)'/rows(yfs);
