@@ -1,24 +1,42 @@
 #include <iostream>
+#include <list>
 
-class Transformer {
-  virtual void transform(int &b) {};
-}
-
-template<class B>
-class A {
-  Transformer *t;
+template<class B,class Cond>
+class Grep {
+  Cond c;
 public:
-  int transform(B &b);
-  int foo(B b) {
-    transform(b);
-    cout << b << endl;
-    return 0;
-  }
+  void apply(const list<B> &in, list<B> &out);
 };
   
-int D::transform(int &b) { b=2*b; return 0;}
+
+template<class B,class Cond>
+void Grep<B,Cond>::apply(const list<B> &in, list<B> &out) {
+  list<B>::const_iterator k;
+  for (k=in.begin(); k!=in.end(); k++) {
+    if (c.satisfies(*k)) {
+      out.insert(out.end(),*k);
+    }
+  }
+}
+
+class Even {
+public:
+  int satisfies(int k) {return (k % 2 == 0);};
+};
 
 int main() {
-  D a;
-  a.foo(2);
+  Grep<int,Even> evengrep;
+  list<int> in,out;
+  list<int>::iterator j;
+
+  for (int k=0; k<20; k++)
+    in.insert(in.end(),k);
+
+  evengrep.apply(in,out);
+
+  for (j=out.begin(); j!=out.end(); j++) 
+    cout << *j << "  ";
+
+  cout << endl;
+
 }
