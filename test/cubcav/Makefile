@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.71 2003/09/29 16:54:58 mstorti Exp $ 
+# $Id: Makefile,v 1.72 2003/10/23 11:31:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -47,6 +47,17 @@ NP := 1
 endif
 
 export NP
+
+run_subdir_test:
+	if [ -e $(sub_dir) ] ; then rrm -rf $(sub_dir) ; fi ;		\
+	mkdir $(sub_dir) ;						\
+	echo "node1 1.3 server" > $(sub_dir)/proctable ;		\
+	for n in $(node_list) ;						\
+		do grep $$n ./proctable >> $(sub_dir)/proctable ;	\
+	done ;								\
+	cp cubcav.epl $(sub_dir) ;					\
+	cp Makefile.sub-dir  $(sub_dir)/Makefile ;			\
+	$(MAKE) -C $(sub_dir) data_dir=.. mkmesh=0
 
 #w Makes only the mesh
 mesh:
@@ -137,3 +148,5 @@ clean_fifo:
 #w 
 step_server:
 	octave -qH comp_step2.m
+
+endurance:
