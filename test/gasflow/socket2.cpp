@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.4 2003/02/03 15:51:57 mstorti Exp $
+// $Id: socket2.cpp,v 1.5 2003/02/03 17:12:49 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -10,11 +10,31 @@
 
 enum comm_mode { SEND, RECV };
 
-#define BUFSIZE 200
 int count, inside = 0;
 const int CHUNK=1000;
 
 void chomp(char *s) { s[strlen(s)-1] = '\0'; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define SGETLINE_FACTOR 2
+// #define SGETLINE_INIT_SIZE 128
+#define SGETLINE_INIT_SIZE 8
+#define SGETLINE_MAX_SIZE INT_MAX
+ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
+  unsigned int &N = *N_a;	// better readbility
+  while (N==0 || !Sgets(*lineptr,N,sock)) {
+    N = (N ? 2*N : SGETLINE_INIT_SIZE);
+#define DEBUG
+#ifdef DEBUG
+    printf("Allocating %d bytes\n",N);
+#endif
+    if (N > SGETLINE_MAX_SIZE) return 0;
+    if (!*lineptr) free(*lineptr);
+    *lineptr = (char *) malloc(N);
+    if (!*lineptr) return 0;
+  }
+  return strlen(*lineptr)+1;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 inline double drand() {  
@@ -24,8 +44,8 @@ inline double drand() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int talk(Socket *sock,comm_mode &mode) { 
   static char *line = NULL;
-  static size_t N=0;
-  char buf[100], *buff;
+  static size_t N=0,NN=0;
+  char *buf;
   int stop;
 
   if (mode==SEND) {
@@ -49,8 +69,8 @@ int talk(Socket *sock,comm_mode &mode) {
     double PI = 4.*double(inside)/double(count);
     printf("[Computed %d points, current PI %f, error %g]\n",computed,
 	   PI,fabs(PI-M_PI));
-    buff = Sgets(buf,BUFSIZE,sock);
-    assert(buff);
+    
+    Sgetline(&buf,&NN,sock);
     if (!strcmp(buf,"OVER\n")) mode = SEND;
     printf("-- %s",buf);
     stop = !strcmp(buf,"STOP\n");
