@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.67 2003/11/16 00:55:09 mstorti Exp $
+//$Id: advective.h,v 1.58.2.1 2004/05/21 21:08:11 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -276,8 +276,8 @@ public:
   virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) =0;
 
   /** This sets the local state of the flow and is called before to
-      call all the enthalpy functions functions and the like (those
-      that don't need the state gradient #grad_U#.  
+      call all the enthalpy functions functions and alike (thos that
+      don't need the state gradient #grad_U#. 
       @param U (input) the local state of the fluid
   */
   virtual void set_state(const FastMat2 &U) {}
@@ -331,37 +331,34 @@ public:
       SUPG perturbation function that can't be cast in the standard
       form (i.e. it is not of the form #tau * A * grad_N# then you
       should define #tau# as scalar (may be 0) and then compute your
-      own expression for #P_supg#. 
+      own expression for #P_supg#.
       @param P_supg (output) the SUPG perturbation function for all
       nodes at this Gauss point, has dimensions #nel# x #ndof# x
-      #ndof# 
+      #ndof#
 */
   virtual void comp_P_supg(FastMat2 &P_supg);
 
   /** Returns the dimension of the element (May be different from the
       dimension space). For instance, a river may be a 1D elemset in a
       2D space. If this is equal to the space dimension (the most
-      common case) then return -1. 
+      common case) then return -1.
       @return the dimension of the advective elemset.
   */
   virtual int dim() const { return -1; }
 
-  /** Returns the Riemann Invariants and jacobians 
-      for Adv-Diff absorbent condition
-  */
-  virtual void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
-			   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
+  virtual void get_C(FastMat2 &C);
 
+  virtual void get_Cp(FastMat2 &Cp);
 
   virtual ~NewAdvDifFF()=0;
   //@}
 };
 
-/** Generic elemset for advective diffusive problems. 
+/** Generic elemset for advective diffusive problems.
     Several physical problems may be solved by defining the
-    corresponding flux function object. 
+    corresponding flux function object.
 */
-class NewAdvDif : public NewElemset { 
+class NewAdvDif : public NewElemset {
 protected:
   /** A pointer to the flux function. Different
       physics are obtained by redefining the flux function
@@ -371,18 +368,8 @@ protected:
   double Volume,rec_Dt_m;
   /// Options returned by the flux function
   int ff_options;
-  /// The actual time
-  double time_m;
-  /// All these are for checking advective jacobians with numerical
-  int compute_fd_adv_jacobian, comp_checked, comp_total;
-  double compute_fd_adv_jacobian_eps,
-    compute_fd_adv_jacobian_rel_err_threshold,
-    A_fd_jac_norm_max, A_fd_jac_norm_min, A_jac_norm_max, 
-    A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
-    A_rel_err_min, A_rel_err_max;
-
 public:
-  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg;
+  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg,grad_Uo;
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
@@ -391,71 +378,57 @@ public:
       not good!! We cannot destroy the flux function object here if it
       is built in the derived class, because it may happen, for
       instance, that we pass a pointer to a global object. To be fixed
-      later... 
+      later...
    */
   ~NewAdvDif() {delete adv_diff_ff;}
-  
-  /** Prepare variables for report of error on
-      flux advective jacobians */
-  void before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
-		       Dofmap *dofmap, const char *jobinfo,int myrank,
-		       int el_start,int el_last,int iter_mode,
-		       const TimeData *time_data);
-
-  /// Report erros on jacobian fluxes
-  void after_assemble(const char *jobinfo);
-
-  /// The assemble function for the elemset. 
+  /// The assemble function for the elemset.
   NewAssembleFunction new_assemble;
-  /// The ask function for the elemset. 
+  /// The ask function for the elemset.
   ASK_FUNCTION;
   double volume() const ;
   const FastMat2 *grad_N() const ;
   double rec_Dt() const { return rec_Dt_m; }
   const FastMat2 &Uold() const { return Uo; }
+  const FastMat2 &grad_Uold() const { return grad_Uo; }
+
   // void comp_P_supg(int is_tau_scalar);
 
   /// axisymmetric key
   int axi;
 
-  /** Returns the actual time. 
-      @return actual time
-  */ 
-  double time() const { return time_m; };
-
 };
 
 /** This is the companion elemset to advdif that computes the boundary
-    term when using the weak-form option. 
+    term when using the weak-form option.
 */
-class NewBcconv : public NewElemset { 
+class NewBcconv : public NewElemset {
   /** A pointer to the flux function. Different
       physics are obtained by redefining the flux function
   */
   NewAdvDifFF *adv_diff_ff;
 public:
   /// Contructor from the pointer to the fux function
-  NewBcconv(NewAdvDifFF *adv_diff_ff_=NULL) : 
+  NewBcconv(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
-  /// Destructor. Destroys the flux function object. 
+  /// Destructor. Destroys the flux function object.
   ~NewBcconv() { delete adv_diff_ff; }
-  /// The assemble function for the elemset. 
+  /// The assemble function for the elemset.
   NewAssembleFunction new_assemble;
-  /// The ask function for the elemset. 
+  /// The ask function for the elemset.
   ASK_FUNCTION;
 };
 
 /** The class AdvDif is a NewElemset class plus a
     advdif flux function object.
 */
-class AdvDif : public NewElemset { 
+class AdvDif : public NewElemset {
 public:
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
   AdvDifFF *adv_diff_ff;
 };
 
-class BcconvAdv : public NewElemset { 
+class BcconvAdv : public NewElemset {
 public:
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
@@ -468,9 +441,11 @@ enum flux_fun_opt {
   COMP_UPWIND = 0x0002,
   COMP_EIGENV = 0x0004,
   SCALAR_TAU  = 0x0008,
+  COMP_SOURCE_NOLUMPED = 0x0010,
+  COMP_SOURCE_LUMPED = 0x0020,
 };
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #define ADVECTIVE_ELEMSET(name)				\
 FluxFunction flux_fun_##name;				\
 							\
@@ -523,8 +498,7 @@ public:							\
 
 ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
 ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
-ADVDIF_ELEMSET(swfm2t);	        // shallow water 2d turbulent
-//ADVDIF_ELEMSET(swfm1t);	        // shallow water 1d supg
+ADVDIF_ELEMSET(swfm2t);	        // shallow water turbulent
 
 class wall_swfm2t : NewElemset { 
 public: 
@@ -572,10 +546,6 @@ struct GlobParam {
   double Dt;
   /// if set to one then Dt=infty
   int steady;
-  /// State vectors;
-  Vec x,xold;
-  /// Current time
-  TimeData *time;
   /// Constructor
   GlobParam() : alpha(0), Dt(1.), steady(0) {}
 };
@@ -597,15 +567,5 @@ struct GlobParam {
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 		const int nlog_vars,const int *log_vars);
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Sets an error for the negative jacobian error case. 
-    @param detjaco (input) the determinant of the jacobian
-    @param elem (input) the element number */ 
-void detj_error(double &detJaco,int elem);
-
-/** Cutoff function. It is very near to ${\rm ctff(x)}\approx \rm tol$ for
-    $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
-*/ 
-double ctff(double x, double & diff_ctff, double tol);
 
 #endif
