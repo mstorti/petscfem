@@ -73,6 +73,8 @@ elemset lin_gen_load 4
 #Datos del elemento
 geometry cartesian1d
 npg 2
+double_layer
+hfilm_coeff 3.
 __END_HASH__
 17 18 35 36
 __END_ELEMSET__

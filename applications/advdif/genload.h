@@ -30,6 +30,7 @@ private:
     LinearHFilmFun* l;
     virtual void prod(FastMat2 &Ax, FastMat2 &x)=0;
     virtual void init() {};
+    virtual void element_hook(ElementIterator &element) {};
     H(LinearHFilmFun *l_) : l(l_) {};
   };
   
@@ -39,6 +40,7 @@ private:
   public:
     void prod(FastMat2 &Ax, FastMat2 &x) {Ax.prod(HH,x,1,-1,-1);};
     void init();
+    void element_hook(ElementIterator &element);
     HFull(LinearHFilmFun *l) : H(l) {};
   };
 
@@ -47,6 +49,7 @@ private:
     LinearHFilmFun* l;
     virtual void add(FastMat2 &S)=0;
     virtual void init() {};
+    virtual void element_hook(ElementIterator &element) {};
     S(LinearHFilmFun *l_) : l(l_) {};
   };
 
@@ -65,6 +68,7 @@ public:
   void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 	 FastMat2 &jacin,FastMat2 &jacout);
   void init();
+  void element_hook(ElementIterator &element);
   LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
   ~LinearHFilmFun();
 };

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.5 2001/05/23 20:23:42 mstorti Exp $
+//$Id: genload.cpp,v 1.6 2001/05/24 01:51:20 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -14,6 +14,20 @@ extern int MY_RANK,SIZE;
 
 #include "advective.h"
 #include "genload.h"
+
+GenLoad::~GenLoad() {};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LinearHFilmFun::element_hook(ElementIterator &element) {
+  h->element_hook(element);
+  s->element_hook(element);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LinearHFilmFun::HFull::element_hook(ElementIterator &element) {
+  const double * hf = l->elemset->prop_array(element,l->hfilm_coeff_prop);
+  HH.set(hf);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
@@ -103,14 +117,10 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     un(2,nel,ndof),uo(2,nel,ndof),ustar(2,nel,ndof),vecc2,Hloc;
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof),Jaco(2,ndimel,ndim),S(1,ndim),
+  FastMat2 matloc(4,nel,ndof,nel,ndof),matlocf(4,nel,ndof,nel,ndof),
+    Jaco(2,ndimel,ndim),S(1,ndim),
     flux(1,ndof),load(1,ndof),jac_in,jac_out,tmp1,tmp2,tmp3,tmp4;
 
-  // Gauss Point data
-  //o Type of element geometry to define Gauss Point data
-  NGETOPTDEF_S(string,geometry,cartesian1d);
-  GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
-  
   double detJ;
   FastMat2 u_in,u_out,U_in,U_out;
 
@@ -135,9 +145,13 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
   }
 
+  if (comp_prof) {
+    jac_prof = &arg_data_v[0];
+    matlocf.set(1.);
+  }
+
   h_film_fun->init(); // initialize hfilm function
   double hfilm;
-  xloc.resize(nel2,ndim);
   if (double_layer) {
     PETSCFEM_ASSERT0(nel % 2 ==0,"Number of nodes per element has to be even for "
 		    "double_layer mode");
@@ -154,6 +168,12 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     PETSCFEM_ERROR0("Only considered \"double_layer=1\"\n");
     nel2=nel;
   }
+  xloc.resize(2,nel2,ndim);
+  
+  // Gauss Point data
+  //o Type of element geometry to define Gauss Point data
+  NGETOPTDEF_S(string,geometry,cartesian1d);
+  // GPdata gp_data(geometry.c_str(),ndim,nel2,npg,GP_FASTMAT2);
   
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
@@ -165,6 +185,11 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // Load local node coordinates in local vector
     element.node_data(nodedata,xloc.storage_begin(),
 		      Hloc.storage_begin());
+
+    if (comp_prof) {
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
+      continue;
+    }
 
     matloc.set(0.);
     veccontr.set(0.);

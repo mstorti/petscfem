@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.31 2001/05/23 20:23:42 mstorti Exp $
+//$Id: advective.h,v 1.32 2001/05/24 01:51:20 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -407,6 +407,7 @@ public:
   virtual void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		 FastMat2 &jacin,FastMat2 &jacout)=0;
   virtual void init()=0;
+  virtual void element_hook(ElementIterator &element)=0;
   HFilmFun(GenLoad *e) : elemset(e) {};
 };
 
