@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.2 2005/03/01 02:53:31 mstorti Exp $
+// $Id: project3.cpp,v 1.3 2005/03/01 02:57:06 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -37,7 +37,7 @@ public:
   FemInterp() : 
     kdtree(NULL), nn_idx(NULL),
     nn_dist(NULL), nn(NULL),
-    use_cache(0), tol(1e-6) {}
+    use_cache(1), tol(1e-6) {}
 
   void clear() {
     if (kdtree) delete kdtree;
@@ -317,7 +317,10 @@ int main() {
 
   printf("mesh2: %d nodes read\n",nnod2);
 
-  FemInterp fem_interp;
-  fem_interp.init(10,2,2,xnod1,ico1);
-  fem_interp.interp(xnod2,u1,u2);
+  while (1) {
+    FemInterp fem_interp;
+    fem_interp.init(10,2,2,xnod1,ico1);
+    u2.clear();
+    fem_interp.interp(xnod2,u1,u2);
+  }
 }
