@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.5 2002/12/09 02:12:29 mstorti Exp $
+//$Id: elast.cpp,v 1.6 2002/12/09 02:57:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,39 +11,60 @@
 #include "adaptor.h"
 #include "elast.h"
 
-class FastMat2_funm {
+class FastMat2_fund {
 private:
   int m;
-  FastMat2 V,D,tmp;
+  FastMat2 V,D,tmp,lambda,flambda;
 public:
   void init(FastMat2 &A);
-  void funm(const FastMat2 &A,FastMat2 &fA);
-  virtual double f(double)=0;
+  void apply(const FastMat2 &A,FastMat2 &fA);
+  virtual void f(const FastMat2 &D,FastMat2 &fD)=0;
 };
 
-void FastMat2_funm::init(FastMat2 &A) {
+void FastMat2_fund::init(FastMat2 &A) {
   assert(A.n()==2);
   assert(A.dim(1)==A.dim(2));
   m = A.dim(1);
   V.resize(2,m,m);
   D.resize(2,m,m).set(0.);
+  lambda.resize(1,m);
+  flambda.resize(1,m);
   tmp.resize(2,m,m);
 }
 
-double ff(double x,void *a) {
-  FastMat2_funm *fff = (FastMat2_funm *)a;
-  return fff->f(x);
-}
-
-void FastMat2_funm::funm(const FastMat2 &A,FastMat2 &fA) {
-  D.d(1,2).seig(A,V).fun(ff,this).rs();
+void FastMat2_fund::apply(const FastMat2 &A,FastMat2 &fA) {
+  lambda.seig(A,V);
+  f(lambda,flambda);
+  D.d(1,2).set(flambda).rs();
   tmp.prod(D,V,1,-1,2,-1);
   fA.prod(V,tmp,1,-1,-1,2);
 }
 
-class MyFun : public FastMat2_funm {
+double FastMat2_funm_ff(double x,void *a);
+
+class FastMat2_funm : public FastMat2_fund {
+private:
+  void f(const FastMat2 &D,FastMat2 &fD);
+public:
+  virtual double f(double)=0;
+};
+
+double FastMat2_funm_ff(double x,void *a) {
+  FastMat2_funm *fff = (FastMat2_funm *)a;
+  return fff->f(x);
+}
+
+void FastMat2_funm::f(const FastMat2 &D,FastMat2 &fD) {
+  fD.set(D).fun(FastMat2_funm_ff,this); 
+}
+
+class MyFun2 : public FastMat2_funm {
   // double f(double l) { 1./sqrt(l); }
   double f(double l) { return l; }
+} my_fun2;
+
+class MyFun : public FastMat2_fund {
+  void f(const FastMat2 &L,FastMat2 &fL) { fL.set(L); }
 } my_fun;
 
 void elasticity::init() {
@@ -78,7 +99,7 @@ void elasticity::init() {
   G.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
 
-  my_fun.init(G);
+  my_fun2.init(G);
   // Plane strain
   if (ndim==2) {
     double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
@@ -103,18 +124,6 @@ void elasticity::init() {
 
 }
 
-#if 0
-class Fun1 {
-public:
-  virtual double f(double)=0;
-};
-
-class f : public Fun1 {
-  double f(double l) { 1./sqrt(l); }
-}
-#endif
-
-
 void elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
@@ -129,7 +138,7 @@ void elasticity::element_connector(const FastMat2 &xloc,
     // Jaco.prod(dshapexi,xloc,1,-1,-1,2);
     Jaco.prod(dshapexi,x_new,1,-1,-1,2);
     G.prod(Jaco,Jaco,-1,1,-1,2);
-    my_fun.funm(G,fG);
+    my_fun2.apply(G,fG);
     
     double detJaco = Jaco.det();
     if (detJaco <= 0.) {
@@ -141,32 +150,33 @@ void elasticity::element_connector(const FastMat2 &xloc,
     double wpgdet = detJaco*wpg.get(ipg+1);
     iJaco.inv(Jaco);
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
+    dshapex_scaled.prod(fG,dshapex,1,-1,-1,2);
     
     // Recall: \epsilon = B dudx
     // where \epsilon = [e_xx e_yy e_xy] (2D)
     //                  [e_xx e_yy e_zz e_xy e_xz e_yz] (3D)
     // dudx is de gradient of displacements. 
     if (ndim==2) {
-      B.ir(1,1).ir(3,1).set(dshapex. ir(1,1));
-      B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
-      B.ir(1,3).ir(3,1).set(dshapex.ir(1,2));
-      B.ir(1,3).ir(3,2).set(dshapex.ir(1,1));
+      B.ir(1,1).ir(3,1).set(dshapex_scaled.ir(1,1));
+      B.ir(1,2).ir(3,2).set(dshapex_scaled.ir(1,2));
+      B.ir(1,3).ir(3,1).set(dshapex_scaled.ir(1,2));
+      B.ir(1,3).ir(3,2).set(dshapex_scaled.ir(1,1));
     } else if (ndim==3) {
-      B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
-      B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
-      B.ir(1,3).ir(3,3).set(dshapex.ir(1,3));
+      B.ir(1,1).ir(3,1).set(dshapex_scaled.ir(1,1));
+      B.ir(1,2).ir(3,2).set(dshapex_scaled.ir(1,2));
+      B.ir(1,3).ir(3,3).set(dshapex_scaled.ir(1,3));
 
-      B.ir(1,4).ir(3,2).set(dshapex.ir(1,1));
-      B.ir(1,4).ir(3,1).set(dshapex.ir(1,2));
+      B.ir(1,4).ir(3,2).set(dshapex_scaled.ir(1,1));
+      B.ir(1,4).ir(3,1).set(dshapex_scaled.ir(1,2));
 
-      B.ir(1,5).ir(3,3).set(dshapex.ir(1,1));
-      B.ir(1,5).ir(3,1).set(dshapex.ir(1,3));
+      B.ir(1,5).ir(3,3).set(dshapex_scaled.ir(1,1));
+      B.ir(1,5).ir(3,1).set(dshapex_scaled.ir(1,3));
 
-      B.ir(1,6).ir(3,3).set(dshapex.ir(1,2));
-      B.ir(1,6).ir(3,2).set(dshapex.ir(1,3));
+      B.ir(1,6).ir(3,3).set(dshapex_scaled.ir(1,2));
+      B.ir(1,6).ir(3,2).set(dshapex_scaled.ir(1,3));
     } else assert(0);
 
-    dshapex.rs();
+    dshapex_scaled.rs();
     
     // B.rs().reshape(2,ntens,nen);
     B.rs();
