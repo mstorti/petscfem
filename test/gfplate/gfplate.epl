@@ -9,6 +9,7 @@ nstep 100
 alpha 1.
 
 # initial_state "gfplate.ini.tmp"
+# initial_state "gfplate.state-q0.tmp"
 initial_state "gfplate.state.tmp"
 nsave 1
 save_file "gfplate.state.tmp"
@@ -64,12 +65,11 @@ npg 4
 data ./gfplate.con.tmp
 __END_HASH__
 
-#if 0
+#if 1
 elemset gasflow_twall 2
 lagrange_diagonal_factor 1.0e-5
+data ./gfplate.twall.tmp
 __END_HASH__
-1 2
-__END_ELEMSET__
 #endif
 
 fixa
@@ -78,4 +78,5 @@ __INCLUDE__ ./gfplate.fixa-outer.tmp
 __INCLUDE__ ./gfplate.fixa-outlet.tmp
 __INCLUDE__ ./gfplate.fixa-slip.tmp
 __INCLUDE__ ./gfplate.fixa-wall.tmp
+__INCLUDE__ ./gfplate.fixa-twall.tmp
 __END_FIXA__

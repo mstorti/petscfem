@@ -1,4 +1,4 @@
-## $Id: mkplate.m,v 1.2 2005/01/08 14:34:26 mstorti Exp $
+## $Id: mkplate.m,v 1.3 2005/01/08 15:26:04 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -12,9 +12,6 @@ yratio = 10;
 w = zhomo([0 Lx 0 Ly],Nx+1,Ny+1,[1 0 1 1 0 yratio]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
-
-asave("gfplate.nod.tmp",xnod);
-asave("gfplate.con.tmp",icone);
 
 tol=1e-5;
 inlet = find(abs(xnod(:,1))<tol);
@@ -42,10 +39,29 @@ pffixa("gfplate.fixa-outer.tmp",tmp,3);
 
 ## p fixed at outlet
 tmp = complement(wall,outlet);
-pffixa("gfplate.fixa-outlet.tmp",tmp,4,pref);
+pffixa("gfplate.fixa-outlet.tmp",tmp,[3,4],[0,pref]);
 
 Uini = [rhoref,uini,0,pref];
 
 nnod = size(xnod,1);
 Uini = Uini(ones(nnod,1),:);
 asave("gfplate.ini.tmp",Uini);
+
+## Fictitious nodes
+ficnodes = nnod+(1:Nx+1)';
+
+xnod = [xnod;
+	zeros(Nx+1,2)];
+fid = fopen("gfplate.twall.tmp","w");
+for k=1:Nx+1
+  node = (k-1)*(Ny+1)+1;
+  ficnode = nnod+k;
+  fprintf(fid,"%d %d\n",node,ficnode);
+  xnod(ficnode,:) = xnod(node,:);
+endfor
+fclose(fid);
+
+pffixa("gfplate.fixa-twall.tmp",ficnodes,2:4,[Tref,0,0]);
+
+asave("gfplate.nod.tmp",xnod);
+asave("gfplate.con.tmp",icone);

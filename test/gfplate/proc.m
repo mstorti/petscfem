@@ -1,8 +1,11 @@
-## $Id: proc.m,v 1.1 2005/01/08 14:34:26 mstorti Exp $
+## $Id: proc.m,v 1.2 2005/01/08 15:26:04 mstorti Exp $
 source("data.m.tmp");
 
 u=aload("gfplate.state.tmp");
+nnod = (Nx+1)*(Ny+1);
+u = u(1:nnod,:);
 xnod = aload("gfplate.nod.tmp");
+xnod = xnod(1:nnod,:);
 nnod = size(xnod,1);
 y = xnod(1:Ny+1,2);
 x = xnod(1:(Ny+1):nnod,1);
