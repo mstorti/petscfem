@@ -65,3 +65,5 @@
 ;;  (read-kbd-macro "C-x n n <home> C-M-% , SPC * C-q LFD RET ! RET <home> ESC % , RET C-q LFD RET ! RET <home> C-x n w"))
 ;;; para que recupere bien en debugger
 (setq comint-prompt-regexp "^\\((gdb) \\|[^#$%>\n]*[#$%>] *\\)")
+;;
+(setq current-pos-regexp "^\\s-*[^\\s-][^\\s-][^\\s-] Current line ===========")

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.23 2001/08/06 01:07:36 mstorti Exp $
+//$Id: elemset.cpp,v 1.24 2001/08/21 02:10:04 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -179,6 +179,8 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      if (val != 0) {
 		if (comp_prof) {
 		  node_insert(argd.da,kd,kdl);
+		  node_insert(argd.da,kdl,kd); // be sure that profile
+				// is symmetric
 		} else {
 		  if (pfmat) {
 		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
@@ -207,7 +209,9 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		if (val != 0) {
 		  if (comp_prof) {
 		    int kd=locdof-1,kdl=locdofl-1;
+		    // be sure that profile is symmetric
 		    node_insert(argd.da,locdof-1,locdofl-1);
+		    node_insert(argd.da,locdofl-1,locdof-1); 
 		  } else {
 		    // printf("(%d,%d) -> %f\n",locdof,locdofl,val);
 		    if (pfmat) {

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.1 2001/08/19 23:29:26 mstorti Exp $
+// $Id: iisdmat.h,v 1.2 2001/08/21 02:10:04 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -151,10 +151,12 @@ class IISDMat : public PFMat {
       @param s (input) scale factor (usually for changing sign)
   */ 
   int local_solve(Vec x_loc,Vec y_loc,int trans,double s);
-
+  /// Diagonal of Interface matrix to use as preconditioning
   Vec A_II_diag;
   /// PETSc LU fill parameter 
   double pc_lu_fill;
+  /// Layers of nodes of the preconditioning
+  vector< set<int> > int_layers;
 
 public:
 

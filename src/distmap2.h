@@ -1,10 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.h,v 1.1 2001/08/20 22:44:44 mstorti Exp $
+// $Id: distmap2.h,v 1.2 2001/08/21 02:10:04 mstorti Exp $
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
 
 #include <vector>
+#include <algorithm>
 
 #include <mpi.h>
 
@@ -30,18 +31,20 @@ class DistMap : public Container {
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Container,ValueType,Partitioner>(Partitioner *pp=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
+  DistMap<Container,
+    ValueType,Partitioner>(Partitioner *pp=NULL,
+			   MPI_Comm comm_=MPI_COMM_WORLD);
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
       @return the number of processor where these matrix should go. 
   */ 
-  void processor(typename Container::const_iterator k,int &nproc,int *plist) const;
+  void processor(const ValueType &p,int &nproc,int *plist) const;
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
    */ 
-  int size_of_pack(typename Container::const_iterator k) const;
+  int size_of_pack(const ValueType &p) const;
   /** Packs the entry #(k,v)# in buffer #buff#. This function should
       be defined by the user. 
       @param k (input) key of the entry
@@ -49,7 +52,7 @@ class DistMap : public Container {
       @param buff (input/output) the position in the buffer where the
       packing is performed
   */ 
-  void pack(typename Container::const_iterator k,char *&buff) const;
+  void pack(const ValueType &p,char *&buff) const;
   /** Does the reverse of #pack#. Given a buffer #buff# recovers the
       corresponding key and val. This function should
       be defined by the user. 
@@ -66,24 +69,46 @@ class DistMap : public Container {
       @param p (input) the pair to be inserted.
   */ 
   void combine(const ValueType &p);
+  class Belongs {
+    DistMap *dm;
+    int *plist,size,myrank;
+  public:
+    bool operator() (const ValueType &p) const {
+      // bool operator() (typename Container::const_iterator p) const {
+      int nproc;
+      dm->processor(p,nproc,plist);
+      for (int j=0; j<nproc; j++) 
+	if (plist[j]==myrank) return false;
+      return true;
+    }
+    void init(DistMap *dm_c,int size_c) {
+      dm = dm_c;
+      size = size_c;
+      plist = new int[size];
+    };
+    ~Belongs() {delete[] plist;};
+  };
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Container,typename ValueType,class Partitioner>
 DistMap<Container,ValueType,Partitioner>::
-DistMap<Container,ValueType,Partitioner>(Partitioner *pp=NULL,
-			     MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
+DistMap<Container,
+  ValueType,
+  Partitioner>(Partitioner *pp=NULL, MPI_Comm comm_= MPI_COMM_WORLD) 
+    : comm(comm_) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
   part=pp;
+  // belongs.init(this,size);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
 void DistMap<Container,ValueType,Partitioner>::
-processor(typename Container::const_iterator k,int &nproc,int *plist) const {
-  return part->processor(k,nproc,plist);
+processor(const ValueType &p,int &nproc,int *plist) const {
+  return part->processor(p,nproc,plist);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -120,10 +145,9 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
 
   // Compute the table `to_send'
   for (iter = begin(); iter != end(); iter++) {
-    processor(iter,nproc,plist);
+    processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) {
-      printf("[%d] sending %d to %d\n",myrank,size_of_pack(iter),plist[j]);
-      SEND(myrank,plist[j]) += size_of_pack(iter);
+      SEND(myrank,plist[j]) += size_of_pack(*iter);
     }
   }
   // do not send data to itself
@@ -164,15 +188,16 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
 
   // Fill send buffers
   for (iter = begin(); iter != end(); iter++) {
-    processor(iter,nproc,plist);
+    processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) {
       k = plist[j];
-      pack(iter,send_buff_pos[k]);
+      pack(*iter,send_buff_pos[k]);
     }
   }
 
   // Erase members that do not belong to this processor.
-  for (iter = begin(); iter != end(); iter++) {
+#if 0
+  for (iter = begin(); iter != end(); ) {
     processor(iter,nproc,plist);
     eras = 1;
     for (j=0; j<nproc; j++) {
@@ -181,8 +206,16 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
 	break;
       }
     }
-    if (eras) erase(iter);
+    if (eras) {
+      erase(iter);
+    } else {
+      iter++;
+    }
   }
+#else
+  iter = remove_if(begin(),end(),Belongs());
+  erase(iter,end());
+#endif
 
   // Check that all buffers must remain at the end
   for (k=0; k<size; k++) {
