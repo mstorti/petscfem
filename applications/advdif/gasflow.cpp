@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.2 2003/01/08 13:09:38 mstorti Exp $
+//$Id: gasflow.cpp,v 1.3 2003/10/03 21:06:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -19,17 +19,13 @@ void gasflow_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,cond,0);
 
   // Turbulence parameters
-  //o C_mu
-  EGETOPTDEF_ND(elemset,double,C_mu,0.09);
-  //o C_1
-  EGETOPTDEF_ND(elemset,double,C_1,1.44);
-  //o C_2
-  EGETOPTDEF_ND(elemset,double,C_2,1.92);
-  //o sigma_k
-  EGETOPTDEF_ND(elemset,double,sigma_k,1.);
-  //o sigma_e
-  EGETOPTDEF_ND(elemset,double,sigma_e,1.3);
-  //o sigma_e
+  //o Activates LES turbulence model
+  EGETOPTDEF_ND(elemset,int,LES,0);
+  //o C_smag
+  EGETOPTDEF_ND(elemset,double,C_smag,0.09);
+  //o Turbulent Prandtl number
+  EGETOPTDEF_ND(elemset,double,Pr_t,1.);
+  //o Mask for stabilization term
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
   //o Adjust the stability parameters, taking into account
@@ -295,17 +291,43 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   tmp10.sum(grad_vel,-1);
   grad_vel.rs();
   double divu = double(tmp10);
-
   // effective viscosity
   visco_t = 0.;  // aqui agregar la expresion algebraica para la misma
+  cond_t = 0.;  // aqui agregar la expresion algebraica para la misma
+
+  if (LES) {
+    advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
+    assert(advdf_e);
+#define pi M_PI
+    double Volume = advdf_e->volume();
+    int axi = advdf_e->axi;
+    double h_grid;
+
+    if (ndim==2 | (ndim==3 && axi>0)) {
+      h_grid = sqrt(4.*Volume/pi);
+    } else if (ndim==3) {
+      h_grid = cbrt(6*Volume/pi);
+    } else {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Only dimensions 2 and 3 allowed for this element.\n");
+    }
+    double strain_rate_abs = (double) tmp15.prod(strain_rate,
+						 strain_rate,-1,-2,-1,-2);
+    strain_rate_abs = sqrt(strain_rate_abs);
+    double nu_t = C_smag*strain_rate_abs*h_grid*h_grid;
+    visco_t = rho*nu_t;
+    double Cp = ga*Cv;
+    cond_t = Cp*visco_t/Pr_t;
+  }
+
   // Sutherland law for thermal correction of laminar viscosity
   // visco_l = visco * ???
   double visco_eff = (visco + visco_t);
   // effective thermal conductivity
-  cond_t = 0.;  // aqui agregar la expresion algebraica para la misma
   double cond_eff = cond + cond_t;
 
-  double visco_bar = visco_eff-cond_eff/Cv;
+  // Aca ponemos visco (y no visco_eff). Por ahora es un guess...
+  double visco_bar = visco - cond_eff/Cv;
 
   // Stress tensor
   sigma.set(0.);

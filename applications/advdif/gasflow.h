@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.3 2003/01/21 16:09:16 mstorti Exp $
+// $Id: gasflow.h,v 1.4 2003/10/03 21:06:51 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -15,7 +15,7 @@
 class gasflow_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
-    vl_indxe,vg_indxe;
+    vl_indxe,vg_indxe,LES;
   FastMat2 U,vel,Cp,Ajac,Id_ndim,Amom,Y,vel_old,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_vel,strain_rate,IdId,G_body,
     uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,tmp6,tmp7,tmp05,tmp10,tmp_vel;
@@ -23,9 +23,10 @@ private:
   FastMat2 tau_supg_c,vel_supg;
   FastMat2 Ajac_tmp,Djac_tmp;
   double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff;
-  double C_mu,C_1,C_2,sigma_k,sigma_e,tau_fac,temporal_stability_factor;
+  double tau_fac,temporal_stability_factor;
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
   double tau_supg_a,delta_supg,visco_supg,velmod, h_supg, h_pspg;
+  double Pr_t, C_smag;
 
   const NewAdvDif *advdf_e;
 
