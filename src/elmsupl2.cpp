@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl2.cpp,v 1.2 2004/11/08 18:13:40 mstorti Exp $
+//$Id: elmsupl2.cpp,v 1.3 2004/11/09 02:58:52 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -52,8 +52,9 @@ upload_vector_fast_mb(int nel,int ndof,Dofmap *dofmap,
     }
   }
   for (int color=1; color<=nc; color++) {
-    int rv = upload_vector_fast_1b(color,nel,ndof,dofmap,options,argd,myrank,
-				   el_start,el_last,iter_mode,klocc,kdofc);
+    int rv = 
+      upload_vector_fast_1b(color,nel,ndof,dofmap,options,argd,
+			    myrank,el_start,el_last,iter_mode,klocc,kdofc);
     if (rv) return rv;
   }
   return 0;

@@ -12,7 +12,7 @@
 
 #define MAXPROP 100
 
-const double FIX = 0.1;
+const double FIX = 1.0;
 /** Fixes all diagonal terms in matrix #A# so that they are #>0#, i.e.,
     makes #A(i,i)=FIX# if #A(i,i)=0# and leaves #A(i,i)# unaltered otherwise. 
     At the same time makes #B# a diagonal matrix which is the mask added to #A#. 
