@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.10 2002/07/30 22:30:55 mstorti Exp $
+//$Id: gpdata.cpp,v 1.11 2002/08/07 11:47:29 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -418,6 +418,14 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       }
     } else GPERROR;
       
+  } else if (!strcmp("quad2hexa",geom)) {
+    
+    for (int ipg=0; ipg<npg; ipg++) {
+      shape[ipg] = RowVector(nel);
+      dshapexi[ipg]= Matrix(ndimel,nel);
+      dshapex[ipg]= Matrix(ndimel,nel);
+    }
+
   } else GPERROR;
   
   if (mat_version==GP_FASTMAT) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.5 2002/08/06 20:49:27 mstorti Exp $
+//$Id: embgath.cpp,v 1.6 2002/08/07 11:47:26 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,6 +10,59 @@
 
 #include "embgath.h"
 extern Mesh *GLOBAL_MESH;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+const int Quad2Hexa::faces[][8] = {
+  0,1,2,3,4,5,6,7,
+  1,5,6,2,0,4,7,3,
+  0,4,5,1,3,7,6,2};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Surf2Vol::map_mask(const int *map_fc,int *vicorow) {
+  int nel_surf, nel_vol, nf = nfaces(nel_surf,nel_vol);
+  int match=0;
+  const int *fc, *vol;
+  for (int f=0; f<nf; f++) {
+    face(f,fc,vol);
+    match = 1;
+    for (int l=0; l<nel_surf; l++) {
+      if (map_fc[l] != fc[l]) {
+	match=0;
+	break;
+      }
+    }
+    if (match) break;
+  }
+  assert(match);
+  vector<int> vicorow_c(nel_vol);
+  for (int j=0; j<nel_vol; j++) vicorow_c[j] = vicorow[vol[j]];
+  for (int j=0; j<nel_vol; j++) vicorow[j] = vicorow_c[j];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) { 
+  int spin,rota,k,m;
+  int spin_map[] = {0,3,2,1};
+  spin = modulo(j,2,&m);
+  rota = modulo(m,4,&k);
+  for (int l=0; l<4; l++) {
+    int ll = modulo(l+rota,4);
+    vol[l] = faces[k][ll];
+    vol[l+4] = faces[k][ll+4];
+  }
+  if (spin) {
+    for (int l=0; l<4; l++) {
+      vol_r[l] = vol[4+spin_map[l]];
+      vol_r[4+l] = vol[spin_map[l]];
+    }
+    vol_ret = vol_r;
+  } else vol_ret = vol;
+
+  for (int k=0; k<4; k++) 
+    this_face[k] = (use_exterior_normal() ? 
+		    vol_ret[spin_map[k]] : vol_ret[k]);
+  fc = this_face;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
@@ -23,6 +76,7 @@ void embedded_gatherer::initialize() {
   int ierr;
   //o The name of the friend volume elemset
   TGETOPTDEF_S(thash,string,volume_elemset,);
+
   assert(volume_elemset.size()>0);
   int nelemsets = da_length(GLOBAL_MESH->elemsetlist);
   Elemset *vol_elem = NULL;
@@ -35,27 +89,43 @@ void embedded_gatherer::initialize() {
   }
   if (!vol_elem) {
     PetscPrintf(PETSC_COMM_WORLD,
-		"embedded_gatherer: Couldn't find volume_elemset = %s\n"
+		"embedded_gatherer: Couldn't find volume_elemset = %s\n",
 		volume_elemset.c_str());
     PetscFinalize();
     exit(0);
   }
 
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  //o Number of Gauss points.
+  TGETOPTNDEF(thash,int,npg,none);
+  // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
+  TGETOPTNDEF(thash,int,ndim,none); //nd
+  //o Use exterior or interior normal
+  TGETOPTDEF(thash,int,use_exterior_normal,1);
+
+  int ndimel=ndim-1;
+  assert(geometry=="quad2hexa");
+  Quad2Hexa gp_data(geometry.c_str(),ndim,nel,npg,
+		    GP_FASTMAT2,use_exterior_normal);
+  Surf2Vol *sv_gp_data = &gp_data;
+
   int nel_surf, nel_vol;
-  surface_nodes(nel_vol,nel_vol);
+  surface_nodes(nel_surf,nel_vol);
   assert(nel_surf>0 && nel_surf<=nel);
-  assert(nel_vol == vol_elem->nel);
+  assert(nel_vol <= nel); //
+  assert(nel_vol <= vol_elem->nel);
   
   // Mark nodos on the surface
   int nnod = GLOBAL_MESH->nodedata->nnod;
   // surface:= is surface[k]==0 then k is not on the surface
   // if != 0 then surface[k] is the number of surface node +1
-  vector<int> surface;
+  vector<int> surface(nnod,0);
   // maps surface numbering (0 to surf_nodes-1) to global (0 to nnod-1)
   vector<int> srf2glb;
   for (int e=0; e<nelem; e++) {
     int *icorow = icone + nel*e;
-    for (j=0; j<nel_surf; j++) surface[icorow[j]-1]=1;
+    for (int j=0; j<nel_surf; j++) surface[icorow[j]-1]=1;
   }
   // Count surface nodes
   int surf_nodes = 0;
@@ -74,53 +144,54 @@ void embedded_gatherer::initialize() {
   // Construct node to element array for the volume elemset
   for (int e=0; e<vol_elem->nelem; e++) {
     int *icorow = vol_elem->icone + vol_elem->nel*e;
-    for (j=0; j<nel_vol; j++) {
+    for (int j=0; j<nel_vol; j++) {
       int node = icorow[j]-1;
-      int snode = surface[node];
-      if (snode) graph.add(snode,e);
+      int snode = surface[node]-1;
+      if (snode>=0) graph.add(snode,e);
     }
   }
 
-  // This should change with geometry
-//    int nfaces = 6; // Number of faces per volume element
-//    int faces[][] = {
-//      { 
-//    };
-  
   // For each surface element look for the corresponding
   // volume element that shares a face
   vector<int> mask(nel_vol);
   for (int e=0; e<nelem; e++) {
     int *icorow = icone + nel*e;
-    LinkGraphRow &row;
+    LinkGraphRow row;
+    assert(nel_surf>0);
+    // Take list for first node
+    int sf_node = icorow[0]-1;
     graph.set_ngbrs(sf_node,row);
     LinkGraphRow::iterator q;
+    int found=0;
+    int *vicorow;
     for (q=row.begin(); q!=row.end(); q++) {
       int ve = *q; // the volume element
-      int *vicorow = vol_elem->icone + vol_elem->nel*ve;
-      for (int j=0; j<nel_vol; j++) mask[j]=0;
-      int found=1;
+      vicorow = vol_elem->icone + vol_elem->nel*ve;
+      for (int j=0; j<nel_vol; j++) mask[j]=-1;
+      found=0;
       for (int j=0; j<nel_surf; j++) {
 	int sf_node = icorow[j];
-	found=0;
 	for (int k=0; k<nel_vol; k++) {
 	  if (vicorow[k]==sf_node) {
-	    mask[k] = j;
-	    found = 1;
+	    mask[j] = k;
 	    break;
 	  }
 	}
-	if (found) break;
+	if (mask[j]==-1) break;
+	found++;
       }
-      if (!found) {
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "embedded_gatherer: Can't find matching volume element"
-		    " to surface element %d\n",e);
-	PetscFinalize();
-	exit(0);
-      }
- 
+      if (found==nel_surf) break;
     }
+    for (int j=0; j<nel; j++) 
+    if (found!=nel_surf) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "embedded_gatherer: Can't find matching volume element"
+		  " to surface element %d\n",e);
+      PetscFinalize();
+      exit(0);
+    }
+    // Volume element was found, find map and
+    sv_gp_data->map_mask(mask.begin());
   }
 
   graph.clear();
@@ -136,9 +207,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   assert(0); // not defined yet
 }
 
-void visc_force_integrator::surface_nodes(int &nel_surf,int &nel_vol)=0 {
-}
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void visc_force_integrator
 ::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 

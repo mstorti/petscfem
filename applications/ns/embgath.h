@@ -1,8 +1,40 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.3 2002/08/06 20:49:27 mstorti Exp $
+//$Id: embgath.h,v 1.4 2002/08/07 11:47:26 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class Surf2Vol : public GPdata {
+private:
+  int use_exterior_normal_m;
+public:
+  Surf2Vol(const char *geom,int ndim,int nel,
+	   int npg,int mat_version=GP_NEWMAT,
+	   int use_exterior_normal_a=0) 
+    : GPdata(geom,ndim,nel,npg,mat_version),
+  use_exterior_normal_m(use_exterior_normal_a) {}
+  void map_mask(const int *map_fc,int *vicorow);
+  int use_exterior_normal() { return use_exterior_normal_m; }
+  virtual void face(int j,const int *&fc,const int *&vol)=0;
+  virtual int nfaces(int &nel_surf,int &nel_vol)=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class Quad2Hexa : public Surf2Vol {
+private:
+  static const int faces[][8];
+  int vol[8], vol_r[8];
+  int this_face[4];
+public:
+  Quad2Hexa(const char *geom,int ndim,int nel,
+	   int npg,int mat_version=GP_NEWMAT,
+	    int use_exterior_normal_m=0) 
+    : Surf2Vol(geom,ndim,nel,npg,mat_version,
+	       use_exterior_normal_m) { }
+  void face(int j,const int *&fc,const int *&vol);
+  int nfaces(int &nel_surf,int &nel_vol) { nel_surf=4; nel_vol=8; return 24; }
+};
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /** Allows to compute integrals, or any kind of function
@@ -63,8 +95,8 @@ public:
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		     FastMat2 &xpg,FastMat2 &n,
-		     double wpgdet,double time) {}
-  void surface_nodes(int &nel_surf,int &nel_vol) { nel_surf=4; nel_vol=8; }
+		     double wpgdet,double time);
+  void surface_nodes(int &nel_surf,int &nel_vol);
 };
 
 #endif
