@@ -2283,3 +2283,6 @@ tag: beta-3.15.pl15 on Mon,  3 Feb 2003 12:53:14 -0300 by mstorti in spider
 tag: beta-3.15.pl16 on Tue,  4 Feb 2003 20:29:01 -0300 by mstorti in spider
      > Runs `dx_hook' and `epimport' coupled OK. Passes coords.
      > and data (results). 
+----------
+tag: beta-3.15.pl17 on Wed,  5 Feb 2003 16:29:05 -0300 by mstorti in spider
+     > Working on dxhook/epimport.
