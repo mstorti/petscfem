@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001/01/09 16:57:37 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/01/10 15:36:39 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
@@ -7,7 +7,7 @@ SHELL = /bin/bash
 all: sync_version depend tags adv advdif ns laplace 
 
 #sw: newdepend tags ns
-sw: sync_version depend tags advdif
+sw: sync_version depend tags
 
 fm2new:
 	cd src ; ln -sf fmat2ep.cpp.new fmat2ep.cpp
@@ -58,7 +58,7 @@ laplace: libpetscfem
 %.cppi: %.cpp
 	g++ -E $(CCPPFLAGS) $< > $@ ; chmod u-w $@
 
-CLEANDIRS = src applications/laplace applications/advective \
+CLEAN_DIRS = src applications/laplace applications/advective \
 			applications/ns applications/advdif \
 			doc test run run/LES run/algebfs run/sqcav
 

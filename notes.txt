@@ -2396,6 +2396,24 @@ Escribo
   element_vector_values(const ElementIterator &element,
 			arg_data &ad) const;
 
+%===Tue Jan  9 21:48:25 ARST 2001 mstorti@spider
+%
+Hago que la funcion de flujo en advdif sea ahora una `function object'
+es decir una clase con `operator()' sobrecargado. La estructura es que
+`AdvDif' tiene un puntero a una clase pure virtual `AdvDifFF' y
+sobrecargando `operator()' de esta clase logras cambiar la funcion de
+flujo. Ya anda para la clase `advdif_advecfm2' ahora hay que hacerlo
+para `bcconv_adv_advecfm2'. 
+
+%===Wed Jan 10 08:38:25 ARST 2001 mstorti@minerva
+%
+El comando para crear el patch es 
+%
+   $ diff -cNr DIROLD DIRNEW
+%
+y para patchear te pones en el directorio a patchear y
+%
+   $ patch -E -p1 < ../petscfem.patch
 
 %# Current line ===========  
 # Local Variables: $

@@ -64,13 +64,9 @@ ifneq ($(SRCS),)
 endif
 
 TAGS: $(SRCS)
-#TAGS: *.cpp *.h
-# regex don't work with the new etags!!
-#	etags --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' \
-#			*.cpp *.h $(TAGFLAGS)
-	echo $(SRCS)
-#	$(MAKE) $(NEWSRCS)
+ifneq ($(SRCS),)
 	etags *.cpp *.h $(TAGFLAGS)
+endif
 
 # Create preprocessed files
 %.cppi: %.cpp
@@ -82,12 +78,12 @@ general_clean:
 	$(MAKE) clean
 
 local_clean:: 
+	-@rm -f *~ *.o $(OBJS) $(PROG).bin octave-core *.cppi \
+		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
 
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
-	-@rm *~ -f *.o $(OBJS) $(PROG).bin octave-core *.cppi \
-		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
-	for dir in $(CLEANDIRS) ; do $(MAKE) -C $$dir lclean  ; done
+	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
 
 # general program 
 $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)

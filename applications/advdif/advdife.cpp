@@ -67,8 +67,6 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,ndim,0); //nd
   assert(npg>0);
   assert(ndim>0);
-  // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
-  // ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
   
   int nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
@@ -114,10 +112,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     jdtmin = ++j;
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
-    if (comp_mat_each_time_step_g) {
-      // retvalt = arg_data_v[++j].retval;
-      Ajac = &arg_data_v[++j];
-    }
+    Ajac = &arg_data_v[++j];
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
@@ -148,18 +143,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 locstateo2(2,nel,ndof);
 
   eye_ndof.set(0.).eye(1.);
-//    if (ndof != ndim+1) {
-//      PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
-//    }
   
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);
-  // char *geom;
-  // thash->get_entry("geometry",geom);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
-  // GPdata gp_data(geom,ndim,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco, wpgdet, delta_sc;
@@ -258,12 +247,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	delta_sc=0;
 	double lambda_max_pg;
 
-	adv_diff_ff(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
-		    A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
-		    lambda_max_pg,
-		    nor,lambda,Vr,Vr_inv,
-		    element.props(),NULL,COMP_SOURCE |
-		    COMP_UPWIND,start_chunk,ret_options);
+	ierr = (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
+			      A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
+			      lambda_max_pg,
+			      nor,lambda,Vr,Vr_inv,
+			      element.props(),NULL,COMP_SOURCE |
+			      COMP_UPWIND,start_chunk,ret_options);
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
@@ -399,10 +388,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
       if (comp_mat_each_time_step_g) 
-	//matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
 	matlocf.export_vals(element.ret_mat_values(*Ajac));
     } else if (comp_prof) {
-      // matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
 

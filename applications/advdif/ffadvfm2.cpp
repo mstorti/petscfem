@@ -35,8 +35,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "advdif_advecfm2::operator()" 
-//int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
+#define __FUNC__ "advecfm2_ff_t::operator()" 
 int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
   static double ajacx[9],ajacy[9];

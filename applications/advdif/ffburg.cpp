@@ -35,8 +35,8 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "flux_fun_burgers" 
-int flux_fun_burgers(AD_FLUX_FUN_ARGS) {
+#define __FUNC__ "burgers_ff_t::operator()" 
+int burgers_ff_t::operator()(ADVDIFFF_ARGS) {
 
   int ierr;
 
@@ -61,18 +61,18 @@ int flux_fun_burgers(AD_FLUX_FUN_ARGS) {
     // assert(ndim==1);
 
     //o Diffusivity (viscosity)
-    SGETOPTDEF_ND(double,diffusivity,0.);
+    EGETOPTDEF_ND(elemset,double,diffusivity,0.);
     //o Flux law is $f= 0.5\,c\, \phi^2\,!u_0$, where $c$
     // is this coefficient. 
-    SGETOPTDEF_ND(double,flux_law_coefficient,1.);
+    EGETOPTDEF_ND(elemset,double,flux_law_coefficient,1.);
     //o Scale the SUPG upwind term. 
-    SGETOPTDEF_ND(double,tau_fac,1.);
+    EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
     //o _T: double[ndim] _N: u0 _D: unit vector along $x$ axis 
     // _DOC: Vector defining direction for flux. 
     // _END
     u0.set(0.); u0.setel(1.,1);
-    ierr = get_double(thash,"u0",u0.storage_begin(),1,ndim); CHKERRQ(ierr);
+    ierr = elemset->get_double("u0",*u0.storage_begin(),1,ndim); CHKERRQ(ierr);
     FastMat2::activate_cache();
   }
 

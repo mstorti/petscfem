@@ -39,7 +39,7 @@ int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    int ierr;
-   SGETOPTDEF(int,weak_form,1);
+   NSGETOPTDEF(int,weak_form,1);
    if (!weak_form) return 0;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
@@ -52,37 +52,26 @@ int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
 void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
-			 const TimeData *time_data) {
+			     const TimeData *time_data) {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
-#define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
-#define LOCSTO(iele,j,k) VEC3(locsto,iele,j,nel,k,ndof)
-#define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
-#define RETVALMAT(iele,j,k,p,q) VEC5(retval,iele,j,nel,k,ndof,p,nel,q,ndof)
-#define RETVALMATT(iele,j,k,p,q) VEC5(retvalt,iele,j,nel,k,ndof,p,nel,q,ndof)
-#ifdef CHECK_JAC
-#define RETVAL_FDJ(iele,j,k) VEC3(retval_fdj,iele,j,nel,k,ndof)
-  double *retval_fdj;
-#endif
   int ierr=0;
 
-#define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
-#define ICONE(j,k) (icone[nel*(j)+(k)]) 
-#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
-#define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
-  
   int locdof,kldof,lldof;
   char *value;
 
   // Unpack Elemset
-  int npg,ndim;
-  ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
-  ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
-  SGETOPTDEF(int,weak_form,1);
+  NSGETOPTDEF(int,npg,0); //nd
+  NSGETOPTDEF(int,ndim,0); //nd
+  assert(npg>0);
+  assert(ndim>0);
+  NSGETOPTDEF(int,weak_form,1);
 
   int ndimel = ndim-1;
+  int nel,ndof,nelprops;
+  elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 
   // Unpack Dofmap
@@ -101,7 +90,7 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   int jdtmin;
-  double *locsto,*locst,*retval,*retvalt;
+  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   GlobParam *glob_param;
   FastMat2 matlocf(4,nel,ndof,nel,ndof);
   //  if (comp_mat_mass || comp_diag_mat_mass) {
@@ -111,22 +100,21 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   if (comp_res) {
     int j=-1;
-    locsto = arg_data_v[++j].locst;
-    locst = arg_data_v[++j].locst;
-    retval = arg_data_v[++j].retval;
+    stateo = &arg_data_v[++j];
+    staten = &arg_data_v[++j];
+    retval  = &arg_data_v[++j];
     jdtmin = ++j;
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
-    retvalt = arg_data_v[++j].retval;
+    Ajac = &arg_data_v[++j];
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
 #ifdef CHECK_JAC
-    retval_fdj = arg_data_v[++j].retval;
+    fdj_jac = &arg_data_v[++j];
 #endif
- 
   }
 
   if (comp_prof) {
-    retvalt = arg_data_v[0].retval;
+    jac_prof = &arg_data_v[0];
     matlocf.set(1.);
   }
 #define ALPHA (glob_param->alpha)
@@ -141,11 +129,9 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   nen = nel*ndof;
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
-  assert(geom!=NULL);
-  
-  GPdata gp_data(geom,ndimel,nel,npg,GP_FASTMAT2);
+  //o Type of element geometry to define Gauss Point data
+  NGETOPTDEF_S(string,geometry,cartesian2d);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco, delta_sc;
@@ -172,23 +158,16 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     int k,ielh;
     element.position(k,ielh);
     // Load local node coordinates in local vector
-    for (kloc=0; kloc<nel; kloc++) {
-      node = ICONE(k,kloc);
-      for (jdim=0; jdim<ndim; jdim++) {
-	xloc.setel(NODEDATA(node-1,jdim),kloc+1,jdim+1);
-      }
-      for (int ih=1; ih<=nH; ih++) {
-	Hloc.setel(NODEDATA(node-1,ndim+ih-1),kloc+1,ih);
-      }
-
-    }
+    element.node_data(nodedata,xloc.storage_begin(),
+		       Hloc.storage_begin());
+    
     if (comp_prof) {
-      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
       continue;
     }
 
-    locstateo.set(&(LOCSTO(ielh,0,0))); // State at time t_n
-    locstaten.set(&(LOCST(ielh,0,0))); // State at time t_{n+1}
+    locstateo.set(element.vector_values(*stateo)); // State at time t_n    
+    locstaten.set(element.vector_values(*staten)); // State at time t_{n+1}
 
     // State at time t_{n+\alpha}
     locstate.set(0.).axpy(locstaten,ALPHA).axpy(locstateo,(1-ALPHA));
@@ -225,11 +204,11 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       delta_sc=0;
       double lambda_max_pg;
-      ierr =  (*flux_fun)(U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
-			  A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
-			  lambda_max_pg,thash,nor,lambda,Vr,Vr_inv,
-			  &(ELEMPROPS(k,0)),NULL,DEFAULT,
-			  start_chunk,ret_options);
+      ierr =  (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
+			     A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
+			     lambda_max_pg,nor,lambda,Vr,Vr_inv,
+			     element.props(),NULL,DEFAULT,
+			     start_chunk,ret_options);
 
       // normal = pvec(Jaco.SubMatrix(1,1,1,ndim).t(),
       // Jaco.SubMatrix(2,2,1,ndim).t());
@@ -251,14 +230,14 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     }
 #endif
     if (comp_res) {
-      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
-      veccontr.export_vals(&(RETVAL_FDJ(ielh,0,0)));
+      veccontr.export_vals(element.ret_fdj_values(*retval));
 #endif
       if (comp_mat_each_time_step_g) 
-	matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+	matlocf.export_vals(element.ret_mat_values(*Ajac));
     } else if (comp_prof) {
-      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
   }
   FastMat2::void_cache();
