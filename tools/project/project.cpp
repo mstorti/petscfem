@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.5 2005/02/24 18:48:03 mstorti Exp $
+// $Id: project.cpp,v 1.6 2005/02/24 22:44:05 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -38,16 +38,14 @@ int main() {
 
   printf("%d nodes, %d elems read\n",nnod1,nelem1);
 
-  dvector<double> Sinv_v;
-  Sinv_v.a_resize(3,nelem1,ndim,ndim).defrag();
-
   // Constructs `Sinv_v' a vector of doubles storing
   // the coefficients of the inverse of element
   // coordinates matrix. 
-  FastMat2 S(2,ndim,ndim),Sinv(2,ndim,ndim),xn1(1,ndim),
-    xn2(1,ndim),xn3(1,ndim),x12(1,ndim),x13(1,ndim);
+  int nd1 = ndim+1;
+  FastMat2 C(2,nd1,nd1),invC(2,nd1,nd1);
   for (int k=0; k<nelem1; k++) {
     // Nodes of element (base 0)
+    for (int j=0; j<nel; j++) {
     int 
       n1 = ico1.e(k,0),
       n2 = ico1.e(k,1),
