@@ -1387,3 +1387,6 @@ tag: beta-3.01.pl13 on Sun, 28 Jul 2002 13:46:14 -0300 by mstorti in spider
 ----------
 tag: beta-3.02 on Sun, 28 Jul 2002 20:26:00 -0300, by mstorti in spider
      > Rewritten hexasplit.
+----------
+tag: beta-3.02.pl1 on Mon, 29 Jul 2002 00:13:59 -0300 by mstorti in spider
+     > Implementing `reuse_mat' in fractinal step. 
