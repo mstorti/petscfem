@@ -1,0 +1,25 @@
+#-*- shell-script -*-
+# The following example describes an irregular grid. Note that the values
+# of the "positions" component and "connections" component are irregular,
+# and so must be enumerated.
+#
+# The irregular positions, which are ... three-dimensional points.
+object "nodes" class array type float rank 1 shape 3
+         items 1331 data file "../../DATA/proyectil.alpha15deg-nod.tmp"
+
+# The irregular connections, which are tetrahedra
+object "icone_t" class array type int rank 1 shape 4
+        items 5000 data file "../../DATA/proy.con0.tmp"
+attribute "element type" string "tetrahedra"
+attribute "ref" string "positions"
+
+object "u" class array type float rank 1 shape 4
+     items 1331 data file "./proy.state.tmp"
+attribute "dep" string "positions"
+
+object "ns_field_t" class field
+component "positions" value "nodes"
+component "connections" value "icone_t"
+component "data" value "u"
+
+end

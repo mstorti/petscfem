@@ -68,4 +68,9 @@ trymd5.bin: trymd5.c md5r.c
 cdepend:
 	gcc -MM *.c > makefilec.d
 
+getsurf:
+	$(GETSURF) -b 1 -x $(DATA)/cube.nod.tmp	\
+	-c $(DATA)/proy.con.tmp -u ./cube.state.tmp
+	-s proy.surf-con.tmp -g proy.grad-u.tmp
+
 #s
