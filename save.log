@@ -1287,3 +1287,6 @@ tag: beta-3.00.pl10 on Mon, 22 Jul 2002 17:22:44 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.00.pl11 on Mon, 22 Jul 2002 19:07:59 -0300 by mstorti in spider
      > Will start to write the `scatter' routine for `link_graph' 
+----------
+tag: beta-3.00.pl12 on Tue, 23 Jul 2002 00:42:55 -0300 by mstorti in spider
+     > Making `link_graph' dostributed.
