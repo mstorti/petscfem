@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.4 2005/01/26 18:41:16 mstorti Exp $
+// $Id: lagmul.h,v 1.5 2005/01/26 20:02:25 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -10,7 +10,7 @@
 /** Generic nonlinear restriction element. 
     It may not work for restrictions that involve
     fields in more than one node. */ 
-class LagrangeMult : public Elemset {
+class LagrangeMult : public NewElemset {
  private:
   /// Stores internal matrix with coordinates of nodes
   FastMat2 xloc_m;
@@ -20,8 +20,11 @@ class LagrangeMult : public Elemset {
   int nu;
   /// The element actually visited
   int elem;
+  /// Number of nodes per element
+  int nel; 
+  const Nodedata *nodedata_m;
  public:
-  ASSEMBLE_FUNCTION;
+  NewAssembleFunction new_assemble;
   /** Returns data (to be derived)
       @param nr (output) number of restrictions
       @param nfic (output) number of fictitious nodes
@@ -60,7 +63,8 @@ class LagrangeMult : public Elemset {
 		   FastMat2 & w,FastMat2 & jac)=0;
   /** Returns the coordinate of the nodes of the element. 
       @return a matrix with the coordinates of the nodes (size #nel*ndim#) */ 
-  const FastMat2 &xloc();
+  void get_xloc(ElementIterator element,
+		FastMat2 &xloc,FastMat2 &H);
   /// Called after the loop over all elements
   virtual void close() {}
   /// Make it pure virtual. 
@@ -71,12 +75,14 @@ class LagrangeMult : public Elemset {
 		 int &comp_mat,int &comp_mat_res)=0;
   virtual void
   get_data(arg_data_list &arg_data_v,
-	   double *&locst,double *&retval,
-	   double *&retvalmat)=0;
+	   arg_data *&stateo,
+	   arg_data *&staten,
+	   arg_data *&retval,
+	   arg_data *&retvalmat)=0;
 
   virtual void 
   get_data(arg_data_list &arg_data_v,
-	   double *&retvalmat)=0;
+	   arg_data *&retvalmat)=0;
 
 };
 

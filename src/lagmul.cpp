@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.3 2005/01/26 18:41:16 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.4 2005/01/26 20:02:25 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,12 +18,14 @@ LagrangeMult::~LagrangeMult() {};
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
 #undef __FUNC__
-#define __FUNC__ "LagrangeMult::assemble"
-int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			   Dofmap *dofmap,const char *jobinfo,int myrank,
-			   int el_start,int el_last,int iter_mode,
-			   const TimeData *time_) {
+#define __FUNC__ "LagrangeMult::new_assemble"
+void LagrangeMult::
+new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+	     const Dofmap *dofmap,const char *jobinfo,
+	     const ElementList &elemlist,
+	     const TimeData *time_data) try {
 
+  nodedata_m = nodedata_m;
   int comp_mat, comp_mat_res;
   get_comp_flags(jobinfo,comp_mat,comp_mat_res);
 
@@ -36,11 +38,11 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nr,ierr=0,jr,jfic,kfic,dofic;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst=NULL,*locst2=NULL,
-    *retval=NULL,*retvalmat=NULL,lambda,rr;
+  double lambda,rr;
+  arg_data *stateo,*staten, *retval, *retvalmat;
 
   if (comp_mat_res) 
-    get_data(arg_data_v,locst,retval,retvalmat);
+    get_data(arg_data_v,stateo,staten,retval,retvalmat);
   else if (comp_mat) 
     get_data(arg_data_v,retvalmat);
 
@@ -50,7 +52,7 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // term is added only in the Jacobian or also in the residual (which
   // results would be non-consistent). See option
   //  #lagrange_residual_factor# . 
-  TGETOPTDEF(thash,double,lagrange_diagonal_factor,0.);
+  NSGETOPTDEF(double,lagrange_diagonal_factor,0.);
   //o The diagonal term proportional to   #lagrange_diagonal_factor#  
   // may be also entered in the residual. If this is so
   // ( #lagrange_residual_factor=1# , then the
@@ -58,29 +60,34 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // satisfied by the non-linear scheme is exactly Newton-Raphson. If
   // not ( #lagrange_residual_factor=0# ) then the restriction is
   // consistently satisfied but with a non exact Newton-Raphson. 
-  TGETOPTDEF(thash,double,lagrange_residual_factor,0.);
+  NSGETOPTDEF(double,lagrange_residual_factor,0.);
   //o Using Lagrange multipliers can lead to bad conditioning, which
   // causes poor convergence with iterative methods or amplification
   // of rounding errors. This factor scales the columns in the matrix
   // that correspond to the lagrange multipliers and can help in
   // better conditioning the system. 
-  TGETOPTDEF(thash,double,lagrange_scale_factor,1.);
+  NSGETOPTDEF(double,lagrange_scale_factor,1.);
   //o Using Lagrange multipliers can lead to bad conditioning, which
   // causes poor convergence with iterative methods or amplification
   // of rounding errors. This factor scales the row in the matrix
   // that correspond to the new equation. 
-  TGETOPTDEF(thash,double,lagrange_row_scale_factor,1.);
+  NSGETOPTDEF(double,lagrange_row_scale_factor,1.);
   // Dimension of the embedding space (position vector of nodes)
-  TGETOPTDEF(thash,int,ndim,0); //nd
+  NSGETOPTDEF(int,ndim,0); //nd
 
   // Call callback function defined by user initializing the elemset
   init();
   nr = nres(); // Get dimensions of problem
 
+  int nelprops,ndof;
+  elem_params(nel,ndof,nelprops);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
   xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
+
+  int nu=nodedata->nu;
+  int nH = nu-ndim;
 
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
@@ -91,23 +98,25 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   xnod = nodedata->nodedata;
   nu=nodedata->nu;
   
-  for (int k=el_start; k<=el_last; k++) {
-    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+  int k_chunk;
+  for (ElementIterator element = elemlist.begin();
+       element!=elemlist.end(); element++) try {
+
+    element.position(elem,k_chunk);
     FastMat2::reset_cache();
     ielh++;
-    elem = k;
 
     if(comp_mat) {
-      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc_prof.export_vals(retvalmat->profile);
       continue;
     }      
 
-    U.set(&(LOCST(ielh,0,0)));
+    U.set(element.vector_values(*staten));
     matloc.set(0.);
     R.set(0.);
 
     if (comp_mat_res) {
-      res(k,U,r,w,jac);
+      res(elem,U,r,w,jac);
       for (jr=1; jr<=nr; jr++) {
 	// get node/field of the Lag.mul.
 	lag_mul_dof(jr,jfic,dofic);
@@ -128,16 +137,18 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matloc.ir(1,jfic).ir(2,dofic)
 	  .axpy(jac,-lagrange_row_scale_factor);
       }
-      
-      R.rs().export_vals(&(RETVAL(ielh,0,0)));
-      // matloc.set(0.);
-      matloc.rs().export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      R.rs().export_vals(element.ret_vector_values(*retval));
+      matloc.rs().export_vals(element.ret_mat_values(*retvalmat));
     }
-  }
+  } catch (GenericError e) {
+    set_error(1);
+    return;
+  } 
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   close();
-  return 0;
+} catch (GenericError e) {
+  set_error(1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -146,13 +157,11 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Load local node coordinates in local vector
-const FastMat2 &LagrangeMult::xloc() {
-  for (int kloc=0; kloc<nel; kloc++) {
-    int node = ICONE(elem,kloc);
-    xloc_m.ir(1,kloc+1).set(&NODEDATA(node-1,0));
-  }
-  xloc_m.rs();
-  return xloc_m;
+void LagrangeMult::
+get_xloc(ElementIterator element,
+	 FastMat2 &xloc,FastMat2 &Hloc) {
+  element.node_data(nodedata_m,xloc.storage_begin(),
+		    Hloc.storage_begin());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.3 2005/01/07 22:24:44 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.4 2005/01/26 20:02:22 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -36,16 +36,18 @@ get_comp_flags(const char *jobinfo,
 void
 AdvdifLagrangeMult::
 get_data(arg_data_list &arg_data_v,
-	 double *&locst,double *&retval,
-	 double *&retvalmat) {
+	   arg_data *&stateo,
+	   arg_data *&staten,
+	   arg_data *&retval,
+	   arg_data *&retvalmat) {
   // The trapezoidal rule integration parameter
   // arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   int j=-1;
-  j++; // `locst2' not used
-  locst = arg_data_v[++j].locst; //[1]
-  retval  = arg_data_v[++j].retval;//[2]
-  ++j;//[3]
-  retvalmat = arg_data_v[++j].retval;//[4]
+  stateo = &arg_data_v[++j]; //[0]
+  staten = &arg_data_v[++j]; //[1]
+  retval  = &arg_data_v[++j];//[2]
+  ++j;//[3] (Not used)
+  retvalmat = &arg_data_v[++j];//[4]
 #if 0
   glob_param = (GlobParam *)arg_data_v[++j].user_data;;
   rec_Dt = 1./glob_param->Dt;
@@ -56,6 +58,6 @@ get_data(arg_data_list &arg_data_v,
 void
 AdvdifLagrangeMult::
 get_data(arg_data_list &arg_data_v,
-	 double *&retvalmat) {
-  retvalmat = arg_data_v[0].retval;
+	 arg_data *&retvalmat) {
+  retvalmat = &arg_data_v[0];
 }
