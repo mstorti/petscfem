@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.46 2005/02/08 01:03:14 mstorti Exp $ 
+# $Id: Makefile,v 1.47 2005/02/13 21:25:03 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -61,7 +61,7 @@ run:
 STEPS_DIR := ./STEPS
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
 dx_make_command:
-ifeq (1,1)
+ifeq (1,0)
 	@state=$(STEPS_DIR)/$(CASE_NAME).state_$$dx_step.tmp ;	\
 	if [ -f $$state ] ; then				\
 		echo "state file: $$state"  ;			\
