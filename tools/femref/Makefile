@@ -6,7 +6,7 @@ OPT := -O2 -funroll-loops
 # OPT := -g
 
 PROG := myhash$(N).bin
-default: tryme2.bin
+default: getsurf.bin
 
 scripts = odoc.pl makewhat.pl
 

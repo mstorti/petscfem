@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.24 2005/01/09 23:49:18 mstorti Exp $
+// $Id: femref2.cpp,v 1.25 2005/01/10 16:12:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -404,7 +404,7 @@ void rand_perm(vector<int> &perm,int N,int M=-1) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Ctor from dimensions and shape
 UniformMesh::
-UniformMesh(GeomObject::Template &tmpl_a,int ndim_a) 
+UniformMesh(const GeomObject::Template &tmpl_a,int ndim_a) 
   : tmpl(&tmpl_a), nel(tmpl_a.size_m), ndim(ndim_a) { 
   // reshape dvectors to specicied shape
   coords.reshape(2,0,ndim);

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.52 2005/01/09 21:32:29 mstorti Exp $
+// $Id: femref.h,v 1.53 2005/01/10 16:12:18 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -297,9 +297,10 @@ private:
 
 public:
   /// Ctor from dimensions and shape
-  UniformMesh(GeomObject::Template &tmpl_a,int ndim_a); 
+  UniformMesh(const GeomObject::Template &tmpl_a,int ndim_a); 
   /// Dtor
   ~UniformMesh(); 
+  const GeomObject::Template *tmplt() { return tmpl; }
   /// Read the mesh from specified files
   void read(const char *node_file,const char *conn_file);
   /** Sets #go# to object pointed by #it#. 
