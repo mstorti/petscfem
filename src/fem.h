@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.11 2001/04/01 01:35:06 mstorti Exp $
+//$Id: fem.h,v 1.12 2001/04/02 21:21:57 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -272,6 +272,22 @@
     @param ierr error code (input)
     @param s string of error message */
 #define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(0);}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Depending on \verb+bool_cond+ issues 
+    an error (with \verb+PetscPrintf(...))+ and
+    calls \verb+abort()+
+    @author M. Storti
+*/ 
+#define PETSCFEM_ERROR(bool_cond, ...)			\
+if (bool_cond) {					\
+  PetscPrintf(PETSC_COMM_WORLD,				\
+              "---------------"				\
+	      "PETSC-FEM error at file %s, line %d\n",	\
+	      __FILE__,__LINE__);			\
+  PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
+  abort();						\
+}
 
 #define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD,		\
      "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)

@@ -14,6 +14,7 @@ sub expect {
     @pattern = split("\n",$pattern_list);
     $record=0;
     $inc=1;
+    $skip=1;
     while ($pattern=shift @pattern) {
 	if ($pattern =~ /^__REWIND__$/) {
 	    $inc=1;
@@ -28,6 +29,14 @@ sub expect {
 	    $inc=+1;
 	    next;
 	}
+	if ($pattern =~ /^__SKIP__$/) {
+	    $skip=1;
+	    next;
+	}
+	if ($pattern =~ /^__NO_SKIP__$/) {
+	    $skip=0;
+	    next;
+	}
 	print "trying pattern: \"$pattern\"...  \n" if $DEBUG_EXPECT;
 	while ($record<=$#sal) {
 	    $_ = $sal[$record];
@@ -36,6 +45,7 @@ sub expect {
 	    do {chomp; 
 		print "        -> found: \"$_\"\n" if $DEBUG_EXPECT; 
 		goto NEXT;} if /$pattern/;
+	    last unless $skip;
 	}
 	$notok++;
 	print "not OK.\n        --->  Couldn't find \"$pattern\"\n";

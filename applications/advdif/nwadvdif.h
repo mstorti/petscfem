@@ -328,7 +328,6 @@ public:
 class newadvdif_advecfm2 : public NewAdvDif {
 public:
   newadvdif_advecfm2() : NewAdvDif(new newadvecfm2_ff_t(this)) {};
-  // newadvdif_advecfm2() {adv_diff_ff = new newadvecfm2_ff_t(this);};
 };
 
 class newbcconv_advecfm2 : public NewBcconv {

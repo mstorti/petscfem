@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.19 2001/04/01 01:34:35 mstorti Exp $
+//$Id: advective.h,v 1.20 2001/04/02 21:21:54 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -127,7 +127,7 @@ private:
   vector<int> log_vars_v;
 public:
   const NewElemset *elemset;
-  NewAdvDifFF(NewElemset *elemset_) : elemset(elemset_) {};
+  NewAdvDifFF(NewElemset *elemset_=NULL) : elemset(elemset_) {};
   virtual void start_chunk(int &ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
@@ -148,7 +148,9 @@ class NewAdvDif : public NewElemset {
   NewAdvDifFF *adv_diff_ff;
 public:
   // int ndim,ndof,nel;
-  NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
+  NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
+    adv_diff_ff(adv_diff_ff_) {};
+  ~NewAdvDif() {delete adv_diff_ff;}
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
 };

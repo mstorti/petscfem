@@ -1,16 +1,12 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.17 2001/04/01 03:10:41 mstorti Exp $ 
+ # $Id: Makefile,v 1.18 2001/04/02 21:21:54 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = advdif
 PETSCFEM_DIR   = ../..
 MYOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o \
-		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o 
-#		absorb.o \
-# 		advective.o advecfm2.o \
-# 		ffshallw.o ffadvec.o ffeulerfm2.o \
-# 		ffswfm2.o ffswfm2t.o ffeuler.o bcconv_adv.o 
+		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o ffburg_old.o \
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 

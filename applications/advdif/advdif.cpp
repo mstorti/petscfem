@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.17 2001/04/01 01:34:35 mstorti Exp $
+//$Id: advdif.cpp,v 1.18 2001/04/02 21:21:54 mstorti Exp $
 
 #include <set>
 
@@ -11,6 +11,8 @@
 
 #include "advective.h"
 #include "nwadvdif.h"
+#include "nwadvdifj.h"
+#include "burgers.h"
 #include <time.h>
 
 static char help[] = "Basic finite element program.\n\n";
@@ -59,6 +61,9 @@ void bless_elemset(char *type,Elemset *& elemset) {
     // Burger's eq.
     SET_ELEMSET_TYPE(bcconv_adv_burgers)
     SET_ELEMSET_TYPE(advdif_burgers)
+    // new version
+    SET_ELEMSET_TYPE(newadvdif_burgers)
+    SET_ELEMSET_TYPE(newbcconv_burgers)
     // Turbulent shallow water
     SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
     SET_ELEMSET_TYPE(advdif_swfm2t)

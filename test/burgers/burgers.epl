@@ -1,21 +1,29 @@
 # -*- mode: shell-script -*-
 #
-<:require '../eperlini.pl':>// # Initializes ePerl 
-<:
+<:require '../eperlini.pl';	# Initializes ePerl 
+$CASE=$ENV{'CASE'};
 @read_var = readm_all_v("data.m");# read all variables in octave file
 $T=.05;
 $omega=2*$PI/$T;
 $N_dt_per=128; # number of time steps per period
 $Nper=1;
+$diff = "0.$1" if $CASE=~/_d(.*)_/;
+$diff = $1*10**$2 if $diff =~ /^(.*)e(\d*)$/;
+$diff = $1*10**(-$2) if $diff =~ /^(.*)em(\d*)$/;
+$weak_form =1 if $CASE=~/_wf/;
+$weak_form =0 if $CASE=~/_nwf/;
+$diff = 0.01 unless $diff;
+$weak_form = 1 unless defined $weak_form;
 :>//
 
-#default definitions
+# CASE = <:=$CASE:>
+
 #===========================================================
 global_options
 ndim 2
 
 chunk_size 10
-save_file "save.state"
+save_file "save.state.tmp"
 nsave 20
 
 rtol 1e-2
@@ -26,7 +34,7 @@ nsaverot 100
 nrec  100
 nfile 2
 
-nstep 10
+nstep 20
 #nstep <:=$Nper*$N_dt_per:>
 nnwt 2
 tol_newton 0
@@ -36,23 +44,23 @@ local_time_step 0
 consistent_supg_matrix 1
 auto_time_step 0
 
-Dt 0.1
+Dt 0.5
 alpha 1.0
-diffusivity 0.01
+diffusivity <:=$diff:>
 flux_law_coefficient 1.
 u0   1. 0.
 #tau_fac 0.
-weak_form 0
+weak_form <:=$weak_form:>
 
 #solve_system 0
 #print_linear_system_and_stop
-initial_state "burgers.ini"
+initial_state "burgers.ini.tmp"
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
 nodes   2  2  1
-__INCLUDE__ ../advdif/plano.nod
+__INCLUDE__ burgers.nod.tmp
 __END_NODES__
 
 #===========================================================
@@ -61,10 +69,9 @@ elemset newadvdif_burgers 4
 geometry cartesian2d
 npg 4
 __END_HASH__
-__INCLUDE__ ../advdif/plano.con
+__INCLUDE__ burgers.con.tmp
 __END_ELEMSET__
 
-#if 0
 #===========================================================
 elemset newbcconv_burgers 2
 npg 2
@@ -73,10 +80,10 @@ __END_HASH__
 2 1 
 <:=2*$N+1:> <:=2*$N+2:>
 __END_ELEMSET__
-#endif
 
 end_elemsets
 
+#===========================================================
 fixa
 1 1 1.
 2 1 1.

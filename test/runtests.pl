@@ -833,6 +833,83 @@ check_newff('full_full_jacs_wf');
 check_newff('full_full_jacs_t');
 check_newff('full_full_jacs_tr');
 check_newff('adv_dif_stdy_bcconv');
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/save.state._d01_wf.tmp",
+       "Advdif/Burgers with weak form+bcconv, d=0.1",<<'EOT');
+9.644.*e\-01  
+7.597.*e\-01  
+e\-15
+-7.597.*e\-01  
+-9.644.*e\-01  
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/save.state._d01_nwf.tmp",
+       "Advdif/Burgers with no weak form, d=0.1",<<'EOT');
+9.644.*e\-01  
+7.597.*e\-01  
+e\-15
+-7.597.*e\-01  
+-9.644.*e\-01  
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/test__d01.out.tmp",
+       "Advdif/Burgers coincidence weak/no weak form, d=0.1",<<'EOT');
+max. error .*, <tol\(.*\) OK\? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/save.state._d001_wf.tmp",
+       "Advdif/Burgers with weak form+bcconv, d=0.01",<<'EOT');
+1.000.*e\+00  
+1.000.*e\+00  
+1.094.*e\+00  
+__NO_SKIP__
+1.094.*e\+00  
+e\-14  
+e\-14  
+-1.094.*e\+00  
+-1.094.*e\+00  
+-1.000.*e\+00  
+-1.000.*e\+00  
+EOT
+
+=cut
+1.00.*e\+00  
+1.00.*e\+00  
+1.09.*e\+00  
+__NO_SKIP__
+1.09.*e\+00  
+e\-1(4|5|6)
+e\-1(4|5|6)
+-1.09.*e\+00  
+-1.09.*e\+00  
+-1.00.*e\+00  
+-1.00.*e\+00  
+=cut
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/save.state._d001_nwf.tmp",
+       "Advdif/Burgers with no weak form, d=0.01",<<'EOT');
+1.000.*e\+00  
+1.000.*e\+00  
+1.093.*e\+00  
+__NO_SKIP__
+1.093.*e\+00  
+e\-1(4|5|6)
+e\-1(4|5|6)
+-1.093.*e\+00  
+-1.093.*e\+00  
+-1.000.*e\+00  
+-1.000.*e\+00  
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/test__d001.out.tmp",
+       "Advdif/Burgers coincidence weak/no weak form, d=0.01",<<'EOT');
+max. error .*, <tol\(.*\) OK\? 1
+EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs

@@ -3,9 +3,12 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make ElementIterator a nested class of Elemset
 * Convert flux functions (burgers, shallow water), to new ff's...
-* Cambiar la licencia en todos los archivos
 * Add a "mass" to the advective dffusive eq.??
+* In the advective elemsets we don't destroy the flux function objects
+     created for instance in 
+        `newadvdif_burgers() : NewAdvDif(new burgers_ff(this)) {};'
 * Add weak_form support to the new flux functions
 * Write a test for linear advection diffusion
 * Include an S_body for ffadvfm2
@@ -38,6 +41,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Cambiar la licencia en todos los archivos
 * How to choose the correct jacobian when different combinations (eg:
     ndim*ndim, ndof, etc...) coincide...
 * corregir normales en mydetsur y otros ... 

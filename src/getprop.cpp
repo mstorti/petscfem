@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.4 2001/04/01 01:35:06 mstorti Exp $
+//$Id: getprop.cpp,v 1.5 2001/04/02 21:21:57 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -16,17 +16,6 @@ void print_prop_hash_entry(void *p, void *q, void *u) {
   printf("%s -> %d, %d\n",pp,qq->width,qq->position);
 }
 #endif
-
-// The special pasting ##VA_ARGS doesn't work
-#define PETSCFEM_ERROR(bool_cond, ...)			\
-if (bool_cond) {					\
-  PetscPrintf(PETSC_COMM_WORLD,				\
-              "---------------"				\
-	      "PETSC-FEM error at file %s, line %d\n",	\
-	      __FILE__,__LINE__);			\
-  PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
-  abort();						\
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void load_props(double *propel,int *elprpsindx,int nprops,double
