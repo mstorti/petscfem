@@ -29,7 +29,7 @@ public:
   void enthalpy(FastMat2 &H, FastMat2 &U) {H.set(U);};
 };
 
-// Constant Cp for all the fields
+// Constant Cp, the same for all fields
 class ScalarPerFieldEF : public EnthalpyFun {
   FastMat2 Cp,htmp1,htmp2;
 public:
@@ -37,7 +37,18 @@ public:
   void update(const double *ejac);
   void enthalpy(FastMat2 &H, FastMat2 &U);
   void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
-			   double w);
+		   double w);
+};
+
+// A general Cp matrix 
+class FullEF : public EnthalpyFun {
+  FastMat2 Cp,htmp1,htmp2;
+public:
+  void init(int ndim,int ndof,int nel);
+  void update(const double *ejac);
+  void enthalpy(FastMat2 &H, FastMat2 &U);
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+		   double w);
 };
 
 #endif

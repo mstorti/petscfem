@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.33 2001/04/06 21:39:26 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.34 2001/04/07 21:43:38 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -504,6 +504,8 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     scalar_per_field_ef.init(ndof,ndim,nel);
   } else if (enthalpy_jacobians_type==string("full") &&
 	     enthalpy_jacobians_prop.length == ndof*ndof) {
+    enthalpy_fun = &full_ef;
+    full_ef.init(ndof,ndim,nel);
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Enthalpy Jacobian does not fit in \n"
@@ -512,7 +514,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 		"length entered: %d\n",
 		enthalpy_jacobians_type_s.c_str(),
 		enthalpy_jacobians_prop.length);
-    PETSCFEM_ERROR(0,"Not implemented yet\n");
+    PETSCFEM_ERROR("Not implemented yet\n");
   }
 
   // Read advective jacobians

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.5 2001/04/02 21:21:57 mstorti Exp $
+//$Id: getprop.cpp,v 1.6 2001/04/07 21:43:48 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -53,11 +53,11 @@ int get_double(TextHashTable *thash,const char *name,
   strcpy(buf,value);
   for (k=0; k<n; k++) {
     token = strtok(k==0 ? buf : NULL ," ");
-    PETSCFEM_ERROR(!token,
+    PETSCFEM_ASSERT(token!=NULL,
 		   "Table entry does not contain enough data\n"
 		   "key: %s, value: %s\n",name,value);
     sscanf(token,"%lf",&(retval[k]));
-    PETSCFEM_ERROR(!token,
+    PETSCFEM_ASSERT(token!=NULL,
 		   "Table entry does not contain a double\n"
 		   "key: %s, value: %s\n",name,value);
   }

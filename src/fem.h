@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.12 2001/04/02 21:21:57 mstorti Exp $
+//$Id: fem.h,v 1.13 2001/04/07 21:43:48 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -274,13 +274,27 @@
 #define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(0);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Depending on \verb+bool_cond+ issues 
+/** If \verb+bool_cond+ evaluates to true issues 
     an error (with \verb+PetscPrintf(...))+ and
     calls \verb+abort()+
     @author M. Storti
 */ 
-#define PETSCFEM_ERROR(bool_cond, ...)			\
-if (bool_cond) {					\
+#define PETSCFEM_ERROR(...)				\
+  PetscPrintf(PETSC_COMM_WORLD,				\
+              "---------------"				\
+	      "PETSC-FEM error at file %s, line %d\n",	\
+	      __FILE__,__LINE__);			\
+  PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
+  abort();
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** If \verb+bool_cond+ evaluates to false issues 
+    an error (with \verb+PetscPrintf(...))+ and
+    calls \verb+abort()+
+    @author M. Storti
+*/ 
+#define PETSCFEM_ASSERT(bool_cond, ...)			\
+if (!(bool_cond)) {					\
   PetscPrintf(PETSC_COMM_WORLD,				\
               "---------------"				\
 	      "PETSC-FEM error at file %s, line %d\n",	\

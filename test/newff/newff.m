@@ -16,7 +16,7 @@ if full_jacs==0
   ## this means no full_jacs
 elseif full_jacs==1
   fid=fopen("fulljacdef.tmp","w");
-  if strcmp(dif_type,"scalar_per_field")
+  if strcmp(reac_type,"scalar_per_field")
     RR=diag(RR);
     RR=RR+R*Rfluc*(2*rand(size(RR))-1);
     fprintf(fid,"reactive_jacobians_type \"scalar_per_field\"\n");
@@ -26,6 +26,8 @@ elseif full_jacs==1
     endfor
     fprintf(fid,"\n\n");
     RR=diag(RR);
+  else
+    error(["not implemented reac_type " reac_type " with full_jacs=1"]);
   endif
 
   if strcmp(dif_type,"scalar_per_field")
@@ -39,6 +41,8 @@ elseif full_jacs==1
     endfor
     fprintf(fid,"\n\n");
     Dyy=Dxx;
+  else
+    error(["not implemented dif_type " dif_type " with full_jacs=1"]);
   endif
   
   if strcmp(adv_type,"vector_per_field")
@@ -53,17 +57,23 @@ elseif full_jacs==1
       fprintf(fid," %f %f ",uuu,vvv);
     endfor
     fprintf(fid,"\n\n");
-    Dyy=Dxx;
+  else
+    error(["not implemented adv_type " adv_type " with full_jacs=1"]);
   endif
   
   if strcmp(enthalpy_type,"scalar_per_field")
     fprintf(fid,"enthalpy_jacobians_type \"scalar_per_field\"\n");
-    fprintf(fid,"enthalpy_jacobians_type");
+    fprintf(fid,"enthalpy_jacobians");
     CP=diag(Cp+Cpfluc*(2*rand(3,1)-1));
     for k=1:ndof
       fprintf(fid," %f ",CP(k,k));
     endfor
     fprintf(fid,"\n\n");
+  elseif strcmp(enthalpy_type,"ident")
+    ## print nothing here
+    CP = eye(ndof);
+  else
+    error(["not implemented enthalpy_type " enthalpy_type " with full_jacs=1"]);
   endif
   
   if strcmp(source_type,"full")
@@ -76,6 +86,8 @@ elseif full_jacs==1
                                 #      fprintf(fid," %f ",sss);
     endfor
                                 #    fprintf(fid,"\n\n");
+  else
+    error(["not implemented source_type " source_type " with full_jacs=1"]);
   endif
   
   fclose(fid);

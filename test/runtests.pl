@@ -820,20 +820,23 @@ sub check_newff {
 	   'rel. max error  <tol\(.*\) OK\? 1');
 }
 
-check_newff('stdy_dif');
-check_newff('dif_temp');
+check_newff('adv_dif_stdy_bcconv');
 check_newff('adv_dif_temp');
-check_newff('pure_adv');
-check_newff('reac_adv_dif_temp_y');
-check_newff('reac_steady');
-check_newff('reac_dif_temp');
-check_newff('std_ard_x_y');
-check_newff('full_jacs');
+check_newff('dif_temp');
+check_newff('dif_temp_cp');
 check_newff('full_full_jacs');
-check_newff('full_full_jacs_wf');
+check_newff('full_full_jacs_cp');
 check_newff('full_full_jacs_t');
 check_newff('full_full_jacs_tr');
-check_newff('adv_dif_stdy_bcconv');
+check_newff('full_full_jacs_wf');
+check_newff('full_jacs');
+check_newff('full_jacs_cp');
+check_newff('pure_adv');
+check_newff('reac_adv_dif_temp_y');
+check_newff('reac_dif_temp');
+check_newff('reac_steady');
+check_newff('std_ard_x_y');
+check_newff('stdy_dif');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("burgers/save.state._d01_wf.tmp",

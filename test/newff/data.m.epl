@@ -34,6 +34,7 @@ tau_fac=1;
 use_bcconv=0;
 rval=0;
 Cp=1;
+Cpfluc=0;
 
 #<:$CASE=$ENV{'CASE'}:>//
 CASE=<:=$CASE:>;
@@ -60,12 +61,16 @@ D=0.05;
 #elsif $CASE eq 'dif_temp_cp'
 ## Heat eq. with source term
 ## Cp variable per dof
+full_jacs=1;
 Dt=0.05;
 nstep=10;
 tol=0.04;
 nx=16;
 R=0;
-reac_type="global_scalar";
+reac_type="scalar_per_field";
+adv_type="vector_per_field";
+dif_type="scalar_per_field";
+source_type="full";
 enthalpy_type="scalar_per_field";
 D=0.05;
 Cp=3;
@@ -207,6 +212,55 @@ adv_type="vector_per_field";
 s=1;
 sfluc=1;
 source_type="full";
+#elsif $CASE eq 'full_jacs'
+ky=1;
+full_jacs=1;
+Dt=1e5;
+steady=1;
+nstep=1;
+tol=0.04;
+nx=16;
+ny=16;
+kx=1;
+ky=1;
+Lx=1;
+Ly=1;
+R=5;
+reac_type="scalar_per_field";
+Rfluc=.5;
+D=0.01;
+Dfluc=.5;
+dif_type="scalar_per_field";
+u=1.5;
+v=1.2;
+ufluc=1;
+adv_type="vector_per_field";
+s=1;
+sfluc=1;
+source_type="full";
+#elsif $CASE eq 'full_jacs_cp'
+full_jacs=1;
+Dt=0.05;
+nstep=20;
+tol=0.04;
+nx=16;
+Ly=1/16;
+reac_type="scalar_per_field";
+D=0.1;
+Dfluc=.0;
+dif_type="scalar_per_field";
+u=0;
+v=0;
+ufluc=0;
+adv_type="vector_per_field";
+s=3.2;
+sfluc=0;
+source_type="full";
+Cp=2.3;
+Cpfluc=1.;
+nnwt=3;
+#enthalpy_type="ident";
+enthalpy_type="scalar_per_field";
 #elsif $CASE eq 'full_full_jacs'
 steady=1;
 ky=1;
@@ -231,7 +285,7 @@ adv_type="vector_per_field";
 s=1;
 sfluc=1;
 source_type="full";
-#elsif $CASE eq 'full_full_jacs'
+#elsif $CASE eq 'full_full_jacs_wf'
 steady=1;
 ky=1;
 full_jacs=2;
@@ -255,12 +309,13 @@ adv_type="vector_per_field";
 s=1;
 sfluc=1;
 source_type="full";
+weak_form=1;
 #elsif $CASE eq 'full_full_jacs_cp'
 ky=1;
 full_jacs=2;
 Dt=0.01;
 nstep=10;
-tol=0.01;
+tol=0.04;
 nx=16;
 ny=16;
 kx=1;

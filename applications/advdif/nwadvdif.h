@@ -61,6 +61,7 @@ private:
   GlobalScalarEF global_scalar_ef;
   IdentityEF identity_ef;
   ScalarPerFieldEF scalar_per_field_ef;
+  FullEF full_ef;
 public:
 
   /// Null source term
