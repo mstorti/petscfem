@@ -148,8 +148,15 @@ B<ePerl> (for I<embedded Perl>) is a preprocessor much like the B<C>
 language preprocessor (home page:
 C<http://www.engelschall.com/sw/eperl/>). B<ePerl> allows you to embed
 arbitrary B<Perl> code in your document. It is not required at all,
-but is is very useful for preprocessing the data files. [RedHat RPM
-package: C<eperl>].
+but is is very useful for preprocessing the data files. 
+[RedHat RPM package: C<eperl>]. NEW: from version 3.18.pl44 on the
+Perl based version of C<eperl> is include in the <tools> directory. So
+that it is not needed to install it!! The Perl based version can be
+marginally different from the C<C> version. If you want to specify your
+own C<eperl> preprocessor then you have to modify the C<EPERL>
+variable in C<Makefiele.base>. The Perl version of ePerl is written
+and maintained by David Ljung Madison C<< <DaveSource.com> >>
+C<http://MarginalHacks.com>. 
 
 =item Perl
 

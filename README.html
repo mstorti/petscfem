@@ -159,8 +159,15 @@ could be replaced by calls to LAPACK.
 language preprocessor (home page:
 <CODE>http://www.engelschall.com/sw/eperl/</CODE>). <STRONG>ePerl</STRONG> allows you to embed
 arbitrary <STRONG>Perl</STRONG> code in your document. It is not required at all,
-but is is very useful for preprocessing the data files. [RedHat RPM
-package: <CODE>eperl</CODE>].
+but is is very useful for preprocessing the data files. 
+[RedHat RPM package: <CODE>eperl</CODE>]. NEW: from version 3.18.pl44 on the
+Perl based version of <CODE>eperl</CODE> is include in the &lt;tools&gt; directory. So
+that it is not needed to install it!! The Perl based version can be
+marginally different from the <CODE>C</CODE> version. If you want to specify your
+own <CODE>eperl</CODE> preprocessor then you have to modify the <CODE>EPERL</CODE>
+variable in <CODE>Makefiele.base</CODE>. The Perl version of ePerl is written
+and maintained by David Ljung Madison <CODE>&lt;DaveSource.com&gt;</CODE>
+<CODE>http://MarginalHacks.com</CODE>.
 <P></P>
 <DT><STRONG><A NAME="item_Perl">Perl</A></STRONG><BR>
 <DD>

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: util3.h,v 1.5 2003/02/12 00:36:27 mstorti Exp $
+// $Id: util3.h,v 1.6 2003/03/24 02:35:08 mstorti Exp $
 #ifndef PETSCFEM_UTIL3_H
 #define PETSCFEM_UTIL3_H
 #include <string>
@@ -9,7 +9,10 @@
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int string2int(string s,int &n);
+int string2int(string &s,int &n);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int string2dbl(string &s,double &b);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Converts a line in a list of tokens separated by white space. 

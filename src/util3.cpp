@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.6 2003/02/19 16:09:33 mstorti Exp $
+// $Id: util3.cpp,v 1.7 2003/03/24 02:35:08 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
@@ -8,8 +8,14 @@
 #include <src/util3.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int string2int(string s,int &n) {
+int string2int(string &s,int &n) {
   int nread = sscanf(s.c_str(),"%d",&n);
+  return (nread!=1);
+} 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int string2dbl(string &s,double &v) {
+  int nread = sscanf(s.c_str(),"%d",&v);
   return (nread!=1);
 } 
 

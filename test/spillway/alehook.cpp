@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.4 2003/03/23 20:11:10 mstorti Exp $
+//$Id: alehook.cpp,v 1.5 2003/03/24 02:35:08 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -11,6 +11,7 @@
 #include <src/texthash.h>
 #include <src/texthf.h>
 #include <src/fem.h>
+#include <src/util3.h>
 #include <src/hook.h>
 #include <src/dlhook.h>
 #include <src/autostr.h>
@@ -150,7 +151,9 @@ void ale_hook2::time_step_post(double time,int step,
   assert(step==mmv_step);
 }
 
-void ale_hook2::close() {}
+void ale_hook2::close() {
+  if (!MY_RANK) fprintf(ns2mmv,"step %d\n",-1);
+}
 
 DL_GENERIC_HOOK(ale_hook2);
 
@@ -233,26 +236,30 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
   
   displ.set_chunk_size(ndim*nfs);
   displ.a_resize(2,nfs,ndim);
+  displ.set(0.);
   
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
   assert(Dt>0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void ale_mmv_hook::time_step_pre(double time,int step) {}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void ale_mmv_hook::time_step_post(double time,int step,
-			      const vector<double> &gather_values) {
+void ale_mmv_hook::time_step_pre(double time,int step) {
   int ierr;
   // verify step sent by NS run
   int step_sent = int(read_doubles(ns2mmv,"step"));
+  if (step_sent==-1) {
+    PetscPrintf(PETSC_COMM_WORLD, 
+		"MESH_MOVE: step==-1 received, stopping myself.\n");
+    PetscFinalize();
+    exit(0);
+  }
   assert(step=step_sent);
   // Open state file. Will read velocities on the FS
   // and update displ += v * Dt
   FILE *fid = fopen("spillway.state.tmp","r");
   // string buffer 
   AutoString line;
+  vector<string> tokens;
   fs2indx_t::iterator qe = fs2indx.end();
   // Reads the whole file
   for (int node=1; node<=nnod; node++) {
@@ -265,18 +272,29 @@ void ale_mmv_hook::time_step_post(double time,int step,
     int indx = q->second;
     double v, vn_tmp=0., n2=0.;
     // Compute normal component of velocity
+    printf("node %d, vel, nor ",node);
+    tokens.clear();
+    tokenize(line.str(),tokens);
+    assert(tokens.size()==ndim+1);
     for (int j=0; j<ndim; j++) {
-      int nread = sscanf(line.str(),"%lf",&v);
+      string2dbl(tokens[j],v);
       double n = spines.e(indx,j);
+      printf(" %f %f",v,n);
       vn_tmp += v*n;
       n2 += n*n;
     }
+    printf("\n");
     double tol = 1e-5;
     assert(fabs(n2-1.0)<tol);
-    for (int j=0; j<ndim; j++) displ.e(indx,j) += Dt*spines.e(indx,j);
+    for (int j=0; j<ndim; j++) displ.e(indx,j) += Dt*vn_tmp*spines.e(indx,j);
   }
   fclose(fid);
   fprintf(mmv2ns,"mmv_step_ok %d\n",step);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void ale_mmv_hook::time_step_post(double time,int step,
+			      const vector<double> &gather_values) {
 }
 
 void ale_mmv_hook::close() {}
@@ -303,7 +321,9 @@ double fs_coupling::eval(double) {
 		  "Can't find node in FS node list\n"
 		  "node %d\n",node_c);
   int indx = q->second;
-  return displ.e(indx,f-1);
+  double val = displ.e(indx,f-1);
+  printf("fs_coupling: node %d, field %d, indx %d -> %f\n",node_c,f,indx,val);
+  return val;
 }
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_coupling);

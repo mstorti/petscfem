@@ -121,7 +121,14 @@ INSTALLATION
         `http://www.engelschall.com/sw/eperl/'). ePerl allows you to embed
         arbitrary Perl code in your document. It is not required at all, but
         is is very useful for preprocessing the data files. [RedHat RPM
-        package: `eperl'].
+        package: `eperl']. NEW: from version 3.18.pl44 on the Perl based
+        version of `eperl' is include in the <tools> directory. So that it
+        is not needed to install it!! The Perl based version can be
+        marginally different from the `C' version. If you want to specify
+        your own `eperl' preprocessor then you have to modify the `EPERL'
+        variable in `Makefiele.base'. The Perl version of ePerl is written
+        and maintained by David Ljung Madison `<DaveSource.com>'
+        `http://MarginalHacks.com'.
 
     Perl
         If you want to use ePerl then you need to have Perl installed.
