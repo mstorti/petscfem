@@ -2830,3 +2830,7 @@ tag: beta-3.19.pl46 on Mon, 18 Aug 2003 22:18:02 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl47 on Sun, 24 Aug 2003 23:52:30 -0300 by mstorti in spider
      > Runs cubcab example for statistics. 
+----------
+tag: beta-3.19.pl48 on Thu, 28 Aug 2003 19:43:30 -0300 by mstorti in spider
+     > Written `upload_vector' in block matrix mode, i.e. using MatSetValues
+     > instead of MatSetValue. 
