@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.6 2003/03/10 20:09:37 mstorti Exp $
+//$Id: nsid.cpp,v 1.7 2003/03/22 22:20:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -77,7 +77,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
   } 
 
-  //o Residual value is #ns_id_fac*(ns_id_cn * x^n + ns_id_cn1 * x^{n+1})#
+  //o Residual value is #ns_id_fac*(ns_id_cn * (x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))#
   SGETOPTDEF(double,ns_id_fac,1.);
   //o see doc for #ns_id_fac#
   SGETOPTDEF(double,ns_id_cn,0.);
@@ -88,6 +88,12 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,ns_id_lumped_cn,0.);
   //o see doc for #ns_id_fac#
   SGETOPTDEF(double,ns_id_lumped_cn1,0.);
+
+  FastMat2 x_ref(1,ndof);
+  //o _T: double[ndof] _N: state_ref _D: null vector 
+  // _DOC: Reference state value. _END
+  x_ref.set(0.);
+  ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
 
   // allocate local vecs
   FastMat2 veccontr(2,nel,ndof), locstate2(2,nel,ndof),
@@ -109,8 +115,8 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ielh++;
 
     if (comp_mat_res || comp_res) {
-      locstate.set(&(LOCST(ielh,0,0)));
-      locstate2.set(&(LOCST2(ielh,0,0)));
+      locstate.set(&(LOCST(ielh,0,0))).rest(x_ref);
+      locstate2.set(&(LOCST2(ielh,0,0))).rest(x_ref);
       lumped_vc = ns_id_lumped_cn * locstate2.sum_all()
 	+ ns_id_lumped_cn1 * locstate.sum_all();
 

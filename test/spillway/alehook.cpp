@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.1 2003/03/20 22:58:38 mstorti Exp $
+//$Id: alehook.cpp,v 1.2 2003/03/22 22:20:32 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -11,6 +11,7 @@
 #include <src/fem.h>
 #include <src/hook.h>
 #include <src/dlhook.h>
+#include <src/autostr.h>
 
 extern int MY_RANK,SIZE;
 
@@ -45,10 +46,13 @@ void ale_hook::time_step_post(double time,int step,
   PetscPrintf(PETSC_COMM_WORLD,"ALEHOOK: begins time_step_post() ....\n");
   int nnod = mesh->nodedata->nnod;
   int nu = mesh->nodedata->nu;
+  AutoString command;
+  command.sprintf("/usr/bin/make petscfem_step=%d spillway_mesh",step);
+  int stat = system(command.str());
+  command.clear();
   if (!MY_RANK) {
     // char * const argv[] = {"/usr/bin/make","spillway_mesh",NULL};
     // int stat = execv(argv[0],argv);
-    int stat = system("/usr/bin/make spillway_mesh");
     if (stat==-1) {
       printf("ALEHOOK: Couldn't launch octave process...\n");
       abort();

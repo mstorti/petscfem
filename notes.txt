@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $
+$Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
+! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
+! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
+! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
+! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
+  # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
+  # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6405,7 +6405,11 @@ gravedad. Voy a probar a desactivar la gravedad.
 22:45:31: Habia un serio bug en los datos y es que el G_body se leia
 de las opciones globales, no del elemset. 
 
-
+%===Sat, 22 Mar 2003 12:43:56 -0300 mstorti@spider
+%
+Poniendo p = p_stedy en la FS se vuelve inestable aguas abajo. Mi idea
+ahora es agregar un termino calmante tipo dv/dt = .... + c v (solo en
+la componente vertical). 
 
 # Current line ===========  %
 # Local Variables: $

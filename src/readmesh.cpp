@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.84 2003/03/07 03:13:08 mstorti Exp $
+//$Id: readmesh.cpp,v 1.85 2003/03/22 22:20:32 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -77,7 +77,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      int & neq,int size,int myrank) {
   vector<Amplitude *> amplitude_list;
 
-  char *p1,*p2, *token, *type, *bsp=" \t";
+  char *p1,*p2, *token, *type, *bsp=" \t\n";
   vector<string> tokens;
   char *line;
   const char *cline;

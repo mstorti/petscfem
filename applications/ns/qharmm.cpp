@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.5 2003/02/24 00:14:23 mstorti Exp $
+//$Id: qharmm.cpp,v 1.6 2003/03/22 22:20:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -33,10 +33,18 @@ void read_cond_matrix(TextHashTable *thash, const char *s,
 void qharmm::elemset_init() {
   int ierr;
   cond.resize(2,ndof,ndof);
-  // rho_Cp_m.resize(2,ndof,ndof);
   //o Thermal conductivity
   read_cond_matrix(thash,"conductivity",ndof,cond);
-  // read_cond_matrix(thash,"rho_Cp",ndof,rho_Cp_m);
+
+  C.resize(2,ndof,ndof);
+  //o Reaction jacobian matrix
+  read_cond_matrix(thash,"C",ndof,C);
+
+  //o _T: double[ndof] _N: state_ref _D: null vector 
+  // _DOC: Reference state value. _END
+  x_ref.resize(1,ndof).set(0.);
+  ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
+  assert(!ierr);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -46,8 +54,18 @@ void qharmm::pg_connector(const FastMat2 &xpg,
 			 const FastMat2 &state_new_pg,
 			 const FastMat2 &grad_state_new_pg,
 			 FastMat2 &res_pg,FastMat2 &mat_pg) {
+#define tmp1 tmp(1)
+#define tmp2 tmp(2)
   tmp1.prod(dshapex(),grad_state_new_pg,-1,1,-1,2);
   res_pg.prod(tmp1,cond,1,-1,-1,2).scale(-1.);
+  tmp(6).set(state_new_pg).rest(x_ref);
+  tmp(3).prod(C,tmp(6),1,-1,-1);
+  tmp(7).prod(shape(),tmp(3),1,2);
+  res_pg.rest(tmp(7));
+
   tmp2.prod(dshapex(),dshapex(),-1,1,-1,2);
   mat_pg.prod(tmp2,cond,1,3,2,4);
+  tmp(4).prod(shape(),shape(),1,2);
+  tmp(5).prod(tmp(4),C,1,3,2,4);
+  mat_pg.add(tmp(5));
 }

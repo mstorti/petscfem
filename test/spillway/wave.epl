@@ -1,49 +1,33 @@
 ##__INSERT_LICENSE__
-## $Id: spillway.epl,v 1.5 2003/03/22 22:20:32 mstorti Exp $ 
+## $Id: wave.epl,v 1.1 2003/03/22 22:20:32 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
-if (!$re_start && -f 'spillway.axis_nodes.rslt.tmp') {
-    unlink 'spillway.axis_nodes.rslt.tmp';
+if (!$re_start && -f 'wave.axis_nodes.rslt.tmp') {
+    unlink 'wave.axis_nodes.rslt.tmp';
 }
-$layers = 2;
-$C = 0.053547;			# Constants of spillway expr.
-$E = 1.85;
-$H1 = 66.50;			# vertical position of spillway top position
-$L1 = 18;			# Distance from top of spillway to start
-				# of flat bottom
-$L2 = 50;			# Flat bottom length
-$h1 = 4;                        # Water height at top of spillway
-$y2 = 65.79;			# restitution height
+$h = 4;                         # Mean water height
 
 $ref = 2;                       # refinement parameter
 $Ny = 10*$ref;                  # Number of elements along vert. direction
 $Nx = 50*$ref;                  # Number of elements along horiz. direction
 
 $gravity = 9.8;                 # gravity acceleration (magnitude)
-$uin = sqrt($gravity*$h1);      # velocity at inlet
-$Dt = 0.1;
-$patm = -$gravity*$y2;          # atmosferix pressure (taken at the
-                                # restitution height). Should take into
-                                # account the velocity of the fluid at the outlet. 
-$p_const_bc = 1;                # Impose = patm on the free surface
+$slope = 0.01;                  # simulated bottom slope. A term g_x = slope*g is added
+$patm = 0;                      # Pressure at FS
+$p_const_bc = 0;                # Impose = patm on the free surface
 $fs_relax = 1;                  # relaxation factor for the 
                                 # free surface evolution eq. 
-$x_damp = $L1+0.5*$L2;          # a wave damper term is added for `x > x_damp'
-$steady_state_file = 
-    "./RUN1/spillway.state_21.tmp";# Read pressure for FS nodes from this file
-
 $fs_relax = 0 if !$p_const_bc;
 #__END_TRANSCRIPT__
-@vars = qw(C E H1 L1 L2 h1 y2 Ny Nx uin fs_relax Dt gravity p_const_bc patm
-    steady_state_file x_damp);
+@vars = qw(L h Ny Nx fs_relax Dt gravity p_const_bc patm slope);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
-system "initia=1 octave -qH spillway.m";
-$nnod = count_lines("./spillway.nod.tmp");
+system "initia=1 octave -qH wave.m";
+$nnod = count_lines("./wave.nod.tmp");
 :>//                            # ends ePerl block
 
 # <:pr('case_name'):>
@@ -51,17 +35,15 @@ $nnod = count_lines("./spillway.nod.tmp");
 global_options
 ndim 2
 
-save_file "spillway.state.tmp"
+save_file "wave.state.tmp"
 nsave 1
 
-save_file_pattern "spillway.state_%d.tmp"
+save_file_pattern "wave.state_%d.tmp"
 nsaverot 10
 nrec 1
 nfile 100000000
 
-initial_state "./RUN1/spillway.state_21.tmp"
-# initial_state "spillway.state.tmp"
-# initial_state "spillway.ini.tmp"
+# initial_state "wave.ini.tmp"
 nstep 10000
 # steady
 solver "iisd"
@@ -80,16 +62,16 @@ print_partitioning_statistics
 # print_linear_system_and_stop
 # verify_jacobian_with_numerical_one 1
 # solve_system 0
-report_consumed_time
+# report_consumed_time
 
 hook_list ns_dx_hook my_dx_hook \
           dl_generic_hook my_ale_hook
 
 my_ale_hook.filename ./alehook.efn
-my_ale_hook.prefix   ale_hook
+my_ale_hook.prefix   ale_hook_w
 
 viscosity 1e-2
-G_body 0. <:=-$gravity:>
+G_body  <:=$slope*$gravity:> <:=-$gravity:>
 
 # For DX
 dx_split_state "1 2 0 1 u 1 1 2 p"
@@ -102,7 +84,7 @@ __END_HASH__
 #===========================================================
 # ndim nu ndof
 nodedata   2  2  3
-data spillway.nod.tmp
+data wave.nod.tmp
 __END_HASH__
 
 #===========================================================
@@ -110,39 +92,28 @@ elemset nsi_tet_les_fm2 4
 name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
-data spillway.con.tmp
+data wave.con.tmp
 rho 1.
 dx 
-__END_HASH__
-
-#===========================================================
-elemset qharmm 4
-name qharmm
-geometry cartesian2d
-npg 4
-data spillway.damp_con.tmp
-conductivity 0.
-C 0. 1. 0.
-# state_ref <:=$uin:> 0. 0.
-dx 0
 __END_HASH__
 
 end_elemsets
 
 #===========================================================
 fixa
-__INCLUDE__ "spillway.fixa_in.tmp"
-__INCLUDE__ "spillway.fixa_out.tmp"
-__INCLUDE__ "spillway.fixa_bot.tmp"
+__INCLUDE__ "wave.fixa_in.tmp"
+__INCLUDE__ "wave.fixa_out.tmp"
+__INCLUDE__ "wave.fixa_bot.tmp"
 #if $p_const_bc
-__INCLUDE__ "spillway.patm.tmp"
+__INCLUDE__ "wave.patm.tmp"
 #endif
 __END_FIXA__
 
 #===========================================================
 #if !$p_const_bc
 constraint
-__INCLUDE__ "spillway.slip.tmp"
+__INCLUDE__ "wave.slip.tmp"
+__INCLUDE__ "wave.peri.tmp"
 __END_CONSTRAINT__
 #endif
 

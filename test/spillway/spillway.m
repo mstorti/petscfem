@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.3 2003/03/21 10:04:49 mstorti Exp $
+## $Id: spillway.m,v 1.4 2003/03/22 22:20:32 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
@@ -77,7 +77,8 @@ else
   le = l2(normal_e);
   normal_e = leftscal(1./le,normal_e);
   normal_e = [normal_e(:,2) -normal_e(:,1)];
-  normal = leftscal(le(1:nfs-2),normal_e(1:nfs-2,:))+leftscal(le(2:nfs-1),normal_e(2:nfs-1,:));
+  normal = leftscal(le(1:nfs-2),normal_e(1:nfs-2,:)) \
+      +leftscal(le(2:nfs-1),normal_e(2:nfs-1,:));
   normal = leftscal(1./l2(normal),normal);
   vn = sum((vfs(2:nfs-1,:).*normal)')';
   vn = [0;vn;0];
@@ -94,7 +95,10 @@ else
     dfdx = (fp-fm)/(2*epsil);
     normal_pc(k,:) = [-dfdx 1]/sqrt(1+dfdx^2);
   endfor
-  xfs(2:npc-1,:) = xfs(2:npc-1,:) + fs_relax * Dt*leftscal(vn_pc(2:npc-1),normal_pc(2:npc-1,:));
+  xfs(2:npc-1,:) = xfs(2:npc-1,:) + fs_relax \
+      * Dt*leftscal(vn_pc(2:npc-1),normal_pc(2:npc-1,:));
+  pfstep = getenv("petscfem_step");
+  asave(["spillway.xfs_" pfstep ".tmp"],xfs);
   ##  save spillway.tmp xfs vn_pc 
   printf("spillway.m: convergence on free surface control points: %g\n",
 	 merr(xfs-xfs_old));
@@ -118,7 +122,8 @@ if 0
   yy=spline(xfs(:,1),xfs(:,2),xx);
 
   y=spillway_fun(xx);
-  plot(xx,yy,xfs(:,1),xfs(:,2),'o',xx,y,XNOD(:,1),XNOD(:,2),'og');
+  plot(xx,yy,xfs(:,1),xfs(:,2),'o', \
+       xx,y,XNOD(:,1),XNOD(:,2),'og');
 endif
 
 ICONE = [1 2 5 4;
@@ -133,6 +138,11 @@ H = [1 4 Ny 1 4 1;
 asave("spillway.nod.tmp",xnod);
 if ~initia; return; endif
 asave("spillway.con.tmp",icone);
+
+## Elements with FS damper 
+xele = pfnd2ele(xnod,icone,xnod(:,1));
+index = find(xele>x_damp);
+asave("spillway.damp_con.tmp",icone(index,:));
 
 fs = mesher_bound(mesh,[6 5 4]);
 asave("spillway.nod_fs.tmp",fs);
@@ -157,15 +167,6 @@ for k=inlet(1:length(inlet)-1)'
 endfor
 fclose(fid);
 
-## Outlet p=0., v=0
-fid = fopen("spillway.fixa_out.tmp","w");
-for k=outlet(2:length(outlet)-1)'
-  ## fprintf(fid,"%d %d %f\n",k,2,0.);
-  fprintf(fid,"%d %d %f\n",k,3,-gravity*xnod(k,2));
-endfor
-fprintf(fid,"%d %d %f\n",outlet(length(outlet)),2,0.);
-fclose(fid);
-
 ## Compute normals to FS
 nfs = length(fs);
 normal = xnod(fs(3:nfs),:) - xnod(fs(1:nfs-2),:);
@@ -176,16 +177,36 @@ normal = [-normal(:,2) normal(:,1)];
 fid = fopen("spillway.slip.tmp","w");
 for j=2:length(fs)-1
   k= fs(j);
-  fprintf(fid,"%f    %d %d   %f  %d %d\n",normal(j-1,1),k,1,normal(j-1,2),k,2);
+  fprintf(fid,"%f    %d %d   %f  %d %d\n",
+	  normal(j-1,1),k,1,normal(j-1,2),k,2);
 endfor
 fclose(fid);
 
 ## SF  p = p_atm = 0.
+p_atm_var = exist("steady_state_file");
+if p_atm_var
+  state = aload(steady_state_file);
+endif
 fid = fopen("spillway.patm.tmp","w");
 for j=2:length(fs)-1
   k= fs(j);
-  fprintf(fid,"%d %d %f\n",k,3,patm);
+  p_atm_node = patm;
+  if p_atm_var; p_atm_node = state(k,3); endif
+  fprintf(fid,"%d %d %f\n",k,3,p_atm_node);
 endfor
+fclose(fid);
+
+## Outlet p = hydrostatic
+p_corner_node = 0;		# Pressure at the intersection(FS,outlet)
+if p_atm_var
+  nnod = rows(state);
+  p_corner_node = state(nnod,3); # The last node is the node at the corner
+endif
+fid = fopen("spillway.fixa_out.tmp","w");
+for k=outlet(2:length(outlet)-1)'
+  fprintf(fid,"%d %d %f\n",k,3,-gravity*xnod(k,2));
+endfor
+fprintf(fid,"%d %d %f\n",outlet(length(outlet)),2,0.);
 fclose(fid);
 
 nnod = rows(xnod);
