@@ -1025,3 +1025,6 @@ tag: beta-2.84.pl3 on Wed Feb 13 12:26:42 ART 2002 by mstorti in minerva.arcride
 ----------
 tag: beta-2.85 on Fri Feb 15 09:48:15 ART 2002, by mstorti in minerva.arcride.edu.ar
      > Writing new bubbly application for advdif (Navier-Stokes multiphase)
+----------
+tag: beta-2.85.pl1 on Fri Feb 15 16:57:06 ART 2002 by mstorti in minerva.arcride.edu.ar
+     > bubbly.cpp compiles
