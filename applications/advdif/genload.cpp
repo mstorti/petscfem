@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.6 2001/05/24 01:51:20 mstorti Exp $
+//$Id: genload.cpp,v 1.7 2001/05/24 17:39:59 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -35,12 +35,20 @@ void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 
   dU.set(uout).rest(uin);
   h->prod(flux,dU);
+  h->jac(jacin);
+  jacout.set(jacin);
+  jacout.scale(-1.);
   s->add(flux);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::HFull::init() {
   HH.resize(2,l->ndof,l->ndof);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LinearHFilmFun::HFull::jac(FastMat2 &A) {
+  A.set(HH);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -168,13 +176,16 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     PETSCFEM_ERROR0("Only considered \"double_layer=1\"\n");
     nel2=nel;
   }
-  xloc.resize(2,nel2,ndim);
   
   // Gauss Point data
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian1d);
-  // GPdata gp_data(geometry.c_str(),ndim,nel2,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndim,nel2,npg,GP_FASTMAT2);
   
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE    (*gp_data.FM2_shape[ipg])
+#define WPG      (gp_data.wpg[ipg])
+
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
   for (ElementIterator element = elemlist.begin(); 
@@ -185,6 +196,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // Load local node coordinates in local vector
     element.node_data(nodedata,xloc.storage_begin(),
 		      Hloc.storage_begin());
+    h_film_fun->element_hook(element); 
 
     if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
@@ -200,20 +212,17 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     if (double_layer) {
       ustar.is(1,1,nel2);
       u_in.set(ustar);
-      ustar.is(1,nel2+1,nel);
+      ustar.rs().is(1,nel2+1,nel);
       u_out.set(ustar);
       ustar.rs();
     }
 
-#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
-#define SHAPE    (*gp_data.FM2_shape[ipg])
-#define WPG      (gp_data.wpg[ipg])
-
     // loop over Gauss points
-
     for (ipg=0; ipg<npg; ipg++) {
 
+      xloc.is(1,1,nel2);
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+      xloc.rs();
       detJ = mydetsur(Jaco,S);
       S.scale(-1.); // fixme:= This should be avoided !!
 
@@ -230,17 +239,18 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       vecc2.prod(tmp1,flux,1,2);
       if (double_layer) {
 	veccontr.is(1,1,nel2).add(vecc2);
-	veccontr.is(1,nel2+1,nel).rest(vecc2);
+	veccontr.rs().is(1,nel2+1,nel).rest(vecc2);
+	veccontr.rs();
 	// Contribution to jacobian from interior side
 	tmp2.set(SHAPE).scale(wpgdet);
 	tmp3.prod(SHAPE,tmp2,1,2);
 	tmp4.prod(tmp3,jac_in,1,3,2,4);
-	matloc.is(1,1,nel2).is(2,1,nel2).add(tmp4);
-	matloc.is(1,nel2+1,nel).rest(tmp4);
+	matloc.is(1,1,nel2).is(3,1,nel2).add(tmp4);
+	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
 	// Contribution to jacobian from exterior side
 	tmp4.prod(tmp3,jac_out,1,3,2,4);
-	matloc.is(1,1,nel2).is(2,nel2+1,nel).add(tmp4);
-	matloc.is(1,nel2+1,nel).rest(tmp4);
+	matloc.rs().is(1,1,nel2).is(3,nel2+1,nel).add(tmp4);
+	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
 	matloc.rs();
       } else {
 	veccontr.add(vecc2);

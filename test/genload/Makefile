@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/05/23 20:23:45 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/05/24 17:40:02 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -19,6 +19,7 @@ run: genload.depl
 			-case genload.depl #> output.tmp
 
 local_clean::
+	-rm -rf mat.output
 
 auxi:
 	if [ ! -L advdif ] ; \
