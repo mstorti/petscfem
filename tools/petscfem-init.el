@@ -1,6 +1,6 @@
 ;;; petscfem-init.el --- Initialize PETSc-FEM mode
 
-;; Copyright (C) 2003  Free Software Foundation, Inc.
+;; Copyright (C) 2003-2004  Free Software Foundation, Inc.
 
 ;; Author:  <mstorti@spider>
 ;; Keywords: 
@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-;;; $Id: petscfem-init.el,v 1.4 2003/11/24 03:40:58 mstorti Exp $
+;;; $Id: petscfem-init.el,v 1.5 2004/08/15 15:09:16 mstorti Exp $
 
 ;; You can replace this by a straight path, i.e. 
 ;; (defvar petscfem-info-file "/home/bob/petscfem/options.info")

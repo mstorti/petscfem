@@ -1,6 +1,6 @@
 ;;; petscfem.el --- Mode for PETSc-FEM data files
 
-;; Copyright (C) 2003  Free Software Foundation, Inc.
+;; Copyright (C) 2003-2004  Free Software Foundation, Inc.
 
 ;; Author:  <mstorti@spider>
 ;; Keywords: languages, data
