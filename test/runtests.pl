@@ -26,14 +26,15 @@ begin_section('FastMat2');
 
 ##------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
-expect("fastmat2a.sal","FastMat2 library",read_file("fastmat2a.ans.txt"));
+expect("fastmat2/fastmat2a.sal","FastMat2 library",
+        read_file("fastmat2/fastmat2a.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("fastmat2.sal","FastMat2 library with caches",
-                         read_file("fastmat2.ans.txt"));
+expect("fastmat2/fastmat2.sal","FastMat2 library with caches",
+                         read_file("fastmat2/fastmat2.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("fastmat2c.sal","FastMat2 library. FEM problem.",<<'EOT');
+expect("fastmat2/fastmat2c.sal","FastMat2 library. FEM problem.",<<'EOT');
 total_area
 Total area OK\? : YES
 Summary of operation counts:
@@ -48,6 +49,14 @@ CPU:
 rate:
 EOT
 
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('Laplace boundary conditions');
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/
 $sector_test = <<'EOT';
 -6\.787.*e-02  6\.787.*e-02  
@@ -61,14 +70,6 @@ $sector_test = <<'EOT';
 -6\.314.*e-01  6\.314.*e-01  
 -7\.071.*e-01  7\.071.*e-01  
 EOT
-
-end_section();
-
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-
-begin_section('Laplace boundary conditions');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sector/sector0.sal","Periodic boundary conditions (1)",$sector_test);
@@ -437,7 +438,7 @@ expect("graph/output.graph.tmp","Graph partitioning",
                read_file("graph/answer.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("tfastvec.sal",
+expect("fastmat2/tfastvec.sal",
        "FastVector library",<<'EOT');
 resized  0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  
 resized  0  1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  

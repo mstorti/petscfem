@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2a.cpp,v 1.6 2002/09/21 04:23:32 mstorti Exp $
+//$Id: testfm2a.cpp,v 1.1 2002/11/03 11:04:16 mstorti Exp $
  
 #include <stdio.h>
 #include <src/fastmat2.h>

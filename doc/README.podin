@@ -20,22 +20,22 @@ program for CFD applications based on PETSc. PETSc-FEM comprises both
 a library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
 programs.  It is written in the C++ language with an OOP (Object
-Oriented Programming) philosophy, but always keeping in mind the scope
-of efficiency. PETSc-FEM runs in parallel using the MPI standard on a
-variety of architectures, but currently has been tested in Beowulf
-clusters. 
+Oriented Programming) philosophy, keeping in mind the scope
+of efficiency. PETSc-FEM may run in parallel using the MPI standard on a
+variety of architectures, but currently it has been tested in Beowulf
+clusters only. 
 
 PETSc-FEM is GPL, for further details read the file COPYING in the
 root directory of the distribution.
 
 =head1 LICENSE
 
-This file belongs to he PETSc - FEM package a library and application
+This file belongs to the PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc.  Copyright
 (C) 1999-2002, Mario Alberto Storti, Norberto Marcelo Nigro, Centro
 Internacional de Metodos Numericos en Ingenieria (CIMEC-Argentina),
 Universidad Nacional del Litoral (UNL-Argentina), Consejo Nacional de
-Investigaciones Cientificas y Tecnicas (UNL-Argentina).
+Investigaciones Cientificas y Tecnicas (CONICET-Argentina).
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ sequential (i.e. non-parallel) mode or either for simulating parallel
 runs, by launching several processes in the same processor. (This is a
 feature of MPI).
 
-I guess it may be easy to install in other processor architectures
+I guess it should be easy to install in other processor architectures
 (SPARC or Alpha) running GNU/Linux and also (maybe) on other Unix
 flavours.
 
@@ -90,10 +90,12 @@ and can be found at C<http://www.mcs.anl.gov/petsc/>.
 This is, in fact, a prerequisiste to install PETSc and can be found at 
 C<http://www.netlib.org/lapack/>. 
 
-=item SuperLU
+=item SuperLU (optional)
 
 A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>
+equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>. 
+This package is optional, install it if you think that SuperLU is faster
+than PETSc for direct factorization of sparse matrices. 
 
 =item Libretto
 
@@ -126,13 +128,13 @@ element calculations since it supports overloading of algebraic
 operations. See the documentation on I<FastMat2> in the I<PETSc-FEM>
 documentation for reasons why to use FastMat2 instead of Newmat.
 
-=item ANN
+=item ANN (optional)
 
 This is the I<Approximate Nearest Neighbor Library> and can be found
 at C<http://www.cs.umd.edu/~mount/ANN>. Currently it is only used in
 the Navier-Stokes module for calculating the damping functions in the
 Smagorinsky model. However, in a future it may be used more widely for
-some mesh manipulations.
+some mesh manipulations. Currently it is optional. 
 
 =item METIS
 
@@ -195,7 +197,6 @@ These are variables relative to PETSc. See documentation.
 Once you have all the software mentioned in L<Required Software>
 installed, you have to define the variables in the B<CONFIGURATION
 VARIABLES> section in file F<$(PETSCFEM_DIR)/Makefile.base>. 
-
 
 =over
 

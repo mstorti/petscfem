@@ -5,7 +5,7 @@ PROJECTS: [These are new improvements to be done in a future...]
 
 * Interface preconditioning for IISD
 * Modify 'elemset.cpp' so that processing of several elemsets 
-  is non blocking, for instance using a self-scheduling algorllithm. 
+  is non blocking, for instance using a self-scheduling algorithm. 
 * Scripting interface with Perl (SWIG?)
 * Make Makefile not that verbose. 
 * Use a more consistent system for reporting errors and

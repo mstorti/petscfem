@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: tfastvec.cpp,v 1.6 2002/09/05 22:28:35 mstorti Exp $
+//$Id: tfastvec.cpp,v 1.1 2002/11/03 11:04:16 mstorti Exp $
  
 #include <iostream>
 #include <stdio.h>

@@ -45,21 +45,21 @@ program for CFD applications based on PETSc. PETSc-FEM comprises both
 a library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
 programs.  It is written in the C++ language with an OOP (Object
-Oriented Programming) philosophy, but always keeping in mind the scope
-of efficiency. PETSc-FEM runs in parallel using the MPI standard on a
-variety of architectures, but currently has been tested in Beowulf
-clusters.</P>
+Oriented Programming) philosophy, keeping in mind the scope
+of efficiency. PETSc-FEM may run in parallel using the MPI standard on a
+variety of architectures, but currently it has been tested in Beowulf
+clusters only.</P>
 <P>PETSc-FEM is GPL, for further details read the file COPYING in the
 root directory of the distribution.</P>
 <P>
 <HR>
 <H1><A NAME="license">LICENSE</A></H1>
-<P>This file belongs to he PETSc - FEM package a library and application
+<P>This file belongs to the PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc.  Copyright
 (C) 1999-2002, Mario Alberto Storti, Norberto Marcelo Nigro, Centro
 Internacional de Metodos Numericos en Ingenieria (CIMEC-Argentina),
 Universidad Nacional del Litoral (UNL-Argentina), Consejo Nacional de
-Investigaciones Cientificas y Tecnicas (UNL-Argentina).</P>
+Investigaciones Cientificas y Tecnicas (CONICET-Argentina).</P>
 <P>This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or (at
@@ -83,7 +83,7 @@ can also install PETSc-FEM in a single GNU/Linux box, for use in
 sequential (i.e. non-parallel) mode or either for simulating parallel
 runs, by launching several processes in the same processor. (This is a
 feature of MPI).</P>
-<P>I guess it may be easy to install in other processor architectures
+<P>I guess it should be easy to install in other processor architectures
 (SPARC or Alpha) running GNU/Linux and also (maybe) on other Unix
 flavours.</P>
 <P>
@@ -107,10 +107,12 @@ and can be found at <CODE>http://www.mcs.anl.gov/petsc/</CODE>.
 This is, in fact, a prerequisiste to install PETSc and can be found at 
 <CODE>http://www.netlib.org/lapack/</CODE>.
 <P></P>
-<DT><STRONG><A NAME="item_SuperLU">SuperLU</A></STRONG><BR>
+<DT><STRONG><A NAME="item_SuperLU">SuperLU (optional)</A></STRONG><BR>
 <DD>
 A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at <CODE>http://www.nersc.gov/~xiaoye/SuperLU/</CODE>
+equations. Can be found at <CODE>http://www.nersc.gov/~xiaoye/SuperLU/</CODE>. 
+This package is optional, install it if you think that SuperLU is faster
+than PETSc for direct factorization of sparse matrices.
 <P></P>
 <DT><STRONG><A NAME="item_Libretto">Libretto</A></STRONG><BR>
 <DD>
@@ -143,13 +145,13 @@ element calculations since it supports overloading of algebraic
 operations. See the documentation on <EM>FastMat2</EM> in the <EM>PETSc-FEM</EM>
 documentation for reasons why to use FastMat2 instead of Newmat.
 <P></P>
-<DT><STRONG><A NAME="item_ANN">ANN</A></STRONG><BR>
+<DT><STRONG><A NAME="item_ANN">ANN (optional)</A></STRONG><BR>
 <DD>
 This is the <EM>Approximate Nearest Neighbor Library</EM> and can be found
 at <CODE>http://www.cs.umd.edu/~mount/ANN</CODE>. Currently it is only used in
 the Navier-Stokes module for calculating the damping functions in the
 Smagorinsky model. However, in a future it may be used more widely for
-some mesh manipulations.
+some mesh manipulations. Currently it is optional.
 <P></P>
 <DT><STRONG><A NAME="item_METIS">METIS</A></STRONG><BR>
 <DD>
@@ -207,20 +209,33 @@ installed, you have to define the variables in the <STRONG>CONFIGURATION
 VARIABLES</STRONG> section in file <EM>$(PETSCFEM_DIR)/Makefile.base</EM>.</P>
 <UL>
 <LI>
-First you have to set the <CODE>BOPT PETSc</CODE> variable. You can set it to
+First you have to set the <CODE>PETSC_BOPT</CODE> variable which is the default
+value for the <CODE>PETSc</CODE> <CODE>BOPT</CODE> variable, which sets the
+optimization level to be used in compilation. You can set it to
 <DL>
-<DT><STRONG><A NAME="item_BOPT_%3D_g_c%2B%2B"><CODE>BOPT = g_c++</CODE></A></STRONG><BR>
+<DT><STRONG><A NAME="item_PETSC_BOPT_%3D_g_c%2B%2B"><CODE>PETSC_BOPT = g_c++</CODE></A></STRONG><BR>
 <DD>
 Compiles for debugging.
 <P></P>
-<DT><STRONG><A NAME="item_BOPT_%3D_O_c%2B%2B"><CODE>BOPT = O_c++</CODE></A></STRONG><BR>
+<DT><STRONG><A NAME="item_PETSC_BOPT_%3D_O_c%2B%2B"><CODE>PETSC_BOPT = O_c++</CODE></A></STRONG><BR>
 <DD>
 Compiles with optimization enabled.
 <P></P></DL>
-<P>The optimization level is inherited from the <CODE>PETSc</CODE> installation (it
-is defined in <CODE>$(PETSC_HOME)/bmake/$(PETSC_ARCH)</CODE>).</P>
+<P>The optimization level is inherited by the <CODE>PETSc</CODE> libraries so that
+if you compile with <CODE>PETSC_BOPT=O_c++</CODE> then not only <CODE>PETSc-FEM</CODE>
+will be compiled with optimization, but also the <CODE>PETSc</CODE> optimized
+libraries will be used. The specific optimization options are set in 
+<CODE>$(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables</CODE> (<CODE>OCXX_COPTFLAGS</CODE> variable). 
+According to our experience
+maximum optimization is achieved with &lt;BOPT=-O2 -funroll-loops&gt;.</P>
+<P>The default value can be superseded by, for instance, issuing</P>
+<PRE>
+  $ make BOPT=O_c++ ns</PRE>
+<P>This compiles the Navier-Stokes module with optimization enabled
+independently of the <CODE>PETSC_BOPT</CODE> default value.</P>
 <LI>
-The <CODE>PROF_FLAGS</CODE> variables allows you to turn on profiling. By default, profiling is deactivated.
+The <CODE>PROF_FLAGS</CODE> variables allows you to turn on profiling. By
+default, profiling is deactivated.
 <P></P>
 <LI>
 Other configuration variables are defined in a file <CODE>Makefile.defs</CODE>,

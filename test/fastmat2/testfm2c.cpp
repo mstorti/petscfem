@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2c.cpp,v 1.6 2002/09/05 18:23:52 mstorti Exp $
+//$Id: testfm2c.cpp,v 1.1 2002/11/03 11:04:16 mstorti Exp $
  
 //< if (0) { //>//
 #include <stdio.h>
