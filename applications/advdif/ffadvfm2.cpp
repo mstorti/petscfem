@@ -35,30 +35,60 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void advecfm2_ff_t::element_hook(const NewElemset *,ElementIterator &)"
+#define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
 // This is to pass to the advective function the element
-void newadvecfm2_ff_t::element_hook(const NewElemset *elemset, 
-				 ElementIterator &element_) {
+void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
   advjac = elemset->prop_array(element,advective_jacobians_prop);
 }  
 
+void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux_,FastMat2 &U) {
+  flux_.set(ff.u);
+  for (int j=1; j<=ff.elemset->ndof; j++) {
+    flux_.ir(1,j).scale(U.get(j));
+  }
+  flux_.rs();
+}
+
+void newadvecfm2_ff_t::UPerField::
+comp_A_grad_U(FastMat2 &A_grad_U_,FastMat2 &grad_U) {
+  for (int j=1; j<=ff.elemset->ndof; j++) {
+    grad_U.ir(2,j);
+    ff.u.ir(1,j);
+    tmp.prod(grad_U,ff.u,-1,-1);
+    A_grad_U_.setel(tmp.get(),j);
+  }
+  grad_U.rs();
+  ff.u.rs();
+  A_grad_U_.rs();
+}
+  
+void newadvecfm2_ff_t::UPerField::
+comp_A_grad_N(FastMat2 &A_grad_N_,FastMat2 &dshapex) {
+  A_grad_N_.set(0.).d(3,2).prod(ff.u,dshapex,1,-1,-1,2).rs();
+}
+  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void advecfm2_ff_t::start_chunk(const NewElemset)"
-void newadvecfm2_ff_t::start_chunk(const NewElemset *elemset,
-				int ndim_,int ndof_,int ret_options) {
-  ndim=ndim_;
-  ndof=ndof_;
+#define __FUNC__ "void advecfm2_ff_t::start_chunk(int ret_options)"
+void newadvecfm2_ff_t::start_chunk(int ret_options) {
+  // FastMat2Shell *A_jac_l = elemset->A_jac;
+  ndim = elemset->ndim;
+  ndof = elemset->ndof;
   Uintri.resize(1,ndim);
   // Read advective jacobians
-  u.resize(2,ndof,ndim);
   //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
   //  _N: advective_jacobians _D: no default  _DOC: 
   //i_tex ../../doc/advdifop.tex advective_jacobians
   //  _END
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
   assert(advective_jacobians_prop.length == ndim*ndof);
+
+  a_jac =  new UPerField(*this);
+  u.resize(2,ndof,ndim);
+  ret_options &= !SCALAR_TAU; // tell the advective element routine
+				// that we are returning a non-scalar tau
+
 #if 0
   const char *advje;
   VOID_IT(ajacv);
@@ -156,6 +186,7 @@ void newadvecfm2_ff_t::start_chunk(const NewElemset *elemset,
   } else if (na==ndim*ndof*ndof) {
     assert(0);
     // The full jacobian for each dimension
+#if 0
     A_jac_l.set(ajacv.begin());
     double vel=0.;
     for (int k=1; k<=ndim; k++) {
@@ -166,6 +197,7 @@ void newadvecfm2_ff_t::start_chunk(const NewElemset *elemset,
     }
     // I put a scalar tau by the moment
     vel = sqrt(vel);
+#endif
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Not a valid number of elements  while entering\n"
@@ -179,25 +211,14 @@ void newadvecfm2_ff_t::start_chunk(const NewElemset *elemset,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "advecfm2_ff_t::operator()" 
 void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
-
   int ierr;
-
   double tau_a, tau_delta, gU, A01v[9];
 
-  u.set(ajacv.begin());
-  ret_options &= !SCALAR_TAU; // tell the advective element routine
-				// that we are returning a non-scalar tau
-  A_jac.set(0.);
-  for (int k=1; k<=ndof; k++) {
-    for (int j=1; j<=ndim; j++) {
-      A_jac.setel(u.get(k,j),j,k,k);
-    }
-  }
-
-  flux.prod(A_jac,U,2,1,-1,-1);
+  Ucpy.set(U);
+  u.set(advjac);
+  a_jac->comp_flux(flux,Ucpy);
+  //a_jac->comp_flux(flux,U);
 
   if (options & COMP_UPWIND) {
 
@@ -205,13 +226,14 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     fluxd.prod(D_jac,grad_U,2,-1,1,-2,-1,-2);
 
     // A_grad_U es ndof x 1
-    A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
+    // A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
+    a_jac->comp_A_grad_U(A_grad_U,grad_U);
 
     lam_max = 0.;
     tau_supg.set(0.);
     for (int k=1; k<=ndof; k++) {
       
-      assert(na==ndim*ndof && nd==ndof);
+      assert(nd==ndof);
       u.ir(1,k);
       double alpha=djacvp[k-1];
       Uintri.prod(iJaco,u,1,-1,-1);

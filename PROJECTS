@@ -3,6 +3,7 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* Make Makefile not that verbose. 
 * Read data with a 'bison' generated parser
 * Add a 'mass' to 'advdife' (non conservative?)
 * In TextHashTable: Print a warning if some option is not used and a
@@ -23,7 +24,8 @@ PROJECTS: [These are new improvements to be done in a future...]
 * Code not to have to call to FastMat2::branch/leave when there is no
 	 'else' block. 
 * include inject operations
-* code view copies
+* code view copies for FastMat2. Also may solve the problem of
+        constness. 
 * include a 'check of the caches' feature 
 * include count operations in kron and others.
 * write better doc for FM2

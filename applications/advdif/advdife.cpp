@@ -58,8 +58,7 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
 */ 
 #undef __FUNC__
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
-void NewAdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars, 
-			    const int *& log_vars) {
+void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
   const char *log_vars_entry;
   elemset->get_entry("log_vars_list",log_vars_entry); 
   VOID_IT(log_vars_v);
@@ -141,7 +140,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int locdof,kldof,lldof;
 
   NSGETOPTDEF(int,npg,0); //nd
-  NSGETOPTDEF(int,ndim,0); //nd
+  NSGETOPTDEF_ND(int,ndim,0); //nd
   assert(npg>0);
   assert(ndim>0);
   
@@ -213,7 +212,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int nlog_vars;
   const int *log_vars;
-  adv_diff_ff->get_log_vars(this,nlog_vars,log_vars);
+  adv_diff_ff->get_log_vars(nlog_vars,log_vars);
   //o Use log-vars for $k$ and $\epsilon$
   NSGETOPTDEF(int,use_log_vars,0);
   if (!use_log_vars) nlog_vars=0;
@@ -272,17 +271,17 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
     tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24,tmp25,tmp26,tmp27,tmp28;
-  FastMat2 A_jac(3,ndim,ndof,ndof),D_jac(4,ndim,ndim,ndof,ndof),
+  FastMat2 D_jac(4,ndim,ndim,ndof,ndof),
     C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
+  // Initialize flux functions
+  adv_diff_ff->start_chunk(ret_options); 
+
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-
-  // Initialize flux functions
-  adv_diff_ff->start_chunk(this,ndim,ndof,ret_options); 
 
   int start_chunk=1;
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
@@ -292,7 +291,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     FastMat2::reset_cache();
 
     // Initialize element
-    adv_diff_ff->element_hook(this,element); 
+    adv_diff_ff->element_hook(element); 
     // Get nodedata info (coords. etc...)
     element.node_data(nodedata,xloc.storage_begin(),
 		       Hloc.storage_begin());
@@ -371,11 +370,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	delta_sc=0;
 	double lambda_max_pg;
 
-	adv_diff_ff->compute_flux(this,U,iJaco,H,grad_H,flux,fluxd,A_jac,
-				  A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
+	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
+				  A_grad_U,grad_U,G_source,D_jac,
+				  C_jac,tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  element.props(),NULL,COMP_SOURCE |
-				  COMP_UPWIND,start_chunk,ret_options);
+				  COMP_SOURCE | COMP_UPWIND);
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
@@ -396,7 +395,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  matlocf.add(tmp13);
 	}
 
-	A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
+	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
+	adv_diff_ff->a_jac->comp_A_grad_N(A_grad_N,dshapex);
 
 	// Termino Galerkin
 	if (weak_form) {

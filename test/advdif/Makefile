@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2001/03/16 21:21:41 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2001/03/18 16:48:21 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -92,9 +92,12 @@ sine_crank_nic_npp:
 plano.con plano.nod: plano.m
 	octave -q plano.m
 
+.gdbinit:
+	echo file advdif >$@
+	echo set args -case per_elem_prop.depl >> $@
+
 #w Test for per-element properties 
-per_elem_prop:
-	$(MAKE) advdif.link
+per_elem_prop: .gdbinit advdif.link
 	eperl -d per_elem_prop=1 sine.data.epl >sine.data
 	eperl -P -d perl_elem_prop=1 sine.epl > per_elem_prop.depl
 	octave -q sine.m

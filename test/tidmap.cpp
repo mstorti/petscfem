@@ -49,7 +49,7 @@ void check (int n,idmap &id, Matrix &ID, double &maxerr) {
   }
 }
 
-int check_idmap(int n, int N, int verbose_print) {
+void check_idmap(int n, int N, int verbose_print) {
 
   printf("testing for size of idmap n=%d, number of operations %d\n",n,N);
   double tol=1e-10;

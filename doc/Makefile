@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.12 2001/03/03 08:20:21 mstorti Exp $
+#$Id: Makefile,v 1.13 2001/03/18 16:48:06 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -99,7 +99,8 @@ README.pod: README.podin $(TARFILE).tara,v
 
 ../README: README.pod
 	-chmod +w $@
-	pod2text $< > $@
+	cat ./banner >$@
+	pod2text $< >> $@
 	-chmod -w $@
 
 ../README.html: README.pod

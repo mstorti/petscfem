@@ -101,16 +101,28 @@ typedef int AdvDifFluxFunction (AD_FLUX_FUN_ARGS);
 	   FastMat2  &Vr, FastMat2  &Vr_inv, double *propel,			\
 	   void *user_data,int options,int &start_chunk, int & ret_options
 
-#define COMPUTE_FLUX_ARGS const NewElemset *elemset,const  FastMat2  &U,		\
-		    const  FastMat2  &iJaco, FastMat2  &H,				\
-		    FastMat2  &grad_H,  FastMat2  &flux, FastMat2 &fluxd,		\
-		    FastMat2  &A_jac,  FastMat2  &A_grad_U,				\
-		    FastMat2  &grad_U,  FastMat2  &G_source,				\
-		    FastMat2  &D_jac,	FastMat2  &C_jac,				\
-		    FastMat2  &tau_supg, double &delta_sc, double &lam_max,		\
-		    FastMat2  &nor, FastMat2  &lambda,					\
-		    FastMat2  &Vr, FastMat2  &Vr_inv, double *propel,			\
-		    void *user_data,int options,int &start_chunk, int & ret_options
+/// Generic FastMat2 matrix
+#if 0
+class FastMat2Shell {
+public:
+  /// Performs A = (*this) * B;
+  virtual apply(FastMat2 & A,FastMat2 & B) const;
+}
+#endif
+typedef void FastMat2Shell(FastMat2 & A,FastMat2 & B);
+
+#define COMPUTE_FLUX_ARGS							\
+		const FastMat2 &U,						\
+		const FastMat2 &iJaco, FastMat2 &H,				\
+		FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,		\
+		FastMat2 &A_grad_U,						\
+		FastMat2 &grad_U, FastMat2 &G_source,				\
+		FastMat2 &D_jac, FastMat2 &C_jac,				\
+		FastMat2 &tau_supg, double &delta_sc,				\
+		double &lam_max,						\
+		FastMat2 &nor, FastMat2 &lambda,				\
+		FastMat2 &Vr, FastMat2 &Vr_inv,					\
+		int options
 
 // This is the flux function for a given physical problem. 
 class AdvDifFF {
@@ -126,19 +138,27 @@ public:
 			    const int *& log_vars);
 };
 
+class AJac {
+public:
+  virtual FastMat2Shell comp_A_grad_U=0,comp_A_grad_N=0;
+  virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
+};
+
+class NewAdvDif;
+
 // This is the flux function for a given physical problem. 
 class NewAdvDifFF {
 private:
   // The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
 public:
-  virtual void compute_flux(COMPUTE_FLUX_ARGS)=0;
-  virtual void start_chunk(const NewElemset *elemset,int ndim,
-			   int ndof,int ret_options) {};
-  virtual void element_hook(const NewElemset *elemset,
-			    ElementIterator &element) {};
-  virtual void get_log_vars(const NewElemset *elemset,int &nlog_vars, 
-			    const int *& log_vars);
+  const NewAdvDif *elemset;
+  AJac *a_jac;
+  NewAdvDifFF(NewAdvDif *elemset_) : elemset(elemset_) {};
+  virtual void start_chunk(int ret_options) =0;
+  virtual void element_hook(ElementIterator &element) =0;
+  virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
+  virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
 };
 
 /** The class AdvDif is a NewElemset class plus a
@@ -170,10 +190,12 @@ enum flux_fun_opt {
     advdif flux function object.
 */
 class NewAdvDif : public NewElemset { 
+  NewAdvDifFF *adv_diff_ff;
 public:
+  int ndim,ndof;
+  NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
-  NewAdvDifFF *adv_diff_ff;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -237,7 +259,6 @@ public:
   ASK_FUNCTION;
 };
 
-
 // Global parameters
 struct GlobParam {
   double alpha,Dt;
@@ -246,27 +267,35 @@ struct GlobParam {
 class newadvecfm2_ff_t : public NewAdvDifFF {
 private:  
   int shock_capturing,na,nd,nc;
-  FastMat2 A_jac_l, D_jac_l, C_jac_l, tmp0;
+  FastMat2 D_jac_l, C_jac_l, tmp0;
   double tau_fac;
-  FastMat2 u,u2,Uintri,AA;
-  vector<double> ajacv,djacv,cjacv;
-  double *ajacvp,*djacvp,*cjacvp;
+  FastMat2 u,u2,Uintri,AA,Ucpy;
+  vector<double> djacv,cjacv;
+  double *djacvp,*cjacvp;
   ElementIterator element;
   Property advective_jacobians_prop;
   const double *advjac;
   int ndim,ndof;
 public:
-  newadvecfm2_ff_t() {};
-  void start_chunk(const NewElemset *elemset,int ndim,int ndof,
-		   int ret_options);
-  void element_hook(const NewElemset *elemset,
-		    ElementIterator &element);
+  class UPerField;
+  friend class UPerField;
+  class UPerField : public AJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 tmp;
+  public:
+    UPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N;
+  };
+  newadvecfm2_ff_t(NewAdvDif *elemset_) : NewAdvDifFF(elemset_) {};
+  void start_chunk(int ret_options);
+  void element_hook(ElementIterator &element);
   void compute_flux(COMPUTE_FLUX_ARGS);
 };
 
 class newadvdif_advecfm2 : public NewAdvDif {
 public:
-  newadvdif_advecfm2() {adv_diff_ff = new newadvecfm2_ff_t;};
+  newadvdif_advecfm2() : NewAdvDif(new newadvecfm2_ff_t(this)) {};
+  // newadvdif_advecfm2() {adv_diff_ff = new newadvecfm2_ff_t(this);};
 };
 
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,

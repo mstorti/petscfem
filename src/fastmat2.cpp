@@ -439,6 +439,19 @@ FastMat2 & FastMat2::ir(const int indx,const int j=0) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::d(const int j1,const int j2) {
+  if (was_cached) return *this;
+  assert(defined);
+  assert(1<=j1 && j1<=n_dims);
+  assert(1<=j2 && j2<=n_dims);
+  assert(j1!=j2);
+  assert (dims[j1-1].dim == dims[j2-1].dim);
+  assert(set_indx[j1-1]==0);
+  set_indx[j2-1]=-j1;
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::define_matrix(void) {
   DimArray::iterator j;
   storage=1;
@@ -546,6 +559,15 @@ double *FastMat2::location(const Indx & indx) const {
     if (l==0) {
       l = dims_p[jd].abs_indx(indx[perm[kd]]);
       kd++;
+    } else if (l<0) {
+      l=-l;
+      // Compute free index
+      int kdd=0;
+      for (int jdd=0; jdd<l; jdd++) {
+	if (set_indx[jdd]==0) kdd++;
+      }
+      kdd--;
+      l = dims_p[l-1].abs_indx(indx[perm[kdd]]);
     } else {
       l--;
     }

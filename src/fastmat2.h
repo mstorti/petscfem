@@ -393,6 +393,16 @@ public:
   FastMat2 & ir(const int indx,const int j=0);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Sets an index to mirror another, so that it creates a 
+      mask that lets see the diagonal part of the matrix. 
+      @author M. Storti
+      @param j1 (input) the first index
+      @param j2 (input) the second index
+      @return a reference to the matrix.
+  */ 
+  FastMat2 & d(const int j1,const int j2);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Reset index filters for all dimensions. 
       @author M. Storti
       @return a reference to the matrix.

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2001/03/12 02:10:16 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2001/03/18 16:48:09 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -48,7 +48,7 @@ libpetscfem.a(%.o): %.o
 #spline.o: spline.f
 #	g77 -c $(FFLAGS) -O0 $<
 
-.SECONDARY: fm2eperl.cpp fm2eperl.o
+.SECONDARY: fm2eperl.cpp
 
 fm2eperl.o: fm2eperl.cpp
 fm2eperl.cpp: fmat2ep.cpp prep.pl

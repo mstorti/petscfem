@@ -67,9 +67,10 @@ int main() {
   Chrono chrono;
   FastMatCacheList cache_list;
   FastMatCachePosition cp1,cp2;
-  int n=3,Nin=1000,Nout=10;
+  //int n=3,Nin=1000,Nout=10;
+  int n=3,Nin=10,Nout=10;
   FastMat2 AA(2,n,n),A(2,3,3),B,C,D,E(2,3,3),G,H,K,L,M,P,Q,R,S,T,U,V,
-    W,X,XX(2,n,n),Y,Z,Z1,Z2(1,3),Z3,Z4(2,3,3),Z121;
+    W,X,XX(2,n,n),Y,Z,Z1,Z2(1,3),Z3,Z4(2,3,3),Z121,Z20(2,3,5),Z21(3,3,5,5);
   FastMat2 Z5(2,20,20),Z6;
   FMatrix Z7(3,3),Z8,Z9,Z10(2,2),Z11,Z12,Z15(4,4),Z16,Z17,Z18,
     Z116,Z117,Z118,Z19(3,3);
@@ -87,7 +88,9 @@ int main() {
   srand(time(0));
   double z10[] = {1.,2.,3.,4.};
   Z10.set(z10);
-
+  init123(Z20);
+  init123(Z21);
+  
   mydata_t mydata;
   mydata.lambda=10.;
   mydata.n=2;
@@ -296,11 +299,13 @@ int main() {
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // Set to identity
-      
       Z19.set(5.34).eye(3.342);
+
+      Z21.d(2,3).set(Z20).rs();
     }
     FastMat2::void_cache();
   }
+  FastMat2::deactivate_cache();
   double cpu=chrono.elapsed();
   printf("copy (with set): n=%d, Nin,Nout=%d,%d, elapsed: %f, "
 	 "speed: %f Mflops \n",
@@ -353,6 +358,8 @@ int main() {
   SH(Z117);
   SH(Z118);
   SH(Z19);
+  Z21.d(3,2);SH(Z21);
+  Z21.rs().d(2,3);SH(Z21);
 
 #undef SH
 
