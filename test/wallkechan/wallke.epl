@@ -52,7 +52,7 @@ if ($case eq 'poi_lam') {
     $turbulence_coef=1;               # activates turbulence
 }
 $ocase = $case;    
-octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy 
+octave_export_vars(">data.m.tmp",qw(nu g N Ny hratio hratioy 
     L Ly peri Ny_eq Uav uwall_match_len piston));
 :>//                            # ends ePerl block
 

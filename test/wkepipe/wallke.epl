@@ -54,7 +54,7 @@ $von_Karman_cnst = 0.4;
 #__END_TRANSCRIPT__
 transcript();
 doc_vals(qw(lambda Umax Uav Q nu g));
-octave_export_vars("data.m.tmp",qw(nu g N hratio L y_wall_plus 
+octave_export_vars(">data.m.tmp",qw(nu g N hratio L y_wall_plus 
                         C_mu von_Karman_cnst));
 :>
 

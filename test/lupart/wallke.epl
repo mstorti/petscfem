@@ -69,7 +69,7 @@ $Ny_eq = 100;                    # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
 } 
-octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
+octave_export_vars(">data.m.tmp",qw(nu N Ny hratio hratioy 
     L Ly Ny_eq Uav ));
 :>//                            # ends ePerl block
 

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $
+$Id: notes.txt,v 1.77 2001/09/17 23:20:31 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $ 
+! # $Id: notes.txt,v 1.77 2001/09/17 23:20:31 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $ 
+! # $Id: notes.txt,v 1.77 2001/09/17 23:20:31 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $ 
+  # $Id: notes.txt,v 1.77 2001/09/17 23:20:31 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3798,6 +3798,38 @@ bien.
 %
 Se jode cuando agrego el termino de viscosidad $\Delta!u$. 
 %
+<<<<<<< notes.txt
+La viscosidad hay que ponerla muy pequenha porque si la pones a 0 te
+da una singularidad en el Peclet, etc... 
+
+%===Sat Sep  8 09:57:15 ART 2001 mstorti@spider
+%
+Comentando todo da Ainf=ADt=0. Ahora voy a probar a prender solo la
+matriz de masa. 
+%
+10:13:32: Poniendo solo la masa da perfecto. Ainf es 0. ADt da igual
+para todos los campos y la suma de los elementos da 29.800 que
+dividido por 3 (por campos) y por el Dt que es 0.01 da 9.9335e-02 que
+es el volumen del sector de cilindro 0<=z<=1, r<=1, 0\le\theta\le
+.2. cuyo volumen es h*\Delta\theta*R^2/2=.1, pero el volumen del area
+discretizada (por el error entre la cuerda y el arco de
+circunferencia) es h*\cos(\Delta\theta)*\sin(\Delta\theta)*R^2 que da
+exactamente eso. Ahora prendemos el termino de viscosidad y apagamos
+el temporal. 
+%
+10:28:13: Apagando el termino temporal y prendiendo viscosidad
+efectivamente dan diferentes ADt de Ainf (deberian dar iguales). 
+%
+10:31:00: Los dos dan suma 0, esta bien. 
+%
+10:32:42: Guarda!! que me parece que estaba mirando mal. 
+%
+10:40:33: Efectivamente, ahora pongo todo y da lo que tiene que
+dar. Todo el error se debio al error en el calculo de los jacobianos
+numericos. 
+%
+11:26:19: Con upwind (`tau_fac=1') tambien anda todo bien. 
+=======
 V
 
 =======
@@ -3819,6 +3851,20 @@ Se jode cuando agrego el termino de viscosidad $\Delta!u$.
 La viscosidad hay que ponerla muy pequenha porque si la pones a 0 te
 da una singularidad en el Peclet, etc... 
 
+%===Sun Sep  9 10:19:42 ART 2001 mstorti@spider
+%
+El `rotconden' anda ma o menos bien. Para la matriz de masa preserva
+la masa total. 
+%
+17:08:22: Flujo vertical: da bien. Flujo radial, no da bien. Incluso
+dejando que el valor a la salida lo saque solo, es decir dejando
+u_normal a la salida libre. 
+%
+18:50:02: El flujo radial da "mas o menos" bien. La velocidad aumenta
+hacia el eje, pero no todo lo que deberia y la presion tiene una
+oscilacion fuerte. Me imagino que es por la imposicion de la presion. 
+
+=======
 %===Mon Sep 10 12:10:44 ART 2001 mstorti@minerva
 %
 Voy a probar a tomar la matriz sin imponer p=0 en un nodo y ver sobre

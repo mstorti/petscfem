@@ -21,7 +21,7 @@ if ($case eq 'poiseuille') {
     $y_wall_plus = 10;
 }
 $ocase = $case;    
-octave_export_vars("data.m.tmp",qw(nu g N hratio L ocase));
+octave_export_vars(">data.m.tmp",qw(nu g N hratio L ocase));
 :>//
 
 #default definitions
