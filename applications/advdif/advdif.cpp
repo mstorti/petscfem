@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.55 2003/02/08 14:27:53 mstorti Exp $
+//$Id: advdif.cpp,v 1.56 2003/09/14 00:21:52 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -46,12 +46,13 @@ Hook *advdif_hook_factory(const char *name);
 int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
-  int bubbly=0;
-  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-bubbly")) bubbly=1;
-  MPI_Bcast(&bubbly,1,MPI_INT,0,PETSC_COMM_WORLD);
 
-  if (bubbly) return bubbly_main();
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
+  if (!strcmp(args[1],"-bubbly")) return bubbly_main();
+  
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
@@ -82,10 +83,6 @@ int main(int argc,char **args) {
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive  module ---------\n");
-
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
