@@ -384,3 +384,7 @@ tag: beta-1.70 on Tue May  1 21:44:50 ART 2001, by mstorti in spider
 tag: beta-1.71 on Fri May  4 21:16:54 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Will add fixes for some incompatibilities with older versions of
      > RedHat (namely 5.2.)
+----------
+tag: beta-1.72 on Fri May  4 21:21:26 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Added fixes to incompatibilities with older versions 
+     > of RedHat (namely RH 5.2. installed in geronimo)
