@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.27 2003/09/20 23:07:15 mstorti Exp $ 
+# $Id: Makefile,v 1.28 2003/09/22 10:14:30 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -79,7 +79,7 @@ endif
 run: data
 	-rm -f save.state.tmp 
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl # > newff.$(CASE).out
+			-case newff.depl > newff.$(CASE).out
 	if [ -e save.state.tmp ] ; then \
 		$(OCTAVE) verif.m > $(CASE).vrf.tmp ; fi
 

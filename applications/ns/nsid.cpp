@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.8 2003/04/17 22:50:36 mstorti Exp $
+//$Id: nsid.cpp,v 1.9 2003/09/22 10:14:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -77,7 +77,8 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
   } 
 
-  //o Residual value is #ns_id_fac*(ns_id_cn * (x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))#
+  //o Residual value is
+  // #ns_id_fac*(ns_id_cn *(x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))#
   SGETOPTDEF(double,ns_id_fac,1.);
   //o see doc for #ns_id_fac#
   SGETOPTDEF(double,ns_id_cn,0.);
@@ -119,12 +120,15 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_mat_res || comp_res) {
       locstate.set(&(LOCST(ielh,0,0))).rest(x_ref);
       locstate2.set(&(LOCST2(ielh,0,0))).rest(x_ref);
-      lumped_vc = ns_id_lumped_cn * locstate2.sum_all()
-	+ ns_id_lumped_cn1 * locstate.sum_all();
+      lumped_vc = 0;
+      if (ns_id_lumped_cn) 
+	lumped_vc += ns_id_lumped_cn * locstate2.sum_all();
+      if (ns_id_lumped_cn1) 
+	lumped_vc += ns_id_lumped_cn1 * locstate.sum_all();
 
       veccontr.set(locstate2).scale(-ns_id_cn).axpy(locstate,-ns_id_cn1)
 	.add(lumped_vc).scale(ns_id_fac).export_vals(&(RETVAL(ielh,0,0)));
-      matlocf.eye(ns_id_fac*ns_id_cn1);
+      matlocf.eye(ns_id_cn1).add(ns_id_lumped_cn1).scale(ns_id_fac);
       if (update_jacobian) 
 	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }

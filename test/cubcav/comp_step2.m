@@ -54,7 +54,7 @@ while 1
   printf("loaded states\n");
 
   tic;
-  u = pf_smooth(u,0.25,4);
+  u = pf_smooth(u,1,8);
   printf("Smoothing %g\n",toc);
 
   tic;

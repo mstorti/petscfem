@@ -1,5 +1,5 @@
 ## usage: 
-##    smoothes the solution for the cubica cavity problem
+##    smoothes the solution for the cubic cavity problem
 ##    on a structured mesh
 function us = pf_smooth (u,smooth,nstep)
 
