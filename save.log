@@ -3751,3 +3751,8 @@ tag: beta-3.39.53 on Thu, 20 Jan 2005 19:51:06 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.54 on Fri, 21 Jan 2005 15:23:24 -0300 by mstorti in minerva.ceride.gov.ar
      > Debugging absorbing b.c. for gasflow. 
+----------
+tag: beta-3.39.55 on Sat, 22 Jan 2005 09:02:09 -0300 by mstorti in spider
+     > Fixed a bug in `gasflow::Riemann_Inv()'. 
+     > Adapted `test/gfplate/gfabso' test to absorbing b.c.'s 
+     > at inlet and outlet. 
