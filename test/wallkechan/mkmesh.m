@@ -36,8 +36,7 @@ for k = lagr
 endfor
 fclose(fid);
 
-#uin=[0. 2/3 0. 2e-4  1e-05];  
-uin=[0. Uav 0. 0.1 0.1];  
+uin=[0. Uav 0. 2e-3 1e-5];  
 fid = fopen("wallke.fixa_in.tmp","w");
 for k=1:(Ny+1):(N+1)*(Ny+1)
   for j=[1 2 4 5]

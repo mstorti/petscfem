@@ -2,7 +2,7 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #
 $L = 1;                         # Semi distance between plates
-$N = 16;                        # Number of elements 
+$N = 16;                        # Number of elements in 'y' direction
 $hratio = 5;                    # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
 $Ny = 40;                       # Number of elements in y dir
@@ -24,15 +24,15 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-    $Re = 1000;                 # laminar Re
+#    $Re = 4e5;                  # laminar Re
+    $Re = 0.1;                  # laminar Re
     $Uav = 1;
-    $nu = $Uav*2*$L/$Re;      # kinematic visc.
+    $nu = $Uav*2*$L/$Re;        # kinematic visc.
     $g = 0;                     # body force
-    $y_wall_plus = 50;          # non-dim. distance to the wall
-    $y_wall = 1e-2;
-#    $turbulence_coef=1;         # activate turbulence
-    $turbulence_coef=0;         # activate turbulence
-    $turb_prod_coef=0;          # activate/deactivate turbulence production terms
+    $y_wall_plus = 50 ;         # non-dim. distance to the wall
+    $y_wall = .3;
+    $turbulence_coef=0;         # mask turbulence
+    $turb_prod_coef=0;          # mask turbulence production terms
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
     $Uwall = 1;                 # half relative velocity of the plates
@@ -78,10 +78,10 @@ nsome 1
 
 alpha 1.
 nstep 1
-nnwt 4
+nnwt 3
 tol_newton 0
 preco_type "lu"
-Dt 1
+Dt 0.1
 steady
 #pspg_advection_factor 0.
 #pspg_factor 2.
@@ -92,13 +92,14 @@ steady
 #print_dofmap_id
 
 y_wall_plus <:=$y_wall_plus:>
-y_wall 1e-3
+y_wall <:=$y_wall:>
 turbulence_coef <:=$turbulence_coef:>
 turb_prod_coef <:=$turb_prod_coef:>
 viscosity <:=$nu:>
 G_body 0. <:=$g:>
 
-weak_form 0 # todavia no tenemos el weak form para k-e (???)
+# todavia no tenemos el weak form para k-e (???)
+weak_form 0 
 
 __END_HASH__
 
@@ -115,7 +116,6 @@ __END_HASH__
 __INCLUDE__ wallke.con.tmp
 __END_ELEMSET__
 
-#if 1
 #if $wall_ke
 elemset wallke 2
 geometry cartesian1d
@@ -123,7 +123,6 @@ npg 2
 __END_HASH__
 __INCLUDE__ wallke.wallke.tmp
 __END_ELEMSET__
-#endif
 #endif
 
 elemset wall_law_res 2
