@@ -4176,7 +4176,7 @@ tag: beta-3.43.45 on Tue, 08 Mar 2005 22:29:36 -0300 by mstorti in spider
 tag: beta-3.43.46 on Tue, 08 Mar 2005 22:44:10 -0300 by mstorti in spider
      > Computes area nodes. 
 ----------
-tag: 3.45 on Wed, 09 Mar 2005 07:50:17 -0300 by mstorti in spider
+tag: beta-3.44 on Wed, 09 Mar 2005 07:52:05 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Implemented `dofmap->solve' with iterative solution 
      > of the least squares eqs.
@@ -4189,3 +4189,6 @@ tag: 3.45 on Wed, 09 Mar 2005 07:50:17 -0300 by mstorti in spider
      > Added `PETSCFEM_' prefix on all magic `#ifndef PETSCFEM_..._H' headers. 
      > Implemmented `project.cpp' for interpolating one mesh in another. 
      > Runs SC-Hyper tests. 
+----------
+tag: beta-3.45.1 on Wed, 09 Mar 2005 07:56:56 -0300 by mstorti in spider
+     > Administrative tag
