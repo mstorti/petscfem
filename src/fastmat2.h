@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.29 2003/12/06 17:13:48 mstorti Exp $
+//$Id: fastmat2.h,v 1.30 2005/01/28 16:09:19 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -1034,8 +1034,8 @@ public:
       @param clev (input) compute the left eigenvectors flag
       @returns a reference to a vector containing the eigenvalues. 
   */ 
-  FastMat2 & eig(const FastMat2 & A, FastMat2 *VR=NULL, FastMat2 *VL=NULL, 
-		 int crev=0, int clev=0);
+  FastMat2 & eig(const FastMat2 & A, 
+		 FastMat2 *VR=NULL, FastMat2 *VL=NULL);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for symmetric matrix #A#.

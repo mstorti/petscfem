@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fm2funm.cpp,v 1.2 2004/05/22 12:52:23 mstorti Exp $
+//$Id: fm2funm.cpp,v 1.3 2005/01/28 16:09:15 mstorti Exp $
 
 #include <src/fastmat2.h>
 #include "./fm2funm.h"
@@ -29,7 +29,7 @@ void FastMat2_fund::apply(const FastMat2 &A,FastMat2 &fA) {
 
 void FastMat2_fund::apply_ns(const FastMat2 &A,FastMat2 &fA) {
   double tol=1.e-6;
-  lambda.eig(A,&V,NULL,1,0);
+  lambda.eig(A,&V,NULL);
   lambda.ir(1,2); 
   double lambda_imag_mod = lambda.sum_square_all();
   if(lambda_imag_mod>tol) lambda.print(" Imag(lambda)= ");

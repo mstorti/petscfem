@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.6 2005/01/28 12:06:40 mstorti Exp $
+// $Id: advabso.cpp,v 1.7 2005/01/28 16:09:15 mstorti Exp $
 #include "./advabso.h"
 
 #define gasflow_abso gasflow_abso2
@@ -66,7 +66,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.rs();
   adv_diff_ff->set_state(Uref,grad_U);
   adv_diff_ff
-    ->compute_flux(Ucpy, dummy, dummy, dummy, flux, fluxd,
+    ->compute_flux(Uref, dummy, dummy, dummy, flux, fluxd,
 		   A_grad_U, grad_U, dummy,
 		   dummy, delta_sc, lambda_max_pg, dummy,
 		   dummy, dummy, dummy, 0);
@@ -101,7 +101,8 @@ res(int k,FastMat2 &U,FastMat2 &r,
   // to the incoming wave space: w = Cp * Pi_m
   tmp1.prod(Cp,Pi_m,1,-1,-1,2);
   w.set(0.).ir(1,1).set(tmp1).rs();
-  jac.ir(2,1).set(Pi_m).rs();
+  jac.ir(2,1).set(Pi_m)
+    .ir(2,3).set(Pi_m).scale(-1.0).rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
