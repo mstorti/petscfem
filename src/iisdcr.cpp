@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.32 2002/09/20 21:25:38 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.33 2002/09/22 09:07:21 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -221,6 +221,10 @@ int IISDMat::create_a() {
 #undef INF
   // o Number of subpartitions inside each processor. 
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
+  int iisd_subpart_auto;
+  // o Choose automatically the number of subdomains so as to
+  // have approximately this number of unknowns per subdomain. 
+  TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart_auto,0);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco,0);
   //o Number of iters in solving the preconditioning for the 
@@ -245,6 +249,11 @@ int IISDMat::create_a() {
   local_graph.partit = &part;
   local_graph.myrank = myrank;
   local_graph.flag = flag.begin();
+
+  if (iisd_subpart_auto) {
+    assert(iisd_subpart_auto>0);
+    iisd_subpart = int(floor(double(neqp)/double(iisd_subpart_auto)))+1;
+  }
 
   local_graph.part(max_partgraph_vertices_proc,iisd_subpart);
   // Mark those local dofs that are connected to a local dof in a
@@ -317,14 +326,25 @@ int IISDMat::create_a() {
   n_intp = n_int_v[myrank];
 
   if (iisdmat_print_statistics) {
-    PetscPrintf(PETSC_COMM_WORLD,"IISDMat dof statistics:\n"
-		"total %d, local %d, int %d\n",neq,n_loc_tot,n_int_tot);
-    PetscPrintf(PETSC_COMM_WORLD,
-		"---\nProc.   Total    Local      Int   PtrLoc   PtrInt\n");
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%2d] %8d %8d %8d %8d %8d\n",
-			    myrank,neqp,n_loc,n_int,n_locp,n_intp);
-    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
-    PetscPrintf(PETSC_COMM_WORLD,"---\n"); 
+    PetscPrintf(comm,"IISDMat -- dof statistics:\n");
+    if (iisd_subpart_auto) {
+      PetscPrintf(comm,
+		  "-- Automatically choosing number of subdomains"
+		  " with iisd_subpart_auto %d\n",iisd_subpart_auto);
+    }
+    int nsubdos;
+    MPI_Allreduce(&iisd_subpart,&nsubdos,1,MPI_INT,MPI_SUM, comm);
+
+    PetscPrintf(comm,
+		"total %d, local %d, int %d, subdo's\n",neq,n_loc_tot,n_int_tot);
+    PetscPrintf(comm,
+		"---\n"
+		//  5|   0|   5|   0|   5|   0|   5|   0|   5|   0|   5|   0|   5|   0|
+		"Proc. Total eqs   Subdo's     Local       Int    PtrLoc    PtrInt\n");
+    PetscSynchronizedPrintf(comm,"[%2d]   %8d  %8d  %8d  %8d  %8d  %8d\n",
+			    myrank,neqp,iisd_subpart,n_loc,n_int,n_locp,n_intp);
+    PetscSynchronizedFlush(comm); 
+    PetscPrintf(comm,"---\n"); 
   }
 
 #ifdef PRINT_LOCAL_INT_PARTITION_TABLE
@@ -337,7 +357,7 @@ int IISDMat::create_a() {
 #if 0
     // printing by columns (equations)
     // Not very satisfactory printing
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(comm,
 		"--- Local/interface partitioning\n"
 		"Prints: global-dof (node/field) proc type(local/interface)\n");
     for (int j=0; j<neq; j++) {
@@ -360,7 +380,7 @@ int IISDMat::create_a() {
     }
 #elif 0
     // printing by rows (node/field)
-    PetscPrintf(PETSC_COMM_WORLD,
+    PetscPrintf(comm,
 		"--- Local/interface partitioning\n"
 		"Prints:  node field global-dof proc type(local/interface)\n");
     int block, ldof, node, field, edof, keq, proc;
