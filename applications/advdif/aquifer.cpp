@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.10 2002/08/26 21:19:30 mstorti Exp $
+//$Id: aquifer.cpp,v 1.11 2002/09/02 16:14:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -14,6 +14,11 @@ void aquifer_ff::start_chunk() {
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd
   //o Constant rain
   EGETOPTDEF_ND(elemset,double,rain,0.); 
+  //o Threshold for wet aquifer width (#phi-eta#)
+  EGETOPTDEF_ND(elemset,double,wet_aquifer_width_min,0.); 
+  assert(wet_aquifer_width_min>=0.);
+  //o Flag ehether to stop on dry aquifer
+  EGETOPTDEF_ND(elemset,int,dry_aquifer_stop,0); 
   assert(ndim==2);
 
   elemset->elem_params(nel,ndof,nelprops);
@@ -60,8 +65,11 @@ void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
 			      FastMat2 &H, FastMat2 &grad_H) {
   eta = H.get(1);
   phi = U.get(1);
-  assert(phi>=eta);
-  fluxd.set(grad_U).scale(K*(phi-eta));
+  double wet_aquifer_width = phi-eta;
+  assert(!dry_aquifer_stop || phi-eta>0.);
+  if (wet_aquifer_width<wet_aquifer_width_min) 
+    wet_aquifer_width = wet_aquifer_width_min;
+  fluxd.set(grad_U).scale(K*wet_aquifer_width);
   G.set(rain);
 }
 
