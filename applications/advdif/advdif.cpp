@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.20 2001/04/12 00:43:25 mstorti Exp $
+//$Id: advdif.cpp,v 1.21 2001/05/12 15:28:37 mstorti Exp $
 
 #include <set>
 
@@ -245,7 +245,7 @@ int main(int argc,char **args) {
   GETOPTDEF(double,omega_newton,1.);
 
   //o Chooses the preconditioning operator. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,Jacobi);
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
   char *preco_type_ = new char[preco_type.size()+1];
   strcpy(preco_type_,preco_type.c_str());
