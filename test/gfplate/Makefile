@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.52 2005/02/25 22:33:10 mstorti Exp $ 
+# $Id: Makefile,v 1.53 2005/02/26 16:32:36 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -65,10 +65,19 @@ run_nozzle:
 	mkstepsdir.pl
 	$(MAKE) CASE_NAME=gfnozzle run
 
-run: 
+mesh: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+
+run:
+	if ! $$mkmesh ; then mkmesh=0 ; fi ;				\
+	if [ $$mkmesh -gt 0 ] ; then $(MAKE) mesh ; fi			\
+	-$(MPIRUN) $(NL) -np $(NP) -machinefile				\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+
+qqq:
+	@if [ ! $$mkmesh ] ; then mkmesh=1 ; fi ;				\
+	if [ $$mkmesh -gt 0 ] ; then echo "do mesh" ; fi
+
 
 STEPS_DIR := ./STEPS
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
