@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.6 2001/10/07 21:12:52 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.7 2002/05/15 18:46:33 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -85,7 +85,7 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // consistently satisfied but with a non exact Newton-Raphson. 
   TGETOPTDEF(thash,double,lagrange_residual_factor,0.);
   //o Using Lagrange multipliers can lead to bad conditioning, which
-  // cuases poor convergence with iterative methods or amplification
+  // causes poor convergence with iterative methods or amplification
   // of rounding errors. This factor scales the columns in the matrix
   // that correspond to the lagrange multipliers and can help in
   // better conditioning the system. 
