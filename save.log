@@ -3481,3 +3481,6 @@ tag: beta-3.37.16 on Tue, 23 Nov 2004 10:05:46 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.37.17 on Tue, 23 Nov 2004 16:51:17 -0300 by mstorti in minerva.ceride.gov.ar
      > Added Doc++ and comments to femref. 
+----------
+tag: beta-3.37.18 on Tue, 23 Nov 2004 21:59:24 -0300 by mstorti in spider
+     > Written `myhash.cpp', hash function.
