@@ -1,4 +1,4 @@
-r$Id: notes.txt,v 1.211 2003/01/09 13:39:52 mstorti Exp $
+r$Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.211 2003/01/09 13:39:52 mstorti Exp $ 
+! # $Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.211 2003/01/09 13:39:52 mstorti Exp $ 
+! # $Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.211 2003/01/09 13:39:52 mstorti Exp $ 
+  # $Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5768,7 +5768,19 @@ Estoy tratando de escribir los embedded gatherer para `line2quad' y
 %===Thu,  9 Jan 2003 09:19:49 -0300 mstorti@minerva
 %
 Con Rext=2 y sin acoplamiento (v.n = v_inf.n) el sistema se estabiliza
-y el Strouhal (amortiguado!!) es del orden de 0.4. 
+(no hay vortex shedding) y el Strouhal (amortiguado!!) es del orden de
+0.4.
+%
+10:55:20: Con Rext=2 se desestabiliza con el filtro (omega=0.9;
+xif=0.1). Pruebo a aumentar nnwt=3 y Co=1, pero igual. 
+%
+10:56:29: Pruebo a cambiar el filtro (omega=0.5; xif=0.1). 
+%
+11:21:05: Habia un error, el filtro debia ser con xif=1, y no 0.1!!
+%
+11:40:40: De todas formas con (omega=0.9; xif=1) parece que era
+inestable. Estoy probando con (omega=0.5; xif=1) y por ahora parece
+OK. Me pregunto la precision de todo esto. 
 
 # Current line ===========  %
 # Local Variables: $
