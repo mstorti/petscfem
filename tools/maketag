@@ -1,0 +1,58 @@
+#!/bin/bash
+
+tmp=tmp_file_log.txt
+savelog=save.log
+sep="     > "
+
+echo Verify that current directory is OK...
+echo n | cvs release .
+echo -n "Continue? (y/n) > " 
+read answer
+echo "ans: $answer" 
+if [ "$answer" != "y" ] ; then         \
+        echo exiting 
+        exit 1 
+fi
+echo Last tags:
+grep "^tag: " $savelog | tail
+echo -n "Enter new tag: > " 
+read newtag 
+newtag_=`echo $newtag | perl -pe 's/\-/--/g; s/\./-/g;'` 
+echo "encoded tag: $newtag_" 
+
+stable="n"
+echo -n "Is it a stable version? (y/n) > " 
+read stable
+
+echo "Now I will launch the editor in order" 
+echo "    to enter a log message for this release..." 
+echo "    <press enter to continue>" 
+read answer 
+
+if [ -e $tmp ] ; then rm $tmp ; fi 
+cat <<EOM > $tmp
+# Insert here the comment for this release (version: $newtag) :
+# [ lines starting whit '\#' are discarded ]
+EOM
+
+$EDITOR $tmp
+
+echo -n "Proceed to tag files (y/n) > " 
+read answer 
+if [ ! $answer = "y" ] ; then \
+	exit 1
+fi
+
+#cvs tag $newtag_ . 
+
+echo "updating VERSION..."
+echo $newtag > VERSION 
+
+echo "logging on " $savelog
+echo "----------" >> $savelog
+echo "tag: $newtag on `date`, by `whoami` in `hostname -f`" >> $savelog
+if [ $stable = "y" ] ; then \
+        echo "$sep-- STABLE VERSION -- " >> $savelog
+fi 
+cat $tmp | perl -ne "next if /^#/; s/^/$sep/; print;" | cat >> $savelog
+rm $tmp
