@@ -1494,3 +1494,7 @@ tag: beta-3.03.pl4 on Mon, 19 Aug 2002 17:24:29 -0300 by mstorti in spider
 tag: beta-3.03.pl5 on Mon, 26 Aug 2002 21:33:53 -0300 by mstorti in spider
      > Now a line like ' __INCLUDE__ ... ' gives error (note the space at the
      > beginning of the line).
+----------
+tag: beta-3.03.pl6 on Mon, 26 Aug 2002 23:54:02 -0300 by mstorti in spider
+     > Changed `mydetsur(Jaco,normal)' for FastMat2 for
+     > `Jaco.detsur(&normal)' (cached)
