@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: memtest.cpp,v 1.6 2004/02/24 22:27:26 mstorti Exp $
+// $Id: memtest.cpp,v 1.7 2004/03/02 19:40:43 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
@@ -115,10 +115,18 @@ int main(int argc,char **argv) {
       check_sums[block] = rand_fill(buffers[block],block_size);
     }
     if (!(checked % report)) {
-      double prob = double(failed)/(double(checked)*double(block_size));
-      fprintf(output,
-	      "checked %d, failed %d, (error prob: %g [#failed/#access])\n",
-	      checked, failed, prob);
+      if (failed) {
+	double prob = double(failed)/
+	  (double(checked)*double(block_size));
+	fprintf(output,"checked %d, failed %d, (error prob: "
+		"%.1g [#failed/#access])\n",
+		checked, failed, prob);
+      } else {
+	double prob = 1.0/(double(checked)*double(block_size));
+	fprintf(output,"checked %d, failed %d, (error prob: "
+		"<%.2g [#failed/#access])\n",
+		checked, failed, prob);
+      }
     }
   }
   for (int j=0; j<nblocks; j++) {
