@@ -16,9 +16,13 @@ $Tin = 4170;
 $rhoin = $pin/($Rgas*$Tin);
 $uin = 0;
 
-$fac = 1000;
-$pout = 143*$fac;
-$Tout = 262;
+if (0) {
+    $pout = 143;
+    $Tout = 262;
+} else {
+    $pout = 0.7*$pin;
+    $Tout = $Tin;
+}
 $rhoout = $pout/($Rgas*$Tout);
 $uout = 0;
 
