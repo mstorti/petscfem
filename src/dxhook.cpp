@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.16 2003/02/09 22:39:57 mstorti Exp $
+//$Id: dxhook.cpp,v 1.17 2003/02/09 23:15:50 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -159,6 +159,7 @@ time_step_post(double time,int step,
   int ndim = nodedata->ndim;
   int nnod = nodedata->nnod;
   int nu = nodedata->nu;
+  int stepso;
 
   // Process DX options. 
   if (!MY_RANK) {
@@ -170,14 +171,7 @@ time_step_post(double time,int step,
     while (1) {
       if (j>=tokens.size()) break;
       if (tokens[j]=="steps") {
-	int stepso;
 	assert(!string2int(tokens[++j],stepso));
-	if (stepso>=0) {
-	  if (stepso!=steps) 
-	    printf("dx_hook: changed \"steps\" %d -> %d from DX\n",
-		   steps,stepso);
-	  steps=stepso;
-	}
       } else if (tokens[j]=="step") {
 	assert(!string2int(tokens[++j],dx_step));
       } else if (tokens[j]=="state_file") {
@@ -192,9 +186,17 @@ time_step_post(double time,int step,
   }
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
-  ierr = MPI_Bcast (&steps, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+  ierr = MPI_Bcast (&stepso, 1, MPI_INT, 0,PETSC_COMM_WORLD);
   ierr = MPI_Bcast (&dx_step, 1, MPI_INT, 0,PETSC_COMM_WORLD);
   ierr = string_bcast(state_file,0,PETSC_COMM_WORLD);
+
+  if (stepso>=0 && stepso!=steps) {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"dx_hook: changed \"steps\" %d -> %d from DX\n",
+		steps,stepso);
+    if (stepso==0) set_connection_state(not_launched);
+    steps=stepso;
+  }
   
   step_cntr = steps-1;
   
@@ -250,7 +252,7 @@ time_step_post(double time,int step,
     Sclose(srvr);
   }
 #ifdef USE_PTHREADS
-  if(connection_state() == not_launched) re_launch_connection();
+  if(!steps && connection_state() == not_launched) re_launch_connection();
 #endif
 }
 
@@ -261,6 +263,10 @@ void dx_hook::close() {
   if (connection_state()==connected) {
     // Here we should shut down the connection
     // sending some message to the client
+    if (!MY_RANK) {
+      Sprintf(srvr,"end\n");
+      Sclose(srvr);
+    }
     set_connection_state(not_connected);
   }
   if (connection_state()==not_connected) {
