@@ -14,12 +14,12 @@
 # If you modify this, please do a `$ make sync' in order to 
 #   sunchronize `machi.dat'
 node1         1.3   server
+node2         4.2
+node4         4.2
+node9         4.
 node8         4.2
-node11        4.2 
-# node9         4.
-node2         4.
-node3         4.
-node4         4.
-node7         4.
-node10        4. 
-node12        4. 
+node3         1.6
+node7         1.6
+node10        1.6
+node12        1.6
+# node11        4.2 

@@ -11,7 +11,7 @@ $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
 $use_tetra = 1;
 $use_prismatic = 0;
-$fracstep = 0;
+$fracstep = 1;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 4;				# Number of elements per dimension
+$N = 76;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -101,7 +101,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 3
+nstep 30
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
@@ -119,12 +119,12 @@ solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 # rtol 1e-6
-chunk_size 3000
+chunk_size 1000
 <:pr('iisd_subpart'):>
 <:pr('maxits'):>
 report_consumed_time
 activate_debug_print
-activate_debug
+# activate_debug
 use_interface_full_preco 1
 print_interface_full_preco_conv 0
 interface_full_preco_maxits 10
@@ -143,7 +143,11 @@ max_partgraph_vertices_proc 4000
 tol_tet 1e-5
 tol_newton 1e-10
 atol 0
+#if $fracstep
+rtol 1e-4
+#else
 rtol 1e-8
+#endif
 dtol 1e3
 nnwt 1
 
