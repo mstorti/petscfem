@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.11 2005/01/23 18:44:57 mstorti Exp $
+## $Id: mkgfabso.m,v 1.12 2005/01/23 19:17:50 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -9,13 +9,8 @@ xnod = xnod(:,[2 1]);
 nnod = size(xnod,1);
 x = xnod(1:nnod,1);
 
-if rotay
-  longindx = 2;			# Longitudinal indx
-  Orot = [0 1;-1 0];		# Rotation matrix
-else
-  longindx = 1;
-  Orot = eye(2);
-endif
+Orot = [cos(alpha),sin(alpha);
+	-sin(alpha),cos(alpha)]; # Rotation matrix
 xnod = xnod*Orot;
 
 ## rho,u,v at inlet

@@ -95,22 +95,14 @@ __END_HASH__
 #if $abso
 elemset gasflow_abso 5
 dx 0
-#if !$rotay
-normaln -1. 0.
-#else
-normaln 0. -1.
-#endif
+normaln <:=-$norx:> <:=-$nory:>
 __END_HASH__
 __INCLUDE__ gfabso.con-abso0.tmp
 __END_ELEMSET__
 
 elemset gasflow_abso 5
 dx 0
-#if !$rotay
-normaln 1. 0.
-#else
-normaln 0. 1.
-#endif
+normaln <:=$norx:> <:=$nory:>
 __END_HASH__
 __INCLUDE__ gfabso.con-abso1.tmp
 __END_ELEMSET__

@@ -1,4 +1,4 @@
-## $Id: proc2.m,v 1.9 2005/01/23 18:44:57 mstorti Exp $
+## $Id: proc2.m,v 1.10 2005/01/23 19:17:50 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -41,13 +41,10 @@ endfor
 rem(rows(U),Nx+1)==0 || error("not correct size");
 nt = rows(U)/(Nx+1);
 x = aload("gfabso.nod.tmp");
-if !rotay
-  x = x(1:Nx+1,1);
-else
-  x = x(1:Nx+1,2);
-endif
+x = x(1:Nx+1,longindx);
+x = -x;
 
-axis([0 Lx min(min(Unorm)) max(max(Unorm))])
+axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);
 m=5;
 
 for k=1:m:nt
