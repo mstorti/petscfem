@@ -104,6 +104,7 @@ $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
 #
 EPERLFLAGS = 
 %.depl: %.epl 
+	echo en rule depl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
