@@ -1,0 +1,134 @@
+NAME
+        makewhat.pl - Prints info on targets extracted from Makefiles
+
+SYNOPSIS
+      $ makewhat.pl [options] <makefiles> ... 
+
+OPTIONS
+    -h  give help
+
+    -s  Sort entries alphabetically in a given section
+
+    -m <magic_prefix>
+        Set the magic prefix.
+
+DESCRIPTION
+    Add a comment just above the corresponding target in a Makefile in the
+    form
+
+        #w Builds the library and 
+        #w cleans the directory
+        buildclean: 
+                commands
+                ...
+
+    Then when running `makewhat.pl' it scans the makefiles, strips this
+    comments and prints somethinng like
+
+        '$ make buildclean'   :  Builds the library and
+                                 cleans the directory
+        '$ make other_target' :  Other description here ...
+
+    Usually, one inserts a target of the form
+
+         #w Prints info on targets
+         what:
+                @makewhat.pl Makefile Makefile.base 
+
+    So that a user can do
+
+        $ make what
+
+        'make buildclean'  :  Builds the library a
+                              cleans the directory
+
+        'make other_target' :  Other description here ...
+
+        'make what'  : Prints info on targets
+
+    Leading whitespace in `#w' lines is removed. If you want to preserve it,
+    start with a '>' sign. Leading whitespace until the '>' is removed and
+    the line is taken literally beginning at the character following the '>'
+    sign.
+
+  Other directives
+
+    Sections
+        Lines of the form
+
+          #s Section name
+
+        separate targets in 'sections'. If sorting is enabled (option `-s')
+        then targets are sorted within each section. A target with no
+        section name flushes the target list.
+
+    Textual lines
+        Lines starting with `#p' are printed textually (the `#p' is
+        stripped) and printed out as the file is parsed. This is used to
+        print banners and legends like `[In file path/to/subdir/Makefile]'.
+
+    Change target and nonexistent targets
+        A line starting with `#e name' is equivalent to finding a target of
+        the form `name:' so that a target message can be generated with a
+        block of comments of the form
+
+           #w This is a dummy target
+           #w and will be reported even if there is not
+           #w a real target
+           #e dummy
+
+        This would print
+
+          '$ make dummy' : This is a dummy target
+                           and will be reported even if there is not
+                           a real target
+
+        This can be also used for replacing the name of the target. For
+        instance targets of the form
+
+         #w Converts file.a to file.b
+         %.b: %.a
+                 myconvert $< $@
+
+        would generate a message of the form
+
+         '$ make %.b' :        Converts file.a to file.b
+
+        It is more readable to use
+
+         #w Converts file.a to file.b
+         #e file.b
+         %.b: %.a
+                 myconvert $< $@
+
+        which would generate
+
+         '$ make file.b' :     Converts file.a to file.b
+
+        instead.
+
+    Insert Perl code
+        A line of the form `#v perl-code' causes `perl-code' to be evaled,
+        and allows the user to change some parmeters. For instance
+
+        `$hdrmxlen' [default 22]
+            The length of the target part of the message. Subsequent lines
+            are indented this amount.
+
+        `$hdrpat' [default `'\\\$ make \$target' : ']
+            The target part is printed with this pattern. Note that this
+            string has to be double escaped, since it is interpolated twice.
+
+  Changing the magic prefix
+
+    If you think that the `#letter' commands are too loose, then you can add
+    some magic prefix so that the commands are now `#{magic-prefix}letter'.
+    For instance if you set `-m MKW' in the options then the commands are
+    now `#MKWw', `#MKWs', etc... Note that this string will be evaluated in
+    a pattern environment so that escape characters like `*.?/' etc...
+
+  
+
+AUTHOR
+    Mario A. Storti <mstorti@intec.unl.edu.ar>
+
