@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.2 2002/12/02 01:00:32 mstorti Exp $
+//$Id: mmove2.cpp,v 1.3 2002/12/02 03:27:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -54,6 +54,8 @@ void mesh_move_eig_anal::init() {
     dNdxi.set(C);
   }
   glambda.resize(3,ndim,nel,ndim);
+  dFdl.resize(1,ndim);
+  d2Fdl2.resize(2,ndim,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -76,11 +78,31 @@ void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &lambda,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double mesh_move_eig_anal::dfun(const FastMat2 &D) {
+  double F=0;
+  for (int k=1; k<=ndim; k++) 
+    for (int l=1; l<=ndim; l++) 
+      F += square(D.get(k)-D.get(l));
+  return F;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
 					   const FastMat2 &state_old,
 					   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
   df_grad(xloc,lambda,glambda);
+  double F, F0 = dfun(lambda);
+  double eps=1e-4;
+  for (int k=1; k<=ndim; k++) {
+    lambdap.set(lambda);
+    lambdap.ir(1,k).add(eps);
+    F  = dfun(lambdap);
+    dFdl.setel((F-F0)/eps,k);
+  }
+  res.prod(dFdl,glambda,-1,-1,1,2);
+
+#if 0
   x0.set(xloc);
   x0.reshape(1,nel*ndim);
   double epsilon=1e-4;
@@ -96,4 +118,5 @@ void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
   }
   x0.reshape(2,nel,ndim);
   glambda_diff.rs().reshape(3,ndim,nel,ndim);
+#endif
 }
