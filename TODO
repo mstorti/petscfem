@@ -2,8 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* seems that '__SWITCH_FILE__' directives in `myexpect.pl' doesn't
-	 give an error if the file doesn't exist. 
+* in dir `test/newff' eperl complains with 
+   `not implemented test case 'dont_use_fastmat2_cache' at - line 450.'
 * make `epsilon' relative in `srfgath' 
 * `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
 * `advdif/id' elemset does some `proj' task or something. We should write
@@ -156,11 +156,14 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* seems that `__SWITCH_FILE__' directives in `myexpect.pl' doesn't
+	 give an error if the file doesn't exist. 
+    NO, OK: the lacking file is an output file, so that it only gives
+	 a `couldn't open' error. 
 * `$ make sw' attempts to build `doc/odocall.tex'. 
     DONE: Mon, 08 Dec 2003 23:15:13 -0300
 * Make use FastMat2 cache optional in advdife via an option
     DONE: Mon, 08 Dec 2003 20:33:59 -0300
-* Add `sw_abso' to tests
     DONE: Mon, 08 Dec 2003 20:24:09 -0300
 * `advdif/id' elemset does some `proj' task or something. We should write
     an `ask' function for it. 

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.120 2004/01/19 21:50:02 mstorti Exp $
+#$Id: runtests.pl,v 1.121 2004/05/22 12:52:27 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -24,6 +24,8 @@ $COMPLAIN_ON_CANT_OPEN = $opt_o;
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 ## Prove here new tests
 if (0) {
+    ## This here (sw_abso) is already in the mainstream tests.
+    ## I leave it here in irder to show how to prove new tests. 
     expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
 	   read_file("sw_abso/test_abso.verif.ans"));
     final_check();
@@ -650,6 +652,10 @@ end_section();
 begin_section('Advdif tests');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
+       read_file("sw_abso/test_abso.verif.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<'EOT');
 Dt=.* error=.* \< tol_error=.* OK\?.*1
 EOT
@@ -747,6 +753,7 @@ check_newff('reac_dif_temp');
 check_newff('reac_steady');
 check_newff('std_ard_x_y');
 check_newff('stdy_dif');
+check_newff('dont_use_fastmat2_cache');
 
 end_section();
 

@@ -50,8 +50,14 @@ print "## CASE = $CASE   after striping\n";
 if ($CASE eq 'check_nodes' || $CASE eq 'check_fields') {
     $CASE = 'dif_temp';
 }
+$use_fastmat2_cache = 1;
+if ($CASE eq 'dont_use_fastmat2_cache') {
+ $CASE = 'stdy_dif';
+ $use_fastmat2_cache = 0;
+}
 :>//
 ## CASE = <:=$CASE:>  after redirecting
+use_fastmat2_cache = <:=$use_fastmat2_cache:>;
 
 #if $CASE eq 'stdy_dif'
 ## Steady heat eq. with source term

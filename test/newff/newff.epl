@@ -51,6 +51,7 @@ tau_fac <:=$tau_fac:>
 #solve_system 0
 #print_linear_system_and_stop
 
+use_fastmat2_cache <:=$use_fastmat2_cache:>
 weak_form <:=$weak_form:>
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
