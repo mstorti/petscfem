@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.10 2003/01/03 02:21:00 mstorti Exp $
+//$Id: inviscid.cpp,v 1.11 2003/01/03 02:52:29 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -26,6 +26,8 @@ int inv_inc_lay;
 typedef map<int,int> ext_map;
 ext_map inv_indx_map,inv1_indx_map,visc_indx_map;
 vector<ext_node> ext_node_data;
+map<int,double> coupling_visc_vel;
+int computed_coupling_visc_vel=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_visc_hook::init(Mesh &mesh,Dofmap &dofmap,
@@ -53,9 +55,25 @@ void coupling_visc_hook::time_step_pre(double t,int step) {
     assert(int(step_sent)==step-1);
     PetscPrintf(PETSC_COMM_WORLD,
 		"VISCOUS: received computed_step flag OK, step %d\n",step);
+
+    FILE *fid = fopen("ext.coupling_normal_vel.tmp","r");
+    assert(fid);
+    int nread;
+    char *line = NULL; size_t N=0;
+    while (1) {
+      if (getline(&line,&N,fid)==-1) break;
+      int node; double u_n;
+      nread = sscanf(line,"%d %lf",&node,&u_n);
+      assert(nread==2);
+      coupling_visc_vel[node] = u_n;
+    }
+    fclose(fid);
+    free(line); line=NULL; N=0;
+    computed_coupling_visc_vel=1;
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"VISCOUS: step 1 do nothing ... Continue\n");
+    computed_coupling_visc_vel=1;
   }
 }
 
@@ -303,23 +321,17 @@ void coupling_inv_hook::time_step_post(double time,int step,
   }
   fclose(fid);
   free(line); line=NULL; N=0;
-  PetscPrintf(PETSC_COMM_WORLD,
-	      "INVISCID: sending computed_flag step %d\n",step);
-  fprintf(inv2visc,"computed_step %d\n",step);
 
-#if 1
   int nnod_ext = ext_node_data.size();
-  for (int k=0; k<nnod_ext; k++) {
-    ext_node &e = ext_node_data[k];
-    e.phi = e.x[1];
-    e.phi1 = e.x1[1];
-  }
-#endif
   const int npoint=6, nterm=6;
   FastMat2 x(2,npoint,NDIM), xi(2,npoint,NDIM), psi(2,npoint,nterm), 
     jac(2,NDIM,NDIM), ijac(2,NDIM,NDIM), xc(1,NDIM), tmp(2,npoint,3),
     ipsi(2,npoint,nterm), a(1,nterm),
-    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(1,NDIM);
+    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(1,NDIM),
+    t(1,NDIM), norm(1,NDIM), tmp1;
+  double dphidn;
+
+  assert(fid = fopen("ext.coupling_normal_vel.tmp","w"));
   for (int k=0; k<nnod_ext; k++) {
     int k_center = k + (k==0? 1 : k==nnod_ext-1? -1 : 0);
     xc.set(ext_node_data[k_center].x);
@@ -337,6 +349,14 @@ void coupling_inv_hook::time_step_post(double time,int step,
     pot.setel(ext_node_data[k_center-1].phi1,4);
     pot.setel(ext_node_data[k_center].phi1,5);
     pot.setel(ext_node_data[k_center+1].phi1,6);
+
+    x.ir(1,3);
+    t.set(x);
+    x.ir(1,1);
+    t.rest(x);
+    t.scale(1./t.norm_p_all(2.));
+    norm.setel(-t.get(1),2);
+    norm.setel(+t.get(2),1);
 
     x.ir(1,5);
     jac.ir(2,2).set(x);
@@ -364,10 +384,16 @@ void coupling_inv_hook::time_step_post(double time,int step,
     a.prod(ipsi,pot,1,-1,-1);
     dpot_dxi.setel(a.get(2),1).setel(a.get(4),2);
     dpot_dx.prod(ijac,dpot_dxi,-1,1,-1);
-    dpot_dx.print("dpot_dx: ");
+    // dpot_dx.print("dpot_dx: ");
+    dphidn = tmp1.prod(dpot_dx,norm,-1,-1).get();
+
+    fprintf(fid,"%d %f\n",ext_node_data[k].vn,dphidn);
   }
-  PetscFinalize();
-  exit(0);
+  fclose(fid);
+
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "INVISCID: sending computed_flag step %d\n",step);
+  fprintf(inv2visc,"computed_step %d\n",step);
 }
 
 DL_GENERIC_HOOK(coupling_inv_hook);
@@ -394,3 +420,22 @@ double coupling::eval(double) {
 }
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(coupling);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class visc_coupling : public DLGenericTmpl {
+public:
+  visc_coupling() { }
+  void init(TextHashTable *thash) { }
+  double eval(double);
+  ~visc_coupling() { }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double visc_coupling::eval(double) { 
+  assert(field()==1);
+  int node_c = node();
+  if (!computed_coupling_visc_vel) return 0.;
+  map<int,double>::iterator q = coupling_visc_vel.find(node_c);
+  assert(q!=coupling_visc_vel.end());
+  return q->second;
+}
