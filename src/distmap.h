@@ -1,12 +1,14 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.13 2001/08/10 02:07:14 mstorti Exp $
+// $Id: distmap.h,v 1.14 2001/08/10 17:22:38 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
 #include <map>
 #include <vector>
 #include <mpi.h>
+
+extern int SCHED_ALG;
 
 #include <vecmacros.h>
 
@@ -115,7 +117,7 @@ template <class Key,class Val>
 void DistMap<Key,Val>::scatter() {
   map<Key,Val>::iterator iter;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
-    dest,source;
+    dest,source,my_band_start;
   pair<Key,Val> p;
 
   char **send_buff,**send_buff_pos,*recv_buff;
@@ -123,6 +125,9 @@ void DistMap<Key,Val>::scatter() {
   MPI_Request send_rq,recv_rq;
   MPI_Status status;
   int j,k,nsent;
+  int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
+    size_here,max_local_size,max_recv_buff_size,jd;
+
   // to_send:= `to_send(j,k)' contains the table of how much amount of
   // data has to be sent from processor `j' to processor `k'
   to_send = new int[size*size];
@@ -204,138 +209,138 @@ void DistMap<Key,Val>::scatter() {
   }
 
 
-#if 1 // New scheduling algorithm
+  if (SCHED_ALG==1) { // New scheduling algorithm
 
-  // recv_buff:= buffer for receiving 
-  // recv_buff_pos:= positions in the receive buffer
-  // recv_buff_pos_end:= end of receive buffer
+    // recv_buff:= buffer for receiving 
+    // recv_buff_pos:= positions in the receive buffer
+    // recv_buff_pos_end:= end of receive buffer
 
   // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
   // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
   // eproc
-  int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
-    size_here,max_local_size,max_recv_buff_size;
 
   // Maximu recv buffer size
-  max_recv_buff_size=0;
-  for (rank=0; rank < size; rank++) {
-    if (SEND(rank,myrank) > max_recv_buff_size)
-      max_recv_buff_size = SEND(rank,myrank);
-  }
+    max_recv_buff_size=0;
+    for (rank=0; rank < size; rank++) {
+      if (SEND(rank,myrank) > max_recv_buff_size)
+	max_recv_buff_size = SEND(rank,myrank);
+    }
 
-  // Alloc recv buffer
-  recv_buff = new char[max_recv_buff_size];
+    // Alloc recv buffer
+    recv_buff = new char[max_recv_buff_size];
 
-  // initially...
-  sproc=0;
-  eproc=size;
-  while (1) {
-    size_here = eproc-sproc;
-    printf("[%d] size here %d\n",myrank,size_here);
-    MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
-		  comm);
-    if (max_local_size<=1) break;
+    // initially...
+    sproc=0;
+    eproc=size;
+    while (1) {
+      size_here = eproc-sproc;
+      printf("[%d] size here %d\n",myrank,size_here);
+      MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
+		    comm);
+      if (max_local_size<=1) break;
 
-    if ( size_here> 1) {
-      mproc = (sproc+eproc)/2;
-      band = (myrank >= mproc);
-      printf("[%d] sproc %d, mproc %d, eproc %d\n",
-	     myrank,sproc,mproc,eproc);
-      for (stage=0; stage<2; stage++) {
-	// Range and number of procs in the other band
-	if (band==0) {
-	  s1=mproc; s2=eproc; 
-	} else {
-	  s1=sproc; s2=mproc; 
-	}
-	nrecv=s2-s1;
-
-	if (stage == band) {
-	  // Send stage. Send to s1 <= rank < s2
-	  for (dest = s1; dest < s2; dest++) {
-	    printf("[%d] Sending to %d\n",myrank,dest);
-	    MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-		     dest,myrank,comm);
+      if ( size_here> 1) {
+	mproc = (sproc+eproc)/2;
+	band = (myrank >= mproc);
+	printf("[%d] sproc %d, mproc %d, eproc %d\n",
+	       myrank,sproc,mproc,eproc);
+	for (stage=0; stage<2; stage++) {
+	  // Range and number of procs in the other band
+	  if (band==0) {
+	    s1=mproc; s2=eproc; my_band_start=sproc;
+	  } else {
+	    s1=sproc; s2=mproc; my_band_start=mproc;
 	  }
-	} else {
-	  // Receive stage
-	  printf("[%d] Receive from %d procs.\n",myrank,nrecv);
-	  for (rank = 0; rank < nrecv; rank++) {
-	    MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
-		     MPI_ANY_SOURCE,MPI_ANY_TAG,
-		     comm,&status);
-	    source = status.MPI_SOURCE;
-	    printf("[%d] received source %d, tag %d\n",
-		   myrank,status.MPI_SOURCE,status.MPI_TAG);
-	    assert(status.MPI_TAG == source);
-	    
-	    MPI_Get_count(&status,MPI_CHAR,&nsent);
-	    assert(nsent == SEND(source,myrank));
+	  nrecv=s2-s1;
 
-	    recv_buff_pos = recv_buff;
-	    recv_buff_pos_end = recv_buff + nsent;
-	    while (recv_buff_pos < recv_buff_pos_end ) {
-	      unpack(p.first,p.second,recv_buff_pos);
-//  	      printf("[%d] unpacking: key %d, val %f\n",
-//  		     myrank,p.first,p.second);
-	      combine(p);
+	  if (stage == band) {
+	    // Send stage. Send to s1 <= rank < s2
+	    for (jd = 0; jd < nrecv; jd++) {
+	      // Shift `dest' to avoid collisions
+	      dest = s1 + ((myrank-my_band_start) + jd) % nrecv;
+	      printf("[%d] Sending to %d\n",myrank,dest);
+	      MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+		       dest,myrank,comm);
+	    }
+	  } else {
+	    // Receive stage
+	    printf("[%d] Receive from %d procs.\n",myrank,nrecv);
+	    for (rank = 0; rank < nrecv; rank++) {
+	      MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
+		       MPI_ANY_SOURCE,MPI_ANY_TAG,
+		       comm,&status);
+	      source = status.MPI_SOURCE;
+	      printf("[%d] received source %d, tag %d\n",
+		     myrank,status.MPI_SOURCE,status.MPI_TAG);
+	      assert(status.MPI_TAG == source);
+	    
+	      MPI_Get_count(&status,MPI_CHAR,&nsent);
+	      assert(nsent == SEND(source,myrank));
+
+	      recv_buff_pos = recv_buff;
+	      recv_buff_pos_end = recv_buff + nsent;
+	      while (recv_buff_pos < recv_buff_pos_end ) {
+		unpack(p.first,p.second,recv_buff_pos);
+		//  	      printf("[%d] unpacking: key %d, val %f\n",
+		//  		     myrank,p.first,p.second);
+		combine(p);
+	      }
 	    }
 	  }
 	}
+
+	if (band==0) {
+	  eproc = mproc;
+	} else {
+	  sproc = mproc;
+	}
       }
-
-      if (band==0) {
-	eproc = mproc;
-      } else {
-	sproc = mproc;
-      }
+      // MPI_Barrier(PETSC_COMM_WORLD);
     }
-    // MPI_Barrier(PETSC_COMM_WORLD);
-  }
 
-  delete[] recv_buff;
-
-#else // old scheduling algorithm
-
-  // recv_buff:= buffer for receiving 
-  // recv_buff_pos:= positions in the receive buffer
-  // recv_buff_pos_end:= end of receive buffer
-  for (k=1; k<size; k++) { 
-    dest = (myrank+k) % size;
-    source = (myrank-k+size) % size;
-
-    // allocate recv buffer to from proc  `k'
-    recv_buff = new char[SEND(source,myrank)];
-    // initialize position 
-    recv_buff_pos = recv_buff;
-    if (myrank!=0) {
-      MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-	       dest,myrank,comm);
-      MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
-	       comm,&status);
-    } else {
-      MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
-	       comm,&status);
-      MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
-	       dest,myrank,comm);
-    }    
-
-    MPI_Get_count(&status,MPI_CHAR,&nsent);
-    // printf("[%d] %d received from %d\n",myrank,nsent,source);
-    if (nsent!=SEND(source,myrank)) 
-      printf("[%d] Didn't receive expected amount of data\n"
-	     "expected %d, received  %d\n",
-	     myrank,SEND(k,myrank),nsent);
-    recv_buff_pos_end = recv_buff + SEND(source,myrank);
-    while (recv_buff_pos < recv_buff_pos_end ) {
-      unpack(p.first,p.second,recv_buff_pos);
-//        PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
-//  		  p.first,p.second);
-      combine(p);
-    }
     delete[] recv_buff;
+
+  } else if (SCHED_ALG==0) {
+
+    // recv_buff:= buffer for receiving 
+    // recv_buff_pos:= positions in the receive buffer
+    // recv_buff_pos_end:= end of receive buffer
+    for (k=1; k<size; k++) { 
+      dest = (myrank+k) % size;
+      source = (myrank-k+size) % size;
+
+      // allocate recv buffer to from proc  `k'
+      recv_buff = new char[SEND(source,myrank)];
+      // initialize position 
+      recv_buff_pos = recv_buff;
+      if (myrank!=0) {
+	MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+		 dest,myrank,comm);
+	MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
+		 comm,&status);
+      } else {
+	MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
+		 comm,&status);
+	MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+		 dest,myrank,comm);
+      }    
+
+      MPI_Get_count(&status,MPI_CHAR,&nsent);
+      // printf("[%d] %d received from %d\n",myrank,nsent,source);
+      if (nsent!=SEND(source,myrank)) 
+	printf("[%d] Didn't receive expected amount of data\n"
+	       "expected %d, received  %d\n",
+	       myrank,SEND(k,myrank),nsent);
+      recv_buff_pos_end = recv_buff + SEND(source,myrank);
+      while (recv_buff_pos < recv_buff_pos_end ) {
+	unpack(p.first,p.second,recv_buff_pos);
+	//        PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
+	//  		  p.first,p.second);
+	combine(p);
+      }
+      delete[] recv_buff;
+    }
   }
-#endif
 
   // Delete all sent and received buffers
   for (k=0; k<size; k++) {

@@ -1,13 +1,14 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.4 2001/07/31 20:06:12 mstorti Exp $
+// $Id: distmap.cpp,v 1.5 2001/08/10 17:22:38 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <cmath>
 
 #include "../../src/distmap.h"
 #include <petsc.h>
 
-int SIZE, MYRANK, M;
+int SIZE, MYRANK, M, SCHED_ALG;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Test for the distributed map class
@@ -85,12 +86,12 @@ int main(int argc,char **argv) {
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
 
-  if (argc!=4) {
+  if (argc!=5) {
     PetscPrintf(PETSC_COMM_WORLD,"argc: %d\n",argc);
     for (j=0; j < argc; j++) {
       PetscPrintf(PETSC_COMM_WORLD,"argv[%d]: \"%s\"\n",j,argv[j]);
     }
-    PetscPrintf(PETSC_COMM_WORLD,"usage: distmap.bin N M tol\n");
+    PetscPrintf(PETSC_COMM_WORLD,"usage: distmap.bin N M tol sched_alg\n");
     PetscFinalize();
     exit(0);
   }
@@ -98,13 +99,15 @@ int main(int argc,char **argv) {
   sscanf(argv[1],"%d",&M);
   sscanf(argv[2],"%d",&N);
   sscanf(argv[3],"%lf",&tol);
+  sscanf(argv[4],"%d",&SCHED_ALG);
 
-  PetscPrintf(PETSC_COMM_WORLD,"Args: M %d, N %d, tol %g\n",
-	      M,N,tol);
+  PetscPrintf(PETSC_COMM_WORLD,"Args: M %d, N %d, tol %g, sched %d\n",
+	      M,N,tol,SCHED_ALG);
 
   MPI_Bcast (&M, 1, MPI_INT, root,MPI_COMM_WORLD);
   MPI_Bcast (&N, 1, MPI_INT, root,MPI_COMM_WORLD);
   MPI_Bcast (&tol, 1, MPI_DOUBLE, root,MPI_COMM_WORLD);
+  MPI_Bcast (&SCHED_ALG, 1, MPI_INT, root,MPI_COMM_WORLD);
   
   vec.resize(M,0);
   vecc.resize(M,0);
