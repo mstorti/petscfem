@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.9 2001/08/16 03:54:24 mstorti Exp $
+// $Id: distmat.cpp,v 1.10 2001/08/16 18:01:33 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -24,8 +24,22 @@ public:
   };
 };
 
+int new_seed (int seed) {
+  const int a = 0xe66d5dee;
+  const int c = 0x775348bd;
+  return (a * seed + c);
+}
+
 #define MAT(i,j) VEC2(mat,i,j,M)
+#define MATC(i,j) VEC2(matc,i,j,M)
 int main(int argc,char **argv) {
+#if 0
+  int seed = time (0);
+  for (int j=0; j<1000; j++) {
+    printf("seed: %d %x\n",seed,seed);
+    seed = new_seed(seed);
+  }
+#endif
   TrivialPartitioner part;
     
   int j,k,N,row,col,root=0,debug_v;
@@ -34,7 +48,6 @@ int main(int argc,char **argv) {
   Maximizer< pair<int,int> > maxerr;
   pair<int,int> p;
 
-  srand (time (0));
   /// Initializes MPI
   PetscInitialize(&argc,&argv,0,0);
 
@@ -42,6 +55,11 @@ int main(int argc,char **argv) {
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
+
+  // Rotate seeds
+  int seed = time (0);
+  for (int rank=0; rank<MYRANK; rank++) seed = new_seed(seed);
+  srand (seed);
 
   if (argc!=5) {
     PetscPrintf(PETSC_COMM_WORLD,"argc: %d\n",argc);
@@ -93,14 +111,14 @@ int main(int argc,char **argv) {
       err = 0;
       for (k=0; k<M; k++) {
 	e = S.val(j,k);
-	w = MAT(j,k);
+	w = MATC(j,k);
 	err = maxd(2,err,fabs(e-w));
 	p.first=j;
 	p.second=k;
 	maxerr.scan(p,fabs(e-w));
-//  	if (w!=0) 
-//  	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-//  				  "(%d,%d) desired %f, found %f\n",j,k,w,e);
+	if (debug_v && (w!=0 || e!=0)) 
+	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+				  "(%d,%d) desired %f, found %f\n",j,k,w,e);
       }
     }
   }
@@ -112,8 +130,8 @@ int main(int argc,char **argv) {
   MPI_Reduce(&err,&errb,1,MPI_DOUBLE,MPI_MAX,root,MPI_COMM_WORLD);
   PetscPrintf(PETSC_COMM_WORLD,
 	      "max error over all processors -> %g\n"
-	      "error < tol OK ? > %d\n",
-	      errb,errb<tol);
+	      "error < tol OK ? %s\n",
+	      errb,(errb<tol ? "yes" : "no"));
 
   PetscFinalize();
   delete[] mat;

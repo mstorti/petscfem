@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.8 2001/08/13 00:12:43 mstorti Exp $
+// $Id: distmap.cpp,v 1.9 2001/08/16 18:01:33 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -25,7 +25,7 @@ public:
 // Simply returns the size of the int+ double
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DistMap<int,double,TrivialPartitioner>
-::size_of_pack(const map<int,double>::iterator iter) const {
+::size_of_pack(map<int,double>::const_iterator iter) const {
   return sizeof(int)+sizeof(double);
 }
 
@@ -77,7 +77,7 @@ typedef DistMap<int,double,TrivialPartitioner> Map;
 int main(int argc,char **argv) {
   int j,N,row,root=0;
   double d,e,err,errb,tol;
-  DistMap<int,double,TrivialPartitioner>::Scheduling s;
+  Map::Scheduling s;
   TrivialPartitioner part;
   
   map<int,double>::iterator k;
@@ -123,7 +123,7 @@ int main(int argc,char **argv) {
   vec.resize(M,0);
   vecc.resize(M,0);
 
-  DistMap<int,double,TrivialPartitioner> S(&part);
+  Map S(&part);
   S.sched = s;
   for (int j=0; j<N; j++) {
     row = int(double(rand())/double(RAND_MAX)*double(M));
