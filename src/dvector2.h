@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.22 2004/12/14 18:05:50 mstorti Exp $
+// $Id: dvector2.h,v 1.23 2004/12/22 19:10:12 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -233,7 +233,8 @@ dvector<T>& dvector<T>::read(FILE *fid) {
     int ierr = read(fid,ref(j));
     assert(!ierr);
   }
-  recompute_shape();
+  if (shape.size()) 
+    recompute_shape();
   return *this;
 }
 
@@ -262,7 +263,8 @@ dvector<T>& dvector<T>::cat(FILE *fid) {
     push(val);
     nread++;
   }
-  recompute_shape();
+  if (shape.size()) 
+    recompute_shape();
   return *this;
 }
 
