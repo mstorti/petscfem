@@ -1,0 +1,68 @@
+xmin = min(xnod);
+xmax = max(xnod);
+tol  = 1e-6;
+nodes_in  = find(abs(xnod(:,1)-xmin(1))<tol);
+nodes_out = find(abs(xnod(:,1)-xmax(1))<tol);
+nodes_top = find(abs(xnod(:,2)-xmax(2))<tol);
+nodes_bot = find(abs(xnod(:,2)-xmin(2))<tol);
+
+## input velocity
+vaux = [];
+nodes = nodes_in;
+vaux = [nodes , 1*ones(length(nodes),1) , 1*ones(length(nodes),1) \
+	];
+vaux = [vaux;[nodes , 2*ones(length(nodes),1) , 0*ones(length(nodes),1) \
+	]];
+asave("bcconv_test.fixa_in.tmp",vaux);
+
+## output pressure
+vaux = [];
+nodes = nodes_out;
+vaux = [nodes , (ndim+1)*ones(length(nodes),1) , pout*ones(length(nodes),1) \
+	];
+asave("bcconv_test.fixa_out.tmp",vaux);
+
+## non-slip velocity at top and bottom
+if 1,
+vaux = [];
+nodes =  [nodes_top;nodes_bot];
+vaux = [nodes , 1*ones(length(nodes),1) , 1*ones(length(nodes),1) \
+	];
+vaux = [vaux ;[nodes , 2*ones(length(nodes),1) , 0*ones(length(nodes),1) \
+      ]]; 
+asave("bcconv_test.fixa_wall.tmp",vaux);
+endif
+
+## bcconv 
+vaux=[];
+
+nodes = nodes_in;
+N = length(nodes);
+idir = (1:N-1);
+vaux = [vaux;[nodes(idir+1),nodes(idir)]];
+
+nodes = nodes_top;
+N = length(nodes);
+idir = (1:N-1);
+vaux = [vaux;[nodes(idir),nodes(idir+1)]];
+
+nodes = nodes_bot;
+N = length(nodes);
+idir = (1:N-1);
+vaux = [vaux;[nodes(idir+1),nodes(idir)]];
+
+nodes = nodes_out;
+N = length(nodes);
+idir = (1:N-1);
+vaux = [vaux;[nodes(idir),nodes(idir+1)]];
+
+asave("bcconv_test.bcconv.tmp",vaux);
+
+## write mesh
+asave("bcconv_test.nod.tmp",xnod);
+asave("bcconv_test.con.tmp",icone);
+
+uini = ones(numnp,1)*[1,0,0];
+asave("bcconv_test.ini.tmp",uini);
+
+return

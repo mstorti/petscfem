@@ -1,0 +1,120 @@
+<:
+# Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/../petscfem/test/eperlini.pl";
+#
+$case = $ENV{'case'};
+$H = 1;                         # Depth of the fluid
+$R = 1;                         # Radius of the container
+$Rint = 0.;                     # Internal radius (should be 0)
+$g = 0;                         # Gravity
+$Nr = 10;                       # Number of elements in r dir
+$Nz = 10;
+$dz = 0.1;
+$nlay = 3;
+$yratio = 1;                    # Ratio between bottom and surface elements
+$ndim = 3;                      # Number of spatial dims
+$rho = 1;                       # Density
+ 
+$nu = 0.1;
+$nstep = 10;                   # Number of time steps
+$Dt   = 1;
+$pin  = 2;
+$pout = 1;
+$uin  = 1;
+
+$mesh_triangle=0;
+$weak_form=1;
+
+octave_export_vars(">data.m.tmp",qw(H R Nz Nr yratio Rint ndim rho
+            nstep nu Dt pin pout uin dz nlay mesh_triangle weak_form));
+sub pr {
+    my $v = shift();
+    print "rockns.$v ${$v}";
+}
+:>//                            # Ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+
+ndim <:=$ndim:>
+
+alpha 1.0
+<:pr('nstep'):>
+nnwt 3
+tol_newton 1e-8
+steady 1
+<:pr('Dt'):>
+temporal_stability_factor 0
+
+LES 0
+
+## axisymmetric key
+#axi 3
+
+nsave 1
+initial_state "bcconv_test_3d.ini.tmp"
+save_file "bcconv_test_3d.state.tmp"
+
+#if 1
+solver "iisd_petsc"
+#else
+solver "petsc"
+verify_jacobian_with_numerical_one
+#endif
+#print_linear_system_and_stop
+#solve_system 0
+tau_fac 1
+viscosity <:=$nu:>
+gravity <:=$g:>
+
+# todavia no tenemos el weak form para k-e (???)
+weak_form <:=$weak_form:>
+
+#print_some_file bcconv_test_3d.some.tmp
+#save_file_some bcconv_test_3d.some_rslt.tmp
+#nsome 1
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  <:=$ndim:> <:=$ndim:> <:=$ndim+1:>
+__INCLUDE__ bcconv_test_3d.nod.tmp
+__END_NODES__
+
+#if 1
+#===========================================================
+elemset nsi_tet_les_fm2 <:=($ndim==2 ? 4 : 8):>
+geometry cartesian<:=$ndim:>d
+npg <:=($ndim==2 ? 4 : 8):>
+__END_HASH__
+__INCLUDE__ bcconv_test_3d.con.tmp
+__END_ELEMSET__
+#endif
+
+#if $weak_form==1
+#if $mesh_triangle==1 
+elemset bcconv_ns_fm2 3
+geometry triangle
+npg 3
+__END_HASH__
+__INCLUDE__ bcconv_test_3d.bcconv.tmp
+__END_ELEMSET__
+#else
+elemset bcconv_ns_fm2 4
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ bcconv_test_3d.bcconv.tmp
+__END_ELEMSET__
+#endif
+#endif
+
+end_elemsets
+
+fixa
+__INCLUDE__ bcconv_test_3d.fixa_in.tmp
+__INCLUDE__ bcconv_test_3d.fixa_out.tmp
+__INCLUDE__ bcconv_test_3d.fixa_wall.tmp
+__END_FIXA__
+
