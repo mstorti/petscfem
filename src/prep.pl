@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#__INSERT_LICENSE__
 
 sub template_subst {
     $text = shift();
@@ -118,7 +119,7 @@ sub gen_sum_all {
 	    'aux=fabs(**pa++); if (aux<val) val=aux',copg(qw(sum fun abs)));
 }
 
-sub export_array{
+sub export_vals_array{
     ## export to Newmat as right-value
     print template_subst($export_array,
 			 {'CONST'=>'const',

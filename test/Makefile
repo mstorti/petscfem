@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.15 2001/03/28 16:34:20 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.16 2001/04/01 03:11:28 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \

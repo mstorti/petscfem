@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.3 2001/01/03 13:51:11 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.4 2001/04/01 03:11:15 mstorti Exp $ 
 
 .PHONY: homof sqcav21 force
 run: sqcav

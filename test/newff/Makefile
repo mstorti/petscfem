@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.9 2001/03/31 23:52:37 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.10 2001/04/01 03:11:41 mstorti Exp $ 
 
 .PHONY: force all run tests data
 

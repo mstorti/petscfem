@@ -1,4 +1,5 @@
-#$Id: Makefile,v 1.14 2001/03/31 23:52:31 mstorti Exp $
+#__INSERT_LICENSE__
+#$Id: Makefile,v 1.15 2001/04/01 03:10:57 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 

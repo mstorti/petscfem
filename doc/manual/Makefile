@@ -1,3 +1,4 @@
+#__INSERT_LICENSE__
 # doc/manual/Makefile for DOC++
 # Copyright (c) 1999 Dragos Acostachioaie
 

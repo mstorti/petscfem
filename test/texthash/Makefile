@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.1 2001/03/03 08:21:03 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.2 2001/04/01 03:11:48 mstorti Exp $ 
 
 #s Local Targets
 #w Runs the test

@@ -1,3 +1,4 @@
+#__INSERT_LICENSE__
 PETSCFEM_DIR = ..
 
 SRCS = tryme.cpp getarraypars.tab.c

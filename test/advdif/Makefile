@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.21 2001/03/28 16:34:25 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.22 2001/04/01 03:11:29 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 

@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.3 2001/01/20 10:15:29 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.4 2001/04/01 03:11:38 mstorti Exp $ 
 
 .PHONY: fstack force
 

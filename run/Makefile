@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.2 2001/01/02 22:28:14 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.3 2001/04/01 03:11:09 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest gprof

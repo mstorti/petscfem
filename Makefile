@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.19 2001/04/01 01:34:32 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.20 2001/04/01 03:10:39 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \

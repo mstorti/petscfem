@@ -1,4 +1,5 @@
- # $Id: Makefile,v 1.3 2001/01/02 22:27:55 mstorti Exp $ 
+#__INSERT_LICENSE__
+ # $Id: Makefile,v 1.4 2001/04/01 03:10:43 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 

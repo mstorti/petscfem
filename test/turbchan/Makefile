@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.3 2001/03/03 08:21:06 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.4 2001/04/01 03:11:53 mstorti Exp $ 
 
 CASE = turbchan
 #s Local Targets

@@ -1,4 +1,5 @@
-#$Id: Makefile,v 1.3 2001/01/23 13:26:12 mstorti Exp $
+#__INSERT_LICENSE__
+#$Id: Makefile,v 1.4 2001/04/01 03:10:58 mstorti Exp $
 
 EPS = $(patsubst %.obj, %.eps, $(wildcard *.obj))
 EPS_F = $(patsubst %.fig, %.eps, $(wildcard *.fig))

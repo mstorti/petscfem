@@ -1,3 +1,4 @@
+#__INSERT_LICENSE__
 run: sttfilter
 	sttfilter
 

@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.4 2001/03/03 14:08:29 mstorti Exp $ 
+#__INSERT_LICENSE__
+# $Id: Makefile,v 1.5 2001/04/01 03:11:54 mstorti Exp $ 
 
 CASE = turbchanw
 tests: heat swturb
