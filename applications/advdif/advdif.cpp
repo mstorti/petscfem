@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.38 2002/03/01 21:03:48 mstorti Exp $
+//$Id: advdif.cpp,v 1.39 2002/03/06 01:02:44 mstorti Exp $
 
 #include <set>
 
@@ -60,18 +60,13 @@ int main(int argc,char **args) {
   // elemsetlist =  da_create(sizeof(Elemset *));
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
-
-  // Start registering functions
-  // Amplitude::initialize_function_table();
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "-------- Generic Advective-Diffusive  module ---------\n");
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-//    MPI_Comm_size(PETSC_COMM_WORLD,&size);
-//    MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-
-      //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
   ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,

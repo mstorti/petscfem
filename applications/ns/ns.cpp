@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.64 2002/02/20 22:12:43 mstorti Exp $
+//$Id: ns.cpp,v 1.65 2002/03/06 01:02:48 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -91,6 +91,7 @@ int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
+  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
