@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat4.cpp,v 1.2 2004/07/07 16:56:25 rodrigop Exp $
+// $Id: pfmat4.cpp,v 1.2.4.1 2004/07/19 16:40:48 rodrigop Exp $
 
 // Tests for the `PFMat' class
 
@@ -84,5 +84,6 @@ int main(int argc,char **args) {
   ierr = VecAssemblyEnd(b); CHKERRA(ierr);
   ierr = A.solve(b,x); CHKERRA(ierr); 
   ierr = VecView(x,PETSC_VIEWER_STDOUT_SELF);
+  A.clear();
   PetscFinalize();
 }

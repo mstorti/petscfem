@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat6.cpp,v 1.2.4.1 2004/07/16 17:51:07 rodrigop Exp $
+// $Id: pfmat6.cpp,v 1.2.4.2 2004/07/19 16:40:48 rodrigop Exp $
 
 // Tests for the `PFMat' class
 
@@ -46,7 +46,8 @@ int main(int argc,char **args) {
   part.N = N;
   MY_RANK = myrank;
   SIZE = size;
-  IISDMat AA(N,N,part,PETSC_COMM_WORLD);
+  //  IISDMat AA(N,N,part,PETSC_COMM_WORLD);
+  PETScMat AA(N,N,part,PETSC_COMM_WORLD);
   PFMat &A = AA;
   //  A.set_option("iisd_subpart",1);
   //  A.set_option("use_interface_full_preco",1);
@@ -55,7 +56,7 @@ int main(int argc,char **args) {
   A.set_option("rtol",1e-9);
   A.set_option("atol",1.e-14);
   A.set_option("dtol",1.e5);
-  A.set_option("maxits",400);
+  A.set_option("Krylov_dim",50);
   //  A.set_option("print_fsm_transition_info",0);
   A.set_option("use_compact_profile",0);
   A.set_option("print_internal_loop_conv",1);
@@ -106,7 +107,7 @@ int main(int argc,char **args) {
   ierr = VecCreateMPI(PETSC_COMM_WORLD,
 		      nhere,PETSC_DETERMINE,&b); CHKERRA(ierr); 
   ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
-  fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/stokes_b.dat","r");
+  fid = fopen("/u/rodrigop/PETSC/TEST_BETO_BUSCAGLIA/stokes_b.dat","r");
   for (int j=0; j<N; j++) {
     double v;
     nread = fscanf(fid,"%lf",&v);
@@ -121,6 +122,7 @@ int main(int argc,char **args) {
     ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Solving system\n");CHKERRA(ierr);
   }
   ierr = A.solve(b,x); CHKERRA(ierr); 
-  //  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
+  //  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr); 
+  A.clear();
   PetscFinalize();
 }
