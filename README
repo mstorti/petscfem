@@ -20,7 +20,7 @@ SYNOPSIS
     directory of the distribution.
 
 LICENSE
-    This file belongs to the PETSc - FEM package a library and application
+    This file belongs to he PETSc - FEM package a library and application
     suite oriented to the Finite Element Method based on PETSc. Copyright
     (C) 1999, 2000 Mario Alberto Storti
 
@@ -42,7 +42,7 @@ INSTALLATION
   Platforms
 
     Currently, PETSc-FEM is known to run only on Beowulf class clusters
-    based on Intel processors, running the GNU/Linux OS. Of course, you can
+    based on Intel processors, running the GNU/Linux OS. Off course, you can
     also install PETSc-FEM in a single Linux box, for use in sequential
     (i.e. non-parallel) mode or either for simulating parallel runs, by
     launching several processes in the same processor. (This is a feature of
@@ -129,13 +129,13 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-1.7.tar.gz* package, gunzip and untar it
-    like this:
+    Once you got the *petscfem-beta-1.53.tar.gz* package, gunzip and untar
+    it like this:
 
-      $ gunzip petscfem-beta-1.7.tar.gz
-      $ tar xvf petscfem-beta-1.7.tar
+      $ gunzip petscfem-beta-1.53.tar.gz
+      $ tar xvf petscfem-beta-1.53.tar
 
-    This will create a *petscfem-beta-1.7* directory with all the source
+    This will create a *petscfem-beta-1.53* directory with all the source
     files included.
 
   Makefile variables

@@ -36,7 +36,7 @@ alpha 1.
 tau_fac <:=$tau_fac:>
 
 #solve_system 0
-print_linear_system_and_stop
+#print_linear_system_and_stop
 
 weak_form 0
 

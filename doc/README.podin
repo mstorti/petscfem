@@ -7,6 +7,8 @@ programs.
 
 %================================================================
 
+<:=`cat banner`:>
+
 =head1 NAME
 
 PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program 
@@ -212,7 +214,7 @@ The C<PROF_FLAGS> variables allows you to turn on profiling. By default, profili
 
 =item *
 
-The reamining are Makefile variables that point to directories
+The remaining are Makefile variables that point to directories
 containing headers or libaries of required software. The lines come
 commented out and a line like this
 
@@ -245,9 +247,15 @@ version without having to reenter the variables.
 
 C<cd> to directory C<$(PETSCFEM_DIR)> and do 
 
-  $ make newdepend
+  $ make depend
   $ make libpetscfem        # to build the library
   $ make all                # to build the library and all the modules
+
+also
+
+  $ make what
+
+can help you on other useful targets.
 
 If nothing goes wrong you will end with a F<src/libpetscfem.a> library
 and application binaries (ending in C<.bin>) in their respective

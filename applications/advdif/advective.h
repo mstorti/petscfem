@@ -147,7 +147,7 @@ private:
 public:
   const NewElemset *elemset;
   NewAdvDifFF(NewElemset *elemset_) : elemset(elemset_) {};
-  virtual void start_chunk(int ret_options) =0;
+  virtual void start_chunk(int &ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2001/03/30 15:24:02 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/03/30 21:53:36 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -56,7 +56,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
 			-case newff.depl > newff.out
-	octave -q verif.m #>$(CASE).vrf.tmp
+	octave -q verif.m >$(CASE).vrf.tmp
 
 local_clean::
 	-chmod +w newff.data.res

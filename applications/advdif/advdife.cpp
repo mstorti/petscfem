@@ -210,7 +210,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,lumped_mass,0);
 
   // Initialize flux functions
-  int ret_options;
+  int ret_options=0;
   adv_diff_ff->start_chunk(ret_options); 
 
   int nlog_vars;

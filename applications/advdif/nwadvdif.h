@@ -285,7 +285,7 @@ public:
   ScalarDifPerField scalar_dif_per_field;
 
   newadvecfm2_ff_t(NewAdvDif *elemset);
-  void start_chunk(int ret_options);
+  void start_chunk(int &ret_options);
   void element_hook(ElementIterator &element);
   void compute_flux(COMPUTE_FLUX_ARGS);
   void comp_A_grad_N(FastMat2 & A,FastMat2 & B) {

@@ -421,10 +421,13 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::start_chunk(int ret_options)"
-void newadvecfm2_ff_t::start_chunk(int ret_options) {
+void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   int ierr;
 
-  EGETOPTDEF(elemset,int,ndim,0); //nd
+  EGETOPTDEF_ND(elemset,int,ndim,0); //nd
+
+  //o Scale the SUPG upwind term. 
+  EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
   elemset->elem_params(nel,ndof,nelprops);
   Uintri.resize(2,ndof,ndim);
@@ -443,7 +446,9 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   //  _END
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
 
-  //o Set diffusive jacobian to the desired type
+  //o Set advective jacobian to the desired type. May be one of 
+  // ``null'', ``global_vector'', ``vector_per_field'' or ``full''. 
+  // See documentation for the \verb+advective_jacobians+ option. 
   EGETOPTDEF(elemset,string,advective_jacobians_type,string("undefined"));
   string advective_jacobians_type_s = advective_jacobians_type;
 

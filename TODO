@@ -3,7 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Add a "mass" tot he advective dffusive eq.??
+* Cambiar la licencia en todos los archivos
+* Add a "mass" to the advective dffusive eq.??
 * Add weak_form support to the new flux functions
 * Write a test for linear advection diffusion
 * Include an S_body for ffadvfm2

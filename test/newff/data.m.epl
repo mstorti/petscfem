@@ -192,7 +192,7 @@ steady=1;
 full_jacs=2;
 Dt=1e7;
 nstep=1;
-tol=0.01;
+tol=0.04;
 nx=16;
 kx=1;
 ky=0;
@@ -211,7 +211,7 @@ s=1;
 sfluc=0;
 source_type="full";
 fix_some_node=1;
-tau_fac=0;
+#tau_fac=0;
 #else 
 <:die("not implemented test case '$CASE'"):>
 #endif

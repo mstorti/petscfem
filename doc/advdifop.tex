@@ -1,5 +1,19 @@
 %section advective_jacobians
-Jacobian of advective fluxes. If of length \verb+double[ndim]+ then it
+Jacobian of advective fluxes. That means 
+
+\begin{equation} 
+   A_{j\mu\nu} = \dep {\F^\conv_{i\mu}}{U_\nu}
+\end{equation}
+
+The full jacobian has \verb+ndim*ndof*ndof+ components, but in many
+cases the Jacobian is not full:
+%
+
+\begin{description}
+
+\end{description}
+
+If of length \verb+double[ndim]+ then it
 is a velocity vector equal for all fields (stored in the order $u_i,
 i=1,\dots,\ndim$).  If of length \verb+double[ndim*ndof]+ then it is a
 velocity vector per field (stored in the order
