@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.90 2004/07/29 13:41:04 mstorti Exp $ 
+# $Id: Makefile,v 1.91 2004/07/30 22:12:28 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -25,8 +25,8 @@ PROG := $(NS)
 CASE := $(CASE_NAME)
 ################################################################
 ifeq (1,1)
-NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-# NP := $(shell procsel -n ./proctable)
+# NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+NP := $(shell procsel -n ./proctable)
 NL := -nolocal
 MCH := -machinefile ./machi.dat
 endif
@@ -43,7 +43,8 @@ NL :=
 MCH := -machinefile ./machi.dat
 NP := 1
 endif
-NP := 2
+
+# NP := 2
 export NP
 
 run_subdir_test:
@@ -65,7 +66,8 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl \
+		-log_info -log_summary
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -179,4 +181,4 @@ pj:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=10 run
+	$(MAKE) N=30 run
