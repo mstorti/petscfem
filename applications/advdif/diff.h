@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: diff.h,v 1.5 2002/04/26 20:24:18 mstorti Exp $
+// $Id: diff.h,v 1.6 2002/09/08 16:28:07 mstorti Exp $
 #ifndef DIFF_H
 #define DIFF_H
 
@@ -59,7 +59,8 @@ class DiffFF {
       @param w (input) scalar weight
   */ 
   virtual void comp_N_Cp_N(FastMat2 &N_Cp_N,FastMat2 &N,double w)=0;
-
+  /** Destructor
+   */ 
   virtual ~DiffFF()=0;
 };
 
@@ -72,6 +73,8 @@ class Diff : public NewElemset {
       physics are obtained by redefining the flux function
   */
   DiffFF *diff_ff;
+  /// The actual time
+  double time_m;
 public:
   /// Contructor from the pointer to the fux function
   Diff(DiffFF *diff_ff_=NULL) : diff_ff(diff_ff_) {};
@@ -81,6 +84,10 @@ public:
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
   ASK_FUNCTION;
+  /** Returns the actual time. 
+      @return actual time
+  */ 
+  double time() const { return time_m; };
 };
 
 

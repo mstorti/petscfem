@@ -1,19 +1,16 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.55 2002/08/05 03:05:30 mstorti Exp $ 
+# $Id: Makefile,v 1.56 2002/09/08 16:28:11 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PETSCFEM_DIR = ..
 
 # Add new files here
-LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
-          fastmat utils getprop \
-	  dofmap fem idmap arglist version util2 \
-	  fstack tempfun tempfun2 fastmat2 fm2eperl \
-	  measperf mainutl sttfilter state secant getarray \
-	  distmat sparse randomg spsolve texthf timestat \
-	  metisprt debug graph iisdcr iisdgraph iisdmat petscmat spdirect \
-	  pfmat amplidl graphdv linkgraph
+LIBOBJS_ = amplidl arglist debug distmat dofmap elemlist elemset fastmat fastmat2	\
+fem fm2eperl fstack getarray getprop gpdata graph graphdv idmap iisdcr			\
+iisdgraph iisdmat linkgraph mainutl measperf metisprt petscmat pfmat			\
+propef randomg readmesh secant sparse spdirect spsolve state sttfilter			\
+tempfun tempfun2 texthash texthf timestat util2 utils version
 
 # C files
 CLIBOBJS_ =  getarrgr.tab

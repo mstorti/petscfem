@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.11 2002/09/02 16:14:02 mstorti Exp $
+//$Id: aquifer.cpp,v 1.12 2002/09/08 16:28:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -25,8 +25,9 @@ void aquifer_ff::start_chunk() {
   assert(ndof==1);
 
   // elemset->get_prop(eta_pr,"eta");
-  elemset->get_prop(K_pr,  "K");
-  elemset->get_prop(S_pr,  "S");
+  elemset->get_prop(K_pr,"K");
+  elemset->get_prop(S_pr,"S");
+  elemset->get_prop(rain_pr,"rain");
 
   tmp.resize(2,ndim,nel);
   tmp1.resize(2,nel,nel);
@@ -47,16 +48,12 @@ void aquifer_ff::end_chunk() {
 void aquifer_ff::element_hook(ElementIterator &element) {
   S = elemset->prop_val(element,S_pr);
   K = elemset->prop_val(element,K_pr);
-#if 0
-  eta = elemset->prop_val(element,eta_pr);
-  int p,q;
-  element.position(p,q);
-  printf("element: %d, eta %f\n",p,eta);
-#endif
+  element_m = element;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void aquifer_ff::gp_hook(int ipg,const FastMat2 &U,const FastMat2 &grad_U) {
+  rain = elemset->prop_val(element_m,rain_pr,elemset->time());
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

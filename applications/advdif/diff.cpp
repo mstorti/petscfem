@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.7 2002/04/26 20:24:18 mstorti Exp $
+//$Id: diff.cpp,v 1.8 2002/09/08 16:28:07 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -79,6 +79,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   double *retvalt;
+  time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 

@@ -1,5 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.48 2002/08/31 20:14:57 mstorti Exp $
+//$Id: elemset.cpp,v 1.49 2002/09/08 16:28:11 mstorti Exp $
+
+#ifdef USE_DLEF
+#include <dlfcn.h>
+#endif
 
 #include <vector>
 #include <set>
@@ -917,33 +921,16 @@ const char * Elemset::name() {
   return name_r.c_str();
 }
 
-void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
-  // looks int the properties-per-element table
-  props_hash_entry *phe = (props_hash_entry *)
-    g_hash_table_lookup(elem_prop_names,(void *)prop_name);
-  if(phe!=NULL) {
-  // If the name is found in the per element properties table
-  // (the line props in the text_hash_table) then we store the
-  // position in the table and the value will be loaded with
-  // 'load_props' for each element
-    prop.indx = phe->position;
-    prop.length = phe->width;
-  } else {
-    // If it was not found in the per element properties table then it
-    // should be found as a general property in the text_hash_table. 
-    int ierr = get_vec_double(prop_name,prop.val,0);
-    if (ierr) {
-      prop.ptr = NULL;
-      prop.length = 0;
-    } else {
-      prop.ptr = prop.val.begin();
-      prop.length = prop.val.size();
-    }
-  }
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double NewElemset::prop_val(ElementIterator &element,
+			    Property &prop,double t) const {
+  const double *val_p = prop_array(element,prop);
+  return prop.eval_fun(t,(val_p ? 0. : *val_p),prop.fun_data);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double NewElemset::prop_val(ElementIterator &element,Property &prop) const {
+double NewElemset::prop_val(ElementIterator &element,
+			    Property &prop) const {
   return *prop_array(element,prop);
 }
 
@@ -953,7 +940,7 @@ const double *NewElemset::prop_array(ElementIterator &element,
   if (prop.indx<0) {
     return prop.ptr;
   } else {
-    return (element_props(element)+prop.indx);
+    return element_props(element) + prop.indx;
   }
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.21 2002/08/31 20:14:57 mstorti Exp $
+//$Id: elemset.h,v 1.22 2002/09/08 16:28:11 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -528,18 +528,27 @@ public:
   vector<double> val;
   double *ptr;
   int length;
-  Property() : indx(-1), length(0), ptr(NULL) {val.clear();};
+  typedef void InitFun(TextHashTable *thash,void *&fun_data);
+  typedef double EvalFun(double t,double val,void *fun_data);
+  typedef void ClearFun(void *fun_data);
+
+  void *fun_data;
+  InitFun *init_fun;
+  EvalFun *eval_fun;
+  ClearFun *clear_fun;
+
+  Property() : indx(-1), length(0), ptr(NULL),
+  init_fun(NULL), eval_fun(NULL), clear_fun(NULL), fun_data(NULL) { val.clear(); };
 };
 
-#if 0
-class Property {
-public:
-  int indx;
-  double *val;
-  Property() : indx(-1), val(NULL) {};
-  ~Property() {if (val) delete[] val;};
-};
-#endif
+#define PROP_INIT_FUN(name) extern "C" \
+          void name##_init_fun(TextHashTable *thash,void *&fun_data)
+
+#define PROP_EVAL_FUN(name) extern "C" \
+          double name##_eval_fun(double t,double val,void *fun_data)
+
+#define PROP_CLEAR_FUN(name) extern "C" \
+          void name##_clear_fun(void *fun_data)
 
 /** This is an adaptor to the old Elemset class
     @author M. Storti
@@ -615,6 +624,7 @@ public:
   /// Creates a Property object from his name
   void get_prop(Property &prop,const char *prop_name,int n=1) const;
   double prop_val(ElementIterator &element,Property &prop) const;
+  double prop_val(ElementIterator &element,Property &prop,double t) const;
   const double *prop_array(ElementIterator &element,Property &prop) const;
 };
 

@@ -108,6 +108,7 @@ npg 4
 #
 <:pr('K'):> 
 <:pr('S'):>
+temp_fun[rain] ./rain.efn rain
 __END_HASH__
 __INCLUDE__ aqui.con.tmp
 __END_ELEMSET__

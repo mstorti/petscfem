@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.9 2002/09/02 16:14:02 mstorti Exp $
+// $Id: aquifer.h,v 1.10 2002/09/08 16:28:07 mstorti Exp $
 #ifndef AQUIFER_H
 #define AQUIFER_H
 
@@ -17,7 +17,7 @@ class aquifer_ff : public DiffFF {
   /**  Basic properties, vertical position of aquifer bottom, hydraulic
        permeability, storativity 
   */
-  Property eta_pr,K_pr,S_pr;
+  Property eta_pr,K_pr,S_pr,rain_pr;
   /// Values of properties at an element
   double phi,eta,K,S,rain,wet_aquifer_width_min;
   int dry_aquifer_stop;
@@ -29,6 +29,8 @@ class aquifer_ff : public DiffFF {
   int nel,ndof,nelprops;
   /// Auxiliary matrices
   FastMat2 tmp,tmp1,tmp2,tmp3;
+  // Stores element number for use at the Gauss point level
+  ElementIterator element_m;
 
 public:
   /** This is called before any other in a loop and may help in
