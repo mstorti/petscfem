@@ -2634,3 +2634,6 @@ tag: beta-3.18.pl68 on Fri, 11 Apr 2003 20:08:49 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.18.pl69 on Thu, 17 Apr 2003 07:49:30 -0300 by mstorti in spider
      > Works filter (heat eq.) with `qharmm'. 
+----------
+tag: beta-3.18.pl70 on Thu, 17 Apr 2003 19:51:01 -0300 by mstorti in spider
+     > Runs all tests after fixing some errors. 
