@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.3 2005/01/18 02:47:49 mstorti Exp $
+;;; $Id: dvector.scm,v 1.4 2005/01/18 15:23:29 mstorti Exp $
 (define-module (dvector))
 
 (load-extension "./libfemref" "dvint_init")
@@ -13,9 +13,22 @@
 	   (apply dvdbl-reshape! v shape))
 	  (#t (loop (* size (car q)) (cdr q))))))
 	   
+(define (dvdbl-set-with-filler v filler)
+  (let ((shape (dvdbl-shape v)))
+    (let loop ((q shape)
+	       (indx '()))
+      (cond ((null? q) 
+	     (dvdbl-set! v (reverse indx) 
+			 (filler (reverse indx))))
+	    (#t (let ((n (car q)))
+		  (do ((j 0 (+ j 1))) ((= j n))
+		    (loop (cdr q) (cons j indx)))))))))
+
 (define-public (dvdbl-set! v . args)
   (cond ((= (length args) 2) (apply dvdbl-set-w2 v args))
-	(#t (apply dvdbl-set-w1 v args))))
+	(#t (let ((arg (car args)))
+	      (cond ((procedure? arg) (dvdbl-set-with-filler v arg))
+		    (#t (apply dvdbl-set-w1 v args)))))))
 
 (define-public (dvdbl-apply! v fun)
   (let ((n (dvdbl-size v)))

@@ -1,14 +1,7 @@
-;;; $Id: getsurf.scm,v 1.15 2005/01/18 02:47:49 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.16 2005/01/18 15:23:29 mstorti Exp $
 (load "./femref.scm")
 (use-modules (dvector))
-
-(define (ddump s v)
-  (format #t "\n\n~A: \n" s)
-  (dvdbl-dump v))
-
-(define (idump s v)
-  (format #t "~A: \n" s)
-  (dvint-dump v))
+(load "./utils.scm")
 
 (define ctx (make-get-surf-ctx))
 (define icone (make-dvint))
