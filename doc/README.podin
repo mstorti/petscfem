@@ -150,7 +150,7 @@ marginally different from the C<C> version. If you want to specify your
 own C<eperl> preprocessor then you have to modify the C<EPERL>
 variable in C<Makefiele.base>. The Perl version of ePerl is written
 and maintained by David Ljung Madison C<< <DaveSource.com> >>
-C<http://MarginalHacks.com>. 
+C<http://MarginalHacks.com>. License: GPL (See C<tools/eperl_license.txt>). 
 
 =item Perl
 
