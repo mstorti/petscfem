@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.8 2005/02/20 16:55:37 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.9 2005/02/21 00:07:14 mstorti Exp $
 
 #include <cassert>
 
@@ -68,6 +68,7 @@ void Dofmap::freeze() {
   sp_eq = sp_eq_dv.buff();
   coefs_dv.defrag();
   coefs = coefs_dv.buff();
+
 #if 0
   for (int node=1; node<=nnod; node++) {
     for (int kdof=1; kdof<=ndof; kdof++) {

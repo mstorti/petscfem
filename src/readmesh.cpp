@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.107 2004/09/25 23:11:39 mstorti Exp $
+//$Id: readmesh.cpp,v 1.108 2005/02/21 00:07:14 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1423,9 +1423,12 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
  	for (jel=0; jel<nel; jel++) {
  	  node = ICONE(iele,jel);
 	  for (kdof=1; kdof<=ndof; kdof++) {
-	    dofmap->get_row(node,kdof,row);
-	    for (kndx=row.begin(); kndx!=row.end(); kndx++) {
-	      int dof = kndx->first;
+	    int m;
+	    const int *dofs;
+	    const double *coefs;
+	    dofmap->get_row(node,kdof,m,&dofs,&coefs);
+	    for (int l=0; l<m; l++) {
+	      int dof = dofs[l];
 	      if (dof <= neq)
 		dof_here[dof-1]=1;
 	      if (dof <= neq && !(dof1 <= dof && dof <= dof2))
