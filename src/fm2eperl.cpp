@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.23 2002/12/09 03:23:01 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.24 2002/12/22 23:09:21 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -3918,132 +3918,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   }
   if (!use_cache) delete cache;
   return det_;
-}
-
-
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::inv(const FastMat2 & A) {
-
-  FastMatCache *cache;
-
-if (was_cached) {
-  cache = cache_list_begin[position_in_cache++];
-#ifdef FM2_CACHE_DBG
-  printf ("reusing cache: ");
-#endif
-} else if (!use_cache) {
-  cache = new FastMatCache;
-} else {
-  cache = new FastMatCache;
-  cache_list->push_back(cache);
-  cache_list_begin = cache_list->begin();
-  cache_list->list_size =
-    cache_list_size = cache_list->size();
-  position_in_cache++;
-#ifdef FM2_CACHE_DBG
-  printf ("defining cache: ");
-#endif
-}
-#ifdef FM2_CACHE_DBG
-printf(" cache_list %p, cache %p, position_in_cache %d\n",
-       cache_list,cache,position_in_cache-1);
-#endif
-;
-
-  if (!was_cached) {
-    Indx Adims;
-    A.get_dims(Adims);
-    int ndims = Adims.size();
-    assert (ndims==2);
-    assert (Adims[0] == Adims[1]);
-    int m= Adims[0];
-
-    if (!defined)
-      create_from_indx(Adims);
-      
-    Indx dims_;
-    get_dims(dims_);
-    assert(dims_ == Adims);
-
-    if (m<=3) {
-      cache->nelems=m*m;
-      cache->from_elems.resize(cache->nelems);
-      cache->pfrom=cache->from_elems.begin();
-      cache->to_elems.resize(cache->nelems);
-      cache->pto=cache->to_elems.begin();
-      int jj=0;
-      Indx indx(2,0);
-      for (int j=1; j<=m; j++) {
-	for (int k=1; k<=m; k++) {
-	  indx[0]=j;
-	  indx[1]=k;
-	  cache->pto[jj] = location(indx);
-	  cache->pfrom[jj] = A.location(indx);
-	  jj++;
-	}
-      }
-    } else {
-      cache->A = new Matrix(m,m);
-      cache->B = new Matrix(m,m);
-    }
-
-    // This I don't know if it's correct.
-    op_count.get += m*m;
-    op_count.put += m*m;
-    op_count.mult += m*m*m;
-    op_count.sum += m*m*m;
-
-  }
-
-  int m = this->dims_p[0].dim;
-  double det;
-  double **pfrom = cache->pfrom;
-  double **pto = cache->pto;
-#define A(i,j) (*pfrom[(i-1)*M+(j-1)])
-#define iA(i,j) (*pto[(i-1)*M+(j-1)])
-  if (m==1) {
-    **pto = 1. / **pfrom;
-  } else if (m==2) {
-#define M 2
-    det = A(1,1)*A(2,2)-A(1,2)*A(2,1);
-    iA(1,1) = A(2,2)/det;
-    iA(1,2) = -A(1,2)/det;
-    iA(2,1) = -A(2,1)/det;
-    iA(2,2) = A(1,1)/det;
-#undef M
-  } else if (m==3) {
-#define M 3
-    double c11,c21,c31;
-
-    c11 = A(2,2)*A(3,3)-A(2,3)*A(3,2);
-    c21 = A(2,3)*A(3,1)-A(2,1)*A(3,3);
-    c31 = A(2,1)*A(3,2)-A(2,2)*A(3,1);
-
-    det= A(1,1) * c11 + A(1,2) * c21 + A(1,3) * c31;
-
-    iA(1,1) = c11/det;
-    iA(1,2) = (A(3,2)*A(1,3)-A(3,3)*A(1,2))/det;
-    iA(1,3) = (A(1,2)*A(2,3)-A(1,3)*A(2,2))/det;
-	   
-    iA(2,1) = c21/det;
-    iA(2,2) = (A(3,3)*A(1,1)-A(3,1)*A(1,3))/det;
-    iA(2,3) = (A(1,3)*A(2,1)-A(1,1)*A(2,3))/det;
-	   
-    iA(3,1) = c31/det;
-    iA(3,2) = (A(3,1)*A(1,2)-A(3,2)*A(1,1))/det;
-    iA(3,3) = (A(1,1)*A(2,2)-A(1,2)*A(2,1))/det;
-#undef M
-  } else if (m>3) {
-    A.export_vals(*cache->A);
-    *cache->B = cache->A->i();
-    set(cache->B->Store());
-  }
-
-  if (!use_cache) delete cache;
-  return *this;
-#undef A
-#undef iA
 }
 
 

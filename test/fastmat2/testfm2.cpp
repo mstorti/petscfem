@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.9 2002/12/07 22:00:35 mstorti Exp $
+//$Id: testfm2.cpp,v 1.10 2002/12/22 23:09:25 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -95,7 +95,7 @@ int main() {
   FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
     Z69;
   FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
-    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80;
+    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80,Z81(2,5,5),Z82;
   double z76,z79;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
@@ -438,6 +438,10 @@ int main() {
       
       // Computes min of maximums over columns
       Z80.assoc(Z73,mm,-1,1);
+
+      // Computes inverse
+      Z81.set(0.1).d(1,2).set(2.).rs().setel(0.2,1,5);
+      Z82.inv(Z81);
     }
     FastMat2::void_cache();
   }
@@ -563,6 +567,10 @@ int main() {
   SHV(z79);
 
   SHV(mm.min_max);
+
+  SH(Z81);
+  SH(Z82);
+
 #undef SH
 
 }

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.58 2002/12/22 06:20:40 mstorti Exp $ 
+# $Id: Makefile,v 1.59 2002/12/22 23:09:21 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -17,7 +17,7 @@ timestat util2 utils version
 CLIBOBJS_ =  getarrgr.tab
 
 # Fortran files
-FLIBOBJS_ =  spline seval
+FLIBOBJS_ =  spline seval dgefa
 
 spline.o: spline.f
 ssval.o: seval.f
