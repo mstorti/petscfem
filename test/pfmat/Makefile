@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.12 2002/01/09 21:09:31 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.13 2002/01/10 08:21:36 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -10,7 +10,8 @@ SRCS = pfmat.cpp pfmat2.cpp
 
 LIB_OBJS := graph util2 iisdmat petscmat sparse spsolve distmat iisdcr \
 		iisdgraph spline seval debug texthash utils util2 fm2eperl \
-		fastmat2 fstack fem getprop mainutl dofmap idmap tempfun
+		fastmat2 fstack fem getprop mainutl dofmap idmap tempfun \
+		spdirect
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -26,33 +27,33 @@ pfmat.bin: $(LIB_OBJS_LIB) pfmat.o
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
-args = ne 40 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
+args = ne 20 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
-pfmat = out=output.$(3).m$(mtyp).tmp ; rm -f $$out ;	\
-	echo args: $(2) > $$out ;		\
-	$(MPIRUN) -np $(1) -machinefile		\
-        machi.dat ./pfmat.bin $(2)  >> $$out
+pfmat = rm -f $$out ;						\
+	echo " args: $$args > $$out ;				\
+	$(MPIRUN) -np $(1) -machinefile				\
+        machi.dat ./pfmat.bin $(2)  >> $$out " \
+	  $(call pfmat,$$np,$(call args,sbdp $$sbdp,	\
+			mtyp $$mtyp, ls 0)) ;		\
 
-pfmat: pfmat_petsc pfmat_slu
 
-pfmat_petsc:
-	$(MAKE) mtyp=0 pfmat_type
-
-pfmat_slu:
-	$(MAKE) mtyp=1 pfmat_type
-
-#w Several tests PFMat matrices
-pfmat_type:  pfmat.bin force
-#	Try all combinations of: np=1,2, iisd_subpart=1,10, mtyp=0,1
-	$(call pfmat,1,$(call args,sbdp 4, mtyp $(mtyp), ls 0),case1)
-	$(call pfmat,2,$(call args,sbdp 4, mtyp $(mtyp), ls 0),case2)
-	$(call pfmat,1,$(call args,sbdp 1, mtyp $(mtyp), ls 0),case3)
-	$(call pfmat,2,$(call args,sbdp 1, mtyp $(mtyp), ls 0),case4)
-#
-	$(call pfmat,1,$(call args,sbdp 4, mtyp $(mtyp), ls 1),case1s)
-	$(call pfmat,2,$(call args,sbdp 4, mtyp $(mtyp), ls 1),case2s)
-	$(call pfmat,1,$(call args,sbdp 1, mtyp $(mtyp), ls 1),case3s)
-	$(call pfmat,2,$(call args,sbdp 1, mtyp $(mtyp), ls 1),case4s)
+pfmat: 
+#	Try all combinations of: np=1,2, iisd_subpart=1,4, mtyp=0,1
+	for np in 1 2 ; do					\
+		for sbdp in 1 4 ; do				\
+			for mtyp in 0 1 2 3 4 ; do		\
+		if [ $$np -eq 1 -o $$mtyp -le 2  ] ; then	\
+	out=output.np$$np.sbpd$$sbdp.mtyp$$mtyp.tmp ;		\
+        rm -f $$out ;						\
+	args="ne 20 deb 0 nsl 2 sbdp $$sbdp  nmat 2 rnd		\
+		1 mtyp $$mtyp q 1" ;			\
+	echo  args: $$args > $$out ;				\
+	$(MPIRUN) -np $$np -machinefile				\
+        machi.dat ./pfmat.bin $$args  >> $$out  ;		\
+		fi ;						\
+			done ;					\
+		done ;						\
+	done 
 
 args2 = ne 100 deb 0 nsl 2 $(1) nmat 2 nprof 2 $(2) f 0.9
 
