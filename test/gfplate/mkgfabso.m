@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.4 2005/01/21 03:14:30 mstorti Exp $
+## $Id: mkgfabso.m,v 1.5 2005/01/21 17:10:46 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -27,7 +27,7 @@ pffixa("gfabso.fixa-outlet.tmp",outlet,4,pref)
 slip = (1:2*Nx+2)';
 slip = complement(inlet,slip);
 slip = complement(outlet,slip);
-pffixa("gfabso.fixa-slip.tmp",outlet,3)
+pffixa("gfabso.fixa-slip.tmp",slip,3)
 
 asave("gfabso.nod.tmp",xnod);
 asave("gfabso.con.tmp",icone);
@@ -43,13 +43,15 @@ Uref = [rhoref,uini,0,pref];
 ref = [Nx+1;2*Nx+2];
 pffixa("gfabso.fixa-ref.tmp",ref,1:4,Uref)
 
-asave("gfabso.some-nodes.tmp",(1:Nx+1)');
+asave("gfabso.some-nodes.tmp",(1:Nx-1)');
 
 nnod = size(xnod,1);
 Uini = Uref(ones(nnod,1),:);
 
 x = xnod(:,1);
+du = dufac*uini;
 Uini(:,2) = Uini(:,2) + du*exp(-((x-Lx/2)/sigma).^2);
+## Uini(:,2) = Uini(:,2) + dufac*uini;
 
 ## Nodes for Lagrange multipliers
 fic_lag = [Nx;2*Nx+1];

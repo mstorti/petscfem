@@ -7,11 +7,10 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 10000
+nstep 1000
 alpha 1.
 
 initial_state "gfabso.ini.tmp"
-# initial_state "gfabso.state-q0.tmp"
 # initial_state "gfabso.state.tmp"
 nsave 1
 save_file "gfabso.state.tmp"

@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.6 2005/01/21 03:14:26 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.7 2005/01/21 17:11:12 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -144,9 +144,9 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
 #define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,ndof,nel),res_pert(1,nr),U_pert(2,nel,ndof),
-    lambda_pert(3,nel-2,ndof,nr),_fd_jac(3,nr,ndof,nel);
+    lambda_pert(3,nel-2,ndof,nr),fd_jac(3,nr,ndof,nel);
   res_fd_jac.set(0.0);res_pert.set(0.0);U_pert.set(0.0);lambda_pert.set(0.0);
-  _fd_jac.set(0.0);
+  fd_jac.set(0.0);
 #endif
   
   FastMatCacheList cache_list;
@@ -192,11 +192,12 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
       for (int jdof=1; jdof<=ndof; jdof++) {
 	U_pert.set(U);      	
 	U_pert.addel(eps_fd,jele,jdof);
-	res(element,U_pert,res_pert,lambda_pert,_fd_jac);
+	res(element,U_pert,res_pert,lambda_pert,fd_jac);
 	res_pert.rest(r).scale(1./eps_fd);
 	res_fd_jac.ir(3,jele).ir(2,jdof).set(res_pert).rs();
       }
     }
+    eps_fd=1e-4; // para parar
 #endif	
   }
   FastMat2::void_cache();
@@ -247,16 +248,24 @@ void AdvDiff_Abs_Nl_Res::element_hook(ElementIterator &element){
   normaln.set(prop_array(element_m,normaln_prop));
 }
 
-void AdvDiff_Abs_Nl_Res::res(ElementIterator &element, FastMat2 &U, FastMat2 &r,
-			   FastMat2 &lambda, FastMat2 &jac) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void AdvDiff_Abs_Nl_Res::
+res(ElementIterator &element, FastMat2 &U, 
+    FastMat2 &r, FastMat2 &lambda, 
+    FastMat2 &jac) {
+
   lambda.ir(1,1).eye();
   lambda.rs();
   for (int j=1;j<=nel;j++) {
-    if (j==nel-1) continue; // Don't apply to node with Lagrange multipliers
+    // Don't apply to node with Lagrange multipliers
+    // It may be errors because of values out of range
+    // (i.e. negative values).
+    if (j==nel-1) continue; 
     U.ir(1,j);
     Ulocal.set(U);
     adv_diff_ff->set_state(Ulocal);
-    adv_diff_ff->Riemann_Inv(U,normaln,RI_tmp,drdU_tmp,C_U_tmp);
+    adv_diff_ff->Riemann_Inv(U,normaln,RI_tmp,
+			     drdU_tmp,C_U_tmp);
     if (j == nel) {
       U_ref.set(U);
       RI_ref.set(RI_tmp);
@@ -276,22 +285,30 @@ void AdvDiff_Abs_Nl_Res::res(ElementIterator &element, FastMat2 &U, FastMat2 &r,
     assert(c != 0.0);
     FastMat2::branch();
     if (c > 0.0){
+      // Outgoing wave. Value extrapolated
+      // from nodes #2...(nel-2)# must be equal to
+      // value at node 1.
       FastMat2::choose(0);
-      RI_.ir(2,j);
-      rj = RI_.get(j);
-      RI_.rs();
+      rj = RI_.get(j,1);
       RI_.ir(1,j);
-      for(int k=1;k<nel-2;k++) {
-	tmp = cpe.get(k); tmp2 = RI_.get(k+1);
+      drdU_.ir(1,j).ir(3,1);
+      jac.ir(1,j).ir(3,1).set(drdU_).rs();
+      drdU_.rs();
+      for(int k=1; k<nel-2; k++) {
+	tmp = cpe.get(k); 
+	tmp2 = RI_.get(k+1);
 	rj -= tmp*tmp2;
 	drdU_.ir(1,j).ir(3,k+1);
-       	jac.ir(1,j).ir(3,k+1).set(drdU_).scale(-tmp).rs();
+       	jac.ir(1,j).ir(3,k+1)
+	  .set(drdU_).scale(-tmp).rs();
 	drdU_.rs();
       }
       jac.ir(1,j).ir(3,nel-1).set(0.).rs();
       RI_.rs();
       r.setel(rj,j);
     } else {
+      // Incoming wave. Value at node 1
+      // must be equal to reference value. 
       FastMat2::choose(1);
       RI_.ir(2,1);
       tmp = RI_.get(j);tmp2 = RI_ref.get(j);

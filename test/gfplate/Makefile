@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2005/01/20 15:52:16 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2005/01/21 17:10:46 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -27,6 +27,7 @@ run:
 
 runa: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
+	echo -n > gfabso.some-rslt.tmp
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
