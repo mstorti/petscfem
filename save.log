@@ -4220,3 +4220,6 @@ tag: beta-3.45.9 on Mon, 28 Mar 2005 22:50:19 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.10 on Tue, 29 Mar 2005 01:02:01 -0300 by mstorti in spider
      > Running `cond_wall' with moving surfaces. 
+----------
+tag: beta-3.45.11 on Tue, 29 Mar 2005 09:47:24 -0300 by mstorti in minerva.ceride.gov.ar
+     > Runs example with sliding blade. 
