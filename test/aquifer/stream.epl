@@ -5,6 +5,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('casen',undef);
 get_var_env('fric',undef);
 get_var_env('shape',undef);
+if ($casen =~ /fun/) { $fun = $casen; }
 die "not defined friction model\n" unless $fric;
 die "not defined channel shape\n" unless $shape;
 $save_file = ($casen ? "$casen.state.tmp" : "stream.state.tmp");
@@ -102,7 +103,9 @@ __END_ELEMSET__
 
 end_elemsets
 
-#if 0
+#if $fun eq 'fun1'
+# We put two dl_generic blocks, so that there
+# are two objects and the `fun_data' is duplicated. 
 fixa_amplitude dl_generic
 ext_filename "./fun.efn"
 function_name "smramp"
@@ -111,7 +114,7 @@ f0 1.
 t1 1.8
 f1 0.5
 __END_HASH__
-# 1 1 1.
+ 1 1 1.
 __END_FIXA__
 
 fixa_amplitude dl_generic
@@ -125,8 +128,11 @@ __END_HASH__
 # 1 1 1.
 __END_FIXA__
 
+#elsif $fun eq 'fun2'
+# Two `dl_generic' blocks, on two different files.
+
 fixa_amplitude dl_generic
-ext_filename "./fun3.efn"
+ext_filename "./fun.efn"
 function_name "smramp"
 t0 0.
 f0 1.
@@ -136,6 +142,37 @@ __END_HASH__
 # 1 1 1.
 __END_FIXA__
 
+fixa_amplitude dl_generic
+ext_filename "./fun2.efn"
+function_name "smramp"
+t0 0.
+f0 1.
+t1 0.8
+f1 0.2
+__END_HASH__
+# 1 1 1.
+__END_FIXA__
+
+#elsif $fun eq 'fun3'
+
+# Two blocks with two differente functions with the
+# new `class' interface, using
+# `DEFINE_EXTENDED_AMPLITUDE_FUNCTION(class)' macro
+
+fixa_amplitude dl_generic
+ext_filename "./fun.efn"
+function_name "smramp"
+t0 0.
+f0 1.
+t1 0.8
+f1 0.2
+__END_HASH__
+# 1 1 1.
+__END_FIXA__
+
+# Two blocks with two differente functions with the
+# new `class' interface, using
+# `DEFINE_EXTENDED_AMPLITUDE_FUNCTION(class)' macro
 fixa_amplitude dl_generic
 ext_filename "./fun3.efn"
 function_name "tanh_ramp"
@@ -145,8 +182,11 @@ delta 0.7
 __END_HASH__
  1 1 1.
 __END_FIXA__
-#endif
+
+#else
 
 fixa
 1 1 1.5
 __END_FIXA__
+
+#endif

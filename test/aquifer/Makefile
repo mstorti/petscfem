@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2002/02/11 14:38:17 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2002/02/12 00:58:07 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -71,6 +71,26 @@ test_stream:
 test_as:
 	$(MAKE) casen=aquist runas
 	octave -q checkas.m > aquist.verif.tmp
+
+.PHONY: funs test_dl_fun1 test_dl_fun2 test_dl_fun3
+funs: fun.efn fun2.efn fun3.efn
+
+test_dl_fun: test_dl_fun1 test_dl_fun2 test_dl_fun3
+
+#w Test `dl_generic' amplitude function. Test `fun1'
+test_dl_fun1: funs 
+	$(MAKE) fric=chezy shape=rect casen=fun1 runs
+	octave -q checkdlf.m > output.dl_fun1.verif.tmp
+
+#w Test `dl_generic' amplitude function. Test `fun2'
+test_dl_fun2: funs 
+	$(MAKE) fric=chezy shape=rect casen=fun2 runs
+	octave -q checkdlf.m > output.dl_fun2.verif.tmp
+
+#w Test `dl_generic' amplitude function.  Test `fun3'
+test_dl_fun3: funs 
+	$(MAKE) fric=chezy shape=rect casen=fun3 runs
+	octave -q checkdlf.m > output.dl_fun3.verif.tmp
 
 #w Make data
 data: force
