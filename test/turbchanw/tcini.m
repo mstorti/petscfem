@@ -24,7 +24,7 @@ else
   state=[q*h 0 h h*k h*epsilon];
 endif
 
-asave("tc.ini",kron(state,ones(2*(N+1),1)));
+asave("tc.ini.tmp",kron(state,ones(2*(N+1),1)));
 tmpf="tc.data.tmp";
 fid = fopen(tmpf,"w");
 if !fid

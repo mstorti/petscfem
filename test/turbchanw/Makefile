@@ -1,7 +1,7 @@
-# $Id: Makefile,v 1.3 2001/02/12 00:28:45 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/03/03 14:08:29 mstorti Exp $ 
 
 CASE = turbchanw
-run: $(CASE)
+tests: heat swturb
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -24,4 +24,12 @@ data:
 
 $(CASE).depl: force
 $(CASE): data
-	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl
+	-rm -rf some.tmp
+	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl > $(SUBCASE).sal.tmp
+	-mv -f state.out.tmp $(SUBCASE).out.tmp
+
+heat:
+	$(MAKE) SUBCASE=heat EPERLFLAGS='-d heat=1' $(CASE)
+
+swturb:
+	$(MAKE) SUBCASE=swturb $(CASE)

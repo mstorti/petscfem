@@ -3,8 +3,9 @@
 #================================================================
 global_options
 
-<:require '../eperlini.pl'; # Initializes ePerl 
-$heat=0;
+<:require '../eperlini.pl';	# Initializes ePerl 
+$heat=0 unless $heat;		# Chooses between a heat eq. test
+				# and a shallow water test
 %vars=();
 if (!$heat) {
     import_vals('../shallowt.m',\%vars);
@@ -16,10 +17,11 @@ require './tc.data.tmp';
 $Q=$q*$h;
 $N     = readm('N'    ,'./tcini.m');
 if ($heat) {
-    $heat_bulk=10;
+    $heat_bulk=10;		# In the heat eq. test we choose an
+				# almost linear case (from 10 in the bulk
+				# to 11 in the wall)
     $heat_wall=11;
     @state=($vars{'use_log_vars'} ? log($heat_bulk) : $heat_bulk);
-    makeini(\@state,2*($N+1),'heat.ini.tmp');
 }
 _:>// 
 
@@ -57,9 +59,9 @@ nsave 10
 #if !$heat
 # initialization
 #initial_state "state.out.tmp"
-initial_state "tc.ini"
+initial_state "tc.ini.tmp"
 #else
-initial_state "heat.ini.tmp"
+initial_state "<:makeini(\@state,2*($N+1),'heat.ini.tmp'):>"
 #endif
 
 # "rotary saving" 
