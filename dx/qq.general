@@ -1,0 +1,13 @@
+file = /usr/local/dx/samples/tutorial/external.data
+grid = 5 x 5 x 5
+format = ascii
+interleaving = record
+majority = column
+header = lines 3
+field = field0
+structure = scalar
+type = float
+dependency = positions
+positions = regular, regular, regular, 1, 0.5, 3, 0.3, 2, 0.8
+
+end

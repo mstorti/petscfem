@@ -1,0 +1,9 @@
+file = /usr/local/dx/samples/tutorial/spreadsheet.data
+points = 49
+format = ascii
+interleaving = field
+field = locations, field0, field1
+structure = 2-vector, scalar, scalar
+type = float, float, float
+
+end
