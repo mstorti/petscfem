@@ -1,15 +1,31 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
-$case="advec";                   # case name
+$case_name = $ENV{'case_name'};                   # case name
+$case_name = 'skew' unless $case_name;
 $N = 40;
 $M = 40;
+$Lx = $Ly = 1;
 $ydisc = 0.4;
 $delta = 0.01;
 $ux = 2;
 $uy = 1;
+$alpha = 1;
+if ($case_name eq 'cone') {
+    $N = 100;
+    $M = 20;
+    $Lx = 5;
+    $Ly = 1;
+    $ux = 1;
+    $uy = 0;
+    $alpha = 0.7;
+    $Courant = 0.7;
+    $hx = $Lx/$N;
+    $nstep = 100;
+}
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #__END_TRANSCRIPT__
-octave_export_vars(">data.m.tmp",qw(N M delta ydisc ux uy));
+octave_export_vars(">data.m.tmp",qw(N M Lx Ly delta ydisc 
+    ux uy case_name Courant));
 system "octave -qH advec.m";
 :>//                            # ends ePerl block
 
@@ -18,18 +34,21 @@ system "octave -qH advec.m";
 global_options
 ndim 2
 
-chunk_size 4
 save_file "save.state.tmp"
 save_file_pattern "outvector.out.tmp"
+#if $case_name eq 'skew'
 steady
-nstep 1
+#elsif $case_name eq 'cone'
+Dt <:=$Courant*$hx/$ux:>
+nsave 10
+nsaverot 10
+initial_state "advec.ini.tmp"
+#endif
+nstep 100
 solver "iisd"
 iisd_subpart 1
 nnwt 1
-local_time_step 0
-consistent_supg_matrix 1
-auto_time_step 0
-alpha 1.
+<:pr('alpha'):>
 weak_form 0
 __END_HASH__
 
@@ -52,8 +71,11 @@ end_elemsets
 
 #===========================================================
 fixa
+
 __INCLUDE__ "advec.fixa.tmp"
+#if $case_name eq 'skew'
 __INCLUDE__ "advec.fixa-y0.tmp"
+#endif
 __END_FIXA__
 
 # Local Variables: $

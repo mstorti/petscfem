@@ -1,0 +1,31 @@
+#-*- shell-script -*-
+<: 
+require '~/perl/utils.pl';
+$nnod = count_lines("advec.nod.tmp");
+$nelem = count_lines("advec.con.tmp");
+:>//
+# The following example describes an irregular grid. Note that the values
+# of the "positions" component and "connections" component are irregular,
+# and so must be enumerated.
+#
+# The irregular positions, which are ... three-dimensional points.
+object "nodes" class array type float rank 1 shape 2 
+         items <:=$nnod:> data file advec.nod.tmp
+
+# The irregular connections, which are tetrahedra
+object "icone" class array type int rank 1 shape 4 
+        items <:=$nelem:> data file advec.con.tmp
+attribute "element type" string "triangles"
+attribute "ref" string "positions"
+
+object "phi" class array type float rank 0 
+     items <:=$nnod:> data file save.state.tmp
+attribute "dep" string "positions"
+
+object "phi_field" class field
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "result"
+
+end
+

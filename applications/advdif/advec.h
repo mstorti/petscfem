@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: advec.h,v 1.6 2002/07/12 14:32:33 mstorti Exp $
+//$Id: advec.h,v 1.7 2002/12/13 21:36:17 mstorti Exp $
 #ifndef ADVEC_H
 #define ADVEC_H
 
@@ -157,5 +157,13 @@ class advec : public NewAdvDif {
 public:
   advec() :  NewAdvDif(new advec_ff(this)) {};
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
+class advec_bcconv : public NewBcconv {
+public:
+  advec_bcconv() : NewBcconv(new advec_ff(this)) {};
+};
+#endif
 
 #endif
