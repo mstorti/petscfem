@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.3 2003/02/04 23:28:47 mstorti Exp $
+//$Id: hook.cpp,v 1.4 2003/02/09 22:39:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -13,8 +13,10 @@ extern int MY_RANK,SIZE;
 
 Hook * Hook::factory(const char *name) {
   Hook *hook=NULL;
-  if CHECK_HOOK(dl_generic_hook);
-  // else if CHECK_HOOK(dx_hook);
+  if (0) {} // this is tricky!!
+#ifdef USE_DLEF
+  else if CHECK_HOOK(dl_generic_hook);
+#endif
   return hook;
 }
 

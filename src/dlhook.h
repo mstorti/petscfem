@@ -1,13 +1,12 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.1 2003/01/25 17:14:54 mstorti Exp $
+//$Id: dlhook.h,v 1.2 2003/02/09 22:39:57 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class dl_generic_hook : public Hook {
@@ -70,4 +69,5 @@ prefix##_time_step_post_fun(double time,int step,			\
 extern "C" void								\
 prefix##_close_fun(void *fun_data) { ((prefix *)fun_data)->close(); }
 
+#endif
 #endif

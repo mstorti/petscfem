@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.111 2003/02/09 14:50:53 mstorti Exp $
+#$Id: Makefile.base,v 1.112 2003/02/09 22:39:53 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -130,6 +130,7 @@ endif
 
 ifeq ($(USE_PTHREADS),yes)
 PTHREADS_I_STRIPPED := $(strip $(PTHREADS_I))
+CPPFLAGS += -DUSE_PTHREADS 
 ifneq ($(PTHREADS_I_STRIPPED),)
 CPPFLAGS += -I$(PTHREADS_I_STRIPPED)
 endif

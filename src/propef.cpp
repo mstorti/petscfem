@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: propef.cpp,v 1.4 2002/09/08 23:29:16 mstorti Exp $
+//$Id: propef.cpp,v 1.5 2003/02/09 22:39:57 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -79,7 +79,7 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
     delete[] entry_c;
     return;
 #else
-    PETSCFEM_ERROR(#__FUNC__ ": error: Can't use dynamically"
+    PETSCFEM_ERROR(": error: Can't use dynamically"
     " loaded fun \"%s\"\n",key.c_str());  
 #endif
   }

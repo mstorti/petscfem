@@ -160,7 +160,8 @@ hook_list dl_generic_hook cut_regulator \
 
 cut_regulator.filename ./gasflow.efn
 cut_regulator.prefix   cut_regulator_hook
-dx_port 5315
+dx_port 5314
+dx_steps 0
 __END_HASH__
 
 ##================================================================

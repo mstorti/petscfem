@@ -1,6 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.15 2003/02/09 14:50:57 mstorti Exp $
-#ifdef USE_SSL
+//$Id: dxhook.cpp,v 1.16 2003/02/09 22:39:57 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -10,6 +9,8 @@
 #include <src/texthf.h>
 #include <src/hook.h>
 #include <src/dxhook.h>
+
+#ifdef USE_SSL
 
 #include <HDR/sockets.h>
 
@@ -27,13 +28,22 @@ extern int MY_RANK, SIZE;
 #define DX_USE_FLOATS
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+dx_hook::dx_hook() : 
+#ifdef USE_PTHREADS
+  connection_state_m(not_launched),
+  connection_state_master(not_launched) , 
+#endif
+  options(NULL), srvr_root(NULL), step_cntr(0), steps(0) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 			   const char *name_a) {
   int ierr;
   char skthost[10];
   //o TCP/IP port for communicating with DX (5000 < dx_port < 65536). 
   TGETOPTDEF(mesh_a.global_options,int,dx_port,5314);
-  TGETOPTDEF_ND(mesh_a.global_options,int,steps,1);
+  TGETOPTDEF(mesh_a.global_options,int,dx_steps,1);
+  steps = dx_steps;
   if (!MY_RANK) {
     PETSCFEM_ASSERT(dx_port>IPPORT_USERRESERVED && 
 		    dx_port<IPPORT_MAX,"\"dx_port\" number must be in the range\n"
@@ -60,6 +70,7 @@ PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #define PF_DBG_INT(name)  PF_DBG(name,%d) 
 #define PF_DBG_DBL(name)  PF_DBG(name,%f) 
 
+#ifdef USE_PTHREADS
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 static void *wait_connection(void *arg) {
   dx_hook *hook = (dx_hook *)arg;
@@ -94,6 +105,7 @@ void dx_hook::re_launch_connection() {
     assert(!ierr);
   }
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::
@@ -105,12 +117,16 @@ time_step_post(double time,int step,
   string state_file;
   if (steps && step_cntr--) return;
   if (!steps) {
+#ifdef USE_PTHREADS
     if(connection_state() == not_launched) {
       re_launch_connection();
       sleep(1);
     }
-    if (connection_state()==not_connected) return;
-    else if (connection_state()==connected) {
+    if (connection_state()==not_connected) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "dx_hook: step %d, detached mode, no connection found\n",step);
+      return;
+    } else if (connection_state()==connected) {
       void *retval;
       if (!MY_RANK) {
 	ierr = pthread_join(thread,&retval);
@@ -118,6 +134,20 @@ time_step_post(double time,int step,
       }
       set_connection_state(not_launched);
     } else assert(0);
+#else
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Can't have asynchronous communication (steps=0) with DX \n"
+		"because this version is not compiled with threads.\n"
+		"Setting steps=1\n");
+    steps=1;
+#endif
+  } else {
+    if (!MY_RANK) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "dx_hook: accepting connections, step %d\n",step);
+      srvr = Saccept(srvr_root);
+      assert(srvr);
+    }
   }
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
@@ -129,14 +159,9 @@ time_step_post(double time,int step,
   int ndim = nodedata->ndim;
   int nnod = nodedata->nnod;
   int nu = nodedata->nu;
-  PetscPrintf(PETSC_COMM_WORLD,
-	      "dx_hook: accepting connections, step %d\n",step);
 
   // Process DX options. 
   if (!MY_RANK) {
-    srvr = Saccept(srvr_root);
-    assert(srvr);
-
     Sgetline(&buf,&Nbuf,srvr);
     tokenize(buf,tokens);
 
@@ -224,11 +249,14 @@ time_step_post(double time,int step,
     Sprintf(srvr,"end\n");
     Sclose(srvr);
   }
+#ifdef USE_PTHREADS
   if(connection_state() == not_launched) re_launch_connection();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::close() {
+#ifdef USE_PTHREADS
   // I'm not too much sure how to do this correctly
   if (connection_state()==connected) {
     // Here we should shut down the connection
@@ -240,6 +268,7 @@ void dx_hook::close() {
     set_connection_state(not_launched);
   }
   assert(connection_state()==not_launched);
+#endif
   if (!MY_RANK) Sclose(srvr_root); 
 }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.18 2003/02/09 17:36:41 mstorti Exp $
+// $Id: epimport.cpp,v 1.19 2003/02/09 22:39:57 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -267,9 +267,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	       "Couldn't find an integer on \"port\" entry");
     goto error;
   }
-  DXMessage("trace 1");
 
-#if 1
   options = DXGetString((String)options_o); 
   if (!options) options = "";
 
@@ -426,9 +424,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   out[0] = (Object)g;
   out[1] = (Object)flist;
-#endif
-  out[0] = NULL;
-  out[1] = NULL;
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;

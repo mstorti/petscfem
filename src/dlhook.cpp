@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: dlhook.cpp,v 1.1 2003/01/25 17:14:54 mstorti Exp $
+//$Id: dlhook.cpp,v 1.2 2003/02/09 22:39:57 mstorti Exp $
 
+#ifdef USE_DLEF
 #include <src/fem.h>
 #include <src/readmesh.h>
 #include <src/util2.h>
@@ -48,3 +49,4 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
 
   (*init_fun)(mesh,dofmap,name_a,options,fun_data);
 }
+#endif

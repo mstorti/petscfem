@@ -1,9 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.57 2003/02/08 13:08:37 mstorti Exp $
-
-#ifdef USE_DLEF
-#include <dlfcn.h>
-#endif
+//$Id: elemset.cpp,v 1.58 2003/02/09 22:39:57 mstorti Exp $
 
 #include <vector>
 #include <set>
