@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2001/02/09 23:54:31 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/02/10 15:16:31 mstorti Exp $ 
 
 CASE = turbchanw
 run: $(CASE)
@@ -20,9 +20,7 @@ ADVDIF = $(APPDIR)/advdif/advdif.bin
 
 data: 
 	octave -q tcini.m
-#	octave -q mkmesh.m
+	$(MAKE) $(CASE).depl
 
-$(CASE).depl: data $(CASE).epl
-
-$(CASE): $(CASE).depl
+$(CASE): data
 	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl

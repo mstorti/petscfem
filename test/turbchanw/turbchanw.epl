@@ -4,7 +4,7 @@
 global_options
 
 <:require '../eperlini.pl'; # Initializes ePerl 
-$heat=1;
+$heat=0;
 if (!$heat) {
     import_vals('../shallowt.m');
     import_vals('./tcini.m');
@@ -30,10 +30,10 @@ auto_time_step 0
 consistent_supg_matrix 1
 #if $heat
 Dt 0.0001
-nstep 1
+nstep 10
 #else
-Dt 4
-nstep 100
+Dt 0.1
+nstep 1
 #endif
 alpha 1
 
@@ -49,8 +49,8 @@ nsave 10
 
 #if !$heat
 # initialization
-initial_state "state.out.tmp"
-#initial_state "tc.ini"
+#initial_state "state.out.tmp"
+initial_state "tc.ini"
 #endif
 
 # "rotary saving" 
@@ -65,7 +65,7 @@ print_some_file "nodes.some"
 save_file_some "some.tmp"
 
 # Newton loop
-nnwt 3
+nnwt 1
 #omega_newton 0.3
 tol_newton 1e-10
 preco_type "lu"
@@ -86,7 +86,8 @@ diffusive_jacobians 0.01
 __END_HASH__
 
 # ndim nu ndof
-nodes   2  3  1
+nodes   2  3  <:=($heat? 1 : 5):>
+
 __INCLUDE__ turbchanw.nod.tmp
 
 __END_NODES__
