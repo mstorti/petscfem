@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.15 2003/07/26 00:57:56 mstorti Exp $
+//$Id: dxhook.h,v 1.16 2003/07/29 20:47:52 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -58,6 +58,7 @@ private:
   string dx_node_coordinates;
   double coef0, coef;
   int read_coords;
+  int do_make_command;
   dvector<double> x0;
   // The step solicited by DX
   int dx_step;
