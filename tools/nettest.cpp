@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nettest.cpp,v 1.3 2003/01/08 15:54:26 mstorti Exp $
+//$Id: nettest.cpp,v 1.4 2003/09/23 22:04:00 mstorti Exp $
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
@@ -11,11 +11,6 @@
 #include <ctype.h>
 
 #include <petsc.h>
-
-double etime(timeval &x,timeval &y) {
-  return double(y.tv_sec)-double(x.tv_sec)
-    +(double(y.tv_usec)-double(x.tv_usec))/1e6;
-}
 
 /** Computes random numbers between 0 and 1
 */ 
@@ -41,7 +36,7 @@ int main(int argc,char **argv) {
   MPI_Status stat;
   
   /// time related quantities
-  struct timeval start, end;
+  double start;
 
   /// Initializes MPI
   PetscInitialize(&argc,&argv,NULL,NULL);
@@ -65,7 +60,7 @@ int main(int argc,char **argv) {
       for (p2=p1+1; p2<size; p2++) {
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	gettimeofday (&start,NULL);
+	start = MPI_Wtime();
 	for (int jtime=0; jtime < ntimes; jtime++) {
 	  if (rank==p1) {
 	    
@@ -93,9 +88,7 @@ int main(int argc,char **argv) {
 	MPI_Barrier(MPI_COMM_WORLD);
 	
 	if (rank==0) {
-	  gettimeofday (&end,NULL);
-	  double elapsed = etime(start,end);
-	  
+	  double elapsed = MPI_Wtime()-start;
 	  double speed = 2.*double(ntimes)*double(chunk_size)*64./elapsed/1e6;
 	  printf("proc %d <-> proc %d connection bandwidth: %g Mbit/sec\n",p1,p2,speed);
 	}

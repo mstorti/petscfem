@@ -7,7 +7,7 @@ require "math.pl";
 $case = 'laplace' unless $case;
 get_var_env2('job',undef);
 $CASE = $case;
-get_var_env2('N',80);
+get_var_env2('N',76);
 $nelem = $N**3.0;
 $cs = 0.2*$nelem;		# desired chunk_size
 $chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
