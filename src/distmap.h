@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.19 2001/08/12 22:44:16 mstorti Exp $
+// $Id: distmap.h,v 1.20 2001/08/13 00:12:38 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -79,6 +79,13 @@ DistMap<Key,Val,Partitioner>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) 
   // initialize the partitioner 
   part=p;
   sched = grouping;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class Key,class Val,class Partitioner> 
+int DistMap<Key,Val,Partitioner>::
+processor(const map<Key,Val>::iterator k) const {
+  return part->processor(k);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -815,8 +815,16 @@ Random partitioning OK \? > 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("distmap/distmap.sal.tmp",
-       "Distributed map<int,double>",<<'EOT');
+expect("distmap/distmaps.sal.tmp",
+       "Distributed map<int,double>, sched alg NOT GROUPED",<<'EOT');
+Args: .* sched 0
+error < tol OK \? > 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/distmapg.sal.tmp",
+       "Distributed map<int,double>, sched alg GROUPED",<<'EOT');
+Args: .* sched 1
 error < tol OK \? > 1
 EOT
 

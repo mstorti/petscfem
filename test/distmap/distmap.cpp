@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.7 2001/08/11 16:13:39 mstorti Exp $
+// $Id: distmap.cpp,v 1.8 2001/08/13 00:12:43 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -10,29 +10,37 @@
 
 int SIZE, MYRANK, M;
 
+class TrivialPartitioner {
+public:
+  int processor(int j) { return int((j*SIZE)/M);};
+  int processor(const map<int,double>::iterator k) {
+    return processor(k->first);
+  }
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Test for the distributed map class
 // A distributed map<int,double> class
 
 // Simply returns the size of the int+ double
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int DistMap<int,double>
+int DistMap<int,double,TrivialPartitioner>
 ::size_of_pack(const map<int,double>::iterator iter) const {
   return sizeof(int)+sizeof(double);
 }
 
 // Copy the int and double to the buffer. Update pointer *buff
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMap<int,double>::
+void DistMap<int,double,TrivialPartitioner>::
 pack(const int &k,const double &v,char *&buff) const {
   memcpy(buff,&k,sizeof(int));
   buff += sizeof(int);
   memcpy(buff,&v,sizeof(double));
   buff += sizeof(double);
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMap<int,double>::
+  
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DistMap<int,double,TrivialPartitioner>::
 unpack(int &k,double &v,const char *& buff) {
   memcpy(&k,buff,sizeof(int));
   buff += sizeof(int);
@@ -41,7 +49,7 @@ unpack(int &k,double &v,const char *& buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMap<int,double>::
+void DistMap<int,double,TrivialPartitioner>::
 combine(const pair<int,double> &p) {
   map<int,double>::iterator iter = find(p.first);
   if (iter != end()) {
@@ -50,8 +58,6 @@ combine(const pair<int,double> &p) {
     insert(p);
   }
 };
-
-int proc(int l) { return int((l*SIZE)/M);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double maxd(int n,...) {
@@ -66,18 +72,13 @@ double maxd(int n,...) {
   return max;
 }
 
-int
-DistMap<int,double>::processor(const map<int,double>::iterator k) const {
-  // return int((k->first*size)/M);
-  return proc(k->first);
-};
-
-typedef DistMap<int,double> Map;
+typedef DistMap<int,double,TrivialPartitioner> Map;
 
 int main(int argc,char **argv) {
   int j,N,row,root=0;
   double d,e,err,errb,tol;
-  DistMap<int,double>::Scheduling s;
+  DistMap<int,double,TrivialPartitioner>::Scheduling s;
+  TrivialPartitioner part;
   
   map<int,double>::iterator k;
   vector<double> vec,vecc;
@@ -122,7 +123,7 @@ int main(int argc,char **argv) {
   vec.resize(M,0);
   vecc.resize(M,0);
 
-  DistMap<int,double> S;
+  DistMap<int,double,TrivialPartitioner> S(&part);
   S.sched = s;
   for (int j=0; j<N; j++) {
     row = int(double(rand())/double(RAND_MAX)*double(M));
@@ -139,7 +140,7 @@ int main(int argc,char **argv) {
 
   err = 0;
   for (j=0; j<N; j++) {
-    if (proc(j)==MYRANK) {
+    if (part.processor(j)==MYRANK) {
       k = S.find(j);
       d = (k!=S.end() ? k->second : 0);
       err = maxd(2,err,fabs(d-vecc[j]));

@@ -1,39 +1,30 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.5 2001/08/02 19:50:26 mstorti Exp $
+// $Id: distmat.cpp,v 1.6 2001/08/13 00:12:43 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
+#include <petsc.h>
+
+#include <fem.h>
+#include <elemset.h>
 #include <utils.h>
 #include <maximizr.h>
 #include <buffpack.h>
 #include <distmap.h>
 #include <distmat.h>
 
-#include <petsc.h>
-
 int SIZE, MYRANK, M;
 
-int proc(int l) { return int((l*SIZE)/M);}
-
-int
-DistMat::processor(const DistMat::iterator k) const {
-  return proc(k->first);
+class TrivialPartitioner : public Partitioner {
+  int processor(int dof) {
+    return int((dof*SIZE)/M);
+  }
 };
 
 #define MAT(i,j) VEC2(mat,i,j,M)
 int main(int argc,char **argv) {
-#if 0 // Test for the maximizer class
-  double e;
-  Maximizer<int> maxerr;
-  maxerr.reset();
-  for (int j=0; j<100; j++) {
-    e = double(rand())/double(RAND_MAX);
-    printf("%d -> %f\n",j,e);
-    maxerr.scan(j,e);
-  }
-  printf("max val: j %d, val %f\n",maxerr.t,maxerr.max);
-#endif
+  TrivialPartitioner part;
     
   int j,k,N,row,col,root=0,debug_v;
   double d,e,w,err,errb,tol;
@@ -45,7 +36,7 @@ int main(int argc,char **argv) {
   /// Initializes MPI
   PetscInitialize(&argc,&argv,0,0);
 
-  DistMatrix S;
+  DistMatrix S(part);
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);

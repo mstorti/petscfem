@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2001/08/11 16:13:39 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/08/13 00:12:43 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -39,9 +39,15 @@ distmap.bin: distmap.o # libpetscfem
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmap.o   $(LDFLAGS)
 
+../../src/libpetscfem.a(lusubd.o): 
+	$(MAKE) -C ../../src/ 'libpetscfem.a(lusubd.o)'
+
 #w Builds binary 
-distmat.bin: distmat.o  libpetscfem
+distmat.bin: distmat.o ../../src/libpetscfem.a(lusubd.o)
 	-rm -f $@
-	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS)
+	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS) 
+
+tryme: tryme.cpp
+	g++ -o tryme tryme.cpp
 
 #s
