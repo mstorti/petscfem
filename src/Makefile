@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.46 2002/02/13 15:26:22 mstorti Exp $ 
+# $Id: Makefile,v 1.47 2002/02/13 16:21:21 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -45,17 +45,19 @@ $(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
 
 $(LIBPETSCFEM)(%.o): %.o
 #	If object does not have the appropriate debugging level recompile
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'		\
-		> /dev/null ; then							\
-		obj_optl='O' ;								\
-		else									\
-		obj_optl='g' ;								\
-	fi ;										\
-	if [ ! "x$(opt_level)"="x$(obj_optl)" ] ;					\
-		echo "object $< does not match optimization level BOPT: $(BOPT)" ;	\
-		then rm $< ;								\
-		$(MAKE) $< ;								\
-	fi ;										\
+#	[ OK. This is very tricky... I don't know the portability of this ]
+	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
+		> /dev/null ; then						\
+		obj_optl='O' ;							\
+		else								\
+		obj_optl='g' ;							\
+	fi ;									\
+	if [ ! "x$(opt_level)"="x$$obj_optl" ] ; then				\
+		echo "OptLevelCheck: object $< does not match optimization "	\
+				"level BOPT: $(BOPT)" ;				\
+		rm $< ;								\
+		$(MAKE) $< ;							\
+	fi ;									\
 	ar ru $@ $<
 
 .SECONDARY: fm2eperl.cpp
