@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.16 2003/09/01 01:10:26 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.17 2003/09/01 01:22:14 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,7 +37,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 1
+#if 0
 // New Fast PETSc matrix loading version (uses MatSetValues)
 
 extern int any_A_LL_other_stop;
@@ -393,7 +393,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
-#if 1
+#if 0
   if (load_mat) {
     PetscSynchronizedFlush(PETSC_COMM_WORLD); 
     int any_A_LL_other_stop_all;
@@ -416,7 +416,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
-  printf("Elemset::upload_vector: old single element version\n");
+  //  printf("Elemset::upload_vector: old single element version\n");
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
@@ -541,10 +541,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	}
       }
     }
-  }
-  if (load_mat && ! comp_prof) {
-    PetscFinalize();
-    exit(0);
   }
 }
 #endif
