@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.8 2003/01/02 01:21:58 mstorti Exp $
+//$Id: inviscid.cpp,v 1.9 2003/01/02 01:44:37 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -46,18 +46,25 @@ void coupling_visc_hook::init(Mesh &mesh,Dofmap &dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_visc_hook::time_step_pre(double t,int step) { 
-  if (step>0) {
-    printf("VISCOUS: waiting computed_step flag, step %d...\n",step);
+  if (step>1) {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"VISCOUS: waiting computed_step flag, step %d...\n",step);
     double step_sent = read_doubles(inv2visc,"computed_step");
-    assert(int(step_sent)==step);
-    printf("VISCOUS: received computed_step flag OK, step %d\n",step);
+    assert(int(step_sent)==step-1);
+    PetscPrintf(PETSC_COMM_WORLD,
+		"VISCOUS: received computed_step flag OK, step %d\n",step);
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"VISCOUS: step 1 do nothing ... Continue\n");
   }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_visc_hook::time_step_post(double time,int step,
 			       const vector<double> &gather_values) {
-  fprintf(visc2inv,"computed_step %d\n",step,time);
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "INVISCID: sending computed_flag step %d\n",step);
+  fprintf(visc2inv,"computed_step %d\n",step);
 }
 
 DL_GENERIC_HOOK(coupling_visc_hook);
@@ -126,7 +133,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
 
     map<int,map <int,int> >::iterator r;
     map <int,int>::iterator s;
-#if 1
+#if 0
     for (r=layer_map.begin(); r!=layer_map.end(); r++) {
       map <int,int> &m = r->second;
       for (s=m.begin(); s!=m.end(); s++) {
@@ -170,13 +177,16 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
 	}
       }
     }
+    PetscPrintf(PETSC_COMM_WORLD,
+		"INVISCID: identifies 2nd layer of nodes"
+		" in inviscid region OK.\n");
 
+#if 0
     for (int k=0; k<nnod_ext; k++) {
       ext_node &e = ext_node_data[k];
       printf("k %d, vn %d, pns %d %d\n",k,e.vn,e.pn,e.pn1);
     }
-    PetscFinalize();
-    exit(0);
+#endif
 
     assert(fid = fopen("ext.nod.tmp","r"));
     double x[NDIM];
@@ -261,29 +271,45 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::time_step_post(double time,int step,
 			       const vector<double> &gather_values) {
-#if 0
   FILE *fid = fopen("ext.state.tmp","r");
   int node=0;
-  ext_map::iterator q, qe=inv_indx_map.end();
+  ext_map::iterator q, qe=inv_indx_map.end(),
+    qe2=inv2_indx_map.end();
   int nread;
   char *line = NULL; size_t N=0;
   while (1) {
     if (getline(&line,&N,fid)==-1) break;
-    double phi1;
-    nread = sscanf(line,"%lf",&phi1);
+    double phi;
+    nread = sscanf(line,"%lf",&phi);
     assert(nread==1);
     node++;
-    q = visc_indx_map.find(nodex-);
+    q = inv_indx_map.find(node);
     if (q!=qe) {
       int ext_node_indx = q->second;
-      ext_node_data[ext_node_indx].u[0] = u[0];
-      ext_node_data[ext_node_indx].u[1] = u[1];
+      ext_node_data[ext_node_indx].phi = phi;
+    }
+    q = inv2_indx_map.find(node);
+    if (q!=qe2) {
+      int ext_node_indx = q->second;
+      ext_node_data[ext_node_indx].phi1 = phi;
     }
   }
   fclose(fid);
   free(line); line=NULL; N=0;
-#endif
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "INVISCID: sending computed_flag step %d\n",step);
   fprintf(inv2visc,"computed_step %d\n",step);
+
+#if 1
+  int nnod_ext = ext_node_data.size();
+  for (int k=0; k<nnod_ext; k++) {
+    ext_node &e = ext_node_data[k];
+    printf("k %d, phi's %f %f\n",k,e.phi,e.phi1);
+  }
+  PetscFinalize();
+  exit(0);
+#endif
+
 }
 
 DL_GENERIC_HOOK(coupling_inv_hook);
