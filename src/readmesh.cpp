@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.83 2003/03/06 22:45:59 mstorti Exp $
+//$Id: readmesh.cpp,v 1.84 2003/03/07 03:13:08 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -76,8 +76,6 @@ fstack->file_name(),fstack->line_number(),fstack->line_read());
 int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      int & neq,int size,int myrank) {
   vector<Amplitude *> amplitude_list;
-  map<string,Elemset *> elemset_table;
-  static char *ename=NULL;
 
   char *p1,*p2, *token, *type, *bsp=" \t";
   vector<string> tokens;
@@ -296,24 +294,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       // Reads hash table for the elemset
       read_hash_table(fstack,thash);
-      const string anon("__ANONYMOUS__");
-      string name = anon;
-      ::get_string(thash,"name",name,1);
-      if (name == anon) {
-#define MAX_ELEMSET_SFX 1000
-	int j;
-	for (j=0; j<MAX_ELEMSET_SFX; j++) {
-	  int Nbuf = asprintf(&ename,"%s_%d",type,j);
-	  assert(Nbuf>=0);
-	  if (elemset_table.find(ename)
-	      ==elemset_table.end()) break;
-	}
-	name = string(ename);
-	PETSCFEM_ASSERT0(j!=MAX_ELEMSET_SFX,
-			 "Couldn't generate automatic name for this  elemset!!\n");
-      }
-      thash->register_name(name.c_str());
-      if (myrank==0) thash->print("Table of properties:");
 
       // Read props line
       char *buf;
@@ -647,7 +627,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       elemset->elem_prop_names  = props; 
       elemset->epart = NULL;
       elemset->isfat = 0;
-      elemset->name_m = name;
+
+      string name = Elemset::anon;
+      ::get_string(thash,"name",name,1);
+      elemset->register_name(name,type);
+      thash->register_name(elemset->name());
+      if (myrank==0) thash->print("Table of properties:");
 
       elemset->initialize();
       TRACE(-5.3.8);
@@ -660,7 +645,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       da_append(mesh->elemsetlist,&elemset);
       PetscPrintf(PETSC_COMM_WORLD,"Ends reading  elemset\n");
 
-      elemset_table[name] = elemset;
       TRACE(-5.4);
     } else if (!strcmp(token,"end_elemsets")) {
 
@@ -1704,3 +1688,4 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
  
   return 0;
 }
+

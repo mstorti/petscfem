@@ -1,13 +1,13 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.43 2003/03/06 20:49:04 mstorti Exp $
-#ifndef NSI_TET_H  
-#define NSI_TET_H
+//$Id: nsi_tet.h,v 1.44 2003/03/07 03:13:06 mstorti Exp $
+#ifndef PETSCFEM_NSI_TET_H  
+#define PETSCFEM_NSI_TET_H
 
 #ifdef USE_ANN
 #include <ANN/ANN.h>			// ANN declarations
 #endif
-#include <vector>			// ANN declarations
+#include <vector>
 
 #include <src/secant.h>
 #include <src/pfobject.h>

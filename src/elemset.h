@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.29 2003/02/22 04:21:01 mstorti Exp $
+//$Id: elemset.h,v 1.30 2003/03/07 03:13:08 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -298,12 +298,20 @@ public:
 
   friend class ElementList;
 
+  /// Default name (the elemset is renamed if this name is passed
+  static string anon;
+  /// Stores temporarily element connectivities
+  int *elem_conne;
+  /// A table where all the elemsets are registered
+  static map<string,Elemset *> elemset_table;
+  /** register the elemset in the table and generates a
+      unique name 
+      @param type (input) the type of the elemset */ 
+  void register_name(const string &name,const char *type);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // The following will be declared private in the future
   //private: 
-
-  /// Stores temporarily element connectivities
-  int *elem_conne;
 
 #ifdef USE_DX
 private:

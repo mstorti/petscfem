@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.2 2003/03/06 22:45:56 mstorti Exp $
+// $Id: nullvort.cpp,v 1.3 2003/03/07 03:13:06 mstorti Exp $
 
 #include "./nullvort.h"
 #include <src/dvector.h>
@@ -17,19 +17,24 @@ null_vort_bo::~null_vort_bo() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
+  /// The options table
+  TextHashTable * thash = new TextHashTable;
+
   // Read options from data file
-  thash.read(fstack);
+  thash->read(fstack);
   int ierr;
 
   // get options. Other options are processed in Surf2vol::factory
   //o The number of nodes per skin panel. 
-  TGETOPTNDEF(&thash,int,nel_surf,0);
+  TGETOPTNDEF(thash,int,nel_surf,0);
   //o The elemset that is on the fluid side. 
-  TGETOPTDEF_S(&thash,string,volume_elemset,<none>);
+  TGETOPTDEF_S(thash,string,volume_elemset,<none>);
   assert(volume_elemset!="<none>");
   //o The field to be used on the fictitious node as
   //  Lagrange multiplier
-  TGETOPTNDEF(&thash,int,fic_dof,<none>);
+  TGETOPTNDEF(thash,int,fic_dof,<none>);
+  // o The number of nodes per skin panel. 
+  //TGETOPTDEF_S(thash,string,name,<none>);
 
   // Call the `factory' (constructor) for the Surf2Vol object. 
   // layers:= number of *element* layers, so that the number
@@ -38,7 +43,7 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     use_exterior_normal,  ndimel;
   Surf2Vol *sv_gp_data=NULL;
   Elemset *vol_elem;
-  Surf2Vol::factory(&thash, volume_elemset, 
+  Surf2Vol::factory(thash, volume_elemset, 
 		    nel_surf, sv_gp_data, 
 		    vol_elem, identify_volume_elements, layers,
 		    use_exterior_normal,  ndimel);
@@ -241,32 +246,32 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
       printf(" %d",icone_stencil.e(j,l));
     printf("\n");
   }
-  PetscFinalize();
-  exit(0);
- 
 #endif
 
-#if 0
-  elemset->type = type;
-  elemset->nelem = nelem; 
-  elemset->nel   = nel  ; 
-  elemset->elem_conne = new int[nel];
-  elemset->ndof  = ndof ; 
-  elemset->nelprops = nelprops; 
-  elemset->neliprops = neliprops; 
-  elemset->nelprops_add = nelprops_add; 
-  elemset->neliprops_add = neliprops_add; 
-  elemset->elemprops_add = elemprops_add; 
-  elemset->elemiprops_add = elemiprops_add; 
+  Elemset *elemset = new null_vort;
+  elemset->type = local_copy("null_vort");
+  elemset->nelem = nelem_nlr; 
+  elemset->nel   = nx+1; 
+  elemset->elem_conne = new int[nx+1];
+  elemset->ndof  = dofmap->ndof; 
+  elemset->nelprops = 0; 
+  elemset->neliprops = 0; 
+  elemset->nelprops_add = 0; 
+  elemset->neliprops_add = 0; 
+  elemset->elemprops_add = 0; 
+  elemset->elemiprops_add = 0; 
   elemset->thash = thash; 
-  elemset->icone = icone; 
-  elemset->elemprops  = elemprops; 
-  elemset->elemiprops  = elemiprops; 
-  elemset->elem_prop_names  = props; 
+  elemset->icone = icone_stencil.buff(); 
+  elemset->elemprops  = NULL; 
+  elemset->elemiprops  = NULL; 
+  elemset->elem_prop_names  = NULL; 
   elemset->epart = NULL;
   elemset->isfat = 0;
-  elemset->name_m = name;
-#endif
+
+  string name = Elemset::anon;
+  ::get_string(thash,"name",name,1);
+  elemset->register_name(name,elemset->type);
+  thash->register_name(elemset->name());
 
   icone.clear();
   coupling_nodes_table.clear();
