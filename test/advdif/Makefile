@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.7 2001/01/09 17:09:36 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/01/10 15:37:41 mstorti Exp $ 
 
-.PHONY: plano data 
+.PHONY: plano data run
 
 all: run
 
@@ -12,29 +12,61 @@ SRCS =
 # with this it doesn't work
 ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
-case = sine
-octave_files = sine.con.tmp sine.nod.tmp sine.fixa.tmp sine.bcconv.tmp
-octave_script = $(case).m
-data_file = $(case).depl $(case).data.res
+case := sine
+#case := burgers
 
-data: $(data_file) $(octave_files)
-#data: burgers.depl plano.con plano.nod plano.m
+#octave_files = sine.con.tmp sine.nod.tmp sine.fixa.tmp sine.bcconv.tmp
+#octave_script = $(case).m
+#data_file = $(case).depl $(case).data.res
+
+data: data_$(case)
+
+.PHONY: data_$(case)
+
+output_files_$(case) := save.state outvector*.sal
+
+################################################################
+eperl_in_sine := sine.epl sine.data
+eperl_out_sine := sine.depl sine.data.res
+eperl_script_sine := sine.epl
+
+octave_in_sine := sine.data sine.data.res
+octave_out_sine := sine.con.tmp sine.nod.tmp sine.fixa.tmp sine.bcconv.tmp 
+octave_script_sine := sine.m
+
+output_files_sine := $(output_files_sine) sine.some 
+################################################################
+eperl_in_burgers := burgers.epl
+eperl_out_burgers := burgers.depl
+eperl_script_burgers := burgers.epl
+
+octave_in_burgers :=
+octave_out_burgers :=
+octave_script_burgers :=
+################################################################
+
+data_$(case): $(eperl_out_$(case)) $(octave_out_$(case))
+
+#data_burgers: burgers.depl plano.con plano.nod plano.m
 #data: plano.depl plano.con plano.nod
 
-$(data_file): $(case).epl $(case).data
-	echo $(data_file)
-	-for f in $(data_file) ; do \
-		if [ -e $$f  ] ; then chmod +w $$f ; rm $$f ; fi ; \
-	done
-	eperl -P $< > $@
-	-chmod -w $(data_file)
+$(eperl_out_$(case)): $(eperl_in_$(case))
+ifneq ($(eperl_out_$(case)),)
+	-rm -f $(eperl_out_$(case))
+endif
+	eperl -P $(case).epl > $(case).depl
+	-chmod -w $(eperl_out_$(case))
 
-$(octave_files): $(case).m  $(case).data
-	octave -q sine.m
+$(octave_out_$(case)): $(octave_in_$(case))
+ifneq ($(eperl_out_$(case)),)
+	-rm -f $(octave_out_$(case))
+endif
+	octave -q $(octave_script_$(case))
+	-chmod -w $(octave_out_$(case))
 
-plano.depl: plano.epl plano.m
-burgers.depl: burgers.epl plano.m
-sine.depl: sine.epl sine.m
+# plano.depl: plano.epl plano.m
+# burgers.depl: burgers.epl plano.m
+# sine.depl: sine.epl sine.m
 
 plano.con plano.nod: plano.m
 	octave -q plano.m
@@ -47,7 +79,7 @@ plano.con plano.nod: plano.m
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
-	-rm $(case).some
+	-rm -f dummy $(output_files_$(case))
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) -case $(case).depl
 
 # Tests to be done:
@@ -70,4 +102,4 @@ testanal:
 
 local_clean::
 	-chmod +w sine.data.res
-	-rm sine.data.res sine.ini mat.output sine.some save.state
+	-rm -f $(eperl_out_$(case)) $(octave_out_$(case)) $(output_files_$(case))
