@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.9 2002/12/09 03:23:01 mstorti Exp $
+//$Id: mmove2.cpp,v 1.10 2002/12/12 03:10:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -117,7 +117,7 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double mesh_move_eig_anal::dfun(const FastMat2 &D) {
-#if 0
+#if 1
   double F=0;
   double vol=1.;
   for (int k=1; k<=ndim; k++) vol *= D.get(k);
@@ -125,7 +125,7 @@ double mesh_move_eig_anal::dfun(const FastMat2 &D) {
     for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
   F /= pow(vol,2./double(ndim));
   return pow(F,distor_exp);
-#elif 1
+#elif 0
   double p=distor_exp;
   double norm_D = D.norm_p_all(p);
   double norm_iD = D.norm_p_all(-p);
@@ -161,8 +161,7 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-  x0.set(xloc).add(glob_param->inwt ? 
-		   state_new : state_old);
+  x0.set(xloc).add(state_old);
   df_grad(x0,res);
   x0.reshape(1,nel*ndim);
   mat.reshape(3,nel,ndim,nel*ndim);
@@ -190,6 +189,11 @@ element_connector(const FastMat2 &xloc,
     res.scale(1./c_relax);
   } 
   res.scale(-1.);
+
+  dstate.set(state_new).rest(state_old);
+  res_Dir.prod(mat,dstate,1,2,-1,-2,-1,-2);
+  res.axpy(res_Dir,-1.);
+  
 #ifdef DEBUG_ANAL
   xloc.print("eig_anal: xloc");
   xloc.print("state_new");

@@ -3,7 +3,7 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.95;
+$disp = 0.3;
 $slope = 4;
 # $shape = 'quad';
 $old_mmove = $ENV{'OLD_MMOVE'};
@@ -17,7 +17,7 @@ global_options
 ndim 2
 nsave 5
 steady
-<:$nstep=40;:>
+<:$nstep=1;:>
 nstep <:=$nstep+4:>
 #if $old_mmove
 displ_factor <:=1./$nstep:>
@@ -57,7 +57,8 @@ nodes  2 2 2
 __INCLUDE__ step.nod.tmp
 _END_NODES__
 
-elemset mesh_move<:= ($old_mmove ? '' : '_old') :> 3
+# elemset mesh_move<:= ($old_mmove ? '' : '_old') :> 3
+elemset mesh_move_eig_anal 3
 name malla
 # report_consumed_time
 geometry triangle
