@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.21 2002/04/10 12:46:18 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.22 2002/06/26 20:59:07 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,7 +10,7 @@
 
 #include "nsi_tet.h"
 
-//#define ADD_GRAD_DIV_U_TERM
+#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
 #define USE_FASTMAT
 
@@ -91,7 +91,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
-  int ierr=0;
+  int ierr=0, axi;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
@@ -203,6 +203,21 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Cutoff value for $\epsilon$
   SGETOPTDEF(double,eps_ctff_val,1e-20);
 
+  //o Add axisymmetric version for this particular elemset.
+  TGETOPTDEF_S(thash,string,axisymmetric,none);
+  assert(axisymmetric.length()>0);
+  if (axisymmetric=="none") axi=0;
+  else if (axisymmetric=="x") axi=1;
+  else if (axisymmetric=="y") axi=2;
+  else if (axisymmetric=="z") axi=3;
+  else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Invalid value for \"axisymmetric\" option\n"
+		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
+    PetscFinalize();
+    exit(0);
+  }
+
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
   //o Cache \verb+grad_div_u+ matrix
@@ -278,6 +293,13 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double lambda_1,lambda_2,lambda_max;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);;
+
+  FMatrix Jaco_axi(2,2),u_axi;
+  int ind_axi_1, ind_axi_2;
+  double detJaco_axi;
+         
+  if (axi) assert(ndim==3);
+
   eye.eye();
 
   if (comp_mat) {
@@ -428,12 +450,30 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
 	Delta = sqrt(Area);
-      } else if (ndim==3) {
+      } else if (ndim==3 && axi==0) {
 	// h_pspg = pow(6*Area/pi,1./3.);
 	// El pow() da segmentation violation cuando corro con -O !!
 	h_pspg = cbrt(6*Area/pi);
 	Delta = cbrt(Area);
-      } else {
+      } else if (ndim==3 && axi>0) {
+        ind_axi_1 = (  axi   % 3)+1;
+        ind_axi_2 = ((axi+1) % 3)+1;
+
+	//        Jaco.is(1,ind_axi_1,ind_axi_2).is(2,ind_axi_1,ind_axi_2);
+	//        Jaco_axi.set(Jaco);
+	//        Jaco.rs();
+
+        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_1),1,1);
+        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_2),1,2);
+        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_1),2,1);
+        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
+
+        detJaco_axi = Jaco_axi.det();
+        double wpgdet_axi = detJaco_axi*WPG;
+        double Area_axi = 0.5*npg*fabs(wpgdet_axi);
+	h_pspg = sqrt(4.*Area_axi/pi);
+	Delta = sqrt(Area);
+        } else {
 	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
       }
       
@@ -460,9 +500,6 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_kap_star.prod(dshapex,kapcol_star,1,-1,-1);
 	grad_eps_star.prod(dshapex,epscol_star,1,-1,-1);
 
-	u2 = u.sum_square_all();
-	velmod = sqrt(u2);
-
         // cut off of kappa & epsilon
 	kap = ctff(kap,dfkdk,kap_ctff_val);
 	eps = ctff(eps,dfede,eps_ctff_val);
@@ -484,17 +521,31 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         double nu_t = C_mu*kap*kap/eps;
 	nu_eff = VISC + turbulence_coef*nu_t;
 
-	uintri.prod(iJaco,u,1,-1,-1);
-	Uh = uintri.sum_square_all();
-	Uh = sqrt(Uh)/2;
+	//	uintri.prod(iJaco,u,1,-1,-1);
+	//	Uh = uintri.sum_square_all();
+	//	Uh = sqrt(Uh)/2;
 
+	u2 = u.sum_square_all();
+
+        if(axi>0){
+          u_axi.set(u);
+          u_axi.setel(0.,axi);
+          u2 = u_axi.sum_square_all();
+        }
+
+	velmod = sqrt(u2);
         tol=1.0e-16;
         h_supg=0;
 	FastMat2::branch();
         if(velmod>tol) {
 	  FastMat2::choose(0);
 	  // svec:= a streamline oriented unit vector
-	  svec.set(u).scale(1./velmod);
+	  //	  svec.set(u).scale(1./velmod);
+	  if(axi>0){
+            svec.set(u_axi).scale(1./velmod);
+          } else {
+            svec.set(u).scale(1./velmod);
+          }
 	  h_supg = tmp9.prod(dshapex,svec,-1,1,-1).sum_abs_all();
           h_supg = (h_supg < tol ? tol : h_supg);
           h_supg = 2./h_supg;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.12 2002/03/05 14:05:23 mstorti Exp $
+//$Id: bubbly.cpp,v 1.13 2002/06/26 20:59:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -83,6 +83,7 @@ void bubbly_ff::start_chunk(int &ret_options) {
   grad_v_g.resize(2,ndim,ndim);
   grad_k.resize(1,ndim);
   grad_e.resize(1,ndim);
+  grad_alpha_l.resize(1,ndim);
   
   IdId.resize(4,ndim,ndim,ndim,ndim);
   IdId.prod(Id,Id,1,3,2,4);
@@ -431,7 +432,22 @@ void bubbly_ff
       tau_supg_a *= tau_fac;
     }
     tau_supg.eye(tau_supg_a).setel(tau_pspg,1,1).setel(tau_pspg,2,2);
+    //tau_supg.eye(tau_supg_a).setel(0.*tau_pspg,1,1).setel(0.*tau_pspg,2,2);
+
+
+    // Fixme:> agregamos flujo difusivo numerico a la ecuacion de masa de gas
+    //         para ver si es el motivo de la falta de convergencia del esquema
+    grad_U.ir(2,2);
+    grad_alpha_l.set(grad_U);
+    grad_U.rs();
+    //    fluxd.ir(1,2).set(grad_alpha_l).scale(-0.5*h_supg*velmod*rho_g);
+    fluxd.ir(1,2).set(grad_alpha_l).scale(-0.5*h_supg*rho_g);
+    fluxd.rs();
+    //    Djac.ir(2,2).ir(4,2).set(Id).scale(-0.5*h_supg*velmod*rho_g);
+    Djac.ir(2,2).ir(4,2).set(Id).scale(-0.5*h_supg*rho_g);
+    Djac.rs();
   }
+
   if (options & COMP_SOURCE) {
     G_source.set(0.);
     G_source.is(1,vl_indx,vl_indxe).set(G_body).scale(arho_l);

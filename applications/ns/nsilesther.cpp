@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.19 2002/05/30 19:59:55 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.20 2002/06/26 20:59:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,7 +9,7 @@
 
 #include "nsi_tet.h"
 
-//#define ADD_GRAD_DIV_U_TERM
+#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
 #define USE_FASTMAT
 
@@ -514,7 +514,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// implicit version - General Trapezoidal rule - parameter alpha
 
         if (comp_mat_res || comp_res) {
-#if ADD_GRAD_DIV_U_TERM
+#ifdef ADD_GRAD_DIV_U_TERM
 	  dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else
 	  dmatu.prod(u,grad_u_star,-1,-1,1);
