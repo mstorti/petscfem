@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.8 2001/09/22 14:02:06 mstorti Exp $
+// $Id: sp.cpp,v 1.9 2001/09/22 20:40:47 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -9,9 +9,6 @@
 using namespace Sparse;
 
 namespace Random {
-  class LogGen : public Generator {
-    double map(double x) {return exp(-20.*x);};
-  } log_gen;
 }
 
 void my_set(Vec &v,int k=1) {
@@ -26,7 +23,7 @@ int main() {
   int j,k,m;
 
   Vec v(5),w(4),u;
-  Mat a,b;
+  Mat a,b,c;
   Indx I(14,17),J(8,14,2),K(0,4,2);
   double d1,d2,tol=1e-10;
 
@@ -97,4 +94,12 @@ int main() {
   d2 = u.dot(w);
   printf("u.w: %f, u2.w: %f, err = %g, err<tol ? %d\n",
 	 d1,d2,fabs(d1-d2),fabs(d1-d2)<tol);
+
+  a.resize(5,5).random_fill(.2,int_gen).print_f("a with random entries: ");
+  u.resize(5).random_fill(.2,int_gen).print_f("u with random entries: ");
+  w.resize(5).prod(a,u).print_f("w = a * u :");
+
+  b.resize(5,5).random_fill(.3,int_gen).print_f("b with random entries: ");
+  c.resize(5,5).prod(a,b).print_f("c = a * b :");
+
 }

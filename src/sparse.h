@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.11 2001/09/22 14:02:04 mstorti Exp $
+// $Id: sparse.h,v 1.12 2001/09/22 20:40:43 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -16,6 +16,26 @@ using namespace Random;
 
 namespace Sparse {
 
+  class Mat;
+      
+  class GenVec {
+  public:
+    /// Pure virtual class
+    virtual ~GenVec()=0;
+    /// Return length of the vector 
+    virtual int length() const =0;
+    /// Get element at specified position
+    virtual double get(int j) const =0;
+    /// Set element at position j
+    virtual GenVec & set(int j,double v)=0;
+    /// Matrix vector product
+    GenVec & prod(const Mat & a,const GenVec & v);
+    /// print elements
+    virtual void print(const char *s = NULL)=0;
+    /// print elements
+    virtual void print_f(const char *s = NULL);
+  };
+
   class Indx : public vector<int> {
   public:
     Indx(int n,int m,int k=1);
@@ -27,10 +47,9 @@ namespace Sparse {
   typedef map<int,double>::const_iterator VecCIt;
   typedef pair<int,double> VecP;
 
-  class Mat;
-      
   /// A simple sparse vector class (0 indexed). 
-  class Vec : public map<int,double> {
+  class Vec : public map<int,double>, public GenVec {
+
     /// Length of the sparse vector
     int len;
     /// Flag indicating where you can add values past the specified length or not 
@@ -82,6 +101,8 @@ namespace Sparse {
 
     /// Dot product
     double dot(const Vec & w) const;
+    /// Dot product with generic vector
+    double dot(const GenVec & w) const;
 
     /// print elements (generic version)
     void print_g(int l,const char * s,const char * psep, const char * isep,
@@ -116,14 +137,15 @@ namespace Sparse {
     /// Flag indicating where you can add values past the specified dimensions 
     int grow_m; 
   public:
+    friend class GenVec;
     friend class Vec;
 
     /// Constructor from the length
     Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n) {};
     /// Return row dimension
-    int rows() {return nrows;};
+    int rows() const {return nrows;};
     /// Return column dimension
-    int cols() {return ncols;};
+    int cols() const {return ncols;};
     /// Constructor from another vector
     Mat(const Mat &a) {*this = a;};
 
@@ -148,6 +170,10 @@ namespace Sparse {
     Mat & id(double a=1.);
     /// Diagonal from a vector
     Mat & diag(const Vec & v);
+    /// Fill with random values
+    Mat & random_fill(double fill=0.1,Generator & g=uniform);
+    /// Product of sparse matrices
+    Mat & prod(const Mat & a, const Mat & b,double c=1.);
 
     /// print elements (sparse version)
     void print(const char *s = NULL);

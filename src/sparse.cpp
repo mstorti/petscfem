@@ -1,39 +1,52 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.12 2001/09/22 14:02:04 mstorti Exp $
+//$Id: sparse.cpp,v 1.13 2001/09/22 20:40:43 mstorti Exp $
 
 #include "sparse.h"
-
-#if 0
-void SeqMat::set_value(int row,int col,Scalar value,InsertMode
-		       mode=ADD_VALUES) {
-  ColIt col_it;
-  RowIt row_it = find(row);
-  Row r;
-  if (row_it == end()) {
-    r.clear();
-    r.insert(col_p(col,value));
-    insert(row_p(row,r));
-  } else {
-    col_it = row_it->find(col);
-    if (col_it == row_it->end()) {
-      col_it->insert(col_p(col,value));
-    } else {
-      col_it->second += value;
-    }
-  }
-}
-
-void SeqMat::create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0) {
-  MPI_Comm_size (PETSC_COMM_WORLD, &size);
-  assert(size==1);
-  nrows = dofmap->neq;
-  ncols = dofmap->neq;
-}
-#endif
 
 using namespace Random;
 
 namespace Sparse {
+
+  GenVec::~GenVec() {};
+
+  void GenVec::print_f(const char *s = NULL) {
+    if (s) printf("%s\n",s);
+    int m = length();
+    for (int j=0; j<m; j++) {
+      printf("%d %f\n",j,get(j));
+    }
+  }
+
+  /// print elements
+  void GenVec::print(const char *s = NULL) {
+    double v;
+    if (s) printf("%s\n",s);
+    int m = length();
+    for (int j=0; j<m; j++) {
+      v = get(j);
+      if (v!=0.) printf("%d %f\n",j,v);
+    }
+  }
+    
+  GenVec & GenVec::prod(const Mat & a,const GenVec & v) {
+    int m,n;
+    RowCIt i,e;
+    Vec w;
+
+    m = a.rows();
+    n = a.cols();
+    assert(length()==m);
+    assert(v.length()==n);
+
+    e = a.end();
+    for (i=a.begin(); i!=e; i++) {
+      w = i->second;
+      w.resize(n);
+      set(i->first,w.dot(v));
+    }
+
+    return *this;
+  }
 
   Indx::Indx(int m,int n,int k=1) {
     int j,v;
@@ -300,6 +313,8 @@ namespace Sparse {
 
   Vec & Vec::random_fill(double fill=0.1,Generator & g=uniform) {
     int j,k;
+
+    clear();
     for (j=0; j<fill*len; j++) {
       k = irand(0,len-1);
       set(k,g.get());
@@ -307,6 +322,21 @@ namespace Sparse {
     return *this;
   }
 
+  double Vec::dot(const GenVec & w) const {
+    VecCIt i,e;
+    double sum;
+
+    assert(len == w.length());
+
+    // For efficiency we loop over the elements
+    // of the vector that has less elements (w1)
+    sum = 0.;
+    e = end();
+    for (i = begin(); i!=e; i++) 
+      sum += (i->second) * w.get(i->first);
+    return sum;
+  }
+  
   double Vec::dot(const Vec & w) const {
     VecCIt i,e;
     const Vec *w1,*w2;
@@ -548,6 +578,53 @@ namespace Sparse {
     return s;
   }
 
+  Mat & Mat::random_fill(double fill=0.1,Generator & g=uniform) {
+    int j,k,l,m,n;
+
+    clear();
+    m = rows();
+    n = cols();
+    for (j=0; j<fill*m*n; j++) {
+      k = irand(0,m-1);
+      l = irand(0,n-1);
+      set(k,l,g.get());
+    }
+    return *this;
+  }
+
+  //Computes w += c * a * b
+  Mat & Mat::prod(const Mat & a, const Mat & b,double c=1.) {
+    RowCIt i,e;
+    VecCIt jk,ee;
+    Vec a_row,b_row,row;
+    int j,k,n,m,p;
+    double a_jk;
+
+    m = rows();
+    n = cols();
+    p = a.cols();
+    assert(m==a.rows());
+    assert(n==b.cols());
+    assert(p==b.rows());
+
+    e = a.end();
+    for (i=a.begin(); i!=e; i++) {
+      j = i->first;
+      a_row = i->second;
+      ee = a_row.end();
+      for (jk=a_row.begin(); jk!=ee; jk++) {
+	k = jk->first;
+	a_jk = jk->second;
+	b.getr(k,b_row);
+	b_row.resize(n);
+	getr(j,row);
+	row.resize(n);
+	row.axpy(c*a_jk,b_row);
+	setr(j,row);
+      }
+    }
+    return *this;
+  }
 }
 
 /*

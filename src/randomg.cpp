@@ -3,5 +3,7 @@
 namespace Random {
 
   Generator uniform;
+  LogGen log_gen;
+  IntGen int_gen;
 
 }
