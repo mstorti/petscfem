@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;			# Number of elements per dimension
+$N = 6;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -125,6 +125,7 @@ iisd_subpart_auto 2000
 newton_relaxation_factor 0.
 <:pr('maxits'):>
 report_consumed_time
+#
 activate_debug_print
 activate_debug_memory_usage
 # activate_debug
@@ -132,7 +133,6 @@ use_interface_full_preco 1
 print_interface_full_preco_conv 0
 interface_full_preco_maxits 10
 interface_full_preco_relax_factor 0.5
-# activate_debug
 
 iisdmat_print_statistics
 print_partitioning_statistics
@@ -176,9 +176,9 @@ cache_grad_div_u
 __END_HASH__
 
 # ndim nu ndof
-nodes  3  3  <:=($case eq 'laplace' ? 1 : 4):>
-__INCLUDE__ cubcav.nod.tmp
-_END_NODES__
+nodedata  3  3  <:=($case eq 'laplace' ? 1 : 4):>
+data cubcav.nod.tmp
+__END_HASH__
 
 elemset \
  <:=($case eq 'laplace' ? 'qharm' : $fracstep? 'fracstep_fm2' : 'ns_id'); :> \
@@ -194,9 +194,15 @@ npg <:=($use_prismatic? 6 : $use_tetra ? ($case eq 'laplace'? 1 : 4) : 8):>
 <:pr('weak_form'):>
 LES 0
 #endif
+#<: $use_mpi = 1; :>
+#if $use_mpi
+data cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp
+#endif
 __END_HASH__
+#if !$use_mpi
 __INCLUDE__ cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp
 __END_ELEMSET__
+#endif
 
 end_elemsets
 
