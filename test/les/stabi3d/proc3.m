@@ -3,12 +3,18 @@ nu = 0.000133;
 
 start = 200;
 last = columns(u);
-uav = sum(u(1:Ny+1,start:last)')'/(last-start+1);
+nsteps = (last-start+1);
 
-dudy = uav(2)/y(2);
-tauw = nu*dudy;
-ustar = sqrt(tauw);
+nplane = (Nx+1)*(Nz+1);
+nnod = nplane * (Ny+1);
+uav= [];
+uavh = zeros(Ny+1,1);
+for k=0:17
+  k
+  u = aload([dir "/RUN/channel3d.state." int2str(k) ".tmp"]);
+  for iy = 1:Ny+1;
+    uavh(iy) = sum(u(iy+(0:(Ny+1):nnod-1),1))/nplane;
+  endfor
+  uav = [uav uavh];
+endfor
 
-U_bulk = sum(xcent(uav).*diff(y));
-
-Cf = tauw/(0.5*U_bulk^2);

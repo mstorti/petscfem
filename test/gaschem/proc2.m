@@ -1,6 +1,6 @@
-###key proc.m
+ proc.m
 ##__INSERT_LICENSE__
-## $Id: proc2.m,v 1.8 2003/11/13 13:46:30 mstorti Exp $
+## $Id: proc2.m,v 1.9 2003/11/20 22:43:32 mstorti Exp $
 source("data.m.tmp");
 
 U=aload_any("pool.state_%d.tmp",0);
