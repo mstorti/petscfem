@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: pfobject.cpp,v 1.7 2003/06/08 21:42:01 mstorti Exp $
+// $Id: pfobject.cpp,v 1.8 2003/06/09 02:37:18 mstorti Exp $
 
 #include <src/pfobject.h>
 #include <src/texthash.h>
@@ -15,7 +15,7 @@ BasicObject::~BasicObject() {}
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 BasicObject *BasicObject::factory(string &type) {
   if (0) {} // tricky!!
-  else if (type=="interpolation") return new interpolation;
+  // else if (type=="interpolation") return new interpolation;
   // BasicObject types specific for this application
   else if (BasicObject_application_factory) {
     BasicObject *obj = (*BasicObject_application_factory)(type);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.8 2003/02/27 03:32:41 mstorti Exp $
+// $Id: dvector.h,v 1.9 2003/06/09 02:37:18 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -54,7 +54,7 @@ public:
   void set_chunk_size(int new_chunk_size);
 
   /** Set new chunk size in order to have onely one chunk. */
-  void defrag();
+  dvector<T> & defrag();
 
   /** reference to the object in some position
       @param j (input) position in the vector

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.30 2003/03/07 03:13:08 mstorti Exp $
+//$Id: elemset.h,v 1.31 2003/06/09 02:37:18 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -309,8 +309,11 @@ public:
       @param type (input) the type of the elemset */ 
   void register_name(const string &name,const char *type);
 
+  /// Pass the elemset the filestack in order to read data, if needed
+  virtual void read(FileStack *fstack);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // The following will be declared private in the future
+  // The following will be declared `private' in the future
   //private: 
 
 #ifdef USE_DX
@@ -652,6 +655,8 @@ public:
   Elemset::element_ret_vector_values;
   Elemset::element_ret_fdj_values;
   Elemset::element_ret_mat_values;
+  Elemset::read;
+
   // Elemset::thash;
   void get_entry(const char *k,const char *&v) const {
     thash->get_entry(k,v);};

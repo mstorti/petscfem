@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.85 2003/03/22 22:20:32 mstorti Exp $
+//$Id: readmesh.cpp,v 1.86 2003/06/09 02:37:18 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -634,6 +634,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       thash->register_name(elemset->name());
       if (myrank==0) thash->print("Table of properties:");
 
+      elemset->read(fstack);
       elemset->initialize();
       TRACE(-5.3.8);
 

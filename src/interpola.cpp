@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: interpola.cpp,v 1.2 2003/06/09 01:24:48 mstorti Exp $
+//$Id: interpola.cpp,v 1.3 2003/06/09 02:37:18 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/fastmat2.h>
@@ -37,12 +37,14 @@ read(FileStack *fstack) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 #undef __FUNC__
 #define __FUNC__ "int interpolation::ask(char *,int &)"
 int interpolation::ask(const char *jobinfo,int &skip_elemset) {
    skip_elemset = !strcmp(jobinfo,jobinfo_stage());
    return 0;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

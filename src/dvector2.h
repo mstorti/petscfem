@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.6 2003/02/27 03:32:41 mstorti Exp $
+// $Id: dvector2.h,v 1.7 2003/06/09 02:37:18 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -93,9 +93,10 @@ void dvector<T>::set_chunk_size(int new_chunk_size) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::defrag() {
+dvector<T> & dvector<T>::defrag() {
   if (chunk_size<size()) set_chunk_size(size());
   assert(chunks_n()==1);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

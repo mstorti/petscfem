@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.23 2003/04/01 22:47:19 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.24 2003/06/09 02:37:15 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -29,6 +29,7 @@
 #include "./genload.h"
 #include "./invcoupl.h"
 #include "./nullvort.h"
+#include "./interplns.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -71,6 +72,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(inviscid_coupling)
 
     SET_ELEMSET_TYPE(lin_gen_load)
+
+    SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
       {
 	PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
       }
