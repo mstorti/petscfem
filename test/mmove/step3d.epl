@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $N=10;
-$disp = 0.7;
+$disp = 0.3;
 $slope = 2;
 # $shape = 'quad';
 #
