@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.11 2002/08/07 23:11:32 mstorti Exp $
+//$Id: embgath.cpp,v 1.12 2002/08/07 23:53:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -370,6 +370,8 @@ void visc_force_integrator::init() {
   int ierr;
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
+  ndim_m = ndim;
+
   compute_moment = (gather_length==2*ndim);
   force.resize(1,ndim);
   moment.resize(1,ndim);
@@ -391,13 +393,20 @@ void visc_force_integrator
   force.set(n).scale(-wpgdet*u.get(4));
   // export forces to return vector
   force.export_vals(pg_values.begin());
+#define SHV(pp) pp.print(#pp ": ")
+  SHV(force);
 
   if (compute_moment) {
     // Position offset of local point to center of moments
+    SHV(xpg);
+    SHV(x_center);
     dx.set(xpg).rest(x_center);
+    SHV(dx);
     // Moment contribution = force X dx
     moment.cross(force,dx);
+    SHV(moment);
     // export forces to return vector
+    printf("ndim_m: %d\n",ndim_m);
     moment.export_vals(pg_values.begin()+ndim_m);
   }
 }
