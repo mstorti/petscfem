@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.27 2001/05/21 17:44:18 mstorti Exp $
+//$Id: advective.h,v 1.28 2001/05/22 01:51:59 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -288,7 +288,7 @@ public:
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
   /// Destructor. Destroys the flux function object. 
-  ~NewAdvDif() {delete adv_diff_ff;}
+  ~NewAdvDif() {if (adv_dif_ff) delete adv_diff_ff;}
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
@@ -398,18 +398,42 @@ public:
   ASK_FUNCTION;
 };
 
-/// generic surface flux function element
-class HFilmFun {
-  virtual void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux)=0;
-  virtual void init()=0;
-}
+class GenLoad;
 
-/// generic surface flux element
-class GenLoad : NewElemset { 
+/// Generic surface flux function (film function) element
+class HFilmFun {
+public:
+  GenLoad * elemset;
+  virtual void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+		 FastMat2 &jacin,FastMat2 &jacout)=0;
+  virtual void init()=0;
+  HFilmFun(GenLoad *e) : elemset(e) {};
+};
+
+/// Generic surface flux element
+class GenLoad : public NewElemset { 
 public: 
   HFilmFun &h_film_fun;
-  NewAssembleFunction new_assemble;
-  ASK_FUNCTION;
+  virtual NewAssembleFunction new_assemble;
+  virtual ASK_FUNCTION;
+  virtual ~GenLoad()=0;
+  GenLoad(HFilmFun &h) : h_film_fun(h);
+};
+
+/// Generic surface flux function (film function) element
+class LinearHFilmFun : public HFilmFun {
+public:
+  void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+	 FastMat2 &jacin,FastMat2 &jacout);
+  void init();
+  LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
+};
+
+/// Linear surface flux element
+class LinGenLoad : public GenLoad { 
+public: 
+  LinearHFilmFun linear_h_film_fun;
+  LinGenLoad() : linear_h_film_fun(this) {h_film_fun = linear_h_film_fun;};
 };
 
 /// Global parameters passed to the elemsets
