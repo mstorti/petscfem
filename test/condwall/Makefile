@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.10 2005/04/01 16:08:14 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2005/04/01 21:18:04 mstorti Exp $ 
 
 default: condwall
 
-BOPT = O_c++
+# BOPT = O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
