@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.3 2002/07/30 23:28:55 mstorti Exp $
+//$Id: nssupg.cpp,v 1.4 2002/07/31 02:18:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,6 +13,7 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 
 #define MAXPROP 100
+extern int fractional_step, reuse_mat;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Linearized free surface boundary condition, but with a
@@ -27,6 +28,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		       int el_start,int el_last,int iter_mode,
 		       const TimeData *time_) {
 
+  assert(!fractional_step);	// Not implemented with `fractional step'
   int ierr;
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
@@ -38,7 +40,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,double,fs_eq_factor,1.);
   //o Scales a diffusion term on the surface that
   // tends to smooth the free surface equation
-  TGETOPTDEF(thash,double,free_surface_visco,0.);
+  TGETOPTDEF(thash,double,free_surface_damp,0.);
 
   assert(nel % 2==0); // one layer of nodes is for \eta the other for w
   int nel2 = nel/2;
@@ -164,6 +166,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       res.set(0.);
       mass_mat.set(0.);
+      lap_mat.set(0.);
       matlocf.set(0.);
       veccontr.set(0.);
 
@@ -190,9 +193,9 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	res_pg.prod(tmp,SHAPE,-1,-1);
 	res_pgg.set(SHAPE).scale(res_pg.get()*wpgdet);
 	
-	grad_eta.prod(DSHAPEXI,eta,1,-1,-1);
+	grad_eta.prod(DSHAPEXI,eta_star,1,-1,-1);
 	tmp2.prod(DSHAPEXI,grad_eta,-1,1,-1);
-	res_pgg.axpy(tmp2,-free_surface_visco*wpgdet);
+	res_pgg.axpy(tmp2,-free_surface_damp*wpgdet);
 	veccontr.add(res_pgg);
 
 	// Jacobian term
@@ -206,8 +209,9 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       matlocf.is(1,nel2+1,nel).ir(2,1).is(3,nel2+1,nel).ir(4,1)
 	.set(mass_mat).scale(rec_Dt/alpha*fs_eq_factor) // temporal term
-	.axpy(lap_mat,free_surface_visco) // surface diffusion term
+	.axpy(lap_mat,free_surface_damp) // surface diffusion term
 	.rs();
+      // fixme:= perhaps alpha doesn't go here... 
       matlocf.is(1,nel2+1,nel).ir(2,1).is(3,1,nel2).ir(4,normal_dir)
 	.set(mass_mat).scale(-alpha).rs();
       
