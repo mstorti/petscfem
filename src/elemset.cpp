@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.73 2003/08/29 15:47:05 mstorti Exp $
+//$Id: elemset.cpp,v 1.74 2003/08/31 02:19:20 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -108,12 +108,15 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
   }
 
   double *locst = argd.locst;
+  int nen = nel*ndof;
   iele_here=-1;
   for (iele=el_start; iele<=el_last; iele++) {
 
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
 
+#if 0
+    // Old slow version
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(iele,kloc);
       for (kdof=1; kdof<=ndof; kdof++) {
@@ -123,6 +126,16 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 	// kdof,LOCST(iele,kloc,kdof-1));
       }
     }
+#else
+    // Fast new version
+    int *nodep = icone+iele*nel;
+    int *nodep_end = nodep + nel;
+    double *w = locst + iele_here * nen;
+    while (nodep < nodep_end) 
+      for (kdof=1; kdof<=ndof; kdof++) 
+	dofmap->get_nodal_value(*nodep++,kdof,argd.sstate,
+				argd.ghost_vals,time_d,*w++);
+#endif
   }
   return 0;
 }
@@ -239,7 +252,8 @@ int assemble(Mesh *mesh,arg_list argl,
   Stat out_of_loop, in_loop, wait;
 
   // Time statistics
-  double total, compt, upload, tot_s,tot_e,compt_s,bus_e,upl,upl_s,
+  double total, compt, upload, download,
+    tot_s,tot_e,compt_s,bus_e,upl,upl_s,
     assmbly, assmbly_s;
   hpc2.start();
   hpchrono.start();
@@ -362,6 +376,7 @@ int assemble(Mesh *mesh,arg_list argl,
     // Initialize time accumulators
     compt = 0.0;
     upload = 0.0;
+    download = 0.0;
     assmbly = 0.0;
     tot_s = MPI_Wtime();
 
@@ -498,7 +513,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	  elemset->download_vector(nel,ndof,dofmap,ARGVJ,
 				   myrank,el_start,el_last,iter_mode,
 				   time_data);
-	  upload += MPI_Wtime() - upl_s;
+	  download += MPI_Wtime() - upl_s;
 	}
       }
       
@@ -685,26 +700,27 @@ int assemble(Mesh *mesh,arg_list argl,
 		  "[proc] - elems - compt[sec](rate[sec/Ke]) - upl/dwl[sec]"
 		  " - assmbly[sec]  - other[sec]\n",
 		  elemset->type,jobinfo);
-#if 1
+
       double rate=1000.0*compt/elemset->nelem_here;
       total = MPI_Wtime() - tot_s;
-      double other = total-(compt+upload+assmbly);
+      double upd = upload+download;
+      double other = total-(compt+upd+assmbly);
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "[%d]  %7d  %7.2g/%3.0f%%(%7.2g)  "
 			      "%7.2g/%3.0f%%  %7.2g/%3.0f%%  %7.2g/%3.0f%%\n",
 			      myrank,elemset->nelem_here,
 			      compt,100.0*compt/total,rate,
-			      upload,100.0*upload/total,
+			      upd,100.0*upd/total,
 			      assmbly,100.0*assmbly/total,
 			      other,100.0*other/total);
-#else
-      double elapsed;
-      elapsed=hpc3.elapsed();
-      double rate=1000.0*elapsed/elemset->nelem_here;
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			      "[proc %d]   %g   %g\n",myrank,elapsed,rate);
-#endif
+			      "upload %10.3gsecs, (%10.3g secs/Ke)\n",
+			      upload,1000.0*upload/elemset->nelem_here);
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			      "download %10.3gsecs, (%10.3g secs/Ke)\n",
+			      download,1000.0*download/elemset->nelem_here);
       PetscSynchronizedFlush(PETSC_COMM_WORLD);
+
       PetscPrintf(PETSC_COMM_WORLD,"total %10.3gsecs\n",total);
     }
 

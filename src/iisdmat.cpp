@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.58 2003/08/30 18:02:13 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.59 2003/08/31 02:19:20 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -745,9 +745,9 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   // Mapping of columns
   nc[L]=0;
   nc[I]=0;
-  dvector<int> ctype, coff;
-  ctype.mono(ncols);
-  coff.mono(ncols);
+//   dvector<int> ctype, coff;
+//   ctype.mono(ncols);
+//   coff.mono(ncols);
   for (int jc=0; jc<ncols; jc++) {
     map_dof_fun(idxc[jc],col_t,col_indx);
     int jcl = nc[col_t]++;
@@ -757,8 +757,8 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     dvector<int> *jndx = jndxc[col_t];
     grow_mono(*jndx,nc[col_t]);
     jndx->e(jcl) = jc;
-    ctype.ref(jc) = col_t;
-    coff.ref(jc) = jcl;
+//     ctype.ref(jc) = col_t;
+//     coff.ref(jc) = jcl;
   }
 
 #if 0
@@ -779,7 +779,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   exit(0);
 #endif
 
-  // We conside first all blocks other than the LL one
+  // We consider first all blocks other than the LL one
   // This is considered aside
   for (row_t=0; row_t<2; row_t++) {
     for (col_t=0; col_t<2; col_t++) {
@@ -793,15 +793,18 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
       for (int jrl=0; jrl<nrr; jrl++) { 
 	int jr = jndxr[row_t]->e(jrl);
 	int *jndx = jndxc[col_t]->buff();
+	double *values_jrow = values + jr*ncols;
 	for (int jcl=0; jcl<ncc; jcl++) {
 	  int jc = jndx[jcl];
-	  vvv[jrl*ncc+jcl] = values[jr*ncols+jc];
+	  *vvv++ = *(values_jrow+jc);
 	}
       }
-#if 1
+      // This is for debugging
+#define LOAD_VALUES
+#ifdef LOAD_VALUES
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
-			  indxc[col_t]->buff(),vvv,mode);
+			  indxc[col_t]->buff(),vv->buff(),mode);
       if (ierr) return ierr;
 #endif
     }
@@ -817,9 +820,10 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   for (int jrl=0; jrl<nrr; jrl++) { 
     int jr = jndxr[L]->e(jrl);
     int *jndx = jndxc[L]->buff();
+    double *values_jrow = values + jr*ncols;
     for (int jcl=0; jcl<ncc; jcl++) {
       int jc = jndx[jcl];
-      vvv[jrl*ncc+jcl] = values[jr*ncols+jc];
+      *vvv++ = *(values_jrow + jc);
     }
   }
 
@@ -838,10 +842,10 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     p++;
   }
 
-#if 1
+#ifdef LOAD_VALUES
   ierr = MatSetValues(*(AA[L][L]),
 		      nrr,indxr[L]->buff(),ncc,
-		      indxc[L]->buff(),vvv,mode);
+		      indxc[L]->buff(),vv->buff(),mode);
   if (ierr) return ierr;
 #endif
 

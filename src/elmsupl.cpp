@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.13 2003/08/30 21:14:34 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.14 2003/08/31 02:19:20 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -111,6 +111,16 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   int nen = ndof*nel;
   int nen2 = nen*nen;
 
+  int *indxrp = indxr.buff();
+  int *lnodrp = lnodr.buff();
+  int *dofrp = dofr.buff();
+  double *coefrp = coefr.buff();
+
+  int *indxcp = indxc.buff();
+  int *lnodcp = lnodc.buff();
+  int *dofcp = dofc.buff();
+  double *coefcp = coefc.buff();
+
   if (load_mat) {
     // Compute row and column masks.
     for (kloc=0; kloc<nel; kloc++) {
@@ -149,12 +159,12 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       // Build row map
       int jr=0,nr,jc=0,nc;
       int all_one_coef = 1;
+      int *rm = row_mask.buff();
+      int *cm = col_mask.buff();
       for (kloc=0; kloc<nel; kloc++) {
 	node = ICONE(iele,kloc);
 	for (kdof=0; kdof<ndof; kdof++) {
-	  int rm = row_mask.e(kloc,kdof);
-	  int cm = col_mask.e(kloc,kdof);
-	  if (!rm && !cm) continue;
+	  if (!*rm && !*cm) continue;
 #if 0
           // Slow
 	  dofmap->get_row(node,kdof+1,row_v);
@@ -171,7 +181,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	    coef = coefv[j];
 #endif
 	    if (locdof>neq) continue; // ony load free nodes
-	    if (rm) {
+	    if (*rm) {
 	      if (jr==rsize) {
 		// Make arrays grow if needed
 		rsize = 2*rsize;
@@ -179,15 +189,25 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		lnodr.resize(rsize);
 		dofr.resize(rsize);
 		coefr.resize(rsize);
+
+		indxr.defrag();
+		lnodr.defrag();
+		dofr.defrag();
+		coefr.defrag();
+
+		indxrp = indxr.buff();
+		lnodrp = lnodr.buff();
+		dofrp = dofr.buff();
+		coefrp = coefr.buff();
 	      }
-	      indxr.e(jr) = locdof-1;
-	      lnodr.e(jr) = kloc;
-	      dofr.e(jr) = kdof;
-	      coefr.e(jr) = coef;
+	      indxrp[jr] = locdof-1;
+	      lnodrp[jr] = kloc;
+	      dofrp[jr] = kdof;
+	      coefrp[jr] = coef;
 	      if (coef!=1.0) all_one_coef = 0;
 	      jr++;
 	    }
-	    if (cm) {
+	    if (*cm) {
 	      if (jc==rsize) {
 		// Make arrays grow if needed
 		csize = 2*csize;
@@ -195,37 +215,30 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		lnodc.resize(csize);
 		dofc.resize(csize);
 		coefc.resize(csize);
+
+		indxc.defrag();
+		lnodc.defrag();
+		dofc.defrag();
+		coefc.defrag();
+		indxcp = indxc.buff();
+		lnodcp = lnodc.buff();
+		dofcp = dofc.buff();
+		coefcp = coefc.buff();
 	      }
-	      indxc.e(jc) = locdof-1;
-	      lnodc.e(jc) = kloc;
-	      dofc.e(jc) = kdof;
-	      coefc.e(jc) = coef;
+	      indxcp[jc] = locdof-1;
+	      lnodcp[jc] = kloc;
+	      dofcp[jc] = kdof;
+	      coefcp[jc] = coef;
 	      if (coef!=1.0) all_one_coef = 0;
 	      jc++;
 	    }
 	  }
+	  rm++;
+	  cm++;
 	}
       }
       nr = jr;
       nc = jc;
-
-      indxr.defrag();
-      lnodr.defrag();
-      dofr.defrag();
-      coefr.defrag();
-      int *indxrp = indxr.buff();
-      int *lnodrp = lnodr.buff();
-      int *dofrp = dofr.buff();
-      double *coefrp = coefr.buff();
-
-      indxc.defrag();
-      lnodc.defrag();
-      dofc.defrag();
-      coefc.defrag();
-      int *indxcp = indxc.buff();
-      int *lnodcp = lnodc.buff();
-      int *dofcp = dofc.buff();
-      double *coefcp = coefc.buff();
 
 #if 0
       printf("iele %d\n",iele);
