@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.58 2003/03/30 15:03:54 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.59 2003/03/30 15:38:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -496,9 +496,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	FastMat2::leave();
 
 	Peclet = velmod * h_supg / (2. * nu_eff);
-	printf("u2 %f, velmod %f, Peclet %f\n",u2,velmod,Peclet);
-//	psi = 1./tanh(Peclet)-1/Peclet;
-//	tau_supg = psi*h_supg/(2.*velmod);
+	// printf("u2 %f, velmod %f, Peclet %f\n",u2,velmod,Peclet);
+	// psi = 1./tanh(Peclet)-1/Peclet;
+	// tau_supg = psi*h_supg/(2.*velmod);
 
         tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
 	  +9.*SQ(4.*nu_eff/SQ(h_supg));
