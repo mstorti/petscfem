@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.51 2003/08/27 21:58:45 mstorti Exp $ 
+# $Id: Makefile,v 1.52 2003/08/28 03:06:03 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -38,11 +38,11 @@ NP := 1
 MCH :=
 endif
 
-ifeq ($(HOSTNAME),minerva)
-NP := $(shell procsel ./proctable.minerva)
+ifneq ($(HOSTNAME),geronimo)
+NP := $(shell procsel ./proctable.mono)
 NL :=
 MCH := -machinefile ./machi.dat
-NP :=1 
+NP := 1
 endif
 
 export NP

@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.51 2003/08/25 22:20:21 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.52 2003/08/28 03:05:46 mstorti Exp $
 // fixme:= this may not work in all applications
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 extern int MY_RANK,SIZE;
 
 #include <typeinfo>
