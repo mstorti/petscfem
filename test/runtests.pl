@@ -1194,14 +1194,14 @@ IISD on 2 processors with CGS OK \? > 1,
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("lupart/check_iisd_superlu.verif.tmp",
-       "IISD/SuperLU solver",<<'EOT');
-__EXACT_MATCH__
-IISD/SuperLU on 1 processors OK ? > 1, 
-IISD/SuperLU on 2 processors OK ? > 1, 
-IISD/SuperLU on 2 processors with rand part. OK ? > 1, 
-IISD/SuperLU on 2 processors with CGS OK ? > 1
-EOT
+#  expect("lupart/check_iisd_superlu.verif.tmp",
+#         "IISD/SuperLU solver",<<'EOT');
+#  __EXACT_MATCH__
+#  IISD/SuperLU on 1 processors OK ? > 1, 
+#  IISD/SuperLU on 2 processors OK ? > 1, 
+#  IISD/SuperLU on 2 processors with rand part. OK ? > 1, 
+#  IISD/SuperLU on 2 processors with CGS OK ? > 1
+#  EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_peri.verif.tmp",
