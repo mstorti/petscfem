@@ -1422,3 +1422,6 @@ tag: beta-3.02.pl10 on Wed,  7 Aug 2002 15:17:32 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.02.pl11 on Wed,  7 Aug 2002 16:31:37 -0300 by mstorti in minerva.arcride.edu.ar
      > Found bug in `mydetsur'.
+----------
+tag: beta-3.02.pl12 on Wed,  7 Aug 2002 16:43:35 -0300 by mstorti in minerva.arcride.edu.ar
+     > `embedded_gatherer' computes forces OK. 
