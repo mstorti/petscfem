@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.33.6.1 2005/03/23 01:49:49 mstorti Exp $
+//$Id: gasflow.cpp,v 1.33.6.2 2005/03/27 22:06:39 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -7,6 +7,9 @@
 #include <src/generror.h>
 
 #include "gasflow.h"
+
+extern string fastmat2_stat_current_string;
+#define FM2STAT(s) { fastmat2_stat_current_string = s; }
 
 #define GF_GETOPTDEF_ND(type,var,def)				\
  { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\
@@ -425,9 +428,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
-  FastMat2::stat(1);
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
-  FastMat2::stat(0);
 
   // Strain rate tensor
   grad_U.is(2,vl_indx,vl_indxe);
@@ -680,8 +681,11 @@ void gasflow_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				     FastMat2 &dshapex,double w) {
+  FM2STAT("ndn-0");
   tmp1.prod(Djac,dshapex,-1,2,3,4,-1,1).scale(w);
+  FM2STAT("ndn-1");
   grad_N_D_grad_N.prod(tmp1,dshapex,1,2,-1,4,-1,3);
+  FM2STAT("ndn-2");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -834,4 +838,11 @@ compute_shock_cap_aniso(double &delta_aniso,
 void gasflow_ff::
 get_C(FastMat2 &C) {
   C.set(0.);
+}
+
+extern void fastmat_prod_stat();
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void gasflow_ff::after_chunk() {
+  // fastmat_prod_stat();
 }

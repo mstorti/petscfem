@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.463.6.2 2005/03/24 14:40:12 mstorti Exp $
+$Id: notes.txt,v 1.463.6.3 2005/03/27 22:06:35 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.463.6.2 2005/03/24 14:40:12 mstorti Exp $ 
+! # $Id: notes.txt,v 1.463.6.3 2005/03/27 22:06:35 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.463.6.2 2005/03/24 14:40:12 mstorti Exp $ 
+! # $Id: notes.txt,v 1.463.6.3 2005/03/27 22:06:35 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.463.6.2 2005/03/24 14:40:12 mstorti Exp $ 
+  # $Id: notes.txt,v 1.463.6.3 2005/03/27 22:06:35 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -8156,7 +8156,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.463.6.2 2005/03/24 14:40:12 mstorti Exp $
+ //$Id: notes.txt,v 1.463.6.3 2005/03/27 22:06:35 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -8229,7 +8229,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.463.6.2 2005/03/24 14:40:12 mstorti Exp $
+ // $Id: notes.txt,v 1.463.6.3 2005/03/27 22:06:35 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -9092,6 +9092,77 @@ son realmente no nulos para ver si eventualmente un producto sparse
 podria ser mas eficiente. En el caso advdife+gasflow da del orden de
 0.57%. O sea que a lo sumo usando un producto sparse se podria reducir
 el costo en un 43%. Ahora quiero ver que pasa en `nsitetlesfm2'. 
+
+%=== Thu Mar 24 19:47:35 2005 mstorti@spider
+%
+19:47:35: Para gasflow/3D/hexa el numero de productos es de
+2.05e5/elemento
+%
+19:57:55: Para nsitetlesfm2/3D/hexa la cuenta es de
+2.4e4/elemento. Pareceria que ahi esta la ineficiencia. En
+`compute_flux()' tenemos 3.9080e+04prods/elemento (es mas o menos el
+20%). 
+%
+20:13:10: En `gasflow_ff::comp_grad_N_D_grad_N' tenemos 
+5e4prods/elemento. Que es un 25%. 
+%
+20:16:41: La linea   `Djac.prod(Djac_tmp,Cp,....);' representa unos
+2.6e4prods/elemento. Lo cual representa un poco mas del 10%. 
+
+%=== Fri Mar 25 20:19:20 2005 mstorti@spider
+%
+20:19:20: El producto `tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);' que
+basicamente multiplica P_supg (de nel x ndof x ndof) por `A_grad_n'
+del mismo tamano contrayendo un indice ndof, de manera que se obtiene
+una matriz de nel x ndof x nel x ndof. 
+
+%=== Sat Mar 26 13:34:54 2005 mstorti@spider
+%
+13:34:54: Quiere decir que en hexas/3D son (nel*ndof)*ndof*(nel*ndof)
+= 8*5*5*8*5=8000 productos. De estos se hacen 8(npg) por elemento por
+cada evaluacion del residuo es decir que ahi nomas tenemos 64000
+productos que es casi dos veces el numero de productos que tenemos en
+`nsitetlesfm2'. 
+
+%=== Sun Mar 27 10:53:27 2005 mstorti@spider
+%
+10:53:27: Implemento una opcion `use_low_npg' en la cual se usa menos
+puntos de Gauss para ciertos terminos _en el Jacobiano_ (por ejemplo
+el termino SUPG y en el termino difusivo). Se baja una cierta cantidad
+(de 1.1sec/Ke a 0.85sec/Ke). Tambien pongo una opcion
+`comp_reactive_terms' que no calcula el termino `N_N_C' si no hay
+terminos reactivos involucrados. Comparando, `nsitetlesfm2' consume
+0.15sec/Ke(tetra), pero ahora dudo porque hace un momento parece que consumia
+mas. Tal vez haya sido que el chunk-size no era suficientemente grande
+para el cubcav (estaba usando 10x10x10 o se 1000 elementos). 
+%
+12:19:24: No, verifico que la version era la misma el mismo tamano de
+malla y de chunk size, pienso que en una de esas se debia a que habia
+otro proceso corriendo (el updatedb?). 
+%
+12:42:52: El cubcav con `nsitetlesfm2' para hexas da 1.2sec/Ke, por
+eso antes daba mucho menos que el gasflow (era para tetras versus
+hexas), el gasflow para hexas da 5.5sec/Ke. Ahora voy a probar a ver
+que pasa sin las modificaciones para optimizacion. 
+%
+13:08:20: Sin las modificaciones da 8.3sec/Ke. 
+%
+13:12:48: El conteo de operaciones: con use_low_npg=0, el producto 
+'p_supg*A_grad_N' se ejecuta 128000 veces para 2000 elementos, es
+decir unas 64 veces por elemento (esta en un lazo sobre npg y
+j=1:nel). Y da un conteo de operaciones de 1000 (8*5*5)*(5*5), es decir que en total
+representan unas 64000 ops/elemento. Con `use_low_npg' baja a 16000
+(el factor 8 del lazo sobre npg). El conteo total de operaciones es de
+1.4e5 ops/elem, 7.3sec/elem (con use_low_npg=1, comp_reactive_terms=0) y 
+2.7e5 ops/elem, 11sec/elem  (con use_low_npg=0,
+comp_reactive_terms=1).
+%
+18:15:12: Para comparar: con nsitetlesfm2(hexas) da 
+2.4e4 ops/elem y 1.2sec/elem. 
+%
+18:40:08: Se ve por lo tanto que el costo en tiempo de CPU es
+practicamente lineal con el numero de operaciones de productos. 
+
 
 # Current line ===========  %
 # Local Variables: $

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.68 2004/12/20 21:33:37 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.68.24.1 2005/03/27 22:06:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,6 +18,11 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
+
+extern string fastmat2_stat_current_string;
+#define FM2STAT(s) { fastmat2_stat_current_string = s; }
+
+void fastmat_prod_stat();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -262,11 +267,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+  FastMat2::stat(1);
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
+    FM2STAT("trace-0");
     ielh++;
     load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
     elem = k;
@@ -291,6 +298,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
     }
 
+    FM2STAT("trace-1");
     double grad_div_u_coef=0.;	// multiplies grad_div_u term
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
@@ -320,6 +328,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
+    FM2STAT("trace-2");
     matlocmom.set(0.);
     matloc.set(0.);
     matlocf.set(0.);
@@ -374,6 +383,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 #define WPG_SUM  (gp_data.wpg_sum)
 
+    FM2STAT("trace-3");
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
 
@@ -427,6 +437,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
       }
       
+      FM2STAT("trace-3.1");
       if (comp_mat_res) {
 	// computes the minimum size of the mesh
 	if (!WAS_SET || h_pspg<*hmin) {
@@ -450,6 +461,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	strain_rate.add(grad_u_star).scale(0.5);
 	grad_u_star.rs();
 
+	FM2STAT("trace-3.2");
 	// Smagorinsky turbulence model
 	double nu_eff;
 	if (LES) {
@@ -469,6 +481,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  nu_eff = VISC;
 	}
 
+	FM2STAT("trace-3.3");
 	u2 = u.sum_square_all();
 	//	uintri.prod(iJaco,u,1,-1,-1);
 	//	Uh = uintri.sum_square_all();
@@ -561,6 +574,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
 	
+	FM2STAT("trace-3.4");
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
@@ -581,6 +595,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  resmom.axpy(tmp11,-wpgdet);
 	}
 
+	FM2STAT("trace-3.5");
 	// SUPG perturbation - momentum
 	tmp3.set(grad_p_star).axpy(dmatu,rho);
 	tmp4.prod(P_supg,tmp3,1,2);
@@ -603,6 +618,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  rescont.axpy(SHAPE,pressure_control_coef*p_star*wpgdet);
 	}
 
+	FM2STAT("trace-3.6");
 	// Fixme later
         if (0 && k==3978) {        
 	printf("element %d, punto de Gauss %d, residuo continuidad : \n",k,ipg);
@@ -622,6 +638,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
+	FM2STAT("trace-3.7");
 	// diffusive part
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
@@ -637,6 +654,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	if (update_jacobian) {
+	  FM2STAT("trace-3.7.4");
 	  for (int iloc=1; iloc<=nel; iloc++) {
 	    for (int jloc=1; jloc<=nel; jloc++) {
 	      double c = wpgdet*matlocmom.get(iloc,jloc);
@@ -647,6 +665,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    }
 	  }
 
+	  FM2STAT("trace-3.7.4.1");
 	  if (weak_form) {
 	    tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
 	    tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
@@ -656,6 +675,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
 	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
 	  }
+	  FM2STAT("trace-3.7.4.2");
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
 	  matlocf.rest(tmp17);
@@ -664,6 +684,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 
+	  FM2STAT("trace-3.7.4.3");
 	  if (!cache_grad_div_u) {
             tmp19.set(dshapex).scale(nu_eff*wpgdet);
             tmp18.prod(dshapex,tmp19,2,3,4,1);
@@ -690,6 +711,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     }
 
+    FM2STAT("trace-4");
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }      
@@ -735,9 +757,12 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// fin Fixme
 
     }
+    FM2STAT("trace-5");
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+  FastMat2::stat(0);
+  fastmat_prod_stat();
 }
 
 #undef SHAPE    

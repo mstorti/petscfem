@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.15 2004/05/22 11:24:21 mstorti Exp $
+# $Id: cubcav.pl,v 1.15.40.1 2005/03/27 22:06:51 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -29,6 +29,7 @@ $chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
 $hratio = 3;
 $geom = 'tetra';
 $geom = 'cartesian3d' if $case eq 'plain';
+$geom = 'cartesian3d';
 $maxits = 300;
 $tol = 1e-7;
 get_var_env2('subpart',350);

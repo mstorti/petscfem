@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.25 2005/02/23 01:40:34 mstorti Exp $
+// $Id: gasflow.h,v 1.25.6.1 2005/03/27 22:06:39 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -65,6 +65,8 @@ public:
       #tau_supg#.
   */
   void start_chunk(int &ret_options);
+
+  void after_chunk();
 
   /** This is called before entering the Gauss points loop and may
       help in optimization.

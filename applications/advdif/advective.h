@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.73 2005/02/23 01:40:34 mstorti Exp $
+//$Id: advective.h,v 1.73.6.1 2005/03/27 22:06:39 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -254,6 +254,12 @@ public:
       #tau_supg#. 
   */ 
   virtual void start_chunk(int &ret_options) =0;
+
+  /** This is called after pocessing a chunk of elements in 
+      a loop and can e used to free resources allocated 
+      in #start_chunk()#, for istance. 
+  */ 
+  virtual void after_chunk() { }
 
   /** This is called before entering the Gauss points loop and may
       help in optimization. 
