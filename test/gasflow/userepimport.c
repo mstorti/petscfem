@@ -19,6 +19,6 @@ void DXEntry()
         extern Error m_ExtProgImport(Object *, Object *);
         DXAddModule("ExtProgImport", m_ExtProgImport, 0,
             1, "socket_name",
-            1, "value");
+            1, "output_field");
     }
 }

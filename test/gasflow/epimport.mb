@@ -7,17 +7,25 @@ ASYNCHRONOUS = FALSE
 LOADABLE_EXECUTABLE = epimport
 
 INPUT = socket_name
-DESCRIPTION =  
+DESCRIPTION = 
 REQUIRED = TRUE
-TYPES = string
-STRUCTURE = Value
+TYPES = field
+STRUCTURE = Field/Group
+POSITIONS = Not required
+CONNECTIONS = Not required
+ELEMENT_TYPE = Not required
+DEPENDENCY = Positions or connections
 DATA_TYPE = string
 DATA_SHAPE = Scalar
 
-OUTPUT = value
-DESCRIPTION =  
-TYPES = integer
-STRUCTURE = Value
-DATA_TYPE = int
+OUTPUT = output_field
+DESCRIPTION = Imported field
+TYPES = field
+STRUCTURE = Field/Group
+DATA_TYPE = double
 DATA_SHAPE = Scalar
+POSITIONS = Not required
+CONNECTIONS = Not required
+ELEMENT_TYPE = Not required
+DEPENDENCY = Positions or connections
 

@@ -539,6 +539,10 @@ ExtProgImport_worker(
   int N=10, *icone_p, j,k,base, elem=0;
   Array icone=NULL; 
   Field f=NULL; 
+
+  f = DXNewField();
+  if (!f) goto error;
+
   icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1,4);
   if (!icone) goto error;
   icone = DXAddArrayData(icone, 0, N*N, NULL);
@@ -554,6 +558,8 @@ ExtProgImport_worker(
       *icone_p++ = base+N+2;
     }
   }
+  /* Set `connections' component */
+  
      
   /*
    * successful completion
