@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: advec.m,v 1.7 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 w=zhomo([0 Lx 0 Ly],N+1,M+1);

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check_peri.m,v 1.2 2003/01/08 15:49:04 mstorti Exp $
 u1=aload("save.state.iisd_peri.np1.tmp");
 u2=aload("save.state.iisd_peri.np2.tmp");
 

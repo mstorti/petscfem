@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc5.m,v 1.4 2003/01/08 15:49:04 mstorti Exp $
 nnod_axis = 101;
 V = aload("cylin.axis_nodes.rslt.tmp");
 

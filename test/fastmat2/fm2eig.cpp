@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: fm2eig.cpp,v 1.4 2003/01/08 15:49:04 mstorti Exp $
 #include <cstdio>
 
 extern "C" void dsyev_(const char*jobz,const char *uplo,int *n,double *a,int *lda,

@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: tryme7.cpp,v 1.5 2003/01/08 15:49:04 mstorti Exp $
 #include <src/debug.h>
 #include <cstdio>
 #include <vector>

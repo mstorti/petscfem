@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: verif_parallel_cone_noise.m,v 1.3 2003/01/08 15:49:03 mstorti Exp $
 ###key verif.parallel_cone.m
 
 proc

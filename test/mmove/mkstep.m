@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkstep.m,v 1.9 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 w = zhomo([0 1 0 1],N+1,N+1);
 [xnod,icone] = pfcm2fem(w);

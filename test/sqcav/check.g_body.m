@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check.g_body.m,v 1.2 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 
 x = aload("sqcav.nod.tmp");

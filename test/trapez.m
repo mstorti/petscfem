@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: trapez.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 nelem=10;
 h=1./nelem;
 A=(1/h)*(2*diag(ones(nelem-1,1))-diag(ones(nelem-2,1),-1)-diag(ones(nelem-2,1),+1));

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check_zwproc2.m,v 1.3 2003/01/08 15:49:05 mstorti Exp $
 u = aload("sqcav.zwproc2.tmp");
 uref = aload("sqcav.zwproc2_ref.tmp");
 

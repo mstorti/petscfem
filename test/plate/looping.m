@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: looping.m,v 1.4 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 omega = 0.2;
 

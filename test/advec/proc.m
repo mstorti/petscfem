@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc.m,v 1.8 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 x=aload("advec.nod.tmp");

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: checks.m,v 1.3 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 tol=1e-3;

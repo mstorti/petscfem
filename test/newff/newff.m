@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: newff.m,v 1.13 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 
 ## Physical parameters

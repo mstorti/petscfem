@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check_iisd.m,v 1.4 2003/01/08 15:49:04 mstorti Exp $
 u_lu=aload("save.state.lu.tmp");
 u_iisd1=aload("save.state.iisd.np1.tmp");
 u_iisd2=aload("save.state.iisd.np2.tmp");

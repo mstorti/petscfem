@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check_re1000.m,v 1.4 2003/01/08 15:49:05 mstorti Exp $
 source("data.m.tmp");
 ghia;
 

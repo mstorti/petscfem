@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkmeshs.m,v 1.5 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 x=[(0:Nx)'/Nx*Lx zeros(Nx+1,1)];

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: sine_crank_nic.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 u16 = aload("save.state.16");
 u32 = aload("save.state.32");
 u128 = aload("save.state.128");

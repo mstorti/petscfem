@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc4.m,v 1.4 2003/01/08 15:49:04 mstorti Exp $
 if 1
   x = aload("cylin.nod.tmp");
   nod_ext = aload("ext.coupling_nodes.tmp");

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mknozzle.m,v 1.3 2003/01/08 15:49:04 mstorti Exp $
 global Rin Rn nw L
 
 source("data.m.tmp");

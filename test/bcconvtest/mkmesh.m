@@ -1,4 +1,6 @@
-### $Id: mkmesh.m,v 1.1 2002/10/09 13:38:44 mstorti Exp $ 
+##__INSERT_LICENSE__
+## $Id: mkmesh.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
+### $Id: mkmesh.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $ 
 
 source("./data.m.tmp");
 

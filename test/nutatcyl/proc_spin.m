@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc_spin.m,v 1.3 2003/01/08 15:49:04 mstorti Exp $
 f = aload("cylinder.all_force_spin.tmp");
 
 nomega = floor(rows(f)/2);

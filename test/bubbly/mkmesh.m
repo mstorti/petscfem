@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkmesh.m,v 1.10 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");

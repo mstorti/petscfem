@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: cylin.m,v 1.16 2003/01/08 15:49:04 mstorti Exp $
 global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");

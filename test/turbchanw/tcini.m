@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: tcini.m,v 1.4 2003/01/08 15:49:05 mstorti Exp $
 use_log_vars=1;                 # use logarithmic variables in order to
                                 # enforce positivity
 #__ENDS_READING_VARS__

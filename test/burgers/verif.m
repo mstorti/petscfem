@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: verif.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 data
 CASE=getenv("CASE");
 if strcmp(CASE,"_d001") 

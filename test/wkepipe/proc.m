@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc.m,v 1.3 2003/01/08 15:49:05 mstorti Exp $
 source("data.m.tmp");
 NN=2*(N+1);
 x=aload("wallke.nod.tmp");

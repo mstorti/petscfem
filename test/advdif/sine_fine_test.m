@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: sine_fine_test.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 #sine
 
 x=[1 1];

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkplate.m,v 1.6 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 
 w=zhomo([0 Ly 0 Lx],Ny+1,Nx+1,[1 0 yratio 1 0 1]);

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check_var_rain.m,v 1.3 2003/01/08 15:49:03 mstorti Exp $
 ###key check_var_rain.m
 
 source("data.m.tmp");

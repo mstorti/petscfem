@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: checkpf.m,v 1.3 2003/01/08 15:49:04 mstorti Exp $
 a=aload("data.tmp");
 chkkey = a(1,1);
 a(1,:)=[];

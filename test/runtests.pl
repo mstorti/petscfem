@@ -848,7 +848,7 @@ expect("burgers/save.state._d01_wf.tmp",
        "Advdif/Burgers with weak form+bcconv, d=0.1",<<'EOT');
 9.64.*e\-01  
 7.59.*e\-01  
-e\-15
+e\-1(4|5|6)
 -7.59.*e\-01  
 -9.64.*e\-01  
 EOT
@@ -858,7 +858,7 @@ expect("burgers/save.state._d01_nwf.tmp",
        "Advdif/Burgers with no weak form, d=0.1",<<'EOT');
 9.64.*e\-01  
 7.59.*e\-01  
-e\-15
+e\-1(4|5|6)
 -7.59.*e\-01  
 -9.64.*e\-01  
 EOT
@@ -877,8 +877,8 @@ expect("burgers/save.state._d001_wf.tmp",
 1.094.*e\+00  
 __NO_SKIP__
 1.094.*e\+00  
-e\-1(4|5)  
-e\-1(4|5)  
+e\-1(4|5|6)  
+e\-1(4|5|6)  
 -1.094.*e\+00  
 -1.094.*e\+00  
 -1.000.*e\+00  

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: sine.m,v 1.7 2003/01/08 15:49:03 mstorti Exp $
 ## Number os elements in x,y
 source("sine.data");
 

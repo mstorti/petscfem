@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mmesh.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 data
 
 w=zhomo([0 1 0 1/N],N+1,2);

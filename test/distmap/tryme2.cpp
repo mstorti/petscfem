@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: tryme2.cpp,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 #include <iostream>
 #include <list>
 

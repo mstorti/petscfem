@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: checkas.m,v 1.3 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 u=aload("aquist.rot0.tmp");

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.79 2003/01/08 13:08:41 mstorti Exp $ 
+# $Id: Makefile,v 1.80 2003/01/08 15:49:03 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -64,12 +64,9 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl mmove advec nsgenload
+	sparse graph sqcav pfmat aquifer nutatcyl
 
-runtests_p:  fastmat2 plano \
-	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl mmove advec nsgenload
+runtests_p:   mmove advec nsgenload
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -160,7 +157,7 @@ oscplate4cos: ns
 			oscplate.epl >oscplate4c.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4c.depl >/dev/null
 	mv oscsome.sal oscsome4c.sal
-	octave oscplate4c.m &> oscplate4co.sal
+	octave -qH oscplate4c.m &> oscplate4co.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `sin(2*pi*t/T-pi/6)' case
@@ -170,7 +167,7 @@ oscplate4_30deg: ns
 			oscplate.epl >oscplate4_30deg.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4_30deg.depl >/dev/null
 	mv oscsome.sal oscsome4_30deg.sal
-	octave oscplate4_30deg.m &> oscplate4_30dego.sal
+	octave -qH oscplate4_30deg.m &> oscplate4_30dego.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: $(plano_list)

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc6.m,v 1.2 2003/01/08 15:49:04 mstorti Exp $
 TT=[];
 nx = size(v,1);
 for kk=min(nx,10):nx

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkmeshaqs.m,v 1.4 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 w=zhomo([0 Lx 0 Ly],Nx+1,Ny+1);

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc2.m,v 1.3 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 U=aload("save.state.tmp");
 u=reshape(U(:,1),Nx+1,Ny+1)';

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: checkdlf.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 source("data.m.tmp");
 
 u=aload(["stream.rot0.tmp"]);

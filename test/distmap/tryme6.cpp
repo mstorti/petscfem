@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: tryme6.cpp,v 1.3 2003/01/08 15:49:04 mstorti Exp $
 #include <cstdio>
 #include <vector>
 

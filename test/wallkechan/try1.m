@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: try1.m,v 1.2 2003/01/08 15:49:05 mstorti Exp $
 d=10;                           # Supplemental value added to the diagonal
                                 # in order to obtain a non-singular matrix.
 N=100;                          # Size of the reduced problem

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 global N x3
 source("data.m.tmp");
 u = aload("cubcav.iisd_sbp1_uj.tmp");

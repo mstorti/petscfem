@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: turbchanw.m,v 1.2 2003/01/08 15:49:05 mstorti Exp $
 rho=1000;			# kg/m^3
 g=9.8;				# m/sec^2
 nu=1;				# m^2/sec

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: ghia.m,v 1.2 2003/01/08 15:49:05 mstorti Exp $
 tabla = [  ...
 %   y       Re=1,000    3,200    10,000       
   0.        0.         0.       0.

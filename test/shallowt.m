@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: shallowt.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 sigma_k=1.;			# Turbulence model constants
 sigma_e=1.3;
 C_mu = 0.09;

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkmesh.m,v 1.7 2003/01/08 15:49:05 mstorti Exp $
 startup
 source("data.m.tmp");
 

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: sineload.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 source("sine.data");
 u=aload("outvector0.sal");
 nn = length(u);

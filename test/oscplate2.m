@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: oscplate2.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 source("~/.octaverc");
 U=aload("oscsome2.sal");;
 

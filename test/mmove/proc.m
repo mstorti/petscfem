@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: proc.m,v 1.7 2003/01/08 15:49:04 mstorti Exp $
 x0 = aload("step.nod.tmp");
 dx = aload("step.state.tmp");
 icone = aload("step.con.tmp");

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: checkiisd.orig.m,v 1.2 2003/01/08 15:49:04 mstorti Exp $
 if n_int_v(rows(n_int_v)) != rows(A)
   error("Sizes do not match!!");
 endif

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: check_circ.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
 source("~/.octaverc");
 
 tol=1e-10;

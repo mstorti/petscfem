@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: mkgasflow_test_2d.m,v 1.3 2003/01/08 15:49:04 mstorti Exp $
 source("data.m.tmp");
 
 #w=zhomo([0 D 0 H],Nr+1,Nz+1,[1 rratio 1 1 hratio 1.2*hratio]);

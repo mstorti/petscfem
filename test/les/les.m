@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: les.m,v 1.4 2003/01/08 15:49:04 mstorti Exp $
 source("~/.octaverc");
 
 nx=10;				# number of elements in one dimension

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: loadiisd.m,v 1.2 2003/01/08 15:49:04 mstorti Exp $
 petsc_data_name="system.dat";
 petscload
 resiisd=res;

@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: tryme4.cpp,v 1.6 2003/01/08 15:49:04 mstorti Exp $
 #include <petsc.h>
 #include <petscsles.h>
 
