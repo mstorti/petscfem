@@ -5,8 +5,6 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
-* print the date of running on the start
-* document wiki syntax for `odoc.pl'
 * Make PETSCFEM_ASSERT not to print a dot in the message i.e. "condition." 
 * Add `wiki' syntax to //o options (#tt#, *bf*, _em_ ...)
 * Generate a test for the disconnected graph bug. 
@@ -116,6 +114,8 @@ DONE:
 =====
 
 ### Current line =========== 
+* document wiki syntax for `odoc.pl'
+* print the date of running on the start
 * OK Write a `system' hook. (executes a shell command). 
 * DX: let the user to dynamically split fields in scalar, vectors, etc...
 * if it can't open the connectivity file, it hangs with a SIGSEGV

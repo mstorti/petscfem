@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.15 2003/09/11 01:12:40 mstorti Exp $
+# $Id: odoc.pl,v 1.16 2003/09/13 00:25:35 mstorti Exp $
 
 @odoc=();
 
@@ -270,6 +270,47 @@ you want to suppress this  warning add a C<//nd> after the C<*GETOPT*>
 call as, for instance
 
    TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.); //nd
+
+=item *
+
+B<Wiki syntax:> A set of words between tow stars (as in C<*foo bar
+zoo*>) is bolded in the outoput (using C<\textbf{}>,
+i.e. C<\textbf{foo bar zoo}>). Also, C<_foo bar_> expands to italic
+(using C<\emph{}>) and C<#bar zoo#> expands to monospace (using
+C<\verb++>). This is inspired in the syntax prevalent in most wiki
+clones. (see for instance L<http://twiki.org>)
+
+Several restrictions apply, however:
+
+=over
+
+=item * 
+
+The whole construt must be contained in the same line, i.e. you can't
+use them across lines.
+
+=item * 
+
+The character B<after> the first wiki character (i.e. one of C<*#_>)
+and that one B<before> the second one must B<not> be white-space. The
+characters before and after them B<must> be white-space. For instance
+C<bar *foo zoo* mom> is expanded while C<bar * foo zoo * mom> and
+C<bar*foo zoo* mom> not. The exact Perl regexp's are
+C<\s$wc\S.*?\S$wc\s> and also C<\s$wc\S$wc\s> where C<$wc> is one of
+the previously mentioned wiki characters.
+
+=item * 
+
+You can deactivate this feature using the special
+C<//__DISABLE_WIKI__> and C<//__ENABLE_WIKI__> commands. 
+
+=back
+
+Example:
+
+ //o This is an _a priori_ unstable method. *Do not* use
+ //  unless you are sure what you do!! Use #soft_restart#
+ //  instead. 
 
 =back
 

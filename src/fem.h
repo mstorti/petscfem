@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.34 2003/09/11 16:02:07 mstorti Exp $
+//$Id: fem.h,v 1.35 2003/09/13 00:27:52 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -328,10 +328,10 @@ using namespace std;
 #ifdef USE_VARARG_MACROS
 #define PETSCFEM_ASSERT(bool_cond,templ,...)				\
 if (!(bool_cond)) {PETSCFEM_ERROR("Assertion failed: \"" #bool_cond	\
-       ".\"\n" templ,__VA_ARGS__);}
+       "\"\n" templ,__VA_ARGS__);}
 #define PETSCFEM_ASSERT0(bool_cond,templ)				\
 if (!(bool_cond)) {PETSCFEM_ERROR0("Assertion failed: \"" #bool_cond	\
-       ".\"\n" templ);}
+       "\"\n" templ);}
 #else
 #define PETSCFEM_ASSERT petscfem_assert
 #define PETSCFEM_ASSERT0 petscfem_assert
