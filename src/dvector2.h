@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.11 2003/08/10 01:32:06 mstorti Exp $
+// $Id: dvector2.h,v 1.12 2003/08/10 13:54:09 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -137,7 +137,10 @@ void dvector<T>::push(const T &t) {
     // allocate new chunk
     assert(nchunks == chunk_vector.size());
     // resync `chunk_vector' and `nchunks'
-    chunk_vector.push_back(new T[chunk_size]);
+    printf("antes...\n");
+    T* p = new T[chunk_size];
+    printf("despues...\n");
+    chunk_vector.push_back(p);
     chunks = &*chunk_vector.begin();
     nchunks++;
   }
