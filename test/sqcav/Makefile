@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.55 2003/02/19 17:40:15 mstorti Exp $ 
+# $Id: Makefile,v 1.56 2003/02/24 00:14:24 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -13,7 +13,29 @@ runn:
 	$(MAKE) case=weak_form_1 runs
 
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
-	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests
+	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests test_qharm_3d
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+#w Tests the adaptor_pg class when ndimel<ndim (quad panels in 3D). 
+test_qharm_3d:
+# A Laplace problem in surfaces is considered. We simply consider a 2D
+# plane but simulating it as a plane in space. First, for reference,
+# we solve the strictly 2D problem, and then we solve for the plane
+# passing through the `y' axis at several angles with respect to the
+# `xy' plane. (0,45 and 90deg).
+	-rm -f qharm.state_g3d_ref.tmp
+	$(MAKE) CASE=qharm case=g3d_ref run
+	-cp outvector0.out qharm.state_g3d_ref.tmp
+	-rm -f qharm.state_g3d0.tmp
+	$(MAKE) CASE=qharm case=g3d_0 run
+	-cp outvector0.out qharm.state_g3d_0.tmp
+	-rm -f qharm.state_g3d45.tmp
+	$(MAKE) CASE=qharm case=g3d_45 run
+	-cp outvector0.out qharm.state_g3d_45.tmp
+	-rm -f qharm.state_g3d90.tmp
+	$(MAKE) CASE=qharm case=g3d_90 run
+	-cp outvector0.out qharm.state_g3d_90.tmp
+	octave -qH check_g3d.m > verif.g3d.tmp
 
 dx_tests_np1 := dx_hook_test_post_run_file_record dx_hook_test_post_run_files \
 		dx_hook_test_synchro dx_hook_test_allf

@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkqharm.m,v 1.2 2003/01/08 15:49:05 mstorti Exp $
+## $Id: mkqharm.m,v 1.3 2003/02/24 00:14:24 mstorti Exp $
 source("data.m.tmp");
 
 rem(N,2)==0 || warning("N should be even");
@@ -8,11 +8,18 @@ w=zhomo([-1 1 0 2],N+1,N+1,[1 hratio 1 1 hratio 1]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
-asave("qharm.nod.tmp",xnod);
-asave("qharm.con.tmp",icone);
-
 x=xnod(:,1);
 y=xnod(:,2);
+
+if g3d
+  theta = theta*pi/180;
+  x3d = [cos(theta)*x y sin(theta)*x];
+  asave("qharm.nod.tmp",x3d);
+else
+  asave("qharm.nod.tmp",xnod);
+endif
+
+asave("qharm.con.tmp",icone);
 
 tol=1e-5;
 wall=find(abs(y)<tol)';

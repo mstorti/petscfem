@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.6 2003/02/23 16:49:38 mstorti Exp $
+//$Id: adappg.cpp,v 1.7 2003/02/24 00:14:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,7 +12,15 @@
 #include "elast.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & adaptor_pg::normal() { return normal_m; }
+#define FUN_RET_MEMBER(name) \
+FastMat2 & adaptor_pg::name() { return name##_m; }
+
+FUN_RET_MEMBER(normal);
+FUN_RET_MEMBER(shape);
+FUN_RET_MEMBER(dshapexi);
+#undef FUN_RET_MEMBER
+
+FastMat2 & adaptor_pg::dshapex() { return adaptor::dshapex; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor_pg::init() {
@@ -24,7 +32,6 @@ void adaptor_pg::init() {
   g.resize(2,ndimel,ndimel);
   ig.resize(2,ndimel,ndimel);
   Jaco.resize(2,ndimel,ndim);
-  dshapex.resize(2,ndim,nel);  
   grad_state_new_pg.resize(2,ndim,ndof);
   grad_state_old_pg.resize(2,ndim,ndof);
   state_new_pg.resize(1,ndof);
@@ -33,15 +40,22 @@ void adaptor_pg::init() {
   mat_pg.resize(4,nel,ndof,nel,ndof);
   tmp.resize(2,ndimel,nel);
 
+  // Data to be passed to the pg_connector
+  shape_m.resize(1,nel);
+  dshapexi_m.resize(2,ndimel,nel);
+
   elemset_init();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor_pg::clean() {
+
+  shape_m.clear();  
+  dshapexi_m.clear();  
+
   // Clean up local functions
   xpg.clear();
   Jaco.clear();
-  dshapex.clear();  
   grad_state_new_pg.clear();
   grad_state_old_pg.clear();
   state_new_pg.clear();
@@ -62,6 +76,12 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
 
+  // Create aliases for the members in `adaptor'
+  // otherwise `shape()', for instance, collides with `adaptor::shape'
+#define shape    (adaptor::shape)
+#define dshapex  (adaptor::dshapex)
+#define dshapexi (adaptor::dshapexi)
+
   // loop over Gauss points
   elem_init();
   for (int ipg=0; ipg<npg; ipg++) {
@@ -69,6 +89,7 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     // Select the column of dshapexi correponding to this GP
     dshapexi.ir(3,ipg+1);
     Jaco.prod(dshapexi,xloc,1,-1,-1,2);
+    dshapexi_m.set(dshapexi);
     
     double detJaco;
     if (ndimel==ndim) {
@@ -94,6 +115,7 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     grad_state_old_pg.prod(dshapex,state_old,1,-1,-1,2);
 
     shape.ir(2,ipg+1);
+    shape_m.set(shape);
     xpg.prod(shape,xloc,-1,-1,1);
     state_new_pg.prod(shape,state_new,-1,-1,1);
     state_old_pg.prod(shape,state_old,-1,-1,1);

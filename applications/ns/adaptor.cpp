@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.5 2002/01/14 03:45:05 mstorti Exp $
+//$Id: adaptor.cpp,v 1.6 2003/02/24 00:14:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -49,8 +49,10 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_ND(thash,int,npg,0);
   // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
   TGETOPTDEF_ND(thash,int,ndim,0); //nd
-  assert(npg>0);  
+  assert(npg>=0);  
   assert(ndim>0);
+  TGETOPTDEF_ND(thash,int,ndimel,ndim);
+  assert(ndimel>=0 && ndimel<=ndim);
   int nen = nel*ndof;
 
   // Unpack nodedata
@@ -91,7 +93,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   
   //GPdata gp_data(geom,ndim,nel,npg);
-  GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -99,7 +101,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Memory allocation and initialization 
   shape.resize(2,nel,npg);
-  dshapexi.resize(3,ndim,nel,npg);
+  dshapexi.resize(3,ndimel,nel,npg);
   wpg.resize(1,npg);
 
   for (int ipg=0; ipg<npg; ipg++) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.78 2003/02/22 04:21:01 mstorti Exp $
+//$Id: readmesh.cpp,v 1.79 2003/02/24 00:14:23 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -79,6 +79,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   static char *ename=NULL;
 
   char *p1,*p2, *token, *type, *bsp=" \t";
+  vector<string> tokens;
   char *line;
   const char *cline;
   Autostr *linecopy = astr_create();
@@ -128,12 +129,22 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       mesh->global_options->set_as_global();
 
     } else if (!strcmp(token,"nodes")) {
-
+      
       TRACE(-5.0);
       PetscPrintf(PETSC_COMM_WORLD," -- Reading nodes:\n");
-      token = strtok(NULL,bsp); sscanf(token,"%d",&ndim);
-      token = strtok(NULL,bsp); sscanf(token,"%d",&nu);
-      token = strtok(NULL,bsp); sscanf(token,"%d",&ndof);
+      tokens.clear();
+      tokenize(fstack->line_read(),tokens);
+      assert(tokens.size()==4);
+      ierr = string2int(tokens[1],ndim);
+      assert(!ierr);
+      assert(ndim>0);
+      ierr = string2int(tokens[2],nu);
+      assert(!ierr);
+      assert(nu>=ndim);
+      ierr = string2int(tokens[3],ndof);
+      assert(!ierr);
+      assert(ndof>=0);
+
       PetscPrintf(PETSC_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
       mesh->nodedata->nu = nu;

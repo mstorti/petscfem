@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.18 2003/01/11 00:18:22 mstorti Exp $
+//$Id: embgath.h,v 1.19 2003/02/24 00:14:23 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -25,21 +25,18 @@ public:
       @param mat_version (input) the matrix version (Newmat or FastMat2)
       @param use_exterior_normal (input) flags whether we the faces are
       oriented so that the normal to it points towards the interior or
-      the exterior of the exterior of the volume element. 
-  */
+      the exterior of the exterior of the volume element. */
   Surf2Vol(const char *geom,int ndim,int nel,int npg,
 	   int mat_version=GP_NEWMAT,int use_exterior_normal=0);
 
-  /** @name Call back functions. 
-  */ 
+  /** @name Call back functions. */ 
   //@{
   /** For each interpolation family we have to provide the number of
       possible faces (including rotations orientations). For instance
       for an hexahedral element we have 6x4=24 possible faces.  
       @param nel_surf (input) number of nodes in the surface element
       @param nel_vol (input) number of nodes in the volume element
-      @return  the number of possible faces.
-  */
+      @return  the number of possible faces. */
   virtual int nfaces(int &nel_surf,int &nel_vol)=0;
   /** Returns the $j$-th possible face. 
       @param j (input) the of face number (0 based)
@@ -47,15 +44,10 @@ public:
       that represent the connectivity of the $j$-th face
       @param vol (input) an array of #nel_vol# integers that
       represent the mapping of the connectivity of the volume
-      element in order to rotate it to a standard position. 
-  */ 
+      element in order to rotate it to a standard position. */ 
   virtual void face(int j,const int *&fc,const int *&vol)=0;
-#if 0
-  /** Number of surface nodes, desired number of
-      nodes in the volume element. */
-  virtual void surface_nodes(int &nel_surf,int &nel_vol)=0;
-#endif
   //@}
+
   /** Rotates the connectivity in #vol_map# according to
       the surface rotation #surf_map#.
       @param surf_map (input) the mapping of the surface
@@ -248,14 +240,10 @@ public:
   /// Get dimension number, define #compute_moment#, viscosity
   void init();
   /** Adds force (pressure+viscous) for a given Gauss point. 
-      @param (input)
-      @return a reference to the matrix.
-  */ 
+   FIXME:= enter doc... */ 
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		     FastMat2 &xpg,FastMat2 &n, double wpgdet,double time);
-  /// Return parameters number of nodes on face, and on volume elements. 
-  // void surface_nodes(int &nel_surf,int &nel_vol);
 };
 
 #endif

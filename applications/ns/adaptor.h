@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.9 2003/02/23 16:49:50 mstorti Exp $
+//$Id: adaptor.h,v 1.10 2003/02/24 00:14:23 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -86,7 +86,7 @@ class adaptor_pg : public adaptor {
 			 FastMat2 &res,FastMat2 &mat);
   FastMat2 Jaco,grad_state_new_pg,grad_state_old_pg,
     state_old_pg,state_new_pg,res_pg,mat_pg,
-    xpg,normal_m,g,ig,tmp;
+    xpg,normal_m,g,ig,tmp,shape_m,dshapexi_m;
 public: 
   /** @name Call back functions. */ 
   //@{
@@ -121,6 +121,9 @@ public:
   //@}
   /** Returns the normal to the element (in the case #ndimel<ndim#).  */ 
   FastMat2 &normal();
+  FastMat2 &shape();
+  FastMat2 &dshapexi();
+  FastMat2 &dshapex();
 };
 
 #endif

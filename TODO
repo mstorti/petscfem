@@ -5,6 +5,12 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
+* FastMat2 doesn't detect errors like this
+  `tmp5.prod(dshapex,tmp4,-1,2,-1,2);' (see fstepfm.cpp, Fri Jul 26
+  12:51:27 ART 2002). non contracted indices should be 1,2,.... 
+  neither this: tmp11.prod(dshapex,tmp12,-1,1,-1);
+* default values for npg
+* a dynamically loaded Gauss Point adaptor elemset. 
 * DX: make epimport.cpp to print shapes in one line. 
 * DX: lets to call field generators from dynamically load C/C++
          modules. 
@@ -22,10 +28,6 @@ TODO: [Mainly fixes go here...]
 * Make `report_consumed_time' to report the time spent in computing
         residues, and assembly. 
 * Document new options for IISDMat
-* FastMat2 doesn't detect errors like this
-  `tmp5.prod(dshapex,tmp4,-1,2,-1,2);' (see fstepfm.cpp, Fri Jul 26
-  12:51:27 ART 2002). non contracted indices should be 1,2,.... 
-  neither this: tmp11.prod(dshapex,tmp12,-1,1,-1);
 * In `eperlini.pl' we have to check strings/number with `is_numeric()'
    defined in 'perl/utils.pl' but this requires to update eperl in
    spider. 

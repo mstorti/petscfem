@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.19 2003/02/22 16:44:00 mstorti Exp $
+## $Id: cylin.m,v 1.20 2003/02/24 00:14:23 mstorti Exp $
 global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");
@@ -185,3 +185,12 @@ asave("ext.nod.tmp",xnode);
 asave("ext.con.tmp",iconee);
 
 asave("ext.coupling_nodes.tmp",[external external2]);
+
+## 1D coupling elements. They add a certain traction on the surface
+## in order to have null vorticity. 
+fid = fopen("cylin.coupler.tmp","w");
+fid!=-1 || error("couldn't open cylin.coupler.tmp");
+for k=1:length(external)-1
+  fprintf(fid,"%d %d\n",external(k),external(k+1));
+endfor
+fclose(fid);

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.18 2003/02/22 04:21:05 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2003/02/24 00:14:23 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
@@ -11,7 +11,7 @@ sphere:
 	$(MAKE) CASE_NAME=sphere run
 
 inviscid:
-	$(MAKE) CASE_NAME=ext run > inviscid.output.tmp
+	$(MAKE) CASE_NAME=ext run > inviscid.output.tmp 2>&1 
 
 idx:
 	$(MAKE) CASE_NAME=ext run

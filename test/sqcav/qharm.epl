@@ -4,6 +4,17 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('case','lu');
+get_var_env('theta',0);
+print "# incoming `case' : $case\n";
+if ($case =~ /^g3d_(.*)$/) { 
+    $case = 'lu'; 
+    $subcase = $1;
+    $g3d = 0;
+    if ($subcase ne 'ref') {
+	$g3d = 1;
+	$theta = $subcase;
+    }
+}
 $L = 1;				# Side of the cavity
 $N = 10;
 $hratio = 0;			# refinement (h_center/h_wall)
@@ -41,11 +52,15 @@ if (scalar $case =~ /weak_form_(\d)/) {
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
-octave_export_vars(">data.m.tmp",qw(U L N Re viscosity h Co Dt hratio));
+octave_export_vars(">data.m.tmp",qw(U L N Re viscosity h Co Dt 
+	hratio g3d theta));
 :>//                            # ends ePerl block
-
+# <:pr('case'):>
+# <:pr('subcase'):>
+# <:pr('theta'):>
 global_options
 
+ndim <:=($g3d ? 3 : 2):>
 nsave 5
 <:pr('nstep'):> 
 # initial_state qharm.state
@@ -81,14 +96,14 @@ Dt 0.01
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  1
+nodes  <:=($g3d ? '3  3' : '2 2'):> 1
 __INCLUDE__ qharm.nod.tmp
 _END_NODES__
 
 elemset qharm 4 
 name malla
+ndimel 2
 geometry cartesian2d
-ndim 2
 npg 4
 # Physical data
 #

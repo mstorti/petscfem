@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: invcoupl.h,v 1.1 2003/02/23 16:49:27 mstorti Exp $
+// $Id: invcoupl.h,v 1.2 2003/02/24 00:14:23 mstorti Exp $
 #ifndef PETSCFEM_INVCOUPL_H
 #define PETSCFEM_INVCOUPL_H
 
@@ -15,12 +15,14 @@ private:
     store = store_v.begin();
   }
 public:
+  FastMat2Tmp() : size(0), store(NULL) {}
   FastMat2 & operator()(int j) {
     if (j>=size) { 
-      store_v.resize(j+1,NULL); 
+      store_v.resize(j+1); 
+      for (int k=size; k<j; k++) store_v[k] = NULL;
       sync();
-      if (!store[j]) store[j] = new FastMat2;
     }
+    if (!store[j]) store[j] = new FastMat2;
     return *store[j];
   }
   void clear() {

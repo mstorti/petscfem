@@ -512,6 +512,12 @@ expect("nsgenload/verif.constraint.tmp",
 Error < tol OK \? 1
 EOT
 
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/verif.g3d.tmp",
+       "Adaptor_pg for surfaces. Plane at various angles",
+       read_file("sqcav/verif.g3d.ans"));
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
