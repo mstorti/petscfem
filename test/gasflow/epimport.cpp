@@ -1,6 +1,5 @@
-/*
- * Automatically generated on "/tmp/epimport.mb" by DX Module Builder
- */
+//__INSERT_LICENSE__
+// $Id: epimport.cpp,v 1.8 2003/02/07 13:19:26 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -114,11 +113,6 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   // return number of bytes read
   return strlen(*lineptr)+1;
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-class GenericError : public string {};
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int string2int(string s,int &n) {
@@ -354,10 +348,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     DXSetError(ERROR_INTERNAL, "Couldn't open socket");
     return ERROR;
   }
-    
-  g = DXNewGroup();
-  if (!g) goto error;
 
+  Array p,c,d;
+  Field f;
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
     DXMessage("Got buf %s",buf);
@@ -376,6 +369,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
+      p = array;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
       name = tokens[1];
@@ -387,6 +381,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"State\" name %s, ptr %p, ndof %d, nnod %d",
 		name.c_str(),array,ndof,nnod);
+      d = array;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
       string &name = tokens[1];
@@ -404,8 +399,10 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
 		name.c_str(),array,nel,nelem);
+      c = array;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="field") {
+#if 0
       // Get components 
       Object positions,connections,data;
       string &name = tokens[1];
@@ -441,6 +438,24 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));
       if(ierr!=OK) return ierr;
       DXMessage("trace 7");
+#endif
+      DXMessage("trace 8");
+      Field field = DXNewField();
+      if (!field) goto error;
+      DXMessage("trace 9");
+      field = DXSetComponentValue(field,"positions",(Object)p); 
+      if (!field) goto error;
+      DXMessage("trace 10");
+      field = DXSetComponentValue(field,"connections",(Object)c); 
+      if (!field) goto error;
+      DXMessage("trace 11");
+      field = DXSetComponentValue(field,"data",(Object)d); 
+      if (!field) goto error;
+      DXMessage("trace 12");
+      field = DXEndField(field); if (!field) goto error;
+      f = field;
+      DXMessage("trace 13");
+
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else {
       DXSetError(ERROR_INTERNAL,
@@ -449,60 +464,18 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     }
   }
 
+#if 0
+  g = DXNewGroup();
+  if (!g) goto error;
+
   for (q=dx_objects_table.begin(); q!=qe; q++) {
     g = DXSetMember(g,(char *)(q->first.c_str()),
 		    (Object)q->second->dx_object());
   }
 
-#if 0
-  Sgets(buf,BUFSIZE,clnt);
-  sscanf(buf,"state %d %d",&ndof,&nnod2);
-  if (nnod!=nnod2) goto error;
-  DXMessage("Got ndof %d",ndof);
-
-  data = DXNewArray(TYPE_DOUBLE, CATEGORY_REAL, 1, ndof);
-  if (!data) goto error;
-  data = DXAddArrayData(data, 0, nnod, NULL);
-  if (!data) goto error;
-  data_p = (double *)DXGetArrayData(data);
-  nread = Sreadbytes(clnt,data_p,ndof*nnod*sizeof(double));
-  g = DXSetMember(g,"data",(Object)data);
-  if (!g) goto error;
-
-  DXassert(!strcmp(token,"icone"));
-
-  token = strtok(NULL,spc);
-  nread = sscanf(token,"%d",&nelem);
-  DXassert(nread==1);
-
-  token = strtok(NULL,spc);
-  nread = sscanf(token,"%d",&nel);
-  DXassert(nread==1);
-
-  token = strtok(NULL,spc);
-  DXassert(token);
-  DXassert(strlen(token)>0);
-  string ename(token);
-
-  token = strtok(NULL,spc);
-  DXassert(token);
-  DXassert(strlen(token)>0);
-  string etype(token);
-
-  DXMessage("Got elemset \"%s\", nelem %d, nel %d, type \"%s\"\n",
-	    ename.c_str(),nelem,nel,etype.c_str());
-
-  icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1, nel);
-  if (!icone) goto error;
-  icone = DXAddArrayData(icone, 0, nelem, NULL);
-  if (!icone) goto error;
-  icone_p = (int *)DXGetArrayData(icone);
-  nread = Sreadbytes(clnt,icone_p,nelem*nel*sizeof(int));
-  g = DXSetMember(g,(char *)ename.c_str(),(Object)icone);
-  if (!g) goto error;
-
-#endif
   out[0] = (Object)g;
+#endif
+  out[0] = (Object)f;
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;
