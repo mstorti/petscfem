@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.28 2001/09/30 22:51:34 mstorti Exp $ 
+# $Id: Makefile,v 1.29 2001/10/06 15:52:54 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -42,7 +42,8 @@ test_iisd:
 
 #w Tests IISD wirh local_solver = SuperLU
 test_iisd_superlu:
-	$(MAKE) NP=2 local_solver=iisd_superlu case=iisd case_size=small part=random test_case
+	$(MAKE) NP=2 local_solver=iisd_superlu \
+			case=iisd case_size=small part=random test_case
 	mv -f save.state save.state.iisd_superlu.np2.rand.tmp
 	$(MAKE) NP=2 local_solver=iisd_superlu case=iisd case_size=small test_case
 	mv -f save.state save.state.iisd_superlu.np2.tmp
