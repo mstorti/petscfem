@@ -3676,3 +3676,6 @@ tag: beta-3.38.29 on Sat, 15 Jan 2005 20:42:20 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.30 on Sat, 15 Jan 2005 21:13:17 -0300 by mstorti in spider
      > Fixed bug in `dvector2.h' with `rowsz'.
+----------
+tag: beta-3.38.31 on Sun, 16 Jan 2005 11:34:24 -0300 by mstorti in spider
+     > Implemented get-surf-ctx. 
