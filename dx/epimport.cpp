@@ -1,9 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.14 2003/09/03 15:58:24 mstorti Exp $
+// $Id: epimport.cpp,v 1.15 2003/09/03 23:05:05 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
 #include <sstream>
+#include <float.h>
+#include <math.h>
 
 // `or' and `string' are used in DX so that one possibility is to
 // use a namespace for DX or to remap this colliding names with
@@ -25,6 +27,17 @@
 //#define USE_SSL
 #include <src/util3.h>
 #include <src/autostr.h>
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define DX_USE_FLOATS 1
+
+#ifdef DX_USE_FLOATS
+#define DX_SCALAR_TYPE TYPE_FLOAT
+#define DX_SCALAR_TYPE_DECL float
+#else
+#define DX_SCALAR_TYPE TYPE_DOUBLE
+#define DX_SCALAR_TYPE_DECL double
+#endif
 
 static Error traverse(Object *, Object *);
 static Error doLeaf(Object *, Object *);
@@ -48,6 +61,17 @@ public:
   Array array;
   Object dx_object() { return (Object)array; }
   Nodes(int m,int d,Array a) : ndim(m), nnod(d), array(a) {}
+  void stat() {
+    assert(DX_USE_FLOATS);
+    float *p = (float *)DXGetArrayData(array);
+    float *p_end = p + nnod*ndim;
+    float min=FLT_MAX, max=FLT_MIN;
+    while (p<p_end) {
+      float w = fabsf(*p++);
+      if (w>max) max = w; 
+      if (w<min) min = w;
+    }
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -59,6 +83,18 @@ public:
   Object dx_object() { return (Object)array; }
   State(int k,vector<int> &s,int z,int d,Array a) 
     : rank(k), shape(s), size(z), nnod(d), array(a) {}
+  void stat() {
+    float *p = (float *) DXGetArrayData(array);
+    float *p_end = p + nnod*size;
+    assert(DX_USE_FLOATS);
+    float min=FLT_MAX, max=FLT_MIN;
+    while (p<p_end) {
+      float w = fabsf(*p++);
+      if (w>max) max = w; 
+      if (w<min) min = w;
+    }
+    DXMessage("min max vals in data %g %g",min,max);
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -70,6 +106,17 @@ public:
   Object dx_object() { return (Object)array; }
   Elemset(int l,int m,string &dxt,Array a) : nel(l), nelem(m), 
     dx_type(dxt), array(a) {}
+  void stat() {
+    int max=0, min=INT_MAX;
+    int *p = (int *)DXGetArrayData(array);
+    int *p_end = p + nel*nelem;
+    while (p < p_end) {
+      int w = *p++;
+      if (w>max) max = w; 
+      if (w<min) min = w;
+    }
+    DXMessage("min max nodes in elemset %d %d",min,max);
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -187,17 +234,6 @@ int DXObjectsTable::get_state(string &name,Object &object) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#define DX_USE_FLOATS
-
-#ifdef DX_USE_FLOATS
-#define DX_SCALAR_TYPE TYPE_FLOAT
-#define DX_SCALAR_TYPE_DECL float
-#else
-#define DX_SCALAR_TYPE TYPE_DOUBLE
-#define DX_SCALAR_TYPE_DECL double
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Error build_dx_array(Socket *clnt,int shape,int length, Array &array) {
   array = NULL;
   array = DXNewArray(DX_SCALAR_TYPE, CATEGORY_REAL, 1,shape);
@@ -206,8 +242,17 @@ Error build_dx_array(Socket *clnt,int shape,int length, Array &array) {
   if (!array) return ERROR;
   DX_SCALAR_TYPE_DECL *array_p = (DX_SCALAR_TYPE_DECL *)DXGetArrayData(array);
 
-  int nread = Sreadbytes(clnt,array_p,shape*length*sizeof(DX_SCALAR_TYPE_DECL));
-  if (nread==EOF) return ERROR;
+  int want_read = shape*length*sizeof(DX_SCALAR_TYPE_DECL);
+  int nread = Sreadbytes(clnt,array_p,want_read);
+  if (nread==EOF) {
+    DXSetError(ERROR_DATA_INVALID,"build_dx_array: EOF during read on socket.");
+    return ERROR;
+  }
+  if (nread!=want_read) {
+    DXSetError(ERROR_DATA_INVALID,"build_dx_array: Read incorrect amount of"
+	       " bytes, wants %d, read %d",want_read,nread);
+    return ERROR;
+  }
   return OK;
 }
 
@@ -222,8 +267,17 @@ Error build_dx_array_v(Socket *clnt,int rank,
   if (!array) return ERROR;
   DX_SCALAR_TYPE_DECL *array_p = (DX_SCALAR_TYPE_DECL *)DXGetArrayData(array);
 
-  int nread = Sreadbytes(clnt,array_p,size*length*sizeof(DX_SCALAR_TYPE_DECL));
-  if (nread==EOF) return ERROR;
+  int want_read = size*length*sizeof(DX_SCALAR_TYPE_DECL);
+  int nread = Sreadbytes(clnt,array_p,want_read);
+  if (nread==EOF) {
+    DXSetError(ERROR_DATA_INVALID,"build_dx_array: EOF during read on socket.");
+    return ERROR;
+  }
+  if (nread!=want_read) {
+    DXSetError(ERROR_DATA_INVALID,"build_dx_array: Read incorrect amount of"
+	       " bytes, wants %d, read %d",want_read,nread);
+    return ERROR;
+  }
   return OK;
 }
 
@@ -367,8 +421,10 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[4],cookie)) goto error;
       ierr = build_dx_array(clnt,ndim,nnod,array);
       if(ierr!=OK) return ierr;
-      ierr = dx_objects_table.load_new(name,new Nodes(ndim,nnod,array));
+      Nodes *nodes = new Nodes(ndim,nnod,array);
+      ierr = dx_objects_table.load_new(name,nodes);
       if(ierr!=OK) return ierr;
+      nodes->stat();
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
       Sprintf(clnt,"nodes_OK %d\n",cookie);
@@ -389,8 +445,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
       ierr = build_dx_array_v(clnt,rank,shape,size,nnod,array);
       if(ierr!=OK) return ierr;
-      ierr = dx_objects_table.
-	load_new(name,new State(rank,shape,size,nnod,array));
+      State *state = new State(rank,shape,size,nnod,array);
+      ierr = dx_objects_table.load_new(name,state);
+      state->stat();
       if(ierr!=OK) return ierr;
       AutoString buff;
       buff.sprintf("Got new \"State\" name %s, ptr %p, rank %d, dims (",
@@ -412,12 +469,13 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
  	DXSetStringAttribute((Object)array,
  			     "element type",(char *)dx_type.c_str()); 
       if (!array) goto error;
-      ierr = dx_objects_table
-	.load_new(name,new Elemset(nel,nelem,dx_type,array));
+      Elemset *elemset = new Elemset(nel,nelem,dx_type,array);
+      ierr = dx_objects_table.load_new(name,elemset);
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
 		name.c_str(),array,nel,nelem);
       Sprintf(clnt,"elemset_OK %d\n",cookie);
+      elemset->stat();
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="field") {
       // Get components 
@@ -455,6 +513,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     } else if (tokens[0]=="fields_auto") {
 
       if (string2int(tokens[1],cookie)) goto error;
+      DXMessage("Trace 0");
       DXMessage("Got \"fields_auto\" directive, cookie %d",cookie);
 
       Object positions,connections,data;
@@ -462,37 +521,55 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       ierr = dx_objects_table.get_positions(p,positions);
       if(ierr!=OK) return ierr;
 
+      DXMessage("Trace 1");
       qe=dx_objects_table.end();
       for (q=dx_objects_table.begin(); q!=qe; q++) {
+	DXMessage("Trace 1.1");
 	Elemset *elemset = dynamic_cast<Elemset *>(q->second);
 	if (!elemset) continue;
+	DXMessage("Elemset is nel %d, nelem %d, type %s",elemset->nel,
+		  elemset->nelem,elemset->dx_type.c_str());
+	elemset->stat();
 	Object connections = elemset->dx_object();
 	for (r=dx_objects_table.begin(); r!=qe; r++) {
+	  DXMessage("Trace 1.2");
 	  State *state = dynamic_cast<State *>(r->second);
 	  if (!state) continue;
+	  state->stat();
 	  Object data = state->dx_object();
+	  DXMessage("Trace 1.2.1 state %p, array %p",state,state->array);
+
+	  DXMessage("Data is rank %d, size %d, nnod %d",state->rank,state->size,state->nnod);
 
 	  Field field = DXNewField();
 	  if (!field) goto error;
+	  DXMessage("Trace 1.2.2");
 	  field = DXSetComponentValue(field,"positions",(Object)positions); 
 	  if (!field) goto error;
+	  DXMessage("Trace 1.2.3");
 	  field = DXSetComponentValue(field,"connections",connections); 
 	  if (!field) goto error;
+	  DXMessage("Trace 1.2.4");
 	  field = DXSetComponentValue(field,"data",data); 
 	  if (!field) goto error;
+	  DXMessage("Trace 1.2.5");
 
 	  field = DXEndField(field); if (!field) goto error;
+	  DXMessage("Trace 1.2.6");
 
 	  // Load new field in table
 	  string n("nodes");
 	  string cname(q->first);
 	  string dname(r->first);
 	  DXField *dxf = new DXField(n,cname,dname,field);
+	  DXMessage("Trace 1.2.7");
 	  string fname = cname + "_" + dname;
 	  DXMessage("Builds field %s",fname.c_str());
 	  ierr = dx_objects_table.load_new(fname,dxf);
+	  DXMessage("Trace 1.3");
 	  if(ierr!=OK) return ierr;
 	}
+	DXMessage("Trace 1.4");
       }      
 
       DXMessage("Ends processing fields_auto directive, cookie %d",cookie);
