@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.8 2002/07/24 16:56:59 mstorti Exp $
+// $Id: distcont.h,v 1.9 2002/07/24 17:24:46 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
@@ -15,8 +15,7 @@
     be passed from one processor to other. The #Partitioner# object
     determines to which processor belongs each dof. 
 */
-template <typename Container,typename ValueType,typename Partitioner,
-  int random_iter_mode=0>
+template <typename Container,typename ValueType,typename Partitioner>
 class DistCont : public Container {
 private:
   int belongs(typename Container::const_iterator k,int *plist) const;
@@ -28,13 +27,25 @@ protected:
   /// size and rank in the comunicator
   int size,myrank;
 public:
-  /** Constructor from a communicator
+  /** Set to true(1, default) for non-associative containers
+      (`erase()' doesn't remove the object, i.e. random-access
+      containers like vectors-deques.)  Set to false(0) For
+      associative containers (`erase()' does remove the object, for
+      instance lists and maps), Advance until find the first element
+      that remains here For This is ugly. I not decided yet how to do
+      better...  
+  */
+  int random_iter_mode;
+  /** Constructor.
+      @param part (input) partitioner, defines to which processor belongs each iterator
       @param comm_ (input) MPI communicator
-      @return a reference to the matrix.
+      @param random_iter_mode (input) tells what kind
+      of container the class `Container' is. 
   */ 
   DistCont<Container,
-    ValueType,Partitioner>(Partitioner *pp=NULL,
-			   MPI_Comm comm_=MPI_COMM_WORLD);
+    ValueType,Partitioner>(Partitioner *part=NULL,
+			   MPI_Comm comm_=MPI_COMM_WORLD,
+			   int random_iter_mode=0);
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
@@ -71,22 +82,14 @@ template<class Container,typename ValueType,class Partitioner>
 DistCont<Container,ValueType,Partitioner>::
 DistCont<Container,
   ValueType,
-  Partitioner>(Partitioner *pp=NULL, MPI_Comm comm_= MPI_COMM_WORLD) 
-    : comm(comm_) {
+  Partitioner>(Partitioner *pp=NULL, MPI_Comm comm_= MPI_COMM_WORLD, 
+	       int random_iter_mode_a) 
+    : comm(comm_), random_iter_mode(random_iter_mode_a) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
   part=pp;
 };
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename Container,typename ValueType,class Partitioner> 
-void DistCont<Container,ValueType,Partitioner>::
-processor(const ValueType &p,int &nproc,int *plist) const {
-  return part->processor(p,nproc,plist);
-};
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 

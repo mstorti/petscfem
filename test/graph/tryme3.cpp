@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.13 2002/07/24 16:42:58 mstorti Exp $
+// $Id: tryme3.cpp,v 1.14 2002/07/24 17:24:52 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -8,18 +8,6 @@
 int MY_RANK,SIZE;
 const int M = 30;
 const int N = 5;
-
-#define modulo modulo__
-inline int modulo(int k, int n, int *div=NULL) {
-  int m = k % n;
-  int d = k / n;
-  if (m<0) {
-    m += n;
-    d -= 1;
-  }
-  if (div) *div = d;
-  return m;
-}
 
 void row_print(LinkGraphRow row) {
   LinkGraphRow::iterator q;
@@ -114,7 +102,7 @@ int main(int argc, char **args) {
 #if 0
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // SEQUENTIAL DEBUG
-  LinkGraphDis graph(&part,MPI_COMM_WORLD),
+  LinkGraphDis graph(&part,MPI_COMM_WORLD,1),
     graph2(&part,MPI_COMM_WORLD),
     *from, *to;
   
@@ -155,12 +143,12 @@ int main(int argc, char **args) {
 
   // ================================================================
   // TRY SCATTER
-  LinkGraphDis graph(&part,MPI_COMM_WORLD), graph2(&part,MPI_COMM_WORLD);
+  LinkGraphDis graph(&part,MPI_COMM_WORLD,1);
   
   graph.init(M);
   for (int j=0; j<M; j++) {
     for (int k=-N; k<=N; k++) 
-      if (modulo(j+k,SIZE)==MY_RANK) 
+      if (modulo(j+k,SIZE)==MY_RANK || modulo(j+k+1,SIZE)==MY_RANK)
 	graph.add(j,modulo(j+k,M));
   }
 

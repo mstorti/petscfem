@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.13 2002/07/24 16:42:54 mstorti Exp $
+//$Id: utils.h,v 1.14 2002/07/24 17:24:46 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -150,7 +150,7 @@ int wait_from_console(char *s=NULL);
 inline int modulo(int k, int n, int *div=NULL) {
   int m = k % n;
   int d = k / n;
-  if (k<0) {
+  if (m<0) {
     m += n;
     d -= 1;
   }
