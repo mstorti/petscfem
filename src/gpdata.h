@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.10 2003/07/26 00:57:56 mstorti Exp $
+//$Id: gpdata.h,v 1.11 2004/01/26 20:22:34 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
@@ -66,6 +66,29 @@ public:
       Explorer connections. */
   DXSplit splitting;
 #endif
+
+  friend class edge;
+
+private:
+  int nedges_m;
+  vector<int> edges;
+public:
+  class edge {
+  private:
+    friend class GPdata;
+    int indx;
+    const GPdata *gp;
+    edge(int j,const GPdata *gp_a);
+  public:
+    edge();
+    edge operator++(int);
+    friend bool operator!=(edge p, edge q);
+    int first();
+    int second();
+  };
+  edge edges_begin();
+  edge edges_end();
+  int nedges();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

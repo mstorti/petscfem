@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.20 2003/07/02 23:22:19 mstorti Exp $
+//$Id: texthash.cpp,v 1.21 2004/01/26 20:22:34 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -148,7 +148,7 @@ void TextHashTable::get_entry_recursive(const char * key,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
-void TextHashTable::get_entry(const char * key,TextHashTableVal *& value) {
+void TextHashTable::get_entry(const char * key,TextHashTableVal *& value) const {
   int glob_was_visited=0;
   value=NULL;
   if (this) get_entry_recursive(key,value,glob_was_visited);
@@ -161,7 +161,7 @@ void TextHashTable::get_entry(const char * key,TextHashTableVal *& value) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
-void TextHashTable::get_entry(const char * key,const char *& svalue) {
+void TextHashTable::get_entry(const char * key,const char *& svalue) const {
   TextHashTableVal *value=NULL;
   get_entry(key,value);
   if (value && value->called_times<INT_MAX) value->called_times++;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.33 2003/12/17 21:12:31 mstorti Exp $
+//$Id: gpdata.cpp,v 1.34 2004/01/26 20:22:34 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -96,11 +96,45 @@ void cart_prod(int npg,int nel,int nel_lay,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool operator!=(GPdata::edge p,GPdata::edge q) { 
+  assert(q.gp==p.gp); 
+  return p.indx!=q.indx; 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+GPdata::edge::edge(int j,const GPdata *gp_a) : indx(j), gp(gp_a) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+GPdata::edge::edge() : indx(-1), gp(NULL) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+GPdata::edge 
+GPdata::edge::operator++(int) { return edge(indx+1,gp); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int GPdata::edge::first() { assert(gp); return gp->edges[indx*2]; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int GPdata::edge::second() { assert(gp); return gp->edges[indx*2+1]; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+GPdata::edge 
+GPdata::edges_begin() { return edge(0,this); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+GPdata::edge 
+GPdata::edges_end() { return edge(nedges_m,this); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int GPdata::nedges() { return nedges_m; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	       mat_version_) {
   mat_version = mat_version_;
   npg= npg_;
   int ipg;
+  nedges_m = 0;
   // Dimension GP vectors
 
   // ndimel:= dimension of the element. Cartesian elements are the
@@ -307,6 +341,11 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       dshapexi[ipg](2,1)=-1.;
       dshapexi[ipg](3,1)=-1.;
     }
+    // edges
+    nedges_m = 6;
+    // edges.resize(2*nedges_m);
+    int edges_v[] = {1,2, 2,3, 3,1, 4,1, 4,2, 4,3};
+    edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
 
 #ifdef USE_DX
     splitting.parse("1  2  3  4  tetrahedra");

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.25 2003/12/04 12:21:04 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.26 2004/01/26 20:22:31 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -35,6 +35,9 @@
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
 void bless_elemset(char *type,Elemset *& elemset) {
+  elemset=NULL;
+  bless_elemset0(type,elemset);
+  if (elemset) return;
   //  SET_ELEMSET_TYPE(internal)
   //    SET_ELEMSET_TYPE(fracstep) Por ahora lo desactivamos hasta que
   // hagamos la interfase

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.12 2003/07/02 03:36:13 mstorti Exp $
+//$Id: getprop.cpp,v 1.13 2004/01/26 20:22:34 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -137,7 +137,7 @@ int get_string_from_string(string &buf,string &ret) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "get_string"
-int get_string(TextHashTable *thash,const char *name,
+int get_string(const TextHashTable *thash,const char *name,
 	       string &ret,int defval,int n) {
   if (n==0) return 0;
   const char *value_;

@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.6 2003/11/28 03:13:13 mstorti Exp $
+# $Id: cubcav.pl,v 1.7 2004/01/26 20:22:38 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -34,6 +34,7 @@ $iisd_subpart = $subpart;
 get_var_env2('nlay',1);
 get_var_env2('isp_maxits',12);
 get_var_env2('nu',1/100.);
+$N = 4;
 
 @vars= qw(CASE U L N Re viscosity 
     h Co Dt hratio leaky tol use_prismatic use_tetra case_in case_oct);

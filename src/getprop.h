@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: getprop.h,v 1.5 2001/06/29 16:34:57 mstorti Exp $
+//$Id: getprop.h,v 1.6 2004/01/26 20:22:34 mstorti Exp $
  
 
 #ifndef GETPROP_H
@@ -64,7 +64,7 @@ int get_double(TextHashTable *thash,const char *name,
     value if `defval=0'. Strings may be enclosed in double quotes to further
     @param n number of integers to be read
 */
-int get_string(TextHashTable *thash,const char *name,
+int get_string(const TextHashTable *thash,const char *name,
 	       string &ret,int defval=0,int n=1);
 
 /** Gets an integer value from the hash table.

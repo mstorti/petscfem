@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.11 2002/10/21 01:58:42 mstorti Exp $
+//$Id: texthash.h,v 1.12 2004/01/26 20:22:34 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -120,7 +120,7 @@ public:
       @param key (input) key of the entry
       @param value (output) value of the entry
   */ 
-  void get_entry(const char *,const char *&);
+  void get_entry(const char *,const char *&) const;
 
   /** Searches an entry in the hash and reads doubles from it
       @author M. Storti
@@ -206,7 +206,7 @@ private:
       @param key (input) key of the entry
       @param value (output) value of the entry
   */ 
-  void get_entry(const char *,TextHashTableVal *&);
+  void get_entry(const char *,TextHashTableVal *&) const;
 
   static int print_statistics;
 };

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: readmesh.h,v 1.11 2002/04/25 02:52:51 mstorti Exp $
+//$Id: readmesh.h,v 1.12 2004/01/26 20:22:34 mstorti Exp $
  
 #ifndef READ_MESH_H
 #define READ_MESH_H
@@ -23,12 +23,20 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Bless elemset with the given type (derived class). 
-
     @author M. Storti
     @param type type of elemset
     @param elemset to be blessed
 */ 
 void bless_elemset(char *type,Elemset *& elemset);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Bless elemset with the given type (derived class) for generic
+    classes (not belonging to a specific application). 
+    @author M. Storti
+    @param type type of elemset
+    @param elemset to be blessed
+*/ 
+void bless_elemset0(char *type,Elemset *& elemset);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** reads mesh and returns the corresponding mesh and dofmap. 

@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.102 2003/12/07 18:39:11 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.103 2004/01/26 20:22:38 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -94,6 +94,7 @@ hook_list shell_hook cubcav
 >>endif
 >>endif
 
+ngather 3
 __END_HASH__
 
 # ndim nu ndof
@@ -107,6 +108,17 @@ geometry <:=($use_tetra ? 'tetra' : 'cartesian3d'):>
 npg <:=($use_tetra ? 4 : 8):>
 data <:=$data_dir:>/cubcav.con<:=($use_tetra ? '-tetra' : ''):>.tmp
 dx 1
+__END_HASH__
+
+elemset field_surf_integrator <:=($use_tetra ? 4 : 8):>
+name integrator
+geometry <:=($use_tetra ? 'tetra' : 'cartesian3d'):>
+npg <:=($use_tetra ? 4 : 8):>
+data <:=$data_dir:>/cubcav.con<:=($use_tetra ? '-tetra' : ''):>.tmp
+surf_fun_type "plane"
+gather_pos 0
+vals_per_plane 1
+f_vals 90 100 110
 __END_HASH__
 
 end_elemsets
