@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2002/02/18 18:35:03 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/02/27 15:05:13 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -13,8 +13,8 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := advdif_g
-#CASE_NAME := qharm
-CASE_NAME := bubbly
+# CASE_NAME := bubbly
+CASE_NAME := couette
 PROG := $(ADVDIF)
 
 CASE := $(CASE_NAME)
@@ -36,7 +36,7 @@ run:  data
 
 data: force
 	$(MAKE) $(CASE).depl
-	octave -q mkmesh.m
+	octave -q mkcouette.m
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
