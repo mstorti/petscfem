@@ -2274,3 +2274,8 @@ tag: beta-3.15.pl13 on Sat,  1 Feb 2003 12:30:27 -0300 by mstorti in spider
 ----------
 tag: beta-3.15.pl14 on Sun,  2 Feb 2003 17:05:02 -0300 by mstorti in spider
      > `socket.cpp' can communicate over a socket bidirectionally. 
+----------
+tag: beta-3.15.pl15 on Mon,  3 Feb 2003 12:53:14 -0300 by mstorti in spider
+     > Socket example with Simple Sockets Library OK. 
+     > Uses Stest()
+     > Writing DX hook
