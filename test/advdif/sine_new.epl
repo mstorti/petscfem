@@ -66,12 +66,30 @@ weak_form 0
 advective_jacobians_type "global_vector"
 advective_jacobians 0.1 0.
 
-#if 0
-diffusive_jacobians_type "global_scalar"
+diffusive_jacobians_type "<:=$dif_type="full":>"
+#if $dif_type eq 'global_scalar'
 diffusive_jacobians <:=$D:>
-#else
-diffusive_jacobians_type "scalar_per_field"
+#elsif $dif_type eq 'scalar_per_field'
 diffusive_jacobians <:=$D:> <:=$D*2:> <:=$D*3:>
+#elsif $dif_type eq 'global_tensor'
+diffusive_jacobians <:=$D:> 0 0  <:=$D:>
+#elsif $dif_type eq 'per_field_tensor'
+diffusive_jacobians <:=$D:> 0 0  <:=$D:> \
+                    <:=$D:> 0 0  <:=$D:> \
+                    <:=$D:> 0 0  <:=$D:>
+#elsif $dif_type eq 'full'
+diffusive_jacobians \
+                    <:=$D:> 0 0  <:=$D:> \
+                    0 0 0 0 \
+                    0 0 0 0 \
+                    0 0 0 0 \
+                    <:=$D:> 0 0  <:=$D:> \
+                    0 0 0 0 \
+                    0 0 0 0 \
+                    0 0 0 0 \
+                    <:=$D:> 0 0  <:=$D:>
+#else
+<:die "not known dif_type: $dif_type\n":>
 #endif
 
 __END_HASH__

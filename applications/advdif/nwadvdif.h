@@ -104,7 +104,40 @@ public:
   };
   FullDifJac full_dif_jac;
 
-  /// Full diffusive jacobian
+  /// A global tensor (the same for all fields)
+  class GlobalDifTensor;
+  friend class GlobalDifTensor;
+  class GlobalDifTensor : public DJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 D_grad_N;
+    FastMat2 tmp1,tmp2;
+  public:
+    GlobalDifTensor(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_fluxd;
+    void comp_dif_per_field(FastMat2 &dif_per_field);
+    void update(const double *difjac) {ff.D_jac.set(difjac);}
+    void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			      FastMat2 & dshapex,double w);
+  };
+  GlobalDifTensor global_dif_tensor;
+
+  /// A global tensor (the same for all fields)
+  class PerFieldDifTensor;
+  friend class PerFieldDifTensor;
+  class PerFieldDifTensor : public DJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 tmp,tmp2;
+  public:
+    PerFieldDifTensor(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_fluxd;
+    void comp_dif_per_field(FastMat2 &dif_per_field);
+    void update(const double *difjac) {ff.D_jac.set(difjac);}
+    void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			      FastMat2 & dshapex,double w);
+  };
+  PerFieldDifTensor per_field_dif_tensor;
+
+  /// Global scalar diffusion
   class GlobalScalar;
   friend class GlobalScalar;
   class GlobalScalar : public DJac {
@@ -119,7 +152,7 @@ public:
   };
   GlobalScalar global_scalar_djac;
 
-  /// Full diffusive jacobian
+  /// Scalar diffusion per field
   class ScalarDifPerField;
   friend class ScalarDifPerField;
   class ScalarDifPerField : public DJac {

@@ -38,7 +38,8 @@
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_) 
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
   full_adv_jac(*this), full_dif_jac(*this),
-  scalar_dif_per_field(*this), global_scalar_djac(*this)
+  scalar_dif_per_field(*this), global_scalar_djac(*this),
+  global_dif_tensor(*this), per_field_dif_tensor(*this)
 {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -57,6 +58,59 @@ void newadvecfm2_ff_t::GlobalScalar
 void newadvecfm2_ff_t::GlobalScalar
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   dif_per_field.set(*(ff.difjac));
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::GlobalDifTensor
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
+  fluxd.prod(ff.D_jac,grad_U,2,-1,-1,1);
+}
+
+void newadvecfm2_ff_t::GlobalDifTensor
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		       FastMat2 & dshapex,double w) {
+  tmp1.prod(ff.D_jac,dshapex,1,-1,-1,2).scale(w);
+  tmp2.prod(dshapex,tmp1,-1,1,-1,2);
+  grad_N_D_grad_N.prod(tmp2,ff.eye_ndof,1,3,2,4);
+}
+
+void newadvecfm2_ff_t::GlobalDifTensor
+::comp_dif_per_field(FastMat2 &dif_per_field) {
+  double dd = ff.D_jac.d(2,1).sum_all()/double(ff.elemset->ndim);
+  dif_per_field.set(dd);
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::PerFieldDifTensor
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
+  for (int k=1; k<=ff.elemset->ndof; k++) {
+    ff.D_jac.ir(1,k);
+    grad_U.ir(2,k);
+    fluxd.ir(1,k).prod(ff.D_jac,grad_U,1,-1,-1);
+  }
+  fluxd.rs();
+  grad_U.rs();
+  ff.D_jac.rs();
+}
+
+void newadvecfm2_ff_t::PerFieldDifTensor
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		       FastMat2 & dshapex,double w) {
+  grad_N_D_grad_N.set(0.);
+  for (int k=1; k<=ff.elemset->ndof; k++) {
+    ff.D_jac.ir(1,k);
+    tmp.prod(ff.D_jac,dshapex,1,-1,-1,2).scale(w);
+    grad_N_D_grad_N.ir(2,k).ir(4,k).prod(dshapex,tmp,-1,1,-1,2);
+  }
+  ff.D_jac.rs();
+  grad_N_D_grad_N.rs();
+}
+
+void newadvecfm2_ff_t::PerFieldDifTensor
+::comp_dif_per_field(FastMat2 &dif_per_field) {
+  ff.D_jac.d(3,2);
+  dif_per_field.sum(ff.D_jac,1,-1).scale(1./double(ff.elemset->ndim));
+  ff.D_jac.rs();
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -85,21 +139,21 @@ void newadvecfm2_ff_t::ScalarDifPerField
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::FullDifJac
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
-  fluxd.prod(ff.D_jac,grad_U,2,-1,1,-2,-1,-2);
+  fluxd.prod(ff.D_jac,grad_U,1,-2,2,-1,-1,-2);
 }
 
 void newadvecfm2_ff_t::FullDifJac
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
-  D_grad_N.prod(ff.D_jac,dshapex,1,-1,2,3,-1,4)
+  D_grad_N.prod(ff.D_jac,dshapex,2,3,1,-1,-1,4)
     .scale(w);
   grad_N_D_grad_N.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 }
 
 void newadvecfm2_ff_t::FullDifJac
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
-  ff.D_jac.d(4,3);
-  dif_per_field.sum_abs(ff.D_jac,-1,-2,1).scale(1./ff.elemset->ndim);
+  ff.D_jac.d(2,1).d(4,3);
+  dif_per_field.sum_abs(ff.D_jac,1,-1).scale(1./ff.elemset->ndim);
   ff.D_jac.rs();
 }  
 
@@ -277,6 +331,10 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   if (diffusive_jacobians_type==string("undefined")) {
     if (diffusive_jacobians_prop.length == 1) {
       diffusive_jacobians_type=string("global_scalar");
+    } else if (diffusive_jacobians_prop.length == ndim*ndim) {
+      diffusive_jacobians_type=string("global_tensor");
+    } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof) {
+      diffusive_jacobians_type=string("per_field_tensor");
     } else if (diffusive_jacobians_prop.length == ndof) {
       diffusive_jacobians_type=string("scalar_per_field");
     } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
@@ -286,14 +344,23 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   if (diffusive_jacobians_type==string("global_scalar") &&
       diffusive_jacobians_prop.length == 1) {
     d_jac =  &global_scalar_djac;
-    eye_ndof.resize(2,ndof,ndof).eye(1.);
+    eye_ndof.resize(2,ndof,ndof).eye();
+  } else if (diffusive_jacobians_type==string("global_tensor") &&
+	     diffusive_jacobians_prop.length == ndim*ndim) {
+    eye_ndof.resize(2,ndof,ndof).eye();
+    D_jac.resize(2,ndim,ndim);
+    d_jac =  &global_dif_tensor;
+  } else if (diffusive_jacobians_type==string("per_field_tensor") &&
+	     diffusive_jacobians_prop.length == ndim*ndim*ndof) {
+    D_jac.resize(3,ndof,ndim,ndim);
+    d_jac =  &per_field_dif_tensor;
   } else if (diffusive_jacobians_type==string("scalar_per_field") &&
 	     diffusive_jacobians_prop.length == ndof) {
     D_jac.resize(1,ndof);
     d_jac =  &scalar_dif_per_field;
   } else if (diffusive_jacobians_type==string("full") &&
 	     diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
-    D_jac.resize(4,ndim,ndim,ndof,ndof);
+    D_jac.resize(4,ndof,ndof,ndim,ndim);
     d_jac =  &full_dif_jac;
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
