@@ -1,13 +1,13 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2003/02/16 22:03:18 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2003/02/25 20:34:25 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
-tests: sparse
+tests: sparse dvector
 
 sp: sp.bin
 
-SRCS = sp.cpp tryme7.cpp
+SRCS = sp.cpp tryme7.cpp tryme8.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -59,10 +59,21 @@ tryme6.o: tryme6.cpp graphs.h
 tryme6.bin: tryme6.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
 
-# Checks for dvector class
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+dvector: tryme8.bin
+	$< > $(basename $<).output.tmp
+
+#w Basic check for dvector class
 tryme7.o: tryme7.cpp 
 	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
 
 tryme7.bin: tryme7.o
+	g++ $(CXXOPTFLAGS) -o $@ $< 
+
+#w Checks for dvector class
+tryme8.o: tryme8.cpp 
+	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
+
+tryme8.bin: tryme8.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
 #s

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: pfobject.cpp,v 1.2 2003/02/25 13:31:41 mstorti Exp $
+// $Id: pfobject.cpp,v 1.3 2003/02/25 20:34:22 mstorti Exp $
 
 #include <src/pfobject.h>
 #include <src/texthash.h>
@@ -8,23 +8,9 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 BasicObject::~BasicObject() {}
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class dummy_obj : public BasicObject {
-private:
-  TextHashTable thash;
-public:
-  ~dummy_obj() {}
-  void read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) { 
-    thash.read(fstack);
-    thash.print("Read dummy obj:");
-    PetscFinalize();
-    exit(0);
-  }
-};
-	
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 BasicObject *BasicObject::factory(string &type) {
-  if (type=="dummy_obj") return new dummy_obj;
+  if (type=="null_vort") return new null_vort;
   else return NULL;
 }
 

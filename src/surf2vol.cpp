@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.2 2003/02/25 04:18:10 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.3 2003/02/25 20:34:22 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
@@ -262,11 +262,10 @@ void identify_volume_elements_fun(int nnod, int nel_surf, int layers,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void factory(TextHashTable *thash, string &volume_elemset,
-	     int nel,
-	     Surf2Vol *sv_gp_data, Elemset *& vol_elem,
-	     int &identify_volume_elements,int &layers,
-	     int &use_exterior_normal,int &ndimel) {
+void Surf2Vol::factory(TextHashTable *thash, string &volume_elemset,
+		       Surf2Vol *sv_gp_data, Elemset *& vol_elem,
+		       int &identify_volume_elements,int &layers,
+		       int &use_exterior_normal,int &ndimel) {
   int ierr;
   // Find volume elemset
   vol_elem = GLOBAL_MESH->find(volume_elemset);
@@ -292,6 +291,7 @@ void factory(TextHashTable *thash, string &volume_elemset,
   PETSCFEM_ASSERT(layers<=3,"embedded_gatherer: not supported yet layers>2,"
 		  " entered layers: %d\n",layers);
 
+  int nel = nel_surf*(layers+1);
   ndimel=ndim-1;
   if (geometry=="quad2hexa") {
     sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,

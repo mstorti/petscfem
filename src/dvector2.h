@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.2 2003/02/17 01:27:58 mstorti Exp $
+// $Id: dvector2.h,v 1.3 2003/02/25 20:34:22 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -76,8 +76,26 @@ dvector<T>::dvector(int cs = CHUNK_SIZE_INIT) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 void dvector<T>::set_chunk_size(int new_chunk_size) {
-  assert(size()==0);
+  int old_size = size();
+  T *tempo;
+  if (old_size!=0) {
+    tempo = new T[old_size];
+    for (int j=0; j<old_size; j++) tempo[j] = ref(j);
+  }
+  clear();
   chunk_size = new_chunk_size;
+  resize(old_size);
+  if (old_size!=0) {
+    for (int j=0; j<old_size; j++) ref(j) = tempo[j];
+  }
+  delete[] tempo;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+void dvector<T>::defrag() {
+  if (chunk_size<size()) set_chunk_size(size());
+  assert(chunks_n()==1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -579,6 +579,10 @@ expect("sparse/output.sparse.superlu.tmp","Sparse Mat/Vec classes, SuperLU versi
 expect("sparse/output.sparse.petsc.tmp","Sparse Mat/Vec classes, PETSc version",
                         read_file("sparse/sparse.test"));
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sparse/tryme8.output.tmp","Resize of non-empty dvectors.",
+                        read_file("sparse/tryme8.ans"));
+
 end_section();
 
 begin_section('Advdif tests');

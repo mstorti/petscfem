@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.5 2003/02/17 01:27:58 mstorti Exp $
+// $Id: dvector.h,v 1.6 2003/02/25 20:34:22 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -49,9 +49,12 @@ public:
       @return a reference to the matrix. */  
   dvector(int cs = CHUNK_SIZE_INIT);
 
-  /** Set new chunk size (container must be empty).
+  /** Set new chunk size.
       @param new_chunk_size (input) new chunk size for the vector. */
   void set_chunk_size(int new_chunk_size);
+
+  /** Set new chunk size in order to have onely one chunk. */
+  void defrag();
 
   /** reference to the object in some position
       @param j (input) position in the vector
