@@ -4,6 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Mention in the doc that shell-script-mode is appropriate for fontifying
+      PETSc-FEM data files. 
 * List grants in doc
 * Add `dataflow.obj' to doc.
 * Let `upload_vector_fast' to have several masks with integer values,

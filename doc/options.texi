@@ -4,6 +4,7 @@
 @settitle PETSc-FEM Options
 @c %**end of header
 
+@ignore
 @copying
 This file belongs to the PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc. Copyright
@@ -27,13 +28,14 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 @end copying
+@end ignore
 
 @titlepage
 @title PETSc-FEM Options Reference 
 
 @page
 @vskip 0pt plus 1filll
-@insertcopying
+@c @insertcopying
 @end titlepage
 
 @contents
@@ -67,7 +69,7 @@ for PETSc-FEM can be downloaded at the home page.
 
 @node Copying, Options, Top, Top
 @chapter PETSc-FEM license
-@insertcopying
+@c @insertcopying
 
 @node Options, Options Index, Copying, Top
 @chapter Options
