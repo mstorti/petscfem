@@ -3108,3 +3108,6 @@ tag: beta-3.25.pl9 on Tue, 25 Nov 2003 21:12:45 -0300 by mstorti in spider
 tag: beta-3.25.pl10 on Tue, 25 Nov 2003 21:18:22 -0300 by mstorti in spider
      > Now printing "For elemset ..." element partitioning should
      > 	   give the elemset name and pointer. 
+----------
+tag: beta-3.25.pl11 on Thu, 04 Dec 2003 09:24:29 -0300 by mstorti in minerva.ceride.gov.ar
+     > Merged from `algebraic-slip-model-1' onto `beta-3.25.pl10'
