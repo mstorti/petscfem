@@ -1,4 +1,4 @@
-## $Id: proc5.m,v 1.4 2005/01/25 00:57:09 mstorti Exp $
+## $Id: proc5.m,v 1.5 2005/01/25 12:38:12 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -63,7 +63,8 @@ endfor
 
 for k=1:m:nt
   title(sprintf("step %d",k));
-  plot(x,U((k-1)*nsome+indx,:),x,U((k-1)*nsome+indx,:),'o')
+#  plot(x,U((k-1)*nsome+indx,:),x,U((k-1)*nsome+indx,:),'o')
+  plot(x,U((k-1)*nsome+indx,:))
   pause(0.1)
 #  pause;
 endfor
