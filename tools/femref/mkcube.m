@@ -31,6 +31,10 @@ else
   v = pvec([0,0,1],xnod);
 endif
 asave("cube.state.tmp",[v,zeros(nnod,1)]);
+
+nelem = rows(icone);
+asave("cube.state-elem.tmp",5*ones(nelem,3));
+
 return
 
 system("make getsurf");

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.27 2005/01/16 00:13:04 mstorti Exp $
+// $Id: dvector2.h,v 1.28 2005/01/16 23:40:24 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -426,6 +426,24 @@ dvector<T>::reshapev(int rank_a,va_list ap) {
     assert(j==0 || d>=0);
     new_size *= d;
     shape.push_back(d);
+  }
+  shape_p = &*shape.begin();
+  assert(new_size<=0 || new_size==size());
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T> &
+dvector<T>::reshape(const vector<int> shape_a) {
+  rank_m = shape_a.size();
+  assert(rank_m>0);
+  int new_size=1;
+  shape = shape_a;
+  for (int j=0; j<rank_m; j++) {
+    int d = shape[j];
+    assert(j==0 || d>=0);
+    new_size *= d;
   }
   shape_p = &*shape.begin();
   assert(new_size<=0 || new_size==size());

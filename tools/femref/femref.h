@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.60 2005/01/16 21:14:36 mstorti Exp $
+// $Id: femref.h,v 1.61 2005/01/16 23:40:13 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -538,9 +538,14 @@ void comp_matrices(GetSurfCtx &ctx,
 		   int verbose);
 
 void 
+elem2nod_proj(GetSurfCtx &ctx,
+	      const dvector<int> &surf_con,
+	      const dvector<double> &ue,
+	      dvector<double> &un);
+
+void 
 fem_smooth(GetSurfCtx &ctx,
 	   const dvector<int> &surf_con,
-	   const dvector<int> &surf_nodes, 
 	   const dvector<double> &surf_mass,
 	   const dvector<double> &node_mass,
 	   const dvector<double> &u,

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.22 2005/01/15 23:41:32 mstorti Exp $
+// $Id: dvector.h,v 1.23 2005/01/16 23:40:24 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -206,6 +206,11 @@ public:
       @param rank (input) number of dimensions
       @param j,k,l (input) the sizes of each argument */
   dvector<T> & reshape(int rank,...);
+
+  /** Reshapes the tensor with #rank# dimensions, and the rest of arguments
+      are the size of each dimension.
+      @param shape (input) an integer vector with the shape. */
+  dvector<T> & reshape(const vector<int> shape_a);
 
   /** Same as #reshape(i,j,k,l)# but the variable argument list 
       is pased as a variadic macro. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gsguile.cpp,v 1.6 2005/01/16 21:14:36 mstorti Exp $
+// $Id: gsguile.cpp,v 1.7 2005/01/16 23:40:13 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -157,10 +157,9 @@ SCM_DEFINE(comp_matrices_w, "comp-matrices", 6, 1, 0,
 #undef FUNC_NAME
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-SCM_DEFINE(fem_smooth_w, "fem-smooth-w", 9, 0, 0,
+SCM_DEFINE(fem_smooth_w, "fem-smooth-w", 8, 0, 0,
 	   (SCM s_ctx, 
 	   SCM s_surf_con, 
-	   SCM s_surf_nodes, 
 	   SCM s_surf_mass, 
 	   SCM s_node_mass, 
 	   SCM s_u, 
@@ -172,16 +171,33 @@ SCM_DEFINE(fem_smooth_w, "fem-smooth-w", 9, 0, 0,
 {
   MY_SCM_GET_ARG(ctx,GetSurfCtxTag,GetSurfCtx *,1);
   DVINTARG(surf_con,2);
-  DVINTARG(surf_nodes,3);
-  DVDBLARG(surf_mass,4);
-  DVDBLARG(node_mass,5);
-  DVDBLARG(u,6);
-  DVDBLARG(us,7);
-  MY_SCM_GET_INT(niter,8);
-  MY_SCM_GET_BOOL(verbose,9);
-  fem_smooth(*ctx,*surf_con,*surf_nodes,
+  DVDBLARG(surf_mass,3);
+  DVDBLARG(node_mass,4);
+  DVDBLARG(u,5);
+  DVDBLARG(us,6);
+  MY_SCM_GET_INT(niter,7);
+  MY_SCM_GET_BOOL(verbose,8);
+  fem_smooth(*ctx,*surf_con,
 	     *surf_mass,*node_mass,*u,*us,
 	     niter,verbose);
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+SCM_DEFINE(elem2nod_proj_w,"elem->nod-proj", 4, 0, 0,
+	   (SCM s_ctx,
+	    SCM s_icone,
+	    SCM s_ue,
+	    SCM s_un),
+	   "Projects per-element values to per-node values.")
+#define FUNC_NAME s_elem2nod_proj_w
+{
+  MY_SCM_GET_ARG(ctx,GetSurfCtxTag,GetSurfCtx *,1);
+  DVINTARG(icone,2);
+  DVDBLARG(ue,3);
+  DVDBLARG(un,4);
+  elem2nod_proj(*ctx,*icone,*ue,*un);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
