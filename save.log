@@ -1218,3 +1218,5 @@ tag: beta-2.94.pl28 on Fri, 12 Jul 2002 11:33:25 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-2.94.pl29 on Sun, 14 Jul 2002 00:07:36 -0300 by mstorti in spider
      > Runs big test with 60^3*5 = 1.08Melements in spider.
+----------
+     > Will branch the development of new version of Fractional-Step.
