@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.18 2003/01/29 18:19:24 mstorti Exp $
+## $Id: mkvtube.m,v 1.19 2003/01/29 18:49:42 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -78,7 +78,7 @@ n_in=n_h=n_c=n_wall=n_internal_axis=0;
 inlet_nodes=[];
 hot_outlet_nodes=[];
 cold_outlet_nodes=[];
-fid2 = fopen("vtube.internal_axis_slip.tmp","w");
+## fid2 = fopen("vtube.internal_axis_slip.tmp","w");
 for k=1:nn
   if k/rows(x3d) > done+0.1;
     done = done+0.1;
@@ -109,19 +109,14 @@ for k=1:nn
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
     fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;
-  elseif abs(rho(k)-Rin)<tol
+  elseif (abs(rho(k)-Rin)<tol && z(k)<L0-tol)
     n_internal_axis = n_internal_axis + 1;
-    xx = x3d(k,:);
-    normal = xx/l2(xx);
-    fprintf(fid2,"%f %d %d   %f %d %d   %f %d %d\n",
-	    normal(1),k,u_dof, normal(2),k,u_dof+1, normal(3),k,u_dof+2);
-    keyboard 
+    fprintf(fid,"%d %d   %f\n",k,u_dof,0.);
   elseif is_wall
     n_wall = n_wall+1;
     for l=1:3; fprintf(fid,"%d %d    %f\n",k,u_dof+l-1,0); endfor
   endif
 endfor
-fclose(fid2);
 fclose(fid);
 printf(["Nodes at boundary %d, at inlet %d, at hot outlet %d," \
 	" at cold outlet %d, at internal axis %d, at wall %d\n"],
