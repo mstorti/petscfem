@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.14 2001/07/05 02:30:04 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.15 2001/12/01 15:04:55 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -26,25 +26,33 @@ extern TextHashTable *GLOBAL_OPTIONS;
 /** Cutoff function. It is very near to ${\rm ctff(x)\approx \rm tol$ for
     $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
 */ 
-inline double ctff(double x, double tol=1e-5) {
+inline double ctff(double x, double & diff_ctff, double tol=1e-5) {
   double r=x/tol-1.; 
-  double ee,ret;
-//    if (r>60) {
-//      return x;
-//    } else if (r<-60) {
-//      return 0;
-//    } else 
+  double ee,vaux,ret;
   if (fabs(r)<1e-7) {
     ret = (1.+0.5*exp(r)/(1+(1./6.)*r*r))*tol;
+    ee  = tol*tol;
+//    vaux = 7.0*ee+x*x-2.0*x*tol;
+//    diff_ctff = 3.0*ee*exp(r)*(9.0*ee+x*x-4.0*x*tol)/vaux/vaux;
+    vaux = (1.+1./6.*r*r);
+    diff_ctff  = 0.5*exp(r)*(vaux-1./6.*2*r)/vaux/vaux;
+    // dfx1dx  = 0.5*exp(r).*(1+1/6*r.^2-1/6*2*r)./(1+1/6*r.^2).^2;
   } else if (r>0) {
     ret =  (x-tol)/(1.-exp(-2.*r))+tol;
+    vaux  = exp(-2.*r); 
+    diff_ctff = 1.0/(1.0-vaux)*(1.0-2.*r*vaux/(1.0-vaux));
+    // dfx21dx = (1-2*r.*exp(-2*r)-exp(-2*r))./(1-exp(-2*r)).^2;
   } else {
     ee = exp(2.*r);
     ret = (x-tol)*ee/(ee-1.)+tol;
+    vaux = ee-1.0;
+    diff_ctff = ee/vaux*(1.0-2.0*r/vaux);
+    // dfx22dx = (exp(2*r)./(exp(2*r)-1).^2).*(exp(2*r)-1-2*r);
     // printf("ctff(%g,%g) = %g\n",x,tol,ret);
   }
   return ret;
 }
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -244,7 +252,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
-    wall_coords(ndim),dist_to_wall,tmp16,tmp17,tmp18,tmp19,tmp20;
+    wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,tmp20;
 
   double tau_supg_k,kap,kap_star,dkap,tmp1_ke,tmp2_ke;
   double tau_supg_e,eps,eps_star,deps;
@@ -254,7 +262,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix epscol,epscol_new,epscol_star,grad_eps_star(ndim);
 
   FMatrix tmp3_ke,tmp4_ke,tmp5_ke,tmp6_ke,tmp7_ke,
-    tmp8_ke,tmp9_ke;
+    tmp8_ke,tmp9_ke,tmp71_ke,tmp81_ke,tmp10_ke,tmp11_ke;
 
   FMatrix reskap(nel),reseps(nel);
 
@@ -265,6 +273,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double tmp12;
   double nu_eff;
   double tsf = temporal_stability_factor;
+  double mix_length_inv,delta_supg_k,delta_supg_e;
+  double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,vaux,GG,dflidli;
+  double lambda_1,lambda_2,lambda_max;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);;
   eye.eye();
@@ -296,6 +307,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+
+  double slope = 1./2./C_2*(3.*C_2-C_1+sqrt(pow(C_1,2.) - 
+                 10.*C_1*C_2+9.*pow(C_2,2.)));
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -433,14 +447,13 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
 	kap = double(tmp8.prod(SHAPE,kapcol,-1,-1));
-	kap = ctff(kap,kap_ctff_val);
 	eps = double(tmp8.prod(SHAPE,epscol,-1,-1));
-	eps = ctff(eps,eps_ctff_val);
+	grad_u.prod(dshapex,ucols,1,-1,-1,2);
 
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
+	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 	kap_star = double(tmp8.prod(SHAPE,kapcol_star,-1,-1));
 	eps_star = double(tmp8.prod(SHAPE,epscol_star,-1,-1));
-	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 
 	grad_u_star.prod(dshapex,ucols_star,1,-1,-1,2);
 	grad_p_star.prod(dshapex,pcol_star,1,-1,-1);
@@ -450,10 +463,23 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u2 = u.sum_square_all();
 	velmod = sqrt(u2);
 
+        // cut off of kappa & epsilon
+	kap = ctff(kap,dfkdk,kap_ctff_val);
+	eps = ctff(eps,dfede,eps_ctff_val);
+
  	strain_rate.set(grad_u_star);
 	grad_u_star.t();
 	strain_rate.add(grad_u_star).scale(0.5);
         grad_u_star.rs();
+
+        strain_rate_scalar = strain_rate.sum_square_all();
+
+	kap_star = ctff(kap_star,dfkdk,kap_ctff_val);
+	eps_star = ctff(eps_star,dfede,eps_ctff_val);
+
+	// if (dfvdv != 1. | dfkdk != 1.) {
+        //  printf(" cutoff acting \n");
+        // }
 
         double nu_t = C_mu*kap*kap/eps;
 	nu_eff = VISC + turbulence_coef*nu_t;
@@ -509,14 +535,19 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    Peclet = velmod * h_supg / (2. * diff_coe_kap);
 	    psi = 1./tanh(Peclet)-1/Peclet;
 	    tau_supg_k = psi*h_supg/(2.*velmod);
+            delta_supg_k = 0.5*h_supg*velmod*psi;
 
 	    Peclet = velmod * h_supg / (2. * diff_coe_eps);
 	    psi = 1./tanh(Peclet)-1/Peclet;
 	    tau_supg_e = psi*h_supg/(2.*velmod);
+            delta_supg_e = 0.5*h_supg*velmod*psi;
+
 	  } else {
 	    FastMat2::choose(1);
 	    tau_supg_k = 0;
 	    tau_supg_e = 0;
+            delta_supg_k = 0;
+            delta_supg_e = 0;
 	  }
 	  FastMat2::leave();
         }
@@ -548,7 +579,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         if (comp_mat_res || comp_res) {
 	  // dmatu := material derivative of u, also
 	  // includes G_body, i.e. the external force field. 
-#if ADD_GRAD_DIV_U_TERM
+#ifdef ADD_GRAD_DIV_U_TERM
 	  dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else
 	  dmatu.prod(u,grad_u_star,-1,-1,1);
@@ -591,7 +622,11 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  rescont.axpy(tmp5,wpgdet);
 
 	  // Parte temporal + convectiva (Galerkin)
+#ifdef ADD_GRAD_DIV_U_TERM
 	  massm.prod(u_star,dshapex,-1,-1,1);
+#else
+	  massm.prod(u,dshapex,-1,-1,1);
+#endif
 	  massm.axpy(SHAPE,rec_Dt/alpha);
 	  matlocmom.prod(W_supg,massm,1,2).scale(rho);
         }
@@ -599,6 +634,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         if (comp_mat_res_ke || comp_res_ke) {
 
 	  // kappa-epsilon residue
+
+          // temporal terms
+ #if 0
 	  dkap = (kap_star-kap);
 	  tmp1_ke = dkap*rec_Dt/alpha;
 	  reskap.axpy(W_supg_k,-wpgdet*tmp1_ke);
@@ -606,7 +644,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  deps = (eps_star-eps);
 	  tmp1_ke = deps*rec_Dt/alpha;
 	  reseps.axpy(W_supg_e,-wpgdet*tmp1_ke);
+#endif
 
+          // convective terms 
 	  tmp20.prod(u_star,grad_kap_star,-1,-1);
 	  tmp2_ke = double(tmp20);
 	  reskap.axpy(W_supg_k,-wpgdet*tmp2_ke);
@@ -615,51 +655,90 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp2_ke = double(tmp20);
 	  reseps.axpy(W_supg_e,-wpgdet*tmp2_ke);
 
+          // diffusive terms
 	  tmp3_ke.prod(dshapex,grad_kap_star,-1,1,-1).scale(diff_coe_kap);
 	  reskap.axpy(tmp3_ke,-wpgdet);
 	  tmp3_ke.prod(dshapex,grad_eps_star,-1,1,-1).scale(diff_coe_eps);
 	  reseps.axpy(tmp3_ke,-wpgdet);
+ 
 
         // adding production terms to the turbulent transport equations
 
-          eps_over_kap = (abs(kap_star) < tol ? eps_star/tol : eps_star/kap_star);
-          kap_over_eps = (abs(eps_star) < tol ? kap_star/tol : kap_star/eps_star);
+          //kap_over_eps = (abs(eps_star) < tol ? kap_star/tol : kap_star/eps_star);
+          //eps_over_kap = (abs(kap_star) < tol ? eps_star/tol : eps_star/kap_star);
 
-          strain_rate_scalar = strain_rate.sum_square_all();
+          eps_over_kap = eps_star/kap_star;
+          kap_over_eps = kap_star/eps_star;
+       
           Pkap = 2.*strain_rate_scalar*C_mu*kap_star*kap_over_eps;
           Peps = 2.*C_1*C_mu*kap_star*strain_rate_scalar;
           Peps_2 = C_2*eps_over_kap*eps_star;
 
-          tmp6_ke.set(W_supg_k).scale(Pkap-eps_star);
-          reskap.axpy(tmp6_ke,wpgdet_c);
-
-          tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
-          reseps.axpy(tmp6_ke,wpgdet_c);
-
 	  // kappa-epsilon matrix
 
-          tmp7_ke.prod(W_supg_k,SHAPE,1,2);
-          tmp8_ke.prod(W_supg_e,SHAPE,1,2);
-
-          Jaco_kk = rec_Dt/alpha;
-          Jaco_kk = Jaco_kk-tpf*4.0*C_mu*kap_over_eps*strain_rate_scalar;
-          Jaco_ke =  tpf*(2.0*C_mu*kap_over_eps*kap_over_eps*strain_rate_scalar+1.0);
-          Jaco_ek = tpf*(-2.0*C_1*C_mu*strain_rate_scalar - 
-                     C_2*eps_over_kap*eps_over_kap);
-          Jaco_ee = rec_Dt/alpha;
-          Jaco_ee = Jaco_ee+tpf*2.0*C_2*eps_over_kap;
+          // using cutoff derivatives
+          GG = 2.0*C_mu*strain_rate_scalar;
+          fk = kap_star;
+          fe = eps_star;
+          Jaco_kk = rec_Dt/alpha -  tpf*GG*2.0*fk/fe*dfkdk; 
+          Jaco_ke = -tpf*(-GG*pow((fk/fe),2)-1.0)*dfede;      
+          Jaco_ek = -tpf*(C_1*GG+C_2*pow((fe/fk),2.))*dfkdk;
+          Jaco_ee = rec_Dt/alpha-tpf*(-2.0*C_2*fe/fk*dfede);
 
           Jaco_k.ir(1,1).set(Jaco_kk).rs();
           Jaco_k.ir(1,2).set(Jaco_ke).rs();
           Jaco_e.ir(1,1).set(Jaco_ek).rs();
           Jaco_e.ir(1,2).set(Jaco_ee).rs();
 
+          // consistent matrix
+          tmp7_ke.prod(W_supg_k,SHAPE,1,2);
+          tmp8_ke.prod(W_supg_e,SHAPE,1,2);
+          //tmp7_ke.prod(SHAPE,SHAPE,1,2);
+          //tmp8_ke.prod(SHAPE,SHAPE,1,2);
+
           tmp9_ke.prod(tmp7_ke,Jaco_k,1,2,3);
           matlocf.ir(2,ndof-1).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();
           
+#if 1
+          tmp6_ke.set(W_supg_k).scale((Pkap-eps_star));
+          reskap.axpy(tmp6_ke,wpgdet_c);
+
+          // adding temporal terms here due to the lumped mass matrix option
+	  tmp10_ke.set(kapcol_star).rest(kapcol);
+	  tmp11_ke.prod(tmp7_ke,tmp10_ke,1,-1,-1);
+	  reskap.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
+#else
+	  tmp10_ke.set(kapcol_star).scale(Jaco_kk);
+          tmp10_ke.axpy(epscol_star,Jaco_ke);
+	  tmp6_ke.prod(tmp7_ke,tmp10_ke,1,-1,-1);
+          reskap.axpy(tmp6_ke,-wpgdet);
+          
+	  tmp10_ke.set(kapcol).scale(-1.);
+	  tmp11_ke.prod(tmp7_ke,tmp10_ke,1,-1,-1);
+	  reskap.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
+#endif
+
           tmp9_ke.prod(tmp8_ke,Jaco_e,1,2,3);
           matlocf.ir(2,ndof).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();
+#if 1
+          tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
+          reseps.axpy(tmp6_ke,wpgdet_c);
 
+	  tmp10_ke.set(epscol_star).rest(epscol);
+	  tmp11_ke.prod(tmp8_ke,tmp10_ke,1,-1,-1);
+	  reseps.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
+#else
+	  tmp10_ke.set(kapcol_star).scale(Jaco_ek);
+          tmp10_ke.axpy(epscol_star,Jaco_ee);
+	  tmp6_ke.prod(tmp8_ke,tmp10_ke,1,-1,-1);
+          reseps.axpy(tmp6_ke,-wpgdet);
+
+	  tmp10_ke.set(epscol).scale(-1.);
+	  tmp11_ke.prod(tmp8_ke,tmp10_ke,1,-1,-1);
+	  reseps.axpy(tmp11_ke,-wpgdet*rec_Dt/alpha);
+#endif
+
+          // convective terms
 	  massm_ke.prod(u_star,dshapex,-1,-1,1);
           tmp4_ke.prod(W_supg_k,massm_ke,1,2);
           matlocf.ir(2,ndof-1).ir(4,ndof-1).axpy(tmp4_ke,wpgdet).rs();
@@ -667,9 +746,47 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           tmp4_ke.prod(W_supg_e,massm_ke,1,2);
           matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp4_ke,wpgdet).rs();
 
+          // diffusive terms
 	  tmp5_ke.prod(dshapex,dshapex,-1,1,-1,2);
           matlocf.ir(2,ndof-1).ir(4,ndof-1).axpy(tmp5_ke,wpgdet*diff_coe_kap).rs();
           matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp5_ke,wpgdet*diff_coe_eps).rs();
+
+          // shock capturing terms
+
+          double aa = Jaco_kk/diff_coe_kap;
+          double bb = Jaco_ke/diff_coe_kap;
+          double cc = Jaco_ek/diff_coe_eps;
+          double dd = Jaco_ee/diff_coe_eps;
+
+          double discri = pow(0.5*(aa+dd),2.)-(aa*dd-cc*bb);
+
+          //if(discri<0) {
+          //   printf("discriminante negativo \n");
+          //}
+
+          if(discri<0) {
+            lambda_1 = 0.5*(aa+dd);
+            lambda_max = ( lambda_1 > tol ? lambda_1 : tol );
+          } else {
+            lambda_1 = 0.5*(aa+dd)+sqrt(discri);
+            lambda_2 = 0.5*(aa+dd)-sqrt(discri);
+            lambda_max = ( lambda_1 > lambda_2 ? lambda_1 : lambda_2 );
+            lambda_max = ( lambda_max > tol ? lambda_max : tol );
+          };
+
+          lambda_max = lambda_max*pow(h_pspg,2.);
+	  psi = 1./tanh(lambda_max)-1./lambda_max;
+          double coef_delta = 1.0;
+          delta_supg_k = delta_supg_k + coef_delta*lambda_max*psi*diff_coe_kap;
+          delta_supg_e = delta_supg_e + coef_delta*lambda_max*psi*diff_coe_eps;
+
+	  tmp3_ke.prod(dshapex,grad_kap_star,-1,1,-1).scale(delta_supg_k);
+	  reskap.axpy(tmp3_ke,-wpgdet);
+	  tmp3_ke.prod(dshapex,grad_eps_star,-1,1,-1).scale(delta_supg_e);
+	  reseps.axpy(tmp3_ke,-wpgdet);
+
+          matlocf.ir(2,ndof-1).ir(4,ndof-1).axpy(tmp5_ke,wpgdet*delta_supg_k).rs();
+          matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp5_ke,wpgdet*delta_supg_e).rs();
 
 #if 0
        // acoplamiento de las ecs de transporte turbulento con las de momento
@@ -712,10 +829,21 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    }
 	  }
 
-	  tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-	  //matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
-	  matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
-
+// old version but wrong
+	 //  tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+	 //  matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
+ 
+// new version (Mario) I hope it is OK
+        if (weak_form) {
+           tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
+           tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
+           matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16)
+                                            .add(tmp162).rs();
+       } else {
+           tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+           matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
+       }
+ 
 	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
@@ -727,7 +855,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
+	    tmp19.set(dshapex).scale(nu_eff*wpgdet);
+	    tmp18.prod(dshapex,tmp19,2,3,4,1);
+	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+	    tmp19.set(dshapex).scale(delta_supg*rho*wpgdet);
 	    tmp18.prod(dshapex,tmp19,2,1,4,3);
 	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 	  } else {

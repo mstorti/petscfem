@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.46 2001/11/30 00:51:31 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.47 2001/12/01 15:04:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -197,7 +197,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
-    massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,xc,
+    massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
 
   double tmp12;
@@ -516,7 +516,11 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	rescont.axpy(tmp5,wpgdet);
 
 	// temporal part + convecive (Galerkin)
-	massm.prod(u_star,dshapex,-1,-1,1);
+#ifdef ADD_GRAD_DIV_U_TERM
+        massm.prod(u_star,dshapex,-1,-1,1);
+#else
+        massm.prod(u,dshapex,-1,-1,1);
+#endif
 	massm.axpy(SHAPE,rec_Dt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
@@ -553,7 +557,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
 	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
 	  }
-
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
 	  matlocf.rest(tmp17);
@@ -563,9 +566,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-//  	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
-//  	    tmp18.prod(dshapex,tmp19,2,3,4,1);
-//  	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
             tmp19.set(dshapex).scale(nu_eff*wpgdet);
             tmp18.prod(dshapex,tmp19,2,3,4,1);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
