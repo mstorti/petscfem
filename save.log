@@ -2476,3 +2476,6 @@ tag: beta-3.18.pl19 on Fri, 28 Feb 2003 20:51:18 -0300 by mstorti in spider
      > Runs OK the wave problem with `nul_vort'. However it seems to be
      > too inefficient, while setting the constraints. I will measure if
      > it has an impact on the solution step also. 
+----------
+tag: beta-3.18.pl20 on Sat,  1 Mar 2003 20:27:09 -0300 by mstorti in spider
+     > Trying to make movies for the cylinder problem.
