@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.15 2003/10/06 03:03:01 mstorti Exp $
+//$Id: elast.cpp,v 1.16 2004/12/07 19:28:24 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -49,6 +49,16 @@ void elasticity::init() {
   // SHV(rec_Dt);
   assert(!(rec_Dt>0. && rho==0.));
   assert(ndof==ndim);
+
+  G_body.resize(1,ndim).set(0.);
+  const char *line;
+  vector<double> G_body_v;
+  thash->get_entry("G_body",line);
+  if(line) {
+    read_double_array(G_body_v,line);
+    assert(G_body_v.size()==ndim);
+    G_body.set(&G_body_v[0]);
+  }
 
   ntens = ndim*(ndim+1)/2;
   nen=nel*ndof;
