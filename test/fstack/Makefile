@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2003/09/09 18:02:09 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2003/09/13 17:29:41 mstorti Exp $ 
 
 .PHONY: fstack force tests test_autostr
+
+default: fstack
 
 tests: fstack test_autostr
 

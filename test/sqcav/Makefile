@@ -1,10 +1,11 @@
-# $Id: Makefile,v 1.74 2003/09/11 16:02:07 mstorti Exp $ 
+# $Id: Makefile,v 1.75 2003/09/13 17:30:07 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
-	dx_hook_test_post_run_file_record test_read_ini
+	dx_hook_test_post_run_file_record test_read_ini 		\
+	test_disconnected_graph
 
-default: dx_hook_test_post_run_files 
+default: test_disconnected_graph
 
 isp_test:
 	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
@@ -84,7 +85,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	       > $(output_file)
+	 	      #  > $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -283,7 +284,7 @@ dx_hook_test_allf: dx
 
 data: force
 	$(MAKE) $(CASE).depl
-	$(OCTAVE) mk$(CASE).m
+	if [ -f mk$(CASE).m ] ; then $(OCTAVE) mk$(CASE).m ; fi
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
@@ -305,6 +306,12 @@ test_read_ini:
 test_press_term:
 	$(MAKE) case=press_term runs
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Checks for disconnected graphs. 
+test_disconnected_graph:
+	$(MAKE) case=disconnected_graph CASE=simple run
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Makes local link for running with debugger
 link:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)

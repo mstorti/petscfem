@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.108 2003/08/09 14:26:13 mstorti Exp $
+#$Id: runtests.pl,v 1.109 2003/09/13 17:30:02 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -554,6 +554,10 @@ begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/tfstack.out","FileStack class",read_file('fstack/tfstack.ans'));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("fstack/fstack3.out.tmp","FileStack class reads length one lines",
+       read_file('fstack/fstack3.ans'));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/fstack2.verif.tmp","FileStack class, file name and line pos.",<<'EOT');
