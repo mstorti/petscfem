@@ -4,6 +4,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make use FastMat2 cache optional in advdife via an option
+* There is a conflict between the computation of residual jacobians 
+	  in advdif and the use of masks/profiles for element
+	  uploading. 
 * Advdif crashes when no filename is pased via the -case option
 * Write test for `compute_fd_adv_jacobian'. 
 * Put `COMPUTE_FD_ADV_JACOBIAN' in `advdife' as a elemset flag. 

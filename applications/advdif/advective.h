@@ -1,8 +1,8 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.66 2003/11/15 16:05:10 mstorti Exp $
+//$Id: advective.h,v 1.67 2003/11/16 00:55:09 mstorti Exp $
  
-#define CHECK_JAC // Computes also the FD Jacobian for debugging
+//#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
@@ -373,6 +373,14 @@ protected:
   int ff_options;
   /// The actual time
   double time_m;
+  /// All these are for checking advective jacobians with numerical
+  int compute_fd_adv_jacobian, comp_checked, comp_total;
+  double compute_fd_adv_jacobian_eps,
+    compute_fd_adv_jacobian_rel_err_threshold,
+    A_fd_jac_norm_max, A_fd_jac_norm_min, A_jac_norm_max, 
+    A_jac_norm_min, A_jac_err_norm_max, A_jac_err_norm_min,
+    A_rel_err_min, A_rel_err_max;
+
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg;
   friend class NewAdvDifFF;
@@ -386,6 +394,17 @@ public:
       later... 
    */
   ~NewAdvDif() {delete adv_diff_ff;}
+  
+  /** Prepare variables for report of error on
+      flux advective jacobians */
+  void before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		       Dofmap *dofmap, const char *jobinfo,int myrank,
+		       int el_start,int el_last,int iter_mode,
+		       const TimeData *time_data);
+
+  /// Report erros on jacobian fluxes
+  void after_assemble(const char *jobinfo);
+
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
