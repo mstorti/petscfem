@@ -31,6 +31,7 @@ else
   v = pvec([0,0,1],xnod);
 endif
 asave("cube.state.tmp",[v,zeros(nnod,1)]);
+return
 
 system("make getsurf");
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.55 2005/01/15 12:57:23 mstorti Exp $
+// $Id: femref.h,v 1.56 2005/01/15 13:44:59 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -515,5 +515,7 @@ public:
 };
 
 extern LinearCombiner linear_combiner;
+
+void getsurf(const dvector<int> &icone,int base);
 
 #endif

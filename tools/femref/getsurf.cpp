@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.18 2005/01/15 12:57:23 mstorti Exp $
+// $Id: getsurf.cpp,v 1.19 2005/01/15 13:44:59 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -11,17 +11,13 @@
 #include <limits.h>
 #include "./hasher.h"
 #include <src/fastmat2.h>
-#include <libguile.h>
 
 using namespace std;
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 #include "./femref.h"
 #include "./gtemplates.h"
-#include "./dvector.h"
-
-typedef SCM(*scm_fun)();
 
 struct FaceIterator {
   int elem;
@@ -31,24 +27,12 @@ struct FaceIterator {
 typedef multimap<int,FaceIterator> face_table_t;
 typedef pair<int,FaceIterator> ft_pair_t;
 
-#undef __FUN__
-#define __FUN__ "getsurf"
-SCM getsurf(SCM icone_s,SCM base_s) {
+#define TRACE(j) printf("trace %d\n",j)
 
-  // parse args
-  SCM_ASSERT(SCM_SMOB_PREDICATE(dvint_tag,icone_s),
-	     icone_s, SCM_ARG1, __FUN__);
-  const dvector<int> *icone_p 
-    = (const dvector<int> *)SCM_SMOB_DATA (icone_s);
+void getsurf(const dvector<int> &icone,int base) {
 
-  int base;
-  if (base_s == SCM_UNSPECIFIED) base = 0;
-  else {
-    SCM_ASSERT(SCM_INUMP(base_s),
-	       base_s, SCM_ARG2, __FUN__);
-    base = SCM_INUM(base_s);
-  }
-
+  printf("icone size %d, base %d\n",icone.size(),base);
+#if 0
   int nread; 
   char c;
 
@@ -57,7 +41,7 @@ SCM getsurf(SCM icone_s,SCM base_s) {
   const GeomObject::Template *mesh_tmpl = &OrientedTetraTemplate;
   UniformMesh mesh(*mesh_tmpl,3);
   int mesh_nel = mesh.tmplt()->size_m;
-  mesh.set_conn(*icone_p,base);
+  mesh.set_conn(icone,base);
   UniformMesh::visitor vis, vis2;
   vis.visit_mode = UniformMesh::BreadthFirst;
   vis.init(mesh);
@@ -74,6 +58,7 @@ SCM getsurf(SCM icone_s,SCM base_s) {
   double table_size=0.0;
   int collis = 0;
   start = time(NULL);
+  TRACE(0);
   while (!vis.end()) {  
     GeomObject &go = vis.ref_stack.front().go;
     if (VERBOSE) {
@@ -96,6 +81,7 @@ SCM getsurf(SCM icone_s,SCM base_s) {
       inv_face.init(GeomObject::OrientedTriT,
 		    inds.buff());
       inv_face.make_canonical();
+      TRACE(1);
 
       if (VERBOSE) {
 	printf("face %d ",j);
@@ -117,6 +103,7 @@ SCM getsurf(SCM icone_s,SCM base_s) {
 	  qq = q;
 	}
       }
+      TRACE(2);
       if (q1!=q2 && nfaces!=1 && VERBOSE) {
 	printf("possible collision with ");
 	for (q = q1; q!=q2; q++) 
@@ -205,8 +192,10 @@ SCM getsurf(SCM icone_s,SCM base_s) {
       printf("opposing node %d\n",opp_node);
     }
   }
+#endif
 }
 
+#if 0
 SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 	    SCM s_sconf, SCM s_graduf, SCM s_base) {
   
@@ -513,23 +502,4 @@ SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
   }
   fclose(fid);
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUN__
-#define __FUN__ "my-dv-print"
-SCM my_dv_print(SCM s_w) {
-  SCM_ASSERT (SCM_SMOB_PREDICATE(dvdbl_tag,s_w),
-              s_w, SCM_ARG1, __FUN__);
-  dvector<double> *w = (dvector<double> *)SCM_SMOB_DATA (s_w);
-  for (int j=0; j<w->size(); j++) {
-    printf("j: %g\n",w->ref(j));
-  }
-  return SCM_UNSPECIFIED;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-extern "C" void
-init_femref(void) {
-  scm_c_define_gsubr("getsurf",1,1,0,scm_fun(getsurf));
-  scm_c_define_gsubr("my-dv-print",1,0,0,scm_fun(my_dv_print));
-}
+#endif

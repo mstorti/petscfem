@@ -19,7 +19,6 @@
  (set! j (+ j 1)))
 !#
 
-(define v (make-dvdbl))
-; (dvdbl-resize! v 10)
-(format #t "read ~A dbls\n" (dvdbl-cat! v "data.dat.tmp"))
-(my-dv-print v)
+(define icone (make-dvint))
+(format #t "read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
+(getsurf icone 5)

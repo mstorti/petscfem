@@ -24,7 +24,8 @@ dvectord.cpp: dvector-epl.cpp dvector.cpp
 dvectori.o: dvectori.cpp
 dvectord.o: dvectord.cpp
 
-CPP_FILES := femref2 hasher md5r gtemplates visitor combiner dvectori dvectord
+CPP_FILES := femref2 hasher md5r gtemplates visitor combiner \
+		dvectori dvectord gsguile
 
 SRCS := $(CPP_FILES=.cpp) getsurf.cpp femref.cpp  myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
