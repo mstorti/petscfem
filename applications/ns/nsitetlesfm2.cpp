@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.30 2001/07/20 12:11:27 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.31 2001/07/20 12:13:33 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -296,6 +296,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if (comp_res || comp_mat_res) {
+      FastMat2::deactivate_cache();
       ucols.set(locstate2.is(2,1,ndim));
       pcol.set(locstate2.rs().ir(2,ndof));
       locstate2.rs();
@@ -306,9 +307,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
+      FastMat2::activate_cache();
     }
     
-    FastMat2::deactivate_cache();
     double shear_vel;
     int wall_elem;
     if (LES && comp_mat_res) {
@@ -318,7 +319,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wall_coords.set(wall_coords_);
       shear_vel = wall_elemset->elemprops_add[wall_elem];
     }
-    FastMat2::activate_cache();
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
