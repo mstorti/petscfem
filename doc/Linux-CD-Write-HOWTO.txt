@@ -1,4 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.4 2004/06/29 20:18:45 mstorti Exp $
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.5 2004/07/12 13:18:38 mstorti Exp $
 
  COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
 		 INSTALADA EN UNA MAQUINA CON WINDOWS
@@ -181,6 +181,64 @@ cambiarlo por el device apropiado.
 Los comandos cdrecord deben hacerse como root, el mkisofs puede
 hacerse como user.
 
+Como usar `md5sum' para chequear un CD
+======================================
+
+Si queremos verificar que el CD fue grabado correctamente entonces
+podemos comparar bit a bit la imagen de disco con la copia, por
+ejemplo
+
+   $ diff mstorti.iso /dev/hdd
+
+pero en realidad es mejor usar `md5sum'. El programa `md5sum' genera
+una `huella digital' (fingrprint) del archivo. La huella digital es un
+numero hexa de 32 digitos:
+
+   [root@minerva backup]# md5sum dalcinl.iso 
+   ae1b5af9493ed2b634707a71785c64a6  dalcinl.iso
+   [root@minerva backup]# 
+
+Si dos archivos tienen la misma huella digital entonces lo mas
+probable es que sean iguales. Obviamente no hay una relacion biunivoca
+entre un archivo y su huella digital, pero puede demostrarse que el
+algoritmo para encontrar un archivo que de una cierta huella digital
+es NP en la longitud de la huella digital, de manera que es muy poco
+probable que dos archivos tengan la misma huella digital. Para tomar
+la huella digital del CD grabado hay que tomarselo directamente al
+device 
+
+    [root@minerva backup]# dd if=/dev/scd0 | md5sum
+    6101632+0 records in
+    6101632+0 records out
+    ae1b5af9493ed2b634707a71785c64a6  -
+    [root@minerva backup]# 
+
+Con `cdrecord' he tenido problemas en que al tomar el md5sum de un
+archivo da un error y la huella reportada no corresponde con la del
+archivo. Ademas las longitud (en sectores) de la imagen y del archivo
+leido no son iguales. Sin embargo la huella del CD es correcta si se
+fuerza a `dd' a tomar el numero correcto de sectores, con lo cual en
+principio la grabacion esta bien. Por otra parte la huella de
+distintas grabaciones de la msisma imagen resulta ser igual. De manera
+que, yo en general lo que hago es grabar y tomar nota de la huella del
+CD (no de la imagen) y del numero de `records' que reporta, como en el
+ejemplo previo. 
+
+Con `cdrecord-proDVD' no existe ese problema. La huella del archivo y
+la del DVD son exactamente iguales. 
+
+Para que las grabaciones sean `compatibles' con Windows
+=======================================================
+
+`mkisofs' genera normalmente imagenes en formato ISO9660 con extensiones
+Rock-Ridge. Esto garantiza nombres largos, e ilimitados niveles de
+profundidad en los disrectorios. Sin embargo esos CD si se llevan a
+Windows se ven mal, con nombres truncados tipo 8.3 (8 letras para el
+nombre y 3 para la extension). Para que se vean bien en Windows hay
+que usar la extension Joliet que se obtiene con la bandera `-J' para
+`mkisofs':
+
+   $ mkisofs -r -J -o mstorti.iso mstorti
 
 <mstorti@intec.unl.edu.ar>
 Mon Sep 25 18:37:15 ART 2000
