@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.70 2003/09/01 10:45:50 mstorti Exp $ 
+# $Id: Makefile,v 1.71 2003/09/04 01:37:41 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -52,13 +52,21 @@ dx_tests_np1 := dx_hook_test_post_run_file_record	\
 		dx_hook_test_synchro			\
 		dx_hook_test_allf
 dx_tests_np2 := $(patsubst dx_hook_test_%,dx_test_%_np2,$(dx_tests_np1))
+
+#w Make all dx tests with 1 processors
 dx_tests_np1: $(dx_tests_np1) 
+
+#w Make all dx tests with 2 processors
 dx_tests_np2: $(dx_tests_np2) 
+
+#w Make all dx tests 
 dx_tests: dx_tests_np1 dx_tests_np2
 
+#w Rule to make all dx tests with 2 processors
 dx_test_%_np2: 
 	$(MAKE) np=2 dx_hook_test_$*
 
+#w Make dx modules in dx directory
 dx:
 	$(MAKE) -C ../../dx
 

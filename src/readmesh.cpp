@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.89 2003/08/30 18:02:13 mstorti Exp $
+//$Id: readmesh.cpp,v 1.90 2003/09/04 01:37:26 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -998,6 +998,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // partflag = 1 -> Hitchhiking partition;
   // partflag = 2 -> Neighbor partition. 
   // partflag = 3 -> random partition. 
+  // partflag = 4 -> natural partition. 
   int partflag;
   //o Set partitioning method. May be set to \verb+metis+,
   // \verb+hitchhiking+, \verb+nearest_neighbor+ or \verb+random+.
@@ -1027,6 +1028,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     partflag = 2;
   } else if (partitioning_method == string("random")) {
     partflag = 3;
+  } else if (partitioning_method == string("natural")) {
+    partflag = 4;
   } else {
     PETSCFEM_ERROR("partitioning method not known \"%s\"\n",
 		   partitioning_method.c_str());
@@ -1061,11 +1064,13 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     }	
     delete[] mnel;
 
-  } else if (partflag==3) {
+  } else if (partflag==3 || partflag==4) {
     // random partitioning 
     if (myrank==0) {
       for (int j=0; j < nelemfat; j++) {
 	vpart[j] = int(drand()*double(size));
+	if (partflag==4)
+	  vpart[j] = int(double(j)/double(nelemfat)*double(size));
 	// Just in case random functions are too close to the limits
 	// (In theory, rand() should not touch the limits 0, RAND_MAX)
 	if (vpart[j]>=size) vpart[j]=size-1;
