@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.2 2001/11/26 01:35:42 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.3 2001/11/26 20:10:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
-int SCHED_ALG=1;
 
 //  #define DEBUG_IISD
 //  #define DEBUG_IISD_DONT_SET_VALUES
@@ -26,13 +25,15 @@ int SCHED_ALG=1;
 #include <src/iisdmat.h>
 #include <src/graph.h>
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class IISDGraph : public Graph {
 private:
   Node *nodep;
-  int pos,vrtxf;
+  int vrtxf;
 public:
+  int *flag,k1,k2;
   /// Auxiliary functions
-  vector<int> &dof2loc;
+  int *dof2loc,*loc2dof;
   /// Libretto dynamic array that contains the graph adjacency matrix
   Darray *da;
   /// callback user function to return the neighbors for a 
@@ -41,27 +42,28 @@ public:
   double weight(int vrtx_f);
   /// Clean all memory related 
   ~IISDGraph() {clear();}
+  /// Constructor
+  IISDGraph() : Graph() {}
 };
-  
-void IISDGraph::set_ngbrs(int vrtx_f,vector<int> &ngbrs_v) {
-    while (1) {
-      nodep = (Node *)da_ref(da,pos);
-      if (nodep->next==-1) break;
-      // leq:= number of dof connected to `keq'
-      leq = nodep->val;
-      // if leq is in other processor, then either `keq' or `leq' are
-      // interface. This depends on `leq<keq' or `leq>keq'
-      if (leq<k1) {
-	// 	printf("[%d] marking node %d\n",keq);
-	flag0[keq]=1;
-      } else if (leq>k2) {
-	flag0[leq]=1;
-	// printf("[%d] marking node %d\n",myrank,leq);
-      }
-      pos = nodep->next;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
+void IISDGraph::set_ngbrs(int loc1,vector<int> &ngbrs_v) {
+  int pos,loc2,dof2;
+  pos = loc2dof[loc1]+k1;
+  while (1) {
+    nodep = (Node *)da_ref(da,pos);
+    if (nodep->next==-1) break;
+    // loc2:= number of global dof connected to `'
+    dof2 = nodep->val;
+    if (k1<=dof2 && dof2<=k2 && !flag[dof2] ) {
+      loc2 = dof2loc[dof2-k1];
+      ngbrs_v.push_back(loc2);
     }
+    pos = nodep->next;
+  }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double IISDGraph::weight(int elem) {
   return 1.;
 }
@@ -95,11 +97,13 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
 #define __FUNC__ "IISDMat::create"
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
-  int myrank,size;
+
+  int myrank,size,max_partgraph_vertices;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
-    n_loc_pre;
-  vector<int> dof2loc;
+    n_loc_pre,loc,dof;
+  vector<int> dof2loc,loc2dof,ngbrs_v;
+  IISDGraph graph;
 
   MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
@@ -166,17 +170,48 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // then marked as interface. So that the total effect of this step
   // is to add some local nodes to the `interface' set.
 
+  // Build the `dof2loc' and `loc2dof' maps. 
   // n_loc_pre:= the number of local nodes (so far). After this step
   // the number of local vertices is incremented.
+  // dof2loc:= maps dofs in this processor (0<dof<neqp) to local dof's
+  // (0<loc<n_loc_pre)
+  // loc2dof:= the inverse of dof2loc
   n_loc_pre = 0;
   dof2loc.resize(neqp,-1);
   for (k=0;k<neqp;k++) {
-    if (flag[k1+k]>0) dof2loc[k] = n_loc_pre++;
+    if (flag[k1+k]==0) dof2loc[k] = n_loc_pre++;
+  }
+  loc2dof.resize(n_loc_pre);
+  for (dof = 0; dof < neqp; dof++) {
+    loc = dof2loc[dof];
+    if (loc>=0) loc2dof[dof] = loc;
   }
   
-  
+  // Fill Graph class members 
+  graph.da = da;
+  graph.dof2loc = dof2loc.begin();
+  graph.loc2dof = loc2dof.begin();
+  graph.k1 = k1;
+  graph.k2 = k2;
+  graph.flag = flag.begin();
 
+#define INF INT_MAX
+  //o The maximum number of vertices in the coarse mesh. 
+  TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices,INF);
+#undef INF
+  TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
+  assert(iisd_subpart!=1);
+
+  graph.part(n_loc_pre,max_partgraph_vertices,iisd_subpart);
+  // Mark those local dofs that are connected to a local dof in a
+  // subdomain with lower index in the subpartitioning as interface.
+  for (k=0; k<n_loc_pre; k++) {
+    graph.set_ngbrs(k,ngbrs_v);
+    if 
+
+  graph.clear();
   dof2loc.clear();
+  loc2dof.clear();
   // map:= map[k] is the location of dof `k1+k' in reordering such
   // that the `local' dofs are the first `n_loc' and the `interface'
   // dofs are the last n_int.

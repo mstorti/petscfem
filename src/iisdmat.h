@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.11 2001/11/19 03:35:06 mstorti Exp $
+// $Id: iisdmat.h,v 1.12 2001/11/26 20:10:22 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -9,6 +9,21 @@
 #include <src/pfmat.h>
 #include <src/sparse.h>
 #include <src/sparse2.h>
+
+#define TGETOPTDEF_ND_PFMAT(thash,type,name,default)		\
+        name = default;						\
+        ierr = ::get_##type(thash,#name,&name,1);		\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+#define TGETOPTDEF_S_ND_PFMAT(thash,type,name,default)		\
+        name=type(#default);					\
+        ierr = ::get_##type(thash,#name,name,1);		\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+#define TGETOPTDEF_S_PFMAT(thash,type,name,default)		\
+        type name=type(#default);				\
+        ierr = get_##type(thash,#name,name,1);			\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 // This is the OO wrapper to PETSc matrix
 class PETScMat : public PFMat {
@@ -91,6 +106,10 @@ class IISDMat : public PFMat {
   int n_intp;
   /// Number of dof's in this processor. 
   int neqp;
+  /** The number of subdomains in which local nodes to each processor
+      are subdivided 
+  */
+  int iisd_subpart;
   /// Maps old numbering in new numbering 
   vector<int> map;
   /** Local dof's in this processor are in the range

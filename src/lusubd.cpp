@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.58 2001/11/26 01:35:42 mstorti Exp $
+//$Id: lusubd.cpp,v 1.59 2001/11/26 20:10:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -892,21 +892,6 @@ void PETScMat::clear() {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::build_sles"
 int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
-
-#define TGETOPTDEF_ND_PFMAT(thash,type,name,default)		\
-        name = default;						\
-        ierr = ::get_##type(thash,#name,&name,1);		\
-        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
-
-#define TGETOPTDEF_S_ND_PFMAT(thash,type,name,default)		\
-        name=type(#default);					\
-        ierr = ::get_##type(thash,#name,name,1);		\
-        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
-
-#define TGETOPTDEF_S_PFMAT(thash,type,name,default)		\
-        type name=type(#default);				\
-        ierr = get_##type(thash,#name,name,1);			\
-        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
