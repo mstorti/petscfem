@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.13 2002/02/12 19:44:20 mstorti Exp $
+//$Id: texthash.cpp,v 1.14 2002/04/11 21:25:25 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -297,8 +297,9 @@ void TextHashTable::get_entry(const char *name,vector<double> &v) {
 
   char *buf= new char[strlen(value)+1];
   strcpy(buf,value);
+  int j=0;
   while(1) {
-    token = strtok(k==0 ? buf : NULL ,bsp);
+    token = strtok(j++==0 ? buf : NULL ,bsp);
     if (!token) return;
     k = sscanf(token,"%lf",&val);
     PETSCFEM_ASSERT(k==1,
