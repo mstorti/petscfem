@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.10 2001/05/26 17:09:44 mstorti Exp $
+//$Id: genload.cpp,v 1.11 2001/05/27 17:13:49 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -44,12 +44,16 @@ int GenLoad::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "double detsur(FastMat2 &Jaco, FastMat2 &S)"
 double detsur(FastMat2 &Jaco, FastMat2 &S) {
   int n=Jaco.dim(2);
   int m=Jaco.dim(1);
-  FastMat2::deactivate_cache();
-  FastMat2 g(2,m,m);
-  g.prod(Jaco,Jaco,1,-1,-1,2);
+  if (m==0) return 1.;
+  static FastMat2 g;
+  if (!g.is_defined()) g.resize(2,m,m);
+  g.prod(Jaco,Jaco,1,-1,2,-1);
   return sqrt(g.det());
 }
 
@@ -72,9 +76,10 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   NSGETOPTDEF(int,npg,0); //nd
   NSGETOPTDEF(int,ndim,0); //nd
+  //o The dimension of the element 
+  NSGETOPTDEF(int,ndimel,ndim-1);
   PETSCFEM_ASSERT0(npg>0,"");
   PETSCFEM_ASSERT0(ndim>0,"");
-  int ndimel=ndim-1;
 
   int locdof,kldof,lldof;
   char *value;
@@ -89,8 +94,8 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   nen = nel*ndof;
   FastMat2 matloc(4,nel,ndof,nel,ndof),matlocf(4,nel,ndof,nel,ndof),
-    Jaco(2,ndimel,ndim),S(1,ndim),
-    flux(1,ndof),load(1,ndof),jac_in,jac_out,tmp1,tmp2,tmp3,tmp4;
+    S(1,ndim),flux(1,ndof),load(1,ndof),jac_in,jac_out,Jaco,
+    tmp1,tmp2,tmp3,tmp4;
 
   double detJ;
   FastMat2 u_in,u_out,U_in,U_out;
@@ -186,7 +191,8 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       xloc.is(1,1,nel2);
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       xloc.rs();
-      detJ = mydetsur(Jaco,S);
+      // detJ = mydetsur(Jaco,S);
+      detJ = detsur(Jaco,S);
 
       U_in.prod(SHAPE,u_in,-1,-1,1);
       if (double_layer) {
