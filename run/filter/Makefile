@@ -1,3 +1,6 @@
+run: sttfilter
+	sttfilter
+
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 
@@ -8,13 +11,17 @@ CPPFLAGS = -g
 
 LDFLAGS = -g
 
-run: sttfilter
-	sttfilter
+SRCDIR = $(PETSCFEM_DIR)/src
 
-sttfilter: sttfilter.o
+STTFLT = libpetscfem.a(sttfilter.o)
+
+$(SRCDIR)/$(STTFLT):
+	$(MAKE) -C $(SRCDIR) $(STTFLT)
+
+sttfilter: sttfilter.o $(SRCDIR)/libpetscfem.a
 	g++ $(LDFLAGS) -o $@  $^ $(LDLIBS)
 
-sttfilter.o: sttfilter.h sttfilter.cpp
+sttfilter.o: $(SRCDIR)/sttfilter.h
 
 local_clean::
 	-rm -f filter.out sttfilter
