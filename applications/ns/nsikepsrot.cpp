@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.1 2002/04/04 01:40:59 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.2 2002/04/05 17:53:06 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -78,7 +78,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTNDEF(thash,int,ndim,none); //nd
   //o The system is in a non-inertial frame. Get linear and rotational
   // velocities and accelerations from fictitious nodes. The
-  TGETOPTNDEF(thash,int,non_inertial_frame,0);
+  TGETOPTDEF(thash,int,non_inertial_frame,0);
   // nelr:= the number of real nodes (not counting the fictitious
   // nodes for describing the non-intertial frame movement)
   int nelr = (non_inertial_frame ? nel-2 : nel);
@@ -140,7 +140,10 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // These are the full state (including fictitious nodes)
   FastMat2 flocstate(2,nel,ndof), flocstate2(2,nel,ndof), 
-    fveccontr(2,nel,ndof),fmatlocf(4,nel,ndof,nel,ndof);
+    fveccontr(2,nel,ndof),fmatlocf(4,nel,ndof,nel,ndof),
+    elc;
+  // This is the Levi-Civita density tensor $\eps_{ijk}$
+  elc.eps_LC();
 
   // Traslational acceleration of the system
   FMatrix acel_lin(ndim);
@@ -157,7 +160,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   nen = nelr*ndof;
-  FMatrix matloc(nen,nen), matlocmom(nelr,nel), masspg(nelr,nel),
+  FMatrix matloc(nen,nen), matlocmom(nelr,nelr), masspg(nelr,nelr),
     grad_u_ext(ndof,ndof);
   FastMat2 matlocf(4,nelr,ndof,nelr,ndof);
 
@@ -335,12 +338,12 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // node) to reduced state vector
       if (non_inertial_frame) {
 	flocstate2.set(&(LOCST2(ielh,0,0)));
-	flocstate2.is(1,1,nel);
+	flocstate2.is(1,1,nelr);
 	locstate2.set(flocstate2);
 	flocstate2.rs();
 
 	flocstate.set(&(LOCST(ielh,0,0)));
-	flocstate.is(1,1,nel);
+	flocstate.is(1,1,nelr);
 	locstate.set(flocstate);
 	flocstate.rs();
 
@@ -367,6 +370,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  // Definition of rotation velocity matrix
 	  // corresponding to the polar vector Omega
+#if 0
 	  Omega_M.setel(omega_v.get(3),2,1);    	
 	  if (ndim==3) {
 	    Omega_M.setel(omega_v.get(1),3,2);    	
@@ -374,11 +378,14 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  } 
 	  tmp_rot.set(Omega_M.t()).scale(-1.);
 	  Omega_M.rs().add(tmp_rot);
-  
 	  omega_v.rs();
+#endif
+	  assert(ndim==3); // Some things below are specific for 3D
+	  Omega_M.prod(elc,omega_v,1,2,-1,-1);
 
 	  // Definition of rotation acceleration matrix corresponding
 	  // to the polar vector Alfa
+#if 0
 	  Alfa_M.setel(alfa_v.get(3),2,1);    	
 	  if (ndim==3) {
 	    Alfa_M.setel(alfa_v.get(1),3,2);    	
@@ -386,8 +393,11 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  } 
 	  tmp_rot.set(Alfa_M.t()).scale(-1.);
 	  Alfa_M.rs().add(tmp_rot);
-
 	  alfa_v.rs();
+#endif
+	  Alfa_M.prod(elc,alfa_v,1,2,-1,-1);
+
+	  G_body.axpy(acel_lin,-rho);
 
 	  FastMat2::activate_cache();
 	}
@@ -982,6 +992,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       if (non_inertial_frame) {
 	fveccontr.is(1,1,nelr).set(veccontr);
+	fveccontr.rs();
 	fveccontr.export_vals(&(RETVAL(ielh,0,0)));
       } else {
 	veccontr.export_vals(&(RETVAL(ielh,0,0)));
@@ -990,8 +1001,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       if (update_jacobian) {
 	if (non_inertial_frame) {
 	  fmatlocf.is(1,1,nelr).is(3,1,nelr).set(matlocf);
-	  fmatlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 	  fmatlocf.rs();
+	  fmatlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 	} else {
 	  matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 	}
