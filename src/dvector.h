@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.17 2004/11/18 23:34:17 mstorti Exp $
+// $Id: dvector.h,v 1.18 2004/12/14 18:05:50 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -57,6 +57,14 @@ private:
   int nread;
   /// Internal error code
   int ierr;
+
+  /** Same as #ev(i,ap)# but used interally. Both versions,
+      const and non-const refer internally to this. 
+      @param j (input) first index
+      @param ap (input) remaiing indices
+      @return reference to the element */ 
+  int pos(int j,va_list ap) const;
+
 public:
   /** Constructor 
       @param cs (input) chunk size for this vector

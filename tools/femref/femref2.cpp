@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.11 2004/12/14 15:32:24 mstorti Exp $
+// $Id: femref2.cpp,v 1.12 2004/12/14 18:05:54 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -548,28 +548,30 @@ refine(RefineFunction f) {
       ElemRef::iterator q, qs, qs2, qfather;
       q = split_stack.front();
       int j = split_indx_stack.front();
+
+      if (q==etree.end()) {
+	// May be refine this element?
+#define REF_LEVEL 1
+	  // Here refine (eventually) by inserting a
+	  // child in the position `q'.
+	  // Refinement criterion.
+	  bool refine_this = go_stack.size()<=REF_LEVEL;
+	  if (refine_this) {
+	    q = etree.insert(q,ElemRefNode());
+	    // The splitter should be returned
+	    // by the refinement function
+	    q->splitter = &Tetra2TetraSplitter;
+	    q->so_indx = j;
+	    split_stack.front() = q;
+	  }
+      }
+
       if (q != etree.end()) {
 	// `q' is a regular node for splitters (sure
 	// it isn't a leave for GO's). Follow to the
 	// left child (int the GO tree). 
 	s = q->splitter;
 	qs = q.lchild();
-	if (qs == etree.end()) {
-#define REF_LEVEL 1
-	  // FIXME:= The code here is duplicated
-	  // and should be put in a refinement function. 
-	  // Here refine (eventually) by inserting a
-	  // child in the position `qs'.
-	  // Refinement criterion.
-	  bool refine_this = go_stack.size()<=REF_LEVEL;
-	  if (refine_this) {
-	    qs = etree.insert(qs,ElemRefNode());
-	    // The splitter should be returned
-	    // by the refinement function
-	    qs->splitter = &Tetra2TetraSplitter;
-	    qs->so_indx = 0;
-	  }
-	}
 	if (qs!=etree.end() && qs->so_indx==0) 
 	  qs2 = qs;
 	else qs2 = etree.end();
@@ -614,6 +616,7 @@ refine(RefineFunction f) {
 	      if (qs->so_indx >= jsib) break;
 	      qs++;
 	    }
+#if 0
 	    // The sibling `jsib' is not refined at this level
 	    if (qs->so_indx > jsib) {
 	      // FIXME:= The code here is duplicated
@@ -627,6 +630,7 @@ refine(RefineFunction f) {
 		qs->so_indx = jsib;
 	      } else qs = etree.end(); // Not refined
 	    }
+#endif
 
 	    // Push new state in the stacks
 	    split_stack.push_front(qs);

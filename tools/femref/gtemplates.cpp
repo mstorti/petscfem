@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.5 2004/12/12 23:20:43 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.6 2004/12/14 18:05:54 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -31,7 +31,7 @@ Tetra2TetraSplitterClass() {
   int nso = 8;
   int nelso = 4;
   for (int j=0; j<nso; j++) {
-    for (int k=0; j<nelso; j++) {
+    for (int k=0; k<nelso; k++) {
       int n2=0, n1 = Tetra2TetraSplitter_v[nelso*j+k];
       if (n1>=nel) switch(n1) {
       case 4: n1=0; n2=1; break;

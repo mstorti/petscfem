@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.21 2004/11/18 23:34:17 mstorti Exp $
+// $Id: dvector2.h,v 1.22 2004/12/14 18:05:50 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -446,14 +446,22 @@ dvector<T>::a_resize(int rank_a,...) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-const T& dvector<T>::ev(int j,va_list ap) const { return ev(j,ap); }
+const T& dvector<T>::ev(int j,va_list ap) 
+  const { return ref(pos(j,ap)); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-T& dvector<T>::ev(int j,va_list ap) {
-  int pos = j;
-  for (int k=1; k<rank_m; k++) pos = pos*shape_p[k]+va_arg(ap,int);
-  return ref(pos);
+T& dvector<T>::ev(int j,va_list ap) { 
+  return ref(pos(j,ap)); 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+int dvector<T>::pos(int j,va_list ap) const {
+  int poss = j;
+  for (int k=1; k<rank_m; k++) 
+    poss = poss*shape_p[k]+va_arg(ap,int);
+  return poss;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
