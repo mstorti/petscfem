@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.23 2001/05/30 18:21:50 mstorti Exp $
+//$Id: ns.cpp,v 1.24 2001/05/31 00:52:56 mstorti Exp $
  
 #include <malloc.h>
 
@@ -165,6 +165,8 @@ int main(int argc,char **args) {
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
+  //o Solve system before \verb+print\_linear_system_and_stop+
+  GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
   GETOPTDEF(int,measure_performance,0);
 
@@ -475,7 +477,8 @@ int main(int argc,char **args) {
       ierr = PCSetType(pc_tet,preco_type_); CHKERRA(ierr);
       ierr = KSPSetMonitor(ksp_tet,MyKSPMonitor,PETSC_NULL);
 
-      ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
+      if (!print_linear_system_and_stop || solve_system)
+	ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
 
       if (print_linear_system_and_stop) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -490,9 +493,12 @@ int main(int argc,char **args) {
 			       VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	ierr = VecView(res,matlab);
 
-	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
-	ierr = VecView(dx,matlab);
+	if (solve_system) {
+	  ierr = ViewerSetFormat(matlab,
+				 VIEWER_FORMAT_ASCII_MATLAB,"dx");
+	  CHKERRA(ierr);
+	  ierr = VecView(dx,matlab);
+	}
 	
 	PetscFinalize();
 	exit(0);
