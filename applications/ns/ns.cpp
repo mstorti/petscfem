@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.136 2003/09/11 17:47:14 mstorti Exp $
+//$Id: ns.cpp,v 1.137 2003/09/16 17:53:35 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -80,13 +80,12 @@ int main(int argc,char **args) {
 #endif
 
   PetscInitialize(&argc,&args,(char *)0,help);
-  print_copyright();
-
-  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
-
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
+  print_copyright();
+  PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
 
   Debug debug(0,PETSC_COMM_WORLD);
   GLOBAL_DEBUG = &debug;
