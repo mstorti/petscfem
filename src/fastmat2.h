@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.10 2001/08/06 01:07:36 mstorti Exp $
+//$Id: fastmat2.h,v 1.11 2001/11/30 13:18:43 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -806,7 +806,7 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Resizes the matrix (destroying the information).
-      New and old dimensiond might not be the same. 
+      New and old dimensions might not be the same. 
       @author M. Storti
       @param i,j,k,l (input) the new dimensions
       @return a reference to the matrix.
