@@ -1582,3 +1582,6 @@ tag: beta-3.04.pl5 on Sun,  8 Sep 2002 19:02:01 -0300 by mstorti in spider
 tag: beta-3.04.pl6 on Sun,  8 Sep 2002 20:29:29 -0300 by mstorti in spider
      > Added test for dynamically variable properties.
      > Runs all tests in test/aquifer. 
+----------
+tag: beta-3.04.pl7 on Mon,  9 Sep 2002 22:22:22 -0300 by mstorti in spider
+     > `applications/ns.cpp' doesn't compile with -O2 (hangs??). 
