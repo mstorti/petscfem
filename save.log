@@ -3362,3 +3362,8 @@ tag: beta-3.33.14 on Sun, 24 Oct 2004 14:51:20 -0300 by mstorti in spider
 ----------
 tag: beta-3.33.15 on Sun, 24 Oct 2004 14:56:13 -0300 by mstorti in spider
      > PFSymmPETScMat class works in simple parallel example. 
+----------
+tag: beta-3.33.16 on Sun, 24 Oct 2004 19:47:31 -0300 by mstorti in spider
+     > PFSymmPETScMat class works with laplace 1d.
+     > Added general splitting. 
+     > Fixed makeltag/checktag. 
