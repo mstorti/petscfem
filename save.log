@@ -4189,3 +4189,9 @@ tag: beta-3.44 on Wed, 09 Mar 2005 07:52:05 -0300 by mstorti in spider
      > Added `PETSCFEM_' prefix on all magic `#ifndef PETSCFEM_..._H' headers. 
      > Implemmented `project.cpp' for interpolating one mesh in another. 
      > Runs SC-Hyper tests. 
+----------
+tag: beta-3.45.1 on Wed, 09 Mar 2005 07:56:56 -0300 by mstorti in spider
+     > Administrative tag
+----------
+tag: beta-3.45.2 on Sun, 27 Mar 2005 23:28:04 -0300 by mstorti in spider
+     > Working on periodic duct with sliding aperture. 
