@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* add doc for enthalpy jacobians
+* replcae all  VOID_IT by clear()
 * Make ElementIterator a nested class of Elemset
 * Convert flux functions (burgers, shallow water), to new ff's...
 * Add a "mass" to the advective dffusive eq.??
