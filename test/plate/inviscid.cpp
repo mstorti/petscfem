@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.19 2003/01/09 13:39:57 mstorti Exp $
+//$Id: inviscid.cpp,v 1.20 2003/01/10 12:27:54 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -180,9 +180,10 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
   assert(n_coef>=1);
   a_coef.resize(n_coef);
   b_coef.resize(n_coef);
+
   get_double(options,"a_coef",a_coef.begin(),1,n_coef);  
   get_double(options,"b_coef",b_coef.begin(),1,n_coef);  
-  printf("using filter:\n     j      a[j]      b[j]\n");
+  printf("using filter:\n j      a[j]      b[j]\n");
   for (int j=0; j<n_coef; j++) printf("%d   %f  %f\n",j,a_coef[j],b_coef[j]);
 
   if (!MY_RANK) {
@@ -204,7 +205,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       int vn,pn;
       nread = fscanf(fid,"%d %d",&vn,&pn);
       if (nread!=2) break;
-      printf("ext_node_indx %d\n",ext_node_indx);
+      // printf("ext_node_indx %d\n",ext_node_indx);
       ext_node_data.push_back(new ext_node());
       ext_node_data[ext_node_indx]->vn = vn;
       ext_node_data[ext_node_indx]->pn = pn;
@@ -428,24 +429,10 @@ void coupling_inv_hook::time_step_post(double time,int step,
     dpot_dx_filt(2,n_coef,NDIM), t(1,NDIM), norm(1,NDIM), tmp1,
     rhs(1,NDIM),tmp2, dpot_dx_k(1,NDIM);
   double dphidn;
-  // filter coefficients 
-#if 0
-#if 1
-  double omega=0.9, xif=1;
-  double a_coef[] = {1./square(omega)+xif/omega+0.5, 
-		     -2/square(omega),
-		     1./square(omega)-xif/omega+0.5};
-  double b_coef[] = {0.5,0.,0.5};
-#else
-  omega=0.;
-  double a_coef[] = {1., -(1.-omega), 0.};
-  double b_coef[] = {omega, 0., 0.};
-#endif
-#endif
 
   assert(fid = fopen("ext.coupling_normal_vel.tmp","w"));
-#if 1
-  printf("using filter:\n     j      a[j]      b[j]\n");
+#if 0
+  printf("using filter:\n j      a[j]      b[j]\n");
   for (int j=0; j<n_coef; j++) printf("%d   %f  %f\n",j,a_coef[j],b_coef[j]);
 #endif
   for (int k=0; k<nnod_ext; k++) {

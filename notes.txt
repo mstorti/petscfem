@@ -1,4 +1,4 @@
-r$Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $
+r$Id: notes.txt,v 1.213 2003/01/10 12:27:50 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.213 2003/01/10 12:27:50 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.213 2003/01/10 12:27:50 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.212 2003/01/09 14:48:08 mstorti Exp $ 
+  # $Id: notes.txt,v 1.213 2003/01/10 12:27:50 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5781,6 +5781,9 @@ xif=0.1). Pruebo a aumentar nnwt=3 y Co=1, pero igual.
 11:40:40: De todas formas con (omega=0.9; xif=1) parece que era
 inestable. Estoy probando con (omega=0.5; xif=1) y por ahora parece
 OK. Me pregunto la precision de todo esto. 
+%
+11:48:24: Efectivamente con (omega=0.5; xif=1) parece estable. 
+
 
 # Current line ===========  %
 # Local Variables: $
