@@ -315,3 +315,17 @@ tag: beta-3.17 on Wed Feb 12 09:06:21 GMT+3 2003, by mstorti in spider
      > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
      > Written doc for DX
      > Automatically detects quads, cubes, triangles, tetras and prisms. 
+----------
+tag: beta-3.18 on Mon Feb 17 11:57:38 GMT+3 2003, by mstorti in spider
+     > Changed 2002 -> 2003 in copyright files, etc...
+     > Aborts `synchronizedly' if error in reading connectivities 
+     > or coordinates with the `data' option. 
+     > Splits fields 
+     > Now the state is build in `dx_hook' through calling a function pointer
+     > to member `build_state'. The idea is to write a
+     > `build_state_from_state' for use when PETSc-FEM is runninf and
+     > `build_state_from_file' for post-run analysis.
+     > Uses `dvector' for buffer in `dxhook'. Uses pointers to members for
+     > the `set_state' step in `dxhook'. 
+     > Reads states from records in state files.
+     > Moved all tests (oscplate, plano, idmap) to subdirs in test/

@@ -2393,3 +2393,18 @@ tag: beta-3.17.pl9 on Mon, 17 Feb 2003 09:39:40 -0300 by mstorti in spider
 ----------
 tag: beta-3.17.pl10 on Mon, 17 Feb 2003 11:53:36 -0300 by mstorti in spider
      > Moved all tests (oscplate, plano, idmap) to subdirs in test/
+----------
+tag: beta-3.18 on Mon, 17 Feb 2003 11:57:38 -0300, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Changed 2002 -> 2003 in copyright files, etc...
+     > Aborts `synchronizedly' if error in reading connectivities 
+     > or coordinates with the `data' option. 
+     > Splits fields 
+     > Now the state is build in `dx_hook' through calling a function pointer
+     > to member `build_state'. The idea is to write a
+     > `build_state_from_state' for use when PETSc-FEM is runninf and
+     > `build_state_from_file' for post-run analysis.
+     > Uses `dvector' for buffer in `dxhook'. Uses pointers to members for
+     > the `set_state' step in `dxhook'. 
+     > Reads states from records in state files.
+     > Moved all tests (oscplate, plano, idmap) to subdirs in test/
