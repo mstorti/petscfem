@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.118 2003/12/08 23:24:45 mstorti Exp $
+#$Id: runtests.pl,v 1.119 2004/01/18 22:53:27 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -23,7 +23,7 @@ $COMPLAIN_ON_CANT_OPEN = $opt_o;
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 ## Prove here new tests
-if (1) {
+if (0) {
     expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
 	   read_file("sw_abso/test_abso.verif.ans"));
     final_check();
@@ -1197,6 +1197,39 @@ expect("sqcav/output.CASE_sqcav.np_2.case_dx_synchro.out.tmp",
 expect("sqcav/output.CASE_sqcav.np_2.case_dx_allf.out.tmp",
        "Processing states synchronously. Sends only one field array. (NP=2)",
        read_file("sqcav/pf_output.dx_allf.ans"));
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('Synchronized output on. SyncBuffer and KeyedOutputBuffer classes. ');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/test_sync_buffer.output.tmp",
+       "Test for the `SyncBuffer' class",
+       read_file("distmap/test_sync_buffer.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/test_kob_plain.output.tmp",
+       "Test for the `KeyedOutputBuffer' class plain",
+       read_file("distmap/test_kob_plain.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/test_kob_no_sort.output.tmp",
+       "Test for the `KeyedOutputBuffer' class with no sorting",
+       read_file("distmap/test_kob_no_sort.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/test_kob_no_key_print.output.tmp",
+       "Test for the `KeyedOutputBuffer' class with no key printing",
+       read_file("distmap/test_kob_no_key_print.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/test_kob_no_newline.output.tmp",
+       "Test for the `KeyedOutputBuffer' class with no newlines",
+       read_file("distmap/test_kob_no_newline.ans"));
 
 end_section();
 

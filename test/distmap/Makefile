@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.25 2004/01/18 22:46:17 mstorti Exp $ 
+# $Id: Makefile,v 1.26 2004/01/18 22:53:31 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -108,7 +108,8 @@ machi:
 
 NPSB := 3
 #w Tests for `SyncBuffer' and `KeyedOutputBuffer' classes
-tests_sb: test_sync_buffer test_kob_plain test_kob_no_sort
+tests_sb: test_sync_buffer test_kob_plain test_kob_no_sort \
+		test_kob_no_key_print test_kob_no_newline
 
 #w Test SyncBuffer class
 test_sync_buffer: testsb.bin

@@ -107,6 +107,7 @@ written. This class is based on \verb+SyncBuffer<...>+ using as
 integer and a C-string. Typical usage is
 %
 \begin{verbatim}
+#include <src/syncbuff.h>
 #include <src/syncbuff2.h>
 
   KeyedOutputBuffer kbuff;
@@ -124,6 +125,28 @@ integer and a C-string. Typical usage is
   kbuff.flush();
 \end{verbatim}
 %
+Also you can directly use a \verb+printf(...)'+ like semantics in the
+following way
+%
+\begin{verbatim}
+#include <src/syncbuff.h>
+#include <src/syncbuff2.h>
+
+  KeyedOutputBuffer kbuff;
+  int key;
+
+  for ( ... ) {
+    // Load internal string with `printf' and `cat_printf' functions
+    kbuff.printf("one line %d %d %d %f\n",i,j,k,a);
+    kbuff.cat_printf("other line %d %d %d\n",m,n,p);
+    // Push in buffer with key `q'. `push()' also clears the
+    // internal string
+    kbuff.push(q)
+  }
+
+  kbuff.flush();
+\end{verbatim}
+
 If you want to dump the buffer on another stream, like a file for
 instance, then you have to set the
 \verb+static FILE *KeyedLine::output+ field of the \verb+KeyedLine+

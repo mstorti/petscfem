@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.7 2004/01/18 21:38:59 mstorti Exp $
+// $Id: syncbuff.h,v 1.8 2004/01/18 22:53:23 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -101,6 +101,8 @@ private:
 public:
   /// Flags whether the keys are printed to the output
   static int print_keys;
+  /// Flags whether newlines are printed at the end of each line
+  static int print_newlines;
   /// The output stream
   static FILE *output;
   /// Default constructor 

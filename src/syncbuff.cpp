@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.4 2004/01/18 21:38:59 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.5 2004/01/18 22:53:23 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -19,6 +19,8 @@ using namespace std;
 FILE * KeyedLine::output = stdout;
 /// Flags whether line numbers are printed. 
 int KeyedLine::print_keys = 1;
+/// Flags whether newlines are printed at the end of each line
+int KeyedLine::print_newlines = 1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int operator<(const KeyedLine& left, const KeyedLine& right) {
@@ -72,9 +74,10 @@ void KeyedLine::unpack(const char *& buff) {
 void KeyedLine::print() {
   // Prints the line with or without the keys. 
   if (print_keys) 
-    fprintf(output,"%d: %s\n",key,line);
+    fprintf(output,"%d: %s",key,line);
   else 
-    fprintf(output,"%s\n",line);
+    fprintf(output,"%s",line);
+  if (print_newlines) fprintf(output,"\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
