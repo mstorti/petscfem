@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.177 2003/09/13 17:32:09 mstorti Exp $
+#$Id: Makefile.base,v 1.178 2003/09/17 10:35:14 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -237,7 +237,7 @@ local_dist_clean::
 
 #w cleans directory
 lclean: 
-	$(MAKE) clean local_clean &> /dev/null
+	$(MAKE) clean local_clean # &> /dev/null
 ifneq ($(CLEAN_DIRS),)
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
 endif
