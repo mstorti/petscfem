@@ -1,4 +1,671 @@
-2001-01-11  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+2001-03-29  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl, test/runtests.pl:
+	Added a test for new ff with weak form (bu without bcconv)
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m, test/runtests.pl,
+	src/version.cppin, applications/advdif/ffadvfm2.cpp: Added new
+	tests for the new flux functions
+
+2001-03-28  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m, test/advdif/Makefile,
+	test/Makefile, test/runtests.pl: Added tests for the new flux
+	functions
+
+	* src/Makefile: I suppress the .tab.* files from being
+	.INTERMEDIATE so that they are not deleted and not remade each
+	time.
+
+	* VERSION, save.log: Administrative files
+
+	* tools/emacs, test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m,
+	applications/advdif/ffadvfm2.cpp: Fixed a bug in reactive
+	jacobians for the linear advection diffusion case. The term is
+	'-cu' in the rhs so that c_jac->comp_G_source must return the 'cu'
+	and we scaled this by -1.
+
+2001-03-26  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/ffswfm2t.cpp: Fixed a bug in the advective
+	jacobians for the shallow water eqs.
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/newff.m, test/newff/verif.m, test/newff/Makefile,
+	test/newff/data.m.epl, test/newff/newff.epl, test/advdif/Makefile,
+	test/advdif/sine.epl.new, test/advdif/sine_new.epl,
+	test/advdif/sine_new.m, test/Makefile, src/getprop.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h,
+	Makefile.base, TODO: Writing tests for the new lnear AdvDif flux
+	functions.
+
+2001-03-25  mstorti@spider  <mstorti@spider>
+
+	* test/eperlini.pl: fixed doc
+
+	* test/eperlini.pl: Added 'octave_string' that strips quotes from
+	arguments read from Octave data files.
+
+2001-03-24  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine_new.epl, src/elemset.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h,
+	TODO: Added a null reactive jacobian
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine.epl: Line 'reactive_jacobians' in input data
+	file is required. I added this.
+
+	* test/advdif/Makefile: save.state is now removed before
+	processing. otherwise it remains as a stale file and it can be
+	taken as a result for a subsequent run.
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine.epl, test/advdif/sine.epl.new, src/utils.cpp,
+	applications/ns/bccnsfm2.cpp, applications/ns/wall.cpp,
+	applications/laplace/genload.cpp,
+	applications/advective/bccadvfm2.cpp,
+	applications/advective/bcconv_adv.cpp,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/wallswt.cpp, TODO, notes.txt: Fixed the
+	'mydetsur' bug.  Making stable version with new flux functions.
+
+2001-03-23  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine_new.epl, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h: Works scalar per field reactive
+	jacobian.
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine_new.epl, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h: Works the global scalar reactive
+	Jacobian
+
+2001-03-22  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine_new.epl, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h, TODO: Partially incorporated a
+	reactive jacobian in advdif as a class.
+
+	* test/advdif/mat.output: unused
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/mat.output, test/advdif/sine_new.epl,
+	test/advdif/sine_new.m, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h: Added a diffusion tensor per field
+	and fixed some error in full diff jacobian.
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/Makefile, test/advdif/sine_new.epl, src/fem.h,
+	applications/advdif/ffadvfm2.cpp: Tested new flux functions with
+	scalar dif per field
+
+2001-03-21  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+	* test/advdif/sine_new.epl: Modified sine.epl for checking the new
+	flux function
+	(overloaded diffusive and advective jacobians).
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h: Added diffusive jacobian scalar
+	per field.  Works for the simple case of only one field.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h: Now the flux function class has a
+	function comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N, FastMat2
+	& dshapex,double w) instead of doing this in two steps
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine.epl, applications/advdif/advdife.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h:
+	Anda el jacobiano difusivo GlobalScalar para un caso simple con un
+	solo grado de libertad.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdife.cpp, applications/advdif/nwadvdif.h:
+	Now AJac and Djac exist in the advecfm2 class only
+
+	* TODO: added entry
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine.epl, test/advdif/Makefile,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h:
+	Working on nw version of flux functions
+
+2001-03-20  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdif.cpp, applications/advdif/advdife.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h,
+	test/advdif/Makefile, test/advdif/sine.epl, test/advdif/sine.m:
+	Testing the advdif new linear advection function classes.
+
+2001-03-19  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h:
+	Writing advdif flux functions more OOP
+
+2001-03-18  mstorti@spider  <mstorti@spider>
+
+	* tools/emacs: configures compile-command
+
+	* applications/advdif/nwadvdif.h: Contains class newadvdif and
+	related (flux functions)
+
+	* notes.txt: deleted the make save hook in Emacs
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/Makefile, test/advdif/sine.epl, test/runtests.pl,
+	test/testfm2.cpp, test/tidmap.cpp, src/fastmat2.cpp,
+	src/fastmat2.h, src/Makefile, doc/Makefile, doc/banner,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/ffadvfm2.cpp, README, notes.txt, PROJECTS:
+	Added a 'diag' mask to FastMat2.  Writing new version (improved
+	OOP) for advdif.
+
+	* TODO: *** empty log message ***
+
+	* tools/emacs: Added bindng for toggle-read-only
+
+	* applications/advdif/advdifeo.cpp: Removes the test for property
+	"conduct"
+
+2001-03-16  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine.data.epl, test/advdif/sine.epl,
+	test/advdif/sine.m, test/advdif/Makefile: New version of advdif
+	fux functions New version of advdif fux functions New version of
+	advdif fux functions New version of advdif fux functions New
+	version of advdif fux functions
+
+	* src/elemset.cpp, src/elemset.h, src/fem.h: New version of advdif
+	fux functions New version of advdif fux functions New version of
+	advdif fux functions New version of advdif fux functions
+
+	* applications/ns/nsilesther.cpp, applications/ns/nsitetles.cpp,
+	applications/ns/nsitetlesfm2.cpp: New version of advdif fux
+	functions New version of advdif fux functions New version of
+	advdif fux functions
+
+	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp,
+	applications/advdif/advdife.cpp.bck,
+	applications/advdif/advdifeo.cpp, applications/advdif/advective.h,
+	applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffadvfm2_old.cpp: New version of advdif fux
+	functions New version of advdif fux functions
+
+	* TODO: New version of advdif fux functions
+
+2001-03-13  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/sine.epl, test/advdif/sine.m, src/getarray.cpp,
+	src/readmesh.cpp, src/readmesh.h, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/ffadvfm2.cpp: Modifying the flux classes
+
+2001-03-12  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/Makefile.bison, src/getarray.cpp,
+	src/getarray.h, src/getarraypars.y, src/getarrgr.y,
+	src/readmesh.cpp, src/readmesh.cpp.bck, src/readmesh.h,
+	src/tryme.cpp, Makefile.base, PROJECTS, notes.txt: Adding parser
+	for props line
+
+2001-03-11  mstorti@spider  <mstorti@spider>
+
+	* bison/Makefile, bison/getarray.h, bison/getarraypars.y,
+	bison/tryme.cpp: Added spaces in the parser.
+
+	* bison/Makefile, bison/getarray.h, bison/getarraypars.y,
+	bison/tryme.cpp: Will try add spaces between name and '[', size
+	and ']'
+
+2001-03-08  mstorti@spider  <mstorti@spider>
+
+	* test/advdif/sine.epl, src/elemset.cpp, src/elemset.h,
+	src/getarraypars.y, src/readmesh.cpp,
+	applications/advdif/advdife.cpp, TODO: Adding a parser for the
+	props line
+
+2001-03-05  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/Makefile, test/advdif/sine.data.epl,
+	test/advdif/sine.epl, test/advdif/sine.m, test/Makefile,
+	test/eperlini.pl, test/runtests.pl, src/elemset.cpp.old,
+	src/elemset.h, src/elemset.h.old, src/readmesh.cpp,
+	src/texthash.cpp, src/texthash.h, src/elemset.cpp,
+	applications/ns/Makefile, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.h, applications/ns/nsilesther.cpp,
+	applications/advdif/advdife.cpp,
+	applications/advdif/ffadvfm2.cpp.new, PROJECTS, TODO, notes.txt:
+	Converting the per-element property feature to OOP
+
+2001-03-03  mstorti@spider  <mstorti@spider>
+
+	* test/turbchanw/Makefile, test/turbchanw/tcini.m,
+	test/turbchanw/turbchanw.epl: Added a test for log vars
+
+	* test/turbchanw/tc.ini: changed to .tmp
+
+	* VERSION, save.log: Administrative files
+
+	* test/turbchanw/turbchanw.epl, test/turbchan/.gdbinit,
+	test/turbchan/Makefile, test/texthash/Makefile,
+	test/texthash/tthash.cpp, test/sector/.gdbinit, test/les/.gdbinit,
+	test/fstack/.gdbinit, test/advdif/.gdbinit, test/.gdbinit,
+	test/Makefile, test/runtests.pl, src/mainutl.cpp,
+	src/readmesh.cpp, src/readmesh.h, src/texthash.cpp,
+	src/texthash.h, src/util2.cpp, src/util2.h, run/sqcav/.gdbinit,
+	doc/manual/Makefile, doc/OBJ/idmap.obj, doc/OBJ/nonsym.obj,
+	doc/OBJ/ramp.obj, doc/OBJ/sine.fig, doc/OBJ/slip.obj,
+	doc/OBJ/smramp.obj, doc/Makefile, doc/README.pod,
+	doc/odocadvdif.tex, doc/odocadvdife.tex, doc/petscfem.tex,
+	applications/advdif/advdif.cpp, applications/advdif/advdife.cpp,
+	Makefile.base, PROJECTS, notes.txt: Added access count to
+	TextHashTable class
+
+2001-02-12  mstorti@spider  <mstorti@spider>
+
+	* test/Makefile.base.test, doc/advdif.tex, doc/petscfem.tex,
+	notes.txt: Adding doc for log-vars
+
+	* test/turbchanw/turbchanw.epl, test/turbchanw/Makefile,
+	test/turbchanw/tc.ini, test/turbchanw/tcini.m, test/eperlini.pl,
+	src/elemset.h, src/util2.cpp, src/util2.h,
+	applications/advdif/advective.h, applications/advdif/advdife.cpp:
+	Work log-vars in shallow water
+
+2001-02-11  mstorti@spider  <mstorti@spider>
+
+	* test/turbchanw/turbchanw.epl, applications/advdif/advdife.cpp:
+	Logarithmic variables seem to work with heat eq.
+
+	* notes.txt: admin file
+
+2001-02-10  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdife.cpp: Will start coding log_vars
+
+	* notes.txt: admin file
+
+	* test/turbchanw/Makefile, test/turbchanw/turbchanw.con,
+	test/turbchanw/turbchanw.epl, test/turbchanw/turbchanw.epl.bck,
+	test/turbchanw/turbchanw.ini, test/turbchanw/turbchanw.nod,
+	test/turbchanw/turbchanw.peri: Removed unneded files.
+
+	* test/make_ini.m, test/shallowt.m, test/Makefile: Not included by
+	error in repository
+
+	* test/Makefile: Added turbchanw to CLEAN_DIRS
+
+2001-02-09  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/turbchanw/Makefile, test/turbchanw/mkmesh.m,
+	test/turbchanw/nodes.some, test/turbchanw/tc.ini,
+	test/turbchanw/tcini.m, test/turbchanw/turbchanw.con,
+	test/turbchanw/turbchanw.epl, test/turbchanw/turbchanw.epl.bck,
+	test/turbchanw/turbchanw.ini, test/turbchanw/turbchanw.m,
+	test/turbchanw/turbchanw.nod, test/turbchanw/turbchanw.peri,
+	test/eperlini.pl, applications/advdif/Makefile,
+	applications/advdif/advdife.cpp,
+	applications/advdif/advdife.cpp.bck,
+	applications/advdif/ffswfm2t.cpp, applications/advdif/wallswt.cpp,
+	notes.txt: Working on turbulent shallow water. Lumped mass.
+
+	* applications/advdif/advdif.cpp: Added a relaxation factor for
+	Newton
+
+	* src/readmesh.cpp: Added an error log reading nodes.
+
+2001-02-07  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/fem.h, src/secant.h,
+	applications/advdif/Makefile, applications/advdif/advdife.cpp,
+	applications/advdif/wallswt.cpp: Adding wall fuction to turbulent
+	shallow water
+
+2001-02-06  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/petscfem.tex: Fixed some errors
+
+	* save.log: admin file
+
+	* src/secant.cpp, src/secant.h, src/tryme.cpp: Adding wall
+	function to turbulent shallow water.  Written a secant method
+	class for solving 1D nonlinear eqs.
+
+	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/wallswt.cpp: Adding wall function to turbulent
+	shallow water
+
+2001-02-05  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/Makefile, doc/odocadvfm2.tex, doc/odocswfm2t.tex,
+	doc/petscfem.tex, doc/petscfem.tex.bak, doc/trygetopt.tex,
+	applications/advdif/Makefile, applications/advdif/ffswfm2t.cpp,
+	Makefile, TODO, VERSION, notes.txt, save.log, src/arglist.h,
+	src/elemset.h, src/readmesh.h, doc/manual/Makefile: Added
+	documentation options to ffswfm2t.cpp
+
+	* doc/odocswfm2t.tex, doc/petscfem.tex.bak, doc/trygetopt.tex: New
+	file.
+
+	* applications/advective/ffeulerfm2.cpp,
+	applications/advdif/Makefile, applications/advdif/ffswfm2t.cpp,
+	Makefile, TODO, VERSION, notes.txt, save.log: Added documentation
+	options to ffswfm2t.cpp
+
+2001-01-26  mstorti@spider  <mstorti@spider>
+
+	* src/arglist.h, src/elemset.h, src/readmesh.h,
+	doc/manual/Makefile, TODO, notes.txt: backup
+
+2001-01-24  mstorti@spider  <mstorti@spider>
+
+	* applications/advective/ffeulerfm2.cpp: Fixed non-return warning
+
+	* VERSION, save.log: Administrative files
+
+	* test/turbchan/.gdbinit, test/turbchan/Makefile,
+	test/turbchan/turbchan.epl, test/turbchan/turbchan.epl.bck,
+	test/turbchan/verify.pl, test/Makefile, test/runtests.pl,
+	src/elemlist.cpp, applications/advdif/ffadvfm2.cpp, Makefile.base:
+	Turbulent Shallow Water is working
+
+2001-01-23  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/turbchan/turbchan.epl, test/turbchan/turbchan.epl.bck,
+	applications/ns/Makefile, applications/advdif/Makefile,
+	applications/advdif/advdif.cpp, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h,
+	applications/advdif/advective.h.merged,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/corregir.txt,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/ffburg.cpp,
+	applications/advdif/ffswfm2t.cpp, notes.txt: Almost merged
+	turbulent shallow water (Beto)
+
+	* notes.txt: adm file
+
+	* VERSION, save.log: Administrative files
+
+	* src/sttfilter.cpp, src/sttfilter.h, src/state.cpp: Working on
+	filters
+
+	* run/sqcav/Makefile, run/sqcav/mksqcav.m, run/sqcav/nodes.some,
+	run/sqcav/sqcav.epl, run/sqcav/sqcavf.epl: Changed
+	local_dist_clean to :: Working on filters
+
+	* doc/manual/Makefile, doc/OBJ/Makefile: Changed local_dist_clean
+	to ::
+
+	* doc/Makefile, applications/ns/ns.cpp: Working on filters
+
+	* applications/advdif/Makefile: Modif local_dist_clean, converted
+	to ::
+
+	* notes.txt: adm file
+
+	* src/mainutl.cpp: Exit if can't open a file.
+
+2001-01-22  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/state.cpp, src/sttfilter.h,
+	run/sqcav/nodes.some, applications/ns/ns.cpp, Makefile.base,
+	PROJECTS, TODO: Working on State and Filter for NS
+
+	* VERSION, save.log: Administrative files
+
+	* tools/emacs: Modified the query-regexp-replace-identifier
+	function
+
+	* src/mainutl.cpp, src/readmesh.h, src/state.cpp,
+	src/sttfilter.cpp, src/sttfilter.h, run/sqcav/.gdbinit,
+	run/sqcav/Makefile, run/sqcav/sqcavf.epl, doc/Makefile,
+	applications/ns/ns.cpp, applications/ns/nsi_tet.h, Makefile.base,
+	TODO, notes.txt: Writing State and Filter classes. Adding to NS.
+
+2001-01-21  mstorti@spider  <mstorti@spider>
+
+	* attic/malloc.cpp: This was wased in NS for detecting a bug in
+	the memory management
+
+2001-01-20  mstorti@spider  <mstorti@spider>
+
+	* Makefile.base: try
+
+	* Makefile.base, Makefile: Improved 'depend' target
+
+	* run/sqcav/Makefile, applications/ns/ns.cpp,
+	applications/laplace/laplace.cpp, applications/advective/adv.cpp,
+	applications/advdif/advdif.cpp: Added chech for no '-case' in run
+	command
+
+	* PROJECTS: Split TODO file
+
+	* TODO: Split from PROJECTS
+
+	* tools/maketag: Now VERSION and save.log are checked in *before*
+	tagging
+
+	* src/version.cpp, doc/version.tex: Removed. Will be created with
+	`make sw'
+
+	* Makefile.base: Fixed problem with TAGS
+
+	* VERSION, save.log: Administrative files
+
+	* tools/emacs: Moved from ./
+
+	* src/version.cpp, doc/version.tex: Adm file
+
+	* Makefile.base, PROJECTS, VERSION, emacs, notes.txt: Moved from
+	./
+
+	* test/Makefile: Improved Makefile. Mostly improved plano
+	(advective) targets
+
+	* save.log: Comment for beta-1.16 was lost
+
+	* tools/maketag: Fixed ci with rtag
+
+	* test/fstack/Makefile, test/.gdbinit, test/Makefile, Makefile,
+	Makefile.base, notes.txt: Performed some merge
+
+2001-01-19  mstorti@spider  <mstorti@spider>
+
+	* tools/maketag, src/elemset.cpp, src/elemset.h, src/fem.h,
+	src/readmesh.cpp, run/sqcav/Makefile, run/sqcav/sqcav.epl,
+	applications/ns/ns.cpp, applications/ns/nsitetlesfm2.cpp,
+	notes.txt: Merged cache-gdu-fixed with sttfilter
+
+	* doc/version.tex, notes.txt: adm file
+
+	* run/sqcav/Makefile, run/sqcav/sqcav.epl: Debugged with the sqcav
+	test
+
+	* tools/maketag: Tags are based on modules (cvs rtag)
+
+	* src/fem.h: Increased the default value CHUNK_SIZE to 1000
+
+	* src/readmesh.cpp: Fixed the local_store bug. Now a local_store
+	(void *) is generated for each element in each processor.
+
+	* applications/ns/nsitetlesfm2.cpp: Fixed the `local_store' bug.
+
+	* applications/ns/ns.cpp: Changed Newton iteration text
+
+	* src/elemset.h: `local_store_address' uses now the global element
+	number, because using the local (to the chunk) was wrong. In the
+	ideal case it should be the position in the set of elements local
+	to the processor but, currently we do not compute such a
+	number. In the future it should receive a 'ElementIterator'.
+
+	* src/elemset.cpp: `report_consumed_time' is taken now from the
+	elemset hash table not from the global, because one may want to
+	see cpu time statistics reported for a particular elemset and not
+	for all.
+
+	* src/version.cpp, doc/version.tex, VERSION, save.log: adm files
+
+	* run/sqcav/Makefile, run/sqcav/sqcav.epl: Working on State and
+	Filter class.
+
+	* doc/version.tex: admin file
+
+	* applications/ns/Makefile, applications/ns/ns.cpp,
+	applications/ns/nsitetlesfm2.cpp, Makefile, Makefile.base,
+	VERSION, emacs, notes.txt, save.log: Working on State and Filter
+	class
+
+	* run/filter/.gdbinit, run/filter/Makefile: Working on the State
+	and Filter class
+
+	* src/Makefile, src/state.cpp, src/sttfilter.cpp, src/sttfilter.h,
+	src/version.cpp: Add a Filter and State class.
+
+2001-01-18  mstorti@spider  <mstorti@spider>
+
+	* src/Makefile, src/fem.h, src/sttfilter.cpp, src/sttfilter.h: ppp
+
+	* run/filter/Makefile, run/filter/sttfilter.cpp,
+	run/filter/sttfilter.h: Moved to src
+
+2001-01-17  mstorti@spider  <mstorti@spider>
+
+	* run/filter/Makefile, run/filter/sttfilter.cpp,
+	run/filter/sttfilter.h, run/filter/tryme.m: Writing a filter class
+
+2001-01-16  mstorti@spider  <mstorti@spider>
+
+	* run/filter/tryme.m: Filter for LES
+
+	* PROJECTS, notes.txt: Solved the problem of compatibility with
+	older versions.
+
+	* tools/petscload.m, tools/petscload.pl: Utilities to load petsc
+	generated files
+
+2001-01-15  mstorti@spider  <mstorti@spider>
+
+	* tools/maketag, VERSION, save.log: Mod files
+
+	* tools/makewhat.1, tools/makewhat.pl, tools/makewhat.txt:
+	makewhat.pl allows to add targets of type `make what' from embeded
+	doc in the Makefiles.
+
+	* tools/Makefile, tools/odoc.1, tools/odoc.txt, test/Makefile,
+	src/Makefile, run/sqcav/Makefile, run/sqcav/sqcav.epl,
+	doc/manual/Makefile, doc/OBJ/Makefile, doc/Makefile,
+	doc/contents.pl, doc/images.pl, doc/index.pl, doc/labels.pl,
+	doc/petscfem.tex, doc/sections.pl, doc/tests.tex, doc/version.tex,
+	applications/advdif/Makefile, Makefile, Makefile.base, notes.txt:
+	Improved Makefiles. Making old versions compile with egcs++
+
+2001-01-12  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/trigreg.m: Unneeded file
+
+	* VERSION, save.log: adm files
+
+	* doc/manual/Makefile, doc/Makefile: Improved makefile in doc
+
+2001-01-11  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, applications/advdif/Makefile,
+	applications/advdif/advdif.tex, applications/advdif/ffadvfm2.cpp:
+	Fixed options doc
+
+	* VERSION, save.log: adm files
+
+	* tools/maketag, tools/odoc.pl: Improved odoc.pl and maketag
+
+	* doc/advdifop.tex, doc/odocadv.tex, doc/odocadvdif.tex,
+	doc/odocadvdife.tex, doc/odocadve.tex, doc/odocadvfe.tex,
+	doc/odocadvfm2.tex, doc/odocadvfs.tex, doc/odocburgers.tex,
+	doc/odocns.tex, doc/odocnsb.tex, doc/odocnse.tex, doc/odocnsw.tex,
+	doc/petscfem.tex, doc/version.tex: Improved odoc.pl. Now manages
+	the new GETOPT macros.
+
+	* applications/ns/nsdoc.tex: Moved to doc directory
+
+	* doc/nsdoc.tex: Moved from applications/ns directory
+
+	* test/Makefile, test/runtests.pl: Added two examples for advdif
+
+	* doc/version.tex, ChangeLog, VERSION, save.log: adm files
+
+	* test/advdif/Makefile, test/advdif/sine.data.epl: Fixed tests.
+
+	* test/advdif/sine.data, test/advdif/sine.data.epl,
+	test/advdif/sine.epl, test/advdif/sine_anal_test.m,
+	test/advdif/sine_crank_nic.m, test/advdif/sine_fine_test.m,
+	test/advdif/Makefile: Added two examples for advdif
+
+	* Makefile: Added `make tag'
+
+	* tools/maketag: A tool for making CVS releases.
+
+dvd2001-01-11  Mario Storti  <mstorti@minerva.arcride.edu.ar>
 
 	* advdif/sine.data, advdif/sine.data.epl, advdif/sine.epl,
 	advdif/sine_anal_test.m, advdif/sine_crank_nic.m,
@@ -23,53 +690,55 @@
 
 2001-01-04  Mario Storti  <mstorti@minerva.arcride.edu.ar>
 
-	* Makefile: Fixing some problems with `make depend' and `make lclean'
+	* Makefile: Fixing some problems with `make depend' and `make
+	lclean'
 
 2001-01-04  Mario Storti  <mstorti@minerva.arcride.edu.ar>
 
 	* run/sqcav/Makefile, run/sqcav/machi.dat, run/sqcav/sqcav.con,
 	run/sqcav/sqcav.epl, run/sqcav/sqcav.fixa, run/sqcav/sqcav.ini,
 	run/sqcav/sqcav.nod, run/sqcav/sqcav.tmpfixa,
-	run/sqcav/weights.dat:
-	Added a new example for NS `sqcav'
+	run/sqcav/weights.dat: Added a new example for NS `sqcav'
 
 	* test/advdif/Makefile, test/Makefile, test/Makefile.base.test:
 	Fixing some problems with `make depend' and `make lclean'
 
-	* src/elemlist.cpp, src/elemset.cpp, src/elemset.h, src/measperf.cpp:
-	Fixing some compilation problems. Most important: `jobinfo' is now
-	`const char *'
+	* src/elemlist.cpp, src/elemset.cpp, src/elemset.h,
+	src/measperf.cpp: Fixing some compilation problems. Most
+	important: `jobinfo' is now `const char *'
 
-	* run/sqcav.ini, run/sqcav21ref.dat:
-	Creating a test `sqcav' with 21x21 elems.
+	* run/sqcav.ini, run/sqcav21ref.dat: Creating a test `sqcav' with
+	21x21 elems.
 
 	* applications/ns/bccnsfm2.cpp, applications/ns/ns.cpp,
 	applications/ns/nsi_tet.cpp, applications/ns/nsitetles.cpp,
 	applications/ns/nsitetlesfm2.cpp, applications/ns/nsvol.cpp,
-	applications/ns/wall.cpp:
-	Fixed some compilation problems in NS module
+	applications/ns/wall.cpp: Fixed some compilation problems in NS
+	module
 
-	* Makefile, Makefile.base: Fixed some problems with make depend, lclean
+	* Makefile, Makefile.base: Fixed some problems with make depend,
+	lclean
 
 2001-01-03  Mario Storti  <mstorti@minerva.arcride.edu.ar>
 
 	* test/advdif/.gdbinit, test/advdif/sine.epl, test/advdif/sine.m:
 	Made some changes to run debugger
 
-	* test/advdif/Makefile~, test/advdif/sine.data.res, test/advdif/sine.ini:
-	Deleted unneeded files.
+	* test/advdif/Makefile~, test/advdif/sine.data.res,
+	test/advdif/sine.ini: Deleted unneeded files.
 
-	* run/algebfs/Makefile, doc/Makefile, Makefile.base:
-	Modified the lclean target
+	* run/algebfs/Makefile, doc/Makefile, Makefile.base: Modified the
+	lclean target
 
-	* doc/Makefile, doc/idmap.tex, doc/latex2html.init, doc/petscfem.tex:
-	Made some modifications in order to process correctly inlined equations.
+	* doc/Makefile, doc/idmap.tex, doc/latex2html.init,
+	doc/petscfem.tex: Made some modifications in order to process
+	correctly inlined equations.
 
 	* doc/OBJ/idmap.obj, doc/OBJ/mesh.obj, doc/OBJ/nonsym.obj,
 	doc/OBJ/petscfem.obj, doc/OBJ/profil.obj, doc/OBJ/ramp.obj,
 	doc/OBJ/slip.obj, doc/OBJ/smramp.obj, doc/OBJ/symme.obj,
-	doc/OBJ/tempbc.obj:
-	All the obj files were missing in previous releases!!
+	doc/OBJ/tempbc.obj: All the obj files were missing in previous
+	releases!!
 
 2001-01-02  Mario Storti  <mstorti@minerva.arcride.edu.ar>
 
@@ -77,8 +746,7 @@
 	test/Makefile.base.test, src/Makefile, run/algebfs/Makefile,
 	run/Makefile, doc/Makefile, applications/ns/Makefile,
 	applications/laplace/Makefile, applications/advective/Makefile,
-	applications/advdif/Makefile:
-	Improved `clean' target.
+	applications/advdif/Makefile: Improved `clean' target.
 
 	* Makefile, Makefile.base, petscfem_hist.txt: Removed history.
 	Improved `clean' target.
@@ -87,23 +755,22 @@
 	test/advdif/sine.data.res, test/advdif/sine.epl,
 	test/advdif/sine.ini, test/advdif/sine.m,
 	test/advdif/sine_anal_test.m, test/advdif/sineload.m,
-	test/advdif/solana.m:
-	Added an example of linear advection diffusion.
+	test/advdif/solana.m: Added an example of linear advection
+	diffusion.
 
 	* tools/math.pl: Added max() and min() functions
 
 	* test/advdif/Makefile: modified
 
-	* src/elemset.cpp, src/elemset.cpp.old, src/elemset.h, src/elemset.h.old, src/mainutl.cpp:
-	La nueva version del elemset.
+	* src/elemset.cpp, src/elemset.cpp.old, src/elemset.h,
+	src/elemset.h.old, src/mainutl.cpp: La nueva version del elemset.
 
 	* doc/advdif.tex, doc/gpl.tex, doc/odocadvdif.tex,
 	doc/odocadvdife.tex, doc/odocadvfm2.tex, doc/odocburgers.tex,
-	doc/petscfem.ilg:
-	Written some doc.
+	doc/petscfem.ilg: Written some doc.
 
-	* applications/ns/nsitetlesfm2.cpp:
-	El elemento NS Tezduyar, etc... con LES y en FastMat2
+	* applications/ns/nsitetlesfm2.cpp: El elemento NS Tezduyar,
+	etc... con LES y en FastMat2
 
 	* applications/advdif/trigreg.m: Regresion trigonometrica
 
@@ -112,23 +779,22 @@
 	* test/turbchan/makefile.d, test/sector/Makefile,
 	test/sector/makefile.d, test/les/Makefile, test/les/makefile.d,
 	test/fstack/Makefile, test/fstack/makefile.d,
-	test/circ/makefile.d, test/circ/Makefile:
-	removed makefile.d
+	test/circ/makefile.d, test/circ/Makefile: removed makefile.d
 
 	* test/advdif/.gdbinit, test/advdif/Makefile,
-	test/advdif/burgers.epl, test/advdif/makefile.d:
-	Written an example.
+	test/advdif/burgers.epl, test/advdif/makefile.d: Written an
+	example.
 
-	* test/Makefile, test/eperlini.pl, test/makefile.d:
-	Improved the eperlini utility. Added `transcript'.
+	* test/Makefile, test/eperlini.pl, test/makefile.d: Improved the
+	eperlini utility. Added `transcript'.
 
 	* src/utils.cpp, src/utils.h, src/Makefile, src/dofmap.cpp,
 	src/dofmap.h, src/elemlist.cpp, src/elemset.cpp.new,
 	src/elemset.h.new, src/fastlib.h, src/fastmat2.h, src/fem.cpp,
 	src/fem.h, src/fm2eperl.cpp, src/fmat2ep.cpp, src/fstack.cpp,
 	src/fstack.h, src/gpdata.cpp, src/makefile.d, src/readmesh.cpp,
-	src/readmesh.h, src/tempfun.cpp, src/util2.cpp:
-	Written an ElementIterator class
+	src/readmesh.h, src/tempfun.cpp, src/util2.cpp: Written an
+	ElementIterator class
 
 	* run/algebfs/makefile.d, doc/Makefile, doc/adv.tex,
 	doc/advec.tex, doc/contents.pl, doc/index.tex,
@@ -138,8 +804,7 @@
 	applications/ns/nsitetlesfm2.cpp.nuevo,
 	applications/laplace/Makefile, applications/laplace/makefile.d,
 	applications/advective/Makefile,
-	applications/advective/makefile.d:
-	removed makefile.d from CVS
+	applications/advective/makefile.d: removed makefile.d from CVS
 
 	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
 	applications/advdif/advdife.cpp, applications/advdif/advective.h,
@@ -222,13 +887,13 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	fem.cpp, internal.cpp, internal.cpp.fastmat: Fixed a bug in the
 	definition of dof_here
 
-	* FM/fm.o, FM/fm:
-	These are binary.
+	* FM/fm.o, FM/fm: These are binary.
 
 	* FM/Makefile, FM/fm, FM/fm.cpp, FM/fm.o: Examples for FastMat.
 
-	* ChangeLog, Makefile, fastmat.cpp, fastmat.h, fem.h, internal.cpp, vecmacros.h:
-	Transforming element routine from newmat (class Matrix) to FastMat.
+	* ChangeLog, Makefile, fastmat.cpp, fastmat.h, fem.h,
+	internal.cpp, vecmacros.h: Transforming element routine from
+	newmat (class Matrix) to FastMat.
 
 1999-10-11  Mario Storti  <mstorti@spider.unl.edu.ar>
 
@@ -255,17 +920,16 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 	* OLD/try9.c: A try program to test the libretto library.
 
-	* FM/Makefile, FM/fm, FM/fm.cpp, FM/fm.o:
-	Adding the FastMat class
+	* FM/Makefile, FM/fm, FM/fm.cpp, FM/fm.o: Adding the FastMat class
 	The FastMat class directory.
 
-	* Makefile, fastmat.cpp, fastmat.h, libretto.h, ChangeLog, fem.cpp:
-	Adding the FastMat class
+	* Makefile, fastmat.cpp, fastmat.h, libretto.h, ChangeLog,
+	fem.cpp: Adding the FastMat class
 
-	* PROJECTS, fem.cpp, texthash.cpp:
-	Modified hash_func() in texthash so that now the hash
-	function represents the integer value of the first sizeof(int)
-	characters of the string (in correct order).
+	* PROJECTS, fem.cpp, texthash.cpp: Modified hash_func() in
+	texthash so that now the hash function represents the integer
+	value of the first sizeof(int) characters of the string (in
+	correct order).
 
 	* .gdbinit, ChangeLog, Makefile, PROJECTS, datos4.dat,
 	elemset.cpp, fem.cpp, internal.cpp, outvector.sal, read_mesh.cpp:
@@ -275,47 +939,46 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 1999-10-11  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* PROJECTS, fem.cpp, texthash.cpp:
-	Modified hash_func() in texthash so that now the hash
-	function represents the integer value of the first sizeof(int)
-	characters of the string (in correct order).
+	* PROJECTS, fem.cpp, texthash.cpp: Modified hash_func() in
+	texthash so that now the hash function represents the integer
+	value of the first sizeof(int) characters of the string (in
+	correct order).
 
-	* .gdbinit, ChangeLog, Makefile, PROJECTS, datos4.dat, elemset.cpp, fem.cpp, internal.cpp, outvector.sal, read_mesh.cpp:
-	Residual and Finite Difference Jacobian are assembled on
-	a partitioned mesh. I can't debug it now on a multiple processors since
-	I can't built mpich with egcs 1.2.xx
-
-1999-10-10  Mario Storti  <mstorti@spider.unl.edu.ar>
-
-	* OLD/try9.cpp:
-	Made some manipulations in order to upgrade to RH 6.0
-	Libretto didn't compile on RH 6.0 (egcs 1.2.xx) . I had to modify
-	the definition of __P in libretto.h
-
-	* Makefile, fem.h, texthash.cpp, texthash.h:
-	Made some manipulations in order to upgrade to RH 6.0
+	* .gdbinit, ChangeLog, Makefile, PROJECTS, datos4.dat,
+	elemset.cpp, fem.cpp, internal.cpp, outvector.sal, read_mesh.cpp:
+	Residual and Finite Difference Jacobian are assembled on a
+	partitioned mesh. I can't debug it now on a multiple processors
+	since I can't built mpich with egcs 1.2.xx
 
 1999-10-10  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* OLD/try9.cpp:
-	Made some manipulations in order to upgrade to RH 6.0
-	Libretto didn't compile on RH 6.0 (egcs 1.2.xx) . I had to modify
-	the definition of __P in libretto.h
+	* OLD/try9.cpp: Made some manipulations in order to upgrade to RH
+	6.0 Libretto didn't compile on RH 6.0 (egcs 1.2.xx) . I had to
+	modify the definition of __P in libretto.h
 
-	* Makefile, fem.h, texthash.cpp, texthash.h:
-	Made some manipulations in order to upgrade to RH 6.0
+	* Makefile, fem.h, texthash.cpp, texthash.h: Made some
+	manipulations in order to upgrade to RH 6.0
+
+1999-10-10  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* OLD/try9.cpp: Made some manipulations in order to upgrade to RH
+	6.0 Libretto didn't compile on RH 6.0 (egcs 1.2.xx) . I had to
+	modify the definition of __P in libretto.h
+
+	* Makefile, fem.h, texthash.cpp, texthash.h: Made some
+	manipulations in order to upgrade to RH 6.0
 
 1999-10-08  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* ChangeLog, datos4.dat, datos5.dat, outvector.sal.ref:
-	Added some auxiliary files.
+	* ChangeLog, datos4.dat, datos5.dat, outvector.sal.ref: Added some
+	auxiliary files.
 
 	* ChangeLog, Makefile, elemset.cpp, elemset.h, fem.cpp, fem.h,
 	internal.cpp, internal.h, read_mesh.cpp: Almost workin the
 	distributed stuff.
 
-	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo, elemset.h:
-	Anda  la definicion del scatter.
+	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo,
+	elemset.h: Anda la definicion del scatter.
 
 1999-10-08  Mario Storti  <mstorti@minerva>
 
@@ -323,13 +986,13 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	internal.cpp, internal.h, read_mesh.cpp: Almost working the
 	distributed stuff.
 
-	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo, elemset.h:
-	Anda  la definicion del scatter.
+	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo,
+	elemset.h: Anda la definicion del scatter.
 
 1999-10-08  Mario Storti  <mstorti@minerva>
 
-	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo, elemset.h:
-	Anda  la definicion del scatter.
+	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo,
+	elemset.h: Anda la definicion del scatter.
 
 1999-10-07  Mario Storti  <mstorti@minerva>
 
@@ -340,21 +1003,21 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	* ChangeLog, Makefile, elemset.h, fem.cpp, fem.h, read_mesh.cpp:
 	Works passing ghost values with VecScatter
 
-	* ChangeLog, Makefile, read_mesh.cpp:
-	Compila y corre con Metis y porticiona aparentemente bien la malla.
+	* ChangeLog, Makefile, read_mesh.cpp: Compila y corre con Metis y
+	porticiona aparentemente bien la malla.
 
 1999-10-06  Mario Storti  <mstorti@minerva>
 
 	* ChangeLog, Makefile, elemset.h, fem.cpp, fem.h, read_mesh.cpp:
 	Works passing ghost values with VecScatter
 
-	* ChangeLog, Makefile, read_mesh.cpp:
-	Compila y corre con Metis y porticiona aparentemente bien la malla.
+	* ChangeLog, Makefile, read_mesh.cpp: Compila y corre con Metis y
+	porticiona aparentemente bien la malla.
 
 1999-10-06  Mario Storti  <mstorti@minerva>
 
-	* ChangeLog, Makefile, read_mesh.cpp:
-	Compila y corre con Metis y porticiona aparentemente bien la malla.
+	* ChangeLog, Makefile, read_mesh.cpp: Compila y corre con Metis y
+	porticiona aparentemente bien la malla.
 
 1999-10-05  Mario Storti  <mstorti@minerva>
 
@@ -376,75 +1039,73 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 1999-10-04  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* internal.cpp, read_mesh.cpp:
-	Debugging the determination of properties auto-magically from either
-	the elemset properties table or the element-wise table.
+	* internal.cpp, read_mesh.cpp: Debugging the determination of
+	properties auto-magically from either the elemset properties table
+	or the element-wise table.
 
 1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* internal.cpp:
-	Wrote get_int() and somewhat debugged. Now I will rewrite the calls to
-	get_entry in interna::assemble() in terms of get_double() and
-	get_int().
+	* internal.cpp: Wrote get_int() and somewhat debugged. Now I will
+	rewrite the calls to get_entry in interna::assemble() in terms of
+	get_double() and get_int().
 
 	* internal.cpp: Debugged get_double()
 
-	* internal.cpp, read_mesh.cpp, texthash.cpp, texthash.h, datos3.dat:
-	Writing get_double()
+	* internal.cpp, read_mesh.cpp, texthash.cpp, texthash.h,
+	datos3.dat: Writing get_double()
 
 	* internal.cpp: Fixed a bug for reading n>1 in get_double
 
 	* internal.cpp: Works get_double
 
-	* elemset.h, internal.cpp, read_mesh.cpp:
-	This revision compiles and passes the elemset information
+	* elemset.h, internal.cpp, read_mesh.cpp: This revision compiles
+	and passes the elemset information
 	(icone, hash table, etc... to the elemset routine).
 
 1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* internal.cpp:
-	Wrote get_int() and somewhat debugged. Now I will rewrite the calls to
-	get_entry in interna::assemble() in terms of get_double() and
-	get_int().
+	* internal.cpp: Wrote get_int() and somewhat debugged. Now I will
+	rewrite the calls to get_entry in interna::assemble() in terms of
+	get_double() and get_int().
 
 	* internal.cpp: Debugged get_double()
 
-	* internal.cpp, read_mesh.cpp, texthash.cpp, texthash.h, datos3.dat:
-	Writing get_double()
+	* internal.cpp, read_mesh.cpp, texthash.cpp, texthash.h,
+	datos3.dat: Writing get_double()
 
 	* internal.cpp: Fixed a bug for reading n>1 in get_double
 
 	* internal.cpp: Works get_double
 
-	* elemset.h, internal.cpp, read_mesh.cpp:
-	This revision compiles and passes the elemset information
+	* elemset.h, internal.cpp, read_mesh.cpp: This revision compiles
+	and passes the elemset information
 	(icone, hash table, etc... to the elemset routine).
 
 1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 	* internal.cpp: Works get_double
 
-	* elemset.h, internal.cpp, read_mesh.cpp:
-	This revision compiles and passes the elemset information
+	* elemset.h, internal.cpp, read_mesh.cpp: This revision compiles
+	and passes the elemset information
 	(icone, hash table, etc... to the elemset routine).
 
 1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* elemset.h, internal.cpp, read_mesh.cpp:
-	This revision compiles and passes the elemset information
+	* elemset.h, internal.cpp, read_mesh.cpp: This revision compiles
+	and passes the elemset information
 	(icone, hash table, etc... to the elemset routine).
 
 1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* PROJECTS, datos3.dat, elemset.h, internal.h, notas.txt, read_mesh.cpp:
-	Defining a hash table for the element properties per element.
+	* PROJECTS, datos3.dat, elemset.h, internal.h, notas.txt,
+	read_mesh.cpp: Defining a hash table for the element properties
+	per element.
 
-	* read_mesh.cpp:
-	coded (but not debugged) the reading of the elem props hash table.
+	* read_mesh.cpp: coded (but not debugged) the reading of the elem
+	props hash table.
 
-	* elemset.h:
-	Now I don't have a constructor for the elemset. I directly define the
-	components in read_mesh.
+	* elemset.h: Now I don't have a constructor for the elemset. I
+	directly define the components in read_mesh.
 
 1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
 
@@ -461,19 +1122,13 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 	* fem.cpp, internal.cpp, PROJECTS: *** empty log message ***
 
-	* outvector.sal.ref:
-	outvector.sal.ref era una solucion de referencia.
+	* outvector.sal.ref: outvector.sal.ref era una solucion de
+	referencia.
 
-	* ex1.cpp,v:
-	CV:S ---------------------------------------------------------------------i
-	ave:q
-	:q
-	q
-	:q
-	:
-	q
-	.
-	VS: Enter Log.  Lines beginning with `CVS:' are removed automatically
+	* ex1.cpp,v: CV:S
+	---------------------------------------------------------------------i
+	ave:q :q q :q : q .  VS: Enter Log.  Lines beginning with `CVS:'
+	are removed automatically
 
 	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
 	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
@@ -506,9 +1161,8 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
 
-	* elemset.h:
-	Now I don't have a constructor for the elemset. I directly define the
-	components in read_mesh.
+	* elemset.h: Now I don't have a constructor for the elemset. I
+	directly define the components in read_mesh.
 
 
 	* PROJECTS, datos3.dat, elemset.h, internal.cpp, internal.h,
@@ -524,19 +1178,13 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 	* fem.cpp, internal.cpp, PROJECTS: *** empty log message ***
 
-	* outvector.sal.ref:
-	outvector.sal.ref era una solucion de referencia.
+	* outvector.sal.ref: outvector.sal.ref era una solucion de
+	referencia.
 
-	* ex1.cpp,v:
-	CV:S ---------------------------------------------------------------------i
-	ave:q
-	:q
-	q
-	:q
-	:
-	q
-	.
-	VS: Enter Log.  Lines beginning with `CVS:' are removed automatically
+	* ex1.cpp,v: CV:S
+	---------------------------------------------------------------------i
+	ave:q :q q :q : q .  VS: Enter Log.  Lines beginning with `CVS:'
+	are removed automatically
 
 	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
 	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,

@@ -145,8 +145,8 @@ private:
   // The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
 public:
-  const NewAdvDif *elemset;
-  NewAdvDifFF(NewAdvDif *elemset_) : elemset(elemset_) {};
+  const NewElemset *elemset;
+  NewAdvDifFF(NewElemset *elemset_) : elemset(elemset_) {};
   virtual void start_chunk(int ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;

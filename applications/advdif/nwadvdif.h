@@ -50,7 +50,7 @@ private:
     diffusive_jacobians_prop, reactive_jacobians_prop,
     source_term_prop;
   const double *advjac,*difjac,*reacjac,*s_body;
-  int ndim,ndof,nel;
+  int ndim,ndof,nel,nelprops;
   AJac *a_jac;
   DJac *d_jac;
   CJac *c_jac;

@@ -1,4 +1,5 @@
 # -*- mode: octave -*- 
+ndof=3;
 nx=16;
 ny=1;
 Lx=1;
@@ -26,6 +27,8 @@ ufluc=0;
 sfluc=0;
 steady=0;
 weak_form=0;
+fix_some_node=0;
+tau_fac=1;
 
 #<:$CASE=$ENV{'CASE'}:>//
 CASE=<:=$CASE:>;
@@ -40,6 +43,15 @@ R=1;
 reac_type="global_scalar";
 #elsif $CASE eq 'adv_dif_temp'
 ## Advection diffusion
+nx=32;
+u=1;
+adv_type="global_vector";
+tol=0.04;
+#elsif $CASE eq 'adv_dif_stdy'
+## Advection diffusion
+steady=1;
+Dt=1e5;
+nstep=1;
 nx=32;
 u=1;
 adv_type="global_vector";
@@ -175,6 +187,36 @@ s=1;
 sfluc=1;
 source_type="full";
 weak_form=1;
+#elsif $CASE eq 'full_full_jacs_t'
+steady=1;
+full_jacs=2;
+Dt=1e7;
+nstep=1;
+tol=0.01;
+nx=16;
+kx=1;
+ky=0;
+Lx=1;
+ny=8;
+Ly=1/2;
+R=0;
+Rfluc=.0;
+D=.1;
+Dfluc=.0;
+u=1;
+v=0;
+ufluc=0;
+adv_type="vector_per_field";
+s=1;
+sfluc=0;
+source_type="full";
+fix_some_node=1;
+tau_fac=0;
 #else 
 <:die("not implemented test case '$CASE'"):>
 #endif
+
+<: if ($fix_some_node && !$steady) {
+   die "Not compatible \$fix_some_node and !\$steady\n";
+}
+:>

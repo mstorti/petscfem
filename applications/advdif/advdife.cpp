@@ -60,7 +60,7 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
 void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
   const char *log_vars_entry;
-  const int &ndof=elemset->ndof;
+  const int &ndof=ndof;
   elemset->get_entry("log_vars_list",log_vars_entry); 
   VOID_IT(log_vars_v);
   string s;
@@ -209,6 +209,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
 
+  // Initialize flux functions
+  int ret_options;
+  adv_diff_ff->start_chunk(ret_options); 
+
   int nlog_vars;
   const int *log_vars;
   adv_diff_ff->get_log_vars(nlog_vars,log_vars);
@@ -257,7 +261,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
   double detJaco, wpgdet, delta_sc;
-  int elem, ipg,node, jdim, kloc,lloc,ldof,ret_options;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix dshapex(ndim,nel),Jaco(ndim,ndim),Jaco_av(ndim,ndim),iJaco(ndim,ndim),
     flux(ndof,ndim),fluxd(ndof,ndim),mass(nel,nel),
@@ -277,9 +281,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
-
-  // Initialize flux functions
-  adv_diff_ff->start_chunk(ret_options); 
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);

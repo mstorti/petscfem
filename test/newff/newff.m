@@ -1,5 +1,4 @@
 source("data.m");
-ndof=3;
 
 ## Physical parameters
 uu=[u v];
@@ -103,9 +102,9 @@ elseif full_jacs==2
   fprintf(fid,"advective_jacobians_type \"full\"\n");
   fprintf(fid,"advective_jacobians ");
   Ax=u*(2*rand(ndof)-1);
-  Ax=(Ax+Ax')/2;
+  Ax=u*(eye(ndof)+ufluc*(Ax+Ax')/2);
   Ay=v*(2*rand(ndof)-1);
-  Ay=(Ay+Ay')/2;
+  Ay=v*(eye(ndof)+ufluc*(Ay+Ay')/2);
   for k=1:ndof
     fprintf(fid,"\\\n    %f %f %f  ",Ax(k,:));
   endfor

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2001/03/29 23:16:53 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/03/30 15:24:02 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -32,7 +32,8 @@ newff.depl: data.m force
 
 tests: test_dif_temp test_adv_dif_temp test_reac_adv_dif_temp_y \
 	test_reac_steady test_reac_dif_temp test_std_ard_x_y \
-	test_full_jacs test_full_full_jacs test_full_full_jacs_wf
+	test_full_jacs test_full_full_jacs \
+	test_full_full_jacs_wf test_full_full_jacs_t
 
 test_%: 
 	$(MAKE) CASE=$* run
@@ -55,7 +56,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
 			-case newff.depl > newff.out
-	octave -q verif.m >$(CASE).vrf.tmp
+	octave -q verif.m #>$(CASE).vrf.tmp
 
 local_clean::
 	-chmod +w newff.data.res

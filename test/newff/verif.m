@@ -2,6 +2,11 @@ data
 u=aload("save.state.tmp");
 ua=aload("uanalyt.tmp");
 disp("max error over dof's")
+if fix_some_node
+  for j=1:ndof
+    u(:,j)=u(:,j)+ua(1,j);
+  endfor
+endif
 meu=max(abs(u-ua));
 disp(meu);
 printf("max error over all dof's: %f\n",max(meu));

@@ -820,7 +820,6 @@ sub check_newff {
 }
 
 check_newff('dif_temp');
-check_newff('dif_temp');
 check_newff('adv_dif_temp');
 check_newff('reac_adv_dif_temp_y');
 check_newff('reac_steady');
