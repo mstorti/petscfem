@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.31 2001/07/21 16:52:04 mstorti Exp $
+//$Id: ns.cpp,v 1.32 2001/07/23 15:53:30 mstorti Exp $
  
 #include <malloc.h>
 
@@ -294,11 +294,6 @@ int main(int argc,char **args) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-#if 0 // debug:=
-  print_vector("savee",x,dofmap,&time);
-  PetscFinalize();
-  exit(0);
-#endif
 
   // Filter *filter(x,*mesh);
 
@@ -368,6 +363,7 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
+      // wait_from_console("antes de assemble"); 
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -432,12 +428,12 @@ int main(int argc,char **args) {
 
       A_tet->build_sles(GLOBAL_OPTIONS);
 
-      if (!print_linear_system_and_stop || solve_system)
+      if (!print_linear_system_and_stop || solve_system) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
-	A_tet->solve(res,dx); 
+	ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
+      }
 
-      // if (print_linear_system_and_stop) { // debug:=
-      if (print_linear_system_and_stop && tstep==2) {
+      if (print_linear_system_and_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for"
 		    " debugging and stopping.\n");

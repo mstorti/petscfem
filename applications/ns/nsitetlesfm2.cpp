@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.33 2001/07/21 16:52:04 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.34 2001/07/23 15:53:30 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -118,8 +118,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // allocate local vecs
   int kdof;
-  FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
-         locstate2(nel,ndof),xpg,G_body(ndim);
+  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
+         locstate2(2,nel,ndof),xpg,G_body(1,ndim);
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -178,20 +178,20 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
-    grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel);
+    grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
   double *grad_div_u_cache;
   int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix dshapex,dshapext,Jaco(ndim,ndim),iJaco(ndim,ndim),
+  FMatrix Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
     dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec;
 
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
-    massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
+    massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp17,tmp18,tmp19;
 
   double tmp12;
@@ -337,7 +337,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
-      // dshapex_c.set(dshapex);
 
       double Area   = npg*wpgdet;
       double h_pspg,Delta;
@@ -464,10 +463,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	W_supg.set(P_supg).add(SHAPE);
 
 	// Pressure stabilizing term
-	P_pspg.set(dshapex).scale(tau_pspg/rho);
+	P_pspg.set(dshapex).scale(tau_pspg/rho);  //debug:=
 
 	// implicit version - General Trapezoidal rule - parameter alpha
-
 #if ADD_GRAD_DIV_U_TERM
 	dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else
