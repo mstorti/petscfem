@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.1 2003/02/10 03:45:56 mstorti Exp $
+// $Id: epimport.cpp,v 1.2 2003/02/11 01:17:12 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -412,14 +412,18 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   for (q=dx_objects_table.begin(); q!=qe; q++) {
     DXField *field = dynamic_cast<DXField *>(q->second);
+    Object o;
+    char *name = (char *)(q->first.c_str());
     if (field) {
-      flist = DXSetMember(flist,(char *)(q->first.c_str()),
-			  (Object)field->dx_object());
+      o = (Object)field->dx_object();
+      flist = DXSetMember(flist,name,o);
       if (!flist) goto error;
+      DXMessage("Field %p, member name \"%s\"",o,name);
     } else {
-      g = DXSetMember(g,(char *)(q->first.c_str()),
-		      (Object)q->second->dx_object());
+      o = (Object)q->second->dx_object();
+      g = DXSetMember(g,name,o);
       if (!g) goto error;
+      DXMessage("Array %p, member name \"%s\"",o,name);
     }
   }
 
