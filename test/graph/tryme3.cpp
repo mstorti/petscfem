@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.10 2002/07/24 12:58:50 mstorti Exp $
+// $Id: tryme3.cpp,v 1.11 2002/07/24 15:42:01 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -7,7 +7,7 @@
 #include <src/linkgraph.h>
 
 int MY_RANK,SIZE;
-const int M=30000;
+const int M=10;
 
 void row_print(LinkGraphRow row) {
   LinkGraphRow::iterator q;
@@ -80,6 +80,7 @@ void graph_print(LinkGraphDis &graph, char *s=NULL) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc, char **args) {
+
   MPI_Init(&argc,&args);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
@@ -88,7 +89,7 @@ int main(int argc, char **args) {
   char buff[BUFSIZE], *buffd;
   const char *buffc;
 
-#if 1
+#if 0
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // SEQUENTIAL DEBUG
   LinkGraphDis graph(&part,MPI_COMM_WORLD),
@@ -103,8 +104,8 @@ int main(int argc, char **args) {
   }
 
   printf("-------------\nBefore copying: \n");
-  // graph_print(graph,"graph: ");
-  // graph_print(graph2,"graph2: ");
+  graph_print(graph,"graph: ");
+  graph_print(graph2,"graph2: ");
   
   int indx=0;
   LinkGraph::iterator q=graph.begin(), q2=graph2.begin(), qq;
@@ -125,14 +126,13 @@ int main(int argc, char **args) {
   }
 
   printf("-------------\nAfter copying: \n");
-  // graph_print(graph,"graph: ");
-  // graph_print(graph2,"graph2: ");
+  graph_print(graph,"graph: ");
+  graph_print(graph2,"graph2: ");
 
 #else
 
   // ================================================================
   // TRY SCATTER
-
   Debug debug;
   debug.activate();
   Debug::init();
@@ -146,17 +146,11 @@ int main(int argc, char **args) {
     graph.add(j,modulo(j-1,M));
   }
 
-  for (LinkGraph::iterator q=graph.begin();
-       q!=graph.end(); q++) {
-    LinkGraphRow row = *q;
-    graph2.combine(row);
-    graph.erase(q);
-  }
-
   graph.scatter();
   LinkGraphDis::iterator k;
   for (int p=0; p<SIZE; p++) {
     MPI_Barrier(MPI_COMM_WORLD);
+    if (p==MY_RANK) printf("------------\nIn [%d]:\n",MY_RANK);
     if (p==MY_RANK) {
       for (k=graph.begin(); k!=graph.end(); k++) {
 	row_print(*k);
@@ -164,6 +158,7 @@ int main(int argc, char **args) {
       }
     }
   }
+  MPI_Finalize();
 #endif
 
 }
