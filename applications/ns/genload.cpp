@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.1 2002/12/16 04:11:35 mstorti Exp $
+//$Id: genload.cpp,v 1.2 2002/12/16 15:37:08 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -122,7 +122,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     jac(2,ndof,ndof), veccontr(2,nel,ndof), 
     Jaco, iJaco, dshapex(2,ndimel,nel2), xloc(2,nel2,ndim),
     h_in, h_out, flux, jac_in, jac_out, tmp1,
-    tmp2, tmp3, tmp4, matloc, vecc2;
+    tmp2, tmp3, tmp4, vecc2;
 
   if (double_layer) {
     jac.resize(4,2,2,ndof,ndof);
@@ -207,28 +207,28 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       tmp3.prod(SHAPE,tmp2,1,2);
       jac.ir(1,1).ir(2,1);
       tmp4.prod(tmp3,jac,1,3,2,4);
-      matloc.is(1,1,nel2).is(3,1,nel2).add(tmp4);
+      matlocf.is(1,1,nel2).is(3,1,nel2).add(tmp4);
       jac.rs();
       if (double_layer) {
-	matloc.reshape(6,nel2,2,ndof,nel2,2,ndof);
+	matlocf.reshape(6,2,nel2,ndof,2,nel2,ndof);
 	for (int b=1; b<=2; b++) {
 	  for (int bb=1; bb<=2; bb++) {
 	    if (b==1 && bb==1) continue;
-	    matloc.ir(2,b).ir(5,bb);
+	    tmp2.set(SHAPE).scale(wpgdet);
+	    tmp3.prod(SHAPE,tmp2,1,2);
 	    jac.ir(1,b).ir(2,bb);
-	    matloc.set(jac);
+	    tmp4.prod(tmp3,jac,1,3,2,4);
+	    matlocf.ir(1,b).ir(4,bb);
+	    matlocf.set(tmp4);
 	  }
 	}
-	matloc.rs(); jac.rs();
-	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
-	veccontr.is(1,nel2+1,nel).rest(vecc2);
+	matlocf.rs(); jac.rs();
+	vecc2.prod(tmp1,flux_out,1,2);
+	veccontr.is(1,nel2+1,nel).add(vecc2);
 	veccontr.rs();
-	// Contribution to jacobian from exterior side
-	tmp4.prod(tmp3,jac_out,1,3,2,4);
-	matloc.rs().is(1,1,nel2).is(3,nel2+1,nel).add(tmp4);
-	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
+	matlocf.reshape(4,nel,ndof,nel,ndof);
       }
-      matloc.rs();
+      matlocf.rs();
     }
     veccontr.export_vals(&(RETVAL(ielh,0,0)));
     matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
