@@ -33,7 +33,8 @@ void poisson::elemset_init() {
   bool found; int ncols;
 
   found = nodedata->get_field(concentration_name,&ncols,&concptr);
-  assert(found); assert(ncols==1);
+  PETSCFEM_ASSERT0(found,"Error");  
+  PETSCFEM_ASSERT0(ncols==1,"Error");  
   concol.resize(1,nel);
  
 

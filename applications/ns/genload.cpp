@@ -78,8 +78,8 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
-  double *hmin=NULL,Dt=NAN,rec_Dt=NAN;
-  int ja_hmin=0;
+  double PFUNUSED *hmin=NULL,Dt=NAN,rec_Dt=NAN;
+  int PFUNUSED ja_hmin=0;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
     int ja=0;
@@ -317,7 +317,7 @@ void ConsGenLoad::start_chunk() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::start_chunk_c() {
-  int ierr;
+  int PFUNUSED ierr;
   h_film.resize(2,ndof,ndof);
   //o The film coefficient constant matrix. 
   // _T: double array

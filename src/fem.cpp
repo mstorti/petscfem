@@ -10,14 +10,14 @@
 #include <src/getprop.h>
 #include <src/pfmat.h>
 #include <src/dvecpar.h>
-#include <src/fastmat2.h>
+//#include <src/fastmat2.h>
 
 MPI_Comm PETSCFEM_COMM_WORLD=0;
 int MY_RANK=0, SIZE=1;
 
 int PetscFemInitialize(int *argc,char ***args,
                        const char file[],const char help[]) {
-  int ierr;
+  int PFUNUSED ierr;
   ierr = PetscInitialize(argc,args,file,help);
   PETSCFEM_COMM_WORLD = PETSC_COMM_WORLD;
   ierr = MPI_Comm_size(PETSCFEM_COMM_WORLD,&SIZE);
@@ -45,8 +45,9 @@ int PetscFemInitialize(int *argc,char ***args,
   dvector<char> ppc;
   dvector_clone_parallel(ppc);
 
-  // Initialize FastMat2 library
   FastMat2::init();
+
+  PETSCFEM_ASSERT0(ierr==0,"Initialization error");  
   return 0;
 }
 
@@ -119,7 +120,7 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   da_destroy(da);
   // wait_from_console("despues de destruir da ");
 
-  double avo,avd,avdcorr;
+  double avo,avd, PFUNUSED avdcorr;
   avo = double(sumo)/double(neqp);
   avd = double(sumd)/double(neqp);
   avdcorr = double(sumdcorr)/double(neqp);

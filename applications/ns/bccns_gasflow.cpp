@@ -105,8 +105,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -122,8 +121,8 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   GlobParam *glob_param=NULL;
-  double *hmin=NULL,rec_Dt=NAN;
-  int ja_hmin=0;
+  double PFUNUSED *hmin=NULL,rec_Dt=NAN;
+  int PFUNUSED ja_hmin=0;
 
   // Get arguments from arg_list
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
@@ -201,7 +200,7 @@ int bcconv_ns_gasflow::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     flux(2,ndof,ndim),Id_ndim(2,ndim,ndim);
 
   double velmod,u2;
-  double g1,rho_ene,ene,entalpy,Cv,int_ene,Cp;
+  double PFUNUSED g1,rho_ene,ene,entalpy,Cv,int_ene,Cp;
   double rho,p; 
 
   Id_ndim.eye();

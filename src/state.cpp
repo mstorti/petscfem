@@ -8,7 +8,7 @@
 #define __FUNC__ "State::axpy(double,const State &)"
 State & State::axpy(double alpha,const State &v) {
   int ierr = VecAXPY(*vec,alpha,*(v.vec));
-  assert(ierr==0); ierr=0;
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
   return *this;
 }
 
@@ -20,8 +20,8 @@ State::State(const State &v)
   : vec(NULL), 
     time(v.time) {
   vec = new Vec;
-  int ierr = VecDuplicate(*v.vec,vec); ierr=0;
-  assert(ierr==0); ierr=0;
+  int ierr = VecDuplicate(*v.vec,vec); 
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
 }
 
 
@@ -33,7 +33,7 @@ State::~State() {
     Vec *p = vec;
     int ierr = VecDestroy(vec);
     delete p;
-    assert(ierr==0); ierr=0;
+    PETSCFEM_ASSERT0(ierr==0,"Error");  
   }
 }
 
@@ -53,7 +53,7 @@ const State & State::print_some(const char *filename,Dofmap *dofmap,
 #define __FUNC__ "State & State::scale(double alpha)"
 State & State::scale(double alpha) {
   int ierr = VecScale(*vec,alpha);
-  assert(ierr==0); ierr=0;
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
   return *this;
 }
 
@@ -63,7 +63,8 @@ State & State::scale(double alpha) {
 #define __FUNC__ "State & State::set_cnst(double a)"
 State & State::set_cnst(double a) {
   int ierr = VecSet(*vec,a);
-  assert(ierr==0); ierr=0;
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
+  // assert(ierr==0); ierr=0;
   return *this;
 }
 
@@ -75,7 +76,8 @@ const State & State::print() const {
 
   printf("time: %f\n",double(t()));
   int ierr = VecView(v(),PETSC_VIEWER_STDOUT_SELF);
-  assert(ierr==0); ierr=0;
+  // assert(ierr==0); ierr=0;
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
   return *this;
 }
 
@@ -91,7 +93,8 @@ const State & State::print(int n) const {
   int ierr = VecGetLocalSize(v(),&lsize);
   int nn = (n<=0 ||  n>lsize ? lsize : n);
   ierr = VecGetArray(v(),&a);
-  assert(ierr==0); ierr=0;
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
+  // assert(ierr==0); ierr=0;
   for (int j=0; j<nn; j++) {
     printf("%d %f\n",j,a[j]);
   }

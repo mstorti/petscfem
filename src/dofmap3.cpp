@@ -173,7 +173,7 @@ static int dofmap_mult(Mat A,Vec x,Vec y) { // y =A*x
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int Dofmap::mult(Mat A,Vec x,Vec y) { // y =A*x
-  int ierr;
+  int PFUNUSED ierr;
   int nrow = nnod*ndof;
   int ncol = neqtot;
   double *xp,*yp;
@@ -200,7 +200,7 @@ int Dofmap::mult(Mat A,Vec x,Vec y) { // y =A*x
 void Dofmap::solve(double *xp,double *yp) {
   int nrow = nnod*ndof;
   int ncol = neqtot;
-  int m, ierr;
+  int m, PFUNUSED ierr;
 
   // We have to solve the system Q*x = y. 
   // In this version we solve it with the CG

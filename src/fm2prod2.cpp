@@ -72,29 +72,29 @@ check_superlinear(vector<double *> &ap, int nrow,int ncol,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod2_subcache_t::init() {
-  if (!gemm_fun_table_was_initialized) {
+  if (!table_was_initialized) {
+    table_was_initialized = 1;
     load_funs();
-    gemm_fun_table_was_initialized = 1;
   }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 int prod2_subcache_t
-::gemm_fun_table_indx(int n,int m,int p,int jat,int jbt) {
+::table_indx(int n,int m,int p,int jat,int jbt) {
   return VEC_ADDR_5(n-1,m-1,NMAX,p-1,NMAX,jat,2,jbt,2);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 prod2_subcache_t::gemm_fun_t prod2_subcache_t
 ::get_fun(int n,int m,int p,int jat,int jbt) {
-  int indx = gemm_fun_table_indx(n,m,p,jat,jbt);
-  return gemm_fun_table[indx];
+  int indx = table_indx(n,m,p,jat,jbt);
+  return table[indx];
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
 void prod2_subcache_t
-::gemm_fun_table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f) {
-  gemm_fun_table[gemm_fun_table_indx(n,m,p,jat,jbt)] = f;
+::table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f) {
+  table[table_indx(n,m,p,jat,jbt)] = f;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -307,9 +307,9 @@ void prod2_subcache_t
   if (ok) {
     use_fmgemm = 1;
     if (!jct) 
-      gfun = gemm_fun_table[gemm_fun_table_indx(nrowa,ncola,ncolb,jat,jbt)];
+      gfun = table[table_indx(nrowa,ncola,ncolb,jat,jbt)];
     else
-      gfun = gemm_fun_table[gemm_fun_table_indx(ncolb,ncola,nrowa,!jbt,!jat)];
+      gfun = table[table_indx(ncolb,ncola,nrowa,!jbt,!jat)];
   }
 #ifdef DO_SIZE_STATS
   last_call_used_fmgemm = use_fmgemm;
@@ -325,8 +325,7 @@ FastMat2 &
 FastMat2::prod2(const FastMat2 &A,const FastMat2 &B,
                 vector<int> &ixa, 
                 vector<int> &ixb) {
-  PETSCFEM_ERROR0("Eliminated auxiliary prod2 function");  
-  return *this;
+  return prod(A,B,ixa,ixb);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -461,17 +460,19 @@ void prod2_subcache_t::make_prod() {
 
 }
 
+#include "./fmgemmdefs.h"  
 int prod2_subcache_t::NMAX=PF_FMGEMM_NMAX;
 int prod2_subcache_t::nmax=PF_FMGEMM_NMAX;
-int prod2_subcache_t::gemm_fun_table_was_initialized=0;
+int prod2_subcache_t::table_was_initialized=0;
 int prod2_subcache_t::FASTMAT2_USE_FMGEMM=1;
-vector<prod2_subcache_t::gemm_fun_t> prod2_subcache_t::gemm_fun_table;
+vector<prod2_subcache_t::gemm_fun_t> prod2_subcache_t::table;
+
+typedef void (*gemm_fun_t)(double *a,double *b,double *c);
+extern void prod2_subcache_load_funs(vector<gemm_fun_t> &table);
 
 void prod2_subcache_t::load_funs() {
-  gemm_fun_table.resize(NMAX*NMAX*NMAX*4);
-#define LOADFUN(n,m,p,jat,jbt,fun) \
-  gemm_fun_table_load(n,m,p,jat,jbt,&prod2_subcache_t::fun)
-#include "./mygmload.h"
+  table.resize(4*NMAX*NMAX*NMAX);
+  prod2_subcache_load_funs(table);
 }
 
 #ifdef DO_SIZE_STATS

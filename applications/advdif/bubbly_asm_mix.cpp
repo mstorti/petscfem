@@ -641,7 +641,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   int comp_kep_prof  = !strcmp(jobinfo_fields,"kep");
 
   double Dt = GLOB_PARAM->Dt;
-  double rec_Dt = 1./Dt;
+  double PFUNUSED rec_Dt = 1./Dt;
   if (GLOB_PARAM->steady) rec_Dt = 0.;
 
   int mask_Cp=1, mask_Ajac=1, mask_Cjac=1, mask_Djac=1;

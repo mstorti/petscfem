@@ -112,7 +112,12 @@ public:
   // A table that stores in which orders must peformed
   // the products
   vector<int> order;
-  multiprod_subcache_t(FastMatCache *cache_a) { }
+  // A vector of the caches for each product
+  vector<prod2_subcache_t *> pscv;
+  multiprod_subcache_t(FastMatCache *cache_a,FastMat2::CacheCtx *ctx,
+                       FastMat2 &result,
+                       vector<const FastMat2 *> &mat_list,
+                       Indx &indx);
   ~multiprod_subcache_t();
   // This makes the product when cached
   void make_prod();
@@ -210,14 +215,13 @@ public:
   // ----------- FMGEMM STUFF ----------------
   // If set: do some statistics about how many computations
   // call the FMGEMM functions
-  // #define DO_SIZE_STATS
+  //#define DO_SIZE_STATS
   // Utility macro for simplifiying the declaration of the FMGEMM functions
-  // in `mygmdefs.h'
-#define DECLFUN(fun)                                                    \
-  static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
+  // in `fmgemmdefs.h'
+  // #define DECLFUN(fun) 
+  //   static void fun(double *__restrict__ a,double * __restrict__ b,double * __restrict__ c)
   // This header contains the definitions of all the FMGEMM functions 
   // (there are NMAX*NMAX*NMAX*4 such functions
-#include "./mygmdefs.h"  
   // nmax is a variable that can be changed at runtime by the user, so
   // regulating the size of the matrices for which the FMGEMM functions
   // are called
@@ -232,10 +236,10 @@ public:
   // Pointers to the functions are stored in this table.
   // Later this table is used as a multiarray vector of shape
   // [NMAX,NMAX,NMAX,2,2]
-  static vector<gemm_fun_t> gemm_fun_table;
+  static vector<gemm_fun_t> table;
   // This is a static flag that indicates whether this table
   // has been initialiazed or not
-  static int gemm_fun_table_was_initialized;
+  static int table_was_initialized;
   // If set to 0 then FMGEMM are not called. This can be changed
   // at runtime
   static int FASTMAT2_USE_FMGEMM;
@@ -260,9 +264,9 @@ public:
     last_call_used_fmgemm;  // flags where the last call used FMGEMM or not
 #endif
 
-  static int gemm_fun_table_indx(int n,int m,int p,int jat,int jbt);
+  static int table_indx(int n,int m,int p,int jat,int jbt);
   static gemm_fun_t get_fun(int n,int m,int p,int jat,int jbt);
-  static void gemm_fun_table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f);
+  static void table_load(int n,int m,int p,int jat,int jbt,gemm_fun_t f);
   static void init();
   static void load_funs();
 

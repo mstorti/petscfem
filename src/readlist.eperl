@@ -1,5 +1,5 @@
 // -*- mode: c++ -*-
-<:$max_arg = 30;:>//
+<:$max_arg = 15;:>//
 // This header file automatically generated from readlist.eperl
 //                       DON'T MODIFY!!
 // In any case, modify the eperl script and re-run eperl

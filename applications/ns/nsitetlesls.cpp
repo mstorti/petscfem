@@ -95,8 +95,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   char *value;
 
   // Unpack Dofmap
-  int neq,nnod;
-  neq  = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata

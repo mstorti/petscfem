@@ -55,11 +55,11 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nr,ierr=0,jr,jfic,kfic,dofic;
   // PetscPrintf(PETSCFEM_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst=NULL,*locst2=NULL,*retval=NULL,
-    *retvalmat=NULL,lambda,rr;
+  double *locst=NULL,*retval=NULL,*retvalmat=NULL,lambda,rr;
+  double PFUNUSED *locst2=NULL;
   GlobParam *glob_param;
-  double *hmin,Dt,rec_Dt;
-  int ja_hmin;
+  double PFUNUSED *hmin,Dt,PFUNUSED rec_Dt;
+  int PFUNUSED ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {
     int ja=0;

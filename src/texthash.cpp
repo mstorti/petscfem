@@ -93,8 +93,8 @@ void TextHashTable::set_entry(const char * key,const char * value) {
   TextHashTableVal *vold,*vnew;
   char *orig_key, *keycp;
   void *orig_key_v, *vold_v;
-  int keylen, exists;
-  keylen=strlen(key);
+  int exists;
+  // keylen=strlen(key);
   exists = g_hash_table_lookup_extended (hash,key,&orig_key_v,&vold_v);
   // vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
   if (exists) {
@@ -119,8 +119,8 @@ void TextHashTable
   TextHashTableVal *vold,*vnew;
   char *orig_key, *keycp;
   void *orig_key_v, *vold_v;
-  int keylen, exists;
-  keylen=strlen(key);
+  int exists;
+  // keylen=strlen(key);
   exists = g_hash_table_lookup_extended (hash,key,&orig_key_v,&vold_v);
   // vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
   if (exists) {

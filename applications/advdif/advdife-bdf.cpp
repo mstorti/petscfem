@@ -50,11 +50,10 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int nelprops,nel,ndof;
   elem_params(nel, ndof, nelprops);
-  int nen = nel*ndof;
+  int PFUNUSED nen = nel*ndof;
 
   // Unpack Dofmap
-  int neq, nnod;
-  neq  = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -82,7 +81,7 @@ new_assemble_BDF(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // used to compute the critical time step.
   vector<double> *dtmin;
   double         lambda_max  = NAN;
-  int            jdtmin;
+  int            PFUNUSED jdtmin;
   GlobParam      *glob_param = NULL;
 
   // The trapezoidal rule integration parameter

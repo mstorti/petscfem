@@ -32,7 +32,7 @@ processor(kv_iterator k) const {
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
-  int ierr;
+  int PFUNUSED ierr;
   HPChrono hpc;
   typename map<Key,Val>::iterator iter, next;
   // kv_iterator iter;
@@ -74,6 +74,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   // gather/scatter all `to_send' data 
   ierr = MPI_Allreduce(to_send,to_send_buff,size*size,MPI_INT, 
 		       MPI_SUM,comm);
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
   // recopy `to_send_buff' to `to_send'
   memcpy(to_send,to_send_buff,size*size*sizeof(int));
 

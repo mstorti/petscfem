@@ -124,6 +124,9 @@ multiprod_subcache_t::~multiprod_subcache_t() {
     mat_info &mi = mat_info_cont[j];
     if (mi.type == TMP && mi.Ap) delete mi.Ap;
   }
+  for (unsigned int j=0; j<pscv.size(); j++)
+    delete pscv[j];
+  pscv.clear();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -131,6 +134,7 @@ void multiprod_subcache_t::make_prod() {
   // The `order' table contained for each product
   // 3 integers: the destination matrix, and the 2
   // input matrix
+#if 0
   int nprod = nmat-1,
     qkey, rkey, skey;
     //#define VERBOSE
@@ -159,6 +163,11 @@ void multiprod_subcache_t::make_prod() {
     smi.Ap->print(line);
 #endif
   }
+#endif
+
+  int nprod = nmat-1;
+  for (int j=0; j<nprod; j++)
+    pscv[j]->make_prod();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
@@ -185,320 +194,9 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
   multiprod_subcache_t *mpsc=NULL;
   if (!ctx->was_cached  ) {
-    mpsc = new multiprod_subcache_t(cache);
+    mpsc = new multiprod_subcache_t(cache,ctx,*this,mat_list,indx);
     assert(!cache->sc);
     cache->sc = mpsc;
-    
-    // Check sum of ranks of matrices equals
-    // size of index vector passed
-    int nmat = mat_list.size(), nindx = 0;
-    mpsc->nmat = nmat;
-    PETSCFEM_ASSERT0(nmat>=2,"prod needs at least 2 matrices");  
-
-    for (int j=0; j<nmat; j++)
-      nindx += mat_list[j]->n();
-    PETSCFEM_ASSERT(nindx==indx.size(),"Not correct nbr of indices. "
-                    "Sum of ranks %d. nbr of indices %d",nindx,indx.size());  
-
-    // For contracted indices (negative) count how many times
-    // they appear (should be 2).
-    // For the free indices they should appear once and
-    // in the range [1,rank] where rank is the
-    // rank of the output matrix.
-    map<int,int> indices; 
-    for (int j=0; j<nindx; j++) {
-      indices[indx[j]]++;
-    }
-
-    map<int,int>::iterator s = indices.begin();
-    int erro=0, outrank=-1;
-    while (s!=indices.end()) {
-      int k=s->first, n=s->second;
-      if (k<0 && n!=2) {
-        erro=1;
-        printf("contracted index %d repeated %d times (should be 2)\n",k,n);
-      } 
-      if (k>0 && k > outrank) outrank = k;
-      if (k>0 && n!=1) {
-        printf("free index %d repeated %d times (should be 1)\n",k,n);
-        erro = 1;
-      }
-      if (k==0) printf("index null is invalid %d\n",k);
-      s++;
-    }
-  
-    // Check all free indices are in range [1,rank]
-    int erro1=0;
-    for (int j=1; j<=outrank; j++) {
-      if (indices.find(j)==indices.end()) erro1=1;
-    }
-    if (erro1) {
-      erro = 1;
-      printf("outrank %d and following indices are missing: ",outrank);
-      for (int j=1; j<=outrank; j++) 
-        if (indices.find(j)==indices.end()) printf("%d ",j);
-      printf("\n");
-    }
-    if (erro) PETSCFEM_ERROR0("detected errors, aborting\n");  
-
-    // Stores the info of matrices (contracted indices and
-    // pointer to matrices) in a list of structures mat_info
-    vector<mat_info> &mat_info_cont = mpsc->mat_info_cont;
-    mat_info_cont.resize(nmat);
-    vector<int> &order = mpsc->order;
-    assert(order.empty());
-     
-    // Load the input matrices in the container
-    int j=0;
-    for (int k=0; k<nmat; k++) {
-
-      // Pointer to the matrix
-      FastMat2 &A = *(FastMat2 *)mat_list[k];
-      mat_info &m = mat_info_cont[k];
-      m.Ap = &A;
-      m.type = multiprod_subcache_t::OLD;
-      m.position = k;
-      int rank = A.n();
-      // This stores the indices to be contracted
-      m.contract.resize(rank);
-      // This stores the dims
-      m.dims.resize(rank);
-      for (int l=0; l<rank; l++) {
-        m.contract[l] = indx[j++];
-        m.dims[l] = A.dim(l+1);
-      }
-    }
-
-    // In `mat_info_cont_plain' the mat_infos are stored
-    // in compact form, i.e. when matrix in positions `q'
-    // and `r' are contracted `q' is replaced with the product
-    // and `r' is removed
-    mat_info_cont_t 
-      mat_info_cont_plain = mat_info_cont;
-    vector<string> labels(nmat);
-    if (fastmat_stats.labels) {
-      for (int j=0; j<nmat; j++) {
-        assert(fastmat_stats.labels[j]);
-        labels[j] = fastmat_stats.labels[j];
-      }
-      fastmat_stats.nmat = nmat;
-      assert(!fastmat_stats.labels[nmat]);
-    }
-    vector<int> opt_order;
-    intmax_t nopso=-1;
-    // double start=MPI_Wtime();
-    if (ctx->mprod_order==FastMat2::CacheCtx::optimal
-        || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
-            && nmat <= ctx->optimal_mprod_order_max)) {
-      nopso = compute_optimal_order(mat_info_cont_plain,opt_order);
-    } else if (ctx->mprod_order==FastMat2::CacheCtx::heuristic
-               || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
-                   && nmat > ctx->optimal_mprod_order_max)) {
-      nopso = compute_heuristic_order(mat_info_cont_plain,opt_order);
-    } else if (ctx->mprod_order==FastMat2::CacheCtx::natural 
-               || ctx->mprod_order==FastMat2::CacheCtx::reverse) {
-      int reverse = ctx->mprod_order==FastMat2::CacheCtx::reverse;
-      nopso = compute_natural_order(mat_info_cont_plain,
-                                    opt_order,reverse);
-    } else {
-      PETSCFEM_ERROR("unknown mprod_order %d",ctx->mprod_order);  
-    }
-    // printf("nmat %d, elapsed %g secs\n",nmat,MPI_Wtime()-start);
-    assert(int(opt_order.size())==2*(nmat-1));
-    ctx->mprod_nopscount = nopso;
-
-#if 0
-    for (int j=0; j<nmat-1; j++) {
-      char label[1000];
-      int q=opt_order[2*j], r=opt_order[2*j+1];
-      sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
-      labels[q] = label;
-      labels.erase(labels.begin()+r);
-    }
-    printf("OPTIMAL product order: %s\n",print_label(labels[0].c_str()));
-#endif
-
-#if 0
-    for (int j=0; j<nmat-1; j++) {
-      printf("prod %d: a%d = a%d * a%d\n",
-             j,opt_order[2*j],opt_order[2*j],opt_order[2*j+1]);
-    }
-    exit(0);
-#endif
-
-    // The created temporaries are assigned
-    // this key (position in `mat_info_cont')
-    int new_mat_indx = nmat;
-    // These are the keys stored in the compact version
-    vector<int> keys(nmat);
-    for (int j=0; j<nmat; j++) keys[j] = j;
-
-    int q,r,qkey,rkey,qrank, rrank, k, dim;
-    // Start simulating the products and storing
-    // the info in `order'
-    for (int j=0; j<nmat-1; j++) {
-      int nact = nmat-j;
-
-      // Insert a new `mat_info' corresponding to
-      // the temporary to be created
-      mat_info_cont.push_back(mat_info());
-      int skey = new_mat_indx++;
-      mat_info &smi = mat_info_cont[skey];
-      // For the firs products except the last one
-      // we reorder the free indices
-      // so that they are in range [1,n].
-      // For the last one this is not needed because
-      // it should end in this way automatically.
-      // And the order should be preserved becuase
-      // otherwise the elements in the resulting
-      // matrix would be in an order not desired. 
-      int reo=1;
-      if (nact>2) {
-        // This is for all the products except the last one
-        smi.Ap = new FastMat2(this->ctx);
-        smi.type = multiprod_subcache_t::TMP;
-      } else {
-        // In this case the output matrix is *this
-        smi.Ap = this;
-        // It is NOT a temporary
-        smi.type = multiprod_subcache_t::OLD;
-        // Do not reorder the indices
-        reo = 0;
-      }
-      // This new matrix is active
-      smi.is_active = multiprod_subcache_t::ACTIVE;
-      vector<int> 
-        &sc = smi.contract,
-        &sd = smi.dims;
-
-      q = opt_order[2*j];
-      r = opt_order[2*j+1];
-      assert(q<r);
-      qkey = keys[q];
-      rkey = keys[r];
-
-      // Product to be done is S = Q * R
-      // get info for Q matrix
-      mat_info &qmi = mat_info_cont[qkey];
-      qmi.is_active = multiprod_subcache_t::INACTIVE;
-      vector<int> 
-        &qc = qmi.contract,
-        &qd = qmi.dims;
-
-      // get info for R matrix
-      mat_info &rmi = mat_info_cont[rkey];
-      rmi.is_active = multiprod_subcache_t::INACTIVE;
-      vector<int> 
-        &rc = rmi.contract,
-        &rd = rmi.dims;
-
-      qrank = qd.size();
-      rrank = rd.size();
-      int sindx = 1;
-      // Compute the new contraction indices for Q
-      for (int j=0; j<qrank; j++) {
-        k = qc[j];
-        dim = qd[j];
-        if (k>0 || !vfind(rc,k)) {
-          if (reo) qc[j] = sindx++;
-          sc.push_back(k);
-          sd.push_back(dim);
-        }
-      }
-      // Compute the new contraction indices for R
-      for (int j=0; j<rrank; j++) {
-        k = rc[j];
-        dim = rd[j];
-        if (k>0 || !vfind(qc,k)) {
-          if (reo) rc[j] = sindx++;
-          sc.push_back(k);
-          sd.push_back(dim);
-        }
-      }
-      // Insert the `keys' for this product in `order'
-      order.push_back(skey);
-      smi.position = qmi.position;
-      order.push_back(qkey);
-      order.push_back(rkey);
-      // Update `keys' vector
-      keys[q] = skey;
-      keys.erase(keys.begin()+r);
-    }
-
-#if 1
-    if (fastmat_stats.labels 
-        &&fastmat_stats.print_prod_order) {
-      int sindx = nmat;
-      vector<string> labels(nmat);
-      for (int j=0; j<nmat; j++) {
-        assert(fastmat_stats.labels[j]);
-        labels[j] = fastmat_stats.labels[j];
-      }
-      for (int j=0; j<nmat-1; j++) {
-        char label[1000];
-        int q=order[3*j+1], r=order[3*j+2];
-        sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
-        labels.push_back(label);
-      }
-      assert(int(labels.size())==2*nmat-1);
-      printf("product order: %s\n",
-             print_label(labels[2*nmat-2]).c_str());
-    }
-#endif
-
-    assert(order.size() == (unsigned int)(3*(nmat-1)));
-
-    // Now for each product to be done checks that
-    // all negative indices are `packed', i.e.
-    // in range [1,n] with all indices used.
-    for (int j=0; j<nmat-1; j++) {
-      mat_info 
-        &qmi = mat_info_cont[order[3*j+1]],
-        &rmi = mat_info_cont[order[3*j+2]];
-      vector<int> 
-        &qc = qmi.contract,
-        &rc = rmi.contract;
-
-      // new_neg maps the `old' contraction indices
-      // to the `new' indices
-      map<int,int> new_neg;
-      // this is the next new negative indices to
-      // be assigned
-      int new_neg_free=-1;
-      int k,
-        qrank = qc.size(),
-        rrank = rc.size();
-      for (int l=0; l<qrank; l++) {
-        k = qc[l];
-        if (k<0) {
-          // If another negative index appears
-          // we assign a new index
-          if (new_neg.find(k)==new_neg.end()) 
-            new_neg[k] = new_neg_free--;
-          // replace the old indices with the
-          // new indices
-          qc[l] = new_neg[k];
-        }
-      }
-      // Same for the q indices
-      for (int l=0; l<rrank; l++) {
-        k = rc[l];
-        if (k<0) {
-          if (new_neg.find(k)==new_neg.end()) 
-            new_neg[k] = new_neg_free--;
-          rc[l] = new_neg[k];
-        }
-      }
-#ifdef VERBOSE
-      printf("prod #%d [qc:",j);
-      for (int l=0; l<qrank; l++) 
-        printf("%d,",qc[l]);
-      printf("][rc:");
-      for (int l=0; l<rrank; l++) 
-        printf("%d,",rc[l]);
-      printf("]\n");
-#endif
-    }
   }
 
   mpsc = dynamic_cast<multiprod_subcache_t *> (cache->sc);
@@ -507,6 +205,344 @@ FastMat2::prod(vector<const FastMat2 *> &mat_list,
 
   if (!ctx->use_cache) delete cache;
   return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+multiprod_subcache_t
+::multiprod_subcache_t(FastMatCache *cache_a,FastMat2::CacheCtx *ctx,
+                       FastMat2 &result,
+                       vector<const FastMat2 *> &mat_list,
+                       Indx &indx) {
+  // Check sum of ranks of matrices equals
+  // size of index vector passed
+  nmat = mat_list.size();
+  PETSCFEM_ASSERT0(nmat>=2,"prod needs at least 2 matrices");  
+
+  int nindx = 0;
+  for (int j=0; j<nmat; j++)
+    nindx += mat_list[j]->n();
+  PETSCFEM_ASSERT(nindx==indx.size(),"Not correct nbr of indices. "
+                  "Sum of ranks %d. nbr of indices %d",nindx,indx.size());  
+
+  // For contracted indices (negative) count how many times
+  // they appear (should be 2).
+  // For the free indices they should appear once and
+  // in the range [1,rank] where rank is the
+  // rank of the output matrix.
+  map<int,int> indices; 
+  for (int j=0; j<nindx; j++) {
+    indices[indx[j]]++;
+  }
+
+  map<int,int>::iterator s = indices.begin();
+  int erro=0, outrank=-1;
+  while (s!=indices.end()) {
+    int k=s->first, n=s->second;
+    if (k<0 && n!=2) {
+      erro=1;
+      printf("contracted index %d repeated %d times (should be 2)\n",k,n);
+    } 
+    if (k>0 && k > outrank) outrank = k;
+    if (k>0 && n!=1) {
+      printf("free index %d repeated %d times (should be 1)\n",k,n);
+      erro = 1;
+    }
+    if (k==0) printf("index null is invalid %d\n",k);
+    s++;
+  }
+  
+  // Check all free indices are in range [1,rank]
+  int erro1=0;
+  for (int j=1; j<=outrank; j++) {
+    if (indices.find(j)==indices.end()) erro1=1;
+  }
+  if (erro1) {
+    erro = 1;
+    printf("outrank %d and following indices are missing: ",outrank);
+    for (int j=1; j<=outrank; j++) 
+      if (indices.find(j)==indices.end()) printf("%d ",j);
+    printf("\n");
+  }
+  if (erro) PETSCFEM_ERROR0("detected errors, aborting\n");  
+
+  // Stores the info of matrices (contracted indices and
+  // pointer to matrices) in a list of structures mat_info
+  // vector<mat_info> &mat_info_cont = mpsc->mat_info_cont;
+  mat_info_cont.resize(nmat);
+  // vector<int> &order = mpsc->order;
+  PETSCFEM_ASSERT0(order.empty(),"Internal error");  
+     
+  // Load the input matrices in the container
+  int j=0;
+  for (int k=0; k<nmat; k++) {
+
+    // Pointer to the matrix
+    FastMat2 &A = *(FastMat2 *)mat_list[k];
+    mat_info &m = mat_info_cont[k];
+    m.Ap = &A;
+    m.type = multiprod_subcache_t::OLD;
+    m.position = k;
+    int rank = A.n();
+    // This stores the indices to be contracted
+    m.contract.resize(rank);
+    // This stores the dims
+    m.dims.resize(rank);
+    for (int l=0; l<rank; l++) {
+      m.contract[l] = indx[j++];
+      m.dims[l] = A.dim(l+1);
+    }
+  }
+
+  // In `mat_info_cont_plain' the mat_infos are stored
+  // in compact form, i.e. when matrix in positions `q'
+  // and `r' are contracted `q' is replaced with the product
+  // and `r' is removed
+  mat_info_cont_t 
+    mat_info_cont_plain = mat_info_cont;
+  vector<string> labels(nmat);
+  if (fastmat_stats.labels) {
+    for (int j=0; j<nmat; j++) {
+      assert(fastmat_stats.labels[j]);
+      labels[j] = fastmat_stats.labels[j];
+    }
+    fastmat_stats.nmat = nmat;
+    assert(!fastmat_stats.labels[nmat]);
+  }
+  vector<int> opt_order;
+  intmax_t nopso=-1;
+  // double start=MPI_Wtime();
+  if (ctx->mprod_order==FastMat2::CacheCtx::optimal
+      || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
+          && nmat <= ctx->optimal_mprod_order_max)) {
+    nopso = compute_optimal_order(mat_info_cont_plain,opt_order);
+  } else if (ctx->mprod_order==FastMat2::CacheCtx::heuristic
+             || (ctx->mprod_order==FastMat2::CacheCtx::mixed 
+                 && nmat > ctx->optimal_mprod_order_max)) {
+    nopso = compute_heuristic_order(mat_info_cont_plain,opt_order);
+  } else if (ctx->mprod_order==FastMat2::CacheCtx::natural 
+             || ctx->mprod_order==FastMat2::CacheCtx::reverse) {
+    int reverse = ctx->mprod_order==FastMat2::CacheCtx::reverse;
+    nopso = compute_natural_order(mat_info_cont_plain,
+                                  opt_order,reverse);
+  } else {
+    PETSCFEM_ERROR("unknown mprod_order %d",ctx->mprod_order);  
+  }
+  // printf("nmat %d, elapsed %g secs\n",nmat,MPI_Wtime()-start);
+  assert(int(opt_order.size())==2*(nmat-1));
+  ctx->mprod_nopscount = nopso;
+
+#if 0
+  for (int j=0; j<nmat-1; j++) {
+    char label[1000];
+    int q=opt_order[2*j], r=opt_order[2*j+1];
+    sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
+    labels[q] = label;
+    labels.erase(labels.begin()+r);
+  }
+  printf("OPTIMAL product order: %s\n",print_label(labels[0].c_str()));
+#endif
+
+#if 0
+  for (int j=0; j<nmat-1; j++) {
+    printf("prod %d: a%d = a%d * a%d\n",
+           j,opt_order[2*j],opt_order[2*j],opt_order[2*j+1]);
+  }
+  exit(0);
+#endif
+
+  // The created temporaries are assigned
+  // this key (position in `mat_info_cont')
+  int new_mat_indx = nmat;
+  // These are the keys stored in the compact version
+  vector<int> keys(nmat);
+  for (int j=0; j<nmat; j++) keys[j] = j;
+
+  int q,r,qkey,rkey,qrank, rrank, k, dim;
+  // Start simulating the products and storing
+  // the info in `order'
+  for (int j=0; j<nmat-1; j++) {
+    int nact = nmat-j;
+
+    // Insert a new `mat_info' corresponding to
+    // the temporary to be created
+    mat_info_cont.push_back(mat_info());
+    int skey = new_mat_indx++;
+    mat_info &smi = mat_info_cont[skey];
+    // For the firs products except the last one
+    // we reorder the free indices
+    // so that they are in range [1,n].
+    // For the last one this is not needed because
+    // it should end in this way automatically.
+    // And the order should be preserved becuase
+    // otherwise the elements in the resulting
+    // matrix would be in an order not desired. 
+    int reo=1;
+    if (nact>2) {
+      // This is for all the products except the last one
+      smi.Ap = new FastMat2(ctx);
+      smi.type = multiprod_subcache_t::TMP;
+    } else {
+      // In this case the output matrix is *this
+      smi.Ap = &result;
+      // It is NOT a temporary
+      smi.type = multiprod_subcache_t::OLD;
+      // Do not reorder the indices
+      reo = 0;
+    }
+    // This new matrix is active
+    smi.is_active = multiprod_subcache_t::ACTIVE;
+    vector<int> 
+      &sc = smi.contract,
+      &sd = smi.dims;
+
+    q = opt_order[2*j];
+    r = opt_order[2*j+1];
+    assert(q<r);
+    qkey = keys[q];
+    rkey = keys[r];
+
+    // Product to be done is S = Q * R
+    // get info for Q matrix
+    mat_info &qmi = mat_info_cont[qkey];
+    qmi.is_active = multiprod_subcache_t::INACTIVE;
+    vector<int> 
+      &qc = qmi.contract,
+      &qd = qmi.dims;
+
+    // get info for R matrix
+    mat_info &rmi = mat_info_cont[rkey];
+    rmi.is_active = multiprod_subcache_t::INACTIVE;
+    vector<int> 
+      &rc = rmi.contract,
+      &rd = rmi.dims;
+
+    qrank = qd.size();
+    rrank = rd.size();
+    int sindx = 1;
+    // Compute the new contraction indices for Q
+    for (int j=0; j<qrank; j++) {
+      k = qc[j];
+      dim = qd[j];
+      if (k>0 || !vfind(rc,k)) {
+        if (reo) qc[j] = sindx++;
+        sc.push_back(k);
+        sd.push_back(dim);
+      }
+    }
+    // Compute the new contraction indices for R
+    for (int j=0; j<rrank; j++) {
+      k = rc[j];
+      dim = rd[j];
+      if (k>0 || !vfind(qc,k)) {
+        if (reo) rc[j] = sindx++;
+        sc.push_back(k);
+        sd.push_back(dim);
+      }
+    }
+    // Insert the `keys' for this product in `order'
+    order.push_back(skey);
+    smi.position = qmi.position;
+    order.push_back(qkey);
+    order.push_back(rkey);
+    // Update `keys' vector
+    keys[q] = skey;
+    keys.erase(keys.begin()+r);
+  }
+
+#if 1
+  if (fastmat_stats.labels 
+      &&fastmat_stats.print_prod_order) {
+    int sindx = nmat;
+    vector<string> labels(nmat);
+    for (int j=0; j<nmat; j++) {
+      assert(fastmat_stats.labels[j]);
+      labels[j] = fastmat_stats.labels[j];
+    }
+    for (int j=0; j<nmat-1; j++) {
+      char label[1000];
+      int q=order[3*j+1], r=order[3*j+2];
+      sprintf(label,"(%s*%s)",labels[q].c_str(),labels[r].c_str());
+      labels.push_back(label);
+    }
+    assert(int(labels.size())==2*nmat-1);
+    printf("product order: %s\n",
+           print_label(labels[2*nmat-2]).c_str());
+  }
+#endif
+
+  assert(order.size() == (unsigned int)(3*(nmat-1)));
+
+  // Now for each product to be done checks that
+  // all negative indices are `packed', i.e.
+  // in range [1,n] with all indices used.
+  for (int j=0; j<nmat-1; j++) {
+    mat_info 
+      &qmi = mat_info_cont[order[3*j+1]],
+      &rmi = mat_info_cont[order[3*j+2]];
+    vector<int> 
+      &qc = qmi.contract,
+      &rc = rmi.contract;
+
+    // new_neg maps the `old' contraction indices
+    // to the `new' indices
+    map<int,int> new_neg;
+    // this is the next new negative indices to
+    // be assigned
+    int new_neg_free=-1;
+    int k,
+      qrank = qc.size(),
+      rrank = rc.size();
+    for (int l=0; l<qrank; l++) {
+      k = qc[l];
+      if (k<0) {
+        // If another negative index appears
+        // we assign a new index
+        if (new_neg.find(k)==new_neg.end()) 
+          new_neg[k] = new_neg_free--;
+        // replace the old indices with the
+        // new indices
+        qc[l] = new_neg[k];
+      }
+    }
+    // Same for the q indices
+    for (int l=0; l<rrank; l++) {
+      k = rc[l];
+      if (k<0) {
+        if (new_neg.find(k)==new_neg.end()) 
+          new_neg[k] = new_neg_free--;
+        rc[l] = new_neg[k];
+      }
+    }
+#ifdef VERBOSE
+    printf("prod #%d [qc:",j);
+    for (int l=0; l<qrank; l++) 
+      printf("%d,",qc[l]);
+    printf("][rc:");
+    for (int l=0; l<rrank; l++) 
+      printf("%d,",rc[l]);
+    printf("]\n");
+#endif
+  }
+
+ 
+  int nprod = nmat-1,skey;
+    //#define VERBOSE
+#ifdef VERBOSE
+  char line[100];
+#endif
+  for (int j=0; j<nprod; j++) {
+    mat_info 
+      // Destination matrices
+      &smi = mat_info_cont[order[3*j]],
+      // Source matrices
+      &qmi = mat_info_cont[order[3*j+1]],
+      &rmi = mat_info_cont[order[3*j+2]];
+
+    // Makes the product, calling prod(a,b,indxa,indxb)
+    pscv.push_back(new prod2_subcache_t());
+    pscv.back()->init(*qmi.Ap,*rmi.Ap,*smi.Ap,qmi.contract,rmi.contract);
+  }
+ 
 }
 
 fastmat_stats_t fastmat_stats;
@@ -833,7 +869,8 @@ FastMat2::prod(const FastMat2 &A,const FastMat2 &B,
 #endif
 
 #ifdef USE_MPROD_FOR_2MATS
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+#if 0
+// OLD VERSION (CALLS PROD)
 FastMat2 & 
 FastMat2::prod(const FastMat2 & A0,
                const FastMat2 & A1,
@@ -878,6 +915,54 @@ FastMat2::prod(const FastMat2 & A0,
 
   return *this;
 }
+#else
+// NEW VERSION (CREATES EXPLICITLY THE MPROD CACHE)
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>
+FastMat2 & 
+FastMat2::prod(const FastMat2 & A0,
+               const FastMat2 & A1,
+               const int m,INT_VAR_ARGS_ND) {
+
+#ifndef NDEBUG
+  if (ctx->do_check_labels) {
+    ctx->check_clear();
+    ctx->check("prod_mat_wrapper",this);
+    ctx->check(&A0);
+    ctx->check(&A1);
+
+    Indx indx;
+    indx.push_back(m);
+    // READ_INT_ARG_LIST(indx);
+    READ_ARG_LIST(arg,indx,INT_ARG_LIST_DEFAULT_VAL,EXIT2);
+    ctx->check(indx);
+  }
+#endif
+
+  FastMatCache *cache = ctx->step();
+  multiprod_subcache_t *mpsc=NULL;
+  if (!ctx->was_cached) {
+    
+    assert(!cache->sc);
+    vector<const FastMat2 *> mat_list;
+    mat_list.push_back(&A0);
+    mat_list.push_back(&A1);
+    
+    Indx indx;
+    indx.push_back(m);
+    READ_INT_ARG_LIST(indx);
+    mpsc = new multiprod_subcache_t(cache,ctx,*this,mat_list,indx);
+    cache->sc = mpsc;
+  }
+
+  mpsc = dynamic_cast<multiprod_subcache_t *> (cache->sc);
+  assert(mpsc);
+  mpsc->make_prod();
+
+  if (!ctx->use_cache) delete cache;
+
+  return *this;
+}
+#endif
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>

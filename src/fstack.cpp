@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
 //$Id merge-with-petsc-233-55-g52bd457 Fri Oct 26 13:57:07 2007 -0300$
 #include <stdlib.h>
-#include "fstack.h"
+#include <src/fem.h>
+#include <src/fstack.h>
 
 // for regexp delimiter
 #define BSP "[ \t\n]"
@@ -73,9 +74,9 @@ FileStack::FileStack(const char *filename) :
   abufr = abuf_create();
   
   int ierr = regcomp(&blank_line,"^[ \t\n]*$",REG_NOSUB);
-  assert(ierr==0);
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
   ierr = regcomp(&include,"^__INCLUDE__",REG_NOSUB);
-  assert(ierr==0);
+  PETSCFEM_ASSERT0(ierr==0,"Error");  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

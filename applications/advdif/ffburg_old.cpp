@@ -39,7 +39,7 @@ int burgers_ff_t::operator()(ADVDIFFF_ARGS) {
     tmp0.resize(1,ndim);
 
     ndof = U.dim(1);
-    assert(ndof==1); // Only 1D Burgers considered
+    PETSCFEM_ASSERT0(ndof==1,"Only 1D Burgers considered, so far");  
     // assert(ndim==1);
 
     //o Diffusivity (viscosity)

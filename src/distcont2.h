@@ -1,3 +1,4 @@
+// -*- mode: c++ -*-
 //__INSERT_LICENSE__
 //$Id: distcont2.h,v 1.6.10.1 2007/02/19 20:23:56 mstorti Exp $
 
@@ -236,9 +237,10 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    // my_band_start sends to s1+1 and so on...
 	    dest = s1 + ((myrank-my_band_start) + jd) % nrecv;
 	    // printf("[%d] Sending to %d\n",myrank,dest);
-	    int ierr;
+	    int PFUNUSED ierr;
 	    ierr = MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
 			    dest,myrank,comm);
+            PETSCFEM_ASSERT0(ierr==0,"Error");  
 	  }
 	} else {
 	  // Receive stage
@@ -248,10 +250,11 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    // possibility of error since they are tagged with the
 	    // source. But we wait for receiving all the packets in
 	    // this stage. 
-	    int ierr;
+	    int PFUNUSED ierr;
 	    ierr = MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
 			    MPI_ANY_SOURCE,MPI_ANY_TAG,
 			    comm,&status);
+            PETSCFEM_ASSERT0(ierr==0,"Error");  
 	    // Get rank of source 
 	    source = status.MPI_SOURCE;
 	    // printf("[%d] received source %d, tag %d\n",

@@ -30,7 +30,8 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
   static double tau_fac;
   static FastMat2 u,u2,Uintri(1,ndim),AA;
   static vector<double> ajacv,djacv,cjacv;
-  static double *ajacvp,*djacvp,*cjacvp;
+  // static double *ajacvp,*djacvp,*cjacvp;
+  static double *djacvp;
 
   // Load properties only once.
   FastMat2::branch();
@@ -50,7 +51,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     VOID_IT(ajacv);
     elemset->get_entry("advective_jacobians",advje); CHKERRQ(advje==0);
     read_double_array(ajacv,advje);
-    ajacvp = &*ajacv.begin();
+    // ajacvp = &*ajacv.begin();
 
     // Read diffusive jacobians (diffusivity matrices)
     D_jac_l.resize(4,ndim,ndim,ndof,ndof);
@@ -80,7 +81,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     } else {
       read_double_array(cjacv,reaje); 
     }
-    cjacvp = &*cjacv.begin();
+    // cjacvp = &*cjacv.begin();
     C_jac_l.set(0.);
 
     //o Scale the SUPG upwind term. 

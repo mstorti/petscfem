@@ -68,10 +68,10 @@ new_assemble(arg_data_list &arg_data_v,
 
   // Aqui en advdif esta primero en el
   // arg_data_v el estado en t_n y despues en t_n+1.
-  arg_data *locstold=NULL,*locst=NULL,*retval=NULL,
+  arg_data PFUNUSED *locstold=NULL,*locst=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   GlobParam *glob_param=NULL;
-  double *hmin,Dt,rec_Dt;
+  double PFUNUSED *hmin,Dt,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_res) {

@@ -18,7 +18,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #undef __FUNC__
 #define __FUNC__ "linear_restriction::init"
 void linear_restriction::init() {
-  int code,node,dof,j,k,ierr,ncoef;
+  int PFUNUSED code,node,dof,j,k,ierr,ncoef;
   double c;
   FILE *fid;
   if (!was_loaded) {
@@ -28,7 +28,7 @@ void linear_restriction::init() {
     assert(fid);
 
     code = fscanf(fid,"%d %d\n",&nres_m,&ncoef);
-    assert(code==2);
+    PETSCFEM_ASSERT0(code==2,"Error");  
     PetscPrintf(PETSCFEM_COMM_WORLD,"reading restriction file %s\n"
 		"number of restrictions: %d\n"
 		"number of non null coefs. per restriction: %d\n",

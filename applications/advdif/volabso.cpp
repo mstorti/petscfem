@@ -49,7 +49,7 @@ int volabso::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Get arguments from arg_list
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double PFUNUSED *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
 
   if (comp_res) {
     int ja=0;

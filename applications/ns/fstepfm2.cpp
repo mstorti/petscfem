@@ -416,7 +416,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       setel(1.,ndof,ndof).rs();
   }
 
-  double max_u_neg = 0., max_force=0.;
+  double PFUNUSED max_u_neg = 0., max_force=0.;
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 

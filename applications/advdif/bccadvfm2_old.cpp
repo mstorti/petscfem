@@ -55,11 +55,10 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int ndimel = ndim-1;
   int nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
-  int nen = nel*ndof;
+  int PFUNUSED nen = nel*ndof;
 
   // Unpack Dofmap
-  int neq,nnod;
-  neq = dofmap->neq;
+  int nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -72,8 +71,8 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(1);
   }
 
-  int jdtmin;
-  arg_data *staten=NULL,*stateo=NULL,*retval=NULL,
+  int PFUNUSED jdtmin;
+  arg_data PFUNUSED *staten=NULL,*stateo=NULL,*retval=NULL,
     *fdj_jac=NULL,*jac_prof=NULL,*Ajac=NULL;
   GlobParam *glob_param=NULL;
   FastMat2 matlocf(4,nel,ndof,nel,ndof);

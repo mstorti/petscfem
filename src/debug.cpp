@@ -47,7 +47,7 @@ void Debug::deactivate(const char *s) {
 }
 
 void Debug::release_proc(int proc) {
-  int ierr;
+  int PFUNUSED ierr;
   if (proc<0 || proc>=size) {
     printf("bad procesor number: %d",proc);
     return;
@@ -58,7 +58,7 @@ void Debug::release_proc(int proc) {
     return;
   }
   if (!flags[proc])
-    ierr = MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
+    MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
   flags[proc]=1;
 }
 
@@ -87,7 +87,7 @@ void Debug::trace(const char *s) {
     printf("-- %s -- [%s %10.3f]\n",s,t,chrono.elapsed());
   }
   if (active("memory_usage")) {
-    int ierr;
+    int PFUNUSED ierr;
     char *line;
     int mem,mem_min,mem_max,mem_sum,mem_avrg;
     size_t n=0;
@@ -107,9 +107,10 @@ void Debug::trace(const char *s) {
     PetscPrintf(PETSCFEM_COMM_WORLD,
 		"-- %s -- [Memory usage(kB): min %d, max %d, avrg %d]\n",
 		s,mem_min,mem_max,mem_avrg);
+    PETSCFEM_ASSERT0(ierr==0,"Error");  
   }
   if (!active()) return;
-  int ierr,nread,proc;
+  int PFUNUSED ierr,nread,proc;
   char ans;
   ierr = MPI_Barrier(comm);
   assert(ierr==0);
@@ -168,7 +169,7 @@ void Debug::trace(const char *s) {
 	  getline (&line,&N,stdin);
 	}
       } else {
-	int ierr;
+	int PFUNUSED ierr;
 	MPI_Status stat;
 	ierr = MPI_Recv(&dummy,1,MPI_INT,0,release_barrier,comm,&stat);
       }

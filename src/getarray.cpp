@@ -28,7 +28,6 @@ void add_entry(char *s,int l) {
 int yylex (void) {
   string s;
   int c;
-  int j;
   
   c = *line_to_parse++;
   // skip whitespace 
@@ -36,7 +35,6 @@ int yylex (void) {
 
   if (isalpha (c)) { 
     s="";
-    j=0; 
     while (isalpha(c) || isdigit(c) || c=='_') {
       s += c;
       c = *line_to_parse++;
@@ -49,7 +47,6 @@ int yylex (void) {
   } else if (isdigit (c)) { 
     int len;
     s="";
-    j=0; 
     while (isdigit(c)) {
       s += c;
       c = *line_to_parse++;

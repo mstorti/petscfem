@@ -61,8 +61,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata

@@ -105,8 +105,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
+  int *ident,nnod;
   nnod = dofmap->nnod;
 
   // Unpack nodedata
@@ -320,7 +319,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *grad_div_u_cache=NULL;
   int grad_div_u_was_cached=0;
 
-  int elem, ipg,node, jdim, kloc,lloc,ldof;
+  int PFUNUSED elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix dshapex,dshapext,Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
@@ -332,7 +331,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,tmp20;
 
-  double strain_rate_scalar;
+  double PFUNUSED strain_rate_scalar;
 
   double tmp12;
   double nu_eff;
@@ -443,7 +442,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
     }
 
-    double shear_vel;
+    double PFUNUSED shear_vel;
     int wall_elem;
     if (LES && comp_mat_res) {
 #ifdef USE_ANN
@@ -486,7 +485,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //      double wpgdet_c = wpgdet * turbulence_coef * turb_prod_coef;
       // Combined factor that affects the turbulence
       // production (for debugging)
-      double h_pspg,Delta;
+      double PFUNUSED h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
 	Delta = sqrt(Area);

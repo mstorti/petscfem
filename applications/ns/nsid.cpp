@@ -62,9 +62,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   // Unpack Dofmap
-  int *ident,neq,nnod;
-  neq = dofmap->neq;
-  nnod = dofmap->nnod;
+  int *ident;
 
   // Get arguments from arg_list
   double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;

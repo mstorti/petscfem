@@ -50,10 +50,11 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int ierr=0;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst=NULL,*locst2=NULL,*retval=NULL,*retvalmat=NULL;
+  double *locst=NULL,*retval=NULL,*retvalmat=NULL;
+  double PFUNUSED *locst2=NULL;
   GlobParam *glob_param=NULL;
-  double *hmin=NULL,Dt,rec_Dt;
-  int ja_hmin;
+  double PFUNUSED *hmin=NULL,Dt,rec_Dt;
+  int PFUNUSED ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {
     int ja=0;
@@ -104,7 +105,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-  int elem;
+  int PFUNUSED elem;
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;

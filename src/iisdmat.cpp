@@ -341,13 +341,14 @@ int PFPETScMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::monitor"
 int PFPETScMat::monitor(int n,double rnorm) {
-  int ierr;
+  int PFUNUSED ierr;
   if (print_internal_loop_conv) {
     if (n==0) PetscPrintf(comm,
 			  " Begin internal iterations "
 			  "--------------------------------------\n");
     ierr = PetscPrintf(comm,
 		       "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+    PETSCFEM_ASSERT0(ierr==0,"Error");  
   }
   return 0;
 }
@@ -376,7 +377,7 @@ IISDMat::IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_a) :
 IISDMat::~IISDMat() {
   delete A_LL_other;
   A_LL_other = NULL;
-  int ierr;
+  int PFUNUSED ierr;
   if (nlay>1) {
     ierr = VecDestroy_maybe(wb); assert(!ierr); 
     ierr = VecDestroy_maybe(xb); assert(!ierr); 
@@ -469,7 +470,7 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
 #define __FUNC__ "IISDMat::mult"
 int IISDMat::mult(Vec x,Vec y) {
 
-  double now, interf, local, start = MPI_Wtime();
+  double now, interf, start = MPI_Wtime();
   int myrank;
   MPI_Comm_rank(comm, &myrank);
   // const int &neqp = dofmap->neqproc[myrank];
@@ -493,7 +494,7 @@ int IISDMat::mult(Vec x,Vec y) {
     ierr = local_solve_SLU(x_loc,x_loc,0,-1.); CHKERRQ(ierr); 
   }
   now = MPI_Wtime();
-  local = now-start;
+  // local = now-start;
 
   ierr = MatMult(A_II,x,y); CHKERRQ(ierr); 
   ierr = MatMultAdd(A_IL,x_loc,y,y); CHKERRQ(ierr); 
