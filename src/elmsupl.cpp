@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.25 2003/11/13 13:43:10 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.26 2003/11/16 00:35:21 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -506,11 +506,10 @@ int Elemset::upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
 		  if (pfmat) {
 		    argd.pfA->set_profile(kd,kdl);
 		  } else {
+		    // be sure that profile is symmetric
 		    node_insert(argd.da,kd,kdl);
-		    node_insert(argd.da,kdl,kd); // be sure that
-		    // profile
+		    node_insert(argd.da,kdl,kd); 
 		  }
-				// is symmetric
 		} else {
 		  if (pfmat) {
 		    ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
