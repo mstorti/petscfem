@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: movwall.cpp,v 1.2 2005/03/29 12:47:01 mstorti Exp $
+// $Id: movwall.cpp,v 1.3 2005/03/29 21:05:26 mstorti Exp $
 
 #include <cstdio>
 #include <cassert>
@@ -45,7 +45,7 @@ void mov_wall::init(Mesh &mesh_a,Dofmap &dofmap,
 void mov_wall::time_step_pre(double time,int step) { 
   assert(nelem == cond_wall_resistance.size());
   double 
-    T = 1,
+    T = 5,
     Ly = 1,
     Lslit = 0.5*Ly;
   for (int j=0; j<nelem; j++) {

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2005/03/29 12:47:01 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2005/03/29 21:05:26 mstorti Exp $ 
 
 default: condwall
 
@@ -26,12 +26,12 @@ movwall.efn: movwall.cpp $(LIBPETSCFEM)
 
 #w Runs program
 run: movwall.efn
+	mkstepsdir.pl
 	make-depl $(CASE).epl $(CASE).depl
 	-${MPIRUN} $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
 
 #w Makes some cleaning
 cw_shell_hook_init:
-	mkstepsdir.pl
 
 cw_shell_hook_pre:
 
@@ -58,3 +58,14 @@ link:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
 
+yuv_compress:
+	yuv=YUV/$(CASE).$$dx_step.yuv ;		\
+	tiff=$(CASE).tiff ;			\
+	if [ -f $$tiff ] ; then			\
+		if [ -f $$yuv ] ;		\
+			then rm -f $$yuv ;	\
+		fi ;				\
+		convert $$tiff $$yuv ;		\
+		gzip -f $$yuv ;			\
+		rm -f $$tiff ;			\
+	fi
