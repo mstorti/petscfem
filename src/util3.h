@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: util3.h,v 1.8 2003/07/03 04:32:11 mstorti Exp $
+// $Id: util3.h,v 1.9 2004/04/30 15:10:46 mstorti Exp $
 #ifndef PETSCFEM_UTIL3_H
 #define PETSCFEM_UTIL3_H
 #include <string>
@@ -63,7 +63,7 @@ public:
       where each #dx_type_j# is of the form #subel_1 subel_2 ...  dx_type#,
       #dx_type# may be #quads#, #cubes#, 
       with #k = nsubelem * subnel#. For instance
-      a prism may be slit in 3 tetras with a line like #tetrahedra 3 4 1 2 3 4 
+      a prism may be split in 3 tetras with a line like #tetrahedra 3 4 1 2 3 4 
       5 4 6 2 2 6 3 4#. 
       @param line (input) the line to be parsed */ 
   int parse(const char *line);
