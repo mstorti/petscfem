@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.22 2002/07/21 13:26:44 mstorti Exp $
+// $Id: tryme4.cpp,v 1.23 2002/07/21 13:50:58 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -205,6 +205,10 @@ int main(int argc, char **argv) {
   }
 
   // check find
+  for (int j=0; j<M; j++) assert(v.find(j)==flag[j]);
+
+  v.resize(v.remove_unique());
+  int n = v.size();
   for (int j=0; j<M; j++) assert(v.find(j)==flag[j]);
   delete[] flag;
 
