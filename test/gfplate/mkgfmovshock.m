@@ -1,4 +1,4 @@
-## $Id: mkgfmovshock.m,v 1.6 2005/02/08 03:00:57 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.7 2005/02/08 03:38:10 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
@@ -17,15 +17,15 @@ x = xnod(1:nnod,1);
 ## Periodic b.c. along y
 m = pery+1;			# nbr of nodes along `y'
 pfperi("gfmovshock.peri-y.tmp", \
-       pery*(Nx+1)+(1:Nx+1), \
-       modulo((0:Nx)+perx,Nx+1)+1,1:4);
+       pery*(Nx+1)+(1:Nx+1-perx)', \
+       (1+perx:Nx+1)',1:4);
 
 ## Periodic b.c. along x
 pfperi("gfmovshock.peri-x.tmp", \
        (Nx+1)*(1:pery),1+(Nx+1)*(0:pery-1),1:4);
 
 ## Normal to the shock wave
-nor = [pery,-perx]';
+nor = [pery,perx]';
 nor = nor/l2(nor');
 
 ## Compute steady shock wave 
@@ -111,10 +111,23 @@ asave("gfmovshock.abso-con-in.tmp", \
 
 ## Coordinate normal to shock
 xx = xnod*nor;
-dfx = (xx>0.3*Lnor);
-Uini = U1(ones(nnod2,1),:);
-dw = U2-U1;
-Uini = Uini + dfx*dw;
+
+
+if 1
+  sigma = 0.3;
+  dfx = exp(-((xx-Lx/4)/sigma).^2);
+  Uini = U1(ones(nnod2,1),:);
+  dw = du*[0 0 0 1]; ## perturbation for all waves
+  ## dw = du*[1 0 0 0 0]; ## entropy wave
+  ## dw = du*[1 cref/rhoref 0 0 cref^2]; ## forward acoustic wave
+  ## dw = du*[-1 cref/rhoref 0 0 -cref^2]; ## backward acoustic wave
+  Uini = Uini + dfx*dw;
+else
+  Uini = U1(ones(nnod2,1),:);
+  dw = U2-U1;
+  dfx = (xx>0.3*Lnor);
+  Uini = Uini + dfx*dw;
+endif
 
 Uini(ficout,:) = 0.;
 Uini(ficin,:) = 0.;

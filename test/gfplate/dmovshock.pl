@@ -5,10 +5,10 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $Lx = 4;
 $Nx = 100;
 
-$perx = 0;			# solution is periodic 
+$perx = 1;			# solution is periodic 
 $pery = 1;			# U(i+pery,j+perx) = U(i,j) 
 
-$Machin = 3;
+$Machin = 2;
 $du = 1;
 $gamma = 1.4;
 $Rgas = 1;
