@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.2 2001/09/20 20:13:24 mstorti Exp $
+// $Id: sparse.h,v 1.3 2001/09/20 20:40:24 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -30,7 +30,9 @@ namespace Sparse {
     int length() {return len;};
     /// Constructor from another vector
     Vec(const Vec &v) {*this = v;};
-    /// Insert contents of vector v at position I
+    /** Insert contents of vector v at position I.
+	Length of vector is that of the maximum index in I. 
+    */
     Vec(const Indx &I,const Vec &v);
     /// Get element at specified position
     double get(int j) const;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.2 2001/09/20 20:13:24 mstorti Exp $
+//$Id: sparse.cpp,v 1.3 2001/09/20 20:40:24 mstorti Exp $
 
 #include "sparse.h"
 
@@ -36,6 +36,9 @@ namespace Sparse {
     assert(0); // code here
   };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::get"
   double Vec::get(int j) const {
     const VecCIt J = find(j);
     if (J == end()) {
@@ -45,6 +48,9 @@ namespace Sparse {
     }
   }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::set"
   Vec & Vec::set(int j,double v) {
     VecIt J = find(j);
     if (j >= len ) {
@@ -62,6 +68,9 @@ namespace Sparse {
     return *this;
   }
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::print"
   void Vec::print() {
     VecCIt J;
     printf("length: %d\n",len);
@@ -69,6 +78,12 @@ namespace Sparse {
       printf("%d -> %f\n", J->first, J->second);
     }
   }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::set"
+  Vec & Vec::set(Indx &I,const Vec v) {
+    
 
 }
 
