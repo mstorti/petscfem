@@ -31,7 +31,7 @@
 \usepackage[dvips]{graphicx}
 \newcommand{\EPSPDF}{eps}
 %<: } :>
-\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
+% \usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[colorlinks,linkcolor=blue,
             urlcolor=red2,citecolor=green2]{hyperref}
@@ -56,6 +56,7 @@
 \advance\voffset by -2truecm
 }
 %<*>---<*>---<*>- MATH DEFINITIONS --<*>---<*>---<*>---<*>---<*> 
+\def\factorial{!}
 \catcode`\!=\active
 \let!\boldmath
 \def\!{\ifmmode\mskip-\thinmuskip\else\char'74\fi}
@@ -175,7 +176,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.org.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.42 2005/02/23 01:40:37 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.43 2005/02/23 03:35:20 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -199,24 +200,24 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-%% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
 \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
 \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 \input advdif2        %__UNCOMMENT_IN_FINAL_VERSION__
 \input advabso        %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input dx             %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input hook           %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input syncbuff       %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input femref         %__UNCOMMENT_IN_FINAL_VERSION__
+\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input dx             %__UNCOMMENT_IN_FINAL_VERSION__
+\input hook           %__UNCOMMENT_IN_FINAL_VERSION__
+\input syncbuff       %__UNCOMMENT_IN_FINAL_VERSION__
+\input femref         %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%

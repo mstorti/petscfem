@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.100 2005/02/21 18:49:05 mstorti Exp $
+//$Id: advdife.cpp,v 1.101 2005/02/23 03:35:16 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -1102,17 +1102,6 @@ const FastMat2 *NewAdvDif::grad_N() const {
   return &dshapex;
 }
 
-#if 0
-void NewAdvDif::comp_P_supg(int is_tau_scalar) {
-  if (is_tau_scalar) {
-    double tau_supg_d = tau_supg.get(1,1);
-    P_supg.set(Ao_grad_N).scale(tau_supg_d);
-  } else {
-    P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
-  }
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   assert(new_adv_dif_elemset);
@@ -1184,8 +1173,8 @@ void NewAdvDifFF::set_profile(FastMat2 &seed) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 			      FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_){
-  int ppp=0;
-  assert(ppp==0);
+  PETSCFEM_ERROR0("Not implemented Riemman_Inv() method\n"
+		  "for this flux function\n");
 }
 
 #undef SHAPE
