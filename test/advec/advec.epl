@@ -11,7 +11,24 @@ $delta = 0.01;
 $ux = 2;
 $uy = 1;
 $alpha = 1;
-if ($case_name eq 'cone') {
+$xini = $yini = 0.5;
+if ($case_name =~ /cone/) {
+    $N = 100;
+    $M = 100;
+    $Lx = 5;
+    $Ly = 5;
+    $ux = 1;
+    $uy = 1;
+    $alpha = 0.5;
+    $Courant = 0.5;
+    $hx = $Lx/$N;
+    $Dt = $Courant*$hx/$ux;
+    $Tend = 3.5;
+    $nstep = ceil($Tend/$Dt);
+    $case_name = 'cone';
+} 
+
+if ($case_name =~ /rotating_cone/) {
     $N = 150;
     $M = 30;
     $Lx = 5;
@@ -27,11 +44,11 @@ if ($case_name eq 'cone') {
 }
 #__END_TRANSCRIPT__
 octave_export_vars(">data.m.tmp",qw(N M Lx Ly delta ydisc 
-    ux uy case_name Courant));
+    ux uy case_name Courant xini yini));
 system "octave -qH advec.m";
 :>//                            # ends ePerl block
 
-#default definitions
+# <:pr('case_name'):>
 #===========================================================
 global_options
 ndim 2
@@ -40,7 +57,7 @@ save_file "save.state.tmp"
 save_file_pattern "outvector.out.tmp"
 #if $case_name eq 'skew'
 steady
-#elsif $case_name eq 'cone'
+#elsif $case_name =~ /cone/
 <:pr('Dt'):>
 nsave 10
 nsaverot 10
@@ -75,7 +92,7 @@ end_elemsets
 fixa
 
 __INCLUDE__ "advec.fixa.tmp"
-#if $case_name eq 'skew'
+#if $uy > 0.
 __INCLUDE__ "advec.fixa-y0.tmp"
 #endif
 __END_FIXA__

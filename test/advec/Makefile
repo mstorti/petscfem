@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2002/12/14 14:04:38 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/12/14 14:42:49 mstorti Exp $ 
 
 .PHONY: force all run default
 
-default: cone
+default: rotating_cone
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -17,6 +17,9 @@ PROG := $(ADVDIF_O)
 
 cone:
 	$(MAKE) case_name=cone run
+
+rotating_cone:
+	$(MAKE) case_name=rotating_cone run
 
 advec.depl: force
 
