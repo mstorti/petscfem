@@ -7,7 +7,6 @@ TODO: [Mainly fixes go here...]
 * write a generic non-linear restriction element
 * fix some incompatibilities that exclude compilation with LES under old RH5.2
          of some STL vector usage.
-* generate doc in PDF
 * Dofmap may be eliminated of the arguments to the elemset 'assemble'
      routine (not from the global assemble)
 * classify sections in doc as user / application developper / programmer.
@@ -44,6 +43,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* generate doc in PDF
 * add the genload elemset to advdif.
 * cambiar 'ceride.gov' por 'arcride.edu'
 * Exception: number of nodes in connec. table doesnt match
