@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.7 2001/11/12 16:02:39 mstorti Exp $
+//$Id: metisprt.cpp,v 1.8 2001/11/12 16:52:35 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -335,7 +335,6 @@ void  metis_part(int nelemfat,Mesh *mesh,
   }
   for (elem=0; elem<nelemfat; elem++) 
     epart[elem] = subd2proc[vpart[el2vrtx[elem]]]/iisd_subpart;
-  wait_from_console("despues de metis");
   delete[] adjncy;
   delete[] xadj;
   delete[] el2vrtx;
