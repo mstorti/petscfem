@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.35 2001/08/17 22:15:53 mstorti Exp $
+//$Id: lusubd.cpp,v 1.36 2001/08/17 23:54:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -950,17 +950,14 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   TGETOPTDEF_S_ND(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
-  //o Sets the expexted LU fill ratio (see Petsc doc.). 
-  TGETOPTDEF(thash,double,pc_lu_fill,5.);
+  //o Sets the expected LU fill ratio (see Petsc doc.). 
+  TGETOPTDEF_ND(thash,double,pc_lu_fill,5.);
 
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
 			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
   ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
   ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
-  ierr = PCLUSetUseInPlace(pc); CHKERRQ(ierr);
-  ierr = PCLUSetFill(pc,pc_lu_fill); CHKERRQ(ierr); 
-  set_preco(preco_type);
 
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
@@ -973,15 +970,23 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
   ierr = KSPSetMonitor(ksp,PFMat_default_monitor,this);
   sles_was_built = 1;
+
+  set_preco(preco_type);
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::build_sles"
-int PFMat::set_preco(const string & preco_type) {
+int PETScMat::set_preco(const string & preco_type) {
   // warning:= avoiding `const' restriction!!
   int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+  if (preco_type == "lu") {
+    printf("setting pc_lu_fill to %f\n",pc_lu_fill);
+    ierr = PCLUSetUseInPlace(pc); CHKERRQ(ierr);
+    ierr = PCLUSetFill(pc,pc_lu_fill); CHKERRQ(ierr); 
+    ierr = KSPSetType(ksp,KSPPREONLY); CHKERRQ(ierr);
+  }    
 }
 
 int IISDMat::warn_iisdmat=0;

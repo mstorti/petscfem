@@ -35,10 +35,11 @@ nstep 1
 chunk_size 2000
 proc_weights weights.dat
 temporal_stability_factor 1 # for compatibility with older versions
+pc_lu_fill 8
 
 #    Iterative parameters
 #update_jacobian_iters 1
-nnwt 3
+nnwt 1
 maxits 20
 Krylov_dim 20
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2001/08/17 18:42:02 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/08/17 23:54:46 mstorti Exp $ 
 
 .PHONY: fstack force les_data
 
@@ -20,7 +20,7 @@ MCH = -machinefile ./machi.dat
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NSO = $(PETSCFEM_DIR)/../petscfem-2.16g/applications/ns/ns.bin
 les: les_data
-	-$(MPIRUN) -np 1 $(MCH) -log_info $(NS) -case les.depl   | tee output.out
+	-$(MPIRUN) -np 1 $(MCH)  $(NS) -log_info -case les.depl | tee output.out
 #	-$(MPIRUN) -np $(NP) $(MCH) $(NS) -case les.depl   | tee output.out
 
 prof: pfemprof.txt

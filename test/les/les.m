@@ -1,7 +1,7 @@
 source("~/.octaverc");
 
-nx=20;				# number of elements in one dimension
-nlay=10;			# number of element layers
+nx=10;				# number of elements in one dimension
+nlay=5;			# number of element layers
 Lz=1;				# length in the z direction
                                 # Side Lx is 1.
 alpha=1.7;			# Controls refinement towards solid
