@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.25 2003/12/08 11:40:06 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.26 2003/12/08 16:38:31 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -165,6 +165,9 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // y se le pasa la normal por elemset
   if (ndimelf==0) { assert(normal_1d==1. || normal_1d==-1.); }
   
+  //o Normal (only makes sense in 1D). 
+  NSGETOPTDEF(int,use_fastmat2_cache,1);
+
   GPdata gp_data(geometry.c_str(),ndimelf,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
@@ -181,7 +184,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 tmp1,tmp2,tmp3;
 
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
+  if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
 
   int ielh=-1;
   int start_chunk=1;

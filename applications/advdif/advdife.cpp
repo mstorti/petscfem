@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.84 2003/11/25 02:10:22 mstorti Exp $
+//$Id: advdife.cpp,v 1.85 2003/12/08 16:38:31 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -256,6 +256,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     exit(0);
   }
 
+  //o Uses operations caches for computations with the FastMat2
+  //  library for internal computations. Note that this affects also the
+  //  use of caches in routines like fluxes, etc... 
+  NSGETOPTDEF(int,use_fastmat2_cache,1);
+
   // Initialize flux functions
   ff_options=0;
   adv_diff_ff->start_chunk(ff_options);
@@ -379,7 +384,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
+  if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin();

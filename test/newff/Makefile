@@ -1,7 +1,10 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.28 2003/09/22 10:14:30 mstorti Exp $ 
+# $Id: Makefile,v 1.29 2003/12/08 16:38:04 mstorti Exp $ 
 
 .PHONY: force all run tests data
+
+default:
+	test_dont_use_fastmat2_cache
 
 all: test_dif_temp_iisd
 
@@ -24,7 +27,7 @@ newff.depl: data.m.tmp force
 ################################################################
 # TESTS FOR THE NEW FLUX FUNCTIONS...
 
-tests: tests_plain tests_iisd
+tests: tests_plain tests_iisd test_dont_use_fastmat2_cache
 
 tests_plain: test_dif_temp test_dif_temp_cp			\
 	test_adv_dif_temp test_adv_temp_cp			\
@@ -32,8 +35,7 @@ tests_plain: test_dif_temp test_dif_temp_cp			\
 	test_reac_steady test_reac_dif_temp test_std_ard_x_y	\
 	test_full_jacs test_full_jacs_cp test_full_full_jacs	\
 	test_full_full_jacs_wf test_full_full_jacs_cp		\
-	test_full_full_jacs_adv_cp				\
-	test_full_full_jacs_t					\
+	test_full_full_jacs_adv_cp test_full_full_jacs_t	\
 	test_full_full_jacs_tr test_adv_dif_stdy_bcconv		\
 	test_stdy_dif test_check_fields test_check_nodes 
 
@@ -49,14 +51,6 @@ testsss: test_dif_temp_iisd test_dif_temp_cp_iisd \
 
 test_%: 
 	$(MAKE) CASE=$* run
-
-data_%:
-	$(MAKE) CASE=$* data
-
-#w Test for per-element properties 
-$(OF): newff.m data.m.tmp
-	touch fulljacdef.tmp	# because it is needed by ePerl!!
-	$(OCTAVE) newff.m >/dev/null
 
 #w makes auxiliary files .gdbinit and link advdif
 auxi_dat: advdif .gdbinit
@@ -76,11 +70,14 @@ ifeq ($(NP),)
 NP := 1
 endif
 
-run: data
-	-rm -f save.state.tmp 
-	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl > newff.$(CASE).out
-	if [ -e save.state.tmp ] ; then \
+run: 
+	@make-depl data.m.epl data.m.tmp -d CASE=$(CASE) ;		\
+	$(OCTAVE) -qH newff.m ;						\
+	make-depl newff.epl newff.$(CASE).depl ;			\
+	if [ -f save.state.tmp ] ; then rm -f save.state.tmp ; fi ;	\
+	$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF)		\
+			-case newff.$(CASE).depl > newff.$(CASE).out ;	\
+	if [ -e save.state.tmp ] ; then					\
 		$(OCTAVE) verif.m > $(CASE).vrf.tmp ; fi
 
 local_clean::

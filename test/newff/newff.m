@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: newff.m,v 1.13 2003/01/08 15:49:04 mstorti Exp $
+## $Id: newff.m,v 1.14 2003/12/08 16:38:04 mstorti Exp $
 source("data.m.tmp");
 
 ## Physical parameters
@@ -16,6 +16,8 @@ CP = Cp*eye(ndof);
 
 if full_jacs==0
   ## this means no full_jacs
+  fid=fopen("fulljacdef.tmp","w");
+  fclose(fid);
 elseif full_jacs==1
   fid=fopen("fulljacdef.tmp","w");
   if strcmp(reac_type,"scalar_per_field")

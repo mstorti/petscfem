@@ -5,9 +5,7 @@ require '../eperlini.pl';       # Initializes ePerl
 octave_string(qw(dif_type adv_type reac_type source_type enthalpy_type));
 $case='newff';
 $NPROC = "$ENV{'NP'}";
-if ($check_nodes || $check_fields) {
-    $dif_temp=1;
-}
+if ($check_nodes || $check_fields) { $dif_temp=1; }
 $solver = $ENV{'solver'};
 #__END_TRANSCRIPT__
 :>//                            # ends ePerl block
