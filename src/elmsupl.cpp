@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.10 2003/08/30 17:11:14 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.11 2003/08/30 17:54:03 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -209,7 +209,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       dofr.defrag();
       coefr.defrag();
       int *indxrp = indxr.buff();
-      int *lnodrp = llnodr.buff();
+      int *lnodrp = lnodr.buff();
       int *dofrp = dofr.buff();
       double *coefrp = coefr.buff();
 
@@ -218,7 +218,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       dofc.defrag();
       coefc.defrag();
       int *indxcp = indxc.buff();
-      int *lnodcp = llnodc.buff();
+      int *lnodcp = lnodc.buff();
       int *dofcp = dofc.buff();
       double *coefcp = coefc.buff();
 
@@ -250,6 +250,24 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	}
       } else {
 	values.a_resize(2,nr,nc);
+	values.defrag();
+#if 1
+	// New fast version (using C vector access)
+	double *w = values.buff();
+	for (jr=0; jr<nr; jr++) {
+	  int lnodr1 = lnodrp[jr];
+	  int dofr1 = dofrp[jr];
+	  double coefr1 = coefrp[jr];
+	  for (jc=0; jc<nc; jc++) {
+	    int lnodc1 = lnodcp[jc];
+	    int dofc1 = dofcp[jc];
+	    double coefc1 = coefcp[jc];
+	    if (!MASK(lnodr1,dofr1,lnodc1,dofc1)) continue;
+	    *w++ = coefr1*coefc1*RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
+	  }      
+	}
+#else
+	// Old slow version (using dvector<int>.e())
 	for (jr=0; jr<nr; jr++) {
 	  int lnodr1 = lnodr.e(jr);
 	  int dofr1 = dofr.e(jr);
@@ -263,7 +281,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      *RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
 	  }      
 	}
-	// values.print();
+#endif
 	if (pfmat) {
   	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
   				      values.buff(),ADD_VALUES); 
