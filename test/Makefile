@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.25 2001/05/27 17:15:23 mstorti Exp $ 
+# $Id: Makefile,v 1.26 2001/05/29 02:32:30 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
-	newff burgers bug100
+	newff burgers bug100 nonlr
 
 run: sqcav5
 
@@ -22,7 +22,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 SRCS = $(wildcard *.cpp)
 
 DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
-		newff burgers les/stabi genload bug100
+		newff burgers les/stabi genload bug100 nonlr
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = $(DIRS)
 
