@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.148 2004/10/01 00:55:22 mstorti Exp $
+//$Id: ns.cpp,v 1.149 2004/10/23 18:35:08 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -317,10 +317,15 @@ int main(int argc,char **args) {
     A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
   } else {
     A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
+    A_mom->set_option("KSP_method",KSPBCGS);
+    A_mom->set_option("preco_side","left");
+
     A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
     A_poi->set_option("KSP_method","cg");
     A_poi->set_option("preco_side","left");
-    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
+
+    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+    A_prj->set_option("KSP_method",KSPCG);
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }
 

@@ -1,4 +1,4 @@
-#$Id: cubcav-fs.epl,v 1.1 2004/10/21 17:12:21 mstorti Exp $ 
+#$Id: cubcav-fs.epl,v 1.2 2004/10/23 18:34:08 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -9,7 +9,7 @@ ndim 3
 nfile 2000000
 nrec 1
 nsave 1000000
-nstep 10000
+nstep 4
 nsaverot <:= ($endur_test  ? 50000000 : 20) :>
 save_file_pattern \
       <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>
@@ -20,20 +20,9 @@ nsave 1
 >>endif
 
 # nstep 1
-chunk_size 40000
+chunk_size 4000
 
->>if $iisd_subpart
-solver "iisd"
-# <:pr('iisd_subpart'):>
-iisd_subpart_auto 1000
-use_interface_full_preco 1
-use_interface_full_preco_nlay <:=$nlay:>
-print_interface_full_preco_conv 0
-interface_full_preco_maxits <:=$isp_maxits:>
-interface_full_preco_relax_factor 0.5
->>else
-solver "petsc"
->>endif
+use_interface_full_preco 0
 Krylov_dim <:=$maxits:>
 <:pr('maxits'):>
 report_consumed_time
@@ -107,6 +96,9 @@ chunk_size 500
 
 fractional_step
 solver petsc
+partitioning_method natural
+iisd_subpart_auto 1000
+reuse_mat
 
 __END_HASH__
 
@@ -130,6 +122,7 @@ viscosity 0.01
 >>endif
 __END_HASH__
 
+>>if 0
 elemset field_surf_integrator <:=$nel:>
 name integrator
 geometry <:=$geom:>
@@ -141,6 +134,7 @@ x0 0. 0. 0.
 gather_pos 0
 f_vals 0.12 0.35
 __END_HASH__
+>>endif
 
 end_elemsets
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.97 2004/10/22 10:28:55 mstorti Exp $ 
+# $Id: Makefile,v 1.98 2004/10/23 18:34:08 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -12,7 +12,7 @@ export case
 
 tests: block_uploading
 
-# BOPT := O_c++
+BOPT := O_c++
 PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
 include $(PETSCFEM_DIR)/Makefile.base
@@ -32,9 +32,10 @@ MCH := -machinefile ./machi.dat
 endif
 
 ifneq ($(HOSTNAME),node1.beowulf.gtm)
-NP := $(shell procsel ./proctable.itc)
+NP := $(shell procsel ./proctable.mono)
 NL :=
 MCH := -machinefile ./machi.dat
+NP := 1
 endif
 
 run_subdir_test:
@@ -164,4 +165,4 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=4 run
+	$(MAKE) N=56 run
