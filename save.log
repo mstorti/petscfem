@@ -1012,3 +1012,6 @@ tag: beta-2.84 on Tue Feb 12 17:02:33 ART 2002, by mstorti in minerva.arcride.ed
      > Added `newton_relaxation_factor' as a vector feature to NS.
      > Added `TextHashTable::get_entry(char *,vector<double> &)'
      > Fixed bad placement of "#ifdef USE_DLEF" in `src/ampli.h'.
+----------
+tag: beta-2.84.pl1 on Wed Feb 13 09:06:30 ART 2002 by mstorti in minerva.arcride.edu.ar
+     > Fixed case no `newton_relaxation_factor' line is entered.
