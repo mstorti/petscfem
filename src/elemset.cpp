@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.91 2004/09/24 20:44:27 mstorti Exp $
+//$Id: elemset.cpp,v 1.92 2004/09/25 09:37:57 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -276,6 +276,9 @@ int assemble(Mesh *mesh,arg_list argl,
   Nodedata *nodedata = mesh->nodedata;
   HPChrono hpchrono,hpc2,hpc3,hpcassmbl;
   Stat out_of_loop, in_loop, wait;
+  // If `delayed_flush=1' then we compute new element values before
+  // doing the flush assembly. This can be more efficient. 
+  int delayed_flush = 1;
 
   // Time statistics
   double total, compt, upload, download,
@@ -586,6 +589,15 @@ int assemble(Mesh *mesh,arg_list argl,
       // Upload return values
       for (j=0; j<narg; j++) {
 	if (report_assembly_time) hpcassmbl.start();
+	// Do flush assmbly before to upload new values in matrix
+	if ((argl[j].options & ASSEMBLY_MATRIX) 
+	    && ARGVJ.must_flush) {
+	  assmbly_s = MPI_Wtime();
+	  ierr = (ARGVJ.pfA)
+	    ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	  ARGVJ.must_flush = 0;
+	  assmbly += MPI_Wtime() - assmbly_s;
+	}
 	if (argl[j].options & UPLOAD_RETVAL) { 
 	  upl_s = MPI_Wtime();
 	  elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
@@ -679,12 +691,19 @@ int assemble(Mesh *mesh,arg_list argl,
 	if (argl[j].options & ASSEMBLY_MATRIX) {
 	  if (report_assembly_time) hpcassmbl.start();
 	  if (argl[j].options & PFMAT) {
-	    if (ARGVJ.must_flush)
+	    if (ARGVJ.must_flush) {
 	      ierr = (ARGVJ.pfA)
 		->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	      ARGVJ.must_flush = 0;
+	    }
 	    ierr = (ARGVJ.pfA)
 	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	    ARGVJ.must_flush = 1;
+	    if (!delayed_flush && ARGVJ.must_flush) {
+	      ierr = (ARGVJ.pfA)
+		->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	      ARGVJ.must_flush = 0;
+	    }
 	  } else {
 	    ierr = MatAssemblyBegin(*(ARGVJ.A),
 				    MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);

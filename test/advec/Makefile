@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2004/09/24 20:44:35 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2004/09/25 09:38:00 mstorti Exp $ 
 
 .PHONY: force all run default skew parallel_cone skew_cone rotating_cone	\
 	skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise	\
@@ -13,7 +13,6 @@ tests_noise0:  skew parallel_cone skew_cone rotating_cone
 tests_noise1: skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise
 
 PETSCFEM_DIR = ../..
-# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.30
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
