@@ -313,3 +313,8 @@ tag: beta-1.54 on Fri Mar 30 17:54:14 ART 2001, by mstorti in spider
      > Fixed several bugs for the new ff.
      > Starts writing doc for the new ff.
      > Pass all tests of the newff directory. (QUASI-STABLE)
+----------
+tag: beta-1.55 on Fri Mar 30 21:25:28 ART 2001, by mstorti in spider
+     > Added a null diffusive jacobian
+     > Starting documenttion for new ffluxes
+     > QUASI STABLE. Passes al neww tests
