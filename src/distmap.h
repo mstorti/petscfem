@@ -1,10 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.26 2002/08/27 16:17:42 mstorti Exp $
+// $Id: distmap.h,v 1.27 2002/08/28 00:48:18 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
-
-#pragma interface
 
 #include <map>
 #include <vector>

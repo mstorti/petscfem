@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.12 2002/01/14 03:45:06 mstorti Exp $
+// $Id: distmat.cpp,v 1.13 2002/08/28 00:48:18 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -8,11 +8,12 @@
 
 #include <src/utils.h>
 #include <src/distmap.h>
+#include <src/distmap2.h>
 #include <src/buffpack.h>
 #include <src/maximizr.h>
 #include <src/distmat.h>
 
-extern int MYRANK,SIZE;
+extern int MY_RANK,SIZE;
 
 IntRowPartitioner::~IntRowPartitioner() {};
 
@@ -126,7 +127,7 @@ combine(const pair<int,Row> &p) {
   map<int,Row>::iterator iter = find(p.first);
 
 #if 0
-  printf("[%d] receiving %d, ",MYRANK,p.first);
+  printf("[%d] receiving %d, ",MY_RANK,p.first);
   p.second.print();
   printf("\n");
 #endif
@@ -152,7 +153,7 @@ combine(const pair<int,Row> &p) {
 	// the col is not in the row
 	// insert a new entry
 	oldr.insert(*q);
-	// printf("[%d] inserting (%d,%d,%f)\n",MYRANK,p.first,q->first,q->second);
+	// printf("[%d] inserting (%d,%d,%f)\n",MY_RANK,p.first,q->first,q->second);
       } else {
 	// add to the existing 
 	r->second += q->second;

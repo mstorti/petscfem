@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.24 2002/08/24 00:59:46 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.25 2002/08/28 00:48:18 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -20,12 +20,13 @@ extern int MY_RANK,SIZE;
 #include <src/utils.h>
 #include <src/dofmap.h>
 #include <src/elemset.h>
-// #pragma implementation "PFMat"
+
 #include <src/pfmat.h>
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
-//#include <src/linkgraph.h>
+#include <src/distmap2.h>
+#include <src/distcont2.h>
 
 DofPartitioner::~DofPartitioner() {}
 

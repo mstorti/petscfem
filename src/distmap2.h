@@ -1,6 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: distmap.cpp,v 1.2 2002/08/27 16:17:42 mstorti Exp $
-#pragma implementation
+//$Id: distmap2.h,v 1.7 2002/08/28 00:48:18 mstorti Exp $
+
+#ifndef DISTMAP2_H
+#define DISTMAP2_H
+
 #include <src/distmap.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -311,3 +314,5 @@ void DistMap<Key,Val,Partitioner>::scatter() {
   delete[] to_send;
   delete[] to_send_buff;
 }
+
+#endif

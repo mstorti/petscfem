@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.5 2002/07/21 22:38:30 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.6 2002/08/28 00:48:18 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -15,6 +15,7 @@ extern int MY_RANK,SIZE;
 
 #include <src/graph.h>
 #include <src/distcont.h>
+#include <src/distcont2.h>
 #include <src/iisdgraph.h>
 #include <src/buffpack.h>
 

@@ -1,8 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: distcont.cpp,v 1.2 2002/08/27 16:17:42 mstorti Exp $
+//$Id: distcont2.h,v 1.1 2002/08/28 00:48:18 mstorti Exp $
 
-#pragma implementation
+#ifndef DISTCONT2_H
+#define DISTCONT2_H
+
 #include <src/distcont.h>
+#include <src/utils.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Container,typename ValueType,class Partitioner>
@@ -299,3 +302,5 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   delete[] to_send;
   delete[] to_send_buff;
 }
+
+#endif

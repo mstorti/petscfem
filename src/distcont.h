@@ -1,16 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.12 2002/08/27 16:17:42 mstorti Exp $
+// $Id: distcont.h,v 1.13 2002/08/28 00:48:18 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
-#pragma interface
+
 #include <cstdio>
 #include <vector>
 #include <mpi.h>
 #include <src/vecmacros.h>
-
-#include <src/utils.h>
-#include <src/util2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard

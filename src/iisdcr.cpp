@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.28 2002/07/27 22:26:05 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.29 2002/08/28 00:48:18 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -25,6 +25,8 @@ extern int MY_RANK,SIZE;
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
 #include <src/iisdgraph.h>
+#include <src/distmap2.h>
+#include <src/distcont2.h>
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
