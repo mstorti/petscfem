@@ -1,13 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.38 2003/02/10 03:45:56 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.39 2003/05/04 16:43:50 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
-//  #define DEBUG_IISD
-//  #define DEBUG_IISD_DONT_SET_VALUES
-
-// for inclusion of asprintf
-// #define _GNU_SOURCE
 #include <typeinfo>
 #ifdef RH60
 #include "libretto.h"

@@ -1,0 +1,15 @@
+__EXACT_MATCH__
+<This is string 1. A number: 4, other nubers: 5, 45, 456.>
+<This is string 2. Numbers: 4, 5, 45, 456.>
+<String 3. Numbers 4, 5. Other 45, and 456.>
+
+
+s 2 times:
+<This is string 1. A number: 4, other nubers: 5, 45, 456.>
+<This is string 2. Numbers: 4, 5, 45, 456.>
+<String 3. Numbers 4, 5. Other 45, and 456.>
+
+<This is string 1. A number: 4, other nubers: 5, 45, 456.>
+<This is string 2. Numbers: 4, 5, 45, 456.>
+<String 3. Numbers 4, 5. Other 45, and 456.>
+

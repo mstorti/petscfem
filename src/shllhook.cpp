@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: shllhook.cpp,v 1.2 2003/05/04 16:28:15 mstorti Exp $
+//$Id: shllhook.cpp,v 1.3 2003/05/04 16:43:50 mstorti Exp $
 
 #include <string>
 #include <cstdlib>
@@ -12,7 +12,8 @@ extern int MY_RANK, SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void shell_hook::init(Mesh &mesh,Dofmap &dofmap,const char *name) {
   AutoString commi;
-  commi.sprintf("make petscfem_step=%%2$d petscfem_time=%%3$f %s_%%1$s",name);
+  commi.sprintf("make --no-print-directory "
+		"petscfem_step=%%2$d petscfem_time=%%3$f %s_%%1$s",name);
   string comm(commi.str());
   get_string(mesh.global_options,name,comm,1);
   // PETSCFEM_ASSERT(comm,"shell_hook: Couldn't find command for hook %s\n",name);

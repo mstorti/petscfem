@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.12 2003/02/08 14:27:53 mstorti Exp $
+//$Id: debug.cpp,v 1.13 2003/05/04 16:43:50 mstorti Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
@@ -8,6 +8,8 @@
 #include <time.h>
 
 #include <petsc.h>
+
+#include <src/autostr.h>
 
 Debug *GLOBAL_DEBUG=NULL;
 
@@ -85,11 +87,12 @@ void Debug::trace(const char *s=NULL) {
   }
   if (active("memory_usage")) {
     int ierr;
-    char *file,*line;
+    char *line;
     int mem,mem_min,mem_max,mem_sum,mem_avrg;
     size_t n=0;
-    assert(asprintf(&file,"/proc/%d/status",getpid()));
-    FILE *fid = fopen(file,"r");
+    AutoString file;
+    file.sprintf("/proc/%d/status",getpid());
+    FILE *fid = fopen(file.str(),"r");
     while(1) {
       assert(getline(&line,&n,fid)!=-1);
       if (sscanf(line,"VmRSS: %d kB",&mem)) break;

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.105 2003/05/04 16:34:54 mstorti Exp $
+#$Id: runtests.pl,v 1.106 2003/05/04 16:43:50 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';

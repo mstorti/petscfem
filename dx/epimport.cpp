@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.10 2003/02/18 15:53:53 mstorti Exp $
+// $Id: epimport.cpp,v 1.11 2003/05/04 16:43:50 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -24,6 +24,7 @@
 #undef string
 #define USE_SSL
 #include <src/util3.h>
+#include <src/autostr.h>
 
 static Error traverse(Object *, Object *);
 static Error doLeaf(Object *, Object *);
@@ -104,8 +105,7 @@ int DXObjectsTable::field_sfx_max = 1000;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DXObjectsTable::load_new(string &name,DXObject *dx_object) {
-  static char *buf = NULL;
-  static int Nbuf=0;
+  AutoString buf;
   if (!dx_object) {
     DXSetError(ERROR_INTERNAL,
 	       "Attempts to load null object");
@@ -116,9 +116,8 @@ int DXObjectsTable::load_new(string &name,DXObject *dx_object) {
   if (find(name)!=end()) {
     int j;
     for (j=0; j < field_sfx_max; j++) {
-      Nbuf = asprintf(&buf,"%s_%d",name.c_str(),j);
-      assert(Nbuf>=0);
-      new_name = string(buf);
+      buf.sprintf("%s_%d",name.c_str(),j);
+      new_name = string(buf.str());
       if (find(new_name)!=end()) break;
     }
     if (j<field_sfx_max) 

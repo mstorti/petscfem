@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.93 2003/04/18 04:10:31 mstorti Exp $ 
+# $Id: Makefile,v 1.94 2003/05/04 16:43:50 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -91,7 +91,7 @@ runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
 	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
 
-runtests_p: sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
+runtests_p: advec nsgenload oscplate idmap
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -107,7 +107,7 @@ constraint_bug: laplace
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w FileStack class check
 fstack:
-	$(MAKE) -C fstack fstack
+	$(MAKE) -C fstack tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Texthash class check
@@ -165,7 +165,7 @@ burgers:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Sparse matrices
 sparse:
-	$(MAKE) -C sparse sparse
+	$(MAKE) -C sparse tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Graph class

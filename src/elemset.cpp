@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.64 2003/03/07 03:13:08 mstorti Exp $
+//$Id: elemset.cpp,v 1.65 2003/05/04 16:43:50 mstorti Exp $
 
 #define _GNU_SOURCE
 
@@ -17,6 +17,7 @@
 #include <src/pfmat.h>
 #include <src/timestat.h>
 #include <src/util3.h>
+#include <src/autostr.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -995,18 +996,19 @@ string Elemset::anon("__ANONYMOUS__");
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::register_name(const string &name_a,const char *type) {
-  static char *ename=NULL;
+  AutoString ename;
   name_m = name_a;
   if (name_m == anon) {
 #define MAX_ELEMSET_SFX 1000
     int j;
     for (j=0; j<MAX_ELEMSET_SFX; j++) {
-      int Nbuf = asprintf(&ename,"%s_%d",type,j);
-      assert(Nbuf>=0);
-      if (elemset_table.find(ename)
+      // int Nbuf = asprintf(&ename,"%s_%d",type,j);
+      // assert(Nbuf>=0);
+      ename.sprintf("%s_%d",type,j);
+      if (elemset_table.find(ename.str())
 	  ==elemset_table.end()) break;
     }
-    name_m = local_copy(ename);
+    name_m = local_copy(ename.str());
     PETSCFEM_ASSERT0(j!=MAX_ELEMSET_SFX,
 		     "Couldn't generate automatic name for this  elemset!!\n");
   }

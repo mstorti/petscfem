@@ -1,12 +1,12 @@
 /*__INSERT_LICENSE__*/
-//$Id: tautostr.cpp,v 1.3 2003/05/04 16:34:54 mstorti Exp $
+//$Id: tautostr.cpp,v 1.4 2003/05/04 16:43:50 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <src/autostr.h>
 
 int main () {
   AutoString s,t,u;
-  int k=4,l=5,m=45,n=456,iter=0,niter=-1;
+  int k=4,l=5,m=45,n=456,iter=0,niter=1;
   while (1) {
     s.sprintf("<This is string 1. A number: %d, other nubers: %d, %d, %d.>",k,l,m,n);
     t.sprintf("<This is string 2. Numbers: %d, %d, %d, %d.>",k,l,m,n);
