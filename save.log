@@ -2197,3 +2197,6 @@ tag: beta-3.14.pl46 on Wed, 22 Jan 2003 11:42:05 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.14.pl47 on Wed, 22 Jan 2003 16:06:49 -0300 by mstorti in node1.beowulf.gtm
      > Working on vtube. 
+----------
+tag: beta-3.14.pl48 on Fri, 24 Jan 2003 16:48:58 -0300 by mstorti in node1.beowulf.gtm
+     > Fixed bug in processing `-bubbly' option
