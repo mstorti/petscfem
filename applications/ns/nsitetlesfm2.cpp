@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.44 2001/11/05 23:32:22 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.45 2001/11/06 02:39:20 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -473,7 +473,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	P_pspg.set(dshapex).scale(tau_pspg/rho);  //debug:=
 
 	// implicit version - General Trapezoidal rule - parameter alpha
-#if ADD_GRAD_DIV_U_TERM
+#ifdef ADD_GRAD_DIV_U_TERM
 	dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else
 	dmatu.prod(u,grad_u_star,-1,-1,1);
