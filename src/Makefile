@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.48 2002/02/17 03:59:51 mstorti Exp $ 
+# $Id: Makefile,v 1.49 2002/02/18 00:02:28 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -24,7 +24,7 @@ FLIBOBJS_ =  spline seval
 spline.o: spline.f
 ssval.o: seval.f
 
-LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o) $(CLIBOBJS_:=.o) 
+LIBOBJS := $(LIBOBJS_:=$(osfx).o) $(FLIBOBJS_:=$(osfx).o) $(CLIBOBJS_:=$(osfx).o) 
 
 .INTERMEDIATE: $(LIBOBJS) 
 
@@ -34,7 +34,7 @@ TAGFLAGS =
 
 include $(PETSCFEM_DIR)/Makefile.base
 
-LIBPETSCFEM := libpetscfem_$(opt_level).a
+LIBPETSCFEM := libpetscfem$(osfx).a
 
 all: compile
 
@@ -48,7 +48,7 @@ $(LIBPETSCFEM)(%.o): %.o
 
 .SECONDARY: fm2eperl.cpp
 
-fm2eperl.o: fm2eperl.cpp
+fm2eperl$(osfx).o: fm2eperl.cpp
 fm2eperl.cpp: fmat2ep.cpp prep.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
@@ -85,7 +85,7 @@ readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	eperl readlist.eperl > readlist.h
 	chmod -w readlist.h
-pfmat.o : CCPPFLAGS += -O0
+pfmat$(osfx).o : CCPPFLAGS += -O0
 
 
 version.cpp: version.cppin ../VERSION
@@ -93,7 +93,7 @@ version.cpp: version.cppin ../VERSION
 	eperl version.cppin >version.cpp
 	-chmod -w version.cpp
 
-.SECONDARY: tryme.o 
+.SECONDARY: tryme$(osfx).o 
 tryme: CPPFLAGS = 
 tryme: secant.o tryme.o
 	g++ -o tryme tryme.o secant.o 
@@ -118,7 +118,7 @@ local_depend: getarrgr.tab.c getarrgr.tab.h
 getarrgr.tab.o: getarrgr.tab.c
 
 %.o: %.c
-	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+	$(GNU_C_COMPILER) -o $@ -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex
 

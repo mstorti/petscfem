@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.69 2002/02/17 03:59:47 mstorti Exp $
+#$Id: Makefile.base,v 1.70 2002/02/18 00:02:24 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -12,6 +12,9 @@ BOPT = g_c++
 endif
 export BOPT
 
+ifeq ($(USE_SEPARATE_COMPILATION),)
+USE_SEPARATE_COMPILATION = yes
+endif
 GNU_C_COMPILER = gcc  # gcc or egcs
 
 # uncomment in order to use the `gprof' profiler
@@ -23,8 +26,14 @@ include $(PETSCFEM_DIR)/../Makefile.defs
 
 ifeq ($(BOPT),O_c++) 
 opt_level = O
+osfx = _O
 else
 opt_level = g
+osfx = _g
+endif
+
+ifeq ($(USE_SEPARATE_COMPILATION),)
+osfx =
 endif
 
 export PETSCFEM_DIR
@@ -67,7 +76,7 @@ endif
 
 FPPFLAGS         =
 
-LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem_$(opt_level).a
+LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
 #SHARFILE = $(HOME_GERONIMO)/PETSC/source.shar
 TARFILE = $(PETSCFEM_DIR)/../source
 
@@ -141,9 +150,9 @@ general_clean:
 	$(MAKE) clean
 
 local_clean:: 
-	-@rm -f *~ *.o $(OBJS) $(PROG).bin octave-core *.cppi \
+	-@rm -f *~ *.o $(OBJS) $(PROG_BIN) octave-core *.cppi \
 		outvector.sal *.sal *.out TAGS makefile.d leak.out.* &> /dev/null \
-		*.efn
+		*.efn *.a *.bin
 	for link in * ; do if [ -L $$link ] ; then rm $$link ; fi ; done
 
 local_dist_clean::
@@ -166,8 +175,12 @@ distclean:
 	$(MAKE) clean local_dist_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
-LDFLAGS = -L$(PETSCFEM_DIR)/src			\
-          -lpetscfem_$(opt_level)		\
+LDFLAGS =					\
+          $(PROG_LIB)				\
+	  -L$(PETSCFEM_DIR)/src			\
+          -lpetscfem$(osfx)			\
+          $(PROG_LIB)				\
+          -lpetscfem$(osfx)			\
           $(PROG_LIB)				\
           -L$(METIS) -L/usr/local/lib		\
           -lmetis  -L$(NEWMAT)  -lnewmat	\
@@ -177,13 +190,28 @@ LDFLAGS = -L$(PETSCFEM_DIR)/src			\
           $(MESCHACH)/libmes.a			\
           $(SUPERLULIB) 
 
+PROG_LIB = lib$(PROG)$(osfx).a
+
+$(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
+	ranlib $@
+
+$(PROG_LIB)(%.o): %.o
+	ar ru $@ $<
+
+PROG_BIN = $(PROG)$(osfx).bin
+
+$(PROG): $(PROG_bin)
+
 # general program 
-$(PROG).bin: $(MYOBJS) $(LIBPETSCFEM) $(PROG_LIB)
+$(PROG_BIN): $(MYOBJS) $(PROG_LIB)
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 
 $(LIBPETSCFEM)(%.o): force
-	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem_$(opt_level).a($*.o)'
+	$(MAKE) -C $(PETSCFEM_DIR)/src 'libpetscfem$(osfx).a($*.o)'
+
+# %$(osfx).o: %.cpp
+#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} $<
 
 #
 # When using ePerl the convention is to use .epl extension for the

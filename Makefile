@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.32 2002/02/17 03:59:47 mstorti Exp $
+#$Id: Makefile,v 1.33 2002/02/18 00:02:24 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -124,18 +124,18 @@ DIRS = doc manual src ns advective tryme laplace
 # APPLICATIONS
 
 #w Builds the Navier Stokes module
-ns: libpetscfem
-	$(MAKE) -C applications/ns compile
+ns: libpetscfem 
+	$(MAKE) -C applications/ns ns$(osfx).bin
 
 #w Builds th advective systems module (Euler, shallow water)
 adv: libpetscfem
-	$(MAKE) -C applications/advective compile
+	$(MAKE) -C applications/advective 
 
 #w Builds the Advective/diffusive systems module (NS-compresible,
 #w 		(shallow water+diffusive and turbulent terms, 
 #w               linear advection diffusion, burgers
 advdif: libpetscfem
-	$(MAKE) -C applications/advdif compile
+	$(MAKE) -C applications/advdif advdif$(osfx).bin
 
 #w Builds the Laplace module
 laplace: libpetscfem
