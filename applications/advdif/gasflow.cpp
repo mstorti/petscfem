@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.30 2005/02/19 16:36:54 mstorti Exp $
+//$Id: gasflow.cpp,v 1.31 2005/02/21 21:27:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -74,6 +74,13 @@ void gasflow_ff::start_chunk(int &ret_options) {
   GF_GETOPTDEF_ND(double,shocap_beta,1.0);
   // factor used to add some standard shocap to Tezduyar & Senga shocap
   GF_GETOPTDEF_ND(double,shocap_factor,0.0);
+
+  // Sutherland law key
+  GF_GETOPTDEF_ND(int,sutherland_law,0);
+  // Sutherland law infinity Temperature
+  GF_GETOPTDEF_ND(double,Tem_infty,0.0);
+  // Sutherland law reference Temperature
+  GF_GETOPTDEF_ND(double,Tem_ref,0.0);
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -167,29 +174,34 @@ void gasflow_ff::start_chunk(int &ret_options) {
 
   tmp_vel.resize(1,ndim);
 
+  if (sutherland_law>0) {
+     assert(Tem_infty>0.0);
+     assert(Tem_ref>0.0);
+  }
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::element_hook(ElementIterator &element) {
   if (new_adv_dif_elemset) {
-    const double *G_body_p 
+    const double *G_body_p
       = new_adv_dif_elemset
       ->prop_array(element,G_body_prop);
     G_body_scale = new_adv_dif_elemset
       ->prop_val(element,G_body_scale_prop,
 		 new_adv_dif_elemset->time());
-    if (G_body_prop.length>0) 
+    if (G_body_prop.length>0)
       G_body.set(G_body_p).scale(G_body_scale);
     else G_body.set(0.);
   }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-gasflow_ff::gasflow_ff(NewElemset *e) 
+gasflow_ff::gasflow_ff(NewElemset *e)
   : AdvDifFFWEnth(e), old_elemset(NULL) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-gasflow_ff::gasflow_ff(Elemset *e) 
+gasflow_ff::gasflow_ff(Elemset *e)
   : old_elemset(e) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -463,17 +475,22 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   }
 
   // Sutherland law for thermal correction of laminar viscosity
-  // visco_l = visco * ???
-  double visco_eff = (visco + visco_t);
-  // effective thermal conductivity
-  double cond_eff = cond + cond_t;
 
-  // Aca ponemos visco (y no visco_eff). Por ahora es un guess...
-  double visco_bar = visco - cond_eff/Cv;
+  double sutherland_factor = 1.0;
+  if (sutherland_law !=0) {
+	  sutherland_factor = pow(Tem/Tem_infty,1.5)*((Tem_infty+Tem_ref)/(Tem_ref+Tem));
+  }
+  double visco_l = sutherland_factor * visco;
+  double visco_eff = (visco_l + visco_t);
+  // effective thermal conductivity
+  double cond_eff = sutherland_factor * cond + cond_t;
+  // Aca ponemos visco (y no visco_eff). Ver paper de LESIEUR Y COMTE ...
+  double visco_bar = visco_l - cond_eff/Cv;
 
   // Stress tensor
   sigma.set(0.);
-  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
+//  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
+  sigma.eye(divu).scale(-2./3.).add(strain_rate).scale(2.).rs();
 
   // Temperature gradient
   grad_U.ir(2,1);
@@ -487,8 +504,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Diffusive fluxes
   fluxd.set(0.);
-  fluxd.is(1,vl_indx,vl_indxe).set(sigma).rs();
-  viscous_work.prod(sigma,vel,1,-1,-1);
+  fluxd.is(1,vl_indx,vl_indxe).set(sigma).scale(visco_eff).rs();
+  // En el paper de LESIEUR Y COMTE usan viscosidad laminar en la ecuacion de energia
+  viscous_work.prod(sigma,vel,1,-1,-1).scale(visco_l);
   heat_flux.set(grad_T).scale(-cond_eff);
   fluxd.ir(1,ndof).set(viscous_work).rest(heat_flux).rs();
 
@@ -496,7 +514,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   Djac.set(0.);
   Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_eff).rs();
   tmp00 = 1./3.*visco_eff;
-  tmp00_lam = 1./3.*visco;
+  tmp00_lam = 1./3.*visco_l;
   for (int j=1; j<=ndim; j++) {
      Djac.addel(tmp00,j,j+1,j,j+1);
   }
@@ -527,7 +545,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Diffusive Jacobians K_ij with i .ne. j
   tmp00 = 2.*visco_eff/3.;
-  tmp00_lam = 2.*visco/3.;
+  tmp00_lam = 2.*visco_l/3.;
 
   if(ndim==2) {
   int ip[] = {1,2,1};

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.22 2005/02/16 17:09:58 mstorti Exp $
+// $Id: gasflow.h,v 1.23 2005/02/21 21:27:32 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -24,15 +24,15 @@ private:
   FastMat2 viscous_work,heat_flux,sigma;
   FastMat2 tau_supg_c,vel_supg;
   FastMat2 Ajac_tmp,Djac_tmp;
-  double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff;
+  double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff,Tem;
   double tau_fac,temporal_stability_factor;
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
   double tau_supg_a,visco_supg,velmod, h_supg, h_pspg;
   double Pr_t, C_smag;
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
-  int shocap_scheme;
-  double shocap_beta,shocap_factor,Tem_infty,
+  int shocap_scheme,sutherland_law;
+  double shocap_beta,shocap_factor,Tem_infty,Tem_ref,
     delta_sc_aniso;
   FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;
