@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2003/11/13 13:46:30 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2003/11/13 13:57:59 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -15,8 +15,7 @@ PROG := $(ADVDIF)
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 MCH = -machinefile ./machi.dat
 
-NPMAX := 10
-PETSCFEM_PROCTABLE := ./proctable
+# PETSCFEM_PROCTABLE := ./proctable
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 ifeq (1,0)
@@ -30,6 +29,7 @@ ifeq (1,1)
 ## Parallell run `no-local'
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 NOLOCAL := -nolocal
+NPMAX := 9
 endif
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 ## Parallell run `local'

@@ -2,7 +2,7 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 80;			# nbr of elements in x-y dir
+$Nx = 120;			# nbr of elements in x-y dir
 $Ny = $Nx;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
@@ -101,7 +101,7 @@ print_partitioning_statistics
 proc_weights weights.dat
 max_partgraph_vertices 4000
 max_partgraph_vertices_proc 4000
-block_uploading 1
+block_uploading 0
 __END_HASH__
 
 # ndim nu ndof
