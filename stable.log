@@ -177,3 +177,7 @@ tag: beta-2.84.pl1-fixed-1 on Sat Feb 16 14:30:47 -0300 2002, by mstorti in spid
      > beta-2.61 to beta-2.82. Basically, we have to compile `src/pfmat.o',
      > `src/debug.o' and `test/pfmat/pfmat2.o' con `-O0'. Also, there was an
      > error regarding `glob_param' in `application/advdif/diff.o'.
+----------
+tag: beta-2.96 on Sun May  5 19:03:31 GMT+3 2002, by mstorti in spider
+     > Added `print_partitioning_statistics' option.
+     > Added `free_surface_level_integrator' gatherer elemset.

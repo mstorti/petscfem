@@ -1148,3 +1148,7 @@ tag: beta-2.94.pl10 on Sat,  4 May 2002 20:56:46 -0300 by mstorti in spider
 ----------
      > Added `print_partitioning_statistics' option.
      > Added `free_surface_level_integrator' gatherer elemset.
+----------
+     > -- STABLE VERSION -- 
+     > Added `print_partitioning_statistics' option.
+     > Added `free_surface_level_integrator' gatherer elemset.
