@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.22 2001/07/24 01:20:01 mstorti Exp $
+//$Id: fem.h,v 1.23 2001/08/16 18:24:46 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -25,6 +25,7 @@
 #include "texthash.h"
 #include "vecmacros.h"
 #include "dofmap.h"
+#include "buffpack.h"
 
 /**@name fem.h */
 //@{

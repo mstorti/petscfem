@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.10 2001/08/16 18:01:33 mstorti Exp $
+// $Id: distmat.cpp,v 1.11 2001/08/16 18:24:52 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -13,8 +13,6 @@
 #include <distmat.h>
 
 int SIZE, MYRANK, M;
-
-IntRowPartitioner::~IntRowPartitioner() {};
 
 class TrivialPartitioner : public IntRowPartitioner {
 public:

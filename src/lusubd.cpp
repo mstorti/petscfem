@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.32 2001/08/11 02:45:15 mstorti Exp $
+//$Id: lusubd.cpp,v 1.33 2001/08/16 18:24:46 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -74,7 +74,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
   dofmap = dofmap_;
-  A_LL_other = new DistMatrix(dofmap,PETSC_COMM_WORLD);
+  part = new DofmapPartitioner(dofmap);
+  A_LL_other = new DistMatrix(part,PETSC_COMM_WORLD);
   const int &neq = dofmap->neq;
   
   Node *nodep;
@@ -329,6 +330,13 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   AA[I][L] = &A_IL;
   AA[I][I] = &A_II;
 
+}
+
+IISDMat::~IISDMat() {
+  delete part;
+  part=NULL;
+  delete A_LL_other;
+  A_LL_other = NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.9 2001/08/13 01:33:25 mstorti Exp $
+// $Id: distmat.cpp,v 1.10 2001/08/16 18:24:46 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,11 +12,48 @@
 #include <maximizr.h>
 #include <distmat.h>
 
-extern int MY_RANK,SIZE;
+extern int MYRANK,SIZE;
+
+IntRowPartitioner::~IntRowPartitioner() {};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "DistMatrix::insert_val"
+void DistMatrix::insert_val(int i,int j,double v) {
+  map<int,Row>::iterator I = find(i);
+  Row::iterator J;
+  if (I == end()) {
+    insert(pair<int,Row>(i,Row()));
+    I = find(i);
+  }
+  Row &row = I->second;
+  J = row.find(j);
+  if (J == row.end()) {
+    row.insert(pair<int,double>(j,v));
+  } else {
+    J->second += v;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "DistMatrix::val"
+double DistMatrix::val(int i,int j) {
+  Row::iterator J;
+  map<int,Row>::iterator I = find(i);
+  if (I == end()) return 0.;
+  Row &row = I->second;
+  J = row.find(j);
+  if (J == row.end()) {
+    return 0.;
+  } else {
+    return J->second;
+  }
+}  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DistMat::
-size_of_pack(const DistMat::iterator iter) const {
+size_of_pack(map<int,Row>::const_iterator iter) const {
   int n = iter->second.size();
   // size + row number + size*(int+double)
   return (n+2)*sizeof(int)+n*sizeof(double);
@@ -62,12 +99,23 @@ unpack(int &k,Row &row,const char *&buff) {
   }
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int DistMat::processor(const DistMatrix::iterator ) const"
 int DistMat::processor(const DistMat::iterator k) const {
   // The number of processor is computed in the `Partitioner' 
   return part->dofpart(k->first);
+}
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Row::print"
+void Row::print() const {
+  Row::const_iterator k;
+  for (k=begin(); k!=end(); k++) 
+    printf("(%d %f) ",k->first,k->second);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -76,6 +124,13 @@ combine(const pair<int,Row> &p) {
   // Insert the pair (int,row) in the matrix
   int n,j;
   map<int,Row>::iterator iter = find(p.first);
+
+#if 0
+  printf("[%d] receiving %d, ",MYRANK,p.first);
+  p.second.print();
+  printf("\n");
+#endif
+
   Row::iterator r;
   Row::const_iterator q;
   if (iter == end()) {
@@ -97,6 +152,7 @@ combine(const pair<int,Row> &p) {
 	// the col is not in the row
 	// insert a new entry
 	oldr.insert(*q);
+	// printf("[%d] inserting (%d,%d,%f)\n",MYRANK,p.first,q->first,q->second);
       } else {
 	// add to the existing 
 	r->second += q->second;
@@ -115,7 +171,7 @@ int DofmapPartitioner::dofpart(int row) {
   for (proc = 0; proc < dofmap->size; proc++) 
     if (row < startproc[proc]+neqproc[proc]) 
       break;
-  // printf("[%d] row %d belongs to [%d]\n",MY_RANK,row,proc);
+  // printf("[%d] row %d belongs to [%d]\n",MYRANK,row,proc);
   return proc;
 }
 

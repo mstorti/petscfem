@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.15 2001/08/16 03:54:48 mstorti Exp $
+// $Id: pfmat.h,v 1.16 2001/08/16 18:24:46 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -10,7 +10,7 @@
 #include <distmat.h>
 
 /// This partitioner is based on the dofmap of the mesh. 
-class DofmapPartitioner  {
+class DofmapPartitioner : public IntRowPartitioner {
   /// Pointer to the dofmap 
   const Dofmap *dofmap;
 public:
@@ -229,10 +229,12 @@ class IISDMat : public PFMat {
   Mat A_II;
   /// Shortcuts to the #A_LL#, #A_IL#, #A_LI# and #A_II# matrices. 
   Mat *AA[2][2];
+  /// Partitioner
+  DofmapPartitioner *part;
   /** Here we put all non-local things that are in the loca-local
       block on other processors
   */
-  DistMat *A_LL_other;
+  DistMatrix *A_LL_other;
   /// The mode we are inserting values
   InsertMode insert_mode;
   /// Auxiliar MPI vector that contains all local dof's
@@ -322,9 +324,11 @@ public:
   int solve(Vec res,Vec dx);
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
-  IISDMat() : A_LL_other(NULL) {};
+  IISDMat() : A_LL_other(NULL), part(NULL) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
+  /// Destructor
+  ~IISDMat();
 };
 
 #endif
