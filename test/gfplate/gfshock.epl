@@ -44,13 +44,14 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
+<:pr('Dt'):>
 nnwt 3
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.005
-shocap 0.2
+shocap 1
+shocap_aniso 1
 weak_form 0
 temporal_stability_factor 0
 
@@ -94,13 +95,22 @@ __END_HASH__
 end_elemsets
 
 #if !$dx
+fixa_amplitude ramp
+start_value <:=$pout0:>
+end_value <:=$pin0:>
+start_time 0.0
+end_time <:=50*$Dt:>
+__END_HASH__
+1 4 1.0
+__END_FIXA__
+
 fixa
-__INCLUDE__ ./gfshock.fixa-in.tmp
-__INCLUDE__ ./gfshock.fixa-outlet.tmp
+1 1 <:=$rhoin0:>
+1 3 0.0
+<:=$Nx+1:> 4 <:=$pout0:>
 __END_FIXA__
 
 constraint
-__INCLUDE__ ./gfshock.peri.tmp
 __END_CONSTRAINT__
 
 #endif
