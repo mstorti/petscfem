@@ -29,7 +29,7 @@ nstep 10
 #nstep <:=$Nper*$N_dt_per:>
 nnwt 2
 tol_newton 0
-preco_type "LU"
+preco_type "jacobi"
 
 local_time_step 0
 consistent_supg_matrix 1
