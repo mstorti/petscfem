@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.23 2003/03/25 22:36:15 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.24 2003/03/26 18:43:24 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -184,6 +184,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,26);
   assert(A_van_Driest>=0.);
+  //o turbulent Prandtl number.
+  SGETOPTDEF(double,Pr_t,1.0);
+  assert(Pr_t>0.);
   //o Parameter for the trapezoidal rule time integration method.
   GGETOPTDEF(double,alpha,1.);
   //o Scale the SUPG upwind term.
@@ -254,7 +257,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 matlocmomther(3,nel,ndim,nel);
 
   double tmp12;
-  double nu_eff, mu_eff, mu_l;
+  double nu_eff, mu_eff, mu_l , kappa_eff, Pr_t;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
@@ -480,6 +483,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  grad_u_star.rs();
 	  mu_l = VISC;
 
+      double kappa_l = kappa;
+
 	  // Smagorinsky turbulence model
 	  if (LES) {
 	    double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
@@ -493,8 +498,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	    double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
 	    mu_eff = mu_l + rho*nu_t;
+        double kappa_t = rho*nu_t*Cp/Pr_t;
+        kappa_eff = kappa_l+kappa_t;
 	  } else {
 	    mu_eff = mu_l;
+	    kappa_eff = kappa_l;
 	  }
 	  nu_eff = mu_eff/rho;
         }
@@ -545,7 +553,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         }
         if (comp_mat_res_th || comp_res_th) {
 	  if (velmod>tol) {
-	    double diff_coe=kappa/rho/Cp;
+	    double diff_coe=kappa_eff/rho/Cp;
 	    Peclet = velmod * h_supg / (2. * diff_coe);
 	    psi = 1./tanh(Peclet)-1/Peclet;
 	    tau_supg_th = psi*h_supg/(2.*velmod);
@@ -661,7 +669,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    resther.axpy(W_supg_th,-wpgdet*tmp2_th);
           }
 
-	  tmp8_th.prod(dshapex,grad_T_star,-1,1,-1).scale(kappa);
+	  tmp8_th.prod(dshapex,grad_T_star,-1,1,-1).scale(kappa_eff);
 	  resther.axpy(tmp8_th,-wpgdet);
 
 	  // thermal matrix
@@ -684,7 +692,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           }
 
 	  tmp9_th.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlocther.axpy(tmp9_th,kappa);
+	  matlocther.axpy(tmp9_th,kappa_eff);
 
         }
 
