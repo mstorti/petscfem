@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.25 2002/01/14 03:45:05 mstorti Exp $
+//$Id: nsi_tet.h,v 1.26 2002/04/04 01:42:17 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -43,6 +43,12 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_keps : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_keps_rot : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
 };
@@ -347,5 +353,15 @@ class LagrangeMult : public Elemset {
   /// Make it pure virtual. 
   virtual ~LagrangeMult()=0;
 };
+
+/** Cutoff function used in turbulence calculations. It is very near
+    to ${\rm ctff(x)\approx \rm tol$ for $x<0$ and ${\rm ctff}(x)=x$
+    for $x\gg \rm tol$.  
+    @param x (input) the argument where to compute the cutoff fuction
+    @param (output) the derivative of the cutoff function at $x$
+    @param (input) cuttoff scale parameter. 
+    @return the cutoff'ed value
+*/ 
+inline double ctff(double x, double & diff_ctff, double tol=1e-5);
 
 #endif

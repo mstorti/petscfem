@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.29 2002/03/29 20:59:37 mstorti Exp $ 
+ # $Id: Makefile,v 1.30 2002/04/04 01:42:17 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -7,12 +7,10 @@ PROG = ns
 PETSCFEM_DIR   = ../..
 #MYOBJS = ns.o fracstep.o nsi_tet.o
 
-LIBOBJS = ns.o  nsitetlesfm2.o					\
-		bccnsfm2.o wall.o nsvol.o walldata.o		\
-		nsilesther.o bccnstherfm2.o nsikeps.o		\
-		wallke.o nonlr.o lagmul.o nssup.o nssupr.o	\
-		nsid.o nsres.o adaptor.o elast.o adappg.o	\
-		qharm.o gatherer.o
+LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o	\
+              nsilesther.o bccnstherfm2.o nsikeps.o nsikepsrot.o	\
+              wallke.o nonlr.o lagmul.o nssup.o nssupr.o nsid.o		\
+              nsres.o adaptor.o elast.o adappg.o qharm.o gatherer.o
 
 MYOBJS = 
 

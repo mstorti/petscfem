@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.72 2002/03/29 15:41:06 mstorti Exp $
+//$Id: ns.cpp,v 1.73 2002/04/04 01:42:17 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -49,6 +49,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_keps)
+    SET_ELEMSET_TYPE(nsi_tet_keps_rot)
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
     SET_ELEMSET_TYPE(bcconv_nsther_fm2)
     SET_ELEMSET_TYPE(wall)
