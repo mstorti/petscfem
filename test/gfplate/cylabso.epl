@@ -9,7 +9,7 @@ global_options
 # <:pr('use_twall'):>
 # <:pr('use_non_slip'):>
 
-nstep 1000
+nstep 2
 alpha 1.
 
 #if $restart
@@ -56,7 +56,9 @@ print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
 Dt 0.05
-shocap 0.1
+# shocap 0.1
+# shocap_aniso 0.1
+use_Ajac_old 1
 weak_form 0
 temporal_stability_factor 0
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.95 2005/02/16 17:09:58 mstorti Exp $
+//$Id: advdife.cpp,v 1.96 2005/02/16 20:07:45 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -263,6 +263,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,shocap,0.0);
   //o Add an anisotropic shock capturing term
   NSGETOPTDEF(double,shocap_aniso,0.0);
+  //o Use the advective Jacobian in the previous time step
+  //  for the SUPG stabilization term. This accelerates
+  //  convergence of the Newton iteration. 
+  NSGETOPTDEF(int,use_Ajac_old,0);
   //o Report jacobians on random elements (should be in range 0-1).
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
   //o ALE_flag : flag to ON ALE computation
@@ -592,7 +596,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	Ao_grad_U.set(A_grad_U);
 	adv_diff_ff->get_Cp(Cp_bis_old);
-	adv_diff_ff->get_Ajac(Ao);
+	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
 
 #define USE_OLD_STATE_FOR_P_SUPG
 #ifdef USE_OLD_STATE_FOR_P_SUPG
@@ -699,33 +703,17 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
-	//	if (beta_supg==1.) {
-	  tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
-	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
-	  //	} else {
-	  //	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
-	  //	}
 
-	// tmp15.set(SHAPE).scale(wpgdet*rec_Dt_m);
-	// tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
-	// tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
+	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+
+	Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
+	tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
 	  adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
 	  matlocf.add(N_Cp_N);
 	}
-
-	/*
-	adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
-	if (lumped_mass) {
-	  matlocf_mass.add(N_Cp_N);
-	} else {
-	  matlocf.add(N_Cp_N);
-	}
-	*/
-
 
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
 	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
@@ -888,14 +876,18 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	for (int jel=1; jel<=nel; jel++) {
 	  P_supg.ir(1,jel);
-	  //	  tmp4.prod(tmp1,P_supg,-1,1,-1);
-	  tmp4.prod(tmp1_old,P_supg,-1,1,-1);
+	  if (use_Ajac_old) {
+	    tmp4.prod(tmp1_old,P_supg,-1,1,-1);
+	  } else {
+	    tmp4.prod(tmp1,P_supg,-1,1,-1);
+	  }
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet);
 	  matlocf.ir(1,jel);
 
 	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
-	  //	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
-	  tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
+	  if (use_Ajac_old) 
+	    tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
+	  else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 
 	  if(!lumped_mass) {

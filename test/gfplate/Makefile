@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.48 2005/02/14 04:31:31 mstorti Exp $ 
+# $Id: Makefile,v 1.49 2005/02/16 20:07:45 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_peri
+default: run_cyl
 
-BOPT := O_c++
+# BOPT := O_c++
 SRCS = 
 # PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.40
 PETSCFEM_DIR = ../..
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfmovshock
+CASE_NAME := cylabso
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)

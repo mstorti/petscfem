@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.28 2005/02/16 17:09:58 mstorti Exp $
+//$Id: gasflow.cpp,v 1.29 2005/02/16 20:07:45 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -319,6 +319,7 @@ compute_tau(int ijob,double &delta_sc) {
       h_shoc = (h_shoc < tol ? tol : h_shoc);
       h_shoc = 2./h_shoc;
     } else {
+      FastMat2::choose(1);
       jvec.set(0.);
       h_shoc = h_supg;
     }
