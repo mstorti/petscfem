@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.1 2001/01/04 20:13:05 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/04 22:45:15 mstorti Exp $ 
 
-.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
+.PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
 
 all: run
@@ -17,10 +17,14 @@ NP = 1
 PROG  = $(NS)
 CASE = sqcav
 MCH = -machinefile ./machi.dat
-run: $(CASE).depl force
-	procsel proctable
+
+ns: 
+	ln -s $(NS) ns
+
+NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+run: $(CASE).depl force ns
 	$(MAKE) $(PROG)
-	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} -np 1 $(MCH) $(PROG) -case $(CASE).depl
 
 local_clean::
 	-chmod +w *.depl
