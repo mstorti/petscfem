@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.15 2003/08/13 04:00:45 mstorti Exp $
+// $Id: dvector2.h,v 1.16 2003/08/13 20:18:58 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -203,18 +203,20 @@ int dvector<int>::read(FILE *fid,int &t);
 
 int dvector<float>::read(FILE *fid,float &t);
 
-int dvector<double>::print(FILE *fid,double t);
+void dvector<double>::print(FILE *fid,double t);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 int dvector<T>::read(FILE *fid,T &t) {
   printf("dvector<>: error: not implemented read "
 	 "function for this scalar type");
+  abort();
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-int dvector<T>::print(FILE *fid,T t) {
+void dvector<T>::print(FILE *fid,T t) {
   printf("dvector<>: error: not implemented print "
 	 "function for this scalar type");
 }
