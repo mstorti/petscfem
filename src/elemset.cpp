@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.32 2001/12/03 15:15:34 mstorti Exp $
+//$Id: elemset.cpp,v 1.33 2001/12/03 16:39:19 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -283,6 +283,7 @@ public:
       vmin = val;
       vmax = val;
       count = 1;
+      sum = val;
     } else {
       if (val<vmin) vmin = val;
       if (val>vmax) vmax = val;
