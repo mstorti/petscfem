@@ -20,4 +20,4 @@ ep=ustar^3/Chi/yp;
 
 Q=sum(xcent(v).*diff(x))
 Uav=Q/L
-Re = Uav*L/nu
+Re = Uav*2*L/nu

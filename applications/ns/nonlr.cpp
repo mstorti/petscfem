@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.10 2001/06/03 23:37:03 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.11 2001/06/04 17:46:37 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -166,7 +166,7 @@ void wall_law_res::init() {
   TGETOPTDEF_ND(thash,double,von_Karman_cnst,0.4);
 
   coef_k = -2./(fwall*fwall*sqrt(C_mu));
-  coef_e = 1./(int_pow(fwall,3)*von_Karman_cnst*y_wall_plus*viscosity);
+  coef_e = 1./(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
 };
 
 void wall_law_res::res(FastMat2 & U,FastMat2 & r,
@@ -176,7 +176,7 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
   U.is(1);
   double ustar = u/fwall;
   double kw = int_pow(ustar,2)/sqrt(C_mu);
-  double epsw = coef_e * int_pow(ustar,4);
+  double epsw = int_pow(ustar,4)/(von_Karman_cnst*y_wall_plus*viscosity);
     
   double k = U.get(nk);
   double eps = U.get(ne);
@@ -194,9 +194,8 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 
   // eps eq. on the wall
   r.setel(eps-epsw,2);
-  jac.rs().ir(1,2).is(2,1,ndim).set(U)
-    .scale(-4*coef_e*int_pow(ustar,2))
-    .is(2).setel(1.,ne);
+  double cc = -4*u*u/(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
+  jac.rs().ir(1,2).is(2,1,ndim).set(U).scale(cc).is(2).setel(1.,ne);
 
   jac.rs();
   U.rs();

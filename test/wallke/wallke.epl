@@ -19,8 +19,8 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#initial_state "wallke.ini.tmp"
-initial_state "save.state"
+initial_state "wallke.ini.tmp"
+#initial_state "save.state"
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
@@ -37,7 +37,7 @@ Dt 0.3
 
 #<:
 $L = 1;                         # Semi distance between plates
-$Re_l = 1.6e6;                  # laminar Re
+$Re_l = 100000;                 # laminar Re
 $Umax = 1;                      # Max vel in the channel
 $Uav = 1.5*$Umax;               # Aver vel 
 $nu = $Uav*2*$L/$Re_l;          # kinematic visc.
@@ -99,7 +99,7 @@ __END_ELEMSET__
 #endif
 
 elemset wall_law_res 2
-lagrange_diagonal_factor 1e-3
+lagrange_diagonal_factor 1e-5
 __END_HASH__
 1 <:=2*$N+3:> 
 2 <:=2*$N+4:> 
