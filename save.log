@@ -3310,3 +3310,7 @@ tag: beta-3.32 on Sat, 25 Sep 2004 13:22:40 -0300 by mstorti in spider
 ----------
 tag: beta-3.33.1 on Sat, 25 Sep 2004 13:27:53 -0300 by mstorti in spider
      > Administrative tag.
+----------
+tag: beta-3.33.2 on Sat, 25 Sep 2004 13:34:41 -0300 by mstorti in spider
+     > Changed Version Policy. 
+     > Updated doc/versions-tree.fig'
