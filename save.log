@@ -2866,3 +2866,7 @@ tag: beta-3.19.pl57 on Sun, 31 Aug 2003 22:10:38 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl58 on Mon, 01 Sep 2003 07:46:10 -0300 by mstorti in spider
      > Runs many tests in spider.
+----------
+tag: beta-3.19.pl59 on Mon, 01 Sep 2003 23:27:57 -0300 by mstorti in spider
+     > Runs all tests (some with O_c++ other tieh g_c++). 
+     > I have to run all of them again. 
