@@ -3863,3 +3863,6 @@ tag: beta-3.41.5 on Wed, 26 Jan 2005 22:16:10 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.6 on Wed, 26 Jan 2005 22:49:33 -0300 by mstorti in spider
      > Works `gasflow_abso' (based on `applications/advdif/nonlres'). 
+----------
+tag: beta-3.41.7 on Thu, 27 Jan 2005 02:48:47 -0300 by mstorti in spider
+     > Working on `gasflow_abso'. 
