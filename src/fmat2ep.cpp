@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.17 2002/11/05 19:59:36 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.18 2002/12/07 22:00:32 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -429,6 +429,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
     __POST_LOOP_OPS__;
     *lc->target = val;
   }
+  __AFTER_ALL_STRIDES__;
   if (!use_cache) delete cache;
   return *this;
 }  

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.24 2002/12/07 20:45:41 mstorti Exp $
+//$Id: fastmat2.h,v 1.25 2002/12/07 22:00:31 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -769,14 +769,18 @@ public:
   public: 
     Fun2() : val(0.) {}
     void set(double v) { val=v; }
-    /// Called prior tu loop
-    virtual void init() {}
+    /// Called prior to a stride is processed
+    virtual void pre() {}
+    /// Called prior to all strides
+    virtual void pre_all() {}
     /** called after iteration #val = fun2(a_ij, val)# for
 	all elements in a stride 
     */
     virtual double fun2(double x,double v)=0;
     /// May be run after each stride is processed
     virtual void post() {};
+    /// May be run after all strides are processed
+    virtual void post_all() {};
     /// Returns the cumulated value
     double v() { return val; }
   };

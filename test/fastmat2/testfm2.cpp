@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.8 2002/12/07 21:10:55 mstorti Exp $
+//$Id: testfm2.cpp,v 1.9 2002/12/07 22:00:35 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -46,9 +46,34 @@ double myfun(double x,void *user_args) {
 
 class Prod : public FastMat2::Fun2 {
 public:
-  void init() { set(1.); }
+  void pre() { set(1.); }
   double fun2(double a,double val) { return val*a; }
 } prod;
+
+class Count : public FastMat2::Fun2 {
+private:
+  int count;
+public:
+  void pre() { count=0; }
+  double fun2(double a,double val) { return count += cond(a); }
+  void post() { set(double(count)); }
+  virtual int cond(const double &a)=0;
+};
+
+class CountEven : public Count {
+public:
+  int cond(const double &a) { return !(int(a) % 2); }
+} ceven;
+
+// Computes the min of all the maximums
+class MinMax : public FastMat2::Fun2 {
+public:
+  double min_max;
+  void pre_all() { min_max = +DBL_MAX; }
+  void pre() { set(-DBL_MAX); }
+  double fun2(double a,double val) { return (a>v()? a : v()); }
+  void post() { if (v()<min_max) min_max = v(); }
+} mm;
 
 int main() {
 
@@ -70,8 +95,8 @@ int main() {
   FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
     Z69;
   FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
-    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75;
-  double z76;
+    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80;
+  double z76,z79;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -401,8 +426,18 @@ int main() {
       Z74.assoc(Z73,prod,-1,1);
       // by rows
       Z75.assoc(Z73,prod,1,-1);
-      // compute prod of all elements
+      // Compute prod of all elements
       z76 = Z73.assoc_all(prod);
+
+      // Count even entries by columns
+      Z77.assoc(Z73,ceven,-1,1);
+      // Count even entries by rows
+      Z78.assoc(Z73,ceven,1,-1);
+      // Count all even entries
+      z79 = Z73.assoc_all(ceven);
+      
+      // Computes min of maximums over columns
+      Z80.assoc(Z73,mm,-1,1);
     }
     FastMat2::void_cache();
   }
@@ -523,6 +558,11 @@ int main() {
   SH(Z75);
   SHV(z76);
 
+  SH(Z77);
+  SH(Z78);
+  SHV(z79);
+
+  SHV(mm.min_max);
 #undef SH
 
 }

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.21 2002/12/07 21:10:54 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.22 2002/12/07 22:00:31 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1024,6 +1024,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -1197,6 +1198,7 @@ op_count.mult += ntot;
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -1370,6 +1372,7 @@ op_count.abs += ntot;
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -1543,6 +1546,7 @@ op_count.abs += ntot;
     val = pow(val,1./p);
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -1716,6 +1720,7 @@ op_count.abs += ntot;
     val = pow(val,1./double(p));
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -1729,7 +1734,7 @@ double FastMat2::norm_p_all(const int p) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /* Obtained from pattern $gen_sum with args;
-   'INI_LOOP' => 'f.init()'
+   'INI_LOOP' => 'f.pre()'
    'NAME' => 'assoc'
    'ELEM_OPERATIONS' => 'f.set(f.fun2(**pa++,f.v()))'
    'COUNT_OPER' => 'op_count.mult += 1;
@@ -1874,19 +1879,20 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
   LineCache *lc;
   double **pa,**pe,val;
-  ;
+  f.pre_all();
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
     pe = pa + cache->line_size;
     // val=0;
-    f.init();
+    f.pre();
     while (pa<pe) {
       f.set(f.fun2(**pa++,f.v()));
     }
     f.post(); val = f.v();
     *lc->target = val;
   }
+  f.post_all();
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -2060,6 +2066,7 @@ op_count.fun += ntot;
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -2233,6 +2240,7 @@ op_count.fun += ntot;
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -2408,6 +2416,7 @@ op_count.abs += ntot;
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -2583,6 +2592,7 @@ op_count.abs += ntot;
     ;
     *lc->target = val;
   }
+  ;
   if (!use_cache) delete cache;
   return *this;
 }  
