@@ -1684,3 +1684,6 @@ tag: beta-3.05.pl13 on Sun, 29 Sep 2002 23:31:07 -0300 by mstorti in spider
 ----------
 tag: beta-3.05.pl14 on Mon, 30 Sep 2002 18:45:49 -0300 by mstorti in spider
      > Debugging memopy leak in range [beta-3.03.pl16 -- beta-3.04]
+----------
+tag: beta-3.05.pl15 on Wed,  2 Oct 2002 06:55:18 -0300 by mstorti in spider
+     > Searching the memory leak. 
