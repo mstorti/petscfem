@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.11 2001/01/23 13:25:24 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.12 2001/03/05 04:13:49 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -66,6 +66,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet)
     SET_ELEMSET_TYPE(nsi_tet_les)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
+    SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
     SET_ELEMSET_TYPE(wall)
 	{

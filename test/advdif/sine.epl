@@ -1,4 +1,5 @@
 <:                              # starts ePerl block
+
 #__TRANSCRIPT__
 $case="sine";                   # case name
 require '../eperlini.pl';       # Initializes ePerl 
@@ -73,6 +74,9 @@ __END_NODES__
 
 #===========================================================
 elemset advdif_advecfm2 4
+#if $per_elem_prop
+props conduct
+#endif
 #Datos del elemento
 geometry cartesian2d
 npg 4

@@ -20,6 +20,7 @@
 */
 
 #include "fem.h"
+#include <vector>
 #include <set>
 #include "utils.h"
 #include "getprop.h"
@@ -27,6 +28,7 @@
 #include "idmap.h"
 #include "dofmap.h"
 #include "arglist.h"
+#include "readmesh.h"
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -672,3 +674,77 @@ void Elemset::print() {
   thash->print();
 }
 
+void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) {
+  // looks int the properties-per-element table
+  props_hash_entry *phe = (props_hash_entry *)
+    g_hash_table_lookup(elem_prop_names,(void *)prop_name);
+  if(phe!=NULL) {
+  // If the name is found in the per element properties table
+  // (the line props in the text_hash_table) then we store the
+  // position in the table and the value will be loaded with
+  // 'load_props' for each element
+    int w = phe->width;
+    assert(n==w);
+    prop.indx = phe->position;
+  } else {
+    // If it was not found in the per element properties table then it
+    // should be found as a general property in the text_hash_table. 
+    prop.val = new double[n];
+    get_double(prop_name,*prop.val,1,n);
+  }
+}
+
+double NewElemset::prop_val(ElementIterator &element,Property &prop) {
+  return *prop_array(element,prop);
+}
+
+const double *NewElemset::prop_array(ElementIterator &element,
+				     Property &prop) {
+  if (prop.val) {
+    return prop.val;
+  } else {
+    return (element_props(element)+prop.indx);
+  }
+}
+  
+
+
+  
+#if 0
+void NewElemset::prop_init(void) {
+  VOID_IT(propel);
+  begin_propel=NULL;
+  VOID_IT(elprpsindx);
+}
+
+const double *NewElemset::PerElemProperty::ptr(ElementIterator &element) {
+  int pos_in_elemset,pos_in_chunk;
+  element.position(pos_in_elemset,pos_in_chunk);
+  return NewElemset::elemprops+pos_in_elemset*NewElemset::nelprops+indx;
+}
+
+NewElemset::ElemProperty * NewElemset::get_prop(const char *name,int n=1) {
+  props_hash_entry *phe;
+
+  // looks int the properties-per-element table
+  phe = (props_hash_entry *)
+    g_hash_table_lookup(elem_prop_names,(void *)name);
+  // If the name is found in the per element properties table
+  // (the line props in the text_hash_table) then we store the
+  // position in the table and the value will be loaded with
+  // 'load_props' for each element
+  if(phe!=NULL) {
+    //    printf("entry phe is: %d %d\n",phe->width,phe->position);
+    int w = phe->width;
+    assert(n==w);
+    for (int k=0; k<w; k++) propel.push_back(0.);
+    return new PerElemProperty(phe->position);
+  } else {
+    // If it was not found in the per element properties table then it
+    // should be found as a general property in the text_hash_table. 
+    double *val = new double[n];
+    get_double(name,val,1,n);
+    return PerElemsetProperty(val);
+  }
+}  
+#endif

@@ -210,6 +210,10 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,beta_supg,1.);
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
+
+  Property conduct_prop;
+  get_prop(conduct_prop,"conduct");
+
   int nlog_vars;
   const int *log_vars;
   adv_diff_ff->get_log_vars(this,nlog_vars,log_vars);
@@ -285,8 +289,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
     // if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
-    int k,ielh;
-    element.position(k,ielh);
+    double conduct = prop_val(element,conduct_prop);
 
     FastMat2::reset_cache();
 
@@ -331,11 +334,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       detJaco = Jaco.det();
       if (detJaco <= 0.) {
+	int k,ielh;
+	element.position(k,ielh);
 	printf("Jacobian of element %d is negative or null\n"
 	       " Jacobian: %f\n",k,detJaco);
 	PetscFinalize();
 	exit(0);
- 
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

@@ -1,8 +1,23 @@
-<:# -*- mode: octave -*- :>//
+<:# -*- mode: octave -*- 
+$nx=10 unless $nx;
+$ny=10 unless $ny;
+$Lx=1 unless $Lx;
+$Ly=1 unless $Ly;
+$N_step_period=16 unless $N_step_period;
+$per_elem_prop=0 unless $per_elem_prop;
+if ($per_elem_prop) {
+ $nx=10;
+ $ny=1;
+ $Lx=1;
+ $Ly=1/10;
+}
+_:>//
 nx=<:=$nx:>;
 ny=<:=$ny:>;
-Lx=1;
-Ly=1;
+Lx=<:=$Lx:>;
+Ly=<:=$Ly:>;
+per_elem_prop=<:=$per_elem_prop:>;
+
 u=1;
 D=0.1;
 N_step_period=<:=$N_step_period:>;

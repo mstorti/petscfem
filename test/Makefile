@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.12 2001/03/03 08:20:47 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2001/03/05 04:13:56 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
-	constraint_bug fstack sector triangle advdif texthash
+	constraint_bug fstack sector triangle advdif texthash log_vars
 
 run: sqcav5
 
@@ -51,7 +51,7 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash
+	advdif texthash log_vars
 runtests_p: fstack triangle \
 	advdif
 
@@ -252,6 +252,11 @@ iterator: iterator.cpp
 advdif:
 	$(MAKE) -C advdif tests
 	$(MAKE) -C turbchan turbchan
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Logarithmic variables
+log_vars:
+	$(MAKE) -C turbchanw tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

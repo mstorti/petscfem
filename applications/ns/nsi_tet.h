@@ -31,6 +31,12 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_les_ther : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class bcconv_ns_fm2 : public Elemset { 
 public: 
   ASK_FUNCTION;

@@ -44,15 +44,6 @@ char * local_copy(const char * cstr);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** @name Text hash functions */
 //@{
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** To be passed to Glib traversal functions to print the entire
-    hash. 
-    @author M. Storti
-    @param p (input) key string
-    @param q (input) value string
-    @param u (not used) as required by Glib
-*/ 
-void print_hash_entry(void *p, void *q, void *u);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Remove entry from hash. To be passed to Glib
@@ -67,14 +58,32 @@ void delete_hash_entry(void *p, void *q, void *u);
 //@}
 
 class TextHashTable;
+// This is a typical object in the table of thash's
 typedef pair<string,TextHashTable *> THashTableEntry;
+// This is the global table of thash's
 typedef multimap<string,TextHashTable *> THashTable;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** TextHashTable's are a map string -> TextHashTableVal objects
+*/ 
+class TextHashTableVal {
+public:
+  // string containing the value for the option
+  char *s;
+  // Number of times this option was accessed for statistic purposes
+  int called_times;
+  // Constructor from the string
+  TextHashTableVal(char *s_=NULL);
+  // Destructor
+  ~TextHashTableVal() {delete s;};
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Text hash tables (key and value are strings) are used to store
     elemset properties. 
 */ 
 class TextHashTable {
+
 public:
   /** Prints the entire hash. 
       @author M. Storti
@@ -141,6 +150,16 @@ public:
   */ 
   static void print_stat();
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** To be passed to Glib traversal functions to print the entire
+      hash. 
+      @author M. Storti
+      @param p (input) key string
+      @param q (input) value string
+      @param u (not used) as required by Glib
+  */ 
+  friend void print_hash_entry(void *p, void *q, void *u);
+
 private:
   /// The underlying Glib hash. 
   GHashTable *hash;  
@@ -174,6 +193,8 @@ private:
       @param value (output) value of the entry
   */ 
   void get_entry(const char *,TextHashTableVal *&);
+
+  static int print_statistics;
 };
 
 #endif /* __TEXTHASH_H__ */

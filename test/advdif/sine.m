@@ -19,8 +19,26 @@ fid=fopen("sine.fixa.tmp","w");
 fprintf(fid,"%d %d %f\n",fixa');
 fclose(fid);
 
+nele=rows(icone);
+if per_elem_prop
+  xe=zeros(nele,1);
+  for k=1:4
+    xe=xe+xnod(icone(:,k),1);
+  endfor
+  xe=xe/4;
+endif
+
 asave("sine.nod.tmp",xnod);
-asave("sine.con.tmp",icone);
+#asave("sine.con.tmp",icone);
+fid=fopen("sine.con.tmp","w");
+for k=1:nele
+  fprintf(fid,"%d %d %d %d",icone(k,1),icone(k,2),icone(k,3),icone(k,4));
+  if per_elem_prop
+    fprintf(fid," %f",xe(k));
+  endif
+  fprintf(fid,"\n");
+endfor
+fclose(fid);
 
 ## bcconv en todo el fondo y la tapa
 bcconv = [nx*Ny+(1:Ny)';

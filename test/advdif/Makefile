@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2001/01/11 15:36:30 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2001/03/05 04:13:59 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -11,7 +11,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
 
-# with this it doesn't work
+#s Test/Advdif tests
 ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
 #case := sine
@@ -92,6 +92,13 @@ sine_crank_nic_npp:
 plano.con plano.nod: plano.m
 	octave -q plano.m
 
+#w Test for per-element properties 
+per_elem_prop:
+	eperl -d per_elem_prop=1 sine.data.epl >sine.data
+	eperl -P -d perl_elem_prop=1 sine.epl > per_elem_prop.depl
+#	$(MAKE) case=$@ run
+#	mv -fv save.state save.state.$(N_step_period)
+
 # lclean:
 # 	-chmod +w sine.depl
 # 	-rm $(octave_files) sine.depl mat.output save.state
@@ -101,7 +108,8 @@ plano.con plano.nod: plano.m
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) -case $(case).depl > $(case).out
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+			-case $(case).depl > $(case).out
 
 # Tests to be done:
 # * Convergence to analityc solution
@@ -125,3 +133,5 @@ local_clean::
 	-chmod +w sine.data.res
 	-rm -f $(eperl_out_$(case)) $(octave_out_$(case)) $(output_files_$(case)) \
 		sine.some sine.data sine.data.res save.state*
+
+#s

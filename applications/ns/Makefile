@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.5 2001/01/23 16:40:29 mstorti Exp $ 
+ # $Id: Makefile,v 1.6 2001/03/05 04:13:49 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -6,7 +6,8 @@ PROG = ns
 PETSCFEM_DIR   = ../..
 #MYOBJS = ns.o fracstep.o nsi_tet.o
 MYOBJS = ns.o nsi_tet.o nsitetles.o nsitetlesfm2.o \
-		bccnsfm2.o wall.o nsvol.o walldata.o
+		bccnsfm2.o wall.o nsvol.o walldata.o \
+		nsilesther.o
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"

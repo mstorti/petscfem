@@ -18,7 +18,7 @@ sub makeini {
     $nnod = shift();
     $name = shift();
     $noise = shift();
-    print "name: $name\n";
+#    print "name: $name\n";
     if (!$name || !length($name)) {$name =  "tmp_file_$$.tmp";}
     open TMP,">$name";
     @UU = @U;

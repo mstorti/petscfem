@@ -685,7 +685,7 @@ EOT
 
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("circ/check_circ.sal","Constraint bug, cant have null rows in idmap class",<<EOT);
+expect("circ/check_circ.sal","Constraint bug, cant have null rows in idmap class",<<'EOT');
 error in u symmetry = .* OK . 1
 error in v symmetry = .* OK . 1
 error in h symmetry = .* OK . 1
@@ -709,7 +709,7 @@ expect("sector/sector_triangle_npg7.sal",
 
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("fstack/tfstack.sal","FileStack class",<<EOT);
+expect("fstack/tfstack.sal","FileStack class",<<'EOT');
 line 1 on file_stack 1: <1 line continued ...    continued ....>
 replaced line 2 on file_stack 1: <replaced line>
 line 3 on file_stack 2: <1 line continued ...    continued .... .copy 2.>
@@ -759,24 +759,24 @@ line 18 : <3 third line>
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("texthash/tthash.sal","TextHashTable class",<<EOT);
+expect("texthash/tthash.sal","TextHashTable class",<<'EOT');
 Global counting OK
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<EOT);
+expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<'EOT');
 Dt=.* error=.* \< tol_error=.* OK\?.*1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("advdif/sine_crank_nic.out","Advdif // quad. conv. for Crank Nic.",<<EOT);
+expect("advdif/sine_crank_nic.out","Advdif // quad. conv. for Crank Nic.",<<'EOT');
 ||u_16-u_128|| = 
 ||u_32-u_128|| = 
 ||u_32-u_128|| / ||u_16-u_128|| = .*, < 0.25 OK\? 1 
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("turbchan/turbchan.ver.tmp","Advdif/Shallw Water Turb. // flow in a channel",<<EOT);
+expect("turbchan/turbchan.ver.tmp","Advdif/Shallw Water Turb. // flow in a channel",<<'EOT');
 Residual at iteration 10 =.*OK : 1
 symmetry OK : 1
 transversal velocity small OK : 1
@@ -785,11 +785,28 @@ e at output .* Correct value OK : 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("turbchanw/heat.out.tmp","Advdif/Shallw Water Turb. // log vars // heat eq.",<<'EOT');
+2.397
+2.312
+2.303
+2.302
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("turbchanw/swturb.out.tmp","Advdif/Shallw Water Turb. // log vars // shallow w. eq.",<<'EOT');
+3\.13.*e-02 .*  1\.00.*e-01  -7\.95.*e\+00  -9\.50.*e\+00  
+3\.37.*e-02 .*  1\.00.*e-01  -8\.02.*e\+00  -9\.62.*e\+00  
+3\.40.*e-02 .*  1\.00.*e-01  -8\.17.*e\+00  -9\.86.*e\+00  
+3\.42.*e-02 .*  1\.00.*e-01  -8\.29.*e\+00  -1\.00.*e\+01  
+3\.44.*e-02 .*  1\.00.*e-01  -8\.39.*e\+00  -1\.01.*e\+01  
+3\.46.*e-02 .*  1\.00.*e-01  -8\.46.*e\+00  -1\.02.*e\+01  
+3\.46.*e-02 .*  1\.00.*e-01  -8\.50.*e\+00  -1\.02.*e\+01  
+3\.47.*e-02 .*  1\.00.*e-01  -8\.53.*e\+00  -1\.02.*e\+01  
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
-
-
 
 print "\n",'-' x 80,"\n\n";
 
 final_check();
-

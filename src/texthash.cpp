@@ -28,6 +28,8 @@
 THashTable TextHashTable::thash_table;
 TextHashTable *TextHashTable::global_options=NULL;
 
+int TextHashTable::print_statistics=0;
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -48,9 +50,13 @@ void print_hash_entry(void *p, void *q, void *count) {
   char *pp; TextHashTableVal *qq;
   pp= (char *)p;
   qq= (TextHashTableVal *)q;
-  int n=qq->called_times;
-  printf("%s -> %s [%d%s]\n",pp,qq->s,n,(n==0 ? " - NOT ACCESSED!!" : 
-					 n<INT_MAX ? "" : "+"));
+  printf("%20s -> %-10s",pp,qq->s);
+  if (TextHashTable::print_statistics) {
+    int n=qq->called_times;
+    printf(" [%d%s]",n,(n==0 ? " - NOT ACCESSED!!" : 
+			  n<INT_MAX ? "" : "+"));
+  }
+  printf("\n");
   (*(int *)count)++;
 }
 
@@ -276,6 +282,7 @@ void TextHashTable::print_stat(void) {
   printf("------- TextHashTable statistics -------\n"
 	 "[in brackets: number of times an entry was accessed]\n");
   string s;
+  print_statistics=1;
   for (THashTable::iterator k=thash_table.begin();
        k!=thash_table.end(); k++) 
     {
@@ -283,4 +290,5 @@ void TextHashTable::print_stat(void) {
       s.append(k->first.c_str()).append("\" -------");
       k->second->print(s.c_str());
     }
+  print_statistics=0;
 }

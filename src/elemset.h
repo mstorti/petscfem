@@ -268,7 +268,7 @@ public:
   */ 
   double *
   element_ret_fdj_values(const ElementIterator &element,
-			    arg_data &ad) const;
+			 arg_data &ad) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns localized element contributions to FD 
@@ -432,7 +432,6 @@ public:
       @return pointer to an array of nelprops doubles for the element
   */ 
   double * props();
-
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -495,9 +494,9 @@ int compute_this_elem(const int & iele,const Elemset *elemset,const int & myrank
 	       int el_start,int el_last,int iter_mode, \
 	       const TimeData *)
 
-#define ELEMSET_CLASS(name) \
-class name : public Elemset { \
-public: ASSEMBLE_FUNCTION; \
+#define ELEMSET_CLASS(name)			\
+class name : public Elemset {			\
+public: ASSEMBLE_FUNCTION;			\
 }
 
 #define ASK_FUNCTION int ask(const char *jobinfo,int &answer)
@@ -517,13 +516,23 @@ public: ASSEMBLE_FUNCTION; \
     @return error code
 */ 
 int measure_performance_fun(Mesh *mesh,arg_list argl,
-			Dofmap *dofmap,const char *jobinfo,const TimeData
-			*time_data=NULL);
+			    Dofmap *dofmap,const char *jobinfo,const TimeData
+			    *time_data=NULL);
 
 typedef void 
-NewAssembleFunction(arg_data_list &arg_datav,const Nodedata *nodedata,const Dofmap *dofmap,
+NewAssembleFunction(arg_data_list &arg_datav,const Nodedata *nodedata,
+		    const Dofmap *dofmap,
 		    const char *jobinfo,const ElementList &elemlist,
 		    const TimeData *time_data);
+
+/// The generic ElemProperty class
+class Property {
+public:
+  int indx;
+  double *val;
+  Property() : indx(-1), val(NULL) {};
+  ~Property() {if (val) delete[] val;};
+};
 
 /** This is an adaptor to the old Elemset class
     @author M. Storti
@@ -534,6 +543,17 @@ class NewElemset : private Elemset {
 	       const char *jobinfo,int myrank,
 	       int el_start,int el_last,int iter_mode,
 	       const TimeData *time_data);
+
+  /** @name The new get-prop methods */
+  //@{
+  /// The vector containing the double values
+  vector<double> propel;
+  /// The first position in propel
+  double *begin_propel;
+  /// The indices 
+  vector<int> elprpsindx;
+
+  //@}
 public:
   /// The new assemble function
   virtual void 
@@ -562,7 +582,7 @@ public:
   };
   
   int get_double(const char *name,
-	      double &retval,int defval=0,int n=1) const {
+		 double &retval,int defval=0,int n=1) const {
     return ::get_double(thash,name,&retval,defval,n);
   };
 
@@ -571,6 +591,10 @@ public:
     return ::get_string(thash,name,ret,defval,n);
   };
 
+  /// Creates a Property object from his name
+  void get_prop(Property &prop,const char *prop_name,int n=1);
+  double prop_val(ElementIterator &element,Property &prop);
+  const double *prop_array(ElementIterator &element,Property &prop);
 };
 
 #if 0
