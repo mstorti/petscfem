@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.35 2002/02/20 03:00:57 mstorti Exp $
+#$Id: Makefile,v 1.36 2002/04/21 23:34:46 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -128,6 +128,10 @@ DIRS = doc manual src ns advective tryme laplace
 #w Builds the Navier Stokes module
 ns: libpetscfem 
 	$(MAKE) -C applications/ns ns$(osfx).bin
+
+ns_all: 
+	$(MAKE) BOPT=g_c++ ns
+	$(MAKE) BOPT=O_c++ ns
 
 #w Builds th advective systems module (Euler, shallow water)
 adv: libpetscfem
