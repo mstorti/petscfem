@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.21 2001/09/29 00:57:38 mstorti Exp $
+// $Id: sparse.h,v 1.22 2001/09/29 13:34:44 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -338,10 +338,11 @@ namespace Sparse {
 
 #else
 
-#define FSM_ACTION_DEF(action) 			\
+#define FSM_ACTION_DEF(action)			\
 void MatFSMContext::action() {			\
     matrix_p->action();				\
-    printf("IN ACTION: " #action "\n");		\
+    printf("IN ACTION: " #action		\
+	   ", I'M %p\n",this);			\
 }
 
 #endif
@@ -358,6 +359,7 @@ void MatFSMContext::action() {			\
   public:
     Mat * matrix_p;
     MatFSMContext() {};
+#undef FSM_OP
 #define FSM_OP(action) FSM_ACTION_DECL(action)
     FSM_ACTIONS;
     void FSMError(const char *e,const char *s) { 
@@ -488,6 +490,9 @@ void MatFSMContext::action() {			\
     void solve(FullVec &b);
 
     /// FSM actions
+//  #undef FSM_OP
+//  #define FSM_OP(action) FSM_ACTION_DECL(action)
+//      FSM_ACTIONS;
     void clean_factor();
     void clean_mat();
     void solve_only();
