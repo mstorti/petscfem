@@ -1,4 +1,4 @@
-## $Id: mkplate.m,v 1.3 2005/01/08 15:26:04 mstorti Exp $
+## $Id: mkplate.m,v 1.4 2005/01/09 00:09:25 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -7,11 +7,21 @@ cref = sqrt(gamma*Tref*Rgas);
 uini = Machin*cref;
 poutlet = pref;
 
-Ly=2;
-yratio = 10;
 w = zhomo([0 Lx 0 Ly],Nx+1,Ny+1,[1 0 1 1 0 yratio]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
+
+indx = find(xnod(:,1)<Lplate);
+x1 = [Lplate;xnod(indx,1)];
+x1 = onedstr([10 0 1],x1);
+x1(1) = [];
+xnod(indx,1) = x1;
+
+indx = find(xnod(:,1)>=Lplate);
+x1 = [Lplate;xnod(indx,1)];
+x1 = onedstr([1 0 10],x1);
+x1(1) = [];
+xnod(indx,1) = x1;
 
 tol=1e-5;
 inlet = find(abs(xnod(:,1))<tol);
@@ -44,7 +54,7 @@ pffixa("gfplate.fixa-outlet.tmp",tmp,[3,4],[0,pref]);
 Uini = [rhoref,uini,0,pref];
 
 nnod = size(xnod,1);
-Uini = Uini(ones(nnod,1),:);
+Uini = Uini(ones(nnod+Nx+1,1),:);
 asave("gfplate.ini.tmp",Uini);
 
 ## Fictitious nodes
