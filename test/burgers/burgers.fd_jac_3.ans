@@ -1,7 +1,7 @@
-#>> $Id: burgers.fd_jac_3.ans,v 1.1 2003/11/16 14:11:58 mstorti Exp $
+#>> $Id: burgers.fd_jac_3.ans,v 1.2 2003/11/16 15:22:40 mstorti Exp $
 ^compute_fd_adv_jacobian.*2
 __REWIND__
 ^compute_fd_adv_jacobian_random .*0\.2
-Flux jacobian comps: total 200, checked .* \( {{abs($W-20)<5}}%\)
-#>>Flux jacobian comps: total 200, checked .* \( {{abs($W-20)<5}}%\)
-\|A_a - A_n\|/\|A_n\|: min .*, max {{$W<2e-3}}
+__CONFIG__ PRE <<
+Flux jacobian comps: total \d*, checked \d* \(\s*{{\S*}{abs($W-20)<5}}%\)
+\|A_a - A_n\|/\|A_n\|: min \S*, max {{$W<2e-3}}
