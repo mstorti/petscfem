@@ -1,8 +1,11 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.1.2.2 2002/01/03 15:31:27 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.1.2.3 2002/01/03 21:09:52 mstorti Exp $
 
 // Tests for the `PFMat' class
+
 #include <src/debug.h>
+
+#include <stdlib.h>
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/elemset.h>
@@ -14,6 +17,10 @@
 
 // Runs a simple example for testing the PFMat matrix classes.
 // 
+
+double drand_r(unsigned int *SEED) {
+  return double(rand_r(SEED))/double(RAND_MAX);
+}
 
 extern int MY_RANK,SIZE;
 
@@ -30,14 +37,15 @@ public:
   
 #define SET_PRINT_MAYBE(j,k,val)					\
      { if (((j)*size)/Nelem == myrank) A.set_value((j),(k),(val));	\
-       if (myrank == 0) fprintf(fid,"%d %d %f",(j),(k),(val)); }
+       if (myrank == 0) fprintf(fid,"%d %d %f\n",(j),(k),(val)); }
 
 int main(int argc,char **args) {
 
+  FILE *fid;
   PFMat *A_p;
-  Vec x,b;
+  Vec x,b,xex;
   int ierr,iisd_subpart,nsolve,rand_flag,mat_type,q_type,
-    tests_ok=1,nprof=1;
+    tests_ok=1,nprof=1,chkkey,chkkey_c;
   // is_diag:= `is_diag[k]' flags whether the element `k' is Laplace
   // (element matrix propto. [1 -1; -1 1]) or Identity ([1 0; 0 1]);
   vector<int> is_diag;
@@ -156,7 +164,9 @@ int main(int argc,char **args) {
     is_diag.resize(Nelem,0);
     if (myrank==0) {
       for (int je=0; je<Nelem; je++) {
-	is_diag[je] = ::drand()>fill;
+	double v = ::drand();
+	printf("%d %f\n",je,v);
+	is_diag[je] = v > fill;
       }
     }
     ierr = MPI_Bcast (is_diag.begin(), Nelem, MPI_INT, 0,MPI_COMM_WORLD);
@@ -183,34 +193,54 @@ int main(int argc,char **args) {
     ierr = VecCreateMPI(PETSC_COMM_WORLD,
 			nhere,PETSC_DETERMINE,&b); CHKERRA(ierr); 
     ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
+    ierr = VecDuplicate(b,&xex); CHKERRA(ierr); 
 
     for (int imat=0; imat<nmat; imat++) {
       A.zero_entries();
 
+      if (myrank==0) {
+	fid = fopen("data.tmp","w");
+	chkkey = rand();
+	fprintf(fid,"%d %d %g\n",chkkey,0,0.);
+      }
+	
       for (int j=0; j<Nelem; j++) {
 	// Is this element in this processor?
-	if ((j*size)/Nelem != myrank) continue; 
-	if (j-1>=0) A.set_value(j-1,j-1,1.);
-	if (j<N)   A.set_value(j,j,1.);
+	if (j-1>=0) SET_PRINT_MAYBE(j-1,j-1,1.);
+	if (j<N)   SET_PRINT_MAYBE(j,j,1.);
 	if (!is_diag[j] && j-1>=0 && j<N) {
-	  A.set_value(j-1,j,-1.);
-	  A.set_value(j,j-1,-1.);
+	  SET_PRINT_MAYBE(j-1,j,-1.);
+	  SET_PRINT_MAYBE(j,j-1,-1.);
 	}
       }
       A.assembly_begin(MAT_FINAL_ASSEMBLY); 
       A.assembly_end(MAT_FINAL_ASSEMBLY); 
+      if (myrank==0) {
+	fclose(fid);
+	system("octave -q < checkpf.m");
+      }
       // A.view();
 
       for (int ksolve=0; ksolve<nsolve; ksolve++) {
 
 	if (myrank==0) {
+	  fid = fopen("xsol.tmp","r");
+	  fscanf(fid,"%d",&chkkey_c);
+	  assert(chkkey_c==chkkey);
 	  for (int j=0; j<N; j++) {
 	    double Qx=1.;
-	    ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES); CHKERRA(ierr);
+	    ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES);
+	    CHKERRA(ierr);
+	    double val;
+	    fscanf(fid,"%lf",&val);
+	    ierr = VecSetValues(xex,1,&j,&val,INSERT_VALUES);
+	    CHKERRA(ierr);
 	  }
 	}
 	ierr = VecAssemblyBegin(b); CHKERRA(ierr);
 	ierr = VecAssemblyEnd(b); CHKERRA(ierr);
+	ierr = VecAssemblyBegin(xex); CHKERRA(ierr);
+	ierr = VecAssemblyEnd(xex); CHKERRA(ierr);
 
 	// A.view(VIEWER_STDOUT_WORLD);
 	ierr = A.solve(b,x); CHKERRA(ierr); 
@@ -220,8 +250,22 @@ int main(int argc,char **args) {
 	  ierr = VecView(b,VIEWER_STDOUT_WORLD);
 	  PetscPrintf(PETSC_COMM_WORLD,"FEM: \n");
 	  ierr = VecView(x,VIEWER_STDOUT_WORLD);
+	  PetscPrintf(PETSC_COMM_WORLD,"Exact (Octave): \n");
+	  ierr = VecView(xex,VIEWER_STDOUT_WORLD);
 	}
 
+	double norm,normex;
+	double scal = -1.;
+	ierr  = VecNorm(xex,NORM_2,&normex); CHKERRA(ierr);
+
+	ierr = VecAXPY(&scal,xex,x); CHKERRA(ierr);
+	ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
+
+	int this_ok = norm/normex<=tol;
+	PetscPrintf(PETSC_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
+		    "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
+		    norm,norm/normex,tol);
+	if (!this_ok) tests_ok = 0;
       }
       A.clean_factor(); 
     }
