@@ -1352,3 +1352,6 @@ tag: beta-3.01.pl2 on Thu, 25 Jul 2002 22:59:15 -0300 by mstorti in spider
 ----------
 tag: beta-3.01.pl3 on Fri, 26 Jul 2002 13:22:18 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs all substeps in fractional step.
+----------
+tag: beta-3.01.pl4 on Fri, 26 Jul 2002 14:01:43 -0300 by mstorti in minerva.arcride.edu.ar
+     > performance report for FastMat2 vs. Newmat for fractional step.
