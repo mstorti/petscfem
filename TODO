@@ -4,6 +4,11 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Finish with the GenericError and CHECK_PARR_ macros in readmesh... 
+  Doesn't crash correctly when	
+  > 	  Error reading coordinates in line:
+  > 	  " 186.479250051526 0 65.8289085858449 5 0 100526.561473902"
+  > 	  Not enough values in line!!
 * Bad parallel error reporting when not known elemset type 
 in NS (and advdif??)
    > not known elemset type: "ns_id"
@@ -23,10 +28,6 @@ in NS (and advdif??)
     > Couldn't open file "spillwgc.bcconv-all.tmp"!!
     > Assertion failed: "ierr==0"
     > Couldn't find __END_ELEMSET__ tag
-* Doesn't crash correctly when	
-  > 	  Error reading coordinates in line:
-  > 	  " 186.479250051526 0 65.8289085858449 5 0 100526.561473902"
-  > 	  Not enough values in line!!
 * Add `start_step' feature. 
 * List grants in doc
 * Add `dataflow.obj' to doc.
