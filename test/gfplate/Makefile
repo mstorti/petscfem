@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.31 2005/01/28 21:42:06 mstorti Exp $ 
+# $Id: Makefile,v 1.32 2005/01/29 00:39:30 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run2dn
+default: runc
 
 BOPT := O_c++
 SRCS = 
@@ -69,5 +69,8 @@ zip:
 		do echo gzipping $$f ;		\
 		gzip $$f ;			\
 	done
+
+clean_steps:
+	rrm -rf STEPS*
 
 #s

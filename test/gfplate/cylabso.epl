@@ -125,8 +125,10 @@ end_elemsets
 
 #if !$dx
 fixa
+#if $use_symm
 __INCLUDE__ ./cylabso.fixa-ups.tmp
 __INCLUDE__ ./cylabso.fixa-down.tmp
+#endif
 #if $abso
 __INCLUDE__ ./cylabso.fixa-ref.tmp
 #else
