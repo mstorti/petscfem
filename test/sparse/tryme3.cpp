@@ -1,6 +1,7 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.7 2002/07/20 21:17:23 mstorti Exp $
+// $Id: tryme3.cpp,v 1.8 2002/07/20 22:50:54 mstorti Exp $
 
+#include <cstdio>
 #include <cmath>
 #include <map>
 #include <set>
@@ -60,6 +61,7 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   testalloc( void ) throw() {
     first_free = chunk;
+    printf("%p %p\n",first_free,chunk);
     used = 0;
 #ifdef TESTALLOC_DEBUG
     cout << "testalloc(void) ctor being called." << endl;
@@ -104,18 +106,19 @@ public:
 };
 
 //#define ALLOC malloc_alloc
-//#define ALLOC alloc
-#define ALLOC testalloc<int>
+#define ALLOC alloc
+// #define ALLOC testalloc
 typedef set< int, less<int>, ALLOC > SET;
 
-class MAP : public map< int, SET, less<int>, ALLOC > {
+// class MAP : public map< int, SET, less<int>, ALLOC > {
+class MAP : public map< int, SET> {
 public:
   void add(int i,int j) { (*this)[i].insert(j); }
 };
 
 int main(int argc, char **argv) {
   chunk = new int[chunk_size];
-  int M=10000;
+  int M=1000000;
   MAP g;
   for (int j=0; j<M; j++) { g.add(irand(1,M),irand(1,M)); }
   double *a = new double[3*M];
