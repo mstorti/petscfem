@@ -3,6 +3,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* latex2html doesn't work with `algorithmic' environment. 
+* latex2html should put the section number in the title (eg. section
+        5.3)... 
 * Fix `delete' and `new' not balanced in `NewAdvDifFF' derived
          classes. 
 * add tests  `cubcav' 
