@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.20 2001/05/30 03:58:50 mstorti Exp $
+//$Id: fem.h,v 1.21 2001/06/23 16:43:14 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -476,8 +476,20 @@ void print_copyright(void);
 
 #define WAIT(s) wait_from_console(s "  --- at file: " __FILE__)
 
-#define SQ(n) ((n)*(n))
-#define CB(n) ((n)*(n)*(n))
+/** Returns the square of a double
+    @param x (input) the base 
+*/ 
+inline double square(double x) { return x*x;};
+
+/** Returns the cube of a double
+    @param x (input) the base 
+*/ 
+inline double cube(double x) { return x*x*x;};
+
+//#define SQ(n) ((n)*(n))
+//#define CB(n) ((n)*(n)*(n))
+#define SQ(n) square(n)
+#define CB(n) cube(n)
 
 #endif
 //@}

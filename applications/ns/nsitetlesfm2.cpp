@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.17 2001/06/01 03:30:50 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.18 2001/06/23 16:42:35 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -18,8 +18,6 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
-
-#define SQ(n) ((n)*(n))
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

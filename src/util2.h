@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.7 2001/06/08 14:25:56 mstorti Exp $
+//$Id: util2.h,v 1.8 2001/06/23 16:43:14 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -84,4 +84,5 @@ void read_int_array(vector<int> &v,const char * s);
     @return a reference to the matrix.
 */ 
 double int_pow(double base,int exp);
+
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.13 2001/06/20 02:14:53 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.14 2001/06/23 16:42:35 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -216,7 +216,3 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
   }
 }
 
-#undef SHAPE    
-#undef DSHAPEXI 
-#undef WPG      
-#undef SQ

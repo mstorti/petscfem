@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.11 2001/06/23 13:33:48 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.12 2001/06/23 16:42:35 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
+#include "../../src/util2.h"
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
 #include "../../src/fastmat2.h"
@@ -19,7 +20,8 @@ extern TextHashTable *GLOBAL_OPTIONS;
   
 #define MAXPROP 100
 
-#define SQ(n) ((n)*(n))
+//#define SQ(n) ((n)*(n))
+#define SQ(n) square(n)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -149,6 +151,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // equations. This terms are then scaled by
   // \verb+turbulence_coef*turb_prod_coef+. 
   SGETOPTDEF(double,turb_prod_coef,1.);
+  //o Scales the term proportional to $h/u$ in the pspg stabilization term
+  SGETOPTDEF(double,pspg_advection_factor,1.);
+  //o Scales the PSPG stabilization term 
+  SGETOPTDEF(double,pspg_factor,1.);
   //o Density
   SGETOPTDEF(double,rho,1.);
   //o C_mu
@@ -448,11 +454,12 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    +9.*SQ(4.*nu_eff/SQ(h_supg));
           tau_supg = 1./sqrt(tau_supg);
 
-          tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
+          tau_pspg = tsf*SQ(2.*rec_Dt)
+	    +SQ(pspg_advection_factor*2.*velmod/h_pspg)
 	    +9.*SQ(4.*nu_eff/SQ(h_pspg));
-          tau_pspg = 1./sqrt(tau_pspg);
+          tau_pspg = pspg_factor/sqrt(tau_pspg);
 
-          fz = (Peclet < 3 ? Peclet/3 : 1);
+          fz = (Peclet < 3. ? Peclet/3. : 1.);
           delta_supg = 0.5*h_supg*velmod*fz;
 	
 	  if (tau_fac != 1.) {
@@ -510,6 +517,8 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// implicit version - General Trapezoidal rule - parameter alpha
 
         if (comp_mat_res || comp_res) {
+	  // dmatu := material derivative of u, also
+	  // includes G_body, i.e. the external force field. 
 #if ADD_GRAD_DIV_U_TERM
 	  dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.12 2001/06/01 03:30:50 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.13 2001/06/23 16:42:35 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -19,7 +19,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
    
 #define MAXPROP 100
 
-#define SQ(n) ((n)*(n))
+//#define SQ(n) ((n)*(n))
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
