@@ -7,7 +7,7 @@ get_var_env('weak_form',0);
 get_var_env('case',undef);
 $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
-$use_tetra = 0;
+$use_tetra = 1;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -15,9 +15,9 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 60;			# Number of elements per dimension
+$N = 50;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
-$Re = 1000;			# Reynolds number
+$Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = ($case eq 'laplace' ? 1 : 0.01);# time step
 $solver = "petsc";
@@ -90,22 +90,18 @@ nsave 5
 save_file_pattern "outvector%d.out.tmp"
 
 # type of solver (may be "iisd", "petsc"...)
-<:pr('solver'):>
-<:pr('preco_type'):> 
-<:pr('maxits'):> 
-# Number of subdomains
-<:pr('iisd_subpart'):>
+fractional_step
+solver     "iisd"
+solver_mom "petsc"
+preco_type "jacobi"
+rtol 1e-6
+iisd_subpart 50
+maxits 100
 report_consumed_time
 activate_debug_print
-#if 1
+
 iisdmat_print_statistics
 print_partitioning_statistics
-#endif
-#if $update_jacobian
-# update_jacobian_iters 3
-update_jacobian_start_steps 3
-update_jacobian_steps 3
-#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -144,7 +140,7 @@ __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
 #if $case ne 'laplace'
-elemset nsi_tet_les_fm2 8
+elemset fracstep 8
 name malla
 # report_consumed_time
 geometry cartesian3d

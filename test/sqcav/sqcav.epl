@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.16.6.8 2002/07/17 00:13:51 mstorti Exp $
+#$Id: sqcav.epl,v 1.16.6.9 2002/07/17 02:48:06 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -16,7 +16,7 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;
+$N = 200;
 $hratio = 4;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -85,7 +85,7 @@ nstep 30
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
-#if 1
+#if 0
 #<:$maxits=1;:>
 solver "petsc"
 solver_mom "petsc"
@@ -98,7 +98,7 @@ preco_type "jacobi"
 <:pr('maxits'):> 
 
 # Number of subdomains
-iisd_subpart 1
+iisd_subpart 10
 #if $update_jacobian
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
@@ -109,6 +109,8 @@ activate_debug_print
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
+max_partgraph_vertices 2000
+max_partgraph_vertices_proc 2000
 
 #    Iterative parameters
 tol_tet 1e-5
