@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.3 2001/04/01 01:35:06 mstorti Exp $
+//$Id: gpdata.cpp,v 1.4 2001/05/27 17:14:47 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -268,6 +268,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       shape[0](1)=1.;
       wpg[0]=1.;
       dshapex[0] = Matrix(ndimel,nel);
+      dshapexi[0] = Matrix(ndimel,nel);
 
     } else if (ndimel==1) {
       // Position of the nodes in the master element

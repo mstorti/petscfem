@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.3 2001/04/01 01:35:06 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.4 2001/05/27 17:14:47 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -203,16 +203,17 @@ FastMat2 & FastMat2::set(const Matrix & A) {
   if (!was_cached  ) {
     int m = A.Nrows();
     int n = A.Ncols();
-    if (m==0 || n==0) {
-      cache->nelems=0;
-      return *this;
-    }
+
     Indx newdims,fdims;
     newdims.push_back(m);
     newdims.push_back(n);
   
     if (!defined) 
       create_from_indx(newdims);
+    if (m==0 || n==0) {
+      cache->nelems=0;
+      return *this;
+    }
 
     get_dims(fdims);
     assert(fdims == newdims);
@@ -477,9 +478,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
     va_list ap;
 
     Indx Afdims,Bfdims,fdims;
-    assert(A.defined);
     A.get_dims(Afdims);
-    assert(B.defined);
     B.get_dims(Bfdims);
 
     // maxc:= maximum contracted index
@@ -535,13 +534,22 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
     // ndimsf.print("dimensions of the free part: ");
 
   // Dimension C if necessary
-    if (!defined) {
-      create_from_indx(ndimsf);
+    if (!defined) create_from_indx(ndimsf);
+    if (comp_storage_size(ndimsf)==0) {
+      cache->nelems=0;
+      return *this;
     }
 
     get_dims(fdims);
-    assert(ndimsf == fdims);
-
+    if (ndimsf != fdims) {
+      Afdims.print("A free dims: ");
+      Bfdims.print("B free dims: ");
+      ndimsf.print("Combined free dims: ");
+      fdims.print("Free dims on result matrix: ");
+      printf("Combined free dims doesn't match free"
+	     " dimes of  result.\n");
+      exit(1);
+    }
     for (int j=0; j<nc; j++) {
       int k1 = icontr[2*j];
       int k2 = icontr[2*j+1];

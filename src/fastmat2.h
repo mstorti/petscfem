@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fastmat2.h,v 1.4 2001/04/01 01:35:06 mstorti Exp $
+//$Id: fastmat2.h,v 1.5 2001/05/27 17:14:47 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -159,7 +159,6 @@ inline Indx::Indx(const int m,const int n) {
 
 /// The type of indices used internally in FastMat2
 typedef FastVector<int> Indx;
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** An object of class perm stores the permutation of indices inside
@@ -994,6 +993,7 @@ private:
   static int was_cached_save;
   /// Operation count
   static OperationCount op_count;
+  int comp_storage_size(const Indx & indx) const;
   /// creates storage and freezes dimensions
   void define_matrix(void);
   /// returns value at position i,j

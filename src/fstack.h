@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: fstack.h,v 1.6 2001/05/26 19:58:48 mstorti Exp $
+//$Id: fstack.h,v 1.7 2001/05/27 17:14:47 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -63,6 +63,7 @@ public:
 
   int line_number() const {return pos;};
   const char * file_name() const {return file_names.back().c_str();};
+  void print(void) const;
 
   /** Unreads a line
       @author M. Storti

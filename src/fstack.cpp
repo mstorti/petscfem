@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.6 2001/05/26 19:58:48 mstorti Exp $
+//$Id: fstack.cpp,v 1.7 2001/05/27 17:14:47 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -65,7 +65,6 @@ FileStack::FileStack(const char *filename) : echo_stream (NULL), echo(0) {
   linecopy = astr_create();
   abuf = abuf_create();
   abufr = abuf_create();
-  file_names.clear();
   
   int ierr = regcomp(&blank_line,"^[ \t\n]*$",REG_NOSUB);
   assert(ierr==0);
@@ -213,6 +212,15 @@ int FileStack::get_line(char * & line) {
 const char * FileStack::line_read(void) const {
   return astr_chars(linecopy);
   return 0;
+}
+
+void FileStack::print(void) const {
+  printf("File stack:\n");
+  int nfiles= file_names.size();
+  for (int j=0; j<file_names.size(); j++) {
+    printf("pos %d in stack: %s:%d\n",
+	   j,file_names[j].c_str(),( j != nfiles-1 ? file_pos[j] : pos));
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
