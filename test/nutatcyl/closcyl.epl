@@ -1,0 +1,352 @@
+# -*- shell-script -*-
+__ECHO_ON__
+<:
+#$Id: closcyl.epl,v 1.1 2002/08/17 22:27:47 mstorti Exp $
+# Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
+
+sub get_var_from_env {
+    my ($name,$def) = @_;
+    ${$name} = defined $ENV{$name} ? $ENV{$name} : defined ${$name} ? ${$name} : $def;
+    print "# data in get_var_from_env: $name: $$name\n";
+}
+#
+#__TRANSCRIPT__
+get_var_from_env('mesh',
+    '4-8-D');                   # Mesh size (n-nz-solve), solve=D/I (direct/iterative)
+die "bad \"mesh\" val: $mesh\n" 
+    unless $mesh =~ /^(\d*)-(\d*)-(D|I)$/;
+($n,$nz,$solve) = ($1,$2,$3);
+print "# mesh,n,nz,solve: $mesh,$n,$nz,$solve\n";
+
+$casename = $ENV{'NAME'};       # This is used in the `proc?.m' scripts
+$ini = $ENV{'ini'};             # Run the initialization step
+
+$layers = 2;                    # Element layers for computing viscous force
+$rigid_body = 0;
+#
+if (!$rigid_body) {
+    require './vaughn.pl';
+} else {
+    $Omega = 0.;
+    $omega = 0.1;
+    $nstep = 100;               # Number of time steps
+    $T = 2*$PI/$omega;
+    $Dt = $T/64;                # Time step
+    $verbose = 0;
+
+    $RR = 1;                    # [m] radius of cylinder
+    $cLz = 1;                   # height of cylinder
+    $rho = 1;                   # [kg/m^3] Density
+    $nu = 10000;                  # [m^2/sec] kinematic viscosity
+}
+                                # beta = g^1/2 R^3/2 / nu
+$inertia_ratio = 0.5;           # $ = I_par/I_perp$
+$Lz = $cLz*$RR;                 # Height of cylinder
+$zratio = 6;                    # refinement in z direction
+$rratio = 4;                    # refinement in radial direction (toward walls)
+$nmode = 0;
+$ndim = 3;                      # Number of spatial dims
+$uscale = 0.01;                 # The scale of the velocity of the container (x. comp)
+$vscale = $uscale;              # The scale of the velocity of the container (y. comp)
+                                # 
+$alpha = 1;                     # Trapezoidal rule for time integration parameter
+#$nstepf = 10;                   # Stop at this step (but do calculations as for nstep)
+$nstop = round(0.8*$nstep);     # Stop stimulus after this step
+$nstart = 30;                   # Start stimulus before this step
+## Data for the "gauss" type load
+$sigma = 20*$Dt;                # Gauss bell width
+$gphase = 0;                    # phase with respect to `sin'
+$T0 = 0;                        # GAUSS2 LOAD, start time
+$c_load = 2;                    # load has first c_load-1 continuous derivatives.
+
+$load_type = "gauss2";          # type of load (random/gauss)
+
+$na = 2;                        # number of poles in the transfer function
+$nb = $na;                      # number of zeros in the transfer function
+$nk = 0;                        # number of delays in the transfer function
+$slip = 1;                      # impose null tangential velocities on walls
+$nuf = 10;                      # * number of filter stages in generating
+                                # the random input
+$pf = 0.1;                      # filtering parameter
+$nelem = 3*$n*$n*$nz;           # * estimation of number of elements
+$nelem_subd = 
+    ($use_tetra ? 2500 : 500);  # * Desired amount of elements per subdomain
+$max_subd = 20;
+$nproc = $ENV{'NP'};            # Run the initialization step
+die "bad NP: $nproc\n" unless $NP>=1;
+$iisd_subpart = ceil($nelem/$nelem_subd/$nproc);
+# if ($iisd_subpart > $max_subd) { $iisd_subpart = $max_subd; }
+$bessel_modes = "m 1 1";        # * Enter Bessel modes (n1 k1, n2 k2, n3 k3...)
+                                # i.w. take first k1 modes for the \propto cos(n1 theta)
+                                # modes. For $ n=0 $ *DO NOT* include the k=0 mode
+                                # (It has non null integral pressure)
+                                # (tricky: put an 'm' in front of values, to tell 
+                                # `octave_export_vars()' that it *is* a string.
+$mask = "m 0 1 0";              # * mask values (u v mode1*cos mode1*sin) etc...
+$fs_ini_ampl = 0.0;             # Initial profile propto $x$ or $sin(x*pi/2)$
+$use_node_press = 1;            # * Remove the constant pressure singularity by either:
+                                # $use_node_press=0 -> integral of pressure =0 at
+                                # the bottom (using contraint)
+                                # $use_node_press=1 -> pressure=0
+                                # at the center of the bottom
+$weak_form = $use_node_press;   # * If uses a pressure node then we have to use `weak_form'
+                                # so that the mass loss is low and the velocity field is not
+                                # too much perturbed near the pressure node
+$rand_uses_fixed_seed=1;        # * If set to 1 then results are different each
+                                # time that the script is ran
+$is_fat = 0;                    # For all non-volume elements we can define this so that
+                                # they are not taken into account for partitioning
+$use_tetra = 0;                 # Split hexas in tetras or not
+$use_rot = 1;                   # Use nsi_tet_keps_rot or nsi_tet_keps
+$run_petscfem_alone='nutation'; # may be `impulse/nutation'
+$refine_to_bottom = 1;          # Refine to both top and bottom (mostly useful for
+                                # the closed (no free-surface) cylinder).
+
+die "rho should be >0\n" unless $rho>0;
+die "viscosity should be >0\n" unless $nu>0;
+
+#__END_TRANSCRIPT__
+@vars = qw(n RR Lz nz zratio rratio nmode use_tetra omega ndim rho uscale vscale
+           gravity beta nstep nstop nstart pf Dt na nb nk slip nuf
+           bessel_modes mask fs_ini_ampl use_node_press
+           rand_uses_fixed_seed use_rot refine_to_bottom Omega
+           casename load_type sigma gphase T0 c_load alpha layers);
+
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -q mkcloscyl.m >mkcloscyl.out.tmp";
+
+# Read 'nodf_u' value 
+open FIC,"cylinder.fic.tmp";
+$l = <FIC>;
+die "Couldn't find nodf_u in cylinder.fic.tmp" unless $l =~ /^\s*(\S*)\s*$/;
+$nodf_u = $1;
+$l = <FIC>;
+die "Couldn't find nodf_r in cylinder.fic.tmp" unless $l =~ /^\s*(\S*)\s*$/;
+$nodf_r = $1;
+close FIC;
+:>
+
+# <:pr('Omega'):>
+# <:pr('Omega_nut'):>
+# <:pr('nutation_angle'):>
+# <:pr('Dt'):>
+# <:pr('RR'):>
+# <:pr('nu'):>
+
+#default definitions
+#===========================================================
+global_options
+ndim <:=$ndim:>
+#if !$run_petscfem_alone
+petscfem2pfm_file "../ROSI/petscfem2pfm"
+<:pr('verbose'):>
+#endif
+# kill turbulence
+turbulence_coef 0.
+non_inertial_frame 1
+# non_inertial_frame_reverse_sign
+steady 1
+nstep <:= (defined $nstepf ? $nstepf : $nstep); :>
+nnwt 3
+tol_newton 0
+# newton_relaxation_factor 0.5 3 1.
+<:pr('Dt'):>
+# max GMRES iter number 
+# maxits  400
+# Krylov space dimension 
+Krylov_dim 300
+# debug_element_partitioning
+
+<:pr('weak_form'):>
+
+LES 0
+initial_state "cylinder.ini.tmp"
+<:pr('rho'):>
+
+alpha 1.
+atol 0
+dtol 1e+3
+
+#================================================================
+#                             SOLVER
+#================================================================
+#if 0
+# Direct solver from PETSc ==========================
+solver "petsc"
+preco_type "lu"
+#else
+# IISD solver ==========================
+solver "iisd_petsc"
+preco_type "jacobi"
+#if $solve eq 'D'
+# LU on one processor
+rtol 0
+iisd_subpart 1
+print_internal_loop_conv 0
+#else
+# IISD (big meshes)
+# for parallel processing
+
+<:pr('iisd_subpart'):>
+max_partgraph_vertices 2000
+# 
+compact_profile_graph_chunk_size 40000
+max_partgraph_vertices_proc 2000
+rtol 1e-6
+print_internal_loop_conv
+iisdmat_print_statistics
+print_partitioning_statistics
+# print_dofmap_id
+# activate_debug
+report_consumed_time 1
+#endif
+#endif
+activate_debug_print
+# ================================================================
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+viscosity <:=$nu:>
+<:pr('gravity'):>
+
+## save last state each nsave
+nsave 5
+
+## save (cumulative) each nsaverot steps 
+save_file_pattern "state%d.all.tmp"
+nsaverot 5
+
+## save results on some nodes e
+#if 0
+print_some_file "cylinder.some.tmp"
+save_file_some "cylinder.some_rslt.tmp"
+nsome 1
+#endif
+# report_assembly_time
+chunk_size 1000
+
+#if 0
+# print_residual
+# print_dofmap_id
+print_linear_system_and_stop
+# solve_system 0
+# verify_jacobian_with_numerical_one 1
+# inwt_stop 2
+#endif
+# 2*ndim for forces and moments, 1 for the free surface level
+ngather <:=2*$ndim+1:>
+gather_file "cylinder.force.tmp"
+__ECHO_OFF__
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes  <:=$ndim:> <:=$ndim:> <:=$ndim+3:>
+__INCLUDE__ cylinder.nod.tmp
+__END_NODES__
+
+#===========================================================
+elemset nsi_tet_keps_rot <:=(($ndim==2 ? 4 : $use_tetra ? 4 : 8) + 2):>
+name viscous_fluid_elemset
+# report_consumed_time
+geometry <:=($use_tetra ? "tetra" : "cartesian${ndim}d"):>
+part_include_fic 0
+npg <:=($ndim==2 ? 4 : $use_tetra ? 4 : 8):>
+Non_inertial_origin 0. 0. <:=-0.5*$Lz:>
+__END_HASH__
+__INCLUDE__ cylinder.con.tmp
+__END_ELEMSET__
+
+
+#===========================================================
+elemset ns_id 1
+ns_id_fac 0.
+__END_HASH__
+__INCLUDE__ cylinder.fic.tmp
+__END_ELEMSET__
+
+#===========================================================
+#if 1
+elemset visc_force_integrator <:=2**($ndim-1)*($layers+1):>
+is_fat <:=$is_fat:>
+geometry "quad2hexa"
+npg <:=2**($ndim-1):>
+ndimel <:=$ndim-1:>
+gather_length <:=2*$ndim:>
+moment_center 0. 0. <:=-0.5*$Lz:>
+volume_elemset viscous_fluid_elemset
+use_exterior_normal 0
+<:pr('layers'):>
+identify_volume_elements 1
+# Omega 0. 0. <:=$Omega:>
+__END_HASH__
+__INCLUDE__ cylinder.wall_panel_con.tmp
+__INCLUDE__ cylinder.bottom_con.tmp
+__INCLUDE__ cylinder.force_int_top.tmp
+__END_ELEMSET__
+#else
+#===========================================================
+elemset force_integrator <:=2**($ndim-1):>
+is_fat <:=$is_fat:>
+geometry cartesian<:=$ndim-1:>d
+npg <:=2**($ndim-1):>
+ndimel <:=$ndim-1:>
+gather_length <:=2*$ndim:>
+moment_center 0. 0. <:=-0.5*$Lz:>
+__END_HASH__
+__INCLUDE__ cylinder.wall_panel_con.tmp
+__INCLUDE__ cylinder.bottom_con.tmp
+__INCLUDE__ cylinder.force_int_top.tmp
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+#===========================================================
+fixa
+# Impose k and epsilon in all nodes
+__INCLUDE__ cylinder.ke_fix.tmp
+__INCLUDE__ cylinder.no_slip.tmp
+__END_FIXA__
+
+#===========================================================
+#   NUTATION MOVEMENT
+fixa
+<:= $nodf_u :> 1 0.
+<:= $nodf_u :> 2 0.
+<:= $nodf_u :> 3 0.
+
+#if !$rigid_body
+<:= $nodf_r :> 1 <:= -$Omega_nut*sin($nutation_angle) :>
+<:= $nodf_r :> 2 0.
+<:= $nodf_r :> 3 <:= -$Omega_nut*cos($nutation_angle) :>
+#endif
+
+# Unused dofs
+<:= $nodf_u :> 4 0.
+<:= $nodf_u :> 5 0.
+<:= $nodf_u :> 6 0.
+<:= $nodf_r :> 4 0.
+<:= $nodf_r :> 5 0.
+<:= $nodf_r :> 6 0.
+__END_FIXA__
+
+#===========================================================
+#if $rigid_body
+# Oscillating rigid movement about 'z' axis
+fixa_amplitude sin
+amplitude 1.
+omega <:=$omega:>
+__END_HASH__
+<:= $nodf_r :> 1 0.
+<:= $nodf_r :> 2 0.
+<:= $nodf_r :> 3 1.
+__END_FIXA__
+#endif
+
+# Local Variables: $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
