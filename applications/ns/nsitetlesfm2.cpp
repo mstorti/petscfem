@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.48 2002/03/30 00:46:46 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.49 2002/04/08 16:15:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -515,7 +515,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
 	rescont.axpy(tmp5,wpgdet);
 
-	// temporal part + convecive (Galerkin)
+	// temporal part + convective (Galerkin)
 #ifdef ADD_GRAD_DIV_U_TERM
         massm.prod(u_star,dshapex,-1,-1,1);
 #else
