@@ -2806,3 +2806,6 @@ tag: beta-3.19.pl44 on Thu, 14 Aug 2003 08:37:10 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.19.pl45 on Sun, 17 Aug 2003 12:11:21 -0300 by mstorti in spider
      > Fixed a bug in dxhook when reading mesh. 
+----------
+tag: beta-isp.pl1 on Mon, 18 Aug 2003 00:21:00 -0300 by mstorti in spider
+     > Builds layer map in parallel. 
