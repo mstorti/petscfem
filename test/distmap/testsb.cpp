@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.5 2004/01/18 21:38:43 mstorti Exp $
+// $Id: testsb.cpp,v 1.6 2004/01/18 22:46:17 mstorti Exp $
 
 #include <unistd.h>
 #include <list>
@@ -114,8 +114,16 @@ int main(int argc,char **argv) {
   // class the integers are printed in the text line with the help of
   // an `AutoString' object. 
 
+  // Arguments:
+  //  N: number of rows
+  //  m: rows go until the next multiple of `m'
+  //  k: check SyncBuffer class (k=0) or
+  //             `KeyedOutputBuffer' class (k=1)
+  //  s: sort records by key (only for `k=1')
+  //  p: print keys in `KeyedOutputBuffer'
+
   int k,output=0,m=7,N=10,keyed=0,ierr=0,
-    sort_by_key=1,print_keys=1;
+    sort_by_key=1,print_keys=1,print_newlines=1;
 
   PetscTruth flg;
   PetscInitialize(&argc,&argv,NULL,NULL);
@@ -133,6 +141,8 @@ int main(int argc,char **argv) {
   ierr = PetscOptionsGetInt(PETSC_NULL,"-s",&sort_by_key,&flg);
   CHKERRA(ierr); 
   ierr = PetscOptionsGetInt(PETSC_NULL,"-p",&print_keys,&flg);
+  CHKERRA(ierr); 
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-n",&print_newlines,&flg);
   CHKERRA(ierr); 
 
   if (!keyed) {
@@ -167,12 +177,14 @@ int main(int argc,char **argv) {
       int nelem = roof-k;
 
       for (int jj=0; jj<nelem; jj++) kbuff.cat_printf("%d ",k+jj);
+      if (!print_newlines) kbuff.cat_printf(" (explicit new-line)\n");
       kbuff.push(k);
       k += SIZE;
     }
 
     kbuff.sort_by_key = sort_by_key;
     KeyedLine::print_keys = print_keys;
+    KeyedLine::print_newlines = print_newlines;
     if (output) {
       FILE *out = fopen("testsb.output.tmp","w");
       KeyedLine::output = out;

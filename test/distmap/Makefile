@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.24 2004/01/11 16:22:09 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2004/01/18 22:46:17 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
 #s Local Targets
 #w all tests
-tests: distcont distmap distmat dist_graph
+tests: distcont distmap distmat dist_graph tests_sb
 
 #w Tests the distributed container class
 distcont: distcont.bin
@@ -95,6 +95,7 @@ dist_graph: tryme7.bin
 
 #w
 testsb.bin: testsb.o
+	$(MAKE) -C ../../src compile
 	-rm -f $@ ; \
 	${CXX_CLINKER} -o $@ testsb.o $(LDFLAGS_NO_PROG_LIB)
 
@@ -104,5 +105,29 @@ machi:
 	echo minerva >> machi.dat
 	echo minerva >> machi.dat
 	echo minerva >> machi.dat
+
+NPSB := 3
+#w Tests for `SyncBuffer' and `KeyedOutputBuffer' classes
+tests_sb: test_sync_buffer test_kob_plain test_kob_no_sort
+
+#w Test SyncBuffer class
+test_sync_buffer: testsb.bin
+	$(MPIRUN) -np $(NPSB) testsb.bin -N 10 -k 0 > $@.output.tmp
+
+#w Test `KeyedOutputBuffer' class
+test_kob_plain: testsb.bin
+	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 1 > $@.output.tmp
+
+#w Test `KeyedOutputBuffer' class with no sorting
+test_kob_no_sort: testsb.bin
+	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 0 -p 1 -n 1 > $@.output.tmp
+
+#w Test `KeyedOutputBuffer' class with no key-printing 
+test_kob_no_key_print: testsb.bin
+	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 0 -n 1 > $@.output.tmp
+
+#w Test `KeyedOutputBuffer' class with no new-lines 
+test_kob_no_newline: testsb.bin
+	$(MPIRUN) -np $(NPSB) testsb.bin -k 1 -s 1 -p 1 -n 0 > $@.output.tmp
 
 #s
