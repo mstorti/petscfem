@@ -1807,3 +1807,7 @@ tag: beta-3.08.pl12 on Sat, 30 Nov 2002 19:31:58 -0300 by mstorti in spider
 ----------
 tag: beta-3.08.pl13 on Sat, 30 Nov 2002 20:42:27 -0300 by mstorti in spider
      > Runs 3D example on 10^3 mesh with large deformation. 
+----------
+tag: beta-3.08.pl14 on Sun,  1 Dec 2002 13:08:03 -0300 by mstorti in spider
+     > Added FastMat2::rcp() function.
+     > Working on `mesh_move'
