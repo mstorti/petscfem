@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: cloud2.h,v 1.3 2003/02/28 16:17:53 mstorti Exp $
+// $Id: cloud2.h,v 1.4 2003/02/28 23:51:05 mstorti Exp $
 #ifndef PETSCFEM_CLOUD2_H
 #define PETSCFEM_CLOUD2_H
 
@@ -40,6 +40,9 @@ public:
       @param x (input) coordinates of points (size #nx*ndim#)
       @param w (output) coefficients of approximation (size #nx*nderiv#) */
   virtual void coef(FastMat2 &x, FastMat2 &w)=0;
+  /** Returns the condition number of the last computed cloud
+      @return condition number */ 
+  virtual double cond()=0;
   /** Clean-up function. */ 
   virtual void clear()=0;
 };
@@ -56,6 +59,7 @@ public:
   void init(int ndim, int nx, int nderiv,const int *derivs, const int *npol);
   void coef(FastMat2 &x, FastMat2 &w, FastMat2 &x0);
   void coef(FastMat2 &x, FastMat2 &w);
+  double cond();
   void clear();
 };
 

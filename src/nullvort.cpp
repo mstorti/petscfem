@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.8 2003/02/28 15:37:38 mstorti Exp $
+// $Id: nullvort.cpp,v 1.9 2003/02/28 23:51:05 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -158,20 +158,30 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   xnod.set(mesh->nodedata->nodedata);
   int ndim = mesh->nodedata->ndim;
 
-  // Loop over nodes on the coupling surface
+  // Neighbors (on surface) of node
   GSet ngb;
+  // Constraint to be generated
+  Constraint constraint;
+  // List of nodes in stencil (1-based)
+  dvector<int> stencil;
+  // Number of constraints effectively imposed
+  int n_constr_ok = 0;
+  // Loop over nodes on the coupling surface
   for (cn_indx=0; cn_indx<n_coupling_nodes; cn_indx++) {
+    printf("computing constraint ...\n");
     // Node number (0-based)
     int node = coupling_nodes_table.e(cn_indx,0);
     // get neighbors (on the surface)
     ngb.clear();
     graph.set_ngbrs(node,ngb);
-    // Number of neighbors. We have a grid of
-    // ngb.size() nodes on the surface. For each
-    // node on the surface there is a row of (layers+1) nodes
-    // (including the surface node) in the direction
-    // nomal to the surface. This makes a total amount
-    // of `n_cloud = ngb.size()*(layers+1)' nodes. 
+    // Check number of neighbors. We have a grid of ngb.size() nodes
+    // on the surface. For each node on the surface there is a row of
+    // (layers+1) nodes (including the surface node) in the direction
+    // nomal to the surface. This makes a total amount of `n_cloud =
+    // ngb.size()*(layers+1)' nodes.  If the number of neighbors is
+    // less than 3 (in each tangent direction) we can't make a second
+    // order precision approximation. So we skip the node. Give a
+    // warning.
     if (ngb.size()!=3) {
       printf("No 3 ngbrs node: %d\n",node);
       continue;
@@ -180,32 +190,71 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
 
     // Build the cloud 
     Cloud2 cloud;
+    // compute coefs. for d/dx and d/dy
     int derivs[] = {1,0,0,1};
+    // use second order in both directions
     int npol[] = {2,2};
+    // initialize the object
     cloud.init(ndim,nx,2,derivs,npol);
+    // coorinates of nodes in stencil, coordinates
+    // of node, computed coefs.
     FastMat2 x(2,nx,ndim), x0(1,ndim), w(2,nx,2);
     // Coordinates of surface node
     x0.set(&xnod.e(node,0));
+    // list of nodes in the cloud
+    stencil.resize(nx);
     // Coordinates of nodes in the cloud
     int k=0;
     GSet::iterator q, qe=ngb.end();
     for (q=ngb.begin(); q!=qe; q++) {
+      // surface node
       int sf_node = *q;
       assert(coupling_nodes_map.find(sf_node)
 	     !=coupling_nodes_map.end());
-      cn_indx = coupling_nodes_map[sf_node];
+      // index in `coupling_nodes_table'
+      int cn_indx2 = coupling_nodes_map[sf_node];
       for (int j=0; j<=layers; j++) {
-	// node in the cloud (0-based) (??)
-	int node2 = coupling_nodes_table.e(cn_indx,j);
-	x.ir(1,++k).set(&xnod.e(node2,0));
+	// node in the cloud (0-based)
+	int node2 = coupling_nodes_table.e(cn_indx2,j);
+	stencil.e(k) = node2+1;
+	x.ir(1,k+1).set(&xnod.e(node2,0));
+	k++;
       }
     }
     x.rs();
+    // Compute coefs.
     cloud.coef(x,w,x0);
-    x0.print("x0: ");
-    x.print("x: ");
-    w.print("w: ");
+    // It the computation was too bad conditioned, then
+    // skip the node
+    if (cloud.cond() > 1e8) continue;
+    // Build the constraint (list of node,field,coef)
+    constraint.empty();
+    // Vorticity is dv/dx-du/dy
+    // cofficients in dv/dx
+    for (int j=0; j<nx; j++) {
+      printf("  %f  %d %d",w.get(j+1,2),stencil.e(j),1);
+      constraint.add_entry(stencil.e(j),1,w.get(j+1,2));
+    }
+    // cofficients in -du/dy
+    for (int j=0; j<nx; j++) {
+      printf("  %f  %d %d",w.get(j+1,1),stencil.e(j),2);
+      constraint.add_entry(stencil.e(j),2,-w.get(j+1,1));
+    }
+    printf("\n");
+    printf("adding constraint ...\n");
+    // Load constraint in dofmap
+    ierr = dofmap->set_constraint(constraint);
+    // Give error if the constraint was linearly dependent
+    if (ierr) PetscPrintf(PETSC_COMM_WORLD,
+			  "Error setting null vorticity condition "
+			  " for node %d\n",node+1);
+    else n_constr_ok++;
+    printf("done.\n");
   }
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "null_vort: %d constraints imposed OK"
+	      " from %d coupling nodes\n",
+	      n_constr_ok,n_coupling_nodes);
 
   icone.clear();
   xnod.clear();

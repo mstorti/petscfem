@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: cloud2.cpp,v 1.3 2003/02/28 16:17:53 mstorti Exp $
+// $Id: cloud2.cpp,v 1.4 2003/02/28 23:51:05 mstorti Exp $
 #include <cmath>
 #include <src/util2.h>
 #include <src/dvector.h>
@@ -41,6 +41,7 @@ public:
   void init(int ndim, int nx, int nderiv,const int *derivs, const int *npol);
   void coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0);
   void coef(FastMat2 &x, FastMat2 &w);
+  double cond();
   void clear();
 };
 
@@ -63,6 +64,9 @@ void Cloud2::coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0) { ptr->coef(x,w,x0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Cloud2::coef(FastMat2 &x, FastMat2 &w) { ptr->coef(x,w); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Cloud2::cond() { return ptr->cond(); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Cloud2::clear() { ptr->clear(); }
@@ -98,8 +102,8 @@ void Cloud2FastMat2::init(int ndim_a, int nx_a,
   h_fac_expo.resize(nderiv);
   n_fact.resize(nderiv);
   for (int j=0; j<nderiv; j++) {
-    int index = derivs.e(j,0);
-    for (int l=1; l<ndim; l++) {
+    int index = derivs.e(j,ndim-1);
+    for (int l=ndim-2; l>=0; l--) {
       assert(derivs.e(j,l)<=npol.e(l));
       index = index * (npol.e(l)+1) + derivs.e(j,l);
     }
@@ -173,6 +177,11 @@ void Cloud2FastMat2::coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0) {
   }
   AA.rs();
   w.rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Cloud2FastMat2::cond() { 
+  return  H.norm_p_all(1.)*iH.norm_p_all(1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
