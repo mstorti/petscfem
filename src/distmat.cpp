@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.4 2001/08/03 17:07:25 mstorti Exp $
+// $Id: distmat.cpp,v 1.5 2001/08/04 13:21:12 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,6 +12,11 @@
 #include <maximizr.h>
 #include <distmat.h>
 
+// eckel:=  
+// This is required!! See `Thinking in C++, 2nd ed. Volume 1', 
+// by Bruce Eckel (http://www.MindView.net)
+// Chapter 15: `Polymorphism &  Virtual Functions', 
+// paragraph `Pure virtual destructors' 
 Partitioner::~Partitioner() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -27,8 +32,11 @@ void DistMat::
 pack(const int &k,const Row &row,char *&buff) const {
   int n = row.size();
   Row::const_iterator iter;
+  // number of elements in the row
   BufferPack::pack(n,buff);
+  // the number of the row (key)
   BufferPack::pack(k,buff);
+  // pack the row, each pair (int,double) at a time
   for (iter=row.begin(); iter!=row.end(); iter++) {
     BufferPack::pack(iter->first,buff);
     BufferPack::pack(iter->second,buff);
@@ -42,12 +50,17 @@ void DistMat::
 unpack(int &k,Row &row,const char *&buff) {
   int n,j,key;
   double val;
+  // Clear the row
   row.clear();
+  // unpack the number of elements
   BufferPack::unpack(n,buff);
+  // unpack the key (number of row)
   BufferPack::unpack(k,buff);
+  // unpack the pair (key vals) each at a time
   for (j=0; j<n; j++) {
     BufferPack::unpack(key,buff);
     BufferPack::unpack(val,buff);
+    // insert the pair key,val in the row.
     row[key] += val;
   }
 }
@@ -56,35 +69,32 @@ unpack(int &k,Row &row,const char *&buff) {
 #undef __FUNC__
 #define __FUNC__ "int DistMat::processor(const DistMatrix::iterator ) const"
 int DistMat::processor(const DistMat::iterator k) const {
+  // The number of processor is computed in the `Partitioner' 
   return part->dofpart(k->first);
 }
-#if 0
-int DistMat::processor(const DistMat::iterator k) const {
-  const int &row = k->first;
-  const int *startproc = dofmap->startproc;
-  const int *neqproc = dofmap->neqproc;
-  int proc;
-  for (proc = 0; proc < size; proc++) 
-    if (row < startproc[proc]+neqproc[proc]) 
-      return proc;
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DistMat::
 combine(const pair<int,Row> &p) {
+  // Insert the pair (int,row) in the matrix
   int n,j;
   map<int,Row>::iterator iter = find(p.first);
   Row::iterator r;
   Row::const_iterator q;
   if (iter == end()) {
-    //    printf("[%d] inserting row %d\n",myrank,p.first);
-    // insert(p);
+    // insert(p); // this doesn't work
+    // If entry doesn't exist for this key, then insert a new row for
+    // this key 
     (*this)[p.first] = p.second;
   } else {
+    // merge the elements of this row to the existing ones
+    // existing row
     Row &oldr = iter->second;
+    // new row
     const Row &newr = p.second;
+    // new element in the row
     for (q = newr.begin(); q!=newr.end(); q++) {
+      // r iterator to that key in the old row
       r = oldr.find(q->first);
       if (r == oldr.end()) {
 	r->second += q->second;
