@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.3 2002/11/29 02:38:45 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.4 2002/11/29 12:34:02 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -166,6 +166,18 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   if (crev) for (int j=0; j<m2; j++) *(sc->VR[j]) = sc->VR_c[j];
 
   if (!use_cache) delete cache;
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::eig(const FastMat2 & A, FastMat2 &VL) {
+  eig(A,&VL);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::eig(const FastMat2 & A, FastMat2 &VL, FastMat2 &VR) {
+  eig(A,&VL,&VR);
   return *this;
 }
 

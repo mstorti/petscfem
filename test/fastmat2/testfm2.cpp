@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.4 2002/11/29 02:38:49 mstorti Exp $
+//$Id: testfm2.cpp,v 1.5 2002/11/29 12:34:02 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -60,7 +60,8 @@ int main() {
   FastMat2 Z50(2,3,3),Z51,Z54(2,3,2),Z52,Z53(1,3);
   FastMat2 Z55(2,3,3),Z56(1,3),Z59,Z57(2,3,3),Z58;
   double z60[]={1.,.1,.1,-.1,1.,.1,-.1,-.1,1.};
-  FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3);
+  FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
+    Z69;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -344,14 +345,24 @@ int main() {
 	Z43.cross(Z40,Z41);
       }
 
+      // Define symmetric matrix 3 x 3
       Z55.set(0.1).d(1,2).set(1.).rs();
+      // Compute eigenvalues, dims of eigenvalue matrix predefined
       Z56.seig(Z55);
+      // Compute eigenvalues, dims of eigenvalue matrix NOT predefined
       Z59.seig(Z55);
+      // Compute eigenvalues and eigenvectors, dims predefined
       Z56.seig(Z55,Z57);
+      // Compute eigenvalues and eigenvectors, dims NOT predefined
       Z56.seig(Z55,Z58);
 
+      // Define non-symmetric 3x3 matrix
       Z60.set(z60);
+      // Compute eigenvals, and left/right eigenvectors
       Z61.eig(Z60,&Z62,&Z63,1,1);
+      Z69.eig(Z60);
+      Z67.eig(Z60,Z64);
+      Z68.eig(Z60,Z65,Z66);
 
     }
     FastMat2::void_cache();
@@ -446,6 +457,12 @@ int main() {
   SH(Z61);
   SH(Z62);
   SH(Z63);
+  SH(Z64);
+  SH(Z65);
+  SH(Z66);
+  SH(Z67);
+  SH(Z68);
+  SH(Z69);
 
 #undef SH
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.19 2002/11/29 02:12:48 mstorti Exp $
+//$Id: fastmat2.h,v 1.20 2002/11/29 12:34:02 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -933,6 +933,29 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & inv(const FastMat2 & A);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solve the eigenvalue problem for non-symmetric matrix #A# and 
+      compute left eigenvectors. (see 
+      #eig(const FastMat2 & A, FastMat2 *VL=NULL,...)# below).
+      @author M. Storti
+      @param A (input) the matrix to take the eigenvalues
+      @param VL (output) the matrix with the left eigenvectors
+      @returns a reference to a vector containing the eigenvalues. 
+  */ 
+  FastMat2 & eig(const FastMat2 & A, FastMat2 &VL);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solve the eigenvalue problem for non-symmetric matrix #A# and 
+      compute left and eigenvectors. (see 
+      #eig(const FastMat2 & A, FastMat2 *VL=NULL,...)# below).
+      @author M. Storti
+      @param A (input) the matrix to take the eigenvalues
+      @param VL (output) the matrix with the left eigenvectors
+      @param VR (output) the matrix with the left eigenvectors
+      @returns a reference to a vector containing the eigenvalues. 
+  */ 
+  FastMat2 & eig(const FastMat2 & A, FastMat2 &VL, FastMat2 &VR);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for non-symmetric matrix #A#.
