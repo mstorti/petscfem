@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.18 2004/02/25 17:43:34 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2004/02/25 19:28:45 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -40,4 +40,4 @@ memtest: memtest.cpp
 	g++ -O2 -o $@ $<
 
 memtest2: memtest2.cpp
-	g++ -O2 -o $@ $<
+	g++ -g -o $@ $<

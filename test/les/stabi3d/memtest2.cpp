@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: memtest2.cpp,v 1.5 2004/02/25 19:20:41 mstorti Exp $
+// $Id: memtest2.cpp,v 1.6 2004/02/25 19:27:53 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstdio>
@@ -95,12 +95,12 @@ int main(int argc,char **argv) {
   }
   fclose(fid);
   printf("free: %d\n",mem);
-  exit(0);
-
   assert(block_size_m>0.);
   block_size = int(block_size_m*pow(2.,18.));
+  nblocks = int(double(mem)/pow(2.,10.)/block_size_m);
+  printf("nblocks: %d\n",nblocks);
 
-  MAX = int(sqrt(double(RAND_MAX)));
+  MAX = int(double(RAND_MAX)/3.0);
   vector<int *> buffers;
   vector<int> check_sums;
   while (1) {
@@ -112,6 +112,7 @@ int main(int argc,char **argv) {
 	   double(buffers.size())
 	   *double(block_size)*double(sizeof(int))
 	   /pow(2.,20.));
+    if (buffers.size() >= nblocks) break;
   }
   nblocks = buffers.size();
   while (1) {
