@@ -3,9 +3,13 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* latex2html doesn't work with `algorithmic' environment. 
-* latex2html should put the section number in the title (eg. section
-        5.3)... 
+* Continuation lines behave extrangely when ending in a comment. For
+	instance: 
+  blah blah blah blah \
+    blah blah blah \
+	blah blah # comment
+   See ROCKET `slosh.epl' example
+       Thu Feb 28 09:11:50 ART 2002
 * Fix `delete' and `new' not balanced in `NewAdvDifFF' derived
          classes. 
 * add tests  `cubcav' 
@@ -54,6 +58,12 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* latex2html doesn't work with `algorithmic' environment. 
+	FIXED:      Latex2html doesn't like the `algorithm' (it is like a figure
+     environment) environment, but DO support the `algorithmic'
+     environment. Eliminated the `algorithm' environment in `doc/nsdoc.tex'. 
+* latex2html should put the section number in the title (eg. section
+        5.3)... 
 * FIx in documentation, can't call environment `algorightm'. 
 * Write a script that retrieves date corresponding to a light tag
           Sol: Use date in tag replacing `ART' or `ARST' by `-0300'

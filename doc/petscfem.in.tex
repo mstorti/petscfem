@@ -6,7 +6,12 @@
 % 1./ Do not use environment 'align'
 % 2./ Be careful with calls to $!a$ for vector a. Sometimes if
 %     the material inside an equation is too simple latex2html may
-%     not process it. 
+%     not process it.
+% 3./ Do not use the `algorithmic' environment. Latex2Html soen't like
+%     it. However you can use the `algorithm' environment.
+% 4./ After adding documentation, please check that it process
+%     OK. That equation numbering is OK in the HTML output. Also that
+%     image processing in the generation of the manual is OK. 
 %
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 %Section{
@@ -145,7 +150,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.10 2002/02/20 22:12:58 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.11 2002/02/28 12:11:05 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
