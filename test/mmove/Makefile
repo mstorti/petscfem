@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2002/12/26 14:36:13 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2003/01/08 15:54:26 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -27,11 +27,11 @@ PROG := $(NS)
 step3d:
 	@$(MAKE) -C ../../tools hexasplit.bin >/dev/null
 	$(MAKE) NAME=step3d OCT_SCRIPT=mkstep3d.m test_case > step3d.out.tmp
-	octave -qH proc2.m > step3d.verif.tmp
+	$(OCTAVE) proc2.m > step3d.verif.tmp
 
 step:
 	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case > step.out.tmp
-	octave -qH proc.m > step.verif.tmp
+	$(OCTAVE) proc.m > step.verif.tmp
 
 mmove:
 	$(MAKE) NAME=mmove test_case
@@ -42,7 +42,7 @@ $(NAME).depl: force
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
 test_case: test_case_data
-	if [ ! "$(OCT_SCRIPT)" = "" ] ; then octave -qH $(OCT_SCRIPT) ; fi
+	if [ ! "$(OCT_SCRIPT)" = "" ] ; then $(OCTAVE) $(OCT_SCRIPT) ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl
 

@@ -1,4 +1,6 @@
 // -*-mode: c++ -*-
+//__INSERT_LICENSE__
+//$Id: enthalpy.h,v 1.6 2003/01/08 15:54:25 mstorti Exp $
 #ifndef ENTHALPY_H
 #define ENTHALPY_H
 

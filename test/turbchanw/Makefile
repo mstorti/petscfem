@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2002/12/02 19:09:46 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2003/01/08 15:54:26 mstorti Exp $ 
 
 CASE = turbchanw
 tests: heat swturb
@@ -20,7 +20,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 .PHONY: $(CASE)
 
 data: 
-	octave -qH tcini.m
+	$(OCTAVE) tcini.m
 	$(MAKE) $(CASE).depl
 
 $(CASE).depl: force
@@ -34,4 +34,4 @@ heat:
 
 swturb:
 	$(MAKE) SUBCASE=swturb $(CASE)
-	octave -qH check.swturb.m > check.swturb.verif.tmp
+	$(OCTAVE) check.swturb.m > check.swturb.verif.tmp

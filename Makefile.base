@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.108 2003/01/01 16:17:03 mstorti Exp $
+#$Id: Makefile.base,v 1.109 2003/01/08 15:54:13 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -136,7 +136,7 @@ DOC_DIR = $(PETSCFEM_DIR)/doc
 
 INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 
-OCTAVE = octave
+OCTAVE = octave -qH
 
 PETSCFEM_VERSION := $(shell cat $(PETSCFEM_DIR)/VERSION)
 

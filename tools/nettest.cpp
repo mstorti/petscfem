@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: nettest.cpp,v 1.3 2003/01/08 15:54:26 mstorti Exp $
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>

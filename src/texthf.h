@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: texthf.h,v 1.4 2003/01/08 15:54:25 mstorti Exp $
 #ifndef TEXTHF_H
 #define TEXTHF_H
 

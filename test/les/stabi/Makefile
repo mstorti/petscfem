@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/12/02 19:09:46 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/01/08 15:54:26 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -18,7 +18,7 @@ SRCS =
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 DATA_FILES = stabi.peri.tmp stabi.nod.tmp stabi.con.tmp 
 data:
-	octave -qH < mkmesh.m 
+	$(OCTAVE) < mkmesh.m 
 
 .PHONY: base_flow flux_jaco mass_jaco
 base_flow flux_jaco mass_jaco: 

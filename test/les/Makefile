@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2002/12/02 19:09:46 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2003/01/08 15:54:26 mstorti Exp $ 
 
 .PHONY: fstack force les_data
 
@@ -32,7 +32,7 @@ pfemprof.txt: gmon.out
 les_data: les.depl les.nod.tmp
 
 $(LES_DATA_FILES): les.m
-	octave -qH <les.m 
+	$(OCTAVE) <les.m 
 #	touch les.flag
 
 local_clean::

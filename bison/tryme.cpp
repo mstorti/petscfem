@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: tryme.cpp,v 1.3 2003/01/08 15:54:25 mstorti Exp $
 #include <stdio.h>
 #include <ctype.h>
 

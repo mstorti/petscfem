@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.80 2003/01/08 15:49:03 mstorti Exp $ 
+# $Id: Makefile,v 1.81 2003/01/08 15:54:25 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -97,7 +97,7 @@ oscplate2: ns
 	-rm -f tmp_file*.tmp oscsome2.sal
 	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
-	octave -qH oscplate2.m &> oscplate2o.sal
+	$(OCTAVE) oscplate2.m &> oscplate2o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
@@ -130,7 +130,7 @@ oscplate3: ns
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_128.sal
 #
-	octave -qH oscplate3.m &> oscplate3o.sal
+	$(OCTAVE) oscplate3.m &> oscplate3o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
@@ -147,7 +147,7 @@ oscplate4: ns
 	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
 	mv oscsome.sal oscsome4.sal
-	octave -qH oscplate4.m &> oscplate4o.sal
+	$(OCTAVE) oscplate4.m &> oscplate4o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `cos(2*pi*t/T)' case
@@ -157,7 +157,7 @@ oscplate4cos: ns
 			oscplate.epl >oscplate4c.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4c.depl >/dev/null
 	mv oscsome.sal oscsome4c.sal
-	octave -qH oscplate4c.m &> oscplate4co.sal
+	$(OCTAVE) oscplate4c.m &> oscplate4co.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `sin(2*pi*t/T-pi/6)' case
@@ -167,7 +167,7 @@ oscplate4_30deg: ns
 			oscplate.epl >oscplate4_30deg.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4_30deg.depl >/dev/null
 	mv oscsome.sal oscsome4_30deg.sal
-	octave -qH oscplate4_30deg.m &> oscplate4_30dego.sal
+	$(OCTAVE) oscplate4_30deg.m &> oscplate4_30dego.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: $(plano_list)
@@ -263,7 +263,7 @@ sqcav5: ns sqcav5_dat
 	-$(MPIRUN) -np 3 $(NSO) -case sqcav5.dat | tee sqcav5.out
 
 sqcav5_dat: mksqcav5.m
-	octave -qH  mksqcav5.m >/dev/null
+	$(OCTAVE)  mksqcav5.m >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Tests processing of chunks

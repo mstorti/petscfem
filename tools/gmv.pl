@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.7 2003/01/08 12:25:04 mstorti Exp $
+#$Id: gmv.pl,v 1.8 2003/01/08 15:54:26 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -15,7 +15,7 @@ sub entropy_hook {
 
 sub enthalpy_hook {
     my ($state) = @_;
-    my $h = $state->[3]/$state->[0]*($ga-1);
+    my $h = $state->[3]/$state->[0]*$ga/($ga-1)+0.5*($state->[1]**2+$state->[2]**2);
     return $h;
 }
 

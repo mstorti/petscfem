@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.43 2002/12/02 19:09:46 mstorti Exp $ 
+# $Id: Makefile,v 1.44 2003/01/08 15:54:26 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -23,7 +23,7 @@ test_iisd_subpart:
 	-if [ -f save.state ] ; then rm -f save.state ; fi
 	$(MAKE) NP=2 Re=100 sub_part= case=iisd case_size=small test_case
 	mv -f save.state save.state.sub_part.tmp
-	octave -qH check_subpart.m > check_subpart.verif.tmp
+	$(OCTAVE) check_subpart.m > check_subpart.verif.tmp
 
 #w Tests IISD with periodic boundary conditions
 test_distmap: 
@@ -31,7 +31,7 @@ test_distmap:
 	mv -f save.state save.state.iisd_peri.np2.tmp
 	$(MAKE) NP=1 Re=100 peri=1 case=iisd case_size=small2 test_case
 	mv -f save.state save.state.iisd_peri.np1.tmp
-	octave -qH check_peri.m > check_peri.verif.tmp
+	$(OCTAVE) check_peri.m > check_peri.verif.tmp
 
 #w Tests IISD 
 test_iisd:
@@ -45,7 +45,7 @@ test_iisd:
 	mv -f save.state save.state.iisd.np1.tmp
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
-	octave -qH check_iisd.m > check_iisd.verif.tmp
+	$(OCTAVE) check_iisd.m > check_iisd.verif.tmp
 
 #w Tests IISD wirh local_solver = SuperLU
 test_iisd_superlu:
@@ -63,7 +63,7 @@ ifneq ($(SUPERLU),)
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
 endif
-	octave -qH check_iisd_superlu.m > check_iisd_superlu.verif.tmp
+	$(OCTAVE) check_iisd_superlu.m > check_iisd_superlu.verif.tmp
 
 #w Tests IISD wirh local_solver = SuperLU
 test_superlu:
@@ -75,7 +75,7 @@ ifneq ($(SUPERLU),)
 # else
 #	$(MAKE) NP=1 local_solver=direct_superlu case=iisd case_size=small test_case
 endif
-	octave -qH check_direct_superlu.m > check_direct_superlu.verif.tmp
+	$(OCTAVE) check_direct_superlu.m > check_direct_superlu.verif.tmp
 
 #w Tests IISD wirh local_solver = SuperLU
 test_direct_petsc:
@@ -83,7 +83,7 @@ test_direct_petsc:
 	mv -f save.state save.state.direct_petsc.tmp
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
-	octave -qH check_direct_petsc.m > check_direct_petsc.verif.tmp
+	$(OCTAVE) check_direct_petsc.m > check_direct_petsc.verif.tmp
 
 #w Tests different methods of partitioning. 
 test_partitioning: 
@@ -95,7 +95,7 @@ test_partitioning:
 # 	mv -f save.state save.state.nearest_neighbor.tmp
 	$(MAKE) NP=2  case=random_part test_case
 	mv -f save.state save.state.random.tmp
-	octave -qH check_part.m > check_part.verif.tmp
+	$(OCTAVE) check_part.m > check_part.verif.tmp
 
 PETSCFEM_DIR = ../..
 #PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-1.82
@@ -108,7 +108,7 @@ NAME = wallke
 test_case_data: 
 #	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) data
-	octave -qH mkmesh.m > /dev/null
+	$(OCTAVE) mkmesh.m > /dev/null
 
 data: $(NAME).depl force
 $(NAME).depl: force

@@ -1,3 +1,5 @@
+##__INSERT_LICENSE__
+## $Id: try2.m,v 1.2 2003/01/08 15:54:25 mstorti Exp $
 global visco y_wall u
 
 visco = 0.0000104166666666667;

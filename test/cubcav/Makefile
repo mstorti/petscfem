@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.39 2002/12/02 19:09:45 mstorti Exp $ 
+# $Id: Makefile,v 1.40 2003/01/08 15:54:26 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -49,7 +49,7 @@ run: $(CASE).depl
 #	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 mesh: cubcav.depl
-	octave -qH mkmesh.m
+	$(OCTAVE) mkmesh.m
 
 local_clean::
 	-chmod +w *.depl

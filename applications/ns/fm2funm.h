@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: fm2funm.h,v 1.2 2003/01/08 15:54:25 mstorti Exp $
 #ifndef FM2FUNM_H
 #define FM2FUNM_H
 
