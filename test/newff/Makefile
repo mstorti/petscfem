@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2001/06/15 00:26:41 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/07/19 13:46:25 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -60,10 +60,13 @@ auxi_dat: advdif .gdbinit
 
 advdif: advdif.link
 
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
+ifeq ($(NP),)
+NP = 1
+endif
 run: data
 	-rm -f save.state.tmp 
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF) \
 			-case newff.depl > newff.$(CASE).out
 	if [ -e save.state.tmp ] ; then \
 		octave -q verif.m | tee  $(CASE).vrf.tmp ; fi

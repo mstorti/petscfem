@@ -4,6 +4,7 @@ require '../eperlini.pl';       # Initializes ePerl
 @read_var = readm_all_v("data.m");# read all variables in octave file
 octave_string(qw(dif_type adv_type reac_type source_type enthalpy_type));
 $case='newff';
+$NPROC = "$ENV{'NP'}";
 if ($check_nodes || $check_fields) {
     $dif_temp=1;
 }
@@ -20,7 +21,6 @@ save_file "save.state.tmp"
 nsave 20
 
 rtol 1e-2
-maxits 100
 
 save_file_pattern "outvector%d.sal"
 nsaverot 1000000
@@ -28,7 +28,13 @@ nsaverot 1000000
 nstep <:=$nstep:>
 nnwt <:=$nnwt:>
 tol_newton 0
+#if $NPROC > 1
+preco_type "jacobi"
+maxits 100
+#else
 preco_type "lu"
+maxits 1
+#endif
 
 local_time_step 0
 consistent_supg_matrix 1
