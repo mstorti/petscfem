@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.15 2003/11/16 14:29:03 mstorti Exp $
+#$Id: myexpect.pl,v 1.16 2003/11/16 15:06:45 mstorti Exp $
 
 use English;
 ## position in count record
@@ -15,6 +15,7 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 
 $PRE = "{{";
 $POST = "}}";
+$SEP = "}{";
 $COMMENT = "#>>";
 $WD = "";
 
@@ -66,15 +67,26 @@ sub match_regexp {
     my $orig_patt = $patt;
     my $new_patt = "";
     my @conds = ();
-    while ($patt=~/$PRE/) {
-	$new_patt .= $PREMATCH."(.*)";
+    while ($patt =~ /$PRE/) {
 	$patt = $POSTMATCH;
+	$new_patt .= $PREMATCH;
 	die "delimiters doesn't match in pattern: \"$orig_patt\"\n" 
 	    unless $patt =~/$POST/;
+	$cond = $PREMATCH;
 	$patt = $POSTMATCH;
-	push @conds,$PREMATCH;
+	my $subpat = ".*";
+	if ($cond =~ /$SEP/) {
+	    # my $condo = $cond;
+	    $cond = $POSTMATCH;
+	    $subpat = $PREMATCH;
+	    # print "condo: $condo, subpat: $subpat, cond: $cond\n";
+	}
+	$new_patt .= "($subpat)";
+	push @conds,$cond;
     }
     $new_patt .= $patt;
+    # print "new_patt: $new_patt\n";
+    # print "conds: <",join("><",@conds),">\n";
     my @matches = ($line =~ /$new_patt/);
     ## return 0 unless the line matched
     return 0 unless @matches;
