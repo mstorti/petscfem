@@ -469,3 +469,7 @@ tag: beta-1.92 on Sat Jul 28 16:05:04 ART 2001, by mstorti in spider
      > Only a test with in newff complains. 
      > Found a bug in IISD. 
      > Added tests for advdif and ns with IISD.
+----------
+tag: beta-1.93 on Fri Aug  3 15:58:36 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > IISD with distributed map is working.
