@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2002/12/28 22:54:06 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/12/29 21:18:57 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full cylin
 
@@ -20,13 +20,16 @@ PROG := $(NS_O)
 .PHONY: force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: $(CASE_NAME).depl
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
-			-case $< #  > output.$(CASE_NAME).tmp
+	if [ -e visc2inv ] ; then rm visc2inv ; fi
+	mkfifo visc2inv
+	if [ -e inv2visc ] ; then rm inv2visc ; fi
+	mkfifo inv2visc
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) -case $< 
 
 $(CASE_NAME).depl: force
 
 local_clean::
-	-rm -rf mat.output 
+	-rm -rf mat.output visc2inv inv2visc
 
 dx:
 	eperl -P viewer.dx > viewero.dx

@@ -7,7 +7,7 @@ function nodes = mesher_bound (mesh,edge,elem);
       nodess = mesher_bound (mesh,edge([k k+1]));
       k==1 || nodes(length(nodes)) == nodess(1) || \
 	  error("couldn't concatenate set od edges");
-      nodess(1) = [];
+      if k!=1; nodess(1) = []; endif
       nodes = [nodes; nodess];
     endfor
     return;
