@@ -1116,3 +1116,6 @@ tag: beta-2.94.pl1 on Fri, 29 Mar 2002 21:47:49 -0300 by mstorti in spider
 ----------
 tag: beta-2.94.pl2 on Mon,  1 Apr 2002 23:52:23 -0300 by mstorti in spider
      > Working with `ident' + rotation.
+----------
+tag: beta-2.94.pl3 on Wed,  3 Apr 2002 22:42:54 -0300 by mstorti in spider
+     > Start adding rotation taking data from fictitious nodes.
