@@ -1,6 +1,136 @@
 source("data.m");
 ndof=3;
 
+## Physical parameters
+uu=[u v];
+Ax=u*eye(ndof);
+Ay=v*eye(ndof);
+DD=[D 0; 0 D];
+Dxx=DD(1,1)*eye(ndof);
+Dxy=DD(1,2)*eye(ndof);
+Dyy=DD(2,2)*eye(ndof);
+S=[s s s]';
+RR=R*eye(ndof);
+
+if full_jacs==0
+  ## this means no full_jacs
+elseif full_jacs==1
+  fid=fopen("fulljacdef.tmp","w");
+  if strcmp(dif_type,"scalar_per_field")
+    RR=diag(RR);
+    RR=RR+R*Rfluc*(2*rand(size(RR))-1);
+    fprintf(fid,"reactive_jacobians_type \"scalar_per_field\"\n");
+    fprintf(fid,"reactive_jacobians");
+    for j=1:ndof
+      fprintf(fid," %f ",RR(j));
+    endfor
+    fprintf(fid,"\n\n");
+    RR=diag(RR);
+  endif
+
+  if strcmp(dif_type,"scalar_per_field")
+    fprintf(fid,"diffusive_jacobians_type \"scalar_per_field\"\n");
+    fprintf(fid,"diffusive_jacobians");
+    Dxx=0; Dxy=0; Dyy=0;
+    for k=1:ndof
+      ddd=D*(1+Dfluc*(2*rand-1));
+      Dxx(k,k)=ddd;
+      fprintf(fid," %f ",ddd);
+    endfor
+    fprintf(fid,"\n\n");
+    Dyy=Dxx;
+  endif
+  
+  if strcmp(adv_type,"vector_per_field")
+    fprintf(fid,"advective_jacobians_type \"vector_per_field\"\n");
+    fprintf(fid,"advective_jacobians");
+    Ax=0; Ay=0;
+    for k=1:ndof
+      uuu=u*(1+ufluc*(2*rand-1));
+      Ax(k,k)=uuu;
+      vvv=v*(1+ufluc*(2*rand-1));
+      Ay(k,k)=vvv;
+      fprintf(fid," %f %f ",uuu,vvv);
+    endfor
+    fprintf(fid,"\n\n");
+    Dyy=Dxx;
+  endif
+  
+  if strcmp(source_type,"full")
+                                #    fprintf(fid,"source_term_type \"full\"\n");
+                                #    fprintf(fid,"source_term");
+    S=0;
+    for k=1:ndof
+      sss=s*(1+sfluc*(2*rand-1));
+      S(k)=sss;
+                                #      fprintf(fid," %f ",sss);
+    endfor
+                                #    fprintf(fid,"\n\n");
+  endif
+  
+  fclose(fid);
+elseif full_jacs==2
+  fid=fopen("fulljacdef.tmp","w");
+  ## We should check that R is positive definite
+  RR=R*eye(ndof)+R*Rfluc*(2*rand(size(RR))-1);
+  fprintf(fid,"reactive_jacobians_type \"full\"\n");
+  fprintf(fid,"reactive_jacobians");
+  for j=1:ndof
+    for k=1:ndof
+      fprintf(fid," %f ",RR(j,k));
+    endfor
+  endfor
+  fprintf(fid,"\n\n");
+
+  fprintf(fid,"diffusive_jacobians_type \"full\"\n");
+  fprintf(fid,"diffusive_jacobians ");
+  ## We should check that D is a positive
+  ## definite operator
+  Dxx=D*(eye(ndof)+Dfluc*(2*rand(ndof)-1));
+  Dxx=(Dxx+Dxx')/2;
+  Dxy=D*(          Dfluc*(2*rand(ndof)-1));
+  Dxy=(Dxy+Dxy')/2;
+  Dyy=D*(eye(ndof)+Dfluc*(2*rand(ndof)-1));
+  Dyy=(Dyy+Dyy')/2;
+  for j=1:ndof
+    for k=1:ndof
+      fprintf(fid,"\\\n   %f  %f  %f  %f   ", \
+              Dxx(j,k),Dxy(j,k),Dxy(j,k),Dyy(j,k));
+    endfor
+  endfor
+  fprintf(fid,"\n\n");
+  
+  fprintf(fid,"advective_jacobians_type \"full\"\n");
+  fprintf(fid,"advective_jacobians ");
+  Ax=u*(2*rand(ndof)-1);
+  Ax=(Ax+Ax')/2;
+  Ay=v*(2*rand(ndof)-1);
+  Ay=(Ay+Ay')/2;
+  for k=1:ndof
+    fprintf(fid,"\\\n    %f %f %f  ",Ax(k,:));
+  endfor
+  for k=1:ndof
+    fprintf(fid,"\\\n    %f %f %f  ",Ay(k,:));
+  endfor
+  
+  if strcmp(source_type,"full")
+                                #    fprintf(fid,"source_term_type \"full\"\n");
+                                #    fprintf(fid,"source_term");
+    S=0;
+    for k=1:ndof
+      sss=s*(1+sfluc*(2*rand-1));
+      S(k)=sss;
+                                #      fprintf(fid," %f ",sss);
+    endfor
+                                #    fprintf(fid,"\n\n");
+  endif
+  
+  fclose(fid);
+else
+  full_jacs
+  error("Value of full_jacs unknown");
+endif 
+
 ## Number of nodes/elements in x,y
 Nx=nx+1;
 Ny=ny+1;
@@ -49,15 +179,15 @@ endif
 kwave=[kx*2*pi/Lx ky*2*pi/Ly];
 phase=kwave(1)*xe(:,1)+kwave(2)*xe(:,2);
 phase=exp(i*phase);
-sour=s*real(phase);
+sour=real(phase)*S.';
 
 asave("newff.nod.tmp",xnod);
-#asave("newff.con.tmp",icone);
+                                #asave("newff.con.tmp",icone);
 fid=fopen("newff.con.tmp","w");
 for k=1:nele
   fprintf(fid,"%d %d %d %d",icone(k,1),icone(k,2),icone(k,3),icone(k,4));
   if per_elem_prop
-    fprintf(fid," %f %f ",sour(k));
+    fprintf(fid," %f %f %f ",sour(k,1:3));
   endif
   fprintf(fid,"\n");
 endfor
@@ -77,13 +207,17 @@ asave("newff.bcconv.tmp",bcconv);
 ##--<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
 ##--<*>---//--- ANALYTICAL SOLUTION -<*>---//---<*>---//
 ##--<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
-uu=[u v];
-DD=[D 0; 0 D];
-
-beta = R+i*kwave*uu'+kwave*DD*kwave';
+kwu=kwave(1)*Ax+kwave(2)*Ay;
+kDk = kwave(1)*kwave(1)*Dxx+2*kwave(1)*kwave(2)*Dxy+kwave(2)*kwave(2)*Dyy;
+beta = RR + i*kwu + kDk;
 phase=kwave(1)*xnod(:,1)+kwave(2)*xnod(:,2);
 phase=exp(i*phase);
-uana = s/beta*(1-exp(-beta*nstep*Dt));
-Uana = real(uana*phase);
-#Uana=reshape(Uana,17,17)';
-asave("uanalyt.tmp",Uana(:,[1 1 1]));
+if !steady
+  uana = (beta \ (1-exp(-beta*nstep*Dt)))*S;
+else
+  uana = beta\S;
+endif
+
+Uana = real(phase*uana.');
+                                #Uana=reshape(Uana,17,17)';
+asave("uanalyt.tmp",Uana);

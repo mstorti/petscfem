@@ -41,6 +41,13 @@ alpha 1.
 weak_form 0
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
+#---<*>---/  JACOBIANS DEFINITION ---<*>---//---<*>---//
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+#fulljacs <:=$full_jacs:>
+#if !$full_jacs
+#### if $full_jacs the jacobians are defined  from within octave
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
 #---<*>---//-- ADVECTIVE JACOBIANS --<*>---//---<*>---//
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 advective_jacobians_type "<:=$adv_type:>"
@@ -114,6 +121,13 @@ source_term <:=$s:> <:=2*$s:> <:=3*$s:>
 <:die "not known source_type: $source_type\n":>
 #endif
 
+#else
+#### if $full_jacs the jacobians are defined  from within octave
+
+#include fulljacdef.tmp
+
+#endif
+
 __END_HASH__
 
 #===========================================================
@@ -124,7 +138,11 @@ __END_NODES__
 
 #===========================================================
 elemset newadvdif_advecfm2 4
+#if ! $full_jacs
 props source_term
+#else
+props source_term[3]
+#endif
 #Datos del elemento
 geometry cartesian2d
 npg 4

@@ -19,8 +19,15 @@ kx=1;
 ky=0;
 tol=0.01;
 nnwt=1;
+full_jacs=0;
+Rfluc=0;
+Dfluc=0;
+ufluc=0;
+sfluc=0;
+steady=0;
 
-#<:=$CASE=$ENV{'CASE'}:>//
+#<:$CASE=$ENV{'CASE'}:>//
+CASE=<:=$CASE:>;
 
 #if $CASE eq 'dif_temp'
 ## Heat eq. with source term and reaction
@@ -93,6 +100,55 @@ reac_type="global_scalar";
 s=3.1;
 D=.6;
 tol=0.005;
+#elsif $CASE eq 'full_jacs'
+ky=1;
+full_jacs=1;
+Dt=1e5;
+nstep=1;
+tol=0.04;
+nx=16;
+ny=16;
+kx=1;
+ky=1;
+Lx=1;
+Ly=1;
+R=5;
+reac_type="scalar_per_field";
+Rfluc=.5;
+D=0.01;
+Dfluc=.5;
+dif_type="scalar_per_field";
+u=1.5;
+v=1.2;
+ufluc=1;
+adv_type="vector_per_field";
+s=1;
+sfluc=1;
+source_type="full";
+#elsif $CASE eq 'full_full_jacs'
+steady=1;
+ky=1;
+full_jacs=2;
+Dt=1e5;
+nstep=1;
+tol=0.01;
+nx=16;
+ny=16;
+kx=1;
+ky=1;
+Lx=1;
+Ly=1;
+R=5;
+Rfluc=.1;
+D=1;
+Dfluc=.3;
+u=1;
+v=1;
+ufluc=1;
+adv_type="vector_per_field";
+s=1;
+sfluc=1;
+source_type="full";
 #else 
 <:die("not implemented test case '$CASE'"):>
 #endif

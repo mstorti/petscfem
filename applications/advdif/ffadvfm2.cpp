@@ -295,7 +295,7 @@ comp_vel_per_field(FastMat2 &vel_per_field) {
   // the sum over spatial dimensions of the digonal
   // elements of the jacobians:
   ff.u.d(3,2);
-  vel_per_field.sum_square(ff.u,1,-1).fun(sqrt);
+  vel_per_field.sum_square(ff.u,-1,1).fun(sqrt);
   ff.u.rs();
 }
 

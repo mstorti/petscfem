@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2001/03/28 16:34:28 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/03/29 01:41:48 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -15,7 +15,7 @@ ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin
 EPERLFLAGS = -d $(CASE)=1
 DF = newff.depl
 OF = newff.nod.tmp newff.con.tmp 
-data: $(DF) $(OF) #auxi_dat # para que genere .gdbinit y el link
+data:  $(OF) $(DF) #auxi_dat # para que genere .gdbinit y el link
 
 data.m: data.m.epl force
 newff.depl: data.m force
@@ -31,13 +31,15 @@ newff.depl: data.m force
 #        the components. 
 
 tests: test_dif_temp test_adv_dif_temp test_reac_adv_dif_temp_y \
-	test_reac_steady test_reac_dif_temp test_std_ard_x_y
+	test_reac_steady test_reac_dif_temp test_std_ard_x_y \
+	test_full_jacs test_full_full_jacs
 
 test_%: 
 	$(MAKE) CASE=$* run
 
 #w Test for per-element properties 
 $(OF): newff.m data.m
+	touch fulljacdef.tmp	# because it is needed by eperl!!
 	octave -q newff.m
 
 #w makes auxiliary files .gdbinit and link advdif
