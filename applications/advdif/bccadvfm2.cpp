@@ -187,6 +187,7 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       // normal:= normal vector times the surface of the element
       detJaco = mydetsur(Jaco,normal);
+      normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
 	     << " Jacobian: " << detJaco << endl ;

@@ -265,6 +265,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 	detJaco = mydetsur(Jaco,normal);
+	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 	double Ustar = sqrt(u_star.sum_square_all());

@@ -214,6 +214,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       detJaco = mydetsur(Jaco,normal);
+      normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
 	     << " Jacobian: " << detJaco << endl ;

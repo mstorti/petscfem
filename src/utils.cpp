@@ -73,6 +73,9 @@ double mydetsur(Matrix & Jaco, ColumnVector &S) {
     JJ(n,k) = 1;
     S(k) = mydet(JJ);
   }
+  // fixme:= I put this in order to fix a bug but it should be coded
+  // more cleanly if it will be used in the future. 
+  S=-S; 
   double SS = sqrt(S.SumSquare());
   return SS;
 }
@@ -80,6 +83,35 @@ double mydetsur(Matrix & Jaco, ColumnVector &S) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "double mydetsur(FastMat2 &Jaco, FastMat2 &S)"
+// fixme:= I put this in order to fix a bug but it should be coded
+// more cleanly if it will be used in the future. 
+#if 1 
+double mydetsur(FastMat2 &Jaco, FastMat2 &S) {
+  int ierr;
+  int n=Jaco.dim(2);
+  assert(Jaco.dim(1)==n-1);
+  double sx,sy,sz;
+
+  if (n==2) {
+    Jaco.ir(1,1);
+    sx=Jaco.get(2);
+    sy=-Jaco.get(1);
+    S.setel(sx,1).setel(sy,2);
+    Jaco.rs();
+    return sqrt(sx*sx+sy*sy);
+  } else if (n==3) {
+    sx = -Jaco.get(1,2)*Jaco.get(2,3)+Jaco.get(1,3)*Jaco.get(2,2);
+    sy = -Jaco.get(1,3)*Jaco.get(2,1)+Jaco.get(1,1)*Jaco.get(2,3);
+    sz = -Jaco.get(1,1)*Jaco.get(2,2)+Jaco.get(1,2)*Jaco.get(2,1);
+
+    S.setel(sx,1).setel(sy,2).setel(sz,3);
+    return sqrt(sx*sx+sy*sy+sz*sz);
+  } else {
+    printf("Dimension not allowed (only 2 and 3)");
+    assert(0);
+  }
+}
+#else  // old version
 double mydetsur(FastMat2 &Jaco, FastMat2 &S) {
   int ierr;
   int n=Jaco.dim(2);
@@ -104,8 +136,8 @@ double mydetsur(FastMat2 &Jaco, FastMat2 &S) {
     printf("Dimension not allowed (only 2 and 3)");
     assert(0);
   }
-
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

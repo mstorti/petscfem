@@ -13,6 +13,9 @@ $Dt = $T/$N_step_period;        # time step
 $nstep = $N_step_period * $N_period;
 $omega = 2*$PI/$T;              # frequency
 $alpha=1.0 unless $alpha;       # can be given from the makefile
+if ($per_elem_prop) {
+    $nstep=5;
+}
 #__END_TRANSCRIPT__
 transcript("sine.data.res",
     @read_var,
@@ -55,13 +58,19 @@ auto_time_step 0
 Dt <:=$Dt:>
 alpha <:=$alpha:>
 #tau_fac 0.
-weak_form 1
 
 #solve_system 0
 #print_linear_system_and_stop
 
+#if $per_elem_prop
+weak_form 0
+diffusive_jacobians <:=$D:>
+#diffusive_jacobians <:=$D:> 0 0 <:=$D:>
+#else
+weak_form 1
 advective_jacobians <:=$u:> 0. 
 diffusive_jacobians <:=$D:>
+#endif
 
 #initial_state "<:=$case:>.ini"
 __END_HASH__
@@ -73,11 +82,13 @@ __INCLUDE__ <:=$case:>.nod.tmp
 __END_NODES__
 
 #===========================================================
-#elemset advdif_advecfm2 4
-elemset newadvdif_advecfm2 4
 #if $per_elem_prop
+elemset newadvdif_advecfm2 4
 #props conduct[2]
-advective_jacobians .5 .6
+advective_jacobians .5 0.
+#else
+elemset advdif_advecfm2 4
+advective_jacobians .5 0.
 #endif
 #Datos del elemento
 geometry cartesian2d
@@ -87,12 +98,14 @@ __INCLUDE__ <:=$case:>.con.tmp
 __END_ELEMSET__
 
 #===========================================================
+#if !$per_elem_prop
 elemset bcconv_adv_advecfm2 2
 npg 2
 geometry cartesian1d
 __END_HASH__
 __INCLUDE__ <:=$case:>.bcconv.tmp
 __END_ELEMSET__
+#endif
 
 end_elemsets
 

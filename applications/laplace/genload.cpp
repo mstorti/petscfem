@@ -1,4 +1,4 @@
-/* $Id: genload.cpp,v 1.2 2001/01/10 22:40:27 mstorti Exp $ */
+/* $Id: genload.cpp,v 1.3 2001/03/24 00:10:34 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -150,6 +150,7 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
 	detJ = mydet(Jaco);
       } else if (ndimel==ndim-1) {
 	detJ = mydetsur(Jaco,S);
+	S = -S; ; // fixme:= This is to compensate a bug in mydetsur
       } else {
 	PFEMERRQ("Not considered yet ndimel<ndim-1\n");
       }

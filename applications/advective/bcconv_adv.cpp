@@ -195,6 +195,7 @@ int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       Jaco = DSHAPEXI * xloc;
       detJaco = mydetsur(Jaco,normal);
+      normal = -normal; // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
 	     << " Jacobian: " << detJaco << endl ;

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* A faster (cached version) of mydet and mydetsur
 * corregir normales en mydetsur y otros ... 
 * How to choose the correct jacobian when different combinations (eg:
 * ndim*ndim, ndof, etc...) coincide...
