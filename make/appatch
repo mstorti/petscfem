@@ -1,70 +1,87 @@
 #!/bin/bash
 
-source patch_utils_conf.sh
+source $HOME/PETSC/patch_utils_conf.sh
 
-if [ -e petscfem.patch.gz ]  
-    then echo "Unzipping petscfem.patch"
-	gunzip petscfem.patch.gz 
+if [ ! -e cvsroot.$local ] 
+    then echo "cvsroot.$local doesn't exist!!";
+    exit 0;
 fi
 
-if [ ! -e petscfem.patch ] 
-    then echo "No existe petscfem.patch!"
-    exit 1 
+echo "Tarring cvsroot.$local..."
+tar czvf cvsroot.$local.tgz cvsroot.$local
+
+if [ ! -f cvsroot.patch ]
+    then echo "cvsroot.patch doesn't exist!!";
 fi
 
-if [ -e source.tara.$local.gz ] 
-    then echo "Unzipping source.tara.$local"
-    gunzip source.tara.$local 
-fi
-
-if [ ! -e source.tara.$local ] 
-    then echo "No existe source.tara.$local!"
-    exit 1 
-fi
-
-cp source.tara.$local source.tara.$local.tempo
-echo Patching...
-patch source.tara.$local.tempo < petscfem.patch
-
-echo -n "Continue? (y/n) > "
+echo -n "Apply patch ? (y/n) > "
 read answer
 if [ ! "$answer" = "y" ] 
     then exit 1
 fi
 
-echo "Re-compressing source.tara.$local"
-gzip source.tara.$local
+echo "Applying patch ..."
+pushd cvsroot.$local 
+patch -E -p1 < ../cvsroot.patch
+popd
 
-echo "Renaming to source.tara.$remote"
-mv -fv source.tara.$local.tempo source.tara.$remote
-
-echo "Applying tara2tar"
-if [ -e petscfem.tar ] 
-    then echo -n "petscfem.tar exists. Overwrite? (y/n) > "
+if [ -d cvsroot.$remote ]
+    then echo -n "Remove cvsroot.$remote  ? (y/n) > "
     read answer
     if [ ! "$answer" = "y" ] 
 	then exit 1
     fi
+    rm -rf cvsroot.$remote
 fi
-tara2tar < source.tara.$remote > petscfem.tar
 
-echo "Re-compressing source.tara.$remote"
-gzip source.tara.$remote
+echo "Moving cvsroot.$local to cvsroot.$remote"
+mv -f cvsroot.$local cvsroot.$remote
 
-if [ -f pescfem.tar ] 
-    then echo -n "Remove pescfem.tar ? (y/n) > "
+echo -n "Tar cvsroot.$remote  ? (y/n) > "
+read answer
+if [ ! "$answer" = "y" ] 
+    then exit 1
+fi
+
+echo "Tarring cvsroot.$remote..."
+tar czvf cvsroot.$remote.tgz cvsroot.$remote
+
+echo "Moving cvsroot.$remote to cvsroot"
+mv -f cvsroot.$remote cvsroot
+
+pushd PETSC
+if [ -d petscfem.old ] 
+    then echo -n "Remove petscfem.old  ? (y/n) > "
     read answer
-    if [ ! "$answer" = "y" ]
+    if [ ! "$answer" = "y" ] 
 	then exit 1
     fi
+    rm -rf petscfem.old
 fi
-rm pescfem.tar
 
-if [ -f petscfem.patch ] 
-    then echo -n "Remove pescfem.patch ? (y/n) > "
-    read answer
-    if [ ! "$answer" = "y" ]
-	then exit 1
-    fi
+if [ -d petscfem ]
+then echo "Moving petscfem to petscfem.old"
+    mv petscfem petscfem.old
 fi
-rm pescfem.patch
+
+echo -n "Check out petscfem  ? (y/n) > "
+read answer
+if [ ! "$answer" = "y" ] 
+    then exit 1
+fi
+
+echo "Checking out petscfem..."
+cvs co petscfem
+
+echo -n "Make '\$ make sw'  ? (y/n) > "
+read answer
+if [ ! "$answer" = "y" ] 
+    then exit 1
+fi
+
+echo "Making '\$ make sw' ..."
+pushd petscfem
+make sw
+
+#popd
+#popd
