@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.20 2002/07/08 02:20:19 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.21 2002/08/19 16:03:15 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -416,7 +416,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  if (!glob_param->steady) {
 	    alfa_v.scale(rec_Dt);
 	  } else {
-	    assert(alfa_v.sum_square_all()==0.);
+	    PETSCFEM_ASSERT0(alfa_v.sum_square_all()==0.==0,
+			     "'steady' flag is incompatible with angular acceleration");  
 	  }
 
 	  if (non_inertial_frame_reverse_sign) {

@@ -721,6 +721,12 @@ expect("nutatcyl/checknutcyl.verif.tmp",
 Roll moment OK \? 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nutatcyl/rigid.verif.tmp",
+       "Viscous force intgrator on rigid cylinder",<<'EOT');
+Roll moment OK \? 1
+EOT
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

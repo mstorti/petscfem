@@ -1,7 +1,7 @@
 # -*- shell-script -*-
 __ECHO_ON__
 <:
-#$Id: closcyl.epl,v 1.2 2002/08/17 22:39:00 mstorti Exp $
+#$Id: closcyl.epl,v 1.3 2002/08/19 16:03:18 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
@@ -12,6 +12,7 @@ sub get_var_from_env {
 }
 #
 #__TRANSCRIPT__
+
 get_var_from_env('mesh',
     '4-8-D');                   # Mesh size (n-nz-solve), solve=D/I (direct/iterative)
 die "bad \"mesh\" val: $mesh\n" 
@@ -23,14 +24,38 @@ $casename = $ENV{'NAME'};       # This is used in the `proc?.m' scripts
 $ini = $ENV{'ini'};             # Run the initialization step
 
 $layers = 2;                    # Element layers for computing viscous force
-$rigid_body = 0;
 #
-if (!$rigid_body) {
-    require './vaughn.pl';
-} else {
+get_var_from_env('Omega',9000);	# Spin velocity in r.p.m.
+get_var_from_env('Omega_nut',
+		 620);		# nutation velocity r.p.m.
+get_var_from_env('nuta',15);	# nutation angle [degree]
+get_var_from_env('nu',0.1);	# [m^2/sec] kinematic viscosity
+
+# rigid test: the cylinder rotates rigidly (nu-> infty) and we check
+# Mz = I \dot Omega
+get_var_from_env('rigid_body_test',0);	
+
+# Convert to 1/sec
+$Omega = $Omega/60.*2*$PI;	# Spin velocity [1/sec]
+$Omega_nut 
+    = $Omega_nut/60.*2*$PI;	# Nutation velocity [1/sec]
+
+$nutation_angle 
+    = $nuta*$PI/180.;		# Nutation angle
+$nstep = 1;			# Number of time steps
+$Dt = 0.2;			# Time step
+$verbose = 0;
+
+$RRin = 2.375;
+$Lzin = 20.75;
+$RR = $RRin*2.54/100.;		# [m] radius of cylinder
+$cLz = $Lzin/$RRin;		# height of cylinder
+$rho = 1;			# [kg/m^3] Density
+
+if ($rigid_body_test) {
     $Omega = 0.;
     $omega = 0.1;
-    $nstep = 100;               # Number of time steps
+    $nstep = 1;                 # Number of time steps
     $T = 2*$PI/$omega;
     $Dt = $T/64;                # Time step
     $verbose = 0;
@@ -128,6 +153,7 @@ $nodf_r = $1;
 close FIC;
 :>
 
+# <:pr('rigid_body_test'):>
 # <:pr('Omega'):>
 # <:pr('Omega_nut'):>
 # <:pr('nutation_angle'):>
@@ -147,7 +173,7 @@ petscfem2pfm_file "../ROSI/petscfem2pfm"
 turbulence_coef 0.
 non_inertial_frame 1
 # non_inertial_frame_reverse_sign
-steady 1
+steady <:= ($rigid_body_test ? 0 : 1 ) :>
 nstep <:= (defined $nstepf ? $nstepf : $nstep); :>
 nnwt 3
 tol_newton 0
@@ -320,7 +346,7 @@ fixa
 <:= $nodf_u :> 2 0.
 <:= $nodf_u :> 3 0.
 
-#if !$rigid_body
+#if !$rigid_body_test
 <:= $nodf_r :> 1 <:= -$Omega_nut*sin($nutation_angle) :>
 <:= $nodf_r :> 2 0.
 <:= $nodf_r :> 3 <:= -$Omega_nut*cos($nutation_angle) :>
@@ -336,7 +362,7 @@ fixa
 __END_FIXA__
 
 #===========================================================
-#if $rigid_body
+#if $rigid_body_test
 # Oscillating rigid movement about 'z' axis
 fixa_amplitude sin
 amplitude 1.

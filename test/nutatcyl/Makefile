@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2002/08/17 22:39:00 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2002/08/19 16:03:18 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -49,4 +49,10 @@ nutcyl:
 	$(MAKE) nuta=0 mesh=4-10-I run
 	cp cylinder.force.tmp cylinder.force.nuta0.tmp
 	octave -q checknutcyl.m > checknutcyl.verif.tmp
+
+test_rigid:
+	-rm -f cylinder.force.rigid.tmp rigid.verif.tmp
+	$(MAKE) rigid_body_test=1 mesh=4-10-I run
+	cp cylinder.force.tmp cylinder.force.rigid.tmp
+	octave -q checkrigid.m > rigid.verif.tmp
 #s
