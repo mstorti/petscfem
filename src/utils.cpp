@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.10 2001/11/12 01:50:29 mstorti Exp $
+//$Id: utils.cpp,v 1.11 2001/11/20 02:29:00 mstorti Exp $
  
 #include <stdio.h>
 
@@ -8,8 +8,9 @@
 
 #include <newmatio.h>
 
-#include "fem.h"
-#include "utils.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/debug.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -240,6 +241,36 @@ int wait_from_console(char *s=NULL) {
   } 
   ierr = MPI_Barrier(PETSC_COMM_WORLD);
   CHKERRQ(ierr);  
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Debug debug;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Debug::wait(const char *s=NULL) {
+  if (!active()) return;
+  int myrank;
+  MPI_Comm_rank(comm,&myrank);
+  int ierr;
+  char ans;
+  ierr = MPI_Barrier(comm);
+  assert(ierr==0);
+  if (myrank==0) {
+    if (s!=NULL) printf("%s --- ",s);
+    printf("Continue? (n/RET=y) > ");
+    fflush(stdout);
+    scanf("%c",&ans);
+  }
+  ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,comm);
+  assert(ierr==0); 
+  if (ans=='n') {
+    PetscFinalize();
+    exit(0);
+  } else if (ans=='d') {
+    deactivate();
+  } 
+  ierr = MPI_Barrier(comm);
+  assert(ierr==0);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.54 2001/11/19 03:35:06 mstorti Exp $
+//$Id: lusubd.cpp,v 1.55 2001/11/20 02:28:59 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -139,6 +139,7 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
+
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
   int myrank,size;
@@ -1004,7 +1005,7 @@ int IISDMat::warn_iisdmat=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::build_sles"
+#define __FUNC__ "IISDMat::build_sles"
 int IISDMat::build_sles(TextHashTable *thash,char *name=NULL) {
   int ierr;
   ierr = PFMat::build_sles(thash,name); CHKERRQ(ierr);
