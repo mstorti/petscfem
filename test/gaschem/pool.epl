@@ -2,7 +2,7 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 120;			# nbr of elements in x-y dir
+$Nx = 20;			# nbr of elements in x-y dir
 $Ny = $Nx;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
@@ -117,6 +117,7 @@ name fluid
 dx
 geometry cartesian2d
 npg 4
+# Nb_source <:=2e4/$Nb_scale*$u/$Lx:>
 __END_HASH__
 __INCLUDE__ pool.con.tmp
 __END_ELEMSET__

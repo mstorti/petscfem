@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.8 2003/11/13 13:36:39 mstorti Exp $
+//$Id: gaschem.cpp,v 1.9 2003/11/19 17:56:34 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -41,6 +41,8 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,CdN_ctff,0.0);
   //o Scale Nb eq. with this
   EGETOPTDEF_ND(elemset,double,Nb_scale,1.0);
+  //o A source for #Nb# ([=] #bubbles/m3 sec#). 
+  EGETOPTDEF_ND(elemset,double,Nb_source,0.0);
 
   // Values for KO and KN from [Buscaglia et.al. 2002]
   //are in mol/m3/bar
@@ -247,7 +249,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     double SO = coef*(CdO-KO*pgas*xO);
     double SN = coef*(CdN-KN*pgas*xN);
     
-    G_source.setel(0.,1);
+    G_source.setel(Nb_source,1);
     G_source.setel(SO,2);
     G_source.setel(SN,3);
     G_source.setel(-SO,4);
