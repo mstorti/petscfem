@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.12 2002/01/14 03:45:05 mstorti Exp $
+//$Id: ffswfm2t.cpp,v 1.13 2002/10/12 15:49:37 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -15,20 +15,20 @@
 #include "advective.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "flux_fun_swfm2t" 
 #define NDOF 5
 #define AJACX(j,k) VEC2(ajacx,((j)-1),((k)-1),NDOF)
 #define AJACY(j,k) VEC2(ajacy,((j)-1),((k)-1),NDOF)
 
-//int flux_fun_swfm2t(AD_FLUX_FUN_ARGS) {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "swfm2t_ff_t::operator()"
 int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
 
   static double ajacx[NDOF*NDOF],ajacy[NDOF*NDOF];
   int ierr;
 
   if (ndim!=2) {
-    PFEMERRQ("Stop with \"mojito\" drinking!! 2D Only\n");
+    PFEMERRQ("Stop with \"mojito\" drinking!! 2D Only...\n");
   }
 
   static int flag=0,ndof;
@@ -351,7 +351,8 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     G_source
       .set(0.)
       .is(1,1,ndim)
-      .add(bottom_slope)
+      .add(grad_H)
+      // .add(bottom_slope)  ??????????
       .scale(-g*h)
       .axpy(u,-g/SQ(Chezy)*q)
       .rs();
