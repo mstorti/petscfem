@@ -3923,3 +3923,6 @@ tag: beta-3.41.23 on Sat, 29 Jan 2005 20:54:59 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.24 on Sun, 30 Jan 2005 00:23:35 -0300 by mstorti in spider
      > Addind absorbing b.c.'s to flat plate case.
+----------
+tag: beta-3.41.25 on Sun, 30 Jan 2005 23:21:18 -0300 by mstorti in spider
+     > Working on nozzle example. 
