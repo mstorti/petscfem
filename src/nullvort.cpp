@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.10 2003/03/01 23:26:18 mstorti Exp $
+// $Id: nullvort.cpp,v 1.11 2003/03/05 03:28:03 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -24,9 +24,12 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   // get options. Other options are processed in Surf2vol::factory
   //o The number of nodes per skin panel. 
   TGETOPTNDEF(&thash,int,nel_surf,0);
-  //o The elemset that is from the fluid side. 
+  //o The elemset that is on the fluid side. 
   TGETOPTDEF_S(&thash,string,volume_elemset,<none>);
   assert(volume_elemset!="<none>");
+  //o The field to be used on the fictitious node as
+  //  Lagrange multiplier
+  TGETOPTNDEF(&thash,string,fic_dof,<none>);
 
   // Call the `factory' (constructor) for the Surf2Vol object. 
   int identify_volume_elements, layers,
@@ -43,6 +46,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   icone.reshape(2,0,nel);
   vector<string> tokens;
   vector<int> row;
+  map<int> int coupl2fic;
   int nelem=0;
   char *line;
   while(!fstack->get_line(line)) {
@@ -53,6 +57,13 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     for (int j=0; j<nel_surf; j++) icone.push(row[j]);
     for (int j=0; j<nel_surf*layers; j++) icone.push(1);
     nelem++;
+  }
+  while(!fstack->get_line(line)) {
+    if (!strcmp(line,"__END_DATA__")) break;
+    row.clear();
+    read_int_array(row,line);
+    assert(row.size()==2);
+    coupl2fic[row[0]] = row[1];
   }
   icone.defrag();
   assert(nelem*nel == icone.size());
@@ -158,6 +169,14 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   xnod.set(mesh->nodedata->nodedata);
   int ndim = mesh->nodedata->ndim;
 
+  // Number of nodes in the stencil (tangential to the surface)
+  int n_stencil = 3;
+  int nx = ngb.size() * (layers+1);
+  // This will be the connectivity table of the elemset
+  dvector<int> icone_stencil;
+  // The number of nodes for the Lagrange multiplier elemset
+  // is the number of nodes in the stencil +1 (the fictitious node).
+  icone_stencil.reshape(2,0,nx+1);
   // Neighbors (on surface) of node
   GSet ngb;
   // Constraint to be generated
@@ -182,11 +201,10 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     // less than 3 (in each tangent direction) we can't make a second
     // order precision approximation. So we skip the node. Give a
     // warning.
-    if (ngb.size()!=3) {
+    if (ngb.size()!=n_stencil) {
       printf("No 3 ngbrs node: %d\n",node);
       continue;
     }
-    int nx = ngb.size() * (layers+1);
 
     // Build the cloud 
     Cloud2 cloud;
@@ -196,13 +214,11 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     int npol[] = {2,2};
     // initialize the object
     cloud.init(ndim,nx,2,derivs,npol);
-    // coorinates of nodes in stencil, coordinates
+    // coordinates of nodes in stencil, coordinates
     // of node, computed coefs.
     FastMat2 x(2,nx,ndim), x0(1,ndim), w(2,nx,2);
     // Coordinates of surface node
     x0.set(&xnod.e(node,0));
-    // list of nodes in the cloud
-    stencil.resize(nx);
     // Coordinates of nodes in the cloud
     int k=0;
     GSet::iterator q, qe=ngb.end();
@@ -233,41 +249,12 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
 		  node,cond);
       continue;
     }
-    // Build the constraint (list of node,field,coef)
-    constraint.empty();
-    // Vorticity is dv/dx-du/dy
-    // cofficients in dv/dx
-    double tol=1e-10;
-    for (int j=0; j<nx; j++) {
-      double c = w.get(j+1,2);
-      if (fabs(c)>tol) {
-	printf("  %f  %d %d",c,stencil.e(j),1);
-	constraint.add_entry(stencil.e(j),1,c);
-      }
-    }
-    // cofficients in -du/dy
-    for (int j=0; j<nx; j++) {
-      double c = -w.get(j+1,1);
-      if (fabs(c)>tol) {
-	printf("  %f  %d %d",c,stencil.e(j),2);
-	constraint.add_entry(stencil.e(j),2,c);
-      }
-    }
-    printf("\n");
-    printf("adding constraint ...\n");
-    // Load constraint in dofmap
-    ierr = dofmap->set_constraint(constraint);
-    // Give error if the constraint was linearly dependent
-    if (ierr) PetscPrintf(PETSC_COMM_WORLD,
-			  "Error setting null vorticity condition "
-			  " for node %d\n",node+1);
-    else n_constr_ok++;
-    printf("done.\n");
+    
+    // Build element, it involves the nodes in the cloud plus
+    // the fictitious node
+    
+
   }
-  PetscPrintf(PETSC_COMM_WORLD,
-	      "null_vort: %d constraints imposed OK"
-	      " from %d coupling nodes\n",
-	      n_constr_ok,n_coupling_nodes);
 
   icone.clear();
   xnod.clear();
