@@ -18,13 +18,13 @@ local_sw:: licenses
 licenses: license.script license.c license.tex license.cpp
 
 #w license for makefiles and scripts
-license.script: license.txt
+license.script: license.txt ../VERSION
 	echo "#__<L>__" > $@
 	echo "#__<L>__" >> $@
 	perl -p -e 's/^/\#  /; s/<VERSION>/$(PETSCFEM_VERSION)/;' license.txt >> $@
 
 #w license for C 
-license.c: license.txt
+license.c: license.txt ../VERSION
 	echo "\/.__<L>__" > $@ 
 	echo "/*__<L>__*/" >> $@
 	echo '/*' >>$@
@@ -32,13 +32,13 @@ license.c: license.txt
 	echo '*/' >>$@
 
 #w license for C++
-license.cpp: license.txt
+license.cpp: license.txt ../VERSION
 	echo "\/.__<L>__" > $@ 
 	echo "//__<L>__" >> $@
 	perl -p -e "s|^|//  |; s/<VERSION>/$(PETSCFEM_VERSION)/;" license.txt >> $@
 
 #w license for C and C++ essence
-license.tex: license.txt
+license.tex: license.txt ../VERSION
 	echo "%__<L>__" > $@
 	echo "%__<L>__" >> $@
 	perl -p -e 's/^/%  /; s/<VERSION>/$(PETSCFEM_VERSION)/;' license.txt >> $@

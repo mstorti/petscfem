@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.14 2002/12/13 02:36:07 mstorti Exp $
+//$Id: nssupg.cpp,v 1.15 2002/12/13 15:32:21 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -37,9 +37,9 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // free\_surface\_damp} option) is a factor that scales the free
   // surface ``rigidity''. $\Cnst{eq}=1$ (which is the default) means
   // no scaling, a zero value means infinitely rigid (as for an
-  // inifinite gravity).
+  // infinite gravity).
   TGETOPTDEF(thash,double,fs_eq_factor,1.);
-  //o $\Cnst{lf}=${\alltt free\_surface\_set\_level\_factor} tries to
+  //o $\Cnst{lf}=${\tt free\_surface\_set\_level\_factor} tries to
   // keep the free surface level constant by adding a term $\propto
   // \bar\eta$ to the free surface level.  (see doc for {\tt
   // free\_surface\_damp})
