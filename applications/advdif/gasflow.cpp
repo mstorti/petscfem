@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.34 2005/03/23 01:45:24 mstorti Exp $
+//$Id: gasflow.cpp,v 1.35 2005/03/23 01:47:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -425,9 +425,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
-  FastMat2::stat(1);
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
-  FastMat2::stat(0);
 
   // Strain rate tensor
   grad_U.is(2,vl_indx,vl_indxe);
