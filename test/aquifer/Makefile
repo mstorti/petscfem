@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2002/02/20 01:47:33 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2002/02/22 21:15:20 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -36,7 +36,7 @@ MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)
-np := 1
+np := 5
 endif
 
 #w case with constant aquifer depth

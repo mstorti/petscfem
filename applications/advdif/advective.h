@@ -1,8 +1,8 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.46 2002/02/17 03:59:51 mstorti Exp $
+//$Id: advective.h,v 1.47 2002/02/22 21:15:15 mstorti Exp $
  
-//#define CHECK_JAC // Computes also the FD Jacobian for debugging
+#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
@@ -341,7 +341,7 @@ class NewAdvDif : public NewElemset {
   NewAdvDifFF *adv_diff_ff;
   int volume_flag;
   double Volume,rec_Dt_m;
-  FastMat2 dshapex;
+  FastMat2 dshapex,Uo;
 public:
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
@@ -360,6 +360,7 @@ public:
   double volume() const ;
   const FastMat2 *grad_N() const ;
   double rec_Dt() const { return rec_Dt_m; }
+  const FastMat2 &Uold() const { return Uo; }
 };
 
 /** This is the companion elemset to advdif that computes the boundary

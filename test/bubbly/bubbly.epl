@@ -14,9 +14,9 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;
-$hratio = 5;			# refinement (h_center/h_wall)
-$Re = 0.001;			# Reynolds number
+$N = 1;
+$hratio = 0;			# refinement (h_center/h_wall)
+$Re = 100;			# Reynolds number
 $visco_l = $L/$Re;		# viscosity
 $Dt = 1e12;			# time step
 $solver = "petsc";
@@ -29,9 +29,8 @@ $v_g=0;
 $k = 0.1;
 $eps = 0.1;
 #
-$weak_form = 1;
+$weak_form = 0;
 $cache_gdu = 0;
-$update_jacobian =0;
 # `scalar' avoids returning the first match, which can be zero
 # and then can be interpreted as `false' 
 $solver = "petsc";
@@ -60,13 +59,6 @@ initial_state "bubbly.ini.tmp"
 <:pr('maxits'):> 
 # Number of subdomains
 <:pr('iisd_subpart'):>
-#if $update_jacobian
-# update_jacobian_iters 3
-update_jacobian_start_steps 3
-update_jacobian_steps 3
-report_consumed_time
-activate_debug_print
-#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -83,14 +75,17 @@ nnwt 10
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv
 print_residual
-# print_linear_system_and_stop
-# solve_system 0
-# verify_jacobian_with_numerical_one 1
+#if 1
+print_linear_system_and_stop
+solve_system 0
+verify_jacobian_with_numerical_one 1
+#endif
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
 # steady
 temporal_stability_factor 0
+# tau_fac 100
 
 shock_capturing_factor 0
 #if $cache_gdu
@@ -132,10 +127,12 @@ __END_ELEMSET__
 end_elemsets
 
 fixa
+#if 0
 # fijacion en la presion
 1 1 0.
 # fijaciones de velocidad en las paredes
 __INCLUDE__ bubbly.fixa.tmp
+#endif
 
 __INCLUDE__ bubbly.fixa_all.tmp
 __END_FIXA__

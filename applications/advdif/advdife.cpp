@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.51 2002/02/18 15:33:12 mstorti Exp $
+//$Id: advdife.cpp,v 1.52 2002/02/22 21:15:15 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -235,7 +235,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     iJaco(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
-    G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), 
+    G_source(ndof), dUdt(ndof), Un(ndof), 
     Ho(ndof),Hn(ndof), tau_supg(ndof,ndof);
   // These are edclared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
@@ -249,6 +249,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof);
 
+  Uo.resize(1,ndof);
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
@@ -469,6 +470,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    A_grad_N.rs();
 	    // P_supg = A_grad_N * tau_supg;
 	  }
+	  //	  P_supg.eye(0.025); // debug:=
 	  
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
@@ -619,6 +621,10 @@ double NewAdvDif::volume() const {
 const FastMat2 *NewAdvDif::grad_N() const {
   return &dshapex;
 }
+
+//  FastMat2 &NewAdvDif::Uold() const {
+//    return Uo;
+//  }
 
 #undef SHAPE    
 #undef DSHAPEXI 

@@ -1,6 +1,6 @@
 source("data.m.tmp");
 
-rem(N,2)==0 || warning("N should be even");
+## rem(N,2)==0 || warning("N should be even");
 
 w=zhomo([0 1 0 1],N+1,N+1,[1 hratio 1 1 hratio 1]);
 [xnod,icone] = pfcm2fem(w);
@@ -47,7 +47,9 @@ for j=1:(N+1)^2;
 endfor
 fclose(fid);
 
-uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
+nnod = length(x);
+uini = [rand(nnod,1) alpha_l rand(nnod,2) 0. 0. 0.1 0.1];
+## uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
 uini=uini(ones(rows(x),1),:);
 asave("bubbly.ini.tmp",uini);
 

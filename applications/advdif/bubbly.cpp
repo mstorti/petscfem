@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.6 2002/02/18 17:45:50 mstorti Exp $
+//$Id: bubbly.cpp,v 1.7 2002/02/22 21:15:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -218,6 +218,7 @@ void bubbly_ff
   flux.ir(1,k_indx).set(v_l).scale(arho_l*k);
   flux.ir(1,e_indx).set(v_l).scale(arho_l*eps);
   flux.rs();
+  // flux.set(0.);  //debug:= 
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Adjective Jacobians
@@ -263,6 +264,7 @@ void bubbly_ff
   Ajacc.set(Ajac).is(3,2).is(3,1).is(3,3,ndof);
   Ajac.set(Ajacc);
   Ajacc.rs();
+  // Ajac.set(0.); //debug:= 
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
@@ -364,7 +366,14 @@ void bubbly_ff
     }
 
     // fixme:= Deberia estar pesado por las densidades ???
-    v_mix.set(v_l).scale(alpha_l).axpy(v_g,alpha_g);
+    // v_mix.set(v_l).scale(alpha_l).axpy(v_g,alpha_g);
+    // fixme:= Por ahora ponemos v_mix = v_l_o
+    // (velocidad del liquido en el paso anterior) 
+    
+    FastMat2 &Uo = (FastMat2 &) advdf_e->Uold();
+    Uo.is(1,vl_indx,vl_indxe);
+    v_mix.set(Uo);
+    Uo.rs();
     uintri.prod(iJaco,v_mix,1,-1,-1);
     double Uh = uintri.sum_square_all();
     Uh = sqrt(Uh)/2;
@@ -386,6 +395,8 @@ void bubbly_ff
     }
     FastMat2::leave();
 
+    // printf("h_supg: %f, h_pspg: %f\n",h_supg,h_pspg);
+    // h_supg = h_pspg;
     double Peclet = velmod * h_supg / (2. * visco_l_eff);
     double rec_Dt = advdf_e->rec_Dt();
     double tsf = temporal_stability_factor;
@@ -408,6 +419,7 @@ void bubbly_ff
       tau_supg_a *= tau_fac;
     }
     tau_supg.eye(tau_supg_a).setel(tau_pspg,1,1).setel(tau_pspg,2,2);
+    // tau_supg.eye(0.025); // debug:= 
   }
   if (options & COMP_SOURCE) {
     G_source.set(0.);
