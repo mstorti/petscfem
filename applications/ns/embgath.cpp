@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.3 2002/08/06 16:19:53 mstorti Exp $
+//$Id: embgath.cpp,v 1.4 2002/08/06 16:28:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -40,23 +40,40 @@ void embedded_gatherer::initialize() {
     PetscFinalize();
     exit(0);
   }
+  
+  // Mark nodos on the surface
+  int nnod = GLOBAL_MESH->nodedata->nnod;
+  // surface:= is surface[k]==0 then k is not on the surface
+  // if != 0 then surface[k] is the number of surface node +1
+  vector<int> surface;		
+  for (int e=0; e<vol_elem->nelem; e++) {
+    int *icorow = vol_elem->icone+vol_elem->nel*e;
+    for (j=0; j<nel; j++) surface[icorow[j]-1]=1;
+  }
+  // Count surface nodes
+  int surf_nodes = 0;
+  for (int k=0; k<nnod; k++) 
+    if (surface[k]) surface[k] = ++surf_nodes;
 
   // Construct graph for volume elemset
   LinkGraph graph;
-  int nnod = GLOBAL_MESH->nodedata->nnod;
   graph.set_chunk_size(10000);
-  graph.init(nnod);
+  graph.init(surf_nodes);
 
   // Construct node to element array for the volume elemset
   for (int e=0; e<vol_elem->nelem; e++) {
     int *icorow = vol_elem->icone+vol_elem->nel*e;
-    for (j=0; j<nel; j++) graph.add(icorow[j]-1,e);
+    for (j=0; j<nel; j++) {
+      int node = icorow[j]-1;
+      int snode = surface[node];
+      if (snode) graph.add(snode,e);
   }
   
   for (int e=0; e<nelem; e++) {
     int *icorow = vol_elem->icone+vol_elem->nel*e;
   }
   graph.clear();
+  surface.clear();
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
