@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.15 2002/05/06 13:34:02 mstorti Exp $
+//$Id: metisprt.cpp,v 1.16 2002/05/06 14:07:33 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -257,7 +257,9 @@ void  metis_part(int nelemfat,Mesh *mesh,
   adjncy = new int[xadj[nvrtx]];
   for (vrtxj=0; vrtxj<nvrtx; vrtxj++) {
     set<int> &adj = adjncy_v[vrtxj];
-    int e = int(floor(log(adj.size())/log(2.0)+1e-5));
+    int e, adjs = adj.size();
+    // Number of connected nodes may be zero (somewhat strange....)
+    e = (adjs > 0 ? int(floor(log(adjs)/log(2.0)+1e-5)) : 0 );
     if (vrtx_count.size() <= e) vrtx_count.resize(e+1,0);
     vrtx_count[e]++;
     qe = adj.end();
