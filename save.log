@@ -2538,3 +2538,7 @@ tag: beta-3.18.pl38 on Thu, 20 Mar 2003 13:25:44 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.18.pl39 on Thu, 20 Mar 2003 15:23:09 -0300 by mstorti in node1.beowulf.gtm
      > Running spiller example. 
+----------
+tag: beta-3.18.pl40 on Thu, 20 Mar 2003 19:58:47 -0300 by mstorti in spider
+     > Renamed `spiller->spillway'. Changed `p=patm' condition
+     > on free surface for slip. 
