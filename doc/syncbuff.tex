@@ -2,7 +2,54 @@
 \Section{Synchronized buffer}
 
 One difficult task in parallel programming is printing from the
-nodes. Normally, if printing to standard output is done from 
+nodes. In MPI it is not guaranteed that printing from the nodes is
+possible and in the MPICH implementation the outputs from the nodes
+get all mixed and scrambled. 
+
+PETSc provides a functions in order to facilitate this task. 
+The user can call \verb+PetscSynchronizedPrintf(...)+ as many times as
+he wants en each nodes. The output is concatenated in each node to a
+buffer, and then a collective call to
+\verb+PetscSynchronizedFlush(...)+ flushes all the buffers \emph{in
+  order} to the standard output. There is a similar function for
+files \verb+PetscSynchronizedFPrintf(...)+ but it turns out that the
+flushing of standard output and files is mixed. In addition, even in
+the case of writing only to standard output, the output is not sorted
+properly. 
+
+The objective of the \verb+SyncBuffer<T>+ template class and the
+\verb+KeyedOutputBuffer+ class is to have a synchronized output device
+that sorts the lines written by the nodes. 
+
+The idea is that one defines a class (say \verb+KeyedObject+) that
+must support the following member functions
+
+\begin{verbatim}
+class KeyedObject {
+public:
+  // Default constructor 
+  KeyedObject();
+  // Copy Ctor
+  KeyedObject(const KeyedObject &ko);
+  // Dtor.
+  ~KeyedObject();
+  // Used for sorting the lines
+  friend int operator<(const KeyedObject& left, const KeyedObject& right);
+  //  Call back for the distributed container. Return
+  // size of the buffer needed to store this element.
+  int size_of_pack() const;
+  // Effectively packs the object into the buffer, 
+  // upgrading the pointer. 
+  void pack(char *&buff) const;
+  /** Extracts the object from the buffer, upgading the buffer. 
+      @param buff (input) the output buffer */ 
+  void unpack(const char *& buff);
+  // Print the object
+  void print();
+};
+\end{verbatim}
+
+
 
 % Local Variables: *
 % mode: latex *
