@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.45 2003/11/25 02:09:51 mstorti Exp $
+#$Id: Makefile,v 1.46 2003/12/09 02:18:21 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
-default: odoc_all
+default: 
 
 #p [in doc/Makefile]
 #s Main targets
@@ -107,7 +107,7 @@ petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 	cd petscfem ; for f in *.html ; do  ../fixul.pl $$f ; done
 
 #w Make all documentation files for program options with 'odoc.pl'
-odoc:
+odoc: odoc_all
 	$(MAKE) -C ../src odocsrc
 	$(MAKE) -C ../applications/ns odocns 
 	$(MAKE) -C ../applications/advective odocadv
@@ -160,7 +160,7 @@ local_clean:: local_dist_clean
 		make-info.log
 
 SWDIRS := 
-local_sw:: readme odoc_all 
+local_sw:: readme 
 
 #w Clean leaving PS and HTML
 local_dist_clean::

@@ -41,6 +41,7 @@ TODO: [Mainly fixes go here...]
 	  related to the weights flag. (Reported by
 	  psanchez@intec.unl.edu.ar) Wed, 15 Oct 2003 09:12:34 -0300
     Mon, 08 Dec 2003 09:51:12 -0300: Can't reproduce
+* Document the element locker feature
 * dx/epimport.cpp deletes too many objects and DX complains
 * Print a banner saying if a version is stable/unstable. 
 * Let PETSc-FEM have knowledge of the name of the nodes 
@@ -140,7 +141,6 @@ TODO: [Mainly fixes go here...]
 * Check for memory leaks in constructing and destructing filters.
 * sqcav and burgers test
 * Document sttfilter etc...
-* Document the element locker feature
 * Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
 * Making html doc, doesn't reuse the generated gifs, which is _very_
            time consuming.
@@ -150,6 +150,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* `$ make sw' attempts to build `doc/odocall.tex'. 
+    DONE: Mon, 08 Dec 2003 23:15:13 -0300
 * Make use FastMat2 cache optional in advdife via an option
     DONE: Mon, 08 Dec 2003 20:33:59 -0300
 * Add `sw_abso' to tests

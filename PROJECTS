@@ -3,13 +3,14 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
-* Use Bugzilla (http://www.bugzilla.org ) for bug tracking.
+* Use Bugzilla or GNU/Gnats (http://www.bugzilla.org ) for bug tracking.
 * Implement Interface Strip Preconditioner block LU with several
-	     layers. 
+	     layers with direct solver for the diagonal part. 
 * A web/text interface to allow changing options
 * A DX module for better and smoother FEM visualization. 
 * Modify 'elemset.cpp' so that processing of several elemsets 
-  is non blocking, for instance using a self-scheduling algorithm. 
+	   is non blocking, for instance using a self-scheduling 
+	   algorithm. 
 * Scripting interface with Perl
 * Make Makefile not that verbose. 
 * Use a more consistent system for reporting errors and
@@ -41,6 +42,10 @@ PROJECTS: [These are new improvements to be done in a future...]
 DONE:
 =====
 
+* Implement Interface Strip Preconditioner block LU with several
+      layers. DONE: Mon, 08 Dec 2003 23:01:49 -0300. 
+      But probably needs to be implemented with some kind of direct
+      solver for the interface block diagonal. 
 * Interface preconditioning for IISD
 * For boundary dependent temporal conditions we should have arguments
     that are a vector and a time.
