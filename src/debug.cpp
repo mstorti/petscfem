@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.3 2001/11/22 18:04:09 mstorti Exp $
+//$Id: debug.cpp,v 1.4 2001/11/22 19:50:11 mstorti Exp $
  
 #include <cstdio>
+#include <time.h>
+
 #include <petsc.h>
 #include <src/debug.h>
 
@@ -29,9 +31,16 @@ void Debug::deactivate(const char *s=NULL) {
 }
 
 void Debug::trace(const char *s=NULL) {
+  time_t tt;
+#define MXTM 100
+  char t[MXTM];
   MPI_Comm_rank(comm,&myrank);
-  if ((active() || active("print")) && myrank==0) 
-    printf("-- %s -- ",s);
+  if ((active() || active("print")) && myrank==0) {
+    tt = time(NULL);
+    // t = asctime(localtime(&tt));
+    strftime(t,MXTM,"%H:%M:%S",localtime(&tt));
+    printf("-- %s -- [%s %10.3f]",s,t,chrono.elapsed());
+  }
   if (!active()) {
     printf("\n");
     return;
@@ -60,4 +69,5 @@ void Debug::trace(const char *s=NULL) {
 Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
   comm(comm_) {
   if (active_) activate();
+  chrono.start();
 }

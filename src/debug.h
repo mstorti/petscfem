@@ -1,12 +1,15 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.2 2001/11/21 19:35:59 mstorti Exp $
+// $Id: debug.h,v 1.3 2001/11/22 19:50:11 mstorti Exp $
 #ifndef DEBUG_H
 #define DEBUG_H
 
 #include <mpi.h>
 #include <string>
 #include <map>
+
+#include <src/utils.h>
+#include <src/util2.h>
 
 /// Puts barriers so that all processes are synchronized
 class Debug {
@@ -17,6 +20,7 @@ class Debug {
   map<string,int> active_flags;
   MPI_Comm comm;
   int myrank;
+  HPChrono chrono;
  public:
   int active(const char *s=NULL) const;
   void activate(const char *s=NULL);
