@@ -15,7 +15,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 30;			# Number of elements per dimension
+$N = 50;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -90,7 +90,9 @@ nstep 3
 save_file_pattern "outvector%d.out.tmp"
 
 # type of solver (may be "iisd", "petsc"...)
+#if $case ne 'laplace'
 fractional_step
+#endif
 #if 1
 use_compact_profile 2
 compact_profile_graph_chunk_size 10000
@@ -99,7 +101,7 @@ solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 2
+iisd_subpart 10
 maxits 100
 report_consumed_time
 activate_debug_print
