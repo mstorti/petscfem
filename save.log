@@ -1169,3 +1169,7 @@ tag: beta-2.94.pl14 on Wed, 15 May 2002 16:41:02 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-2.94.pl15 on Wed, 15 May 2002 20:56:19 -0300 by mstorti in spider
      > Improved "axisymmetric" option for NS
+----------
+tag: beta-2.94.pl16 on Thu, 16 May 2002 15:46:21 -0300 by mstorti in minerva.arcride.edu.ar
+     > Merged some old differences for making eta per node in advdif/aquifer.
+     > Added rain.
