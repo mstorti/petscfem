@@ -2100,3 +2100,6 @@ tag: beta-3.14.pl15 on Wed,  8 Jan 2003 21:24:26 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl16 on Wed,  8 Jan 2003 23:38:01 -0300 by mstorti in spider
      > Implementing `line2quad' and `tri2pism' integrators. 
+----------
+tag: beta-3.14.pl17 on Thu,  9 Jan 2003 10:40:06 -0300 by mstorti in minerva.arcride.edu.ar
+     > Filter is now entered through options. 
