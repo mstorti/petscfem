@@ -1,4 +1,4 @@
-;;; $Id: dvector.scm,v 1.4 2005/01/18 15:23:29 mstorti Exp $
+;;; $Id: dvector.scm,v 1.5 2005/01/18 20:38:17 mstorti Exp $
 (define-module (dvector))
 
 (load-extension "./libfemref" "dvint_init")
@@ -8,12 +8,11 @@
   (let loop ((size 1)
 	     (q shape))
     (cond ((null? q) 
-	   (format #t "size ~A, shape ~A\n" size shape)
 	   (dvdbl-resize-w! v size)
 	   (apply dvdbl-reshape! v shape))
 	  (#t (loop (* size (car q)) (cdr q))))))
 	   
-(define (dvdbl-set-with-filler v filler)
+(define (dvdbl-set-with-filler! v filler)
   (let ((shape (dvdbl-shape v)))
     (let loop ((q shape)
 	       (indx '()))
@@ -27,8 +26,47 @@
 (define-public (dvdbl-set! v . args)
   (cond ((= (length args) 2) (apply dvdbl-set-w2 v args))
 	(#t (let ((arg (car args)))
-	      (cond ((procedure? arg) (dvdbl-set-with-filler v arg))
+	      (cond ((procedure? arg) (dvdbl-set-with-filler! v arg))
 		    (#t (apply dvdbl-set-w1 v args)))))))
+
+;; range = indx start end [inc]
+(define-public (dvdbl-slice-range! v w range)
+  (let ((shape (dvdbl-shape w))
+	(indx (car range))
+	(start (cadr range))
+	(end (caddr range))
+	(inc 1))
+    (if (>= indx (length shape)) (error "indx exceeds rank"))
+    (if (>= (length range) 4) (set! inc (cadddr range)))
+    (let ((v-shape shape)
+	  (range-len (quotient (- end start) inc)))
+      (list-set! v-shape indx range-len)
+      (apply dvdbl-resize! v v-shape)
+      (dvdbl-set-with-filler! v (lambda (v-indx-vec) 
+				 (let ((w-indx-vec v-indx-vec))
+				   (list-set! w-indx-vec indx 
+					       (+ start (* (list-ref v-indx-vec indx) inc)))
+				   (format #t "w-indx-vec ~A\n" w-indx-vec)
+				   (dvdbl-ref w w-indx-vec)))))))
+
+;; range = indx start end [inc]
+(define-public (dvdbl-slice-indx! v w ivec indx)
+  (let ((shape (dvdbl-shape w)))
+    (if (>= indx (length shape)) (error "indx exceeds rank"))
+    (let ((v-shape shape)
+	  (indx-len (dvint-size ivec)))
+      (list-set! v-shape indx indx-len)
+      (apply dvdbl-resize! v v-shape)
+      (dvdbl-set-with-filler! v (lambda (v-indx-vec) 
+				 (let ((w-indx-vec v-indx-vec))
+				   (list-set! w-indx-vec indx 
+					       (dvint-ref! ivec (list-ref v-indx-vec indx)))
+				   (dvdbl-ref w w-indx-vec)))))))
+
+(define-public (dvdbl-slice! v w . args)
+  (cond ((pair? (car args)) (apply dvdbl-slice-range! v w args))
+	((dvint? (car args) (apply dvdbl-slice-indx! v w args)))))
+
 
 (define-public (dvdbl-apply! v fun)
   (let ((n (dvdbl-size v)))
