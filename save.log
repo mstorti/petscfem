@@ -2076,3 +2076,6 @@ tag: beta-3.14.pl8 on Sun,  5 Jan 2003 18:28:58 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl9 on Sun,  5 Jan 2003 19:32:31 -0300 by mstorti in spider
      > Identity filter works. 
+----------
+tag: beta-3.14.pl10 on Sun,  5 Jan 2003 22:03:40 -0300 by mstorti in spider
+     > Runs cylinder with coupling via 2step filter. 
