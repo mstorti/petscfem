@@ -1558,3 +1558,7 @@ tag: beta-3.03.pl23 on Thu,  5 Sep 2002 19:28:59 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.03.pl24 on Thu,  5 Sep 2002 23:50:35 -0300 by mstorti in spider
      > Runs allmost all tests. 
+----------
+tag: beta-3.04 on Fri,  6 Sep 2002 11:35:46 -0300, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Updated to PETSc 2.1.3
