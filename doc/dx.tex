@@ -1,4 +1,5 @@
 %__INSERT_LICENSE__
+% $Id: dx.tex,v 1.2 2003/02/10 02:35:10 mstorti Exp $
 \Section{Visualization with DX}
 
 Data Explorer (\url{http://www.opendx.org}) is a system of tools and
@@ -31,8 +32,44 @@ option you have to
        \verb+USE_PTHREADS+ flag enabled (disabled by default)
 \item Load the \verb+dx_hook+ hook in PETSc-FEM and pass it some
 options. 
-\item Build the module and load it in DX
+\item Build the module and load it in DX.
 \end{itemize}
+
+DX basic visualization units are \verb+Field+ objects, which are
+composed of three \verb+Array+ objects called \verb+positions+ (node
+coordinates), \verb+connections+ (element connectivities) and
+\verb+data+ (computed field values). At each time step, DX exports a
+series of \verb+Arrays+ and \verb+Fields+ objects to DX. 
+
+\begin{itemize}
+\item For each  \verb+Nodedata+ PETSc-FEM object a \verb+positions+ array is
+constructed, this results in \verb+nn+ array objects. As the time of
+writing this, PETSc-FEM has only one 
+\verb+Nodedata+ object (name \verb+nodes+), so that \verb+NN=1+. 
+\item A \verb+data+ array is constructed in basis to the current state
+vector (name \verb+data+). 
+\item For each elemset, a \verb+connections+ array is contructed. You
+can disable contruction of some particular elemsets through the
+\verb+dx+ elemset option, and also which nodes and DX interpolation geometry is
+used. This results in other \verb+ne+ connection arrays. The name of
+each array is based in the \verb+name+ option of the elemset. If this
+has not been set, the name is set to the type of the elemset. If
+collision is produced, a suffix of the form \verb+_0+, \verb+_1+ is
+appended, in order to make it unique. 
+\end{itemize}
+
+The resulting \verb|nn+ne+1| arrays are grouped in a \verb+Group+
+object and sent through the \verb+output_array_list+ output tab. You
+can extract the individual components with the \verb+Select+ DX
+module, and build field objects. Also a set of field objetcs is
+created automtically and sent through the \verb+output_field_list+
+output tab. Basically a field is constructed for each possible
+combination of positions, connections and data objects. This may seem
+a huge amount of fields, but in fact as the arrays are passed
+internally by pointers in DX, the additional memory requirements are
+not large. (At the time of writing this, this is a set of
+\verb+nn*ne=ne+ fields, since \verb+nn=1+). A name is generated
+automatically for each field. 
 
 The communication between DX and PETSc-FEM is done through a
 socket. PETSc-FEM acts as a \emph{``server''} whereas DX acts as a
@@ -44,6 +81,7 @@ PETSc-FEM running in the background ad even on other machine (the
 request to PETSc-FEM which answers sending back \emph{``arrays''} and
 \emph{``fields''}.
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Asynchronous/synchronous communication}
 
 \begin{itemize}
@@ -69,6 +107,7 @@ connection of DX to PETSc-FEM.  If you don't want to change the
 internal state of the \verb+steps+ variable then you can set it to
 \verb+NULL+ or \verb+-1+.
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Building and loading the ExtProgImport module}
 
 This module allows PETSc-FEM to exchange data with DX through a
@@ -95,6 +134,7 @@ Descriptions}).
 \item Load the \verb+dx_hook+ hook in PETSc-FEM and pass it some
 options. 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Module inputs outputs of ExtProgImport} 
 
 \begin{itemize}
@@ -132,6 +172,22 @@ with DX (5000 < dx_port < 65536).
 \index{rtol@\verb+rtol+}
 \item\verb+int dx_steps+ {\rm(default=1)}: Initial value for the \verb+steps+ parameter.
 \end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{Per elemset DX options}
+
+\begin{itemize}
+\index{dx@\verb+dx+}
+\item\verb+int dx+ {\rm(default=0)}: This flag controls generation of
+a connection array for this elemset.
+
+\index{dx\_type@\verb+dx_type+}
+\item\verb+string dx_type++ {\rm(default=1)}: Initial value for the \verb+steps+ parameter.
+\end{itemize}
+
+   12:  TGETOPTDEF(thash,int,dx,0);
+   60:    TGETOPTDEF_S_ND(thash,string,dx_type,none);
+
 
 % Local Variables: *
 % mode: latex *
