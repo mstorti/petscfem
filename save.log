@@ -2978,6 +2978,3 @@ tag: beta-3.22 on Sun, 14 Sep 2003 10:29:14 -0300 by mstorti in spider
      > Added a test for the `disconnected-graph-bug'. 
      > Uses excpetion handling in `advdif' (GenericError). 
      > Modified `bubbly' module launching. 
-----------
-tag: beta-3.21.pl1 on Sun, 14 Sep 2003 10:59:22 -0300 by mstorti in spider
-     > Administrative ltag. 
