@@ -668,3 +668,8 @@ tag: beta-2.46 on Sun Dec  2 11:21:56 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.47 on Sun Dec  2 12:56:13 ARST 2001, by mstorti in spider
      > Added test for sqcav with IISD
+----------
+tag: beta-2.48 on Sun Dec  2 15:47:33 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added test for sqcav with IISD. 
+     > Working on adaptors. 
