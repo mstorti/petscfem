@@ -4,7 +4,7 @@
 ## ==================
 global_options
 
-# dx <:$dx=1, $ref='1b';:>
+# dx <:$dx=1, $ref='';:>
 
 nstep 1000
 alpha 1.
@@ -66,7 +66,7 @@ __END_HASH__
 ##================================================================
 # ndim nu ndof
 nodedata 2 2 4
-data ./comp_corner_Ma_10_Euler-ref<:=$ref:>.nod.tmp
+data ./comp_corner_Ma_5_low_Rey.nod.tmp
 __END_HASH__
 
 ##================================================================
@@ -74,5 +74,5 @@ elemset gasflow 4
 geometry cartesian2d
 dx 1
 npg 4 
-data ./comp_corner_Ma_10_Euler-ref<:=$ref:>.con.tmp
+data ./comp_corner_Ma_5_low_Rey.con.tmp
 __END_HASH__

@@ -10,14 +10,14 @@ $Nr = 20;			# Number of nodes along radial direction
 $Nphi = 2*$Nr;			# Number of nodes along skin
 $rratio = 5;			# Refinement in radial direction
 
-$Machin = 2;			# Mach at inlet
+$Machin = 0.3;			# Mach at inlet
 $gamma = 1.4;			# Cp/Cv for gas
 $Rgas = 1;			# Gas constant
 $rhoref = 1;			# Reference density
 $Tref = 1;			# Reference temperature
 $Twall = 1.5;			# Temperature at wall
 
-$abso = 1;			# Use absorbing b.c.'s?
+$abso = 0;			# Use absorbing b.c.'s?
 $restart = 0;			# Is this a restart?
 $use_symm = 0;			# Use symmery?
 $use_twall = 0;			# Impose T on cylinder skin?

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.94.2.2 2005/02/12 14:23:34 mstorti Exp $
+//$Id: advdife.cpp,v 1.94.2.3 2005/02/12 21:22:21 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -420,6 +420,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
+  double delta_sc_min = DBL_MAX, 
+    delta_sc_max = -DBL_MAX, 
+    delta_sc_mean = 0.0;
+  int delta_sc_cnt=0;
 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin();
@@ -595,26 +599,15 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->enthalpy_fun->set_state(U);
 
 	// MODIF BETO 8/6
-	if (!lumped_mass) {
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE | COMP_UPWIND);
-			  } else {
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE_NOLUMPED | COMP_UPWIND);
-			  }
-	/*
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE | COMP_UPWIND);
-	*/
+	double delta_sc_new;
+	adv_diff_ff
+	  ->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
+			 A_grad_U,grad_U,G_source,
+			 tau_supg,delta_sc_new,
+			 lambda_max_pg, nor,lambda,Vr,Vr_inv,
+			 (lumped_mass ? 
+			  COMP_SOURCE_NOLUMPED : COMP_SOURCE) 
+			 | COMP_UPWIND);
 
 	if (compute_fd_adv_jacobian) {
 	  int check_this = drand()<compute_fd_adv_jacobian_random;
@@ -787,6 +780,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// adding ISOTROPIC shock-capturing term
 	delta_sc_v.set(0.0);
 	if (shocap>0. ) {
+#if 1
+	  if (delta_sc > delta_sc_max) 
+	    delta_sc_max = delta_sc;
+	  if (delta_sc < delta_sc_min) 
+	    delta_sc_min = delta_sc;
+	  delta_sc_mean += delta_sc;
+	  delta_sc_cnt++;
+#endif
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
 	  adv_diff_ff->get_Cp(Cp_bis);	  
 	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
@@ -1031,6 +1032,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   } catch (GenericError e) {
     set_error(1);
     return;
+  }
+  if (delta_sc_cnt) {
+    printf("delta_sc: min %f, max %f, mean %f\n",
+	   delta_sc_min, delta_sc_max, 
+	   delta_sc_mean/delta_sc_cnt);
   }
 
   FastMat2::void_cache();

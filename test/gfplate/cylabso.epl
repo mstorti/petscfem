@@ -50,14 +50,14 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 10
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
 Dt 0.1
-shocap 0.02
-shocap_aniso 0.5
+# shocap 0.02
+# shocap_aniso 0.5
 weak_form 0
 temporal_stability_factor 0
 
@@ -99,6 +99,7 @@ __END_HASH__
 
 ##================================================================
 elemset gasflow 4
+compute_fd_adv_jacobian
 geometry cartesian2d
 dx 1
 npg 4
