@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.23 2003/09/02 02:27:45 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2005/01/26 10:54:51 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -77,7 +77,7 @@ tryme8.o: tryme8.cpp
 	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
 
 tryme8.bin: tryme8.o
-	g++ $(CXXOPTFLAGS) -o $@ $< 
+	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
 
 #w Checks for cloud class
 tryme9.o: tryme9.cpp 

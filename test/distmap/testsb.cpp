@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.7 2004/11/11 18:32:30 mstorti Exp $
+// $Id: testsb.cpp,v 1.8 2005/01/26 10:54:48 mstorti Exp $
 
 #include <unistd.h>
 #include <list>
@@ -152,10 +152,11 @@ int main(int argc,char **argv) {
 		"Testing basic SyncBuffer class\n");
 		// "Disordered elements: \n");
     SyncBuffer<KeyedObject> sb;
+    KeyedObject t;
     
     k=MY_RANK;
     while (k<N) {
-      sb.push_back();
+      sb.push_back(t);
       sb.back().k = k;
       int roof = k - (k % m) +m;
       int nelem = roof-k;
