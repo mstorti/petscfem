@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.11 2003/07/26 00:43:12 mstorti Exp $
+//$Id: pfmat.cpp,v 1.12 2003/08/28 18:39:40 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -122,6 +122,35 @@ int PFMat::set_value(int row,int col,PetscScalar value,
   
   ierr = set_value_a(row,col,value,mode); CHKERRQ(ierr); 
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::set_values"
+int PFMat::set_values(int nrows,int *idxr,int ncols,int *idxc,
+		      PetscScalar *values, InsertMode mode=ADD_VALUES) { 
+  fsm->set_value();
+  CHKERRQ(ierr); 
+  
+  ierr = set_values_a(nrows,idxr,ncols,idxc,values,mode); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::set_values_a"
+int PFMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
+			PetscScalar *values, InsertMode mode=ADD_VALUES) { 
+  int row, ierr=0;
+  for (int j=0; j<nrows; j++) {
+    row = idxr[j];
+    for (int k=0; k<ncols; k++) {
+      ierr = set_value_a(row,idxc[k],values[j*ncols+k]);
+      if (ierr) break;
+    }
+    if (ierr) break;
+  }
+  return ierr;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

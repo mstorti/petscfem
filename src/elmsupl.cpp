@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.2 2003/08/28 15:37:25 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.3 2003/08/28 18:39:40 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,7 +37,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 0
+#if 1
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
@@ -75,14 +75,51 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   
   dvector<int> row_map, row_map2;
   dvector<double> coef2;
-  row_map.mono(nel*ndof);
-  row_map2.mono(nel*ndof);
+  dvector<int> row_mask, col_mask;
+  row_map.set_chunk_size(nel*ndof);
+  row_map2.mono(1,nel*ndof);
+  row_mask.mono(2,nel,ndof);
+  row_mask.set(0.);
+  col_mask.mono(2,nel,ndof);
+  col_mask.set(0.);
+
+  // Compute row and column masks.
+  for (kloc=0; kloc<nel; kloc++) {
+    for (kdof=0; kdof<ndof; kdof++) {
+      for (lloc=0; lloc<nel; lloc++) {
+	for (ldof=0; ldof<ndof; ldof++) {
+	  if (MASK(kloc,kdof,klocc,kdofc)) {
+	    row_mask.e(kloc,kdof)=1;
+	    col_mask.e(lloc,ldof)=1;
+	  }
+	}
+      }
+    }
+  }
 
   iele_here=-1;
   for (iele=el_start; iele<=el_last; iele++) {
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
-    assert(!load_mat_col);
+
+    for (kloc=0; kloc<nel; kloc++) {
+      for (kdof=0; kdof<ndof; kdof++) {
+      }
+    }
+
+    for (kloc=0; kloc<nel; kloc++) {
+      node = ICONE(iele,kloc);
+      for (kdof=0; kdof<ndof; kdof++) {
+	dofmap->get_row(node,kdof+1,row_v);
+
+	for (int ientry=0; ientry<row_v.size(); ientry++) {
+	  entry_v = &row_v[ientry];
+	  locdof = entry_v->j;
+	  if (locdof>neq) continue; // ony load free nodes
+	  val = (entry_v->coef) * RETVAL(iele_here,kloc,kdof);
+	}
+      }
+    }
 
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(iele,kloc);

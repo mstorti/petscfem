@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.52 2003/08/28 03:05:46 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.53 2003/08/28 18:39:40 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -433,7 +433,10 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   int row_indx,col_indx,row_t,col_t;
   double v,val;
 
+  double t = MPI_Wtime();
   A_LL_other->scatter();
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] A_ll_other->scatter() %g\n",MY_RANK,MPI_Wtime()-t);
 
   I1 = A_LL_other->begin();
   I2 = A_LL_other->end();

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.38 2003/07/26 00:43:12 mstorti Exp $
+// $Id: pfmat.h,v 1.39 2003/08/28 18:39:40 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -40,6 +40,10 @@ protected:
   /// The action corresponding to `set_value'
   virtual int set_value_a(int row,int col,PetscScalar value,
 			   InsertMode mode=ADD_VALUES)=0;
+
+  /// The action corresponding to `set_values'
+  virtual int set_values_a(int nrows,int *idxr,int ncols,int *idxc,
+			   PetscScalar *values, InsertMode mode=ADD_VALUES);
 
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
   virtual int assembly_begin_a(MatAssemblyType type)=0;
@@ -105,6 +109,21 @@ public:
   */ 
   int set_value(int row,int col,PetscScalar value,
 		InsertMode mode=ADD_VALUES);
+
+  /** Sets an array of values on the operator . For
+      #mode=INSERT_VALUES# it is equivalent to #for (j=0; j<nrows;
+      j++) for (k=0; k<ncols; k++) A(idxr[j],idxc[k]) =
+      values[j*ncols+k]#. For #mode=ADD_VALUES# the assignment
+      operator is replaced by #+=#.
+      @param nrows (input) number of row indices
+      @param idxr (input) array of row indices of size #nrows#
+      @param ncols (input) number of column indices
+      @param idxc (input) array of column indices of size #ncols#
+      @param values (input) array of values of size #nrows*ncols# 
+      stored by row (C style). 
+      @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES# */
+  int set_values(int nrows,int *idxr,int ncols,int *idxc,
+		 PetscScalar *values, InsertMode mode=ADD_VALUES);
 
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
   int assembly_begin(MatAssemblyType type);
