@@ -4,13 +4,15 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('weak_form',0);
 get_var_env('case',undef);
+print "# case: $case\n";
 get_var_env('meas_perf',undef);
 get_var_env('use_triangles',0);
 
 $dx = 0;
-if ($case =~ /_dx$/) {
+if ($case =~ /^dx_(.*)/) {
     $dx = 1;
-    $case = $`; /`/; 
+    $dx_case = $1;
+    $case = "weak_form_0"; 
 }
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 
@@ -108,7 +110,9 @@ if (scalar $case =~ /weak_form_(\d)/) {
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
-
+# <:pr('dx_case'):> 
+# <:pr('dx'):> 
+#================================================================
 global_options
 
 nsave 5
@@ -167,19 +171,26 @@ measure_performance_loop_length 10
 G_body 0 -1.
 #endif
 
-#if $dx
-#if 1
-hook_list ns_dx_hook my_dx_hook
-dx_split_state "1 2 0 1 u 1 1 2 p"
-dx_auto_combine
-dx_state_all_fields 0
-dx_read_state_from_file
-#else
+#if $dx_case eq 'file0'
 save_file_pattern "sqcav.state_%d.tmp"
 nsaverot 1
 nrec 100000
 nfile 1
 #endif
+
+#if $dx_case eq 'file2'
+save_file_pattern "sqcav.state_%d.tmp"
+nsaverot 1
+nrec 1
+nfile 100000
+#endif
+
+#if $dx_case eq 'file1' || $dx_case eq 'file3'
+hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
+dx_state_all_fields 0
+dx_read_state_from_file
 #endif
 
 __END_HASH__

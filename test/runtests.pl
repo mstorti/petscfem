@@ -1067,6 +1067,24 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
+begin_section('PETSc-FEM / DX coupling');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp",
+       "Reading states as records from a file",
+       read_file("pf_output.dx_file1.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp",
+       "Reading states from several files",
+       read_file("pf_output.dx_file3.ans"));
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
 print "\n",'-' x 50,"\n\n";
 end_section();
 

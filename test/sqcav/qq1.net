@@ -1,6 +1,6 @@
 // -*- mode: shell-script -*-
 //__INSERT_LICENSE__
-// $Id: qq3.net,v 1.2 2003/02/17 22:36:32 mstorti Exp $ 
+// $Id: qq1.net,v 1.1 2003/02/18 23:49:44 mstorti Exp $ 
 macro mymac(record) -> () {
 alist, flist, stepo = ExtProgImport(1,NULL,5314,NULL,0,
 	"sqcav.state_0.tmp",record);

@@ -1,12 +1,13 @@
-# $Id: Makefile,v 1.51 2003/02/18 15:53:56 mstorti Exp $ 
+# $Id: Makefile,v 1.52 2003/02/18 23:49:44 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
-        ctest gprof dxhook dx_tests dx_hook_test_post_run dx
+        ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
+	dx_hook_test_post_run_file_record 
 
-dx_hook_test_post_run: dx
-	cd ../../dx; dx -mdf ./epimport.mdf -cache off -memory 100 \
-			-script qq3.net > ../test/sqcav/qq3.out.tmp &
-	$(MAKE) case=weak_form_0_dx runs
+DX := ../../dx
+DXMODULES := $(DX)
+
+export DX DXMODULES
 
 runn: 
 	$(MAKE) case=weak_form_1 runs
@@ -14,8 +15,7 @@ runn:
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
 	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests
 
-
-dx_tests: dx dx_hook_test_post_run
+dx_tests: dx_hook_test_post_run_file_record dx_hook_test_post_run_files
 
 dx:
 	$(MAKE) -C ../../dx
@@ -39,11 +39,12 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 ifeq ($(np),)
 np := 1
 endif
+output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	 #  > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+	 	   > $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -162,6 +163,46 @@ test_triangle:
 #w Makes local link for running with debugger
 link:
 	ln -sf $(PROG) ns
+
+output_file1 := output.CASE_sqcav.np_1.case_dx_file1.out.tmp
+
+#w Checks reading states from file in severa records. 
+dx_hook_test_post_run_file_record: dx
+#
+# A series of 20 states are generated in file 'sqcav.state_0.tmp'. 
+# Then simulates that dx is running and reads 11 states from differents
+# records in the same file. Then stops by sending record=-1 to DX. 
+#
+# Clean files
+	-rm -f dx_ouput.file1.tmp $(output_file1)
+# Generates all states in a file 'sqcav.state_0.tmp'
+	$(MAKE) case=dx_file0 runs
+# Runs DX in background and PETSc-FEM 
+	dx -mdf ./epimport.mdf -cache off -memory 100 \
+			-script qq1.net > dx_ouput.file1.tmp &
+	$(MAKE) case=dx_file1 runs
+	echo "------<snip>-----------" >> $(output_file1)
+	cat dx_ouput.file1.tmp >> $(output_file1)
+
+output_file3 := output.CASE_sqcav.np_1.case_dx_file3.out.tmp
+
+#w Checks reading states from several files
+dx_hook_test_post_run_files: dx
+#
+# A series of 20 states are generated in files 'sqcav.state_<n>.tmp'. 
+# Then simulates that dx is running and reads several states from different
+# files. Then stops by sending record=-1 to DX. 
+#
+# Clean files
+	-rm -f dx_ouput.file3.tmp $(output_file3) sqcav.state_*.tmp
+# Generates all states in a file 'sqcav.state_0.tmp'
+	$(MAKE) case=dx_file2 runs
+# Runs DX in background and PETSc-FEM 
+	dx -mdf ./epimport.mdf -cache off -memory 100 \
+			-script qq3.net > dx_ouput.file3.tmp &
+	$(MAKE) case=dx_file3 runs
+	echo "------<snip>-----------" >> $(output_file3)
+	cat dx_ouput.file3.tmp >> $(output_file3)
 
 data: force
 	$(MAKE) $(CASE).depl

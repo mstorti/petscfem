@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.87 2003/02/17 16:05:46 mstorti Exp $ 
+# $Id: Makefile,v 1.88 2003/02/18 23:49:44 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -100,16 +100,6 @@ bug100: $(ADVDIF)
 #w Checks the constraint bug feature
 constraint_bug: laplace
 	$(MAKE) -C circ constraint_bug
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w 5x5 Square cavity for NS
-NSO = $(PETSCFEM_DIR)/../petscfem-2.16g/applications/ns/ns.bin
-sqcav5_dat = sqcav5.nod.tmp sqcav5.con.tmp sqcav5.fixa.tmp
-sqcav5: ns sqcav5_dat
-	-$(MPIRUN) -np 3 $(NSO) -case sqcav5.dat | tee sqcav5.out
-
-sqcav5_dat: mksqcav5.m
-	$(OCTAVE)  mksqcav5.m >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w FileStack class check
