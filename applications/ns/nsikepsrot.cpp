@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.5 2002/04/08 02:44:58 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.6 2002/04/08 16:16:47 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -295,7 +295,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,GG,dflidli;
   double lambda_1,lambda_2,lambda_max;
 
-  FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);;
+  FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nel*ndof,nel*ndof);;
   eye.eye();
 
   if (comp_mat) matloc_prof.set(1.);
@@ -733,7 +733,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp5.prod(P_pspg,tmp3,-1,1,-1);
 	  rescont.axpy(tmp5,wpgdet);
 
-	  // Parte temporal + convectiva (Galerkin)
+	  // Temporal + convective parts (Galerkin)
 #ifdef ADD_GRAD_DIV_U_TERM
 	  massm.prod(u_star,dshapex,-1,-1,1);
 #else
