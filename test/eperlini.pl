@@ -307,7 +307,7 @@ EOM
 	$value = conv($value);
 	# This is how to know if a variable is a number or a string. 
 	if (!ref($value)) {
-	    print O "$name = $value;\n"; # number
+	    print O "$name = \"$value\";\n"; # number
 	} elsif (@$value == 1) {
 	    print O "$name = $value->[0];\n"; # number
 	} else {
