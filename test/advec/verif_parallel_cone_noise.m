@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: verif_parallel_cone_noise.m,v 1.4 2003/01/08 17:22:43 mstorti Exp $
+## $Id: verif_parallel_cone_noise.m,v 1.5 2003/01/21 17:47:23 mstorti Exp $
 ###key verif.parallel_cone.m
 
 proc
@@ -11,7 +11,7 @@ err_y = abs((xc(2)-xc0(2))-(uy*Tend))/traversed_length;
 tol = 4e-2;
 printf("Error in x position < tol OK ? %d (err_x %f, tol %f)\n",
        err_x<tol, err_x, tol);
-tol = 1e-4;
+tol = 5e-4;
 printf("Error in y position < tol OK ? %d (err_y %f, tol %f)\n",
        err_y<tol, err_y, tol);
 

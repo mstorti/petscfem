@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.3 2003/01/21 16:09:16 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.4 2003/01/21 17:47:19 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -70,7 +70,7 @@ int bubbly_main(int argc,char **args) {
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,
-	      "-------- Generic Advective-Diffusive  module ---------\n");
+	      "-------- Generic Advective-Diffusive / Bubbly module ---------\n");
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);

@@ -29,7 +29,7 @@ if (0) {
 }
 
 ## Mesh parameters
-$refine = 8;			# scale all N's by this
+$refine = 1;			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2003/01/21 16:09:16 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2003/01/21 17:47:23 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -32,7 +32,7 @@ CASE_NAME := strip
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
-PROG := $(ADVDIF)
+PROG := $(ADVDIF) -bubbly
 endif
 
 # NP := $(shell procsel $(PETSCFEM_PROCTABLE))

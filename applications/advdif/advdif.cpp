@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.48 2003/01/21 16:09:16 mstorti Exp $
+//$Id: advdif.cpp,v 1.49 2003/01/21 17:47:19 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -40,7 +40,8 @@ int bubbly_main(int argc,char **args);
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
-  if(argc>=1 && !strcmp(args[0],"-bubbly")) bubbly_main(argc-1,args+1);
+  if(argc>=2 && !strcmp(args[1],"-bubbly")) 
+    return bubbly_main(argc-1,args+1);
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
