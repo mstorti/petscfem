@@ -194,3 +194,9 @@ tag: beta-1.21 on Tue Jan 23 10:27:36 ARST 2001, by mstorti in minerva.arcride.e
 ----------
 tag: beta-1.22 on Tue Jan 23 13:40:58 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > Almost merged turbulent shallow water (Beto)
+----------
+tag: beta-1.23 on Tue Jan 23 22:51:27 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Turbulent Shallow Water is working.
+     > Fixed a bug in elemlist, get_node_data. Didn't compute well Hloc.
+     > Added a test for advdif: turbchan
