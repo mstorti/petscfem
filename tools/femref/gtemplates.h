@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gtemplates.h,v 1.7 2004/12/12 23:20:43 mstorti Exp $
+// $Id: gtemplates.h,v 1.8 2004/12/27 03:37:33 mstorti Exp $
 #ifndef PETSCFEM_GTEMPLATES_H
 #define PETSCFEM_GTEMPLATES_H
 
@@ -20,8 +20,6 @@ public:
     else return 0; 
   }
   const int* nodes(GeomObject::Type t,int j) const { 
-    if (t==GeomObject::OrientedTetraT) 
-      
     if (t==GeomObject::OrientedTriT) 
       return faces+3*j;
     else assert(0);
@@ -48,6 +46,28 @@ public:
 extern OrientedTriTemplateClass 
 OrientedTriTemplate;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class EdgeRefNodeTemplateClass 
+  : public GeomObject::Template {
+private:
+  static int perm_v[];
+public:
+  EdgeRefNodeTemplateClass() 
+    : GeomObject::Template(2,GeomObject::EdgeRefNodeT, 
+			   1,1,perm_v,
+			   "EdgeRefNode") { }
+  int size(GeomObject::Type t) const { 
+    return 0; 
+  }
+  const int* 
+  nodes(GeomObject::Type t,int j) const { 
+    assert(0);
+  }
+};
+
+extern EdgeRefNodeTemplateClass 
+EdgeRefNodeTemplate;
+
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define TEMPLATE(TYPE,size,dim,nperms)				\
@@ -73,12 +93,18 @@ TEMPLATE(Tri,3,2,5);
 class Tetra2TetraSplitterClass : public Splitter {
 private:
   dvector<int> subobj_conn;
+  dvector<int> ref_nodes;
 public:
   Tetra2TetraSplitterClass();
   int size(GeomObject::Type t) const;
   const int* nodes(GeomObject::Type t,int j) const;
   int size() const;
   const int* nodes(int j,GeomObject::Type &t) const;
+  int nref_nodes() const;
+  void 
+  ref_node(int indx,
+	   const GeomObject::Template *&tmpl,
+	   int &nnod, const int *&nodes) const;
 };
 
 extern Tetra2TetraSplitterClass 

@@ -1,10 +1,11 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.43 2004/12/26 00:41:00 mstorti Exp $
+// $Id: femref.h,v 1.44 2004/12/27 03:37:33 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
 #include <list>
+#include <multimap>
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/generror.h>
@@ -23,6 +24,7 @@ public:
       value, or as a pointer to a #Template# class. 
    */ 
   enum Type { NULL_TYPE=0, 
+	      EdgeRefNodeT, 
 	      OrientedEdgeT, EdgeT, 
 	      OrientedTriT, TriT,
 	      OrientedTetraT, TetraT};
@@ -57,7 +59,7 @@ public:
   static Template* get_template(Type t);
 private:
   /// The check-sum for this object, has been converted to canonical?
-  int cs, canonical;
+  int cs, canonical, hash_value;
   /// The nodes for this object
   dvector<int> nodes_m;
 public:
@@ -67,6 +69,8 @@ public:
   int size(Type t) const { return go_template->size(t); }
   /// The checksum for this object
   int csum() const { return cs; }
+  /// The hash value for this object
+  int hash_val() const;
   /// Dimension of the object
   int dim() const { return go_template->dim_m; }
   /// Number of permutations that leave this object invariant. 
@@ -75,6 +79,10 @@ public:
   void clear() { go_template=NULL; nodes_m.clear(); canonical=0; cs=0; }
   /// Set to an object with the specific info
   void init(Type t,const int *nodes_a=NULL);
+  /// Set to an object with #local_nodes#
+  /// from array #global_nodes#
+  void init(Type t,const int *local_nodes,
+	    const int *global_nodes);
   /// Local nodes for #j# permutation 
   const int* perm(int j) const {
     return &(go_template->perms_v.e(j,0)); 
@@ -109,14 +117,29 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class Splitter {
 public:
-  /// Number of subobjetcs of type #t# in this shape. 
+  /// Number of subobjetcs of type #t# in this splitting.
   virtual int size(GeomObject::Type t) const { assert(0); }
+  /// Number of refined nodes this splitting creates
+  int nref_nodes() const { assert(0); }
+  /** Refined nodes #indx# is created from #nnod# nodes 
+      passed by #nodes#. 
+      @param indx (input) the refined node index. 
+      @param tmpl (output) the type of the refined 
+      node (may be edge, face, ...)
+      @param nnod (output) the number of nodes #indx# 
+      refined node depends. 
+      @param nodes (output) the nodes that spawn #indx#. */ 
+  void ref_node(int indx,
+		GeomObject::Type t,
+		int &nnod, const int *&nodes) const;
   /// Local nodes connected to subobject #j# of type #t#. 
-  virtual const int* nodes(GeomObject::Type t,int j) const { assert(0); }
+  virtual const int* 
+  nodes(GeomObject::Type t,int j) const { assert(0); }
   /// Total number of subobjetcs
   virtual int size() const { assert(0); }
   /// Local nodes connected to subobject #j# and type
-  virtual const int *nodes(int j,GeomObject::Type &t) const { assert(0); }
+  virtual const int 
+  *nodes(int j,GeomObject::Type &t) const { assert(0); }
 };
 
 typedef double
@@ -235,6 +258,14 @@ private:
   typedef tree<ElemRefNode> ElemRef;
   /// The refinement of each element
   dvector<ElemRef *> elem_ref;
+
+  /// An iterator to identify refined nodes
+  class RefNodeIterator {
+  public:
+    ElemRef::cell *c;
+    int indx;
+  };
+
   /** Auxiliary function that searches the iterator
       for a given object. If #its==NULL# then
       returns the first iterator found in #it#. If
@@ -247,6 +278,9 @@ private:
       @param it (output) if #its=NULL# then return the 
       first iterator found here. */ 
   void find(GeomObject &go,list<iterator> *its,iterator &it);
+  typedef multimap<int,RefNodeIterator> hash2it_t;
+  /// For a given `NodeRef' hash value, gives an iterator for it
+  hash2it_t hash2it;
   /// Stores the correspondence between hash values and nodes
   map<int,int> hash2node;
   /** Nodes obtained by refinement are in the range 
@@ -332,6 +366,14 @@ public:
       @param rf (input) function that indicates 
       the desired mehs size (#h#) for this element. */ 
   void refine(RefineFunction rf);
+
+  /** Given an iterator to a #RefNode# constructs in 
+      #go# the corresponding geometrical object. 
+      @param it (input) the iterator
+      @param go (input) the geometrical object (ogf type 
+      refined node). */ 
+  void set(RefNodeIterator it,
+	   GeomObject &go);
 
   /** Each element in the refinement stack is
       of this type. */ 

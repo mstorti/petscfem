@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.20 2004/12/24 21:18:41 mstorti Exp $
+// $Id: femref2.cpp,v 1.21 2004/12/27 03:37:33 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -73,6 +73,31 @@ void GeomObject::init(Type t,const int *nodes_a) {
     hasher.reset();
     for (int j=0; j<sz; j++) {
       int node = nodes_a[j];
+      hasher.hash(node);
+      nodes_m.ref(j) = node;
+    }
+    cs = hasher.val();
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void GeomObject::
+init(Type t,const int *local_nodes,
+     const int *global_nodes) {
+  clear();
+
+  // Set template ptr from type
+  go_template = get_template(t);
+  // resize node array
+  int sz = size();
+  nodes_m.mono(sz);
+  // Copy node array in internal vector
+  // and compute check-sum
+  hasher.reset();
+  for (int j=0; j<sz; j++) {
+    for (int j=0; j<sz; j++) {
+      int local_node = local_nodes[j];
+      int node = global_nodes[local_node];
       hasher.hash(node);
       nodes_m.ref(j) = node;
     }
@@ -161,14 +186,12 @@ void GeomObject::make_canonical() {
 #endif
   }
   // Copy lowest ordering to internal ordering
-  for (int kk=0; kk<sz; kk++) 
+  hasher.reset();
+  for (int kk=0; kk<sz; kk++) {
     nodesp[kk] = cmin[kk];
-#if 0
-  printf("canonical form: ");
-  for (int kk=0; kk<sz; kk++) 
-    printf(" %d",nodesp[kk]);
-  printf("\n");
-#endif
+    hasher.hash(nodesp[kk]);
+  }
+  hash_value = hasher.val();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -265,6 +288,11 @@ int GeomObject::find(GeomObject &go) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int GeomObject::hash_val() const {
+  return hash_value;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::set(iterator it,GeomObject &go) {
   // assert(it.t == tmpl->type);
   // check that large-object number is OK.
@@ -284,6 +312,12 @@ void UniformMesh::set(iterator it,GeomObject &go) {
   for (int j=0; j<so_sz; j++)
     so_nodes.e(j) = connec.e(it.obj,local_nodes[j]);
   go.init(it.t,so_nodes.buff());
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void 
+UniformMesh::
+set(RefNodeIterator it, GeomObject &go) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

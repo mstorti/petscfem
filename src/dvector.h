@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.19 2004/12/22 19:10:12 mstorti Exp $
+// $Id: dvector.h,v 1.20 2004/12/27 03:37:33 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -159,6 +159,13 @@ public:
       @param nread (output) number of elments read
       @return reference to self  */ 
   dvector<T>& cat(const char *name,int &nread);
+
+  /** Read from a standard C vector, until `term' is found. 
+      @param in (input) the C vector of objects from 
+      where to fill the container. 
+      @param term (output) the element that indicates the end. 
+      @return reference to self  */ 
+  dvector<T>& cat(const T* in,T term);
 
   /// Write to a stream
   dvector<T>& print(FILE *fid=stdout);

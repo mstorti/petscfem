@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.23 2004/12/22 19:10:12 mstorti Exp $
+// $Id: dvector2.h,v 1.24 2004/12/27 03:37:33 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -286,6 +286,14 @@ template<class T>
 dvector<T>& dvector<T>::cat(const char *name, int &nread_a) {
   cat(name);
   nread_a = nread;
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::cat(const T* in,T term) {
+  const T *q = in;
+  while (*q!=term) push(*q++);
   return *this;
 }
 
