@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.10 2002/07/24 22:35:13 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.11 2002/07/28 22:38:21 mstorti Exp $
 
 #include <src/linkgraph.h>
 
@@ -67,6 +67,16 @@ void LinkGraph::list_insert(int header, int val) {
   int_pair &Q = da.ref(q);
   Q.i = null;			// not needed?
   Q.j = null;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int LinkGraph::edge_q(int header, int val) {
+  int_pair *p = &da.ref(header);
+  while (p->j != null) {
+    if (p->i == val) return 1;
+    p = &da.ref(p->j);
+  }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.12 2002/07/24 22:35:13 mstorti Exp $
+// $Id: linkgraph.h,v 1.13 2002/07/28 22:38:21 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -91,6 +91,13 @@ public:
     @param k (input) second index of edge
   */
   void add(int j,int k) { list_insert(j,k); }
+  /** Queries whether a given pair of indices
+      is linked by an edge or not. 
+      @param j (input) first vertex
+      @param k (input) second vertex
+      @return boolean value indicating if the pair is an edge or not. 
+  */ 
+  int edge_q(int j,int k);
   /** Call back function that defines the graph. For a given
       vertex it returns the list of adjacent vertices. 
       @param v (input) the source vertex 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2002/07/28 00:21:56 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2002/07/28 22:38:24 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -44,3 +44,5 @@ local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
 
+hexasplit.bin: hexasplit.o
+	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)

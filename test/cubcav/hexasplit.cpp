@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.4 2002/07/28 22:15:24 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.5 2002/07/28 22:38:24 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <vector>
@@ -28,7 +28,22 @@ void graph_print(LinkGraphDis &graph, char *s=NULL) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int main(int argc, char **args) {
+int main (int argc, char **argv) {
+  char c;
+  string icone_file = "icone";
+  string icone_tetra = "icone_tetra";
+  while ((c = getopt (argc, argv, "i:o:")) != -1) {
+    switch (c) {
+    case 'i':
+      icone_file = string(optarg);
+      break;
+    case 'o':
+      icone_tetra = string(optarg);
+      break;
+    default:
+      abort ();
+    }
+  }
 
   LinkGraph graph;
   // graph.init(M);
@@ -46,7 +61,7 @@ int main(int argc, char **args) {
   int incompat[] = {0,1,0,1,1,0,1,0};
 
   // Reads connectivities
-  FILE *fid = fopen(args[1],"r");
+  FILE *fid = fopen(icone_file,"r");
   assert(fid);
   int nelem=0;
   while(1) {
@@ -62,6 +77,7 @@ int main(int argc, char **args) {
       if (node>nnod) nnod=node;
     }
   }
+  fclose(fid);
   printf("read %d elems, %d nodes\n",nelem,nnod);
   // split[j] may be -1/+1 depending on whether the
   // node is marked up or down. split[j]==0 implies
@@ -71,7 +87,6 @@ int main(int argc, char **args) {
 
   // Build the graph of incompatibilities. Two nodes are connected
   // by an edge if they are connected by an edge of an hexa. 
-  fclose(fid);
   graph.set_chunk_size(nnod/2 < MIN_CHUNK_SIZE ? MIN_CHUNK_SIZE : nnod/2);
   graph.init(nnod);
   for (int e=0; e<nelem; e++) {
@@ -147,6 +162,7 @@ int main(int argc, char **args) {
 		  {2,7,5,6},
 		  {0,5,7,4},
 		  {0,5,2,7}};
+  fid = fopen(icone_tetra,"w");
   for (int k=0; k<nelem; k++) {
     // Connectivity row
     int *row = &icone.ref(k*NEL);
@@ -157,8 +173,9 @@ int main(int argc, char **args) {
       // loop over nodes in the tetra
       for (int q=0; q<4; q++) 
 	// node of local tetra, eventually remapped
-	printf("%d ",row[map[tetra[t][q]]]-1);
+	fprintf(fid,"%d ",row[map[tetra[t][q]]]-1);
       printf("\n");
     }
   }
+  fclose(fid);
 }
