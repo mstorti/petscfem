@@ -4,6 +4,11 @@ w=zhomo([0 Lx 0 Ly],Nx+1,Ny+1);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
+if var_eta
+  xe = pfnd2ele(xnod,icone,xnod(:,1));
+  icone = [icone eta0+(etaL-eta0)/Lx*xe];
+endif
+
 asave("aqui.nod.tmp",xnod);
 asave("aqui.con.tmp",icone);
 

@@ -39,6 +39,11 @@ void aquifer_ff::end_chunk() {
 void aquifer_ff::element_hook(ElementIterator &element) {
   K = elemset->prop_val(element,K_pr);
   eta = elemset->prop_val(element,eta_pr);
+#if 0
+  int p,q;
+  element.position(p,q);
+  printf("element: %d, eta %f\n",p,eta);
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -71,7 +76,7 @@ void aquifer_ff::enthalpy(FastMat2 &H, FastMat2 &U) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void aquifer_ff::comp_N_Cp_N(FastMat2 &N_Cp_N,FastMat2 &N, double w) {
-  tmp2.set(N).scale(S*(phi-eta));
+  tmp2.set(N).scale(S*(phi-eta)*w);
   tmp3.prod(N,tmp2,1,2);
   N_Cp_N.ir(2,1).ir(4,1).set(tmp3);
   N_Cp_N.rs();

@@ -1,8 +1,9 @@
-# $Id: Makefile,v 1.1 2002/01/15 21:35:40 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2002/01/16 01:19:06 mstorti Exp $ 
 
-.PHONY:  force
+.PHONY:  force test_plain test_var_eta
 
-tests: 
+#w All tests
+tests: test_plain test_var_eta
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -24,9 +25,22 @@ ifeq ($(np),)
 np := 1
 endif
 
+#w case with constant aquifer depth
+test_plain:
+	$(MAKE) casen=plain run
+	octave -q check.m > plain.verif.tmp
+	$(MAKE) casen=var_eta0 run
+	octave -q check.m > var_eta0.verif.tmp
+	octave -q checkc.m > const.verif.tmp
+
+#w case with variable aquifer depth
+test_var_eta:
+	$(MAKE) casen=var_eta1 run
+	octave -q check.m > var_eta1.verif.tmp
+
 #w Runs program
 run:  data
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl 
+	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl > output.out
 
 data: force
 	$(MAKE) $(CASE).depl
