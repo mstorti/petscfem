@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.151 2002/08/08 21:28:38 mstorti Exp $
+$Id: notes.txt,v 1.152 2002/08/17 22:38:57 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.151 2002/08/08 21:28:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.152 2002/08/17 22:38:57 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.151 2002/08/08 21:28:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.152 2002/08/17 22:38:57 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.151 2002/08/08 21:28:38 mstorti Exp $ 
+  # $Id: notes.txt,v 1.152 2002/08/17 22:38:57 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4708,6 +4708,33 @@ y declarado en `texthash.h'.
 Anda el `embedded_gatherer' + `visc_force_integrator'. Es menos
 preciso que calcular las reacciones en los nodos. Se logra mejor
 precision refinando hacia las paredes. 
+
+%===Sat, 17 Aug 2002 12:40:14 -0300 mstorti@spider
+%
+Starts including an example of the nutating cylinder in the test
+suite. However, I will try to make it work with a relatively small
+mesh. I think at W_spin=9000rpm, W_nut=630rpm, nu=1e5 cSt, nut_angle =
+15deg. The despin moment from the paper of Vaughn is 1.55 lbf ft = 2.1
+N m. 
+%
+12:49:39: Con una malla de 3*6^2*20 da Mz_raw = -1.7877e-02 N m, lo
+cual es mucho. 
+%
+12:51:45: Para nut_angle = 0, da Mz_raw = -1.53276e-02  N m, lo cual
+por diferencia da (1.7877e-02 -1.53276e-02)*950*.738 = 1.7874 lbf ft,
+que esta mucho mas cerca. Voy a probar a refinar mas a ver si se
+acerca. 
+%
+13:31:15: Con una malla mas fina (3*10^2*20) da -8.823945e-03
+(nut_angle=15) y -6.736648e-03 (nut_angle=0). Entonces la fuerza da 
+(8.823945e-03-6.736648e-03)*950 = 1.9829, lo cual esta bien. 
+%
+19:10:34: Vamos a hacer el test con una malla de 3*4^2*10 con la cual
+la fuerza da (5.3970598663e-02-5.2234708713e-02)*950*.738 = 1.2170 lbf
+ft. 
+
+
+
 
 %# Current line ===========  
 # Local Variables: $

@@ -1,12 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.55 2002/07/25 22:35:06 mstorti Exp $ 
+# $Id: Makefile,v 1.56 2002/08/17 22:39:00 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
-	pfmat  aquifer
+	pfmat  aquifer nutatcyl
 
 SRCS = $(wildcard *.cpp)
 
@@ -63,7 +63,7 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer
+	sparse graph sqcav pfmat aquifer nutatcyl
 
 runtests_p: graph sqcav pfmat aquifer
 
@@ -409,5 +409,10 @@ pfmat:
 #w Tests for the Hydrology related elemsets
 aquifer:
 	$(MAKE) -C aquifer tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Navier Stokes test for the nutating cylinder
+nutatcyl:
+	$(MAKE) -C nutatcyl tests
 
 #s

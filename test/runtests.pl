@@ -694,7 +694,7 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
-begin_section('Misc tests.');
+begin_section('Navier-Stokes tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.re1000.verif.tmp",
@@ -702,6 +702,20 @@ expect("sqcav/check.re1000.verif.tmp",
 Weak form 0. error < tol OK \? 1
 Weak form 1. error < tol OK \? 1
 EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nutatcyl/checknutcyl.verif.tmp",
+       "Nutating cylinder",<<'EOT');
+Roll moment OK \? 1
+EOT
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.iisd.verif.np1.tmp",
@@ -1355,7 +1369,7 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
-begin_section('Dynamicall loadable amplitude functions');
+begin_section('Dynamically loadable amplitude functions');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("aquifer/output.dl_fun1.verif.tmp","Linear ramp Dirichlet b.c.",

@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2002/08/17 22:27:47 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2002/08/17 22:39:00 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
+
+PETSCFEM_DIR := ../..
 
 tests: nutcyl
 
@@ -40,11 +42,11 @@ local_clean::
 	-rm -rf mat.output system.dat save.state data.m \"\"
 
 nutcyl:
-# 	-rm -f cylinder.force.nuta15.tmp
-# 	$(MAKE) nuta=15 mesh=4-10-I run
-# 	cp cylinder.force.tmp cylinder.force.nuta15.tmp
-# 	-rm -f cylinder.force.nuta0.tmp
-# 	$(MAKE) nuta=0 mesh=4-10-I run
-# 	cp cylinder.force.tmp cylinder.force.nuta0.tmp
+	-rm -f cylinder.force.nuta15.tmp
+	$(MAKE) nuta=15 mesh=4-10-I run
+	cp cylinder.force.tmp cylinder.force.nuta15.tmp
+	-rm -f cylinder.force.nuta0.tmp
+	$(MAKE) nuta=0 mesh=4-10-I run
+	cp cylinder.force.tmp cylinder.force.nuta0.tmp
 	octave -q checknutcyl.m > checknutcyl.verif.tmp
 #s
