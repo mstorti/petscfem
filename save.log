@@ -1290,3 +1290,6 @@ tag: beta-3.00.pl11 on Mon, 22 Jul 2002 19:07:59 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl12 on Tue, 23 Jul 2002 00:42:55 -0300 by mstorti in spider
      > Making `link_graph' dostributed.
+----------
+tag: beta-3.00.pl13 on Tue, 23 Jul 2002 09:28:06 -0300 by mstorti in spider
+     > Writing distributed graph class.
