@@ -1,7 +1,7 @@
 $h = 1;                         # Mean water height
 $Lx = 5;			# Length of domain (wave-length)
 $Re = 500;			# Reynolds number
-$Froude = 2.0;			# Froude number
+$Froude = 1.0;			# Froude number
 
 $yratio = 4;			# refinement towards top and bottom
 $ref = 2;                       # Refinement parameter
@@ -14,7 +14,7 @@ $u_max = 1.5*$u_av;
 				# Mean velocity
 $viscosity = $u_av*$h/$Re;	# Fluid viscosity
 
-$slope = 3*$u_av*$viscosity/($gravity*$h**2);                 
+$slope = 8*3*$u_av*$viscosity/($gravity*$h**2);                 
 				# simulated bottom slope. A term g_x = slope*g is added
 				# adjusted so as to give the desired Re and Froude number
 
@@ -24,13 +24,13 @@ $fs_relax = 1.0;		# relaxation factor for the
                                 # free surface evolution eq. 
 $fs_smoothing_coef = 0.25;	# FS smoothing coeficient (heat equation like)
 
-$Dt = 0.025;			# time step
+$Dt = 0.02;			# time step
 $eta0 = 0.05;			# amplitude of free surface elevation
 				# perturbation
-$dx_steps = 1;			# visualize with DX
+$dx_steps = 0;			# visualize with DX
 
-$L_bump = 1;			# length of the bump
-$t = 0.6;			# thickness
-$restart = 0;			# flags whether to restart a previous run
+$L_bump = 2;			# length of the bump
+$t = 0.8;			# thickness
+$restart = 1;			# flags whether to restart a previous run
 
 1;

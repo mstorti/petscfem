@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $
+$Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $ 
+  # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.278 2003/04/04 20:44:56 mstorti Exp $ 
+  # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6519,6 +6519,14 @@ entonces tenemos "0.5*Delta(v^2) = g*Delta h" de donde Delta h =
 17:43:41: Con Fr=2.0 y Dt=0.025 se mantiene estable con 3 filtrados
 (no se si se mantendra estable si le saco los filtrados). Tambien
 quiero empezar a bajar el espesor de la capa de agua. 
+%
+17:45:50: Voy a aumentar el t a 0.8 y bajar la velocidad, haciendo una
+especie de continuacion. 
+%
+18:12:08: Inicialmente va OK. La perturbacion a la superficie es
+pequenha. Ahora voy a aumentar la pendiente al doble, rearrancando de
+la solucion anterior. (La solucion no habia convergido demasiado. 
+
 
 
 # Current line ===========  %
