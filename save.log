@@ -1572,3 +1572,6 @@ tag: beta-3.04.pl2 on Sat,  7 Sep 2002 17:46:53 -0300 by mstorti in spider
 tag: beta-3.04.pl3 on Sat,  7 Sep 2002 18:55:12 -0300 by mstorti in spider
      > Moved `test/sqcav/g_body.ans.txt' to `test/sqcav/gbody.ans.txt' because
      > `g_*' files are removed by PETSc `make clean'. 
+----------
+tag: beta-3.04.pl4 on Sun,  8 Sep 2002 16:42:06 -0300 by mstorti in spider
+     > Dynamically linked functions OK for constant rain. 
