@@ -1,6 +1,6 @@
 $Re = 100;
 $Co = 2;
-$re_start = 0;
+$re_start = 1;
 
 if (1) {   ## large mesh
     $Rint=1;
