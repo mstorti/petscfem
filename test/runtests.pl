@@ -917,6 +917,24 @@ Max grouth in x second moment OK \? 1
 Max grouth in y second moment OK \? 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("advec/skew_cone.verif.tmp",
+       "Unsteady advection of cone skew to mesh",<<'EOT');
+Error in x position < tol OK \? 1
+Error in y position < tol OK \? 1
+Max grouth in x second moment OK \? 1
+Max grouth in y second moment OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("advec/rotating_cone.verif.tmp",
+       "Unsteady advection of rotating cone",<<'EOT');
+Error in x position < tol OK \? 1
+Error in y position < tol OK \? 1
+Max grouth in x second moment OK \? 1
+Max grouth in y second moment OK \? 1
+EOT
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

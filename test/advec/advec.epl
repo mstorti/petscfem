@@ -49,39 +49,44 @@ if ($case_name eq 'parallel_cone') {
 } 
 #
 if ($case_name eq 'skew_cone') {
-    $N = 100;
-    $M = 100;
-    $Lx = 5;
-    $Ly = 5;
-    $ux = 1;
-    $uy = 1;
+    $N = $M =50;
+    $Lx = $Ly = 2.5;
+    $ux = $uy = 1;
+    $Tend = 1.5;
+    if (0) { # Large test
+        $N = $M =100;
+        $Lx = $Ly = 3.5;
+        $Tend = 3.5;
+    }
     $alpha = 0.5;
     $Courant = 0.5;
     $hx = $Lx/$N;
     $Dt = $Courant*$hx/$ux;
-    $Tend = 3.5;
     $nstep = ceil($Tend/$Dt);
 }
 if ($case_name =~ /cone/) {
     $traversed_length = sqrt($ux**2+$uy**2)*$Tend;
 }    
 if ($case_name eq 'rotating_cone') {
-    my $R = sqrt(($Lx/2-$xini)**2 + ($Ly/2-$yini)**2);
-    $traversed_length = $Omega*$R*$Tend;
-}
-if ($case_name eq 'rotating_cone') {
-    $N = $M = 160;
-    $Lx = $Ly = 3;
-    $Omega = 1.2/($Lx/2);
+    $N = $M = 30;
+    $Lx = $Ly = 2;
+    if (0) { # Large test
+        $N = $M = 160;
+        $Lx = $Ly = 3;
+    }
+    $uborder = 1.2;
+    $Omega = $uborder/($Lx/2);
     $uy = 1;
     $alpha = 0.5;
     $Courant = 0.5;
     $hx = $Lx/$N;
-    $Dt = $Courant*$hx/$ux;
+    $Dt = $Courant*$hx/$uborder;
     $Tend = 2*$PI/$Omega;
     $nstep = ceil($Tend/$Dt);
     $xini = $Lx/2;
     $yini = 0.5;
+    my $R = sqrt(($Lx/2-$xini)**2 + ($Ly/2-$yini)**2);
+    $traversed_length = $Omega*$R*$Tend;
 }
 #__END_TRANSCRIPT__
 @vars = qw(N M Lx Ly delta ydisc traversed_length Tend
