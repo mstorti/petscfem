@@ -66,7 +66,7 @@ $visco = 1e-3;			# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
-$p_c = 1.2e5;			# [N/m2] outlet cold pressure
+$p_c = 1.25e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
 $p_h = 1.38e5;			# [N/m2] outlet cold pressure
@@ -106,7 +106,8 @@ alpha 1.
 
 # initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
-initial_state "vtube.state_hot_only"
+# initial_state "vtube.state_hot_only"
+initial_state "vtube.state_hot_cold1"
 nsave 1
 save_file "vtube.state.tmp"
 

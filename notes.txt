@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $
+$Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
+  # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
+  # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6057,7 +6057,16 @@ mal. Asumo que es la fria (como pasaba con el otro Dt.).
 pregunto si es por imponer condicion de pared solida sobre el eje. Una
 posibilidad podria ser poner condcion slip ahi. Es lo que voy a tratar
 ahora. 
-
+%
+15:45:54: Diverge porque en rho=Rin, z=L0 hay que imponer pared
+solida. Sino se puede meter flujo por ahi. 
+%
+16:56:42: Poniendo condicion slip anda mucho mejor pero de todas
+formas en un cierto momento con p_c=1.2e5 la velocidad se invierte en
+la salida caliente. Asi que lo corto y lo vuelvo a arrancar desde el
+step 140 con p_c=1.3e5. 
+%
+17:07:40: Se invierte la salida fria. Voy a probar con p_c=1.25e5. 
 
 
 
