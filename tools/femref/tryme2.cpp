@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: tryme2.cpp,v 1.2 2004/12/28 23:24:52 mstorti Exp $
+// $Id: tryme2.cpp,v 1.3 2004/12/28 23:27:02 mstorti Exp $
 
 #include <cstdio>
 #include <cassert>
@@ -66,6 +66,7 @@ int lower_boundb(vector<int> &v,
 }
 
 int lower_boundbl(vector<int> &v, int x) {
+  its = 0;
   int 
     j, vj,
     j1 = 0,
@@ -111,7 +112,8 @@ int main() {
 
   for (int k=0; k<10; k++) {
     int j = rand() % N;
-    int jj = lower_boundb(v,v[j]);
+    // int jj = lower_boundb(v,v[j]);
+    int jj = lower_boundbl(v,v[j]);
     assert(v[jj]==v[j]);
     printf("%d its, bin %d\n",its,ilog2(N));
   }
