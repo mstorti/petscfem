@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: tryme2.cpp,v 1.7 2004/12/29 00:52:30 mstorti Exp $
+// $Id: tryme2.cpp,v 1.8 2004/12/29 02:57:39 mstorti Exp $
 
 #include <ctime>
 #include <cstdio>
@@ -51,8 +51,8 @@ int lower_boundbl(vector<int> &v, int x) {
   if (v1 == v2) return 0;
   j = j1 + int((double(x-v1)*double(j2-j1))/double(v2-v1));
   // int dj = int(pow(double(j),0.5));
-  int dj = int(sqrt(double(j)));
-  // int dj = DJGLOB;
+  // int dj = int(sqrt(double(j)));
+  int dj = DJGLOB;
   int jj1 = j-dj;
   if (jj1>=0 && v[jj1] < x) j1=jj1;
   int jj2 = j + dj;
@@ -69,7 +69,7 @@ int lower_boundb(vector<int> &v, int x) {
 
 int main() {
   time_t start, end;
-  int N=10000000, ntries=10000000;
+  int N=50000000, ntries=N;
   DJGLOB = int(sqrt(double(N)));
   vector<int> v(N);
   for (int j=0; j<N; j++) 
@@ -95,15 +95,16 @@ int main() {
   start = time(NULL);
   int iters = 0;
   for (int k=0; k<ntries; k++) {
-    int j = rand() % N;
+    int j = k;
 
     int jj = FUN(v,v[j]);
     iters += its;
+#if 0
     if (v[jj]!=v[j]) {
       printf("v[j=%d]=%d, v[jj=%d]=%d, k %d\n",
 	     j,v[j],jj,v[jj],k);
     }
-    // printf("%d its, bin %d\n",its,ilog2(N));
+#endif
   }
   double elaps = difftime(time(NULL),start);
   printf("Stats for %s method:\n" 

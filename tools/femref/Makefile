@@ -19,6 +19,7 @@ SRCS := femref.cpp femref2.cpp hasher.cpp myhash.cpp myhash2.cpp	\
 	myhash3.cpp myhash4.cpp myhash5.cpp gtemplates.cpp 		\
 	visitor.cpp combiner.cpp trytree.cpp
 
+BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
