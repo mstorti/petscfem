@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $
+$Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
+! # $Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
+! # $Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
+! # $Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
+! # $Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
+  # $Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
+  # $Id: notes.txt,v 1.281 2003/04/07 10:23:47 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6546,6 +6546,17 @@ espontaneamente. Curiosamente parece que uno lo restartea y avanza
 mas, hasta que de nuevo diverge. Voy a empezar  estudiar mejor el tema
 del Courant critico sobre un problema mas simple, un bump de menor
 espesor. 
+%
+16:54:48: Con el bump de t=0.1, long=2, longitud del dominio 20. De
+disenho, slope= 0.03, viscosity= 0.031. Las velocidades son del orden
+de 4.5, con lo cual da un Re del orden de 160 y Fr=1.6 (tomando como
+longitud la prof. media de 1.). El filtrado es 20 x 0.1. Ahora voy a
+probar a bajar la viscosidad un factor 10. 
+%
+19:40:54: Se la aguanta bien, no llega a un estacionario (o parece
+disipar muy poco). Cursiosamente la velocidad no parece cambiar
+mucho. 
+
 
 # Current line ===========  %
 # Local Variables: $

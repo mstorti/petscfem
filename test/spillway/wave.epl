@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.13 2003/04/06 16:09:26 mstorti Exp $ 
+## $Id: wave.epl,v 1.14 2003/04/07 10:23:48 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 use File::Copy;
@@ -16,7 +16,7 @@ if ($restart) {
 $dx = 0;
 #__END_TRANSCRIPT__
 @vars = qw(Lx h Ny Nx fs_relax Dt gravity p_const_bc patm slope
-    yratio initia eta0 L_bump t);
+    yratio initia eta0 L_bump t uini);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "initia=1 octave -qH mkwave.m";
@@ -42,6 +42,8 @@ nfile 100000000
 
 #if !$initia
 initial_state "wave.steady_state"
+#else
+initial_state "wave.ini.tmp"
 #endif
 nstep 2000
 steady <:=$initia:>

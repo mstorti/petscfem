@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.5 2003/04/01 22:47:19 mstorti Exp $
+## $Id: mkwave.m,v 1.6 2003/04/07 10:23:48 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
@@ -28,6 +28,12 @@ xnod(:,2) = y + ybump .* (1-y/h);
 
 asave("wave.nod.tmp",xnod);
 asave("wave.con.tmp",icone);
+
+## Initial state
+nnod = rows(xnod);
+ini = [uini 0 0];
+ini = ini(ones(nnod,1),:);
+asave("wave.ini.tmp",ini);
 
 ## No-slip at bottom + slip at top 
 fid  = fopen("wave.fixa_bot.tmp","w");
