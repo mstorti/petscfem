@@ -2035,3 +2035,6 @@ tag: beta-3.13.pl10 on Wed,  1 Jan 2003 22:22:26 -0300 by mstorti in spider
 tag: beta-3.13.pl11 on Wed,  1 Jan 2003 22:44:53 -0300 by mstorti in spider
      > Working on inviscid/potential coupling. 
      > Iterates ok one step. 
+----------
+tag: beta-3.13.pl12 on Thu,  2 Jan 2003 00:08:56 -0300 by mstorti in spider
+     > Passes all tests in BOPT=g_c++ mode
