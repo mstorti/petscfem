@@ -711,3 +711,6 @@ tag: pfmat-rewrite-1.01 on Sun Dec 16 21:05:09 ARST 2001, by mstorti in spider
 tag: pfmat-rewrite-1.02 on Mon Dec 17 23:02:32 ARST 2001, by mstorti in spider
      > Fixed a bug in `distcont.h' and in `debug.h'. 
      > Working on the distributed graph class.
+----------
+tag: pfmat-rewrite-1.03 on Tue Dec 18 10:01:07 ARST 2001, by mstorti in spider
+     > Distributed graph `StoreGraph' working.
