@@ -1,6 +1,11 @@
 # -*- mode: perl -*-
 
 $ICONSERVER = '../icons';
+$MAX_SPLIT_DEPTH = 4;
+$REUSE = 2;
+$EXTERNAL_IMAGES = 0;   # 1 = leave the images outside the document 
+$NOLATEX = 0;           # 1 = do not pass unknown environments to Latex
+$WHITE_BACKGROUND = 1;
 
 $petscfem_version=`cat ../VERSION`;
 $ADDRESS = <<EOM;
