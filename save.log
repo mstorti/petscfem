@@ -1623,3 +1623,6 @@ tag: beta-3.04.pl18 on Fri, 20 Sep 2002 00:02:31 -0300 by mstorti in spider
 ----------
 tag: beta-3.04.pl19 on Fri, 20 Sep 2002 18:26:45 -0300 by mstorti in minerva.arcride.edu.ar
      > Can run with weight 0 in processors. (SImulates -nolocal)
+----------
+tag: beta-3.04.pl20 on Fri, 20 Sep 2002 19:51:44 -0300 by mstorti in spider
+     > Can have 0 weight processors. 
