@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.94 2003/09/25 22:39:28 mstorti Exp $
+//$Id: readmesh.cpp,v 1.95 2003/10/12 00:35:33 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -392,7 +392,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       thash->get_entry("data",data);
       if (!data) {
 	while (1) {
-	  fstack->get_line(line);
+	  ierr = fstack->get_line(line);
+	  PETSCFEM_ASSERT0(ierr==0,"Couldn't find __END_ELEMSET__ tag");  
 	  
 	  // reading element connectivities
 	  for (int jel=0; jel<nel; jel++) {
@@ -662,7 +663,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // fixa_entry fe;
       nfixa=0;
       while (1) {
-	fstack->get_line(line);
+	ierr = fstack->get_line(line);
+	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_FIXA__ tag");  
 	astr_copy_s(linecopy, line);
 	if (strstr(line,"__END_FIXA__")) break;
 	nfixa++;
@@ -721,7 +723,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       nfixa=0;
       while (1) {
-	fstack->get_line(line);
+	ierr = fstack->get_line(line);
+	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_FIXA__ tag");  
 	astr_copy_s(linecopy, line);
 	if (strstr(line,"__END_FIXA__")) break;
 	nfixa++;
@@ -773,7 +776,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       Constraint constraint;
       while (1) {
 	
-	fstack->get_line(line);
+	ierr = fstack->get_line(line);
+	PETSCFEM_ASSERT0(ierr==0,"Can't find __END_CONSTRAINT__ tag");  
 	if (strstr(line,"__END_CONSTRAINT__")) break;
 	nconstr++;
 	constraint.empty();
@@ -872,7 +876,9 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     weights_file = new FileStack(proc_weights);
     float sumw=0.;
     for (int proc=0; proc<size; proc++) {
-      weights_file->get_line(line);
+      ierr = weights_file->get_line(line);
+      PETSCFEM_ASSERT(ierr==0,"Can't find line for proc %d in file %s",
+		      proc,proc_weights);  
       sscanf(line,"%f",&tpwgts[proc]);
       PETSCFEM_ASSERT0(tpwgts[proc]>=0.,
 		       "Processor weight must be >= 0.");  
