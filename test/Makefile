@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.62 2002/09/06 02:50:22 mstorti Exp $ 
+# $Id: Makefile,v 1.63 2002/09/06 14:31:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -7,9 +7,6 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars \
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
 	pfmat  aquifer nutatcyl
-
-qqq:
-	$(MAKE) -C sector qqq
 
 SRCS = $(wildcard *.cpp)
 
@@ -36,9 +33,6 @@ all: tests
 PETSCFEM_DIR = ..
 #PFEMUP = ../..
 include $(PETSCFEM_DIR)/Makefile.base
-
-rrr:
-	echo $(LD_LIBRARY_PATH)
 
 ctest: $(DATAFILE) force
 	$(MAKE) $(NS)
@@ -77,8 +71,7 @@ runtests_p: sparse graph sqcav pfmat aquifer nutatcyl
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Lapace on a square with periodic b.c.'s
 lap_per: lap_per.dat laplace
-	echo $(MPIRUN)
-#	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
+	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Check bug100 (don't allocate chunk_size see notes.txt)
