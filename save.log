@@ -171,3 +171,10 @@ tag: beta-1.14 on Tue Jan 16 14:04:56 ARST 2001, by mstorti in minerva.arcride.e
 tag: beta-1.15 on Fri Jan 19 09:56:58 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > Now I will work on the cache_grad_div_u feature. I will make a branch
      > for this called `cache_gdu'.
+----------
+tag: beta-1.16 on Fri Jan 19 18:47:49 ARST 2001, by mstorti in spider
+     > Merged cache-gdu-fixed with sttfilter
+----------
+tag: beta-1.17 on Sat Jan 20 07:24:34 ARST 2001, by mstorti in spider
+     > QUASI STABLE
+     > [Only problems with adv, which gives SISGSEGV always]
