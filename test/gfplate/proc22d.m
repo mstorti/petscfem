@@ -1,10 +1,10 @@
-## $Id: proc22d.m,v 1.1 2005/01/24 22:01:13 mstorti Exp $
+## $Id: proc22d.m,v 1.2 2005/01/27 14:11:37 mstorti Exp $
 
 source("data.m.tmp");
 
 field = 1;
 
-Uprimi = aload("gfabso2d.some-rslt.tmp");
+Uprimi = aload("gfabso2dn.some-rslt.tmp");
 Uprimi(:,1)=[];
 gasdata.gamma = gamma;
 gasdata.pref = pref;
@@ -42,7 +42,7 @@ endfor
 
 rem(rows(U),Nx+1)==0 || error("not correct size");
 nt = rows(U)/(Nx+1);
-x = aload("gfabso2d.nod.tmp");
+x = aload("gfabso2dn.nod.tmp");
 x = x(1:Nx+1,longindx);
 
 axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);

@@ -94,18 +94,18 @@ data ./gfabso2dn.con.tmp
 __END_HASH__
 
 #if $abso
-elemset gasflow_abso2 5
+elemset gasflow_abso2 3
 dx 0
 normal <:=-$norx:> <:=-$nory:>
 __END_HASH__
-__INCLUDE__ gfabso2dn.con-abso0.tmp
+__INCLUDE__ gfabso2dn.con-nabso0.tmp
 __END_ELEMSET__
 
-elemset gasflow_abso2 5
+elemset gasflow_abso2 3
 dx 0
 normal <:=$norx:> <:=$nory:>
 __END_HASH__
-__INCLUDE__ gfabso2dn.con-abso1.tmp
+__INCLUDE__ gfabso2dn.con-nabso1.tmp
 __END_ELEMSET__
 #endif
 

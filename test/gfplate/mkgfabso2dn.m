@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.1 2005/01/26 11:46:53 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.2 2005/01/27 14:11:37 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -51,6 +51,15 @@ asave("gfabso2dn.con-abso1.tmp",abso1);
 abso0 = [1:3,nnod+[5,6];
 	 Nx+(2:4),nnod+[7,8]];
 asave("gfabso2dn.con-abso0.tmp",abso0);
+
+## New absorbing b.c.'s
+abso1 = [Nx+1 nnod+[1,2];
+	 2*Nx+2,nnod+[3,4]];
+asave("gfabso2dn.con-nabso1.tmp",abso1);
+
+abso0 = [1,nnod+[5,6];
+	 Nx+2,nnod+[7,8]];
+asave("gfabso2dn.con-nabso0.tmp",abso0);
 
 ## Fixa on reference nodes
 Uref = [rhoref,[uref,0]*Orot,pref];

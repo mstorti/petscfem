@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.2 2005/01/27 05:47:55 mstorti Exp $
+// $Id: advabso.cpp,v 1.3 2005/01/27 14:11:34 mstorti Exp $
 #include "./advabso.h"
 
 #define gasflow_abso gasflow_abso2
@@ -26,6 +26,7 @@ void AdvectiveAbso::
 init() {
   int nelprops;
   elem_params(nel,ndof,nelprops);
+  assert(nel==3);
   int ierr;
   NSGETOPTDEF_ND(int,ndim,0);
   flux.resize(2,ndof,ndim);
@@ -45,6 +46,7 @@ init() {
   get_prop(normal_prop,"normal");
   // The state on the reference node
   Uref.resize(1,ndof);
+  dU.resize(1,ndof);
   // The lagrange multipliers (state for the 2nd node)
   Ulambda.resize(1,ndof);
   // The state of the outlet node
@@ -85,6 +87,14 @@ res(int k,FastMat2 &U,FastMat2 &r,
   tmp1.prod(Pi_p,invS,1,-1,-1,2);
   Pi_p.prod(S,tmp1,1,-1,-1,2);
   tmp1.set(Pi_m).add(Pi_p);
+  // residual is the projection of U-Uref
+  // on to the space of incoming waves
+  dU.set(Uo).rest(Uref);
+  r.prod(Pi_m,dU,1,-1,-1);
+  // The vector of reactions is the pojector on
+  // to the incoming wave space
+  w.set(0.).ir(1,1).set(Pi_m).rs();
+  jac.ir(2,1).set(Pi_m).rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
