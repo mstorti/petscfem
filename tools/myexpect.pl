@@ -4,9 +4,17 @@
 #Advances $file until finds a little of "\n" delimited $pattern's. 
 $DEBUG_EXPECT = 0;
 
+## position in count record
+$OK= 1;
+$NOT_OK= 2;
+$CANT_OPEN= 3;
+
+@stack=();
+
 sub expect {
     ($file,$descr,$pattern_list) = @_;
-    open (SAL,$file) || do {print "can't open $file\n"; $cant_open++; return;};
+    open (SAL,$file) || do {print "can't open $file\n";
+    cant_open(); return;};
     @sal=(<SAL>);
     close SAL;
     print "Testing: \"$descr\" on file \"$file\"...";
@@ -47,22 +55,51 @@ sub expect {
 		goto NEXT;} if /$pattern/;
 	    last unless $skip;
 	}
-	$notok++;
+	not_ok();
 	print "not OK.\n        --->  Couldn't find \"$pattern\"\n";
-	return 0;
+	return;
       NEXT:;
     }
-    $ok++;
     print "OK. \n";
+    ok();
+}
+
+sub inc {
+    my $f = shift();
+    if ($#stack<0) {
+	push @stack,["--- Tests ---",0,0,0];
+    }
+    my $t = pop @stack;
+    $t->[$f]++;
+    push @stack,$t;
+}
+
+sub ok { inc($OK);}
+sub not_ok { inc($NOT_OK);}
+sub cant_open { inc($CANT_OPEN);}
+
+sub begin_section {
+    push @stack,[shift(),0,0,0];
+}
+
+sub end_section {
+    my $t = pop @stack;
+    $total = $t->[1]+$t->[2]+$t->[3];
+    print "$t->[0] -- OK: $t->[$OK].  Not OK: $t->[$NOT_OK]. ",
+    "Couldn't open: $t->[$CANT_OPEN]. Total: $total\n";
+    if ($#stack>=0) {
+	my $tt = pop @stack;
+	$tt->[$OK] += $t->[$OK];
+	$tt->[$NOT_OK] += $t->[$NOT_OK];
+	$tt->[$CANT_OPEN] += $t->[$CANT_OPEN];
+	push @stack,$tt;
+    }
 }
 
 sub final_check {
-    $ok = 0 unless $ok;
-    $notok = 0 unless $notok;
-    $cant_open = 0 unless $cant_open;
-    $total = $ok+$notok+$cant_open;
-    print "Summary:  OK: $ok.  Not OK: $notok. ",
-    "Couldn't open: $cant_open. Total: $total\n";
+    while ($#stack>=0) {
+	end_section();
+    }
 }
 
 =head1 NAME
@@ -71,8 +108,8 @@ myexpext.pl: verifies output from program tests
 
 =head1 SYNOPSIS
 
-C<expect(FILE,MESSAGE,checklist)> verifies reads each pattern line in
-checklist and finds lines in FILE that matches this pattern.
+C<expect(FILE,MESSAGE,patlist)> verifies that each pattern in
+C<patlist> matches lines in FILE.
 
 =head1 DESCRIPTION
 

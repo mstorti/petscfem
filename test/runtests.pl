@@ -3,6 +3,10 @@
 
 require '../tools/myexpect.pl';
 
+begin_section('All tests');
+
+begin_section('FastMat2');
+
 ##------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
 expect("fastmat2a.sal","FastMat2 library",<<'EOT');
@@ -357,6 +361,10 @@ $sector_test = <<'EOT';
 -7\.071.*e-01  7\.071.*e-01  
 EOT
 
+end_section();
+
+begin_section('Laplace boundary conditions');
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sector/sector0.sal","Periodic boundary conditions (1)",$sector_test);
 
@@ -371,6 +379,10 @@ expect("lap_per.sal","Periodic boundary conditions (2)",<<'EOT');
 -4\.9418.*-01  4\.9418.*-01  
 -5\.6250.*-01  5\.6250.*-01  
 EOT
+
+end_section();
+
+begin_section('Oscplate tests. Time dep. b.c.s and N.S.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Here we check only the $y$ components of velocity, since the others are
@@ -502,6 +514,10 @@ expect("oscplate4_30dego.sal",
 error = .*,  < .* OK \? 1
 EOT
 
+end_section();
+
+begin_section('Plano tests on advdif');
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("plano_local.sal","Adv/Sh.Water FastMat2/local_time_step",<<'EOT');
 consistent_supg_matrix -> 0
@@ -622,6 +638,11 @@ time_step 4, time: 2.4, res = .*e-(15|16|17)
 time_step 5, time: 3, res = .*e-(15|16|17)
 EOT
 
+end_section();
+
+begin_section('Misc tests.');
+
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("tfastvec.sal",
        "FastVector library",<<'EOT');
@@ -700,6 +721,10 @@ error in v symmetry = .* OK . 1
 error in h symmetry = .* OK . 1
 EOT
 
+end_section();
+
+begin_section('Laplace tests. ');
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sector/sector_chunk1.sal",
        "Periodic case with chunk_size = 1 ",$sector_test);
@@ -716,6 +741,9 @@ expect("sector/sector_triangle_npg4.sal",
 expect("sector/sector_triangle_npg7.sal",
        "Periodic case with triangles npg=7 ",$sector_test);
 
+end_section();
+
+begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/tfstack.sal","FileStack class",<<'EOT');
@@ -772,6 +800,10 @@ expect("texthash/tthash.sal","TextHashTable class",<<'EOT');
 Global counting OK
 EOT
 
+end_section();
+
+begin_section('Advdif tests');
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<'EOT');
 Dt=.* error=.* \< tol_error=.* OK\?.*1
@@ -783,6 +815,10 @@ expect("advdif/sine_crank_nic.out","Advdif // quad. conv. for Crank Nic.",<<'EOT
 ||u_32-u_128|| = 
 ||u_32-u_128|| / ||u_16-u_128|| = .*, < 0.25 OK\? 1 
 EOT
+
+end_section();
+
+begin_section('Turbchan tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("turbchan/turbchan.ver.tmp","Advdif/Shallw Water Turb. // flow in a channel",<<'EOT');
@@ -814,6 +850,11 @@ expect("turbchanw/swturb.out.tmp","Advdif/Shallw Water Turb. // log vars // shal
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+end_section();
+
+begin_section('New flux function tests.');
+
 sub check_newff {
     my $case=shift();
     expect("newff/$case.vrf.tmp","newff/test case $case",
@@ -839,6 +880,10 @@ check_newff('reac_dif_temp');
 check_newff('reac_steady');
 check_newff('std_ard_x_y');
 check_newff('stdy_dif');
+
+end_section();
+
+begin_section('Burgers/advdif tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("burgers/save.state._d01_wf.tmp",
@@ -918,9 +963,12 @@ expect("burgers/test__d001.out.tmp",
 max. error .*, <tol\(.*\) OK\? 1
 EOT
 
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-/'/; # to disable auto-filling an indenting in Emacs
+end_section();
 
 print "\n",'-' x 80,"\n\n";
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+/'/; # to disable auto-filling an indenting in Emacs
 
 final_check();

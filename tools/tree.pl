@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use tree;
+use TestTree;
 
 $tree = new tree('Root');
 $node = $tree->add_son('a');
