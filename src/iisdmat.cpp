@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.41 2003/07/06 15:10:18 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.42 2003/07/07 10:58:50 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -736,6 +736,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 				interface_full_preco_maxits); 
 	PF_CHKERRQ(ierr); 
         ierr = PCSetType(pc_ii,(char *)interface_full_preco_pc.c_str()); 
+	PF_CHKERRQ(ierr); 
+	       interface_full_preco_fill);
+	ierr = PCILUSetFill(pc_ii,interface_full_preco_fill);
 	PF_CHKERRQ(ierr); 
       }
     }

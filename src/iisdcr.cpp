@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.36 2003/07/06 15:10:18 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37 2003/07/07 10:58:50 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -235,10 +235,13 @@ int IISDMat::create_a() {
   // preconditioning for the interface problem when using
   // \verb+use_interface_full_preco+.
   TGETOPTDEF_ND_PF(thash,int,print_interface_full_preco_conv,0);
-  /** The problem on the interface is solved with Richardson method
-      with few iterations (normally 5). Richardon iteration may not
-      converge in some cases and then we can help convergence using a
-      relaxation factor <1.  */
+  //o The ILU fill to be used for the A_II problem if the
+  // ILU preconditioning is used
+  TGETOPTDEF_ND_PF(thash,double,interface_full_preco_fill,1.);
+  //o The problem on the interface is solved with Richardson method
+  // with few iterations (normally 5). Richardon iteration may not
+  // converge in some cases and then we can help convergence using a
+  // relaxation factor <1
   TGETOPTDEF_ND_PF(thash,double,interface_full_preco_relax_factor,1.);
 
   local_graph.lgraph = lgraph;
