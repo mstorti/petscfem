@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl2.cpp,v 1.3 2004/11/09 02:58:52 mstorti Exp $
+//$Id: elmsupl2.cpp,v 1.4 2004/11/10 02:06:34 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -190,23 +190,12 @@ upload_vector_fast_1b(int color,
       int *cm = col_mask.buff();
       for (kloc=0; kloc<nel; kloc++) {
 	node = ICONE(iele,kloc);
-	for (kdof=0; kdof<ndof; kdof++) {
+	for (kdof=0; kdof<ndof; kdof++,rm++,cm++) {
 	  if (!*rm && !*cm) continue;
-#if 0
-          // Slow
-	  dofmap->get_row(node,kdof+1,row_v);
-	  for (int ientry=0; ientry<row_v.size(); ientry++) {
-	    entry_v = &row_v[ientry];
-	    locdof = entry_v->j;
-	    coef = entry_v->coef;
-	  }
-#else
-	  // Fast 
 	  dofmap->get_row(node,kdof+1,n,&dofv,&coefv);
 	  for (int j=0; j<n; j++) {
 	    locdof = dofv[j];
 	    coef = coefv[j];
-#endif
 	    if (locdof>neq) continue; // only load free nodes
 	    if (*rm) {
 	      if (jr==rsize) {
@@ -260,8 +249,6 @@ upload_vector_fast_1b(int color,
 	      jc++;
 	    }
 	  }
-	  rm++;
-	  cm++;
 	}
       }
       nr = jr;
@@ -325,16 +312,17 @@ upload_vector_fast_1b(int color,
 	  double *rtvm_iele = retval + iele_here*nen2;
 	  while (lnodr1<lnodr1_end) {
 	    double *rtvm_row = rtvm_iele 
-	      + nen * ((*lnodr1++) * ndof + (*dofr1++));
+	      + nen * ((*lnodr1) * ndof + (*dofr1));
 	    int *lnodc1 = lnodcp;
 	    int *lnodc1_end = lnodc1 + nc;
 	    int *dofc1 = dofcp;
 	    while (lnodc1 < lnodc1_end) {
 	      if (MASK(*lnodr1,*dofr1,*lnodc1,*dofc1)==color) 
-		*w = *(rtvm_row + (*lnodc1++)*ndof + (*dofc1++));
+		*w = *(rtvm_row + (*lnodc1) * ndof + *dofc1);
 	      else *w = 0.0;
-	      w++;
-	    }      
+	      w++; lnodc1++; dofc1++;
+	    }
+	    lnodr1++; dofr1++;
 	  }
 	}
 

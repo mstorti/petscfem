@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.153 2004/10/25 02:43:24 mstorti Exp $
+//$Id: ns.cpp,v 1.154 2004/11/10 02:06:31 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -720,15 +720,19 @@ int main(int argc,char **args) {
       ierr = assemble(mesh,argl,dofmap,"comp_res_poi",&time_star);
       CHKERRA(ierr);
       debug.trace("-POISSON- After residual computation.");
-      
+
+#define POI_SOLVE
+#ifdef POI_SOLVE
       debug.trace("-POISSON- Before solving linear system...");
       ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
       debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
+#endif
 
-#if 0
+      //#define POI_PRINT
+#ifdef POI_PRINT
       ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = PetscViewerSetFormat_WRAPPER(matlab,

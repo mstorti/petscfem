@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.5 2004/10/25 02:09:32 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.6 2004/11/10 02:06:34 mstorti Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -141,4 +141,3 @@ static int spetscmat_mult(Mat A,Vec x,Vec y) {
   ierr = pfsA->mult(x,y); CHKERRQ(ierr); 
   return 0;
 }
-

@@ -26,7 +26,7 @@ fix_null_diagonal_entries(FastMat2 &A,FastMat2 &B,int &nc) {
   B.set(0.);
   for (int j=1; j<=n; j++) {
     if (A.get(j,j)==0.) {
-      A.setel((nc==-1? FIX : ++nc),j,j);
+      A.setel((nc==-1? 1.0 : ++nc),j,j);
       B.setel(FIX,j,j);
     }
   }

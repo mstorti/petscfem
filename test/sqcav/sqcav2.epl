@@ -1,12 +1,12 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav2.epl,v 1.7 2004/11/09 02:58:52 mstorti Exp $
+#$Id: sqcav2.epl,v 1.8 2004/11/10 02:06:39 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './sqcav.pl'; :>
 global_options
 
 #if $fractional_step
 fractional_step 1
-fractional_step_use_petsc_symm 0
+fractional_step_use_petsc_symm 1
 #endif
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
@@ -76,7 +76,7 @@ measure_performance_loop_length 10
 #if $g_body
 G_body 0 -1.
 #endif
-block_uploading 0
+block_uploading 2
 
 __END_HASH__
 
