@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gsguile.cpp,v 1.5 2005/01/16 19:52:39 mstorti Exp $
+// $Id: gsguile.cpp,v 1.6 2005/01/16 21:14:36 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -48,6 +48,18 @@ typedef SCM(*scm_fun)();
     SCM_ASSERT(SCM_INUMP(s_##name),s_##name,pos, __FUN__);	\
     name = SCM_INUM(s_##name);					\
   }
+
+#define MY_SCM_GET_INT(name,pos)		\
+  int name;					\
+  SCM_ASSERT(SCM_INUMP(s_##name),		\
+	     s_##name,pos, __FUN__);		\
+  name = SCM_INUM(s_##name)
+
+#define MY_SCM_GET_BOOL(name,pos)		\
+  int name;					\
+  SCM_ASSERT(scm_boolean_p(s_##name),		\
+	     s_##name,pos, __FUN__);		\
+  name = SCM_NFALSEP(s_##name)
 
 scm_t_bits GetSurfCtxTag;
 
@@ -140,6 +152,36 @@ SCM_DEFINE(comp_matrices_w, "comp-matrices", 6, 1, 0,
   MY_SCM_GET_INT_DEF(verbose,0,7);
   comp_matrices(*ctx,*surf_con,*surf_nodes,
 		*x,*surf_mass,*node_mass,verbose);
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+SCM_DEFINE(fem_smooth_w, "fem-smooth-w", 9, 0, 0,
+	   (SCM s_ctx, 
+	   SCM s_surf_con, 
+	   SCM s_surf_nodes, 
+	   SCM s_surf_mass, 
+	   SCM s_node_mass, 
+	   SCM s_u, 
+	   SCM s_us, 
+	   SCM s_niter, 
+	   SCM s_verbose),
+	   "Smoothes FEM fields.")
+#define FUNC_NAME s_fem_smooth_w
+{
+  MY_SCM_GET_ARG(ctx,GetSurfCtxTag,GetSurfCtx *,1);
+  DVINTARG(surf_con,2);
+  DVINTARG(surf_nodes,3);
+  DVDBLARG(surf_mass,4);
+  DVDBLARG(node_mass,5);
+  DVDBLARG(u,6);
+  DVDBLARG(us,7);
+  MY_SCM_GET_INT(niter,8);
+  MY_SCM_GET_BOOL(verbose,9);
+  fem_smooth(*ctx,*surf_con,*surf_nodes,
+	     *surf_mass,*node_mass,*u,*us,
+	     niter,verbose);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME

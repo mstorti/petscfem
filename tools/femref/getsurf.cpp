@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.25 2005/01/16 19:59:02 mstorti Exp $
+// $Id: getsurf.cpp,v 1.26 2005/01/16 21:14:36 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -194,17 +194,14 @@ void getsurf(GetSurfCtx &ctx,
   }
 }
 
-void comp_matrices(GetSurfCtx &ctx,
-		   const dvector<int> &surf_con,
-		   const dvector<int> &surf_nodes, 
-		   dvector<double> &x, 
-		   dvector<double> &surf_mass,
-		   dvector<double> &node_mass,
-		   int verbose) {
-
-  printf("surf_con shape %d, %d\n",
-	 surf_con.size(0),surf_con.size(1));
-  printf("surf_nodes size %d\n",surf_nodes.size());
+void 
+comp_matrices(GetSurfCtx &ctx,
+	      const dvector<int> &surf_con,
+	      const dvector<int> &surf_nodes, 
+	      dvector<double> &x, 
+	      dvector<double> &surf_mass,
+	      dvector<double> &node_mass,
+	      int verbose) {
 
   UniformMesh &mesh = *ctx.mesh;
   UniformMesh::visitor vis, vis2;
@@ -263,4 +260,60 @@ void comp_matrices(GetSurfCtx &ctx,
     // printf("face %d, area %f\n",jface,area);
   }
   // printf("total area %f\n",Area);
+}
+
+void 
+fem_smooth(GetSurfCtx &ctx,
+	   const dvector<int> &surf_con,
+	   const dvector<int> &surf_nodes, 
+	   const dvector<double> &surf_mass,
+	   const dvector<double> &node_mass,
+	   const dvector<double> &u,
+	   dvector<double> &us,
+	   int niter,
+	   int verbose) {
+
+  printf("surf_con shape %d, %d\n",
+	 surf_con.size(0),surf_con.size(1));
+  printf("surf_nodes size %d\n",surf_nodes.size());
+  printf("niter %d, verbose %d\n",niter,verbose);
+
+#if 0
+  int  jiter=0;
+  while (true) {
+    grad_Un.set(0.);
+    for (int jface=0; jface<nfaces; jface++) {
+      double nod_area = surf_mass.ref(jface)/double(face_nel);
+      for (int j=0; j<face_nel; j++) {
+	int node = surf_con.e(jface,j);
+	if (jiter==0) node_mass.ref(node) += nod_area;
+	double 
+	  *to = &grad_Un.e(node,0),
+	  *from = &grad_Ue.e(jface,0);
+	for (int k=0; k<ndim*ndof; k++) 
+	  to[k] += from[k]*nod_area;
+      }
+    }
+    for (int node=0; node<nsurf_nodes; node++) {
+      double nod_area = node_mass.ref(node);
+      for (int k=0; k<ndim*ndof; k++) 
+	grad_Un.e(node,k) /= nod_area;
+    }
+    jiter++;
+    if (jiter==niter) break;
+
+    grad_Ue.set(0.);
+    for (int jface=0; jface<nfaces; jface++) {
+      double *to = &grad_Ue.e(jface,0);
+      for (int j=0; j<face_nel; j++) {
+	int node = surf_con.e(jface,j);
+	double *from = &grad_Un.e(node,0);
+	for (int k=0; k<ndim*ndof; k++) 
+	  to[k] += from[k];
+      }
+      for (int k=0; k<ndim*ndof; k++) 
+	to[k] /= double(face_nel);
+    }
+  }
+#endif
 }

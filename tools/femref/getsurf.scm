@@ -1,20 +1,5 @@
-;;; $Id: getsurf.scm,v 1.1 2005/01/16 20:41:03 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.2 2005/01/16 21:14:36 mstorti Exp $
 (load "./femref.scm")
-#!
-(getsurf "./cube.con.tmp" "./cube.nod.tmp" "./cube.state.tmp" 
-	 "cube.surf-con.tmp" "cube.grad-u.tmp" 1)
-!#
-
-#!
-(define v (make-dvdbl))
-(define N 100)
-(dvdbl-resize! v N)
-(define j 0)
-(while 
- (< j N)
- (dvdbl-set! v j j)
- (set! j (+ j 1)))
-!#
 
 (define ctx (make-get-surf-ctx))
 (define icone (make-dvint))
@@ -49,4 +34,4 @@
 (dvdbl-cat! u "cube.state.tmp")
 
 (fem-smooth ctx surf-con surf-nodes
-	    surf-mass node-mass u us)
+	    surf-mass node-mass u us #:verbose #f)
