@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2003/09/02 21:59:02 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2003/11/13 23:11:19 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -41,7 +41,7 @@ burgers.depl: burgers.epl data.m force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case burgers.depl > burgers.out
+			-case burgers.depl > burgers.$(CASE).out.tmp
 	mv -f save.state.tmp save.state.$(CASE).tmp
 
 local_clean::
