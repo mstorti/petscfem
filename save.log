@@ -822,3 +822,6 @@ tag: pfmat-rewrite-1.25 on Fri Jan 11 21:27:50 ARST 2002, by mstorti in spider
      > All tests work for PFMat implementations, except for 
      > the `IISDMat(local_solver=SuperLU)' version. 
      > I give  up with extending to the `SuperLU' version.
+----------
+tag: pfmat-rewrite-1.26 on Sun Jan 13 11:28:20 ARST 2002, by mstorti in spider
+     > Runs the `sqcav' test, but gives some `PFMat' bad errors.
