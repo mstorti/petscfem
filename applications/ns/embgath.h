@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.10 2002/08/12 23:33:30 mstorti Exp $
+//$Id: embgath.h,v 1.11 2002/08/13 01:38:14 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -58,12 +58,12 @@ public:
       @param vol_map (input/output) remaps the connectivity of
       volume element (#nel_vol# nodes) so that it remains in
       standard position. */
-  void map_mask(const int *surf_map,int *vol_map);
+  int map_mask(const int *surf_map,int *vol_map);
   /** Callback ruotines may ask with this routines 
       @return #true# if callback routines must return face
       connectivities so that their normal is oriented to
       the exterior normal and #false# otherwise. */
-  int use_exterior_normal() { return use_exterior_normal_m; }
+  int use_exterior_normal() { return (use_exterior_normal_m); }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -113,6 +113,7 @@ class embedded_gatherer : public Elemset {
   Surf2Vol *sv_gp_data;
   /// Number of Gauss points. 
   int npg;
+  int layer, layers;
 public: 
   /** Constructor. Initializes the pointer 
       to interpolation/integration element. */

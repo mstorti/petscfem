@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.16 2002/08/12 23:33:30 mstorti Exp $
+//$Id: embgath.cpp,v 1.17 2002/08/13 01:38:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -29,7 +29,7 @@ const int Quad2Hexa::faces[][8] = {
     volume element. Is remapped so that the face is in a
     standard position. 
 */ 
-void Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
+int Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
   int nel_surf, nel_vol, nf = nfaces(nel_surf,nel_vol);
   int match=0;
   const int *fc, *vol;
@@ -47,11 +47,12 @@ void Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
     if (match) break;
   }
   // Verify that one of the oientations must match
-  assert(match);
+  if (!match) return 0;
   // Remap volume connectivity
   vector<int> vol_conn_c(nel_vol);
   for (int j=0; j<nel_vol; j++) vol_conn_c[j] = vol_conn[vol[j]];
   for (int j=0; j<nel_vol; j++) vol_conn[j] = vol_conn_c[j];
+  return 1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -136,7 +137,7 @@ void embedded_gatherer::initialize() {
   // on the surface
   TGETOPTDEF(thash,int,identify_volume_elements,0);
   //o Number of layers in the normal direction.
-  TGETOPTDEF(thash,int,layers,1);
+  TGETOPTDEF_ND(thash,int,layers,1);
   PETSCFEM_ASSERT0(layers>=1,
 		   "embedded_gatherer: Number of layers must be integer >=1\n");
   PETSCFEM_ASSERT(layers<=2,"embedded_gatherer: not supported yet layers>2,"
@@ -155,7 +156,7 @@ void embedded_gatherer::initialize() {
   assert(nel_vol <= vol_elem->nel);
   if (identify_volume_elements) {
     assert(2*nel_surf==nel_vol);
-    for (int layer=0; layer<layers; layer++) {
+    for (layer=0; layer<layers; layer++) {
       // Mark nodes on the surface
       int nnod = GLOBAL_MESH->nodedata->nnod;
       // surface:= is surface[k]==0 then k is not on the surface
@@ -193,7 +194,7 @@ void embedded_gatherer::initialize() {
 
       // For each surface element look for the corresponding
       // volume element that shares a face
-      vector<int> mask(nel_vol);
+      vector<int> mask(nel_vol), icorow_c(nel_vol);
       for (int e=0; e<nelem; e++) {
 	int *icorow = icone + nel*e + layer*nel_surf;
 	LinkGraphRow row;
@@ -205,6 +206,7 @@ void embedded_gatherer::initialize() {
 	LinkGraphRow::iterator q;
 	int found=0;
 	int *vicorow;
+	int match=0;
 	for (q=row.begin(); q!=row.end(); q++) {
 	  int ve = *q; // the volume element
 	  vicorow = vol_elem->icone + vol_elem->nel*ve;
@@ -221,18 +223,23 @@ void embedded_gatherer::initialize() {
 	    if (mask[j]==-1) break;
 	    found++;
 	  }
-	  if (found==nel_surf) break;
+	  if (found==nel_surf) {
+	    for (int j=0; j<nel_vol; j++) icorow_c[j] = vicorow[j];
+	    // Volume element was found, find map and
+	    if (sv_gp_data->map_mask(mask.begin(),icorow_c.begin())) {
+	      match=1;
+	      for (int j=0; j<nel_vol; j++) icorow[j] = icorow_c[j];
+	      break;
+	    }
+	  }
 	}
-	if (found!=nel_surf) {
+	if (!match) {
 	  PetscPrintf(PETSC_COMM_WORLD,
 		      "embedded_gatherer: Can't find matching volume element"
 		      " to surface element %d\n",e);
 	  PetscFinalize();
 	  exit(0);
 	}
-	for (int j=0; j<nel_vol; j++) icorow[j] = vicorow[j];
-	// Volume element was found, find map and
-	sv_gp_data->map_mask(mask.begin(),icorow);
       }
 
 #if 0
