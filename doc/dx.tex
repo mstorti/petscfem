@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: dx.tex,v 1.4 2003/02/10 12:32:13 mstorti Exp $
+% $Id: dx.tex,v 1.5 2003/02/11 13:24:53 mstorti Exp $
 \Section{Visualization with DX}
 
 Data Explorer (\url{http://www.opendx.org}) is a system of tools and
@@ -103,7 +103,7 @@ request to PETSc-FEM which answers sending back \emph{``arrays''} and
 
 \begin{itemize}
 \item In \emph{``synchronous''} mode ({\tt steps>0}) PETSc-FEM waits each
-{\tt steps} time steps a connection from DX. One DX connects to the
+{\tt steps} time steps a connection from DX. Once DX connects to the
 port, PETSc-FEM transmits the required data and resumes
 computation. This is the appropriate way of communication when
 generating a sequence of frames for a video with a DX sequencer, for

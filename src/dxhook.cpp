@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.18 2003/02/10 03:45:56 mstorti Exp $
+//$Id: dxhook.cpp,v 1.19 2003/02/11 13:24:53 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -204,6 +204,7 @@ time_step_post(double time,int step,
   if (!MY_RANK) {
     // Send node coordinates
     cookie = rand();
+    Sprintf(srvr,"step %d\n",step);
     Sprintf(srvr,"nodes nodes %d %d %d\n",ndim,nnod,cookie);
     // printf("sending nodes nodes %d %d %d\n",ndim,nnod,cookie);
     for (int node=0; node<nnod; node++) {

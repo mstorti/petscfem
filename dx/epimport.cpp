@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.2 2003/02/11 01:17:12 mstorti Exp $
+// $Id: epimport.cpp,v 1.3 2003/02/11 13:24:53 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -228,7 +228,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
     nelem,nel,cookie;
   double *xnod_p,*data_p;
-  Array icone=NULL,xnod=NULL,data=NULL; 
+  Array icone=NULL,xnod=NULL,data=NULL,step_comp_o=NULL; 
   Group g=NULL,flist=NULL;
   char *token;
   String s;
@@ -248,6 +248,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   out[0] = NULL;
   out[1] = NULL;
+  out[2] = NULL;
 
   // Inputs
   int in_index = 0;
@@ -258,7 +259,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   Object step_o           = in[in_index++];
   Object state_file_o     = in[in_index++];
 
-  int steps, port, step;
+  int steps, port, step, step_comp;
   char *options, *hostname, *state_file;
   DXMessage("before processing steps");
   if (!steps_o) steps = -1;
@@ -301,6 +302,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   DXMessage("Got steps %d, hostname \"%s\", port %d, "
 	    "step %d, state_file \"%s\", other options \"%s\"",
 	    steps,hostname,port,step,state_file,options);
+
+
   char sktport[20];
   sprintf(sktport,"c%d",port);
 
@@ -313,6 +316,15 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   DXMessage("Sending steps %d %s",steps,options);
   Sprintf(clnt,"steps %d step %d state_file %s %s\n",
 	  steps,step,state_file,options);
+
+  Sgetline(&buf,&Nbuf,clnt);
+  tokenize(buf,tokens);
+  if (tokens[0]!="step") {
+    DXMessage("Not \"step\" found in first line, got %s",buf);
+    goto error;
+  }
+  if (string2int(tokens[1],step_comp)) goto error;
+  DXMessage("Got computation step %d",step_comp);
 
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
@@ -347,6 +359,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       Sprintf(clnt,"state_OK %d\n",cookie);
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
+      DXMessage("Got line %s",buf);
       string &name = tokens[1];
       string &dx_type = tokens[2];
       if (string2int(tokens[3],nel)) goto error;
@@ -427,8 +440,11 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     }
   }
 
+  step_comp_o = DXMakeInteger(step_comp);
+
   out[0] = (Object)g;
   out[1] = (Object)flist;
+  out[2] = (Object)step_comp_o;
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;

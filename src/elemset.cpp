@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.60 2003/02/11 11:34:00 mstorti Exp $
+//$Id: elemset.cpp,v 1.61 2003/02/11 13:24:53 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -1037,12 +1037,14 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   if (!MY_RANK) {
     cookie = rand();
     Sprintf(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
-	    node_indices.size(),nelem*nsubelem,cookie);
+	    subnel,nelem*nsubelem,cookie);
+    printf("Sending elemset %s %s %d %d %d\n",name(),type.c_str(),
+	   subnel,nelem*nsubelem,cookie);
     for (int j=0; j<nelem; j++) {
       int *row = icone+j*nel;
-      for (int j=0; j<nsubelem; j++) {
+      for (int jj=0; jj<nsubelem; jj++) {
 	for (int n=0; n<subnel; n++) {
-	  int k = node_indices[j*subnel+n];
+	  int k = node_indices[jj*subnel+n];
 	  // Convert to 0 based (DX) node numbering
 	  int node = *(row+k)-1;
 	  Swrite(sock,&node,sizeof(int));

@@ -19,6 +19,6 @@ void DXEntry()
         extern Error m_ExtProgImport(Object *, Object *);
         DXAddModule("ExtProgImport", m_ExtProgImport, 0,
             6, "steps", "serverhost", "port", "options", "step", "state_file",
-            2, "output_array_list", "output_field_list");
+            3, "output_array_list", "output_field_list", "step");
     }
 }

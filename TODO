@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line =========== 
+* DX: test splitting with triangles
 * DX: Make a hook class for generating fields directly from
           PETSc-FEM. 
 * DX: make `dxhook' to be launched though a flag of type `dx' not
