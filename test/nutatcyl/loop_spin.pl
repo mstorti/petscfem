@@ -1,8 +1,10 @@
 #!/usr/bin/perl 
-#$Id: loop_spin.pl,v 1.1 2002/08/18 00:27:59 mstorti Exp $
+#$Id: loop_spin.pl,v 1.2 2002/08/18 15:03:51 mstorti Exp $
 
 # Traces the curve Mz(Omega_spin) at
-# Omega_nut = 620rpm, nut_angle=15deg,
+# Omega_nut = 620rpm, nut_angle=15deg.
+# Compare with the numerical and experimental results
+# reported by Vaughn. 
 
 $n = 2;				#  number of points in curve
 

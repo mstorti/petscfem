@@ -1,7 +1,7 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require '../eperlini.pl';       # Initializes ePerl 
-@read_var = readm_all_v("data.m");# read all variables in octave file
+@read_var = readm_all_v("data.m.tmp");# read all variables in octave file
 octave_string(qw(dif_type adv_type reac_type source_type enthalpy_type));
 $case='newff';
 $NPROC = "$ENV{'NP'}";

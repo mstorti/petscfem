@@ -18,7 +18,7 @@ sub quote_string {
 }
 
 ## Gets a variable from the environment. If it was
-## not set, set it to de default value
+## not set, set it to the default value
 ##
 ## usage: get_var_env(name,default)
 sub get_var_env {

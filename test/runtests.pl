@@ -4,7 +4,7 @@
 require '../tools/myexpect.pl';
 
 use Getopt::Std;
-getopts("ho");
+getopts("hon");
 
 if ($opt_h) {
     print <<'EOM';
@@ -12,6 +12,7 @@ usage: ` $ runtests.pl [OPTIONS]'
 
 OPTIONS: -h print help
          -o complain when can't open files
+         -n report only 'Not OK' tests
 EOM
     exit;
 }

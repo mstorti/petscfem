@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.10 2002/07/25 22:35:31 mstorti Exp $
+//$Id: laplace.cpp,v 1.11 2002/08/18 15:03:47 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -12,7 +12,7 @@
 #include <time.h>
 
 extern int MY_RANK,SIZE;
-TextHashTable *GLOBAL_OPTIONS;
+// TextHashTable *GLOBAL_OPTIONS;
 
 static char help[] = "Basic finite element program.\n\n";
 

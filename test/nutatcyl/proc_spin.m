@@ -1,6 +1,7 @@
 f = aload("cylinder.all_force_spin.tmp");
 
-nomega = rows(f)/2;
+nomega = floor(rows(f)/2);
+f=f(1:2*nomega,:);
 nuta = reshape(f(:,2),2,nomega)';
 (all(nuta(:,1)==0) && all(nuta(:,2)==15)) || error("not correct nutation angles");
 

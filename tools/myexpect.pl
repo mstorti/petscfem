@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.9 2002/02/10 21:15:37 mstorti Exp $
+#$Id: myexpect.pl,v 1.10 2002/08/18 15:03:51 mstorti Exp $
 
 # usage: expect($file,$pattern);
 #Advances $file until finds a little of "\n" delimited $pattern's. 
@@ -14,12 +14,31 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 
 @stack=();
 @output=();
+@stack_output=();
 
 sub read_file {
     my $file = shift();
     open FILE,$file;
     my $file = join "",(<FILE>);
     return $file;
+}
+
+sub printo_push {
+    push @stack_output,[@output];
+    @output = ();
+}
+
+sub printo_pop {
+    my $last = pop @stack_output;
+    flush() unless defined $last;
+    unshift @output,@$last;
+}
+
+sub printo_discard {
+    my $last = pop @stack_output;
+    flush() unless defined $last;
+    @output = ();
+    unshift @output,@$last;
 }
 
 sub printo {
@@ -45,13 +64,14 @@ sub match_regexp {
 
 sub expect {
     ($file,$descr,$pattern_list) = @_;
+    printo_push();
     open (SAL,$file) || do {printo "can't open $file\n" 
 				unless ! $COMPLAIN_ON_CANT_OPEN;
 			    cant_open(); return;};
     @sal=(<SAL>);
     close SAL;
     printo "Testing: \"$descr\" on file \"$file\"...";
-    print "\n" if $DEBUG_EXPECT;
+    printo "\n" if $DEBUG_EXPECT;
     @pattern = split("\n",$pattern_list);
     $record=0;
     my $inc=1;
@@ -87,11 +107,11 @@ sub expect {
 	    $match_fun = \&match_regexp;
 	    next;
 	}
-	print "trying pattern: \"$pattern\"...  \n" if $DEBUG_EXPECT;
+	printo "trying pattern: \"$pattern\"...  \n" if $DEBUG_EXPECT;
 	while ($record<=$#sal) {
 	    $_ = $sal[$record];
 	    $record += $inc;
-	    print "$record: $_" if $DEBUG_EXPECT;
+	    printo "$record: $_" if $DEBUG_EXPECT;
 	    do {chomp; 
 		printo "        -> found: \"$_\"\n" if $DEBUG_EXPECT; 
 		goto NEXT;} if &{$match_fun}($_,$pattern);
@@ -116,9 +136,16 @@ sub inc {
     push @stack,$t;
 }
 
-sub ok { inc($OK);}
-sub not_ok { inc($NOT_OK);}
-sub cant_open { inc($CANT_OPEN);}
+sub ok { 
+    if ($opt_n) { 
+	printo_discard(); 
+    } else {
+	printo_pop(); 
+    }
+    inc($OK);
+}
+sub not_ok { printo_pop(); inc($NOT_OK);}
+sub cant_open { printo_pop(); inc($CANT_OPEN);}
 
 sub begin_section {
     my $s=shift();
@@ -129,7 +156,9 @@ sub end_section {
     my $t = pop @stack;
     my $total = $t->[1]+$t->[2]+$t->[3];
     my $total_open = $t->[$OK] + $t->[$NOT_OK];
-    if ($total_open || $COMPLAIN_ON_CANT_OPEN) {
+    my $print_sec = !$opt_n && ($total_open || $COMPLAIN_ON_CANT_OPEN)
+	|| $opt_n && $t->[$NOT_OK];
+    if ($print_sec) {
 	print "--------\nStart section: \"$t->[0]\"\n";
 	flush();
 	print "Summary: \"$t->[0]\"",

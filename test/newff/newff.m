@@ -1,4 +1,4 @@
-source("data.m");
+source("data.m.tmp");
 
 ## Physical parameters
 uu=[u v];
