@@ -6,7 +6,7 @@ $R = 1;				# Radius of cylinder
 $Rext = 5;			# radius of external cylinder
 				# (external boundary)
 
-$Nr = 16;			# Number of nodes along radial direction
+$Nr = 30;			# Number of nodes along radial direction
 $Nphi = 2*$Nr;			# Number of nodes along skin
 $rratio = 5;			# Refinement in radial direction
 
@@ -22,7 +22,7 @@ $restart = 0;			# Is this a restart?
 $use_symm = 0;			# Use symmery?
 $use_twall = 1;			# Impose T on cylinder skin?
 $use_non_slip = 1;		# Impose v=0 on skin?
-$dv_pert_symm = 0.0; 		# Non symmetric perturbation
+$dv_pert_symm = 0.1; 		# Non symmetric perturbation
 				# to initiate unsteady flow
 
 $pref = $rhoref*$Rgas*$Tref;
@@ -38,6 +38,8 @@ octave_export_vars(">data.m.tmp",@vars);
 $oscript = ($use_symm ? 'mkcyl' : 'mkcyl2');
 system "octave -qH $oscript.m > $oscript.log.tmp";
 
-if (!$dx && !$restart) { system "echo -n > cylabso.some-rslt.tmp"; }
+if (!$dx && !$restart) { 
+    system "echo -n > cylabso.some-rslt.tmp"; 
+}
 
 1;

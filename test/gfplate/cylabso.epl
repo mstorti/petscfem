@@ -62,8 +62,8 @@ temporal_stability_factor 0
 
 ndim 2
 Rgas <:=$Rgas:>
-visco 1
-cond 0.1
+visco 0.01
+cond 0.001
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
 linear_abso 1
@@ -125,7 +125,7 @@ __END_ELEMSET__
 #endif
 #endif
 
-#if $use_twall
+#if !$dx && $use_twall
 ##================================================================
 elemset gasflow_twall 2
 dx 0
