@@ -1,3 +1,723 @@
+2001-06-06  mstorti@spider  <mstorti@spider>
+
+	* test/wallke/proc.m, test/wallke/wallke.epl, test/wallke/mkmesh.m:
+	Working on k-e pipe.
+
+	* test/eperlini.pl: Added support to strings in `octave_export_vars'
+
+2001-06-05  mstorti@spider  <mstorti@spider>
+
+	* test/wallke/Makefile, test/wallke/mkmesh.m, test/wallke/proc.m,
+	test/wallke/wallke.epl, applications/advdif/ffadvfm2.cpp:
+	Debugging k-e
+
+	* applications/advdif/nwadvdif.h: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/wallke/wallke.epl: Writing k-e example 2D
+
+	* test/wallkechan/Makefile, test/wallkechan/mkmesh.m,
+	test/wallkechan/wallke.epl: Writing 2D channel k-e test
+
+	* src/dofmap.cpp, src/dofmap.h:
+	Now checks for nodes and fields in 'edof()'
+
+2001-06-04  mstorti@spider  <mstorti@spider>
+
+	* test/wallke/mkmesh.m, test/wallke/proc.m,
+	test/wallke/wallke.epl, test/wallke/wallke.ini,
+	test/wallke/Makefile: Wall k-e example is OK.
+
+	* test/wallke/proc.m, test/wallke/wallke.epl, src/fm2eperl.cpp,
+	applications/ns/nonlr.cpp: Working on wall k-e
+
+	* test/wallke/Makefile, test/wallke/mkmesh.m, test/wallke/proc.m,
+	test/wallke/wallke.epl, test/wallke/wallke.nod,
+	test/wallke/wallke.peri, test/Makefile, src/fmat2ep.cpp,
+	src/prep.pl, src/fastmat2.h: Wall law for k-e is working
+
+2001-06-03  mstorti@spider  <mstorti@spider>
+
+	* test/eperlini.pl: Added 'octave_export_vars'
+
+	* applications/ns/nonlr.cpp, applications/ns/nsi_tet.h,
+	applications/ns/nsikeps.cpp, applications/ns/wallf.m,
+	applications/ns/wallke.cpp, TODO: Works some basic test for k-eps
+
+	* test/wallke/Makefile, test/wallke/mkmesh.m,
+	test/wallke/wallke.epl, test/wallke/wallke.ini,
+	test/wallke/wallke.nod, test/wallke/wallke.peri,
+	test/wallke/wallke.some: Runs some basic tests fr k-eps
+
+2001-06-01  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nonlr.cpp, test/nonlr/nonlr.epl:
+	nonlr is working OK for a simple case.
+
+	* test/nonlr/nonlr.epl, applications/ns/nonlr.cpp, notes.txt:
+	Working on 'nonlr'
+
+	* applications/ns/nonlr.cpp: The jacobian matrix was reversed in sign.
+
+	* test/nonlr/nonlr.epl, test/nonlr/nonlr.some:
+	Homogeneous flow with k-e imposed at inlet is OK.
+
+	* test/nonlr/nonlr.epl:
+	Strange: if pressure is imposed on the same node that has velocity
+	imposed then the matrix is singular ????
+
+	* test/oscplate3.epl: unneeded file
+
+	* applications/ns/Makefile, applications/ns/fracstep.cpp,
+	applications/ns/fracstep.h, applications/ns/internal.cpp,
+	applications/ns/internal.h, applications/ns/nonlr.cpp,
+	applications/ns/ns-fracstep.cpp, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.cpp, applications/ns/nsi_tet.h,
+	applications/ns/nsikeps.cpp, applications/ns/nsilesther.cpp,
+	applications/ns/nsitetles.cpp, applications/ns/nsitetlesfm2.cpp:
+	Working on k-e model.  Added 'steady' option to some 'ns'
+	elemsets.  Deleted some old elemsets.
+
+	* test/nonlr/Makefile, test/nonlr/nonlr.epl, test/nonlr/nonlr.some:
+	Working on k-e model.
+	Added 'steady' option to some 'ns' elemsets.
+
+	* applications/laplace/laplace.cpp: Changed ".sal" for ".out"
+
+2001-05-31  mstorti@spider  <mstorti@spider>
+
+	* test/nonlr/mkmesh.m, test/nonlr/nonlr.epl, test/nonlr/nonlr.peri, applications/ns/nonlr.cpp, applications/ns/nsikeps.cpp, TODO:
+	Writing a simpl example for nonlr with turbulence
+
+	* applications/ns/wallke.cpp:
+	Workaround for bug in STL vector class for egcs in RH 5.2.
+
+	* applications/advdif/genload.h:
+	Added derived classes to friend for compatibility with egcs in RH 5.2.
+
+	* test/nonlr/nonlr.epl, test/nonlr/nonlr.ini,
+	test/nonlr/nonlr.peri, test/nonlr/Makefile, test/nonlr/mkmesh.m,
+	applications/ns/nonlr.cpp, TODO: Adding test for "nonlr"
+
+	* applications/ns/ns.cpp: Added option "solve_system"
+
+2001-05-30  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* many files:
+	Modified license tag
+
+	* tools/Makefile, tools/license.c, tools/license.script,
+	tools/license.tex, tools/license.txt: Somewhat modified license
+	file.
+
+	* VERSION, save.log: Administrative files
+
+	* Makefile: Added bin_distrib target
+
+	* src/getprop.cpp: Deleted some emacs local vars.
+
+	* doc/advec.tex, doc/fastmat2.tex, doc/idmap.tex, doc/ns.tex,
+	doc/odocadvfs.tex, doc/odocgenl.tex, doc/petscfem.in.tex,
+	doc/petscfem.tex, doc/tests.tex, doc/thash.tex, notes.txt: Fixed
+	some errors in doc
+
+	* tools/Makefile, doc/Makefile: Will start to fix making doc.
+	
+	* many files:
+	Modified license
+
+	* tools/Makefile, tools/insert_license.pl, tools/license.c,
+	tools/license.script, tools/license.tex, tools/license.txt,
+	tools/makewhat.pl, tools/math.pl, tools/myexpect.pl,
+	tools/odoc.pl, tools/petscload.pl: ppp
+
+2001-05-29  mstorti@spider  <mstorti@spider>
+
+	* Makefile: Modified license.txt
+
+	* tools/Makefile, tools/insert_license.pl, tools/license.c,
+	tools/license.script, tools/license.tex, tools/license.txt:
+	Modified the licenses.
+
+	* Makefile: Written "insert_license -u"
+
+	* tools/Makefile, tools/insert_license.pl, tools/license.c,
+	tools/license.script, tools/license.tex: Wrote "insert_license -u"
+	converts long license to tag.
+
+	* test/Makefile: Working on non-linear restriction element.
+
+	* test/nonlr/Makefile, test/nonlr/nonlr.epl, test/nonlr/nonlr.nod:
+	Test for non-linear restrictio
+
+	* applications/ns/Makefile, applications/ns/nonlr.cpp,
+	applications/ns/ns.cpp, applications/ns/nsi_tet.h: Added
+	non-linear restriction element with instantiation for k-e boundary
+	condition.
+
+2001-05-27  mstorti@spider  <mstorti@spider>
+
+	* src/fastmat2.cpp, src/fastmat2.h, src/fm2eperl.cpp, src/fmat2ep.cpp:
+	Added destructor for flux functions. It was OK (??)
+
+	* doc/README.pod: Modified Makefile so that updates README
+	when changing versions.
+
+	* applications/advdif/advective.h,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/genload.cpp,
+	applications/advdif/nwadvdif.h: Added destructor for flux
+	functions. It was OK (??)
+
+	* Makefile, README, README.html, TODO:
+	Modified Makefile so that updates README
+	when changing versions.
+
+	* doc/README.podin: *** empty log message ***
+
+	* doc/Makefile: readme target doesn't updated between versions
+
+	* VERSION, save.log: Administrative files
+
+	* test/awatch, test/runtests.pl, test/testfm2.cpp:
+	Written FastMat2::detsur() with a SubCache.
+	Added a test in testfm2.
+
+	* VERSION, save.log: Administrative files
+
+	* test/genload/Makefile, test/genload/genload.epl, test/Makefile,
+	test/runtests.pl: Added tests for ndimel<ndim in genload.
+
+	* src/fastmat2.cpp, src/fastmat2.h, src/fm2eperl.cpp,
+	src/fmat2ep.cpp, src/fstack.cpp, src/fstack.h, src/gpdata.cpp,
+	src/readmesh.cpp: Added support to 0 length indices.
+
+	* applications/advdif/genload.cpp: Added support to ndimel<ndim
+
+	* TODO: *** empty log message ***
+
+2001-05-26  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile: Cleans bug100 directory also.
+
+	* Makefile.base, TODO, doc/OBJ/Makefile, doc/OBJ/oscplate.fig,
+	doc/OBJ/sine.fig, doc/Makefile, doc/advdif.tex, doc/compprof.tex,
+	doc/fastmat2.tex, doc/idmap.tex, doc/index.tex, doc/petscfem.tex,
+	doc/prev1.tex, doc/tests.tex: generates PDF now
+
+	* VERSION, save.log: Administrative files
+
+	* test/genload/Makefile, test/genload/genload.epl,
+	test/runtests.pl, Makefile.base: Run tests.
+
+	* src/Makefile, src/fstack.cpp, src/fstack.h, src/readmesh.cpp,
+	test/fstack/Makefile, test/fstack/filen1.dat,
+	test/fstack/filen2.dat, test/fstack/filen3.dat,
+	test/fstack/fscheck.pl, test/fstack/tfstack.cpp: Added file number
+	position and file number for reporting errors to `fstack' class.
+
+	* src/version.cppin:
+	Changed ceride for arcride. I don't know what to put in here...
+
+	* applications/advdif/Makefile, applications/advdif/ffswfm2t.cpp,
+	applications/advdif/genload.cpp, applications/advdif/linhff.cpp,
+	doc/OBJ/branch.fig, doc/OBJ/branchnotok.fig, doc/OBJ/cache.fig,
+	doc/OBJ/genloaddl.fig, doc/OBJ/genloadsl.fig,
+	doc/OBJ/genlother.fig, doc/EPSI/tinf.eps, doc/EPSI/ts.eps,
+	doc/fastmat2.tex, doc/odocadvdif.tex, doc/odocadve.tex,
+	doc/odocgenl.tex, doc/odocns.tex, doc/odocnse.tex,
+	doc/odocswfm2t.tex, doc/petscfem.tex, doc/ymax.eps, doc/Makefile,
+	doc/advdif.tex: Added doc for genload
+
+2001-05-25  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* tools/myexpect.pl, test/genload/Makefile,
+	test/genload/genload.epl, test/genload/genload.nod,
+	test/runtests.pl: Added tests for generic load element.
+
+	* doc/manual/doc.dxx: Added a header for advdif.
+
+	* applications/advdif/Makefile, applications/advdif/advective.h,
+	applications/advdif/genload.cpp, applications/advdif/genload.h,
+	applications/advdif/linhff.cpp: Generic load element works
+
+	* TODO: *** empty log message ***
+
+	* applications/advdif/ffadvfm2.cpp:
+	fixed a bug in newadvecfm2_ff_t::GlobalDifTensor::comp_dif_per_field(...).
+	D_jac was not reset after taking diagonal part.
+
+	* VERSION, save.log: Administrative files
+
+	* test/genload/genload.epl, applications/advdif/genload.cpp,
+	applications/advdif/wallswt.cpp, TODO, notes.txt: `genload' starts
+	working.
+
+2001-05-24  mstorti@spider  <mstorti@spider>
+
+	* test/genload/Makefile, test/genload/genload.epl,
+	test/genload/genload.nod, applications/advdif/genload.cpp,
+	applications/advdif/genload.h, test/Makefile,
+	applications/advdif/advective.h: Adding genload elemset
+
+2001-05-23  mstorti@spider  <mstorti@spider>
+
+	* test/genload/Makefile, test/genload/genload.epl,
+	test/genload/genload.nod, applications/advdif/Makefile,
+	applications/advdif/advdif.cpp, applications/advdif/advective.h,
+	applications/advdif/genload.cpp, applications/advdif/genload.h:
+	Adding genload
+
+	* applications/advdif/genload.cpp:
+	Written some code in genload.cpp. Compiles.
+
+2001-05-22  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advective.h, applications/advdif/genload.cpp:
+	Modifying `genload'.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/Makefile, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/genload.cpp,
+	applications/advdif/linhff.cpp, TODO: Adding `genload' element to
+	`advdif'.
+
+	* src/fem.h: Somewhat modified PETSCFEM_ASSERT
+
+	* applications/advdif/advective.h:
+	Deletes flux function only if pointer non-null.
+
+2001-05-21  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/Makefile, applications/advdif/advective.h,
+	applications/advdif/genload.cpp, TODO, notes.txt: Adding genload
+	to advdif
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/bccnstherfm2.cpp, applications/ns/nsikeps.cpp,
+	applications/ns/wallke.cpp: Merged kepsilon from beto.
+
+	* notes.txt: *** empty log message ***
+
+	* applications/ns/Makefile, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.h, applications/ns/nsilesther.cpp,
+	applications/ns/wall.cpp: Merged ke from beto
+
+2001-05-14  mstorti@spider  <mstorti@spider>
+
+	* PROJECTS, TODO: *** empty log message ***
+
+2001-05-12  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/bug100/Makefile, test/bug100/newff.epl,
+	test/bug100/newff.nod, test/Makefile, test/Makefile.base.test,
+	src/elemset.cpp, src/fem.cpp, src/fem.h, src/fstack.cpp,
+	src/fstack.h, src/readmesh.cpp, src/utils.cpp, src/utils.h,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/ffburg.cpp,
+	Makefile.base, notes.txt: Fixed `bug100' bug.  Added a test.
+
+	* test/runtests.pl: agrego un test para el bug100
+
+	* tools/myexpect.pl: *** empty log message ***
+
+	* test/eperlini.pl: Added def for variable $NP = number of processors
+
+	* tools/emacs: *** empty log message ***
+
+	* applications/advdif/advdif.cpp:
+	Default value for preco_type is 'jacobi' not 'Jacobi'
+
+2001-05-10  mstorti@spider  <mstorti@spider>
+
+	* test/les/stabi3d/Makefile, test/les/stabi3d/extrude.m,
+	test/les/stabi3d/ini.data, test/les/stabi3d/mkmesh.m,
+	test/les/stabi3d/stabi.epl, test/les/stabi3d/stabi.m,
+	attic/malloc.cpp, applications/advdif/advdife.cpp, PROJECTS, TODO:
+	Made some cleaning
+
+2001-05-09  mstorti@spider  <mstorti@spider>
+
+	* doc/library, doc/locvar.txt, doc/options.txt,
+	doc/petscfem.tex.bak, doc/tryme.m, applications/ns/ns.cpp.afs,
+	applications/ns/ns.cpp.afs1, applications/ns/nsitetlesfm2.cpp.afs,
+	applications/ns/nsitetlesfm2.cpp.matij, applications/ns/smago.txt,
+	applications/ns/tryme.m, applications/advdif/advdif.cpp.bck,
+	applications/advdif/ffburg.cpp.bck: Deleted stale files
+
+	* TODO: *** empty log message ***
+
+2001-05-07  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/les/stabi/Makefile, test/les/stabi/ini.data,
+	test/les/stabi/stabi.epl, test/les/stabi/stabi.m,
+	test/eperlini.pl, src/version.cppin, applications/ns/ns.cpp,
+	applications/ns/nsitetlesfm2.cpp, Makefile.base: Writing example
+	of stability analysis.
+
+2001-05-05  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsitetlesfm2.cpp:
+	Deleted old (non-efficient) version.
+
+	* src/version.cppin: Added home-page to welcome message
+
+	* doc/layout.tex, doc/petscfem.tex: Documented ECHO feature
+
+	* src/fstack.cpp, src/fstack.h, src/readmesh.cpp, src/utils.h:
+	Added ECHO feature to fstack
+
+	* VERSION, save.log: Administrative files
+
+	* test/les/stabi/ini.data, test/les/stabi/stabi.m, test/Makefile, src/utils.h, save.log, TODO, notes.txt:
+	Tests ran on spider.
+	Redefined 'VOID_IT' to 'clear()'.
+
+	* src/version.cppin: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/Makefile, test/Makefile, test/runtests.pl,
+	src/fem.cpp, src/fem.h, src/getarray.cpp, src/Makefile,
+	applications/ns/ns.cpp, applications/ns/nsi_tet.cpp,
+	applications/ns/nsilesther.cpp, applications/ns/nsitetles.cpp,
+	applications/ns/nsitetlesfm2.cpp, applications/ns/wall.cpp,
+	applications/ns/walldata.cpp, Makefile.base, notes.txt: Added
+	fixes to incompatibilities with older versions of RedHat (namely
+	RH 5.2. installed in geronimo)
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt: *** empty log message ***
+
+2001-05-03  mstorti@spider  <mstorti@spider>
+
+	* doc/latex2html.init: Beto included. upgraded to 2001
+
+	* doc/latex2html.init: *** empty log message ***
+
+	* doc/index.tex: Added link to PS files
+
+2001-05-02  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: *** empty log message ***
+
+	* test/les/stabi/Makefile, test/les/stabi/ini.data, test/les/stabi/mkmesh.m, test/les/stabi/stabi.epl, test/les/stabi/stabi.m:
+	Writing a stability analysis of NS
+
+	* test/Makefile: *** empty log message ***
+
+	* test/les/stabi/Makefile, test/les/stabi/stabi.epl, src/Makefile,
+	src/assprof.cpp, src/elemlist.cpp, src/elemset.cpp, src/elemset.h,
+	src/elemsetn.cpp, src/fem.h, src/getarray.cpp, src/getarray.h,
+	src/nodedata.cpp, src/nodedata.h, src/parsefld.y,
+	src/parsefldm.cpp, src/readmesh.cpp, src/wspace.h,
+	doc/new_interface.tex, applications/ns/bccnsfm2.cpp,
+	applications/ns/fracstep.cpp, applications/ns/fracstep.h,
+	applications/ns/internal.cpp, applications/ns/internal.h,
+	applications/ns/ns.cpp, applications/ns/nsi_tet.cpp,
+	applications/ns/nsilesther.cpp, applications/ns/nsitetles.cpp,
+	applications/ns/nsitetlesfm2.cpp, applications/ns/wall.cpp,
+	applications/laplace/genload.cpp, applications/laplace/genload.h,
+	applications/laplace/lapla.cpp,
+	applications/advective/.ffeuler.cpp.swp,
+	applications/advective/absorb.cpp,
+	applications/advective/advecfm2.cpp,
+	applications/advective/advective.cpp,
+	applications/advective/advective.nm.cpp,
+	applications/advective/bccadvfm2.cpp,
+	applications/advective/bcconv_adv.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advdifeo.cpp,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/wallswt.cpp, VERSION, notes.txt, save.log:
+	Added 'report_option_access' and 'steady' options to ns.
+
+2001-05-01  mstorti@spider  <mstorti@spider>
+
+	* notes.txt, TODO: *** empty log message ***
+
+	* test/les/stabi/Makefile, test/les/stabi/mkmesh.m, test/les/stabi/stabi.epl:
+	merging branch.
+	Adding stability calculations for validating LES.
+
+	* test/eperlini.pl, applications/ns/ns.cpp, applications/ns/nsi_tet.h, applications/ns/nsitetlesfm2.cpp, notes.txt:
+	merging branch
+
+	* src/version.cppin: Added Beto
+
+2001-04-15  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/getarray.h, src/nodedata.cpp, src/nodedata.h, src/parsefld.y, src/parsefldm.cpp, src/readmesh.cpp:
+	Writing a new class NodeData
+
+	* doc/new_interface.tex:
+	This is a "paper" on the desgin of a new interface
+
+	* src/nodedata.cpp: *** empty log message ***
+
+	* src/getarray.h, src/parsefld.y, src/parsefldm.cpp:
+	Works parser with work_space strings
+
+	* src/wspace.h: *** empty log message ***
+
+2001-04-14  mstorti@spider  <mstorti@spider>
+
+	* src/getarray.h, src/parsefld.y, src/parsefldm.cpp:
+	Parses correctly expressions
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/bccnsfm2.cpp, applications/ns/fracstep.cpp,
+	applications/ns/fracstep.h, applications/ns/internal.cpp,
+	applications/ns/internal.h, applications/ns/nsi_tet.cpp,
+	applications/ns/nsilesther.cpp, applications/ns/nsitetles.cpp,
+	applications/ns/nsitetlesfm2.cpp, applications/ns/wall.cpp,
+	applications/laplace/genload.cpp, applications/laplace/genload.h,
+	applications/laplace/lapla.cpp, applications/advective/absorb.cpp,
+	applications/advective/advecfm2.cpp,
+	applications/advective/advective.cpp,
+	applications/advective/advective.nm.cpp,
+	applications/advective/bccadvfm2.cpp,
+	applications/advective/bcconv_adv.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advdifeo.cpp,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/wallswt.cpp: Change Nodedata to NodeData
+
+	* src/Makefile, src/assprof.cpp, src/elemlist.cpp,
+	src/elemset.cpp, src/elemset.h, src/elemsetn.cpp, src/fem.h,
+	src/getarray.cpp, src/getarray.h, src/nodedata.h, src/parsefld.y,
+	src/parsefldm.cpp, src/readmesh.cpp: Changed Nodedata for
+	NodeData.  Writing a parser for field lists
+
+	* src/parsefldm.cpp: *** empty log message ***
+
+2001-04-13  mstorti@spider  <mstorti@spider>
+
+	* src/parsefld.y: Parse fields line
+
+	* src/nodedata.h: *** empty log message ***
+
+2001-04-12  mstorti@spider  <mstorti@spider>
+
+	* notes.txt, tools/emoticons: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* tools/odoc.pl, doc/README.pod, doc/advdif.tex, doc/advdifop.tex,
+	doc/index.tex, doc/odocadvfm2.tex, doc/odocburgers.tex,
+	doc/odocnse.tex, doc/petscfem.tex, doc/petscfem.tex.bak,
+	applications/ns/ns.cpp, applications/ns/nsilesther.cpp,
+	applications/ns/nsitetlesfm2.cpp, applications/advdif/advdif.cpp,
+	applications/advdif/advective.h,
+	applications/advdif/advective.h.merged,
+	applications/advdif/enthalpy.h, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffburg.cpp, README, README.html, TODO: Fixed
+	some errors in doc
+
+	* doc/Makefile: *** empty log message ***
+
+2001-04-11  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* tools/TestTree.pm, tools/myexpect.pl, tools/tree.pl,
+	test/myexpect.pl, test/myexpect.pl.new, test/runtests.pl: Added
+	sectioning to `myexpext.pl'
+
+2001-04-10  mstorti@spider  <mstorti@spider>
+
+	* tools/emacs, tools/tree.pl, tools/tree.pm,
+	applications/advdif/enthalpy.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/advective.h:
+	Worked on perl tree class.
+
+	* tools/tree.pm: Will change the printing routines
+
+2001-04-09  mstorti@spider  <mstorti@spider>
+
+	* tools/tree.pl: This manages trees
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.h, src/fem.h, src/readmesh.h, src/sttfilter.cpp,
+	src/sttfilter.h, src/texthash.cpp, doc/advdif.tex,
+	doc/petscfem.tex, applications/ns/ns.cpp,
+	applications/ns/nsilesther.cpp, applications/ns/nsitetlesfm2.cpp,
+	applications/advdif/advdif.cpp, applications/advdif/advdife.cpp,
+	applications/advdif/advdifeo.cpp, applications/advdif/advective.h,
+	applications/advdif/enthalpy.cpp,
+	applications/advdif/ffadvfm2.cpp: Adding doc for new flux
+	functions
+
+2001-04-08  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* tools/hexenco.1, tools/hexenco.pl, tools/hexenco.txt,
+	tools/myexpect.1, tools/myexpect.pl, tools/myexpect.txt,
+	test/newff/Makefile, test/newff/data.m.epl, test/newff/newff.epl,
+	test/myexpect.pl, test/runtests.pl,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/enthalpy.cpp, applications/advdif/enthalpy.h,
+	applications/advdif/nwadvdif.h, Makefile, notes.txt: Fixed bug in
+	enthalpy module.  Passes all tests in newff.
+
+2001-04-07  mstorti@spider  <mstorti@spider>
+
+	* tools/hexenco.pl: Will let $ESCAPE_CHAR to be congigured.
+
+	* VERSION, save.log: Administrative files
+
+	* tools/hexenco.pl, test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.m, test/runtests.pl, src/fem.h, src/getprop.cpp,
+	applications/advdif/ffburg.cpp, applications/advdif/nwadvdif.h,
+	applications/advdif/enthalpy.cpp, applications/advdif/enthalpy.h,
+	applications/advdif/ffadvfm2.cpp, TODO: Added enthalpies of
+	different types.  It remains to add enthalpies to the SUPG term!!!
+
+2001-04-06  mstorti@spider  <mstorti@spider>
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m, test/runtests.pl,
+	applications/advdif/advdife.cpp, applications/advdif/enthalpy.cpp,
+	applications/advdif/ffadvfm2.cpp, TODO, notes.txt: Adding tests
+	for enthalpy functions
+
+2001-04-04  mstorti@spider  <mstorti@spider>
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m,
+	src/readmesh.cpp.particion, doc/manual/doc.dxx,
+	applications/advdif/Makefile, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/burgers.h,
+	applications/advdif/enthalpy.cpp, applications/advdif/enthalpy.h,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/ffburg.cpp,
+	applications/advdif/nwadvdif.h: Working on the enthalpy functions.
+
+2001-04-03  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/enthalpy.cpp: initial version
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile: Added burgers target to makefile.
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffburg.cpp, notes.txt: Added entalphy
+	function. Works for identity T/H relationship.
+
+2001-04-02  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/burgers/Makefile, test/burgers/burgers.epl,
+	test/burgers/data.m, test/burgers/mmesh.m, test/burgers/verif.m,
+	test/advdif/burgers.con, test/advdif/burgers.epl,
+	test/advdif/burgers.ini2, test/advdif/burgers.nod,
+	test/myexpect.pl, test/runtests.pl, src/fem.h, src/getprop.cpp,
+	applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advective.h, applications/advdif/burgers.h,
+	applications/advdif/ffburg.cpp,
+	applications/advdif/ffburg_old.cpp,
+	applications/advdif/nwadvdif.h, applications/advdif/nwadvdifj.h,
+	Makefile.base, TODO: Added tests for burgers
+
+2001-04-01  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/burgers.h:
+	Contains definitions for Burger's eqs. flux functions.
+
+	* applications/advdif/ffburg.cpp: Compiles.
+
+	* VERSION, save.log: Administrative files
+
+	* all .tex files:
+	Added license to .tex files
+
+	* VERSION, save.log: Administrative files
+
+	* all:
+	Added LICENSE to makefiles
+
+2001-03-31  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m, test/newff/verif.m,
+	test/runtests.pl, doc/advdif.tex, doc/advdifop.tex,
+	doc/odocadvfm2.tex, doc/petscfem.tex, doc/petscfem.tex.bak,
+	doc/Makefile, applications/advdif/Makefile,
+	applications/advdif/advdif.cpp, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h:
+	Added doc for the new flux functions.  Adapted bcconv to the new
+	flux functions.  QUASI STABLE (Passes all newff tests)
+
+	* test/newff/nodl2elem.m: Auxiliary for creating bcconv meshes.
+
+	* VERSION, save.log: Administrative files
+
+	* tools/odoc.pl, test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/runtests.pl, doc/advdifop.tex,
+	doc/odocadvfm2.tex, doc/odocnse.tex, doc/petscfem.tex,
+	applications/advdif/Makefile, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/nwadvdif.h: Added a null diffusive jacobian
+
+2001-03-30  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, doc/README.pod, doc/README.podin,
+	doc/advdif.tex, doc/advdifop.tex,
+	applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffadvfm2.cpp.new,
+	applications/advdif/nwadvdif.h, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, README, TODO, notes.txt: Fixed
+	several bugs for the new ff.  Starts writing doc for the new ff.
+	Pass all tests of the newff directory.
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl,
+	test/newff/newff.epl, test/newff/newff.m, test/newff/verif.m,
+	test/runtests.pl, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/nwadvdif.h,
+	ChangeLog: Debugging the new flux functions
+
+2001-03-29  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl, test/runtests.pl:
+	Added a test for new ff with weak form (bu without bcconv)
+
 2001-03-29  mstorti@spider  <mstorti@spider>
 
 	* VERSION, save.log: Administrative files
@@ -1125,11 +1845,6 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	* outvector.sal.ref: outvector.sal.ref era una solucion de
 	referencia.
 
-	* ex1.cpp,v: CV:S
-	---------------------------------------------------------------------i
-	ave:q :q q :q : q .  VS: Enter Log.  Lines beginning with `CVS:'
-	are removed automatically
-
 	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
 	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
 	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
@@ -1259,3 +1974,5 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
 	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
 	texthash.h: Start sources
+
+	
