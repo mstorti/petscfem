@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.14 2002/08/28 01:59:37 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.15 2002/08/30 01:43:32 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1353,14 +1353,17 @@ double FastMat2::detsur(FastMat2 *nor=NULL) {
 
   detsur_cache * dsc;
   if (!was_cached) {
+    // printf("creating detsur cache\n");
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==2);
 
     dsc = new detsur_cache();
+    assert(dsc);
     dsc->m = dim(1);
     dsc->n = dim(2);
     if (dsc->m>0) dsc->g.resize(2,dsc->m,dsc->m);
+    assert(!cache->sc);
     cache->sc = dsc;
     if (nor) {
       // The jacobian should be n-1 x n
@@ -1401,27 +1404,30 @@ double FastMat2::detsur(FastMat2 *nor=NULL) {
   }
 
   dsc = dynamic_cast<detsur_cache *> (cache->sc);
+  double retval;
   if (dsc->m == 0) return 1.;
-  dsc->g.prod(*this,*this,1,-1,2,-1);
-  double **nn = dsc->nor_p;
-  double **vv = dsc->v;
   if (nor) {
 #define VV(j) (*vv[j])
 #define NN(j) (*nn[j])
+    double **nn = dsc->nor_p;
+    double **vv = dsc->v;
     if (dsc->n==2) {
       *nn[0] = +VV(1);
       *nn[1] = -VV(0);
-      return sqrt(NN(0)*NN(0)+NN(1)*NN(1));
+      retval = sqrt(NN(0)*NN(0)+NN(1)*NN(1));
     } else {
 #define JACO(j,k) (*vv[((j)-1)*3+(k)-1])
       NN(0) = -JACO(1,2)*JACO(2,3)+JACO(1,3)*JACO(2,2);
       NN(1) = -JACO(1,3)*JACO(2,1)+JACO(1,1)*JACO(2,3);
       NN(2) = -JACO(1,1)*JACO(2,2)+JACO(1,2)*JACO(2,1);
-      return sqrt(NN(0)*NN(0)+NN(1)*NN(1)+NN(2)*NN(2));
+      retval = sqrt(NN(0)*NN(0)+NN(1)*NN(1)+NN(2)*NN(2));
     }
   } else {
-    return sqrt(dsc->g.det());
+    dsc->g.prod(*this,*this,1,-1,2,-1);
+    retval = sqrt(dsc->g.det());
   }
+  if (!use_cache) delete cache;
+  return retval;
 }
 //EOF
 _//>
@@ -1457,6 +1463,7 @@ FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
     } else resize(1,3);
     
     ccache = new cross_cache();
+    assert(ccache);
     ccache->a = new (const double *)[3];
     ccache->b = new (const double *)[3];
     ccache->c = new (double *)[3];
@@ -1468,6 +1475,7 @@ FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
       ccache->b[j-1] = b.location(indx);
       ccache->c[j-1] = location(indx);
     }
+    assert(!cache->sc);
     cache->sc = ccache;
   }
 
@@ -1480,6 +1488,7 @@ FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
   *c[1] = *aa[2] * *bb[0] - *aa[0] * *bb[2];
   *c[2] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
 
+  if (!use_cache) delete cache;
   return *this;
 }
 //EOF
