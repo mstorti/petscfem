@@ -1113,3 +1113,6 @@ tag: beta-2.94.pl1 on Fri, 29 Mar 2002 21:47:49 -0300 by mstorti in spider
      > Fixed a bug in `nsi_tet_les_fm2'. The divergence of the field velocity
      > was erroneously taken at $t^{n+1}$ instead of $t^{n+\alpha}$.
      > Added `clean_mat' to `in_assembly' state. 
+----------
+tag: beta-2.94.pl2 on Mon,  1 Apr 2002 23:52:23 -0300 by mstorti in spider
+     > Working with `ident' + rotation.
