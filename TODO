@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Fix `delete' and `new' not balanced in `NewAdvDifFF' derived
+         classes. 
 * add tests  `cubcav' 
 * Fix documentation. New version of latex2html screwed all up. 
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
