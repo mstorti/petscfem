@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.72 2005/02/21 18:49:05 mstorti Exp $
+//$Id: advective.h,v 1.72.2.1 2005/03/22 20:51:55 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -304,6 +304,18 @@ public:
   */ 
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				    FastMat2 & dshapex,double w) =0 ;
+  //@}
+
+  /** @name Diffusive jacobians related to dependences of diffusion coeff to state variable */
+  //@{
+  /** Computes the product #(grad_N_dDdU_N)_(p,mu,q,nu)
+      = dDdU_(i,mu,nu) (grad_N)_(i,p) (N)_(q)#
+      @param grad_N_dDdU_N (output) size #nel# x #ndof# x #nel# x #ndof#
+      @param grad_N (input) size #nel# x #ndof#
+      @param N (input) size #nel# 
+  */
+  virtual void comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,FastMat2 &grad_U,
+    FastMat2 &dshapex,FastMat2 &N,double w) {}
   //@}
 
   /** @name Reactive jacobians related */

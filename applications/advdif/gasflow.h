@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.23.2.1 2005/02/22 21:13:23 mstorti Exp $
+// $Id: gasflow.h,v 1.23.2.2 2005/03/22 20:51:55 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -21,9 +21,11 @@ private:
     Djac,tmp1,Cjac,tmp2,tmp3,grad_vel,strain_rate,IdId,G_body,
     uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,
     tmp6,tmp7,tmp05,tmp10,tmp_vel,tang;
+  FastMat2 tmp40,tmp41,tmp42;
   FastMat2 viscous_work,heat_flux,sigma;
   FastMat2 tau_supg_c,vel_supg;
   FastMat2 Ajac_tmp,Djac_tmp;
+  FastMat2 dviscodU;
   double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff,Tem;
   double tau_fac,temporal_stability_factor;
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
@@ -31,9 +33,11 @@ private:
   double Pr_t, C_smag;
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
-  int shocap_scheme,sutherland_law;
-  double shocap_beta,Tem_infty,Tem_ref,
-    delta_sc_aniso;
+  int shocap_scheme,sutherland_law,sutherland_law_implicit;
+  double shocap_beta,Tem_infty,Tem_ref,    delta_sc_aniso;
+
+  double visco_l, visco_bar;
+
   FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;
   FastMat2 jvec;
@@ -113,6 +117,18 @@ public:
   */
   void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			    FastMat2 & dshapex,double w);
+  //@}
+
+  /** @name Diffusive jacobians related to dependences of diffusion coeff to state variable */
+  //@{
+  /** Computes the product #(grad_N_dDdU_N)_(p,mu,q,nu)
+      = dDdU_(i,mu,nu) (grad_N)_(i,p) (N)_(q)#
+      @param grad_N_dDdU_N (output) size #nel# x #ndof# x #nel# x #ndof#
+      @param grad_N (input) size #nel# x #ndof#
+      @param N (input) size #nel# 
+  */
+  void comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,FastMat2 &grad_U,
+			  FastMat2 &dshapex,FastMat2 &N,double w);
   //@}
 
   /** @name Reactive jacobians related */

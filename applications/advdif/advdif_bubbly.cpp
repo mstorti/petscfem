@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.12 2004/12/21 12:20:36 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.12.18.1 2005/03/22 20:51:55 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -278,7 +278,7 @@ int bubbly_main() {
   vector<double> gather_values;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
-  //o Print values in this file 
+  //o Print values in this file
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
   // Initialize gather_file
   FILE *gather_file_f;
@@ -370,7 +370,7 @@ int bubbly_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Hook stuff
   HookList hook_list;
   hook_list.init(*mesh,*dofmap,advdif_hook_factory);
@@ -407,20 +407,20 @@ int bubbly_main() {
     hook_list.time_step_pre(time_star.time(),tstep);
 
     for (int inwt=0; inwt<nnwt; inwt++) {
-      
-      
+
+
       for (int kstage=0; kstage<nstage; kstage++) {
-	
+
 	scal=0;
 	ierr = VecSet(&scal,res_out); CHKERRA(ierr);
 	ierr = VecSet(&scal,dx_out); CHKERRA(ierr);
-	
+
 	if (nstage==1) {
 	  jobinfo_fields = "gasliq";
 	  nnwt_in = nnwt_liq;
 	  omega_newton_in = omega_newton_liq;
 	}
-	
+
 	else if (kstage==0) {
 	  jobinfo_fields = "liq";
 	  nnwt_in = nnwt_liq;
@@ -436,20 +436,20 @@ int bubbly_main() {
 	  nnwt_in = nnwt_liq;
 	  omega_newton_in = omega_newton_liq;
 	}
-	
-	
+
+
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 	// Stages loop  "kstage"
-	
+
 	for (int inwt_in=0; inwt_in<nnwt_in; inwt_in++) {
-	  
+
 	  // Initializes res
 	  scal=0;
 	  ierr = VecSet(&scal,res); CHKERRA(ierr);
 	  ierr = VecSet(&scal,dx); CHKERRA(ierr);
-	  
+
 	  if (comp_mat_each_time_step_g) {
-	    
+
 	    ierr = A_stage[kstage]->clean_mat(); CHKERRA(ierr);
 #ifdef CHECK_JAC
 	    ierr = AA_stage[kstage]->clean_mat(); CHKERRA(ierr);
@@ -468,30 +468,30 @@ int bubbly_main() {
 #ifdef CHECK_JAC
 	    argl.arg_add(AA_stage[kstage],OUT_MATRIX_FDJ|PFMAT);
 #endif
-	    
+
 	    if (measure_performance) {
 	      ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
 					     &time_star); CHKERRA(ierr);
 	      PetscFinalize();
 	      exit(0);
 	    }
-	    
+
 	    // jobinfo_fields = "gas";
-	    
+
 	    ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 	    debug2.trace("After residual computation.");
-	    
+
 	    if (!print_linear_system_and_stop || solve_system) {
 	      ierr = A_stage[kstage]->solve(res,dx); CHKERRA(ierr);
 	    }
-	    
+
 	  } else {
-	    
+
 	    VOID_IT(argl);
 	    argl.arg_add(&x,IN_VECTOR);
 	    argl.arg_add(&res,OUT_VECTOR);
 	    argl.arg_add(&dtmin,VECTOR_MIN);
-	    
+
 	    if (measure_performance) {
 	      ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
 					     &time_star); CHKERRA(ierr);
@@ -501,12 +501,12 @@ int bubbly_main() {
 
 	    // jobinfo_fields = "gas";
 	    ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	    
+
 	    if (!print_linear_system_and_stop || solve_system) {
 	      ierr =A_stage[kstage]->solve(res,dx); CHKERRA(ierr);
 	    }
 	  }
-	  
+
 
 	if (print_linear_system_and_stop &&
 	    inwt==inwt_stop && tstep==time_step_stop) {
@@ -528,7 +528,7 @@ int bubbly_main() {
 	  ierr = A_stage[kstage]->view(matlab);
 	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 				 PETSC_VIEWER_ASCII_MATLAB,"AA");
 	  ierr = AA_stage[kstage]->view(matlab);
 #endif
@@ -546,7 +546,7 @@ int bubbly_main() {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Newton subiter (inner) %d, stage  %d, norm_res  = %10.3e\n",
 		    inwt_in,kstage,normres);
-	scal=omega_newton_in;
+	scal=omega_newton_in/alpha;
 	ierr = VecAXPY(&scal,dx,x);
 	if (normres < tol_newton) break;
 
@@ -629,11 +629,11 @@ int bubbly_main() {
       if (MY_RANK==0) {
 	if (gather_file == "") {
 	  printf("Gather results: \n");
-	  for (int j=0; j < gather_values.size(); j++) 
+	  for (int j=0; j < gather_values.size(); j++)
 	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
 	} else {
 	  gather_file_f = fopen(gather_file.c_str(),"a");
-	  for (int j=0; j<gather_values.size(); j++) 
+	  for (int j=0; j<gather_values.size(); j++)
 	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
 	  fprintf(gather_file_f,"\n");
 	  fclose(gather_file_f);
