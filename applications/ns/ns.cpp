@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.24 2001/05/31 00:52:56 mstorti Exp $
+//$Id: ns.cpp,v 1.25 2001/06/01 03:30:50 mstorti Exp $
  
 #include <malloc.h>
 
@@ -10,7 +10,7 @@
 #include "../../src/util2.h"
 #include "../../src/sttfilter.h"
 
-#include "fracstep.h"
+//#include "fracstep.h"
 #include "nsi_tet.h"
 
 static char help[] = "Basic finite element program.\n\n";
@@ -44,7 +44,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
   //    SET_ELEMSET_TYPE(fracstep) Por ahora lo desactivamos hasta que
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
-    SET_ELEMSET_TYPE(nsi_tet_les)
+  //  SET_ELEMSET_TYPE(nsi_tet_les)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_keps)

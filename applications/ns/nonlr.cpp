@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.5 2001/05/31 17:01:47 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.6 2001/06/01 03:30:50 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -57,7 +57,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
   double *locst,*locst2,*retval,*retvalmat;
-  double *hmin,Dt;
+  GlobParam *glob_param;
+  double *hmin,Dt,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {
@@ -68,7 +69,9 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retvalmat = arg_data_v[ja++].retval;
     hmin = (arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
-    Dt = *(double *)(arg_data_v[ja++].user_data);
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    rec_Dt = 1./glob_param->Dt;
+    if (glob_param->steady) rec_Dt=0.;
   } else if (comp_mat || comp_mat_ke) {
     retvalmat = arg_data_v[0].retval;
   }

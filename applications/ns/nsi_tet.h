@@ -1,6 +1,7 @@
+// -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.8 2001/05/30 03:58:44 mstorti Exp $
-#ifndef NSI_TET_H  // -*- mode: C++ -*-
+//$Id: nsi_tet.h,v 1.9 2001/06/01 03:30:50 mstorti Exp $
+#ifndef NSI_TET_H  
 #define NSI_TET_H
 
 #include <ANN/ANN.h>			// ANN declarations
@@ -15,16 +16,16 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-class nsi_tet : public ns_volume_element { 
-public: 
-  ASSEMBLE_FUNCTION;
-};
+//  class nsi_tet : public ns_volume_element { 
+//  public: 
+//    ASSEMBLE_FUNCTION;
+//  };
 
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-class nsi_tet_les : public ns_volume_element { 
-public: 
-  ASSEMBLE_FUNCTION;
-};
+//  //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+//  class nsi_tet_les : public ns_volume_element { 
+//  public: 
+//    ASSEMBLE_FUNCTION;
+//  };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_les_fm2 : public ns_volume_element { 

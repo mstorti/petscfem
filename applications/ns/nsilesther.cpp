@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.11 2001/05/30 18:21:50 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.12 2001/06/01 03:30:50 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -100,7 +100,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  double *hmin,Dt;
+  GlobParam *glob_param;
+  double *hmin,Dt,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_th) {
@@ -115,7 +116,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ja++;
 #endif
     ja_hmin=ja;
-    Dt = *(double *)(arg_data_v[ja++].user_data);
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    rec_Dt = 1./glob_param->Dt;
+    if (glob_param->steady) rec_Dt=0.;
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
@@ -458,11 +461,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
         if (comp_mat_res || comp_res) {
 	  Peclet = velmod * h_supg / (2. * nu_eff);
-          tau_supg = tsf*SQ(2./Dt)+SQ(2.*velmod/h_supg)
+          tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
 	    +9.*SQ(4.*nu_eff/SQ(h_supg));
           tau_supg = 1./sqrt(tau_supg);
 
-          tau_pspg = tsf*SQ(2./Dt)+SQ(2.*velmod/h_pspg)
+          tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
 	    +9.*SQ(4.*nu_eff/SQ(h_pspg));
           tau_pspg = 1./sqrt(tau_pspg);
 
@@ -516,7 +519,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 
 	  du.set(u_star).rest(u);
-	  dmatu.axpy(du,1/(alpha*Dt)).rest(G_body);
+	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
 	  div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
 
@@ -553,7 +556,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  // Parte temporal + convectiva (Galerkin)
 	  massm.prod(u_star,dshapex,-1,-1,1);
-	  massm.axpy(SHAPE,1/(alpha*Dt));
+	  massm.axpy(SHAPE,rec_Dt/alpha);
 	  matlocmom.prod(W_supg,massm,1,2).scale(rho);
         }
 
@@ -566,11 +569,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // linea de arriba
 #if 0   // Este es el corregido por mi
 	  // tmp1_th = dT/(alpha*Dt)-Q_body;
-	  tmp1_th.set(dT).scale(1./(alpha*Dt)).add(-Q_body);
+	  tmp1_th.set(dT).scale(rec_Dt/alpha).add(-Q_body);
 #else  // Este es el original (Beto). No compila
 	  // (esta escrito tipo Newmat)
 	  //tmp1_th.set(dT).scale(1/(alpha*Dt)).rest(Q_body);
-	  tmp1_th = dT/(alpha*Dt)-Q_body;
+	  tmp1_th = dT*rec_Dt/alpha-Q_body;
 #endif
 	  //resther.axpy(SHAPE,-wpgdet*tmp1_th);
 	  //resther.axpy(P_supg_th,-wpgdet*tmp1_th);
@@ -594,7 +597,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  // thermal matrix
 	  // massm_th.set(0.).axpy(SHAPE,rho*Cp/(alpha*Dt));
-	  massm_th.set(SHAPE).scale(rho*Cp/(alpha*Dt));
+	  massm_th.set(SHAPE).scale(rho*Cp*rec_Dt/alpha);
 	  matlocther.prod(W_supg_th,massm_th,1,2);
 
           if (weak_form) {

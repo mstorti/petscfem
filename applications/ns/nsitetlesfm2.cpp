@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.16 2001/05/30 18:21:50 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.17 2001/06/01 03:30:50 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -299,16 +299,18 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
-    ucols.set(locstate2.is(2,1,ndim));
-    pcol.set(locstate2.rs().ir(2,ndof));
-    locstate2.rs();
-
-    ucols_new.set(locstate.is(2,1,ndim));
-    pcol_new.set(locstate.rs().ir(2,ndof));
-    locstate.rs();
-
-    ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
-    pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
+    if (comp_res || comp_mat_res) {
+      ucols.set(locstate2.is(2,1,ndim));
+      pcol.set(locstate2.rs().ir(2,ndof));
+      locstate2.rs();
+      
+      ucols_new.set(locstate.is(2,1,ndim));
+      pcol_new.set(locstate.rs().ir(2,ndof));
+      locstate.rs();
+      
+      ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
+      pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
+    }
     
     double shear_vel;
     int wall_elem;

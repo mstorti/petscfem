@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.4 2001/05/31 17:01:47 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.5 2001/06/01 03:30:50 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -100,7 +100,8 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  double *hmin,Dt;
+  GlobParam *glob_param;
+  double *hmin,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res || comp_mat_res_ke) {
@@ -111,7 +112,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
     hmin = (arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
-    Dt = *(double *)(arg_data_v[ja++].user_data);
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    rec_Dt = 1./glob_param->Dt;
+    if (glob_param->steady) rec_Dt=0.;
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
@@ -156,8 +159,8 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GGETOPTDEF(int,LES,0);
   //o Cache \verb+grad_div_u+ matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
-  //o Parameter for the trapezoidal rule time integration method. 
-  GGETOPTDEF(double,alpha,1.);
+  // alpha is taken from the global parameters
+  double &alpha = glob_param->alpha;
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
@@ -313,22 +316,24 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
-    ucols.set(locstate2.is(2,1,ndim));
-    pcol.set(locstate2.rs().ir(2,ndim+1));
-    kapcol.set(locstate2.rs().ir(2,ndof-1));
-    epscol.set(locstate2.rs().ir(2,ndof));
-    locstate2.rs();
+    if (comp_mat_res) {
+      ucols.set(locstate2.is(2,1,ndim));
+      pcol.set(locstate2.rs().ir(2,ndim+1));
+      kapcol.set(locstate2.rs().ir(2,ndof-1));
+      epscol.set(locstate2.rs().ir(2,ndof));
+      locstate2.rs();
 
-    ucols_new.set(locstate.is(2,1,ndim));
-    pcol_new.set(locstate.rs().ir(2,ndim+1));
-    kapcol_new.set(locstate.rs().ir(2,ndof-1));
-    epscol_new.set(locstate.rs().ir(2,ndof));
-    locstate.rs();
-
-    ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
-    pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
-    kapcol_star.set(kapcol_new).scale(alpha).axpy(kapcol,1-alpha);
-    epscol_star.set(epscol_new).scale(alpha).axpy(epscol,1-alpha);
+      ucols_new.set(locstate.is(2,1,ndim));
+      pcol_new.set(locstate.rs().ir(2,ndim+1));
+      kapcol_new.set(locstate.rs().ir(2,ndof-1));
+      epscol_new.set(locstate.rs().ir(2,ndof));
+      locstate.rs();
+      
+      ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
+      pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
+      kapcol_star.set(kapcol_new).scale(alpha).axpy(kapcol,1-alpha);
+      epscol_star.set(epscol_new).scale(alpha).axpy(epscol,1-alpha);
+    }
     
     double shear_vel;
     int wall_elem;
@@ -429,11 +434,11 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
         if (comp_mat_res || comp_res) {
 	  Peclet = velmod * h_supg / (2. * nu_eff);
-          tau_supg = tsf*SQ(2./Dt)+SQ(2.*velmod/h_supg)
+          tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
 	    +9.*SQ(4.*nu_eff/SQ(h_supg));
           tau_supg = 1./sqrt(tau_supg);
 
-          tau_pspg = tsf*SQ(2./Dt)+SQ(2.*velmod/h_pspg)
+          tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
 	    +9.*SQ(4.*nu_eff/SQ(h_pspg));
           tau_pspg = 1./sqrt(tau_pspg);
 
@@ -502,7 +507,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 
 	  du.set(u_star).rest(u);
-	  dmatu.axpy(du,1/(alpha*Dt)).rest(G_body);
+	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
 	  div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
 
@@ -539,7 +544,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  // Parte temporal + convectiva (Galerkin)
 	  massm.prod(u_star,dshapex,-1,-1,1);
-	  massm.axpy(SHAPE,1/(alpha*Dt));
+	  massm.axpy(SHAPE,rec_Dt/alpha);
 	  matlocmom.prod(W_supg,massm,1,2).scale(rho);
         }
 
@@ -547,11 +552,11 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  // kappa-epsilon residue
 	  dkap = (kap_star-kap);
-	  tmp1_ke = dkap/(alpha*Dt);
+	  tmp1_ke = dkap*rec_Dt/alpha;
 	  reskap.axpy(W_supg_k,-wpgdet*tmp1_ke);
 
 	  deps = (eps_star-eps);
-	  tmp1_ke = deps/(alpha*Dt);
+	  tmp1_ke = deps*rec_Dt/alpha;
 	  reseps.axpy(W_supg_e,-wpgdet*tmp1_ke);
 
 	  tmp20.prod(u_star,grad_kap_star,-1,-1);
@@ -568,7 +573,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  reseps.axpy(tmp3_ke,-wpgdet);
 
 	  // kappa-epsilon matrix
-	  massm_ke.set(SHAPE).scale(1./(alpha*Dt));
+	  massm_ke.set(SHAPE).scale(rec_Dt/alpha);
 	  matlockap.prod(W_supg_k,massm_ke,1,2);
 	  matloceps.prod(W_supg_e,massm_ke,1,2);
 
