@@ -221,7 +221,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	parse_props_line(cline,prop_names,prop_lens);
 	props_hash_entry *phe, *pheold;
 	for (int j=0; j<prop_names.size(); j++) {
-	  nelprops++;
 	  prop_name = prop_names[j].c_str();
 	  phe = new props_hash_entry;
 	  // fixme:= despues hay que poner width a la cantidad de
@@ -243,8 +242,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  g_hash_table_insert (props,(void *)key,phe);
 	}
 	g_hash_table_freeze(props);
-	delete[] buf;
       }
+      nelprops = posit;
 
       // Read iprops line
       thash->get_entry("iprops",cline);

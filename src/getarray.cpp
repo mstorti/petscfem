@@ -61,7 +61,7 @@ int yylex (void) {
 }
 
 void parse_props_line(const char *line,vector<string> &prop_name_,vector<int>
-		      prop_len_) {
+		      &prop_len_) {
   prop_name = &prop_name_;
   prop_len = &prop_len_;
   prop_name->clear();

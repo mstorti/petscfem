@@ -111,6 +111,9 @@ public:
     PetscPrintf(PETSC_COMM_WORLD,"Undefined flux function\n");
     return 0;
   }
+  virtual void start_chunk(const NewElemset *elemset) {};
+  virtual void element_hook(const NewElemset *elemset,
+			    ElementIterator &element) {};
   virtual void get_log_vars(const NewElemset *elemset,int &nlog_vars, 
 			    const int *& log_vars);
 };
@@ -191,7 +194,7 @@ public:							\
   bcconv_adv_##name() {adv_diff_ff = new name##_ff_t;};	\
 };
 
-ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
+//ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
 ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
 ADVDIF_ELEMSET(swfm2t);	        // shallow water turbulent
 

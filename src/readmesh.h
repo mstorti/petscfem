@@ -196,6 +196,6 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
     the property 
 */ 
 void parse_props_line(const char *line,vector<string> &prop_name,vector<int>
-		      prop_len);
+		      &prop_len);
 
 #endif

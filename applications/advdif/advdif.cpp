@@ -67,7 +67,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(volume_shallowfm2t)
 #endif
     // General linear advective-diffusive system
-    SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
+    // SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
     SET_ELEMSET_TYPE(advdif_advecfm2)
     // Burger's eq.
     SET_ELEMSET_TYPE(bcconv_adv_burgers)

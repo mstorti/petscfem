@@ -34,7 +34,7 @@ fid=fopen("sine.con.tmp","w");
 for k=1:nele
   fprintf(fid,"%d %d %d %d",icone(k,1),icone(k,2),icone(k,3),icone(k,4));
   if per_elem_prop
-    fprintf(fid," %f",xe(k));
+    fprintf(fid," %f %f ",xe(k),2*xe(k));
   endif
   fprintf(fid,"\n");
 endfor

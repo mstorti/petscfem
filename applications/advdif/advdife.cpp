@@ -211,9 +211,6 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
 
-  Property conduct_prop;
-  get_prop(conduct_prop,"conduct");
-
   int nlog_vars;
   const int *log_vars;
   adv_diff_ff->get_log_vars(this,nlog_vars,log_vars);
@@ -284,15 +281,17 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 
-  int start_chunk=1;
+  // Initialize flux functions
+  adv_diff_ff->start_chunk(this); 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
-    // if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
-    const double *conduct = prop_array(element,conduct_prop);
 
     FastMat2::reset_cache();
 
+    // Initialize element
+    adv_diff_ff->element_hook(this,element); 
+    // Get nodedata info (coords. etc...)
     element.node_data(nodedata,xloc.storage_begin(),
 		       Hloc.storage_begin());
 
