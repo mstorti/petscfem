@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.11 2002/07/24 15:42:01 mstorti Exp $
+// $Id: tryme3.cpp,v 1.12 2002/07/24 15:46:11 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -133,10 +133,12 @@ int main(int argc, char **args) {
 
   // ================================================================
   // TRY SCATTER
+#if 0
   Debug debug;
   debug.activate();
   Debug::init();
   debug.trace("start? ");
+#endif
 
   LinkGraphDis graph(&part,MPI_COMM_WORLD), graph2(&part,MPI_COMM_WORLD);
   
@@ -146,17 +148,19 @@ int main(int argc, char **args) {
     graph.add(j,modulo(j-1,M));
   }
 
+  if (MY_RANK==0) printf("-----------\nBefore scatter:\n");
+  for (int p=0; p<SIZE; p++) {
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (p==MY_RANK) graph_print(graph,"------------\n");
+  }
+
   graph.scatter();
+
+  if (MY_RANK==0) printf("-----------\nAfter scatter:\n");
   LinkGraphDis::iterator k;
   for (int p=0; p<SIZE; p++) {
     MPI_Barrier(MPI_COMM_WORLD);
-    if (p==MY_RANK) printf("------------\nIn [%d]:\n",MY_RANK);
-    if (p==MY_RANK) {
-      for (k=graph.begin(); k!=graph.end(); k++) {
-	row_print(*k);
-	// printf("size of row: %d\n",k.size());
-      }
-    }
+    if (p==MY_RANK) graph_print(graph,"------------\n");
   }
   MPI_Finalize();
 #endif

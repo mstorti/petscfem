@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.6 2002/07/23 16:39:59 mstorti Exp $
+// $Id: distcont.h,v 1.7 2002/07/24 15:46:11 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
@@ -223,6 +223,9 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   iter = remove_if(begin(),end(),belongs);
   erase(iter,end());
 #else
+#if 0
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // FOR ASSOCIATIVE CONTAINERS (`erase()' does remove the object)
   // Advance until find the first element that remains here
   while (1) {
     iter = begin();
@@ -235,7 +238,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 
     // iter:= keeps on the last element that remains here
     // next:= we compute `next' as `iter++' and check if belongs or
-    // not. The we remove it or advence iter. 
+    // not. Then we remove it or advance iter. 
     while (1) {
       next = iter;
       next++;
@@ -247,6 +250,12 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
       }
     }
   }
+#else
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // FOR NON-ASSOCIATIVE CONTAINERS (`erase()' doesn't remove the object)
+  for (iter=begin(); iter!=end(); iter++) 
+    if (!belongs(iter,plist)) erase(iter);
+#endif
 #endif
 
   // Check that all buffers must remain at the end

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2002/07/24 01:19:58 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2002/07/24 15:46:11 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -46,5 +46,9 @@ LDFLAGS =					\
 tryme3.bin: tryme3.o
 	$(MAKE) -C ../../src compile
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS)
+
+run3:
+	procsel $(PROCTABLE)
+	mpirun -np 2 -machinefile machi.dat tryme3.bin
 
 #s
