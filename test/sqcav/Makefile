@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2001/12/13 02:10:59 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2001/12/13 14:48:16 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,7 +6,7 @@
 pp:
 	$(MAKE) case=iisd_sbp1_uj runs
 
-tests: test_re1000 test_iisd test_iisd2
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf
 
 all: run
 
@@ -35,7 +35,7 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-			> output.CASE_$(CASE).np_$(np).case_$(case).out.tmp
+	> output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav
@@ -57,18 +57,22 @@ test_big:
 # tests the square cavity in a 20x20 mesh at Re=1000
 # with respect with a reference solution obtained also with Petscfem and
 # verified with Ghia results
-#w Square cavity test in 20x20 mesh
+#w IISD for square cavity test in 20x20 mesh on one processor
 test_re1000:
 	$(MAKE) case=weak_form_0 runs
 	$(MAKE) case=weak_form_1 runs
 	octave -q < check_re1000.m > check.re1000.verif.tmp
 
+#w IISD for square cavity test in 20x20 mesh on two processors
 test_iisd2: 
 	$(MAKE) case=lu np=1 runs
 	$(MAKE) case=iisd_sbp1 runs
 	$(MAKE) case=iisd_sbp4 runs
 	$(MAKE) case=iisd_sbp16 runs
 	octave -q < check_iisd2.m > check.iisd.verif.np2.tmp
+
+test_meas_perf:
+	$(MAKE) case=lu np=1 meas_perf=1 runs
 
 #w Tests IISD solver on the square cavity problem
 test_iisd:
@@ -78,7 +82,7 @@ test_iisd:
 	$(MAKE) case=iisd_sbp4 runs
 	$(MAKE) case=iisd_sbp8 runs
 	$(MAKE) case=iisd_sbp16 runs
-	octave -q < check_iisd.m > check.iisd.verif.np$(np).tmp
+	octave -q < check_iisd.m > check.iisd.verif.np1.tmp
 
 #w Makes local link for running with debugger
 link:

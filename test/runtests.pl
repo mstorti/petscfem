@@ -848,6 +848,10 @@ expect("lupart/check_direct_petsc.verif.tmp",
 Direct/PETSc  OK \? > 1, 
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_1.case_lu.out.tmp",
+       "Measure performance test.",read_file("test_meas_perf.ans.txt"));
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
