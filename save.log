@@ -1275,3 +1275,6 @@ tag: beta-3.00.pl6 on Sun, 21 Jul 2002 19:38:49 -0300 by mstorti in spider
 tag: beta-3.00.pl7 on Sun, 21 Jul 2002 23:50:00 -0300 by mstorti in spider
      > Both graphs (`StoreGraph1' and `graphdv') work, bue with 
      > separate compilation. Now we need to choose via a option entry. 
+----------
+tag: beta-3.00.pl8 on Mon, 22 Jul 2002 00:16:57 -0300 by mstorti in spider
+     > There was ea bug in the contructor of the StoreGraph1 graph
