@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.10 2002/06/16 15:24:51 mstorti Exp $
+//$Id: fstack.cpp,v 1.11 2002/08/31 19:38:29 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -159,13 +159,32 @@ int FileStack::get_line(char * & line) {
       // read filename
       token = strtok((char *)abuf_data(abufr),BSP);
       token = strtok(NULL,BSP); 
-      file_at_top = fopen(token,"r");
-
+      string token_cpy(token);
+      if (token_cpy[0]=='"') {
+	int m = strlen(token);
+	token_cpy.erase(m-1,1);
+	token_cpy.erase(0,1);
+      }
+      file_at_top = fopen(token_cpy.c_str(),"r");
+	
+#if 0
+      if (token[0]=='"') {
+	int m = strlen(token);
+	assert(m>=2);
+	char *token_cpy = new char[m-1];
+	memcpy(token_cpy,token[1],m-2);
+	token_cpy[m] = '\n';
+	file_at_top = fopen(token_cpy,"r");
+	delete[] token_cpy;
+      } else {
+	file_at_top = fopen(token,"r");
+      }
+#endif
       if (!file_at_top) {
 	printf("Couldn't open file \"%s\"!!\n",token);
 	exit(0);
       }
-      file_names.push_back(token);
+      file_names.push_back(token_cpy);
       file_pos.push_back(pos);
       pos=0;
       
