@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.11 2001/08/06 01:07:36 mstorti Exp $
+// $Id: distmap.h,v 1.12 2001/08/10 00:00:15 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -202,7 +202,68 @@ void DistMap<Key,Val>::scatter() {
 	     send_buff_pos[k]-send_buff[k], SEND(myrank,k));
     }
   }
-  
+
+
+#if 1 // New scheduling algorithm
+
+  // recv_buff:= buffer for receiving 
+  // recv_buff_pos:= positions in the receive buffer
+  // recv_buff_pos_end:= end of receive buffer
+
+  // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
+  // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
+  // eproc
+  int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
+    size_here,max_local_size;
+
+  // initially...
+  sproc=0;
+  eproc=size;
+  while (1) {
+    size_here = eproc-sproc;
+    PetscSynchronizedPrintf(comm,
+			    "[%d] size here %d\n",myrank,size_here);
+    MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
+		  comm);
+    if (max_local_size<=1) break;
+
+    if ( size_here> 1) {
+      mproc = (sproc+eproc)/2;
+      band = (myrank >= mproc);
+      PetscSynchronizedPrintf(comm,"[%d] sproc %d, mproc %d, eproc %d\n",
+			      myrank,sproc,mproc,eproc);
+      for (stage=0; stage<2; stage++) {
+	// Range and number of procs in the other band
+	if (band==0) {
+	  s1=mproc; s2=eproc; 
+	} else {
+	  s1=sproc; s2=mproc; 
+	}
+	nrecv=s2-s1;
+
+	if (stage == band) {
+	  // Send stage. Send to s1 <= rank < s2
+	  for (rank = s1; rank < s2; rank++) 
+	    PetscSynchronizedPrintf(comm,"[%d] Sending to %d\n",myrank,rank);
+	} else {
+	  PetscSynchronizedPrintf(comm,"[%d] Receive from %d procs.\n",
+				  myrank,nrecv);
+	}
+      }
+
+      if (band==0) {
+	eproc = mproc;
+      } else {
+	sproc = mproc;
+      }
+    }
+    PetscSynchronizedFlush(comm);
+  }
+  PetscFinalize();
+  exit(0);
+
+#else // old scheduling algorithm
+
   // recv_buff:= buffer for receiving 
   // recv_buff_pos:= positions in the receive buffer
   // recv_buff_pos_end:= end of receive buffer
@@ -241,7 +302,7 @@ void DistMap<Key,Val>::scatter() {
     }
     delete[] recv_buff;
   }
-  // MPI_Wait(&send_rq,&status);
+#endif
 
   // Delete all sent and received buffers
   for (k=0; k<size; k++) {
