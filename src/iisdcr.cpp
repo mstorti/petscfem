@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.26 2002/07/25 22:35:31 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.27 2002/07/27 02:52:27 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -219,7 +219,17 @@ int IISDMat::create_a() {
   // sub-partitioning the dof graph in the IISD matrix. 
   TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices_proc,INF);
 #undef INF
+  // o Number of subpartitions inside each processor. 
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
+  //o Chooses the preconditioning operator. 
+  TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco,0);
+  //o Number of iters in solving the preconditioning for the 
+  // interface problem when using \verb+use_interface_full_preco+. 
+  TGETOPTDEF_ND_PF(thash,int,interface_full_preco_maxits,5);
+  //o Flags whether or not print the convergence when solving the
+  // preconditioning for the interface problem when using
+  // \verb+use_interface_full_preco+.
+  TGETOPTDEF_ND_PF(thash,int,print_interface_full_preco_conv,0);
 
   local_graph.lgraph = lgraph;
   local_graph.init(n_loc_pre);

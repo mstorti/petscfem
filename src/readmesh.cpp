@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.48 2002/05/12 23:30:03 mstorti Exp $
+//$Id: readmesh.cpp,v 1.49 2002/07/27 02:52:27 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -756,9 +756,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // partitioning graph.
   TGETOPTDEF(mesh->global_options,int,max_partgraph_vertices,INF);
 #undef INF
-  //o Number of subpartitions inside each processor. 
-  TGETOPTDEF(mesh->global_options,int,iisd_subpart,1);
-  iisd_subpart = 1; // In order to deactivate subpartitioning at the hifg level
+  // o Number of subpartitions inside each processor. 
+  TGETOPTDEF(mesh->global_options,int,iisd_subpart,1); //nd
+  iisd_subpart = 1; // In order to deactivate subpartitioning at the high level
   
 //    // o Do not coalesce elements if the number of elements if below this
 //    // limit. 

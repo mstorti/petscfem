@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.17 2002/07/25 22:35:31 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.18 2002/07/27 02:52:27 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -181,6 +181,7 @@ int PFPETScMat::clean_factor_a() {
 int IISDMat::clean_factor_a() {
   ierr = PFPETScMat::clean_factor_a(); CHKERRQ(ierr); 
   ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
+  ierr = SLESDestroy_maybe(sles_ii); CHKERRQ(ierr); 
   ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   return 0;
 }
@@ -285,10 +286,8 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
     ierr = SLESSolveTrans(sles_ll,y_loc_seq,x_loc_seq,&its_);
     CHKERRQ(ierr); 
   } else {
-#if 1
     ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_);
     CHKERRQ(ierr); 
-#endif
   }
   
   // Pass to global vector: x_loc <- XL
@@ -644,10 +643,24 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
       ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
       ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
-      // printf("setting pc_lu_fill = %f\n",pc_lu_fill);
       ierr = PCLUSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
-      // ierr = PCLUSetUseInPlace(pc_ll); PF_CHKERRQ(ierr); // debug:=
 
+      if (use_interface_full_preco) {
+	ierr = SLESDestroy_maybe(sles_ii); PF_CHKERRQ(ierr); 
+	ierr = SLESCreate(PETSC_COMM_SELF,&sles_ii); PF_CHKERRQ(ierr); 
+	ierr = SLESSetOperators(sles_ii,A_II,
+				A_II,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
+	ierr = SLESGetKSP(sles_ii,&ksp_ii); PF_CHKERRQ(ierr); 
+	ierr = SLESGetPC(sles_ii,&pc_ii); PF_CHKERRQ(ierr); 
+	ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
+	if(print_interface_full_preco_conv) {
+	  ierr = KSPSetMonitor(ksp_ii,KSPDefaultMonitor,NULL);
+	  PF_CHKERRQ(ierr); 
+	}
+	ierr = KSPSetTolerances(ksp_ii,0.,0.,1.e10,
+				interface_full_preco_maxits); PF_CHKERRQ(ierr); 
+	ierr = PCSetType(pc_ii,PCJACOBI); PF_CHKERRQ(ierr); 
+      }
     }
 
     if (print_Schur_matrix) {
@@ -887,8 +900,16 @@ int iisd_jacobi_pc_apply(void *ctx,Vec x ,Vec y) {
 #define __FUNC__ "IISDMat::jacobi_pc_apply"
 int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   int ierr;
-  // Computes the componentwise division w = x/y. 
-  ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
+  if (use_interface_full_preco) {
+    int its;
+    // PetscPrintf(PETSC_COMM_WORLD,"Printing interface prec. convergence\n");
+    ierr = SLESSolve(sles_ii,x,w,&its);
+    // PetscPrintf(PETSC_COMM_WORLD,"Ends printing interface prec. convergence\n");
+    CHKERRQ(ierr);  
+  } else {
+    // Computes the componentwise division w = x/y. 
+    ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
+  }
   return 0;
 }
 

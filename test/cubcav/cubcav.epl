@@ -46,7 +46,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     $nstep = 2;
 } elsif ($case =~ /^iisd/) {
     $solver = "iisd";
-    $iisd_subpart = 2;
+    $iisd_subpart = 300;
     $maxits = 200;
     $nstep = 1;
     $iisd_subpart = $1 if $case=~/_sbp(\d*)/;
@@ -89,7 +89,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 20
+nstep 2
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
@@ -106,10 +106,13 @@ solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 60
+iisd_subpart 100
 maxits 100
 report_consumed_time
 activate_debug_print
+use_interface_full_preco 1
+print_interface_full_preco_conv 0
+interface_full_preco_maxits 5
 # activate_debug
 
 iisdmat_print_statistics

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $
+$Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $ 
+! # $Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $ 
+! # $Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.142 2002/07/26 18:09:00 mstorti Exp $ 
+  # $Id: notes.txt,v 1.143 2002/07/27 02:52:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4641,6 +4641,26 @@ casos.
 %
 14:14:14: El paso de poisson tambien coincide. 
 
+%===Fri Jul 26 18:48:01 GMT+3 2002 mstorti@spider
+%
+Esta andando bien el procsel. 
+%
+20:44:21: puedo correr malla de 30^3 con fractional step en spider.
+%
+21:11:15: para la malla de 10^3 con laplace el
+`use_full_diagonal_preco' mejora la convergencia en un factor 2 (hace
+la mitad de iteraciones). 
+%
+21:23:13: Con 30^3 tambien baja a la mitad. Sin embargo el costo es
+mayor, aparetemente porque itera demasiado en la interfase. 
+%
+23:38:17: Con una malla de 50^3 tarda unos 37secs eval y 80secs resol
+con `use_interface_full_preco', mientras que tarda 120secs sin
+`use_interface_full_preco'. 
+%
+23:45:37: Aumentando el iisd_subpart a 100 (estaba en 50) el tiempo de
+resolucion baja a 70 con `use_interface_full_preco=0' y a 50secs con
+`use_interface_full_preco=1'. Las iterciones bajan a la mitad.  
 
 
 %# Current line ===========  
