@@ -77,7 +77,7 @@ __END_HASH__
 
 #===========================================================
 ## Because we have no more surface integrators
-elemset visc_force_integrator <:=2*(1+$layers):>:
+elemset visc_force_integrator <:=2*(1+$layers):>
 gather_pos 0
 is_fat 0
 geometry "line2quad"
