@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.4 2003/11/14 22:21:12 mstorti Exp $
+//$Id: streamsw1d.cpp,v 1.5 2004/07/07 16:45:37 rodrigop Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -62,7 +62,7 @@ void streamsw1d_ff::start_chunk(int &options) {
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndimel,ndof,ndof);  
-  A_jac_dummy.set(0.).setel(1.,1,1,1).setel(-1.,1,2,2);
+  A_jac_dummy.set(0.).setel(0.,1,1,2).setel(1.,1,2,1);
 #endif
 }
 
@@ -135,6 +135,7 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
+  delta_sc = 1.;		// For smoothing 
   adv_mask = 1.;
   tmp_mask = 1.;
 
@@ -307,7 +308,7 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   ppg=0.;
   drdU.setel(signudn,1,1).setel(signudn,2,1)
     .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
-/* 
+  /* 
      if ((area<1.e-6) || (wl_width<1.e-7)) {
      tt=0.0;
      ppg=0.0;

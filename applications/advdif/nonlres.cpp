@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.3 2003/11/25 01:13:36 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.4 2004/07/07 16:44:19 rodrigop Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -7,12 +7,13 @@
 #include <src/getprop.h>
 #include <src/fastmat2.h>
 #include <src/cloud.h>
+#include <src/elemset.h>
 
 #include "advective.h"
 #include "nonlres.h"
 #include "nwadvdif.h"
 
-//extern TextHashTable *GLOBAL_OPTIONS;
+//extern Mesh *GLOBAL_MESH;
 
 NonLinearRes::~NonLinearRes() {};
 
@@ -105,15 +106,15 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   NSGETOPTDEF(double,lagrange_scale_factor,1.);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
-  // U is (U_{N},U_{N-1},..,U_{lagdof})
+  //o U is (U_{N},U_{N-1},..,U_{lagdof} U_{ref})
   if (comp_prof) matloc_prof.set(1.);
   nr = nres();
   //  AdvDiff_Abs_Nl_Res::init();
-  FastMat2 r(1,nr),lambda(3,nel-1,ndof,nr),jac(3,nr,ndof,nel);
+  FastMat2 r(1,nr),lambda(3,nel-2,ndof,nr),jac(3,nr,ndof,nel);
   jac.set(0.0);
   r.set(0.0);
   lambda.set(0.0);
-  U.set(0.0); U_innodes.resize(2,nel-1,ndof).set(0.0);
+  U.set(0.0); U_innodes.resize(2,nel-2,ndof).set(0.0);
   U_lagmul.resize(1,ndof).set(0.0);
   //////esto estaba en init()
   RI_.resize(2,nr,nel).set(0.);
@@ -123,18 +124,17 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   C_U_ref.resize(1,ndof);
   drdU_ref.resize(2,nr,ndof);  
   U_ref.resize(1,ndof);
-  xpe.resize(1,nel-2).set(0.);
-  cpe.resize(1,nel-2).set(0.);
+  xpe.resize(1,nel-3).set(0.);
+  cpe.resize(1,nel-3).set(0.);
   RI_tmp.resize(1,nr).set(0.);
   drdU_tmp.resize(2,nr,ndof).set(0.);
   C_U_tmp.resize(1,nr).set(0.); //un rango menor que las primitivas
   int pp=adv_diff_ff->dim();
   normaln.resize(1,pp);
   adv_diff_ff->start_chunk(ret_options); //ff ini
-  extr_cloud.init(nel-2,0,nel-3);
+  extr_cloud.init(nel-3,0,nel-4);
   double xne=0.;
-  //  int ip[]={0,1,2,3,4,5,6,7,8,9,10,11};
-  for (int i=1;i<nel-1;i++) {
+  for (int i=1;i<=nel-3;i++) {
     xne=-1.*i;
     xpe.setel(xne,i); 
   }
@@ -143,7 +143,7 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
 #define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,ndof,nel),res_pert(1,nr),U_pert(2,nel,ndof),
-    lambda_pert(3,nel-1,ndof,nr),_fd_jac(3,nr,ndof,nel);
+    lambda_pert(3,nel-2,ndof,nr),_fd_jac(3,nr,ndof,nel);
   res_fd_jac.set(0.0);res_pert.set(0.0);U_pert.set(0.0);lambda_pert.set(0.0);
   _fd_jac.set(0.0);
 #endif
@@ -161,21 +161,21 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
     matloc.set(0.0);
     R.set(0.0);
     if (comp_res) {
-      AdvDiff_Abs_Nl_Res::init();
+      init();
       element_hook(element);
       res(element,U,r,lambda,jac);
-      U_innodes.set(U.is(1,1,nel-1));
+      U_innodes.set(U.is(1,1,nel-2));
       U.rs();
-      U_lagmul.set(U.ir(1,nel));
+      U_lagmul.set(U.ir(1,nel-1));
       U.rs();
-      R.is(1,1,nel-1).prod(lambda,U_lagmul,1,2,-1,-1).scale(lagrange_scale_factor);
-      R.rs().ir(1,nel).is(2,1,nr).set(r)
+      R.is(1,1,nel-2).prod(lambda,U_lagmul,1,2,-1,-1).scale(lagrange_scale_factor);
+      R.rs().ir(1,nel-1).is(2,1,nr).set(r)
 	.axpy(U_lagmul,-lagrange_diagonal_factor*lagrange_residual_factor).rs();
-      matloc.is(1,1,nel-1).ir(3,nel).is(4,1,nr).set(lambda)
+      matloc.is(1,1,nel-2).ir(3,nel-1).is(4,1,nr).set(lambda)
 	.scale(-lagrange_scale_factor).rs();
-      jac.is(1,1,nr).is(2,1,ndof).is(3,1,nel-1);
-      matloc.ir(1,nel).is(3,1,nel-1).is(2,1,nr).ctr(jac,1,3,2).scale(-1.).rs();
-      matloc.ir(1,nel).ir(3,nel).d(2,4).is(2,1,nr)
+      jac.is(1,1,nr).is(2,1,ndof).is(3,1,nel-2);
+      matloc.ir(1,nel-1).is(3,1,nel-2).is(2,1,nr).ctr(jac,1,3,2).scale(-1.).rs();
+      matloc.ir(1,nel-1).ir(3,nel-1).d(2,4).is(2,1,nr)
 	.set(lagrange_diagonal_factor).rs();
       jac.rs();
       R.export_vals(element.ret_vector_values(*retval));
@@ -201,84 +201,106 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   extr_cloud.clear();
-
 }
 
 void AdvDiff_Abs_Nl_Res::init() {
   get_prop(normaln_prop,"normaln");
-  get_prop(U_ref_prop,"U_ref");
-  assert(nel>2);
+  //  get_prop(U_ref_prop,"U_ref");
+  assert(nel > 3);
   int ret_options=0;
+  /*
+    NSGETOPTDEF(string,vol_elemset,"none");
+    assert(vol_elemset.length()>0);
+    if (vol_elemset != "streamsw1d" || vol_elemset != "stream" || \
+    vol_elemset != "advdif_swfm2t") {
+    PetscPrintf(PETSC_COMM_WORLD,
+    "Invalid value for \"volume_elemset\" option\n"
+    "vol_elemset=\"%s\"\n",vol_elemset.c_str());
+    PetscFinalize();
+    exit(0);
+    }
+    Elemset *dummy_vol_elemset;
+    dummy_vol_elemset = GLOBAL_MESH->find(vol_elemset);
+    //check if found
+    PETSCFEM_ASSERT(dummy_vol_elemset,"Can't find volume element name: %s\n",
+    vol_elemset.c_str());
+    // dynamic_cast from Elemset to streamsw1d (NewElemset)
+    elemset_vol = dynamic_cast<const streamsw1d *>(dummy_vol_elemset);
+    delete dummy_vol_elemset;
+  */
 }
 
 void AdvDiff_Abs_Nl_Res::lag_mul_dof(int jr,int &node,int &dof) {
   //esto es por ahora
-  node=4;dof=jr;//creo que falta declararlas en la clase!!
+  node = 4;dof = jr;//creo que falta declararlas en la clase!!
 }
 
 void AdvDiff_Abs_Nl_Res::element_hook(ElementIterator &element){
   element_m = element;
-  assert(U_ref_prop.length==ndof);
-  U_ref.set(prop_array(element_m,U_ref_prop));
+  /* 
+     assert(U_ref_prop.length==ndof);
+     U_ref.set(prop_array(element_m,U_ref_prop));
+  */
   int pp=adv_diff_ff->dim();
-  assert(normaln_prop.length==pp);
+  assert(normaln_prop.length == pp);
   normaln.set(prop_array(element_m,normaln_prop));
 }
 
-void AdvDiff_Abs_Nl_Res::res(ElementIterator &element,FastMat2 &U,FastMat2 &r,
+void AdvDiff_Abs_Nl_Res::res(ElementIterator &element, FastMat2 &U, FastMat2 &r,
 			   FastMat2 &lambda, FastMat2 &jac) {
-  //  element_hook(element);
-  //  lambda.set(0.0);
   lambda.ir(1,1).eye();
   lambda.rs();
-  for (int j=1;j<nel+1;j++) {
+  for (int j=1;j<=nel;j++) {
     U.ir(1,j);
     adv_diff_ff->Riemann_Inv(U,normaln,RI_tmp,drdU_tmp,C_U_tmp);
+    if (j == nel) {
+      U_ref.set(U);
+      RI_ref.set(RI_tmp);
+      drdU_ref.set(drdU_tmp);
+      C_U_ref.set(C_U_tmp);
+    }
     U.rs();
     RI_.ir(2,j).set(RI_tmp).rs();
     C_U_.ir(2,j).set(C_U_tmp).rs();
     drdU_.ir(3,j).set(drdU_tmp).rs();
   }
   jac.set(drdU_);
-  adv_diff_ff->Riemann_Inv(U_ref,normaln,RI_ref,drdU_ref,C_U_ref);
-  double c,rj=0.,tmp=0.,tmp2=0.;  
+  double c, rj=0., tmp=0., tmp2=0.;  
   C_U_.ir(2,1);
-  for (int j=1;j<nr+1;j++) {
+  for (int j=1;j<=nr;j++) {
     c = C_U_.get(j);
-    assert(c!=0.0);
+    assert(c != 0.0);
     FastMat2::branch();
     if (c > 0.0){
       FastMat2::choose(0);
       RI_.ir(2,j);
-      rj=RI_.get(j);
+      rj = RI_.get(j);
       RI_.rs();
       RI_.ir(1,j);
-      for(int k=1;k<nel-1;k++) {
-	tmp=cpe.get(k);tmp2=RI_.get(k+1);
+      for(int k=1;k<nel-2;k++) {
+	tmp = cpe.get(k); tmp2 = RI_.get(k+1);
 	rj -= tmp*tmp2;
 	drdU_.ir(1,j).ir(3,k+1);
        	jac.ir(1,j).ir(3,k+1).set(drdU_).scale(-tmp).rs();
 	drdU_.rs();
       }
-      jac.ir(1,j).ir(3,nel).set(0.).rs();
+      jac.ir(1,j).ir(3,nel-1).set(0.).rs();
       RI_.rs();
       r.setel(rj,j);
     } else {
       FastMat2::choose(1);
       RI_.ir(2,1);
-      tmp=RI_.get(j);tmp2=RI_ref.get(j);
+      tmp = RI_.get(j);tmp2 = RI_ref.get(j);
       rj = tmp-tmp2;
       RI_.rs();
       r.setel(rj,j);
-      for(int k=1;k<nel;k++) {
+      for(int k=1;k<=nel-1;k++) {
 	jac.ir(1,j).ir(3,k+1);
 	jac.set(0.).rs();
       }
     }
     FastMat2::leave();
     RI_.rs();
-    //r.setel(rj,j);
-    //jac.rs();
   }
   C_U_.rs();
   jac.rs();

@@ -6,6 +6,7 @@
 #include "../../src/fem.h"
 #include "advective.h"
 #include <src/cloud.h>
+//#include "streamsw1d.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 class NonLinearRes : public NewElemset {
@@ -97,7 +98,7 @@ class AdvDiff_Abs_Nl_Res : public NonLinearRes {
   int nprops,nr;
   double gravity;
   // u and h for Riemman Invariant of reference prop = u.dot(normal)+_(2(uh)^1/2)
-  Property U_ref_prop ,normaln_prop;//normaln normal del nodo
+  Property /*U_ref_prop,*/ normaln_prop;//normaln normal del nodo
   // u and h for Riemman Invariant of reference, inflow or outflow
   FastMat2 U_ref, normaln;
   // to get properties of elements
@@ -106,6 +107,12 @@ class AdvDiff_Abs_Nl_Res : public NonLinearRes {
   NewAdvDifFF *adv_diff_ff;
   // extrapolation cloud
   Cloud extr_cloud;
+  /*  
+      // Pointer to Linked volume elemset
+      NewElemset *elemset_vol;
+      // Pointer to elements of volume elemset
+      ElementIterator element_vol;
+  */
 public:
   ASK_FUNCTION;
   NewAssembleFunction new_assemble;
@@ -125,10 +132,10 @@ public:
   void res(ElementIterator &element,FastMat2 &U,FastMat2 &r,FastMat2 &lambda,
 	   FastMat2 &jac);
   /// Constructor from the pointer to the flux function
-  AdvDiff_Abs_Nl_Res(NewAdvDifFF *adv_diff_ff_=NULL) : 
-    adv_diff_ff(adv_diff_ff_) {};
+  AdvDiff_Abs_Nl_Res(NewAdvDifFF *adv_diff_ff_=NULL/*,NewElemset *elemset_vol=NULL*/) : 
+    adv_diff_ff(adv_diff_ff_)/*, elemset_vol(elemset_vol_)*/ {};
   /// Destructor
-  ~AdvDiff_Abs_Nl_Res() {delete adv_diff_ff;};
+  ~AdvDiff_Abs_Nl_Res() {delete adv_diff_ff;/* delete elemset_vol;*/};
 };
 
 #endif

@@ -3,30 +3,28 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
-$case_name = 'canal1d' unless $case_name;
+$case_name = 'chiquito' unless $case_name;
 
-$nx=200;
-$Nx=$nx+1;
-$L=10;
+$nx = 100;
+$R = 200;
 $u0=0.;
 $h0=1.;
+$h = 1.;
 $alpha = 1.0;
-$Courant = 1.0;
-$h = $L/$Nx;
+$Courant = 0.5;
 $gravity = 9.81;
 $urms=sqrt($gravity*$h0);
 $Dt = $Courant*$h/$urms;
-$Tend = 10.;
+$Tend = 3.;
 #$Dt=0.005/3;
 $nstep = ceil($Tend/$Dt);
-#$nstep = 1;
-$wall_angle = 20;
-$pi = 3.14159;
+
+
 #__END_TRANSCRIPT__
-@vars = qw(wall_angle nx Nx L u0 h0 nstep case_name Courant alpha Tend Dt gravity);
+@vars = qw(R nx u0 h0 nstep case_name Courant alpha Tend Dt gravity);
 transcript("", @vars);	# print variables on output and transcript this block
-octave_export_vars(">canal1d.data.m.tmp",@vars);
-#system "octave -qH canal1d.m";
+octave_export_vars(">chiquito.data.m.tmp",@vars);
+system "octave -qH chiquito.m";
 :>//                            # ends ePerl block
 
 global_options
@@ -37,19 +35,19 @@ use_log_vars 0
 weak_form 1
 
 # time stepping
-nnwt 5
+nnwt 3
 <:pr('nstep'):>
 alpha 1
 steady 0
 
-initial_state "canal1d.ini.tmp"
+initial_state "chiquito.ini"
 
 # "rotary saving" 
-nsaverot 10
+nsaverot 1
 nfile 1
 nrec 10000
-save_file_pattern "canal1d%d.out005s3.tmp"
-save_file "save.state.tmp"
+save_file_pattern "chiquito%d.out.tmp"
+save_file "chiquito.save.state.tmp"
 
 tol_newton 0
 solver "petsc"
@@ -59,32 +57,46 @@ preco_type "lu"
 rtol 0
 atol 0
 dtol 1e10
-maxits 20
-Krylov_dim 150
+maxits 100
+Krylov_dim 100
 #print_linear_system_and_stop 1
-#solve_system 1
-#print_internal_loop_conv 1
+#solve_system 0
+print_internal_loop_conv 1
 <:pr('Dt'):>
-# tau_fac 0
-
+tau_fac 1
 
 __END_HASH__
 
 # ndim nu ndof
 nodes   2  3  2
-__INCLUDE__ canal1d.nod.tmp
-
+0.0 -1.0 0.0
+0.5 -0.5 0.0
+#0.0 1.0 0.0
+#0.5 0.5 0.0
+1.0 0.0 0.0
+1.5 0.0 0.0
+2.0 0.0 0.0
+2.5 0.0 0.0
+3.0 0.0 0.0
 __END_NODES__
 
 #===========================================================
-table physical_data
+table physical_data_1
 <:pr('gravity'):>
 friction_law "Chezy"
 Ch 110.
-shape "triangular"
-#radius 2
-#width 1.
-wall_angle <:=$wall_angle*$pi/180:>
+shape "rectangular"
+width 1.
+cfric 0.
+ndim 2
+__END_HASH__
+
+table physical_data_2
+<:pr('gravity'):>
+friction_law "Chezy"
+Ch 110.
+shape "rectangular"
+width 2.
 cfric 0.
 ndim 2
 __END_HASH__
@@ -93,25 +105,47 @@ __END_HASH__
 elemset streamsw1d 2
 geometry cartesian1d
 npg 2
-_table_include physical_data
+_table_include physical_data_1
 __END_HASH__
-__INCLUDE__ canal1d.con.tmp
+1 2
+2 3
+#3 4 
+#4 5
 __END_ELEMSET__
 
-elemset streamsw1d_abso 6
+elemset streamsw1d 2
+geometry cartesian1d
+npg 2
+_table_include physical_data_2
+__END_HASH__
+3 4
+4 5
+5 6
+6 7
+#5 6
+#6 7
+#7 8
+#8 9
+__END_ELEMSET__
+
+#if 0
+elemset streamsw1d_abso 5
 geometry cartesian1d
 lagrange_diagonal_factor 1.e-6
 #lagrange_residual_factor 1.0
-props normaln[1]
+props U_ref[2] normaln[1]
 _table_include physical_data
 __END_HASH__
 __INCLUDE__ canal1d.rest.tmp
 __END_ELEMSET__
+#endif
 
 end_elemsets
 
 fixa
-__INCLUDE__ canal1d.fixa.tmp
+1 1 .30
+#3 1 .30
+7 2 1.0
 __END_FIXA__
 
 #if 0
