@@ -13,12 +13,12 @@ $Nx = 50*$ref;                  # Number of elements along horiz. direction
 
 $gravity = 9.8;                 # gravity acceleration (magnitude)
 $uin = sqrt($gravity*$h1);      # velocity at inlet
-$Dt = 0.1;
-$patm = -$gravity*$y2;          # atmosferix pressure (taken at the
+$Dt = 0.03;
+$patm = 0.;			# atmosferix pressure (taken at the
                                 # restitution height). Should take into
                                 # account the velocity of the fluid at the outlet. 
 $p_const_bc = 1;                # Impose = patm on the free surface
-$fs_relax = 1;                  # relaxation factor for the 
+$fs_relax = 1.;			# relaxation factor for the 
                                 # free surface evolution eq. 
 $x_damp = $L1+0.5*$L2;          # a wave damper term is added for `x > x_damp'
 #$steady_state_file = 

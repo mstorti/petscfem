@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.9 2003/03/27 02:34:07 mstorti Exp $
+## $Id: spillway.m,v 1.10 2003/03/30 15:55:08 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
@@ -46,6 +46,9 @@ npc = rows(xfs);
 
 if initia
   xfs1 = [0      H1;
+	  0.025*L1 H1;
+	  0.05*L1 H1;
+	  0.10*L1 H1;
 	  0.2*L1 H1;
 	  0.4*L1 H1;
 	  L-0.7*L y2;
@@ -54,7 +57,7 @@ if initia
 	  L-0.2*L y2;
 	  L        y2];
   
-  for j=1:3
+  for j=1:6
     xpro = projectd(xfs1(j,:)',[0;1],1,"spillway_eq");
     xpro(2) = xpro(2) + h1;
     xfs1(j,:) = xpro';

@@ -1219,7 +1219,7 @@ tag: beta-2.94.pl28 on Fri, 12 Jul 2002 11:33:25 -0300 by mstorti in minerva.arc
 tag: beta-2.94.pl29 on Sun, 14 Jul 2002 00:07:36 -0300 by mstorti in spider
      > Runs big test with 60^3*5 = 1.08Melements in spider.
 ----------
-tag: beta-2.98 on Sun, 14 Jul 2002 09:23:19 -0300, by mstorti in spider
+tag: beta-2.98 on Sun, 14 Jul 2002 09:23:19 -0300 by mstorti in spider
      > Will branch the development of new version of Fractional-Step.
 ----------
 tag: beta-2.98.pl1 on Sun, 14 Jul 2002 13:48:31 -0300 by mstorti in spider
@@ -1240,7 +1240,7 @@ tag: beta-2.98.pl5 on Mon, 15 Jul 2002 21:22:41 -0300 by mstorti in spider
 tag: beta-2.98.pl6 on Mon, 15 Jul 2002 21:34:09 -0300 by mstorti in spider
      > Computes `A_prj' matrix 
 ----------
-tag: beta-2.99 on Tue, 16 Jul 2002 00:30:19 -0300, by mstorti in spider
+tag: beta-2.99 on Tue, 16 Jul 2002 00:30:19 -0300 by mstorti in spider
      > Runs fractional step
 ----------
 tag: beta-2.99.pl1 on Tue, 16 Jul 2002 21:14:39 -0300 by mstorti in spider
@@ -1249,7 +1249,7 @@ tag: beta-2.99.pl1 on Tue, 16 Jul 2002 21:14:39 -0300 by mstorti in spider
 tag: beta-2.99.pl2 on Tue, 16 Jul 2002 23:48:31 -0300 by mstorti in spider
      > Running large problem with `cubcav'
 ----------
-tag: beta-3.00 on Tue, 16 Jul 2002 23:49:35 -0300, by mstorti in spider
+tag: beta-3.00 on Tue, 16 Jul 2002 23:49:35 -0300 by mstorti in spider
      > Fractional-step is working
 ----------
 tag: beta-3.00.pl1 on Tue, 16 Jul 2002 23:55:48 -0300 by mstorti in spider
@@ -1340,7 +1340,7 @@ tag: beta-3.00.pl27 on Thu, 25 Jul 2002 00:32:43 -0300 by mstorti in spider
 tag: beta-3.00.pl28 on Thu, 25 Jul 2002 11:54:33 -0300 by mstorti in node1.beowulf.gtm
      > Runs 50^3 mesh with nsi_tet_les_fm2 in geronimo with the 5xP4 subcluster. 
 ----------
-tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300, by mstorti in minerva.arcride.edu.ar
+tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300 by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Runs all tests but those in the `aquifer' directory. 
 ----------
@@ -1385,7 +1385,7 @@ tag: beta-3.01.pl12 on Sun, 28 Jul 2002 11:45:36 -0300 by mstorti in spider
 tag: beta-3.01.pl13 on Sun, 28 Jul 2002 13:46:14 -0300 by mstorti in spider
      > Fixed some doc stuff.
 ----------
-tag: beta-3.02 on Sun, 28 Jul 2002 20:26:00 -0300, by mstorti in spider
+tag: beta-3.02 on Sun, 28 Jul 2002 20:26:00 -0300 by mstorti in spider
      > Rewritten hexasplit.
 ----------
 tag: beta-3.02.pl1 on Mon, 29 Jul 2002 00:13:59 -0300 by mstorti in spider
@@ -1473,7 +1473,7 @@ tag: beta-3.02.pl25 on Sun, 18 Aug 2002 18:27:30 -0300 by mstorti in spider
 tag: beta-3.02.pl26 on Sun, 18 Aug 2002 19:42:19 -0300 by mstorti in spider
      > Runs all tests, some fixes.
 ----------
-tag: beta-3.03 on Sun, 18 Aug 2002 20:40:26 -0300, by mstorti in spider
+tag: beta-3.03 on Sun, 18 Aug 2002 20:40:26 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs all tests.
      > Runs all tests with BOPT=O_c++
@@ -1559,7 +1559,7 @@ tag: beta-3.03.pl23 on Thu,  5 Sep 2002 19:28:59 -0300 by mstorti in minerva.arc
 tag: beta-3.03.pl24 on Thu,  5 Sep 2002 23:50:35 -0300 by mstorti in spider
      > Runs allmost all tests. 
 ----------
-tag: beta-3.04 on Fri,  6 Sep 2002 11:35:46 -0300, by mstorti in minerva.arcride.edu.ar
+tag: beta-3.04 on Fri,  6 Sep 2002 11:35:46 -0300 by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Updated to PETSc 2.1.3
 ----------
@@ -1627,7 +1627,7 @@ tag: beta-3.04.pl19 on Fri, 20 Sep 2002 18:26:45 -0300 by mstorti in minerva.arc
 tag: beta-3.04.pl20 on Fri, 20 Sep 2002 19:51:44 -0300 by mstorti in spider
      > Can have 0 weight processors. 
 ----------
-tag: beta-3.05 on Fri, 20 Sep 2002 23:21:29 -0300, by mstorti in spider
+tag: beta-3.05 on Fri, 20 Sep 2002 23:21:29 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Updated to PETSc 2.1.3
      > Fixed the `KSPGMRESSetOrthogonalization()' bug. 
@@ -1694,7 +1694,7 @@ tag: beta-3.05.pl16 on Tue,  8 Oct 2002 17:03:13 -0300 by mstorti in minerva.arc
 tag: beta-3.05.pl17 on Wed,  9 Oct 2002 10:38:53 -0300 by mstorti in minerva.arcride.edu.ar
      > Aded `bcconv' test from Beto.
 ----------
-tag: beta-3.06 on Thu, 10 Oct 2002 20:38:40 -0300, by mstorti in spider
+tag: beta-3.06 on Thu, 10 Oct 2002 20:38:40 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Modified test for 0-weight proc.
      > Changed printing dof statistics for IISD
@@ -1744,7 +1744,7 @@ tag: beta-3.06.pl11 on Sat,  2 Nov 2002 17:52:08 -0300 by mstorti in spider
 tag: beta-3.06.pl12 on Sat,  2 Nov 2002 22:35:25 -0300 by mstorti in spider
      > Runs all tests
 ----------
-tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300, by mstorti in spider
+tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Merged some fixes from hydrology module
      > Some fixes related with ROSI interaction. 
@@ -1763,7 +1763,7 @@ tag: beta-3.07.pl1 on Sun,  3 Nov 2002 06:37:39 -0300 by mstorti in spider
 tag: beta-3.07.pl2 on Sun,  3 Nov 2002 08:04:30 -0300 by mstorti in spider
      > Passed `fastmat2' tests to `test/fastmat2'
 ----------
-tag: beta-3.08 on Tue,  5 Nov 2002 19:09:56 -0300, by mstorti in spider
+tag: beta-3.08 on Tue,  5 Nov 2002 19:09:56 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Rewritten example `text/texthash/thash2.cpp' for TextHashTable::find()
      > Fixed many warnings that were issued with (possibly?) `g++ -pedantic'
@@ -1823,7 +1823,7 @@ tag: beta-3.08.pl17 on Mon,  2 Dec 2002 16:05:57 -0300 by mstorti in node1.beowu
 tag: beta-3.08.pl18 on Mon,  2 Dec 2002 16:09:42 -0300 by mstorti in node1.beowulf.gtm
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
 ----------
-tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.gtm
+tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300 by mstorti in node1.beowulf.gtm
      > -- STABLE VERSION -- 
      > Visualization with DX
      > Can use LES without the van Driest dmping factor. 
@@ -1834,7 +1834,7 @@ tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.g
      > Added FastMat2::rcp() function.
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
 ----------
-tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.gtm
+tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300 by mstorti in node1.beowulf.gtm
      > -- STABLE VERSION -- 
      > Visualization with DX
      > Can use LES without the van Driest dmping factor. 
@@ -1886,7 +1886,7 @@ tag: beta-3.09.pl11 on Thu, 12 Dec 2002 17:30:38 -0300 by mstorti in minerva.arc
 tag: beta-3.09.pl12 on Thu, 12 Dec 2002 23:36:19 -0300 by mstorti in spider
      > Added doc for `mesh_move'
 ----------
-tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300, by mstorti in minerva.arcride.edu.ar
+tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300 by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Runs mesh movement with very large deformation example (95% on step.epl) in 40 steps. 
      > Working on the `mesh_move' with analytic computation of eigenvalues. 
@@ -1943,7 +1943,7 @@ tag: beta-3.10.pl15 on Wed, 18 Dec 2002 17:59:47 -0300 by mstorti in minerva.arc
 tag: beta-3.10.pl16 on Wed, 18 Dec 2002 18:32:31 -0300 by mstorti in minerva.arcride.edu.ar
      > Added tests for NS genload
 ----------
-tag: beta-3.11 on Wed, 18 Dec 2002 21:56:52 -0300, by mstorti in spider
+tag: beta-3.11 on Wed, 18 Dec 2002 21:56:52 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs cone advection example. 
      > Runs test for advection at the diagonal.  
@@ -1975,7 +1975,7 @@ tag: beta-3.11.pl5 on Sun, 22 Dec 2002 20:13:26 -0300 by mstorti in spider
 tag: beta-3.11.pl6 on Mon, 23 Dec 2002 07:57:19 -0300 by mstorti in spider
      > Runs all test but I had to change the constraints in newff/newff.m
 ----------
-tag: beta-3.12 on Mon, 23 Dec 2002 07:58:26 -0300, by mstorti in spider
+tag: beta-3.12 on Mon, 23 Dec 2002 07:58:26 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Added plate example. 
      > Fixing problems with circular constraints. 
@@ -1992,7 +1992,7 @@ tag: beta-3.12.pl2 on Wed, 25 Dec 2002 21:31:40 -0300 by mstorti in spider
 tag: beta-3.12.pl3 on Thu, 26 Dec 2002 07:55:26 -0300 by mstorti in spider
      > Runs OK all tests except those in test/sector
 ----------
-tag: beta-3.13 on Thu, 26 Dec 2002 11:36:50 -0300, by mstorti in minerva.arcride.edu.ar
+tag: beta-3.13 on Thu, 26 Dec 2002 11:36:50 -0300 by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Now can have more general constraints and fixations. 
      > Runs OK plate with coupling with exterior potential solution 
@@ -2039,7 +2039,7 @@ tag: beta-3.13.pl11 on Wed,  1 Jan 2003 22:44:53 -0300 by mstorti in spider
 tag: beta-3.13.pl12 on Thu,  2 Jan 2003 00:08:56 -0300 by mstorti in spider
      > Passes all tests in BOPT=g_c++ mode
 ----------
-tag: beta-3.14 on Thu,  2 Jan 2003 07:57:29 -0300, by mstorti in spider
+tag: beta-3.14 on Thu,  2 Jan 2003 07:57:29 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Working on mesh generation for cylinder. 
      > Implemented Octave multiblock `mesher' 
@@ -2215,7 +2215,7 @@ tag: beta-3.14.pl51 on Sat, 25 Jan 2003 12:29:10 -0300 by mstorti in spider
 tag: beta-3.14.pl52 on Sat, 25 Jan 2003 14:26:34 -0300 by mstorti in spider
      > Added hook to advdif. Compiles OK
 ----------
-tag: beta-3.15 on Sat, 25 Jan 2003 18:31:49 -0300, by mstorti in spider
+tag: beta-3.15 on Sat, 25 Jan 2003 18:31:49 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Modified strategy for choosing node to be eliminated in constraints. 
      > Runs cylinder example with viscous/potential coupling. 
@@ -2302,7 +2302,7 @@ tag: beta-3.15.pl21 on Fri,  7 Feb 2003 20:18:56 -0300 by mstorti in spider
 tag: beta-3.15.pl22 on Fri,  7 Feb 2003 22:08:51 -0300 by mstorti in spider
      > Coding auto-naming of elemsets. 
 ----------
-tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300, by mstorti in spider
+tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Running vortex tube example. 
      > Runs vtube with `flow_rate_controller' (hook plus boundary condition). 
@@ -2347,7 +2347,7 @@ tag: beta-3.16.pl10 on Tue, 11 Feb 2003 10:25:14 -0300 by mstorti in spider
 tag: beta-3.16.pl11 on Tue, 11 Feb 2003 21:36:43 -0300 by mstorti in spider
      > Automatically detects quads, cubes, triangles, tetras and prisms. 
 ----------
-tag: beta-3.17 on Wed, 12 Feb 2003 09:06:21 -0300, by mstorti in spider
+tag: beta-3.17 on Wed, 12 Feb 2003 09:06:21 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Coded better protocol for DX.
      > Checked that runs in parallel. 
@@ -2394,7 +2394,7 @@ tag: beta-3.17.pl9 on Mon, 17 Feb 2003 09:39:40 -0300 by mstorti in spider
 tag: beta-3.17.pl10 on Mon, 17 Feb 2003 11:53:36 -0300 by mstorti in spider
      > Moved all tests (oscplate, plano, idmap) to subdirs in test/
 ----------
-tag: beta-3.18 on Mon, 17 Feb 2003 11:57:38 -0300, by mstorti in spider
+tag: beta-3.18 on Mon, 17 Feb 2003 11:57:38 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Changed 2002 -> 2003 in copyright files, etc...
      > Aborts `synchronizedly' if error in reading connectivities 

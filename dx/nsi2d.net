@@ -1,5 +1,5 @@
 //
-// time: Wed Mar 26 21:09:00 2003
+// time: Sat Mar 29 20:02:27 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -24,13 +24,13 @@ macro main(
     // 
     // node Sequencer[1]: x = 80, y = 20, inputs = 7, label = Sequencer
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Sequencer_1"
-    // input[4]: defaulting = 1, visible = 1, type = 1, value = 0
-    // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
+    // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
+    // input[5]: defaulting = 0, visible = 1, type = 1, value = 10000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 1 0 1000 1 }
     // page group: import
     // vcr[1]: min = 0, max = 1000, beg = 0, end = 1000, cur = 0, inc = 1, loop = on, step = off, pal = off
-    // window: position = (0.5112,0.0067), size = 0.3500x0.1333
+    // window: position = (0.5637,0.0083), size = 0.3500x0.1333
     //
     main_Sequencer_1_in_3 = @frame;
 main_Sequencer_1_out_1[cache: 2] = 
@@ -44,15 +44,14 @@ main_Sequencer_1_out_1[cache: 2] =
     main_Sequencer_1_in_7
     ) [instance: 1, cache: 1];
     // 
-    // node Format[2]: x = 100, y = 100, inputs = 3, label = Format
+    // node Format[2]: x = 100, y = 100, inputs = 2, label = Format
     // input[1]: defaulting = 0, visible = 1, type = 32, value = "spiller.state_%d.tmp"
     // page group: import
     //
 main_Format_2_out_1[cache: 0] = 
     Format(
     main_Format_2_in_1,
-    main_Sequencer_1_out_1,
-    main_Format_2_in_3
+    main_Sequencer_1_out_1
     ) [instance: 2, cache: 1];
     // 
     // node ExtProgImport[1]: x = 40, y = 180, inputs = 7, label = ExtProgImport
@@ -383,12 +382,12 @@ main_Caption_2_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_2"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = -49.646732
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 719.37842
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = -2.0
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 1.7425439
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -49.646732 719.37842 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = -49.646732
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 719.37842
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -2.0 1.7425439 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = -2.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.7425439
     // page group: scalar
     // window: position = (0.4075,0.0650), size = 0.6875x0.5000
     //
@@ -765,20 +764,20 @@ main_Compute_8_out_1[cache: 0] =
     // node Image[4]: x = 160, y = 640, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [34.1685 73.6064 -9.96095e-06]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [34.1685 73.6064 191.755]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 69.4923
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [24.6787 71.0982 0.000116641]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [24.6787 71.0982 190.918]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 50.2483
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 778
-    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.688303
+    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.688
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 20.5412
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 14.9937
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
     // input[16]: defaulting = 1, visible = 0, type = 32, value = "none"
     // input[17]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[18]: defaulting = 1, visible = 0, type = 1, value = 1
-    // input[19]: defaulting = 0, visible = 0, type = 3, value = 0
+    // input[19]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[21]: defaulting = 1, visible = 1, type = 3, value = NULL
     // input[29]: defaulting = 0, visible = 0, type = 3, value = 0
     // input[41]: defaulting = 0, visible = 0, type = 32, value = "none"
@@ -864,8 +863,8 @@ CacheScene(main_Image_4_in_1, main_Image_4_out_1, main_Image_4_out_2);
 main_Sequencer_1_in_1 = "Sequencer_1";
 main_Sequencer_1_in_2 = NULL;
 main_Sequencer_1_in_3 = NULL;
-main_Sequencer_1_in_4 = NULL;
-main_Sequencer_1_in_5 = 1000;
+main_Sequencer_1_in_4 = 0;
+main_Sequencer_1_in_5 = 10000;
 main_Sequencer_1_in_6 = NULL;
 main_Sequencer_1_in_7 = { 0 1000 1 0 1000 1 };
 main_Sequencer_1_out_1 = NULL;
@@ -875,7 +874,6 @@ main_Sequencer_1_out_1 = NULL;
 @endframe   = 1000;
 @deltaframe = 1;
 main_Format_2_in_1 = "spiller.state_%d.tmp";
-main_Format_2_in_3 = NULL;
 main_Format_2_out_1 = NULL;
 main_ExtProgImport_1_in_1 = 1;
 main_ExtProgImport_1_in_2 = "";
@@ -981,13 +979,13 @@ main_Colormap_2_in_8 = NULL;
 main_Colormap_2_in_9 = NULL;
 main_Colormap_2_in_10 = NULL;
 main_Colormap_2_in_11 = NULL;
-main_Colormap_2_in_12 = { -49.646732 719.37842 };
+main_Colormap_2_in_12 = { -2.0 1.7425439 };
 main_Colormap_2_in_13 = NULL;
 main_Colormap_2_in_14 = NULL;
 main_Colormap_2_in_15 = NULL;
 main_Colormap_2_in_16 = NULL;
-main_Colormap_2_in_17 = -49.646732;
-main_Colormap_2_in_18 = 719.37842;
+main_Colormap_2_in_17 = -2.0;
+main_Colormap_2_in_18 = 1.7425439;
 main_Colormap_2_in_19 = NULL;
 main_Colormap_2_out_1 = NULL;
 main_Color_1_in_3 = NULL;
@@ -1428,11 +1426,11 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [34.1685 73.6064 -9.96095e-06];
-main_Image_4_in_6 = [34.1685 73.6064 191.755];
-main_Image_4_in_7 = 69.4923;
+main_Image_4_in_5 = [24.6787 71.0982 0.000116641];
+main_Image_4_in_6 = [24.6787 71.0982 190.918];
+main_Image_4_in_7 = 50.2483;
 main_Image_4_in_8 = 778;
-main_Image_4_in_9 = 0.688303;
+main_Image_4_in_9 = 0.688;
 main_Image_4_in_10 = [0 1 0];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;

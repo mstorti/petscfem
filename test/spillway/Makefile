@@ -1,17 +1,21 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2003/03/27 02:34:07 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2003/03/30 15:55:08 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
-default: spillway
-
-tests: 
+default: wavei
 
 spillway:  alehook.efn fifos
 	$(MAKE) CASE_NAME=spillway run
 
 spillway_mesh:
 	initia=0 octave -qH spillway.m
+
+wavei:
+	$(MAKE) initia=1 wave
+
+wave:  alehook.efn fifos
+	$(MAKE) CASE_NAME=wave run
 
 SRCS = inviscid.cpp
 PETSCFEM_DIR = ../..

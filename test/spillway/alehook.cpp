@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.7 2003/03/25 22:36:15 mstorti Exp $
+//$Id: alehook.cpp,v 1.8 2003/03/30 15:55:08 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -175,13 +175,20 @@ void ale_hook2::time_step_post(double time,int step,
     int nu = mesh->nodedata->nu;
     double d;
     double *nodedata = mesh->nodedata->nodedata;
+    int debug=0;
     for (int k=0; k<nnod; k++) {
       for (int j=0; j<ndim; j++) {
 	fscanf(fid,"%lf",&d);
 	*nodedata++ = xnod0.e(k,j) + d;
+	if (debug) printf("x0 %f, d %f",xnod0.e(k,j),d);
       }
-      for (int j=ndim; j<nu; j++) fscanf(fid,"%lf",&d);
+      if (debug) printf("\n");
     }
+#if 0
+    nodedata = mesh->nodedata->nodedata;
+    for (int k=0; k<nnod; k++)
+	printf("node %d, x,y: %f %f\n",k+1,nodedata[k*nu+0],nodedata[k*nu+1]);
+#endif
   }
   int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSC_COMM_WORLD);
   assert(!ierr);
@@ -286,6 +293,7 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void ale_mmv_hook::time_step_pre(double time,int step) {
+  PetscPrintf(PETSC_COMM_WORLD,"ALE_MMV_HOOK: step %d, time_step_pre() starts.\n",step);
   int ierr;
   // verify step sent by NS run
   int step_sent = int(read_doubles(ns2mmv,"step"));
@@ -314,23 +322,28 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     int indx = q->second;
     double v, vn_tmp=0., n2=0.;
     // Compute normal component of velocity
-    // printf("node %d, vel, nor ",node);
+    int debug = 0;
+    if (debug) printf("node %d, vel, nor ",node);
     tokens.clear();
     tokenize(line.str(),tokens);
     assert(tokens.size()==ndim+1);
     for (int j=0; j<ndim; j++) {
       string2dbl(tokens[j],v);
       double n = spines.e(indx,j);
-      // printf(" %f %f",v,n);
+      if (debug) printf(" %f %f",v,n);
       vn_tmp += v*n;
       n2 += n*n;
     }
-    // printf("\n");
+    if (debug) printf(", vn_tmp: %f\n",vn_tmp);
     double tol = 1e-5;
     assert(fabs(n2-1.0)<tol);
-    for (int j=0; j<ndim; j++) displ.e(indx,j) += fs_relax*Dt*vn_tmp*spines.e(indx,j);
+    for (int j=0; j<ndim; j++) {
+      displ.e(indx,j) += fs_relax*Dt*vn_tmp*spines.e(indx,j);
+    }
+    if (debug) printf("%f %f\n",displ.e(indx,0),displ.e(indx,1));
   }
   fclose(fid);
+  PetscPrintf(PETSC_COMM_WORLD,"ALE_MMV_HOOK: time_step_pre() ends.\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

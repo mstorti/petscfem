@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.8 2002/12/11 18:48:02 mstorti Exp $
+//$Id: elast.cpp,v 1.9 2003/03/30 15:55:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,8 +14,11 @@
 
 class MyFun2 : public FastMat2_funm {
 public:
-  double f(double l) { return pow(l,-0.3); }
-  // double f(double l) { return 1.; }
+  // Some kind of `hardening'
+  // double f(double l) { return pow(l,-0.3); }
+
+  // No hardening at all
+  double f(double l) { return 1.; }
 } my_fun2;
 
 #if 0
@@ -100,10 +103,8 @@ void elasticity::element_connector(const FastMat2 &xloc,
     
     double detJaco = Jaco.det();
     if (detJaco <= 0.) {
-      printf("Jacobian of element %d is negative or null\n"
-	     " Jacobian: %f\n",elem,detJaco);
-      PetscFinalize();
-      exit(0);
+      PETSCFEM_ERROR("Jacobian of element %d is negative or null\n"
+		      " Jacobian: %f\n",elem,detJaco);
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
     iJaco.inv(Jaco);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.24 2003/03/26 18:43:24 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.25 2003/03/30 15:55:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -257,7 +257,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 matlocmomther(3,nel,ndim,nel);
 
   double tmp12;
-  double nu_eff, mu_eff, mu_l , kappa_eff, Pr_t;
+  double nu_eff, mu_eff, mu_l , kappa_eff;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: fifo.cpp,v 1.1 2002/12/30 03:06:31 mstorti Exp $
+// $Id: fifo.cpp,v 1.2 2003/03/30 15:55:08 mstorti Exp $
 #include "./fifo.h"
 #include <cstdlib>
 
@@ -35,9 +35,15 @@ void read_doubles(FILE *fid,const char *name, vector<double> &v,
   // if (!line) 
   // line = (char *)malloc(N*sizeof(char));
   int nread = getline(&line, &N, fid);
-  assert(nread!=-1);
+  if(nread==-1) {
+    printf("read_doubles: can't read a line, target \"%s\"\n",name);
+    abort();
+  }
   read_doubles(line,name,v);
-  if (n>=0) assert(v.size()==n);
+  if (n>=0 && v.size()!=n) {
+    printf("read_doubles: not read correct number of doubles, target \"%s\"\n",name);
+    abort();
+  }
 }
 
 double read_doubles(FILE *fid,const char *name) {
