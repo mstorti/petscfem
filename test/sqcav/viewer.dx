@@ -1,7 +1,31 @@
 #-*- shell-script -*-
-<: require './data.pl';
+<: 
+$ndim=2;
 $N=20;
 $nnod = ($N+1)**2;
+$in = "sqcav.con.tmp";
+$view_v = 0;
+
+open IN,$in;
+open OUT,">sqcav.con0.tmp";
+while (<IN>) {
+    my @l = split " ";
+    for my $ll (@l) { $ll = $ll-1; }
+    print OUT "$l[0] $l[1] $l[3] $l[2]\n";
+}
+close IN;
+close OUT;
+
+open IN,"outvector0.out";
+open OUT,">results.tmp";
+while (<IN>) {
+    my @l = split " ";
+    if ($view_v) { print OUT "$l[0] $l[1]\n" ; } 
+    else { print OUT "$l[2]\n" ; } 
+}
+close IN;
+close OUT;
+
 :>//
 # The following example describes an irregular grid. Note that the values
 # of the "positions" component and "connections" component are irregular,
@@ -12,19 +36,20 @@ object "nodes" class array type float rank 1 shape 2
          items <:=$nnod:> data file sqcav.nod.tmp
 
 # The irregular connections, which are tetrahedra
-object 2 class array type int rank 1 shape 4 
-        items <:=5*$Nx*$Ny*$Nz:> data file stabi.con.tmp
+object "icone" class array type int rank 1 shape 4 
+        items <:=$N**2:> data file sqcav.con0.tmp
 
 attribute "element type" string "quads"
 attribute "ref" string "positions"
 # The data, which is in a one-to-one correspondence with the positions
-object 3 class array type float rank 1 shape 4 items <:=$nnod:> data file outvector0.out
+object "result" class array type float rank 1 
+        shape <:=($view_v ? $ndim : 1):> items <:=$nnod:> data file results.tmp
 
 attribute "dep" string "positions"
 # the field, with three components: "positions", "connections", and
 # "data"
 object "irregular positions irregular connections" class field
-component "positions" value 1
-component "connections" value 2
-component "data" value 3
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "result"
 end
