@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.6 2001/06/01 03:30:50 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.7 2001/06/01 18:56:12 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -112,8 +112,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       R.rs().ir(1,2).is(2,1,nr).set(r).rs();
       
-      matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda).rs();
-      matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).rs();
+      matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda).scale(-1.).rs();
+      matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).scale(-1.).rs();
 
       R.export_vals(&(RETVAL(ielh,0,0)));
       // matloc.set(0.);
