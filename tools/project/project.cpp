@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.9 2005/02/25 01:07:49 mstorti Exp $
+// $Id: project.cpp,v 1.10 2005/02/25 01:16:13 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -50,6 +50,7 @@ int main() {
   int nd1 = ndim+1;
   FastMat2 C(2,nd1,nd1),C2(2,nd1,nd1),
     invC(2,nd1,nd1), invC2(2,nd1,nd1),
+    invCt(2,nd1,nd1),
     x2(1,ndim),x12(1,ndim),
     x13(1,ndim),x1(1,ndim),
     nor(1,ndim),L(1,ndim+1),
@@ -80,10 +81,12 @@ int main() {
       for (int j=0; j<ndim; j++)
 	restricted[j] = 0;
       invC.inv(C);
-      invC.ir(1,nd1).set(0.).rs();
       C2.set(C);
       b.print("b");
       C.print("C");
+      invCt.ctr(invC,2,1).scale(-1.0);
+      invCt.ir(1,nd1).set(0.).rs();
+      invCt.print("invCt");
       int iter=0;
       while(true) {
 	iter++;
@@ -97,13 +100,13 @@ int main() {
 	    neg=1;
 	    restricted[j-1]=1;
 	    C2.ir(2,j);
-	    C.ir(2,j);
-	    C2.set(C);
+	    invCt.ir(2,j);
+	    C2.set(invCt);
 	  }
 	}
 	if (!neg || iter>ndim) break;
 	C2.rs();
-	C.rs();
+	invCt.rs();
       }
       printf("converged on iters %d\n",iter);
     }
