@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.6 2001/09/21 16:54:32 mstorti Exp $
+// $Id: sparse.h,v 1.7 2001/09/21 19:06:22 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -44,7 +44,10 @@ namespace Sparse {
     /// Get element at specified position
     double get(int j) const;
     /// Get a subvector of elements at position I
-    void get(const Indx &I,Vec &V) const; 
+    void get(const Indx &I,Vec &v) const; 
+
+    /// Copy
+    Vec & copy(const Vec &v) {*this = v; return *this;}; 
 
     /// Set element at position j
     Vec & set(int j,double v);
@@ -115,6 +118,10 @@ namespace Sparse {
 
     /// Get element at specified position
     double get(int j,int k) const;
+    /// Get row
+    void getr(int j,Vec & v) const;
+    /// Get rows
+    void getr(Indx J,Mat & v) const;
     /// Set element at position j
     Mat & set(int j,int k,double v);
     /// Set row j
@@ -127,6 +134,8 @@ namespace Sparse {
 
     /// Resize vectors, truncates elements if greater than this value
     Mat & resize(int m,int n);
+    /// Clears all elements
+    Mat & clear() {map<int,Vec>::clear(); return *this;}
   };
 
 }
