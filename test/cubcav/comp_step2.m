@@ -14,20 +14,23 @@ cache.file_pattern = "STEPS/cubcav.state_%d.tmp";
 cache.size = 5;
 system("make fifo");
 fifo = "comp_server.fifo";
-fid = fopen(fifo,"r");
-if fid==-1
-  printf("couldn't open fifo");
-  return;
-endif
 
 while 1
 
+  fid = fopen(fifo,"r");
+  if fid==-1
+    printf("couldn't open fifo");
+    return;
+  endif
   printf("Waiting for step number at %s\n",fifo);
   [dx_step,count] = fscanf(fid,"%d");
+  fclose(fid);
   if count!=1; 
     printf("not found integer on fifo!!\n");
     continue;
   endif
+  printf("Received step %d\n",dx_step);
+  if dx_step<0; break; endif
   rest = rem(dx_step,refine);
   sss = pf_start_step + floor(dx_step/refine);
   alpha = rest/refine;
