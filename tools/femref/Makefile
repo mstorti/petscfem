@@ -15,6 +15,7 @@ SRCS := femref.cpp hasher.cpp myhash.cpp myhash2.cpp
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
+include makefilec.d
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
@@ -34,5 +35,17 @@ myhash.bin: myhash.o hasher.o
 
 myhash2.bin: myhash2.o hasher.o
 	g++ -o $@ $^
+
+myhash3.bin: myhash3.o hasher.o
+	g++ -o $@ $^
+
+md5.bin:
+	gcc -o md5 md5.c md5r.c
+
+trymd5.bin: trymd5.c md5r.c
+	gcc -g -o $@ $^
+
+cdepend:
+	gcc -MM *.c > makefilec.d
 
 #s
