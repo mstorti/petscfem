@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.47 2003/09/11 17:47:14 mstorti Exp $
+//$Id: nsi_tet.h,v 1.47.10.1 2003/12/03 15:30:01 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -48,6 +48,12 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_les_asm : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_keps : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
@@ -68,6 +74,13 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class bcconv_nsther_fm2 : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class bcconv_nsasm_fm2 : public Elemset { 
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
