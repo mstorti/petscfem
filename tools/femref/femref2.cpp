@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.14 2004/12/14 23:29:35 mstorti Exp $
+// $Id: femref2.cpp,v 1.15 2004/12/14 23:47:09 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -545,7 +545,7 @@ refine(RefineFunction f) {
     while(!done) {
       w = go_stack.begin();
       // here visit w...
-      ElemRef::iterator q, qs, qfather;
+      ElemRef::iterator q, qs, qrsib, qfather;
       q = split_stack.front();
       int j = split_indx_stack.front();
       printf("level %d, sibling %d,",go_stack.size()-1,j);
@@ -613,14 +613,14 @@ refine(RefineFunction f) {
 	    ws->make_canonical();
 
 	    // Find next node on the splitting tree or end()
-	    qs = qfather.lchild();
-	    while (qs != etree.end()) {
-	      if (qs->so_indx >= jsib) break;
-	      qs++;
+	    qrsib = q;
+	    while (qrsib != etree.end()) {
+	      if (qrsib->so_indx >= jsib) break;
+	      qrsib++;
 	    }
 
 	    // Push new state in the stacks
-	    split_stack.push_front(qs);
+	    split_stack.push_front(qrsib);
 	    split_indx_stack.push_front(jsib);
 	    break;
 	  }
