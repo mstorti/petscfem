@@ -1463,3 +1463,6 @@ tag: beta-3.02.pl22 on Sat, 17 Aug 2002 19:57:06 -0300 by mstorti in spider
 tag: beta-3.02.pl23 on Sun, 18 Aug 2002 12:04:28 -0300 by mstorti in spider
      > Included .cvsignore in `test' directories.
      > Added `-n' option to `runtests.pl'.
+----------
+tag: beta-3.02.pl24 on Sun, 18 Aug 2002 16:21:01 -0300 by mstorti in spider
+     > Runs all tests safe for the hydrology module.
