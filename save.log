@@ -1981,3 +1981,6 @@ tag: beta-3.12 on Mon, 23 Dec 2002 07:58:26 -0300, by mstorti in spider
      > Fixing problems with circular constraints. 
      > Added test for cyclic constraints.
      > Now FastMat2::inv() uses lapack
+----------
+tag: beta-3.12.pl1 on Wed, 25 Dec 2002 19:16:28 -0300 by mstorti in spider
+     > Now can have more general constraints and fixations. 
