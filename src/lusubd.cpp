@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.11 2001/07/21 16:50:48 mstorti Exp $
+//$Id: lusubd.cpp,v 1.12 2001/07/22 14:04:58 mstorti Exp $
 
 #include <typeinfo>
 #ifdef RH60
@@ -470,11 +470,50 @@ void IISDMat::set_value(int row,int col,Scalar value,
 #undef __FUNC__
 #define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
 void IISDMat::solve(Vec res,Vec dx) {
+      
   int ierr,kloc,itss;
   double *res_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a,scal;
+  Vec res_i,x_i;
   if (n_int_tot > 0 ) {
+    ierr = VecCreateMPI(PETSC_COMM_WORLD,n_int,PETSC_DETERMINE,&res_i);
+    PETSCFEM_ASSERT0(ierr==0,"Error creating `res_i' vector\n"); 
+    ierr = VecDuplicate(res_i,&x_i);
+    PETSCFEM_ASSERT0(ierr==0,"Error creating `x_i' vector\n"); 
+    scal =1.;
+    ierr = VecSet(&scal,x_i); 
+    PETSCFEM_ASSERT0(ierr==0,"Error setting `x_i'\n"); 
+
+    ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); 
+    PETSCFEM_ASSERT0(ierr==0,"Error creating SLES.\n"); 
+    ierr = SLESSetOperators(sles_ll,A_LL,
+			    A_LL,SAME_NONZERO_PATTERN);
+    PETSCFEM_ASSERT0(ierr==0,"Error with `SLESSetOperators'.\n"); 
+    ierr = SLESGetKSP(sles_ll,&ksp_ll); 
+    PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetKSP'.\n"); 
+    ierr = SLESGetPC(sles_ll,&pc_ll);
+    PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetPC'.\n"); 
+
+    ierr = KSPSetType(ksp_ll,KSPGMRES);
+    PETSCFEM_ASSERT0(ierr==0,"Error with `KSPSetType'.\n"); 
+
+    ierr = KSPSetTolerances(ksp_ll,0,0,1e10,1);
+    PETSCFEM_ASSERT0(ierr==0,"Error setting tolerances.\n"); 
+
+    ierr = PCSetType(pc_ll,PCLU);
+    PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
+    ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
+
+    ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&itss); 
+    PETSCFEM_ASSERT0(ierr==0,"Error solving local system"); 
+
+    ierr = MatMult(A,x_i,res_i);
+
+    PetscFinalize();
+    exit(0);
+#if 0
     ierr = SLESSolve(sles,res,dx,&itss); 
     PETSCFEM_ASSERT0(ierr==0,"Error solving linear system"); 
+#endif
   } else {
     ierr = VecGetArray(res,&res_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `res'.\n"); 
@@ -526,6 +565,7 @@ void IISDMat::solve(Vec res,Vec dx) {
 
       ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); 
       PETSCFEM_ASSERT0(ierr==0,"Error solving local system"); 
+
     }
 #if 0
     ierr = VecView(y_loc_seq,VIEWER_STDOUT_SELF);
