@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.147 2004/09/24 12:00:52 mstorti Exp $
+//$Id: ns.cpp,v 1.148 2004/10/01 00:55:22 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -75,9 +75,7 @@ int main(int argc,char **args) {
   // arglf:= argument list for computing gathered quantities as forces
   arg_list argl, arglf;
   vector<double> hmin;
-#ifdef RH60   // fixme:= STL vector compiler bug??? see notes.txt
   hmin.resize(1);
-#endif
 
   PetscInitialize(&argc,&args,(char *)0,help);
   // Get MPI info
@@ -481,11 +479,7 @@ int main(int argc,char **args) {
 	argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
 	argl.arg_add(&res,OUT_VECTOR);
 	if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-#ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
-#else
-	argl.arg_add(&hmin,USER_DATA);
-#endif
 	argl.arg_add(&glob_param,USER_DATA);
 	argl.arg_add(wall_data,USER_DATA);
 
@@ -549,11 +543,7 @@ int main(int argc,char **args) {
 	  if (update_jacobian_step >= update_jacobian_steps) 
 	    update_jacobian_step =0;
 	  if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-#ifdef RH60
 	  argl.arg_add(&hmin,VECTOR_MIN);
-#else
-	  argl.arg_add(&hmin,USER_DATA);
-#endif
 	  argl.arg_add(&glob_param,USER_DATA);
 	  argl.arg_add(wall_data,USER_DATA);
 	  ierr = assemble(mesh,argl,dofmap,jobinfo,

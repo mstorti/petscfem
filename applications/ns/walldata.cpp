@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.11 2003/07/26 01:58:12 mstorti Exp $
+//$Id: walldata.cpp,v 1.12 2004/10/01 00:55:22 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -18,7 +18,6 @@ extern int MY_RANK,SIZE;
 WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
 		   *elemset_pointer_,int ndim_) {
 #ifdef USE_ANN
-#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
   ndim=ndim_;
   npoints = data_pts_->size()/ndim;
   data_pts = annAllocPts(npoints,ndim);
@@ -35,9 +34,6 @@ WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
   // This is tricky?
   nelemset = elemset_pointer_->size();
   elemset_pointer = &*elemset_pointer_->begin();
-#else
-  assert(0); // I Think this is a compiler bug see 'notes.txt'
-#endif
 #else
   PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
