@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.16 2003/04/02 18:05:19 mstorti Exp $
+//$Id: alehook.cpp,v 1.17 2003/04/03 17:10:17 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -173,14 +173,13 @@ void ale_hook2::read_mesh() {
   FILE *fid = fopen(CASE_NAME "_mmv.state.tmp","r");
   double d;
   double *nodedata = mesh->nodedata->nodedata;
-  int debug=0;
   for (int k=0; k<nnod; k++) {
     for (int j=0; j<ndim; j++) {
       fscanf(fid,"%lf",&d);
       *nodedata++ = xnod0.e(k,j) + d;
-      if (debug) printf("x0 %f, d %f",xnod0.e(k,j),d);
+      // if (fs_debug) printf("x0 %f, d %f",xnod0.e(k,j),d);
     }
-    if (debug) printf("\n");
+    // if (fs_debug) printf("\n");
   }
 #if 0
   nodedata = mesh->nodedata->nodedata;
@@ -225,7 +224,7 @@ DL_GENERIC_HOOK(ale_hook2);
 // are imposed
 dvector<double> spines;
 // displ:= current displacements (they cumulate during time steps)
-dvector<double> displ,displ_old;
+dvector<double> displ;
 // fs:= vector of nodes on the free surface (FS)
 dvector<int> fs;
 // fs2indx_t:= type of fs2indx
@@ -240,16 +239,20 @@ private:
   FILE *ns2mmv,*mmv2ns;
   /// Number of nodes, dimension, number of nodes on the FS
   int nnod, ndim, nfs;
-  // time step, relaxation coefficient
-  double Dt, fs_relax;
+  /// time step, relaxation coefficient, FS smoothing coeficient
+  double Dt, fs_relax, fs_smoothing_coef;
   // Pointer to the mesh, in order to obtain the nodedata
   Mesh *mesh;
-  // Flags whether the FS is assumed to be cyclic 
+  /// Flags whether the FS is assumed to be cyclic 
   int cyclic_fs;
-  // If the problem is cyclic then this is the period 
+  /// Print some values related to the update of the FS
+  int fs_debug;
+  /// If the problem is cyclic then this is the period 
   double cyclic_length;
-  // Restart a previous run
+  /// Restart a previous run
   int restart;
+  /// temporary buffer
+  dvector<double> displ_old, dn, sn, ds;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -291,13 +294,22 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     int node;
     int nread = fscanf(fid,"%d",&node);
     if (nread==EOF) break;
-    double n;
+    double s;
+    // Spines are normalized
+    double s2 = 0.;
+    int pos = spines.size();
     for (int j=0; j<ndim; j++) {
-      nread = fscanf(fid2,"%lf",&n);
-      // printf("read %f\n",n);
+      nread = fscanf(fid2,"%lf",&s);
+      // printf("read %f\s",s);
       assert(nread==1);
-      spines.push(n);
+      s2 += s*s;
+      spines.push(s);
     }
+    // Normalize spines
+    s2 = sqrt(s2);
+    for (int j=0; j<ndim; j++) spines.e(pos+j) /= s2;
+
+    // Verify that spine nodes are unique
     assert(fs2indx.find(node)==fs2indx.end());
     fs.push(node);
     // load map
@@ -313,15 +325,33 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   displ.set_chunk_size(ndim*nfs);
   displ.a_resize(2,nfs,ndim);
   displ.set(0.);
+
   displ_old.set_chunk_size(ndim*nfs);
   displ_old.a_resize(2,nfs,ndim);
   displ_old.set(0.);
+  
+  dn.set_chunk_size(nfs);
+  dn.a_resize(1,nfs);
+  dn.set(0.);
+  
+  ds.set_chunk_size(nfs);
+  ds.a_resize(1,nfs);
+  ds.set(0.);
+  
+  sn.set_chunk_size(nfs);
+  sn.a_resize(1,nfs);
+  sn.set(0.);
   
   //o Time step.
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
   assert(Dt>0.);
   //o Relaxation factor for the update of the free surface position. 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,fs_relax,1.);
+  //o Smoothing factor for the update of the free surface
+  //  position. 
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,fs_smoothing_coef,0.);
+  //o Print some values related to the update of the FS
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,fs_debug,0);
   //o Assume problem is periodic 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,cyclic_fs,0);
   //o Assume problem is periodic 
@@ -396,7 +426,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     // index in the containers
     int indx = q->second;
     // Compute normal component of velocity
-    int debug = 0;
+    int fs_debug = 0;
     tokens.clear();
     tokenize(line.str(),tokens);
     assert(tokens.size()==ndim+1);
@@ -462,26 +492,52 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     // normalize
     double n2 = normal.norm_p_all(2);
     normal.scale(1./n2);
-    if (debug) normal.print("normal: ");
+    if (fs_debug) normal.print("normal: ");
 
     // Compute displacement
-    double v, vn=0., sn=0.;
-    if (debug) printf("node %d, vel, nor, spin ",node);
+    double v, vn=0., ssn=0., s2=0.;
+    n2 = 0.;
+    if (fs_debug) printf("node %d, vel, nor, spin ",node);
     for (int j=0; j<ndim; j++) {
       string2dbl(tokens[j],v);
       double s = spines.e(indx,j);
       double n = normal.get(j+1);
-      if (debug) printf(" %f %f %f",v,n,s);
+      if (fs_debug) printf(" %f %f %f",v,n,s);
       vn += v*n;
-      sn += s*n;
+      ssn += s*n;
+      n2 += n*n;
+      s2 += s*s;
     }
-    if (debug) printf(", vn, sn: %f\n",vn,sn);
-    double d = fs_relax*Dt*vn/sn;
-    for (int j=0; j<ndim; j++) {
-      displ.e(indx,j) += d*spines.e(indx,j);
-    }
-    if (debug) printf("%f %f\n",displ.e(indx,0),displ.e(indx,1));
+    double tol = 1e-10;
+    assert(fabs(n2-1.0)<tol);
+    assert(fabs(s2-1.0)<tol);
+    if (fs_debug) printf(", vn, sn: %f\n",vn,ssn);
+    dn.e(indx) = fs_relax * Dt * vn;
+    sn.e(indx) = ssn;
   }
+
+  // Compute displacements along the spines
+  for (int indx=0; indx<nfs; indx++) {
+    double d=0.;
+    for (int j=0; j<ndim; j++) 
+      d += spines.e(indx,j)*displ.e(indx,j);
+    d += dn.e(indx)/sn.e(indx); // This is the correction due to non alignement
+				// between the normal and the spine
+    ds.e(indx) = d;
+  }
+
+  // Smoothing and updating
+  for (int indx1=0; indx1<nfs; indx1++) {
+    assert(cyclic_fs);		// Not implemented yet: FS not cyclic
+    int indx0 = modulo(indx1-1,nfs);
+    int indx2 = modulo(indx1+1,nfs);
+
+    double d = ds.e(indx1) 
+      + fs_smoothing_coef*(ds.e(indx2)-2*ds.e(indx1)+ds.e(indx0));
+    for (int j=0; j<ndim; j++)
+      displ.e(indx1,j) = d*spines.e(indx1,j);
+  }
+
   fclose(fid);
   if (!MY_RANK) {
     fid = fopen(CASE_NAME ".fsh.tmp","a");

@@ -20,8 +20,9 @@ $slope = 3*$u_av*$viscosity/($gravity*$h**2);
 
 $patm = 0;                      # Pressure at FS
 $p_const_bc = !$initia;		# Impose = patm on the free surface
-$fs_relax = 0.1;		# relaxation factor for the 
+$fs_relax = 1.0;		# relaxation factor for the 
                                 # free surface evolution eq. 
+$fs_smoothing_coef = 0.5;	# FS smoothing coeficient (heat equation like)
 
 $Dt = 0.1;			# time step
 $eta0 = 0.05;			# amplitude of free surface elevation
