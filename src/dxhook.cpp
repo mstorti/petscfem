@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.3 2003/02/04 23:28:47 mstorti Exp $
+//$Id: dxhook.cpp,v 1.4 2003/02/05 02:38:11 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/fem.h>
@@ -62,6 +62,19 @@ time_step_post(double time,int step,
     Swrite(srvr,fields,ndof*nnod*sizeof(double));
   }
   delete[] fields;
+
+  // Send connectivities for each elemset
+  Darray *elist = mesh->elemsetlist;
+  for (int j=0; j<da_length(elist); j++) {
+    Elemset *e = *(Elemset **)da_ref(elist,j);
+    if (!MY_RANK) {
+      Sprintf(srvr,"icone %d %d %s %s\n",e->nelem,e->nel,e->name(),
+	      e->type);
+      printf("type %s\n",e->type);
+      Swrite(srvr,e->icone,e->nelem*e->nel*sizeof(int));
+    }
+  }
+  Sprintf(srvr,"end\n");
 
   Sclose(srvr);
 }

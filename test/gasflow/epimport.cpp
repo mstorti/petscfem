@@ -1,7 +1,6 @@
 /*
  * Automatically generated on "/tmp/epimport.mb" by DX Module Builder
  */
-#include <cassert>
 #include <string>
 
 // `or' and `string' are used in DX so that one possibility is to
@@ -24,6 +23,12 @@
 
 static Error traverse(Object *, Object *);
 static Error doLeaf(Object *, Object *);
+
+#define DXassert(cond) 								\
+if(!(cond)) {									\
+  DXMessage("Assertion \"%s\" failed at %s:%d",#cond,__FILE__,__LINE__);	\
+  goto error;									\
+}
 
 #if defined (__cplusplus) || defined (c_plusplus)
 extern "C"
@@ -91,24 +96,38 @@ m_ExtProgImport(Object *in, Object *out) {
   if (!g) goto error;
 
   while(1) {
-    char spc[] = " ";
+    char spc[] = " \t\n";
     Sgets(buf,BUFSIZE,clnt);
+    DXMessage("Got line: %s\n",buf);
+
     token = strtok(buf,spc);
+    DXMessage("Got token[0]: %s\n",token);
     if(!strcmp(token,"end")) break;
-    assert(!strcmp(token,"icone"));
+    DXassert(!strcmp(token,"icone"));
+
     token = strtok(NULL,spc);
+    DXMessage("Got token[1]: %s\n",token);
     nread = sscanf(token,"%d",&nelem);
-    assert(nread==1);
+    DXassert(nread==1);
+
+    token = strtok(NULL,spc);
+    DXMessage("Got token[2]: %s\n",token);
     nread = sscanf(token,"%d",&nel);
+    DXassert(nread==1);
+
     token = strtok(NULL,spc);
-    assert(token);
-    assert(strlen(token)>0);
+    DXMessage("Got token[3]: %s\n",token);
+    DXassert(token);
+    DXassert(strlen(token)>0);
     string ename(token);
+
     token = strtok(NULL,spc);
-    assert(token);
-    assert(strlen(token)>0);
+    DXMessage("Got token[4]: %s\n",token);
+    DXassert(token);
+    DXassert(strlen(token)>0);
     string etype(token);
-    DXMessage("Got elemset %s, nelem %d, nel %d, type %d\n",
+
+    DXMessage("Got elemset \"%s\", nelem %d, nel %d, type \"%s\"\n",
 	      ename.c_str(),nelem,nel,etype.c_str());
 
     icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1, nel);

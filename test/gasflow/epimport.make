@@ -25,12 +25,11 @@ BIN = $(BASE)/bin
 
 # create the necessary executable
 epimport: $(FILES_epimport) 
-	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT) \
-		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)  $(SSL)/simpleskts.a
+	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT)	\
+		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)			\
+		$(SSL)/simpleskts.a -lstdc++
 
-.c.o: ; cc -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $*.c 
-
-.C.o: ; cc -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $*.C 
+.cpp.o: ; g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $*.cpp
 
 # a command to run the user module
 run: epimport 
