@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.43 2003/07/29 20:47:52 mstorti Exp $
+//$Id: dxhook.cpp,v 1.44 2003/08/06 22:39:32 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -144,7 +144,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   //o Initial value for the {\tt steps} parameter. 
   TGETOPTDEF(mesh_a.global_options,int,dx_steps,1);
   //o Mesh where updated coordinates must be read
-  TGETOPTDEF_S_ND(mesh_a.global_options,string,dx_node_coordinates,"<none>");
+  TGETOPTDEF_S_ND(mesh_a.global_options,string,dx_node_coordinates,<none>);
   read_coords = (dx_node_coordinates != "<none>");
   //o Coefficient affecting the new displacments read. 
   //  New coordinates are \verb|c0*x0+c*u| where
@@ -302,12 +302,15 @@ int dx_hook::build_state_from_file(double *state_p) {
 	      state_file.c_str(),record);
   if (!MY_RANK) {
     FILE *fid = fopen(state_file.c_str(),"r");
-    if(!fid) throw GenericError("Can't open file.");
+    if(!fid) 
+      printf("Can't open file \"%s\". Sending null state file. \n",state_file.c_str());
+      
     int base = record*nnod*ndof;
     for (int j=0; j<(record+1)*nnod*ndof; j++) {
-      double val;
-      int nread = fscanf(fid,"%lf",&val);
-      if(nread!=1) {
+      double val=0.;
+      int nread;
+      if (fid) nread = fscanf(fid,"%lf",&val);
+      if(fid && nread!=1) {
 	fclose(fid);
 	throw GenericError("Can't read line.");
       }
