@@ -3,18 +3,27 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+
+$closed_tube = 1;		# simulate the tube closed (no inlet/outlet)
+
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = 0.520;			# [m] Length of tube
+$L0 = 2*$R0;			# debug...
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
-$z_ratio = 10;			# refinement in `z' (axial) direction
-$r_ratio = 4;			# refinement in radial direction
-$Nz = 50;			# number of elements in axial direction
-$Nr = 10;			# number of elements in radial direction
-$Nphi = 20;			# number of elements in circumferential direction
+$z_ratio = 1;			# refinement in `z' (axial) direction
+$r_ratio = 1;			# refinement in radial direction
+
 $Dz_h = 0.02*$L0;		# [m] Axial span of hot outlet
 $A_in = 3.63e-4;		# [m2] inlet area
 $Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
+
+## Mesh parameters
+$refine = 1;			# scale all N's by this
+$Nz = 8*$refine;		# number of elements in axial direction
+$Nr = 4*$refine;		# number of elements in radial direction
+$Nphi = 16*$refine;		# number of elements in circumferential direction
+
 # $Dz_in = $Dz_h; # [m] Axial span of inlet (temporarily set equal to the outlet 
 
 $mass_flow_in = 0.12;		# [kg/s] mass flow at inlet
@@ -22,14 +31,12 @@ $p_in = 200000;			# [N/m2] pressure at inlet
 $T_in = 294;			# [K] temperature at inlet
 
 ## PHYSICAL DATA
-$visco   =  1e-02;		# [kg/m s]viscosity
 $Pr      =  0.72;		# [1] Prandtl
 $Pr      = 10*$Pr;		# ??
 $Rgas    =  287.;		# [J/K kg] Gas constant for air
 $ga      =   1.4;		# [1] gamma (Cp/Cv)
 $Cv      = $Rgas/($ga-1);	# [J/K kg] specific heat at constant volume
 $Cp      = $ga*$Cv;		# [J/K kg] specific heat at constant pressure
-$cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 $g_body  =  0;			# [N/m3] force per volume (may be gravity)
 $gravity = -9.8;		# [m/s2] normal acceleration of gravity
 
@@ -38,6 +45,19 @@ $rho_in = $p_in/($Rgas*$T_in);	# [kg/m3] density
 $u_rad_in = $mass_flow_in/
     ($A_in*$rho_in);		# [m/s] radial velocity
 $u_circunf_in = 10*$u_rad_in;	# [m/s] tangential velocity
+
+if ($closed_tube) {
+    ##INLET
+    $u_rad_in = 0.;		# [m/s] radial velocity
+    $u_circunf_in = 200;	# [m/s] tangential velocity
+}
+
+# viscosity (set by Re number)
+$u_circunf_in = 200;		# [m/s] tangential velocity
+$Re = 10000;			# [1] Reynolds based on diameter
+$visco   =  $rho_in
+    *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
+$cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
 $p_c = 1.013e5;			# [N/m2] outlet cold pressure
@@ -49,7 +69,8 @@ $p_h = 1.38e5;			# [N/m2] outlet cold pressure
 $weak_form  = 0;
 #__END_TRANSCRIPT__
 @vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
-		rho_in u_rad_in u_circunf_in p_in p_h p_c);
+		rho_in u_rad_in u_circunf_in p_in p_h p_c 
+		closed_tube);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
@@ -64,7 +85,7 @@ alpha 1.
 initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
 save_file "vtube.state.tmp" 
-nsave 10
+nsave 1
 
 save_file_pattern "vtube.state_%d.tmp"
 nsaverot 10
@@ -76,7 +97,6 @@ solver "iisd"
 preco_type "jacobi"
 
 maxits 100
-Krylov_dim 100
 iisd_subpart_auto 2000
 
 # file containing the weight (speed) of processors
@@ -89,10 +109,11 @@ atol 0
 rtol 0
 dtol 1e3
 nnwt 5
+# omega_newton 0.01
 
 print_internal_loop_conv
 
-Dt 0.0005
+Dt 0.001
 weak_form 0
 temporal_stability_factor 0
 

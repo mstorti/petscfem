@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.1 2003/01/17 03:13:15 mstorti Exp $
+## $Id: mkvtube.m,v 1.2 2003/01/17 19:03:00 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -45,26 +45,27 @@ for k=1:rows(x3d);
     done = done+0.1;
     printf("%3d%% done\n",round(100*done));
   endif
-  if !(abs(rho(k)-R0)<tol || z(k)<tol || abs(z(k)-L0)<tol)
-    continue;
-  elseif abs(rho(k)-R0)<tol && z(k)<=Dz_in
+  is_wall = (abs(rho(k)-R0)<tol || z(k)<tol || abs(z(k)-L0)<tol);
+  if !is_wall
+    continue;			# for efficiency
+  elseif !closed_tube && abs(rho(k)-R0)<tol && z(k)<=Dz_in
     ## Inlet
     er = x3d(k,[1 2]);
     er = er/l2(er);
     et = [-er(2) +er(1)];
     u = -u_rad_in * er + u_circunf_in * et;
-    fprintf(fid,"%d %d    %f",k,1,rho_in);
-    fprintf(fid,"%d %d    %f",k,2,u(1));
-    fprintf(fid,"%d %d    %f",k,3,u(2));
-    fprintf(fid,"%d %d    %f",k,4,0);
-  elseif abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
-    fprintf(fid,"%d %d   %f",k,5,p_h);
-  elseif z(k)<tol && rho(k)<=Rc
-    fprintf(fid,"%d %d   %f",k,5,p_c);
-  elseif abs(rho(k)-R0)<tol || z(k)<tol || abs(z(k)-L0)<tol
-    fprintf(fid,"%d %d    %f",k,2,0);
-    fprintf(fid,"%d %d    %f",k,3,0);
-    fprintf(fid,"%d %d    %f",k,4,0);
+    fprintf(fid,"%d %d    %f\n",k,1,rho_in);
+    fprintf(fid,"%d %d    %f\n",k,2,u(1));
+    fprintf(fid,"%d %d    %f\n",k,3,u(2));
+    fprintf(fid,"%d %d    %f\n",k,4,0);
+  elseif !closed_tube && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
+    fprintf(fid,"%d %d   %f\n",k,5,p_h);
+  elseif !closed_tube && z(k)<tol && rho(k)<=Rc
+    fprintf(fid,"%d %d   %f\n",k,5,p_c);
+  elseif is_wall
+    fprintf(fid,"%d %d    %f\n",k,2,0);
+    fprintf(fid,"%d %d    %f\n",k,3,0);
+    fprintf(fid,"%d %d    %f\n",k,4,0);
   endif
 endfor
 fclose(fid);

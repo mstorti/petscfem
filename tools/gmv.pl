@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.8 2003/01/08 15:54:26 mstorti Exp $
+#$Id: gmv.pl,v 1.9 2003/01/17 19:03:00 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -8,14 +8,16 @@ open NOD,"$nod";
 open GMV,">$gmv";
 
 sub entropy_hook {
-    my ($state) = @_;
-    my $s = $state->[3]/$state->[0]**$ga;
+    my ($state,$dim) = @_;
+    my $s = $state->[$dim+1]/$state->[0]**$ga;
     return $s;
 }
 
 sub enthalpy_hook {
-    my ($state) = @_;
-    my $h = $state->[3]/$state->[0]*$ga/($ga-1)+0.5*($state->[1]**2+$state->[2]**2);
+    my ($state,$dim) = @_;
+    my $u2 = 0;
+    for (my $j=0; $j<$dim; $j++) { $u2 += $state->[$j+1]**2; }
+    my $h = $state->[$dim+1]/$state->[0]*$ga/($ga-1)+0.5*$u2;
     return $h;
 }
 
@@ -179,7 +181,7 @@ if ($rslt) {
 		my $n0=$j*$nrslt;
 		my $n1=($j+1)*$nrslt-1;
 		my @state = @rslt[$n0..$n1];
-		$s[$j] = entropy_hook(\@state);
+		$s[$j] = entropy_hook(\@state,$dim);
 #		print "entropy $s[$j]\n";
 	    }
 	    print GMV "entropy 1\n";
@@ -191,7 +193,7 @@ if ($rslt) {
 		my $n0=$j*$nrslt;
 		my $n1=($j+1)*$nrslt-1;
 		my @state = @rslt[$n0..$n1];
-		$h[$j] = enthalpy_hook(\@state);
+		$h[$j] = enthalpy_hook(\@state,$dim);
 	    }
 	    print GMV "enthalpy 1\n";
 	    print_rslt(\@h,1,$nnod,0,0,0,GMV);
