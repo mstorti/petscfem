@@ -164,6 +164,7 @@ measure_performance_loop_length 10
 G_body 0 -1.
 #endif
 
+#if $dx
 #if 1
 hook_list ns_dx_hook my_dx_hook
 dx_split_state "1 2 0 1 u 1 1 2 p"
@@ -175,6 +176,7 @@ save_file_pattern "sqcav.state_%d.tmp"
 nsaverot 1
 nrec 100000
 nfile 1
+#endif
 #endif
 
 __END_HASH__
