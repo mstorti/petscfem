@@ -4,6 +4,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Fix tests in /burgers (they stared to fail).
 * Add `sw_abso' to tests
 * Doesn't report correctly acesses to the last thash table, probably 
 	  related to the weights flag. (Reported by
