@@ -6,6 +6,7 @@ $REUSE = 2;
 $EXTERNAL_IMAGES = 0;   # 1 = leave the images outside the document 
 $NOLATEX = 0;           # 1 = do not pass unknown environments to Latex
 $WHITE_BACKGROUND = 1;
+$SHOW_SECTION_NUMBERS = 0;
 
 $petscfem_version=`cat ../VERSION`;
 $ADDRESS = <<EOM;
@@ -18,8 +19,8 @@ Current PETSc-FEM version is <b> petscfem-$petscfem_version </b>. <br>
 Processed on $address_data[1]</I>
 EOM
 
-# OK. This is tricky... \frc{} does noething but helps us force
-# Latex2html to put eqs or other material in a bitmap. 
+# OK. This is tricky... \frc{} does nothing but helps us force
+# Latex2html to put some eqs or other material in a bitmap. 
 /`/;
 &process_commands_in_tex (<<_RAW_ARG_CMDS_);
 lfrc # {}
