@@ -2295,3 +2295,6 @@ tag: beta-3.15.pl19 on Fri,  7 Feb 2003 15:52:09 -0300 by mstorti in spider
 ----------
 tag: beta-3.15.pl20 on Fri,  7 Feb 2003 16:27:38 -0300 by mstorti in spider
      > Converted to floats in with a `DX_USE_FLOATS' flag
+----------
+tag: beta-3.15.pl21 on Fri,  7 Feb 2003 20:18:56 -0300 by mstorti in spider
+     > ExtProgImport takes `steps' as an option. 
