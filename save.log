@@ -361,3 +361,7 @@ tag: beta-1.64 on Sun Apr  8 09:40:02 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.65 on Mon Apr  9 00:04:04 ART 2001, by mstorti in spider
      > Adding doc for new flux functions
+----------
+tag: beta-1.66 on Tue Apr 10 22:42:32 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added sectioning to `myexpext.pl'
