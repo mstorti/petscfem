@@ -967,3 +967,6 @@ tag: beta-2.78 on Sun Feb 10 12:29:36 ARST 2002, by mstorti in spider
 tag: beta-2.78.pl1 on Sun Feb 10 16:42:48 ARST 2002 by mstorti in spider
      > Works dynamic loading of amplitude functions with `names' given via 
      > the `function_name' entry. 
+----------
+tag: beta-2.78.pl2 on Sun Feb 10 16:52:47 ARST 2002 by mstorti in spider
+     > Added doc to DLGeneric class, tested several cases. 
