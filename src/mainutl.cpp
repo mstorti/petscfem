@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.15 2003/05/12 02:06:59 mstorti Exp $
+//$Id: mainutl.cpp,v 1.16 2003/05/12 02:09:00 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -255,9 +255,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   if (myrank==0) {
     dvector<double> xext(dofmap->nnod*ndof);
     xext.a_resize(2,dofmap->nnod,ndof);
-    printf("trace 0\n");
     FILE *fid;
-    printf("trace 1\n");
     fid = fopen(filename,"r");
     if (fid==NULL) {
       PetscPrintf(PETSC_COMM_WORLD,
@@ -265,10 +263,9 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 		  filename);
       CHKERRA(1);
     }
-    printf("trace 2\n");
     double dval;
     for (int k=1; k<=dofmap->nnod; k++) {
-      if (k % 1000 == 0) printf("%d node values read...\n",k);
+      // if (k % 1000 == 0) printf("%d node values read...\n",k);
       for (int kldof=1; kldof<=ndof; kldof++) {
 	code = fscanf(fid,"%lf",&xext.e(k-1,kldof-1));
 	if (code==EOF) {
@@ -278,7 +275,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
       }
     }
     fclose(fid);
-    printf("%d node values read...\n",dofmap->nnod);
+    // printf("%d node values read...\n",dofmap->nnod);
     if (warn_flag) 
       PetscPrintf(PETSC_COMM_WORLD,
 		  "PETScFEM warning: not enough values"
@@ -295,7 +292,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     }
   }
   xdof.clear();
-  PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
+  // PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
