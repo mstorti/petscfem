@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.55 2005/02/26 17:50:30 mstorti Exp $ 
+# $Id: Makefile,v 1.56 2005/02/26 18:23:08 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -69,11 +69,9 @@ mesh:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
 
 run:
-	@if [ ! $$mkmesh ] ; then mkmesh=0 ; fi ;		\
-	if [ $$mkmesh -gt 0 ] ; then $(MAKE) mesh ; fi ;	\
+	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
 	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
-	machi.dat $(PROG) -case $(CASE_NAME).depl		\
-		> $(CASE_NAME).log
+	machi.dat $(PROG) -case $(CASE_NAME).depl 
 
 STEPS_DIR := ./STEPS
 dx_make_command:
