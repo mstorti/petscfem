@@ -3841,3 +3841,6 @@ tag: beta-3.40 on Wed, 26 Jan 2005 08:05:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.1 on Wed, 26 Jan 2005 08:10:29 -0300 by mstorti in spider
      > Administrative tag.
+----------
+tag: beta-3.41.2 on Wed, 26 Jan 2005 08:48:40 -0300 by mstorti in spider
+     > Working on new absorbing boundary condition. 
