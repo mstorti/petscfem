@@ -1,0 +1,123 @@
+# -*- mode: shell-script -*-
+<: require './data.pl'; :>//
+#================================================================
+global_options
+
+nsave 5
+initial_state "sqcav.ini.tmp"
+save_file sqcav.state.tmp
+
+# type of solver (may be "iisd", "petsc"...)
+solver "iisd"
+preco_type "jacobi"
+# Number of subdomains
+iisd_subpart_auto 4000
+report_consumed_time
+activate_debug_print
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+# Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-6
+dtol 1e3
+nnwt 1
+
+maxits 200
+Krylov_dim 200
+print_internal_loop_conv 1
+
+Dt 0.01
+temporal_stability_factor 0
+
+save_file_pattern "sqcav.state_%d.tmp"
+nsaverot 1000
+nrec 100000
+nfile 1
+
+#if $ns
+hook_list ns_dl_generic_hook ale_ns_hook
+ale_ns_hook.filename <:=$alehook:>
+ale_ns_hook.prefix ale_ns_hook
+#endif
+
+#if 0
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
+dx_state_all_fields 0
+dx_steps 1
+#endif
+
+#if $mmv
+dl_generic_hook ale_mmv_hook
+ale_mmv_hook.filename <:=$alehook:>
+ale_mmv_hook.prefix ale_mmv_hook
+fs_nel 4
+smoothing_length 0.05
+nsstep 4
+# read_initial_mesh
+#endif
+
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ sqcav.nod.tmp
+_END_NODES__
+
+#if $ns
+#===========================================================
+elemset nsi_tet_les_fm2 4
+data ./sqca.con.tmp
+G_body 0. -1
+geometry cartesian2d
+npg 4
+__END_HASH__
+
+#===========================================================
+elemset bcconv_ns_fm2 4
+dx 0
+is_fat 0
+geometry cartesian2d
+npg 4
+# bcconv is not needed at the lateral walls since
+# we use solid b.c. or slip at the wall
+data ./tank.surf-con.tmp
+__END_HASH__
+
+#else
+
+elemset elasticity 8
+name fluid
+dx 1
+geometry cartesian3d
+npg 8
+Young_modulus 1.
+poisson_ratio 0.3
+data ./tank.con-mm.tmp
+__END_HASH__
+
+#endif
+
+end_elemsets
+
+#if $ns
+
+fixa
+# fijacion en la presion
+1 3 0.
+# fijaciones de velocidad en las paredes
+__INCLUDE__ sqcav.fixa.tmp
+__END_FIXA__
+
+#else
+
+fixa
+__INCLUDE__ sqcav.fixa.tmp
+__END_FIXA__
+
+#endif
