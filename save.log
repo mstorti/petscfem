@@ -2323,3 +2323,6 @@ tag: beta-3.16.pl3 on Sat,  8 Feb 2003 13:09:02 -0300 by mstorti in spider
 tag: beta-3.16.pl4 on Sat,  8 Feb 2003 20:14:22 -0300 by mstorti in spider
      > Example `test/gasflow/socket2.cpp' waits a connection to
      > a socket through a thread OK.
+----------
+tag: beta-3.16.pl5 on Sun,  9 Feb 2003 11:51:07 -0300 by mstorti in spider
+     > Working with DX+threads
