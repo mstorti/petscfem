@@ -1,4 +1,5 @@
 #include <cstdio>
+#include "./hashf.h"
 
 /*
 --------------------------------------------------------------------
@@ -67,11 +68,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 --------------------------------------------------------------------
 */
 
-ub4 hash(register ub1 *k,register ub4 length, register ub4 initval)
-// register ub1 *k;        /* the key */
-// register ub4  length;   /* the length of the key */
-// register ub4  initval;  /* the previous hash, or an arbitrary value */
-{
+ub4 hash_fun(register ub1 *k,register ub4 length, register ub4 initval) {
    register ub4 a,b,c,len;
 
    /* Set up the internal state */
@@ -111,12 +108,3 @@ ub4 hash(register ub1 *k,register ub4 length, register ub4 initval)
    /*-------------------------------------------- report the result */
    return c;
 }
-
-int main() {
-  int h;
-  for (int j=0; j<1000; j++) {
-    h = hash((ub1 *)&j,sizeof(int),0) & hashmask(10);
-    printf("%d -> %d\n",j,h);
-  }
-}
-

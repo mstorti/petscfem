@@ -1,10 +1,13 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat3.cpp,v 1.3 2004/01/20 23:38:53 mstorti Exp $
+// $Id: pfmat3.cpp,v 1.4 2004/01/21 02:47:37 mstorti Exp $
 
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <cassert>
 #include <cstdio>
+#include <cmath>
+
+#include "./hashf.h"
 
 class pfmat2 {
 private:
@@ -19,9 +22,14 @@ private:
   int N;			// number of buckets
   int M;			// size of cell vector
   int top;			// first free cell
+  int mask;
   int hash_fun(int i,int j) {
     // return ((i+j)*1324) % N;
-    return i % N;
+    // return i % N;
+    int h = ::hash_fun((ub1 *)&i,4,0);
+    h = ::hash_fun((ub1 *)&j,4,h);
+    printf("h(%d) = %d\n",j,h);
+    return h & mask;
   };
   int free() {
     int c = top;
@@ -41,6 +49,10 @@ public:
     cells.ref(M-1).next = -1;
     for (int j=0; j<M; j++) 
       headers.ref(j) = -1;
+    double v = log2(double(N));
+    int nbits = int(v);
+    assert(v == double(nbits));
+    mask = hashmask(nbits);
   }
   void add(int i,int j, double val) {
     int bucket = hash_fun(i,j);
@@ -79,5 +91,8 @@ int main() {
   pfmat2 A(1024);
   for (int j=0; j<10; j++) 
     A.add(j,j,double(2*j));
+  for (int j=0; j<10; j++) 
+    A.add(j,j,double(2*j));
   A.print();
 }
+
