@@ -2250,3 +2250,6 @@ tag: beta-3.15.pl5 on Tue, 28 Jan 2003 07:44:44 -0300 by mstorti in spider
 ----------
 tag: beta-3.15.pl6 on Tue, 28 Jan 2003 16:49:53 -0300 by mstorti in node1.beowulf.gtm
      > Running vtube example. 
+----------
+tag: beta-3.15.pl7 on Wed, 29 Jan 2003 15:03:09 -0300 by mstorti in node1.beowulf.gtm
+     > Running vtbe example. Will impose slip condition on the internal axis. 
