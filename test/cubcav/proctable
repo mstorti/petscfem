@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*- 
-# $Id: proctable,v 1.23 2003/10/21 21:57:44 mstorti Exp $
+# $Id: proctable,v 1.24 2003/10/21 22:18:07 mstorti Exp $
 # Processor -  weight   table 
 #
 # Script `procsel' generates weigths.dat
@@ -19,21 +19,17 @@ node1         1.3   server
 # Los tiempos estan calculados en base a lo que tarda PETSc-FEM en
 # calcular el elemento de NS en forma secuencial 
 #
-# P4 2.4GHz, 1GB RAM DDR 333MHz
-node17    9.09
 # node12    9.09    
-# Vuelve a dar problemas, no reconoce la placa de red
-# Puede ser el bus PCI de la placa madre.
-# Ahora parece andar Mon, 22 Sep 2003 12:40:29 -0300
-node14    9.09
-node15    9.09
-# Agregados el 2003/SEP/22
-node18    9.09
-node19    9.09
-node20    9.09
-node21    9.09
-node22    9.09
+#
 node23    9.09
+node22    9.09
+node21    9.09
+node20    9.09
+node19    9.09
+node18    9.09
+node15    9.09
+node14    9.09
+# node17    9.09
 #================================================================
 # P4 1.7GHz, 512MB RAM RIMM 400/800MHz
 # node4     4.00    
