@@ -32,7 +32,7 @@ if (0) {
 
 ## Mesh parameters
 $refine = ($small_test ? 
-    2 : 8);			# scale all N's by this
+    1 : 8);			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -131,7 +131,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 1
 
 print_internal_loop_conv
 
@@ -156,7 +156,7 @@ gather_file "vtube.mass_flow_rate.tmp"
 ngather 3
 
 hook_list dl_generic_hook cut_regulator \
-	  dx_hook my_dx_hook
+	  advdif_dx_hook my_dx_hook
 
 cut_regulator.filename ./gasflow.efn
 cut_regulator.prefix   cut_regulator_hook

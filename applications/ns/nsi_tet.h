@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.39 2003/01/25 16:57:27 mstorti Exp $
+//$Id: nsi_tet.h,v 1.40 2003/02/04 23:28:47 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -368,7 +368,24 @@ class LagrangeMult : public Elemset {
 */ 
 double ctff(double x, double & diff_ctff, double tol=1e-5);
 
+/** Reads a #FastMat2# matrix from a #TextHashTable# entry. 
+    @param thash (input) the options table
+    @param s (input) the key in the table where to extract the matrix coefficients
+    @param ndof (input) Let #coef[]# be the list of coefficients entered in
+    the line and #ncoef# the length of #coef#. 
+    If #ncoef=1# then #cond = v[0] * Id(ndof)#, else if #ncoef=ndof# then, 
+    #cond = diag(v)#, else if #ncoef=ndof*ndof# then #cond(i,j) = v[ndof*i+j]# 
+    (rowwise). Any other causes an error. 
+    @param ndof (input) the number of fields
+    @param cond (output) the matrix to be read
+    @return a reference to the matrix. */ 
 void read_cond_matrix(TextHashTable *thash, const char *s,
 		      int ndof,FastMat2 &cond);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Creates hooks depending on the name. 
+    @param name (input) the name of the hook. 
+    @return a pointer to eh created hook. */ 
+Hook *ns_hook_factory(const char *name);
 
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.11 2002/11/30 14:54:51 mstorti Exp $
+//$Id: mainutl.cpp,v 1.12 2003/02/04 23:28:47 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -136,6 +136,39 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
       fprintf(output,"\n");
     }
     fclose(output);
+  }
+  ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
+  ierr = VecDestroy(vseq);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "state2fields" 
+int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
+		 const TimeData *time_data=NULL) {
+
+  double *vseq_vals,*sstate;
+  Vec vseq;
+  
+  // fixme:= Now we can make this without a scatter. We can use
+  // the version of get_nodal_value() with ghost_values. 
+  int neql = (!MY_RANK ? dofmap->neq : 0);
+  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
+  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
+			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
+		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
+ 
+  if (!MY_RANK) {
+    int ndof=dofmap->ndof;
+    double dval;
+    for (int k=1; k<=dofmap->nnod; k++) {
+      for (int kldof=1; kldof<=ndof; kldof++) {
+	dofmap->get_nodal_value(k,kldof,vseq_vals,time_data,dval);
+	fields[ndof*(k-1)+kldof-1] = dval;
+      }
+    }
   }
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
   ierr = VecDestroy(vseq);

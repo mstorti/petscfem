@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.2 2003/02/04 13:32:01 mstorti Exp $
+//$Id: dxhook.h,v 1.3 2003/02/04 23:28:47 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -20,6 +20,7 @@ private:
   TextHashTableFilter *options;
   Socket *srvr_root,*srvr;
   Mesh *mesh;
+  Dofmap *dofmap;
 public:
   dx_hook() : options(NULL), srvr_root(NULL) {}
   ~dx_hook() { delete options; }
@@ -28,6 +29,8 @@ public:
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
   void close();
+  virtual Vec state()=0;
+  virtual TimeData *time_data()=0;
 #else
 public:
   void init(Mesh &mesh,Dofmap &dofmap,const char *name) {

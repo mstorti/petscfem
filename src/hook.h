@@ -1,14 +1,18 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: hook.h,v 1.1 2003/01/25 17:14:54 mstorti Exp $
+//$Id: hook.h,v 1.2 2003/02/04 23:28:47 mstorti Exp $
 
 #ifndef HOOK_H
 #define HOOK_H
+
+class Hook;
+typedef Hook *HookFactory(const char *name);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Hooks are executed previous and after the time step. 
 class Hook {
 public:
+  static Hook *factory(const char *name);
   /** Initializes the hook. 
       @param mesh (input) the mesh
       @param dofmap (input) the dofmap
@@ -35,7 +39,7 @@ public:
   /** This executes the ``init'' function for each hook. 
       @param mesh (input) the mesh
       @param dofmap (input) the dofmap */ 
-  void init(Mesh &mesh,Dofmap &dofmap);
+  void init(Mesh &mesh,Dofmap &dofmap,HookFactory *hf = NULL);
   /** This calls the ``time_step_pre'' function for each
       hook in the list.
       @param time (input) the time of this time step
@@ -53,5 +57,8 @@ public:
   /// Dtor.
   ~HookList();
 };
+
+#define CHECK_HOOK(hook_name)				\
+  (!strcmp(name,#hook_name)) hook = new hook_name 
 
 #endif

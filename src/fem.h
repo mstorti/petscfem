@@ -1,7 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.31 2002/11/30 23:42:15 mstorti Exp $
- 
+//$Id: fem.h,v 1.32 2003/02/04 23:28:47 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -427,7 +426,7 @@ public:
 /** Converts a state vector (reduced form) to node/field form and
     prints it. 
     @author M. Storti
-    @param (input) filename file where to write the vector. May contain
+    @param filename (input) file where to write the vector. May contain
     relative directories. 
     @param x (input) PETSc MPI vector to be written 
     @param dofmap (input) corresponding dofmap 
@@ -439,6 +438,19 @@ public:
 int print_vector(const char *filename,const Vec x,
 		 const Dofmap *dofmap,const TimeData *time_data=NULL,
 		 const int append=0);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Converts a state vector (reduced form) to node/field form. 
+    @author M. Storti
+    @param fields (output) double array where the node/fields form is put. 
+    @param x (input) PETSc MPI vector to be written 
+    @param dofmap (input) corresponding dofmap 
+    @param time_data (input, def=NULL) an external parameter in order to compute
+    external boundary conditions, etc...
+    @return PETSc error code
+*/ 
+int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
+		 const TimeData *time_data=NULL);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Reads a vector from a file.

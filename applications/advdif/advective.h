@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.58 2003/01/21 16:09:16 mstorti Exp $
+//$Id: advective.h,v 1.59 2003/02/04 23:28:44 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -538,6 +538,10 @@ struct GlobParam {
   double Dt;
   /// if set to one then Dt=infty
   int steady;
+  /// State vectors;
+  Vec x,xold;
+  /// Current time
+  TimeData *time;
   /// Constructor
   GlobParam() : alpha(0), Dt(1.), steady(0) {}
 };
@@ -558,6 +562,5 @@ struct GlobParam {
 */ 
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 		const int nlog_vars,const int *log_vars);
-
 
 #endif

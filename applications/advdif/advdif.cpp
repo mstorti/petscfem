@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.53 2003/01/25 17:26:17 mstorti Exp $
+//$Id: advdif.cpp,v 1.54 2003/02/04 23:28:44 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -18,6 +18,8 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
+GlobParam *GLOB_PARAM;
+
 extern int MY_RANK,SIZE;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
@@ -35,6 +37,8 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
           PetscViewerSetFormat(viewer,format)
 
 int bubbly_main();
+
+Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -68,6 +72,7 @@ int main(int argc,char **args) {
   vector<double> dtmin(1,0.);
   Vec a;
   GlobParam glob_param;
+  GLOB_PARAM = &glob_param;
   string save_file_res;
 
   // euler_volume::set_flux_fun(&flux_fun_euler);
@@ -287,6 +292,10 @@ int main(int argc,char **args) {
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
+  // Set pointers in glob_param
+  glob_param.x = x;
+  glob_param.xold = xold;
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
@@ -314,7 +323,7 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Hook stuff
   HookList hook_list;
-  hook_list.init(*mesh,*dofmap);
+  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
@@ -472,6 +481,7 @@ int main(int argc,char **args) {
     argl.arg_add(&x,IN_OUT_VECTOR);
     argl.arg_add(&xold,IN_VECTOR);
     ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
+    glob_param.time = &time;
 
     double time_=time;
 

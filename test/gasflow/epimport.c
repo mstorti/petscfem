@@ -30,12 +30,11 @@ extern "C"
 Error
 m_ExtProgImport(Object *in, Object *out)
 {
-  int i,N, *icone_p, j,k,base, elem=0, node,nread,
-    nnod,ndim;
-  float *xnod_p,x,y,*data_p,r2,c;
+  int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof;
+  double *xnod_p,*data_p;
   Array icone=NULL,xnod=NULL,data=NULL; 
+  Group g=NULL;
   char *socket_name_p;
-  Field f=NULL; 
   String s;
   Type t;
   Socket *clnt;
@@ -57,16 +56,41 @@ m_ExtProgImport(Object *in, Object *out)
     return ERROR;
   }
 
-  DXMessage("trace 0");
   clnt = Sopen("","c5555");
-  DXMessage("trace 1");
   Sgets(buf,BUFSIZE,clnt);
-  DXMessage("got %s",buf);
-  DXMessage("trace 2");
   sscanf(buf,"nodes %d %d",&ndim,&nnod);
   DXMessage("Got nnod %d, ndim %d",nnod,ndim);
+  
+  g = DXNewGroup();
+  if (!g) goto error;
+
+  xnod = DXNewArray(TYPE_DOUBLE, CATEGORY_REAL, 1,ndim);
+  if (!xnod) goto error;
+  xnod = DXAddArrayData(xnod, 0, nnod, NULL);
+  if (!xnod) goto error;
+  xnod_p = (double *)DXGetArrayData(xnod);
+
+  nread = Sreadbytes(clnt,xnod_p,ndim*nnod*sizeof(double));
+  if (nread==EOF) goto error;
+  g = DXSetMember(g,"nodes",(Object)xnod);
+  if (!g) goto error;
+
+  Sgets(buf,BUFSIZE,clnt);
+  sscanf(buf,"fields %d %d",&ndof,&nnod2);
+  if (nnod!=nnod2) goto error;
+  DXMessage("Got ndof %d",ndof);
+
+  data = DXNewArray(TYPE_DOUBLE, CATEGORY_REAL, 1, ndof);
+  if (!data) goto error;
+  data = DXAddArrayData(data, 0, nnod, NULL);
+  if (!data) goto error;
+  data_p = (double *)DXGetArrayData(data);
+  nread = Sreadbytes(clnt,data_p,ndof*nnod*sizeof(double));
+  g = DXSetMember(g,"data",(Object)data);
+  if (!g) goto error;
+
+  out[0] = (Object)g;
   Sclose(clnt);
-  DXMessage("trace 3");
 
   return OK;
 
