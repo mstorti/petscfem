@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.2 2002/07/21 16:00:36 mstorti Exp $
+// $Id: graphdv.h,v 1.3 2002/07/21 19:01:48 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
@@ -70,6 +70,13 @@ private:
       int_pair &q = da.ref(j);
       printf("(%d,%d) ",q.i,q.j);
     }
+  }
+  void set_ngbrs(int v,vector<int> &ngbrs) {
+    resync();
+    int f,e,q;
+    f = da.bsearch(int_pair(v,0));
+    e = da.bsearch(int_pair(v+1,0));
+    for (q=f; q<e; q++) ngbrs.push_back(da.ref(q).j);
   }
   int size() { resync(); return da.size(); }
   void clear() { da.clear(); modif=0; ordered=0; max = MAX_INIT; }

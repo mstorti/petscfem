@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.19 2002/07/19 02:00:43 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.20 2002/07/21 19:01:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -50,10 +50,10 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
 /** This is an internal auxiliar class for
     sub-partitioning inside each processor
 */
-#define StoreGraph StoreGraph2
 class LocalGraph : public Graph {
 public:
   StoreGraph *lgraph;

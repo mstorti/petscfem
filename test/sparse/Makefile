@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2002/07/21 16:00:36 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2002/07/21 19:01:48 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -47,8 +47,8 @@ tryme5.o: CPPFLAGS = -I/u/mstorti/SOFT/boost_1_28_0/ -ftemplate-depth-30
 tryme5.bin: tryme5.o
 	g++ -g -o $@ $<
 
-CXXOPTFLAGS = -O2
-tryme6.o: tryme6.cpp dvector.h graphdv.h
+CXXOPTFLAGS = -g
+tryme6.o: tryme6.cpp dvector.h graphdv.h graphs.h
 	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
 
 tryme6.bin: tryme6.o
