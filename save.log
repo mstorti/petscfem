@@ -2027,3 +2027,7 @@ tag: beta-3.13.pl9 on Wed,  1 Jan 2003 20:49:37 -0300 by mstorti in spider
      > Now can define dynamically loaded amplitude functions 
      > that depend on nodes. 
      > Working on inviscid/potential coupling. 
+----------
+tag: beta-3.13.pl10 on Wed,  1 Jan 2003 22:22:26 -0300 by mstorti in spider
+     > Working on inviscid/potential coupling. 
+     > Identifies second layer of nodes in the inviscid region. 
