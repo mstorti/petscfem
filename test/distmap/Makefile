@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16.6.3 2001/12/18 01:58:49 mstorti Exp $ 
+# $Id: Makefile,v 1.16.6.4 2001/12/18 12:59:24 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
-tests: distmap distmat
+tests: distmap distmat dist_graph
 
 #w Tests the distributed container class
 dm: distcont.bin
@@ -81,5 +81,10 @@ $(LIB)(%.o):
 tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ tryme7.o $(LDFLAGS)
+
+dist_graph: tryme7.bin
+	tryme7.bin 20 > dist_graph.np1.out.tmp
+	$(MPIRUN) -np 2 -machinefile machi.dat tryme7.bin 20 > dist_graph.np2.out.tmp
+	$(MPIRUN) -np 3 -machinefile machi.dat tryme7.bin 20 > dist_graph.np3.out.tmp
 
 #s

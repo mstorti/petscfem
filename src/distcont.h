@@ -1,12 +1,14 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.2.4.3 2001/12/18 01:58:41 mstorti Exp $
+// $Id: distcont.h,v 1.2.4.4 2001/12/18 12:59:49 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
 #include <cstdio>
 #include <vector>
 //#include <algorithm>
+
+//#define USE_BELONG
 
 #include <mpi.h>
 
@@ -74,6 +76,27 @@ public:
       @param p (input) the pair to be inserted.
   */ 
   void combine(const ValueType &p);
+#ifdef USE_BELONG
+  class Belongs {
+    DistCont *dm;
+    int *plist,size,myrank;
+  public:
+    bool operator() (const ValueType &p) const {
+      // bool operator() (typename Container::const_iterator p) const {
+      int nproc;
+      dm->processor(p,nproc,plist);
+      for (int j=0; j<nproc; j++) 
+	if (plist[j]==myrank) return false;
+      return true;
+    }
+    void init(DistCont *dm_c,int size_c) {
+      dm = dm_c;
+      size = size_c;
+      plist = new int[size];
+    };
+    ~Belongs() {delete[] plist;};
+  };
+#endif
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -193,12 +216,21 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     }
   }
 
+  // USE_BELONG:= At this point we have to remove all items of the
+  // container that do not belong to this processor. For containers
+  // like linked lists or vectors this could be done with a
+  // `remove_if' and a `erase', but for containers like `set' or `map'
+  // this can't be done, since implies breaking the internal order
+  // (perhaps classified). So that, I implemented an alternative
+  // `remove_if' algorithm. (BTW this could be put in the form of an
+  // abstract algorithm). 
+
   // Erase members that do not belong to this processor.
   // This implementation may be very slow for non-linked containers. 
-
-  // predicate belongs() tells if the element remains here
-#if 1
-#if 0
+#ifdef USE_BELONG
+  iter = remove_if(begin(),end(),belongs);
+  erase(iter,end());
+#else
   // Advance until find the first element that remains here
   while (1) {
     iter = begin();
@@ -223,10 +255,6 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
       }
     }
   }
-#endif
-#else
-  iter = remove_if(begin(),end(),Belongs());
-  erase(iter,end());
 #endif
 
   // Check that all buffers must remain at the end

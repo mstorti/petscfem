@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.1.2.4 2001/12/18 01:58:41 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.1.2.5 2001/12/18 12:59:49 mstorti Exp $
 
 // fixme:= this may not work in all applications
 int MY_RANK,SIZE;
@@ -98,7 +98,7 @@ void StoreGraph::print() const {
   qe = lgraph.end();
   for (q = lgraph.begin(); q!=qe; q++) {
     const set<int> &w = q->second;
-    PetscSynchronizedPrintf(comm,"%d -> ",q->first);
+    PetscSynchronizedPrintf(comm,"[%d] %d -> ",MY_RANK,q->first);
     se = w.end();
     for (s=w.begin(); s!=se; s++)
       PetscSynchronizedPrintf(comm,"%d ",*s);
