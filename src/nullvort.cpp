@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.11 2003/03/05 03:28:03 mstorti Exp $
+// $Id: nullvort.cpp,v 1.12 2003/03/05 23:57:50 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -17,6 +17,7 @@ null_vort::~null_vort() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
+#if 0
   // Read options from data file
   thash.read(fstack);
   int ierr;
@@ -29,7 +30,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   assert(volume_elemset!="<none>");
   //o The field to be used on the fictitious node as
   //  Lagrange multiplier
-  TGETOPTNDEF(&thash,string,fic_dof,<none>);
+  TGETOPTNDEF(&thash,int,fic_dof,<none>);
 
   // Call the `factory' (constructor) for the Surf2Vol object. 
   int identify_volume_elements, layers,
@@ -261,4 +262,5 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   coupling_nodes_table.clear();
   coupling_nodes_map.clear();
   graph.clear();
+#endif
 }

@@ -5,6 +5,7 @@ $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'skew' unless $case_name;
 $noise = 0.;
+$video = 1;
 if ($case_name =~ /^(.*)_noise$/) {
     $noise = 0.25;
     $case_name = $1;
@@ -81,6 +82,7 @@ if ($case_name =~ /cone/) {
 if ($case_name eq 'rotating_cone') {
     print "# using \"rotating_cone\" options\n";
     $N = $M = 30;
+    $N = $M = 60 if $video;
     $Lx = $Ly = 2;
     if (0) { # Large test
         $N = $M = 160;
@@ -130,6 +132,13 @@ iisd_subpart 1
 nnwt 1
 <:pr('alpha'):>
 weak_form 0
+
+#if $video
+hook_list advdif_dx_hook my_hook
+dx_steps 1
+dx_auto_combine
+#endif
+
 __END_HASH__
 
 #===========================================================
@@ -140,6 +149,7 @@ __END_HASH__
 
 #===========================================================
 elemset newadvdif_advecfm2 3
+name advec
 #if $case_name eq 'rotating_cone'
 props advective_jacobians[2]
 #else
@@ -149,6 +159,7 @@ geometry triangle
 npg 3
 diffusive_jacobians 0.
 # data advec.con.tmp
+dx 1
 __END_HASH__
 __INCLUDE__ advec.con.tmp
 __END_ELEMSET__
