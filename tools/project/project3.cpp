@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.10 2005/03/09 21:23:23 mstorti Exp $
+// $Id: project3.cpp,v 1.11 2005/04/01 21:20:47 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -355,7 +355,6 @@ int main() {
   xnod2.reshape(2,nnod2,ndim);
 
   printf("mesh2: %d nodes read\n",nnod2);
-
 
   FemInterp fem_interp;
   fem_interp.init(KNBR,ndof,ndimel,xnod1,ico1);
