@@ -5,7 +5,6 @@ use Getopt::Std;
 getopts("lLpP");
 
 sub count_match {
-    print "d: $s, patt:$patt\n";
     my ($s,$pat) = @_;
     my $rest = $s;
     my $count = 0;
@@ -13,6 +12,7 @@ sub count_match {
 	$rest = $POSTMATCH;
 	$count++;
     }
+    print "s: $s, patt:$pat, count $count\n";
     return $count;
 }
 
@@ -37,7 +37,7 @@ if ($use_pl) {
     print "'light' tag \"$tag\" doesn't contain \".pl\".",
     " Please check!\n" if $is_light && $tag!~/\.pl/;
 } else {
-    my $even_dots = count_match($tag,"\.") % 2;
+    my $even_dots = !(count_match($tag,"\\.") % 2);
     print "'hard' tag \"$tag\" contains even number of dots.",
     " Please check!\n" if ! $is_light && $even_dots;
     print "'light' tag \"$tag\" contains odd number of dots.",
