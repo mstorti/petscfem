@@ -1,6 +1,27 @@
-#!/usr/bin/perl
+#! /usr/bin/perl
 
-$is_light=0;
+use English;
+use Getopt::Std;
+getopts("lLpP");
+
+sub count_match {
+    my ($s,$pat) = @_;
+    my $rest = $s;
+    my $count = 0;
+    while ($rest =~ /$pat/) {
+	$rest = $POSTMATCH;
+	$count++;
+    }
+    return $count;
+}
+
+$is_light = 0;
+$is_light = 1 if $opt_l;
+$is_light = 0 if $opt_L;
+
+$use_pl = 1;
+$use_pl = 1 if $opt_p;
+$use_pl = 0 if $opt_P;
 
 $tag = shift();
 if ($tag eq '-l') {
@@ -9,11 +30,19 @@ if ($tag eq '-l') {
 }
 $savelog = shift();
 
-print "'hard' tag \"$tag\" contains \".pl\".",
+if ($use_pl) {
+    print "'hard' tag \"$tag\" contains \".pl\".",
     " Please check!\n" if !$is_light && $tag=~/\.pl/;
-print "'light' tag \"$tag\" doesn't contain \".pl\".",
+    print "'light' tag \"$tag\" doesn't contain \".pl\".",
     " Please check!\n" if $is_light && $tag!~/\.pl/;
-
+} else {
+    my $even_dots = count_match($tag,"\.") % 2;
+    print "'hard' tag \"$tag\" contains even number of dots.",
+    " Please check!\n" if ! $is_light && $even_dots;
+    print "'light' tag \"$tag\" contains odd number of dots.",
+    " Please check!\n" if $is_light && ! $even_dots;
+}
+    
 open SV,$savelog;
 while (<SV>) {
     if (/^tag: $tag /) {

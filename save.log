@@ -3249,7 +3249,6 @@ tag: beta-3.30 on Sat, 22 May 2004 10:04:44 -0300 by mstorti in spider
      > Added `sphere' and `cylinder' surfaces. 
      > Fixing `read_vector' with no file bug. 
      > Merged from bubbly-branch (Beto contrib to bubbly)
-tag: beta-3.31.0 on Sat, 22 May 2004 09:52:42 -0300 by mstorti in spider
 ----------
 tag: beta-3.31.1 on Sat, 22 May 2004 10:45:50 -0300 by mstorti in spider
      > Administrative tag.

@@ -1,9 +1,9 @@
-$Id: Version-Policy-HOWTO.txt,v 1.2 2004/01/19 22:02:02 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.4 2004/05/22 13:46:21 mstorti Exp $
 
 These are the steps for saving a new stable version of PETSc-FEM. The
 policy version herself is described in the doc. Say that we are
 working in unstable version 3.21, stable 3.20 and want to save a new
-stable version 3.22 (usntable 3.23)
+stable version 3.22 (unstable 3.23)
 
 *./ Save CVS repository (directory `cvsroot') in cvsroot-DATE.tgz
 *./ Make $ make tag with version=3.23
@@ -16,3 +16,4 @@ stable version 3.22 (usntable 3.23)
 *./ Same in files on the HEAD branch (probably directory PETSC/petscfem)
 *./ Create a new `light' administrative version on the `HEAD' branch
        with numbering 3.23.pl1 (WARNING: the script will suggest 3.22.pl1).
+*./ Update `doc/versions-tree.fig'
