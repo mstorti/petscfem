@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.6 2005/01/27 14:43:35 mstorti Exp $
+//$Id: streamsw1d.cpp,v 1.7 2005/02/01 20:36:01 mstorti Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -34,18 +34,19 @@ void streamsw1d_ff::start_chunk(int &options) {
   int nel,nelprops;
   ndimel=1;
   elemset->elem_params(nel,ndof,nelprops);
-  // Acceleration of gravity
+  //o Acceleration of gravity.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
-  // Scale the SUPG upwind term. 
+  //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
-  // Threshold value for height 
+  //o Threshold value for height.
   EGETOPTDEF_ND(elemset,double,h_min,1e-6);
-  // Threshold value for velocity
+  //o Threshold value for velocity.
   EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
-  // Scale friction term
+  //o Scales friction term.
   EGETOPTDEF_ND(elemset,double,cfric,1.);
   assert(ierr==0);
 
+  //o Dimension of the problem. 
   EGETOPTDEF_ND(elemset,int,ndim,0);
   assert(ndim==2);
 
@@ -292,6 +293,9 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 				FastMat2 &Rie, FastMat2 &drdU,
 				FastMat2 &C_U){
   int ierr;
+  // FIxME:= gravity: Why this is here again? It is
+  // already above...
+  //o Gravity of the problem.
   EGETOPTDEF_ND(elemset,double,gravity,1.);
   double tmpd,tmpd1,tmpd2,tmpd3,tt,tt2,pp,
     ppg1,ppg,h_eps=1.e-10,signudn=0.0,u_eps=1.e-10;
