@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.45 2002/08/27 00:16:15 mstorti Exp $
+//$Id: elemset.cpp,v 1.46 2002/08/28 19:55:37 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -525,6 +525,8 @@ int assemble(Mesh *mesh,arg_list argl,
     //o Report consumed time for the elemset. Useful for building
     // the table of weights per processor. 
     TGETOPTDEF(elemset->thash,int,report_consumed_time,0);
+    //o Print statistics about time spent in communication and residual evaluation
+    TGETOPTDEF(mesh->global_options,int,report_consumed_time_stat,0);
 
     int local_chunk_size;
     // scaled chunk_size in order to balance processors 
@@ -821,6 +823,17 @@ int assemble(Mesh *mesh,arg_list argl,
       delete[] ARGVJ.profile;
       ARGVJ.profile = NULL;
     }
+
+    if (report_consumed_time_stat) {
+      out_of_loop.add(hpchrono.elapsed());
+      out_of_loop.print_stat("Out of loop");
+      in_loop.print_stat("In loop");
+      wait.print_stat("Wait");
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] Total in assemble: %g\n",
+			      MY_RANK,hpc2.elapsed());
+      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    }
+
   }
 
   // To be done after processing all elemsets
@@ -875,15 +888,6 @@ int assemble(Mesh *mesh,arg_list argl,
     }
   }
 
-#if 1
-  out_of_loop.add(hpchrono.elapsed());
-  out_of_loop.print_stat("Out of loop");
-  in_loop.print_stat("In loop");
-  wait.print_stat("Wait");
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] Total in assemble: %g\n",
-	      MY_RANK,hpc2.elapsed());
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
-#endif
   return 0;
 }
 

@@ -1,8 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: distcont2.h,v 1.1 2002/08/28 00:48:18 mstorti Exp $
+//$Id: distcont2.h,v 1.2 2002/08/28 19:55:37 mstorti Exp $
 
 #ifndef DISTCONT2_H
 #define DISTCONT2_H
+
+//#define DEBUG_SPEEDUP
 
 #include <src/distcont.h>
 #include <src/utils.h>
@@ -37,7 +39,9 @@ belongs(typename Container::const_iterator k,int *plist) const {
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Container,typename ValueType,class Partitioner>
 void DistCont<Container,ValueType,Partitioner>::scatter() {
+#if DEBUG_SPEEDUP
   HPChrono hpc;
+#endif
   typename Container::iterator iter,next;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
@@ -181,7 +185,10 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   // initially...
   sproc=0;
   eproc=size;
+
+#if DEBUG_SPEEDUP
   hpc.start();
+#endif
   // now loop until all groups of processor are of size 1
   while (1) {
     // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
@@ -281,10 +288,12 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
       }
     }
   }
+#if DEBUG_SPEEDUP
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			  "[%d] distcont 1 %f\n",MY_RANK,hpc.elapsed());
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
- 
+#endif 
+
   delete[] plist;
 
   // free memory
