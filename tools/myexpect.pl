@@ -1,6 +1,7 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.12 2003/02/19 12:45:58 mstorti Exp $
+#$Id: myexpect.pl,v 1.13 2003/11/16 03:47:37 mstorti Exp $
 
+use English;
 ## position in count record
 $OK= 1;
 $NOT_OK= 2;
@@ -11,6 +12,9 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 @stack=();
 @output=();
 @stack_output=();
+
+$PRE = "{{";
+$POST = "}}";
 
 sub read_file {
     my $file = shift();
@@ -55,7 +59,30 @@ sub match_exactly {
 
 sub match_regexp {
     my ($line,$patt) = @_;
-    return ($line =~ /$patt/);
+    my $orig_patt = $patt;
+    my $new_patt = "";
+    my @conds = ();
+    while ($patt=~/$PRE/) {
+	$new_patt .= $PREMATCH."(.*)";
+	$patt = $POSTMATCH;
+	die "delimiters doesn't match in pattern: \"$orig_patt\"\n" 
+	    unless $patt =~/$POST/;
+	$patt = $POSTMATCH;
+	push @conds,$PREMATCH;
+    }
+    $new_patt .= $patt;
+    my @matches = ($line =~ /$new_patt/);
+    ## return 0 unless the line matched
+    return 0 unless @matches;
+    ## return 0 if there are conditions and they didn't match
+    ## in number with the matches
+    return 0 if @conds && @matches != @conds;
+    ## check each condition if any
+    for (my $j=0; $j<@conds; $j++) {
+	$W = $matches[$j];
+	return 0 unless eval $conds[$j];
+    }
+    return 1;
 }
 
 sub expect {
