@@ -1,9 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.2 2001/10/07 00:53:35 mstorti Exp $
+// $Id: distcont.h,v 1.3 2001/12/18 02:01:39 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
+#include <cstdio>
 #include <vector>
 //#include <algorithm>
 
@@ -36,12 +37,14 @@ public:
   DistCont<Container,
     ValueType,Partitioner>(Partitioner *pp=NULL,
 			   MPI_Comm comm_=MPI_COMM_WORLD);
+#if 0
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
-      @return the number of processor where these matrix should go. 
+      @return the number of processor where these entry should go. 
   */ 
   void processor(const ValueType &p,int &nproc,int *plist) const;
+#endif
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
@@ -71,27 +74,6 @@ public:
       @param p (input) the pair to be inserted.
   */ 
   void combine(const ValueType &p);
-#if 0
-  class Belongs {
-    DistCont *dm;
-    int *plist,size,myrank;
-  public:
-    bool operator() (const ValueType &p) const {
-      // bool operator() (typename Container::const_iterator p) const {
-      int nproc;
-      dm->processor(p,nproc,plist);
-      for (int j=0; j<nproc; j++) 
-	if (plist[j]==myrank) return false;
-      return true;
-    }
-    void init(DistCont *dm_c,int size_c) {
-      dm = dm_c;
-      size = size_c;
-      plist = new int[size];
-    };
-    ~Belongs() {delete[] plist;};
-  };
-#endif
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -107,19 +89,21 @@ DistCont<Container,
   part=pp;
 };
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
 void DistCont<Container,ValueType,Partitioner>::
 processor(const ValueType &p,int &nproc,int *plist) const {
   return part->processor(p,nproc,plist);
 };
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
 int DistCont<Container,ValueType,Partitioner>::
 belongs(typename Container::const_iterator k,int *plist) const {
   int nproc,j;
-  processor(*k,nproc,plist);
+  part->processor(*k,nproc,plist);
   for (j=0; j<nproc; j++) 
     if (plist[j] == myrank) return 1;
   return 0;
@@ -133,7 +117,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   typename Container::iterator iter,next;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
-  ValueType p;
+
   char **send_buff,**send_buff_pos,*recv_buff;
   const char *recv_buff_pos,*recv_buff_pos_end;
   MPI_Request send_rq,recv_rq;
@@ -159,7 +143,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 
   // Compute the table `to_send'
   for (iter = begin(); iter != end(); iter++) {
-    processor(*iter,nproc,plist);
+    part->processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) 
       if (plist[j]!=myrank)
 	SEND(myrank,plist[j]) += size_of_pack(*iter);
@@ -202,7 +186,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 
   // Fill send buffers
   for (iter = begin(); iter != end(); iter++) {
-    processor(*iter,nproc,plist);
+    part->processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) {
       k = plist[j];
       if (k!=myrank) pack(*iter,send_buff_pos[k]);
@@ -354,6 +338,8 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    // recv_buff_pos_end
 	    recv_buff_pos_end = recv_buff + nsent;
 	    while (recv_buff_pos < recv_buff_pos_end ) {
+	      ValueType p;	// This is to assure that we have a clean
+				// `p' each time
 	      unpack(p,recv_buff_pos);
 	      combine(p);
 	    }
