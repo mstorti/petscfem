@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.8 2002/02/03 23:48:12 mstorti Exp $
+//$Id: stream.cpp,v 1.9 2002/02/04 00:55:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -34,10 +34,12 @@ void DummyEnthalpyFun
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
-  if (!channel) channel = ChannelShape::factory(elemset);
-
   // Initialize function objects
+  if (!channel) channel = ChannelShape::factory(elemset);
   channel->init();
+
+  if (!friction_law) 
+    friction_law = FrictionLaw::factory(elemset);
   friction_law->init();
 
   elemset->get_prop(slope_prop,"slope");
@@ -74,7 +76,7 @@ void stream_ff::element_hook(ElementIterator &element) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 stream_ff::stream_ff(const NewAdvDif *e) 
   : AdvDifFFWEnth(e), channel(NULL), 
-  friction_law(FrictionLaw::factory(elemset)) {}
+  friction_law(NULL) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 stream_ff::~stream_ff() { delete friction_law; }
@@ -219,24 +221,20 @@ void rect_channel
 FrictionLaw::FrictionLaw(const NewElemset *e) : elemset(e) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FrictionLaw *FrictionLaw::factory(const NewElemset *e) {
-  return new Chezy(e);
+FrictionLaw *FrictionLaw::factory(const NewElemset *elemset) {
+  int ierr;
+  EGETOPTDEF(elemset,string,friction_law,string("undefined"));
+  if (friction_law=="Chezy" || friction_law=="undefined")  {
+    return new Chezy(elemset);
+  } else if (friction_law=="Manning") {
+    return new Manning(elemset);
+  } else assert(0); // Not valid friction law
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Chezy::flow(double area,double perimeter,double S,
-			double &Q,double &C) const {
-  double Ch = 1., m=1.5;
-  double gamma = Ch*sqrt(S/perimeter);
-
-  // #define LINEAR_VERSION_DEBUG
-#ifdef LINEAR_VERSION_DEBUG
-  // assume area near 1
-  double area_ref=1.;
-  C = m*gamma*pow(area,m-1.);
-  Q = C*area;
-#else
-  Q = gamma*pow(area,m);
-  C = Q*m/area;
-#endif
+void Manning::init() { 
+  int ierr;
+  elemset->get_prop(roughness_prop,"roughness"); 
+  EGETOPTDEF_ND(elemset,double,a_bar,1.);
+  assert(ierr==0);
 }

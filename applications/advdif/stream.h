@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.5 2002/02/03 23:24:53 mstorti Exp $
+// $Id: stream.h,v 1.6 2002/02/04 00:55:03 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -91,6 +91,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Abstract class representing all friction laws
 class FrictionLaw {
+protected:
   const NewElemset *elemset;
 public:
   /// fixme:= This should be private
@@ -121,8 +122,20 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// This implements the Chezy friction law
 class Chezy : public FrictionLaw {
+  /// Chezy friction coefficient property
+  Property Ch_prop;
+  /// Chezy friction coefficient value
+  double Ch;
 public:
   Chezy(const NewElemset *e) : FrictionLaw(e) {}
+
+  // Initialize properties
+  void init() { elemset->get_prop(Ch_prop,"Ch"); }
+
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    Ch = elemset->prop_val(element,Ch_prop);
+  }
 
   /** Should return the volumetric flow `Q' for a given area `A' and
       the derivative `dQ/dA'. 
@@ -134,7 +147,51 @@ public:
       i.e. #C = dQ/dQ#
   */ 
   void flow(double area,double perimeter,
-	    double S,double &Q,double &C) const;
+	    double S,double &Q,double &C) const {
+    double m=1.5;
+    double gamma = Ch*sqrt(S/perimeter);
+    Q = gamma*pow(area,m);
+    C = Q*m/area;
+  }    
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// This implements the Manning friction law
+class Manning : public FrictionLaw {
+  /// Manning friction coefficient property
+  Property roughness_prop;
+  /// Manning friction coefficient value
+  double roughness;
+  /// Conversion factor
+  double a_bar;
+public:
+  Manning(const NewElemset *e) : FrictionLaw(e),
+  a_bar(1.) {}
+
+  // Initialize properties
+  void init();
+
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    roughness = elemset->prop_val(element,roughness_prop);
+  }
+
+  /** Should return the volumetric flow `Q' for a given area `A' and
+      the derivative `dQ/dA'. 
+      @param area (input) tranversal area
+      @param perimeter (input) wetted perimeter
+      @param S (input) bottom slope
+      @param Q (output) volumetric flow
+      @param C (output) derivative of volumetric flow w.r.t. A,
+      i.e. #C = dQ/dQ#
+  */ 
+  void flow(double area,double perimeter,
+	    double S,double &Q,double &C) const {
+    double m = 5./3.;
+    double gamma = a_bar/roughness*sqrt(S)/pow(perimeter,2./3.);
+    Q = gamma*pow(area,m);
+    C = Q*m/area;
+  }    
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -157,7 +214,7 @@ class stream_ff : public AdvDifFFWEnth {
   /// Pointer to the channel shape object
   ChannelShape *channel;
   /// Properties related to friction
-  Property Ch_prop, roughness_prop, slope_prop;
+  Property slope_prop;
 public:
   stream_ff(const NewAdvDif *e);
 
