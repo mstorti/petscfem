@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.3 2002/07/26 00:57:31 mstorti Exp $
+//__INSERT_LICENSE__ $Id: fstepfm2.cpp,v 1.3 2002/07/26 00:57:31
+//mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -20,9 +20,7 @@ const double FIX = 0.1;
     @param A (input) matrix to be fixed.
     @param B (input) mask for A
 */ 
-/ 
-//
-void fix_null_diagonal_entries(FastMat2 &A,Fastmat2 &B) {
+void fix_null_diagonal_entries(FastMat2 &A,FastMat2 &B) {
   int n = A.dim(1);
   B.set(0.);
   for (int j=1; j<=n; j++) {
@@ -34,6 +32,7 @@ void fix_null_diagonal_entries(FastMat2 &A,Fastmat2 &B) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define fracstep fracstep_fm2
 int fracstep::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   DONT_SKIP_JOBINFO(comp_mat_prof);
@@ -179,7 +178,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
-  FastMat2 grad_fi,Uintri,Pert,W;
+  FastMat2 grad_fi,Uintri,P_supg,W;
   //  LogAndSign L;
   double detJaco, UU, u2, Peclet, psi, tau, div_u_star,
     wpgdet;
@@ -189,6 +188,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     grad_u(2,ndim,ndim),grad_u_star(2,ndim,ndim),dshapext(2,nel,ndim),
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
+  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10;
 
   masspg.set(1.);
   grad_u_ext.set(0.);
@@ -201,14 +201,17 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   mom_profile.prod(masspg,grad_u_ext,1,3,4,2);
 
   mom_profile.reshape(2,nen,nen);
-  fix_null_diagonal_entries(mom_profile,mom_mat_fix,nen);
+  fix_null_diagonal_entries(mom_profile,mom_mat_fix);
+  mom_profile.reshape(4,nel,ndof,nel,ndof);
+  mom_mat_fix.reshape(4,nel,ndof,nel,ndof);
   
-  grad_u_ext=0;
-  grad_u_ext(ndim+1,ndim+1) = 1;
-  poi_profile = kron(masspg,grad_u_ext);
-  fix_null_diagonal_entries(poi_profile,poi_mat_fix,nen);
-  poi_profile.reshape(4,nel,dof,nel,dof);
-  poi_mat_fix.reshape(4,nel,dof,nel,dof);
+  grad_u_ext.set(0.);
+  grad_u_ext.setel(1.,ndim+1,ndim+1);
+  poi_profile.prod(masspg,grad_u_ext,1,3,4,2);
+  poi_profile.reshape(2,nen,nen);
+  fix_null_diagonal_entries(poi_profile,poi_mat_fix);
+  poi_profile.reshape(4,nel,ndof,nel,ndof);
+  poi_mat_fix.reshape(4,nel,ndof,nel,ndof);
 
   if (comp_mat_prof) {
     mom_profile.export_vals(arg_data_v[0].profile); // A_mom
@@ -224,7 +227,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } else if (comp_res_prj) {
   } else assert(0);
 
-  Matrix seed;
+  FastMat2 seed;
   if (comp_res_mom || comp_mat_prj) {
     seed.reshape(2,ndof,ndof).set(0.)
       .is(1,1,ndim).is(2,1,ndim).eye().rs();
@@ -246,7 +249,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // doesn't even look at the `retvalmat' values. It looks at the
       // .profile member in the argument value
       matlocmom.export_vals(&(RETVALMAT_MOM(ielh)));
-      matlocmom.export_vals(&(RETVALMAT_PRJ(ielh))();
+      matlocmom.export_vals(&(RETVALMAT_PRJ(ielh)));
       matlocmom.export_vals(&(RETVALMAT_POI(ielh)));
       continue;
     } 
@@ -264,7 +267,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       locstate.set(&(LOCST(ielh,0,0)));
       locstate2.set(&(LOCST2(ielh,0,0)));
     }
-    matlocmom.set(0);
+    matlocmom.set(0.);
     matlocmom2.set(0.);
     veccontr.set(0.);
     resmom.set(0.);
@@ -311,10 +314,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	locstate2.rs();
 
 	double u2 = u.sum_square_all();
-	uintri = iJaco * u;
-	double Uh = sqrt(uintri.SumSquare())/2.;
+	uintri.prod(iJaco,u,1,-1,-1);
+	double Uh = sqrt(uintri.sum_square_all())/2.;
 
-	if(u2<=1e-6*(2. * Uh * VISC)) {
+	if(u2<=1e-6*(2.*Uh*VISC)) {
 	  Peclet=0.;
 	  psi=0.;
 	  tau=0.;
@@ -323,15 +326,17 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  psi = 1./tanh(Peclet)-1/Peclet;
 	  tau = psi/(2.*Uh);
 	}
-	Pert  = (taufac * tau) * u.t() * dshapex;
-	W = SHAPE + Pert;
+	P_supg.prod(u,dshapex,-1,-1,1).scale(taufac * tau);
+	W.set(SHAPE).add(P_supg);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// RESIDUE CALCULATION
-	resmom += wpgdet * W.t() * 
-	  (- ((1-alpha) * u.t() * grad_u
-	      + alpha * u_star.t() * grad_u_star)
-	   - ((1-alphap)/rho)* grad_p.t());
+
+	tmp1.prod(u,grad_u,-1,-1,1).scale(1-alpha);
+	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(alpha);
+	tmp1.add(tmp2).axpy(grad_p,-((1-alphap)/rho));
+	tmp3.prod(W,tmp1,1,2);
+	resmom.axpy(W,wpgdet);
 	SHV(resmom);
 	// sacamos gradiente de presion en la ec. de momento (conf. Codina)
 	//- (1/rho)* grad_p.t());
@@ -340,28 +345,36 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// version implicita
 	// resmom -= wpgdet * VISC * dshapex.t() * grad_u_star;
 	// version Crank-Nicholson 
-	resmom -= wpgdet * VISC * dshapex.t() *
-	  ((1-alpha) * grad_u+ alpha * grad_u_star);
+	tmp4.set(grad_u).scale(1-alpha).axpy(grad_u_star,alpha);
+	tmp5.prod(dshapex,tmp4,-1,2,-1,2);
+	resmom.axpy(tmp5,-wpgdet*VISC);
 	SHV(resmom);
 	
 	// Parte temporal
-	resmom -= (wpgdet/Dt) * W.t() * (u_star-u).t();
+	tmp6.set(u_star).rest(u);
+	tmp7.prod(W,tmp6,1,2);
+	resmom.axpy(tmp7,-wpgdet/Dt);
 	SHV(resmom);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// JACOBIAN CALCULATION
-	matlocmom += ( alpha * wpgdet) * W.t() * u_star.t() * dshapex;
-	masspg = W.t() * SHAPE;
-	grad_u_ext.SubMatrix(1,ndim,1,ndim) = grad_u_star;
+	tmp7.prod(u_star,dshapex,-1,-1,1);
+	tmp8.prod(W,tmp7,1,2);
+	matlocmom2.axpy(tmp8,alpha*wpgdet);
+
+	masspg.prod(W,SHAPE,1,2);
+	tmp9.prod(masspg,grad_u_ext,1,3,2,4);
 	if (couple_velocity)
-	  matlocmom2 += ( alpha * wpgdet) * kron(masspg,grad_u_ext.t());
+	  matlocmom2.is(2,1,ndim).is(4,1,ndim).axpy(tmp9,alpha * wpgdet).rs();
 
 	// Parte difusiva
-	matlocmom += (alpha *wpgdet) * VISC * dshapex.t() * dshapex ; // grad_u_star;
+	tmp10.prod(dshapex,dshapex,1,2,3,4);
+	matlocmom.axpy(tmp10,alpha *wpgdet);
 	
 	// Parte temporal
-	matlocmom += (wpgdet/Dt) * W.t() * SHAPE;
+	matlocmom.axpy(masspg,wpgdet/Dt);
        
+#if 0 // not coded yet
       } else if (comp_res_poi) {
 
 	//double h_max = 2*Jaco.Norm1();
@@ -413,7 +426,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// fixme:= esto me parece que deberia ir con signo - !!
 	matlocmom += wpgdet * SHAPE.t() * SHAPE ;
-
+#endif
       } else {
 
 	printf("Don't know how to compute jobinfo: %s\n",jobinfo);
@@ -422,6 +435,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
     }
+#if 0 // not coded yet
     if (comp_res_mom) {
       veccontr.Columns(1,ndim) = resmom;
       veccontr >> &(RETVAL(ielh));
@@ -440,7 +454,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.Columns(1,ndim) = resmom;
       veccontr >> &(RETVAL(ielh));
     } else assert(0);
-
+#endif
   }
   return 0;
 }
