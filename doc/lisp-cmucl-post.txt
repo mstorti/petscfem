@@ -1,0 +1,70 @@
+Posted to http://news.gmane.org/gmane.lisp.cmucl.general
+Sun, 29 Feb 2004 17:41:30 -0300
+================================================================
+
+Hi lispers,
+
+I'm writing a FEM (Finite Element Method) program
+and I have already written a rather large library
+in C++. FEM leads to linear algebra problems
+(sparse linear systems of equations) with a very
+large number of unknowns (say one million or
+more). The code runs in parallell on beowulf
+clusters. Here are some links:
+
+http://venus.ceride.gov.ar/petscfem
+http://venus.ceride.gov.ar/twiki/bin/view/Cimec/PETScFEMResults
+http://venus.ceride.gov.ar/~mstorti/AHMED/tex/ahmed/ahmed.html
+
+I'm now looking for an extension language to this
+program. I have several alternatives and Lisp is
+one of them. Lisp has the advantage that it is
+already known by many mechanical engineers due to
+AutoLisp the languange extension for AutoCAD.
+
+Now, I ask you which of the Lisp implementations
+is more suitable to be taken as language
+extension, i.e. calling the C/C++ library from
+Lisp. I have already some experience with Guile
+and I want to know if there is something similar
+in the Common Lisp side.
+
+I have seen that CMUCL has an alien package that
+does it. However I have read elsewhere in the
+documentation that the heap size for alien
+variables is bounded to 8MB. Also, I read that
+it's not easy to call Lisp code from C.
+
+[BTW: it seems that the link to CMUCL manual in 
+CMUCL home page http://www.cons.org/cmucl/doc/index.html
+is broken. It points to 
+http://cmucl.cons.org/ftp-area/cmucl/doc/cmu-user/]
+
+The idea is that the user of the FEM program
+should call C/C++ routines from a library, to
+build basically distributed vectors, matrices,
+perhaps graphs, and operate on them. This
+entities are very large, matrices may have
+storage areas with several hundreds MB per
+computing node. And when iterative methods are
+used, several hundred vectors are created, each
+is several MB's large (per node). 
+
+If you want you can pass the parallell
+distributed aspects and focus in writing a Lisp
+package for interfacing with a pre-existing C
+linear algebra library, like BLAS, LAPACK or
+PETSC. 
+
+Also, some C routines should be able to build a
+list of arguments and pass them to a Lisp
+function. For instance, users should be able to
+pass a function that compute some quantities (a
+fluid viscosity, permeability) as a function of
+space coordinates and time, and perhaps other
+computed fields. (One of the things I love in
+Lisp is the lemma `code=data').
+
+Thanks in advance for your advice,
+
+Mario
