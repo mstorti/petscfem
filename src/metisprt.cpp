@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.9 2001/11/12 18:29:41 mstorti Exp $
+//$Id: metisprt.cpp,v 1.10 2001/11/20 23:01:23 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -138,7 +138,11 @@ void  metis_part(int nelemfat,Mesh *mesh,
     visited = nvrtx;
   } else {
     // Take a group for each element
-    for (elem=0; elem<nelemfat; elem++) el2vrtx[elem] = elem;
+    for (elem=0; elem<nelemfat; elem++) {
+      el2vrtx[elem] = elem;
+      find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
+      vwgt[elem] += int(elemset->weight()/weight_scale);
+    }      
     visited=nelemfat;
   }
   
