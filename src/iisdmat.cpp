@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.21 2002/07/29 20:17:39 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.22 2002/08/08 14:21:35 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -131,6 +131,8 @@ int PFPETScMat::build_sles() {
   TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
+  //o Uses right or left preconditioning
+  TGETOPTDEF_S_PF(thash,string,preco_side,"right");
 
   ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
   ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
@@ -144,7 +146,13 @@ int PFPETScMat::build_sles() {
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
 
-  ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
+  if (preco_side == "right")
+    ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
+  else if (preco_side == "left") {}
+  else PetscPrintf(PETSC_COMM_WORLD,
+		   "PFPETScMat::build_sles: bad \"preco_side\" option: %s\n",
+		   preco_side.c_str());
+    
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
   ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
