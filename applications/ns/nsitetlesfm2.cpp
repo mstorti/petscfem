@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.34 2001/07/23 15:53:30 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.35 2001/07/25 18:22:22 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -226,7 +226,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   FastMatCacheList cache_list;
-  // FastMat2::activate_cache(&cache_list);
+  FastMat2::activate_cache(&cache_list);
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {

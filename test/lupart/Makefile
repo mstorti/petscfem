@@ -1,7 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2001/07/25 17:27:31 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2001/07/25 18:22:25 mstorti Exp $ 
 
 .PHONY: force all run tests data
+
+run:
+	$(MAKE) NP=2 case=iisd case_size=large ksp=cgs test_case_poiseuille
+	mv -f save.state save.state.iisd.np2.tmp
 
 #w All tests
 tests: test_iisd test_partitioning
@@ -55,8 +59,8 @@ endif
 test_case_%: test_case_%_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl > output.case_$*.tmp
-#			-case $(NAME).depl 
+			-case $(NAME).depl 
+#			-case $(NAME).depl > output.case_$*.tmp
 #			-case $(NAME).depl | tee output.case_$*.tmp
 
 local_clean::

@@ -4,7 +4,7 @@
 # `octave-export_vars()' is not available. 
 require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
 #
-#$case = $ENV{'case'};
+$case = $ENV{'case'};
 $L = 1;                         # Semi distance between plates
 $N = 4;                        # Number of elements in transversal 'x' direction
 $hratio = 1;                    # refinement near the wall
@@ -32,7 +32,13 @@ $Ny = 8;                        # Number of elements in y dir
 $Ny_eq = 2;                     # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
-}
+} elsif ($case_size eq 'large') {
+$N = 16;                        # Number of elements in transversal 'x' direction
+$Ny = 60;                       # Number of elements in y dir
+$Ny_eq = 20;                    # last elements that are equal in size
+                                # in the y direction
+$Ly = 1;                        # longitudinal length 
+} 
 octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
     L Ly Ny_eq Uav ));
 :>//                            # ends ePerl block
