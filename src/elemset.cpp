@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.77 2003/08/31 13:53:59 mstorti Exp $
+//$Id: elemset.cpp,v 1.78 2003/09/01 10:45:50 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -716,6 +716,7 @@ int assemble(Mesh *mesh,arg_list argl,
 			      upd,100.0*upd/total,
 			      assmbly,100.0*assmbly/total,
 			      other,100.0*other/total);
+#if 0
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "upload %10.3gsecs, (%10.3g secs/Ke)\n",
 			      upload,1000.0*upload/elemset->nelem_here);
@@ -723,8 +724,9 @@ int assemble(Mesh *mesh,arg_list argl,
 			      "download %10.3gsecs, (%10.3g secs/Ke)\n",
 			      download,1000.0*download/elemset->nelem_here);
       PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#endif
 
-      PetscPrintf(PETSC_COMM_WORLD,"total %10.3gsecs\n",total);
+      PetscPrintf(PETSC_COMM_WORLD,"Total element compt. %10.3gsecs\n",total);
     }
 
     // To be done for each elemset

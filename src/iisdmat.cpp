@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.62 2003/09/01 01:10:26 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.63 2003/09/01 10:45:50 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -703,7 +703,7 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 #endif
     }
   } 
-#if 1
+#if 0
   if (row_t == L && col_t == L) 
     printf("<dbg> [%d] OLD %d,%d %g\n",MY_RANK,row_indx,col_indx,value);
 #endif
