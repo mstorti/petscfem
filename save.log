@@ -2059,3 +2059,6 @@ tag: beta-3.14.pl3 on Fri,  3 Jan 2003 21:50:07 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl4 on Sat,  4 Jan 2003 04:36:13 -0300 by mstorti in spider
      > Runs all tests. 
+----------
+tag: beta-3.14.pl5 on Sat,  4 Jan 2003 13:21:55 -0300 by mstorti in spider
+     > Starts working the coupling. Converges with sub-relaxation 0.3. 
