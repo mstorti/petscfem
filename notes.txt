@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $
+$Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
+! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
+! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
+! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
+! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
+  # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
+  # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6573,6 +6573,20 @@ Retomando el tema del spillway. No lo logro hacer andar sin
 lo que dice en el `notes.txt' es decir que anda el FS hasta el paso
 18. Voy a tratar de recuperar estos datos pero sin condiciones
 periodicas. 
+
+%===Mon, 19 May 2003 12:23:21 -0300 mstorti@node1.beowulf.gtm
+%
+read_vector:BUG: Sintoma: Se nota que read_vector tarda muchisimo par
+vectores grandes. (spillway, 73K nodos, 290K dofs). Se observa que la
+gran tardanza es en idmap->solve, y esto debido a ineficiencia en
+set<int>. Se reemplaza set<int> por un vector<int> lo cual puede ser
+mejor incluso en memoria. 
+%
+Con set<int> tarda 4minutos. 
+Con vector<int> tarda 18secs.
+%
+12:45:17: verifico que en spillway da el mismo resultado. 
+
 
 
 # Current line ===========  %

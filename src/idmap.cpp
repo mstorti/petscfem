@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.7 2003/05/19 15:52:18 mstorti Exp $
+//$Id: idmap.cpp,v 1.8 2003/05/19 15:53:33 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -144,20 +144,16 @@ void idmap::get_block_matrix(int j,set<int> &iindx,set<int> &jindx,Matrix &qq) {
 #define __FUNC__ "void idmap::solve(double *x,double *y)" 
 void idmap::solve(double *x,double *y) {
 
-#if 1
   int mm,nn;
   set<int> iindx,jindx;
   set<int>::iterator it;
   Matrix qq;
   ColumnVector xr,yr;
   vector<int> done(n,0);
-    // set<int> done;
 
   for (int j=1; j<=n; j++) {
-    if (!(j % 1000)) printf("%d/%d done\n",j,n);
     VOID_IT(iindx);
     VOID_IT(jindx);
-    // if (find(done.begin(),done.end(),j)==done.end()) {
     if (!done[j+1]) {
       get_block_matrix(j,iindx,jindx,qq);
       mm = iindx.size();
@@ -173,56 +169,13 @@ void idmap::solve(double *x,double *y) {
 
       xr = (qq.t()*qq).i() * (qq.t()*yr);
 
-//       cout << "qq: \n" << qq << endl;
-//       cout << "yr: \n" << yr << endl;
-//       cout << "xr: \n" << xr << endl;
-
       ll=0;
       for (it=jindx.begin(); it!=jindx.end(); it++) {
 	  x[*it-1] = xr(++ll);
-	  // if (nn>1) done.insert(*it);
 	  if (nn>1) done[*it+1] = 1;
       }
     }
   }
-#else
-  int mm,nn;
-  set<int> iindx,jindx;
-  set<int>::iterator it;
-  Matrix qq;
-  ColumnVector xr,yr;
-  set<int> done;
-
-  for (int j=1; j<=n; j++) {
-    VOID_IT(iindx);
-    VOID_IT(jindx);
-    if (find(done.begin(),done.end(),j)==done.end()) {
-      get_block_matrix(j,iindx,jindx,qq);
-      mm = iindx.size();
-      nn = jindx.size();
-      assert(mm>0 && nn>0);
-      yr.ReSize(mm);
-      xr.ReSize(nn);
-
-      int ll=0;
-      for (it=iindx.begin(); it!=iindx.end(); it++) {
-	yr(++ll) = y[*it-1];
-      }
-
-      xr = (qq.t()*qq).i() * (qq.t()*yr);
-
-//       cout << "qq: \n" << qq << endl;
-//       cout << "yr: \n" << yr << endl;
-//       cout << "xr: \n" << xr << endl;
-
-      ll=0;
-      for (it=jindx.begin(); it!=jindx.end(); it++) {
-	  x[*it-1] = xr(++ll);
-	  if (nn>1) done.insert(*it);
-      }
-    }
-  }
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
