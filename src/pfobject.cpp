@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: pfobject.cpp,v 1.5 2003/03/06 20:49:04 mstorti Exp $
+// $Id: pfobject.cpp,v 1.6 2003/03/06 22:45:59 mstorti Exp $
 
 #include <src/pfobject.h>
 #include <src/texthash.h>
@@ -7,7 +7,7 @@
 
 //#include <src/nullvort.h>
 
-BasicObject_factory_t BasicObject_application_factory=NULL;
+BasicObject_factory_t *BasicObject_application_factory=NULL;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 BasicObject::~BasicObject() {}

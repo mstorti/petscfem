@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: pfobject.h,v 1.4 2003/03/06 20:49:04 mstorti Exp $
+// $Id: pfobject.h,v 1.5 2003/03/06 22:45:59 mstorti Exp $
 #ifndef PETSCFEM_PFOBJECT_H
 #define PETSCFEM_PFOBJECT_H
 
@@ -27,7 +27,7 @@ public:
   static BasicObject *factory(string &type);
 };
 
-typedef BasicObject *(*BasicObject_factory_t)(string &type);
-extern BasicObject_factory_t BasicObject_application_factory;
+typedef BasicObject *BasicObject_factory_t(string &type);
+extern BasicObject_factory_t *BasicObject_application_factory;
 
 #endif

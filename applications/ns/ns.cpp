@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.124 2003/03/06 20:49:03 mstorti Exp $
+//$Id: ns.cpp,v 1.125 2003/03/06 22:45:56 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -55,6 +55,7 @@ int main(int argc,char **args) {
   GLOB_PARAM = &glob_param;
   string save_file_res;
   State state(x,time),statep(xp,time),state_old(xold,time_old);
+  BasicObject_application_factory = &BasicObject_ns_factory;
   
   // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1],output_file[FLEN+1];
@@ -138,7 +139,6 @@ int main(int argc,char **args) {
 
   HookList hook_list;
   hook_list.init(*mesh,*dofmap,ns_hook_factory);
-  BasicObject_application_factory = BasicObject_ns_factory;
 
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);

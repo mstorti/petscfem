@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.21 2003/03/06 20:49:03 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.22 2003/03/06 22:45:56 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -76,7 +76,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-BasicObject *BasicObject_ns_factory(string type) {
+BasicObject *BasicObject_ns_factory(string &type) {
   if (0) {} // tricky!!
   else if (type=="null_vort") return new null_vort_bo;
   else return NULL;

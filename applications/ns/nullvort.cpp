@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.1 2003/03/06 20:49:04 mstorti Exp $
+// $Id: nullvort.cpp,v 1.2 2003/03/06 22:45:56 mstorti Exp $
 
 #include "./nullvort.h"
 #include <src/dvector.h>
@@ -233,7 +233,7 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     nelem_nlr++;
   }
 
-#if 0
+#if 1
   printf("nx: %d, nelem_nlr %d, size of icone %d\n",nx,nelem_nlr,icone_stencil.size());
   for (int j=0; j<nelem_nlr; j++) {
     printf("e=%d:",j);

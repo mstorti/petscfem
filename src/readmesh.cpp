@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.82 2003/02/25 20:34:22 mstorti Exp $
+//$Id: readmesh.cpp,v 1.83 2003/03/06 22:45:59 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -840,7 +840,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     } else {
 
       // These are objects that read themselves (OOP)
-      // In a future all objcts will be read this way and
+      // In a future all objects will be read this way and
       // will provide, unknowns, fields, equations and constraints. 
       string basic_object_type(token);
       BasicObject *obj = BasicObject::factory(basic_object_type);
