@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.37 2003/02/19 17:40:15 mstorti Exp $
+//$Id: dxhook.cpp,v 1.38 2003/02/22 04:20:59 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -188,6 +188,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   TGETOPTDEF_ND(go,int,dx_auto_combine,0);
 
   if (dx_read_state_from_file) {
+    if (steps==0) steps = 1;
     int step=0;
     while(1) {
       GLOBAL_DEBUG->trace("before send_state");

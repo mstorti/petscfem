@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.77 2003/02/14 00:39:02 mstorti Exp $
+//$Id: readmesh.cpp,v 1.78 2003/02/22 04:21:01 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -635,6 +635,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       elemset->elem_prop_names  = props; 
       elemset->epart = NULL;
       elemset->isfat = 0;
+      elemset->name_m = name;
 
       elemset->initialize();
       TRACE(-5.3.8);

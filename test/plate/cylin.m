@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.17 2003/01/11 15:24:08 mstorti Exp $
+## $Id: cylin.m,v 1.18 2003/02/22 04:21:05 mstorti Exp $
 global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");
@@ -90,7 +90,6 @@ uini = [1 0 0];
 uini = uini(ones(nnod,1),:);
 pert = sin(pi*xnod(:,2)/Rint).*(xnod(:,1)>0).*(abs(xnod(:,2))<Rint);
 uini(:,1) = uini(:,1) + du_ini_pert * pert;
-asave("cylin.ini.tmp",uini);
 
 next = length(external);
 normal = xnod(external(3:next),:) - xnod(external(1:next-2),:);
@@ -107,6 +106,10 @@ normal = leftscal(1./l2(normal),normal);
 normal = [0 1;
 	  normal;
 	  0 -1];
+
+uiindx = 2:length(normal)-1;
+uini(nod_fic_ext,1) = normal(:,1);
+asave("cylin.ini.tmp",uini);
 
 fid = fopen("cylin.normal.tmp","w");
 for k=2:length(normal)-1
@@ -138,7 +141,8 @@ endif
 fid = fopen("cylin.skin.tmp","w");
 for k=1:length(skin)
   node = skin(k);
-  fprintf(fid,"%d %d    %f\n",node,1,0.);
+#  fprintf(fid,"%d %d    %f\n",node,1,0.);
+  fprintf(fid,"%d %d    %f\n",node,1,1.);
   fprintf(fid,"%d %d    %f\n",node,2,0.);
 endfor  
 fclose(fid);

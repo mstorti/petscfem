@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
+* DX: make epimport.cpp to print shapes in one line. 
 * DX: lets to call field generators from dynamically load C/C++
          modules. 
 * DX: make `dxhook' to be launched through a flag of type `dx' not

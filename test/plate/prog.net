@@ -1,5 +1,5 @@
 //
-// time: Thu Jan 16 14:57:02 2003
+// time: Fri Feb 21 10:18:19 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -12,37 +12,39 @@
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
 // page assignment: color	order=3, windowed=0, showing=0
-// page assignment: image	order=4, windowed=0, showing=0
-// page assignment: import	order=2, windowed=0, showing=1
-// workspace: width = 522, height = 704
+// page assignment: image	order=4, windowed=0, showing=1
+// page assignment: import	order=2, windowed=0, showing=0
+// workspace: width = 661, height = 503
 // layout: snap = 0, width = 50, height = 50, align = NN
 //
 macro main(
 ) -> (
 ) {
     // 
-    // node Import[1]: x = 199, y = 58, inputs = 6, label = Import
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "/u/mstorti/PETSC/petscfem/test/plate/viewero.dx"
-    // input[3]: defaulting = 1, visible = 1, type = 32, value = NULL
+    // node ExtProgImport[1]: x = 129, y = 37, inputs = 7, label = ExtProgImport
+    // input[6]: defaulting = 0, visible = 1, type = 32, value = "cylin.state_9.tmp"
     // page group: import
     //
-main_Import_1_out_1 = 
-    Import(
-    main_Import_1_in_1,
-    main_Import_1_in_2,
-    main_Import_1_in_3,
-    main_Import_1_in_4,
-    main_Import_1_in_5,
-    main_Import_1_in_6
+main_ExtProgImport_1_out_1,
+main_ExtProgImport_1_out_2,
+main_ExtProgImport_1_out_3 = 
+    ExtProgImport(
+    main_ExtProgImport_1_in_1,
+    main_ExtProgImport_1_in_2,
+    main_ExtProgImport_1_in_3,
+    main_ExtProgImport_1_in_4,
+    main_ExtProgImport_1_in_5,
+    main_ExtProgImport_1_in_6,
+    main_ExtProgImport_1_in_7
     ) [instance: 1, cache: 1];
     // 
     // node Select[5]: x = 280, y = 176, inputs = 3, label = Select
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "u"
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "viscous_fluid_elemset_u"
     // page group: import
     //
 main_Select_5_out_1 = 
     Select(
-    main_Import_1_out_1,
+    main_ExtProgImport_1_out_2,
     main_Select_5_in_2,
     main_Select_5_in_3
     ) [instance: 5, cache: 1];
@@ -132,13 +134,13 @@ main_Receiver_17_out_1[cache: 0] = log_abs_w;
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_3"
     // input[7]: defaulting = 1, visible = 0, type = 5, value = -2.0
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 1.3101814
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 1.2416177
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -2.0 1.3101814 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -2.0 1.2416177 }
     // input[17]: defaulting = 0, visible = 0, type = 5, value = -2.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.3101814
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.2416177
     // page group: image
-    // window: position = (0.4941,0.0117), size = 0.5371x0.3906
+    // window: position = (0.4938,0.0117), size = 0.5375x0.3900
     //
 main_Colormap_3_out_1[cache: 2],
 main_Colormap_3_out_2[cache: 2] = 
@@ -243,7 +245,7 @@ main_Replace_1_out_1 =
     // input[17]: defaulting = 0, visible = 0, type = 5, value = -20.425907
     // input[18]: defaulting = 0, visible = 0, type = 5, value = 16.123587
     // page group: color
-    // window: position = (0.4941,0.0117), size = 0.5371x0.3906
+    // window: position = (0.4938,0.0117), size = 0.5375x0.3900
     //
 main_Colormap_2_out_1[cache: 2],
 main_Colormap_2_out_2[cache: 2] = 
@@ -349,13 +351,13 @@ main_Grid_1_out_1 =
     // node Image[4]: x = 55, y = 441, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [3.5 0 0.311786]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [3.5 0 39.0359]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 20.7523
-    // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
-    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [2.13476 5.05938 0.0194678]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [2.13476 5.05938 38.7435]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 0.0428645
+    // input[8]: defaulting = 0, visible = 0, type = 1, value = 778
+    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.688
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 30.0002
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 0.063422
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -365,13 +367,13 @@ main_Grid_1_out_1 =
     // input[19]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[21]: defaulting = 1, visible = 1, type = 3, value = NULL
     // input[29]: defaulting = 1, visible = 0, type = 3, value = 0
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "none"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "panzoom"
     // output[1]: visible = 0
     // output[2]: visible = 0
     // output[3]: visible = 0
     // page group: image
     // depth: value = 16
-    // window: position = (0.0000,0.0000), size = 0.9902x0.9648
+    // window: position = (0.0000,0.0000), size = 0.9900x0.9650
     // internal caching: 1
     //
 main_Image_4_out_1,
@@ -456,7 +458,7 @@ main_RubberSheet_1_out_1 =
     //
 rubbersheet = main_RubberSheet_1_out_1;
     // 
-    // node Receiver[4]: x = 258, y = 61, inputs = 1, label = rubbersheet
+    // node Receiver[4]: x = 255, y = 94, inputs = 1, label = rubbersheet
     // page group: color
     //
 main_Receiver_4_out_1[cache: 0] = rubbersheet;
@@ -482,12 +484,12 @@ main_Receiver_15_out_1[cache: 0] = w;
 main_Receiver_16_out_1[cache: 0] = log_abs_w;
     // 
     // node Select[4]: x = 157, y = 184, inputs = 3, label = Select
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "p"
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "viscous_fluid_elemset_p"
     // page group: import
     //
 main_Select_4_out_1 = 
     Select(
-    main_Import_1_out_1,
+    main_ExtProgImport_1_out_2,
     main_Select_4_in_2,
     main_Select_4_in_3
     ) [instance: 4, cache: 1];
@@ -536,14 +538,15 @@ main_Tube_1_out_1 =
 // network: end of macro body
 CacheScene(main_Image_4_in_1, main_Image_4_out_1, main_Image_4_out_2);
 }
-main_Import_1_in_1 = "/u/mstorti/PETSC/petscfem/test/plate/viewero.dx";
-main_Import_1_in_2 = NULL;
-main_Import_1_in_3 = NULL;
-main_Import_1_in_4 = NULL;
-main_Import_1_in_5 = NULL;
-main_Import_1_in_6 = NULL;
-main_Import_1_out_1 = NULL;
-main_Select_5_in_2 = "u";
+main_ExtProgImport_1_in_1 = NULL;
+main_ExtProgImport_1_in_2 = NULL;
+main_ExtProgImport_1_in_3 = NULL;
+main_ExtProgImport_1_in_4 = NULL;
+main_ExtProgImport_1_in_5 = NULL;
+main_ExtProgImport_1_in_6 = "cylin.state_9.tmp";
+main_ExtProgImport_1_in_7 = NULL;
+main_ExtProgImport_1_out_2 = NULL;
+main_Select_5_in_2 = "viscous_fluid_elemset_u";
 main_Select_5_in_3 = NULL;
 main_Select_5_out_1 = NULL;
 main_Compute_6_in_1 = "$0.x";
@@ -570,13 +573,13 @@ main_Colormap_3_in_8 = NULL;
 main_Colormap_3_in_9 = NULL;
 main_Colormap_3_in_10 = NULL;
 main_Colormap_3_in_11 = NULL;
-main_Colormap_3_in_12 = { -2.0 1.3101814 };
+main_Colormap_3_in_12 = { -2.0 1.2416177 };
 main_Colormap_3_in_13 = NULL;
 main_Colormap_3_in_14 = NULL;
 main_Colormap_3_in_15 = NULL;
 main_Colormap_3_in_16 = NULL;
 main_Colormap_3_in_17 = -2.0;
-main_Colormap_3_in_18 = 1.3101814;
+main_Colormap_3_in_18 = 1.2416177;
 main_Colormap_3_in_19 = NULL;
 main_Colormap_3_out_1 = NULL;
 main_Color_2_in_3 = NULL;
@@ -964,11 +967,11 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [3.5 0 0.311786];
-main_Image_4_in_6 = [3.5 0 39.0359];
-main_Image_4_in_7 = 20.7523;
-main_Image_4_in_8 = 1000;
-main_Image_4_in_9 = 0.697;
+main_Image_4_in_5 = [2.13476 5.05938 0.0194678];
+main_Image_4_in_6 = [2.13476 5.05938 38.7435];
+main_Image_4_in_7 = 0.0428645;
+main_Image_4_in_8 = 778;
+main_Image_4_in_9 = 0.688;
 main_Image_4_in_10 = [0 1 0];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
@@ -998,7 +1001,7 @@ main_Image_4_in_37 = NULL;
 main_Image_4_in_38 = NULL;
 main_Image_4_in_39 = NULL;
 main_Image_4_in_40 = NULL;
-main_Image_4_in_41 = "none";
+main_Image_4_in_41 = "panzoom";
 main_Image_4_in_42 = NULL;
 main_Image_4_in_43 = NULL;
 main_Image_4_in_44 = NULL;
@@ -1015,7 +1018,7 @@ main_RubberSheet_1_in_4 = NULL;
 main_RubberSheet_1_out_1 = NULL;
 main_Transmitter_4_out_1 = NULL;
 main_Transmitter_5_out_1 = NULL;
-main_Select_4_in_2 = "p";
+main_Select_4_in_2 = "viscous_fluid_elemset_p";
 main_Select_4_in_3 = NULL;
 main_Select_4_out_1 = NULL;
 main_Streamline_1_in_3 = NULL;

@@ -32,10 +32,10 @@ if (1) {   ## large mesh
     $Rint=1;
     $Rext=3;
     $L = 10;
-    $Ntheta = 80;
-    $Nr=30;
-    $Nx=100;
-    $du_ini_pert = 0.3;
+    $Ntheta = 32;
+    $Nr=10;
+    $Nx=20;
+    $du_ini_pert = 0.;
 } else {  ## small mesh, small domain
     $Rint=1;
     $Rext=2;

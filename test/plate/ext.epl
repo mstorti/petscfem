@@ -24,11 +24,22 @@ atol 1e-10
 
 iisdmat_print_statistics
 print_partitioning_statistics
-hook_list dl_generic_hook coupling_inv_hook 
 
+#if 1
+hook_list dl_generic_hook coupling_inv_hook \
+          ns_dx_hook my_dx_hook
 coupling_inv_hook.filename ./inviscid.efn
 coupling_inv_hook.prefix   coupling_inv_hook
 <:=$filter:>
+#endif
+
+#if 1
+# hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 1 0 phi"
+dx_auto_combine
+dx_port 5315
+dx_steps 0
+#endif
 
 __END_HASH__
 
@@ -40,9 +51,11 @@ __END_HASH__
 
 #===========================================================
 elemset qharm 4
+name external
 geometry cartesian2d
 npg 4
 data ext.con.tmp
+dx
 __END_HASH__
 
 end_elemsets

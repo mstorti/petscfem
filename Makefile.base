@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.115 2003/02/17 12:39:25 mstorti Exp $
+#$Id: Makefile.base,v 1.116 2003/02/22 04:20:43 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -227,13 +227,17 @@ local_dist_clean::
 #w cleans directory
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
+ifneq ($(CLEAN_DIRS),)
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
+endif
 
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
 sw: 
 	$(MAKE) local_sw
+ifneq ($(SWDIRS),)
 	for dir in $(SWDIRS) ; do $(MAKE) -C $$dir sw  ; done
+endif
 
 local_sw::
 

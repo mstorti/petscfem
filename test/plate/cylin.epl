@@ -36,13 +36,13 @@ nrec 1
 nfile 100000000
 
 initial_state <:= ($re_start ? "cylin.state.tmp" : "cylin.ini.tmp") :>
-nstep 500
+nstep 1
 # steady
 solver "iisd"
 iisd_subpart_auto 2000
 print_internal_loop_conv 1
 Krylov_dim 200
-nnwt 2
+nnwt 1
 alpha 0.6
 weak_form 0
 <:pr('Dt'):>
@@ -50,7 +50,11 @@ rtol 1e-4
 atol 1e-10
 iisdmat_print_statistics
 print_partitioning_statistics
-hook_list dl_generic_hook coupling_visc_hook 
+# print_linear_system_and_stop
+
+#if 1
+hook_list dl_generic_hook coupling_visc_hook \
+          ns_dx_hook my_dx_hook
 
 coupling_visc_hook.filename ./inviscid.efn
 coupling_visc_hook.prefix   coupling_visc_hook
@@ -58,7 +62,17 @@ coupling_visc_hook.prefix   coupling_visc_hook
 ngather 3
 gather_file "cylin.force.tmp"
 viscosity <:=2*$Rint/$Re:>
+#endif
 
+#if 1
+# Para DX
+# hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
+dx_state_all_fields 0
+dx_steps 0
+# dx_read_state_from_file
+#endif
 __END_HASH__
 
 #===========================================================
@@ -73,6 +87,7 @@ name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
 data cylin.con.tmp
+dx 
 __END_HASH__
 
 #===========================================================

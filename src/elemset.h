@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.28 2003/02/12 00:36:27 mstorti Exp $
+//$Id: elemset.h,v 1.29 2003/02/22 04:21:01 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -74,6 +74,8 @@ public:
   GHashTable *elem_prop_names;
   /// hash of properties in the per element int properties table
   GHashTable *elem_iprop_names;
+  /// The name of the elemset
+  string name_m;
 
   /// Makes some initialization from the hash table
   virtual void initialize() {}
