@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.16 2002/09/05 19:24:01 mstorti Exp $
+//$Id: gpdata.cpp,v 1.17 2002/12/16 16:21:32 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -53,6 +53,14 @@ int cartesian_2d_shape(RowVector &shape,Matrix &dshapexi,
   return 0;
 }
 
+
+double xipgf(int ipg,int npg1d) {
+  if (npg1d==2) {
+    return (2*ipg-1)/sqrt(3.);
+  } else {
+    return 0.;
+  }
+}
 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	       mat_version_=GP_NEWMAT) {
@@ -268,7 +276,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     master_volume = pow(0.5,ndimel);
 
 //      if (ndimel==0 && npg==1) {
-    int npg1d=npg1d=int(pow(double(npg),1./double(ndimel)));
+    int npg1d=int(pow(double(npg),1./double(ndimel)));
     // AGREGAR lin1d y brick integrations!!
     //    } else if (!(strcmp(geom,"quad")) || !(strcmp(geom,"lin1d"))
     //  	     || !(strcmp(geom,"brick")) ) {
@@ -307,7 +315,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     //    } else if (!(strcmp(geom,"quad")) || !(strcmp(geom,"lin1d"))
     //  	     || !(strcmp(geom,"brick")) ) {
 
-    if (npg1d!=2 && ndimel>0) GPERROR;
+    if (npg1d!=2 && npg1d!=1 && ndimel>0) GPERROR;
     
     if (ndimel==0 && npg==1) {
 
@@ -323,8 +331,8 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       xinode << -1 << 1 ;
       
       ipg=-1;
-      for (int ixipg=0; ixipg<=1; ixipg++) {
-	double xipg=(2*ixipg-1)/sqrt(3.);
+      for (int ixipg=0; ixipg<npg1d; ixipg++) {
+	double xipg = xipgf(ixipg,npg1d);
 	ipg++;
 	wpg[ipg] = 1;
 	
@@ -347,11 +355,11 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       xinode << -1 << 1 << 1 << -1 << -1 << -1 << 1 << 1;
       
       ipg=-1;
-      for (int ixipg=0; ixipg<=1; ixipg++) {
-	double xipg=(2*ixipg-1)/sqrt(3.);
-	for (int ietapg=0; ietapg<=1; ietapg++) {
+      for (int ixipg=0; ixipg<npg1d; ixipg++) {
+	double xipg = xipgf(ixipg,npg1d);
+	for (int ietapg=0; ietapg<npg1d; ietapg++) {
 	  ipg++;
-	  double etapg=(2*ietapg-1)/sqrt(3.);
+	  double etapg=xipgf(ietapg,npg1d);
 	  wpg[ipg] = 1;
 
 	  shape[ipg] = RowVector(nel);
@@ -379,15 +387,14 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       xinode << -1 << 1 << 1 << -1 << -1 << 1 << 1 << -1 
 	     << -1 << -1 << 1 << 1 << -1 << -1 << 1 << 1 
 	     << -1 << -1 << -1 << -1 << 1 << 1 << 1 << 1;
-	
       
       ipg=-1;
-      for (int ixipg=0; ixipg<=1; ixipg++) {
-	double xipg=(2*ixipg-1)/sqrt(3.);
-	for (int ietapg=0; ietapg<=1; ietapg++) {
-	  double etapg=(2*ietapg-1)/sqrt(3.);
-	  for (int izetapg=0; izetapg<=1; izetapg++) {
-	    double zetapg=(2*izetapg-1)/sqrt(3.);
+      for (int ixipg=0; ixipg<npg1d; ixipg++) {
+	double xipg = xipgf(ixipg,npg1d);
+	for (int ietapg=0; ietapg<npg1d; ietapg++) {
+	  double etapg=xipgf(ietapg,npg1d);
+	  for (int izetapg=0; izetapg<npg1d; izetapg++) {
+	    double zetapg=xipgf(izetapg,npg1d);
 
 	    ipg++;
 	    wpg[ipg] = 1;

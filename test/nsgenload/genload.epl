@@ -26,7 +26,7 @@ maxits 100
 save_file_pattern "outvector%d.tmp"
 #nsaverot 1000000
 
-nnwt 10
+nnwt 5
 tol_newton 0
 preco_type "lu"
 

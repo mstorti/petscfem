@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.2 2002/12/16 15:37:08 mstorti Exp $
+//$Id: genload.cpp,v 1.3 2002/12/16 16:21:28 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -219,7 +219,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    jac.ir(1,b).ir(2,bb);
 	    tmp4.prod(tmp3,jac,1,3,2,4);
 	    matlocf.ir(1,b).ir(4,bb);
-	    matlocf.set(tmp4);
+	    matlocf.add(tmp4);
 	  }
 	}
 	matlocf.rs(); jac.rs();
