@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.36 2002/08/06 15:31:20 mstorti Exp $ 
+ # $Id: Makefile,v 1.37 2002/09/10 01:21:44 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -44,6 +44,8 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 
 ../../doc/odocnsw.tex: wall.cpp 
 	$(run_odoc)
+
+ns.o : CCPPFLAGS += -O0
 
 noafs:
 	@echo "making symbolic links to NO Algebraic FS formulation... "
