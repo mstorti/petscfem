@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.36 2005/01/29 23:54:35 mstorti Exp $ 
+# $Id: Makefile,v 1.37 2005/01/30 03:23:07 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runc
+default: runp
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := cylabso
+CASE_NAME := gfplate
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -37,6 +37,7 @@ runc:
 	$(MAKE) CASE_NAME=cylabso run
 
 runp: 
+	mkstepsdir.pl
 	$(MAKE) CASE_NAME=gfplate run
 
 run: 
@@ -47,14 +48,15 @@ run:
 STEPS_DIR := ./STEPS
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
 dx_make_command:
-	@state=$(STEPS_DIR)/cylabso.state_$$dx_step.tmp ;	\
+	@state=$(STEPS_DIR)/$(CASE_NAME).state_$$dx_step.tmp ;	\
 	if [ -f $$state ] ; then				\
 		echo "state file: $$state"  ;			\
-		cp $$state ./cylabso.dx-state.tmp ;		\
-	else if [ -f $$state.gz ] ; then			\
+		cp $$state ./$(CASE_NAME).dx-state.tmp ;	\
+	elif [ -f $$state.gz ] ; then				\
 		echo "state file: $$state.gz " ;		\
 		gunzip -c $$state.gz >				\
-		./cylabso.dx-state.tmp ; fi ; fi ;		\
+		./$(CASE_NAME).dx-state.tmp ;			\
+	else echo "ERROR NOT STATE FILE FOUND!!" ; fi ;		\
 	echo in target dx_make_command: dx_step: $$dx_step
 
 dx: 

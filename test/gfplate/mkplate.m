@@ -1,4 +1,4 @@
-## $Id: mkplate.m,v 1.4 2005/01/09 00:09:25 mstorti Exp $
+## $Id: mkplate.m,v 1.5 2005/01/30 03:23:07 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -34,7 +34,8 @@ wall = complement(slip,wall);
 outer = find(abs(xnod(:,2)-Ly)<tol);
 
 ## rho,u,v at inlet
-pffixa("gfplate.fixa-in.tmp",inlet,1:3,[rhoref uini 0.0])
+pffixa("gfplate.fixa-in.tmp", \
+       inlet,1:3,[rhoref uini 0.0])
 
 ## v=0 at slip
 tmp = complement(inlet,slip);
@@ -48,30 +49,45 @@ tmp = complement(inlet,outer);
 pffixa("gfplate.fixa-outer.tmp",tmp,3);
 
 ## p fixed at outlet
-tmp = complement(wall,outlet);
-pffixa("gfplate.fixa-outlet.tmp",tmp,[3,4],[0,pref]);
-
-Uini = [rhoref,uini,0,pref];
+outlet = complement(wall,outlet)';
+pffixa("gfplate.fixa-outlet.tmp", \
+       tmp,[3,4],[0,pref]);
 
 nnod = size(xnod,1);
-Uini = Uini(ones(nnod+Nx+1,1),:);
-asave("gfplate.ini.tmp",Uini);
 
-## Fictitious nodes
-ficnodes = nnod+(1:Nx+1)';
+## Absorbing b.c.'s at outlet
+ficabso = nnod+(1:length(outlet))';
+nnod2 = nnod+length(outlet);
+
+asave("gfplate.abso-con.tmp",[outlet,ficabso,ficabso]);
+xnod = [xnod;
+	xnod(outlet,:)];
+
+## Fictitious nodes for fixed
+## wall temperature b.c.
+ficwall = nnod2+(1:Nx+1)';
+nnod2 = nnod2+Nx+1;
 
 xnod = [xnod;
 	zeros(Nx+1,2)];
 fid = fopen("gfplate.twall.tmp","w");
 for k=1:Nx+1
   node = (k-1)*(Ny+1)+1;
-  ficnode = nnod+k;
+  ficnode = ficwall(k);
   fprintf(fid,"%d %d\n",node,ficnode);
   xnod(ficnode,:) = xnod(node,:);
 endfor
 fclose(fid);
 
-pffixa("gfplate.fixa-twall.tmp",ficnodes,2:4,[Tref,0,0]);
+pffixa("gfplate.fixa-twall.tmp", \
+       ficwall,2:4,[Tref,0,0]);
 
 asave("gfplate.nod.tmp",xnod);
+asave("gfplate.dx-nod.tmp",xnod(1:nnod,:));
 asave("gfplate.con.tmp",icone);
+
+Uini = [rhoref,uini,0,pref];
+Uini = Uini(ones(nnod2,1),:);
+Uini(ficwall,:) = 0;
+Uini(ficabso,:) = 0;
+asave("gfplate.ini.tmp",Uini);
