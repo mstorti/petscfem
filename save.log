@@ -1261,3 +1261,6 @@ tag: beta-3.00.pl2 on Wed, 17 Jul 2002 23:57:49 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl3 on Thu, 18 Jul 2002 17:01:59 -0300 by mstorti in minerva.arcride.edu.ar
      > Debugging captive memory bug for STL maps
+----------
+tag: beta-3.00.pl4 on Sun, 21 Jul 2002 12:06:17 -0300 by mstorti in spider
+     > Writing new graph class.
