@@ -1381,3 +1381,6 @@ tag: beta-3.01.pl11 on Sat, 27 Jul 2002 19:26:34 -0300 by mstorti in spider
 tag: beta-3.01.pl12 on Sun, 28 Jul 2002 11:45:36 -0300 by mstorti in spider
      > Changed `fixobj' so that `$ fixobj -c' cleans all dirs in epsi
      > references in figures.
+----------
+tag: beta-3.01.pl13 on Sun, 28 Jul 2002 13:46:14 -0300 by mstorti in spider
+     > Fixed some doc stuff.
