@@ -2749,5 +2749,6 @@ tag: beta-3.19.pl32 on Sun, 06 Jul 2003 12:11:24 -0300 by mstorti in spider
      > user to change the preconditioner for the A_II
      > diagonal block matrix (not the Schur matrix).
 ----------
-tag: beta-3.19.pl33 on Fri, 11 Jul 2003 11:03:33 -0300 by mstorti in minerva.arcride.edu.ar
-     > Fixed bug in Makefile.base, LIBRETTO_I variable. 
+tag: beta-3.19.pl32.pl1 on Tue, 22 Jul 2003 21:32:06 -0300 by mstorti in spider
+     > Allows visualization of deforming meshes by reading the displacements
+     > from a file.
