@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: qharmm.h,v 1.3 2003/03/22 22:20:32 mstorti Exp $
+// $Id: qharmm.h,v 1.4 2003/04/17 00:40:54 mstorti Exp $
 #ifndef PETSCFEM_QHARMM_H
 #define PETSCFEM_QHARMM_H
 
@@ -10,7 +10,8 @@
 /// Quasi-harmonic equation, for multiple degrees of freedom
 class qharmm : public adaptor_pg {
 private:
-  FastMat2 cond,C,x_ref;
+  double Dt;
+  FastMat2 cond,C,Cp,x_ref;
   FastMat2Tmp tmp;
 public:
   void elemset_init();

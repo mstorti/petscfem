@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.6 2003/03/22 22:20:32 mstorti Exp $
+//$Id: qharmm.cpp,v 1.7 2003/04/17 00:40:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -40,6 +40,14 @@ void qharmm::elemset_init() {
   //o Reaction jacobian matrix
   read_cond_matrix(thash,"C",ndof,C);
 
+  Cp.resize(2,ndof,ndof);
+  //o Reaction jacobian matrix
+  read_cond_matrix(thash,"Cp",ndof,Cp);
+
+  //o Time step
+  TGETOPTDEF(thash,double,Dt,0.);
+  assert(Dt>0.);
+
   //o _T: double[ndof] _N: state_ref _D: null vector 
   // _DOC: Reference state value. _END
   x_ref.resize(1,ndof).set(0.);
@@ -61,11 +69,15 @@ void qharmm::pg_connector(const FastMat2 &xpg,
   tmp(6).set(state_new_pg).rest(x_ref);
   tmp(3).prod(C,tmp(6),1,-1,-1);
   tmp(7).prod(shape(),tmp(3),1,2);
-  res_pg.rest(tmp(7));
+  tmp(8).set(state_new_pg).rest(state_old_pg).scale(1./Dt);
+  tmp(9).prod(Cp,tmp(8),1,-1,-1);
+  tmp(11).prod(shape(),tmp(9),1,2);
+  res_pg.rest(tmp(7)).rest(tmp(11));
 
   tmp2.prod(dshapex(),dshapex(),-1,1,-1,2);
   mat_pg.prod(tmp2,cond,1,3,2,4);
   tmp(4).prod(shape(),shape(),1,2);
   tmp(5).prod(tmp(4),C,1,3,2,4);
-  mat_pg.add(tmp(5));
+  tmp(10).prod(tmp(4),Cp,1,3,2,4);
+  mat_pg.add(tmp(5)).axpy(tmp(10),1./Dt);
 }
