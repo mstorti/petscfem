@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.1 2004/01/09 19:47:04 mstorti Exp $
+// $Id: syncbuff.h,v 1.2 2004/01/11 15:01:03 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+#include <src/autostr.h>
 
 extern int SIZE, MY_RANK;
 
@@ -22,12 +23,6 @@ public:
     nproc=1;
     plist[0] = 0;
   }
-};
-
-template <typename T>
-class DistCont<list<T>,T,TrivialPartitioner<T> > : public list<T> {
- public:
-  int size_of_pack(const T &t) const;
 };
 
 #define SB(T) DistCont<list<T>,T,TrivialPartitioner<T> >
@@ -53,23 +48,24 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SYNC_BUFFER_FUNCTIONS(T)		\
-int SB(T)::size_of_pack(const T &t) const {	\
+						\
+int SB(T)					\
+::size_of_pack(const T &t) const {		\
   return t.size_of_pack();			\
-}
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename T>
-void SyncBuffer<T>::pack(const T &t,char *&buff) const { t.pack(buff); }
-  
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename T>
-void SyncBuffer<T>::unpack(T &t,const char *& buff) { t.unpack(buff); }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename T>
-void SyncBuffer<T>::combine(const T &t) { push_back(t); };
-#endif
+}						\
+						\
+void SB(T)					\
+::pack(const T &t, char *&buff) const {		\
+  t.pack(buff);					\
+}						\
+						\
+void SB(T)					\
+::unpack(T &t,const char *& buff) {		\
+  t.unpack(buff); }				\
+						\
+void SB(T)					\
+::combine(const T &t) {				\
+push_back(t); };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename T>
@@ -95,3 +91,23 @@ void SyncBuffer<T>::check_pack() {
   print();
   printf("%d elems recovered from buffer\n",list<T>::size());
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class KeyedLine {
+private:
+  int key;
+  char *line;
+public:
+  static FILE *output;
+  KeyedLine() : key(0), line(NULL) {}
+  KeyedLine(const KeyedLine &kl);
+  KeyedLine(int key,const AutoString &as);
+  ~KeyedLine() { if (line) delete[] line; }
+  friend int operator<(const KeyedLine& left, const KeyedLine& right);
+  int size_of_pack() const;
+  void pack(char *&buff) const;
+  void unpack(const char *& buff);
+  void print();
+};
+
+typedef SyncBuffer<KeyedLine> KeyedOutputBuffer;

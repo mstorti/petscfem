@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.6 2004/01/09 19:47:08 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.7 2004/01/11 15:00:49 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -18,6 +18,70 @@ using namespace std;
 
 const int N=100;
 const int m=7;
+
+FILE * KeyedLine::output = stdout;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int operator<(const KeyedLine& left, const KeyedLine& right) {
+  return left.key < right.key;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int KeyedLine::size_of_pack() const {
+  return 2*sizeof(int)+strlen(line)+1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedLine::pack(char *&buff) const {
+  memcpy(buff,&key,sizeof(int));
+  buff += sizeof(int);
+
+  int len = strlen(line);
+  memcpy(buff,&len,sizeof(int));
+  buff += sizeof(int);
+
+  memcpy(buff,&line,strlen(line)+1);
+  buff += sizeof(strlen(line)+1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedLine::unpack(const char *& buff) {
+  memcpy(&key,buff,sizeof(int));
+  buff += sizeof(int);
+
+  int len;
+  memcpy(&len,buff,sizeof(int));
+  assert(!line);
+  line = new char[len+1];
+  memcpy(&line,buff,strlen(line)+1);
+  buff += sizeof(strlen(line)+1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedLine::print() {
+  fprintf(output,"%d: %s\n",key,line);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+KeyedLine::KeyedLine(const KeyedLine &kl) {
+  if (this==&kl) return;
+  key = kl.key;
+  if (kl.line) {
+    line = new char[strlen(kl.line)+1];
+    memcpy(line,kl.line,strlen(kl.line)+1);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+KeyedLine::KeyedLine(int k,const AutoString &as) {
+  key = k;
+  const char *l = as.str();
+  int len = strlen(l);
+  line = new char[len+1];
+  memcpy(line,l,len+1);
+}
+
+SYNC_BUFFER_FUNCTIONS(KeyedLine);
 
 class PO  {
 public:
@@ -39,7 +103,6 @@ SYNC_BUFFER_FUNCTIONS(PO);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int PO::size_of_pack() const { return (2+nelem)*sizeof(int); }
 
-// Copy the int and double to the buffer. Update pointer *buff
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void PO::pack(char *&buff) const {
   memcpy(buff,&k,sizeof(int));
@@ -77,11 +140,11 @@ PO::PO(const PO &po) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void PO::print() {
-  cout << "key: " << k << ", elems: ";
   for (int j=0; j<nelem; j++) cout << elems[j] << " ";
   cout << endl;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **argv) {
 
   PetscInitialize(&argc,&argv,NULL,NULL);
@@ -91,6 +154,7 @@ int main(int argc,char **argv) {
   Debug debug;
   debug.init();
   //  debug.activate();
+#if 0
   SyncBuffer<PO> sb;
   int N=10;
   for (int j=0; j<N; j++) {
@@ -106,10 +170,30 @@ int main(int argc,char **argv) {
     sb.back().print();
   }
 
-  // sb.check_pack();
-
   debug.trace("antes de sb.print()");
   sb.print();
+
+  // sb.check_pack();
+#else
+  KeyedOutputBuffer kbuff;
+  AutoString s;
+  
+  for (int j=0; j<N; j++) {
+    int k = SIZE*j+MY_RANK;
+    s.clear();
+
+    int roof = k - (k % m) +m;
+    int nelem = roof-k;
+
+    for (int jj=0; jj<nelem; jj++) s.cat_sprintf("%d ",k+jj);
+    s.cat_sprintf("\n");
+    kbuff.push_back();
+    kbuff.back() = KeyedLine(k,s);
+  }
+  kbuff.print();
+
+#endif
+
   PetscFinalize();
   exit(0);
 }
