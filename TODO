@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Set `node=nel-2' in nonlres.cpp:250?
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
