@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.10 2001/06/21 16:30:55 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.11 2001/06/23 13:33:48 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -374,6 +374,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       double Area   = npg*wpgdet;
       double wpgdet_c = wpgdet * turbulence_coef * turb_prod_coef;
+      // Combined factor that affects the turbulence
+      // production (for debugging)
+      double tpf = turbulence_coef*turb_prod_coef;
       double h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
@@ -601,19 +604,17 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           tmp8_ke.prod(W_supg_e,SHAPE,1,2);
 
           Jaco_kk = rec_Dt/alpha;
-          Jaco_kk = Jaco_kk-4.0*C_mu*kap_over_eps*strain_rate_scalar;
-          Jaco_ke =  2.0*C_mu*kap_over_eps*kap_over_eps*strain_rate_scalar+1.0;
-          Jaco_ek = -2.0*C_1*C_mu*strain_rate_scalar - 
-                     C_2*eps_over_kap*eps_over_kap;
+          Jaco_kk = Jaco_kk-tpf*4.0*C_mu*kap_over_eps*strain_rate_scalar;
+          Jaco_ke =  tpf*(2.0*C_mu*kap_over_eps*kap_over_eps*strain_rate_scalar+1.0);
+          Jaco_ek = tpf*(-2.0*C_1*C_mu*strain_rate_scalar - 
+                     C_2*eps_over_kap*eps_over_kap);
           Jaco_ee = rec_Dt/alpha;
-          Jaco_ee = Jaco_ee+2.0*C_2*eps_over_kap;
+          Jaco_ee = Jaco_ee+tpf*2.0*C_2*eps_over_kap;
 
           Jaco_k.ir(1,1).set(Jaco_kk).rs();
           Jaco_k.ir(1,2).set(Jaco_ke).rs();
-	  Jaco_k.scale(turbulence_coef*turb_prod_coef);
           Jaco_e.ir(1,1).set(Jaco_ek).rs();
           Jaco_e.ir(1,2).set(Jaco_ee).rs();
-	  Jaco_e.scale(turbulence_coef*turb_prod_coef);
 
           tmp9_ke.prod(tmp7_ke,Jaco_k,1,2,3);
           matlocf.ir(2,ndof-1).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();
