@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.23 2001/11/28 17:43:39 mstorti Exp $
+#$Id: Makefile,v 1.24 2002/02/18 12:24:32 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -94,7 +94,7 @@ petscfem.tex: petscfem.in.tex force
 # Run  `$ make ltx2h_opt=-no_images' in order to not wait so much time...
 petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 	$(MAKE) EPERLFLAGS="-d html=1" petscfem.tex
-	latex2html $(ltx2h_opt) -init_file latex2html.init petscfem
+	$(LATEX2HTML) $(ltx2h_opt) -init_file latex2html.init petscfem
 
 #w Make all documentation files for program options with 'odoc.pl'
 odoc:
@@ -105,7 +105,7 @@ odoc:
 
 #w Make html home-page
 index.html: index.tex
-	latex2html -init_file latex2html.init -no_subdir -split 0 index
+	$(LATEX2HTML) -init_file latex2html.init -no_subdir -split 0 index
 
 #w Make the README in text and html format
 readme: ../README ../README.html
