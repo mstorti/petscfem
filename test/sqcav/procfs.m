@@ -2,7 +2,7 @@
 ##
 ## This file is part of Octave.
 ##__INSERT_LICENSE__
-## $Id: procfs.m,v 1.4 2002/09/16 16:05:34 mstorti Exp $
+## $Id: procfs.m,v 1.5 2002/09/21 02:18:16 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: fractional step, square cavity
@@ -12,7 +12,7 @@ xnod = aload("sqcav.nod.tmp");
 y=xnod(1:N+1,2);
 x=xnod(1:N+1:(N+1)^2,1);
 
-U=aload("sqcav.weak_form_1.tmp");
+U=aload("outvector0.out");
 u=reshape(U(:,1),N+1,N+1);
 v=reshape(U(:,2),N+1,N+1);
 p=reshape(U(:,3),N+1,N+1);

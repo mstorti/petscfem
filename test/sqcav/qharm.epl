@@ -5,12 +5,12 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('case','lu');
 $L = 1;				# Side of the cavity
-$N = 400;
+$N = 10;
 $hratio = 0;			# refinement (h_center/h_wall)
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 100;
+$nstep = 5;
 $save_file = ($case ? "qharm.$case.tmp" : "qharm.state.tmp");
 #
 $weak_form = 0;
@@ -69,15 +69,14 @@ rtol 1e-6
 dtol 1e3
 nnwt 1
 
-<:pr(''):> 
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv 1
 #print_linear_system_and_stop 1
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
-Dt 1.
-steady
+Dt 0.01
+# steady 
 
 __END_HASH__
 

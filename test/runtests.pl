@@ -381,6 +381,20 @@ Square cavity at Re=400. Error < tol OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.zwproc.tmp",
+       "Sqcav 0weight processor",<<'EOT');
+Sq. Cavity with 0weight proc. error < tol OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.zwproc2.tmp",
+       "Sqcav 0weight processor (iisd_subpart=2)",<<'EOT');
+__EXACT_MATCH__
+Sq. Cavity with 0weight proc (sbprt=2). 
+error < tol OK ? 1 
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nutatcyl/checknutcyl.verif.tmp",
        "Nutating cylinder",<<'EOT');
 Roll moment OK \? 1
@@ -397,9 +411,6 @@ expect("nutatcyl/strip.verif.tmp",
        "Viscous force intgrator on linear 3D strip",<<'EOT');
 Fx \[constant acceleration\] OK \? 1
 EOT
-
-
-nutatcyl/
 
 end_section();
 

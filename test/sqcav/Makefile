@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.34 2002/09/17 15:22:16 mstorti Exp $ 
+# $Id: Makefile,v 1.35 2002/09/21 02:18:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,7 +6,8 @@
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
-tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
+	test_zero_w_proc test_zero_w_proc2
 
 
 PETSCFEM_DIR = $(HOME)/PETSC/petscfem
@@ -51,6 +52,10 @@ runq: force
 		mv output.out output.iisd$$n.out ; \
 	done
 
+runq1: CASE := qharm
+runq1: 
+	$(MAKE) case=iisd_sbp1 run
+
 runs: CASE := sqcav
 test_big:
 	time $(MAKE) case=big runs
@@ -76,6 +81,28 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp16 runs
 	octave -q < check_iisd2.m > check.iisd.verif.np2.tmp
 
+#w Tests processors with zero eqs./elements (zero weight)
+test_zero_w_proc: CASE := sqcav
+test_zero_w_proc:
+	$(MAKE) case=zwproc np=2 data
+	echo $(HOSTNAME) > machi.dat
+	echo 0. > weights.dat
+	echo 1. >> weights.dat
+	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	> output.zwproc.out.tmp
+	octave -q check_zwproc.m > check.zwproc.tmp
+
+#w Tests processors with zero eqs./elements (zero weight)
+test_zero_w_proc2: CASE := sqcav
+test_zero_w_proc2:
+	$(MAKE) case=zwproc2 np=2 data
+	echo $(HOSTNAME) > machi.dat
+	echo 0. > weights.dat
+	echo 1. >> weights.dat
+	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	> output.zwproc2.out.tmp
+	octave -q check_zwproc2.m > check.zwproc2.tmp
+
 test_meas_perf:
 	$(MAKE) case=lu np=1 meas_perf=1 runs
 
@@ -99,9 +126,7 @@ link:
 	ln -sf $(PROG) ns
 
 data: force
-#	echo in target data: CASE = $(CASE)
 	$(MAKE) $(CASE).depl
-#	echo "in target data : CASE $(CASE)"
 	octave -q mk$(CASE).m
 
 # EPERLFLAGS = -d case=$$case

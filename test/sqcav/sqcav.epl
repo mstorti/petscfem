@@ -6,13 +6,34 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
+
+$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
+
 if ($case eq 'other') {
     $case = 'weak_form_1';
     $Re = 1000;
     $hratio = 4;
     $N = 40;
 }
-$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
+
+if ($case eq 'zwproc2') {
+    $case = 'zwproc';
+    $iisd_subpart = 2;
+}
+
+if ($case eq 'zwproc') {
+    $case = 'weak_form_1';
+    $preco_type = 'jacobi';
+    $N=10;
+    $Re=1;
+    $nstep = 5;
+    $solver = "iisd";
+    $iisd_subpart = 1 unless $iisd_subpart;
+    $steady = 0;
+}
+
+$steady = 1 unless defined $steady;
+
 ## Test the 'G_body' feature. 
 $g_body= 0;
 if ($case eq 'g_body') {
@@ -26,10 +47,10 @@ $hratio = 10 unless $hratio;			# refinement (h_center/h_wall)
 $Re = 1000 unless $Re;		# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
-$solver = "petsc";
-$preco_type = "lu";
+$solver = "petsc" unless $solver;
+$preco_type = "lu" unless $preco_type;
 $maxits = 1;
-$nstep = 100;
+$nstep = 100 unless $nstep;
 #
 $weak_form = 0;
 $cache_gdu = 0;
@@ -116,7 +137,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady
+<:pr('steady'):>
 temporal_stability_factor 0
 
 shock_capturing_factor 0
