@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.48 2002/02/06 02:37:10 mstorti Exp $
+//$Id: advdife.cpp,v 1.49 2002/02/15 19:55:49 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -157,6 +157,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     fdj_jac = &arg_data_v[++j];
 #endif
   }
+  rec_Dt_m = 1./DT;
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
   if (comp_prof) {
@@ -228,7 +229,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double detJaco, wpgdet, delta_sc;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix dshapex(ndimel,nel),Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
+  dshapex.resize(2,ndimel,nel);
+  FMatrix Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
     iJaco(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
@@ -322,6 +324,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	exit(0);
       }
       wpgdet = detJaco*WPG;
+      // Set volume of element. This is somewhat incorrect
+      // because we should loop over Gauss points.
+      // Correct for simplices (tris and tetras) and not
+      // deformed quads and hexas. 
+      Volume = double(npg)*wpgdet/gp_data.master_volume;
+      volume_flag = 1;
+      
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
       if (nH>0) {
@@ -488,6 +497,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	exit(1);
 
       }
+      volume_flag=0;
 
     }
 
@@ -591,6 +601,18 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+}
+
+double NewAdvDif::volume() const {
+  if (volume_flag) {
+    return Volume;
+  } else {
+    assert(0); // Not valid at this moment;
+  }
+}
+
+const FastMat2 *NewAdvDif::grad_N() const {
+  return &dshapex;
 }
 
 #undef SHAPE    

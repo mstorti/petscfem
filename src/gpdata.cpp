@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.6 2001/05/30 18:21:53 mstorti Exp $
+//$Id: gpdata.cpp,v 1.7 2002/02/15 19:55:53 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -82,6 +82,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
   dshapex = new Matrix[npg];
 
   if ( !(strcmp(geom,"triangle")) ) {
+    master_volume = 0.5;
 
     double xipg,etapg;
     for (ipg=0; ipg<npg; ipg++) {
@@ -165,6 +166,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 
   } else if ( !(strcmp(geom,"tetra")) ) {
 
+    master_volume = 1./3.;
     double xipg,etapg,zetapg;
     for (ipg=0; ipg<npg; ipg++) {
       if (npg==4) {
@@ -221,6 +223,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     // npg:= npg1d^ndimel total number of Gauss points
     int ndimel;
     sscanf(geom,"cartesian%dd",&ndimel);
+    master_volume = pow(0.5,ndimel);
 
 //      if (ndimel==0 && npg==1) {
     int npg1d=npg1d=int(pow(double(npg),1./double(ndimel)));
@@ -255,6 +258,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     // npg:= npg1d^ndimel total number of Gauss points
     int ndimel;
     sscanf(geom,"cartesian%dd",&ndimel);
+    master_volume = pow(0.5,ndimel);
     int npg1d=int(pow(double(npg),1./double(ndimel)));
     // AGREGAR lin1d y brick integrations!!
     //    } else if (!(strcmp(geom,"quad")) || !(strcmp(geom,"lin1d"))

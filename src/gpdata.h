@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.3 2001/05/30 03:58:50 mstorti Exp $
+//$Id: gpdata.h,v 1.4 2002/02/15 19:55:53 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
@@ -54,6 +54,8 @@ public:
   int npg;
   /// flags whether Newmat or FastMat
   int mat_version;
+  /// The volume of the reference (master) element
+  double master_volume;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

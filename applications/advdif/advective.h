@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.44 2002/02/05 20:28:27 mstorti Exp $
+//$Id: advective.h,v 1.45 2002/02/15 19:55:49 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -218,6 +218,8 @@ public:
 
 extern IdentityEF identity_ef;
 
+class NewAdvDif;
+
 /// This is the flux function for a given physical problem. 
 class NewAdvDifFF {
 private:
@@ -225,11 +227,11 @@ private:
   vector<int> log_vars_v;
 public:
   /// The elemset associated with the flux function
-  const NewElemset *elemset;
+  const NewAdvDif *elemset;
   /// The enthalpy function for this flux function
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
-  NewAdvDifFF(const NewElemset *elemset_=NULL) 
+  NewAdvDifFF(const NewAdvDif *elemset_=NULL) 
     : elemset(elemset_), enthalpy_fun(NULL) {};
 
   /** Define the list of variables that are 
@@ -339,10 +341,13 @@ class NewAdvDif : public NewElemset {
       physics are obtained by redefining the flux function
   */
   NewAdvDifFF *adv_diff_ff;
+  int volume_flag;
+  double Volume,rec_Dt_m;
+  FastMat2 dshapex;
 public:
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
-    adv_diff_ff(adv_diff_ff_) {};
+    adv_diff_ff(adv_diff_ff_), volume_flag(0) {};
   /** Destructor. Destroys the flux function object. fixme:= Warning: this is
       not good!! We cannot destroy the flux function object here if it
       is built in the derived class, because it may happen, for
@@ -354,6 +359,9 @@ public:
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
   ASK_FUNCTION;
+  double volume() const ;
+  const FastMat2 *grad_N() const ;
+  double rec_Dt() const { return rec_Dt_m; }
 };
 
 /** This is the companion elemset to advdif that computes the boundary

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.1 2002/02/15 12:47:37 mstorti Exp $
+// $Id: bubbly.h,v 1.2 2002/02/15 19:55:49 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
@@ -12,10 +12,16 @@
  */ 
 class bubbly_ff : public AdvDifFFWEnth {
 private:
-  int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx;
-  FastMat2 U,v_l,v_g,Cp,Ajac,Id,Amoml,Amomg,Y,
-    Djac,tmp1,Cjac,tmp2,tmp3;
-  double alpha_l,alpha_g,arho_l,arho_g,p,k,eps;
+  int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
+    vl_indxe,vg_indxe;
+  FastMat2 U,v_l,v_g,v_mix,Cp,Ajac,Id,Amoml,Amomg,Y,
+    Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
+    grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
+    visco_t,uintri,svec,tmp9;
+  double alpha_l,alpha_g,arho_l,arho_g,p,k,eps,
+    visco_l,visco_g,visco_l_eff,visco_g_eff,
+    C_mu,C_1,C_2,sigma_k,sigma_e,P_k,tau_fac;
+
   double rho_l,rho_g;
     
 public:
@@ -23,7 +29,7 @@ public:
 
   ~bubbly_ff();
   
-  /** This is called before any other in a loop and may help in
+  /** This is called before any other in a loopnike and may help in
       optimization 
       @param ret_options (input/output) this is used by the flux
       function writer for returning some options. Currently the only
