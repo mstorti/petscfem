@@ -4,6 +4,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* DX: Delete comments in `epimport.cpp'
+* DX: Make auto naming of elemsets od the form <elemset_type>_xxx
+* DX: Code asynchronous visualization with threads. 
+* DX: make protocol more robust by sending aclnolwdgements from the client.
 * Why it takes so much time after "Start partitioning" when running
     large problems in one proc.
 * Generate test for LES 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.7 2003/02/07 18:51:47 mstorti Exp $
+//$Id: dxhook.cpp,v 1.8 2003/02/07 19:27:26 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/fem.h>
@@ -17,6 +17,13 @@ extern int MY_RANK, SIZE;
 #ifndef IPPORT_MAX
 #define IPPORT_MAX 65536
 #endif
+
+// It seems that DX hangs when using doubles for coordinates and
+// data in the moment of making `DXEndField()' (it seems that internally
+// it happens in th moment of doing `DXBoundingBox()'. So that
+// I will use only floats. 
+#define DX_USE_FLOATS
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 			   const char *name_a) {
@@ -60,8 +67,16 @@ time_step_post(double time,int step,
     assert(srvr);
     // Send node coordinates
     Sprintf(srvr,"nodes nodes %d %d\n",ndim,nnod);
-    for (int node=0; node<nnod; node++)
+    for (int node=0; node<nnod; node++) {
+#ifndef DX_USE_FLOATS
       Swrite(srvr,xnod+node*nu,ndim*sizeof(double));
+#else
+      for (int j=0; j<ndim; j++) {
+	float val = (float)*(xnod+node*nu+j);
+	Swrite(srvr,&val,sizeof(float));
+      }
+#endif
+    }
   }
   // Send results
   int ndof = dofmap->ndof;
@@ -71,7 +86,14 @@ time_step_post(double time,int step,
   int ierr = state2fields(state_p,state(),dofmap,time_data()); assert(!ierr);
   if (!MY_RANK) {
     Sprintf(srvr,"state state %d %d\n",ndof,nnod);
+#ifndef DX_USE_FLOATS
     Swrite(srvr,state_p,ndof*nnod*sizeof(double));
+#else
+    for (int j=0; j<ndof*nnod; j++) {
+      float val = (float)*(state_p+j);
+      Swrite(srvr,&val,sizeof(float));
+    }
+#endif
   }
   delete[] state_p;
 

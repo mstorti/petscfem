@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.11 2003/02/07 18:51:47 mstorti Exp $
+// $Id: epimport.cpp,v 1.12 2003/02/07 19:27:26 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -272,39 +272,29 @@ int DXObjectsTable::get_state(string &name,Object &object) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
-  array = NULL;
-  array = DXNewArray(TYPE_DOUBLE, CATEGORY_REAL, 1,shape);
-  if (!array) return ERROR;
-  array = DXAddArrayData(array, 0, size, NULL);
-  if (!array) return ERROR;
-  double *array_p = (double *)DXGetArrayData(array);
+#define DX_USE_FLOATS
 
-  int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(double));
-  if (nread==EOF) return ERROR;
-  return OK;
-}
+#ifdef DX_USE_FLOATS
+#define DX_SCALAR_TYPE TYPE_FLOAT
+#define DX_SCALAR_TYPE_DECL float
 #else
+#define DX_SCALAR_TYPE TYPE_DOUBLE
+#define DX_SCALAR_TYPE_DECL double
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
   array = NULL;
-  array = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 1,shape);
+  array = DXNewArray(DX_SCALAR_TYPE, CATEGORY_REAL, 1,shape);
   if (!array) return ERROR;
   array = DXAddArrayData(array, 0, size, NULL);
   if (!array) return ERROR;
-  float *array_p = (float *)DXGetArrayData(array);
+  DX_SCALAR_TYPE_DECL *array_p = (DX_SCALAR_TYPE_DECL *)DXGetArrayData(array);
 
-  int N = shape*size;
-  double *buffer = new double[N];
-  int nread = Sreadbytes(clnt,buffer,N*sizeof(double));
+  int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(DX_SCALAR_TYPE_DECL));
   if (nread==EOF) return ERROR;
-
-  for (int j=0; j<N; j++) array_p[j] = (float) buffer[j];
-
-  delete[] buffer;
   return OK;
 }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Error build_dx_array_int(Socket *clnt,int shape,int size, Array &array) {
@@ -440,24 +430,12 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (!field) goto error;
       field = DXSetComponentValue(field,"data",(Object)data); 
       if (!field) goto error;
-      DXMessage("trace 5, data %p",data);
 
-#if 0
-      Point *box;
-      field = (Field)DXBoundingBox((Object)field,box);
-      if (!field) goto error;
-      DXMessage("trace 6.0, field %p",field);
-#endif
-
-#if 1
       field = DXEndField(field); if (!field) goto error;
-      DXMessage("trace 6");
-#endif
 
       // Load new field in table
       ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));
       if(ierr!=OK) return ierr;
-      DXMessage("trace 7");
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else {
