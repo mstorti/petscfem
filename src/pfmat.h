@@ -1,11 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.2 2001/12/14 03:11:14 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.3 2001/12/17 00:03:57 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
 #include <vector>
 
+#include <src/part.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
 #include <src/distmap.h>
@@ -28,12 +29,6 @@ public:
     return dofpart(k->first);
   }
 };
-
-class DofPartitioner {
-public:
-  ~DofPartitioner()=0;
-  virtual int processor(int j)=0;
-}
 
 //#define PFFSM
 #ifdef PFFSM

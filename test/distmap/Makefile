@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16.6.1 2001/12/14 03:09:34 mstorti Exp $ 
+# $Id: Makefile,v 1.16.6.2 2001/12/17 00:04:01 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -65,9 +65,21 @@ $(P).bin: $(P).o $(LIBPETSCFEM)
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(P).o $(OTHER_OBJS) $(LDFLAGS)
 
 tryme5.bin: tryme5.cpp
-	g++ -g -o tryme5 tryme5.cpp
+	g++ -g -o tryme5.bin tryme5.cpp
 
 tryme6.bin: tryme6.cpp
-	g++ -g -o tryme6 tryme6.cpp
+	g++ -g -o tryme6.bin tryme6.cpp
+
+SRC_DIR = $(PETSCFEM_DIR)/src
+LIB := $(SRC_DIR)/libpetscfem.a
+LIB_OBJS := iisdgraph graph
+LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
+
+$(LIB)(%.o):
+	$(MAKE) -C $(SRC_DIR) 'libpetscfem.a($*.o)'
+
+tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
+	-rm -f $@
+	${CXX_CLINKER} -o $@ tryme7.o $(LDFLAGS)
 
 #s

@@ -1,9 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.2.4.1 2001/12/14 03:11:14 mstorti Exp $
+// $Id: distcont.h,v 1.2.4.2 2001/12/17 00:03:57 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
+#include <cstdio>
 #include <vector>
 //#include <algorithm>
 
@@ -36,18 +37,18 @@ public:
   DistCont<Container,
     ValueType,Partitioner>(Partitioner *pp=NULL,
 			   MPI_Comm comm_=MPI_COMM_WORLD);
+#if 0
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
       @return the number of processor where these entry should go. 
   */ 
-#if 0
   void processor(const ValueType &p,int &nproc,int *plist) const;
+#endif
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
   */ 
-#endif
   int size_of_pack(const ValueType &p) const;
   /** Packs the entry #(k,v)# in buffer #buff#. This function should
       be defined by the user. 

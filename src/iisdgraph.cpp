@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.1.2.2 2001/12/14 03:11:14 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.1.2.3 2001/12/17 00:03:57 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -12,63 +12,65 @@ extern int MY_RANK,SIZE;
 
 #include <src/graph.h>
 #include <src/distcont.h>
+#include <src/iisdgraph.h>
+#include <src/buffpack.h>
 
-#if 0
-template <typename IntPartitioner,typename ValueType>
-class Partitioner {
-private:
-  const int n;
-public:
-  void processor(const ValueType &p,int &nproc,int *plist) const {};
-  //// code more stuff here .........
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void StoreGraph::set_ngbrs(int j,set<int> &ngbrs_v) {
+  GMap::iterator q;
+  q = lgraph.find(j);
+  if (q != lgraph.end()) ngbrs_v = q->second;
 }
-#endif
 
-template <typename ImgValueType, typename IntPartitioner >
-class Partitioner : public IntPartitioner {
-private:
-  typedef pair<int,ImgValueType> ValueType;
-public:
-  void processor(const ValueType &p,int &nproc,int *plist) const {
-    nproc = 1;
-    plist[0] = processor(p.first);
+int DGMap::size_of_pack(const GRow &q) const {
+  /// Contains #int k# and the set of neighobrs #set<int> s#. We store
+  //#n+2# where #n=s.size()# integers in the sequence: #k, n, s[0],
+  //... s[n-1]#.
+  return sizeof(int)*(2+q.second.size());
+}
+
+void DGMap::pack(const GRow &p,char *&buff) const {
+  int n;
+  set<int>::const_iterator q,qe;
+  const set<int> &w = p.second;
+  BUFFER_PACK(p.first,buff);
+  n = w.size();
+  BUFFER_PACK(n,buff);
+  q=w.end();
+  for (q=w.begin(); q!=qe; q++) 
+    BUFFER_PACK(*q,buff);
+}
+
+void DGMap::unpack(GRow &p,const char *&buff) {
+  set<int> &w = p.second;
+  int k,n,q;
+
+  BUFFER_UNPACK(p.first,buff);
+  BUFFER_UNPACK(n,buff);
+  
+  for (k=0; k<n; k++) {
+    BUFFER_UNPACK(q,buff);
+    w.insert(q);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DGMap::combine(const GRow &p) {
+  GMap::iterator iter;
+  set<int>::const_iterator q,qe;
+  iter = find(p.first);
+  if (iter != end()) {
+    const set<int> &insrow = p.second;
+    qe = insrow.end();
+    for (q=insrow.begin(); q!=qe; q++) iter->second.insert(*q);
+  } else {
+    insert(p);
   }
 };
 
-class IntPartitioner {
-public:
-  virtual int processor(int k) const =0;
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** This `Graph' class has internal storage, which you can fill with
-    `set'. Furthermore, it is distributed.
-*/
-class StoreGraph : public Graph {
-private:
-  /// The MPI compunicator
-  MPI_Comm comm;
-  /// The storage area type
-  typedef map<int, set<int> > GMap;
-  /// An individual set of the storage map. 
-  typedef pair<int, set<int> > GRow;
-  /** This is the storage area. The Graph is stored as a
-      correspondence between an integer (one vertex) and a set of
-      integers (those vertices that are connected to him).
-  */
-  typedef Partitioner< set<int>, IntPartitioner > GPartitioner;
-  DistCont <GMap,GRow,GPartitioner> lgraph;
-public:
-  /// Clean all memory related 
-  ~StoreGraph() { map.clear(); };
-  /// Constructor
-  StoreGraph(int N=0,IntPartitioner *pp=NULL,
-	    MPI_Comm comm_=MPI_COMM_WORLD) :
-  lgraph(pp,comm) { init(N); }
-};
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void IISDGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
+#if 0
+void StoreGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
   int pos,loc2,dof2;
   pos = loc2dof[loc1]+k1;
   while (1) {
@@ -85,7 +87,7 @@ void IISDGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double IISDGraph::weight(int elem) {
+double StoreGraph::weight(int elem) {
   return 1.;
 }
-
+#endif

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.8.4.1 2001/12/09 14:00:20 mstorti Exp $
+// $Id: graph.h,v 1.8.4.2 2001/12/17 00:03:57 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -44,7 +44,8 @@ class Graph {
   /// return the partition index for a given fine graph vertex 
   int vrtx_part(int);
   /** callback user function to return the neighbors for a 
-      fine vertex `vrtx_f'
+      fine vertex `vrtx_f'. #ngbrs_v# is cleared before calling
+      #set_ngbrs()#. 
   */
   virtual void set_ngbrs(int vrtx_f,set<int> &ngbrs_v)=0;
   /// Callback user function for the user to set the weight of a given fine vertex. 

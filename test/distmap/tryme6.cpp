@@ -19,25 +19,28 @@ public:
   Scalar val(int j) const { return (*this)[j]; }
 };
 
-template < typename Scalar, typename Fun >
+template < typename Scalar>
 class Sample {
 public:
-  Fun *fun;
+  class Fun {
+  public:
+    virtual Scalar f(Scalar x)=0;
+  } *fun;
   int nstep;
   Scalar start, step;
   int size() { return nstep; }
   Scalar val(int j) const { return fun->f(start+j*step); }
 };
 
-class DoubleFun {
-public:
-  virtual double f(double x)=0;
-};
-
-class Sqr : public DoubleFun {
+class Sqr : public Sample<double>::Fun {
 public:
   double f(double x) { return x*x; }
 } sqr;
+
+class Cub : public Sample<double>::Fun {
+public:
+  double f(double x) { return x*x*x; }
+} cub;
 
 int main() {
   SumArray<Array<int>,int> a;
@@ -47,11 +50,12 @@ int main() {
     a[j] = j*j;
   printf("suma: %d\n",a.sum());
 
-  SumArray < Sample <double, DoubleFun>, double > s;
+  SumArray < Sample <double>, double > s;
   s.start = 0.;
   s.step  = 0.001;
   s.nstep = 1001;
   s.fun = &sqr;
   printf("suma de sqr * h (should be 0.3333) = %f\n",s.sum()*s.step);
-
+  s.fun = &cub;
+  printf("suma de cub * h (should be 0.25)   = %f\n",s.sum()*s.step);
 }
