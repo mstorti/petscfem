@@ -1869,3 +1869,6 @@ tag: beta-3.09.pl6 on Wed, 11 Dec 2002 18:50:13 -0300 by mstorti in spider
 tag: beta-3.09.pl7 on Wed, 11 Dec 2002 21:05:03 -0300 by mstorti in spider
      > Runs large defrmation (70%) example on `step.epl' with old
      > element but new main (standard ns main). 
+----------
+tag: beta-3.09.pl8 on Wed, 11 Dec 2002 21:12:31 -0300 by mstorti in spider
+     > Runs very large deformation example (95% on step.epl) in 40 steps. 
