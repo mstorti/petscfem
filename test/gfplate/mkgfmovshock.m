@@ -1,4 +1,4 @@
-## $Id: mkgfmovshock.m,v 1.7 2005/02/08 03:38:10 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.8 2005/02/08 03:45:11 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
@@ -113,7 +113,7 @@ asave("gfmovshock.abso-con-in.tmp", \
 xx = xnod*nor;
 
 
-if 1
+if 0
   sigma = 0.3;
   dfx = exp(-((xx-Lx/4)/sigma).^2);
   Uini = U1(ones(nnod2,1),:);
