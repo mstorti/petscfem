@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.24 2001/08/21 02:10:04 mstorti Exp $
+//$Id: elemset.cpp,v 1.12.2.1 2001/09/07 22:58:44 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -11,7 +11,6 @@
 #include "dofmap.h"
 #include "arglist.h"
 #include "readmesh.h"
-#include "pfmat.h"
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -114,8 +113,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int klocc=0,int kdofc=0) {
 
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
-    load_vec,load_mat,load_mat_col,comp_prof,comp_mat,iele_here,
-    pfmat;
+    load_vec,load_mat,load_mat_col,comp_prof,comp_mat,iele_here;
 
   double *retval = argd.retval;
 
@@ -134,7 +132,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   load_vec = (options & (UPLOAD_VECTOR | UPLOAD_VECTOR_LOCST));
   load_mat = (options & (UPLOAD_MATRIX | UPLOAD_PROFILE));
   load_mat_col = (options & IS_FDJ);
-  pfmat = (options & PFMAT);
 
   // In order to compute profiles (comp_prof==1) we have to do all the
   // work in all th processors
@@ -179,14 +176,8 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      if (val != 0) {
 		if (comp_prof) {
 		  node_insert(argd.da,kd,kdl);
-		  node_insert(argd.da,kdl,kd); // be sure that profile
-				// is symmetric
 		} else {
-		  if (pfmat) {
-		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
-		  } else {
-		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
-		  }
+		  MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
 		}
 	      }
 	    }
@@ -209,16 +200,10 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		if (val != 0) {
 		  if (comp_prof) {
 		    int kd=locdof-1,kdl=locdofl-1;
-		    // be sure that profile is symmetric
 		    node_insert(argd.da,locdof-1,locdofl-1);
-		    node_insert(argd.da,locdofl-1,locdof-1); 
 		  } else {
 		    // printf("(%d,%d) -> %f\n",locdof,locdofl,val);
-		    if (pfmat) {
-		      argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
-		    } else {
-		      MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
-		    }
+		    MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
 		  }
 		}
 	      }
@@ -335,13 +320,8 @@ int assemble(Mesh *mesh,arg_list argl,
     if (argl[j].options & UPLOAD_VECTOR) 
       ARGVJ.x = (Vec *) (argl[j].arg);
 
-    if (argl[j].options & (UPLOAD_MATRIX | IS_FDJ_MATRIX)) {
-      if (argl[j].options & PFMAT) {
-	ARGVJ.pfA = (PFMat *) (argl[j].arg);
-      } else {
-	ARGVJ.A = (Mat *) (argl[j].arg);
-      }
-    }
+    if (argl[j].options & (UPLOAD_MATRIX | IS_FDJ_MATRIX)) 
+      ARGVJ.A = (Mat *) (argl[j].arg);
 
     if (argl[j].options & UPLOAD_PROFILE ) {
       iter_mode = INCLUDE_GHOST_ELEMS;
@@ -395,6 +375,14 @@ int assemble(Mesh *mesh,arg_list argl,
     
     //o Chunk size for the elemset. 
     TGETOPTDEF(elemset->thash,int,chunk_size,ELEM_CHUNK_SIZE);
+    //o The increment in the variables in order to
+    // compute the finite difference approximation to the
+    // Jacobian. Should be order epsilon=sqrt(precision)*(typical
+    // magnitude of the variable). Normally, precision=1e-15 so
+    // that epsilon=1e-7*(typical magnitude of the
+    // variable)
+    TGETOPTDEF(elemset->thash,double,epsilon_fdj,EPSILON_FDJ);
+
     // int chunk_size = ELEM_CHUNK_SIZE;
     // ierr = get_int(elemset->thash,"chunk_size",&chunk_size,1);
 
@@ -409,13 +397,7 @@ int assemble(Mesh *mesh,arg_list argl,
     // have to iterate on the ghost_elems also). 
     int max_chunk_size = nel_here;
     if (iter_mode == INCLUDE_GHOST_ELEMS) 
-      // I'm not clear about this, but using the `max' version was
-      // wrong because in some cases it performed two chunks when only
-      // needed one. 
-      // old version:
-      // max_chunk_size = maxi(2,max_chunk_size,da_length(ghostel));
-      // new version:
-      max_chunk_size = max_chunk_size + da_length(ghostel);
+      max_chunk_size = maxi(2,max_chunk_size,da_length(ghostel));
     chunk_size = mini(2,local_chunk_size,max_chunk_size);
       
     for (j=0; j<narg; j++) {
@@ -469,8 +451,6 @@ int assemble(Mesh *mesh,arg_list argl,
       el_last = iele;
       if (el_last >=nelem) el_last = nelem-1;
       if (el_last==nelem-1) last_chunk=1;
-      // printf("[%d] jobinfo %s, chunk %d, chunk_size %d, here %d,range %d-%d\n",
-      // myrank,jobinfo,chunk,chunk_size,iele_here+1,el_start,el_last);
 
       for (j=0; j<narg; j++) {
 	if (argl[j].options & DOWNLOAD_VECTOR) 
@@ -498,14 +478,9 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 #endif 
 
-      if (iele_here > -1) {
-	// if (1) {
-	elemset->assemble(arg_data_v,nodedata,dofmap,
-			  jobinfo,myrank,el_start,el_last,iter_mode,
-			  time_data);
-      } else {
-	// printf("[%d] not processing because no elements...\n",myrank);
-      }
+      elemset->assemble(arg_data_v,nodedata,dofmap,
+			jobinfo,myrank,el_start,el_last,iter_mode,
+			time_data);
 
       // Upload return values
       for (j=0; j<narg; j++) 
@@ -526,13 +501,7 @@ int assemble(Mesh *mesh,arg_list argl,
 		    (void *)ARGVJ.retval,
 		    sizeof(double)*chunk_size*ndoft);
 
-	// epsilon:= the increment in the variables in order to
-	// compute the finite difference approximation to the
-	// Jacobian. Should be order epsilon=sqrt(precision)*(typical
-	// magnitude of the variable). Normally, precision=1e-15 so
-	// that epsilon=1e-7*(typical magnitude of the
-	// variable)
-	double epsilon=EPSILON_FDJ;
+	//	double epsilon=EPSILON_FDJ;
 	for (kloc=0; kloc<nel; kloc++) {
 	  for (kdof=0; kdof<ndof; kdof++) {
 
@@ -546,7 +515,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	    for (iele=el_start; iele <= el_last; iele++) {
 	      if (!compute_this_elem(iele,elemset,myrank,iter_mode)) continue;
 	      iele_here++;
-	      PSTAT(iele_here,kloc,kdof) += epsilon;
+	      PSTAT(iele_here,kloc,kdof) += epsilon_fdj;
 	    }
 
 	    // compute perturbed residual
@@ -565,7 +534,7 @@ int assemble(Mesh *mesh,arg_list argl,
 		  iele_here++;
 		  for (kdoft=0; kdoft<ndoft; kdoft++) {
 		    RETVALT(iele_here,kdoft) =
-		      -(RETVALT(iele_here,kdoft)-REFREST(iele_here,kdoft))/epsilon;
+		      -(RETVALT(iele_here,kdoft)-REFREST(iele_here,kdoft))/epsilon_fdj;
 		  }
 		}
 
@@ -582,17 +551,10 @@ int assemble(Mesh *mesh,arg_list argl,
 
       for (j=0; j<narg; j++) {
 	if (argl[j].options & ASSEMBLY_MATRIX) {
-	  if (argl[j].options & PFMAT) {
-	    ierr = (ARGVJ.pfA)
-	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ierr = (ARGVJ.pfA)
-	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	  } else {
-	    ierr = MatAssemblyBegin(*(ARGVJ.A),
-				    MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ierr = MatAssemblyEnd(*(ARGVJ.A),
+	  ierr = MatAssemblyBegin(*(ARGVJ.A),
 				  MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	  }
+	  ierr = MatAssemblyEnd(*(ARGVJ.A),
+				MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	}
       }
       // Has finished processing chunks this processor?
@@ -665,17 +627,12 @@ int assemble(Mesh *mesh,arg_list argl,
     }
 
     if (argl[j].options & ASSEMBLY_MATRIX) {
-      if (argl[j].options & PFMAT) {
-	ierr = (ARGVJ.pfA)->assembly_begin(MAT_FINAL_ASSEMBLY); 
-	CHKERRQ(ierr);
-	ierr = (ARGVJ.pfA)->assembly_end(MAT_FINAL_ASSEMBLY); 
-	CHKERRQ(ierr);
-      } else {
-	ierr = MatAssemblyBegin(*(ARGVJ.A),
-				MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-	ierr = MatAssemblyEnd(*(ARGVJ.A),
+      // wait_from_console("antes de assembly FINAL en FINAL");  
+      ierr = MatAssemblyBegin(*(ARGVJ.A),
 			      MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-      }
+      ierr = MatAssemblyEnd(*(ARGVJ.A),
+			    MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+      // wait_from_console("despues de assembly FINAL en FINAL");  
     }
 
     if (argl[j].options & ASSEMBLY_VECTOR) {
@@ -684,13 +641,9 @@ int assemble(Mesh *mesh,arg_list argl,
     }
 
     if (argl[j].options & UPLOAD_PROFILE) {
-      if (argl[j].options & PFMAT) {
-	((PFMat *)(argl[j].arg))->create(ARGVJ.da,dofmap,debug_compute_prof);
-      } else {
-        ierr = compute_prof(ARGVJ.da,dofmap,
-			    myrank,(Mat *)(argl[j].arg),
-			    debug_compute_prof);
-      }
+      ierr = compute_prof(ARGVJ.da,dofmap,
+			  myrank,(Mat *)(argl[j].arg),
+			  debug_compute_prof);
     }
 
     if (argl[j].options & VECTOR_ASSOC ) {
@@ -710,20 +663,6 @@ void Elemset::print() {
   SHVS(nel,d);
   SHVS(ndof,d);
   thash->print();
-}
-
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ ""
-const char * Elemset::name() {
-  const char *name_r,*name_d="__ANONYMOUS__";
-  thash->get_entry("name",name_r);
-  if (name_r) {
-    return name_r;
-  } else {
-    return name_d;
-  }
 }
 
 void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
