@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.3 2001/07/31 18:10:42 mstorti Exp $
+// $Id: distmap.cpp,v 1.4 2001/07/31 20:06:12 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -43,7 +43,7 @@ unpack(int &k,double &v,const char *& buff) {
 void DistMap<int,double>::
 combine(const pair<int,double> &p) {
   map<int,double>::iterator iter = find(p.first);
-  if (find(p.first) != end()) {
+  if (iter != end()) {
     iter->second += p.second;
   } else {
     insert(p);
