@@ -238,7 +238,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   FastMatCacheList cache_list;
-  // FastMat2::activate_cache(&cache_list);
+  FastMat2::activate_cache(&cache_list);
 
   int ielh=-1;
   int SHV_debug=0;
@@ -405,7 +405,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  u_star.prod(SHAPE,locstate2,-1,-1,1);
 	  locstate2.rs();
 	  tmp12.set(grad_p).axpy(u_star,-rho/Dt_art);
-	  tmp11.prod(dshapex,tmp12,-1,2,-1);
+	  tmp11.prod(dshapex,tmp12,-1,1,-1);
 	  rescont.axpy(tmp11,-wpgdet);
 
 	} else {
@@ -420,13 +420,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       } else if (comp_mat_poi) {
 
-	tmp13.prod(dshapex,dshapex,1,2,3,4);
+	tmp13.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp13,wpgdet);
  
       } else if (comp_res_prj) {
 
 	locstate2.ir(2,ndof);
-	grad_p.prod(dshapex,locstate2,1,-1,1);
+	grad_p.prod(dshapex,locstate2,1,-1,-1);
 
 	locstate2.is(2).is(2,1,ndim);
 	u_star.prod(SHAPE,locstate2,-1,-1,1);
@@ -477,8 +477,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.export_vals(&(RETVAL(ielh))).rs();
     } else assert(0);
   }
-  // FastMat2::void_cache();
-  // FastMat2::deactivate_cache();
+  FastMat2::void_cache();
+  FastMat2::deactivate_cache();
   return 0;
 }
 
