@@ -3892,3 +3892,7 @@ tag: beta-3.41.14 on Fri, 28 Jan 2005 14:34:51 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.15 on Fri, 28 Jan 2005 14:52:37 -0300 by mstorti in minerva.ceride.gov.ar
      > Tested `gasflow_abso2' in 1D, supersonic flow (Mach=2). 
+----------
+tag: beta-3.41.16 on Fri, 28 Jan 2005 15:17:03 -0300 by mstorti in minerva.ceride.gov.ar
+     > Working linear absorbing boundary condition based on 
+     > old state. 
