@@ -5,17 +5,17 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $R = 1;
 $Rext = 5;
 
-$Nr = 40;
+$Nr = 80;
 $Nphi = $Nr;
 $rratio = 5;
 
-$Machin = 2.0;
+$Machin = 3.0;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
 $Tref = 1;
 $abso = 1;
-$restart = 1;
+$restart = 0;
 
 $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);
