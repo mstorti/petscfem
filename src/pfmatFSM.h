@@ -57,6 +57,7 @@ class pfmatFSMin_assemblyState : public pfmatFSMState {
 public:
   virtual const char* StateName() const
   {return("in_assembly");};
+  virtual void clean_mat(pfmatFSM&);
   virtual void assembly_begin(pfmatFSM&);
   virtual void set_value(pfmatFSM&);
 };

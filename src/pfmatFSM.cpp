@@ -123,6 +123,15 @@ void pfmatFSMin_scatterState::assembly_end(pfmatFSM& s) {
            "to: \"assembled\"\n");
   s.SetState(pfmatFSM::assembledState);
 }
+void pfmatFSMin_assemblyState::clean_mat(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"in_assembly\", event: \"clean_mat\", "
+           "to: \"in_assembly\"\n");
+  s.SetState(pfmatFSM::in_assemblyState);
+  s.assembly_begin();
+  s.assembly_end();
+  s.clean_mat();
+}
 void pfmatFSMin_assemblyState::assembly_begin(pfmatFSM& s) {
   if (s.matrix_p->print_fsm_transition_info_f())
     printf("from: \"in_assembly\", event: \"assembly_begin\", "
