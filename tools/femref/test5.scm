@@ -1,8 +1,8 @@
-;;; $Id: test5.scm,v 1.10 2005/02/18 00:21:29 mstorti Exp $
+;;; $Id: test5.scm,v 1.11 2005/02/18 00:29:11 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
-;;; ================================================================
+;;---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 ;;; Generate all partitions of 'n' We represente a partition as non
 ;;; increasing lists, for instance, the partitions of 3 are ((3) (2 1)
 ;;; (1 1 1)).
@@ -63,17 +63,19 @@
   ;; values. Some kind of lazy evaluation or simply storing the values
   ;; in a table (dynamic programming) would be much more efficient.
   (let nparts-prtl ((m n)
-		   (p n))
+		    (p n))
     (cond ((= m 1) 1)
-	((= m 0) 1)
-	((= p 1) 1)
-	(#t 
-	 (let ((k-max (min p m)))
-	   (let loop ((m 0)
-		      (k 1))
-	     (cond ((> k k-max) m)
-		   (#t (loop (+ m (nparts-prtl (- m k) k)) (+ k 1))))))))))
+	  ((= m 0) 1)
+	  ((= p 1) 1)
+	  (#t 
+	   (format #t "(nparts-prtl ~A ~A)\n" m p)
+	   (let ((k-max (min p m)))
+	     (let loop ((q 0)
+			(k 1))
+	       (cond ((> k k-max) q)
+		     (#t (loop (+ q (nparts-prtl (- m k) k)) (+ k 1))))))))))
 
+(nparts 4)
 (define (nparts2 n) (length (partition n)))
 
 #!
@@ -118,19 +120,17 @@
 			  m p)
 	     (loop m (+ p 1)))))))
 
-#!
 (let loop ((n 1))
   (cond ((> n 15))
 	(#t (format #t "(~A -> ~A ~A ~A)\n" 
 		    n (nparts n) (nparts2 n) (nparts3 n))
 	    (loop (+ n 1)))))
-!#
 
 #!
 (let ((n 5))
       (format #t "(nparts3 ~A) ~A\n" n (nparts3 n)))
-!#
 
 (let ((n 8))
       (format #t "(partition ~A) ~A\n" n (partition n)))
+!#
 
