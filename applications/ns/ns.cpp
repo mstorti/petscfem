@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.40 2001/09/19 12:21:08 mstorti Exp $
+//$Id: ns.cpp,v 1.41 2001/09/19 13:17:27 mstorti Exp $
  
 #include <malloc.h>
 
@@ -386,7 +386,6 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-#if 1 // fixme:= adaptando to PFMAT
       Viewer matlab;
       if (verify_jacobian_with_numerical_one) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -418,15 +417,11 @@ int main(int argc,char **args) {
 
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
 	ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
 
 	PetscFinalize();
 	exit(0);
       }
-#else
-      assert( ! verify_jacobian_with_numerical_one);
-#endif
 
       A_tet->build_sles(GLOBAL_OPTIONS);
 
