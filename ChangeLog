@@ -1,3 +1,3152 @@
+2002-09-13  mstorti@spider  <mstorti@spider>
+
+	* notes.txt, test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/fsanal.pl, test/cubcav/proctable.geronimo,
+	tools/Makefile, tools/nettest.cpp: Running large tests on cubic
+	cavity.
+
+	* test/cubcav/fsanal.pl, tools/nettest.cpp: *** empty log message ***
+
+2002-09-12  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt, test/cubcav/cubcav.epl, test/cubcav/Makefile,
+	test/cubcav/proctable.geronimo: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt, src/iisdmat.cpp, test/cubcav/Makefile,
+	test/cubcav/proctable.minerva: *** empty log message ***
+
+	* applications/ns/ns.cpp, src/debug.cpp, src/debug.h,
+	test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/proctable.geronimo: Detected that PETSc-FEM doesn't
+	run in parallel, probably because of some incompatibilities of
+	PETSc.
+
+2002-09-11  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/compdate.cpp:
+	Added printing build date, time and compiler to NS module.
+
+2002-09-10  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/Makefile, applications/ns/ns.cpp, Makefile.base:
+	Added printing build date, time and compiler to NS module.
+
+	* applications/ns/compdate.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, notes.txt: *** empty log message ***
+
+2002-09-08  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.cpp, src/propef.cpp, test/aquifer/Makefile,
+	test/aquifer/aqui.epl, test/aquifer/check_var_rain.m,
+	test/aquifer/rain2.cpp, test/runtests.pl, Makefile.base: Added
+	test for dynamically variable properties.  Runs all tests in
+	test/aquifer.
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/aquifer/Makefile, test/aquifer/aqui.epl,
+	test/aquifer/check_var_rain.m, test/aquifer/rain.cpp,
+	test/aquifer/rain2.cpp, src/elemset.h, src/propef.cpp: Fixed some
+	errors in dynamic loaded temp dependent prop functions.
+
+	* test/aquifer/rain2.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/Makefile, test/aquifer/aqui.epl, test/eperlini.pl,
+	src/elemset.cpp, src/propef.cpp: Dynamically linked functions OK
+	for constant rain.
+
+	* src/Makefile, src/elemset.cpp, src/elemset.h, src/propef.cpp,
+	test/aquifer/aqui.epl, test/aquifer/rain.cpp,
+	applications/advdif/aquifer.cpp, applications/advdif/aquifer.h,
+	applications/advdif/diff.cpp, applications/advdif/diff.h: Added
+	Dynamic Linkong to temporal dependent properties.
+
+2002-09-07  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/runtests.pl, test/sqcav/Makefile,
+	test/sqcav/g_body.ans.txt, test/sqcav/gbody.ans.txt,
+	Makefile.base, notes.txt: Moved `test/sqcav/g_body.ans.txt' to
+	`test/sqcav/gbody.ans.txt' because `g_*' files are removed by
+	PETSc `make clean'.
+
+	* test/sqcav/Makefile: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/runtests.pl, test/sqcav/Makefile, Makefile.base, notes.txt:
+	Added fractional step test.
+
+	* test/sqcav/u_re1000_fs.ref, test/sqcav/Makefile,
+	test/sqcav/check_re1000_fs.m, test/sqcav/procfs.m,
+	test/sqcav/sqcav.epl: Runs fractional step test.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns-fracstep.cpp, src/iisdmat.cpp,
+	src/readmesh.cpp, test/distmap/tryme4.cpp, test/sqcav/Makefile,
+	test/sqcav/sqcav.epl, notes.txt: Fixed the
+	`KSPGMRESSetOrthogonalization()' bug.
+
+	* src/iisdmat.cpp: *** empty log message ***
+
+2002-09-06  mstorti@spider  <mstorti@spider>
+
+	* Makefile.base, notes.txt: cvs
+
+	* save.log, VERSION, stable.log: Administrative files
+
+	* test/Makefile, test/output.m: Runs all tests.
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/distmap/distcont.cpp,
+	test/distmap/distmap.cpp, test/distmap/distmat.cpp, Makefile.base:
+	Runs allmost all tests.
+
+2002-09-05  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/testfm2.cpp, test/tfastvec.cpp,
+	Makefile.base, notes.txt: Migrating to petsc-2.1.3. Runs many
+	tests.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/laplace/laplace.cpp,
+	applications/advective/adv.cpp: Migrating to petsc-2.1.3. `adv'
+	and `laplace' compile.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdif.cpp: Migrating to
+	petsc-2.1.3. `advdif' compiles.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advective/adv.cpp,
+	applications/laplace/laplace.cpp, applications/ns/ns-fracstep.cpp,
+	applications/ns/ns.cpp, src/iisdmat.cpp,
+	applications/advdif/advdif.cpp: `ns' compiles with petsc-2.1.3
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advective/adv.cpp, applications/ns/ns-fracstep.cpp,
+	applications/ns/ns.cpp, src/fem.h, src/gpdata.cpp, src/iisdcr.cpp,
+	src/iisdmat.cpp, src/iisdmat.h, src/petscmat.cpp, src/petscmat.h,
+	src/pfmat.h, src/readmesh.cpp, src/state.cpp,
+	test/pfmat/pfmat.cpp, test/pfmat/pfmat2.cpp,
+	applications/advdif/advdif.cpp: Migrating to petsc-2.1.3. Some
+	fixes.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advective/adv.cpp, applications/ns/ns-fracstep.cpp,
+	applications/ns/ns.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/lusolver.h, src/petscmat.cpp, src/petscmat.h, src/pfmat.cpp,
+	src/pfmat.h, src/spdirect.cpp, src/spdirect.h,
+	applications/advdif/advdif.cpp, applications/advdif/bubbly.cpp,
+	applications/advdif/nwadvdif.h: Migrating to petsc-2.1.3. Changed
+	`Scalar' for `PetscScalar' and `Viewer' for `PetscViewer'.
+
+	* VERSION, save.log: Administrative files
+
+	* src/arglist.h, src/arglistn.h, src/dofmap.h, src/fem.h,
+	src/gpdata.cpp, src/idmap.cpp, src/iisdcr.cpp, src/iisdmat.cpp,
+	src/petscmat.cpp, src/pfmat.cpp, src/pfptscmat.h, src/sparse.h,
+	src/sparse2.h, src/spdirect.cpp, src/spdirect.h, src/sttfilter.h,
+	src/util2.cpp, src/utils.h, test/distmap/tryme4.cpp,
+	test/testfm2.cpp, test/testfm2c.cpp, test/testfm2d.cpp,
+	Makefile.base: Migrating to petsc-2.1.3. Changed `sles.h' for
+	`petscsles.h', same for `mat' and `vec'.
+
+2002-09-02  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikepsrot.cpp:
+	Fixed bad scaling by `rho' in the non-inertial frame terms.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/aquifer.cpp, applications/advdif/aquifer.h,
+	applications/advdif/stream.h: Make aquifer not to stop if
+	`phi<eta' and set a positive small value for the
+	transmisivity. Also, stop if `u<0' in a stream.
+
+	* notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp, applications/advdif/advdif.cpp:
+	`read_mesh' returns a PETSc error code.
+
+2002-08-31  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.cpp, src/elemset.h: `fstack' now accepts quotes in
+	names in includes (e.g. __INCLUDE__ "name")
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.cpp, src/elemset.h: After the modificiation for
+	efficiently return matrices (only masked values). Not completed!!
+
+	* VERSION, save.log: Administrative files
+
+	* src/fstack.cpp: Accepting `__INCLUDING__ "name"' (names of files
+	within quotes).
+
+	* test/eperlini.pl: Added `aload'
+
+2002-08-30  mstorti@spider  <mstorti@spider>
+
+	* notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/bccnsfm2.cpp, applications/ns/bccnstherfm2.cpp,
+	src/fm2eperl.cpp, src/fmat2ep.cpp, Makefile.base: All elemsets now
+	use FastMat2 cache.
+
+	* VERSION, save.log: Administrative files
+
+	* src/fm2eperl.cpp, src/fmat2ep.cpp, test/testfm2.cpp,
+	Makefile.base, README, notes.txt: Solved memory leak in
+	`FastMat2::cross' and `FastMat2::detsur'.
+
+	* notes.txt: *** empty log message ***
+
+2002-08-29  mstorti@spider  <mstorti@spider>
+
+	* notes.txt, README, src/distmap2.h: *** empty log message ***
+
+2002-08-28  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/distcont2.h, src/elemset.cpp: Hidden debugging comments.
+
+	* VERSION, save.log: Administrative files
+
+	* src/dofmap.h, src/fastlib.h, src/fastlib2.h, src/fm2eperl.cpp,
+	src/fmat2ep.cpp, Makefile.base: `FastVector' template (used in
+	`FastMat2' y `IdMap' classes) passed his definitions to
+	`fastlib2.h'.
+
+	* src/distcont.cpp, src/distcont.h, src/distcont2.h,
+	src/distmap.cpp, src/distmap.h, src/distmap2.h, src/distmat.cpp,
+	src/iisdcr.cpp, src/iisdgraph.cpp, src/iisdmat.cpp: Now
+	implementation of `DistMap' and `DistCont' templates are in
+	`distmap2.h' and `distcont2.h'.
+
+2002-08-27  mstorti@spider  <mstorti@spider>
+
+	* src/distcont.cpp, src/distcont.h, src/distmap.cpp, src/distmap.h:
+	*** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/readmesh.cpp, test/Makefile, test/distmap/distcont.cpp, test/oscplate.epl, notes.txt:
+	Added `FastMat2::detsur(FastMat2 *normal)'. Runs almost all tests.
+
+	* VERSION, save.log: Administrative files
+
+	* src/fm2eperl.cpp, src/fmat2ep.cpp, test/Makefile,
+	test/fastmat2.ans.txt, test/fastmat2a.ans.txt, test/runtests.pl,
+	test/testfm2.cpp, applications/advective/bccadvfm2.cpp,
+	applications/ns/bccnsfm2.cpp, applications/ns/bccnstherfm2.cpp,
+	applications/ns/embgath.cpp, applications/ns/gatherer.cpp,
+	applications/ns/wall.cpp, applications/ns/wallke.cpp,
+	src/fastmat2.h, applications/advdif/bccadvfm2.cpp,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/genload.cpp, applications/advdif/wallswt.cpp:
+	Changed `mydetsur(Jaco,normal)' for FastMat2 for
+	`Jaco.detsur(&normal)' (cached)
+
+	* VERSION, save.log: Administrative files
+
+	* src/readmesh.cpp, test/nutatcyl/Makefile, TODO: Now a line like
+	' __INCLUDE__ ... ' gives error (note the space at the beginning
+	of the line).
+
+	* src/elemset.cpp, src/readmesh.cpp, test/nutatcyl/Makefile,
+	test/nutatcyl/strip.epl, notes.txt: Now the `name' option can have
+	enclosing quotes.
+
+2002-08-26  mstorti@spider  <mstorti@spider>
+
+	* TODO, applications/advdif/aquifer.cpp, test/cubcav/cubcav.epl,
+	test/cubcav/proctable, Makefile.base, src/arglist.h,
+	src/distmap.h, test/cubcav/Makefile: *** empty log message ***
+
+2002-08-24  mstorti@spider  <mstorti@spider>
+
+	* Makefile.base, notes.txt, src/distcont.h, src/distmap.h,
+	src/iisdmat.cpp, test/cubcav/Makefile, test/cubcav/cubcav.epl: ***
+	empty log message ***
+
+2002-08-23  mstorti@spider  <mstorti@spider>
+
+	* src/stat.h: *** empty log message ***
+
+2002-08-22  mstorti@spider  <mstorti@spider>
+
+	* notes.txt, src/elemset.cpp, test/cubcav/Makefile,
+	test/cubcav/cubcav.epl, test/cubcav/proctable: *** empty log
+	message ***
+
+2002-08-20  mstorti@spider  <mstorti@spider>
+
+	* test/nutatcyl/Makefile, test/nutatcyl/gmvcc.pl,
+	applications/ns/nsikepsrot.cpp: *** empty log message ***
+
+2002-08-19  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/README.pod, doc/README.podin, README, README.html: Updated README
+
+	* VERSION, save.log: Administrative files
+
+	* test/nutatcyl/Makefile, test/nutatcyl/checkstrip.m,
+	test/nutatcyl/mkstrip.m, test/nutatcyl/strip.epl,
+	test/runtests.pl: Added test for `viscous_force_integrator' based
+	on a strip of 3D hexas in Poiseuille flow.
+
+	* VERSION, save.log: Administrative files
+
+	* test/nutatcyl/Makefile, test/runtests.pl: Added rotating rigid
+	cylinder.
+
+	* test/nutatcyl/checknutcyl.m, test/nutatcyl/checkrigid.m:
+	*** empty log message ***
+
+	* test/nutatcyl/Makefile, test/nutatcyl/checkrigid.m,
+	test/nutatcyl/closcyl.epl, test/nutatcyl/vaughn.pl,
+	test/runtests.pl, applications/ns/nsikepsrot.cpp: Runs test for
+	rigidly rotating cylinder
+
+	* VERSION, save.log: Administrative files
+
+	* doc/README.pod, doc/odocadvdif.tex, doc/odocelems.tex,
+	doc/odociisdm.tex, doc/odocns.tex, doc/odocrmsh.tex,
+	test/Makefile, applications/ns/nsikeps.cpp, stable.log, README,
+	README.html, save.log: Runs 'make finaldoc'. Stable for doc.
+
+	* test/aquifer/.cvsignore: *** empty log message ***
+
+2002-08-18  mstorti@spider  <mstorti@spider>
+
+	* save.log, VERSION, stable.log: Administrative files
+
+	* test/aquifer/Makefile, test/newff/Makefile, test/newff/verif.m,
+	test/Makefile, test/Makefile.base.test: Runs all tests, some
+	fixes.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/Makefile, test/aquifer/aqui.epl,
+	test/aquifer/aquist.epl, test/aquifer/checkas.m,
+	test/aquifer/checks.m, test/aquifer/chezy_rect.state.ref,
+	test/aquifer/mann_circ.state.ref, test/aquifer/mkmesh.m,
+	test/aquifer/mkmeshaqs.m, test/aquifer/stream.epl,
+	test/genload/Makefile, test/runtests.pl, test/sqcav/sqcav2.epl,
+	applications/advdif/aquifer.cpp, applications/advdif/stream.cpp:
+	Runs all tests.
+
+	* src/util2.cpp: Very dabngerous error (`==' for `=' operator!!)
+
+	* VERSION, save.log: Administrative files
+
+	* test/distmap/dist_graph.np2.ans.txt,
+	test/distmap/dist_graph.np3.ans.txt, test/sqcav/Makefile,
+	tools/myexpect.pl, test/runtests.pl, src/graph.cpp: Runs all tests
+	safe for the hydrology module.
+
+	* VERSION, save.log: Administrative files
+
+	* test/eperlini.pl, test/newff/.cvsignore, test/newff/newff.epl,
+	test/newff/newff.m, test/nutatcyl/loop_spin.pl,
+	test/nutatcyl/proc_spin.m, test/runtests.pl, tools/math.pl,
+	tools/myexpect.pl, applications/laplace/laplace.cpp: Included
+	.cvsignore in `test' directories.
+
+	* test/turbchanw/.cvsignore, test/turbchan/.cvsignore,
+	test/texthash/.cvsignore, test/sector/.cvsignore,
+	test/lupart/.cvsignore, test/genload/.cvsignore,
+	test/fstack/.cvsignore, test/circ/.cvsignore,
+	test/newff/.cvsignore, test/bug100/.cvsignore,
+	test/burgers/.cvsignore, test/advdif/.cvsignore, test/.cvsignore,
+	test/nutatcyl/proc_spin.m, test/nutatcyl/loop_spin.pl: *** empty
+	log message ***
+
+2002-08-17  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/nutatcyl/Makefile,
+	test/nutatcyl/closcyl.epl, test/runtests.pl, notes.txt: Added
+	nutating cylinder test
+
+	* test/nutatcyl/Makefile, test/nutatcyl/checknutcyl.m,
+	test/nutatcyl/closcyl.epl, test/nutatcyl/data.pl,
+	test/nutatcyl/mkcloscyl.m, test/nutatcyl/vaughn.pl: Added test of
+	nutating cylinder to test suite.
+
+2002-08-14  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp, applications/ns/embgath.h: Runs
+	second order viscous force integrator and computes OK for
+	Poiseuille flow.
+
+	* applications/ns/embgath.cpp: *** empty log message ***
+
+2002-08-13  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/embgath.cpp: Cloud class compiles and runs correctly.
+
+	* applications/ns/embgath.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/gpdata.cpp, applications/ns/embgath.cpp:
+	Runs with 3 layer `embedded_gatherer' but precision is low when
+	there is refinement towards the wall.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp, applications/ns/embgath.h: Computes
+	`embedded_gatherer' with two layers.
+
+2002-08-12  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/embgath.cpp, applications/ns/embgath.h,
+	src/gpdata.cpp: *** empty log message ***
+
+2002-08-11  mstorti@spider  <mstorti@spider>
+
+	* tools/gmv.pl: *** empty log message ***
+
+2002-08-09  mstorti@spider  <mstorti@spider>
+
+	* doc/Makefile, doc/README.pod, Makefile, README, README.html: ***
+	empty log message ***
+
+2002-08-08  mstorti@spider  <mstorti@spider>
+
+	* PROJECTS, notes.txt, TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdmat.cpp: Fixed some options for KSP_method CG
+
+	* src/iisdmat.cpp: Added "preco_side = right/left" option
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp: Testing `visc_force_integrator'
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp, applications/ns/embgath.h:
+	`embedded_gatherer' computes viscous forces and moments. Partially
+	verified.
+
+2002-08-07  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp: `embedded_gatherer' computes moments OK.
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.cpp, src/fem.h, applications/ns/embgath.cpp,
+	applications/ns/embgath.h: Added doc for `embedded_gatherer'.
+	Written `Elemset *Mesh::find(string &volume_name)'.
+
+	* applications/ns/embgath.h: added doc.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp: `embedded_gatherer' computes forces
+	OK.
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp, applications/ns/embgath.h, TODO:
+	Found bug in `mydetsur'
+
+	* VERSION, save.log: Administrative files
+
+	* src/gpdata.cpp, applications/ns/embgath.cpp,
+	applications/ns/embgath.h, applications/ns/gatherer.cpp: Compiles
+	and runs `embedded_gatherer'.
+
+	* applications/ns/adaptor.h: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp:
+	Surface elemset `embedded_gatherer' finds volume elements for
+	quad/hexa combination.
+
+	* VERSION, save.log: Administrative files
+
+	* src/gpdata.cpp, applications/ns/embgath.cpp,
+	applications/ns/embgath.h: Working on `embedded_gatherer' class.
+
+2002-08-06  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/embgath.cpp, applications/ns/embgath.h:
+	Writing `embedded_gatherer'
+
+	* applications/ns/embgath.cpp: *** empty log message ***
+
+	* src/readmesh.cpp, applications/ns/Makefile,
+	applications/ns/blessf.cpp, applications/ns/embgath.cpp,
+	applications/ns/embgath.h: Compiles OK and starts running with
+	`embedded_gatherer'
+
+	* applications/ns/embgath.h, applications/ns/embgath.cpp:
+	*** empty log message ***
+
+2002-08-05  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/tempfun.cpp, src/tempfun2.cpp:
+	*** empty log message ***
+
+2002-08-03  mstorti@spider  <mstorti@spider>
+
+	* tools/gmv.pl: *** empty log message ***
+
+2002-08-01  mstorti@spider  <mstorti@spider>
+
+	* tools/math.pl: Added tan() and synced with ~/perl
+
+2002-07-31  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nssupg.cpp: Fixing surface diffusion term.
+
+	* applications/ns/nssupg.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nssupg.cpp: Now seems to work `nssupg'
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nssupg.cpp:
+	good results with `ns_sup_g' and `free_surface_damp=0'.
+
+2002-07-30  mstorti@spider  <mstorti@spider>
+
+	* Makefile: *** empty log message ***
+
+	* applications/ns/nssupg.cpp:
+	 `nssupg' compiles and runs (no FastMat2 errors)
+
+	* src/gpdata.cpp:
+	Added controls checking consistency between `nel', `npg' and `ndim'
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/blessf.cpp,
+	applications/ns/nssup.cpp, applications/ns/nssup.h: Adding nssup +
+	diffusion.
+
+	* applications/ns/nssupg.cpp:  `nssupg' compiles
+
+	* doc/index.tex: added link to CvsView
+
+	* applications/ns/nssupg.cpp: *** empty log message ***
+
+2002-07-29  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdif.cpp, applications/advective/adv.cpp,
+	applications/ns/ns.cpp, src/iisdmat.cpp, src/petscmat.cpp,
+	src/texthash.cpp, src/texthash.h, test/cubcav/cubcav.epl,
+	test/distmap/tryme7.cpp, test/graph/tryme.cpp,
+	test/pfmat/pfmat.cpp, test/pfmat/pfmat2.cpp, test/sparse/sp.cpp,
+	test/texthash/tthash.cpp, notes.txt: Made some
+	fixes. `GLOBAL_OPTION' now is defined in 'texthash.cpp'.
+
+	* doc/index.tex, save.log: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/fracstep.cpp, applications/ns/fstepfm2.cpp,
+	applications/ns/ns.cpp, applications/ns/nsi_tet.h,
+	test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/mkmesh.m, test/sqcav/Makefile, test/sqcav/sqcav.epl,
+	notes.txt: Implementing `reuse_mat' in fractinal step.
+
+2002-07-28  mstorti@spider  <mstorti@spider>
+
+	* tools/Makefile, tools/hexasplit.cpp, test/cubcav/hexasplit.cpp:
+	Moved `hexasplit.cpp' to `test/cubcav'
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/hexasplit.cpp, test/cubcav/mkmesh.m: Rewritten
+	hexasplit.
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/hexasplit.cpp, src/linkgraph.cpp, src/linkgraph.h:
+	Rewritten `hexasplit.cpp'
+
+	* test/cubcav/hexasplit.cpp: *** empty log message ***
+
+	* doc/OBJ/.cvsignore, doc/manual/.cvsignore, doc/.cvsignore,
+	doc/petscfem.in.tex: Fixed some doc stuff
+
+	* VERSION, save.log: Administrative files
+
+	* doc/OBJ/.cvsignore, src/Makefile, src/iisdmat.cpp,
+	doc/.cvsignore, doc/layout.tex, doc/odociisdm.tex,
+	doc/petscfem.in.tex, doc/pfmat.tex, doc/trygetopt.tex: Fixed some
+	docs
+
+	* VERSION, save.log: Administrative files
+
+	* doc/nsdoc.tex, doc/petscfem.in.tex, test/cubcav/cubcav.epl,
+	test/cubcav/gmv2.pl, notes.txt: Changed `fixobj' so that `$ fixobj
+	-c' cleans all dirs in epsi references in figures.
+
+	* doc/OBJ/Makefile, doc/OBJ/aquifer.fig, doc/OBJ/idmap.obj,
+	doc/OBJ/nonsym.obj, doc/OBJ/ramp.obj, doc/OBJ/sine.fig,
+	doc/OBJ/slip.obj, doc/OBJ/smramp.obj, doc/OBJ/stream.fig:
+	Converted epsi dirs to neutral (/__HOME__DIR... )
+
+	* doc/pfmat.tex, doc/idmap.tex: *** empty log message ***
+
+	* doc/petscfem.in.tex:
+	I don't know why definition of `\verbsl' was deleted.
+
+	* TODO: *** empty log message ***
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl, notes.txt: Runs
+	10^3*2 (prismatic) example with and without
+	`use_interface_full_preco'.
+
+2002-07-27  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/gpdata.cpp, src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	test/cubcav/cubcav.epl, notes.txt: Now the interface
+	preconditioner is solved with Richardson with a relaxation factor
+	entered by the user..
+
+	* VERSION, save.log: Administrative files
+
+	* src/gpdata.cpp, src/gpdata.h, test/cubcav/Makefile,
+	test/cubcav/cubcav.epl, test/cubcav/gmv2.pl, test/cubcav/mkmesh.m,
+	tools/gmv.pl, notes.txt: Implemented `prismatic' integration
+	element.
+
+	* tools/gmv.pl: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl:
+	Runs 30^3 test with fractional step in spider.
+
+	* test/cubcav/gmv2.pl: *** empty log message ***
+
+	* tools/gmv.pl: For processing
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, notes.txt:
+	Runs NS 26^3*5  test with/without `use_interface_full_preco'.
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/readmesh.cpp, test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/proctable, notes.txt: Runs example with/without
+	`use_interface_full_preco'.
+
+2002-07-26  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/Makefile, test/cubcav/Makefile, test/cubcav/cubcav.epl:
+	Working on fractional step.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/fstepfm2.cpp, test/sqcav/Makefile,
+	test/sqcav/mksqcav.m, test/sqcav/sqcav.epl, notes.txt: Fractional
+	step results good for cavity.
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl, notes.txt:
+	performance report for FastMat2 vs. Newmat for fractional step.
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/.cvsignore, test/sqcav/Makefile, test/sqcav/sqcav.epl:
+	Runs all substeps in fractional step.
+
+	* applications/ns/fstepfm2.cpp: Runs OK all sub-steps. Diverges.
+
+	* applications/ns/fstepfm2.cpp: Runs poisson step
+
+	* TODO: *** empty log message ***
+
+	* applications/ns/fstepfm2.cpp: Runs OK predictor step.
+
+	* TODO: *** empty log message ***
+
+	* applications/ns/fstepfm2.cpp: Some mismatched dimension fixed.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/blessf.cpp,
+	applications/ns/fracstep.h, applications/ns/fstepfm2.cpp: FastMat2
+	version of fractional step compiles.
+
+	* applications/ns/fstepfm2.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/fstepfm2.cpp, test/distmap/Makefile, stable.log:
+	Some more fixes in compiling programs for test.
+
+2002-07-25  mstorti@spider  <mstorti@spider>
+
+	* save.log, VERSION, stable.log: Administrative files
+
+	* applications/advdif/advdife.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/ffburg.cpp,
+	applications/advective/Makefile, applications/laplace/Makefile,
+	applications/laplace/laplace.cpp, applications/ns/fracstep.cpp,
+	applications/ns/fstepfm2.cpp, src/iisdcr.cpp, src/iisdmat.cpp,
+	src/pfptscmat.h, Makefile, Makefile.base, test/burgers/Makefile,
+	test/distmap/Makefile, test/distmap/dist_graph.np1.ans.txt,
+	test/distmap/dist_graph.np2.ans.txt,
+	test/distmap/dist_graph.np3.ans.txt, test/distmap/tryme7.cpp,
+	test/graph/Makefile, test/graph/tryme.cpp, test/newff/Makefile,
+	test/pfmat/Makefile, test/pfmat/pfmat.cpp, test/pfmat/pfmat2.cpp,
+	test/sparse/Makefile, test/sparse/sp.cpp, test/sqcav/Makefile,
+	test/sqcav/sqcav.epl, test/texthash/Makefile,
+	test/texthash/tthash.cpp, test/turbchan/Makefile,
+	test/turbchanw/Makefile, test/Makefile, test/Makefile.base.test,
+	test/runtests.pl: Runs all tests but those in the `aquifer'
+	directory.
+
+	* test/sqcav/Makefile, test/advdif/Makefile,
+	applications/ns/fstepfm2.cpp, notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt, test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/monitor.sh, test/cubcav/proctable: Runs 50^3 mesh with
+	nsi_tet_les_fm2 in geronimo with the 5xP4 subcluster.
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, test/cubcav/monitor.sh, notes.txt: Runs
+	75^3 mesh in spider (460MB RAM, Krylov=100, 130 secs eva, 400secs
+	sol).
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, notes.txt:
+	Runs 70^3 mesh in spider (355MB RAM, 100 secs eva, 160secs sol).
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, notes.txt: Runs laplace in 50^3 mesh in
+	spider with 100subdo, requires 128MB and 30secs eval, 80secs
+	resolution.
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl, notes.txt:
+	Runs 50^3 cubcav mesh in spider.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp, src/iisdcr.cpp, test/cubcav/Makefile,
+	test/cubcav/cubcav.epl, notes.txt: Runs cubcav with 30^3 mesh in
+	spider.
+
+2002-07-24  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl, src/linkgraph.cpp,
+	src/linkgraph.h: NS runs with LinkGaphDis graph
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdgraph.h, src/iisdmat.cpp, src/linkgraph.h, src/pfptscmat.h:
+	Compiles `LinkGraphWrapper' in NS
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/tryme3.cpp, src/distcont.h:
+	Improved argument iter_mode to DistCont<> template
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/tryme3.cpp, src/distcont.h, src/utils.h:
+	DistCont template seems to work with argument 'iter_mode'
+
+	* src/distcont.h: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/tryme3.cpp, src/utils.h: Runs OK the distributed
+	LinkGraph test with scatter(), several processors.
+
+	* notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/distcont.h, test/graph/Makefile, test/graph/tryme3.cpp, notes.txt:
+	Runs OK the distributed LinkGraph test with scatter()
+
+	* test/graph/tryme3.cpp: *** empty log message ***
+
+	* test/graph/tryme3.cpp: Runs big test with graph in sequential mode.
+
+	* test/graph/tryme3.cpp, src/linkgraph.cpp:
+	Works fine simple (sequential) example.
+
+	* test/graph/tryme3.cpp, src/linkgraph.cpp, src/linkgraph.h:
+	Debugging distributed LinkGraph
+
+	* test/graph/tryme3.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/Makefile, test/graph/tryme3.cpp, src/buffpack.h,
+	src/linkgraph.cpp, src/linkgraph.h: Written the pack/unpack
+	routines.
+
+2002-07-23  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/tryme3.cpp, src/linkgraph.cpp, src/linkgraph.h: Added
+	size of row for LinkGraph::iterator
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/tryme3.cpp, src/distcont.h, src/linkgraph.h:
+	Almost compiles (it remains to write pack, unpack, etc...)
+
+	* VERSION, save.log: Administrative files
+
+	* test/graph/Makefile, test/graph/tryme3.cpp, src/iisdmat.cpp,
+	src/linkgraph.cpp, src/linkgraph.h, src/pfptscmat.h, src/utils.h:
+	Writing distributed graph class.
+
+	* test/graph/tryme3.cpp: Tests the linked graph class
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdmat.cpp, src/linkgraph.h, src/pfptscmat.h:
+	Making `link_graph' dostributed.
+
+2002-07-22  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt: Will start to write the `scatter' routine for `link_graph'
+
+	* notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdcr.cpp, src/linkgraph.cpp, src/linkgraph.h,
+	test/cubcav/Makefile, test/cubcav/cubcav.epl, notes.txt: Dynamic
+	vector 'da' in lgraph_lkg was not cleared in clear().
+
+	* src/graphdv.h, src/iisdcr.cpp, src/iisdmat.cpp,
+	src/linkgraph.cpp, src/linkgraph.h, src/pfptscmat.h,
+	test/cubcav/Makefile, test/cubcav/cubcav.epl, notes.txt:
+	`link_graph' is working in sequential mode. Will check
+	performance.
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/dvector.h, src/graphdv.cpp, src/graphdv.h,
+	src/iisdmat.cpp, src/linkgraph.cpp, src/linkgraph.h,
+	src/pfptscmat.h, test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	notes.txt: New graph class `link_graph' compiles.
+
+	* src/linkgraph.cpp, src/linkgraph.h, src/graphdv.cpp:
+	*** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl, src/iisdcr.cpp,
+	src/iisdmat.cpp: There was ea bug in the contructor of the
+	StoreGraph1 graph
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, src/petscmat.cpp, src/pfptscmat.h,
+	src/graphdv.h, src/iisdcr.cpp, src/iisdgraph.h, src/iisdmat.cpp:
+	Both graphs (`StoreGraph1' and `graphdv') work, bue with separate
+	compilation. Now we need to choose via a option entry.
+
+2002-07-21  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/monitor.sh, test/sparse/Makefile,
+	test/sparse/dvector.h, test/sparse/graphdv.cpp,
+	test/sparse/graphdv.h, test/sparse/tryme6.cpp, src/dvector.h,
+	src/graphdv.h, src/iisdgraph.cpp, src/iisdgraph.h,
+	src/pfptscmat.h: Runs OK a 30x30x30 mesh using 120Mb in
+	spider. Spends 30mins in computing the profile.
+
+	* VERSION, save.log: Administrative files
+
+	* test/sparse/Makefile, test/sparse/graphdv.h,
+	test/sparse/graphs.h, test/sparse/tryme6.cpp, src/iisdcr.cpp:
+	`graphdv' computes neighbors with test.
+
+	* test/sparse/Makefile, test/sparse/dvector.h,
+	test/sparse/graphdv.h, test/sparse/graphs.h,
+	test/sparse/tryme6.cpp: Check efficiency (somewhat bad). Will
+	check use of memory.
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt, test/sparse/Makefile, test/sparse/alloc.txt,
+	test/sparse/dvector.h, test/sparse/graphdv.cpp,
+	test/sparse/graphdv.h, test/sparse/tryme2.cpp,
+	test/sparse/tryme6.cpp: Writing new graph class.
+
+	* test/sparse/tryme6.cpp: *** empty log message ***
+
+	* test/sparse/dvector.h: Added `remove_unique'
+
+	* test/sparse/tryme4.cpp, test/sparse/dvector.h:
+	*** empty log message ***
+
+	* test/sparse/tryme4.cpp:
+	`dvector' now in a header. now has `bsearch' (`lower_bound' like) and
+	`find'.
+
+	* test/sparse/dvector.h: My dynamic array class
+
+	* test/sparse/tryme4.cpp: Binary search is working
+
+	* test/sparse/tryme4.cpp: Runs test for `sort'
+
+	* test/sparse/tryme4.cpp: Heap sort implemented.
+
+	* test/sparse/tryme4.cpp: Added shrink
+
+	* test/sparse/tryme4.cpp: Checked resize for growing and shrinking.
+
+	* test/sparse/tryme4.cpp: Added resize
+
+	* test/sparse/tryme4.cpp: *** empty log message ***
+
+	* test/sparse/tryme4.cpp: Added distributed vector class.
+
+	* test/sparse/tryme4.cpp: *** empty log message ***
+
+2002-07-20  mstorti@spider  <mstorti@spider>
+
+	* test/sparse/tryme4.cpp:
+	Runs with copy of Darray's instead of resizing.
+
+	* test/sparse/tryme3.cpp: Will go back to darray with resize
+
+	* test/sparse/tryme3.cpp, test/sparse/tryme4.cpp:
+	*** empty log message ***
+
+2002-07-19  mstorti@spider  <mstorti@spider>
+
+	* test/sparse/Makefile, test/sparse/tryme4.cpp,
+	test/sparse/tryme5.cpp, src/graph.h, src/iisdcr.cpp,
+	src/iisdgraph.h, src/pfptscmat.h, test/cubcav/Makefile,
+	test/cubcav/cubcav.epl: *** empty log message ***
+
+2002-07-18  mstorti@spider  <mstorti@spider>
+
+	* test/sparse/tryme4.cpp, test/sparse/tryme3.cpp:
+	*** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, test/sparse/Makefile,
+	test/sparse/tryme2.cpp, test/sparse/tryme3.cpp, src/graph.cpp,
+	src/graph.h, src/iisdgraph.cpp, src/iisdgraph.h, src/part.h,
+	src/petscmat.cpp: Debugging captive memory bug for STL maps
+
+	* test/sparse/tryme3.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/graph/Makefile, test/graph/tryme2.cpp, test/sparse/Makefile,
+	test/sparse/tryme2.cpp, src/graph.cpp, src/graph.h,
+	src/iisdcr.cpp, src/iisdgraph.cpp, src/iisdgraph.h,
+	src/petscmat.cpp: Changed allcator for `set<int>' in graph
+	`classes' for solving the STL allocation problem.
+
+2002-07-17  mstorti@spider  <mstorti@spider>
+
+	* test/graph/tryme2.cpp:
+	Assign correctly the map. Probably leaks memory.
+
+	* test/graph/tryme2.cpp, test/sparse/tryme2.cpp, test/cubcav/Makefile:
+	*** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/blessf.cpp,
+	applications/ns/fracstep.cpp, applications/ns/fracstep.h,
+	applications/ns/ns.cpp, src/petscmat.cpp, test/cubcav/cubcav.epl,
+	test/sqcav/Makefile, test/sqcav/procfs.m, test/sqcav/sqcav.epl,
+	tools/Makefile, tools/hexasplit.cpp, tools/makeltag,
+	tools/maketag, save.log, VERSION, notes.txt: Merged from
+	`fractional-step' branch
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/sqcav.epl, test/cubcav/cubcav.epl:
+	Running large problem with `cubcav'
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl, test/sqcav/procfs.m, test/sqcav/sqcav.epl:
+	Fractional step is working.
+
+	* test/sqcav/procfs.m: New file.
+
+	* applications/ns/fracstep.cpp, applications/ns/ns.cpp:
+	Fractional step is working.
+
+2002-07-16  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/fracstep.cpp, applications/ns/ns.cpp,
+	test/sqcav/Makefile, test/sqcav/sqcav.epl, tools/Makefile,
+	tools/hexasplit.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl,
+	applications/ns/fracstep.cpp, applications/ns/ns.cpp: Runs
+	fractional step
+
+	* applications/ns/fracstep.cpp, applications/ns/ns.cpp:
+	Runs `projection' `res' and `mat' steps.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/fracstep.cpp, applications/ns/ns.cpp:
+	Computes `A_prj' matrix
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/sqcav.epl, applications/ns/ns.cpp,
+	applications/ns/fracstep.cpp: Solves Poisson system OK.
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/sqcav.epl, applications/ns/fracstep.cpp,
+	applications/ns/ns.cpp: Computation of Poisson matrix seems to
+	work.
+
+2002-07-15  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/fracstep.cpp, applications/ns/fracstep.h:
+	*** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/petscmat.cpp, test/sqcav/sqcav.epl,
+	applications/ns/fracstep.cpp, applications/ns/ns.cpp: Momentum
+	step seems to work
+
+2002-07-14  mstorti@spider  <mstorti@spider>
+
+	* test/sqcav/sqcav.epl: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/fracstep.cpp, applications/ns/ns.cpp,
+	test/sqcav/sqcav.epl, tools/makeltag, notes.txt: Compute profile
+	for `fractional-step'
+
+	* src/petscmat.cpp:
+	`debug_compute_prof' now is read from `GLOBAL_OPTIONS' table
+
+	* VERSION, save.log: Administrative files
+
+	* tools/makeltag, save.log, tools/maketag: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/blessf.cpp,
+	applications/ns/fracstep.cpp, applications/ns/ns.cpp, notes.txt:
+	New `fractional-step' compiles.
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt: *** empty log message ***
+
+	* applications/ns/ns.cpp, test/.cvsignore, test/cubcav/.cvsignore,
+	test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/mkmesh.m, tools/Makefile, notes.txt: Runs big test in
+	spider with cubcav/qharm
+
+	* test/cubcav/cubcav.epl: *** empty log message ***
+
+2002-07-13  mstorti@spider  <mstorti@spider>
+
+	* test/cubcav/mkmesh.m, tools/hexasplit.cpp, src/elemset.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h:
+	*** empty log message ***
+
+2002-07-12  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/advec.epl, applications/advdif/advdife.cpp,
+	applications/advdif/advec.h, applications/advdif/advective.h:
+	Computes well P_supg either in the flux function or in the
+	standard flux function.
+
+	* applications/advdif/advdife.cpp, applications/advdif/advective.h:
+	*** empty log message ***
+
+2002-07-11  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdife.cpp, applications/advdif/advec.h,
+	applications/advdif/advective.h: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* .cvsignore, applications/advdif/advec.cpp,
+	applications/advdif/advec.h, test/advdif/advec.epl: *** empty log
+	message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/advdif/advec.epl, applications/advdif/advec.h,
+	applications/advdif/advective.h: advdif classes with
+	`comp_P_supg()' work
+
+	* test/advdif/Makefile, test/advdif/advec.epl,
+	applications/advdif/advec.h, applications/advdif/blessf.cpp:
+	Writing example for `advec.h'
+
+	* test/eperlini.pl, Makefile, TODO:
+	Adding 'comp_P_supg' to advective elemensets.
+
+	* applications/advdif/Makefile, applications/advdif/advdife.cpp,
+	applications/advdif/advec.cpp, applications/advdif/advec.h,
+	applications/advdif/advective.h: Starts writing `advdife' version
+	with user computation of `P_supg'
+
+2002-07-08  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikepsrot.cpp: *** empty log message ***
+
+2002-07-05  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/fracstep.cpp, applications/ns/ns-fracstep.cpp,
+	applications/ns/nsikepsrot.cpp: *** empty log message ***
+
+2002-07-02  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/tempfun.cpp: Added `smooth_impulse' to temporal functions.
+
+	* src/tempfun.cpp: *** empty log message ***
+
+2002-07-01  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp:
+	Outputs forces and moments to a fifo so that it can be read by rosi.
+	Later this can be put in a `hook' to be defined by each user.
+
+	* tools/makeltag: Changed tag detection regexp.
+
+2002-06-30  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, doc/.cvsignore, src/.cvsignore,
+	test/eperlini.pl, .cvsignore: Can redirect stdout via a command
+	argument
+
+	* test/eperlini.pl: *** empty log message ***
+
+2002-06-29  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsikeps.cpp, applications/ns/nsirot.cpp: Added
+	fixes for the `alpha' bug to other elements (nsikeps.cpp,
+	nsirot.cpp)
+
+2002-06-26  mstorti@spider  <mstorti@spider>
+
+	* Makefile: Added line count
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsikeps.cpp, applications/ns/nsikepsrot.cpp,
+	applications/ns/nsilesther.cpp, test/bubbly/bubbly.epl,
+	test/bubbly/mkmesh.m, applications/advdif/bubbly.cpp,
+	applications/advdif/bubbly.h: Added some fixes and improvements
+	from Beto.  ADD_GRAD_DIV_U_TERM was not defined in some elemsets.
+	Improves to `bubbly' elemset.  Axisymmetric option added to some
+	NS elemsets.
+
+	* VERSION, save.log: Administrative files
+
+2002-06-16  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/fstack.cpp, notes.txt: Fixed a bug in `fstack'
+
+2002-06-15  mstorti@spider  <mstorti@spider>
+
+	* test/eperlini.pl: *** empty log message ***
+
+2002-06-12  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+2002-06-07  mstorti@spider  <mstorti@spider>
+
+	* tools/makeltag: *** empty log message ***
+
+2002-06-02  mstorti@spider  <mstorti@spider>
+
+	* notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdcr.cpp, src/sparse.cpp: Changed preprocessor directives
+	"#elsif" for "#elif" (I don't kow why the preprocessor didn't
+	blame before.
+
+2002-05-30  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsilesther.cpp: *** empty log message ***
+
+2002-05-24  mstorti@spider  <mstorti@spider>
+
+	* notes.txt: *** empty log message ***
+
+2002-05-19  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp: *** empty log message ***
+
+	* applications/ns/gatherer.h: Computes forces and moments.
+
+	* applications/ns/gatherer.cpp: *** empty log message ***
+
+2002-05-17  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/gatherer.cpp: Added comments
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h:
+	`force_integrator' computes moments OK.
+
+2002-05-16  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nssup.cpp:
+	Added `fs_eq_factor' to nssup (activates/deactivates) the nssup element.
+
+	* VERSION, save.log: Administrative files
+
+	* src/fastmat2.cpp, applications/ns/gatherer.cpp,
+	applications/ns/gatherer.h: Compiles gatherer.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h:
+	Temporary save.
+	Implemented efficient version of FastMat2 cross-product
+	Gatherer doesn't compile yet.
+
+	* src/fastmat2.cpp, src/fastmat2.h, src/fm2eperl.cpp, src/fmat2ep.cpp:
+	Added cross-product function
+
+	* test/testfm2.cpp, test/runtests.pl: *** empty log message ***
+
+2002-05-15  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsitetlesfm2.cpp:
+	Improved "axisymmetric" option for NS
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsitetlesfm2.cpp, notes.txt, applications/ns/lagmul.cpp:
+	*** empty log message ***
+
+2002-05-13  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, notes.txt: Running cylinder.
+
+	* src/iisdmat.cpp: *** empty log message ***
+
+2002-05-12  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp, applications/ns/nsikepsrot.cpp,
+	src/elemset.cpp, src/iisdcr.cpp, src/iisdmat.cpp,
+	src/readmesh.cpp, notes.txt: Compiles with optimization.
+
+	* src/iisdmat.cpp, applications/ns/ns.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/dofmap.h, src/elemset.cpp, src/iisdcr.cpp, src/iisdmat.cpp,
+	src/metisprt.cpp, src/readmesh.cpp, Makefile.base, notes.txt: I
+	was looking for a bug in partitioning but I found that it seems
+	OK. It was a bad assignation of `is_fat' flags.
+
+2002-05-10  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, notes.txt, src/elemset.cpp,
+	src/graph.cpp, src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/metisprt.cpp, src/readmesh.cpp, src/utils.cpp, Makefile.base:
+	Debugging partitioning
+
+2002-05-07  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp, applications/ns/nsikepsrot.cpp,
+	src/elemset.cpp, notes.txt: Measuring performance.
+
+2002-05-06  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikepsrot.cpp: Debugging partitioning in petscfem
+
+	* save.log: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/readmesh.cpp, notes.txt, src/graph.cpp: *** empty log message ***
+
+	* src/graph.cpp: Debugging partitioning.
+	Discarded the assertion size>0 (seems that work).
+
+	* src/metisprt.cpp: *** empty log message ***
+
+	* src/metisprt.cpp: Replaced log2 (doesn't compile in geronimo).
+
+2002-05-05  mstorti@spider  <mstorti@spider>
+
+	* save.log, VERSION, stable.log: Administrative files
+
+	* src/metisprt.cpp, src/readmesh.cpp, applications/ns/blessf.cpp,
+	applications/ns/gatherer.h, applications/ns/nsikepsrot.cpp: Added
+	`print_partitioning_statistics' option.  Added
+	`free_surface_level_integrator' gatherer elemset.
+
+2002-05-04  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.cpp, src/elemset.h, src/metisprt.cpp,
+	src/readmesh.cpp, notes.txt, applications/ns/Makefile,
+	applications/ns/bless.cpp, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.h, applications/ns/nsikepsrot.cpp,
+	applications/ns/nsikepsrot.h: Added modifications so that
+	fictitious nodes are not included in the partitioning.
+
+	* applications/ns/nsikepsrot.h, applications/ns/blessf.cpp,
+	applications/ns/bless.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/metisprt.cpp, src/readmesh.cpp:
+	Fixed a bug for metis partitioning using `is_fat'
+
+2002-05-03  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.h, applications/ns/nsirot.cpp: Added
+	nsi_rot elemset (nsitetlesfm2.cpp with rotation). This doesn't
+	have the new interface via nodes. (perhaps will be discarded
+	later).
+
+2002-04-27  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nssup.cpp, applications/ns/nssupr.cpp:
+	*** empty log message ***
+
+2002-04-26  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/diff.cpp, applications/advdif/diff.h,
+	applications/advdif/stream.h: Merged some old differences for
+	making eta per node in advdif/aquifer.  Added rain.
+
+	* applications/advdif/aquifer.h, applications/advdif/aquifer.cpp:
+	Added constant rain to aquifer
+
+2002-04-25  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdif.cpp, applications/advdif/aquifer.h,
+	applications/ns/ns.cpp, src/mainutl.cpp, src/readmesh.h,
+	notes.txt: Added `safe_file_some_append' optio.
+
+2002-04-24  mstorti@spider  <mstorti@spider>
+
+	* Makefile: *** empty log message ***
+
+2002-04-21  mstorti@spider  <mstorti@spider>
+
+	* Makefile:
+	Added target `ns_all' that compiles ns with both `O_c++' and `g_c++' flags.
+
+2002-04-18  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsikepsrot.cpp, applications/ns/nsitetlesfm2.cpp:
+	Debugging.
+
+2002-04-15  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikepsrot.cpp: Fixed comments.
+
+2002-04-14  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+2002-04-13  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsikepsrot.cpp, notes.txt:
+	First fictitious node in `nsi_tet_keps_rot' state is now acceleration
+	not velocity.
+	Fixed a bug in `nsikepsrot.cpp'. `acel_lin' was divided by Dt. Fixed.
+
+	* tools/makeltag: Added auto detection of tags
+
+2002-04-12  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/aquifer.cpp, applications/advdif/aquifer.h,
+	applications/advdif/diff.cpp, applications/advdif/diff.h,
+	applications/advdif/stream.h, applications/advdif/advdife.cpp:
+	Merged corrections to advdif/hydrology module.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/nsikepsrot.cpp:
+	Fixed bug in cross-product matrix definition for rotation.
+
+2002-04-11  mstorti@spider  <mstorti@spider>
+
+	* src/texthash.cpp: Fixed a bug in `get_entry'
+
+	* applications/ns/ns.cpp:
+	Added `flow_rate_integrator' to `bless_elemset'
+
+2002-04-10  mstorti@spider  <mstorti@spider>
+
+	* src/tempfun.cpp: *** empty log message ***
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h:
+	Added `flow_rate_integrator'. Compiles, no tests.
+
+	* TODO: *** empty log message ***
+
+	* applications/ns/nsi_tet.h, applications/ns/nsikeps.cpp: `ctff'
+	is no more `inline'. That forced to put `ctff' in a header.
+
+2002-04-09  mstorti@spider  <mstorti@spider>
+
+	* doc/advdif.tex, doc/odocadvdif.tex, doc/odocns.tex, doc/petscfem.in.tex:
+	Added some options
+
+2002-04-08  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikepsrot.cpp:
+	Fixed bug with `GlobParam' in `nsi_keps_rot'
+
+	* applications/ns/bccnsfm2.cpp, applications/ns/nsikepsrot.cpp:
+	Extended bcconv to ndof!=ndim+1, other fixes
+
+	* applications/ns/bccnsfm2.cpp:
+	Adapted to cover the ndof!=ndim+1 case. (e.g. nsikeps)
+
+	* applications/ns/nsikepsrot.cpp: *** empty log message ***
+
+	* applications/ns/nsitetlesfm2.cpp: fixed typo incomment
+
+	* applications/ns/nsikepsrot.cpp: Working on `nsikepsrot' version.
+
+2002-04-07  mstorti@spider  <mstorti@spider>
+
+	* tools/makeltag: Now inserts a tag in 'notes.txt' also.
+
+2002-04-05  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikeps.cpp, applications/ns/nsikepsrot.cpp:
+	*** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/fastmat2.cpp, src/fastmat2.h, src/fm2eperl.cpp,
+	applications/ns/ns.cpp, applications/ns/nsikepsrot.cpp: Added
+	rotation to `nsikepsrot', taking rotation and translation
+	infomation from fictitious nodes.
+
+	* applications/ns/nsikepsrot.cpp: *** empty log message ***
+
+2002-04-04  mstorti@spider  <mstorti@spider>
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.h: Start adding rotation taking data from
+	fictitious nodes.
+
+	* applications/ns/nsikepsrot.cpp: *** empty log message ***
+
+2002-04-02  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/eperlini.pl, src/mainutl.cpp: Working with `ident' + rotation.
+
+2002-03-31  mstorti@spider  <mstorti@spider>
+
+	* notes.txt, tools/maketag: *** empty log message ***
+
+2002-03-30  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikeps.cpp: Fixed `div_u_star' bug.
+
+	* applications/ns/nsilesther.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/pfmat.sm, src/pfmat.sm.in, src/pfmatFSM.cpp, src/pfmatFSM.h:
+	Added `clean_mat' to `in_assembly' state.
+
+	* applications/ns/nsitetlesfm2.cpp:
+	Fixed a bug in `nsi_tet_les_fm2'. The divergence of the field velocity
+	was erroneously taken at $t^{n+1}$ instead of $t^{n+\alpha}$.
+
+2002-03-29  mstorti@spider  <mstorti@spider>
+
+	* src/Makefile, applications/ns/Makefile, Makefile.base:
+	Doesn't remove `.o' files automatically, so I inserted a `rm -f'
+	command in the Makefile.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp:
+	Gather file now works only if `ngather>0' and in that case the default
+	filename is `gather.out'.
+
+	* Makefile.base: Added \"\" to local_clean: rm.... target
+
+	* test/runtests.pl:
+	Now `oscplate3' test only checks that convergence with
+	Crank-Nicholson. Previously, we also checked the error.
+
+2002-03-28  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nssupr.cpp:
+	Fixed bug: `rho*gravity' added in ns_sup_res restriction.
+
+	* applications/ns/ns.cpp:
+	Doesn't store gather when `gather_file' is not set.
+
+2002-03-23  mstorti@spider  <mstorti@spider>
+
+	* tools/makeltag:
+	Added `--rfc-822' to `date' (is more parseable by CVS).
+
+	* tools/maketag: *** empty log message ***
+
+2002-03-22  mstorti@spider  <mstorti@spider>
+
+	* doc/pfmat.tex: Fixed bugs
+
+2002-03-21  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h:
+	Inverted sense of normal in gatherer.
+
+2002-03-18  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h,
+	applications/ns/ns.cpp: Now gatherer can print on a file.
+
+2002-03-17  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h,
+	applications/ns/ns.cpp: Gatherer is partially working
+
+	* applications/ns/gatherer.cpp, applications/ns/gatherer.h,
+	applications/ns/ns.cpp, src/Makefile, src/utils.h, Makefile.base:
+	Implementing `gatherer'
+
+	* applications/ns/Makefile, applications/ns/gatherer.cpp,
+	applications/ns/gatherer.h, applications/ns/ns.cpp: Start coding a
+	simple gatherer elemset
+
+2002-03-16  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/gatherer.cpp: *** empty log message ***
+
+	* applications/ns/gatherer.h:
+	An elemeset to integrate quantities over the mesh. For isntance
+	force on a wall, moment, total heat flux, etc...
+
+2002-03-15  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/aquifer.cpp, applications/advdif/aquifer.h,
+	applications/advdif/diff.cpp, applications/advdif/diff.h,
+	applications/advdif/stream.h: Now 'eta' (aquifer bottom height) is
+	passed as a nodal (H) value.
+
+2002-03-14  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nsikeps.cpp:
+	Merged contributions to momentum source terms for non-inertial
+	systems.
+
+	* VERSION, save.log: Administrative files
+
+2002-03-13  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/version.cppin, Makefile.base:
+	Now the BOPT flag is stringified in `print_copyright()' from a macro
+	defined in the makefile rather than from an environment variable. The
+	other way it happened that the string remained in the same state as
+	when version.cpp was created by ePerl from version.cppin.
+
+	* src/Makefile: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/arglist.cpp, src/arglist.h, src/elemset.cpp, applications/ns/ns.cpp:
+	Fixed `timedata' b.c. bug.
+
+	* src/arglist.cpp: *** empty log message ***
+
+2002-03-11  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/dofmap.cpp, src/iisdmat.cpp, Makefile.base, TODO:
+	Working on ident. Some corrections.
+
+2002-03-06  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, applications/advdif/advdif.cpp:
+	Added module banner when printing.
+
+2002-03-05  mstorti@spider  <mstorti@spider>
+
+	* test/Makefile: Made some cleaning in the test/bubbly directory.
+
+	* test/bubbly/couette.epl, test/bubbly/couette.epl.bak2,
+	test/bubbly/couette.epl.bb, test/bubbly/couette.epl.ns,
+	test/bubbly/mkcouette.m, test/bubbly/mkcouette.m.bak2,
+	test/bubbly/mkcouette.m.bb, test/bubbly/mkcouette.m.ns: Bubbly
+	example is running.
+
+	* save.log, VERSION: Administrative files
+
+	* applications/advdif/advdife.cpp, applications/advdif/bubbly.cpp,
+	test/bubbly/bubbly.epl: Debugged.
+
+2002-03-04  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/blessf.cpp,
+	applications/advdif/bubbly.cpp, applications/advdif/bubbly.h,
+	test/bubbly/Makefile, test/bubbly/bubbly.epl,
+	test/bubbly/couette.epl.bb, test/bubbly/couette.epl.ns,
+	test/bubbly/mkcouette.m.bb, test/bubbly/mkmesh.m,
+	test/bubbly/proc.m, TODO: Fixed some errors in bubbly.
+
+	* applications/advdif/advdife.cpp: Fixed A_grad_N*N product
+
+2002-03-01  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdif.cpp, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/bubbly.cpp,
+	test/bubbly/Makefile, test/bubbly/bubbly.epl,
+	test/bubbly/couette.epl, test/bubbly/couette.epl.bb,
+	test/bubbly/couette.epl.ns, test/bubbly/mkcouette.m,
+	test/bubbly/mkcouette.m.bb, test/bubbly/mkcouette.m.ns,
+	test/bubbly/mkmesh.m, test/bubbly/proc.m, test/bubbly/proc2.m:
+	Debugging bubbly.
+
+	* doc/advdif.tex: *** empty log message ***
+
+2002-02-28  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/bubbly.cpp:
+	Sign of continuity eq. reverted both in flux and advetive jacobian
+
+	* TODO, doc/petscfem.in.tex: *** empty log message ***
+
+2002-02-27  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdif.cpp:
+	Added `inwt_stop' and `time_step_stop' to advdif.
+
+	* test/bubbly/couette.epl, test/bubbly/couette.epl.bak2,
+	test/bubbly/mkcouette.m, test/bubbly/mkcouette.m.bak2,
+	test/bubbly/Makefile: debugging bubbly
+
+2002-02-26  mstorti@spider  <mstorti@spider>
+
+	* tools/verif.pl: Working on ident
+
+2002-02-25  mstorti@spider  <mstorti@spider>
+
+	* tools/verif.pl: *** empty log message ***
+
+	* applications/advdif/advective.h: Deactivated CHECK_JAC
+
+	* test/bubbly/bubbly.epl, test/bubbly/mkmesh.m: Working on bubbly
+
+	* test/aquifer/Makefile: A `np:=5' line was bothering.
+
+	* applications/advdif/bubbly.cpp: Added corrections by Beto
+
+	* src/tempfun.cpp: Added new piecewise_linear function
+
+	* Makefile.base: *** empty log message ***
+
+2002-02-23  mstorti@spider  <mstorti@spider>
+
+	* doc/latex2html.init: Added section numbers to html output
+
+2002-02-22  mstorti@spider  <mstorti@spider>
+
+	* test/aquifer/Makefile, test/bubbly/bubbly.epl,
+	test/bubbly/mkmesh.m, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/bubbly.cpp:
+	Working on bubbly
+
+2002-02-20  mstorti@spider  <mstorti@spider>
+
+	* src/iisdmat.cpp, src/petscmat.cpp, src/petscmat.h,
+	src/pfmat.cpp, src/pfmat.h, src/pfptscmat.h, src/spdirect.cpp,
+	src/spdirect.h, doc/petscfem.in.tex, applications/ns/ns.cpp,
+	save.log: Added some fixes to `PFMat' , mainly now supports
+	`duplicate' for comaptibility with ROCKET.
+
+	* VERSION, save.log: Administrative files
+
+	* Makefile: Added `sync_version' to `doc'
+
+	* tools/fixobj:
+	Fix path for .epsi files in Tgif .obj and Xfig/.fig files.
+
+	* VERSION, save.log: Administrative files
+
+	* doc/idmap.tex, doc/petscfem.in.tex, src/ampli.h,
+	test/aquifer/Makefile, test/aquifer/fun3.cpp, Makefile.base: Added
+	doc for dynamically loaded functions.  Changed `eval_fun' to
+	`eval' in `DEFINE_EXTENDED_AMPLITUDE_FUNCTION(class_name)'.
+
+2002-02-19  mstorti@spider  <mstorti@spider>
+
+	* doc/OBJ/aquifer.fig: ???
+
+	* applications/advdif/Makefile, applications/advdif/aquifer.h,
+	applications/advdif/bubbly.h, applications/advdif/stream.cpp,
+	applications/advdif/stream.h, doc/EPSI/eta.epsi, doc/EPSI/hb.epsi,
+	doc/OBJ/aquifer.fig, doc/OBJ/aquist.fig, doc/OBJ/stream.fig,
+	doc/Makefile, doc/advdif.tex, doc/odocdiff.tex,
+	doc/odocstream.tex, doc/petscfem.bib, doc/petscfem.in.tex: Written
+	doc for hydrology module.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/nwadvdifj.h, doc/manual/doc.dxx,
+	doc/manual/vrfdocpp.pl, src/ampli.h, src/gpdata.h, Makefile:
+	Improving doc
+
+2002-02-18  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/nsdoc.tex, doc/odocadvdif.tex, doc/odocns.tex,
+	doc/petscfem.in.tex, doc/pfmat.tex: Latex2html doesn't like the
+	`algorithm' (it is like a figure environment) environment, but DO
+	support the `algorithmic' environment. Eliminated the `algorithm'
+	environment in `doc/nsdoc.tex'.
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/bubbly/mkmesh.m, test/Makefile.base.test,
+	test/bubbly/Makefile, test/bubbly/bubbly.epl,
+	applications/ns/Makefile: Working on bubbly.
+
+	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/bubbly.cpp, applications/advdif/bubbly.h:
+	Works hydrostatic pressure.
+
+	* applications/ns/ns.cpp: *** empty log message ***
+
+	* applications/advdif/advdife.cpp, applications/advdif/bubbly.cpp,
+	applications/advdif/nwadvdifj.h: Uses `steady' flag. Some fixes in
+	`bubbly.cpp'.  Fixed odoc comments in `nwadvdifj.h'.
+
+	* VERSION, save.log: Administrative files
+
+	* doc/Makefile, doc/icons.tgz.uue:
+	Makes OK petscfem/html documentation.
+
+	* doc/nsdoc.tex, doc/odocadvdif.tex, doc/odocns.tex,
+	doc/odocrmsh.tex, doc/petscfem.in.tex, doc/pfmat.tex,
+	src/readmesh.cpp, TODO: Fixing doc.
+
+	* doc/tests.tex: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* tools/maketag: Fixed.
+
+	* tools/makeltag, tools/maketag:
+	Changed `ARST' and `ART' in logs and scripts.
+
+	* save.log, stable.log, TODO:
+	Partially works separate compilation (`O' and `g').
+	Changed `ARST' and `ART' in logs and scripts.
+
+	* applications/advdif/Makefile, applications/ns/Makefile,
+	src/Makefile, Makefile, Makefile.base: Partially works separate
+	compilation (`O' and `g').
+
+2002-02-17  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdife.cpp, applications/advdif/bubbly.cpp,
+	applications/advdif/bubbly.h, applications/advdif/advdif.cpp,
+	test/bubbly/Makefile, test/bubbly/bubbly.epl: `bubbly' is
+	partially working. Runs and give results, but Newton loop doesn't
+	converge.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advective.h, applications/advdif/bubbly.cpp,
+	applications/advdif/bubbly.h, applications/advdif/burgers.h,
+	applications/advdif/ffburg.cpp, applications/advdif/nwadvdifj.h,
+	applications/advdif/stream.h, applications/ns/Makefile,
+	src/Makefile, test/aquifer/Makefile, test/pfmat/Makefile,
+	Makefile, Makefile.base, notes.txt, save.log, stable.log,
+	test/bubbly/Makefile, test/bubbly/bubbly.epl,
+	test/bubbly/mkmesh.m: Debugging `bubbly'. Runs but gives zero
+	pivot in factor while solving the linbear system.
+
+	* applications/advdif/burgers.h, applications/advdif/diff.cpp,
+	applications/advdif/ffburg.cpp, applications/advdif/nwadvdifj.h:
+	Will go back with respect to passing `NewAdvDif' instead of
+	`NewElemset' in flux function definition.
+
+2002-02-16  mstorti@spider  <mstorti@spider>
+
+	* save.log, VERSION, stable.log: Administrative files
+
+	* applications/advdif/diff.cpp, src/Makefile, test/Makefile,
+	test/aquifer/Makefile, test/pfmat/Makefile, Makefile.base,
+	notes.txt: Runs all tests with -O2
+
+	* applications/advdif/Makefile, applications/advdif/diff.cpp,
+	applications/ns/Makefile, src/Makefile, test/Makefile,
+	test/Makefile.base.test, test/lupart/Makefile, Makefile.base,
+	notes.txt: Will close this branch.
+
+2002-02-15  mstorti@spider  <mstorti@spider>
+
+	* test/aquifer/Makefile, test/distmap/Makefile,
+	test/pfmat/Makefile, src/Makefile, src/pfmat.cpp, test/Makefile,
+	test/Makefile.base.test, Makefile.base, TODO, notes.txt: Working
+	(partially) double compilation depending on optimization level.
+
+	* VERSION, save.log: Administrative files
+
+	* src/gpdata.cpp, src/gpdata.h, applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/bubbly.cpp,
+	applications/advdif/bubbly.h, applications/advdif/stream.h:
+	bubbly.cpp compiles
+
+	* VERSION, save.log: Administrative files
+
+	* test/bubbly/Makefile, test/bubbly/bubbly.epl,
+	test/bubbly/mkmesh.m, applications/advdif/Makefile,
+	applications/advdif/blessf.cpp, applications/advdif/bubbly.cpp,
+	applications/advdif/bubbly.h: Writing new bubbly application for
+	advdif (Navier-Stokes multiphase)
+
+2002-02-13  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/Makefile:
+	Now it (mysteriously) works (very strange indeed)
+
+	* applications/ns/Makefile: OK, until here
+
+	* applications/ns/Makefile: Works until here
+
+	* applications/ns/Makefile:
+	Temporary save. Does not work compilation of ns library
+
+	* Makefile.base, src/Makefile: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, Makefile.base:
+	Partially working compiling `O' and `g' libraries for src/lib and ns
+
+	* src/texthash.cpp, src/texthash.h, applications/ns/ns.cpp:
+	Added `newton_relaxation_factor' to beta-2.48 version
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, src/Makefile, test/fstack/Makefile, Makefile.base:
+	Start making `libpetscfem_O.a' and `libpetscfem_g.a' libraries, and
+	also in applications directories.
+
+	* VERSION, save.log: Administrative files
+
+2002-02-12  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp:
+	Fixed case no `newton_relaxation_factor' is entered.
+
+	* VERSION, save.log: Administrative files
+
+	* src/ampli.h:
+	Fixed bad placement of "#ifdef USE_DLEF" in `src/ampli.h'.
+
+	* doc/nsdoc.tex, doc/odocadvdif.tex, doc/odociisd.tex,
+	doc/odocns.tex, src/texthash.cpp, src/texthash.h,
+	applications/ns/ns.cpp: Added `newton_relaxation_factor' as a
+	vector feature to NS.  Added `TextHashTable::get_entry(char
+	*,vector<double> &)'
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/Makefile, test/aquifer/checkdlf.m,
+	test/aquifer/stream.dl_fun1.ref, test/aquifer/stream.dl_fun2.ref,
+	test/aquifer/stream.dl_fun3.ref, test/aquifer/stream.epl,
+	test/runtests.pl: Added tests for dynamically loaded b.c.'s
+
+2002-02-11  mstorti@spider  <mstorti@spider>
+
+	* save.log, VERSION, stable.log: Administrative files
+
+	* test/aquifer/Makefile, test/Makefile: Tests have been run.
+
+	* VERSION, save.log: Administrative files
+
+	* tools/maketag: Added `stable.log'
+
+	* stable.log: Merged changes from branch when adding aquifer tests.
+	Added `stable.log'
+
+	* test/Makefile, test/runtests.pl, test/aquifer/Makefile,
+	test/aquifer/aquist.epl, test/aquifer/checkas.m,
+	test/aquifer/checks.m, test/aquifer/chezy_rect.state.ref,
+	test/aquifer/mann_circ.state.ref, test/aquifer/stream.epl,
+	test/aquifer/u_stream.ref: merged changes from branch when adding
+	aquifer tests.
+
+2002-02-10  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/ampli.h, src/amplidl.cpp, src/tempfun.cpp, Makefile.base:
+	Added `USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS'
+	configuration variable in `Makefile.defs' that enables
+	'USE_DLEF' compilation flag.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/fun.cpp, test/aquifer/fun2.cpp,
+	test/aquifer/fun3.cpp, test/aquifer/stream.epl, src/ampli.h,
+	src/amplidl.cpp: Tested new extended amplitude functions as
+	classes with a `tanh' ramp example.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/Makefile, test/aquifer/fun3.cpp, test/aquifer/stream.epl:
+	Extended amplitude functions work as classes. Much better!!
+
+	* VERSION, save.log: Administrative files
+
+	* tools/makeltag, tools/maketag: Added scripts for checking tags
+
+	* tools/checktag, tools/makeltag, tools/maketag:
+	Added `checktag' script
+
+	* VERSION, save.log: Administrative files
+
+	* tools/myexpect.pl, tools/maketag, tools/makeltag:
+	*** empty log message ***
+
+	* tools/ltagdate: Utility to get dates from the `save.log' file.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/fun.cpp, test/aquifer/fun2.cpp, src/ampli.h:
+	Added INIT_FUN, EVAL_FUN, CLEAR_FUN, INIT_FUN1,
+	EVAL_FUN1 and CLEAR_FUN1  macros
+
+	* test/aquifer/fun2.cpp: Secondary extension function file
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/stream.epl, src/ampli.h:
+	Added doc to DLGeneric class, tested several cases.
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/fun.cpp, test/aquifer/stream.epl, src/ampli.h, src/amplidl.cpp:
+	Works dynamic loading of amplitude functions with `names' given via
+	the `function_name' entry.
+
+	* VERSION, save.log: Administrative files
+
+	* src/ampli.h, src/amplidl.cpp, test/aquifer/stream.epl, notes.txt:
+	Dynamically linked extension functions are working.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/fun.cpp, src/ampli.h, src/amplidl.cpp:
+	Amplitude with internal store `void * fun_data' is working.
+
+	* test/aquifer/fun.cpp, src/ampli.h, src/amplidl.cpp:
+	Will make the extension functon to return a
+	pointer (like a factory).
+
+	* VERSION, save.log: Administrative files
+
+	* notes.txt, test/aquifer/fun.cpp, test/aquifer/stream.epl, Makefile.base:
+	`dlopen()' of extension functions work with hash tables for passing
+	options.
+
+	* VERSION, save.log: Administrative files
+
+	* src/ampli.h, src/amplidl.cpp, Makefile.base, test/aquifer/Makefile, test/aquifer/fun.cpp, test/aquifer/stream.epl:
+	Trying to use `TextHashTable' objects inside dynamically linked
+	extension functions. When using `TextHashTable *' argument to
+	`init_fun' it refuses to open with `dlopen'.
+
+	* VERSION, save.log: Administrative files
+
+	* src/tempfun.cpp, src/Makefile, src/ampli.h, src/amplidl.cpp,
+	src/dofmap.h, Makefile.base, test/aquifer/Makefile,
+	test/aquifer/fun.cpp, test/aquifer/stream.epl: Dynamic linking for
+	extension functions is working
+
+2002-02-09  mstorti@spider  <mstorti@spider>
+
+	* test/Makefile: Added aquifer to DIRS
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advective/adv.cpp, applications/ns/ns.cpp,
+	test/Makefile, applications/advdif/advdif.cpp, src/dofmap.h,
+	src/readmesh.cpp, src/tempfun.cpp, test/aquifer/stream.epl,
+	test/aquifer/Makefile: Added `gaussian' Amplitude type with new
+	OOP interface.
+
+	* src/Makefile, src/ampli.h, src/dofmap.h, src/readmesh.cpp, src/tempfun.cpp:
+	Rewritten the Amplitude class for time dependent Dirichlet boundary coditions
+	to more OOP.
+	Runs all `oscplate' tests (ns) and the `sine' (advdif) test.
+
+2002-02-07  mstorti@spider  <mstorti@spider>
+
+	* test/aquifer/Makefile, test/aquifer/stream.epl,
+	test/aquifer/stream.stream_chezy.ans: Writing test for stream and
+	stream+aquifer
+
+2002-02-06  rodrigop  <rodrigop@spider>
+
+	* Makefile.base: Fixed Makefile.base, now path for `smc' is taken from
+	a environment variable, possibly defined in Makefile.defs
+
+2002-02-06  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/aquist.epl, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: aquifer+stream is working
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/aquist.epl: Test for aquifer+stream (decoupled) is OK.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/aquist.epl, applications/advdif/stream.cpp, applications/advdif/stream.h:
+	Added `Rf' and `impermeable' properties to `stream_loss' class.
+
+	* VERSION, save.log: Administrative files
+
+	* src/getprop.cpp, applications/advdif/advdife.cpp,
+	applications/advdif/genload.cpp, test/aquifer/Makefile,
+	test/aquifer/aquist.epl, test/aquifer/mkmeshaqs.m: aquifer+stream
+	(class `stream_loss') is beginning to work
+
+2002-02-05  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/README.pod, doc/README.podin, doc/gpl.tex,
+	src/version.cppin, tools/license.c, tools/license.cpp,
+	tools/license.script, tools/license.tex, tools/license.txt,
+	README, README.html: Changed '2001' to '2002' in all copyrights.
+
+	* applications/advdif/blessf.cpp, applications/advdif/genload.cpp,
+	applications/advdif/linhff.cpp, applications/advdif/stream.cpp,
+	applications/advdif/stream.h, applications/advdif/advective.h:
+	Adding aquifer+stream elemset.
+
+	* test/aquifer/Makefile, test/aquifer/aquist.epl, test/aquifer/mkmeshaqs.m:
+	Adding test to aquifer+stream
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdife.cpp, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: `eta' is now passed as `H' variable,
+	and `slope' `S' is computed from `grad_H'.
+
+	* test/aquifer/Makefile, test/aquifer/mkmeshs.m, test/aquifer/stream.epl:
+	Adapted `stream' test for `eta' passed as `H' variable.
+
+2002-02-04  mstorti@spider  <mstorti@spider>
+
+	* test/aquifer/stream.epl, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: Added "circular_channel" and made
+	example.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/wallke.cpp: Added corrections to wallke from Beto.
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/stream.epl, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: Added the two friction laws, Chezy
+	and Manning.
+
+2002-02-03  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdifeo.cpp,
+	applications/advdif/aquifer.cpp,
+	applications/advdif/bccadvfm2.cpp, applications/advdif/diff.cpp,
+	applications/advdif/enthalpy.cpp,
+	applications/advdif/ffadvfm2_old.cpp,
+	applications/advdif/stream.cpp: Fixed Id CVS tag
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdifeo.cpp,
+	applications/advdif/aquifer.cpp,
+	applications/advdif/bccadvfm2.cpp, applications/advdif/diff.cpp,
+	applications/advdif/enthalpy.cpp,
+	applications/advdif/ffadvfm2_old.cpp,
+	applications/advdif/stream.cpp: Added CSV tag `Id'
+
+	* applications/advdif/advdife.cpp: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advective.h, applications/advdif/stream.cpp,
+	applications/advdif/stream.h, test/aquifer/mkmeshs.m,
+	test/aquifer/stream.epl, test/burgers/burgers.epl, notes.txt,
+	save.log: `stream' class is working. Runs OK for simple problems.
+
+	* test/aquifer/stream.epl: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdife.cpp,
+	applications/advdif/advective.h, applications/advdif/burgers.h,
+	applications/advdif/enthalpy.cpp, applications/advdif/enthalpy.h,
+	applications/advdif/nwadvdif.h, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: `stream' class with `channel_shape'
+	and `friction_law' compiles.
+
+2002-02-02  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/aquifer/mkmeshs.m, notes.txt:
+	Verified that stream object gives the same solution for linear and
+	circular paths.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/stream.cpp, applications/advdif/stream.h:
+	Adding shape channel objects.
+
+2002-01-18  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdif.cpp.new,
+	applications/advdif/advective.h, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: Added Enthalpy to the flux function
+	but it is still a identity relationship.
+
+	* applications/advdif/bccadvfm2_old.cpp: Resurrected
+
+2002-01-17  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/bccadvfm2_old.cpp:
+	Mistakenly removed, will be reurrected.
+
+	* VERSION, save.log: Administrative files
+
+	* TODO: *** empty log message ***
+
+	* applications/advdif/advdife.cpp,
+	 applications/advdif/advective.h, applications/advdif/stream.cpp,
+	 test/aquifer/Makefile, test/aquifer/mkmeshs.m,
+	 test/aquifer/stream.epl: `stream' elemset is basically working.
+	 Added test.
+
+	* applications/advdif/enthalpy.cpp: Reformatted headers.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/blessf.cpp, applications/advdif/diff.h,
+	applications/advdif/ffburg.cpp, applications/advdif/stream.cpp,
+	applications/advdif/stream.h: Written a basic `stream' class and
+	compiles.
+
+2002-01-16  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdife.cpp: Adapted to `ndimel<ndim', now
+	works for `ndimel==ndim', next step is to check the `ndimel<ndim'
+	case. Runs all newff tests.
+
+	* VERSION, save.log: Administrative files
+
+	* test/runtests.pl, applications/advdif/aquifer.cpp,
+	test/aquifer/Makefile, test/aquifer/aqui.epl,
+	test/aquifer/checku.m: Added test for unsteady aquifer.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/aquifer.cpp, test/aquifer/Makefile,
+	test/aquifer/aqui.epl, test/aquifer/check.m,
+	test/aquifer/checkc.m, test/aquifer/mkmesh.m, test/runtests.pl,
+	save.log: Written several tests for the `aquifer' elemeset.
+
+2002-01-15  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advdif/advdif.cpp, applications/advdif/advective.h,
+	applications/advdif/aquifer.cpp, applications/advdif/diff.cpp,
+	applications/advdif/diff.h: `aquifer' elemset is working.
+
+	* test/aquifer/Makefile, test/aquifer/aqui.epl, test/aquifer/mkmesh.m:
+	Test for the aquifer elemset.
+
+	* Makefile.base: *** empty log message ***
+
+	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advective.h, applications/advdif/aquifer.h,
+	notes.txt: New classes `Diff' and `DiffFF' and
+	`aquifer/aquifer_ff' compile.
+
+	* applications/advdif/aquifer.h: *** empty log message ***
+
+2002-01-14  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/aquifer.h: This is the `advdif' class (in
+	fact it's only diffusive) for the subsurface part. Right now it
+	only contains the freatic aquifer. Later, aquitards and cofined
+	aquifers may be added.
+
+	* save.log: *** empty log message ***
+
+	* save.log, VERSION: Administrative files
+
+	* applications/advdif/nwadvdifj.h, save.log, src/pfmatFSM.cpp:
+	*** empty log message ***
+
+	* doc/OBJ/pfmat.fig, src/Makefile, src/debug.cpp, src/debug.h,
+	src/distcont.h, src/distmat.cpp, src/dofmap.cpp, src/dofmap.h,
+	src/elemset.cpp, src/fem.cpp, src/graph.cpp, src/graph.h,
+	src/iisdcr.cpp, src/iisdgraph.cpp, src/iisdgraph.h,
+	src/iisdmat.cpp, src/iisdmat.h, src/insdeb.pl, src/lusubd.cpp,
+	src/part.h, src/petscmat.cpp, src/petscmat.h, src/pfmat.cpp,
+	src/pfmat.h, src/pfmat.sm, src/pfmat.sm.in, src/pfmatFSM.cpp,
+	src/pfmatFSM.h, src/pfmatsp.cpp, src/pfptscmat.h, src/sparse.cpp,
+	src/sparse.h, src/sparse2.h, src/spdirect.cpp, src/spdirect.h,
+	src/spsolve.cpp, src/texthash.cpp, src/texthash.h, src/texthf.h,
+	src/util2.cpp, src/util2.h, test/Makefile,
+	test/Makefile.base.test, test/cubcav/Makefile,
+	test/distmap/Makefile, test/distmap/dist_graph.np1.ans.txt,
+	test/distmap/dist_graph.np2.ans.txt,
+	test/distmap/dist_graph.np3.ans.txt,
+	test/distmap/distcont.ans.txt, test/distmap/tryme5.cpp,
+	test/distmap/tryme6.cpp, test/distmap/tryme7.cpp,
+	test/graph/tryme.cpp, test/lupart/Makefile, test/pfmat/Makefile,
+	test/pfmat/checkpf.m, test/pfmat/pfmat.cpp, test/pfmat/pfmat2.cpp,
+	test/runtests.pl, test/sqcav/Makefile, test/sqcav/g_body.ans.txt,
+	test/sqcav/sqcav.epl, test/testfm2.cpp, test/testfm2a.cpp,
+	test/testfm2c.cpp, test/testfm2d.cpp, test/texthash/Makefile,
+	test/texthash/tthash.cpp, test/tfastvec.cpp, test/tidmap.cpp,
+	tools/emacs, tools/makeltag, tools/maketag,
+	applications/advdif/advdif.cpp,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/ffadvec.cpp, applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffburg.cpp,
+	applications/advdif/ffburg_old.cpp,
+	applications/advdif/ffswfm2t.cpp, applications/advdif/genload.cpp,
+	applications/advdif/linhff.cpp, applications/advdif/wallswt.cpp,
+	applications/advective/absorb.cpp, applications/advective/adv.cpp,
+	applications/advective/advecfm2.cpp,
+	applications/advective/advective.cpp,
+	applications/advective/advective.nm.cpp,
+	applications/advective/bccadvfm2.cpp,
+	applications/advective/bcconv_adv.cpp,
+	applications/advective/ffadap.cpp,
+	applications/advective/ffadapfm2.cpp,
+	applications/advective/ffadvec.cpp,
+	applications/advective/ffeuler.cpp,
+	applications/advective/ffeulerfm2.cpp,
+	applications/advective/ffshallw.cpp,
+	applications/advective/ffshallwl.cpp,
+	applications/advective/ffswfm2.cpp,
+	applications/advective/ffswfm2t.cpp,
+	applications/laplace/genload.cpp, applications/laplace/lapla.cpp,
+	applications/laplace/laplace.cpp, applications/ns/adaptor.cpp,
+	applications/ns/bccnsfm2.cpp, applications/ns/bccnstherfm2.cpp,
+	applications/ns/ns.cpp, applications/ns/nsi_tet.h,
+	applications/ns/nsikeps.cpp, applications/ns/nsilesther.cpp,
+	applications/ns/nsvol.cpp, applications/ns/wall.cpp,
+	applications/ns/walldata.cpp, applications/ns/wallke.cpp,
+	Makefile, Makefile.base, VERSION, notes.txt, save.log: Merged
+	`pfmat-rewrite-branch' into main trunk.
+
+	* save.log: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/spdirect.h: Merged all files with the main trunk.
+
+	* src/spdirect.h: New file.
+
+	* applications/ns/nsi_tet.h, src/spdirect.cpp:
+	Merged all files with the main trunk.
+
+	* src/spdirect.cpp: New file.
+
+	* TODO, notes.txt, save.log: Merged all files with the main trunk.
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/check_iisd2.m, test/sqcav/g_body.ans.txt,
+	test/sqcav/mksqcav.m, test/sqcav/sqcav.ans.np2.txt,
+	test/sqcav/sqcav.ans.txt, test/sqcav/sqcav.epl,
+	test/sqcav/test_meas_perf.ans.txt, applications/advective/adv.cpp,
+	applications/laplace/laplace.cpp, applications/ns/ns.cpp,
+	src/fem.cpp, src/iisdcr.cpp, test/Makefile, test/cubcav/Makefile,
+	test/cubcav/cubcav.epl, test/cubcav/indxx.m, test/cubcav/indxy.m,
+	test/cubcav/indxz.m, test/cubcav/mkmesh.m, test/cubcav/plyx.m,
+	test/cubcav/proc.m, test/distmap/Makefile, test/graph/tryme.cpp,
+	test/lupart/Makefile, test/newff/data.m.epl, test/pfmat/Makefile,
+	test/runtests.pl, test/sqcav/Makefile, test/sqcav/check.g_body.m,
+	applications/advdif/advdif.cpp: Runs all tests with the new
+	`PFMat' version.  Merged the `test' directory with the main trunk.
+
+2002-01-13  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdmat.cpp, src/pfmat.cpp, src/pfmat.h, src/pfmat.sm,
+	src/pfmat.sm.in, src/pfmatFSM.cpp, src/pfmatFSM.h: Runs all
+	`sqcav' tests.
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/dofmap.cpp, src/dofmap.h, src/elemset.cpp,
+	src/iisdgraph.cpp, src/iisdmat.h, src/petscmat.h, src/pfmat.h,
+	src/pfmat.sm, src/pfmat.sm.in, src/pfmatFSM.cpp, src/pfmatFSM.h,
+	src/texthf.h, test/sqcav/Makefile, applications/ns/ns.cpp: Runs
+	the `sqcav' test, but gives some `PFMat' bad errors.
+
+2002-01-12  mstorti@spider  <mstorti@spider>
+
+	* src/pfmat.cpp: New file.
+
+	* src/pfmat.cpp:
+	This contains basically the dispatch (factory) function. As it needs
+	all the IISDMat derived headers, it was isolated in its own file.
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h, src/insdeb.pl,
+	src/lusubd.cpp, src/petscmat.cpp, src/pfmatsp.cpp, src/sparse2.h,
+	src/spsolve.cpp, test/runtests.pl, src/Makefile, notes.txt,
+	test/pfmat/Makefile, test/pfmat/pfmat.cpp: All tests work for
+	PFMat implementations, except for the
+	`IISDMat(local_solver=SuperLU)' version.
+
+2002-01-10  mstorti@spider  <mstorti@spider>
+
+	* test/pfmat/Makefile: *** empty log message ***
+
+2002-01-09  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/runtests.pl: Runs all 'pfmat/pfmat' and 'pfmat/pfmat2' tests.
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/Makefile, test/runtests.pl: Runs all `pfmat/pfmat' tests.
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/Makefile, test/pfmat/pfmat.cpp, src/iisdmat.cpp,
+	src/petscmat.cpp, src/petscmat.h, src/pfmatFSM.cpp,
+	src/pfptscmat.h: Runs a test with `PETScMat' and doesn't leak
+	memory.
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/Makefile, test/pfmat/pfmat.cpp,
+	test/pfmat/pfmat2.cpp, src/Makefile, src/iisdcr.cpp,
+	src/insdeb.pl, src/pfmat.h, src/pfmat.sm, src/pfmatFSM.cpp: Passes
+	all tests (with `IISDMat').  Will add FSM sypport to `PETScMat'.
+
+	* Makefile.base: Added leak.ou.* to `lclean'
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/pfmat.cpp, src/Makefile, src/pfmat.sm,
+	src/pfmat.sm.in, src/pfmatFSM.cpp: Passes `pfmat/pfmat' test and
+	dosn't lose memory. Now will work on the `pfmat/pfmat2' test.
+
+	* src/insdeb.pl: *** empty log message ***
+
+	* src/insdeb.pl: New file.
+
+	* src/insdeb.pl: Utility for insertinf debug info in SMC code.
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdmat.cpp, src/pfmat.sm, src/pfmat.sm.in, src/pfmatFSM.cpp:
+	Runs the `pfmat/pfmat' test.
+	Leak memory not checked.
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/petscmat.cpp, src/petscmat.h, src/pfmat.h, src/pfmat.sm,
+	src/pfmat.sm.in, src/pfmatFSM.cpp, src/pfmatFSM.h,
+	src/pfptscmat.h, test/pfmat/pfmat.cpp: Finite State Machine starts
+	working
+
+2002-01-07  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/OBJ/pfmat.fig, test/runtests.pl, Makefile.base,
+	src/Makefile, src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/pfmat.h, src/pfmat.sm, src/pfmat.sm.in, src/pfmatFSM.cpp,
+	src/pfmatFSM.h, src/pfptscmat.h, src/sparse.cpp, src/sparse.h,
+	src/util2.h: Finite State Machine for PFMat is partially working.
+
+	* src/pfmat.sm.in: New file.
+
+	* test/pfmat/Makefile, test/pfmat/pfmat.cpp:
+	Finite State Machine for PFMat is partially working.
+
+2002-01-05  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile.base.test, test/pfmat/Makefile,
+	test/pfmat/pfmat.cpp, test/runtests.pl, test/texthash/Makefile,
+	src/texthash.cpp, src/texthash.h, notes.txt: Fixed some memory
+	leaks in `TextHashTable'.  Updated test pfmat/pfmat.
+
+	* Makefile.base: Added `leak.out' to `local_clean'.
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdcr.cpp, src/iisdmat.cpp, src/lusubd.cpp, test/pfmat/pfmat.cpp, notes.txt:
+	Found the leak. Apparently is in the PETSc routines when using
+	`PCLUSetUseInPlace(pc_ll)'.
+
+2002-01-04  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* tools/emacs: Added `single-quote-balanced-pos'.
+
+	* notes.txt: x
+
+	* src/pfptscmat.h, test/pfmat/pfmat.cpp, tools/emacs,
+	src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h, notes.txt: Added
+	option for `local_solver'.
+
+	* test/distmap/tryme7.cpp:
+	Added an argument for looping and memoey leak test,
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/pfmat2.cpp, src/iisdmat.cpp: Controlling a memory loss.
+
+2002-01-03  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/checkpf.m:
+	Added test for pfmat with redefinition of profiling. Works well with `IISDMat'
+	but loses memory.
+
+	* test/pfmat/checkpf.m: New file.
+
+	* test/pfmat/Makefile, test/pfmat/pfmat2.cpp:
+	Added test for pfmat with redefinition of profiling. Works well with `IISDMat'
+	but loses memory.
+
+	* test/pfmat/pfmat2.cpp: Will change to `rand_r'
+
+	* test/pfmat/pfmat2.cpp: *** empty log message ***
+
+2002-01-02  mstorti@spider  <mstorti@spider>
+
+	* test/pfmat/pfmat2.cpp:
+	Modified the test in order to include different profiles.
+
+	* test/pfmat/pfmat2.cpp: New file.
+
+	* test/pfmat/pfmat.cpp: Added doc.
+
+2001-12-31  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/iisdmat.cpp, src/pfptscmat.h, tools/emacs,
+	save.log: `sles_was_built' now included in `factored'
+
+2001-12-30  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/runtests.pl: Added the test to the test routine.
+
+	* test/pfmat/Makefile, test/pfmat/pfmat.cpp:
+	Addede the test to the test routine.
+
+	* VERSION, save.log: Administrative files
+
+	* tools/emacs: Added coommand for setting `pfcpp'.
+
+	* test/pfmat/pfmat.cpp, src/iisdmat.cpp, src/iisdmat.h:
+	PETScMat and IISDMat work. Made a test.
+
+	* VERSION, save.log: Administrative files
+
+	* src/iisdmat.cpp:
+	Made some modification I thought it was already done.
+
+2001-12-29  mstorti@spider  <mstorti@spider>
+
+	* test/pfmat/pfmat.cpp: Added tags for options.
+
+2001-12-28  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/Makefile, test/pfmat/pfmat.cpp, src/iisdmat.cpp,
+	src/iisdmat.h, src/petscmat.cpp, src/petscmat.h, src/pfmat.h:
+	`PETScMat' class is working in the example. However, I think there
+	is a problem if the partitioner is not `consecutive', i.e. the
+	dof's in a certain processor are consecutive, as for a PETSc
+	matrix or vector.
+
+	* src/iisdcr.cpp:
+	Now access to `dofs_proc' is done via pointer `dofs_proc_v' because of
+	efficiency.
+
+	* VERSION, save.log: Administrative files
+
+	* tools/makeltag: Adding "light" release tags.
+
+	* tools/makeltag: New file.
+
+	* Makefile: Adding "light" release tags.
+
+	* VERSION, save.log: Administrative files
+
+2001-12-27  mstorti@spider  <mstorti@spider>
+
+	* src/iisdmat.h, src/petscmat.h, src/pfptscmat.h:
+	Passed `set_profile()' to `PFPETScMat'.
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/Makefile:
+	The graph and other things passed from `IISDMat' to
+	`PETScMat'.
+
+	* src/petscmat.cpp, src/petscmat.h: New file.
+
+	* src/Makefile, src/iisdcr.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/petscmat.cpp, src/petscmat.h, src/pfmat.h, src/pfptscmat.h:
+	The graph and other things passed from `IISDMat' to `PETScMat'.
+
+	* test/pfmat/pfmat.cpp, src/iisdmat.cpp, src/iisdmat.h,
+	src/pfmat.h, src/pfptscmat.h: Now `detry_sles()' is `clean
+	_factor()'
+
+2001-12-26  mstorti@spider  <mstorti@spider>
+
+	* src/iisdmat.cpp, src/iisdmat.h, src/pfmat.h, src/pfptscmat.h,
+	src/texthash.cpp, src/texthash.h, test/pfmat/Makefile,
+	test/pfmat/pfmat.cpp: `destroy_sles()' and `clean_factor()'
+	colapsed in one function named `clean_factor()'.
+
+2001-12-25  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/pfmat.cpp: Several matrices with the same profile working.
+	Not checked memory losses.
+
+	* VERSION, save.log: Administrative files
+
+	* src/debug.cpp, test/pfmat/pfmat.cpp:
+	Solves several rhs's with the same factored matrix.
+
+2001-12-24  mstorti@spider  <mstorti@spider>
+
+	* test/pfmat/pfmat.cpp, src/graph.cpp, src/iisdcr.cpp,
+	src/iisdmat.cpp, src/iisdmat.h, src/lusubd.cpp: PFMat//IISDMat
+	class is working for simple cases, with and without
+	subpartitioning, in one or more processors.
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/pfmat.cpp, src/iisdcr.cpp:
+	IISDMat::create() starts working. (Not well test so far, though).
+
+	* VERSION, save.log: Administrative files
+
+	* test/pfmat/Makefile, test/pfmat/pfmat.cpp, save.log,
+	src/Makefile, src/debug.cpp, src/debug.h, src/distmat.cpp,
+	src/iisdcr.cpp, src/iisdgraph.h, src/iisdmat.cpp, src/iisdmat.h,
+	src/lusubd.cpp, src/part.h, src/pfmat.h, src/pfptscmat.h: Adding
+	`release-by-proc' feature for `Debug' class.
+
+	* src/iisdmat.cpp, src/pfptscmat.h: New file.
+
+2001-12-21  mstorti@spider  <mstorti@spider>
+
+	* test/distmap/tryme7.cpp, src/iisdcr.cpp, src/iisdgraph.h, src/iisdmat.h, src/pfmat.h:
+	Working on new PFMat class
+
+	* VERSION, save.log: Administrative files
+
+	*                                applications/advective/absorb.cpp,
+	applications/advective/adv.cpp,
+	applications/advective/advecfm2.cpp,
+	applications/advective/advective.cpp,
+	applications/advective/advective.nm.cpp,
+	applications/advective/bccadvfm2.cpp,
+	applications/advective/bcconv_adv.cpp,
+	applications/advective/ffadap.cpp,
+	applications/advective/ffadapfm2.cpp,
+	applications/advective/ffadvec.cpp,
+	applications/advective/ffeuler.cpp,
+	applications/advective/ffeulerfm2.cpp,
+	applications/advective/ffshallw.cpp,
+	applications/advective/ffshallwl.cpp,
+	applications/advective/ffswfm2.cpp,
+	applications/advective/ffswfm2t.cpp,
+	applications/laplace/genload.cpp,   applications/laplace/lapla.cpp,
+	applications/laplace/laplace.cpp,      applications/ns/adaptor.cpp,
+	applications/ns/bccnsfm2.cpp,     applications/ns/bccnstherfm2.cpp,
+	applications/ns/nsikeps.cpp,        applications/ns/nsilesther.cpp,
+	applications/ns/nsvol.cpp,                applications/ns/wall.cpp,
+	applications/ns/walldata.cpp,           applications/ns/wallke.cpp,
+	test/distmap/Makefile,     test/testfm2.cpp,    test/testfm2a.cpp,
+	test/testfm2c.cpp,   test/testfm2d.cpp,  test/texthash/tthash.cpp,
+	test/tfastvec.cpp,                                 test/tidmap.cpp,
+	applications/advdif/advdif.cpp,    applications/advdif/advdife.cpp,
+	applications/advdif/advdifeo.cpp,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/enthalpy.cpp, applications/advdif/ffadvec.cpp,
+	applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffadvfm2_old.cpp,
+	applications/advdif/ffburg.cpp,
+	applications/advdif/ffburg_old.cpp,
+	applications/advdif/ffswfm2t.cpp, applications/advdif/genload.cpp,
+	applications/advdif/linhff.cpp,    applications/advdif/wallswt.cpp:
+	Changed '../../src/<header>' by  '<src/header>' in all application
+	modules.
+
+2001-12-20  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/advective/absorb.cpp,
+	applications/advective/adv.cpp,
+	applications/advective/advecfm2.cpp,
+	applications/advective/advective.cpp,
+	applications/advective/advective.nm.cpp,
+	applications/advective/bccadvfm2.cpp,
+	applications/advective/bcconv_adv.cpp,
+	applications/advective/ffadap.cpp,
+	applications/advective/ffadapfm2.cpp,
+	applications/advective/ffadvec.cpp,
+	applications/advective/ffeuler.cpp,
+	applications/advective/ffeulerfm2.cpp,
+	applications/advective/ffshallw.cpp,
+	applications/advective/ffshallwl.cpp,
+	applications/advective/ffswfm2.cpp,
+	applications/advective/ffswfm2t.cpp,
+	applications/laplace/genload.cpp, applications/laplace/lapla.cpp,
+	applications/laplace/laplace.cpp, applications/ns/adaptor.cpp,
+	applications/ns/bccnsfm2.cpp, applications/ns/bccnstherfm2.cpp,
+	applications/ns/nsi_tet.h, applications/ns/nsikeps.cpp,
+	applications/ns/nsilesther.cpp, applications/ns/nsvol.cpp,
+	applications/ns/wall.cpp, applications/ns/walldata.cpp,
+	applications/ns/wallke.cpp, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advdifeo.cpp,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/bccadvfm2_old.cpp,
+	applications/advdif/enthalpy.cpp, applications/advdif/ffadvec.cpp,
+	applications/advdif/ffadvfm2.cpp,
+	applications/advdif/ffadvfm2_old.cpp,
+	applications/advdif/ffburg.cpp,
+	applications/advdif/ffburg_old.cpp,
+	applications/advdif/ffswfm2t.cpp, applications/advdif/genload.cpp,
+	applications/advdif/linhff.cpp, applications/advdif/wallswt.cpp:
+	Changed '../../src/<header>' by '<src/header>' in all application
+	modules.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/elast.cpp, applications/ns/elast.h, applications/ns/mmove.cpp:
+	Added shape functions for regular tetra.
+
+	* applications/ns/mmove.cpp, applications/ns/mmove.h: Writing 3D
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/mmove.cpp, applications/ns/mmove.h,
+	applications/ns/ns.cpp, test/mmove/Makefile, test/mmove/mmove.epl:
+	Re-meshing works.
+
+	* tools/maketag: Tags based on branches
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/mmove.cpp, applications/ns/mmove.h: New file.
+
+	* applications/ns/Makefile, applications/ns/mmove.cpp,
+	applications/ns/mmove.h, applications/ns/ns.cpp: Working on mesh
+	distortion.
+
+	* test/mmove/Makefile, test/mmove/mmove.epl: New file.
+
+	* test/mmove/Makefile, test/mmove/mmove.epl:
+	Working on mesh distortion.
+
+	* VERSION, save.log: Administrative files
+
+	* test/runtests.pl, Makefile.base, TODO, test/sqcav/Makefile,
+	test/sqcav/check.g_body.m, test/sqcav/g_body.ans.txt,
+	test/sqcav/mksqcav.m, test/sqcav/sqcav.epl: Added test for the
+	`G_body' options in NS.
+
+2001-12-19  mstorti@spider  <mstorti@spider>
+
+	* test/distmap/dist_graph.np1.ans.txt,
+	test/distmap/dist_graph.np2.ans.txt,
+	test/distmap/dist_graph.np3.ans.txt: Added test for distributed
+	grph class `StoreGraph'
+
+	* test/distmap/dist_graph.np1.ans.txt,
+	test/distmap/dist_graph.np2.ans.txt,
+	test/distmap/dist_graph.np3.ans.txt: New file.
+
+	* src/iisdcr.cpp, src/iisdgraph.cpp, src/iisdgraph.h, src/iisdmat.h:
+	Working on new PFMat class
+
+2001-12-18  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/lupart/Makefile, test/runtests.pl, save.log:
+	Removed `iisd_superlu' test.
+
+	* test/runtests.pl: Added test for distributed graph.
+
+	* test/distmap/tryme7.cpp: Added test for distributed graph
+
+	* src/distcont.h: Added fix for the `USE_BELONG' flag.
+
+	* tools/maketag: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/distcont.h, src/iisdgraph.cpp, test/distmap/Makefile:
+	Distributed graph `StoreGraph' working.
+
+	* VERSION, save.log: Administrative files
+
+	* src/debug.cpp, src/distcont.h:
+	Added fixes from `pfmat-rewrite-branch'
+
+	* test/distmap/Makefile, test/distmap/tryme7.cpp, src/distcont.h,
+	src/iisdgraph.cpp, src/iisdgraph.h, src/debug.cpp: Fixed a bug in
+	`distcont.h' and in `debug.h'.  Working on the distributed graph
+	class.
+
+2001-12-17  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/distmap/tryme7.cpp: New file.
+
+	* test/distmap/Makefile, test/distmap/tryme6.cpp, test/distmap/tryme7.cpp:
+	Writing a distributed graph class.
+
+	* src/iisdgraph.h, src/part.h: New file.
+
+	* src/distcont.h, src/graph.h, src/iisdgraph.cpp, src/iisdgraph.h,
+	src/part.h, src/pfmat.h: Writing a distributed graph class.
+
+2001-12-14  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/Makefile, src/distcont.h, src/iisdcr.cpp, src/iisdgraph.cpp, src/pfmat.h:
+	Working on new version of PFMat
+
+	* test/distmap/tryme5.cpp: New file.
+
+	* test/distmap/Makefile, test/distmap/distcont.ans.txt,
+	test/distmap/tryme5.cpp, test/distmap/tryme6.cpp: Working on new
+	version of PFMat
+
+2001-12-13  mstorti@spider  <mstorti@spider>
+
+	* test/distmap/tryme6.cpp: Doesn't compile
+
+	* test/distmap/tryme6.cpp, src/iisdgraph.cpp: New file.
+
+	* src/iisdgraph.cpp:
+	This includes the graph for the future implementation of `PFMat',
+	i.e. this will tend to replace the `DArray da'
+
+	* test/distmap/distcont.ans.txt:
+	Added test for distributed container class.
+
+	* test/distmap/distcont.ans.txt: New file.
+
+	* test/runtests.pl, src/iisdmat.h, src/pfmat.h, TODO:
+	*** empty log message ***
+
+	* src/Makefile, TODO, Makefile.base:
+	Added `test_iisd', basically the same as `test_isid' but for 2 processors.
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl,
+	test/sqcav/test_meas_perf.ans.txt, test/Makefile,
+	test/runtests.pl: Added cubic cavity test.
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/data.m.epl, test/sqcav/Makefile, test/runtests.pl:
+	All tests run.
+
+	* VERSION, save.log: Administrative files
+
+	* test/cubcav/cubcav.epl: Fixed an eperl field for the pressure dof.
+
+	* test/runtests.pl, test/sqcav/check_iisd2.m,
+	test/sqcav/sqcav.ans.np2.txt, test/sqcav/sqcav.ans.txt,
+	test/sqcav/sqcav.epl: Added `test_iisd', basically the same as
+	`test_isid' but for 2 processors.
+
+	* test/sqcav/Makefile:
+	Added `test_iid2', the same as `test_iid2' but with 2 processors.
+
+2001-12-12  mstorti@spider  <mstorti@spider>
+
+	* test/newff/data.m.epl: Raised tolerance fo a newff test.
+
+	* src/iisdmat.h, src/pfmatsp.cpp: Fixed a bug.
+
+	* notes.txt: *** empty log message ***
+
+	* src/lusubd.cpp:
+	There was a bug regarding the `sles_ll' SLES when using the IISDMat
+	with PETSc solver and no subdomains (n_int_tot=0).
+
+2001-12-10  mstorti@spider  <mstorti@spider>
+
+	* test/cubcav/Makefile, test/cubcav/cubcav.epl,
+	test/cubcav/indxx.m, test/cubcav/indxy.m, test/cubcav/indxz.m,
+	test/cubcav/mkmesh.m, test/cubcav/plyx.m, test/cubcav/proc.m:
+	Working on the `cubcav' test.
+
+	* test/sqcav/sqcav.epl, test/cubcav/Makefile,
+	test/cubcav/cubcav.epl, test/cubcav/mkmesh.m: Added example on
+	cubic cavity.
+
+	* notes.txt: *** empty log message ***
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl:
+	Debugging `update_jacobian'
+
+	* notes.txt: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* src/lusubd.cpp, applications/advdif/advdif.cpp:
+	Deleted call to `PFMat::build_sles' since now this is inside either
+	the destructor or the `clear()' method.
+
+2001-12-09  mstorti@spider  <mstorti@spider>
+
+	* src/iisdcr.cpp: Back to revision 1.8
+
+	* VERSION, save.log: Administrative files
+
+	* save.log: *** empty log message ***
+
+	* src/graph.cpp, src/graph.h, src/iisdcr.cpp, src/iisdmat.h,
+	src/lusubd.cpp, src/pfmat.h, src/util2.cpp, src/util2.h,
+	test/Makefile, test/graph/tryme.cpp, test/pfmat/Makefile,
+	test/pfmat/pfmat.cpp, Makefile, VERSION, save.log: I tried to make
+	`pfmat' more independent of Petscfem, i.e. not based on `dofmap',
+	but on a graph and a partitioner class. This finally proved to be
+	too much work and I made it this branch. Then I went back to
+	version beta-2.54.
+
+	* src/graph.cpp, src/graph.h, src/iisdcr.cpp, src/iisdmat.h,
+	src/lusubd.cpp, src/pfmat.h, src/util2.cpp, src/util2.h,
+	test/Makefile, test/graph/tryme.cpp, test/pfmat/Makefile,
+	test/pfmat/pfmat.cpp, Makefile, VERSION, save.log: This branch has
+	the differences when tried to make `pfmat' more independent of
+	Petscfem, i.e. not based on `dofmap', but on a graph and a
+	partitioner class. This finally proved to be too much work and I
+	made it this branch.
+
+	* VERSION, save.log: Administrative files
+
+	* Makefile: Modifications to the `pfmat' class.
+
+	* src/iisdcr.cpp, src/iisdmat.h, src/lusubd.cpp, src/pfmat.h:
+	Made modifications in the line of added better support to `pfmat'.
+
+2001-12-08  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/graph/tryme.cpp, test/pfmat/Makefile,
+	test/pfmat/pfmat.cpp, src/graph.cpp, src/graph.h, src/iisdcr.cpp,
+	src/util2.cpp, src/util2.h: Modified the Graph class. Writing a
+	test for PFMat matrices.
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl, src/iisdmat.h,
+	src/lusubd.cpp, src/pfmat.h: IISD solver (for `n_int_tot>0') is
+	working with `update_jacobian'. But it must be rewritten more
+	clearly and, if possible, with the Finite State Machine code.
+
+	* doc/odocns.tex: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/ns.cpp, src/iisdmat.h, src/lusubd.cpp,
+	src/pfmat.h, src/pfmatsp.cpp, test/sqcav/Makefile,
+	test/sqcav/sqcav.epl, notes.txt: IISD with `solve()' splitted in
+	`factor_and_solve()' and `solve_only()' (dummy so far) compiles.
+
+2001-12-07  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, doc/OBJ/pfmat.fig, src/Makefile,
+	src/lusubd.cpp, src/pfmat.h, src/pfmat.sm, src/pfmatFSM.cpp,
+	src/pfmatFSM.h, notes.txt: Working on Finite State Machine for the
+	PFMat matrices.
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl: *** empty log message ***
+
+	* src/pfmat.sm: Finite State Machine for the PFMat class
+
+	* applications/ns/ns.cpp: Partial backup
+
+	* notes.txt: *** empty log message ***
+
+2001-12-06  mstorti@spider  <mstorti@spider>
+
+	* notes.txt: *** empty log message ***
+
+2001-12-05  mstorti@spider  <mstorti@spider>
+
+	* Makefile.base: *** empty log message ***
+
+	* applications/ns/ns.cpp: Back to Navier-Stokes.
+
+	* notes.txt: *** empty log message ***
+
+2001-12-04  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* doc/odocns.tex: *** empty log message ***
+
+	* applications/ns/ns.cpp: Added remeshing.
+
+	* applications/ns/ns.cpp: Added ALE-like remeshing
+
+	* TODO: *** empty log message ***
+
+2001-12-03  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, notes.txt, src/elemset.cpp, src/lusubd.cpp:
+	Adding `update_jacobian'
+
+	* test/sqcav/Makefile, test/sqcav/sqcav.epl:
+	Working on `update_jacobian'
+
+	* src/elemset.cpp: Fixed bug.
+
+	* VERSION, save.log: Administrative files
+
+	* src/elemset.cpp, test/sqcav/Makefile, test/sqcav/sqcav.epl, save.log:
+	Added `Stat' class for printing statistics.
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/adappg.cpp, applications/ns/adaptor.h,
+	applications/ns/qharm.cpp, src/fastmat2.cpp, src/fastmat2.h, TODO,
+	test/sqcav/Makefile, test/sqcav/mkqharm.m, test/sqcav/qharm.epl,
+	test/sqcav/sqcav.epl: Added test for `adaptor_pg'
+
+2001-12-02  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/ns.cpp,
+	applications/ns/qharm.cpp, applications/ns/qharm.h: `qharm', a
+	test class for `adaptor_pg' comiples.
+
+	* applications/ns/qharm.cpp: Test class for `adaptor_pg' class.
+
+	* applications/ns/Makefile, applications/ns/adappg.cpp,
+	applications/ns/adaptor.h: `adappg.cpp' compiles
+
+	* ChangeLog: *** empty log message ***
+
+	* src/fastmat2.h: Added a `clear()' method to FastMat2
+
+	* TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* applications/ns/Makefile, applications/ns/adappg.cpp,
+	applications/ns/adaptor.h, save.log, test/Makefile,
+	test/sqcav/Makefile, TODO: *** empty log message ***
+
+	* VERSION, save.log: Administrative files
+
+	* test/sqcav/Makefile, test/sqcav/check_iisd.m,
+	test/sqcav/sqcav.epl, test/runtests.pl: Added test for sqcav with
+	IISD
+
+	* VERSION, save.log: Administrative files
+
+	* test/eperlini.pl, test/sqcav/Makefile,
+	test/sqcav/check_re1000.m, test/sqcav/sqcav.epl, Makefile.base:
+	Changed the `sqcav' test
+
 2001-12-02  mstorti@spider  <mstorti@spider>
 
 	* Makefile, adappg.cpp, adaptor.h: *** empty log message ***
