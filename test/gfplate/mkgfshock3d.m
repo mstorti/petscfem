@@ -1,4 +1,4 @@
-## $Id: mkgfshock3d.m,v 1.1 2005/02/27 12:59:52 mstorti Exp $
+## $Id: mkgfshock3d.m,v 1.2 2005/02/27 14:46:01 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -66,7 +66,7 @@ pfconstr("gfshock3d.peri-v.tmp", \
 ## rho,u,v at inlet
 inlet = 1+(0:Nr)'*Nx1;
 pffixa("gfshock3d.fixa-in.tmp", \
-       inlet,[1 3 4],[rhoin0 0 0]);
+       inlet,[1],[rhoin0]);
 
 ## p at inlet (will be scaled by a ramp, though)
 inlet = 1+(0:Nr)'*Nx1;
@@ -79,16 +79,16 @@ pffixa("gfshock3d.fixa-p-outlet.tmp", \
 
 ## Slip on the axis
 pffixa("gfshock3d.axis-slip.tmp", \
-       (1:Nx+1)',2);
+       (1:Nx+1)',[2 3]);
 
 ## Slip on the wall
 wall = Nx1*Nr+(1:Nx1)';
-pfconstr("gfshock.wall-slip.tmp", \
-	 [wall,wall],[2 3], \
+pfconstr("gfshock3d.wall-slip.tmp", \
+	 [wall,wall],[4 2], \
 	 [-dydx,ones(Nx1,1)]);
 
 Uini = [rhoout0,0,0,0,pout0];
 Uini = Uini(ones(nnod3d,1),:);
 
 asave("gfshock3d.ini.tmp",Uini);
-asave("gfshock3d.some-nodes.tmp",(1:Nx+1)');
+asave("gfshock3d.some-nodes.tmp",(1:Nx1)');

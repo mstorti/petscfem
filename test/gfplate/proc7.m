@@ -1,11 +1,12 @@
-## $Id: proc7.m,v 1.6 2005/02/26 15:59:56 mstorti Exp $
+## $Id: proc7.m,v 1.7 2005/02/27 14:46:01 mstorti Exp $
 
 source("data.m.tmp");
-nsome = Nx+1;
 
 if !exist("do_load") || do_load || !exist("U0");
-##  U0 = aload("gfabso2dn.some-rslt.tmp");
-  U0 = aload("gfshock.some-rslt.tmp");
+  U0 = aload("gfshock3d.some-rslt.tmp");
+  nod_some = create_set(U0(:,1))';
+  nsome = length(nod_some);
+  all(U0(1:nsome,1)==nod_some) || error("bad some nodes");
   rem(rows(U0),nsome)==0 \
       || error("U0 not correct size.");
   nt = rows(U0)/nsome;
@@ -21,7 +22,7 @@ rem(rows(U),nsome)==0 || error("not correct size");
 nt = rows(U)/nsome;
 
 cin0 = sqrt(ga*pin0/rhoin0);
-scale = [rhoin0 cin0 cin0 pin0];
+scale = [rhoin0 cin0 cin0 cin0 pin0];
 
 ndof = columns(U);
 Uref = zeros(1,ndof);
@@ -39,8 +40,8 @@ for k=1:m
   Unorm(:,k) = (U(:,k)-Uref(k))/scale(k);
 endfor
 
-x = aload("gfshock.nod.tmp");
-x = x(1:nsome,1);
+x = aload("gfshock3d.nod.tmp");
+x = x(nod_some,3);
 
 Ue1 = U(nsome*(1:nt),:);
 Ue0 = U(1+nsome*(0:nt-1),:);

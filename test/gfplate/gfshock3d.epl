@@ -10,8 +10,8 @@ global_options
 nstep 1000
 alpha 1.
 
-initial_state "gfshock3d.ini.tmp"
-## initial_state "gfshock3d.state.tmp"
+## initial_state "gfshock3d.ini.tmp"
+initial_state "gfshock3d.state.tmp"
 nsave 1
 save_file "gfshock3d.state.tmp"
 
@@ -24,10 +24,10 @@ nsaverot 20
 nrec 1
 nfile 100000000
 
-#if 0
+#if 1
 solver "iisd"
 preco_type "jacobi"
-iisd_subpart_auto 4000
+iisd_subpart_auto 1000
 #else
 solver "petsc"
 preco_type "lu"
@@ -118,7 +118,7 @@ __INCLUDE__ ./gfshock3d.peri.tmp
 __INCLUDE__ ./gfshock3d.peri-u.tmp
 __INCLUDE__ ./gfshock3d.peri-v.tmp
 # __INCLUDE__ ./gfshock3d.slip.tmp
-__INCLUDE__ ./gfshock.wall-slip.tmp
+__INCLUDE__ ./gfshock3d.wall-slip.tmp
 __END_CONSTRAINT__
 
 #endif
