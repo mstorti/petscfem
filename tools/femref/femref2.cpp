@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.3 2004/12/06 02:47:23 mstorti Exp $
+// $Id: femref2.cpp,v 1.4 2004/12/07 02:29:23 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -534,12 +534,17 @@ refine(RefineFunction f) {
     for (int j=0; j<w->size(); j++)
       go_nodes.push(w_nodes[j]);
     go_nodes_pos.push(0);
+    Splitter *s;
 
     while(1) {
       w = go_stack.begin();
       // here visit w...
-      ElemRef::iterator q = *split_stack.begin();
-      
+      ElemRef::iterator q 
+	= *(split_stack.begin()), qs;
+      qs = q->lchild();
+      if (qs!=etree.end()) {
+	s =
+      }
       
 #if 0
       while (q!=etree.end()) {
