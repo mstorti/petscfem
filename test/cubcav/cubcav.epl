@@ -15,19 +15,19 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 26;			# Number of elements per dimension
+$N = 30;			# Number of elements per dimension
 $graph_chunk_size  = $N**3;
 $graph_chunk_size = 
     ($graph_chunk_size < 20000 ? 20000 : 
     $graph_chunk_size > 200000 ? 200000 : $graph_chunk_size);
 $hratio = 5;			# refinement (h_center/h_wall)
-$Re = 100;			# Reynolds number
+$Re = 500;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = ($case eq 'laplace' ? 1 : 0.01);# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 100;
+$nstep = 1000;
 $save_file = ($case ? "cubcav.$case.tmp" : "cubcav.state.tmp");
 #
 $weak_form = 0;
@@ -77,8 +77,8 @@ if (scalar $case =~ /weak_form_(\d)/) {
     die "don't know case \"$case\"\n";
 }
 $CASE = $case;
-$fracstep = 0;
-$maxits=200;
+$fracstep = 1;
+$maxits=100;
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
@@ -90,7 +90,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 2
+nstep 1000
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
@@ -111,9 +111,9 @@ iisd_subpart 100
 maxits 200
 report_consumed_time
 activate_debug_print
-use_interface_full_preco 0
+use_interface_full_preco 1
 print_interface_full_preco_conv 0
-interface_full_preco_maxits 5
+interface_full_preco_maxits 3
 # activate_debug
 
 iisdmat_print_statistics
