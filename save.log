@@ -3534,3 +3534,6 @@ tag: beta-3.37.34 on Sun, 19 Dec 2004 12:34:38 -0300 by mstorti in spider
      > `visitor' class works (probably). 
      > Not with refinement. 
      > Written `so_end()'. 
+----------
+tag: beta-3.37.35 on Sun, 19 Dec 2004 12:55:46 -0300 by mstorti in spider
+     > `visitor' class partially works with refinement. 
