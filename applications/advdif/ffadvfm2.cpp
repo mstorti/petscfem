@@ -40,7 +40,8 @@ newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_)
   full_adv_jac(*this), full_dif_jac(*this),
   scalar_dif_per_field(*this), global_scalar_djac(*this),
   global_dif_tensor(*this), per_field_dif_tensor(*this),
-  full_c_jac(*this), scalar_c_jac(*this)
+  full_c_jac(*this), scalar_c_jac(*this),
+  scalar_per_field_c_jac(*this)
 {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -86,6 +87,29 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
   // operations in reverse order
   tmp27.prod(N,ff.eye_ndof,1,2,3);        // tmp27 = N * C_jac 
   N_P_C.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * N
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::ScalarPerFieldCjac
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
+  tmp2.set(N).scale(w);
+  tmp.prod(tmp2,N,1,2);
+  N_N_C.set(0.).d(4,2);
+  N_N_C.prod(tmp,ff.C_jac,1,2,3);
+  N_N_C.rs();
+}
+
+void newadvecfm2_ff_t::ScalarPerFieldCjac::
+comp_G_source(FastMat2 &G_source, FastMat2 &U) {
+  G_source.set(U).mult(ff.C_jac);
+}
+
+void newadvecfm2_ff_t::ScalarPerFieldCjac::
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+	   FastMat2 &N,double w) {
+  tmp26.set(P_supg).scale(w);
+  ff.N_C.set(0.).d(3,2).prod(N,ff.C_jac,1,2).rs();
+  N_P_C.prod(tmp26,ff.N_C,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * N
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -448,7 +472,9 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
     c_jac =  &scalar_c_jac;
   } else if (reactive_jacobians_type==string("scalar_per_field") &&
 	     reactive_jacobians_prop.length == ndof) {
-    assert(0);
+    N_C.resize(3,elemset->nel,ndof,ndof);
+    C_jac.resize(1,ndof);
+    c_jac =  &scalar_per_field_c_jac;
   } else if (reactive_jacobians_type==string("full") &&
 	     reactive_jacobians_prop.length == ndof*ndof) {
     C_jac.resize(2,ndof,ndof);

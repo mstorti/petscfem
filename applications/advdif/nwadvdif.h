@@ -37,7 +37,7 @@ private:
   double tau_fac;
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
     tmp2,D_jac,dif_per_field,tmp3,eye_ndof,
-    C_jac;
+    C_jac,N_C;
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
@@ -92,6 +92,21 @@ public:
 		    FastMat2 &N,double w);
   };
   ScalarCJac scalar_c_jac;
+
+  /// Global scalar reactive Jacobian
+  class ScalarPerFieldCjac;
+  friend class ScalarPerFieldCjac;
+  class ScalarPerFieldCjac : public CJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 tmp,tmp2,N_N_C,tmp26;
+  public:
+    ScalarPerFieldCjac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w);
+    void comp_G_source(FastMat2 &G_source, FastMat2 &U);
+    void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+		    FastMat2 &N,double w);
+  };
+  ScalarPerFieldCjac scalar_per_field_c_jac;
 
   /// One velocity per field
   class UPerField;
