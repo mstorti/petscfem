@@ -3917,3 +3917,6 @@ tag: beta-3.41.21 on Sat, 29 Jan 2005 18:00:15 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.22 on Sat, 29 Jan 2005 18:47:05 -0300 by mstorti in spider
      > Verified that absorbing and slip b.c.'s may be merged. 
+----------
+tag: beta-3.41.23 on Sat, 29 Jan 2005 20:54:59 -0300 by mstorti in spider
+     > Verified again that absorbing and slip b.c.'s may be merged. 
