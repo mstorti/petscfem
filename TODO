@@ -1,0 +1,17 @@
+-*- mode: text -*-
+
+TODO: [Mainly fixes go here...]
+=====
+
+* Fix error while opening data file, when no case gives
+           "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!
+* Document the element locker function
+* Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
+
+
+DONE:
+=====
+
+* Add targets to the Makefile like `distrib' `almost_clean' etc...
+* Find a better hash function for the text hashes. 
+* Put `const' keyword in `get_entry' and friends.
