@@ -108,3 +108,9 @@
 		 (vector 1 2 0 3)
 		 (vector 1 0 2 3)) "tetra")
 
+(check-gen (list (vector 1 2 3 0 5 6 7 0)
+		 (vector 1 5 6 2 0 4 7 3)) "hexa")
+
+(check-gen (list (vector 1 2 3 0 5 6 7 0)
+		 (vector 1 5 6 2 0 4 7 3)
+		 (vector 1 0 3 2 5 4 7 6)) "unoriented hexa")
