@@ -2694,3 +2694,6 @@ tag: beta-3.19.pl15 on Mon, 26 May 2003 00:08:19 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl16 on Sun,  1 Jun 2003 12:55:46 -0300 by mstorti in spider
      > Smoke gives good visualization in a simple cavity flow. 
+----------
+tag: beta-3.19.pl17 on Sun,  1 Jun 2003 21:09:27 -0300 by mstorti in spider
+     > Smoke gives good visualization in the square cavity problem. 
