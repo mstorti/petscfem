@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.4 2002/04/27 15:39:23 mstorti Exp $
+//$Id: nssup.cpp,v 1.5 2002/05/16 20:31:24 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -27,6 +27,11 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
   assert(!LES);
+  //o This factor scales the temporal derivative term
+  // int the free surface equation $w = f \dot p$ equation,
+  // so that for $f=0$ we recover the slip boundary
+  // condition $w=0$. 
+  TGETOPTDEF(thash,double,fs_eq_factor,1.);
   assert(nel==2);
 
   GET_JOBINFO_FLAG(comp_mat);
@@ -116,10 +121,11 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       w_new = locstate.get(1,normal_dir);
       w_star = alpha * w_new + (1.-alpha) * w;
       // Residual of equation (eta^{n+1}-eta^n)/Dt - w = 0
-      res = -(eta_new-eta)*rec_Dt + w_star;
+      res = -(eta_new-eta)*rec_Dt*fs_eq_factor + w_star;
       veccontr.setel(res,2,1);
       // alpha's here are not clear. 
-      matlocf.setel(rec_Dt/alpha,2,1,2,1).setel(-alpha,2,1,1,ndim);
+      matlocf.setel(rec_Dt/alpha*fs_eq_factor,2,1,2,1)
+	.setel(-alpha,2,1,1,ndim);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
