@@ -2605,3 +2605,7 @@ tag: beta-3.18.pl59 on Wed,  2 Apr 2003 15:05:47 -0300 by mstorti in minerva.arc
 tag: beta-3.18.pl60 on Wed,  2 Apr 2003 17:57:55 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs `wave' problem with `fs_relax=0.1' and results unstable. Will add
      > a smoothing term. 
+----------
+tag: beta-3.18.pl61 on Thu,  3 Apr 2003 14:10:25 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs the explicit filter. Continues to be unstable. Will write a
+     > better filter.
