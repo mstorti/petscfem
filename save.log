@@ -3502,3 +3502,6 @@ tag: beta-3.37.23 on Sun, 28 Nov 2004 10:32:11 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.24 on Sun, 28 Nov 2004 10:44:00 -0300 by mstorti in spider
      > Written `MD5Hasher' and `Md5SumHasher' classes. 
+----------
+tag: beta-3.37.25 on Sun, 28 Nov 2004 11:02:03 -0300 by mstorti in spider
+     > Written `MD5Hasher' and `Md5SumHasher' classes. 
