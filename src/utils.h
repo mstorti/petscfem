@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.17 2003/07/02 02:32:47 mstorti Exp $
+//$Id: utils.h,v 1.18 2005/04/01 16:09:00 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -165,6 +165,31 @@ inline int modulo(int k, int n, int *div=NULL) {
   }
   if (div) *div = d;
   return m;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Performs the modulo operation, in the sense of 
+    number theory for doubles. 
+    Given doubles #a# and #b>0#, we find #r# and #m# such that
+    #a = m * b + r# with #0 <= r < b#
+    @param k (input) the number to take the modulo
+    @param n (input) the modulo
+    @param div (input) pointer to an integer where to put the divisor
+    @return the result of the modulo operation */ 
+inline double modulo(double a, double b,int &m) {
+  double r = fmod(a,b);
+  m = int((a-r)/b);
+  if (r<0) {
+    r += b;
+    m -= 1;
+  }
+  return r;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+inline double modulo(double a, double b) {
+  int m;
+  return modulo(a,b,m);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

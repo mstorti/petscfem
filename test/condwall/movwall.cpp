@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: movwall.cpp,v 1.8 2005/04/01 15:35:40 mstorti Exp $
+// $Id: movwall.cpp,v 1.9 2005/04/01 16:08:14 mstorti Exp $
 
 #include <cstdio>
 #include <cassert>
@@ -50,19 +50,10 @@ void mov_wall::init(Mesh &mesh_a,Dofmap &dofmap,
   data_p->u1.a_resize(2,nelem,ndim);
   data_p->u2.a_resize(2,nelem,ndim);
   Uwall = 0.2;			// Velocity in `y' direction
-  while (1) {
-    printf("ente a,b: > ");
-    double a,b;
-    scanf("%lf %lf",&a,&b);
-    int m;
-    double r = modulo(a,b,m);
-    printf("a %f, b %f, m %d, r %f\n",a,b,m,r);
-  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mov_wall::time_step_pre(double time,int step) { 
-#if 0
   double 
     Ly = 1,
     T = Ly/Uwall,
@@ -70,26 +61,32 @@ void mov_wall::time_step_pre(double time,int step) {
   for (int j=0; j<nelem; j++) {
     double y = xwall.e(j,1);
     double R = 0;
+    // plate1 == fixed plate
+    // plate2 == moving plate
     int in_plate1=y>Lslit;
-    // Extremes of slit 2
-    int in_plate2 = y>y2_0 && y<y2_1;
+
+    // Start position of moving plate
+    double y0 = Lslit+Uwall*time;
+    double dy = modulo(y-y0,Ly);
+    int in_plate2 = dy<Lslit;
+
+    // Resistance
     if (in_plate1 || in_plate2) R=1;
     data_p->Rv.ref(j) = R;
 
     // Velocity on outlet side
     double v=0;
-    if (in_plate1) v=0.;
     if (in_plate2) v=Uwall;
+    if (in_plate1) v=0.;
     data_p->u2.e(j,1) = v;
 
     // Velocity on inlet side
     v=0;
-    if (in_plate2) v=Uwall;
     if (in_plate1) v=0.;
+    if (in_plate2) v=Uwall;
     data_p->u1.e(j,1) = v;
 
   }
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

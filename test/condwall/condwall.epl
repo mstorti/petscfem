@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.9 2005/04/01 02:39:38 mstorti Exp $
+#$Id: condwall.epl,v 1.10 2005/04/01 16:08:14 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -89,7 +89,7 @@ npg 4
 #
 # Datos fisicos
 #
-viscosity 0.001
+viscosity 0.1
 weak_form 0
 LES 0
 dx 1

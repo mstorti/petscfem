@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.9 2005/04/01 06:25:18 mstorti Exp $
+// $Id: condwall.cpp,v 1.10 2005/04/01 16:08:57 mstorti Exp $
 
 #include "./condwall.h"
 
@@ -58,7 +58,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
-    printf("k %d, R %f\n",k,R);
+    // printf("k %d, R %f\n",k,R);
   }
   if (R>0) {
     u1.set(0.0);
@@ -70,7 +70,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
       }
       u1.set(&data_p->u1.e(k,0));
       u2.set(&data_p->u2.e(k,0));
-      printf("k %d, v1 %f, v2 %f\n",k,u1.get(2),u2.get(2));
+      // printf("k %d, v1 %f, v2 %f\n",k,u1.get(2),u2.get(2));
     }
     // Closed
     U1.is(1,1,ndim);
