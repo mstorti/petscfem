@@ -2,8 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add test for `surf_gatherer' in test/cubcav. Apparently it is
+       almost already done. 
 * Fix warnings that are currently disabled with '-Wno-deprecated'
-* Eliminate the DRH60 flag. 
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
@@ -161,6 +162,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Eliminate the DRH60 flag. 
 * Disable ROSI_COUPLING_MODULE
 * Error in fixations is not parallel safe. Tue Sep 14 21:22:17 2004
     > Fixation 3169, imposed on an invalid node/field combination.

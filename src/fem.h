@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.36 2003/12/06 16:00:25 mstorti Exp $
+//$Id: fem.h,v 1.37 2004/09/25 23:11:39 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -11,14 +11,9 @@ using namespace std;
 #include <petscsles.h>
 #include <stdlib.h>
 
-// para Libretto!!!
-// tuve problemas con libretto al pasar de RH 5.2 a 6.0
-// En RH 6.0 debe incluir el "libretto.h" mientras que en 5.2
-// debe incluir el header que viene con libretto. 
-#ifdef RH60
+// Libretto has some incompatibilities with recent versions
+// of compilers, so I have a fixed version of the header in ./src
 #include "libretto.h"
-#endif
-//#include <libretto/libretto.h>
 #include <libretto/darray.h>
 
 #undef HAVE_MEMMOVE // para que no chille
@@ -304,9 +299,8 @@ using namespace std;
     calls #PetscFinalize()#. Argument are as for 'printf()'
     usage: PETSCFEM_ERROR(template,args).
 */ 
-#ifdef RH60
 #define USE_VARARG_MACROS
-#endif
+
 #ifdef USE_VARARG_MACROS
 #define PETSCFEM_ERROR(templ,...)				\
   petscfem_error(templ "\n---------------\n"			\

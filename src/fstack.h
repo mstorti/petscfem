@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fstack.h,v 1.11 2003/07/02 03:36:13 mstorti Exp $
+//$Id: fstack.h,v 1.12 2004/09/25 23:11:39 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -12,9 +12,7 @@
 #include <regex.h>
 #include <string.h>
 
-#ifdef RH60
 #include <src/libretto.h>
-#endif
 
 #include <libretto/darray.h>
 #include <libretto/autostr.h>
@@ -48,6 +46,7 @@ private:
 
 public:
 
+  int quiet;
   enum error { read_ok, cant_open, eof} last_error_m;
   error last_error();
   /** Reads a line from the file stack. 

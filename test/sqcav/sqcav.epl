@@ -268,5 +268,5 @@ fixa
 # fijacion en la presion
 1 3 0.
 # fijaciones de velocidad en las paredes
-__INCLUDE__ sqcav.fixa.tmp
+__INCLUDE__ qsqcav.fixa.tmp
 __END_FIXA__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.17 2003/07/02 23:22:19 mstorti Exp $
+//$Id: util2.cpp,v 1.18 2004/09/25 23:11:39 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -7,11 +7,7 @@
 #include <vector>
 #include <malloc.h>
 
-#ifdef RH60
 #include "libretto.h"
-#else
-#include <libretto/libretto.h>
-#endif
 #include <libretto/darray.h>
 
 #include <petscsles.h>

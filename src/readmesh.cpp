@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.106 2004/05/13 02:58:18 mstorti Exp $
+//$Id: readmesh.cpp,v 1.107 2004/09/25 23:11:39 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -103,6 +103,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // Read data
   FileStack *fstack;
   fstack = new FileStack(fcase);
+  fstack->quiet = !myrank;	// Only output on server
   PETSCFEM_ASSERT(fstack->ok(),"read_mesh: "
 		  "Couldn't open file \"%s\"\n",fcase);
   if (myrank==0) fstack->set_echo_stream(stdout);
@@ -876,6 +877,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   } else {
 
     weights_file = new FileStack(proc_weights);
+    weights_file->quiet = !myrank;
     float sumw=0.;
     for (int proc=0; proc<size; proc++) {
       ierr = weights_file->get_line(line);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.10 2003/09/02 01:38:43 mstorti Exp $
+//$Id: idmap.cpp,v 1.11 2004/09/25 23:11:39 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -12,11 +12,7 @@
 
 #include <petscsles.h>
 
-#ifdef RH60
 #include "libretto.h"
-#else
-#include <libretto/libretto.h>
-#endif
 #include <libretto/darray.h>
 
 #undef HAVE_MEMMOVE // para que no chille al incluir petsccfonf.h

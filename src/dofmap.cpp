@@ -1,16 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.20 2003/08/31 15:30:19 mstorti Exp $
+//$Id: dofmap.cpp,v 1.21 2004/09/25 23:11:39 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
 
 #include <petsc.h> 
 
-#ifdef RH60
 #include "libretto.h"
-#else
-#include <libretto/libretto.h>
-#endif
 #include <libretto/darray.h>
 
 using namespace std;

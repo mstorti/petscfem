@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.66 2004/09/24 12:00:56 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.67 2004/09/25 23:11:39 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -7,11 +7,7 @@
 extern int MY_RANK,SIZE;
 
 #include <typeinfo>
-#ifdef RH60
 #include "libretto.h"
-#else
-#include <libretto/libretto.h>
-#endif
 #include <petscmat.h>
 
 #include <src/fem.h>

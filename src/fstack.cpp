@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.15 2003/09/13 17:32:09 mstorti Exp $
+//$Id: fstack.cpp,v 1.16 2004/09/25 23:11:39 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -31,10 +31,11 @@ FileStack::~FileStack(void) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FileStack::close(void) {
   if (da_length(file_stack)>0 || da_length(read_buffer)>0) {
-    printf("FileStack::close(): FileStack not empty!!\n"
-	   "%d files open\n"
-	   "%d lines in the buffer\n",
-	   da_length(file_stack),da_length(read_buffer));
+    if (!quiet)
+      printf("FileStack::close(): FileStack not empty!!\n"
+	     "%d files open\n"
+	     "%d lines in the buffer\n",
+	     da_length(file_stack),da_length(read_buffer));
   }
   if (file_at_top) fclose(file_at_top);
   file_at_top = NULL;
@@ -48,6 +49,7 @@ void FileStack::close(void) {
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FileStack::FileStack(const char *filename) : 
+  quiet(0),
   echo_stream (NULL), 
   echo(0), 
   file_at_top(NULL),
@@ -79,7 +81,8 @@ int FileStack::open(const char *filename) {
   // char line[LINESIZE];
   file_at_top = fopen(filename,"r");
   if (!file_at_top) {
-    printf("Couldn't open file \"%s\"!!\n",filename);
+    if (!quiet) 
+      printf("Couldn't open file \"%s\"!!\n",filename);
     last_error_m = cant_open;
     return 1;
   }
@@ -185,7 +188,8 @@ int FileStack::get_line(char * & line) {
       file_at_top = fopen(token_cpy.c_str(),"r");
 	
       if (!file_at_top) {
-	printf("Couldn't open file \"%s\"!!\n",token);
+	if (!quiet)
+	  printf("Couldn't open file \"%s\"!!\n",token);
 	last_error_m = cant_open;
 	return 1;
       }
@@ -229,11 +233,13 @@ const char * FileStack::line_read(void) const {
 }
 
 void FileStack::print(void) const {
-  printf("File stack:\n");
-  int nfiles= file_names.size();
-  for (int j=0; j<file_names.size(); j++) {
-    printf("pos %d in stack: %s:%d\n",
-	   j,file_names[j].c_str(),( j != nfiles-1 ? file_pos[j] : pos));
+  if (!quiet) {
+    printf("File stack:\n");
+    int nfiles= file_names.size();
+    for (int j=0; j<file_names.size(); j++) {
+      printf("pos %d in stack: %s:%d\n",
+	     j,file_names[j].c_str(),( j != nfiles-1 ? file_pos[j] : pos));
+    }
   }
 }
 
