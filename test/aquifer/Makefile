@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2002/02/11 13:18:54 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2002/02/11 14:38:17 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -80,7 +80,7 @@ data: force
 #w Runs program
 rung: data force
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
-			-case $(CASE).depl # > output.$(casen).out
+			-case $(CASE).depl  > output.$(casen).out
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
