@@ -2601,3 +2601,7 @@ tag: beta-3.18.pl58 on Wed,  2 Apr 2003 11:11:59 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.18.pl59 on Wed,  2 Apr 2003 15:05:47 -0300 by mstorti in minerva.arcride.edu.ar
      > Fixed error in update of FS in `alehook.cpp'. 
+----------
+tag: beta-3.18.pl60 on Wed,  2 Apr 2003 17:57:55 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs `wave' problem with `fs_relax=0.1' and results unstable. Will add
+     > a smoothing term. 
