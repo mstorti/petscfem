@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.57 2005/02/26 18:31:55 mstorti Exp $ 
+# $Id: Makefile,v 1.58 2005/02/27 12:59:52 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_shock
+default: run_shock3d
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfshock
+CASE_NAME := gfshock3d
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -21,7 +21,14 @@ NL :=
 NP := 1
 endif
 
+viewer.dx.tmp: viewer.dx
+	make-depl $< $@
+
 gbody.efn: gbody.cpp
+
+run_shock3d:
+	mkstepsdir.pl
+	$(MAKE) CASE_NAME=gfshock3d run
 
 run_shock:
 	mkstepsdir.pl

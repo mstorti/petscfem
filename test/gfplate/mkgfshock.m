@@ -1,4 +1,4 @@
-## $Id: mkgfshock.m,v 1.7 2005/02/26 15:59:56 mstorti Exp $
+## $Id: mkgfshock.m,v 1.8 2005/02/27 12:59:52 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -11,7 +11,7 @@ x0 = min(z(:,1));
 x1 = max(z(:,1));
 Ltuy = x1-x0;
 
-## Make width if strip proportional to `tuyere' Area
+## Make width of strip proportional to `tuyere' Area
 ## Scale so that geometrical mean will be O(h)
 ytuy = Atuy/Atuy_char*Ltuy/Nx;
 
