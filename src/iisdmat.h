@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.31 2003/10/17 19:28:49 mstorti Exp $
+// $Id: iisdmat.h,v 1.32 2004/10/24 16:25:21 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -12,34 +12,8 @@
 #include <src/iisdgraph.h>
 #include <src/pfptscmat.h>
 #include <src/dvector.h>
+#include <src/pfgtpmacr.h>
 
-#define TGETOPTDEF_ND_PFMAT(thash,type,name,default)		\
-        name = default;						\
-        ierr = ::get_##type(thash,#name,&name,1);		\
-        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
-
-#define TGETOPTDEF_S_ND_PFMAT(thash,type,name,default)		\
-        name=type(#default);					\
-        ierr = ::get_##type(thash,#name,name,1);		\
-        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
-
-#define TGETOPTDEF_S_PFMAT(thash,type,name,default)		\
-        type name=type(#default);				\
-        ierr = get_##type(thash,#name,name,1);			\
-        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
-
-#define TGETOPTDEF_ND_PF(thash,type,name,default)		\
-        name = default;						\
-        get_option(#name,&name); 
-  
-#define TGETOPTDEF_S_ND_PF(thash,type,name,default)	\
-        name = string(#default);			\
-        get_option(#name,name); 
-  
-#define TGETOPTDEF_S_PF(thash,type,name,default)	\
-        string name;					\
-        TGETOPTDEF_S_ND_PF(thash,type,name,default)
-  
 int iisd_pc_apply(void *ctx,Vec,Vec);
 
 /** Solves iteratively on the `interface' (between subdomain) nodes

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.5 2002/09/05 19:24:01 mstorti Exp $
+// $Id: petscmat.h,v 1.6 2004/10/24 16:25:21 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -12,6 +12,7 @@
 
 // This is the OO wrapper to PETSc matrix
 class PETScMat : public PFPETScMat {
+protected:
   int M,N;
   int ierr;
   /** Solve the linear system 

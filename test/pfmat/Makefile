@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2004/07/07 16:56:14 rodrigop Exp $ 
+# $Id: Makefile,v 1.9 2004/10/24 16:25:24 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -120,6 +120,12 @@ pfmat5.bin: pfmat5.o
 	$(MAKE) -C ../../src compile
 	-rm -f $@
 	${CXX_CLINKER} -o $@ pfmat5.o  $(LDFLAGS_NO_PROG_LIB)
+	-rm -f pfmat5.o
+
+pfmat7.bin: pfmat7.o
+	$(MAKE) -C ../../src compile
+	-rm -f $@
+	${CXX_CLINKER} -o $@ pfmat7.o  $(LDFLAGS_NO_PROG_LIB)
 	-rm -f pfmat5.o
 
 sw_nn_preco.bin: sw_nn_preco.o

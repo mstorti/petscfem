@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.12 2003/07/02 23:22:19 mstorti Exp $
+//$Id: petscmat.cpp,v 1.13 2004/10/24 16:25:21 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -40,10 +40,12 @@ int PETScMat::create_a() {
   int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
 
   //o Print the profile 
-  TGETOPTDEF(GLOBAL_OPTIONS,int,debug_compute_prof,0);
+  TGETOPTDEF(&thash,int,debug_compute_prof,0);
   //o Pass option to underlying PETSc matrix. Gives an error if a new
   // element is added
-  TGETOPTDEF(GLOBAL_OPTIONS,int,mat_new_nonzero_allocation_err,1);
+  TGETOPTDEF(&thash,int,mat_new_nonzero_allocation_err,1);
+  //o Is the matrix symmetric?
+  TGETOPTDEF(&thash,int,symmetric,0);
   GSet ngbrs_v;
   GSet::iterator q,qe;
 
@@ -140,6 +142,11 @@ int PETScMat::create_a() {
   CHKERRQ(ierr); 
   if (mat_new_nonzero_allocation_err) {
     ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    CHKERRQ(ierr); 
+  }
+  if (symmetric) {
+    if (!myrank) printf("is symmetric\n");
+    ierr =  MatSetOption(A,MAT_SYMMETRIC);
     CHKERRQ(ierr); 
   }
   // P and A are pointers (in PETSc), otherwise this may be somewhat risky
