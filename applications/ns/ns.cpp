@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.62 2002/02/12 20:33:30 mstorti Exp $
+//$Id: ns.cpp,v 1.50.2.1 2002/02/13 12:57:30 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -15,14 +15,13 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "elast.h"
-#include "qharm.h"
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
 
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-extern int MY_RANK,SIZE;
+int MY_RANK,SIZE;
 TextHashTable *GLOBAL_OPTIONS;
 
 //debug:=
@@ -37,7 +36,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
-    SET_ELEMSET_TYPE(qharm)
     SET_ELEMSET_TYPE(ns_id)
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_res)
@@ -90,6 +88,9 @@ int main(int argc,char **args) {
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
 
+  // Start registering functions
+  Amplitude::initialize_function_table();
+
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
@@ -129,22 +130,9 @@ int main(int argc,char **args) {
   GETOPTDEF(int,nnwt,1);
   //o Tolerance to solve the non-linear system (global Newton).
   GETOPTDEF(double,tol_newton,1e-8);
-
-#define INF INT_MAX
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
-  GETOPTDEF(int,update_jacobian_iters,1);
-  assert(update_jacobian_iters>=1);
-  //o Update jacobian each $n$-th Newton iteration
-  GETOPTDEF(int,update_jacobian_start_iters,INF);
-  assert(update_jacobian_start_iters>=0);
-  //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_steps,1);
-  assert(update_jacobian_steps>=1);
-  //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_start_steps,INF);
-  assert(update_jacobian_start_steps>=0);
-#undef INF
+  GETOPTDEF(int,update_jacobian_iters,0);
 
   //o _T: vector<int>
   // _N: newton_relaxation_factor
@@ -251,8 +239,8 @@ int main(int argc,char **args) {
   
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  A_tet = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-  A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  A_tet = PFMat_dispatch(solver.c_str());
+  A_tet_c = PFMat_dispatch(solver.c_str());
 
 #if 0
   const int NT=200;
@@ -349,9 +337,6 @@ int main(int argc,char **args) {
 
   // Filter *filter(x,*mesh);
 
-  // update_jacobian_this_step:= Flags whether this step the
-  // jacobian should be updated or not 
-  int update_jacobian_this_step,update_jacobian_this_iter;
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
@@ -361,10 +346,6 @@ int main(int argc,char **args) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // TET ALGORITHM
 
-    // Jacobian update logic
-    update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
-      || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
-    
     // Inicializacion del paso
     ierr = VecCopy(x,dx_step);
     ierr = VecCopy(x,xold);
@@ -374,16 +355,7 @@ int main(int argc,char **args) {
 
       glob_param.inwt = inwt;
       // Initialize step
-
-      // update_jacobian_this_iter:= flags whether the Jacobian is
-      // factored in this iter or not Jacobian update logic
-      update_jacobian_this_iter = update_jacobian_this_step &&
-	( (inwt < update_jacobian_start_iters) 
-	  || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
-
-      if (update_jacobian_this_iter) {
-	// ierr = A_tet->clean_factor(); CHKERRA(ierr); 
-      }
+      int update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
 
       // Compute wall stresses
       VOID_IT(argl);
@@ -407,15 +379,15 @@ int main(int argc,char **args) {
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (update_jacobian_this_iter) {
-	ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+      if (update_jacobian) {
+	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
       }
 
       VOID_IT(argl);
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
       argl.arg_add(&res,OUT_VECTOR);
-      if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+      if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
       argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -424,7 +396,7 @@ int main(int argc,char **args) {
       argl.arg_add(&glob_param,USER_DATA);
       argl.arg_add(wall_data,USER_DATA);
 
-      const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
+      const char *jobinfo = (update_jacobian ? "comp_mat_res" : "comp_res");
 
       // In order to measure performance
       if (measure_performance) {
@@ -470,14 +442,14 @@ int main(int argc,char **args) {
 	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
 	
 	ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	ierr = A_tet->clean_mat(); CHKERRA(ierr); 
-	ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
+	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
+	ierr = A_tet_c->zero_entries(); CHKERRA(ierr); 
 
 	VOID_IT(argl);
 	argl.arg_add(&x,PERT_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
 	argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -496,7 +468,7 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      // A_tet->build_sles(GLOBAL_OPTIONS);
+      A_tet->build_sles(GLOBAL_OPTIONS);
 
       if (!print_linear_system_and_stop || solve_system) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
@@ -535,7 +507,7 @@ int main(int argc,char **args) {
       if (inwt==0) normres_external = normres;
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
-		  inwt,normres,update_jacobian_this_iter);
+		  inwt,normres,update_jacobian);
 
       // update del subpaso
       double relfac;
@@ -556,6 +528,8 @@ int main(int argc,char **args) {
       PetscFinalize();
       exit(0);
 #endif
+
+      ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
 
       // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
 
