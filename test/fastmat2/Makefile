@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2002/11/03 12:04:47 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2002/11/03 12:07:22 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -13,12 +13,10 @@ tests:  fastmat2a fastmat2b fastmat2c fastvec
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
 #w FastMat2 test a 
-fastmat2a: 
-	$(MAKE) libpetscfem
-	$(MAKE) testfm2a.bin
+fastmat2a: testfm2a.bin
 	testfm2a.bin > fastmat2a.out.tmp
 
-testfm2a.bin: testfm2a.o
+testfm2a.bin: testfm2a.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o util2.o) 
 	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LIBPETSCFEM) \
 		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB} $(MESCHACH)/libmes.a
 
@@ -41,7 +39,7 @@ testfm2.bin: testfm2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o util2.o)
 fastmat2c: testfm2c.bin
 	testfm2c.bin > fastmat2c.out.tmp
 
-testfm2c.bin: testfm2c.o libpetscfem
+testfm2c.bin: testfm2c.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o util2.o) 
 	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPETSCFEM) \
 		 -L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}  $(MESCHACH)/libmes.a
 
