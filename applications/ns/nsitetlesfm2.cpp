@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.47 2001/12/01 15:04:55 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.48 2002/03/30 00:46:46 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -482,7 +482,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
-	div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
+	div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
 	// Galerkin - momentum
 	// resmom tiene que tener nel*ndim
