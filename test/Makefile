@@ -1,9 +1,10 @@
-# $Id: Makefile,v 1.14 2001/03/26 04:11:47 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2001/03/28 16:34:20 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
-	constraint_bug fstack sector triangle advdif texthash log_vars
+	constraint_bug fstack sector triangle advdif texthash log_vars \
+	newff
 
 run: sqcav5
 
@@ -51,9 +52,8 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars
-runtests_p: fstack triangle \
-	advdif
+	advdif texthash log_vars newff
+runtests_p: texthash log_vars newff
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -302,4 +302,8 @@ testfm2c.bin: testfm2c.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPETSCFEM) \
 		 -L$(NEWMAT) -lnewmat
 
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w New flux functions
+newff:
+	$(MAKE) -C newff tests
 #s

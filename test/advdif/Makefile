@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.20 2001/03/26 04:11:50 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2001/03/28 16:34:25 mstorti Exp $ 
 
-.PHONY: plano data run
+.PHONY: plano data run sine 
 
 all: run
 
@@ -93,40 +93,40 @@ sine_crank_nic_npp:
 plano.con plano.nod: plano.m
 	octave -q plano.m
 
-.gdbinit:
-	echo file advdif >$@
-	echo set args -case per_elem_prop.depl >> $@
+# .gdbinit:
+# 	echo file advdif >$@
+# 	echo set args -case per_elem_prop.depl >> $@
 
-DF = per_elem_prop.depl
-OF = sine.nod.tmp
-pdata: $(DF) $(OF)
+# DF = per_elem_prop.depl
+# OF = sine.nod.tmp
+# pdata: $(DF) $(OF)
 
 sine.data: sine.data.epl
 	eperl -P -d per_elem_prop=1 $< > $@
 
-################################################################
-# TESTS FOR THE NEW FLUX FUNCTIONS...
-# 1./ DRS: Diffusion reaction with source term. All
-#         combinations of possibilities in the representation. 
-# 2./ AD: Advection-diffusion. All
-#         combinations of possibilities in the representation. 
-# 3./ The same, with mesh rotated 45 deg. (non-isotropic diffusion). 
-# 4./ The same with full jacobians obtained rotating
-#        the components. 
+# ################################################################
+# # TESTS FOR THE NEW FLUX FUNCTIONS...
+# # 1./ DRS: Diffusion reaction with source term. All
+# #         combinations of possibilities in the representation. 
+# # 2./ AD: Advection-diffusion. All
+# #         combinations of possibilities in the representation. 
+# # 3./ The same, with mesh rotated 45 deg. (non-isotropic diffusion). 
+# # 4./ The same with full jacobians obtained rotating
+# #        the components. 
 
 
-#w Test for per-element properties 
-$(DF): sine_new.epl sine.data
-	if [ -e $(DF) ] ; then chmod +w $(DF) ; fi
-	eperl -P -d perl_elem_prop=1 sine_new.epl > $(DF)
-	chmod -w $(DF)
+# #w Test for per-element properties 
+# $(DF): sine_new.epl sine.data
+# 	if [ -e $(DF) ] ; then chmod +w $(DF) ; fi
+# 	eperl -P -d perl_elem_prop=1 sine_new.epl > $(DF)
+# 	chmod -w $(DF)
 
-$(OF): sine_new.m sine.data
-	octave -q sine_new.m
+# $(OF): sine_new.m sine.data
+# 	octave -q sine_new.m
 
-per_elem_prop: .gdbinit advdif.link $(DF) $(OF)
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case $(DF) > per_elem_prop.out.tmp
+# per_elem_prop: .gdbinit advdif.link $(DF) $(OF)
+# 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+# 			-case $(DF) > per_elem_prop.out.tmp
 
 # lclean:
 # 	-chmod +w sine.depl

@@ -2,9 +2,10 @@
 nx=16;
 ny=1;
 Lx=1;
-Ly=1/32;
-R=1;
+Ly=1/16;
+R=0;
 u=0;
+v=0;
 s=1;
 D=0.1;
 Dt=0.02;
@@ -19,16 +20,38 @@ ky=0;
 tol=0.01;
 nnwt=1;
 
-#if $ENV{'CASE'} eq 'dif_temp'
+#<:=$CASE=$ENV{'CASE'}:>//
+
+#if $CASE eq 'dif_temp'
+## Heat eq. with source term and reaction
 Dt=0.05;
 nstep=10;
 tol=0.04;
-#elsif $ENV{'CASE'} eq 'adv_dif_temp'
+nx=16;
+R=1;
+reac_type="global_scalar";
+#elsif $CASE eq 'adv_dif_temp'
+## Advection diffusion
 nx=32;
 u=1;
 adv_type="global_vector";
 tol=0.04;
-#elsif $ENV{'CASE'} eq 'reac_steady'
+#elsif $CASE eq 'reac_adv_dif_temp_y'
+## Reaction advection diffusion along y
+kx=0;
+ky=1;
+nx=1;
+ny=32;
+Lx=1/32;
+Ly=1;
+u=0;
+v=1;
+R=.5;
+reac_type="global_scalar";
+adv_type="global_vector";
+tol=0.04;
+#elsif $CASE eq 'reac_steady'
+## Steady reaction
 nstep=1;
 Dt=1e5;
 nx=1;
@@ -39,7 +62,8 @@ s=2.6;
 kx=0;
 reac_type="global_scalar";
 tol=0.04;
-#elsif $ENV{'CASE'} eq 'reac_dif_temp'
+#elsif $CASE eq 'reac_dif_temp'
+## Unsteady reaction diffusion 
 nstep=10;
 Dt=0.05;
 nx=1;
@@ -49,5 +73,26 @@ R=1.3;
 s=2.6;
 kx=0;
 reac_type="global_scalar";
-tol=0.04;
+tol=0.03;
+#elsif $CASE eq 'std_ard_x_y'
+## Steady Advection reaction diffusion
+## (all terms) allong 'x' and 'y' coords.
+Dt=1e5;
+nstep=1;
+nx=16;
+ny=16;
+kx=1;
+ky=1;
+Lx=1;
+Ly=1;
+u=1;
+v=2;
+adv_type="global_vector";
+R=2.2;
+reac_type="global_scalar";
+s=3.1;
+D=.6;
+tol=0.005;
+#else 
+<:die("not implemented test case '$CASE'"):>
 #endif

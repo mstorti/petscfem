@@ -47,7 +47,7 @@ advective_jacobians_type "<:=$adv_type:>"
 #if $adv_type eq 'null'
 # no line here
 #elsif $adv_type eq 'global_vector'
-advective_jacobians <:=$u:> 0.
+advective_jacobians <:=$u:> <:=$v:>
 #else
 <:die "not known adv_type: $adv_type\n":>
 #endif

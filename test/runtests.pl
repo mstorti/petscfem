@@ -813,6 +813,21 @@ expect("turbchanw/swturb.out.tmp","Advdif/Shallw Water Turb. // log vars // shal
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+sub check_newff {
+    my $case=shift();
+    expect("newff/$case.vrf.tmp","newff/test case $case",
+	   'rel. max error  <tol\(.*\) OK\? 1');
+}
+
+check_newff('dif_temp');
+check_newff('dif_temp');
+check_newff('adv_dif_temp');
+check_newff('reac_adv_dif_temp_y');
+check_newff('reac_steady');
+check_newff('reac_dif_temp');
+check_newff('std_ard_x_y');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
 
 print "\n",'-' x 80,"\n\n";

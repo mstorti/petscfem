@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/03/28 00:49:18 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/03/28 16:34:28 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -30,6 +30,11 @@ newff.depl: data.m force
 # 4./ The same with full jacobians obtained rotating
 #        the components. 
 
+tests: test_dif_temp test_adv_dif_temp test_reac_adv_dif_temp_y \
+	test_reac_steady test_reac_dif_temp test_std_ard_x_y
+
+test_%: 
+	$(MAKE) CASE=$* run
 
 #w Test for per-element properties 
 $(OF): newff.m data.m
@@ -47,8 +52,8 @@ advdif: advdif.link
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl #> newff.out
-	octave -q verif.m #>$(CASE).vrf.tmp
+			-case newff.depl > newff.out
+	octave -q verif.m >$(CASE).vrf.tmp
 
 local_clean::
 	-chmod +w newff.data.res
