@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.7 2003/11/13 02:49:39 mstorti Exp $
+//$Id: gaschem.cpp,v 1.8 2003/11/13 13:36:39 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -208,7 +208,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     }
     FastMat2::leave();
 
-    tau_supg.d(1,2).is(1,1,3).set(tau);
+    tau_supg.set(0.).d(1,2).is(1,1,3).set(tau);
     
     Uintri.prod(iJaco,u_liq,1,-1,-1);
 

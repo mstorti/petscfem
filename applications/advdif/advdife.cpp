@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.75 2003/11/11 02:15:43 mstorti Exp $
+//$Id: advdife.cpp,v 1.76 2003/11/13 13:36:39 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -600,7 +600,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  matlocf.ir(1,jel);
 
-      tmp19.set(P_supg).scale(ALPHA*wpgdet);
+	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
 	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 

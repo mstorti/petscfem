@@ -2,7 +2,7 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 30;			# nbr of elements in x-y dir
+$Nx = 80;			# nbr of elements in x-y dir
 $Ny = $Nx;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
@@ -70,7 +70,7 @@ initial_state "pool.ini.tmp"
 
 #if 1
 solver "iisd"
-iisd_subpart_auto 1000
+iisd_subpart_auto 2000
 #else
 solver "petsc"
 preco_type "lu"
@@ -101,7 +101,7 @@ print_partitioning_statistics
 proc_weights weights.dat
 max_partgraph_vertices 4000
 max_partgraph_vertices_proc 4000
-fast_uploading 0
+block_uploading 1
 __END_HASH__
 
 # ndim nu ndof

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.97 2003/11/03 03:51:35 mstorti Exp $
+//$Id: readmesh.cpp,v 1.98 2003/11/13 13:36:39 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -962,7 +962,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // cumulated sum 
   for (node=0; node<nnod; node++) 
     n2eptr[node+1] += n2eptr[node];
-  PetscPrintf(PETSC_COMM_WORLD,"n2eptr[nnod]: %d\n",n2eptr[nnod]);
+  // PetscPrintf(PETSC_COMM_WORLD,"n2eptr[nnod]: %d\n",n2eptr[nnod]);
 
   // n2esize:= total number of entries in the node2elem table
   int n2esize = n2eptr[nnod];
