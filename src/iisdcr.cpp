@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.9 2001/12/28 07:45:41 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.10 2002/01/04 23:29:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -94,6 +94,17 @@ void IISDMat::create() {
   set<int> ngbrs_v;
   set<int>::iterator q,qe;
   LocalGraph local_graph;
+
+  // this is a trick to avoid the collision of `local_solver' both
+  // as member and as string-option here
+  string local_solver_s;
+  { string &local_solver = local_solver_s;
+  //o Chooses the local solver (may be "PETSc" or "SuperLU")
+  TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
+  }
+  if (local_solver_s == string("PETSc")) local_solver = PETSc;
+  else if (local_solver_s == string("SuperLU")) local_solver = SuperLU;
+  else assert(0);
 
   // Scatter the profile graph
   lgraph.scatter();

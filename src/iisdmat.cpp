@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.10 2002/01/04 02:43:50 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.11 2002/01/04 23:29:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -80,18 +80,6 @@ int PFPETScMat::duplicate(MatDuplicateOption op,const PFMat &A) {
 #define __FUNC__ "PFPETScMat::build_sles"
 int PFPETScMat::build_sles() {
 
-#define TGETOPTDEF_ND_PF(thash,type,name,default)		\
-        name = default;						\
-        get_option(#name,&name); 
-  
-#define TGETOPTDEF_S_ND_PF(thash,type,name,default)	\
-        name = string(#default);			\
-        get_option(#name,name); 
-  
-#define TGETOPTDEF_S_PF(thash,type,name,default)	\
-        string name;					\
-        TGETOPTDEF_S_ND_PF(thash,type,name,default)
-  
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
@@ -115,6 +103,7 @@ int PFPETScMat::build_sles() {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
 
+  ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
   ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
 			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
@@ -137,6 +126,27 @@ int PFPETScMat::build_sles() {
   return 0;
 }
 
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::build_sles"
+int IISDMat::build_sles() {
+
+  PFPETScMat::build_sles();
+  // this is a trick to avoid the collision of `local_solver' both
+  // as member and as string-option here
+  string local_solver_s;
+  { string &local_solver = local_solver_s;
+  //o Chooses the local solver (may be "PETSc" or "SuperLU")
+  TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
+  }
+  if (local_solver_s == string("PETSc")) local_solver = PETSc;
+  else if (local_solver_s == string("SuperLU")) local_solver = SuperLU;
+  else assert(0);
+  return 0;
+}
+#endif
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFMat::set_preco"
@@ -149,12 +159,8 @@ int PFPETScMat::set_preco(const string & preco_type) {
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::clean_factor"
 int PFPETScMat::clean_factor() {
-  if (factored) {
-    int ierr = SLESDestroy(sles); CHKERRQ(ierr);
-    sles=NULL;
-    // sles_was_built = 0; // now included in `factored'
-    factored = 0;
-  }
+  int ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
+  factored = 0;
   return 0;
 }
 
@@ -163,16 +169,10 @@ int PFPETScMat::clean_factor() {
 #define __FUNC__ "IISDMat::clean_factor"
 int IISDMat::clean_factor() {
   int ierr;
-  if (factored && local_solver == PETSc && sles_ll) {
-    ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
-    sles_ll = NULL;
-  }
-  if (factored) {
+  if (factored) { 
     PFPETScMat::clean_factor();
-    if (local_solver == PETSc) {
-      ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
-      A_LL = NULL;
-    }
+    ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
+    ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   }
   return 0;
 }
@@ -436,10 +436,7 @@ int IISDMat::zero_entries() {
   int ierr;
 
   if (local_solver == PETSc) {
-    if (A_LL) {
-      ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
-      A_LL = NULL;
-    }    
+    ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			   d_nnz_LL.begin(),&A_LL); CHKERRQ(ierr); 
     ierr=MatZeroEntries(A_LL); CHKERRQ(ierr);
@@ -567,6 +564,19 @@ int IISDMat::solve_only(Vec &res,Vec &dx) {
   return factor_and_solve(res,dx);
 }
 
+#define PETSC_OBJECT_DESTROY_MAYBE(type)	\
+int type##Destroy_maybe(type &v) {		\
+  if (v) {					\
+    int ierr = type##Destroy(v); CHKERRQ(ierr);	\
+    v = NULL;					\
+  }						\
+  return 0;					\
+}
+
+PETSC_OBJECT_DESTROY_MAYBE(Vec);
+PETSC_OBJECT_DESTROY_MAYBE(Mat);
+PETSC_OBJECT_DESTROY_MAYBE(SLES);
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::factor_and_solve"
@@ -581,33 +591,6 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
   TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
 
   if (n_int_tot > 0 ) {
-
-#ifdef DEBUG_IISD
-    if (MY_RANK==0) {
-      FILE *fid = fopen("map.dat","w");
-      fprintf(fid,
-	      "# Created by PETSc-FEM \n# name: %s\n# type: matrix\n"
-	      "# rows: %d\n# columns: %d\n","map",dofmap->neq,2);
-      for (j=0; j<dofmap->neq; j++) 
-	fprintf(fid,"%d %d\n",j,map_dof[j]+1);
-      fprintf(fid,
-	      "# Created by PETSc-FEM \n# name: %s\n# type: matrix\n"
-	      "# rows: %d\n# columns: %d\n","n_int_v",SIZE+1,1);
-      for (j=0; j<SIZE+1; j++) 
-	fprintf(fid,"%d\n",n_int_v[j]);
-      fprintf(fid,
-	      "# Created by PETSc-FEM \n# name: %s\n# type: matrix\n"
-	      "# rows: %d\n# columns: %d\n","n_loc_v",SIZE+1,1);
-      for (j=0; j<SIZE+1; j++) 
-	fprintf(fid,"%d\n",n_loc_v[j]);
-      fclose(fid);
-    }
-    ierr = ViewerASCIIOpen(comm,
-			   "debug_iisd.dat",&matlab); CHKERRQ(ierr);
-    ierr = ViewerSetFormat(matlab,
-			   VIEWER_FORMAT_ASCII_MATLAB,"resiisd"); CHKERRQ(ierr);
-    ierr = VecView(res,matlab); CHKERRQ(ierr); 
-#endif
     
     ierr = VecCreateMPI(comm,n_int,PETSC_DETERMINE,&res_i); CHKERRQ(ierr); 
     ierr = VecDuplicate(res_i,&x_i); CHKERRQ(ierr); 
@@ -618,6 +601,7 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
 
     if (!factored && local_solver == PETSc) {
     
+      ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
       ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); CHKERRQ(ierr); 
       ierr = SLESSetOperators(sles_ll,A_LL,
 			      A_LL,SAME_NONZERO_PATTERN); CHKERRQ(ierr); 

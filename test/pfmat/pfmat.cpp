@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.13 2002/01/02 23:44:42 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.14 2002/01/04 23:29:43 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -28,14 +28,25 @@ public:
   ~Part() {}
 } part;
 
-#define CHKOPT(name)  if (myrank==0) assert(!strcmp(#name,args[++arg]))
+#define CHKOPT(name)  if (myrank==0) if (strcmp(#name,args[++arg])) help(args[arg])
+
+void help(char *s) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "bad token \"%s\"\n"
+	      "usage: pfmat.bin ne <Nelem> deb <debug_print> nsl <nsolve>\n"
+	      "            sbdp <iisd_subpart> nmat <nmat>\n"
+	      "            rnd <rand_flag> mtyp <mat_type>\n"
+	      "            q <q_type> ls <local_solver>\n",s);
+  PetscFinalize();
+  exit(0);
+}
 
 int main(int argc,char **args) {
 
   PFMat *A_p;
   Vec x,b,xex;
   int ierr,iisd_subpart,nsolve,rand_flag,mat_type,q_type,
-    tests_ok=1;
+    tests_ok=1,local_solver;
   double tol=1e-10;
   // debug.activate();
   int myrank,size;
@@ -47,9 +58,6 @@ int main(int argc,char **args) {
   double cond,L,Q0,rand_coef=1.;
   int Nelem=10, debug_print=0, nmat;
   int arg=0;
-
-  // usage: pfmat.bin ne <Nelem> deb <debug_print> nsl <nsolve> sbdp
-  // <iisd_subpart> nmat <nmat> rrhs <rand_flag> mtyp <mat_type>
 
   CHKOPT(ne);
   if (myrank==0 && argc>++arg)
@@ -95,7 +103,7 @@ int main(int argc,char **args) {
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"nmat %d  (solve with nmat matrices)\n",nmat);
 
-  CHKOPT(rrhs);
+  CHKOPT(rnd);
   rand_flag=0;
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&rand_flag);
@@ -120,9 +128,12 @@ int main(int argc,char **args) {
   PetscPrintf(PETSC_COMM_WORLD,"q_type %d  (Q0/x dependency, "
 	      "0 -> cnst, 1 -> propto x)\n",q_type);
 
-//    PetscPrintf(PETSC_COMM_WORLD,
-//  	      "iisd_subpart %d, nsolve %d, debug_print %d, Nelem %d\n",
-//  	      iisd_subpart, nsolve, debug_print, Nelem);
+  CHKOPT(ls);
+  local_solver=0;
+  if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&q_type);
+  ierr = MPI_Bcast (&local_solver,1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"local_solver %d  "
+	      "(0 -> PETSc, 1 -> SuperLU)\n",local_solver);
 
   part.comm_size = size;
   part.N = N;
@@ -148,6 +159,7 @@ int main(int argc,char **args) {
   A.set_option("print_internal_loop_conv",debug_print);
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
+  A.set_option("local_solver","PETSc");
   A.create();
   // if (debug_print) A.view();
 

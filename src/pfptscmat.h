@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.6 2001/12/31 04:01:26 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.7 2002/01/04 23:29:43 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -74,7 +74,8 @@ public:
   int solve(Vec &res,Vec &dx);
 
   PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
-    : comm(comm_), part(pp), pf_part(part), lgraph(MM,&part,comm_), 
+    : sles(NULL), comm(comm_), part(pp), 
+    pf_part(part), lgraph(MM,&part,comm_), 
     // sles_was_built(0), // now included in `factored'
     A(NULL), P(NULL), factored(0) {}
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.11 2001/12/30 20:00:25 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.12 2002/01/04 23:29:42 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -27,6 +27,18 @@
         ierr = get_##type(thash,#name,name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
+#define TGETOPTDEF_ND_PF(thash,type,name,default)		\
+        name = default;						\
+        get_option(#name,&name); 
+  
+#define TGETOPTDEF_S_ND_PF(thash,type,name,default)	\
+        name = string(#default);			\
+        get_option(#name,name); 
+  
+#define TGETOPTDEF_S_PF(thash,type,name,default)	\
+        string name;					\
+        TGETOPTDEF_S_ND_PF(thash,type,name,default)
+  
 int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
 
 /** Solves iteratively on the `interface' (between subdomain) nodes
@@ -135,10 +147,6 @@ g      representation of the local problem.
   double pc_lu_fill;
   /// Layers of nodes of the preconditioning
   vector< set<int> > int_layers;
-  /** Performs all operations needed before permorming the solution of
-      the linear system (creating the PETSc SLES, etc...). 
-  */ 
-  //  int build_sles();
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector
@@ -225,11 +233,15 @@ public:
     PFPETScMat(MM,pp,comm_), 
     M(MM), N(NN), 
     A_LL_other(NULL), A_LL(NULL), 
-    local_solver(PETSc), sles_ll(NULL) {};
+    local_solver(SuperLU), sles_ll(NULL) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor
   ~IISDMat();
 };
+
+int VecDestroy_maybe(Vec &v);
+int MatDestroy_maybe(Mat &v);
+int SLESDestroy_maybe(SLES &v);
 
 #endif

@@ -1,12 +1,16 @@
 ; -*- mode: lisp -*-
 
-(defun single-quote-balanced()
-  "Introduces a balanced `' pair with the cursor within."
-  (interactive)
-  (insert "`'")
-  (backward-char)
-)
-(local-set-key "`" 'single-quote-balanced) 
+(defalias 'single-quote-balanced (read-kbd-macro
+ " C-q ` ESC C-s [ SPC C-q TAB C-q LFD ] RET <left> ' "))
+;(global-set-key "C-`" 'single-quote-balanced) 
+(global-set-key [?\C-`] 'single-quote-balanced) 
+; (defun single-quote-balanced()
+;   "Introduces a balanced `' pair with the cursor within."
+;   (interactive)
+;   (insert "`'")
+;   (backward-char)
+; )
+
 
 (setq c-macro-preprocessor "/home/mstorti/PETSC/petscfem-pfmat/tools/pfcpp")
 ;
@@ -78,4 +82,4 @@
 ;;; para que recupere bien en debugger
 (setq comint-prompt-regexp "^\\((gdb) \\|[^#$%>\n]*[#$%>] *\\)")
 ;;
-(setq current-pos-regexp "^\\s-*[^\\s-][^\\s-][^\\s-] Current line ===========")
+(setq current-pos-regexp "^\\s-*[^\\s-][^\\s-][^\\s-] Current line ==========="
