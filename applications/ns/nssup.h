@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.9.6.1 2003/06/13 16:10:37 mstorti Exp $
+//$Id: nssup.h,v 1.9.6.2 2003/06/17 02:40:02 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -44,6 +44,8 @@ public:
 	   FastMat2 & jac);
   /// Called after the loop over all elements
   void close();
+  /// Initializes the elemset even if there are not elements in this processor
+  void lm_initialize();
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.35.2.1 2003/06/13 16:10:37 mstorti Exp $
+//$Id: nsi_tet.h,v 1.35.2.2 2003/06/17 02:40:02 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -337,7 +337,16 @@ class LagrangeMult : public Elemset {
       @param dof (output) number of field for multiplier
   */ 
   virtual void lag_mul_dof(int jr,int &node,int &dof)=0;
-  /// Initialize the elemset (maybe reads hash table)
+  /** Calls the #lm_initialize()# function for each elemset. */
+  void initialize();
+  /** Initialize the elemset. This is called in the
+      LagrangeMult::initialize() function so that it is called before
+      all chunka. And it is called even if there are not elements in
+      this processor */
+  virtual void lm_initialize() {}
+  /** Initialize the elemset (maybe reads hash table). This is called before
+      each element chunk. It is not called if there are not elements in
+      this processor */
   virtual void init()=0;
   /** Computes the residual and jacobian of the function to be
       imposed. Usually you derive #NonLinearRes# and instantiate this

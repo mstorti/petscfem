@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.8.6.1 2003/06/13 16:10:37 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.8.6.2 2003/06/17 02:40:02 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -23,6 +23,11 @@ int LagrangeMult::ask(const char *jobinfo,int &skip_elemset) {
   DONT_SKIP_JOBINFO(comp_res);
   DONT_SKIP_JOBINFO(comp_mat_res);
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LagrangeMult::initialize() {
+  lm_initialize();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
