@@ -54,12 +54,6 @@ using namespace std;
 #define ELEMIPROPS(j,k) VEC2(elemiprops,j,k,neliprops)
 #define NODEDATA(j,k) VEC2(mesh->nodedata->nodedata,j,k,nu)
 
-char *local_copy(const char *s) {
-  char *buf= new char[strlen(s)+1];
-  strcpy(buf,s);
-  return buf;
-}  
-
 // fixme:= aca no se porque tuve que pasar neq por referenciar
 // porque sino no pasaba correctamente el valor. 
 #undef __FUNC__

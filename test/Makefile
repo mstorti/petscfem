@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.11 2001/02/10 14:03:27 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2001/03/03 08:20:47 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
-	constraint_bug fstack sector triangle advdif
+	constraint_bug fstack sector triangle advdif texthash
 
 run: sqcav5
 
@@ -19,7 +19,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 SRCS = $(wildcard *.cpp)
 
-DIRS = circ fstack sector les turbchan turbchanw advdif
+DIRS = circ fstack sector les turbchan turbchanw advdif texthash
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = $(DIRS)
 
@@ -51,7 +51,7 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif
+	advdif texthash
 runtests_p: fstack triangle \
 	advdif
 
@@ -236,6 +236,11 @@ triangle:
 #w FileStack class check
 fstack:
 	$(MAKE) -C fstack fstack
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Texthash class check
+texthash:
+	$(MAKE) -C texthash texthash
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Tests the new iterator class

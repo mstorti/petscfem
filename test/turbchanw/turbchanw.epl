@@ -40,7 +40,7 @@ Dt 0.01
 nstep 1
 #else
 Dt 2
-nstep 100
+nstep 1
 #endif
 alpha 1
 
@@ -136,7 +136,7 @@ fixa
 1 1 <:=($vars{'use_log_vars'} ? log($heat_wall) : $heat_wall):>
 2 1 <:=($vars{'use_log_vars'} ? log($heat_wall) : $heat_wall):>
 #else
-1 1 <:=.5*$q*$h:>		# u = some value
+1 1 <:=.9*$q*$h:>		# u = some value
 1 2 0				# v = 0              at the wall
 
 <:=2*$N+1:> 2 0.		# v=0 at the outer region

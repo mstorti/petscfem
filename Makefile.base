@@ -111,17 +111,18 @@ distclean:
 	$(MAKE) clean local_dist_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
-# general program 
-$(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
-	-rm $@
-	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) \
-		-L$(PETSCFEM_DIR)/src -lpetscfem \
+LDFLAGS = -L$(PETSCFEM_DIR)/src -lpetscfem \
                 -L$(METIS) -L/usr/local/lib \
                 -lmetis  -L$(NEWMAT)  -lnewmat \
 		-lglib -L$(LIBRETTO_LIB) -libretto \
 		-lANN -L$(ANN_HOME)/lib \
 		-lc ${PETSC_SLES_LIB} \
 		$(MESCHACH)/libmes.a
+
+# general program 
+$(PROG).bin: $(MYOBJS) $(LIBPETSCFEM) 
+	-rm $@
+	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 
 #
 # When using ePerl the convention is to use .epl extension for the

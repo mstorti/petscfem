@@ -283,3 +283,11 @@ void read_int_array(vector<int> & vect,const char * advje) {
   delete[] buf;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "char *local_copy(const char *)"
+char *local_copy(const char *s) {
+  char *buf= new char[strlen(s)+1];
+  strcpy(buf,s);
+  return buf;
+}  

@@ -1,7 +1,7 @@
 %TGIF 4.1.8
 state(0,37,100.000,150,16,1,16,0,0,1,1,1,1,1,0,1,1,'Helvetica-Oblique',2,115200,0,0,1,5,0,1,1,1,0,16,0,0,1,1,1,1,1050,1485,0,0,2880,0).
 %
-% @(#)$Header: /u/mstorti/cvsroot-bck/petscfem/doc/OBJ/idmap.obj,v 1.1 2001/01/03 13:33:22 mstorti Exp $
+% @(#)$Header: /u/mstorti/cvsroot-bck/petscfem/doc/OBJ/idmap.obj,v 1.2 2001/03/03 08:20:24 mstorti Exp $
 % %W%
 %
 unit("1 pixel/pixel").
@@ -170,7 +170,7 @@ poly('black','',2,[
 	160,315,160,315,174,345,1.60782e-13,-1000,1000,1.60782e-13,13,13],[
 ]).
 xbm('black','',162,286,176,302,0,72,0,7,8,0,0,1,294000,681000,301000,689000,1,0,0,0,1,0,0,
-    "Mon Jan 10 09:42:30 2000","/home/mstorti/PETSC/petscfem.mario/doc/EPSI/nor.epsi",[
+    "Mon Jan 10 09:42:30 2000","/home/mstorti/PETSC/petscfem/doc/EPSI/nor.epsi",[
     162,286,162,286,169,294,2000,0,0,2000,0,0],[
 ]).
 oval('black','',202,325,209,332,2,1,1,82,0,0,0,0,0,'1',0,[

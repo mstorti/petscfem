@@ -154,6 +154,7 @@ int readval(int &rflag,char *line,double &val);
 */ 
 int readval(int &rflag,char *line,int &val);
 
+#if 0 // This is already defined in 'util2.h'
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Reads a text hash table from a filestack. 
     @author M. Storti
@@ -162,6 +163,7 @@ int readval(int &rflag,char *line,int &val);
     @param (output) The hash table that has been read. 
 */ 
 int read_hash_table(FileStack *& fstack,TextHashTable *& thash);
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Prints a vector with ``rotary save'' mechanism. 

@@ -759,6 +759,11 @@ line 18 : <3 third line>
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("texthash/tthash.sal","TextHashTable class",<<EOT);
+Global counting OK
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<EOT);
 Dt=.* error=.* \< tol_error=.* OK\?.*1
 EOT

@@ -19,8 +19,9 @@
 
 */
  
-#include <stdio.h>
-#include <string.h>
+//  #include <stdio.h>
+//  #include <string.h>
+//  #include "util2.h"
 #include "texthash.h"
 
 // The static member(s)
@@ -30,12 +31,26 @@ TextHashTable *TextHashTable::global_options=NULL;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
+#define __FUNC__ "TextHashTableVal::TextHashTableVal(char *)"
+TextHashTableVal::TextHashTableVal(char *s_=NULL) : called_times(0) {
+  if (!s_) {
+    s=s_;
+  } else {
+    s=local_copy(s_);
+  }
+};
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "void print_hash_entry(void *p, void *q, void *u)"
 void print_hash_entry(void *p, void *q, void *count) {
-  char *pp; char *qq;
+  char *pp; TextHashTableVal *qq;
   pp= (char *)p;
-  qq= (char *)q;
-  printf("%s -> %s\n",pp,qq);
+  qq= (TextHashTableVal *)q;
+  int n=qq->called_times;
+  printf("%s -> %s [%d%s]\n",pp,qq->s,n,(n==0 ? " - NOT ACCESSED!!" : 
+					 n<INT_MAX ? "" : "+"));
   (*(int *)count)++;
 }
 
@@ -44,41 +59,24 @@ void print_hash_entry(void *p, void *q, void *count) {
 #undef __FUNC__
 #define __FUNC__ "void delete_hash_entry(void *p, void *q, void *u)"
 void delete_hash_entry(void *p, void *q, void *u) {
-  char *pp; char *qq;
+  char *pp; TextHashTableVal *qq;
   pp= (char *)p;
-  qq= (char *)q;
   delete[] pp;
-  delete[] qq;
+  qq= (TextHashTableVal *)q;
+  delete qq;
 }
 
 #if 0
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "unsigned int hash_func(const void *kkey)"
-unsigned int hash_func(const void *kkey) {
-  unsigned int qq;
-  size_t ilen = sizeof(int);
-  qq = 0;
-  char *key = (char *)kkey;
-  char *cqq=(char *)(&qq);
-  int len = strlen((char *)key);
-  len = (strlen(key)>sizeof(int) ? sizeof(int) : len);
-  for (int k=0; k<len; k++) {
-    strncpy(cqq+len-k-1,key+k,1);
-  }
-  return qq;
-}
-
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "int key_compare_func(const void *key1, const void *key2)"
-int key_compare_func(const void *key1, const void *key2) {
-  char *q1,*q2;
-  q1=(char *)key1;
-  q2=(char *)key2;
-  return !strcmp(q1,q2);
+/** Adaptor for the Glib provided string hash function.
+    (\verb+g\_str\_hash+).
+    @author M. Storti
+    @param v (input) the value 
+    @return the hash value provided for Glib
+*/ 
+unsigned int text_hash_func (const void *v) {
+  const TextHashTableVal *vv = (TextHashTableVal *) v;
+  return g_str_hash(vv->s);
 }
 #endif
 
@@ -88,7 +86,6 @@ int key_compare_func(const void *key1, const void *key2) {
 #define __FUNC__ "TextHashTable::TextHashTable ()"
 TextHashTable::TextHashTable () {
   hash = g_hash_table_new(&g_str_hash,&g_str_equal);
-  // hash = g_hash_table_new(&hash_func,&key_compare_func);
 };
 
 
@@ -96,36 +93,58 @@ TextHashTable::TextHashTable () {
 #undef __FUNC__
 #define __FUNC__ "void TextHashTable::add_entry(char * key,char * value)"
 void TextHashTable::add_entry(char * key,char * value) {
-  int keylen,vallen;
+  TextHashTableVal *vold,*vnew;
+  int keylen;
   keylen=strlen(key);
-  vallen=strlen(value);
-  char *p = (char *)g_hash_table_lookup(hash,key);
-  if (p) {
+  vnew = new TextHashTableVal(value);
+  vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
+  if (vold) {
     printf("warning: redefining entry\n"
 	   "key: %s\n"
 	   "old value: %s\n"
-	   "new value: %s\n",key,p,value);
-    delete[] p;
+	   "new value: %s\n",key,vold->s,vnew->s);
+    delete vold;
   }
   // copy strings on new 
-  char *keycp, *valcp;
-  keycp = new char[keylen+1];
-  valcp = new char[vallen+1];
-  strcpy(keycp,key);
-  strcpy(valcp,value);
-  //  printf("insert %s -> \"%s\"\n",keycp,valcp);
-  g_hash_table_insert (hash,keycp,valcp);
+  char *keycp;
+  keycp = local_copy(key);
+  g_hash_table_insert (hash,keycp,vnew);
 }
+
+#if 0
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "TextHashTable::get_entry_recursive(char * ,char *&, int&)"
+void TextHashTable::get_entry_recursive(const char * key,const char *& svalue,
+					int &glob_was_visited) {
+
+  svalue = NULL;
+  if (this==global_options) glob_was_visited=1;
+  TextHashTableVal *value = (TextHashTableVal *) g_hash_table_lookup(hash,key);
+  if (value) {
+    if (value->called_times<INT_MAX) value->called_times++;
+    svalue = value->s;
+    return;
+  }
+  if (included_tables.size()==0) return;
+  vector<TextHashTable *>::iterator k;
+  for (k=included_tables.begin(); k!=included_tables.end(); k++) {
+    (*k)->get_entry_recursive(key,svalue,glob_was_visited);
+    if (svalue!=NULL) return;
+  }
+}
+#endif
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "TextHashTable::get_entry(char * key,char *& value)"
-void TextHashTable::get_entry_recursive(const char * key,const char *& value,
+#define __FUNC__ "TextHashTable::get_entry_recursive(const char *, const TextHashTableVal *&,int&)"
+void TextHashTable::get_entry_recursive(const char * key,
+					TextHashTableVal *& value,
 					int &glob_was_visited) {
-
   if (this==global_options) glob_was_visited=1;
-  value = (char *)g_hash_table_lookup(hash,key);
+  value = (TextHashTableVal *)g_hash_table_lookup(hash,key);
   if (value!=NULL) return;
   if (included_tables.size()==0) return;
   vector<TextHashTable *>::iterator k;
@@ -139,21 +158,42 @@ void TextHashTable::get_entry_recursive(const char * key,const char *& value,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
-void TextHashTable::get_entry(const char * key,const char *& value) {
+void TextHashTable::get_entry(const char * key,TextHashTableVal *& value) {
   int glob_was_visited=0;
   value=NULL;
   if (this) get_entry_recursive(key,value,glob_was_visited);
-  if (value) return;
-  if (!glob_was_visited && global_options)
+  //  if (value) return;
+  if (!value && !glob_was_visited && global_options)
     global_options->get_entry_recursive(key,value,glob_was_visited);
 }
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
+#define __FUNC__ "" 
+void TextHashTable::get_entry(const char * key,const char *& svalue) {
+  TextHashTableVal *value=NULL;
+  get_entry(key,value);
+  if (value && value->called_times<INT_MAX) value->called_times++;
+  svalue = (value ? value->s : NULL);
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "TextHashTable::access_count()"
+int TextHashTable::access_count(const char * key) {
+  TextHashTableVal *value=NULL;
+  get_entry(key,value);
+  return (value ? value->called_times : -1);
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "TextHashTable::print(char * s = NULL ) const"
-void TextHashTable::print(char * s = NULL ) const {
-  printf(((s == NULL) ? "Text hash table: " : "%s\n"),s);
+void TextHashTable::print(const char * s = NULL ) const {
+  printf(((s == NULL) ? "Text hash table: \n" : "%s\n"),s);
   int count=0;
   g_hash_table_foreach (hash,&print_hash_entry,&count);
   if (count==0) printf("[No entries]\n");
@@ -173,9 +213,7 @@ void TextHashTable::print(char * s = NULL ) const {
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::~TextHashTable()"
 TextHashTable::~TextHashTable() {
-  void * dummy;
-  printf("deleting TextHashTable!!!\n");
-  g_hash_table_foreach (hash,&delete_hash_entry,dummy);
+  g_hash_table_foreach (hash,&delete_hash_entry,NULL);
   g_hash_table_destroy (hash);
   for (int j=0; j<included_tables_names.size(); j++) {
     delete included_tables_names[j];
@@ -205,4 +243,44 @@ void TextHashTable::include_table(const string &s) {
 #define __FUNC__ "TextHashTable::register_name(const string &s)"
 void TextHashTable::register_name(const string &s) {
   thash_table.insert(THashTableEntry(s,this));
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "TextHashTable::read()"
+void TextHashTable::read(FileStack *& fstack) {
+  char *line;
+  char *key, *val,*bsp=" \t";
+  int he=0;
+  while (1) {
+    fstack->get_line(line);
+    if (strstr("__END_HASH__",line)) break;
+    key = strtok(line,bsp);
+    val = strtok(NULL,"\n");
+    if (!strcmp(key,"_table_include")) {
+      include_table(val);
+    } else {
+      he++;
+      if (val==NULL) val="";
+      add_entry(key,val);
+    }
+  }
+  g_hash_table_freeze(hash);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+void TextHashTable::print_stat(void) {
+  printf("------- TextHashTable statistics -------\n"
+	 "[in brackets: number of times an entry was accessed]\n");
+  string s;
+  for (THashTable::iterator k=thash_table.begin();
+       k!=thash_table.end(); k++) 
+    {
+      s = string("------ Table: \"");
+      s.append(k->first.c_str()).append("\" -------");
+      k->second->print(s.c_str());
+    }
 }

@@ -53,6 +53,13 @@ int readval(int &rflag,char *line,int &val) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "read_hash_table"
+#if 1
+int read_hash_table(FileStack *& fstack,TextHashTable *& thash) {
+  thash = new TextHashTable;
+  thash->read(fstack);
+  return 0;
+}
+#else
 int read_hash_table(FileStack *& fstack,TextHashTable *& thash) {
 
   char *line;
@@ -75,6 +82,7 @@ int read_hash_table(FileStack *& fstack,TextHashTable *& thash) {
   g_hash_table_freeze(thash->hash);
   return 0;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -27,43 +27,43 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <cstring>
 
 #include <glib.h>
+
+#include "fstack.h"
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Makes a temporary copy of a string.
+    @author M. Storti
+    @param cstr (input) the string to be copied
+    @return a pointer to the copied string
+*/ 
+char * local_copy(const char * cstr);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** @name Text hash functions */
 //@{
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** To be passed to Libretto traversal functions to print the entire
+/** To be passed to Glib traversal functions to print the entire
     hash. 
     @author M. Storti
     @param p (input) key string
     @param q (input) value string
-    @param u (not used) as required by Libretto
+    @param u (not used) as required by Glib
 */ 
 void print_hash_entry(void *p, void *q, void *u);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Remove entry from hash. To be passed to Libretto
+/** Remove entry from hash. To be passed to Glib
     traversal functions to build the hash destructor. 
     @author M. Storti
     @param p (input) key string
     @param q (input) value string
-    @param u (not used) as required by Libretto
+    @param u (not used) as required by Glib
 */ 
 void delete_hash_entry(void *p, void *q, void *u);
 
-#if 0  // Now I use `g_str_hash' and `g_str_equal' that come
-       // with GLIB. 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/* * Hash function to compare sort keys. Used by `glib'. 
-    @author M. Storti
-    @param key (input) passed key
-*/ 
-unsigned int hash_func(const void *key);
-
-int key_compare_func(const void *key1, const void *key2);
-#endif
 //@}
 
 class TextHashTable;
@@ -80,7 +80,7 @@ public:
       @author M. Storti
       @param s (input) optional string
   */ 
-  void print(char * = NULL) const;
+  void print(const char * = NULL) const;
 
   /** Adds an entry to the hash.
       @author M. Storti
@@ -89,7 +89,6 @@ public:
   */ 
   void add_entry(char *key,char *value);
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Adds an included table. 
       @author M. Storti
       @param ithash (input) the table to be included
@@ -115,6 +114,13 @@ public:
   */ 
   void get_entry(const char *,const char *&);
 
+  /** Returns the number of times a particular key was accessed.
+      @author M. Storti
+      @param key (input) key of the entry
+      @return the number of access to the key
+  */ 
+  int access_count(const char *);
+
   /** Constructs a void hash table.  
       @author M. Storti
   */ 
@@ -123,7 +129,20 @@ public:
   /// Destructor. 
   ~TextHashTable();
 
-  /// The underlying Libretto hash. 
+  /** Reads a text hash table from a filestack. 
+      @author M. Storti
+      @param fstack (input) The filestack from which the hash table is
+      read. 
+  */ 
+  void read(FileStack *& fstack);
+
+  /** Print all the text-hash-tables
+      @author M. Storti
+  */ 
+  static void print_stat();
+
+private:
+  /// The underlying Glib hash. 
   GHashTable *hash;  
 
   /// A list of pointers to other (included) hashes
@@ -137,15 +156,24 @@ public:
 
   /// The global hash table
   static TextHashTable *global_options;
-  
-private:
+
   /** Searches an entry in the hash recursively. 
+      Returns the whole entry (a struct) instead of the plain string.
       @author M. Storti
       @param key (input) key of the entry
       @param value (output) value of the entry
   */ 
-  void get_entry_recursive(const char *,const char *&,int &glob_was_visited);
-};
+  void get_entry_recursive(const char *,TextHashTableVal *&,
+			   int &glob_was_visited);
 
+  /** Searches an entry in the hash. 
+      This returns the whole entry (a struct) instead 
+      of the plain string.
+      @author M. Storti
+      @param key (input) key of the entry
+      @param value (output) value of the entry
+  */ 
+  void get_entry(const char *,TextHashTableVal *&);
+};
 
 #endif /* __TEXTHASH_H__ */

@@ -43,6 +43,7 @@ public:
   void start() {start_time = clock();};
 };
 
+class TextHashTable;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Reads a hash table from a filestack. 
     @author M. Storti

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.11 2001/02/05 13:09:27 mstorti Exp $
+#$Id: Makefile,v 1.12 2001/03/03 08:20:21 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -111,7 +111,7 @@ README.pod: README.podin $(TARFILE).tara,v
 CLEAN_DIRS = manual OBJ
 
 local_clean:: local_dist_clean
-	-rm -f *.ps.gz index petscfem icons index.html index.css \
+	-rm -rf *.ps.gz index petscfem icons index.html index.css \
 		version.tex
 
 #w Clean leaving PS and HTML

@@ -97,7 +97,7 @@ void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars,
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Transforma state vector from logarithmic. The indices of fields
+/** Transforms state vector from logarithmic. The indices of fields
     logarithmically tranformed are listed in \verb+log_vars+. 
     @author M. Storti
     CORREGIR:=
@@ -234,7 +234,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 #endif
 
-  assert(lumped_mass); // Not implemented yet:= not lumped_mass + log-vars
+  // Not implemented yet:= not lumped_mass + log-vars
+  assert(!use_log_vars || lumped_mass); 
   // lumped_mass:= If this options is activated then all the inertia
   // term matrix comtributions are added to 'matlocf_mass' and the
   // vector contribution terms are discarded. Then at the last moment

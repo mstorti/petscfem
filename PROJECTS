@@ -3,6 +3,8 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* In TextHashTable: Print a warning if some option is not used and a
+  doc when an option was got the first time. 
 * Use a more consistent system for reporting errors and
        aborting. Maybe using more advanced C++ exception handling.
 * Adaptive refinement

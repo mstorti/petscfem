@@ -19,6 +19,7 @@ ps: ../manual.ps.gz
 
 .INTERMEDIATE: ../manual.ps 
 ../manual.ps.gz: ../manual.ps
+.SECONDARY: manual.tex
 
 #w Generate PS
 ../manual.ps: manual.dvi

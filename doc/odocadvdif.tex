@@ -112,6 +112,13 @@ Name of file where to save node values for the ``print some''
 feature. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{report\_option\_access@\verb+report_option_access+}
+\item\verb+int report_option_access+ {\rm(default=\verb|1|)}:
+
+Print, after execution, a report of the times a given option
+was accessed. Useful for detecting if an option was used or not.
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{consistent\_supg\_matrix@\verb+consistent_supg_matrix+}
 \item\verb+int consistent_supg_matrix+ {\rm(default=\verb|0|)}:
 
@@ -182,6 +189,12 @@ at each iteration.
 
 Tolerance when solving the non-linear problem
 for the implicit case.
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{omega\_newton@\verb+omega_newton+}
+\item\verb+double omega_newton+ {\rm(default=\verb|1.|)}:
+
+Relaxation factor for the Newton iteration
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{preco\_type@\verb+preco_type+}

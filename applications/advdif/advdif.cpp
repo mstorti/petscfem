@@ -193,6 +193,9 @@ int main(int argc,char **args) {
   //o Name of file where to save node values for the ``print some'' 
   // feature. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
+  //o Print, after execution, a report of the times a given option
+  // was accessed. Useful for detecting if an option was used or not.
+  GETOPTDEF(int,report_option_access,1);
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -493,6 +496,7 @@ int main(int argc,char **args) {
 
   }
   print_vector(save_file.c_str(),x,dofmap,&time);
+  if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
   ierr = VecDestroy(x); CHKERRA(ierr); 
   ierr = VecDestroy(xold); CHKERRA(ierr); 

@@ -9,19 +9,24 @@
 Use the weak form for the Galerkin part of the advective term. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{lumped\_mass@\verb+lumped_mass+}
-\item\verb+int lumped_mass+ {\rm(default=\verb|1|)}:
+\index{beta\_supg@\verb+beta_supg+}
+\item\verb+double beta_supg+ {\rm(default=\verb|1.|)}:
 
-Use lumped mass.
+Weights the temporal term with $N+\beta P$, i.e.
+$\beta=0$ is equivalent to waight the temporal term a la 
+Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{beta\_supg@\verb+beta_supg+}
-\item\verb+double beta_supg+ {\rm(default=\verb|0.8|)}:
+\index{lumped\_mass@\verb+lumped_mass+}
+\item\verb+int lumped_mass+ {\rm(default=\verb|0|)}:
 
-Parameter to control the amount of SUPG perturbation 
-    added to the mass matrix to be consistent SUPG
-    \verb+beta_supg+=0 implies consistent Galerkin and
-    \verb+beta_supg+=1 implies full consistent SUPG. 
+Use lumped mass (used mainly to avoid oscillations for small time steps).
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_log\_vars@\verb+use_log_vars+}
+\item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
+
+Use log-vars for $k$ and $\epsilon$
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}

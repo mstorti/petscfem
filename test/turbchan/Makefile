@@ -1,6 +1,8 @@
-# $Id: Makefile,v 1.2 2001/01/24 01:50:20 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/03/03 08:21:06 mstorti Exp $ 
 
 CASE = turbchan
+#s Local Targets
+#w [default] Runs the test
 run: $(CASE)
 
 PETSCFEM_DIR = ../..
@@ -20,3 +22,5 @@ ADVDIF = $(APPDIR)/advdif/advdif.bin
 $(CASE): $(CASE).depl
 	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl > $(CASE).out
 	verify.pl > turbchan.ver.tmp
+
+#s
