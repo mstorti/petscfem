@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.23 2001/10/06 23:37:08 mstorti Exp $
+// $Id: distmap.h,v 1.24 2002/08/24 00:59:46 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -8,6 +8,8 @@
 #include <vector>
 #include <mpi.h>
 
+#include <src/utils.h>
+#include <src/util2.h>
 #include <src/vecmacros.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -94,6 +96,7 @@ processor(const map<Key,Val>::iterator k) const {
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
+  HPChrono hpc;
   map<Key,Val>::iterator iter;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
@@ -208,6 +211,7 @@ void DistMap<Key,Val,Partitioner>::scatter() {
     sproc=0;
     eproc=size;
     // now loop until all groups of processor are of size 1
+    hpc.start();
     while (1) {
       // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
       // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
@@ -306,6 +310,10 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	}
       }
     }
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "[%d] in distmap.h %f\n",MY_RANK,hpc.elapsed());
+    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+ 
     // free memory
     delete[] recv_buff;
 

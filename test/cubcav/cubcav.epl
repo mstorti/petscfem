@@ -114,8 +114,8 @@ reuse_mat 0
 #if 1
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
 #endif
-solver     "petsc"
-# solver     "iisd"
+# solver     "petsc"
+solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 # rtol 1e-6

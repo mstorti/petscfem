@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.10 2002/07/24 18:12:47 mstorti Exp $
+// $Id: distcont.h,v 1.11 2002/08/24 00:59:46 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
@@ -8,6 +8,9 @@
 #include <vector>
 #include <mpi.h>
 #include <src/vecmacros.h>
+
+#include <src/utils.h>
+#include <src/util2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard
@@ -108,6 +111,7 @@ belongs(typename Container::const_iterator k,int *plist) const {
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Container,typename ValueType,class Partitioner>
 void DistCont<Container,ValueType,Partitioner>::scatter() {
+  HPChrono hpc;
   typename Container::iterator iter,next;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
@@ -251,6 +255,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   // initially...
   sproc=0;
   eproc=size;
+  hpc.start();
   // now loop until all groups of processor are of size 1
   while (1) {
     // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
@@ -350,6 +355,10 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
       }
     }
   }
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] distcont 1 %f\n",MY_RANK,hpc.elapsed());
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+ 
   delete[] plist;
 
   // free memory

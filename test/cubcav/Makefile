@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2002/08/22 21:56:13 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2002/08/24 00:59:46 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -26,7 +26,7 @@ PROG := $(NS)
 CASE := $(CASE_NAME)
 ################################################################
 NP = $(shell procsel -n ./proctable)
-NP = 5
+# NP = 1
 export NP
 
 PROG := $(NS)

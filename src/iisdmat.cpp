@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.23 2002/08/08 16:19:52 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.24 2002/08/24 00:59:46 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -390,6 +390,7 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
 
   I1 = A_LL_other->begin();
   I2 = A_LL_other->end();
+
   for (I = I1; I != I2; I++) {
     map_dof_fun(I->first,row_t,row_indx);
     row_indx -= n_locp;
@@ -433,7 +434,12 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
     ierr = MatAssemblyBegin(A_LL,type); PF_CHKERRQ(ierr);
   }
   A_LL_other->scatter();
+#if 0
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] t1 %f, t2 %f, t3 %f, scattered %d, sr %d\n",
+			  MY_RANK,t1,t2,t3,scattered,sr);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#endif
   return 0;
 };
 
@@ -926,3 +932,4 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   }
   return 0;
 }
+
