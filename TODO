@@ -13,8 +13,6 @@ TODO: [Mainly fixes go here...]
 * There is a conflict between the computation of residual jacobians 
 	  in advdif and the use of masks/profiles for element
 	  uploading. 
-* Advdif crashes when no filename is pased via the -case option
-* Write test for `compute_fd_adv_jacobian'. 
 * Make a test for block_uploading
 * Add `sw_abso' to tests
 * Doesn't report correctly acesses to the last thash table, probably 
@@ -129,11 +127,16 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
-* make killpar print username when other user
+* Write test for `compute_fd_adv_jacobian'. 
+	DONE: Wed, 26 Nov 2003 21:03:25 -0300
+* Advdif crashes when no filename is pased via the -case option
+	 FIXED: Wed, 26 Nov 2003 21:01:44 -0300
+* Make killpar print username when other user
+       DONE: Wed, 26 Nov 2003 21:01:50 -0300
 * Printing "For elemset ..." element partitioning should
-	   give the elemset name and pointer. 
-* FIXED: When .ini file is not found advdif (don't know NS) 
-       aborts only in server. 
+	   give the elemset name and pointer. DONE.
+* When .ini file is not found advdif (don't know NS) 
+       aborts only in server. FIXED: 
 * Put `COMPUTE_FD_ADV_JACOBIAN' in `advdife' as a elemset flag. 
 * Gather several instances of the same keyword in the same
      options.info page. 

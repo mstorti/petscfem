@@ -1,29 +1,20 @@
-#$Id: cubcav.epl,v 1.96 2003/11/27 00:07:26 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.97 2003/11/27 03:52:20 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
-# <:pr('dx'):>
-# <:pr('case'):>
-# <:pr('subpart_entered'):>
-# <:pr('NP'):>
-# <:pr('subpart'):>
-# <:pr('nlay'):>
+# <:prc('dx case subpart_entered NP N subpart nlay'):>
 ndim 3
 nsave 1000000
-nstep 10000
-nsaverot <:= ($endur_test  ? 50000000 : 20) :>
+nstep <:= ($case eq 'plain' ? 1 : 10000):>
 nfile 2000000
 nrec 1
-# initial_state "cubcav-steady-Re1000"
-# initial_state "cubcav.state.Re1e5"
-# initial_state "<:=$data_dir:>/cubcav.state.ini"
-# initial_state "outvector.out"
-save_file_pattern \
-	<:=("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\""):>
 
-#  compact_profile_graph_chunk_size 40000
-#  max_partgraph_vertices 5000
-#  max_partgraph_vertices_proc 5000
+#if $case ne 'plain'
+nsaverot <:= ($endur_test  ? 50000000 : 20) :>
+save_file_pattern \
+      <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>
+#endif
+
 chunk_size 40000
 
 >>if $iisd_subpart

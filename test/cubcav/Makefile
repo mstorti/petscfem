@@ -1,12 +1,12 @@
-# $Id: Makefile,v 1.75 2003/11/25 23:54:51 mstorti Exp $ 
+# $Id: Makefile,v 1.76 2003/11/27 03:52:20 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
 
-default: 
-	$(MAKE) CASE=cubcav run
+default: plain
 
-test_isp: 
+plain:
+	$(MAKE) CASE=cubcav case=plain run
 
 #default case
 # case := laplace
