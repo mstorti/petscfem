@@ -2791,3 +2791,6 @@ tag: beta-3.19.pl39 on Fri,  8 Aug 2003 13:11:15 -0300 by mstorti in minerva.cer
 ----------
 tag: beta-3.19.pl40 on Sat, 09 Aug 2003 11:28:17 -0300 by mstorti in spider
      > Added cat, read and print functions to `dvector'.
+----------
+tag: beta-3.19.pl41 on Sat, 09 Aug 2003 22:32:13 -0300 by mstorti in spider
+     > Fixed some bugs in dvector<>
