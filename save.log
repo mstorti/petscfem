@@ -3683,3 +3683,6 @@ tag: beta-3.38.31 on Sun, 16 Jan 2005 11:34:24 -0300 by mstorti in spider
 tag: beta-3.38.32 on Sun, 16 Jan 2005 16:06:33 -0300 by mstorti in spider
      > Written `DVDBLARG' and `DVINTARG' macros.
      > Writing `comp-matrices' procedure. 
+----------
+tag: beta-3.38.33 on Sun, 16 Jan 2005 16:53:04 -0300 by mstorti in spider
+     > Computes surface area. 
