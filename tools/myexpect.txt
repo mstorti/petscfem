@@ -1,132 +1,111 @@
-
-
-
-MYEXPECT(1)    User Contributed Perl Documentation    MYEXPECT(1)
-
-
 NAME
-       myexpext.pl: verifies output from program tests
+    myexpext.pl: verifies output from program tests
 
 SYNOPSIS
-       `expect(FILE,MESSAGE,checklist)' verifies reads each pattern line in
-       checklist and finds lines in FILE that matches this pattern.
+    `expect(FILE,MESSAGE,patlist)' verifies that each pattern in `patlist'
+    matches lines in FILE.
 
 DESCRIPTION
-       The simplest way of using `expect()' is to write a list of patterns
-       that should be found in the output of the test. Suppose the output con­
-       tains:
+    The simplest way of using `expect()' is to write a list of patterns that
+    should be found in the output of the test. Suppose the output contains:
 
-         Output run of program QBFG running on day Sun Apr  8 08:48:23 ART 2001
-         ..... more lines here
-         Total volume: 34.56
-         more lines here...
-         Total area: 23.43
-         more lines here...
-         Total impedance: 46.4
-         more lines here...
+      Output run of program QBFG running on day Sun Apr  8 08:48:23 ART 2001
+      ..... more lines here
+      Total volume: 34.56
+      more lines here...
+      Total area: 23.43
+      more lines here...
+      Total impedance: 46.4
+      more lines here...
 
-       You yount to chech that the figures in lines `Total...' are precise to
-       the first digit. The ouput is in file `QBFG.out' and you write a small
-       perl program like this
+    You yount to chech that the figures in lines `Total...' are precise to
+    the first digit. The ouput is in file `QBFG.out' and you write a small
+    perl program like this
 
-          #!/usr/bin/perl
+       #!/usr/bin/perl
+   
+       require 'myexpect.pl';
+   
+       expect("QBFG.out","Check on ouput of QBFG.out",<<'EOT');
+       Total volume: 34.5
+       Total area: 23.4
+       Total impedance: 4
+       EOT
 
-          require 'myexpect.pl';
+       final_check();
 
-          expect("QBFG.out","Check on ouput of QBFG.out",<<'EOT');
-          Total volume: 34.5
-          Total area: 23.4
-          Total impedance: 4
-          EOT
+    In the default mode, `expect()' takes the first pattern at a time and
+    starts scanning the file from the beginning, each lie at a time until it
+    finds a line that matches the pattern. Patterns are the usual Perl
+    patterns. So that remember to escape asterisks '`*'', question marks
+    '`?'', dots and others. You can leave the dot unescaped since it matches
+    itself, but the pattern is less strict (dot matches any other character
+    also). Normally, when entering patterns with a *here in* document, as in
+    the previous example, you protect the backslash characters in the
+    pattern list using quotes in the `'EOT'' terminator.
 
-          final_check();
+    If the pattern is not found an error is reported and the test is counted
+    as a failure. If a line matching is found, `expect()' takes the folowing
+    pattern and continue scanning the file from the line following the
+    previous match. If all the patterns are matched, then the test is
+    counted as a succes. If `FILE' can't be opened, then this is reported
+    separately from error. The final count is reported by a call to
+    `final_check()'.
 
-       In the default mode, `expexct()' takes the first pattern at a time and
-       starts scanning the file from the beginning, each lie at a time until
-       it finds a line that matches the pattern. Patterns are the usual Perl
-       patterns. So that remember to escape asterisks '`*'', question marks
-       '`?'', dots and others. You can leave the dot unescaped since it
-       matches itself, but the pattern is less strict (dot matches any other
-       character also).  Normally, when entering patterns with a here in docu­
-       ment, as in the previous example, you protect the backslash characters
-       in the pattern list using quotes in the `'EOT'' terminator.
+    You can alter this default behavior adding *magic tokens* in the pattern
+    list. The magic tokens are
 
-       If the pattern is not found an error is reported and the test is
-       counted as a failure. If a line matching is found, `expect()' takes the
-       folowing pattern and continue scanning the file from the line following
-       the previous match. If all the patterns are matched, then the test is
-       counted as a succes. If `FILE' can't be opened, then this is reported
-       separately from error. The final count is reported by a call to
-       `final_check()'.
+    __REWIND__
+        Rewind the file, i.e. scan for the next match starting from the
+        beginning of the file, rather than from the last match. This is
+        useful when you don't know exactly the order in which the lines will
+        appear. For instance file
 
+           #------ contents of file test1.out
+           line at the beginning
+           ...
+           other line 
+           ...
 
+        matches the following call
 
-2001-04-08                 perl v5.6.0                          1
+           expect("test1.out","Check on ouput of test1.out",<<'EOT');
+           other line 
+           __REWIND__
+           line at the beginning
+           EOT
+  
+        thanks to the presence of the `__REWIND__' directive.
 
+    __BACKWARD__
+        Scan the file backward for the next and subsequent patterns.
 
+    __FORWARD__
+        Cancel the `__BACKWARD__' directive and continue scanning forward.
 
+    __NO_SKIP__
+        In no-skip mode the following pattern is found to match with exactly
+        the following line, rather to scan the file from the following line
+        down.
 
+    __SKIP__
+        Return to skip mode.
 
-MYEXPECT(1)    User Contributed Perl Documentation    MYEXPECT(1)
+    __EXACT_MATCH__
+        Pattern has to match exactly the beginning of the line. (No special
+        meaning for characters like `.', `*', etc...
 
+    __REGEXP_MATCH__
+        Go back to regexp match.
 
-       You can alter this default behavior adding magic tokens in the pattern
-       list. The magic tokens are
+  Sections
 
-       __REWIND__
-           Rewind the file, i.e. scan for the next match starting from the
-           beginning of the file, rather than from the last match. This is
-           useful when you don't know exactly the order in which the lines
-           will appear.  For instance file
-
-              #------ contents of file test1.out
-              line at the beginning
-              ...
-              other line
-              ...
-
-           matches the following call
-
-              expect("test1.out","Check on ouput of test1.out",<<'EOT');
-              other line
-              __REWIND__
-              line at the beginning
-              EOT
-
-           thanks to the presence of the `__REWIND__' directive.
-
-       __BACKWARD__
-           Scan the file backward for the next and subsequent patterns.
-
-       __FORWARD__
-           Cancel the `__BACKWARD__' directive and continue scanning forward.
-
-       __NO_SKIP__
-           In no-skip mode the following pattern is found to match with
-           exactly the following line, rather to scan the file from the fol­
-           lowing line down.
-
-       __SKIP__
-           Return to skip mode.
+    Sometimes it is useful to divide tests into sections. For this call
+    `begin_section("section name")' before each section, and `end_section()'
+    at the end. All enclosed calls to `expect()' are assumed to be in the
+    same logical section of tests and a summary is reported for that
+    section.
 
 AUTHOR
-       Mario A. Storti <mstorti@intec.unl.edu.ar>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-2001-04-08                 perl v5.6.0                          2
-
+    Mario A. Storti <mstorti@intec.unl.edu.ar>
 

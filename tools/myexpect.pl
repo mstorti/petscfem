@@ -14,6 +14,13 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 @stack=();
 @output=();
 
+sub read_file {
+    my $file = shift();
+    open FILE,$file;
+    my $file = join "",(<FILE>);
+    return $file;
+}
+
 sub printo {
     push @output,@_;
 }
@@ -21,6 +28,18 @@ sub printo {
 sub flush {
     print @output;
     @output=();
+}
+
+sub match_exactly {
+    my ($line,$patt) = @_;
+    $np = length($patt);
+    if (length($line) < $np) {return 0;};
+    return (substr($line,0,$np) eq $patt);
+}
+
+sub match_regexp {
+    my ($line,$patt) = @_;
+    return ($line =~ /$patt/);
 }
 
 sub expect {
@@ -34,8 +53,9 @@ sub expect {
     print "\n" if $DEBUG_EXPECT;
     @pattern = split("\n",$pattern_list);
     $record=0;
-    $inc=1;
-    $skip=1;
+    my $inc=1;
+    my $skip=1;
+    my $match_fun = \&match_regexp;
     while ($pattern=shift @pattern) {
 	if ($pattern =~ /^__REWIND__$/) {
 	    $inc=1;
@@ -58,6 +78,14 @@ sub expect {
 	    $skip=0;
 	    next;
 	}
+	if ($pattern =~ /^__EXACT_MATCH__$/) {
+	    $match_fun = \&match_exactly;
+	    next;
+	}
+	if ($pattern =~ /^__REGEXP_MATCH__$/) {
+	    $match_fun = \&match_regexp;
+	    next;
+	}
 	print "trying pattern: \"$pattern\"...  \n" if $DEBUG_EXPECT;
 	while ($record<=$#sal) {
 	    $_ = $sal[$record];
@@ -65,7 +93,7 @@ sub expect {
 	    print "$record: $_" if $DEBUG_EXPECT;
 	    do {chomp; 
 		printo "        -> found: \"$_\"\n" if $DEBUG_EXPECT; 
-		goto NEXT;} if /$pattern/;
+		goto NEXT;} if &{$match_fun}($_,$pattern);
 	    last unless $skip;
 	}
 	not_ok();
@@ -226,6 +254,15 @@ down.
 =item __SKIP__
 
 Return to skip mode. 
+
+=item __EXACT_MATCH__
+
+Pattern has to match exactly the beginning of the line. (No special 
+meaning for characters like C<.>, C<*>, etc...
+
+=item __REGEXP_MATCH__
+
+Go back to regexp match. 
 
 =back
 
