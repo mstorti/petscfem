@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.26 2001/07/25 17:29:45 mstorti Exp $
+//$Id: readmesh.cpp,v 1.27 2001/08/01 20:05:30 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -1490,7 +1490,3 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
  
   return 0;
 }
-
-
-
-

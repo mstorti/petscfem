@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.2 2001/08/01 02:25:43 mstorti Exp $
+// $Id: distmat.cpp,v 1.3 2001/08/01 20:05:33 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -79,8 +79,9 @@ combine(const pair<int,Row> &p) {
   Row::iterator r;
   Row::const_iterator q;
   if (iter == end()) {
-    printf("[%d] combining row %d\n",myrank,p.first);
-    insert(p);
+    printf("[%d] inserting row %d\n",myrank,p.first);
+    // insert(p);
+    (*this)[p.first] = p.second;
   } else {
     Row &oldr = iter->second;
     const Row &newr = p.second;
@@ -191,6 +192,7 @@ int main(int argc,char **argv) {
   double d,e,w,err,errb,tol;
   double *mat,*matc;
   Maximizer< pair<int,int> > maxerr;
+  pair<int,int> p;
 
   srand (time (0));
   /// Initializes MPI
@@ -253,12 +255,18 @@ int main(int argc,char **argv) {
 	e = S.val(j,k);
 	w = MAT(j,k);
 	err = maxd(2,err,fabs(e-w));
-	maxerr.scan(pair<int,int>(j,k),fabs(e-w));
+	p.first=j;
+	p.second=k;
+	maxerr.scan(p,fabs(e-w));
+	if (w!=0) 
+	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+				  "(%d,%d) desired %f, found %f\n",j,k,w,e);
       }
     }
   }
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			  "[%d] max error -> %g\n",MYRANK,err);
+			  "[%d] max error at (%d,%d) -> %g\n",MYRANK,
+			  maxerr.t.first,maxerr.t.second,err);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 
   MPI_Reduce(&err,&errb,1,MPI_DOUBLE,MPI_MAX,root,MPI_COMM_WORLD);
