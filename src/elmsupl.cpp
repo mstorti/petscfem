@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.4 2003/08/28 20:42:39 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.5 2003/08/28 21:35:29 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -83,8 +83,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 
   // This is an initial size (usually should be enough).
   // Anyway the vector grows if needed. 
-  // int rsize = 2*nel*ndof;
-  int rsize = 1;
+  int rsize = 2*nel*ndof;
   // List of row eqs. to be loaded
   indxr.mono(rsize);
   // For each row eq. the local node index ...
@@ -103,25 +102,30 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   dofc.mono(csize);
   // and coef (usually 1.)
   coefc.mono(csize);
+  
+  // This stores the values to be loaded in the matrix
+  values.set_chunk_size((2*nel*ndof)*(2*nel*ndof));
 
-  // Compute row and column masks.
-  for (kloc=0; kloc<nel; kloc++) {
-    for (kdof=0; kdof<ndof; kdof++) {
-      for (lloc=0; lloc<nel; lloc++) {
-	for (ldof=0; ldof<ndof; ldof++) {
-	  if (MASK(kloc,kdof,klocc,kdofc)) {
-	    row_mask.e(kloc,kdof)=1;
-	    col_mask.e(lloc,ldof)=1;
+  if (load_mat) {
+    // Compute row and column masks.
+    for (kloc=0; kloc<nel; kloc++) {
+      for (kdof=0; kdof<ndof; kdof++) {
+	for (lloc=0; lloc<nel; lloc++) {
+	  for (ldof=0; ldof<ndof; ldof++) {
+	    if (MASK(kloc,kdof,klocc,kdofc)) {
+	      row_mask.e(kloc,kdof)=1;
+	      col_mask.e(lloc,ldof)=1;
+	    }
 	  }
 	}
       }
     }
-  }
 
-  for (kloc=0; kloc<nel; kloc++) {
-    for (kdof=0; kdof<ndof; kdof++) {
-      printf("(lnod=%d,dof=%d) row/col mask: %d %d\n",
-	     kloc,kdof,row_mask.e(kloc,kdof),col_mask.e(kloc,kdof));
+    for (kloc=0; kloc<nel; kloc++) {
+      for (kdof=0; kdof<ndof; kdof++) {
+	printf("(lnod=%d,dof=%d) row/col mask: %d %d\n",
+	       kloc,kdof,row_mask.e(kloc,kdof),col_mask.e(kloc,kdof));
+      }
     }
   }
 
@@ -130,59 +134,107 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
 
-    // Build row map
-    int jr=0,nr;
-    for (kloc=0; kloc<nel; kloc++) {
-      node = ICONE(iele,kloc);
-      for (kdof=0; kdof<ndof; kdof++) {
-	if (!row_mask.e(kloc,kdof)) continue;
-	dofmap->get_row(node,kdof+1,row_v);
-	for (int ientry=0; ientry<row_v.size(); ientry++) {
-	  entry_v = &row_v[ientry];
-	  locdof = entry_v->j;
-	  if (locdof>neq) continue; // ony load free nodes
-	  if (jr==rsize) {
-	    // Make arrays grow if needed
-	    printf("resize %d -> %d\n",rsize,2*rsize);
-	    rsize = 2*rsize;
-	    indxr.resize(rsize);
-	    lnodr.resize(rsize);
-	    dofr.resize(rsize);
-	    coefr.resize(rsize);
+    if (load_mat) {
+      // Build row map
+      int jr=0,nr,jc=0,nc;
+      for (kloc=0; kloc<nel; kloc++) {
+	node = ICONE(iele,kloc);
+	for (kdof=0; kdof<ndof; kdof++) {
+	  int rm = row_mask.e(kloc,kdof);
+	  int cm = col_mask.e(kloc,kdof);
+	  if (!rm && !cm) continue;
+	  dofmap->get_row(node,kdof+1,row_v);
+	  for (int ientry=0; ientry<row_v.size(); ientry++) {
+	    entry_v = &row_v[ientry];
+	    locdof = entry_v->j;
+	    if (locdof>neq) continue; // ony load free nodes
+	    if (rm) {
+	      if (jr==rsize) {
+		// Make arrays grow if needed
+		rsize = 2*rsize;
+		indxr.resize(rsize);
+		lnodr.resize(rsize);
+		dofr.resize(rsize);
+		coefr.resize(rsize);
+	      }
+	      indxr.e(jr) = locdof;
+	      lnodr.e(jr) = kloc;
+	      dofr.e(jr) = kdof;
+	      coefr.e(jr) = entry_v->coef;
+	      jr++;
+	    }
+	    if (cm) {
+	      if (jc==rsize) {
+		// Make arrays grow if needed
+		csize = 2*csize;
+		indxc.resize(csize);
+		lnodc.resize(csize);
+		dofc.resize(csize);
+		coefc.resize(csize);
+	      }
+	      indxc.e(jc) = locdof;
+	      lnodc.e(jc) = kloc;
+	      dofc.e(jc) = kdof;
+	      coefc.e(jc) = entry_v->coef;
+	      jc++;
+	    }
 	  }
-	  indxr.e(jr) = locdof;
-	  lnodr.e(jr) = kloc;
-	  dofr.e(jr) = kdof;
-	  coefr.e(jr) = entry_v->coef;
-	  jr++;
 	}
       }
-    }
-    nr = jr;
+      nr = jr;
+      nc = jc;
 
 #if 1
-    printf("iele %d\n",iele);
-    for (jr=0; jr<nr; jr++) {
-      printf("jr %d, lnod %d, dof %d, coef %f\n",jr,
-	     lnodr.e(jr),dofr.e(jr),coefr.e(jr));
-    }
+      printf("iele %d\n",iele);
+      for (jr=0; jr<nr; jr++) {
+	printf("jr %d, lnod %d, dof %d, coef %f\n",jr,
+	       lnodr.e(jr),dofr.e(jr),coefr.e(jr));
+      }
+      for (jc=0; jc<nc; jc++) {
+	printf("jc %d, lnod %d, dof %d, coef %f\n",jc,
+	       lnodc.e(jc),dofc.e(jc),coefc.e(jc));
+      }
 #endif
-    PetscFinalize();
-    exit(0);
- 
-    for (kloc=0; kloc<nel; kloc++) {
-      for (kdof=0; kdof<ndof; kdof++) {
-	dofmap->get_row(node,kdof+1,row_v);
 
-	for (int ientry=0; ientry<row_v.size(); ientry++) {
-	  entry_v = &row_v[ientry];
-	  locdof = entry_v->j;
-	  if (locdof>neq) continue; // ony load free nodes
-	  val = (entry_v->coef) * RETVAL(iele_here,kloc,kdof);
+      if (comp_prof) {
+	for (jr=0; jr<nr; jr++) {
+	  locdof = indxr.e(jr);
+	  for (jc=0; jc<nc; jc++) {
+	    locdofl = indxc.e(jc);
+	    if (pfmat) {
+	      argd.pfA->set_profile(ldofr1-1,locdofl-1);
+	    } else {
+	      node_insert(argd.da,locdof-1,locdofl-1);
+	      node_insert(argd.da,locdofl-1,locdof-1); 
+	    }
+	  }
 	}
+      } else {
+	values.a_resize(2,nr,nc);
+	for (jr=0; jr<nr; jr++) {
+	  int lnodr1 = lnodr.e(jr);
+	  int dofr1 = dofr.e(jr);
+	  double coefr1 = coefr.e(jr);
+	  for (jc=0; jc<nc; jc++) {
+	    int lnodc1 = lnodc.e(jc);
+	    int dofc1 = dofc.e(jc);
+	    double coefc1 = coefc.e(jc);
+	    if (!MASK(lnodr1,dofr1,lnodc1,dofc1)) continue;
+	    values.e(jr,jc) = coefr1*coefc1*RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
+	  }      
+	}
+	if (pfmat) {
+	  ierr = argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
+	  CHKERRQ(ierr); 
+	} else {
+	  MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
+	}
+	values.print();
+	PetscFinalize();
+	exit(0);
       }
     }
-
+ 
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(iele,kloc);
       for (kdof=0; kdof<ndof; kdof++) {
@@ -228,44 +280,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		    CHKERRQ(ierr); 
 		  } else {
 		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
-		  }
-		}
-	      }
-	    }
-	  }
-
-	  // load local values on global matrix
-	  if (!load_mat) continue;
-	  for (lloc=0; lloc<nel; lloc++) {
-	    nodel = ICONE(iele,lloc);
-	    for (ldof=0; ldof<ndof; ldof++) {
-	      vall = RETVALMAT(iele_here,kloc,kdof,lloc,ldof);
-	      dofmap->get_row(nodel,ldof+1,rowc_v);
-
-	      for (int ientryc=0; ientryc<rowc_v.size(); ientryc++) {
-		entryc_v = &rowc_v[ientryc];
-		locdofl = entryc_v->j;
-		if (locdofl>neq) continue; // only load for free dof's
-		
-		val = (entry_v->coef) * (entryc_v->coef) * vall;
-		if (MASK(kloc,kdof,lloc,ldof)) {
-		  if (comp_prof) {
-		    // be sure that profile is symmetric
-		    if (pfmat) {
-		      argd.pfA->set_profile(locdof-1,locdofl-1);
-		    } else {
-		      node_insert(argd.da,locdof-1,locdofl-1);
-		      node_insert(argd.da,locdofl-1,locdof-1); 
-		    }
-		  } else {
-		    // printf("(%d,%d) -> %f\n",locdof,locdofl,val);
-		    if (pfmat) {
-		      ierr = 0;
-		      // ierr = argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
-		      CHKERRQ(ierr); 
-		    } else {
-		      MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
-		    }
 		  }
 		}
 	      }
