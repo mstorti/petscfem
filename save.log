@@ -576,3 +576,6 @@ tag: beta-2.20 on Mon Nov 12 15:03:28 ART 2001, by mstorti in minerva.arcride.ed
 tag: beta-2.21 on Tue Nov 13 09:30:10 ART 2001, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Added test for IISD with sub_partitioning
+----------
+tag: beta-2.22 on Tue Nov 13 14:35:07 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Fixed a bug in the copy operation of Mat
