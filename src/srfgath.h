@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: srfgath.h,v 1.1 2004/01/26 20:22:34 mstorti Exp $
+//$Id: srfgath.h,v 1.2 2004/01/26 23:45:09 mstorti Exp $
 #ifndef PETSCFEM_SRF_GATH_H
 #define PETSCFEM_SRF_GATH_H
 
@@ -69,8 +69,9 @@ public:
       clean-up operations. 
   */
   virtual void clean() {};
-
   //@}
+
+  void handle_error(int error);
 };
 
 class field_surf_integrator : public SurfGatherer {

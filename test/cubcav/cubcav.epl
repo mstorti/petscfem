@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.103 2004/01/26 20:22:38 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.104 2004/01/26 23:45:12 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -118,7 +118,7 @@ data <:=$data_dir:>/cubcav.con<:=($use_tetra ? '-tetra' : ''):>.tmp
 surf_fun_type "plane"
 gather_pos 0
 vals_per_plane 1
-f_vals 90 100 110
+f_vals 0.12
 __END_HASH__
 
 end_elemsets

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.34 2004/01/26 20:22:34 mstorti Exp $
+//$Id: gpdata.cpp,v 1.35 2004/01/26 23:45:09 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -109,7 +109,11 @@ GPdata::edge::edge() : indx(-1), gp(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::edge 
-GPdata::edge::operator++(int) { return edge(indx+1,gp); }
+GPdata::edge::operator++(int) { 
+  edge q = *this;
+  indx++;
+  return q; 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int GPdata::edge::first() { assert(gp); return gp->edges[indx*2]; }

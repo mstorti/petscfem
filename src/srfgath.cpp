@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.1 2004/01/26 20:22:34 mstorti Exp $
+//$Id: srfgath.cpp,v 1.2 2004/01/26 23:45:09 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,6 +9,7 @@
 
 #include "./srfgath.h"
 
+enum sf_error { not_correct_number_of_intersections };
 SurfGatherer::SurfFunction::~SurfFunction() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -28,8 +29,7 @@ void plane::init(const TextHashTable *thash) {
   n.resize(1,ndim);
   dx.resize(1,ndim);
   x0.set(0.);
-  n.setel(1.,1);
-  n.setel(1.,2);
+  n.set(0.).setel(1.,1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -143,9 +143,13 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 xloc(2,nel,ndim);
 
   int ndimel = ndim-1;
+  int nedges = gp_data.nedges();
+  assert(nedges>0);
   FastMat2 Jaco(2,ndimel,ndim),staten(2,nel,ndof), 
     stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
-    n(1,ndim),xpg(1,ndim);
+    n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
+    ui(2,ndof,nedges), xc(1,ndim);
+  xi.set(0.);
 
   Time * time_c = (Time *)time;
   double t = time_c->time();
@@ -154,7 +158,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   init();
 
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
+  // FastMat2::activate_cache(&cache_list);
+  vector<double> f(nel);
 
   int ielh=-1,kloc;
   for (int k=el_start; k<=el_last; k++) {
@@ -162,24 +167,90 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     FastMat2::reset_cache();
     ielh++;
 
+    double max_f, min_f;
     for (kloc=0; kloc<nel; kloc++) {
       int node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
+      x.set(xloc);
+      f[kloc] = sf->f(x);
+      if (kloc==0) {
+	max_f = f[0];
+	min_f = f[0];
+      }
+      if (f[kloc]>max_f) max_f = f[kloc];
+      if (f[kloc]<min_f) min_f = f[kloc];
     }
     xloc.rs();
 
+    for (int jval=0; jval<nvals; jval++) {
+      // Compute surface `jval', given by `f=val'
+      double val = f_vals[jval];
+      // Check if surface intersects element
+      if (max_f<val || min_f>val) continue;
+      // Nbr of intersections
+      int nint = 0;
+      for (GPdata::edge q = gp_data.edges_begin(); 
+	   q!=gp_data.edges_end(); q++) {
+	// compute intersection with edge
+	int n1=q.first();
+	int n2=q.second();
+	double f1 = f[n1-1];
+	double f2 = f[n2-1];
+	// check if surface intersects edge 
+	if ((f1-val)*(f2-val)>=0.0) continue;
+	int jint = nint++;
+	// intersection is at (1-beta)*x1+beta*x1
+	double beta = (val-f1)/(f2-f1); 
+	// xi(:,j) := coordinates of intersection j
+	xi.ir(2,jint+1);
+	xloc.ir(1,n1);
+	xi.set(xloc).scale(1-beta);
+	xloc.ir(1,n2);
+	xi.axpy(xloc,beta);
+	// ui(:,j) := state at intersection j
+	ui.ir(2,jint+1);
+	staten.ir(1,n1);
+	ui.set(staten).scale(1-beta);
+	staten.ir(1,n2);
+	ui.axpy(staten,beta);
+      }
+      xi.rs();
+      ui.rs();
+#if 0
+      printf("elem %d, intersections: %d\n",k,nint);
+      if(nint>0) {
+	xi.is(2,1,nint).print("intersections: ");
+	xi.rs();
+      }
+#endif
+      if (nint<3) set_error(not_correct_number_of_intersections);
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+      // Intersection area may be a triangle or quad for a tetra. Or
+      // higher polygons in other cases. We assume that it is a
+      // convex polygon and integrate over them by dividing the
+      // polygon in triangles from the center of the polygon to
+      // each side. 
+
+      // Compute center of polygon
+      xi.is(2,1,nint).print("intersections: ");
+      xc.sum(xi,1,-1).scale(1./double(nint));
+      for (int j=0; j<nint; j++) {
+      }
+    }
+ 
+#if 0
     staten.set(&(LOCST(ielh,0,0)));
     stateo.set(&(LOCST2(ielh,0,0)));
 
     GPdata::edge q;
     int e=0;
+    
     for (q = gp_data.edges_begin(); q!=gp_data.edges_end(); q++) {
-      printf("edge %d, nodes %d-%d\n",e++,q.first(),q.second());
+      int n1=q.first();
+      int n2=q.second();
+      double f1 
     }
-    PetscFinalize();
-    exit(0);
  
-#if 0
     // Let user do some things when starting with an element
     element_hook(k);
 
@@ -218,9 +289,20 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 #endif
   }  
+  PetscFinalize();
+  exit(0);
+ 
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;
+}
+
+void SurfGatherer::handle_error(int error) {
+  string s = "Unknown error";
+  if (error==not_correct_number_of_intersections) 
+    s = "Not correct number of intersection";
+  PETSCFEM_ERROR("Elemset name \"%s\", ptr %p, set error %d\n",
+		 name(),this,error);  
 }
 
 #undef SHAPE    
