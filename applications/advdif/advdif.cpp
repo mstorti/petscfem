@@ -246,6 +246,8 @@ int main(int argc,char **args) {
   //o Tolerance when solving the non-linear problem
   // for the implicit case.
   GETOPTDEF(double,tol_newton,1e-3);
+  //o Relaxation factor for the Newton iteration
+  GETOPTDEF(double,omega_newton,1.);
 
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,Jacobi);
@@ -438,7 +440,7 @@ int main(int argc,char **args) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
-      scal=1.;
+      scal=omega_newton;
       ierr = VecAXPY(&scal,dx,x);
       if (normres < tol_newton) break;
     }
