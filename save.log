@@ -4152,3 +4152,6 @@ tag: beta-3.43.38 on Mon, 28 Feb 2005 23:53:52 -0300 by mstorti in spider
 ----------
 tag: beta-3.43.39 on Mon, 28 Feb 2005 23:57:17 -0300 by mstorti in spider
      > `FemInterp' class runs in a loop, but seems to leak memory. 
+----------
+tag: beta-3.43.40 on Tue, 01 Mar 2005 00:19:54 -0300 by mstorti in spider
+     > `FemInterp' class runs in a loop, but seems to leak memory. 
