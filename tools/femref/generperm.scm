@@ -97,5 +97,11 @@
     (cond ((null? g) gen-G)
 	  (else (loop (generate-aux (car g) gen-G) (cdr g))))))
 
-(format #t "(generate G): ~A\n" (generate G))
+(let ((gen (generate (list (vector 1 3 2 0) (vector 1 2 0 3)))))
+  (format #t "total oriented tetra perms: ~A\n" (length gen))
+  (map (lambda (x) (format #t "~A\n" x)) gen))
+
+(let ((gen (generate (list (vector 1 3 2 0) (vector 1 2 0 3)))))
+  (format #t "total oriented tetra perms: ~A\n" (length gen))
+  (map (lambda (x) (format #t "~A\n" x)) gen))
 
