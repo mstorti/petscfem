@@ -825,3 +825,6 @@ tag: pfmat-rewrite-1.25 on Fri Jan 11 21:27:50 ARST 2002, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.26 on Sun Jan 13 11:28:20 ARST 2002, by mstorti in spider
      > Runs the `sqcav' test, but gives some `PFMat' bad errors.
+----------
+tag: pfmat-rewrite-1.27 on Sun Jan 13 17:57:52 ARST 2002, by mstorti in spider
+     > Runs the `sqcav' test, but gives some `PFMat' bad errors.
