@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.6 2005/03/02 12:10:04 mstorti Exp $
+// $Id: project3.cpp,v 1.7 2005/03/02 21:31:59 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -76,6 +76,10 @@ public:
 
   ~FemInterp() { clear(); }
 
+  // `knbr_a' = nbr of neighbors to take (set to 10 usually)
+  // `ndof_a' nbr of degrees of reedom
+  // `ndimel_a' dimension of the manifold
+  // 
   void init(int knbr_a, int ndof_a, int ndimel_a,
 	    const dvector<double> &xnod_a,
 	    const dvector<int> &icone_a);

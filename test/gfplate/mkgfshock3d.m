@@ -1,13 +1,16 @@
-## $Id: mkgfshock3d.m,v 1.4 2005/03/02 12:08:24 mstorti Exp $
+## $Id: mkgfshock3d.m,v 1.5 2005/03/02 21:32:21 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
-## plt_file = "~/PETSC/COMP-CORNER/Z23_contour.plt";
-plt_file = "/u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/Z23_contour.plt";
+plt_file = "~/PETSC/COMP-CORNER/Z23_contour.plt";
+## plt_file = "/u/nnigro/PETSC/RUN/COMPRESSION_CORNER/Tuyere/Z23_contour.plt";
 
 z = aload(plt_file);
 xtuy = z(:,1);
 Rtuy = z(:,2);
+ntuy = rows(z);
+xtuy=xtuy(1:50:ntuy);
+Rtuy=Rtuy(1:50:ntuy);
 x0 = min(z(:,1));
 x1 = max(z(:,1));
 Ltuy = x1-x0;
