@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.8 2001/06/04 04:06:07 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -296,7 +296,8 @@ _//>
 
 //<$gen_sum=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::__NAME__(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+FastMat2 & FastMat2::__NAME__(const FastMat2 & A,  __OTHER_ARGS__ 
+			      const int m=0,INT_VAR_ARGS) {
 
   __CACHE_OPERATIONS__;
 
@@ -412,6 +413,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
     while (pa<pe) {
       __ELEM_OPERATIONS__;
     }
+    __POST_LOOP_OPS__;
     *lc->target = val;
   }
   if (!use_cache) delete cache;

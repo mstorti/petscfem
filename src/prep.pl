@@ -89,12 +89,19 @@ sub in_place_all {
 }
 
 sub gen_sum {
-    print template_subst($gen_sum,{
+    my %defargs = {
 	'INI_LOOP' => 'val=0', 
 	'NAME' => shift(), 
 	'ELEM_OPERATIONS' => shift(),
 	'COUNT_OPER' => shift(),
-	'CACHE_OPERATIONS' => $cache_op});
+	'CACHE_OPERATIONS' => $cache_op,
+	'OTHER_ARGS' => '',
+	'POST_LOOP_OPS' => ''};
+    my $new_args = shift();
+    for (($k,$v) = each(%{$new_args}) {
+	$defargs{$k} = $v;
+    }
+    print template_subst($gen_sum,\%defargs);
 }
 
 sub gen_max {

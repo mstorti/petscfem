@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/06/03 23:36:19 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/06/04 04:06:14 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -21,20 +21,22 @@ LOC_PROG = ns
 
 tests: test_case_a
 
-data.m: data.m.epl
-
 .PHONY: data force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-test_case_%: 
+test_case_%_data: 
 	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) EPERLFLAGS='-d case=$* -d cont=$(cont)' data
+	octave -q mkmesh.m
+
+data: $(NAME).depl force
+$(NAME).depl: force
+
+#data.m.tmp: $(NAME).epl
+#	$(MAKE) $(NAME).depl
+
+test_case_%: test_case_%_data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl #> output.case_$*.tmp
-#	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
-
-data: $(NAME).depl
-
-$(NAME).depl: force
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

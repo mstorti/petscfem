@@ -19,35 +19,36 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#initial_state "wallke.ini"
+#initial_state "wallke.ini.tmp"
 initial_state "save.state"
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 40
-nnwt 3
+nstep 100
+nnwt 5
 tol_newton 0
 preco_type "lu"
-Dt 0.1
+Dt 0.3
 
 #print_linear_system_and_stop
 #solve_system 0
 
 #<:
 $L = 1;                         # Semi distance between plates
-$Re_l = 100000;                 # laminar Re
+$Re_l = 1.6e6;                  # laminar Re
 $Umax = 1;                      # Max vel in the channel
 $Uav = 1.5*$Umax;               # Aver vel 
 $nu = $Uav*2*$L/$Re_l;          # kinematic visc.
 $g = $nu*2*$Umax/$L**2;         # body force
-$N = 16;
-octave_export_vars("data.m.tmp",qw(nu g));
+$N = 32;                        # Number of elements 
+$hratio = 5;                    # refinement near the wall
+octave_export_vars("data.m.tmp",qw(nu g N hratio L));
 :>//
 
 y_wall_plus 5
-turbulence_coef 0.
+#turbulence_coef 0.
 viscosity <:=$nu:>
 G_body 0. <:=$g:>
 
@@ -57,7 +58,7 @@ __END_HASH__
 
 # ndim nu ndof
 nodes   2  2  5
-__INCLUDE__ wallke.nod
+__INCLUDE__ wallke.nod.tmp
 __END_NODES__
 
 #===========================================================
@@ -66,6 +67,7 @@ elemset nsi_tet_keps 4
 geometry cartesian2d
 npg 4
 __END_HASH__
+#if 0
 1 3 4 2
 3 5 6 4 
 5 7 8 6 
@@ -82,6 +84,8 @@ __END_HASH__
 27 29 30 28 
 29 31 32 30 
 31 33 34 32 
+#endif
+__INCLUDE__ wallke.con.tmp
 __END_ELEMSET__
 
 #<:$wall_ke=1;:>
@@ -125,7 +129,7 @@ __END_FIXA__
 
 constraint
 
-__INCLUDE__ wallke.peri
+__INCLUDE__ wallke.peri.tmp
 
 # Fictitious node periodic 
 -1. <:=2*$N+4:> 1 1. <:=2*$N+3:> 1

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.7 2001/05/30 03:58:50 mstorti Exp $
+//$Id: fastmat2.h,v 1.8 2001/06/04 04:06:06 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -661,6 +661,17 @@ public:
       @return a reference to the matrix.
    */ 
   FastMat2 & sum_abs(const FastMat2 & A,const int m=0,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Norm p of matrix (per column). 
+      $(\sum_j |a_j|^p)^\sfr 1p$
+      @author M. Storti
+      @param A (input) matrix to contract
+      @param p (input) exponent of norm
+      @param i,j,k,l... (input) indices that define indices to be contracted
+      @return a reference to the matrix.
+   */ 
+  FastMat2 & norm(const FastMat2 & A,double p,const int m=0,INT_VAR_ARGS);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Minimum over all selected indices.
