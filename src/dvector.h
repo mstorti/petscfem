@@ -1,9 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.11 2003/08/08 16:10:45 mstorti Exp $
+// $Id: dvector.h,v 1.12 2003/08/09 14:27:43 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
+#include <cstdio>
 #include <vector>
 #define CHUNK_SIZE_INIT 10000
 
@@ -45,6 +46,13 @@ private:
       @param p (input) position to re-heap
       @param u (input) last position in heap */ 
   void push_heap (int first, int p, int u);
+
+  /// Reads an element from a file
+  int read(FILE *fid,T &t);
+
+  /// Reads an element from a file
+  int print(FILE *fid,T t);
+
 public:
   /** Constructor 
       @param cs (input) chunk size for this vector
@@ -109,6 +117,30 @@ public:
 
   /// Resizes to null size.
   void clear(void);
+
+  /// Resizes monolithically
+  dvector<T>& mono(int size);
+
+  /// Resizes monolithically and initializes
+  dvector<T>& mono(int size,T e);
+
+  /** Read from a stream, like Octave's `aload'. */ 
+  dvector<T>& read(FILE *fid);
+
+  /** Read from a file, given its name, like Octave's `aload'. */
+  dvector<T>& read(const char *name);
+
+  /// Read from a file, as much as possible, appending to the vector
+  dvector<T>& cat(FILE *fid);
+
+  /// Read from a file, as much as possible, appending to the vector
+  dvector<T>& cat(const char *name);
+
+  /// Write to a stream
+  dvector<T>& print(FILE *fid);
+
+  /// Write to a file by name
+  dvector<T>& print(const char *name);
 
   /** Binary search algorithm. Finds #t# in the range #first# to
       #last-1#.  

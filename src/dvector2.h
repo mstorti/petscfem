@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.9 2003/08/08 16:10:45 mstorti Exp $
+// $Id: dvector2.h,v 1.10 2003/08/09 14:27:44 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -177,6 +177,117 @@ void dvector<T>::resize(int new_size) { T t; resize(new_size,t); }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 void dvector<T>::clear(void) { shrink(0); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::mono(int size) {
+  clear();
+  set_chunk_size(size);
+  resize(size);
+  eta.defrag();
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::mono(int size,T e) {
+  mono(size);
+  set(e);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int dvector<double>::read(FILE *fid,double &t) {
+  int nread = fscanf(fid,"%lf",&t);
+  return nread!=1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int dvector<int>::read(FILE *fid,int &t) {
+  int nread = fscanf(fid,"%d",&t);
+  return nread!=1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int dvector<float>::read(FILE *fid,float &t) {
+  int nread = fscanf(fid,"%f",&t);
+  return nread!=1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int dvector<double>::print(FILE *fid,double t) {
+  int ierr = fprintf(fid,"%.12g\n",t);
+  return ierr>=0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::read(FILE *fid) {
+  // Currently for vectors only (reshape after)
+  assert(rank==1);
+  int m=size();
+  for (int j=0; j<m; j++) {
+    int ierr = read(fid,&eta.e(j));
+    assert(!ierr);
+  }
+  fclose(fid);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::read(const char *name) {
+  FILE *fid = fopen(name,"r");
+  assert(fid);
+  read(fid);
+  fclose(fid);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::cat(FILE *fid) {
+  // Currently for vectors only (reshape after)
+  assert(rank==1);
+  int m=size();
+  while(1) {
+    T val;
+    int ierr = read(fid,val);
+    if(ierr) break;
+    push(val);
+  }
+  fclose(fid);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::cat(const char *name) {
+  FILE *fid = fopen(name,"r");
+  assert(fid);
+  cat(fid);
+  fclose(fid);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::print(FILE *fid) {
+  assert(rank==1);
+  int M=size();
+  for (int j=0; j<M; j++) print(fid,e(j));
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::print(const char *name) {
+  FILE *fid = fopen(name,"w");
+  assert(fid);
+  print(fid);
+  fclose(fid);
+  return *this;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
