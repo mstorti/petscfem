@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.60 2003/11/25 01:13:36 mstorti Exp $
+//$Id: advdif.cpp,v 1.61 2004/05/22 11:24:18 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -47,6 +47,11 @@ Hook *advdif_hook_factory(const char *name);
 int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
+  int bubbly=0;
+  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-bubbly")) bubbly=1;
+  MPI_Bcast(&bubbly,1,MPI_INT,0,PETSC_COMM_WORLD);
+
+  if (bubbly) return bubbly_main();
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.85 2003/12/08 16:38:31 mstorti Exp $
+//$Id: advdife.cpp,v 1.86 2004/05/22 11:24:18 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -143,6 +143,20 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   A_rel_err_min = DBL_MAX;
   comp_checked=0;
   comp_total=0;
+}
+
+void NewAdvDifFF::get_C(FastMat2 &C) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "Using lumped needs definition for get_C() virtual function\n"
+	      "in the flux function object.\n");
+  assert(0);
+}
+
+void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "Using lumped needs definition for get_Cp() virtual function\n"
+	      "in the flux function object.\n");
+  assert(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

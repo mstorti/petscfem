@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.67 2003/11/16 00:55:09 mstorti Exp $
+//$Id: advective.h,v 1.68 2004/05/22 11:24:18 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -346,6 +346,10 @@ public:
   */
   virtual int dim() const { return -1; }
 
+  virtual void get_C(FastMat2 &C);
+
+  virtual void get_Cp(FastMat2 &Cp);
+
   /** Returns the Riemann Invariants and jacobians 
       for Adv-Diff absorbent condition
   */
@@ -382,7 +386,7 @@ protected:
     A_rel_err_min, A_rel_err_max;
 
 public:
-  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg;
+  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg,grad_Uo;
   friend class NewAdvDifFF;
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
@@ -413,7 +417,7 @@ public:
   const FastMat2 *grad_N() const ;
   double rec_Dt() const { return rec_Dt_m; }
   const FastMat2 &Uold() const { return Uo; }
-  // void comp_P_supg(int is_tau_scalar);
+  const FastMat2 &grad_Uold() const { return grad_Uo; }
 
   /// axisymmetric key
   int axi;
@@ -468,9 +472,11 @@ enum flux_fun_opt {
   COMP_UPWIND = 0x0002,
   COMP_EIGENV = 0x0004,
   SCALAR_TAU  = 0x0008,
+  COMP_SOURCE_NOLUMPED = 0x0010,
+  COMP_SOURCE_LUMPED = 0x0020,
 };
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #define ADVECTIVE_ELEMSET(name)				\
 FluxFunction flux_fun_##name;				\
 							\
