@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.9 2003/02/28 23:51:05 mstorti Exp $
+// $Id: nullvort.cpp,v 1.10 2003/03/01 23:26:18 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -226,19 +226,32 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     cloud.coef(x,w,x0);
     // It the computation was too bad conditioned, then
     // skip the node
-    if (cloud.cond() > 1e8) continue;
+    double cond = cloud.cond();
+    if (cond > 1e8) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "null_vort: bad conditioned cloud, node %d, cond %g\n",
+		  node,cond);
+      continue;
+    }
     // Build the constraint (list of node,field,coef)
     constraint.empty();
     // Vorticity is dv/dx-du/dy
     // cofficients in dv/dx
+    double tol=1e-10;
     for (int j=0; j<nx; j++) {
-      printf("  %f  %d %d",w.get(j+1,2),stencil.e(j),1);
-      constraint.add_entry(stencil.e(j),1,w.get(j+1,2));
+      double c = w.get(j+1,2);
+      if (fabs(c)>tol) {
+	printf("  %f  %d %d",c,stencil.e(j),1);
+	constraint.add_entry(stencil.e(j),1,c);
+      }
     }
     // cofficients in -du/dy
     for (int j=0; j<nx; j++) {
-      printf("  %f  %d %d",w.get(j+1,1),stencil.e(j),2);
-      constraint.add_entry(stencil.e(j),2,-w.get(j+1,1));
+      double c = -w.get(j+1,1);
+      if (fabs(c)>tol) {
+	printf("  %f  %d %d",c,stencil.e(j),2);
+	constraint.add_entry(stencil.e(j),2,c);
+      }
     }
     printf("\n");
     printf("adding constraint ...\n");

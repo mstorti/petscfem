@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.38 2003/02/22 04:20:59 mstorti Exp $
+//$Id: dxhook.cpp,v 1.39 2003/03/01 23:26:18 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -155,7 +155,6 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
     assert(srvr_root);
     PetscPrintf(PETSC_COMM_WORLD,"Done.\n");
   }
-  GLOBAL_DEBUG->trace("trace dxhook 1");
   mesh = &mesh_a;
   dofmap = &dofmap_a;
   
@@ -191,16 +190,13 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
     if (steps==0) steps = 1;
     int step=0;
     while(1) {
-      GLOBAL_DEBUG->trace("before send_state");
       send_state(step++,&dx_hook::build_state_from_file);
-      GLOBAL_DEBUG->trace("after send_state");
       if (record==-1) {
 	PetscFinalize();
 	exit(0);
       }
     }
   }
-  GLOBAL_DEBUG->trace("trace dxhook 2");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -267,7 +263,6 @@ int dx_hook::build_state_from_file(double *state_p) {
   int record_local = (record>=0 ? record : 0);
 #define record record_local
 #endif
-  GLOBAL_DEBUG->trace("send_state: trace 3.3");
   PetscPrintf(PETSC_COMM_WORLD,
 	      "dx_hook: reading state from file %s, record %d\n",
 	      state_file.c_str(),record);
@@ -329,7 +324,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     }
   }
 #define BUFSIZE 512
-  GLOBAL_DEBUG->trace("send_state: trace 0");
   static char *buf = (char *)malloc(BUFSIZE);
   static size_t Nbuf = BUFSIZE;
 
@@ -368,7 +362,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	   steps,dx_step,state_file.c_str(),record);
   }
 
-  GLOBAL_DEBUG->trace("send_state: trace 1");
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
   ierr = MPI_Bcast (&stepso, 1, MPI_INT, 0,PETSC_COMM_WORLD);
@@ -388,7 +381,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   
   step_cntr = steps-1;
   
-  GLOBAL_DEBUG->trace("send_state: trace 2");
   if (!MY_RANK) {
     // Send node coordinates
     cookie = rand();
@@ -408,7 +400,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     CHECK_COOKIE(nodes);
   }
 
-  GLOBAL_DEBUG->trace("send_state: trace 3");
   // Send results
   double *state_p=NULL;
   dvector<double> state_v(ndof*nnod);
@@ -417,10 +408,8 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     assert(state_v.chunks_n()==1);
     state_p = state_v.buff();
   }
-  GLOBAL_DEBUG->trace("send_state: trace 3.1");
   if ((this->*build_state_fun)(state_p)) throw GenericError("Can't build state");
   
-  GLOBAL_DEBUG->trace("send_state: trace 4");
   if (!MY_RANK) {
     cookie = rand();
     FieldGenList::iterator qp, qe = field_gen_list.end();
@@ -467,7 +456,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     }
   }
 
-  GLOBAL_DEBUG->trace("send_state: trace 5");
   // Send connectivities for each elemset
   Darray *elist = mesh->elemsetlist;
   for (int j=0; j<da_length(elist); j++) {
@@ -493,7 +481,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 #ifdef USE_PTHREADS
   if(!steps && connection_state() == not_launched) re_launch_connection();
 #endif
-  GLOBAL_DEBUG->trace("send_state: trace 6");
 } catch(GenericError e) {
   if (!MY_RANK && srvr) {
     Sprintf(srvr,"end\n");

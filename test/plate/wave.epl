@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.4 2003/02/28 23:51:05 mstorti Exp $ 
+## $Id: wave.epl,v 1.5 2003/03/01 23:26:19 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -8,8 +8,7 @@ $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
 $H = 1;
 $L = 5;
-$Ny = 30;
-$Nx = 30;
+$Ny = $Nx = 50;
 $xratio = 5;
 $Re = 1000;
 $du = 0.1;                      # u at inlet goes from 1-du to 1+du
@@ -56,6 +55,8 @@ iisdmat_print_statistics
 print_partitioning_statistics
 # print_linear_system_and_stop
 # newton_relaxation_factor 0.5
+activate_debug_print
+# print_dofmap_id
 
 hook_list ns_dx_hook my_dx_hook
 viscosity <:=$H/$Re:>
@@ -65,7 +66,7 @@ hook_list ns_dx_hook my_dx_hook
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
-dx_steps 1
+dx_steps 0
 dx_read_state_from_file <:=($read_from_file ? 1 : 0):>
 __END_HASH__
 

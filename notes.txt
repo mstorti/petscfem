@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $
+$Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
+  # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
+  # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6190,6 +6190,61 @@ a la estrategia de usar dos nombres distintos (por ejemplo `reshape' y
 `reshapev') ya que sino hay ambiguedad cuando hay un solo argumento
 variable y es la constante 0, ya que en ese caso el compilador lo
 puede interpretar como NULL. 
+
+%===Fri, 28 Feb 2003 21:14:57 -0300 mstorti@spider
+%
+Con null_vort, malla de 50x50, tiempos de resolucion (secs. en spider)
+%
+ null_vort    ad_hoc (octave)
+ ---------- ----------------
+  7.7910      4.0040
+  7.9930      6.0000
+  6.6890      4.5790
+  7.8640      5.5670
+  8.9470      5.9020
+  2.8660      1.6410
+  8.1530      3.5890
+  8.4230      5.7180
+  2.7950      1.5670
+  6.1100      3.2500
+	      6.0420
+  	      1.5460
+%  
+O sea que el tiempo de resolucion tambien aumenta en un buen factor. 
+%
+21:24:41: La pregunta ahora es si este incremento en los tiempos se
+debe a que el `id_map' esta con lineas muy largas o se debe a la
+ineficiencia intrinseca de los set<> y map<> que contiene. 
+%
+21:35:56: Las lineas en el `id_map' pasan de tener longitud 4 a
+107. Con los stenciles ad-hoc el perfil sale diferente porque tiene
+muchos elementos nulos que directamente no se entran. 
+Por mas que mejoremos la eficiencia de los accesos, a 
+%
+23:18:42: Si en `null_vort' hago que solo incluya los coeficientes no
+nulos, entonces la eficiencia pasa a ser igual que la implementacion
+ad-hoc. Pero esto no va a funcionar bien cuando pasemos a problemas
+reales. De todas formas voy a tratar de correr el `cylin.epl' para ver
+si el acoplamiento anda bien. Despues me voy a preocupar por la
+eficiencia. 
+%
+23:23:21: Habia un bug en `cylin.m' por el cual creo que el vector
+normal no quedaba normalizado. 
+
+%===Sat,  1 Mar 2003 10:42:11 -0300 mstorti@spider
+%
+Corro el clindro acoplado OK, pero el Strouhal no me da del todo bien,
+me da St=0.226, con lo cual se va un poco mas arriba de lo esperado. 
+Resultados en plate-01-Mar-2003.tgz
+%
+13:30:44: Porque aumento el Strouhal? Habria que revisar los
+parametros con los que corria antes. A ver si no se modifico algo, por
+ejemplo antes corria con nnwt=3. 
+%
+13:43:12: Corro dos periodos (unos 120 pasos) a partir del ultimo de
+la corrida plate-01-Mar-2003.tgz. Lo salvo en plate-01-Mar-2003a.tgz. 
+
+
 
 # Current line ===========  %
 # Local Variables: $

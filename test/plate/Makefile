@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.22 2003/02/26 00:54:50 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2003/03/01 23:26:18 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
-default: wave
+default: viscous
 
 tests: 
 

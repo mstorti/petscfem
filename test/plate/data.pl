@@ -1,8 +1,9 @@
 $Re = 1000;			# Reynolds number
 $Co = 2;			# Courant number
-$re_start = 1;			# restart previous run? 
-$dx_steps = 0;
-$dx_read_state_from_file = 0;
+$re_start = 0;			# restart previous run? 
+$dx_steps = 1;
+$dx_read_state_from_file = 1;
+$nsaverot = 1;
 
 sub print_filter {
     my ($a,$b) = @_;

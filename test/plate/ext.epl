@@ -8,7 +8,7 @@ nsave 1
 ## should stop on signal from cylin.epl
 nstep 10000000
 save_file_pattern "ext.out_%d.tmp"
-nsaverot 20
+<:pr('nsaverot'):>
 nrec 1
 nfile 100000000
 

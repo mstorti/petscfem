@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.20 2003/02/24 00:14:23 mstorti Exp $
+## $Id: cylin.m,v 1.21 2003/03/01 23:26:19 mstorti Exp $
 global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");
@@ -93,19 +93,12 @@ uini(:,1) = uini(:,1) + du_ini_pert * pert;
 
 next = length(external);
 normal = xnod(external(3:next),:) - xnod(external(1:next-2),:);
-normal = [-normal(:,2) normal(:,1)];
-normal = [0 1;
-	  normal;
-	  0 -1];
-normal = leftscal(1./l2(normal),normal);
-
-next = length(external);
-normal = xnod(external(3:next),:) - xnod(external(1:next-2),:);
 normal = [normal(:,2) -normal(:,1)];
 normal = leftscal(1./l2(normal),normal);
 normal = [0 1;
 	  normal;
 	  0 -1];
+normal = leftscal(1./l2(normal),normal);
 
 uiindx = 2:length(normal)-1;
 uini(nod_fic_ext,1) = normal(:,1);
@@ -117,6 +110,12 @@ for k=2:length(normal)-1
   nod_fic = nod_fic_ext(k);
   fprintf(fid,"%f   %d %d      %f   %d %d    %f   %d %d\n",
 	  normal(k,1),node,1, normal(k,2),node,2,-1.,nod_fic,1);
+endfor
+fclose(fid);
+
+fid = fopen("cylin.coupler.tmp","w");
+for k=1:length(external)-1
+  fprintf(fid,"%d %d\n",external(1),external(2));
 endfor
 fclose(fid);
 

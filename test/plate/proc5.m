@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: proc5.m,v 1.11 2003/02/22 16:44:01 mstorti Exp $
+## $Id: proc5.m,v 1.12 2003/03/01 23:26:19 mstorti Exp $
 source("data.m.tmp");
 tmp = aload("cylin.axis_nodes.tmp");
 xnod = aload("cylin.nod.tmp");
@@ -19,7 +19,7 @@ clear V
 
 if 1
 #  v(:,1:240)=[];
-  v = v(:,200:400);
+  v = v(:,500:1100);
   v = v(50:110,:);
   proc6
 endif

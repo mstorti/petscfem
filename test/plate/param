@@ -1,0 +1,51 @@
+PATTERN         IBBPBBPBBPBBPBB
+# FORCE_ENCODE_LAST_FRAME
+OUTPUT          output.mpg
+# BASE_FILE_FORMAT      YUV
+# YUV_FORMAT    ABEKAS
+BASE_FILE_FORMAT PPM
+GOP_SIZE        30
+SLICES_PER_FRAME        1
+PIXEL           HALF
+RANGE           10
+PSEARCH_ALG     LOGARITHMIC
+BSEARCH_ALG     CROSS2
+IQSCALE         8
+PQSCALE         10
+BQSCALE         25
+REFERENCE_FRAME ORIGINAL
+# YUV_SIZE      300x225
+INPUT_CONVERT *
+INPUT_DIR       .
+INPUT
+image.0.ppm
+image.1.ppm
+image.2.ppm
+image.3.ppm
+image.4.ppm
+image.5.ppm
+image.6.ppm
+image.7.ppm
+image.8.ppm
+image.9.ppm
+image.0.ppm
+image.1.ppm
+image.2.ppm
+image.3.ppm
+image.4.ppm
+image.5.ppm
+image.6.ppm
+image.7.ppm
+image.8.ppm
+image.9.ppm
+image.0.ppm
+image.1.ppm
+image.2.ppm
+image.3.ppm
+image.4.ppm
+image.5.ppm
+image.6.ppm
+image.7.ppm
+image.8.ppm
+image.9.ppm
+END_INPUT
