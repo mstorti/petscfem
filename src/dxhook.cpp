@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.62 2004/08/22 23:00:53 mstorti Exp $
+//$Id: dxhook.cpp,v 1.63 2004/11/26 21:25:20 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -150,7 +150,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   TGETOPTDEF_S_ND(mesh_a.global_options,string,dx_node_coordinates,<none>);
   read_coords = (dx_node_coordinates != "<none>");
   //o Coefficient affecting the new displacements read. 
-  //  New coordinates are #c0*x0+c*u# where
+  //  New coordinates are {\tt c0*x0+c*u} where
   //  #c0=dx_coords_scale_factor0# ,  #c1=dx_coords_scale_factor# ,
   //  #x0#  are the initial coordinates and  #u#  are the coordinates read
   //  from the given file. 
