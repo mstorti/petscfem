@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.8 2001/11/08 03:28:12 mstorti Exp $
+// $Id: iisdmat.h,v 1.9 2001/11/08 21:30:52 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -237,10 +237,11 @@ public:
   ~IISDMat();
 };
 
-/// Direct SuperLU solver. 
+/// Direct solver. (May be PETSc or SuperLU)
 class SparseDirect : public PFMat {
 public:
-  Sparse::SuperLUMat A;
+  // Sparse::SuperLUMat A;
+  Sparse::PETScMat A;
   /// destructor
   ~SparseDirect() {A.clear();};
   /// clear memory (almost destructor)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.9 2001/11/08 17:57:30 mstorti Exp $
+//$Id: spsolve.cpp,v 1.10 2001/11/08 21:30:52 mstorti Exp $
 
 #include "sparse.h"
 
@@ -127,12 +127,10 @@ namespace Sparse {
   void PETScMat::fact_and_solve() {
 
     vector<int> d_nnz;
-    int *d_nnz_p,its,m,j,ierr,k;
+    int *d_nnz_p,m,j,k,ierr;
     RowCIt row,e;
     VecCIt l,el;
-    double *xx,*bb,w;
-
-    ::Vec b_vec,x_vec;
+    double w;
 
     m = rows();
     assert(m == cols());
@@ -184,6 +182,20 @@ namespace Sparse {
     ierr = PCSetType(pc,PCLU); assert(!ierr); 
     ierr = PCLUSetUseInPlace(pc); assert(!ierr);
 
+    solve_only();
+
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void PETScMat::solve_only() {
+
+    int m,j,ierr,k,its;
+    double *xx,*bb;
+    ::Vec b_vec,x_vec;
+
+    m = rows();
+    assert(m == cols());
+
     ierr = VecCreateSeq(PETSC_COMM_SELF,m,&b_vec); assert(!ierr);
     ierr = VecDuplicate(b_vec,&x_vec); assert(!ierr);
     
@@ -203,31 +215,12 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void SuperLUMat::solve_only() {
+  void PETScMat::clean_factor() {
 
-    ::Vec b_vec,x_vec;
-
-    m = rows();
-    assert(m == cols());
-    nnz = size();
-
-    ierr = VecCreateSeq(PETSC_COMM_SELF,m,&b_vec); assert(!ierr);
-    ierr = VecDuplicate(b_vec,&x_vec); assert(!ierr);
-    
-    ierr = VecGetArray(b_vec,&bb); assert(!ierr); 
-    memcpy(bb,b,m*sizeof(double));
-    ierr = VecRestoreArray(b_vec,&bb); assert(!ierr); 
-    
-    ierr = SLESSolve(sles,b_vec,x_vec,&its); assert(!ierr); 
-
-    ierr = VecGetArray(x_vec,&xx); assert(!ierr); 
-    memcpy(b,xx,m*sizeof(double));
-    ierr = VecRestoreArray(x_vec,&xx); assert(!ierr); 
-
-    ierr = VecDestroy(x_vec); assert(!ierr); 
-    ierr = VecDestroy(b_vec); assert(!ierr); 
+    int ierr;
+    ierr = MatDestroy(A); assert(!ierr);
+    ierr = SLESDestroy(sles); assert(!ierr);
 
   }
-
 }
 

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.17 2001/10/07 00:53:42 mstorti Exp $
+// $Id: sp.cpp,v 1.18 2001/11/08 21:30:56 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -15,7 +15,7 @@ public:
   double fun(double v) const {return (a*v+b)*v+c;}
 } poly;
 
-void my_set(Vec &v,int k=1) {
+void my_set(Sparse::Vec &v,int k=1) {
   v.clear();
   int l = v.length();
   for (int j=0; j<l; j+= k) 
@@ -27,14 +27,15 @@ double power_nth(double v,void *u) {
 }
 
 #define M 1000
-int main() {
+int main(int argc, char **args) {
   int j,k,m,N;
 
-  Vec v(5),w(4),u,res_v;
+  PetscInitialize(&argc,&args,NULL,NULL);
+  Sparse::Vec v(5),w(4),u,res_v;
   GenVec &res = res_v;
   FullVec uu_f;
   GenVec &uu = uu_f;
-  Mat a,b,c;
+  PETScMat a,b,c;
   Indx I(14,17),J(8,14,2),K(0,4,2);
   double d1,d2,tol=1e-11,p,err;
 
@@ -216,4 +217,6 @@ int main() {
     }
   }
 #endif
+  PetscFinalize();
+  exit(0);
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.24 2001/11/08 03:28:12 mstorti Exp $
+// $Id: sparse.h,v 1.25 2001/11/08 21:30:52 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -13,6 +13,8 @@
 
 #include <SRC/util.h>
 #include <SRC/dsp_defs.h>
+
+#include <sles.h>
 
 #include "randomg.h"
 
@@ -536,6 +538,9 @@ void MatFSMContext::action() {			\
   private:
     /// Factored matrix
     ::Mat A;
+    SLES sles;
+    KSP ksp;
+    PC pc;
   public:
     void clean_factor();
     void solve_only();
@@ -543,4 +548,5 @@ void MatFSMContext::action() {			\
   };
 
 }
+
 #endif
