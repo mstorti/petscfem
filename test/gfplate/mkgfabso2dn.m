@@ -1,8 +1,9 @@
-## $Id: mkgfabso2dn.m,v 1.16 2005/02/08 00:35:32 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.16.2.1 2005/02/14 04:33:46 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
 
+mm = 1;
 w = zhomo([0 mm*Lx/Nx 0 Lx ],mm,Nx+1);
 [xnod,icone] = pfcm2fem(w);
 xnod = xnod(:,[2 1]);
@@ -84,6 +85,9 @@ fprintf(fid,"%d %d %d     %g %g\n",Nx+2,nnod+[7,8],-nor);
 fprintf(fid,"%d %d %d     %g %g\n",Nx+1,nnod+[1,2],nor);
 fprintf(fid,"%d %d %d     %g %g\n",2*Nx+2,nnod+[3,4],nor);
 fclose(fid);
+
+## Periodic b.c.'s at ends
+pfperi("gfabso2dn.peri.tmp",[Nx+2,2*Nx+2]',[1,Nx+2]',1:4);
 
 ## Fixa on reference nodes
 Uref = [rhoref,[uref,0]*Orot,pref];

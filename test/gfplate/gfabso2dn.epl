@@ -165,6 +165,7 @@ __INCLUDE__ ./gfabso2dn.fixa-ref.tmp
 __INCLUDE__ ./gfabso2dn.fixa-unused.tmp
 __INCLUDE__ ./gfabso2dn.fixa-twall.tmp
 __INCLUDE__ ./gfabso2dn.fixa-u.tmp
+#elsif $peri
 #else
 __INCLUDE__ ./gfabso2dn.fixa-outlet.tmp
 __INCLUDE__ ./gfabso2dn.fixa-in.tmp
@@ -174,4 +175,7 @@ __END_FIXA__
 
 constraint
 __INCLUDE__ ./gfabso2dn.fixa-slip.tmp
+#if $peri
+__INCLUDE__ ./gfabso2dn.peri.tmp
+#endif
 __END_CONSTRAINT__

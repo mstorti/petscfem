@@ -66,7 +66,8 @@ __END_HASH__
 ##================================================================
 # ndim nu ndof
 nodedata 2 2 4
-data ./comp_corner_Ma_5_low_Rey.nod.tmp
+# data ./comp_corner_Ma_5_low_Rey.nod.tmp
+data ./comp-corner-mesh-57k/comp_corner_Ma_5_low_Rey.nod.tmp
 __END_HASH__
 
 ##================================================================
@@ -74,5 +75,6 @@ elemset gasflow 4
 geometry cartesian2d
 dx 1
 npg 4 
-data ./comp_corner_Ma_5_low_Rey.con.tmp
+# data ./comp_corner_Ma_5_low_Rey.con.tmp
+data ./comp-corner-mesh-57k/comp_corner_Ma_5_low_Rey.con.tmp
 __END_HASH__

@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.46.2.3 2005/02/12 21:22:21 mstorti Exp $ 
+# $Id: Makefile,v 1.46.2.4 2005/02/14 04:33:45 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_cyl
+default: run_abso2dn
 
 # BOPT := O_c++
 SRCS = 
@@ -13,7 +13,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
 # CASE_NAME := cylabso
-CASE_NAME := comp_corner
+CASE_NAME := gfabso2dn
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -56,8 +56,8 @@ run_nozzle:
 
 run: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
-	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+# 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+# 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
 STEPS_DIR := ./STEPS
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
@@ -75,8 +75,8 @@ ifeq (1,0)
 		echo "tried  $$state and  $$state.gz" ; fi ;	\
 	echo in target dx_make_command: dx_step: $$dx_step
 endif
-	state_file=./$(CASE_NAME).dx-state.tmp \
-		octave -qH fixstate.m ; 
+# 	state_file=./$(CASE_NAME).dx-state.tmp \
+# 		octave -qH fixstate.m ; 
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
