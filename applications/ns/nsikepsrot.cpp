@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.18 2002/06/26 20:59:07 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.19 2002/07/05 19:14:45 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -402,8 +402,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  omega_v.set(flocstate).scale(alpha);
 	  alfa_v.set(flocstate);
 	  flocstate2.ir(1,nelr+2);
-	  omega_v.axpy(flocstate,1-alpha);
-	  alfa_v.rest(flocstate);
+	  omega_v.axpy(flocstate2,1-alpha);
+	  alfa_v.rest(flocstate2);
 
 	  // It doesn't make sense to have `steady' option in effect
 	  // and non-inertial frame with `omega' or linear acceleration
