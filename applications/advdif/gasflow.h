@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.20 2005/01/29 15:36:41 mstorti Exp $
+// $Id: gasflow.h,v 1.21 2005/02/07 16:05:12 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -146,6 +146,8 @@ public:
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
   void get_Cp(FastMat2 &Cp_a);
+
+  void get_C(FastMat2 &C_a);
 
 #define USE_COMP_P_SUPG
 #ifdef USE_COMP_P_SUPG
