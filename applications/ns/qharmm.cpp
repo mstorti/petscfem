@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.1 2002/12/17 02:13:57 mstorti Exp $
+//$Id: qharmm.cpp,v 1.2 2002/12/17 02:23:40 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -33,10 +33,10 @@ void read_cond_matrix(TextHashTable *thash, const char *s,
 void qharmm::elemset_init() {
   int ierr;
   cond.resize(2,ndof,ndof);
-  rho_Cp_m.resize(2,ndof,ndof);
+  // rho_Cp_m.resize(2,ndof,ndof);
   //o Thermal conductivity
   read_cond_matrix(thash,"conductivity",ndof,cond);
-  read_cond_matrix(thash,"rho_Cp",ndof,rho_Cp_m);
+  // read_cond_matrix(thash,"rho_Cp",ndof,rho_Cp_m);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -46,16 +46,8 @@ void qharmm::pg_connector(const FastMat2 &xpg,
 			 const FastMat2 &state_new_pg,
 			 const FastMat2 &grad_state_new_pg,
 			 FastMat2 &res_pg,FastMat2 &mat_pg) {
-  assert(0);
-#if 0
-  res_pg
-    .prod(dshapex,grad_state_new_pg,-1,1,-1,2)
-    .scale(-conductivity);
-  mat_pg
-    .ir(2,1)			// Set `dof' indices
-    .ir(4,1)
-    .prod(dshapex,dshapex,-1,1,-1,2) // add prod.
-    .scale(conductivity)	// scale by conductivity
-    .rs();
-#endif
+  tmp1.prod(dshapex,grad_state_new_pg,-1,1,-1,2);
+  res_pg.prod(tmp1,cond,1,-1,-1,2).scale(-1.);
+  tmp2.prod(dshapex,dshapex,-1,1,-1,2);
+  mat_pg.prod(tmp2,cond,1,3,2,4);
 }
