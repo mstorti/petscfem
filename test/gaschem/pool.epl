@@ -1,0 +1,146 @@
+# -*- mode: shell-script -*-
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+$Nx = 1;
+$Ny = 20;
+$Ly = 1;
+$Lx = $Ly/$Ny*$Nx;
+#
+#__END_TRANSCRIPT__
+@vars = qw(Nx Ny Lx Ly);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+:>//                            # ends ePerl block
+#================================================================
+global_options
+
+nsave 5
+<:pr('nstep'):> 
+initial_state "sqcav.ini.tmp"
+# initial_state sqcav.weak_form_0.tmp
+<:pr('save_file'):> 
+
+# type of solver (may be "iisd", "petsc"...)
+<:pr('solver'):>
+<:pr('preco_type'):> 
+<:pr('maxits'):> 
+# Number of subdomains
+<:pr('iisd_subpart'):>
+#if $update_jacobian
+# update_jacobian_iters 3
+update_jacobian_start_steps 3
+update_jacobian_steps 3
+report_consumed_time
+activate_debug_print
+#endif
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-6
+dtol 1e3
+nnwt 1
+
+Krylov_dim <:=$maxits:>
+print_internal_loop_conv 1
+#print_linear_system_and_stop 1
+#verify_jacobian_with_numerical_one 1
+
+#print_nodal_partitioning 1
+Dt <:=$Dt:>
+<:pr('steady'):>
+temporal_stability_factor 0
+
+shock_capturing_factor 0
+#if $cache_gdu
+local_store
+cache_grad_div_u
+#endif
+
+#if $meas_perf
+measure_performance
+measure_performance_loop_length 10
+#endif
+
+#if $g_body
+G_body 0 -1.
+#endif
+
+#if $dx_case eq 'file0'
+save_file_pattern "sqcav.state_%d.tmp"
+nsaverot 1
+nrec 100000
+nfile 1
+#endif
+
+#if $dx_case eq 'file2'
+save_file_pattern "sqcav.state_%d.tmp"
+nsaverot 1
+nrec 1
+nfile 100000
+#endif
+
+#if $file1 || $file3 || $synchro
+hook_list ns_dx_hook my_dx_hook
+#if !$allf
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
+dx_state_all_fields 0
+#endif
+#endif
+#if $file1 || $file3
+dx_read_state_from_file
+#endif
+# activate_debug
+
+# Use DX for visualization
+#if $use_qharmm
+hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
+dx_state_all_fields 0
+dx_steps 1
+#endif
+
+pressure_control_coef 0.
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ sqcav.nod.tmp
+_END_NODES__
+
+elemset <:=($use_qharmm ? 'qharmm' : 'nsi_tet_les_fm2'):> <:=($use_triangles ? 3 : 4):>
+name visc_fluid
+dx
+# report_consumed_time
+geometry <:=($use_triangles ? "triangle" : "cartesian2d"):>
+ndim 2
+npg <:=($use_triangles ? 3 : 4):>
+#if $use_qharmm
+Cp 4.
+C 0.
+conductivity 0.3
+#else
+<:pr('viscosity'):> 
+<:pr('weak_form'):>
+LES 0
+#endif
+__END_HASH__
+__INCLUDE__ sqcav.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+# fijacion en la presion
+1 3 0.
+# fijaciones de velocidad en las paredes
+__INCLUDE__ sqcav.fixa.tmp
+__END_FIXA__
