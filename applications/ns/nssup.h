@@ -1,3 +1,6 @@
+// -*- mode: C++ -*-
+/*__INSERT_LICENSE__*/
+//$Id: nssup.h,v 1.3 2001/10/07 00:55:58 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
