@@ -23,6 +23,7 @@
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
+#include "../../src/secant.h"
 
 #include "../../src/fastmat2.h"
 #include "advective.h"
@@ -32,7 +33,6 @@ extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
 #define MAXPROP 100
 
-  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -44,40 +44,30 @@ int wall_swfm2t::ask(const char *jobinfo,int &skip_elemset) {
   return 0;
 }
 
-struct Swfm2tWallFunData {
-  // Model of Launder & Spalding[1974], Krishnappan & Lau[1986]
-  double von_Karman_cnst,roughness,A0,A1,A2,A3,A4,rho;
-}
+class SwtWallFun : public Secant {
+public:
+  double y_wall_plus,von_Karman_cnst,roughness,A0,A1,A2,A3,rho,vwall,
+    viscosity;
+  SwtWallFun(double x0=0) : Secant(x0) {};
+  double residual(double x,void * = NULL);
+};
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "swfm2t_wall_res_fun" 
-double swfm2t_wall_res_fun(double yn,double vwall,
-			   double g,void *user_data) {
+#define __FUNC__ "SwtWallFun::residual()"
+double SwtWallFun::residual(double g,void *u=NULL) {
 
-  Swfm2tWallFunData *s = (Swfm2tWallFunData *)user_data;
   double U_star = g/rho;
-  double y_plus = U_star*yn/s->viscosity;
-  double rough_nbr = U_star*s->roughness/s->viscosity;
+  // double y_plus = U_star*yn/viscosity;
+  double rough_nbr = U_star * roughness / viscosity;
   double logrou=log(rough_nbr);
-  double exprou=exp(-s->A0*SQ(logrou));
-  double Bs=exprou*(s->A1+s->A2*logrou)+s->A3*(1-exprou);
-  double E=s->von_Karman_cnst*Bs/rough_nbr;
-  double RHS=U_star/s->von_Karman_cnst*log(E*y_plus);
-  return vwall-RHS;
+  double exprou=exp( - A0 * SQ(logrou) );
+  double Bs=exprou*(A1 + A2 * logrou) + A3 * (1-exprou);
+  double E=von_Karman_cnst * Bs / rough_nbr;
+  double RHS=U_star / von_Karman_cnst * log(E * y_wall_plus);
+  return vwall - RHS;
 }
-
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "swfm2t_wall_fun" 
-double swfm2t_wall_res_fun(double yn,double vwall,
-			   double &g, double &gprime,void *user_data) {
-  // Secant iteration in order to find g(yn)
-  Swfm2tWallFunData *s = (Swfm2tWallFunData *)user_data;
-  double v1=vwall,g1=g;
-  r1=swfm2t_wall_res_fun(yn,v1,g1,
 
 
 
@@ -104,20 +94,45 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
   int nen = nel*ndof;
   int ndimel = ndim-1;
   int nu=nodedata->nu;
+  int nH = nu-ndim;
 
   // Get arguments from arg_list
 
-  //o The $y^+$ coordinate of the computational boundary
-  NSGETOPTDEF(double,y_wall_plus,25.);
-  double fwall,fprime;
+  Swfm2tSecant swfm2t;
+
+#undef GETOPTDEF_HOOK
+#define GETOPTDEF_HOOK(name) (swfm2t.name)
+  // Parameters for the wall law function
+  //o Viscosity
+  NSGETOPTDEF_ND(double,viscosity,1);
+  //o The non-dmensional distance to the wall
+  NSGETOPTDEF_ND(double,y_wall_plus,8.);
+  //o The von Karman constant
+  NSGETOPTDEF_ND(double,von_Karman_cnst,1.);
+  //o Roughness of the wall
+  NSGETOPTDEF_ND(double,roughness,0.);
+  //o Parameter of the model
+  NSGETOPTDEF_ND(double,A0,-0.217);
+  //o Parameter of the model
+  NSGETOPTDEF_ND(double,A1,5.50);
+  //o Parameter of the model
+  NSGETOPTDEF_ND(double,A2,2.50);
+  //o Parameter of the model
+  NSGETOPTDEF_ND(double,A3,8.5);
+  // Return GETOPTDEF_ND_HOOK to his previous value
+#undef GETOPTDEF_ND_HOOK
+#define GETOPTDEF_ND_HOOK(name) name
+
+  GlobParam *glob_param;
   arg_data *staten,*stateo,*retval,*Ajac,*jac_prof;
   if (comp_res) {
-    swfm2t_wall_fun(y_wall_plus,fwall,fprime);
     int j=-1;
     staten = &arg_data_v[++j];
     stateo = &arg_data_v[++j];
     retval  = &arg_data_v[++j];
     Ajac = &arg_data_v[++j];
+    ++j; // this is dtmin, we don't use this here
+    glob_param = (GlobParam *) arg_data_v[++j].user_data;;
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
@@ -134,8 +149,12 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),xc(ndim),locstate(nel,ndof),
     locstateo(nel,ndof),locstaten(nel,ndof); 
 
-  FastMat2 matloc(4,nel,ndof,nel,ndof);
+  FastMat2 matloc(4,nel,ndof,nel,ndof),Hloc(2,nel,nH);
   FastMat2 matlocmom(2,nel,nel);
+
+  // The trapezoidal rule integration parameter 
+#define ALPHA (glob_param->alpha)
+#define DT (glob_param->Dt)
 
   double rho=1.;
   // Trapezoidal method parameter. 
@@ -150,15 +169,15 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
   double detJaco,p_star,wpgdet;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim);
-  FMatrix grad_p_star(ndim),u,u_star,ucols,ucols_new,ucols_star,
+  FMatrix grad_p_star(ndim),u,u_star,ucolsn,ucolso,ucols_star,
     pcol_star,pcol_new,pcol;
   FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,tmp5,seed(ndof,ndof);
 
-  if (comp_mat_res) {
+  if (comp_res) {
     seed.eye().setel(0.,ndof,ndof);
   }
 
-  if (comp_mat) {
+  if (comp_prof) {
     matloc_prof.set(1.);
   }
 
@@ -181,7 +200,6 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
     }
 
     if (comp_res) {
-      lambda_max=0;
       locstateo.set(element.vector_values(*stateo));
       locstaten.set(element.vector_values(*staten));
     }
@@ -193,11 +211,15 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
     matloc.set(0.);
     veccontr.set(0.);
 
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE    (*gp_data.FM2_shape[ipg])
+#define WPG      (gp_data.wpg[ipg])
+
     ucolso.set(locstateo.is(2,1,ndim));
-    locstate2.rs();
+    locstateo.rs();
 
     ucolsn.set(locstaten.is(2,1,ndim));
-    locstate.rs();
+    locstaten.rs();
 
     ucols_star.set(ucolsn).scale(alpha).axpy(ucolso,1-alpha);
 
@@ -214,7 +236,9 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 	double Ustar = sqrt(u_star.sum_square_all());
-	double gfun,gprime;
+	swt->vwall = Ustar;
+	g = swfm2t_secant->sol(&swt_data);
+#if 0
 	gprime = rho / (fwall*fwall);
 	gfun = gprime * Ustar;
 
@@ -227,6 +251,7 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
 	matloc.add(tmp4);
 
 	veccontr.axpy(tmp2,-gfun*detJaco);
+#endif
       }
 
       matlocmom.rs();

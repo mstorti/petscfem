@@ -125,6 +125,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matlocf.set(1.);
   }
 
+  //o Use the weak form for the Galerkin part of the advective term. 
+  NSGETOPTDEF(int,weak_form,1);
   // Allocate local vecs
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
     locstateo(nel,ndof),locstaten(nel,ndof),

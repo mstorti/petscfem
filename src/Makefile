@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2001/01/22 12:58:24 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/02/07 01:05:58 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -9,7 +9,7 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
           fastmat utils getprop \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
-	  measperf mainutl sttfilter state
+	  measperf mainutl sttfilter state secant
 
 # Fortran files
 FLIBOBJS_ =  spline seval
@@ -59,9 +59,6 @@ measperf.o: CCPPFLAGS += -O1
 local_clean:: local_dist_clean
 	-rm -f version.cpp libpetscfem.a # &> /dev/null
 
-tryme: tryme.o seval.o spline.o
-	g++ -o tryme tryme.o seval.o spline.o
-
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	eperl readlist.eperl > readlist.h
@@ -71,3 +68,19 @@ version.cpp: version.cppin ../VERSION
 	rm -f version.cpp
 	eperl version.cppin >version.cpp
 	-chmod -w version.cpp
+
+.SECONDARY: tryme.o secant.o
+tryme: CPPFLAGS = 
+tryme: secant.o tryme.o
+	g++ -o tryme tryme.o secant.o 
+secant.o: secant.cpp secant.h
+tryme.o: tryme.cpp secant.h
+
+secant.o: secant.cpp
+	g++ -c $<
+
+tryme.o: tryme.cpp
+	g++ -c $<
+
+local_clean::
+	-rm -rf tryme 

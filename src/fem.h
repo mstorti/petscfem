@@ -65,6 +65,13 @@
       } else 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** This is prepended in some of the GETOPT macros to the name of the
+    variable. 
+    Remember to first "undef" the macro
+*/ 
+#define GETOPTDEF_HOOK(name) name
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from any hash table. 
     Example: GETOPTDEF(thash,int,n,10) 
     @author M. Storti
@@ -168,8 +175,8 @@
     @param default default value. 
 */ 
 #define SGETOPTDEF_ND(type,name,default) \
-        name = default; \
-        ierr = get_##type(thash,#name,&name,1); \
+        (GETOPTDEF_HOOK(name)) = default; \
+        ierr = get_##type(thash,#name,&(GETOPTDEF_HOOK(name)),1); \
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -213,6 +220,20 @@
 #define NSGETOPTDEF(type,name,default) \
         type name=default; \
         ierr = get_##type(#name,name,1); \
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Gets a value of type int or double from the general
+    element hash table. OOP version. Doesn't define the variable.
+    Example: NSGETOPTDEF(int,n,10)
+    @author M. Storti
+    @param type may be `int' or `double'
+    @param name name of the variable
+    @param default default value. 
+*/ 
+#define NSGETOPTDEF_ND(type,name,default) \
+        GETOPTDEF_HOOK(name)=default; \
+        ierr = get_##type(#name,GETOPTDEF_HOOK(name),1); \
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -25,10 +25,10 @@ public:
   /// Default constructor
   Secant() {};
   /// Constructor with default parameters
-  Secant(double x0_) : x0(x0_), epsilon(1e-3), tol(1e-3), maxits(20),
+  Secant(double x0_=0) : x0(x0_), epsilon(1e-3), tol(1e-3), maxits(20),
     omega(1.) {};
   /// This should be defined by the user
-  virtual double residual(double x) =0;
+  virtual double residual(double x,void *user_data=NULL) =0;
   /// Computes the solution
   double sol();
 };

@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.11 2001/02/06 17:14:31 mstorti Exp $ 
+ # $Id: Makefile,v 1.12 2001/02/07 01:05:54 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -46,15 +46,3 @@ $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
 
 local_dist_clean::
 	-rm -f *.o
-
-tryme: CPPFLAGS = 
-tryme: secant.o tryme.o
-	g++ -o tryme tryme.o secant.o 
-secant.o: secant.cpp secant.h
-tryme.o: tryme.cpp secant.h
-
-secant.o: secant.cpp
-	g++ -c $<
-
-tryme.o: tryme.cpp
-	g++ -c $<
