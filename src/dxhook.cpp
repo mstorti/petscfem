@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.35 2003/02/19 12:45:46 mstorti Exp $
+//$Id: dxhook.cpp,v 1.36 2003/02/19 16:09:33 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -155,6 +155,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
     assert(srvr_root);
     PetscPrintf(PETSC_COMM_WORLD,"Done.\n");
   }
+  GLOBAL_DEBUG->trace("trace dxhook 1");
   mesh = &mesh_a;
   dofmap = &dofmap_a;
   
@@ -196,6 +197,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
       }
     }
   }
+  GLOBAL_DEBUG->trace("trace dxhook 2");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

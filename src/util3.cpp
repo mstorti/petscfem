@@ -1,12 +1,10 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.5 2003/02/16 01:42:01 mstorti Exp $
+// $Id: util3.cpp,v 1.6 2003/02/19 16:09:33 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <mpi.h>
-#include <HDR/sockets.h>
-
 #include <src/util3.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -41,6 +39,7 @@ void tokenize(const char *line,vector<string> &tokens) {
   delete[] copy;
 }
 
+#ifdef USE_SSL
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SGETLINE_FACTOR 2
 #define SGETLINE_INIT_SIZE 512
@@ -99,6 +98,7 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   // return number of bytes read
   return strlen(*lineptr)+1;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DXSplit::parse(const char *line) {
