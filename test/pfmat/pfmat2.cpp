@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.1.2.4 2002/01/03 21:47:44 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.1.2.5 2002/01/04 02:43:55 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -45,7 +45,7 @@ int main(int argc,char **args) {
   PFMat *A_p;
   Vec x,b,xex;
   int ierr,iisd_subpart,nsolve,rand_flag,mat_type,q_type,
-    tests_ok=1,nprof=1,chkkey,chkkey_c;
+    tests_ok=1,nprof=1,chkkey,chkkey_c,oct_check=1;
   unsigned int SEED;
   // is_diag:= `is_diag[k]' flags whether the element `k' is Laplace
   // (element matrix propto. [1 -1; -1 1]) or Identity ([1 0; 0 1]);
@@ -218,26 +218,32 @@ int main(int argc,char **args) {
       A.assembly_end(MAT_FINAL_ASSEMBLY); 
       if (myrank==0) {
 	fclose(fid);
-	system("octave -q < checkpf.m");
+	if (oct_check) system("octave -q < checkpf.m");
       }
       // A.view();
 
       for (int ksolve=0; ksolve<nsolve; ksolve++) {
 
+	if (!oct_check) PetscPrintf(PETSC_COMM_WORLD,"solve...\n");
 	if (myrank==0) {
-	  fid = fopen("xsol.tmp","r");
-	  fscanf(fid,"%d",&chkkey_c);
-	  assert(chkkey_c==chkkey);
 	  for (int j=0; j<N; j++) {
 	    double Qx=1.;
 	    ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES);
 	    CHKERRA(ierr);
+	  }
+	}
+	if (oct_check && myrank==0) {
+	  fid = fopen("xsol.tmp","r");
+	  fscanf(fid,"%d",&chkkey_c);
+	  assert(chkkey_c==chkkey);
+	  for (int j=0; j<N; j++) {
 	    double val;
 	    fscanf(fid,"%lf",&val);
 	    ierr = VecSetValues(xex,1,&j,&val,INSERT_VALUES);
 	    CHKERRA(ierr);
 	  }
 	}
+
 	ierr = VecAssemblyBegin(b); CHKERRA(ierr);
 	ierr = VecAssemblyEnd(b); CHKERRA(ierr);
 	ierr = VecAssemblyBegin(xex); CHKERRA(ierr);
@@ -251,29 +257,34 @@ int main(int argc,char **args) {
 	  ierr = VecView(b,VIEWER_STDOUT_WORLD);
 	  PetscPrintf(PETSC_COMM_WORLD,"FEM: \n");
 	  ierr = VecView(x,VIEWER_STDOUT_WORLD);
-	  PetscPrintf(PETSC_COMM_WORLD,"Exact (Octave): \n");
-	  ierr = VecView(xex,VIEWER_STDOUT_WORLD);
+	  if (oct_check) {
+	    PetscPrintf(PETSC_COMM_WORLD,"Exact (Octave): \n");
+	    ierr = VecView(xex,VIEWER_STDOUT_WORLD);
+	  }
 	}
 
-	double norm,normex;
-	double scal = -1.;
-	ierr  = VecNorm(xex,NORM_2,&normex); CHKERRA(ierr);
+	if (oct_check) {
+	  double norm,normex;
+	  double scal = -1.;
+	  ierr  = VecNorm(xex,NORM_2,&normex); CHKERRA(ierr);
 
-	ierr = VecAXPY(&scal,xex,x); CHKERRA(ierr);
-	ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
+	  ierr = VecAXPY(&scal,xex,x); CHKERRA(ierr);
+	  ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
 
-	int this_ok = norm/normex<=tol;
-	PetscPrintf(PETSC_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
-		    "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
-		    norm,norm/normex,tol);
-	if (!this_ok) tests_ok = 0;
+	  int this_ok = norm/normex<=tol;
+	  PetscPrintf(PETSC_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
+		      "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
+		      norm,norm/normex,tol);
+	  if (!this_ok) tests_ok = 0;
+	}
       }
       A.clean_factor(); 
     }
     A.clear();
   }
 
-  PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
+  if (oct_check) PetscPrintf(PETSC_COMM_WORLD,
+			     "All tests OK ?  %d\n",tests_ok);
   PetscFinalize();
   exit(0);
  

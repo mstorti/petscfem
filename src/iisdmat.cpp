@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.9 2001/12/31 04:01:26 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.10 2002/01/04 02:43:50 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -54,10 +54,7 @@ int PFPETScMat::solve(Vec &res,Vec &dx) {
 #undef __FUNC__
 #define __FUNC__ "PFMat::clear"
 void PFPETScMat::clear() {
-  if (factored) {
-    int ierr = SLESDestroy(sles); 
-    PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
-  }
+  clean_factor();
 }
 
 #if 0
