@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.15 2001/07/04 18:37:55 mstorti Exp $
+//$Id: wallke.cpp,v 1.16 2001/07/05 02:30:04 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -29,46 +29,83 @@ extern int TSTEP; //debug:=
 // paragraph `Pure virtual destructors' 
 WallFun::~WallFun() {}; 
 
+/** Constructor. It sets the elemset pointer and defines constants. 
+*/ 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "WallFunStd::WallFunStd(Elemset *)"
 WallFunStd::WallFunStd(Elemset *e) : elemset(e) {
+  // These constants have to be computed precisely in order to
+  // smoothly match the three patches of the function. 
+  // c1 \approx -3.05
   c1 = -5.*log(5.)+5.;
+  // c2 \approx 5.5
   c2 = 5.*log(30.)+c1-2.5*log(30.);
 };
 
+/// The wall function
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void WallFunStd::w()"
 void WallFunStd::w(double yp,double &f,double &fprime) {
   if (yp<0) {
+    // Perhaps it could make sense to do f(y) antisymmetric?
     PETSCFEM_ERROR0("y+<0. Invalid value for y+\n");
   } if (yp<5) {
+    // Laminar region
     f = yp;
     fprime = 1.;
   } else if (yp<30) {
+    // Buffer region
     f = 5.0*log(yp)+c1;
     fprime = 5.0/yp;
   } else {
+    // Full logarithmic region
     f = 2.5*log(yp)+c2;
     fprime = 2.5/yp;
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void WallFunSecant::solve()"
+// Solve the nonlinear equation in the friction velocity
+// for a given velocity at the near wall. 
 void WallFunSecant::solve(double u_,double &ustar,double &tau_w,double &yplus,
 			  double &fwall, double &fprime,
 			  double &dustar_du) {
+  // set member to entered value
   u = u_;
+  // set initial value
   x0 = sqrt(nu*u/y_wall);
-  // *This* is the friction velocity at the wall
+  // solve for friction velocity at the wall
   ustar = sol();
+  // non-dimensional normal velocity at near wall
   yplus = y_wall*ustar/nu;
+  // compute wall function and slope
   wf->w(yplus,fwall,fprime);
+  // wall friction
   tau_w = rho * square(ustar);
+  // derivative of friction velocity with respect to velocity
+  // through wall relation.
   dustar_du = 1./(fwall+yplus*fprime);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "double WallFunSecant::residual()"
 double WallFunSecant::residual(double ustar,void *user_data=NULL) {
+  // non-dimensional normal velocity at near wall
   double yp = y_wall*ustar/nu;
+  // compute wall function and slope
   double f,fp;
   wf->w(yp,f,fp);
+  // residual of wall law relation between u and u* at constant
+  // y_wall
   return u - ustar * f;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int NonLinearRes::ask(const char *jobinfo,int &skip_elemset)"
 int wallke::ask(const char *jobinfo,int &skip_elemset) {

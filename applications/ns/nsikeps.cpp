@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.13 2001/07/02 14:24:15 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.14 2001/07/05 02:30:04 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -23,6 +23,9 @@ extern TextHashTable *GLOBAL_OPTIONS;
 //#define SQ(n) ((n)*(n))
 #define SQ(n) square(n)
 
+/** Cutoff function. It is very near to ${\rm ctff(x)\approx \rm tol$ for
+    $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
+*/ 
 inline double ctff(double x, double tol=1e-5) {
   double r=x/tol-1.; 
   double ee,ret;
