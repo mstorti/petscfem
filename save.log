@@ -3044,3 +3044,6 @@ tag: beta-3.23.pl19 on Thu, 13 Nov 2003 11:27:11 -0300 by mstorti in node1.beowu
      > Runs 2D example. 
      > Detected bug in gaschem.cpp: off-diagonal 
      >     elements in tau_supg not initialized. 
+----------
+tag: beta-3.23.pl20 on Thu, 13 Nov 2003 21:16:56 -0300 by mstorti in spider
+     > Runs almost all tests, except thos in Burgers
