@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: godunov_hook.cpp,v 1.1.2.1 2004/03/19 18:57:52 mstorti Exp $
+//$Id: godunov_hook.cpp,v 1.1.2.2 2004/07/07 15:17:53 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -27,8 +27,6 @@ extern int MY_RANK,SIZE;
 
 const vector<double> *gather_values = NULL;
 
-dvector<double> time_bottom_vel, bottom_vel;
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Hook executed in the advdif run */ 
 class godunov_hook {
@@ -52,7 +50,7 @@ void godunov_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   if (!MY_RANK) {
     printf("ADV_HOOK: starting init()\n");
     int ierr;
-    //o Flag fo launching the `mesh_move' process.
+    //o Flag fo launching the godunov process.
     TGETOPTDEF(GLOBAL_OPTIONS,int,launch_godunov,1);
     if (launch_godunov) {
       printf("ADV_HOOK_INIT: Starting ADV_HOOK...\n");
@@ -106,7 +104,7 @@ void godunov_hook::init(Mesh &mesh_a,Dofmap &dofmap,
 void godunov_hook::time_step_pre(double time,int step) {}
 
 void godunov_hook::read_mesh() {
-  // Reads displacements computed by `mesh_move' and add to nodedata
+  // Reads states computed by godunov and add to nodedata
   FILE *fid = fopen(CASE_NAME "_god.state.tmp","r");
   double d;
   double *nodedata = mesh->nodedata->nodedata;
@@ -134,8 +132,6 @@ void godunov_hook::time_step_post(double time,int step,
     printf("ADV_HOOK: starting time_step_post()\n");
     int ierr;
     fprintf(adv2god,"step %d\n",step);
-    // Here goes reading the data from  mesh_move and assigning
-    // to the new mesh
     int god_step = int(read_doubles(god2adv,"god_step_ok"));
     assert(step==god_step);
     read_mesh();
@@ -159,41 +155,37 @@ void godunov_hook::close() {
 DL_GENERIC_HOOK(godunov_hook);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// spines:= directions (normalized) along which the displacements
+// normals:= directions (normalized) along which the reflections
 // are imposed
-dvector<double> spines;
-// displ:= current displacements (they cumulate during time steps)
-dvector<double> displ;
-// fs:= vector of nodes on the free surface (FS)
-dvector<int> fs;
-// fs2indx_t:= type of fs2indx
-typedef map<int,int> fs2indx_t;
-// fs2indx:= map (FS -> index FS list)
-fs2indx_t fs2indx;
+dvector<double> normals;
+// states:= current states (they cumulate during time steps)
+dvector<double> states;
+// fs:= vector of nodes on the ficticious boundary (FB)
+dvector<int> fb;
+// fb2indx_t:= type of fb2indx
+typedef map<int,int> fb2indx_t;
+// fb2indx:= map (FB -> index FB list)
+fb2indx_t fb2indx;
 
 /** Hook executed in the godunov run */ 
 class adv_god_hook {
 private:
-  /// Fifos for cummunicating with the NS run
+  /// Fifos for cummunicating with the advdif run
   FILE *adv2god,*god2adv;
-  /// Number of nodes, dimension, number of nodes on the FS
-  int nnod, ndim, nfs;
-  /// time step, relaxation coefficient, FS smoothing coeficient
-  double Dt, fs_relax, fs_smoothing_coef;
+  /// Number of nodes, dimension, number of nodes on the FB
+  int nnod, ndim, nfb;
+  /// time step
+  double Dt;
   // Pointer to the mesh, in order to obtain the nodedata
   Mesh *mesh;
-  /// Flags whether the FS is assumed to be cyclic 
-  int cyclic_fs;
-  /// Print some values related to the update of the FS
-  int fs_debug;
-  /// If the problem is cyclic then this is the period 
-  double cyclic_length;
+  /// Print some values related to the update of the FB
+  int fb_debug;
   /// Restart a previous run
   int restart;
   /// Number of times the filter is applied
   int nfilt;
   /// temporary buffer
-  dvector<double> displ_old, dn, sn, ds, ds2;
+  dvector<double> states_old, dn, sn, ds, ds2;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -227,9 +219,9 @@ void adv_god_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   // fixme:= some things here will not run in parallel
   nnod = mesh->nodedata->nnod;
   ndim = 2;
-  // Read list of nodes on the FS ad spines (all of size nfs).
-  FILE *fid = fopen(CASE_NAME ".nod_fs.tmp","r");
-  FILE *fid2 = fopen(CASE_NAME ".spines.tmp","r");
+  // Read list of nodes on the FB ad normals (all of size nfb).
+  FILE *fid = fopen(CASE_NAME ".nod_fb.tmp","r");
+  FILE *fid2 = fopen(CASE_NAME ".normals.tmp","r");
   int indx=0;
   printf("ADV_GOD_HOOK: trace -1\n");
   while(1) {
@@ -238,77 +230,65 @@ void adv_god_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     int nread = fscanf(fid,"%d",&node);
     if (nread==EOF) break;
     double s;
-    // Spines are normalized
+    // Normals are normalized
     double s2 = 0.;
-    int pos = spines.size();
+    int pos = normals.size();
     for (int j=0; j<ndim; j++) {
       nread = fscanf(fid2,"%lf",&s);
       // printf("read %f\s",s);
       assert(nread==1);
       s2 += s*s;
-      spines.push(s);
+      normals.push(s);
     }
-    // Normalize spines
+    // Normalize normals
     s2 = sqrt(s2);
-    for (int j=0; j<ndim; j++) spines.e(pos+j) /= s2;
+    for (int j=0; j<ndim; j++) normals.e(pos+j) /= s2;
 
-    // Verify that spine nodes are unique
-    assert(fs2indx.find(node)==fs2indx.end());
-    fs.push(node);
+    // Verify that normals nodes are unique
+    assert(fb2indx.find(node)==fb2indx.end());
+    fb.push(node);
     // load map
-    fs2indx[node] = indx++;
+    fb2indx[node] = indx++;
   }
   printf("ADV_GOD_HOOK: trace 0\n");
 
   fclose(fid);
   fclose(fid2);
-  // Number of nodes on the FS
-  nfs = fs2indx.size();
-  assert(spines.size()==ndim*nfs);
-  spines.reshape(2,nfs,ndim);
+  // Number of nodes on the FB
+  nfb = fb2indx.size();
+  assert(normals.size()==ndim*nfb);
+  normals.reshape(2,nfb,ndim);
   
-  displ.set_chunk_size(ndim*nfs);
-  displ.a_resize(2,nfs,ndim);
-  displ.set(0.);
+  states.set_chunk_size(ndim*nfb);
+  states.a_resize(2,nfb,ndim);
+  states.set(0.);
 
-  displ_old.set_chunk_size(ndim*nfs);
-  displ_old.a_resize(2,nfs,ndim);
-  displ_old.set(0.);
+  states_old.set_chunk_size(ndim*nfb);
+  states_old.a_resize(2,nfb,ndim);
+  states_old.set(0.);
   
-  dn.set_chunk_size(nfs);
-  dn.a_resize(1,nfs);
+  dn.set_chunk_size(nfb);
+  dn.a_resize(1,nfb);
   dn.set(0.);
   
-  ds.set_chunk_size(nfs);
-  ds.a_resize(1,nfs);
+  ds.set_chunk_size(nfb);
+  ds.a_resize(1,nfb);
   ds.set(0.);
   
-  ds2.set_chunk_size(nfs);
-  ds2.a_resize(1,nfs);
+  ds2.set_chunk_size(nfb);
+  ds2.a_resize(1,nfb);
   ds2.set(0.);
   
-  sn.set_chunk_size(nfs);
-  sn.a_resize(1,nfs);
+  sn.set_chunk_size(nfb);
+  sn.a_resize(1,nfb);
   sn.set(0.);
   
   //o Time step.
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
   assert(Dt>0.);
-  //o Relaxation factor for the update of the free surface position. 
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,fs_relax,1.);
-  //o Smoothing factor for the update of the free surface
-  //  position. 
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,fs_smoothing_coef,0.);
-  //o Print some values related to the update of the FS
+  //o Print some values related to the update of the FB
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,fs_debug,0);
-  //o Assume problem is periodic 
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,cyclic_fs,0);
-  //o Assume problem is periodic 
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,cyclic_length,0);
-  //o Assume problem is periodic 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,restart,0);
-  //o Number of times the filter is applied
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,nfilt,1);
 
   printf("ADV_GOD_HOOK: trace 1\n");
   if (!MY_RANK && !restart) {
@@ -317,24 +297,24 @@ void adv_god_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     fclose(fid);
   } 
 
-  printf("ADV_GOD_HOOK: trace 2\n");
+s  printf("ADV_GOD_HOOK: trace 2\n");
   // Read the last computed mesh
   if (!MY_RANK && restart) {
     fid = fopen(CASE_NAME "_god.state.tmp","r");
     double *xnod = mesh->nodedata->nodedata;
     int nu = mesh->nodedata->nu;
     
-    fs2indx_t::iterator q,qe = fs2indx.end();
+    fb2indx_t::iterator q,qe = fb2indx.end();
     for (int node=1; node<=nnod; node++) {
       indx = -1;
-      q = fs2indx.find(node);
+      q = fb2indx.find(node);
       if(q!=qe) indx = q->second;
       double d;
       for (int j=0; j<ndim; j++) {
 	int nread = fscanf(fid,"%lf",&d);
 	assert(nread==1);
-	// if (indx>=0) displ.e(indx,j) = d - xnod[(node-1)*nu+j];
-	if (indx>=0) displ.e(indx,j) = d;
+	// if (indx>=0) states.e(indx,j) = d - xnod[(node-1)*nu+j];
+	if (indx>=0) states.e(indx,j) = d;
       }
     }
     fclose(fid);
@@ -356,13 +336,13 @@ void adv_god_hook::time_step_pre(double time,int step) {
     exit(0);
   }
   assert(step=step_sent);
-  // Open state file. Will read velocities on the FS
-  // and update displ += v * Dt
+  // Open state file. Will read velocities on the FB
+  // and update states += v * Dt
   FILE *fid = fopen(CASE_NAME ".state.tmp","r");
   // string buffer 
   AutoString line;
   vector<string> tokens;
-  fs2indx_t::iterator qe = fs2indx.end();
+  fs2indx_t::iterator qe = fb2indx.end();
   // Get coordinates pointer
   double *nodedata = mesh->nodedata->nodedata;
   int nu = mesh->nodedata->nu;
@@ -371,28 +351,28 @@ void adv_god_hook::time_step_pre(double time,int step) {
     dx0(1,ndim),dx1(1,ndim),dx2(1,ndim),
     x01(1,ndim),x12(1,ndim),normal(1,ndim);
   // Reads the whole file
-  displ_old.set(displ.buff());
+  states_old.set(states.buff());
   for (int node=1; node<=nnod; node++) {
-    // Reads line (even if it is not in the FS)
+    // Reads line (even if it is not in the FB)
     line.getline(fid);
-    // if node is not on the FS, then skip
-    fs2indx_t::iterator q = fs2indx.find(node);
+    // if node is not on the FB, then skip
+    fb2indx_t::iterator q = fb2indx.find(node);
     if (q==qe) continue;
     // index in the containers
     int indx = q->second;
-    if (!cyclic_fs && (indx==0 || indx==nfs)) continue;
+    if (indx==0 || indx==nfb) continue;
     // Compute normal component of velocity
-    int fs_debug = 0;
+    int fb_debug = 0;
     tokens.clear();
     tokenize(line.str(),tokens);
     assert(tokens.size()==ndim+1);
     // -- Compute normal --
-    // FS nodes at the end of the FS must be treated specially.
-    // Currently assumes cyclic FS
+    // FB nodes at the end of the FB must be treated specially.
+    // Currently assumes cyclic FB
     // assert(cyclic_fs);
     // Compute coordinates of three nodes on the free surface
     // Node at the center
-    dx1.set(&displ_old.e(indx,0));
+    dx1.set(&states_old.e(indx,0));
     x1.set(&nodedata[nu*(node-1)]).add(dx1);
 
     // Previous node
@@ -403,7 +383,7 @@ void adv_god_hook::time_step_pre(double time,int step) {
       if (indx0<0) indx0 = (cyclic_fs ? modulo(indx0,nfs,&div2) : 0);
       node0 = fs.e(indx0);
       x0.set(&nodedata[nu*(node0-1)]);
-      dx0.set(&displ_old.e(indx0,0));
+      dx0.set(&states_old.e(indx0,0));
       x0.addel(div0*cyclic_length,1).add(dx0);
     } else {
       indx0 = indx-1;
@@ -417,30 +397,12 @@ void adv_god_hook::time_step_pre(double time,int step) {
       if (indx2 >= nfs) indx2 = (cyclic_fs ? modulo(indx2,nfs,&div2) : nfs-1);
       node2 = fs.e(indx2);
       x2.set(&nodedata[nu*(node2-1)]);
-      dx2.set(&displ_old.e(indx2,0));
+      dx2.set(&states_old.e(indx2,0));
       x2.addel(div2*cyclic_length,1).add(dx2);
     } else {
       indx2 = indx+1;
       assert(indx2 >= 0);
     }
-
-#if 0
-    printf("indx0 %d, indx %d, indx2 %d\n",indx0,indx,indx2);
-    printf("displ(indx2,*): %f %f\n",displ.e(indx2,0),displ.e(indx2,1));
-    printf("&displ(indx0,*): %p %p\n",&displ.e(indx0,0),&displ.e(indx0,1));
-    printf("&displ(indx ,*): %p %p\n",&displ.e(indx ,0),&displ.e(indx ,1));
-    printf("&displ(indx2,*): %p %p\n",&displ.e(indx2,0),&displ.e(indx2,1));
-#endif
-
-#if 0
-    printf("indx %d, div0 %d, div2 %d\n",indx,div0,div2);
-    x0.print("x0:");
-    x1.print("x1:");
-    x2.print("x2:");
-    dx0.print("dx0:");
-    dx1.print("dx1:");
-    dx2.print("dx2:");
-#endif
 
     // Segments 0-1 1-2
     x01.set(x1).rest(x0);
@@ -465,7 +427,7 @@ void adv_god_hook::time_step_pre(double time,int step) {
     normal.scale(1./n2);
     if (fs_debug) normal.print("normal: ");
 
-    // Compute displacement
+    // Compute statesacement
     double v, vn=0., ssn=0., s2=0.;
     n2 = 0.;
     if (fs_debug) printf("node %d, vel, nor, spin ",node);
@@ -487,12 +449,12 @@ void adv_god_hook::time_step_pre(double time,int step) {
     sn.e(indx) = ssn;
   }
 
-  // Compute displacements along the spines
+  // Compute statesacements along the spines
   for (int indx=0; indx<nfs; indx++) {
     if (!cyclic_fs && indx==0) continue;
     double d=0.;
     for (int j=0; j<ndim; j++) 
-      d += spines.e(indx,j)*displ.e(indx,j);
+      d += spines.e(indx,j)*states.e(indx,j);
     d += dn.e(indx)/sn.e(indx); // This is the correction due to non alignement
 				// between the normal and the spine
     ds.e(indx) = d;
@@ -513,11 +475,11 @@ void adv_god_hook::time_step_pre(double time,int step) {
     // Not implemented yet, do nothing
   }
   
-  // Compute vector displacements from amplitude
-  // displacements projected on the spines
+  // Compute vector statesacements from amplitude
+  // statesacements projected on the spines
   for (int indx1=0; indx1<nfs; indx1++)
     for (int j=0; j<ndim; j++)
-      displ.e(indx1,j) = ds.e(indx1)*spines.e(indx1,j);
+      states.e(indx1,j) = ds.e(indx1)*spines.e(indx1,j);
   
   fclose(fid);
   if (!MY_RANK) {
@@ -525,7 +487,7 @@ void adv_god_hook::time_step_pre(double time,int step) {
     for (int indx=0; indx<nfs; indx++) {
       int node = fs.e(indx);
       for (int j=0; j<ndim; j++) 
-	fprintf(fid,"%f ",nodedata[nu*(node-1)+j]+displ.e(indx,j));
+	fprintf(fid,"%f ",nodedata[nu*(node-1)+j]+states.e(indx,j));
       fprintf(fid,"\n");
     }
     fclose(fid);
@@ -542,116 +504,3 @@ void adv_god_hook::time_step_post(double time,int step,
 void adv_god_hook::close() {}
 
 DL_GENERIC_HOOK(adv_god_hook);
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class fs_coupling : public DLGenericTmpl {
-public:
-  fs_coupling() { }
-  void init(TextHashTable *thash) { }
-  double eval(double);
-  ~fs_coupling() { }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double fs_coupling::eval(double) { 
-  int ndim=2;
-  int f = field();
-  assert(f<=ndim);
-  int node_c = node();
-  fs2indx_t::iterator q = fs2indx.find(node_c);
-  PETSCFEM_ASSERT(q != fs2indx.end(),
-		  "Can't find node in FS node list\n"
-		  "node %d\n",node_c);
-  int indx = q->second;
-  double val = displ.e(indx,f-1);
-  // printf("fs_coupling: node %d, field %d, indx %d -> %f\n",node_c,f,indx,val);
-  return val;
-}
-
-DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_coupling);
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class fs_bottom : public DLGenericTmpl {
-private:
-public:
-  fs_bottom() { }
-  void init(TextHashTable *thash);
-  double eval(double);
-  ~fs_bottom() { }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void fs_bottom::init(TextHashTable *thash) { }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double fs_bottom::eval(double t) { 
-#if 0
-  static double last_time = DBL_MAX, last_val=0.;
-  int f = field();
-  if (f==1) return 0.;
-  assert(f==2);
-  double tol = 1e-10;
-  // return cached value
-  if (t==last_time) return last_val;
-  // search vector of previously times for computed bottom velocities
-  int ntime = time_bottom_vel.size();
-  if (ntime==0) return 0.;	// probably `adv_hook2' is not running
-  int j;
-  for (j=ntime-1; j>=0; j--) {
-    if (t >= time_bottom_vel.e(j)-tol) break;
-  }
-  last_time = t;
-  last_val = bottom_vel.e(j); // Should interpolate, though
-  // printf("node %d, field %d, val %f\n",node(),f,val);
-  return last_val;
-#else
-  return 0.;
-#endif
-}
-
-DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_bottom);
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class press_out : public DLGenericTmpl {
-private:
-  int ndim, node_fs;
-  double gravity,rho;
-public:
-  press_out() { }
-  void init(TextHashTable *thash);
-  double eval(double);
-  ~press_out() { }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void press_out::init(TextHashTable *thash) {  
-  int ierr;
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,rho,0.);
-  assert(rho>0.);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,gravity,0.);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,ndim,0);
-  assert(ndim>0);
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,node_fs,0);
-  assert(node_fs>0);
-}
-
-extern Mesh * GLOBAL_MESH;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double press_out::eval(double t) { 
-  double *nodedata = GLOBAL_MESH->nodedata->nodedata;
-  int nu = GLOBAL_MESH->nodedata->nu;
-  int n = node();
-  int f = field();
-  assert(f==ndim+1);
-  double z_fs = nodedata[(node_fs-1)*nu+ndim-1];
-  double z = nodedata[(n-1)*nu+ndim-1];
-  double phydr = rho*gravity*(z_fs-z);
-#if 0
-  printf("node %d, node_fs %d, z %f, z_fs %f, phydr %f\n",
-	 n,node_fs,z,z_fs,phydr);
-#endif
-  return phydr;
-}
-
-DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(press_out);
