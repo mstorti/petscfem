@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.3 2004/01/19 14:12:14 mstorti Exp $
+$Id: notes.txt,v 1.4 2004/01/22 16:38:18 mstorti Exp $
 
 Diario de establidad del cluster
 
@@ -64,6 +64,25 @@ nuevo a ver si es reproducible. Suena en el proc 9, (node13).
 > [9]PETSC ERROR:   Argument out of range!
 > [9]PETSC ERROR:   Inserting a new nonzero (36700, 1350) in the matrix!
 
+%===Thu, 22 Jan 2004 13:32:41 -0300 mstorti@minerva
+%
+Corre 1041 pasos y aborta en 
+[9] MPI Abort by user Aborting program !
+[9] Aborting program!
+[9]PETSC ERROR: MatSetValues_MPIAIJ() line 252 in src/mat/impls/aij/mpi/mpiaij.c
+[9]PETSC ERROR:   Argument out of range!
+[9]PETSC ERROR:   Inserting a new nonzero (43301, -1) in the matrix!
+que creo que es el node13. Saco al 13 de la lista y relanzo. 
+%
+Se corta a los 894 pasos en node17 (master)
+> [0]PETSC ERROR: User provided function() line 0 in Unknown directoryUnknown file
+> [0]PETSC ERROR:   Signal received!
+> [0]PETSC ERROR:   Caught signal number 11 SEGV:
+> PETSC ERROR: Segmentation Violation, probably memory access out of range
+> PETSC ERROR: Try option -start_in_debugger or -on_error_attach_debugger to
+> PETSC ERROR: determine where problem occurs
+> PETSC ERROR: compile, link, and run with BOPT=g or g_c++ or g_complex
+> PETSC ERROR: to get more information on the crash.
 
 # Current line ===========  %
 # Local Variables: $
