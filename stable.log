@@ -275,3 +275,10 @@ tag: beta-3.13 on Thu Dec 26 11:36:50 -0300 2002, by mstorti in minerva.arcride.
      > Now can have more general constraints and fixations. 
      > Runs OK plate with coupling with exterior potential solution 
      > with relaxation. 
+----------
+tag: beta-3.14 on Thu Jan  2 07:57:29 GMT+3 2003, by mstorti in spider
+     > Working on mesh generation for cylinder. 
+     > Implemented Octave multiblock `mesher' 
+     > Starts making interaction between visccous and potential. 
+     > Now can define dynamically loaded amplitude functions 
+     > that depend on nodes. 
