@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.10 2005/02/23 01:40:37 mstorti Exp $ 
+% $Id: advabso.tex,v 1.11 2005/02/23 03:14:42 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -522,8 +522,97 @@ boundary conditions.
 \SSSSection{Using extrapolation from the interior. }
 %
 These is the elemset \ttsl{<system>}{\tt \_abso}. The number of nodes
-per element $\nel$ must be not lower than 4. The first $\nel-2$ 
+per element $\nel$ must be not lower than 4. The first $\nel-2$ nodes
+are used for a second order extrapolation of the outgoing wave. The
+$\nel-1$-th node is the node with Lagrange multipliers, and the
+$\nel$-th node is used to set the reference value. For instance, for
+an absorbing elment of $\nel=5$ nodes, we would have 3 internal nodes,
+and the data would loke like this
+%
  
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/abso.\EPSPDF}}
+\caption{Absorbing element. }
+\label{fg:abso}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+\begin{alltt} 
+elemset gasflow_abso 5
+normal \Arg{nx} \Arg{ny}
+__END_HASH__
+\Arg{n1} \Arg{n2} \Arg{n3} \Arg{n4} \Arg{n5}
+...
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+\Arg{n4} 1 \Arg{rho\_ref}
+\Arg{n4} 2 \Arg{u\_ref}
+\Arg{n4} 3 \Arg{v\_ref}
+\Arg{n4} 4 \Arg{p\_ref}
+__END_FIXA__
+\end{alltt}
+
+\begin{itemize}
+\compactlist 
+\item Each element has 5 nodes, first three are real nodes (i.e. not
+  fictitious) numbered from the boundary to the interior. Fourth node
+  is reserved for Lagrange multipliers, and the fifth node is set to
+  the reference value. 
+\item The \verb+normal+ option is used to define the normal to the
+  boundary. It can be set as a constant vector per elemset (as in the
+  example above), or as a per element value. In this last case we
+  would have something like this
+
+\begin{alltt} 
+elemset gasflow_abso 5
+props normal[2]
+normal \Arg{nx} \Arg{ny}
+__END_HASH__
+\Arg{n1} \Arg{n2} \Arg{n3} \Arg{n4} \Arg{n5} \Arg{nx} \Arg{ny}
+...
+__END_ELEMSET__
+\end{alltt}
+
+\item Note the the {\tt fixa} section for the values of the reference
+  node. In this case (gas dynamics, elemset \verb+gasflow+) we set the
+  four fields ($\ndim=2$) to the reference values. 
+\item The reference values can be made time dependent in an explicit
+  way by using a \verb+fixa_amplitude+ section instead of a
+  \verb+fixa+ section. 
+\item Using this absorbing boundary condition requires the flow to
+  have implemented the \verb+Riemman_Inv()+ method. If this is not the
+  case, then the program will stop with a message like 
+\item \emph{For the {\tt gasflow} elemset:} If the option
+  \verb+linear_abso+ is set to false (0), then the Riemman invariants
+  for gas dynamics are used, and the state reference value is used for
+  computing the reference Riemman invariants. If \verb+linear_abso+ is
+  set to true (1), then the linear absorbing boundary conditions are
+  imposed. 
+\end{itemize}
+ 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSSection{Not using extrapolation from the interior. }
+
+These is the elemset \ttsl{<system>}{\tt \_abso2}. The number of nodes
+per element $\nel$ is 3. The first node is the node at the boundary. The
+second node is the node with Lagrange multipliers, and the
+third node is used to set the reference value. 
+%
+ 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/abso.\EPSPDF}}
+\caption{Absorbing element. }
+\label{fg:abso}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+
+
 
 % Local Variables: *
 % mode: latex *
