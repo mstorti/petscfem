@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.21 2004/11/23 01:50:43 mstorti Exp $
+// $Id: femref.h,v 1.22 2004/11/23 12:16:03 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -39,7 +39,7 @@ private:
   dvector<int> nodes_m;
 public:
   int size() const { return go_template->size_m; }
-  int size(Type t) const;
+  int size(Type t) const { return go_template->size(t); }
   int csum() const { return cs; }
   int dim() const { return go_template->dim_m; }
   int nperms() const { return go_template->nperms_m; }
@@ -70,11 +70,14 @@ public:
     int subobj;
     iterator(int obj_a,GeomObject::Type ta,int subobj_a)
       : obj(obj_a), t(ta), subobj(subobj_a) { }
+    iterator() : obj(-1), t(GeomObject::NULL_TYPE), 
+		 subobj(-1) { }
   };
   virtual void set(iterator it,GeomObject &go)=0;
-  virtual iterator find(const GeomObject &go)=0;
+  virtual iterator find(GeomObject &go)=0;
   virtual void get_adjacency(iterator it,GeomObject::Type t,
 			     list<iterator> &adj)=0;
+  virtual bool is_end(iterator it)=0;
 };
 
 class UniformMesh : public Mesh {
@@ -137,9 +140,13 @@ public:
   }
   
   void set(iterator it,GeomObject &go);
-  iterator find(const GeomObject &go);
+  iterator find(GeomObject &go);
   void get_adjacency(iterator it,GeomObject::Type t,
 		     list<iterator> &adj) { }
+  bool is_end(iterator it) { 
+    return it.obj<0 || it.t==GeomObject::NULL_TYPE 
+      || it.subobj<0; 
+  }
 };
 
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.13 2004/11/23 01:51:14 mstorti Exp $
+// $Id: femref.cpp,v 1.14 2004/11/23 12:16:03 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -199,7 +199,15 @@ void GeomObject::print(const char*s) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void GeomObject
 ::set(Type t,int j,GeomObject &go) const {
-  go.init(t,nodes(t,j));
+  Template * go_tmpl = get_template(t);
+  int go_sz = go_tmpl->size_m;
+  dvector<int> go_nodes;
+  go_nodes.mono(go_sz);
+  const int *local_nodes = go_template->nodes(t,j);
+  const int *my_nodes = nodes();
+  for (int k=0; k<go_sz; k++) 
+    go_nodes.e(k) = my_nodes[local_nodes[k]];
+  go.init(t,go_nodes.buff());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -212,6 +220,7 @@ int GeomObject::find(GeomObject &go) const {
     set(typ,j,subobj);
     if (go.equal(subobj)) return j;
   }
+  return -1;
 }
 
 #if 0
@@ -254,7 +263,7 @@ void UniformMesh::set(iterator it,GeomObject &go) {
 }
 
 Mesh::iterator 
-UniformMesh::find(const GeomObject &go) { 
+UniformMesh::find(GeomObject &go) { 
   int sz = go.size();
   assert(sz>0);
   dvector<int> p, pe, vals;
@@ -267,18 +276,6 @@ UniformMesh::find(const GeomObject &go) {
     p.e(j) = n2e_ptr.e(node);
     pe.e(j) = n2e_ptr.e(node+1);
     assert(pe.e(j)>p.e(j));
-#if 0
-    if (j==0) {
-      emin = emax = ele;
-      jmin = 0;
-    }
-    if (ele>emax) emax = ele;
-    else if (ele<emin) {
-      emin = ele; jmin = j; 
-    } else {
-      printf("candidate elem %d ",ele);
-    }
-#endif
   }
   bool found = false, done = false;
 #if 1
@@ -303,24 +300,28 @@ UniformMesh::find(const GeomObject &go) {
     }
     printf("\n");
     // If all elems are equal 
+    int indx;
     if (emin==emax) {
       printf("candidate elem %d\n",emin);
       // GeomObject(Type t,const int *nodes_a=NULL);
-      GeomObject super(tmpl->type(),connec.e(emin,0));
-      super.find(go);
-      found = true;
+      GeomObject super(tmpl->type,&connec.e(emin,0));
+      indx = super.find(go);
+      if (indx>=0) {
+	found = true;
+	return iterator(emin,go.type(),indx);
+      }
     } 
     for (int j=0; j<sz; j++) {
       int pp = p.e(j);
       if (n2e.e(pp) == emin) {
 	if (++p.e(j) >= pe.e(j)) {
 	  done = true;
-	  break;
+	  return iterator();
 	} 
       }
     }
   }
-  if (!found) printf("can't find an element\n");
+  assert(0); // we should never reach here
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -370,5 +371,7 @@ int main() {
       go.print();
     }
   }
-  mesh.find(go);
+  Mesh::iterator it = mesh.find(go);
+  if (mesh.is_end(it)) printf("not found\n");
+  else printf("found at elem %d, position %d\n",it.obj,it.subobj);
 }
