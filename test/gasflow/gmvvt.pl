@@ -5,7 +5,7 @@ $nod = "$case.nod.tmp";	# nodes
 $con = "$case.con.tmp";	# connectivities
 $gmv = "$case.gmv.tmp";	# GMV input file
 if (1) {
-    $rslt = "$case.state_9.tmp"; # petscfem result file
+    $rslt = "$case.state_0.tmp"; # petscfem result file
     $rec = 0;
     $fields = 'nsc';
 }
