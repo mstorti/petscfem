@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.133 2003/05/19 02:51:11 mstorti Exp $
+//$Id: ns.cpp,v 1.134 2003/07/06 15:10:18 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -53,11 +53,10 @@ int main(int argc,char **args) {
     myrank;
   PetscTruth flg;
   // Initialize time
-  Time time,time_old,time_star; time.set(0.);
+  Time time,time_old,time_star; 
   GlobParam glob_param;
   GLOB_PARAM = &glob_param;
   string save_file_res;
-  State state(x,time),statep(xp,time),state_old(xold,time_old);
   BasicObject_application_factory = &BasicObject_ns_factory;
   
   // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
@@ -113,6 +112,11 @@ int main(int argc,char **args) {
   PetscPrintf(PETSC_COMM_WORLD,"After readmesh...\n");
 
   GLOBAL_OPTIONS = mesh->global_options;
+
+  //o Time to start computations
+  TGETOPTDEF(GLOBAL_OPTIONS,double,start_comp_time,0.);
+  time.set(start_comp_time);
+  State state(x,time),statep(xp,time),state_old(xold,time_old);
 
 #if 0
   //o If set, redirect output to this file.

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.40 2003/07/02 23:22:19 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.41 2003/07/06 15:10:18 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -695,6 +695,15 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     // Get diagonal part of A_II matrix for preconditioning
     ierr = VecDuplicate(res_i,&A_II_diag); PF_CHKERRQ(ierr); 
     ierr = MatGetDiagonal(A_II,A_II_diag); PF_CHKERRQ(ierr);
+#if 0
+    ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
+				"aii.dat",&matlab); PF_CHKERRQ(ierr);
+    ierr = PetscViewerSetFormat(matlab,
+				PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
+    ierr = MatView(A_II,matlab); PF_CHKERRQ(ierr);
+    PetscFinalize();
+    exit(0);
+#endif
 
     if (!factored && local_solver == PETSc) {
     
@@ -724,8 +733,10 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	  PF_CHKERRQ(ierr); 
 	}
 	ierr = KSPSetTolerances(ksp_ii,0.,0.,1.e10,
-				interface_full_preco_maxits); PF_CHKERRQ(ierr); 
-	ierr = PCSetType(pc_ii,PCJACOBI); PF_CHKERRQ(ierr); 
+				interface_full_preco_maxits); 
+	PF_CHKERRQ(ierr); 
+        ierr = PCSetType(pc_ii,(char *)interface_full_preco_pc.c_str()); 
+	PF_CHKERRQ(ierr); 
       }
     }
 

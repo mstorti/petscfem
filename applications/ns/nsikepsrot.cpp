@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.30 2003/07/05 12:38:18 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.31 2003/07/06 15:10:18 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -471,7 +471,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // G_body.axpy(acel_lin,-rho);
 	  G_body.axpy(acel_lin,-1.);
 #ifdef ROSI_COUPLING_MODULE
-	  AXIAL_ACCELERATION = G_body.get(ndim);
+	  AXIAL_ACCELERATION = -G_body.get(ndim);
 #endif
 	  FastMat2::activate_cache();
 	}

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.35 2003/07/02 23:22:19 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.36 2003/07/06 15:10:18 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -228,6 +228,9 @@ int IISDMat::create_a() {
   //o Number of iters in solving the preconditioning for the 
   // interface problem when using \verb+use_interface_full_preco+. 
   TGETOPTDEF_ND_PF(thash,int,interface_full_preco_maxits,5);
+  //o Defines the preconditioning to be used for the solution
+  // of the diagonal interface problem (not the Schur problem)
+  TGETOPTDEF_S_ND_PF(thash,string,interface_full_preco_pc,jacobi);
   //o Flags whether or not print the convergence when solving the
   // preconditioning for the interface problem when using
   // \verb+use_interface_full_preco+.

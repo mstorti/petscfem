@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.1 2003/03/07 21:23:52 mstorti Exp $
+// $Id: lagmul.h,v 1.2 2003/07/06 15:10:18 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -34,7 +34,16 @@ class LagrangeMult : public Elemset {
       @param dof (output) number of field for multiplier
   */ 
   virtual void lag_mul_dof(int jr,int &node,int &dof)=0;
-  /// Initialize the elemset (maybe reads hash table)
+  /** Calls the #lm_initialize()# function for each elemset. */
+  void initialize();
+  /** Initialize the elemset. This is called in the
+      LagrangeMult::initialize() function so that it is called before
+      all chunks. And it is called even if there are not elements in
+      this processor */
+  virtual void lm_initialize() {}
+  /** Initialize the elemset (maybe reads hash table). This is called before
+      each element chunk. It is not called if there are not elements in
+      this processor */
   virtual void init()=0;
   /** Computes the residual and jacobian of the function to be
       imposed. Usually you derive #NonLinearRes# and instantiate this
@@ -52,6 +61,8 @@ class LagrangeMult : public Elemset {
   /** Returns the coordinate of the nodes of the element. 
       @return a matrix with the coordinates of the nodes (size #nel*ndim#) */ 
   const FastMat2 &xloc();
+  /// Called after the loop over all elements
+  virtual void close() {}
   /// Make it pure virtual. 
   virtual ~LagrangeMult()=0;
 };

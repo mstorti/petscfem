@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.10 2003/03/07 21:23:52 mstorti Exp $
+//$Id: nssup.h,v 1.11 2003/07/06 15:10:18 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -43,6 +43,10 @@ public:
   /// computes the residual and jacobian of the function to be imposed
   void res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 	   FastMat2 & jac);
+  /// Called after the loop over all elements
+  void close();
+  /// Initializes the elemset even if there are not elements in this processor
+  void lm_initialize();
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 

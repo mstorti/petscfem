@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.25 2002/11/02 15:11:26 mstorti Exp $
+// $Id: iisdmat.h,v 1.26 2003/07/06 15:10:18 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -77,6 +77,9 @@ class IISDMat : public PFPETScMat {
   /** Number of iters in solving the preconditioning for the 
       interface problem when using #use_interface_full_preco#.*/ 
   int interface_full_preco_maxits;
+  /** Defines the preconditioning to be used for the solution
+      of the diagonal interface problem (not the Schur problem) */ 
+  string interface_full_preco_pc;
   /** Flags whether or not print the convergence when solving the
       preconditioning for the interface problem when using
       #use_interface_full_preco#. */
