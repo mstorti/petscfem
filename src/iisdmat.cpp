@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.47 2003/07/26 00:43:12 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.48 2003/08/06 20:36:47 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -132,8 +132,13 @@ int PFPETScMat::build_sles() {
   TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
-  //o Uses right or left preconditioning
-  TGETOPTDEF_S_PF(thash,string,preco_side,right);
+  //o Uses right or left preconditioning. Default is \verb+right+ for
+  // GMRES. 
+  TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
+  if (preco_side=="<ksp-dependent>") {
+    if (KSP_method == "cg") preco_side = "left";
+    else preco_side = "right";
+  }
 
   if (KSP_method == "cg" && preco_side == "right") {
     PetscPrintf(PETSC_COMM_WORLD,__FUNC__ 
