@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.6 2004/12/12 16:09:09 mstorti Exp $
+// $Id: femref2.cpp,v 1.7 2004/12/12 17:14:52 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -538,26 +538,27 @@ refine(RefineFunction f) {
     for (int j=0; j<w->size(); j++)
       go_nodes.push(w_nodes[j]);
     go_nodes_pos.push_front(0);
-    Splitter *s = NULL;
+    const Splitter *s = NULL;
 
-#if 0
     while(1) {
       w = go_stack.begin();
       // here visit w...
-      ElemRef::iterator q, qs, qs2,qfather;
-      q = *(split_stack.begin()), 
-      int j = *split_indx_stack.begin();
+      ElemRef::iterator q, qs, qs2, qfather;
+      q = split_stack.front();
+      int j = split_indx_stack.front();
       if (q != etree.end()) {
 	s = q->splitter;
-	qs = q->lchild();
+	qs = q.lchild();
 	if (qs!=etree.end() && qs->so_indx==0) 
 	  qs2 = qs;
 	else qs2 = etree.end();
-	split_stack.insert(split_stack.begin(),qs2);
+	split_stack.push_front(qs2);
+	go_stack.push_front(GeomObject());
+	ws = go_stack.begin();
 	// Build `ws' from GeomObject `w' (parent) and splitter `s'
 	// and subobject index `j'
-	ws = go_stack.insert(go_stack.begin(),GeomObject());
-	split_indx_stack.insert(split_indx_stack.begin(),0);
+	set(*w,s,j,*ws);
+	split_indx_stack.push_front(0);
       } else {
 	// `q' is a leave for GO's (sure it isn't
 	// a regular node for splitters)
@@ -568,51 +569,73 @@ refine(RefineFunction f) {
 	  if (split_stack.size()<=1) return;
 	  qfather = q;
 	  qfather++;
+	  assert(qfather != etree.end());
 	  s = qfather->splitter;
+
+	  go_stack.pop_front();
+	  split_stack.pop_front();
+	  split_indx_stack.pop_front();
 	  if (j<s->size()) {
 	    int jsib = j+1;
-	    go_stack.erase(go_stack.begin());
-	    split_stack.erase(split_stack.begin());
-	    split_indx_stack.erase(split_indx_stack.begin());
+	    go_stack.push_front(GeomObject());
+	    ws = go_stack.begin();
 	    // Build `ws' from GeomObject `w' (parent) and splitter `s'
-	    // and subobject index `j'
-	    
-	  }
-	}
-      }
+	    // and subobject index `jsib'
+	    set(*w,s,jsib,*ws);
 
-      while (q!=etree.end()) {
-      // Each node of the `etree' is a splitter!!
-      // create the nodes needed by this splitting
-      const Splitter *split = *q;
-      int sz = split->size();
-      for (int k=0; k<sz; k++) {
-	GeomObject::Type t;
-	const int *so_local_nodes = split->nodes(k,t);
-	GeomObject sgo(t);
-	int sgo_sz = sgo.size();
-	sgo_nodes.resize(sgo_sz);
-	for (int k=0; k<sgo_sz; k++) {
-	  int n1 = so_local_nodes[2*k];
-	  if (n1<w->size()) 
-	    sgo_nodes.e(k) = w_nodes[k];
-	  else {
-	    n2 = so_local_nodes[2*k];
-	    n = n1*MAX_NODE+n2;
-	    map<int,int>::iterator q = hash2node.find(n);
-	    int ref_node;
-	    if (q==hash2node.end()) {
-	      ref_node = last_ref_node++;
-	      hash2node[n] = ref_node;
-	    } else {
-	      ref_node = q->second;
-	    }
-	    sgo_nodes.e(k) = ref_node;
+	    // Find next node on the splitting tree or end()
+	    qs = qfather.lchild();
+	    while (qs != etree.end()) 
+	      if (qs->so_indx == jsib) break;
+
+	    // Push new state in the stacks
+	    split_stack.push_front(qs);
+	    split_indx_stack.push_front(jsib);
+	    break;
 	  }
 	}
       }
-      q = q.lchild();
     }
-#endif
   }
+}
+
+#if 0
+  while (q!=etree.end()) {
+    // Each node of the `etree' is a splitter!!
+    // create the nodes needed by this splitting
+    const Splitter *split = *q;
+    int sz = split->size();
+    for (int k=0; k<sz; k++) {
+      GeomObject::Type t;
+      const int *so_local_nodes = split->nodes(k,t);
+      GeomObject sgo(t);
+      int sgo_sz = sgo.size();
+      sgo_nodes.resize(sgo_sz);
+      for (int k=0; k<sgo_sz; k++) {
+	int n1 = so_local_nodes[2*k];
+	if (n1<w->size()) 
+	  sgo_nodes.e(k) = w_nodes[k];
+	else {
+	  n2 = so_local_nodes[2*k];
+	  n = n1*MAX_NODE+n2;
+	  map<int,int>::iterator q = hash2node.find(n);
+	  int ref_node;
+	  if (q==hash2node.end()) {
+	    ref_node = last_ref_node++;
+	    hash2node[n] = ref_node;
+	  } else {
+	    ref_node = q->second;
+	  }
+	  sgo_nodes.e(k) = ref_node;
+	}
+      }
+    }
+    q = q.lchild();
+  }
+#endif
+
+void UniformMesh::
+set(const GeomObject &go,const Splitter *s,
+    int indx,GeomObject &sgo) const {
+  
 }
