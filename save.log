@@ -1658,3 +1658,6 @@ tag: beta-3.05.pl5 on Mon, 23 Sep 2002 14:11:37 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.05.pl6 on Mon, 23 Sep 2002 18:18:27 -0300 by mstorti in minerva.arcride.edu.ar
      > Adding hooks. 
+----------
+tag: beta-3.05.pl7 on Tue, 24 Sep 2002 15:00:11 -0300 by mstorti in minerva.arcride.edu.ar
+     > Uses dynamically loaded hooks.
