@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.15 2001/04/12 00:43:28 mstorti Exp $
+//$Id: ns.cpp,v 1.16 2001/05/01 21:45:34 mstorti Exp $
  
 #include <malloc.h>
 
@@ -190,6 +190,9 @@ int main(int argc,char **args) {
   //o The time step.
   GETOPTDEF(double,Dt,0.);
   glob_param.Dt=Dt;
+  //o Flag if steady solution or not (uses Dt=inf)
+  GETOPTDEF(int,steady,0.);
+  glob_param.steady=steady;
   //o Trapezoidal method parameter. \verb+alpha=1+:
   // Backward Euler. \verb+alpha=0+: Forward Euler.
   // \verb+alpha=0.5+: Crank-Nicholson. 

@@ -1,7 +1,19 @@
 #__INSERT_LICENSE__
 
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
-#print "# PETSCFEM_DIR: $ENV{'PETSCFEM_DIR'}\n";
+
+# usage: "doc_vals(VARS)", for instance "doc_vals(qw(Re,Ra,N,alpha))"
+#
+# includes legends of the form "# VAR VALUE" in the
+# .depl file
+sub doc_vals {
+    my @vars = @_;
+    print "#","-" x 20,"\n";
+    foreach $var (@vars) {
+	print "# \$$var = ${$var}\n" unless !defined($ {$var});
+    }
+    print "#","-" x 20,"\n";
+}
 
 sub heredoc {
     my $txt = shift();
@@ -150,10 +162,6 @@ sub P {
 }
 
 sub transcript {
-    my $octtmpfile = shift();
-    if ($octtmpfile) {
-	die "couldn't open $octtmpfile" unless open OCT,">$octtmpfile";
-    }
     my $eperlfile = $ENV{'SCRIPT_SRC_PATH'};
     /`/;print <<EOM;
 #
@@ -172,6 +180,10 @@ EOM
     close SCRIPT;
 
     return if $#_<0;
+    my $octtmpfile = shift();
+    if ($octtmpfile) {
+	die "couldn't open $octtmpfile" unless open OCT,">$octtmpfile";
+    }
     /`/; print <<EOM;
 #
 # Values:

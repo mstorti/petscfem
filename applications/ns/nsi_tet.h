@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsi_tet.h,v 1.4 2001/04/01 01:34:59 mstorti Exp $
+//$Id: nsi_tet.h,v 1.5 2001/05/01 21:45:34 mstorti Exp $
 #ifndef NSI_TET_H  // -*- mode: C++ -*-
 #define NSI_TET_H
 
@@ -94,9 +94,14 @@ public:
 				   const double *& coords);
 };
 
-// Global parameters
+/// Global parameters used by NS
 struct GlobParam {
-  double alpha,Dt;
+  /// Trapezoidal rule integration parameter
+  double alpha;
+  /// time step
+  double Dt;
+  /// do not include temporal term (steady solutions)
+  int steady;
 };
 
 #endif

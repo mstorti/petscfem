@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.9 2001/04/14 13:21:07 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.10 2001/05/01 21:45:34 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -90,7 +90,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  double *hmin,Dt;
+  // iDt is the reciprocal of Dt (i.e. 1/Dt)
+  double *hmin,Dt,iDt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
@@ -102,6 +103,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
     hmin = (arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     Dt = *(double *)(arg_data_v[ja++].user_data);
+    iDt = 1./Dt;
+    if (glob_param.steady) iDt=0.
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
@@ -406,11 +409,11 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
 //	psi = 1./tanh(Peclet)-1/Peclet;
 //	tau_supg = psi*h_supg/(2.*velmod);
 
-        tau_supg = tsf*SQ(2./Dt)+SQ(2.*velmod/h_supg)
+        tau_supg = tsf*SQ(2*iDt)+SQ(2.*velmod/h_supg)
 	  +9.*SQ(4.*nu_eff/SQ(h_supg));
         tau_supg = 1./sqrt(tau_supg);
 
-        tau_pspg = tsf*SQ(2./Dt)+SQ(2.*velmod/h_pspg)
+        tau_pspg = tsf*SQ(2(iDt)+SQ(2.*velmod/h_pspg)
 	  +9.*SQ(4.*nu_eff/SQ(h_pspg));
 
         tau_pspg = 1./sqrt(tau_pspg);
@@ -462,7 +465,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
 #endif
 
 	du.set(u_star).rest(u);
-	dmatu.axpy(du,1/(alpha*Dt)).rest(G_body);
+	dmatu.axpy(du,iDt/alpha).rest(G_body);
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
 
@@ -499,7 +502,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
 
 	// Parte temporal + convectiva (Galerkin)
 	massm.prod(u_star,dshapex,-1,-1,1);
-	massm.axpy(SHAPE,1/(alpha*Dt));
+	massm.axpy(SHAPE,iDt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
