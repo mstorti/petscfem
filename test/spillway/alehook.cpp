@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.17 2003/04/03 17:10:17 mstorti Exp $
+//$Id: alehook.cpp,v 1.18 2003/04/03 21:37:37 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -252,7 +252,7 @@ private:
   /// Restart a previous run
   int restart;
   /// temporary buffer
-  dvector<double> displ_old, dn, sn, ds;
+  dvector<double> displ_old, dn, sn, ds, ds2;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -337,6 +337,10 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   ds.set_chunk_size(nfs);
   ds.a_resize(1,nfs);
   ds.set(0.);
+  
+  ds2.set_chunk_size(nfs);
+  ds2.a_resize(1,nfs);
+  ds2.set(0.);
   
   sn.set_chunk_size(nfs);
   sn.a_resize(1,nfs);
@@ -527,17 +531,23 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
   }
 
   // Smoothing and updating
-  for (int indx1=0; indx1<nfs; indx1++) {
-    assert(cyclic_fs);		// Not implemented yet: FS not cyclic
-    int indx0 = modulo(indx1-1,nfs);
-    int indx2 = modulo(indx1+1,nfs);
-
-    double d = ds.e(indx1) 
-      + fs_smoothing_coef*(ds.e(indx2)-2*ds.e(indx1)+ds.e(indx0));
-    for (int j=0; j<ndim; j++)
-      displ.e(indx1,j) = d*spines.e(indx1,j);
+  assert(cyclic_fs);		// Not implemented yet: FS not cyclic
+  for (int k=0; k<3; k++) {
+    for (int indx1=0; indx1<nfs; indx1++) {
+      int indx0 = modulo(indx1-1,nfs);
+      int indx2 = modulo(indx1+1,nfs);
+      ds2.e(indx1) = ds.e(indx1) 
+	+ fs_smoothing_coef*(ds.e(indx2)-2*ds.e(indx1)+ds.e(indx0));
+    }
+    for (int indx=0; indx<nfs; indx++) ds.e(indx) = ds2.e(indx);
   }
-
+  
+  // Compute vector displacements from amplitude
+  // displacements projected on the spines
+  for (int indx1=0; indx1<nfs; indx1++)
+    for (int j=0; j<ndim; j++)
+      displ.e(indx1,j) = ds.e(indx1)*spines.e(indx1,j);
+  
   fclose(fid);
   if (!MY_RANK) {
     fid = fopen(CASE_NAME ".fsh.tmp","a");

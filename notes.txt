@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $
+$Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
+  # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
+  # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6478,6 +6478,31 @@ nuevo.
 %
 16:58:48: Con Fr=0.5 no se hace inestable y parece llegar a un regimen
 periodico (o caotico) pero estable. 
+
+%===Thu,  3 Apr 2003 14:17:40 -0300 mstorti@minerva
+%
+Con el filtro se hacen menos inestables las ondas cortas pero de todas
+formas quedan ondas mas largas inestables que finalmente hacen
+diverger la malla. Una posibilidad es aumentar el filtrado, poniendo
+un filtro mas `implicito'. 
+%
+14:26:25: Tambien tiene sentido verificar la influencia del paso de
+tiempo. 
+%
+14:29:17: Con Fr=0.8 y fs_smoothing_coef=0. deverge enseguida. La
+longitud de onda de la perturbacion es bien alta (tipo checkerboard)
+asi que el smoohthing deberia actuar. Voy a probar con
+fs_smoothing_coef=0.1. 
+%
+14:55:29: Tambien diverge, lo cual es medio raro. Lo largue con
+fs_smoothing_coef=0.5. 
+%
+16:15:50: fs_smoothing_coef=0.5 deberia ser el punto de mayor
+disipacion. El factor de amplificacion es 0 para k=pi. Sin embargo se
+inestabiliza por una frecuencia muy cercana a pi (tal vez sea
+pi). Entonces le pruebo a aplicarle el filtro varias veces (3). Con un
+solo filtrado suena en step=77. Vamos a ver si puede avanzar mas con 3
+filtrados. 
 
 # Current line ===========  %
 # Local Variables: $
