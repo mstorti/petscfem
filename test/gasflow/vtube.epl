@@ -8,11 +8,13 @@ $use_tetra = 0;
 $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
-$hot_oulet = 1;
-$cold_oulet = 0;
+$hot_outlet = 1;
+$cold_outlet = 0;
+$small_test = 1;
 
 $R0 = 0.047;			# [m] Radius of tube
-$L0 = 0.520;			# [m] Length of tube
+$L0 = ($small_test ? 
+    2*$R0 : 0.520);		# [m] Length of tube
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 8;			# refinement in `z' (axial) direction
@@ -28,7 +30,8 @@ if (0) {
 }
 
 ## Mesh parameters
-$refine = 6;			# scale all N's by this
+$refine = ($small_test ? 
+    2 : 8);			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -76,7 +79,7 @@ $weak_form  = 0;
 #__END_TRANSCRIPT__
 @vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
 		rho_in u_rad_in u_circunf_in p_in p_h p_c 
-		compressible axisymm hot_oulet cold_oulet);
+		compressible axisymm hot_outlet cold_outlet);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
@@ -92,17 +95,17 @@ if ($use_tetra) {
 ##================================================================
 global_options
 
-nstep 100
+nstep 1000
 alpha 1.
 
-initial_state "vtube.ini.tmp"
-# initial_state "vtube.state_60.tmp"
+# initial_state "vtube.ini.tmp"
+initial_state "vtube.state.tmp"
 # initial_state "vtube.hot_only.tmp"
 save_file "vtube.state.tmp" 
-nsave 1
+nsave 50
 
 save_file_pattern "vtube.state_%d.tmp"
-nsaverot 1
+nsaverot 50
 nrec 1
 nfile 100000000
 
@@ -143,10 +146,11 @@ C_mu 0.
 #else
 viscosity <:=$visco:>
 #endif
-report_consumed_time
 #if $compressible && $axisymm
 axisymmetric "z"
 #endif
+gather_file "vtube.mass_flow_rate.tmp"
+ngather 3
 __END_HASH__
 
 ##================================================================
@@ -160,8 +164,46 @@ elemset <:=($compressible ? 'gasflow' : 'nsi_tet_les_fm2'):> \
 			    <:= ($use_tetra ? 4 : 8):>
 geometry <:=($use_tetra ? "tetra" : "cartesian3d"):>
 npg <:= ($use_tetra ? 4 : 8):>
+# report_consumed_time
 data vtube.con<:=($use_tetra ? "-tetra" : ""):>.tmp
 __END_HASH__
+
+##================================================================
+elemset flow_rate_integrator 4
+name "inlet_mass_flow"
+gather_length 1
+gather_pos 0
+module "compressible_NS"
+npg 4
+__END_HASH__
+__INCLUDE__ "vtube.inlet_flow_rate.tmp"
+__END_ELEMSET__
+
+##================================================================
+#if $hot_outlet
+elemset flow_rate_integrator 4
+name "hot_outlet_mass_flow"
+gather_length 1
+gather_pos 1
+module "compressible_NS"
+npg 4
+__END_HASH__
+__INCLUDE__ "vtube.hot_outlet_flow_rate.tmp"
+__END_ELEMSET__
+#endif
+
+##================================================================
+#if $cold_outlet
+elemset flow_rate_integrator 4
+name "cold_outlet_mass_flow"
+gather_length 1
+gather_pos 2
+module "compressible_NS"
+npg 4
+__END_HASH__
+__INCLUDE__ "vtube.flow_rate_inlet.tmp"
+__END_ELEMSET__
+#endif
 
 end_elemsets
 

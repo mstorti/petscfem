@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.1 2003/01/24 20:04:05 mstorti Exp $
+//$Id: gatherer.h,v 1.2 2003/01/25 12:40:06 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -93,6 +93,7 @@ class flow_rate_integrator : public gatherer {
 private:
   FastMat2 Q;
   int ndim_m;
+  enum module {NSI,NSC} module_m;
 public:
   /// perform several checks and initialization
   void init();

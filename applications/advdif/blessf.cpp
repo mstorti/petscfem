@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.8 2003/01/24 20:03:31 mstorti Exp $
+//$Id: blessf.cpp,v 1.9 2003/01/25 12:40:06 mstorti Exp $
 
 #include <set>
 
@@ -59,7 +59,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(gasflow)
     SET_ELEMSET_TYPE(gasflow_bcconv)
 
-    SET_ELEMSET_TYPE(force_integrator)
+    SET_ELEMSET_TYPE(flow_rate_integrator)
     {
       printf("not known elemset type: \"%s\"\n",type);
       exit(1);

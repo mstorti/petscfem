@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $
+$Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $ 
+  # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.236 2003/01/24 19:52:36 mstorti Exp $ 
+  # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -5950,7 +5950,6 @@ rotacion. Converge bien y parece llegar a un estacionario.
 sepracion de corrientes en incompresible. Ahora voy a probar a refinar
 mas. 
 
-<<<<<<< notes.txt
 %===Tue, 21 Jan 2003 11:08:28 -0300 mstorti@minerva
 %
 Voy a mergear las cosas de BEto del Bubbly que habian quedado en
@@ -5968,7 +5967,6 @@ contiene lo mergeado
 `advdif_bubbly.cpp'. La idea es que va a haber dos main, pero lo demas
 seria compartido. 
 
-=======
 %===Tue, 21 Jan 2003 22:23:24 -0300 mstorti@spider
 %
 Empiezo a correr el `vtube' en compresible. Con `refine=2' y
@@ -6018,6 +6016,14 @@ no es el correcto y el Pr esta incrementado en un factor 10. Salvo en
 Con las dimensiones reales se hace mas inestable. Para estabilizarlo
 le pongo visco=1e-3 (en vez de 1e-5) y el Dt bajo bastante (5e-5 ->
 1e-5). 
+
+%===Sat, 25 Jan 2003 09:32:08 -0300 mstorti@spider
+%
+Anda el `flow_rate_integrator' en compresible. El balance entre la
+entrada y la salida no da del todo bien, pero tambien hay que ver que
+el numero de elementos que hay en una salida es muy bajo (3). Ahora
+voy a agregar la salida fria y tratar de regular el corte
+automaticamente. 
 
 # Current line ===========  %
 # Local Variables: $

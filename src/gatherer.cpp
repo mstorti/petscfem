@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.1 2003/01/24 20:04:05 mstorti Exp $
+//$Id: gatherer.cpp,v 1.2 2003/01/25 12:40:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -177,13 +177,6 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     moment.cross(force,dx);
     // export forces to return vector
     moment.export_vals(pg_values.begin()+ndim_m);
-#if 0
-#define SHM(name) name.print(#name ": ")
-    SHM(xpg);
-    SHM(dx);
-    SHM(force);
-    SHM(moment);
-#endif
   }
 }
 
@@ -200,9 +193,15 @@ void flow_rate_integrator::init() {
   int ierr;
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
+  //o Dimension of the embedding space
+  TGETOPTDEF_S(thash,string,module,<none>);
+  if (module=="<none>") { PETSCFEM_ERROR0("Not defined module\n"); }
+  else if (module=="incompressible_NS") module_m = NSI;
+  else if (module=="compressible_NS") module_m = NSC;
+  else { PETSCFEM_ERROR("Not known module %s\n",module.c_str()); }
   ndim_m=ndim;
   //o Dimenson of the element
-  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+  TGETOPTDEF(thash,int,ndimel,ndim-1); 
   assert(ndimel==ndim-1);
   assert(gather_length==1);
   Q.resize(0);
@@ -212,8 +211,10 @@ void flow_rate_integrator::init() {
 void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
-  u.is(1,1,ndim_m);
-  Q.prod(n,u,-1,-1).scale(wpgdet);;
+  double rho=1.;
+  if (module_m==NSI) u.is(1,1,ndim_m);
+  else if (module_m==NSC) { rho = u.get(1); u.is(1,2,ndim_m+1); }
+  Q.prod(n,u,-1,-1).scale(rho*wpgdet);
   u.rs();
   Q.export_vals(pg_values.begin());
 }

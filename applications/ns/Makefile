@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.53 2002/12/17 02:13:57 mstorti Exp $ 
+ # $Id: Makefile,v 1.54 2003/01/25 12:40:06 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -10,7 +10,7 @@ PETSCFEM_MODULE = Navier-Stokes
 LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o		\
               nsilesther.o bccnstherfm2.o nsikeps.o nsikepsrot.o		\
               wallke.o nonlr.o lagmul.o nssup.o nssupg.o nssupr.o nsid.o	\
-              nsres.o adaptor.o elast.o adappg.o qharm.o qharmm.o gatherer.o	\
+              nsres.o adaptor.o elast.o adappg.o qharm.o qharmm.o       c	\
               nsirot.o blessf.o fracstep.o fstepfm2.o embgath.o compdate.o	\
               hook.o dlhook.o mmove.o fm2funm.o genload.o
 
