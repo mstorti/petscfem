@@ -1,8 +1,13 @@
 /*__INSERT_LICENSE__*/
-// $Id: leak.cpp,v 1.3 2002/10/06 21:51:35 mstorti Exp $
+// $Id: leak.cpp,v 1.4 2002/10/07 00:25:32 mstorti Exp $
 
 #define _GNU_SOURCE
 
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+#include <unistd.h>
 // Tests for the `PFMat' class
 #ifdef USE_OLD_PETSC_VERSION
 #include <sles.h>
@@ -10,15 +15,13 @@
 #include <petscsles.h>
 #endif
 
-extern int SIZE;
-
 inline double drand() {  
   return ((double)(rand()))/((double)(RAND_MAX));
 }
 
 void print_memory_usage(void) {
   int ierr;
-  char *file,*line;
+  static char *file=NULL,*line=NULL;
   int mem,mem_min,mem_max,mem_sum,mem_avrg;
   size_t n=0;
   assert(asprintf(&file,"/proc/%d/status",getpid()));
@@ -28,10 +31,12 @@ void print_memory_usage(void) {
     if (sscanf(line,"VmRSS: %d kB",&mem)) break;
   }
   fclose(fid);
+  int size;
+  MPI_Comm_size(PETSC_COMM_WORLD,&size);
   MPI_Allreduce(&mem,&mem_min,1,MPI_INT,MPI_MIN,PETSC_COMM_WORLD);
   MPI_Allreduce(&mem,&mem_max,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
   MPI_Allreduce(&mem,&mem_sum,1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);
-  mem_avrg = int(ceil(double(mem_sum)/double(SIZE)));
+  mem_avrg = int(ceil(double(mem_sum)/double(size)));
   PetscPrintf(PETSC_COMM_WORLD,
 	      "[Memory usage(kB): min %d, max %d, avrg %d]\n",
 	      mem_min,mem_max,mem_avrg);
@@ -43,15 +48,12 @@ void print_memory_usage(void) {
 int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,NULL,NULL);
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
 
   Mat A;
   Vec b,x;
   SLES sles;
   PC pc;
   KSP ksp;
-  Debug debug2;
-  debug2.activate("memory_usage");
 
   const int N=100000;
   double h = 1./double(N);
@@ -59,7 +61,6 @@ int main(int argc,char **args) {
   int niter=200;
 
   for (int iter=0; iter<=niter; iter++) {
-    // debug2.trace("enter iter");
     print_memory_usage();
     int ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,N,N,N,N,
 			       3,NULL,3,NULL,&A); CHKERRQ(ierr); 

@@ -1,38 +1,21 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2002/10/06 21:51:35 mstorti Exp $ 
-#s Local Targets
-#w all tests
-tests: pfmat pfmat2
+# $Id: Makefile,v 1.3 2002/10/07 00:25:32 mstorti Exp $ 
 
-.PHONY: pfmat pfmat2 force iisdmat_petsc iisdmat_slu petscmat \
-			spd_petsc spd_slu
-
-LIB_OBJS := 
-
-SRCS = leak.cpp 
-
-PETSCFEM_DIR = ../..
-# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.03
-
-include $(PETSCFEM_DIR)/Makefile.base
-include $(PETSCFEM_DIR)/test/Makefile.base.test
-
-ifneq ($(PETSC_VERSION_USED_BY_PETSCFEM),2.1.3)
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ifeq (1,1)
 CPPFLAGS += -DUSE_OLD_PETSC_VERSION
+PETSC_DIR = $(HOME)/PETSC/petsc-2.0.24
+include ${PETSC_DIR}/bmake/$(PETSC_ARCH)/base
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+else
+PETSC_DIR = $(HOME)/PETSC/petsc-2.1.3
+include ${PETSC_DIR}/bmake/common/base
 endif
 
-LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
+BOPT=g_c++
+LD_LIBRARY_PATH=$(PETSC_DIR)/lib/lib$(BOPT)/$(PETSC_ARCH)
+LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH) ${PETSC_SLES_LIB} -lc -lm -lg2c
 
-$(LIB)(%.o):
-	$(MAKE) -C $(SRC_DIR) 'libpetscfem$(osfx).a($*.o)'
-
-CLEAN_DIRS = 
-DEPEND_DIRS = $(CLEAN_DIRS)
-leak.o: 
-#w Build executable
-leak.bin: $(LIB_OBJS_LIB) leak.o
+leak.bin: leak.o
 	-rm -f $@
-	${CXX_CLINKER} -o $@ leak.o  $(LDFLAGS_NO_PROG_LIB)
-
-
-#s
+	${CXX_CLINKER} -o $@ leak.o $(LDFLAGS)
