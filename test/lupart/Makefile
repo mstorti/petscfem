@@ -1,10 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2001/07/25 03:28:25 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/07/25 17:27:31 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-tests: test_iisd 
+#w All tests
+tests: test_iisd test_partitioning
 
+#w Tests 
 test_iisd: 
 	$(MAKE) NP=2 case=iisd case_size=small test_case_poiseuille
 	mv -f save.state save.state.iisd.np2.tmp
@@ -16,11 +18,15 @@ test_iisd:
 	mv -f save.state save.state.lu.tmp
 	octave -q check_iisd.m > check_iisd.verif.tmp
 
+#w Tests different methods of partitioning. 
 test_partitioning: 
-	$(MAKE) NP=1  test_case_metis_part
-
-all: test_case_poiseuille
-dat: test_case_poiseuille_data
+	$(MAKE) NP=2  test_case_metis_part
+	mv -f save.state save.state.metis.tmp
+	$(MAKE) NP=2  test_case_hitchhiking_part
+	mv -f save.state save.state.hitchhiking.tmp
+	$(MAKE) NP=1  test_case_nearest_neighbor_part
+	mv -f save.state save.state.nearest_neighbor.tmp
+	octave -q check_part.m > check_part.verif.tmp
 
 PETSCFEM_DIR = ../..
 #PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-1.82
@@ -36,7 +42,7 @@ LOC_PROG = ns
 test_case_%_data: 
 #	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) EPERLFLAGS='-d case=$* -d cont=$(cont)' data
-	octave -q mkmesh.m
+	octave -q mkmesh.m > /dev/null
 
 data: $(NAME).depl force
 $(NAME).depl: force
@@ -49,7 +55,7 @@ endif
 test_case_%: test_case_%_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl #> output.case_$*.tmp
+			-case $(NAME).depl > output.case_$*.tmp
 #			-case $(NAME).depl 
 #			-case $(NAME).depl | tee output.case_$*.tmp
 
