@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.79 2003/09/01 23:17:37 mstorti Exp $
+//$Id: elemset.cpp,v 1.80 2003/09/08 15:19:44 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -236,6 +236,25 @@ public:
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
   }
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::clear_error() { error_code=0; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::set_error(int error_code_a) { error_code = error_code_a; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::check_error() {
+  int error;
+  int ierr = MPI_Allreduce(&error_code,&error,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+  handle_error(error);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::handle_error(int error_code) {
+  if (error_code) PETSCFEM_ERROR("Elemset name \"%s\", ptr %p, set error %d\n",
+			    name(),this,error_code);  
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -540,6 +559,7 @@ int assemble(Mesh *mesh,arg_list argl,
 #endif 
 
       
+      elemset->clear_error();
       if (iele_here > -1) {
 	// if (1) {
 	compt_s = MPI_Wtime();
@@ -550,6 +570,7 @@ int assemble(Mesh *mesh,arg_list argl,
       } else {
 	// printf("[%d] not processing because no elements...\n",myrank);
       }
+      elemset->check_error();
 
       // Upload return values
       for (j=0; j<narg; j++) {
@@ -954,7 +975,7 @@ void Elemset::read(FileStack *fstack) {}
 Elemset::Elemset() : type(NULL), icone(NULL), elemprops(NULL),
 		     elemiprops(NULL), elemprops_add(NULL),
 		     elemiprops_add(NULL), thash(NULL),
-                     elem_conne(NULL) { }
+                     elem_conne(NULL), error_code(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Elemset::~Elemset() {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.31 2003/07/06 15:10:18 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.32 2003/09/08 15:19:43 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -40,6 +40,16 @@ void nsi_tet_keps_rot::initialize() {
   // velocities and accelerations from fictitious nodes. The
   TGETOPTDEF_ND(thash,int,non_inertial_frame,0);
 }
+
+#if 0
+enum ErrorCodes { NULL_JACOBIAN=1 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void nsi_tet_keps_rot::handle_error(error) {
+  if (error==NULL_JACOBIAN) {
+  }
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -561,8 +571,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       if (detJaco <= 0.) {
 	printf("Jacobian of element %d is negative or null\n"
 	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.31 2003/06/09 02:37:18 mstorti Exp $
+//$Id: elemset.h,v 1.32 2003/09/08 15:19:44 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -309,8 +309,23 @@ public:
       @param type (input) the type of the elemset */ 
   void register_name(const string &name,const char *type);
 
-  /// Pass the elemset the filestack in order to read data, if needed
+  /// Pass to the elemset the filestack in order to read data, if needed
   virtual void read(FileStack *fstack);
+
+
+private:
+  /// The actual error code
+  int error_code;
+
+public:
+  /// Clear the error code in the elemset
+  void clear_error();
+  /// Set an error at the element level
+  void set_error(int error_code);
+  /// Check the actual error code (collective)
+  void check_error();
+  /// This can be modified by the user in order to handle different errors
+  virtual void handle_error(int error_code);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // The following will be declared `private' in the future
