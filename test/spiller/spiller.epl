@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spiller.epl,v 1.9 2003/03/19 19:06:41 mstorti Exp $ 
+## $Id: spiller.epl,v 1.10 2003/03/19 20:17:55 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -17,15 +17,15 @@ $L1 = 18;			# Distance from top of spiller to start
 				# of flat bottom
 $L2 = 50;			# Flat bottom length
 $h1 = 4;                        # Water height at top of spiller
-$y2 = 60;			# restitution height
+$y2 = 65.79;			# restitution height
 
-$ref = 1;
+$ref = 3;
 $Ny = 10*$ref;
 $Nx = 50*$ref;
 
 $gravity = 9.8;
 $uin = sqrt($gravity*$h1);
-$fs_relax = 1;
+$fs_relax = 0.3;
 $Dt = 0.1;
 
 #__END_TRANSCRIPT__
