@@ -4,7 +4,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Ly=1;				# Long in transverse direction
 $yratio = 10;			# refinement along y
-$Ny = 20;			# Nbr of points along y
+$Ny = 100;			# Nbr of points along y
 $Nx = 2*$Ny;			# Nbr of points along x
 $Lx = 4;			# Long of comp. domain along x.
 $Aratio = 2; 			# Area at inlet/area ate outlet
@@ -18,10 +18,11 @@ $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);
 $uref = $Machin*$cref;
 $Uref = [$rhoref,$uref,0,$pref];
+$use_tetra = 1;
 
 @vars = qw(Machin gamma rhoref Tref Rgas
 	   Ly yratio Ny Nx  Lx Aratio Lnozzle
-	   pref cref uref Uref);
+	   pref cref uref Uref use_tetra);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mknozzle.m";

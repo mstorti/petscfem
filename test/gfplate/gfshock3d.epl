@@ -7,7 +7,7 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 10000000
+nstep 10
 alpha 1.
 
 initial_state "gfshock3d.ini.tmp"
@@ -15,6 +15,7 @@ initial_state "gfshock3d.ini.tmp"
 nsave 1
 save_file "gfshock3d.state.tmp"
 
+#if 0
 print_some_file "gfshock3d.some-nodes.tmp"
 save_file_some "gfshock3d.some-rslt.tmp"
 nsome 1
@@ -23,6 +24,7 @@ save_file_pattern "STEPS/gfshock3d.state_%d.tmp"
 nsaverot 10
 nrec 1
 nfile 100000000
+#endif
 
 #if 1
 solver "iisd"
@@ -52,9 +54,15 @@ print_internal_loop_conv
 # solve_system 0
 shocap 0.1
 shocap_aniso 0.1
-lumped_mass
+# lumped_mass
 weak_form 0
 temporal_stability_factor 0
+#if 0
+use_low_npg 1
+comp_reactive_terms 0
+#endif
+report_consumed_time
+chunk_size 20000
 
 ndim 3
 Rgas <:=$Rgas:>

@@ -1,4 +1,4 @@
-## $Id: mknozzle.m,v 1.2 2005/01/31 02:35:52 mstorti Exp $
+## $Id: mknozzle.m,v 1.2.14.1 2005/03/27 22:06:02 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -63,3 +63,10 @@ pffixa("gfnozzle.fixa-slip.tmp",slip,3);
 nnod = rows(xnod);
 uini = Uref(ones(nnod,1),:);
 asave("gfnozzle.ini.tmp",uini);
+
+if use_tetra
+  cmd = [getenv("PETSCFEM_DIR") \
+	 "/tools/hexasplit.bin" \
+	 " -i gfnozzle.con.tmp -o gfnozzle.con-tetra.tmp"];
+  system(cmd);
+endif

@@ -16,10 +16,12 @@ initial_state "gfnozzle.ini.tmp"
 nsave 1
 save_file "gfnozzle.state.tmp"
 
+#if 0
 save_file_pattern "STEPS/gfnozzle.state_%d.tmp"
 nsaverot 1
 nrec 1
 nfile 100000000
+#endif
 
 # type of solver (may be "iisd", "petsc"...)
 solver "iisd"
@@ -53,6 +55,10 @@ visco 0.001
 cond 0.001
 steady 0
 lagrange_diagonal_factor 1.0e-5
+use_low_npg 1
+comp_reactive_terms 0
+report_consumed_time
+chunk_size 4000
 
 #if $dx
 # Para DX
