@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2003/11/25 00:32:44 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2003/11/26 00:11:44 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -45,8 +45,7 @@ run:
 	-rrm -f pool.state_*.tmp
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m
-#	-${MPIRUN} $(NOLOCAL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
-	-${MPIRUN} $(NOLOCAL) -np $(NP) $(MCH) $(PROG) # -case $(CASE).depl
+	-${MPIRUN} $(NOLOCAL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 #w Makes local link for running with debugger
 link:
