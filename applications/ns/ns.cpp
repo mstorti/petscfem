@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.142 2004/07/28 22:06:17 mstorti Exp $
+//$Id: ns.cpp,v 1.143 2004/07/29 13:41:04 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -90,11 +90,16 @@ int main(int argc,char **args) {
   PetscInitialize(&argc,&args,(char *)0,help);
   MPE_Init_log();
   
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
+#if 0
   int start_comp = MPE_Log_get_event_number();
   int end_comp = MPE_Log_get_event_number();
   int start_comm = MPE_Log_get_event_number();
   int end_comm = MPE_Log_get_event_number();
-  if (!myrank) {
+  if (!MY_RANK) {
     MPE_Describe_state(start_comp,end_comp,"comp","green:gray");
     MPE_Describe_state(start_comm,end_comm,"comm","red:white");
   }
@@ -114,11 +119,8 @@ int main(int argc,char **args) {
   MPE_Finish_log("ns");
   PetscFinalize();
   exit(0);
-  
- #if 0
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
+#else
 
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
