@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.58 2001/12/08 00:42:22 mstorti Exp $
+//$Id: ns.cpp,v 1.54.2.1 2001/12/20 02:32:24 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -15,6 +15,7 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "elast.h"
+#include "mmove.h"
 #include "qharm.h"
 
 #include <applications/ns/nsi_tet.h>
@@ -27,6 +28,80 @@ TextHashTable *GLOBAL_OPTIONS;
 
 //debug:=
 int TSTEP=0;
+
+#define XNOD(j,k) VEC2(xnod,j,k,dofmap->ndof)
+int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
+		double displ_factor) {
+
+  double *vseq_vals,*sstate,*xnod;
+  Vec vseq;
+  TimeData *time_data = NULL;
+
+  int myrank;
+  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+
+  // fixme:= Now we can make this without a scatter. We can use
+  // the version of get_nodal_value() with ghost_values. 
+  int neql = (myrank==0 ? dofmap->neq : 0);
+  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
+  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
+			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
+		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
+ 
+  xnod = mesh->nodedata->nodedata;
+
+  if (myrank==0) {
+    int ndof=dofmap->ndof;
+    double dval;
+    for (int k=1; k<=dofmap->nnod; k++) {
+      for (int kldof=1; kldof<=ndof; kldof++) {
+	dofmap->get_nodal_value(k,kldof,vseq_vals,time_data,dval);
+	XNOD(k-1,kldof-1) += displ_factor * dval;
+      }
+    }
+  }
+
+  ierr = MPI_Bcast(xnod,dofmap->nnod*dofmap->ndof,
+		   MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
+  ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
+  ierr = VecDestroy(vseq);
+  return 0;
+}
+
+void write_mesh(const char *filename,const Dofmap *dofmap,Mesh *mesh,
+		 const int append=0) {
+
+  int myrank;
+  double *xnod;
+
+  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  xnod = mesh->nodedata->nodedata;
+
+  if (myrank==0) {
+    printf("Writing vector to file \"%s\"\n",filename);
+    FILE *output;
+    output = fopen(filename,(append == 0 ? "w" : "a" ) );
+    if (output==NULL) {
+      printf("Couldn't open output file\n");
+      // fixme:= esto esta mal. Todos los procesadores
+      // tienen que llamar a PetscFinalize()
+      exit(1);
+    }
+
+    int ndof=dofmap->ndof;
+    double dval;
+    for (int k=1; k<=dofmap->nnod; k++) {
+      for (int kldof=1; kldof<=ndof; kldof++) {
+	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1));
+      }
+      fprintf(output,"\n");
+    }
+    fclose(output);
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -42,6 +117,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_res)
       // SET_ELEMSET_TYPE(elasticity_f)
+    SET_ELEMSET_TYPE(mesh_move)
     SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
@@ -132,23 +208,17 @@ int main(int argc,char **args) {
   GETOPTDEF(int,nnwt,1);
   //o Tolerance to solve the non-linear system (global Newton).
   GETOPTDEF(double,tol_newton,1e-8);
-
-#define INF INT_MAX
+  //o Scales displacement for ALE-like mesh relocation. 
+  GETOPTDEF(double,displ_factor,0.1);
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
-  GETOPTDEF(int,update_jacobian_iters,1);
-  assert(update_jacobian_iters>=1);
-  //o Update jacobian each $n$-th Newton iteration
-  GETOPTDEF(int,update_jacobian_start_iters,INF);
-  assert(update_jacobian_start_iters>=0);
+  GETOPTDEF(int,update_jacobian_iters,0);
   //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_steps,1);
-  assert(update_jacobian_steps>=1);
+  GETOPTDEF(int,update_jacobian_steps,0);
+#define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_start_steps,INF);
-  assert(update_jacobian_start_steps>=0);
 #undef INF
-
   //o Relaxation parameter for Newton iteration. 
   GETOPTDEF(double,newton_relaxation_factor,1.);
 
@@ -334,10 +404,7 @@ int main(int argc,char **args) {
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
   // Filter *filter(x,*mesh);
-
-  // update_jacobian_this_step:= Flags whether this step the
-  // jacobian should be updated or not 
-  int update_jacobian_this_step,update_jacobian_this_iter;
+  int update_jacobian_step=0;
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
@@ -347,10 +414,6 @@ int main(int argc,char **args) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // TET ALGORITHM
 
-    // Jacobian update logic
-    update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
-      || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
-    
     // Inicializacion del paso
     ierr = VecCopy(x,dx_step);
     ierr = VecCopy(x,xold);
@@ -360,14 +423,13 @@ int main(int argc,char **args) {
 
       glob_param.inwt = inwt;
       // Initialize step
-
-      // update_jacobian_this_iter:= flags whether the Jacobian is
-      // factored in this iter or not Jacobian update logic
-      update_jacobian_this_iter = update_jacobian_this_step &&
-	( (inwt < update_jacobian_start_iters) 
-	  || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
-
-      if (update_jacobian_this_iter) {
+      int update_jacobian;
+      update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
+      // 
+      if (update_jacobian_steps) 
+	update_jacobian = (tstep < update_jacobian_start_steps) 
+	  || (update_jacobian_step==0);
+      if (update_jacobian) {
 	ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
       }
 
@@ -393,7 +455,7 @@ int main(int argc,char **args) {
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (update_jacobian_this_iter) {
+      if (update_jacobian) {
 	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
       }
 
@@ -401,7 +463,7 @@ int main(int argc,char **args) {
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
       argl.arg_add(&res,OUT_VECTOR);
-      if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+      if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
       argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -410,7 +472,7 @@ int main(int argc,char **args) {
       argl.arg_add(&glob_param,USER_DATA);
       argl.arg_add(wall_data,USER_DATA);
 
-      const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
+      const char *jobinfo = (update_jacobian ? "comp_mat_res" : "comp_res");
 
       // In order to measure performance
       if (measure_performance) {
@@ -463,7 +525,7 @@ int main(int argc,char **args) {
 	argl.arg_add(&x,PERT_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
 	argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -482,7 +544,7 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      // A_tet->build_sles(GLOBAL_OPTIONS);
+      A_tet->build_sles(GLOBAL_OPTIONS);
 
       if (!print_linear_system_and_stop || solve_system) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
@@ -521,11 +583,15 @@ int main(int argc,char **args) {
       if (inwt==0) normres_external = normres;
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
-		  inwt,normres,update_jacobian_this_iter);
+		  inwt,normres,update_jacobian);
 
+#if 0
       // update del subpaso
       scal= newton_relaxation_factor/alpha;
       ierr = VecAXPY(&scal,dx,x);
+#endif
+      update_mesh(dx,dofmap,mesh,displ_factor);
+      write_mesh("remeshing.dat",dofmap,mesh,1);
 
 #if 0
       ierr = VecView(x,VIEWER_STDOUT_WORLD); CHKERRA(ierr);
@@ -536,6 +602,10 @@ int main(int argc,char **args) {
       // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
 
     } // end of loop over Newton subiteration (inwt)
+
+    update_jacobian_step++;
+    if (update_jacobian_step >= update_jacobian_steps) 
+      update_jacobian_step =0;
 
     // error difference
     scal = -1.0;

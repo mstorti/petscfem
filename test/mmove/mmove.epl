@@ -1,0 +1,69 @@
+<:
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+#
+#octave_export_vars(">data.m.tmp",qw(nu N Ny hratio hratioy 
+#    L Ly Ny_eq Uav ));
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+save_file "save.state"
+nsave 5
+
+solver "iisd"
+iisd_subpart 1
+nnwt 1
+nnwt 2
+pc_lu_fill 8.
+rtol 1e-4
+atol 1e-10
+maxits 100
+Dt 1
+steady
+
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  2  2
+0. 0.
+1. 0.
+1. .6
+0. 1.
+1. 1.
+__END_NODES__
+
+#===========================================================
+elemset mesh_move 3
+geometry triangle
+npg 1
+__END_HASH__
+1 2 3
+1 3 4
+3 5 2
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+
+1 1 0.
+1 2 0.
+2 1 0.
+2 2 0.
+3 1 0.
+# 3 2 0.  # This is the only one not fixed
+4 1 0.
+4 2 0.
+5 1 0.
+5 2 0.
+
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
