@@ -115,8 +115,9 @@ nnwt 3
 #endif
 tol_newton 0
 #if $case eq 'iisd' 
-use_iisd
-solver "iisd"
+#use_iisd
+#solver "iisd_superlu"
+solver "iisd_petsc"
 pc_lu_fill 8.
 preco_type "<:=$preco:>"
 rtol 1e-4

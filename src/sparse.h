@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.22 2001/09/29 13:34:44 mstorti Exp $
+// $Id: sparse.h,v 1.23 2001/09/30 17:17:51 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -329,15 +329,38 @@ namespace Sparse {
   typedef pair<int,Vec> RowP;
   typedef pair<const int,Vec> RowCP;
 
+  // The Sparse::Mat class is implemented as a finite state machine in
+  // the sense proposed by Robert Martin. A base class, in this case
+  // MatFSMContext implements all basic actions. SMC implements a
+  // series of derived classes (for instance MatFSMfilledState), one
+  // for each state of the machine, which contains the logic of the
+  // machine. The user callable class, contains static members for
+  // each state and a pointer to the static member that corresponds to
+  // the actual state of the machine. The state of the machine
+  // corresponds to what static member points this pointer. 
+
+  // I successfully added some more complexity to this :-) . The user
+  // callable class Mat contains an instance of the finite state
+  // machine FSM class MatFSM.  Each method of Mat calls (or not) to a
+  // FSM event. When this is traduced to an action to the base
+  // MatFSMContext class this is executed on the Mat class via a
+  // pointer `matrix_p' contained in the Context class. This
+  // simplifies the fact in order that a event can trigger other
+  // events. (In the proposal of R. Martin this is done otherwise). 
+
+  // Actions appear in the definition of the FSM context class
+  // header and definition. The definition is simply to call the
+  // action on the `matrix_p' pointer .
+
 #define FSM_ACTION_DECL(action) void action()
 
-#if 0
+#if 1
 
 #define FSM_ACTION_DEF(action) void MatFSMContext::action()	\
   {matrix_p->action();}
 
 #else
-
+  // For debugging
 #define FSM_ACTION_DEF(action)			\
 void MatFSMContext::action() {			\
     matrix_p->action();				\
@@ -346,7 +369,6 @@ void MatFSMContext::action() {			\
 }
 
 #endif
-
 
 #define FSM_ACTIONS				\
   FSM_OP(clear);				\
@@ -384,7 +406,7 @@ void MatFSMContext::action() {			\
     int *perm_r, *perm_c;
     
     void init_fsm(Mat *) {fsm.matrix_p = this;};
-    FullVec *b;
+    double *b;
   public:
 
     friend class MatFSM;
@@ -488,6 +510,8 @@ void MatFSMContext::action() {			\
     int size() const;
     /// Solve the linear system 
     void solve(FullVec &b);
+    /// Solve the linear system 
+    void solve(double *b);
 
     /// FSM actions
 //  #undef FSM_OP

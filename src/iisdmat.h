@@ -1,12 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.3 2001/08/25 16:08:35 mstorti Exp $
+// $Id: iisdmat.h,v 1.4 2001/09/30 17:17:51 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
 #include <vector>
 
 #include <pfmat.h>
+#include <sparse.h>
 
 // This is the OO wrapper to PETSc matrix
 class PETScMat : public PFMat {
@@ -101,6 +102,8 @@ class IISDMat : public PFMat {
   vector<int> n_int_v;
   /// The PETSc nnz vector for the local part
   vector<int> d_nnz_LL;
+  /// Version SuperLU of the local matrix
+  Sparse::Mat A_LL_SLU;
   /// Local-Local matrix (sequential matrix on each processor). 
   Mat A_LL;
   /// Local-Interface matrix (MPI matrix).
@@ -152,7 +155,11 @@ class IISDMat : public PFMat {
       @param trans (input) if non null solves with the traspose of #A_LL_# 
       @param s (input) scale factor (usually for changing sign)
   */ 
-  int local_solve(Vec x_loc,Vec y_loc,int trans,double s);
+  int local_solve(Vec x_loc,Vec y_loc,int trans=0,double s=1.);
+  /** Idem to #local_solve# but for SuperLU (Sparse::Mat)
+      representation of the local problem.
+  */
+  int local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.);
   /// Diagonal of Interface matrix to use as preconditioning
   Vec A_II_diag;
   /// PETSc LU fill parameter 
@@ -161,6 +168,9 @@ class IISDMat : public PFMat {
   vector< set<int> > int_layers;
 
 public:
+
+  /// Local solver type
+  enum LocalSolver {PETSc, SuperLU} local_solver;
 
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
@@ -219,7 +229,8 @@ public:
   int set_preco(const string & preco_type);
   /// Destroy the SLES associated with the operator. 
   virtual int destroy_sles();
-  IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL) {};
+  IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL),
+  local_solver(SuperLU) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor

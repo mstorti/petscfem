@@ -1,19 +1,31 @@
+// -*- mode: c++ -*- 
+// This file is to be processed by SMC (State Machine Compiler)
+Context MatFSMContext		// name of the context class
+FSMName MatFSM			// name of the FSM to create
+Initial clean			// initial state for the machine
+Header  sparse.h		// the name of the header file
+				// of the context class
 
-Context MatFSMContext   // the name of the context class
-FSMName MatFSM // the name of the FSM to create
-Initial clean
-Header  sparse.h      // the name of the header file of the context class
-
+// Format is <from-state> <event> <to-state> <actions>
 {
 
-clean fill filled { }
-filled fill filled { }
-factored fill filled clean_factor
+  // fill operations are implemented directly in
+  // the Mat class. The only action taken is to mark the matrix as
+  // filled. 
+  clean fill filled { }
+  filled fill filled { }
+  // In factored matrice we clean the factored part, since this is out
+  // of sync with the matrix contents.
+  factored fill filled clean_factor
+    
+  // the `solve' event must `factor' if it is only filled
+  // and only solve if is already factored. 
+  filled solve factored fact_and_solve
+  factored solve factored solve_only
 
-filled solve factored fact_and_solve
-factored solve factored solve_only
-
-factored clear filled { clean_factor clear }
-filled clear clean clean_mat 
-clean clear clean {}
+  // Clear must clean the factor and the mat part, depending on the
+  // state. 
+  factored clear filled { clean_factor clear }
+  filled clear clean clean_mat 
+  clean clear clean {}
 }

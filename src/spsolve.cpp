@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.6 2001/09/29 00:57:38 mstorti Exp $
+//$Id: spsolve.cpp,v 1.7 2001/09/30 17:17:51 mstorti Exp $
 
 #include "sparse.h"
 
@@ -10,8 +10,15 @@ extern "C" {
 namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void Mat::solve(double *bb) {
+    b = bb;
+    fsm.solve();
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void Mat::solve(FullVec &bb) {
-    b = &bb;
+    assert(rows() == bb.length());
+    b = bb.begin();
     fsm.solve();
   }
 
@@ -27,10 +34,9 @@ namespace Sparse {
 
     m = rows();
     assert(m == cols());
-    assert(m == b->length());
     nnz = size();
 
-    dCreate_Dense_Matrix(&B,m,1,b->begin(),m,DN,_D,GE);
+    dCreate_Dense_Matrix(&B,m,1,b,m,DN,_D,GE);
 
     a = new double[nnz];
     asub = new int[nnz];
@@ -72,10 +78,9 @@ namespace Sparse {
 
     m = rows();
     assert(m == cols());
-    assert(m == b->length());
     nnz = size();
 
-    dCreate_Dense_Matrix(&B,m,1,b->begin(),m,DN,_D,GE);
+    dCreate_Dense_Matrix(&B,m,1,b,m,DN,_D,GE);
 
     dgstrs ("T",&L,&U,perm_r,perm_c,&B,&info);
       
