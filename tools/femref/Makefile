@@ -35,6 +35,7 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 include makefilec.d
+include makefile.d
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)

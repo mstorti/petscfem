@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.20 2005/01/15 17:26:18 mstorti Exp $
+// $Id: getsurf.cpp,v 1.21 2005/01/15 23:40:53 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -14,8 +14,6 @@
 
 using namespace std;
 
-#define VERBOSE 1
-
 #include "./femref.h"
 #include "./gtemplates.h"
 
@@ -29,7 +27,10 @@ typedef pair<int,FaceIterator> ft_pair_t;
 
 #define TRACE(j) printf("trace %d\n",j)
 
-void getsurf(const dvector<int> &icone,int base) {
+void getsurf(const dvector<int> &icone,
+	     dvector<int> &surf_con,
+	     dvector<int> &surf_nodes, 
+	     int base, int verbose) {
 
   int nread; 
   char c;
@@ -56,10 +57,9 @@ void getsurf(const dvector<int> &icone,int base) {
   double table_size=0.0;
   int collis = 0;
   start = time(NULL);
-  TRACE(0);
   while (!vis.end()) {  
     GeomObject &go = vis.ref_stack.front().go;
-    if (VERBOSE) {
+    if (verbose) {
       printf("elem %d, ",vis.elem_indx());
       go.print();
     }
@@ -79,9 +79,8 @@ void getsurf(const dvector<int> &icone,int base) {
       inv_face.init(GeomObject::OrientedTriT,
 		    inds.buff());
       inv_face.make_canonical();
-      TRACE(1);
 
-      if (VERBOSE) {
+      if (verbose) {
 	printf("face %d ",j);
 	face.print();
       }
@@ -101,8 +100,7 @@ void getsurf(const dvector<int> &icone,int base) {
 	  qq = q;
 	}
       }
-      TRACE(2);
-      if (q1!=q2 && nfaces!=1 && VERBOSE) {
+      if (q1!=q2 && nfaces!=1 && verbose) {
 	printf("possible collision with ");
 	for (q = q1; q!=q2; q++) 
 	  printf("(elem %d, face %d) ", 
@@ -120,7 +118,7 @@ void getsurf(const dvector<int> &icone,int base) {
 	fi.elem = vis.elem_indx();
 	fi.face = j;
 	int hv = face.csum();
-	if (VERBOSE) {
+	if (verbose) {
 	  printf("inserting face: hash %d, elem %d, j %d, ",
 		 hv,fi.elem,fi.face);
 	  face.print("");
@@ -149,8 +147,6 @@ void getsurf(const dvector<int> &icone,int base) {
   map<int,int> surf_nodes_map;
   int nfaces = face_table.size(),
     nsurf_nodes = 0;
-  dvector<int> surf_nodes;
-  dvector<int> surf_con;
   surf_con.a_resize(2,nfaces,face_nel);
   int surf_elem=0;
 
@@ -183,13 +179,14 @@ void getsurf(const dvector<int> &icone,int base) {
       }
     }
     assert(nopp=1);
-    if (VERBOSE) {
+    if (verbose) {
       printf("elem %d, ");
       go.print();
       printf("face %d, ",q->second.elem,q->second.face);
       face.print();
       printf("opposing node %d\n",opp_node);
     }
+    surf_elem++;
   }
 }
 
@@ -240,7 +237,7 @@ SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
   start = time(NULL);
   while (!vis.end()) {  
     GeomObject &go = vis.ref_stack.front().go;
-    if (VERBOSE) {
+    if (verbose) {
       printf("elem %d, ",vis.elem_indx());
       go.print();
     }
@@ -261,7 +258,7 @@ SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 		    inds.buff());
       inv_face.make_canonical();
 
-      if (VERBOSE) {
+      if (verbose) {
 	printf("face %d ",j);
 	face.print();
       }
@@ -281,7 +278,7 @@ SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 	  qq = q;
 	}
       }
-      if (q1!=q2 && nfaces!=1 && VERBOSE) {
+      if (q1!=q2 && nfaces!=1 && verbose) {
 	printf("possible collision with ");
 	for (q = q1; q!=q2; q++) 
 	  printf("(elem %d, face %d) ", 
@@ -299,7 +296,7 @@ SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 	fi.elem = vis.elem_indx();
 	fi.face = j;
 	int hv = face.csum();
-	if (VERBOSE) {
+	if (verbose) {
 	  printf("inserting face: hash %d, elem %d, j %d, ",
 		 hv,fi.elem,fi.face);
 	  face.print("");
@@ -372,7 +369,7 @@ SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
       }
     }
     assert(nopp=1);
-    if (VERBOSE) {
+    if (verbose) {
       printf("elem %d, ");
       go.print();
       printf("face %d, ",q->second.elem,q->second.face);

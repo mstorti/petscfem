@@ -4,7 +4,6 @@
 #include <libguile.h>
 
 #include <src/dvector.h>
-#include <src/dvector2.h>
 
 scm_t_bits TAG;
 
@@ -188,6 +187,29 @@ DVECTOR_CAT_FUN(SCM s_w,SCM s_file) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
+#define __FUN__ DVTYPE "-dump"
+static SCM
+DVECTOR_DUMP_FUN(SCM s_w,SCM s_file) {
+  dvector_t *w;
+
+  SCM_ASSERT(SCM_SMOB_PREDICATE(TAG, s_w),
+	     s_w, SCM_ARG1, __FUN__);
+  w = (dvector_t *) SCM_SMOB_DATA (s_w);
+  
+  FILE *stream=NULL;
+  if (s_file == SCM_UNDEFINED) {
+    w->print();
+  } else {
+    SCM_ASSERT(scm_string_p(s_file),
+	       s_file, SCM_ARG2, __FUN__);
+    const char *file = SCM_STRING_CHARS(s_file);
+    w->print(file);
+  }
+  return SCM_UNSPECIFIED;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
 #define __FUN__ DVTYPE "-push!"
 static int
 DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
@@ -204,7 +226,9 @@ DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
   int n = w->size();
   sprintf(buff,"%p, %d (",w,n);
   scm_lfwrite (buff,strlen(buff),port);
-  for (int j=0; j<n; j++) {
+#define NPMAX 20
+  int nn = (n>NPMAX ? NPMAX : n);
+  for (int j=0; j<nn; j++) {
 #if defined DV_INT
 #define PRINTF_FORMAT "%d "
 #elif defined DV_DBL
@@ -215,6 +239,8 @@ DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
     sprintf(buff,PRINTF_FORMAT,w->ref(j));
     scm_lfwrite (buff,strlen(buff),port);
   }
+  if(n>NPMAX) 
+    scm_puts (" ... ", port);
   scm_puts (")>", port);
   return 1;
 }
@@ -233,4 +259,5 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
   scm_c_define_gsubr(DVTYPE "-cat!", 2, 0, 0, scm_fun(DVECTOR_CAT_FUN));
+  scm_c_define_gsubr(DVTYPE "-dump", 1, 1, 0, scm_fun(DVECTOR_DUMP_FUN));
 }

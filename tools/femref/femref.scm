@@ -20,5 +20,10 @@
 !#
 
 (define icone (make-dvint))
+(define surf-con (make-dvint))
+(define surf-nodes (make-dvint))
 (format #t "read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
-(getsurf icone 1)
+
+(getsurf icone surf-con surf-nodes 1 0)
+(format #t "surf-con:\n")
+(dvint-dump surf-con)
