@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.4 2001/05/31 02:32:25 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.5 2001/05/31 17:01:47 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -79,7 +79,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   init();
   int nr = nres();
-  FastMat2 r(1,nr),lambda(2,ndof,nr),jac(2,nr,ndof);
+  FastMat2 r(1,nr),lambda(2,ndof,nr),jac(2,nr,ndof),
+    pp(2,nel*ndof,nel*ndof);
   jac.set(0.);
 
   FastMatCacheList cache_list;
@@ -112,8 +113,10 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).rs();
 
       R.export_vals(&(RETVAL(ielh,0,0)));
-      matloc.set(1.);
+      // matloc.set(0.);
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      pp.set(matloc.storage_begin());
+      pp.print("matloc: ");
     }
   }
   FastMat2::void_cache();

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* while reading constraints complain if dofs out of range
 * escribir una funcion "double pow_int(double base,int exp)"
 * new scheduling algorithm for load balancing in `elemset.cpp'
 * write a generic non-linear restriction element

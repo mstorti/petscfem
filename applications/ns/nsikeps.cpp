@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.3 2001/05/30 18:21:50 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.4 2001/05/31 17:01:47 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -707,6 +707,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	veccontr.ir(2,ndof).set(reseps).rs();
       }
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      // matlocf.set(0.);
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }

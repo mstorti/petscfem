@@ -23,10 +23,10 @@ nnwt 1
 tol_newton 0
 preco_type "lu"
 
-print_linear_system_and_stop
-solve_system 0
+#print_linear_system_and_stop
+#solve_system 0
 
-Dt 1.
+Dt 0.01
 nstep 1
 alpha 1.
 
@@ -64,11 +64,11 @@ __END_HASH__
 33 35 36 34 
 __END_ELEMSET__
 
-elemset wall_law_res 2
-__END_HASH__
-3 1 
-#4 2 
-__END_ELEMSET__
+#  elemset wall_law_res 2
+#  __END_HASH__
+#  3 1 
+#  4 2 
+#  __END_ELEMSET__
 
 end_elemsets
 
@@ -83,11 +83,24 @@ fixa
 #  1 5  0.
 #  3 1  1.
 #  3 2  0.
-#  3 3  0.
+
+#  2 2  0.
+#  2 3  0.
+#  2 4  0.
+#  2 5  0.
+#  4 1  1.
+#  4 2  0.
+
 __END_FIXA__
 
 constraint
 __INCLUDE__ nonlr.peri
+
+-1. 35 1    1. 3 1
+-1. 35 2    1. 3 2
+-1. 35 3    1. 3 3
+-1. 35 4    1. 3 4
+-1. 35 5    1. 3 5
 __END_CONSTRAINT__
 
 # Local Variables: $
