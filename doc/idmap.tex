@@ -7,8 +7,8 @@
 \index{permutation matrices}
 %
 This class represents sparse matrices that are ``close'' to a
-permutation. Assume that the $n\times n$ matrix $Q$ is a permutation
-matrix, so that if $!y$, $!x$ are vectors of dimension $n$ and
+permutation. Assume that the $n\times n$ matrix \lfrc{$Q$} is a permutation
+matrix, so that if \lfrc{$!y$}, \lfrc{$!x$} are vectors of dimension \lfrc{$n$} and
 %
 \begin{equation} 
    !y = !Q \, !x
@@ -20,7 +20,7 @@ then
   y_j = x_{P(j)}
 \end{equation}
 %
-where $P$ is the permutation associated with $Q$. For instance if
+where \lfrc{$P$} is the permutation associated with \lfrc{$Q$}. For instance if
 $P=\{1,2,3,4\}\to\{2,4,3,1\}$ then
 %
 \begin{equation} 
@@ -35,8 +35,8 @@ $P=\{1,2,3,4\}\to\{2,4,3,1\}$ then
 This matrix can be efficiently stored as an array of integers of
 dimension ${\rm ident[n]}$ such that ${\rm ident[j-1]} = P(j)$. Also,
 the inverse permutation can be stored in another integer array ${\rm
-iident[n]}$, so that both $Q$ and $Q\muno$ can be stored at the cost
-of  $n$ integer values for each. Also, both multiplication and
+iident[n]}$, so that both \lfrc{$Q$} and $Q\muno$ can be stored at the cost
+of  \lfrc{$n$} integer values for each. Also, both multiplication and
 inversion operations as $!y = !Q\,!x$, $!y = !Q^T\,!x$, $!x =
 !Q\muno\,!y$ and $!x = !Q^{-T}\,!y$, can be done with $n$-addressing
 operations. 
@@ -54,7 +54,7 @@ describing the relation between node/field pairs and degrees of
 freedom. For instance consider a flow NS or Euler application in a
 mesh like that shown in figure~\ref{fg:idmap}. At each node we have a
 set of unknown ``fields'' (both components of velocity and pressure,
-$u$, $v$ and $p$).  In a first description, we may arrange the vector
+\lfrc{$u$}, \lfrc{$v$} and \lfrc{$p$}).  In a first description, we may arrange the vector
 of unknowns as 
 %
 \begin{equation} 
@@ -73,7 +73,7 @@ of unknowns as
 \end{equation}
 %
 The length of this vector is $\Nnod\times\ndof$ and this may be called
-the ``node/field'' (this accounts for the $NF$ subindex) description
+the ``node/field'' (this accounts for the \lfrc{$NF$} subindex) description
 of the vector of unknowns.  However, we can not take this vector as
 the vector of unknowns for actual computations due to a series of
 facts,
@@ -103,8 +103,8 @@ So that we assume that we have a relation
   !U_\NF = !Q \, !U + \barQ \, \barU   \label{eq:urep} 
 \end{equation}
 %
-where $!U$ is the ``reduced'' array of unknowns, $\barU$ 
-representing the externally fixed values, and  $Q$, $Q^*$ appropriated
+where \lfrc{$!U$} is the ``reduced'' array of unknowns, $\barU$ 
+representing the externally fixed values, and  \lfrc{$Q$}, $Q^*$ appropriated
 matrices. Follows some common cases 
 
 \begin{description}
@@ -116,7 +116,7 @@ fixed, then we have
    v_1 = \bar v_1
 \end{align}
 %
-so that the corresponding file in $!Q$ is null and the file in $\barQ$
+so that the corresponding file in \lfrc{$!Q$} is null and the file in $\barQ$
 has a ``1'' in the entry corresponding to the barred values. 
 
 \begin{figure*}[htb]
@@ -189,10 +189,10 @@ through rotation of $\alpha=2\pi/\nfoils$, then we can impose
 %
 \item[Absorbing boundary conditions] The basic concept about these
 b.c.'s is to impose the in-going components from outside (reference)
-values while leaving the outgoing components free. If $!w=[u,v,p]$ is
-the state vector of the fluid at some node $j$ on the outlet boundary
-(see figure~\ref{fg:idmap}), then $!V!w = !u$ are the
-eigen-components, where $!V$ is the change of basis matrix.
+values while leaving the outgoing components free. If \lfrc{$!w=[u,v,p]$} is
+the state vector of the fluid at some node \lfrc{$j$} on the outlet boundary
+(see figure~\ref{fg:idmap}), then \lfrc{$!V!w = !u$} are the
+eigen-components, where \lfrc{$!V$} is the change of basis matrix.
 The absorbing b.c. may be written as
 %
 \begin{equation} 
@@ -209,7 +209,7 @@ The absorbing b.c. may be written as
 % independent. 
 Where $\bar w^1$ is the in-going component (taken from the reference
 value $!w_\refer$) and the other components $w^{2,3}$ are free,
-i.e. they go in $!U$. 
+i.e. they go in \lfrc{$!U$}. 
 
 \index{boundary conditions!non-linear Dirichlet}
 \index{Non-linear Dirichlet boundary conditions}
@@ -275,7 +275,7 @@ while the prescribed values are
   \bU_6  &=   v_8
 \end{align}
 %
-And the relation defining matrices $!Q$ and $\barQ$ are
+And the relation defining matrices \lfrc{$!Q$} and $\barQ$ are
 %
 \begin{align}
    u_1 &= V^1_{11} \, \bU_1 + V^1_{12} \, U_1 + V^1_{13} \, U_2\\
@@ -318,11 +318,11 @@ And the relation defining matrices $!Q$ and $\barQ$ are
 %
 \end{align}
 %
-As we can see the boundary conditions result in sparse $!Q$ and
+As we can see the boundary conditions result in sparse \lfrc{$!Q$} and
 $\barQ$ matrices. Moreover, in real (large) problems most of the rows
-correspond to interior nodes (such as node 5 here) so that $!Q$ is
+correspond to interior nodes (such as node 5 here) so that \lfrc{$!Q$} is
 very close to a permutation matrix. If we think at accessing the
-elements of $!Q$ by row, then could store $!Q$ as a sparse matrix, but
+elements of \lfrc{$!Q$} by row, then could store \lfrc{$!Q$} as a sparse matrix, but
 in this case we need an average of two integers (for pointers) and a
 double (for the value) per unknown, whereas a permutation matrix can
 be stored with only one integer per unknown.  One possibility is to
@@ -334,9 +334,9 @@ node 3 (periodic + absorbing) and node 9 (periodic+ Dirichlet).
 \SSection{Inversion of the map} 
 
 It is necessary sometimes to invert relation (\ref{eq:urep}),
-i.e. given $!U_\NF$ and $\barU$ to find $!U$, for instance when 
+i.e. given $!U_\NF$ and $\barU$ to find \lfrc{$!U$}, for instance when 
 initializing a temporal problem. Of course, this may not be possible
-for arbitrary  $!U_\NF$ and $\barU$, since $!Q$ is in general
+for arbitrary  $!U_\NF$ and $\barU$, since \lfrc{$!Q$} is in general
 rectangular, but we assume that $!Q^T!Q$ is non singular and solve
 (\ref{eq:urep}) in a least square sense. After, we may verify if the given
 data ($!U_\NF$ and $\barU$) is \emph{``compatible''} by evaluating the
@@ -345,7 +345,7 @@ operations.
 
 \SSection{Design and efficiency restrictions} 
 
-The class of matrices representing $!Q$ and $\barQ$ should have the
+The class of matrices representing \lfrc{$!Q$} and $\barQ$ should have the
 following characteristics. 
 %
 \begin{itemize}
@@ -403,7 +403,7 @@ map<int,row_t*> row_map;
 So that, for a given $j$ we can get the corresponding row by checking
 the value of ${\tt inode}[j-1]$. If the row is void or normal we
 return the corresponding row and if it is special, then we look for
-the pointer in $row_map$ and this returns the desired row. Similar
+the pointer in \verb+row_map+ and this returns the desired row. Similar
 information is stored by columns, but in this case it is not necessary
 to store the values for the special rows so that the columns are of the form
 %
@@ -419,8 +419,8 @@ map<int,col_t*> col_map;
 
 \SSection{Block matrices} 
 
-When solving a linear (\ref{eq:urep}) for $!U$, it is a key point to
-take into account that most part of $!Q$ are independent blocks, so
+When solving a linear (\ref{eq:urep}) for \lfrc{$!U$}, it is a key point to
+take into account that most part of \lfrc{$!Q$} are independent blocks, so
 that the inversion may be done with a minimum computational effort. We
 say that a given row and column indices $i,j$ we say that they are
 \emph{``directly connected''} if the element $Q_{ij}$ is non null. We
@@ -472,7 +472,7 @@ represent as
    & = !Q^3 \begin{sqmat}{c} x_4 \\ x_5\\ x_7 \end{sqmat} \\
 \end{align}
 %
-So that $!Q$ decomposes in three blocks of $3\times 2$, $1\times 1$,
+So that \lfrc{$!Q$} decomposes in three blocks of $3\times 2$, $1\times 1$,
 and $2\times 3$, two void rows (2,9) and two row columns (2,3). One
 basic operation of class idmap is to compute the row connected to a
 given column index. 

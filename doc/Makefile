@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.3 2001/01/02 22:28:10 mstorti Exp $
+#$Id: Makefile,v 1.4 2001/01/03 13:45:45 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -84,7 +84,7 @@ README.pod: README.podin $(TARFILE).tara,v
 
 #lclean: clean
 
-local_clean: 
+local_clean::
 	$(MAKE) -C manual clean
 	$(MAKE) -C OBJ clean
 	-putex
