@@ -1,14 +1,17 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.12 2002/07/18 02:57:30 mstorti Exp $
+// $Id: graph.h,v 1.13 2002/07/18 20:01:40 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include <queue>
 #include <set>
 
+//#define STL_ALLOCATOR malloc_alloc
+#define STL_ALLOCATOR single_client_alloc 
+
 /// A set of neighbors. 
-typedef set<int,less<int>,malloc_alloc> GSet;
+typedef set<int,less<int>,STL_ALLOCATOR> GSet;
 
 class Graph {
   /*** ngbrs:= Auxiliary queue that stores those nodes that are waiting
@@ -54,7 +57,7 @@ class Graph {
   /// Callback user function for the user to set the weight of a given fine vertex. 
   virtual double weight(int vrtx_f);
   /// Clean all memory related 
-  void clear();
+  virtual void clear();
   /// Print the graph
   void print();
 };

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.3 2002/07/18 02:57:30 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.4 2002/07/18 20:01:40 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -133,26 +133,8 @@ void StoreGraph::print() const {
   PetscSynchronizedFlush(comm);
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-#if 0
-void StoreGraph::set_ngbrs(int loc1,GSet &ngbrs_v) {
-  int pos,loc2,dof2;
-  pos = loc2dof[loc1]+k1;
-  while (1) {
-    nodep = (Node *)da_ref(da,pos);
-    if (nodep->next==-1) break;
-    // loc2:= number of global dof connected to `'
-    dof2 = nodep->val;
-    if (k1<=dof2 && dof2<=k2 && !flag[dof2] ) {
-      loc2 = dof2loc[dof2-k1];
-      ngbrs_v.insert(loc2);
-    }
-    pos = nodep->next;
-  }
-}
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double StoreGraph::weight(int elem) {
-  return 1.;
+void StoreGraph::clear() {
+  Graph::clear();
+  lgraph.clear();
 }
-#endif

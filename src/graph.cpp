@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.16 2002/07/18 02:57:30 mstorti Exp $
+//$Id: graph.cpp,v 1.17 2002/07/18 20:01:40 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -7,6 +7,8 @@
 extern "C" {
 #include <metis.h>
 }
+
+SeqPartitioner seq_partitioner;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Graph::~Graph() {}

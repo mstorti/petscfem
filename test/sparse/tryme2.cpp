@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme2.cpp,v 1.2 2002/07/18 02:57:33 mstorti Exp $
+// $Id: tryme2.cpp,v 1.3 2002/07/18 20:01:44 mstorti Exp $
 
 #include <cmath>
 #include <map>
@@ -18,9 +18,12 @@ int main() {
   int jjjj=1;
 #if 1
   int M=1000000;
-  set<double,less<double>,malloc_alloc> s;
+  //  set<double,less<double>,malloc_alloc> s;
+  typedef set<double> S;
+  set<double> s;
   for (int j=0; j<M; j++) { s.insert(drand()); }
   s.clear();
+  S().swap(s);
   double *a = new double[3*M];
   for (int j=0; j<3*M; j++) a[j] = double(j);
   delete[] a;

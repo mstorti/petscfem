@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.5 2002/07/18 02:57:30 mstorti Exp $
+//$Id: petscmat.cpp,v 1.6 2002/07/18 20:01:40 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -115,6 +115,7 @@ int PETScMat::create_a() {
     sumdcorr += d_nnz[k];
     sumo += o_nnz[k];
   }
+  lgraph.clear();
 
   // Print statistics
   double avo,avd,avdcorr;

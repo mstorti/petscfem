@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: part.h,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+// $Id: part.h,v 1.3 2002/07/18 20:01:40 mstorti Exp $
 #ifndef PART_H
 #define PART_H
 
@@ -9,6 +9,13 @@ public:
   virtual int processor(int j) const =0;
   virtual ~DofPartitioner()=0;
 };
+
+class SeqPartitioner : public DofPartitioner {
+public:
+  int processor(int j) const { return 0; } 
+  ~SeqPartitioner() {}
+};
+extern SeqPartitioner seq_partitioner;
 
 template <typename ImgValueType>
 class Partitioner  {

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.3 2002/07/18 02:57:30 mstorti Exp $
+//$Id: iisdgraph.h,v 1.4 2002/07/18 20:01:40 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -18,7 +18,7 @@ extern int MY_RANK,SIZE;
 #include <src/distcont.h>
 
 /// The storage area type
-typedef map<int, GSet, less<int>, malloc_alloc > GMap;
+typedef map<int, GSet, less<int>, STL_ALLOCATOR > GMap;
 /// An individual set of the storage map. 
 typedef pair<int, GSet > GRow;
 /// Partitioner for the scatter operation. 
@@ -56,6 +56,8 @@ class StoreGraph : public Graph {
   /// perform the scatter of elements to its corresponding processor. 
   void scatter() { lgraph.scatter(); }
   void print() const;
+  /// Clean all memory related 
+  void clear();
 };
 
 #endif
