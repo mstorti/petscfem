@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $
+$Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6107,6 +6107,13 @@ esta entrando en este momento por la entrada.
 Lo arranco a partir del estado RUN3/120 e inicializo las presiones
 p_h, p_c a los valores que tenia en ese momento. 
 p_h = 133599, p_c=131901. 
+%
+16:01:03: Parece regular bien, pero por un error en el mkvtube.m, no
+estaba imponiendo la presion regulada en la salida fria. 
+%
+17:16:07: AHora esta controlando bien. Tal vez le puede costar llegar
+al estacionario, pero no diverge. 
+
 
 # Current line ===========  %
 # Local Variables: $

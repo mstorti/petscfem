@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.8 2003/01/30 18:02:06 mstorti Exp $
+//$Id: gasflow.cpp,v 1.9 2003/01/30 20:18:44 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -31,7 +31,7 @@ cut_regulator_hook_table_t  cut_regulator_hook_table;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class cut_regulator_hook {
 private:
-  int nstream;
+  int nstream,inlet_index;
   double *flow_rate,flow_coef, *flow_rate_now;
   int *gather_pos;
 public:
@@ -52,7 +52,7 @@ public:
     assert(options);
     PetscPrintf(PETSC_COMM_WORLD,
 		"-- cut_regulator_hook::init() name: %s \n",name);
-    options->print("options table: ");
+    if (!MY_RANK) options->print("options table: ");
     int ierr;
     TGETOPTDEF_ND(options,int,nstream,0);
     assert(nstream>0);
@@ -62,6 +62,8 @@ public:
     pressure = new double[nstream];
     gather_pos = new int[nstream];
 
+    TGETOPTDEF_ND(options,int,inlet_index,0);
+    assert(inlet_index>=0);
     TGETOPTDEF_ND(options,double,flow_coef,0.);
     ierr = get_double(options,"initial_pressure",pressure,1,nstream); 
     assert(!ierr);
@@ -79,18 +81,17 @@ public:
   void time_step_pre(double time,int step) { }
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values) { 
-    // double sum_flow_rate_now=0., sum_flow_rate=0., p_avrg=0.;
+    double inlet_flow = gather_values[inlet_index];
+    for (int j=0; j<nstream; j++) 
+      flow_rate_now[j] = -gather_values[gather_pos[j]];
+    assert(inlet_flow>0.);
     for (int j=0; j<nstream; j++) {
-      flow_rate_now[j] = (j==0? 1. : -1.) * gather_values[gather_pos[j]];
-    }
-    assert(flow_rate_now[0]>0.);
-    for (int j=1; j<nstream; j++) {
-      assert(flow_rate_now[j]<0.);
+      assert(flow_rate_now[j]>0.);
       double new_pressure = pressure[j] 
-	+ flow_coef*(flow_rate_now[j]-flow_rate[j]*flow_rate_now[0]);
+	+ flow_coef*(flow_rate_now[j]-flow_rate[j]*inlet_flow);
       PetscPrintf(PETSC_COMM_WORLD,
 		  "stream %d, flow%d = %g, desired flow = %g, p%d = %g, new_p%d = %g\n",
-		  j,flow_rate_now[j],j,flow_rate[j]*flow_rate_now[0],
+		  j,j,flow_rate_now[j],flow_rate[j]*flow_rate_now[0],
 		  j,pressure[j],j,new_pressure);
       pressure[j] = new_pressure;
     }

@@ -182,7 +182,7 @@ initial_pressure <:=$p_h:>
 flow_rate 1.
 gather_pos 1
 #endif
-flow_coef 1.25e4
+flow_coef 1.25e6
 __END_HASH__
 
 ##================================================================
