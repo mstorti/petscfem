@@ -1429,3 +1429,6 @@ tag: beta-3.02.pl12 on Wed,  7 Aug 2002 16:43:35 -0300 by mstorti in minerva.arc
 tag: beta-3.02.pl13 on Wed,  7 Aug 2002 20:11:45 -0300 by mstorti in spider
      > Added doc for `embedded_gatherer'. 
      > Written `Elemset *Mesh::find(string &volume_name)'. 
+----------
+tag: beta-3.02.pl14 on Wed,  7 Aug 2002 20:53:16 -0300 by mstorti in spider
+     > `embedded_gatherer' computes moments OK.
