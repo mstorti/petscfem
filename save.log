@@ -1859,3 +1859,6 @@ tag: beta-3.09.pl3 on Wed,  4 Dec 2002 21:25:14 -0300 by mstorti in spider
 tag: beta-3.09.pl4 on Sat,  7 Dec 2002 19:00:51 -0300 by mstorti in spider
      > Added FastMat2::assoc(A,Fun2,...)
      > Added test.
+----------
+tag: beta-3.09.pl5 on Wed, 11 Dec 2002 15:48:12 -0300 by mstorti in minerva.arcride.edu.ar
+     > Working on `mesh_move'
