@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.22 2004/11/23 12:16:03 mstorti Exp $
+// $Id: femref.h,v 1.23 2004/11/23 12:37:30 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -72,6 +72,9 @@ public:
       : obj(obj_a), t(ta), subobj(subobj_a) { }
     iterator() : obj(-1), t(GeomObject::NULL_TYPE), 
 		 subobj(-1) { }
+    void set(int obj_a,GeomObject::Type ta,int subobj_a) {
+      obj = obj_a; t = ta; subobj = subobj_a; 
+    }
   };
   virtual void set(iterator it,GeomObject &go)=0;
   virtual iterator find(GeomObject &go)=0;

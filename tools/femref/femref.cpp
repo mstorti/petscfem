@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.14 2004/11/23 12:16:03 mstorti Exp $
+// $Id: femref.cpp,v 1.15 2004/11/23 12:37:30 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -364,14 +364,15 @@ int main() {
   UniformMesh mesh(OrientedTetraTemplate,3);
   mesh.read("tetra.nod","tetra.con");
   GeomObject go;
+  Mesh::iterator it;
   for (int j=0; j<5; j++) {
     for (int k=0; k<4; k++) {
-      Mesh::iterator it(j,GeomObject::OrientedTriT,k);
+      it.set(j,GeomObject::OrientedTriT,k);
       mesh.set(it,go);
       go.print();
+      it = mesh.find(go);
+      if (mesh.is_end(it)) printf("not found\n");
+      else printf("found at elem %d, position %d\n",it.obj,it.subobj);
     }
   }
-  Mesh::iterator it = mesh.find(go);
-  if (mesh.is_end(it)) printf("not found\n");
-  else printf("found at elem %d, position %d\n",it.obj,it.subobj);
 }
