@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.45 2001/11/06 02:39:20 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.46 2001/11/30 00:51:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -478,7 +478,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #else
 	dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
-	dmatu.set(0.); // debug:= 
 	
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
