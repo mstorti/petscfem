@@ -1,4 +1,4 @@
-## $Id: interp3d.m,v 1.4 2005/02/24 22:31:57 mstorti Exp $
+## $Id: interp3d.m,v 1.5 2005/02/25 01:59:47 mstorti Exp $
 
 if 0
   xnod1 = aload("static_p_blade.nod");
@@ -43,21 +43,23 @@ for j=1:1000
     invC = inv(C)';
     invC(ndim+1,:)=0;
     b = [xe';1];
-    flag = zeros(3,1);			# indices for which restrictions are active
+    restricted = zeros(3,1);			# indices for which restrictions are active
     iters=0;
     while 1
       iters = iters+1;
-      indx = find(flag);
+      indx = find(restricted);
       C2 = C;
       if length(indx)>0;
 	C2(:,indx) = -invC(:,indx);
       endif
       L = C2\b;
       bad = find(L(1:ndim)<-tol);
+      !any(restricted && bad) || \
+	  error("restriction shoul go back!!");
       if length(bad)==0; 
 	break; 
       else
-	flag(bad) = !flag(bad);
+	restricted(bad) = 1;
       endif
       if 0
 	L(indx)=0;
@@ -67,7 +69,7 @@ for j=1:1000
       endif
     endwhile
     maxit = max([maxit iters]);
-    indx = find(flag);
+    indx = find(restricted);
     L(indx)=0;
     L(ndim+1)=0;
     xproj = (C(1:ndim,:)*L)';

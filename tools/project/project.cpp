@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.12 2005/02/25 01:48:14 mstorti Exp $
+// $Id: project.cpp,v 1.13 2005/02/25 01:59:47 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -66,6 +66,7 @@ int main() {
   nnod2=1000;
   FILE *fid = fopen("qq.dat","w");
 #endif
+  double tol = 1e-6;
   for (int n2=0; n2<nnod2; n2++) {
 #ifndef NOD2_RAND
     x2.set(&xnod2.e(n2,0));
@@ -111,19 +112,25 @@ int main() {
 	// L.print("L");
 	int neg=0;
 	for (int j=1; j<=ndim; j++) {
-	  if (L.get(j)<0) {
+	  if (L.get(j)<-tol) {
 	    neg=1;
-	    assert(!restricted[j-1]);
-	    restricted[j-1]=1;
+	    int &flag = restricted[j-1];
+	    flag = !flag;
 	    C2.ir(2,j);
-	    invCt.ir(2,j);
-	    C2.set(invCt);
+	    if (flag) {
+	      invCt.ir(2,j);
+	      C2.set(invCt);
+	    } else {
+	      C.ir(2,j);
+	      C2.set(C);
+	    }
 	  }
 	}
 	if (!neg) break;
-	assert(iter<=ndim+3);
+	assert(iter<=ndim);
 	C2.rs();
 	invCt.rs();
+	C.rs();
       }
       // printf("converged on iters %d\n",iter);
       for (int j=0; j<ndim; j++) 
