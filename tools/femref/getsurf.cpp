@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.5 2005/01/09 21:32:29 mstorti Exp $
+// $Id: getsurf.cpp,v 1.6 2005/01/09 23:49:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -10,6 +10,8 @@
 
 using namespace std;
 
+#define VERBOSE 0
+
 #include "./femref.h"
 #include "./gtemplates.h"
 
@@ -19,7 +21,7 @@ struct FaceIterator {
 };
 
 typedef multimap<int,FaceIterator> face_table_t;
-typedef pair<int,FaceIterator> face_table_pair_t;
+typedef pair<int,FaceIterator> ft_pair_t;
 
 int main() { 
 
@@ -27,14 +29,17 @@ int main() {
 #if 0
 #define DATA "/u/mstorti/PETSC/GARIBA/DATA"
   mesh.read(DATA "/proy.nod.tmp",DATA "/proy.con.tmp");
-#else
+#elif 0
   mesh.read("tetra.nod","tetra.con");
+#else
+  mesh.read("cube.nod.tmp","cube.con.tmp");
 #endif
-  UniformMesh::visitor vis;
+  UniformMesh::visitor vis, vis2;
   vis.visit_mode = UniformMesh::BreadthFirst;
   vis.init(mesh);
+  vis2.init(mesh);
   face_table_t face_table;
-  GeomObject face, inv_face;
+  GeomObject face, inv_face, inv_face2;
   const GeomObject::Template *face_tmpl 
     = GeomObject::get_template(GeomObject::OrientedTriT);
   dvector<int> inds;
@@ -43,7 +48,10 @@ int main() {
   int nint_faces=0;
   while (!vis.end()) {  
     GeomObject &go = vis.ref_stack.front().go;
-    go.print();
+    if (VERBOSE) {
+      printf("elem %d, ",vis.elem_indx());
+      go.print();
+    }
     int nfaces = go.size(GeomObject::OrientedTriT);
     for (int j=0; j<nfaces; j++) {
       go.set(GeomObject::OrientedTriT,j,face);
@@ -59,29 +67,59 @@ int main() {
 		    inds.buff());
       inv_face.make_canonical();
 
-      printf("face %d ",j);
-      face.print();
+      if (VERBOSE) {
+	printf("face %d ",j);
+	face.print();
+      }
       int hash_val = inv_face.hash_val();
-      face_table_t::iterator q, 
+      face_table_t::iterator q, qq,
 	q1 = face_table.lower_bound(hash_val),
 	q2 = face_table.upper_bound(hash_val);
       if (q1!=q2) {
-	printf("possible collition with ");
-	for (q = q1; q!=q2; q++)
-	  printf("(elem %d, face %d) ", 
-		 q->second.elem,q->second.face);
-	printf("\n");
+	if (VERBOSE) {
+	  printf("possible collision with ");
+	  for (q = q1; q!=q2; q++) 
+	    printf("(elem %d, face %d) ", 
+		   q->second.elem,q->second.face);
+	  printf("\n");
+	}
+	int nfaces=0;
+	for (q = q1; q!=q2; q++) {
+	  vis2.init(q->second.elem);
+	  GeomObject &go2 = vis2
+	    .ref_stack.front().go;
+	  go2.set(GeomObject::OrientedTriT,q->second.face,inv_face2);
+	  if (inv_face.equal(inv_face2)) {
+	    nfaces++;
+	    qq = q;
+	  }
+	}
+	if (nfaces!=1) {
+	  printf("possible collision with ");
+	  for (q = q1; q!=q2; q++) 
+	    printf("(elem %d, face %d) ", 
+		   q->second.elem,q->second.face);
+	  printf("\n");
+	}
+	assert(nfaces==1);
+	face_table.erase(qq);
 	nint_faces++;
       } else {
 	FaceIterator fi;
 	fi.elem = vis.elem_indx();
 	fi.face = j;
-	face_table
-	  .insert(face_table_pair_t(face.hash_val(),fi));
+	int hv = face.hash_val();
+	if (VERBOSE) {
+	  printf("inserting face: hash %d, elem %d, j %d, ",
+		 hv,fi.elem,fi.face);
+	  face.print("");
+	}
+	face_table.insert(ft_pair_t(hv,fi));
       }
     }
     vis.next();
   }
-  printf("%d internal faces, %d external faces\n",
+  printf("%d total faces, %d internal, %d external\n",
+	 nint_faces*2+face_table.size(),
 	 nint_faces,face_table.size());
 }

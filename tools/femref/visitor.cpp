@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.24 2005/01/07 15:43:08 mstorti Exp $
+// $Id: visitor.cpp,v 1.25 2005/01/09 23:49:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -37,6 +37,7 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(int elem_a) {
   while(!ref_stack.empty()) pop();
+  elem = elem_a;
   etree_p = mesh->elem_ref.e(elem);
   ElemRef::iterator q = etree_p->begin();
   
@@ -384,7 +385,7 @@ pop_elem() {
       if (visited.ref(ngbr_elem)) continue;
       element_stack.push_back(ngbr_elem);
       visited.ref(ngbr_elem) = 1;
-      printf("node %d, adding ngbr elem %d\n",node,ngbr_elem);
+      // printf("node %d, adding ngbr elem %d\n",node,ngbr_elem);
     }
   }
 }

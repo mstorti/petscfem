@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.23 2005/01/05 12:21:53 mstorti Exp $
+// $Id: femref2.cpp,v 1.24 2005/01/09 23:49:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -13,6 +13,7 @@ using namespace std;
 #include "./gtemplates.h"
 
 MD5Hasher hasher;
+FastSumHasher shasher;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GeomObject::GeomObject(Type t,const int *nodes_a) 
@@ -31,13 +32,13 @@ void GeomObject::init(Type t,const int *nodes_a) {
   // Copy node array in internal vector
   // and compute check-sum
   if (nodes_a) {
-    hasher.reset();
+    shasher.reset();
     for (int j=0; j<sz; j++) {
       int node = nodes_a[j];
-      hasher.hash(node);
+      shasher.hash(node);
       nodes_m.ref(j) = node;
     }
-    cs = hasher.val();
+    cs = shasher.val();
   }
 }
 
@@ -54,15 +55,15 @@ init(Type t,const int *local_nodes,
   nodes_m.mono(sz);
   // Copy node array in internal vector
   // and compute check-sum
-  hasher.reset();
+  shasher.reset();
   for (int j=0; j<sz; j++) {
     for (int j=0; j<sz; j++) {
       int local_node = local_nodes[j];
       int node = global_nodes[local_node];
-      hasher.hash(node);
+      shasher.hash(node);
       nodes_m.ref(j) = node;
     }
-    cs = hasher.val();
+    cs = shasher.val();
   }
 }
 
@@ -147,12 +148,12 @@ void GeomObject::make_canonical() {
 #endif
   }
   // Copy lowest ordering to internal ordering
-  hasher.reset();
+  shasher.reset();
   for (int kk=0; kk<sz; kk++) {
     nodesp[kk] = cmin[kk];
-    hasher.hash(nodesp[kk]);
+    shasher.hash(nodesp[kk]);
   }
-  hash_value = hasher.val();
+  hash_value = shasher.val();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
