@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.6 2003/02/03 18:35:25 mstorti Exp $
+// $Id: socket2.cpp,v 1.7 2003/02/03 22:36:29 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -16,16 +16,41 @@ const int CHUNK=1000;
 void chomp(char *s) { s[strlen(s)-1] = '\0'; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void pprint(char *buf,int N) {
+  char *q = buf;
+  char *qe = q+N;
+  for (q = buf; q<qe; q++) {
+    if (*q == '\n') {
+      putc('\\',stdout);
+      putc('n',stdout);
+    } else if (*q == '\0') {
+      putc('\\',stdout);
+      putc('0',stdout);
+    } else putc(*q,stdout);
+  }
+  putc('\n',stdout);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SGETLINE_FACTOR 2
 // #define SGETLINE_INIT_SIZE 128
-#define SGETLINE_INIT_SIZE 8
+#define SGETLINE_INIT_SIZE 16
 #define SGETLINE_MAX_SIZE INT_MAX
 ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   unsigned int &N = *N_a;	// better readbility
-  char * new_line_ptr = NULL, *q, *qe;
-  int old_N;
+  char * new_line_ptr = NULL, *q, *q0, *qe;
+  int read_so_far=0;
   while (1) {
-    old_N = N;
+    if (N>0) {
+      q0 = *lineptr+read_so_far;
+      qe = *lineptr+N;
+      for (q = q0; q< qe; q++) *q = '\0';
+      Sgets(q0,N-read_so_far,sock);
+      pprint(*lineptr,N);
+      for (q = q0; q<qe; q++) if (*q == '\n') break;
+      if (q<qe) break;
+      read_so_far = N-2;
+    }
     N = (N ? 2*N : SGETLINE_INIT_SIZE);
 #define DEBUG
 #ifdef DEBUG
@@ -35,17 +60,11 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
     new_line_ptr = (char *) malloc(N);
     assert(new_line_ptr);
     if (*lineptr) {
-      memcpy(new_line_ptr,*lineptr,old_N);
+      memcpy(new_line_ptr,*lineptr,read_so_far);
       free(*lineptr);
     }
     *lineptr = new_line_ptr;
     new_line_ptr = NULL;
-    Sgets(*lineptr+old_N,N-old_N,sock);
-    qe = *lineptr+N;
-    for (q = *lineptr+old_N; q<qe; q++) {
-      if (*q == '\0') break;
-    }
-    if (q<qe) break;
   }
   return strlen(*lineptr)+1;
 }
@@ -57,9 +76,8 @@ inline double drand() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int talk(Socket *sock,comm_mode &mode) { 
-  static char *line = NULL;
+  static char *line = NULL, *buf=NULL;
   static size_t N=0,NN=0;
-  char *buf=NULL;
   int stop;
 
   if (mode==SEND) {
