@@ -1,3 +1,4 @@
+# $Id: cubcav.pl,v 1.2 2003/11/25 21:49:10 mstorti Exp $
 $case = 'laplace' unless $case;
 get_var_env2('data_dir','.');
 $endur_test = $data_dir ne '.';
