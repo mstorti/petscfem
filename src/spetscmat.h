@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.1 2004/10/24 16:25:21 mstorti Exp $
+// $Id: spetscmat.h,v 1.2 2004/10/24 17:51:06 mstorti Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -38,7 +38,7 @@ public:
 		  InsertMode mode=ADD_VALUES) {
     int roww=row, coll=col;
     if (col<row) { roww=col; coll=row; }
-    ierr = MatSetValues(A,1,&row,1,&col,&value,mode); 
+    ierr = MatSetValues(A,1,&roww,1,&coll,&value,mode); 
     CHKERRQ(ierr); 
     return 0;
   };

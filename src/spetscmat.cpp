@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.1 2004/10/24 16:25:21 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.2 2004/10/24 17:51:06 mstorti Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -43,9 +43,9 @@ int PFSymmPETScMat::build_sles() {
   CHKERRQ(ierr); 
   P=A;
 
-  MatShellSetOperation(A,MATOP_MULT,
+  MatShellSetOperation(Asymm,MATOP_MULT,
 		       (void (*)(void))(&spetscmat_mult));
-  MatShellSetOperation(A,MATOP_MULT_TRANSPOSE,
+  MatShellSetOperation(Asymm,MATOP_MULT_TRANSPOSE,
 		       (void (*)(void))(&spetscmat_mult));
 
   ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
@@ -72,9 +72,10 @@ int PFSymmPETScMat::build_sles() {
 #define __FUNC__ "PFSymmPETScMat::mult"
 int PFSymmPETScMat::mult(Vec x,Vec y) {
   ierr = MatMult(A,x,y); CHKERRQ(ierr); 
-  ierr = MatMultAdd(A,x,y,y); CHKERRQ(ierr); 
+  ierr = MatMultTransposeAdd(A,x,y,y); CHKERRQ(ierr); 
   double scal=0.5;
-  ierr = VecScale(&scal,y);
+  ierr = VecScale(&scal,y); CHKERRQ(ierr); 
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

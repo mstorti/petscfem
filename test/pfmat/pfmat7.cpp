@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat7.cpp,v 1.2 2004/10/24 16:48:43 mstorti Exp $
+// $Id: pfmat7.cpp,v 1.3 2004/10/24 17:51:09 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -82,45 +82,29 @@ int main(int argc,char **args) {
   fclose(fid);
   A.create();
 
-#if 0
-  nread = fscanf(fid,"%d",&N);
-  assert(nread==1);
-  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Setting matrix\n");CHKERRQ(ierr);}
-  for (int i=0;i<nonzeros;i++) {
+  fid = fopen("symm.dat","r");
+  for (int j=0; j<N+1; j++) {
+    double v;
+    fscanf(fid,"%lf",&v);
+  }
+  while(1) {
     int j,k;
     double v;
     nread = fscanf(fid,"%d %d %lf",&j,&k,&v);
+    if (nread == EOF) break;
     assert(nread==3);
-    if (((j)*size)/N == myrank) A.set_value((j),(k),(v));
-    //    A.set_value(j,k,v);
+    if (j % size == myrank) A.set_value(j,k,v);
   }
   fclose(fid);
-  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Assembling matrix\n");CHKERRQ(ierr);}
   A.assembly(MAT_FINAL_ASSEMBLY);
-  int nhere=0;
-  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->setting vector\n");CHKERRQ(ierr);}
-  for (int k=0; k<N; k++) 
-    if (part.processor(k)==myrank) nhere++;
-  ierr = VecCreateMPI(PETSC_COMM_WORLD,
-		      nhere,PETSC_DETERMINE,&b); CHKERRQ(ierr); 
-  ierr = VecDuplicate(b,&x); CHKERRQ(ierr); 
-  fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/lap_b.dat","r");
-  for (int j=0; j<N; j++) {
-    double v;
-    nread = fscanf(fid,"%lf",&v);
-    ierr = VecSetValues(b,1,&j,&v,INSERT_VALUES); CHKERRQ(ierr); 
-  }
-  fclose(fid);
-  int its;
-  ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
-  ierr = VecAssemblyEnd(b); CHKERRQ(ierr);
+
   if (!myrank)  {
     ierr = PetscPrintf(PETSC_COMM_WORLD,"data-->read\n");CHKERRQ(ierr);
     ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Solving system\n");CHKERRQ(ierr);
   }
   ierr = A.solve(b,x); CHKERRQ(ierr); 
-  //  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
+  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
   A.clear();
   PetscFinalize();
-#endif
+
 }
