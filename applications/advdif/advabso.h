@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.5 2005/01/27 14:11:34 mstorti Exp $
+// $Id: advabso.h,v 1.6 2005/01/27 15:34:59 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -30,8 +30,8 @@ private:
   NewAdvDifFF *adv_diff_ff;
   FastMat2 dummy,flux,fluxd,A_grad_U,
     grad_U,Ucpy,normal,A_jac,S,invS,c,
-    Pi_m,Pi_p,Uref,cp,cm,tmp1,Ulambda,Uo,
-    dU;
+    Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,
+    dU,Cp,invCp;
   // Per node normal
   Property normal_prop;
 public:

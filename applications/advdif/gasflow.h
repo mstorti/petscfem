@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.18 2005/01/27 14:43:35 mstorti Exp $
+// $Id: gasflow.h,v 1.19 2005/01/27 15:34:59 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -142,6 +142,8 @@ public:
       matrix with an SUPG weight function
   */
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
+
+  void get_Cp(FastMat2 &Cp_a);
 
 #define USE_COMP_P_SUPG
 #ifdef USE_COMP_P_SUPG

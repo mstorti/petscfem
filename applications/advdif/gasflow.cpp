@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.21 2005/01/27 14:43:35 mstorti Exp $
+//$Id: gasflow.cpp,v 1.22 2005/01/27 15:34:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -203,7 +203,9 @@ void gasflow_ff::set_state(const FastMat2 &UU) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void gasflow_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
+void gasflow_ff::
+set_state(const FastMat2 &U,
+	  const FastMat2 &grad_U) {
   set_state(U);
 }
 
@@ -213,26 +215,36 @@ void gasflow_ff::enthalpy(FastMat2 &H) {
   H.set(0.);
 
   H.setel(rho,1);
-  H.is(1,vl_indx,vl_indxe).set(vel).scale(rho).rs();
+  H.is(1,vl_indx,vl_indxe)
+    .set(vel).scale(rho).rs();
   H.setel(rho_ene,ndof);
 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff
-::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
-	      double weight) {
+::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,
+	      const FastMat2 &N,double weight) {
   W_N.prod(W,N,1,2).scale(weight);
   W_Cp_N.prod(W_N,Cp,1,3,2,4);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void gasflow_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
+void gasflow_ff::
+comp_P_Cp(FastMat2 &P_Cp,
+	  const FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void gasflow_ff::compute_tau(int ijob,double &delta_sc) {
+void gasflow_ff::
+get_Cp(FastMat2 &Cp_a) {
+  Cp_a.set(Cp);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::
+compute_tau(int ijob,double &delta_sc) {
 
   //    static FastMat2 svec,tmp9;
 

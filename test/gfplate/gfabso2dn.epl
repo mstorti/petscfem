@@ -49,7 +49,7 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.05
+Dt 0.1
 shocap 0.0
 weak_form 0
 temporal_stability_factor 0
@@ -94,7 +94,7 @@ data ./gfabso2dn.con.tmp
 __END_HASH__
 
 #if $abso
-#if 0
+#if 1
 ## New absorbing b.c.'s 
 elemset gasflow_abso2 3
 dx 0
