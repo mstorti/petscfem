@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.26 2003/02/16 17:03:10 mstorti Exp $
+//$Id: dxhook.cpp,v 1.27 2003/02/16 17:13:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -234,11 +234,7 @@ void dx_hook::build_state_from_state(double *state_p) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void dx_hook::
-time_step_post(double time,int step,
-	       const vector<double> &gather_values) {
-  // this is for CHECK_COOKIE
-  build_state = &dx_hook::build_state_from_state;
+void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
 #define sock srvr
   int cookie, cookie2, dx_step;
   string state_file;
@@ -352,7 +348,7 @@ time_step_post(double time,int step,
   double *state_p = NULL;
   if (!MY_RANK) state_p = new double[ndof*nnod];
   if (!MY_RANK) state_p = new double[ndof*nnod];
-  (this->*build_state)(state_p);
+  (this->*build_state_fun)(state_p);
   
   if (!MY_RANK) {
     cookie = rand();
@@ -425,6 +421,13 @@ time_step_post(double time,int step,
 #ifdef USE_PTHREADS
   if(!steps && connection_state() == not_launched) re_launch_connection();
 #endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::
+time_step_post(double time,int step,
+	       const vector<double> &gather_values) {
+  void send_state(int step,build_state_fun_t bf);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
