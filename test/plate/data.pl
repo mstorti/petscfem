@@ -1,6 +1,8 @@
 $Re = 1000;			# Reynolds number
 $Co = 2;			# Courant number
-$re_start = 0;			# restart previous run? 
+$re_start = 1;			# restart previous run? 
+$dx_steps = 1;
+$dx_read_state_from_file = 1;
 
 sub print_filter {
     my ($a,$b) = @_;
@@ -32,10 +34,10 @@ if (1) {   ## large mesh
     $Rint=1;
     $Rext=3;
     $L = 10;
-    $Ntheta = 32;
-    $Nr=10;
-    $Nx=20;
-    $du_ini_pert = 0.;
+    $Ntheta = 80;
+    $Nr=30;
+    $Nx=100;
+    $du_ini_pert = 0.3;
 } else {  ## small mesh, small domain
     $Rint=1;
     $Rext=2;

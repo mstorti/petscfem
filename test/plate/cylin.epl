@@ -36,7 +36,7 @@ nrec 1
 nfile 100000000
 
 initial_state <:= ($re_start ? "cylin.state.tmp" : "cylin.ini.tmp") :>
-nstep 1
+nstep 1000
 # steady
 solver "iisd"
 iisd_subpart_auto 2000
@@ -70,8 +70,8 @@ viscosity <:=2*$Rint/$Re:>
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
-dx_steps 0
-# dx_read_state_from_file
+<:pr('dx_steps'):>
+<:pr('dx_read_state_from_file'):>
 #endif
 __END_HASH__
 

@@ -1,4 +1,5 @@
-<: require './data.pl'; :>
+<: require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+require './data.pl'; :>
 #===========================================================
 global_options
 ndim 2
@@ -7,7 +8,10 @@ nsave 1
 ## should stop on signal from cylin.epl
 nstep 10000000
 save_file_pattern "ext.out_%d.tmp"
-nsaverot 1
+nsaverot 20
+nrec 1
+nfile 100000000
+
 steady
 solver "iisd"
 iisd_subpart_auto 2000
@@ -38,7 +42,9 @@ coupling_inv_hook.prefix   coupling_inv_hook
 dx_split_state "1 1 0 phi"
 dx_auto_combine
 dx_port 5315
-dx_steps 0
+dx_state_all_fields 0
+<:pr('dx_steps'):>
+<:pr('dx_read_state_from_file'):>
 #endif
 
 __END_HASH__

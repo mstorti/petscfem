@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.22 2003/02/22 04:21:05 mstorti Exp $
+//$Id: inviscid.cpp,v 1.23 2003/02/22 16:44:01 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -213,7 +213,6 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       visc_indx_map[vn] = ext_node_indx;      
       ext_node_indx++;
     }
-    printf("visc_indx_map.size(): %d\n",visc_indx_map.size());
     assert(nread==EOF);
     fclose(fid);
 
@@ -323,12 +322,10 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
     assert(nread==EOF);
     fclose(fid);
   }
-  printf("visc_indx_map.size(): %d\n",visc_indx_map.size());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::time_step_pre(double t,int step) { 
-  printf("visc_indx_map.size(): %d\n",visc_indx_map.size());
   printf("INVISCID: waiting computed_step flag, step %d...\n",step);
   int step_sent = int(read_doubles(visc2inv,"computed_step"));
   if (step_sent==-1) {
@@ -349,7 +346,6 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   ext_map::iterator q, qe=inv_indx_map.end();
   int nread;
   char *line = NULL; size_t N=0;
-  printf("visc_indx_map.size(): %d\n",visc_indx_map.size());
   while (1) {
     if (getline(&line,&N,fid)==-1) break;
     nread = sscanf(line,"%lf %lf",&u[0],&u[1]);
@@ -360,8 +356,6 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
       int ext_node_indx = q->second;
       ext_node_data[ext_node_indx]->u[0] = u[0];
       ext_node_data[ext_node_indx]->u[1] = u[1];
-      printf("loading node %d, ext_node_indx %d, u %f, %f\n",
-	     node,ext_node_indx,u[0],u[1]);
     }
   }
   fclose(fid);
@@ -384,7 +378,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
     ext_node_data[k]->phi = ext_node_data[k-1]->phi + dpot;
   }
 
-#if 1
+#if 0
   for (int k=0; k<nnod_ext; k++) {
     ext_node &e = *ext_node_data[k];
     printf("k=%d, vn %d, pn %d, x=%f %f, uu=%f %f, phi=%f\n",

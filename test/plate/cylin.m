@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.18 2003/02/22 04:21:05 mstorti Exp $
+## $Id: cylin.m,v 1.19 2003/02/22 16:44:00 mstorti Exp $
 global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");
@@ -141,8 +141,7 @@ endif
 fid = fopen("cylin.skin.tmp","w");
 for k=1:length(skin)
   node = skin(k);
-#  fprintf(fid,"%d %d    %f\n",node,1,0.);
-  fprintf(fid,"%d %d    %f\n",node,1,1.);
+  fprintf(fid,"%d %d    %f\n",node,1,0.);
   fprintf(fid,"%d %d    %f\n",node,2,0.);
 endfor  
 fclose(fid);

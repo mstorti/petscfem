@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.55 2003/02/22 04:20:48 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.56 2003/02/22 16:44:00 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -685,9 +685,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       if (residual_factor!=1.)
 	veccontr.scale(residual_factor);
-      if (veccontr.sum_square_all()>1e-6) {
-	printf("high res: %d\n",k);
-      }
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
 
       if (update_jacobian) {
