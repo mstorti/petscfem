@@ -224,3 +224,6 @@ tag: beta-1.29 on Mon Mar  5 00:19:47 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.30 on Sun Mar 11 22:10:52 ART 2001, by mstorti in spider
      > Adding parser for props line
+----------
+tag: beta-1.31 on Mon Mar 12 23:29:48 ART 2001, by mstorti in spider
+     > Modifying the flux classes
