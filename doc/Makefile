@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.39 2003/11/19 02:25:08 mstorti Exp $
+#$Id: Makefile,v 1.40 2003/11/19 17:06:10 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -116,11 +116,9 @@ odoc:
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 allcpp = $(shell find .. -name '*.cpp')
 odoc_all: 
-	$(ODOC) -o odoc_all.tex -e odoc.el $(allcpp)
-# 	etags --lang=none				\
-# 		--regex='/^Option: .* <\([^ ]*\)>/\1/'	\
-# 		petscfem-opt-tags
-
+	$(ODOC) -o odocall.tex -e odoc.el $(allcpp)
+	emacs -batch -q -l make-info.el > make-info.log
+	makeinfo --no-split options3.texi
 
 #w Make html home-page
 index.html: index.tex

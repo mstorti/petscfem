@@ -77,6 +77,7 @@ The list of all options
 @menu
 @end menu
 
+@c __INSERT_HERE__
 
 @node Options Index,  , Options, Top
 @unnumbered Options Index
