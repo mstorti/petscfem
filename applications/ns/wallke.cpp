@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.7 2001/06/25 14:38:22 mstorti Exp $
+//$Id: wallke.cpp,v 1.8 2001/06/25 17:40:40 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -124,7 +124,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate2(nel,ndof),xpg; 
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(2,nel,nel);
+  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel );
   FMatrix matlocmom(nel,nel);
 
   double rho=1.;
@@ -148,7 +148,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     pcol_star,pcol_new,pcol;
 
   FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,
-    tmp5,seed(ndof,ndof),;
+    tmp5,seed(ndof,ndof);
 
 //    if (comp_mat_res) {
 //      seed.eye().setel(0.,ndof,ndof);
@@ -189,6 +189,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr.set(0.);
 
     ucols.set(locstate2.is(2,1,ndim));
+    locstate2.rs();
 
     ucols_new.set(locstate.is(2,1,ndim));
     locstate.rs();
@@ -207,7 +208,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_mat_res) {
       veccontr.is(2,1,ndim);
       matloc.is(2,1,ndim).is(4,1,ndim);
-      lmass.set(0.).d(2,1);
+      lmass.set(0.)       ;
 
       // loop over Gauss points
       // Guarda que hay que invertir la direccion de la traccion!!!!
@@ -239,6 +240,31 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matloc.add(tmp4);
 
 	veccontr.axpy(tmp2,-gfun*wpgdet);
+      }
+
+      if (lumped_wallke) {
+	matloc.reshape(2,nel*ndof,nel*ndof);
+	for (int j=1; j<=nel; j++) {
+	  ucols_star.ir(1,j);
+	  double Ustar = sqrt(ucols_star.sum_square_all());
+	  double gfun,gprime, Omega_j;
+	  Omega_j = lmass.get(j);
+	  gprime = rho / (fwall*fwall);
+	  gfun = gprime * Ustar;
+	  if (turbulence_coef == 0.) {
+	    gprime = 0.;
+	    gfun = rho * viscosity / y_wall;
+	  }
+
+	  matlocmom.setel(Omega_j*gfun,j,j);
+
+	  matloc.ir(1,j).ir(3,j)
+	    .prod(u_star,u_star,1,2)
+	    .scale(wpgdet*gprime/Ustar);
+
+	  veccontr.ir(1,j).is(2,1,ndim)
+	    .set(ucols_star).scale(-gfun*Omega_j);
+	}
       }
 
       matlocmom.rs();

@@ -91,6 +91,7 @@ steady
 #solve_system 0
 #print_dofmap_id
 
+lumped_wallke 0
 y_wall_plus <:=$y_wall_plus:>
 y_wall <:=$y_wall:>
 turbulence_coef <:=$turbulence_coef:>
