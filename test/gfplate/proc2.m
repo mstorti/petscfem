@@ -1,4 +1,4 @@
-## $Id: proc2.m,v 1.13 2005/01/23 22:39:43 mstorti Exp $
+## $Id: proc2.m,v 1.14 2005/01/23 22:46:34 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -30,7 +30,7 @@ x = x(1:Nx+1,:)*nor';;
 
 axis([min(x) max(x) \
       min(min(Unorm)) max(max(Unorm))]);
-m=10;
+m = 5;
 
 for k=1:m:nt
   k

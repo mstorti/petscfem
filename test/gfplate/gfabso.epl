@@ -59,7 +59,8 @@ Rgas <:=$Rgas:>
 visco 0.001
 cond 0.001
 steady 0
-Uref <:=$rhoref:> <:=$uref*$norx:>  <:=$uref*$nory:> <:=$uref*$norz:> <:=$pref:> 
+Uref <:=$rhoref:> <:=$uref*$norx:>  <:=$uref*$nory:> \
+    <:=$uref*$norz:> <:=$pref:> 
 linear_abso 1
 
 lagrange_diagonal_factor 1e-3

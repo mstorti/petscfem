@@ -5,8 +5,8 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $Lx = 4;
 $Nx = 50;
 
-$phi = $PI/4;
-$theta = $PI/4;
+$phi = 0;
+$theta = 0;
 
 $Machin = 0.5;
 $gamma = 1.4;

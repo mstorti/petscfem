@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.15 2005/01/23 22:39:43 mstorti Exp $
+## $Id: mkgfabso.m,v 1.16 2005/01/23 22:46:34 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -71,7 +71,7 @@ nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
 Uini(nnod+[1,3],:) = 0;		# lagrange multipliers to 0
 
-dw = 0.2*[0 1 0 0 0]; ## perturbation
+dw = 0.2*[0 0 1 0 0]; ## perturbation
 dw(2:4) = dw(2:4)*Orot';
 
 dfx = exp(-((x-Lx/2)/sigma).^2);
