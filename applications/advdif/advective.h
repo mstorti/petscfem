@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.74 2005/03/28 21:06:34 mstorti Exp $
+//$Id: advective.h,v 1.75 2005/03/29 01:48:02 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -313,9 +313,13 @@ public:
       @param grad_N_dDdU_N (output) size #nel# x #ndof# x #nel# x #ndof#
       @param grad_N (input) size #nel# x #ndof#
       @param N (input) size #nel# 
+      @return 1 if flux function truly implements this, 0 otherwise. 
   */
-  virtual void comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,FastMat2 &grad_U,
-    FastMat2 &dshapex,FastMat2 &N,double w) {}
+  virtual int
+  comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,
+		     FastMat2 &grad_U,
+		     FastMat2 &dshapex,
+		     FastMat2 &N,double w) { return 0; }
   //@}
 
   /** @name Reactive jacobians related */

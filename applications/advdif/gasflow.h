@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.26 2005/03/28 21:06:34 mstorti Exp $
+// $Id: gasflow.h,v 1.27 2005/03/29 01:48:02 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -128,8 +128,8 @@ public:
       @param grad_N (input) size #nel# x #ndof#
       @param N (input) size #nel# 
   */
-  void comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,FastMat2 &grad_U,
-			  FastMat2 &dshapex,FastMat2 &N,double w);
+  int comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N,FastMat2 &grad_U,
+			 FastMat2 &dshapex,FastMat2 &N,double w);
   //@}
 
   /** @name Reactive jacobians related */

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.102 2005/03/28 21:06:34 mstorti Exp $
+//$Id: advdife.cpp,v 1.103 2005/03/29 01:48:02 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -277,8 +277,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
   //o ALE_flag : flag to ON ALE computation
   NSGETOPTDEF(int,ALE_flag,0);
-  //o indx_ALE_xold : pointer to old coordinates in NODEDATA array excluding the first "ndim" values
+  //o indx_ALE_xold : pointer to old coordinates in 
+  //  NODEDATA array excluding the first "ndim" values
   NSGETOPTDEF(int,indx_ALE_xold,1);
+  //o Compute the term non-symmetric term
+  //  correspoding to nonlinearities in the
+  //  diffusive Jacobian. 
+  NSGETOPTDEF(int,compute_dDdU_term,1);
 
   assert(compute_fd_adv_jacobian_random>0.
 	 && compute_fd_adv_jacobian_random <=1.);
@@ -786,10 +791,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					  dshapex,wpgdet);
 	matlocf.add(grad_N_D_grad_N);
 
-	// add non linear contributions of diffusive matrix, Djac(U) ==> d Djac /dU
-	adv_diff_ff->comp_grad_N_dDdU_N(grad_N_dDdU_N,grad_U,
-					  dshapex,SHAPE,wpgdet);
-	matlocf.add(grad_N_dDdU_N);
+	// add non linear contributions of
+	// diffusive matrix, Djac(U) ==> d Djac /dU
+	if (compute_dDdU_term) {
+	  int flag = adv_diff_ff
+	    ->comp_grad_N_dDdU_N(grad_N_dDdU_N,grad_U,
+				 dshapex,SHAPE,wpgdet);
+	  if (flag) matlocf.add(grad_N_dDdU_N);
+	}
 
         // Reactive term in matrix (Galerkin part)
 #if 0

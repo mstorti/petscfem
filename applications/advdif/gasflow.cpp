@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.36 2005/03/28 21:06:34 mstorti Exp $
+//$Id: gasflow.cpp,v 1.37 2005/03/29 01:48:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -700,12 +700,13 @@ void gasflow_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void gasflow_ff::comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N, FastMat2 &grad_U, 
-				     FastMat2 &dshapex,FastMat2 &N,double w) {
+int gasflow_ff::comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N, FastMat2 &grad_U, 
+				   FastMat2 &dshapex,FastMat2 &N,double w) {
   tmp40.prod(Djac,grad_U,1,2,-1,-2,-1,-2).scale(1. /visco_eff);
   tmp41.prod(tmp40,dviscodU,1,2,3);
   tmp42.prod(tmp41,dshapex,-1,2,3,-1,1);
   grad_N_dDdU_N.prod(tmp42,N,1,2,4,3).scale(w);
+  return 1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
