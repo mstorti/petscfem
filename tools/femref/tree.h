@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: tree.h,v 1.2 2004/12/26 00:41:00 mstorti Exp $
+// $Id: tree.h,v 1.3 2004/12/26 02:30:56 mstorti Exp $
 #ifndef PETSCFEM_TREE_H
 #define PETSCFEM_TREE_H
 
@@ -64,7 +64,7 @@ class tree {
     }
     iterator father() { 
       cell *father_p = ptr->father;
-      if (father_p == tree_p->header) return end();
+      if (father_p == tree_p->header) return tree_p->end();
       cell *grand_father = father_p->father;
       cell *father_prev = grand_father->left_child;
       assert(father_prev);

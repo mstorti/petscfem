@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: trytree.cpp,v 1.2 2004/12/26 01:02:43 mstorti Exp $
+// $Id: trytree.cpp,v 1.3 2004/12/26 02:30:56 mstorti Exp $
 
 #include <cstdlib>
 #include <cassert>
@@ -67,9 +67,11 @@ void ord_pre(tree<int> &T,vector<int> &v) {
   ord_pre(T,T.begin(),v);
 }
 
+#define BIG 10000
+
 int main() {
   tree<int> A;
-  make_random_tree(A,20,4);
+  make_random_tree(A,20,3);
   A.lisp_print();
 
   vector<int> op;
@@ -79,7 +81,30 @@ int main() {
     printf("%d ",op[j]);
     tree<int>::iterator n = A.find(op[j]);
     assert(n!=A.end());
-    *n += 1000;
+    *n += BIG;
   }
   printf("\n");
+
+  for (int j=0; j<op.size(); j++) {
+    tree<int>::iterator n = A.find(op[j]+BIG);
+    assert(n!=A.end());
+    *n -= BIG;
+  }
+
+  
+  for (int j=0; j<op.size(); j++) {
+    printf("path to %d: ",op[j]);
+    tree<int>::iterator n = A.find(op[j]);
+    tree<int>::iterator q=n;
+    assert(n!=A.end());
+    
+    while (q!=A.end()) {
+      printf("%d ",(*q<BIG ? *q : *q-BIG));
+      q = q.father();
+    }
+    printf("\n");
+
+    *n += BIG;
+  }
+
 }
