@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.8 2002/07/16 02:51:36 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.9 2002/07/16 03:29:13 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -250,8 +250,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
-    locstate << &(LOCST(ielh,0,0));
-    locstate2 << &(LOCST2(ielh,0,0));
+    if (comp_res_mom || comp_res_poi || comp_res_prj) {
+      locstate << &(LOCST(ielh,0,0));
+      locstate2 << &(LOCST2(ielh,0,0));
+    }
     matlocmom = 0;
     matlocmom2 = 0;
     veccontr = 0;

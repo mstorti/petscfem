@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.7 2002/07/16 02:51:36 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.8 2002/07/16 03:29:13 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -705,7 +705,7 @@ int main(int argc,char **args) {
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
 
-#if 1
+#if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,

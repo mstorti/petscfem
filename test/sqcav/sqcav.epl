@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.16.6.5 2002/07/16 00:22:28 mstorti Exp $
+#$Id: sqcav.epl,v 1.16.6.6 2002/07/16 03:29:16 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -16,14 +16,14 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 4;
-$hratio = 10;			# refinement (h_center/h_wall)
-$Re = 1000;			# Reynolds number
+$N = 40;
+$hratio = 40;			# refinement (h_center/h_wall)
+$Re = 1;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = 0.01;			# time step
+$Dt = 1;			# time step
 $solver = "petsc";
-$preco_type = "lu";
-$maxits = 1;
+$preco_type = "jacobi";
+$maxits = 20;
 $nstep = 100;
 #
 $weak_form = 0;
@@ -94,9 +94,9 @@ nsave 5
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
 update_jacobian_steps 3
+#endif
 report_consumed_time
 activate_debug_print
-#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -116,7 +116,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady
+# steady
 temporal_stability_factor 0
 
 shock_capturing_factor 0

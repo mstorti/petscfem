@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.17.6.1 2002/07/16 03:29:16 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -12,18 +12,15 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-qqq:
-	echo $(NS)
-
 LOC_PROG := ns
 #CASE_NAME := qharm
 CASE_NAME := sqcav
+NS = $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 PROG := $(NS)
 
 ################################################################
 NP = 1
 
-PROG := $(NS)
 MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
@@ -34,7 +31,8 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	> output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+
+#	 | tee output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav
