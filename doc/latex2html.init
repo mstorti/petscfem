@@ -11,7 +11,7 @@ $SHOW_SECTION_NUMBERS = 0;
 $petscfem_version=`cat ../VERSION`;
 $ADDRESS = <<EOM;
 
-<i> Copyright (C) 1999-2002
+<i> Copyright (C) 1999-2003
 <a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti, Norberto Nigro, 
 CIMEC-CONICET-UNL.</a><br>
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY. 
