@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.3 2001/04/01 01:35:06 mstorti Exp $
+//$Id: fstack.cpp,v 1.4 2001/05/05 13:13:26 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -43,7 +43,7 @@ void FileStack::close(void) {
 #undef __FUNC__
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FileStack::FileStack(const char *filename) {
+FileStack::FileStack(const char *filename) : echo_stream (NULL), echo(0) {
 
   // char line[LINESIZE];
   file_at_top = fopen(filename,"r");
@@ -121,6 +121,22 @@ int FileStack::get_line(char * & line) {
     abuf_copy_s (abufr,astr_chars(bufr));
     abuf_cat_c (abufr,'\0');
     bufrp = (char *)abuf_data(abufr);
+
+    // flag echo
+    if (!strcmp("__ECHO_ON__",bufrp)) {
+      echo=1;
+      continue;
+    }
+
+    // flag no echo
+    if (!strcmp("__ECHO_OFF__",bufrp)) {
+      echo=0;
+      continue;
+    }
+
+    if (echo && echo_stream) {
+      fprintf(echo_stream,"%s\n",bufrp);
+    }
 
     // skip comments
     if (bufrp[0] == '#') continue;

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: utils.h,v 1.4 2001/05/05 11:49:12 mstorti Exp $
+//$Id: utils.h,v 1.5 2001/05/05 13:13:26 mstorti Exp $
  
 
 #ifndef UTILS_H
@@ -115,7 +115,7 @@ T random_pop(set<T> &Tset) {
     @param x generic container (set, list, etc...)
 */ 
 //#define VOID_IT(x) (x).erase((x).begin(),(x).end())
-#define VOID_IT(x) (x).clear();
+#define VOID_IT(x) (x).clear()
 //@}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

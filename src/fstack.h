@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: fstack.h,v 1.3 2001/04/01 01:35:06 mstorti Exp $
+//$Id: fstack.h,v 1.4 2001/05/05 13:13:26 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -33,7 +33,9 @@ private:
   /// stack of file pointers
   Darray *file_stack;
   /// the file at the top of the stack
-  FILE *file_at_top;
+  FILE *file_at_top,*echo_stream;
+  /// Flag indicates whether lines are output to the echo stream
+  int echo;
   /// the pile of unread lines
   Darray *read_buffer;
   /// The current line buffers
@@ -74,6 +76,10 @@ public:
   */ 
   ~FileStack(void);
 
+  /** Set stream where to write echo lines
+      @param echo_s (input) the output stream
+  */ 
+  void set_echo_stream(FILE *echo_s) {echo_stream = echo_s;};
 };
 
 #endif
