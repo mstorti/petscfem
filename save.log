@@ -2957,3 +2957,6 @@ tag: beta-3.20.pl12 on Sat, 13 Sep 2003 14:32:38 -0300 by mstorti in spider
 ----------
 tag: beta-3.20.pl13 on Sat, 13 Sep 2003 15:01:53 -0300 by mstorti in spider
      > Added a test for the `disconnected-graph-bug'. 
+----------
+tag: beta-3.20.pl14 on Sat, 13 Sep 2003 21:23:39 -0300 by mstorti in spider
+     > Uses excpetion handling in `advdif' (GenericError). 
