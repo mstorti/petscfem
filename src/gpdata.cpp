@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.32 2003/12/07 21:24:06 mstorti Exp $
+//$Id: gpdata.cpp,v 1.33 2003/12/17 21:12:31 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -201,7 +201,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 
       } else if (npg==4) {
 	// Three points in the edge centers
-	double wpg_[4]={-27./48.,25./48.,25./48.,25./48.};
+	double wpg_[4]={-27./96.,25./96.,25./96.,25./96.};
 	double xpg_[4][2]={
 	  1./3., 1./3.,
 	  0.2, 0.2,
