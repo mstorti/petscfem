@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.11 2003/01/04 00:49:56 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.12 2003/01/04 07:35:49 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -76,11 +76,12 @@ int Dofmap::set_constraint(const Constraint &constraint) {
   }
 
   // Look for the max abs.val. coefficient in the restriction
-  int set_flag=0;
+  int set_flag=0,all_non_null_flag=1;
   double cc, cmax; 
   row_t::iterator q, qmax, qe = row0.end();
   for (q=row0.begin(); q!=qe; q++) {
     if (fixed_dofs.find(q->first)!=fixed_dofs.end()) continue;
+    all_non_null_flag=0;
     cc = fabs(q->second);
     if (!set_flag || cc>cmax) {
       qmax = q;
@@ -88,11 +89,10 @@ int Dofmap::set_constraint(const Constraint &constraint) {
       set_flag = 1;
     }
   }
-  assert(set_flag);
-  // If the rows is null, then it means that the restriction is
-  // llinerly dependent on previous restrictions and do nothing
-  if (cmax<tol) return 1;
-  
+  // If the row is null, then it means that the restriction is
+  // linerly dependent on previous restrictions and do nothing
+  if (all_non_null_flag || cmax<tol) return 1;
+  if (!set_flag) return 2;
   // This is the `edof' to be eliminated
   double coef0 = qmax->second;
   int edof0 = qmax->first;

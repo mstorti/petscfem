@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.70 2003/01/01 16:17:07 mstorti Exp $
+//$Id: readmesh.cpp,v 1.71 2003/01/04 07:35:50 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -750,13 +750,13 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 			  fstack->line_number(),
 			  fstack->line_read());
 	  PETSCFEM_ASSERT(field<=ndof,"read_mesh: "
-			  "Read field= %d greater that ndof= %d\n"
+			  "Read field= %d greater than ndof= %d\n"
 			  "%s:%d: \"%s\"",field,ndof,fstack->file_name(),
 			  fstack->line_number(),
 			  fstack->line_read());
 	  constraint.add_entry(node,field,coef);
 	}
-	if (dofmap->set_constraint(constraint)) {
+	if (dofmap->set_constraint(constraint)==1) {
 	  PetscPrintf(PETSC_COMM_WORLD,
 		      "Linearly dependent fixation discarded. \n"
 		      "%s:%d: \"%s\"\n",
@@ -764,6 +764,12 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 		      fstack->line_number(),
 		      fstack->line_read());
 	  nlindep++;
+	} else if (dofmap->set_constraint(constraint)==2) {
+	  PETSCFEM_ERROR("Couldn't find a free dof in constraint list.\n"
+			 "%s:%d: \"%s\"\n",
+			 fstack->file_name(),
+			 fstack->line_number(),
+			 fstack->line_read());
 	}
       }
       // dofmap->id->print("");

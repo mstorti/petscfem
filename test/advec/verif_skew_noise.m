@@ -15,7 +15,7 @@ over_shoot = (max(max(phi_out),1)-1)/2
 under_shoot = (max(-min(phi_out),1)-1)/2
 
 ## We accept a 5% over- and under- shoots
-tol = 0.05;
+tol = 0.06;
 #  if noise
 #    tol = 0.1;
 #  endif
