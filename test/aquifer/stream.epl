@@ -73,6 +73,8 @@ Ch 1.
 roughness 1.345
 width 1.
 slope 0.01
+shape "circular"
+radius 5
 __END_HASH__
 __INCLUDE__ stream.con.tmp
 __END_ELEMSET__

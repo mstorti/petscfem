@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.6 2002/02/04 00:55:03 mstorti Exp $
+// $Id: stream.h,v 1.7 2002/02/04 19:04:12 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -72,20 +72,65 @@ public:
   rect_channel(const NewElemset *e) : ChannelShape(e) {}
 
   /// Initializes the object
-  void init();
+  void init() { elemset->get_prop(width_prop,"width"); }
 
   /// Read local element properties
-  void element_hook(ElementIterator element);
+  void element_hook(ElementIterator element) {
+    width = elemset->prop_val(element,width_prop); 
+  }
   
   /** For a given water depth (with respect to the bottom of the
       channel) give the fluid area, cross sectional water-line and wet
       channel perimeter.
       @param u (input) the water depth
-      @param A (ouput) the fluid cross sectional area
-      @param w (ouput) the fluid cross sectional water line
-      @param P (ouput) the fluid cross sectional perimeter
+      @param area (ouput) the fluid cross sectional area
+      @param wl_width (ouput) the fluid cross sectional water line
+      @param perimeter (ouput) the fluid cross sectional perimeter
   */
-  void geometry(double u,double &A,double &w,double &P);
+  void geometry(double u,double &area,
+		double &wl_width,double &perimeter) {
+    area = u*width;
+    wl_width = width;
+    perimeter = width+2*u;
+  }
+
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Rectangular shaped channel
+class circular_channel : public ChannelShape {
+  Property radius_prop;
+  double radius;
+public:
+  circular_channel(const NewElemset *e) : ChannelShape(e) {}
+
+  /// Initializes the object
+  void init() { elemset->get_prop(radius_prop,"radius"); }
+
+  /// Read local element properties
+  void element_hook(ElementIterator element) {
+    radius = elemset->prop_val(element,radius_prop); 
+  }
+  
+  /** For a given water depth (with respect to the bottom of the
+      channel) give the fluid area, cross sectional water-line and wet
+      channel perimeter.
+      @param u (input) the water depth
+      @param area (ouput) the fluid cross sectional area
+      @param wl_width (ouput) the fluid cross sectional water line
+      @param perimeter (ouput) the fluid cross sectional perimeter
+  */
+  void geometry(double u,double &area,
+		double &wl_width,double &perimeter) {
+    assert(u<radius);
+    double cos_phi = (radius-u)/radius;
+    double phi = acos(cos_phi);
+    double sin_phi = sin(phi);
+    area = radius*radius*(phi-sin_phi*cos_phi);
+    wl_width = 2*radius*sin_phi;
+    perimeter = 2*phi*radius;
+  }
+
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

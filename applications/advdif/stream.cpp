@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.9 2002/02/04 00:55:03 mstorti Exp $
+//$Id: stream.cpp,v 1.10 2002/02/04 19:04:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -194,27 +194,14 @@ void stream_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-ChannelShape *ChannelShape::factory(const NewElemset *e) {
-  return new rect_channel(e);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void rect_channel::init() {
-  elemset->get_prop(width_prop,"width");
-}  
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void rect_channel
-::element_hook(ElementIterator element) {
-  width = elemset->prop_val(element,width_prop);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void rect_channel
-::geometry(double u,double &area,double &wl_width,double &perimeter) {
-  area = u*width;
-  wl_width = width;
-  perimeter = width+2*u;
+ChannelShape *ChannelShape::factory(const NewElemset *elemset) {
+  int ierr;
+  EGETOPTDEF(elemset,string,shape,string("undefined"));
+  if (shape=="rectangular" || shape=="undefined")  {
+    return new rect_channel(elemset);
+  } else if (shape=="circular") {
+    return new circular_channel(elemset);
+  } else assert(0); // Not valid shape
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
