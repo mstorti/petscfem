@@ -4065,3 +4065,12 @@ tag: beta-3.43.12 on Mon, 21 Feb 2005 16:12:52 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.43.13 on Mon, 21 Feb 2005 18:27:51 -0300 by mstorti in minerva.ceride.gov.ar
      > Merged from minor changes in `gasflow' by Beto. 
+----------
+tag: beta-3.43.14 on Tue, 22 Feb 2005 18:29:05 -0300 by mstorti in minerva.ceride.gov.ar
+     > Merged from minor changes in `gasflow' by Beto 
+     > (`bubbly9-branch' from point `bubbly--9-0-0-0'). 
+     > `shocap_factor' no more used.
+     > Once `visco_l' is defined it should be used _always_, instead of using
+     > `visco_l'. Moreover, we should user always `visco_eff', whether this
+     > represents `visco_l+visco_t' (turbulent model) or 'visco_l' (laminar
+     > flow).
