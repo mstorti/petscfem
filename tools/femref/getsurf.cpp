@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.30 2005/01/17 18:37:04 mstorti Exp $
+// $Id: getsurf.cpp,v 1.31 2005/01/17 20:08:34 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -314,15 +314,13 @@ nod2elem_proj(GetSurfCtx &ctx,
   ue.set(0.);
   double dnel = double(nel);
   for (int jelem=0; jelem<nelem; jelem++) {
-    double *to = &ue.e(jelem,0);
     for (int j=0; j<nel; j++) {
       int node = icone.e(jelem,j);
-      const double *from = &un.e(node,0);
       for (int k=0; k<ndof; k++) 
-	to[k] += from[k];
+	ue.e(jelem,k) += un.e(node,k);
     }
     for (int k=0; k<ndof; k++) 
-      to[k] /= dnel;
+      ue.e(jelem,k) /= dnel;
   }
 }
 

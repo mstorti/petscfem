@@ -1,4 +1,4 @@
-;;; $Id: getsurf.scm,v 1.10 2005/01/17 19:26:30 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.11 2005/01/17 20:08:34 mstorti Exp $
 (load "./dvector.scm")
 (load "./femref.scm")
 
@@ -49,7 +49,7 @@
 (dvdbl-clone! uee ue)
 
 (nod->elem-proj ctx surf-con un uee)
-;(ddump "uee" uee)
+(ddump "uee" uee)
 
 (elem->nod-proj ctx surf-con surf-mass node-mass uee un)
 (ddump "un" un)
