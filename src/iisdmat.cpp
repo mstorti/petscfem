@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.35 2002/11/02 15:11:26 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.36 2002/11/02 16:09:16 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -271,7 +271,7 @@ IISDMat::~IISDMat() {
 #define __FUNC__ "IISDMat::local_solve_SLU"
 int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
 
-
+#ifdef USE_SUPERLU
   int ierr,j;
   double *a, *aa;
 
@@ -292,6 +292,11 @@ int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
   }
   ierr = VecRestoreArray(y_loc,&aa); CHKERRQ(ierr); 
   return 0;
+
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+    return 1;
+#endif
 }
   
 
@@ -441,12 +446,16 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
       if (local_solver == PETSc ) {
 	MatSetValues(A_LL,1,&row_indx,1,&col_indx,&v,insert_mode);
       } else {
+#ifdef USE_SUPERLU
 	if (insert_mode==ADD_VALUES) {
 	  val = A_LL_SLU.get(row_indx,col_indx) + v;
 	} else {
 	  val = v;
 	}
 	A_LL_SLU.set(row_indx,col_indx,val);
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
       }	
 #endif
     }
@@ -554,7 +563,11 @@ int IISDMat::view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD) {
       ierr = PetscViewerDestroy(matlab);
     }
   } else {
+#ifdef USE_SUPERLU
     A_LL_SLU.print("L-L part");
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
   }
   ierr = MatView(A_LI,viewer); PF_CHKERRQ(ierr);
   ierr = MatView(A_IL,viewer); PF_CHKERRQ(ierr);
@@ -575,7 +588,11 @@ int IISDMat::clean_prof_a() {
   if (local_solver == PETSc) {
     int ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   } else {
+#ifdef USE_SUPERLU
     A_LL_SLU.clear();
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
   }
   ierr = MatDestroy_maybe(A_LI); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LI (loc-int)\n");

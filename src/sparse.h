@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.32 2002/09/05 18:23:52 mstorti Exp $
+// $Id: sparse.h,v 1.33 2002/11/02 16:09:16 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -11,8 +11,10 @@
 #include <vector>
 #include <algorithm>
 
+#ifdef USE_SUPERLU
 #include <SRC/util.h>
 #include <SRC/dsp_defs.h>
+#endif
 
 #include <petscsles.h>
 
