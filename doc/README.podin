@@ -216,7 +216,7 @@ all the source files included.
 
 The root of the PETSc-FEM package
 
-=item C<$(PETSC_ARCH)>, C<$(PETSC_HOME)>
+=item C<$(PETSC_ARCH)>, C<$(PETSC_DIR)>
 
 These are variables relative to PETSc. See documentation.
 
