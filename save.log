@@ -380,3 +380,7 @@ tag: beta-1.70 on Tue May  1 21:44:50 ART 2001, by mstorti in spider
      > Writing a stability analysis of Poiseuille plane and
      > circular duct flow.
 =======
+----------
+tag: beta-1.71 on Fri May  4 21:16:54 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Will add fixes for some incompatibilities with older versions of
+     > RedHat (namely 5.2.)
