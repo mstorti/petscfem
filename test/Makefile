@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.82 2003/01/25 21:25:45 mstorti Exp $ 
+# $Id: Makefile,v 1.83 2003/02/12 12:02:32 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -48,6 +48,13 @@ compile:
 #w clean local files
 local_clean::
 	-rm -f ns advdif adv laplace
+
+torture:
+	$(MAKE) lclean
+	$(MAKE) BOPT=g_c++ -k tests 2>&1 | tee make-tests-g_c++.log
+	$(MAKE) lclean
+	$(MAKE) BOPT=O_c++ -k tests 2>&1 | tee make-tests-O_c++.log
+	$(MAKE) lclean
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # All tests

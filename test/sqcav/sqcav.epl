@@ -6,7 +6,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
-get_var_env('use_triangles',undef);
+get_var_env('use_triangles',0);
 
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 
@@ -143,10 +143,8 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
-# Dt <:=$Dt:>
-#<:pr('steady'):>
-steady 0
-Dt 0.1
+Dt <:=$Dt:>
+<:pr('steady'):>
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -164,7 +162,7 @@ measure_performance_loop_length 10
 G_body 0 -1.
 #endif
 
-hook_list ns_dx_hook my_dx_hook
+# hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof

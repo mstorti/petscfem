@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.46 2003/02/12 00:36:27 mstorti Exp $ 
+# $Id: Makefile,v 1.47 2003/02/12 12:02:32 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook
@@ -36,7 +36,7 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 # > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+	 	 > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav
@@ -84,8 +84,8 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp16 runs
 	$(OCTAVE) < check_iisd2.m > check.iisd.verif.np2.tmp
 
-# REDIR := >
-REDIR := | tee
+REDIR := >
+# REDIR := | tee
 
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc: CASE := sqcav
