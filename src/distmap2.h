@@ -1,10 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.7 2002/08/28 00:48:18 mstorti Exp $
+//$Id: distmap2.h,v 1.8 2002/08/29 02:06:50 mstorti Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
 
 #include <src/distmap.h>
+//#define DEBUG_SPEEDUP
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val,class Partitioner>
@@ -250,11 +251,12 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	}
       }
     }
+#ifdef DEBUG_SPEEDUP
     PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			    "[%d] in distmap.h, send %f, recv %f, total %f\n",
 			    MY_RANK,tsend,trecv,hpc2.elapsed());
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
- 
+#endif 
     // free memory
     delete[] recv_buff;
 
