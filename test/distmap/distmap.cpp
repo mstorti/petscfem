@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.1 2001/07/30 00:12:19 mstorti Exp $
+// $Id: distmap.cpp,v 1.2 2001/07/31 03:01:35 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -26,12 +26,23 @@ pack(const int &k,const double &v,char **buff) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DistMap<int,double>::
-unpack(int &k,double &v,const char *buff) {
+unpack(int &k,double &v,char *& buff) {
   memcpy(&k,buff,sizeof(int));
   buff += sizeof(int);
   memcpy(&v,buff,sizeof(double));
   buff += sizeof(double);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DistMap<int,double>::
+combine(const pair<int,double> &p) {
+  map<int,double>::iterator iter = find(p.first);
+  if (find(p.first) != end()) {
+    iter->second += p.second;
+  } else {
+    insert(p);
+  }
+};
 
 #define M 100
 int proc(int l) { return int((l*SIZE)/M);}

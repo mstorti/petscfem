@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.3 2001/07/31 01:50:19 mstorti Exp $
+// $Id: distmap.h,v 1.4 2001/07/31 03:01:27 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -55,9 +55,10 @@ class DistMap : public map<Key,Val> {
       @param buff (input/output) the position in the buffer from where the
       unpacking is performed
   */ 
-  void unpack(Key &k,Val &v,const char *buff);
+  void unpack(Key &k,Val &v,char *& buff);
   /// perform the scatter of elements to its corresponding processor. 
   void scatter();
+  void combine(const pair<Key,Val> &p);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -75,7 +76,11 @@ void DistMap<Key,Val>::scatter() {
   map<Key,Val>::iterator iter;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source;
-  char **send_buff,**send_buff_pos,**recv_buff,**recv_buff_pos;
+  pair<Key,Val> p;
+
+  // recv_buff_pos:= an array of positions in each of the buffers
+  // recv_buff:= An array of buffers for receiving
+  char **send_buff,**send_buff_pos,*recv_buff,*recv_buff_pos;
   MPI_Request send_rq,recv_rq;
   MPI_Status status;
   int j,k,nsent;
@@ -127,10 +132,6 @@ void DistMap<Key,Val>::scatter() {
   // send_rq:= sendings and receives are non-blocking so that we
   // create a `MPI_Request' object for each of them. 
 
-  // recv_buff:= An array of buffers for receiving
-  recv_buff = new (char *)[size];
-  // recv_buff_pos:= an array of positions in each of the buffers
-  recv_buff_pos = new (char *)[size];
   // Request objects for receiving
   // recv_ok:= flags whether the receive from processor `k' to this
   // has been performed
@@ -142,10 +143,6 @@ void DistMap<Key,Val>::scatter() {
     send_buff[k] = new char[SEND(myrank,k)];
     // initialize position 
     send_buff_pos[k] = send_buff[k];
-    // allocate recv buffer to from proc  `k'
-    recv_buff[k] = new char[SEND(k,myrank)];
-    // initialize position 
-    recv_buff_pos[k] = recv_buff[k];
     // initialize flags
     recv_ok[k]=0;
   }
@@ -171,13 +168,18 @@ void DistMap<Key,Val>::scatter() {
   for (k=1; k<size; k++) { 
     dest = (myrank+k) % size;
     source = (myrank-k+size) % size;
+
+    // allocate recv buffer to from proc  `k'
+    recv_buff = new char[SEND(source,myrank)];
+    // initialize position 
+    recv_buff_pos = recv_buff;
     if (myrank!=0) {
       MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
 	       dest,myrank,comm);
-      MPI_Recv(recv_buff[source],SEND(source,myrank),MPI_CHAR,source,source,
+      MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
 	       comm,&status);
     } else {
-      MPI_Recv(recv_buff[source],SEND(source,myrank),MPI_CHAR,source,source,
+      MPI_Recv(recv_buff,SEND(source,myrank),MPI_CHAR,source,source,
 	       comm,&status);
       MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
 	       dest,myrank,comm);
@@ -187,70 +189,22 @@ void DistMap<Key,Val>::scatter() {
     // printf("[%d] %d received from %d\n",myrank,nsent,source);
     if (nsent!=SEND(source,myrank)) 
       printf("[%d] Didn't receive expected amount of data\n"
-	     "expected %d, received %d\n",myrank,SEND(k,myrank),nsent);
+	     "expected %d, received  %d\n",
+	     myrank,SEND(k,myrank),nsent);
+    
+    while (recv_buff_pos < recv_buff + SEND(source,myrank)) {
+      unpack(p.first,p.second,recv_buff_pos);
+      PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
+		  p.first,p.second);
+      combine(p);
+    }
+    delete[] recv_buff;
   }
   // MPI_Wait(&send_rq,&status);
-
-#if 0
-  // Send all buffers non-blocking
-  for (k=0; k<size; k++) {
-    if (k!=myrank) {
-      printf("[%d] sending %d\n",myrank,k);
-      MPI_Isend(send_buff[k],SEND(myrank,k),MPI_CHAR,
-	       k,myrank,comm,&send_rq[k]);
-    }
-  }
-
-  // receive all buffers non-blocking
-  for (k=0; k<size; k++) {
-    if (k!=myrank) {
-      printf("[%d] receiving %d\n",myrank,k);
-      MPI_Irecv(recv_buff[k],SEND(k,myrank),MPI_CHAR,k,myrank,
-		comm,&recv_rq[k]);
-    }
-  }
-
-  // Loop until all buffers have been received
-  k=0;
-  // n_recv_ok:= number of buffers that have been received so far 
-  n_recv_ok = 0;
-  while (1) {
-    // test only non-received buffers
-    if (k==myrank || recv_ok[k]) continue;
-    printf("[%d] testing %d\n",myrank,k);
-    // test unreceived buffer
-    MPI_Test(&recv_rq[k],&recv_ok[k],&status);
-    if (recv_ok[k]) {
-      // Message has arrived
-      n_recv_ok++;
-      // check that the length of the received message is the expected 
-      MPI_Get_count(&status,MPI_CHAR,&nsent);
-      printf("[%d] %d received from %d\n",myrank,nsent,k);
-      if (nsent!=SEND(myrank,k)) 
-	printf("Didn't receive expected amount of data\n");
-      // Exit if all buffers have been received
-      if (n_recv_ok == size - 1) break;
-    }
-    k++;
-    // k goes cyclically until all messages have been received
-    if (k==size) k = 0;
-  }
-
-  // Check that all data buffers sent have been sent
-  for (k=0; k<size; k++) {
-    if (k!=myrank) {
-      MPI_Test(&send_rq[k],&send_ok,&status);
-      printf("[%d] sent to %d OK ? %d\n",myrank,k,send_ok);
-      if (!send_ok) 
-	printf("[%d] not sent OK data to %d\n",myrank,k);
-    }
-  }
-#endif
 
   // Delete all sent and received buffers
   for (k=0; k<size; k++) {
       delete[] send_buff[k];
-      delete[] recv_buff[k];
   }
 
   // Delete all auxiliary vectors
