@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.24 2003/12/07 21:24:06 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.25 2003/12/08 11:40:06 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -264,12 +264,6 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     }
 
-#if 0
-    if (!weak_form) {
-      veccontr.set(0.);
-      matlocf.set(0.);
-    }
-#endif
     if (comp_res) {
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
