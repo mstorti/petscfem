@@ -1687,3 +1687,6 @@ tag: beta-3.05.pl14 on Mon, 30 Sep 2002 18:45:49 -0300 by mstorti in spider
 ----------
 tag: beta-3.05.pl15 on Wed,  2 Oct 2002 06:55:18 -0300 by mstorti in spider
      > Searching the memory leak. 
+----------
+tag: beta-3.05.pl16 on Tue,  8 Oct 2002 17:03:13 -0300 by mstorti in minerva.arcride.edu.ar
+     > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
