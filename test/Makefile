@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.41 2001/11/26 01:35:42 mstorti Exp $ 
+# $Id: Makefile,v 1.42 2001/11/27 23:22:34 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
-	newff burgers bug100 nonlr genload lupart distmap sparse
+	newff burgers bug100 nonlr genload lupart distmap sparse graph
 
 SRCS = $(wildcard *.cpp)
 
@@ -56,8 +56,8 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse
-runtests_p: distmap sparse
+	sparse graph
+runtests_p: 
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -381,5 +381,10 @@ burgers:
 #w Sparse matrices
 sparse:
 	$(MAKE) -C sparse sparse
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Graph class
+graph:
+	$(MAKE) -C graph tests
 
 #s

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.7 2001/11/27 17:26:09 mstorti Exp $
+// $Id: tryme.cpp,v 1.8 2001/11/27 23:18:54 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -10,27 +10,97 @@ int crem(int j, int m) {
   if (j>=0 ) {
     return j % mm;
   } else {
-    return mm + (j % mm);
+    return mm -1 + ((j+1) % mm);
   }
 }
 
 class TGraph : public Graph {
 public:
-  int N;
+  int N,M;
+  void n2ij(int n,int &j,int &k);
+  int ij2n(int j,int k);
   void set_ngbrs(int elem,set<int> &ngbrs_v);
   ~TGraph() {clear();}
 };
 
+void TGraph::n2ij(int n,int &j,int &k) {
+  k = n/N;
+  j = n % N;
+}
+
+int TGraph::ij2n(int j,int k) {
+  return k*N+j;
+}
+
 void TGraph::set_ngbrs(int elem,set<int> &ngbrs_v) {
-  ngbrs_v.insert(crem(elem+1,N));
-  ngbrs_v.insert(crem(elem-1,N));
+  int n,j,k;
+  n = elem;
+  n2ij(n,j,k);
+  ngbrs_v.insert(ij2n(crem(j+1,N),k));
+  ngbrs_v.insert(ij2n(crem(j-1,N),k));
+  ngbrs_v.insert(ij2n(j,crem(k+1,M)));
+  ngbrs_v.insert(ij2n(j,crem(k-1,M)));
+
+#if 0
+  printf("node %d adding %d %d %d %d\n",n,ij2n(crem(j+1,N),k),
+	 ij2n(crem(j-1,N),k), ij2n(j,crem(k+1,M)),
+	 ij2n(j,crem(k-1,M)));
+#endif
+  
 }
 
 int main(int argc, char **args) {
-  const int N=200;
+  int N=200,M=1;
   TGraph GG;
   Graph &G = GG;
-  int k=0;
+  int j,k=0,compact=0,arg=0,npart=2;
+
+  if (argc>arg++) {
+    sscanf(args[arg],"%d",&N);
+  }
+  assert(N>0);
+
+  if (argc>arg++) {
+    sscanf(args[arg],"%d",&M);
+  }
+  assert(M>0);
+
+  if (argc>arg++) {
+    sscanf(args[arg],"%d",&npart);
+  }
+  assert(M>0);
+
+  if (argc>arg++) {
+    sscanf(args[arg],"%d",&compact);
+  }
+
+  if (compact) {
+    assert(M<=60);
+    assert(N<=30);
+    assert(npart<=10);
+  }
+
+#if 1
+  printf("partitioning graph %d\n",k++);
+  GG.N = N;
+  GG.M = M;
+  G.part(N*M,N*M,npart);
+  if (compact) {
+    for (j=0; j<N; j++) {
+      for (k=0; k<M; k++)
+	printf("%1d",G.vrtx_part(GG.ij2n(j,k)));
+      printf("\n");
+    }
+  } else {
+    for (int j=0; j<N; j++) 
+      for (int k=0; k<M; k++) 
+	printf("vrtx %d %d in proc %d\n",
+	       j,k,G.vrtx_part(GG.ij2n(j,k)));
+  }
+  G.clear();
+#endif
+
+#if 0 // debugging memory leakages
   while (1) {
     printf("partitioning graph %d\n",k++);
     GG.N = N;
@@ -39,4 +109,5 @@ int main(int argc, char **args) {
 //      for (int j=0; j<N; j++) 
 //        printf("vrtx %d in proc %d\n",j,G.vrtx_part(j));
   }
+#endif
 }

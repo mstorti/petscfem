@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2001/11/27 17:26:09 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/11/27 23:18:54 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -25,6 +25,6 @@ tryme.bin: tryme.o ../../src/libpetscfem.a(graph.o)
 
 # Test Graph class
 graph: tryme.bin
-	tryme.bin PETSc > output.graph.tmp
+	sh graph.sh
 
 #s
