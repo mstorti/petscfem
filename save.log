@@ -3543,3 +3543,6 @@ tag: beta-3.37.36 on Sun, 19 Dec 2004 13:17:54 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.37 on Sun, 19 Dec 2004 15:54:01 -0300 by mstorti in spider
      > Works iteration with `next()' and `end()'.  
+----------
+tag: beta-3.37.38 on Sun, 19 Dec 2004 16:43:51 -0300 by mstorti in spider
+     > Fixed a bug with `so_next()' (missed return value). 
