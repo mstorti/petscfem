@@ -1,0 +1,24 @@
+#-*- shell-script -*-
+<: require 'math.pl'; 
+require '../../tools/dx.pl'; 
+$case = "gfshock3d";
+$nnod = count_lines("$case.nod.tmp");
+$nelem = count_lines("$case.dx-con.tmp");
+:>//
+
+object "xnod" class array type float rank 1 shape 3 
+	items <:=$nnod:> data file <:=$case:>.nod.tmp
+
+object "icone" class array type integer rank 1 shape 8
+    items <:=$nelem:> data file <:=$case:>.dx-con.tmp
+attribute "element type" string "cubes"
+attribute "ref" string "positions"
+
+#object "data" class array type float rank 0 items <:=$nnod:> data file dxdata.tmp
+# attribute "dep" string "positions"
+
+object "mesh" class field
+component "positions" value "xnod"
+component "connections" value "icone"
+# component "data" value 3
+end
