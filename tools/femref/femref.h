@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.16 2004/11/21 23:43:09 mstorti Exp $
+// $Id: femref.h,v 1.17 2004/11/22 12:50:21 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -24,9 +24,10 @@ protected:
     dvector<int> perms_v;
     int size_m,dim_m,nperms_m;
     GeomObject::Type type;
+    const char *label;
     Template(int sz,GeomObject::Type t,
-	       int dim_a,int nperms_a,
-	     const int *perms);
+	     int dim_a,int nperms_a,
+	     const int *perms,const char *label_a);
   };
   static Template EdgeTemplate, TriTemplate, 
     OrientedTetraTemplate;
@@ -39,14 +40,18 @@ public:
   int csum() { return cs; }
   int dim() { return go_template->dim_m; }
   int nperms() { return go_template->nperms_m; }
+  void clear() { go_template=NULL; nodes.clear(); canonical=0; cs=0; }
+  void init(Type t,const int *nodes_a);
   const int* perm(int perm_indx) {
     return &(go_template->perms_v.e(perm_indx,0)); 
   }
-  Type type() { return go_template->type; }
+  Type type() { return go_template->type;}
+  GeomObject() : canonical(0), go_template(NULL) { }
   GeomObject(Type t,const int *nodes_a);
   void make_canonical();
   /// Compare two objects
   bool equal(GeomObject &go);
+  void print(const char*s = NULL);
 };
 
 #endif
