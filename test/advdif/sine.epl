@@ -64,7 +64,8 @@ alpha <:=$alpha:>
 
 #if $per_elem_prop
 weak_form 0
-diffusive_jacobians <:=$D:> 0 0 <:=$D:>
+diffusive_jacobians <:=$D:>
+#diffusive_jacobians <:=$D:> 0 0 <:=$D:>
 #else
 weak_form 1
 advective_jacobians <:=$u:> 0. 

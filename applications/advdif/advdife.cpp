@@ -268,9 +268,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
-    tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23,
+    tmp15,tmp17,tmp18,tmp19,
+    tmp20,tmp21,tmp22,tmp23,
     tmp24,tmp25,tmp26,tmp27,tmp28;
-  FastMat2 C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof);
+  FastMat2 C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof),
+    D_grad_N(4,ndim,ndof,ndof,nel);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -437,8 +439,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// Diffusive term in matrix
 	tmp17.set(dshapex).scale(wpgdet*ALPHA);
-	adv_diff_ff->comp_D_grad_N(tmp16,tmp17);
-	tmp18.prod(tmp16,dshapex,-1,2,4,1,-1,3);
+	adv_diff_ff->comp_D_grad_N(D_grad_N,tmp17);
+	tmp18.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 	matlocf.add(tmp18);
 
         // Reactive term in matrix (Galerkin part)

@@ -4,6 +4,18 @@
 
 #include "advective.h"
 
+/** The class AdvDif is a NewElemset class plus a
+    advdif flux function object.
+*/
+class NewAdvDif : public NewElemset { 
+  NewAdvDifFF *adv_diff_ff;
+public:
+  int ndim,ndof,nel;
+  NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
+};
+
 class AJac {
 public:
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
@@ -17,18 +29,7 @@ public:
   virtual void comp_D_grad_N(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_fluxd(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_dif_per_field(FastMat2 &dif_per_field)=0;
-};
-
-/** The class AdvDif is a NewElemset class plus a
-    advdif flux function object.
-*/
-class NewAdvDif : public NewElemset { 
-  NewAdvDifFF *adv_diff_ff;
-public:
-  int ndim,ndof,nel;
-  NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
-  NewAssembleFunction new_assemble;
-  ASK_FUNCTION;
+  virtual void update(const double *difjac) {};
 };
 
 class newadvecfm2_ff_t : public NewAdvDifFF {
@@ -37,7 +38,7 @@ private:
   FastMat2 C_jac_l, tmp0;
   double tau_fac;
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
-    tmp2,D_jac,dif_per_field;
+    tmp2,D_jac,dif_per_field,tmp3;
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
@@ -95,8 +96,21 @@ public:
     FullDifJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_fluxd,comp_D_grad_N;
     void comp_dif_per_field(FastMat2 &dif_per_field);
+    void update(const double *difjac) {ff.D_jac.set(difjac);}
   };
   FullDifJac full_dif_jac;
+
+  /// Full diffusive jacobian
+  class GlobalScalar;
+  friend class GlobalScalar;
+  class GlobalScalar : public DJac {
+    newadvecfm2_ff_t &ff;
+  public:
+    GlobalScalar(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_fluxd,comp_D_grad_N;
+    void comp_dif_per_field(FastMat2 &dif_per_field);
+  };
+  GlobalScalar global_scalar_djac;
 
   newadvecfm2_ff_t(NewAdvDif *elemset);
   void start_chunk(int ret_options);

@@ -36,7 +36,26 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_) 
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
-  full_adv_jac(*this), full_dif_jac(*this) {};
+  full_adv_jac(*this), full_dif_jac(*this),
+  global_scalar_djac(*this)
+{};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::GlobalScalar
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
+  fluxd.t().set(grad_U).scale(*(ff.difjac)).rs();
+}
+
+void newadvecfm2_ff_t::GlobalScalar
+::comp_D_grad_N(FastMat2 &D_grad_N,FastMat2 & dshapex) {
+  ff.tmp3.set(*(ff.difjac));
+  D_grad_N.d(3,2).prod(dshapex,ff.tmp3,1,3,2).rs();
+}
+
+void newadvecfm2_ff_t::GlobalScalar
+::comp_dif_per_field(FastMat2 &dif_per_field) {
+  dif_per_field.set(*(ff.difjac));
+}  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::FullDifJac
@@ -144,9 +163,10 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
 void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
   advjac = elemset->prop_array(element,advective_jacobians_prop);
-  difjac = elemset->prop_array(element,diffusive_jacobians_prop);
   u.set(advjac);
-  D_jac.set(difjac);
+
+  difjac = elemset->prop_array(element,diffusive_jacobians_prop);
+  d_jac->update(difjac);
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -158,6 +178,7 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   ndof = elemset->ndof;
   Uintri.resize(2,ndof,ndim);
   tmp2.resize(1,ndof).set(1.);
+  tmp3.set(tmp2);
   dif_per_field.resize(1,ndof);
 
   ret_options &= !SCALAR_TAU; // tell the advective element routine
@@ -189,7 +210,9 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   //  _END
   elemset->get_prop(diffusive_jacobians_prop,"diffusive_jacobians");
 
-  if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
+  if (diffusive_jacobians_prop.length == 1) {
+    d_jac =  &global_scalar_djac;
+  } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
     D_jac.resize(4,ndim,ndim,ndof,ndof);
     d_jac =  &full_dif_jac;
   } else {
