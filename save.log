@@ -1756,3 +1756,6 @@ tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300, by mstorti in spider
      > Reads nodes and elemset in proc 0 and send to others via MPI. 
      > Modified test/cubcav.epl so as to use the MPI reading of files. 
      > Compiles without ANN and `libretto'
+----------
+tag: beta-3.07.pl1 on Sun,  3 Nov 2002 06:37:39 -0300 by mstorti in spider
+     > Rewritten example `text/texthash/thash2.cpp' for TextHashTable::find()
