@@ -1,10 +1,10 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.34 2001/11/12 16:02:42 mstorti Exp $ 
+# $Id: Makefile,v 1.35 2001/11/13 12:29:46 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-pp:
-	$(MAKE) NP=2 case=metis_part test_case_data
+pp: test_iisd_subpart
+# 	$(MAKE) NP=2 case=metis_part test_case_data
 
 test_eff: 
 #	$(MAKE) PROG=$(NSO) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
@@ -13,7 +13,20 @@ test_eff:
 
 #w All tests
 tests: test_iisd test_iisd_superlu test_partitioning test_distmap \
-		test_direct_petsc
+		test_direct_petsc test_iisd_subpart
+
+tests_suite: test_distmap \
+		test_direct_petsc 
+
+#w IISD with subpartitioning and partitioning with coalescence
+test_iisd_subpart: 
+	-if [ -f save.state ] ; then rm -f save.state ; fi
+	$(MAKE) NP=1 Re=100 case=lu case_size=small test_case
+	mv -f save.state save.state.lu.tmp
+	-if [ -f save.state ] ; then rm -f save.state ; fi
+	$(MAKE) NP=2 Re=100 sub_part= case=iisd case_size=small test_case
+	mv -f save.state save.state.sub_part.tmp
+	octave -q check_subpart.m > check_subpart.verif.tmp
 
 #w Tests IISD with periodic boundary conditions
 test_distmap: 
@@ -73,10 +86,10 @@ test_direct_petsc:
 test_partitioning: 
 	$(MAKE) NP=2 case=metis_part test_case
 	mv -f save.state save.state.metis.tmp
-	$(MAKE) NP=2  case=hitchhiking_part test_case
-	mv -f save.state save.state.hitchhiking.tmp
-	$(MAKE) NP=2  case=nearest_neighbor_part test_case
-	mv -f save.state save.state.nearest_neighbor.tmp
+# 	$(MAKE) NP=2  case=hitchhiking_part test_case
+# 	mv -f save.state save.state.hitchhiking.tmp
+# 	$(MAKE) NP=2  case=nearest_neighbor_part test_case
+# 	mv -f save.state save.state.nearest_neighbor.tmp
 	$(MAKE) NP=2  case=random_part test_case
 	mv -f save.state save.state.random.tmp
 	octave -q check_part.m > check_part.verif.tmp
@@ -102,7 +115,7 @@ NP := 1
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl # > output.case_$(case).tmp
+			-case $(NAME).depl > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

@@ -27,7 +27,9 @@ a library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
 programs.  It is written in the C++ language with an OOP (Object
 Oriented Programming) philosophy, but always keeping in mind the scope
-of efficiency.
+of efficiency. PETSc-FEM runs in parallel using the MPI standard on a
+variety of architectures, but currently has been tested in Beowulf
+clusters. 
 
 PETSc-FEM is GPL, for further details read the file COPYING in the
 root directory of the distribution.
@@ -171,13 +173,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-2.18.tar.gz> package,
+Once you got the I<petscfem-beta-2.20.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-2.18.tar.gz
-  $ tar xvf petscfem-beta-2.18.tar
+  $ gunzip petscfem-beta-2.20.tar.gz
+  $ tar xvf petscfem-beta-2.20.tar
 
-This will create a I<petscfem-beta-2.18> directory with
+This will create a I<petscfem-beta-2.20> directory with
 all the source files included.
 
 =head2 Makefile variables
@@ -318,7 +320,7 @@ B<e-mail:> C<<mstorti@intec.unl.edu.ar>>
 
 =item *
 
-B<www:> C<http://minerva.arcride.edu.ar/petscfem>
+B<www:> C<http://minerva.ceride.gov.ar/petscfem>
 
 =item *
 

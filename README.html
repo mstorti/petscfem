@@ -46,7 +46,9 @@ a library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
 programs.  It is written in the C++ language with an OOP (Object
 Oriented Programming) philosophy, but always keeping in mind the scope
-of efficiency.</P>
+of efficiency. PETSc-FEM runs in parallel using the MPI standard on a
+variety of architectures, but currently has been tested in Beowulf
+clusters.</P>
 <P>PETSc-FEM is GPL, for further details read the file COPYING in the
 root directory of the distribution.</P>
 <P>
@@ -180,12 +182,12 @@ installed. [RedHat RPM package: <CODE>perl</CODE>].
 <P></P></DL>
 <P>
 <H2><A NAME="unpacking">Unpacking</A></H2>
-<P>Once you got the <EM>petscfem-beta-2.18.tar.gz</EM> package,
+<P>Once you got the <EM>petscfem-beta-2.20.tar.gz</EM> package,
 gunzip and untar it like this:</P>
 <PRE>
-  $ gunzip petscfem-beta-2.18.tar.gz
-  $ tar xvf petscfem-beta-2.18.tar</PRE>
-<P>This will create a <EM>petscfem-beta-2.18</EM> directory with
+  $ gunzip petscfem-beta-2.20.tar.gz
+  $ tar xvf petscfem-beta-2.20.tar</PRE>
+<P>This will create a <EM>petscfem-beta-2.20</EM> directory with
 all the source files included.</P>
 <P>
 <H2><A NAME="makefile variables">Makefile variables</A></H2>
@@ -296,7 +298,7 @@ Center for Computational Methods in Engineering, Santa Fe, Argentina.</P>
 <STRONG>e-mail:</STRONG> <CODE>&lt;mstorti@intec.unl.edu.ar</CODE>&gt;
 <P></P>
 <LI>
-<STRONG>www:</STRONG> <CODE>http://minerva.arcride.edu.ar/petscfem</CODE>
+<STRONG>www:</STRONG> <CODE>http://minerva.ceride.gov.ar/petscfem</CODE>
 <P></P>
 <LI>
 <STRONG>ordinary mail:</STRONG> Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.

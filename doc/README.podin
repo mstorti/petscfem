@@ -21,7 +21,9 @@ a library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
 programs.  It is written in the C++ language with an OOP (Object
 Oriented Programming) philosophy, but always keeping in mind the scope
-of efficiency.
+of efficiency. PETSc-FEM runs in parallel using the MPI standard on a
+variety of architectures, but currently has been tested in Beowulf
+clusters. 
 
 PETSc-FEM is GPL, for further details read the file COPYING in the
 root directory of the distribution.
@@ -312,7 +314,7 @@ B<e-mail:> C<<mstorti@intec.unl.edu.ar>>
 
 =item *
 
-B<www:> C<http://minerva.arcride.edu.ar/petscfem>
+B<www:> C<http://minerva.ceride.gov.ar/petscfem>
 
 =item *
 

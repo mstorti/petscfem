@@ -14,7 +14,9 @@ SYNOPSIS
     non-structured mesh oriented) programs, and a suite of application
     programs. It is written in the C++ language with an OOP (Object Oriented
     Programming) philosophy, but always keeping in mind the scope of
-    efficiency.
+    efficiency. PETSc-FEM runs in parallel using the MPI standard on a
+    variety of architectures, but currently has been tested in Beowulf
+    clusters.
 
     PETSc-FEM is GPL, for further details read the file COPYING in the root
     directory of the distribution.
@@ -136,13 +138,13 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-2.18.tar.gz* package, gunzip and untar
+    Once you got the *petscfem-beta-2.20.tar.gz* package, gunzip and untar
     it like this:
 
-      $ gunzip petscfem-beta-2.18.tar.gz
-      $ tar xvf petscfem-beta-2.18.tar
+      $ gunzip petscfem-beta-2.20.tar.gz
+      $ tar xvf petscfem-beta-2.20.tar
 
-    This will create a *petscfem-beta-2.18* directory with all the source
+    This will create a *petscfem-beta-2.20* directory with all the source
     files included.
 
   Makefile variables
@@ -241,7 +243,7 @@ AUTHORS
 CONTACTS
     *   e-mail: `<mstorti@intec.unl.edu.ar'>
 
-    *   www: `http://minerva.arcride.edu.ar/petscfem'
+    *   www: `http://minerva.ceride.gov.ar/petscfem'
 
     *   ordinary mail: Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.
 

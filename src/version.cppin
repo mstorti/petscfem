@@ -9,7 +9,7 @@ void print_copyright() {
            / /_/ / __/   / /  \\__ \\/ ___/____ / /_  / __/ / /|_/ /
           / ____/ /___  / /  ___/ / /__ /___// __/ / /___/ /  / /
          /_/   /_____/ /_/  /____/\\___/     /_/   /_____/_/  /_/
------------------------------<http://minerva.arcride.edu.ar/petscfem>--
+-----------------------------<http://minerva.ceride.gov.ar/petscfem>--
 This is PETSc-FEM, version <:=`cat ../VERSION`:>
 Copyright (C) 1999-2001 Mario A. Storti, Norberto M. Nigro, CIMEC-CONICET-UNL
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,

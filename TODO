@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* add in  `Elemset::weight()' to get weight from an option
 * In `ns.cpp' it seems that there is no convergence check on the
   internal Newton loop. 
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
@@ -50,6 +51,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* change arcride by ceride anywhere
+* add reference to parallel computations in README
 * make better scheduling algorithm for distmap (as described in the
    doc). 
 * document distributed map

@@ -32,6 +32,8 @@ $part_method = 'metis' unless $part_method;
 $case_size = "medium" if $part_case;
 $case_size = $ENV{'case_size'} unless $case_size;
 #
+$sub_part = $ENV{'sub_part'};
+$sub_part = "no" unless $sub_part;
 
 $peri = $ENV{'peri'};
 if ($case_size eq 'small') {
@@ -96,8 +98,10 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 partitioning_method "<:=$part_method:>"
+#if $sub_part eq 'yes'
 max_partgraph_vertices 30
 iisd_subpart 2
+#endif
 alpha 1.
 #if $eff 
 nstep 200000
