@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.7 2005/03/31 23:48:50 mstorti Exp $
+// $Id: condwall.cpp,v 1.8 2005/04/01 02:39:16 mstorti Exp $
 
 #include "./condwall.h"
 
@@ -40,7 +40,7 @@ init() {
   if(cond_wall_data_map.find(ename)
      != cond_wall_data_map.end()) {
     data_p = &cond_wall_data_map[ename];
-    printf("in cond_wall::init(), data_p %p\n",data_p);
+    // printf("in cond_wall::init(), data_p %p\n",data_p);
   }
 }
 
@@ -56,7 +56,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
-    printf("k %d, R %f\n",k,R);
+    // printf("k %d, R %f\n",k,R);
   }
   if (R>0) {
     // Closed
