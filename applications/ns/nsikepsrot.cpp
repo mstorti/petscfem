@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.22 2002/08/20 20:11:30 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.23 2002/09/02 18:51:04 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -458,7 +458,9 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 	  Alfa_M.set(0.).prod(elc,alfa_v,1,-1,2,-1);
 
-	  G_body.axpy(acel_lin,-rho);
+	  // fixme:= Must scale by rho? 
+	  // G_body.axpy(acel_lin,-rho);
+	  G_body.axpy(acel_lin,-1.);
 
 	  FastMat2::activate_cache();
 	}
@@ -628,8 +630,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         // Frame rotational acceleration
         waux1.prod(Alfa_M,pos_v,1,-1,-1);
         acel_rot.add(waux1);
-        // Scaled by the density 
-        acel_rot.scale(rho);
+        // fixme:= Scaled by the density ?
+        // acel_rot.scale(rho);
 
         // cut off of kappa & epsilon
 	kap = ctff(kap,dfkdk,kap_ctff_val);
