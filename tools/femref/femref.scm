@@ -27,3 +27,6 @@
 (getsurf icone surf-con surf-nodes 1 0)
 (format #t "surf-con:\n")
 (dvint-dump surf-con)
+
+(format #t "surf-nodes:\n")
+(dvint-dump surf-nodes)
