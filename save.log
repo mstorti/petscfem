@@ -3520,3 +3520,6 @@ tag: beta-3.37.29 on Sun, 12 Dec 2004 20:21:10 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.30 on Tue, 14 Dec 2004 15:06:02 -0300 by mstorti in spider
      > Fixed a bug in `dvector<>' (`ev() const' and 'ev()' functions)
+----------
+tag: beta-3.37.31 on Tue, 14 Dec 2004 19:32:50 -0300 by mstorti in spider
+     > Basic `refine' functions works. 
