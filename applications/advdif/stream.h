@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.4 2002/02/03 12:38:56 mstorti Exp $
+// $Id: stream.h,v 1.5 2002/02/03 23:24:53 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -50,8 +50,7 @@ public:
   virtual void init() {}
 
   /// Read local element properties
-  virtual void 
-  element_hook(const NewElemset *elemset,ElementIterator element) {}
+  virtual void element_hook(ElementIterator element) {}
   
   /** For a given water depth (with respect to the bottom of the
       channel) give the fluid area, cross sectional water-line and wet
@@ -76,7 +75,7 @@ public:
   void init();
 
   /// Read local element properties
-  void element_hook(const NewElemset *elemset,ElementIterator element);
+  void element_hook(ElementIterator element);
   
   /** For a given water depth (with respect to the bottom of the
       channel) give the fluid area, cross sectional water-line and wet
@@ -104,19 +103,19 @@ public:
   virtual void init() {}
 
   /// Read local element properties
-  virtual void 
-  element_hook(const NewElemset *elemset,ElementIterator element) {}
+  virtual void element_hook(ElementIterator element) {}
 
   /** Should return the volumetric flow `Q' for a given area `A' and
       the derivative `dQ/dA'. 
-      @param A (input) tranversal area
-      @param P (input) wetted perimeter
+      @param area (input) tranversal area
+      @param perimeter (input) wetted perimeter
       @param S (input) bottom slope
       @param Q (output) volumetric flow
       @param C (output) derivative of volumetric flow w.r.t. A,
       i.e. #C = dQ/dQ#
   */ 
-  virtual void flow(double A,double P,double S,double &Q,double &C) const;
+  virtual void flow(double area,double perimeter,
+		    double S,double &Q,double &C) const =0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -125,23 +124,17 @@ class Chezy : public FrictionLaw {
 public:
   Chezy(const NewElemset *e) : FrictionLaw(e) {}
 
-  /// Initialize properties (perhaps) from the elemset table 
-  void init();
-
-  /// Read local element properties
-  void element_hook(const NewElemset *elemset,
-		    ElementIterator element);
-
   /** Should return the volumetric flow `Q' for a given area `A' and
       the derivative `dQ/dA'. 
-      @param A (input) tranversal area
-      @param P (input) wetted perimeter
+      @param area (input) tranversal area
+      @param perimeter (input) wetted perimeter
       @param S (input) bottom slope
       @param Q (output) volumetric flow
       @param C (output) derivative of volumetric flow w.r.t. A,
       i.e. #C = dQ/dQ#
   */ 
-  void flow(double A,double P,double S,double &Q,double &C) const;
+  void flow(double area,double perimeter,
+	    double S,double &Q,double &C) const;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -157,6 +150,8 @@ class stream_ff : public AdvDifFFWEnth {
       from the water depth `u'
   */
   double area,wl_width,perimeter;
+  /// The local wave velocity C:= dQ/dA
+  double C;
   /// Type of friction law used
   FrictionLaw *friction_law;
   /// Pointer to the channel shape object
@@ -190,6 +185,12 @@ public:
       @param grad_U (input) gradient of the state of the fluid
   */ 
   void set_state(const FastMat2 &U,const FastMat2 &grad_U);
+
+  /** Basically stores `U(1)' in the water depth `u' and computes
+      geometric parameters of the channel
+      @param U (input) the state of the fluid
+  */ 
+  void set_state(const FastMat2 &U);
 
   /** @name Advective jacobians related */
   //@{

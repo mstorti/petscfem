@@ -9,5 +9,7 @@ endif
 
 ico = [(1:Nx)' (2:Nx+1)'];
 
+ini=ones(rows(x),1);
 asave("stream.nod.tmp",x);
 asave("stream.con.tmp",ico);
+asave("stream.ini.tmp",ini);

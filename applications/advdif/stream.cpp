@@ -8,7 +8,9 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DummyEnthalpyFun
-::set_state(const FastMat2 &U) { s->UU.set(U); }
+::set_state(const FastMat2 &U) { 
+  s->set_state(U); 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DummyEnthalpyFun
@@ -32,8 +34,13 @@ void DummyEnthalpyFun
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
   if (!channel) channel = ChannelShape::factory(elemset);
+
+  // Initialize function objects
   channel->init();
+  friction_law->init();
+
   elemset->get_prop(slope_prop,"slope");
+  assert(slope_prop.length==1);
 
 #if 0
   /// Friction related stuff
@@ -47,12 +54,13 @@ void stream_ff::start_chunk(int &ret_options) {
     elemset->get_prop(roughness_prop,"roughness");
   } else assert(0);
 #endif
-  friction_law->init();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::element_hook(ElementIterator &element) {
   S = elemset->prop_val(element,slope_prop);
+  channel->element_hook(element);
+  friction_law->element_hook(element);
 #if 0
   if (friction_law==Chezy) {
     Ch = elemset->prop_val(element,Ch_prop);
@@ -65,15 +73,20 @@ void stream_ff::element_hook(ElementIterator &element) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 stream_ff::stream_ff(const NewAdvDif *e) 
   : AdvDifFFWEnth(e), channel(NULL), 
-    friction_law(FrictionLaw::factory(elemset)) {}
+  friction_law(FrictionLaw::factory(elemset)) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 stream_ff::~stream_ff() { delete friction_law; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void stream_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
+void stream_ff::set_state(const FastMat2 &U) {
   u = U.get(1);
   channel->geometry(u,area,wl_width,perimeter);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void stream_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
+  set_state(U);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -104,8 +117,24 @@ void stream_ff
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
-  // Q:= the volumetric flow, and C:= the advective jacobian
-  double Q,C;
+  // The equation is dA/dt + dQ/dx = 0
+  // 
+  // A:= the transversal area is equivalent to the enthalpy (or the
+  //               conservative variable)
+  // Q:= the volumetric flow, is equivalent to the flux
+  // 
+  // Q and A are functions of the unknown `u(x)' where
+  // u:= is the depth of the fluid
+  // `Q=Q(A)' through the `friction law', and `A=A(u)' through the
+  // geometry of the channel section.
+  // 
+  // In quasilinear form: M * du/dt + (dQ/dA * dA/du) * du/dx = 0
+  // C:= dQ/dA: the jacobian dQ/dA is the phase velocity or advective
+  //                  jacobian (a scalar)
+  // a:= the jacobian `dQ/du = dQ/dA * dA/du = C * M' is the
+  //                  jacobian
+  // M= `dA/du = wl_width:= ' is the analogous to `mass' or specific heat.
+  double Q,CC,a;
 
   options |= SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a scalar tau
@@ -113,16 +142,18 @@ void stream_ff
   set_state(U,grad_U);
   // computes `Q' and `C'
   friction_law->flow(area,perimeter,S,Q,C);
+  a = C * wl_width;
   flux.ir(1,1).set(Q).rs();
   fluxd.set(0.);
   grad_U.ir(2,1);
-  A_grad_U.set(grad_U).scale(C);
+  A_grad_U.set(grad_U).scale(a);
   grad_U.rs();
 
   if ( options & COMP_UPWIND ) {
     double h_supg = 2./iJaco.get(1,1);
-    tau_supg.setel(h_supg/(2.*C),1,1);
-    lam_max = C;
+    CC = fabs(C);
+    tau_supg.setel(h_supg/(2.*CC),1,1);
+    lam_max = CC;
   }
 
   if (options & COMP_SOURCE)  G_source.set(0.);
@@ -137,7 +168,7 @@ void stream_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
   grad_N.ir(1,1);
-  A_grad_N.ir(2,1).ir(3,1).set(grad_N).scale(wl_width);
+  A_grad_N.ir(2,1).ir(3,1).set(grad_N).scale(C*wl_width);
   grad_N.rs();
   A_grad_N.rs();
 }
@@ -171,7 +202,7 @@ void rect_channel::init() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void rect_channel
-::element_hook(const NewElemset *elemset,ElementIterator element) {
+::element_hook(ElementIterator element) {
   width = elemset->prop_val(element,width_prop);
 }
 
@@ -192,17 +223,19 @@ FrictionLaw *FrictionLaw::factory(const NewElemset *e) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Chezy::init() {}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Chezy::element_hook(const NewElemset *elemset,
-			 ElementIterator element) {}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Chezy::flow(double area,double perimeter,double S,
 			double &Q,double &C) const {
   double Ch = 1., m=1.5;
   double gamma = Ch*sqrt(S/perimeter);
+
+#define LINEAR_VERSION_DEBUG
+#ifdef LINEAR_VERSION_DEBUG
+  // assume area near 1
+  double area_ref=1.;
+  C = m*gamma*pow(area,m-1.);
+  Q = C*area;
+#else
   Q = gamma*pow(area,m);
   C = Q*m/area;
+#endif
 }

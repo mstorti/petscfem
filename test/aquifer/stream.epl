@@ -7,7 +7,7 @@ $save_file = ($casen ? "stream.$casen.tmp" : "stream.state.tmp");
 $casename = $casen;
 $Nx = 20;
 $Lx = 1;			# Side of the cavity
-$Dt = 0.2;			# time step
+$Dt = 0.1;			# time step
 $nstep = 50;
 $t = $nstep*$Dt;
 #
@@ -78,5 +78,5 @@ __END_ELEMSET__
 end_elemsets
 
 fixa
-1 1 0.99
+1 1 1.5
 __END_FIXA__

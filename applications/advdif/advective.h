@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.42 2002/02/03 12:38:56 mstorti Exp $
+//$Id: advective.h,v 1.43 2002/02/03 23:24:53 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -150,7 +150,7 @@ public:
     // fixme:= This may be wrong, we should first
     // `U.resize()' in a `init()' function and then `U.clear()' in a
     // `clear()' function 
-    UU.set(U);			
+    set_state(U);
     enthalpy(H);
   }
 
@@ -191,8 +191,6 @@ public:
 
   /// Sets Cp from elemset data
   void update(const double *Cp_) {Cp=*Cp_;};
-
-  void set_state(const FastMat2 &U) {}
 
   /// Multiplies U by Cp with 'scale'
   void enthalpy(FastMat2 &H);
@@ -269,6 +267,13 @@ public:
       @param normal (input, size #ndim#)
   */ 
   virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) =0;
+
+  /** This sets the local state of the flow and is called before to
+      call all the enthalpy functions functions and alike (thos that
+      don't need the state gradient #grad_U#. 
+      @param U (input) the local state of the fluid
+  */
+  virtual void set_state(const FastMat2 &U) {}
 
   /** This sets the local state of the flow and is called before to
       call all the `comp_grad_N_D_grad_N' functions and alike.

@@ -29,8 +29,8 @@ nsave 20
 rtol 1e-2
 maxits 100
 
-save_file_pattern "outvector%d.sal"
-nsaverot 100
+save_file_pattern "burgers.rot%d.tmp"
+nsaverot 1
 nrec  100
 nfile 2
 
