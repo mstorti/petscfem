@@ -1,8 +1,8 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$N=4;
 #
-#octave_export_vars(">data.m.tmp",qw(nu N Ny hratio hratioy 
-#    L Ly Ny_eq Uav ));
+octave_export_vars(">data.m.tmp",qw(N));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -10,8 +10,9 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 global_options
 ndim 2
 
-save_file "save.state"
+save_file "save.state.tmp"
 nsave 5
+nsaverot 0
 
 #if 1
 solver "petsc"
@@ -26,60 +27,42 @@ atol 1e-10
 tol_newton 0
 maxits 100
 steady
-c_volume 0.
+c_volume 1.
 
 <:$nstep=10; pr('nstep');:>
 Dt <:= 1./$nstep:>
-# initial_state "mmove.ini.tmp"
-# print_linear_system_and_stop
-
 __END_HASH__
 
 # ndim nu ndof
 nodes   2  2  2
-0. 0.
-1. 0.
-# 0.5 0.86603
-1. .5
-0. 1.
-1. 1.
+__INCLUDE__ "step.nod.tmp"
 __END_NODES__
 
 #===========================================================
+#if 0
+elemset mesh_move 4
+geometry cartesian2d
+npg 4
+#else
 elemset mesh_move 3
 geometry triangle
 npg 1
+#endif
 __END_HASH__
-1 2 3
-1 3 4
-3 5 4
+__INCLUDE__ "step.con.tmp"
 __END_ELEMSET__
 
 end_elemsets
 
 #===========================================================
-#if 1
 fixa_amplitude ramp
-
-
 start_time 0
 end_time 1
 slope 1
 __END_HASH__
-
-1 1 0.
-1 2 0.95
-2 1 0.
-2 2 0.95
-3 1 0.
-# 3 2 0.  # This is the only one not fixed
-4 1 0.
-4 2 0.
-5 1 0.
-5 2 0.
-
+__INCLUDE__ "step.fixa.tmp"
 __END_FIXA__
-#endif
+
 # Local Variables: $
 # mode: shell-script $
 # eval: (setq indent-tabs-mode nil) $
