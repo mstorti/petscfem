@@ -1501,3 +1501,7 @@ tag: beta-3.03.pl6 on Mon, 26 Aug 2002 23:54:02 -0300 by mstorti in spider
 ----------
 tag: beta-3.03.pl7 on Tue, 27 Aug 2002 10:47:50 -0300 by mstorti in minerva.arcride.edu.ar
      > Added `FastMat2::detsur(FastMat2 *normal)'. Runs almost all tests. 
+----------
+tag: beta-3.03.pl8 on Tue, 27 Aug 2002 22:59:48 -0300 by mstorti in spider
+     > `FastVector' template (used in `FastMat2' y `IdMap' classes) passed
+     > his definitions to `fastlib2.h'.
