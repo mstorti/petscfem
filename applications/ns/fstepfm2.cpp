@@ -230,18 +230,22 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 seed;
   if (comp_res_mom || comp_mat_prj) {
-    seed.reshape(2,ndof,ndof).set(0.)
+    seed.resize(2,ndof,ndof).set(0.)
       .is(1,1,ndim).is(2,1,ndim).eye().rs();
   } else if (comp_mat_poi) {
-    seed.reshape(2,ndof,ndof).set(0.).
+    seed.resize(2,ndof,ndof).set(0.).
       setel(1.,ndof,ndof).rs();
   }
+
+  FastMatCacheList cache_list;
+  // FastMat2::activate_cache(&cache_list);
 
   int ielh=-1;
   int SHV_debug=0;
 #define SHV(pp) { if (SHV_debug) pp.print(#pp); }
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+    FastMat2::reset_cache();
     //if (epart[k] != myrank+1) continue;
     ielh++;
 
@@ -262,6 +266,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
     }
+    xloc.rs();
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
     if (comp_res_mom || comp_res_poi || comp_res_prj) {
@@ -337,7 +342,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(alpha);
 	tmp1.add(tmp2).axpy(grad_p,-((1-alphap)/rho));
 	tmp3.prod(W,tmp1,1,2);
-	resmom.axpy(W,wpgdet);
+	resmom.axpy(tmp3,wpgdet);
 	SHV(resmom);
 	// sacamos gradiente de presion en la ec. de momento (conf. Codina)
 	//- (1/rho)* grad_p.t());
@@ -472,16 +477,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.export_vals(&(RETVAL(ielh))).rs();
     } else assert(0);
   }
+  // FastMat2::void_cache();
+  // FastMat2::deactivate_cache();
   return 0;
 }
 
 #undef SHAPE    
 #undef DSHAPEXI 
 #undef WPG      
-
-  /*
-    # Local Variables: $
-    # mode: c++ $
-    # End: $
-  */
-
