@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.10 2001/07/19 00:35:03 mstorti Exp $
+//$Id: lusubd.cpp,v 1.11 2001/07/21 16:50:48 mstorti Exp $
 
 #include <typeinfo>
 #ifdef RH60
@@ -13,6 +13,10 @@
 #include "dofmap.h"
 #include "elemset.h"
 #include "pfmat.h"
+
+enum PETScFEMErrors {
+  iisdmat_set_value_out_of_range
+};
 
 PFMat::~PFMat() {};
 
@@ -163,8 +167,6 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       }
     }
   }
-  PetscFinalize();
-  exit(0);
 #endif
 
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
@@ -286,28 +288,6 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   ierr = VecDuplicate(y_loc_seq,&x_loc_seq);
   PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
 
-#if 0 
-  ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); 
-  PETSCFEM_ASSERT0(ierr==0,"Error creating SLES.\n"); 
-  ierr = SLESSetOperators(sles_ll,A_LL,
-			  A_LL,SAME_NONZERO_PATTERN);
-  PETSCFEM_ASSERT0(ierr==0,"Error with `SLESSetOperators'.\n"); 
-  ierr = SLESGetKSP(sles_ll,&ksp_ll); 
-  PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetKSP'.\n"); 
-  ierr = SLESGetPC(sles_ll,&pc_ll);
-  PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetPC'.\n"); 
-
-  ierr = KSPSetType(ksp_ll,KSPGMRES);
-  PETSCFEM_ASSERT0(ierr==0,"Error with `KSPSetType'.\n"); 
-
-  ierr = KSPSetTolerances(ksp_ll,0,0,1e10,1);
-  PETSCFEM_ASSERT0(ierr==0,"Error setting tolerances.\n"); 
-
-  ierr = PCSetType(pc_ll,PCLU);
-  PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
-  ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
-#endif
-
   // Shortcuts
   AA[L][L] = &A_LL;
   AA[L][I] = &A_LI;
@@ -376,10 +356,10 @@ void IISDMat::mult(Vec x,Vec y) {
 #define __FUNC__ "int IISDMat::assembly_begin(MatAssemblyType type)"
 int IISDMat::assembly_begin(MatAssemblyType type) {
   int ierr;
-  ierr = MatAssemblyBegin(A_LL,type); CHKERRQ(ierr);
-  ierr = MatAssemblyBegin(A_IL,type); CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_LI,type); CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_II,type); CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_IL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_LL,type); CHKERRQ(ierr);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -387,10 +367,10 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
 #define __FUNC__ "int IISDMat::assembly_end(MatAssemblyType type)"
 int IISDMat::assembly_end(MatAssemblyType type) {
   int ierr;
-  ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
-  ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_LI,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_II,type); CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -466,7 +446,24 @@ void IISDMat::set_value(int row,int col,Scalar value,
   int row_indx,col_indx,row_t,col_t;
   map_dof(row,row_t,row_indx);
   map_dof(col,col_t,col_indx);
-  MatSetValues(*(AA[row_t][col_t]),1,&row_indx,1,&col_indx,&value,mode);
+  int error_code=2;
+  if (row_t == L && col_t == L) {
+    row_indx -= n_locp;
+    col_indx -= n_locp;
+    if (!(row_indx >= 0 && row_indx < n_loc)) {
+      printf("LL element not in this proc, "
+	     "global row: %d, local row: %d, "
+	     "n_locp: %d\n",row,row_indx,n_locp);
+      MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
+    }
+    if (!(col_indx >= 0 && col_indx < n_loc)) {
+      printf("LL element not in this proc, "
+	     "global col: %d, local col: %d, n_locp: %d\n",col,col_indx,n_locp);
+      MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
+    }
+  } 
+  MatSetValues(*(AA[row_t][col_t]),
+	       1,&row_indx,1,&col_indx,&value,mode);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

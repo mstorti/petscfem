@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
+//$Id: utils.cpp,v 1.8 2001/07/21 16:51:35 mstorti Exp $
  
 #include <stdio.h>
 
@@ -199,20 +199,28 @@ int reshape(Matrix &A,int m,int n) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int wait_from_console(char *s=NULL) {
+  static int deac=0;
+  if (deac) return 0;
   int myrank;
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
   int ierr;
+  char ans;
+  ierr = MPI_Barrier(PETSC_COMM_WORLD);
   if (myrank==0) {
-    char ans;
     if (s!=NULL) printf("%s --- ",s);
-    printf("Continue? (y/n) [def: y] > ");
-    while (1) {
-      fflush(stdout);
-      scanf("%c",&ans);
-      if (ans=='y') goto DONE;
-    }
+    printf("Continue? (n/RET=y) > ");
+    fflush(stdout);
+    scanf("%c",&ans);
   }
-  DONE: ierr = MPI_Barrier(PETSC_COMM_WORLD);
+  ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,PETSC_COMM_WORLD);
+  CHKERRQ(ierr); 
+  if (ans=='n') {
+    PetscFinalize();
+    exit(0);
+  } else if (ans=='d') {
+    deac = 1;
+  } 
+  ierr = MPI_Barrier(PETSC_COMM_WORLD);
   CHKERRQ(ierr);  
 }
 

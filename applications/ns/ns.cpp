@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.30 2001/07/18 22:44:46 mstorti Exp $
+//$Id: ns.cpp,v 1.31 2001/07/21 16:52:04 mstorti Exp $
  
 #include <malloc.h>
 
@@ -325,10 +325,8 @@ int main(int argc,char **args) {
       VOID_IT(argl);
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
-      // wait_from_console("antes de comp_shear_vel"); 
       ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
 		      &time_star); CHKERRA(ierr);
-      // wait_from_console("despues de comp_shear_vel"); 
 
       // Communicate wall stresses amoung different processors
       // This is obsolete. Now we control this from the loop
@@ -342,7 +340,6 @@ int main(int argc,char **args) {
 	ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
 			&time_star); CHKERRA(ierr);
       }
-      // wait_from_console("despues de communicate_shear_vel"); 
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
@@ -372,6 +369,14 @@ int main(int argc,char **args) {
       }
 
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
+#if 0
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
+      A_tet->view(matlab);
+#endif
+
 #if 0 //debug:=
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
@@ -431,10 +436,11 @@ int main(int argc,char **args) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
 	A_tet->solve(res,dx); 
 
-      if (print_linear_system_and_stop) {
+      // if (print_linear_system_and_stop) { // debug:=
+      if (print_linear_system_and_stop && tstep==2) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for"
-		    " debugging and stopping..\n");
+		    " debugging and stopping.\n");
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,

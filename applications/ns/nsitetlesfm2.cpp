@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.32 2001/07/20 12:15:03 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.33 2001/07/21 16:52:04 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -226,7 +226,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
+  // FastMat2::activate_cache(&cache_list);
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -296,7 +296,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if (comp_res || comp_mat_res) {
-      FastMat2::deactivate_cache();
       ucols.set(locstate2.is(2,1,ndim));
       pcol.set(locstate2.rs().ir(2,ndof));
       locstate2.rs();
@@ -307,7 +306,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
-      FastMat2::activate_cache();
     }
     
     double shear_vel;

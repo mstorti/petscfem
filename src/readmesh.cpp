@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.23 2001/06/15 00:26:34 mstorti Exp $
+//$Id: readmesh.cpp,v 1.24 2001/07/21 16:51:02 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -860,7 +860,17 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       node_not_connected_to_fat=1;
       npart[node]=1;
     } else {
-      npart[node] = vpart[node2elem[n2eptr[node]]]+1;
+      // We assign to a node that is connected to elements in
+      // different processors the highest processor number. This is
+      // done this way for avoiding problems with the IISDMat
+      // class. Otherwise an elemset can contribute with local-local
+      // elements in other processors, which is not contemplated now. 
+      int ele = n2eptr[node];
+      int proc = vpart[node2elem[ele]]+1;
+      for (ele = n2eptr[node]+1; ele < n2eptr[node+1]; ele++) 
+	if (vpart[node2elem[ele]]+1 > proc) 
+	  proc = vpart[node2elem[ele]]+1;
+      npart[node] = proc;
     }
     if (print_nodal_partitioning)
       PetscPrintf(PETSC_COMM_WORLD,

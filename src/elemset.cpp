@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.19 2001/07/19 23:55:11 mstorti Exp $
+//$Id: elemset.cpp,v 1.20 2001/07/21 16:51:35 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -405,7 +405,13 @@ int assemble(Mesh *mesh,arg_list argl,
     // have to iterate on the ghost_elems also). 
     int max_chunk_size = nel_here;
     if (iter_mode == INCLUDE_GHOST_ELEMS) 
-      max_chunk_size = maxi(2,max_chunk_size,da_length(ghostel));
+      // I'm not clear about this, but using the `max' version was
+      // wrong because in some cases it performed two chunks when only
+      // needed one. 
+      // old version:
+      // max_chunk_size = maxi(2,max_chunk_size,da_length(ghostel));
+      // new version:
+      max_chunk_size = max_chunk_size + da_length(ghostel);
     chunk_size = mini(2,local_chunk_size,max_chunk_size);
       
     for (j=0; j<narg; j++) {
@@ -459,6 +465,8 @@ int assemble(Mesh *mesh,arg_list argl,
       el_last = iele;
       if (el_last >=nelem) el_last = nelem-1;
       if (el_last==nelem-1) last_chunk=1;
+      // printf("[%d] jobinfo %s, chunk %d, chunk_size %d, here %d,range %d-%d\n",
+      // myrank,jobinfo,chunk,chunk_size,iele_here+1,el_start,el_last);
 
       for (j=0; j<narg; j++) {
 	if (argl[j].options & DOWNLOAD_VECTOR) 
@@ -486,9 +494,14 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 #endif 
 
-      elemset->assemble(arg_data_v,nodedata,dofmap,
-			jobinfo,myrank,el_start,el_last,iter_mode,
-			time_data);
+      if (iele_here > -1) {
+	// if (1) {
+	elemset->assemble(arg_data_v,nodedata,dofmap,
+			  jobinfo,myrank,el_start,el_last,iter_mode,
+			  time_data);
+      } else {
+	// printf("[%d] not processing because no elements...\n",myrank);
+      }
 
       // Upload return values
       for (j=0; j<narg; j++) 
