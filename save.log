@@ -286,3 +286,6 @@ tag: beta-1.46 on Sat Mar 24 10:52:07 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.47 on Sat Mar 24 13:20:39 ART 2001, by mstorti in spider
      > Added a null reactive jacobian
+----------
+tag: beta-1.48 on Mon Mar 26 00:12:15 ART 2001, by mstorti in spider
+     > Writing tests for the new lnear AdvDif flux functions.
