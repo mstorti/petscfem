@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.10 2002/09/30 14:16:11 mstorti Exp $
+//$Id: dofmap.cpp,v 1.11 2002/12/11 20:03:46 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -45,6 +45,7 @@ double fixation_entry::value(const TimeData *time_data) const {
   if (amp==NULL) {
     return val;
   } else {
+    assert(time_data);
     return val*amp->eval(time_data);
   }
 }
