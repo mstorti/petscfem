@@ -497,3 +497,6 @@ tag: beta-1.99 on Sat Aug 18 10:10:47 ART 2001, by mstorti in spider
 ----------
 tag: beta-2.00 on Sun Aug 19 11:56:23 ART 2001, by mstorti in spider
      > `pc_lu_fill' and `PCLUSetUseInPlace()' work. 
+----------
+tag: beta-2.01 on Sun Aug 19 21:37:41 ART 2001, by mstorti in spider
+     > Added a `pc_lu_fill' option in order to get better efficiency. 
