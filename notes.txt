@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.337 2003/09/17 10:19:43 mstorti Exp $
+$Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.337 2003/09/17 10:19:43 mstorti Exp $ 
+! # $Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.337 2003/09/17 10:19:43 mstorti Exp $ 
+! # $Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.337 2003/09/17 10:19:43 mstorti Exp $ 
+  # $Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7274,8 +7274,24 @@ Corre muchos tests. 162 en g_c++:
 y en O_c++ reporta 
 > Start section: "Navier-Stokes tests."
 > Summary: "Navier-Stokes tests." -- OK: 15.  Not OK: 0. Couldn't open: 1. Total: 16
+%
 lo cual es medio extranio ya que reporta un total de 16 asi que debe
 haber pasado algo extranio con las modificaciones a step.epl. 
+
+%===Sat, 20 Sep 2003 10:11:29 -0300 mstorti@spider
+%
+Haciendo los videos de la cavidad, para Re=1e5 al salvar pocos pasos
+de tiempo (nsaverot muy grande creo que era 10 o 20) sale demasiado
+cortado y feo, es decir no se puede interpolar y que quede
+continuo. De paso no es necesario usar tantos pasos de tiempo, digamos
+que 710 son como 30 secs. lo cual es demasiado. Perfectamente se puede
+salvar cada 5 pasos de tiempo e interpolar por 5, con lo cual con 40
+estados (200 pasos de tiempo) sacas 200 frames que son 3'20'' de
+filmacion. 
+%
+Asi que ahora el plan es hacer los de Re=1e6 que ya tengo los estados
+y volver a correr un poco a Re=1e5 para (solo hacen falta unos
+200Dt). 
 
 # Current line ===========  %
 # Local Variables: $
