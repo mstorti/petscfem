@@ -8,8 +8,8 @@ CASE=canal1d
 # PETSCFEM_DIR := /u/rodrigop/PETSC/petscfem-hydro
 PETSCFEM_DIR := ../..
 
-#NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-NP := 1
+NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+#NP := 1
 
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -53,6 +53,6 @@ local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.tmp &> /dev/null
 
-clean:
+swclean:
 	-rm *.depl *.tmp &> /dev/null
 
