@@ -1,43 +1,31 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-#include <set>
+#include <algorithm>
+#include "./hasher.h"
 
 using namespace std;
 
-int myhash(int *w,int n) {
-  drand48_data buffer;
-  unsigned short int xsubi[3];
-  memset(&buffer,'\0',sizeof(struct drand48_data));
-  memset(&xsubi,'\0',3*sizeof(unsigned short int));
-  long int result;
-  int val;
-  for (int j=0; j<n; j++) {
-    memcpy(&val,&xsubi,sizeof(int));
-    val += w[j];
-    memcpy(&xsubi,&val,sizeof(int));
-    nrand48_r(xsubi,&buffer,&result);
-  }
-  return result;
-}
-
 int main() {
+  Hasher hash;
   for (int N=16; N<24; N++) {
     // printf("N %d\n",N);
     vector<int> vec(N);
-    set<int> hashset;
+    vector<int> hashset;
     for (int j=0; j<N; j++) vec[j]=0;
     int count=0;
     int print=0;
     while (1) {
-      int h = myhash(&vec[0],N);
+      hash.reset();
+      hash.hash(&vec[0],vec.size());
+      int h = hash.hash_val();
       if (print) {
 	printf("vec: ");
 	for (int j=0; j<N; j++) 
 	  printf("%d ",vec[j]);
 	printf(", hash: %x\n",h);
       }
-      hashset.insert(h);
+      hashset.push_back(h);
       count++;
       int j;
       for (j=0; j<N; j++) {
@@ -49,9 +37,13 @@ int main() {
       }
       if (j>=N) break;
     }
+    sort(hashset.begin(),hashset.end());
+    vector<int>::iterator
+      last_diff = unique(hashset.begin(),hashset.end());
+    int ndiff = last_diff-hashset.begin();
     printf("N %d, %d bit vectors checked,"
 	   " %d different hash values, "
 	   "%d collisions\n",
-	   N,count,hashset.size(),count-hashset.size());
+	   N,count,ndiff,count-ndiff);
   }
 }
