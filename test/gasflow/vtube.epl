@@ -67,10 +67,10 @@ $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
 # $p_c = 1.25e5;			# [N/m2] outlet cold pressure
-$p_c = 1.275e5;			# [N/m2] outlet cold pressure
+$p_c = 1.319e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
-$p_h = 1.38e5;			# [N/m2] outlet cold pressure
+$p_h = 1.336e5;			# [N/m2] outlet cold pressure
 
 # require './data.pl';
 $weak_form  = 0;
@@ -109,7 +109,8 @@ alpha 1.
 # initial_state "vtube.state.tmp"
 # initial_state "vtube.state_hot_only"
 # initial_state "vtube.state_hot_cold1"
-initial_state "vtube.state_hot_cold_RUN1_step140"
+# initial_state "vtube.state_hot_cold_RUN1_step140"
+initial_state "vtube.state_hot_cold_RUN3_step120"
 nsave 1
 save_file "vtube.state.tmp"
 
@@ -181,7 +182,7 @@ initial_pressure <:=$p_h:>
 flow_rate 1.
 gather_pos 1
 #endif
-flow_coef 1e3
+flow_coef 1.25e4
 __END_HASH__
 
 ##================================================================

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $
+$Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.244 2003/01/30 18:02:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6090,8 +6090,23 @@ el `flow_coef' (1e-2 -> 1e3). Vuelvo a p_c=1.275e5.
 %
 13:35:55: Con el `flow_coef' y esa p_c parece andar bastante
 bien. Pero despues de un rato los dos flujos se van 0. 
-
-
+%
+14:18:53: Corrijo que directamente la correccion sea no en flujos
+relativos sino con respecto al caudal que quiero que entre por cada
+entrada. Despues eventualmente habria que agregarle una correccion por
+si hay perdidas. Tambien hay que agregarle una correccion por si el
+caudal se va a 0, pero por ahora no lo pongo. La ecuacion que estoy
+usando es, mas o menos
+%
+\dot p_j = -C (q_j(t) - cut_j * q_inlet(j))
+%
+donde p_j, q_j son la presion y caudal de la entrada j, my_cut es la
+fraccion que quiero que salga por la salida j, y q_inlet(t) es lo que
+esta entrando en este momento por la entrada. 
+%
+Lo arranco a partir del estado RUN3/120 e inicializo las presiones
+p_h, p_c a los valores que tenia en ese momento. 
+p_h = 133599, p_c=131901. 
 
 # Current line ===========  %
 # Local Variables: $

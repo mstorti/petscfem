@@ -1,0 +1,6 @@
+MODULE ExtProgImport
+CATEGORY Import and Export
+DESCRIPTION Imports data from a fifo/socket
+LOADABLE epimport;
+INPUT socket_name; string;  (none); 
+OUTPUT value; integer;  
