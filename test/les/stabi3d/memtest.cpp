@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: memtest.cpp,v 1.3 2004/02/19 22:44:22 mstorti Exp $
+// $Id: memtest.cpp,v 1.4 2004/02/24 18:16:57 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
+#include <vector>
 
 int MAX;
 
@@ -16,42 +17,53 @@ int irand(int M) {
 
 int sum(int *buff,int size) {
   int check = 0;
-  for (int j=0; j<size; j++) {
-    int k = 2*irand(MAX)-MAX;
-    check += k;
-    buff[j] = k;
-  }
+  for (int j=0; j<size; j++) 
+    check = (check + buff[j]) % MAX;
   return check;
 }
 
+int rand_fill(int *buff,int block_size) {
+  for (int k=0; k<block_size; k++) 
+    buff[k] = irand(MAX);
+  return sum(buff,block_size) % MAX;
+}
+
 int main(int argc,char **argv) {
-  const double RAM_SIZE = 500;
+  int checked=0, failed=0;
+  int report = 200;
+  const double RAM_SIZE = 480;
   const int NBLOCKS = 100;
   MAX = int(sqrt(double(RAND_MAX)));
-  int block_size = int(RAM_SIZE*1.0e6/4.0/double(NBLOCKS));
-  int size = block_size*NBLOCKS;
-  int *buff = new int[size];
-  int check = sum(buff,size);
-  printf("check: %d\n",check);
-  int it=0;
-  int bi=0, bj=0;
-  while (1) {
-    if (bi!=bj) {
-      // Intercambia bloques `bi' y `bj'
-      int ci = bi*block_size;
-      int cj = bj*block_size;
-      for (int j=0; j < block_size; j++) {
-	int x = buff[ci+j];
-	buff[ci+j] = buff[cj+j];
-	buff[cj+j] = x;
-      }
-      int ncheck = sum(buff,size);
-      printf("ncheck: %d\n",check);
-      if (++it>4000) break;
-    }
-    bi++;
-    if (bi>=NBLOCKS) { bi=0; bj++; }
-    if (bj>=NBLOCKS) bj=0;
+  int block_size = int(RAM_SIZE*pow(2.,20.)/4.0/double(NBLOCKS));
+  vector<int *> buffers(NBLOCKS);
+  vector<int> check_sums(NBLOCKS);
+  for (int j=0; j<NBLOCKS; j++) {
+    buffers[j] = new int[block_size];
+    check_sums[j] = rand_fill(buffers[j],block_size);
   }
-  delete[] buff;
+  while (1) {
+    int block = irand(NBLOCKS);
+    int *newblock = new int[block_size];
+    memcpy(newblock,buffers[block],sizeof(int)*block_size);
+    delete[] buffers[block];
+    buffers[block] = newblock;
+    int newcheck = sum(buffers[block],block_size) % MAX;
+    if (check_sums[block]!=newcheck) {
+      printf("mem error: old check: %d, new check: %d, diff: %d\n",
+	     check_sums[block], newcheck, newcheck-check_sums[block]);
+      failed++;
+    }
+    check_sums[block] = newcheck;
+    checked++;
+    if (!irand(20)) {
+      // printf("regenera bloque %d\n",block);
+      check_sums[block] = rand_fill(buffers[block],block_size);
+    }
+    if (!(checked % report)) 
+      printf("checked %d, failed %d\n",checked, failed);
+  }
+  for (int j=0; j<NBLOCKS; j++) {
+    delete[] buffers[j];
+    buffers[j] = NULL;
+  }
 }
