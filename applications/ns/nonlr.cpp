@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.3 2001/05/30 18:21:50 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.4 2001/05/31 02:32:25 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -12,6 +12,13 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 
 NonLinearRes::~NonLinearRes() {};
+
+double int_pow(double base,int exp) {
+  double r=1.;
+  for (int j=0; j<exp; j++)
+    r *= base;
+  return r;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -36,8 +43,9 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   PETSCFEM_ASSERT0(nel==2,"");
 
   GET_JOBINFO_FLAG(comp_mat);
-  GET_JOBINFO_FLAG(comp_res);
+  GET_JOBINFO_FLAG(comp_mat_ke);
   GET_JOBINFO_FLAG(comp_mat_res);
+  GET_JOBINFO_FLAG(comp_mat_res_ke);
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
@@ -52,7 +60,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double *hmin,Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
-  if (comp_mat_res) {
+  if (comp_mat_res || comp_mat_res_ke) {
     int ja=0;
     locst = arg_data_v[ja++].locst;
     locst2 = arg_data_v[ja++].locst;
@@ -61,19 +69,21 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     hmin = (arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     Dt = *(double *)(arg_data_v[ja++].user_data);
-  } 
+  } else if (comp_mat || comp_mat_ke) {
+    retvalmat = arg_data_v[0].retval;
+  }
 
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,2,ndof),R(2,2,ndof);
   if (comp_mat) matloc_prof.set(1.);
 
-  FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
-
   init();
   int nr = nres();
   FastMat2 r(1,nr),lambda(2,ndof,nr),jac(2,nr,ndof);
+  jac.set(0.);
 
+  FastMatCacheList cache_list;
+  FastMat2::activate_cache(&cache_list);
   int elem;
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -82,25 +92,27 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ielh++;
     elem = k;
 
+    if(comp_mat) {
+      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      continue;
+    }      
+
     U.set(&(LOCST(ielh,0,0)));
     matloc.set(0.);
     R.set(0.);
 
-    if(comp_mat) {
-      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-    }      
-
     if (comp_mat_res) {
       res(U,r,lambda,jac);
-      U.ir(2,2).is(1,1,nr);
-      R.ir(2,1).prod(lambda,U,1,-1,-1);
+      U.ir(1,2).is(2,1,nr);
+      R.ir(1,1).prod(lambda,U,1,-1,-1);
       
-      R.rs().ir(2,2).is(1,1,nr).set(r).rs();
+      R.rs().ir(1,2).is(2,1,nr).set(r).rs();
       
       matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda).rs();
       matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).rs();
 
       R.export_vals(&(RETVAL(ielh,0,0)));
+      matloc.set(1.);
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
@@ -118,10 +130,10 @@ void wall_law_res::init() {
 
 void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 		       FastMat2 & lambda,FastMat2 & jac) {
-  double k = SQ(U.get(nk,1));
-  double eps = SQ(U.get(ne,1));
+  double k = U.get(1,nk);
+  double eps = U.get(1,ne);
   double rr = eps - k;
-  r.setel(rr);
+  r.setel(rr,1);
   lambda.set(0.).setel(1.,ne,1);
   jac.setel(1.,1,nk);
   jac.setel(-1.,1,ne);

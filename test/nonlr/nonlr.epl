@@ -11,6 +11,7 @@ ndim 2
 chunk_size 10
 save_file "save.state.tmp"
 nsave 20
+initial_state "nonlr.ini"
 
 rtol 1e-2
 maxits 100
@@ -22,43 +23,37 @@ nnwt 1
 tol_newton 0
 preco_type "lu"
 
-Dt 1000.
-nstep 4
+print_linear_system_and_stop
+solve_system 0
+
+Dt 1.
+nstep 1
 alpha 1.
-tau_fac 0.
 
-weak_form 1
-
-diffusive_jacobians_type "scalar_per_field"
-diffusive_jacobians 3. 1.
+weak_form 0 # todavia no tenemos el weak form
 
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
-nodes   2  2  2
-__INCLUDE__ genload.nod
+nodes   2  2  5
+__INCLUDE__ nonlr.nod
 __END_NODES__
 
 #===========================================================
-elemset newadvdif_advecfm2 4
+elemset nsi_tet_keps 4
 #Datos del elemento
 geometry cartesian2d
 npg 4
 __END_HASH__
-1 3 4 2 
 3 5 6 4 
 5 7 8 6 
 7 9 10 8 
 9 11 12 10 
 11 13 14 12 
 13 15 16 14 
-#<:$lin_gen_load_e=1:>
-#if $lin_gen_load_e
 15 17 18 16 
-#else
-15 19 20 16 
-#endif
+17 19 20 16 
 19 21 22 20 
 21 23 24 22 
 23 25 26 24 
@@ -69,71 +64,31 @@ __END_HASH__
 33 35 36 34 
 __END_ELEMSET__
 
-elemset lin_gen_load 4
-geometry cartesian1d
-npg 2
-double_layer
-hfilm_coeff 3. 0. 0. 1.
+elemset wall_law_res 2
 __END_HASH__
-17 18 19 20 
+3 1 
+#4 2 
 __END_ELEMSET__
-
-#if $case !~ /^genl/
-elemset lin_gen_load <:= defined $ne ? $ne : $case eq '2b' ? 2 : 4 :>
-geometry cartesian1d
-npg 2
-#if $case ne '2b'
-double_layer
-#endif
-#if $case eq '1'
-hfilm_coeff 3. 0. 0. 1.
-#elsif $case =~ /^2/ 
-hfilm_source -3. -1.
-#endif
-__END_HASH__
-#if $case ne '2b'
-35 36 37 38
-#else
-35 36
-#endif
-__END_ELEMSET__
-#else
-elemset lin_gen_load 2
-geometry cartesian0d
-npg 1
-ndimel 0
-double_layer
-#if $case eq 'genl1d'
-hfilm_source <:= -3.*$hy/2.:>  <:= -1.*$hy/2.:>
-#else
-hfilm_coeff <:= 3.*$hy/2.:> 0. 0. <:= 1.*$hy/2.:>
-#endif
-__END_HASH__
-35 37
-36 38
-__END_ELEMSET__
-#endif
 
 end_elemsets
 
 #===========================================================
 fixa
-1 1  1.
-2 1  1.
-1 2  6.
-2 2  6.
-#if $case eq '1' || $case eq 'genl1dh'
-37 1 -2.
-38 1 -2.
-37 2 3.
-38 2 3.
-#elsif $case eq '2a' || $case eq 'genl1d'
-37 1 0.
-38 1 0.
-37 2 0.
-38 2 0.
-#endif
+# El nodo uno esta todo impuesto
+# el nodo 3 impongo todo menos el g.d.l. 5 (eps) que
+# tiene que salir de la restriccion
+#  1 2  0.
+#  1 3  0.
+#  1 4  0.
+#  1 5  0.
+#  3 1  1.
+#  3 2  0.
+#  3 3  0.
 __END_FIXA__
+
+constraint
+__INCLUDE__ nonlr.peri
+__END_CONSTRAINT__
 
 # Local Variables: $
 # mode: shell-script $

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* escribir una funcion "double pow_int(double base,int exp)"
 * new scheduling algorithm for load balancing in `elemset.cpp'
 * write a generic non-linear restriction element
 * fix some incompatibilities that exclude compilation with LES under old RH5.2

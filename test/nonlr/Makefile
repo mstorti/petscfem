@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/05/29 02:31:50 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/05/31 02:32:27 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -10,29 +10,31 @@ include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
 
-#s Test/Advdif tests
-tests: test_case_1 test_case_2a test_case_2b test_case_fstack \
-	test_case_genl1d test_case_genl1dh
+NAME = nonlr
+PROG = $(NS)
+LOC_PROG = ns
+
+tests: test_case_a
 
 .PHONY: data force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 test_case_%: 
 	$(MAKE) EPERLFLAGS='-d case=$*' data
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case genload.depl > output.case_$*.tmp
-	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
+			-case $(NAME).depl #> output.case_$*.tmp
+#	if [ -e save.state.tmp ] ; then mv save.state.tmp save.case_$*.tmp ; fi
 
-data: genload.depl
+data: $(NAME).depl
 
-genload.depl: force
+$(NAME).depl: force
 
 local_clean::
-	-rm -rf mat.output 
+	-rm -rf mat.output system.dat 
 
 auxi:
 	if [ ! -L advdif ] ; \
-	 then ln -sf $(PETSCFEM_DIR)/applications/advdif/advdif.bin advdif ; \
+	 then ln -sf $(PROG) $(LOC_PROG) ; \
 	fi
-	echo file advdif >.gdbinit
-	echo set args -case genload.depl >>.gdbinit
+	echo file ns >.gdbinit
+	echo set args -case $(NAME).depl >>.gdbinit
 #s
