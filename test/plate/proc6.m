@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: proc6.m,v 1.3 2003/01/09 13:39:57 mstorti Exp $
+## $Id: proc6.m,v 1.4 2003/01/10 12:38:54 mstorti Exp $
 TT=[];
 nx = size(v,1);
 for kk=min(nx,10):nx
@@ -11,6 +11,10 @@ for kk=min(nx,10):nx
   TT = [TT;
        2*Dt*diff(indx)];
 endfor
+if length(TT)==0 
+  disp("Couldn't find any periods to make statistics");
+  return
+endif
 T=mean(TT);
 St = 2/T;
 maxerrel = max(abs(T-TT))/T;

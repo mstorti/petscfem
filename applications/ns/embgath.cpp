@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.27 2003/01/09 02:37:42 mstorti Exp $
+//$Id: embgath.cpp,v 1.28 2003/01/10 12:38:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -151,7 +151,7 @@ void Line2Quad::face(int j,const int *&fc,const int *&vol) {
   static int fc_c[2], vol_c[4];
   static const int vol_cc[4] = {0, 1, 3, 2};
   for (int k=0; k<2; k++) fc_c[k] = (j+k) % 4;
-  for (int k=0; k<4; k++) vol_c[k] = vol_cc[k]+j % 4;
+  for (int k=0; k<4; k++) vol_c[k] = (vol_cc[k]+j) % 4;
   fc = fc_c;
   vol = vol_c;
 }
@@ -405,7 +405,16 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Initialize the call back functions
   init();
 
-  GPdata gp_data("cartesian2d",ndim,4,npg,GP_FASTMAT2);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,quad2hexa);
+  GPdata *gp_data_p;
+  if (geometry=="quad2hexa") 
+    gp_data_p = new GPdata("cartesian2d",ndim,4,npg,GP_FASTMAT2);
+  else if (geometry=="line2quad") 
+    gp_data_p = new GPdata("cartesian1d",ndim,2,npg,GP_FASTMAT2);
+  else PETSCFEM_ERROR("Not known geometry %s for embgath",geometry.c_str());
+  GPdata &gp_data = *gp_data_p;
+
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 
@@ -495,6 +504,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }  
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+  delete gp_data_p;
   return 0;
 }
 
@@ -516,17 +526,19 @@ void visc_force_integrator::init() {
   //o Viscosity of the fluid
   TGETOPTDEF_ND(thash,double,viscosity,0.);
   PETSCFEM_ASSERT0(viscosity>0.,"Viscosity should be positive.");  
-  //o _T: double[ndim] _N: moment_center _D: null vector 
-  // _DOC: Center of moments. _END
-  get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
-  //o Rest the component of this rigid movement. 
-  TGETOPTDEF_ND(thash,double,viscosity,0.);
-  // Rotation angular velocity 
-  Omega.resize(1,ndim).set(0.);
-  ierr = get_double(thash,"Omega",Omega.storage_begin(),1,ndim);
-  // Velocity gradient corresponding to the rigid movement
-  elc.eps_LC();
-  rigid_grad_u.prod(elc,Omega,1,2,-1,-1);
+  if (0) {
+    //o _T: double[ndim] _N: moment_center _D: null vector 
+    // _DOC: Center of moments. _END
+    get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
+    // Rotation angular velocity 
+    Omega.resize(1,ndim).set(0.);
+    ierr = get_double(thash,"Omega",Omega.storage_begin(),1,ndim);
+    // Velocity gradient corresponding to the rigid movement
+    elc.eps_LC();
+    rigid_grad_u.prod(elc,Omega,1,2,-1,-1);
+  } else {
+    rigid_grad_u.resize(2,ndim,ndim).set(0.);
+  }    
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

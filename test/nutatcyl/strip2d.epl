@@ -1,6 +1,6 @@
 __ECHO_ON__
 <:
-#$Id: strip2d.epl,v 1.1 2003/01/09 02:37:45 mstorti Exp $
+#$Id: strip2d.epl,v 1.2 2003/01/10 12:38:54 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
@@ -118,7 +118,7 @@ identify_volume_elements 1
 <:pr('layers'):>
 __END_HASH__
 1           <:=$N+2:>   1 1 1 1
-<:=2*$N+2:> <:=2*$N+1:> 1 1 1 1
+<:=2*$N+2:> <:=$N+1:> 1 1 1 1
 __END_ELEMSET__
 
 end_elemsets

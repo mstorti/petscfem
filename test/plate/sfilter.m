@@ -1,14 +1,8 @@
 ##__INSERT_LICENSE__
-## $Id: sfilter.m,v 1.5 2003/01/10 12:27:54 mstorti Exp $
+## $Id: sfilter.m,v 1.6 2003/01/10 12:38:54 mstorti Exp $
 omega=0.9;
 xi=1;
 N=128;
-
-a = [1/omega^2+xi/omega+1/2;
-     -2/omega^2;
-     1/omega^2-xi/omega+1/2];
-
-b = [1 0 1]'/2;
 
 w2=0.25;
 a2=[1 -(1-w2) 0]';
