@@ -35,14 +35,20 @@ Tolerance to solve the non-linear system (global Newton).
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{update\_jacobian\_iters@\verb+update_jacobian_iters+}
-\item\verb+int update_jacobian_iters+ {\rm(default=\verb|0|)}:
+\item\verb+int update_jacobian_iters+ {\rm(default=\verb|1|)}:
 
 Update jacobian only until n-th Newton subiteration. 
 Don't update if null. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_start\_iters@\verb+update_jacobian_start_iters+}
+\item\verb+int update_jacobian_start_iters+ {\rm(default=\verb|INF|)}:
+
+Update jacobian each $n$-th Newton iteration
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{update\_jacobian\_steps@\verb+update_jacobian_steps+}
-\item\verb+int update_jacobian_steps+ {\rm(default=\verb|0|)}:
+\item\verb+int update_jacobian_steps+ {\rm(default=\verb|1|)}:
 
 Update jacobian each $n$-th time step. 
 
