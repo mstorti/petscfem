@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: arglist.cpp,v 1.6 2001/11/01 19:19:27 mstorti Exp $
+//$Id: arglist.cpp,v 1.7 2002/03/13 00:08:48 mstorti Exp $
 #include "fem.h"
 #include "dofmap.h"
 #include "elemset.h"
@@ -18,7 +18,7 @@ void arg_list::arg_add(void *arg,int options,string
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "arg_data::arg_data(void)"
+#define __FUNC__ "arg_data::arg_data"
 arg_data::arg_data(void) {
   x = NULL;
   ghost_vec=NULL;
@@ -28,6 +28,15 @@ arg_data::arg_data(void) {
   sstate=NULL;
   vector_assoc=NULL;
   profile=NULL;
-}  
+  time_data=NULL;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "arg_data::~arg_data"
+arg_data::arg_data(void) {
+  delete time_data;
+  time_data=NULL;
+}
 
 #undef __FUNC__
