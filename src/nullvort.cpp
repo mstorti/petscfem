@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.12 2003/03/05 23:57:50 mstorti Exp $
+// $Id: nullvort.cpp,v 1.13 2003/03/06 01:31:26 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -17,7 +17,6 @@ null_vort::~null_vort() { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
-#if 0
   // Read options from data file
   thash.read(fstack);
   int ierr;
@@ -47,7 +46,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   icone.reshape(2,0,nel);
   vector<string> tokens;
   vector<int> row;
-  map<int> int coupl2fic;
+  map<int,int> coupl2fic;
   int nelem=0;
   char *line;
   while(!fstack->get_line(line)) {
@@ -66,6 +65,9 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     assert(row.size()==2);
     coupl2fic[row[0]] = row[1];
   }
+  map<int,int>::iterator r,re;
+  re = coupl2fic.end();
+
   icone.defrag();
   assert(nelem*nel == icone.size());
   assert(volume_elemset!="<none>");
@@ -165,14 +167,9 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   }
 #endif
 
-  dvector<double> xnod;
-  xnod.a_resize(2,mesh->nodedata->nnod,mesh->nodedata->nu);
-  xnod.set(mesh->nodedata->nodedata);
-  int ndim = mesh->nodedata->ndim;
-
   // Number of nodes in the stencil (tangential to the surface)
   int n_stencil = 3;
-  int nx = ngb.size() * (layers+1);
+  int nx = n_stencil * (layers+1);
   // This will be the connectivity table of the elemset
   dvector<int> icone_stencil;
   // The number of nodes for the Lagrange multiplier elemset
@@ -184,8 +181,8 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   Constraint constraint;
   // List of nodes in stencil (1-based)
   dvector<int> stencil;
-  // Number of constraints effectively imposed
-  int n_constr_ok = 0;
+  // Nuumber of lagrange multipliers to be imposed
+  int nelem_nlr=0;
   // Loop over nodes on the coupling surface
   for (cn_indx=0; cn_indx<n_coupling_nodes; cn_indx++) {
     printf("computing constraint ...\n");
@@ -206,61 +203,48 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
       printf("No 3 ngbrs node: %d\n",node);
       continue;
     }
-
-    // Build the cloud 
-    Cloud2 cloud;
-    // compute coefs. for d/dx and d/dy
-    int derivs[] = {1,0,0,1};
-    // use second order in both directions
-    int npol[] = {2,2};
-    // initialize the object
-    cloud.init(ndim,nx,2,derivs,npol);
-    // coordinates of nodes in stencil, coordinates
-    // of node, computed coefs.
-    FastMat2 x(2,nx,ndim), x0(1,ndim), w(2,nx,2);
-    // Coordinates of surface node
-    x0.set(&xnod.e(node,0));
-    // Coordinates of nodes in the cloud
-    int k=0;
+    // We put first the nodes on the surface
+    // (the first layerxs)
     GSet::iterator q, qe=ngb.end();
+    icone_stencil.push(node);
     for (q=ngb.begin(); q!=qe; q++) {
       // surface node
       int sf_node = *q;
+      if (sf_node==node) continue;
       assert(coupling_nodes_map.find(sf_node)
 	     !=coupling_nodes_map.end());
-      // index in `coupling_nodes_table'
+      icone_stencil.push(sf_node);
+    }
+    for (int j=0; j<n_stencil; j++) {
+      int sf_node = icone_stencil.e(nelem_nlr,j);
+      assert(coupling_nodes_map.find(sf_node)
+	     !=coupling_nodes_map.end());
       int cn_indx2 = coupling_nodes_map[sf_node];
-      for (int j=0; j<=layers; j++) {
-	// node in the cloud (0-based)
-	int node2 = coupling_nodes_table.e(cn_indx2,j);
-	stencil.e(k) = node2+1;
-	x.ir(1,k+1).set(&xnod.e(node2,0));
-	k++;
-      }
+      for (int l=1; l<=layers+1; l++) 
+	icone_stencil.push(coupling_nodes_table.e(cn_indx2,l));
     }
-    x.rs();
-    // Compute coefs.
-    cloud.coef(x,w,x0);
-    // It the computation was too bad conditioned, then
-    // skip the node
-    double cond = cloud.cond();
-    if (cond > 1e8) {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "null_vort: bad conditioned cloud, node %d, cond %g\n",
-		  node,cond);
-      continue;
-    }
-    
-    // Build element, it involves the nodes in the cloud plus
-    // the fictitious node
-    
-
+    // Add fictitious node to stencil
+    r = coupl2fic.find(node);
+    assert(r!=re);
+    icone_stencil.push(r->second);
   }
 
+#if 1
+  printf("nx: %d, nelem_nlr %d, size of icone %d\n",nx,nelem_nlr,icone_stencil.size());
+  for (int j=0; j<nelem_nlr; j++) {
+    printf("e=%d:",j);
+    for (int l=0; l<=layers; l++) 
+      printf(" %d",icone_stencil.e(j,l));
+    printf("\n");
+  }
+  PetscFinalize();
+  exit(0);
+ 
+#endif
+
   icone.clear();
-  xnod.clear();
   coupling_nodes_table.clear();
   coupling_nodes_map.clear();
   graph.clear();
-#endif
+  coupl2fic.clear();
 }
