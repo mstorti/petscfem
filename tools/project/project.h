@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: project.h,v 1.1 2005/03/02 23:26:31 mstorti Exp $
+// $Id: project.h,v 1.2 2005/03/09 01:29:06 mstorti Exp $
 #ifndef PETSCFEM_PROJECT_H
 #define PETSCFEM_PROJECT_H
 
@@ -51,5 +51,8 @@ public:
 	      dvector<double> &ui);
 };
 
+void nod_vol(const dvector<double> &xnod,
+	     const dvector<int> &icone,
+	     dvector<double> &area);
 
 #endif

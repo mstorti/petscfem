@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.20 2005/03/02 23:26:31 mstorti Exp $
+// $Id: project.cpp,v 1.21 2005/03/09 01:29:06 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -110,7 +110,11 @@ void FemInterp::interp(const dvector<double> &xnod2,
   nn_dist_v.resize(knbr);
   ANNdist *nn_dist = &nn_dist_v[0];
   ANNpoint nn = annAllocPt(ndim);
-
+  // If `ndimel==ndim' then normally we find a point
+  // a zero distance of the test point. If `ndimel<ndim'
+  // then this is rarely the case and we check only for
+  // the `knbr' elements reported by `ANN'. 
+  int nelem_check = (ndimel==ndim? nelem+knbr : knbr);
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
     if(use_cache) FastMat2::activate_cache(&cache_list);
@@ -123,7 +127,8 @@ void FemInterp::interp(const dvector<double> &xnod2,
     printf("\n");
 #endif
     int q;
-    for (q=0; q<nelem+knbr; q++) {
+
+    for (q=0; q<nelem_check; q++) {
       int k = (q<knbr ? nn_idx[q] : q-knbr);
       FastMat2::reset_cache();
       C.is(1,1,ndim);
@@ -136,7 +141,6 @@ void FemInterp::interp(const dvector<double> &xnod2,
       // If `ndimel<ndim' complete columns to `ndim+1' with 
       // vectors normal to the element surface, and set the
       // elements in the `ndim+1' row to 0. 
-      assert(ndimel==ndim);
       
       b.is(1,1,ndim).set(x2).rs();
       b.setel(1.0,nd1);
@@ -244,14 +248,44 @@ void FemInterp::interp(const dvector<double> &xnod2,
   printf("Averg. nbr of tries %f\n",tryav/nnod2);
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FemInterp::clear() {
-  if (kdtree) delete kdtree;
-  kdtree = NULL;
-  nn_dist_v.clear();
-  if (pts) annDeallocPts(pts);
-  pts = NULL;
-  nn_idx_v.clear();
+void nod_vol(const dvector<double> &xnod,
+	     const dvector<int> &icone,
+	     dvector<double> &area) {
+  int ndim = xnod.size(1);
+  int nel = icone.size(1);
+  int ndimel = nel-1; // Assume that the elements are simplices
+  assert(ndimel==ndim-1);
+  FastMat2 a(1,ndim),b(1,ndim),c(1,ndim),
+    x1(1,ndim), x2(1,ndim), x3(1,ndim);
+  int nnod = xnod.size(0);
+  area.a_resize(1,nnod).defrag().set(0.);
+  int nelem = icone.size(0);
+  double area_tot = 0.0;
+  for (int j=0; j<nelem; j++) {
+    int n1 = icone.e(j,0);
+    int n2 = icone.e(j,1);
+    int n3 = icone.e(j,2);
+    x1.set(&xnod.e(n1-1,0));
+    x2.set(&xnod.e(n2-1,0));
+    x3.set(&xnod.e(n3-1,0));
+    a.set(x2).rest(x1);
+    b.set(x3).rest(x1);
+    c.cross(a,b);
+    double area_elem = c.norm_p_all(2.0);
+    area_tot += area_elem;
+    double area_nod = 0.5*area_elem/nel;
+    for (int k=0; k<nel; k++) {
+      int node = icone.e(j,k);
+      area.e(node-1) += area_nod;
+    }
+  }
+  printf("total area (sum over elems) %f\n",area_tot);
+  
+  area_tot = 0.0;
+  for (int j=0; j<nnod; j++) {
+    area_tot += area.e(j);
+    printf("nodo %d, area %f\n",j,area.e(j));
+  }
+  printf("total area (sum over nodes) %f\n",area_tot);
 }
-#endif

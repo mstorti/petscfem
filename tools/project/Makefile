@@ -6,7 +6,7 @@ default: project3.bin
 SRCS := project.cpp project2.cpp project3.cpp project4.cpp \
 	project-wrp.cpp
 
-BOPT := O_c++
+# BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
@@ -27,7 +27,7 @@ project2.bin: project2.o
 project3.bin: project3.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
-project4.bin: project4.o
+project4.bin: project4.o project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 yuv_compress:
