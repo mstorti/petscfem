@@ -45,7 +45,7 @@ nsaverot 20
 nfile 2000000
 nrec 1
 # initial_state "cubcav-steady-Re1000"
-# initial_state "outvector.out"
+initial_state "outvector.out"
 save_file_pattern "STEPS/cubcav.state_%d.tmp"
 
 #  compact_profile_graph_chunk_size 40000
@@ -101,6 +101,7 @@ steady 0
 temporal_stability_factor 0
 LES <:($nu < 1e-4 ? 1 : 0):>
 C_smag 0.1
+A_van_Driest 0.
 
 #if $dx
 hook_list ns_dx_hook my_dx_hook
@@ -111,7 +112,7 @@ dx_steps 1
 dx_read_state_from_file 2
 dx_do_make_command
 #else
-# hook_list shell_hook cubcav
+hook_list shell_hook cubcav
 #endif
 
 __END_HASH__

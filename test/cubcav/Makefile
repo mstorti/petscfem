@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.60 2003/09/11 17:47:20 mstorti Exp $ 
+# $Id: Makefile,v 1.61 2003/09/11 21:43:37 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -16,7 +16,7 @@ export case
 tests: test_re1000 test_iisd
 
 PETSCFEM_DIR = ../..
-# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.19.pl47
+# PETSCFEM_DIR = $(HOME)/PETSC/petscfem.mario.old
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
