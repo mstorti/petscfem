@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2002/02/17 03:59:51 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/07/25 22:35:10 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -18,21 +18,27 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
+LIB := $(SRC_DIR)/libpetscfem$(osfx).a
+LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
+
+$(LIB)(%.o):
+	$(MAKE) -C $(SRC_DIR) 'libpetscfem$(osfx).a($*.o)'
+
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 #w Build executable
 pfmat.bin: $(LIB_OBJS_LIB) pfmat.o
 	-rm -f $@
-	${CXX_CLINKER} -o $@ pfmat.o  $(LDFLAGS)
+	${CXX_CLINKER} -o $@ pfmat.o  $(LDFLAGS_NO_PROG_LIB)
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 args = ne 20 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
 pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
-	echo   args: $(2) > $$out ;			\
-	$(MPIRUN) -np $(1) -machinefile			\
+	echo   args: $(2) > $$out ;		\
+	$(MPIRUN) -np $(1) -machinefile		\
         machi.dat ./pfmat.bin $(2)  >> $$out
 
 pfmat: pfmat.bin iisdmat_petsc petscmat spd_petsc spd_slu
@@ -103,7 +109,7 @@ pfmat2: pfmat2.bin force
 #w Build executable
 pfmat2.bin: $(LIB_OBJS_LIB) pfmat2.o
 	-rm -f $@
-	${CXX_CLINKER} -o $@ pfmat2.o  $(LDFLAGS)
+	${CXX_CLINKER} -o $@ pfmat2.o  $(LDFLAGS_NO_PROG_LIB)
 
 debug.o pfmat2.o: CPPFLAGS += -O0
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.1 2002/07/25 15:21:54 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.2 2002/07/25 22:35:31 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -145,7 +145,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matlocmom2(4,nel,ndof,nel,ndof), grad_u_ext(2,ndof,ndof),
     mom_profile(4,nel,ndof,nel,ndof), poi_profile(4,nel,ndof,nel,ndof),
     mom_mat_fix(4,nel,ndof,nel,ndof), poi_mat_fix(4,nel,ndof,nel,ndof);
-  grad_u_ext.set(0.);
 
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
@@ -178,17 +177,22 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     wpgdet;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  Matrix dshapex(ndim,nel),Jaco(ndim,ndim),iJaco(ndim,ndim),
-    grad_u(ndim,ndim),grad_u_star(ndim,ndim),dshapext(nel,ndim),resmom(nel,ndim);
-  RowVector fi(ndof);
-  ColumnVector grad_p(ndim);
-  ColumnVector u(ndim),u_star(ndim),uintri(ndim),rescont(nel);
-  
-  masspg=1;
-  grad_u_ext=0;
-  if (couple_velocity) grad_u_ext.SubMatrix(1,ndim,1,ndim) = 1;
-  else for (jdim=1; jdim<=ndim; jdim++) grad_u_ext(jdim,jdim) = 1;
-  mom_profile = kron(masspg,grad_u_ext.t());
+  FastMat2 dshapex(2,ndim,nel),Jaco(2,ndim,ndim),iJaco(2,ndim,ndim),
+    grad_u(2,ndim,ndim),grad_u_star(2,ndim,ndim),dshapext(2,nel,ndim),
+    resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
+    u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
+
+  masspg.set(1.);
+  grad_u_ext.set(0.);
+  grad_u_ext.is(1,1,ndim).is(2,1,ndim);
+  if (couple_velocity) grad_u_ext.set(1.);
+  else grad_u_ext.eye();
+  grad_u_ext.rs();
+
+  // grad_u_ext was transposed in the Newmat version. Why? if it's symmetric
+  mom_profile.prod(masspg,grad_u_ext,1,3,4,2);
+
+
   fix_null_diagonal_entries(mom_profile,mom_mat_fix,nen);
   
   grad_u_ext=0;

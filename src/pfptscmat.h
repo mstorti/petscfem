@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.11 2002/07/24 19:59:15 mstorti Exp $
+// $Id: pfptscmat.h,v 1.12 2002/07/25 22:35:31 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -16,6 +16,8 @@
 
 class PFPETScMat : public PFMat {
 protected:
+  /// Number of rows/columns
+  int mat_size;
   /// We will have always a PETSc matrix for the system and for the preconditioner
   Mat A,P;
   /// The PETSc linear solver
@@ -77,7 +79,7 @@ protected:
   // int clean_mat_a();
 
   /// Cleans profile related stuff
-  int clean_prof_a() { lgraph->clear(); return 0; }
+  int clean_prof_a();
 
 public:
 

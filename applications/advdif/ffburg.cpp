@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.19 2002/02/17 03:59:51 mstorti Exp $
+//$Id: ffburg.cpp,v 1.20 2002/07/25 22:35:31 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -103,7 +103,7 @@ burgers_ff::burgers_ff(NewAdvDif *elemset_)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void burgers_ff::start_chunk(int &ret_options) {
-  
+  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
   FastMat2 &u = u_a_jac.u;
   int ierr;
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd

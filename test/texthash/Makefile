@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/07/25 22:35:10 mstorti Exp $ 
 
 tests: texthash
 
@@ -21,6 +21,6 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 #w Builds the binary of the test
 tthash.bin: $(LIB_OBJS_LIB)  tthash.o 
 	-rm -f $@
-	${CXX_CLINKER} -o $@ tthash.o $(LIBPETSCFEM) $(LDFLAGS)
+	${CXX_CLINKER} -o $@ tthash.o $(LIBPETSCFEM) $(LDFLAGS_NO_PROG_LIB)
 
 #s

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.25 2002/07/25 00:58:42 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.26 2002/07/25 22:35:31 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -17,7 +17,7 @@ extern int MY_RANK,SIZE;
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/elemset.h>
-#define PRINT_LOCAL_INT_PARTITION_TABLE
+//#define PRINT_LOCAL_INT_PARTITION_TABLE
 #ifdef PRINT_LOCAL_INT_PARTITION_TABLE
 #include <src/idmap.h>
 #include <src/dofmap.h>
@@ -101,7 +101,7 @@ int IISDMat::create_a() {
   GSet::iterator q,qe;
   LocalGraph local_graph;
 
-  printf("Using %s graph\n",typeid(*lgraph).name());
+  // printf("Using %s graph\n",typeid(*lgraph).name());
 
   // this is a trick to avoid the collision of `local_solver' both
   // as member and as string-option here
@@ -316,7 +316,7 @@ int IISDMat::create_a() {
   if (myrank==0) {
     // **VERY DANGEROURS**
     // We use here the fact that the partitioner is a dofmap,
-    // but may not be so if in fact it'is not
+    // but may not be so if in fact it isn't
     const Dofmap *dofmap = dynamic_cast<const Dofmap *>(&part);
     assert(dofmap);
 #if 0

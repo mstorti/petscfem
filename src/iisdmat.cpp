@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.16 2002/07/24 19:59:15 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.17 2002/07/25 22:35:31 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -61,7 +61,7 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   lgraph_lkg(0,&part,comm_), 
   lgraph(&lgraph_lkg), 
   // lgraph(&lgraph_dv), 
-  A(NULL), P(NULL), factored(0) { 
+  A(NULL), P(NULL), factored(0), mat_size(MM) { 
   //o Choice representation of the profile graph. Possible values are:
   // #0#: Adjacency graph classes
   // based on STL map+set, demands too much memory, CPU time OK
@@ -87,6 +87,13 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
       lgraph_lkg.set_chunk_size(compact_profile_graph_chunk_size);
     lgraph_lkg.init(MM);
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int PFPETScMat::clean_prof_a() { 
+  lgraph->clear(); 
+  if(mat_size>0) lgraph->init(mat_size); 
+  return 0; 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,10 +1,11 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.20 2001/11/09 03:05:46 mstorti Exp $
+// $Id: sp.cpp,v 1.21 2002/07/25 22:35:10 mstorti Exp $
 
 #include <cmath>
 #include <vector>
 
 #include <src/sparse.h>
+TextHashTable *GLOBAL_OPTIONS;
 
 using namespace Sparse;
 

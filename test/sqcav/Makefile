@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.19 2002/07/25 20:58:29 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2002/07/25 22:35:10 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -7,23 +7,23 @@ tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body
 
 all: run
 
-fs:
-	$(MAKE) case=weak_form_1 runs
-
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
+qqq:
+	echo $(NS)
+
 LOC_PROG := ns
 #CASE_NAME := qharm
 CASE_NAME := sqcav
-NS = $(PETSCFEM_DIR)/applications/ns/ns_g.bin
 PROG := $(NS)
 
 ################################################################
 NP = 1
 
+PROG := $(NS)
 MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
@@ -34,8 +34,7 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-
-#	 | tee output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+	> output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav
@@ -96,7 +95,7 @@ data: force
 	echo in target data: CASE = $(CASE)
 	$(MAKE) $(CASE).depl
 	echo "in target data : CASE $(CASE)"
-	octave -q mk$(CASE).m > /dev/null
+	octave -q mk$(CASE).m
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force

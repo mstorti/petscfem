@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2002/07/25 22:35:10 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -44,12 +44,12 @@ NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 #w Builds binary 
 distmap.bin: distmap.o 
 	-rm -f $@
-	${CXX_CLINKER} -o $@ distmap.o   $(LDFLAGS)
+	${CXX_CLINKER} -o $@ distmap.o   $(LDFLAGS_NO_PROG_LIB)
 
 #w Builds binary
 distcont.bin: distcont.o 
 	-rm -f $@
-	${CXX_CLINKER} -o $@ distcont.o   $(LDFLAGS)
+	${CXX_CLINKER} -o $@ distcont.o   $(LDFLAGS_NO_PROG_LIB)
 
 distcont.o: ../../src/distcont.h
 
@@ -60,7 +60,7 @@ distcont.o: ../../src/distcont.h
 distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) \
 			../../src/libpetscfem.a(distmat.o)
 	-rm -f $@
-	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS) 
+	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS_NO_PROG_LIB) 
 
 P := tryme4
 $(P).bin: $(P).o $(LIBPETSCFEM) 
@@ -74,16 +74,16 @@ tryme6.bin: tryme6.cpp
 	g++ -g -o tryme6.bin tryme6.cpp
 
 SRC_DIR = $(PETSCFEM_DIR)/src
-LIB := $(SRC_DIR)/libpetscfem.a
+LIB := $(SRC_DIR)/libpetscfem$(osfx).a
 LIB_OBJS := iisdgraph graph debug
 LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
 
 $(LIB)(%.o):
-	$(MAKE) -C $(SRC_DIR) 'libpetscfem.a($*.o)'
+	$(MAKE) -C $(SRC_DIR) libpetscfem$(osfx).a($*.o)
 
 tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
 	-rm -f $@
-	${CXX_CLINKER} -o $@ tryme7.o $(LDFLAGS)
+	${CXX_CLINKER} -o $@ tryme7.o $(LDFLAGS_NO_PROG_LIB)
 
 #w Checks distributed graph class 'StoreGraph'
 dist_graph: tryme7.bin

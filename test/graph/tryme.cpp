@@ -1,15 +1,17 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.11 2002/01/14 03:45:06 mstorti Exp $
+// $Id: tryme.cpp,v 1.12 2002/07/25 22:35:10 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
+
+TextHashTable *GLOBAL_OPTIONS;
 
 class TGraph : public Graph {
 public:
   int N,M;
   void n2ij(int n,int &j,int &k);
   int ij2n(int j,int k);
-  void set_ngbrs(int elem,set<int> &ngbrs_v);
+  void set_ngbrs(int elem,GSet &s);
   ~TGraph() {clear();}
 };
 
@@ -22,7 +24,7 @@ int TGraph::ij2n(int j,int k) {
   return k*N+j;
 }
 
-void TGraph::set_ngbrs(int elem,set<int> &ngbrs_v) {
+void TGraph::set_ngbrs(int elem,GSet &ngbrs_v) {
   int n,j,k;
   n = elem;
   n2ij(n,j,k);

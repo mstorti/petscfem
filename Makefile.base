@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.79 2002/05/12 15:10:24 mstorti Exp $
+#$Id: Makefile.base,v 1.80 2002/07/25 22:35:27 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -187,6 +187,17 @@ LDFLAGS =						\
           -lANN -L$(ANN_HOME)/lib			\
           -lc ${PETSC_SLES_LIB}				\
           $(MESCHACH)/libmes.a				\
+          $(SUPERLULIB)
+
+LDFLAGS_NO_PROG_LIB =				\
+	  -L$(PETSCFEM_DIR)/src			\
+          -lpetscfem$(osfx)			\
+          -L$(METIS) -L/usr/local/lib		\
+          -lmetis  -L$(NEWMAT)  -lnewmat	\
+          -lglib -L$(LIBRETTO_LIB) -libretto	\
+          -lANN -L$(ANN_HOME)/lib		\
+          -lc ${PETSC_SLES_LIB}			\
+          $(MESCHACH)/libmes.a			\
           $(SUPERLULIB)
 
 EFN_LDFLAGS =					\

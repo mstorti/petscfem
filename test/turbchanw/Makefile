@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2001/04/01 03:11:54 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/07/25 22:35:10 mstorti Exp $ 
 
 CASE = turbchanw
 tests: heat swturb
@@ -13,7 +13,7 @@ SRCS =
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
-ADVDIF = $(APPDIR)/advdif/advdif.bin
+# ADVDIF = $(APPDIR)/advdif/advdif.bin
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for shallow water
 

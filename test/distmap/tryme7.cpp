@@ -6,6 +6,9 @@
 #include <petsc.h>
 
 #include <src/iisdgraph.h>
+#include <src/linkgraph.h>
+
+TextHashTable *GLOBAL_OPTIONS;
 
 int  N;
 extern int SIZE,MY_RANK;
@@ -39,7 +42,9 @@ int main(int argc,char **argv) {
   for (int j=0; j<ntime; j++) {
     if (j % 100 ==0) 
       PetscPrintf(PETSC_COMM_WORLD,"j %d\n",j);
-    StoreGraph g(N,&d_part,PETSC_COMM_WORLD);
+    LinkGraphWrapper g(0,&d_part,PETSC_COMM_WORLD);
+    g.init(N);
+    // StoreGraph g(N,&d_part,PETSC_COMM_WORLD);
     debug.trace("2");
     for (int k=0; k<N; k++) {
       if (k % SIZE != MY_RANK) continue;
@@ -48,8 +53,8 @@ int main(int argc,char **argv) {
     }
     debug.trace("before scatter");
     g.scatter();
-    g.clear();
     if (j==ntime-1) g.print();
+    g.clear();
   }
   PetscFinalize();
   exit(0);

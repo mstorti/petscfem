@@ -1,11 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.9 2002/07/17 02:55:01 mstorti Exp $
+//$Id: fracstep.cpp,v 1.10 2002/07/25 22:35:31 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
 #include <src/getprop.h>
-#include <src/fastmat2.h>
 
 #include "nsi_tet.h"
 #include "fracstep.h"

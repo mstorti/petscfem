@@ -1,11 +1,13 @@
 /*__INSERT_LICENSE__*/
-//$Id: tthash.cpp,v 1.5 2002/01/14 03:45:06 mstorti Exp $
+//$Id: tthash.cpp,v 1.6 2002/07/25 22:35:10 mstorti Exp $
 
 #include <cstdio>
 #include <cmath>
 #include <map>
 #include <src/texthash.h>
 #include <src/utils.h>
+
+TextHashTable *GLOBAL_OPTIONS;
 
 int main () {
 

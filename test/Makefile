@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.54 2002/03/05 14:56:53 mstorti Exp $ 
+# $Id: Makefile,v 1.55 2002/07/25 22:35:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -65,7 +65,7 @@ runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
 	sparse graph sqcav pfmat aquifer
 
-runtests_p: sqcav
+runtests_p: graph sqcav pfmat aquifer
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -96,7 +96,7 @@ oscplate2: ns
 	-rm tmp_file*.tmp oscsome2.sal
 	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
-	octave oscplate2.m &> oscplate2o.sal
+	octave -q oscplate2.m &> oscplate2o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
@@ -129,7 +129,7 @@ oscplate3: ns
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_128.sal
 #
-	octave oscplate3.m &> oscplate3o.sal
+	octave -q oscplate3.m &> oscplate3o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
@@ -146,7 +146,7 @@ oscplate4: ns
 	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
 	mv oscsome.sal oscsome4.sal
-	octave oscplate4.m &> oscplate4o.sal
+	octave -q oscplate4.m &> oscplate4o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `cos(2*pi*t/T)' case
@@ -272,7 +272,7 @@ sqcav5: ns sqcav5_dat
 	-$(MPIRUN) -np 3 $(NSO) -case sqcav5.dat | tee sqcav5.out
 
 sqcav5_dat: mksqcav5.m
-	octave -q  mksqcav5.m
+	octave -q  mksqcav5.m >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Tests processing of chunks

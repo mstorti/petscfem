@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/04/02 21:22:06 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2002/07/25 22:35:10 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -25,7 +25,7 @@ include ../Makefile.base.test
 SRCS = 
 
 #s Test/Advdif tests
-ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
+# ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
 OF = burgers.nod.tmp burgers.con.tmp burgers.ini.tmp
 $(OF): mmesh.m

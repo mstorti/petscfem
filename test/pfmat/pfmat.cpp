@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.3 2002/01/14 03:45:06 mstorti Exp $
+// $Id: pfmat.cpp,v 1.4 2002/07/25 22:35:10 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -12,6 +12,9 @@
 #include <src/petscmat.h>
 #include <src/spdirect.h>
 #include <src/graph.h>
+
+// Otherwise, it doesn't link 
+TextHashTable *GLOBAL_OPTIONS;
 
 // Runs a simple example for testing the PFMat matrix classes.
 // The 1D Poisson: $k \phi'' = -Q(x), 0\le x\le L, 

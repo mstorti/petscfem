@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2002/07/21 22:38:34 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2002/07/25 22:35:10 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -18,14 +18,15 @@ SRCS = sp.cpp
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
-../../src/libpetscfem(%.o):
-	$(MAKE) -C ../../src/ libpetscfem.a($*.o)
+LIB = libpetscfem$(osfx).a
+LIB_P = ../../src/libpetscfem$(osfx).a
 
-sp.bin: sp.o ../../src/libpetscfem.a(sparse.o) \
-		../../src/libpetscfem.a(randomg.o) \
-		../../src/libpetscfem.a(spsolve.o)
+$(LIB_P)(%.o):
+	$(MAKE) -C ../../src/ $(LIB)($*.o)
+
+sp.bin: sp.o $(LIB_P)(sparse.o) $(LIB_P)(randomg.o) $(LIB_P)(spsolve.o)
 	-rm -f $@
-	${CXX_CLINKER} -o $@ sp.o  $(LDFLAGS) # $(SUPERLU)/SRC/util.o
+	${CXX_CLINKER} -o $@ sp.o  $(LDFLAGS_NO_PROG_LIB)
 
 sparse: sp.bin
 	sp.bin PETSc > output.sparse.petsc.tmp

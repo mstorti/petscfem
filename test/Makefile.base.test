@@ -1,8 +1,8 @@
 # -*- mode: makefile -*-
 #__INSERT_LICENSE__
-LAPLACE = $(PETSCFEM_DIR)/applications/laplace/laplace.bin
+LAPLACE = $(PETSCFEM_DIR)/applications/laplace/laplace$(osfx).bin
 NS    = $(PETSCFEM_DIR)/applications/ns/ns$(osfx).bin
-ADV    = $(PETSCFEM_DIR)/applications/advective/adv.bin
+ADV    = $(PETSCFEM_DIR)/applications/advective/adv$(osfx).bin
 ADVDIF = $(PETSCFEM_DIR)/applications/advdif/advdif$(osfx).bin
 
 SRCS = $(wildcard *.cpp)

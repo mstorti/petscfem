@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.3 2002/07/25 22:35:10 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -14,6 +14,9 @@
 #include <src/iisdmat.h>
 //#include <src/petscmat.h>
 #include <src/graph.h>
+
+// Otherwise, it doesn't link 
+TextHashTable *GLOBAL_OPTIONS;
 
 // Runs a simple example for testing the PFMat matrix classes.
 // 
@@ -159,6 +162,7 @@ int main(int argc,char **args) {
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
   A.set_option("print_fsm_transition_info",0);
+  A.set_option("use_compact_profile",0);
 
   for (int jprof=0; jprof<nprof; jprof++) {
 
@@ -220,7 +224,7 @@ int main(int argc,char **args) {
       A.assembly_end(MAT_FINAL_ASSEMBLY); 
       if (myrank==0) {
 	fclose(fid);
-	if (oct_check) system("octave -q < checkpf.m");
+	if (oct_check) system("octave -q < checkpf.m >/dev/null");
       }
       // A.view();
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.62 2002/07/13 12:01:25 mstorti Exp $
+//$Id: advdife.cpp,v 1.63 2002/07/25 22:35:31 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -90,7 +90,7 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_=NULL) 
     : elemset(elemset_), enthalpy_fun(NULL) {
   // This is ugly!!
-  assert(new_adv_dif_elemset);
+  // assert(new_adv_dif_elemset);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -659,6 +659,7 @@ void NewAdvDif::comp_P_supg(int is_tau_scalar) {
 #endif
 
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
+  assert(new_adv_dif_elemset);
   const NewAdvDif *e = new_adv_dif_elemset;
   if (e->ff_options & SCALAR_TAU) {
     double tau_supg_d = e->tau_supg.get(1,1);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.45 2002/01/14 03:45:05 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.46 2002/07/25 22:35:31 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -697,7 +697,7 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
 #define __FUNC__ "void advecfm2_ff_t::start_chunk(int ret_options)"
 void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   int ierr;
-
+  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd
 
   //o Scale the SUPG upwind term. Set to 0 in order to

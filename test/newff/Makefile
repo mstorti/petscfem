@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2001/07/28 20:04:21 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2002/07/25 22:35:10 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -11,7 +11,7 @@ include ../Makefile.base.test
 SRCS = 
 
 #s Test/Advdif tests
-ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
+# ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
 EPERLFLAGS = -d $(CASE)=1
 DF = newff.depl
@@ -56,7 +56,7 @@ data_%:
 #w Test for per-element properties 
 $(OF): newff.m data.m
 	touch fulljacdef.tmp	# because it is needed by eperl!!
-	octave -q newff.m
+	octave -q newff.m >/dev/null
 
 #w makes auxiliary files .gdbinit and link advdif
 auxi_dat: advdif .gdbinit

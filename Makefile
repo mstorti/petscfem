@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.39 2002/07/11 00:34:56 mstorti Exp $
+#$Id: Makefile,v 1.40 2002/07/25 22:35:27 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -141,7 +141,7 @@ advdif_all:
 
 #w Builds th advective systems module (Euler, shallow water)
 adv: libpetscfem
-	$(MAKE) -C applications/advective 
+	$(MAKE) -C applications/advective adv$(osfx).bin
 
 #w Builds the Advective/diffusive systems module (NS-compresible,
 #w 		(shallow water+diffusive and turbulent terms, 
@@ -151,7 +151,7 @@ advdif: libpetscfem
 
 #w Builds the Laplace module
 laplace: libpetscfem
-	$(MAKE) -C applications/laplace compile
+	$(MAKE) -C applications/laplace laplace$(osfx).bin
 
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
 %.cppi: %.cpp
