@@ -56,7 +56,7 @@ __END_HASH__
 9 11 12 10 
 11 13 14 12 
 13 15 16 14 
-#<:$lin_gen_load_e=0:>
+#<:$lin_gen_load_e=1:>
 #if $lin_gen_load_e
 15 17 18 16 
 #else
@@ -72,16 +72,14 @@ __END_HASH__
 33 35 36 34 
 __END_ELEMSET__
 
-#if 0
 elemset lin_gen_load 4
 geometry cartesian1d
 npg 2
 double_layer
-h_film 4.
+h_film 10000.
 __END_HASH__
 17 18 19 20 
 __END_ELEMSET__
-#endif
 
 end_elemsets
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.6 2002/12/16 22:28:24 mstorti Exp $
+//$Id: genload.cpp,v 1.7 2002/12/17 02:35:10 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -266,7 +266,7 @@ void lin_gen_load::start_chunk_c() {
   int ierr;
   //o The film coefficient constant
   TGETOPTDEF_ND(thash,double,h_film,0);
-  assert(h_film>0.);
+  assert(h_film>=0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
