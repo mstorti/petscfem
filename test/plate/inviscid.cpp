@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.9 2003/01/02 01:44:37 mstorti Exp $
+//$Id: inviscid.cpp,v 1.10 2003/01/03 02:21:00 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -18,13 +18,13 @@ public:
   // potential node on second layer
   int vn, pn, pn1;
   // position, velocity, potential at node
-  double x[NDIM], x2[NDIM], u[NDIM], phi, phi1;
+  double x[NDIM], x1[NDIM], u[NDIM], phi, phi1;
 };
 
 double Uinf;
 int inv_inc_lay;
 typedef map<int,int> ext_map;
-ext_map inv_indx_map,inv2_indx_map,visc_indx_map;
+ext_map inv_indx_map,inv1_indx_map,visc_indx_map;
 vector<ext_node> ext_node_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -153,7 +153,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
 	if (s->second==2) {
 	  assert(!set_flag);
 	  set_flag=1;
-	  inv2_indx_map[s->first] = k;	  
+	  inv1_indx_map[s->first] = k;	  
 	  ext_node_data[k].pn1 = s->first;
 	}
       }
@@ -170,7 +170,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       for (s=m.begin(); s!=m.end(); s++) {
 	int node = s->first;
 	assert(s->second==1);
-	if (inv2_indx_map.find(node)!=inv2_indx_map.end()) {
+	if (inv1_indx_map.find(node)!=inv1_indx_map.end()) {
 	  assert(!set_flag);
 	  set_flag=1;
 	  ext_node_data[k].pn1 = s->first;
@@ -191,7 +191,8 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
     assert(fid = fopen("ext.nod.tmp","r"));
     double x[NDIM];
     int node=0;
-    ext_map::iterator t, te=inv_indx_map.end();
+    ext_map::iterator t, te=inv_indx_map.end(),
+      te1=inv1_indx_map.end();
     while (1) {
       nread = fscanf(fid,"%lf %lf",&x[0],&x[1]);
       if(nread!=NDIM) break;
@@ -199,10 +200,14 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       t = inv_indx_map.find(node);
       if (t!=te) {
 	ext_node_indx = t->second;
-	printf("node %d, ext_node_indx %d, x %f %f\n",
-	       node,ext_node_indx,x[0],x[1]);
 	ext_node_data[ext_node_indx].x[0] = x[0];
 	ext_node_data[ext_node_indx].x[1] = x[1];
+      }
+      t = inv1_indx_map.find(node);
+      if (t!=te1) {
+	ext_node_indx = t->second;
+	ext_node_data[ext_node_indx].x1[0] = x[0];
+	ext_node_data[ext_node_indx].x1[1] = x[1];
       }
     }
     assert(nread==EOF);
@@ -219,6 +224,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   assert(int(step_sent)==step);
   printf("INVISCID: received computed_step flag OK, step %d\n",step);
   FILE *fid = fopen("cylin.state.tmp","r");
+  assert(fid);
   double u[NDIM];
   int node=0;
   ext_map::iterator q, qe=inv_indx_map.end();
@@ -272,9 +278,10 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
 void coupling_inv_hook::time_step_post(double time,int step,
 			       const vector<double> &gather_values) {
   FILE *fid = fopen("ext.state.tmp","r");
+  assert(fid);
   int node=0;
   ext_map::iterator q, qe=inv_indx_map.end(),
-    qe2=inv2_indx_map.end();
+    qe2=inv1_indx_map.end();
   int nread;
   char *line = NULL; size_t N=0;
   while (1) {
@@ -288,7 +295,7 @@ void coupling_inv_hook::time_step_post(double time,int step,
       int ext_node_indx = q->second;
       ext_node_data[ext_node_indx].phi = phi;
     }
-    q = inv2_indx_map.find(node);
+    q = inv1_indx_map.find(node);
     if (q!=qe2) {
       int ext_node_indx = q->second;
       ext_node_data[ext_node_indx].phi1 = phi;
@@ -304,12 +311,63 @@ void coupling_inv_hook::time_step_post(double time,int step,
   int nnod_ext = ext_node_data.size();
   for (int k=0; k<nnod_ext; k++) {
     ext_node &e = ext_node_data[k];
-    printf("k %d, phi's %f %f\n",k,e.phi,e.phi1);
+    e.phi = e.x[1];
+    e.phi1 = e.x1[1];
+  }
+#endif
+  const int npoint=6, nterm=6;
+  FastMat2 x(2,npoint,NDIM), xi(2,npoint,NDIM), psi(2,npoint,nterm), 
+    jac(2,NDIM,NDIM), ijac(2,NDIM,NDIM), xc(1,NDIM), tmp(2,npoint,3),
+    ipsi(2,npoint,nterm), a(1,nterm),
+    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(1,NDIM);
+  for (int k=0; k<nnod_ext; k++) {
+    int k_center = k + (k==0? 1 : k==nnod_ext-1? -1 : 0);
+    xc.set(ext_node_data[k_center].x);
+
+    x.ir(1,1).set(ext_node_data[k_center-1].x).rest(xc);
+    x.ir(1,2).set(ext_node_data[k_center].x).rest(xc);
+    x.ir(1,3).set(ext_node_data[k_center+1].x).rest(xc);
+    x.ir(1,4).set(ext_node_data[k_center-1].x1).rest(xc);
+    x.ir(1,5).set(ext_node_data[k_center].x1).rest(xc);
+    x.ir(1,6).set(ext_node_data[k_center+1].x1).rest(xc);
+
+    pot.setel(ext_node_data[k_center-1].phi,1);
+    pot.setel(ext_node_data[k_center].phi,2);
+    pot.setel(ext_node_data[k_center+1].phi,3);
+    pot.setel(ext_node_data[k_center-1].phi1,4);
+    pot.setel(ext_node_data[k_center].phi1,5);
+    pot.setel(ext_node_data[k_center+1].phi1,6);
+
+    x.ir(1,5);
+    jac.ir(2,2).set(x);
+    x.ir(1,3);
+    jac.ir(2,1).set(x);
+    x.ir(1,1);
+    jac.rest(x).scale(0.5);
+    x.rs();
+    jac.rs();
+    ijac.inv(jac);
+    xi.prod(x,ijac,1,-1,2,-1);
+
+    psi.ir(2,1).set(1.);
+    xi.ir(2,1); psi.ir(2,2).set(xi);
+    psi.ir(2,3).set(xi).mult(xi);
+    psi.rs().is(2,1,3);
+    tmp.set(psi);
+    xi.ir(2,2);
+    psi.rs().is(2,4,6).set(tmp);
+    for (int l=4; l<=6; l++) psi.ir(2,l).mult(xi);
+    psi.rs();
+    xi.rs();
+
+    ipsi.inv(psi);
+    a.prod(ipsi,pot,1,-1,-1);
+    dpot_dxi.setel(a.get(2),1).setel(a.get(4),2);
+    dpot_dx.prod(ijac,dpot_dxi,-1,1,-1);
+    dpot_dx.print("dpot_dx: ");
   }
   PetscFinalize();
   exit(0);
-#endif
-
 }
 
 DL_GENERIC_HOOK(coupling_inv_hook);

@@ -3,10 +3,9 @@
 global_options
 ndim 2
 save_file "ext.state.tmp"
-save_file_pattern "ex.state_%d.tmp"
-nsave 10
-nsaverot 10
+nsave 1
 nstep 2
+save_file_pattern "ext.out_%d.tmp"
 steady
 solver "iisd"
 iisd_subpart_auto 2000
