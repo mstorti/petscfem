@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.8 2002/12/07 21:10:51 mstorti Exp $
+//$Id: mmove2.cpp,v 1.9 2002/12/09 03:23:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -70,6 +70,8 @@ void mesh_move_eig_anal::init() {
   TGETOPTDEF_ND(thash,double,c_volume,0.);
   //o Compute an initial ``predictor'' step with this relaxation scale. 
   TGETOPTDEF_ND(thash,double,c_relax,1.);
+  //o Scales distortion function
+  TGETOPTDEF_ND(thash,double,c_distor,1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -107,6 +109,12 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
   tmp2.rs();
 }
 
+class Prod : public FastMat2::Fun2 {
+public:
+  void pre() { set(1.); }
+  double fun2(double a,double val) { return val*a; }
+} prod;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double mesh_move_eig_anal::dfun(const FastMat2 &D) {
 #if 0
@@ -117,13 +125,13 @@ double mesh_move_eig_anal::dfun(const FastMat2 &D) {
     for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
   F /= pow(vol,2./double(ndim));
   return pow(F,distor_exp);
-#elif 0
+#elif 1
   double p=distor_exp;
-  double norm_D = 
+  double norm_D = D.norm_p_all(p);
   double norm_iD = D.norm_p_all(-p);
-  return (norm_D*norm_iD)/square(double(ndim));
+  return c_distor*(norm_D*norm_iD)/square(double(ndim));
 #else
-  return D.sum_square_all();
+  return D.sum_all()*sqrt(D.assoc_all(prod));
 #endif
 }
 

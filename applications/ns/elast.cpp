@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.6 2002/12/09 02:57:53 mstorti Exp $
+//$Id: elast.cpp,v 1.7 2002/12/09 03:23:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -66,6 +66,10 @@ class MyFun2 : public FastMat2_funm {
 class MyFun : public FastMat2_fund {
   void f(const FastMat2 &L,FastMat2 &fL) { fL.set(L); }
 } my_fun;
+
+void MyFun::f(const FastMat2 &L,FastMat2 &fL) { 
+  fL.set(L); 
+}
 
 void elasticity::init() {
 
