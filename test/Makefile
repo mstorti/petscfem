@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.53 2002/02/11 14:38:08 mstorti Exp $ 
+# $Id: Makefile,v 1.54 2002/03/05 14:56:53 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -13,7 +13,7 @@ SRCS = $(wildcard *.cpp)
 DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
 		newff burgers les/stabi genload bug100 nonlr wallke \
 		wkepipe wallkechan lupart distmap sparse graph sqcav \
-		pfmat cubcav aquifer
+		pfmat cubcav aquifer bubbly
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse
