@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.5 2002/12/24 03:32:15 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.6 2002/12/25 14:44:11 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -37,6 +37,7 @@ void edofi(int edof, int ndof, int &node,int &field) {
 #undef __FUNC__
 #define __FUNC__ "Dofmap::set_constraint(const Constraint &constraint)"
 void Dofmap::set_constraint(const Constraint &constraint) {
+#define DEBUG_ELIM
 
   // This implementation takes into account cyclic references. 
   // Cyclic reference means that edof `i' is constrained to
@@ -51,7 +52,10 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   assert(length>1);
   const constraint_entry *it,*it0;
   row_t row,row0;
-  VOID_IT(row0);
+  
+  // Find edof to eliminate: that one that is not already
+  // eliminated and has maximum coef
+
 
   // Look for the maximum (abs. val.) coefficient
   // among all rows that have not been constrained already
@@ -63,8 +67,6 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   // coefficient
   int set_flag=0, jmax=0; double cmax=0.;
   for (int k=0; k<length; k++) {
-    // gets row
-    row_t row;
     it = &(constraint[k]);
     int edoff = edof(it->node,it->field);
     // Look if row is regular (it doesn't point to other edof's)
@@ -77,33 +79,41 @@ void Dofmap::set_constraint(const Constraint &constraint) {
       cmax=cc;
     }
   }
-  PETSCFEM_ASSERT0(set_flag,"Couldn't find an unconstrained dof for this constraint.");  
 
-  // Insert the row `blindly' i.e. without looking for cyclic
-  // reference.
-  it0 = &(constraint[jmax]);
-  double coef0 = it0->coef;
+  // Create row from constraint and eliminate all already eliminated
+  // variables, except those that refer to this edof 
   for (int k=0; k<length; k++) {
-    if (k==jmax) continue;
     it = &(constraint[k]);
     int edoff = edof(it->node,it->field);
-    if (col_is_null(edoff)) {
-      // If new constraint contains references to already eliminated
-      // dof's then eliminate them
-      row_t row_e;
-      get_row(it->node,it->field,row_e); 
-      axpy(row0,-it->coef/coef0,row_e);
-    } else {
-      // If edof has not been eliminated then insert directly in the new row
-      row0.insert(pair<int,double>(edof(it->node,it->field),
-				   -it->coef/coef0));
-    }
-  }
-#define DEBUG_ELIM
+    // Look if row is regular (it doesn't point to other edof's)
+    row.clear();
 #ifdef DEBUG_ELIM
-  print(row0,"row to elim:");
+    printf("row item: node %d, dof %d, edof %d, coef %f\n",
+	   it->node,it->field,edof(it->node,it->field),
+	   it->coef);
+#endif    
+    if (col_is_null(edoff)) {
+      get_row(it->node,it->field,row); 
+    } else {
+      row[edoff] = 1.;
+    }
+    axpy(row0,it->coef,row);
+  }
+
+#ifdef DEBUG_ELIM
+  print(row0,"entered row:");
 #endif
-  row_set(it0->node,it0->field,row0);
+
+  int node, field;
+  edofi(edof0,ndof,node,field);
+  row0.erase(qmax);
+  row.clear();
+  axpy(row,-1./coef0,row0);
+  row_set(node,field,row);
+
+#ifdef DEBUG_ELIM
+  print(row0,"Eliminated unknown:");
+#endif
 
   // Now check for recursive contraints, i.e.  Dofs to be eliminated
   // are those connected cyclically (in the sense of a graph) to the
@@ -123,8 +133,6 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   // of edof's that are inserted in `to_elim' but doesn't have
   // checked already their neighbors for cyclic reference. 
   deque<int> elim_front;
-  // Start front by inserting the edof to be eliminated
-  int edof0 = edof(it0->node,it0->field);
   to_elim.insert(edof0);
   elim_front.push_back(edof0);
   // This is the typical algorithm for traversing a graph
