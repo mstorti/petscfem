@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.3 2003/11/11 02:15:43 mstorti Exp $
+//$Id: gaschem.cpp,v 1.4 2003/11/11 12:51:35 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -26,6 +26,8 @@ void gaschem_ff::start_chunk(int &ret_options) {
   assert(nu_t>0.);
   //o Turbulent Schmidt number
   EGETOPTDEF_ND(elemset,double,Sc,0.83);
+  //o Scales bubble/liquid film exchange
+  EGETOPTDEF_ND(elemset,double,hm_fac,1.0);
 
   // Values for KO and KN from [Buscaglia et.al. 2002]
   //are in mol/m3/bar
@@ -219,7 +221,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     // Source terms ================
     // Film coefficient
     double rb_crit = 6.67e-4;
-    double hm = (rb < rb_crit ? (rb/rb_crit)*4e-4 : 4e-4);
+    double hm = hm_fac*(rb < rb_crit ? (rb/rb_crit)*4e-4 : 4e-4);
     
     double coef = 3.0*(CO+CN)*Rgas*Tgas*hm/(pgas*rb);
     double xO = CO/(CO+CN);

@@ -33,8 +33,12 @@ sub get_var_env2 {
 }
 
 sub pr {
-    $name = shift();
-    print "$name ",quote_string(${$name});
+    my $line = shift();
+    my @names = split " ",$line;
+    my @text = ();
+    foreach $name (@names) { push @text,"$name ",quote_string(${$name}),"\n"; }
+    pop @text;
+    print @text;
 }
 
 sub flag {
