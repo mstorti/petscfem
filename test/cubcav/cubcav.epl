@@ -1,37 +1,14 @@
-# -*- mode: shell-script -*-
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
-# $conf = 'small';
-$case = 'laplace' unless $case;
-get_var_env2('data_dir','.');
-$endur_test = $data_dir ne '.';
-get_var_env2('job',undef);
-get_var_env2('mkmesh',1);
-get_var_env2('nomesh',undef);
-$mkmesh = 0 if $nomesh;
-$CASE = $case;
-get_var_env2('N',4);
-$nelem = $N**3.0;
-$cs = 0.2*$nelem;		# desired chunk_size
-$chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
-$hratio = 10;
-$use_tetra = 1;
-$maxits = 300;
-$tol = 1e-7;
-get_var_env2('subpart',350);
-$subpart_entered = $subpart;
-$subpart = ceil($subpart/$NP);
-$iisd_subpart = $subpart;
-$nu = 1e-2;
-get_var_env2('nlay',1);
-get_var_env2('isp_maxits',12);
+require "./cubcav.pl";
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
-octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity 
-    h Co Dt hratio leaky tol use_prismatic use_tetra));
+@vars= qw(CASE U L N Re viscosity 
+    h Co Dt hratio leaky tol use_prismatic use_tetra);
+octave_export_vars(">data.m.tmp",@vars);
 if ($mkmesh) { system "octave -qH mkmesh.m > mkmesh.output.tmp"; }
 :>//                            # ends ePerl block
 
@@ -61,7 +38,7 @@ save_file_pattern \
 #  max_partgraph_vertices_proc 5000
 chunk_size 40000
 
-#if $iisd_subpart
+>>if $iisd_subpart
 solver "iisd"
 # <:pr('iisd_subpart'):>
 iisd_subpart_auto 1000
@@ -70,9 +47,9 @@ use_interface_full_preco_nlay <:=$nlay:>
 print_interface_full_preco_conv 0
 interface_full_preco_maxits <:=$isp_maxits:>
 interface_full_preco_relax_factor 0.5
-#else
+>>else
 solver "petsc"
-#endif
+>>endif
 Krylov_dim <:=$maxits:>
 <:pr('maxits'):>
 report_consumed_time
@@ -111,7 +88,7 @@ LES <:=($nu < 1e-4 ? 1 : 0):>
 C_smag 0.1
 A_van_Driest 0.
 
-#if $dx
+>>if $dx
 hook_list ns_dx_hook my_dx_hook
 dx_split_state "1 3 0 1 2 u 1 1 3 p"
 dx_auto_combine
@@ -122,14 +99,14 @@ dx_do_make_command
 dx_cache_coords
 dx_cache_connectivities
 partitioning_method natural
-#else
+>>else
 hook_list shell_hook cubcav
-#endif
+>>endif
 
 __END_HASH__
 
 # ndim nu ndof
-nodedata  3  3  4
+nodedata  3 3 4
 data <:=$data_dir:>/cubcav.nod.tmp
 __END_HASH__
 

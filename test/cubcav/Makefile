@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.74 2003/11/03 03:51:35 mstorti Exp $ 
+# $Id: Makefile,v 1.75 2003/11/25 23:54:51 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -63,7 +63,7 @@ run_subdir_test:
 #w Makes only the mesh
 mesh:
 	$(MAKE) -C ../../tools hexasplit.bin
-	make-depl cubcav.epl cubcav.depl -d case=ns
+	make-depl cubcav.epl cubcav.depl -d case=ns -p '>>'
 
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
@@ -151,8 +151,11 @@ clean_fifo:
 	fifo="comp_server2.fifo" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
 
-#w 
+#w Launch 
 step_server:
 	octave -qH comp_step2.m
 
-endurance:
+#w Make link for debugging
+link:
+	$(MAKE) -C ../../ $(LOC_PROG)
+	ln -f $(PROG) $(LOC_PROG)
