@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.14 2004/05/22 13:46:21 mstorti Exp $
+#$Id: makeltag,v 1.15 2004/10/24 21:59:50 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -116,3 +116,68 @@ close VRS;
 print "logging on $save_log\n";
 
 system "cvs ci -m \"Administrative files\" notes.txt save.log VERSION";
+
+/`/;
+=cut
+
+    
+makeltag: A tool for performing light CVS tags
+
+* A 'light tag' (ltag) is simply a date and a branch (currently the
+  light version doesn't store the branch, so be careful). You can make
+  a lot of ltags because they are very cheap (only the date and branch
+  are stored in a 'save.log' file). 
+
+* The file 'VERSION' stores the last ltag. 
+
+In order to use 'makeltag' do the following steps. 
+
+* Add a target like this to the main Makefile:
+
+    #w Makes a new (light) release
+    ltag:
+           makeltag save.log
+* Add a file 'save.log' to the main directory with a line like this. 
+
+    $Id: makeltag,v 1.15 2004/10/24 21:59:50 mstorti Exp $
+    ----------
+    tag: coal-0.0 on Wed, 10 Dec 2003 20:04:36 -0300 by mstorti in node1.beowulf.gtm
+
+The only important thing here is the 'coal' identifier. the remining
+information is useless, you will discard it in the first ltag.
+
+* Add a VERSION file to the main directory with something like this
+
+    coal-0.0.0
+
+* Add (cvs add) and commit (cvs ci ) VERSION and save.log
+
+* do a 'make ltag' in the main directory. 
+
+    [mstorti@spider DECANTA]$ make ltag
+    makeltag save.log
+    M save.log
+    You have [1] altered files in this repository.
+    Are you sure you want to release directory '.': ** 'release' aborted by user choice.
+    
+    Continue ?  (y/n [default y]) > <RET>
+    Last tags :
+    tag: coal-0.0 on Wed, 10 Dec 2003 20:04:36 -0300 by mstorti in node1.beowulf.gtm
+    Enter new tag: [def coal-0.0.1]> 
+    Encoded tag "coal--0-0-1"
+    
+    Continue ?  (y/n [default y]) > <RET>
+    Now I will launch the editor in order
+        to enter a log message for this release...
+        <press enter to continue>
+    <EDIT FILE WITH COMMENTS FOR THIS LTAG>
+    Waiting for Emacs...Done
+    logging on save.log
+    Checking in save.log;
+    /home/mstorti/cvsroot/decanta/save.log,v  <--  save.log
+    new revision: 1.2; previous revision: 1.1
+    done
+    [mstorti@spider DECANTA]$ 
+
+=cut
+/`/;
