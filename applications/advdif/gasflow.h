@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.21 2005/02/07 16:05:12 mstorti Exp $
+// $Id: gasflow.h,v 1.22 2005/02/16 17:09:58 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -32,7 +32,9 @@ private:
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
   int shocap_scheme;
-  double shocap_beta,shocap_factor;
+  double shocap_beta,shocap_factor,Tem_infty,
+    delta_sc_aniso;
+  FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;
   FastMat2 jvec;
   FastMat2 tmp20,dUabso,Uref;
@@ -147,6 +149,8 @@ public:
 
   void get_Cp(FastMat2 &Cp_a);
 
+  void get_Ajac(FastMat2 &Ajac_a);
+
   void get_C(FastMat2 &C_a);
 
 #define USE_COMP_P_SUPG
@@ -173,6 +177,9 @@ public:
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
+  void 
+  compute_shock_cap_aniso(double &delta_aniso,
+			  FastMat2 &jvec);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

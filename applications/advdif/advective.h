@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.70 2005/01/27 14:43:35 mstorti Exp $
+//$Id: advective.h,v 1.71 2005/02/16 17:09:58 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -349,6 +349,12 @@ public:
   virtual void get_C(FastMat2 &C);
 
   virtual void get_Cp(FastMat2 &Cp);
+
+  virtual void get_Ajac(FastMat2 &Ajac);
+
+  virtual void 
+  compute_shock_cap_aniso(double &delta_aniso,
+			  FastMat2 &jvec) { }
 
   virtual void compute_delta_sc_v(FastMat2 &delta_sc_v);
 

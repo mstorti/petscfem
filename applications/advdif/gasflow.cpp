@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.27 2005/02/08 19:11:14 mstorti Exp $
+//$Id: gasflow.cpp,v 1.28 2005/02/16 17:09:58 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -161,6 +161,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   svec.resize(1,ndim);
   tmp9.resize(1,nel);
   W_N.resize(2,nel,nel);
+  jvec.resize(1,ndim);
 
   vel_old.resize(1,ndim);
 
@@ -264,6 +265,12 @@ get_Cp(FastMat2 &Cp_a) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::
+get_Ajac(FastMat2 &Ajac_a) {
+  Ajac_a.set(Ajac);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::
 compute_tau(int ijob,double &delta_sc) {
 
   //    static FastMat2 svec,tmp9;
@@ -292,40 +299,36 @@ compute_tau(int ijob,double &delta_sc) {
     double velmax = velmod+sonic_speed;
     
     tau_supg_a = h_supg/2./velmax;
-    
+
+#if 0
     if (shocap_scheme==0) {
       double fz = (Peclet < 3. ? Peclet/3. : 1.);
       delta_sc = 0.5*h_supg*velmax*fz;
+    } 
+#endif
+    // antes era shocap_scheme==1
+    double tol_shoc = 1e-010;
+    // compute j direction , along density gradient
+    double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
+    FastMat2::branch();
+    if(grad_rho_mod>tol_shoc) {
+      FastMat2::choose(0);
+      //      grad_rho_mod = (grad_rho_mod <= 0 ? tol_shoc : grad_rho_mod);
+      jvec.set(grad_rho).scale(1.0/grad_rho_mod);
+      h_shoc = tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all();
+      h_shoc = (h_shoc < tol ? tol : h_shoc);
+      h_shoc = 2./h_shoc;
     } else {
-      double tol_shoc = 1e-010;
-      // compute j direction , along density gradient 
-      double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
-      FastMat2::branch();
-      if(grad_rho_mod>tol_shoc) {
-	FastMat2::choose(0);	
-	//      grad_rho_mod = (grad_rho_mod <= 0 ? tol_shoc : grad_rho_mod);
-	jvec.set(grad_rho).scale(1.0/grad_rho_mod);      
-	h_shoc = tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all();
-	h_shoc = (h_shoc < tol ? tol : h_shoc);
-	h_shoc = 2./h_shoc;
-      } else {
-	h_shoc = h_supg;
-      }
-      FastMat2::leave();
-      double fz = grad_rho_mod*h_shoc/rho;
-      fz = pow(fz,shocap_beta);
-      delta_sc = 0.5*h_shoc*velmax*fz;
-
-      //      printf("en shocap [1], fz %g, delta_sc %g\n",
-      //       fz,delta_sc);
-
-      double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
-      delta_sc += shocap_factor*0.5*h_supg*velmax*fz2;
-
-      //      printf("en shocap [2], fz2 %g, delta_sc %g\n",
-      //       fz2,delta_sc);
-      
-    }    
+      jvec.set(0.);
+      h_shoc = h_supg;
+    }
+    FastMat2::leave();
+    double fz = grad_rho_mod*h_shoc/rho;
+    fz = pow(fz,shocap_beta);
+    delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+    
+    double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+    delta_sc = shocap_factor*0.5*h_supg*velmax*fz2;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -789,6 +792,21 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 
     C.is(1,3,ndof).set(uref).rs();
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::
+compute_shock_cap_aniso(double &delta_aniso,
+			FastMat2 &jvec_a) {
+  delta_aniso = delta_sc_aniso;
+  double vj = double(tmp_vj.prod(jvec,vel,-1,-1));
+  jvec_a.set(jvec);
+  FastMat2::branch();
+  if (velmod>1e-10) {
+    FastMat2::choose(0);
+    jvec_a.axpy(vel,-vj/square(velmod));
+  }
+  FastMat2::leave();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
