@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.19 2004/12/05 15:38:02 mstorti Exp $
+// $Id: femref.cpp,v 1.20 2004/12/05 22:49:42 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -12,7 +12,7 @@ using namespace std;
 #include "./gtemplates.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int main() { 
+int main1() { 
 #if 0
   int v1[] = {0,1};
   GeomObject edge(GeomObject::EdgeT,v1);
@@ -63,4 +63,17 @@ int main() {
 #endif
     }
   }
+}
+
+double
+rf(GeomObject &go,const double *xnod) {
+  return 0.1;
+}
+
+int main() { 
+
+  UniformMesh mesh(OrientedTetraTemplate,3);
+  mesh.read("tetra.nod","tetra.con");
+  mesh.refine(rf);
+
 }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gtemplates.h,v 1.4 2004/12/05 15:38:37 mstorti Exp $
+// $Id: gtemplates.h,v 1.5 2004/12/05 22:49:42 mstorti Exp $
 #ifndef PETSCFEM_GTEMPLATES_H
 #define PETSCFEM_GTEMPLATES_H
 
@@ -15,12 +15,16 @@ public:
 			   3,11,perm_v,
 			   "OrientedTetra") { }
   int size(GeomObject::Type t) const { 
+    if (t==GeomObject::OrientedTetraT) return 1;
     if (t==GeomObject::OrientedTriT) return 4;
     else return 0; 
   }
   const int* nodes(GeomObject::Type t,int j) const { 
-    assert(t==GeomObject::OrientedTriT); 
-    return faces+3*j;
+    if (t==GeomObject::OrientedTetraT) 
+      
+    if (t==GeomObject::OrientedTriT) 
+      return faces+3*j;
+    else assert(0);
   }
 };
 
@@ -65,33 +69,14 @@ TEMPLATE(Tri,3,2,5);
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int 
-Tetra2TetraSplitter_v[] = {4,7,6,0,
-			   4,5,8,1,
-			   5,6,9,2,
-			   8,9,7,3,
-			   4,6,7,8,
-			   4,5,6,8,
-			   5,9,6,8,
-			   9,7,8,6,GeomObject::NULL_NODE};
 
 class Tetra2TetraSplitterClass : public Splitter {
 private:
   dvector<int> subobj_conn;
 public:
-  Tetra2TetraSplitterClass() {
-    subobj_conn.a_resize(2,8,4);
-    subobj_conn.set(Tetra2TetraSplitter_v);
-  }
-  int size(GeomObject::Type t) const { 
-    if (t==GeomObject::TetraT) return 8;
-    else return 0;
-  };
-  const int* nodes(GeomObject::Type t,int j) { 
-    if (t==GeomObject::TetraT) 
-      return &subobj_conn.e(j,0);
-    else assert(0);
-  }
+  Tetra2TetraSplitterClass();
+  int size(GeomObject::Type t) const;
+  const int* nodes(GeomObject::Type t,int j);
 };
 
 extern Tetra2TetraSplitterClass 

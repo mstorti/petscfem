@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.1 2004/12/05 15:38:37 mstorti Exp $
+// $Id: femref2.cpp,v 1.2 2004/12/05 22:49:42 mstorti Exp $
 
 #include <string>
 #include <list>
+#include <iostream>
 #include <limits.h>
 #include "./hasher.h"
 
@@ -418,6 +419,15 @@ UniformMesh(GeomObject::Template &tmpl_a,int ndim_a)
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+UniformMesh::
+~UniformMesh() {
+  for (int j=0; j<nelem; j++) {
+    if (elem_ref.e(j)) delete elem_ref.e(j);
+  }
+  elem_ref.clear();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Read the mesh from specified files
 void UniformMesh::
 read(const char *node_file,
@@ -478,20 +488,31 @@ read(const char *node_file,
   n2e_ptr.ref(nnod) = nadj;
   // Free memory in `lgraph'
   lgraph.clear();
-
-  const Splitter *p = NULL;
   elem_ref.resize(nelem);
+  for (int j=0; j<nelem; j++) {
+    elem_ref.e(j) = new ElemRef;
+  }
 }
 
-double
-rf(GeomObject &go,const double *xnod) {
-  return 0.1;
-}
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::
 refine(RefineFunction f) {
   list<GeomObject> go_stack;
+  GeomObject go;
   for (int k=0; k<nelem; k++) {
     go_stack.clear();
+    go_stack.insert(go_stack.begin(),GeomObject());
+    list<GeomObject>::iterator w = go_stack.begin();
+    w->init(tmpl->type,&connec.e(k,0));
+    w->print();
+    ElemRef &etree = *elem_ref.e(k);
+    ElemRef::iterator q = etree.begin();
+    while (q!=etree.end()) {
+      // Each node of the `etree' is a splitter!!
+      // create the nodes needed by this splitting
+      Splitter *split = *q;
+      int sz = split->(
+      q = q.lchild();
+    }
   }
 }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.27 2004/12/05 15:38:37 mstorti Exp $
+// $Id: femref.h,v 1.28 2004/12/05 22:49:42 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -192,7 +192,7 @@ private:
   const GeomObject::Template *tmpl;
   typedef tree<const Splitter *> ElemRef;
   /// The refinement of each element
-  dvector<ElemRef> elem_ref;
+  dvector<ElemRef *> elem_ref;
   /** Auxiliary function that searches the iterator
       for a given object. If #its==NULL# then
       returns the first iterator found in #it#. If
@@ -209,6 +209,8 @@ private:
 public:
   /// Ctor from dimensions and shape
   UniformMesh(GeomObject::Template &tmpl_a,int ndim_a); 
+  /// Dtor
+  ~UniformMesh(); 
   /// Read the mesh from specified files
   void read(const char *node_file,const char *conn_file);
   /** Sets #go# to object pointed by #it#. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.2 2004/12/05 21:43:48 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.3 2004/12/05 22:49:42 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -27,12 +27,25 @@ Tetra2TetraSplitter_v[]
 Tetra2TetraSplitterClass::
 Tetra2TetraSplitterClass() {
   subobj_conn.a_resize(2,8,4,2);
-  int nso = 8;
   int nel = 4;
+  int nso = 8;
   int nelso = 4;
   for (int j=0; j<nso; j++) {
+    for (int k=0; j<nelso; j++) {
+      int n2=0, n1 = Tetra2TetraSplitter_v[nelso*j+k];
+      if (n1>=nel) switch(n1) {
+      case 4: n1=0; n2=1; break;
+      case 5: n1=1; n2=2; break;
+      case 6: n1=0; n2=2; break;
+      case 7: n1=0; n2=3; break;
+      case 8: n1=1; n2=3; break;
+      case 9: n1=2; n2=3; break;
+      default: assert(0);
+      }
+      subobj_conn.e(j,k,0) = n1;
+      subobj_conn.e(j,k,1) = n2;
+    }
   }
-  subobj_conn.set(Tetra2TetraSplitter_v);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
