@@ -3774,3 +3774,6 @@ tag: beta-3.39.60 on Sun, 23 Jan 2005 17:19:48 -0300 by mstorti in spider
      > for flow along all directions in 2D. 
      > Riemmand and linear a.b.c.'s can be selected through 
      > a `linear_abso' switch now. 
+----------
+tag: beta-3.39.61 on Sun, 23 Jan 2005 19:03:35 -0300 by mstorti in spider
+     > Tested supersonic, 3D, long aligned with `x'. 
