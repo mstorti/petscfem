@@ -8,8 +8,6 @@
 #include <src/iisdgraph.h>
 #include <src/linkgraph.h>
 
-TextHashTable *GLOBAL_OPTIONS;
-
 int  N;
 extern int SIZE,MY_RANK;
 

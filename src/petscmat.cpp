@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.7 2002/07/22 02:49:36 mstorti Exp $
+//$Id: petscmat.cpp,v 1.8 2002/07/29 20:17:39 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -14,7 +14,6 @@
 #include <src/graph.h>
 
 extern int MY_RANK,SIZE;
-extern TextHashTable *GLOBAL_OPTIONS;
 
 PETScMat::~PETScMat() {clear();};
 

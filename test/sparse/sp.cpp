@@ -1,12 +1,10 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.21 2002/07/25 22:35:10 mstorti Exp $
+// $Id: sp.cpp,v 1.22 2002/07/29 20:17:39 mstorti Exp $
 
 #include <cmath>
 #include <vector>
 
 #include <src/sparse.h>
-TextHashTable *GLOBAL_OPTIONS;
-
 using namespace Sparse;
 
 class Poly : public ScalarFunObj {

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.3 2002/07/25 22:35:10 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.4 2002/07/29 20:17:39 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -14,9 +14,6 @@
 #include <src/iisdmat.h>
 //#include <src/petscmat.h>
 #include <src/graph.h>
-
-// Otherwise, it doesn't link 
-TextHashTable *GLOBAL_OPTIONS;
 
 // Runs a simple example for testing the PFMat matrix classes.
 // 

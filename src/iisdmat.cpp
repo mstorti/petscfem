@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.20 2002/07/28 16:45:46 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.21 2002/07/29 20:17:39 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -26,8 +26,6 @@ extern int MY_RANK,SIZE;
 #include <src/iisdmat.h>
 #include <src/graph.h>
 //#include <src/linkgraph.h>
-
-extern TextHashTable *GLOBAL_OPTIONS;
 
 DofPartitioner::~DofPartitioner() {}
 

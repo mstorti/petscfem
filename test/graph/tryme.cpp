@@ -1,10 +1,8 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.12 2002/07/25 22:35:10 mstorti Exp $
+// $Id: tryme.cpp,v 1.13 2002/07/29 20:17:39 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
-
-TextHashTable *GLOBAL_OPTIONS;
 
 class TGraph : public Graph {
 public:

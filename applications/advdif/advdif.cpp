@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.40 2002/04/25 02:52:51 mstorti Exp $
+//$Id: advdif.cpp,v 1.41 2002/07/29 20:17:39 mstorti Exp $
 
 #include <set>
 
@@ -17,7 +17,6 @@
 static char help[] = "Basic finite element program.\n\n";
 
 extern int MY_RANK,SIZE;
-TextHashTable *GLOBAL_OPTIONS;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.9 2002/02/12 19:44:20 mstorti Exp $
+//$Id: texthash.h,v 1.10 2002/07/29 20:17:39 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -58,6 +58,9 @@ public:
   // Destructor
   ~TextHashTableVal() {delete[] s;};
 };
+
+/// The GLOBAL hash table function
+extern TextHashTable *GLOBAL_OPTIONS;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Text hash tables (key and value are strings) are used to store

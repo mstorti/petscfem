@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.14 2002/04/11 21:25:25 mstorti Exp $
+//$Id: texthash.cpp,v 1.15 2002/07/29 20:17:39 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -14,6 +14,7 @@ THashTable TextHashTable::thash_table;
 TextHashTable *TextHashTable::global_options=NULL;
 
 int TextHashTable::print_statistics=0;
+TextHashTable *GLOBAL_OPTIONS;
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

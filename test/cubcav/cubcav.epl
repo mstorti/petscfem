@@ -9,7 +9,7 @@ $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
 $use_tetra = 1;
 $use_prismatic = 0;
-$fracstep = 1;
+$fracstep = 0;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -91,7 +91,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 1000
+nstep 3
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
