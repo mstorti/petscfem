@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.43 2003/08/31 21:22:34 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.44 2003/10/06 03:03:05 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -227,7 +227,7 @@ int IISDMat::create_a() {
   int use_interface_full_preco_nlay;
   //o Number of layers in the preconditioning band (should
   //  be \verb+nlay>=1+.) 
-  TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco_nlay,2);
+  TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco_nlay,1);
   nlay = use_interface_full_preco_nlay;
   PETSCFEM_ASSERT(nlay>=0,"Number of ISP layers must be non-negative. "
 		  "nlay %d\n",nlay);  

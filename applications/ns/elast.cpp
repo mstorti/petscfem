@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.14 2003/09/17 17:02:12 mstorti Exp $
+//$Id: elast.cpp,v 1.15 2003/10/06 03:03:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,9 +11,6 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "elast.h"
-
-extern GlobParam *GLOB_PARAM;
-extern int SIZE, MY_RANK;
 
 class MyFun2 : public FastMat2_funm {
 public:
@@ -31,29 +28,6 @@ public:
 } my_fun;
 #endif
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class my_locker {
-public:
-  int cookie;
-  double dcookie;
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#define M 20
-void elasticity::element_init() {
-  my_locker *locker = new my_locker;
-  if (!locker) {
-    set_error(1);
-    return;
-  }
-  locker->cookie = rand();
-  locker->dcookie = drand();
-  local_store_address(elem) = locker;
-  if (!(elem % M)) printf("[%d] element %d, cookie %d, dcookie %g\n",
-			  MY_RANK, elem, locker->cookie, locker->dcookie);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void elasticity::init() {
 
   int ierr;
@@ -111,24 +85,10 @@ void elasticity::init() {
 
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
-
-  my_locker *locker = (my_locker *)local_store_address(elem);
-  if (!(elem % M)) printf("[%d] At element_connector:start: "
-			  "element %d, cookie %d, dcookie %g\n",
-			  MY_RANK, elem, locker->cookie, locker->dcookie);
-  locker->cookie = int(10000*rand());
-  locker->dcookie = drand();
-  if (!(elem % M)) printf("[%d] In element_connector, setting: "
-			  "element %d, cookie %d, dcookie %g\n",
-			  MY_RANK, elem, locker->cookie, locker->dcookie);
-  if (!GLOB_PARAM->inwt && !(elem % M)) 
-    printf("[%d] elem %d, Newton converged swap states\n",MY_RANK,elem);
-
   B.reshape(3,ntens,nel,ndof);
 
   // loop over Gauss points
@@ -194,6 +154,5 @@ void elasticity::element_connector(const FastMat2 &xloc,
     mat.axpy(mat_pg2,wpgdet);
     
   }
-  mat.scale(2.);
     
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elast.h,v 1.5 2003/09/16 21:17:29 mstorti Exp $
+//$Id: elast.h,v 1.6 2003/10/06 03:03:01 mstorti Exp $
 
 #ifndef ELASTICITY_H
 #define ELASTICITY_H
@@ -18,7 +18,6 @@ public:
 			 const FastMat2 &state_old,
 			 const FastMat2 &state_new,
 			 FastMat2 &res,FastMat2 &mat);
-  void element_init();
 };
 
 #endif
