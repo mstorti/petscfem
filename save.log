@@ -1595,3 +1595,7 @@ tag: beta-3.04.pl9 on Thu, 12 Sep 2002 10:22:24 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.04.pl10 on Thu, 12 Sep 2002 20:20:00 -0300 by mstorti in node1.beowulf.gtm
      > Runs example with 1.8M, fract. step, rtol=1e-4
+----------
+tag: beta-3.04.pl11 on Sun, 15 Sep 2002 21:16:38 -0300 by mstorti in spider
+     > Added `lagrange_row_scale_factor'. 
+     > Now `A_poi' is solved with CG. 
