@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.67 2004/10/01 00:55:22 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.68 2004/12/20 21:33:37 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -161,8 +161,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
-  //o Scale the SUPG upwind term. 
+  //o Scale the SUPG and PSPG stabilization term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
+  //o Scales the PSPG stabilization term. 
+  SGETOPTDEF(double,tau_pspg_fac,1.);  // Scale upwind
   //o Scale the residual term. 
   SGETOPTDEF(double,residual_factor,1.);
   //o Scale the jacobian term. 
@@ -519,6 +521,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tau_pspg *= tau_fac;
 	  tau_supg *= tau_fac;
 	}
+	tau_pspg *= tau_pspg_fac;
 
 #else
 	assert(0); // esto esta desactivado... 
