@@ -30,6 +30,24 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+ConsEntalphyFun::ConsEntalphyFun(int ndof,int ndim,int nel) {
+  eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
+  htmp1.resize(1,nel);
+  htmp2.resize(2,nel,nel);
+}
+
+void ConsEntalphyFun::entalphy(FastMat2 &H, FastMat2 &U) {
+  H.set(U);
+}
+
+void ConsEntalphyFun::comp_W_Cp_N(FastMat2 &W_Cp_N,
+				  FastMat2 &W,FastMat2 &N,double w) {
+  htmp1.set(N).scale(w);
+  htmp2.prod(W,htmp1,1,2); // tmp12 = SHAPE' * SHAPE
+  W_Cp_N.prod(htmp2,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Returns the list of variables that are 
     logarithmic transformed.
     @param nlog_vars (input) the number of logarithmic variables
@@ -228,12 +246,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
     xloc(nel,ndim),lstate(nel,ndof), 
     lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
-    dUloc(nel,ndof),matloc,eye_ndof(ndof,ndof);
+    dUloc(nel,ndof),matloc;
   FastMat2 true_lstate(2,nel,ndof), 
     true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
 
-  eye_ndof.set(0.).eye(1.);
-  
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
@@ -246,18 +262,20 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix dshapex(ndim,nel),Jaco(ndim,ndim),Jaco_av(ndim,ndim),iJaco(ndim,ndim),
     flux(ndof,ndim),fluxd(ndof,ndim),mass(nel,nel),
     grad_U(ndim,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
-    G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), tau_supg(ndof,ndof);
+    G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), 
+    Ho(ndof),Hn(ndof), 
+    tau_supg(ndof,ndof);
   // These are edclared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
-    tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
+    tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp14,
     tmp15,tmp17,tmp19,
     tmp20,tmp21,tmp22,tmp23,
     tmp24;
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
-    N_P_C(3,ndof,nel,ndof);
+    N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -335,9 +353,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (comp_res) {
 	// state variables and gradient
 	Un.prod(SHAPE,lstaten,-1,-1,1);
+	adv_diff_ff->entalphy_fun->entalphy(Hn,Un);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
+	adv_diff_ff->entalphy_fun->entalphy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Un).rest(Uo).scale(1./DT);
+	dUdt.set(Hn).rest(Ho).scale(1./DT);
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
 	  double UU=exp(Ualpha.get(jdof));
@@ -368,13 +388,14 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
 	}
 
-	tmp15.set(SHAPE).scale(wpgdet/DT);
-	tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
-	tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
+	// tmp15.set(SHAPE).scale(wpgdet/DT);
+	// tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
+	// tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
+	adv_diff_ff->entalphy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet/DT);
 	if (lumped_mass) {
-	  matlocf_mass.add(tmp13);
+	  matlocf_mass.add(N_Cp_N);
 	} else {
-	  matlocf.add(tmp13);
+	  matlocf.add(N_Cp_N);
 	}
 
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);

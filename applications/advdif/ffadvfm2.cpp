@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.30 2001/04/01 01:34:35 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.31 2001/04/03 01:21:33 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -459,6 +459,7 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   dif_per_field.resize(1,ndof);
   vel_per_field.resize(1,ndof);
   eye_ndof.resize(2,ndof,ndof).eye();
+  entalphy_fun = new ConsEntalphyFun(ndof,ndim,nel);
 
   ret_options &= !SCALAR_TAU; // tell the advective element routine
 
