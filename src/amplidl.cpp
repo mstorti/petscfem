@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.10 2003/01/01 16:17:06 mstorti Exp $
+//$Id: amplidl.cpp,v 1.11 2003/01/01 23:49:15 mstorti Exp $
 
 #ifdef USE_DLEF
 
@@ -116,6 +116,7 @@ void DLGeneric::init(TextHashTable *thash) {
   }
 
   // Call init function
+  fun_data = this;
   if (init_fun) (*init_fun)(thash,fun_data);
 }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.13 2003/01/01 16:17:07 mstorti Exp $
+//$Id: dofmap.cpp,v 1.14 2003/01/01 23:49:15 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -41,17 +41,19 @@ void fixation_entry::print(void) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "double fixation_entry::value(void *) const"
-double fixation_entry::value(const TimeData *time_data) const {
-  if (amp==NULL) {
-    return val;
+double Dofmap::value(const fixation_entry &fe, const TimeData *time_data) const {
+  // double fixation_entry::value(const TimeData *time_data) const {
+  if (fe.amp==NULL) {
+    return fe.val;
   } else {
     assert(time_data);
     double v;
-    if (!amp->needs_dof_field_q()) {
-      v = val*amp->eval(time_data);
+    if (!fe.amp->needs_dof_field_q()) {
+      v = fe.val*fe.amp->eval(time_data);
     } else {
       int node,field;
-      v = val*amp->eval(time_data,node,field);
+      nodf(fe.edof,node,field);
+      v = fe.val*fe.amp->eval(time_data,node,field);
     }
     return v;
   }
@@ -148,7 +150,7 @@ double  Dofmap::get_dofval(const int & jeq,double const *sstate,
   } else {
     // printf("jeq %d -> \n",jeq);
     // fixed[jeq-neq-1].print();
-    return fixed[jeq-neq-1].value(time_data);
+    return value(fixed[jeq-neq-1],time_data);
   }
 }
 
@@ -161,7 +163,7 @@ double  Dofmap::get_dofval(const int & jeq,
     return sstate[jeq-1];
   } else {
     // printf("jeq %d -> %f\n",jeq,fixed[jeq-neq-1].first);
-    return fixed[jeq-neq-1].value(time_data);
+    return value(fixed[jeq-neq-1],time_data);
   }
 }
 

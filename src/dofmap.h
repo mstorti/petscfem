@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.15 2003/01/01 16:17:07 mstorti Exp $
+//$Id: dofmap.h,v 1.16 2003/01/01 23:49:15 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -107,6 +107,9 @@ public:
   void empty(); 
 };
 
+// forward declaration
+class Dofmap;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Defines a fixation (typically Dirichlet b.c.'s).  The double is
     the "spatial" amplitude and the int is a pointer (or something)
@@ -114,6 +117,8 @@ public:
 */
 //typedef pair<double,int> fixation_entry;
 class fixation_entry {
+public:
+  friend class Dofmap;
 private:
   double val;
   int edof;
@@ -121,7 +126,7 @@ private:
 public:
   fixation_entry(double val_=0.,Amplitude *amp_=NULL,int edof_a=-1) :
     val(val_), amp(amp_), edof(edof_a) {};
-  double value(const TimeData *time_data) const;
+  // double value(const TimeData *time_data) const;
   void print(void) const;
 };
 
@@ -321,6 +326,8 @@ public:
       @param val (input) the value to be set. */ 
   void set_fixation(int node,int kdof,double val);
 
+  double value(const fixation_entry &fe, const TimeData *time_data) const;
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns the unique number corresponding to the node/field
       pair. This is the inverse of nodf().
@@ -336,7 +343,7 @@ public:
       @param edof (input) the nodf unique value
       @param node (output) the node 
       @param kdof (output) the field */ 
-  void nodf(int edof,int &node,int &field);
+  void nodf(int edof,int &node,int &field) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns true if col j is null. 

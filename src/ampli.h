@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.16 2003/01/01 16:17:06 mstorti Exp $
+// $Id: ampli.h,v 1.17 2003/01/01 23:49:15 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -134,7 +134,7 @@ public:
   /// Prints information about the function
   void print() const;
   /// Initializes values 
-  void init(TextHashTable *thash_);
+  void init(TextHashTable *thash);
   /// Clears the object 
   virtual void clear() {};
   /// Computes the value of the Dirichlet b.c. at the specified time
@@ -192,6 +192,35 @@ CLEAR_FUN1(fun_obj_class) {					\
   fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
   delete fun_obj_ptr;						\
 }
+
+class DLGenericTmpl {
+public:
+  DLGeneric *dl_generic_ptr;
+  int node() { return dl_generic_ptr->node(); }
+  int field() { return dl_generic_ptr->field(); }
+};
+
+#define DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fun_obj_class)	\
+								\
+INIT_FUN1(fun_obj_class) {					\
+  fun_obj_class *fun_obj_ptr = new fun_obj_class;		\
+  printf("initializing " #fun_obj_class				\
+         " fun_data: %p\n",fun_data);				\
+  fun_obj_ptr->dl_generic_ptr = (DLGeneric *)fun_data;		\
+  fun_data = fun_obj_ptr;					\
+  fun_obj_ptr->init(thash);					\
+}								\
+								\
+EVAL_FUN1(fun_obj_class) {					\
+  fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
+  return fun_obj_ptr->eval(t);					\
+}								\
+								\
+CLEAR_FUN1(fun_obj_class) {					\
+  fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
+  delete fun_obj_ptr;						\
+}
+
 //@}
 #endif
 

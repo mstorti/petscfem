@@ -45,7 +45,7 @@ nsave 1
 nsaverot 10
 # initial_state "cylin.state.tmp"
 initial_state "cylin.ini.tmp"
-nstep 1000
+nstep 2
 # steady
 solver "iisd"
 iisd_subpart_auto 2000

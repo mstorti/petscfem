@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.9 2003/01/01 16:17:07 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.10 2003/01/01 23:49:15 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -44,7 +44,7 @@ double Amplitude::eval(const TimeData *time_data,int node,int field) {
 int Amplitude::needs_dof_field_q() { return 0; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Dofmap::nodf(int edof, int &node,int &field) {
+void Dofmap::nodf(int edof, int &node,int &field) const {
   field = (edof-1) % ndof +1;
   node = (edof-field)/ndof +1;
 };

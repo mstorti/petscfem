@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.6 2003/01/01 20:20:10 mstorti Exp $
+//$Id: inviscid.cpp,v 1.7 2003/01/01 23:49:18 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -177,12 +177,24 @@ void coupling_inv_hook::time_step_post(double time,int step,
 DL_GENERIC_HOOK(coupling_inv_hook);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class coupling {
+class coupling : public DLGenericTmpl {
 public:
   coupling() { }
   void init(TextHashTable *thash) { }
-  double eval(double) { }
+  double eval(double);
   ~coupling() { }
 };
 
-DEFINE_EXTENDED_AMPLITUDE_FUNCTION(coupling);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double coupling::eval(double) { 
+  assert(field()==1);
+  int node_c = node();
+  ext_map::iterator q = inv_indx_map.find(node_c);
+  assert(q!=inv_indx_map.end());
+  int ext_node_indx = q->second;
+  double phi = ext_node_data[ext_node_indx].phi;
+  printf("node: %d, phi: %f\n",node_c,phi);
+  return phi;
+}
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(coupling);
