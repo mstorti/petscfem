@@ -1394,3 +1394,6 @@ tag: beta-3.02.pl1 on Mon, 29 Jul 2002 00:13:59 -0300 by mstorti in spider
 ----------
 tag: beta-3.02.pl2 on Tue, 30 Jul 2002 17:05:29 -0300 by mstorti in minerva.arcride.edu.ar
      > Adding nssup + diffusion. 
+----------
+tag: beta-3.02.pl3 on Tue, 30 Jul 2002 23:19:16 -0300 by mstorti in spider
+     > good results with `ns_sup_g' and `free_surface_damp=0'.
