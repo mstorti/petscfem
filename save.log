@@ -1885,3 +1885,12 @@ tag: beta-3.09.pl11 on Thu, 12 Dec 2002 17:30:38 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.09.pl12 on Thu, 12 Dec 2002 23:36:19 -0300 by mstorti in spider
      > Added doc for `mesh_move'
+----------
+tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Runs mesh movement with very large deformation example (95% on step.epl) in 40 steps. 
+     > Working on the `mesh_move' with analytic computation of eigenvalues. 
+     > Runs OK large deformation problem (step.epl at 95%) with 
+     > the analytically computed element. 
+     > Added `mmove' 2D/3D tests. 
+     > Added doc for `mesh_move'

@@ -243,3 +243,11 @@ tag: beta-3.09 on Mon Dec  2 17:28:19 -0300 2002, by mstorti in node1.beowulf.gt
      > Runs test with large distortions in 10x10 2D mesh. 
      > Added FastMat2::rcp() function.
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
+----------
+tag: beta-3.10 on Fri Dec 13 09:21:27 -0300 2002, by mstorti in minerva.arcride.edu.ar
+     > Runs mesh movement with very large deformation example (95% on step.epl) in 40 steps. 
+     > Working on the `mesh_move' with analytic computation of eigenvalues. 
+     > Runs OK large deformation problem (step.epl at 95%) with 
+     > the analytically computed element. 
+     > Added `mmove' 2D/3D tests. 
+     > Added doc for `mesh_move'
