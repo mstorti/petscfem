@@ -1,11 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.2 2002/07/22 15:45:12 mstorti Exp $
+// $Id: linkgraph.h,v 1.3 2002/07/22 19:08:37 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
 extern int MY_RANK,SIZE;
 
+#include <src/graph.h>
 #include <src/iisdgraph.h>
 #include <src/dvector.h>
 #include <src/graphdv.h> // for int_pair
@@ -29,12 +30,11 @@ protected:
   /// return a cursor to an available cell
   int available();
 public:
-  /** Constructor. May define the chunk size. 
-    @author M. Storti
-    @param chunk_size (input) size of chunks used in the
-    internal dynamic vector
-  */
-  link_graph(int chunk_size=CHUNK_SIZE_DEF);
+  /// cuasi constructor
+  void init(int MM);
+  /// Constructor includes partitioner and communicator
+  link_graph(int MM, const DofPartitioner *part,
+	      MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF);
   /** Set new chunk size (container must be empty).
       @param new_chunk_size (input) new chunk size for the vector.
   */
@@ -46,23 +46,16 @@ public:
     @param k (input) second index of edge
   */
   void add(int j,int k) { list_insert(j,k); }
-  /** Prints adjacency table (first resync)
-      @param s (input) A string to be printed along with the adjacency graph
-  */
-  void print(const char *s=NULL) { assert(0); } // not implrmented yet
   /** Call back function that defines the graph. For a given
       vertex it returns the list of adjacent vertices. 
       @param v (input) the source vertex 
       @param ngbrs (output) the set of adjacent vertices 
   */
-  void set_ngbrs(int v,vector<int> &ngbrs) { assert(0); } // not implrmented yet
+  void set_ngbrs(int v,GSet &ngbrs);
   /// Return number of edges
-  int size() {}
+  int size() { return da.size(); } // not implemented yet
   /// Clear all edges
   void clear() { }
-  /// Constructor includes partitioner and communicator
-  link_graph(int MM, const DofPartitioner *part,
-	      MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF);
   /// Scatter among processors
   void scatter() { assert(SIZE==1); }
 };

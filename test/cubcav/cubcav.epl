@@ -7,7 +7,7 @@ get_var_env('weak_form',0);
 get_var_env('case',undef);
 $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
-$use_tetra = 1;
+$use_tetra = 0;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -15,7 +15,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 50;			# Number of elements per dimension
+$N = 4;				# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -92,7 +92,7 @@ save_file_pattern "outvector%d.out.tmp"
 # type of solver (may be "iisd", "petsc"...)
 fractional_step
 #if 1
-use_compact_profile 1
+use_compact_profile 2
 compact_profile_graph_chunk_size 1000000
 #endif
 solver     "iisd"
@@ -103,7 +103,7 @@ iisd_subpart 20
 maxits 100
 report_consumed_time
 activate_debug_print
-activate_debug
+# activate_debug
 
 iisdmat_print_statistics
 print_partitioning_statistics
@@ -177,6 +177,7 @@ __END_ELEMSET__
 
 end_elemsets
 
+#if 1
 fixa
 # fijacion en la presion
 #if $case ne 'laplace'
@@ -185,3 +186,4 @@ fixa
 # fijaciones de velocidad en las paredes
 __INCLUDE__ cubcav.fixa.tmp
 __END_FIXA__
+#endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.22 2002/07/22 03:16:40 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.23 2002/07/22 19:08:37 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -126,6 +126,7 @@ int IISDMat::create_a() {
   // processor. 
   TGETOPTDEF(&thash,int,iisdmat_print_statistics,0);
 
+  // lgraph->print();
   // Scatter the profile graph
   lgraph->scatter();
 

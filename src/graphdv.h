@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.3 2002/07/22 15:45:12 mstorti Exp $
+// $Id: graphdv.h,v 1.4 2002/07/22 19:08:37 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
@@ -95,7 +95,9 @@ class graphdv_dis : public graphdv  {
 public:
   /// Constructor includes partitioner and communicator
   graphdv_dis(int M, const DofPartitioner *part,
-	      MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF) : graphdv(chunk_size) {}
+	      MPI_Comm comm,int chunk_size=CHUNK_SIZE_DEF) : graphdv(chunk_size) {
+    init(M);
+  }
   /// Scatter among processors
   void scatter() { assert(SIZE==1); }
 };
