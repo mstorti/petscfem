@@ -103,10 +103,10 @@ public:
   void element_hook(ElementIterator &element);
   void compute_flux(COMPUTE_FLUX_ARGS);
   void comp_A_grad_N(FastMat2 & A,FastMat2 & B) {
-    a_jac->comp_A_grad_N(FastMat2 & A,FastMat2 & B);
+    a_jac->comp_A_grad_N(A,B);
   }
   void comp_D_grad_N(FastMat2 & A,FastMat2 & B) {
-    d_jac->comp_D_grad_N(FastMat2 & A,FastMat2 & B);
+    d_jac->comp_D_grad_N(A,B);
   }
 };
 

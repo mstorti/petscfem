@@ -394,7 +394,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	}
 
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
-	adv_diff_ff->a_jac->comp_A_grad_N(A_grad_N,dshapex);
+	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 
 	// Termino Galerkin
 	if (weak_form) {
@@ -437,7 +437,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// Diffusive term in matrix
 	tmp17.set(dshapex).scale(wpgdet*ALPHA);
-	adv_diff_ff->d_jac->comp_D_grad_N(tmp16,tmp17);
+	adv_diff_ff->comp_D_grad_N(tmp16,tmp17);
 	tmp18.prod(tmp16,dshapex,-1,2,4,1,-1,3);
 	matlocf.add(tmp18);
 
