@@ -1,0 +1,72 @@
+#!/usr/bin/perl
+#$Id: fixobj,v 1.1 2002/02/20 02:01:32 mstorti Exp $
+
+$wd=`pwd`;
+($epsidir=$wd) =~ s/OBJ\n$/EPSI/;
+print "EPSI dir: $epsidir\n";
+
+foreach $obj (<*.obj>,<*.fig>) {
+    print "processing file $obj\n";
+    open OBJ,"$obj";
+#    print "obj: $obj\n";
+    while (<OBJ>) {
+	my $epsifile;
+        if ($obj=~/.obj/) {
+	    /`/;
+	    ($epsifile) = m|\"([^"]*\.epsi)\"|; /`/;
+	} else {
+	    $epsifile = $1 if m|\s(/\S*\.epsi)|;
+	}
+	next unless $epsifile;
+	print "epsifile: $epsifile\n";
+	next if ( -e $epsifile);
+#	print "don't exist $epsifile\n";
+	($filename) = ($epsifile =~ m|([^/]*)$|);
+	$relname="$epsidir/$filename";
+	goto MODIFY if ( -e $relname);
+	print "don't exist $relname\n";
+    }
+    next;
+  MODIFY:
+    print "... has to modify $OBJ...\n";
+    close OBJ;
+    rename $obj,"$obj~";
+    open OLD,"$obj~";
+    open NEW,">$obj";
+    while (<OLD>) {
+	$isobj = ($obj=~/.obj/);
+        if ($obj=~/.obj/) {
+	    /`/;
+	    ($epsifile) = m|\"([^"]*\.epsi)\"|; /`/;
+	    $pre=$`;
+	    $post=$';
+	} else {
+	    ($pp,$epsifile) = m|(\s)(/\S*\.epsi)|;
+	    $pre="$`$pp";
+	    $post="$'";
+	}
+#	print "line: $_","$pre - $epsifile - $post\n" if $epsifile;
+#	/'/;
+#	($epsifile)=m|\"([^"]*\.epsi)\"|;
+#        /'/;
+	goto PRINT unless $epsifile;
+#	print "epsifile: $epsifile\n";
+	goto PRINT if ( -e $epsifile);
+#	print "don't exist $epsifile\n";
+	($filename) = ($epsifile =~ m|([^/]*)$|);
+	$relname="$epsidir/$filename";
+	if ( -e $relname) {
+	    print "attempting to change $epsifile by $relname\n";
+	    if ($isobj) {
+		$_ = "$pre\"$relname\"$post";
+	    } else {
+		$_ = "$pre$relname$post";
+	    }
+	} 
+      PRINT: print NEW;
+    }
+    close OLD;
+    close NEW;
+}
+    
+    
