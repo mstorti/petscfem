@@ -3,7 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Write tests for `Graph' and IISD with subpartitioning.
+* Write tests for IISD with subpartitioning.
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
 * put `const A' in the argument to PFMat::duplicate
 * interface preconditioning for IISD
@@ -48,6 +48,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Write tests for `Graph' class
 * In `ns.cpp' it seems that there is no convergence check on the
   internal Newton loop. 
 * Use IISD `inside processors'. 
