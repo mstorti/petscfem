@@ -3020,4 +3020,7 @@ tag: beta-3.23.pl11 on Sat, 11 Oct 2003 21:10:33 -0300 by mstorti in spider
      > Making VERSION to work with the newline at the end. 
 ----------
 tag: beta-3.23.pl12 on Sat, 11 Oct 2003 21:35:42 -0300 by mstorti in spider
+     > Fixed bug when lacking of and __END_FIXA__ tag (and others) also.
+----------
+tag: beta-3.23.pl13 on Sat, 11 Oct 2003 22:04:25 -0300 by mstorti in spider
      > Fixed bug: no more crashes when reading empty file. 
