@@ -9,7 +9,7 @@ $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 $hot_outlet = 1;
-$cold_outlet = 0;
+$cold_outlet = 1;
 $small_test = 1;
 
 $R0 = 0.047;			# [m] Radius of tube
@@ -31,7 +31,7 @@ if (0) {
 
 ## Mesh parameters
 $refine = ($small_test ? 
-    2 : 8);			# scale all N's by this
+    4 : 8);			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
