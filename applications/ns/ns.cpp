@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.131 2003/05/12 01:33:58 mstorti Exp $
+//$Id: ns.cpp,v 1.132 2003/05/14 15:16:53 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -538,9 +538,9 @@ int main(int argc,char **args) {
 	  argl.arg_add(&xold,IN_VECTOR);
 	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
 
-    update_jacobian_step++;
-    if (update_jacobian_step >= update_jacobian_steps) 
-      update_jacobian_step =0;
+	  update_jacobian_step++;
+	  if (update_jacobian_step >= update_jacobian_steps) 
+	    update_jacobian_step =0;
 	  if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60
 	  argl.arg_add(&hmin,VECTOR_MIN);
