@@ -207,13 +207,13 @@ tag: beta-3.05 on Fri Sep 20 23:21:29 GMT+3 2002, by mstorti in spider
      > Can have 0 weight processors. 
 ----------
 tag: beta-3.06 on Thu Oct 10 20:38:40 GMT+3 2002, by mstorti in spider
-     >      > Modified test for 0-weight proc.
-     >      > Changed printing dof statistics for IISD
-     >      > Added ROSI_COUPLING_MODULE flag. 
-     >      > Uses dynamically loaded hooks.
-     >      > Added `free_surface_set_level_factor' for controlling meniscus. 
-     >      > Added `activate_debug_memory_usage' for controlling a memory leak. 
-     >      > Fixed some memory leaks (not important, i.e. outside loops, constant
-     >      > in size).
-     >      > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
-     >      > Aded `bcconv' test from Beto.
+     > Modified test for 0-weight proc.
+     > Changed printing dof statistics for IISD
+     > Added ROSI_COUPLING_MODULE flag. 
+     > Uses dynamically loaded hooks.
+     > Added `free_surface_set_level_factor' for controlling meniscus. 
+     > Added `activate_debug_memory_usage' for controlling a memory leak. 
+     > Fixed some memory leaks (not important, i.e. outside loops, constant
+     > in size).
+     > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
+     > Aded `bcconv' test from Beto.

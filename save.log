@@ -1696,13 +1696,13 @@ tag: beta-3.05.pl17 on Wed,  9 Oct 2002 10:38:53 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.06 on Thu, 10 Oct 2002 20:38:40 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
-     >      > Modified test for 0-weight proc.
-     >      > Changed printing dof statistics for IISD
-     >      > Added ROSI_COUPLING_MODULE flag. 
-     >      > Uses dynamically loaded hooks.
-     >      > Added `free_surface_set_level_factor' for controlling meniscus. 
-     >      > Added `activate_debug_memory_usage' for controlling a memory leak. 
-     >      > Fixed some memory leaks (not important, i.e. outside loops, constant
-     >      > in size).
-     >      > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
-     >      > Aded `bcconv' test from Beto.
+     > Modified test for 0-weight proc.
+     > Changed printing dof statistics for IISD
+     > Added ROSI_COUPLING_MODULE flag. 
+     > Uses dynamically loaded hooks.
+     > Added `free_surface_set_level_factor' for controlling meniscus. 
+     > Added `activate_debug_memory_usage' for controlling a memory leak. 
+     > Fixed some memory leaks (not important, i.e. outside loops, constant
+     > in size).
+     > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
+     > Aded `bcconv' test from Beto.
