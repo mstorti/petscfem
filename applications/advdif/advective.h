@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.71 2005/02/16 17:09:58 mstorti Exp $
+//$Id: advective.h,v 1.72 2005/02/21 18:49:05 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -613,11 +613,13 @@ struct GlobParam {
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 		const int nlog_vars,const int *log_vars);
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Sets an error for the negative jacobian error case. 
     @param detjaco (input) the determinant of the jacobian
     @param elem (input) the element number */ 
 void detj_error(double &detJaco,int elem);
+#endif
 
 /** Cutoff function. It is very near to ${\rm ctff(x)}\approx \rm tol$ for
     $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 

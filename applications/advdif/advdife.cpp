@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.99 2005/02/18 01:47:15 mstorti Exp $
+//$Id: advdife.cpp,v 1.100 2005/02/21 18:49:05 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -21,12 +21,14 @@ extern int MY_RANK,SIZE;
 #define MAXPROP 100
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+#if 0
 void detj_error(double &detJaco,int elem) {
   printf("Jacobian of element %d is negative or null\n"
 	 " Jacobian: %f\n",elem,detJaco);
   detJaco = -detJaco;
   if (detJaco==0.) detJaco = 1.0;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
