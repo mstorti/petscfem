@@ -1,16 +1,20 @@
 __ECHO_ON__
 <:
-#$Id: strip.epl,v 1.6 2003/01/10 19:17:09 mstorti Exp $
+#$Id: strip.epl,v 1.7 2003/01/11 00:18:25 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
 #__TRANSCRIPT__
 $casename = $ENV{'CASE_NAME'};       # This is used in the `proc?.m' scripts
 $ini = $ENV{'ini'};             # Run the initialization step
-$use_prisms = $ENV{'use_prisms'};             # Run the initialization step
+$use_prisms = $ENV{'use_prisms'};
 $use_prisms = 0 unless $use_prisms;
+$use_exterior_normal = ($ENV{'use_en'} ? 1 : 0);
 die "bad CASE_NAME=\"$casename\" name\n" 
     if $casename ne 'strip';
+$cname = 'strip';
+if ($use_prisms) { $cname = 'stripp'; }
+if (!$use_exterior_normal) { $cname .= 'i'; }
 $L = 1;
 $N=10;
 $h=$L/$N;
@@ -20,7 +24,7 @@ $maxits = 100;
 $xratio = 5;
 $layers = 2;
 #__END_TRANSCRIPT__
-@vars = qw(L N h xratio use_prisms);
+@vars = qw(L N h xratio use_prisms use_exterior_normal);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkstrip.m >mkstrip.out.tmp";
@@ -102,10 +106,9 @@ solve_system 0
 # verify_jacobian_with_numerical_one 1
 # inwt_stop 2
 #endif
-
 viscosity 1.
 ngather <:=2*$ndim:>
-gather_file <:= ($use_prisms ? "stripp.force.tmp" : "strip.force.tmp"):>
+gather_file <:="\"$cname.force.tmp\"":>
 __ECHO_OFF__
 __END_HASH__
 
@@ -136,18 +139,26 @@ ndimel 2
 gather_length 6
 moment_center 0. <:=$L:> 0.
 volume_elemset "viscous_fluid_elemset"
-use_exterior_normal 0
+<:pr('use_exterior_normal'):>
 identify_volume_elements 1
 <:pr('layers'):>
 __END_HASH__
 <: 
 $ficti = "";
+sub p {
+    my ($n1,$n2,$n3) = @_;
+    if ($use_exterior_normal) {
+        return ($n1,$n3,$n2);
+    } else {
+        return ($n1,$n2,$n3);
+    }
+}
 if ($use_prisms) {
     for ($j=0; $j<3*$layers; $j++) { $ficti .= " 1"; }
-    print join(" ",1,2*$N+3,3*$N+4),$ficti,"\n";
-    print join(" ",3*$N+4,$N+2,1),$ficti,"\n";
-    print join(" ",$N+1,2*$N+2,4*$N+4),$ficti,"\n";
-    print join(" ",4*$N+4,3*$N+3,$N+1),$ficti,"\n";
+    print join(" ",p(1,2*$N+3,3*$N+4)),$ficti,"\n";
+    print join(" ",p(3*$N+4,$N+2,1)),$ficti,"\n";
+    print join(" ",p($N+1,2*$N+2,4*$N+4)),$ficti,"\n";
+    print join(" ",p(4*$N+4,3*$N+3,$N+1)),$ficti,"\n";
 } else {
     for ($j=0; $j<4*$layers; $j++) { $ficti .= " 1"; }
     print join(" ",1,2*$N+3,3*$N+4,$N+2),$ficti,"\n";

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.33 2003/01/10 19:17:06 mstorti Exp $
+//$Id: embgath.cpp,v 1.34 2003/01/11 00:18:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -104,14 +104,6 @@ int Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-void Quad2Hexa::surface_nodes(int &nel_surf,int &nel_vol) { 
-  nel_surf=4; 
-  nel_vol=8; 
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) { 
   // Changes quad numbering orientation. 
   int spin_map[] = {0,3,2,1};
@@ -141,14 +133,6 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
 		    vol_ret[spin_map[k]] : vol_ret[k]);
   fc = this_face;
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-void Line2Quad::surface_nodes(int &nel_surf,int &nel_vol) { 
-  nel_surf=2; 
-  nel_vol=4; 
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {

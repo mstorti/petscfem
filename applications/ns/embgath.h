@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.17 2003/01/10 19:17:06 mstorti Exp $
+//$Id: embgath.h,v 1.18 2003/01/11 00:18:22 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -125,9 +125,7 @@ public:
 	   int npg,int mat_version=GP_NEWMAT,
 	    int use_exterior_normal_m=0) 
     : Surf2Vol(geom,ndim,nel,npg,mat_version,
-	       use_exterior_normal_m) { 
-    assert(!use_exterior_normal_m);
-  }
+	       use_exterior_normal_m) { }
   /** @name Callback routines for the quad/hexa combination. */
   //@{
   /** Callback routine that defines the possible
