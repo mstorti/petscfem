@@ -3996,7 +3996,7 @@ tag: beta-3.41.44 on Wed, 16 Feb 2005 17:08:10 -0300 by mstorti in minerva.cerid
 tag: beta-3.41.45 on Thu, 17 Feb 2005 22:47:23 -0300 by mstorti in spider
      > Now with `use_Ajac_old=0' doesn't use `Ao_grad_U'. 
 ----------
-tag: beta-3.43 on Fri, 18 Feb 2005 06:43:40 -0300 by mstorti in spider
+tag: beta-3.42 on Fri, 18 Feb 2005 06:43:40 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Fixed a bug that prevents use of `gasflow_abso' elemset. 
      > Administrative tag.
