@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.15 2004/01/29 21:04:59 mstorti Exp $
+//$Id: gaschem.cpp,v 1.16 2004/01/30 20:39:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -277,7 +277,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     double SO = coef*(CdO*C-KO*pgas*CO);
     double SN = coef*(CdN*C-KN*pgas*CN);
 
-    G_source.setel(Nb_source,1);
+    G_source.setel(Nb_source/Nb_scale);
     G_source.setel(SO,2);
     G_source.setel(SN,3);
     G_source.addel(SO_source,2);
