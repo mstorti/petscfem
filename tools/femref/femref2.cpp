@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.19 2004/12/20 12:20:18 mstorti Exp $
+// $Id: femref2.cpp,v 1.20 2004/12/24 21:18:41 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -622,6 +622,26 @@ refine(RefineFunction f) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::
+set(int elem,
+    GeomObject &go,
+    list<int> &ref_nodes,
+    NodeCombiner *node_comb,
+    NodeInfoMapT *node_info_map) {
+  go.init(tmpl->type,&connec.e(elem,0));
+  if (node_comb) {
+    for (int j=0; j<nel; j++) {
+      int node = connec.e(elem,j);
+      assert(node_info_map->find(node) 
+	     == node_info_map->end());
+      node_comb->combine(0,0,NULL,node,
+			 *node_info_map);
+      ref_nodes.insert(ref_nodes.begin(),node);
+    }
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::
 set(const GeomObject &go,
     const Splitter *s,
     int indx,
@@ -646,42 +666,15 @@ set(const GeomObject &go,
     int ln2 = local_nodes[2*k+1], n2;
     if (ln2!=GeomObject::NULL_NODE) {
       n2 = go_nodes[ln2];
-      int node_hash = combine(n1,n2);
-
+      int n12 = combine(n1,n2);
       if (node_comb) {
-	assert(node_info_map->find(node_hash) 
-	       == node_info_map->end());
-#if 0
-	NodeInfoMapT::iterator 
-	  q1 = node_info_map.find(n1);
-	assert(q1!=node_info_map.end());
-	printf("in 'set', combines: \nn1: ");
-	q1->second->print();
-
-	NodeInfoMapT::iterator 
-	  q2 = node_info_map.find(n2);
-	assert(q2!=node_info_map.end());
-	printf("n2: ");	q2->second->print();
-#endif
 	nodes[0]=n1;
 	nodes[1]=n2;
-	node_comb->combine(0,2,nodes,node_hash,
+	node_comb->combine(0,2,nodes,n12,
 			   *node_info_map);
-	ref_nodes.insert(ref_nodes.begin(),
-			 node_hash);
+	ref_nodes.insert(ref_nodes.begin(),n12);
       }
-
-      map<int,int>::const_iterator it 
-	= hash2node.find(node_hash);
-      if (it != hash2node.end()) {
-	n1 = it->second;
-      } else {
-	int on1=n1;
-	n1 = last_ref_node++;
-	hash2node[node_hash] = n1;
-	// printf("adding new ref node %d,
-	// (fathers %d %d)\n", n1,on1,n2);
-      }
+      n1 = n12;
     }
     sgo_nodes.e(k) = n1;
   }
@@ -690,9 +683,20 @@ set(const GeomObject &go,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int UniformMesh::
-combine(int n1,int n2) const {
-  if (n2<n1) return combine(n2,n1);
-  else return n1*MAX_NODE+n2;
+combine(int n1,int n2) {
+  int node_hash, node;
+  if (n2<n1) node_hash = combine(n2,n1);
+  else node_hash =  nnod+n1*MAX_NODE+n2;
+
+  map<int,int>::const_iterator it 
+    = hash2node.find(node_hash);
+  if (it != hash2node.end()) {
+    node = it->second;
+  } else {
+    node = last_ref_node++;
+    hash2node[node_hash] = node;
+  }
+  return node;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

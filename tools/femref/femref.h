@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.40 2004/12/20 12:20:18 mstorti Exp $
+// $Id: femref.h,v 1.41 2004/12/24 21:18:41 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -254,7 +254,7 @@ private:
   int last_ref_node;
   /** Combines two base nodes in order to get a new
       node number. */ 
-  int combine(int n1,int n2) const;
+  int combine(int n1,int n2);
 
 public:
   /// Ctor from dimensions and shape
@@ -267,6 +267,21 @@ public:
       @param it (input) iterator to geometric object in mesh
       @param go (output) the opject pointed by #it# */ 
   void set(iterator it,GeomObject &go);
+
+  /** Builds subobject #sgo# to be the #indx#-th subobject
+      of #go# when splitted with splitter #s#. 
+      @param elem (input) the element index
+      @param go (output) the object to be constructed
+      @param ref_nodes (output) the nodes for #sgo# that
+      @param comb (input) the function used to 
+      combine NodeInfo objects
+      @param node_info_map (input/output) adds new #NodeInfo#
+      objects to this container */ 
+  void set(int elem,
+	   GeomObject &sgo,
+	   list<int> &ref_nodes,
+	   NodeCombiner *node_comb,
+	   NodeInfoMapT *node_info_map);  
 
   /** Builds subobject #sgo# to be the #indx#-th subobject
       of #go# when splitted with splitter #s#. 

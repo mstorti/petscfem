@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.13 2004/12/20 12:20:18 mstorti Exp $
+// $Id: visitor.cpp,v 1.14 2004/12/24 21:18:41 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -26,7 +26,11 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
   
   ref_stack.push_front(RefPathNode());
   RefPathNode &top = ref_stack.front();
-  top.go.init(mesh->tmpl->type,&mesh->connec.e(elem,0));
+
+  mesh->set(elem,top.go,top.ref_nodes,node_comb,
+	    &node_info_map);
+
+  // top.go.init(mesh->tmpl->type,&mesh->connec.e(elem,0));
   top.go.make_canonical();
   top.splitter = etree_p->begin();
   top.so_indx = 0;

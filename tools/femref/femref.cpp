@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.32 2004/12/20 12:20:18 mstorti Exp $
+// $Id: femref.cpp,v 1.33 2004/12/24 21:18:41 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -105,27 +105,40 @@ public:
 	  int n,const int *nodes,
 	  int new_node,
 	  NodeInfoMapT &node_info_map) {
-    if (n==1 ) {
-      int n1 = nodes[0];
-      if (node_info_map.find(n1)==node_info_map.end()) {
+    if (n==0 ) {
+      printf("node-comb (%d)\n",new_node);
+      if (node_info_map.find(new_node)==node_info_map.end()) {
 	NodeInfoSum *ni_p = new NodeInfoSum;
-	ni_p->sum = n1;
-	node_info_map[n1] = ni_p;
+	ni_p->sum = new_node;
+	node_info_map[new_node] = ni_p;
       }
     } else if (n==2) {
+      printf("node-comb (%d,%d)\n",nodes[0],nodes[1]);
       NodeInfoMapT::iterator 
 	q = node_info_map.find(nodes[0]);
-      assert(q != node_info_map.end());
+      if(q == node_info_map.end()) {
+	printf("slot for node %d in node_info_map is empty\n",
+	       nodes[0]);
+	assert(0);
+      }
       const NodeInfoSum *ni1_p 
 	= dynamic_cast<const NodeInfoSum *>(q->second);
 
       q = node_info_map.find(nodes[1]);
-      assert(q != node_info_map.end());
+      if(q == node_info_map.end()) {
+	printf("slot for node %d in node_info_map is empty\n",
+	       nodes[1]);
+	assert(0);
+      }
       const NodeInfoSum *ni2_p 
 	= dynamic_cast<const NodeInfoSum *>(q->second);
 
       q = node_info_map.find(new_node);
-      assert(q == node_info_map.end());
+      if(q != node_info_map.end()) {
+	printf("slot for node %d in node_info_map is already filled\n",
+	       new_node);
+	assert(0);
+      }
       NodeInfoSum *ni_p = new NodeInfoSum;
       ni_p->sum = ni1_p->sum + ni2_p->sum;
       node_info_map[new_node] = ni_p;
