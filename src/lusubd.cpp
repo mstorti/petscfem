@@ -1,8 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.28 2001/08/06 01:07:36 mstorti Exp $
+//$Id: lusubd.cpp,v 1.29 2001/08/07 17:09:31 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
+
+//  #define DEBUG_IISD
+//  #define DEBUG_IISD_DONT_SET_VALUES
 
 #include <typeinfo>
 #ifdef RH60
@@ -175,13 +178,14 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   n_locp = n_loc_v[myrank];
   n_intp = n_int_v[myrank];
 
-#if 0 // Debug
+#ifdef DEBUG_IISD // Debug
   int ldof,type;
   if (myrank==0) {
     for (rank=0; rank<size; rank++) 
       printf("[%d] loc: %d-%d, int: %d-%d\n",
 	     rank,n_loc_v[rank],n_loc_v[rank+1],
 	     n_int_v[rank],n_int_v[rank+1]);
+#if 0
     for (rank=0; rank<size; rank++) {
       printf("In processor [%d]: loc %d, int %d\n",rank,
 	     n_loc_v[rank+1]-n_loc_v[rank],
@@ -196,10 +200,11 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 	  type = I;
 	  ldof = ldof - n_int_v[rank];
 	}
-	printf("keq: %d, type: %s, local: %d\n",
-	       keq,(type==L ? "L" : "I"),ldof);
+	printf("keq: %d, map: %d, type: %s, local: %d\n",
+	       keq,map[keq],(type==L ? "L" : "I"),ldof);
       }
     }
+#endif
   }
 #endif
 
@@ -446,13 +451,13 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
   I2 = A_LL_other->end();
   for (I = I1; I != I2; I++) {
     map_dof(I->first,row_t,row_indx);
+    row_indx -= n_locp;
     const Row &row = I->second;
     J1 = row.begin();
     J2 = row.end();
     for (J = J1; J != J2; J++) {
       map_dof(J->first,col_t,col_indx);
       assert (row_t == L && col_t == L);
-      row_indx -= n_locp;
       col_indx -= n_locp;
       if (row_indx < 0 || row_indx >= n_loc
 	  || col_indx < 0 || col_indx >= n_loc) {
@@ -460,12 +465,14 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
 	       "global/local row: %d/%d, column %d/%d,  n_loc: %d, "
 	       "n_locp: %d\n",MY_RANK,I->first,row_indx,
 	       J->first,col_indx,n_loc,n_locp);
-	MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
+	// MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
       } 
       // printf("[%d] debuffering (%d,%d) -> %f\n",
       // MY_RANK,I->first,J->first,J->second);
       v = J->second;
+#ifndef DEBUG_IISD_DONT_SET_VALUES
       MatSetValues(A_LL,1,&row_indx,1,&col_indx,&v,insert_mode);
+#endif
     }
   }
   A_LL_other->clear();
@@ -560,7 +567,6 @@ void IISDMat::map_dof(int gdof,int &block,int &ldof) {
     ldof -= n_loc_tot;
   }
 }
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void IISDMat::set_value(int,int,Scalar,InsertMode)"
@@ -577,13 +583,15 @@ void IISDMat::set_value(int row,int col,Scalar value,
 	|| col_indx < 0 || col_indx >= n_loc) {
       // printf("[%d] buffering (%d,%d) -> %f\n",MY_RANK,row,col,value);
       A_LL_other->insert_val(row,col,value);
+      return;
     }
   } 
+#ifndef DEBUG_IISD_DONT_SET_VALUES
   MatSetValues(*(AA[row_t][col_t]),
 	       1,&row_indx,1,&col_indx,&value,mode);
+#endif
 }
 
-//#define DEBUG_IISD
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
@@ -1029,6 +1037,6 @@ int PETScMat::zero_entries() {
 
 /*
   Local Variables: 
-  eval: (setq c-macro-preprocessor "~/PETSC/petscfem/tools/pfcpp")
+  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem-beta-1.93/tools/pfcpp")
   End: 
 */

@@ -43,6 +43,12 @@ $Ny = 60;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
+} elsif ($case_size eq 'very_large') {
+$N = 64;                        # Number of elements in transversal 'x' direction
+$Ny = 1000;                       # Number of elements in y dir
+$Ny_eq = 100;                    # last elements that are equal in size
+                                # in the y direction
+$Ly = 1;                        # longitudinal length 
 } 
 octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
     L Ly Ny_eq Uav ));

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.7 2001/08/06 20:37:12 mstorti Exp $
+// $Id: distmat.cpp,v 1.8 2001/08/07 17:09:31 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -11,6 +11,8 @@
 #include <buffpack.h>
 #include <maximizr.h>
 #include <distmat.h>
+
+extern int MY_RANK,SIZE;
 
 // eckel:=  
 // This is required!! See `Thinking in C++, 2nd ed. Volume 1', 
@@ -148,7 +150,9 @@ int DofmapPartitioner::dofpart(int row) {
   int proc;
   for (proc = 0; proc < dofmap->size; proc++) 
     if (row < startproc[proc]+neqproc[proc]) 
-      return proc;
+      break;
+  // printf("[%d] row %d belongs to [%d]\n",MY_RANK,row,proc);
+  return proc;
 }
 
 DofmapPartitioner::~DofmapPartitioner() {};

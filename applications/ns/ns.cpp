@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.33 2001/07/23 18:38:07 mstorti Exp $
+//$Id: ns.cpp,v 1.34 2001/08/07 17:09:28 mstorti Exp $
  
 #include <malloc.h>
 
@@ -363,8 +363,8 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      // wait_from_console("antes de assemble"); 
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
+ 
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);

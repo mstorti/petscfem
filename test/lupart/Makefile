@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2001/08/07 16:59:43 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/08/07 17:09:34 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 run:
-	$(MAKE) NP=5 case=iisd case_size=small test_case
-	mv -f save.state save.state.iisd.np2.tmp
+	$(MAKE) NP=$(NPP) Re=500 case=iisd case_size=very_large test_case
+	mv -f save.state save.state.iisd_vl
 
 #w All tests
 tests: test_iisd test_partitioning
@@ -64,10 +64,7 @@ data: $(NAME).depl force
 $(NAME).depl: force
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
-NPP := 1
-ifeq ($(NP),)
-NP := $(NPP)
-endif
+NP := 1 
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
