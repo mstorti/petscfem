@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.57 2003/08/29 22:33:47 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.58 2003/08/30 18:02:13 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -798,7 +798,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	  vvv[jrl*ncc+jcl] = values[jr*ncols+jc];
 	}
       }
-#if 0
+#if 1
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
 			  indxc[col_t]->buff(),vvv,mode);
@@ -838,7 +838,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     p++;
   }
 
-#if 0
+#if 1
   ierr = MatSetValues(*(AA[L][L]),
 		      nrr,indxr[L]->buff(),ncc,
 		      indxc[L]->buff(),vvv,mode);

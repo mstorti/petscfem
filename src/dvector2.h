@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.17 2003/08/14 11:37:07 mstorti Exp $
+// $Id: dvector2.h,v 1.18 2003/08/30 18:02:13 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -101,7 +101,7 @@ void dvector<T>::set_chunk_size(int new_chunk_size) {
 template<class T>
 dvector<T> & dvector<T>::defrag() {
   if (chunk_size<size()) set_chunk_size(size());
-  assert(chunks_n()==1);
+  assert(chunks_n()==1 || size()==0);
   return *this;
 }
 
@@ -453,11 +453,15 @@ int dvector<T>::chunks_n() const { return nchunks; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-const T *dvector<T>::buff() const { return &ref(0); }
+const T *dvector<T>::buff() const { 
+  return (size() ? &ref(0) : NULL); 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-T *dvector<T>::buff() { return &ref(0); }
+T *dvector<T>::buff() { 
+  return (size() ? &ref(0) : NULL); 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.16 2003/01/01 23:49:15 mstorti Exp $
+//$Id: dofmap.h,v 1.17 2003/08/30 18:02:13 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -17,6 +17,7 @@
 #include <src/fstack.h>
 #include <src/idmap.h>
 #include <src/fastlib2.h>
+#include <src/dvector.h>
 
 class TimeData {};
 
@@ -173,6 +174,19 @@ public:
 */
 class Dofmap : public DofPartitioner {
 
+private:
+  /** This maps a node/dof to an eq. or either an entry in the 
+   non-regular list. */
+  dvector<int> idmap2_dv;
+  int *idmap2;
+  dvector<int> special_ptr_dv;
+  int *special_ptr;
+  dvector<int> sp_eq_dv;
+  int *sp_eq;
+  dvector<double> coefs_dv;
+  double *coefs;
+  double one_coef;
+
 public:
   /// number of nodes
   int nnod;
@@ -208,7 +222,7 @@ public:
   /// The STL vector containing ghost\_dofs (ordered, base 0)
   vector<int> *ghost_dofs;
 
-  /// this will replace ident ina future
+  /// this will replace ident in a future
   idmap *id;
   /// points to fixations
   Darray *fixa;
@@ -257,6 +271,10 @@ public:
   void get_row(int const & node,int const & kdof,row_t &row) const;
 
   void get_row(int const & node,int const & kdof,IdMapRow &row) const;
+
+  /** Fast version. Uses an internal array. ADD ARG DOC ... */ 
+  void get_row(int node,int kdof,int &ndof,const int **dof,
+	       const double**coef);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets a row of the maping matrix.
@@ -388,6 +406,9 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   int processor(int j) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void freeze();
 
 };
 #endif

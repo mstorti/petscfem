@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.88 2003/08/25 02:52:16 mstorti Exp $
+//$Id: readmesh.cpp,v 1.89 2003/08/30 18:02:13 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1313,6 +1313,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   if (print_dofmap_id && myrank==0) {
     dofmap->id->print("dofmap->id: \n");
   }
+
+  dofmap->freeze();
 
   map<int,int>::iterator jj;
 

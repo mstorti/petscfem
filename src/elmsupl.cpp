@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.11 2003/08/30 17:54:03 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.12 2003/08/30 18:02:13 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,15 +37,13 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 1
+#if 0
 // New Fast PETSc matrix loading version (uses MatSetValues)
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
-  double start = MPI_Wtime();
-  printf("Elemset::upload_vector: new block version\n");
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
@@ -348,7 +346,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
-  printf("Inside upload_vector(): %g\n",MPI_Wtime()-start);
 }
 #else
 // Old slow PETSc matrix loading version (uses MatSetValue)
