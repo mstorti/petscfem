@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.70 2003/09/25 22:39:28 mstorti Exp $ 
+# $Id: Makefile,v 1.71 2003/09/29 16:54:58 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -48,10 +48,14 @@ endif
 
 export NP
 
-#w Runs program
-run: 
+#w Makes only the mesh
+mesh:
 	$(MAKE) -C ../../tools hexasplit.bin
 	make-depl cubcav.epl cubcav.depl -d case=ns
+
+#w Runs program, use `mkmesh=0' or 1 to control mesh creation
+run: 
+	$(MAKE) mesh
 	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 local_sw::
