@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.29 2004/12/06 02:47:53 mstorti Exp $
+// $Id: femref.h,v 1.30 2004/12/12 23:20:43 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -110,11 +110,11 @@ public:
   /// Number of subobjetcs of type #t# in this shape. 
   virtual int size(GeomObject::Type t) const { assert(0); }
   /// Local nodes connected to subobject #j# of type #t#. 
-  virtual const int* nodes(GeomObject::Type t,int j) { assert(0); }
+  virtual const int* nodes(GeomObject::Type t,int j) const { assert(0); }
   /// Total number of subobjetcs
   virtual int size() const { assert(0); }
   /// Local nodes connected to subobject #j# and type
-  virtual const int *nodes(int j,GeomObject::Type &t) { assert(0); }
+  virtual const int *nodes(int j,GeomObject::Type &t) const { assert(0); }
 };
 
 typedef double
@@ -194,7 +194,11 @@ private:
   int nnod, nelem, nel;
   /// The ptr to the shape object
   const GeomObject::Template *tmpl;
-  typedef tree<const Splitter *> ElemRef;
+  struct ElemRefNode {
+    const Splitter *splitter;
+    int so_indx;
+  };
+  typedef tree<ElemRefNode> ElemRef;
   /// The refinement of each element
   dvector<ElemRef *> elem_ref;
   /** Auxiliary function that searches the iterator
@@ -209,11 +213,14 @@ private:
       @param it (output) if #its=NULL# then return the 
       first iterator found here. */ 
   void find(GeomObject &go,list<iterator> *its,iterator &it);
-  /// Stores the correspondence between 
+  /// Stores the correspondence between hash values and nodes
   map<int,int> hash2node;
   /** Nodes obtained by refinement are in the range 
       #[nnod,last_ref_node)# */ 
   int last_ref_node;
+  /** Combines two base nodes in order to get a new
+      node number. */ 
+  int combine(int n1,int n2) const;
 
 public:
   /// Ctor from dimensions and shape
@@ -226,6 +233,10 @@ public:
       @param it (input) iterator to geometric object in mesh
       @param go (output) the opject pointed by #it# */ 
   void set(iterator it,GeomObject &go);
+  /** Builds subobject #sgo# to be the #indx#-th subobject
+      of #go# when splitted with splitter #s#. */ 
+  void set(const GeomObject &go,const Splitter *s,
+	   int indx,GeomObject &sgo);  
   /** Finds the _first_ iterator to object #go#. 
       If there isn't, returns the empty iterator. 
       @param go (input) the object to find

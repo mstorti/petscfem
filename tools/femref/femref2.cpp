@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.8 2004/12/12 17:43:39 mstorti Exp $
+// $Id: femref2.cpp,v 1.9 2004/12/12 23:20:43 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -566,7 +566,7 @@ refine(RefineFunction f) {
 	// that has a right sibling
 	while (true) {
 	  // Check if we are at the root
-	  if (split_stack.size()<=1) return;
+	  if (split_stack.size()<=1) break;
 	  qfather = q;
 	  qfather++;
 	  assert(qfather != etree.end());
@@ -638,7 +638,7 @@ refine(RefineFunction f) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::
 set(const GeomObject &go,const Splitter *s,
-    int indx,GeomObject &sgo) const {
+    int indx,GeomObject &sgo) {
   const int *go_nodes = go.nodes();
   GeomObject::Type t;
   const int *local_nodes = s->nodes(indx,t);
@@ -656,7 +656,7 @@ set(const GeomObject &go,const Splitter *s,
       int ln2 = local_nodes[2*k+1];
       int n2 = go_nodes[ln2];
       int node_hash = combine(n1,n2);
-      map<int,int>::iterator it 
+      map<int,int>::const_iterator it 
 	= hash2node.find(node_hash);
       if (it != hash2node.end()) {
 	n1 = it->second;
@@ -671,7 +671,8 @@ set(const GeomObject &go,const Splitter *s,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int combine(int n1,int n2) {
+int UniformMesh::
+combine(int n1,int n2) const {
   if (n2<n1) return combine(n2,n1);
   else return n1*MAX_NODE+n2;
 }
