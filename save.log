@@ -3156,3 +3156,6 @@ tag: beta-3.27.pl1 on Sun, 07 Dec 2003 21:21:15 -0300 by mstorti in spider
 ----------
 tag: beta-3.27.pl2 on Mon, 08 Dec 2003 08:40:19 -0300 by mstorti in spider
      > Fixed `bcconv' normal orientation policy. 
+----------
+tag: beta-3.27.pl3 on Mon, 08 Dec 2003 10:34:29 -0300 by mstorti in spider
+     > Added test with reference solution for cubic cavity at Re=100. 
