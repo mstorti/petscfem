@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.8 2005/01/28 17:52:28 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.9 2005/01/28 21:42:06 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -15,15 +15,18 @@ xnod = xnod*Orot;
 
 ## rho,u,v at inlet
 inlet = [1;Nx+2];
-pffixa("gfabso2dn.fixa-in.tmp",inlet,1:3,[rhoref [uref 0]*Orot])
+pffixa("gfabso2dn.fixa-in.tmp", \
+       inlet,1:3,[rhoref [uref 0]*Orot]);
 
 ## p at outlet
 outlet = [Nx+1;2*Nx+2];
-pffixa("gfabso2dn.fixa-outlet.tmp",outlet,4,pref)
+pffixa("gfabso2dn.fixa-outlet.tmp", \
+       outlet,4,pref);
 
 ## other
+t = [0,1]*Orot;
 slip = (1:nnod)';
-pffixa("gfabso2dn.fixa-slip.tmp",slip,1+longindx)
+pfconstr("gfabso2dn.fixa-slip.tmp",[slip,slip],2:3,t);
 
 ## Fictitious nodes at outlet 
 ## ... 2*Nx+2 nnod+3 nnod+4

@@ -20,7 +20,6 @@ $cref = sqrt($gamma*$pref/$rhoref);
 $uref = $Machin*$cref;
 $Uref = [$rhoref,$uref,0,$pref];
 $alpha = $PI/2*$rota;		# Rotation angle
-$longindx = 1+($rota % 2);	# Longitudinal indx
 $norx = cos($alpha);
 $nory = sin($alpha);
 
