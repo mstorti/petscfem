@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.28 2004/11/08 18:13:40 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.29 2004/11/10 14:29:51 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -43,8 +43,24 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int klocc,int kdofc) {
 
   int ierr;
-  //o Use Fast up-loading method or not 
-  TGETOPTDEF(thash,int,block_uploading,1);
+
+  //o _T: int  _N: block_uploading _D: 0
+  // _DOC: Set optmization level for uploading of matrices.
+  //       0 means no optimization, 1 means block optimization
+  //       and 2 multi-block optimization. 
+  //       Optimization levels can be set per-elemset and
+  //       per-matrix. For each combination if both values are
+  //       set, then the most conservative (the lowest) is used. 
+  // _END 
+  TGETOPTDEF(thash,int,block_uploading,INT_MAX);
+
+  int block_uploading_A = INT_MAX;
+  if (options & PFMAT) {
+    argd.pfA->get_option("block_uploading",&block_uploading_A,1);
+    if (block_uploading_A<block_uploading) 
+      block_uploading = block_uploading_A;
+  }
+  if (block_uploading==INT_MAX) block_uploading = 0;
 
 #define ARGS nel,ndof,dofmap,options,argd,myrank, \
              el_start,el_last,iter_mode,klocc,kdofc

@@ -245,6 +245,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     mom_profile.export_vals(arg_data_v[2].profile); // A_prj
   } else if (comp_res_mom) {
     mom_profile.export_vals(A_mom_arg->profile);
+    matloc.set(0.).add(mom_mat_fix);
   } else if (comp_mat_poi) {
     poi_profile.export_vals(A_poi_arg->profile);
   } else if (comp_res_poi) {
@@ -486,7 +487,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_res_mom) {
       veccontr.is(2,1,ndim).set(resmom);
       veccontr.rs().export_vals(&(RETVAL(ielh)));
-      matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
+      // matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
+      for (int j=1; j<=ndim; j++)
+	matloc.ir(2,j).ir(4,j).set(matlocmom);
+      matloc.rs();
       matloc.export_vals(&(RETVALMAT(ielh)));
     } else if (comp_mat_poi) {
       matloc.prod(matlocmom,seed,1,3,2,4).add(poi_mat_fix);

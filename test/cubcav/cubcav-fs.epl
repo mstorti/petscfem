@@ -1,4 +1,4 @@
-#$Id: cubcav-fs.epl,v 1.5 2004/11/09 11:39:58 mstorti Exp $ 
+#$Id: cubcav-fs.epl,v 1.6 2004/11/10 14:29:54 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -9,7 +9,7 @@ ndim 3
 nfile 2000000
 nrec 1
 nsave 1000000
-nstep 1000
+nstep 4
 nsaverot <:= ($endur_test  ? 50000000 : 20) :>
 save_file_pattern \
       <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>

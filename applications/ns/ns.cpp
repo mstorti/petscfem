@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.154 2004/11/10 02:06:31 mstorti Exp $
+//$Id: ns.cpp,v 1.155 2004/11/10 14:29:48 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -332,6 +332,7 @@ int main(int argc,char **args) {
       A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
       A_poi->set_option("KSP_method",KSPCG);
       A_poi->set_option("preco_type","jacobi");
+      A_poi->set_option("block_uploading","0");
       // A_poi->set_option("preco_side","left");
       // A_poi->set_option("symmetric","1");
       
@@ -339,6 +340,7 @@ int main(int argc,char **args) {
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
       A_prj->set_option("KSP_method",KSPCG);
       A_prj->set_option("preco_type","jacobi");
+      A_prj->set_option("block_uploading","0");
       // A_prj->set_option("symmetric","1");
     }
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);

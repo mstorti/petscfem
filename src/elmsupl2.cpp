@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl2.cpp,v 1.4 2004/11/10 02:06:34 mstorti Exp $
+//$Id: elmsupl2.cpp,v 1.5 2004/11/10 14:29:51 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -311,14 +311,16 @@ upload_vector_fast_1b(int color,
 	  int *dofr1 = dofrp;
 	  double *rtvm_iele = retval + iele_here*nen2;
 	  while (lnodr1<lnodr1_end) {
-	    double *rtvm_row = rtvm_iele 
+	    int row_offset = nen * ((*lnodr1) * ndof + (*dofr1));
+	    double *rtvm_row = rtvm_iele + row_offset;
+	    double *mask_row = argd.profile + row_offset;
 	      + nen * ((*lnodr1) * ndof + (*dofr1));
 	    int *lnodc1 = lnodcp;
 	    int *lnodc1_end = lnodc1 + nc;
 	    int *dofc1 = dofcp;
 	    while (lnodc1 < lnodc1_end) {
-	      if (MASK(*lnodr1,*dofr1,*lnodc1,*dofc1)==color) 
-		*w = *(rtvm_row + (*lnodc1) * ndof + *dofc1);
+	      int offset = (*lnodc1) * ndof + (*dofc1);
+	      if (mask_row[offset] == color) *w = rtvm_row[offset];
 	      else *w = 0.0;
 	      w++; lnodc1++; dofc1++;
 	    }
