@@ -2387,3 +2387,6 @@ tag: beta-3.17.pl7 on Sun, 16 Feb 2003 23:09:49 -0300 by mstorti in spider
 ----------
 tag: beta-3.17.pl8 on Sun, 16 Feb 2003 23:47:30 -0300 by mstorti in spider
      > Reads states from records in state files.
+----------
+tag: beta-3.17.pl9 on Mon, 17 Feb 2003 09:39:40 -0300 by mstorti in spider
+     > Moved oscplate tests to directory test/oscplate
