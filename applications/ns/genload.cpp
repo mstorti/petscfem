@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.8 2002/12/18 20:59:32 mstorti Exp $
+//$Id: genload.cpp,v 1.9 2002/12/18 21:32:15 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -314,6 +314,7 @@ void ConsGenLoad::start_chunk() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::start_chunk_c() {
   int ierr;
+  h_film.resize(2,ndof,ndof);
   //o The film coefficient constant matrix. 
   // _T: double array
   // _N: h_film

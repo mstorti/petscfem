@@ -427,6 +427,32 @@ All tetra volumes > 0 OK \? 1
 Max/min ratio < max_ratio OK \? 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('Generic load tests');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/verif.scalar.tmp",
+       "Generic load film elemset (scalar) ",<<'EOT');
+Error < tol OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/verif.diag.tmp",
+       "Generic load film elemset (diag) ",<<'EOT');
+Error < tol OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/verif.full.tmp",
+       "Generic load film elemset (full) ",<<'EOT');
+Error < tol OK \? 1
+EOT
+
+end_section();
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

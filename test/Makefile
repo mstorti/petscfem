@@ -1,19 +1,20 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.73 2002/12/15 21:40:39 mstorti Exp $ 
+# $Id: Makefile,v 1.74 2002/12/18 21:32:18 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
 	constraint_bug fstack sector triangle advdif texthash log_vars		\
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
-	pfmat  aquifer nutatcyl mmove advec
+	pfmat  aquifer nutatcyl mmove advec nsgenload
 
 SRCS = $(wildcard *.cpp)
 
 DIRS = circ fstack sector les turbchan turbchanw advdif texthash		\
 		newff burgers les/stabi genload bug100 nonlr wallke		\
 		wkepipe wallkechan lupart distmap sparse graph sqcav		\
-		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2 mmove
+		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2 mmove advec \
+		nsgenload
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer
@@ -370,6 +371,11 @@ mmove:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Linear advection 
 advec:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Gneric load elemeset for NS
+nsgenload:
 	$(MAKE) -C $@ tests
 
 #s

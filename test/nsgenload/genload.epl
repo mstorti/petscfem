@@ -1,14 +1,10 @@
 <:
 require '../eperlini.pl';       # Initializes ePerl 
-$hy=0.0625;
-doc_vals(qw(case));
-# case fstack is to check if report errors when number or nodes in
-# connect. lines i not equal to those reported
-# in the header
-if ($case eq 'fstack') {
-    $case = '2a'; 
-    $ne = 6;
-}
+$case_name = "$ENV{'case_name'}";
+$case_name = 'default' unless defined $case_name;
+@vars = qw(case_name);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
 
 #default definitions
@@ -17,7 +13,7 @@ global_options
 ndim 2
 
 chunk_size 10
-save_file "save.state.tmp"
+save_file "state.<:=$case_name:>.tmp"
 nsave 20
 
 rtol 1e-2
@@ -46,7 +42,13 @@ elemset qharmm 4
 #Datos del elemento
 geometry cartesian2d
 npg 4
-conductivity 2. 2.
+#if $case_name eq 'scalar'
+conductivity 2.
+#elsif $case_name eq 'diag'
+conductivity 2. 3.
+#elsif $case_name eq 'full'
+conductivity 2. 0.5 0.5 4.
+#endif
 rho_Cp 1.
 __END_HASH__
 1 3 4 2 
@@ -72,11 +74,19 @@ __END_HASH__
 33 35 36 34 
 __END_ELEMSET__
 
+
 elemset lin_gen_load 4
 geometry cartesian1d
 npg 2
 double_layer
-h_film 2.
+
+#if $case_name eq 'scalar'
+h_film 4.
+#elsif $case_name eq 'diag'
+h_film 3. 6.
+#elsif $case_name eq 'full'
+h_film 2. .1 .1 4.
+#endif
 __END_HASH__
 17 18 19 20 
 __END_ELEMSET__

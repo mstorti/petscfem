@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.3 2002/12/18 20:59:32 mstorti Exp $
+//$Id: qharmm.cpp,v 1.4 2002/12/18 21:32:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -20,7 +20,7 @@ void read_cond_matrix(TextHashTable *thash, const char *s,
   assert(line);
   read_double_array(v,line);
   if (v.size()==1) {
-    cond.resize(2,ndof,ndof).eye(v[0]);
+    cond.eye(v[0]);
   } else if (v.size()==ndof) {
     cond.set(0.).d(2,1).set(v.begin()).rs();
   } else if (v.size()==ndof*ndof) {
