@@ -550,3 +550,8 @@ tag: beta-2.14 on Sat Oct  6 20:54:11 ART 2001, by mstorti in spider
 ----------
 tag: beta-2.15 on Sun Oct  7 18:13:23 ARST 2001, by mstorti in spider
      > Fixed a bug for `weak_form=1' in the jacobian terms in nsitetlesfm2.cpp. 
+----------
+tag: beta-2.16 on Thu Nov  1 16:21:32 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Working on sloshing. Added `.profile' member to arguments
+     > to assemble (class `arg_data'). 
