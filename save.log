@@ -929,3 +929,6 @@ tag: beta-2.72.pl1 on Mon Feb  4 21:59:02 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.72.pl2 on Tue Feb  5 18:39:13 ARST 2002 by mstorti in spider
      > Changed '2001' to '2002' in all copyrights.
+----------
+tag: beta-2.73 on Tue Feb  5 23:37:37 ARST 2002, by mstorti in spider
+     > aquifer+stream (class `stream_loss') is beginning to work
