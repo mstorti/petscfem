@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.3 2005/01/23 13:59:04 mstorti Exp $
+// $Id: lagmul.h,v 1.4 2005/01/26 18:41:16 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -79,5 +79,7 @@ class LagrangeMult : public Elemset {
 	   double *&retvalmat)=0;
 
 };
+
+#undef LagrangeMult
 
 #endif

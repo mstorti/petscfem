@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.16 2005/01/25 23:27:53 mstorti Exp $
-#ifndef gasflow_H
-#define gasflow_H
+// $Id: gasflow.h,v 1.17 2005/01/26 18:40:53 mstorti Exp $
+#ifndef PETSCFEM_GASFLOW_H
+#define PETSCFEM_GASFLOW_H
 
 #include "./advective.h"
 #include "./stream.h"
@@ -38,11 +38,14 @@ private:
   FastMat2 tmp20,dUabso,Uref;
   MakeTangentSpace maktgsp;
   int linear_abso;
+  const Elemset *old_elemset;
 
   void compute_tau(int ijob,double &delta_sc);
 
 public:
   gasflow_ff(NewElemset *elemset=NULL);
+
+  gasflow_ff(Elemset *elemset=NULL);
 
   ~gasflow_ff();
 
@@ -170,7 +173,7 @@ public:
 /// The elemset corresponding to the `gasflow_ff' flux function.
 class gasflow : public NewAdvDif {
 public:
-  /** Constructor, creates the fluc function object.
+  /** Constructor, creates the flux function object.
       fixme:= should destroy the flux functin.
   */
   gasflow() :  NewAdvDif(new gasflow_ff(this)) {};

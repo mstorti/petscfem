@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.2 2005/01/07 23:39:09 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.3 2005/01/26 18:41:16 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,6 +9,7 @@
 #include <src/fastmat2.h>
 
 #include <src/lagmul.h>
+#define LagrangeMult GLagrangeMult
 
 extern TextHashTable *GLOBAL_OPTIONS;
 

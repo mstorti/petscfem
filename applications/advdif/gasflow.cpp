@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.18 2005/01/24 16:05:19 mstorti Exp $
+//$Id: gasflow.cpp,v 1.19 2005/01/26 18:40:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -8,37 +8,49 @@
 
 #include "gasflow.h"
 
+#define GF_GETOPTDEF_ND(type,var,def)				\
+ { if (elemset) { EGETOPTDEF_ND(elemset,type,var,def); }	\
+ else if (old_elemset)						\
+      { TGETOPTDEF_ND(old_elemset->thash,type,var,def); }	\
+ else assert(0); }
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::start_chunk(int &ret_options) {
   int ierr;
   FastMat2 tmp5;
 
-  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
-  elemset->elem_params(nel,ndof,nelprops);
-  EGETOPTDEF_ND(elemset,int,ndim,0);
-  EGETOPTDEF_ND(elemset,double,visco,0);
-  EGETOPTDEF_ND(elemset,double,cond,0);
+  if (elemset) {
+    new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
+    elemset->elem_params(nel,ndof,nelprops);
+  } else if (old_elemset) {
+    nel = old_elemset->nel;
+    ndof = old_elemset->ndof;
+  } else assert(0);
+
+  GF_GETOPTDEF_ND(int,ndim,0);
+  GF_GETOPTDEF_ND(double,visco,0);
+  GF_GETOPTDEF_ND(double,cond,0);
 
   // Turbulence parameters
   //o Activates LES turbulence model
-  EGETOPTDEF_ND(elemset,int,LES,0);
+  GF_GETOPTDEF_ND(int,LES,0);
   //o C_smag
-  EGETOPTDEF_ND(elemset,double,C_smag,0.09);
+  GF_GETOPTDEF_ND(double,C_smag,0.09);
   //o Turbulent Prandtl number
-  EGETOPTDEF_ND(elemset,double,Pr_t,1.);
+  GF_GETOPTDEF_ND(double,Pr_t,1.);
   //o Mask for stabilization term
-  EGETOPTDEF_ND(elemset,double,tau_fac,1.);
+  GF_GETOPTDEF_ND(double,tau_fac,1.);
 
   //o Threshold value for density. If density goes belows this value
   //  then a cutoff function is applied. This is a simple way to prevent
   //  crashing of the code due to taking square root of negative values.
-  EGETOPTDEF_ND(elemset,double,rho_thrsh,0.);
+  GF_GETOPTDEF_ND(double,rho_thrsh,0.);
   //o Threshold value for pressure. See doc for rho_thrsh.
-  EGETOPTDEF_ND(elemset,double,p_thrsh,0.);
+  GF_GETOPTDEF_ND(double,p_thrsh,0.);
   //o If this flag is activated the code stops when a negative 
   //  value for density or pressure is found. Setting either
   //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# . 
-  EGETOPTDEF_ND(elemset,int,stop_on_neg_val,1);
+  GF_GETOPTDEF_ND(int,stop_on_neg_val,1);
   PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");  
   PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");  
   if (rho_thrsh>0 || p_thrsh>0) stop_on_neg_val=0;
@@ -47,41 +59,51 @@ void gasflow_ff::start_chunk(int &ret_options) {
   // the time step. If the #steady# option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
   // #temporal_stability_factor# is set to 0.
-  EGETOPTDEF_ND(elemset,double,temporal_stability_factor,1.);
+  GF_GETOPTDEF_ND(double,temporal_stability_factor,1.);
 
   // gamma coeficient
-  EGETOPTDEF_ND(elemset,double,ga,1.4);
+  GF_GETOPTDEF_ND(double,ga,1.4);
   // constant of a particular gas for ideal gas law (state equation for the gas)
-  EGETOPTDEF_ND(elemset,double,Rgas,287.);
+  GF_GETOPTDEF_ND(double,Rgas,287.);
 
   // shock capturing scheme 
   // [0] standard [default]
   // [1] see Tezduyar & Senga WCCM VI (2004) 
-  EGETOPTDEF_ND(elemset,int,shocap_scheme,0);
+  GF_GETOPTDEF_ND(int,shocap_scheme,0);
   // beta parameter for shock capturing, see Tezduyar & Senga WCCM VI (2004)
-  EGETOPTDEF_ND(elemset,double,shocap_beta,1.0);
+  GF_GETOPTDEF_ND(double,shocap_beta,1.0);
   // factor used to add some standard shocap to Tezduyar & Senga shocap
-  EGETOPTDEF_ND(elemset,double,shocap_factor,0.0);
+  GF_GETOPTDEF_ND(double,shocap_factor,0.0);
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
   G_body.resize(1,ndim);
   G_body.set(0.);
-  ierr = elemset->get_double("G_body",
-			     *G_body.storage_begin(),1,ndim);
+  if (elemset) {
+    ierr = elemset->get_double("G_body",
+			       *G_body.storage_begin(),1,ndim);
+  }
 
   //o _T: double[ndof] _N: Uref _D: <none>
   // _DOC: reference state for absorbing b.c.'s. _END
   Uref.resize(1,ndof).set(0.);
-  ierr = elemset->
-    get_double("Uref",*Uref.storage_begin(),1,ndof);
+  if (old_elemset) {
+    const char *line;
+    vector<double> Uref_v;
+    old_elemset->thash->get_entry("G_body",line);
+    if(line) {
+      read_double_array(Uref_v,line);
+    assert(Uref_v.size()==ndof);
+    Uref.set(&Uref_v[0]);
+    }
+  }
   dUabso.resize(1,ndof);
 
   //o Use linear approximation for the absorbing
   //  boundary condition. Gives fully absorbing b.c. in the
   //  linear range, but not truly Riemman Invariant in the
   //  nonlinear range. 
-  EGETOPTDEF_ND(elemset,int,linear_abso,0);
+  GF_GETOPTDEF_ND(int,linear_abso,0);
 
   assert(ndim>0);
   assert(ndof==2+ndim);
@@ -140,6 +162,9 @@ void gasflow_ff::element_hook(ElementIterator &element) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 gasflow_ff::gasflow_ff(NewElemset *e) : AdvDifFFWEnth(e) {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+gasflow_ff::gasflow_ff(Elemset *e) : old_elemset(e) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 gasflow_ff::~gasflow_ff() { }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.2 2005/01/26 11:48:29 mstorti Exp $
+// $Id: advabso.h,v 1.3 2005/01/26 18:40:53 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -29,7 +29,7 @@ private:
   // Poiter to adv-diff flux fun
   NewAdvDifFF *adv_diff_ff;
   FastMat2 dummy,flux,fluxd,A_grad_U,
-    grad_U;
+    grad_U,Ucpy;
 public:
   AdvectiveAbso(NewAdvDifFF *ff) 
     : adv_diff_ff(ff) {} 
@@ -38,28 +38,10 @@ public:
   void lag_mul_dof(int jr,int &node,int &dof) {
     node = 2; dof=jr;
   }
-  void lm_initialize() { 
-    int ff_options=0;
-    adv_diff_ff->start_chunk(ff_options);
-  }
-  void init() {
-    int ierr;
-    TGETOPTDEF_ND(thash,int,ndim,0);
-    flux.resize(1,ndof);
-    fluxd.resize(1,ndof);
-    A_grad_U.resize(1,ndof);
-    grad_U.resize(2,ndim,ndof).set(0.);
-  }
+  void lm_initialize();
+  void init();
   void res(int k,FastMat2 &U,FastMat2 &r,
-	   FastMat2 &w,FastMat2 &jac) {
-    double delta_sc=0.0,
-      lambda_max_pg=0.0;
-    adv_diff_ff
-      ->compute_flux(U, dummy, dummy, dummy, flux, fluxd,
-		     A_grad_U, grad_U, dummy,
-		     dummy, delta_sc, lambda_max_pg, dummy,
-		     dummy, dummy, dummy, 0);
-  }
+	   FastMat2 &w,FastMat2 &jac);
   void close() {}
 };
 
@@ -67,7 +49,7 @@ public:
 class gasflow_abso : public AdvectiveAbso {
 public:
   gasflow_abso() 
-    :  AdvectiveAbso(new gasflow_ff()) { } 
+    :  AdvectiveAbso(new gasflow_ff(this)) { } 
 };
 
 #undef gasflow_abso
