@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.110 2003/09/13 18:01:23 mstorti Exp $
+#$Id: runtests.pl,v 1.111 2003/09/14 05:22:06 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -458,7 +458,7 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("newff/newff.check_nodes.out",
        "Check node<nnod in constraints",<<'EOT');
-Assertion failed: "node<=nnod."
+Assertion failed: "node<=nnod"
 read_mesh: Read node= 35 greater than nnod= 34
 newff.depl:.*: "1. 35 1 \-1. 33 1"
 ---------------
