@@ -1795,3 +1795,6 @@ tag: beta-3.08.pl8 on Thu, 28 Nov 2002 14:52:59 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.08.pl9 on Fri, 29 Nov 2002 09:34:20 -0300 by mstorti in node1.beowulf.gtm
      > Will invert left nd right eigenvetors in args to eig()
+----------
+tag: beta-3.08.pl10 on Fri, 29 Nov 2002 09:56:28 -0300 by mstorti in node1.beowulf.gtm
+     > Swapped right and left eigenvectors
