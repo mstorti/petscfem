@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.17 2005/01/23 20:19:33 mstorti Exp $
+//$Id: gasflow.cpp,v 1.18 2005/01/24 16:05:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -679,15 +679,15 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
       C.setel(un,k);
   } else {
 
-    Uref.is(1,2,ndim+1);
-    tmp20.prod(Uref,normaln,-1,-1);
-    Uref.rs();
-
     tmp20.prod(vel,normaln,-1,-1);
     double un = tmp20.get();
 
     // Standard (linear) absorbing b.c.'s
     double rhoref = Uref.get(1);
+
+    Uref.is(1,2,ndim+1);
+    tmp20.prod(Uref,normaln,-1,-1);
+    Uref.rs();
     double uref = tmp20.get();
     double pref = Uref.get(ndof);
     double aref = sqrt(ga*pref/rhoref);
