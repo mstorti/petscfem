@@ -264,7 +264,7 @@ the other processor. Once all the data to be sent is buffered, the
 entries are scanned again and the entries that have been buffered are
 deleted. 
 
-The buffers are sent to the other processors following an strategy
+The buffers are sent to the other processors following a strategy
 preventing deadlock in $\nproc-1$ stages, where $\nproc$ is the number
 of processors. In the $k$-th stage, data is sent from processor $j$ to
 processor $(j+k) \% \nproc$ where $\%$ is the remainder operator as in
@@ -296,14 +296,14 @@ individual buffer from one process to other.
 
 An improved strategy consists in a multilevel scheduling
 algorithm. Assume first that $\nproc$ is even and divide processors in
-subsets $S_1 = \{0,1,\ldots,\nproc/2\}$, $S_2 =
-\{n/2,n/2+1,\ldots,\nproc-1\}$. We first exchange all information
+subsets $S_1 = \{0,1,\ldots,\nproc/2-1\}$, $S_2 =
+\{\nproc/2,\nproc/2+1,\ldots,\nproc-1\}$. We first exchange all information
 between processors in $S_1$ with those in $S_2$ in $\nproc/2$
-stages. In a stage 0 (see figure~\ref{fg:sched2}) processor $0$
+stages. In stage 0 (see figure~\ref{fg:sched2}) processor $0$
 exchanges data with $n/2$, 1 with $\nproc/2+1$, $\ldots$ and $n/2-1$
 with $\nproc$.  i.e. processor 0 calls \verb+exchange+$(n/2)$ and
 processor $n/2$ calls \verb+exchange+$(0)$, the code of procedure
-\verb+exchange()+ is shown in procedure~\ref{al:exch}. In the stage 1
+\verb+exchange()+ is shown in the procedure below. In the stage 1
 processor 0 exchanges with $\nproc/2+2$, 1 with $\nproc/2+3$,
 $\nproc/2-2$ with $\nproc$ and $\nproc/2-1$ with $\nproc/2$,
 i.e. processor $j$ exchanges with $(n/2)+(j+1)\%(\nproc/2)$. In
@@ -331,42 +331,39 @@ to an estimation of a total time of
 %
 Then, it is significantly better than the previous algorithm. 
 
-%\begin{latexonly}
-\begin{figure*}[htb]
-%\begin{algorithm}[htb]
-\label{al:exch}
-\caption{Scheduling algorithm for exchanging data between processors}
-\begin{algorithmic}
-\STATE {\textbf{procedure exchange}(j)}
-  \IF{{\tt myrank}$>j$}
-    \STATE send to $j$
-    \STATE receive from $j$
-  \ELSE
-    \STATE receive from $j$
-    \STATE send to $j$
-  \ENDIF
-\end{algorithmic}
-%\end{algorithm}
-\end{figure*}
-%\end{latexonly}
+\begin{verbatim}
+// Scheduling algorithm for exchanging data between processors
+void exchange(j) {
+  if (myrank>j) {
+    // send data to processor j ...
+    // receive data from processor j ...
+  } else {
+    // send data to processor j ...
+    // receive data from processor j ...
+  }
+}
+\end{verbatim}
+
+% %\begin{latexonly}
+% \begin{figure*}[htb]
+% %\begin{algorithm}[htb]
+% \label{al:exch}
+% \caption{Scheduling algorithm for exchanging data between processors}
+% \begin{algorithmic}
+% \STATE {\textbf{procedure exchange}(j)}
+%   \IF{{\tt myrank}$>j$}
+%     \STATE send to $j$
+%     \STATE receive from $j$
+%   \ELSE
+%     \STATE receive from $j$
+%     \STATE send to $j$
+%   \ENDIF
+% \end{algorithmic}
+% %\end{algorithm}
+% \end{figure*}
+% %\end{latexonly}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 
-
-% \begin{htmlonly}
-% \caption{Scheduling algorithm for exchanging data between processors}
-% \begin{verbatim}
-% procedure exchange(int j) [
-%   if (myrank > j) {
-%     send to j;
-%     receive from j;
-%   } else {
-%     receive from j;
-%     send to j;
-%   }
-% }
-% \end{verbatim}
-% \end{htmlonly}
- 
 % Local Variables: *
 % mode: latex *
 % tex-main-file: "petscfem.tex" *
