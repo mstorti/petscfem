@@ -23,7 +23,7 @@ nsave 1
 nsaverot 10
 # initial_state "cylin.state.tmp"
 initial_state "cylin.ini.tmp"
-nstep 2
+nstep 10
 # steady
 solver "iisd"
 iisd_subpart_auto 2000
@@ -63,6 +63,12 @@ __END_HASH__
 <:=$nnod:>
 __END_ELEMSET__
 
+elemset ns_id 1
+ns_id_fac 0.
+__END_HASH__
+__INCLUDE__ "cylin.nod_fic_ext.tmp"
+__END_ELEMSET__
+
 end_elemsets
 
 #===========================================================
@@ -71,6 +77,15 @@ __INCLUDE__ "cylin.outlet.tmp"
 __INCLUDE__ "cylin.skin.tmp"
 __END_FIXA__
 
+#===========================================================
+fixa_amplitude dl_generic
+ext_filename "./inviscid.efn"
+function_name "visc_coupling"
+__END_HASH__
+__INCLUDE__ "cylin.nod_ext_fix.tmp"
+__END_FIXA__
+
+#===========================================================
 constraint
 __INCLUDE__ "cylin.normal.tmp"
 __END_CONSTRAINT__

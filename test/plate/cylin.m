@@ -72,8 +72,10 @@ outlet = mesher_bound(mesh,[16 15 11 4 5]);
 skin = mesher_bound(mesh,[9 1 6 17 12 9]);
 
 ## Add a fictitious node for the constraints
+nnod_ext = length(external);
+nod_fic_ext = length(xnod)+(1:nnod_ext)';
 xnod = [xnod;
-	0 0];
+	xnod(external,:)];
 
 asave("cylin.nod.tmp",xnod);
 asave("cylin.con.tmp",icone);
@@ -102,20 +104,20 @@ normal = [0 1;
 	  0 -1];
 
 fid = fopen("cylin.normal.tmp","w");
-
+fidf = fopen("cylin.nod_ext_fix.tmp","w");
 for k=2:length(normal)-1
   node = external(k);
+  nod_fic = nod_fic_ext(k);
   fprintf(fid,"%f   %d %d      %f   %d %d    %f   %d %d\n",
-	  normal(k,1),node,1, normal(k,2),node,2,
-	  -normal(k,1),nnod,1);
+	  normal(k,1),node,1, normal(k,2),node,2,-1.,nod_fic,1);
+  fprintf(fidf,"%d %d   %f\n",nod_fic,1,1.);
+  fprintf(fidf,"%d %d   %f\n",nod_fic,2,1.);
+  fprintf(fidf,"%d %d   %f\n",nod_fic,3,1.);
 endfor
 fclose(fid);
+fclose(fidf);
 
 fid = fopen("cylin.skin.tmp","w");
-## Fix all values in the fictitious node
-fprintf(fid,"%d %d    %f\n",nnod,1,1.);
-fprintf(fid,"%d %d    %f\n",nnod,2,0.);
-fprintf(fid,"%d %d    %f\n",nnod,3,0.);
 
 for k=1:length(skin)
   node = skin(k);
@@ -131,6 +133,8 @@ for k=1:length(outlet)
   fprintf(fid,"%d %d    %f\n",node,3,0.);
 endfor  
 fclose(fid);
+
+asave("cylin.nod_fic_ext.tmp",nod_fic_ext);
 
 [xnode,iconee,meshe] = mesher(XNOD,ICONEE,H);
 external2 = mesher_bound(meshe,[5 3 8 19 14 16]);

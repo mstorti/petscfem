@@ -4,7 +4,8 @@ global_options
 ndim 2
 save_file "ext.state.tmp"
 nsave 1
-nstep 2
+## should stop on signal from cylin.epl
+nstep 10000000
 save_file_pattern "ext.out_%d.tmp"
 steady
 solver "iisd"

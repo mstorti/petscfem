@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dlhook.cpp,v 1.4 2002/10/18 00:44:14 mstorti Exp $
+//$Id: dlhook.cpp,v 1.5 2003/01/04 00:49:53 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -45,6 +45,7 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
   GET_FUN(InitFun,init_fun);
   GET_FUN(TimeStepPostFun,time_step_post_fun);
   GET_FUN(TimeStepPreFun,time_step_pre_fun);
+  GET_FUN(CloseFun,close_fun);
 
   (*init_fun)(mesh,dofmap,name_a,options,fun_data);
 }

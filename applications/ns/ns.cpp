@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.118 2002/11/30 14:54:47 mstorti Exp $
+//$Id: ns.cpp,v 1.119 2003/01/04 00:49:53 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -813,6 +813,8 @@ int main(int argc,char **args) {
     }
 
   }
+
+  hook_list.close();
 
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
   print_vector(save_file.c_str(),x,dofmap,&time);

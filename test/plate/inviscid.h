@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: inviscid.h,v 1.3 2002/12/30 03:06:31 mstorti Exp $
+//$Id: inviscid.h,v 1.4 2003/01/04 00:49:56 mstorti Exp $
 #ifndef ROSI_H
 #define ROSI_H
 
@@ -34,6 +34,7 @@ public:
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
+  void close();
 };
 
 vector<double> xnod, u;
@@ -49,6 +50,7 @@ public:
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
+  void close() {}
 };
 
 #endif

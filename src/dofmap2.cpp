@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.10 2003/01/01 23:49:15 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.11 2003/01/04 00:49:56 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -80,6 +80,7 @@ int Dofmap::set_constraint(const Constraint &constraint) {
   double cc, cmax; 
   row_t::iterator q, qmax, qe = row0.end();
   for (q=row0.begin(); q!=qe; q++) {
+    if (fixed_dofs.find(q->first)!=fixed_dofs.end()) continue;
     cc = fabs(q->second);
     if (!set_flag || cc>cmax) {
       qmax = q;
@@ -87,6 +88,7 @@ int Dofmap::set_constraint(const Constraint &constraint) {
       set_flag = 1;
     }
   }
+  assert(set_flag);
   // If the rows is null, then it means that the restriction is
   // llinerly dependent on previous restrictions and do nothing
   if (cmax<tol) return 1;
@@ -125,7 +127,9 @@ int Dofmap::set_constraint(const Constraint &constraint) {
     nodf(edof0,node,field);
     get_row(node,field,row);
     // Check that it is really a simple mapping (only one entry in row with coef = 1.)
-    assert(row.size()==1);
+    PETSCFEM_ASSERT(row.size()==1,
+		    "Constraint imposed on bad node/field combination\n"
+		    "node %d, field %d\n",node,field);  
     row_t::iterator q = row.begin();
     assert(q->second==1.);
     // This is the new `edof'

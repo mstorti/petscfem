@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.4 2002/10/18 00:44:14 mstorti Exp $
+//$Id: dlhook.h,v 1.5 2003/01/04 00:49:53 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
@@ -22,12 +22,14 @@ public:
 			       void *fun_data);
   typedef void TimeStepPreFun(double time,int step,
 			      void *fun_data);
+  typedef void CloseFun(void *fun_data);
 private:
   void *handle;
   void *fun_data;
   InitFun *init_fun;
   TimeStepPostFun *time_step_post_fun;
   TimeStepPreFun *time_step_pre_fun;
+  CloseFun *close_fun;
 protected:
   string name;
   TextHashTableFilter *options;
@@ -40,6 +42,7 @@ public:
 		      const vector<double> &gather_values) {
     (*time_step_post_fun)(time,step,gather_values,fun_data);
   }
+  void close() { (*close_fun)(fun_data); }
 };
 
 #define DL_GENERIC_HOOK(prefix)						\
@@ -62,6 +65,9 @@ prefix##_time_step_post_fun(double time,int step,			\
 			    void *fun_data) {				\
   ((prefix *)fun_data)							\
     ->time_step_post(time,step,gather_values);				\
-}
+}									\
+									\
+extern "C" void								\
+prefix##_close_fun(void *fun_data) { ((prefix *)fun_data)->close(); }
 
 #endif

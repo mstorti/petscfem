@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.37 2002/12/18 20:59:32 mstorti Exp $
+//$Id: nsi_tet.h,v 1.38 2003/01/04 00:49:53 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -374,6 +374,7 @@ public:
   virtual void time_step_pre(double time,int step) {}
   virtual void time_step_post(double time,int step,
 			      const vector<double> &gather_values) {}
+  virtual void close() {}
 };
 
 class HookList : public vector<Hook *> {
@@ -382,6 +383,7 @@ public:
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
+  virtual void close();
   ~HookList();
 };
 

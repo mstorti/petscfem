@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.11 2003/01/03 02:52:29 mstorti Exp $
+//$Id: inviscid.cpp,v 1.12 2003/01/04 00:49:56 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -10,6 +10,7 @@ extern int MY_RANK,SIZE;
 extern int MY_RANK,SIZE;
 #define NDIM 2    
 #define NDOF (NDIM+1)    
+//#define COUPLING_DEBUG
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ext_node {
@@ -21,12 +22,21 @@ public:
   double x[NDIM], x1[NDIM], u[NDIM], phi, phi1;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class inv_ext_node {
+public:
+  int indx;
+  double u_n;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double Uinf;
 int inv_inc_lay;
 typedef map<int,int> ext_map;
 ext_map inv_indx_map,inv1_indx_map,visc_indx_map;
 vector<ext_node> ext_node_data;
-map<int,double> coupling_visc_vel;
+typedef map<int,inv_ext_node> coupling_visc_vel_t;
+coupling_visc_vel_t coupling_visc_vel;
 int computed_coupling_visc_vel=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -58,22 +68,37 @@ void coupling_visc_hook::time_step_pre(double t,int step) {
 
     FILE *fid = fopen("ext.coupling_normal_vel.tmp","r");
     assert(fid);
+    FILE *fid2 = fopen("cylin.nod_fic_ext.tmp","r");
+    assert(fid2);
     int nread;
     char *line = NULL; size_t N=0;
+    int k=0;
     while (1) {
       if (getline(&line,&N,fid)==-1) break;
       int node; double u_n;
       nread = sscanf(line,"%d %lf",&node,&u_n);
       assert(nread==2);
-      coupling_visc_vel[node] = u_n;
+      if (getline(&line,&N,fid2)==-1) break;
+      nread = sscanf(line,"%d",&node);
+      assert(nread==1);
+
+      inv_ext_node & n = coupling_visc_vel[node];
+      n.u_n = u_n;
+      n.indx = k;
+#ifdef COUPLING_DEBUG
+      printf("VISCOUS: loads node %d, u_n %f, on coupling_visc_vel\n",
+	     node,u_n);
+#endif
+      k++;
     }
     fclose(fid);
+    fclose(fid2);
     free(line); line=NULL; N=0;
     computed_coupling_visc_vel=1;
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"VISCOUS: step 1 do nothing ... Continue\n");
-    computed_coupling_visc_vel=1;
+    computed_coupling_visc_vel=0;
   }
 }
 
@@ -81,15 +106,29 @@ void coupling_visc_hook::time_step_pre(double t,int step) {
 void coupling_visc_hook::time_step_post(double time,int step,
 			       const vector<double> &gather_values) {
   PetscPrintf(PETSC_COMM_WORLD,
-	      "INVISCID: sending computed_flag step %d\n",step);
+	      "VISCOUS: sending computed_flag step %d\n",step);
   fprintf(visc2inv,"computed_step %d\n",step);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void coupling_visc_hook::close() {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "VISCOUS: sending computed_flag step -1 (stopping signal!!)\n");
+  fprintf(visc2inv,"computed_step -1\n");
+  fclose(visc2inv);
+  read_doubles(inv2visc,"computed_step"); // read once floating value
+  int step_sent = int(read_doubles(inv2visc,"computed_step"));
+  printf("read from inv2visc: %d\n",step_sent);
+  assert(step_sent==-1);
+  fclose(inv2visc);
 }
 
 DL_GENERIC_HOOK(coupling_visc_hook);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
-		     TextHashTableFilter *options_f,const char *name) {
+			     TextHashTableFilter *options_f,
+			     const char *name) {
 
   assert(SIZE==1); // Not implemented in parallel yet
 
@@ -238,8 +277,17 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::time_step_pre(double t,int step) { 
   printf("INVISCID: waiting computed_step flag, step %d...\n",step);
-  double step_sent = read_doubles(visc2inv,"computed_step");
-  assert(int(step_sent)==step);
+  int step_sent = int(read_doubles(visc2inv,"computed_step"));
+  if (step_sent==-1) {
+    printf("INVISCID: received stopping signal... \n",step);
+    fclose(visc2inv);
+    printf("INVISCID: sending back acknowledge signal... \n",step);
+    fprintf(inv2visc,"computed_step -1\n");
+    fclose(inv2visc);
+    PetscFinalize();
+    exit(0);
+  }
+  assert(step_sent==step);
   printf("INVISCID: received computed_step flag OK, step %d\n",step);
   FILE *fid = fopen("cylin.state.tmp","r");
   assert(fid);
@@ -387,6 +435,9 @@ void coupling_inv_hook::time_step_post(double time,int step,
     // dpot_dx.print("dpot_dx: ");
     dphidn = tmp1.prod(dpot_dx,norm,-1,-1).get();
 
+#ifdef COUPLING_DEBUG
+    printf("node %d, indx %d, dphidn  %f\n",ext_node_data[k].vn,k,dphidn);
+#endif
     fprintf(fid,"%d %f\n",ext_node_data[k].vn,dphidn);
   }
   fclose(fid);
@@ -415,7 +466,9 @@ double coupling::eval(double) {
   assert(q!=inv_indx_map.end());
   int ext_node_indx = q->second;
   double phi = ext_node_data[ext_node_indx].phi;
+#ifdef COUPLING_DEBUG
   printf("node: %d, phi: %f\n",node_c,phi);
+#endif
   return phi;
 }
 
@@ -432,10 +485,17 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double visc_coupling::eval(double) { 
-  assert(field()==1);
+  if (field()!=1 || !computed_coupling_visc_vel) return 0.;
   int node_c = node();
-  if (!computed_coupling_visc_vel) return 0.;
-  map<int,double>::iterator q = coupling_visc_vel.find(node_c);
-  assert(q!=coupling_visc_vel.end());
-  return q->second;
+  coupling_visc_vel_t::iterator q = coupling_visc_vel.find(node_c);
+  PETSCFEM_ASSERT(q != coupling_visc_vel.end(),
+		  "Can't find node in coupling visc node list\n"
+		  "node %d\n",node_c);
+#ifdef COUPLING_DEBUG
+  printf("VISCOUS: node %d, indx %d, normal vel. %f\n",
+	 node_c,q->second.indx,q->second.u_n);
+#endif
+  return q->second.u_n;
 }
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(visc_coupling);
