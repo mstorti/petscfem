@@ -1882,3 +1882,6 @@ tag: beta-3.09.pl10 on Thu, 12 Dec 2002 09:59:41 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.09.pl11 on Thu, 12 Dec 2002 17:30:38 -0300 by mstorti in minerva.arcride.edu.ar
      > Added `mmove' 2D/3D tests. 
+----------
+tag: beta-3.09.pl12 on Thu, 12 Dec 2002 23:36:19 -0300 by mstorti in spider
+     > Added doc for `mesh_move'
