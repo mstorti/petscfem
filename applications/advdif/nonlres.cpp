@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.4 2004/07/07 16:44:19 rodrigop Exp $ */
+/* $Id: nonlres.cpp,v 1.5 2005/01/20 22:50:54 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -59,7 +59,7 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   int nu=nodedata->nu;
   int nH = nu-ndim;
   int ret_options=0;
-  //  adv_diff_ff->start_chunk(ret_options); //ff ini
+  adv_diff_ff->start_chunk(ret_options); //ff ini
 
   //aqui en advdif esta primero en el arg_data_v el estado en t_n y despues en t_n+1.
   arg_data *locstold,*locst,*retval,*fdj_jac,*jac_prof,*Ajac;
@@ -124,6 +124,7 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   C_U_ref.resize(1,ndof);
   drdU_ref.resize(2,nr,ndof);  
   U_ref.resize(1,ndof);
+  Ulocal.resize(1,ndof);
   xpe.resize(1,nel-3).set(0.);
   cpe.resize(1,nel-3).set(0.);
   RI_tmp.resize(1,nr).set(0.);
@@ -252,6 +253,8 @@ void AdvDiff_Abs_Nl_Res::res(ElementIterator &element, FastMat2 &U, FastMat2 &r,
   lambda.rs();
   for (int j=1;j<=nel;j++) {
     U.ir(1,j);
+    Ulocal.set(U);
+    adv_diff_ff->set_state(Ulocal);
     adv_diff_ff->Riemann_Inv(U,normaln,RI_tmp,drdU_tmp,C_U_tmp);
     if (j == nel) {
       U_ref.set(U);

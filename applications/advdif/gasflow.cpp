@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.10 2005/01/20 17:42:14 mstorti Exp $
+//$Id: gasflow.cpp,v 1.11 2005/01/20 22:50:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -95,7 +95,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   Cjac.resize(2,ndof,ndof);
   tmp2.resize(2,nel,nel);
   tmp3.resize(2,ndof,ndof);
-  tmp20.resize(1,ndim);
+  tmp20.resize(0);
 
   grad_vel.resize(2,ndim,ndim);
   strain_rate.resize(2,ndim,ndim);
@@ -622,9 +622,8 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   tmp20.prod(vel,normaln,-1,-1);
   double un = tmp20.get();
   // Right now, verify that `normaln' is aligned with `x'
-  assert(normaln.get(1)==1.0);
-  assert(normaln.get(2)==0.0);
-  assert(normaln.get(3)==0.0);
+  for (int k=2; k<=ndim; k++)
+    assert(normaln.get(k)==0.0);
   double a2g = 2*a/g1;
 
   // Riemman Invariants
@@ -633,7 +632,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   double s = log(p)-ga*log(rho);
   Rie.setel(s,3);
   for (int k=2; k<=ndim; k++)
-    Rie.setel(vel.get(k),3+k);
+    Rie.setel(vel.get(k),2+k);
 
   // Jacobians
   drdU.set(0.);
@@ -658,6 +657,6 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   C.setel(un-a,1);
   C.setel(un+a,2);
 
-  for (int k=2; k<=ndof; k++) 
+  for (int k=3; k<=ndof; k++) 
     C.setel(un,k);
 }

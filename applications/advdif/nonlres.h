@@ -91,7 +91,8 @@ class LagrangeMult : public NewElemset {
 class AdvDiff_Abs_Nl_Res : public NonLinearRes {
   //characteristics and Riemann invariant matrices
   FastMat2 RI_,C_U_,drdU_,drdU_ref,RI_ref,C_U_ref,
-    xpe,cpe,RI_tmp,C_U_tmp,drdU_tmp,U_innodes,U_lagmul;
+    xpe,cpe,RI_tmp,C_U_tmp,drdU_tmp,U_innodes,U_lagmul,
+    Ulocal;
   /// Index (field numbers) of $u$ and $h$, number of dimensions
   int ndim,ndof,nu,nh,nel;
   /// Number of properties and restrictions

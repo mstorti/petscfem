@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.2 2005/01/20 17:42:18 mstorti Exp $
+## $Id: mkgfabso.m,v 1.3 2005/01/20 22:50:35 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -27,6 +27,11 @@ pffixa("gfabso.fixa-slip.tmp",outlet,3)
 
 asave("gfabso.nod.tmp",xnod);
 asave("gfabso.con.tmp",icone);
+
+indx = (Nx-3:Nx+1);
+asave("gfabso.con-abso1.tmp",
+      [indx;
+       Nx+1+indx]);
 
 asave("gfabso.some-nodes.tmp",(1:Nx+1)');
 

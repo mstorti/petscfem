@@ -85,10 +85,11 @@ npg 4
 data ./gfabso.con.tmp
 __END_HASH__
 
-elemset gasflow_abso 2
+elemset gasflow_abso 5
 dx 0
 normaln 1. 0.
 __END_HASH__
+__INCLUDE__ gfabso.con-abso1.tmp
 __END_ELEMSET__
 
 end_elemsets

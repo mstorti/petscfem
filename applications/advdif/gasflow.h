@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.11 2005/01/20 17:42:14 mstorti Exp $
+// $Id: gasflow.h,v 1.12 2005/01/20 22:50:54 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -142,8 +142,15 @@ public:
   void comp_P_supg(FastMat2 &P_supg);
 #endif
 
-  /** Returns the Riemann Invariants and jacobians 
-      for Adv-Diff absorbent condition. 
+  /** The dimension of the corresponding `volume' 
+      elemenset minus ons. */
+  int dim() const { return ndim; } 
+
+  /** Returns the Riemann Invariants and jacobians for Adv-Diff
+      absorbent condition.  From #nel# nodes, nodes 1 to #nel-2# are
+      ```real'', i.e. the nodes at the boundary, the #nel-1# node is
+      reserved for the lagrange multipliers, and node #nel# is the
+      nodes from where to take the reference state. 
       @param U (input) (size #ndof#) state vector
       @param normaln (input) (size #ndim#) normal to output surface. 
       @param Rie (output) (size #ndof#) Riemman invariants for state #U#
