@@ -1,9 +1,9 @@
-;;; $Id: getsurf.scm,v 1.13 2005/01/17 23:50:54 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.14 2005/01/18 02:29:47 mstorti Exp $
 (load "./dvector.scm")
 (load "./femref.scm")
 
 (define (ddump s v)
-  (format #t "~A: \n" s)
+  (format #t "\n\n~A: \n" s)
   (dvdbl-dump v))
 
 (define (idump s v)
@@ -24,9 +24,26 @@
 (dvdbl-reshape! x 0 ndim)
 (format #t "xnod: read ~A dbls\n" (dvdbl-cat! x "cube.nod.tmp"))
 
-(ddump "x antes: " x)
+(ddump "x: " x)
 (dvdbl-scale! x 4.)
-(ddump "x despues" x)
+(ddump "x *= 4" x)
+(dvdbl-scaleb! x 0.5)
+(ddump "x /= 2" x)
+(dvdbl-add! x 100)
+(ddump "x += 100" x)
+(format #t "max x ~A\n"  (dvdbl-max x))
+(format #t "min x ~A\n"  (dvdbl-min x))
+(dvdbl-rand! x )
+(dvdbl-apply! x (lambda (x) (- (* 2 x) 1)))
+(ddump "x = rand" x)
+(define M 1000)
+(dvdbl-apply! x (lambda (x) (- (* 2 (random M)))))
+(ddump "x = (rand 1000)" x)
+(format #t "max x ~A\n"  (dvdbl-max x))
+(format #t "max |x| ~A\n"  
+	(dvdbl-assoc x (lambda (x y) 
+			 (cond ((> ($abs x) ($abs y)) x)
+			       (#t y))) 0))
 (quit)
 
 (getsurf ctx icone surf-con surf-nodes 1 0)
