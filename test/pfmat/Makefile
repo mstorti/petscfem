@@ -1,6 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2004/10/24 16:25:24 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2004/10/24 16:48:43 mstorti Exp $ 
 #s Local Targets
+
+default: pfmat7
+
 #w all tests
 tests: pfmat pfmat2
 
@@ -146,5 +149,8 @@ debug.o pfmat2.o: CPPFLAGS += -O0
 pfmat3.bin: $(LIB_OBJS_LIB) pfmat3.o hashf.o
 	-rm -f $@
 	${CXX_CLINKER} -o $@ pfmat3.o hashf.o $(LDFLAGS_NO_PROG_LIB)
+
+pfmat7: pfmat7.bin
+	$(MPIRUN) -np 1 ./pfmat7.bin
 
 #s

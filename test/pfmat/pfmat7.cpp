@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat7.cpp,v 1.1 2004/10/24 16:25:24 mstorti Exp $
+// $Id: pfmat7.cpp,v 1.2 2004/10/24 16:48:43 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -47,8 +47,30 @@ int main(int argc,char **args) {
   PFSymmPETScMat AA(N,N,part,PETSC_COMM_WORLD);
   PFMat &A = AA;
 
-  nread = fscanf(fid,"%d",&N);
-  assert(nread==1);
+  int nhere=0;
+  if (!myrank)  {
+    ierr = PetscPrintf(PETSC_COMM_WORLD,
+		       "now-->setting vector\n");
+    CHKERRQ(ierr);
+  }
+  for (int k=0; k<N; k++) 
+    if (part.processor(k)==myrank) nhere++;
+  ierr = VecCreateMPI(PETSC_COMM_WORLD,
+		      nhere,PETSC_DETERMINE,&b); 
+  CHKERRQ(ierr); 
+  ierr = VecDuplicate(b,&x); CHKERRQ(ierr); 
+
+  for (int k=0; k<N; k++) {
+    double v;
+    nread = fscanf(fid,"%lf",&v);
+    assert(nread==1);
+    if (part.processor(k)==myrank) 
+    ierr = VecSetValues(b,1,&k,&v,INSERT_VALUES); 
+    CHKERRQ(ierr); 
+  }
+  ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(b); CHKERRQ(ierr);
+
   while(1) {
     int j,k;
     double v;
@@ -63,7 +85,7 @@ int main(int argc,char **args) {
 #if 0
   nread = fscanf(fid,"%d",&N);
   assert(nread==1);
-  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Setting matrix\n");CHKERRA(ierr);}
+  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Setting matrix\n");CHKERRQ(ierr);}
   for (int i=0;i<nonzeros;i++) {
     int j,k;
     double v;
@@ -73,15 +95,15 @@ int main(int argc,char **args) {
     //    A.set_value(j,k,v);
   }
   fclose(fid);
-  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Assembling matrix\n");CHKERRA(ierr);}
+  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Assembling matrix\n");CHKERRQ(ierr);}
   A.assembly(MAT_FINAL_ASSEMBLY);
   int nhere=0;
-  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->setting vector\n");CHKERRA(ierr);}
+  if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->setting vector\n");CHKERRQ(ierr);}
   for (int k=0; k<N; k++) 
     if (part.processor(k)==myrank) nhere++;
   ierr = VecCreateMPI(PETSC_COMM_WORLD,
-		      nhere,PETSC_DETERMINE,&b); CHKERRA(ierr); 
-  ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
+		      nhere,PETSC_DETERMINE,&b); CHKERRQ(ierr); 
+  ierr = VecDuplicate(b,&x); CHKERRQ(ierr); 
   fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/lap_b.dat","r");
   for (int j=0; j<N; j++) {
     double v;
@@ -90,13 +112,13 @@ int main(int argc,char **args) {
   }
   fclose(fid);
   int its;
-  ierr = VecAssemblyBegin(b); CHKERRA(ierr);
-  ierr = VecAssemblyEnd(b); CHKERRA(ierr);
+  ierr = VecAssemblyBegin(b); CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(b); CHKERRQ(ierr);
   if (!myrank)  {
-    ierr = PetscPrintf(PETSC_COMM_WORLD,"data-->read\n");CHKERRA(ierr);
-    ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Solving system\n");CHKERRA(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"data-->read\n");CHKERRQ(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Solving system\n");CHKERRQ(ierr);
   }
-  ierr = A.solve(b,x); CHKERRA(ierr); 
+  ierr = A.solve(b,x); CHKERRQ(ierr); 
   //  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
   A.clear();
   PetscFinalize();
