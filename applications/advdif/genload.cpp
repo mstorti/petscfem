@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.2 2001/05/22 02:53:44 mstorti Exp $
+//$Id: genload.cpp,v 1.3 2001/05/22 21:20:40 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -13,6 +13,44 @@ extern int MY_RANK,SIZE;
 #include "../../src/fastmat2.h"
 
 #include "advective.h"
+
+/// Generic surface flux function (film function) element
+class LinearHFilmFun : public HFilmFun {
+private:
+  int nel, ndof, nelprops;
+  FastMat2 H,S; // The relation is: F_{2->1} = S+H*(U2-U1)
+  Property hfilm_coeff_prop, 
+    source_term_prop;
+public:
+  void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+	 FastMat2 &jacin,FastMat2 &jacout);
+  void init();
+  LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
+};
+
+/// Linear surface flux element
+class LinGenLoad : public GenLoad { 
+public: 
+  LinearHFilmFun linear_h_film_fun;
+  LinGenLoad() : linear_h_film_fun(this) {h_film_fun = &linear_h_film_fun;};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void LinearHFilmFun::init()" 
+void LinearHFilmFun::init() {
+  elemset->elem_params(nel,ndof,nelprops);
+  // Read hfilm coefficients. 
+  //o _T: double[var_len]
+  //  _N: film coefficients _D: no default  _DOC: 
+  // Defines coeffcients for the flim flux function. 
+  //  _END
+  elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
+  if (hfilm_coeff_prop.length == 0) {
+  }
+
+}  
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

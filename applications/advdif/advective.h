@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.29 2001/05/22 02:53:44 mstorti Exp $
+//$Id: advective.h,v 1.30 2001/05/22 21:20:40 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -417,22 +417,6 @@ public:
   virtual NewAssembleFunction new_assemble;
   virtual ASK_FUNCTION;
   virtual ~GenLoad()=0;
-};
-
-/// Generic surface flux function (film function) element
-class LinearHFilmFun : public HFilmFun {
-public:
-  void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
-	 FastMat2 &jacin,FastMat2 &jacout);
-  void init();
-  LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
-};
-
-/// Linear surface flux element
-class LinGenLoad : public GenLoad { 
-public: 
-  LinearHFilmFun linear_h_film_fun;
-  LinGenLoad() : linear_h_film_fun(this) {h_film_fun = &linear_h_film_fun;};
 };
 
 /// Global parameters passed to the elemsets
