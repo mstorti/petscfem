@@ -3328,3 +3328,6 @@ tag: beta-3.33.4 on Sat, 25 Sep 2004 20:11:56 -0300 by mstorti in spider
      > Eliminated totally RH60 compilation flag. 
      > Added `quiet' flag to `FileStack' class. 
      > Set FileStack::quiet to 1 in slaves. 
+----------
+tag: beta-3.33.5 on Sat, 25 Sep 2004 20:32:43 -0300 by mstorti in spider
+     > Added Lisandro Dalcin to Authors. 
