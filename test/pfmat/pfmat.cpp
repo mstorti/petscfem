@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.5 2002/07/29 20:17:39 mstorti Exp $
+// $Id: pfmat.cpp,v 1.6 2002/09/05 19:24:01 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -231,16 +231,16 @@ int main(int argc,char **args) {
       ierr = VecAssemblyBegin(xex); CHKERRA(ierr);
       ierr = VecAssemblyEnd(xex); CHKERRA(ierr);
 
-      // A.view(VIEWER_STDOUT_WORLD);
+      // A.view(PETSC_VIEWER_STDOUT_WORLD);
       ierr = A.solve(b,x); CHKERRA(ierr); 
 
       if (debug_print) {
 	PetscPrintf(PETSC_COMM_WORLD,"b: \n");
-	ierr = VecView(b,VIEWER_STDOUT_WORLD);
+	ierr = VecView(b,PETSC_VIEWER_STDOUT_WORLD);
 	PetscPrintf(PETSC_COMM_WORLD,"FEM: \n");
-	ierr = VecView(x,VIEWER_STDOUT_WORLD);
+	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
 	PetscPrintf(PETSC_COMM_WORLD,"Exact: \n");
-	ierr = VecView(xex,VIEWER_STDOUT_WORLD);
+	ierr = VecView(xex,PETSC_VIEWER_STDOUT_WORLD);
       }
 
       double norm,normex;

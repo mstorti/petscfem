@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.10 2002/09/05 18:34:18 mstorti Exp $
+//$Id: adv.cpp,v 1.11 2002/09/05 19:24:01 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -52,7 +52,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
 #define VECVIEW(name,label) \
 ierr = ViewerSetFormat(matlab, \
-		       VIEWER_FORMAT_ASCII_MATLAB,#label); \
+		       PETSC_VIEWER_FORMAT_ASCII_MATLAB,#label); \
 ierr = VecView(name,matlab); CHKERRA(ierr)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -372,10 +372,10 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab, 
-			     VIEWER_FORMAT_ASCII_MATLAB,"res");
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res");
       ierr = VecView(res,matlab);
       ierr = ViewerSetFormat(matlab, 
-			     VIEWER_FORMAT_ASCII_MATLAB,"amass");
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"amass");
       ierr = MatView(A_mass,matlab);
       PetscFinalize();
       exit(0);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.27 2002/09/05 18:34:18 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.28 2002/09/05 19:24:01 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -165,7 +165,7 @@ int PFPETScMat::build_sles() {
   ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRQ(ierr); 
 
-  ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this);
+  ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this,NULL);
   CHKERRQ(ierr); 
   // sles_was_built = 1; // included in `factored'
   return 0;
@@ -296,7 +296,7 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
 
   // Solve local system: x_loc_seq <- XL
   if (trans) {
-    ierr = SLESSolveTrans(sles_ll,y_loc_seq,x_loc_seq,&its_);
+    ierr = SLESSolveTranspose(sles_ll,y_loc_seq,x_loc_seq,&its_);
     CHKERRQ(ierr); 
   } else {
     ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_);
@@ -362,14 +362,14 @@ int IISDMat::mult_trans(Vec x,Vec y) {
   int j,ierr,its_;
 
   // x_loc <- A_IL' * XI
-  ierr = MatMultTrans(A_IL,x,x_loc); CHKERRQ(ierr); 
+  ierr = MatMultTranspose(A_IL,x,x_loc); CHKERRQ(ierr); 
   if (local_solver == PETSc) {
     ierr = local_solve(x_loc,x_loc,1,-1.); CHKERRQ(ierr); 
   } else {
     ierr = local_solve_SLU(x_loc,x_loc,1,-1.); CHKERRQ(ierr); 
   }
-  ierr = MatMultTrans(A_II,x,y); CHKERRQ(ierr); 
-  ierr = MatMultTransAdd(A_LI,x_loc,y,y); CHKERRQ(ierr); 
+  ierr = MatMultTranspose(A_II,x,y); CHKERRQ(ierr); 
+  ierr = MatMultTransposeAdd(A_LI,x_loc,y,y); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -510,19 +510,19 @@ int IISDMat::clean_mat_a() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::view"
-int IISDMat::view(PetscViewer viewer=VIEWER_STDOUT_WORLD) {
+int IISDMat::view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD) {
   int ierr;
   PetscViewer matlab;
   if (local_solver == PETSc) {
     for (int rank=0; rank<SIZE; rank++) {
       char f[10];
       sprintf(f,"a_ll_%03d",MY_RANK);
-      ierr = ViewerASCIIOpen(PETSC_COMM_SELF,
+      ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
 			     f,&matlab); PF_CHKERRQ(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,f); PF_CHKERRQ(ierr);
+      ierr = PetscViewerSetFormat(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
       ierr = MatView(A_LL,matlab); PF_CHKERRQ(ierr);
-      ierr = ViewerDestroy(matlab);
+      ierr = PetscViewerDestroy(matlab);
     }
   } else {
     A_LL_SLU.print("L-L part");
@@ -675,7 +675,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSetType(ksp_ii,KSPRICHARDSON); PF_CHKERRQ(ierr); 
 	ierr = KSPRichardsonSetScale(ksp_ii,interface_full_preco_relax_factor);
 	if(print_interface_full_preco_conv) {
-	  ierr = KSPSetMonitor(ksp_ii,KSPDefaultMonitor,NULL);
+	  ierr = KSPSetMonitor(ksp_ii,KSPDefaultMonitor,NULL,NULL);
 	  PF_CHKERRQ(ierr); 
 	}
 	ierr = KSPSetTolerances(ksp_ii,0.,0.,1.e10,
@@ -697,7 +697,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = MatMult(A,x_i,res_i);
 	PetscPrintf(comm,"For j = %d, column:\n",j);
 
-	ierr = VecView(res_i,VIEWER_STDOUT_SELF);
+	ierr = VecView(res_i,PETSC_VIEWER_STDOUT_SELF);
 	PF_CHKERRQ(ierr); 
       }
     }
@@ -780,7 +780,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 #ifdef DEBUG_IISD    
     ierr = ViewerSetFormat(matlab,
-			   VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); PF_CHKERRQ(ierr);
+			   PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); PF_CHKERRQ(ierr);
     ierr = VecView(dx,matlab);
     ierr = ViewerDestroy(matlab);
 #endif
@@ -825,7 +825,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); PF_CHKERRQ(ierr); 
 
 	ierr = PCSetType(pc_lll,PCLU); PF_CHKERRQ(ierr); 
-	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL);
+	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
 
 	ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); PF_CHKERRQ(ierr); 
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.53 2002/08/27 13:47:38 mstorti Exp $
+//$Id: readmesh.cpp,v 1.54 2002/09/05 19:24:01 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -1288,7 +1288,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     VecSetValue(x,jj-1,double(jj),INSERT_VALUES);
   }
   PetscPrintf(PETSC_COMM_WORLD,"vector x en read_mesh\n");
-  ierr = VecView(x,VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"================\n");
   ierr = VecScatterBegin(x,ghost_vec,INSERT_VALUES,
 			 SCATTER_FORWARD,dofmap->ghost_scatter); CHKERRA(ierr); 

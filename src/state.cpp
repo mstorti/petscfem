@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: state.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
+//$Id: state.cpp,v 1.8 2002/09/05 19:24:01 mstorti Exp $
 
 #include "sttfilter.h"
  
@@ -69,7 +69,7 @@ State & State::set_cnst(double a) {
 const State & State::print() const {
 
   printf("time: %f\n",double(t()));
-  int ierr = VecView(v(),VIEWER_STDOUT_SELF);
+  int ierr = VecView(v(),PETSC_VIEWER_STDOUT_SELF);
   return *this;
 }
 

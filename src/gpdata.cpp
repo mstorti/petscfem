@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.15 2002/09/05 18:23:52 mstorti Exp $
+//$Id: gpdata.cpp,v 1.16 2002/09/05 19:24:01 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -185,7 +185,8 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Not valid value of npg. for triangles %d\n",
 		    npg);
-	CHKERRA(1); 
+	PetscFinalize();
+	exit(0);
       }
 
       shape[ipg] = RowVector(nel);
@@ -233,7 +234,8 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Not valid value of npg. for tetras %d\n",
 		    npg);
-	CHKERRA(1); 
+	PetscFinalize();
+	exit(0);
       }
 
       shape[ipg] = RowVector(nel);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.23 2002/09/05 18:34:18 mstorti Exp $
+// $Id: iisdmat.h,v 1.24 2002/09/05 19:24:01 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -248,7 +248,7 @@ public:
   /// calls MatAssemblyEnd on internal matrices, see PETSc doc
   int assembly_end_a(MatAssemblyType type);
   /// Prints the matrix to a PETSc viewer
-  int view(PetscViewer viewer=VIEWER_STDOUT_WORLD);
+  int view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD);
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
 

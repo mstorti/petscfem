@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.26 2002/09/05 18:23:52 mstorti Exp $
+//$Id: fem.h,v 1.27 2002/09/05 19:24:01 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -511,6 +511,9 @@ inline double cube(double x) { return x*x*x;};
 //#define CB(n) ((n)*(n)*(n))
 #define SQ(n) square(n)
 #define CB(n) cube(n)
+
+// CHKERRA is now obsolete in PETSc (see changes for PETSc 2.1)
+#define CHKERRA CHKERRQ
 
 #endif
 //@}

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.10 2002/09/05 18:34:18 mstorti Exp $
+//$Id: petscmat.cpp,v 1.11 2002/09/05 19:24:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -181,9 +181,9 @@ int PETScMat::solve_only_a(Vec &res,Vec &dx) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::view"
-int PETScMat::view(PetscViewer viewer=VIEWER_STDOUT_WORLD) {
+int PETScMat::view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
-//    ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
+//    ierr = SLESView(sles,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
   return 0;
 };
 

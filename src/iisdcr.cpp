@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.30 2002/09/05 18:23:52 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.31 2002/09/05 19:24:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -524,8 +524,8 @@ int IISDMat::create_a() {
   CHKERRQ(ierr); 
   P=A;
 
-  MatShellSetOperation(A,MATOP_MULT,(void *)(&IISD_mult));
-  MatShellSetOperation(A,MATOP_MULT_TRANS,(void *)(&IISD_mult_trans));
+  MatShellSetOperation(A,MATOP_MULT,(void (*)(void))(&IISD_mult));
+  MatShellSetOperation(A,MATOP_MULT_TRANSPOSE,(void (*)(void))(&IISD_mult_trans));
 
   ierr = VecCreateMPI(comm,n_loc,PETSC_DETERMINE,&x_loc);
   CHKERRQ(ierr); 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.43 2002/09/05 18:34:15 mstorti Exp $
+//$Id: advdif.cpp,v 1.44 2002/09/05 19:23:58 mstorti Exp $
 
 #include <set>
 
@@ -24,7 +24,7 @@ int print_internal_loop_conv_g=0,
 
 #define VECVIEW(name,label) \
 ierr = ViewerSetFormat(matlab, \
-		       VIEWER_FORMAT_ASCII_MATLAB,#label); \
+		       PETSC_VIEWER_FORMAT_ASCII_MATLAB,#label); \
 ierr = VecView(name,matlab); CHKERRA(ierr)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -366,20 +366,20 @@ int main(int argc,char **args) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "mat.output",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"res");
+			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res");
 	ierr = VecView(res,matlab);
 	if (solve_system) {
 	  ierr = ViewerSetFormat(matlab, 
-				 VIEWER_FORMAT_ASCII_MATLAB,"dx");
+				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx");
 	  ierr = VecView(dx,matlab);
 	}
 	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"A");
 	ierr = A->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
 	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"AA");
+			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"AA");
 	ierr = AA->view(matlab);
 #endif
 	PetscFinalize();

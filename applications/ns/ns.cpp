@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.93 2002/09/05 18:34:18 mstorti Exp $
+//$Id: ns.cpp,v 1.94 2002/09/05 19:24:01 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -457,7 +457,7 @@ int main(int argc,char **args) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
+			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
 	ierr = A_tet->view(matlab); CHKERRA(ierr); 
 #endif
 
@@ -465,10 +465,10 @@ int main(int argc,char **args) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"x"); CHKERRA(ierr);
+			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"x"); CHKERRA(ierr);
 	ierr = VecView(x,matlab);
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	ierr = VecView(res,matlab);
 	PetscFinalize();
 	exit(0);
@@ -479,7 +479,7 @@ int main(int argc,char **args) {
 	  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 				 "system.dat.tmp",&matlab); CHKERRA(ierr);
 	  ierr = ViewerSetFormat(matlab,
-				 VIEWER_FORMAT_ASCII_MATLAB,
+				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,
 				 "atet"); CHKERRA(ierr);
 
 	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
@@ -504,7 +504,7 @@ int main(int argc,char **args) {
 			  &time_star); CHKERRA(ierr);
 
 	  ierr = ViewerSetFormat(matlab,
-				 VIEWER_FORMAT_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
+				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
 	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
 
 	  PetscFinalize();
@@ -527,15 +527,15 @@ int main(int argc,char **args) {
 	  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 				 "system.dat",&matlab); CHKERRA(ierr);
 	  ierr = ViewerSetFormat(matlab,
-				 VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
+				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
 	  ierr = A_tet->view(matlab);
 	  ierr = ViewerSetFormat(matlab,
-				 VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	  ierr = VecView(res,matlab);
 
 	  if (solve_system) {
 	    ierr = ViewerSetFormat(matlab,
-				   VIEWER_FORMAT_ASCII_MATLAB,"dx");
+				   PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx");
 	    CHKERRA(ierr);
 	    ierr = VecView(dx,matlab);
 	  }
@@ -567,7 +567,7 @@ int main(int argc,char **args) {
 	ierr = VecAXPY(&scal,dx,x);
 
 #if 0
-	ierr = VecView(x,VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
 	PetscFinalize();
 	exit(0);
 #endif
@@ -610,13 +610,13 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"amom"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"amom"); CHKERRA(ierr);
       ierr = A_mom->view(matlab);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
       ierr = VecView(res,matlab);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
       ierr = VecView(dx,matlab);
       PetscFinalize();
       exit(0);
@@ -668,13 +668,13 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
       ierr = A_poi->view(matlab);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
       ierr = VecView(res,matlab);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
       ierr = VecView(dx,matlab);
       PetscFinalize();
       exit(0);
@@ -719,13 +719,13 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
       ierr = A_prj->view(matlab);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
       ierr = VecView(res,matlab);
       ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
       ierr = VecView(dx,matlab);
       PetscFinalize();
       exit(0);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns-fracstep.cpp,v 1.7 2002/09/05 18:34:18 mstorti Exp $
+//$Id: ns-fracstep.cpp,v 1.8 2002/09/05 19:24:01 mstorti Exp $
  
 #include <time.h>
 #include <malloc.h>
@@ -197,7 +197,7 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "matns.m",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-      			     VIEWER_FORMAT_ASCII_MATLAB,"res");
+      			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res");
       CHKERRA(ierr);
 #endif 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -255,7 +255,7 @@ int main(int argc,char **args) {
       ierr = assemble(mesh,res,A_mom,da,xp,xpseq,x,xseq,
 		      dofmap,COMP_FDJ,"comp_res_mom"); CHKERRA(ierr);
     
-      ierr = MatView(A_mom,VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+      ierr = MatView(A_mom,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
 #endif
     
       ierr = SLESSolve(sles_mom,res,dx,&its); CHKERRA(ierr); 
@@ -494,7 +494,7 @@ int main(int argc,char **args) {
   ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
   ierr = ViewerSetFormat(matlab,
-			 VIEWER_FORMAT_ASCII_MATLAB,"A"); CHKERRA(ierr);
+			 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"A"); CHKERRA(ierr);
   ierr = VecView(x,matlab); CHKERRA(ierr);      
 #endif
 
@@ -563,11 +563,11 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-      			     VIEWER_FORMAT_ASCII_MATLAB,"pepe"); CHKERRA(ierr);
+      			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"pepe"); CHKERRA(ierr);
       ierr = VecView(x,matlab); CHKERRA(ierr);      
       ViewerDestroy(matlab);
 #endif 
-      //      ierr = VecView(res,VIEWER_STDOUT_WORLD); CHKERRA(ierr);      
+      //      ierr = VecView(res,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);      
       //PetscFinalize();
       //exit(0);
       print_vector("outvector.sal",x,xseq,dofmap);

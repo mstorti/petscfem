@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.4 2002/09/05 18:34:18 mstorti Exp $
+// $Id: petscmat.h,v 1.5 2002/09/05 19:24:01 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -84,7 +84,7 @@ public:
   int create_a();
   /// Duplicate matrices 
   int duplicate_a(MatDuplicateOption op,const PFMat &A);
-  int view(PetscViewer viewer=VIEWER_STDOUT_WORLD);
+  int view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD);
 };
 
 #endif
