@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.4 2002/04/05 23:08:46 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.5 2002/04/08 02:44:58 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -79,6 +79,10 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o The system is in a non-inertial frame. Get linear and rotational
   // velocities and accelerations from fictitious nodes. The
   TGETOPTDEF(thash,int,non_inertial_frame,0);
+  //o Reverse sign so that the fictitious node velocities and
+  // accelerations represent the movement of the container with
+  // respect to an instantaneous inertial frame. 
+  TGETOPTDEF(thash,int,non_inertial_frame_reverse_sign,0);
   // nelr:= the number of real nodes (not counting the fictitious
   // nodes for describing the non-intertial frame movement)
   int nelr = (non_inertial_frame ? nel-2 : nel);
@@ -375,6 +379,12 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  } else {
 	    assert(alfa_v.sum_square_all()==0.);
 	    assert(acel_lin.sum_square_all()==0.);
+	  }
+
+	  if (non_inertial_frame_reverse_sign) {
+	    alfa_v.scale(-1.);
+	    acel_lin.scale(-1.);
+	    omega_v.scale(-1.);
 	  }
 
 	  flocstate.rs();
