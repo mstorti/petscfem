@@ -1053,3 +1053,8 @@ tag: beta-2.88.pl1 on Mon Feb 18 09:25:10 -0300 2002 by mstorti in minerva.arcri
 ----------
 tag: beta-2.88.pl2 on Mon Feb 18 15:35:41 -0300 2002 by mstorti in minerva.arcride.edu.ar
      > Working on bubbly.
+----------
+tag: beta-2.88.pl3 on Mon Feb 18 20:17:44 -0300 2002 by mstorti in spider
+     > Latex2html doesn't like the `algorithm' (it is like a figure
+     > environment) environment, but DO support the `algorithmic'
+     > environment. Eliminated the `algorithm' environment in `doc/nsdoc.tex'. 
