@@ -178,3 +178,7 @@ tag: beta-1.16 on Fri Jan 19 18:47:49 ARST 2001, by mstorti in spider
 tag: beta-1.17 on Sat Jan 20 07:24:34 ARST 2001, by mstorti in spider
      > QUASI STABLE
      > [Only problems with adv, which gives SISGSEGV always]
+----------
+tag: beta-1.18 on Sat Jan 20 09:26:32 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Fixed a problem related with the Newmat library in spider.
