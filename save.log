@@ -1281,3 +1281,6 @@ tag: beta-3.00.pl8 on Mon, 22 Jul 2002 00:16:57 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl9 on Mon, 22 Jul 2002 12:45:28 -0300 by mstorti in minerva.arcride.edu.ar
      > New graph class `link_graph' compiles. 
+----------
+tag: beta-3.00.pl10 on Mon, 22 Jul 2002 17:22:44 -0300 by mstorti in minerva.arcride.edu.ar
+     > Dynamic vector 'da' in lgraph_lkg was not cleared in clear(). 
