@@ -1,9 +1,11 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.2 2002/07/18 23:56:09 mstorti Exp $
+// $Id: tryme4.cpp,v 1.3 2002/07/19 00:31:39 mstorti Exp $
 
+#include <cassert>
 #include <cstdio>
 #include <cmath>
 #include <deque>
+#include <set>
 #include <algorithm>
 
 double drand() {  
@@ -24,10 +26,21 @@ private:
   // will resort if size passes max
   int max;
   void sort_m() { 
-    sort(d.begin(),d.end()); 
+    print2();
+    sort(d.begin(),d.end());
+    cont_it p=d.begin(), e=d.end(), q;
+    if (p==e) {
+      end_ord = e;
+      return;
+    }
+    q=p;
+    while (++q!=e) if (*q!=*p) *++p = *q;
+    d.erase(++p,e);
+    end_ord = p;
+    print2();
   }
 public:
-  SET() { end_ord = d.end(); max=1000; }
+  SET() { end_ord = d.end(); max=10; }
   ~SET() { d.clear(); }
   void insert(T t) {
     if (!binary_search(d.begin(),end_ord,t)) {
@@ -35,11 +48,13 @@ public:
       if (d.size()>max) {
 	sort_m();
 	max = 2*max;
+	printf("resorting, max= %d\n",max);
       }
     }
   }
   void print() { sort_m(); print2(); }
   void print2();
+  int size() { return d.size(); }
 };
 
 void SET<int>::print2() {
@@ -51,6 +66,13 @@ void SET<int>::print2() {
 
 int main(int argc, char **argv) {
   SET<int> g;
-  for (int j=0; j<100; j++) { g.insert(irand(1,100)); }
+  set<int> gg;
+  int k;
+  for (int j=0; j<1000; j++) { 
+    k = irand(1,1000);
+    g.insert(k); 
+    gg.insert(k); 
+  }
   g.print();
+  assert(g.size()==gg.size());
 }
