@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.11 2002/12/05 00:24:57 mstorti Exp $
+//$Id: mmove.h,v 1.12 2002/12/05 22:15:28 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -47,7 +47,7 @@ private:
     dNdxi, xlocp, xloc0, x0,xp,lambdap,glp,glambda_diff,
     dFdl, d2Fdl2, resp;
   FastMat2 tmp3,tmp4;
-  double eps;
+  double eps,distor_exp,c_volume;
   void la_grad(const FastMat2 &x,FastMat2 &lambda,
 	       FastMat2 &glambda);
   void df_grad(const FastMat2 &x,FastMat2 &dFdx);

@@ -1,8 +1,8 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-$N=10;
-$disp = 0.5;
-$slope = 3;
+$N=2;
+$disp = 0.1;
+$slope = 2;
 # $shape = 'quad';
 #
 octave_export_vars(">data.m.tmp",qw(N disp shape slope));
@@ -17,7 +17,7 @@ save_file "step3d.state.tmp"
 nsave 1
 nsaverot 0
 
-#if 0
+#if 1
 solver "petsc"
 #else
 solver "iisd"
@@ -33,13 +33,14 @@ atol 1e-10
 tol_newton 0
 maxits 100
 steady
-c_volume 0.
 # distor_exp 1.
 print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
 debug_activate_print
 debug_activate_memory_usage
 
-<:$nstep=40; pr('nstep');:>
+<:$nstep=1; pr('nstep');:>
 Dt <:= 1./$nstep;:>
 __END_HASH__
 
@@ -49,19 +50,30 @@ __INCLUDE__ "step3d.nod.tmp"
 __END_NODES__
 
 #===========================================================
-elemset mesh_move_eig_anal 4
-epsilon_x 1e-6
+# elemset mesh_move_eig_anal 4
+elemset elasticity 4
 geometry tetra
 npg 1
+#if 0
+c_volume 0.
+distor_exp 2.
+epsilon_x 1e-6
+#else
+Young_modulus 1.
+Poisson_ratio 0.3
+#endif
 __END_HASH__
 __INCLUDE__ "step3d.con-tet.tmp"
 __END_ELEMSET__
 
 end_elemsets
 
+#if 0
 fixa_amplitude piecewise_linear
 filename "piecewise.dat.tmp"
 __END_HASH__
+#endif
+fixa
 __INCLUDE__ "step3d.fixa.tmp"
 __END_FIXA__
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.6 2002/12/05 00:24:57 mstorti Exp $
+//$Id: mmove2.cpp,v 1.7 2002/12/05 22:15:28 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -62,6 +62,12 @@ void mesh_move_eig_anal::init() {
   // the Jacobian with finite differences. 
   TGETOPTDEF(thash,double,epsilon_x,1.e-4);
   eps = epsilon_x;
+  //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \phi_e^r#,
+  // where #\phi_e = \sum_{i\neq j} (\lambda_i-\lambda_j)^2/Vol^{2/n_d},
+  // and $r={\tt distor\_exp}$. 
+  TGETOPTDEF_ND(thash,double,distor_exp,1.);
+  //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala. 
+  TGETOPTDEF_ND(thash,double,c_volume,0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -101,7 +107,7 @@ double mesh_move_eig_anal::dfun(const FastMat2 &D) {
   for (int k=2; k<=ndim; k++)
     for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
   F /= pow(vol,2./double(ndim));
-  return F;
+  return pow(F,distor_exp);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

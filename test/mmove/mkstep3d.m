@@ -1,6 +1,7 @@
 source("data.m.tmp");
 w = zhomo([0 1 0 1],N+1,N+1);
 [xnod,icone] = pfcm2fem(w);
+icone = icone(:,[1 4 3 2]);
 [xnod,icone] = extrude(xnod,icone,N,1/N);
 
 #icone=[icone(:,[1 3 2]);

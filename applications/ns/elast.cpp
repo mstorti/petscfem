@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.2 2001/11/30 12:41:08 mstorti Exp $
+//$Id: elast.cpp,v 1.3 2002/12/05 22:15:28 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -33,8 +33,7 @@ void elasticity::init() {
   assert(!(rec_Dt>0. && rho==0.));
   assert(ndof==ndim);
 
-  // 2D
-  ntens=3;
+  ntens = ndim*(ndim+1)/2;
   nen=nel*ndof;
   
   // tal vez el resize blanquea
@@ -44,11 +43,26 @@ void elasticity::init() {
   dshapex.resize(2,ndim,nel);  
 
   // Plane strain
-  double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
-         c3=nu/(1.-nu);
-  C.setel(c1,1,1).setel(c1*c3,1,2)
-    .setel(c1*c3,2,1).setel(c1,2,2)
-    .setel(c2,3,3);
+  if (ndim==2) {
+    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
+      c3=nu/(1.-nu);
+    C.setel(c1,1,1)
+      .setel(c1*c3,1,2)
+      .setel(c1*c3,2,1)
+      .setel(c1,2,2)
+      .setel(c2,3,3);
+  } else if (ndim==3) {
+    double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), 
+      c2 = (1-2*nu)/2./(1-nu),
+      c3=nu/(1.-nu);
+      C.is(1,1,3).is(2,1,3).set(c3)
+	.rs().d(1,2).is(1,1,3).set(1.)
+	.rs().d(1,2).is(1,4,6).set(c2)
+	.rs().scale(c1);
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,"wrong dimension: %d\n",ndim);
+    assert(0);
+  }
 
 }
 

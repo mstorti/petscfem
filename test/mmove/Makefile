@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/12/02 01:00:36 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/12/05 22:15:28 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -21,7 +21,7 @@ endif
 
 LOC_PROG := ns
 CASE_NAME := $(NAME)
-PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin
+PROG := $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 
 # ifeq ($(NAME),step)
 # PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin
