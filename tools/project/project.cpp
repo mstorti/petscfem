@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.3 2005/02/24 02:02:28 mstorti Exp $
+// $Id: project.cpp,v 1.4 2005/02/24 02:26:58 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -71,7 +71,8 @@ int main() {
   int nnod2 = xnod2.size()/ndim;
   xnod2.reshape(2,nnod2,ndim);
 
-  FastMat2 x2(1,ndim),L(1,ndim),dx(1,ndim);
+  FastMat2 x2(1,ndim),L(1,ndim),
+    dx(1,ndim),ddx(1,ndim);
   // Loop over mesh2 nodes
   for (int k2=0; k2<nnod2; k2++) {
     // A node in the second mesh (test node)
@@ -99,6 +100,15 @@ int main() {
       int neg=0;
       for (int j=0; j<ndim; j++) 
 	neg += lv[j]<0;
+      assert(neg<=2);
+      if (neg==0) {}
+      else if (neg==1) {
+	int indx;
+	if (lv[0]<0) indx=1;
+	else if (lv[1]<0) indx=2;
+	else if (lv[2]<0) indx=3;
+	ddx.set
+      }
     }
   }
 }

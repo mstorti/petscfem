@@ -18,8 +18,8 @@ nnod1 = rows(x1);
 nnod2 = rows(x2);
 nelem1 = rows(ico1);
 
-a = x1(ico1(:,2),:)-x(ico1(:,1),:);
-b = x1(ico1(:,3),:)-x(ico1(:,1),:);
+a = x1(ico1(:,2),:)-x1(ico1(:,1),:);
+b = x1(ico1(:,3),:)-x1(ico1(:,1),:);
 c = pvec(a,b);
 A = [a,b,c];
 

@@ -5,7 +5,9 @@ OPT := -O2 -funroll-loops
 
 default: project.bin
 
-BOPT := g_c++
+SRCS := project.cpp
+
+PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 
