@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $
+$Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
+! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
+! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
+! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
+! # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
+  # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
+  # $Id: notes.txt,v 1.265 2003/03/21 01:46:49 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6381,12 +6381,30 @@ a extenderlo a varios elemsets de pared.
 %
 18:26:20: Verifique que da lo mismo con 1 y dos procesadores. 
 
-%===Thu, 20 Mar 2003 13:26:59 -0300 mstorti@node1.beowulf.gtm
+%===Thu, 20 Mar 2003 18:41:33 -0300 mstorti@spider
 %
-Corre ejemplo spiller 300*(Dt=0.05), malla de 30x160 con
-fs_alpha=0.1. Termina divirgiendo la superficie libre. Ahora vamos a
-tratar de salir de la solucion estacionaria para superficie fija. 
-salvo: spiller.2003-03-20.tar.gz
+spiller: (voy a cambiar todo a `spillway'). Empieza mas o menos bien,
+pero despues de una cierta evolucion la superficie libre empieza a
+flamear y cuando le incide un vortice que viene desde la capa limite
+sobre la superficie del vertedero se desestabiliza completamente
+achicandose cada vez mas hasta que el script de octave no puede
+generar la malla. Pruebo  correr con `fs_relax=0' es decir a malla
+fija y veo que tambien es inestable ya que probablemente se forman
+regiones con velocidades entrantes lo cual debe ser una condicion de
+contorno inestable. 
+%
+20:54:07: Corriendo con slip en la FS anda bien, se produce una capa
+de vorticidad que se desprende desde la mitad del vertedero hasta
+aguas abajo. En la frontera aguas abajo se produce un problema y
+termina divirgiendo. Creo que puede haber problema con la
+gravedad. Voy a probar a desactivar la gravedad. 
+%
+21:26:19: Desactivo la gravedad y va mejor. Le saco la condicion v_t =
+0 a la salida y diverge. 
+%
+22:45:31: Habia un serio bug en los datos y es que el G_body se leia
+de las opciones globales, no del elemset. 
+
 
 
 # Current line ===========  %

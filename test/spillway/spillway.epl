@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spillway.epl,v 1.1 2003/03/20 22:58:38 mstorti Exp $ 
+## $Id: spillway.epl,v 1.2 2003/03/21 01:46:35 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -19,17 +19,17 @@ $L2 = 50;			# Flat bottom length
 $h1 = 4;                        # Water height at top of spillway
 $y2 = 65.79;			# restitution height
 
-$ref = 1;
+$ref = 2;
 $Ny = 10*$ref;
 $Nx = 50*$ref;
 
 $gravity = 9.8;
 $uin = sqrt($gravity*$h1);
 $fs_relax = 0.;
-$Dt = 0.2;
+$Dt = 0.1;
 
 #__END_TRANSCRIPT__
-@vars = qw(C E H1 L1 L2 h1 y2 Ny Nx uin fs_relax Dt);
+@vars = qw(C E H1 L1 L2 h1 y2 Ny Nx uin fs_relax Dt gravity);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "initia=1 octave -qH spillway.m";
@@ -49,7 +49,7 @@ nsaverot 10
 nrec 1
 nfile 100000000
 
-initial_state "spillway.ini.tmp"
+initial_state "RUN3/spillway.state_5.tmp"
 # initial_state "spillway.state.tmp"
 nstep 10000
 # steady
@@ -77,6 +77,7 @@ my_ale_hook.filename ./alehook.efn
 my_ale_hook.prefix   ale_hook
 
 viscosity 1e-2
+G_body 0. <:=-$gravity:>
 
 # For DX
 dx_split_state "1 2 0 1 u 1 1 2 p"
@@ -98,7 +99,7 @@ name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
 data spillway.con.tmp
-G_body 0. <:=-$gravity:>
+rho 1.
 dx 
 __END_HASH__
 

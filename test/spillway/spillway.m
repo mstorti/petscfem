@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.1 2003/03/20 22:58:38 mstorti Exp $
+## $Id: spillway.m,v 1.2 2003/03/21 01:46:35 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
@@ -159,10 +159,11 @@ fclose(fid);
 
 ## Outlet p=0., v=0
 fid = fopen("spillway.fixa_out.tmp","w");
-for k=outlet(2:length(outlet))'
-  fprintf(fid,"%d %d %f\n",k,2,0.);
-  fprintf(fid,"%d %d %f\n",k,3,0.);
+for k=outlet(2:length(outlet)-1)'
+  ## fprintf(fid,"%d %d %f\n",k,2,0.);
+  fprintf(fid,"%d %d %f\n",k,3,-gravity*xnod(k,2));
 endfor
+fprintf(fid,"%d %d %f\n",outlet(length(outlet)),2,0.);
 fclose(fid);
 
 ## Compute normals to FS
