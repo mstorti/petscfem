@@ -29,7 +29,10 @@ extern "C" {
 // Defined in Meschach matrix.h!!
 #undef catch
 
-// #include <src/fem.h>
+#undef min
+#undef max
+#undef error
+#include <src/fem.h>
 #include <src/texthash.h>
 #include <src/fstack.h>
 #include <src/util2.h>
@@ -99,9 +102,9 @@ int matrix_abs(const Matrix &A,Matrix &absA) {
 
 // Repeated here because `fem.h' includes <vector> and this collides
 // with `meschach'
-#define SHV(x) cout << #x ": " << x << endl
+//#define SHV(x) cout << #x ": " << x << endl
 
-#if 0
+#if 1
 #undef __FUNC__
 #define __FUNC__ "non_symm_eigenvals(const Matrix &,Matrix &,Matrix &)"
 int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,

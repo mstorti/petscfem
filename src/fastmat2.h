@@ -273,7 +273,6 @@ typedef double scalar_fun_t(double);
 /// Fast matrices. 
 class FastMat2 {
 public:
-  static void init();
   // This is the CacheCtx base class.
   // Before migrating to a better CacheCtx class
   // I separated the generic part in a base class and
