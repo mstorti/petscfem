@@ -103,6 +103,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,ndim,0); //nd
   assert(npg>0);
   assert(ndim>0);
+  NSGETOPTDEF(int,ndimel,ndim); //nd
   
   int nelprops,nel,ndof;
   elem_params(nel,ndof,nelprops);
@@ -217,22 +218,23 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);
-  GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   double detJaco, wpgdet, delta_sc;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix dshapex(ndim,nel),Jaco(ndim,ndim),Jaco_av(ndim,ndim),iJaco(ndim,ndim),
-    flux(ndof,ndim),fluxd(ndof,ndim),mass(nel,nel),
-    grad_U(ndim,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
+  FMatrix dshapex(ndimel,nel),Jaco(ndimel,ndimel),Jaco_av(ndimel,ndimel),
+    iJaco(ndimel,ndimel),
+    flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
+    grad_U(ndimel,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), 
     Ho(ndof),Hn(ndof), 
     tau_supg(ndof,ndof);
   // These are edclared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
-    tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
-    tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp14,
+    tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
+    tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24;
   FastMat2 A_grad_N(3,nel,ndof,ndof),
@@ -294,7 +296,19 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       Jaco_av.add(Jaco);
 
-      detJaco = Jaco.det();
+      if (ndim==ndimel) {
+	iJaco.inv(Jaco);
+	detJaco = Jaco.det();
+      } else if (ndimel==1) {
+	// This allows to solve problems on streams like rivers or
+	// ducts or advective problems on plane surfaces (not
+	// implemented yet). Also, it could be used also for advective
+	// problems on arbitrary surfaces (ndim=3 and ndimel=2) but I
+	// don't know how to do that yet. (tensorial calculus...)
+	detJaco = Jaco.norm_p_all(2);
+	iJaco.setel(1./detJaco,1,1);
+      }
+
       if (detJaco <= 0.) {
 	int k,ielh;
 	element.position(k,ielh);
@@ -304,7 +318,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	exit(0);
       }
       wpgdet = detJaco*WPG;
-      iJaco.inv(Jaco);
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
       if (nH>0) {
