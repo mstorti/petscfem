@@ -1,10 +1,11 @@
- # $Id: Makefile,v 1.10 2001/02/05 13:09:24 mstorti Exp $ 
+ # $Id: Makefile,v 1.11 2001/02/06 17:14:31 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = advdif
 PETSCFEM_DIR   = ../..
-MYOBJS = advdife.o advdif.o ffadvfm2.o  bccadvfm2.o  ffburg.o ffswfm2t.o
+MYOBJS = advdife.o advdif.o ffadvfm2.o  bccadvfm2.o  ffburg.o ffswfm2t.o \
+		wall.cpp
 #		absorb.o \
 # 		advective.o advecfm2.o \
 # 		ffshallw.o ffadvec.o ffeulerfm2.o \
@@ -45,3 +46,15 @@ $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
 
 local_dist_clean::
 	-rm -f *.o
+
+tryme: CPPFLAGS = 
+tryme: secant.o tryme.o
+	g++ -o tryme tryme.o secant.o 
+secant.o: secant.cpp secant.h
+tryme.o: tryme.cpp secant.h
+
+secant.o: secant.cpp
+	g++ -c $<
+
+tryme.o: tryme.cpp
+	g++ -c $<

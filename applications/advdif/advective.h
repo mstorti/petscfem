@@ -90,11 +90,6 @@
 /// Type of flux function. 
 typedef int AdvDifFluxFunction (AD_FLUX_FUN_ARGS);
 
-#if 0
-typedef int FluxFunction (FLUX_FUN_ARGS);
-typedef int FluxFunctionFM2 (FLUX_FUN_ARGS_FM2);
-#endif
-
 #define ADVDIFFF_ARGS const NewElemset *elemset,const  FastMat2  &U,		\
 	   int ndim, const  FastMat2  &iJaco,  FastMat2  &H,			\
 	   FastMat2  &grad_H,  FastMat2  &flux, FastMat2 &fluxd,		\
@@ -171,34 +166,9 @@ public:							\
   bcconv_adv_##name() {flux_fun=&flux_fun_##name;};	\
 }
 
-#if 0
-#define ADVDIF_ELEMSET(name)				\
-AdvDifFluxFunction flux_fun_##name;			\
-							\
-class advdif_##name : public AdvDif {			\
-public:							\
-  advdif_##name() {flux_fun=&flux_fun_##name;};		\
-};							\
-class bcconv_adv_##name : public BcconvAdv {		\
-public:							\
-  bcconv_adv_##name() {flux_fun=&flux_fun_##name;};	\
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Add here declarations for further advective elemsets. 
 /// Euler equations for inviscid (Gas dynamics eqs.)
-#if 0
-ADVECTIVE_ELEMSET(euler);    
-ADVECTIVE_ELEMSET_FM2(eulerfm2); // con FastMat2
-/// Shallow water equations. 
-ADVECTIVE_ELEMSET(shallow);
-ADVECTIVE_ELEMSET_FM2(shallowfm2); // con FastMat2
-ADVECTIVE_ELEMSET_FM2(shallowfm2t); // con FastMat2 / turbulento
-ADVDIF_ELEMSET(shallowfm2t);    // con FastMat2 / turbulento
-/// Advection of multiple scalar fields with a velocity field. 
-ADVECTIVE_ELEMSET(advec);
-#endif
 
 #define ADVDIF_ELEMSET(name)				\
 class name##_ff_t : public AdvDifFF {			\
@@ -219,6 +189,13 @@ public:							\
 ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
 ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
 ADVDIF_ELEMSET(swfm2t);	        // shallow water turbulent
+
+class wall_swfm2t : NewElemset { 
+public: 
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
+};
+
 
 // Global parameters
 struct GlobParam {

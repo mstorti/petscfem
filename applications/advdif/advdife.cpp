@@ -125,18 +125,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     matlocf.set(1.);
   }
 
-  //o Use the weak form for the Galerkin part of the advective term. 
-  NSGETOPTDEF(int,weak_form,1);
-  //o Use lumped mass.
-  NSGETOPTDEF(int,lumped_mass,1);
-  //o Parameter to control the amount of SUPG perturbation 
-  //     added to the mass matrix to be consistent SUPG
-  //     \verb+beta_supg+=0 implies consistent Galerkin and
-  //     \verb+beta_supg+=1 implies full consistent SUPG. 
-  NSGETOPTDEF(double,beta_supg,0.8);
- 
-  // allocate local vecs
-  int kdof;
+  // Allocate local vecs
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
     locstateo(nel,ndof),locstaten(nel,ndof),
     matloc,eye_ndof(ndof,ndof);
@@ -150,7 +139,6 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NGETOPTDEF_S(string,geometry,cartesian2d);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
-  // Definiciones para descargar el lazo interno
   double detJaco, wpgdet, delta_sc;
   int elem, ipg,node, jdim, kloc,lloc,ldof,ret_options;
 

@@ -66,12 +66,16 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(volume_shallowfm2)
     SET_ELEMSET_TYPE(volume_shallowfm2t)
 #endif
+    // General linear advective-diffusive system
     SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
     SET_ELEMSET_TYPE(advdif_advecfm2)
+    // Burger's eq.
     SET_ELEMSET_TYPE(bcconv_adv_burgers)
     SET_ELEMSET_TYPE(advdif_burgers)
+    // Turbulent shallow water
     SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
     SET_ELEMSET_TYPE(advdif_swfm2t)
+    SET_ELEMSET_TYPE(wall_swfm2t)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);
