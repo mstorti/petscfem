@@ -15,9 +15,10 @@ scripts = odoc.pl makewhat.pl
 #w Builds all doc in this directory
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
-SRCS := femref.cpp femref2.cpp hasher.cpp myhash.cpp myhash2.cpp	\
-	myhash3.cpp myhash4.cpp myhash5.cpp gtemplates.cpp 		\
-	visitor.cpp combiner.cpp trytree.cpp
+CPP_FILES := femref2 hasher md5r gtemplates visitor combiner
+
+SRCS := $(CPP_FILES=.cpp) femref.cpp  myhash.cpp myhash2.cpp \
+	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
 
 BOPT := g_c++
 PETSCFEM_DIR = ../..
@@ -34,8 +35,10 @@ tryme2.bin: tryme2.o
 trytree.bin: trytree.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
-femref.bin: femref.o femref2.o hasher.o md5r.o gtemplates.o \
-		visitor.o combiner.o
+femref.bin: $(CPP_FILES:=.o)
+	echo ${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
+
+getsurf.bin: getsurf.o $(CPP_FILES:=.o)
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 hasher.o: hasher.cpp

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.46 2005/01/05 12:21:53 mstorti Exp $
+// $Id: femref.h,v 1.47 2005/01/06 18:02:30 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -422,6 +422,10 @@ public:
     int elem;
     /// Pop the deepest level object in the refinement stack
     void pop();
+    /// Go to next basic element. This is a callback
+    /// for defining breadth first and natural order traversing
+    /// algorithms. 
+    virtual int next_elem(int elem)=0;
   public: 
     /// The type for the refinement stack
     typedef list<RefPathNode> RefStackT;
@@ -467,8 +471,12 @@ public:
     /** The refinement level for this node. */ 
     int ref_level();
   };
+  class nat_visitor : public visitor {
+    int next_elem(int elem) { return elem+1; }
+  };
   friend class LinearCombiner;
 };
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class NodeInfoRef : public NodeInfo {

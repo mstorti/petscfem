@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.19 2004/12/31 17:08:30 mstorti Exp $
+// $Id: visitor.cpp,v 1.20 2005/01/06 18:02:30 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -135,7 +135,7 @@ init(UniformMesh &mesh_a) {
 bool UniformMesh::visitor::
 next() { 
   if (so_next()) return true;
-  elem++;
+  elem = next_elem(elem);
   if (elem >= mesh->nelem) return false;
   init(*mesh,elem);
   return true;
