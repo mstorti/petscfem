@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2001/11/30 00:46:29 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/12/01 21:07:51 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -12,6 +12,10 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 NS = $(PETSCFEM_DIR)/applications/ns/ns.bin
+
+LOC_PROG := ns
+CASE_NAME := sqcav
+PROG := $(NS)
 
 ################################################################
 NP = 1
@@ -27,9 +31,14 @@ run: data
 	-${MPIRUN} -np 1 $(MCH) $(PROG) -case $(CASE).depl  > output.out
 
 test_re1000:
-	$(MAKE) run
+	$(MAKE) weak_form=0 run
 	rm -f u.Re1000.tmp 
-	mv sqcav.state.tmp u.Re1000.tmp 
+	mv sqcav.state.tmp u.Re1000.wf0.tmp 
+#
+	$(MAKE) weak_form=1 run
+	rm -f u.Re1000.tmp 
+	mv sqcav.state.tmp u.Re1000.wf1.tmp 
+#
 	octave -q < check_re1000.m > check.re1000.verif.tmp
 
 #w Makes local link for running with debugger

@@ -684,7 +684,8 @@ begin_section('Misc tests.');
 
 expect("sqcav/check.re1000.verif.tmp",
        "Square cavity, Re1000, N=20",<<'EOT');
-error < tol OK \? 1 
+Weak form 0. error < tol OK \? 1
+Weak form 1. error < tol OK \? 1
 EOT
 
 
