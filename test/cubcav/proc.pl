@@ -15,7 +15,7 @@ sub averg {
 #$stream = IN;
 
 $stream = STDIN;
-print "nlay sbp ispits mem iter av. tav\n";
+print "nlay sbp N ispits mem iter av. tav\n";
 while (<$stream>) {
     my @items = split(" ",$_);
     my %items;
@@ -28,6 +28,6 @@ while (<$stream>) {
 	    push @{$items{$key}}, $val;
 	}
     }
-    printf "%2d %3d %3d %7.1f %7.2f %7.1f\n",$items{nlay},$items{subpart},
+    printf "%2d %3d %3d %7.1f %7.2f %7.1f\n",$items{nlay},$items{subpart},$items{N},
     $items{isp_maxits},averg($items{maxmem})/1000.0,averg($items{iter}),$items{tav};
 }

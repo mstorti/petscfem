@@ -1,0 +1,3 @@
+nlay 0 subpart 0 N 12 isp_maxits 0 t 4.151 iter 200 maxmem 33336 t 7.786 iter 278 maxmem 37276 tav 5.9685 total 18.175
+nlay 0 subpart 0 N 20 isp_maxits 0 t 84.156 iter 397 maxmem 138088 t 177.539 iter 583 maxmem 183076 tav 130.8475 total 291.381
+nlay 0 subpart 0 N 24 isp_maxits 0 t 238.158 iter 508 maxmem 272664 t 10000000 iter 10000000 maxmem 309056 tav 5000119.079 total 619.703
