@@ -2954,3 +2954,6 @@ tag: beta-3.20.pl11 on Fri, 12 Sep 2003 21:26:24 -0300 by mstorti in spider
 ----------
 tag: beta-3.20.pl12 on Sat, 13 Sep 2003 14:32:38 -0300 by mstorti in spider
      > Fixed length-one line fstack bug and added a test for. 
+----------
+tag: beta-3.20.pl13 on Sat, 13 Sep 2003 15:01:53 -0300 by mstorti in spider
+     > Added a test for the `disconnected-graph-bug'. 
