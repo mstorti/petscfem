@@ -19,15 +19,15 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#initial_state "save.state"
-initial_state "wallke.ini.tmp"
+initial_state "save.state"
+#initial_state "wallke.ini.tmp"
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 1
-nnwt 10
+nstep 1000
+nnwt 3
 tol_newton 0
 preco_type "lu"
 Dt 0.3
@@ -40,7 +40,7 @@ $L = 1;                         # Semi distance between plates
 $N = 32;                        # Number of elements 
 $Nlay = 2*$N+4;                 # Number of nodes in a 2D layer
 $hratio = 5;                    # refinement near the wall
-$Re_d = 1;                      # Re deseado
+$Re_d = 100000;                  # Re deseado
 $lambda = ($Re_d<3000 ? 
      64/$Re_d : 0.3164/$Re_d**0.25); # resistance coefficient
 $Umax = 1;                      # Max vel in the channel
@@ -48,13 +48,17 @@ $Uav = 0.5*$Umax;               # Aver vel
 $Q = $Uav * $PI*$L**2;          # Volumetric flow rate
 $nu = $Uav*2*$L/$Re_d;          # kinematic visc.
 $g = $lambda/(4*$L)*$Uav**2;    # body force
+$y_wall_plus =  50;
+$C_mu =  0.09;
+$von_Karman_cnst = 0.4;
 #__END_TRANSCRIPT__
 transcript();
 doc_vals(qw(lambda Umax Uav Q nu g));
-octave_export_vars("data.m.tmp",qw(nu g N hratio L));
+octave_export_vars("data.m.tmp",qw(nu g N hratio L y_wall_plus 
+                        C_mu von_Karman_cnst));
 :>
 
-y_wall_plus 20
+y_wall_plus <:= $y_wall_plus:>
 #turbulence_coef 1.
 viscosity <:=$nu:>
 G_body 0. <:=$g:> 0
