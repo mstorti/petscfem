@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.7 2002/02/22 21:15:15 mstorti Exp $
+//$Id: bubbly.cpp,v 1.8 2002/02/25 16:39:34 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -239,10 +239,10 @@ void bubbly_ff
   Ajac.rs().ir(2,2).is(3,vg_indx,vg_indxe).axpy(Id,arho_g);
   
   /// fixme:= Verify this!!!
-  Y.prod(v_l,Id,1,2,3).scale(arho_l);
+  Y.prod(v_l,Id,2,1,3).scale(arho_l);
   Ajac.rs().is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe)
     .add(Y);
-  Y.exc(2,3);
+  Y.prod(v_l,Id,1,2,3).scale(arho_l);
   Ajac.add(Y);
 
   Y.rs().prod(v_g,Id,1,2,3).scale(arho_g);
@@ -258,7 +258,7 @@ void bubbly_ff
     .axpy(Id,arho_l*eps);
 
   Ajac.rs().ir(2,k_indx).ir(3,k_indx).set(v_l).scale(arho_l);
-  Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(alpha_g*rho_l);
+  Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(arho_l);
   Ajac.rs();
 
   Ajacc.set(Ajac).is(3,2).is(3,1).is(3,3,ndof);
