@@ -15,7 +15,7 @@ $Rgas = 1;
 $rhoref = 1;
 $Tref = 1;
 $abso = 1;
-$restart = 0;
+$restart = 1;
 
 $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);

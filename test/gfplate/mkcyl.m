@@ -1,19 +1,20 @@
-## $Id: mkcyl.m,v 1.3 2005/01/24 18:36:10 mstorti Exp $
+## $Id: mkcyl.m,v 1.4 2005/01/24 22:01:13 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 pi],Nr+1,Nphi+1);
 w = exp(w);
+## w = 0.5*(w + 1./w); ## for a plate
 [xnod,icone] = pfcm2fem(w);
 nnod = rows(xnod);
 icone = icone(:,[1 4 3 2]);
 
 ## slip on axis upstream
 nline = Nphi+1;
-upstream = (Nphi+1)*(1:Nr+1)';
+upstream = (Nphi+1)*(1:Nr)';
 pffixa("cylabso.fixa-ups.tmp",upstream,3);
 
 ## slip on axis downsstream
-downstream = 1+(Nphi+1)*(0:Nr)';
+downstream = 1+(Nphi+1)*(0:Nr-1)';
 pffixa("cylabso.fixa-down.tmp",downstream,3);
 
 ## Slip on skin
@@ -41,6 +42,14 @@ fid2 = fopen("cylabso.fixa-ext-std.tmp","w");
 for k=1:Nphi+1
   ## real nodes (exterior first)
   rnodes = nline*(Nr-(0:2))+k;
+
+  ## Make mesh equispaced in the normal direction
+  ## at the absorbing boundary
+  n1 = rnodes(1);
+  n2 = rnodes(2);
+  n3 = rnodes(3);
+  xnod(n2,:) = 0.5*(xnod(n1,:)+xnod(n3,:));
+
   ## First fictitious node (lag. mult.)
   lagmulnd = rnodes(1)+nline;
   lm_nodes = [lm_nodes;lagmulnd];
@@ -75,9 +84,13 @@ pffixa("cylabso.fixa-ref.tmp",rs_nodes,1:4,Uref);
 pffixa("cylabso.fixa-lm-nodes.tmp",lm_nodes,1:4);
 
 uini = Uref;
+uini(2) = uini(2);
 nnod2 = rows(xnod);
 uini = uini(ones(nnod2,1),:);
 uini(lm_nodes,:) = 0;
+real_nodes = complement(lm_nodes,(1:nnod2));
+real_nodes = complement(rs_nodes,real_nodes)';
+## uini(real_nodes,2) + uini(real_nodes,2) + 0.05;
 asave("cylabso.ini.tmp",uini);
 
 some = create_set([1:Nphi+1,1:nline:nnod,nline-1+(1:nline:nnod)])';

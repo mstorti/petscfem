@@ -7,17 +7,16 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 1
+nstep 1000
 alpha 1.
 
-#if 0
 #if $restart
 initial_state "cylabso.state.tmp"
 #else
-initial_state "cylabso.ini.tmp"
+# initial_state "cylabso.ini.tmp"
+initial_state "cylabso.state-100.tmp"
 #endif
-#endif
-initial_state "cylabso.state-200.tmp"
+
 nsave 1
 save_file "cylabso.state.tmp"
 
@@ -50,7 +49,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 10
+nnwt 2
 
 print_internal_loop_conv
 # print_linear_system_and_stop

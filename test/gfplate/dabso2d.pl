@@ -4,7 +4,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 4;
 $Nx = 50;
-$rota = 2;
+$rota = 1;
 
 $Machin = 0.5;
 $gamma = 1.4;
@@ -30,5 +30,6 @@ $nory = sin($alpha);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mkgfabso2d.m";
+system "echo -n > gfabso2d.some-rslt.tmp";
 
 1;

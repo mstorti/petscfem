@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.12 2005/01/24 17:35:32 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.13 2005/01/24 22:01:10 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -141,7 +141,7 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   }
   extr_cloud.coef(xpe,cpe);
   //////
-#define COMPUTE_FD_RES_JACOBIAN
+  //#define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,ndof,nel),res_pert(1,nr),U_pert(2,nel,ndof),
     lambda_pert(3,nel-2,ndof,nr),fd_jac(3,nr,ndof,nel);
