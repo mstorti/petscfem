@@ -10,7 +10,7 @@ $Nr = 30;			# Number of nodes along radial direction
 $Nphi = 2*$Nr;			# Number of nodes along skin
 $rratio = 5;			# Refinement in radial direction
 
-$Machin = 0.2;			# Mach at inlet
+$Machin = 0.;			# Mach at inlet
 $gamma = 1.4;			# Cp/Cv for gas
 $Rgas = 1;			# Gas constant
 $rhoref = 1;			# Reference density
