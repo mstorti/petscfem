@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $
+$Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $ 
+! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $ 
+! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $ 
+! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $ 
+! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $ 
+  # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.251 2003/02/22 16:50:34 mstorti Exp $ 
+  # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6174,6 +6174,14 @@ cerca del 0.20 que tiene que ser). Resultados en plate.tgz
 Hizo 426 pasos de tiempo y en un cierto momento se corto la luz, pero 
 en realidad parece como si se hubiera empezado a diverger _antes_ de
 que se cortara la luz. 
+
+%===Mon, 24 Feb 2003 20:20:46 -0300 mstorti@spider
+%
+En el problema `wave' que es un sempliano con u=1+du*sin(ky),
+periodico segun y, lo resuelvo bien imponiendo vorticidad nula a la
+entrada. Esto lo hago tomando dos capas de elementos estructuradas y
+usando una aproximacion de segundo orden para la vorticidad. Ahora lo
+quiero aplicar al `cylin'. 
 
 # Current line ===========  %
 # Local Variables: $
