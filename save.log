@@ -3669,3 +3669,7 @@ tag: beta-3.38.27 on Sat, 15 Jan 2005 10:13:26 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.28 on Sat, 15 Jan 2005 10:45:17 -0300 by mstorti in spider
      > Writing a library version without scheme for debugging. 
+----------
+tag: beta-3.38.29 on Sat, 15 Jan 2005 20:42:20 -0300 by mstorti in spider
+     > Works `getsurf', dumping with dvint-dump. 
+     > `dvector' now accepts `print(file,rowsz)'. 
