@@ -428,7 +428,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	locstate2.ir(2,ndof);
 	grad_p.prod(dshapex,locstate2,1,-1,-1);
 
-	locstate2.is(2).is(2,1,ndim);
+	locstate2.rs().is(2,1,ndim);
 	u_star.prod(SHAPE,locstate2,-1,-1,1);
 	locstate2.rs();
 
