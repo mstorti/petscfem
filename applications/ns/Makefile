@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.44 2002/09/24 17:59:56 mstorti Exp $ 
+ # $Id: Makefile,v 1.45 2002/10/08 01:41:51 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -46,6 +46,9 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	$(run_odoc)
 
 ../../doc/odocnsw.tex: wall.cpp 
+	$(run_odoc)
+
+../../doc/odocnsfs.tex: nssupg.cpp ../../doc/nsdoc.tex
 	$(run_odoc)
 
 ns.o : CCPPFLAGS += -O0

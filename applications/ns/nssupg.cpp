@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.9 2002/09/30 21:45:32 mstorti Exp $
+//$Id: nssupg.cpp,v 1.10 2002/10/08 01:41:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -39,7 +39,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
   assert(!LES);
-  //o $\Cnst{eq}$=\alltt{fs_eq_factor} (see doc for {\tt
+  //o $\Cnst{eq}$={\tt fs\_eq\_factor} (see doc for {\tt
   // free\_surface\_damp} option) is a factor that scales the free
   // surface ``rigidity''. $\Cnst{eq}=1$ (which is the default) means
   // no scaling, a zero value means infinitely rigid (as for an
@@ -49,8 +49,9 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // keep the free surface level constant by adding a term $\propto
   // \bar\eta$ to the free surface level.  (see doc //for {\tt
   // free\_surface\_damp}})
+  //i_tex ../../doc/nsdoc.tex free_surface_damp
   TGETOPTDEF(thash,double,free_surface_damp,0.);
-  //o This adds a $\Cnst{lf}\eta$ term in the free surface equation
+  //o This adds a $\Cnst{lf}\bar\eta$ term in the free surface equation
   // in order to have the total meniscus volume constant. 
   TGETOPTDEF(thash,double,free_surface_set_level_factor,0.);
 #define C_FSL free_surface_set_level_factor

@@ -22,10 +22,11 @@ PETSc parameter related to the efficiency in growing
 Print the Schur matrix (don't try this for big problems).
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{print\_fsm\_transition\_info@\verb+print_fsm_transition_info+}
-\item\verb+int print_fsm_transition_info+ {\rm(default=\verb|0|)}:
+\index{iisdmat\_print\_statistics@\verb+iisdmat_print_statistics+}
+\item\verb+int iisdmat_print_statistics+ {\rm(default=\verb|0|)}:
 
-Print Finite State Machine transitions
+Print dof statistics, number of dofs local and interface in each
+processor. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{max\_partgraph\_vertices\_proc@\verb+max_partgraph_vertices_proc+}
@@ -33,6 +34,27 @@ Print Finite State Machine transitions
 
 The maximum number of vertices in the coarse mesh for
 sub-partitioning the dof graph in the IISD matrix. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_interface\_full\_preco@\verb+use_interface_full_preco+}
+\item\verb+int use_interface_full_preco+ {\rm(default=\verb|0|)}:
+
+Chooses the preconditioning operator. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{interface\_full\_preco\_maxits@\verb+interface_full_preco_maxits+}
+\item\verb+int interface_full_preco_maxits+ {\rm(default=\verb|5|)}:
+
+Number of iters in solving the preconditioning for the 
+interface problem when using \verb+use_interface_full_preco+. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{print\_interface\_full\_preco\_conv@\verb+print_interface_full_preco_conv+}
+\item\verb+int print_interface_full_preco_conv+ {\rm(default=\verb|0|)}:
+
+Flags whether or not print the convergence when solving the
+preconditioning for the interface problem when using
+\verb+use_interface_full_preco+.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>
