@@ -2704,3 +2704,6 @@ tag: beta-3.19.pl18 on Fri,  6 Jun 2003 17:44:14 -0300 by mstorti in minerva.arc
 tag: beta-3.19.pl19 on Sun,  8 Jun 2003 10:10:56 -0300 by mstorti in spider
      > Now communication through sockets with DX is buffered improving very
      > much the speed.
+----------
+tag: beta-3.19.pl20 on Sun,  8 Jun 2003 18:42:15 -0300 by mstorti in spider
+     > Adding `interpolation' object/elemset and pfinterp (Octave script). 
