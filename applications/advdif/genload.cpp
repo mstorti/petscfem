@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.9 2001/05/25 21:29:09 mstorti Exp $
+//$Id: genload.cpp,v 1.10 2001/05/26 17:09:44 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -79,6 +79,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int locdof,kldof,lldof;
   char *value;
 
+  //o Whether there is a double or single layer of nodes
   NSGETOPTDEF(int,double_layer,0);
 
   // allocate local vecs

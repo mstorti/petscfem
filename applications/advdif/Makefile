@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.23 2001/05/25 21:29:09 mstorti Exp $ 
+ # $Id: Makefile,v 1.24 2001/05/26 17:09:44 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -21,26 +21,32 @@ ffeuler.o: ffeuler.cpp
 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O0 $<
 
 
-# documentation of options with the script `odoc.pl'
-odocadvdif: ../../doc/odocadvdif.tex  ../../doc/odocadvdife.tex \
-	../../doc/odocadvfm2.tex ../../doc/odocburgers.tex 
-
 dd := ../../doc
+
+# documentation of options with the script `odoc.pl'
+odocadvdif: $(dd)/odocadvdif.tex  $(dd)/odocadvdife.tex \
+	$(dd)/odocadvfm2.tex $(dd)/odocburgers.tex \
+	$(dd)/odocswfm2t.tex $(dd)/odocgenl.tex 
 
 $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
 	$(run_odoc)
 
-../../doc/odocadvdife.tex: advdife.cpp  $(dd)/advdif.tex
+$(dd)/odocadvdife.tex: advdife.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
-../../doc/odocadvfm2.tex: ffadvfm2.cpp  $(dd)/advdif.tex $(dd)/advdifop.tex
+$(dd)/odocadvfm2.tex: ffadvfm2.cpp  $(dd)/advdif.tex $(dd)/advdifop.tex
 	$(run_odoc)
 
-../../doc/odocburgers.tex: ffburg.cpp  $(dd)/advdif.tex
+$(dd)/odocburgers.tex: ffburg.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
-../../doc/odocswfm2t.tex: ffswfm2t.cpp  $(dd)/advdif.tex
+$(dd)/odocswfm2t.tex: ffswfm2t.cpp  $(dd)/advdif.tex
 	$(run_odoc)
+
+$(dd)/odocgenl.tex: genload.cpp linhff.cpp
+	-chmod +w $@
+	$(ODOC) -o $@ $^
+	-chmod -w $@
 
 local_dist_clean::
 	-rm -f *.o

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linhff.cpp,v 1.2 2001/05/25 21:29:09 mstorti Exp $
+//$Id: linhff.cpp,v 1.3 2001/05/26 17:09:44 mstorti Exp $
  
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -59,8 +59,11 @@ void LinearHFilmFun::init() {
   elemset->elem_params(nel,ndof,nelprops);
   // Read hfilm coefficients. 
   //o _T: double[var_len]
-  //  _N: film coefficients _D: no default  _DOC: 
-  // Defines coeffcients for the film flux function. 
+  //  _N: hfilm_coeff _D: no default  _DOC: 
+  // Defines coeffcients for the film flux function. May be 
+  // \verb+var_len=0+ (no $\Delta T$ driven load) or
+  // \verb+var_len=ndof*ndof+ a full matrix of relating the flux with
+  // $\Delta !U$. 
   //  _END
   elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
   if (hfilm_coeff_prop.length == ndof*ndof) {
@@ -72,10 +75,12 @@ void LinearHFilmFun::init() {
 		   hfilm_coeff_prop.length,ndof);
   }
 
-  // Read source term for hfilm coefficients. 
+  // Read source term for generic load elemset. 
   //o _T: double[var_len]
-  //  _N: film coefficients _D: no default  _DOC: 
-  // Defines coeffcients for the film flux function. 
+  //  _N: hfilm_source _D: no default  _DOC: 
+  // Defines constant source term for the generic load on
+  // surfaces. May be of length 0 (null load) or \verb+ndof+
+  // which represents a geven load per field. 
   //  _END
   elemset->get_prop(hfilm_source_prop,"hfilm_source");
   if (hfilm_source_prop.length == ndof) {

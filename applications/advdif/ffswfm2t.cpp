@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.7 2001/04/01 01:34:35 mstorti Exp $
+//$Id: ffswfm2t.cpp,v 1.8 2001/05/26 17:09:44 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -61,9 +61,9 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     EGETOPTDEF_ND(elemset,double,tau_fac,1.);
     //o Add shock-capturing term.
     EGETOPTDEF_ND(elemset,int,shock_capturing,0);
-    //o Add shock-capturing term if relative variation of variables
+    // o Add shock-capturing term if relative variation of variables
     // inside the element exceeds this.
-    //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
+    // _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
     //  _N: advective_jacobians _D: no default  _DOC: 
     //i_tex ../../doc/advdifop.tex advective_jacobians
     //  _END
