@@ -230,3 +230,8 @@ tag: beta-1.31 on Mon Mar 12 23:29:48 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.32 on Fri Mar 16 17:22:32 ART 2001, by mstorti in minerva.arcride.edu.ar
      > New version of advdif fux functions
+----------
+tag: beta-1.33 on Sun Mar 18 12:48:57 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added a 'diag' mask to FastMat2.
+     > Writing new version (improved OOP) for advdif.
