@@ -5,6 +5,10 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('casen',undef);
 $save_file = ($casen ? "stream.$casen.tmp" : "stream.state.tmp");
 $casename = $casen;
+@subcases = split "_",$casen;
+die "incorrect case name: casen=$casen\n" unless $#subcases==1;
+$fric = $subcases[0];
+$shape = $subcases[1];
 $Nx = 20;
 $Lx = 1;			# Side of the cavity
 $Dt = 0.1;			# time step
@@ -16,12 +20,11 @@ $circular_path = 1;		# Use a circular stream instead of
 				# the same answer)
 #
 #__END_TRANSCRIPT__
-@vars = qw(t Nx Lx Dt nstep slope circular_path);
+@vars = qw(t Nx Lx Dt nstep slope circular_path casen casename
+    fric shape);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
-
-# <:pr('casen'):> 
 
 global_options
 
@@ -71,14 +74,28 @@ elemset stream 2
 name malla
 geometry cartesian1d
 npg 2
+#if $fric eq "chezy"
 friction_law "Chezy"
-# friction_law "Manning"
 Ch 1.
+#elsif $fric eq "manning"
+friction_law "Manning"
 roughness 1.345
+#else
+<:= die "not known friction law \"$fric\", \$casen = \"$casen\"\n"; :>
+#endif
+
+#if $shape eq "rect"
+shape "rectangular"
 width 1.
-# slope 0.01
+#elsif $shape eq ""
 shape "circular"
 radius 5
+#else
+<:= die "not known channel shape \"$shape\", \$casen = \"$casen\"\n"; :>
+#endif
+
+slope 0.01
+
 __END_HASH__
 __INCLUDE__ stream.con.tmp
 __END_ELEMSET__

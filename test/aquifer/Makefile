@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2002/02/06 02:35:40 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2002/02/07 01:55:55 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -55,7 +55,10 @@ test_var_eta:
 #w Test transient with constant depth
 test_transient:
 	$(MAKE) casen=transient run
-	octave -q checku.m > transient.verif.tmp
+
+#w Test for the stream elemset
+test_stream_chezy_rect:
+	$(MAKE) casen=chezy_rect runs
 
 #w Test the coupled aquifer+stream test
 test_as:
@@ -63,14 +66,13 @@ test_as:
 
 #w Make data
 data: force
-	echo CASE: $(CASE)
-	$(MAKE) $(CASE).depl
+	$(MAKE) -W $(CASE).epl $(CASE).depl
 	octave -q $(mkm).m
 
 #w Runs program
 rung: data force
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
-			-case $(CASE).depl # > output.$(casen).out
+			-case $(CASE).depl > output.$(casen).out
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
