@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.10 2002/07/16 22:00:54 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.11 2002/07/17 00:13:48 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -599,10 +599,10 @@ int main(int argc,char **args) {
       argl.arg_add(&res,OUT_VECTOR);
       argl.arg_add(A_mom,OUT_MATRIX|PFMAT);
       argl.arg_add(&glob_param,USER_DATA);
-      debug.trace("Before -mom- residual computation...");
+      debug.trace("-PREDICTOR- Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_res_mom",&time_star);
       CHKERRA(ierr);
-      debug.trace("After -mom- residual computation.");
+      debug.trace("-PREDICTOR- After residual computation.");
 
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -620,9 +620,9 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-      debug.trace("Before solving -mom- linear system...");
+      debug.trace("-PREDICTOR- Before solving linear system...");
       ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
-      debug.trace("After solving -mom- linear system.");
+      debug.trace("-PREDICTOR- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
@@ -636,10 +636,10 @@ int main(int argc,char **args) {
       if (tstep==1) {
 	argl.clear();
 	argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
-	debug.trace("Before poisson matrix computation...");
+	debug.trace("-POISSON- Before matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
 	CHKERRA(ierr);
-	debug.trace("After poisson matrix computation.");
+	debug.trace("-POISSON- After matrix computation.");
       }
 
       argl.clear();
@@ -648,14 +648,14 @@ int main(int argc,char **args) {
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&res,OUT_VECTOR);
       argl.arg_add(&glob_param,USER_DATA);
-      debug.trace("Before -poisson- residual computation...");
+      debug.trace("-POISSON- Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_res_poi",&time_star);
       CHKERRA(ierr);
-      debug.trace("After -poisson- residual computation.");
+      debug.trace("-POISSON- After residual computation.");
       
-      debug.trace("Before solving -poisson- linear system...");
+      debug.trace("-POISSON- Before solving linear system...");
       ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
-      debug.trace("After solving -poisson- linear system.");
+      debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
@@ -685,10 +685,10 @@ int main(int argc,char **args) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
-	debug.trace("Before projection matrix computation...");
+	debug.trace("Before matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_prj",&time_star);
 	CHKERRA(ierr);
-	debug.trace("After projection matrix computation.");
+	debug.trace("-PROJECTION- After matrix computation.");
       }
 
       argl.clear();
@@ -697,14 +697,14 @@ int main(int argc,char **args) {
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&res,OUT_VECTOR);
       argl.arg_add(&glob_param,USER_DATA);
-      debug.trace("Before -PROJECTION- residual computation...");
-      ierr = assemble(mesh,argl,dofmap,"comp_res_poi",&time_star);
+      debug.trace("-PROJECTION- Before residual computation...");
+      ierr = assemble(mesh,argl,dofmap,"comp_res_prj",&time_star);
       CHKERRA(ierr);
-      debug.trace("After -PROJECTION- residual computation.");
+      debug.trace("-PROJECTION- After residual computation.");
       
-      debug.trace("Before solving -PROJECTION- linear system...");
+      debug.trace("-PROJECTION- Before solving linear system...");
       ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
-      debug.trace("After solving -PROJECTION- linear system.");
+      debug.trace("-PROJECTION- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);

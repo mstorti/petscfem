@@ -87,6 +87,7 @@ nsave 5
 <:pr('nstep'):> 
 # initial_state cubcav.state
 <:pr('save_file'):> 
+save_file_pattern "outvector%d.out.tmp"
 
 # type of solver (may be "iisd", "petsc"...)
 <:pr('solver'):>

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.10 2002/07/16 22:00:54 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.11 2002/07/17 00:13:48 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -382,7 +382,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       } else if (comp_mat_poi) {
 
-	double Dt_art=Dt;
 	matlocmom += wpgdet * dshapex.t() * dshapex; 
  
       } else if (comp_res_prj) {
@@ -393,7 +392,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u = (SHAPE * locstate.Columns(1,ndim)).t();
 
 	resmom += wpgdet * SHAPE.t() *
-	  (-(alphap/rho) *grad_p - (u - u_star)/Dt).t();
+	  (-Dt*(alphap/rho) *grad_p - (u - u_star)).t();
 	SHV(resmom);
 	SHV(SHAPE);
 	SHV(u);
@@ -402,7 +401,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else if (comp_mat_prj) {
 
 	// fixme:= esto me parece que deberia ir con signo - !!
-	matlocmom += wpgdet/Dt * SHAPE.t() * SHAPE ;
+	matlocmom += wpgdet * SHAPE.t() * SHAPE ;
 
       } else {
 
