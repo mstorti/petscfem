@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make readmesh check dof numbers not being greater than... 
 * Include an S_body for ffadvfm2
 * test for burgers
 * move 'awatch' from test/
