@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.7 2001/11/01 19:19:27 mstorti Exp $
+//$Id: arglist.h,v 1.8 2002/03/13 02:04:59 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -33,6 +33,7 @@ enum arg_options {
   VECTOR_ADD             = 0x00002000,
   USER_DATA              = 0x00004000,
   PFMAT                  = 0x00008000,
+  USE_TIME_DATA          = 0x00010000,
  
   // Some useful combinations. 
   IS_FDJ = IS_FDJ_PROFILE | IS_FDJ_MATRIX,
@@ -114,6 +115,8 @@ public:
       VecGetArray). 
   */
   double *ghost_vals;
+  // The generalized time step corresponding to this state
+  TimeData *time_data;
   /// Local values (one row per element). 
   double *locst;
   /// PETSc-MPI Matrix 
@@ -138,6 +141,8 @@ public:
   void *user_data;
   /// Default constructor. 
   arg_data(void);
+  /// Destructor
+  ~arg_data();
 };
 
 typedef vector<arg_data> arg_data_list;

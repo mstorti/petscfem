@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.65 2002/03/06 01:02:48 mstorti Exp $
+//$Id: ns.cpp,v 1.66 2002/03/13 02:04:56 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -75,9 +75,10 @@ int main(int argc,char **args) {
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
   // Initialize time
-  Time time,time_star; time.set(0.);
+  Time time,time_old,time_star; time.set(0.);
   GlobParam glob_param;
   string save_file_res;
+  State state(x,time),state_old(xold,time_old);
 
   // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1];
@@ -357,6 +358,7 @@ int main(int argc,char **args) {
   int update_jacobian_this_step,update_jacobian_this_iter;
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
+    time_old.set(time.time());
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
     PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g %s\n",
@@ -415,8 +417,10 @@ int main(int argc,char **args) {
       }
 
       VOID_IT(argl);
-      argl.arg_add(&x,IN_VECTOR);
-      argl.arg_add(&xold,IN_VECTOR);
+      state.set_time(time);
+      state_old.set_time(time_old);
+      argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+      argl.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&res,OUT_VECTOR);
       if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
@@ -597,7 +601,7 @@ int main(int argc,char **args) {
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
   print_vector(save_file.c_str(),x,dofmap,&time);
 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
+  // ierr = VecDestroy(x); CHKERRA(ierr); 
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 

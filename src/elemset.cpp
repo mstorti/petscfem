@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.35 2002/01/14 03:45:06 mstorti Exp $
+//$Id: elemset.cpp,v 1.36 2002/03/13 02:04:59 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -88,6 +88,14 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 
   int iele,iele_here,kloc,node,kdof,locdof;
   
+  // If the vector passed has a time_data value, then
+  // use it as time
+  const TimeData *time_d = time_data;
+  if (argd.options & USE_TIME_DATA) {
+    assert(argd.time_data);
+    time_d = argd.time_data;
+  }
+
   double *locst = argd.locst;
   iele_here=-1;
   for (iele=el_start; iele<=el_last; iele++) {
@@ -99,8 +107,7 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
       node = ICONE(iele,kloc);
       for (kdof=1; kdof<=ndof; kdof++) {
 	dofmap->get_nodal_value(node,kdof,argd.sstate,argd.ghost_vals,
-				time_data,
-				LOCST(iele_here,kloc,kdof-1));
+				time_d,LOCST(iele_here,kloc,kdof-1));
 	// printf("setting node %d,kdof %d to %f\n",node,
 	// kdof,LOCST(iele,kloc,kdof-1));
       }
@@ -396,8 +403,14 @@ int assemble(Mesh *mesh,arg_list argl,
     ARGVJ.options = argl[j].options; 
     // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
-
-      Vec *x = (Vec *) (argl[j].arg);
+      Vec *x;
+      if (argl[j].options & USE_TIME_DATA) {
+	State *state = (State *) (argl[j].arg);
+	x = (Vec *)&state->v();
+	ARGVJ.time_data = (TimeData*) (&state->t());     
+      } else {
+	x = (Vec *) (argl[j].arg);
+      }
       Vec *ghost_vec = new Vec;
       ierr = dofmap->create_MPI_ghost_vector(*ghost_vec); CHKERRQ(ierr);
       ARGVJ.x = x;
