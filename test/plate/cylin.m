@@ -134,6 +134,11 @@ fclose(fid);
 [xnode,iconee,meshe] = mesher(XNOD,ICONEE,H);
 external2 = mesher_bound(meshe,[5 3 8 19 14 16]);
 external3 = mesher_bound(meshe,[20 21 22 23 24 25]);
+out_up = mesher_bound(meshe,[5 20]);
+out_down = mesher_bound(meshe,[25 16]);
 
 asave("ext.nod.tmp",xnode);
 asave("ext.con.tmp",iconee);
+
+asave("ext.ext_nodes.tmp",external);
+asave("ext.ext_nodes2.tmp",external2);

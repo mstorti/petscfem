@@ -41,7 +41,7 @@ global_options
 ndim 2
 save_file "cylin.state.tmp"
 save_file_pattern "outvector.out.tmp"
-nsave 10
+nsave 1
 nsaverot 10
 # initial_state "cylin.state.tmp"
 initial_state "cylin.ini.tmp"

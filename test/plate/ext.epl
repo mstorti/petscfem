@@ -1,0 +1,63 @@
+#===========================================================
+global_options
+ndim 2
+save_file "ext.state.tmp"
+save_file_pattern "outvector.out.tmp"
+nsave 10
+nsaverot 10
+# initial_state "ext.state.tmp"
+initial_state "ext.ini.tmp"
+nstep 1000
+# steady
+solver "iisd"
+iisd_subpart_auto 2000
+print_internal_loop_conv 1
+Krylov_dim 200
+nnwt 2
+alpha 0.6
+weak_form 0
+Dt <:=$Co*$hmin:>
+rtol 1e-4
+atol 1e-10
+iisdmat_print_statistics
+print_partitioning_statistics
+hook_list dl_generic_hook coupling_visc_hook 
+
+coupling_visc_hook.filename ./inviscid.efn
+coupling_visc_hook.prefix   coupling_visc_hook
+
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  1
+data ext.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset qharm 4
+geometry cartesian2d
+npg 4
+data ext.con.tmp
+__END_HASH__
+
+end_elemsets
+
+#===========================================================
+fixa_amplitude dl_generic
+ext_filename "./inviscid.efn"
+function_name ""
+field 6
+Omega_spin 2.51327412287183
+Omega_trans 6.28318530717959
+translation_ampl 1.96
+__END_HASH__
+14055 3 1
+__END_FIXA__
+
+
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

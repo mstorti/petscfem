@@ -1,5 +1,6 @@
+// -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: inviscid.h,v 1.2 2002/12/29 22:27:25 mstorti Exp $
+//$Id: inviscid.h,v 1.3 2002/12/30 03:06:31 mstorti Exp $
 #ifndef ROSI_H
 #define ROSI_H
 
@@ -35,6 +36,19 @@ public:
 		      const vector<double> &gather_values);
 };
 
+vector<double> xnod, u;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class coupling_inv_hook {
+private:
+  int nnod;
+  FILE *visc2inv, *inv2visc;
+public:
+  void init(Mesh &mesh,Dofmap &dofmap,
+	    TextHashTableFilter *options,const char *name);
+  void time_step_pre(double time,int step);
+  void time_step_post(double time,int step,
+		      const vector<double> &gather_values);
+};
 
 #endif
