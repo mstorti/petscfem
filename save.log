@@ -318,3 +318,8 @@ tag: beta-1.55 on Fri Mar 30 21:25:28 ART 2001, by mstorti in spider
      > Added a null diffusive jacobian
      > Starting documenttion for new ffluxes
      > QUASI STABLE. Passes al neww tests
+----------
+tag: beta-1.56 on Sat Mar 31 19:53:03 ART 2001, by mstorti in spider
+     > Added doc for the new flux functions.
+     > Adapted bcconv to the new flux functions. 
+     > QUASI STABLE (Passes all newff tests)
