@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.8 2001/12/20 21:58:55 mstorti Exp $
+//$Id: laplace.cpp,v 1.9 2002/01/14 03:45:05 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -11,7 +11,7 @@
 #include "lapla.h"
 #include <time.h>
 
-int MY_RANK,SIZE;
+extern int MY_RANK,SIZE;
 
 static char help[] = "Basic finite element program.\n\n";
 

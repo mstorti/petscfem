@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.7 2001/11/19 03:35:06 mstorti Exp $
+//$Id: texthash.h,v 1.8 2002/01/14 03:45:06 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -56,7 +56,7 @@ public:
   // Constructor from the string
   TextHashTableVal(const char *s_=NULL);
   // Destructor
-  ~TextHashTableVal() {delete s;};
+  ~TextHashTableVal() {delete[] s;};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -78,6 +78,19 @@ public:
       @param value (input) value of the entry
   */ 
   void add_entry(const char *key,const char *value);
+
+  /** Adds an entry to the hash.
+      @author M. Storti
+      @param key (input) key of the entry
+      @param value (input) value of the entry
+  */ 
+  void add_entry(const char *key,const int *value,int n=1);
+  /** Adds an entry to the hash.
+      @author M. Storti
+      @param key (input) key of the entry
+      @param value (input) value of the entry
+  */ 
+  void add_entry(const char *key,const double *value,int n=1);
 
   /** Adds an included table. 
       @author M. Storti

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffeulerfm2.cpp,v 1.6 2001/12/20 21:58:55 mstorti Exp $
+//$Id: ffeulerfm2.cpp,v 1.7 2002/01/14 03:45:05 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>

@@ -694,7 +694,7 @@ expect("sqcav/check.iisd.verif.np1.tmp",
        "Square cavity, IISD part. in 1 proc.",read_file("sqcav/sqcav.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sqcav/check.g_body.tmp",
+expect("sqcav/check.g_body.verif.tmp",
        "Square cavity, test G_body term.",read_file("sqcav/g_body.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -820,12 +820,17 @@ expect("lupart/check_part.verif.tmp",
 Random partitioning OK \? > 1
 EOT
 
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("distmap/distmaps.sal.tmp",
        "Distributed map<int,double>, sched alg NOT GROUPED",<<'EOT');
 Args: .* sched 0
 error < tol OK \? > 1
 EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/distcont.sal.tmp",
+       "Distributed container class.",read_file("distcont.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("distmap/distmapg.sal.tmp",
@@ -1219,6 +1224,42 @@ expect("lupart/check_subpart.verif.tmp",
 IISD/Subpartitioning  OK \? > 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=4; $case++) {
+#    print "checking pfmat/output.case${case}iip.tmp\n";
+    expect("pfmat/output.case${case}iip.tmp",
+          "PFMat/case$case/(local_solver=petsc)",
+          "All tests OK.*1");
+}
+
+=cut
+# Unfortunately, this doesn't work.
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=4; $case++) {
+#    print "checking pfmat/output.case${case}iip.tmp\n";
+    expect("pfmat/output.case${case}iip.tmp",
+          "PFMat/case$case/(local_solver=petsc)",
+          "All tests OK.*1");
+}
+=cut
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=2; $case++) {
+#    print "checking pfmat/output.case${case}p.tmp\n";
+    expect("pfmat/output.case${case}iip.tmp",
+          "PETScMat/case$case",
+          "All tests OK.*1");
+}
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("pfmat/output.case1sdp.tmp",
+       "SparseDirect(solver PETSc)",
+       "All tests OK.*1");
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("pfmat/output.case1sds.tmp",
+       "SparseDirect(solver SuperLU)",
+       "All tests OK.*1");
 
 end_section();
 
@@ -1246,6 +1287,17 @@ end_section();
 
 begin_section('Graph Partitioning');
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/dist_graph.np1.out.tmp","Distributed graph 1proc.",
+               read_file("distmap/dist_graph.np1.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/dist_graph.np2.out.tmp","Distributed graph 2proc.",
+               read_file("distmap/dist_graph.np2.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/dist_graph.np3.out.tmp","Distributed graph 3proc.",
+               read_file("distmap/dist_graph.np3.ans.txt"));
 
 end_section();
 

@@ -1,20 +1,19 @@
-# $Id: Makefile,v 1.16 2001/12/20 00:32:49 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2002/01/14 03:45:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
 
-pp:
-	$(MAKE) case=iisd_sbp1_uj runs
-
-tests: test_re1000 test_iisd test_iisd2 test_meas_perf
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body
 
 all: run
 
+# PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-NS = $(PETSCFEM_DIR)/applications/ns/ns.bin
+qqq:
+	echo $(NS)
 
 LOC_PROG := ns
 #CASE_NAME := qharm

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.41 2001/12/13 14:48:48 mstorti Exp $ 
+# $Id: Makefile,v 1.42 2002/01/14 03:45:06 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -10,9 +10,10 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
           fastmat utils getprop \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
-	  measperf mainutl sttfilter state secant getarray lusubd \
-	distmat sparse randomg spsolve pfmatsp texthf timestat \
-	metisprt debug graph iisdcr
+	  measperf mainutl sttfilter state secant getarray \
+	distmat sparse randomg spsolve texthf timestat \
+	metisprt debug graph iisdcr iisdgraph iisdmat petscmat spdirect \
+	pfmat
 
 # C files
 CLIBOBJS_ =  getarrgr.tab
@@ -63,15 +64,26 @@ $(FSM).cpp $(FSM).h: sparse.sm
 	$(SMC) < $<
 	mv -f $(FSM).cc $(FSM).cpp
 
+pfmat.sm: pfmat.sm.in
+	if [ -f $@ ] ; then chmod +w $@; fi ;	\
+	eperl -P $< > $@ ;			\
+	chmod -w $@
+
 pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 %FSM.cpp %FSM.h: %.sm
+	if [ -f $*FSM.cpp ] ; then chmod +w $*FSM.cpp ; fi 
+	if [ -f $*FSM.h ] ; then chmod +w $*FSM.h ; fi 
 	$(SMC) < $<
-	mv -f $*FSM.cc $*FSM.cpp
+	-rm -f $*FSM.cpp
+	insdeb.pl $*FSM.cc $*FSM.cpp > /dev/null
+	if [ ! -f $*FSM.cpp ] ; then cp -f $*FSM.cc $*FSM.cpp ; fi
+	-rm -f $*FSM.cc
+	chmod -w $*FSM.cpp $*FSM.h
 
 # This doesn't compile with -O2
 #measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'
-# measperf.o: measperf.cpp
-# 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
+measperf.o: measperf.cpp
+	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp libpetscfem.a # &> /dev/null
@@ -115,7 +127,7 @@ getarrgr.tab.o: getarrgr.tab.c
 
 odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex
 
-$(DOC_DIR)/odociisd.tex: lusubd.cpp
+$(DOC_DIR)/odociisd.tex: iisdcr.cpp
 	$(run_odoc)
 
 $(DOC_DIR)/odocelems.tex: elemset.cpp 

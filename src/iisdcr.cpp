@@ -1,11 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.12 2001/12/09 15:43:25 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.13 2002/01/14 03:45:06 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
-
-//  #define DEBUG_IISD
-//  #define DEBUG_IISD_DONT_SET_VALUES
 
 #include <src/debug.h>
 #include <typeinfo>
@@ -16,57 +13,13 @@ extern int MY_RANK,SIZE;
 #endif
 #include <mat.h>
 
+#include <src/debug.h>
 #include <src/fem.h>
 #include <src/utils.h>
-#include <src/dofmap.h>
 #include <src/elemset.h>
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
-#include <src/graph.h>
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class IISDGraph : public Graph {
-private:
-  Node *nodep;
-  int vrtxf;
-public:
-  const int *flag;
-  int k1,k2;
-  /// Auxiliary functions
-  const int *dof2loc,*loc2dof;
-  /// Libretto dynamic array that contains the graph adjacency matrix
-  Darray *da;
-  /// callback user function to return the neighbors for a 
-  void set_ngbrs(int vrtx_f,set<int> &ngbrs_v);
-  /// Callback user function for the user to set the weight of a given fine vertex. 
-  double weight(int vrtx_f);
-  /// Clean all memory related 
-  ~IISDGraph() {clear();}
-  /// Constructor
-  IISDGraph() : Graph() {}
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void IISDGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
-  int pos,loc2,dof2;
-  pos = loc2dof[loc1]+k1;
-  while (1) {
-    nodep = (Node *)da_ref(da,pos);
-    if (nodep->next==-1) break;
-    // loc2:= number of global dof connected to `'
-    dof2 = nodep->val;
-    if (k1<=dof2 && dof2<=k2 && !flag[dof2] ) {
-      loc2 = dof2loc[dof2-k1];
-      ngbrs_v.insert(loc2);
-    }
-    pos = nodep->next;
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double IISDGraph::weight(int elem) {
-  return 1.;
-}
+#include <src/iisdgraph.h>
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -92,35 +45,99 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
   return 0;
 }
 
+/** This is an internal auxiliar class for
+    sub-partitioning inside each processor
+*/
+class LocalGraph : public Graph {
+public:
+  StoreGraph *lgraph;
+  const int *loc2dof,*dof2loc,*dofs_proc,*flag;  
+  map<int,int> *proc2glob;
+  const DofPartitioner *partit;
+  int myrank;
+  void set_ngbrs(int vrtx_f,set<int> &ngbrs_v);
+  /// Auixiliary set ot ngbrs
+  set<int> ngbrs_v_aux;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
+void LocalGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
+  set<int>::const_iterator q,qe;
+  int keq,dof2,loc2;
+  // loc1 is a `local' dof numbering. Map to global.
+  keq = dofs_proc[ loc2dof[loc1] ];
+  // Clear set
+  ngbrs_v_aux.clear();
+  // Get set of ngbrs (in global numbering)
+  lgraph->set_ngbrs(keq,ngbrs_v_aux);
+  qe = ngbrs_v_aux.end();
+  for (q=ngbrs_v_aux.begin(); q!=qe; q++) {
+    // loc2:= number of global dof connected to `'
+    dof2 = *q;
+    if (partit->processor(dof2)==myrank && !flag[dof2] ) {
+      loc2 = dof2loc[ (*proc2glob)[dof2] ];
+      ngbrs_v.insert(loc2);
+    }
+  }
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
-void IISDMat::create(Darray *da,const Dofmap *dofmap_,
-		int debug_compute_prof) {
+int IISDMat::create_a() {
 
-  int myrank,size,max_partgraph_vertices_proc;
+  int myrank,size,max_partgraph_vertices_proc,proc_l;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
     n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
   vector<int> dof2loc,loc2dof;
   set<int> ngbrs_v;
   set<int>::iterator q,qe;
-  IISDGraph graph;
+  LocalGraph local_graph;
 
-  MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
-  MPI_Comm_size (PETSC_COMM_WORLD, &size);
+  // this is a trick to avoid the collision of `local_solver' both
+  // as member and as string-option here
+  string local_solver_s;
+  { string &local_solver = local_solver_s;
+  //o Chooses the local solver (may be "PETSc" or "SuperLU")
+  TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
+  }
+  // printf("&localsolver %p\n",&local_solver);
+  if (local_solver_s == "PETSc") local_solver = PETSc;
+  else if (local_solver_s == "SuperLU") local_solver = SuperLU;
+  else assert(0);
 
-  dofmap = dofmap_;
-  part = new DofmapPartitioner(dofmap);
-  A_LL_other = new DistMatrix(part,PETSC_COMM_WORLD);
-  const int &neq = dofmap->neq;
+#if 1
+  //o PETSc parameter related to the efficiency in growing
+  //   the factored profile.
+  TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
+
+  //o Print the Schur matrix (don't try this for big problems).
+  TGETOPTDEF_ND_PF(thash,int,print_Schur_matrix,0);
+
+  //o Print Finite State Machine transitions
+  TGETOPTDEF_ND_PF(thash,int,print_fsm_transition_info,0);
+
+  // Scatter the profile graph
+  lgraph.scatter();
+
+  MPI_Comm_rank (comm, &myrank);
+  MPI_Comm_size (comm, &size);
+
+  A_LL_other = new DistMatrix(&pf_part,comm);
+  const int &neq = M;
   
-  Node *nodep;
-  // neqp:= k2:= k1:= unknowns in this processor are thos in the range
-  // k1 <= k <= k2 = k1+neqp-1
-  k1 = dofmap->startproc[myrank];
-  neqp = dofmap->neqproc[myrank];
-  k2=k1+neqp-1;
+  // number of dofs in this processor
+  neqp = 0;
+  dofs_proc.clear();
+  proc2glob.clear();
+  for (k=0; k<neq; k++) {
+    if (part.processor(k)==myrank) {
+      dofs_proc.push_back(k);
+      proc2glob[k] = neqp++;
+    }
+  }
+  dofs_proc_v = dofs_proc.begin();
 
   // these are the vectors for use with the PETSc matrix constructors
   // flag:= will contain `0' for local dof's and `1' for `interface'
@@ -130,32 +147,32 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // nnz[diagonal/off-diagonal][row-block-type][column-block-type]
   // For instance nnz[D][L][L] = d_nn_z for the 'local-local' block. 
   vector<int> nnz[2][2][2],flag0,flag;
-  flag0.resize(dofmap->neq,0);
-  flag.resize(dofmap->neq,0);
+  flag0.resize(neq,0);
+  flag.resize(neq,0);
 
   // First, decide which dof's are marked as `interface' and which as `local'. 
 
   // A dof in processor `k' is marked as interface if it is connected
   // (has a non zero matrix value) with a dof in a processor with a lower index "k'<k"
-  for (k=0;k<neqp;k++) {
+  for (k=0; k < neqp; k++) {
     // keq:= number of dof
-    keq=k1+k;
-    pos=keq;
-    while (1) {
-      nodep = (Node *)da_ref(da,pos);
-      if (nodep->next==-1) break;
+    keq = dofs_proc_v[k];
+    ngbrs_v.clear();
+    lgraph.set_ngbrs(keq,ngbrs_v);
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
       // leq:= number of dof connected to `keq'
-      leq = nodep->val;
+      leq = *q;
+      proc_l = part.processor(leq);
       // if leq is in other processor, then either `keq' or `leq' are
       // interface. This depends on `leq<keq' or `leq>keq'
-      if (leq<k1) {
+      if (proc_l < myrank) {
 	// 	printf("[%d] marking node %d\n",keq);
 	flag0[keq]=1;
-      } else if (leq>k2) {
+      } else if (proc_l > myrank) {
 	flag0[leq]=1;
 	// printf("[%d] marking node %d\n",myrank,leq);
       }
-      pos = nodep->next;
     }
   }
   
@@ -163,9 +180,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // to other so that, after, we have to combine all them with an
   // Allreduce
   MPI_Allreduce(flag0.begin(), flag.begin(), neq, MPI_INT, 
-		MPI_MAX, PETSC_COMM_WORLD);
+		MPI_MAX, comm);
 
-#if 1
   // SUBPARTITIONING. //---:---<*>---:---<*>---:---<*>---:---<*>---:
   // We partition the graph of those vertices (dof's) that are local
   // to this processor. Those that result in internal interfaces are
@@ -181,7 +197,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   n_loc_pre = 0;
   dof2loc.resize(neqp,-1);
   for (k=0;k<neqp;k++) {
-    if (flag[k1+k]==0) dof2loc[k] = n_loc_pre++;
+    if (flag[ dofs_proc_v[k] ]==0) dof2loc[k] = n_loc_pre++;
   }
   loc2dof.resize(n_loc_pre);
   for (dof = 0; dof < neqp; dof++) {
@@ -189,83 +205,72 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     if (loc>=0) loc2dof[loc] = dof;
   }
   
-  // Fill Graph class members 
-  graph.da = da;
-  graph.dof2loc = dof2loc.begin();
-  graph.loc2dof = loc2dof.begin();
-  graph.k1 = k1;
-  graph.k2 = k2;
-  graph.flag = flag.begin();
-
 #define INF INT_MAX
   //o The maximum number of vertices in the coarse mesh for
   // sub-partitioning the dof graph in the IISD matrix. 
   TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices_proc,INF);
 #undef INF
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
-#if 0
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] max_partgraph_vertices_proc %d\n",
-			  myrank,max_partgraph_vertices_proc);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
-#endif
 
-  graph.part(n_loc_pre,max_partgraph_vertices_proc,iisd_subpart);
+  local_graph.lgraph = &lgraph;
+  local_graph.init(n_loc_pre);
+  local_graph.loc2dof = loc2dof.begin();
+  local_graph.dof2loc = dof2loc.begin();
+  local_graph.dofs_proc = dofs_proc.begin();
+  local_graph.proc2glob = &proc2glob;
+  local_graph.partit = &part;
+  local_graph.myrank = myrank;
+  local_graph.flag = flag.begin();
+
+  local_graph.part(max_partgraph_vertices_proc,iisd_subpart);
   // Mark those local dofs that are connected to a local dof in a
   // subdomain with lower index in the subpartitioning as interface.
   for (k=0; k<n_loc_pre; k++) {
-    subdoj = graph.vrtx_part(k);
+    subdoj = local_graph.vrtx_part(k);
     ngbrs_v.clear();
-    graph.set_ngbrs(k,ngbrs_v);
+    local_graph.set_ngbrs(k,ngbrs_v);
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
-      if (graph.vrtx_part(*q)<subdoj) {
-#if 0 // debug:=
-	printf("[%d] marking %d as interface\n",myrank,k1+loc2dof[k]);
-	int kkk = k1+loc2dof[k];
-	assert(0<= kkk &&kkk<neq);
-#endif
-	flag[k1+loc2dof[k]] = 1;
+      if (local_graph.vrtx_part(*q)<subdoj) {
+	flag[dofs_proc_v[ loc2dof[k] ] ] = 1;
 	break;
       }
     }
   }
   ngbrs_v.clear();
 
-  debug.trace("after remarking flag");
-  graph.clear();
+  local_graph.clear();
   dof2loc.clear();
   loc2dof.clear();
 
   // We have to combine all them again with an Allreduce
-  debug.trace("before allreduce");
   MPI_Allreduce(flag.begin(), flag0.begin(), neq, MPI_INT, 
-		MPI_MAX, PETSC_COMM_WORLD);
-  debug.trace("after allreduce");
+		MPI_MAX, comm);
   // recopy on `flag'...
   memcpy(flag.begin(),flag0.begin(),neq*sizeof(int));
   flag0.clear();
-#endif
 
   // map:= map[k] is the location of dof `k1+k' in reordering such
   // that the `local' dofs are the first `n_loc' and the `interface'
   // dofs are the last n_int.
   // n_int := number of nodes in this processor that are `interface'
   // n_loc := number of nodes in this processor that are `local'
-  map.resize(neq,0);
+  map_dof.resize(neq,0);
   n_int_v.resize(size+1,0);
   n_loc_v.resize(size+1,0);
 
   // number all `loc' dof's
   n_loc_tot = 0;
   n_loc_v[0] = 0;
+  // Number first all loc dof's in processor 0, then on processor 1,
+  // and so on
   for (rank = 0; rank < size; rank++) {
-    // PetscPrintf(PETSC_COMM_WORLD,"startproc %d, neqproc %d\n",
-    // dofmap->startproc[rank],dofmap->neqproc[rank]);
-    k1h = dofmap->startproc[rank];
-    for (k = 0; k < dofmap->neqproc[rank]; k++) {
-      // PetscPrintf(PETSC_COMM_WORLD,"dof %d, flag %d\n",k1h+k,flag[k1h+k]);
-      if(flag[k1h+k] == 0) map[k1h+k] = n_loc_tot++;
-    }
+    // This is no scalable on the number of processors, but is very
+    // fast so that it may cause problems only for a large number of
+    // processors. 
+    for (keq=0; keq<neq; keq++)
+      if(part.processor(keq)==rank 
+	 && flag[keq] == 0) map_dof[keq] = n_loc_tot++;
     n_loc_v[rank+1] = n_loc_tot;
   }
 
@@ -273,9 +278,9 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   n_int_tot = n_loc_tot;
   n_int_v[0] = n_loc_tot;
   for (rank = 0; rank < size; rank++) {
-    k1h = dofmap->startproc[rank];
-    for (k = 0; k < dofmap->neqproc[rank]; k++) 
-      if(flag[k1h+k] == 1) map[k1h+k] = n_int_tot++;
+    for (keq=0; keq<neq; keq++)
+      if(part.processor(keq)==rank &&
+	 flag[keq] == 1) map_dof[keq] = n_int_tot++;
     n_int_v[rank+1] = n_int_tot;
   }
   PETSCFEM_ASSERT0(n_int_tot == neq,"Failed to count all dof's in "
@@ -287,37 +292,6 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   n_locp = n_loc_v[myrank];
   n_intp = n_int_v[myrank];
 
-#ifdef DEBUG_IISD // Debug
-  int ldof,type;
-  if (myrank==0) {
-    for (rank=0; rank<size; rank++) 
-      printf("[%d] loc: %d-%d, int: %d-%d\n",
-	     rank,n_loc_v[rank],n_loc_v[rank+1],
-	     n_int_v[rank],n_int_v[rank+1]);
-#if 0
-    for (rank=0; rank<size; rank++) {
-      printf("In processor [%d]: loc %d, int %d\n",rank,
-	     n_loc_v[rank+1]-n_loc_v[rank],
-	     n_int_v[rank+1]-n_int_v[rank]);
-      for (k=0; k<dofmap->neqproc[rank]; k++) {
-	keq = dofmap->startproc[rank]+k;
-	ldof = map[keq];
-	if (ldof < n_loc_tot) {
-	  type = L;
-	  ldof = ldof - n_loc_v[rank];
-	} else {
-	  type = I;
-	  ldof = ldof - n_int_v[rank];
-	}
-	printf("keq: %d, map: %d, type: %s, local: %d\n",
-	       keq,map[keq],(type==L ? "L" : "I"),ldof);
-      }
-    }
-#endif
-  }
-#endif
-
-  debug.trace("trace 0");
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
   // PETSc sense)
@@ -336,119 +310,117 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     }
   }
     
-  debug.trace("trace 0.1");
   // For each dof in this processor we scan all connected dof's and
   // add the corresponding element in the `d_nnz' or `o_nnz' vectors. 
   for (k = 0; k < neqp; k++) {
     // keq:= number of dof
-    keq = k1 + k;
+    keq = dofs_proc_v[k];
     // type of dof (local or interface)
     // row_t = (flag[keq] ? I : L);
     // Index in the local PETSc matrices (maped index)
-    row = map[keq];
+    row = map_dof[keq];
     row_t = (row < n_loc_tot ? L : I);
     
     // Correct dof's
     row -= (row < n_loc_tot ? n_locp : n_intp);
     // loop over the connected dof's
-    pos = keq;
-    while (1) {
-      nodep = (Node *)da_ref(da,pos);
-      if (nodep->next==-1) break;
+    ngbrs_v.clear();
+    lgraph.set_ngbrs(keq,ngbrs_v);
+
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
       // leq:= number of dof connected to `keq' i.e. `A(keq,leq) != 0' 
-      leq = nodep->val;
+      leq = *q;
       // type of dof
       // col_t = (flag[leq] ? I : L);
-      col_t = (map[leq] < n_loc_tot ? L : I);
+      col_t = (map_dof[leq] < n_loc_tot ? L : I);
       // diagonal or off-diagonal (in PETSc sense)
-      od = ((leq < k1 || leq > k2) ? O : D);
+      od = ( (part.processor(leq)!= myrank) ? O : D);
       // By construction, the local-local block should be in the
       // diagonal part
       assert(!(od==O && row_t==L && col_t==L));
       // count 
       if (!(row>=0 && row < nnz[od][row_t][col_t].size())) {
 	printf("row %d, size: %d\n",row,nnz[od][row_t][col_t].size());
-	MPI_Abort(PETSC_COMM_WORLD,1);
+	MPI_Abort(comm,1);
       }
       nnz[od][row_t][col_t][row]++;
-      // next link
-      pos = nodep->next;
     }
+
   }
 
-  debug.trace("trace 1");
-  // deallocate Libretto dynamic darray
-  da_destroy(da);
+  // deallocate profile (graph)
+  lgraph.clear();
 
 #if 0
   // Prints d_nnz, o_nnz for block LL, IL, IL and II in turn
   // For each block prints the d_nnz and o_nnz in turn
   for (int row_t=0; row_t<2; row_t++) {
     for (int col_t=0; col_t<2; col_t++) {
-      PetscPrintf(PETSC_COMM_WORLD,"[%s]-[%s] block\n",
+      PetscPrintf(comm,"[%s]-[%s] block\n",
 		  (row_t==0? "LOC" : "INT"),(col_t==0? "LOC" :
 					     "INT"));
       // number of rows in this block in this processor
       nrows=(row_t==L ? n_loc : n_int);
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscSynchronizedPrintf(comm,
 			      "%d/%d rows on processor [%d]\n",
 			      nrows,neqp,myrank);
       for (row=0; row<nrows; row++) {
 	d_nz = nnz[D][row_t][col_t][row];
 	o_nz = nnz[O][row_t][col_t][row];
 	if (d_nz|| o_nz) 
-	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+	  PetscSynchronizedPrintf(comm,
 				  "row=%d, d_nnz=%d, o_nnz=%d\n",row,
 				  d_nz,o_nz);
       }
-      PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+      PetscSynchronizedFlush(comm); 
     }
   }
   PetscFinalize();
   exit(0);
 #endif
 
-  debug.trace("trace 2");
-//    ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
-//   			 nnz[D][L][L].begin(),&A_LL); 
-//    PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix\n"); 
-  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_loc,n_int,
+  ierr = MatCreateMPIAIJ(comm,n_loc,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][L][I].begin(),
 			 PETSC_NULL,nnz[O][L][I].begin(),
-			 &A_LI);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix\n"); 
+			 &A_LI); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix\n"); 
     
-  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_int,n_loc,
+  ierr = MatCreateMPIAIJ(comm,n_int,n_loc,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][L].begin(),
 			 PETSC_NULL,nnz[O][I][L].begin(),
-			 &A_IL);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix\n"); 
+			 &A_IL); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix\n"); 
     
-  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_int,n_int,
+  ierr = MatCreateMPIAIJ(comm,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][I].begin(),
 			 PETSC_NULL,nnz[O][I][I].begin(),
-			 &A_II);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
+			 &A_II); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
   
-  debug.trace("trace 3");
   // extern int mult(Mat,Vec,Vec);
-  ierr = MatCreateShell(PETSC_COMM_WORLD,n_int,n_int,
+  ierr = MatCreateShell(comm,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
+  CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
   P=A;
 
   MatShellSetOperation(A,MATOP_MULT,(void *)(&IISD_mult));
   MatShellSetOperation(A,MATOP_MULT_TRANS,(void *)(&IISD_mult_trans));
 
-  ierr = VecCreateMPI(PETSC_COMM_WORLD,n_loc,PETSC_DETERMINE,&x_loc);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc' vector\n"); 
+  ierr = VecCreateMPI(comm,n_loc,PETSC_DETERMINE,&x_loc);
+  CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc' vector\n"); 
+
   ierr = VecCreateSeq(PETSC_COMM_SELF,n_loc,&y_loc_seq);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating `y_loc_seq' vector\n"); 
-  ierr = VecDuplicate(y_loc_seq,&x_loc_seq);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
+  CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating `y_loc_seq' vector\n"); 
+
+  ierr = VecDuplicate(y_loc_seq,&x_loc_seq); CHKERRQ(ierr); 
+  // PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
 
   // Shortcuts
   AA[L][L] = &A_LL;
@@ -459,13 +431,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // Save copy of d_nnz_LL for use later when recreating A_LL
   d_nnz_LL = nnz[D][L][L];
 
-#if 0
-  // Build the interface preco stuff
-  int_layers.clear();
-  set<int> queue;
-  for (k=k1; k<k2; k++) {
-    row_t = map_dof(I->first,row_t,row_indx);
-    if (row_t == L) ;
-  }
+  ierr = clean_mat_a(); CHKERRQ(ierr);
 #endif
+  return 0;
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.15 2001/12/20 21:58:51 mstorti Exp $
+//$Id: ffburg.cpp,v 1.16 2002/01/14 03:45:05 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>

@@ -1,3 +1,4 @@
-G_body test, max err in 'u' < tol OK \? 1
-G_body test, max err in 'v' < tol OK \? 1
-G_body test, max err in 'p+z' < tol OK \? 1
+__EXACT_MATCH__
+G_body test, max err in 'u' < tol OK ? 1
+G_body test, max err in 'v' < tol OK ? 1
+G_body test, max err in 'p+z' < tol OK ? 1

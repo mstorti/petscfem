@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.10 2001/12/09 14:04:01 mstorti Exp $
+// $Id: graph.h,v 1.11 2002/01/14 03:45:06 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -29,26 +29,31 @@ class Graph {
   /// Vertex weights 
   double weight_scale;
   /// Constructor
-  Graph();
+  Graph(int N=0) { init(N); };
+  /// Set number of vertices
+  virtual void init(int N);
   /** Virtual destructor (Just to prevent instantiations of this
       class. See Thinking in C++, by Bruce Eckel).
   */
   virtual ~Graph()=0;
   /// partitioning routine (calls Metis)
-  void part(int nvrtx_f,int max_partgraph_vertices,
+  void part(int max_partgraph_vertices,
 	    int npart,float *tpwgts=NULL);
   /// return an array with the domain indices of all fine vertices 
   const int *vrtx_part();
   /// return the partition index for a given fine graph vertex 
   int vrtx_part(int);
   /** callback user function to return the neighbors for a 
-      fine vertex `vrtx_f'
+      fine vertex `vrtx_f'. #ngbrs_v# is cleared before calling
+      #set_ngbrs()#. 
   */
   virtual void set_ngbrs(int vrtx_f,set<int> &ngbrs_v)=0;
   /// Callback user function for the user to set the weight of a given fine vertex. 
   virtual double weight(int vrtx_f);
   /// Clean all memory related 
   void clear();
+  /// Print the graph
+  void print();
 };
 
 #endif

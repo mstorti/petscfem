@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.5 2001/06/05 02:16:23 mstorti Exp $
+//$Id: dofmap.h,v 1.6 2002/01/14 03:45:06 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -12,9 +12,10 @@
 #include <petsc.h>
 #include <vec.h>
 
-#include "texthash.h"
-#include "fstack.h"
-#include "idmap.h"
+#include <src/part.h>
+#include <src/texthash.h>
+#include <src/fstack.h>
+#include <src/idmap.h>
 
 class TimeData {};
 
@@ -191,7 +192,7 @@ public:
 
     @author M. Storti
 */
-class Dofmap {
+class Dofmap : public DofPartitioner {
 
 public:
   /// number of nodes
@@ -411,14 +412,9 @@ public:
   */ 
   int create_MPI_ghost_vector(Vec &v);
 
-#if 0
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Adds a dof to the list of ghost dofs.
-      @author M. Storti
-      @param dof (input) the dof number to add to the list of ghost dofs.
-   */ 
-  void add_ghost_dof(const int dof) {ghost_dofs.insert(dof);};
-#endif
+  ~Dofmap() {}
+
+  int processor(int j) const;
 
 };
 #endif

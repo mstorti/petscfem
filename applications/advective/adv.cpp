@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.6 2001/12/20 21:58:55 mstorti Exp $
+//$Id: adv.cpp,v 1.7 2002/01/14 03:45:05 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -11,7 +11,7 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-int MY_RANK,SIZE;
+extern int MY_RANK,SIZE;
 TextHashTable *GLOBAL_OPTIONS;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,

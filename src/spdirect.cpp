@@ -1,38 +1,29 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.7 2001/12/12 20:37:12 mstorti Exp $
+//$Id: spdirect.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
-#include <typeinfo>
-#ifdef RH60
-#include "libretto.h"
-#else
-#include <libretto/libretto.h>
-#endif
 #include <mat.h>
 
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/dofmap.h>
 #include <src/elemset.h>
-#include <src/pfmat.h>
+#include <src/spdirect.h>
 #include <src/iisdmat.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "SparseDirect::create"
-void SparseDirect::create(Darray *da,const Dofmap *dofmap,
-		int debug_compute_prof) {
+#define __FUNC__ "SparseDirect::create_a"
+int SparseDirect::create_a() {
   int size;
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
   assert(size==1); // Only sequential use
-  const int &neq = dofmap->neq;
-  A_p->resize(neq,neq);
-
+  return 0;
 }
 
-int SparseDirect::factor_and_solve(Vec &res,Vec &dx) {
+int SparseDirect::factor_and_solve_a(Vec &res,Vec &dx) {
   double *res_p, *dx_p;
   int m,j,ierr;
 
@@ -47,18 +38,17 @@ int SparseDirect::factor_and_solve(Vec &res,Vec &dx) {
   return 0;
 }
 
-int SparseDirect::solve_only(Vec &res,Vec &dx) {
-  // SparseDirect solver already takes into
-  // account refactorization
-  return factor_and_solve(res,dx);
+int SparseDirect::solve_only_a(Vec &res,Vec &dx) {
+  return factor_and_solve_a(res,dx);
 }
 
-void SparseDirect::set_value(int row,int col,Scalar value,
+int SparseDirect::set_value_a(int row,int col,Scalar value,
 			     InsertMode mode=ADD_VALUES) {
   double val = value;
   if (mode==ADD_VALUES)
     val += A_p->get(row,col);
   A_p->set(row,col,val);
+  return 0;
 }
 
 int SparseDirect::duplicate(MatDuplicateOption op,const PFMat &B) {

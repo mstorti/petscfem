@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.101 2001/12/12 20:36:59 mstorti Exp $
+$Id: notes.txt,v 1.102 2002/01/14 03:45:01 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.101 2001/12/12 20:36:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.102 2002/01/14 03:45:01 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.101 2001/12/12 20:36:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.102 2002/01/14 03:45:01 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.101 2001/12/12 20:36:59 mstorti Exp $ 
+  # $Id: notes.txt,v 1.102 2002/01/14 03:45:01 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4109,6 +4109,62 @@ Estoy agregando la maquina de estados, pero de a poco. Primero estoy
 descomponiendo la funcion `solve()' anterior, como `factor_and_solve()' y
 `solve_only()'. Esto ya esta compilando. 
 
+%===Fri Jan  4 08:20:01 ARST 2002 mstorti@spider
+%
+La nueva version de `PFMat' (por ahora `IISDMat' y `PETScMat')
+funciona aparentemente bien, pero pierde memoria. Aparentemente no
+esta relacionado con StoreGrpah (lgraph). Todas estas pruebas hechas
+con `pfmat.cpp'. 
+%
+08:31:23: Multiples soluciones (nsl>>1) no produce perdida de memoria.
+%
+08:33:24: Multiples definiciones de la matriz (nmat>>1) si produce
+perdida de memoria. 
+%
+09:04:55: Solo se produce perdida de memoria con `IISDMat' no con
+`PETScMat'. 
+%
+09:09:58: Con `iisd_subpart>1' es cuando pierde memoria. 
+%
+12:22:38: Con `SuperLU' como `LocalSolver' `parecia' al principio que
+perdia menos, pero ahora no estoy muy seguro. 
+%
+21:56:04: Sacando la parte de resolucion no pierde memoria.
+%
+21:59:15: La perdida de memoria esta en el solve.
+
+%===Sat Jan  5 07:34:25 ARST 2002 mstorti@spider
+%
+No es en el `A_LL_other->scatter()'.
+%
+07:46:03: Pierde memoria con `nsl'=1 y 2.
+%
+07:54:38: La perdida esta en `factor_and_solve'.
+%
+08:07:29: La perdida es en `local_solve'.
+%
+08:17:12: La perdida esta en el
+`SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_);' en `local_solve'. 
+%
+17:16:33: En realidad no perdia con `SuperLU', sino que leia mal los
+datos y en realidad siempre usaba PETSc. Ahora voy a tratar de evitar
+las perdidas que reporta `LeakTracer'.
+
+%===Thu Jan 10 20:23:44 ARST 2002 mstorti@spider
+%
+El solver `IISDMat(PETSc)' da error en PETSc al hacer el
+SLESDestroy(sles)
+%
+20:30:01: Comentando todo 'local_solve_SLU' no da error.
+
+%===Fri Jan 11 19:19:06 ARST 2002 mstorti@spider
+%
+Cuando el local solver `A_LL_SLU' es `PETSc' (no `SuperLU') de nuevo
+anda bien. 
+%
+21:02:29: Abandono... Parece ser un quilobo relacionado puramente con
+SuperLU. 
+
 %===Mon Dec 10 08:51:01 ART 2001 mstorti@minerva
 %
 `update_jacobians' anda en el cluster para la cavidad (el ejemplo
@@ -4128,7 +4184,6 @@ problemas de precision o por usar el IISD.
 %
 Uno de los tests de `lupart' no anda y se trata del IISDMat con solver
 PETSc cuando no hay `sles_ll'. 
-
 
 %# Current line ===========  
 # Local Variables: $

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.13 2001/11/13 17:34:25 mstorti Exp $
+//$Id: spsolve.cpp,v 1.14 2002/01/14 03:45:06 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -51,7 +51,8 @@ namespace Sparse {
     assert(m == cols());
     nnz = size();
 
-    dCreate_Dense_Matrix(&B,m,1,b,m,DN,_D,GE);
+    assert(Bf==0);
+    dCreate_Dense_Matrix(&B,m,1,b,m,DN,_D,GE); Bf=1;
 
     a = new double[nnz];
     asub = new int[nnz];
@@ -75,12 +76,15 @@ namespace Sparse {
       }
     }
 
-    dCreate_CompCol_Matrix(&A,m,m,nnz,a,asub,xa,NR,_D,GE);
+    assert(Af==0);
+    dCreate_CompCol_Matrix(&A,m,m,nnz,a,asub,xa,NR,_D,GE); Af=1;
 
     permc_spec = 2;
     get_perm_c(permc_spec, &A, perm_c);
 
-    dgssv(&A, perm_c, perm_r, &L, &U, &B, &info);
+    assert(Uf==0);
+    assert(Lf==0);
+    dgssv(&A, perm_c, perm_r, &L, &U, &B, &info); Uf=1; Lf=1;
     assert(info==0);
 
   }
@@ -89,16 +93,24 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void SuperLUMat::solve_only() {
 
+#if 0
+    fact_and_solve();
+    clean_factor();
+
+#else
     int j,m,nnz,curs,info;
 
     m = rows();
     assert(m == cols());
     nnz = size();
 
-    dCreate_Dense_Matrix(&B,m,1,b,m,DN,_D,GE);
+    assert(Bf==1);
+    dCreate_Dense_Matrix(&B,m,1,b,m,DN,_D,GE); 
 
-    dgstrs ("T",&L,&U,perm_r,perm_c,&B,&info);
-      
+    assert(Uf=1);
+    assert(Lf=1);
+    dgstrs ("T",&L,&U,perm_r,perm_c,&B,&info); 
+#endif
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -114,13 +126,23 @@ namespace Sparse {
     delete[] a;
 #endif
 
+    assert(Af==1);
+    assert(Bf==1);
+    assert(Lf==1);
+    assert(Uf==1);
     Destroy_CompCol_Matrix(&A);
     Destroy_SuperMatrix_Store(&B);
     Destroy_SuperNode_Matrix(&L);
     Destroy_CompCol_Matrix(&U);
+    Af=0;
+    Bf=0;
+    Lf=0;
+    Uf=0;
     
     delete[] perm_r;
+    perm_r=NULL;
     delete[] perm_c;
+    perm_c=NULL;
   }
     
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

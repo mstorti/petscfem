@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.29 2001/12/20 21:58:51 mstorti Exp $
+//$Id: advdif.cpp,v 1.30 2002/01/14 03:45:05 mstorti Exp $
 
 #include <set>
 
@@ -20,7 +20,7 @@
 
 static char help[] = "Basic finite element program.\n\n";
 
-int MY_RANK,SIZE;
+extern int MY_RANK,SIZE;
 TextHashTable *GLOBAL_OPTIONS;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
@@ -171,8 +171,8 @@ int main(int argc,char **args) {
 
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  A  = PFMat_dispatch(solver.c_str());
-  AA = PFMat_dispatch(solver.c_str());
+  A  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  AA = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -319,9 +319,9 @@ int main(int argc,char **args) {
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
 
-	ierr = A->zero_entries(); CHKERRA(ierr); 
+	ierr = A->clean_mat(); CHKERRA(ierr); 
 #ifdef CHECK_JAC
-	ierr = AA->zero_entries(); CHKERRA(ierr);
+	ierr = AA->clean_mat(); CHKERRA(ierr);
 #endif
 	VOID_IT(argl);
 	argl.arg_add(&xold,IN_VECTOR);
@@ -350,7 +350,7 @@ int main(int argc,char **args) {
 	  ierr = A->solve(res,dx); CHKERRA(ierr); 
 	}
 	// ierr = SLESDestroy(sles);
-	ierr = A->destroy_sles(); CHKERRA(ierr); 
+	// ierr = A->destroy_sles(); CHKERRA(ierr); 
       
       } else {
 

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: tidmap.cpp,v 1.5 2001/12/21 00:13:01 mstorti Exp $
+//$Id: tidmap.cpp,v 1.6 2002/01/14 03:45:06 mstorti Exp $
  
 #include <newmatio.h>
 #include <src/utils.h>

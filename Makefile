@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.30 2001/12/09 14:03:57 mstorti Exp $
+#$Id: Makefile,v 1.31 2002/01/14 03:45:01 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -11,7 +11,7 @@ APPS = adv advdif ns laplace
 APPDIRS = advective advdif ns laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
-CLEAN_DIRS := src $(APPDIRS) doc test run run/LES run/algebfs run/sqcav tools
+CLEAN_DIRS := src $(APPDIRS) doc test tools
 
 SRCDIRS := src $(APPDIRS) test 
 
@@ -175,6 +175,10 @@ save:
 
 #w Makes a new release
 tag:
-	tools/maketag
+	./tools/maketag
+
+#w Makes a new (light) release
+ltag:
+	./tools/makeltag save.log
 
 #s

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: tthash.cpp,v 1.4 2001/12/21 00:13:05 mstorti Exp $
+//$Id: tthash.cpp,v 1.5 2002/01/14 03:45:06 mstorti Exp $
 
 #include <cstdio>
 #include <cmath>

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallswt.cpp,v 1.11 2001/12/20 21:58:51 mstorti Exp $
+//$Id: wallswt.cpp,v 1.12 2002/01/14 03:45:05 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>

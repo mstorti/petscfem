@@ -1,19 +1,22 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2001/08/22 02:25:27 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2002/01/14 03:45:06 mstorti Exp $ 
+
+.PHONY: distcont distmap distmat dist_graph
 
 #s Local Targets
 #w all tests
-tests: distmap distmat
+tests: distcont distmap distmat dist_graph
 
-dm: distcont.bin
+#w Tests the distributed container class
+distcont: distcont.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distcont.bin \
-		10 100 1e-12  # > distcont.sal.tmp
+		10 100 1e-12   > distcont.sal.tmp
 
 dm2: distmat.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distmat.bin \
 		4 4 1e-12 0
 
-# check basic template (map<int,double>)
+#w check basic template (map<int,double>)
 distmap: distmap.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
 		100 10000 1e-12 g > distmapg.sal.tmp
@@ -43,6 +46,7 @@ distmap.bin: distmap.o
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmap.o   $(LDFLAGS)
 
+#w Builds binary
 distcont.bin: distcont.o 
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distcont.o   $(LDFLAGS)
@@ -53,7 +57,8 @@ distcont.o: ../../src/distcont.h
 	$(MAKE) -C ../../src/ 'libpetscfem.a(%.o)'
 
 #w Builds binary 
-distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) ../../src/libpetscfem.a(distmat.o)
+distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) \
+			../../src/libpetscfem.a(distmat.o)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS) 
 
@@ -62,7 +67,28 @@ $(P).bin: $(P).o $(LIBPETSCFEM)
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(P).o $(OTHER_OBJS) $(LDFLAGS)
 
-#$(P).bin: $(P).cpp
-#	g++ -o $(P).bin $(P).cpp
+tryme5.bin: tryme5.cpp
+	g++ -g -o tryme5.bin tryme5.cpp
+
+tryme6.bin: tryme6.cpp
+	g++ -g -o tryme6.bin tryme6.cpp
+
+SRC_DIR = $(PETSCFEM_DIR)/src
+LIB := $(SRC_DIR)/libpetscfem.a
+LIB_OBJS := iisdgraph graph debug
+LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
+
+$(LIB)(%.o):
+	$(MAKE) -C $(SRC_DIR) 'libpetscfem.a($*.o)'
+
+tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
+	-rm -f $@
+	${CXX_CLINKER} -o $@ tryme7.o $(LDFLAGS)
+
+#w Checks distributed graph class 'StoreGraph'
+dist_graph: tryme7.bin
+	tryme7.bin 20 > dist_graph.np1.out.tmp
+	$(MPIRUN) -np 2 -machinefile machi.dat tryme7.bin 20 > dist_graph.np2.out.tmp
+	$(MPIRUN) -np 3 -machinefile machi.dat tryme7.bin 20 > dist_graph.np3.out.tmp
 
 #s

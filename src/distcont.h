@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.4 2001/12/18 15:55:23 mstorti Exp $
+// $Id: distcont.h,v 1.5 2002/01/14 03:45:06 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 

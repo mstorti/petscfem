@@ -1,5 +1,27 @@
 ; -*- mode: lisp -*-
 
+(defalias 'single-quote-balanced (read-kbd-macro
+ " C-q ` ESC C-s [ SPC C-q TAB C-q LFD ] RET <left> ' "))
+;(global-set-key "C-`" 'single-quote-balanced) 
+(global-set-key [?\C-`] 'single-quote-balanced) 
+;
+(defalias 'single-quote-balanced-pos (read-kbd-macro
+  "<left> ESC C-r [ SPC C-q LFD C-q TAB ] RET <right> ` C-x C-x <right> '"))
+(global-set-key [?\C-'] 'single-quote-balanced-pos) 
+;;
+
+; (defun single-quote-balanced()
+;   "Introduces a balanced `' pair with the cursor within."
+;   (interactive)
+;   (insert "`'")
+;   (backward-char)
+; )
+
+
+(setq c-macro-preprocessor "/home/mstorti/PETSC/petscfem-pfmat/tools/pfcpp")
+;
+(setq c-macro-preprocessor (concat (getenv "PETSCFEM_DIR") 
+				   "/tools/pfcpp"))
 (defun match-paren (arg)
   "Go to the matching parenthesis if on parenthesis otherwise insert %."
   (interactive "p")
@@ -66,4 +88,4 @@
 ;;; para que recupere bien en debugger
 (setq comint-prompt-regexp "^\\((gdb) \\|[^#$%>\n]*[#$%>] *\\)")
 ;;
-(setq current-pos-regexp "^\\s-*[^\\s-][^\\s-][^\\s-] Current line ===========")
+(setq current-pos-regexp "^\\s-*[^\\s-][^\\s-][^\\s-] Current line ==========="

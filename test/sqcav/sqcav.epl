@@ -66,9 +66,9 @@ if (scalar $case =~ /weak_form_(\d)/) {
 }
 #
 #__END_TRANSCRIPT__
-transcript("", qw(viscosity Dt));	# print variables on output
-octave_export_vars(">data.m.tmp",qw(U L N Re viscosity h Co Dt hratio 
-				    g_body));
+@vars = qw(U L N Re viscosity h Co Dt hratio g_body);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
 
 global_options
@@ -124,7 +124,7 @@ measure_performance
 measure_performance_loop_length 10
 #endif
 
-#if $g_body=1
+#if $g_body
 G_body 0 -1.
 #endif
 __END_HASH__

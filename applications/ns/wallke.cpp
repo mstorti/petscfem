@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.18 2001/12/20 21:58:55 mstorti Exp $
+//$Id: wallke.cpp,v 1.19 2002/01/14 03:45:05 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>

@@ -701,6 +701,144 @@ tag: beta-2.55 on Sat Dec  8 17:35:05 ARST 2001, by mstorti in spider
 tag: beta-2.56 on Sun Dec  9 10:43:58 ARST 2001, by mstorti in spider
      > Discarding modifications to the `pfmat' class.
 ----------
+tag: pfmat-rewrite-1.00 on Fri Dec 14 00:12:26 ARST 2001, by mstorti in spider
+     > Working on new version of PFMat
+----------
+tag: pfmat-rewrite-1.01 on Sun Dec 16 21:05:09 ARST 2001, by mstorti in spider
+     > Writing distributed graph class `StoreGraph'. Compiles and runs on 1
+     > processor. SIGSEGV on several processors.
+----------
+tag: pfmat-rewrite-1.02 on Mon Dec 17 23:02:32 ARST 2001, by mstorti in spider
+     > Fixed a bug in `distcont.h' and in `debug.h'. 
+     > Working on the distributed graph class.
+----------
+tag: pfmat-rewrite-1.03 on Tue Dec 18 10:01:07 ARST 2001, by mstorti in spider
+     > Distributed graph `StoreGraph' is working.
+----------
+tag: pfmat-rewrite-1.04 on Thu Dec 20 21:13:58 ARST 2001, by mstorti in spider
+     > Changed '../../src/<header>' by '<src/header>' in all application modules. 
+----------
+tag: pfmat-rewrite-1.05 on Mon Dec 24 01:01:10 ARST 2001, by mstorti in spider
+     > Adding `release-by-proc' feature for `Debug' class.
+----------
+tag: pfmat-rewrite-1.06 on Mon Dec 24 09:54:17 ARST 2001, by mstorti in spider
+     > IISDMat::create() starts working. (Not well test so far, though).
+----------
+tag: pfmat-rewrite-1.07 on Tue Dec 25 12:05:44 ARST 2001, by mstorti in spider
+     > Solves several rhs's with the same factored matrix.
+----------
+tag: pfmat-rewrite-1.08 on Tue Dec 25 19:15:21 ARST 2001, by mstorti in spider
+     > Several matrices with the same profile working. 
+     > Not checked memory losses.
+----------
+tag: pfmat-rewrite-1.09 on Thu Dec 27 16:58:48 ARST 2001, by mstorti in spider
+     > The graph and other things passed from `IISDMat' to
+     > `PETScMat'.
+----------
+tag:  pfmat-rewrite-1.09.pl1 on Thu Dec 27 21:28:59 ARST 2001 by mstorti in spider
+     > Trying new "light" tag saving.
+----------
+tag: pfmat-rewrite-1.09.pl2 on Thu Dec 27 21:33:32 ARST 2001 by mstorti in spider
+     > Trying new "light" tag saving (2nd try)
+----------
+tag: pfmat-rewrite-1.09.pl3 on Fri Dec 28 18:14:02 ARST 2001 by mstorti in spider
+     > `PETScMat' class is working in the example. However, I think 
+     > there is a problem if the partitioner is not `consecutive', i.e. the
+     > dof's in a certain processor are consecutive, as for a PETSc matrix 
+     > or vector. 
+----------
+tag: pfmat-rewrite-1.10 on Sat Dec 29 21:02:45 ARST 2001, by mstorti in spider
+     > Things that worked before (several rhs's, several matrices..), 
+     > now they doesn't work. Treating to go back to previous versions.
+----------
+tag: pfmat-rewrite-1.10 on Sun Dec 30 18:27:49 ARST 2001, by mstorti in spider
+     > PETScMat and IISDMat work. 
+     > Made a test for both.
+----------
+tag: pfmat-rewrite-1.11 on Sun Dec 30 18:29:48 ARST 2001, by mstorti in spider
+     > PETScMat and IISDMat work. 
+     > Made a test for both
+----------
+tag: pfmat-rewrite-1.12 on Sun Dec 30 20:07:31 ARST 2001, by mstorti in spider
+     > Added the PFMat test to the test routine.
+----------
+tag: pfmat-rewrite-1.13 on Mon Dec 31 01:02:12 ARST 2001, by mstorti in spider
+     > `sles_was_built' now included in `factored'
+----------
+tag: pfmat-rewrite-1.14 on Thu Jan  3 18:49:54 ARST 2002, by mstorti in spider
+     > Added test for pfmat with redefinition of profiling. Works well with `IISDMat' 
+     > but loses memory.
+----------
+tag: pfmat-rewrite-1.15 on Thu Jan  3 23:45:21 ARST 2002, by mstorti in spider
+     > Controlling a memory leak. Going back to pfmat-rewrite-1.10 or
+     > pfmat-rewrite-1.11.
+----------
+tag: pfmat-rewrite-1.15 on Fri Jan  4 20:42:02 ARST 2002, by mstorti in spider
+     > Added an option `local_solver' for `IISDMat'.
+----------
+tag: pfmat-rewrite-1.16 on Fri Jan  4 20:43:57 ARST 2002, by mstorti in spider
+     > Added a `local_solver' option for `IISDMat'.
+----------
+tag: pfmat-rewrite-1.17 on Sat Jan  5 11:50:51 ARST 2002, by mstorti in spider
+     > Found the leak. Apparently is in the PETSc routines when using
+     > `PCLUSetUseInPlace(pc_ll)'.
+----------
+tag: pfmat-rewrite-1.18 on Sat Jan  5 20:52:38 ARST 2002, by mstorti in spider
+     > Fixed some memory leaks in `TextHashTable'.
+     > Updated test pfmat/pfmat.
+----------
+tag: pfmat-rewrite-1.19 on Mon Jan  7 13:27:56 ARST 2002, by mstorti in spider
+     > Finite State Machine for PFMat is partially working. 
+----------
+tag: pfmat-rewrite-1.20 on Tue Jan  8 22:31:38 ARST 2002, by mstorti in spider
+     > Finite State Machine starts working
+----------
+tag: pfmat-rewrite-1.21 on Tue Jan  8 23:00:56 ARST 2002, by mstorti in spider
+     > Runs the `pfmat/pfmat' test.
+     > Leak memory not checked.
+----------
+tag: pfmat-rewrite-1.22 on Wed Jan  9 10:14:31 ARST 2002, by mstorti in spider
+     > Runs the `pfmat/pfmat' test.
+     > Leak memory not checked.
+----------
+tag: pfmat-rewrite-1.23 on Wed Jan  9 13:32:12 ARST 2002, by mstorti in spider
+     > Passes all tests (with `IISDMat').
+     > Will add FSM sypport to `PETScMat'. 
+----------
+tag: pfmat-rewrite-1.23.pl1 on Wed Jan  9 17:34:57 ARST 2002 by mstorti in spider
+     > Runs a test with `PETScMat' and doesn't leak memory.
+----------
+tag: pfmat-rewrite-1.23.pl2 on Wed Jan  9 18:10:00 ARST 2002 by mstorti in spider
+     > Runs all `pfmat/pfmat' tests.
+----------
+tag: pfmat-rewrite-1.24 on Wed Jan  9 18:33:15 ARST 2002, by mstorti in spider
+     > Runs all 'pfmat/pfmat' and 'pfmat/pfmat2' tests.
+----------
+tag: pfmat-rewrite-1.24 on Fri Jan 11 21:26:45 ARST 2002, by mstorti in spider
+     > All tests work for PFMat implementations, except for 
+     > the `IISDMat(local_solver=SuperLU)' version. 
+----------
+tag: pfmat-rewrite-1.25 on Fri Jan 11 21:27:50 ARST 2002, by mstorti in spider
+     > All tests work for PFMat implementations, except for 
+     > the `IISDMat(local_solver=SuperLU)' version. 
+     > I give  up with extending to the `SuperLU' version.
+----------
+tag: pfmat-rewrite-1.26 on Sun Jan 13 11:28:20 ARST 2002, by mstorti in spider
+     > Runs the `sqcav' test, but gives some `PFMat' bad errors.
+----------
+tag: pfmat-rewrite-1.27 on Sun Jan 13 17:57:52 ARST 2002, by mstorti in spider
+     > Runs the `sqcav' test, but gives some `PFMat' bad errors.
+----------
+tag: pfmat-rewrite-1.28 on Sun Jan 13 23:18:27 ARST 2002, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Runs the `sqcav' test, but gives some `PFMat' bad errors.
+----------
+tag: beta-2.55 on Sat Dec  8 17:35:05 ARST 2001, by mstorti in spider
+     > Modified the Graph class. Writing a test for PFMat matrices.
+----------
+tag: beta-2.56 on Sun Dec  9 10:43:58 ARST 2001, by mstorti in spider
+     > Discarding modifications to the `pfmat' class.
+----------
 tag: beta-2.57 on Sun Dec  9 11:07:45 ARST 2001, by mstorti in spider
      > I tried to make `pfmat' more independent of Petscfem, i.e. not based
      > on `dofmap', but on a graph and a partitioner class. This finally
@@ -713,7 +851,7 @@ tag: beta-2.58 on Sun Dec  9 23:11:09 ARST 2001, by mstorti in spider
      > `IISDMat' matrices. Runs all `oscplate_all' tests. 
 ----------
 tag: beta-2.59 on Wed Dec 12 22:27:38 ARST 2001, by mstorti in spider
-     > Added `test_iisd', basically the same as `test_isid' but for 2 processors.
+     > Added `test_iisd', basically the same as `test_iisd' but for 2 processors.
 ----------
 tag: beta-2.60 on Wed Dec 12 23:11:37 ARST 2001, by mstorti in spider
      > -- STABLE VERSION -- 
@@ -729,3 +867,8 @@ tag: beta-2.62 on Wed Dec 19 21:34:02 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.63 on Thu Dec 20 18:59:44 ARST 2001, by mstorti in spider
      > Changed '../../src/<header>' by '<src/header>' in all application modules. 
+----------
+tag: pfmat-rewrite-1.29 on Sun Jan 13 23:46:34 ARST 2002, by mstorti in spider
+     > Merged all files with the main trunk. 
+     > Runs all tests `from start' (i.e. `$make lclean sw ; cd test ; make tests' is fine).
+     > -- STABLE VERSION -- 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse2.h,v 1.1 2001/11/09 03:05:42 mstorti Exp $
+// $Id: sparse2.h,v 1.2 2002/01/14 03:45:06 mstorti Exp $
 #ifndef SPARSE2_H
 #define SPARSE2_H
 
@@ -15,8 +15,12 @@ namespace Sparse {
   private:
     /// Factored matrix
     SuperMatrix A,L,U,B;
-    int *perm_r, *perm_c;
+    /// Flags that indicate if the matrix was allocated or not
+    int Af, Lf, Uf, Bf;
+    int *perm_r, *perm_c, *etree;
   public:
+    SuperLUMat() : Af(0), Lf(0), Uf(0), Bf(0), 
+      perm_r(NULL), perm_c(NULL) {}
     void clean_factor();
     void solve_only();
     void fact_and_solve();

@@ -16,9 +16,11 @@ private:
   void set_key(const char *name,string &s) const;
 public:
   TextHashTableFilter(TextHashTable *thash_p) : thash(thash_p) {};
-  TextHashTableFilter &push(const char *s) {prefix.push_back(string(s)); return *this;};
-  TextHashTableFilter &pop() {prefix.pop_back(); return *this;};
-  TextHashTableFilter &clear() {prefix.clear(); return *this;}
+  TextHashTableFilter & push(const char *s) {
+    prefix.push_back(string(s)); 
+    return *this;};
+  TextHashTableFilter & pop() { prefix.pop_back(); return *this;};
+  TextHashTableFilter & clear() { prefix.clear(); return *this;}
   void get_entry(const char *,const char *&) const;
   int get_int(const char *name,
 	      int &retval,int defval=0,int n=1) const {

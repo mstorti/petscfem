@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linhff.cpp,v 1.6 2001/12/20 21:58:51 mstorti Exp $
+//$Id: linhff.cpp,v 1.7 2002/01/14 03:45:05 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>

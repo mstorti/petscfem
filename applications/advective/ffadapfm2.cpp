@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadapfm2.cpp,v 1.5 2001/12/20 21:58:55 mstorti Exp $
+//$Id: ffadapfm2.cpp,v 1.6 2002/01/14 03:45:05 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
