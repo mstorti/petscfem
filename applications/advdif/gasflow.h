@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.15 2005/01/23 20:19:33 mstorti Exp $
+// $Id: gasflow.h,v 1.16 2005/01/25 23:27:53 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -42,7 +42,7 @@ private:
   void compute_tau(int ijob,double &delta_sc);
 
 public:
-  gasflow_ff(NewElemset *elemset_);
+  gasflow_ff(NewElemset *elemset=NULL);
 
   ~gasflow_ff();
 

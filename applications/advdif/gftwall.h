@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gftwall.h,v 1.2 2005/01/07 23:39:06 mstorti Exp $
+// $Id: gftwall.h,v 1.3 2005/01/25 23:27:53 mstorti Exp $
 #ifndef PETSCFEM_GFTWALL_H
 #define PETSCFEM_GFTWALL_H
 
@@ -15,10 +15,7 @@
 #include "./lagmul.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Generic nonlinear restriction element. 
-    It may not work for restrictions that involve
-    fields in more that one node. 
-*/ 
+/** Impose Dirichlet b.c.'s via Lagrange Multipliers. */ 
 class gasflow_twall : public AdvdifLagrangeMult {
 private:
   int ndim;

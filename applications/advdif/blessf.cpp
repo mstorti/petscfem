@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.20 2005/01/20 17:42:14 mstorti Exp $
+//$Id: blessf.cpp,v 1.21 2005/01/25 23:27:53 mstorti Exp $
 
 #include <set>
 
@@ -33,6 +33,7 @@
 #include "id.h"
 #include "gaschem.h"
 #include "./gftwall.h"
+#include "./advabso.h"
 
 #include <time.h>
 
@@ -84,6 +85,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(gasflow_twall)
     SET_ELEMSET_TYPE(gasflow_bcconv)
     SET_ELEMSET_TYPE(gasflow_abso)
+    SET_ELEMSET_TYPE(gasflow_abso2)
 
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(id)
