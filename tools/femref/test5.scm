@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.13 2005/02/18 00:57:57 mstorti Exp $
+;;; $Id: test5.scm,v 1.14 2005/02/18 01:12:27 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -106,7 +106,9 @@
     (let loop ((m 1)
 	       (p 1))
       ;; (format #t "m ~A, p ~A, table ~A\n" m p table)
-      (cond ((> p m) (loop (+ m 1) 1))
+      (cond ((> p m) 
+	     (format #t "~A ~A\n" m (np-ref m m))
+	     (loop (+ m 1) 1))
 	    ((> m n) (np-ref n n))
 	    (#t 
 	     (let ((val (compute-1 m p)))
@@ -114,17 +116,19 @@
 	       (np-set! val m p)
 	       (loop m (+ p 1))))))))
 
+(nparts3 1000)
+
 #!
 (let ((n 7))
       (format #t "(nparts3 ~A) ~A\n" n (nparts3 n)))
 
 (let ((n 8))
       (format #t "(partition ~A) ~A\n" n (partition n)))
-!#
 
 (let loop ((n 1))
   (cond ((> n 15))
 	(#t (format #t "(~A -> ~A ~A ~A)\n" 
 		    n (nparts n) (nparts2 n) (nparts3 n))
 	    (loop (+ n 1)))))
+!#
 
