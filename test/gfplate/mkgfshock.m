@@ -1,4 +1,4 @@
-## $Id: mkgfshock.m,v 1.2 2005/02/25 21:25:33 mstorti Exp $
+## $Id: mkgfshock.m,v 1.3 2005/02/25 21:56:39 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([0 Lx/Nx 0 Lx ],2,Nx+1);
@@ -13,7 +13,7 @@ asave("gfshock.con.tmp",icone);
 ## rho,u,v at inlet
 inlet = [1];
 pffixa("gfshock.fixa-in.tmp", \
-       inlet,1:3,[rhoin uin 0]);
+       inlet,[1 3 4],[rhoin 0 pin]);
 
 ## p at outlet
 outlet = [Nx+1];
@@ -27,3 +27,5 @@ Uini = [rhoout,uout,0,pout];
 Uini = Uini(ones(nnod,1),:);
 
 asave("gfshock.ini.tmp",Uini);
+
+asave("gfshock.some-nodes.tmp",(1:Nx+1)');

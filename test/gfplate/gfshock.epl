@@ -15,11 +15,9 @@ initial_state "gfshock.ini.tmp"
 nsave 1
 save_file "gfshock.state.tmp"
 
-#if 0
 print_some_file "gfshock.some-nodes.tmp"
 save_file_some "gfshock.some-rslt.tmp"
 nsome 1
-#endif
 
 save_file_pattern "gfshock.state_%d.tmp"
 nsaverot 20
@@ -51,8 +49,8 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.01
-shocap 0.0
+Dt 2e-6
+shocap 1
 weak_form 0
 temporal_stability_factor 0
 
@@ -61,6 +59,7 @@ Rgas <:=$Rgas:>
 visco 0.001
 cond 0.001
 steady 0
+gamma <:=$ga:>
 
 # lagrange_diagonal_factor 1e-5
 
