@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.5 2005/03/02 11:18:49 mstorti Exp $
+// $Id: project4.cpp,v 1.1 2005/03/02 11:18:49 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -7,20 +7,21 @@
 #include <src/dvector2.h>
 #include <ANN/ANN.h>
 
-#define KNBR 10
+double drand() {
+  return double(rand())/double(RAND_MAX);
+}
 
-// ANNidx nn_idx[KNBR];
-
+#if 0
 class FemInterp {
 private:
   dvector<double> xnod;
   dvector<int> icone;
 
   ANNkd_tree *kdtree;
-  vector<ANNidx> nn_idx_v;
-  vector<ANNdist> nn_dist_v;
-  // ANNpoint nn;
-  ANNpointArray pts;
+  ANNidx *nn_idx;
+  ANNdist *nn_dist;
+  ANNpoint nn;
+  // ANNpointArray data_pts;
   
   int knbr,ndim,nnod,ndimel,
     nel,nelem,ndof,nd1;
@@ -40,38 +41,23 @@ public:
   double tol;
 
   FemInterp() : 
-    kdtree(NULL), 
-    // nn_idx(NULL),
-    // nn_dist(NULL), 
-    // nn(NULL),
-    use_cache(1), tol(1e-6), 
-    pts(NULL) {}
+    kdtree(NULL), nn_idx(NULL),
+    nn_dist(NULL), nn(NULL),
+    use_cache(1), tol(1e-6) {}
 
   void clear() {
     if (kdtree) delete kdtree;
-    kdtree = NULL;
-
-#if 0
-    if (nn_dist) delete[] nn_dist;
-    nn_dist = NULL;
-#endif
-    nn_dist_v.clear();
-
-#if 0
-    if (nn) delete[] nn;
-    nn = NULL;
-#endif
-
-    // FastMat2::void_cache();
-
-    if (pts) annDeallocPts(pts);
-    pts = NULL;
-
-    nn_idx_v.clear();
-#if 0
     if (nn_idx) delete[] nn_idx;
+    if (nn_dist) delete[] nn_dist;
+    if (nn) delete[] nn;
+    FastMat2::void_cache();
+    // if (data_pts) annDeallocPts(data_pts);
+
+    kdtree = NULL;
     nn_idx = NULL;
-#endif
+    nn_dist = NULL;
+    nn = NULL;
+    // data_pts = NULL;
   }
 
   ~FemInterp() { clear(); }
@@ -85,6 +71,7 @@ public:
 	      dvector<double> &ui);
 };
 
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
 		     const dvector<double> &xnod_a,
@@ -96,9 +83,9 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   knbr = knbr_a;
   ndimel = ndimel_a;
 
-  // nn_idx = new ANNidx[knbr];
-  // nn_dist = new ANNdist[knbr];
-  // nn = annAllocPt(ndim);
+  nn_idx = new ANNidx[knbr];
+  nn_dist = new ANNdist[knbr];
+  nn = annAllocPt(ndim);
     
   nnod = xnod_a.size(0);
   ndim = xnod_a.size(1);
@@ -111,8 +98,9 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   // Build ANN octree
   FastMat2 xe(1,ndim),xn(1,ndim);
   double inel = 1./nel;
-  pts = annAllocPts(nelem,ndim);
-  // fixme:= should `pts' be freed after??
+  ANNpointArray data_pts 
+    = annAllocPts(nelem,ndim);
+  // fixme:= should `data_pts' be freed after??
   // seems that no
   for (int k=0; k<nelem; k++) {
     xe.set(0.);
@@ -123,9 +111,9 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
     }
     xe.scale(inel);
     for (int j=0; j<ndim; j++)
-      pts[k][j] = xe.get(j+1);
+      data_pts[k][j] = xe.get(j+1);
   }
-  kdtree = new ANNkd_tree(pts,nelem,ndim);
+  kdtree = new ANNkd_tree(data_pts,nelem,ndim);
 
   nd1 = ndim+1;
   C.resize(2,nd1,nd1);
@@ -161,12 +149,6 @@ void FemInterp::interp(const dvector<double> &xnod2,
 
   double d2min;			// Minimum distance to elements in mesh1
   int k1min;			// Element in mesh1 with minimum distance
-
-  nn_idx_v.resize(knbr);
-  ANNidx *nn_idx = &nn_idx_v[0];
-  nn_dist_v.resize(knbr);
-  ANNdist *nn_dist = &nn_dist_v[0];
-  ANNpoint nn = annAllocPt(ndim);
 
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
@@ -296,10 +278,9 @@ void FemInterp::interp(const dvector<double> &xnod2,
     tryav += q+1;
     u2.export_vals(&ui.e(n2,0));
   }
-  annDeallocPt(nn);
-  // delete[] nn_idx;
   printf("Averg. nbr of tries %f\n",tryav/nnod2);
 }
+#endif
 
 int main() {
 #define DATA_DIR "./"
@@ -336,6 +317,42 @@ int main() {
   xnod1.reshape(2,nnod1,ndim);
   u1.a_resize(2,nnod1,ndof).read(STATE1);
 
+#define KNBR 10
+  ANNidx nn_idx[KNBR];
+  ANNdist nn_dist[KNBR];
+  ANNpoint nn = annAllocPt(ndim);
+
+  int step = 0;
+  while (1) {
+    printf("on step %d\n",step++);
+    ANNpointArray data_pts 
+      = annAllocPts(nnod1,ndim);
+    
+    for (int k=0; k<nnod1; k++)
+      for (int j=0; j<ndim; j++)
+	data_pts[k][j] = xnod1.e(k,j);
+    ANNkd_tree kdtree(data_pts,nnod1,ndim);
+    
+    int L = 100;
+    double d=0.1;
+    for (int l=0; l<L; l++) {
+      for (int j=0; j<ndim; j++) 
+	nn[j] = -d + (1+2.0*d)*drand();
+      kdtree.annkSearch(nn,KNBR,nn_idx,nn_dist,0.0);
+      int node = nn_idx[0];
+      double d =0.0;
+      for (int j=0; j<ndim; j++) {
+	double dx = nn[j]-xnod1.e(node,j);
+	d += dx*dx;
+      }
+      d = sqrt(d);
+      // printf("l %d, x %f %f, node closer %d, dmin %f\n",
+      // l,nn[0],nn[1],node,d);
+    }  
+    annDeallocPts(data_pts);
+  }
+
+#if 0
   ico1.cat(ICONE1).defrag();
   assert(ico1.size() % nel ==0);
   int nelem1 = ico1.size()/nel;
@@ -353,8 +370,9 @@ int main() {
 
   while (1) {
     FemInterp fem_interp;
-    fem_interp.init(KNBR,2,2,xnod1,ico1);
+    fem_interp.init(10,2,2,xnod1,ico1);
     u2.clear();
     fem_interp.interp(xnod2,u1,u2);
   }
+#endif
 }
