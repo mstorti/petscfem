@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.11 2005/01/23 20:19:33 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.12 2005/01/24 17:35:32 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -264,6 +264,7 @@ res(ElementIterator &element, FastMat2 &U,
     drdU_.ir(3,j).set(drdU_tmp).rs();
   }
   // jac.set(drdU_);
+  jac.set(0.);
   double c, rj=0., tmp=0., tmp2=0.;  
   C_U_.ir(2,1);
   for (int j=1;j<=nr;j++) {
