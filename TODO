@@ -1,10 +1,10 @@
 -*- mode: text -*-
 
+### Current line =========== 
 TODO: [Mainly fixes go here...]
 =====
 
 * Generate test for LES 
-* Generate test for SuperLU implementation. 
 * `html' target in `doc' is duplicated and `make' complains. 
 * Add a test for advdif with null weight processor
 * Add edge weights to graph partitioning in `metisprt.cpp'
@@ -81,10 +81,11 @@ TODO: [Mainly fixes go here...]
 * Making html doc, doesn't reuse the generated gifs, which is _very_
            time consuming.
 
-
+### Current line =========== 
 DONE:
 =====
 
+* Generate test for SuperLU implementation. 
 * Use lapack lib for `daxpy' in `test/Makefile:testfm2d'
 * recover test `thash2.cpp'
 * Changing 'distmap.h' launches recompilation of almost all
