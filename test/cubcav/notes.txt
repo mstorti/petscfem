@@ -1,0 +1,17 @@
+$Id: notes.txt,v 1.1 2003/09/22 22:47:58 mstorti Exp $
+================================================================
+
+========= CORRIDAS DE LA CAVIDAD CUBICA ==============
+
+%===Fri,  5 Sep 2003 11:24:37 -0300 mstorti@node1.beowulf.gtm
+%
+
+
+
+# Current line ===========  %
+# Local Variables: $
+# eval: (local-set-key "\C-cD" (quote notas-insert-date)) $
+# eval: (local-set-key "\C-ct" (quote notas-insert-time)) $
+# eval: (setq paragraph-separate "[ \t\f%]*$") $
+# eval: (setq paragraph-start "[ \t\n\f%]") $
+# End: $
