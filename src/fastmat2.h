@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.13 2001/12/03 02:59:49 mstorti Exp $
+//$Id: fastmat2.h,v 1.14 2002/04/05 20:13:05 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -587,6 +587,18 @@ public:
   */ 
   FastMat2 & fun(scalar_fun_with_args_t *function,void *user_args);
   //@}
+
+  /** Sets to the Levi-Civita density tensor. This is a third 
+      order tensor $\epsilon_{ijk}$ ($3\times3\times3$) 
+      such that $\epsilon_{ijk}$ is 1 if $ijk$ is 
+      an even permutation of 123, -1 if it is an odd permutation 
+      and 0 otherwise. The vector cross-product and determinant 
+      can be computed in terms of this tensor. 
+      @author M. Storti
+      @param a (input) the value to be set in the diagonal
+      @return a reference to the matrix.
+  */ 
+  FastMat2 & eps_LC();
 
   /** Sets to a multiple of the identity matrix.
       @author M. Storti

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.2 2002/04/05 17:53:06 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.3 2002/04/05 20:13:00 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -122,9 +122,6 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;
     if (glob_param->steady) rec_Dt=0.;
-    // Doesn't make sense to have steady and non-inertial frame at the
-    // same time
-    assert(!(glob_param->steady && non_inertial_frame));
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
@@ -355,15 +352,30 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  flocstate.ir(1,nelr+1).is(2,1,ndim);
 	  acel_lin.set(flocstate);
 	  flocstate2.ir(1,nelr+1).is(2,1,ndim);
-	  acel_lin.rest(flocstate2).scale(rec_Dt);
+	  acel_lin.rest(flocstate2);
 	  
 	  // Computation of angular velocity and acceleration
 	  flocstate.ir(1,nelr+2);
 	  omega_v.set(flocstate).scale(alpha);
 	  alfa_v.set(flocstate);
 	  flocstate2.ir(1,nelr+2);
-	  omega_v.set(flocstate).scale(1-alpha);
-	  alfa_v.rest(flocstate).scale(rec_Dt);
+	  omega_v.axpy(flocstate,1-alpha);
+	  alfa_v.rest(flocstate);
+
+	  // It doesn't make sense to have `steady' option in effect
+	  // and non-inertial frame with `omega' or linear acceleration
+	  // varying with time at the same time, so that if `steady'
+	  // is in effect we verify that linear and rotational
+	  // velocities are constant. It would make sense to have a
+	  // constant linear acceleration but that case could be included in
+	  // `G_body'
+	  if (!glob_param->steady) {
+	    alfa_v.scale(rec_Dt);
+	    acel_lin.scale(rec_Dt);
+	  } else {
+	    assert(alfa_v.sum_square_all()==0.);
+	    assert(acel_lin.sum_square_all()==0.);
+	  }
 
 	  flocstate.rs();
 	  flocstate2.rs();
@@ -381,7 +393,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  omega_v.rs();
 #endif
 	  assert(ndim==3); // Some things below are specific for 3D
-	  Omega_M.prod(elc,omega_v,1,2,-1,-1);
+	  Omega_M.set(0.).prod(elc,omega_v,1,2,-1,-1);
 
 	  // Definition of rotation acceleration matrix corresponding
 	  // to the polar vector Alfa
@@ -395,7 +407,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  Alfa_M.rs().add(tmp_rot);
 	  alfa_v.rs();
 #endif
-	  Alfa_M.prod(elc,alfa_v,1,2,-1,-1);
+	  Alfa_M.set(0.).prod(elc,alfa_v,1,2,-1,-1);
 
 	  G_body.axpy(acel_lin,-rho);
 

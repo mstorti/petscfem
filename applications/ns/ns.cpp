@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.73 2002/04/04 01:42:17 mstorti Exp $
+//$Id: ns.cpp,v 1.74 2002/04/05 20:13:00 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -57,7 +57,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(wall_law_res)
     SET_ELEMSET_TYPE(force_integrator)
 	{
-	printf("not known elemset \"type\": %s\n",type);
+	printf("not known elemset type: \"%s\"\n",type);
 	exit(1);
 	}
 }

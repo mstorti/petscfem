@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.8 2001/12/03 02:59:49 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.9 2002/04/05 20:13:05 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -663,6 +663,22 @@ int FastMat2::dim(const int jd) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double * FastMat2::storage_begin() {
   return store;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::eps_LC() {
+  // Levi-Civita density tensor
+  if (!was_cached) resize(3,3,3,3);
+
+  set(0.);
+  setel(+1.,1,2,3);
+  setel(+1.,2,3,1);
+  setel(+1.,3,1,2);
+
+  setel(-1.,2,1,3);
+  setel(-1.,3,2,1);
+  setel(-1.,1,3,2);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

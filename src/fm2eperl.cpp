@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.11 2001/07/23 22:22:56 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.12 2002/04/05 20:13:05 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
