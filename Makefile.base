@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.92 2002/09/08 23:29:12 mstorti Exp $
+#$Id: Makefile.base,v 1.93 2002/09/10 23:50:28 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -240,7 +240,12 @@ PROG_BIN = $(PROG)$(osfx).bin
 $(PROG): $(PROG_bin)
 
 # general program 
+#compdate.cpp: compdate.cppin
+#	perl -pe 's/__DATE__/'`date date --iso-8601=seconds`'/' \
+#		< compdate.cppin > compdate.cpp
+
 $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(LIBPETSCFEM)
+	$(MAKE) -W compdate.cpp "$(PROG_LIB)(compdate.o)"
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 

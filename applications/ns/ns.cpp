@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.95 2002/09/05 20:10:17 mstorti Exp $
+//$Id: ns.cpp,v 1.96 2002/09/10 23:50:35 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -18,6 +18,7 @@
 
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
+void print_petscfem_link_date();
 
 extern int MY_RANK,SIZE;
 
@@ -59,6 +60,8 @@ int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
+  print_petscfem_link_date();
+
   PetscPrintf(PETSC_COMM_WORLD,"-------- Navier-Stokes module ---------\n");
 
   // Get MPI info
