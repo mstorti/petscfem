@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.39 2004/12/20 03:15:40 mstorti Exp $
+// $Id: femref.h,v 1.40 2004/12/20 12:20:18 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -134,20 +134,24 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** The type for the container that
+    stores NodeInfo objects */ 
+typedef 
+map<int,NodeInfo *> NodeInfoMapT;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Model class that combines the data
     for two nodes and then creates the data for
     the combined node. */ 
 class NodeCombiner {
 public:
-  
   virtual ~NodeCombiner()=0;
-  virtual combine(int tag,int nnodes,
-		  const int *nodes)=0;
+  virtual void 
+  combine(int tag,int n,
+	  const int *nodes,
+	  int newnode,
+	  NodeInfoMapT &node_info_map)=0;
 };
-// typedef NodeInfo*
-// (*NodeInfoCombineFunction) 
-//   (const NodeInfo &ni1,
-//    const NodeInfo &ni2);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** A mesh is a container of geometrical objects
@@ -264,11 +268,6 @@ public:
       @param go (output) the opject pointed by #it# */ 
   void set(iterator it,GeomObject &go);
 
-  /** The type for the container that
-      stores NodeInfo objects */ 
-  typedef 
-  map<int,NodeInfo *> NodeInfoMapT;
-
   /** Builds subobject #sgo# to be the #indx#-th subobject
       of #go# when splitted with splitter #s#. 
       @param go (input) the "father" object
@@ -285,8 +284,8 @@ public:
 	   int indx,
 	   GeomObject &sgo,
 	   list<int> &ref_nodes,
-	   NodeInfoCombineFunction node_comb_fun,
-	   NodeInfoMapT &node_info_map);  
+	   NodeCombiner *node_comb,
+	   NodeInfoMapT *node_info_map);  
   /** Finds the _first_ iterator to object #go#. 
       If there isn't, returns the empty iterator. 
       @param go (input) the object to find
@@ -359,7 +358,7 @@ public:
     /// Flags whether we print the elements as they are visited
     int trace;
     /// Functions used to combine #NodeInfo# at nodes
-    NodeInfoCombineFunction node_comb_fun;
+    NodeCombiner *node_comb;
     /// Stores `NodeInfo' objects
     NodeInfoMapT node_info_map;
     /// Ctor.

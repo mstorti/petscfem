@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.31 2004/12/20 03:15:40 mstorti Exp $
+// $Id: femref.cpp,v 1.32 2004/12/20 12:20:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -96,12 +96,42 @@ node_sum(const NodeInfo &ni1,
   return ni12_p;
 }
 
-class NodeCombiner {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class LinearCombiner : public NodeCombiner {
 public:
-  virtual ~NodeCombiner()=0;
-  virtual combine(int tag,int nnodes,
-		  const int *nodes)=0;
-};
+  ~LinearCombiner() { } 
+  void 
+  combine(int tag,
+	  int n,const int *nodes,
+	  int new_node,
+	  NodeInfoMapT &node_info_map) {
+    if (n==1 ) {
+      int n1 = nodes[0];
+      if (node_info_map.find(n1)==node_info_map.end()) {
+	NodeInfoSum *ni_p = new NodeInfoSum;
+	ni_p->sum = n1;
+	node_info_map[n1] = ni_p;
+      }
+    } else if (n==2) {
+      NodeInfoMapT::iterator 
+	q = node_info_map.find(nodes[0]);
+      assert(q != node_info_map.end());
+      const NodeInfoSum *ni1_p 
+	= dynamic_cast<const NodeInfoSum *>(q->second);
+
+      q = node_info_map.find(nodes[1]);
+      assert(q != node_info_map.end());
+      const NodeInfoSum *ni2_p 
+	= dynamic_cast<const NodeInfoSum *>(q->second);
+
+      q = node_info_map.find(new_node);
+      assert(q == node_info_map.end());
+      NodeInfoSum *ni_p = new NodeInfoSum;
+      ni_p->sum = ni1_p->sum + ni2_p->sum;
+      node_info_map[new_node] = ni_p;
+    } else assert(0);
+  }
+} linear_combiner;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main() { 
@@ -138,7 +168,7 @@ int main() {
 
   // Print mesh down to level 0
   vis.trace = 1;
-  vis.node_comb_fun = &node_sum;
+  vis.node_comb = &linear_combiner;
   vis.init(mesh);
   while (vis.next(1)) {  }
 }

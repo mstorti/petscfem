@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.18 2004/12/19 23:16:04 mstorti Exp $
+// $Id: femref2.cpp,v 1.19 2004/12/20 12:20:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -627,8 +627,8 @@ set(const GeomObject &go,
     int indx,
     GeomObject &sgo,
     list<int> &ref_nodes,
-    NodeInfoCombineFunction node_comb_fun,
-    NodeInfoMapT &node_info_map) {
+    NodeCombiner *node_comb,
+    NodeInfoMapT *node_info_map) {
   const int *go_nodes = go.nodes();
   GeomObject::Type t;
   const int *local_nodes = s->nodes(indx,t);
@@ -639,6 +639,7 @@ set(const GeomObject &go,
     sz = go.size();
   dvector<int> sgo_nodes;
   sgo_nodes.mono(so_sz);
+  int nodes[2];
   for (int k=0; k<so_sz; k++) {
     int ln1 = local_nodes[2*k];
     int n1 = go_nodes[ln1];
@@ -647,9 +648,10 @@ set(const GeomObject &go,
       n2 = go_nodes[ln2];
       int node_hash = combine(n1,n2);
 
-      if (node_comb_fun) {
-	assert(node_info_map.find(node_hash) 
-	       == node_info_map.end());
+      if (node_comb) {
+	assert(node_info_map->find(node_hash) 
+	       == node_info_map->end());
+#if 0
 	NodeInfoMapT::iterator 
 	  q1 = node_info_map.find(n1);
 	assert(q1!=node_info_map.end());
@@ -660,13 +662,13 @@ set(const GeomObject &go,
 	  q2 = node_info_map.find(n2);
 	assert(q2!=node_info_map.end());
 	printf("n2: ");	q2->second->print();
-
-	NodeInfo *ni12_p = 
-	  node_comb_fun(*q1->second,*q2->second);
-	node_info_map[node_hash] = ni12_p;
+#endif
+	nodes[0]=n1;
+	nodes[1]=n2;
+	node_comb->combine(0,2,nodes,node_hash,
+			   *node_info_map);
 	ref_nodes.insert(ref_nodes.begin(),
 			 node_hash);
-	printf("n12: "); ni12_p->print();
       }
 
       map<int,int>::const_iterator it 
@@ -695,3 +697,6 @@ combine(int n1,int n2) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 NodeInfo::~NodeInfo() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+NodeCombiner::~NodeCombiner() {}

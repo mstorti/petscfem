@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.12 2004/12/19 23:16:04 mstorti Exp $
+// $Id: visitor.cpp,v 1.13 2004/12/20 12:20:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -14,7 +14,7 @@ using namespace std;
 UniformMesh::visitor::visitor() 
   : at_end(true), mesh(NULL), 
     etree_p(NULL), trace(0),
-    node_comb_fun(NULL) { }
+    node_comb(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
@@ -65,8 +65,8 @@ bool UniformMesh::visitor::so_next() {
     // Build `ws' from GeomObject `w' (parent) and
     // splitter `s' and subobject index `j'
     mesh->set(w->go,q->splitter,j,ws->go,
-	      ws->ref_nodes,node_comb_fun,
-	      node_info_map);
+	      ws->ref_nodes,node_comb,
+	      &node_info_map);
     ws->splitter = qs;
     ws->go.make_canonical();
     ws->so_indx = 0;
@@ -101,8 +101,8 @@ bool UniformMesh::visitor::so_next() {
 	// Build `ws' from GeomObject `w' (parent) and splitter `s'
 	// and subobject index `jsib'
 	mesh->set(w->go,s,jsib,ws->go,
-		  ws->ref_nodes,node_comb_fun,
-		  node_info_map);
+		  ws->ref_nodes,node_comb,
+		  &node_info_map);
 	ws->go.make_canonical();
 
 	// Find next node on the splitting tree or end()
@@ -223,8 +223,8 @@ bool UniformMesh::visitor::level_so_next() {
       // and subobject index `jsib'
       mesh->set(w->go,s,jsib,ws->go,
 		ws->ref_nodes,
-		node_comb_fun,
-		node_info_map);
+		node_comb,
+		&node_info_map);
       ws->go.make_canonical();
       
       // Find next node on the splitting tree or end()
@@ -264,7 +264,7 @@ next(int level) {
 void 
 UniformMesh::visitor::
 pop() {
-  if (node_comb_fun) {
+  if (node_comb) {
     RefStackT::iterator w 
       = ref_stack.begin();
     list<int>::iterator 
