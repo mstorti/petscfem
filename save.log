@@ -1373,3 +1373,7 @@ tag: beta-3.01.pl9 on Sat, 27 Jul 2002 10:36:45 -0300 by mstorti in spider
 ----------
 tag: beta-3.01.pl10 on Sat, 27 Jul 2002 15:31:28 -0300 by mstorti in spider
      > Implemented `prismatic' integration element. 
+----------
+tag: beta-3.01.pl11 on Sat, 27 Jul 2002 19:26:34 -0300 by mstorti in spider
+     > Now the interface preconditioner is solved with Richardson with a
+     > relaxation factor entered by the user..
