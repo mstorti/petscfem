@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.14 2002/07/21 03:09:43 mstorti Exp $
+// $Id: tryme4.cpp,v 1.15 2002/07/21 03:23:44 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -27,28 +27,36 @@ private:
   int chunk_size;
   // total number of elements 
   int size;
-  // Number of chunks position of first free in element
-  int nchunks, k;
+  // Number of chunks position of first free element
+  int nchunks;
   // pointers to chunks
   vector<T *> chunk_vector;
   // pointer to STL storage array in chunk_vector
   T **chunks;
+  void reff(int j,int &chunk,int &k) {
+    chunk = j/chunk_size;
+    k = j % chunk_size;
+  }
 public:
   dvector() { 
     chunk_size = 100;
     chunks = NULL;
-    k=nchunks=0;
-    size = 0;
+    size = nchunks = 0;
   }
   T &ref(int j) {
-    int chunk = j/chunk_size;
-    int kk = j % chunk_size;
-    return chunks[chunk][kk];
+    assert(j>=0 && j<size);
+    int chunk,k;
+    reff(j,chunk,k);
+    return chunks[chunk][k];
   }
   void push(const T &t) {
+    int chunk,k;
+    reff(size,chunk,k);
     if (k==0) {
+      assert(nchunks == chunk_vector.size());
       chunk_vector.push_back(new T[chunk_size]);
       chunks = chunk_vector.begin();
+      nchunks++;
     }
     ref(size++) = t;
   }
@@ -189,7 +197,14 @@ public:
 
 int main(int argc, char **argv) {
   dvector<int> v;
-  for (int j=0; j<1000; j++) v.push(j);
+  int M=1000;
+  for (int j=0; j<M; j++) v.push(j*j);
+  for (int j=0; j<M; j++) {
+    if (j % (M/10) ==0 ) 
+      printf("j %d, j^2 %d, v(j) %d\n",j,j*j,v.ref(j));
+    assert(j*j==v.ref(j));
+  }
+
 #if 0
   graph_da g;
   graph_stl gg;
