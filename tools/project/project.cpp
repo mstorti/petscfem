@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.11 2005/02/25 01:30:41 mstorti Exp $
+// $Id: project.cpp,v 1.12 2005/02/25 01:48:14 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -63,7 +63,8 @@ int main() {
 #define NOD2_RAND
   vector<int> restricted(ndim);
 #ifdef NOD2_RAND
-  nnod2=100;
+  nnod2=1000;
+  FILE *fid = fopen("qq.dat","w");
 #endif
   for (int n2=0; n2<nnod2; n2++) {
 #ifndef NOD2_RAND
@@ -112,6 +113,7 @@ int main() {
 	for (int j=1; j<=ndim; j++) {
 	  if (L.get(j)<0) {
 	    neg=1;
+	    assert(!restricted[j-1]);
 	    restricted[j-1]=1;
 	    C2.ir(2,j);
 	    invCt.ir(2,j);
@@ -119,7 +121,7 @@ int main() {
 	  }
 	}
 	if (!neg) break;
-	assert(iter<=ndim);
+	assert(iter<=ndim+3);
 	C2.rs();
 	invCt.rs();
       }
@@ -130,8 +132,17 @@ int main() {
       C.is(1,1,ndim);
       x2prj.prod(C,L,1,-1,-1);
       C.rs();
+#ifndef NOD2_RAND
       x2.print("");
       x2prj.print("");
+#else
+      for (int j=0; j<ndim; j++)
+	fprintf(fid,"%f ",x2.get(j+1));
+      for (int j=0; j<ndim; j++)
+	fprintf(fid,"%f ",x2prj.get(j+1));
+      fprintf(fid,"\n");
+#endif
     }
   }
+  fclose(fid);
 }
