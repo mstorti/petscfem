@@ -1445,3 +1445,7 @@ tag: beta-3.02.pl17 on Thu,  8 Aug 2002 13:20:02 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.02.pl18 on Mon, 12 Aug 2002 22:38:25 -0300 by mstorti in spider
      > Computes `embedded_gatherer' with two layers.
+----------
+tag: beta-3.02.pl19 on Tue, 13 Aug 2002 15:43:17 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs with 3 layer `embedded_gatherer' but precision is low when
+     > there is refinement towards the wall.
