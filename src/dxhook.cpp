@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.57 2003/10/08 11:45:58 mstorti Exp $
+//$Id: dxhook.cpp,v 1.58 2003/10/17 19:28:49 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -216,7 +216,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   //o Auto generate states by combining elemsets with fields
   TGETOPTDEF_ND(go,int,dx_auto_combine,0);
 
-  //o If true, then issue a ``make dx_step=#step dx_make_command''
+  //o If true, then issue a #make dx_step=<step> dx_make_command#
   TGETOPTDEF_ND(go,int,dx_do_make_command,0);
 
   ndim = mesh->nodedata->ndim;

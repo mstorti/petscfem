@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.30 2003/08/31 21:22:34 mstorti Exp $
+// $Id: iisdmat.h,v 1.31 2003/10/17 19:28:49 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -217,7 +217,7 @@ class IISDMat : public PFPETScMat {
   int n_isp_tot;
   /// #isp_map[j]# is the position in the PETSc #A_isp# matrix
   vector<int>  isp_map;
-  /// Set value in the A_II_isp matrix (for ISP preconditioning).
+  /// Set value in the #A_II_isp# matrix (for ISP preconditioning).
   int isp_set_value(int row,int col,PetscScalar value, 
 		    InsertMode mode);
   /** Dof's in interface/processor #p#: are in range 

@@ -1,7 +1,7 @@
 %TGIF 4.1.8
 state(0,37,100.000,125,0,1,16,0,0,1,1,0,0,0,0,1,1,'Helvetica-Oblique',2,115200,0,3,1,5,0,1,1,1,0,16,0,0,1,1,1,1,1088,1408,0,0,2880,0).
 %
-% @(#)$Header: /u/mstorti/cvsroot-bck/petscfem/doc/OBJ/ramp.obj,v 1.4 2003/09/15 01:18:09 mstorti Exp $
+% @(#)$Header: /u/mstorti/cvsroot-bck/petscfem/doc/OBJ/ramp.obj,v 1.5 2003/10/17 19:28:45 mstorti Exp $
 % %W%
 %
 unit("1 pixel/pixel").
@@ -68,19 +68,19 @@ poly('black','',2,[
 	186,193,186,193,186,242,1.60782e-13,-1000,1000,1.60782e-13,5,12],[
 ]).
 xbm('black','',273,249,287,265,0,61,0,7,8,0,0,1,301000,684000,308000,692000,1,0,0,0,1,0,0,
-    "Fri Jun  9 00:01:12 2000","/home/mstorti/PETSC/petscfem/doc/EPSI/t0.epsi",[
+    "Fri Jun  9 00:01:12 2000","/u/mstorti/PETSC/petscfem-doc/doc/EPSI/t0.epsi",[
     273,249,273,249,280,257,2000,0,0,2000,0,0],[
 ]).
 xbm('black','',410,251,424,269,0,65,0,7,9,0,0,1,301000,684000,308000,693000,1,0,0,0,1,0,0,
-    "Fri Jun  9 00:01:23 2000","/home/mstorti/PETSC/petscfem/doc/EPSI/t1.epsi",[
+    "Fri Jun  9 00:01:23 2000","/u/mstorti/PETSC/petscfem-doc/doc/EPSI/t1.epsi",[
     410,251,410,251,417,260,2000,0,0,2000,0,0],[
 ]).
 xbm('black','',171,197,189,215,0,68,0,9,9,0,0,1,301000,684000,310000,693000,1,0,0,0,1,0,0,
-    "Fri Jun  9 00:01:35 2000","/home/mstorti/PETSC/petscfem/doc/EPSI/phi0.epsi",[
+    "Fri Jun  9 00:01:35 2000","/u/mstorti/PETSC/petscfem-doc/doc/EPSI/phi0.epsi",[
     171,197,171,197,180,206,2000,0,0,2000,0,0],[
 ]).
 xbm('black','',162,66,180,84,0,72,0,9,9,0,0,1,301000,684000,310000,693000,1,0,0,0,1,0,0,
-    "Fri Jun  9 00:01:45 2000","/home/mstorti/PETSC/petscfem/doc/EPSI/phi1.epsi",[
+    "Fri Jun  9 00:01:45 2000","/u/mstorti/PETSC/petscfem-doc/doc/EPSI/phi1.epsi",[
     162,66,162,66,171,75,2000,0,0,2000,0,0],[
 ]).
 text('black',315,133,1,1,1,9,23,75,18,5,0,0,0,0,2,9,23,0,1,"",0,0,0,0,151,'',[
@@ -100,6 +100,6 @@ str_seg('black','Helvetica-Oblique',2,115200,5,18,5,0,2,0,0,0,0,0,
 ])
 ])]).
 xbm('black','',198,28,208,46,0,82,0,5,9,0,0,1,303000,684000,308000,693000,1,0,0,0,1,0,0,
-    "Fri Jun  9 00:04:34 2000","/home/mstorti/PETSC/petscfem/doc/EPSI/phi.epsi",[
+    "Fri Jun  9 00:04:34 2000","/u/mstorti/PETSC/petscfem-doc/doc/EPSI/phi.epsi",[
     198,28,198,28,203,37,2000,0,0,2000,0,0],[
 ]).

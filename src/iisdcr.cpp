@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.44 2003/10/06 03:03:05 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.45 2003/10/17 19:28:49 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -247,7 +247,7 @@ int IISDMat::create_a() {
   // preconditioning for the interface problem when using
   // \verb+use_interface_full_preco+.
   TGETOPTDEF_ND_PF(thash,int,print_interface_full_preco_conv,0);
-  //o The ILU fill to be used for the A_II problem if the
+  //o The ILU fill to be used for the #A_II# problem if the
   // ILU preconditioning is used
   TGETOPTDEF_ND_PF(thash,double,interface_full_preco_fill,1.);
   //o The problem on the interface is solved with Richardson method
