@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.8 2002/02/25 16:39:34 mstorti Exp $
+//$Id: bubbly.cpp,v 1.9 2002/02/28 22:29:21 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -219,6 +219,8 @@ void bubbly_ff
   flux.ir(1,e_indx).set(v_l).scale(arho_l*eps);
   flux.rs();
   // flux.set(0.);  //debug:= 
+  // Cambiamos signo de la ec. de cont. debug:=
+  flux.is(1,1).scale(-1.).rs(); 
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Adjective Jacobians
@@ -265,6 +267,8 @@ void bubbly_ff
   Ajac.set(Ajacc);
   Ajacc.rs();
   // Ajac.set(0.); //debug:= 
+  // Cambiamos signo de la ec. de cont. debug:=
+  Ajac.is(2,1).scale(-1.).rs(); 
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
@@ -325,6 +329,8 @@ void bubbly_ff
   Djacc.set(Djac).is(4,2).is(4,1).is(4,3,ndof);
   Djac.set(Djacc);
   Djacc.rs();
+  // Cambiamos signo de la ec. de cont. debug:=
+  // Djac.is(2,1).scale(-1.).rs(); // lo sacamos porque no tiene difusion!!!
   
   // Reactive terms
   Cjac.set(0.);
