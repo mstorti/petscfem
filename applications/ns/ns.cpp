@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.56 2001/12/07 16:45:57 mstorti Exp $
+//$Id: ns.cpp,v 1.57 2001/12/07 18:28:56 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -132,16 +132,23 @@ int main(int argc,char **args) {
   GETOPTDEF(int,nnwt,1);
   //o Tolerance to solve the non-linear system (global Newton).
   GETOPTDEF(double,tol_newton,1e-8);
+
+#define INF INT_MAX
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
-  GETOPTDEF(int,update_jacobian_iters,0);
+  GETOPTDEF(int,update_jacobian_iters,1);
+  assert(update_jacobian_iters>=1);
+  //o Update jacobian each $n$-th Newton iteration
+  GETOPTDEF(int,update_jacobian_start_iters,INF);
+  assert(update_jacobian_start_iters>=0);
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_steps,1);
   assert(update_jacobian_steps>=1);
-#define INF INT_MAX
   //o Update jacobian each $n$-th time step. 
   GETOPTDEF(int,update_jacobian_start_steps,INF);
+  assert(update_jacobian_start_steps>=0);
 #undef INF
+
   //o Relaxation parameter for Newton iteration. 
   GETOPTDEF(double,newton_relaxation_factor,1.);
 
@@ -328,12 +335,9 @@ int main(int argc,char **args) {
 
   // Filter *filter(x,*mesh);
 
-  // jacobian_not_updated_count:= counts how many steps the
-  // jacobian has not been updated 
   // update_jacobian_this_step:= Flags whether this step the
   // jacobian should be updated or not 
-  int jacobian_not_updated_count=0;
-  int update_jacobian_this_step;
+  int update_jacobian_this_step,update_jacobian_this_iter;
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
@@ -345,7 +349,7 @@ int main(int argc,char **args) {
 
     // Jacobian update logic
     update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
-      || (jacobian_not_updated_count==0);
+      || ((tstep-update_jacobian_start_steps) % update_jacobian_steps == 0);
     
     // Inicializacion del paso
     ierr = VecCopy(x,dx_step);
@@ -357,10 +361,13 @@ int main(int argc,char **args) {
       glob_param.inwt = inwt;
       // Initialize step
 
-      // update_jacobian:= flags whether the Jacobian is factored in this step or not 
-      int update_jacobian;
-      update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
-      if (update_jacobian) {
+      // update_jacobian_this_iter:= flags whether the Jacobian is
+      // factored in this iter or not Jacobian update logic
+      update_jacobian_this_iter = update_jacobian_this_step &&
+	( (inwt < update_jacobian_start_iters) 
+	  || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
+
+      if (update_jacobian_this_iter) {
 	ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
       }
 
@@ -386,7 +393,7 @@ int main(int argc,char **args) {
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (update_jacobian) {
+      if (update_jacobian_this_iter) {
 	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
       }
 
@@ -394,7 +401,7 @@ int main(int argc,char **args) {
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
       argl.arg_add(&res,OUT_VECTOR);
-      if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+      if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
       argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -403,7 +410,7 @@ int main(int argc,char **args) {
       argl.arg_add(&glob_param,USER_DATA);
       argl.arg_add(wall_data,USER_DATA);
 
-      const char *jobinfo = (update_jacobian ? "comp_mat_res" : "comp_res");
+      const char *jobinfo = (update_jacobian_this_iter ? "comp_mat_res" : "comp_res");
 
       // In order to measure performance
       if (measure_performance) {
@@ -456,7 +463,7 @@ int main(int argc,char **args) {
 	argl.arg_add(&x,PERT_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
 	argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	if (update_jacobian_this_iter) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -514,7 +521,7 @@ int main(int argc,char **args) {
       if (inwt==0) normres_external = normres;
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
-		  inwt,normres,update_jacobian);
+		  inwt,normres,update_jacobian_this_iter);
 
       // update del subpaso
       scal= newton_relaxation_factor/alpha;
@@ -529,10 +536,6 @@ int main(int argc,char **args) {
       // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
 
     } // end of loop over Newton subiteration (inwt)
-
-    if (jacobian_not_updated_count >= update_jacobian_steps) 
-      jacobian_not_updated_count =0;
-    if (!update_jacobian)  jacobian_not_updated_count++;
 
     // error difference
     scal = -1.0;

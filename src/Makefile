@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.39 2001/11/26 01:35:42 mstorti Exp $ 
+# $Id: Makefile,v 1.40 2001/12/07 18:28:56 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -62,6 +62,11 @@ FSM = matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
 	$(SMC) < $<
 	mv -f $(FSM).cc $(FSM).cpp
+
+pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
+%FSM.cpp %FSM.h: %.sm
+	$(SMC) < $<
+	mv -f $*FSM.cc $*FSM.cpp
 
 # This doesn't compile with -O2
 #measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.25 2001/11/19 03:35:06 mstorti Exp $
+// $Id: pfmat.h,v 1.26 2001/12/07 18:28:56 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -28,6 +28,25 @@ public:
   }
 };
 
+#undef FSM_ACTION
+#define FSM_ACTION(action) void pfmatFSMContext::action()	\
+  {matrix_p->action();}
+
+#endif
+
+class pfmatFSMContext {
+public:
+  PFMat * matrix_p;
+  pfmatFSMContext() {};
+  FSM_ACTION(factor_and_solve);
+  FSM_ACTION(solve_only);
+  FSM_ACTION(clean_factor);
+  void FSMError(const char *e,const char *s) { 
+    printf("Not valid \"%s\" event in state \"%s\"",e,s);
+  }
+};
+
+#include "pfmatFSM.h"
 
 /// This is the basic distributed matrix class. 
 //typedef DistMap<int,Row,IntPartitioner> DistMat;
@@ -37,6 +56,9 @@ public:
 */
 class PFMat {
 protected:
+  /// The Finite State Machine Object
+  friend class pfmatFSM;
+  pfmatFSM fsm;
   /// We will have always a PETSc matrix for the system and for the preconditioner
   Mat A,P;
   /// The PETSc linear solver

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.60 2001/12/03 19:48:41 mstorti Exp $
+//$Id: lusubd.cpp,v 1.61 2001/12/07 18:28:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -74,7 +74,7 @@ PFMat::PFMat() : sles_was_built(0), A(NULL), P(NULL) {
 #endif
 };
 
-PFMat::~PFMat() {};
+PFMat::~PFMat() {clear();};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
