@@ -34,10 +34,7 @@ ifdef RH60
    RH60 = -DRH60
 endif
 
-TAGINCL = --include
-ifeq ($(shell hostname),minerva)
-  TAGINCL = --etags-include
-endif
+TAGINCL = --etags-include
 
 CPPFLAGS         = $(PROF_FLAGS) $(RH60) ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \
                      -I$(METIS)/Lib \
