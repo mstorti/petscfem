@@ -10,10 +10,11 @@ $gamma = 1.4;
 $Rgas = 287;
 $rhoref = 1;
 $Tref = 300;
-$du = 0.3;
+$du = 0.1;
 $sigma = 0.3;
+$abso = 1;
 
-@vars = qw(sigma Rgas Nx Lx Machin gamma Rgas rhoref Tref du);
+@vars = qw(sigma Rgas Nx Lx Machin gamma Rgas rhoref Tref du abso);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mkgfabso.m";

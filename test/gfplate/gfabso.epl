@@ -25,10 +25,14 @@ nsaverot 20
 nrec 1
 nfile 100000000
 
-# type of solver (may be "iisd", "petsc"...)
+#if 0
 solver "iisd"
 preco_type "jacobi"
 iisd_subpart_auto 4000
+#else
+solver "petsc"
+preco_type "lu"
+#endif
 
 maxits 100
 
@@ -85,19 +89,26 @@ npg 4
 data ./gfabso.con.tmp
 __END_HASH__
 
+#if $abso
 elemset gasflow_abso 5
+lagrange_diagonal_factor 1e-4
 dx 0
 normaln 1. 0.
 __END_HASH__
 __INCLUDE__ gfabso.con-abso1.tmp
 __END_ELEMSET__
+#endif
 
 end_elemsets
 
 #if !$dx
 fixa
 __INCLUDE__ ./gfabso.fixa-in.tmp
-# __INCLUDE__ ./gfabso.fixa-outlet.tmp
+#if $abso
+__INCLUDE__ ./gfabso.fixa-ref.tmp
+#else
+__INCLUDE__ ./gfabso.fixa-outlet.tmp
+#endif
 __INCLUDE__ ./gfabso.fixa-slip.tmp
 __END_FIXA__
 #endif

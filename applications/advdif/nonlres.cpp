@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.5 2005/01/20 22:50:54 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.6 2005/01/21 03:14:26 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -252,6 +252,7 @@ void AdvDiff_Abs_Nl_Res::res(ElementIterator &element, FastMat2 &U, FastMat2 &r,
   lambda.ir(1,1).eye();
   lambda.rs();
   for (int j=1;j<=nel;j++) {
+    if (j==nel-1) continue; // Don't apply to node with Lagrange multipliers
     U.ir(1,j);
     Ulocal.set(U);
     adv_diff_ff->set_state(Ulocal);
