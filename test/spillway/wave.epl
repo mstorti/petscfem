@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.10 2003/04/02 14:11:46 mstorti Exp $ 
+## $Id: wave.epl,v 1.11 2003/04/02 18:05:19 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -7,7 +7,7 @@ require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl
 $initia = ($ENV{'initia'} ? 1 : 0);
 require 'dataw.pl';
 $fs_relax = 0 if $initia;
-$dx = 1;
+$dx = 0;
 #__END_TRANSCRIPT__
 @vars = qw(Lx h Ny Nx fs_relax Dt gravity p_const_bc patm slope
     yratio initia eta0 L_bump t);
@@ -57,6 +57,9 @@ print_partitioning_statistics
 # solve_system 0
 # report_consumed_time
 launch_mesh_move 1
+
+# Restart a previous run?
+<:pr('restart'):>
 
 ngather 1
 gather_file "wave.volume.tmp"

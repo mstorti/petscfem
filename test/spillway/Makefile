@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2003/03/31 17:07:10 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2003/04/02 18:05:19 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -13,6 +13,10 @@ spillway_mmv:
 
 spillway_mesh:
 	initia=0 octave -qH spillway.m
+
+copy:
+	cp wave_mmv.state.tmp.orig  wave_mmv.state.tmp
+	cp wave.state.tmp.orig wave.state.tmp
 
 wavei:
 	$(MAKE) initia=1 wave

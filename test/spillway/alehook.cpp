@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.15 2003/04/01 22:47:19 mstorti Exp $
+//$Id: alehook.cpp,v 1.16 2003/04/02 18:05:19 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -100,6 +100,7 @@ private:
   // The reference coordinates
   dvector<double> xnod0;
   int nnod,ndim,nu;
+  void read_mesh();
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -159,9 +160,34 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
 
     printf("ALE_HOOK2: ending init()\n");
   }
+  int ierr;
+  //o Restart previous run
+  TGETOPTDEF(GLOBAL_OPTIONS,int,restart,0);
+  if (restart) read_mesh();
 }
 
 void ale_hook2::time_step_pre(double time,int step) {}
+
+void ale_hook2::read_mesh() {
+  // Reads displacements computed by `mesh_move' and add to nodedata
+  FILE *fid = fopen(CASE_NAME "_mmv.state.tmp","r");
+  double d;
+  double *nodedata = mesh->nodedata->nodedata;
+  int debug=0;
+  for (int k=0; k<nnod; k++) {
+    for (int j=0; j<ndim; j++) {
+      fscanf(fid,"%lf",&d);
+      *nodedata++ = xnod0.e(k,j) + d;
+      if (debug) printf("x0 %f, d %f",xnod0.e(k,j),d);
+    }
+    if (debug) printf("\n");
+  }
+#if 0
+  nodedata = mesh->nodedata->nodedata;
+  for (int k=0; k<nnod; k++)
+    printf("node %d, x,y: %f %f\n",k+1,nodedata[k*nu+0],nodedata[k*nu+1]);
+#endif
+}
 
 void ale_hook2::time_step_post(double time,int step,
 			      const vector<double> &gather_values_a) {
@@ -176,25 +202,9 @@ void ale_hook2::time_step_post(double time,int step,
     // to the new mesh
     int mmv_step = int(read_doubles(mmv2ns,"mmv_step_ok"));
     assert(step==mmv_step);
+
+    read_mesh();
     
-    // Reads displacements computed by `mesh_move' and add to nodedata
-    FILE *fid = fopen(CASE_NAME "_mmv.state.tmp","r");
-    double d;
-    double *nodedata = mesh->nodedata->nodedata;
-    int debug=0;
-    for (int k=0; k<nnod; k++) {
-      for (int j=0; j<ndim; j++) {
-	fscanf(fid,"%lf",&d);
-	*nodedata++ = xnod0.e(k,j) + d;
-	if (debug) printf("x0 %f, d %f",xnod0.e(k,j),d);
-      }
-      if (debug) printf("\n");
-    }
-#if 0
-    nodedata = mesh->nodedata->nodedata;
-    for (int k=0; k<nnod; k++)
-	printf("node %d, x,y: %f %f\n",k+1,nodedata[k*nu+0],nodedata[k*nu+1]);
-#endif
     printf("ALE_HOOK2: ending time_step_post()\n");
   }
   int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSC_COMM_WORLD);
@@ -215,7 +225,7 @@ DL_GENERIC_HOOK(ale_hook2);
 // are imposed
 dvector<double> spines;
 // displ:= current displacements (they cumulate during time steps)
-dvector<double> displ;
+dvector<double> displ,displ_old;
 // fs:= vector of nodes on the free surface (FS)
 dvector<int> fs;
 // fs2indx_t:= type of fs2indx
@@ -303,6 +313,9 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   displ.set_chunk_size(ndim*nfs);
   displ.a_resize(2,nfs,ndim);
   displ.set(0.);
+  displ_old.set_chunk_size(ndim*nfs);
+  displ_old.a_resize(2,nfs,ndim);
+  displ_old.set(0.);
   
   //o Time step.
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
@@ -315,9 +328,32 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,cyclic_length,0);
   //o Assume problem is periodic 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,restart,0);
-  if (!restart && !MY_RANK) {
+
+  if (!MY_RANK && !restart) {
     // This is to rewind the file
     FILE *fid = fopen(CASE_NAME ".fsh.tmp","w");
+    fclose(fid);
+  } 
+
+  // Read the last computed mesh
+  if (!MY_RANK && restart) {
+    fid = fopen(CASE_NAME "_mmv.state.tmp","r");
+    double *xnod = mesh->nodedata->nodedata;
+    int nu = mesh->nodedata->nu;
+    
+    fs2indx_t::iterator q,qe = fs2indx.end();
+    for (int node=1; node<=nnod; node++) {
+      indx = -1;
+      q = fs2indx.find(node);
+      if(q!=qe) indx = q->second;
+      double d;
+      for (int j=0; j<ndim; j++) {
+	int nread = fscanf(fid,"%lf",&d);
+	assert(nread==1);
+	// if (indx>=0) displ.e(indx,j) = d - xnod[(node-1)*nu+j];
+	if (indx>=0) displ.e(indx,j) = d;
+      }
+    }
     fclose(fid);
   }
 }
@@ -347,8 +383,10 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
   int nu = mesh->nodedata->nu;
   int nnod = mesh->nodedata->nnod;
   FastMat2 x0(1,ndim),x1(1,ndim),x2(1,ndim),
+    dx0(1,ndim),dx1(1,ndim),dx2(1,ndim),
     x01(1,ndim),x12(1,ndim),normal(1,ndim);
   // Reads the whole file
+  displ_old.set(displ.buff());
   for (int node=1; node<=nnod; node++) {
     // Reads line (even if it is not in the FS)
     line.getline(fid);
@@ -359,7 +397,6 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     int indx = q->second;
     // Compute normal component of velocity
     int debug = 0;
-    if (debug) printf("node %d, vel, nor, spin ",node);
     tokens.clear();
     tokenize(line.str(),tokens);
     assert(tokens.size()==ndim+1);
@@ -369,25 +406,39 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     assert(cyclic_fs);
     // Compute coordinates of three nodes on the free surface
     // Node at the center
-    x1.set(&nodedata[nu*(node-1)]);
+    dx1.set(&displ_old.e(indx,0));
+    x1.set(&nodedata[nu*(node-1)]).add(dx1);
+
     // Previous node
     int div0,div2;
     int indx0 = modulo(indx-1,nfs,&div0);
     int node0 = fs.e(indx0);
     x0.set(&nodedata[nu*(node0-1)]);
-    x0.addel(div0*cyclic_length,1);
+    dx0.set(&displ_old.e(indx0,0));
+    x0.addel(div0*cyclic_length,1).add(dx0);
 
     // Next node
     int indx2 = modulo(indx+1,nfs,&div2);
     int node2 = fs.e(indx2);
     x2.set(&nodedata[nu*(node2-1)]);
-    x2.addel(div2*cyclic_length,1);
+#if 0
+    printf("indx0 %d, indx %d, indx2 %d\n",indx0,indx,indx2);
+    printf("displ(indx2,*): %f %f\n",displ.e(indx2,0),displ.e(indx2,1));
+    printf("&displ(indx0,*): %p %p\n",&displ.e(indx0,0),&displ.e(indx0,1));
+    printf("&displ(indx ,*): %p %p\n",&displ.e(indx ,0),&displ.e(indx ,1));
+    printf("&displ(indx2,*): %p %p\n",&displ.e(indx2,0),&displ.e(indx2,1));
+#endif
+    dx2.set(&displ_old.e(indx2,0));
+    x2.addel(div2*cyclic_length,1).add(dx2);
 
 #if 0
     printf("indx %d, div0 %d, div2 %d\n",indx,div0,div2);
     x0.print("x0:");
     x1.print("x1:");
     x2.print("x2:");
+    dx0.print("dx0:");
+    dx1.print("dx1:");
+    dx2.print("dx2:");
 #endif
 
     // Segements 0-1 1-2
@@ -411,9 +462,11 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     // normalize
     double n2 = normal.norm_p_all(2);
     normal.scale(1./n2);
+    if (debug) normal.print("normal: ");
 
     // Compute displacement
     double v, vn=0., sn=0.;
+    if (debug) printf("node %d, vel, nor, spin ",node);
     for (int j=0; j<ndim; j++) {
       string2dbl(tokens[j],v);
       double s = spines.e(indx,j);
