@@ -140,8 +140,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // matlocf_mass*(Un-Uo)/Dt is added.
 
   // Allocate local vecs
-  FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
-    locstateo(nel,ndof),locstaten(nel,ndof),
+  FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
+    xloc(nel,ndim),locstate(nel,ndof), 
+    locstateo(nel,ndof),locstaten(nel,ndof),dUlocdt(nel,ndof),
     matloc,eye_ndof(ndof,ndof);
   FastMat2 locstateo2(2,nel,ndof);
 
@@ -415,6 +416,27 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	matloc.kron(mass,Id_ndof);
       }
 #endif
+
+      if (lumped_mass) {
+	// lump mass matrix
+#if 1   // With this commented should be equivalent to no mass lumping
+	matlocf_mass.reshape(2,nen,nen);
+	for (int j=1; j<=nen; j++) {
+	  double m = matlocf_mass.ir(1,j).sum_all();
+	  matlocf_mass.set(0.).setel(m,j);
+	}
+	matlocf_mass.rs().reshape(4,nel,ndof,nel,ndof);
+#endif
+	// Add to matrix contribution to be returned
+	matlocf.add(matlocf_mass);
+	// Compute derivative of local element state
+	// The Dt is already included in the mass matrix
+	dUlocdt.set(locstaten).rest(locstateo);
+	// Compute inertia term with lumped mass
+	veccontr_mass.prod(matlocf_mass,dUlocdt,1,2,-1,-2,-1,-2);
+	// Add (rest) to vector contribution to be returned
+	veccontr.rest(veccontr_mass);
+      }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
