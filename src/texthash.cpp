@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.16 2002/10/17 19:07:57 mstorti Exp $
+//$Id: texthash.cpp,v 1.17 2002/10/21 01:58:42 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -309,4 +309,13 @@ void TextHashTable::get_entry(const char *name,vector<double> &v) {
     v.push_back(val);
   }
   delete[] buf;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+const TextHashTable * TextHashTable::find(const string &name) {
+  THashTable::iterator k;
+  k = thash_table.find(name);
+  const TextHashTable *table = NULL;
+  if (k!=thash_table.end()) table = k->second;
+  return table;
 }

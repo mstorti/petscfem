@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.10 2002/07/29 20:17:39 mstorti Exp $
+//$Id: texthash.h,v 1.11 2002/10/21 01:58:42 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -167,6 +167,12 @@ public:
       @param u (not used) as required by Glib
   */ 
   friend void print_hash_entry(void *p, void *q, void *u);
+
+  /** Returns a pointer to the table given his name. 
+      @param name (input) the name of the table
+      @return  a pointer to the table, #NULL# if it wasn't found. 
+   */ 
+  static const TextHashTable *find(const string &name);
 
 private:
   /// The underlying Glib hash. 
