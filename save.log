@@ -1585,3 +1585,6 @@ tag: beta-3.04.pl6 on Sun,  8 Sep 2002 20:29:29 -0300 by mstorti in spider
 ----------
 tag: beta-3.04.pl7 on Mon,  9 Sep 2002 22:22:22 -0300 by mstorti in spider
      > `applications/ns.cpp' doesn't compile with -O2 (hangs??). 
+----------
+tag: beta-3.04.pl8 on Tue, 10 Sep 2002 21:28:00 -0300 by mstorti in spider
+     > Added printing build date, time and compiler to NS module. 
