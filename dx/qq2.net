@@ -1,5 +1,5 @@
 //
-// time: Mon Feb 10 21:41:23 2003
+// time: Sat Feb 15 13:42:40 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -14,12 +14,13 @@ macro main(
     // 
     // node ExtProgImport[1]: x = 171, y = 149, inputs = 6, label = ExtProgImport
     // input[1]: defaulting = 0, visible = 1, type = 1, value = NULL
-    // input[3]: defaulting = 0, visible = 1, type = 1, value = 5315
+    // input[3]: defaulting = 0, visible = 1, type = 1, value = 5314
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 456
     // input[6]: defaulting = 0, visible = 1, type = 32, value = "my_state_file"
     //
 main_ExtProgImport_1_out_1,
-main_ExtProgImport_1_out_2 = 
+main_ExtProgImport_1_out_2,
+main_ExtProgImport_1_out_3 = 
     ExtProgImport(
     main_ExtProgImport_1_in_1,
     main_ExtProgImport_1_in_2,
@@ -41,7 +42,7 @@ main_ExtProgImport_1_out_2 =
 }
 main_ExtProgImport_1_in_1 = NULL;
 main_ExtProgImport_1_in_2 = NULL;
-main_ExtProgImport_1_in_3 = 5315;
+main_ExtProgImport_1_in_3 = 5314;
 main_ExtProgImport_1_in_4 = NULL;
 main_ExtProgImport_1_in_5 = 456;
 main_ExtProgImport_1_in_6 = "my_state_file";

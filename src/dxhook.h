@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.7 2003/02/15 02:29:39 mstorti Exp $
+//$Id: dxhook.h,v 1.8 2003/02/15 16:52:51 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -35,7 +35,7 @@ private:
   Socket *srvr_root,*srvr;
   Mesh *mesh;
   Dofmap *dofmap;
-  int step_cntr, steps, ierr;
+  int step_cntr, steps, ierr, dx_auto_combine;
   FieldGenList field_gen_list;
 
 #ifdef USE_PTHREADS

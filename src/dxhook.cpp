@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.21 2003/02/15 15:49:56 mstorti Exp $
+//$Id: dxhook.cpp,v 1.22 2003/02/15 16:52:51 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -154,12 +154,28 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   }
   mesh = &mesh_a;
   dofmap = &dofmap_a;
-  // FieldGen *fg = new FieldGenDefault;
-  FieldGenLine *fgl = new FieldGenLine;
-  FieldGen *fg = fgl;
-  fg->init(dofmap->ndof,mesh_a.global_options,"ns2d");
-  fgl->parse("1 2 0 1 u 1 1 2 p");
-  field_gen_list.push_back(fg);
+  
+  TextHashTable *go = mesh_a.global_options;
+  int dx_split_state_flag=0;
+  //o Generates DX fields by combination of the input fields
+  TGETOPTDEF_S(go,string,dx_split_state,"");
+  if (dx_split_state!="") {
+    dx_split_state_flag = 1;
+    FieldGenLine *fgl = new FieldGenLine;
+    fgl->init(dofmap->ndof,mesh_a.global_options,"split_state");
+    fgl->parse(dx_split_state.c_str());
+    field_gen_list.push_back(fgl);
+  }
+
+  //o Generates a DX field with the whole state (all ndof fields)
+  TGETOPTDEF(go,int,dx_state_all_fields,!dx_split_state_flag);
+  if (dx_state_all_fields) {
+    FieldGen *fg = new FieldGenDefault;
+    field_gen_list.push_back(fg);
+  }
+
+  //o Auto generate states by combining elemsets with fields
+  TGETOPTDEF_ND(go,int,dx_auto_combine,0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -370,10 +386,13 @@ time_step_post(double time,int step,
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Send signal for automatically pairing connections and fields
-  cookie = rand();
-  Sprintf(srvr,"fields_auto %d\n",cookie);
-  CHECK_COOKIE(fields_auto);
-    
+  if (dx_auto_combine) {
+    cookie = rand();
+    Sprintf(srvr,"fields_auto %d\n",cookie);
+    CHECK_COOKIE(fields_auto);
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Send termination signal
   if (!MY_RANK) {
     Sprintf(srvr,"end\n");

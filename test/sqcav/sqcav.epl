@@ -164,6 +164,8 @@ G_body 0 -1.
 #endif
 
 hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
 __END_HASH__
 
 # ndim nu ndof
