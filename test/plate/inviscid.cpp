@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.7 2003/01/01 23:49:18 mstorti Exp $
+//$Id: inviscid.cpp,v 1.8 2003/01/02 01:21:58 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -14,15 +14,17 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ext_node {
 public:
-  // viscous node, external potential node
-  int vn,pn;
+  // viscous node, external potential node, external
+  // potential node on second layer
+  int vn, pn, pn1;
   // position, velocity, potential at node
-  double x[NDIM], u[NDIM], phi;
+  double x[NDIM], x2[NDIM], u[NDIM], phi, phi1;
 };
 
 double Uinf;
+int inv_inc_lay;
 typedef map<int,int> ext_map;
-ext_map inv_indx_map,visc_indx_map;
+ext_map inv_indx_map,inv2_indx_map,visc_indx_map;
 vector<ext_node> ext_node_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -43,7 +45,14 @@ void coupling_visc_hook::init(Mesh &mesh,Dofmap &dofmap,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void coupling_visc_hook::time_step_pre(double t,int step) { }
+void coupling_visc_hook::time_step_pre(double t,int step) { 
+  if (step>0) {
+    printf("VISCOUS: waiting computed_step flag, step %d...\n",step);
+    double step_sent = read_doubles(inv2visc,"computed_step");
+    assert(int(step_sent)==step);
+    printf("VISCOUS: received computed_step flag OK, step %d\n",step);
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_visc_hook::time_step_post(double time,int step,
@@ -75,6 +84,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
     printf("INV2VISC: Done.\n");
     
     FILE *fid = fopen("ext.coupling_nodes.tmp","r");
+    assert(fid);
     int nread, ext_node_indx=0;
     while (1) {
       int vn,pn;
@@ -90,17 +100,95 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
     assert(nread==EOF);
     fclose(fid);
 
-    fid = fopen("ext.nod.tmp","r");
+    assert(fid = fopen("ext.con.tmp","r"));
+    map<int, map<int, int> > layer_map;
+    ext_map::iterator q,q1,qe;
+    while (1) {
+#define NEL 4
+      int row[NEL];
+      nread = fscanf(fid,"%d %d %d %d",&row[0],&row[1],&row[2],&row[3]);
+      if (nread!=4) break;
+      qe = inv_indx_map.end();
+      for (int k=0; k<NEL; k++) {
+	q =inv_indx_map.find(row[k]);
+	if (q!=qe) {
+	  for (int l=0; l<NEL; l++) {
+	    q1 =inv_indx_map.find(row[l]);
+	    if (q1==qe) {
+	      layer_map[row[k]][row[l]]++;
+	    }
+	  }
+	}
+      }
+    }
+    assert(nread==EOF);
+    fclose(fid);
+
+    map<int,map <int,int> >::iterator r;
+    map <int,int>::iterator s;
+#if 1
+    for (r=layer_map.begin(); r!=layer_map.end(); r++) {
+      map <int,int> &m = r->second;
+      for (s=m.begin(); s!=m.end(); s++) {
+	printf("(%d,%d) -> %d\n",r->first,s->first,s->second);
+      }
+    }
+#endif
+
+    int nnod_ext = inv_indx_map.size();
+    for (int k=1; k<nnod_ext-1; k++) {
+      int pn = ext_node_data[k].pn;
+      r = layer_map.find(pn);
+      assert(r!=layer_map.end());
+      int set_flag=0;
+      map<int,int> &m = r->second;
+      for (s=m.begin(); s!=m.end(); s++) {
+	if (s->second==2) {
+	  assert(!set_flag);
+	  set_flag=1;
+	  inv2_indx_map[s->first] = k;	  
+	  ext_node_data[k].pn1 = s->first;
+	}
+      }
+    }
+    // First and last nodes
+    for (int j=0; j<2; j++) {
+      int k = (j==0? 0 : nnod_ext-1);
+      int pn = ext_node_data[k].pn;
+      r = layer_map.find(pn);
+      assert(r!=layer_map.end());
+      map<int,int> &m = r->second;
+      assert(m.size()==2);
+      int set_flag=0;
+      for (s=m.begin(); s!=m.end(); s++) {
+	int node = s->first;
+	assert(s->second==1);
+	if (inv2_indx_map.find(node)!=inv2_indx_map.end()) {
+	  assert(!set_flag);
+	  set_flag=1;
+	  ext_node_data[k].pn1 = s->first;
+	}
+      }
+    }
+
+    for (int k=0; k<nnod_ext; k++) {
+      ext_node &e = ext_node_data[k];
+      printf("k %d, vn %d, pns %d %d\n",k,e.vn,e.pn,e.pn1);
+    }
+    PetscFinalize();
+    exit(0);
+
+    assert(fid = fopen("ext.nod.tmp","r"));
     double x[NDIM];
     int node=0;
-    ext_map::iterator q, qe=inv_indx_map.end();
+    ext_map::iterator t, te=inv_indx_map.end();
     while (1) {
       nread = fscanf(fid,"%lf %lf",&x[0],&x[1]);
       if(nread!=NDIM) break;
       node++;
-      q = inv_indx_map.find(node);
-      if (q!=qe) {
-	ext_node_indx = q->second;
+      t = inv_indx_map.find(node);
+      if (t!=te) {
+	ext_node_indx = t->second;
 	printf("node %d, ext_node_indx %d, x %f %f\n",
 	       node,ext_node_indx,x[0],x[1]);
 	ext_node_data[ext_node_indx].x[0] = x[0];
@@ -116,6 +204,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::time_step_pre(double t,int step) { 
+  printf("INVISCID: waiting computed_step flag, step %d...\n",step);
   double step_sent = read_doubles(visc2inv,"computed_step");
   assert(int(step_sent)==step);
   printf("INVISCID: received computed_step flag OK, step %d\n",step);
@@ -166,11 +255,34 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   PetscFinalize();
   exit(0);
 #endif
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::time_step_post(double time,int step,
 			       const vector<double> &gather_values) {
+#if 0
+  FILE *fid = fopen("ext.state.tmp","r");
+  int node=0;
+  ext_map::iterator q, qe=inv_indx_map.end();
+  int nread;
+  char *line = NULL; size_t N=0;
+  while (1) {
+    if (getline(&line,&N,fid)==-1) break;
+    double phi1;
+    nread = sscanf(line,"%lf",&phi1);
+    assert(nread==1);
+    node++;
+    q = visc_indx_map.find(nodex-);
+    if (q!=qe) {
+      int ext_node_indx = q->second;
+      ext_node_data[ext_node_indx].u[0] = u[0];
+      ext_node_data[ext_node_indx].u[1] = u[1];
+    }
+  }
+  fclose(fid);
+  free(line); line=NULL; N=0;
+#endif
   fprintf(inv2visc,"computed_step %d\n",step);
 }
 

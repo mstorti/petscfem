@@ -1,8 +1,9 @@
+<: require './data.pl'; :>
 #===========================================================
 global_options
 ndim 2
 save_file "ext.state.tmp"
-save_file_pattern "outvector.out.tmp"
+save_file_pattern "ex.state_%d.tmp"
 nsave 10
 nsaverot 10
 nstep 2
@@ -13,6 +14,7 @@ print_internal_loop_conv 1
 Krylov_dim 200
 nnwt 1
 Uinf 1.
+inv_lay_inc <:= 3*$Ntheta/4+2*$Nx+1 :>
 
 weak_form 0
 Dt <:=$Co*$hmin:>
