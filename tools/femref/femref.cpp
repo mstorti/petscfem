@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.25 2004/12/19 18:53:34 mstorti Exp $
+// $Id: femref.cpp,v 1.26 2004/12/19 19:43:27 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -72,19 +72,19 @@ rf(GeomObject &go,const double *xnod) {
 
 int main() { 
 
-  Tetra2TetraSplitterClass 
-    Tetra2TetraSplitter2;
-
   UniformMesh mesh(OrientedTetraTemplate,3);
   mesh.read("tetra.nod","tetra.con");
   // mesh.refine(rf);
   UniformMesh::visitor vis;
-  vis.init(mesh,0);
-  vis.trace = 1;
+
+  vis.init(mesh);
   while (!vis.end()) {
-    GeomObject &go = vis.ref_stack.front().go;
     if (vis.is_leave() && vis.ref_level()<=1)
       vis.refine();
     vis.next();
   }
+
+  vis.trace = 1;
+  vis.init(mesh);
+  while (!vis.end()) vis.next();
 }

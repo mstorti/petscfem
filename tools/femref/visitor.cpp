@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.7 2004/12/19 18:53:34 mstorti Exp $
+// $Id: visitor.cpp,v 1.8 2004/12/19 19:43:27 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -67,6 +67,7 @@ bool UniformMesh::visitor::so_next() {
     ws->splitter = qs;
     ws->go.make_canonical();
     ws->so_indx = 0;
+    return true;
   } else {
     // `q' is a leave for GO's (sure it isn't a
     // regular node for splitters). Try to find a
@@ -123,11 +124,10 @@ init(UniformMesh &mesh_a) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
 next() { 
-  if (!so_next()) {
-    elem++;
-    if (elem >= mesh->nelem) return false;
-    init(*mesh,elem);
-  }
+  if (so_next()) return true;
+  elem++;
+  if (elem >= mesh->nelem) return false;
+  init(*mesh,elem);
   return true;
 }
 

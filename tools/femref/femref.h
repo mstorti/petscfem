@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.33 2004/12/19 18:53:34 mstorti Exp $
+// $Id: femref.h,v 1.34 2004/12/19 19:43:27 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -269,9 +269,17 @@ public:
       the desired mehs size (#h#) for this element. */ 
   void refine(RefineFunction rf);
 
+  /** Each element in the refinement stack is
+      of this type. */ 
   struct RefPathNode {
+    /// The geometric object
     GeomObject go;
+    /** The splitter for this object. Actually it
+	is a node in the refinement tree for this
+	element */ 
     ElemRef::iterator splitter;
+    /** The sibling index in the sibling list for
+	this object */
     int so_indx;
   };
 
@@ -281,22 +289,44 @@ public:
       the desired mehs size (#h#) for this element. */ 
   class visitor {
   private:
+    /// The mesh we are visiting
     UniformMesh *mesh;
+    /// The internal tree for each base element
     ElemRef *etree_p;    
+    /// Flags whether we reached the end of the mehs or not
     bool at_end;
+    /// The element we are currently visiting
     int elem;
   public: 
+    /// Flags whether we print the elements as they are visited
     int trace;
+    /// Ctor.
     visitor();
+    /// Stack containing the elements in the refinement tree
     list<RefPathNode> ref_stack;
+    /// Inits the visitor to the base element of index #elem#
     void init(UniformMesh &mesh_a,int elem);
+    /** Inits the visitor to the base element of the
+	first element. */
     void init(UniformMesh &mesh_a);
-    bool next();
+    /** Pass to the following subobject of the 
+	same element. Return false if reached the end. */
     bool so_next();
+    /// Have we passed the last subobject of this element?
     bool so_end();
+    /** Pass to the following subobject of the 
+	mesh. Return false if reached the end of the mesh. */
+    bool next();
+    /// Have we passed the last subobject of the mesh?
     bool end();
+    /** Pass to the following subobject of the 
+	mesh, at this level or higher. */
+    bool next_lev();
+    /** Is this node a leave in the refienement tree? */ 
     bool is_leave();
+    /** Refine this element */ 
     void refine();
+    /** The refinement level for this node. */ 
     int ref_level();
   };
 };
