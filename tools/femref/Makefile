@@ -40,6 +40,11 @@ include makefile.d
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
+%.x: %.cpp
+	guile-snarf -o $@ $(CPPFLAGS) $<
+
+gsguile.o: gsguile.x
+
 tryme2.bin: tryme2.o
 	g++ -o $@ $^
 

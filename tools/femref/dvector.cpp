@@ -21,7 +21,7 @@ MAKE_DVECTOR_FUN() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
-#define __FUN__ DVTYPE "-fun"
+#define __FUN__ DVTYPE "(free)"
 static size_t
 FREE_DVECTOR_FUN(SCM s_w) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),

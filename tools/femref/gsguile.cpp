@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gsguile.cpp,v 1.3 2005/01/16 14:34:15 mstorti Exp $
+// $Id: gsguile.cpp,v 1.4 2005/01/16 19:06:05 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -22,6 +22,19 @@ using namespace std;
 #include "./dvector.h"
 
 typedef SCM(*scm_fun)();
+
+#define DVDBLARG(name,pos)					\
+  { SCM_ASSERT (SCM_SMOB_PREDICATE(dvdbl_tag,s_##name),		\
+              s_##name, pos, FUNC_NAME);			\
+  dvector<double> *name =					\
+          (dvector<double> *)SCM_SMOB_DATA (s_##name); }
+
+#define DVINTARG(name,pos)					\
+  { SCM_ASSERT (SCM_SMOB_PREDICATE(dvint_tag,s_##name),	\
+              s_##name, pos, FUNC_NAME);		\
+  dvector<int> *name =					\
+          (dvector<int> *)SCM_SMOB_DATA (s_##name); }
+
 
 scm_t_bits GetSurfCtxTag;
 
@@ -94,6 +107,28 @@ SCM getsurf2(SCM ctx_s,SCM icone_s,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+SCM_DEFINE(comp_matrices_w, "comp-matrices", 6, 1, 0,
+	   (SCM s_ctx, 
+	   SCM s_surf_con, 
+	   SCM s_surf_nodes, 
+	   SCM s_x, 
+	   SCM s_surf_mass, 
+	   SCM s_node_mass, 
+	   SCM s_verbose),
+	   "Compute mass matrices.")
+#define FUNC_NAME s_comp_matrices_w
+{
+  printf("in comp-matrices ... \n");
+  DVINTARG(surf_con,2);
+  DVINTARG(surf_nodes,3);
+  DVDBLARG(x,4);
+  DVDBLARG(surf_mass,5);
+  DVDBLARG(node_mass,6);
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
 #define __FUN__ "my-dv-print"
 SCM my_dv_print(SCM s_w) {
@@ -114,4 +149,7 @@ init_femref(void) {
   scm_c_define_gsubr("make-get-surf-ctx",0,0,0,scm_fun(make_get_surf_ctx));
   scm_c_define_gsubr("getsurf",4,2,0,scm_fun(getsurf2));
   scm_c_define_gsubr("my-dv-print",1,0,0,scm_fun(my_dv_print));
+#ifndef SCM_MAGIC_SNARFER
+#include "./gsguile.x"
+#endif
 }

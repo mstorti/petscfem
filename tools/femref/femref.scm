@@ -19,15 +19,21 @@
  (set! j (+ j 1)))
 !#
 
-(define get-surf-ctx (make-get-surf-ctx))
+(define ctx (make-get-surf-ctx))
 (define icone (make-dvint))
 (define surf-con (make-dvint))
 (define surf-nodes (make-dvint))
+(define x (make-dvdbl))
+(define surf-mass (make-dvdbl))
+(define node-mass (make-dvdbl))
+
 (format #t "read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
 
-(getsurf get-surf-ctx icone surf-con surf-nodes 1 0)
+(getsurf ctx icone surf-con surf-nodes 1 0)
 (format #t "surf-con:\n")
 (dvint-dump surf-con)
 
 (format #t "surf-nodes:\n")
 (dvint-dump surf-nodes)
+
+(comp-matrices ctx surf-con surf-nodes x surf-mass node-mass)
