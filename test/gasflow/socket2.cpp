@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+// $Id: socket2.cpp,v 1.2 2003/02/03 15:25:41 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -26,7 +28,7 @@ int talk(Socket *sock,comm_mode &mode) {
     buff = Sgets(buf,BUFSIZE,sock);
     assert(buff);
     if (!strcmp(buf,"OVER\n")) mode = SEND;
-    printf("-- %s",buf);
+    printf("-- \"%s\"",buf);
   } else assert(0);
   int stop = !strcmp(buf,"STOP\n");
   if (stop) printf("will stop");
