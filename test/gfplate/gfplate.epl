@@ -1,0 +1,89 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+
+## Derived quantities:
+## ==================
+global_options
+
+nstep 5
+alpha 1.
+
+# initial_state "gfplate.ini.tmp"
+nsave 1
+save_file "gfplate.state.tmp"
+
+#if 0
+save_file_pattern "gfplate.state_%d.tmp"
+nsaverot 1
+nrec 1
+nfile 100000000
+#endif
+
+# type of solver (may be "iisd", "petsc"...)
+solver "petsc"
+preco_type "lu"
+
+maxits 100
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-7
+dtol 1e3
+nnwt 5
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+Dt 1e-5
+weak_form 0
+temporal_stability_factor 0
+
+ndim 2
+Rgas 287.0
+steady
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodes 2 2 4
+0. 0.
+0. 0.
+__END_NODES__
+
+##================================================================
+#if 0
+elemset gasflow 4
+npg 4
+__END_HASH__
+1 2 3 4
+__END_ELEMSET__
+#endif
+
+elemset id 1
+__END_HASH__
+1
+__END_ELEMSET__
+
+
+elemset gasflow_twall 2
+lagrange_diagonal_factor 1.0e-5
+__END_HASH__
+1 2
+__END_ELEMSET__
+
+fixa
+## Real node
+1 1 1.0
+1 2 0.
+1 3 0.
+
+## Fictitious node
+2 2 300.0
+2 3 0.
+2 4 0.
+__END_FIXA__

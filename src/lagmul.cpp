@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.1 2005/01/07 20:10:47 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.2 2005/01/07 23:39:09 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -37,10 +37,9 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double *locst=NULL,*locst2=NULL,
     *retval=NULL,*retvalmat=NULL,lambda,rr;
-  double rec_Dt;
 
   if (comp_mat_res) 
-    get_data(arg_data_v,locst,retval,retvalmat,rec_Dt);
+    get_data(arg_data_v,locst,retval,retvalmat);
   else if (comp_mat) 
     get_data(arg_data_v,retvalmat);
 
@@ -154,3 +153,9 @@ const FastMat2 &LagrangeMult::xloc() {
   xloc_m.rs();
   return xloc_m;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LagrangeMult::initialize() {
+  lm_initialize();
+}
+

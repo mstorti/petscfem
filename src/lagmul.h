@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.1 2005/01/07 20:10:47 mstorti Exp $
+// $Id: lagmul.h,v 1.2 2005/01/07 23:39:09 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -67,17 +67,17 @@ class LagrangeMult : public Elemset {
   /// Make it pure virtual. 
   virtual ~LagrangeMult()=0;
 
-  virtual 
-  void get_comp_flags(const char *jobinfo,
-		      int &comp_mat,int &comp_mat_res);
+  virtual void 
+  get_comp_flags(const char *jobinfo,
+		 int &comp_mat,int &comp_mat_res)=0;
   virtual void
   get_data(arg_data_list &arg_data_v,
 	   double *&locst,double *&retval,
-	   double *&retvalmat,double &rec_Dt);
+	   double *&retvalmat)=0;
 
   virtual void 
   get_data(arg_data_list &arg_data_v,
-	   double *&retvalmat);
+	   double *&retvalmat)=0;
 
 };
 
