@@ -579,3 +579,6 @@ tag: beta-2.21 on Tue Nov 13 09:30:10 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-2.22 on Tue Nov 13 14:35:07 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Fixed a bug in the copy operation of Mat
+----------
+tag: beta-2.23 on Tue Nov 13 22:53:02 ARST 2001, by mstorti in spider
+     > Fixed bugs in SparseDirect
