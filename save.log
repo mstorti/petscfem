@@ -1588,3 +1588,7 @@ tag: beta-3.04.pl7 on Mon,  9 Sep 2002 22:22:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.04.pl8 on Tue, 10 Sep 2002 21:28:00 -0300 by mstorti in spider
      > Added printing build date, time and compiler to NS module. 
+----------
+tag: beta-3.04.pl9 on Thu, 12 Sep 2002 10:22:24 -0300 by mstorti in minerva.arcride.edu.ar
+     > Fixed a bug in src/iisdmat.cpp:688, `sles_ii' should be created on
+     > communicator `comm'.
