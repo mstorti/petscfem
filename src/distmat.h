@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmat.h,v 1.8 2001/08/15 20:04:25 mstorti Exp $
+// $Id: distmat.h,v 1.9 2001/08/16 03:54:48 mstorti Exp $
 #ifndef DISTMAT_H
 #define DISTMAT_H
 
@@ -14,56 +14,27 @@ class Row : public  map<int,double> {
   void pack(char *&buff) const;
 };
 
-#if 0
+class IntRowPartitioner {
+public:
+  virtual ~IntRowPartitioner()=0;
+  virtual int processor(map<int,Row>::iterator k)=0;
+};
+
+typedef DistMap<int,Row,IntRowPartitioner> DistMat;
+
 /** A distributed map<int,int,double> class
  */ 
-template<class P>
-class DistMap<int,Row,P> : public map<int,Row> {
+class DistMatrix : public DistMat {
 public:
   /// Specific ``insert'' routine. 
   void insert_val(int i,int j,double v);
   /// Specific function for retrieving values. 
   double val(int i,int j);
-  /** Computes the size of data needed to pack this entry 
-      @param k (input) iterator to the entry
-      @return the size in bytes of the packed object
-   */ 
-  int size_of_pack(map<int,Row>::const_iterator k) const;
-  /** Packs the entry #(k,v)# in buffer #buff#. This function should
-      be defined by the user. 
-      @param k (input) key of the entry
-      @param v (input) value of the entry
-      @param buff (input/output) the position in the buffer where the
-      packing is performed
-  */ 
-  void pack(const int &k, const Row &v,char *&buff) const;
-  /** Does the reverse of #pack#. Given a buffer #buff# recovers the
-      corresponding key and val. This function should
-      be defined by the user. 
-      @param k (output) key of the entry
-      @param v (output) value of the entry
-      @param buff (input/output) the position in the buffer from where the
-      unpacking is performed
-  */ 
-  void unpack(int &k,Row &v,const char *& buff);
-  /** User defines this function that determine to which processor
-      belongs each entry
-      @param k (input) iterator to the considered entry. 
-      @return the number of processor where these matrix should go. 
-  */ 
-  int processor(const map<int,Row>::iterator k) const;
-  /** This function should be defined by the user. Merges a pair key,
-      value in the container. 
-      @param p (input) the pair to be inserted.
-  */ 
-  void combine(const pair<int,Row> &p);
-  DistMap<int,Row,P>(P *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
-  void scatter();
+  DistMatrix(IntRowPartitioner *pp=NULL,MPI_Comm comm_=MPI_COMM_WORLD) :
+    DistMat(pp,comm_) {};
 };
-#endif
 
-template<class P>
-void DistMap<int,Row,P>::insert_val(int i,int j,double v) {
+void DistMatrix::insert_val(int i,int j,double v) {
   map<int,Row>::iterator I = find(i);
   Row::iterator J;
   if (I == end()) {
@@ -79,8 +50,7 @@ void DistMap<int,Row,P>::insert_val(int i,int j,double v) {
   }
 }
 
-template<class P>
-double DistMap<int,Row,P>::val(int i,int j) {
+double DistMatrix::val(int i,int j) {
   Row::iterator J;
   map<int,Row>::iterator I = find(i);
   if (I == end()) return 0.;
@@ -94,19 +64,14 @@ double DistMap<int,Row,P>::val(int i,int j) {
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename P>
-int DistMap<int,Row,P>::
-size_of_pack(map<int,Row>::const_iterator iter) const {
+int DistMat::size_of_pack(map<int,Row>::const_iterator iter) const {
   int n = iter->second.size();
   // size + row number + size*(int+double)
   return (n+2)*sizeof(int)+n*sizeof(double);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<class P>
-void DistMap<int,Row,P>::
-pack(const int &k,const Row &row,char *&buff) const {
-
+void DistMat::pack(const int &k,const Row &row,char *&buff) const {
   int n = row.size();
   Row::const_iterator iter;
   // number of elements in the row
@@ -124,9 +89,7 @@ pack(const int &k,const Row &row,char *&buff) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void DistMat::unpack(int &,Row &,const char *&)"
-template<class P>
-void DistMap<int,Row,P>::
-unpack(int &k,Row &row,const char *&buff) {
+void DistMat::unpack(int &k,Row &row,const char *&buff) {
   int n,j,key;
   double val;
   // Clear the row
@@ -145,18 +108,17 @@ unpack(int &k,Row &row,const char *&buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 #undef __FUNC__
 #define __FUNC__ "int DistMat::processor(const DistMatrix::iterator ) const"
-template<class P>
-int DistMap<int,Row,P>::processor(const map<int,Row>::iterator k) const {
+int DistMat::processor(const map<int,Row>::iterator k) const {
   // The number of processor is computed in the `Partitioner' 
   return part->dofpart(k->first);
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<class P>
-void DistMap<int,Row,P>::
-combine(const pair<int,Row> &p) {
+void DistMat::combine(const pair<int,Row> &p) {
   // Insert the pair (int,row) in the matrix
   int n,j;
   map<int,Row>::iterator iter = find(p.first);

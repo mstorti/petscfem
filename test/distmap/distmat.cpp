@@ -1,20 +1,22 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.8 2001/08/15 20:04:29 mstorti Exp $
+// $Id: distmat.cpp,v 1.9 2001/08/16 03:54:24 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
 #include <petsc.h>
 
+#include <buffpack.h>
 #include <utils.h>
 #include <maximizr.h>
-#include <buffpack.h>
 #include <distmap.h>
 #include <distmat.h>
 
 int SIZE, MYRANK, M;
 
-class TrivialPartitioner  {
+IntRowPartitioner::~IntRowPartitioner() {};
+
+class TrivialPartitioner : public IntRowPartitioner {
 public:
   int processor(int dof) { return int((dof*SIZE)/M); };
   int processor(map<int,Row>::iterator k) {
@@ -36,7 +38,7 @@ int main(int argc,char **argv) {
   /// Initializes MPI
   PetscInitialize(&argc,&argv,0,0);
 
-  DistMap<int,Row,TrivialPartitioner> S(&part);
+  DistMatrix S(&part);
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);

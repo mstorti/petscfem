@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.21 2001/08/15 20:04:25 mstorti Exp $
+// $Id: distmap.h,v 1.22 2001/08/16 03:54:48 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -32,7 +32,7 @@ class DistMap : public map<Key,Val> {
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Key,Val,Partitioner>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
+  DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
@@ -71,13 +71,14 @@ class DistMap : public map<Key,Val> {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<class Key,class Val,class Partitioner> DistMap<Key,Val,Partitioner>::
-DistMap<Key,Val,Partitioner>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
+template<class Key,class Val,class Partitioner>
+DistMap<Key,Val,Partitioner>::
+DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,
+			     MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
-  // initialize the partitioner 
-  part=p;
+  part=pp;
   sched = grouping;
 };
 
