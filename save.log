@@ -1333,3 +1333,6 @@ tag: beta-3.00.pl25 on Wed, 24 Jul 2002 22:52:29 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl26 on Wed, 24 Jul 2002 23:30:23 -0300 by mstorti in spider
      > Runs 70^3 mesh in spider (355MB RAM, 100 secs eva, 160secs sol). 
+----------
+tag: beta-3.00.pl27 on Thu, 25 Jul 2002 00:32:43 -0300 by mstorti in spider
+     > Runs 75^3 mesh in spider (460MB RAM, Krylov=100, 130 secs eva, 400secs sol). 
