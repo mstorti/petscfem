@@ -1,0 +1,41 @@
+#-*- shell-script -*-
+# $Id: cube.dx.epl,v 1.1 2005/01/13 14:25:06 mstorti Exp $
+# The following example describes an irregular grid. Note that the values
+# of the "positions" component and "connections" component are irregular,
+# and so must be enumerated.
+#
+# The irregular positions, which are ... three-dimensional points.
+object "nodes" class array type float rank 1 shape 3
+         items 29791 data file "./cube.nod.tmp"
+
+## surf field
+object "icone_t" class array type int rank 1 shape 3
+        items 10800 data file "./cube.surf-con.tmp"
+attribute "element type" string "triangles"
+attribute "ref" string "positions"
+
+object "u" class array type float rank 0
+     items 10800 data file "./cube.aw.tmp"
+attribute "dep" string "connections"
+
+object "ns_field_t" class field
+component "positions" value "nodes"
+component "connections" value "icone_t"
+component "data" value "u"
+
+#volume field
+object "icone_t" class array type int rank 1 shape 4
+        items 10800 data file "./cube.con0.tmp"
+attribute "element type" string "triangles"
+attribute "ref" string "positions"
+
+object "u" class array type float rank 0
+     items 10800 data file "./cube.aw.tmp"
+attribute "dep" string "connections"
+
+object "ns_field_t" class field
+component "positions" value "nodes"
+component "connections" value "icone_t"
+component "data" value "u"
+
+end
