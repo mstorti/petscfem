@@ -25,7 +25,7 @@ if ($case =~ /^g3d_(.*)$/) {
     }
 }
 $L = 1;				# Side of the cavity
-$N = 10;
+$N = 20;
 $hratio = 0;			# refinement (h_center/h_wall)
 $solver = "petsc";
 $preco_type = "lu";
@@ -110,8 +110,12 @@ shell_hook "echo stage %s, step %d, time %f"
 #endif
 
 # print_dofmap_id
-use_interface_full_preco
-use_interface_full_preco_nlay 2
+use_interface_full_preco 1
+use_interface_full_preco_nlay 1
+print_interface_full_preco_conv 0
+interface_full_preco_pc "jacobi"
+# interface_full_preco_relax_factor 0.3
+interface_full_preco_maxits 5
 # print_interface_full_preco_conv
 __END_HASH__
 
@@ -133,9 +137,7 @@ __END_ELEMSET__
 
 end_elemsets
 
-#if 1
 fixa
 # Set value at the wall
 __INCLUDE__ qharm.fixa.tmp
 __END_FIXA__
-#endif

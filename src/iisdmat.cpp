@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.48.2.3 2003/08/18 20:41:15 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.48.2.4 2003/08/19 00:53:28 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -262,6 +262,13 @@ const int IISDMat::I=1;
 int petscfem_null_monitor(KSP ksp,int n,
 			  double rnorm,void *A_) {return 0;}
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+IISDMat::IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_a) : 
+  PFPETScMat(MM,pp,comm_a), 
+  M(MM), N(NN), 
+  A_LL_other(NULL), A_LL(NULL), 
+  local_solver(PETSc), sles_ll(NULL), sles_ii(NULL),
+  use_interface_full_preco(0), nlay(0) {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 IISDMat::~IISDMat() {

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.27.2.2 2003/08/18 20:00:07 mstorti Exp $
+// $Id: iisdmat.h,v 1.27.2.3 2003/08/19 00:53:28 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -288,15 +288,10 @@ public:
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
 
-  // void print(void);
-  /// Constructor
+  /// Ctor
   IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
-	  PETSC_COMM_WORLD) : 
-    PFPETScMat(MM,pp,comm_), 
-    M(MM), N(NN), 
-    A_LL_other(NULL), A_LL(NULL), 
-    local_solver(PETSc), sles_ll(NULL), sles_ii(NULL),
-    use_interface_full_preco(0) {};
+	  PETSC_COMM_WORLD);
+
   /// The PETSc wrapper function calls this
   int pc_apply(Vec x,Vec y); 
   /// Destructor
