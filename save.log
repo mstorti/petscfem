@@ -792,3 +792,7 @@ tag: pfmat-rewrite-1.19 on Mon Jan  7 13:27:56 ARST 2002, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.20 on Tue Jan  8 22:31:38 ARST 2002, by mstorti in spider
      > Finite State Machine starts working
+----------
+tag: pfmat-rewrite-1.21 on Tue Jan  8 23:00:56 ARST 2002, by mstorti in spider
+     > Runs the `pfmat/pfmat' test.
+     > Leak memory not checked.
