@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.17 2003/02/08 16:08:48 mstorti Exp $
+// $Id: epimport.cpp,v 1.18 2003/02/09 17:36:41 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -247,6 +247,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   static size_t Nbuf = BUFSIZE;
 
   out[0] = NULL;
+  out[1] = NULL;
 
   // Inputs
   int in_index = 0;
@@ -259,25 +260,16 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   int steps, port, step;
   char *options, *hostname, *state_file;
+  DXMessage("before processing steps");
   if (!steps_o) steps = 0;
   else if (!DXExtractInteger(steps_o,&steps)) {
     DXSetError(ERROR_DATA_INVALID,
 	       "Couldn't find an integer on \"port\" entry");
     goto error;
   }
-#if 0
-  if (steps<0) {
-    DXSetError(ERROR_DATA_INVALID,
-	       "\"steps\" should be >=0");
-    goto error;
-  }
-#endif
-  if (!steps) {
-    DXSetError(ERROR_DATA_INVALID,
-	       "Not implemented yet steps==0 (asynchronous)");
-    goto error;
-  }
+  DXMessage("trace 1");
 
+#if 1
   options = DXGetString((String)options_o); 
   if (!options) options = "";
 
@@ -434,6 +426,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   out[0] = (Object)g;
   out[1] = (Object)flist;
+#endif
+  out[0] = NULL;
+  out[1] = NULL;
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;
