@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.20 2002/04/05 23:10:17 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.21 2002/04/10 12:46:18 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -26,7 +26,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 /** Cutoff function. It is very near to ${\rm ctff(x)\approx \rm tol$ for
     $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
 */ 
-inline double ctff(double x, double & diff_ctff, double tol=1e-5) {
+double ctff(double x, double & diff_ctff, double tol=1e-5) {
   double r=x/tol-1.; 
   double ee,vaux,ret;
   if (fabs(r)<1e-7) {

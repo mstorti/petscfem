@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.26 2002/04/04 01:42:17 mstorti Exp $
+//$Id: nsi_tet.h,v 1.27 2002/04/10 12:46:18 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -362,6 +362,6 @@ class LagrangeMult : public Elemset {
     @param (input) cuttoff scale parameter. 
     @return the cutoff'ed value
 */ 
-inline double ctff(double x, double & diff_ctff, double tol=1e-5);
+double ctff(double x, double & diff_ctff, double tol=1e-5);
 
 #endif
