@@ -2464,13 +2464,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.9 2001/01/19 12:49:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.7.2.1 2001/01/19 16:42:03 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.9 2001/01/19 12:49:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.7.2.1 2001/01/19 16:42:03 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2561,7 +2561,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.9 2001/01/19 12:49:35 mstorti Exp $ 
+  # $Id: notes.txt,v 1.7.2.1 2001/01/19 16:42:03 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -2631,79 +2631,39 @@ a /etc/ld.so.conf y correr `ldconfig -v'.
 Corro el sqcav5 en spider con las versiones beta-1.12 y 2.8s. Dan
 igual a precision de la maquina a Re=400. 
 
-%===Mon Jan 15 12:33:56 ARST 2001 mstorti@minerva
+%===Fri Jan 19 10:45:13 ARST 2001 mstorti@minerva
 %
-Correiendo en geronimo da diferente la version beta-1.13 con la
-2.16g. En la salida dan
-%
------------------- VERSION beta-1.13
-Time step: 1, time: 0.005
-Newton subiter 0, norm_res  =  8.687e-07, update Jac. 1
-Newton subiter 1, norm_res  =  1.967e-07, update Jac. 1
-============= delta_u =  1.636e+00
-iter: 0, saving on rec 0, file outvector0.out
-Writing vector to file "outvector0.out"
-Time step: 2, time: 0.01
-Newton subiter 0, norm_res  =  7.485e-07, update Jac. 1
-Newton subiter 1, norm_res  =  1.915e-07, update Jac. 1
-============= delta_u =  1.648e+00
------------------- VERSION 2.16g
-Time step: 1, time: 0.005
-|| R || =  2.703e-06
-|| R || =  1.321e-07
-============= delta_u =  2.002e+00
-iter: 0, saving on rec 0, file outvector0.sal
-Writing vector to file "outvector0.sal"
-Time step: 2, time: 0.01
-|| R || =  1.963e-06
-|| R || =  7.997e-08
-============= delta_u =  1.708e+00
-------------------
-%
-y la diferencia entre los vectores de estado en Octave da
-%
-octave> un=aload("back_step_3d.state.new");
-octave> un=aload("back_step_3d.state.new");
-octave> merr(uo-un)
-ans = 0.055116
-octave> 
-%
-Ahora voy a probar con sqcav5 a ver si sigue dando igual (como daba en
-casa).
+Viendo que pasa con el cache_grad_div_u: La version beta--1-13
+(brancheada a cache-gdu) con esto activado no converge. El elemento
+nsi_tet_les_fm2 da muy parecido al nsi_tet (si no activamos el
+cache_grad_div_u). 
 
-%===Mon Jan 15 12:46:09 ARST 2001 mstorti@minerva
+%===Fri Jan 19 10:50:43 ARST 2001 mstorti@minerva
 %
-Para el sqcav siguen dando iguales. 
+Hay dos posibilidades: que no guarde bien el operador grad_div_u en el
+cache, o que no este bien el calculando grad_div_u y despues agregando
+la contribucion al residuo y a la matrix al final. 
 
-%===Mon Jan 15 12:51:28 ARST 2001 mstorti@minerva
+%===Fri Jan 19 11:18:42 ARST 2001 mstorti@minerva
 %
-Con Jacobi tambien sqcav da igual. 
-Con 2 procesadores tambien da lo mismo. 
-Con weak_form 1 tambien da lo mismo.
-Con C_smag 0 da lo mismo.
-Con LES 0 da lo mismo.
-Con temporal_stability_factor 0. da lo mismo.
-Con Re=40000 da lo mismo
-Con inicializacion da lo mismo.
-Con nnwt=2 da lo mismo.
-Con maxits=10 da lo mismo.
-Copiando el archivo de datos de back_step_3d y dejando todas las
-    opciones de ese caso da lo mismo.
-Si el paso de tiempo es muy chico hay que poner
-   `temporal_stability_factor 0' para que de lo mismo. 
+Agregando una linea de forma que calcule cada vez el grad_div_u parece
+que anda bien (da una pequena diferencia, a mi me parece que deberia
+dar lo mismo a precision de la maquina). 
 
-%===Tue Jan 16 13:21:59 ARST 2001 mstorti@minerva
+%===Fri Jan 19 12:15:11 ARST 2001 mstorti@minerva
 %
-Para que de igual hay que poner `temporal_stability_factor 1'!!
+Ya esta!! El problema es con los chunks... Habria que usar la posicion
+del elemento dentro del procesador, pero no dentro del chunk. 
 
-%===Tue Jan 16 19:10:12 ARST 2001 mstorti@minerva
+%===Fri Jan 19 13:03:44 ARST 2001 mstorti@minerva
 %
-Voy a poner en NS la posibilidad de tener estados "filtrados". 
-
-%===Wed Jan 17 18:13:20 ARST 2001 mstorti@minerva
+Ahora a local_store_address(int global_elem) hay que pasarle el numero
+global del elemento. 
 %
-Escribi una clase simple de filtros. Anda, pero ahora voy a poner el
-mixer que puede tener varias entradas. 
+Encontre un error en `elemset.cpp': tomaba `report_consumed_time' de
+la thash global, no de la del elemento. 
+%
+Cambie el chunk_size default a 1000. 
 
 %# Current line ===========  
 # Local Variables: $
