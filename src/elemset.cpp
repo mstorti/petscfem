@@ -591,7 +591,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
     //o Report consumed time for the elemset. Useful for building
     // the table of weights per processor. 
-    GETOPTDEF(int,report_consumed_time,0);
+    TGETOPTDEF(elemset->thash,int,report_consumed_time,0);
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Performance report for elemset \"%s\" task \"%s\"\n"

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/01/19 12:50:36 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/01/19 21:45:52 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -10,7 +10,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include ../../test/Makefile.base.test
 
 NS = $(PETSCFEM_DIR)/applications/ns/ns.bin
-NSO = $(HOME)/PETSC/petscfem-beta-1.13/applications/ns/ns.bin
+NSO = $(PETSCFEM_DIR)/../petscfem-2.34g/applications/ns/ns.bin
 
 ################################################################
 NP = 1

@@ -1128,7 +1128,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     //o Defines a ``locker'' for each element
     TGETOPTDEF(elemset->thash,int,local_store,0);
     if (local_store) {
-      elemset->local_store = new (void *)[elemset->nelem_here];
+      elemset->local_store = new (void *)[elemset->nelem];
       for (int j=0; j<elemset->nelem_here; j++) {
 	elemset->local_store[j]=NULL;
       }

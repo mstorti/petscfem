@@ -292,7 +292,7 @@ public:
 
 // Other defs
 #define FLEN 300  // length of filename
-#define ELEM_CHUNK_SIZE 200
+#define ELEM_CHUNK_SIZE 1000
 
 // Values for ijob
 /** @name ijob

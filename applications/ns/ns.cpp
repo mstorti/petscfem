@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.6 2001/01/19 12:49:41 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.7 2001/01/19 21:45:47 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -124,7 +124,7 @@ int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy)
 
   if (print_internal_loop_conv_g) 
   PetscPrintf(PETSC_COMM_WORLD,
-	      "iteration %d KSP Residual norm %14.12e \n",n,rnorm);
+	      "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
   return 0;
 }
 

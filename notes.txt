@@ -2464,13 +2464,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.9 2001/01/19 12:49:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.10 2001/01/19 21:44:32 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.9 2001/01/19 12:49:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.10 2001/01/19 21:44:32 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2561,7 +2561,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.9 2001/01/19 12:49:35 mstorti Exp $ 
+  # $Id: notes.txt,v 1.10 2001/01/19 21:44:32 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -2704,6 +2704,40 @@ Voy a poner en NS la posibilidad de tener estados "filtrados".
 %
 Escribi una clase simple de filtros. Anda, pero ahora voy a poner el
 mixer que puede tener varias entradas. 
+
+%===Fri Jan 19 10:45:13 ARST 2001 mstorti@minerva
+%
+Viendo que pasa con el cache_grad_div_u: La version beta--1-13
+(brancheada a cache-gdu) con esto activado no converge. El elemento
+nsi_tet_les_fm2 da muy parecido al nsi_tet (si no activamos el
+cache_grad_div_u). 
+
+%===Fri Jan 19 10:50:43 ARST 2001 mstorti@minerva
+%
+Hay dos posibilidades: que no guarde bien el operador grad_div_u en el
+cache, o que no este bien el calculando grad_div_u y despues agregando
+la contribucion al residuo y a la matrix al final. 
+
+%===Fri Jan 19 11:18:42 ARST 2001 mstorti@minerva
+%
+Agregando una linea de forma que calcule cada vez el grad_div_u parece
+que anda bien (da una pequena diferencia, a mi me parece que deberia
+dar lo mismo a precision de la maquina). 
+
+%===Fri Jan 19 12:15:11 ARST 2001 mstorti@minerva
+%
+Ya esta!! El problema es con los chunks... Habria que usar la posicion
+del elemento dentro del procesador, pero no dentro del chunk. 
+
+%===Fri Jan 19 13:03:44 ARST 2001 mstorti@minerva
+%
+Ahora a local_store_address(int global_elem) hay que pasarle el numero
+global del elemento. 
+%
+Encontre un error en `elemset.cpp': tomaba `report_consumed_time' de
+la thash global, no de la del elemento. 
+%
+Cambie el chunk_size default a 1000. 
 
 %# Current line ===========  
 # Local Variables: $
