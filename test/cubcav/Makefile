@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.111 2005/02/21 00:35:15 mstorti Exp $ 
+# $Id: Makefile,v 1.112 2005/02/21 03:57:14 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -10,7 +10,7 @@ default: test_perfo
 # case := iisd_sbp1_uj
 export case
 
-tests: block_uploading
+tests: block_uploading srfgath
 
 # BOPT := g_c++
 PETSCFEM_DIR = ../..
