@@ -1,4 +1,4 @@
-## $Id: interp3d.m,v 1.2 2005/02/24 22:30:17 mstorti Exp $
+## $Id: interp3d.m,v 1.3 2005/02/24 22:30:29 mstorti Exp $
 
 if 0
   xnod1 = aload("static_p_blade.nod");
@@ -59,10 +59,12 @@ for j=1:1
       else
 	flag(bad) = !flag(bad);
       endif
-      L(indx)=0;
-      L(ndim+1)=0;
-      xproj = (C(1:ndim,:)*LL)';
-      xproj
+      if 0
+	L(indx)=0;
+	L(ndim+1)=0;
+	xproj = (C(1:ndim,:)*LL)';
+	xproj
+      endif
     endwhile
     maxit = max([maxit iters]);
     indx = find(flag);
