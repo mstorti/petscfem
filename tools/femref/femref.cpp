@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.27 2004/12/19 19:53:46 mstorti Exp $
+// $Id: femref.cpp,v 1.28 2004/12/19 20:46:21 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -81,7 +81,7 @@ int main() {
   vis.init(mesh);
   while (!vis.end()) {
     if (vis.is_leave() && vis.ref_level()<=1)
-      vis.refine();
+      vis.refine(&Tetra2TetraSplitter);
     vis.next();
   }
 
@@ -90,7 +90,7 @@ int main() {
   vis.init(mesh);
   while (!vis.end()) vis.next();
 
-  // Print mesh down to level 0
+  // Print mesh down to level 1
   vis.trace = 1;
   vis.init(mesh);
   bool done;
@@ -99,4 +99,9 @@ int main() {
     else done = !vis.level_next();
     if (done) break;
   }
+
+  // Print mesh down to level 0
+  vis.trace = 1;
+  vis.init(mesh);
+  while (vis.next(1)) {  }
 }

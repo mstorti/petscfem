@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.35 2004/12/19 19:53:46 mstorti Exp $
+// $Id: femref.h,v 1.36 2004/12/19 20:46:21 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -119,6 +119,12 @@ public:
 
 typedef double
 (*RefineFunction)(GeomObject &go,const double *xnod);
+
+class NodeInfo {
+public:
+  virtual ~NodeInfo()=0;
+  virtual NodeInfo *combine(NodeInfo &ni1,NodeInfo &ni2)=0;
+};
 
 /** A mesh is a container of geometrical objects
     linked (as in a graph).  Two objects are linked
@@ -317,15 +323,20 @@ public:
     /** Pass to the following subobject of the 
 	mesh. Return false if reached the end of the mesh. */
     bool next();
+    /** Pass to the following subobject of the 
+	mesh, down to level #level#. 
+	Return false if reached the end of the mesh. */
+    bool next(int level);
     /// Have we passed the last subobject of the mesh?
     bool end();
     /** Pass to the following subobject of the 
 	mesh, at this level or higher. */
     bool level_next();
+    bool level_so_next();
     /** Is this node a leave in the refienement tree? */ 
     bool is_leave();
-    /** Refine this element */ 
-    void refine();
+    /** Refine this element according to #s# */ 
+    void refine(const Splitter* s);
     /** The refinement level for this node. */ 
     int ref_level();
   };

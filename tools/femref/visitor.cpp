@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.9 2004/12/19 19:53:46 mstorti Exp $
+// $Id: visitor.cpp,v 1.10 2004/12/19 20:46:21 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -141,7 +141,7 @@ end() { return at_end && elem>= mesh->nelem; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::
-refine() {
+refine(const Splitter* s) {
   assert(is_leave());
   list<RefPathNode>::iterator 
     w = ref_stack.begin();
@@ -151,7 +151,7 @@ refine() {
   int j = w->so_indx;
   // The splitter should be returned
   // by the refinement function
-  q->splitter = &Tetra2TetraSplitter;
+  q->splitter = s;
   q->so_indx = j;
 }
 
@@ -168,7 +168,7 @@ int UniformMesh::visitor::
 ref_level() { return ref_stack.size()-1; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::level_next() {
+bool UniformMesh::visitor::level_so_next() {
   list<RefPathNode>::iterator ws, 
     w = ref_stack.begin();
   // here visit w...
@@ -233,3 +233,19 @@ bool UniformMesh::visitor::level_next() {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool UniformMesh::visitor::
+level_next() { 
+  if (level_so_next()) return true;
+  elem++;
+  if (elem >= mesh->nelem) return false;
+  init(*mesh,elem);
+  return true;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool UniformMesh::visitor::
+next(int level) {
+  if (ref_level()<level) return next();
+  else return level_next();
+}
