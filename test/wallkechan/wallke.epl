@@ -3,7 +3,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 #
 $L = 1;                         # Semi distance between plates
 $N = 16;                        # Number of elements in transversal 'x' direction
-$hratio = 20;                    # refinement near the wall
+$hratio = 20;                   # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
 $Ny = 100;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size in the y direction
@@ -12,7 +12,7 @@ $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
 $turb_prod_coef=1;              # activate/deactivate turbulence production terms
-$uwall_match_len = 0.5;           # u at the wall is matched to 0 (from the inlet) at
+$uwall_match_len = 0.5;         # u at the wall is matched to 0 (from the inlet) at
                                 # this distance 
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
@@ -26,14 +26,14 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-    $Re = 5e4;                  # laminar Re
+    $Re = 1.92e5;                  # laminar Re
     $Uav = 1;
     $nu = $Uav*2*$L/$Re;        # kinematic visc.
     $g = 0;                     # body force
     $y_wall_plus = 50 ;         # non-dim. distance to the wall
     $y_wall = .01;
     $turbulence_coef=1;         # mask turbulence
-    $turb_prod_coef=0.3;          # mask turbulence production terms
+    $turb_prod_coef=1;          # mask turbulence production terms
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
     $Uwall = 1;                 # half relative velocity of the plates
@@ -54,7 +54,7 @@ global_options
 ndim 2
 
 save_file "save.state"
-nsave 20
+nsave 5
 
 #rtol 1e-2
 rtol 0
@@ -78,12 +78,12 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 5
+nstep 100
 nnwt 4
 tol_newton 0
 preco_type "lu"
-Dt 0.1
-steady
+Dt 5
+#steady
 kap_ctff_val 1e-5
 eps_ctff_val 1e-5
 #pspg_advection_factor 0.

@@ -67,6 +67,19 @@ if exist(state)
   clear state
 endif
 
+u_po=[3.6;
+      3.95;
+      4.15;
+      4.33;
+      4.45;
+      4.56;
+      4.65;
+      4.70;
+      4.72;
+      4.75];
+u_po=u_po/max(u_po);
+x_po = (1:10)'/10;
+
 return
 
 #  C_mu=0.09;
