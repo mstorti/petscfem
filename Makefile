@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2001/01/10 22:40:01 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2001/01/11 12:49:19 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
@@ -101,25 +101,4 @@ save:
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
 
 tag:
-	echo shell: $(SHELL)
-	@echo Verify that current directory is OK...
-	echo n | cvs release .
-	@echo -n "Continue? (y/n) > " ;		\
-	read answer ;				\
-	if [ ! $$answer = "y" ] ; then		\
-		exit ;				\
-	fi
-	@echo Last tags:
-	@grep "^tag: " save.log | tail
-	@echo -n "Enter new tag: > " ;					\
-	read newtag ;							\
-	newtag_=`echo $$newtag | perl -pe 's/\-/--/g; s/\./-/g;'` ;	\
-	echo "encoded tag: $$newtag_" ;					\
-	echo "tag: $$newtag on `date`, by "				\
-		"`whoami` in `hostname -f`" >> save.log ;		\
-	echo $$newtag > VERSION ;					\
-	echo "Proceed to tag files (y/n) > " ;				\
-	read answer ;							\
-	if [ $$answer = "y" ] ; then					\
-		cvs tag $$newtag_ . ;					\
-	fi
+	tools/maketag
