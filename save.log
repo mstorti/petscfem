@@ -3945,3 +3945,6 @@ tag: beta-3.41.30 on Mon, 07 Feb 2005 13:05:43 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.31 on Mon, 07 Feb 2005 18:16:44 -0300 by mstorti in minerva.ceride.gov.ar
      > Working on 1d shock propagation example. 
+----------
+tag: beta-3.41.32 on Mon, 07 Feb 2005 21:36:02 -0300 by mstorti in spider
+     > Starts with moving oblique shock example. 
