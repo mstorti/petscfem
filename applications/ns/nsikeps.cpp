@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.17 2002/01/14 03:45:05 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.18 2002/03/14 13:42:28 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -159,7 +159,22 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
-         locstate2(nel,ndof),xpg,G_body(ndim),gravity(ndim);
+         locstate2(nel,ndof),xpg(ndim),G_body(ndim),gravity(ndim);
+
+  // coefficients to compute the traslational acceleration of the system
+  // a_i(t)  = + Ampl_i * sin(Freq_i * t)
+  FMatrix acel_lin(ndim),acel_lin_frame_ampl(ndim),acel_lin_frame_freq(ndim);
+  // coefficients to compute the rotational acceleration of the system
+  // alfa_i  = - Ampl_i * Freq_i * sin(Freq_i * t)
+  // omega_i = + Ampl_i * cos(Freq_i * t)
+  FMatrix omega_v(ndim),alfa_v(ndim),acel_rot_frame_ampl(ndim),acel_rot_frame_freq(ndim);
+  FMatrix Omega_M(ndim,ndim),Alfa_M(ndim,ndim),tmp_rot(ndim,ndim);
+  // Coordinates of the 
+  // x_o_op ---> time position of the origin of the non-inertial frame relative to the inertial one
+  //             expressed in non-inertial frame coordinates
+  //    xop ---> non-inertial frame origin relative to the domain
+  FMatrix pos_v(ndim),x_o_op(ndim),xop(ndim);
+  FMatrix acel_rot(ndim),waux1(ndim),waux2(ndim);
 
   if (ndof != ndim+3) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+3\n"); CHKERRA(1);
@@ -220,6 +235,92 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   G_body.set(0.);
   ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
 
+  // Acceleration parameters for traslational and rotational motion between frames
+  // Linear acceleration
+  acel_lin_frame_ampl.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"Lin_acel_ampl",acel_lin_frame_ampl.storage_begin(),1,ndim);
+  acel_lin_frame_freq.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"Lin_acel_freq",acel_lin_frame_freq.storage_begin(),1,ndim);
+  // Rotation
+  acel_rot_frame_ampl.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"Rot_acel_ampl",acel_rot_frame_ampl.storage_begin(),1,ndim);
+  acel_rot_frame_freq.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"Rot_acel_freq",acel_rot_frame_freq.storage_begin(),1,ndim);
+  // Non-inertial frame origin 
+  xop.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"Non_inertial_origin",xop.storage_begin(),1,ndim);
+
+  double Ampl,Freq,vaux,time_alpha,time_np;
+
+  // fixme
+  // por ahora fijamos un tiempo a pata
+  const Time *time = (const Time *)(time_);
+  time_np = time->time();
+
+  acel_lin.set(0.);
+  acel_rot.set(0.);
+  Omega_M.set(0.);
+  Alfa_M.set(0.);
+    
+  if (!glob_param->steady) {
+     time_alpha = time_np - (1.-alpha)/rec_Dt;
+  } else {
+     time_alpha = time_np;
+  }
+
+  // Add linear acceleration to G_body   
+  for (int jj=1; jj<=ndim; jj++) {
+    //    Ampl = acel_lin_frame_ampl.ir(1,jj);
+    //    Freq = acel_lin_frame_freq.ir(1,jj);
+    Ampl = acel_lin_frame_ampl.get(jj);
+    Freq = acel_lin_frame_freq.get(jj);
+    vaux = -Ampl*square(Freq)*sin(Freq*time_alpha);
+    acel_lin.setel(vaux,jj);
+    vaux = Ampl*sin(Freq*time_alpha);
+    x_o_op.setel(vaux,jj);
+    acel_lin_frame_ampl.rs();
+    acel_lin_frame_freq.rs();
+    }
+     
+  acel_lin.scale(-rho);
+  G_body.add(acel_lin);
+
+  for (int jj=1; jj<=ndim; jj++) {
+    //    Ampl = acel_rot_frame_ampl.rs().ir(1,jj);
+    //    Freq = acel_rot_frame_freq.rs().ir(1,jj);
+    Ampl = acel_rot_frame_ampl.get(jj);
+    Freq = acel_rot_frame_freq.get(jj);
+    vaux = Ampl*cos(Freq*time_alpha);
+    omega_v.setel(vaux,jj);
+    vaux = -Ampl*Freq*sin(Freq*time_alpha);
+    alfa_v.setel(vaux,jj);
+    }
+
+  acel_rot_frame_ampl.rs();
+  acel_rot_frame_freq.rs();
+
+  // Definition of rotation velocity matrix corresponding to the polar vector Omega
+    Omega_M.setel(omega_v.get(3),2,1);    	
+    if (ndim==3) {
+      Omega_M.setel(omega_v.get(1),3,2);    	
+      Omega_M.setel(-omega_v.get(2),3,1);    		
+    } 
+    tmp_rot.set(Omega_M.t()).scale(-1.);
+    Omega_M.rs().add(tmp_rot);
+
+  omega_v.rs();
+
+  // Definition of rotation acceleration matrix corresponding to the polar vector Alfa
+    Alfa_M.setel(alfa_v.get(3),2,1);    	
+    if (ndim==3) {
+      Alfa_M.setel(alfa_v.get(1),3,2);    	
+      Alfa_M.setel(-alfa_v.get(2),3,1);    		
+    } 
+    tmp_rot.set(Alfa_M.t()).scale(-1.);
+    Alfa_M.rs().add(tmp_rot);
+
+  alfa_v.rs();
+
   double pi = 4*atan(1.0);
 
   DEFPROP(viscosity);
@@ -274,7 +375,8 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double nu_eff;
   double tsf = temporal_stability_factor;
   double mix_length_inv,delta_supg_k,delta_supg_e;
-  double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,vaux,GG,dflidli;
+  //  double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,vaux,GG,dflidli;
+  double fk,fe,fv,eps_before_ctff,dfkdk,dfvdv,dfede,dfedk,GG,dflidli;
   double lambda_1,lambda_2,lambda_max;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);;
@@ -444,6 +546,13 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  *hmin = h_pspg;
 	}
 
+	// Gauss point coordinates
+	xpg.prod(SHAPE,xloc,-1,-1,1);
+
+        // position vector to compute rotation terms
+	//	pos_v.set(xpg).rest(xop).add(x_o_op);
+	pos_v.set(xpg).rest(xop);
+
 	// state variables and gradient
 	u.prod(SHAPE,ucols,-1,-1,1);
 	kap = double(tmp8.prod(SHAPE,kapcol,-1,-1));
@@ -459,6 +568,19 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_p_star.prod(dshapex,pcol_star,1,-1,-1);
 	grad_kap_star.prod(dshapex,kapcol_star,1,-1,-1);
 	grad_eps_star.prod(dshapex,epscol_star,1,-1,-1);
+
+        // rotational terms
+        // Coriolis
+        acel_rot.prod(Omega_M,u_star,1,-1,-1).scale(2.);
+        // Centripetal
+        waux1.prod(Omega_M,pos_v,1,-1,-1);
+        waux2.prod(Omega_M,waux1,1,-1,-1);
+        acel_rot.add(waux2);
+        // Frame rotational acceleration
+        waux1.prod(Alfa_M,pos_v,1,-1,-1);
+        acel_rot.add(waux1);
+        // Scaled by the density 
+        acel_rot.scale(rho);
 
 	u2 = u.sum_square_all();
 	velmod = sqrt(u2);
@@ -587,7 +709,11 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  du.set(u_star).rest(u);
 	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
-	
+
+	  // adding rotational forces, only for the residual contribution 
+          dmatu.add(acel_rot);
+
+         	
 	  div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
 
 	  // Galerkin - momentum
