@@ -1,4 +1,4 @@
-## $Id: mkgfshock3d.m,v 1.5 2005/03/02 21:32:21 mstorti Exp $
+## $Id: mkgfshock3d.m,v 1.6 2005/03/09 19:46:23 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -90,6 +90,9 @@ wall = Nx1*Nr+(1:Nx1)';
 pfconstr("gfshock3d.wall-slip.tmp", \
 	 [wall,wall],[4 2], \
 	 [-dydx,ones(Nx1,1)]);
+
+## Null circumerential velocity at `y=0'
+pffixa("gfshock3d.fixa-v.tmp",(1:nnod)',3);
 
 Uini = [rhoout0,0,0,0,pout0];
 Uini = Uini(ones(nnod3d,1),:);

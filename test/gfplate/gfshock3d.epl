@@ -52,7 +52,7 @@ print_internal_loop_conv
 # solve_system 0
 shocap 0.1
 shocap_aniso 0.1
-lumped_mass
+# lumped_mass
 weak_form 0
 temporal_stability_factor 0
 
@@ -61,7 +61,7 @@ Rgas <:=$Rgas:>
 visco 1e-8
 cond 1e-8
 steady 0
-gamma <:=$ga:>
+ga <:=$ga:>
 axisymmetric y
 p_thrsh 1.0e-7
 
@@ -120,6 +120,7 @@ fixa
 __INCLUDE__ ./gfshock3d.axis-slip.tmp
 # __INCLUDE__ ./gfshock3d.fixa-in.tmp
 __INCLUDE__ ./gfshock3d.fixa-p-outlet.tmp
+__INCLUDE__ ./gfshock3d.fixa-v.tmp
 __END_FIXA__
 
 constraint

@@ -3,8 +3,8 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 1.797525440;
-$Nx = 400;
-$Nr = 30;
+$Nx = 200;
+$Nr = 1;
 $dtheta = 1*$PI/180;
 
 $ga = 1.17;
@@ -34,9 +34,9 @@ $pout0 = $pout/$pref;
 $rhoout0 = $rhoout/$rhoref;
 
 $Co = 0.5;
-$h = 1/$Nx;
+$h = $Lx/$Nx;
 $Dt = $Co*$h/($uin0+1);
-$tramp = 10*$Dt;
+$tramp = 20*$Dt;
 
 @vars = qw(Nr Dt ga Lx Nx Rgas pin0 rhoin0 uin0
 	   pout0 rhoout0 tramp dtheta);

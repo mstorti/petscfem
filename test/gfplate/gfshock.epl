@@ -63,7 +63,7 @@ Rgas <:=$Rgas:>
 visco 1e-8
 cond 1e-8
 steady 0
-gamma <:=$ga:>
+ga <:=$ga:>
 
 # lagrange_diagonal_factor 1e-5
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.61 2005/03/02 21:32:21 mstorti Exp $ 
+# $Id: Makefile,v 1.62 2005/03/09 19:46:23 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -19,9 +19,8 @@ ifeq ($(PROG),)
 PROG := $(ADVDIF)
 endif
 
-NP := $(procsel -n ./proctable)
-NP := 5
-NL := -nolocal
+NP := 1
+NL := 
 
 viewer.dx.tmp: viewer.dx
 	make-depl $< $@
