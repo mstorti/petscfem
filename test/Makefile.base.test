@@ -5,6 +5,14 @@ NS    = $(PETSCFEM_DIR)/applications/ns/ns$(osfx).bin
 ADV    = $(PETSCFEM_DIR)/applications/advective/adv$(osfx).bin
 ADVDIF = $(PETSCFEM_DIR)/applications/advdif/advdif$(osfx).bin
 
+## Debugging versions
+NS_G    = $(PETSCFEM_DIR)/applications/ns/ns_g.bin
+ADVDIF_G = $(PETSCFEM_DIR)/applications/advdif/advdif_g.bin
+
+## Optmized versions
+NS_O    = $(PETSCFEM_DIR)/applications/ns/ns_O.bin
+ADVDIF_O = $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin
+
 SRCS = $(wildcard *.cpp)
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
