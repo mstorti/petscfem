@@ -3086,3 +3086,5 @@ tag: beta-3.25.pl3 on Sun, 16 Nov 2003 16:57:16 -0300 by mstorti in spider
 tag: beta-3.25.pl4 on Sun, 16 Nov 2003 18:43:34 -0300 by mstorti in spider
      > Added doc for `block_uploading'. 
      > Runs all tests, except two in `test/newff'
+----------
+tag: beta-3.25.pl5 on Wed, 03 Dec 2003 13:32:33 -0300 by mstorti in minerva.ceride.gov.ar
