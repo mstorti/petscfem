@@ -1000,3 +1000,7 @@ tag: beta-2.81 on Mon Feb 11 10:25:21 ART 2002, by mstorti in minerva.arcride.ed
      > Implemented aquifer+stream
      > Merged changes from branch when adding aquifer tests. 
      > Added `stable.log'
+----------
+tag: beta-2.82 on Mon Feb 11 11:39:46 ART 2002, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Tests have been run.
