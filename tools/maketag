@@ -1,4 +1,6 @@
 #!/bin/bash
+#__INSERT_LICENSE__
+#$Id: maketag,v 1.8 2002/02/10 21:15:20 mstorti Exp $
 
 tmp=tmp_file_log.txt
 savelog=save.log

@@ -1,4 +1,5 @@
 #__INSERT_LICENSE__
+#$Id: myexpect.pl,v 1.9 2002/02/10 21:15:37 mstorti Exp $
 
 # usage: expect($file,$pattern);
 #Advances $file until finds a little of "\n" delimited $pattern's. 
