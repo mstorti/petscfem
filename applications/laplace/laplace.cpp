@@ -1,4 +1,4 @@
-/* $Id: laplace.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: laplace.cpp,v 1.2 2001/01/10 22:40:27 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -30,6 +30,8 @@
 #include "genload.h"
 #include "lapla.h"
 #include <time.h>
+
+int MY_RANK,SIZE;
 
 static char help[] = "Basic finite element program.\n\n";
 

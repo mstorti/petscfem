@@ -1,4 +1,4 @@
-/* $Id: genload.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: genload.cpp,v 1.2 2001/01/10 22:40:27 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -83,8 +83,10 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
   ColumnVector S(ndim);
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+
+  GPdata gp_data(geometry.c_str(),ndimel,nel2,npg);
   
   RowVector flux(ndof),load(ndof);
   DiagonalMatrix hfilm(ndof);
@@ -112,8 +114,6 @@ int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
     nel2=nel;
   }
   
-  GPdata gp_data(geom,ndimel,nel2,npg);
-
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;

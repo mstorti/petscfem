@@ -1,4 +1,4 @@
-/* $Id: nsitetles.cpp,v 1.2 2001/01/04 20:06:18 mstorti Exp $ */
+/* $Id: nsitetles.cpp,v 1.3 2001/01/10 22:40:32 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -156,14 +156,13 @@ int nsi_tet_les::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double rho=1.;
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   
 #ifndef USE_FASTMAT
-  GPdata gp_data(geom,ndim,nel,npg);
+  GPdata gp_data(geometry.c_str(),ndim,nel,npg);
 #else
-  //GPdata gp_data(geom,ndim,nel,npg);
-  GPdata gp_data(geom,ndim,nel,npg,GP_FASTMAT);
+  GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT);
 #endif
 
   // Definiciones para descargar el lazo interno

@@ -2415,6 +2415,14 @@ y para patchear te pones en el directorio a patchear y
 %
    $ patch -E -p1 < ../petscfem.patch
 
+%===Wed Jan 10 12:48:37 ARST 2001 mstorti@minerva
+%
+Ahora voy a correr burgers. 
+
+%===Wed Jan 10 13:55:21 ARST 2001 mstorti@minerva
+%
+Anda burgers. Ahora voy a ver si puedo transformar a NS. 
+
 %# Current line ===========  
 # Local Variables: $
 # eval: (local-set-key "\C-cD" (quote notas-insert-date)) $

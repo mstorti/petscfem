@@ -1,4 +1,4 @@
-/* $Id: lapla.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: lapla.cpp,v 1.2 2001/01/10 22:40:27 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -36,7 +36,7 @@
 #undef __FUNC__
 #define __FUNC__ "lapla::assemble"
 int lapla::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
-		    char *jobinfo,int myrank,
+		    const char *jobinfo,int myrank,
 		    int el_start,int el_last,int iter_mode,
 		    const TimeData *time_data) {
 
@@ -119,9 +119,9 @@ int lapla::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
   for (int j=1; j<=ndof; j++) seed(j,j)=1;
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
-  GPdata gp_data(geom,ndim,nel,npg);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  GPdata gp_data(geometry.c_str(),ndim,nel,npg);
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -204,6 +204,7 @@ int lapla::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
       locstate >> &(LOCST(ielh,0,0));
     } 
   }
+  return 0;
 }
 #undef SHAPE    
 #undef DSHAPEXI 

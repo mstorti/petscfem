@@ -200,7 +200,7 @@ int main() {
 
 	// Importing from and exporting to Newmat
 	Y.set(NA);
-	Y.export(NB);
+	Y.export_vals(NB);
       
       // Taking the diagonal
 	Z1.diag(A,-1,-1);

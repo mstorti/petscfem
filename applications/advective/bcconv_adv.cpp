@@ -60,18 +60,18 @@ ColumnVector pvec(ColumnVector v1, ColumnVector v2) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int advective::ask(char *,int &)"
-int BcconvAdv::ask(char *jobinfo,int &skip_elemset) {
+int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
-
+   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "bcconv_adv::assemble"
 int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			Dofmap *dofmap,char *jobinfo,int myrank,
+			Dofmap *dofmap,const char *jobinfo,int myrank,
 			int el_start,int el_last,int iter_mode,
 			const TimeData *time_data) {
 
@@ -138,10 +138,9 @@ int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   nen = nel*ndof;
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
-  
-  GPdata gp_data(geom,ndimel,nel,npg);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg);
 
   // Definiciones para descargar el lazo interno
   double detJaco, wpgdet, delta_sc;
@@ -233,7 +232,7 @@ int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   for (int jd=1; jd<=ndim; jd++) delete A_jac[jd-1];  
-
+  return 0;
 }
 
 #undef SHAPE    

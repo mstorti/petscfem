@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2001/01/10 15:37:41 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2001/01/10 22:40:50 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -12,8 +12,8 @@ SRCS =
 # with this it doesn't work
 ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
-case := sine
-#case := burgers
+#case := sine
+case := burgers
 
 #octave_files = sine.con.tmp sine.nod.tmp sine.fixa.tmp sine.bcconv.tmp
 #octave_script = $(case).m

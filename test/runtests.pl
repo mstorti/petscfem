@@ -468,8 +468,7 @@ EOT
 expect("oscplate3o.sal","Time dep. b.c./Crank-Nicholson ",<<'EOT');
 norm\(u16-u128\): 0.011
 norm\(u32-u128\): 0.002
-norm\(u32-u128\)/norm\(u16-u128\): 0.23
-norm\(u32-u128\)/norm\(u16-u128\) < 0.30 OK \? > 1 
+norm\(u32-u128\)/norm\(u16-u128\) < 0.26 OK \? > 1 
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -497,8 +496,11 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("plano_local.sal","Adv/Sh.Water FastMat2/local_time_step",<<'EOT');
 consistent_supg_matrix -> 0
+__REWIND__
 Courant -> 0.6
+__REWIND__
 local_time_step -> 1
+__REWIND__
 type *"volume_shallowfm2"
 time_step 1, time: 0.6, res = 2.5634.*e-02
 time_step 2, time: 1.2, res = 2.5538.*e-02

@@ -8,5 +8,5 @@ printf("norm(u16-u128): %f\n",norm(u16-u128));
 printf("norm(u32-u128): %f\n",norm(u32-u128));
 printf("norm(u32-u128)/norm(u16-u128): %f\n",norm(u32-u128)/norm(u16-u128));
 
-printf("norm(u32-u128)/norm(u16-u128) < 0.30 OK ? > %d \n",
-       norm(u32-u128)/norm(u16-u128) < 0.30);
+printf("norm(u32-u128)/norm(u16-u128) < 0.26 OK ? > %d \n",
+       norm(u32-u128)/norm(u16-u128) < 0.26);

@@ -1,12 +1,13 @@
-# $Id: Makefile,v 1.3 2001/01/04 20:08:26 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/01/10 22:40:46 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle
 
-include Makefile.base.test
 run: sqcav5
+
+include Makefile.base.test
 
 all: tests
 

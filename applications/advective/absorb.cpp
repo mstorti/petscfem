@@ -39,11 +39,11 @@ using namespace std;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int absorb::ask(char *,int &)"
-int Absorb::ask(char *jobinfo,int &skip_elemset) {
+int Absorb::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(absorb_bc_proj);
-
+   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -54,7 +54,7 @@ int Absorb::ask(char *jobinfo,int &skip_elemset) {
 #undef __FUNC__
 #define __FUNC__ "Absorb::assemble"
 int Absorb::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-		     Dofmap *dofmap,char *jobinfo,int myrank,
+		     Dofmap *dofmap,const char *jobinfo,int myrank,
 		     int el_start,int el_last,int iter_mode,
 		     const TimeData *time_data) {
 
@@ -182,7 +182,7 @@ int Absorb::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   for (int jd=1; jd<ndim; jd++) 
     A_jac[jd-1]->~Matrix();
-  
+  return 0;
 }
 
 #undef NODEDATA

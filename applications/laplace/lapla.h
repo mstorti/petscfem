@@ -27,10 +27,7 @@
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class lapla : public Elemset {
 public:
-  int assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
-	       char *jobinfo,int myrank,
-	       int el_start,int el_last,int iter_mode,
-	       const TimeData *time_data);
+  ASSEMBLE_FUNCTION;
 };
 #endif
 

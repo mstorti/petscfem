@@ -171,10 +171,10 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.);    //nd
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
   
-  GPdata gp_data(geom,ndimel,nel,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,wpgdet;

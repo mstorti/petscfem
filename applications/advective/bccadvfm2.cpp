@@ -35,18 +35,18 @@ extern int comp_mat_each_time_step_g,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int BcconvAdvFM2::ask(char *,int &)"
-int BcconvAdvFM2::ask(char *jobinfo,int &skip_elemset) {
+int BcconvAdvFM2::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
-
+   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "BcconvAdvFM2::assemble"
 int BcconvAdvFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			   Dofmap *dofmap,char *jobinfo,int myrank,
+			   Dofmap *dofmap,const char *jobinfo,int myrank,
 			   int el_start,int el_last,int iter_mode,
 			   const TimeData *time_data) {
 
@@ -113,11 +113,9 @@ int BcconvAdvFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   nen = nel*ndof;
 
   // Gauss Point data
-  char *geom;
-  thash->get_entry("geometry",geom);
-  assert(geom!=NULL);
-  
-  GPdata gp_data(geom,ndimel,nel,npg,GP_FASTMAT2);
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco, wpgdet, delta_sc;
@@ -201,14 +199,14 @@ int BcconvAdvFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     if (!weak_form) veccontr.set(0.);
 
-    veccontr.export(&(RETVAL(ielh,0,0)));
+    veccontr.export_vals(&(RETVAL(ielh,0,0)));
     if (comp_mat_each_time_step_g) 
-      matloc.export(&(RETVALMATT(ielh,0,0,0,0)));
+      matloc.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
       
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-
+  return 0;
 }
 
 #undef SHAPE    

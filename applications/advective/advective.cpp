@@ -49,12 +49,13 @@ void print(Matrix & A) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int advective::ask(char *,int &)"
-int Advective::ask(char *jobinfo,int &skip_elemset) {
+int Advective::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_diag_mat_mass);
    DONT_SKIP_JOBINFO(comp_mat_mass);
+   return 0;
 
 }
 
@@ -62,7 +63,7 @@ int Advective::ask(char *jobinfo,int &skip_elemset) {
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
 int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			Dofmap *dofmap,char *jobinfo,int myrank,
+			Dofmap *dofmap,const char *jobinfo,int myrank,
 			int el_start,int el_last,int iter_mode,
 			const TimeData *time_data) {
 
@@ -384,7 +385,7 @@ int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   for (int jd=1; jd<=ndim; jd++) delete A_jac[jd-1];
-  
+  return 0;
 }
 
 #undef SHAPE    

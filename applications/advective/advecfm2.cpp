@@ -38,20 +38,20 @@ extern int comp_mat_each_time_step_g,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int advective::ask(char *,int &)"
-int AdvectiveFM2::ask(char *jobinfo,int &skip_elemset) {
+int AdvectiveFM2::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_diag_mat_mass);
    DONT_SKIP_JOBINFO(comp_mat_mass);
-
+   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
 int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			Dofmap *dofmap,char *jobinfo,int myrank,
+			Dofmap *dofmap,const char *jobinfo,int myrank,
 			int el_start,int el_last,int iter_mode,
 			const TimeData *time_data) {
 
@@ -370,7 +370,7 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_mat_mass) {
 
       matloc.kron(mass,Id_ndof);
-      matloc.export(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
     } else if (comp_diag_mat_mass) {
 
@@ -413,9 +413,9 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matloc.kron(mass,Id_ndof);
       }
 
-      veccontr.export(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
       if (comp_mat_each_time_step_g) 
-	matloc.export(&(RETVALMATT(ielh,0,0,0,0)));
+	matloc.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
 #if 0
       FMSHV(veccontr);
       FMSHV(matloc);
@@ -428,6 +428,7 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 #endif
+  return 0;
 }
 
 #undef SHAPE    
