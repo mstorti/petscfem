@@ -3,7 +3,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* gnerate tests for gatherer
+* A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
+  SIGSEGV. Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
+* generate tests for gatherer
 * generate a test for Levi-Civita (eps_LC())
 * Make dof map to a `fixation_entry_list', that contains many entries
     of the form (double,Amplitude) so that we can have an Amplitude
