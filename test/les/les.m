@@ -77,7 +77,7 @@ z=x3(:,3);
 f=z.*(Lz-z)/Lz2^2;		# From 0 on the wall to one on the
 				# symmetry plane (z=Lz/2)
 
-u=[.3+(1-.3)*f+dunoise*(2*rand(nnod,1)-1) 0*z 0*z];
+u=[.3+(1-.3)*f+dunoise*(2*rand(nnod,1)-1) 0*z 0*z 0*z];
 u(:,3) = u(:,3).*f;
 
 ## Fixations for the wall (if don't want to use LES)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.33 2001/08/16 18:24:46 mstorti Exp $
+//$Id: lusubd.cpp,v 1.34 2001/08/17 18:42:02 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -956,6 +956,7 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
   ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
   ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
+  ierr = PCLUSetUseInPlace(pc); CHKERRQ(ierr);
 
   set_preco(preco_type);
 

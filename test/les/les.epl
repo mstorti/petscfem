@@ -56,7 +56,7 @@ verify_jacobian_with_numerical_one 0
 #print_linear_system_and_stop
 #measure_performance
 #measure_performance_loop_length 3
-#preco_type "LU"
+preco_type "lu"
 tol_newton 1e-5
 
 #tau_fac 1.
