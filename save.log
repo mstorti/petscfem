@@ -3153,3 +3153,6 @@ tag: beta-3.26 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
 ----------
 tag: beta-3.27.pl1 on Sun, 07 Dec 2003 21:21:15 -0300 by mstorti in spider
      > Administrative tag.
+----------
+tag: beta-3.27.pl2 on Mon, 08 Dec 2003 08:40:19 -0300 by mstorti in spider
+     > Fixed `bcconv' normal orientation policy. 
