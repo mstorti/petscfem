@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* make `da' in profiles to be dimensioned of size `neqp' (number of
+   dofs in local processor, not of size `neq' (number of total dofs)
 * write better error messages in FM2
 * new scheduling algorithm for load balancing in `elemset.cpp'
 * adapt generic non-linear restriction element to general case

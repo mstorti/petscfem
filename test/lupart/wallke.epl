@@ -5,14 +5,14 @@
 require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
 #
 $L = 1;                         # Semi distance between plates
-$N = 16;                        # Number of elements in transversal 'x' direction
-$hratio = 20;                   # refinement near the wall
-$hratioy = 20;                  # refinement to the exit
-$Ny = 10;                      # Number of elements in y dir
-$Ny_eq = 3;                    # last elements that are equal in size
+$N = 8;                         # Number of elements in transversal 'x' direction
+$hratio = 1;                    # refinement near the wall
+$hratioy = 1;                   # refinement to the exit
+$Ny = 4;                        # Number of elements in y dir
+$Ny_eq = 1;                     # last elements that are equal in size
                                 # in the y direction
-$Ly = 30;                       # longitudinal length 
-$Re = 100;                     # laminar Re
+$Ly = 2;                        # longitudinal length 
+$Re = 1;                        # laminar Re
 $Uav = 1;                       # 
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
 octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
@@ -29,6 +29,7 @@ nsave 5
 
 rtol 0
 atol 0
+maxits 1
 
 save_file_pattern "outvector%d.out"
 nsaverot 1
@@ -42,13 +43,14 @@ alpha 1.
 nstep 3
 nnwt 3
 tol_newton 0
-preco_type "jacobi"
-#preco_type "lu"
+#use_iisd
+#preco_type "jacobi"
+preco_type "lu"
 Dt 1
 steady
 newton_relaxation_factor 1
 
-print_internal_loop_conv
+#print_internal_loop_conv
 #verify_jacobian_with_numerical_one
 #print_linear_system_and_stop
 #solve_system 0

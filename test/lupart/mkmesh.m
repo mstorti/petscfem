@@ -63,7 +63,7 @@ fclose(fidp2out);
 fclose(fidfop);
 
 uini=[0. Uav 0.];
-uini=uini(ones(N*(Ny+1),1),:);
+uini=uini(ones((N+1)*(Ny+1),1),:);
 
 boux0=[(1:Ny+1)' ones(Ny+1,1) zeros(Ny+1,1)];
 boux1=[((Ny+1)*N+(1:Ny+1))' ones(Ny+1,1) zeros(Ny+1,1)];

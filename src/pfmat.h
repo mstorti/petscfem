@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.2 2001/07/16 14:14:16 mstorti Exp $
+// $Id: pfmat.h,v 1.3 2001/07/18 22:45:02 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -89,6 +89,7 @@ public:
   virtual void solve(Vec res,Vec dx);
   /// returns the number of iterations spent in the last solve
   virtual int its() {return its_;};
+  virtual int view(Viewer viewer)=0;
 };
 
 /** Wrapper monitor. You customize the monitor by deriving the
@@ -138,19 +139,39 @@ public:
       of building the operator.
   */ 
   void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
+  int view(Viewer viewer);
 };
 
-#if 0
-class LUsubdMat : public PFMat {
+class IISDMat : public PFMat {
+  static const int D,O,L,I;
   const Dofmap *dofmap;
-  int n_int,n_loc;
-  vector<int> map;
-  Mat A_LL,A_LI,A_IL,A_II;
+  int n_int,n_loc,k1,k2,n_int_tot,n_loc_tot,
+    n_locp,neqp;
+  vector<int> map,n_loc_v,n_int_v;
+  Mat A_LL,A_LI,A_IL,A_II,*AA[2][2];
+  Vec x_loc,x_loc_seq,y_loc_seq;
+  SLES sles_ll;
+  PC pc_ll;
+  KSP ksp_ll;
+  void map_dof(int gdof,int &block,int &ldof);
 public:
   void create(Darray *da,const Dofmap *dofmap_,
 	      int debug_compute_prof=0);
+  virtual void mult(Vec x,Vec y);
+  /** Sets individual values on the operator #A(row,col) = value#
+      @param row (input) first index
+      @param col (input) second index
+      @param value (input) the value to be set
+      @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
+  */ 
+  void set_value(int row,int col,Scalar value,
+		 InsertMode mode=ADD_VALUES);
   void clear();
+  int zero_entries();
+  int assembly_begin(MatAssemblyType type);
+  int assembly_end(MatAssemblyType type);
+  int view(Viewer viewer);
+  void solve(Vec res,Vec dx);
 };
-#endif
 
 #endif

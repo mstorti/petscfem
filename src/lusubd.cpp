@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.8 2001/07/18 13:59:32 mstorti Exp $
+//$Id: lusubd.cpp,v 1.9 2001/07/18 22:45:02 mstorti Exp $
 
 #include <typeinfo>
 #ifdef RH60
@@ -20,6 +20,10 @@ const int IISDMat::D=0;
 const int IISDMat::O=1;
 const int IISDMat::L=0;
 const int IISDMat::I=1;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int petscfem_null_monitor(KSP ksp,int n,
+			  double rnorm,void *A_) {return 0;}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -300,7 +304,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 
   ierr = PCSetType(pc_ll,PCLU);
   PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
-  ierr = KSPSetMonitor(ksp_ll,PETSC_NULL,PETSC_NULL);
+  ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
 
   // Shortcuts
   AA[L][L] = &A_LL;
@@ -309,6 +313,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   AA[I][I] = &A_II;
 
 }
+
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -401,21 +407,21 @@ int IISDMat::zero_entries() {
 #define __FUNC__ "int IISDMat::view()"
 int IISDMat::view(Viewer viewer) {
   int ierr;
-  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [LOC][LOC] block\n");
+  // int ViewerSetFormat(viewer,VIEWER_FORMAT_ASCII_MATLAB,)
+  ViewerASCIIPrintf(viewer,"% IISD matrix - printing [LOC][LOC] block\n");
   ierr = MatView(A_LL,viewer); CHKERRQ(ierr);
 
-  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [LOC][INT] block\n");
+  ViewerASCIIPrintf(viewer,"% IISD matrix - printing [LOC][INT] block\n");
   ierr = MatView(A_LI,viewer); CHKERRQ(ierr);
 
-  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [INT][LOC] block\n");
+  ViewerASCIIPrintf(viewer,"% IISD matrix - printing [INT][LOC] block\n");
   ierr = MatView(A_IL,viewer); CHKERRQ(ierr);
 
-  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [INT][INT] block\n");
+  ViewerASCIIPrintf(viewer,"% IISD matrix - printing [INT][INT] block\n");
   ierr = MatView(A_II,viewer); CHKERRQ(ierr);
 
-  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [INT][INT] block\n");
-
-  ierr =  SLESView(sles,VIEWER_STDOUT_SELF);
+  ViewerASCIIPrintf(viewer,"% IISD SLES\n");
+  ierr =  SLESView(sles,viewer);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -465,10 +471,10 @@ void IISDMat::set_value(int row,int col,Scalar value,
 #undef __FUNC__
 #define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
 void IISDMat::solve(Vec res,Vec dx) {
-  int ierr,kloc;
-  double *res_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a;
+  int ierr,kloc,itss;
+  double *res_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a,scal;
   if (n_int_tot > 0 ) {
-    ierr = SLESSolve(sles,res,dx,&its_); 
+    ierr = SLESSolve(sles,res,dx,&itss); 
     PETSCFEM_ASSERT0(ierr==0,"Error solving linear system"); 
   } else {
     ierr = VecGetArray(res,&res_a);
@@ -478,21 +484,27 @@ void IISDMat::solve(Vec res,Vec dx) {
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `y_loc_seq'.\n"); 
 #endif
 
+    scal=0.;
+    ierr = VecSet(&scal,y_loc_seq); 
+    PETSCFEM_ASSERT0(ierr==0,"");
     for (int j = 0; j < neqp; j++) {
       kloc = map[k1+j] - n_locp;
-      y_loc_seq_a[kloc] = res_a[k1+j];
+      // y_loc_seq_a[kloc] = res_a[k1+j];
+      ierr = VecSetValues(y_loc_seq,1,&kloc,&res_a[k1+j],INSERT_VALUES);
+      PETSCFEM_ASSERT0(ierr==0,"");
     }
     
     ierr = VecRestoreArray(res,&res_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `res'.\n"); 
+#if 0
     ierr = VecRestoreArray(y_loc_seq,&y_loc_seq_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `y_loc_seq'.\n"); 
-    
+#endif
     if (n_loc > 0) {
-      ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_); 
+      ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&itss); 
       PETSCFEM_ASSERT0(ierr==0,"Error solving local system"); 
     }
-#if 1
+#if 0
     ierr = VecView(y_loc_seq,VIEWER_STDOUT_SELF);
     ierr = VecView(x_loc_seq,VIEWER_STDOUT_SELF);
     ierr = MatView(A_LL,VIEWER_STDOUT_SELF);
@@ -679,7 +691,8 @@ void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
     warn_iisdmat=1;
     PetscPrintf(PETSC_COMM_WORLD,
 		"PETScFEM warning: IISD operator does not support any\n"
-		"preconditioning. Switching to \"none\"\n");
+		"preconditioning. Entered %s, switching to \"none\"\n",
+		preco_type.c_str());
     preco_type = "none";
   }
 

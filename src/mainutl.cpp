@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
+//$Id: mainutl.cpp,v 1.8 2001/07/18 22:45:02 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -212,14 +212,15 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 #define X_EXT(i,j) VEC2(x_ext,i,j,ndof)
 int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
-  PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   int ndof = dofmap->ndof;
-  int ierr;
+  int ierr,code,warn_flag=0;
+  double *xdof, *x_ext;
 
+  PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   if (myrank==0) {
     FILE *fid;
-    double *xdof = new double[dofmap->neqtot];
-    double *x_ext = new double[dofmap->nnod * ndof];
+    xdof = new double[dofmap->neqtot];
+    x_ext = new double[dofmap->nnod * ndof];
     fid = fopen(filename,"r");
     if (fid==NULL) {
       PetscPrintf(PETSC_COMM_WORLD,
@@ -230,9 +231,17 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     double dval;
     for (int k=1; k<=dofmap->nnod; k++) {
       for (int kldof=1; kldof<=ndof; kldof++) {
-	fscanf(fid,"%lf",&(X_EXT(k-1,kldof-1)));
+	code = fscanf(fid,"%lf",&(X_EXT(k-1,kldof-1)));
+	if (code==EOF) {
+	  warn_flag=1;
+	  X_EXT(k-1,kldof-1) = 0.;
+	}
       }
     }
+    if (warn_flag) 
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "PETScFEM warning: not enough values"
+		  " read while reading vector. Filling with 0's.\n");
     dofmap->id->solve(xdof,x_ext);
     for (int k=0; k<dofmap->neq; k++) {
       VecSetValue(x,k,xdof[k],INSERT_VALUES);

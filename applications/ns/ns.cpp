@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.29 2001/07/16 20:27:45 mstorti Exp $
+//$Id: ns.cpp,v 1.30 2001/07/18 22:44:46 mstorti Exp $
  
 #include <malloc.h>
 
@@ -53,8 +53,10 @@ int main(int argc,char **args) {
 
   Vec     x, dx, xold,
     dx_step, res;		// approx solution, RHS, residual
+  Viewer matlab;
   PETScMat PETSc_A_tet;		// linear system matrix 
-  PFMat *A_tet = &PETSc_A_tet;	// linear system matrix 
+  IISDMat IISD_A_tet;		// linear system matrix 
+  PFMat *A_tet;			// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, col[3], flg, size, node,
     jdof, k, kk, nfixa,
@@ -161,6 +163,9 @@ int main(int argc,char **args) {
   //o Use the LES/Smagorinsky turbulence model. 
   GETOPTDEF(int,LES,0);
 
+  //o Use IISD (Interface Iterative Subdomain Direct) or not.
+  GETOPTDEF(int,use_iisd,0);
+
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_pattern,outvector%d.out);
@@ -188,6 +193,14 @@ int main(int argc,char **args) {
   State sx(x,time);		// convert to State
 
   LPFilterGroup filter(GLOBAL_OPTIONS,sx,Dt);
+  
+  // Use IISD (Interface Iterative Subdomain Direct) or not.
+  // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
+  if (use_iisd) {
+    A_tet = &IISD_A_tet;
+  } else {
+    A_tet= &PETSc_A_tet;
+  }
 
 #if 0
   const int NT=200;
@@ -281,6 +294,11 @@ int main(int argc,char **args) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
+#if 0 // debug:=
+  print_vector("savee",x,dofmap,&time);
+  PetscFinalize();
+  exit(0);
+#endif
 
   // Filter *filter(x,*mesh);
 
@@ -354,6 +372,18 @@ int main(int argc,char **args) {
       }
 
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
+#if 0 //debug:=
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"x"); CHKERRA(ierr);
+      ierr = VecView(x,matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = VecView(res,matlab);
+      PetscFinalize();
+      exit(0);
+#endif
 
 #if 0 // fixme:= adaptando to PFMAT
       Viewer matlab;
@@ -401,14 +431,15 @@ int main(int argc,char **args) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
 	A_tet->solve(res,dx); 
 
-#if 0
       if (print_linear_system_and_stop) {
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "Printing residual and matrix for"
+		    " debugging and stopping..\n");
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
-	ierr =  SLESView(sles_tet,VIEWER_STDOUT_SELF);
-	ierr = MatView(A_tet,matlab);
+	ierr = A_tet->view(matlab);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	ierr = VecView(res,matlab);
@@ -424,7 +455,6 @@ int main(int argc,char **args) {
 	exit(0);
 
       }	
-#endif
 
       double normres;
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
