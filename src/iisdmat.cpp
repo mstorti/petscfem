@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.59 2003/08/31 02:19:20 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.60 2003/08/31 20:00:19 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -710,7 +710,7 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void grow_mono(dvector<T> &v,int new_size) {
+inline void grow_mono(dvector<T> &v,int new_size) {
   if (new_size>v.size()) {
     v.resize(new_size);
     v.defrag();
@@ -725,7 +725,8 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   int row_indx,col_indx,row_t,col_t;
   int nr[2], nc[2];
 
-  assert(nlay==0);
+  // Should call a `isp_set_values()' here
+  assert(nlay==0 || nlay==1);
   insert_mode = mode;  
 
   // Mapping of rows
@@ -745,9 +746,6 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   // Mapping of columns
   nc[L]=0;
   nc[I]=0;
-//   dvector<int> ctype, coff;
-//   ctype.mono(ncols);
-//   coff.mono(ncols);
   for (int jc=0; jc<ncols; jc++) {
     map_dof_fun(idxc[jc],col_t,col_indx);
     int jcl = nc[col_t]++;
@@ -757,8 +755,6 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     dvector<int> *jndx = jndxc[col_t];
     grow_mono(*jndx,nc[col_t]);
     jndx->e(jcl) = jc;
-//     ctype.ref(jc) = col_t;
-//     coff.ref(jc) = jcl;
   }
 
 #if 0
@@ -794,10 +790,9 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	int jr = jndxr[row_t]->e(jrl);
 	int *jndx = jndxc[col_t]->buff();
 	double *values_jrow = values + jr*ncols;
-	for (int jcl=0; jcl<ncc; jcl++) {
-	  int jc = jndx[jcl];
-	  *vvv++ = *(values_jrow+jc);
-	}
+	int *jc = jndx;
+	int *jc_end = jc + ncc;
+	while (jc<jc_end) *vvv++ = *(values_jrow + (*jc++));
       }
       // This is for debugging
 #define LOAD_VALUES
@@ -810,10 +805,59 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     }
   }    
 
-  // A_LL
-  dvector<double> *vv = v[L][L];
+  // Not implemented yet
+  assert (local_solver != SuperLU);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // A_LL block
+
+  // This will flag if we will consider the special case of having
+  // LL elements to be sent to other processors via the A_LL_other
+  // container
+  int any_A_LL_other = 0;
+
   int nrr = nr[L];
   int ncc = nc[L];
+
+  // Fix row matrix indices (block LL is shifted)
+  int *p = indxr[L]->buff();
+  int *pe = p + nrr;
+  while (p<pe) {
+    *p -= n_locp;
+    if (*p >= 0 && *p < n_loc) any_A_LL_other = 1;
+    p++;
+  }
+
+  // Fix column matrix indices (same reason)
+  p = indxc[L]->buff();
+  pe = p + ncc;
+  while (p<pe) {
+    *p -= n_locp;
+    if (*p >= 0 && *p < n_loc) any_A_LL_other = 1;
+    p++;
+  }
+
+  // Fix the matrices and send to A_LL_other if special case
+  if (any_A_LL_other) {
+    // send to A_LL_other
+    p = indxr[L]->buff();
+    pe = p + nrr;
+    while (p<pe) {
+      int *q = indxc[L]->buff();
+      int *qe = q + ncc;
+      while (q<qe) {
+	if (*p <0 || *p >=n_loc || *q <0 || *q >=n_loc) {
+	  double *vvv = values + 
+	  A_LL_other->insert_val(*p+n_locp,*q+n_locp,*vvv);
+	  printf("[%d] sending %d,%d,%g to A_LL_other\n",MY_RANK,*p+n_locp,*q+n_locp,*vvv);
+	} 
+	q++; vvv++;
+      } 
+      p++;
+    }
+  }
+
+  dvector<double> *vv = v[L][L];
   // Load values in matrix
   grow_mono(*vv,nr[L]*nc[L]);
   double *vvv = vv->buff();
@@ -821,25 +865,9 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     int jr = jndxr[L]->e(jrl);
     int *jndx = jndxc[L]->buff();
     double *values_jrow = values + jr*ncols;
-    for (int jcl=0; jcl<ncc; jcl++) {
-      int jc = jndx[jcl];
-      *vvv++ = *(values_jrow + jc);
-    }
-  }
-
-  // Fix matrix indices (block LL is shifted)
-  int *p = indxr[L]->buff();
-  for (int jrl=0; jrl<nrr; jrl++) {
-    *p -= n_locp;
-    assert(*p >= 0 && *p < n_loc);
-    p++;
-  }
-
-  p = indxc[L]->buff();
-  for (int jcl=0; jcl<ncc; jcl++) {
-    *p -= n_locp;
-    assert(*p >= 0 && *p < n_loc);
-    p++;
+    int *jc = jndx;
+    int *jc_end = jc + ncc;
+    while (jc<jc_end) *vvv++ = *(values_jrow + (*jc++));
   }
 
 #ifdef LOAD_VALUES
