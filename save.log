@@ -3876,3 +3876,6 @@ tag: beta-3.41.9 on Thu, 27 Jan 2005 12:35:14 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.41.10 on Thu, 27 Jan 2005 14:33:19 -0300 by mstorti in minerva.ceride.gov.ar
      > Debugging absorbing boundary condition `gasflow_abso2'. 
+----------
+tag: beta-3.41.11 on Thu, 27 Jan 2005 17:57:17 -0300 by mstorti in minerva.ceride.gov.ar
+     > Running cylinder example with `gasflow_abso2'. 
