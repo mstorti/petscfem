@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001/02/10 13:13:09 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/02/10 14:03:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -19,8 +19,9 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 SRCS = $(wildcard *.cpp)
 
-CLEAN_DIRS = circ fstack sector les turbchan turbchanw advdif
-DEPEND_DIRS = $(CLEAN_DIRS)
+DIRS = circ fstack sector les turbchan turbchanw advdif
+CLEAN_DIRS = $(DIRS)
+DEPEND_DIRS = $(DIRS)
 
 ctest: $(DATAFILE) force
 	$(MAKE) $(NS)
@@ -46,7 +47,7 @@ tests: runtests
 	@runtests.pl
 	@echo "Done."
 
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
@@ -253,7 +254,7 @@ advdif:
 #w All FastMat2 tests
 fastmat2: fastmat2a fastmat2b fastmat2c
 
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
 #w FastMat2 test a 
 fastmat2a: testfm2a.bin
 	testfm2a.bin > fastmat2a.sal
@@ -273,7 +274,7 @@ testfm2d.bin: testfm2d.o daxpy.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o daxpy.o $(LIBPETSCFEM) \
 		-L$(NEWMAT) -lnewmat 
 
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test b
 fastmat2b: testfm2.bin
 	testfm2.bin > fastmat2.sal
@@ -282,7 +283,7 @@ testfm2.bin: testfm2.o libpetscfem
 	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin testfm2.o \
 		$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
 
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test c 
 fastmat2c: testfm2c.bin
 	testfm2c.bin > fastmat2c.sal
