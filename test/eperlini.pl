@@ -188,8 +188,10 @@ sub P {
 }
 
 sub transcript {
-    ($octtmpfile,$eperlfile) = @_;
-    $eperlfile = $ENV{'SCRIPT_SRC_PATH'} unless $eperlfile;
+    my $eperlfile = $ENV{'SCRIPT_SRC_PATH'};
+#   If we wanted to transcript another file
+#     ($octtmpfile,$eperlfile) = @_;
+#     $eperlfile = $ENV{'SCRIPT_SRC_PATH'} unless $eperlfile;
     /`/;print <<EOM;
 #
 # Transcript of ePerl script: $eperlfile
@@ -207,6 +209,7 @@ EOM
     close SCRIPT;
 
     return if $#_<0;
+    my $octtmpfile = shift();
     if ($octtmpfile) {
 	die "couldn't open $octtmpfile" unless open OCT,">$octtmpfile";
     }

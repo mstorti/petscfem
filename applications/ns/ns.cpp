@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.84 2002/05/19 19:49:39 mstorti Exp $
+//$Id: ns.cpp,v 1.85 2002/06/30 19:44:17 mstorti Exp $
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
 #include <src/debug.h>
@@ -44,7 +44,7 @@ int main(int argc,char **args) {
   State state(x,time),state_old(xold,time_old);
 
   // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
-  char fcase[FLEN+1];
+  char fcase[FLEN+1],output_file[FLEN+1];
   Dofmap *dofmap = new Dofmap;
   Mesh *mesh;
   // arglf:= argument list for computing gathered quantities as forces
@@ -72,10 +72,34 @@ int main(int argc,char **args) {
     exit(0);
   }
 
+  ierr = OptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
+  CHKERRA(ierr);
+  if (flg) { 
+    PetscPrintf(PETSC_COMM_WORLD,"PETSc-FEM: NS module: "
+		"redirecting output to \"%s\"\n",output_file);
+    FILE *new_stdout = fopen(output_file,"w");
+    if (!new_stdout) {
+      PetscPrintf(PETSC_COMM_WORLD,"error redirecting output. "
+		  "Couldn't open \"%s\"\n",output_file);
+    } else {
+      fclose(stdout);
+      stdout = new_stdout;
+    }
+  }
+
   // Read the mesh
   read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
 
   GLOBAL_OPTIONS = mesh->global_options;
+
+#if 0
+  //o If set, redirect output to this file.
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,stdout_file,);
+  if (!strcmp(stdout_file.c_str(),"")) {
+    fclose(stdout);
+    stdout = fopen(stdout_file.c_str(),"w");
+  }
+#endif
 
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
