@@ -557,7 +557,7 @@ tag: beta-3.43.7 on Sun Feb 20 20:21:21 GMT+3 2005, by mstorti in spider
 tag: beta-3.43.10 on Mon Feb 21 01:23:57 GMT+3 2005, by mstorti in spider
      > Now compiles cleanly with GCC 3.3.3 without `-Wno-deprecated'. 
 ----------
-tag: beta-3.45 on Wed Mar  9 07:52:05 GMT+3 2005, by mstorti in spider
+tag: beta-3.44 on Wed Mar  9 07:52:05 GMT+3 2005, by mstorti in spider
      > Implemented `dofmap->solve' with iterative solution 
      > of the least squares eqs.
      > Some manipulation in `readmesh.cpp' migrated to new compact 
