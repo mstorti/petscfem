@@ -1,10 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: fun3.cpp,v 1.1 2002/02/10 22:33:28 mstorti Exp $
+//$Id: fun3.cpp,v 1.2 2002/02/10 23:03:52 mstorti Exp $
 
-#include <math.h>
-
-#include <src/fem.h>
-#include <src/getprop.h>
 #include <src/ampli.h>
 
 class  smramp {
@@ -29,20 +25,28 @@ double  smramp::eval_fun(double t) {
   else return f0 + slope *(t - t0);
 }
 
-//#define fun_obj_class_name smramp
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION(smramp);
 
-INIT_FUN1(smramp) {
-  smramp *fun_obj_ptr = new smramp;
-  fun_data = fun_obj_ptr;
-  fun_obj_ptr->init(thash);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class tanh_ramp {
+public:
+  double A, t0, delta, base;
+  void init(TextHashTable *thash);
+  double eval_fun(double);
+};
+
+void tanh_ramp::init(TextHashTable *thash) {
+  int ierr;
+  TGETOPTDEF_ND(thash,double,base,0.);
+  TGETOPTDEF_ND(thash,double,A,1.);
+  TGETOPTDEF_ND(thash,double,t0,0.);
+  TGETOPTDEF_ND(thash,double,delta,1.);
+  assert(delta>0.);
 }
 
-EVAL_FUN1(smramp) {
-  smramp *fun_obj_ptr = (smramp *) fun_data;
-  return fun_obj_ptr->eval_fun(t);
+double  tanh_ramp::eval_fun(double t) {
+  if (t < t0) return base;
+  else return base + A * tanh((t-t0)/delta);
 }
 
-CLEAR_FUN1(smramp) {
-  smramp *fun_obj_ptr = (smramp *) fun_data;
-  delete fun_obj_ptr;
-}
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION(tanh_ramp);

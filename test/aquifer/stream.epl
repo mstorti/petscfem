@@ -132,5 +132,16 @@ f0 1.
 t1 0.8
 f1 0.2
 __END_HASH__
+# 1 1 1.
+__END_FIXA__
+
+fixa_amplitude dl_generic
+ext_filename "./fun3.efn"
+function_name "tanh_ramp"
+base 1.
+A -0.4
+delta 0.7
+__END_HASH__
  1 1 1.
 __END_FIXA__
+

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fun.cpp,v 1.7 2002/02/10 20:11:48 mstorti Exp $
+//$Id: fun.cpp,v 1.8 2002/02/10 23:03:52 mstorti Exp $
 
 #include <math.h>
 
@@ -17,7 +17,6 @@ INIT_FUN {
   TGETOPTDEF(thash,double,t1,1.);
   TGETOPTDEF(thash,double,f0,0.);
   TGETOPTDEF(thash,double,f1,1.);
-  printf("in init: t0 %f,t1 %f,f0 %f,f1 %f\n",t0,t1,f0,f1);
 
   MyFunData *d = new MyFunData;
   fun_data = d;
@@ -30,7 +29,6 @@ INIT_FUN {
 
 EVAL_FUN {
   MyFunData *d = (MyFunData *) fun_data;
-  // printf("in eval_fun: t0 %f,t1 %f,f0 %f,f1 %f\n",d->t0,d->t1,d->f0,d->f1);
   if (t < d->t0) return d->f0;
   else if (t > d->t1) return d->f1;
   else return d->f0 + d->slope *(t - d->t0);
@@ -49,7 +47,6 @@ INIT_FUN1(smramp) {
   TGETOPTDEF(thash,double,t1,1.);
   TGETOPTDEF(thash,double,f0,0.);
   TGETOPTDEF(thash,double,f1,1.);
-  printf("in init: t0 %f,t1 %f,f0 %f,f1 %f\n",t0,t1,f0,f1);
 
   MyFunData *d = new MyFunData;
   fun_data = d;

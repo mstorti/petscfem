@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.6 2002/02/10 19:42:04 mstorti Exp $
+//$Id: amplidl.cpp,v 1.7 2002/02/10 23:03:47 mstorti Exp $
 
 #include <math.h>
 
@@ -26,10 +26,8 @@ void DLGeneric::print() const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DLGeneric::init(TextHashTable *thash) {
   char *error;
-  FileHandle fh;
   string name,s;
   FunTable::iterator f;
-  FunHandle fuh;
   int ierr;
 
   //o Filename of extension function
@@ -45,6 +43,7 @@ void DLGeneric::init(TextHashTable *thash) {
   if (h!=file_handle_table.end()) {
     // If found, the get the file handle from the table 
     fh = h->second;
+    handle = fh.handle;
   } else {
     // Get `dlopen()' handle to the extension function
     handle = dlopen (ext_filename.c_str(),RTLD_LAZY);

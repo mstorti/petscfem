@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fun2.cpp,v 1.2 2002/02/10 20:11:48 mstorti Exp $
+//$Id: fun2.cpp,v 1.3 2002/02/10 23:03:52 mstorti Exp $
 
 #include <src/ampli.h>
 
@@ -13,7 +13,6 @@ INIT_FUN {
   TGETOPTDEF(thash,double,t1,1.);
   TGETOPTDEF(thash,double,f0,0.);
   TGETOPTDEF(thash,double,f1,1.);
-  printf("in init: t0 %f,t1 %f,f0 %f,f1 %f\n",t0,t1,f0,f1);
 
   MyFunData *d = new MyFunData;
   fun_data = d;

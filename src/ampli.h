@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.9 2002/02/10 20:11:44 mstorti Exp $
+// $Id: ampli.h,v 1.10 2002/02/10 23:03:47 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -106,8 +106,12 @@ private:
       This is the generic type for this table.
   */
   typedef map<string,FileHandle> FileHandleTable;
-  /// The actual handle for this instance
+  /// The actual `dlopen' handle for this instance
   void *handle;
+  /// The actual handle for this instance
+  FileHandle fh;
+  /// The actual function handle for this instance
+  FunHandle fuh;
   /** This generic pointer may be used to store internal values
       for the functions
   */
@@ -131,6 +135,8 @@ public:
   ~DLGeneric();
 };
 
+// Usefule macros for defining extended functions
+
 #define INIT_FUN extern "C" void init_fun(TextHashTable *thash,void *&fun_data)
 
 #define INIT_FUN1(name) extern "C" \
@@ -144,5 +150,22 @@ public:
 
 #define CLEAR_FUN1(name) extern "C" void name##_clear_fun(void *fun_data) 
 
+#define DEFINE_EXTENDED_AMPLITUDE_FUNCTION(fun_obj_class)	\
+								\
+INIT_FUN1(fun_obj_class) {					\
+  fun_obj_class *fun_obj_ptr = new fun_obj_class;		\
+  fun_data = fun_obj_ptr;					\
+  fun_obj_ptr->init(thash);					\
+}								\
+								\
+EVAL_FUN1(fun_obj_class) {					\
+  fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
+  return fun_obj_ptr->eval_fun(t);				\
+}								\
+								\
+CLEAR_FUN1(fun_obj_class) {					\
+  fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
+  delete fun_obj_ptr;						\
+}								\
 
 #endif
