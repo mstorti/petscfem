@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.4 2001/10/07 21:12:52 mstorti Exp $
+//$Id: nssup.h,v 1.5 2001/10/16 18:33:45 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -28,7 +28,7 @@ private:
   // Density
   double rho;
 public:
-  /// Number of restrictions per node pair
+  /// Number of restrictions
   int nres() {return 1;};
   /** Return the node/dof pair to be used as lagrange multiplier for
       the #jr#-th restriction. 
@@ -45,6 +45,26 @@ public:
 class ns_sup : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
+};
+
+/// General restriction elemset
+class linear_restriction : public LagrangeMult {
+private:
+  /// Coefficients of the restrictions. 
+  vector<double> coef;
+public:
+  linear_restriction() : LagrangeMult() { coef=NULL;};
+  /// Number of restrictions 
+  int nres();
+  /** Return the node/dof pair to be used as lagrange multiplier for
+      the #jr#-th restriction. 
+  */
+  void lag_mul_dof(int jr,int &node,int &dof);
+  /// Initialize the elemset (maybe reads hash table)
+  void init();
+  /// computes the residual and jacobian of the function to be imposed
+  void res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
+	   FastMat2 & jac);
 };
 
 #endif
