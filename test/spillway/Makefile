@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2003/03/20 22:58:38 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2003/03/21 20:27:50 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
@@ -22,10 +22,9 @@ LOC_PROG := ns
 PROG := $(NS)
 
 .PHONY: force
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-NP := 1
-# NP := 5
-# NP := $(shell procsel ./proctable.tmp)
+# NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+# NP := 1
+NP := $(shell procsel ./proctable.tmp)
 run: $(CASE_NAME).depl alehook.efn
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 
 
