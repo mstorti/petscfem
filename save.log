@@ -735,6 +735,5 @@ tag: pfmat-rewrite-1.09 on Thu Dec 27 16:58:48 ARST 2001, by mstorti in spider
      > The graph and other things passed from `IISDMat' to
      > `PETScMat'.
 ----------
-tag: pfmat-rewrite-1.09.pl1 on Thu Dec 27 21:25:41 ARST 2001 by mstorti in spider
-./tmp_file_log.txt.tmp     > Trying new "light" tag saving.
-Trying new "light" tag saving.
+tag:  pfmat-rewrite-1.09.pl1 on Thu Dec 27 21:28:59 ARST 2001 by mstorti in spider
+     > Trying new "light" tag saving.
