@@ -3012,3 +3012,6 @@ tag: beta-3.23.pl8 on Sat, 11 Oct 2003 11:08:52 -0300 by mstorti in spider
 ----------
 tag: beta-3.23.pl9 on Sat, 11 Oct 2003 20:57:33 -0300 by mstorti in spider
      > Cutoff parameters to gasflow now passed via options. 
+----------
+tag: beta-3.23.pl10 on Sat, 11 Oct 2003 21:02:10 -0300 by mstorti in spider
+     > Added Rodrigo Paz to several doc files. 
