@@ -77,6 +77,19 @@ getsurf:
 	-c ./cube.con.tmp -u ./cube.state.tmp	\
 	-s cube.surf-con.tmp -g cube.grad-u.tmp
 
+ifeq (1,0)
+# LD_LIBRARY_PATH += ../../src/libpetscfem_g.a
+libfemref.so: getsurf.o $(CPP_FILES:=.o)
+	${CXX_CLINKER} -g -shared				\
+		-o $@ getsurf.o $(CPP_FILES:=.o)		\
+		$(EFN_LDFLAGS) `guile-config link` -lstdc++
+else
+libfemref.so: getsurf2.o
+	${CXX_CLINKER} -g -shared -Wl$(EFN_LIBRARY_PATH)	\
+		-o $@ getsurf2.o  $(EFN_LDFLAGS)	\
+		`guile-config link`
+endif
+
 yuv_compress:
 	@echo nothing
 

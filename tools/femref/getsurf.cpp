@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.14 2005/01/13 23:14:41 mstorti Exp $
+// $Id: getsurf.cpp,v 1.15 2005/01/14 21:01:21 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -11,6 +11,7 @@
 #include <limits.h>
 #include "./hasher.h"
 #include <src/fastmat2.h>
+#include <libguile.h>
 
 using namespace std;
 
@@ -18,6 +19,8 @@ using namespace std;
 
 #include "./femref.h"
 #include "./gtemplates.h"
+
+typedef SCM(*scm_fun)();
 
 struct FaceIterator {
   int elem;
@@ -27,12 +30,14 @@ struct FaceIterator {
 typedef multimap<int,FaceIterator> face_table_t;
 typedef pair<int,FaceIterator> ft_pair_t;
 
-int main(int argc,char **argv) {
+extern "C"
+void getsurf() {
 
   const char *iconef = NULL, *xnodf = NULL, 
     *statef = NULL, *sconf = NULL, *graduf = NULL;
   int base=0, nread; 
   char c;
+#if 0
   while ((c = getopt (argc, argv, "b:c:x:u:s:g:")) != -1) {
     switch (c) {
     case 'b':
@@ -58,6 +63,13 @@ int main(int argc,char **argv) {
       abort ();
     }
   }
+#else
+  iconef = "./cube.con.tmp";
+  xnodf = "./cube.nod.tmp";
+  statef = "./cube.state.tmp";
+  sconf = "cube.surf-con.tmp";
+  graduf = "cube.grad-u.tmp";
+#endif
 
   assert(xnodf);
   assert(iconef);
@@ -352,4 +364,10 @@ int main(int argc,char **argv) {
     fprintf(fid,"\n");
   }
   fclose(fid);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+extern "C" void
+init_femref(void) {
+  scm_c_define_gsubr("getsurf",0,0,0,scm_fun(getsurf));
 }
