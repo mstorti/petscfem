@@ -1,37 +1,6 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #
-$case = $ENV{'case'};
-$Re = $ENV{'Re'};
-if ($case eq 'iisd_eff') {
-    $eff = 1;
-    $case = 'iisd';
-}
-$L = 1;                         # Semi distance between plates
-$N = 4;                         # Number of elements in transversal 'x' direction
-$hratio = 1;                    # refinement near the wall
-$hratioy = 1;                   # refinement to the exit
-$Ny = 2;                        # Number of elements in y dir
-$Ny_eq = 1;                     # last elements that are equal in size
-                                # in the y direction
-$Ly = 1;                        # longitudinal length 
-$Re = 10000 unless $Re;         # laminar Re
-$Uav = 1;                       # 
-$nu = $Uav*2*$L/$Re;            # kinematic visc.
-#
-$part_case = ($case =~ /^(.*)_part$/);
-$part_method = $1;
-$preco = $ENV{'preco'} if $ENV{'preco'};
-$preco = 'none' unless $preco;
-#
-$part_method = $ENV{'part'} if $ENV{'part'};
-$part_method = 'metis' unless $part_method;
-#
-$case_size = "medium" if $part_case;
-$case_size = $ENV{'case_size'} unless $case_size;
-#
-
-$peri = $ENV{'peri'};
 if ($case_size eq 'small') {
 $N = 4;                         # Number of elements in transversal 'x' direction
 $Ny = 2;                        # Number of elements in y dir
@@ -44,7 +13,8 @@ $Ny = 6;                        # Number of elements in y dir
 $Ny_eq = 1;                     # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
-} elsif ($case_size eq 'medium') {
+}
+ elsif ($case_size eq 'medium') {
 $N = 16;                        # Number of elements in transversal 'x' direction
 $Ny = 8;                        # Number of elements in y dir
 $Ny_eq = 2;                     # last elements that are equal in size
@@ -81,7 +51,6 @@ octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy
 global_options
 ndim 2
 
-proc_weights weights.dat
 save_file "save.state"
 nsave 5
 
@@ -112,7 +81,7 @@ nnwt 1
 debug_element_partitioning
 #else
 #nstep 200
-nstep 50
+nstep 200
 nnwt 3
 #endif
 tol_newton 0

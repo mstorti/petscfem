@@ -1,0 +1,11 @@
+-rw-r--r--    1 mstorti  mstorti      4498 oct 25 21:41 adaptor.cpp
+-rw-r--r--    1 mstorti  mstorti      4505 oct 24 17:54 adaptorf.cpp
+-rw-rw-r--    1 mstorti  mstorti      1466 oct 25 21:40 adaptor.h
+drwxr-xr-x    2 mstorti  mstorti      4096 oct 19 01:45 CVS
+-rw-r--r--    1 mstorti  mstorti      2437 oct 24 18:17 elast.cpp
+-rw-rw-r--    1 mstorti  mstorti      7568 oct 25 23:22 elastf.cpp
+-rw-r--r--    1 mstorti  mstorti      1323 oct 25 18:05 elast.h
+-rw-r--r--    1 mstorti  mstorti     21877 oct 25 23:17 initf.f
+-rw-r--r--    1 mstorti  mstorti      2898 oct 25 22:56 Makefile
+-rw-r--r--    1 mstorti  mstorti      7896 oct 19 01:45 nonlr.cpp
+-rw-r--r--    1 mstorti  mstorti     16357 oct 25 22:55 ns.cpp

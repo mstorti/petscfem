@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.14 2001/10/09 16:57:37 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.13.2.1 2001/10/29 14:34:41 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -226,7 +226,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
-    wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,tmp20;
+    wall_coords(ndim),dist_to_wall,tmp16,tmp17,tmp18,tmp19,tmp20;
 
   // FMatrix T,Tcol,Tcol_new,Tcol_star,grad_T_star(ndim),massm_th,
   double T;
@@ -295,6 +295,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       NN_IDX(k) = nn;
       continue;
     }
+
+
 
     double grad_div_u_coef=0.;	// multiplies grad_div_u term
     // tenemos el estado locstate2 <- u^n
@@ -555,11 +557,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  rescont.axpy(tmp5,wpgdet);
 
 	  // Parte temporal + convectiva (Galerkin)
-#ifdef ADD_GRAD_DIV_U_TERM
-          massm.prod(u_star,dshapex,-1,-1,1);
-#else
-          massm.prod(u,dshapex,-1,-1,1);
-#endif
+	  massm.prod(u_star,dshapex,-1,-1,1);
 	  massm.axpy(SHAPE,rec_Dt/alpha);
 	  matlocmom.prod(W_supg,massm,1,2).scale(rho);
         }
@@ -685,21 +683,10 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    }
 	  }
 
-// old version but wrong
-	  // tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-	  // matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
-// new version (Mario) I hope it is OK
-          if (weak_form) {
-             tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
-             tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
-             matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16)
-                                            .add(tmp162).rs();
-         } else {
-             tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-             matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
-         }
- 
-    
+	  tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+	  //matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
+	  matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
+
 	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
@@ -711,12 +698,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-            tmp19.set(dshapex).scale(nu_eff*wpgdet);
-            tmp18.prod(dshapex,tmp19,2,3,4,1);
-            matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
-            tmp19.set(dshapex).scale(delta_supg*rho*wpgdet);
-            tmp18.prod(dshapex,tmp19,2,1,4,3);
-            matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
+	    tmp18.prod(dshapex,tmp19,2,1,4,3);
+	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 	  } else {
 	    grad_div_u_coef += (delta_supg*rho+nu_eff)*wpgdet;
 	    if (!grad_div_u_was_cached) {

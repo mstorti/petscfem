@@ -1,0 +1,53 @@
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+save_file "save.state"
+nsave 1
+
+partitioning_method "metis"
+alpha 1.
+nstep 1
+nnwt 2  # chequeo linealidad
+tol_newton 0
+solver "petsc"
+preco_type "lu"
+rtol 1e-4
+atol 1e-10
+maxits 10
+Dt 1
+steady
+
+Young_modulus 210000.
+Poisson_ratio 0.3
+
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  2  2
+__INCLUDE__ elast.nod.tmp
+__END_NODES__
+
+#===========================================================
+elemset elasticity 4
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ elast.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+
+__INCLUDE__ elast.fixa
+
+__END_FIXA__
+
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

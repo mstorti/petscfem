@@ -1,11 +1,20 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.30 2001/10/06 19:59:28 mstorti Exp $ 
+# $Id: Makefile,v 1.26.2.1 2001/10/29 14:34:41 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
+NSO := $(PETSCFEM_DIR)/../petscfem-beta-1.98/applications/ns/ns.bin
+
+NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
+
 pp:
-	$(MAKE) NP=2  case=hitchhiking_part test_case
-	mv -f save.state save.state.hitchhiking.tmp
+#( time $(MAKE) NP=1 case=iisd case_size=large2 test_case ) &> lnp1-3.sal
+#( time $(MAKE) NP=2 case=iisd case_size=large2 test_case ) &> lnp2-3.sal
+#( time $(MAKE) NP=3 case=iisd case_size=large2 test_case ) &> lnp3-3.sal
+	( time $(MAKE) NP=4 case=iisd case_size=large2 test_case ) &> lnp4-3.sal
+#$(MAKE) NP=$(NPP) case=iisd case_size=large test_case
+#	$(MAKE) NP=2  case=hitchhiking_part test_case
+#	mv -f save.state save.state.hitchhiking.tmp
 
 test_eff: 
 #	$(MAKE) PROG=$(NSO) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
@@ -13,9 +22,10 @@ test_eff:
 #	time $(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large test_case
 
 #w All tests
-tests: test_iisd test_iisd_superlu test_partitioning test_distmap
+tests: test_iisd test_partitioning test_distmap
 
 #w Tests IISD with periodic boundary conditions
+NS := $(NSO)
 test_distmap: 
 	$(MAKE) NP=2 Re=100 peri=1 case=iisd case_size=small2 test_case
 	mv -f save.state save.state.iisd_peri.np2.tmp
@@ -36,29 +46,6 @@ test_iisd:
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
 	octave -q check_iisd.m > check_iisd.verif.tmp
-
-#w Tests IISD wirh local_solver = SuperLU
-test_iisd_superlu:
-	$(MAKE) NP=2 local_solver=iisd_superlu \
-			case=iisd case_size=small part=random test_case
-	mv -f save.state save.state.iisd_superlu.np2.rand.tmp
-	$(MAKE) NP=2 local_solver=iisd_superlu case=iisd case_size=small test_case
-	mv -f save.state save.state.iisd_superlu.np2.tmp
-	$(MAKE) NP=2 local_solver=iisd_superlu case=iisd ksp=cgs case_size=small test_case
-	mv -f save.state save.state.iisd_superlu.cgs.np2.tmp
-	$(MAKE) NP=1 local_solver=iisd_superlu case=iisd case_size=small test_case
-	mv -f save.state save.state.iisd_superlu.np1.tmp
-	$(MAKE) NP=1 case=lu case_size=small test_case
-	mv -f save.state save.state.lu.tmp
-	octave -q check_iisd_superlu.m > check_iisd_superlu.verif.tmp
-
-#w Tests IISD wirh local_solver = SuperLU
-test_superlu:
-	$(MAKE) NP=1 local_solver=direct_superlu case=iisd case_size=small test_case
-	mv -f save.state save.state.direct_superlu.tmp
-	$(MAKE) NP=1 case=lu case_size=small test_case
-	mv -f save.state save.state.lu.tmp
-	octave -q check_direct_superlu.m > check_direct_superlu.verif.tmp
 
 #w Tests different methods of partitioning. 
 test_partitioning: 
@@ -88,12 +75,11 @@ test_case_data:
 data: $(NAME).depl force
 $(NAME).depl: force
 
-NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 NP := 1 
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl > output.case_$(case).tmp
+			-case $(NAME).depl # > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.36.2.1 2001/10/29 14:34:41 mstorti Exp $
+//$Id: ns.cpp-MAC,v 1.1.2.1 2001/10/29 14:34:41 mstorti Exp $
  
 #include <malloc.h>
 
@@ -11,9 +11,24 @@
 #include "../../src/sttfilter.h"
 #include "../../src/pfmat.h"
 
-#include "nsi_tet.h"
-#include "adaptor.h"
+//   NOTA: INCLUIR LOS NUEVOS *.h NECESARIOS
+
+//   DECLARA CLASE NS_VOLUME_ELEMENT A LA CUAL PERTENECE ADAPTOR
+
+#include "nsi_tet.h"        
+
+//   DECLARA CLASES ADAPTOR Y ADAPTOR_F (QUE PERTENECE A ADAPTOR)
+//   EN QUE SE ENCUENTRAN DECLARADAS LAS FUNCIONES ELEMENT_CONNECTOR Y
+//   ELEMENT_CONNECTOR_F
+
+#include "adaptor.h"       
+
+//   DECLARA Y DEFINE CLASES ELASTICITY Y ELASTICITY_F AMBAS 
+//   PERTENECIENTES A ADAPTOR
+
 #include "elast.h"
+
+//   NECESARIO PARA INICIALIZACION DE PETSC QUE NECESITA STRING       
 
 static char help[] = "Basic finite element program.\n\n";
 
@@ -32,6 +47,10 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
+
+//   NOTA: DEFINIR EL NUEVO ELEMENTO  EN CORRESPONDENCIA CON  
+//         LA CLASE DEFINIDA EN elast.h SI SE USA EN EL *.dat
+
     SET_ELEMSET_TYPE(elasticity_f)
     SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
@@ -47,6 +66,10 @@ void bless_elemset(char *type,Elemset *& elemset) {
 	exit(1);
 	}
 }
+
+
+//   QUE ES ESTE CONTROL L  COSA DEL EMACS  PUEDE BORRARSE
+//   ACA EMPIEZA EL MAIN
 
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
