@@ -3932,3 +3932,6 @@ tag: beta-3.41.26 on Sun, 30 Jan 2005 23:36:07 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.27 on Fri, 04 Feb 2005 09:22:39 -0300 by mstorti in spider
      > Checking boundary heat flux computation with Lagrange multipliers. 
+----------
+tag: beta-3.41.28 on Fri, 04 Feb 2005 16:58:06 -0300 by mstorti in minerva.ceride.gov.ar
+     > Writing doc for absorbing boundary conditions. 
