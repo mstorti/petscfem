@@ -1811,3 +1811,6 @@ tag: beta-3.08.pl13 on Sat, 30 Nov 2002 20:42:27 -0300 by mstorti in spider
 tag: beta-3.08.pl14 on Sun,  1 Dec 2002 13:08:03 -0300 by mstorti in spider
      > Added FastMat2::rcp() function.
      > Working on `mesh_move'
+----------
+tag: beta-3.08.pl15 on Sun,  1 Dec 2002 22:00:50 -0300 by mstorti in spider
+     > Computes OK derivatives of eigenvalues analytically. 
