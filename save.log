@@ -2722,3 +2722,6 @@ tag: beta-3.19.pl24 on Thu, 26 Jun 2003 19:27:32 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.19.pl25 on Tue, 01 Jul 2003 23:32:58 -0300 by mstorti in spider
      > Upgrading to RH 8.0
+----------
+tag: beta-3.19.pl26 on Wed,  2 Jul 2003 17:00:59 -0300 by mstorti in minerva.arcride.edu.ar
+     > Adapting to GCC 3.x
