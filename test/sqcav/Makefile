@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2002/07/17 02:55:01 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2002/07/25 20:58:29 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -96,7 +96,7 @@ data: force
 	echo in target data: CASE = $(CASE)
 	$(MAKE) $(CASE).depl
 	echo "in target data : CASE $(CASE)"
-	octave -q mk$(CASE).m
+	octave -q mk$(CASE).m > /dev/null
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
