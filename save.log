@@ -507,3 +507,6 @@ tag: beta-2.02 on Mon Aug 20 10:13:15 ART 2001, by mstorti in spider
 ----------
 tag: beta-2.03 on Tue Aug 21 22:10:55 ART 2001, by mstorti in spider
      > Found a bug in `distmap2.h'
+----------
+tag: beta-2.04 on Tue Aug 21 22:20:07 ART 2001, by mstorti in spider
+     > Changed `DistMap' to `DistCont'
