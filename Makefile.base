@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.63 2002/02/10 02:33:27 mstorti Exp $
+#$Id: Makefile.base,v 1.64 2002/02/10 02:49:51 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -109,7 +109,8 @@ endif
 ifeq (1,1)
 # %.efn: CPPFLAGS += -Wall
 %.efn: %.o
-	g++ -g -shared -Wl -o $@ $<
+	${CXX_CLINKER} -g -shared -Wl -o $@ $< $(LDFLAGS)
+#	g++ -g -shared -Wl -o $@ $<
 else
 %.efn: %.cpp
 	gcc -fPIC -Wall -g -c $<
