@@ -13,11 +13,14 @@ sub pushf {
     rename $file,"$file.0";
 }
 
-foreach  $N (100,200,400) {
-foreach  $subpart (0,1,2,4,8,16) {
-for ($nlay=0; $nlay<=5; $nlay++) {
-    printf("start nlay $nlay\n");
-    system "make nlay=$nlay > job.out.tmp";
+# foreach  $N (100,200,400) {
+# foreach  $subpart (0,1,2,4,8,16) {
+# for ($nlay=0; $nlay<=5; $nlay++) {
+{{do { $N=100; $subpart=1; $nlay=2;
+    my @mess = ("nlay",$nlay,"subpart",$subpart,"N",$N,@solving,'total',$total);
+    my $mess = join(' ',@mess)."\n";
+    printf("start $mess");
+    system "make nlay=$nlay N=$N subpart=$subpart > job.out.tmp";
     open OUT,"job.out.tmp";
     my ($nlay,$befo);
     my @solving = ();
@@ -38,9 +41,7 @@ for ($nlay=0; $nlay<=5; $nlay++) {
     $total = $after_sol - $after_comp;
     close OUT;
     pushf "job.out.tmp",3;
-    my @mess = "nlay",$nlay,@solving,'total',$total;
     open STAT,">>isp.stat";
-    my $mess = join(' ',@mess)."\n";
     print STAT $mess;
     print "end $mess";
     close STAT;
