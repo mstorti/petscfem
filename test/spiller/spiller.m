@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spiller.m,v 1.3 2003/03/16 00:44:57 mstorti Exp $
+## $Id: spiller.m,v 1.4 2003/03/16 15:40:30 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spiller, mesh
@@ -21,10 +21,13 @@ L2 = 50;			# Flat bottom length
 h1 = 4;				# water height at top of spiller
 y2 = 60;			# restitution height
 
-Ny = 20;
-Nx = 50;
+Ny = 10;
+Nx = 120;
 
-h2 = y2-H2;
+uin = 1.;
+
+H2 = H1-C*L1^E;			# Height of spiller w.r.t. flat bottom
+h2 = y2-H2;			# water height at outlet
 s.C = C;
 s.E = E;
 s.H1 = H1;
@@ -34,7 +37,6 @@ s.h1 = h1;
 s.h2 = h2;
 
 spiller_data = s;
-H2 = H1-C*L1^E;			# Height of spiller w.r.t. flat bottom
 spiller_data.H2 = H2;
 
 ## generate a series aof points on the free surface by interpolation of
@@ -79,8 +81,60 @@ endif
 ICONE = [1 2 5 4;
 	 2 3 6 5];
 
-H = [1 4 Ny;
-     1 2 Nx/2;
-     2 3 Nx/2];
+H = [1 4 Ny 1 4 1;
+     1 2 round(0.8*Nx) 1 0 4;
+     2 3 round(0.2*Nx) 1 0 2];
 
 [xnod,icone,mesh] = mesher(XNOD,ICONE,H,"spiller_mapbou");
+
+asave("spiller.nod.tmp",xnod);
+asave("spiller.con.tmp",icone);
+
+fs = mesher_bound(mesh,[6 5 4]);
+bottom = mesher_bound(mesh,[1 2 3]);
+inlet = mesher_bound(mesh,[4 1]);
+outlet = mesher_bound(mesh,[3 6]);
+
+## Bottom u=v=0 
+fid = fopen("spiller.fixa_bot.tmp","w");
+nbot = length(bottom);
+for k=bottom(1:nbot)'
+  fprintf(fid,"%d %d %f\n",k,1,0.);
+  fprintf(fid,"%d %d %f\n",k,2,0.);
+endfor
+fclose(fid);
+
+## Inlet u=uin, v=0
+fid = fopen("spiller.fixa_in.tmp","w");
+for k=inlet(1:length(inlet)-1)'
+  fprintf(fid,"%d %d %f\n",k,1,uin);
+  fprintf(fid,"%d %d %f\n",k,2,0.);
+endfor
+fclose(fid);
+
+## Outlet p=0., v=0
+fid = fopen("spiller.fixa_out.tmp","w");
+for k=outlet(2:length(outlet))'
+  fprintf(fid,"%d %d %f\n",k,2,0.);
+  fprintf(fid,"%d %d %f\n",k,3,0.);
+endfor
+fclose(fid);
+
+## Compute normals to FS
+nfs = length(fs);
+normal = xnod(fs(3:nfs),:) - xnod(fs(1:nfs-2),:);
+normal = leftscal(1./l2(normal),normal);
+normal = [-normal(:,2) normal(:,1)];
+
+## SF  v.n=0
+fid = fopen("spiller.slip.tmp","w");
+for j=2:length(fs)-1
+  k= fs(j);
+  fprintf(fid,"%f    %d %d   %f  %d %d\n",normal(j-1,1),k,1,normal(j-1,2),k,2);
+endfor
+fclose(fid);
+
+nnod = rows(xnod);
+uini = [1 0 0];
+uini = uini(ones(nnod,1),:);
+asave("spiller.ini.tmp",uini);
