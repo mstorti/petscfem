@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.30 2002/10/24 22:38:43 mstorti Exp $
+//$Id: fem.h,v 1.31 2002/11/30 23:42:15 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -30,6 +30,17 @@
 /**@name fem.h */
 //@{
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** If user enters an elemset type #alias# in the data
+    file, associate with real elemset #elemset_type#. 
+    @author M. Storti
+    @param elem_set_type_alias elemset type alias
+    @param elem_set_type real elemset type
+*/ 
+#define SET_ELEMSET_TYPE_ALIAS(alias,elemset_type)	\
+      if ( ! strcmp(type,#alias)) {			\
+  	elemset = (Elemset *)new elemset_type;		\
+      } else 
+
 /** Use this macro to include elemset types in the function
     bless\_elemset. 
     NOTE: This is somewhat incorrect. NewElemset in the future will
@@ -39,12 +50,10 @@
     classes, so that we can not make polymorphism between these
     classes. 
     @author M. Storti
-    @param elem_set_type new elemset type to be included
+    @param elemset_type new elemset type to be included
 */ 
-#define SET_ELEMSET_TYPE(elem_set_type)		\
-      if ( ! strcmp(type,#elem_set_type)) {	\
-  	elemset = (Elemset *)new elem_set_type;	\
-      } else 
+#define SET_ELEMSET_TYPE(elemset_type)			\
+        SET_ELEMSET_TYPE_ALIAS(elemset_type,elemset_type)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** This is prepended in some of the GETOPT macros to the name of the

@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-$N=8;
-$disp = 0.3;
+$N=10;
+$disp = 0.5;
 # $shape = 'quad';
 #
 octave_export_vars(">data.m.tmp",qw(N disp shape));
@@ -13,7 +13,7 @@ global_options
 ndim 3
 
 save_file "step3d.state.tmp"
-nsave 5
+nsave 1
 nsaverot 0
 
 #if 0
@@ -32,10 +32,13 @@ atol 1e-10
 tol_newton 0
 maxits 100
 steady
-# c_volume 0.1
+c_volume 0.
 # distor_exp 1.
+print_internal_loop_conv
+debug_activate_print
+debug_activate_memory_usage
 
-<:$nstep=20; pr('nstep');:>
+<:$nstep=40; pr('nstep');:>
 Dt <:= 1./$nstep;:>
 __END_HASH__
 

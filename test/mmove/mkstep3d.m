@@ -20,18 +20,18 @@ z1 = find(abs(xnod(:,3)-1)<tol);
 fid = fopen("step3d.fixa.tmp","w");
 fixed = create_set([z0;z1;x0;x1;y0;y1]);
 
-rmin = 0.3; rmax = 0.7;
+rmin = 0.5; rmax = 0.9;
 for k=fixed
   x = xnod(k,1);
   y = xnod(k,2);
   z = xnod(k,3);
   r = sqrt(x^2+y^2);
   if r<rmin
-    dd = disp;
-  elseif r>rmax
     dd = 0;
+  elseif r>rmax
+    dd = disp;
   else
-    dd = disp*(rmax-r)/(rmax-rmin);
+    dd = disp*(r-rmin)/(rmax-rmin);
   endif
   fprintf(fid,"%d %d %f\n",k,1,0.);
   fprintf(fid,"%d %d %f\n",k,2,0.);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.5 2002/11/30 14:54:47 mstorti Exp $
+//$Id: mmove.h,v 1.6 2002/11/30 23:42:06 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -8,9 +8,22 @@
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /// 
 class  mesh_move : public adaptor { 
-public: 
+private:
   FastMat2 G, J, dNdxi, xlocp, xloc0, res_Dir;
   //#define USE_NEWMAT
+public: 
+  void init();
+  void element_connector(const FastMat2 &xloc,
+			 const FastMat2 &state_old,
+			 const FastMat2 &state_new,
+			 FastMat2 &res,FastMat2 &mat);
+  double distor_fun(FastMat2 & xlocp);
+  virtual void init_dfun() {}
+  virtual double distor_fun_G(FastMat2 &G)=0;
+};
+
+class mesh_move_eig : public mesh_move {
+private:
 #ifdef USE_NEWMAT
   SymmetricMatrix  GG;
   DiagonalMatrix D;
@@ -18,12 +31,16 @@ public:
   FastMat2 D;
 #endif
   double c_volume, c_distor, distor_exp;
-  void init();
-  void element_connector(const FastMat2 &xloc,
-			 const FastMat2 &state_old,
-			 const FastMat2 &state_new,
-			 FastMat2 &res,FastMat2 &mat);
-  double distor_fun(FastMat2 & xlocp);
+public:
+  void init_dfun();
+  double distor_fun_G(FastMat2 & G);
+};
+
+class mesh_move_rcond : public mesh_move {
+private:
+  FastMat2 iG;
+public:
+  double distor_fun_G(FastMat2 & G);
 };
 
 class mmove_hook {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.7 2002/11/30 22:31:41 mstorti Exp $
+//$Id: mmove.cpp,v 1.8 2002/11/30 23:42:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -28,15 +28,6 @@ void mesh_move::init() {
   double c[12] = {-1., -c1, -c2, +1., -c1, -c2, 
 		  0., 2*c1, -c2, 0., 0., 3*c2};
   
-  //o Distortion coefficient
-  TGETOPTDEF_ND(thash,double,c_distor,1.);
-
-  //o Functional exponent
-  TGETOPTDEF_ND(thash,double,distor_exp,1.);
-
-  //o Distortion coefficient
-  TGETOPTDEF_ND(thash,double,c_volume,1.);
-
   G.resize(2,ndim,ndim); // the metric tensor
   xlocp.resize(1,nel*ndim); // The perturbed coordinates
   xloc0.resize(1,nel*ndim); // The perturbed coordinates
@@ -77,14 +68,29 @@ void mesh_move::init() {
     dNdxi.set(C);
   }
   res_Dir.resize(2,nel,ndim);
+  init_dfun();
+}
+
+void mesh_move_eig::init_dfun() {
+  int ierr;
+  //o Distortion coefficient
+  TGETOPTDEF_ND(thash,double,c_distor,1.);
+  //o Functional exponent
+  TGETOPTDEF_ND(thash,double,distor_exp,1.);
+  //o Distortion coefficient
+  TGETOPTDEF_ND(thash,double,c_volume,1.);
 }
 
 double mesh_move::distor_fun(FastMat2 & xlocp) {
-  double df,la1,la2,la3,vol,volref;
-
   xlocp.reshape(2,nel,ndim);
   J.prod(xlocp,dNdxi,-1,1,2,-1);
+  xlocp.reshape(1,nel*ndim);
   G.prod(J,J,-1,1,-1,2);
+  return distor_fun_G(G);
+}
+
+double mesh_move_eig::distor_fun_G(FastMat2 &G) {
+  double df,la1,la2,la3,vol;
 #ifdef USE_NEWMAT
   for (int i=1; i<=ndim; i++) {
     for (int j=1; j<=ndim; j++) {
@@ -101,25 +107,29 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
   la2=D.get(2);
   if (ndim==3) la3=D.get(3);
 #endif
-
-  // volref=1.;
-  volref=0.;
   double diffla;
   if (ndim==2) {
     vol = la1*la2;
     diffla = (la1-la2)*(la1-la2);
     diffla /= vol;
-  } else {
+  } else if (ndim==3) {
     diffla = (la1-la2)*(la1-la2) + (la2-la3)*(la2-la3) + (la1-la3)*(la1-la3);
     vol = la1*la2*la3;
     diffla /= pow(vol,2./3.);
-  }
+  } else assert(0);
   df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
-  xlocp.reshape(1,nel*ndim);
-
   return df;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double mesh_move_rcond::distor_fun_G(FastMat2 & G) {
+  iG.inv(G);
+  double norm_G = G.max_abs_all();
+  double norm_iG = iG.max_abs_all();
+  return norm_G*norm_iG;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
