@@ -92,3 +92,31 @@ newton_relaxation_factor 0.5 3 1.
 %
 means: take $w=0.5$ for the first 3 steps, and then use $w=1$. 
 %end_section
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+%section print_some
+\label{sec:free_surface}
+
+\def\Cnst#1{C_{\mathrm{#1}}}
+The equation of the free surface is 
+%
+\begin{equation} 
+\dtots\eta t = w
+\end{equation}
+%
+where $\eta$ 
+elevation, and $w$ is the velocity component normal to the free
+surface. We modify this as follows 
+%
+\begin{equation} 
+C_{\mathrm{eq}}\,\dtotd\eta t 
+   + C_{\mathrm{lf}} \eta + C_{\mathrm{damp}} \, \Delta \eta = w
+\end{equation}
+%
+Where
+$damp=free_surface_damp# smoothes the free surface.
+#ceq=fs_eq_factor# (see #fs_eq_factor# doc) is a factor that makes the
+free surface more rigid.  #clf=free_surface_set_level_factor# (see doc
+for that option) tries to keep the free surface level constant.
+
+%end_section
