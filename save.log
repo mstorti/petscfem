@@ -941,3 +941,7 @@ tag: beta-2.73.pl2 on Wed Feb  6 10:27:30 ART 2002 by mstorti in minerva.arcride
 ----------
 tag: beta-2.74 on Wed Feb  6 11:34:42 ART 2002, by mstorti in minerva.arcride.edu.ar
      > aquifer+stream is working
+----------
+tag: beta-2.75 on Sat Feb  9 19:23:39 ARST 2002, by mstorti in spider
+     > Added `gaussian' Amplitude type with new OOP interface.
+     > Modified the test `stream' (but not yet in the test suite).
