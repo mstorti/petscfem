@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.4 2002/07/31 02:18:03 mstorti Exp $
+//$Id: nssupg.cpp,v 1.5 2002/07/31 02:52:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -192,17 +192,21 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Residual of equation (eta^{n+1}-eta^n)/Dt - w = 0
 	res_pg.prod(tmp,SHAPE,-1,-1);
 	res_pgg.set(SHAPE).scale(res_pg.get()*wpgdet);
-	
+
+#if 0	
 	grad_eta.prod(DSHAPEXI,eta_star,1,-1,-1);
 	tmp2.prod(DSHAPEXI,grad_eta,-1,1,-1);
 	res_pgg.axpy(tmp2,-free_surface_damp*wpgdet);
+#endif
 	veccontr.add(res_pgg);
 
 	// Jacobian term
 	tmp3.prod(SHAPE,SHAPE,1,2);
 	mass_mat.axpy(tmp3,wpgdet);
+#if 0
 	tmp4.prod(DSHAPEXI,DSHAPEXI,-1,1,-1,2);
 	lap_mat.axpy(tmp4,wpgdet);
+#endif
       }
 
       veccontr.rs().export_vals(&(RETVAL(ielh,0,0)));
