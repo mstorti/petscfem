@@ -189,7 +189,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10,
-    tmp11,tmp12;
+    tmp11,tmp12,tmp13,tmp14,tmp15;
 
   masspg.set(1.);
   grad_u_ext.set(0.);
@@ -413,25 +413,34 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 	}
 
-#if 0
       } else if (comp_mat_poi) {
 
-	matlocmom += wpgdet * dshapex.t() * dshapex; 
+	tmp13.prod(dshapex,dshapex,1,2,3,4);
+	matlocmom.axpy(tmp13,wpgdet);
  
       } else if (comp_res_prj) {
 
-	grad_p = dshapex * locstate2.Column(ndim+1);
+	locstate2.ir(2,ndof);
+	grad_p.prod(dshapex,locstate2,1,-1,1);
 
-	u_star = (SHAPE * locstate2.Columns(1,ndim)).t();
-	u = (SHAPE * locstate.Columns(1,ndim)).t();
+	locstate2.is(2).is(2,1,ndim);
+	u_star.prod(SHAPE,locstate2,-1,-1,1);
+	locstate2.rs();
 
-	resmom += wpgdet * SHAPE.t() *
-	  (-Dt*(alphap/rho) *grad_p - (u - u_star)).t();
+	locstate.is(2).is(2,1,ndim);
+	u.prod(SHAPE,locstate,-1,-1,1);
+	locstate.rs();
+
+	tmp14.set(u_star).rest(u).axpy(grad_p,-Dt*(alphap/rho));
+	tmp15.prod(SHAPE,tmp14,1,2);
+	resmom.axpy(tmp15,wpgdet);
+
 	SHV(resmom);
 	SHV(SHAPE);
 	SHV(u);
 	SHV(u_star);
 
+#if 0 // not coded yet
       } else if (comp_mat_prj) {
 
 	// fixme:= esto me parece que deberia ir con signo - !!
