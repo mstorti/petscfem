@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.6 2001/09/21 02:23:35 mstorti Exp $
+//$Id: sparse.cpp,v 1.7 2001/09/21 15:37:47 mstorti Exp $
 
 #include "sparse.h"
 
@@ -48,9 +48,11 @@ namespace Sparse {
     }
   }
 
+#if 0
   Vec::Vec(const Indx &I,const Vec &v) {
     assert(0); // code here
   };
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -66,16 +68,33 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 #undef __FUNC__
 #define __FUNC__ "Vec::print"
-  void Vec::print(char * s = NULL) {
+  void Vec::print(const char * s = NULL) {
+    print_g(0,s," -> ","  ","\n");
+  }
+#endif
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::print_g"
+  void Vec::print_g(int l,const char * s,const char * psep, const char * isep,
+		  const char * lsep) const {
     VecCIt J;
     if (s) printf("%s\n",s);
-    printf("length: %d\n",len);
+    if (l) printf("length: %d\n",len);
     for (J=begin(); J!=end(); J++) {
-      printf("%d -> %f\n", J->first, J->second);
+      printf("%d%s%f%s", J->first, psep, J->second,isep);
     }
-    printf("--\n");
+    printf("%s",lsep);
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::print"
+  void Vec::print(const char * s = NULL) {
+    print_g(1,s," -> ","\n","-- end vec --\n");
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -166,7 +185,7 @@ namespace Sparse {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "Vec::set"
+#define __FUNC__ "Vec::axpy"
   Vec & Vec::axpy(double c,const Indx & I,double a,const Vec & v) {
     int j,m,k;
     m = I.size();
@@ -177,46 +196,95 @@ namespace Sparse {
     return *this;
   }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::set"
   Vec & Vec::axpy(double a,const Vec & v) {
     VecCIt j,e;
+    double r;
     int k;
     assert(len == v.len);
     e = v.end();
     for (j=v.begin(); j!=e; j++) {
       k = j->first;
-      set(k,get(k)+a*j->second);
+      r = get(k);
+      set(k, r + a * j->second);
     }
     return *this;
   }
 
-#if 0
-  Vec & Vec::axpy(int j,double a,double v) {
-    double o;
-    set(j,get(j)+a*
-    VecIt J = find(j);
-    if (j >= len ) {
+  double Mat::get(int j,int k) const {
+    assert(j<nrows);
+    const RowCIt J = find(j);
+    if (J == end()) {
+      return 0.;
+    } else {
+      return J->second.get(k);
+    }
+  }
+
+  /// Set element at position j
+  Mat & Mat::set(int j,int k,double v) {
+    RowIt J;
+    Vec row;
+    if (j >= nrows ) {
       if (!grow_m) {
-	printf("sparse: index %d out of range, length %d\n",j,len);
+	printf("sparse: index %d out of range, rows  %d\n",j,nrows);
 	abort();
       }
-      len = j+1;
+      nrows = j+1;
     }
-    if (J == end()) {
-      if (v!=0) insert(VecP(j,v));
-    } else {
-      if (v==0) {
-	erase(J);
-      } else {
-	J->second = v;
+
+    if (k >= ncols ) {
+      if (!grow_m) {
+	printf("sparse: index %d out of range, cols  %d\n",j,nrows);
+	abort();
       }
+      ncols = k+1;
+    }
+
+    J = find(j);
+    if (J == end()) {
+      if (v!=0) {
+	row.set(k,v);
+	insert(RowP(j,row));
+      }
+    } else {
+      J->second.set(k,v);
     }
     return *this;
   }
-#endif
+
+  void Mat::print(const char *s = NULL) {
+    RowCIt i,e;
+    if (s) printf("%s\n",s);
+
+    e = end();
+    for (i=begin(); i!=e; i++) {
+      printf("row %d -> ",i->first);
+      i->second.print_g(0,NULL,": ","  ","\n");
+    }
+    printf("-- end mat --\n");
+  }
+
+  /// Resize vectors, truncates elements if greater than this value
+  Mat & Mat::resize(int m,int n) {
+    RowIt i,e;
+
+    i = lower_bound(m);
+    erase(i,end());
+    
+    e = end();
+    for (i=begin(); i!=e; i++) i->second.resize(n);
+    nrows = m;
+    ncols = n;
+    return *this;
+  }
+
 }
 
 /*
   Local Variables: 
-  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem-beta-1.93/tools/pfcpp")
+  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem/tools/pfcpp")
   End: 
 */

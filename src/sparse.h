@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.4 2001/09/21 00:07:57 mstorti Exp $
+// $Id: sparse.h,v 1.5 2001/09/21 15:37:47 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -8,6 +8,7 @@
 
 #include <map>
 #include <vector>
+#include <algorithm>
 
 namespace Sparse {
 
@@ -36,81 +37,92 @@ namespace Sparse {
     int length() {return len;};
     /// Constructor from another vector
     Vec(const Vec &v) {*this = v;};
-    /** Insert contents of vector v at position I.
+    /* Insert contents of vector v at position I.
 	Length of vector is that of the maximum index in I. 
     */
-    Vec(const Indx &I,const Vec &v);
+    // Vec(const Indx &I,const Vec &v);
     /// Get element at specified position
     double get(int j) const;
     /// Get a subvector of elements at position I
     void get(const Indx &I,Vec &V) const; 
+
     /// Set element at position j
     Vec & set(int j,double v);
-    /// Set elements at subvector at position I
+    /// Set elements at subvector at position I. w[I] = v
     Vec & set(const Indx & I,const Vec & v);
+    /// Set vector to elements of v at position I. w = v[I]
+    Vec & set(const Vec & v,const Indx & I);
+    /// Set vector elements at I to elements f of v at position J. w[I] = v[J]
+    Vec & set(const Indx & I,const Vec & v,const Indx & K);
+
+    /// Scale elements 
+    Vec & scale(double c);
+
+    /// Sets w += a * v
+    Vec & axpy(double a,const Vec & v);
+    /// Sets w[I] = c * w[I] + a * v
+    Vec & axpy(double c,const Indx & I,double a,const Vec & v);
+
+    /// print elements (generic version)
+    void print_g(int l,const char * s,const char * psep, const char * isep,
+		 const char * lsep) const;
     /// print elements
-    void print(char *s = NULL);
+    void print(const char *s = NULL);
     /// Set mode if can grow automatically or not
     Vec & grow(int g) { grow_m=g; return *this;};
     /// Clears all elements
     Vec & clear() {map<int,double>::clear(); return *this;}
     /// Resize vectors, truncates elements if greater than this value
     Vec & resize(int n);
+
+//      /// Equal operator
+//      Vec operator=(Vec v) { *this = v; return *this;}
+
   };
+  
+  typedef map<int,Vec>::iterator RowIt;
+  typedef map<int,Vec>::const_iterator RowCIt;
+  typedef pair<int,Vec> RowP;
+  typedef pair<const int,Vec> RowCP;
 
 #if 0
-    // Simple sparse matrix class. 
-  class SeqMat : public PFMat, public map< int, Row >  {
-    typedef map<int,Row>::iterator RowIt;
-    typedef map<int,double>::iterator ColIt;
-    typedef pair<int,Row> row_p;
-    typedef pair<int,double> col_p;
-
-    int nrows,ncols;
-    /// PETSc error code 
-    int ierr;
+  class IntTrunc {
+  private:
+    int bound;
   public:
-    /// Destructor (calls almost destructor)
-    ~SeqMat() {clear();};
-    /// clear memory (almost destructor)
-    // void clear() {clear();};
-    /// Constructor 
-    SeqMat() : PFMat() {};
-    /** Call the assembly begin function for the underlying PETSc matrices
-	@param type (input) PETSc assembly type
-	@return A PETSc error code 
-    */ 
-    int assembly_begin(MatAssemblyType type) { return 0;};
-    /** Call the assembly end function for the underlying PETSc matrices
-	@param type (input) PETSc assembly type
-	@return A PETSc error code 
-    */ 
-    int assembly_end(MatAssemblyType type) { return 0;};
-    /** Sets individual values on the operator #A(row,col) = value#
-	@param row (input) first index
-	@param col (input) second index
-	@param value (input) the value to be set
-	@param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
-    */ 
-    void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES);
-    /// Sets all values of the operator to zero.
-    int zero_entries() {clear();};
-    /** Does nothing for this class.
-	Creates the matrix from the profile computed in #da#
-	@param da (input) dynamic array containing the adjacency matrix
-	of the operator
-	@param dofmap (input) the dofmap of the operator (contains
-	information about range of dofs per processor. 
-	@param debug_compute_prof (input) flag for debugging the process
-	of building the operator.
-    */ 
-    void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
-    /// Duplicate matrices 
-    int duplicate(MatDuplicateOption op,PFMat &A);
-    int view(Viewer viewer);
+    IntTrunc(int b) : bound(b) {};
+    int operator()(pair<int,Vec> j) { return j.first >= bound;}
   };
 #endif
 
-}
+    // Simple sparse matrix class. 
+  class Mat : public map< int, Vec >  {
 
+    /// Dimensions
+    int nrows,ncols;
+    /// Flag indicating where you can add values past the specified dimensions 
+    int grow_m; 
+  public:
+    /// Constructor from the length
+    Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n) {};
+    /// Return row dimension
+    int rows() {return nrows;};
+    /// Return column dimension
+    int cols() {return ncols;};
+    /// Constructor from another vector
+    Mat(const Mat &a) {*this = a;};
+
+    /// Get element at specified position
+    double get(int j,int k) const;
+    /// Set element at position j
+    Mat & set(int j,int k,double v);
+
+    /// print elements
+    void print(const char *s = NULL);
+
+    /// Resize vectors, truncates elements if greater than this value
+    Mat & resize(int m,int n);
+  };
+
+}
 #endif

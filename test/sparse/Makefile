@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/09/20 20:13:28 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/09/21 15:37:57 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -23,4 +23,6 @@ sp.bin: sp.o ../../src/libpetscfem.a(sparse.o)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ sp.o   $(LDFLAGS)
 
+tryme.bin: tryme.o
+	g++ -g -o $@ $<
 #s

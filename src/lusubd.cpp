@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.45 2001/08/25 16:08:35 mstorti Exp $
+//$Id: lusubd.cpp,v 1.46 2001/09/21 15:37:47 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -1180,6 +1180,6 @@ int PETScMat::zero_entries() {
 
 /*
   Local Variables: 
-  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem-beta-1.93/tools/pfcpp")
+  eval: (setq c-macro-preprocessor "/home/mstorti/PETSC/petscfem/tools/pfcpp")
   End: 
 */
