@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/12/03 15:15:34 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/12/03 19:48:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -14,7 +14,8 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 NS = $(PETSCFEM_DIR)/applications/ns/ns.bin
 
 LOC_PROG := ns
-CASE_NAME := qharm
+#CASE_NAME := qharm
+CASE_NAME := sqcav
 PROG := $(NS)
 
 ################################################################
@@ -44,7 +45,7 @@ runq: force
 
 runs: CASE := sqcav
 test_big:
-	$(MAKE) case=big runs
+	time $(MAKE) case=big runs
 
 # tests the square cavity in a 20x20 mesh at Re=1000
 # with respect with a reference solution obtained also with Petscfem and

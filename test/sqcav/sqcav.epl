@@ -19,6 +19,7 @@ $nstep = 100;
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 #
 $weak_form = 0;
+$cache_gdu = 0;
 # `scalar' avoids returning the first match, which can be zero
 # and then can be interpreted as `false' 
 if (scalar $case =~ /weak_form_(\d)/) {
@@ -36,11 +37,15 @@ if (scalar $case =~ /weak_form_(\d)/) {
     $iisd_subpart = $1 if $case=~/sbp(\d*)/;
     $preco_type = "jacobi";
 } elsif ($case eq 'big') {
-    $N = 100;
-    $solver = "iisd";
-    $preco_type = "jacobi";
-    $maxits = 200;
-    $nstep = 1;
+    $N = 40;
+#      $solver = "iisd";
+#      $preco_type = "jacobi";
+    $solver = "petsc";
+    $preco_type = "lu";
+    $maxits = 1;
+    $nstep = 20;
+    $cache_gdu = 0;
+    $iisd_subpart = 10;
 } else {
     die "don't know case $case\n";
 }
@@ -63,6 +68,9 @@ nsave 5
 <:pr('maxits'):> 
 # Number of subdomains
 <:pr('iisd_subpart'):>
+# update_jacobian_iters 3
+update_jacobian_start_steps 10
+update_jacobian_steps 3
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -87,7 +95,7 @@ steady
 temporal_stability_factor 0
 
 shock_capturing_factor 0
-#if 0
+#if $cache_gdu
 local_store
 cache_grad_div_u
 #endif
@@ -103,7 +111,7 @@ elemset nsi_tet_les_fm2 4
 
 name malla
 
-#report_consumed_time
+report_consumed_time
 geometry cartesian2d
 ndim 2
 npg 4
