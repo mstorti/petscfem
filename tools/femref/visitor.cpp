@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.17 2004/12/29 21:37:24 mstorti Exp $
+// $Id: visitor.cpp,v 1.18 2004/12/31 17:08:03 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -150,6 +150,23 @@ bool UniformMesh::visitor::
 end() { return at_end && elem>= mesh->nelem; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void 
+UniformMesh::
+hash_insert(int k,RefNodeIterator q) {
+  hash2it.insert(pair<int,RefNodeIterator>(k,q));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::
+add_refined_node(ElemRef::iterator q,
+		 int j,int node_hash) {
+  RefNodeIterator w;
+  w.c = q.cell_ptr();
+  w.indx = j;
+  hash_insert(node_hash,w);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::
 refine(const Splitter* s) {
   assert(is_leave());
@@ -160,13 +177,31 @@ refine(const Splitter* s) {
   q = etree_p->insert(q,ElemRefNode());
   int nrnod = s->nref_nodes();
   GeomObject rfnd;
-  GeomObject::Type t;
+  const GeomObject::Template *tmpl;
   for (int j=0; j<nrnod; j++) {
     int n; const int *local_nodes;
-    s->ref_node(j,t,n,local_nodes);
-    rfnd.init(t,local_nodes,w->go.nodes());
+    s->ref_node(j,tmpl,n,local_nodes);
+    rfnd.init(tmpl->type,local_nodes,w->go.nodes());
     rfnd.make_canonical();
     int node_hash = rfnd.hash_val();
+<<<<<<< visitor.cpp
+    hash2it_t::iterator start = mesh->hash2it.lower_bound(node_hash);
+    if (start == mesh->hash2it.end()) 
+      mesh->add_refined_node(q,j,node_hash);
+    else {
+      hash2it_t::iterator 
+	end = mesh->hash2it.upper_bound(node_hash),
+	r;
+      GeomObject qo;
+      while (r!=end) {
+	mesh->set(r->second,qo);
+	qo.make_canonical();
+	if(qo.equal(rfnd)) break;
+	r++;
+      }
+      if (r==end) 
+	mesh->add_refined_node(q,j,node_hash);
+=======
     hash2it_t::iterator 
       start = hash2it.lower_bound(node_hash);
     if (start == hash2it.end()) {
@@ -180,6 +215,7 @@ refine(const Splitter* s) {
       end = hash2it.upper_bound(node_hash);
     if (start==end) {
       while 
+>>>>>>> 1.17
     }
   }
   int j = w->so_indx;
