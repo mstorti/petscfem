@@ -1,3 +1,4 @@
+// $Id: hasher.cpp,v 1.8 2004/12/03 23:22:20 mstorti Exp $
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
