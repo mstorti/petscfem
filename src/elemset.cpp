@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.41 2002/05/12 23:30:03 mstorti Exp $
+//$Id: elemset.cpp,v 1.42 2002/07/13 20:32:25 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -793,7 +793,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
-		  "Performance report \"%s\" task \"%s\"\n"
+		  "Performance report elemset \"%s\" task \"%s\"\n"
 		  "[proc] - total[sec] - rate[sec/Kelement]\n",
 		  elemset->type,jobinfo);
       double elapsed;
