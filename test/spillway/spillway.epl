@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spillway.epl,v 1.11 2003/03/30 15:55:08 mstorti Exp $ 
+## $Id: spillway.epl,v 1.12 2003/03/31 17:07:10 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -7,7 +7,7 @@ require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl
 require 'data.pl';
 #__END_TRANSCRIPT__
 @vars = qw(C E H1 L1 L2 h1 y2 Ny Nx uin fs_relax Dt gravity p_const_bc patm
-    steady_state_file x_damp);
+    steady_state_file x_damp initia);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "initia=1 octave -qH spillway.m";
@@ -27,11 +27,13 @@ nsaverot 10
 nrec 1
 nfile 100000000
 
-# initial_state "./RUN1/spillway.state_21.tmp"
-initial_state "spillway.steady_state.tmp"
-# initial_state "spillway.ini.tmp"
+#if $initia
+initial_state "spillway.ini.tmp"
+#else
+initial_state "spillway.steady_state"
+#endif
 nstep 10000
-# steady
+# steady <:=$initia:>
 solver "iisd"
 iisd_subpart_auto 2000
 preco_type "jacobi"
@@ -49,6 +51,7 @@ print_partitioning_statistics
 # verify_jacobian_with_numerical_one 1
 # solve_system 0
 # report_consumed_time
+#if !$initia
 launch_mesh_move
 
 hook_list ns_dx_hook my_dx_hook \
@@ -56,6 +59,9 @@ hook_list ns_dx_hook my_dx_hook \
 
 my_ale_hook.filename ./alehook.efn
 my_ale_hook.prefix   ale_hook2
+#else
+hook_list ns_dx_hook my_dx_hook
+#endif
 
 viscosity 1e-2
 G_body <:=$slope*$gravity:> <:=-$gravity:>

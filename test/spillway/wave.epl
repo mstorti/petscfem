@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.4 2003/03/31 00:01:08 mstorti Exp $ 
+## $Id: wave.epl,v 1.5 2003/03/31 17:07:10 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -70,7 +70,7 @@ G_body <:=$slope*$gravity:> <:=-$gravity:>
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
-dx_steps 1
+<:pr('dx_steps'):>
 # dx_read_state_from_file 1
 __END_HASH__
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2003/03/30 20:45:14 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2003/03/31 17:07:10 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -7,6 +7,9 @@ default: wave
 
 spillway:  alehook.efn fifos
 	$(MAKE) CASE_NAME=spillway run
+
+spillway_mmv:
+	$(MAKE) CASE_NAME=spillway_mmv run > spillway_mmv.output.tmp
 
 spillway_mesh:
 	initia=0 octave -qH spillway.m
@@ -33,9 +36,6 @@ fifos:
 	mkfifo ns2mmv.fifo
 	if [ -e mmv2ns.fifo ] ; then rm mmv2ns.fifo ; fi
 	mkfifo mmv2ns.fifo
-
-mesh_move:
-	$(MAKE) CASE_NAME=spillway_mmv run > mesh_move.output.tmp
 
 alehook.efn:  ../plate/fifo.o
 alehook.efn: EFN_LDFLAGS = ../plate/fifo.o $(LIBPETSCFEM)

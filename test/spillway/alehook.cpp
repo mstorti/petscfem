@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.10 2003/03/31 00:01:08 mstorti Exp $
+//$Id: alehook.cpp,v 1.11 2003/03/31 17:07:10 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -18,10 +18,12 @@
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/ampli.h>
+#include <src/fastmat2.h>
 #include "../plate/fifo.h"
 
 extern int MY_RANK,SIZE;
 #define CASE_NAME "wave"
+//#define CASE_NAME "spillway"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ale_hook {
@@ -172,9 +174,6 @@ void ale_hook2::time_step_post(double time,int step,
     
     // Reads displacements computed by `mesh_move' and add to nodedata
     FILE *fid = fopen(CASE_NAME "_mmv.state.tmp","r");
-    int nnod = mesh->nodedata->nnod;
-    int ndim = mesh->nodedata->ndim;
-    int nu = mesh->nodedata->nu;
     double d;
     double *nodedata = mesh->nodedata->nodedata;
     int debug=0;
@@ -212,6 +211,8 @@ DL_GENERIC_HOOK(ale_hook2);
 dvector<double> spines;
 // displ:= current displacements (they cumulate during time steps)
 dvector<double> displ;
+// fs:= vector of nodes on the free surface (FS)
+dvector<int> fs;
 // fs2indx_t:= type of fs2indx
 typedef map<int,int> fs2indx_t;
 // fs2indx:= map (FS -> index FS list)
@@ -226,6 +227,12 @@ private:
   int nnod, ndim, nfs;
   // time step, relaxation coefficient
   double Dt, fs_relax;
+  // Pointer to the mesh, in order to obtain the nodedata
+  Mesh *mesh;
+  // Flags whether the FS is assumed to be cyclic 
+  int cyclic_fs;
+  // If the problem is cyclic then this is the period 
+  double cyclic_length;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -236,7 +243,7 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
+void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
 	  TextHashTableFilter *options,const char *name) { 
 
   if (!MY_RANK) {
@@ -254,7 +261,9 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
   int ierr = MPI_Barrier(PETSC_COMM_WORLD);
   assert(!ierr);
 
-  nnod = mesh.nodedata->nnod;
+  mesh = &mesh_a;
+  // fixme:= some things here will not run in parallel
+  nnod = mesh->nodedata->nnod;
   ndim = 2;
   // Read list of nodes on the FS ad spines (all of size nfs).
   FILE *fid = fopen(CASE_NAME ".nod_fs.tmp","r");
@@ -273,6 +282,7 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
       spines.push(n);
     }
     assert(fs2indx.find(node)==fs2indx.end());
+    fs.push(node);
     // load map
     fs2indx[node] = indx++;
   }
@@ -292,6 +302,10 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
   assert(Dt>0.);
   //o Relaxation factor for the update of the free surface position. 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,fs_relax,1.);
+  //o Assume problem is periodic 
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,cyclic_fs,0);
+  //o Assume problem is periodic 
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,cyclic_length,0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -314,6 +328,12 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
   AutoString line;
   vector<string> tokens;
   fs2indx_t::iterator qe = fs2indx.end();
+  // Get coordinates pointer
+  double *nodedata = mesh->nodedata->nodedata;
+  int nu = mesh->nodedata->nu;
+  int nnod = mesh->nodedata->nnod;
+  FastMat2 x0(1,ndim),x1(1,ndim),x2(1,ndim),
+    x01(1,ndim),x12(1,ndim),normal(1,ndim);
   // Reads the whole file
   for (int node=1; node<=nnod; node++) {
     // Reads line (even if it is not in the FS)
@@ -323,25 +343,75 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     if (q==qe) continue;
     // index in the containers
     int indx = q->second;
-    double v, vn_tmp=0., n2=0.;
     // Compute normal component of velocity
     int debug = 0;
-    if (debug) printf("node %d, vel, nor ",node);
+    if (debug) printf("node %d, vel, nor, spin ",node);
     tokens.clear();
     tokenize(line.str(),tokens);
     assert(tokens.size()==ndim+1);
+    // -- Compute normal --
+    // FS nodes at the end of the FS must be treated specially.
+    // Currently assumes cyclic FS
+    assert(cyclic_fs);
+    // Compute coordinates of three nodes on the free surface
+    // Node at the center
+    x1.set(&nodedata[nu*(node-1)]);
+    // Previous node
+    int div0,div2;
+    int indx0 = modulo(indx-1,nfs,&div0);
+    int node0 = fs.e(indx0);
+    x0.set(&nodedata[nu*(node0-1)]);
+    x0.addel(div0*cyclic_length,1);
+
+    // Next node
+    int indx2 = modulo(indx+1,nfs,&div2);
+    int node2 = fs.e(indx2);
+    x2.set(&nodedata[nu*(node2-1)]);
+    x2.addel(div2*cyclic_length,1);
+
+#if 1
+    printf("indx %d, div0 %d, div2 %d\n",indx,div0,div2);
+    x0.print("x0:");
+    x1.print("x1:");
+    x2.print("x2:");
+#endif
+
+    // Segements 0-1 1-2
+    x01.set(x1).rest(x0);
+    x12.set(x2).rest(x1);
+    double l01 = x01.norm_p_all(2);
+    double l12 = x12.norm_p_all(2);
+
+    // weighted tangent at 1
+    normal.set(x01).scale(l01).axpy(x12,l12);
+    double l = normal.norm_p_all(2);
+    normal.scale(1./l);
+
+    // rotate to get normal
+    assert(ndim==2);		// not implemented yet 3D
+    double nx = normal.get(2);
+    double ny = -normal.get(1);
+    normal.setel(nx,1);
+    normal.setel(ny,2);
+
+    // normalize
+    double n2 = normal.norm_p_all(2);
+    normal.scale(1./n2);
+
+    // Compute displacement
+    double v, vn=0., sn=0.;
     for (int j=0; j<ndim; j++) {
       string2dbl(tokens[j],v);
-      double n = spines.e(indx,j);
-      if (debug) printf(" %f %f",v,n);
-      vn_tmp += v*n;
-      n2 += n*n;
+      double s = spines.e(indx,j);
+      double n = normal.get(j+1);
+      if (debug) printf(" %f %f %f",v,n,s);
+      vn += v*n;
+      sn += s*n;
     }
-    if (debug) printf(", vn_tmp: %f\n",vn_tmp);
-    double tol = 1e-5;
-    assert(fabs(n2-1.0)<tol);
+    if (debug) printf(", vn, sn: %f\n",vn,sn);
+    double d = fs_relax*Dt*vn/sn;
     for (int j=0; j<ndim; j++) {
-      displ.e(indx,j) += fs_relax*Dt*vn_tmp*spines.e(indx,j);
+      displ.e(indx,j) += d*spines.e(indx,j);
     }
     if (debug) printf("%f %f\n",displ.e(indx,0),displ.e(indx,1));
   }

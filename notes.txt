@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $
+$Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
+  # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.266 2003/03/22 22:20:29 mstorti Exp $ 
+  # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6410,6 +6410,20 @@ de las opciones globales, no del elemset.
 Poniendo p = p_stedy en la FS se vuelve inestable aguas abajo. Mi idea
 ahora es agregar un termino calmante tipo dv/dt = .... + c v (solo en
 la componente vertical). 
+
+%===Sun, 30 Mar 2003 22:59:27 -0300 mstorti@spider
+%
+Retomo `spillway'. Escribo un ejemplo `wave' donde se modela una
+longitud de onda en una canal. Anda bien a Re=100, Fr=0.5. Ahora voy a
+probar a Fr=2. 
+
+%===Mon, 31 Mar 2003 09:36:49 -0300 mstorti@spider
+%
+Detecto que hay un error en el update de la FS. Estoy usando 
+$!dx = (!v.!s) !s$ donde $!s$ es la direccion del spin, mientras que lo que
+hay que exigir es $(!dx.!n) = Dt (!v.!n)$ de donde, si $!dx = d !s$,
+entonces tenemos que $d = Dt (!v.!n)/(!s.!n)$ y por lo tanto 
+$!dx = Dt (!v.!n)/(!s.!n) s$ 
 
 # Current line ===========  %
 # Local Variables: $
