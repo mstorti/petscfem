@@ -20,12 +20,11 @@ system "octave -qH mknozzle.m > mknozzle.out.tmp";
 ##================================================================
 global_options
 
-####<: $fixa_fase = $ENV{'ip'}; :>
-
-nstep 100
+nstep 1000
 alpha 1.
 
-initial_state "nozzle.state.tmp"
+initial_state "nozzle.ini.tmp"
+# initial_state "nozzle.state.tmp"
 save_file "nozzle.state.tmp" 
 nsave 10
 
@@ -51,24 +50,15 @@ tol_newton 1e-10
 atol 0
 rtol 0
 dtol 1e3
-nnwt 2
+nnwt 5
 
 print_internal_loop_conv
 
-Dt 0.01
+Dt 0.0005
 weak_form 0
 temporal_stability_factor 0
-#tau_fac 1.
 
 shock_capturing_factor 0
-#if $cache_gdu
-local_store
-cache_grad_div_u
-#endif
-
-#if $g_body
-G_body 0 <:=$gravity:>
-#endif
 
 ndim 2
 <:pr('visco'):> 
