@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/01/20 10:15:27 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/01/20 12:24:16 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -169,23 +169,28 @@ tfastvec.o: tfastvec.cpp ../src/fastlib.h
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: $(plano_list)
 plano_list = plano_cons plano_cons_auto plano_local plano_auto plano_local_nm \
-		plano_local_weak plano_local_fm2_weak 
+		plano_local_weak plano_fm2_weak 
 
 #w Test for shallow water
 plano: adv $(plano_list)
 
 plano.depl: force
 
-plano_%: plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+ADVO = $(PETSCFEM_DIR)/../petscfem-beta-1.14/applications/advective/adv.bin
 
-plano_cons:           EPERLFLAGS := -d consistent_supg=1
-plano_local:          EPERLFLAGS := -d local_time_step=1
-plano_cons_auto:      EPERLFLAGS := -d consistent_supg_auto=1
-plano_auto:           EPERLFLAGS := -d auto_time_step=1
-plano_local_nm:       EPERLFLAGS := -d local_time_step_nm=1 
-plano_local_weak:     EPERLFLAGS := -d local_time_step_weak=1
-plano_local_fm2_weak: EPERLFLAGS := -d fm2_weak=1  
+export EPERLFLAGS
+
+plano_cons:       EPERLFLAGS := "-d consistent_supg=1"
+plano_cons_auto:  EPERLFLAGS := "-d consistent_supg_auto=1"
+plano_local:      EPERLFLAGS := "-d local_time_step=1"
+plano_auto:       EPERLFLAGS := "-d auto_time_step=1"
+plano_local_nm:   EPERLFLAGS := "-d local_time_step_nm=1"
+plano_local_weak: EPERLFLAGS := "-d local_time_step_weak=1"
+plano_fm2_weak:   EPERLFLAGS := "-d fm2_weak=1"
+
+plano_%: 
+	$(MAKE) EPERLFLAGS=$(EPERLFLAGS) plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Idmap class
