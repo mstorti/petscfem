@@ -1271,3 +1271,7 @@ tag: beta-3.00.pl5 on Sun, 21 Jul 2002 16:02:07 -0300 by mstorti in spider
 tag: beta-3.00.pl6 on Sun, 21 Jul 2002 19:38:49 -0300 by mstorti in spider
      > Runs OK a 30x30x30 mesh using 120Mb in spider. Spends 30mins in computing 
      > the profile. 
+----------
+tag: beta-3.00.pl7 on Sun, 21 Jul 2002 23:50:00 -0300 by mstorti in spider
+     > Both graphs (`StoreGraph1' and `graphdv') work, bue with 
+     > separate compilation. Now we need to choose via a option entry. 
