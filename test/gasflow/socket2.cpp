@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.8 2003/02/08 23:08:52 mstorti Exp $
+// $Id: socket2.cpp,v 1.9 2003/02/08 23:12:57 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -53,10 +53,6 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
       read_so_far = N-2;
     }
     N = (N ? 2*N : SGETLINE_INIT_SIZE);
-#define DEBUG
-#ifdef DEBUG
-    printf("Allocating %d bytes\n",N);
-#endif
     if (N > SGETLINE_MAX_SIZE) return 0;
     new_line_ptr = (char *) malloc(N);
     assert(new_line_ptr);
@@ -88,21 +84,6 @@ int talk(Socket *sock,comm_mode &mode) {
     if (!strcmp(line,"OVER\n")) mode = RECV;
     stop = !strcmp(line,"STOP\n");
   } else if (mode==RECV) {
-    int computed=0;
-    while (Stest(sock)==0) {
-      for (int k=0; k<CHUNK; k++) {
-	double x,y;
-	x = drand();
-	y = drand();
-	inside += (x*x+y*y<1.);
-      }
-      computed += CHUNK;
-      count += CHUNK;
-    }
-    double PI = 4.*double(inside)/double(count);
-    printf("[Computed %d points, current PI %f, error %g]\n",computed,
-	   PI,fabs(PI-M_PI));
-    
     Sgetline(&buf,&NN,sock);
     if (!strcmp(buf,"OVER\n")) mode = SEND;
     printf("-- %s",buf);
