@@ -3658,3 +3658,8 @@ tag: beta-3.38.24 on Thu, 13 Jan 2005 20:15:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.25 on Sat, 15 Jan 2005 08:56:10 -0300 by mstorti in spider
      > Using `dvector<>' in getsurf.
+----------
+tag: beta-3.38.26 on Sat, 15 Jan 2005 09:58:42 -0300 by mstorti in spider
+     > Now, most functions from `dvector<>' return a reference. 
+     > Implemented `dv*-read!' function in scheme. 
+     > 
