@@ -1,4 +1,4 @@
-/* $Id: nsilesther.cpp,v 1.1 2001/03/05 04:13:49 mstorti Exp $ */
+/* $Id: nsilesther.cpp,v 1.2 2001/03/16 21:21:14 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -113,7 +113,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Use a weak form for the gradient of pressure term.
   SGETOPTDEF(int,weak_form,1);
   //o Add shock-capturing term.
-  SGETOPTDEF(double,shock_capturing_factor,1);
+  SGETOPTDEF(double,shock_capturing_factor,0);
 
   // allocate local vecs
   int kdof;

@@ -1,4 +1,4 @@
-/* $Id: nsitetles.cpp,v 1.3 2001/01/10 22:40:32 mstorti Exp $ */
+/* $Id: nsitetles.cpp,v 1.4 2001/03/16 21:21:14 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -111,7 +111,7 @@ int nsi_tet_les::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Is =1 if we use a weak form for the gradient of pressure term
   SGETOPTDEF(int,weak_form,1);
-  SGETOPTDEF(double,shock_capturing_factor,1);
+  SGETOPTDEF(double,shock_capturing_factor,0);
 
   // allocate local vecs
   int kdof;
