@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.15 2005/02/25 13:42:40 mstorti Exp $
+// $Id: project.cpp,v 1.16 2005/02/25 16:09:52 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -17,11 +17,12 @@ int main() {
   dvector<double> xnod1,xnod2;
   dvector<int> ico1;
 
-#define DATA_DIR "/home/mstorti/PETSC/tatuus/data/"
-#if 0
+#define DATA_DIR "/u/mstorti/PETSC/tatuus/data/"
+#if 1
 #define XNOD1 DATA_DIR "static_p_blade.nod"
 #define ICONE1 DATA_DIR "blade.con"
-#define XNOD2 DATA_DIR "static_p_blade.nod"
+  //#define XNOD2 DATA_DIR "patran.nod"
+#define XNOD2 "./patran.nod"
 #else
 #define XNOD1 "mesh1.nod"
 #define ICONE1 "mesh1.con"
@@ -65,9 +66,17 @@ int main() {
   double d2min;			// Minimum distance to elements in mesh1
   int k1min;			// Element in mesh1 with minimum distance
   FastMat2 Lmin(1,nd1);
+  FastMatCachePosition cp,cp1;
+  FastMatCacheList cache_list;
+  int use_cache;
+  printf("use cache > ");
+  scanf("%d",&use_cache);
+  printf("use_cache %d\n",use_cache);
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
+    if(use_cache) FastMat2::activate_cache(&cache_list);
     for (int k=0; k<nelem1; k++) {
+      FastMat2::reset_cache();
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
 	int node = ico1.e(k,j);
@@ -97,7 +106,9 @@ int main() {
       invCt.ir(1,nd1).set(0.).rs();
       // invCt.print("invCt");
       int iter=0;
+      FastMat2::get_cache_position(cp);
       while(true) {
+	FastMat2::jump_to(cp);
 	iter++;
 	invC2.inv(C2);
 	L.prod(invC2,b,1,-1,-1);
@@ -105,29 +116,44 @@ int main() {
 	// L.print("L");
 	int neg=0;
 	for (int j=1; j<=ndim; j++) {
-	  if (L.get(j)<-tol) {
+	  double lj = L.get(j);
+	  FastMat2::branch();
+	  if (lj<-tol) {
+	    FastMat2::choose(0);
 	    neg=1;
 	    int &flag = restricted[j-1];
 	    flag = !flag;
 	    C2.ir(2,j);
+	    FastMat2::branch();
 	    if (flag) {
+	      FastMat2::choose(0);
 	      invCt.ir(2,j);
 	      C2.set(invCt);
 	    } else {
+	      FastMat2::choose(1);
 	      C.ir(2,j);
 	      C2.set(C);
 	    }
+	    FastMat2::leave();
+	    C2.rs();
+	    invCt.rs();
+	    C.rs();
 	  }
+	  FastMat2::leave();
 	}
 	if (!neg) break;
 	assert(iter<=ndim);
-	C2.rs();
-	invCt.rs();
-	C.rs();
       }
+      FastMat2::resync_was_cached();
       // printf("converged on iters %d\n",iter);
-      for (int j=0; j<ndim; j++) 
-	if (restricted[j]) L.setel(0.,j+1);
+      for (int j=0; j<ndim; j++) {
+	FastMat2::branch();
+	if (restricted[j]) {
+	  FastMat2::choose(0);
+	  L.setel(0.,j+1);
+	}
+	FastMat2::leave();
+      }
       L.setel(0.,nd1);
       C.is(1,1,ndim);
       x2prj.prod(C,L,1,-1,-1);
@@ -142,8 +168,10 @@ int main() {
 	x2prjmin.set(x2prj);
       }
     }
-    x2.print("x2");
-    x2prjmin.print("x2prjmin");
+    FastMat2::deactivate_cache();
+    // x2.print("x2");
+    // x2prjmin.print("x2prjmin");
     printf("node2 %d, dist min %f\n",n2,d2min);
   }
+  FastMat2::void_cache();
 }
