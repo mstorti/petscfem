@@ -94,13 +94,14 @@ global_options
 nstep 1000
 alpha 1.
 
-initial_state "vtube.ini.tmp"
+# initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
+initial_state "vtube.steady_hot_outlet.tmp"
 save_file "vtube.state.tmp" 
 nsave 1
 
 save_file_pattern "vtube.state_%d.tmp"
-nsaverot 1
+nsaverot 10
 nrec 1
 nfile 100000000
 

@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.6 2003/01/20 18:51:13 mstorti Exp $
+## $Id: mkvtube.m,v 1.7 2003/01/21 01:40:25 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -61,7 +61,8 @@ nn = rows(x3d);			# total number of nodes
 if axisymm; nn=nn/2; endif	# number of nodes in the first layer
 
 if !compressible
-  p_h=p_c=0;
+  p_h = 0;
+  p_c = -160;
 endif
 
 n_in=n_h=n_c=n_wall=0;
@@ -89,8 +90,9 @@ for k=1:nn
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
     fprintf(fid,"%d %d   %f\n",k,u_dof+2,0);
     n_h = n_h+1;
-  elseif 0 && inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
+  elseif inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
+    fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;
   elseif is_wall
     n_wall = n_wall+1;
