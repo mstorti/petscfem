@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.3 2003/02/26 00:54:50 mstorti Exp $
+// $Id: nullvort.cpp,v 1.4 2003/02/26 01:46:33 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -8,18 +8,28 @@
 #include <src/util2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+null_vort::null_vort() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+null_vort::~null_vort() { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
+  // Read options from data file
   thash.read(fstack);
   int ierr;
+
+  // get options. Other options are processed in Surf2vol::factory
   //o The number of nodes per skin panel. 
   TGETOPTNDEF(&thash,int,nel_surf,0);
   //o The elemset that is from the fluid side. 
   TGETOPTDEF_S(&thash,string,volume_elemset,<none>);
   assert(volume_elemset!="<none>");
 
+  // Call the `factory' (constructor) for the Surf2Vol object. 
   int identify_volume_elements, layers,
     use_exterior_normal,  ndimel;
-  Surf2Vol *sv_gp_data;
+  Surf2Vol *sv_gp_data=NULL;
   Elemset *vol_elem;
   Surf2Vol::factory(&thash, volume_elemset, 
 		    nel_surf, sv_gp_data, 
@@ -49,5 +59,6 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   identify_volume_elements_fun(dofmap->nnod, nel_surf, layers,
 			       nelem, icone.buff(), nel, vol_elem->nel,
 			       vol_elem, sv_gp_data);
+  delete sv_gp_data;
 
 }

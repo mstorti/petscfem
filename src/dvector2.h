@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.3 2003/02/25 20:34:22 mstorti Exp $
+// $Id: dvector2.h,v 1.4 2003/02/26 01:46:33 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -77,7 +77,7 @@ dvector<T>::dvector(int cs = CHUNK_SIZE_INIT) {
 template<class T>
 void dvector<T>::set_chunk_size(int new_chunk_size) {
   int old_size = size();
-  T *tempo;
+  T *tempo=NULL;
   if (old_size!=0) {
     tempo = new T[old_size];
     for (int j=0; j<old_size; j++) tempo[j] = ref(j);
@@ -87,8 +87,8 @@ void dvector<T>::set_chunk_size(int new_chunk_size) {
   resize(old_size);
   if (old_size!=0) {
     for (int j=0; j<old_size; j++) ref(j) = tempo[j];
+    delete[] tempo;
   }
-  delete[] tempo;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

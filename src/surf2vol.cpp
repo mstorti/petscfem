@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.4 2003/02/26 00:54:50 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.5 2003/02/26 01:46:33 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
@@ -287,7 +287,7 @@ void Surf2Vol::factory(TextHashTable *thash, string &volume_elemset,
   // on the surface
   TGETOPTDEF_ND(thash,int,identify_volume_elements,0);
   //o Number of layers in the normal direction.
-  TGETOPTDEF_ND(thash,int,layers,1);
+  TGETOPTDEF_ND(thash,int,layers,2);
   PETSCFEM_ASSERT0(layers>=1,
 		   "embedded_gatherer: Number of layers must be integer >=1\n");
   PETSCFEM_ASSERT(layers<=3,"embedded_gatherer: not supported yet layers>2,"

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: nullvort.h,v 1.1 2003/02/25 20:34:22 mstorti Exp $
+// $Id: nullvort.h,v 1.2 2003/02/26 01:46:33 mstorti Exp $
 #ifndef PETSCFEM_NULLVORT_H
 #define PETSCFEM_NULLVORT_H
 
@@ -13,8 +13,10 @@ private:
   /// The options table
   TextHashTable thash;
 public:
+  /** Ctor.  */ 
+  null_vort();
   /** Dtor.  */ 
-  ~null_vort() {}
+  ~null_vort();
   /** Specific read function for this obkect.  */ 
   virtual void read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap);
 };
