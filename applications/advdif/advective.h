@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.25 2001/04/10 21:46:04 mstorti Exp $
+//$Id: advective.h,v 1.26 2001/04/12 00:43:25 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -246,8 +246,8 @@ public:
   //@{
   /** Computes the product #(grad_N_D_grad_N)_(p,mu,q,nu) 
       = D_(i,j,mu,nu) (grad_N)_(i,p) (grad_N)_(j,q)#
-      @param grad_N_D_grad_N (output, size #nel# x #ndof# x #nel# x #ndof# 
-      @param grad_N (input, size #nel# x #ndof#)
+      @param grad_N_D_grad_N (output) size #nel# x #ndof# x #nel# x #ndof# 
+      @param grad_N (input) size #nel# x #ndof#
   */ 
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				    FastMat2 & dshapex,double w) =0 ;

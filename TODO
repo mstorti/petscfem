@@ -3,8 +3,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* generar doc en .pdf
 * Dofmap may be eliminated of the arguments to the elemset 'assemble'
      routine (not from the global assemble)
+* classify sections in doc as user / application developper / programmer.
 * Add enthalpy contrib to the P_supg term
 * Review impact of '-funroll-loops' in FastMat2 efficiency. 
 * add doc for enthalpy jacobians
@@ -47,6 +49,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* the link to DOC++ in index.tex is broken
 * Cambiar la licencia en todos los archivos
 * How to choose the correct jacobian when different combinations (eg:
     ndim*ndim, ndof, etc...) coincide...

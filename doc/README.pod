@@ -1,5 +1,5 @@
-
 %        -*- mode: text -*-
+
 This is the README file for PETSc-FEM in POD (Plain Old Documentation)
 format (this is the standard embedding doc system in the Perl world).
 It can be converted to text, latex and html with specific conversion
@@ -36,7 +36,10 @@ root directory of the distribution.
 
 This file belongs to he PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc.  Copyright
-(C) 1999, 2000 Mario Alberto Storti
+(C) 1999-2001, Mario Alberto Storti, Norberto Marcelo Nigro, Centro
+Internacional de Metodos Numericos en Ingenieria (CIMEC-Argentina),
+Universidad Nacional del Litoral (UNL-Argentina), Consejo Nacional de
+Investigaciones Cientificas y Tecnicas (UNL-Argentina).
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -163,13 +166,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-1.53.tar.gz> package,
+Once you got the I<petscfem-beta-1.66.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-1.53.tar.gz
-  $ tar xvf petscfem-beta-1.53.tar
+  $ gunzip petscfem-beta-1.66.tar.gz
+  $ tar xvf petscfem-beta-1.66.tar
 
-This will create a I<petscfem-beta-1.53> directory with
+This will create a I<petscfem-beta-1.66> directory with
 all the source files included.
 
 =head2 Makefile variables
@@ -220,7 +223,7 @@ The C<PROF_FLAGS> variables allows you to turn on profiling. By default, profili
 
 =item *
 
-The reamining are Makefile variables that point to directories
+The remaining are Makefile variables that point to directories
 containing headers or libaries of required software. The lines come
 commented out and a line like this
 
@@ -253,9 +256,15 @@ version without having to reenter the variables.
 
 C<cd> to directory C<$(PETSCFEM_DIR)> and do 
 
-  $ make newdepend
+  $ make depend
   $ make libpetscfem        # to build the library
   $ make all                # to build the library and all the modules
+
+also
+
+  $ make what
+
+can help you on other useful targets.
 
 If nothing goes wrong you will end with a F<src/libpetscfem.a> library
 and application binaries (ending in C<.bin>) in their respective

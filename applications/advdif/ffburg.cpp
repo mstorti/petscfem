@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.10 2001/04/07 21:43:39 mstorti Exp $
+//$Id: ffburg.cpp,v 1.11 2001/04/12 00:43:25 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -138,7 +138,7 @@ void burgers_ff::start_chunk(int &ret_options) {
   //o Scale the SUPG upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
-  //o _T: double[ndim] _N: u0 _D: unit vector along $x$ axis 
+  //o _T: double[ndim] _N: u0 _D: [1,0] 
   // _DOC: Vector defining direction for flux. 
   // _END
   u0.set(0.); u0.setel(1.,1);

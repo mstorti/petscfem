@@ -1,7 +1,8 @@
+%__INSERT_LICENSE__
 \documentclass[dvips,a4paper,11pt]{article} 
 %
 %Section{
-\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
+%\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[dvips]{graphicx}
 \usepackage[dvips]{changebar}
@@ -10,7 +11,6 @@
 \usepackage{amsmath,alltt,mstorti,moreverb,url}
 %
 \scrollmode
-\makeindex
 \sloppy
 \bibliographystyle{plain}
 %
@@ -28,6 +28,7 @@
 \newcommand{\Ndof}{{N_\dof}}
 \newcommand{\ndof}{{n_\dof}}
 \newcommand{\ndim}{{n_d}}
+\newcommand{\nel}{{n_{\mathrm{el}}}}
 \newcommand{\NF}{{\mathrm{NF}}}
 \newcommand{\barU}{{\bar{!U}}}
 \newcommand{\bU}{{\bar U}}
@@ -41,12 +42,18 @@
 \newcommand{\btau}{\boldsymbol{\tau}}
 \newcommand{\pfem}{PETSc-FEM}
 \newcommand{\F}{\mathcal{F}}
+%\newcommand{\Hen}{\mathcal{H}} % enthalpy
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\cU}{{\mathcal{U}}}
 \newcommand{\bD}{\bar{\D}}
 \newcommand{\bA}{{\bar A}}
 \newcommand{\Psupg}{{P_\mathrm{SUPG}}}
 \newcommand{\deltasc}{{\delta_\mathrm{sc}}}
+\newcommand{\swf}{s_{\mathrm{wf}}}
+\newcommand{\cswf}{\factorial\swf}
+\newcommand{\bswf}{\bar {s_{\mathrm{wf}}}}
+\newcommand{\bsupg}{\beta_{\mathrm{SUPG}}}
+\newcommand{\taufac}{\tau_{\mathrm{sel}}}
 % For LES
 \newcommand{\Se}{{\Sigma_e}}
 \newcommand{\dS}{{\di\Sigma}}
@@ -79,6 +86,7 @@
 \latex{\newcommand{\filehead}[1]{\boxed{\hbox{\sl File: {\tt #1}}}}}
 \html{\newcommand{\filehead}[1]{\Large{File: \emph{#1}}}}
 \renewcommand{\labelitemii}{$\triangleright$}
+\newcommand{\manpages}{\htmladdnormallink{manual pages}{../manual/html/index.html}}
 %\def\lforce#1{#1}
 %\DeclareTextSymbol{\textless}{MY1}{`\<}
 %
@@ -87,13 +95,14 @@
 %
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \input version.tex
+\makeindex
 \begin{document}
 \sloppy
 %
 \title{\pfem: A General Purpose, Parallel, Multi-Physics FEM Program.\\
 User's Guide}
 \author{
-Mario Storti\\ 
+Mario Storti and N. Nigro\\ 
 Centro Internacional de M\'etodos Computacionales en Ingenier\'\i{}a
 (CIMEC)\\
 Santa Fe, Argentina\\
@@ -101,7 +110,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-{\tiny\verb+$Id$+}
+%{\tiny\verb+$Id$+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -125,21 +134,21 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
 \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
-\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
+%\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \Section{Symbols and Acronyms}
@@ -205,11 +214,6 @@ t_1
 %:eps::
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-TODO:
-====
-
-* List of software needed to compile PETSc-FEM
-* classify sections as user / application developper / programmer.
 
 "DONE
 ====

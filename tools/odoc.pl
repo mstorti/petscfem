@@ -79,12 +79,12 @@ while (<>) {
 	    die "no \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/_D:/s;
 	    $name=$`;
 	    $doc=$';
-	    $name =~s/\n/\s/g;
+	    $name =~s/\n/ /g;
 	    $name =~ s/\s*$//;
 	    die "no \"_DOC:\" tag in explicit doc: ",@docf unless $doc=~/_DOC:/s;
 	    $default=$`;
 	    $doc=$';
-	    $default =~s/\n/\s/g;
+	    $default =~s/\n/ /g;
 	    $default =~ s/\s*$//;
 	    die "no \"_END\" tag in explicit doc: ",
 	    @docf unless $doc=~/_END\s*$/s;

@@ -137,16 +137,35 @@ public:
 };
 \end{verbatim}
 
+\index{matrix shells}
+\SSection{Matrix Shells} 
+
 The class contains a number of members that define the different
 fluxes and jacobians. Instead of returning explicitly the full
 jacobian, the interface allows to only define the action of the
-jacobian on other matrices. This may improve efficiency when the
-jacobians are sparse or null. For instance the function
+jacobian on other matrices. This is termed a \emph{``matrix shell''}
+(a similar concept exists in PETSc).  This may improve efficiency when
+the jacobians are sparse or null. For instance the function
 \verb+comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N)+ should
 return the product (\verb+A_grad_N+)$_{p\mu\nu}$ = $A_{i\mu\nu}\,
 \deps{N_p}{x_i}$ of size $\nel\times\ndof\times\ndof$ on output when
 passed a matrix (\verb+grad_N+)$_{ip} = \deps{N_p}{x_i}$ of size
-$\ndim\times\nel$.
+$\ndim\times\nel$. The details of the dimension in each matrix shell
+may vary, accordingly to the evolution of the elemset. Please consult
+the \manpages. In some cases the matrix shell may define more complex
+products involving more than one input matrices and a scalar factor. 
+
+\index{Enthalpy function objectcs}
+\SSection{Enthalpy function objectcs}
+
+The enthalpy/temperature relationship is passed through a so called
+\emph{``enthalpy function object''}, whose virtual class interface is
+shown above. The flux function contains a pointer to an enthalpy
+object. The methods in the enthalpy function class are
+\verb+void update(double *)+ which is passed an array of doubles in
+order to update the values the define the function, and to matrix
+shells that define the capacitance matrix or enthalpy jacobian defined
+above. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{Options}
@@ -170,7 +189,7 @@ $\ndim\times\nel$.
 \item[Flux function``{\tt advec}'':] Generic linear
 advective-diffusive system
 
-All fluxes and \(G_\mu\) are linear in \(!U\) and its gradients
+All fluxes and \(G_\mu\) are linear in \(!U\) and its gradients. 
 
 \begin{equation}
 \begin{split}
@@ -183,6 +202,59 @@ All fluxes and \(G_\mu\) are linear in \(!U\) and its gradients
 \begin{itemize}
 \input odocadvfm2
 \end{itemize}
+
+\textbf{Programming notes:}
+
+In order to define the operator you have to define the coefficients in
+$!A$, $!D$, $!C$, $!R$ and $!S$. Much as in the case for the general
+flux function, these operators are defined as matrix shells. The
+corresponding classes are
+
+\begin{verbatim}
+class SourceTerm {
+public:
+  virtual void add_source_term(FastMat2 &G_source)=0;
+};
+
+class CJac {
+public:
+  virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  virtual void comp_G_source(FastMat2 &G_source, FastMat2 &U)=0;
+  virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+			  FastMat2 &N,double w)=0;
+};
+
+class AJac {
+public:
+  virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
+  virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
+  virtual void comp_vel_per_field(FastMat2 &vel_per_field)=0;
+};
+
+class DJac {
+public:
+  virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+				    FastMat2 & dshapex,double w) =0 ;
+  virtual void comp_fluxd(FastMat2 & A,FastMat2 & B) =0 ;
+  virtual void comp_dif_per_field(FastMat2 &dif_per_field)=0;
+  virtual void update(const double *difjac)=0;
+};
+\end{verbatim}
+
+A number of derived classes are provided. For instance class
+\verb+AJac+ is derived in classes \verb+NullAJac+, \verb+UGlobal+,
+\verb+UPerField+ and \verb+FullAdvJac+. the \verb+NullAJac+ class
+means a null advection term and then when making products with the
+advective jacobian matrices the result is set directly to null. Of
+course you could define them as \verb+FullAdvJac+ and then set all
+coefficients to 0, but in that case all computations should be
+performed, which is much less efficient. 
+
+If you consider to develop another jacobian class, then you have to
+instantiate the corresponding virtual functions (matrix shells). 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \item[Flux function``{\tt burgers}'':] Burgers eqs.

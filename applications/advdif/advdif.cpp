@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.19 2001/04/09 04:03:38 mstorti Exp $
+//$Id: advdif.cpp,v 1.20 2001/04/12 00:43:25 mstorti Exp $
 
 #include <set>
 
@@ -151,7 +151,7 @@ int main(int argc,char **args) {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the #comp_mat_res# jobinfo. 
+  //o Measure performance of the \verb+comp_mat_res+ jobinfo. 
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)
@@ -173,7 +173,7 @@ int main(int argc,char **args) {
   //o After computing the linear system prints Jacobian and
   // right hand side and stops.. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Solve system before #print\_linear_system_and_stop#
+  //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
 
   //o Sets the save frequency in iterations for the ``print some''
