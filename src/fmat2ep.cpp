@@ -701,7 +701,7 @@ _//>
 
 //<$export_array=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-__CONST__ FastMat2 & FastMat2::export(__ARG__) __CONST__ {
+__CONST__ FastMat2 & FastMat2::export_vals(__ARG__) __CONST__ {
 
   __CACHE_OPERATIONS__;
 
@@ -742,7 +742,7 @@ __CONST__ FastMat2 & FastMat2::export(__ARG__) __CONST__ {
 //EOF
 _//>
 
-//< export_array();//>
+//< export_vals_array();//>
 
 //<$contraction=<<'//EOF';
 FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
@@ -1093,7 +1093,7 @@ double FastMat2::det(void) const{
 #undef M
 #undef A
   } else {
-    export(*cache->A);
+    export_vals(*cache->A);
     LogAndSign ld;
     ld = cache->A->LogDeterminant();
     det_ = ld.Value();
@@ -1196,7 +1196,7 @@ FastMat2 & FastMat2::inv(const FastMat2 & A) {
     iA(3,3) = (A(1,1)*A(2,2)-A(1,2)*A(2,1))/det;
 #undef M
   } else if (m>3) {
-    A.export(*cache->A);
+    A.export_vals(*cache->A);
     *cache->B = cache->A->i();
     set(cache->B->Store());
   }

@@ -61,7 +61,7 @@ int mat_function(const Matrix &A,Matrix &funA,scalarfun fun,void * user_data) {
   }
 
   funA = V * D * V.i();
-
+  return 0;
 }
 
 #undef __FUNC__
@@ -86,7 +86,7 @@ int mat_function(const Matrix &A,Matrix &funA,vectorfun fun,void * user_data) {
   }
 
   funA = V * D * V.i();
-
+  return 0;
 }
 
 double fabs_1(double a, void* p) {
@@ -95,6 +95,7 @@ double fabs_1(double a, void* p) {
 
 int matrix_abs(const Matrix &A,Matrix &absA) {
   mat_function(A,absA,&fabs_1,NULL);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -184,7 +185,7 @@ int non_symm_eigenvals(const Matrix &A,Matrix &lambda,Matrix &Vre,
   M_FREE(X_im);
   V_FREE(evals_re);
   V_FREE(evals_im);
-
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

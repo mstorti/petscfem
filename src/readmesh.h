@@ -83,6 +83,22 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 int print_some(const char *filename,Vec x,Dofmap *dofmap,
 	       set<int> node_list,const TimeData *time_data=NULL);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Initializes the verb+print_some+ saving mechnism. 
+    Basically reads the nodes to be printed at each time step. 
+    @author M. Storti
+    @param thash (input) the text hash from where to get properties. 
+    @param print_some_file (input) the file where to read the list of
+    nodes
+    @param save_file_some (input) the file where to write the values
+    at those nodes (this is not used currently)
+    @param node_list (output) the list of nodes 
+*/ 
+int print_some_file_init(TextHashTable *thash,
+			 const char *print_some_file,
+			 const char *save_file_some,set<int> &node_list);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Prints a vector to a file
     @author M. Storti
     @param filenamepat (input) pattern to generate the filename (must contain a \%d)
@@ -100,5 +116,57 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 		       const int j,const int nsave,const int nrec,
 		       const int nfile);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Reads a double value token from a string. 
+    @author M. Storti
+    @param rflag (input/output) First time pass initially 0 and then
+    sets to 1.  
+    @param line (input) the string to be read
+    @param val (input) the double value to be read
+    @return boolean value indicating wether a value has been read or
+    dnot. 
+*/ 
+int readval(int &rflag,char *line,double &val);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Reads an int value token from a string. 
+    @author M. Storti
+    @param rflag (input/output) First time pass initially 0 and then
+    sets to 1.  
+    @param line (input) the string to be read
+    @param val (output) the int value to be read
+    @return boolean value indicating wether a value has been read or
+    dnot. 
+*/ 
+int readval(int &rflag,char *line,int &val);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Reads a text hash table from a filestack. 
+    @author M. Storti
+    @param fstack (input) The filestack from which the hash table is
+    read. 
+    @param (output) The hash table that has been read. 
+*/ 
+int read_hash_table(FileStack *& fstack,TextHashTable *& thash);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Prints a vector with ``rotary save'' mechanism. 
+    @author M. Storti
+    @param filenamepat (input) The pattern that generates the
+    filenames to which the vectors are written. Must contain \verb+%d+
+    @param x (input) The vector to be written
+    @param dofmap (input) The dofmap of the problem. (Gives values for
+    fixed node/field combinations - Dirichlet boundary conditions.)
+    @param time_data (input) The corresponding time instant. (Gives values for
+    fixed node/field combinations - Time dependent Dirichlet boundary
+    conditions .)
+    @param j (input) The actual time step
+    @param nrec (input) The number of records allowed in each file. 
+    @param nfile (input) The number of files allowed. 
+*/ 
+void print_vector_rota(const char *filenamepat,const Vec x,const
+		       Dofmap *dofmap,const TimeData *time_data,
+		       const int j,const int nsave,const int nrec,
+		       const int nfile);
+
 #endif
- 

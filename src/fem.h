@@ -124,9 +124,6 @@
 */ 
 #define GGETOPTDEF(type,name,default) \
              TGETOPTDEF(GLOBAL_OPTIONS,type,name,default)
-//          type name=default; \
-//          ierr = get_##type(GLOBAL_OPTIONS,#name,&name,1); \
-//          PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from the general

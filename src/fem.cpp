@@ -119,7 +119,7 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,A); CHKERRA(ierr);
   delete[] d_nnz;
   delete[] o_nnz;
-
+  return 0;
 }
 
 #if 0

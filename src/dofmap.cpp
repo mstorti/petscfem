@@ -205,6 +205,7 @@ int Dofmap::get_nodal_value(int const & node,int const & kdof,double
     double coef= entry->coef;
     value += coef*get_dofval(keq,sstate,ghost_vals,time_data);
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -223,12 +224,13 @@ int Dofmap::get_nodal_value(int const & node,int const & kdof,double
     double coef=k->second;
     value += coef*get_dofval(keq,sstate,time_data);
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "fixa_entry::print" 
-fixa_entry::print(void) {
+void fixa_entry::print(void) {
   printf("node: %d, kdof %d, val: %f\n",node,kdof,val);
 }
 

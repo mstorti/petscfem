@@ -117,7 +117,8 @@ int reshape(Matrix &A,int m,int n);
     @param Tset the set
     @return random element in set
 */
-template<class T> class T random_pop(set<T> &Tset) {
+template<class T> 
+T random_pop(set<T> &Tset) {
   T retval;
   int n=Tset.size();
   int j = irand(1,n);

@@ -815,7 +815,7 @@ public:
       @param a (output) array doubles to where export
       @return a reference to the matrix.
   */ 
-  const FastMat2 & export(double *a) const;
+  const FastMat2 & export_vals(double *a) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** exports to a double vector
@@ -823,7 +823,7 @@ public:
       @param a (output) array doubles to where export
       @return a reference to the matrix.
   */ 
-  FastMat2 & export(double *a) ;
+  FastMat2 & export_vals(double *a) ;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Exports to a Newmat matrix.
@@ -831,7 +831,7 @@ public:
       @param A (output) the Newmat matrix to where export to
       @return a reference to the matrix.
   */ 
-  const FastMat2 & export(Matrix & A) const;
+  const FastMat2 & export_vals(Matrix & A) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Exports to a Newmat matrix.
@@ -839,7 +839,7 @@ public:
       @param A (output) the Newmat matrix to where export to
       @return a reference to the matrix.
   */ 
-  FastMat2 & export(Matrix & A);
+  FastMat2 & export_vals(Matrix & A);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns a pointer to the start of the storage matrix. 

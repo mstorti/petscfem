@@ -421,7 +421,7 @@ void Amplitude::read_hash_table(FileStack *fstack) {
 #define __FUNC__ "void Amplitude::add_entry(const char *,
 const AmplitudeFunction *)"
 void Amplitude::add_entry(const char * s,
-			  const AmplitudeFunction *f) {
+			  AmplitudeFunction *f) {
   if (function_table==NULL) function_table = new FunctionTable;
   pair<string,AmplitudeFunction *> pp(s,f);
   function_table->insert(pp);

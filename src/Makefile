@@ -1,24 +1,38 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:42 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 16:51:36 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PETSCFEM_DIR = ..
 include $(PETSCFEM_DIR)/Makefile.base
 
-LIBOBJS = gpdata.o texthash.o readmesh.o elemset.o elemlist.o \
-          fastmat.o utils.o getprop.o \
-	  dofmap.o fem.o idmap.o arglist.o version.o util2.o \
-	  fstack.o tempfun.o fastmat2.o fm2eperl.o spline.o seval.o \
-	  measperf.o
+# Add new files here
+LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
+          fastmat utils getprop \
+	  dofmap fem idmap arglist version util2 \
+	  fstack tempfun fastmat2 fm2eperl \
+	  measperf mainutl
 
+# Fortran files
+FLIBOBJS_ =  spline seval
+spline.o: spline.f
+ssval.o: seval.f
 
-SRCS := $(LIBOBJS:.o=.cpp)
+LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o)
+
+SRCS := $(LIBOBJS_:=.cpp)
 
 TAGFLAGS = 
 
 all: libpetscfem.a
 
 compile:  libpetscfem.a
+
+# NEWSRCS = elemset.cpp elemset.h
+
+# elemset.cpp: elemset.cpp.new 
+# 	-ln -s $< $@
+# elemset.h: elemset.h.new
+# 	-ln -s $< $@
 
 libpetscfem.a: $(LIBOBJS)
 	ar -ru $@ $(LIBOBJS)
@@ -67,4 +81,4 @@ version.cpp: version.cppin $(TARFILE).tara,v
 			version.cppin version.cpp
 
 # File containing dependencies computed by makedepend
-include makefile.d
+#

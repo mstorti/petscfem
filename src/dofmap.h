@@ -85,7 +85,7 @@ public:
   /// Eval the amplitude of the function at this time. 
   double eval(const TimeData *time_data);
   /// Adds an entry to the static table. 
-  static void add_entry(const char * s,const AmplitudeFunction *f);
+  static void add_entry(const char * s,AmplitudeFunction *f);
   /// Initializes the function table. 
   static void initialize_function_table(void);
   /// Reads the table from a fstack
@@ -176,7 +176,7 @@ public:
   q_entry(const int node_=0,const int kdof_=0,const int keq_=0,
 	  const double coef_=0.)
     : node(node_), kdof(kdof_), keq(keq_), coef(coef_) {};
-  print();
+  void print();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -189,7 +189,7 @@ public:
   double val;
   fixa_entry(const int node_=0,const int kdof_=0,const double val_=0.)
     : node(node_), kdof(kdof_),val(val_) {};
-  print();
+  void print();
 };
 
 int fixa_entry_cmp (const void *left,const void *right, void *args);
@@ -367,7 +367,7 @@ public:
       @param kdof (input) the field number to set
       @param val (input) the value to be set. 
    */ 
-  set_fixation(int node,int kdof,double val);
+  void set_fixation(int node,int kdof,double val);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns the a unique number corresponding to the node/field

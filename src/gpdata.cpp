@@ -67,6 +67,7 @@ int cartesian_2d_shape(RowVector &shape,Matrix &dshapexi,
     dshapexi(1,iloc)=dsxidxi*seta;
     dshapexi(2,iloc)=sxi*dsetadeta;
   }
+  return 0;
 }
 
 

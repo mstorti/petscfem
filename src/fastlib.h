@@ -40,7 +40,7 @@ class FastVector {
   inline int operator== (const FastVector & indx) const;
   inline FastVector & operator= (const FastVector & indx);
   int size(void) const {return size_;};
-  int push_back(const T j) {resize_(size_+1); store[size_++]=j;};
+  int push_back(const T j) {resize_(size_+1); store[size_++]=j; return 0;};
   void reset() {size_=0;};
   void resize(const int new_size=0) {resize_(new_size); size_=new_size;};
  private:
@@ -53,7 +53,7 @@ class FastVector {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template <class T,int chunk_size=FASTLIB_CHUNK_SIZE>
+template <class T,int chunk_size>
 FastVector <T,chunk_size> & FastVector <T,chunk_size> ::operator= (const FastVector & indx) {
   store = rigid_store;
   if (flexible_store) {
@@ -64,10 +64,11 @@ FastVector <T,chunk_size> & FastVector <T,chunk_size> ::operator= (const FastVec
   for (int j=0; j<size_; j++) {
     store[j] = indx.store[j];
   }
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template <class T,int chunk_size=FASTLIB_CHUNK_SIZE>
+template <class T,int chunk_size>
 inline void FastVector <T,chunk_size>::resize_(const int n) {
   if (n <= storage) {
     return;
@@ -85,7 +86,7 @@ inline void FastVector <T,chunk_size>::resize_(const int n) {
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template <class T,int chunk_size=FASTLIB_CHUNK_SIZE>
+template <class T,int chunk_size>
 inline FastVector <T,chunk_size>::~FastVector() {
   if(flexible_store) {
     delete[] flexible_store;
@@ -93,7 +94,7 @@ inline FastVector <T,chunk_size>::~FastVector() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template <class T,int chunk_size=FASTLIB_CHUNK_SIZE>
+template <class T,int chunk_size>
 inline int FastVector <T,chunk_size>::operator== (const FastVector & indx) const {
   if (size_!=indx.size_) return 0;
   for (int j=0; j<size_; j++) {
@@ -103,7 +104,7 @@ inline int FastVector <T,chunk_size>::operator== (const FastVector & indx) const
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template <class T,int chunk_size=FASTLIB_CHUNK_SIZE>
+template <class T,int chunk_size>
 inline FastVector <T,chunk_size>::FastVector(const int m,const T n) {
   // flexible_store=NULL;
   flexible_store=0;
@@ -118,7 +119,7 @@ inline FastVector <T,chunk_size>::FastVector(const int m,const T n) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template <class T,int chunk_size=FASTLIB_CHUNK_SIZE>
+template <class T,int chunk_size>
 void FastVector <T,chunk_size>::print(const char *s) const {
   if (s!=NULL) cout << s << "  ";
   int ndims = size();

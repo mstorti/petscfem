@@ -45,7 +45,9 @@ ElementList::set(const ElemsetIteratorMode mode_,const int
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 ElementIterator ElementList::begin(void) const {
-  return ElementIterator(this,first,0);
+  ElementIterator tmp=ElementIterator(this,first,0);
+  tmp.advance_to_valid();    
+  return tmp;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -55,24 +57,38 @@ ElementIterator ElementList::end(void) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 ElementIterator & ElementIterator::operator++(void) {
-  
-  while (++rank_in_elemset < elemlist->last) {
-    if (elemlist->elemset->epart[rank_in_elemset] == MY_RANK+1) break;
-    if (elemlist->mode == INCLUDE_GHOST) {
-      assert(1);
-#if 0   // to be converted
-      int is_ghost_elem = da_bsearch(elemset->ghost_elems,&iele,int_cmp,NULL);
-      return (is_ghost_elem>=0);
-#endif
-    }
-  }
+  rank_in_elemset++;
+  advance_to_valid();
   rank_in_chunk++;
   return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-ElementIterator ElementIterator::operator++(int) {
+int ElementIterator::is_valid(void) const {
+#if 0
+  if (elemlist->elemset->epart[rank_in_elemset] == MY_RANK+1) return 1;
+  if (elemlist->mode == INCLUDE_GHOST) {
+    int is_ghost_elem = da_bsearch(elemlist->elemset->ghost_elems,
+				   &rank_in_elemset,int_cmp,NULL);
+    return (is_ghost_elem>=0);
+  }
+  return 0;
+#else
+  return compute_this_elem(rank_in_elemset,elemlist->elemset,
+			   MY_RANK,elemlist->mode==INCLUDE_GHOST);
+#endif
   
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void ElementIterator::advance_to_valid(void) {
+  while (rank_in_elemset < elemlist->last && !is_valid()) {
+    ++rank_in_elemset;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+ElementIterator ElementIterator::operator++(int) {
   ElementIterator tmp=*this;
   ++(*this);
   return tmp;
@@ -89,4 +105,19 @@ int ElementList::iterator::not_at_end(void) const {
 int ElementIterator::operator!=(const ElementIterator &other) const {
   return rank_in_elemset!=other.rank_in_elemset;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int 
+NewElemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
+		     char *jobinfo,int myrank,
+		     int el_start,int el_last,int iter_mode,
+		     const TimeData *time_data) {
+
+  ElementList elemlist(this,el_start,el_last+1,
+		       (iter_mode==INCLUDE_GHOST_ELEMS ? 
+			INCLUDE_GHOST : DO_NOT_INCLUDE_GHOST));
+  new_assemble(arg_datav,nodedata,dofmap,
+	       jobinfo,elemlist,time_data);
+  return 0;
+};
 

@@ -2445,7 +2445,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-const FastMat2 & FastMat2::export(Matrix & A) const {
+const FastMat2 & FastMat2::export_vals(Matrix & A) const {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -2515,7 +2515,7 @@ if (A.Nrows()==0) {
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
- FastMat2 & FastMat2::export(Matrix & A)  {
+ FastMat2 & FastMat2::export_vals(Matrix & A)  {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -2585,7 +2585,7 @@ if (A.Nrows()==0) {
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-const FastMat2 & FastMat2::export(double *a) const {
+const FastMat2 & FastMat2::export_vals(double *a) const {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -2649,7 +2649,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
- FastMat2 & FastMat2::export(double *a)  {
+ FastMat2 & FastMat2::export_vals(double *a)  {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -3177,7 +3177,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 #undef M
 #undef A
   } else {
-    export(*cache->A);
+    export_vals(*cache->A);
     LogAndSign ld;
     ld = cache->A->LogDeterminant();
     det_ = ld.Value();
@@ -3302,7 +3302,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     iA(3,3) = (A(1,1)*A(2,2)-A(1,2)*A(2,1))/det;
 #undef M
   } else if (m>3) {
-    A.export(*cache->A);
+    A.export_vals(*cache->A);
     *cache->B = cache->A->i();
     set(cache->B->Store());
   }

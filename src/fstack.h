@@ -65,7 +65,7 @@ public:
       @author M. Storti
       @param line the line that has been read
   */ 
-  int get_line(const char *& line);
+  int get_line(char *& line );
 
   /** Unreads a line
       @author M. Storti

@@ -162,7 +162,7 @@ int mini(int n,...) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "reshape(Matrix &A,int m,int n)"
-reshape(Matrix &A,int m,int n) {
+int reshape(Matrix &A,int m,int n) {
   int mm=A.Nrows();
   int nn=A.Ncols();
   PFEMERRCQ(mm*nn != m*n,"Total number of elements don't coincide");

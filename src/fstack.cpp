@@ -18,6 +18,7 @@
   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
 */
+#include <stdlib.h>
 #include "fstack.h"
 
 // for regexp delimiter
@@ -96,7 +97,7 @@ void FileStack::open(const char *filename) {
 #undef __FUNC__
 #define __FUNC__ "FileStack::get_line" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int FileStack::get_line(const char *& line) {
+int FileStack::get_line(char * & line) {
   char ch, *chp, *token, *bufrp;
   int len,lenn,readlen,contnd,ierr;
   len=0;
@@ -197,5 +198,6 @@ int FileStack::unread_line(const char * line) {
   abuf_copy_s (linebuf,line);
   abuf_cat_c (linebuf,'\0');
   da_push(read_buffer,&linebuf);
+  return 0;
 }
   
