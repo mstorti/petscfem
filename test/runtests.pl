@@ -818,12 +818,17 @@ expect("lupart/check_part.verif.tmp",
 Random partitioning OK \? > 1
 EOT
 
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("distmap/distmaps.sal.tmp",
        "Distributed map<int,double>, sched alg NOT GROUPED",<<'EOT');
 Args: .* sched 0
 error < tol OK \? > 1
 EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/distcont.sal.tmp",
+       "Distributed container class.",read_file("distcont.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("distmap/distmapg.sal.tmp",
