@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.9 2002/10/18 00:44:14 mstorti Exp $
+//$Id: nssup.h,v 1.10 2003/03/07 21:23:52 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -15,6 +15,7 @@
 #include <src/iisdmat.h>
 
 #include <applications/ns/nsi_tet.h>
+#include <applications/ns/lagmul.h>
 
 /// Restriction for linearized free surface boundary condition
 class ns_sup_res : public LagrangeMult {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.3 2003/03/07 03:13:06 mstorti Exp $
+// $Id: nullvort.cpp,v 1.4 2003/03/07 21:23:52 mstorti Exp $
 
 #include "./nullvort.h"
 #include <src/dvector.h>
@@ -193,7 +193,7 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   int nelem_nlr=0;
   // Loop over nodes on the coupling surface
   for (cn_indx=0; cn_indx<n_coupling_nodes; cn_indx++) {
-    printf("computing constraint ...\n");
+    // printf("computing constraint ...\n");
     // Node number (0-based)
     int node = coupling_nodes_table.e(cn_indx,0);
     // get neighbors (on the surface)
@@ -238,7 +238,7 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     nelem_nlr++;
   }
 
-#if 1
+#if 0
   printf("nx: %d, nelem_nlr %d, size of icone %d\n",nx,nelem_nlr,icone_stencil.size());
   for (int j=0; j<nelem_nlr; j++) {
     printf("e=%d:",j);
@@ -248,7 +248,8 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   }
 #endif
 
-  Elemset *elemset = new null_vort;
+  null_vort *nv = new null_vort;
+  Elemset *elemset = nv;
   elemset->type = local_copy("null_vort");
   elemset->nelem = nelem_nlr; 
   elemset->nel   = nx+1; 
@@ -268,14 +269,96 @@ void null_vort_bo::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   elemset->epart = NULL;
   elemset->isfat = 0;
 
+  // Registers the elemset in the static table.
+  // This should be done for all the elemsets. 
   string name = Elemset::anon;
   ::get_string(thash,"name",name,1);
   elemset->register_name(name,elemset->type);
   thash->register_name(elemset->name());
+
+  // Append to elemsetlist. This is the list of
+  // elemsets to be processed each time we call `assemble'. 
+  da_append(mesh->elemsetlist,&elemset);
+
+  nv->fic_dof = fic_dof;
 
   icone.clear();
   coupling_nodes_table.clear();
   coupling_nodes_map.clear();
   graph.clear();
   coupl2fic.clear();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void null_vort::lag_mul_dof(int jr,int &node,int &dof) {
+  assert(jr==1);
+  node = nel;
+  dof = fic_dof;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void null_vort::init() {
+  int ierr;
+  //o The number of spatial dimensions
+  TGETOPTDEF_ND(thash,int,ndim,0);
+  // Number of nodes in the stencil. (The -1 corresponds to
+  // the fictitious node)
+  nx = nel-1;
+  // Build the cloud 
+  // compute coefs. for d/dx and d/dy
+  int derivs[] = {1,0,0,1};
+  // use second order in both directions
+  int npol[] = {2,2};
+  // initialize the object
+  cloud.init(ndim,nx,2,derivs,npol);
+  xlocc.resize(2,nel,ndim);
+  x0.resize(1,ndim);
+  w.resize(2,nx,2);
+  ww.resize(2,nel,2);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void null_vort::res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
+		    FastMat2 & Jac) {
+  // Make a local copy of node coordinates
+  xlocc.set(xloc());
+  // Coordinates of surface node. The first node in the stencil
+  // is the center node (the node where we impose th null
+  // vort. condition
+  xlocc.ir(1,1);
+  // Coordinates of all nodes
+  x0.set(xlocc);
+  xlocc.rs().is(1,1,nx);
+  x.set(xlocc);
+  xlocc.rs();
+  x.rs();
+  // Compute coefs.
+  cloud.coef(x,w,x0);
+  // It the computation was too bad conditioned, then
+  // skip the node
+  double cond = cloud.cond();
+  if (cond > 1e8) {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"null_vort: object %d, bad conditioned cloud, cond %g\n",
+		k,cond);
+  }
+  ww.is(1,1,nx).set(w).rs();
+
+  // Vorticity is w = dv/dx - du/dy
+  // Coefs for dv/dx
+  ww.ir(2,1);
+  Jac.ir(1,1).ir(3,2).set(ww);
+  // Coefs for dv/dx
+  ww.ir(2,2);
+  Jac.ir(3,1).set(ww).scale(-1);
+  ww.rs();
+  Jac.rs();
+
+  // We compute the residual as Jac*U
+  r.prod(Jac,U,1,-1,-2,-1,-2).scale(-1);
+  // We consider the Lag. Multiplier as symmetric, i.e. the
+  // reaction is in the same direction as the restriction
+  // so that we are `discarding' a linear combination of the
+  // momentum equations for the nodes in the stencil
+  lambda.ctr(Jac,3,1,2);
 }

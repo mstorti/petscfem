@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.44 2003/03/07 03:13:06 mstorti Exp $
+//$Id: nsi_tet.h,v 1.45 2003/03/07 21:23:52 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -317,46 +317,6 @@ class wallke : public Elemset {
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Generic nonlinear restriction element. 
-    It may not work for restrictions that involve
-    fields in more that one node. 
-*/ 
-class LagrangeMult : public Elemset {
- public:
-  ASK_FUNCTION;
-  ASSEMBLE_FUNCTION;
-  /** Returns data (to be derived)
-      @param nr (output) number of restrictions
-      @param nfic (output) number of fictitious nodes
-   */
-  virtual int nres()=0;
-  /** Return the node/dof pair to be used as lagrange multiplier for
-      the #jr#-th restriction. 
-      @param jr (input) Number of restriction
-      @param node (output) number of node for multiplier
-      @param dof (output) number of field for multiplier
-  */ 
-  virtual void lag_mul_dof(int jr,int &node,int &dof)=0;
-  /// Initialize the elemset (maybe reads hash table)
-  virtual void init()=0;
-  /** Computes the residual and jacobian of the function to be
-      imposed. Usually you derive #NonLinearRes# and instantiate this
-      function that defines the restriction to be imposed. 
-      @param k (input) element number in elemset
-      @param U (input) state vector at all nodes
-      @param r (output) a vector of length #nres*nel/2# containing the
-      residuals for each restriction at each node.
-      @param w (input) the vector of reactions of the Lagrange multipliers 
-      @param jac (output) the jacobian of the residuals with respect
-      to the node state. (size #nel/2 * nres* nel/2 x ndof#)
-  */ 
-  virtual void res(int k,FastMat2 &U,FastMat2 & r,
-		   FastMat2 & w,FastMat2 & jac)=0;
-  /// Make it pure virtual. 
-  virtual ~LagrangeMult()=0;
 };
 
 /** Cutoff function used in turbulence calculations. It is very near
