@@ -3051,7 +3051,7 @@ tag: beta-3.23.pl20 on Thu, 13 Nov 2003 21:16:56 -0300 by mstorti in spider
 tag: beta-3.23.pl21 on Thu, 13 Nov 2003 23:28:10 -0300 by mstorti in spider
      > Fixing burger tests. 
 ----------
-tag: beta-3.24 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
+tag: beta-3.25 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Settled version policy in `notes.txt'
      > Added test for exception handling in `advdif'. 
@@ -3086,25 +3086,3 @@ tag: beta-3.25.pl3 on Sun, 16 Nov 2003 16:57:16 -0300 by mstorti in spider
 tag: beta-3.25.pl4 on Sun, 16 Nov 2003 18:43:34 -0300 by mstorti in spider
      > Added doc for `block_uploading'. 
      > Runs all tests, except two in `test/newff'
-----------
-tag: beta-3.25.pl5 on Wed, 19 Nov 2003 14:56:57 -0300 by mstorti in minerva.ceride.gov.ar
-     > Added Nb_source to `gaschem'
-----------
-tag: beta-3.25.pl6 on Mon, 24 Nov 2003 00:41:46 -0300 by mstorti in spider
-     > Wrote `petscfem-mode' for Emacs support.
-     > Creates a texinfo file for browsing options and pasting
-     > 	into data file. 
-----------
-tag: beta-3.25.pl7 on Mon, 24 Nov 2003 21:17:21 -0300 by mstorti in spider
-     > Now odoc.pl generates several instances of the same
-     > option in onyly one page. 
-----------
-tag: beta-3.25.pl8 on Mon, 24 Nov 2003 21:32:54 -0300 by mstorti in spider
-     > Fixed '-bubbly' initialization bug. 
-----------
-tag: beta-3.25.pl9 on Tue, 25 Nov 2003 21:12:45 -0300 by mstorti in spider
-     > Now stops OK when there is no `ini' state vector file. 
-----------
-tag: beta-3.25.pl10 on Tue, 25 Nov 2003 21:18:22 -0300 by mstorti in spider
-     > Now printing "For elemset ..." element partitioning should
-     > 	   give the elemset name and pointer. 

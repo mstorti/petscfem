@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.29 2003/11/25 01:13:36 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.28.12.1 2003/12/03 16:31:38 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -148,8 +148,23 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Density
   SGETOPTDEF(double,rho,1.);
+
   //o Thermal conductivity
-  SGETOPTDEF(double,kappa,1.);
+  //  SGETOPTDEF(double,kappa,1.);
+
+  //o Thermal conductivity tensor
+  FastMat2 kappa_tensor;
+  kappa_tensor.resize(2,ndim,ndim);
+  kappa_tensor.set(0.);
+
+  /*
+  for (int jj=1; jj<=ndim; jj++) {
+    kappa_tensor.setel(kappa,jj,jj);
+  }
+  */
+
+  read_cond_matrix(thash,"kappa_tensor",ndim,kappa_tensor);
+
   //o Specific heat - constant pressure
   SGETOPTDEF(double,Cp,1.);
   //o buoyancy coefficient for Boussinesq term
@@ -158,6 +173,29 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,Tinfty,0.);
   //o Gravity acceleration for buoyancy terms
   gravity.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
+  //o Viscosity - temperature table
+  int use_visco_temp_table = 0;
+  vector<double> visco_temp_table;
+  const char *line;
+  thash->get_entry("visco_temp_table",line);
+  if(line) {
+    use_visco_temp_table = 1;
+    read_double_array(visco_temp_table,line);
+    PETSCFEM_ASSERT0(!(visco_temp_table.size() % 2),
+		     "Visco-temp table needs even number of elements\n");
+  // Check that abscissae are sorted
+    PETSCFEM_ASSERT0(visco_temp_table.size()>=4,
+		     "Visco-temp table needs at least two points "
+		     "(4 elements)\n");
+    int j = 2;
+    while(j<visco_temp_table.size()) {
+      PETSCFEM_ASSERT0(visco_temp_table[j] > visco_temp_table[j-2],
+		       "Abscissae in visco-temp table should be sorted\n");
+      j += 2;
+    }
+  }
+
   ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
 
   //o Add axisymmetric version for this particular elemset.
@@ -177,7 +215,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
-  //o Cache  #grad_div_u#  matrix
+  //o Cache \verb+grad_div_u+ matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
@@ -253,11 +291,15 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     tmp3_th,tmp4_th,tmp5_th,tmp6_th,tmp7_th,tmp8_th,tmp9_th,
     tmp10_th,tmp11_th,tmp12_th,tmp13_th,tmp14_th,tmp15_th,tmp16_th,
     tmp17_th,tmp18_th,tmp19_th;
+  FMatrix tmp81_th,tmp91_th,tmp92_th, tmp20_th, tmp21_th;
   FMatrix resther(nel),matlocther(nel,nel);
   FastMat2 matlocmomther(3,nel,ndim,nel);
 
+  FastMat2 kappa_eff;
+
   double tmp12;
-  double nu_eff, mu_eff, mu_l , kappa_eff;
+//  double nu_eff, mu_eff, mu_l , kappa_eff;
+  double nu_eff, mu_eff, mu_l;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
@@ -490,30 +532,52 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  strain_rate.add(grad_u_star).scale(0.5);
 	  grad_u_star.rs();
 	  mu_l = VISC;
-
-      double kappa_l = kappa;
-
-	  // Smagorinsky turbulence model
-	  if (LES) {
-	    double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-	    double van_D;
-	    if (A_van_Driest>0.) {
-	      dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	      double ywall = sqrt(dist_to_wall.sum_square_all());
-	      double y_plus = ywall*shear_vel/mu_l;
-	      double van_D = 1.-exp(-y_plus/A_van_Driest);
-        } else van_D = 1.;
-
-	    double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-	    mu_eff = mu_l + rho*nu_t;
-        double kappa_t = rho*nu_t*Cp/Pr_t;
-        kappa_eff = kappa_l+kappa_t;
-	  } else {
-	    mu_eff = mu_l;
-	    kappa_eff = kappa_l;
+	  if (use_visco_temp_table) {
+	    double visco_corr;
+	    if (T_star<=visco_temp_table[0])
+	      visco_corr = visco_temp_table[1];
+	    else {
+	      int j;
+	      for (j=2; j<visco_temp_table.size(); j+= 2) {
+		if (T_star<= visco_temp_table[j]) break;
+	      }
+	      if (j>=visco_temp_table.size()) {
+		visco_corr = visco_temp_table[j-1];
+	      } else {
+		double slope = (visco_temp_table[j+1]-visco_temp_table[j-1])/
+		  (visco_temp_table[j]-visco_temp_table[j-2]);
+		visco_corr = visco_temp_table[j-1]
+		  +slope*(T_star-visco_temp_table[j-2]);
+	      }
+	    }
+	    mu_l *= visco_corr;
 	  }
-	  nu_eff = mu_eff/rho;
-        }
+
+	      // Smagorinsky turbulence model
+	      if (LES) {
+		double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+		double van_D;
+		if (A_van_Driest>0.) {
+		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+		  double ywall = sqrt(dist_to_wall.sum_square_all());
+		  double y_plus = ywall*shear_vel/mu_l;
+		  double van_D = 1.-exp(-y_plus/A_van_Driest);
+		} else van_D = 1.;
+
+		double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+		mu_eff = mu_l + rho*nu_t;
+		double kappa_t = rho*nu_t*Cp/Pr_t;
+
+		kappa_eff.set(eye).scale(kappa_t);
+		kappa_eff.add(kappa_tensor);
+
+	      } else {
+		mu_eff = mu_l;
+
+		kappa_eff.set(kappa_tensor);
+	      }
+	      nu_eff = mu_eff/rho;
+	    }
 
 	// u2 = u.sum_square_all();
 	uintri.prod(iJaco,u,1,-1,-1);
@@ -561,7 +625,10 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         }
         if (comp_mat_res_th || comp_res_th) {
 	  if (velmod>tol) {
-	    double diff_coe=kappa_eff/rho/Cp;
+
+	    double kappa_trace = double(tmp21_th.ctr(kappa_eff,-1,-1))/double(ndim);
+
+	    double diff_coe=kappa_trace/rho/Cp;
 	    Peclet = velmod * h_supg / (2. * diff_coe);
 	    psi = 1./tanh(Peclet)-1/Peclet;
 	    tau_supg_th = psi*h_supg/(2.*velmod);
@@ -677,7 +744,10 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    resther.axpy(W_supg_th,-wpgdet*tmp2_th);
           }
 
-	  tmp8_th.prod(dshapex,grad_T_star,-1,1,-1).scale(kappa_eff);
+//	  tmp8_th.prod(dshapex,grad_T_star,-1,1,-1).scale(kappa_eff);
+	  tmp81_th.prod(kappa_eff,grad_T_star,1,-1,-1);
+	  tmp8_th.prod(dshapex,tmp81_th,-1,1,-1);
+
 	  resther.axpy(tmp8_th,-wpgdet);
 
 	  // thermal matrix
@@ -699,8 +769,13 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
             matlocther.add(tmp7_th);
           }
 
-	  tmp9_th.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlocther.axpy(tmp9_th,kappa_eff);
+//	  tmp9_th.prod(dshapex,dshapex,-1,1,-1,2);
+//	  matlocther.axpy(tmp9_th,kappa_eff);
+
+	  tmp91_th.prod(kappa_eff,dshapex,1,-1,-1,2);
+	  tmp92_th.prod(dshapex,tmp91_th,-1,1,-1,2);
+
+	  matlocther.add(tmp92_th);
 
         }
 
