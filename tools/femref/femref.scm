@@ -19,12 +19,13 @@
  (set! j (+ j 1)))
 !#
 
+(define get-surf-ctx (make-get-surf-ctx))
 (define icone (make-dvint))
 (define surf-con (make-dvint))
 (define surf-nodes (make-dvint))
 (format #t "read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
 
-(getsurf icone surf-con surf-nodes 1 0)
+(getsurf get-surf-ctx icone surf-con surf-nodes 1 0)
 (format #t "surf-con:\n")
 (dvint-dump surf-con)
 

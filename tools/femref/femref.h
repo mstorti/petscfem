@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.57 2005/01/15 23:40:53 mstorti Exp $
+// $Id: femref.h,v 1.58 2005/01/16 14:34:15 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -516,7 +516,14 @@ public:
 
 extern LinearCombiner linear_combiner;
 
-void getsurf(const dvector<int> &icone,
+struct GetSurfCtx {
+  UniformMesh *mesh;
+  GetSurfCtx() : mesh(NULL) { }
+  ~GetSurfCtx() { if (mesh) delete mesh; }
+};
+
+void getsurf(GetSurfCtx &ctx,
+	     const dvector<int> &icone,
 	     dvector<int> &surf_con,
 	     dvector<int> &surf_nodes, 
 	     int base, int verbose);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.21 2005/01/15 23:40:53 mstorti Exp $
+// $Id: getsurf.cpp,v 1.22 2005/01/16 14:34:15 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -27,7 +27,8 @@ typedef pair<int,FaceIterator> ft_pair_t;
 
 #define TRACE(j) printf("trace %d\n",j)
 
-void getsurf(const dvector<int> &icone,
+void getsurf(GetSurfCtx &ctx,
+	     const dvector<int> &icone,
 	     dvector<int> &surf_con,
 	     dvector<int> &surf_nodes, 
 	     int base, int verbose) {
@@ -37,8 +38,10 @@ void getsurf(const dvector<int> &icone,
 
   int ndof = 4, ndim = 3;
   time_t start, end;
+  assert(!ctx.mesh);
   const GeomObject::Template *mesh_tmpl = &OrientedTetraTemplate;
-  UniformMesh mesh(*mesh_tmpl,3);
+  ctx.mesh = new UniformMesh(*mesh_tmpl,3);
+  UniformMesh &mesh = *ctx.mesh;
   int mesh_nel = mesh.tmplt()->size_m;
   mesh.set_conn(icone,base);
   UniformMesh::visitor vis, vis2;
@@ -190,6 +193,102 @@ void getsurf(const dvector<int> &icone,
   }
 }
 
+#if 0
+void comp_matrices(const dvector<int> &surf_con,
+		   const dvector<int> &surf_nodes, 
+		   const dvector<int> &x, 
+		   dvector<double> &surf_mass,
+		   dvector<double> &node_mass,
+		   int verbose) {
+  
+  int nsurf_nodes = surf_nodes.size();
+  int nfaces = surf_con.size(1);
+  surf_mass.a_resize(1,nfaces);
+  node_mass.resize(nsurf_nodes);
+  double Area = 0.;
+  for (int jface=0; jface<nfaces; j++) {
+    vis.init(q->second.elem);
+    GeomObject &go = vis.ref_stack.front().go;
+    go.set(GeomObject::OrientedTriT,q->second.face,face);
+    for (int j=0; j<mesh_nel; j++) node_mark[j]=0;
+    const int *face_nodes = face.nodes();
+    const int *elem_nodes = go.nodes();
+    for (int j=0; j<face_nel; j++) {
+      int node = face_nodes[j];
+      if (surf_nodes_map.find(node)
+	  == surf_nodes_map.end()) {
+	surf_nodes_map[node] = nsurf_nodes++;
+	surf_nodes.push(node);
+      }
+      surf_con.e(jface,j) 
+	= surf_nodes_map[node];
+      for (int l=0; l<mesh_nel; l++) {
+	if (elem_nodes[l] == node) {
+	  node_mark[l]=1; break;
+	}
+      }
+    }
+    int nopp=0, opp_node;
+    for (int l=0; l<mesh_nel; l++) {
+      if (node_mark[l]==0) {
+	nopp++; opp_node = elem_nodes[l];
+      }
+    }
+    assert(nopp=1);
+    if (verbose) {
+      printf("elem %d, ");
+      go.print();
+      printf("face %d, ",q->second.elem,q->second.face);
+      face.print();
+      printf("opposing node %d\n",opp_node);
+    }
+    X.is(2,1,ndim);
+    for (int j=0; j<mesh_nel; j++) {
+      int node;
+      if (j<face_nel) node = face_nodes[j];
+      else node = opp_node;
+      U.ir(1,j+1).set(&u.e(node,0));
+      X.ir(1,j+1).set(&x.e(node,0));
+    }
+    U.rs(); X.rs();
+    invX.inv(X);
+    A.prod(invX,U,1,-1,-1,2);
+    A.is(1,1,ndim);
+    grad_U.set(A);
+    grad_U.export_vals(&grad_Ue.e(jface,0));
+    A.rs();
+    // grad_U.print("");
+    for (int j=0; j<face_nel; j++) {
+      int node = face_nodes[j];
+      fprintf(fid,"%d ",node);
+    }
+    fprintf(fid,"\n");
+    double *buff = grad_U.storage_begin();
+    for (int j=0; j<ndim*ndof; j++) 
+      fprintf(fidgu,"%lg ",buff[j]);
+    fprintf(fidgu,"\n");
+
+    // Compute surface area for surface mass matrix
+    X.is(2,1,ndim).ir(1,2);
+    edgea.set(X);
+
+    X.ir(1,3);
+    edgeb.set(X);
+
+    X.ir(1,1);
+    edgea.rest(X);
+    edgeb.rest(X);
+    X.rs();
+
+    surf.cross(edgea,edgeb);
+    double area = sqrt(surf.sum_square_all())/2.0;
+    surf_mass.ref(jface) = area;
+    Area += area;
+  }
+}
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #if 0
 SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 	    SCM s_sconf, SCM s_graduf, SCM s_base) {
