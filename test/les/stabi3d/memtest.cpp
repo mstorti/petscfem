@@ -1,11 +1,13 @@
 //__INSERT_LICENSE__
-// $Id: memtest.cpp,v 1.7 2004/03/02 19:40:43 mstorti Exp $
+// $Id: memtest.cpp,v 1.8 2004/12/09 13:27:45 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
 #include <vector>
 #include <unistd.h>
 #include <ctype.h>
+
+using namespace std;
 
 int MAX;
 
