@@ -1,5 +1,5 @@
 // -*- mode: C++ -*- 
-// $Id: streamsw1d.h,v 1.2 2003/10/16 19:13:42 mstorti Exp $
+// $Id: streamsw1d.h,v 1.2.2.1 2003/11/21 20:00:02 mstorti Exp $
 #ifndef STREAMSW1D_H
 #define STREAMSW1D_H
 
@@ -188,8 +188,8 @@ public:
 
 class streamsw1d_abso : public AdvDiff_Abs_Nl_Res {
 public:
-  //streamsw1d_abso has three nodes [U_bound, U_inner, U_dummy]T
-  streamsw1d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw1d_ff(this)) {
+  //streamsw1d_abso has n nodes [U_N, U_{N-1},U_{N-2}, .. , U_dummy]^t
+  streamsw1d_abso() :  AdvDiff_Abs_Nl_Res(new streamsw1d_ff(this)/*,new streamsw1d(this)*/) {
     // printf("En streamsw1d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
 };

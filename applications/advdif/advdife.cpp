@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.74 2003/10/16 19:13:42 mstorti Exp $
+//$Id: advdife.cpp,v 1.74.2.1 2003/11/21 19:59:10 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -580,28 +580,28 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// flux-function.
 	adv_diff_ff->comp_P_supg(P_supg);
 #endif
-
-
-// adding shock-capturing term
-    if (shocap>0.) {
-    tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*delta_sc*ALPHA*wpgdet);
+	
+	
+	// adding shock-capturing term
+	if (shocap>0.) {
+	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*delta_sc*ALPHA*wpgdet);
     for (int jdf=1; jdf<=ndof; jdf++) {
 		matlocf.ir(2,jdf).ir(4,jdf).add(tmp_sc).rs();
 	}
-	tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2).scale(-shocap*delta_sc*wpgdet);
+    tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2).scale(-shocap*delta_sc*wpgdet);
 	veccontr.add(tmp_sc_v);
 	//	SHV(delta_sc);
 	}
 
 	for (int jel=1; jel<=nel; jel++) {
-      P_supg.ir(1,jel);
+	  P_supg.ir(1,jel);
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
 	  //	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet);
 
 	  matlocf.ir(1,jel);
 
-      tmp19.set(P_supg).scale(ALPHA*wpgdet);
+	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
 	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 

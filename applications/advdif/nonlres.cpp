@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.2 2003/10/16 19:13:42 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.2.2.1 2003/11/21 19:59:29 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -7,12 +7,13 @@
 #include <src/getprop.h>
 #include <src/fastmat2.h>
 #include <src/cloud.h>
+#include <src/elemset.h>
 
 #include "advective.h"
 #include "nonlres.h"
 #include "nwadvdif.h"
 
-//extern TextHashTable *GLOBAL_OPTIONS;
+//extern Mesh *GLOBAL_MESH;
 
 NonLinearRes::~NonLinearRes() {};
 
@@ -133,7 +134,6 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   adv_diff_ff->start_chunk(ret_options); //ff ini
   extr_cloud.init(nel-2,0,nel-3);
   double xne=0.;
-  //  int ip[]={0,1,2,3,4,5,6,7,8,9,10,11};
   for (int i=1;i<nel-1;i++) {
     xne=-1.*i;
     xpe.setel(xne,i); 
@@ -161,7 +161,7 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
     matloc.set(0.0);
     R.set(0.0);
     if (comp_res) {
-      AdvDiff_Abs_Nl_Res::init();
+      init();
       element_hook(element);
       res(element,U,r,lambda,jac);
       U_innodes.set(U.is(1,1,nel-1));
@@ -201,7 +201,6 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   extr_cloud.clear();
-
 }
 
 void AdvDiff_Abs_Nl_Res::init() {
@@ -209,6 +208,26 @@ void AdvDiff_Abs_Nl_Res::init() {
   get_prop(U_ref_prop,"U_ref");
   assert(nel>2);
   int ret_options=0;
+  /*
+    NSGETOPTDEF(string,vol_elemset,"none");
+    assert(vol_elemset.length()>0);
+    if (vol_elemset != "streamsw1d" || vol_elemset != "stream" || \
+    vol_elemset != "advdif_swfm2t") {
+    PetscPrintf(PETSC_COMM_WORLD,
+    "Invalid value for \"volume_elemset\" option\n"
+    "vol_elemset=\"%s\"\n",vol_elemset.c_str());
+    PetscFinalize();
+    exit(0);
+    }
+    Elemset *dummy_vol_elemset;
+    dummy_vol_elemset = GLOBAL_MESH->find(vol_elemset);
+    //check if found
+    PETSCFEM_ASSERT(dummy_vol_elemset,"Can't find volume element name: %s\n",
+    vol_elemset.c_str());
+    // dynamic_cast from Elemset to streamsw1d (NewElemset)
+    elemset_vol = dynamic_cast<const streamsw1d *>(dummy_vol_elemset);
+    delete dummy_vol_elemset;
+  */
 }
 
 void AdvDiff_Abs_Nl_Res::lag_mul_dof(int jr,int &node,int &dof) {

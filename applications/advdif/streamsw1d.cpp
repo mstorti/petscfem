@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.3 2003/10/17 09:16:38 mstorti Exp $
+//$Id: streamsw1d.cpp,v 1.3.2.1 2003/11/21 19:59:53 mstorti Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -62,7 +62,7 @@ void streamsw1d_ff::start_chunk(int &options) {
 #ifdef USE_A_JAC_DUMMY
   //para debug de caso lineal
   A_jac_dummy.resize(3,ndimel,ndof,ndof);  
-  A_jac_dummy.set(0.).setel(1.,1,1,1).setel(-1.,1,2,2);
+  A_jac_dummy.set(0.).setel(0.,1,1,2).setel(1.,1,2,1);
 #endif
 }
 
@@ -226,7 +226,7 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
 
     Sf_jac.rs();
     // A_grad_U es ndof x 1
-    A_grad_U.prod(A_jac,grad_U,-1,-2,1,-1,-2);
+    A_grad_U.prod(A_jac,grad_U,-1,1,-2,-1,-2);
     
     Uintri.set(iJaco).scale(u);//iJaco es la inv del jac de la transf de cordenadas
     double h_supg;
