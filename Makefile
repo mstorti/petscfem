@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.49 2003/03/23 20:11:10 mstorti Exp $
+#$Id: Makefile,v 1.50 2003/03/25 22:46:01 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -20,7 +20,7 @@ SRCS :=
 
 DEPEND_DIRS := $(SRCDIRS)
 
-SWDIRS := test tools
+SWDIRS := tools test 
 
 #p [in Makefile]
 
