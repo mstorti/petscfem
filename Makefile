@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.28.8.1 2001/12/09 14:00:17 mstorti Exp $
+#$Id: Makefile,v 1.28.8.2 2001/12/28 00:32:44 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -175,6 +175,10 @@ save:
 
 #w Makes a new release
 tag:
-	tools/maketag
+	./tools/maketag
+
+#w Makes a new (light) release
+ltag:
+	./tools/makeltag save.log
 
 #s

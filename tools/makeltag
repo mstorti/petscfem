@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+sub ask {
+    my $ans;
+    my $text = shift();
+    print "$text (y/n [default y]) > ";
+    $ans = <STDIN>;
+    chomp $ans;
+    die "Aborting... \n" if $ans =~ /n/i;
+}
+
+$save_log = shift();
+$tmp = "./tmp_file_log.txt.tmp";
+
+system "echo n | cvs rel .";
+ask "\nContinue ? ";
+$|=1;
+$t = `grep "^tag: " $save_log | tail`;
+print "Last tags :\n$t",;
+
+print "Enter new tag: > ";
+$newtag = <STDIN>;
+chomp $newtag;
+$newtag_ = $newtag;
+$newtag =~ s/\-/--/g; 
+$newtag =~ s/\./-/g;
+
+print "Encoded tag \"$newtag\"\n";
+ask "\nContinue ? ";
+
+print "Now I will launch the editor in order\n",
+    "    to enter a log message for this release...\n",
+    "    <press enter to continue>\n";
+<STDIN>;
+system "\$EDITOR $tmp";
+
+open SVL,">>$save_log";
+print SVL "----------\n"; # >> $savelog;
+$d = `date`;
+chomp $d;
+$w = `whoami`;
+chomp $w;
+$h = `hostname -f`;
+chomp $h;
+print SVL "tag: $newtag_ on $d by $w in $h\n";
+open TMP,"$tmp";
+while (<TMP>) {
+    print SVL "     > $_";
+}
+close TMP;
+if ( -f $tmp) {
+    unlink $tmp;
+}
+
+# system "cat $tmp >>save.log";
+close SVL;
+
+open VRS,">VERSION";
+print VRS $newtag_;
+close VRS;
+
+print "logging on $save_log\n";
+
+system "cvs ci -m \"Administrative files\" save.log VERSION";
