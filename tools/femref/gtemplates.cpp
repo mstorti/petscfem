@@ -1,5 +1,15 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.1 2004/12/05 20:04:47 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.2 2004/12/05 21:43:48 mstorti Exp $
+
+#include <string>
+#include <list>
+#include <limits.h>
+#include "./hasher.h"
+
+using namespace std;
+
+#include "./femref.h"
+#include "./gtemplates.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int 
@@ -16,7 +26,12 @@ Tetra2TetraSplitter_v[]
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Tetra2TetraSplitterClass::
 Tetra2TetraSplitterClass() {
-  subobj_conn.a_resize(2,8,4);
+  subobj_conn.a_resize(2,8,4,2);
+  int nso = 8;
+  int nel = 4;
+  int nelso = 4;
+  for (int j=0; j<nso; j++) {
+  }
   subobj_conn.set(Tetra2TetraSplitter_v);
 }
 
