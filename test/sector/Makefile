@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2001/04/01 03:11:46 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/12/26 10:54:40 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops
 
@@ -7,9 +7,6 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
-
-# with this it doesn't work
-ADVO    = $(PETSCFEM_DIR)/../petscfem-1.48g/applications/advective/adv.bin 
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 sector: sector.depl $(LAPLACE)
@@ -71,5 +68,9 @@ iprops:
 	chmod +w sector.depl
 	eperl -P -d chunk_size=10 -d iprops=1 sector.epl >sector.depl
 	chmod -w sector.depl
+
+LOC_PROG := laplace
+PROG := $(LAPLACE)
+CASE_NAME := sector
 
 #
