@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.8 2001/11/26 22:41:43 mstorti Exp $
+//$Id: graph.cpp,v 1.9 2001/11/27 17:26:06 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
+#include <vector>
 extern "C" {
 #include <metis.h>
 }
@@ -22,7 +23,6 @@ void Graph::part(int nvrtx_f,int max_partgraph_vertices,
 
   int visited,vrtx_f,vrtx_fk,vrtx,vrtxj,vrtxjj,p,j,k,
     edgecut,options=0,numflag=0,wgtflag=2;
-  vector<int>::iterator n,ne;
   set<int>::iterator q,qe;
   // if tpwgts is not passed then define a local one
   vector<float> tpwgts_v;
@@ -56,7 +56,7 @@ void Graph::part(int nvrtx_f,int max_partgraph_vertices,
   el2vrtx = new int[nvrtx_f];
   // vpart:= partitioning of vertices
   vpart = new int[nvrtx];
-  vector<int> ngbrs_v;
+  set<int> ngbrs_v;
 
   // Initialize 
   for (j=0; j<nvrtx_f; j++) el2vrtx[j] = -1;
@@ -118,9 +118,9 @@ void Graph::part(int nvrtx_f,int max_partgraph_vertices,
     ngbrs_v.clear();
     set_ngbrs(vrtx_f,ngbrs_v);
     // Loop over all ngbrs of the fine vertex
-    ne = ngbrs_v.end();
-    for (n=ngbrs_v.begin(); n!=ne; n++) {
-      int &vrtx_fk = *n;
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
+      const int &vrtx_fk = *q;
       // Already visited
       if (el2vrtx[vrtx_fk]>=0) continue;
       // Assign to group
@@ -151,9 +151,9 @@ void Graph::part(int nvrtx_f,int max_partgraph_vertices,
     vrtxj = el2vrtx[vrtx_f];
     ngbrs_v.clear();
     set_ngbrs(vrtx_f,ngbrs_v);
-    ne = ngbrs_v.end();
-    for (n=ngbrs_v.begin(); n!=ne; n++) {
-      int &vrtx_fk = *n;
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
+      const int &vrtx_fk = *q;
       vrtxjj = el2vrtx[vrtx_fk];
       // Add edges to graph
       adjncy_v[vrtxj].insert(vrtxjj);

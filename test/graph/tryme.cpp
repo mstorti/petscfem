@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.6 2001/11/24 01:05:27 mstorti Exp $
+// $Id: tryme.cpp,v 1.7 2001/11/27 17:26:09 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -17,13 +17,13 @@ int crem(int j, int m) {
 class TGraph : public Graph {
 public:
   int N;
-  void set_ngbrs(int elem,vector<int> &ngbrs_v);
+  void set_ngbrs(int elem,set<int> &ngbrs_v);
   ~TGraph() {clear();}
 };
 
-void TGraph::set_ngbrs(int elem,vector<int> &ngbrs_v) {
-  ngbrs_v.push_back(crem(elem+1,N));
-  ngbrs_v.push_back(crem(elem-1,N));
+void TGraph::set_ngbrs(int elem,set<int> &ngbrs_v) {
+  ngbrs_v.insert(crem(elem+1,N));
+  ngbrs_v.insert(crem(elem-1,N));
 }
 
 int main(int argc, char **args) {

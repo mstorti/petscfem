@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/11/23 20:53:07 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/11/27 17:26:09 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -23,6 +23,7 @@ tryme.bin: tryme.o ../../src/libpetscfem.a(graph.o)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ tryme.o  $(LDFLAGS) # $(SUPERLU)/SRC/util.o
 
+# Test Graph class
 graph: tryme.bin
 	tryme.bin PETSc > output.graph.tmp
 

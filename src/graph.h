@@ -1,11 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.7 2001/11/26 01:35:42 mstorti Exp $
+// $Id: graph.h,v 1.8 2001/11/27 17:26:06 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include <queue>
-#include <vector>
 #include <set>
 
 class Graph {
@@ -45,7 +44,7 @@ class Graph {
   /** callback user function to return the neighbors for a 
       fine vertex `vrtx_f'
   */
-  virtual void set_ngbrs(int vrtx_f,vector<int> &ngbrs_v)=0;
+  virtual void set_ngbrs(int vrtx_f,set<int> &ngbrs_v)=0;
   /// Callback user function for the user to set the weight of a given fine vertex. 
   virtual double weight(int vrtx_f);
   /// Clean all memory related 
