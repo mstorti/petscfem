@@ -1,10 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2001/08/07 17:09:34 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2001/08/07 19:54:12 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 run:
-	$(MAKE) NP=$(NPP) Re=500 case=iisd case_size=very_large test_case
+#	$(MAKE) NP=$(NPP) Re=500 case=iisd case_size=very_large test_case
+	$(MAKE) NP=2 Re=1 part=random case=iisd case_size=small test_case
 	mv -f save.state save.state.iisd_vl
 
 #w All tests
@@ -40,8 +41,10 @@ test_partitioning:
 	mv -f save.state save.state.metis.tmp
 	$(MAKE) NP=2  case=hitchhiking_part test_case
 	mv -f save.state save.state.hitchhiking.tmp
-	$(MAKE) NP=1  case=nearest_neighbor_part test_case
+	$(MAKE) NP=2  case=nearest_neighbor_part test_case
 	mv -f save.state save.state.nearest_neighbor.tmp
+	$(MAKE) NP=2  case=random_part test_case
+	mv -f save.state save.state.random.tmp
 	octave -q check_part.m > check_part.verif.tmp
 
 PETSCFEM_DIR = ../..

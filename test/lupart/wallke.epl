@@ -16,6 +16,7 @@ $Uav = 1;                       #
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
 $part_case = ($case =~ /^(.*)_part$/);
 $part_method = $1;
+$part_method = $ENV{'part'} if $ENV{'part'};
 $case_size = "medium" if $part_case;
 $case_size = $ENV{'case_size'} unless $case_size;
 $peri = $ENV{'peri'};

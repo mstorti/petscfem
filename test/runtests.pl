@@ -810,6 +810,7 @@ expect("lupart/check_part.verif.tmp",
        "Partitioning test",<<'EOT');
 Hitchhiking partitioning OK \? > 1
 Nearest neighbor partitioning OK \? > 1
+Random partitioning OK \? > 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
