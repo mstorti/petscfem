@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.68 2003/07/03 04:32:11 mstorti Exp $
+//$Id: elemset.cpp,v 1.69 2003/08/25 02:52:16 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -999,18 +999,25 @@ string Elemset::anon("__ANONYMOUS__");
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::register_name(const string &name_a,const char *type) {
+  // Assign a name to the elemset.If name has tnot been entered
+  // then try with `type', `type_0', `type_1' and so on, until a
+  // unique name is found. In order to avoid infinite loops, assign
+  // finally `type_ptr' where `ptr' is th pointer to the elemset. 
   AutoString ename;
   name_m = name_a;
   if (name_m == anon) {
 #define MAX_ELEMSET_SFX 1000
     int j;
-    for (j=0; j<MAX_ELEMSET_SFX; j++) {
+    for (j=-1; j<MAX_ELEMSET_SFX; j++) {
       // int Nbuf = asprintf(&ename,"%s_%d",type,j);
       // assert(Nbuf>=0);
-      ename.sprintf("%s_%d",type,j);
+      if (j<0) ename.set(type);
+      else ename.sprintf("%s_%d",type,j);
+
       if (elemset_table.find(ename.str())
 	  ==elemset_table.end()) break;
     }
+    if (j==MAX_ELEMSET_SFX) ename.sprintf("%s_%p",type,this);
     name_m = local_copy(ename.str());
     PETSCFEM_ASSERT0(j!=MAX_ELEMSET_SFX,
 		     "Couldn't generate automatic name for this  elemset!!\n");

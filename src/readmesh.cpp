@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.87 2003/07/02 23:22:19 mstorti Exp $
+//$Id: readmesh.cpp,v 1.88 2003/08/25 02:52:16 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -642,7 +642,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       PetscPrintf(PETSC_COMM_WORLD,
 		  "elemset number %d, name \"%s\", pointer %p, number of elements %d\n",
-		  elemsetnum,name.c_str(),elemset,nelem);
+		  elemsetnum,elemset->name(),elemset,nelem);
       
       // Append to the list
       da_append(mesh->elemsetlist,&elemset);

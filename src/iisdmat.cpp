@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.49 2003/08/19 01:16:52 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.50 2003/08/25 02:52:16 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -781,6 +781,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       ierr = KSPSetType(ksp_ll,KSPPREONLY); PF_CHKERRQ(ierr); 
       ierr = PCSetType(pc_ll,PCLU); PF_CHKERRQ(ierr); 
       ierr = PCLUSetFill(pc_ll,pc_lu_fill); PF_CHKERRQ(ierr); 
+      // ierr = PCLUSetMatOrdering(pc_ll,MATORDERING_RCM);
 
       if (use_interface_full_preco) {
 	ierr = SLESDestroy_maybe(sles_ii); PF_CHKERRQ(ierr); 

@@ -5,6 +5,10 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('case','lu');
 get_var_env('theta',0);
+get_var_env('nlay',0);
+get_var_env('subpart',0);
+get_var_env('N',0);
+get_var_env('isp_maxits',0);
 print "# incoming `case' : $case\n";
 $shell_hook_case = 0;
 if ($case eq 'shell_hook') {
@@ -25,7 +29,7 @@ if ($case =~ /^g3d_(.*)$/) {
     }
 }
 $L = 1;				# Side of the cavity
-$N = 200;
+$N = (defined $N ? $N :200);
 $hratio = 0;			# refinement (h_center/h_wall)
 $solver = "petsc";
 $preco_type = "lu";
@@ -76,11 +80,19 @@ nsave 5
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
+KSP_method "cg"
+maxits 1000
+#if $subpart
 <:pr('solver'):>
 <:pr('preco_type'):> 
-<:pr('maxits'):> 
-# Number of subdomains
-<:pr('iisd_subpart'):>
+# <:pr('maxits'):> 
+iisd_subpart <:=$subpart:>
+iisdmat_print_statistics
+#else
+# Put as if $subpart=0 were like global PETSc (in fact it should be Inf)
+solver "petsc"
+preco_type "jacobi"
+#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -100,7 +112,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt 0.01
-# steady 
+steady 
 
 #if $shell_hook_case==1
 hook_list shell_hook shell_hook
@@ -111,11 +123,12 @@ shell_hook "echo stage %s, step %d, time %f"
 
 # print_dofmap_id
 use_interface_full_preco 1
-use_interface_full_preco_nlay 1
+use_interface_full_preco_nlay <:=(defined $nlay ? $nlay : 2):>
 print_interface_full_preco_conv 0
 interface_full_preco_pc "jacobi"
 # interface_full_preco_relax_factor 0.3
-interface_full_preco_maxits 20
+
+interface_full_preco_maxits <:=(defined $isp_maxits ? $isp_maxits : 20):>
 # print_interface_full_preco_conv
 
 activate_debug_print

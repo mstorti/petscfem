@@ -1,13 +1,16 @@
-# $Id: Makefile,v 1.46 2003/07/26 00:43:12 mstorti Exp $ 
+# $Id: Makefile,v 1.47 2003/08/25 02:49:16 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
 
-all: run
+default: test_isp
+
+test_isp: 
+	$(MAKE) case=laplace run
 
 #default case
 # case := laplace
-case := iisd_sbp1_uj
+# case := iisd_sbp1_uj
 export case
 
 tests: test_re1000 test_iisd
@@ -40,11 +43,9 @@ export NP
 PROG := $(NS)
 
 #w Runs program
-$(CASE).depl: force
-run: $(CASE).depl
-#	$(MAKE) mesh
+run: 
+	make-depl cubcav.epl cubcav.depl -d case=ns
 	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
-#	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 mesh: cubcav.depl
 	$(OCTAVE) mkmesh.m
@@ -63,5 +64,9 @@ nettest:
 	NP=`procsel -n ./proctable.geronimo` ;  \
 	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
 
-dx:
+dxo:
 	$(EPERL) -P viewer.dx > viewer.dx.tmp
+
+dx:
+	$(EPERL) -P -d dx=1 cubcav.epl > cubcav_dx.depl
+	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl

@@ -77,4 +77,7 @@ dxyuv: CFLAGS = -O3 -funroll-loops
 dxyuv: dxyuv.cpp
 	$(CXX) $(CFLAGS) $< -o $@
 
+local_clean::
+	-rm -f dxyuv
+
 #s

@@ -1,7 +1,21 @@
 #!/usr/bin/perl
 
-print "nlay sbp N  ispits mem  tav\n";
-while (<STDIN>) {
+sub averg {
+    my $sum=0;
+    my $count = 0;
+    my $ref = shift();
+    foreach my $t (@$ref) {
+	$sum += $t;
+	$count++;
+    }
+    return $sum/$count;
+}
+
+open IN,"isp2.stat";
+$stream = IN;
+
+print "nlay sbp ispits mem iter av. tav\n";
+while (<$stream>) {
     my @items = split(" ",$_);
     my %items;
     while (@items) {
@@ -10,11 +24,9 @@ while (<STDIN>) {
 	if (!exists($items{$key})) { $items{$key} = $val; }
 	else {
 	    if (!ref($items{$key})) { $items{$key} = [$items{$key}]; }
-	    push @$items{$key}, $val;
+	    push @{$items{$key}}, $val;
 	}
     }
-    if (/^nlay (\d)* subpart (\d*) N (\d*) isp_maxits (\d*) iter (\d*) .* iter (\d*) .* maxmem (\d*) tav (\S*) total/) {
-	$itav = 
-	printf "%2d %3d %3d %3d %7.1f %7.1f\n",$1,$2,$3,$4,$5/1000.0,$6;
-    }
+    printf "%2d %3d %3d %7.1f %7.2f %7.1f\n",$items{nlay},$items{subpart},
+    $items{isp_maxits},averg($items{maxmem})/1000.0,averg($items{iter}),$items{tav};
 }

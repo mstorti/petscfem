@@ -1,137 +1,60 @@
 # -*- mode: shell-script -*-
-# case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-get_var_env('weak_form',0);
-get_var_env('case',undef);
-get_var_env('NP',undef);
-$NP = 1 unless $NP;
-$case_orig = $case;
-$case =~ s/^\s*(.*)\s*$/$1/;
-$use_tetra = 1;
-$use_prismatic = 0;
-$fracstep = 0;
-if ($case eq 'laplace_tetra') {
-    $case = 'laplace';
-    $use_tetra = 1;
-}
-$ndim = 3;			# Number of spatial dimensions
-$U = 1;				# typical velocity scale
-$L = 1;				# Side of the cavity
-$N = 4;				# Number of elements per dimension
-
-$nelem = $N**3.;		# Number of hexas
-$nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
-$max_subd = 20;
-die "bad NP: $NP\n" unless $NP>=1;
-
-$graph_chunk_size  = $N**3;
-$graph_chunk_size = 
-    ($graph_chunk_size < 20000 ? 20000 : 
-    $graph_chunk_size > 200000 ? 200000 : $graph_chunk_size);
-$hratio = 5;			# refinement (h_center/h_wall)
-$Re = 500;			# Reynolds number
-$viscosity = $L/$Re;		# viscosity
-$Dt = ($case eq 'laplace' ? 1 : $fracstep? 0.1 : 1);# time step
-$solver = "petsc";
-$preco_type = "lu";
-$maxits = 1;
-$nstep = 1000;
-$save_file = ($case ? "cubcav.$case.tmp" : "cubcav.state.tmp");
-#
-$weak_form = 0;
-$cache_gdu = 0;
-$update_jacobian =0;
-$leaky=0;
-$tol = $L/$N*1e-3;
-# `scalar' avoids returning the first match, which can be zero
-# and then can be interpreted as `false' 
-if (scalar $case =~ /weak_form_(\d)/) {
-    $weak_form = $1;
-} elsif ($case eq 'lu') {
-    $solver = "petsc";
-    $preco_type = "lu";
-    $maxits = 1;
-    $nstep = 2;
-} elsif ($case =~ /^iisd/) {
-    $solver = "petsc";
-#    $solver = "iisd";
-    $iisd_subpart = 300;
-    $maxits = 200;
-    $nstep = 1;
-    $iisd_subpart = $1 if $case=~/_sbp(\d*)/;
-    if ($case=~/_uj/) {
-	$update_jacobian = 1;
-	$nstep = 2000;
-	$maxits=100;
-	$iisd_subpart = 10;
-    }
-    $preco_type = "jacobi";
-    $iisd_subpart = ceil($nelem/$nelem_subd/$NP);
-} elsif ($case eq 'laplace') {
-    $solver = "iisd";
-    $iisd_subpart = 60;
-    $maxits = 200;
-    $nstep = 1;
-    $preco_type = "jacobi";
-} elsif ($case eq 'big') {
-    $N = 40;
-#      $solver = "iisd";
-#      $preco_type = "jacobi";
-    $solver = "petsc";
-    $preco_type = "lu";
-    $maxits = 1;
-    $nstep = 20;
-    $cache_gdu = 0;
-    $iisd_subpart = 10;
-} else {
-    die "don't know case \"$case\"\n";
-}
+$case = 'laplace' unless $case;
+get_var_env2('NP',undef);
 $CASE = $case;
+$N = 20 unless defined $N;
+$hratio = 1;
+$use_tetra = 1;
+$maxits = 600;
+$tol = 1e-7;
+get_var_env2('subpart',20);
+$iisd_subpart = $subpart;
+get_var_env2('nlay',1);
+get_var_env2('isp_maxits',10);
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
 octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity 
     h Co Dt hratio leaky tol use_prismatic use_tetra));
+system "octave -qH mkmesh.m > mkmesh.output.tmp";
 :>//                            # ends ePerl block
 
 global_options
 
-<:pr('ndim'):>
+# <:pr('dx'):>
+# <:pr('case'):>
+# <:pr('subpart'):>
+# <:pr('nlay'):>
+ndim 3
 nsave 3
-nstep 100
+nstep 4
 # initial_state cubcav.state
-<:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
 
-# type of solver (may be "iisd", "petsc"...)
-#if $case ne 'laplace' && $fracstep
-fractional_step
-reuse_mat 0
-#endif
-#if 1
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
-#endif
-# solver     "petsc"
-solver     "iisd"
 preco_type "jacobi"
-# solver_mom "petsc"
-# rtol 1e-6
 chunk_size 1000
-# <:pr('iisd_subpart'):>
-iisd_subpart_auto 2000
-# newton_relaxation_factor 0.
+#if $iisd_subpart
+solver "iisd"
+<:pr('iisd_subpart'):>
+use_interface_full_preco 1
+use_interface_full_preco_nlay <:=$nlay:>
+print_interface_full_preco_conv 0
+interface_full_preco_maxits <:=$isp_maxits:>
+interface_full_preco_relax_factor 0.5
+#else
+solver "petsc"
+#endif
+Krylov_dim <:=$maxits:>
 <:pr('maxits'):>
 report_consumed_time
 #
 activate_debug_print
 activate_debug_memory_usage
 # activate_debug
-use_interface_full_preco 1
-print_interface_full_preco_conv 0
-interface_full_preco_maxits 10
-interface_full_preco_relax_factor 0.5
 
 iisdmat_print_statistics
 print_partitioning_statistics
@@ -145,86 +68,50 @@ max_partgraph_vertices_proc 4000
 tol_tet 1e-5
 tol_newton -1.
 atol 0
-#if $fracstep
-# KSP_method "cg"
-# preco_side "left"
-rtol 1e-4
-#else
 rtol 1e-8
-#endif
 dtol 1e3
 nnwt 1
 
-Krylov_dim <:=$maxits:>
 print_internal_loop_conv 1
 # print_linear_system_and_stop 1
 # solve_system 0
 #verify_jacobian_with_numerical_one 1
 
-#print_nodal_partitioning 1
-Dt <:=$Dt:>
+rho 1
+viscosity 0.001
+Dt 1
 steady 1
 temporal_stability_factor 0
 
-shock_capturing_factor 0
-#if $cache_gdu
-local_store
-cache_grad_div_u
-#endif
+#if $dx
 hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 3 0 1 2 u 1 1 3 p"
+dx_auto_combine
+dx_state_all_fields 0
+dx_steps 1
+dx_read_state_from_file
+#endif
+
 __END_HASH__
 
 # ndim nu ndof
-nodedata  3  3  <:=($case eq 'laplace' ? 1 : 4):>
+nodedata  3  3  4
 data cubcav.nod.tmp
 __END_HASH__
 
-elemset \
- <:=($case eq 'laplace' ? 'qharm' : $fracstep? 'fracstep_fm2' : 'nsi_tet_les_fm2'); :> \
-	<:=($use_prismatic? 6 : $use_tetra? 4 : 8):>
-name malla
-# report_consumed_time
-geometry <:=($use_prismatic? 'prismatic' : $use_tetra ?  'tetra' : 'cartesian3d'):>
-npg <:=($use_prismatic? 6 : $use_tetra ? ($case eq 'laplace'? 1 : 4) : 8):>
-
-#if $case ne 'laplace'
-<:pr('viscosity'):> 
-<:pr('weak_form'):>
-LES 0
-#endif
-#<: $use_mpi = 1; :>
-#if $use_mpi
-data cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp
-#endif
-dx
-# triangle
-# dx_indices 1 2 3 triangles
-# cartesian3d
-# dx_indices 1 2 4 3 5 6 8 7 cubes
-# tetra
-# dx_indices 1 2 3 4 tetrahedra
-# prism  (not conforming though)
-# dx_indices 1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra
+elemset nsi_tet_les_fm2 4
+name fluid
+geometry tetra
+npg 4
+data cubcav.con-tetra.tmp
+dx 1
 __END_HASH__
-#if !$use_mpi
-__INCLUDE__ cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp
-__END_ELEMSET__
-#endif
-
-interpolation 
-__END_HASH__
-0.5 0.5 0.5
-__END_DATA__
 
 end_elemsets
 
-#if 1
 fixa
-# fijacion en la presion
-#if $case ne 'laplace'
-1 <:=$ndim+1:> 0.
-#endif
 # fijaciones de velocidad en las paredes
 __INCLUDE__ cubcav.fixa.tmp
+# fijacion en la presion
+1 4 0.
 __END_FIXA__
-#endif

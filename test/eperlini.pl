@@ -27,6 +27,11 @@ sub get_var_env {
     ${$name} = $def unless ${$name};
 }
 
+sub get_var_env2 {
+    my ($name,$def) = @_;
+    ${$name} = (exists($ENV{"$name"}) ? $ENV{"$name"} : $def);
+}
+
 sub pr {
     $name = shift();
     print "$name ",quote_string(${$name});
