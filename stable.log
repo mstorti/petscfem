@@ -530,7 +530,7 @@ tag: beta-3.40 on Wed Jan 26 08:05:23 GMT+3 2005, by mstorti in spider
      > Implemented general absorbing boundary condition,
      > 	    and implemented for gasflow. 
 ----------
-tag: beta-3.43 on Fri Feb 18 06:43:40 GMT+3 2005, by mstorti in spider
+tag: beta-3.42 on Fri Feb 18 06:43:40 GMT+3 2005, by mstorti in spider
      > Fixed a bug that prevents use of `gasflow_abso' elemset. 
      > Administrative tag.
      > Implemented new absorbing boundary condition. 
