@@ -25,8 +25,13 @@ void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
   W_Cp_N.prod(htmp2,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
 }
 
+void GlobalScalarEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
+  P_Cp.set(P_supg).scale(Cp);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void ScalarPerFieldEF::init(int ndof,int ndim,int nel) {
+void ScalarPerFieldEF::init(int ndof_,int ndim,int nel) {
+  ndof=ndof_;
   Cp.resize(1,ndof);
   htmp1.resize(1,nel);
   htmp2.resize(2,nel,nel);
@@ -46,6 +51,14 @@ void ScalarPerFieldEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
   htmp2.prod(W,htmp1,1,2);
   W_Cp_N.set(0.).d(2,4);
   W_Cp_N.prod(htmp2,Cp,1,3,2).rs();
+}
+
+void ScalarPerFieldEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
+  P_Cp.set(P_supg);
+  for (int k=1; k<=ndof; k++) {
+    P_Cp.ir(2,k).scale(Cp.get(k));
+  }
+  P_Cp.rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -68,4 +81,8 @@ void FullEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
   htmp1.set(N).scale(w);
   htmp2.prod(W,htmp1,1,2);
   W_Cp_N.prod(htmp2,Cp,1,3,2,4);
+}
+
+void FullEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
+  P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }

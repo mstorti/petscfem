@@ -71,8 +71,8 @@ myexpext.pl: verifies output from program tests
 
 =head1 SYNOPSIS
 
-C<expect(FILE,MESSAGE,patlist)> verifies that each pattern in
-C<patlist> matches lines in FILE.
+C<expect(FILE,MESSAGE,checklist)> verifies reads each pattern line in
+checklist and finds lines in FILE that matches this pattern.
 
 =head1 DESCRIPTION
 

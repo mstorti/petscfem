@@ -1,13 +1,11 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.22 2001/04/04 22:55:30 mstorti Exp $
+//$Id: advective.h,v 1.23 2001/04/08 13:39:01 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
-
-#include "enthalpy.h"
 
 /** The jacobians of the flux functions. This is an array
     of ndim matrices of ndof x ndof entries each. 
@@ -118,6 +116,36 @@ public:
   }
   virtual void get_log_vars(const NewElemset *elemset,int &nlog_vars, 
 			    const int *& log_vars);
+};
+
+class EnthalpyFun {
+public:
+  virtual void update(const double *) {};
+  virtual void enthalpy(FastMat2 &H, FastMat2 &U)=0;
+  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+			   double w)=0;
+  virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
+};
+
+// Constant Cp for all the fields
+class GlobalScalarEF : public EnthalpyFun {
+  FastMat2 eye_ndof,htmp1,htmp2;
+  double Cp;
+public:
+  void init(int ndim,int ndof,int nel,double Cp=1.);
+  void update(const double *Cp_) {Cp=*Cp_;};
+  void enthalpy(FastMat2 &H, FastMat2 &U);
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+			   double w);
+  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
+};
+
+// Constant Cp=1 for all the fields. Identity relation between H and T
+class IdentityEF : public GlobalScalarEF {
+public:
+  void update(const double *Cp_) {};
+  void enthalpy(FastMat2 &H, FastMat2 &U) {H.set(U);};
+  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {P_Cp.set(P_supg);};
 };
 
 class NewAdvDif;

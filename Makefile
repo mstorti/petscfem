@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.21 2001/04/01 04:46:39 mstorti Exp $
+#$Id: Makefile,v 1.22 2001/04/08 13:38:58 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -19,7 +19,7 @@ SRCS :=
 
 DEPEND_DIRS := $(SRCDIRS)
 
-SWDIRS := test
+SWDIRS := test 
 
 
 #p [in Makefile]
@@ -31,8 +31,10 @@ all: sw doc pflib $(APPS)
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
 local_sw:: sync_version depend tags
+	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 
 local_clean::
+	cd tools ; rm -f ident2iso ; rm -f iso2ident
 
 #w Builds existng applications
 applications: 

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
 
-require 'myexpect.pl';
+require '../tools/myexpect.pl';
 
 ##------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
@@ -822,10 +822,12 @@ sub check_newff {
 
 check_newff('adv_dif_stdy_bcconv');
 check_newff('adv_dif_temp');
+check_newff('adv_temp_cp');
 check_newff('dif_temp');
 check_newff('dif_temp_cp');
 check_newff('full_full_jacs');
 check_newff('full_full_jacs_cp');
+check_newff('full_full_jacs_adv_cp');
 check_newff('full_full_jacs_t');
 check_newff('full_full_jacs_tr');
 check_newff('full_full_jacs_wf');

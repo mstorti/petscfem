@@ -5,7 +5,7 @@ $ESCAPE_CHAR = '_';
 sub iso2ident {
     my @line = split "",shift();
     for (@line) {
-	$_ = (/\w/ && !/_/ ? $_ : sprintf("_%02x",ord($_)));
+	$_ = ( /[a-zA-Z0-9]/ ? $_ : $ESCAPE_CHAR.sprintf("%02x",ord($_)));
     }
     return join("",@line);
 }
@@ -13,14 +13,15 @@ sub iso2ident {
 sub ident2iso {
     my @line = split "",shift();
     my @out=();
-    while (my $c= shift @line) {
-	$c = chr(hex(shift(@line).shift(@line))) if $c eq '_';
+    while (1) {
+	$c = shift @line;
+	last unless defined $c;
+	$c = chr(hex(shift(@line).shift(@line))) if $c eq $ESCAPE_CHAR;
 	push @out,$c;
     }
     return join("",@out);
 }
 
-print "\$0: $0\n";
 if ($0 =~ /iso2ident/) {
     print iso2ident(shift());
 } else {
@@ -47,23 +48,20 @@ for, say, C<C>, C<Perl> or a similar language. This utility converts
 all characters different from the set C<[a-zA-Z0-9]> to C<_+hexcode>,
 so that you end up with only characters in the set C<[a-zA-Z0-9_]>.
 Underscore acts as a 'escape character'.  Of course, the escape
-character has to be also encoded. 
+character has to be also encoded. The escape character may be changed
+by modifying the value of C<$ESCAPE_CHAR>.
 
-
-=head1 OPTIONS
-=head1 RETURN VALUE
-=head1 ERRORS
-=head1 DIAGNOSTICS
 =head1 EXAMPLES
-=head1 ENVIRONMENT
-=head1 FILES
-=head1 CAVEATS
-=head1 BUGS
-=head1 RESTRICTIONS
-=head1 NOTES
-=head1 SEE ALSO
+
+ $ iso2ident 'case: a=0.2345; c=3.56; b=4.89e-15'
+ case_3a_20a_3d0_2e2345_3b_20c_3d3_2e56_3b_20b_3d4_2e89e_2d15
+ $ ident2iso case_3a_20a_3d0_2e2345_3b_20c_3d3_2e56_3b_20b_3d4_2e89e_2d15
+ case: a=0.2345; c=3.56; b=4.89e-15
+ $ 
+
 =head1 AUTHOR
-=head1 HISTORY
+
+Mario A. Storti C<mstorti@intec.unl.edu.ar>
 
 =cut
 

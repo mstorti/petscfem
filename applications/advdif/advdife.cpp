@@ -252,12 +252,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp14,
-    tmp15,tmp17,tmp19,
-    tmp20,tmp21,tmp22,tmp23,
+    tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24;
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
-    N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof);
+    N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
+    P_Cp(2,ndof,ndof);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -473,7 +473,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  matlocf.add(N_P_C);
 
 	  tmp21.set(SHAPE).scale(beta_supg*wpgdet/DT);
-	  tmp22.prod(P_supg,tmp21,1,3,2);
+	  adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
+	  tmp22.prod(P_Cp,tmp21,1,3,2);
 	  if (lumped_mass) {
 	    // I think that if 'lumped_mass' is used then the
 	    // contribution to the mass matrix from the SUPG

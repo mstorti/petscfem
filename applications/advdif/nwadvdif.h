@@ -4,6 +4,7 @@
 #define NWADVDIF_H
 
 #include "advective.h"
+#include "enthalpy.h"
 
 class SourceTerm {
 public:

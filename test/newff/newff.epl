@@ -32,7 +32,7 @@ consistent_supg_matrix 1
 auto_time_step 0
 
 Dt <:=$Dt:>
-alpha 1.
+alpha <:=$alpha:>
 tau_fac <:=$tau_fac:>
 
 #solve_system 0

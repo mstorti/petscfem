@@ -1,0 +1,66 @@
+
+
+
+HEXENCO(1)     User Contributed Perl Documentation     HEXENCO(1)
+
+
+NAME
+       iso2ident, ident2iso: encode/decode a string with alphanumeric charar­
+       acters
+
+SYNOPSIS
+       Given a string `iso2ident' converts it to a string composed of only the
+       `[a-zA-Z0-9_]' set (i.e. alphanumeric + `_'). Useful for encoding arbi­
+       trary texts in filenames or identifiers. `ident2iso' does the inverse
+       task.
+
+DESCRIPTION
+       Suppose you want to have files with names "case: a=0.2345; c=3.56;
+       b=4.89e-15". You can do this in Unix but spaces and other characters
+       may lead to problems. The problem is harder if you want identifiers
+       for, say, `C', `Perl' or a similar language. This utility converts all
+       characters different from the set `[a-zA-Z0-9]' to `_+hexcode', so that
+       you end up with only characters in the set `[a-zA-Z0-9_]'.  Underscore
+       acts as a 'escape character'.  Of course, the escape character has to
+       be also encoded. The escape character may be changed by modifying the
+       value of `$ESCAPE_CHAR'.
+
+EXAMPLES
+        $ iso2ident 'case: a=0.2345; c=3.56; b=4.89e-15'
+        case_3a_20a_3d0_2e2345_3b_20c_3d3_2e56_3b_20b_3d4_2e89e_2d15
+        $ ident2iso case_3a_20a_3d0_2e2345_3b_20c_3d3_2e56_3b_20b_3d4_2e89e_2d15
+        case: a=0.2345; c=3.56; b=4.89e-15
+        $
+
+
+AUTHOR
+       Mario A. Storti `mstorti@intec.unl.edu.ar'
+
+HISTORYS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2001-04-07                 perl v5.6.0                          1
+
+

@@ -35,6 +35,7 @@ use_bcconv=0;
 rval=0;
 Cp=1;
 Cpfluc=0;
+alpha=1;
 
 #<:$CASE=$ENV{'CASE'}:>//
 CASE=<:=$CASE:>;
@@ -58,6 +59,22 @@ nx=16;
 R=0;
 reac_type="global_scalar";
 D=0.05;
+#elsif $CASE eq 'adv_temp_cp'
+## Heat eq. with source term
+#tau_fac=0;
+Dt=0.05;
+nstep=40;
+tol=0.04;
+nx=16;
+R=0;
+adv_type="global_vector";
+reac_type="global_scalar";
+D=0.0;
+dif_type="null";
+u=1.3;
+alpha=0.6;
+enthalpy_type="global_scalar";
+Cp=4;
 #elsif $CASE eq 'dif_temp_cp'
 ## Heat eq. with source term
 ## Cp variable per dof
@@ -258,7 +275,6 @@ sfluc=0;
 source_type="full";
 Cp=2.3;
 Cpfluc=1.;
-nnwt=3;
 #enthalpy_type="ident";
 enthalpy_type="scalar_per_field";
 #elsif $CASE eq 'full_full_jacs'
@@ -326,6 +342,33 @@ R=5;
 Rfluc=.1;
 D=1;
 Dfluc=.3;
+u=1;
+v=1;
+ufluc=1;
+s=1;
+sfluc=1;
+source_type="full";
+Cp=3.1;
+Cpfluc=1.;
+weak_form=1;
+#elsif $CASE eq 'full_full_jacs_adv_cp'
+## Pure advection with non diagonal Cp
+alpha=0.55;
+ky=1;
+full_jacs=2;
+Dt=0.01;
+nstep=10;
+tol=0.06;
+nx=16;
+ny=16;
+kx=1;
+ky=1;
+Lx=1;
+Ly=1;
+R=0;
+Rfluc=0;
+D=0;
+Dfluc=0;
 u=1;
 v=1;
 ufluc=1;
