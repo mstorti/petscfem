@@ -553,3 +553,6 @@ tag: beta-3.42 on Fri Feb 18 06:43:40 GMT+3 2005, by mstorti in spider
 ----------
 tag: beta-3.43.7 on Sun Feb 20 20:21:21 GMT+3 2005, by mstorti in spider
      > Runs all tests (stable version). 
+----------
+tag: beta-3.43.10 on Mon Feb 21 01:23:57 GMT+3 2005, by mstorti in spider
+     > Now compiles cleanly with GCC 3.3.3 without `-Wno-deprecated'. 
