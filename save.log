@@ -1242,3 +1242,6 @@ tag: beta-2.98.pl6 on Mon, 15 Jul 2002 21:34:09 -0300 by mstorti in spider
 ----------
 tag: beta-2.99 on Tue, 16 Jul 2002 00:30:19 -0300, by mstorti in spider
      > Runs fractional step
+----------
+tag: beta-2.99.pl1 on Tue, 16 Jul 2002 21:14:39 -0300 by mstorti in spider
+     > Fractional step is working.
