@@ -2211,3 +2211,6 @@ tag: beta-3.14.pl51 on Sat, 25 Jan 2003 12:29:10 -0300 by mstorti in spider
      > Compiles changed file location for `gatherer'. 
      > generic class `gatherer' in src/ and implementations in 
      > `applications/ns' and  `applications/advdif'. 
+----------
+tag: beta-3.14.pl52 on Sat, 25 Jan 2003 14:26:34 -0300 by mstorti in spider
+     > Added hook to advdif. Compiles OK
