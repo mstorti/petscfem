@@ -264,3 +264,9 @@ tag: beta-3.11 on Wed Dec 18 21:56:52 GMT+3 2002, by mstorti in spider
      > Runs qharmm wiwth ndof=2 and lin_gen_load (hfilm) example.
      > Added doc for NS genload
      > Added tests for NS genload
+----------
+tag: beta-3.12 on Mon Dec 23 07:58:26 GMT+3 2002, by mstorti in spider
+     > Added plate example. 
+     > Fixing problems with circular constraints. 
+     > Added test for cyclic constraints.
+     > Now FastMat2::inv() uses lapack
