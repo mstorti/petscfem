@@ -173,8 +173,8 @@ dx_read_state_from_file
 #else
 save_file_pattern "sqcav.state_%d.tmp"
 nsaverot 1
-nrec 1
-nfile 100000000
+nrec 100000
+nfile 1
 #endif
 
 __END_HASH__

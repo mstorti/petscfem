@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.31 2003/02/17 02:40:14 mstorti Exp $
+//$Id: dxhook.cpp,v 1.32 2003/02/17 02:47:17 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -255,7 +255,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int dx_hook::build_state_from_file(double *state_p) {
   PetscPrintf(PETSC_COMM_WORLD,
-	      "dx_hook: reading state from file %s, record %s\n",
+	      "dx_hook: reading state from file %s, record %d\n",
 	      state_file.c_str(),record);
   FILE *fid = fopen(state_file.c_str(),"r");
   if(!fid) throw GenericError("Can't open file.");
