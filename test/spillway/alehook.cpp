@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.9 2003/03/30 20:45:14 mstorti Exp $
+//$Id: alehook.cpp,v 1.10 2003/03/31 00:01:08 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -108,6 +108,7 @@ public:
 void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
 	  TextHashTableFilter *options,const char *name) { 
   if (!MY_RANK) {
+    printf("ALE_HOOK2: starting init()\n");
     int ierr;
     //o Flag fo launching the `mesh_move' process.
     TGETOPTDEF(GLOBAL_OPTIONS,int,launch_mesh_move,1);
@@ -151,6 +152,7 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
     for (int k=0; k<nnod; k++) 
       for (int j=0; j<ndim; j++) 
 	xnod0.e(k,j) = mesh->nodedata->nodedata[k*nu+j];
+    printf("ALE_HOOK2: ending init()\n");
   }
 }
 
@@ -160,6 +162,7 @@ void ale_hook2::time_step_post(double time,int step,
 			      const vector<double> &gather_values) {
   // Displacements are read in server and sent to slaves
   if (!MY_RANK) {
+    printf("ALE_HOOK2: starting time_step_post()\n");
     int ierr;
     fprintf(ns2mmv,"step %d\n",step);
     // Here goes reading the data from  mesh_move and assigning
@@ -188,6 +191,7 @@ void ale_hook2::time_step_post(double time,int step,
     for (int k=0; k<nnod; k++)
 	printf("node %d, x,y: %f %f\n",k+1,nodedata[k*nu+0],nodedata[k*nu+1]);
 #endif
+    printf("ALE_HOOK2: ending time_step_post()\n");
   }
   int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSC_COMM_WORLD);
   assert(!ierr);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.9 2003/03/30 15:55:08 mstorti Exp $
+//$Id: elast.cpp,v 1.10 2003/03/31 00:01:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -94,7 +94,8 @@ void elasticity::element_connector(const FastMat2 &xloc,
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
     
-    x_new.set(xloc).add(state_new);
+    // x_new.set(xloc).add(state_new);
+    x_new.set(xloc);
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
     // Jaco.prod(dshapexi,xloc,1,-1,-1,2);
     Jaco.prod(dshapexi,x_new,1,-1,-1,2);

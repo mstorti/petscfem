@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.2 2003/03/30 20:45:14 mstorti Exp $
+## $Id: mkwave.m,v 1.3 2003/03/31 00:01:08 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
@@ -11,11 +11,17 @@ w = zhomo([0 Lx 0 h],Nx+1,Ny+1,[1 0 1 1 yratio 1]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
+if !initia
+  x = xnod(:,1);
+  y = xnod(:,2);
+  xnod(:,2) = y + eta0 * sin(2*pi/Lx*x) .* (y/h);
+endif
+
 asave("wave.nod.tmp",xnod);
 asave("wave.con.tmp",icone);
 
 ## No-slip at bottom + slip at top 
-fid = fopen("wave.fixa_bot.tmp","w");
+fid  = fopen("wave.fixa_bot.tmp","w");
 fid2 = fopen("wave.fixa_top.tmp","w");
 fid3 = fopen("wave.patm.tmp","w");
 fid4 = fopen("wave.mmv_top.tmp","w");
