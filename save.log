@@ -3173,3 +3173,6 @@ tag: beta-3.27.pl6 on Wed, 10 Dec 2003 20:04:36 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.27.pl7 on Sun, 11 Jan 2004 12:01:46 -0300 by mstorti in spider
      > Starts working `KeyedOutputBuffer'. 
+----------
+tag: beta-3.27.pl8 on Sun, 11 Jan 2004 12:35:42 -0300 by mstorti in spider
+     > `KeyedOutputBuffer' prints in parallel. 
