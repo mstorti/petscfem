@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.5 2003/01/20 01:11:07 mstorti Exp $
+## $Id: mkvtube.m,v 1.6 2003/01/20 18:51:13 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -60,7 +60,9 @@ done = 0;
 nn = rows(x3d);			# total number of nodes
 if axisymm; nn=nn/2; endif	# number of nodes in the first layer
 
-inlets = 0;
+if !compressible
+  p_h=p_c=0;
+endif
 
 n_in=n_h=n_c=n_wall=0;
 for k=1:nn
@@ -85,8 +87,9 @@ for k=1:nn
     n_in = n_in+1;
   elseif inlets && !closed_tube && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
+    fprintf(fid,"%d %d   %f\n",k,u_dof+2,0);
     n_h = n_h+1;
-  elseif inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
+  elseif 0 && inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
     n_c = n_c+1;
   elseif is_wall
@@ -123,7 +126,7 @@ endif
 Omega = u_circunf_in/R0;
 nnod = rows(x3d);
 if !compressible, p_in=0; endif
-uini = ones(nnod,4)*diag([0,0,0,p_h]);
+uini = ones(nnod,4)*diag([0,0,0,p_in]);
 uini(:,1:2) = [-Omega*x3d(:,2),+Omega*x3d(:,1)];
 if compressible
   uini = [rho_in*ones(nnod,1) uini];

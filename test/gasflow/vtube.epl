@@ -9,6 +9,7 @@ $use_tetra = 0;
 $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
+$inlets = 1;
 
 $R0 = 0.047;			# [m] Radius of tube
 # $L0 = 0.520;			# [m] Length of tube
@@ -59,7 +60,7 @@ $u_rad_in = 1;
 $u_circunf_in = 40;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
-$Re = 1e1;			# [1] Reynolds based on diameter
+$Re = 1e3;			# [1] Reynolds based on diameter
 $visco = $rho_in
     *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
@@ -75,7 +76,7 @@ $weak_form  = 0;
 #__END_TRANSCRIPT__
 @vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
 		rho_in u_rad_in u_circunf_in p_in p_h p_c 
-		closed_tube compressible axisymm);
+		closed_tube compressible axisymm inlets);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
@@ -124,7 +125,7 @@ nnwt 5
 
 print_internal_loop_conv
 
-Dt 0.01
+Dt 0.0001
 weak_form 0
 temporal_stability_factor 0
 
@@ -165,7 +166,7 @@ end_elemsets
 ##================================================================
 fixa
 __INCLUDE__ vtube.fixa.tmp
-#if !$compressible
+#if !$compressible && !$inlets
 ## Fix pressure at some node
 <:=($Nr+2):> 4 0.
 #endif
