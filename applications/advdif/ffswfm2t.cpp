@@ -87,7 +87,7 @@ int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
     ket_min = 1e-6;
   }
 
-  static FMatrix u(ndim),flux_mass(u),UU,flux_mom,
+  static FMatrix u(ndim),flux_mass(ndim),UU,flux_mom,
     Uintri,vref(ndof),A01(ndof,ndof),tmp1,tmp2,tmp3,tmp4,grad_U_psi,
     dev_tens(2,2),tmp5;
   UU.rs().set(U);
