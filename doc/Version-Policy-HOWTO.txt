@@ -1,23 +1,35 @@
-$Id: Version-Policy-HOWTO.txt,v 1.9 2005/01/27 14:13:30 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.10 2005/02/18 09:37:56 mstorti Exp $
+
+(progn
+(defun do-replace(from to)
+       (interactive)
+       (goto-char (point-min))
+       (search-forward-regexp "^__MARKER__")
+       (replace-string from to nil (point) (point-max)))
+(do-replace "3.41" "3.43")
+(do-replace "3.40" "3.42")
+(do-replace "3.39" "3.41")
+(do-replace "3.38" "3.40"))
+__MARKER__
 
 These are the steps for saving a new stable version of PETSc-FEM. The
 policy version herself is described in the doc. Say that we are
-working in unstable version 3.39, stable 3.38 and want to save a new
-stable version 3.40 (unstable 3.41)
+working in unstable version 3.41, stable 3.40 and want to save a new
+stable version 3.42 (unstable 3.43)
 
 *./ Save CVS repository (directory `cvsroot') in cvsroot-DATE.tgz
-*./ Make $ make tag with version=3.41
+*./ Make $ make tag with version=3.43
 *./ Make a branch tag starting on the newly created stable one with:
          $ cvs tag -b -r beta--3-41 beta--3-40
 *./ Make a new directory in PETSC/ with the new stable release
-    $ cvs co -d petscfem-beta-3.40 -r beta--3-40 petscfem
-*./ In that directory replace 3.41 by 3.40 in files `stable.log' and
+    $ cvs co -d petscfem-beta-3.42 -r beta--3-40 petscfem
+*./ In that directory replace 3.43 by 3.42 in files `stable.log' and
          `save.log'. Set BOPT to O_c++ in Makefile.base. Commit. 
 *./ Create a new administrative branch in the stable version
-    (directory `petscfem-beta-3.40') with version `beta-3.40.1'. 
-*./ Replace 3.41 by 3.40 in files `stable.log' and `save.log' on 
+    (directory `petscfem-beta-3.42') with version `beta-3.42.1'. 
+*./ Replace 3.43 by 3.42 in files `stable.log' and `save.log' on 
 	    the HEAD branch (probably directory PETSC/petscfem)
 *./ Create a new `light' administrative version on the `HEAD' branch
-       with numbering 3.41.1 (WARNING: the script will suggest 3.40.1).
+       with numbering 3.43.1 (WARNING: the script will suggest 3.42.1).
 *./ Update `doc/versions-tree.fig'
-*./ Probably compile programs in directory `petscfem-beta-3.40'
+*./ Probably compile programs in directory `petscfem-beta-3.42'
