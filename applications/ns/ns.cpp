@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.129 2003/03/13 20:15:48 mstorti Exp $
+//$Id: ns.cpp,v 1.130 2003/03/13 21:46:07 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -25,7 +25,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Creates hooks depending on the name. 
     @param name (input) the name of the hook. 
-    @return a pointer to eh created hook. */ 
+    @return a pointer to the hook. */ 
 Hook *ns_hook_factory(const char *name);
 
 vector<double> data_pts;

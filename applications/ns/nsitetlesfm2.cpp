@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.56 2003/02/22 16:44:00 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.57 2003/03/13 21:46:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -448,6 +448,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
+	    if (k % 87==0) printf("van_D: %f\n",van_D);
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
