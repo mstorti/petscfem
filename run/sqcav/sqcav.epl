@@ -21,13 +21,7 @@ global_options
 nsave 1
 nstep 10
 #initial_state sqcav.ini
-#if $prog eq "NS"
 preco_type "lu"
-#elsif $prog eq "NSO"
-preco_type "LU"
-#else
-<:die "\$prog variable not defined\n" :>//
-#endif
 
 
 # file containing the weight (speed) of processors
@@ -55,16 +49,14 @@ nodes  2  2  3
 __INCLUDE__ sqcav.nod
 _END_NODES__
 
-elemset nsi_tet 4 
-props 
+elemset nsi_tet_les_fm2 4 
 
-is_fat 1
-#
-#Datos del elemento
-#
 name malla
 geometry cartesian2d
-chunk_size 3
+#if 0
+local_store
+cache_grad_div_u 1
+#endif
 ndim 2
 npg 4
 #
