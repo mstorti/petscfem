@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $
+$Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $ 
+  # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.232 2003/01/22 13:43:42 mstorti Exp $ 
+  # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -5989,6 +5989,11 @@ fria, asi que en realidad se deberia usar una p_c todavia mayor.
 %
 08:40:05: Con 1.33e5 y 1.3e5 tambien diverge. 
 
+%===Wed, 22 Jan 2003 11:36:14 -0300 mstorti@node1.beowulf.gtm
+%
+Lo largo en el cluster bastante refinado (refine=12) tarda unos
+12secs/iter o sea 1'/Dt (nnwt=5). Son 4608 elementow=quads. Con
+Dt=5e-4 revento y ahora estoy usando Dt=5e-5 y anda bien. 
 
 # Current line ===========  %
 # Local Variables: $

@@ -29,7 +29,7 @@ if (0) {
 }
 
 ## Mesh parameters
-$refine = 6;			# scale all N's by this
+$refine = 12;			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -95,9 +95,9 @@ global_options
 nstep 100
 alpha 1.
 
-# initial_state "vtube.ini.tmp"
+initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
-initial_state "vtube.state_pcold"
+# initial_state "vtube.state_pcold"
 save_file "vtube.state.tmp" 
 nsave 1
 
@@ -127,7 +127,7 @@ nnwt 5
 
 print_internal_loop_conv
 
-Dt 0.0005
+Dt 0.00005
 weak_form 0
 temporal_stability_factor 0
 
