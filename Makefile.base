@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.150 2003/07/26 00:43:07 mstorti Exp $
+#$Id: Makefile.base,v 1.151 2003/07/26 01:58:12 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -64,7 +64,8 @@ export SUPERLU
 # ANN library
 ifneq ($(ANN_HOME),)
 ANN_CPPFLAGS = -DUSE_ANN -I$(ANN_HOME)/include
-ANN_LDFLAGS = -lANN -L$(ANN_HOME)/lib 
+#ANN_LDFLAGS = -lANN -L$(ANN_HOME)/lib -lANN 
+ANN_LDFLAGS = $(ANN_HOME)/lib/libANN.a
 endif
 
 ifeq ($(BOPT),O_c++) 
@@ -269,7 +270,8 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           -lc ${PETSC_SLES_LIB}			\
           $(MESCHACH)/libmes.a			\
           $(SUPERLULIB) $(SSL_LDFLAGS)		\
-	  $(PTHREADS_LIB)
+	  $(PTHREADS_LIB)			\
+          $(ANN_LDFLAGS) 
 
 LDFLAGS_NO_PROG_LIB =				\
 	  -Wl,-rpath,$(LD_LIBRARY_PATH)		\

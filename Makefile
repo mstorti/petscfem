@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.52 2003/07/08 20:30:19 mstorti Exp $
+#$Id: Makefile,v 1.53 2003/07/26 01:58:12 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -30,18 +30,20 @@ all: sw doc pflib $(APPS)
 
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
-local_sw:: sync_version depend tags 
-	chmod 755 tools/eperl tools/eperl_min
+local_sw:: 
+# 	First of all make scripts executable
+	chmod 755 tools/eperl tools/eperl_min ./make/appatch 		\
+		./make/mkpatch ./make/mkvers				\
+		./src/insdeb.pl ./test/runtests.pl 			\
+		./test/turbchan/verify.pl				\
+		./tools/coall ./tools/checktag ./tools/eperl		\
+		./tools/insert_license.pl ./tools/makeltag		\
+		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl	\
+		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp	\
+		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
+	$(MAKE) sync_version depend tags 
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C doc readme
-# make scripts executable
-	chmod 755 ./make/appatch ./make/mkpatch ./make/mkvers			\
-		./src/insdeb.pl ./test/runtests.pl ./test/turbchan/verify.pl	\
-		./tools/coall ./tools/checktag ./tools/eperl			\
-		./tools/insert_license.pl ./tools/makeltag			\
-		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl		\
-		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp		\
-		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident

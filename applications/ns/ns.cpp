@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.134 2003/07/06 15:10:18 mstorti Exp $
+//$Id: ns.cpp,v 1.135 2003/07/26 01:58:12 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -356,7 +356,7 @@ int main(int argc,char **args) {
     ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
     double *buff = new double[data_pts.size()];
-    ierr = MPI_Allreduce(data_pts.begin(),buff,
+    ierr = MPI_Allreduce(&*data_pts.begin(),buff,
 			 data_pts.size(),MPI_DOUBLE,
 			 MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);
     for (int j=0; j<data_pts.size(); j++) data_pts[j] = buff[j];

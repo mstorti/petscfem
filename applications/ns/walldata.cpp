@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.10 2003/03/13 16:26:58 mstorti Exp $
+//$Id: walldata.cpp,v 1.11 2003/07/26 01:58:12 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -34,7 +34,7 @@ WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
   // copies temporary vector<ElemToPtr> to ElemToPtr[]
   // This is tricky?
   nelemset = elemset_pointer_->size();
-  elemset_pointer = elemset_pointer_->begin();
+  elemset_pointer = &*elemset_pointer_->begin();
 #else
   assert(0); // I Think this is a compiler bug see 'notes.txt'
 #endif
