@@ -98,7 +98,7 @@ class AdvDiff_Abs_Nl_Res : public NonLinearRes {
   int nprops,nr;
   double gravity;
   // u and h for Riemman Invariant of reference prop = u.dot(normal)+_(2(uh)^1/2)
-  Property U_ref_prop ,normaln_prop;//normaln normal del nodo
+  Property /*U_ref_prop,*/ normaln_prop;//normaln normal del nodo
   // u and h for Riemman Invariant of reference, inflow or outflow
   FastMat2 U_ref, normaln;
   // to get properties of elements
