@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.7 2004/01/11 15:00:49 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.8 2004/01/11 15:35:19 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -15,9 +15,6 @@
 int SIZE, MY_RANK;
 
 using namespace std;
-
-const int N=100;
-const int m=7;
 
 FILE * KeyedLine::output = stdout;
 
@@ -40,8 +37,8 @@ void KeyedLine::pack(char *&buff) const {
   memcpy(buff,&len,sizeof(int));
   buff += sizeof(int);
 
-  memcpy(buff,&line,strlen(line)+1);
-  buff += sizeof(strlen(line)+1);
+  memcpy(buff,line,strlen(line)+1);
+  buff += strlen(line)+1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -51,10 +48,11 @@ void KeyedLine::unpack(const char *& buff) {
 
   int len;
   memcpy(&len,buff,sizeof(int));
+  buff += sizeof(int);
   assert(!line);
   line = new char[len+1];
-  memcpy(&line,buff,strlen(line)+1);
-  buff += sizeof(strlen(line)+1);
+  memcpy(line,buff,len+1);
+  buff += strlen(line)+1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -69,7 +67,7 @@ KeyedLine::KeyedLine(const KeyedLine &kl) {
   if (kl.line) {
     line = new char[strlen(kl.line)+1];
     memcpy(line,kl.line,strlen(kl.line)+1);
-  }
+  } else line=NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -157,6 +155,8 @@ int main(int argc,char **argv) {
 #if 0
   SyncBuffer<PO> sb;
   int N=10;
+  int m=7;
+
   for (int j=0; j<N; j++) {
     sb.push_back();
     int k = SIZE*j+MY_RANK;
@@ -178,18 +178,20 @@ int main(int argc,char **argv) {
   KeyedOutputBuffer kbuff;
   AutoString s;
   
+  int N=10;
+  int m=7;
   for (int j=0; j<N; j++) {
     int k = SIZE*j+MY_RANK;
-    s.clear();
 
     int roof = k - (k % m) +m;
     int nelem = roof-k;
 
+    s.clear();
     for (int jj=0; jj<nelem; jj++) s.cat_sprintf("%d ",k+jj);
-    s.cat_sprintf("\n");
-    kbuff.push_back();
-    kbuff.back() = KeyedLine(k,s);
+    kbuff.push_back(KeyedLine(k,s));
+    kbuff.back().print();
   }
+  // kbuff.check_pack();
   kbuff.print();
 
 #endif
