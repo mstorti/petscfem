@@ -3111,3 +3111,7 @@ tag: beta-3.25.pl10 on Tue, 25 Nov 2003 21:18:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.25.pl11 on Thu, 04 Dec 2003 09:24:29 -0300 by mstorti in minerva.ceride.gov.ar
      > Merged from `algebraic-slip-model-1' onto `beta-3.25.pl10'
+----------
+tag: beta-3.25.pl12 on Sat, 06 Dec 2003 12:11:30 -0300 by mstorti in spider
+     > Written `GenericError(char *,...)'
+     > Uses `PETSCFEM_ASSERT_GE()' for not enough nodes in one line error. 
