@@ -465,6 +465,7 @@ tag: beta-1.91 on Mon Jul 23 21:20:33 ART 2001, by mstorti in spider
      > Added a test for IISD solver.
 ----------
 tag: beta-1.92 on Sat Jul 28 16:05:04 ART 2001, by mstorti in spider
-     > -- STABLE VERSION -- 
+     > -- QUASI STABLE VERSION -- 
+     > Only a test with in newff complains. 
      > Found a bug in IISD. 
      > Added tests for advdif and ns with IISD.
