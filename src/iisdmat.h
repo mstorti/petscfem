@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.2 2001/12/19 03:10:42 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.3 2001/12/21 01:29:34 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -48,6 +48,8 @@ class PETScMat : public PFMat {
       @param dx (input) the solution vector
   */ 
   int solve_only(Vec &res,Vec &dx);
+  /// This is the partitioner object
+  DofPartitioner &dofpart;
 public:
   /// Destructor (calls almost destructor)
   ~PETScMat() {clear();};
@@ -85,7 +87,8 @@ public:
       @param debug_compute_prof (input) flag for debugging the process
       of building the operator.
   */ 
-  void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
+  void create(Darray *da,const Dofmap *dofmap_,int
+	      debug_compute_prof=0);
   /// Duplicate matrices 
   int duplicate(MatDuplicateOption op,const PFMat &A);
   int view(Viewer viewer);
@@ -226,14 +229,11 @@ class IISDMat : public PFMat {
 
   int clean_factor();
 
-  /// DistMatrixPartitioner
-  class DMPartitioner : public IntPartitioner {
-  public:
-    DofPartitioner *dofpart;
-    int processor(map<int,Row>::iterator k) { 
-      return dofpart->(k->first); 
-    };
-  } dmpart;
+  /// The partitioner object
+  DofPartitioner &part;
+
+  /// The graph storing the profile object
+  StoreGraph lgraph;
 
 public:
 
@@ -248,8 +248,9 @@ public:
       @param debug_compute_prof (input) flag for debugging the process
       of building the operator.
   */ 
-  void create(Darray *da,const Dofmap *dofmap_,
-	      int debug_compute_prof=0);
+#if 0
+  void create();
+#endif
 
   /** Applies the Schur operator #y = S * x#
       @param x (input) a given interface vector
@@ -286,8 +287,9 @@ public:
   int set_preco(const string & preco_type);
   /// Destroy the SLES associated with the operator. 
   virtual int destroy_sles();
-  IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL),
-  local_solver(PETSc) {};
+  IISDMat(int NN,DofPartitioner &pp) : part(pp), lgraph(part
+    A_LL_other(NULL), A_LL(NULL), part(NULL),
+    local_solver(PETSc) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor

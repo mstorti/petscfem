@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.3 2001/12/19 03:10:42 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.4 2001/12/21 01:29:34 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -15,7 +15,6 @@ extern int MY_RANK,SIZE;
 
 #include <src/fem.h>
 #include <src/utils.h>
-#include <src/dofmap.h>
 #include <src/elemset.h>
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
@@ -45,6 +44,7 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
   return 0;
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
@@ -415,11 +415,12 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   }
 #endif
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
-void IISDMat::create(int debug_compute_prof=0) {
+void IISDMat::create() {
 
   int myrank,size,max_partgraph_vertices_proc;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,

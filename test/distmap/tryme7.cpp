@@ -28,15 +28,11 @@ int main(int argc,char **argv) {
   MPI_Comm_size (PETSC_COMM_WORLD, &SIZE);
   Debug debug(0,PETSC_COMM_WORLD);
 
-  debug.trace("after init");
-  GPartitioner g_part(&d_part);
-  debug.trace("0");
-
   // debug.activate();
   Debug::init();
   debug.trace("1");
   
-  StoreGraph g(N,&g_part,PETSC_COMM_WORLD);
+  StoreGraph g(N,&d_part,PETSC_COMM_WORLD);
   debug.trace("2");
   for (int k=0; k<N; k++) {
     if (k % SIZE != MY_RANK) continue;

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.3 2001/12/17 00:03:57 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.4 2001/12/21 01:29:34 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -93,10 +93,11 @@ protected:
   int factored;
   virtual int factor_and_solve(Vec &res,Vec &dx)=0;
   virtual int solve_only(Vec &res,Vec &dx)=0;
-  virtual int clean_factor() {assert(0);}; // fixme:= make it pure virtual after
+  virtual int clean_factor() {assert(0);}; // fixme:= make it pure
+  // virtual after
 public:
   /// Constructor, initialize variables
-  PFMat();
+  PFMat(DofPartitioner &pp);
 
   /// Virtual destructor
   virtual ~PFMat();
@@ -110,27 +111,12 @@ public:
   /// calls MatAssemblyEnd on internal matrices, see PETSc doc
   virtual int assembly_end(MatAssemblyType type)=0;
 
-  /** Creates the matrix from the profile computed in #da#
-      @param da (input) dynamic array containing the adjacency matrix
-      of the operator
-      @param dofmap (input) the dofmap of the operator (contains
-      information about range of dofs per processor. 
-      @param debug_compute_prof (input) flag for debugging the process
-      of building the operator.
-  */ 
-  virtual void create(Darray *da,const Dofmap *dofmap_,
-		      int debug_compute_prof=0)=0;
+  /// Adds an element to the matrix profile
+  set_profile(int j,int k);
 
   /** Creates the matrix from the profile graph computed in #g#
-      @param graph (input) the graph defining the profile of the
-      matrix. 
-      @param part (input) a partitioner that determines to which
-      processor belongs each unknown
-      @param debug_compute_prof (input) flags whether to print
-      debugging information or not
   */ 
-  virtual void create(Graph &graph,DofPartitioner &part,
-		      int debug_compute_prof=0);
+  virtual void create();
 
   /** Sets individual values on the operator #A(row,col) = value#
       @param row (input) first index

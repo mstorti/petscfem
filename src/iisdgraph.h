@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.1.2.3 2001/12/19 03:10:42 mstorti Exp $
+//$Id: iisdgraph.h,v 1.1.2.4 2001/12/21 01:29:34 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -52,6 +52,7 @@ class StoreGraph : public Graph {
       integers (those vertices that are connected to him).
   */
   DGMap lgraph;
+  GPartitioner g_part;
  public:
   /// Adds an edge to the graph
   void add(int i, int j) { lgraph[i].insert(j); }
@@ -60,9 +61,10 @@ class StoreGraph : public Graph {
   /// Clean all memory related 
   ~StoreGraph() { lgraph.clear(); };
   /// Constructor
-  StoreGraph(int N=0,GPartitioner *pp=NULL,
+  StoreGraph(int N=0,DofPartitioner *pp=NULL,
 	     MPI_Comm comm_=MPI_COMM_WORLD) :
-    lgraph(pp,comm_), comm(comm_) { init(N); }
+    g_part(pp),
+    lgraph(&g_part,comm_), comm(comm_) { init(N); }
   // void print() { lgraph.print(); }
   /// perform the scatter of elements to its corresponding processor. 
   void scatter() { lgraph.scatter(); }
