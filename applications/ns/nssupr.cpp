@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.10 2002/10/13 13:59:46 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.11 2003/07/05 12:38:18 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,6 +16,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #ifdef ROSI_COUPLING_MODULE
 #warning Compiling with ROSI_COUPLING_MODULE enabled
 double AXIAL_ACCELERATION=DBL_MAX, GLOBAL_TIME;
+extern int MY_RANK,SIZE;
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -32,6 +33,21 @@ void ns_sup_res::init() {
 #ifdef ROSI_COUPLING_MODULE
   //o Is being PETSc-FEM called from ROSI?
   TGETOPTDEF_ND(thash,int,called_from_rosi,0);
+  // This is tricky :-)
+  // `AXIAL_ACCELERATION' may have been set by an elemset like
+  // `nsi_tet_keps_rot' in some of the processors, but may be
+  // not in ALL processors!!
+  // The rank where the `AXIAL_ACCELERATION' has been set. If it was not
+  // set, we set it to -1. 
+  int axial_accel_rank_a = (AXIAL_ACCELERATION!=DBL_MAX ? MY_RANK : -1);
+  int axial_accel_rank;
+  // The we make an ALlreduce and get one of the processors where
+  // the acceleration has been set.
+  MPI_Allreduce(&axial_accel_rank_a,&axial_accel_rank,1,MPI_INT,
+		MPI_MAX,PETSC_COMM_WORLD);
+  if (axial_accel_rank>=0)
+    // And we make a broadcast from that processor
+    MPI_Bcast(&AXIAL_ACCELERATION,1,MPI_DOUBLE,axial_accel_rank,PETSC_COMM_WORLD);
 #endif
   p_indx = ndim+1;
 }
