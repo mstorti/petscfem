@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.36 2002/02/18 17:45:50 mstorti Exp $
+//$Id: advdif.cpp,v 1.37 2002/02/27 15:07:50 mstorti Exp $
 
 #include <set>
 
@@ -119,6 +119,12 @@ int main(int argc,char **args) {
   GETOPTDEF(int,print_linear_system_and_stop,0);
   //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
+  //o If #print_linear_system_and_stop# is active,
+  // then print system in this Newton iteration 
+  GETOPTDEF(int,inwt_stop,0);
+  //o If #print_linear_system_and_stop# is active,
+  // then print system in this time step
+  GETOPTDEF(int,time_step_stop,1);
   //o Print the residual each \verb+nsave+ steps. 
   GETOPTDEF(int,print_residual,0);
 
@@ -354,7 +360,8 @@ int main(int argc,char **args) {
 	}
       }
 
-      if (print_linear_system_and_stop) {
+      if (print_linear_system_and_stop && 
+	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
 	Viewer matlab;
