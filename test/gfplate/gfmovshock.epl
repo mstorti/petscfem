@@ -1,0 +1,110 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+# <: require './dmovshock.pl'; :>
+## Derived quantities:
+## ==================
+global_options
+
+# dx <:=$dx:>
+# <:pr('all_fields'):>
+
+nstep 5000
+alpha 1.
+
+initial_state "gfmovshock.ini.tmp"
+## initial_state "gfmovshock.state.tmp"
+nsave 1
+save_file "gfmovshock.state.tmp"
+
+#if 0
+print_some_file "gfmovshock.some-nodes.tmp"
+save_file_some "gfmovshock.some-rslt.tmp"
+nsome 1
+#endif
+
+#if 0
+save_file_pattern "STEPS/gfmovshock.state_%d.tmp"
+nsaverot 20
+nrec 1
+nfile 100000000
+#endif
+
+#if 0
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart_auto 4000
+#else
+solver "petsc"
+preco_type "lu"
+#endif
+
+maxits 100
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-7
+dtol 1e3
+nnwt 2
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+Dt 0.004
+shocap 0.5
+weak_form 0
+temporal_stability_factor 0
+
+ndim 2
+Rgas <:=$Rgas:>
+visco 0.0001
+cond 0.0001
+steady 0
+# Uref <:=$rhoref:> <:=$uref*$norx:> <:=$uref*$nory:> <:=$pref:> 
+# linear_abso 1
+
+lagrange_diagonal_factor 1e-5
+# lagrange_residual_factor 1.0
+
+#if $dx
+# Para DX
+hook_list advdif_dx_hook my_dx_hook
+dx_auto_combine
+dx_steps 1
+dx_read_state_from_file 1
+# dx_do_make_command
+dx_cache_coords 0
+dx_cache_connectivities 0
+partitioning_method natural
+#endif
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodedata 2 2 4
+data ./gfmovshock.nod.tmp
+__END_HASH__
+
+##================================================================
+elemset gasflow 4
+geometry cartesian2d
+dx 1
+npg 4
+# lumped_mass
+data ./gfmovshock.con.tmp
+__END_HASH__
+
+
+end_elemsets
+
+#if !$dx
+constraint
+__INCLUDE__ gfmovshock.peri-x.tmp
+__INCLUDE__ gfmovshock.peri-y.tmp
+__END_CONSTRAINT__
+#endif

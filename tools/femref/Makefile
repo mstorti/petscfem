@@ -36,8 +36,14 @@ BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
+
+ifeq (makefilec.d,$(wildcard makefilec.d)) 
 include makefilec.d
+endif
+
+ifeq (makefile.d,$(wildcard makefile.d)) 
 include makefile.d
+endif
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
