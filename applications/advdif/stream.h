@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.2 2002/01/18 00:32:47 mstorti Exp $
+// $Id: stream.h,v 1.3 2002/02/02 15:01:46 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -32,12 +32,62 @@ public:
   virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
 };
 
+/// Defines the shape of the channel
+class ChannelShape {
+  NewElemset *elemset;
+  ChannelShape(NewElemset *e) : elemset(e) {}
+public:
+  ChannelShape *factory(NewElemset *e);
+  
+  /// Initialize properties perhap from the elemset table 
+  virtual void init() {}
+
+  /// Read local element properties
+  virtual void 
+  element_hook(NewElemset *elemset,ElementIterator element) {}
+  
+  /** For a given water depth (with respect to the bottom of the
+      channel) give the fluid area, cross sectional water-line and wet
+      channel perimeter.
+      @param u (input) the water depth
+      @param A (ouput) the fluid cross sectional area
+      @param w (ouput) the fluid cross sectional water line
+      @param P (ouput) the fluid cross sectional perimeter
+  */
+  virtual void area(double u,double &A,double &w,double &P)=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Rectangular shaped channel
+class rect_channel : public ChannelShape {
+  Property width_prop;
+  double width;
+public:
+  void init();
+
+  /// Read local element properties
+  void element_hook(NewElemset *elemset,ElementIterator element) {}
+  
+  /** For a given water depth (with respect to the bottom of the
+      channel) give the fluid area, cross sectional water-line and wet
+      channel perimeter.
+      @param u (input) the water depth
+      @param A (ouput) the fluid cross sectional area
+      @param w (ouput) the fluid cross sectional water line
+      @param P (ouput) the fluid cross sectional perimeter
+  */
+  void geom_props(double u,double &A,double &w,double &P);
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class stream_ff : public AdvDifFFWEnth {
   double v;
+  /// Pointer to the channel shape object
+  ChannelShape *channel;
 public:
 
-  stream_ff(const NewAdvDif *e) : AdvDifFFWEnth(e)  {}
+  stream_ff(const NewAdvDif *e) 
+    : AdvDifFFWEnth(e) }
 
   /** This is called before any other in a loop and may help in
       optimization 
@@ -116,6 +166,8 @@ public:
   */
   int dim() const { return 1; }
 };
+
+class rect_chan : public 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class stream : public NewAdvDif {

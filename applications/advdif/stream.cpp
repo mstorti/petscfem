@@ -18,6 +18,13 @@ void DummyEnthalpyFun
 	      double w) {
   s->comp_W_Cp_N(W_Cp_N,W,N,w);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void stream_ff::start_chunk(int &ret_options) {
+  if (!channel) channel = ChannelShape::factory(elemset);
+  channel->init();
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DummyEnthalpyFun
 ::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
@@ -25,8 +32,15 @@ void DummyEnthalpyFun
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+stream_ff::stream_ff(const NewAdvDif *e) 
+  : AdvDifFFWEnth(e), channel(NULL) {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::enthalpy(FastMat2 &H, FastMat2 &U) {
-  H.set(U);
+  double u,A,w,P;
+  u = U.get(1);
+  channel->geom_props(u,A,w,P);
+  H.set(A,1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -39,11 +53,6 @@ void stream_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
   P_Cp.set(P_supg);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void stream_ff::start_chunk(int &ret_options) {
-  v = 10.;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -107,3 +116,25 @@ void stream_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
   N_P_C.set(0.);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+ChannelShape *ChannelShape::factory(NewElemset *e) {
+  return new rect_channel(e);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void rect_channel::init() {
+  elemset->get_prop(width_prop,"width");
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void rect_channel
+::element_hook(NewElemset *elemset,ElementIterator element) {
+  width = elemset->prop_val(element,width);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
+void rect_channel::geom_props(double u,double &A,double &w,double &P) {
+  A = u*width;
+  w = width;
+  P = width+2*u;
+}
