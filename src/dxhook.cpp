@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.41 2003/06/08 13:10:43 mstorti Exp $
+//$Id: dxhook.cpp,v 1.42 2003/07/26 00:57:56 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -143,6 +143,21 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   TGETOPTDEF(mesh_a.global_options,int,dx_port,5314);
   //o Initial value for the {\tt steps} parameter. 
   TGETOPTDEF(mesh_a.global_options,int,dx_steps,1);
+  //o Mesh where updated coordinates must be read
+  TGETOPTDEF_S_ND(mesh_a.global_options,string,dx_node_coordinates,"<none>");
+  read_coords = (dx_node_coordinates != "<none>");
+  //o Coefficient affecting the new displacments read. 
+  //  New coordinates are \verb|c0*x0+c*u| where
+  //  \verb+c0=dx_coords_scale_factor0+, \verb+c1=dx_coords_scale_factor+,
+  //  \verb+x0+ are the initial coordinates and \verb+u+ are the coordinates read
+  //  from the given file. 
+  TGETOPTDEF(mesh_a.global_options,double,dx_coords_scale_factor,1.);
+  coef = dx_coords_scale_factor;
+  //o Coefficient affecting the original coordinates. See doc for
+  //  \verb+dx_coords_scale_factor+
+  TGETOPTDEF(mesh_a.global_options,double,dx_coords_scale_factor0,1.);
+  coef0 = dx_coords_scale_factor0;
+
   steps = dx_steps;
   if (!MY_RANK) {
     PETSCFEM_ASSERT(dx_port>IPPORT_USERRESERVED && 
@@ -186,6 +201,21 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 
   //o Auto generate states by combining elemsets with fields
   TGETOPTDEF_ND(go,int,dx_auto_combine,0);
+
+  ndim = mesh->nodedata->ndim;
+  nnod = mesh->nodedata->nnod;
+  nu = mesh->nodedata->nu;
+  if (read_coords) {
+    x0.set_chunk_size(nnod*ndim);
+    x0.a_resize(2,nnod,ndim);
+    x0.defrag();
+    double *nodedata = mesh->nodedata->nodedata;
+    for (int k=0; k<nnod; k++) {
+      for (int j=0; j<ndim; j++) {
+	x0.e(k,j) = mesh->nodedata->nodedata[k*nu+j];
+      }
+    }
+  }
 
   if (dx_read_state_from_file) {
     if (steps==0) steps = 1;
@@ -289,7 +319,7 @@ int dx_hook::build_state_from_file(double *state_p) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 #define sock srvr
-  int cookie, cookie2, dx_step;
+  int cookie, cookie2;
   if (steps && step_cntr--) return;
   if (!steps) {
 #ifdef USE_PTHREADS
@@ -331,10 +361,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   vector<string> tokens;
   Nodedata *nodedata = mesh->nodedata;
   double *xnod = nodedata->nodedata;
-  ndim = nodedata->ndim;
-  nnod = nodedata->nnod;
   ndof = dofmap->ndof;
-  int nu = nodedata->nu;
   int stepso;
 
   // Process DX options. 
@@ -361,6 +388,21 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     }
     printf("dx_hook: Got steps %d, dx_step %d, state_file %s, record %d\n",
 	   steps,dx_step,state_file.c_str(),record);
+
+    if (read_coords) {
+      AutoString coord_file;
+      coord_file.sprintf(dx_node_coordinates.c_str(),dx_step);
+      FILE *fid = fopen(coord_file.str(),"r");
+      assert(fid);
+      double d;
+      double *x = mesh->nodedata->nodedata;
+      for (int k=0; k<nnod; k++) {
+	for (int j=0; j<ndim; j++) {
+	  fscanf(fid,"%lf",&d);
+	  x[k*nu+j] = coef0*x0.e(k,j) + coef*d;
+	}
+      }
+    }
   }
 
   // Options are read in master and

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.63 2003/07/02 23:22:19 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.64 2003/07/26 00:57:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -368,6 +368,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
+#define WPG_SUM  (gp_data.wpg_sum)
 
     // loop over Gauss points
     for (ipg=0; ipg<npg; ipg++) {
@@ -385,7 +386,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       iJaco.inv(Jaco);
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
-      double Area   = npg*wpgdet;
+      // Modificado x Beto
+      // double Area   = npg*wpgdet;
+      double Area = detJaco*WPG_SUM;
+      // fin modificado x Beto
+
       double h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
@@ -409,10 +414,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
 
         detJaco_axi = Jaco_axi.det();
-        double wpgdet_axi = detJaco_axi*WPG;
-        double Area_axi = 0.5*npg*fabs(wpgdet_axi);
+	// Modificado x Beto July 9 2003
+	//        double wpgdet_axi = detJaco_axi*WPG;
+	//        double Area_axi = 0.5*npg*fabs(wpgdet_axi);
+        double Area_axi = 0.5*detJaco_axi*WPG_SUM;
 	h_pspg = sqrt(4.*Area_axi/pi);
-	Delta = sqrt(Area);
+	Delta = sqrt(Area_axi);
+	// fin modificado x Beto
       } else {
 	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
       }
@@ -452,7 +460,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    double ywall = sqrt(dist_to_wall.sum_square_all());
 	    double y_plus = ywall*shear_vel/VISC;
 	    van_D = 1.-exp(-y_plus/A_van_Driest);
-	    if (k % 87==0) printf("van_D: %f\n",van_D);
+	    if (k % 250==0) printf("van_D: %f\n",van_D);
 	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
@@ -594,6 +602,14 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  rescont.axpy(SHAPE,pressure_control_coef*p_star*wpgdet);
 	}
 
+	// Fixme later
+        if (0 && k==3978) {        
+	printf("element %d, punto de Gauss %d, residuo continuidad : \n",k,ipg);
+	rescont.print("rescont:");
+	printf("Div_u_star : %f \n",div_u_star);
+	tmp5.print("tmp5:");
+	}
+	//
 	// temporal part + convective (Galerkin)
 #ifdef ADD_GRAD_DIV_U_TERM
         massm.prod(u_star,dshapex,-1,-1,1);
@@ -712,6 +728,10 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocf.print("matlocf:");
       }
 #endif
+      // Fixme : later para debugear por que se va a la mierda
+      //	printf("element %d, residuo : ",k);
+      //	veccontr.print("veccontr:");
+	// fin Fixme
 
     }
   }
