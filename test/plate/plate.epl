@@ -1,0 +1,59 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};
+$case_name = 'default' unless defined $case_name;
+$Lx = 10;
+$Ly = 3;
+$Nx = 100;
+$Ny = 30;
+#__END_TRANSCRIPT__
+@vars = qw(Nx Ny Lx Ly);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH mkplate.m";
+:>//                            # ends ePerl block
+
+# <:pr('case_name'):>
+#===========================================================
+global_options
+ndim 2
+save_file "save.state.tmp"
+save_file_pattern "outvector.out.tmp"
+nsave 10
+nsaverot 10
+initial_state "plate.ini.tmp"
+nstep 10
+steady
+solver "iisd"
+iisd_subpart 1
+nnwt 1
+alpha 1
+weak_form 0
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  3
+data plate.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset nsi_tet_les_fm2 4
+geometry cartesian2d
+npg 4
+viscosity <:=1./100:>
+data plate.con.tmp
+__END_HASH__
+
+end_elemsets
+
+#===========================================================
+fixa
+__INCLUDE__ "plate.fixa.tmp"
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
