@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2003/01/27 00:37:11 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2003/01/27 19:09:35 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -34,10 +34,11 @@ ifeq ($(PROG),)
 PROG := $(ADVDIF_O)
 endif
 
-# NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+nolocal := yes
 include ../les/stabi3d/Makefile.parproc
 run: $(CASE_NAME).depl
-	-$(MPIRUN) -nolocal -np $(NP) -machinefile machi.dat $(PROG) -case $< 
+	-$(MPIRUN) -nolocal -np $(NP) -machinefile \
+		machi.dat $(PROG) -case $< 2>&1 | tee petscfem.out.tmp
 
 $(CASE_NAME).depl: force
 

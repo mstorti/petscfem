@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.5 2003/01/27 11:12:19 mstorti Exp $
+//$Id: gasflow.cpp,v 1.6 2003/01/27 19:09:35 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -39,7 +39,7 @@ public:
     assert(options);
     PetscPrintf(PETSC_COMM_WORLD,
 		"-- gasflow_hook::init() name: %s \n",name);
-    options->print("options table: ");
+    if (!MY_RANK) options->print("options table: ");
     int ierr;
     TGETOPTDEF_ND(options,double,flow_coef,0.);
     TGETOPTDEF(options,double,initial_pressure,0.);
@@ -102,11 +102,11 @@ public:
   }
 };
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(flow_controller);
-#endif
+#else
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class cut_regulator_hook;
-class flow_controller2;
+class flow_controller;
 
 typedef map<string,cut_regulator_hook *> cut_regulator_hook_table_t;
 cut_regulator_hook_table_t  cut_regulator_hook_table;
@@ -118,7 +118,7 @@ private:
   double *flow_rate,flow_coef, *flow_rate_now;
   int *gather_pos;
 public:
-  friend class flow_controller2;
+  friend class flow_controller;
   double *pressure;
   cut_regulator_hook() :
     flow_rate(NULL), gather_pos(NULL), pressure(NULL),
@@ -160,11 +160,9 @@ public:
     cut_regulator_hook_table[my_name] = this;
     // Normalize flow_rate
     double flow_rate_sum=0.;
-    for (int j=0; j<nstream; j++) 
-      flow_rate_sum += flow_rate[j];
+    for (int j=0; j<nstream; j++) flow_rate_sum += flow_rate[j];
     assert(flow_rate_sum!=0.);
-    for (int j=0; j<nstream; j++) 
-      flow_rate[j] /= flow_rate_sum;
+    for (int j=0; j<nstream; j++) flow_rate[j] /= flow_rate_sum;
   }
   void time_step_pre(double time,int step) { }
   void time_step_post(double time,int step,
@@ -194,13 +192,13 @@ public:
 DL_GENERIC_HOOK(cut_regulator_hook);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class flow_controller2 : public DLGenericTmpl {
+class flow_controller : public DLGenericTmpl {
 private:
   string cut_regulator_m;
   cut_regulator_hook *my_cut_regulator_hook;
   int index;
 public:
-  flow_controller2() : my_cut_regulator_hook(NULL) {}
+  flow_controller() : my_cut_regulator_hook(NULL) {}
   void init(TextHashTable *thash) { 
       int ierr;
       TGETOPTDEF_S(thash,string,cut_regulator,<none>);
@@ -211,7 +209,7 @@ public:
   double eval(double) { 
     if (!my_cut_regulator_hook) {
       PetscPrintf(PETSC_COMM_WORLD,
-		  " -- flow_controller2::init() -- name %s\n",
+		  " -- flow_controller::init() -- name %s\n",
 		  cut_regulator_m.c_str());
       cut_regulator_hook_table_t::iterator q = 
 	cut_regulator_hook_table.find(cut_regulator_m);
@@ -226,5 +224,6 @@ public:
   }
 };
 
-DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(flow_controller2);
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(flow_controller);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#endif

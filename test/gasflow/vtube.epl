@@ -9,8 +9,8 @@ $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 $hot_outlet = 1;
-$cold_outlet = 1;
-$small_test = 1;
+$cold_outlet = 0;
+$small_test = 0;
 
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = ($small_test ? 
@@ -170,10 +170,17 @@ __END_HASH__
 
 ##================================================================
 table cut_regulator
+#if $cold_outlet
 nstream 2
 initial_pressure <:=$p_h:> <:=$p_c:>
 flow_rate <:=(1-$cut):> <:=$cut:>
 gather_pos 1 2
+#else
+nstream 1
+initial_pressure <:=$p_h:>
+flow_rate 1.
+gather_pos 1
+#endif
 flow_coef 1e2
 __END_HASH__
 
@@ -235,7 +242,7 @@ end_elemsets
 ##================================================================
 fixa_amplitude dl_generic
 ext_filename "./gasflow.efn"
-function_name "flow_controller2"
+function_name "flow_controller"
 cut_regulator "cut_regulator"
 index 0
 __END_HASH__
@@ -243,14 +250,16 @@ __INCLUDE__ vtube.fixa_hot_outlet.tmp
 __END_FIXA__
 
 ##================================================================
+#if $cold_outlet
 fixa_amplitude dl_generic
 ext_filename "./gasflow.efn"
-function_name "flow_controller2"
+function_name "flow_controller"
 cut_regulator "cut_regulator"
 index 1
 __END_HASH__
 __INCLUDE__ vtube.fixa_cold_outlet.tmp
 __END_FIXA__
+#endif
 
 ##================================================================
 fixa
