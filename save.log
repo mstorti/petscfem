@@ -625,3 +625,7 @@ tag: beta-2.34 on Mon Nov 26 19:34:05 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.35 on Mon Nov 26 23:47:22 ARST 2001, by mstorti in spider
      > Working on IISD subpartitioning
+----------
+tag: beta-2.36 on Tue Nov 27 11:37:33 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Fixed a bug in the subpartitioning.
+     > Passes all IISD tests
