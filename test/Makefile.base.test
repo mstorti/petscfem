@@ -22,7 +22,8 @@ $(LAPLACE): force
 	$(MAKE) -C $(PETSCFEM_DIR) laplace
 
 local_clean::
-	-rm -f *.o *.sal tmp_file_*.tmp *.bin *~ *.tmp machi.dat weights.dat rm *.depl
+	-rm -f *.o *.sal tmp_file_*.tmp *.bin *~ *.tmp \
+		machi.dat weights.dat rm *.depl .gdbinit
 #	-chmod +w *.depl ; 
 #	for dir in $(CLEAN_DIRS) ; \
 #		do $(MAKE) -C $$dir lclean ;\

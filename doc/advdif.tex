@@ -46,6 +46,70 @@ advective-diffusive system
 \input odocburgers
 \end{itemize}
 
+\SSection{Logarithmic variables} 
+
+In many problems some quantities are intrinsically positive (pressure,
+density) but, do to numerical inaccuracies (mainly numerical spurious
+oscillations) they can acquire null or negative variables. This in
+turn can cause a breakdown of the general algorithm, since this
+quantities may appear in the denominator of some expressions, or as
+the argument of functions which only accept positive values (as the 
+\verb+log()+ \verb+sqrt()+ functions. 
+
+A very typical case is the $k-\epsilon$ turbulence model, where both
+quantities are intrinsically positive but vary strongly near walls,
+and is very common to reach negative values and cause the breakdown of
+the code. 
+
+One common source of oscillations is the use of very small time steps
+in a diffusive equation (as the heat equation) with consistent mass
+matrix. The problem disappears if a lumped mas matrix is used. Another
+source is a lack of stabilization of advective terms. The problem is
+solved by using a better stabilization scheme or increasing the amount
+of stabilization. 
+
+Even with a careful stabilization scheme and time integration, 
+it is very common to have code breakdown and so there is interest in
+develop numerical schemes that, due to some special tratment of time
+or spatial discretization guarantee positivity. 
+
+One possibility is to map the variable space with a logarithmic
+transformation. For instance, if we have an ODE of the form
+%
+\begin{equation} 
+   \dot u = f(u,t)
+\end{equation}
+%
+If this equation is discretized with the trapezoidal rule integration
+method
+%
+\begin{equation} 
+  \frac{u^{n+1}-u^n}{\Dt} = f(u^{n+\alpha},t^{n+\alpha})
+\end{equation}
+%
+where $t^n=n\Dt$, $t^{n+\alpha}=t^n+\alpha\Dt$, $0\le\alpha\le1$, then
+it may happen that $u$ gets negative values, even if $u$ is guaranteed
+to be strictly positive in the continuous case. Now consider the
+change of variable
+%
+\begin{equation} 
+  u = \ze^\cU
+\end{equation}
+%
+then, the transformed equation is
+%
+\begin{equation} 
+   u \, \dot\cU = f(u,t)
+\end{equation}
+%
+and the trapezoidal discretization is
+%
+\begin{equation} 
+   u^{n+\alpha} \, \frac{\cU^{n+1}-\cU^{n}}{\Dt} = 
+             f(u^{n+\alpha},t^{n+\alpha})
+\end{equation}
+
+
 
 \end{description}
 
