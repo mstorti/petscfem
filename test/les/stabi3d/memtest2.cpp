@@ -1,5 +1,6 @@
 //__INSERT_LICENSE__
-// $Id: memtest2.cpp,v 1.4 2004/02/25 18:42:47 mstorti Exp $
+// $Id: memtest2.cpp,v 1.5 2004/02/25 19:20:41 mstorti Exp $
+#define _GNU_SOURCE
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
@@ -83,6 +84,18 @@ int main(int argc,char **argv) {
       abort ();
     }
   }
+
+  FILE *fid = fopen("/proc/meminfo","r");
+  char *line = NULL;
+  size_t N=0;
+  size_t mem;
+  while (1) {
+    assert(getline(&line,&N,fid)!=-1);
+    if (sscanf(line,"MemFree: %d kB",&mem)) break;
+  }
+  fclose(fid);
+  printf("free: %d\n",mem);
+  exit(0);
 
   assert(block_size_m>0.);
   block_size = int(block_size_m*pow(2.,18.));
