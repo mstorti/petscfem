@@ -418,7 +418,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	} else {
 	  assert(0); // not coded yet
-#if 0
+#if 0                                        
 	  // version no debilitada
 	  div_u_star = (dshapex * ustate2).Trace();
 	  rescont -= wpgdet * ((rho/Dt_art) * SHAPE.t() * div_u_star
@@ -444,7 +444,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u.prod(SHAPE,locstate,-1,-1,1);
 	locstate.rs();
 
-	tmp14.set(u_star).rest(u).axpy(grad_p,-Dt*(alphap/rho));
+	// tmp14.set(u_star).rest(u).axpy(grad_p,-Dt*(alphap/rho)); !! fixme:=
+	tmp14.set(u_star).rest(u).axpy(grad_p,+Dt*(alphap/rho));
 	tmp15.prod(SHAPE,tmp14,1,2);
 	resmom.axpy(tmp15,wpgdet);
 
