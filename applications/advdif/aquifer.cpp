@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.5 2002/02/03 23:48:12 mstorti Exp $
+//$Id: aquifer.cpp,v 1.6 2002/03/15 12:53:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -17,7 +17,7 @@ void aquifer_ff::start_chunk() {
   elemset->elem_params(nel,ndof,nelprops);
   assert(ndof==1);
 
-  elemset->get_prop(eta_pr,"eta");
+  // elemset->get_prop(eta_pr,"eta");
   elemset->get_prop(K_pr,  "K");
   elemset->get_prop(S_pr,  "S");
 
@@ -40,7 +40,7 @@ void aquifer_ff::end_chunk() {
 void aquifer_ff::element_hook(ElementIterator &element) {
   S = elemset->prop_val(element,S_pr);
   K = elemset->prop_val(element,K_pr);
-  eta = elemset->prop_val(element,eta_pr);
+  // eta = elemset->prop_val(element,eta_pr);
 #if 0
   int p,q;
   element.position(p,q);
@@ -56,7 +56,9 @@ void aquifer_ff::gp_hook(int ipg,const FastMat2 &U,const FastMat2 &grad_U) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
-			      &grad_U,FastMat2 &fluxd,FastMat2 &G) {
+			      &grad_U,FastMat2 &fluxd,FastMat2 &G,
+			      FastMat2 &H, FastMat2 &grad_H) {
+  eta = H.get(1);
   fluxd.set(grad_U).scale(K*(phi-eta));
   G.set(0.);
 }
@@ -83,4 +85,3 @@ void aquifer_ff::comp_N_Cp_N(FastMat2 &N_Cp_N,FastMat2 &N, double w) {
   N_Cp_N.ir(2,1).ir(4,1).set(tmp3);
   N_Cp_N.rs();
 }
-

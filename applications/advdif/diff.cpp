@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.4 2002/02/17 02:18:05 mstorti Exp $
+//$Id: diff.cpp,v 1.5 2002/03/15 12:53:32 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -235,7 +235,7 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	diff_ff->gp_hook(ipg,U,grad_U);
 
-	diff_ff->compute_flux(U,grad_U,fluxd,G_source);
+	diff_ff->compute_flux(U,grad_U,fluxd,G_source,H,grad_H);
 
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
