@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.4 2002/07/16 00:08:42 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.5 2002/07/16 00:22:25 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -638,16 +638,6 @@ int main(int argc,char **args) {
 	debug.trace("After poisson matrix computation.");
       }
 
-#if 1
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
-      ierr = A_poi->view(matlab);
-      PetscFinalize();
-      exit(0);
-#endif
-
       VOID_IT(argl);
       statep.set_time(time);	// fixme:= what time?
       argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
@@ -665,6 +655,22 @@ int main(int argc,char **args) {
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
+
+#if 1
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
+      ierr = A_poi->view(matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = VecView(res,matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+      ierr = VecView(dx,matlab);
+      PetscFinalize();
+      exit(0);
+#endif
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // THIRD STEP PROJECTION

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.5 2002/07/16 00:08:42 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.6 2002/07/16 00:22:24 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -55,11 +55,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
-#define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
-#define RETVALMAT(iele,j) VEC2(retvalmat,iele,j,nen*nen)
-#define RETVALMAT_MOM(iele,j,k,p,q) VEC5(retvalmat_mom,iele,j,nel,k,ndof,p,nel,q,ndof)
+#define RETVAL(iele) VEC2(retval,iele,0,nel*ndof)
+#define RETVALMAT(iele)     VEC2(retvalmat,    iele,0,nen*nen)
+#define RETVALMAT_MOM(iele) VEC2(retvalmat_mom,iele,0,nen*nen)
 #define RETVALMAT_POI(iele) VEC2(retvalmat_poi,iele,0,nen*nen)
-#define RETVALMAT_PRJ(iele,j,k,p,q) VEC5(retvalmat_prj,iele,j,nel,k,ndof,p,nel,q,ndof)
+#define RETVALMAT_PRJ(iele) VEC2(retvalmat_prj,iele,0,nen*nen)
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
@@ -111,6 +111,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     int ja=0;
     A_poi_arg = &arg_data_v[ja];
     retvalmat_poi = arg_data_v[ja].retval;
+  } else if (comp_res_poi) {
+    int ja=0;
+    locst = arg_data_v[ja++].locst;
+    locst2 = arg_data_v[ja++].locst;
+    retval = arg_data_v[ja++].retval;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    Dt = glob_param->Dt;
   } else assert(0); // Not implemented yet!!
 
   Matrix veccontr(nel,ndof),xloc(nel,ndim),
@@ -186,6 +193,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     mom_profile >> A_mom_arg->profile;
   } else if (comp_mat_poi) {
     poi_profile >> A_poi_arg->profile;
+  } else if (comp_res_poi) {
   } else assert(0);
 
   Matrix seed;
@@ -211,8 +219,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // We export anything, because in fact `upload_vector'
       // doesn't even look at the `retvalmat' values. It looks at the
       // .profile member in the argument value
-      matlocmom >> &(RETVALMAT_MOM(ielh,0,0,0,0));
-      matlocmom >> &(RETVALMAT_PRJ(ielh,0,0,0,0));
+      matlocmom >> &(RETVALMAT_MOM(ielh));
+      matlocmom >> &(RETVALMAT_PRJ(ielh));
       matlocmom >> &(RETVALMAT_POI(ielh));
       continue;
     } 
@@ -380,11 +388,14 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_res_mom) {
       veccontr.Columns(1,ndim) = resmom;
       matloc = kron(matlocmom,seed) + mom_mat_fix;
-      veccontr >> &(RETVAL(ielh,0,0));
-      matloc >> &(RETVALMAT(ielh,0));
+      veccontr >> &(RETVAL(ielh));
+      matloc >> &(RETVALMAT(ielh));
     } else if (comp_mat_poi) {
       matloc = kron(matlocmom,seed) + poi_mat_fix;
       matloc >> &(RETVALMAT_POI(ielh));
+    } else if (comp_res_poi) {
+      veccontr.Column(ndim+1) = rescont;
+      veccontr >> &(RETVAL(ielh));
     } else assert(0);
 
   }
