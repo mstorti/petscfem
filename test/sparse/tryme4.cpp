@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.17 2002/07/21 03:45:38 mstorti Exp $
+// $Id: tryme4.cpp,v 1.18 2002/07/21 03:48:43 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -61,21 +61,24 @@ public:
     }
     ref(size_m++) = t;
   }
-  void resize(int new_size,T t) {
+  void shrink(int new_size) {
+    assert(new_size<=size_m);
+    int chunk,k;
+    reff(new_size,chunk,k);
+    while (nchunks > chunk+1) {
+      delete[] chunk_vector[nchunks-1];
+      chunk_vector.pop_back();
+      nchunks--;
+    }
+    size_m = new_size;
+  }    
+    void resize(int new_size,T t) {
     if (new_size > size_m) {
       while (size_m<new_size) push(t);
-    } else {
-      int chunk,k;
-      reff(new_size,chunk,k);
-      while (nchunks > chunk+1) {
-	delete[] chunk_vector[nchunks-1];
-	chunk_vector.pop_back();
-	nchunks--;
-      }
-      size_m = new_size;
-    }
+    } else shrink(new_size);
   }
   void resize(int new_size) { resize(new_size,T()); }
+  void clear(void) { shrink(0); }
 };
 
 class graph {
