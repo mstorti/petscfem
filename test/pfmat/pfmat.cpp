@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.2 2001/12/24 04:00:44 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.3 2001/12/24 12:53:52 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -11,6 +11,8 @@
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
+
+extern int MY_RANK,SIZE;
 
 class Part : public DofPartitioner {
 public:
@@ -30,6 +32,8 @@ int main(int argc,char **args) {
   part.comm_size = size;
   part.N = N;
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  MY_RANK = myrank;
+  SIZE = size;
   IISDMat A(N,N,part,PETSC_COMM_WORLD);
   
   for (int j=0; j<N; j++) {

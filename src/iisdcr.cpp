@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.5 2001/12/24 03:59:56 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.6 2001/12/24 12:53:48 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -158,9 +158,8 @@ void IISDMat::create() {
   proc2glob.clear();
   for (k=0; k<neq; k++) {
     if (part.processor(k)==myrank) {
-      neqp++;
       dofs_proc.push_back(k);
-      proc2glob[k] = neqp;
+      proc2glob[k] = neqp++;
     }
   }
   dofs_proc_v = dofs_proc.begin();
@@ -180,7 +179,7 @@ void IISDMat::create() {
 
   // A dof in processor `k' is marked as interface if it is connected
   // (has a non zero matrix value) with a dof in a processor with a lower index "k'<k"
-  for (k=0;k<neqp;k++) {
+  for (k=0; k < neqp; k++) {
     // keq:= number of dof
     keq = dofs_proc[k];
     ngbrs_v.clear();
@@ -257,13 +256,14 @@ void IISDMat::create() {
 #endif
 
   local_graph.lgraph = &lgraph;
-  local_graph.init(M);
+  local_graph.init(n_loc_pre);
   local_graph.loc2dof = loc2dof.begin();
   local_graph.dof2loc = dof2loc.begin();
   local_graph.dofs_proc = dofs_proc.begin();
   local_graph.proc2glob = &proc2glob;
   local_graph.partit = &part;
   local_graph.myrank = myrank;
+  local_graph.flag = flag.begin();
 
   debug.trace("-1");
   local_graph.part(max_partgraph_vertices_proc,iisd_subpart);
