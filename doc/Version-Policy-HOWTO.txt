@@ -1,21 +1,21 @@
-$Id: Version-Policy-HOWTO.txt,v 1.6 2004/11/09 20:48:58 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.7 2005/01/26 11:09:50 mstorti Exp $
 
 These are the steps for saving a new stable version of PETSc-FEM. The
 policy version herself is described in the doc. Say that we are
-working in unstable version 3.21, stable 3.20 and want to save a new
-stable version 3.22 (unstable 3.23)
+working in unstable version 3.39, stable 3.38 and want to save a new
+stable version 3.40 (unstable 3.241)
 
 *./ Save CVS repository (directory `cvsroot') in cvsroot-DATE.tgz
-*./ Make $ make tag with version=3.23
+*./ Make $ make tag with version=3.41
 *./ Make a branch tag starting on the newly created stable one with:
-         $ cvs tag -b -r beta--3-23 beta--3-22
+         $ cvs tag -b -r beta--3-41 beta--3-40
 *./ Make a new directory in PETSC/ with the new stable release
-    $ cvs co -d petscfem-beta-3.22 -r beta--3-22 petscfem
-*./ In that directory replace 3.23 by 3.22 in files `stable.log' and
+    $ cvs co -d petscfem-beta-3.40 -r beta--3-40 petscfem
+*./ In that directory replace 3.41 by 3.40 in files `stable.log' and
          `save.log'. Set BOPT to O_c++ in Makefile.base. Commit. 
-*./ Replace 3.23 by 3.22 in files `stable.log' and `save.log' on 
+*./ Replace 3.41 by 3.40 in files `stable.log' and `save.log' on 
 	    the HEAD branch (probably directory PETSC/petscfem)
 *./ Create a new `light' administrative version on the `HEAD' branch
-       with numbering 3.23.pl1 (WARNING: the script will suggest 3.22.pl1).
+       with numbering 3.41.1 (WARNING: the script will suggest 3.40.1).
 *./ Update `doc/versions-tree.fig'
-*./ Probably compile programs in directory `petscfem-beta-3.22'
+*./ Probably compile programs in directory `petscfem-beta-3.40'
