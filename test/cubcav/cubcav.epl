@@ -115,6 +115,7 @@ dx_read_state_from_file 2
 dx_do_make_command
 dx_cache_coords
 dx_cache_connectivities
+partitioning_method natural
 #else
 hook_list shell_hook cubcav
 #endif

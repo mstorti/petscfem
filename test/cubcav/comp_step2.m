@@ -1,8 +1,8 @@
 source("./data.m.tmp");
 if 1
-  steps_dir = "/cdrom/STEPS-2003-SEP-15b";
-  pf_start_step = 116;
-  refine = 10;
+  steps_dir = "/cdrom/STEPS-2003-SEP-19";
+  pf_start_step = 0;
+  refine = 3;
 else
   steps_dir = "./STEPS";
   pf_start_step = 0;
@@ -13,7 +13,7 @@ cache.file_pattern = [steps_dir "/cubcav.state_%d.tmp"];
 cache.size = 5;
 system("make fifo");
 fifo = "comp_server.fifo";
-fifo2 = "comp_server.fifo2";
+fifo2 = "comp_server2.fifo";
 
 while 1
 

@@ -3,7 +3,7 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.1;
+$disp = 0.9;
 $slope = 2;
 # $shape = 'quad';
 #
@@ -16,7 +16,7 @@ ndim 2
 nsave 5
 nsaverot 0
 steady
-<:$nstep=2;:>
+<:$nstep=40;:>
 nstep <:=$nstep+4:>
 Dt <:=1./$nstep:>
 
@@ -29,7 +29,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 5
+nnwt 1
 # newton_relaxation_factor 0.1 2 1.
 
 solver "iisd"
@@ -52,15 +52,12 @@ nodes  2 2 2
 __INCLUDE__ step.nod.tmp
 _END_NODES__
 
-elemset elasticity 3
+elemset mesh_move 3
 name malla
-Young_modulus 1.
-Poisson_ratio 0.3
 # report_consumed_time
 geometry triangle
 npg 1
 distor_exp 1.
-local_store
 __END_HASH__
 __INCLUDE__ step.con.tmp
 __END_ELEMSET__

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.66 2003/09/19 22:28:32 mstorti Exp $ 
+# $Id: Makefile,v 1.67 2003/09/20 23:07:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -57,6 +57,9 @@ run:
 mesh: cubcav.depl
 	$(OCTAVE) mkmesh.m
 
+local_sw::
+	chmod 755 mkmpeg*.sh
+
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
@@ -89,7 +92,7 @@ dx_make_command2:
 #	echo $$dx_step >> comp_server.fifo 
 	if [ -f cubcav.tiff ] ; then rm cubcav.tiff ; fi ;	\
 	sendstep.pl $$dx_step					\
-		comp_server.fifo comp_server.fifo2
+		comp_server.fifo comp_server2.fifo
 
 #================================================================
 yuv_compress:
@@ -120,14 +123,14 @@ fifo:
 	fifo="comp_server.fifo" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
 	mkfifo $$fifo
-	fifo="comp_server.fifo2" ;			\
+	fifo="comp_server2.fifo" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
 	mkfifo $$fifo
 
 clean_fifo:
 	fifo="comp_server.fifo" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
-	fifo="comp_server.fifo2" ;			\
+	fifo="comp_server2.fifo" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
 
 #w 

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $
+$Id: notes.txt,v 1.339 2003/09/20 23:07:00 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.339 2003/09/20 23:07:00 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.339 2003/09/20 23:07:00 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.338 2003/09/20 13:18:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.339 2003/09/20 23:07:00 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7292,6 +7292,26 @@ filmacion.
 Asi que ahora el plan es hacer los de Re=1e6 que ya tengo los estados
 y volver a correr un poco a Re=1e5 para (solo hacen falta unos
 200Dt). 
+%
+14:26:28: Paso a hacer los de Re=1e6. Con 3 pasos frames interpolados
+por paso de tiempo se ve bastante bien. Tengo 107 pasos de tiempo de
+manera que obtengo unos 107*3=321 frames lo cual representa unos 15
+secs. Cada frame esta tardando unos 10secs en spider. 
+%
+19:56:56: Genero los frames para
+  drwxr-xr-x    2 mstorti  users        8.0K Sep 20 19:57 YUV-Re1e6-z0.01
+  drwxr-xr-x    2 mstorti  users         12K Sep 20 16:37 YUV-Re1e6-z0.25
+  drwxr-xr-x    2 mstorti  users         12K Sep 20 15:20 YUV-Re1e6-z0.5
+%
+36528	YUV-Re1e6-z0.01
+38684	YUV-Re1e6-z0.25
+33140	YUV-Re1e6-z0.5
+%
+Despues deberia hacer un corte a y=0.1, x=0.9 e isosuperficies. 
+%
+%
+20:01:38:  Aparentemente corre todos los tests en g_c++ y O_c++. 
+
 
 # Current line ===========  %
 # Local Variables: $
