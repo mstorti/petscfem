@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.3 2005/02/16 01:36:14 mstorti Exp $
+;;; $Id: test5.scm,v 1.4 2005/02/16 01:38:30 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -25,13 +25,11 @@
 		      completed-parts)
 		     (#t 
 		      (loop (+ k 1) 
-			    (map (lambda (q) 
-				   (append q part))
-				 (append
-				  completed-parts 
-				  (complete-1 (cons k part) k (- remain k))))))))))))
+			    (append
+			     completed-parts 
+			     (complete-1 (cons k part) k (- remain k)))))))))))
   (complete-1 '() n n))
 
 
-(let ((n 4))
+(let ((n 6))
   (format #t "part ~A: ~A" n (partition n)))
