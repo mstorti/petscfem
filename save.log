@@ -1912,3 +1912,6 @@ tag: beta-3.10.pl5 on Sun, 15 Dec 2002 01:01:58 -0300 by mstorti in spider
 ----------
 tag: beta-3.10.pl6 on Sun, 15 Dec 2002 11:28:58 -0300 by mstorti in spider
      > Runs large example with the rotating cone (160x160 mesh, 838 steps).
+----------
+tag: beta-3.10.pl7 on Sun, 15 Dec 2002 18:40:53 -0300 by mstorti in spider
+     > Runs all `advec' also with noise in the mesh tests. 
