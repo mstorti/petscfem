@@ -79,13 +79,16 @@ sub not_ok { inc($NOT_OK);}
 sub cant_open { inc($CANT_OPEN);}
 
 sub begin_section {
-    push @stack,[shift(),0,0,0];
+    my $s=shift();
+    print "--------\nStart section: \"$s\"\n";
+    push @stack,[$s,0,0,0];
 }
 
 sub end_section {
     my $t = pop @stack;
     $total = $t->[1]+$t->[2]+$t->[3];
-    print "$t->[0] -- OK: $t->[$OK].  Not OK: $t->[$NOT_OK]. ",
+    print "Summary: \"$t->[0]\"",
+    " -- OK: $t->[$OK].  Not OK: $t->[$NOT_OK]. ",
     "Couldn't open: $t->[$CANT_OPEN]. Total: $total\n";
     if ($#stack>=0) {
 	my $tt = pop @stack;
