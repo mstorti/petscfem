@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.88 2002/07/17 02:55:01 mstorti Exp $
+//$Id: ns.cpp,v 1.89 2002/07/25 00:58:42 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -685,7 +685,7 @@ int main(int argc,char **args) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
-	debug.trace("Before matrix computation...");
+	debug.trace("-PROJECTION- Before matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_prj",&time_star);
 	CHKERRA(ierr);
 	debug.trace("-PROJECTION- After matrix computation.");

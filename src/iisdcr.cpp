@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.24 2002/07/22 20:22:29 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.25 2002/07/25 00:58:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -101,7 +101,7 @@ int IISDMat::create_a() {
   GSet::iterator q,qe;
   LocalGraph local_graph;
 
-  // printf("Using %s graph\n",typeid(*lgraph).name());
+  printf("Using %s graph\n",typeid(*lgraph).name());
 
   // this is a trick to avoid the collision of `local_solver' both
   // as member and as string-option here
