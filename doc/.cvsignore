@@ -24,7 +24,7 @@ index.css
 petscfem.out
 petscfem.ps.gz
 manual.ps.gz
-petscfem.pdf
+petscfem*.pdf
 README.html
 make-info.log
 options.info
