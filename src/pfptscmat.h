@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.15 2003/07/07 21:15:26 mstorti Exp $
+// $Id: pfptscmat.h,v 1.16 2003/07/26 00:43:12 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -13,7 +13,6 @@
 #include <src/graphdv.h>
 #include <src/linkgraph.h>
 #include <src/pfmat.h>
-#include <src/monitor.h>
 
 class PFPETScMat : public PFMat {
 protected:
@@ -91,7 +90,7 @@ public:
   int duplicate_a(MatDuplicateOption op,const PFMat &A);
   virtual int build_sles();
   virtual int set_preco(const string & preco_type);
-  friend class DefaultMonitor;
+  int monitor(int n,double rnorm);
 
   /// Adds an element to the matrix profile
   int set_profile_a(int j,int k) {

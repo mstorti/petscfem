@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.46 2003/07/14 03:06:21 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.47 2003/07/26 00:43:12 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -22,7 +22,6 @@ extern int MY_RANK,SIZE;
 #include <src/graph.h>
 #include <src/distmap2.h>
 #include <src/distcont2.h>
-#include <src/monitor2.h>
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -31,10 +30,7 @@ enum PETScFEMErrors {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PFPETScMat::~PFPETScMat() {
-  delete monitor;
-  monitor = NULL;
-}
+PFPETScMat::~PFPETScMat() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Adjacency graph classes
@@ -90,9 +86,6 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
       lgraph_lkg.set_chunk_size(compact_profile_graph_chunk_size);
     lgraph_lkg.init(MM);
   }
-  DefaultMonitor *dm = new DefaultMonitor;
-  dm->init(comm,&thash);
-  monitor = dm;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -231,12 +224,11 @@ int IISDMat::clean_factor_a() {
 int PFPETScMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
   PFPETScMat *A = dynamic_cast<PFPETScMat *>((PFMat *)A_);
   assert(A);
-  if (A->monitor) A->monitor->step(n,rnorm);
+  return A->monitor(n,rnorm);
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::monitor"
 int PFPETScMat::monitor(int n,double rnorm) {
@@ -250,7 +242,6 @@ int PFPETScMat::monitor(int n,double rnorm) {
   }
   return 0;
 }
-#endif
 
 const int IISDMat::D=0;
 const int IISDMat::O=1;
@@ -746,8 +737,6 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	PF_CHKERRQ(ierr); 
         ierr = PCSetType(pc_ii,(char *)interface_full_preco_pc.c_str()); 
 	PF_CHKERRQ(ierr); 
-	ierr = PCILUSetFill(pc_ii,interface_full_preco_fill);
-	PF_CHKERRQ(ierr); 
       }
     }
 
@@ -807,9 +796,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 
     // Solves the interface problem (iteratively)
-    monitor->start();
     ierr = SLESSolve(sles,res_i,x_i,&itss); PF_CHKERRQ(ierr); 
-    monitor->close();
     
     ierr = VecDuplicate(res_loc,&res_loc_i); PF_CHKERRQ(ierr); 
 
@@ -1001,15 +988,4 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
     ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
   }
   return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Monitor *Monitor::factory(MPI_Comm comm,TextHashTable *thash) {
-  int ierr;
-  TGETOPTDEF_S(thash,string,monitor_type,default);
-  Monitor * monitor=NULL;
-  if (monitor_type=="default") {
-    monitor = new DefaultMonitor;
-  } else PETSCFEM_ERROR("Unknown monitor %s\n",monitor_type.c_str());  
-  monitor->init(comm,thash);
 }

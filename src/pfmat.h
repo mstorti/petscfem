@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.37 2003/07/07 21:15:26 mstorti Exp $
+// $Id: pfmat.h,v 1.38 2003/07/26 00:43:12 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -12,7 +12,6 @@
 #include <src/distmap.h>
 #include <src/distmat.h>
 #include <src/graph.h>
-#include <src/monitor.h>
 
 class pfmatFSM;
 
@@ -148,7 +147,7 @@ public:
       iteration 
       @return A PETSc error code 
   */ 
-  Monitor *monitor;
+  virtual int monitor(int n,double rnorm) {}
 
   /// returns the number of iterations spent in the last solve
   virtual int its() {return 0;};
