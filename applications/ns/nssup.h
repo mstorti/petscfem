@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.8 2002/10/13 13:59:46 mstorti Exp $
+//$Id: nssup.h,v 1.9 2002/10/18 00:44:14 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -53,6 +53,8 @@ public:
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class ns_sup_g : public ns_volume_element { 
 public: 
+  double average_elevation;
+  ns_sup_g() : average_elevation(0.) {}
   ASSEMBLE_FUNCTION;
 };
 

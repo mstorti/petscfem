@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.10 2002/10/08 01:41:51 mstorti Exp $
+//$Id: nssupg.cpp,v 1.11 2002/10/18 00:44:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,12 +11,6 @@
 #include <applications/ns/nssup.h>
 
 extern TextHashTable *GLOBAL_OPTIONS;
-
-#ifdef ROSI_COUPLING_MODULE
-double AVERAGE_ELEVATION=0.;
-#else
-const double AVERAGE_ELEVATION=0.;
-#endif
 
 #define MAXPROP 100
 extern int fractional_step, reuse_mat;
@@ -192,7 +186,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       eta_star.set(eta_new).scale(alpha).axpy(eta,1-alpha);
       // Residual of free surface equation at t^* (nodal values).
       tmp.set(eta_new).rest(eta).scale(-rec_Dt*C_EQ)
-	.add(-AVERAGE_ELEVATION*C_FSL*C_EQ)
+	.add(-average_elevation*C_FSL*C_EQ)
 	.add(w_star);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])

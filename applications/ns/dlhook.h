@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.3 2002/09/25 17:03:20 mstorti Exp $
+//$Id: dlhook.h,v 1.4 2002/10/18 00:44:14 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
@@ -12,8 +12,11 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class dl_generic_hook : public Hook {
 public:
+  dl_generic_hook() : options(NULL) {}
+  ~dl_generic_hook() { delete options; }
   typedef void InitFun(Mesh &mesh,Dofmap &dofmap,
-		      const char *name,void *&fun_data);
+		       const char *name,TextHashTableFilter *options,
+		       void *&fun_data);
   typedef void TimeStepPostFun(double time,int step,
 			       const vector<double> &gather_values,
 			       void *fun_data);
@@ -27,6 +30,7 @@ private:
   TimeStepPreFun *time_step_pre_fun;
 protected:
   string name;
+  TextHashTableFilter *options;
 public:
   void init(Mesh &mesh,Dofmap &dofmap,const char *name);
   void time_step_pre(double time,int step) {
@@ -41,9 +45,10 @@ public:
 #define DL_GENERIC_HOOK(prefix)						\
 extern "C"								\
 void prefix##_init_fun(Mesh &mesh,Dofmap &dofmap,			\
-		       const char *name,void *&fun_data) {		\
+		       const char *name,TextHashTableFilter *options,	\
+		       void *&fun_data) {				\
   fun_data = new prefix;						\
-  ((prefix *)fun_data)->init(mesh,dofmap,name);				\
+  ((prefix *)fun_data)->init(mesh,dofmap,options,name);			\
 }									\
 									\
 extern "C" void								\

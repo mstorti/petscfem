@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dlhook.cpp,v 1.3 2002/09/25 17:03:20 mstorti Exp $
+//$Id: dlhook.cpp,v 1.4 2002/10/18 00:44:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -16,10 +16,10 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
   string s;
 
   name = string(name_a);
-  TextHashTableFilter tf(mesh.global_options);
-  tf.push(name.c_str());
+  options = new TextHashTableFilter(mesh.global_options);
+  options->push(name.c_str());
   string filename("");
-  tf.get_string("filename",filename);
+  options->get_string("filename",filename);
   PETSCFEM_ASSERT(filename!="","Couldn't find filename entry for "
 		  "dl_generic_hook \"%s\"\n",name_a);  
   // Get `dlopen()' handle to the extension function
@@ -29,7 +29,7 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
 		  "    Error \"%s\"\n",name_a,s.c_str(),filename.c_str(),error);  
 
   string prefix("");
-  tf.get_string("prefix",prefix);
+  options->get_string("prefix",prefix);
   PETSCFEM_ASSERT(prefix!="","Couldn't find prefix entry for "
 		  "dl_generic_hook \"%s\", filename \n",name_a,filename.c_str());  
 
@@ -46,6 +46,6 @@ void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
   GET_FUN(TimeStepPostFun,time_step_post_fun);
   GET_FUN(TimeStepPreFun,time_step_pre_fun);
 
-  (*init_fun)(mesh,dofmap,name_a,fun_data);
+  (*init_fun)(mesh,dofmap,name_a,options,fun_data);
 }
 
