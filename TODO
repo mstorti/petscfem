@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
+* Correct DOC++ doc in `lagmul.h'
 * FastMat2 doesn't detect errors like this
   `tmp5.prod(dshapex,tmp4,-1,2,-1,2);' (see fstepfm.cpp, Fri Jul 26
   12:51:27 ART 2002). non contracted indices should be 1,2,.... 
