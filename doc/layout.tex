@@ -17,9 +17,11 @@ section.
 Each section starts with the keyword identifying the section in a
 separate line, followed by several parameters in the same
 line. Follows several lines that makes the section, ending with a
-terminator of the form
-\verb+__END_<+\emph{some-identifier}\verb+>__+. For instance, an
-elemset section is of the form
+terminator of the form \verb+__END_<+\emph{some-identifier}\verb+>__+,
+for instance \verb+__END_HASH_TABLE__+. (Note that these terminators
+start with double underscores (\verb+__+) while single underscores are
+used to separate words inside the keyword).  For instance, an elemset
+section is of the form
 
 \begin{alltt}
 elemset volume_euler 4
@@ -391,9 +393,9 @@ Some useful constants and functions are found in the file
 \verb+eperlini.pl+. This may be included in the user data file with
 the following line
 
-\begin{verb}
+\begin{verbatim}
 <:require 'eperlini.pl':>// # Initializes ePerl 
-\end{verb}
+\end{verbatim}
 
 It includes a definition for {\tt \$PI} (=$\pi$), trigonometric and
 hyperbolic functions, and others. 
@@ -404,12 +406,12 @@ edit manually the preprocessed file \verb+.depl+, instead to edit the
 \verb+.depl+ file, for instance the section in the Makefile is
 replaced by 
 %
-\begin{verb}
+\begin{verbatim}
 %.depl: %.epl
-	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -P $< > $@
-	chmod -w $@
-\end{verb}
+        if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+        eperl -P $< > $@
+        chmod -w $@
+\end{verbatim}
 %
 In addition, inclusion of the \verb+eperlini.pl+ library inserts the
 following comment in the included file

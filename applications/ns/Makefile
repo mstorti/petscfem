@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+ # $Id: Makefile,v 1.2 2001/01/02 16:50:45 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -8,7 +8,8 @@ PETSCFEM_DIR   = ../..
 MYOBJS = ns.o nsi_tet.o nsitetles.o nsitetlesfm2.o \
 		bccnsfm2.o wall.o nsvol.o walldata.o
 
-TAGFLAGS = --include="../../src/TAGS"
+TAGFLAGS = $(TAGINCL)="../../src/TAGS"
+#TAGFLAGS = --include="../../src/TAGS"
 
 # for makedepend
 SRCS := $(MYOBJS:.o=.cpp)
@@ -26,35 +27,17 @@ $(PROG) compile: $(PROG).bin
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	../../doc/odocnsb.tex  ../../doc/odocnsw.tex 
 
-../../doc/odocns.tex: ns.cpp force
-	-chmod +w $@
-	$(ODOC) -o $@ $<
-	-chmod -w $@
+../../doc/odocns.tex: ns.cpp 
+	$(run_odoc)
 
-../../doc/odocnse.tex: nsitetlesfm2.cpp force
-	-chmod +w $@
-	$(ODOC) -o $@ $<
-	-chmod -w $@
+../../doc/odocnse.tex: nsitetlesfm2.cpp 
+	$(run_odoc)
 
-../../doc/odocnsb.tex: bccnsfm2.cpp force
-	-chmod +w $@
-	$(ODOC) -o $@ $<
-	-chmod -w $@
+../../doc/odocnsb.tex: bccnsfm2.cpp 
+	$(run_odoc)
 
-../../doc/odocnsw.tex: wall.cpp force
-	-chmod +w $@
-	$(ODOC) -o $@ $<
-	-chmod -w $@
-
-# $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
-# 	if [ -e $(PROG).bin ] ; then rm $(PROG).bin ; fi
-# 	${CXX_CLINKER} -o $(PROG).bin $(MYOBJS) \
-# 		-L../../src -lpetscfem \
-#                 -L$(METIS) -L/usr/local/lib \
-#                 -lmetis  -L$(NEWMAT)  -lnewmat \
-# 		-lglib -L$(LIBRETTO_LIB) -libretto \
-# 		-lc ${PETSC_SLES_LIB} \
-# 		$(MESCHACH)/libmes.a
+../../doc/odocnsw.tex: wall.cpp 
+	$(run_odoc)
 
 noafs:
 	@echo "making symbolic links to NO Algebraic FS formulation... "
@@ -84,4 +67,4 @@ lclean: general_clean
 #	$(MAKE) clean
 
 # File containing dependencies computed by makedepend
-include makefile.d
+#

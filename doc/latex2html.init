@@ -1,2 +1,12 @@
 # -*- mode: perl -*-
+
 $ICONSERVER = '../icons';
+
+$ADDRESS = <<EOM;
+<I> Copyright (C) 1999, 2000, 2001  
+<a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti.</a><br>
+PETSc-FEM comes with ABSOLUTELY NO WARRANTY. 
+For details see the GNU General Public License. <BR>
+Processed on $address_data[1]</I>
+EOM
+

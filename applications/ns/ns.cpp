@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.2 2001/01/02 16:50:45 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -142,30 +142,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
 	printf("not known elemset \"type\": %s\n",type);
 	exit(1);
 	}
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ ""
-int print_some_file_init(TextHashTable *thash,
-			 const char *print_some_file,
-			 const char *save_file_some,set<int> &node_list) {
-  if (MY_RANK==0 && strlen(print_some_file)>0) {
-    int nodo;
-    PetscPrintf(PETSC_COMM_WORLD,"Reading print_some_file...\n");
-    FILE *fid=fopen(print_some_file,"r");
-    if (fid==NULL) {
-      PetscPrintf(PETSC_COMM_WORLD,"Couldn't open `print_some_file': \"%s\"\n",
-		  print_some_file);
-    }
-    while (1) {
-      int nread = fscanf(fid,"%d",&nodo);
-      if (nread==EOF) break;
-      node_list.insert(nodo);
-    }
-    fclose(fid);
-    PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
-  }
 }
 
 

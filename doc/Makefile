@@ -1,8 +1,8 @@
-#$Id: Makefile,v 1.1 2000/12/28 12:54:42 mstorti Exp $
+#$Id: Makefile,v 1.2 2001/01/02 16:50:50 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
-all: petscfem/petscfem.html index.html ps readme
+all: latex index.html html ps readme eps
 
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -28,33 +28,38 @@ icons:
 	if [ ! -d icons ] ; then uudecode < icons.tgz.uue ; \
 		tar -xzvf icons.tgz ; rm icons.tgz ; fi
 
-html: latex icons petscfem/petscfem.html manual/index.html
+html: index.html petscfem_html manual_html
 
-manual/index.html: force
+petscfem_html: latex icons petscfem/petscfem.html 
+
+manual_html: 
 	$(MAKE) -C manual html
 
-latex: force
+latex: force eps odoc
 	latex petscfem
-	bibtex petscfem
-	makeindex petscfem
+	-bibtex petscfem
+	-makeindex petscfem
 	latex petscfem
 	latex petscfem
 
-petscfem/petscfem.html: petscfem.tex petscfem*.tex $(TEXFILES:=.tex)
+eps:
+	$(MAKE) -C OBJ all
 	if [ ! -d petscfem/OBJ ] ; \
 		then mkdir petscfem ; cd petscfem ; ln -s ../OBJ . ; \
 	fi
-	$(MAKE) -C petscfem/OBJ all
-	latex2html -init_file latex2html.init -split  2 petscfem
 
-odoc: $(ODOCFILES)
 
-.PHONY: force
-odocns.tex odocnse.tex odocnsb.tex odocnsw.tex: force
+petscfem/petscfem.html: odoc eps petscfem.tex petscfem*.tex $(TEXFILES:=.tex)
+	latex2html $(ltx2h_opt) -prefix pfem -init_file latex2html.init \
+		-split 2 -reuse 2 petscfem
+
+odoc:
 	$(MAKE) -C ../applications/ns odocns
-
-odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex: force
 	$(MAKE) -C ../applications/advective odocadv
+	$(MAKE) -C ../applications/advdif odocadvdif
+
+#odocns.tex odocnse.tex odocnsb.tex odocnsw.tex: 
+#odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex: 
 
 index.html: index.tex
 	latex2html -init_file latex2html.init -no_subdir -split 0 index

@@ -14,20 +14,24 @@
 \sloppy
 \bibliographystyle{plain}
 %
+\latex{
 \setlength{\textheight}{22truecm}
 \setlength{\textwidth}{15truecm}
 \advance\hoffset by -1truecm
 \advance\voffset by -2truecm
+}
 %<*>---<*>---<*>- MATH DEFINITIONS --<*>---<*>---<*>---<*>---<*> 
 \newcommand{\Nnod}{{N_{\mathrm{nod}}}}
 \newcommand{\dof}{{\mathrm{d.o.f.}}}
+\newcommand{\conv}{{\mathrm{conv}}}
+\newcommand{\diff}{{\mathrm{diff}}}
 \newcommand{\Ndof}{{N_\dof}}
 \newcommand{\ndof}{{n_\dof}}
 \newcommand{\ndim}{{n_d}}
 \newcommand{\NF}{{\mathrm{NF}}}
-\newcommand{\barU}{{\bar!U}}
+\newcommand{\barU}{{\bar{!U}}}
 \newcommand{\bU}{{\bar U}}
-\newcommand{\barQ}{{\bar!Q}}
+\newcommand{\barQ}{{\bar{!Q}}}
 \newcommand{\Nelem}{{n_\mathrm{elem}}}
 \newcommand{\nprops}{{n_\mathrm{props}}}
 \newcommand{\nfoils}{{n_\mathrm{foils}}}
@@ -39,7 +43,6 @@
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\Psupg}{{P_\mathrm{SUPG}}}
 \newcommand{\deltasc}{{\delta_\mathrm{sc}}}
-\newcommand{\Arg}[1]{$\langle${\rm\slshape #1}$\rangle$}
 % For LES
 \newcommand{\Se}{{\Sigma_e}}
 \newcommand{\dS}{{\di\Sigma}}
@@ -50,6 +53,12 @@
 % \newcommand{\ttlb}{\char'173} 
 % \newcommand{\ttrb}{\char'175} 
 % \newcommand{\allttbraces}{\let\{=\ttlb \let\}=\ttrb}
+%\allttbraces
+% \newcommand{\tl}{`\<}
+% \newcommand{\tg}{`\>}
+\newcommand{\Arg}[1]{{\rm\slshape \html{[#1]}\latex{\textless#1\textgreater}}}
+%\newcommand{\Arg}[1]{{{\tt\char`\<}{\rm\slshape #1}{\tt\char`\>}}}
+%\newcommand{\Arg}[1]{{\rm\slshape \textless#1\textgreater}}
 %# Current line ===========  
 %
 % Translates section commands to \SSSSection commands
@@ -64,6 +73,7 @@
 %
 \latex{\newcommand{\filehead}[1]{\boxed{\hbox{\sl File: {\tt #1}}}}}
 \html{\newcommand{\filehead}[1]{\Large{File: \emph{#1}}}}
+%\DeclareTextSymbol{\textless}{MY1}{`\<}
 %
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 %
@@ -83,7 +93,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-{\tiny\verb+$Id: petscfem.tex,v 1.1 2000/12/28 12:54:42 mstorti Exp $+}
+{\tiny\verb+$Id: petscfem.tex,v 1.2 2001/01/02 16:50:50 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -99,14 +109,15 @@ keeping in mind the scope of efficiency.
 \newpage
 \tableofcontents
 %
+\input gpl
 \input prev1
 \input layout
 \input thash
 \input idmap
 \input compprof
 \input advec
+\input advdif
 \input ns
-\input adv
 \input tests
 \input fastmat2
 

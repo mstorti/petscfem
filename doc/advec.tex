@@ -72,7 +72,7 @@ Using the Finite Element Method, with weight functions $W_j(!x)$ and
 interpolation functions $N_j(!x)$ results in
 %
 \begin{equation} 
-   !M \dot !U + !F(!U) = !G
+   !M \dot{!U} + !F(!U) = !G
 \end{equation}
 %
 where 
@@ -130,7 +130,7 @@ In the SUPG (for \emph{``Streamline Upwind/Petrov Galerkin''})
 formulation of Hughes et.al. The stabilized formulation is
 %
 \begin{equation}\label{eq:supg} 
-   (!M \dot !U + !F(!U) - !G)_j
+   (!M \dot{!U} + !F(!U) - !G)_j
        + \sum_e \int_{\Omega_e} (\Psupg)^e_j \, (\dep Ut+\dep
        {F_i}{x_i} -G) = 0
 \end{equation}
@@ -188,7 +188,7 @@ stabilized equations are now of the form
 %
 \begin{equation} 
 \begin{split}
-   (!M \dot !U + !F(!U) - !G)_j
+   (!M \dot{!U} + !F(!U) - !G)_j
        + \sum_e \int_{\Omega_e} (\Psupg)^e_j \, (\dep Ut+\dep
        {F_i}{x_i} -G) +\\
        + \sum_e \int_{\Omega_e} \deltasc \, \dep{N_j}{x_i} \, \dep U{x_i} = 0
@@ -374,6 +374,42 @@ pointer.
            source vector. 
 \end{itemize}
 }
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Options}
+
+\begin{description}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[General options:] ~
+
+\begin{itemize}
+\input odocadv
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Generic elemset ``{\tt advecfm2}'':] ~
+
+\begin{itemize}
+\input odocadve
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Flux function``{\tt ffeulerfm2}'':] Euler eqs.
+
+\begin{itemize}
+\input odocadvfe
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Flux function``{\tt ffswfm2}'':] Shallow water eqs.
+
+\begin{itemize}
+\input odocadvfs
+\end{itemize}
+
+
+\end{description}
+
 % Local Variables: *
 % mode: latex *
 % tex-main-file: "petscfem.tex" *
