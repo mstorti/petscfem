@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $
+$Id: notes.txt,v 1.39 2001/05/05 11:49:09 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.39 2001/05/05 11:49:09 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.39 2001/05/05 11:49:09 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.38 2001/05/05 01:20:36 mstorti Exp $ 
+  # $Id: notes.txt,v 1.39 2001/05/05 11:49:09 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3051,6 +3051,13 @@ es pasar 'hmin' como 'USER_DATA' en donde este el compilador viejo. Y
 hacer una serie de trucos para que no use ciertos vectores STL en esos
 archivos. Espero que esto cambie cuando upgrademos el compilador en
 geronimo... 
+
+%===Sat May  5 07:46:26 ART 2001 mstorti@spider
+%
+Cambio los VOID_IT por '.clear()'. En realidad lo que hago es
+redefinir el 'VOID_IT'... Todo anda bien lo que quiere decir que se
+puede ir reemplazando los VOID_IT por los clear y finalmente eliminar
+el VOID_IT. 
 
 %# Current line ===========  
 # Local Variables: $

@@ -21,7 +21,7 @@ iv=[3:3:n-1]';
 [v,d]=eig(C10+C11+C12);
 d=diag(d);
 
-indx=find(abs(d)>1e-5);
+indx=find(abs(d)>1e-3);
 d=d(indx);
 v=v(:,indx);
 

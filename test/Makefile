@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2001/05/05 01:20:45 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2001/05/05 11:49:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -179,7 +179,7 @@ ADVO = $(PETSCFEM_DIR)/../petscfem-beta-1.14/applications/advective/adv.bin
 export EPERLFLAGS
 
 pp:
-	echo $(RH60)
+	echo RH60 = $(RH60)
 
 ifneq ($(RH60),) 
 
@@ -192,6 +192,7 @@ plano_local_weak: EPERLFLAGS = "-d local_time_step_weak=1"
 plano_fm2_weak:   EPERLFLAGS = "-d fm2_weak=1"
 
 plano_%: 
+	$(MAKE) EPERLFLAGS=$(EPERLFLAGS) plano.depl
 	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
 else
 
