@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.19 2003/11/26 00:12:38 mstorti Exp $
+//$Id: mainutl.cpp,v 1.20 2004/05/13 02:58:18 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -245,7 +245,7 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
   int ndof = dofmap->ndof;
-  int ierr,code,warn_flag=0;
+  int ierr,code,warn_flag=0,ierro=0;
 
   PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   dvector<double> xdof(dofmap->neqtot);
@@ -256,10 +256,10 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     FILE *fid;
     fid = fopen(filename,"r");
     if (fid==NULL) {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "read_vector: couldn't open file %s\n",
-		  filename);
-      CHKERRA(1);
+      printf("read_vector: couldn't open file %s\n",
+	     filename);
+      ierro=1;
+      throw ("Cant open file");
     }
     double dval;
     for (int k=1; k<=dofmap->nnod; k++) {
@@ -280,7 +280,8 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 		  " read while reading vector. Filling with 0's.\n");
     dofmap->id->solve(xdof.buff(),xext.buff());
     xext.clear();
-  }
+  } 
+  CHECK_PAR_ERR(ierro,"Error reading nodes");
 
   ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,MPI_DOUBLE,0,PETSC_COMM_WORLD);
 

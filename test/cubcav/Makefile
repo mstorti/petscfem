@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.86 2004/01/29 00:12:48 mstorti Exp $ 
+# $Id: Makefile,v 1.87 2004/05/13 02:58:03 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
 
-default: srfgath
+default: test_re1000
 
 #default case
 # case := laplace
@@ -11,7 +11,6 @@ default: srfgath
 export case
 
 tests: block_uploading
-# tests: test_re1000 test_iisd
 
 PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable

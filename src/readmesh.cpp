@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.105 2003/12/06 17:13:48 mstorti Exp $
+//$Id: readmesh.cpp,v 1.106 2004/05/13 02:58:18 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -63,10 +63,6 @@ void metis_part(int nelemfat,Mesh *mesh,
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define ELEMIPROPS(j,k) VEC2(elemiprops,j,k,neliprops)
 #define NODEDATA(j,k) VEC2(mesh->nodedata->nodedata,j,k,nu)
-
-#define CHECK_PAR_ERR(ierro,text)				\
-      ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
-      PETSCFEM_ASSERT0(!ierro,text);  
 
 #define RM_ASSERT(cond,mess)					\
 PETSCFEM_ASSERT(cond,mess "%s:%d: at (or after) line: \"%s\"",	\

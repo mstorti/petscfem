@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: generror.h,v 1.5 2003/12/06 16:00:25 mstorti Exp $
+// $Id: generror.h,v 1.6 2004/05/13 02:58:18 mstorti Exp $
 #ifndef PETSCFEM_GENERROR_H
 #define PETSCFEM_GENERROR_H
 
@@ -31,8 +31,12 @@ petscfem_check_par_err(int ierro, GenericError &e);
 extern GenericError PETSCFEM_GENERIC_ERROR;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#define CHECK_PAR_ERR_GE			\
+#define CHECK_PAR_ERR_GE					\
 catch(GenericError e) { ierro = 1; PETSCFEM_GENERIC_ERROR=e; }	\
 petscfem_check_par_err(ierro,PETSCFEM_GENERIC_ERROR);
+
+#define CHECK_PAR_ERR(ierro,text)				\
+      ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
+      PETSCFEM_ASSERT0(!ierro,text);  
 
 #endif
