@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $
+$Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $ 
+  # $Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.256 2003/03/10 00:17:28 mstorti Exp $ 
+  # $Id: notes.txt,v 1.257 2003/03/10 02:26:33 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6330,6 +6330,16 @@ ser aquellos nodos de frontera donde por una lado la estrella esta mal
 condicionada y no se genera una condicion (ahora dudo de si esto es
 asi (???)) y tambien en los extremos hay nodos que tienen nodos
 ficticios pero no se les agrega condicion. 
+%
+21:21:47: El lazo de newton sigue convirgiendo mal. La vorticidad a la
+entrada tiene un pico de 0.35 mas o menos cerca del punto de empalme
+del circulo con las rectas. Ahora voy a ver que pasa con la malla
+parabolica. 
+%
+23:24:12: Con la malla parabolica da cosas similares como con la
+circular. Ahora voy a hacer un test de convergencia para el Lagrange
+multiplier, usando `ns_id'. 
+
 
 # Current line ===========  %
 # Local Variables: $
