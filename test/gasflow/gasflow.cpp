@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.4 2003/01/27 00:37:11 mstorti Exp $
+//$Id: gasflow.cpp,v 1.5 2003/01/27 11:12:19 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -115,15 +115,17 @@ cut_regulator_hook_table_t  cut_regulator_hook_table;
 class cut_regulator_hook {
 private:
   int nstream;
-  double *flow_rate,flow_coef;
+  double *flow_rate,flow_coef, *flow_rate_now;
   int *gather_pos;
 public:
   friend class flow_controller2;
   double *pressure;
   cut_regulator_hook() :
-    flow_rate(NULL), gather_pos(NULL), pressure(NULL) {}
+    flow_rate(NULL), gather_pos(NULL), pressure(NULL),
+    flow_rate_now(NULL) {}
   ~cut_regulator_hook() {
     delete[] flow_rate;
+    delete[] flow_rate_now;
     delete[] pressure;
     delete[] gather_pos;
   }
@@ -139,15 +141,16 @@ public:
     assert(nstream>0);
 
     flow_rate = new double[nstream];
+    flow_rate_now = new double[nstream];
     pressure = new double[nstream];
     gather_pos = new int[nstream];
 
     TGETOPTDEF_ND(options,double,flow_coef,0.);
-    ierr = get_double(options,"initial_pressure",pressure,nstream); 
+    ierr = get_double(options,"initial_pressure",pressure,1,nstream); 
     assert(!ierr);
-    ierr = get_int(options,"gather_pos",gather_pos,nstream); 
+    ierr = get_int(options,"gather_pos",gather_pos,1,nstream); 
     assert(!ierr);
-    ierr = get_double(options,"flow_rate",flow_rate,nstream); 
+    ierr = get_double(options,"flow_rate",flow_rate,1,nstream); 
     assert(!ierr);
     PetscPrintf(PETSC_COMM_WORLD,
 		"registering cut_regulator_hook: %p\n",this);
@@ -166,23 +169,22 @@ public:
   void time_step_pre(double time,int step) { }
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values) { 
-    double flow_rate_now[nstream];
     double sum_flow_rate_now=0., sum_flow_rate=0., p_avrg=0.;
     for (int j=0; j<nstream; j++) {
       flow_rate_now[j] = gather_values[gather_pos[j]];
       sum_flow_rate_now += flow_rate_now[j];
       p_avrg += pressure[j];
     }
+    p_avrg /= double(nstream);
     PetscPrintf(PETSC_COMM_WORLD,
 		"total flow rate: %g, avrg. press: %g\n",
 		sum_flow_rate_now,p_avrg);
-    p_avrg /= double(nstream);
     for (int j=0; j<nstream; j++) {
       double new_pressure = pressure[j] + 
 	flow_coef*(flow_rate_now[j]/sum_flow_rate_now-flow_rate[j]);
       PetscPrintf(PETSC_COMM_WORLD,
 		  "stream %d, flow %g, desired f. %g, p %g, new_p %g\n",
-		  j,flow_rate_now[j],flow_rate,pressure,new_pressure);
+		  j,flow_rate_now[j],flow_rate[j],pressure[j],new_pressure);
       pressure[j] = new_pressure;
     }
   }
@@ -203,7 +205,7 @@ public:
       int ierr;
       TGETOPTDEF_S(thash,string,cut_regulator,<none>);
       cut_regulator_m = cut_regulator;
-      TGETOPTDEF(thash,int,index,-1);
+      TGETOPTDEF_ND(thash,int,index,-1);
       assert(index>-1);
   }
   double eval(double) { 

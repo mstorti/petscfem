@@ -70,7 +70,7 @@ $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 ## $p_c = 1.2e5;			# [N/m2] outlet cold pressure
 ## $p_c = 1.33e5;			# [N/m2] outlet cold pressure
 ## $p_c = 1.3e5;			# [N/m2] outlet cold pressure
-$p_c = 1.315e5;			# [N/m2] outlet cold pressure
+$p_c = 1.1e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
 $p_h = 1.38e5;			# [N/m2] outlet cold pressure
@@ -164,32 +164,17 @@ ngather 3
 hook_list dl_generic_hook cut_regulator
 
 cut_regulator.filename ./gasflow.efn
-cut_regulator.prefix   gasflow_hook
+cut_regulator.prefix   cut_regulator_hook
 
-#hook_list dl_generic_hook hot_outlet \
-#          dl_generic_hook cold_outlet
-
-hot_outlet.filename ./gasflow.efn
-hot_outlet.prefix   gasflow_hook
-
-cold_outlet.filename ./gasflow.efn
-cold_outlet.prefix   gasflow_hook
 __END_HASH__
 
 ##================================================================
-table hot_outlet
-initial_pressure <:=$p_h:>
-flow_rate <:=-((1.-$cut)*$Q):>
-gather_pos 1
-flow_coef -1e4
-__END_HASH__
-
-##================================================================
-table cold_outlet
-initial_pressure <:=$p_c:>
-flow_rate <:=-$cut*$Q:>
-gather_pos 2
-flow_coef -1e4
+table cut_regulator
+nstream 2
+initial_pressure <:=$p_h:> <:=$p_c:>
+flow_rate <:=(1-$cut):> <:=$cut:>
+gather_pos 1 2
+flow_coef 1e2
 __END_HASH__
 
 ##================================================================
@@ -250,8 +235,9 @@ end_elemsets
 ##================================================================
 fixa_amplitude dl_generic
 ext_filename "./gasflow.efn"
-function_name "flow_controller"
-outlet_name "hot_outlet"
+function_name "flow_controller2"
+cut_regulator "cut_regulator"
+index 0
 __END_HASH__
 __INCLUDE__ vtube.fixa_hot_outlet.tmp
 __END_FIXA__
@@ -259,8 +245,9 @@ __END_FIXA__
 ##================================================================
 fixa_amplitude dl_generic
 ext_filename "./gasflow.efn"
-function_name "flow_controller"
-outlet_name "cold_outlet"
+function_name "flow_controller2"
+cut_regulator "cut_regulator"
+index 1
 __END_HASH__
 __INCLUDE__ vtube.fixa_cold_outlet.tmp
 __END_FIXA__
