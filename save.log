@@ -984,3 +984,7 @@ tag: beta-2.79 on Sun Feb 10 18:45:44 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.79.pl1 on Sun Feb 10 19:33:57 ARST 2002 by mstorti in spider
      > Extended amplitude functions work as classes. Much better!!
+----------
+tag: beta-2.80 on Sun Feb 10 20:04:18 ARST 2002, by mstorti in spider
+     > Tested new  extended amplitude functions as classes with a 
+     > `tanh' ramp example. 
