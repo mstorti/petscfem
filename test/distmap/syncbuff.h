@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.2 2004/01/11 15:01:03 mstorti Exp $
+// $Id: syncbuff.h,v 1.3 2004/01/11 15:47:16 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -98,6 +98,7 @@ private:
   int key;
   char *line;
 public:
+  static int print_line_numbers;
   static FILE *output;
   KeyedLine() : key(0), line(NULL) {}
   KeyedLine(const KeyedLine &kl);
@@ -110,4 +111,7 @@ public:
   void print();
 };
 
-typedef SyncBuffer<KeyedLine> KeyedOutputBuffer;
+class KeyedOutputBuffer : public SyncBuffer<KeyedLine> {
+public:
+  void push(int k,const AutoString &s);
+};

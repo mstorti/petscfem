@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.8 2004/01/11 15:35:19 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.9 2004/01/11 15:47:16 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -17,6 +17,7 @@ int SIZE, MY_RANK;
 using namespace std;
 
 FILE * KeyedLine::output = stdout;
+int KeyedLine::print_line_numbers = 1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int operator<(const KeyedLine& left, const KeyedLine& right) {
@@ -57,7 +58,10 @@ void KeyedLine::unpack(const char *& buff) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void KeyedLine::print() {
-  fprintf(output,"%d: %s\n",key,line);
+  if (print_line_numbers) 
+    fprintf(output,"%d: %s\n",key,line);
+  else 
+    fprintf(output,"%s\n",line);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -81,6 +85,12 @@ KeyedLine::KeyedLine(int k,const AutoString &as) {
 
 SYNC_BUFFER_FUNCTIONS(KeyedLine);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::push(int k,const AutoString &s) {
+  push_back(KeyedLine(k,s));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class PO  {
 public:
   int k;
@@ -188,7 +198,7 @@ int main(int argc,char **argv) {
 
     s.clear();
     for (int jj=0; jj<nelem; jj++) s.cat_sprintf("%d ",k+jj);
-    kbuff.push_back(KeyedLine(k,s));
+    kbuff.push(k,s);
     kbuff.back().print();
   }
   // kbuff.check_pack();
