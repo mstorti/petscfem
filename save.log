@@ -919,3 +919,6 @@ tag: beta-2.70.pl2 on Sun Feb  3 20:48:39 ARST 2002 by mstorti in spider
 ----------
 tag: beta-2.71 on Sun Feb  3 21:55:31 ARST 2002, by mstorti in spider
      > Added the two friction laws, Chezy and Manning.
+----------
+tag: beta-2.72 on Mon Feb  4 15:40:08 ART 2002, by mstorti in minerva.arcride.edu.ar
+     > Added corrections to `wallke' from Beto.
