@@ -1138,3 +1138,6 @@ tag: beta-2.94.pl7 on Wed, 17 Apr 2002 23:27:41 -0300 by mstorti in spider
 tag: beta-2.94.pl8 on Fri,  3 May 2002 18:24:25 -0300 by mstorti in minerva.arcride.edu.ar
      > Added nsi_rot elemset (nsitetlesfm2.cpp with rotation). This doesn't have 
      > the new interface via nodes. (perhaps will be discarded later). 
+----------
+tag: beta-2.94.pl9 on Sat,  4 May 2002 00:17:37 -0300 by mstorti in spider
+     > Fixed a bug for metis partitioning when using the `is_fat' flag.
