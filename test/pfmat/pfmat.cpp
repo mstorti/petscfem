@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.18 2002/01/09 01:30:23 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.19 2002/01/09 13:14:03 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -246,8 +246,7 @@ int main(int argc,char **args) {
     }
     A.clean_factor(); 
   }
+  A.clear();
   PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
   PetscFinalize();
-  exit(0);
- 
 }

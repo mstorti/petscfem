@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.40.2.5 2002/01/07 16:26:00 mstorti Exp $ 
+# $Id: Makefile,v 1.40.2.6 2002/01/09 13:13:57 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -73,7 +73,10 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 	if [ -f $*FSM.cpp ] ; then chmod +w $*FSM.cpp ; fi 
 	if [ -f $*FSM.h ] ; then chmod +w $*FSM.h ; fi 
 	$(SMC) < $<
-	mv -f $*FSM.cc $*FSM.cpp
+	-rm -f $*FSM.cpp
+	insdeb.pl $*FSM.cc $*FSM.cpp
+	if [ ! -f $*FSM.cpp ] ; then cp -f $*FSM.cc $*FSM.cpp ; fi
+	-rm -f $*FSM.cc
 	chmod -w $*FSM.cpp $*FSM.h
 
 # This doesn't compile with -O2
