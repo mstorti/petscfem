@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.5 2005/02/09 01:46:36 mstorti Exp $ 
+% $Id: advabso.tex,v 1.6 2005/02/09 12:49:44 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -24,7 +24,7 @@ boundary conditions
 \end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
-\SSSection{Linear perturbation theory of absorbing boundary conditions} 
+\SSSection{Linear absorbing boundary conditions} 
  
 Starting with the conservation form of an advective system
 (\ref{eq:advec-eq}), and assuming small perturbations about a mean
@@ -44,62 +44,67 @@ right eigenvectors of $!A_0$ so that
 \end{equation}
 %
 where $\bzL = \diag\{\lambda_1,...,\lambda_\ndof\}$ are the
-eigenvalues of $A_0$. Multiplying (\ref{eq:advec-lin}) at left by
-$!S\muno$ and defining $V=!S\muno !U'$ we obtain a decoupled system of
-equations
+eigenvalues of $A_0$. Assuming that the system is
+\emph{``hyperbolic''}, then such a diagonal decomposition is possible,
+for any state $!U_0$, with real eigenvalues and a non singular matrix
+$!S$. Multiplying (\ref{eq:advec-lin}) at left by $!S\muno$ and
+defining $V=!S\muno !U'$ we obtain a decoupled system of equations
 %
 \begin{equation}
   \dep{!V}t + \bzL\dep {!V}x =0. 
 \end{equation}
 %
-Now, the equation for each component $v_j$ of $!V$ is a simple linear
-transport equation with constant transport velocity $\lambda_j$
+\index{characteristic component}
+Now, the equation for each \emph{``characteristic component''} $v_j$ of $!V$ is a
+simple linear transport equation with constant transport velocity
+$\lambda_j$
 %
-\begin{equation}
+\begin{equation} \label{eq:abc-chareq}  
   \dep{v_j}t + \lambda_j\dep {v_j}x =0. 
 \end{equation}
 %
 so that the absorbing boundary condition is almost evident. Assuming
-that we want to solve the equation on $-\infty<x<0$, so that $x=0$ is
-a boundary, then the corresponding absorbing boundary condition is
+that we want to solve the equation on the semiplane $x\ge $, so
+that $x=0$ is a boundary, then the corresponding absorbing boundary
+condition is
 %
 \begin{equation} \label{eq:v-abc}  
   \begin{cases}
-    v_j(0) = 0; & \text{ if $\lambda_j\le 0$ (ingoing boundary)}\\
-    v_j \textrm{extrapolated from interior}; & \text{(outgoing boundary)}\\
+    v_j(0) = 0; & \text{ if $\lambda_j\ge 0$ (ingoing boundary)}\\
+    v_j \textrm{extrapolated from interior}; & \text{otherwise, (outgoing boundary)}\\
   \end{cases}
 \end{equation}
 %
 This can be summarized as
 %
 \begin{equation} 
-  \bzP_V^- !V_0 = 0
+  \bzP_V^+ !V_0 = 0
 \end{equation}
 %
 where 
 %
 \begin{equation} 
-  \bzP_V^- = \diag\{(1-\sign(\lambda_j))/2\}
+  \bzP_V^+ = \diag\{(1+\sign(\lambda_j))/2\}
 \end{equation}
 %
 is the projection matrix onto the space of incoming waves. As the
-$\bzP_V^-$ is a diagonal matrix, with diagonal elements 1 or 0, it
-trivially satisfies the projection condition $\bzP_V^- \bzP_V^- =
-\bzP_V^-$. 
+$\bzP_V^+$ is a diagonal matrix, with diagonal elements 1 or 0, it
+trivially satisfies the projection condition $\bzP_V^+ \bzP_V^+ =
+\bzP_V^+$. 
 
 Coming back to the $!U$ basis, we obtain the following first-order,
 linear absorbing boundary condition
 %
 \begin{equation} \label{eq:lin-abc}  
-  \bzP_U^-(!U_0) \, (!U(x=0)-!U_0) = 0. 
+  \bzP_U^+(!U_0) \, (!U(0)-!U_0) = 0. 
 \end{equation}
 %
 This condition is perfectly absorbing for small amplitude waves around
 the state $!U_0$. The main problem with it is that, as the limit state
 at the boundary $!U_\infty$ is not known a priori, we have to use some
 \emph{a priori} chosen state $!U_0\neq !U_\infty$ and then, the
-projection matrix used $\bzP_U^-(!U^0)$ will not be equal to
-$\bzP_U^-(!U_\infty)$, and then not fully absorbing.  We call $!U_0$
+projection matrix used $\bzP_U^+(!U^0)$ will not be equal to
+$\bzP_U^+(!U_\infty)$, and then not fully absorbing.  We call $!U_0$
 the reference state for the absorbing boundary condition. It can
 even happen that the eigenvalues for the actual state at the boundary
 change sign with respect to the reference state. 
@@ -107,53 +112,61 @@ change sign with respect to the reference state.
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{Riemann based absorbing boundary conditions} 
 
-Let $n^-$ ($n^+)$ be the number of incoming (outgoing) waves, i.e. the
-number of negative (positive) eigenvalues of $A_0$, and assume that
-the eigenvalues are ordered, i,e, $\lambda_j\le\lambda_k$, if
-$j<k$. So that the negative eigenvalues are the first $n^-$ ones. The
-boundary conditions for the incoming waves (\ref{eq:v-abc}) can be
-written as
+Let $n^+$ ($n^-)$ be the number of incoming (outgoing) waves, i.e. the
+number of positive (negative) eigenvalues of $A_0$, and assume that
+the eigenvalues are decreasingly ordered, i,e,
+$\lambda_j\ge\lambda_k$, if $j<k$. So that the positive eigenvalues
+are the first $n^+$ ones. The boundary conditions for the incoming
+waves (\ref{eq:v-abc}) can be written as
 %
 \begin{equation} \label{eq:l-abc}  
-  !l_j.(!U-!U_0) = 0, \ \ \ j=1,\dots,n^-
+  !l_j.(!U-!U_0) = 0, \ \ \ j=1,\dots,n^+
 \end{equation}
 %
 where $!l_j$ is a row of $!S\muno$, i.e. a \emph{``left eigenvalue''}
 of $!A_0$. If $!U$ is close to $!U_0$ we can write (\ref{eq:l-abc}) as 
 %
 \begin{equation} \label{eq:abc-ri-dif}  
-  !l_j(!U).\di!U = 0, \ \ \ j=1,\dots,n^-.
+  !l_j(!U).\di!U = 0, \ \ \ j=1,\dots,n^+.
 \end{equation}
 %
-If this differential form were an \emph{``exact differential''},
+If this differential forms were \emph{``exact differentials''},
 i.e. if 
 %
 \begin{equation} \label{eq:abc-ri-def}   
-  !l_j(!U).\di!U = \di w_j(!U)
+  !l_j(!U).\di!U = \di w_j(!U), 
+  \text{ for all } \ \ \ j=1,\dots,\ndof,
 \end{equation}
 %
-for some function $w_j(!U)$, then we could impose as absorbing
-boundary condition 
+for some functions $w_j(!U)$, then we could impose as absorbing
+boundary conditions
 %
 \begin{equation} \label{eq:ri-abc}  
-  w_j(!U) = w_j(!U_0), \ \ \ j=1,\dots,n^-. 
+  w_j(!U) = w_j(!U_0), \ \ \ j=1,\dots,n^+. 
 \end{equation}
 %
+Let's call to these $w_j$ functions \emph{``invariants''}.  As there
+are $\ndof$ invariants, we can define as a new representation of the
+internal state the $!w$ variables.  Note that, as
+$\deps{!w}{!U}=S\muno$, and $!S$ is non-singular, due to the
+hyperbolicity of the system, the correspondence between $!w$ and $!U$
+is one-to-one.  
+
 Assume that the value at the boundary reaches a steady limit value of
 $!U_\infty$, i.e.
 %
 \begin{equation} 
-!U(x=0,t)\to!U_\infty,  \text{ for } \ \ \ t\to\infty
+!U(0,t)\to!U_\infty,  \text{ for } \ \ \ t\to\infty
 \end{equation}
 %
-If all the waves were incoming ($n^-=\ndof$), then the set of boundary
+If all the waves were incoming ($n^+=\ndof$), then the set of boundary
 conditions (\ref{eq:ri-abc}) would be a set of $\ndof$ non-linear
-equations on the value $!U_\infty$. If the correspondence $!U\to!w$ is
+equations on the value $!U_\infty$. As the correspondence $!U\to!w$ is
 one to one, the boundary conditions would mean $!w(!U_\infty) =
 !w(!U_0)$, and then $!U_\infty=!U_0$. But if the number of incoming
-waves is $n^-<\ndof$, then it could happen that $!U_\infty\neq
+waves is $n^+<\ndof$, then it could happen that $!U_\infty\neq
 !U_0$. In fact, for a given $U_0$, the limit value $!U_\infty$ would
-belong to a curved $n^+$-dimensional curvilinear manifold. Even if the
+belong to a curved $n^-$-dimensional curvilinear manifold. Even if the
 limit state $!U_\infty!=!U_0$, we can proved to be perfectly
 absorbing, since, as $!U\to!U_\infty$ at the boundary, we can expand
 each of the conditions around $!U_\infty$ and it would result in an
@@ -161,15 +174,14 @@ equation similar to (\ref{eq:abc-ri-dif}) but centered about
 $!U_\infty$, 
 %
 \begin{equation}
-  !l_j(!U_\infty).(!U-!U_\infty) = 0, \ \ \ j=1,\dots,n^-.
+  !l_j(!U_\infty).(!U-!U_\infty) = 0, \ \ \ j=1,\dots,n^+.
 \end{equation}
 
 The problem is that in general the differentials are not
 exact. \emph{``Riemann invariants''} are functions that satisfy
 (\ref{eq:abc-ri-def}) under some restrictions on the flow. For
-instance, Riemann invariants invariants can be computed for
-compressible gas flow if we assume that the flow is isentropic. They
-are
+instance, Riemann invariants can be computed for compressible gas flow
+if we assume that the flow is isentropic. They are
 %
 \begin{equation} 
   \begin{aligned} 
@@ -180,7 +192,7 @@ are
     &\text{(vorticity waves)}.\\
   \end{aligned}
 \end{equation}
-
+%
 Boundary conditions based on Riemann invariants are, then, absorbing
 in some particular cases. 
 
@@ -190,7 +202,7 @@ in some particular cases.
 Another possibility is to linearize around the last state $!U^n$, i.e.
 %
 \begin{equation} \label{eq:lin-abc-n}  
-  \bzP_U^-(!U(0,t^n)) \, (!U(0,t^{n+1})-!U(0,t^n)) = 0. 
+  \bzP_U^+(!U(0,t^n)) \, (!U(0,t^{n+1})-!U(0,t^n)) = 0. 
 \end{equation}
 %
 This equation is always perfectly absorbing in the limit, because we
@@ -208,13 +220,148 @@ if the internal computational scheme tends to produce some error (due
 to non conservativity, or rounding errors), the internal state would
 drift constantly.
 
-One possibility is to use Riemann based or simple linear absorbing
-boundary conditions (\ref{eq:lin-abc}) at inlet and absorbing boundary
-conditions based on last state (\ref{eq:lin-abc-n}) at outlet. As the
-error tends to propagate more intensely towards the outlet boundary,
-it is preferably to use strongly absorbing boundary conditions there,
-whereas the linearly absorbing or Riemann invariant boundary
-conditions upstream avoid the drift. 
+A good compromise may be to use Riemann based (\ref{eq:ri-abc}) or
+linear absorbing boundary conditions (\ref{eq:lin-abc}) at
+inlet and absorbing boundary conditions based on last state
+(\ref{eq:lin-abc-n}) at outlet. As the error tends to propagate more
+intensely towards the outlet boundary, it is preferably to use
+strongly absorbing boundary conditions there, whereas the linearly
+absorbing or Riemann invariant boundary conditions upstream avoid the
+drift.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Finite element setup} 
+
+Assume that the problem is 1D, with a constant mesh size $h$ and time
+step $\Dt$, so that nodes are located at positions $x_k=kh$,
+$k=0,\dots,\infty$. Let $!U_j^n$ be the state at node $j$, time step
+$n$. FEM discretisation of the system of equations with
+\emph{``natural''} boundary conditions leads to a system of the form
+%
+\begin{equation} \label{eq:fem-eq}  
+  \begin{aligned} 
+    !F_0(!U_0^{n+1},!U_1^{n+1}) &= !R_0^{n+1}\\
+    !F_1(!U_0^{n+1},!U_1^{n+1},!U_2^{n+1}) &= !R_1^{n+1}\\
+    \vdots \ \ \ \ &= \ \ \ \ \vdots\\
+    !F_k(!U_{k-1}^{n+1},!U_k^{n+1},!U_{k+1}^{n+1}) &= !R_k^{n+1}\\
+    \vdots \ \ \ \ &= \ \ \ \ \vdots\\
+  \end{aligned}
+\end{equation}
+%
+where the $!F_k()$ are non-linear functions and the $!R_k$ possibly
+depends on the previous values $!U_k^n$. \emph{``Imposing boundary conditions''}
+means to replace some of the equations in the first row ($k=0$) for
+other equations. Recall that, in order to balance the number of
+equations and unknowns, we must specify which of the equations are
+discarded for each equations that is added. For instance, when
+imposing conditions on primitive variables it is usual to discard the
+energy equation if pressure is imposed, to discard the continuity
+equation if density is imposed and to discard the $j$-th component of
+the momentum equation if the $j$-th component of velocity is imposed. 
+On solid walls, the energy equation is discarded if temperature is
+imposed. Some of these \emph{``pairings''} equation/unknown are more
+clear than others. 
+
+So that, when imposing absorbing boundary conditions we have not only
+to specify the new conditions, but also which equations are
+discarded. Note that this is not necessary if all the variables are
+imposed at the boundary, for instance in a supersonic outlet. This
+suggests to generate appropriate values even for the outgoing waves,
+for instance, by extrapolation from the interior values. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Extrapolation form interiors} 
+
+For a linear system in characteristic variables (\ref{eq:abc-chareq})
+we could replace all the first row of equations by
+%
+\begin{equation} 
+    v^{n+1}_{j0} = 
+    \begin{cases} 
+      0;& j=1,..,n^+\\
+      \sum_{p=0}^m c_p v^n_{jp}; &j=n^+ + 1,\dots,\ndof\\
+    \end{cases};
+\end{equation}
+%
+which can be put in matricial form as
+%
+\begin{equation} 
+  \begin{aligned} 
+    \bzP_V^+!V^{n+1}_0 &= 0\\
+    \bzP_V^-(!V^{n+1}_0 - \sum_{p=0}^m c_p !V^n_p)&= 0\\
+  \end{aligned}
+\end{equation}
+%
+where the $c_p$'s are appropriate coefficients that provide an
+extrapolation to the value $!v^{n+1}_0$ from the values at time
+$!v^{n+1}_0$ Note that these represents $2\ndof$ equations, but as
+$\bzP_V^\pm$ have rank $n^\pm$ there are, in total, $\ndof$ linearly
+independent equations. As the $n^++1\le j \le\ndof $ rows in the first
+row of equations (corresponding to incoming waves) are null and
+\emph{vice versa} for the outgoing waves, we can add both blocks of
+equations to add a single set of $\ndof$ equations
+%
+\begin{equation} 
+    \bzP_V^+!V^{n+1}_0 +
+    \bzP_V^-(!V^{n+1}_0 - \sum_{p=0}^m c_p !V^n_p)= 0
+\end{equation}
+%
+and, coming back to the $!U$ basis
+%
+\begin{equation} 
+    \bzP_U^+(!U^{n+1}_0 - !U_0) +
+    \bzP_U^-(!U^{n+1}_0 - \sum_{p=0}^m c_p !U^n_p)= 0
+\end{equation}
+%
+The modified version of the FEM system of equations (\ref{eq:fem-eq})
+that incoroporates the absorbing boundary conditions is, then 
+%
+\begin{equation} 
+  \begin{aligned} 
+    \bzP_U^+(!U^{n+1}_0 - !U_0) +
+    \bzP_U^-(!U^{n+1}_0 - \sum_{p=0}^m c_p !U^n_p)&= 0\\
+    !F_1(!U_0^{n+1},!U_1^{n+1},!U_2^{n+1}) &= !R_1^{n+1}\\
+    \vdots \ \ \ \ &= \ \ \ \ \vdots\\
+    !F_k(!U_{k-1}^{n+1},!U_k^{n+1},!U_{k+1}^{n+1}) &= !R_k^{n+1}\\
+    \vdots \ \ \ \ &= \ \ \ \ \vdots\\
+  \end{aligned}
+\end{equation}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Avoiding extrapolation} 
+
+For linear systems, equation (\ref{eq:fem-eq}) is of the form
+%
+\begin{equation} 
+  \begin{aligned} 
+    \frac{!U_0^{n+1}-!U_0^{n}}{\Dt} +
+    !A\,\frac{!U_1^{n+1}-!U_{0}^{n}}{h} &= 0; \\
+    \frac{!U_k^{n+1}-!U_k^{n}}{\Dt} +
+    !A\,\frac{!U_{k+1}^{n+1}-!U_{k-1}^{n}}{2h} &= 0, \ \ \ k\ge 1\\
+  \end{aligned}
+\end{equation}
+%
+We have made a lot of simplifications here, no source or upwind terms,
+and a in fact a simple centered finite difference approximation to the
+equations is presented. Alternatively, it can be thought as a pure
+Galerkin FEM discretization with mass lumping. In the base of the
+characteristic variables $!V$ this could be written as
+%
+\begin{equation} 
+  \begin{aligned} 
+    \frac{!V_0^{n+1}-!V_0^{n}}{\Dt} +
+    \bzL\,\frac{!V_1^{n+1}-!V_{0}^{n}}{h} &= 0; \\
+    \frac{!V_k^{n+1}-!V_k^{n}}{\Dt} +
+    \bzL\,\frac{!V_{k+1}^{n+1}-!V_{k-1}^{n}}{h} &= 0. \\
+  \end{aligned}
+\end{equation}
+%
+For the boundary 
+
+
+FIXME:= add CP modification
+
+
 
 % Local Variables: *
 % mode: latex *
