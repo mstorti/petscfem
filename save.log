@@ -4025,3 +4025,7 @@ tag: 3.43.2 on Sat, 19 Feb 2005 13:37:02 -0300 by mstorti in spider
      > Written `compshock.m' for computig normal shocks. 
      > Now `gasflow' doesn't computes LES terms only
      > for volume elements. 
+----------
+tag: 3.43.3 on Sun, 20 Feb 2005 12:25:23 -0300 by mstorti in spider
+     > Partially implemented `dofmap->solve' with 
+     >   iterative solution of the least squares eqs.
