@@ -260,13 +260,13 @@ all the source files included.</p>
 </p>
 <h2><a name="makefile_variables">Makefile variables</a></h2>
 <dl>
-<dt><strong><a name="item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a></strong><br />
+<dt><strong><a name="item__24_28petscfem_dir_29"><code>$(PETSCFEM_DIR)</code></a></strong><br />
 </dt>
 <dd>
 The root of the PETSc-FEM package
 </dd>
 <p></p>
-<dt><strong><a name="item_%24%28petsc_arch%29%2c_%24%28petsc_dir%29"><code>$(PETSC_ARCH)</code>, <code>$(PETSC_DIR)</code></a></strong><br />
+<dt><strong><a name="item__24_28petsc_arch_29_2c__24_28petsc_dir_29"><code>$(PETSC_ARCH)</code>, <code>$(PETSC_DIR)</code></a></strong><br />
 </dt>
 <dd>
 These are variables relative to PETSc. See documentation.
@@ -284,13 +284,13 @@ First you have to set the <code>PETSC_BOPT</code> variable which is the default
 value for the <code>PETSc</code> <code>BOPT</code> variable, which sets the
 optimization level to be used in compilation. You can set it to
 <dl>
-<dt><strong><a name="item_petsc_bopt_%3d_g_c%2b%2b"><code>PETSC_BOPT = g_c++</code></a></strong><br />
+<dt><strong><a name="item_petsc_bopt__3d_g_c_2b_2b"><code>PETSC_BOPT = g_c++</code></a></strong><br />
 </dt>
 <dd>
 Compiles for debugging.
 </dd>
 <p></p>
-<dt><strong><a name="item_petsc_bopt_%3d_o_c%2b%2b"><code>PETSC_BOPT = O_c++</code></a></strong><br />
+<dt><strong><a name="item_petsc_bopt__3d_o_c_2b_2b"><code>PETSC_BOPT = O_c++</code></a></strong><br />
 </dt>
 <dd>
 Compiles with optimization enabled.
@@ -328,7 +328,7 @@ or you have moved it.
 <p>
 </p>
 <h2><a name="compiling">Compiling</a></h2>
-<p><code>cd</code> to directory <a href="#item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a> and do</p>
+<p><code>cd</code> to directory <a href="#item__24_28petscfem_dir_29"><code>$(PETSCFEM_DIR)</code></a> and do</p>
 <pre>
   $ make depend
   $ make libpetscfem        # to build the library
@@ -364,8 +364,8 @@ found in the <code>doc</code> directory.</p>
 <p>The best way to start coding an application program is to duplicate a
 directory (for instance <code>applications/advdif</code>) or (for instance
 <code>applications/ns</code>) to a directory from
-your own (i.e. outside the <a href="#item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a> tree, say
-<code>/your/appl/path</code>. Configure the <a href="#item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a> variable in the
+your own (i.e. outside the <a href="#item__24_28petscfem_dir_29"><code>$(PETSCFEM_DIR)</code></a> tree, say
+<code>/your/appl/path</code>. Configure the <a href="#item__24_28petscfem_dir_29"><code>$(PETSCFEM_DIR)</code></a> variable in the
 local makefile (i.e. <code>/your/appl/path/Makefile</code>).You should have to
 configure other variables as well, perhaps <code>$(MYOBJS)</code> (this is a
 list of the object (<code>.o</code>) files in this local directory) and
@@ -376,25 +376,25 @@ list of the object (<code>.o</code>) files in this local directory) and
 <hr />
 <h1><a name="authors">AUTHORS</a></h1>
 <dl>
-<dt><strong><a name="item_mario_a%2e_storti%2a_%3cmstorti%40intec%2eunl%2eed">Mario A. Storti* <code>&lt;mstorti@intec.unl.edu.ar&gt;</code></a></strong><br />
+<dt><strong><a name="item_mario_a_2e_storti_2a__3cmstorti_40intec_2eunl_2eed">Mario A. Storti* <code>&lt;mstorti@intec.unl.edu.ar&gt;</code></a></strong><br />
 </dt>
 <dd>
 PETSc-FEM kernel, NS and AdvDif modules.
 </dd>
 <p></p>
-<dt><strong><a name="item_norberto_m%2e_nigro%2a_%3cnnigro%40intec%2eunl%2ee">Norberto M. Nigro* <code>&lt;nnigro@intec.unl.edu.ar&quot;</code></a></strong><br />
+<dt><strong><a name="item_norberto_m_2e_nigro_2a__3cnnigro_40intec_2eunl_2ee">Norberto M. Nigro* <code>&lt;nnigro@intec.unl.edu.ar&quot;</code></a></strong><br />
 </dt>
 <dd>
 NS and AdvDif modules.
 </dd>
 <p></p>
-<dt><strong><a name="item_rodrigo_r%2e_paz%2a_%3crodrigop%40intec%2eunl%2eed">Rodrigo R. Paz* <code>&lt;rodrigop@intec.unl.edu.ar&gt;</code></a></strong><br />
+<dt><strong><a name="item_rodrigo_r_2e_paz_2a__3crodrigop_40intec_2eunl_2eed">Rodrigo R. Paz* <code>&lt;rodrigop@intec.unl.edu.ar&gt;</code></a></strong><br />
 </dt>
 <dd>
 AdvDif module, specially the hydrology module.
 </dd>
 <p></p>
-<dt><strong><a name="item_lisandro_dalcin%2a_%3cdalcinl%40intec%2eunl%2eedu%">Lisandro Dalcin* <code>&lt;dalcinl@intec.unl.edu.ar&gt;</code></a></strong><br />
+<dt><strong><a name="item_lisandro_dalcin_2a__3cdalcinl_40intec_2eunl_2eedu_">Lisandro Dalcin* <code>&lt;dalcinl@intec.unl.edu.ar&gt;</code></a></strong><br />
 </dt>
 <dd>
 PETSc-FEM kernel, Python extension language project.

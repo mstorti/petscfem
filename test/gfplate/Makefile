@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.2 2005/01/09 00:09:25 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2005/01/20 15:52:16 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run
+default: runa
 
 SRCS = 
 PETSCFEM_DIR = ../..
@@ -10,7 +10,8 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfplate
+# CASE_NAME := gfplate
+CASE_NAME := gfabso
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -20,6 +21,11 @@ NP := 1
 endif
 
 run: 
+	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
+	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+
+runa: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
