@@ -913,3 +913,6 @@ tag: beta-2.70 on Sun Feb  3 20:25:21 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.70.pl1 on Sun Feb  3 20:39:55 ARST 2002 by mstorti in spider
      > Added Id CVS tag
+----------
+tag: beta-2.70.pl2 on Sun Feb  3 20:48:39 ARST 2002 by mstorti in spider
+     > Fixed Id CVS tag
