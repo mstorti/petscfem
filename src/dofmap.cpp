@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.11 2002/12/11 20:03:46 mstorti Exp $
+//$Id: dofmap.cpp,v 1.12 2002/12/22 06:20:40 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -124,7 +124,7 @@ int Dofmap::edof(const int node,const int field) const {
   PETSCFEM_ASSERT(node>=1 && node<=nnod,"Node out of range: %d\n",node);
   PETSCFEM_ASSERT(field>=1 && field<=ndof,"Field out of range: %d\n",field);
   return (node-1)*ndof+field;
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -315,56 +315,6 @@ void Constraint::add_entry(int node,int field,double coef) {
 void Constraint::empty(void) {
   VOID_IT((*this));
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "Dofmap::set_constraint(const Constraint &constraint)"
-#if 1
-void Dofmap::set_constraint(const Constraint &constraint) {
-
-  int length=constraint.size();
-  assert(length>1);
-  const constraint_entry *it,*it0;
-  row_t row,row0;
-  VOID_IT(row0);
-  // Look for the maximum (abs. val.) coefficient
-  int jmax=0; double cmax=fabs(constraint[0].coef);
-  for (int k=1; k<length; k++) {
-    double cc=fabs(constraint[k].coef);
-    if (cc>cmax) {
-      jmax=k;
-      cmax=cc;
-    }
-  }
-  
-  it0 = &(constraint[jmax]);
-  double coef0 = it0->coef;
-  for (int k=0; k<length; k++) {
-    if (k==jmax) continue;
-    it = &(constraint[k]);
-    get_row(it->node,it->field,row); 
-    axpy(row0,-it->coef/coef0,row);
-  }
-  row_set(it0->node,it0->field,row0);
-}
-#else // OLD VERSION
-void Dofmap::set_constraint(const Constraint &constraint) {
-
-  int length=constraint.size();
-  assert(length>1);
-  const constraint_entry *it,*it0;
-  row_t row,row0;
-  VOID_IT(row0);
-  it0 = &(constraint[0]);
-  double coef0 = it0->coef;
-  for (int k=1; k<length; k++) {
-    it = &(constraint[k]);
-    get_row(it->node,it->field,row); 
-    axpy(row0,-it->coef/coef0,row);
-  }
-  row_set(it0->node,it0->field,row0);
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

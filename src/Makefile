@@ -1,16 +1,16 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.57 2002/11/28 15:13:25 mstorti Exp $ 
+# $Id: Makefile,v 1.58 2002/12/22 06:20:40 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PETSCFEM_DIR = ..
 
 # Add new files here
-LIBOBJS_ = amplidl arglist debug distmat dofmap elemlist elemset	\
-fastmat fastmat2 fem fm2eperl fm2eperl2 fstack getarray getprop gpdata	\
-graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl		\
-measperf metisprt petscmat pfmat propef randomg readmesh secant sparse	\
-spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf	\
+LIBOBJS_ = amplidl arglist debug distmat dofmap dofmap2 elemlist elemset	\
+fastmat fastmat2 fem fm2eperl fm2eperl2 fstack getarray getprop gpdata		\
+graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl			\
+measperf metisprt petscmat pfmat propef randomg readmesh secant sparse		\
+spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\
 timestat util2 utils version
 
 # C files
