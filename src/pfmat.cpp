@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.7 2002/09/20 22:51:33 mstorti Exp $
+//$Id: pfmat.cpp,v 1.8 2002/11/02 15:11:26 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -236,9 +236,13 @@ PFMat * PFMat::dispatch(int N,DofPartitioner &part,const char *s) {
   IISDMat *AA;
   // IISD solver with PETSc or SuperLU local solver
   if (!strcmp(s,"iisd_superlu")) {
+#ifdef USE_SUPERLU
     AA =  new IISDMat(N,N,part,PETSC_COMM_WORLD);
     AA->local_solver = IISDMat::SuperLU;
     return AA;
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
   } else if (!strcmp(s,"iisd_petsc")) {
     AA =  new IISDMat(N,N,part,PETSC_COMM_WORLD);
     AA->local_solver = IISDMat::PETSc;
@@ -252,8 +256,12 @@ PFMat * PFMat::dispatch(int N,DofPartitioner &part,const char *s) {
     A = new PETScMat(N,N,part,PETSC_COMM_WORLD);
     return A;
   } else if (!strcmp(s,"direct_superlu")) {
+#ifdef USE_SUPERLU
     A = new SparseDirect(N,"SuperLU");
     return A;
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
   } else if (!strcmp(s,"direct") || 
 	     !strcmp(s,"direct_petsc")) {
     A = new SparseDirect(N,"PETSc");

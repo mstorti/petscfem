@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.34 2002/09/20 21:25:38 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.35 2002/11/02 15:11:26 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -271,6 +271,7 @@ IISDMat::~IISDMat() {
 #define __FUNC__ "IISDMat::local_solve_SLU"
 int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
 
+
   int ierr,j;
   double *a, *aa;
 
@@ -522,7 +523,11 @@ int IISDMat::clean_mat_a() {
     CHKERRQ(ierr); 
     ierr=MatZeroEntries(A_LL); PF_CHKERRQ(ierr);
   } else if (local_solver == SuperLU) {
+#ifdef USE_SUPERLU
     A_LL_SLU.clear().resize(n_loc,n_loc);
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
   } else assert(0);
 
   ierr=MatZeroEntries(A_IL); PF_CHKERRQ(ierr);
@@ -622,6 +627,7 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
       return 0;
     } 
     if (local_solver == SuperLU) {
+#ifdef USE_SUPERLU
       if (mode==ADD_VALUES) {
 	val = A_LL_SLU.get(row_indx,col_indx) + value;
       } else {
@@ -629,6 +635,9 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
       }
       A_LL_SLU.set(row_indx,col_indx,val);
       return 0;
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
     }
   } 
 #ifndef DEBUG_IISD_DONT_SET_VALUES
@@ -853,6 +862,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
       } else { // local_solver == SuperLU
 
+#ifdef USE_SUPERLU
 	ierr = VecGetArray(y_loc_seq,&y_loc_seq_a); PF_CHKERRQ(ierr); 
 	ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
 	A_LL_SLU.solve(y_loc_seq_a);
@@ -861,7 +871,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	}
 	ierr = VecRestoreArray(y_loc_seq,&y_loc_seq_a); PF_CHKERRQ(ierr); 
 	ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); PF_CHKERRQ(ierr); 
-
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
       }
     }
 

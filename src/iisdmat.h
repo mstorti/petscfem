@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.24 2002/09/05 19:24:01 mstorti Exp $
+// $Id: iisdmat.h,v 1.25 2002/11/02 15:11:26 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -97,8 +97,9 @@ class IISDMat : public PFPETScMat {
   /// The PETSc nnz vector for the local part
   vector<int> d_nnz_LL;
   /// Version  of the local matrix
-  Sparse::SuperLUMat A_LL_SLU; // However, this ha problems.
-  // Sparse::PETScMat A_LL_SLU;
+#ifdef USE_SUPERLU
+  Sparse::SuperLUMat A_LL_SLU; // However, this has problems.
+#endif
   /// Local-Local matrix (sequential matrix on each processor). 
   Mat A_LL;
   /// Local-Interface matrix (MPI matrix).

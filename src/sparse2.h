@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse2.h,v 1.3 2002/09/05 18:23:52 mstorti Exp $
+// $Id: sparse2.h,v 1.4 2002/11/02 15:11:26 mstorti Exp $
 #ifndef SPARSE2_H
 #define SPARSE2_H
 
@@ -11,6 +11,7 @@ using namespace Random;
 
 namespace Sparse {
 
+#ifdef USE_SUPERLU
   class SuperLUMat : public Mat {
   private:
     /// Factored matrix
@@ -25,6 +26,7 @@ namespace Sparse {
     void solve_only();
     void fact_and_solve();
   };
+#endif
 
   class PETScMat : public Mat {
   private:

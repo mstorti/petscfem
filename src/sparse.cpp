@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.31 2002/06/02 23:33:44 mstorti Exp $
+//$Id: sparse.cpp,v 1.32 2002/11/02 15:11:26 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -967,7 +967,11 @@ namespace Sparse {
     if (!strcmp(opt,"PETSc")) {
       m = new PETScMat;
     } else if (!strcmp(opt,"SuperLU")) {
+#ifdef USE_SUPERLU
       m = new SuperLUMat;
+#else
+    PETSCFEM_ERROR0("Not compiled with SuperLU library!!\n");
+#endif
     } else assert(0);
     if (t!=NULL) m->thash.include_table(string("father"),t);
     return m;

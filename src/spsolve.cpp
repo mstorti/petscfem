@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.14 2002/01/14 03:45:06 mstorti Exp $
+//$Id: spsolve.cpp,v 1.15 2002/11/02 15:11:26 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -38,6 +38,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#ifdef USE_SUPERLU
   void SuperLUMat::fact_and_solve() {
 
     int j,m,nnz,curs,info;
@@ -144,6 +145,7 @@ namespace Sparse {
     delete[] perm_c;
     perm_c=NULL;
   }
+#endif
     
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void PETScMat::fact_and_solve() {
