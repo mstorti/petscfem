@@ -10,7 +10,7 @@ $Re_laminar=100;		# Reynolds number
 $u_max=1;			# Average velocity
 $Co=1;				# Courant number to compute Dt
 
-if (0) {
+if (1) {
 $nz=20;				# Number of elements in z
 $nx=30;				# Number of elements in x
 } else {

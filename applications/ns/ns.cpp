@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.128 2003/03/13 20:14:24 mstorti Exp $
+//$Id: ns.cpp,v 1.129 2003/03/13 20:15:48 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -350,8 +350,6 @@ int main(int argc,char **args) {
     argl.arg_add(&data_pts,USER_DATA);
     argl.arg_add(&elemset_pointer,USER_DATA);
     ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] data_pts.size()= %d\n",
-			    MY_RANK,data_pts.size());
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
     double *buff = new double[data_pts.size()];
     ierr = MPI_Allreduce(data_pts.begin(),buff,
@@ -360,17 +358,6 @@ int main(int argc,char **args) {
     for (int j=0; j<data_pts.size(); j++) data_pts[j] = buff[j];
     delete[] buff;
 
-#if 0
-    for (int j=0; j<data_pts.size()/3; j++) {
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			      "[%d] %f %f %f\n",MY_RANK,data_pts[j*3],data_pts[j*3+1],
-			      data_pts[j*3+2]);
-    }
-    PetscSynchronizedFlush(PETSC_COMM_WORLD);
-    PetscFinalize();
-    exit(0);
-#endif
-    
     PetscPrintf(PETSC_COMM_WORLD,"After nearest neighbor tree.\n");
 
     wall_data = new WallData(&data_pts,&elemset_pointer,ndim);
