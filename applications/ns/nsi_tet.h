@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.20 2001/10/06 23:39:59 mstorti Exp $
+//$Id: nsi_tet.h,v 1.21 2001/10/13 16:47:45 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -329,7 +329,7 @@ class LagrangeMult : public Elemset {
       @param U (input) state vector at all nodes
       @param r (output) a vector of length #nres*nel/2# containing the
       residuals for each restriction at each node.
-      @param w (input) the state of the Lagrange multipliers 
+      @param w (input) the vector of reactions of the Lagrange multipliers 
       @param jac (output) the jacobian of the residuals with respect
       to the node state. (size #nel/2 * nres* nel/2 x ndof#)
   */ 

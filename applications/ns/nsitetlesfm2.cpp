@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.40 2001/10/09 16:57:57 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.41 2001/10/13 16:47:45 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -143,6 +143,10 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,A_van_Driest,26); 
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
+  //o Scale the residual term. 
+  SGETOPTDEF(double,residual_factor,1.);
+  //o Scale the jacobian term. 
+  SGETOPTDEF(double,jacobian_factor,1.);
   //o Adjust the stability parameters, taking into account
   // the time step. If the \verb+steady+ option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
@@ -612,8 +616,15 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.is(2,1,ndim).set(resmom)
 	.rs().ir(2,ndof).set(rescont).rs();
 
+      if (residual_factor!=1.)
+	veccontr.scale(residual_factor);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
-      if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+
+      if (update_jacobian) {
+	if (jacobian_factor!=1.)
+	  matlocf.scale(jacobian_factor);
+	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      }
     }
   }
   FastMat2::void_cache();
