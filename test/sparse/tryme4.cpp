@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.11 2002/07/20 23:14:14 mstorti Exp $
+// $Id: tryme4.cpp,v 1.12 2002/07/21 00:11:43 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -20,19 +20,15 @@ int irand(int imin,int imax) {
   return int(rint(drand()*double(imax-imin+1)-0.5))+imin;
 }
 
-void print_set(set<int> &gg,const char *s=NULL) { 
-    if (s) printf("%s",s);
-    for (set<int>::iterator q=gg.begin(); q!=gg.end(); q++) 
-    printf("%d ",*q);
-}
+class graph {
+public:
+  virtual void add(int j,int k)=0;
+  virtual void clear()=0;
+  virtual int size()=0;
+  virtual void print(const char *s= NULL)=0;
+};
 
 typedef pair<int,int> int_pair2;
-typedef set<int_pair2,less<int_pair2>,malloc_alloc> Set2;
-void print_set(Set2 &gg,const char *s=NULL) { 
-    if (s) printf("%s",s);
-    for (set<int_pair2>::iterator q=gg.begin(); q!=gg.end(); q++) 
-    printf("(%d,%d) ",q->first,q->second);
-}
 
 class int_pair { 
 public: 
@@ -124,14 +120,6 @@ public:
   void clear() { da_resize(da,0); modif=0; ordered=0; max = MAX_INIT; }
 };
 
-void Set<int>::print2() {
-  int ds = da_length(da);
-  for (int j=0; j<ds; j++) {
-    printf("%d ",*at(j));
-  }
-  printf("\n");
-}
-
 void Set<int_pair>::print2() {
   int ds = da_length(da);
   for (int j=0; j<ds; j++) {
@@ -140,24 +128,47 @@ void Set<int_pair>::print2() {
   printf("\n");
 }
 
+class graph_da : public graph {
+private:
+  Set<int_pair> sip;
+public:
+  void add(int j,int k) { sip.insert(int_pair(j,k)); }
+  void clear() { sip.clear(); }
+  void print(const char *s = NULL) { sip.print(s); }
+  int size() { return sip.size(); } 
+};  
+
+class graph_stl : public graph {
+private:
+  set<int_pair2> s;
+public:
+  void add(int j,int k) { s.insert(int_pair2(j,k)); }
+  void clear() { s.clear(); }
+  int size() { return s.size(); } 
+  void print(const char *ss=NULL) { 
+    if (ss) printf("%s",ss);
+    for (set<int_pair2>::iterator q=s.begin(); q!=s.end(); q++) 
+      printf("(%d,%d) ",q->first,q->second);
+    printf("\n");
+  }
+};
+
 int main(int argc, char **argv) {
-  Set<int_pair> g;
-  // Set<int_pair> gg;
-  Set2 gg;
+  graph_da g;
+  graph_stl gg;
   int kk;
-  int N = 10000, M = int(N/10), NN = int(sqrt(N/4));
+  int N = 100, M = int(N/10), NN = int(sqrt(N/2));
   for (kk=1; kk<=N; kk++) { 
     int k = irand(1,NN);
     int l = irand(1,NN);
     // printf("inserting (%d,%d)\n",k,l);
-    g.insert(int_pair(k,l)); 
-    gg.insert(int_pair2(k,l)); 
+    g.add(k,l); 
+    gg.add(k,l); 
     if (kk % M == 0 ) {
       if (g.size()!=gg.size()) {
 	printf("on kk=%d bad: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
-	g.print("usando my_set<int>: ");
-	// gg.print("usando my_set<int>: ");
-	print_set(gg,"usando set<int>: ");
+	g.print("g: ");
+	gg.print("gg: ");
 	exit(0);
       } else printf("on kk=%d OK: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
     }
