@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.49 2004/07/30 22:12:10 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.50 2004/08/02 00:03:03 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -689,22 +689,26 @@ int IISDMat::create_a() {
   // For each block prints the d_nnz and o_nnz in turn
   for (int row_type=0; row_type<2; row_type++) {
     for (int col_type=0; col_type<2; col_type++) {
-      PetscPrintf(comm,"[%s]-[%s] block\n",
+      PetscPrintf(comm,"[%s]-[%s] block",
 		  (row_type==0? "LOC" : "INT"),(col_type==0? "LOC" :
 					     "INT"));
       // number of rows in this block in this processor
       nrows=(row_type==L ? n_loc : n_int);
       PetscSynchronizedPrintf(comm,
-			      "%d/%d rows on processor [%d]\n",
+			      "%d/%d rows on processor [%d], ",
 			      nrows,neqp,myrank);
+      int d=0, o=0;
       for (row=0; row<nrows; row++) {
 	d_nz = nnz[D][row_type][col_type][row];
 	o_nz = nnz[O][row_type][col_type][row];
-	if (d_nz|| o_nz) 
-	  PetscSynchronizedPrintf(comm,
-				  "row=%d, d_nnz=%d, o_nnz=%d\n",row,
-				  d_nz,o_nz);
+// 	if (d_nz|| o_nz) 
+// 	  PetscSynchronizedPrintf(comm,
+// 				  "row=%d, d_nnz=%d, o_nnz=%d\n",row,
+// 				  d_nz,o_nz);
+	d += d_nz;
+	o += o_nz;
       }
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"d: %d, o: %d\n",d,o);
       PetscSynchronizedFlush(comm); 
     }
   }
@@ -733,7 +737,7 @@ int IISDMat::create_a() {
 			 &A_II); CHKERRQ(ierr); 
   CHKERRQ(ierr); 
   
-  ierr = MatSetStashInitialSize(A_II,300000,0);
+  ierr = MatSetStashInitialSize(A_II,300000,300000);
   CHKERRQ(ierr); 
 
   if (nlay>1) {

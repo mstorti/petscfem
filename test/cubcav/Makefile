@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.92 2004/07/30 22:14:33 mstorti Exp $ 
+# $Id: Makefile,v 1.93 2004/08/02 00:02:48 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
 
-default: test_perfo
+default: run
 
 #default case
 # case := laplace
@@ -44,7 +44,7 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
-# NP := 2
+NP := 2
 export NP
 
 run_subdir_test:
@@ -66,8 +66,8 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl \
-		-log_info -log_summary
+	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl 
+#		 -log_info -log_summary
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -175,10 +175,6 @@ link:
 
 #w Prepare for jumpshot
 pj:
-	rcp geronimo:PETSC/petscfem.mario/test/cubcav/ns.clog .
+#	rcp geronimo:PETSC/petscfem.mario/test/cubcav/ns.clog .
 #	rcp geronimo:PETSC/curso_paralelo/curso-mpi-petsc/example/primes.clog .
-	/usr/local/mpi/bin/clog2slog ns.clog
-
-#w performance test:
-test_perfo:
-	$(MAKE) N=30 run
+	$(MPI_HOME)/bin/clog2slog ns.clog

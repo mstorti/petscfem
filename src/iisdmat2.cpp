@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat2.cpp,v 1.5 2003/09/11 16:02:07 mstorti Exp $
+//$Id: iisdmat2.cpp,v 1.6 2004/08/02 00:03:03 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -18,6 +18,8 @@ extern int MY_RANK,SIZE;
 
 int any_A_LL_other_stop = 0;
 
+extern int iisd_mat_coefs_here, iisd_mat_coefs_there;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_values_a"
@@ -29,6 +31,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   // Should call a `isp_set_values()' here
   assert(nlay==0 || nlay==1);
   insert_mode = mode;  
+  // printf("nrows %d, ncols %d\n",nrows,ncols);
 
   // Mapping of rows
   nr[L]=0;
@@ -78,9 +81,11 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 
   // We consider first all blocks other than the LL one
   // This is considered aside
+  int row0,row1;
   for (row_t=0; row_t<2; row_t++) {
     for (col_t=0; col_t<2; col_t++) {
       if (col_t==L && row_t==L) continue;
+      MatGetOwnershipRange(*(AA[row_t][col_t]),&row0,&row1);
       dvector<double> *vv = v[row_t][col_t];
       int nrr = nr[row_t];
       int ncc = nc[col_t];
@@ -98,6 +103,13 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
       // This is for debugging
 #define LOAD_VALUES
 #ifdef LOAD_VALUES
+      for (int j=0; j<nrr; j++) {
+	int indx = indxr[row_t]->ref(j);
+	if (indx>=row0 && indx<row1) 
+	  iisd_mat_coefs_here += ncc;
+	else 
+	  iisd_mat_coefs_there += ncc;
+      }
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
 			  indxc[col_t]->buff(),vv->buff(),mode);
@@ -188,6 +200,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	double *w = values + jr*ncols + jc;
 	if (indxr <0 || indxr >=n_loc || indxc <0 || indxc >=n_loc) {
 	  // send to A_LL_other
+	  iisd_mat_coefs_there++;
 	  A_LL_other->insert_val(idxr[jr],idxc[jc],*w);
 #if 0
 	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
@@ -245,6 +258,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 
 #ifdef LOAD_VALUES
   if (nrf>0 && ncf>0) {
+    iisd_mat_coefs_here += nrf*ncf;
     ierr = MatSetValues(*(AA[L][L]),nrf,indxrp,ncf,
 			indxcp,vv->buff(),mode);
     if (ierr) return ierr;

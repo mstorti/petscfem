@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.113 2004/07/30 22:12:28 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.114 2004/08/02 00:02:48 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -101,7 +101,7 @@ max_partgraph_vertices 5000
 max_partgraph_vertices_proc 5000
 chunk_size 5000
 maxits 1
-nstep 2
+nstep 1
 
 __END_HASH__
 
@@ -141,6 +141,7 @@ __END_HASH__
 
 end_elemsets
 
+>>if 0
 >>if !$srfgath
 
 fixa
@@ -153,4 +154,5 @@ __END_FIXA__
 fixa
 __INCLUDE__ <:=$data_dir:>/cubcav.fixa-srfgath.tmp
 __END_FIXA__
+>>endif
 >>endif

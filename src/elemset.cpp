@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.88 2004/07/30 22:12:10 mstorti Exp $
+//$Id: elemset.cpp,v 1.89 2004/08/02 00:03:03 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -27,6 +27,7 @@
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
 extern int MY_RANK,SIZE;
+int iisd_mat_coefs_here, iisd_mat_coefs_there;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
@@ -277,6 +278,8 @@ int assemble(Mesh *mesh,arg_list argl,
   double ass_s = MPI_Wtime();
 
   mpe_initialize();
+  iisd_mat_coefs_here=0;
+  iisd_mat_coefs_there=0;
 
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
@@ -322,7 +325,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // any_include_ghost_elems:= any_not_include_ghost_elems=0:=
   // Flag whether any argument corresponds to that iteration mode. 
   // Iteration modes are mutually exclusive, so that we must check
-  // that `!any_not_include_ghost_elems || !any_not_include_ghost_elems'
+  // that `!any_include_ghost_elems || !any_not_include_ghost_elems'
   int any_include_ghost_elems=0, any_not_include_ghost_elems=0; 
   for (j=0; j<narg; j++) {
     /// Copy the options to the arg_data_v structure. 
@@ -889,6 +892,27 @@ int assemble(Mesh *mesh,arg_list argl,
 			  "[%d] assemble total %f\n",
 			  MY_RANK,MPI_Wtime()-ass_s);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  
+  int total_iisd_mat_coefs_there, total_iisd_mat_coefs_here;
+  MPI_Allreduce(&iisd_mat_coefs_here,&total_iisd_mat_coefs_here,
+	     1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);
+  MPI_Allreduce(&iisd_mat_coefs_there,&total_iisd_mat_coefs_there,
+	     1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);
+
+  if (total_iisd_mat_coefs_here+total_iisd_mat_coefs_there) {
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "[%d] iisd coefs here %d, there %d\n",
+			    MY_RANK,iisd_mat_coefs_here,
+			    iisd_mat_coefs_there);
+    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    if (!MY_RANK) 
+      printf("IISD coefs here %d, there %d, total %d\n",
+	     total_iisd_mat_coefs_here,
+	     total_iisd_mat_coefs_there,
+	     total_iisd_mat_coefs_here+total_iisd_mat_coefs_there);
+    PetscFinalize();
+    exit(0);
+  }
       
   return 0;
 }
