@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add edge weights to graph partitioning in `metisprt.cpp'
 * Changing 'distmap.h' launches recompilation of almost all
    PETSc-FEM. 
 * int FastMat2: `mydetsur' with masks can't be cached (loses cached
