@@ -4116,3 +4116,6 @@ tag: beta-3.43.27 on Sun, 27 Feb 2005 10:01:16 -0300 by mstorti in spider
 ----------
 tag: beta-3.43.28 on Sun, 27 Feb 2005 11:46:17 -0300 by mstorti in spider
      > Fixed many errors in `gfshock3d' data. 
+----------
+tag: beta-3.43.29 on Sun, 27 Feb 2005 14:43:13 -0300 by mstorti in spider
+     > Runs 2D axi example with `pout=0.2pin'. 
