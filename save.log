@@ -3553,3 +3553,6 @@ tag: beta-3.37.39 on Sun, 19 Dec 2004 16:53:56 -0300 by mstorti in spider
 tag: beta-3.37.40 on Sun, 19 Dec 2004 17:46:46 -0300 by mstorti in spider
      > Fixed `level_next()'. 
      > Written `level_so_next()' and tested. 
+----------
+tag: beta-3.37.41 on Sun, 19 Dec 2004 19:58:01 -0300 by mstorti in spider
+     > Written `NodeInfo' stuff. Compiles.
