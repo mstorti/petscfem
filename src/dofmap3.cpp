@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.6 2005/02/20 15:25:07 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.7 2005/02/20 15:37:31 mstorti Exp $
 
 #include <cassert>
 
@@ -176,8 +176,8 @@ void Dofmap::solve(double *x,double *y) {
   // Make product z=Qy
   qtxpy(z,y,1.0);
   // printv(z,nrow,"z");
-  assert(nrow==ncol);
-  printf("|z-y| %f\n",diff(z,y,nrow));
+  // assert(nrow==ncol);
+  // printf("|z-y| %f\n",diff(z,y,nrow));
   // Compute diagonal
   for (int j=0; j<nrow; j++) {
     int kdof = j % ndof + 1;
@@ -201,14 +201,14 @@ void Dofmap::solve(double *x,double *y) {
     for (int j=0; j<nrow; j++) v[j]=0.0;
     // v = Q*x
     qxpy(v,x,1.0);
-    printf("|v-x| %f\n",diff(v,x,nrow));
+    // printf("|v-x| %f\n",diff(v,x,nrow));
     // printv(v,ncol,"v");
     // w = Q'*Q*x
     for (int j=0; j<ncol; j++) w[j]=0.0;
     qtxpy(w,v,1.0);
-    printf("|w-v| %f\n",diff(w,v,nrow));
+    // printf("|w-v| %f\n",diff(w,v,nrow));
     // printv(w,nrow,"w");
-    printf("|z-w| %f\n",diff(z,w,nrow));
+    // printf("|z-w| %f\n",diff(z,w,nrow));
     double res=0.0;
     for (int j=0; j<ncol; j++) {
       x[j] += omega*(z[j]-w[j])/d[j];
