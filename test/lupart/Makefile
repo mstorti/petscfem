@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.38 2001/11/23 02:13:28 mstorti Exp $ 
+# $Id: Makefile,v 1.39 2001/11/27 15:33:33 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -14,7 +14,7 @@ test_eff:
 
 #w All tests
 tests: test_iisd test_iisd_superlu test_partitioning test_distmap \
-		test_direct_petsc test_iisd_subpart
+		test_direct_petsc test_iisd_subpart test_superlu
 
 tests_suite: test_distmap \
 		test_direct_petsc 
