@@ -2428,3 +2428,6 @@ tag: beta-3.18.pl5 on Wed, 19 Feb 2003 09:46:43 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl6 on Wed, 19 Feb 2003 14:40:29 -0300 by mstorti in spider
      > Runs DX tests with NP=2
+----------
+tag: beta-3.18.pl7 on Wed, 19 Feb 2003 19:20:57 -0300 by mstorti in spider
+     > Fixed few errors. Runs all tests with g_c++ and O_c++
