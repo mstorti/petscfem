@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.15 2002/10/08 20:00:07 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.16 2003/09/11 17:47:14 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -191,10 +191,9 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       detJaco = Jaco.detsur(&normal);
       normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
-      if (detJaco <= 0.) {
-	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
-	     << " Jacobian: " << detJaco << endl ;
-	assert(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,elem);
+	set_error(1);
       }
 
       // WPG is used instead of wpgdet because normal is not a unit vector ; 

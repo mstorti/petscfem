@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.12 2003/07/02 23:22:19 mstorti Exp $
+//$Id: fracstep.cpp,v 1.13 2003/09/11 17:47:14 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -280,10 +280,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       elem = k;
 
       detJaco = mydet(Jaco);
-      if (detJaco <= 0.) {
-	cout << "Jacobian of element " << elem << " is negative or null\n"
-	     << " Jacobian: " << detJaco << endl ;
-	exit(1);
+      if (detJaco<=0.) {
+	detj_error(detJaco,elem);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco = Jaco.i();

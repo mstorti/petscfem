@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.32 2003/09/08 15:19:43 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.33 2003/09/11 17:47:14 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -568,9 +568,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
+      if (detJaco<=0.) {
+	detj_error(detJaco,k);
 	set_error(1);
       }
       wpgdet = detJaco*WPG;

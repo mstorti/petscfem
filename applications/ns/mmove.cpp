@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.18 2002/12/13 02:36:07 mstorti Exp $
+//$Id: mmove.cpp,v 1.19 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -86,9 +86,9 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
   // Check that element is not collapsed 
   double detJaco;
   detJaco = J.det();
-  if (detJaco <= 0.) {
-    PETSCFEM_ERROR("Jacobian of element %d is negative or null\n"
-		   " Jacobian: %f\n",elem,detJaco);  
+  if (detJaco<=0.) {
+    detj_error(detJaco,elem);
+    set_error(1);
   }
   // metric tensor
   G.prod(J,J,-1,1,-1,2);

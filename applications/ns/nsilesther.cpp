@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.27 2003/07/26 00:57:56 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.28 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -182,7 +182,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
-  SGETOPTDEF(double,A_van_Driest,26);
+  SGETOPTDEF(double,A_van_Driest,0);
   assert(A_van_Driest>=0.);
   //o turbulent Prandtl number.
   SGETOPTDEF(double,Pr_t,1.0);
@@ -400,11 +400,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,k);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.59 2003/09/11 03:03:00 mstorti Exp $ 
+# $Id: Makefile,v 1.60 2003/09/11 17:47:20 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -52,6 +52,7 @@ PROG := $(NS)
 
 #w Runs program
 run: 
+	$(MAKE) -C ../../tools hexasplit.bin
 	make-depl cubcav.epl cubcav.depl -d case=ns
 	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 

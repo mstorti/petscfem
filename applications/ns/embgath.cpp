@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.39 2003/07/02 23:22:19 mstorti Exp $
+//$Id: embgath.cpp,v 1.40 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,7 +11,9 @@
 #include <src/surf2vol.h>
 #include <src/surf2vol2.h>
 
-#include "embgath.h"
+#include "./embgath.h"
+#include "./nsi_tet.h"
+
 extern Mesh *GLOBAL_MESH;
 extern int MY_RANK,SIZE;
 
@@ -209,11 +211,9 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       detJaco = Jaco.detsur(&n);
       Jaco.rs();
       n.scale(1./detJaco);
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,k);
+	set_error(1);
       }
       double wpgdet = detJaco*WPG;
 

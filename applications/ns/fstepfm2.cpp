@@ -301,11 +301,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       elem = k;
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,elem);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

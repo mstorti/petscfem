@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.46 2003/03/13 19:52:12 mstorti Exp $
+//$Id: nsi_tet.h,v 1.47 2003/09/11 17:47:14 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -349,5 +349,8 @@ void read_cond_matrix(TextHashTable *thash, const char *s,
 /** This is the factory of BasicObjects (Objects that are read from
     the user data file), specific for the NS module */ 
 BasicObject_factory_t BasicObject_ns_factory;
+
+/// Fixes the jacobian of the element. 
+void detj_error(double &detJaco,int elem);
 
 #endif

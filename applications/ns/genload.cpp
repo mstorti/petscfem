@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.11 2003/07/02 23:22:19 mstorti Exp $
+//$Id: genload.cpp,v 1.12 2003/09/11 17:47:14 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -211,11 +211,9 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // Jacobian of master to global elements
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       double detJaco = Jaco.detsur();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,elem);
+	set_error(1);
       }
       double wpgdet = detJaco*WPG;
 

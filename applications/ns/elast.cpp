@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.10 2003/03/31 00:01:08 mstorti Exp $
+//$Id: elast.cpp,v 1.11 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -103,9 +103,9 @@ void elasticity::element_connector(const FastMat2 &xloc,
     my_fun2.apply(G,fG);
     
     double detJaco = Jaco.det();
-    if (detJaco <= 0.) {
-      PETSCFEM_ERROR("Jacobian of element %d is negative or null\n"
-		      " Jacobian: %f\n",elem,detJaco);
+    if (detJaco<=0.) {
+      detj_error(detJaco,elem);
+      set_error(1);
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
     iJaco.inv(Jaco);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.64 2003/07/26 00:57:56 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.65 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -84,6 +84,11 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retvalmat = arg_data_v[0].retval;
   } else if (get_nearest_wall_element) {
     wall_data = (WallData *)arg_data_v[0].user_data;
+    if(!wall_data) {
+      printf("Null 'wall_data' object found.\n");
+      set_error(2);
+      return 1;
+    }
   }
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
@@ -158,7 +163,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
-  SGETOPTDEF(double,A_van_Driest,26); 
+  SGETOPTDEF(double,A_van_Driest,0); 
   assert(A_van_Driest>=0.);
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
@@ -355,6 +360,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     int wall_elem;
     if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
+      if (!wall_data) { set_error(2); return 1; }
       Elemset *wall_elemset;
       const double *wall_coords_;
       wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
@@ -376,11 +382,9 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,elem);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.4 2003/07/02 23:22:19 mstorti Exp $ */
+/* $Id: nsirot.cpp,v 1.5 2003/09/11 17:47:14 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -467,11 +467,9 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,k);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
 

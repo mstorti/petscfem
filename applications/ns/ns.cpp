@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.135 2003/07/26 01:58:12 mstorti Exp $
+//$Id: ns.cpp,v 1.136 2003/09/11 17:47:14 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -40,6 +40,15 @@ int reuse_mat;
 #undef __FUNC__
 GlobParam *GLOB_PARAM;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void detj_error(double &detJaco,int elem) {
+  printf("Jacobian of element %d is negative or null\n"
+	 " Jacobian: %f\n",elem,detJaco);
+  detJaco = -detJaco;
+  if (detJaco==0.) detJaco = 1.0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 

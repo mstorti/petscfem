@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.27 2003/07/26 00:57:56 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.28 2003/09/11 17:47:14 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -439,11 +439,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,k);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

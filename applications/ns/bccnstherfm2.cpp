@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnstherfm2.cpp,v 1.8 2002/10/08 20:02:14 mstorti Exp $
+//$Id: bccnstherfm2.cpp,v 1.9 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -211,10 +211,9 @@ int bcconv_nsther_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       detJaco = Jaco.detsur(&normal);
-      if (detJaco <= 0.) {
-	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
-	     << " Jacobian: " << detJaco << endl ;
-	assert(0);
+      if (detJaco<=0.) {
+	detj_error(detJaco,elem);
+	set_error(1);
       }
 
       // WPG is used instead of wpgdet because normal is not a unit vector ; 

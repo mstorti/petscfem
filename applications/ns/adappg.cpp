@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.8 2003/02/24 23:19:31 mstorti Exp $
+//$Id: adappg.cpp,v 1.9 2003/09/11 17:47:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -98,11 +98,9 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
       detJaco = Jaco.detsur(&normal_m);
       normal_m.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
     }
-    if (detJaco <= 0.) {
-      printf("Jacobian of element %d is negative or null\n"
-	     " Jacobian: %f\n",elem,detJaco);
-      PetscFinalize();
-      exit(0);
+    if (detJaco<=0.) {
+      detj_error(detJaco,elem);
+      set_error(1);
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
     
