@@ -3104,3 +3104,7 @@ tag: beta-3.25.pl8 on Mon, 24 Nov 2003 21:32:54 -0300 by mstorti in spider
 ----------
 tag: beta-3.25.pl9 on Tue, 25 Nov 2003 21:12:45 -0300 by mstorti in spider
      > Now stops OK when there is no `ini' state vector file. 
+----------
+tag: beta-3.25.pl10 on Tue, 25 Nov 2003 21:18:22 -0300 by mstorti in spider
+     > Now printing "For elemset ..." element partitioning should
+     > 	   give the elemset name and pointer. 
