@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hexasplit.cpp,v 1.2 2002/07/13 22:18:49 mstorti Exp $
+//$Id: hexasplit.cpp,v 1.3 2002/07/13 23:19:21 mstorti Exp $
 #include <stdio.h>
 #include <unistd.h>
 #include <vector>
@@ -259,7 +259,7 @@ int main (int argc, char **argv) {
 #endif
   }
  EXIT:;
-  printf("Statistics: %d split_p, %d split_m, %d multi\nWriting tetra mesh...",
+  printf("Statistics: %d split_p, %d split_m, %d multi\nWriting tetra mesh...\n",
 	 split_p,split_m,multi);
   fflush(stdout);
   assert(multi==0);
@@ -293,5 +293,6 @@ int main (int argc, char **argv) {
     }
   }
   fclose(tetras);
+  printf("Done\n",
 }      
 
