@@ -1,10 +1,10 @@
 %__INSERT_LICENSE__
-% $Id: dx.tex,v 1.2 2003/02/10 02:35:10 mstorti Exp $
+% $Id: dx.tex,v 1.3 2003/02/10 03:45:56 mstorti Exp $
 \Section{Visualization with DX}
 
 Data Explorer (\url{http://www.opendx.org}) is a system of tools and
 user interfaces for visualizing scientific data. Originally an IBM
-comercial product, has been released now under the IBM Open Source
+commercial product, has been released now under the IBM Open Source
 License, and maintained by a group of volunteers (see the URL
 above). Besides their impressive visualization capabilities, DX has
 many features that make it an ideal visualization tool for PETSc-FEM. 
@@ -14,7 +14,7 @@ many features that make it an ideal visualization tool for PETSc-FEM.
 completely compatible though)
 \item It has a \emph{``Visual Program Editor''} which makes it very
 configurable for different modules. 
-\item It has been linked to PETSc-FEM throughs sockets, which makes it
+\item It has been linked to PETSc-FEM through sockets, which makes it
 possible to visualize a running job, even in background. 
 \item It has a scripting language. 
 \end{itemize}
@@ -32,37 +32,47 @@ option you have to
        \verb+USE_PTHREADS+ flag enabled (disabled by default)
 \item Load the \verb+dx_hook+ hook in PETSc-FEM and pass it some
 options. 
-\item Build the module and load it in DX.
+\item Build the dynamically loadable module (file \verb+dx/epimport+) and load it in DX.
 \end{itemize}
 
 DX basic visualization units are \verb+Field+ objects, which are
 composed of three \verb+Array+ objects called \verb+positions+ (node
 coordinates), \verb+connections+ (element connectivities) and
-\verb+data+ (computed field values). At each time step, DX exports a
-series of \verb+Arrays+ and \verb+Fields+ objects to DX. 
+\verb+data+ (computed field values). At each time step, \verb+ExtProgImport+ exports two
+\verb+Group+ objects, 
+
+\begin{itemize}
+\item a \verb+Group+ of \verb+Arrays+ named \verb+output_array_list+
+and 
+\item a \verb+Group+ of \verb+Fields+ objects named
+\verb+output_fields_list+. 
+
+This objects are generated as follows. 
 
 \begin{itemize}
 \item For each  \verb+Nodedata+ PETSc-FEM object a \verb+positions+ array is
-constructed, this results in \verb+nn+ array objects. As the time of
-writing this, PETSc-FEM has only one 
-\verb+Nodedata+ object (name \verb+nodes+), so that \verb+NN=1+. 
+constructed, this results in, say,  \verb+nn+ array
+objects. (Currently PETSc-FEM has only one 
+\verb+Nodedata+ object (member name \verb+nodes+), so that \verb+NN=1+). 
 \item A \verb+data+ array is constructed in basis to the current state
-vector (name \verb+data+). 
-\item For each elemset, a \verb+connections+ array is contructed. You
-can disable contruction of some particular elemsets through the
+vector (member name \verb+data+). 
+\item For each elemset, a \verb+connections+ array is constructed. You
+can disable construction of some particular elemsets through the
 \verb+dx+ elemset option, and also which nodes and DX interpolation geometry is
-used. This results in other \verb+ne+ connection arrays. The name of
+used. This results in other \verb+ne+ connection arrays. The member name of
 each array is based in the \verb+name+ option of the elemset. If this
 has not been set, the name is set to the type of the elemset. If
 collision is produced, a suffix of the form \verb+_0+, \verb+_1+ is
-appended, in order to make it unique. 
+appended, in order to make it unique. Options controlling how the
+connection array is constructed can be consulted in
+\S\ref{sec:elemset-opt}. 
 \end{itemize}
 
 The resulting \verb|nn+ne+1| arrays are grouped in a \verb+Group+
 object and sent through the \verb+output_array_list+ output tab. You
 can extract the individual components with the \verb+Select+ DX
-module, and build field objects. Also a set of field objetcs is
-created automtically and sent through the \verb+output_field_list+
+module, and build field objects. Also a set of field objects is
+created automatically and sent through the \verb+output_field_list+
 output tab. Basically a field is constructed for each possible
 combination of positions, connections and data objects. This may seem
 a huge amount of fields, but in fact as the arrays are passed
@@ -71,12 +81,18 @@ not large. (At the time of writing this, this is a set of
 \verb+nn*ne=ne+ fields, since \verb+nn=1+). A name is generated
 automatically for each field. 
 
+Some information is send to the DX \emph{``Message Window''}. Also 
+it's very useful to put \verb+Print+ modules downstream of the
+\verb+ExtProgImport+ module in order to see which arrays and fields
+have been created. 
+
 The communication between DX and PETSc-FEM is done through a
 socket. PETSc-FEM acts as a \emph{``server''} whereas DX acts as a
 \emph{``client''}. PETSc-FEM opens a \emph{``port''} (option
 \verb+dx_port+), and DX connects to that port (the \emph{``port''}
-input tab in the {\tt ExtProgImport} module). DX can communicate with
-PETSc-FEM running in the background ad even on other machine (the
+input tab in the {\tt ExtProgImport} module). (Currently, the standard
+port for the DX/PETSc-FEM communication is 5314.) DX can communicate
+with PETSc-FEM running in the background ad even on other machine (the
 \emph{``serverhost''} input tab).  At each time step, DX sends a
 request to PETSc-FEM which answers sending back \emph{``arrays''} and
 \emph{``fields''}.
@@ -90,13 +106,19 @@ request to PETSc-FEM which answers sending back \emph{``arrays''} and
 port, PETSc-FEM transmits the required data and resumes
 computation. This is the appropriate way of communication when
 generating a sequence of frames for a video with a DX sequencer, for
-instance. 
+instance. Note that if you don't use a sequencer then you have to
+arrange in someway to make \verb+ExtProgImport+ awake  and connect to
+PETSc-FEM, otherwise  the update in the visualization is not performed
+and the PETSc-FEM job is stopped, waiting for the connection. 
 
 \item In \emph{``asynchronous''} mode ({\tt steps=0}), in contrast,
 PETSc-FEM monitors each port after computing a time step. If a DX
 client is trying to connect, it answers the request and resumes computing,
-otherwise it resumes computing immediatly. This is ideal for monitor a
-job that is running in background, for instance. 
+otherwise it resumes computing immediately. This is ideal for monitor a
+job that is running in background, for instance. Note that in this
+case the interference with the PETSc-FEM job is minimal, since once
+PETSc-FEM answers the request, resumes processing automatically until
+a new connection is requested. 
 \end{itemize}
 
 The {\tt steps} state variable is internal to PETSc-FEM. It can be set
@@ -116,13 +138,13 @@ socket, using a predefined protocol. The module is in the {\tt
 built it, you have to compile first the {\tt petscfem} library, and
 then {\tt cd} to the {\tt dx} directory and make {\tt \$ make}. This
 should build the {\tt dx/epimport} file, which is a dynamically
-loadable module for DX. This one alltogether with the {\tt
+loadable module for DX. This one altogether with the {\tt
 dx/epimport.mdf} (which is a plain text file describing the
 inputs/outputs of the module, and other things) are the files needed
 by DX in order to run the module. 
 
 To load this module in DX you can
-do this either at the moment of launching DX with someting like
+do this either at the moment of launching DX with something like
 %
 \begin{alltt}
 \$ dx -mdf /path/to/epimport.mdf 
@@ -131,18 +153,17 @@ do this either at the moment of launching DX with someting like
 or well from the {\tt dxexec} window (menu {\tt File/Load Module
 Descriptions}). 
 
-\item Load the \verb+dx_hook+ hook in PETSc-FEM and pass it some
-options. 
-
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-\SSection{Module inputs outputs of ExtProgImport} 
+\SSection{Inputs/outputs of the ExtProgImport module} 
 
 \begin{itemize}
 \item (input) \verb+steps+: type {\tt integer}; default {\tt
            0}. {\sl Description:}  Visualize each "steps" time steps. (0 means
            asynchronously). 
-\item (input) \verb+serverhost+ type {\tt string}; default \verb+"localhost"+; 
-         {\sl Description:} Name of host where the external program is running
+\item (input) \verb+serverhost+; type {\tt string}; default \verb+"localhost"+; 
+         {\sl Description:} Name of host where the external program is
+         running. May be also set in dot notation
+         (e.g. \verb+200.9.223.34+ or  \verb+myhost.mydomain.edu+).  
 \item (input)  \verb+port+; type {\tt integer}; default {\tt 5314}; 
        {\sl Description:}Port number
 \item (input) \verb+options+; type {\tt string}; default {\tt NULL}; 
@@ -156,38 +177,23 @@ options.
        NULL}; An ASCII file storing a state where to read the state to be
      visualized. 
 \item (output) \verb+ output_array_list+; type {\tt field}; 
-        {\sl Description:} Imported arrays
+        {\sl Description:} Group object of imported arrays
 \item (output) \verb+output_field_list+; type {\tt field}; 
-                {\sl Description:} Imported fields
+                {\sl Description:} Group object of imported fields
 \end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{DX hook options}
 
 \begin{itemize}
-\index{dx\_port@\verb+dx_port+}
-\item\verb+int dx_port+ {\rm(default=5314)}: TCP/IP port for communicating
-with DX (5000 < dx_port < 65536).
-
-\index{rtol@\verb+rtol+}
-\item\verb+int dx_steps+ {\rm(default=1)}: Initial value for the \verb+steps+ parameter.
+\input odocdxhook
 \end{itemize}
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Per elemset DX options}
 
-\begin{itemize}
-\index{dx@\verb+dx+}
-\item\verb+int dx+ {\rm(default=0)}: This flag controls generation of
-a connection array for this elemset.
-
-\index{dx\_type@\verb+dx_type+}
-\item\verb+string dx_type++ {\rm(default=1)}: Initial value for the \verb+steps+ parameter.
-\end{itemize}
-
-   12:  TGETOPTDEF(thash,int,dx,0);
-   60:    TGETOPTDEF_S_ND(thash,string,dx_type,none);
-
+%\begin{itemize}
+%\end{itemize}
 
 % Local Variables: *
 % mode: latex *

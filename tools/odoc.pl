@@ -151,7 +151,7 @@ odoc.pl - generate documentation for PETSc-FEM options in text-hashes
 =head1 DESCRIPTION
 
 Options  to programs,  elemsets and  other parts  of  C<PETSc-FEM> are
-passed via text-hashes, which are  then queried by the code via calles
+passed via text-hashes, which are  then queried by the code via calls
 to functions in the C<getopt> package. This is normally done via calls
 to  the *GETOPT*  macros.  You  can document  the  options so  defined
 introducing special comments, for instance

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.58 2003/02/09 22:39:57 mstorti Exp $
+//$Id: elemset.cpp,v 1.59 2003/02/10 03:45:56 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -1014,11 +1014,12 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
 
   vector<string> tokens;
 
-  //o Flags whether the element should return some DX objects.
+  //o Flags whether the element should return a connection array for this elemset. 
   TGETOPTDEF(thash,int,dx,0);
   if (!dx) return;
-  // Get list of indices of the nodes to be passed to DX
-  // as connectivity table
+  //o _T: vector<int>  _N: dx_indices _D: (empty array)
+  // _DOC: list of indices of the nodes to be passed to DX
+  // as connectivity table _END
   vector<int> node_indices;
   dx_indices(dx_type,node_indices);
 
@@ -1046,7 +1047,7 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
 void Elemset::dx_indices(string &dx_type,vector<int>& node_indices) {
   int ierr;
   const char *line;
-  //o Nodes returned in the connectivity table
+  // Nodes returned in the connectivity table
   thash->get_entry("dx_indices",line);
   // Reads list of indices from `dx_indices' option line
   // othewise, use standard numeration from geometry
@@ -1063,6 +1064,8 @@ void Elemset::dx_indices(string &dx_type,vector<int>& node_indices) {
 		      "Node indices should be entered 1 based (1<=indx<=nel)."
 		      "Entered %d\n",node_indices[k]);
     }
+    //o DX connection type for this elemset (quads, cubes,
+    //  triangles or tetrahedra). 
     TGETOPTDEF_S_ND(thash,string,dx_type,none);
   }
   int dx_nel = node_indices.size();

@@ -2,14 +2,15 @@
 SHELL = /bin/sh
 BASE = /usr/local/dx
 
+default: epimport
+
 # need arch set, e.g. by
 # setenv DXARCH `dx -whicharch`
 include $(BASE)/lib_$(DXARCH)/arch.mak
 DX_RTL_LDFLAGS := -shared
 OBJEXT := o
-SSL := $(HOME)/SOFT/SSL
 
-PETSCFEM_DIR := ../..
+PETSCFEM_DIR := ..
 include $(PETSCFEM_DIR)/Makefile.base
 
 FILES_epimport = userepimport.$(OBJEXT) epimport.$(OBJEXT)
@@ -45,3 +46,6 @@ userepimport.c: epimport.mdf
 
 userepimport.o: userepimport.c
 	cc -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) userepimport.c 
+
+local_clean::
+	-rm -f epimport

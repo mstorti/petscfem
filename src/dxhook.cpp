@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.17 2003/02/09 23:15:50 mstorti Exp $
+//$Id: dxhook.cpp,v 1.18 2003/02/10 03:45:56 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -40,8 +40,9 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 			   const char *name_a) {
   int ierr;
   char skthost[10];
-  //o TCP/IP port for communicating with DX (5000 < dx_port < 65536). 
+  //o TCP/IP port for communicating with DX ({\tt 5000 < dx\_port < 65536}). 
   TGETOPTDEF(mesh_a.global_options,int,dx_port,5314);
+  //o Initial value for the {\tt steps} parameter. 
   TGETOPTDEF(mesh_a.global_options,int,dx_steps,1);
   steps = dx_steps;
   if (!MY_RANK) {

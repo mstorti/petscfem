@@ -10,7 +10,7 @@
 % 3./ Do not use the `algorithmic' and 'algorithm. environments.
 %     Latex2Html soen't like it. 
 % 4./ After adding documentation, please check that it process
-%     OK. That equation numbering is OK in the HTML output. Also that
+%     OK and that equation numbering is OK in the HTML output. Also that
 %     image processing in the generation of the manual is OK. 
 %
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -152,7 +152,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.17 2002/12/13 02:36:10 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.18 2003/02/10 03:45:56 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -176,19 +176,20 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
 
-% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input dx               %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
@@ -200,6 +201,7 @@ keeping in mind the scope of efficiency.
 \SSection{Acronyms} 
 \begin{description}
 \item[CFD:] Computational Fluid Dynamics
+\item[DX:] IBM Data Explorer
 \item[ePerl:] embedded Perl
 \item[FDM:] Finite Difference Method
 \item[FEM:] Finite Element Method

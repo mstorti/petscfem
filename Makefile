@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.45 2002/12/26 14:36:06 mstorti Exp $
+#$Id: Makefile,v 1.46 2003/02/10 03:45:52 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -12,7 +12,7 @@ APPS = adv advdif ns laplace
 APPDIRS = advective advdif ns laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
-CLEAN_DIRS := src $(APPDIRS) doc test tools
+CLEAN_DIRS := src $(APPDIRS) doc test tools dx
 
 SRCDIRS := src $(APPDIRS) test 
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.19 2003/02/09 22:39:57 mstorti Exp $
+// $Id: epimport.cpp,v 1.1 2003/02/10 03:45:56 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -261,12 +261,13 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int steps, port, step;
   char *options, *hostname, *state_file;
   DXMessage("before processing steps");
-  if (!steps_o) steps = 0;
+  if (!steps_o) steps = -1;
   else if (!DXExtractInteger(steps_o,&steps)) {
     DXSetError(ERROR_DATA_INVALID,
 	       "Couldn't find an integer on \"port\" entry");
     goto error;
   }
+  if (steps<-1) steps=-1;
 
   options = DXGetString((String)options_o); 
   if (!options) options = "";

@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-# $Id: epimport.mdf,v 1.8 2003/02/08 16:08:48 mstorti Exp $ 
+# $Id: epimport.mdf,v 1.1 2003/02/10 03:45:56 mstorti Exp $ 
 MODULE ExtProgImport
 CATEGORY Import and Export
 DESCRIPTION Imports data from a fifo/socket

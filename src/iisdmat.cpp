@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.37 2002/12/13 15:32:25 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.38 2003/02/10 03:45:56 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -161,7 +161,7 @@ int PFPETScMat::build_sles() {
     int (*fcn )(KSP,int);
     //o Orthogonalization method used in conjunction with GMRES. 
     // May be  {\tt unmodified\_gram\_schmidt},
-    // #modified_gram_schmidt# or {\tt ir\_orthog} (default). (Iterative refinement).
+    // \verb+modified_gram_schmidt+ or {\tt ir\_orthog} (default). (Iterative refinement).
     // See PETSc documentation. 
     TGETOPTDEF_S_PF(thash,string,gmres_orthogonalization,ir_orthog);
 

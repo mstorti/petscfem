@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.27 2002/12/13 02:36:10 mstorti Exp $
+#$Id: Makefile,v 1.28 2003/02/10 03:45:56 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -16,7 +16,7 @@ ODOCFILES = odocadv.tex odocadvdif.tex odocadvdife.tex \
 	odocadve.tex odocadvfe.tex odocadvfm2.tex odocadvfs.tex \
 	odocburgers.tex odocgenl.tex \
 	odocns.tex odocnsfs.tex odocnsb.tex odocnse.tex odocnsw.tex odocswfm2t.tex \
-	odociisd.tex
+	odociisd.tex odocdxhook.tex
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
