@@ -22,5 +22,23 @@ component "positions" value "nodes"
 component "connections" value "icone_t"
 component "data" value "p"
 
-end
+#================================================================
+object "nodes2" class array type float rank 1 shape 3
+         items 4870 data file "./patran.nod"
 
+# The irregular connections, which are tetrahedra
+object "icone_t2" class array type int rank 1 shape 3
+        items 9736 data file "patran.con0"
+attribute "element type" string "triangles"
+attribute "ref" string "positions"
+
+object "p2" class array type float rank 0
+     items 4870 data file "./p2.dat"
+attribute "dep" string "positions"
+
+object "ns_field2" class field
+component "positions" value "nodes2"
+component "connections" value "icone_t2"
+component "data" value "p2"
+
+end

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.18 2005/02/25 17:11:29 mstorti Exp $
+// $Id: project.cpp,v 1.19 2005/02/25 20:04:33 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -13,13 +13,15 @@ static double drand() {
 int main() {
   int ndim = 3;
   int nel = 3;
+  int ndof = 1;
 
-  dvector<double> xnod1,xnod2;
+  dvector<double> xnod1,xnod2,u1;
   dvector<int> ico1;
 
 #define DATA_DIR "/u/mstorti/PETSC/tatuus/data/"
 #if 1
 #define XNOD1 DATA_DIR "static_p_blade.nod"
+#define STATE1 DATA_DIR "static_p_blade.p"
 #define ICONE1 DATA_DIR "blade.con"
 #define XNOD2 DATA_DIR "patran.nod"
   // #define XNOD2 "./patran.nod"
@@ -29,12 +31,12 @@ int main() {
 #define XNOD2 "mesh2.nod"
 #endif
 
-
   // Reads mesh1
   xnod1.cat(XNOD1).defrag();
   assert(xnod1.size() % ndim ==0);
   int nnod1 = xnod1.size()/ndim;
   xnod1.reshape(2,nnod1,ndim);
+  u1.a_resize(2,nnod1,ndof).read(STATE1);
 
   ico1.cat(ICONE1).defrag();
   assert(ico1.size() % nel ==0);
@@ -60,7 +62,8 @@ int main() {
     x2prj(1,ndim),x2prjmin(1,ndim), x12(1,ndim),
     x13(1,ndim),x1(1,ndim),
     nor(1,ndim),L(1,nd1),
-    b(1,ndim+1);
+    b(1,ndim+1),u1_loc(2,ndof,nel),
+    u2(1,ndof);
   vector<int> restricted(ndim);
   double tol = 1e-6;
   double d2min;			// Minimum distance to elements in mesh1
@@ -69,6 +72,7 @@ int main() {
   FastMatCachePosition cp,cp1;
   FastMatCacheList cache_list;
   int use_cache;
+  FILE *fid = fopen("pinterp.dat","w");
 #if 0
   printf("use cache > ");
   scanf("%d",&use_cache);
@@ -178,7 +182,23 @@ int main() {
     FastMat2::deactivate_cache();
     // x2.print("x2");
     // x2prjmin.print("x2prjmin");
+    // Load state values in `u1_loc'
+    for (int j=1; j<=nel; j++) {
+      u1_loc.ir(2,j);
+      int node = ico1.e(k1min,j-1);
+      u1_loc.set(u1.e(node-1,0));
+    }
+    u1_loc.rs();
+    // Interpolate
+    Lmin.is(1,1,ndim);
+    u2.prod(u1_loc,Lmin,1,-1,-1);
+    Lmin.rs();
     printf("node2 %d, dist min %f\n",n2,d2min);
+    for (int j=1; j<=ndof; j++)
+      fprintf(fid,"%f ",u2.get(j));
+    fprintf(fid,"\n");
+    u2.print("u2");
   }
   FastMat2::void_cache();
+  fclose(fid);
 }
