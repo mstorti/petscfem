@@ -4213,3 +4213,7 @@ tag: beta-3.45.7 on Mon, 28 Mar 2005 18:34:39 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.45.8 on Mon, 28 Mar 2005 22:48:10 -0300 by mstorti in spider
      > Fixing a bug in the implementation of `comp_grad_N_dDdU_N'. 
+----------
+tag: beta-3.45.9 on Mon, 28 Mar 2005 22:50:19 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Final merge from `bubbly10-branch'
