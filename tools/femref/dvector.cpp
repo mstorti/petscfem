@@ -150,6 +150,26 @@ DVECTOR_SIZE_FUN(SCM s_w) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
+#define __FUN__ DVTYPE "-read!"
+static SCM
+DVECTOR_READ_FUN(SCM s_w,SCM s_file) {
+  dvector_t *w;
+
+  SCM_ASSERT(SCM_SMOB_PREDICATE(TAG, s_w),
+	     s_w, SCM_ARG1, __FUN__);
+  w = (dvector_t *) SCM_SMOB_DATA (s_w);
+  
+  SCM_ASSERT(scm_string_p(s_file),
+	     s_file, SCM_ARG2, __FUN__);
+  
+  const char *file = SCM_STRING_CHARS(s_file);
+  w->read(file);
+  printf("read %d elements from file %s\n",w->size(),file);
+  return SCM_UNSPECIFIED;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
 #define __FUN__ DVTYPE "-push!"
 static int
 DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
@@ -193,4 +213,5 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-resize!", 2, 0, 0, scm_fun(DVECTOR_RESIZE_FUN));
   scm_c_define_gsubr(DVTYPE "-set!", 3, 0, 0, scm_fun(DVECTOR_SET_FUN));
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
+  scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
 }

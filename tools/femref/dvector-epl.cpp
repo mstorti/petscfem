@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: dvector-epl.cpp,v 1.1 2005/01/15 11:55:48 mstorti Exp $
+// $Id: dvector-epl.cpp,v 1.2 2005/01/15 12:57:23 mstorti Exp $
 <:
 $sfx = $type unless defined $sfx;
 $dvtype="dv$sfx" unless defined $dvtype;
@@ -22,7 +22,7 @@ $macro="DV_\U$sfx" unless defined $macro;
 #define DVECTOR_PRINT_FUN <:=$dvtype:>_print
 #define DVECTOR_RESIZE_FUN <:=$dvtype:>_resize
 #define DVECTOR_SET_FUN <:=$dvtype:>_set
-#define DVECTOR_REF_FUN <:=$dvtype:>_ref
+#define DVECTOR_READ_FUN <:=$dvtype:>_read_x
 
 #define INIT_DVECTOR_FUN <:=$dvtype:>_init
 

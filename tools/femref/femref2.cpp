@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.26 2005/01/10 20:13:35 mstorti Exp $
+// $Id: femref2.cpp,v 1.27 2005/01/15 12:57:23 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -425,12 +425,20 @@ UniformMesh::
 void UniformMesh::
 read(const char *node_file,
      const char *conn_file, int base) {
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Init mesh from connectivities
+void UniformMesh::
+set_conn(const dvector<int> &icone,
+	 int base) {
   // This is used auxiliary
   LinkGraph lgraph;
-  // Reads coors file and resize
-  coords.cat(node_file).defrag();
   // Reads connectivity file and resizes
-  connec.cat(conn_file).defrag();
+  int sz = icone.size();
+  connec.resize(sz).defrag();
+  for (int j=0; j<sz; j++)
+    connec.ref(j) = icone.ref(j);
   // Gets number of nodes
   nnod = coords.size(0);
   // Gets number of elements per node.

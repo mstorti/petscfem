@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.54 2005/01/10 20:13:35 mstorti Exp $
+// $Id: femref.h,v 1.55 2005/01/15 12:57:23 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -301,6 +301,9 @@ public:
   /// Dtor
   ~UniformMesh(); 
   const GeomObject::Template *tmplt() { return tmpl; }
+  /// Init mesh from connectivities
+  void set_conn(const dvector<int> &icone,
+	    int base=0);
   /// Read the mesh from specified files
   void read(const char *node_file,
 	    const char *conn_file,

@@ -8,6 +8,7 @@
 	 "cube.surf-con.tmp" "cube.grad-u.tmp" 1)
 !#
 
+#!
 (define v (make-dvdbl))
 (define N 100)
 (dvdbl-resize! v N)
@@ -16,5 +17,9 @@
  (< j N)
  (dvdbl-set! v j j)
  (set! j (+ j 1)))
+!#
 
+(define v (make-dvdbl))
+(dvdbl-resize! v 10)
+(dvdbl-read! v "data.dat.tmp")
 (my-dv-print v)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.17 2005/01/15 11:55:48 mstorti Exp $
+// $Id: getsurf.cpp,v 1.18 2005/01/15 12:57:23 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -31,7 +31,183 @@ struct FaceIterator {
 typedef multimap<int,FaceIterator> face_table_t;
 typedef pair<int,FaceIterator> ft_pair_t;
 
-SCM getsurf(SCM s_iconef,SCM s_xnodf, SCM s_statef,
+#undef __FUN__
+#define __FUN__ "getsurf"
+SCM getsurf(SCM icone_s,SCM base_s) {
+
+  // parse args
+  SCM_ASSERT(SCM_SMOB_PREDICATE(dvint_tag,icone_s),
+	     icone_s, SCM_ARG1, __FUN__);
+  const dvector<int> *icone_p 
+    = (const dvector<int> *)SCM_SMOB_DATA (icone_s);
+
+  int base;
+  if (base_s == SCM_UNSPECIFIED) base = 0;
+  else {
+    SCM_ASSERT(SCM_INUMP(base_s),
+	       base_s, SCM_ARG2, __FUN__);
+    base = SCM_INUM(base_s);
+  }
+
+  int nread; 
+  char c;
+
+  int ndof = 4, ndim = 3;
+  time_t start, end;
+  const GeomObject::Template *mesh_tmpl = &OrientedTetraTemplate;
+  UniformMesh mesh(*mesh_tmpl,3);
+  int mesh_nel = mesh.tmplt()->size_m;
+  mesh.set_conn(*icone_p,base);
+  UniformMesh::visitor vis, vis2;
+  vis.visit_mode = UniformMesh::BreadthFirst;
+  vis.init(mesh);
+  vis2.init(mesh);
+  face_table_t face_table;
+  GeomObject face, inv_face, inv_face2;
+  const GeomObject::Template *face_tmpl 
+    = GeomObject::get_template(GeomObject::OrientedTriT);
+  dvector<int> inds;
+  int face_nel = face_tmpl->size_m;
+  inds.resize(face_nel);
+  int nint_faces=0;
+  int tries=0;
+  double table_size=0.0;
+  int collis = 0;
+  start = time(NULL);
+  while (!vis.end()) {  
+    GeomObject &go = vis.ref_stack.front().go;
+    if (VERBOSE) {
+      printf("elem %d, ",vis.elem_indx());
+      go.print();
+    }
+    int nfaces = go.size(GeomObject::OrientedTriT);
+    for (int j=0; j<nfaces; j++) {
+      tries++;
+      table_size += face_table.size();
+      go.set(GeomObject::OrientedTriT,j,face);
+      face.make_canonical();
+      const int *nds = face.nodes();
+      for (int l=0; l<face_nel; l++) 
+	inds.ref(l) = nds[l];
+      // Invert face
+      int x = inds.ref(1);
+      inds.ref(1) = inds.ref(2);
+      inds.ref(2) = x;
+      inv_face.init(GeomObject::OrientedTriT,
+		    inds.buff());
+      inv_face.make_canonical();
+
+      if (VERBOSE) {
+	printf("face %d ",j);
+	face.print();
+      }
+      int hash_val = inv_face.csum();
+      face_table_t::iterator q, qq,
+	q1 = face_table.lower_bound(hash_val),
+	q2 = face_table.upper_bound(hash_val);
+      int nfaces=0, ncandi=0;
+      for (q = q1; q!=q2; q++) {
+	ncandi++;
+	vis2.init(q->second.elem);
+	GeomObject &go2 = vis2
+	  .ref_stack.front().go;
+	go2.set(GeomObject::OrientedTriT,q->second.face,inv_face2);
+	if (inv_face.equal(inv_face2)) {
+	  nfaces++;
+	  qq = q;
+	}
+      }
+      if (q1!=q2 && nfaces!=1 && VERBOSE) {
+	printf("possible collision with ");
+	for (q = q1; q!=q2; q++) 
+	  printf("(elem %d, face %d) ", 
+		 q->second.elem,q->second.face);
+	printf("\n");
+      }
+      assert(nfaces<=1);
+      if (nfaces==1) {
+	// Face is duplicated (internal)
+	face_table.erase(qq);
+	nint_faces++;
+      } else {
+	// New face, add to table
+	FaceIterator fi;
+	fi.elem = vis.elem_indx();
+	fi.face = j;
+	int hv = face.csum();
+	if (VERBOSE) {
+	  printf("inserting face: hash %d, elem %d, j %d, ",
+		 hv,fi.elem,fi.face);
+	  face.print("");
+	}
+	face_table.insert(ft_pair_t(hv,fi));
+      }
+      collis += ncandi - nfaces;
+    }
+    vis.next();
+  }
+#if 0
+  printf("%d total faces, %d internal, %d external\n",
+	 nint_faces*2+face_table.size(),
+	 nint_faces,face_table.size());
+  printf("tries %d, averg. table size %.2f, collisions %d\n",
+	 tries,table_size/tries,collis);
+  printf("face elimination %.2fsecs\n",
+	 difftime(time(NULL),start));
+#endif
+
+  face_table_t::iterator q, qq,
+    q1 = face_table.begin(),
+    q2 = face_table.end();
+  vector<int> node_mark;
+  node_mark.resize(mesh_nel);
+  map<int,int> surf_nodes_map;
+  int nfaces = face_table.size(),
+    nsurf_nodes = 0;
+  dvector<int> surf_nodes;
+  dvector<int> surf_con;
+  int surf_elem=0;
+
+  for (q=q1; q!=q2; q++) {
+    vis.init(q->second.elem);
+    GeomObject &go = vis.ref_stack.front().go;
+    go.set(GeomObject::OrientedTriT,q->second.face,face);
+    for (int j=0; j<mesh_nel; j++) node_mark[j]=0;
+    const int *face_nodes = face.nodes();
+    const int *elem_nodes = go.nodes();
+    for (int j=0; j<face_nel; j++) {
+      int node = face_nodes[j];
+      if (surf_nodes_map.find(node)
+	  == surf_nodes_map.end()) {
+	surf_nodes_map[node] = nsurf_nodes++;
+	surf_nodes.push(node);
+      }
+      surf_con.e(surf_elem,j) 
+	= surf_nodes_map[node];
+      for (int l=0; l<mesh_nel; l++) {
+	if (elem_nodes[l] == node) {
+	  node_mark[l]=1; break;
+	}
+      }
+    }
+    int nopp=0, opp_node;
+    for (int l=0; l<mesh_nel; l++) {
+      if (node_mark[l]==0) {
+	nopp++; opp_node = elem_nodes[l];
+      }
+    }
+    assert(nopp=1);
+    if (VERBOSE) {
+      printf("elem %d, ");
+      go.print();
+      printf("face %d, ",q->second.elem,q->second.face);
+      face.print();
+      printf("opposing node %d\n",opp_node);
+    }
+  }
+}
+
+SCM getsurf2(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 	    SCM s_sconf, SCM s_graduf, SCM s_base) {
   
   const char *iconef = SCM_STRING_CHARS(s_iconef);
@@ -354,6 +530,6 @@ SCM my_dv_print(SCM s_w) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" void
 init_femref(void) {
-  scm_c_define_gsubr("getsurf",6,0,0,scm_fun(getsurf));
+  scm_c_define_gsubr("getsurf",1,1,0,scm_fun(getsurf));
   scm_c_define_gsubr("my-dv-print",1,0,0,scm_fun(my_dv_print));
 }
