@@ -413,6 +413,20 @@ expect("nutatcyl/strip.verif.tmp",
 Fx \[constant acceleration\] OK \? 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("mmove/step.verif.tmp",
+       "Max volume ratio large deformation mesh mov.",<<'EOT');
+Mesh OK \(all areas >0\) \? 1
+Vol ratio < max allowed OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("mmove/step3d.verif.tmp",
+       "Max volume ratio large deformation mesh mov.",<<'EOT');
+All tetra volumes > 0 OK \? 1
+Max/min ratio < max_ratio OK \? 1
+EOT
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

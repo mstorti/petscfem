@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-system "octave -qH proc2.m";
+system "octave -qH proc5.m";
 $case = 'step3d';
 $nod = "$case.defo_nod.tmp";	# nodes
 $con = "$case.con.tmp";	# connectivities

@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-$N=10;
-$disp = 0.95;
+$N=6;
+$disp = 0.7;
 $slope = 2;
 # $shape = 'quad';
 #
@@ -40,9 +40,9 @@ print_internal_loop_conv
 debug_activate_print
 debug_activate_memory_usage
 
-<:$nstep=40:>
+<:$nstep=10:>
 Dt <:= 1./$nstep;:>
-nstep <:=$nstep+3:>
+nstep <:=$nstep:>
 __END_HASH__
 
 # ndim nu ndof
