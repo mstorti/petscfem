@@ -1897,3 +1897,6 @@ tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300, by mstorti in minerva.arcride
 ----------
 tag: beta-3.10.pl1 on Fri, 13 Dec 2002 12:32:34 -0300 by mstorti in minerva.arcride.edu.ar
      > Fixed some errors in doc 
+----------
+tag: beta-3.10.pl2 on Fri, 13 Dec 2002 13:14:18 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs OK simple linear advection test. 
