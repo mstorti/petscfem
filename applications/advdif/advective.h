@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.43 2002/02/03 23:24:53 mstorti Exp $
+//$Id: advective.h,v 1.44 2002/02/05 20:28:27 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -467,6 +467,7 @@ class GenLoad;
 /// Generic surface flux function (film function) element
 class HFilmFun {
 public:
+  const FastMat2 &H,&H_out,&H_in;
   GenLoad * elemset;
   // for one layer
   virtual void q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin);
@@ -475,12 +476,18 @@ public:
 		 FastMat2 &jacin,FastMat2 &jacout);
   virtual void init()=0;
   virtual void element_hook(ElementIterator &element)=0;
-  HFilmFun(GenLoad *e) : elemset(e) {};
+  HFilmFun(GenLoad *e);
 };
 
 /// Generic surface flux element
 class GenLoad : public NewElemset { 
+  /** These are to pass the state of the `H' quantities on the
+      internal and external layers. `Hin' is an alias for `H'
+  */
+  FastMat2 H_m,H_out_m;
 public: 
+  const FastMat2 &H,&H_out,&H_in;
+  GenLoad() : H_in(H_m), H(H_m), H_out(H_out_m) {}
   HFilmFun *h_film_fun;
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.16 2002/01/14 03:45:05 mstorti Exp $
+//$Id: genload.cpp,v 1.17 2002/02/05 20:28:28 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -60,6 +60,12 @@ double detsur(FastMat2 &Jaco, FastMat2 &S) {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+HFilmFun::HFilmFun(GenLoad *e) 
+  : elemset(e), H_in(elemset->H_in), 
+  H(elemset->H), H_out(elemset->H_out) {};
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "GenLoad::new_assemble"
 void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
@@ -72,7 +78,9 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
-  int nelprops,nel,ndof;
+  // nel2:= number of nodes in each side of the
+  // element (if `double_layer' is in effect)
+  int nelprops,nel,ndof,nel2;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 
@@ -83,6 +91,16 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   PETSCFEM_ASSERT0(npg>0,"");
   PETSCFEM_ASSERT0(ndim>0,"");
 
+  // nu:= total number of `constant' fields per node 
+  // nH:= number of fields per node (not coordinates)
+  // should be: nu = ndim + nH
+  int nu=nodedata->nu;
+  int nH = nu-ndim;
+  if (nH>0) {
+    H_m.resize(nH);
+    H_out_m.resize(nH);
+  }
+
   int locdof,kldof,lldof;
   char *value;
 
@@ -90,9 +108,11 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,double_layer,0);
 
   // allocate local vecs
-  int kdof, kloc, node, jdim, ipg, nel2;
+  int kdof, kloc, node, jdim, ipg;
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
-    un(2,nel,ndof),uo(2,nel,ndof),ustar(2,nel,ndof),vecc2,Hloc;
+    un(2,nel,ndof),uo(2,nel,ndof),ustar(2,nel,ndof),vecc2,
+    h_in,h_out;
+  FMatrix Hloc(nel,nH);
 
   nen = nel*ndof;
   FastMat2 matloc(4,nel,ndof,nel,ndof),matlocf(4,nel,ndof,nel,ndof),
@@ -141,6 +161,12 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   } else {
     nel2=nel;
   }
+  // h_in:= h_out:= the `constant per node'
+  // fields (not coordinates, neither unknowns) 
+  if (nH>0) {
+    h_in.resize(2,nel2,nH);
+    h_out.resize(2,nel2,nH);
+  }
   u_in.resize(2,nel2,ndof);
   jac_in.resize(2,ndof,ndof);
   U_in.resize(1,ndof);
@@ -165,6 +191,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // Load local node coordinates in local vector
     element.node_data(nodedata,xloc.storage_begin(),
 		      Hloc.storage_begin());
+    
     h_film_fun->element_hook(element); 
 
     if (comp_prof) {
@@ -181,10 +208,24 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     ustar.is(1,1,nel2);
     u_in.set(ustar);
     ustar.rs();
+
+    // Set h_in to the inner values of Hloc (if not double layer it is Hloc)
+    if (nH>0) {
+      Hloc.is(1,1,nel2);
+      h_in.set(Hloc);
+      Hloc.rs();
+    }
+
     if (double_layer) {
       ustar.is(1,nel2+1,nel);
       u_out.set(ustar);
       ustar.rs();
+
+      if (nH>0) {
+	Hloc.is(1,nel2+1,nel);
+	h_out.set(Hloc);
+	Hloc.rs();
+      }
     }
 
     // loop over Gauss points
@@ -198,8 +239,10 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       detJ = Jaco.detsur();
 
       U_in.prod(SHAPE,u_in,-1,-1,1);
+      if (nH>0) H_m.prod(SHAPE,h_in,-1,-1,1);
       if (double_layer) {
 	U_out.prod(SHAPE,u_out,-1,-1,1);
+	if (nH>0) H_out_m.prod(SHAPE,h_out,-1,-1,1);
 	h_film_fun->q(U_in,U_out,flux,jac_in,jac_out);
       } else {
 	h_film_fun->q(U_in,flux,jac_in);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.1 2002/01/17 12:58:19 mstorti Exp $
+//$Id: blessf.cpp,v 1.2 2002/02/05 20:28:28 mstorti Exp $
 
 #include <set>
 
@@ -45,6 +45,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(aquifer)
     SET_ELEMSET_TYPE(stream)
+    SET_ELEMSET_TYPE(stream_loss)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);

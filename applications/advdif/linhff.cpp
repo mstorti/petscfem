@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linhff.cpp,v 1.7 2002/01/14 03:45:05 mstorti Exp $
+//$Id: linhff.cpp,v 1.8 2002/02/05 20:28:28 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -53,8 +53,6 @@ void LinearHFilmFun::SFull::element_hook(ElementIterator &element) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void LinearHFilmFun::init()" 
 void LinearHFilmFun::init() {
   elemset->elem_params(nel,ndof,nelprops);
   // Read hfilm coefficients. 
@@ -102,18 +100,3 @@ LinearHFilmFun::~LinearHFilmFun() {
   delete h;
   delete s;
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void LinearHFilmFun::q(...)"
-void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
-		       FastMat2 &jacin,FastMat2 &jacout) {
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void LinearHFilmFun::q(...)"
-void LinearHFilmFun::init(void) {
-}
-#endif

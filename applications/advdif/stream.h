@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.8 2002/02/05 00:58:24 mstorti Exp $
+// $Id: stream.h,v 1.9 2002/02/05 20:28:28 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -357,9 +357,34 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// The `stream' (river or channel) element.
 class stream : public NewAdvDif {
- public:
+public:
   stream() :  NewAdvDif(new stream_ff(this)) {};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Losses from a stream to the aquifer. Here the `in'
+    side of the element represents the stream and
+    the `out' side the aquifer. 
+*/ 
+class StreamLossFilmFun : public HFilmFun {
+  double Rf;
+public:
+  StreamLossFilmFun(GenLoad *e) : HFilmFun(e), Rf(100.) {}
+  // Only defines the double layer source term
+  void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+	 FastMat2 &jacin,FastMat2 &jacout);
+  void init() {}
+  void element_hook(ElementIterator &e) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class stream_loss : public GenLoad { 
+public: 
+  StreamLossFilmFun stream_loss_film_fun;
+  stream_loss() : stream_loss_film_fun(this) {h_film_fun = &stream_loss_film_fun;};
+  ~stream_loss() {};
 };
 
 #endif
