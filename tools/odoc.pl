@@ -59,6 +59,11 @@ while (<>) {
 		$texfile=$1;
 		$section=$2;
 		$tex = get_section($texfile,$section);
+		print "tex: @{$tex}\n";
+		my $l;
+		foreach $l (@{$tex}) {
+		    chomp $l;
+		}
 		push @doc,@{$tex};
 	    } else {
 		last;
