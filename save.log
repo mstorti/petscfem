@@ -746,3 +746,7 @@ tag: pfmat-rewrite-1.09.pl3 on Fri Dec 28 18:14:02 ARST 2001 by mstorti in spide
      > there is a problem if the partitioner is not `consecutive', i.e. the
      > dof's in a certain processor are consecutive, as for a PETSc matrix 
      > or vector. 
+----------
+tag: pfmat-rewrite-1.10 on Sat Dec 29 21:02:45 ARST 2001, by mstorti in spider
+     > Things that worked before (several rhs's, several matrices..), 
+     > now they doesn't work. Treating to go back to previous versions.
