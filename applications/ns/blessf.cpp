@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.18 2003/01/25 15:28:58 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.19 2003/01/25 17:15:10 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -12,18 +12,18 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 
-#include "nsi_tet.h"
-#include "adaptor.h"
-#include "elast.h"
-#include "qharm.h"
-#include "qharmm.h"
+#include "./nsi_tet.h"
+#include "./adaptor.h"
+#include "./elast.h"
+#include "./qharm.h"
+#include "./qharmm.h"
 #include <src/gatherer.h>
-#include "gatherer.h"
-#include "embgath.h"
-#include "nssup.h"
-#include "nsikepsrot.h"
-#include "fracstep.h"
-#include "nsid.h"
+#include "./nsgath.h"
+#include "./embgath.h"
+#include "./nssup.h"
+#include "./nsikepsrot.h"
+#include "./fracstep.h"
+#include "./nsid.h"
 #include "./mmove.h"
 #include "./genload.h"
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.17 2003/01/25 15:28:58 mstorti Exp $
+//$Id: nsgath.cpp,v 1.1 2003/01/25 17:15:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -8,7 +8,7 @@
 #include <src/fastmat2.h>
 #include <src/gatherer.h>
 
-#include "./gatherer.h"
+#include "./nsgath.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::init() {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.119 2003/01/04 00:49:53 mstorti Exp $
+//$Id: ns.cpp,v 1.120 2003/01/25 17:15:10 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -10,6 +10,7 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
+#include <src/hook.h>
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: inviscid.h,v 1.6 2003/01/09 13:39:57 mstorti Exp $
+//$Id: inviscid.h,v 1.7 2003/01/25 17:15:14 mstorti Exp $
 #ifndef ROSI_H
 #define ROSI_H
 
@@ -20,9 +20,8 @@
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
-#include <applications/ns/dlhook.h>
-
-//#include "./fifo.h"
+#include <src/hook.h>
+#include <src/dlhook.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class coupling_visc_hook {

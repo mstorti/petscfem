@@ -1,13 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.8 2003/01/04 00:49:53 mstorti Exp $
+//$Id: hook.cpp,v 1.1 2003/01/25 17:14:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
 #include <src/util2.h>
 #include <src/texthf.h>
-
-#include "./nsi_tet.h"
-#include "./dlhook.h"
+#include <src/hook.h>
+#include <src/dlhook.h>
 
 extern int MY_RANK,SIZE;
 

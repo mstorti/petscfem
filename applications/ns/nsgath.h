@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.13 2003/01/25 12:40:06 mstorti Exp $
+//$Id: nsgath.h,v 1.1 2003/01/25 17:15:10 mstorti Exp $
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
 
