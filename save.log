@@ -3756,3 +3756,6 @@ tag: beta-3.39.55 on Sat, 22 Jan 2005 09:02:09 -0300 by mstorti in spider
      > Fixed a bug in `gasflow::Riemann_Inv()'. 
      > Adapted `test/gfplate/gfabso' test to absorbing b.c.'s 
      > at inlet and outlet. 
+----------
+tag: beta-3.39.56 on Sat, 22 Jan 2005 19:10:28 -0300 by mstorti in spider
+     > Working on `gasflow_abso'. 
