@@ -2778,3 +2778,6 @@ tag: beta-3.19.pl36 on Fri, 25 Jul 2003 23:00:14 -0300 by mstorti in spider
      > Adds wpg_sum for gpdata
      > Adds mesh update for dx_hook
      > Fixes tempfun2.cpp `piecewise_linear' function. 
+----------
+tag: beta-3.19.pl37 on Tue, 29 Jul 2003 17:52:43 -0300 by mstorti in node1.beowulf.gtm
+     > Added a shell command to the `dx_hook'
