@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2002/11/10 14:26:43 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/11/11 12:50:19 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -10,10 +10,13 @@ PETSCFEM_DIR = ../../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
+NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+
 stabi: 	
 	$(MAKE) $(CASE).depl
 	octave -q < mkmesh.m 
-	-$(MPIRUN) -np 1 $(PROG) -case stabi.depl # >stabi.out.tmp
+	-$(MPIRUN) -machinefile ./machi.dat \
+		-np $(NP) -nolocal $(PROG) -case stabi.depl # >stabi.out.tmp
 
 LOC_PROG := ns
 CASE_NAME := stabi

@@ -11,12 +11,13 @@ $Rel=10000;			# Reynolds number
 $Lx=4;				# Length in the longitudinal direction
 $Ly=1;				# Plate separation
 $Lz=$Lx;			# Length in transversal (periodic)  direction
-$Nx=10;				# number of elements in x direction
-$Ny=10;				# number of elements in y direction
-$Nz=10;				# number of elements in z direction
+$Nx=40;				# number of elements in x direction
+$Ny=40;				# number of elements in y direction
+$Nz=40;				# number of elements in z direction
 
 $hav = $Ly/$Ny;			# typical mesh size in `y' direction
-$Courant = 2;			# Courant number
+$havx = $Lx/$Nx;		# typical mesh size in `x' direction
+$Courant = 0.8;			# Courant number
 $ndim=3;
 $u_max=1;			# Maximum velocity
 $u_av = (2/3)*$u_max;		# Average velocity
@@ -29,7 +30,7 @@ octave_export_vars(">data.m.tmp",qw(R Nx Ny Nz hratio nlay Rel stokes Lx Ly Lz))
 
 global_options
 
-nsave 5
+nsave 20
 #save_file_pattern stabi.state.%d.tmp
 nsaverot 50
 nfile 2
@@ -55,7 +56,7 @@ nstep 1000
 #endif
 
 # Compute time step from Courant number
-Dt <:=$hav/$u_max*$Courant:>
+Dt <:=$havx/$u_max*$Courant:>
 LES 0
 G_body <:=$dpdx:> 0. 0.
 alpha 0.65
