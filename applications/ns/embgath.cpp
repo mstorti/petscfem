@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.30 2003/01/10 15:29:51 mstorti Exp $
+//$Id: embgath.cpp,v 1.31 2003/01/10 15:48:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -150,8 +150,13 @@ void Line2Quad::surface_nodes(int &nel_surf,int &nel_vol) {
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {
   static int fc_c[2], vol_c[4];
   static const int vol_cc[4] = {0, 1, 3, 2};
-  for (int k=0; k<2; k++) fc_c[k] = (j+k) % 4;
-  for (int k=0; k<4; k++) vol_c[k] = (vol_cc[k]+j) % 4;
+  for (int k=0; k<2; k++) {
+    int l = (use_exterior_normal() ? k : 1-k);
+    fc_c[l] = (j+k) % 4;
+  }
+  for (int k=0; k<4; k++) {
+    vol_c[k] = (vol_cc[k]+j) % 4;
+  }
   fc = fc_c;
   vol = vol_c;
 }
