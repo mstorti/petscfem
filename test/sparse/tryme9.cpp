@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme9.cpp,v 1.3 2003/02/28 15:37:41 mstorti Exp $
+// $Id: tryme9.cpp,v 1.4 2003/02/28 16:00:42 mstorti Exp $
 
 #include <src/cloud2.h>
 
@@ -17,6 +17,11 @@ int main(int argc, char **argv) {
   }
   x.reshape(2,nx,ndim);
   cloud.init(ndim,nx,nderiv,derivs,npol);
+  cloud.coef(x,w);
+  w.print();
+
+  x0.set(1.);
+  x.add(1.);
   cloud.coef(x,w,x0);
   w.print();
 
