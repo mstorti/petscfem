@@ -212,8 +212,8 @@ EOM
     }
     /`/; print <<EOM;
 #
-# Values:
-# =======
+# [Eperlini library. "transcript" function.] Computed values:
+# ===========================================================
 EOM
 /`/;
     foreach $v (@_) {
