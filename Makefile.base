@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.105.2.3 2003/06/17 02:39:58 mstorti Exp $
+#$Id: Makefile.base,v 1.105.2.4 2003/07/06 20:10:00 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -108,7 +108,9 @@ endif
 
 # here goes -frepo if needed
 # CPPFLAGS         := -frepo $(PROF_FLAGS) $(RH60)
-CPPFLAGS         := $(PROF_FLAGS) $(RH60)		\
+CPPFLAGS         := 					\
+		 $(PROF_FLAGS) $(RH60)			\
+		 -Wno-deprecated			\
                  -I$(PETSC_DIR)/include			\
                  -I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\
                  -I$(MPI_HOME)/include			\
@@ -116,7 +118,7 @@ CPPFLAGS         := $(PROF_FLAGS) $(RH60)		\
                  -I$(METIS)/Lib				\
                  -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
                  -I$(LIBRETTO_I)			\
-		 $(ANN_CPPFLAGS) \
+		 $(ANN_CPPFLAGS)			\
                  $(SUPERLU_CPPFLAGS) 
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.35.2.2 2003/06/17 02:40:02 mstorti Exp $
+//$Id: nsi_tet.h,v 1.35.2.3 2003/07/06 20:10:00 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -341,7 +341,7 @@ class LagrangeMult : public Elemset {
   void initialize();
   /** Initialize the elemset. This is called in the
       LagrangeMult::initialize() function so that it is called before
-      all chunka. And it is called even if there are not elements in
+      all chunks. And it is called even if there are not elements in
       this processor */
   virtual void lm_initialize() {}
   /** Initialize the elemset (maybe reads hash table). This is called before
