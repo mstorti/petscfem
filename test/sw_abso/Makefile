@@ -1,3 +1,5 @@
+tests: test_abso
+
 CASE=canal1d
 
 PETSCFEM_DIR := /u/mstorti/PETSC/petscfem-hydro
@@ -17,8 +19,9 @@ ADVDIF = $(APPDIR)/advdif/advdif_g.bin
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for abso shallow water 1d
 
-run:
+test_abso:
 	$(MAKE) $(CASE).depl
 	octave -q $(CASE).m
 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl
+	$(octave) -qH check_test_abso.m
 
