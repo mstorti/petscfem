@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.427 2004/12/27 03:37:32 mstorti Exp $
+$Id: notes.txt,v 1.428 2004/12/27 22:23:30 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.427 2004/12/27 03:37:32 mstorti Exp $ 
+! # $Id: notes.txt,v 1.428 2004/12/27 22:23:30 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.427 2004/12/27 03:37:32 mstorti Exp $ 
+! # $Id: notes.txt,v 1.428 2004/12/27 22:23:30 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.427 2004/12/27 03:37:32 mstorti Exp $ 
+  # $Id: notes.txt,v 1.428 2004/12/27 22:23:30 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -8156,7 +8156,7 @@ diff -u -r1.5 graphdv.cpp
 --- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
 +++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
 @@ -2,6 +2,7 @@
- //$Id: notes.txt,v 1.427 2004/12/27 03:37:32 mstorti Exp $
+ //$Id: notes.txt,v 1.428 2004/12/27 22:23:30 mstorti Exp $
  
  #include <src/graphdv.h>
 +#include <cassert>
@@ -8229,7 +8229,7 @@ diff -u -r1.12 util3.cpp
 --- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
 +++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
 @@ -2,6 +2,7 @@
- // $Id: notes.txt,v 1.427 2004/12/27 03:37:32 mstorti Exp $
+ // $Id: notes.txt,v 1.428 2004/12/27 22:23:30 mstorti Exp $
  #include <cstring>
  #include <cstdio>
 +#include <cassert>
@@ -8694,6 +8694,41 @@ memoria, ya que no quedarian huecos.
     tabla de hash (valor-de-hash)->iterator. 
 * Para hacer una representacion mas compacta habria que cambiar a
     cursores, en vez de punteros.
+
+%=== Mon Dec 27 14:45:53 2004 mstorti@minerva
+%
+14:45:53: ESTUDIO DE PERFORMANCE EN GASFLOW
+%
+En minerva, 11000 elmentos (compression-corner, $ref=1). 
+%
+Evaluacion 1.4 secs/Ke. Resolucion 12secs (LU).
+> [0]    10800       15/ 86%(    1.4)      2.4/ 14%   0.0016/  0%    0.006/  0%
+> Total element compt.       17.4secs
+> -- After residual computation. -- [14:44:34    110.136]
+> -- After residual computation. -- [Memory usage(kB): min 78692, max 78692, avrg 78692]
+> -- Before solving linear system... -- [14:44:34    110.141]
+> -- Before solving linear system... -- [Memory usage(kB): min 78692, max 78692, avrg 78692]
+> -- After solving linear system. -- [14:44:52    127.542]
+Vamos a comparar con NS. 
+%
+14:55:50: Para la cavidad cuadrada con NS consume
+0.26secs/Ke. Resolucion: 17secs (LU)
+> [proc] - elems - compt[sec](rate[sec/Ke]) - upl/dwl[sec] - assmbly[sec]  - other[sec]
+> [0]    10000      2.6/ 53%(   0.26)      2.3/ 47%   0.0017/  0%   0.0052/  0%
+> Total element compt.       4.89secs
+> -- After residual computation. -- [14:55:02     27.262]
+> -- Before solving linear system... -- [14:55:02     27.265]
+> -- After solving linear system. -- [14:55:19     43.563]
+> Newton subiter 0, norm_res  =  1.197e-01, update Jac. 1
+%
+15:42:46: Corro con `gprof' reporta 370secs total, probablemente el
+resto lo paso en rutinas de PETSc/LAPACK que no son reportadas. Si
+calculo cuanto tiempo tardo en la evaluacion del elemento me da
+12*30=360, que es mas o menos lo que reporta. Mientras que en la parte
+de resolucion tardo uno 50*12=600. Todo sumado da del orden de 1000
+que es lo que tarda el programa en correr. 
+
+
 
 # Current line ===========  %
 # Local Variables: $

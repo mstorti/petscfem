@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.207 2004/11/08 02:41:15 mstorti Exp $
+#$Id: Makefile.base,v 1.208 2004/12/27 22:23:30 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -10,7 +10,7 @@
 PETSC_BOPT = g_c++
 
 # uncomment in order to use the `gprof' profiler
-# PROF_FLAGS = -pg
+PROF_FLAGS = -pg
 
 # Other configuration variables are in `Makefile.defs', but normally
 # they are set only when you first install PETSc-FEM, so the best is
