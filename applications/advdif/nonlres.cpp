@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.13 2005/01/24 22:01:10 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.14 2005/01/25 22:24:57 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,7 +18,8 @@
 NonLinearRes::~NonLinearRes() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int NonLinearRes::ask(const char *jobinfo,int &skip_elemset) {
+int NonLinearRes::
+ask(const char *jobinfo,int &skip_elemset) {
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
@@ -26,7 +27,8 @@ int NonLinearRes::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int LagrangeMult::ask(const char *jobinfo,int &skip_elemset) {
+int LagrangeMult::
+ask(const char *jobinfo,int &skip_elemset) {
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
@@ -36,7 +38,8 @@ int LagrangeMult::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int NewAdvDif::ask(char *,int &)"
-int AdvDiff_Abs_Nl_Res::ask(const char *jobinfo,int &skip_elemset) {
+int AdvDiff_Abs_Nl_Res::
+ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   DONT_SKIP_JOBINFO(comp_prof);
   DONT_SKIP_JOBINFO(comp_res);
@@ -46,10 +49,12 @@ int AdvDiff_Abs_Nl_Res::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void NewAdvDif::assemble"
-void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
-				    const Dofmap *dofmap,const char *jobinfo,
-				    const ElementList &elemlist,
-				    const TimeData *time_data) {
+void AdvDiff_Abs_Nl_Res::
+new_assemble(arg_data_list &arg_data_v,
+	     const Nodedata *nodedata,
+	     const Dofmap *dofmap,const char *jobinfo,
+	     const ElementList &elemlist,
+	     const TimeData *time_data) {
   int nelprops,node,dof,ierr=0;
   elem_params(nel,ndof,nelprops);
   GET_JOBINFO_FLAG(comp_prof);
@@ -61,7 +66,8 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   int ret_options=0;
   adv_diff_ff->start_chunk(ret_options); //ff ini
 
-  //aqui en advdif esta primero en el arg_data_v el estado en t_n y despues en t_n+1.
+  // Aqui en advdif esta primero en el
+  // arg_data_v el estado en t_n y despues en t_n+1.
   arg_data *locstold,*locst,*retval,*fdj_jac,*jac_prof,*Ajac;
   GlobParam *glob_param;
   double *hmin,Dt,rec_Dt;
@@ -83,38 +89,49 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   } else if (comp_prof) {
     jac_prof = &arg_data_v[0];
   }
-  //o Using Lagrange multipliers leads to diagonal null terms, which can
-  // cause zero pivots when using direct methods. With this option
-  // a small term is added to the diagonal in order to fix this. The
-  // term is added only in the Jacobian or also in the residual (which
-  // results would be non-consistent). See option
-  //  #lagrange_residual_factor# . 
+
+  //o Using Lagrange multipliers leads to diagonal
+  // null terms, which can cause zero pivots when
+  // using direct methods. With this option a small
+  // term is added to the diagonal in order to fix
+  // this. The term is added only in the Jacobian
+  // or also in the residual (which results would
+  // be non-consistent). See option
+  // #lagrange_residual_factor# .
   NSGETOPTDEF(double,lagrange_diagonal_factor,0.0);
-  //o The diagonal term proportional to   #lagrange_diagonal_factor#  
-  // may be also entered in the residual. If this is so
-  // ( #lagrange_residual_factor=1# , then the
-  // method is ``non-consistent'', i.e. the restriction is not exactly
-  // satisfied by the non-linear scheme is exactly Newton-Raphson. If
-  // not ( #lagrange_residual_factor=0# ) then the restriction is
-  // consistently satisfied but with a non exact Newton-Raphson. 
+  //o The diagonal term proportional to
+  // #lagrange_diagonal_factor# may be also entered
+  // in the residual. If this is so (
+  // #lagrange_residual_factor=1# , then the method
+  // is ``non-consistent'', i.e. the restriction is
+  // not exactly satisfied by the non-linear scheme
+  // is exactly Newton-Raphson. If not (
+  // #lagrange_residual_factor=0# ) then the
+  // restriction is consistently satisfied but with
+  // a non exact Newton-Raphson.
   NSGETOPTDEF(double,lagrange_residual_factor,0.0);
-  //o Using Lagrange multipliers can lead to bad conditioning, which
-  // causes poor convergence with iterative methods or amplification
-  // of rounding errors. This factor scales the columns in the matrix
-  // that correspond to the lagrange multipliers and can help in
-  // better conditioning the system. 
+  //o Using Lagrange multipliers can lead to bad
+  // conditioning, which causes poor convergence
+  // with iterative methods or amplification of
+  // rounding errors. This factor scales the
+  // columns in the matrix that correspond to the
+  // lagrange multipliers and can help in better
+  // conditioning the system.
   NSGETOPTDEF(double,lagrange_scale_factor,1.);
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
-    matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
+    matloc(4,nel,ndof,nel,ndof), 
+    U(2,nel,ndof),R(2,nel,ndof);
   //o U is (U_{N},U_{N-1},..,U_{lagdof} U_{ref})
   if (comp_prof) matloc_prof.set(1.);
   nr = nres();
   //  AdvDiff_Abs_Nl_Res::init();
-  FastMat2 r(1,nr),lambda(3,nel-2,ndof,nr),jac(3,nr,ndof,nel);
+  FastMat2 r(1,nr),lambda(3,nel-2,ndof,nr),
+    jac(3,nr,ndof,nel);
   jac.set(0.0);
   r.set(0.0);
   lambda.set(0.0);
-  U.set(0.0); U_innodes.resize(2,nel-2,ndof).set(0.0);
+  U.set(0.0); 
+  U_innodes.resize(2,nel-2,ndof).set(0.0);
   U_lagmul.resize(1,ndof).set(0.0);
   //////esto estaba en init()
   RI_.resize(2,nr,nel).set(0.);
@@ -129,7 +146,8 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   cpe.resize(1,nel-3).set(0.);
   RI_tmp.resize(1,nr).set(0.);
   drdU_tmp.resize(2,nr,ndof).set(0.);
-  C_U_tmp.resize(1,nr).set(0.); //un rango menor que las primitivas
+  //un rango menor que las primitivas
+  C_U_tmp.resize(1,nr).set(0.); 
   int pp=adv_diff_ff->dim();
   normaln.resize(1,pp);
   adv_diff_ff->start_chunk(ret_options); //ff ini
@@ -143,9 +161,13 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   //////
   //#define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
-  FastMat2 res_fd_jac(3,nr,ndof,nel),res_pert(1,nr),U_pert(2,nel,ndof),
+  FastMat2 res_fd_jac(3,nr,ndof,nel),
+    res_pert(1,nr),U_pert(2,nel,ndof),
     lambda_pert(3,nel-2,ndof,nr),fd_jac(3,nr,ndof,nel);
-  res_fd_jac.set(0.0);res_pert.set(0.0);U_pert.set(0.0);lambda_pert.set(0.0);
+  res_fd_jac.set(0.0);
+  res_pert.set(0.0);
+  U_pert.set(0.0);
+  lambda_pert.set(0.0);
   fd_jac.set(0.0);
 #endif
   
@@ -169,13 +191,17 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
       U.rs();
       U_lagmul.set(U.ir(1,nel-1));
       U.rs();
-      R.is(1,1,nel-2).prod(lambda,U_lagmul,1,2,-1,-1).scale(lagrange_scale_factor);
+      R.is(1,1,nel-2).prod(lambda,U_lagmul,1,2,-1,-1)
+	.scale(lagrange_scale_factor);
       R.rs().ir(1,nel-1).is(2,1,nr).set(r)
-	.axpy(U_lagmul,-lagrange_diagonal_factor*lagrange_residual_factor).rs();
-      matloc.is(1,1,nel-2).ir(3,nel-1).is(4,1,nr).set(lambda)
+	.axpy(U_lagmul,-lagrange_diagonal_factor
+	      *lagrange_residual_factor).rs();
+      matloc.is(1,1,nel-2).ir(3,nel-1)
+	.is(4,1,nr).set(lambda)
 	.scale(-lagrange_scale_factor).rs();
       jac.is(1,1,nr).is(2,1,ndof).is(3,1,nel-2);
-      matloc.ir(1,nel-1).is(3,1,nel-2).is(2,1,nr).ctr(jac,1,3,2).scale(-1.).rs();
+      matloc.ir(1,nel-1).is(3,1,nel-2)
+	.is(2,1,nr).ctr(jac,1,3,2).scale(-1.).rs();
       matloc.ir(1,nel-1).ir(3,nel-1).d(2,4).is(2,1,nr)
 	.set(lagrange_diagonal_factor).rs();
       jac.rs();
@@ -194,7 +220,8 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
 	U_pert.addel(eps_fd,jele,jdof);
 	res(element,U_pert,res_pert,lambda_pert,fd_jac);
 	res_pert.rest(r).scale(1./eps_fd);
-	res_fd_jac.ir(3,jele).ir(2,jdof).set(res_pert).rs();
+	res_fd_jac.ir(3,jele).ir(2,jdof)
+	  .set(res_pert).rs();
       }
     }
     res_fd_jac.rest(jac);
@@ -217,18 +244,16 @@ void AdvDiff_Abs_Nl_Res::init() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AdvDiff_Abs_Nl_Res::lag_mul_dof(int jr,int &node,int &dof) {
+void AdvDiff_Abs_Nl_Res::
+lag_mul_dof(int jr,int &node,int &dof) {
   //esto es por ahora
   node = 4;dof = jr;//creo que falta declararlas en la clase!!
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AdvDiff_Abs_Nl_Res::element_hook(ElementIterator &element){
+void AdvDiff_Abs_Nl_Res::
+element_hook(ElementIterator &element){
   element_m = element;
-  /* 
-     assert(U_ref_prop.length==ndof);
-     U_ref.set(prop_array(element_m,U_ref_prop));
-  */
   int pp=adv_diff_ff->dim();
   assert(normaln_prop.length == pp);
   normaln.set(prop_array(element_m,normaln_prop));
