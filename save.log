@@ -2719,3 +2719,6 @@ tag: beta-3.19.pl23 on Mon, 16 Jun 2003 16:56:24 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl24 on Thu, 26 Jun 2003 19:27:32 -0300 by mstorti in minerva.arcride.edu.ar
      > Added constant flux to `lin_gen_load'
+----------
+tag: beta-3.19.pl25 on Tue, 01 Jul 2003 23:32:58 -0300 by mstorti in spider
+     > Upgrading to RH 8.0
