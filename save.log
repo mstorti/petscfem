@@ -268,3 +268,6 @@ tag: beta-1.41 on Wed Mar 21 22:50:20 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.42 on Thu Mar 22 18:18:43 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Working on nw version of flux functions
+----------
+tag: beta-1.43 on Thu Mar 22 22:11:27 ART 2001, by mstorti in spider
+     > Works the global scalar reactive Jacobian
