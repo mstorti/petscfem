@@ -28,6 +28,8 @@ if (0) {
     $pout = 143; 
     $Tout = 262;
 } else { 
+    $pout_target = $pin/$pref;
+    $pout_target = $pin/$pref;
     $pout = 0.1*$pin; 
     $Tout = 0.1*$Tin;
     $rhoout = $pout/($Rgas*$Tout);

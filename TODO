@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add to FastMat2 documentation that maskes `ir()', `is()' should not
+    traverse `branch()', `choose()' boundaries. 
 * Check that absorbing b.c.'a options are included in the doc. 
 * Set `node=nel-2' in nonlres.cpp:250?
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
