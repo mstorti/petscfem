@@ -6,12 +6,12 @@ require "math.pl";
 $case = 'laplace' unless $case;
 get_var_env2('job',undef);
 $CASE = $case;
-get_var_env2('N',20);
+get_var_env2('N',60);
 $hratio = 10;
 $use_tetra = 1;
-$maxits = 600;
+$maxits = 150;
 $tol = 1e-7;
-get_var_env2('subpart',20);
+get_var_env2('subpart',350);
 $subpart_entered = $subpart;
 $subpart = ceil($subpart/$NP);
 $iisd_subpart = $subpart;
@@ -35,11 +35,12 @@ global_options
 # <:pr('nlay'):>
 ndim 3
 nsave 10
-nstep 3
+nstep 20000
 nsaverot 5
 nfile 2000000
 nrec 1
 # initial_state "cubcav-steady-Re1000"
+initial_state "outvector.out"
 save_file_pattern "STEPS/cubcav.state_%d.tmp"
 
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
@@ -77,7 +78,7 @@ max_partgraph_vertices_proc 4000
 tol_tet 1e-5
 tol_newton -1.
 atol 0
-rtol 1e-4
+rtol 1e-3
 dtol 1e3
 nnwt 1
 
@@ -88,7 +89,7 @@ print_internal_loop_conv 1
 
 rho 1
 viscosity 1e-4
-Dt 0.1
+Dt 0.01
 steady 0
 temporal_stability_factor 0
 
