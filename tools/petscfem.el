@@ -64,11 +64,13 @@
 ;; 	  (font-lock-syntactic-face-function
 ;; 	   . sh-font-lock-syntactic-face-function)))  
   )
+(setq petscfem-mode-hook 
+      (lambda () 
+	(setq info-lookup-mode 'petscfem-mode))
 ;
 (load-library "info-look")
-(info-lookup-add-help
+(info-lookup-maybe-add-help
  :mode 'petscfem-mode 
- :topic 'symbol
  :regexp "[_a-zA-Z0-9./+-]+"
  :doc-spec (list (list 
 		  (concat "(" (getenv "PETSCFEM_DIR") 
