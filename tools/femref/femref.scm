@@ -1,3 +1,5 @@
+;;; $Id: femref.scm,v 1.15 2005/01/16 20:31:46 mstorti Exp $
+
 (load-extension "./libfemref" "init_femref")
 (load-extension "./libfemref" "dvint_init")
 (load-extension "./libfemref" "dvdbl_init")
@@ -37,10 +39,19 @@
 (format #t "surf-nodes:\n")
 (dvint-dump surf-nodes)
 
-(comp-matrices ctx surf-con surf-nodes x surf-mass node-mass)
+(comp-matrices ctx surf-con
+	       surf-nodes x surf-mass node-mass)
 
 (format #t "\n\nsurf-mass:\n")
 (dvdbl-dump surf-mass)
 
 (format #t "\n\nnode-mass:\n")
 (dvdbl-dump node-mass)
+
+(define ndof 4)
+(define u (make-dvdbl))
+(define us (make-dvdbl))
+(dvdbl-cat! u "cube.state.tmp")
+
+(fem-smooth ctx surf-con surf-nodes
+	    surf-mass node-mass u us)
