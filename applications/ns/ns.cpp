@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.32 2001/07/23 15:53:30 mstorti Exp $
+//$Id: ns.cpp,v 1.33 2001/07/23 18:38:07 mstorti Exp $
  
 #include <malloc.h>
 
@@ -475,6 +475,7 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
+      ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
     } // end of loop over Newton subiteration (inwt)
 
     // error difference
