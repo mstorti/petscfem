@@ -1004,3 +1004,6 @@ tag: beta-2.81 on Mon Feb 11 10:25:21 ART 2002, by mstorti in minerva.arcride.ed
 tag: beta-2.82 on Mon Feb 11 11:39:46 ART 2002, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Tests have been run.
+----------
+tag: beta-2.83 on Mon Feb 11 21:58:44 ARST 2002, by mstorti in spider
+     > Added tests for dynamically loaded b.c.'s
