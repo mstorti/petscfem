@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: memtest2.cpp,v 1.3 2004/02/25 18:31:03 mstorti Exp $
+// $Id: memtest2.cpp,v 1.4 2004/02/25 18:42:47 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
@@ -93,9 +93,12 @@ int main(int argc,char **argv) {
   while (1) {
     int *p = (int *)malloc(sizeof(int)*block_size);
     if(!p) break;
+    rand_fill(p,block_size);
     buffers.push_back(p);
-    printf("%d MB alloc\n",
-	   double(buffers.size())*double(block_size)*double(sizeof(int))/(pow(2.,20.)));
+    printf("%.2f MB alloc\n",
+	   double(buffers.size())
+	   *double(block_size)*double(sizeof(int))
+	   /pow(2.,20.));
   }
   nblocks = buffers.size();
   while (1) {
