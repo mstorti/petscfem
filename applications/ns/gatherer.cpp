@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.4 2002/03/17 15:11:01 mstorti Exp $
+//$Id: gatherer.cpp,v 1.5 2002/03/18 00:34:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -151,14 +151,17 @@ void force_integrator::init() {
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
   assert(ndimel==ndim-1);
   assert(gather_length==ndim);
+
+  force.resize(1,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
-  // pg_values[0] = wpgdet*u.get(4)*n.get(1);
-  pg_values[0] = wpgdet;	// compute total area
+  force.set(n).scale(wpgdet*u.get(4));
+  force.export_vals(pg_values.begin());
+  // pg_values[0] = wpgdet;	// compute total area
 }
 
 #undef SHAPE    

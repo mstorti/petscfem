@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.4 2002/03/17 15:11:01 mstorti Exp $
+//$Id: gatherer.h,v 1.5 2002/03/18 00:34:59 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -55,9 +55,11 @@ public:
 /** Integrates forces on walls
 */ 
 class force_integrator : public gatherer {
+private:
+  FastMat2 force;
 public:
   /// perform several checks and initialization
-  virtual void init();
+  void init();
   /// set forces 
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,

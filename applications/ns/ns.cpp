@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.69 2002/03/17 15:11:01 mstorti Exp $
+//$Id: ns.cpp,v 1.70 2002/03/18 00:34:59 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -220,6 +220,15 @@ int main(int argc,char **args) {
   glob_param.alpha=alpha;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
+  //o Print values in this file 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,"");
+  // Initialize gather_file
+  FILE *gather_file_f;
+  if (MY_RANK==0 && gather_file!="") {
+    gather_file_f = fopen(gather_file.c_str(),"w");
+    fprintf(gather_file_f,"");
+    fclose(gather_file_f);
+  }
 
   //o Use the LES/Smagorinsky turbulence model. 
   GETOPTDEF(int,LES,0);
@@ -606,9 +615,19 @@ int main(int argc,char **args) {
       ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
       CHKERRA(ierr);
       // Print gathered values
-      PetscPrintf(PETSC_COMM_WORLD,"Gather results: \n");
-      for (int j=0; j<gather_values.size(); j++) 
-	PetscPrintf(PETSC_COMM_WORLD,"v_component_%d = %f\n",j,gather_values[j]);
+      if (MY_RANK==0) {
+	if (gather_file == "") {
+	  printf("Gather results: \n");
+	  for (int j=0; j < gather_values.size(); j++) 
+	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
+	} else {
+	  gather_file_f = fopen(gather_file.c_str(),"a");
+	  for (int j=0; j<gather_values.size(); j++) 
+	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
+	  fprintf(gather_file_f,"\n");
+	  fclose(gather_file_f);
+	}
+      }
     }
 
     filter.update(time);
