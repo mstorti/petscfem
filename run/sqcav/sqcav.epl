@@ -21,11 +21,17 @@ global_options
 nsave 1
 nstep 10
 #initial_state sqcav.ini
+#if $prog eq "NS"
 preco_type "lu"
-
+#elsif $prog eq "NSO"
+preco_type "LU"
+#else
+<: die "not defined 'prog' variable\n" :>//
+#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
+chunk_size 1000
 
 #    Iterative parameters
 tol_tet 1e-5
@@ -42,6 +48,12 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
+
+shock_capturing_factor 0
+#if 1
+local_store
+cache_grad_div_u
+#endif
 __END_HASH__
 
 # ndim nu ndof
@@ -50,13 +62,10 @@ __INCLUDE__ sqcav.nod
 _END_NODES__
 
 elemset nsi_tet_les_fm2 4 
-
 name malla
+
+report_consumed_time
 geometry cartesian2d
-#if 0
-local_store
-cache_grad_div_u 1
-#endif
 ndim 2
 npg 4
 #
@@ -64,6 +73,7 @@ npg 4
 #
 viscosity  <:=$visco:>
 weak_form 0
+LES 0
 __END_HASH__
 __INCLUDE__ sqcav.con
 __END_ELEMSET__
