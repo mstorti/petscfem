@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.45 2002/05/06 20:21:55 mstorti Exp $
+//$Id: readmesh.cpp,v 1.46 2002/05/10 21:19:21 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -853,30 +853,59 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   ierr = get_int(mesh->global_options,
 		 "print_nodal_partitioning",
 		 &print_nodal_partitioning,1); CHKERRQ(ierr);
+  int counter=0;
+#define II_STAT(j,k) VEC2(ii_stat,j,k,size)
+  int *ii_stat = new int[size*size];
   if (print_nodal_partitioning)
     PetscPrintf(PETSC_COMM_WORLD,"\nNodal partitioning (node/processor): \n");
+
+  // Node interface between processor statistics
+  int c1,c2,P1,P2;
+  for (P1=0; P1<size; P1++) 
+    for (P2=0; P2<size; P2++) 
+      II_STAT(P1,P2)=0;
+  for (node=0; node<nnod; node++) {
+    for (c1 = n2eptr[node]; c1 < n2eptr[node+1]-1; c1++) {
+      P1 = vpart[node2elem[c1]];
+      for (c2 = c1+1; c2 < n2eptr[node+1]; c2++) {
+	P2 = vpart[node2elem[c2]];
+	if (P1<=P2) II_STAT(P1,P2)++;
+	else II_STAT(P2,P1)++;
+      }
+    }
+  }
+  if (myrank==0) {
+    for (P1=0; P1<size; P1++) 
+      for (P2=0; P2<size; P2++) 
+	printf("[%d]-[%d] %d nodes\n",P1,P2,II_STAT(P1,P2));
+  }
   for (node=0; node<nnod; node++) {
     if (n2eptr[node]==n2eptr[node+1]) {
-      node_not_connected_to_fat=1;
+      node_not_connected_to_fat++;
       npart[node]=1;
     } else {
+      int curs_ele = n2eptr[node]; // cursor to element in connected
+				   // element list
+      int proc;			   // processor to be assigned
+#if 1
       // We assign to a node that is connected to elements in
       // different processors the highest processor number. This is
       // done this way for avoiding problems with the IISDMat
       // class. Otherwise an elemset can contribute with local-local
       // elements in other processors, which is not contemplated now. 
-      int ele = n2eptr[node];
-      int proc = vpart[node2elem[ele]]+1;
-      for (ele = n2eptr[node]+1; ele < n2eptr[node+1]; ele++) {
-//  	if (vpart[node2elem[ele]]+1 != proc) 
-//  	  PetscPrintf(PETSC_COMM_WORLD,
-//  		      "proc: %d, otro proc: %d\n",proc,vpart[node2elem[ele]]+1);
-	if (vpart[node2elem[ele]]+1 > proc) 
-	  proc = vpart[node2elem[ele]]+1;
+      proc = vpart[node2elem[curs_ele]]+1;
+      for (curs_ele = n2eptr[node]+1; curs_ele < n2eptr[node+1]; curs_ele++) {
+	if (vpart[node2elem[curs_ele]]+1 > proc) 
+	  proc = vpart[node2elem[curs_ele]]+1;
       }
+#else
+      // Take a "random" (connected) processor
+      // Number of connected elements
+      int conn_ele = n2eptr[node+1] - n2eptr[node];
+      int eshift = (counter++) % conn_ele;
+      proc = vpart[node2elem[curs_ele + eshift]] +1;
+#endif 
       npart[node] = proc;
-//        PetscPrintf(PETSC_COMM_WORLD,
-//  		  "node: %d, proc: %d\n",node+1,proc);
     }
     if (print_nodal_partitioning)
       PetscPrintf(PETSC_COMM_WORLD,
@@ -886,9 +915,10 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     PetscPrintf(PETSC_COMM_WORLD,"End nodal partitioning table\n\n");
 
   if (node_not_connected_to_fat)
-    PetscPrintf(PETSC_COMM_WORLD,"warning! there is at least one"
-		" node not linked to any \"fat\" elemset. \n"
-		"This induces artificial numbering. [But may be OK]\n");
+    PetscPrintf(PETSC_COMM_WORLD,"warning! there are %d "
+		"nodes not linked to any \"fat\" elemset. \n"
+		"This induces artificial numbering. [But may be OK]\n",
+		node_not_connected_to_fat);
 
   //o Prints element partitioning. 
   GETOPTDEF(int,debug_element_partitioning,0);
@@ -907,8 +937,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     if (debug_element_partitioning) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Elemset \"%s\", type \"%s\", nelem %d\n."
-		  "Partitioning table: \n",elemset->name(),elemset->type,nelem);
-      for (int kk=0; kk<nelem; kk++) 
+		  "Partitioning table: \n",elemset->name(),elemset->type,elemset->nelem);
+      for (int kk=0; kk<elemset->nelem; kk++) 
 	PetscPrintf(PETSC_COMM_WORLD,"%d -> %d\n",kk,epart[kk]);
     }
   }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.13 2001/11/25 22:44:21 mstorti Exp $
+//$Id: utils.cpp,v 1.14 2002/05/10 21:19:21 mstorti Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -157,12 +157,16 @@ double drand() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int irand(int imin,int imax) {
-  return int(rint(drand()*double(imax-imin+1)-0.5))+imin;
+  int v;
+  v = int(rint(drand()*double(imax-imin+1)-0.5))+imin;
+  if (v<imin) v = imin;
+  if (v>imax) v = imax;
+  return v;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int irand(int n) {
-  return irand(0,n);
+  return irand(0,n-1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

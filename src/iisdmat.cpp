@@ -1,6 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.4 2002/03/11 02:28:22 mstorti Exp $
-
+//$Id: iisdmat.cpp,v 1.5 2002/05/10 21:19:21 mstorti Exp $
+extern int N_SET[4];
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -345,7 +345,12 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   int row_indx,col_indx,row_t,col_t;
   double v,val;
 
+  chrono.start();
   A_LL_other->scatter();
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] scatter: %f\n",MY_RANK,chrono.elapsed());
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  chrono.start();
 
   I1 = A_LL_other->begin();
   I2 = A_LL_other->end();
@@ -392,6 +397,11 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   if (local_solver == PETSc) {
     ierr = MatAssemblyBegin(A_LL,type); PF_CHKERRQ(ierr);
   }
+  A_LL_other->scatter();
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] iisdmat-assembly : %f\n",MY_RANK,chrono.elapsed());
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  chrono.start();
   return 0;
 };
 
@@ -399,13 +409,23 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
 #undef __FUNC__
 #define __FUNC__ "IISDMat::assembly_end_a"
 int IISDMat::assembly_end_a(MatAssemblyType type) {
+  double beg,li,ii,il,ll;
+  beg = chrono.elapsed(); chrono.start();
   ierr = MatAssemblyEnd(A_LI,type); PF_CHKERRQ(ierr);
+  li  = chrono.elapsed(); chrono.start();
   ierr = MatAssemblyEnd(A_II,type); PF_CHKERRQ(ierr);
+  ii  = chrono.elapsed(); chrono.start(); 
   ierr = MatAssemblyEnd(A_IL,type); PF_CHKERRQ(ierr);
+  il  = chrono.elapsed(); chrono.start();
   if (local_solver == PETSc) {
     ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
-
+  ll  = chrono.elapsed(); chrono.start();
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] iisdmat-assembly-end beg-li-ii-il-ll-tot: "
+			  "%f %f %f %f %f %f\n",
+			  MY_RANK,beg,li,ii,il,ll,beg+li+ii+il+ll);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
   return 0;
 };
 
@@ -418,6 +438,8 @@ int IISDMat::clean_mat_a() {
     ierr = MatDestroy_maybe(A_LL); PF_CHKERRQ(ierr); 
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			   d_nnz_LL.begin(),&A_LL); PF_CHKERRQ(ierr); 
+    ierr =  MatSetOption(A_LL, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    CHKERRQ(ierr); 
     ierr=MatZeroEntries(A_LL); PF_CHKERRQ(ierr);
   } else if (local_solver == SuperLU) {
     A_LL_SLU.clear().resize(n_loc,n_loc);
@@ -500,6 +522,7 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
   }
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define N_SET_V(j,k) VEC2(N_SET,j,k,2)
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_value_a"
 int IISDMat::set_value_a(int row,int col,Scalar value,
@@ -509,6 +532,7 @@ int IISDMat::set_value_a(int row,int col,Scalar value,
 
   map_dof_fun(row,row_t,row_indx);
   map_dof_fun(col,col_t,col_indx);
+  N_SET_V(row_t,col_t)++;
   insert_mode = mode;  
   if (row_t == L && col_t == L) {
     row_indx -= n_locp;
@@ -532,7 +556,7 @@ int IISDMat::set_value_a(int row,int col,Scalar value,
 #ifndef DEBUG_IISD_DONT_SET_VALUES
   ierr = MatSetValues(*(AA[row_t][col_t]),
 		      1,&row_indx,1,&col_indx,&value,mode);
-  CHKERRQ(ierr); 
+  CHKERRQ(ierr);
   return 0;
 #endif
 }

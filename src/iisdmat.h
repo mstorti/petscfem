@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.19 2002/01/14 03:45:06 mstorti Exp $
+// $Id: iisdmat.h,v 1.20 2002/05/10 21:19:21 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -45,6 +45,7 @@ int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
     and solving by a direct method in the internal nodes.
  */
 class IISDMat : public PFPETScMat {
+  HPChrono chrono;
   /// Matrix dimensions
   int M,N;
 

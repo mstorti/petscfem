@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.114 2002/05/07 02:46:29 mstorti Exp $
+$Id: notes.txt,v 1.115 2002/05/10 21:19:21 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.114 2002/05/07 02:46:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.115 2002/05/10 21:19:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.114 2002/05/07 02:46:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.115 2002/05/10 21:19:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.114 2002/05/07 02:46:29 mstorti Exp $ 
+  # $Id: notes.txt,v 1.115 2002/05/10 21:19:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4326,6 +4326,52 @@ y aparentemente el upload/download tarda unos 3 secs. Juntando todos
 los chunks (son 6144 elementos) eso da un total de 105 secs. Despues
 el reporte final (para todo el asemble tomado en ns.cpp) es de
 115secs. Ahora habria que ver como da todo esto en paralelo. 
+
+%===Tue May  7 08:30:30 ART 2002 mstorti@node1.beowulf.gtm
+%
+Corriendo en node1, da 9.40secs/Ke (O_c++, nsi_tet_keps_rot), y
+despues un promedio global de 10.7secs/Ke. Los assembly time
+reportados dan muy bajos. Probablemente lo que se lleva tiempo son los
+upload/download. En node12 (Pentium IV da 2.64secs/Ke raw y
+3.74secs/Ke promedio), usando chunks de 4000. Total elapsed 26.17
+%
+Para 6144 elementos. 
+PIV  1.4GHz (node12):  raw 3.10secs/Ke, averg  3.8secs/Ke, elapsed: 27.6secs
+PIII 866Mhz (node1 ):  raw 9.40secs/Ke, averg 10.7secs/Ke, elapsed: 70.3secs
+PIII 500Mhz (node8 ):  no puedo correr porque no entra en la memoria
+%
+Para 3456 nodos
+PIV  1.4GHz (node12):  raw  2.7secs/Ke, averg   3.8secs/Ke, elapsed: 15.2secs
+PIII 866Mhz (node1 ):  raw  9.2secs/Ke, averg  10.4secs/Ke, elapsed: 38.4secs
+PIII 500Mhz (node8 ):  raw 10.2secs/Ke, averg  12.2secs/Ke, elapsed: 45.9secs
+%
+10:45:44: Corriendo en paralelo, con pesos 1.3/1/4,
+chunk_size=4000. Los chunk_size son 1300,1000,4000. Tenemos una malla
+de n=20/nz=10 (12000 eleementos). Los particionamientos en cada
+procesador hacen que este bastante bien balanceado porque da tiempos
+de entre 8 y 10.2 sec. Las tasas son mas o menos las reportadas
+arriba. Los tiempos de upload van desde 1.6-1.8 para todos, menos
+10.7secs para el P4. Los assembly time van de 34 a 44 secs. El elapsed
+es de 58secs. O sea que del optimo de 40 secs (si corrieramos todo en
+el P4) vamos a 58 secs por sincronizacion etc. Vamos a ver si la
+perdida por sincronizacion se debe al gran desbalance. Vamos a correr
+poniendo un pesos iguales para todos y ver el assembly, upload en ese
+caso... 
+%
+11:04:32: Poniendo todos los pesos a 1 no mejora. Los tiempos de
+calculo de residuo van de 3.3 sec para el P4 gasta 12.6 para los
+P3-500. Los upload estan en el orden de los 3secs y los assembly estan
+todos parejos en el orden de los 58secs. 
+%
+11:50:36: Tenemos entonces: evaluacion "raw": 8-10 secs, upload 2secs
+(10 para el P4), scatter 9secs, assembly 1.5secs, assembly-end 32
+secs. Total assembly: 41secs. 
+%
+13:43:59: En geronimo puedo correr una malla de 26/10. 
+%
+17:51:57: El problema esta con la matriz A_II. Si no hago el set
+values de A_II entonces el tiempo baja de 320secs a 120secs. 
+
 
 %# Current line ===========  
 # Local Variables: $

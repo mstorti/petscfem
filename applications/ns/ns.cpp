@@ -1,6 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.79 2002/05/07 02:46:32 mstorti Exp $
-
+//$Id: ns.cpp,v 1.80 2002/05/10 21:19:21 mstorti Exp $
+int N_SET[4];
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
 #include <src/debug.h>
@@ -433,11 +433,17 @@ int main(int argc,char **args) {
       debug.trace("Before residual computation...");
       HPChrono chrono;
       chrono.start();
+      for (int kk=0; kk<4; kk++) N_SET[kk]=0;
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
       CHKERRA(ierr);
       MPI_Barrier(PETSC_COMM_WORLD);
       PetscPrintf(PETSC_COMM_WORLD,"Elapsed %f\n",chrono.elapsed());
       debug.trace("After residual computation.");
+//        PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+//  			      "[%d] N_II_SET %d\n",MY_RANK,N_II_SET);
+//        PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscFinalize();
+      exit(0);
 
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,

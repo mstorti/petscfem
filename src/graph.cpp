@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.14 2002/05/06 19:59:51 mstorti Exp $
+//$Id: graph.cpp,v 1.15 2002/05/10 21:19:21 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -120,7 +120,7 @@ void Graph::part(int max_partgraph_vertices,
 	  ngbrs.push(k);
 	  visited++;
 	  // Put it in a random vertex
-	  vrtx = irand(0,nvrtx)-1;
+	  vrtx = irand(nvrtx);
 	  el2vrtx[k] = vrtx;
 	  vwgt[vrtx] += int(weight(vrtx_f)/weight_scale);
 	  disconnected_was_found=1;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.16 2002/05/06 14:07:33 mstorti Exp $
+//$Id: metisprt.cpp,v 1.17 2002/05/10 21:19:21 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -164,7 +164,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
 	if (el2vrtx[k]<0) {
 	  ngbrs.push(k);
 	  // Put it in a random vertex
-	  vrtx = irand(0,nvrtx)-1;
+	  vrtx = irand(nvrtx);
 	  el2vrtx[k] = vrtx;
 	  find_elem(k,nelemsetptr,nelemsets,mesh,elemset,locel);
 	  vwgt[vrtx] += int(elemset->weight()/weight_scale);

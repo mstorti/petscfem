@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.38 2002/05/07 02:46:32 mstorti Exp $
+//$Id: elemset.cpp,v 1.39 2002/05/10 21:19:21 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -647,10 +647,18 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 
       // Upload return values
-      for (j=0; j<narg; j++) 
+      for (j=0; j<narg; j++) {
+	if (report_assembly_time) hpcassmbl.start();
 	if (argl[j].options & UPLOAD_RETVAL) 
 	  elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
 				 myrank,el_start,el_last,iter_mode);
+	if (report_assembly_time) {
+	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+				  "[%d] Upload time %f secs.\n",
+				  MY_RANK,hpcassmbl.elapsed());
+	  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+	}
+      }
 
       // compute columns of jacobian matrices by perturbing each
       // local degree of freedom

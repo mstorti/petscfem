@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.13 2002/01/14 03:45:06 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.14 2002/05/10 21:19:21 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -385,27 +385,30 @@ int IISDMat::create_a() {
 			 PETSC_NULL,nnz[D][L][I].begin(),
 			 PETSC_NULL,nnz[O][L][I].begin(),
 			 &A_LI); CHKERRQ(ierr); 
-  // PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix\n"); 
+  ierr =  MatSetOption(A_LI, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  CHKERRQ(ierr); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_loc,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][L].begin(),
 			 PETSC_NULL,nnz[O][I][L].begin(),
 			 &A_IL); CHKERRQ(ierr); 
-  // PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix\n"); 
+  ierr =  MatSetOption(A_IL, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  CHKERRQ(ierr); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][I].begin(),
 			 PETSC_NULL,nnz[O][I][I].begin(),
 			 &A_II); CHKERRQ(ierr); 
-  // PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
+  ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  CHKERRQ(ierr); 
+  ierr = MatSetStashInitialSize(A_II,300000,0);
+  CHKERRQ(ierr); 
   
-  // extern int mult(Mat,Vec,Vec);
   ierr = MatCreateShell(comm,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
   CHKERRQ(ierr); 
-  // PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
   P=A;
 
   MatShellSetOperation(A,MATOP_MULT,(void *)(&IISD_mult));
