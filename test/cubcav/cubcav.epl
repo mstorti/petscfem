@@ -15,7 +15,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 70;			# Number of elements per dimension
+$N = 75;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -112,8 +112,8 @@ print_partitioning_statistics
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
-max_partgraph_vertices 2000
-max_partgraph_vertices_proc 2000
+max_partgraph_vertices 10000
+max_partgraph_vertices_proc 10000
 
 #    Iterative parameters
 tol_tet 1e-5

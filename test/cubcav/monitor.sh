@@ -1,4 +1,4 @@
 #!/bin/bash
 
 date 
-ps  -o pid,user,args,rss 9167
+ps  -o pid,user,args,rss 5585
