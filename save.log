@@ -4125,3 +4125,6 @@ tag: beta-3.43.30 on Sun, 27 Feb 2005 15:42:18 -0300 by mstorti in spider
 ----------
 tag: beta-3.43.31 on Sun, 27 Feb 2005 19:54:30 -0300 by mstorti in spider
      > Runs example 2D axi, with `pout=0.01*pin'.
+----------
+tag: beta-3.43.32 on Sun, 27 Feb 2005 20:25:20 -0300 by mstorti in spider
+     > Runs example 2D axi, with `pout=0.01*pin'.
