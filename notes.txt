@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.124 2002/07/14 03:06:26 mstorti Exp $
+$Id: notes.txt,v 1.125 2002/07/17 02:54:57 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.124 2002/07/14 03:06:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.125 2002/07/17 02:54:57 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.124 2002/07/14 03:06:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.125 2002/07/17 02:54:57 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.124 2002/07/14 03:06:26 mstorti Exp $ 
+  # $Id: notes.txt,v 1.125 2002/07/17 02:54:57 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4478,6 +4478,14 @@ deberia cambiar significativamente el tiempo de ensamblaje).
 ser bastante mas que lineal. 
 %
 22:18:35: Vamos a probar hasta donde se puede llegar. 
+
+%===Sun, 14 Jul 2002 13:16:13 -0300 mstorti@spider
+%
+Reflotando el fractional-step. Compila. 
+%
+20:11:04: En un momento (circa Nov 1 2001) yo anule el tema de 
+cargar los perfiles segun la matriz devuelta sino que directamente
+usaba una mascara (la misma para todos los elementos). 
 
 %# Current line ===========  
 # Local Variables: $

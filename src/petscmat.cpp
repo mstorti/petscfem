@@ -1,8 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+//$Id: petscmat.cpp,v 1.4 2002/07/17 02:55:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
-extern int MY_RANK,SIZE;
+
 #include <typeinfo>
 #include <mat.h>
 
@@ -12,6 +12,9 @@ extern int MY_RANK,SIZE;
 #include <src/pfptscmat.h>
 #include <src/petscmat.h>
 #include <src/graph.h>
+
+extern int MY_RANK,SIZE;
+extern TextHashTable *GLOBAL_OPTIONS;
 
 PETScMat::~PETScMat() {clear();};
 
@@ -35,8 +38,13 @@ int PETScMat::duplicate_a(MatDuplicateOption op,const PFMat &B) {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::create_a"
 int PETScMat::create_a() {
-  int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank,
-    debug_compute_prof=0;
+  int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
+
+  //o Print the profile 
+  TGETOPTDEF(GLOBAL_OPTIONS,int,debug_compute_prof,0);
+  //o Pass option to underlying PETSc matrix. Gives an error if a new
+  // element is added
+  TGETOPTDEF(GLOBAL_OPTIONS,int,mat_new_nonzero_allocation_err,1);
   set<int> ngbrs_v;
   set<int>::iterator q,qe;
 
@@ -130,8 +138,10 @@ int PETScMat::create_a() {
   ierr =  MatCreateMPIAIJ(comm,neqp,neqp,neq,neq,
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);
   CHKERRQ(ierr); 
-  ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
-  CHKERRQ(ierr); 
+  if (mat_new_nonzero_allocation_err) {
+    ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    CHKERRQ(ierr); 
+  }
   // P and A are pointers (in PETSc), otherwise this may be somewhat risky
   P=A;
   delete[] d_nnz;

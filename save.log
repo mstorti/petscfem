@@ -1219,6 +1219,35 @@ tag: beta-2.94.pl28 on Fri, 12 Jul 2002 11:33:25 -0300 by mstorti in minerva.arc
 tag: beta-2.94.pl29 on Sun, 14 Jul 2002 00:07:36 -0300 by mstorti in spider
      > Runs big test with 60^3*5 = 1.08Melements in spider.
 ----------
+tag: beta-2.98 on Sun, 14 Jul 2002 09:23:19 -0300, by mstorti in spider
      > Will branch the development of new version of Fractional-Step.
 ----------
-     > Will branch the development of new version of Fractional-Step.
+tag: beta-2.98.pl1 on Sun, 14 Jul 2002 13:48:31 -0300 by mstorti in spider
+     > Fractional step compiles
+----------
+tag: beta-2.98.pl2 on Sun, 14 Jul 2002 20:30:52 -0300 by mstorti in spider
+     > Compute profile for `fractional-step'
+----------
+tag: beta-2.98.pl3 on Sun, 14 Jul 2002 22:12:01 -0300 by mstorti in spider
+     > Momentum step seems to work
+----------
+tag: beta-2.98.pl4 on Mon, 15 Jul 2002 21:08:56 -0300 by mstorti in spider
+     > Computation of Poisson matrix seems to work. 
+----------
+tag: beta-2.98.pl5 on Mon, 15 Jul 2002 21:22:41 -0300 by mstorti in spider
+     > Solves Poisson system OK. 
+----------
+tag: beta-2.98.pl6 on Mon, 15 Jul 2002 21:34:09 -0300 by mstorti in spider
+     > Computes `A_prj' matrix 
+----------
+tag: beta-2.99 on Tue, 16 Jul 2002 00:30:19 -0300, by mstorti in spider
+     > Runs fractional step
+----------
+tag: beta-2.99.pl1 on Tue, 16 Jul 2002 21:14:39 -0300 by mstorti in spider
+     > Fractional step is working.
+----------
+tag: beta-2.99.pl2 on Tue, 16 Jul 2002 23:48:31 -0300 by mstorti in spider
+     > Running large problem with `cubcav'
+----------
+tag: beta-3.00 on Tue, 16 Jul 2002 23:49:35 -0300, by mstorti in spider
+     > Fractional-step is working

@@ -1,6 +1,6 @@
 #!/bin/bash
 #__INSERT_LICENSE__
-#$Id: maketag,v 1.15 2002/03/31 14:55:15 mstorti Exp $
+#$Id: maketag,v 1.16 2002/07/17 02:55:01 mstorti Exp $
 
 tmp=tmp_file_log.txt
 savelog=save.log
@@ -71,7 +71,7 @@ echo $newtag > VERSION
 
 echo "logging on " $savelog
 echo "----------" >> $savelog
-echo "tag: $newtag on `date --rfc-822`, by `whoami` in `hostname -f`" 
+echo "tag: $newtag on `date --rfc-822`, by `whoami` in `hostname -f`" \
     >> $savelog
 if [ $stable = "y" ] ; then \
         echo "$sep-- STABLE VERSION -- " >> $savelog
