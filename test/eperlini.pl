@@ -198,6 +198,15 @@ EOM
     close OCT if $octtmpfile;
 }
 
+sub octave_export_vars {
+    my ($file,@vars) = @_;
+    open O,">$file";
+    for $v (@vars) {
+	print O "$v = ${$v};\n";
+    }
+    close O;
+}
+
 # Added 'octave_string' that strips double quotes from
 # arguments read from
 # Octave data files. 
