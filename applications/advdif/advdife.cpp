@@ -41,7 +41,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int advective::ask(char *,int &)"
-int AdvDif::ask(const char *jobinfo,int &skip_elemset) {
+int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
@@ -58,7 +58,7 @@ int AdvDif::ask(const char *jobinfo,int &skip_elemset) {
 */ 
 #undef __FUNC__
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
-void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars, 
+void NewAdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars, 
 			    const int *& log_vars) {
   const char *log_vars_entry;
   elemset->get_entry("log_vars_list",log_vars_entry); 
@@ -128,10 +128,10 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
-void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
-			 const Dofmap *dofmap,const char *jobinfo,
-			 const ElementList &elemlist,
-			 const TimeData *time_data) {
+void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+			     const Dofmap *dofmap,const char *jobinfo,
+			     const ElementList &elemlist,
+			     const TimeData *time_data) {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -282,7 +282,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2::activate_cache(&cache_list);
 
   // Initialize flux functions
-  adv_diff_ff->start_chunk(this); 
+  adv_diff_ff->start_chunk(this,ndim,ndof,ret_options); 
+
+  int start_chunk=1;
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
@@ -369,12 +371,11 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	delta_sc=0;
 	double lambda_max_pg;
 
-	ierr = (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
-			      A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
-			      lambda_max_pg,
-			      nor,lambda,Vr,Vr_inv,
-			      element.props(),NULL,COMP_SOURCE |
-			      COMP_UPWIND,start_chunk,ret_options);
+	adv_diff_ff->compute_flux(this,U,iJaco,H,grad_H,flux,fluxd,A_jac,
+				  A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
+				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
+				  element.props(),NULL,COMP_SOURCE |
+				  COMP_UPWIND,start_chunk,ret_options);
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 

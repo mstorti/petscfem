@@ -25,6 +25,7 @@ extern int comp_mat_each_time_step_g,
 extern int MY_RANK,SIZE;
   
 #include <vector>
+#include <string>
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -47,6 +48,84 @@ int AdvDif::ask(const char *jobinfo,int &skip_elemset) {
    DONT_SKIP_JOBINFO(comp_prof);
    return 0;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Returns the list of variables that are 
+    logarithmic transformed.
+    @param nlog_vars (input) the number of logarithmic variables
+    @param log_vars (input) the list of logarithmic variables
+    @author M. Storti
+*/ 
+#undef __FUNC__
+#define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
+void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars, 
+			    const int *& log_vars) {
+  const char *log_vars_entry;
+  elemset->get_entry("log_vars_list",log_vars_entry); 
+  VOID_IT(log_vars_v);
+  string s;
+  if (log_vars_entry) {
+    s=string(log_vars_entry);	// Save local copy
+    read_int_array(log_vars_v,log_vars_entry); 
+  }
+  int nel,ndof,nelprops;
+  elemset->elem_params(nel,ndof,nelprops);
+  nlog_vars=log_vars_v.size();
+  log_vars = log_vars_v.begin();
+  int ierr=0;
+  for (int j=0; j<nlog_vars; j++) {
+    if (log_vars_v[j]<=0) {
+      PetscPrintf(PETSC_COMM_WORLD,"Non positive dof in "
+		  "\"log_vars_list\" entry: dof %d\n",
+		  log_vars_v[j]);
+      ierr=1;
+    } else if (log_vars_v[j]>ndof) {
+      PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
+		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
+		  log_vars_v[j]);
+      ierr=1;
+    }
+    if (ierr) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Errors while reading \"log_vars_list\"\n");
+      if (log_vars_entry)
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "In line \"%s\"\n",s.c_str());
+      exit(1);
+    }
+  }
+}  
+
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Transforms state vector from logarithmic. The indices of fields
+    logarithmically tranformed are listed in \verb+log_vars+. 
+    @author M. Storti
+    CORREGIR:=
+    @param true_lstate (output) Transformed from logarithm
+    to positive variable. 
+    @param lstate (ouput) input state logarithmically transformed
+    (only those fields in \verb+log_vars+).
+    @param nlog_vars (input) number of fields logarithmically
+    transformed
+    @param log_vars (input) list of fields logarithmically
+    transformed.
+*/ 
+#undef __FUNC__
+#define __FUNC__ "void log_transf()"
+void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
+		const int nlog_vars,const int *log_vars) {
+  // Copy to log_state
+  true_lstate.set(lstate);
+  // Transform only those fields in log_vars
+  for (int k=0; k<nlog_vars; k++) {
+    int dof=log_vars[k];
+    true_lstate.ir(2,dof);
+    true_lstate.fun(&exp);
+  }
+  true_lstate.ir(2);
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -119,7 +198,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
   }
 
-  FastMat2 matlocf(4,nel,ndof,nel,ndof);
+  FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
     matlocf.set(1.);
@@ -127,11 +206,54 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   //o Use the weak form for the Galerkin part of the advective term. 
   NSGETOPTDEF(int,weak_form,1);
+  //o Weights the temporal term with $N+\beta P$, i.e.
+  // $\beta=0$ is equivalent to waight the temporal term a la 
+  // Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
+  NSGETOPTDEF(double,beta_supg,1.);
+  //o Use lumped mass (used mainly to avoid oscillations for small time steps).
+  NSGETOPTDEF(int,lumped_mass,0);
+
+  Property conduct_prop;
+  get_prop(conduct_prop,"conduct");
+
+  int nlog_vars;
+  const int *log_vars;
+  adv_diff_ff->get_log_vars(this,nlog_vars,log_vars);
+  //o Use log-vars for $k$ and $\epsilon$
+  NSGETOPTDEF(int,use_log_vars,0);
+  if (!use_log_vars) nlog_vars=0;
+
+#if 0
+  if (use_log_vars) {
+    // Bes sure that we are in shallow water.
+    // This would be returned by the flux function
+    if (ndof==5) {   // turbulent shallow water
+      nlog_vars=2;
+      log_vars = log_vars_swt; // Return dofs for k, epsilon
+    } else if (ndof==1) { // thermal problem
+      nlog_vars=1;
+      log_vars = &log_vars_sc;
+    } else { assert(0);} 
+  } else {
+    nlog_vars=0;
+    log_vars=NULL;
+  }
+#endif
+
+  // Not implemented yet:= not lumped_mass + log-vars
+  assert(!use_log_vars || lumped_mass); 
+  // lumped_mass:= If this options is activated then all the inertia
+  // term matrix comtributions are added to 'matlocf_mass' and the
+  // vector contribution terms are discarded. Then at the last moment
+  // matlocf_mass*(Un-Uo)/Dt is added.
+
   // Allocate local vecs
-  FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
-    locstateo(nel,ndof),locstaten(nel,ndof),
-    matloc,eye_ndof(ndof,ndof);
-  FastMat2 locstateo2(2,nel,ndof);
+  FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
+    xloc(nel,ndim),lstate(nel,ndof), 
+    lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
+    dUloc(nel,ndof),matloc,eye_ndof(ndof,ndof);
+  FastMat2 true_lstate(2,nel,ndof), 
+    true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
 
   eye_ndof.set(0.).eye(1.);
   
@@ -149,7 +271,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     grad_U(ndim,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), tau_supg(ndof,ndof);
   // These are edclared but not used
-  FMatrix nor,lambda,Vr,Vr_inv,U(ndof),lmass(nel),Id_ndof(ndof,ndof),
+  FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
+    lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
     tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23,
@@ -168,8 +291,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
     // if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
-    int k,ielh;
-    element.position(k,ielh);
+    const double *conduct = prop_array(element,conduct_prop);
 
     FastMat2::reset_cache();
 
@@ -183,17 +305,21 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_res) {
       lambda_max=0;
-      locstateo.set(element.vector_values(*stateo));
-      locstaten.set(element.vector_values(*staten));
+      lstateo.set(element.vector_values(*stateo));
+      lstaten.set(element.vector_values(*staten));
+      // log_transf(true_lstaten,lstaten,nlog_vars,log_vars);
+      // log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
     }
     
     // State at time t_{n+\alpha}
-    locstate.set(0.).axpy(locstaten,ALPHA).axpy(locstateo,(1-ALPHA));
+    lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
+    log_transf(true_lstate ,lstate ,nlog_vars,log_vars);
 
     veccontr.set(0.);
     mass.set(0.);
     lmass.set(0.);
     matlocf.set(0.);
+    if (lumped_mass) matlocf_mass.set(0.);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -210,11 +336,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       detJaco = Jaco.det();
       if (detJaco <= 0.) {
+	int k,ielh;
+	element.position(k,ielh);
 	printf("Jacobian of element %d is negative or null\n"
 	       " Jacobian: %f\n",k,detJaco);
 	PetscFinalize();
 	exit(0);
- 
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);
@@ -227,13 +354,20 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       if (comp_res) {
 	// state variables and gradient
-
-	Un.prod(SHAPE,locstaten,-1,-1,1);
-	Uo.prod(SHAPE,locstateo,-1,-1,1);
-	U.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
+	Un.prod(SHAPE,lstaten,-1,-1,1);
+	Uo.prod(SHAPE,lstateo,-1,-1,1);
+	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	dUdt.set(Un).rest(Uo).scale(1./DT);
+	for (int k=0; k<nlog_vars; k++) {
+	  int jdof=log_vars[k];
+	  double UU=exp(Ualpha.get(jdof));
+	  dUdt.ir(1,jdof).scale(UU);
+	}
+	dUdt.rs();
 
-	grad_U.prod(dshapex,locstate,1,-1,-1,2) ;
+	// Pass to the flux function the true positive values
+	U.prod(SHAPE,true_lstate,-1,-1,1);
+	grad_U.prod(dshapex,true_lstate,1,-1,-1,2) ;
 
 	delta_sc=0;
 	double lambda_max_pg;
@@ -247,18 +381,28 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
-	tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	tmp10.set(G_source);	// tmp10 = G - dUdt
+	if (!lumped_mass) tmp10.rest(dUdt);
+	if (beta_supg==1.) {
+	  tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
+	} else {
+	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
+	}
 
 	tmp15.set(SHAPE).scale(wpgdet/DT);
 	tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
 	tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
-	matlocf.add(tmp13);
+	if (lumped_mass) {
+	  matlocf_mass.add(tmp13);
+	} else {
+	  matlocf.add(tmp13);
+	}
 
 	A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
 
 	// Termino Galerkin
 	if (weak_form) {
+	  assert(!lumped_mass && beta_supg==1.); // Not implemented yet!!
 	  // weak version
 	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 
@@ -335,9 +479,16 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp28.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * SHAPE
 	  matlocf.add(tmp28);
 
-	  tmp21.set(SHAPE).scale(wpgdet/DT);
+	  tmp21.set(SHAPE).scale(beta_supg*wpgdet/DT);
 	  tmp22.prod(P_supg,tmp21,1,3,2);
-	  matlocf.add(tmp22);
+	  if (lumped_mass) {
+	    // I think that if 'lumped_mass' is used then the
+	    // contribution to the mass matrix from the SUPG
+	    // perturbation term is null, but I include it. 
+	    matlocf_mass.ir(1,jel).add(tmp22).rs();
+	  } else {
+	    matlocf.add(tmp22);
+	  }
 	  matlocf.rs();
 	}
 
@@ -385,6 +536,57 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	matloc.kron(mass,Id_ndof);
       }
 #endif
+
+      if (lumped_mass) {
+	// lump mass matrix
+#if 1   // With this commented should be equivalent to no mass lumping
+	matlocf_mass.reshape(2,nen,nen);
+	for (int j=1; j<=nen; j++) {
+	  double m = matlocf_mass.ir(1,j).sum_all();
+	  matlocf_mass.set(0.).setel(m,j);
+	}
+	matlocf_mass.rs().reshape(4,nel,ndof,nel,ndof);
+#endif
+	// Compute derivative of local element state
+	// The Dt is already included in the mass matrix
+	dUloc.set(lstaten).rest(lstateo);
+	dUloc_c.set(dUloc);
+	// correct the logarithmic variables for a factor $U^{n+\alpha}$
+	for (int k=0; k<nlog_vars; k++) {
+	  int jdof=log_vars[k];
+	  for (int j=1; j<nel; j++) {
+	    true_lstate.ir(2,jdof);
+	    dUloc_c.ir(2,jdof).mult(true_lstate);
+	  }
+	}
+	dUloc_c.rs();
+	true_lstate.rs();
+
+	// Compute inertia term with lumped mass
+	veccontr_mass.prod(matlocf_mass,dUloc_c,1,2,-1,-2,-1,-2);
+	// Add (rest) to vector contribution to be returned
+	veccontr.rest(veccontr_mass);
+	// Scale mass matrix by $U^{n+\alpha}/Dt*(1+alpha\DU)$
+	for (int k=0; k<nlog_vars; k++) {
+	  int jdof=log_vars[k];
+	  for (int j=1; j<=nel; j++) {
+	    // Raw mass matrix value
+	    double m = matlocf_mass.get(j,jdof,j,jdof);
+	    // True (positive variable) value
+	    double UU = true_lstate.get(j,jdof);
+	    // Difference of log variable
+	    double DU = dUloc.get(j,jdof);
+	    // Correction factor
+	    double f=UU*(1+ALPHA*DU);
+	    matlocf_mass.setel(m*f,j,jdof,j,jdof);
+	    // Correct the spatial jacobian
+	    matlocf.ir(3,j).ir(4,jdof).scale(UU);
+	  }
+	}
+	matlocf.rs();
+	// Add to matrix contribution to be returned
+	matlocf.add(matlocf_mass);
+      }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC

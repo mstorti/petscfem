@@ -33,62 +33,31 @@
 
 #include "advective.h"
 
-class advecfm2_ff_t : public AdvDifFF {
-private:  
-  int ndof;
-  int shock_capturing,na,nd,nc;
-  FastMat2 A_jac_l, D_jac_l, C_jac_l, tmp0;
-  double tau_fac;
-  FastMat2 u,u2,Uintri(1,ndim),AA;
-  vector<double> ajacv,djacv,cjacv;
-  double *ajacvp,*djacvp,*cjacvp;
-  ElementIterator element;
-  Property advective_jacobians_prop;
-  const double *advjac;
-public:
-  void start_chunk(const NewElemset *elemset);
-  void element_hook(const NewElemset *elemset,
-		    ElementIterator &element);
-  int operator()(ADVDIFFF_ARGS);
-};
-
-class advdif_advecfm2 : public AdvDif {
-public:
-  advdif_advecfm2() {adv_diff_ff = new advecfm2_ff_t;};
-};
-
-#if 0
-class bcconv_adv_advecfm2 : public BcconvAdv {
-public:
-  bcconv_adv_advecfm2() {adv_diff_ff = new advecfm2_ff_t;};
-};
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::element_hook(const NewElemset *,ElementIterator &)"
 // This is to pass to the advective function the element
-void advecfm2_ff_t::element_hook(const NewElemset *elemset, 
+void newadvecfm2_ff_t::element_hook(const NewElemset *elemset, 
 				 ElementIterator &element_) {
   element = element_;
-  advjac = advective_jacobians_prop
-  ajac = prop_array(element,advective_jacobians_prop);
+  advjac = elemset->prop_array(element,advective_jacobians_prop);
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::start_chunk(const NewElemset)"
-void advecfm2_ff_t::start_chunk(const NewElemset *elemset) {
-  // Load properties only once.
-  ndof = U.dim(1);
+void newadvecfm2_ff_t::start_chunk(const NewElemset *elemset,
+				int ndim_,int ndof_,int ret_options) {
+  ndim=ndim_;
+  ndof=ndof_;
+  Uintri.resize(1,ndim);
   // Read advective jacobians
-  A_jac_l.resize(3,ndim,ndof,ndof);
   u.resize(2,ndof,ndim);
   //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
   //  _N: advective_jacobians _D: no default  _DOC: 
   //i_tex ../../doc/advdifop.tex advective_jacobians
   //  _END
-  get_prop(advective_jacobians_prop,"advective_jacobians");
+  elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
   assert(advective_jacobians_prop.length == ndim*ndof);
 #if 0
   const char *advje;
@@ -107,7 +76,8 @@ void advecfm2_ff_t::start_chunk(const NewElemset *elemset) {
   //  _END
   const char *difje;
   VOID_IT(djacv);
-  elemset->get_entry("diffusive_jacobians",difje); CHKERRQ(difje==0);
+  elemset->get_entry("diffusive_jacobians",difje); 
+  assert(difje!=0);
   read_double_array(djacv,difje); 
   djacvp=djacv.begin();
   D_jac_l.set(0.);
@@ -130,25 +100,21 @@ void advecfm2_ff_t::start_chunk(const NewElemset *elemset) {
   C_jac_l.set(0.);
 
   //o Scale the SUPG upwind term. 
+  int ierr;
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
-  na = ajacv.size();
   nd = djacv.size();
   nc = cjacv.size();
 
-  if (na==ndim*ndof && nd==ndof && nc==ndof) {
-    // An advection velocity and a diffusivity and a reactive for each field 
-    u.set(ajacv.begin());
+  if (nd==ndof && nc==ndof) {
     ret_options &= !SCALAR_TAU; // tell the advective element routine
 				// that we are returning a non-scalar tau
-    A_jac_l.set(0.);
     D_jac_l.set(0.);
     C_jac_l.set(0.);
     for (int k=1; k<=ndof; k++) {
       double alpha=djacv[k-1];
       double beta=cjacv[k-1];
       for (int j=1; j<=ndim; j++) {
-	A_jac_l.setel(u.get(k,j),j,k,k);
 	D_jac_l.setel(alpha,j,j,k,k);
       }
       C_jac_l.setel(beta,k,k);
@@ -215,13 +181,22 @@ void advecfm2_ff_t::start_chunk(const NewElemset *elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advecfm2_ff_t::operator()" 
-int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
+void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 
   int ierr;
 
   double tau_a, tau_delta, gU, A01v[9];
 
-  A_jac.set(A_jac_l);
+  u.set(ajacv.begin());
+  ret_options &= !SCALAR_TAU; // tell the advective element routine
+				// that we are returning a non-scalar tau
+  A_jac.set(0.);
+  for (int k=1; k<=ndof; k++) {
+    for (int j=1; j<=ndim; j++) {
+      A_jac.setel(u.get(k,j),j,k,k);
+    }
+  }
+
   flux.prod(A_jac,U,2,1,-1,-1);
 
   if (options & COMP_UPWIND) {
@@ -274,5 +249,4 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     G_source.prod(C_jac,U,1,-1,-1).scale(-1.);
 
   }
-
 }
