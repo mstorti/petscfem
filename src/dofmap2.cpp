@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.1 2002/12/22 06:20:40 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.2 2002/12/22 07:02:33 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -139,7 +139,7 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   
   // Number of dofs to be eliminated
   int nelim = to_elim.size();
-  FastMat2 Q(2,nelim,nelim);
+  FastMat2 Q(2,nelim,nelim),iQ(2,nelim,nelim);
   vector<row_t *> B(nelim);
 
   // Costruct map from edofs to index in the set to be eliminated
@@ -166,6 +166,7 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   }
 #endif
 
+  Q.set(0.);
   for (int r=1; r<=nelim; r++) {
     B[r-1] = new row_t;
     row_t row_o;		// the original row
@@ -189,6 +190,33 @@ void Dofmap::set_constraint(const Constraint &constraint) {
     assert(fabs(Q.get(r,r))>tol);
   }
 
-  // Remember to free memory in B!!
+  Q.print("Q:");
+  for (int k=0; k<nelim; k++) {
+    printf("%d:",k+1);
+    print(*B[k]);
+    printf("\n");
+  }
 
+  iQ.inv(Q);
+
+  for (int k=0; k<nelim; k++) {
+    row_t row,roww,row_q;
+    for (int l=0; l<nelim; l++) axpy(row,-iQ.get(k+1,l+1),*B[l]);
+    row_t::iterator q,qe=row.end();
+    for (q=row.begin(); q!=qe; q++) {
+      int node,field;
+      edofi(q->first,ndof,node,field);
+      get_row(node,field,row_q); 
+      axpy(roww,q->second,row_q);
+    }
+    int edoff = elim2edof[k];
+    int node,field;
+    edofi(edoff,ndof,node,field);
+    row_set(node,field,roww);
+  }
+
+  Q.clear();
+  iQ.clear();
+  // Free memory in B
+  for (int k=0; k<nelim; k++) delete B[k];
 }
