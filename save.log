@@ -870,5 +870,6 @@ tag: beta-2.63 on Thu Dec 20 18:59:44 ARST 2001, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.29 on Sun Jan 13 23:46:34 ARST 2002, by mstorti in spider
      > Merged all files with the main trunk. 
-     > Runs all tests `from start' (i.e. `$make lclean sw ; cd test ; make tests' is fine).
+     > Runs all tests `from start' (i.e. `$make lclean sw ;
+     > cd test ; make tests' is fine).
      > -- STABLE VERSION -- 
