@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.4 2002/12/16 17:26:03 mstorti Exp $
+//$Id: genload.cpp,v 1.5 2002/12/16 20:02:21 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -266,13 +266,4 @@ void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
   double h=1.;
   flux_in.set(U_out).rest(U_in).scale(h);
   jac.ir(1,1).eye(h).rs().ir(1,2).eye(-h).rs();
-
-#if 0
-  flux_out.set(flux_in).scale(-1.);
-  jac.ir(1,1);
-  jac_aux.set(jac);
-
-  // Jac(2,:) = -Jac(1,:)
-  jac.ir(1,2).set(jac_aux).scale(-1).rs();
-#endif
 }
