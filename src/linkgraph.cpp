@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.8 2002/07/24 03:51:34 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.9 2002/07/24 12:08:37 mstorti Exp $
 
 #include <src/linkgraph.h>
 
@@ -48,6 +48,7 @@ int LinkGraph::available() {
   } else {
     int free = fh.j;
     fh.j = da.ref(fh.j).j;
+    return free;
   }
 }
 

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.8 2002/07/24 03:51:38 mstorti Exp $
+// $Id: tryme3.cpp,v 1.9 2002/07/24 12:08:41 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -7,7 +7,7 @@
 #include <src/linkgraph.h>
 
 int MY_RANK,SIZE;
-const int M=10;
+const int M=20;
 
 void row_print(LinkGraphRow row) {
   LinkGraphRow::iterator q;
@@ -74,7 +74,7 @@ void graph_print(LinkGraphDis &graph, char *s=NULL) {
   if (s) printf("%s\n",s);
   for (LinkGraph::iterator k=graph.begin(); k!=graph.end(); k++) {
     row_print(*k);
-    printf("size of row: %d\n",k.size());
+    // printf("size of row: %d\n",k.size());
   }
 }
 
@@ -97,7 +97,7 @@ int main(int argc, char **args) {
   
   graph.init(M);
   graph2.init(M);
-  for (int j=0; j<20*M; j++) {
+  for (int j=0; j<int(sqrt(M))*M; j++) {
     graph.add(irand(M),irand(M));
     graph2.add(irand(M),irand(M));
   }
@@ -160,7 +160,7 @@ int main(int argc, char **args) {
     if (p==MY_RANK) {
       for (k=graph.begin(); k!=graph.end(); k++) {
 	row_print(*k);
-	printf("size of row: %d\n",k.size());
+	// printf("size of row: %d\n",k.size());
       }
     }
   }
