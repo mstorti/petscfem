@@ -481,3 +481,6 @@ tag: beta-1.94 on Tue Aug  7 20:48:32 ART 2001, by mstorti in spider
 tag: beta-1.95 on Wed Aug  8 08:29:11 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Run tests.
+----------
+tag: beta-1.96 on Thu Aug  9 12:15:37 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Jacobi (sparse) preconditioning for IISD is working. 
