@@ -189,7 +189,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10,
-    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16;
+    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17;
 
   masspg.set(1.);
   grad_u_ext.set(0.);
@@ -352,7 +352,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// resmom -= wpgdet * VISC * dshapex.t() * grad_u_star;
 	// version Crank-Nicholson 
 	tmp4.set(grad_u).scale(1-alpha).axpy(grad_u_star,alpha);
-	tmp5.prod(dshapex,tmp4,-1,2,-1,2);
+	tmp5.prod(dshapex,tmp4,-1,1,-1,2);
 	resmom.axpy(tmp5,-wpgdet*VISC);
 	SHV(resmom);
 	
@@ -364,9 +364,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// JACOBIAN CALCULATION
-	tmp7.prod(u_star,dshapex,-1,-1,1);
-	tmp8.prod(W,tmp7,1,2);
-	matlocmom2.axpy(tmp8,alpha*wpgdet);
+	tmp17.prod(u_star,dshapex,-1,-1,1);
+	tmp8.prod(W,tmp17,1,2);
+	matlocmom.axpy(tmp8,alpha*wpgdet);
 
 	masspg.prod(W,SHAPE,1,2);
 	tmp9.prod(masspg,grad_u_ext,1,3,2,4);
@@ -374,8 +374,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocmom2.is(2,1,ndim).is(4,1,ndim).axpy(tmp9,alpha * wpgdet).rs();
 
 	// Parte difusiva
-	tmp10.prod(dshapex,dshapex,1,2,3,4);
-	matlocmom.axpy(tmp10,alpha *wpgdet);
+	tmp10.prod(dshapex,dshapex,-1,1,-1,2);
+	matlocmom.axpy(tmp10,alpha*wpgdet*VISC);
 	
 	// Parte temporal
 	matlocmom.axpy(masspg,wpgdet/Dt);
@@ -461,16 +461,16 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_res_mom) {
       veccontr.is(2,1,ndim).set(resmom);
       veccontr.export_vals(&(RETVAL(ielh))).rs();
-      matloc.prod(seed,matlocmom,1,3,2,4).add(mom_mat_fix);
+      matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT(ielh)));
     } else if (comp_mat_poi) {
-      matloc.prod(seed,matlocmom,1,3,2,4).add(poi_mat_fix);
+      matloc.prod(matlocmom,seed,1,3,2,4).add(poi_mat_fix);
       matloc.export_vals(&(RETVALMAT_POI(ielh)));
     } else if (comp_res_poi) {
       veccontr.ir(2,ndof).set(rescont);
       veccontr.export_vals(&(RETVAL(ielh))).rs();
     } else if (comp_mat_prj) {
-      matloc.prod(seed,matlocmom,1,3,2,4).add(mom_mat_fix);
+      matloc.prod(matlocmom,seed,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
     } else if (comp_res_prj) {
       veccontr.is(2,1,ndim).set(resmom);
