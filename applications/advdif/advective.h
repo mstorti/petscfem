@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.40 2002/01/17 15:24:38 mstorti Exp $
+//$Id: advective.h,v 1.41 2002/01/18 00:32:47 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -203,7 +203,7 @@ public:
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
   NewAdvDifFF(const NewElemset *elemset_=NULL) 
-    : elemset(elemset_), enthalpy_fun(&identity_ef) {};
+    : elemset(elemset_), enthalpy_fun(NULL) {};
 
   /** Define the list of variables that are 
       treated logarithmically. Reads from the options 

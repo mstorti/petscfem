@@ -1,16 +1,43 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.1 2002/01/17 12:58:19 mstorti Exp $
+// $Id: stream.h,v 1.2 2002/01/18 00:32:47 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
 #include "advective.h"
 
-class stream_ff : public NewAdvDifFF {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class AdvDifFFWEnth;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class DummyEnthalpyFun : public EnthalpyFun {
+  AdvDifFFWEnth *s;
+public:
+  DummyEnthalpyFun(AdvDifFFWEnth *s_) : s(s_) {}
+  void enthalpy(FastMat2 &H, FastMat2 &U) ;
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+		   double w);
+  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class AdvDifFFWEnth : public NewAdvDifFF {
+  DummyEnthalpyFun ef;
+public:
+  AdvDifFFWEnth(const NewElemset *elemset_=NULL) 
+    : NewAdvDifFF(elemset_), ef(this) { enthalpy_fun = &ef; }
+  virtual void enthalpy(FastMat2 &H, FastMat2 &U)=0;
+  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+		   double w)=0;
+  virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class stream_ff : public AdvDifFFWEnth {
   double v;
 public:
 
-  stream_ff(const NewAdvDif *e) : NewAdvDifFF(e) {}
+  stream_ff(const NewAdvDif *e) : AdvDifFFWEnth(e)  {}
 
   /** This is called before any other in a loop and may help in
       optimization 
@@ -78,6 +105,11 @@ public:
   */ 
   void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 		  FastMat2 &N,double w);
+
+  void enthalpy(FastMat2 &H, FastMat2 &U);
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+		   double w);
+  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
 
   /** This stream elemset is essentially 1D.
       @return the dimension of the advective elemset.

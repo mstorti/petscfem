@@ -7,13 +7,43 @@
 #include "stream.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DummyEnthalpyFun
+::enthalpy(FastMat2 &H, FastMat2 &U) {
+  s->enthalpy(H,U); 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DummyEnthalpyFun
+::comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+	      double w) {
+  s->comp_W_Cp_N(W_Cp_N,W,N,w);
+}
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DummyEnthalpyFun
+::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
+  s->comp_P_Cp(P_Cp,P_supg);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void stream_ff::enthalpy(FastMat2 &H, FastMat2 &U) {
+  H.set(U);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void stream_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+			    double w) {
+  W_Cp_N.ir(2,1).ir(4,1);
+  W_Cp_N.prod(W,N,1,2).scale(w).rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void stream_ff::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
+  P_Cp.set(P_supg);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
   v = 10.;
-  int nel,ndof,nelprops;
-  elemset->elem_params(nel,ndof,nelprops);
-  IdentityEF *ef = dynamic_cast<IdentityEF *>(enthalpy_fun);
-  assert(ef);
-  ef->init(ndof,1,nel);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
