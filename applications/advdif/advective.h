@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.28 2001/05/22 01:51:59 mstorti Exp $
+//$Id: advective.h,v 1.29 2001/05/22 02:53:44 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -288,7 +288,7 @@ public:
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
   /// Destructor. Destroys the flux function object. 
-  ~NewAdvDif() {if (adv_dif_ff) delete adv_diff_ff;}
+  ~NewAdvDif() {if (adv_diff_ff) delete adv_diff_ff;}
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
@@ -413,11 +413,10 @@ public:
 /// Generic surface flux element
 class GenLoad : public NewElemset { 
 public: 
-  HFilmFun &h_film_fun;
+  HFilmFun *h_film_fun;
   virtual NewAssembleFunction new_assemble;
   virtual ASK_FUNCTION;
   virtual ~GenLoad()=0;
-  GenLoad(HFilmFun &h) : h_film_fun(h);
 };
 
 /// Generic surface flux function (film function) element
@@ -433,7 +432,7 @@ public:
 class LinGenLoad : public GenLoad { 
 public: 
   LinearHFilmFun linear_h_film_fun;
-  LinGenLoad() : linear_h_film_fun(this) {h_film_fun = linear_h_film_fun;};
+  LinGenLoad() : linear_h_film_fun(this) {h_film_fun = &linear_h_film_fun;};
 };
 
 /// Global parameters passed to the elemsets

@@ -246,7 +246,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 
-  int start_chunk=1;
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* write a generic non-linear restriction element
 * add the genload elemset to advdif.
 * fix some incompatibilities that exclude compilation with LES under old RH5.2
          of some STL vector usage.
