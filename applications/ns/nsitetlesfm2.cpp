@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.39 2001/10/09 02:37:58 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.40 2001/10/09 16:57:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -148,10 +148,12 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // (which is equivalent to $\Dt=\infty$) then
   // \verb+temporal_stability_factor+ is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
+  if (comp_mat_res) { // Fixed by Beto August 23 2001
+    if (glob_param->steady) temporal_stability_factor=0;
+  }
   //o Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
   //  independently of $h$. (Mainly for debugging purposes). 
   SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
-  if (comp_mat_res && glob_param->steady) temporal_stability_factor=0;
   double &alpha = glob_param->alpha;
 
   //o _T: double[ndim] _N: G_body _D: null vector 
@@ -558,9 +560,15 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
-	    tmp18.prod(dshapex,tmp19,2,3,4,1);
-	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+//  	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
+//  	    tmp18.prod(dshapex,tmp19,2,3,4,1);
+//  	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+            tmp19.set(dshapex).scale(nu_eff*wpgdet);
+            tmp18.prod(dshapex,tmp19,2,3,4,1);
+            matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
+            tmp19.set(dshapex).scale(delta_supg*rho*wpgdet);
+            tmp18.prod(dshapex,tmp19,2,1,4,3);
+            matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 	  } else {
 	    grad_div_u_coef += (delta_supg*rho+nu_eff)*wpgdet;
 	    if (!grad_div_u_was_cached) {
