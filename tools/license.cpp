@@ -1,11 +1,11 @@
 \/.__<L>__
 //__<L>__
 //  [-begin-license-]-----------------------------------------------------
-//  CURRENT VERSION FOR PETSC-FEM: beta-1.84
+//  CURRENT VERSION FOR PETSC-FEM: beta-2.72.pl1
 //  
 //  This  file  belongs  to  the  PETSc  -  FEM  package,  a  library  and
 //  application  suite oriented  to  the Finite  Element  Method based  on
-//  PETSc.   Copyright  (C)  1999-2001,  Mario  Alberto  Storti,  Norberto
+//  PETSc.   Copyright  (C)  1999-2002,  Mario  Alberto  Storti,  Norberto
 //  Marcelo Nigro, Centro Internacional de Metodos Numericos en Ingenieria
 //  (CIMEC-Argentina),  Universidad Nacional del  Litoral (UNL-Argentina),
 //  Consejo   Nacional   de   Investigaciones   Cientificas   y   Tecnicas

@@ -14,7 +14,7 @@ void print_copyright() {
 -----------------------------<http://minerva.ceride.gov.ar/petscfem>--
 This is PETSc-FEM, version <:$t=`cat ../VERSION`; chomp $t; print $t:>\
    (compiled with BOPT=\"<: print $ENV{'BOPT'}:>\")
-Copyright (C) 1999-2001 Mario A. Storti, Norberto M. Nigro, CIMEC-CONICET-UNL
+Copyright (C) 1999-2002 Mario A. Storti, Norberto M. Nigro, CIMEC-CONICET-UNL
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,
 and you are welcome to redistribute it under certain conditions.
 -----------------------------------------------------------------------

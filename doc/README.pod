@@ -38,7 +38,7 @@ root directory of the distribution.
 
 This file belongs to he PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc.  Copyright
-(C) 1999-2001, Mario Alberto Storti, Norberto Marcelo Nigro, Centro
+(C) 1999-2002, Mario Alberto Storti, Norberto Marcelo Nigro, Centro
 Internacional de Metodos Numericos en Ingenieria (CIMEC-Argentina),
 Universidad Nacional del Litoral (UNL-Argentina), Consejo Nacional de
 Investigaciones Cientificas y Tecnicas (UNL-Argentina).
@@ -173,13 +173,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-2.41.tar.gz> package,
+Once you got the I<petscfem-beta-2.72.pl1.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-2.41.tar.gz
-  $ tar xvf petscfem-beta-2.41.tar
+  $ gunzip petscfem-beta-2.72.pl1.tar.gz
+  $ tar xvf petscfem-beta-2.72.pl1.tar
 
-This will create a I<petscfem-beta-2.41> directory with
+This will create a I<petscfem-beta-2.72.pl1> directory with
 all the source files included.
 
 =head2 Makefile variables
