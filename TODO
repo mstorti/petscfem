@@ -3,7 +3,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* add tests with `sqcav' and several processors
 * Check if the `-O1 measperf.cpp' problem is fixed.
 * Fix documentation. New version of latex2html screwed all up. 
 * Write tests for IISD with subpartitioning.
@@ -51,6 +50,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* add tests with `sqcav' and several processors
 * merge turbulence enhancements.
 * merge adaptors developed in Chile
 * reenable the `cache_grad_div_u' feature. It works, but there is not
