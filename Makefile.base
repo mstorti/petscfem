@@ -53,22 +53,23 @@ ODOC = $(PETSCFEM_DIR)/tools/odoc.pl
 include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
 G_COPTFLAGS      = -ggdb
 
-.PHONY: tags lclean general_clean force libpetscfem
+.PHONY: tags lclean general_clean force libpetscfem depend local_depend
 
 #w Build the library
 libpetscfem: force 
 	$(MAKE) -C $(PETSCFEM_DIR)/src compile
 
+local_depend: force 
+ifneq ($(SRCS),)
+	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > $@
+endif
+
 #w Creates the dependency file makefile.d
-depend: 
-	$(MAKE) makefile.d
+depend: local_depend force
+ifneq ($(DEPEND_DIRS),)
 	for dir in $(DEPEND_DIRS) ; \
 		do $(MAKE) -C $$dir depend ;\
 	done
-
-makefile.d: 
-ifneq ($(SRCS),)
-	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > $@
 endif
 
 TAGS: $(SRCS)
@@ -144,7 +145,7 @@ $(ODOC) -o $@ $<
 -chmod -w $@
 endef
 
-ifeq (makefile.d,$(wildcard makefile.d))
+ifeq (makefile.d,$(wildcard makefile.d)) 
 include makefile.d
 endif
 

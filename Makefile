@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2001/01/20 10:15:23 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2001/01/20 19:27:15 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
@@ -7,6 +7,17 @@ SHELL = /bin/bash
 APPS = adv advdif ns laplace
 APPDIRS = advective advdif ns laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
+
+CLEAN_DIRS := src $(APPDIRS) doc test run run/LES run/algebfs run/sqcav tools
+
+SRCDIRS := src $(APPDIRS) test 
+
+SRCS := 
+
+DEPEND_DIRS := $(SRCDIRS)
+
+SWDIRS := test
+
 
 #p [in Makefile]
 
@@ -72,16 +83,6 @@ laplace: libpetscfem
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
 %.cppi: %.cpp
 	g++ -E $(CCPPFLAGS) $< > $@ ; chmod u-w $@
-
-CLEAN_DIRS = src $(APPDIRS) doc test run run/LES run/algebfs run/sqcav tools
-
-SRCDIRS = src $(APPDIRS) test 
-
-SRCS = 
-
-DEPEND_DIRS = $(SRCDIRS)
-
-SWDIRS := test
 
 #w Resyncs some administrative files with the current version number.
 sync_version: 	
