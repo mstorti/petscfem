@@ -60,7 +60,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		       const TimeData *time_) {
 
   assert(fractional_step);
-  int ierr=0;
+  int ierr=0, axi;
 
   GET_JOBINFO_FLAG(comp_mat_prof);
   GET_JOBINFO_FLAG(comp_res_mom);
@@ -68,6 +68,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_res_poi);
   GET_JOBINFO_FLAG(comp_mat_prj);
   GET_JOBINFO_FLAG(comp_res_prj);
+  GET_JOBINFO_FLAG(get_nearest_wall_element);
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
@@ -80,6 +81,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+#define ELEMIPROPS_ADD(j,k) VEC2(elemiprops_add,j,k,neliprops_add)
+#define NN_IDX(j) ELEMIPROPS_ADD(j,0)
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
   
@@ -103,6 +106,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   double *locst,*locst2,*retval,*retvalmat,*retvalmat_mom,*retvalmat_poi,
     *retvalmat_prj;
+  WallData *wall_data;
 
   // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
   // for steady solutions it is set to 0. (Dt=inf)
@@ -126,7 +130,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } else if (comp_mat_poi) {
     int ja=0;
     A_poi_arg = &arg_data_v[ja];
-    retvalmat_poi = arg_data_v[ja].retval;
+    retvalmat_poi = arg_data_v[ja++].retval;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    Dt = glob_param->Dt;
   } else if (comp_res_poi) {
     int ja=0;
     locst = arg_data_v[ja++].locst;
@@ -154,7 +160,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
     locstate(2,nel,ndof),locstate2(2,nel,ndof),tmp(2,nel,ndof),
-    ustate2(2,nel,ndim);
+    ustate2(2,nel,ndim),G_body(1,ndim);
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -169,6 +175,29 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
 
+  //o Add axisymmetric version for this particular elemset.
+  TGETOPTDEF_S(thash,string,axisymmetric,none);
+  assert(axisymmetric.length()>0);
+  if (axisymmetric=="none") axi=0;
+  else if (axisymmetric=="x") axi=1;
+  else if (axisymmetric=="y") axi=2;
+  else if (axisymmetric=="z") axi=3;
+  else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Invalid value for \"axisymmetric\" option\n"
+		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
+    PetscFinalize();
+    exit(0);
+  }
+
+  //o Add LES for this particular elemset.
+  SGETOPTDEF(int,LES,0);
+  //o Smagorinsky constant.
+  SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
+  //o van Driest constant for the damping law.
+  SGETOPTDEF(double,A_van_Driest,0); 
+  assert(A_van_Driest>=0.);
+
   double alpha=0.5, gammap=0.0;
   ierr = get_double(thash,"alpha",&alpha,1); CHKERRA(ierr);
   ierr = get_double(thash,"gamma_pressure",&gammap,1); CHKERRA(ierr);
@@ -177,16 +206,24 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Factor para la estabilizacion
   double taufac=1.0;
+  ierr = get_double(thash,"taufac",&taufac,1); CHKERRA(ierr);
 
   DEFPROP(viscosity);
 #define VISC (*(propel+viscosity_indx))
 
   int nprops=iprop;
+
+  //o _T: double[ndim] _N: G_body _D: null vector 
+  // _DOC: Vector of gravity acceleration (must be constant). _END
+  G_body.set(0.);
+  ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
   
   //o Density
   TGETOPTDEF(thash,double,rho,1.);
   //o Factor masking the fractional step stabilization term. 
   TGETOPTDEF(thash,double,dt_art_fac,1.);
+  //o characteristic velocity for pressure stabilization 
+  TGETOPTDEF(thash,double,U_char,0.);
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
 
@@ -203,8 +240,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     grad_u(2,ndim,ndim),grad_u_star(2,ndim,ndim),dshapext(2,nel,ndim),
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim), grad_p_star(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
-  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10,
-    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17;
+  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp71,tmp8,tmp9,tmp10,
+    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17,xc,wall_coords(ndim),dist_to_wall;
+
+  FMatrix Jaco_axi(2,2),u_axi,strain_rate(ndim,ndim);
+  int ind_axi_1, ind_axi_2;
+  double detJaco_axi;         
+  if (axi) assert(ndim==3);
 
   masspg.set(1.);
   grad_u_ext.set(0.);
@@ -295,6 +337,20 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
     }
     xloc.rs();
+
+    if (get_nearest_wall_element && A_van_Driest>0.) {
+      assert(LES);
+#ifdef USE_ANN
+      xc.sum(xloc,-1,1).scale(1./double(nel));
+      int nn;
+      wall_data->nearest(xc.storage_begin(),nn);
+      NN_IDX(k) = nn;
+      continue;
+#else
+      PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
+    }
+
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
     if (comp_res_mom || comp_res_poi || comp_res_prj) {
@@ -307,9 +363,29 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom.set(0.);
     rescont.set(0.);
 
+    double shear_vel;
+    if (comp_res_mom) {
+      int wall_elem;
+      if (LES && A_van_Driest>0.) {
+#ifdef USE_ANN
+	if (!wall_data) { set_error(2); return 1; }
+	Elemset *wall_elemset;
+	const double *wall_coords_;
+	wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
+	wall_coords.set(wall_coords_);
+	shear_vel = wall_elemset->elemprops_add[wall_elem];
+#else
+	PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
+      }
+      
+    }
+    
+
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
+#define WPG_SUM  (gp_data.wpg_sum)
 
     // loop over Gauss points
 
@@ -328,7 +404,31 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
-      
+
+      double Area = detJaco*WPG_SUM, Delta;
+      if (ndim==2) {
+	Delta = sqrt(Area);
+      } else if (ndim==3 && axi==0) {
+	Delta = cbrt(Area);
+      } else if (ndim==3 && axi>0) {
+
+        ind_axi_1 = (  axi   % 3)+1;
+        ind_axi_2 = ((axi+1) % 3)+1;
+
+        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_1),1,1);
+        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_2),1,2);
+        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_1),2,1);
+        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
+
+        detJaco_axi = Jaco_axi.det();
+        double Area_axi = 0.5*detJaco_axi*WPG_SUM;
+	Delta = sqrt(Area_axi);
+      } else {
+	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
+      }
+
+      double u2 ,Uh;      
+
       if (comp_res_mom) {
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// PREDICTOR STEP
@@ -347,16 +447,52 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_p.prod(dshapex,locstate2,1,-1,-1);
 	locstate2.rs();
 
-	double u2 = u.sum_square_all();
-	uintri.prod(iJaco,u,1,-1,-1);
-	double Uh = sqrt(uintri.sum_square_all())/2.;
+	// Smagorinsky turbulence model
+	double nu_eff;
+	if (LES) {
 
-	if(u2<=1e-6*(2.*Uh*VISC)) {
+	strain_rate.set(grad_u_star);
+	grad_u_star.t();
+	strain_rate.add(grad_u_star).scale(0.5);
+	grad_u_star.rs();
+
+	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+	  double van_D;
+	  if (A_van_Driest>0.) {
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    double ywall = sqrt(dist_to_wall.sum_square_all());
+	    double y_plus = ywall*shear_vel/VISC;
+	    van_D = 1.-exp(-y_plus/A_van_Driest);
+	    if (k % 250==0) printf("van_D: %f\n",van_D);
+	  } else van_D = 1.;
+	  
+	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+	  nu_eff = VISC + nu_t;
+	} else {
+	  nu_eff = VISC;
+	}
+
+        u2 = u.sum_square_all(); 
+
+        if(axi>0){
+          u_axi.set(u);
+          u_axi.setel(0.,axi);
+          u2 = u_axi.sum_square_all();
+	  uintri.prod(iJaco,u_axi,1,-1,-1);
+	  Uh = sqrt(uintri.sum_square_all())/2.;
+        } else {
+	  uintri.prod(iJaco,u,1,-1,-1);
+	  Uh = sqrt(uintri.sum_square_all())/2.;
+	}
+
+	//	if(u2<=1e-6*(2.*Uh*VISC)) {
+	if(u2<=1e-6*(2.*Uh*nu_eff)) {
 	  Peclet=0.;
 	  psi=0.;
 	  tau=0.;
 	} else {
-	  Peclet = u2 / (2. * Uh * VISC);
+	  //	  Peclet = u2 / (2. * Uh * VISC);
+	  Peclet = u2 / (2. * Uh * nu_eff);
 	  psi = 1./tanh(Peclet)-1/Peclet;
 	  tau = psi/(2.*Uh);
 	}
@@ -381,7 +517,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// version Crank-Nicholson 
 	tmp4.set(grad_u).scale(1-alpha).axpy(grad_u_star,alpha);
 	tmp5.prod(dshapex,tmp4,-1,1,-1,2);
-	resmom.axpy(tmp5,-wpgdet*VISC);
+	//	resmom.axpy(tmp5,-wpgdet*VISC);
+	resmom.axpy(tmp5,-wpgdet*nu_eff);
 	SHV(resmom);
 	
 	// Parte temporal
@@ -389,6 +526,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp7.prod(W,tmp6,1,2);
 	resmom.axpy(tmp7,-wpgdet/Dt);
 	SHV(resmom);
+
+	// Fuerza de cuerpo
+	tmp71.prod(W,G_body,1,2);
+	resmom.axpy(tmp71,wpgdet);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// JACOBIAN CALCULATION
@@ -403,7 +544,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Parte difusiva
 	tmp10.prod(dshapex,dshapex,-1,1,-1,2);
-	matlocmom.axpy(tmp10,alpha*wpgdet*VISC);
+	//	matlocmom.axpy(tmp10,alpha*wpgdet*VISC);
+	matlocmom.axpy(tmp10,alpha*wpgdet*nu_eff);
 	
 	// Parte temporal
 	matlocmom.axpy(masspg,wpgdet/Dt);
@@ -414,7 +556,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	if (dt_art_fac > 0.0) {
 	  double area = detJaco * gp_data.wpg_sum;
 	  double h = pow(area,1.0/double(ndim));
-	  dt_fac += dt_art_fac*h*h/VISC;
+	  dt_fac += dt_art_fac/Dt*(1. /(4.*VISC/h/h+2.*U_char/h)); 
+	  //	  dt_fac += dt_art_fac*h*h/VISC;
 	} 
 
 	if (comp_res_poi) {

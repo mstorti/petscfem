@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.87 2004/09/30 16:52:35 mstorti Exp $
+//$Id: advdife.cpp,v 1.88 2004/12/21 12:20:37 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -199,7 +199,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // the area section of the tube. Its gradient is needed for the
   // source term in the momentum eqs.
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),H(nH);
+  FMatrix  Hloc(nel,nH),H(nH),vloc_mesh(nel,ndim),v_mesh(ndim);
+  //  FastMat2 v_mesh;
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -255,6 +256,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,shocap,0.0);
   //o Report jacobians on random elements (should be in range 0-1).
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
+  //o ALE_flag : flag to ON ALE computation
+  NSGETOPTDEF(int,ALE_flag,0);
+  //o indx_ALE_xold : pointer to old coordinates in NODEDATA array excluding the first "ndim" values
+  NSGETOPTDEF(int,indx_ALE_xold,1);
+
   assert(compute_fd_adv_jacobian_random>0.
 	 && compute_fd_adv_jacobian_random <=1.);
 
@@ -373,6 +379,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24,tmp_sc,tmp_sc_v;
+  FMatrix tmp_ALE_01,tmp_ALE_02,tmp_ALE_03,tmp_ALE_04,tmp_ALE_05,tmp_ALE_06,tmp_ALE_07;
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
@@ -456,6 +463,16 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // END DEBUG
     }
 
+    // nodal computation of mesh velocity
+      if (ALE_flag) {
+	assert(nH >= ndim);
+	assert(indx_ALE_xold >= nH+1-ndim);
+	Hloc.is(2,indx_ALE_xold,indx_ALE_xold+ndim-1);
+	vloc_mesh.set(xloc).rest(Hloc).scale(rec_Dt_m).rs();
+	Hloc.rs();
+      } 
+      
+
     // loop over Gauss points
 
     Jaco_av.set(0.);
@@ -517,9 +534,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	H.prod(SHAPE,Hloc,-1,-1,1);
 	grad_H.prod(dshapex,Hloc,1,-1,-1,2);
       }
-
+            
       if (comp_res) {
-
+	
 	// state variables and gradient
 	Un.prod(SHAPE,lstaten,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
@@ -692,6 +709,22 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
 	adv_diff_ff->comp_A_grad_N(A_grad_N,dshapex);
 
+	// add ALE Galerkin terms 
+	if (ALE_flag) {
+	  v_mesh.prod(SHAPE,vloc_mesh,-1,-1,1);
+	  adv_diff_ff->get_Cp(Cp_bis);	  
+	  tmp_ALE_01.prod(v_mesh,dshapex,-1,-1,1);
+	  tmp_ALE_02.prod(v_mesh,grad_U,-1,-1,1);
+	  tmp_ALE_03.prod(SHAPE,Cp_bis,1,2,3);
+
+	  tmp_ALE_04.prod(tmp_ALE_03,tmp_ALE_02,1,2,-1,-1);
+	  veccontr.axpy(tmp_ALE_04,wpgdet);          
+
+	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
+	  matlocf.axpy(tmp_ALE_05,-wpgdet*ALPHA);          
+
+	}
+
 	// Termino Galerkin
 	if (weak_form) {
 	  //	  assert(!lumped_mass && beta_supg==1.); // Not implemented yet!!
@@ -747,6 +780,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// adding shock-capturing term
 	if (shocap>0. ) {
+	  delta_sc_v.set(0.0);
 	adv_diff_ff->compute_delta_sc_v(delta_sc_v);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
         delta_sc_v.addel(delta_sc,jdf);
@@ -774,16 +808,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	for (int jel=1; jel<=nel; jel++) {
 	  P_supg.ir(1,jel);
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
-	  //	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet);
-
 	  matlocf.ir(1,jel);
 
 	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
 	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 
-	// MODIF BETO 8/6
 	  if(!lumped_mass) {
 	    // Reactive term in matrix (SUPG term)
 	    adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
@@ -793,31 +824,19 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
 	    tmp22.prod(P_Cp,tmp21,1,3,2);
 	    matlocf.add(tmp22);
-	  }
-
-	  /*
-      // Reactive term in matrix (SUPG term)
-	  adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
-	  matlocf.add(N_P_C);
-
-	  tmp21.set(SHAPE).scale(beta_supg*wpgdet*rec_Dt_m);
-	  adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
-	  tmp22.prod(P_Cp,tmp21,1,3,2);
-	  if (lumped_mass) {
-	    // I think that if 'lumped_mass' is used then the
-	    // contribution to the mass matrix from the SUPG
-	    // perturbation term is null, but I include it.
-	    matlocf_mass.ir(1,jel).add(tmp22).rs();
-	  } else {
-	    matlocf.add(tmp22);
-	  }
-	  */
-
+	    
+	    if (ALE_flag) {
+	      tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
+	      matlocf.axpy(tmp_ALE_07,-wpgdet*ALPHA);
+	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
+	      veccontr.axpy(tmp_ALE_06,wpgdet);	      
+	    }	    
+	  }	  
 	  matlocf.rs();
           veccontr.rs();
 	}
 	P_supg.rs();
-
+	
       } else {
 
 	printf("Don't know how to compute jobinfo: %s\n",jobinfo);

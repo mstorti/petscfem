@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.3 2004/11/17 21:25:34 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.4 2004/12/21 12:20:37 mstorti Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -155,6 +155,9 @@ void bubbly_ff::start_chunk(int &ret_options) {
   // to scale the temporal term in the liquid continuity equation
   EGETOPTDEF_ND(elemset,double,factor_liq_mass_eq_mod,1.0);
 
+  // to consider or not rho in disperse transport eqs. 
+  EGETOPTDEF_ND(elemset,int,disperse_eqs_without_rho,0);
+
   // Schmidt number
   EGETOPTDEF_ND(elemset,double,Sc_number,1.0);
 
@@ -202,7 +205,7 @@ void bubbly_ff::start_chunk(int &ret_options) {
   vslip_user_vp.set(vslip_user);
   ierr = elemset->get_double("vslip_user_phases",*vslip_user_vp.storage_begin(),1,nphases);
 
-  //  slip velocity vector
+  //  source term vector
   alpha_source_vp.resize(1,nphases);
   alpha_source_vp.set(alpha_source);
   ierr = elemset->get_double("alpha_source_phases",*alpha_source_vp.storage_begin(),1,nphases);
@@ -459,7 +462,11 @@ void bubbly_ff::enthalpy(FastMat2 &H) {
     */
 
   H.is(1,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);
-  H.set(arho_g_vp);
+  if(disperse_eqs_without_rho==0) {
+    H.set(arho_g_vp);
+  } else {
+    H.set(alpha_g_vp);
+  } 
   H.rs();
 
   }
@@ -669,7 +676,12 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   Cp.setel(rho_g,alpha_indx,alpha_indx);
     */
   Id_vp.set(0.).d(1,2);
+  
+  if (disperse_eqs_without_rho==0) {
   Id_vp.set(rho_g_vp).rs();
+  } else {
+  Id_vp.set(1.0).rs();
+  }
 
   Cp.is(1,alpha_indx_vp[0],alpha_indx_vp[nphases-1]).is(2,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);
   Cp.set(Id_vp).rs();
@@ -709,7 +721,11 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
     */
 
   Id_vp.set(0.).d(1,2);
+  if (disperse_eqs_without_rho==0) {
   Id_vp.set(arho_g_vp).rs();
+  } else {
+  Id_vp.set(alpha_g_vp).rs();
+  }
 
   flux.is(1,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);
   flux.prod(Id_vp,v_g_vp,1,-1,2,-1).rs();
@@ -755,7 +771,9 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       alpha_g = alpha_g_vp.get(j);
       // alpha_l = 1-alpha_g;
       Ajac.ir(2,alpha_indx_vp[j-1]).ir(3,alpha_indx_vp[j-1]);
-      Ajac.set(v_g_vp).scale(rho_g);
+      Ajac.set(v_g_vp);
+      if (disperse_eqs_without_rho==0) Ajac.scale(rho_g);
+
       v_g_vp.rs();
       Ajac.rs();
       
@@ -766,8 +784,11 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       */
       if(coupled) {	
 	arho_g = arho_g_vp.get(j);
+	if (disperse_eqs_without_rho==0) {
 	Ajac.ir(2,alpha_indx_vp[j-1]).is(3,vl_indx,vl_indxe).axpy(Id,arho_g).rs();
-	
+	} else {
+	Ajac.ir(2,alpha_indx_vp[j-1]).is(3,vl_indx,vl_indxe).axpy(Id,alpha_g).rs();
+	}	
       }
     }    
     
@@ -775,10 +796,16 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       // agregado termino del jacobiano por modificacion de la velocidad slip en la escoria
       rho_g = rho_g_vp.get(nphases);
       arho_g = arho_g_vp.get(nphases);
+      alpha_g = alpha_g_vp.get(nphases);
       vslip = vslip_vp.get(nphases);
       
-      vaux = arho_g*vslip*(rho_g-rho_l)*rho_g/rho_m/rho_m;
-      Ajac.ir(1,abs(g_dir)).ir(2,alpha_indx_vp[nphases-1]).ir(3,alpha_indx_vp[nphases-1]).add(vaux).rs();
+      if (disperse_eqs_without_rho==0) {
+	vaux = arho_g*vslip*(rho_g-rho_l)*rho_g/rho_m/rho_m;
+	Ajac.ir(1,abs(g_dir)).ir(2,alpha_indx_vp[nphases-1]).ir(3,alpha_indx_vp[nphases-1]).add(vaux).rs();
+      } else {
+	vaux = alpha_g*vslip*(rho_g-rho_l)*rho_g/rho_m/rho_m;
+	Ajac.ir(1,abs(g_dir)).ir(2,alpha_indx_vp[nphases-1]).ir(3,alpha_indx_vp[nphases-1]).add(vaux).rs();
+      }
     }
   }
   Ajac.scale(mask_Ajac);
@@ -856,8 +883,8 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   visco_m_eff = alpha_l*visco_l+alpha_g*visco_g + visco_sato + rho_m*visco_t;
   visco_g_eff = rho_g*visco_t/Sc_number;
 
-  visco_m_eff = (visco_m_eff < 0 ? 1.0e-6 : visco_m_eff);
-  visco_g_eff = (visco_g_eff <= 0 ? 1.0e-6 : visco_g_eff);
+  visco_m_eff = (visco_m_eff <= 0 ? 1.0e-15 : visco_m_eff);
+  visco_g_eff = (visco_g_eff <= 0 ? 1.0e-15 : visco_g_eff);
 
   fluxd.set(0.);
   Djac.set(0.);
@@ -880,8 +907,9 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       rho_g = rho_g_vp.get(j);
       grad_alpha_g_vp.ir(2,j);
       grad_alpha_g.set(grad_alpha_g_vp);
-      visco_g_eff = rho_g*visco_t/Sc_number;
-      visco_g_eff = (visco_g_eff <= 0 ? 1.0e-6 : visco_g_eff);
+      visco_g_eff = visco_t/Sc_number;
+      if (disperse_eqs_without_rho==0) visco_g_eff = visco_g_eff * rho_g;
+      visco_g_eff = (visco_g_eff <= 0 ? 1.0e-15 : visco_g_eff);
       visco_g_eff_vp.setel(visco_g_eff,j);
       fluxd.ir(1,alpha_indx_vp[j-1]).set(grad_alpha_g).scale(visco_g_eff).rs();
       Djac.ir(2,alpha_indx_vp[j-1]).ir(4,alpha_indx_vp[j-1]).axpy(Id,visco_g_eff).rs();
@@ -914,7 +942,11 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       for (int j=1; j<=nphases; j++) {
 	rho_g = rho_g_vp.get(j);
 	alpha_source = alpha_source_vp.get(j);
+	if (disperse_eqs_without_rho==0) {
 	G_source.addel(alpha_source*rho_g,alpha_indx_vp[j-1]);
+	} else {
+	G_source.addel(alpha_source,alpha_indx_vp[j-1]);
+	}
       }
     }
   }
@@ -1000,7 +1032,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       }
 
       visco_g_eff = visco_g_eff_vp.get(j);
-      visco_supg = visco_g_eff/rho_g;
+      if (disperse_eqs_without_rho==0) visco_supg = visco_g_eff/rho_g;
 
       ijob=0;
       compute_tau(ijob);
@@ -1011,8 +1043,12 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       }
 
       tau_supg.setel(tau_supg_a,alpha_indx_vp[j-1],alpha_indx_vp[j-1]);
+      
+      if (disperse_eqs_without_rho==0) {
       delta_supg_vp.setel(delta_supg,j).scale(rho_g);
-
+      } else {
+	delta_supg_vp.setel(delta_supg,j);
+      }
       v_g_vp_old.rs();
 
     }

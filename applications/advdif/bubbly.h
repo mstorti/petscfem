@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.13 2004/11/11 18:32:19 mstorti Exp $
+// $Id: bubbly.h,v 1.14 2004/12/21 12:20:37 mstorti Exp $
 
 #include "./advective.h"
 #include "./stream.h"
@@ -14,7 +14,7 @@ class bubbly_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
     vl_indxe,vg_indxe;
-  int coupled;
+  int coupled, disperse_eqs_without_rho;
   FastMat2 U,v_l,v_g,v_mix,Cp,Ajac,Id,Amoml,Amomg,Y,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
     grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
@@ -28,6 +28,7 @@ private:
   FastMat2 grad_v_g_old,grad_v_l_old;
   FastMat2 ugn,uln;
   FastMat2 sign_Lambda_gas, VV_gas,VVi_gas;  // eigensystem decomposition of gas block
+  FastMat2 v_mesh,grad_v_mesh,v_l_mesh,v_g_mesh_vp;
 
   int comp_virtual_mass;
   double C_vm;
@@ -97,11 +98,6 @@ private:
   FastMat2 arho_g_vp,Id_vp,vslip_vp,vslip_user_vp,d_bubble_vp,vslip_m_vp,ones_vp,grad_alpha_g_vp,grad_alpha_l_vp;
   FastMat2 alpha_source_vp,visco_g_eff_vp,delta_supg_vp;
   double alpha_l_ctf, alpha_g_ctf;
-
-//   void compute_beta_pmm();
-//   void compute_tau_beta();
-//   void compute_tau_gas();
-//   void compute_tau(int ijob);
 
 public:
   bubbly_ff(NewElemset *elemset_);

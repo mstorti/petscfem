@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.27 2004/09/30 16:52:35 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.28 2004/12/21 12:20:37 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -82,7 +82,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Unpack nodedata
   int nu=nodedata->nu;
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),H(nH),grad_H;
+  FMatrix  Hloc(nel,nH),H(nH),grad_H(ndimel,nH);
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -251,9 +251,11 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       
       // This is because I don't know how to use 0
       // dimension matrices. 
-      if (nH>0) H.prod(SHAPE,Hloc,-1,-1,1);
-      // grad_H = 0; // it is not used in this calling to flux_fun
-
+      if (nH>0) {
+	H.prod(SHAPE,Hloc,-1,-1,1);
+	grad_H.set(0.0);  // no aporta al termino de contorno
+      }
+      
       // state variables and gradient
       U.prod(SHAPE,locstate,-1,-1,1);
       grad_U.set(0.);  // it is not used in this calling to flux_fun

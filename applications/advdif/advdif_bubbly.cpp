@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.11 2004/11/18 13:09:48 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.12 2004/12/21 12:20:36 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -599,6 +599,18 @@ int bubbly_main() {
     ierr = VecAXPY(&scal,xold,dx);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
+    if (tstep % nsave == 0){
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " --------------------------------------\n"
+		  "Time step: %d\n"
+		  " --------------------------------------\n",
+		  tstep);
+
+      print_vector(save_file.c_str(),x,dofmap,&time);
+      if (print_residual)
+	print_vector(save_file_res.c_str(),res,dofmap,&time);
+    }
+
     if (ngather>0) {
       gather_values.resize(ngather,0.);
       for (int j=0; j<ngather; j++) gather_values[j] = 0.;
@@ -635,17 +647,6 @@ int bubbly_main() {
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,
 		      &time,tstep-1,nsaverot,nrec,nfile);
 
-    if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
-		  " --------------------------------------\n"
-		  "Time step: %d\n"
-		  " --------------------------------------\n",
-		  tstep);
-
-      print_vector(save_file.c_str(),x,dofmap,&time);
-      if (print_residual)
-	print_vector(save_file_res.c_str(),res,dofmap,&time);
-    }
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
 

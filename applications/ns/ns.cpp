@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.156 2004/11/18 21:04:19 mstorti Exp $
+//$Id: ns.cpp,v 1.157 2004/12/21 12:20:40 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -670,6 +670,11 @@ int main(int argc,char **args) {
       ierr = VecCopy(x,dx_step);
       ierr = VecCopy(x,xold);
 
+#define PRE_STEP
+#define POI_STEP
+#define PRJ_STEP
+
+#ifdef PRE_STEP
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // FIRST (PREDICTOR) STEP
       argl.clear();
@@ -710,6 +715,25 @@ int main(int argc,char **args) {
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
 
+#if 0
+	ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRA(ierr);
+	PetscFinalize();
+	exit(0);
+#endif
+
+#if 0
+      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
+      ierr = VecView(x,matlab);
+      PetscFinalize();
+      exit(0);
+#endif
+
+#endif
+
+#ifdef POI_STEP
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // SECOND STEP POISSON
       ierr = VecCopy(x,xp);
@@ -719,6 +743,7 @@ int main(int argc,char **args) {
       if (tstep==1) {
 	argl.clear();
 	argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
+	argl.arg_add(&glob_param,USER_DATA);
 	debug.trace("-POISSON- Before matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
 	CHKERRA(ierr);
@@ -763,6 +788,9 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
+#endif
+
+#ifdef PRJ_STEP
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // THIRD STEP PROJECTION
       ierr = VecCopy(x,xp);
@@ -797,6 +825,8 @@ int main(int argc,char **args) {
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
+
+#endif
 
 #if 0
       ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
