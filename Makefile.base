@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.60 2002/01/15 20:15:31 mstorti Exp $
+#$Id: Makefile.base,v 1.61 2002/02/06 20:13:31 rodrigop Exp $
 
 #p [in Makefile.base]
 #s General
@@ -35,8 +35,7 @@ ifdef RH60
 endif
 
 BISON = bison -d
-# Finite State Machine compiler, by Robert Martin
-SMC = smc
+
 ifeq ($(TAGINCL),)
 TAGINCL = --etags-include
 endif
