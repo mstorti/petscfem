@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.10 2003/08/09 14:27:44 mstorti Exp $
+// $Id: dvector2.h,v 1.11 2003/08/10 01:32:06 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -180,44 +180,42 @@ void dvector<T>::clear(void) { shrink(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-dvector<T>& dvector<T>::mono(int size) {
+dvector<T>& dvector<T>::mono(int s) {
   clear();
-  set_chunk_size(size);
-  resize(size);
-  eta.defrag();
+  set_chunk_size(s);
+  resize(s);
+  defrag();
   return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-dvector<T>& dvector<T>::mono(int size,T e) {
-  mono(size);
+dvector<T>& dvector<T>::mono(int s,T e) {
+  mono(s);
   set(e);
   return *this;
 }
 
+int dvector<double>::read(FILE *fid,double &t);
+
+int dvector<int>::read(FILE *fid,int &t);
+
+int dvector<float>::read(FILE *fid,float &t);
+
+int dvector<double>::print(FILE *fid,double t);
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<double>::read(FILE *fid,double &t) {
-  int nread = fscanf(fid,"%lf",&t);
-  return nread!=1;
+template<class T>
+int dvector<T>::read(FILE *fid,T &t) {
+  printf("dvector<>: error: not implemented read "
+	 "function for this scalar type");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<int>::read(FILE *fid,int &t) {
-  int nread = fscanf(fid,"%d",&t);
-  return nread!=1;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<float>::read(FILE *fid,float &t) {
-  int nread = fscanf(fid,"%f",&t);
-  return nread!=1;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<double>::print(FILE *fid,double t) {
-  int ierr = fprintf(fid,"%.12g\n",t);
-  return ierr>=0;
+template<class T>
+int dvector<T>::print(FILE *fid,T t) {
+  printf("dvector<>: error: not implemented print "
+	 "function for this scalar type");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -227,7 +225,7 @@ dvector<T>& dvector<T>::read(FILE *fid) {
   assert(rank==1);
   int m=size();
   for (int j=0; j<m; j++) {
-    int ierr = read(fid,&eta.e(j));
+    int ierr = read(fid,e(j));
     assert(!ierr);
   }
   fclose(fid);
@@ -249,14 +247,12 @@ template<class T>
 dvector<T>& dvector<T>::cat(FILE *fid) {
   // Currently for vectors only (reshape after)
   assert(rank==1);
-  int m=size();
   while(1) {
     T val;
     int ierr = read(fid,val);
     if(ierr) break;
     push(val);
   }
-  fclose(fid);
   return *this;
 }
 
