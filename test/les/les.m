@@ -1,14 +1,11 @@
 ##__INSERT_LICENSE__
-## $Id: les.m,v 1.4 2003/01/08 15:49:04 mstorti Exp $
-source("~/.octaverc");
-
-nx=10;				# number of elements in one dimension
-nlay=5;			# number of element layers
+## $Id: les.m,v 1.5 2003/03/13 17:03:27 mstorti Exp $
+source("data.m.tmp");
+nlay=nz;			# number of element layers
 Lz=1;				# length in the z direction
                                 # Side Lx is 1.
 alpha=1.7;			# Controls refinement towards solid
 				# wall. alpha=1: linear, =2: quadratic
-dunoise=0.0;			# fraction of noise in the velocity field
 
 #########
 
@@ -78,8 +75,10 @@ nnod = rows(x3);
 z=x3(:,3);
 f=z.*(Lz-z)/Lz2^2;		# From 0 on the wall to one on the
 				# symmetry plane (z=Lz/2)
-
-u=[.3+(1-.3)*f+dunoise*(2*rand(nnod,1)-1) 0*z 0*z 0*z];
+x = x3(:,1);
+y = x3(:,2);
+z = x3(:,3);
+u=[f+du_pert*sin(L.*sin(2*pi*y)) 0*z 0*z 0*z];
 u(:,3) = u(:,3).*f;
 
 ## Fixations for the wall (if don't want to use LES)
