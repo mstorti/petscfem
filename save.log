@@ -2326,3 +2326,7 @@ tag: beta-3.16.pl4 on Sat,  8 Feb 2003 20:14:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.16.pl5 on Sun,  9 Feb 2003 11:51:07 -0300 by mstorti in spider
      > Working with DX+threads
+----------
+tag: beta-3.16.pl6 on Sun,  9 Feb 2003 19:40:12 -0300 by mstorti in spider
+     > Runs `dx_hook' for steps=0 (asynchronously) and steps>0 (synchronously). 
+     > But for the moment cant switch between modes. 
