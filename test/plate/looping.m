@@ -1,5 +1,5 @@
 source("data.m.tmp");
-omega = 1;
+omega = 0.2;
 
 ## Initialization
 if 0
@@ -24,7 +24,7 @@ while 1
      U(Nx:-1:1)];
 
   hx = Lx/Nx;
-  V = zeros(size(U));
+  VV = zeros(size(U));
   nnodx = rows(U);
 
   ## Loop over source panels
@@ -34,8 +34,8 @@ while 1
     xrel(k) = 1;
     ixrel = 1./xrel;
     ixrel(k) = 0;
-    V = V -(U(k)-1)*hx/pi*ixrel;
+    VV = VV -(U(k)-1)*hx/pi*ixrel;
   endfor
   
-  V=V(1:Nx+1);
+  V=VV(1:Nx+1);
 endwhile

@@ -4,9 +4,14 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
 $Lx = 8;
-$Ly = 4;
 $Nx = 200;
-$Ny = 80;
+if (1) { # check
+    $Ny = 80;
+    $Ly = 4;
+} else {
+    $Ny = 20;
+    $Ly = 1;
+}
 $xini = 3;
 $Lplate = 1;
 $yratio = 8;
@@ -27,7 +32,7 @@ save_file_pattern "outvector.out.tmp"
 nsave 10
 nsaverot 10
 initial_state "plate.ini.tmp"
-nstep 10
+nstep 5
 steady
 solver "iisd"
 iisd_subpart 1
