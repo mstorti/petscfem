@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.33 2004/12/24 21:18:41 mstorti Exp $
+// $Id: femref.cpp,v 1.34 2004/12/25 02:10:51 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -113,7 +113,8 @@ public:
 	node_info_map[new_node] = ni_p;
       }
     } else if (n==2) {
-      printf("node-comb (%d,%d)\n",nodes[0],nodes[1]);
+      printf("node-comb (%d,%d) -> %d\n",
+	     nodes[0],nodes[1],new_node);
       NodeInfoMapT::iterator 
 	q = node_info_map.find(nodes[0]);
       if(q == node_info_map.end()) {

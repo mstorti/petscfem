@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.14 2004/12/24 21:18:41 mstorti Exp $
+// $Id: visitor.cpp,v 1.15 2004/12/25 02:10:51 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -19,7 +19,7 @@ UniformMesh::visitor::visitor()
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
   elem = elem_a;
-  ref_stack.clear();
+  while(!ref_stack.empty()) pop();
   mesh  = &mesh_a;
   etree_p = mesh->elem_ref.e(elem);
   ElemRef::iterator q = etree_p->begin();
@@ -94,7 +94,8 @@ bool UniformMesh::visitor::so_next() {
       assert(qfather != etree_p->end());
       const Splitter *s = qfather->splitter;
 
-      ref_stack.pop_front();
+      pop();
+      // ref_stack.pop_front();
 
       if (j<s->size()-1) {
 	int jsib = j+1;
@@ -214,8 +215,9 @@ bool UniformMesh::visitor::level_so_next() {
     qfather = w->splitter;
     assert(qfather != etree_p->end());
     const Splitter *s = qfather->splitter;
-    
-    ref_stack.pop_front();
+
+    pop();
+    // ref_stack.pop_front();
     
     if (j<s->size()-1) {
       int jsib = j+1;
@@ -276,12 +278,15 @@ pop() {
     while (q!=w->ref_nodes.end()) {
       NodeInfoMapT::iterator 
 	r = node_info_map.find(*q);
+      printf("in visitor::pop: deleting "
+	     "nodeinfo for node %d\n",*q);	
       assert(r!=node_info_map.end());
       printf("in visitor::pop: deleting ");	
       (r->second)->print();
       delete (r->second);
       node_info_map.erase(r);
+      q++;
     }
-    ref_stack.pop_front();
   }
+  ref_stack.pop_front();
 }
