@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.7 2002/03/23 12:11:17 mstorti Exp $
+#$Id: makeltag,v 1.8 2002/04/07 15:29:11 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -11,7 +11,23 @@ sub ask {
     die "Aborting... \n" if $ans =~ /n/i;
 }
 
+## usage: insertbef <text>, <file>, <regexp>;
+## Insert <text> in <file> before line containing <regexp>
+sub insertbef {
+    my ($text,$file,$pos_rgxp) = @_;
+    rename $file, "$file~";
+    open FOLD,"$file~";
+    open FNEW,">$file";
+    while (<FOLD>) {
+	print FNEW "$text\n" if /^$pos_rgxp/;
+	print FNEW;
+    }
+    close FNEW;
+    close FOLD;
+}
+
 $save_log = shift();
+$notes = shift();
 $tmp = "./tmp_file_log.txt.tmp";
 
 system "echo n | cvs rel .";
@@ -57,6 +73,10 @@ if ( -f $tmp) {
 
 # system "cat $tmp >>save.log";
 close SVL;
+
+# Insert a tag in `notes' file
+insertbef "----------\n[tag: $newtag_ on $d by $w in $h]\n",
+    $notes, ".*Current line ===========" if $notes;
 
 open VRS,">VERSION";
 print VRS $newtag_;
