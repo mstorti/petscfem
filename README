@@ -73,7 +73,7 @@ INSTALLATION
 
     SuperLU
         A collection of ANSI C routines to solve sparse linear systems of
-        equations. Can be found at `http://acts.nersc.gov/superlu/'
+        equations. Can be found at `http://www.nersc.gov/~xiaoye/SuperLU/'
 
     Libretto
         This is a C library of generic containers and can be found at
@@ -136,13 +136,13 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-2.07.tar.gz* package, gunzip and untar
+    Once you got the *petscfem-beta-2.08.tar.gz* package, gunzip and untar
     it like this:
 
-      $ gunzip petscfem-beta-2.07.tar.gz
-      $ tar xvf petscfem-beta-2.07.tar
+      $ gunzip petscfem-beta-2.08.tar.gz
+      $ tar xvf petscfem-beta-2.08.tar
 
-    This will create a *petscfem-beta-2.07* directory with all the source
+    This will create a *petscfem-beta-2.08* directory with all the source
     files included.
 
   Makefile variables

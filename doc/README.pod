@@ -97,7 +97,7 @@ C<http://www.netlib.org/lapack/>.
 =item SuperLU
 
 A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at C<http://acts.nersc.gov/superlu/>
+equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>
 
 =item Libretto
 
@@ -171,13 +171,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-2.07.tar.gz> package,
+Once you got the I<petscfem-beta-2.08.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-2.07.tar.gz
-  $ tar xvf petscfem-beta-2.07.tar
+  $ gunzip petscfem-beta-2.08.tar.gz
+  $ tar xvf petscfem-beta-2.08.tar
 
-This will create a I<petscfem-beta-2.07> directory with
+This will create a I<petscfem-beta-2.08> directory with
 all the source files included.
 
 =head2 Makefile variables
