@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.105 2002/11/03 11:04:12 mstorti Exp $
+#$Id: Makefile.base,v 1.106 2002/11/15 16:37:47 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -266,7 +266,7 @@ $(PROG): $(PROG_bin)
 
 $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(LIBPETSCFEM)
 	$(MAKE) -W compdate.cpp "$(PROG_LIB)(compdate.o)"
-	-rm $@
+	if [ -e $@ ] ; then rm $@ ; fi
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 
 $(LIBPETSCFEM)(%.o): force
