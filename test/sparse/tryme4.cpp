@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.21 2002/07/21 05:10:52 mstorti Exp $
+// $Id: tryme4.cpp,v 1.22 2002/07/21 13:26:44 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -12,6 +12,8 @@ extern "C" {
 #include <libretto/darray.h>
 }
 
+#include "dvector.h"
+
 double drand() {  
   return ((double)(rand()))/((double)(RAND_MAX));
 }
@@ -19,118 +21,6 @@ double drand() {
 int irand(int imin,int imax) {
   return int(rint(drand()*double(imax-imin+1)-0.5))+imin;
 }
-
-template<class T>
-class dvector {
-private:
-  // size of each chunk
-  int chunk_size;
-  // total number of elements 
-  int size_m;
-  // Number of chunks position of first free element
-  int nchunks;
-  // pointers to chunks
-  vector<T *> chunk_vector;
-  // pointer to STL storage array in chunk_vector
-  T **chunks;
-  void reff(int j,int &chunk,int &k) {
-    chunk = j/chunk_size;
-    k = j % chunk_size;
-  }
-  void X(T &u,T &v) {
-    T t = u;
-    u = v;
-    v = t;
-  }
-#define V(j) ref(first+(j)-1)
-  void push_heap (int first, int p, int u) {
-    int i1, i2, q, r;
-    r = p ; // {indica posicion actual de V [primero] }
-    q = u / 2;
-    while (r <= q ) {
-      i1 = 2 * r ;
-      i2 = 2 * r + 1 ;
-      if (u == i1) {
-	if (V(r) < V(i1)) X( V(r), V(i1));
-	r = u ;
-      } else if ( V(r) < V(i1) && V(i1) >= V(i2)) {
-	X( V(r), V(i1)) ;
-	r = i1 ;
-      } else if ( V(r) < V(i2) && V(i2) >  V(i1)) {
-	X( V(r), V(i2)) ;
-	r = i2 ;
-      } else { // {r NO viola propiedad parcialmente ordenado}
-	r = u ; // {para forzar la terminacion del lazo}
-      }
-    }
-  }
-public:
-  dvector() { 
-    chunk_size = 100;
-    chunks = NULL;
-    size_m = nchunks = 0;
-  }
-  T &ref(int j) {
-    assert(j>=0 && j<size_m);
-    int chunk,k;
-    reff(j,chunk,k);
-    return chunks[chunk][k];
-  }
-  int size(void) { return size_m; }
-  void push(const T &t) {
-    int chunk,k;
-    reff(size_m,chunk,k);
-    if (k==0) {
-      assert(nchunks == chunk_vector.size());
-      chunk_vector.push_back(new T[chunk_size]);
-      chunks = chunk_vector.begin();
-      nchunks++;
-    }
-    ref(size_m++) = t;
-  }
-  void shrink(int new_size) {
-    assert(new_size<=size_m);
-    int chunk,k;
-    reff(new_size,chunk,k);
-    while (nchunks > chunk+1) {
-      delete[] chunk_vector[nchunks-1];
-      chunk_vector.pop_back();
-      nchunks--;
-    }
-    size_m = new_size;
-  }    
-    void resize(int new_size,T t) {
-    if (new_size > size_m) {
-      while (size_m<new_size) push(t);
-    } else shrink(new_size);
-  }
-  void resize(int new_size) { resize(new_size,T()); }
-  void clear(void) { shrink(0); }
-  void sort(int first=0, int last=-1) {
-    if (last==-1) last=size();
-    int i, j, n = last-first;
-    T t;
-    j = n / 2 ;
-    for (i = j; i>=1; i--) push_heap(first,i,n) ;
-    for (i = n; i>=2;  i--) {
-      X(V(1),V(i));
-      push_heap(first,1,i-1);
-    }
-  }
-  int bsearch(const T &t,int first=0, int last=-1) {
-    if (last==-1) last=size();
-    if (ref(first)>=t) return first;
-    if (last<=first) return last;
-    int p=first, q=last, r;
-    while (1) {
-      if (q==p+1) return q;
-      r = (p+q)/2;
-      if (ref(r)<t) p=r;
-      else q=r;
-    }
-    assert(0);
-  }
-};
 
 class graph {
 public:
@@ -292,16 +182,31 @@ int main(int argc, char **argv) {
       printf("j %d, j^3 %d, v(j) %d\n",j,j*j*j,v.ref(j));
     assert(j*j*j==v.ref(j));
   }
+
+  // check sort and bsearch
   v.clear();
-  for (int j=0; j<M; j++) v.push(irand(1,M));
+  int * flag = new int[M];
+  for (int j=0; j<M; j++) flag[j]=0;
+  for (int j=0; j<M; j++) {
+    int p = irand(1,M)-1; 
+    v.push(p);
+    flag[p]=1;
+  }
+    
   v.sort();
+  // check sorting
   for (int j=1; j<M; j++) assert(v.ref(j)>=v.ref(j-1));
 
+  // check bsearch
   for (int j=1; j<M; j++) {
     int p = v.bsearch(j);
     if (p>0) assert(v.ref(p-1)<j);
     if (p<v.size()) assert(v.ref(p)>=j);
   }
+
+  // check find
+  for (int j=0; j<M; j++) assert(v.find(j)==flag[j]);
+  delete[] flag;
 
 #if 0
   graph_da g;
