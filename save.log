@@ -1016,15 +1016,9 @@ tag: beta-2.84 on Tue Feb 12 17:02:33 ART 2002, by mstorti in minerva.arcride.ed
 tag: beta-2.84.pl1 on Wed Feb 13 09:06:30 ART 2002 by mstorti in minerva.arcride.edu.ar
      > Fixed case no `newton_relaxation_factor' line is entered.
 ----------
-tag: beta-2.84.pl2 on Wed Feb 13 09:09:51 ART 2002 by mstorti in minerva.arcride.edu.ar
-     > Start making `libpetscfem_O.a' and `libpetscfem_g.a' libraries, and 
-     > also in applications directories.
-----------
-tag: beta-2.84.pl3 on Wed Feb 13 12:26:42 ART 2002 by mstorti in minerva.arcride.edu.ar
-     > Partially working compiling `O' and `g' libraries for src/lib and ns
-----------
-tag: beta-2.85 on Fri Feb 15 09:48:15 ART 2002, by mstorti in minerva.arcride.edu.ar
-     > Writing new bubbly application for advdif (Navier-Stokes multiphase)
-----------
-tag: beta-2.85.pl1 on Fri Feb 15 16:57:06 ART 2002 by mstorti in minerva.arcride.edu.ar
-     > bubbly.cpp compiles
+tag: beta-2.84.pl1-fixed-1 on Sat Feb 16 14:30:47 ARST 2002, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > This version fixes the problem to run optimized versions (-O2) from
+     > beta-2.61 to beta-2.82. Basically, we have to compile `src/pfmat.o',
+     > `src/debug.o' and `test/pfmat/pfmat2.o' con `-O0'. Also, there was an
+     > error regarding `glob_param' in `application/advdif/diff.o'.
