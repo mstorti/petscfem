@@ -1,11 +1,12 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.40 2002/07/25 22:35:27 mstorti Exp $
+#$Id: Makefile,v 1.41 2002/07/30 23:56:59 mstorti Exp $
 
 SHELL = /bin/bash
 
-.PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
-		sw startwork fm2new sync_version applications 
+.PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags	\
+		sw startwork fm2new sync_version applications			\
+		ns_O ns_g
 
 APPS = adv advdif ns laplace
 APPDIRS = advective advdif ns laplace
@@ -125,13 +126,20 @@ DIRS = doc manual src ns advective tryme laplace
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>----
 # APPLICATIONS
 
+
 #w Builds the Navier Stokes module
 ns: libpetscfem 
 	$(MAKE) -C applications/ns ns$(osfx).bin
 
-#w Make NS module (O_c++ and g_c++)
-ns_all: 
+#w Make NS module (debugger and optimized versions)
+ns_all: ns_g ns_O
+
+#w Make NS module (debugger version)
+ns_g: 
 	$(MAKE) BOPT=g_c++ ns
+
+#w Make NS module (optimized version)
+ns_O:
 	$(MAKE) BOPT=O_c++ ns
 
 #w Make Advdif module (O_c++ and g_c++)
