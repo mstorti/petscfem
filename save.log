@@ -484,3 +484,7 @@ tag: beta-1.95 on Wed Aug  8 08:29:11 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.96 on Thu Aug  9 12:15:37 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Jacobi (sparse) preconditioning for IISD is working. 
+----------
+tag: beta-1.97 on Sun Aug 12 20:13:02 ART 2001, by mstorti in spider
+     > virtual/template problem solved, at least for simple examples with distmap. 
+     > Will add to the DistMatrix class. 
