@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.6 2004/12/19 16:17:44 mstorti Exp $
+// $Id: visitor.cpp,v 1.7 2004/12/19 18:53:34 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -13,10 +13,11 @@ using namespace std;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 UniformMesh::visitor::visitor() 
   : at_end(true), mesh(NULL), 
-    etree_p(NULL) { }
+    etree_p(NULL), trace(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem) {
+void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
+  elem = elem_a;
   ref_stack.clear();
   mesh  = &mesh_a;
   etree_p = mesh->elem_ref.e(elem);
@@ -39,8 +40,18 @@ bool UniformMesh::visitor::so_next() {
   ElemRef::iterator q, qs, qrsib, qfather;
   q = w->splitter;
   int j = w->so_indx;
-  printf("level %d, sibling %d,",ref_stack.size()-1,j);
-  w->go.print("");
+  if (trace) {
+    printf("elem %d, (siblings ",elem);
+    list<RefPathNode>::iterator 
+      r = ref_stack.begin(), t; 
+    t = r; t++;
+    while (t!=ref_stack.end()) {
+      printf("%d ",r->so_indx);
+      r = t; t++;
+    }
+    printf("), ");
+    w->go.print("go");
+  }
 
   if (q != etree_p->end()) {
     // `q' is a regular node for splitters (sure
@@ -105,11 +116,20 @@ bool UniformMesh::visitor::so_next() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::
-init() { assert(0); }
+init(UniformMesh &mesh_a) { 
+  init(mesh_a,0);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
-next() { assert(0); }
+next() { 
+  if (!so_next()) {
+    elem++;
+    if (elem >= mesh->nelem) return false;
+    init(*mesh,elem);
+  }
+  return true;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
@@ -117,7 +137,7 @@ so_end() { return at_end; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
-end() { assert(0); }
+end() { return at_end && elem>= mesh->nelem; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.32 2004/12/19 15:34:28 mstorti Exp $
+// $Id: femref.h,v 1.33 2004/12/19 18:53:34 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -284,11 +284,13 @@ public:
     UniformMesh *mesh;
     ElemRef *etree_p;    
     bool at_end;
+    int elem;
   public: 
+    int trace;
     visitor();
     list<RefPathNode> ref_stack;
     void init(UniformMesh &mesh_a,int elem);
-    void init();
+    void init(UniformMesh &mesh_a);
     bool next();
     bool so_next();
     bool so_end();
