@@ -1599,3 +1599,6 @@ tag: beta-3.04.pl10 on Thu, 12 Sep 2002 20:20:00 -0300 by mstorti in node1.beowu
 tag: beta-3.04.pl11 on Sun, 15 Sep 2002 21:16:38 -0300 by mstorti in spider
      > Added `lagrange_row_scale_factor'. 
      > Now `A_poi' is solved with CG. 
+----------
+tag: beta-3.04.pl12 on Mon, 16 Sep 2002 13:54:42 -0300 by mstorti in minerva.arcride.edu.ar
+     > Running square cavity with fractional step. 
