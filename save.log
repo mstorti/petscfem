@@ -1089,3 +1089,9 @@ tag: beta-2.92.pl1 on Sun Mar 10 22:28:40 -0300 2002 by mstorti in spider
 ----------
 tag: beta-2.93 on Tue Mar 12 22:15:29 -0300 2002, by mstorti in spider
      > Fixed the `timedata' bug
+----------
+tag: beta-2.93.pl1 on Wed Mar 13 16:41:31 -0300 2002 by mstorti in minerva.arcride.edu.ar
+     > Now the BOPT flag is stringified in `print_copyright()' from a macro
+     > defined in the makefile rather than from an environment variable. The
+     > other way it happened that the string remained in the same state as
+     > when version.cpp was created by ePerl from version.cppin. 
