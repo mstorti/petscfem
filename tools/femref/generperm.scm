@@ -139,6 +139,6 @@
 (check-gen (list (vector 4 3 5 1 0 2)
 		 (vector 1 2 0 4 5 3)) "oriented prism")
 
-(check-gen (list (vector 4 3 5 1 0 2)
-		 (vector 1 2 0 4 5 3)
+(check-gen (list (vector 4 3 5 1 0 2) ; quad face rot
+		 (vector 1 2 0 4 5 3) ; tri face rot
 		 (vector 1 0 2 4 3 5)) "unoriented prism")
