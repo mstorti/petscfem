@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.11 2003/01/10 13:39:22 mstorti Exp $
+//$Id: testfm2.cpp,v 1.12 2003/12/06 17:11:30 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -92,11 +92,14 @@ int main() {
   FastMat2 Z55(2,3,3),Z56(1,3),Z59,Z57(2,3,3),Z58;
   double z60[]={1.,.1,.1,-.1,1.,.1,-.1,-.1,1.};
   double z60b[]={1.,.1,.1,-.1,2.,.1,-.1,-.1,3.};
-  FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
-    Z69;
-  FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
-    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80,Z81(2,5,5),Z82,Z83(1,2),Z84(1,2),Z85;
-  double z76,z79;
+  FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),
+    Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,Z69;
+
+  FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),
+    Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
+    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80,
+    Z81(2,5,5),Z82,Z83(1,2),Z84(1,2),Z85,Z86(2,4,4);
+  double z76,z79,z86tr,z86tr2;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -121,6 +124,7 @@ int main() {
   init123(Z73);
   init123(Z83);
   Z84.set(Z83).add(1.);
+  init123(Z86);
 
   double d[4];
   
@@ -446,6 +450,13 @@ int main() {
       // Computes inverse
       Z81.set(0.1).d(1,2).set(2.).rs().setel(0.2,1,5);
       Z82.inv(Z81);
+
+      // 2 index trace
+      Z86.reshape(2,4,4);
+      z86tr = Z86.trace();
+      Z86.reshape(4,2,2,2,2);
+      z86tr2 = Z86.ir(1,1).ir(3,1).trace();
+      Z86.rs();
     }
     FastMat2::void_cache();
   }
@@ -578,6 +589,15 @@ int main() {
   SH(Z83);
   SH(Z84);
   SH(Z85);
+
+  Z86.reshape(2,4,4);
+  SH(Z86);
+  SHV(z86tr);
+
+  Z86.reshape(4,2,2,2,2)
+    .ir(1,1).ir(3,1).trace();
+  SH(Z86);
+  SHV(z86tr2);
 
 #undef SH
 
