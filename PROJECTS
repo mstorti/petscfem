@@ -4,6 +4,7 @@ PROJECTS: [These are new improvements to be done in a future...]
 =========
 
 * Interface preconditioning for IISD
+* Allow several subdomains in one processor in IISD
 * Modify 'elemset.cpp' so that processing of several elemsets 
   is non blocking, for instance using a self-scheduling algorllithm. 
 * Scripting interface with SWIG or GUILE.
