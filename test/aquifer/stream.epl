@@ -3,13 +3,13 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('casen',undef);
-$save_file = ($casen ? "stream.$casen.tmp" : "stream.state.tmp");
+get_var_env('fric',undef);
+get_var_env('shape',undef);
+die "not defined friction model\n" unless $fric;
+die "not defined channel shape\n" unless $shape;
+$save_file = ($casen ? "$casen.state.tmp" : "stream.state.tmp");
 $casename = $casen;
-@subcases = split "_",$casen;
-die "incorrect case name: casen=$casen\n" unless $#subcases==1;
-$fric = $subcases[0];
-$shape = $subcases[1];
-$Nx = 50;
+$Nx = 20;
 $Lx = 1;			# Side of the cavity
 $Dt = 0.1;			# time step
 $nstep = 20;
@@ -87,7 +87,7 @@ roughness 1.345
 #if $shape eq "rect"
 shape "rectangular"
 width 1.
-#elsif $shape eq ""
+#elsif $shape eq "circular"
 shape "circular"
 radius 5
 #else
@@ -102,6 +102,7 @@ __END_ELEMSET__
 
 end_elemsets
 
+#if 0
 fixa_amplitude dl_generic
 ext_filename "./fun.efn"
 function_name "smramp"
@@ -144,4 +145,8 @@ delta 0.7
 __END_HASH__
  1 1 1.
 __END_FIXA__
+#endif
 
+fixa
+1 1 1.5
+__END_FIXA__

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.51 2002/02/09 22:26:38 mstorti Exp $ 
+# $Id: Makefile,v 1.52 2002/02/11 13:19:42 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -63,7 +63,7 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat
+	sparse graph sqcav pfmat aquifer
 
 runtests_p: sqcav
 
@@ -405,5 +405,9 @@ sqcav:
 pfmat:
 	$(MAKE) -C pfmat tests
 
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Tests for the Hydrology related elemsets
+aquifer:
+	$(MAKE) -C aquifer tests
 
 #s

@@ -1305,13 +1305,6 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
-print "\n",'-' x 50,"\n\n";
-end_section();
-
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-
 begin_section('Advective/Hydrology module');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -1333,6 +1326,14 @@ expect("aquifer/var_eta1.verif.tmp","Variable aquifer bottom",
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("aquifer/transient.verif.tmp","Transient - Constant aquifer bottom",
        'test OK \? 1');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("aquifer/stream.verif.tmp","Stream elemset",
+        read_file("aquifer/stream.verif.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("aquifer/aquist.verif.tmp","aquifer+stream coupling",
+        read_file("aquifer/aquist.verif.ans"));
 
 end_section();
 

@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.12 2002/02/10 22:33:28 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2002/02/11 13:18:54 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
 #w All tests
-tests: test_plain test_var_eta test_transient
+tests: test_plain test_var_eta test_transient test_stream test_as
 
 #w Runs program for the `aquifer' tests
 run: CASE=aqui
@@ -55,14 +55,22 @@ test_var_eta:
 #w Test transient with constant depth
 test_transient:
 	$(MAKE) casen=transient run
+	octave -q checku.m > transient.verif.tmp
 
 #w Test for the stream elemset
 test_stream_chezy_rect: fun.efn fun2.efn fun3.efn
 	$(MAKE) casen=chezy_rect runs
 
+#w Test for the stream elemset
+test_stream:
+	$(MAKE) fric=chezy shape=rect casen=chezy_rect runs
+	$(MAKE) fric=manning shape=circular casen=mann_circ runs
+	octave -q checks.m > stream.verif.tmp
+
 #w Test the coupled aquifer+stream test
 test_as:
-	$(MAKE) runas
+	$(MAKE) casen=aquist runas
+	octave -q checkas.m > aquist.verif.tmp
 
 #w Make data
 data: force

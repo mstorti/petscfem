@@ -8,7 +8,7 @@ $casename = $casen;
 $steady = 0;
 $eta0=-0.5;
 $alpha=1;
-$nstep=30;
+$nstep=50;
 $var_eta=0;
 $etaL = $eta0;
 if ($casen eq 'var_eta0') {
@@ -24,7 +24,7 @@ $Ny = 20;
 $Lx = 1;			# Side of the cavity
 $Ly = $Lx;			# Side of the cavity
 $hratio = 1;			# refinement (h_center/h_wall)
-$K = 1.5;
+$K = 0.2;
 $S = 2.3;
 $eta = $eta0;
 $Dt = 0.1;			# time step
@@ -36,7 +36,7 @@ $slope = 0.01;
 #
 #__END_TRANSCRIPT__
 @vars = qw(t Nx Ny Lx Ly hratio K S casen var_eta 
-    eta0 etaL Dt steady slope);
+    nstep eta0 etaL Dt steady slope);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -145,5 +145,5 @@ fixa
 ## set water depth at the inlet
 # Nx <:=$Nx:>
 # Ny <:=$Ny:>
-<:=(($Nx+1)*($Ny+1)+1):> 1 0.3
+<:=(($Nx+1)*($Ny+1)+1):> 1 0.6
 __END_FIXA__
