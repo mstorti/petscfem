@@ -1189,3 +1189,9 @@ tag: beta-2.94.pl20 on Sun, 16 Jun 2002 12:25:36 -0300 by mstorti in spider
 ----------
 tag: beta-2.94.pl21 on Wed, 26 Jun 2002 17:53:45 -0300 by mstorti in minerva.arcride.edu.ar
      > Will add some fixes and improvements from Beto. 
+----------
+tag: beta-2.94.pl22 on Wed, 26 Jun 2002 17:59:26 -0300 by mstorti in minerva.arcride.edu.ar
+     > Added some fixes and improvements from Beto. 
+     > ADD_GRAD_DIV_U_TERM was not defined in some elemsets.
+     > Improves to `bubbly' elemset.
+     > Axisymmetric option added to some NS elemsets. 
