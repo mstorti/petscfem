@@ -4,8 +4,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Printing "For elemset ..." element partitioning should
-	   give the elemset name and pointer. 
 * List grants in doc
 * Add `dataflow.obj' to doc.
 * Let `upload_vector_fast' to have several masks with integer values,
@@ -131,6 +129,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Printing "For elemset ..." element partitioning should
+	   give the elemset name and pointer. 
 * FIXED: When .ini file is not found advdif (don't know NS) 
        aborts only in server. 
 * Put `COMPUTE_FD_ADV_JACOBIAN' in `advdife' as a elemset flag. 
