@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.53 2002/11/02 20:51:57 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.54 2002/11/23 19:26:26 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -155,6 +155,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,26); 
+  assert(A_van_Driest>=0.);
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Scale the residual term. 
@@ -270,7 +271,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     xloc.rs();
 
-    if (get_nearest_wall_element) {
+    if (get_nearest_wall_element && A_van_Driest>0.) {
       assert(LES);
 #ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nel));
@@ -348,7 +349,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     
     double shear_vel;
     int wall_elem;
-    if (LES && comp_mat_res) {
+    if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
       Elemset *wall_elemset;
       const double *wall_coords_;
@@ -441,11 +442,13 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double nu_eff;
 	if (LES) {
 	  double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-
-	  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	  double ywall = sqrt(dist_to_wall.sum_square_all());
-	  double y_plus = ywall*shear_vel/VISC;
-	  double van_D = 1.-exp(-y_plus/A_van_Driest);
+	  double van_D;
+	  if (A_van_Driest>0.) {
+	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	    double ywall = sqrt(dist_to_wall.sum_square_all());
+	    double y_plus = ywall*shear_vel/VISC;
+	    van_D = 1.-exp(-y_plus/A_van_Driest);
+	  } else van_D = 1.;
 	  
 	  double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
 	  nu_eff = VISC + nu_t;

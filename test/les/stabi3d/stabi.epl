@@ -86,7 +86,8 @@ props
 name malla 
 geometry cartesian<:=$ndim:>d
 npg <:=2**$ndim:>
-LES 0
+LES 1
+A_van_Driest 0.
 viscosity <:=$nu:>
 weak_form 1
 __END_HASH__

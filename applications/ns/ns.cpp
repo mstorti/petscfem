@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.112 2002/11/02 20:51:57 mstorti Exp $
+//$Id: ns.cpp,v 1.113 2002/11/23 19:26:26 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -235,6 +235,9 @@ int main(int argc,char **args) {
 
   //o Use the LES/Smagorinsky turbulence model. 
   GETOPTDEF(int,LES,0);
+  //o If {\tt A\_van\_Driest=0} then the van Driest
+  //    damping factor is not used 
+  GETOPTDEF(int,A_van_Driest,0);
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
@@ -325,7 +328,7 @@ int main(int argc,char **args) {
   vector<double> data_pts;
   vector<ElemToPtr> elemset_pointer;
   WallData *wall_data=NULL;
-  if (LES) {
+  if (LES && A_van_Driest>0.) {
 #ifdef USE_ANN
     argl.clear();
     argl.arg_add(&data_pts,USER_DATA);
@@ -425,7 +428,7 @@ int main(int argc,char **args) {
 	// Mon Oct 23 19:13:39 ART 2000. Now I think that I need this
 	// because the at each processor there is not a global version
 	// of the state.
-	if (LES && SIZE>1) {
+	if (LES && A_van_Driest>0. && SIZE>1) {
 	  argl.clear();
 	  ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
 			  &time_star); CHKERRA(ierr);

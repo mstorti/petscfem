@@ -50,7 +50,7 @@ umax=1.;
 upert=0.5;
 uini = zeros(nnod,4);
 uini(:,1) = umax*4*xnod(:,2).*(Ly-xnod(:,2))/Ly^2 + \
-    upert*(cos(2*pi*xnod(:,1)/Lx).*cos(2*pi*xnod(:,2)/Ly).*cos(2*pi*xnod(:,3)/Lz));
+    upert*(cos(2*pi*xnod(:,1)/Lx).*sin(2*pi*xnod(:,2)/Ly).*cos(2*pi*xnod(:,3)/Lz));
 asave("stabi.ini.tmp",uini);
 
 some_nodes = [(1:Ny+1)';

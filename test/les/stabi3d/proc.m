@@ -2,7 +2,7 @@
 ##
 ## This file is part of Octave.
 ##__INSERT_LICENSE__
-## $Id: proc.m,v 1.4 2002/11/22 12:07:34 mstorti Exp $
+## $Id: proc.m,v 1.5 2002/11/23 19:26:26 mstorti Exp $
 
 ##usage: octave> proc
 
@@ -16,7 +16,7 @@ U=stabi;
 clear stabi
 
 nsome=Ny+1;
-nsome=71;
+nsome=51;
 rem(rows(U),nsome) == 0 || error("Not correct number of entries");
 nstepc = rows(U)/nsome;
 printf("%d computed steps\n",nstepc);

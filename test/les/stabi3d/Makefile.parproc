@@ -1,0 +1,28 @@
+run_mode := mono
+proctable := $(PETSCFEM_PROCTABLE)
+host:=$(HOSTNAME)
+
+ifeq ($(findstring beowulf.gtm,$(HOSTNAME)),beowulf.gtm)
+host:=geronimo
+run_mode := cluster
+proctable := $(PETSCFEM_PROCTABLE)
+endif
+
+ifeq ($(nolocal),)
+NP := $(shell procsel $(proctable))
+else
+NP := $(shell procsel -n $(proctable))
+endif
+
+ifeq ($(run_mode),cluster)
+ifeq ($(nolocal),)
+NL := 
+else
+NL := -nolocal
+endif
+endif
+
+ifeq ($(run_mode),mono)
+NL := 
+NP := 1
+endif
