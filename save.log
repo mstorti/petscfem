@@ -1436,3 +1436,6 @@ tag: beta-3.02.pl14 on Wed,  7 Aug 2002 20:53:16 -0300 by mstorti in spider
 tag: beta-3.02.pl15 on Wed,  7 Aug 2002 21:56:58 -0300 by mstorti in spider
      > `embedded_gatherer' computes viscous forces and
      > moments. Partially verified. 
+----------
+tag: beta-3.02.pl16 on Wed,  7 Aug 2002 23:16:29 -0300 by mstorti in spider
+     > Testing `visc_force_integrator'
