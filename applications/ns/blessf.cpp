@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.5 2002/07/30 20:05:09 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.6 2002/08/06 15:31:20 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -17,6 +17,7 @@
 #include "elast.h"
 #include "qharm.h"
 #include "gatherer.h"
+#include "embgath.h"
 #include "nssup.h"
 #include "nsikepsrot.h"
 #include "fracstep.h"
@@ -50,6 +51,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(wallke)
     SET_ELEMSET_TYPE(wall_law_res)
     SET_ELEMSET_TYPE(force_integrator)
+    SET_ELEMSET_TYPE(visc_force_integrator)
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(free_surface_level_integrator)
 	{

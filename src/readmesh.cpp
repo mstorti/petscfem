@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.49 2002/07/27 02:52:27 mstorti Exp $
+//$Id: readmesh.cpp,v 1.50 2002/08/06 15:31:23 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -26,7 +26,7 @@ extern "C" {
 #include "getprop.h"
 
 using namespace std;
-
+Mesh *GLOBAL_MESH;
 #define IDENT(j,k) VEC2(ident,j,k,ndof)
 
 void metis_part(int nelemfat,Mesh *mesh,
@@ -73,6 +73,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   Elemset *elemset;
   int *icone,etype,*dof_here;
   mesh = new Mesh;
+  GLOBAL_MESH = mesh;
   mesh->nodedata = new Nodedata;
   mesh->elemsetlist = da_create(sizeof(Elemset *));
 
