@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.14 2002/08/05 03:05:30 mstorti Exp $
+//$Id: tempfun.cpp,v 1.15 2003/07/13 17:19:53 mstorti Exp $
 
 #include <math.h>
 
@@ -129,7 +129,7 @@ double ramp_function(TextHashTable *thash,const TimeData *t,
 //   double time=*t;
   if (time<start_time) {
     return start_value;
-  } else if (end_time>start_value && time>end_time) {
+  } else if (end_time>start_time && time>end_time) {
     return end_value;
   } else {
     return start_value+slope*(time-start_time);
