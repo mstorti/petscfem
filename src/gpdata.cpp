@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.12 2002/08/07 18:17:15 mstorti Exp $
+//$Id: gpdata.cpp,v 1.13 2002/08/12 22:07:17 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -421,7 +421,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
   } else if (!strcmp("quad2hexa",geom)) {
     
     assert(ndimel==3);
-    assert(nel==8);
+    assert(nel==8 || nel==12);
     assert(npg==4); // other cases may be considered
 
     GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
@@ -433,8 +433,14 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       dshapexi[ipg]= Matrix(ndimel,nel);
       dshapexi[ipg]= 0.;
       dshapexi[ipg].SubMatrix(1,2,1,4) = quad.dshapexi[ipg];
-      dshapexi[ipg].SubMatrix(3,3,1,4) = -0.5*quad.shape[ipg];
-      dshapexi[ipg].SubMatrix(3,3,5,8) = +0.5*quad.shape[ipg];
+      if (nel==8) {
+	dshapexi[ipg].SubMatrix(3,3,1,4) = -0.5*quad.shape[ipg];
+	dshapexi[ipg].SubMatrix(3,3,5,8) = +0.5*quad.shape[ipg];
+      } else {
+	dshapexi[ipg].SubMatrix(3,3,1,4)  = -1.5*quad.shape[ipg];
+	dshapexi[ipg].SubMatrix(3,3,5,8)  = +2.0*quad.shape[ipg];
+	dshapexi[ipg].SubMatrix(3,3,9,12) = -0.5*quad.shape[ipg];
+      }
 
       wpg[ipg] = 1;
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.14 2002/08/08 02:16:17 mstorti Exp $
+//$Id: embgath.cpp,v 1.15 2002/08/12 22:07:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -132,113 +132,126 @@ void embedded_gatherer::initialize() {
   TGETOPTNDEF(thash,int,ndim,none); //nd
   //o Use exterior or interior normal
   TGETOPTDEF(thash,int,use_exterior_normal,1);
+  //o Identify automatically the internal volume elements with a face
+  // on the surface
+  TGETOPTDEF(thash,int,identify_volume_elements,0);
+  //o Number of layers in the normal direction.
+  TGETOPTDEF(thash,int,layers,1);
+  PETSCFEM_ASSERT0(layers>=1,
+		   "embedded_gatherer: Number of layers must be integer >=1\n");
+  PETSCFEM_ASSERT(layers<=2,"embedded_gatherer: not supported yet layers>2,"
+		  " entered layers: %d\n",layers);
 
   int ndimel=ndim-1;
-  assert(geometry=="quad2hexa");
-  sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,
-			     GP_FASTMAT2,use_exterior_normal);
+  if (geometry=="quad2hexa") {
+    sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,
+			       GP_FASTMAT2,use_exterior_normal);
+  } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry %s\n",geometry.c_str());
 
   int nel_surf, nel_vol;
   surface_nodes(nel_surf,nel_vol);
   assert(nel_surf>0 && nel_surf<=nel);
   assert(nel_vol <= nel); //
   assert(nel_vol <= vol_elem->nel);
-  
-  // Mark nodos on the surface
-  int nnod = GLOBAL_MESH->nodedata->nnod;
-  // surface:= is surface[k]==0 then k is not on the surface
-  // if != 0 then surface[k] is the number of surface node +1
-  vector<int> surface(nnod,0);
-  // maps surface numbering (0 to surf_nodes-1) to global (0 to nnod-1)
-  vector<int> srf2glb;
-  for (int e=0; e<nelem; e++) {
-    int *icorow = icone + nel*e;
-    for (int j=0; j<nel_surf; j++) surface[icorow[j]-1]=1;
-  }
-  // Count surface nodes
-  int surf_nodes = 0;
-  for (int k=0; k<nnod; k++) {
-    if (surface[k]) {
-      surface[k] = ++surf_nodes;
-      srf2glb.push_back(surf_nodes);
-    }
-  }
-
-  // Construct graph for volume elemset
-  LinkGraph graph;
-  graph.set_chunk_size(10000);
-  graph.init(surf_nodes);
-
-  // Construct node to element array for the volume elemset
-  for (int e=0; e<vol_elem->nelem; e++) {
-    int *icorow = vol_elem->icone + vol_elem->nel*e;
-    for (int j=0; j<nel_vol; j++) {
-      int node = icorow[j]-1;
-      int snode = surface[node]-1;
-      if (snode>=0) graph.add(snode,e);
-    }
-  }
-
-  // For each surface element look for the corresponding
-  // volume element that shares a face
-  vector<int> mask(nel_vol);
-  for (int e=0; e<nelem; e++) {
-    int *icorow = icone + nel*e;
-    LinkGraphRow row;
-    assert(nel_surf>0);
-    // Take list for first node
-    int node = icorow[0]-1;
-    int sf_node = surface[node]-1;
-    graph.set_ngbrs(sf_node,row);
-    LinkGraphRow::iterator q;
-    int found=0;
-    int *vicorow;
-    for (q=row.begin(); q!=row.end(); q++) {
-      int ve = *q; // the volume element
-      vicorow = vol_elem->icone + vol_elem->nel*ve;
-      for (int j=0; j<nel_vol; j++) mask[j]=-1;
-      found=0;
-      for (int j=0; j<nel_surf; j++) {
-	int sf_node = icorow[j];
-	for (int k=0; k<nel_vol; k++) {
-	  if (vicorow[k]==sf_node) {
-	    mask[j] = k;
-	    break;
-	  }
-	}
-	if (mask[j]==-1) break;
-	found++;
+  if (identify_volume_elements) {
+    assert(2*nel_surf==nel_vol);
+    for (int layer=0; layer<layers; layer++) {
+      // Mark nodes on the surface
+      int nnod = GLOBAL_MESH->nodedata->nnod;
+      // surface:= is surface[k]==0 then k is not on the surface
+      // if != 0 then surface[k] is the number of surface node +1
+      vector<int> surface(nnod,0);
+      // maps surface numbering (0 to surf_nodes-1) to global (0 to nnod-1)
+      vector<int> srf2glb;
+      for (int e=0; e<nelem; e++) {
+	int *icorow = icone + nel*e + layer* nel_surf;
+	for (int j=0; j<nel_surf; j++) surface[icorow[j]-1]=1;
       }
-      if (found==nel_surf) break;
-    }
-    for (int j=0; j<nel; j++) 
-    if (found!=nel_surf) {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "embedded_gatherer: Can't find matching volume element"
-		  " to surface element %d\n",e);
-      PetscFinalize();
-      exit(0);
-    }
-    for (int j=0; j<nel_vol; j++) icorow[j] = vicorow[j];
-    // Volume element was found, find map and
-    sv_gp_data->map_mask(mask.begin(),icorow);
-  }
+      // Count surface nodes
+      int surf_nodes = 0;
+      for (int k=0; k<nnod; k++) {
+	if (surface[k]) {
+	  surface[k] = ++surf_nodes;
+	  srf2glb.push_back(surf_nodes);
+	}
+      }
+
+      // Construct graph for volume elemset
+      LinkGraph graph;
+      graph.set_chunk_size(10000);
+      graph.init(surf_nodes);
+
+      // Construct node to element array for the volume elemset
+      for (int e=0; e<vol_elem->nelem; e++) {
+	int *icorow = vol_elem->icone + vol_elem->nel*e;
+	for (int j=0; j<nel_vol; j++) {
+	  int node = icorow[j]-1;
+	  int snode = surface[node]-1;
+	  if (snode>=0) graph.add(snode,e);
+	}
+      }
+
+      // For each surface element look for the corresponding
+      // volume element that shares a face
+      vector<int> mask(nel_vol);
+      for (int e=0; e<nelem; e++) {
+	int *icorow = icone + nel*e + layer*nel_surf;
+	LinkGraphRow row;
+	assert(nel_surf>0);
+	// Take list for first node
+	int node = icorow[0]-1;
+	int sf_node = surface[node]-1;
+	graph.set_ngbrs(sf_node,row);
+	LinkGraphRow::iterator q;
+	int found=0;
+	int *vicorow;
+	for (q=row.begin(); q!=row.end(); q++) {
+	  int ve = *q; // the volume element
+	  vicorow = vol_elem->icone + vol_elem->nel*ve;
+	  for (int j=0; j<nel_vol; j++) mask[j]=-1;
+	  found=0;
+	  for (int j=0; j<nel_surf; j++) {
+	    int sf_node = icorow[j];
+	    for (int k=0; k<nel_vol; k++) {
+	      if (vicorow[k]==sf_node) {
+		mask[j] = k;
+		break;
+	      }
+	    }
+	    if (mask[j]==-1) break;
+	    found++;
+	  }
+	  if (found==nel_surf) break;
+	}
+	if (found!=nel_surf) {
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "embedded_gatherer: Can't find matching volume element"
+		      " to surface element %d\n",e);
+	  PetscFinalize();
+	  exit(0);
+	}
+	for (int j=0; j<nel_vol; j++) icorow[j] = vicorow[j];
+	// Volume element was found, find map and
+	sv_gp_data->map_mask(mask.begin(),icorow);
+      }
 
 #if 0
-  if (MY_RANK==0) {
-    printf("Surface element connectivities: \n");
-    for (int e=0; e<nelem; e++) {
-      int *icorow = icone + nel*e;
-      printf("surf.el. %d: ",e+1);
-      for (int j=0; j<nel_vol; j++) printf("%d ",icorow[j]);
-      printf("\n");
-    }
-  }
+      if (MY_RANK==0) {
+	printf("Surface element connectivities: \n");
+	for (int e=0; e<nelem; e++) {
+	  int *icorow = icone + nel*e;
+	  printf("surf.el. %d: ",e+1);
+	  for (int j=0; j<nel_vol; j++) printf("%d ",icorow[j]);
+	  printf("\n");
+	}
+      }
 #endif
  
-  graph.clear();
-  surface.clear();
-  srf2glb.clear();
+      graph.clear();
+      surface.clear();
+      srf2glb.clear();
+    }
+  }
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
