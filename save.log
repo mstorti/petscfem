@@ -3051,7 +3051,7 @@ tag: beta-3.23.pl20 on Thu, 13 Nov 2003 21:16:56 -0300 by mstorti in spider
 tag: beta-3.23.pl21 on Thu, 13 Nov 2003 23:28:10 -0300 by mstorti in spider
      > Fixing burger tests. 
 ----------
-tag: beta-3.25 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
+tag: beta-3.24 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Settled version policy in `notes.txt'
      > Added test for exception handling in `advdif'. 

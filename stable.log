@@ -416,7 +416,7 @@ tag: beta-3.22 on Sun Sep 14 10:29:14 GMT+3 2003, by mstorti in spider
      > Uses excpetion handling in `advdif' (GenericError). 
      > Modified `bubbly' module launching. 
 ----------
-tag: beta-3.25 on Sat Nov 15 13:12:06 GMT+3 2003, by mstorti in spider
+tag: beta-3.24 on Sat Nov 15 13:12:06 GMT+3 2003, by mstorti in spider
      > Settled version policy in `notes.txt'
      > Added test for exception handling in `advdif'. 
      > Written `odoc.pl' complete list of options. 
