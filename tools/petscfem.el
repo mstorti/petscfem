@@ -22,7 +22,10 @@
 
 ;;; Commentary:
 
-;; 
+;; Basic support for editing PETSc-FEM data files with Emacs. Supports
+;; some basic colorization (complex ePerl constructs nay fool it), and
+;; also some code to automatically insert PETSc-FEM keywords in the
+;; data file. 
 
 ;;; Code:
 
@@ -31,18 +34,19 @@
    (?\n . ">"))
   "Syntax-table used in PETSc-FEM mode.")
 ;
-(setq petscfem-font-lock-keywords 
-      '(("^\\s-*\\(global_options\\|elemset\\|nodes\\|nodedata\\|fixa\\|fixa_amplitude\\|constraint\\|end_elemsets\\)\\>" . font-lock-type-face)
-	("^\\w+\\>" . font-lock-variable-name-face)
-	("^__\w*__\\>" . font-lock-keyword-face)
-	("<:.*:>" . font-lock-warning-face)
-	font-lock-keyword-face
-	))
+(defvar petscfem-font-lock-keywords 
+  '(("^\\s-*\\(global_options\\|elemset\\|nodes\\|nodedata\\|fixa\\|fixa_amplitude\\|constraint\\|end_elemsets\\)\\>" . font-lock-type-face)
+    ("^\\w+\\>" . font-lock-variable-name-face)
+    ("^__\w*__\\>" . font-lock-keyword-face)
+    ("<:.*:>" . font-lock-warning-face)
+    font-lock-keyword-face
+    )
+  "Basic colorization scheme for PETSc-FEM. ")
 ;
 (define-derived-mode petscfem-mode
   text-mode "PETSc-FEM"
   "Major mode for editing PETSc-FEM data files
-          \\{petscfem-mode-map}"
+          \\{petscfem-mode-map}."
   (setq font-lock-defaults 
 	`((petscfem-font-lock-keywords)
 	  nil nil		  
@@ -64,9 +68,7 @@
 ;; 	  (font-lock-syntactic-face-function
 ;; 	   . sh-font-lock-syntactic-face-function)))  
   )
-(setq petscfem-mode-hook 
-      (lambda () 
-	(setq info-lookup-mode 'petscfem-mode))
+(setq petscfem-mode-hook nil)
 ;
 (load-library "info-look")
 (info-lookup-maybe-add-help
@@ -80,15 +82,23 @@
   (interactive)
   (save-excursion
     (goto-char (point-max))
-    (search-backward "<<")
+    (when (not (search-backward "<<"))
+      (error "Probably not in a PETSc-FEM options info buffer!!"))
     (forward-char 2)
     (let ((beg (point)))
-      (search-forward ">>")
+      (cond (not (search-forward ">>"))
+	    (error "Probably not in a PETSc-FEM options info buffer!!"))
       (forward-char -2)
       (princ (format "Yanked: \"%s\"" (buffer-substring beg (point))))
       (copy-region-as-kill beg (point)))))
 ;
-(define-key Info-mode-map (kbd "<f4>") 'my-Info-lookup-copy-keyword)
+(defun my-Info-bury-and-kill()
+  (interactive)
+  (Info-exit)
+  (delete-window))
+;
+(define-key Info-mode-map (kbd "c") 'my-Info-lookup-copy-keyword)
+(define-key Info-mode-map (kbd "x") 'my-Info-bury-and-kill)
 
 (provide 'petscfem)
 ;;; petscfem.el ends here
