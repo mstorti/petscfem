@@ -63,10 +63,8 @@ if ($case_name =~ /skew_cone/) {
     $nstep = ceil($Tend/$Dt);
 }
 if ($case_name =~ /rotating_cone/) {
-    $N = 50;
-    $M = 50;
-    $Lx = 3;
-    $Ly = 3;
+    $N = $M = 160;
+    $Lx = $Ly = 3;
     $Omega = 1.2/($Lx/2);
     $uy = 1;
     $alpha = 0.5;
