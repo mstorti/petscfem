@@ -1,17 +1,16 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2003/01/09 02:37:45 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2003/01/10 15:29:54 mstorti Exp $ 
 
-.PHONY: force all run nutcyl tests
+.PHONY: force all run nutcyl tests test_rigid test_strip test_strip2d
 
 PETSCFEM_DIR := ../..
 
-tests: nutcyl test_rigid test_strip
+tests: nutcyl test_rigid test_strip test_strip2d
 
 outfile = system.dat.tmp
 
 ifeq ($(CASE_NAME),)
-#CASE_NAME := closcyl
-CASE_NAME := strip2d
+CASE_NAME := closcyl
 endif
 NP := 1
 
@@ -66,7 +65,7 @@ test_strip:
 test_strip2d: 
 	-rm -f strip2d.force.tmp strip2d.verif.tmp
 	$(MAKE) CASE_NAME=strip2d run
-#	$(OCTAVE) checkstrip2d.m > strip2d.verif.tmp
+	$(OCTAVE) checkstrip2d.m > strip2d.verif.tmp
 
 figure:
 	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run

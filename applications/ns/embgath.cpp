@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.29 2003/01/10 13:39:19 mstorti Exp $
+//$Id: embgath.cpp,v 1.30 2003/01/10 15:29:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -525,7 +525,8 @@ void visc_force_integrator::init() {
     compute_moment = (gather_length==3);
   }
   force.resize(1,ndim);
-  moment.resize(1,ndim);
+  if (ndim==3) moment.resize(1,ndim);
+  else moment.resize(1,1);
   x_center.resize(1,ndim).set(0.);
   dx.resize(1,ndim);
   strain_rate.resize(2,ndim,ndim);

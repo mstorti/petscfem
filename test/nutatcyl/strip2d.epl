@@ -1,6 +1,6 @@
 __ECHO_ON__
 <:
-#$Id: strip2d.epl,v 1.2 2003/01/10 12:38:54 mstorti Exp $
+#$Id: strip2d.epl,v 1.3 2003/01/10 15:29:54 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
@@ -86,7 +86,7 @@ solve_system 0
 #endif
 
 viscosity 1.
-ngather <:=2*$ndim:>
+ngather 3
 gather_file "strip2d.force.tmp"
 __ECHO_OFF__
 __END_HASH__
@@ -111,7 +111,7 @@ elemset visc_force_integrator 6
 geometry "line2quad"
 npg 2
 ndimel 1
-gather_length <:=2*$ndim:>
+gather_length 3
 moment_center 0. 0.5
 volume_elemset "viscous_fluid_elemset"
 identify_volume_elements 1
