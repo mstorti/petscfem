@@ -665,3 +665,6 @@ tag: beta-2.45 on Sat Dec  1 13:15:44 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.46 on Sun Dec  2 11:21:56 ARST 2001, by mstorti in spider
      > Changed the `sqcav' test
+----------
+tag: beta-2.47 on Sun Dec  2 12:56:13 ARST 2001, by mstorti in spider
+     > Added test for sqcav with IISD
