@@ -3275,3 +3275,7 @@ tag: beta-3.31.7 on Sat, 14 Aug 2004 19:58:31 -0300 by mstorti in spider
 tag: beta-3.31.8 on Sun, 22 Aug 2004 23:25:57 -0300 by mstorti in spider
      > Improved `octave_export_vars'. 
      > Now it can export vectors to octave. 
+----------
+tag: beta-3.31.9 on Fri, 03 Sep 2004 12:32:04 -0300 by mstorti in minerva.ceride.gov.ar
+     > Starts writing examples. 
+     > Written sqcav example. 
