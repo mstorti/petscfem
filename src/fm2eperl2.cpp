@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.1 2002/11/28 15:13:25 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.2 2002/11/28 15:55:17 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -16,13 +16,14 @@
 class eig_cache : public FastMatSubCache {
 public:
   const double **A;
-  double **W;
+  double **W, **V;
   double *A_c,*work,*W_c;
   int lwork;
-  eig_cache() { W=NULL; A=NULL; A_c=W_c=NULL; work=NULL; }
+  eig_cache() { W=V=NULL; A=NULL; A_c=W_c=NULL; work=NULL; }
   ~eig_cache() { 
     delete[] A;
     delete[] W;
+    delete[] V;
     delete[] A_c;
     delete[] W_c;
     delete[] work;
@@ -82,8 +83,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
 
   eig_cache *ecache;
+  int &cev = compute_eigen_vectors;
   if (!was_cached) {
-    assert(compute_eigen_vectors==0);
     Indx Adims;
     A.get_dims(Adims);
     int ndims = Adims.size();
@@ -91,7 +92,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert (Adims[0] == Adims[1]);
     int m= Adims[0];
 
-    Indx Wdims,Wdims_c;
+    Indx Wdims,Wdims_c, Vdims;
     Wdims_c.push_back(m);
     if (!defined) {
       create_from_indx(Wdims_c);
@@ -99,6 +100,12 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       
     get_dims(Wdims);
     assert(Wdims == Wdims_c);
+    
+    if (cev) {
+      if (!V.defined) V.create_from_indx(Adims);
+      V.get_dims(Vdims);
+      assert(Adims == Vdims);
+    }
 
     ecache = new eig_cache();
     assert(ecache);
@@ -107,6 +114,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
     ecache->A = new (const double *)[m*m];
     ecache->W = new (double *)[m];
+    if (cev) ecache->V = new (double *)[m*m];
     ecache->A_c = new double[m*m];
     ecache->W_c = new double[m];
     ecache->lwork = 5*m;
@@ -121,6 +129,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	Aindx[0]=j;
 	Aindx[1]=k;
 	ecache->A[jj] = A.location(Aindx);
+	if (cev) ecache->V[jj] = V.location(Aindx);
 	jj++;
       }
     }
@@ -133,10 +142,12 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   int m2=m*m;
   for (int j=0; j<m2; j++) ecache->A_c[j] = *(ecache->A[j]);
   int info;
-  dsyev_("V","U",&m,ecache->A_c,&m,ecache->W_c,
+  dsyev_((cev ? "V" : "N"),
+	 "U",&m,ecache->A_c,&m,ecache->W_c,
 	 ecache->work,&ecache->lwork,&info);
 
   for (int j=0; j<m; j++) *(ecache->W[j]) = ecache->W_c[j];
+  if (cev) for (int j=0; j<m2; j++) *(ecache->V[j]) = ecache->A_c[j];
 
   if (!use_cache) delete cache;
   return *this;

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.2 2002/11/28 15:12:31 mstorti Exp $
+//$Id: testfm2.cpp,v 1.3 2002/11/28 15:55:17 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -58,7 +58,7 @@ int main() {
     Z116,Z117,Z118,Z19(3,3),Z30(3,3),Z31,Z32, Z40(3,3), Z41(3,3), Z42(3,3),
     Z43(3,3);
   FastMat2 Z50(2,3,3),Z51,Z54(2,3,2),Z52,Z53(1,3);
-  FastMat2 Z55(2,3,3),Z56(1,3);
+  FastMat2 Z55(2,3,3),Z56(1,3),Z59,Z57(2,3,3),Z58;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -88,7 +88,7 @@ int main() {
   mydata.n=2;
   
   for (int j=0; j<Nout; j++) {
-    // FastMat2::activate_cache(&cache_list);
+    FastMat2::activate_cache(&cache_list);
     for (int k=0; k<Nin; k++) {
       FastMat2::reset_cache();
 
@@ -344,6 +344,9 @@ int main() {
 
       Z55.set(0.1).d(1,2).set(1.).rs();
       Z56.seig(Z55);
+      Z59.seig(Z55);
+      Z56.seig(Z55,Z57);
+      Z56.seig(Z55,Z58);
 
     }
     FastMat2::void_cache();
@@ -431,6 +434,9 @@ int main() {
   SH(Z54);
   SH(Z55);
   SH(Z56);
+  SH(Z57);
+  SH(Z58);
+  SH(Z59);
 
 #undef SH
 
