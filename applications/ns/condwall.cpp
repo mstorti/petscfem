@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.10 2005/04/01 16:08:57 mstorti Exp $
+// $Id: condwall.cpp,v 1.11 2005/04/05 23:16:34 mstorti Exp $
 
 #include "./condwall.h"
+extern int MY_RANK,SIZE;
 
 cond_wall_data_map_t cond_wall_data_map;
 
@@ -42,7 +43,8 @@ init() {
   if(cond_wall_data_map.find(ename)
      != cond_wall_data_map.end()) {
     data_p = &cond_wall_data_map[ename];
-    // printf("in cond_wall::init(), data_p %p\n",data_p);
+    if (!MY_RANK)
+      printf("in cond_wall::init(), data_p %p\n",data_p);
   }
 }
 
@@ -58,6 +60,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
+    // printf("[%d] elem %d R %f\n",MY_RANK,k,R);
     // printf("k %d, R %f\n",k,R);
   }
   if (R>0) {
