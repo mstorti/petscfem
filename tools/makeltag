@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.6 2002/02/18 00:18:00 mstorti Exp $
+#$Id: makeltag,v 1.7 2002/03/23 12:11:17 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -39,9 +39,7 @@ system "\$EDITOR $tmp";
 
 open SVL,">>$save_log";
 print SVL "----------\n"; # >> $savelog;
-$d = `date`;
-# CVS doesn't like ART or ARST
-$d =~ s/ ARS{0,1}T / -0300 /;
+$d = `date --rfc-822`;
 chomp $d;
 $w = `whoami`;
 chomp $w;
