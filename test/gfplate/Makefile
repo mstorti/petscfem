@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2005/01/24 22:01:13 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2005/01/25 00:57:09 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -40,6 +40,7 @@ runa:
 
 dx_make_command:
 	cp STEPS/cylabso.state_$$dx_step.tmp ./cylabso.dx-state.tmp
+	@echo dx_step: $$dx_step
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1

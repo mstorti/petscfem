@@ -1,4 +1,4 @@
-## $Id: proc5.m,v 1.3 2005/01/24 22:01:13 mstorti Exp $
+## $Id: proc5.m,v 1.4 2005/01/25 00:57:09 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -20,6 +20,9 @@ gasdata.rhoref = rhoref;
 gasdata.cref = cref;
 
 ndof = columns(U);
+U(:,ndof+1) = l2(U(:,2:ndof-1)) \
+    ./sqrt(gamma*U(:,ndof)./U(:,1));
+
 Uref = mean(U);
 
 some = aload("cylabso.some-nodes.tmp");
@@ -60,7 +63,7 @@ endfor
 
 for k=1:m:nt
   title(sprintf("step %d",k));
-  plot(x,U((k-1)*nsome+indx,:))
-  pause(0.1);
+  plot(x,U((k-1)*nsome+indx,:),x,U((k-1)*nsome+indx,:),'o')
+  pause(0.1)
 #  pause;
 endfor

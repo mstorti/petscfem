@@ -28,7 +28,7 @@ nsaverot 1
 nrec 1
 nfile 100000000
 
-#if 0
+#if 1
 solver "iisd"
 preco_type "jacobi"
 iisd_subpart_auto 4000
@@ -53,8 +53,8 @@ nnwt 4
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.05
-shocap 0.0
+Dt 0.02
+shocap 0.1
 weak_form 0
 temporal_stability_factor 0
 
@@ -67,7 +67,7 @@ Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:>
 linear_abso 0
 
 lagrange_diagonal_factor 1e-5
-lagrange_residual_factor 1.0
+# lagrange_residual_factor 1.0
 
 #if $dx
 # Para DX
