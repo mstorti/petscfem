@@ -2073,3 +2073,6 @@ tag: beta-3.14.pl7 on Sun,  5 Jan 2003 09:56:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl8 on Sun,  5 Jan 2003 18:28:58 -0300 by mstorti in spider
      > Will implement a better recursive filter. 
+----------
+tag: beta-3.14.pl9 on Sun,  5 Jan 2003 19:32:31 -0300 by mstorti in spider
+     > Identity filter works. 
