@@ -1,13 +1,23 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.4 2001/11/22 19:50:11 mstorti Exp $
+//$Id: debug.cpp,v 1.5 2001/11/25 22:44:21 mstorti Exp $
  
+#include <src/debug.h>
 #include <cstdio>
 #include <time.h>
 
 #include <petsc.h>
-#include <src/debug.h>
 
 Debug debug;
+
+int Debug::stop_f=0;
+
+void Debug::set_signal(int sig) {
+  stop_f++;
+  if (stop_f>1) {
+    signal(SIGINT,orig_handler);
+    raise(SIGINT);
+  }
+}
 
 int Debug::active(const char *s=NULL) const {
   string ss = string(s!=NULL ? s : "");
@@ -32,39 +42,69 @@ void Debug::deactivate(const char *s=NULL) {
 
 void Debug::trace(const char *s=NULL) {
   time_t tt;
+  int stopp;
 #define MXTM 100
   char t[MXTM];
   MPI_Comm_rank(comm,&myrank);
-  if ((active() || active("print")) && myrank==0) {
-    tt = time(NULL);
-    // t = asctime(localtime(&tt));
-    strftime(t,MXTM,"%H:%M:%S",localtime(&tt));
-    printf("-- %s -- [%s %10.3f]",s,t,chrono.elapsed());
+  MPI_Allreduce(&stop_f,&stopp,1,MPI_INT,
+		MPI_MAX,PETSC_COMM_WORLD);
+  stop_f = stopp;
+  if (stop_f) { activate(); stop_f=0;}
+  if (myrank==0) {
+    if ((active() || active("print"))) {
+      tt = time(NULL);
+      // t = asctime(localtime(&tt));
+      strftime(t,MXTM,"%H:%M:%S",localtime(&tt));
+      printf("-- %s -- [%s %10.3f]\n",s,t,chrono.elapsed());
+    }
   }
-  if (!active()) {
-    printf("\n");
-    return;
-  }
+  if (!active()) return;
   int ierr;
-  char ans;
+  char ans,c;
   ierr = MPI_Barrier(comm);
   assert(ierr==0);
-  if (myrank==0) {
-    printf("Continue? (n/RET=y) > ");
-    fflush(stdout);
-    scanf("%c",&ans);
+  while (1) {
+    if (myrank==0) {
+      printf("Command? (cqpd) > ");
+      fflush(stdout);
+      scanf("%c",&ans);
+      printf("\n");
+      while (1) { // flush stdin unil newline is found
+	scanf("%c",&c);
+	if (c=='\n') break;
+      }
+      // printf("char %c,ord %d\n",ans,ans);
+    }
+    ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,comm);
+    assert(ierr==0); 
+    if (ans=='q') {
+      PetscPrintf(PETSC_COMM_WORLD,"Quitting by user request...\n");
+      PetscFinalize();
+      exit(0);
+      break;
+    } else if (ans=='p') {
+      PetscPrintf(PETSC_COMM_WORLD,"Printing Pid list:\n");
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			      "[%d] Pid: %d\n",myrank,getpid());
+      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    } else if (ans=='d') {
+      PetscPrintf(PETSC_COMM_WORLD,"Deactivate debugging mode...\n");
+      deactivate();
+      break;
+    } else if (ans=='c' || ans=='\n') {
+      break;
+    } 
   }
-  ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,comm);
-  assert(ierr==0); 
-  if (ans=='n') {
-    PetscFinalize();
-    exit(0);
-  } else if (ans=='d') {
-    deactivate();
-  } 
   ierr = MPI_Barrier(comm);
   assert(ierr==0);  
 }
+
+sighandler_t Debug::orig_handler = NULL;
+
+void Debug::init() {
+  orig_handler = signal(SIGINT,&Debug::set_signal);
+}
+    
 
 Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
   comm(comm_) {

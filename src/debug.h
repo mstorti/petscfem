@@ -1,8 +1,15 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.3 2001/11/22 19:50:11 mstorti Exp $
+// $Id: debug.h,v 1.4 2001/11/25 22:44:21 mstorti Exp $
 #ifndef DEBUG_H
 #define DEBUG_H
+
+#define _GNU_SOURCE
+
+#include <unistd.h>
+#include <sys/types.h>
+
+#include <signal.h>
 
 #include <mpi.h>
 #include <string>
@@ -21,7 +28,11 @@ class Debug {
   MPI_Comm comm;
   int myrank;
   HPChrono chrono;
+  static int stop_f;
+  static sighandler_t orig_handler;
  public:
+  static void init();
+  static void set_signal(int signal);
   int active(const char *s=NULL) const;
   void activate(const char *s=NULL);
   void deactivate(const char *s=NULL);
@@ -30,5 +41,4 @@ class Debug {
 };
 
 extern Debug debug;
-
 #endif

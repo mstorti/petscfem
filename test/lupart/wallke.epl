@@ -96,6 +96,7 @@ initial_state "wallke.ini.tmp"
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
+activate_debug
 
 partitioning_method "<:=$part_method:>"
 #if $sub_part eq 'yes'

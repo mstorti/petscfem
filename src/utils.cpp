@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.12 2001/11/21 19:35:59 mstorti Exp $
+//$Id: utils.cpp,v 1.13 2001/11/25 22:44:21 mstorti Exp $
  
+#include <src/debug.h>
 #include <stdio.h>
 
 #include <set>
@@ -10,7 +11,6 @@
 
 #include <src/fem.h>
 #include <src/utils.h>
-#include <src/debug.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.48 2001/11/21 19:35:59 mstorti Exp $
+//$Id: ns.cpp,v 1.49 2001/11/25 22:44:17 mstorti Exp $
  
+#include <src/debug.h>
 #include <malloc.h>
 
 #include <src/fem.h>
@@ -10,7 +11,6 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
-#include <src/debug.h>
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
@@ -106,7 +106,10 @@ int main(int argc,char **args) {
 
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
-  if (activate_debug) debug.activate();
+  if (activate_debug) {
+    debug.activate();
+    Debug::init();
+  }
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
   if (activate_debug_print) debug.activate("print");
