@@ -1,6 +1,9 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.2 2002/07/28 20:51:36 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.3 2002/07/28 21:44:03 mstorti Exp $
 #define _GNU_SOURCE
+
+#include <vector>
+#include <deque>
 
 #include <src/utils.h>
 #include <src/linkgraph.h>
@@ -35,6 +38,8 @@ int main(int argc, char **args) {
 #define NEL 8
   int nodes[NEL],node,nnod=0;
   dvector<int> icone;
+  deque<int> front;
+
 #define MIN_CHUNK_SIZE 40000
   icone.set_chunk_size(MIN_CHUNK_SIZE);
   // Incompatible nodes in a hexa
@@ -57,6 +62,8 @@ int main(int argc, char **args) {
     }
   }
   printf("read %d elems, %d nodes\n",nelem,nnod);
+  vector<int> split(nnod);
+  for (int j=0; j<nelem; j++) split[j]=0;
 
   fclose(fid);
   graph.set_chunk_size(nnod/2 < MIN_CHUNK_SIZE ? MIN_CHUNK_SIZE : nnod/2);
@@ -67,6 +74,8 @@ int main(int argc, char **args) {
       for (int k=0; k<NEL; k++) 
 	if (incompat[j]!=incompat[k]) graph.add(row[j]-1,row[k]-1);
   }
+
+#if 0
   for (int q=0; q<nnod; q++) {
     GSet row;
     graph.set_ngbrs(q,row);
@@ -75,4 +84,28 @@ int main(int argc, char **args) {
       printf("%d ",*r);
     printf("\n");
   }
+#endif
+
+  // Arbitrarily split first node as `up'
+  front.push_back(0);
+  split[0]=1;
+  while (front.size()) {
+    int node = front.front();
+    front.pop_front();
+    GSet s;
+    graph.set_ngbrs(node,s);
+    for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
+      if (!split[*r]) {
+	front.push_back(*r);
+      } else if (!split[node]) {
+	split[node] = -split[*r];
+      } else if (split[*r] == split[node]) {
+	printf("Can't split the mesh!!\n");
+	exit(1);
+      }
+    }
+  }
+
+  for (int k=0; k<nnod; k++) printf("split[%d] = %d\n",k,split[k]);
+
 }
