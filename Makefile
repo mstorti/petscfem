@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2001/01/19 12:49:35 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/01/20 10:15:23 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
@@ -16,7 +16,9 @@ all: sw doc pflib $(APPS)
 
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
-sw: sync_version depend tags
+local_sw:: sync_version depend tags
+
+local_clean::
 
 #w Builds existng applications
 applications: 
@@ -45,10 +47,6 @@ include $(PETSCFEM_DIR)/Makefile.base
 LOCDIR           = $(PWD)
 
 DIRS = doc manual src ns advective tryme laplace 
-
-# the library
-libpetscfem:
-	$(MAKE) -C src compile
 
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>----
 # APPLICATIONS
@@ -82,6 +80,8 @@ SRCDIRS = src $(APPDIRS) test
 SRCS = 
 
 DEPEND_DIRS = $(SRCDIRS)
+
+SWDIRS := test
 
 #w Resyncs some administrative files with the current version number.
 sync_version: 	

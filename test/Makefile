@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2001/01/15 11:11:22 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/01/20 10:15:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -32,6 +32,16 @@ compile:
 	@echo "Running tests..."
 	$(MAKE) -C ../ ns laplace adv advdif
 
+local_sw::
+	ln -sf $(APPDIR)/ns/ns.bin ns
+	ln -sf $(APPDIR)/advdif/advdif.bin advdif
+	ln -sf $(APPDIR)/advective/adv.bin adv
+	ln -sf $(APPDIR)/laplace/laplace.bin laplace
+
+#w clean local files
+local_clean::
+	-rm -f ns advdif adv laplace
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # All tests
 
@@ -47,13 +57,8 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-LIBPFM = ../src/libpetscfem.a
-
-$(LIBPFM): force
-	$(MAKE) -C ../src compile
-
+runtests_p: fstack triangle \
+	advdif
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -162,27 +167,25 @@ tfastvec.bin: tfastvec.o
 tfastvec.o: tfastvec.cpp ../src/fastlib.h
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Test for shallow water
-plano: adv
-	if [ -e plano.depl ] ; then chmod +w plano.depl ; fi
-	eperl -P -d consistent_supg=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> plano_cons.sal
-	eperl -P -d consistent_supg_auto=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> plano_cons_auto.sal
-	eperl -P -d local_time_step=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> plano_local.sal
-	eperl -P -d auto_time_step=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> plano_auto.sal
-	eperl -P -d local_time_step_nm=1 plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> plano_local_nm.sal
-	eperl -P -d local_time_step_weak=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl  &> plano_local_weak.sal
-	eperl -P -d fm2_weak=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl  &> plano_fm2_weak.sal
+.PHONY: $(plano_list)
+plano_list = plano_cons plano_cons_auto plano_local plano_auto plano_local_nm \
+		plano_local_weak plano_local_fm2_weak 
 
-planoo:
-	eperl -P -d fm2_weak=1  plano.epl >plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl  &> plano_fm2_weak.sal
+#w Test for shallow water
+plano: adv $(plano_list)
+
+plano.depl: force
+
+plano_%: plano.depl
+	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
+
+plano_cons:           EPERLFLAGS := -d consistent_supg=1
+plano_local:          EPERLFLAGS := -d local_time_step=1
+plano_cons_auto:      EPERLFLAGS := -d consistent_supg_auto=1
+plano_auto:           EPERLFLAGS := -d auto_time_step=1
+plano_local_nm:       EPERLFLAGS := -d local_time_step_nm=1 
+plano_local_weak:     EPERLFLAGS := -d local_time_step_weak=1
+plano_local_fm2_weak: EPERLFLAGS := -d fm2_weak=1  
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Idmap class
@@ -192,11 +195,17 @@ idmap: tidmap.bin
 ../src/%.o: force
 	$(MAKE) -C ../src $@
 
-tidmap.bin: tidmap.o ../src/idmap.o ../src/utils.o 
+# tidmap.bin: tidmap.o ../src/idmap.o ../src/utils.o 
+# #	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
+# 	${CXX_CLINKER} -o $@ tidmap.o ../src/idmap.o ../src/utils.o \
+# 	../src/fastmat2.o ../src/fm2eperl.o \
+# 		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
+
+tidmap.bin: tidmap.o $(LIBPETSCFEM)
 #	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
-	${CXX_CLINKER} -o $@ tidmap.o ../src/idmap.o ../src/utils.o \
-	../src/fastmat2.o ../src/fm2eperl.o \
+	${CXX_CLINKER} -o $@ tidmap.o $(LIBPETSCFEM) \
 		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
+
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Checks the constraint bug feature
@@ -249,8 +258,8 @@ fastmat2: fastmat2a fastmat2b fastmat2c
 fastmat2a: testfm2a.bin
 	testfm2a.bin > fastmat2a.sal
 
-testfm2a.bin: testfm2a.o $(LIBPFM)
-	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LIBPFM) \
+testfm2a.bin: testfm2a.o libpetscfem
+	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LIBPETSCFEM) \
 		-L$(NEWMAT) -lnewmat
 
 daxpy.o: daxpy.f
@@ -260,8 +269,8 @@ testfm2d: #testfm2d.bin
 	./testfm2d.bin
 
 
-testfm2d.bin: testfm2d.o daxpy.o $(LIBPFM)
-	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o daxpy.o $(LIBPFM) \
+testfm2d.bin: testfm2d.o daxpy.o libpetscfem
+	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o daxpy.o $(LIBPETSCFEM) \
 		-L$(NEWMAT) -lnewmat 
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
@@ -269,17 +278,17 @@ testfm2d.bin: testfm2d.o daxpy.o $(LIBPFM)
 fastmat2b: testfm2.bin
 	testfm2.bin > fastmat2.sal
 
-testfm2.bin: testfm2.o $(LIBPFM)
+testfm2.bin: testfm2.o libpetscfem
 	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin testfm2.o \
-		$(LIBPFM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
+		$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
 #w FastMat2 test c 
 fastmat2c: testfm2c.bin
 	testfm2c.bin > fastmat2c.sal
 
-testfm2c.bin: testfm2c.o $(LIBPFM)
-	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPFM) \
-		$(LIBPFM) -L$(NEWMAT) -lnewmat
+testfm2c.bin: testfm2c.o libpetscfem
+	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPETSCFEM) \
+		 -L$(NEWMAT) -lnewmat
 
 #s

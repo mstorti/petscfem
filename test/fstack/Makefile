@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 16:52:40 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/20 10:15:29 mstorti Exp $ 
 
 .PHONY: fstack force
 
@@ -20,8 +20,8 @@ $(SRC_DIR)/%.o: force
 $(PETSCFEM_LIB): force
 	$(MAKE) -C $(SRC_DIR) compile
 
-tfstack.bin: tfstack.o $(PETSCFEM_LIB)
-	${CXX_CLINKER} -o $@ tfstack.o $(SRC_DIR)/fstack.o \
+tfstack.bin: tfstack.o libpetscfem
+	${CXX_CLINKER} -o $@ tfstack.o $(LIBPETSCFEM) \
 		-lc ${PETSC_SLES_LIB} \
 		-L$(LIBRETTO_LIB) -libretto
 

@@ -49,18 +49,22 @@ LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem.a
 #SHARFILE = $(HOME_GERONIMO)/PETSC/source.shar
 TARFILE = $(PETSCFEM_DIR)/../source
 
+APPDIR = $(PETSCFEM_DIR)/applications
+
 ODOC = $(PETSCFEM_DIR)/tools/odoc.pl
 
 include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
 G_COPTFLAGS      = -ggdb
 
-.PHONY: tags lclean general_clean force
+.PHONY: tags lclean general_clean force libpetscfem
+
+#w Build the library
+libpetscfem: force 
+	$(MAKE) -C $(PETSCFEM_DIR)/src compile
 
 #w Creates the dependency file makefile.d
 depend: 
-#	-rm makefile.d
 	$(MAKE) makefile.d
-#	-rm makefile.d.bak
 	for dir in $(DEPEND_DIRS) ; \
 		do $(MAKE) -C $$dir depend ;\
 	done
@@ -92,6 +96,14 @@ local_clean::
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
+
+#w Builds all necessary things after checking out a version
+#w from the CVS repository
+sw: 
+	$(MAKE) local_sw
+	for dir in $(SWDIRS) ; do $(MAKE) -C $$dir sw  ; done
+
+local_sw::
 
 #w cleans directory for distribution (leaves some files)
 distclean: 
