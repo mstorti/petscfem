@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.41 2003/02/07 18:51:43 mstorti Exp $
+//$Id: nsi_tet.h,v 1.42 2003/02/10 12:32:04 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -359,7 +359,7 @@ class LagrangeMult : public Elemset {
 };
 
 /** Cutoff function used in turbulence calculations. It is very near
-    to ${\rm ctff(x)\approx \rm tol$ for $x<0$ and ${\rm ctff}(x)=x$
+    to ${\rm ctff}(x)\approx \rm tol$ for $x<0$ and ${\rm ctff}(x)=x$
     for $x\gg \rm tol$.  
     @param x (input) the argument where to compute the cutoff fuction
     @param (output) the derivative of the cutoff function at $x$
