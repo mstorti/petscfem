@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.6 2002/07/27 18:31:07 mstorti Exp $
+//$Id: gpdata.h,v 1.7 2003/02/10 21:27:07 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
@@ -56,6 +56,13 @@ public:
   int mat_version;
   /// The volume of the reference (master) element
   double master_volume;
+  /** Number of DX sub-elements in which each element is subdivided. 
+      For instance a prism may be divided in 4 
+      @param (input)
+      @return a reference to the matrix. */ 
+  int dx_conv_n();
+  /// The DX type
+  void dx_conv_n(int j,string &type,vector<int> &indices);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
