@@ -4020,3 +4020,8 @@ tag: beta-3.42 on Fri, 18 Feb 2005 06:43:40 -0300 by mstorti in spider
 ----------
 tag: 3.43.1 on Fri, 18 Feb 2005 06:51:48 -0300 by mstorti in spider
      > Administrative tag
+----------
+tag: 3.43.2 on Sat, 19 Feb 2005 13:37:02 -0300 by mstorti in spider
+     > Written `compshock.m' for computig normal shocks. 
+     > Now `gasflow' doesn't computes LES terms only
+     > for volume elements. 
