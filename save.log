@@ -3458,3 +3458,6 @@ tag: beta-3.37.8 on Sat, 20 Nov 2004 18:16:48 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.9 on Sun, 21 Nov 2004 20:43:31 -0300 by mstorti in spider
      > Working on `femref'. 
+----------
+tag: beta-3.37.10 on Mon, 22 Nov 2004 09:50:34 -0300 by mstorti in minerva.ceride.gov.ar
+     > OK comparison operator for `GeomObject'. 
