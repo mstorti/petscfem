@@ -151,3 +151,7 @@ tag: beta-1.10 on Thu Jan 11 08:36:22 ARST 2001, by  mstorti in minerva.arcride.
      > Improved the OOP in Elemset. 
      > Adapted to gcc 2.96.
      > Adapted tests to new versions.
+----------
+tag: beta-1.11 on Thu Jan 11 12:56:03 ARST 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Added two examples for advdif.
