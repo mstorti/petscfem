@@ -1,0 +1,198 @@
+##__INSERT_LICENSE__
+## $Id: spiller.epl,v 1.1 2003/03/13 16:27:01 mstorti Exp $ 
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};
+$case_name = 'default' unless defined $case_name;
+require './data.pl';
+if (!$re_start && -f 'spiller.axis_nodes.rslt.tmp') {
+    unlink 'spiller.axis_nodes.rslt.tmp';
+}
+$layers = 2;
+#__END_TRANSCRIPT__
+@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert 
+    Next re_start layers Dt);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH spiller.m";
+$nnod = count_lines("./spiller.nod.tmp");
+:>//                            # ends ePerl block
+
+# <:pr('case_name'):>
+#===========================================================
+global_options
+ndim 2
+
+print_some_file "spiller.axis_nodes.tmp"
+save_file_some "spiller.axis_nodes.rslt.tmp"
+nsome 1
+
+save_file "spiller.state.tmp"
+nsave 1
+
+save_file_pattern "spiller.state_%d.tmp"
+<:pr('nsaverot'):>
+nrec 1
+nfile 100000000
+
+initial_state <:= ($re_start ? "spiller.state.tmp" : "spiller.ini.tmp") :>
+nstep 10000
+# steady
+#if 0
+solver "petsc"
+preco_type "jacobi"
+#else
+solver "iisd"
+iisd_subpart_auto 2000
+preco_type "jacobi"
+#endif
+print_internal_loop_conv 1
+Krylov_dim 200
+nnwt 3
+alpha 0.6
+weak_form 0
+<:pr('Dt'):>
+rtol 1e-4
+atol 1e-10
+iisdmat_print_statistics
+print_partitioning_statistics
+# print_linear_system_and_stop
+# verify_jacobian_with_numerical_one 1
+# solve_system 0
+
+#if 1
+hook_list dl_generic_hook coupling_visc_hook \
+          ns_dx_hook my_dx_hook
+
+coupling_visc_hook.filename ./inviscid.efn
+coupling_visc_hook.prefix   coupling_visc_hook
+
+ngather 3
+gather_file "spiller.force.tmp"
+viscosity <:=2*$Rint/$Re:>
+#endif
+
+#if 1
+# Para DX
+# hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 2 0 1 u 1 1 2 p"
+dx_auto_combine
+dx_state_all_fields 0
+<:pr('dx_steps'):>
+<:pr('dx_read_state_from_file'):>
+#endif
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  3
+data spiller.nod.tmp
+__END_HASH__
+
+#===========================================================
+#if 0
+elemset ns_id 4
+ns_id_fac 0.
+#else
+elemset nsi_tet_les_fm2 4
+#endif
+name viscous_fluid_elemset
+geometry cartesian2d
+npg 4
+data spiller.con.tmp
+dx 
+__END_HASH__
+
+#===========================================================
+## Because we have no more surface integrators
+elemset visc_force_integrator <:=2*(1+$layers):>
+gather_pos 0
+is_fat 0
+geometry "line2quad"
+npg 2
+ndimel 1
+gather_length 3
+volume_elemset viscous_fluid_elemset
+# use_exterior_normal 0
+<:pr('layers'):>
+identify_volume_elements 1
+__END_HASH__
+__INCLUDE__ "spiller.skin_int.tmp"
+__END_ELEMSET__
+
+#===========================================================
+# This is needed for the fictitious nodes
+elemset ns_id 1
+# May be we need this for thos fictitious nodes for
+# which the stencil is not created. They shouldn't have
+# residual, though. 
+ns_id_fac 1e-10
+__END_HASH__
+__INCLUDE__ "spiller.nod_fic_ext.tmp"
+__END_ELEMSET__
+
+#if 1
+#===========================================================
+## 1D coupling elements. They add a certain traction on the surface
+## in order to have null vorticity. 
+elemset inviscid_coupling 2
+geometry cartesian1d
+ndimel 1
+npg 2
+data spiller.coupler.tmp
+__END_HASH__
+#endif
+
+#===========================================================
+#if 0
+null_vort
+geometry "line2quad"
+ndimel 1
+npg 2
+nel_surf 2
+volume_elemset viscous_fluid_elemset
+fic_dof 2
+
+# lagrange_scale_factor 1e-3
+lagrange_diagonal_factor -1e-6
+lagrange_residual_factor 1 # if =1 be non consistent, but truly Newton
+                           # if =0 be consistent, but not truly Newton
+__END_HASH__
+## surface elements
+__INCLUDE__ "spiller.coupler.tmp"
+__END_DATA__
+## list of nodes on the surface with the
+## corresponding fictitious node
+## i.e.: node node_fic
+__INCLUDE__ "spiller.coupl2fic.tmp"
+__END_DATA__
+#endif
+
+end_elemsets
+
+#===========================================================
+fixa
+__INCLUDE__ "spiller.outlet.tmp"
+__INCLUDE__ "spiller.skin.tmp"
+__END_FIXA__
+
+#===========================================================
+fixa_amplitude dl_generic
+ext_filename "./inviscid.efn"
+function_name "visc_coupling"
+__END_HASH__
+__INCLUDE__ "spiller.nod_ext_fix.tmp"
+__END_FIXA__
+
+#===========================================================
+constraint
+__INCLUDE__ "spiller.normal.tmp"
+__END_CONSTRAINT__
+
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

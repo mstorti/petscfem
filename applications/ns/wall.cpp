@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.15 2002/08/27 02:53:49 mstorti Exp $
+//$Id: wall.cpp,v 1.16 2003/03/13 16:26:58 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -111,8 +111,15 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
+#if 0
+  // This is wrong!! Memory leak!!
   vector<double> *data_pts = new vector<double>;
   vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
+#else
+  vector<double> *data_pts=NULL;
+  vector<ElemToPtr> *elemset_pointer=NULL;
+#endif
+
   Elemset *elemset;
   if (build_nneighbor_tree) {
     // convert pointers
@@ -285,7 +292,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
   }
-  if (elemset!=this) {
+  if (build_nneighbor_tree && elemset!=this) {
     int s = data_pts->size();
     int l = s/ndim;
     assert(l*ndim == s);

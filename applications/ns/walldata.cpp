@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.9 2002/11/30 14:54:47 mstorti Exp $
+//$Id: walldata.cpp,v 1.10 2003/03/13 16:26:58 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -96,7 +96,8 @@ void WallData::nearest_elem_info(const int nn, Elemset *& elemset,
   int prev=0;
   if (kk>0) prev = elemset_pointer[kk-1].first;
   elem = nn-prev;
-  coords = data_pts[kk];
+  // coords = data_pts[kk]; // wrong!!
+  coords = data_pts[nn];
 #else
     PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
 #endif
