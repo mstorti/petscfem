@@ -1,0 +1,32 @@
+// -*- mode: c++ -*- 
+// $Id: pfmat.sm,v 1.1 2001/12/07 18:02:27 mstorti Exp $
+// This file is to be processed by SMC (State Machine Compiler)
+Context PFMatFSMContext         // name of the context class
+FSMName PFMatFSM                // name of the FSM to create
+Initial clean                   // initial state for the machine
+Header  pfmat.h                 // the name of the header file
+                                // of the context class
+
+// Format is <from-state> <event> <to-state> <actions>
+{
+
+  // fill operations are implemented directly in
+  // the Mat class. The only action taken is to mark the matrix as
+  // filled. 
+  clean set_profile profiled { }
+  profiled set_value in_assembly {}
+  profiled clear clean clean_profile 
+  in_assembly { set_value in_assembly {}
+                assembly_begin in_scatter {}
+  }
+  in_scatter assembly_end assembled {}
+  assembled { zero_entries profiled { }
+              set_value profiled in_assembly { }
+              clear clean { }
+	      solve factored { factor_and_solve }
+  }
+  factored { solve factored { solve_only }
+             zero_entries profiled { clean_factor }
+             clear clean { clean_factor }
+  }
+}
