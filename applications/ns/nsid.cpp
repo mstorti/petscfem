@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.5 2003/03/10 03:00:17 mstorti Exp $
+//$Id: nsid.cpp,v 1.6 2003/03/10 20:09:37 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -87,7 +87,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o see doc for #ns_id_fac#
   SGETOPTDEF(double,ns_id_lumped_cn,0.);
   //o see doc for #ns_id_fac#
-  SGETOPTDEF(double,ns_id_lumped_cn1,1e-2);
+  SGETOPTDEF(double,ns_id_lumped_cn1,0.);
 
   // allocate local vecs
   FastMat2 veccontr(2,nel,ndof), locstate2(2,nel,ndof),

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: cloud2.h,v 1.4 2003/02/28 23:51:05 mstorti Exp $
+// $Id: cloud2.h,v 1.5 2003/03/10 20:09:38 mstorti Exp $
 #ifndef PETSCFEM_CLOUD2_H
 #define PETSCFEM_CLOUD2_H
 
@@ -43,6 +43,9 @@ public:
   /** Returns the condition number of the last computed cloud
       @return condition number */ 
   virtual double cond()=0;
+  /** Returns a characteristic size of the cloud. 
+      @return characteristic size */ 
+  virtual double h()=0;
   /** Clean-up function. */ 
   virtual void clear()=0;
 };
@@ -60,6 +63,7 @@ public:
   void coef(FastMat2 &x, FastMat2 &w, FastMat2 &x0);
   void coef(FastMat2 &x, FastMat2 &w);
   double cond();
+  double h();
   void clear();
 };
 

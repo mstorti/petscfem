@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: cloud2.cpp,v 1.4 2003/02/28 23:51:05 mstorti Exp $
+// $Id: cloud2.cpp,v 1.5 2003/03/10 20:09:38 mstorti Exp $
 #include <cmath>
 #include <src/util2.h>
 #include <src/dvector.h>
@@ -37,11 +37,14 @@ private:
   FastMat2Tmp tmp;
   /// Aux matrices
   FastMat2 A,AA,xi,H,iH,x00;
+  /// Characteristic size
+  double h_m;
 public:
   void init(int ndim, int nx, int nderiv,const int *derivs, const int *npol);
   void coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0);
   void coef(FastMat2 &x, FastMat2 &w);
   double cond();
+  double h();
   void clear();
 };
 
@@ -67,6 +70,9 @@ void Cloud2::coef(FastMat2 &x, FastMat2 &w) { ptr->coef(x,w); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double Cloud2::cond() { return ptr->cond(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Cloud2::h() { return ptr->h(); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Cloud2::clear() { ptr->clear(); }
@@ -144,6 +150,7 @@ void Cloud2FastMat2::coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0) {
   tmp(1).prod(tmp(0),x0,1,2);
   xi.set(x).rest(tmp(1));
   double h = xi.max_abs_all();
+  h_m = h;
   xi.scale(1./h);
 
   dvector<int> expo;
@@ -182,6 +189,11 @@ void Cloud2FastMat2::coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double Cloud2FastMat2::cond() { 
   return  H.norm_p_all(1.)*iH.norm_p_all(1.);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Cloud2FastMat2::h() { 
+  return  h_m;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.5 2003/03/10 00:17:32 mstorti Exp $
+// $Id: nullvort.cpp,v 1.6 2003/03/10 20:09:38 mstorti Exp $
 
 #include <applications/ns/nullvort.h>
 #include <src/dvector.h>
@@ -323,7 +323,7 @@ void null_vort::res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
   // Make a local copy of node coordinates
   xlocc.set(xloc());
   // Coordinates of surface node. The first node in the stencil
-  // is the center node (the node where we impose th null
+  // is the center node (the node where we impose the null
   // vort. condition
   xlocc.ir(1,1);
   // Coordinates of all nodes
@@ -334,14 +334,15 @@ void null_vort::res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
   x.rs();
   // Compute coefs.
   cloud.coef(x,w,x0);
-  // It the computation was too bad conditioned, then
-  // skip the node
+  // warning if the computation was too bad conditioned
   double cond = cloud.cond();
   if (cond > 1e8) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"null_vort: object %d, bad conditioned cloud, cond %g\n",
 		k,cond);
   }
+  // Scale by volume of element
+  w.scale(pow(cloud.h(),ndim));
   ww.set(0.).is(1,1,nx).set(w).rs();
 
   // Vorticity is w = dv/dx - du/dy

@@ -1,6 +1,6 @@
 $Re = 1000;			# Reynolds number
 $Co = 2;			# Courant number
-$re_start = 1;			# restart previous run? 
+$re_start = 0;			# restart previous run? 
 $dx_steps = 0;
 $dx_read_state_from_file = 0;
 $nsaverot = 10;

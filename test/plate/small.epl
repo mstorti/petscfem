@@ -1,0 +1,104 @@
+##__INSERT_LICENSE__
+## $Id: small.epl,v 1.1 2003/03/10 20:09:38 mstorti Exp $ 
+#===========================================================
+global_options
+ndim 2
+
+solver "petsc"
+preco_type "jacobi"
+verify_jacobian_with_numerical_one 1
+solve_system 0
+initial_state "small.ini"
+steady
+Dt 0.1
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes   2  2  3
+0 -0.1
+0.1 -0.1
+0.2 -0.1
+0 0
+0.1 0
+0.2 0
+0 0.1
+0.1 0.1
+0.2 0.1
+# fictitious node
+0 0
+__END_NODES__
+
+#===========================================================
+#if 1
+elemset nsi_tet_les_fm2 4
+#else
+elemset ns_id 4
+ns_id_fac 0.1
+#endif
+name viscous_fluid_elemset
+geometry cartesian2d
+npg 4
+viscosity 0.001
+__END_HASH__
+1 2 5 4
+2 3 6 5
+4 5 8 7
+5 6 9 8
+__END_ELEMSET__
+
+#===========================================================
+# This is needed for the fictitious nodes
+elemset ns_id 1
+# May be we need this for thos fictitious nodes for
+# which the stencil is not created. They shouldn't have
+# residual, though. 
+ns_id_fac 0.
+__END_HASH__
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+__END_ELEMSET__
+
+#===========================================================
+null_vort
+geometry "line2quad"
+ndimel 1
+npg 2
+nel_surf 2
+volume_elemset viscous_fluid_elemset
+fic_dof 2
+
+# lagrange_scale_factor 1e-3
+lagrange_diagonal_factor -1e-2
+lagrange_residual_factor 1 # if =1 be non consistent, but truly Newton
+                           # if =0 be consistent, but not truly Newton
+__END_HASH__
+7 4
+4 1
+__END_DATA__
+4 10
+__END_DATA__
+
+end_elemsets
+
+#if 0
+#===========================================================
+fixa
+1 1 1.
+4 1 1.
+7 1 1.
+__END_FIXA__
+#endif
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
