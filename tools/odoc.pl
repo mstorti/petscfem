@@ -1,11 +1,16 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.11 2003/02/10 14:52:24 mstorti Exp $
+# $Id: odoc.pl,v 1.12 2003/09/11 00:47:35 mstorti Exp $
 
 @odoc=();
 
 use Getopt::Std;
-getopts("s:o:h");
+getopts("wWs:o:h");
+
+my $wiki_syntax = 1;
+
+$wiki_syntax = 0 if $opt_W;
+$wiki_syntax = 1 if $opt_w;
 
 #  if ($opt_h) {
 #  /`/;
@@ -39,11 +44,25 @@ sub get_section {
     return \@doc;
 }
 
+sub wiki {
+    my $ref = shift();
+    foreach my $t (@$ref) {
+	$t =~ s/(\s)\#(\S)\#(\s)/$1\\verb+$2+$3/g;
+	$t =~ s/(\s)\#(\S.*?\S)\#(\s)/$1\\verb+$2+$3/g;
+	$t =~ s/(\s)_(\S)_(\s)/$1\\emph{$2}$3/g;
+	$t =~ s/(\s)_(\S.*?\S)_(\s)/$1\\emph{$2}$3/g;
+	$t =~ s/(\s)\*(\S)\*(\s)/$1\\textbf{$2}$3/g;
+	$t =~ s/(\s)\*(\S.*?\S)\*(\s)/$1\\textbf{$2}$3/g;
+    }
+}
+
 $otargetf="";
 @doclist=();
 while (<>) {
     $otarget=$1 if m|//target (\s*)|;
     $otarget="" if m|//end_target|;
+    $wiki_syntax = 1 if m|//__ENABLE_WIKI__|;
+    $wiki_syntax = 0 if m|//__DISABLE_WIKI__|;
     next if $otarget ne $otargetf;
     if ((/$tgetopt_pat/o || /$getopt_pat/o)
 	&& ! m|//nd|) {
@@ -68,23 +87,25 @@ while (<>) {
 	    }
 	}
 
+	wiki(\@doc) if $wiki_syntax;
+
 	if ($doc[0] =~ /\s*_T:(.*)/s) {
 	    @docf=@doc;
 	    $doc=join("",@doc);
 	    die "no \"_T:\" tag in explicit doc: \n",
 	    @docf unless $doc=~/_T:(.*\s)_N:/s;
 	    $type=$1;
-	    $doc=$';
+	    $doc=$POSTMATCH; 
 	    $type =~s/\n/ /g;
 	    $type =~ s/\s*$//;
 	    die "no \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/_D:/s;
 	    $name=$`;
-	    $doc=$';
+	    $doc=$POSTMATCH;
 	    $name =~s/\n/ /g;
 	    $name =~ s/\s*$//;
 	    die "no \"_DOC:\" tag in explicit doc: ",@docf unless $doc=~/_DOC:/s;
 	    $default=$`;
-	    $doc=$';
+	    $doc=$POSTMATCH; 
 	    $default =~s/\n/ /g;
 	    $default =~ s/\s*$//;
 	    die "no \"_END\" tag in explicit doc: ",
