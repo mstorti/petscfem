@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.17 2002/05/10 21:19:21 mstorti Exp $
+//$Id: metisprt.cpp,v 1.18 2002/05/12 15:10:28 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -66,14 +66,14 @@ void elem_connectivities(int elem,Mesh *mesh,const int *nelemsetptr,
   elem_icone = &ICONE(locel,0);
 }
 
-void  metis_part(int nelemfat,Mesh *mesh,
-		 const int nelemsets,int *epart,
-		 int *nelemsetptr,int *n2eptr,
-		 int *node2elem,int size,const int myrank,
-		 const int partflag,float *tpwgts,
-		 int max_partgraph_vertices,
-		 int iisd_subpart,int print_statistics) {
-
+void metis_part(int nelemfat,Mesh *mesh,
+		const int nelemsets,int *epart,
+		int *nelemsetptr,int *n2eptr,
+		int *node2elem,int size,const int myrank,
+		const int partflag,float *tpwgts,
+		int max_partgraph_vertices,
+		int iisd_subpart,int print_statistics) {
+  
   Elemset *elemset;
   int *icone,nel,node,nvrtx,adjcount,j,elem,elemk,vrtx,
     visited,locel,k,jj,vrtxj,vrtxjj,p,ierr,nvsubdo;
@@ -98,7 +98,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
 	    max_partgraph_vertices : nelemfat);
   if (print_statistics && myrank==0) 
     printf("-- Graph partitioning statistics: ----------- \n"
-	   "Using %d hraph vertices\n",nvrtx);
+	   "Using %d graph vertices\n",nvrtx);
 
   // Create adjacency table for partitioning with Metis. In the
   // adjacency graph the nodes are elements or group of elments of the

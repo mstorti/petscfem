@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.14 2002/05/10 21:19:21 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.15 2002/05/12 15:10:28 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -17,6 +17,11 @@ extern int MY_RANK,SIZE;
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/elemset.h>
+#define PRINT_LOCAL_INT_PARTITION_TABLE
+#ifdef PRINT_LOCAL_INT_PARTITION_TABLE
+#include <src/idmap.h>
+#include <src/dofmap.h>
+#endif
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
 #include <src/iisdgraph.h>
@@ -83,11 +88,11 @@ void LocalGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::create"
+#define __FUNC__ "IISDMat::create_a"
 int IISDMat::create_a() {
 
   int myrank,size,max_partgraph_vertices_proc,proc_l;
-  int k,pos,keq,leq,jj,row,row_t,col_t,od,
+  int k,pos,keq,leq,jj,row,row_type,col_type,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
     n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
   vector<int> dof2loc,loc2dof;
@@ -107,16 +112,16 @@ int IISDMat::create_a() {
   else if (local_solver_s == "SuperLU") local_solver = SuperLU;
   else assert(0);
 
-#if 1
   //o PETSc parameter related to the efficiency in growing
   //   the factored profile.
   TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
-
   //o Print the Schur matrix (don't try this for big problems).
   TGETOPTDEF_ND_PF(thash,int,print_Schur_matrix,0);
-
   //o Print Finite State Machine transitions
   TGETOPTDEF_ND_PF(thash,int,print_fsm_transition_info,0);
+  //o Print dof statistics, number of dofs local and interface in each
+  // processor. 
+  TGETOPTDEF(&thash,int,iisdmat_print_statistics,0);
 
   // Scatter the profile graph
   lgraph.scatter();
@@ -292,20 +297,100 @@ int IISDMat::create_a() {
   n_locp = n_loc_v[myrank];
   n_intp = n_int_v[myrank];
 
+  if (iisdmat_print_statistics) {
+    PetscPrintf(PETSC_COMM_WORLD,"IISDMat dof statistics:\n"
+		"total %d, local %d, int %d\n",neq,n_loc_tot,n_int_tot);
+    PetscPrintf(PETSC_COMM_WORLD,
+		"---\nProc.   Total    Local      Int   PtrLoc   PtrInt\n");
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%2d] %8d %8d %8d %8d %8d\n",
+			    myrank,neqp,n_loc,n_int,n_locp,n_intp);
+    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+    PetscPrintf(PETSC_COMM_WORLD,"---\n"); 
+  }
+
+#ifdef PRINT_LOCAL_INT_PARTITION_TABLE
+  if (myrank==0) {
+    Dofmap *dofmap = (Dofmap *)(&part); // very dangerours
+#if 0
+    PetscPrintf(PETSC_COMM_WORLD,
+		"--- Local/interface partitioning\n"
+		"Prints: global-dof (node/field) proc type(local/interface)\n");
+    for (int j=0; j<neq; j++) {
+      int block, ldof, node, field, edoff;
+      row_t col;
+      dofmap->id->get_col(j+1,col);
+      map_dof_fun(j,block,ldof);
+      part.processor(keq);
+      if (col.size()==0) {
+	// do nothing (should never reach here ?)
+      } else if (col.size()==1) {
+	edoff = col.begin()->first;
+	dofmap->nodf(edoff,node,field);
+	printf("%5d (%5d/%5d) %3d %s\n",j,node,field,part.processor(j),
+	       (block==0 ? "L" : "I"));
+      } else {
+	printf("%5d (<complex dof>) %3d %s\n",j,part.processor(j),
+	       (block==0 ? "L" : "I"));
+      }
+    }
+#else
+    PetscPrintf(PETSC_COMM_WORLD,
+		"--- Local/interface partitioning\n"
+		"Prints:  node field global-dof proc type(local/interface)\n");
+    int block, ldof, node, field, edof, keq, proc;
+    row_t row;
+    for (int j=0; j<dofmap->nnod; j++) {
+      int nod_proc=-1, nod_type=-1;
+      for (int f=0; f<dofmap->ndof; f++) {
+	map_dof_fun(j,block,ldof);
+	dofmap->get_row(j+1,f+1,row);
+	keq=0;
+	if (row.size()==0) {
+	  // do nothing (should never reach here ?)
+	} else if (row.size()==1) {
+	  keq = row.begin()->first;
+	  if (keq < neq) {
+	    map_dof_fun(keq,block,ldof);
+	    proc = part.processor(keq);
+	  } else {
+	    proc = size; block=2;
+	  }
+	} else {
+	  proc = size+1; block=2;
+	}
+	if (f==0) {
+	  nod_proc = proc;
+	  nod_type = block;
+	} else {
+	  if (proc < size && nod_proc < 0) nod_proc = proc;
+	  if (proc < size && proc != nod_proc) nod_proc = size;
+	  if (block < 2 && nod_type < 0) nod_type = block;
+	  if (block < 2 && block != nod_type) nod_type = 2;
+	}
+	printf("%5d %5d %5d %3d %d\n",j,f,keq,nod_proc,block);
+      }
+      if (nod_proc == -1) nod_proc = size;
+      if (nod_type == -1) nod_type = 2;
+      printf("%5d %5d %5d %3d %d\n",j,dofmap->ndof,0,nod_proc,nod_type);
+    }
+#endif
+  }
+#endif
+
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
   // PETSc sense)
-  // row_t:= col_t:= may be local (`L=0') or `interface ('I=1') 
+  // row_t:= col_type:= may be local (`L=0') or `interface ('I=1') 
   // is a a block index, when decomposing the dof's
   // at each processor as `local' and `interface'. 
   for (od = 0; od < 2; od++) {
-    for (row_t = 0; row_t < 2; row_t++) {
-      for (col_t = 0; col_t < 2; col_t++) {
+    for (row_type = 0; row_type < 2; row_type++) {
+      for (col_type = 0; col_type < 2; col_type++) {
 	// The size of the `d_nnz' and `o_nnz' vectors is that of
 	// the `row' type index, i.e. the second index, for instance
 	// the size of the nnz[O][L][I] index is that of the `L'
 	// block, i.e. `n_loc'. 
-	nnz[od][row_t][col_t].resize((row_t == L ? n_loc : n_int),0);
+	nnz[od][row_type][col_type].resize((row_type == L ? n_loc : n_int),0);
       }
     }
   }
@@ -316,10 +401,10 @@ int IISDMat::create_a() {
     // keq:= number of dof
     keq = dofs_proc_v[k];
     // type of dof (local or interface)
-    // row_t = (flag[keq] ? I : L);
+    // row_type = (flag[keq] ? I : L);
     // Index in the local PETSc matrices (maped index)
     row = map_dof[keq];
-    row_t = (row < n_loc_tot ? L : I);
+    row_type = (row < n_loc_tot ? L : I);
     
     // Correct dof's
     row -= (row < n_loc_tot ? n_locp : n_intp);
@@ -332,19 +417,19 @@ int IISDMat::create_a() {
       // leq:= number of dof connected to `keq' i.e. `A(keq,leq) != 0' 
       leq = *q;
       // type of dof
-      // col_t = (flag[leq] ? I : L);
-      col_t = (map_dof[leq] < n_loc_tot ? L : I);
+      // col_type = (flag[leq] ? I : L);
+      col_type = (map_dof[leq] < n_loc_tot ? L : I);
       // diagonal or off-diagonal (in PETSc sense)
       od = ( (part.processor(leq)!= myrank) ? O : D);
       // By construction, the local-local block should be in the
       // diagonal part
-      assert(!(od==O && row_t==L && col_t==L));
+      assert(!(od==O && row_type==L && col_type==L));
       // count 
-      if (!(row>=0 && row < nnz[od][row_t][col_t].size())) {
-	printf("row %d, size: %d\n",row,nnz[od][row_t][col_t].size());
+      if (!(row>=0 && row < nnz[od][row_type][col_type].size())) {
+	printf("row %d, size: %d\n",row,nnz[od][row_type][col_type].size());
 	MPI_Abort(comm,1);
       }
-      nnz[od][row_t][col_t][row]++;
+      nnz[od][row_type][col_type][row]++;
     }
 
   }
@@ -355,19 +440,19 @@ int IISDMat::create_a() {
 #if 0
   // Prints d_nnz, o_nnz for block LL, IL, IL and II in turn
   // For each block prints the d_nnz and o_nnz in turn
-  for (int row_t=0; row_t<2; row_t++) {
-    for (int col_t=0; col_t<2; col_t++) {
+  for (int row_type=0; row_type<2; row_type++) {
+    for (int col_type=0; col_type<2; col_type++) {
       PetscPrintf(comm,"[%s]-[%s] block\n",
-		  (row_t==0? "LOC" : "INT"),(col_t==0? "LOC" :
+		  (row_type==0? "LOC" : "INT"),(col_type==0? "LOC" :
 					     "INT"));
       // number of rows in this block in this processor
-      nrows=(row_t==L ? n_loc : n_int);
+      nrows=(row_type==L ? n_loc : n_int);
       PetscSynchronizedPrintf(comm,
 			      "%d/%d rows on processor [%d]\n",
 			      nrows,neqp,myrank);
       for (row=0; row<nrows; row++) {
-	d_nz = nnz[D][row_t][col_t][row];
-	o_nz = nnz[O][row_t][col_t][row];
+	d_nz = nnz[D][row_type][col_type][row];
+	o_nz = nnz[O][row_type][col_type][row];
 	if (d_nz|| o_nz) 
 	  PetscSynchronizedPrintf(comm,
 				  "row=%d, d_nnz=%d, o_nnz=%d\n",row,
@@ -435,6 +520,5 @@ int IISDMat::create_a() {
   d_nnz_LL = nnz[D][L][L];
 
   ierr = clean_mat_a(); CHKERRQ(ierr);
-#endif
   return 0;
 }

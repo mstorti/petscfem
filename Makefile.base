@@ -1,11 +1,9 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.78 2002/05/10 21:19:20 mstorti Exp $
+#$Id: Makefile.base,v 1.79 2002/05/12 15:10:24 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
-
-PETSC_DIR=/u/mstorti/PETSC/petsc-2.0.24.copy-delete
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 

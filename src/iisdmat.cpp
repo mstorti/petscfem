@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.5 2002/05/10 21:19:21 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.6 2002/05/12 15:10:28 mstorti Exp $
 extern int N_SET[4];
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -410,6 +410,13 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
 #define __FUNC__ "IISDMat::assembly_end_a"
 int IISDMat::assembly_end_a(MatAssemblyType type) {
   double beg,li,ii,il,ll;
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] %d %d %d %d\n",
+			  MY_RANK,N_SET[0],N_SET[1],N_SET[2],N_SET[3]);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscFinalize();
+  exit(0);
+ 
   beg = chrono.elapsed(); chrono.start();
   ierr = MatAssemblyEnd(A_LI,type); PF_CHKERRQ(ierr);
   li  = chrono.elapsed(); chrono.start();

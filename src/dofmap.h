@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.9 2002/02/10 00:20:09 mstorti Exp $
+//$Id: dofmap.h,v 1.10 2002/05/12 15:10:28 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -37,7 +37,7 @@ private:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** An amplitude is basically a function object that returns the
     Dirichlet value for a given time. For instance function `sine'  
-    with constant parameters  omega and phase, depending on time. 
+    with constant parameters  `omega' and `phase', depending on time. 
     @author M. Storti
 */ 
 class Amplitude {
@@ -225,7 +225,7 @@ public:
   VecScatter *scatter_print;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Gets a row of the maping matrix, only free (jeq<=neq) dofs are returned.
+  /** Gets a row of the mapping matrix, only free (jeq<=neq) dofs are returned.
       @author M. Storti
       @param node (input) the node number to get the row
       @param kdof (input) the field number to get the row
@@ -276,7 +276,7 @@ public:
       @param time_data (input) a pointer to a struct that tipically is a time
       @return the double value corresonding to that dof
   */ 
-  double  get_dofval(const int & jeq,const double *sstate,
+  double get_dofval(const int & jeq,const double *sstate,
 		     const TimeData *time_data) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -319,7 +319,7 @@ public:
   void set_fixation(int node,int kdof,double val);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Returns the a unique number corresponding to the node/field
+  /** Returns the unique number corresponding to the node/field
       pair. This is the inverse of nodf().
       @author M. Storti
       @param node (input) the node 
@@ -355,7 +355,7 @@ public:
   void set_constraint(const Constraint &constraint);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Returns the range of dofs that belong to a gien processor. 
+  /** Returns the range of dofs that belong to a given processor. 
       The dofs in this processor (base 0) are dof1 <= dof <= dof2. 
       @author M. Storti
       @param myrank (input) the identifier of this processor. 

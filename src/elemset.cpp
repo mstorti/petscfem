@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.39 2002/05/10 21:19:21 mstorti Exp $
+//$Id: elemset.cpp,v 1.40 2002/05/12 15:10:28 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -376,7 +376,6 @@ int assemble(Mesh *mesh,arg_list argl,
   TGETOPTDEF(mesh->global_options,int,debug_compute_prof,0);
   //o Debug the process of building the matrix profile. 
   TGETOPTDEF(mesh->global_options,int,report_assembly_time,0);
-  PetscPrintf(PETSC_COMM_WORLD,"report_assembly_time %d\n",report_assembly_time); 
 
   // This is the argument list to be passed to the element routine
   int narg = argl.size();

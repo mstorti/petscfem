@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.46 2002/05/10 21:19:21 mstorti Exp $
+//$Id: readmesh.cpp,v 1.47 2002/05/12 15:10:28 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -160,7 +160,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       // calling dofmap constructor
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
-
     } else if (!strcmp(token,"table")) {
 
       token = strtok(NULL,bsp);
@@ -468,7 +467,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	dofmap->get_row(node,kdof,row);
 	if (row.size()!=1) {
 	  PetscPrintf(PETSC_COMM_WORLD,
-		      "In line: %s\nFixation %d, imposed on an invalid node/field combination.\n",
+		      "In line: %s\nFixation %d, imposed on an invalid"
+		      " node/field combination.\n",
 		      astr_chars(linecopy),nfixa);
 	}
 	  
@@ -1034,7 +1034,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   //o Prints the dofmap \verb+idmap+ object. 
   TGETOPTDEF(mesh->global_options,int,print_dofmap_id,0);
   if (print_dofmap_id && myrank==0) {
-    dofmap->id->print("dofmap->id: ");
+    dofmap->id->print("dofmap->id: \n");
   }
 
   map<int,int>::iterator jj;
