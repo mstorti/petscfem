@@ -1,5 +1,5 @@
 //
-// time: Sun Sep  7 14:13:40 2003
+// time: Sun Sep  7 14:27:45 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -74,7 +74,7 @@ main_Toggle_4_out_1[cache: 2] =
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 3100 1 0 180 1 }
     // page group: import
-    // vcr[1]: min = 0, max = 3100, beg = 0, end = 180, cur = 6, inc = 1, loop = off, step = on, pal = off
+    // vcr[1]: min = 0, max = 3100, beg = 0, end = 180, cur = 0, inc = 1, loop = off, step = on, pal = off
     // window: position = (0.6074,0.0872), size = 0.3496x0.1055
     //
     main_Sequencer_1_in_3 = @frame;

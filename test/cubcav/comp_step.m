@@ -1,7 +1,7 @@
 source("./data.m.tmp");
-## steps_dir = "./STEPS-2003-SEP-01";
-if 0
-  steps_dir = "/cdrom/STEPS-2003-SEP-01";
+if 1
+  ## steps_dir = "/cdrom/STEPS-2003-SEP-01";
+  steps_dir = "./STEPS-2003-SEP-01";
   pf_start_step = 101;
 else
   steps_dir = "./STEPS";
@@ -16,6 +16,7 @@ rest = rem(dx_step,refine);
 sss = pf_start_step + floor(dx_step/refine);
 alpha = rest/refine;
 
+tic;
 u1 = aload([steps_dir "/" case_name ".state_" int2str(sss) ".tmp"]);
 if alpha>0
   u2 = aload([steps_dir "/" case_name ".state_" int2str(sss+1) ".tmp"]);
@@ -25,7 +26,10 @@ else
   u = u1;
   printf("Using u(%d)\n",sss);
 endif
+printf("Loading states %dsecs\n",toc);
 
+tic;
 u = pf_smooth(u,1,5);
+printf("Smoothing %dsecs\n",toc);
 
 asave(["./" case_name ".dx-state.tmp"],u);
