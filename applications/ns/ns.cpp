@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.155 2004/11/10 14:29:48 mstorti Exp $
+//$Id: ns.cpp,v 1.156 2004/11/18 21:04:19 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -325,6 +325,7 @@ int main(int argc,char **args) {
       A_poi->set_option("preco_side","left");
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     } else {
+#if 1
       A_mom->set_option("KSP_method",KSPBCGS);
       A_mom->set_option("preco_side","left");
       
@@ -342,6 +343,18 @@ int main(int argc,char **args) {
       A_prj->set_option("preco_type","jacobi");
       A_prj->set_option("block_uploading","0");
       // A_prj->set_option("symmetric","1");
+#else
+#define SET_SOLVER_OPTIONS(solv)				\
+    solv = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");	\
+      solv->set_option("preco_type","lu");			\
+      solv->set_option("block_uploading","0");			\
+      solv->set_option("KSP_method",KSPRICHARDSON); 
+
+      SET_SOLVER_OPTIONS(A_mom);
+      SET_SOLVER_OPTIONS(A_poi);
+      SET_SOLVER_OPTIONS(A_prj);
+
+#endif
     }
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }

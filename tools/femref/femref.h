@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.6 2004/11/18 17:44:02 mstorti Exp $
+// $Id: femref.h,v 1.7 2004/11/18 21:05:31 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -131,6 +131,7 @@ private:
   };
   dvector<double> coords;
   dvector<int> tri;
+  dvector<int> nod_adj;
   int ndim;
 public:
   class iterator { 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.67 2004/09/25 23:11:39 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.68 2004/11/18 21:04:39 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -139,7 +139,7 @@ int PFPETScMat::build_sles() {
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
   if (preco_side=="<ksp-dependent>") {
-    if (KSP_method == "cg") preco_side = "left";
+    if (KSP_method == "cg" || KSP_method == "richardson") preco_side = "left";
     else preco_side = "right";
   }
 
