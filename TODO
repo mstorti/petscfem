@@ -3,6 +3,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Control no memory losses in IISDMat
+* Code for element contributions to `local-local' matrices in other
+   processors. 
 * make `da' in profiles to be dimensioned of size `neqp' (number of
    dofs in local processor, not of size `neq' (number of total dofs)
 * write better error messages in FM2
