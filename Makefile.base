@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.50 2001/11/01 17:47:30 mstorti Exp $
+#$Id: Makefile.base,v 1.51 2001/11/15 00:10:31 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -40,6 +40,8 @@ ifeq ($(TAGINCL),)
 TAGINCL = --etags-include
 endif
 
+include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
+
 CPPFLAGS         := $(PROF_FLAGS) $(RH60) \
 		-I$(PETSC_DIR)/include -I$(PETSC_DIR)/bmake/$(PETSC_ARCH) \
 		-I$(MPI_HOME)/include \
@@ -65,8 +67,6 @@ INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 OCTAVE = octave
 
 PETSCFEM_VERSION := $(shell cat $(PETSCFEM_DIR)/VERSION)
-
-include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
 
 .PHONY: tags lclean general_clean force libpetscfem depend local_depend
 
