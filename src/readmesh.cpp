@@ -54,6 +54,12 @@ using namespace std;
 #define ELEMIPROPS(j,k) VEC2(elemiprops,j,k,neliprops)
 #define NODEDATA(j,k) VEC2(mesh->nodedata->nodedata,j,k,nu)
 
+char *local_copy(const char *s) {
+  char *buf= new char[strlen(s)+1];
+  strcpy(buf,s);
+  return buf;
+}  
+
 // fixme:= aca no se porque tuve que pasar neq por referenciar
 // porque sino no pasaba correctamente el valor. 
 #undef __FUNC__
@@ -63,7 +69,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
   vector<Amplitude *> amplitude_list;
 
-  char *line, *p1,*p2, *token, *type, *bsp=" \t";
+  char *p1,*p2, *token, *type, *bsp=" \t";
+  char *line;
+  const char *cline;
   Autostr *linecopy = astr_create();
   char *key,*val;
   int ndim,nu,ndof,nnod,ierr,numfat,node,jdof,kdof,edof;
@@ -188,7 +196,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       // Reads hash table for the elemeset
       read_hash_table(fstack,thash);
-      char *name;
+      const char *name;
       thash->get_entry("name",name);
       if (name) {
 	thash->register_name(name);
@@ -200,16 +208,18 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       if (myrank==0) thash->print("Table of properties:");
 
       // Read props line
-      thash->get_entry("props",line);
+      char *buf;
+      thash->get_entry("props",cline);
       GHashTable *props =
 	g_hash_table_new(&g_str_hash,&g_str_equal);
       nelprops=0;
-      if (line!=NULL) {
-	astr_copy_s(linecopy,line);
+      if (cline!=NULL) {
+	//astr_copy_s(linecopy,line);
+	buf = local_copy(cline);
 	props_hash_entry *phe, *pheold;
 	int posit=0;
 	while (1) {
-	  token = strtok((nelprops==0? line : NULL),bsp);
+	  token = strtok((nelprops==0? buf : NULL),bsp);
 	  if (token==NULL) break;
 	  nelprops++;
 	  phe = new props_hash_entry;
@@ -232,19 +242,21 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  g_hash_table_insert (props,(void *)key,phe);
 	}
 	g_hash_table_freeze(props);
+	delete[] buf;
       }
 
       // Read iprops line
-      thash->get_entry("iprops",line);
+      thash->get_entry("iprops",cline);
       neliprops=0; 
       GHashTable *iprops = g_hash_table_new(&g_str_hash,&g_str_equal);
       // GHashTable *iprops = g_hash_table_new(&hash_func,&key_compare_func);
-      if (line!=NULL) {
-	astr_copy_s(linecopy,line);
+      if (cline!=NULL) {
+	//astr_copy_s(linecopy,line);
+	buf = local_copy(cline);
 	props_hash_entry *phe, *pheold;
 	int posit=0;
 	while (1) {
-	  token = strtok((neliprops==0? line : NULL),bsp);
+	  token = strtok((neliprops==0? buf : NULL),bsp);
 	  if (token==NULL) break;
 	  neliprops++;
 	  phe = new props_hash_entry;
@@ -267,6 +279,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  g_hash_table_insert (props,(void *)key,phe);
 	}
 	g_hash_table_freeze(props);
+	delete[] buf;
       }
 
       // read connectivity and element properties
@@ -526,7 +539,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       while (1) {
 	
 	fstack->get_line(line);
-	astr_copy_s(linecopy, line);
 	if (strstr(line,"__END_CONSTRAINT__")) break;
 	nconstr++;
 	constraint.empty();
@@ -556,7 +568,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   }
 
   // Read processor info
-  char *proc_weights;
+  const char *proc_weights;
   float *tpwgts;
   // Read data
   FileStack *weights_file;

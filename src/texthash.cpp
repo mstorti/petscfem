@@ -121,7 +121,7 @@ void TextHashTable::add_entry(char * key,char * value) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::get_entry(char * key,char *& value)"
-void TextHashTable::get_entry_recursive(char * key,char *& value,
+void TextHashTable::get_entry_recursive(const char * key,const char *& value,
 					int &glob_was_visited) {
 
   if (this==global_options) glob_was_visited=1;
@@ -139,7 +139,7 @@ void TextHashTable::get_entry_recursive(char * key,char *& value,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
-void TextHashTable::get_entry(char * key,char *& value) {
+void TextHashTable::get_entry(const char * key,const char *& value) {
   int glob_was_visited=0;
   value=NULL;
   if (this) get_entry_recursive(key,value,glob_was_visited);

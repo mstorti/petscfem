@@ -113,7 +113,7 @@ public:
       @param key (input) key of the entry
       @param value (output) value of the entry
   */ 
-  void get_entry(char *,char *&);
+  void get_entry(const char *,const char *&);
 
   /** Constructs a void hash table.  
       @author M. Storti
@@ -144,7 +144,7 @@ private:
       @param key (input) key of the entry
       @param value (output) value of the entry
   */ 
-  void get_entry_recursive(char *,char *&,int &glob_was_visited);
+  void get_entry_recursive(const char *,const char *&,int &glob_was_visited);
 };
 
 

@@ -102,6 +102,19 @@
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Gets a value of type string from the thash of the elemset
+    Example: {\tt NTGETOPTDEF\_S(string,preco\_type,"Jacobi")}
+    @author M. Storti
+    @param type should be string
+    @param name name of the variable
+    @param default default value (not in parentheses)
+*/ 
+#define NGETOPTDEF_S(type,name,default) \
+        type name=type(#default); \
+        ierr = get_##type(#name,name,1); \
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from the element hash table. 
     Example: GETOPTDEF(int,n,10) 
     @author M. Storti
@@ -154,6 +167,20 @@
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Gets a value of type int or double from an elemset
+    hash table. Doesn't define the variable.
+    Example: EGETOPTDEF(int,n,10)
+    @author M. Storti
+    @param type may be `int' or `double'
+    @param name name of the variable
+    @param default default value. 
+*/ 
+#define EGETOPTDEF_ND(elemset,type,name,default) \
+        name = default; \
+        ierr = elemset->get_##type(#name,name,1); \
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from any 
     hash table. Doesn't define the variable.
     Example: GGETOPTDEF(thash,int,n,10)
@@ -166,6 +193,20 @@
 #define TGETOPTDEF_ND(thash,type,name,default) \
         name = default; \
         ierr = get_##type(thash,#name,&name,1); \
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Gets a value of type int or double from the general
+    element hash table. OOP version. 
+    Example: NSGETOPTDEF(int,n,10)
+    @author M. Storti
+    @param type may be `int' or `double'
+    @param name name of the variable
+    @param default default value. 
+*/ 
+#define NSGETOPTDEF(type,name,default) \
+        type name=default; \
+        ierr = get_##type(#name,name,1); \
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -28,6 +28,8 @@
 #include <regex.h>
 #include <string>
 
+#include "texthash.h"
+
 /**@name getprop package */
 //@{
 
@@ -63,7 +65,7 @@ void load_props(double *propel,int *elprpsindx,int nprops,double *elemprops);
     value if `defval=0'.
     @param n number of doubles to be read
 */
-int get_double(TextHashTable *thash,char *name,
+int get_double(TextHashTable *thash,const char *name,
 	       double *retval,int defval=0,int n=1);
 
 // fixme:= REWRITE!!!!!!!!!!!!
@@ -76,7 +78,7 @@ int get_double(TextHashTable *thash,char *name,
     value if `defval=0'. Strings may be enclosed in double quotes to further
     @param n number of integers to be read
 */
-int get_string(TextHashTable *thash,char *name,
+int get_string(TextHashTable *thash,const char *name,
 	       string &ret,int defval=0,int n=1);
 
 /** Gets an integer value from the hash table.
@@ -88,11 +90,11 @@ int get_string(TextHashTable *thash,char *name,
     then assign 1 (to be used as a `get\_flag()' function). 
     @param n number of integers to be read
 */
-int get_int(TextHashTable *thash,char *name,
+int get_int(TextHashTable *thash,const char *name,
 	       int *retval,int defval=0,int n=1);
 
 #if 0
-int get_flag(TextHashTable *thash,char *name,
+int get_flag(TextHashTable *thash,const char *name,
 	       int *retval,int defval=0,int n=1);
 #endif
 
@@ -100,7 +102,7 @@ int get_flag(TextHashTable *thash,char *name,
     @author M. Storti
 */
 int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
-	     int *elprpsindx,double *propel,char *name,int n);
+	     int *elprpsindx,double *propel,const char *name,int n);
 //@}
 
 #endif

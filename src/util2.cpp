@@ -249,7 +249,7 @@ void show_mallinfo () {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void read_double_array(vector<double> ,char *)" 
-void read_double_array(vector<double> & ajac,char * advje) {
+void read_double_array(vector<double> & ajac,const char * advje) {
   char *buf= new char[strlen(advje)+1];
   strcpy(buf,advje);
   char *token;

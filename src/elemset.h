@@ -24,9 +24,11 @@
 #ifndef ELEMSET_H
 #define ELEMSET_H
 
-#include "arglist.h"
 #include "libretto.h"
 #include <glib.h>
+
+#include "arglist.h"
+#include "getprop.h"
 
 enum ElemsetIteratorMode {
   ALL                  = 0x00001,
@@ -202,7 +204,7 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns coordinates and node data for the element
       @author M. Storti
-      @param element (input) intertor to the element for which 
+      @param element (input) iterator to the element for which 
       to return the data
       @param nodedata (input) the node coordinate info
       @param xloc (input) the coordinates of the element nodes
@@ -213,9 +215,19 @@ public:
 			 double *xloc,double *Hloc) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns element properties
+      @author M. Storti
+      @param element (input) iterator to the element for which 
+      to return the data
+      @return pointer to an array of nelprops doubles for the element
+  */ 
+  double *
+  element_props(const ElementIterator &element) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns node indices for the element
       @author M. Storti
-      @param element (input) intertor to the element for which 
+      @param element (input) iterator to the element for which 
       to return the data
       @param connect (input) indices of the element nodes
   */ 
@@ -224,7 +236,7 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns localized vector values for a given element
-      @param element (input) intertor to the element for which 
+      @param element (input) iterator to the element for which 
       to return the data
       @param ad (input) the argument in the arglist.
       @return a pointer to the element values
@@ -236,7 +248,7 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns localized element vector contributions for a given element
-      @param element (input) intertor to the element for which 
+      @param element (input) iterator to the element for which 
       to return the data
       @param ad (input) the argument in the arglist.
       @return a pointer to the element values
@@ -249,7 +261,7 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns localized element contributions to FD 
       jacobian for a given element
-      @param element (input) intertor to the element for which 
+      @param element (input) iterator to the element for which 
       to return the data
       @param ad (input) the argument in the arglist.
       @return a pointer to the element values
@@ -258,6 +270,28 @@ public:
   double *
   element_ret_fdj_values(const ElementIterator &element,
 			    arg_data &ad) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized element contributions to FD 
+      jacobian for a given element
+      @param element (input) iterator to the element for which 
+      to return the data
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  double *
+  element_ret_mat_values(const ElementIterator &element,
+			 arg_data &ad) const;
+
+  /** Returns element values
+      @author M. Storti
+      @param nel_ (output) the number of nodes connected to an element
+      @param ndof_ (output) the number of dofs for each node
+  */
+  void elem_params(int &nel_,int &ndof_,int &nelprops_) {
+    nel_=nel; ndof_=ndof; nelprops_ = nelprops;
+  }
 
   friend class ElementList;
 
@@ -363,7 +397,7 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns localized vector element contributions for a given element
-      @param element (input) intertor to the element for which 
+      @param element (input) iterator to the element for which 
       to return the data
       @param ad (input) the argument in the arglist.
       @return a pointer to the element values
@@ -373,7 +407,7 @@ public:
   ret_vector_values(arg_data &ad) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Returns localized element contributions to FD 
+  /** Returns localized vector element contributions to FD 
       jacobian for a given element
       @param ad (input) the argument in the arglist.
       @return a pointer to the element values
@@ -381,6 +415,25 @@ public:
   */ 
   double *
   ret_fdj_values(arg_data &ad) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized matrix element contributions
+      for a given element
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  double *
+  ret_mat_values(arg_data &ad) const;
+
+  
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns element properties
+      @author M. Storti
+      @return pointer to an array of nelprops doubles for the element
+  */ 
+  double * props();
+
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -476,12 +529,13 @@ NewAssembleFunction(arg_data_list &arg_datav,const Nodedata *nodedata,const Dofm
 /** This is an adaptor to the old Elemset class
     @author M. Storti
 */
-class NewElemset : public Elemset {
+class NewElemset : private Elemset {
   /// This is the adaptor to the old assemble function.
   int assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
 	       const char *jobinfo,int myrank,
 	       int el_start,int el_last,int iter_mode,
 	       const TimeData *time_data);
+public:
   /// The new assemble function
   virtual void 
   new_assemble(arg_data_list &arg_datav,const Nodedata *nodedata,const Dofmap *dofmap,
@@ -489,6 +543,35 @@ class NewElemset : public Elemset {
 	       const TimeData *time_data) {
     printf("assemble: not known New Elemset\n"); exit(1);
   };
+
+  Elemset::elem_params;
+  Elemset::local_store_address;
+  Elemset::element_node_data;
+  Elemset::element_props;
+  Elemset::element_connect;
+  Elemset::element_vector_values;
+  Elemset::element_ret_vector_values;
+  Elemset::element_ret_fdj_values;
+  Elemset::element_ret_mat_values;
+  // Elemset::thash;
+  void get_entry(const char *k,const char *&v) const {
+    thash->get_entry(k,v);};
+
+  int get_int(const char *name,
+	      int &retval,int defval=0,int n=1) const {
+    return ::get_int(thash,name,&retval,defval,n);
+  };
+  
+  int get_double(const char *name,
+	      double &retval,int defval=0,int n=1) const {
+    return ::get_double(thash,name,&retval,defval,n);
+  };
+
+  int get_string(const char *name,
+		 string &ret,int defval=0,int n=1) const {
+    return ::get_string(thash,name,ret,defval,n);
+  };
+
 };
 
 #if 0

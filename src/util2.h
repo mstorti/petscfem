@@ -62,6 +62,6 @@ double pw4(double x);
     @param v (output) the array of doubles returned
     @return s (input) the string where the doubles are read. 
 */ 
-void read_double_array(vector<double> &v,char * s);
+void read_double_array(vector<double> &v,const char * s);
 
 #endif

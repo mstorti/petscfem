@@ -135,6 +135,24 @@ void Elemset::element_connect(const ElementIterator &element,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
+#define __FUNC__ "Elemset::element_props"
+double *
+Elemset::element_props(const ElementIterator &element) const {
+  int k,ielh;
+  element.position(k,ielh);
+  return elemprops+k*nelprops;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "ElementIterator::props"
+double *
+ElementIterator::props() {
+  return elemlist->elemset->element_props(*this);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "element_node_data"
 void 
 Elemset::element_node_data(const ElementIterator &element,
@@ -218,3 +236,24 @@ double *
 ElementIterator::ret_fdj_values(arg_data &ad) const {
   return elemlist->elemset->element_ret_fdj_values(*this,ad);
 }  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Elemset::element_ret_mat_values"
+double *
+Elemset::element_ret_mat_values(const ElementIterator &element,
+				arg_data &ad) const {
+  int k,ielh;
+  element.position(k,ielh);
+  int tmp=nel*ndof;
+  return (ad.retval)+ielh*tmp*tmp;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "ret_mat_values"
+double *
+ElementIterator::ret_mat_values(arg_data &ad) const {
+  return elemlist->elemset->element_ret_mat_values(*this,ad);
+}  
+

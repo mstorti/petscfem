@@ -46,10 +46,11 @@ void load_props(double *propel,int *elprpsindx,int nprops,double *elemprops) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "get_double"
-int get_double(TextHashTable *thash,char *name,
+int get_double(TextHashTable *thash,const char *name,
 	       double *retval,int defval=0,int n=1) {
   if (n==0) return 0;
-  char *value,*token;
+  const char *value;
+  char *token;
   int k;
 
   thash->get_entry(name,value);
@@ -77,10 +78,11 @@ int get_double(TextHashTable *thash,char *name,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "get_int"
-int get_int(TextHashTable *thash,char *name,
+int get_int(TextHashTable *thash,const char *name,
 	       int *retval,int defval=0,int n=1) {
   if (n==0) return 0;
-  char *value,*token;
+  const char *value; 
+  char *token;
   int k;
 
   thash->get_entry(name,value);
@@ -98,7 +100,7 @@ int get_int(TextHashTable *thash,char *name,
   char *buf= new char[strlen(value)+1];
   strcpy(buf,value);
   for (k=0; k<n; k++) {
-    token = strtok(k==0 ? value : NULL ," ");
+    token = strtok(k==0 ? buf : NULL ," ");
     if (token==NULL && n==1) {
       // Act as get_flag, returns 1 if no value is assigned
       retval[k]=1;
@@ -141,10 +143,10 @@ int get_string_from_string(string &buf,string &ret) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "get_string"
-int get_string(TextHashTable *thash,char *name,
+int get_string(TextHashTable *thash,const char *name,
 	       string &ret,int defval=0,int n=1) {
   if (n==0) return 0;
-  char *value_;
+  const char *value_;
   int k;
 
   // First of all, void the local buffer `ret'
@@ -167,51 +169,6 @@ int get_string(TextHashTable *thash,char *name,
   return 0;
 }
 
-#if 0
-    // Look for a not quoted string (can not include blanks)
-    flag = regexec(&regexnq,buf,2,matchptr,0);
-    if (flag==0) {
-      int len=matchptr[1].rm_eo-matchptr[1].rm_so;
-      ret = new char[len+1];
-      strncpy (ret,&buf[matchptr[1].rm_so],len);
-      ret[len]='\0';
-      *retval = ret;
-      break;
-    }
-
-  }
-  delete[] buf;
-#endif
-
-#if 0  // Por ahora no voy a definir un get_flag ya que basta con usar
-       // el get_int
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "get_flag"
-int get_flag(TextHashTable *thash,char *name,
-	     int retval,int defval=0) {
-
-  char *value,*token;
-  int k;
-
-  thash->get_entry(name,value);
-  if (value==NULL) {
-    if (defval) {
-      return 0;
-    } else {
-      return 1;
-    }
-  }
-
-  char *buf= new char[strlen(value)+1];
-  strcpy(buf,value);
-  token = strtok(k==0 ? value : NULL ," ");
-  sscanf(token,"%d",);
-  delete[] buf;
-  return 0;
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "get_prop"
@@ -225,7 +182,7 @@ int get_flag(TextHashTable *thash,char *name,
     is set to the corresponding column index in elemprops[]. 
 */
 int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
-	     int *elprpsindx,double *propel,char *name,int n) {
+	     int *elprpsindx,double *propel,const char *name,int n) {
   
   int ierr=0;
   props_hash_entry *phe;
