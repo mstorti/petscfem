@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.50 2002/03/04 21:15:58 mstorti Exp $
+//$Id: advective.h,v 1.51 2002/07/11 00:34:32 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -317,6 +317,11 @@ public:
   */ 
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
+  /** Computes the SUPG perturbation function from the gradient of the
+      shape function.
+      @param P_supg (output) the SUPG perturbation function
+  */ 
+  virtual void comp_P_supg(FastMat2 &P_supg) {}
 
   /** Returns the dimension of the element (May be different from the
       dimension space). For instance, a river may be a 1D elemset in a

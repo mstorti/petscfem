@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.57 2002/04/12 14:44:16 mstorti Exp $
+//$Id: advdife.cpp,v 1.58 2002/07/11 00:34:32 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -234,7 +234,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
     iJaco(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
-    grad_U(ndimel,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
+    grad_U(ndimel,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Un(ndof), 
     Ho(ndof),Hn(ndof), tau_supg(ndof,ndof);
   // These are edclared but not used
@@ -244,7 +244,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24;
-  FastMat2 A_grad_N(3,nel,ndof,ndof), Ao_grad_N(3,nel,ndof,ndof),
+  FastMat2 P_supg(3,nel,ndof,ndof),A_grad_N(3,nel,ndof,ndof), Ao_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof);
@@ -480,19 +480,22 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
 	matlocf.add(N_N_C);
 
-	for (int jel=1; jel<=nel; jel++) {
+	if (ret_options & SCALAR_TAU) {
+	  double tau_supg_d = tau_supg.get(1,1);
+	  P_supg.set(Ao_grad_N).scale(tau_supg_d);
+	} else {
+	  P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
+	}
 
-	  // Should we branch? Not if we take always
-	  // the same path...
-	  if (ret_options & SCALAR_TAU) {
-	    double tau_supg_d = tau_supg.get(1,1);
-	    P_supg.set(Ao_grad_N.ir(1,jel)).scale(tau_supg_d);
-	    Ao_grad_N.rs();
-	  } else {
-	    P_supg.prod(Ao_grad_N.ir(1,jel),tau_supg,1,-1,-1,2);
-	    Ao_grad_N.rs();
-	  }
+	// If you want to define a formulation for the SUPG
+	// perturbation function that can't be cast in the standard
+	// form (i.e. it is not of the form #tau * A * grad_N# then
+	// you should define #tau# as scalar (may be 0) and then
+	// compute your own expression for #P_supg# in #comp_P_supg#
+	adv_diff_ff->comp_P_supg(P_supg);
 	  
+	for (int jel=1; jel<=nel; jel++) {
+	  P_supg.ir(1,jel);
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
 
@@ -518,6 +521,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }
 	  matlocf.rs();
 	}
+	P_supg.rs();
 
       } else {
 
