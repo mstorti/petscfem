@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.57 2003/03/13 21:46:07 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.58 2003/03/30 15:03:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,6 +18,11 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
+
+double sqrt_fix(double a) {
+  if (a==0.) return 0.;
+  else return sqrt(a);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -470,7 +475,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 #ifdef STANDARD_UPWIND
 
-	velmod = sqrt(u2);
+	// The standard sqrt gives problems here if `u2=0.' is passed 
+	velmod = sqrt_fix(u2);
         tol=1.0e-16;
         h_supg=0;
 	FastMat2::branch();
@@ -490,6 +496,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	FastMat2::leave();
 
 	Peclet = velmod * h_supg / (2. * nu_eff);
+	printf("u2 %f, velmod %f, Peclet %f\n",u2,velmod,Peclet);
 //	psi = 1./tanh(Peclet)-1/Peclet;
 //	tau_supg = psi*h_supg/(2.*velmod);
 
