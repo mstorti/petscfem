@@ -2292,3 +2292,6 @@ tag: beta-3.15.pl18 on Thu,  6 Feb 2003 17:33:34 -0300 by mstorti in spider
 ----------
 tag: beta-3.15.pl19 on Fri,  7 Feb 2003 15:52:09 -0300 by mstorti in spider
      > Runs OK dxhook and can visualize square cavity results. 
+----------
+tag: beta-3.15.pl20 on Fri,  7 Feb 2003 16:27:38 -0300 by mstorti in spider
+     > Converted to floats in with a `DX_USE_FLOATS' flag
