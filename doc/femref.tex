@@ -1,4 +1,4 @@
-% $Id: femref.tex,v 1.6 2004/11/27 15:08:50 mstorti Exp $
+% $Id: femref.tex,v 1.7 2004/11/27 16:08:01 mstorti Exp $
 \SSection{Mesh refinement} \label{sec:femref}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 
@@ -141,9 +141,9 @@ geometrical objects and their symmetries are
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics[scale=1.3]{./OBJ/tetragen}}
+\centerline{\includegraphics[scale=1.3]{./OBJ/hexagen}}
 \caption{Generators for hexas}
-\label{fg:tetragen}
+\label{fg:hexagen}
 \end{figure*}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 
@@ -179,14 +179,74 @@ geometrical objects and their symmetries are
 
 \end{itemize}
  
-
-\begin{verbatim}
-  
-\end{verbatim}
-\medskip
-%
-
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 \SSSection{Canonical ordering} 
 
-When comparing two 
+One of the most common operations when manipulating these geometrical
+objects is, given two geometrical objects of the same type, to
+determine whether they represent the same object. The brute force
+solution is to apply all the permutations to one of them and check if
+one of the permuted indices coincide with the other node sequence. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSection{Permutation tree} 
+
+In order to make it more efficient we can store all the permutations
+for a given shape in a tree like fashion. Consider, for instance, the
+oriented tetrahedral shape. Their permutations are the following:
+
+\begin{verbatim}
+(0 1 2 3)
+(0 2 3 1)
+(0 3 1 2)
+(1 0 3 2)
+(1 2 0 3)
+(1 3 2 0)
+(2 0 1 3)
+(2 1 3 0)
+(2 3 0 1)
+(3 0 2 1)
+(3 1 0 2)
+(3 2 1 0)
+\end{verbatim}
+%
+We can describe the generation of a new node numbering in the
+following way. First, we can take any of the nodes as the first node
+of the new numbering. These is seen from the fact that all the indices
+(0 to 3) are present in the first column of the table above. If we
+chose node 2 as the first index, then we can chose any of the
+reamining as the second node (0 1 3). Once we choose the second index
+(say for instance 1) there is only one possibility for the reamining
+two: the numbering \verb+(3 1 0 2)+. The remaining possibility
+\verb+(3 1 2 0)+ would gnerate an inverted triangle. Part of the tree,
+is shown in ~\ref{fg:tetratree}. Every possible permutation is a
+\emph{``path''} in the tree from the first node at level 0, to the
+last node, which is a leave. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics[scale=1.3]{./OBJ/tetratree}}
+\caption{Tree representing all the permutations for the ordered tetra
+  geometry. }
+\label{fg:tetratree}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+Now, given two possible node orderings for a given geometrical object,
+and the tree that describes the permutations for its shape, we simply
+have to follow the path that makes one of them to fit in the other. If
+we arrive to an internal node without possibility to follow, then the
+geometrical objects are distinct. If we reach a leave, then the
+objects are the same. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSection{Canonical ordering} 
+
+Another possibility to determine whether two node oderings are
+congruent is to have a uniquely determined ordering that can be
+determined from the nodes sequence itself. We we call this ordering
+the \emph{``canonical''} ordering for the geometrical object. If this
+is possible, then given two orderings we can bring both of them to the
+canonical ordering and then compare them as plain sequences. One
+possibility os to take the caonical order as that one that gives the
+lower node sequence, in lexicographical order. 
