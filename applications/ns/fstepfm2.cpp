@@ -162,9 +162,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
 
-  double alpha=0.5,alphap=1;
+  double alpha=0.5, gammap=0.0;
   ierr = get_double(thash,"alpha",&alpha,1); CHKERRA(ierr);
-  ierr = get_double(thash,"alpha_presion",&alphap,1); CHKERRA(ierr);
+  ierr = get_double(thash,"gamma_pressure",&gammap,1); CHKERRA(ierr);
   int weak_poisson = 1;
   ierr = get_int(thash,"weak_poisson",&weak_poisson,1); CHKERRA(ierr);
 
@@ -192,7 +192,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 dshapex(2,ndim,nel),Jaco(2,ndim,ndim),iJaco(2,ndim,ndim),
     grad_u(2,ndim,ndim),grad_u_star(2,ndim,ndim),dshapext(2,nel,ndim),
-    resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
+    resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim), grad_p_star(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10,
     tmp11,tmp12,tmp13,tmp14,tmp15,tmp16,tmp17;
@@ -348,7 +348,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	tmp1.prod(u,grad_u,-1,-1,1).scale(-(1-alpha));
 	tmp2.prod(u_star,grad_u_star,-1,-1,1).scale(-alpha);
-	tmp1.add(tmp2).axpy(grad_p,-((1-alphap)/rho));
+	tmp1.add(tmp2).axpy(grad_p,-(gammap/rho));
 	tmp3.prod(W,tmp1,1,2);
 	resmom.axpy(tmp3,wpgdet);
 	SHV(resmom);
@@ -412,13 +412,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  locstate2.is(2,1,ndim);
 	  u_star.prod(SHAPE,locstate2,-1,-1,1);
 	  locstate2.rs();
-	  tmp12.set(grad_p).axpy(u_star,-rho/Dt_art);
+	  tmp12.set(u_star).scale(-rho/Dt_art).axpy(grad_p,1.0-gammap);
 	  tmp11.prod(dshapex,tmp12,-1,1,-1);
 	  rescont.axpy(tmp11,-wpgdet);
 
 	} else {
 	  assert(0); // not coded yet
-#if 0                                        
+#if 0
 	  // version no debilitada
 	  div_u_star = (dshapex * ustate2).Trace();
 	  rescont -= wpgdet * ((rho/Dt_art) * SHAPE.t() * div_u_star
@@ -433,6 +433,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
  
       } else if (comp_res_prj) {
 
+	locstate.ir(2,ndof);
+	grad_p_star.prod(dshapex,locstate,1,-1,-1);
+	locstate.rs();
+
 	locstate2.ir(2,ndof);
 	grad_p.prod(dshapex,locstate2,1,-1,-1);
 
@@ -444,9 +448,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u.prod(SHAPE,locstate,-1,-1,1);
 	locstate.rs();
 
-	// Which is the correct?
-	tmp14.set(u_star).rest(u).axpy(grad_p,-Dt*(alphap/rho)); // fixme:=
-	// tmp14.set(u_star).rest(u).axpy(grad_p,+Dt*(alphap/rho)); 
+	tmp14.set(u_star).rest(u).axpy(grad_p_star,-Dt/rho);
+	if (gammap) tmp14.axpy(grad_p,+gammap*Dt/rho);
 	tmp15.prod(SHAPE,tmp14,1,2);
 	resmom.axpy(tmp15,wpgdet);
 
