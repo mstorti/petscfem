@@ -3634,3 +3634,6 @@ tag: beta-3.38.16 on Sun, 09 Jan 2005 18:32:48 -0300 by mstorti in spider
 tag: beta-3.38.17 on Sun, 09 Jan 2005 20:49:43 -0300 by mstorti in spider
      > Runs OK large problems. There remains a problem when a
      > false collision is reported. 
+----------
+tag: beta-3.38.18 on Sun, 09 Jan 2005 20:54:06 -0300 by mstorti in spider
+     > Fixed bug for false collision.
