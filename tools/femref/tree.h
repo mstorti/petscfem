@@ -1,13 +1,13 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: tree.h,v 1.3 2004/12/26 02:30:56 mstorti Exp $
+// $Id: tree.h,v 1.4 2004/12/26 03:09:24 mstorti Exp $
 #ifndef PETSCFEM_TREE_H
 #define PETSCFEM_TREE_H
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 class tree {
- private:
+public:
   class iterator;
   class cell {
     friend class tree;
@@ -15,7 +15,14 @@ class tree {
     T t;
     cell *right, *left_child, *father;
     cell() : right(NULL), left_child(NULL) {}
+  public:
+    tree<T> *tree_owner() {
+      cell *q = this;
+      while (q->father) q = q->father;
+      return (tree<T>*)q->right;
+    }
   };
+private:
   cell *header;
 
   iterator tree_copy_aux(iterator nq,
@@ -41,6 +48,7 @@ class tree {
     iterator(cell *p,cell *prev_a,cell *father_a,tree<T> *t) : ptr(p), 
       prev(prev_a), tree_p(t), father_p(father_a) { }
   public:
+    cell *cell_ptr() { return ptr; }
     iterator(const iterator &q) {
       ptr = q.ptr;
       prev = q.prev; 
@@ -87,12 +95,21 @@ class tree {
       *this = right();
       return q;
     }
+    tree<T> *tree_owner() {
+      return tree_p;
+    }
   };
 
   tree() {
     header = new cell;
     cell_count_m++;
-    header->right = NULL;
+    // This is somewhat tricky. We store in the right
+    // field of the header cell the pointer to the
+    // tree. So that from any cell we can retrive
+    // the whole tree.
+    // The tree pointer is converted to a cell pointer,
+    // but I think this is OK. 
+    header->right = (cell *)this;
     header->left_child = NULL;
     header->father = NULL;
   }

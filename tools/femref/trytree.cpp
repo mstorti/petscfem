@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: trytree.cpp,v 1.3 2004/12/26 02:30:56 mstorti Exp $
+// $Id: trytree.cpp,v 1.4 2004/12/26 03:09:24 mstorti Exp $
 
 #include <cstdlib>
 #include <cassert>
@@ -69,6 +69,10 @@ void ord_pre(tree<int> &T,vector<int> &v) {
 
 #define BIG 10000
 
+void swtch(int &v) {
+  v = (v<BIG ? v+BIG : v-BIG);
+}
+
 int main() {
   tree<int> A;
   make_random_tree(A,20,3);
@@ -81,14 +85,14 @@ int main() {
     printf("%d ",op[j]);
     tree<int>::iterator n = A.find(op[j]);
     assert(n!=A.end());
-    *n += BIG;
+    swtch(*n);
   }
   printf("\n");
 
   for (int j=0; j<op.size(); j++) {
     tree<int>::iterator n = A.find(op[j]+BIG);
     assert(n!=A.end());
-    *n -= BIG;
+    swtch(*n);
   }
 
   
@@ -104,7 +108,28 @@ int main() {
     }
     printf("\n");
 
-    *n += BIG;
+    swtch(*n);
+    printf("tree %p, tree from cell %p\n",
+	   n.tree_owner(),n.cell_ptr()->tree_owner());
   }
 
+  tree<int> B;
+  B.splice(B.begin(),A.begin());
+
+  for (int j=0; j<op.size(); j++) {
+    printf("path to %d: ",op[j]);
+    tree<int>::iterator n = B.find(op[j]+BIG);
+    assert(n != B.end());
+    tree<int>::iterator q = n;
+    
+    while (q != B.end()) {
+      printf("%d ",(*q < BIG ? *q : *q-BIG));
+      q = q.father();
+    }
+    printf("\n");
+
+    swtch(*n);
+    printf("tree %p, tree from cell %p\n",
+	   n.tree_owner(),n.cell_ptr()->tree_owner());
+  }
 }
