@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.6 2001/07/31 14:29:04 mstorti Exp $
+// $Id: distmap.h,v 1.7 2001/07/31 15:31:21 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -46,7 +46,7 @@ class DistMap : public map<Key,Val> {
       @param buff (input/output) the position in the buffer where the
       packing is performed
   */ 
-  void pack(const Key &k, const Val &v,char **buff) const;
+  void pack(const Key &k, const Val &v,char *&buff) const;
   /** Does the reverse of #pack#. Given a buffer #buff# recovers the
       corresponding key and val. This function should
       be defined by the user. 
@@ -55,7 +55,7 @@ class DistMap : public map<Key,Val> {
       @param buff (input/output) the position in the buffer from where the
       unpacking is performed
   */ 
-  void unpack(Key &k,Val &v,char *& buff);
+  void unpack(Key &k,Val &v,const char *& buff);
   /// perform the scatter of elements to its corresponding processor. 
   void scatter();
   void combine(const pair<Key,Val> &p);
@@ -78,8 +78,8 @@ void DistMap<Key,Val>::scatter() {
     dest,source;
   pair<Key,Val> p;
 
-  char **send_buff,**send_buff_pos,*recv_buff,*recv_buff_pos,
-    *recv_buff_pos_end;
+  char **send_buff,**send_buff_pos,*recv_buff;
+  const char *recv_buff_pos,*recv_buff_pos_end;
   MPI_Request send_rq,recv_rq;
   MPI_Status status;
   int j,k,nsent;
@@ -143,10 +143,10 @@ void DistMap<Key,Val>::scatter() {
   for (iter = begin(); iter != end(); iter++) {
     k = processor(iter);
     if (k!=myrank) 
-      pack(iter->first,iter->second,&send_buff_pos[k]);
+      pack(iter->first,iter->second,send_buff_pos[k]);
   }
 
-  // Erase members
+  // Erase members that do not belong to this processor.
   for (iter = begin(); iter != end(); iter++) {
     k = processor(iter);
     if (k!=myrank) erase(iter);
@@ -195,9 +195,9 @@ void DistMap<Key,Val>::scatter() {
     recv_buff_pos_end = recv_buff + SEND(source,myrank);
     while (recv_buff_pos < recv_buff_pos_end ) {
       unpack(p.first,p.second,recv_buff_pos);
-      PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
-		  p.first,p.second);
-      // combine(p);
+//        PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
+//  		  p.first,p.second);
+      combine(p);
     }
     delete[] recv_buff;
   }
