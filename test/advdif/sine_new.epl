@@ -16,6 +16,8 @@ $alpha=1.0 unless $alpha;       # can be given from the makefile
 if ($per_elem_prop) {
     $nstep=5;
 }
+$R=1;
+$u=0;
 #__END_TRANSCRIPT__
 transcript("sine.data.res",
     @read_var,
@@ -64,7 +66,7 @@ alpha 1.
 weak_form 0
 
 advective_jacobians_type "global_vector"
-advective_jacobians 0.1 0.
+advective_jacobians <:=$u:> 0.
 
 diffusive_jacobians_type "<:=$dif_type="full":>"
 #if $dif_type eq 'global_scalar'
@@ -91,6 +93,9 @@ diffusive_jacobians \
 #else
 <:die "not known dif_type: $dif_type\n":>
 #endif
+
+reactive_jacobians_type "full"
+reactive_jacobians <:=$R:>  0. 0. 0. <:=3*$R:>  0. 0. 0. <:=10*$R:>
 
 __END_HASH__
 

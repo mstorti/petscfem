@@ -39,8 +39,31 @@ newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_)
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
   full_adv_jac(*this), full_dif_jac(*this),
   scalar_dif_per_field(*this), global_scalar_djac(*this),
-  global_dif_tensor(*this), per_field_dif_tensor(*this)
+  global_dif_tensor(*this), per_field_dif_tensor(*this),
+  full_c_jac(*this)
 {};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::FullCJac
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
+  tmp2.set(N).scale(w);
+  tmp.prod(tmp2,N,1,2);
+  N_N_C.prod(tmp,ff.C_jac,1,3,2,4);
+}
+
+void newadvecfm2_ff_t::FullCJac::
+comp_G_source(FastMat2 &G_source, FastMat2 &U) {
+  G_source.prod(ff.C_jac,U,1,-1,-1);
+}
+
+
+void newadvecfm2_ff_t::FullCJac::
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+	   FastMat2 &N,double w) {
+  tmp26.set(P_supg).scale(w);
+  tmp27.prod(N,ff.C_jac,1,2,3); // tmp27 = N * C_jac 
+  N_P_C.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * N
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::GlobalScalar
@@ -244,11 +267,15 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
 // This is to pass to the advective function the element
 void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
+
   advjac = elemset->prop_array(element,advective_jacobians_prop);
   u.set(advjac);
 
   difjac = elemset->prop_array(element,diffusive_jacobians_prop);
   d_jac->update(difjac);
+
+  reacjac = elemset->prop_array(element,reactive_jacobians_prop);
+  C_jac.set(reacjac);
 }  
 
 //  enum advective_jacobian_type {
@@ -317,6 +344,7 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
     abort(); // Not defined type of Jacobian
   }
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Read diffusive jacobians (diffusivity matrices)
   //o _T: double[var_len] 
   //  _N: diffusive_jacobians _D: no default  _DOC: 
@@ -378,34 +406,40 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   //  _N: reactive_jacobians _D: all zero  _DOC: 
   //  FIXME:= TO BE DOCUMENTED LATER
   //  _END
-  C_jac_l.resize(2,ndof,ndof);
-  const char *reaje;
-  VOID_IT(cjacv);
-  elemset->get_entry("reactive_jacobians",reaje); 
-  if (reaje==0) {
-    for (int k=0; k<ndof; k++) cjacv.push_back(0.);
-  } else {
-    read_double_array(cjacv,reaje); 
-  }
-  cjacvp=cjacv.begin();
-  C_jac_l.set(0.);
+  elemset->get_prop(reactive_jacobians_prop,"reactive_jacobians");
 
-  //o Scale the SUPG upwind term. 
-  EGETOPTDEF_ND(elemset,double,tau_fac,1.);
+  //o Set reactive jacobian to the desired type
+  EGETOPTDEF(elemset,string,reactive_jacobians_type,string("undefined"));
+  string reactive_jacobians_type_s=reactive_jacobians_type;
 
-  nc = cjacv.size();
-
-  if (nc==ndof) {
-    ret_options &= !SCALAR_TAU; // tell the advective element routine
-				// that we are returning a non-scalar tau
-    C_jac_l.set(0.);
-    for (int k=1; k<=ndof; k++) {
-      double beta=cjacv[k-1];
-      C_jac_l.setel(beta,k,k);
+  if (reactive_jacobians_type==string("undefined")) {
+    if (reactive_jacobians_prop.length == 1) {
+      reactive_jacobians_type=string("global_scalar");
+    } else if (reactive_jacobians_prop.length == ndof) {
+      reactive_jacobians_type=string("scalar_per_field");
+    } else if (reactive_jacobians_prop.length == ndof*ndof) {
+      reactive_jacobians_type=string("full");
     }
-
+  }
+  if (reactive_jacobians_type==string("global_scalar") &&
+      reactive_jacobians_prop.length == 1) {
+    assert(0);
+  } else if (reactive_jacobians_type==string("scalar_per_field") &&
+	     reactive_jacobians_prop.length == ndof) {
+    assert(0);
+  } else if (reactive_jacobians_type==string("full") &&
+	     reactive_jacobians_prop.length == ndof*ndof) {
+    C_jac.resize(2,ndof,ndof);
+    c_jac =  &full_c_jac;
   } else {
-    assert(0); // Not implemented yet
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Reactive Jacobian does not fit in \n"
+		"a predefined name/length combination\n"
+		"name entered: \"%s\"\n"
+		"length entered: %d\n",
+		reactive_jacobians_type_s.c_str(),
+		reactive_jacobians_prop.length);
+    assert(0);
   }
 
 }
@@ -468,11 +502,13 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   }
   
   if (options & COMP_SOURCE) {
+#if 0
     G_source.set(0.);		// Only null source term allowed
 				// right now!!
 
     C_jac.set(C_jac_l);
     G_source.prod(C_jac,U,1,-1,-1).scale(-1.);
-
+#endif
+    c_jac->comp_G_source(G_source,Ucpy);
   }
 }

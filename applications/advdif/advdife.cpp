@@ -270,9 +270,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
     tmp15,tmp17,tmp19,
     tmp20,tmp21,tmp22,tmp23,
-    tmp24,tmp25,tmp26,tmp27,tmp28;
-  FastMat2 C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof),
-    grad_N_D_grad_N(4,nel,ndof,nel,ndof);
+    tmp24;
+  FastMat2 A_grad_N(3,nel,ndof,ndof),
+    grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
+    N_P_C(3,ndof,nel,ndof);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -372,7 +373,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_U,G_source,
-				  C_jac,tau_supg,delta_sc,
+				  tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
 
@@ -448,10 +449,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	matlocf.add(grad_N_D_grad_N);
 
         // Reactive term in matrix (Galerkin part)
+#if 0
         tmp23.set(SHAPE).scale(wpgdet*ALPHA);
 	tmp24.prod(SHAPE,tmp23,1,2); // tmp24 = SHAPE' * SHAPE
 	tmp25.prod(tmp24,C_jac,1,3,2,4); // tmp25 = SHAPE' * SHAPE * C_jac
-	matlocf.add(tmp25);
+#endif
+	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
+	matlocf.add(N_N_C);
 
 	for (int jel=1; jel<=nel; jel++) {
 
@@ -476,10 +480,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  matlocf.add(tmp20);
 
           // Reactive term in matrix (SUPG term)
+#if 0
           tmp26.set(P_supg).scale(wpgdet*ALPHA);
           tmp27.prod(SHAPE,C_jac,1,2,3); // tmp27 = SHAPE * C_jac 
 	  tmp28.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * SHAPE
-	  matlocf.add(tmp28);
+#endif
+	  adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
+	  matlocf.add(N_P_C);
 
 	  tmp21.set(SHAPE).scale(beta_supg*wpgdet/DT);
 	  tmp22.prod(P_supg,tmp21,1,3,2);

@@ -4,16 +4,12 @@
 
 #include "advective.h"
 
-/** The class AdvDif is a NewElemset class plus a
-    advdif flux function object.
-*/
-class NewAdvDif : public NewElemset { 
-  NewAdvDifFF *adv_diff_ff;
+class CJac {
 public:
-  int ndim,ndof,nel;
-  NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
-  NewAssembleFunction new_assemble;
-  ASK_FUNCTION;
+  virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  virtual void comp_G_source(FastMat2 &G_source, FastMat2 &U)=0;
+  virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+			  FastMat2 &N,double w)=0;
 };
 
 class AJac {
@@ -22,6 +18,7 @@ public:
   virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
+  // virtual void update(const double *advjac) {ff.A_jac.set(advjac);}
 };
 
 class DJac {
@@ -30,24 +27,27 @@ public:
 				    FastMat2 & dshapex,double w) =0 ;
   virtual void comp_fluxd(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_dif_per_field(FastMat2 &dif_per_field)=0;
-  virtual void update(const double *difjac) {};
+  virtual void update(const double *difjac)=0;
 };
 
 class newadvecfm2_ff_t : public NewAdvDifFF {
 private:  
   int shock_capturing,na,nd,nc;
-  FastMat2 C_jac_l, tmp0;
+  FastMat2 tmp0;
   double tau_fac;
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
-    tmp2,D_jac,dif_per_field,tmp3,eye_ndof;
+    tmp2,D_jac,dif_per_field,tmp3,eye_ndof,
+    C_jac;
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
-  Property advective_jacobians_prop, diffusive_jacobians_prop;
-  const double *advjac,*difjac;
+  Property advective_jacobians_prop, 
+    diffusive_jacobians_prop, reactive_jacobians_prop;
+  const double *advjac,*difjac,*reacjac;
   int ndim,ndof,nel;
   AJac *a_jac;
   DJac *d_jac;
+  CJac *c_jac;
 public:
 
   /// One velocity for all the fields
@@ -62,6 +62,21 @@ public:
       comp_Uintri;
   };
   UGlobal u_global;
+
+  /// Full reactive Jacobian
+  class FullCJac;
+  friend class FullCJac;
+  class FullCJac : public CJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 tmp,tmp2,tmp26,tmp27;
+  public:
+    FullCJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w);
+    void comp_G_source(FastMat2 &G_source, FastMat2 &U);
+    void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+		    FastMat2 &N,double w);
+  };
+  FullCJac full_c_jac;
 
   /// One velocity per field
   class UPerField;
@@ -149,6 +164,7 @@ public:
     void comp_dif_per_field(FastMat2 &dif_per_field);
     void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			      FastMat2 & dshapex,double w);
+    void update(const double *difjac) {};
   };
   GlobalScalar global_scalar_djac;
 
@@ -161,8 +177,8 @@ public:
   public:
     ScalarDifPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_fluxd;
-    void update(const double *difjac) {ff.D_jac.set(difjac);}
     void comp_dif_per_field(FastMat2 &dif_per_field);
+    void update(const double *difjac) {ff.D_jac.set(difjac);}
     void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			      FastMat2 & dshapex,double w);
   };
@@ -178,6 +194,13 @@ public:
   void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			    FastMat2 &dshapex,double w) {
     d_jac->comp_grad_N_D_grad_N(grad_N_D_grad_N,dshapex,w);
+  }
+  void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
+    c_jac->comp_N_N_C(N_N_C, N, w);
+  }
+  void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+		  FastMat2 &N,double w) {
+    c_jac->comp_N_P_C(N_P_C,P_supg,N,w);
   }
 };
 

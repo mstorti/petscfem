@@ -117,7 +117,6 @@ typedef void FastMat2Shell(FastMat2 & A,FastMat2 & B);
 		FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,	\
 		FastMat2 &A_grad_U,					\
 		FastMat2 &grad_U, FastMat2 &G_source,			\
-		FastMat2 &C_jac,					\
 		FastMat2 &tau_supg, double &delta_sc,			\
 		double &lam_max,					\
 		FastMat2 &nor, FastMat2 &lambda,			\
@@ -155,6 +154,21 @@ public:
 				    FastMat2 & dshapex,double w) =0 ;
   virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
   virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
+  virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+			  FastMat2 &N,double w)=0;
+};
+
+/** The class AdvDif is a NewElemset class plus a
+    advdif flux function object.
+*/
+class NewAdvDif : public NewElemset { 
+  NewAdvDifFF *adv_diff_ff;
+public:
+  int ndim,ndof,nel;
+  NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
 };
 
 /** The class AdvDif is a NewElemset class plus a
