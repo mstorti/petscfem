@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $
+$Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.242 2003/01/29 20:45:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.243 2003/01/30 17:01:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6066,7 +6066,30 @@ formas en un cierto momento con p_c=1.2e5 la velocidad se invierte en
 la salida caliente. Asi que lo corto y lo vuelvo a arrancar desde el
 step 140 con p_c=1.3e5. 
 %
-17:07:40: Se invierte la salida fria. Voy a probar con p_c=1.25e5. 
+17:07:40: Se invierte la salida fria. Voy a probar con p_c=1.25e5. Se
+invierte la salida caliente. Lo arranco a partir del estado 70 con
+p_c=1.275e5. 
+
+%===Thu, 30 Jan 2003 09:58:06 -0300 mstorti@node1.beowulf.gtm
+%
+09:58:01: En realidad veo que en el paso 70 ya estaba el flujo
+invertido en la salida caliente. Revisando veo que la salida se
+invierte entre el paso 10 y el 20 asi que toda la corrida no sirve. 
+Voy a probar a relanzar desde la corrida anterior (RUN1) step=140 como
+antes pero con la nueva `p_c' (1.275e5). 
+%
+%
+11:09:49: Se invierte la caliente. Surge la idea de subir la
+viscosidad un poco mas. Segun el paper de vortex tube en IJHMT la
+correccion por turbulencia deberia andar en el orden de 1000 (yo estoy
+usando 100). De todas formas quiero hacer una pequenha pruebita
+primero de volver a correr con 1.3e5 (se deberia invertir la fria). 
+%
+11:39:06: Efectivamente se invierte la fria. Voy a probar a aumentarle
+el `flow_coef' (1e-2 -> 1e3). Vuelvo a p_c=1.275e5. 
+%
+13:35:55: Con el `flow_coef' y esa p_c parece andar bastante
+bien. Pero despues de un rato los dos flujos se van 0. 
 
 
 

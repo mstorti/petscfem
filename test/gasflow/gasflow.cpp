@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.6 2003/01/27 19:09:35 mstorti Exp $
+//$Id: gasflow.cpp,v 1.7 2003/01/30 17:01:15 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -181,8 +181,8 @@ public:
       double new_pressure = pressure[j] + 
 	flow_coef*(flow_rate_now[j]/sum_flow_rate_now-flow_rate[j]);
       PetscPrintf(PETSC_COMM_WORLD,
-		  "stream %d, flow %g, desired f. %g, p %g, new_p %g\n",
-		  j,flow_rate_now[j],flow_rate[j],pressure[j],new_pressure);
+		  "stream %d, flow%d %g, desired f. %g, p%d %g, new_p%d %g\n",
+		  j,flow_rate_now[j],j,flow_rate[j],j,pressure[j],j,new_pressure);
       pressure[j] = new_pressure;
     }
   }
