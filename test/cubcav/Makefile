@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.95 2004/09/25 11:32:29 mstorti Exp $ 
+# $Id: Makefile,v 1.95.4.1 2004/09/25 23:20:08 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -25,8 +25,8 @@ PROG := $(NS)
 CASE := $(CASE_NAME)
 ################################################################
 ifeq (1,1)
-NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-# NP := $(shell procsel -n ./proctable)
+# NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+NP := $(shell procsel -n ./proctable)
 NL := -nolocal
 MCH := -machinefile ./machi.dat
 endif
@@ -65,7 +65,8 @@ mesh:
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
 	$(MAKE) mesh
-	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl 
+#		 -log_info -log_summary
 
 local_sw::
 	chmod 755 mkmpeg*.sh
@@ -171,6 +172,8 @@ link:
 	$(MAKE) -C ../../ $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
 
-#w performance test:
-test_perfo:
-	$(MAKE) N=20 run
+#w Prepare for jumpshot
+pj:
+#	rcp geronimo:PETSC/petscfem.mario/test/cubcav/ns.clog .
+#	rcp geronimo:PETSC/curso_paralelo/curso-mpi-petsc/example/primes.clog .
+	$(MPI_HOME)/bin/clog2slog ns.clog

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.92 2004/09/25 09:37:57 mstorti Exp $
+//$Id: elemset.cpp,v 1.92.4.1 2004/09/25 23:20:04 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -20,11 +20,14 @@
 #include <src/timestat.h>
 #include <src/util3.h>
 #include <src/autostr.h>
+#include <mpe.h>
+#include <src/mpelog.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
 #define INCLUDE_GHOST_ELEMS 1
 extern int MY_RANK,SIZE;
+int iisd_mat_coefs_here, iisd_mat_coefs_there;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
@@ -271,11 +274,18 @@ int assemble(Mesh *mesh,arg_list argl,
   int iele,nelem,nel,ndof,*icone,ndoft,kloc,kdof,
     myrank,ierr,kdoft,iele_here,k;
 
+  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  double ass_s = MPI_Wtime();
+  
+  mpe_initialize();
+  iisd_mat_coefs_here=0;
+  iisd_mat_coefs_there=0;
+
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
   Nodedata *nodedata = mesh->nodedata;
   HPChrono hpchrono,hpc2,hpc3,hpcassmbl;
-  Stat out_of_loop, in_loop, wait;
+  Stat out_of_loop, in_loop, wait, aux3, aux4;
   // If `delayed_flush=1' then we compute new element values before
   // doing the flush assembly. This can be more efficient. 
   int delayed_flush = 1;
@@ -301,8 +311,6 @@ int assemble(Mesh *mesh,arg_list argl,
 
   // pref:= Local values (reference state for finite difference jacobian).
   double *pref,fdj;
-
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
   // max weight (processor speed)
   float w_max=dofmap->tpwgts[0]; 
@@ -543,6 +551,7 @@ int assemble(Mesh *mesh,arg_list argl,
       // printf("[%d] jobinfo %s, chunk %d, chunk_size %d, here %d,range %d-%d\n",
       // myrank,jobinfo,chunk,chunk_size,iele_here+1,el_start,el_last);
 
+      MPE_START(upl);
       for (j=0; j<narg; j++) {
 	if (argl[j].options & DOWNLOAD_VECTOR) {
 	  upl_s = MPI_Wtime();
@@ -552,6 +561,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	  download += MPI_Wtime() - upl_s;
 	}
       }
+      MPE_END(upl);
       
 #if 0
       if (!strcmp(jobinfo,"comp_res")) {
@@ -572,7 +582,7 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 #endif 
 
-      
+      MPE_START(comp);
       elemset->clear_error();
       if (iele_here > -1) {
 	// if (1) {
@@ -585,7 +595,22 @@ int assemble(Mesh *mesh,arg_list argl,
 	// printf("[%d] not processing because no elements...\n",myrank);
       }
       elemset->check_error();
+      MPE_END(comp);
 
+      MPE_START(assmbly);
+      for (j=0; j<narg; j++) {
+	assmbly_s = MPI_Wtime();
+	if ((argl[j].options & ASSEMBLY_MATRIX) 
+	    && ARGVJ.must_flush) {
+//  	  ierr = (ARGVJ.pfA)
+//  	    ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+//  	  ARGVJ.must_flush = 0;
+	}
+	assmbly += MPI_Wtime() - assmbly_s;
+      }
+      MPE_END(assmbly);
+
+      MPE_START(upl);
       // Upload return values
       for (j=0; j<narg; j++) {
 	if (report_assembly_time) hpcassmbl.start();
@@ -611,6 +636,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 	}
       }
+      MPE_END(upl);
 
       // compute columns of jacobian matrices by perturbing each
       // local degree of freedom
@@ -685,6 +711,7 @@ int assemble(Mesh *mesh,arg_list argl,
       in_loop.add(hpchrono.elapsed());
       hpchrono.start();
   
+      MPE_START(assmbly);
       for (j=0; j<narg; j++) {
 	
 	assmbly_s = MPI_Wtime();
@@ -718,7 +745,9 @@ int assemble(Mesh *mesh,arg_list argl,
 	  }
 	}
 	assmbly += MPI_Wtime() - assmbly_s;
+	aux4.add(MPI_Wtime() - assmbly_s);
       }
+      MPE_END(assmbly);
 
       wait.add(hpchrono.elapsed());
       hpchrono.start();
@@ -729,9 +758,13 @@ int assemble(Mesh *mesh,arg_list argl,
       // Globally has finished to process chunks if
       // all processors have finished
       int global_has_finished;
-      ierr = MPI_Allreduce((void *)&local_has_finished,
-			(void *)&global_has_finished,1,MPI_INT,
-			MPI_LAND,PETSC_COMM_WORLD);
+      MPE_START(aux3);
+      double aux3_s = MPI_Wtime();
+      ierr = MPI_Allreduce(&local_has_finished,
+			   &global_has_finished,1,MPI_INT,
+			   MPI_LAND,PETSC_COMM_WORLD);
+      aux3.add(MPI_Wtime()-aux3_s);
+      MPE_END(aux3);
 
 #ifdef DEBUG_CHUNK_PROCESSING
       PetscPrintf(PETSC_COMM_WORLD,"chunk %d\n",chunk);
@@ -747,6 +780,7 @@ int assemble(Mesh *mesh,arg_list argl,
       el_start = el_last+1;
       in_loop.add(hpchrono.elapsed());
       hpchrono.start();
+
       if (global_has_finished) break;
     } // end loop over chunks
 
@@ -790,9 +824,9 @@ int assemble(Mesh *mesh,arg_list argl,
       if (argl[j].options & ASSEMBLY_MATRIX
 	  && (argl[j].options & PFMAT)
 	  && ARGVJ.must_flush) {
-	    ierr = (ARGVJ.pfA)
-	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ARGVJ.must_flush = 0;
+//  	    ierr = (ARGVJ.pfA)
+//  	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+//  	    ARGVJ.must_flush = 0;
       }
       if (argl[j].options & DOWNLOAD_VECTOR) {
 	delete[] ARGVJ.locst;
@@ -822,6 +856,7 @@ int assemble(Mesh *mesh,arg_list argl,
   }
 
   // To be done after processing all elemsets
+  MPE_START(assmbly);
   for (j=0; j<narg; j++) {
     if (argl[j].options & DOWNLOAD_VECTOR) {
       ierr = VecRestoreArray(*(ARGVJ.ghost_vec),
@@ -872,7 +907,35 @@ int assemble(Mesh *mesh,arg_list argl,
 				 argl[j].options,myrank,dofmap->size); CHKERRQ(ierr);
     }
   }
+  MPE_END(assmbly);
+  //  aux3.print_stat("Aux3");
+  // aux4.print_stat("Assmbly2");
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "[%d] assemble total %f\n",
+			  MY_RANK,MPI_Wtime()-ass_s);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  
+  int total_iisd_mat_coefs_there, total_iisd_mat_coefs_here;
+  MPI_Allreduce(&iisd_mat_coefs_here,&total_iisd_mat_coefs_here,
+	     1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);
+  MPI_Allreduce(&iisd_mat_coefs_there,&total_iisd_mat_coefs_there,
+	     1,MPI_INT,MPI_SUM,PETSC_COMM_WORLD);
 
+  if (total_iisd_mat_coefs_here+total_iisd_mat_coefs_there) {
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "[%d] iisd coefs here %d, there %d\n",
+			    MY_RANK,iisd_mat_coefs_here,
+			    iisd_mat_coefs_there);
+    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+    if (!MY_RANK) 
+      printf("IISD coefs here %d, there %d, total %d\n",
+	     total_iisd_mat_coefs_here,
+	     total_iisd_mat_coefs_there,
+	     total_iisd_mat_coefs_here+total_iisd_mat_coefs_there);
+    PetscFinalize();
+    exit(0);
+  }
+      
   return 0;
 }
 

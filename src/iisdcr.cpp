@@ -1,11 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.52 2004/09/25 23:11:39 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.51.4.1 2004/09/25 23:20:04 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
 #include <typeinfo>
+#ifdef RH60
 #include "libretto.h"
+#else
+#include <libretto/libretto.h>
+#endif
 #include <petscmat.h>
 
 #include <src/fem.h>
@@ -685,22 +689,26 @@ int IISDMat::create_a() {
   // For each block prints the d_nnz and o_nnz in turn
   for (int row_type=0; row_type<2; row_type++) {
     for (int col_type=0; col_type<2; col_type++) {
-      PetscPrintf(comm,"[%s]-[%s] block\n",
+      PetscPrintf(comm,"[%s]-[%s] block",
 		  (row_type==0? "LOC" : "INT"),(col_type==0? "LOC" :
 					     "INT"));
       // number of rows in this block in this processor
       nrows=(row_type==L ? n_loc : n_int);
       PetscSynchronizedPrintf(comm,
-			      "%d/%d rows on processor [%d]\n",
+			      "%d/%d rows on processor [%d], ",
 			      nrows,neqp,myrank);
+      int d=0, o=0;
       for (row=0; row<nrows; row++) {
 	d_nz = nnz[D][row_type][col_type][row];
 	o_nz = nnz[O][row_type][col_type][row];
-	if (d_nz|| o_nz) 
-	  PetscSynchronizedPrintf(comm,
-				  "row=%d, d_nnz=%d, o_nnz=%d\n",row,
-				  d_nz,o_nz);
+// 	if (d_nz|| o_nz) 
+// 	  PetscSynchronizedPrintf(comm,
+// 				  "row=%d, d_nnz=%d, o_nnz=%d\n",row,
+// 				  d_nz,o_nz);
+	d += d_nz;
+	o += o_nz;
       }
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"d: %d, o: %d\n",d,o);
       PetscSynchronizedFlush(comm); 
     }
   }
@@ -713,15 +721,13 @@ int IISDMat::create_a() {
 			 PETSC_NULL,&*nnz[D][L][I].begin(),
 			 PETSC_NULL,&*nnz[O][L][I].begin(),
 			 &A_LI); CHKERRQ(ierr); 
-  ierr =  MatSetOption(A_LI, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
-    
+
   ierr = MatCreateMPIAIJ(comm,n_int,n_loc,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,&*nnz[D][I][L].begin(),
 			 PETSC_NULL,&*nnz[O][I][L].begin(),
 			 &A_IL); CHKERRQ(ierr); 
-  ierr =  MatSetOption(A_IL, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
   
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
@@ -729,10 +735,9 @@ int IISDMat::create_a() {
 			 PETSC_NULL,&*nnz[D][I][I].begin(),
 			 PETSC_NULL,&*nnz[O][I][I].begin(),
 			 &A_II); CHKERRQ(ierr); 
-  ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
   
-  ierr = MatSetStashInitialSize(A_II,300000,0);
+  ierr = MatSetStashInitialSize(A_II,300000,300000);
   CHKERRQ(ierr); 
 
   if (nlay>1) {
