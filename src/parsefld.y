@@ -12,11 +12,10 @@
 
 %union{
   int num;
-  char *string;
   void *gen_ptr;
 }
 
-%token <string> IDENT
+%token <gen_ptr> IDENT
 %token <num> LENGTH
 %type <num> field_block_list field_block input subs_l subs
      

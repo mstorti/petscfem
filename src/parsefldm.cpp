@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: parsefldm.cpp,v 1.3 2001/04/14 21:00:48 mstorti Exp $
+//$Id: parsefldm.cpp,v 1.4 2001/04/15 00:58:44 mstorti Exp $
 
 #include <cstdio>
 #include <ctype.h>
@@ -9,6 +9,7 @@
 #include <list>
 #include <vector>
 
+#include "wspace.h"
 #include "getarray.h"
 #include "parsefld.tab.h"
 
@@ -16,11 +17,13 @@ const char *line_to_parse;
 
 typedef list<string> SList;
 vector<SList> work_area;
+WorkSpace<string> string_space;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void dumpwa(int debug=0)"
 void dumpwa(int debug=0) {
+  if (debug) printf("work_area: ----------\n");
   for (int j=0; j<work_area.size(); j++) {
     SList &w = work_area[j];
     if (w.size()==0 && !debug) continue;
@@ -30,18 +33,30 @@ void dumpwa(int debug=0) {
     }
     printf("\n");
   }
+  if (debug) {
+    printf("string_space: ----------\n");
+    int jj=0;
+    for (WorkSpace<string>::iterator j=string_space.begin(); 
+	 j!=string_space.end(); j++) {
+      printf("%d -> \"%s\"\n",++jj,(*j)->c_str());
+    }
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void parse_fields_line(const char *line)"
-void parse_fields_line(SList &fields,const char *line) {
+int parse_fields_line(SList &fields,const char *line) {
   work_area.clear();
   line_to_parse = line;
-  field_parse();
+  int ierr = field_parse();
+  if (ierr>0) return ierr;
   fields.clear();
   fields.splice(fields.end(),work_area[0]);
   dumpwa(0);
+  work_area.clear();
+  string_space.clear();
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -55,23 +70,26 @@ void add_block(int slist_,int block_) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int create_list(char *ident)"
-int create_list(char *ident) {
+#define __FUNC__ "int create_list(void *ident_)"
+int create_list(void *ident_) {
+  string &ident = *(string *)ident_;
   int n = work_area.size();
   work_area.resize(n+1);
-  work_area[n].push_back(string(ident));
-  delete[] ident;
+  work_area[n].push_back(ident);
+  string_space.free(&ident);
   return n;
 }
 
-int f_id_subs_l(char *ident,int slist_) {
+int f_id_subs_l(void *ident_,int slist_) {
+  string &ident = *(string *)ident_;
   SList &slist = work_area[slist_];
-  string s,b = string(ident);
+  string s;
   for (SList::iterator j=slist.begin(); j!=slist.end(); j++) {
-    s=b;
+    s=ident;
     s.append(*j);
     *j = s;
   }
+  string_space.free(&ident);
   return slist_;
 }
   
@@ -161,6 +179,7 @@ int create_ident_list(char *ident,int slist_) {
 #undef __FUNC__
 #define __FUNC__ "int field_lex (void)"
 int field_lex (void) {
+
   string s;
   int c;
   int j;
@@ -177,9 +196,9 @@ int field_lex (void) {
       c = *line_to_parse++;
     }
     line_to_parse--;
-    field_lval.string = new char[s.size()+1];
-    strcpy(field_lval.string,s.c_str());
-    // printf("creating %p with %s\n",field_lval.string,field_lval.string);
+    string *ss = string_space.newobj();
+    *ss = s;
+    field_lval.gen_ptr = ss;
     return IDENT;
   } else if (isdigit (c)) { 
     int len;
@@ -198,6 +217,7 @@ int field_lex (void) {
   } else if (c == '\n' || c == '\0') {
     return 0;
   }
+
   return 1;
 }
 
@@ -228,5 +248,21 @@ int main() {
       printf("%d -> %s\n",jj++,j->c_str());
     }
   }
+}
+
+#else
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// This is a test
+int main() {
+  WorkSpace<double> wd;
+  double *a = wd.newobj();
+  double *b = wd.newobj();
+  double *c = wd.newobj();
+  
+  wd.free(a);
+  wd.free(b);
+  wd.free(c);
+  
 }
 #endif
