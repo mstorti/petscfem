@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.3 2001/09/20 20:40:24 mstorti Exp $
+// $Id: sparse.h,v 1.4 2001/09/21 00:07:57 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -11,7 +11,13 @@
 
 namespace Sparse {
 
-  typedef vector<int> Indx;
+  class Indx : public vector<int> {
+  public:
+    Indx(int n,int m,int k=1);
+  };
+  typedef Indx::iterator IndxIt;
+  typedef Indx::const_iterator IndxCIt;
+
   typedef map<int,double>::iterator VecIt;
   typedef map<int,double>::const_iterator VecCIt;
   typedef pair<int,double> VecP;
@@ -41,12 +47,15 @@ namespace Sparse {
     /// Set element at position j
     Vec & set(int j,double v);
     /// Set elements at subvector at position I
-    Vec & set(Indx &I,const Vec v);
+    Vec & set(const Indx & I,const Vec & v);
     /// print elements
-    void print();
+    void print(char *s = NULL);
     /// Set mode if can grow automatically or not
     Vec & grow(int g) { grow_m=g; return *this;};
-
+    /// Clears all elements
+    Vec & clear() {map<int,double>::clear(); return *this;}
+    /// Resize vectors, truncates elements if greater than this value
+    Vec & resize(int n);
   };
 
 #if 0

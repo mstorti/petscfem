@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.4 2001/09/20 23:43:26 mstorti Exp $
+//$Id: sparse.cpp,v 1.5 2001/09/21 00:07:57 mstorti Exp $
 
 #include "sparse.h"
 
@@ -34,14 +34,12 @@ void SeqMat::create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0) {
 
 namespace Sparse {
 
-  Indx::Indx(int m,int n=-1,int k=1) {
+  Indx::Indx(int m,int n,int k=1) {
     int j,v;
-    if (n==-1) {
-      n=m;
-      m=1;
-    }
-    assert(k*(n-m)>0);
-    resize((n-m)/k);
+    assert(m>=0);
+    assert(n>=0);
+    // assert(k*(n-m)>0);
+    if (n>=m) resize((n-m)/k+1);
     v = m;
     j = 0;
     while (k*(v-n) <= 0) {
@@ -117,11 +115,10 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "Vec::set"
-  Vec & Vec::set(const Indx &I,const Vec v) {
-    IndxCIt i,e;
-    e = I.end();
-    for (i=I.begin(); i!=e; i++) {
-      set(I[i],i->second);
+  Vec & Vec::set(const Indx &I,const Vec & v) {
+    int j;
+    for (j=0; j<I.size(); j++) {
+      set(I[j],v.get(j));
     }
     return *this;
   }
