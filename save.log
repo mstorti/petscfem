@@ -1019,3 +1019,6 @@ tag: beta-2.84.pl1 on Wed Feb 13 09:06:30 ART 2002 by mstorti in minerva.arcride
 tag: beta-2.84.pl2 on Wed Feb 13 09:09:51 ART 2002 by mstorti in minerva.arcride.edu.ar
      > Start making `libpetscfem_O.a' and `libpetscfem_g.a' libraries, and 
      > also in applications directories.
+----------
+tag: beta-2.84.pl3 on Wed Feb 13 12:26:42 ART 2002 by mstorti in minerva.arcride.edu.ar
+     > Partially working compiling `O' and `g' libraries for src/lib and ns
