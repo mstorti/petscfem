@@ -1,4 +1,4 @@
-## $Id: mkcyl.m,v 1.5 2005/01/27 17:33:09 mstorti Exp $
+## $Id: mkcyl.m,v 1.6 2005/01/29 21:46:56 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 pi],Nr+1,Nphi+1);
@@ -10,11 +10,11 @@ icone = icone(:,[1 4 3 2]);
 
 ## slip on axis upstream
 nline = Nphi+1;
-upstream = (Nphi+1)*(1:Nr)';
+upstream = (Nphi+1)*(1:Nr+1)';
 pffixa("cylabso.fixa-ups.tmp",upstream,3);
 
 ## slip on axis downsstream
-downstream = 1+(Nphi+1)*(0:Nr-1)';
+downstream = 1+(Nphi+1)*(0:Nr)';
 pffixa("cylabso.fixa-down.tmp",downstream,3);
 
 ## Slip on skin

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.23 2005/01/29 15:36:41 mstorti Exp $
+//$Id: gasflow.cpp,v 1.24 2005/01/29 21:46:52 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -87,8 +87,10 @@ void gasflow_ff::start_chunk(int &ret_options) {
   G_body.set(0.);
   if (new_adv_dif_elemset) {
     new_adv_dif_elemset->get_prop(G_body_prop,"G_body");
-    assert(G_body_prop.length == ndim);
-    new_adv_dif_elemset->get_prop(G_body_scale_prop,"G_body_scale");
+    if (G_body_prop.length>0)
+      assert(G_body_prop.length == ndim);
+    new_adv_dif_elemset
+      ->get_prop(G_body_scale_prop,"G_body_scale");
   }
 
   //o _T: double[ndof] _N: Uref _D: <none>
@@ -175,7 +177,9 @@ void gasflow_ff::element_hook(ElementIterator &element) {
     G_body_scale = new_adv_dif_elemset
       ->prop_val(element,G_body_scale_prop,
 		 new_adv_dif_elemset->time());
-    G_body.set(G_body_p).scale(G_body_scale);
+    if (G_body_prop.length>0) 
+      G_body.set(G_body_p).scale(G_body_scale);
+    else G_body.set(0.);
   }
 }
 
