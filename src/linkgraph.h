@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.6 2002/07/23 12:27:50 mstorti Exp $
+// $Id: linkgraph.h,v 1.7 2002/07/23 16:39:59 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -31,7 +31,11 @@ protected:
   /// return a cursor to an available cell
   int available();
 public:
-  class Row : public set<int> {};
+  class Row : public GSet {
+  public:
+    int row;
+  };
+  // class Row : public set<int> {};
 
   class iterator;
   friend class iterator;
@@ -40,11 +44,17 @@ public:
   protected:
     int r;
     LinkGraph *graph;
+    Row row_;
   public:
     const_iterator(int rr=0,LinkGraph *g=NULL) : r(rr), graph(g) {}
     const_iterator &operator++(int) { 
       r++;
       return *this;
+    }
+    const Row& operator*() {
+      row_.row = r;
+      graph->set_ngbrs(r,row_);
+      return row_;
     }
     int operator==(const_iterator q) const { return r==q.r; }
   };
@@ -54,13 +64,15 @@ public:
     iterator(int rr=0,LinkGraph *g=NULL) : const_iterator(rr,g) {}
     Row operator*() {
       Row row;
-      assert(0); // code here...
+      row.row = r;
+      graph->set_ngbrs(r,row);
       return row;
     }
   };    
   iterator begin() { return iterator(0,this); }
   iterator end() { return iterator(M,this); }
-  void erase(int first,int last) {}
+  void erase(iterator q) {}
+  void erase(iterator first,iterator last) {}
   /// cuasi constructor
   void init(int MM);
   /** Set new chunk size (container must be empty).
@@ -87,10 +99,10 @@ public:
 };
 
 typedef LinkGraph::Row LinkGraphRow; 
-typedef Partitioner<LinkGraphRow> LinkGraphRowPart;
+// typedef Partitioner<LinkGraphRow> LinkGraphRowPart;
 
-typedef  
-DistCont<LinkGraph,LinkGraphRow,LinkGraphRowPart>  LinkGraphDis;
+//  typedef  
+//  DistCont<LinkGraph,LinkGraphRow,LinkGraphRowPart>  LinkGraphDis;
 
 #if 0
 class LinkGraphWrapper : public StoreGraph {
