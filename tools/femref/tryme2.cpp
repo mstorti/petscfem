@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: tryme2.cpp,v 1.1 2004/12/28 14:06:51 mstorti Exp $
+// $Id: tryme2.cpp,v 1.2 2004/12/28 23:24:52 mstorti Exp $
 
 #include <cstdio>
 #include <cassert>
@@ -15,6 +15,7 @@ int ilog2(int x) {
   return int(ceil(log(double(x))/log(2.0)));
 }
 
+#if 0
 int lower_bound(vector<int> &v, int x) {
   its = 0;
   int 
@@ -43,37 +44,74 @@ int lower_bound(vector<int> &v, int x) {
     }
   }
 }
+#endif
 
-int lower_bound2(vector<int> &v, int x) {
-  its = 0;
-  int 
-    j, 
-    j1 = 0,
-    j2 = v.size();
+static int 
+lower_boundb_aux(vector<int> &v, 
+	     int x, int j) {
+  while (j>=0 && v[j]==x) { j--; }
+  return j;
+}
+
+int lower_boundb(vector<int> &v, 
+		 int x, int j1, int j2) {
   while (j2-j1 > 1) {
     its++;
-    j = j1 + (j2-j1)/2;
-    vj = v[j];
-    if (x < vj ) { j2 = j; }
-    else if (x >= vj ) { j1 = j; }
-    else {
-      while (j>0 && v[j-1]==x) { j--; }
-      return j;
+    int j = j1 + (j2-j1)/2;
+    int vj = v[j];
+    if (x <= vj ) j2 = j;
+    else  j1 = j; 
+  }
+  return j2;
+}
+
+int lower_boundbl(vector<int> &v, int x) {
+  int 
+    j, vj,
+    j1 = 0,
+    v1 = v[j1],
+    j2 = v.size()-1,
+    v2 = v[j2];
+  if (x > v2) return v.size();
+  if (x == v2 || j2-j1 <= 1) 
+    return lower_boundb_aux(v,x,j2);
+  j = j1 + int((double(x-v1)*double(j2-j1))/double(v2-v1));
+  int dj = int(sqrt(double(j)));
+  int jj1 = j-dj;
+  if (jj1>=0) {
+    int vjj1 = v[jj1];
+    if (vjj1 <= x) {
+      v1=vjj1;
+      j1=jj1;
     }
   }
+  int jj2 = j + dj;
+  if (jj2<v.size()) {
+    int vjj2 = v[jj2];
+    if (vjj2 > x) {
+      v2 = vjj2;
+      j2=jj2;
+    }
+  }
+  return lower_boundb(v,x,j1,j2);
+}
+
+int lower_boundb(vector<int> &v, int x) {
+  its = 0;
+  if (v[0]>x) return 0;
+  return lower_boundb(v,x,0,v.size());
 }
 
 int main() {
-  int N=1000000;
+  int N=10000;
   vector<int> v(N);
   for (int j=0; j<N; j++)
     v[j] = rand();
   sort(v.begin(),v.end());
 
-  int its=
   for (int k=0; k<10; k++) {
     int j = rand() % N;
-    int jj = lower_bound(v,v[j]);
+    int jj = lower_boundb(v,v[j]);
     assert(v[jj]==v[j]);
     printf("%d its, bin %d\n",its,ilog2(N));
   }
