@@ -2998,3 +2998,6 @@ tag: beta-3.23.pl4 on Tue, 16 Sep 2003 18:17:14 -0300 by mstorti in node1.beowul
 tag: beta-3.23.pl5 on Wed, 17 Sep 2003 14:02:02 -0300 by mstorti in node1.beowulf.gtm
      > Example modifying elast.cpp and using locker and simulating 
      > swapping on inwt==0
+----------
+tag: beta-3.23.pl6 on Wed, 24 Sep 2003 23:19:54 -0300 by mstorti in spider
+     > Runs all tests except two in test/newff. 
