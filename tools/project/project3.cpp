@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.3 2005/03/01 02:57:06 mstorti Exp $
+// $Id: project3.cpp,v 1.4 2005/03/01 03:19:40 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -16,6 +16,7 @@ private:
   ANNidx *nn_idx;
   ANNdist *nn_dist;
   ANNpoint nn;
+  // ANNpointArray data_pts;
   
   int knbr,ndim,nnod,ndimel,
     nel,nelem,ndof,nd1;
@@ -45,6 +46,13 @@ public:
     if (nn_dist) delete[] nn_dist;
     if (nn) delete[] nn;
     FastMat2::void_cache();
+    // if (data_pts) annDeallocPts(data_pts);
+
+    kdtree = NULL;
+    nn_idx = NULL;
+    nn_dist = NULL;
+    nn = NULL;
+    // data_pts = NULL;
   }
 
   ~FemInterp() { clear(); }
@@ -88,6 +96,7 @@ void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
   ANNpointArray data_pts 
     = annAllocPts(nelem,ndim);
   // fixme:= should `data_pts' be freed after??
+  // seems that no
   for (int k=0; k<nelem; k++) {
     xe.set(0.);
     for (int j=0; j<nel; j++) {
