@@ -3,13 +3,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* In class Graph `ngbrs_v' should be a `set<int>' not `vector<int>'
-* add in  `Elemset::weight()' to get weight from an option
 * In `ns.cpp' it seems that there is no convergence check on the
   internal Newton loop. 
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
 * put `const A' in the argument to PFMat::duplicate
-* Use IISD `inside processors'. 
 * interface preconditioning for IISD
 * Put order in the headers. Now, a modification in some header launchs
     recompilation of almost the whole code. 
@@ -52,6 +49,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Use IISD `inside processors'. 
+* In class Graph `ngbrs_v' should be a `set<int>' not `vector<int>'
+* add in  `Elemset::weight()' to get weight from an option
 * change arcride by ceride anywhere
 * add reference to parallel computations in README
 * make better scheduling algorithm for distmap (as described in the
