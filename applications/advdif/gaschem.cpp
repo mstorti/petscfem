@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.12 2004/01/21 18:37:39 mstorti Exp $
+//$Id: gaschem.cpp,v 1.13 2004/01/22 21:34:00 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -41,7 +41,7 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,CdN_ctff,0.0);
   //o Scale Nb eq. with this
   EGETOPTDEF_ND(elemset,double,Nb_scale,1.0);
-  //o A source for #Nb# ([=] #bubbles/m3 sec# ). 
+  //o A source for #Nb# ([=] #bubbles/m3 sec# ).
   EGETOPTDEF_ND(elemset,double,Nb_source,0.0);
   //o Molar fraction of gas source.
   EGETOPTDEF_ND(elemset,double,XO_source,0.2);
@@ -55,9 +55,14 @@ void gaschem_ff::start_chunk(int &ret_options) {
   //o Henry constant for N2 #[mol/m3/Pa]#
   EGETOPTDEF_ND(elemset,double,KN,0.6788e-5);
   //o Bubble volume. If set not set, then compute it from
-  //  the local pressure and gas concentration. 
+  //  the local pressure and gas concentration.
   EGETOPTDEF_ND(elemset,double,bubble_radius,0.);
   assert(bubble_radius>=0.);
+
+  //o minimum bubble volume
+  EGETOPTDEF_ND(elemset,double,vb_min,1.0e-12);
+  //o maximum bubble volume
+  EGETOPTDEF_ND(elemset,double,vb_max,1.0);
 
   U.resize(1,ndof);
   Cp.resize(2,ndof,ndof);
@@ -148,11 +153,12 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   GC_VAR(CdO,4);
   GC_VAR(CdN,5);
   Nb = Nb*Nb_scale;
-  
+
   double pgas = H.get(ndim+1);
   double rb, vb;
   if (bubble_radius==0.) {
     vb = (CO+CN)*Rgas*Tgas/(pgas*Nb);
+    vb = (vb<vb_min ? vb_min : vb>vb_max ? vb_max : vb);
     rb = pow(vb*3.0/(4.0*M_PI),(1.0/3.0));
   } else {
     rb = bubble_radius;
@@ -161,7 +167,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   double vslip = (rb<7e-4 ? 4474*pow(rb,1.357) :
 		  rb<5.1e-3 ? 0.23 : 4.202*pow(rb,0.547));
   u_gas.set(u_liq).addel(vslip,g_dir);
-  
+
   // Nb, CO and CN are advected with u_gas
   for (int j=1; j<=3; j++) Ajac.ir(2,j).ir(3,j).set(u_gas);
   // CdO and CdN are advected with u_liq
@@ -214,7 +220,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
       FastMat2::choose(0);
       double Pe  = vel*vel/(Uh*Dg);	// Peclet number
       // magic function
-      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
+      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.);
       tau = tau_fac/Uh*magic; // intrinsic time
     } else {
       FastMat2::choose(1);
@@ -224,7 +230,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     FastMat2::leave();
 
     tau_supg.set(0.).d(1,2).is(1,1,3).set(tau);
-    
+
     Uintri.prod(iJaco,u_liq,1,-1,-1);
 
     // this is approx. 2*U/h
@@ -237,7 +243,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
       FastMat2::choose(0);
       double Pe  = vel*vel/(Uh*Dg);	// Peclet number
       // magic function
-      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
+      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.);
       tau = tau_fac/Uh*magic; // intrinsic time
     } else {
       FastMat2::choose(1);
@@ -254,7 +260,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     // Film coefficient
     double rb_crit = 6.67e-4;
     double hm = hm_fac*(rb < rb_crit ? (rb/rb_crit)*4e-4 : 4e-4);
-    
+
     double coef = 3.0*(CO+CN)*Rgas*Tgas*hm/(pgas*rb);
     double xO = CO/(CO+CN);
     double xN = 1.0-xO;
@@ -262,12 +268,16 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     double fac = pgas*vb/(Rgas*Tgas)*Nb_source;
     double SO_source = fac * XO_source;
     double SN_source = fac * (1.0-XO_source);
-    double SO = coef*(CdO-KO*pgas*xO) + SO_source;
-    double SN = coef*(CdN-KN*pgas*xN) + SN_source;
-    
+//    double SO = coef*(CdO-KO*pgas*xO) + SO_source;
+//    double SN = coef*(CdN-KN*pgas*xN) + SN_source;
+    double SO = coef*(CdO-KO*pgas*xO);
+    double SN = coef*(CdN-KN*pgas*xN);
+
     G_source.setel(Nb_source,1);
     G_source.setel(SO,2);
     G_source.setel(SN,3);
+    G_source.addel(SO_source,2);
+    G_source.addel(SN_source,3);
     G_source.setel(-SO,4);
     G_source.setel(-SN,5);
   }
