@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.10 2002/02/06 02:54:27 mstorti Exp $
+// $Id: stream.h,v 1.11 2002/02/06 14:34:05 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -386,7 +386,7 @@ public:
   void init() { 
     elemset->get_prop(Rf_prop,"Rf"); 
     int ierr;
-    EGETOPTDEF(elemset,int,impermeable,0);
+    EGETOPTDEF_ND(elemset,int,impermeable,0);
     assert(ierr==0);
     if (impermeable) k=0.;
   }

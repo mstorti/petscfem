@@ -5,10 +5,10 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('casen',undef);
 $casename = $casen;
-$steady = 1;
+$steady = 0;
 $eta0=-0.5;
 $alpha=1;
-$nstep=10;
+$nstep=30;
 $var_eta=0;
 $etaL = $eta0;
 if ($casen eq 'var_eta0') {
@@ -131,7 +131,8 @@ elemset stream_loss 4
 geometry cartesian1d
 npg 2
 double_layer			# This is required!!
-impermeable
+Rf 1
+# impermeable
 __END_HASH__
 __INCLUDE__ aquist.con.stream_loss.tmp
 __END_ELEMSET__
@@ -144,5 +145,5 @@ fixa
 ## set water depth at the inlet
 # Nx <:=$Nx:>
 # Ny <:=$Ny:>
-<:=(($Nx+1)*($Ny+1)+1):> 1 1.
+<:=(($Nx+1)*($Ny+1)+1):> 1 0.3
 __END_FIXA__
