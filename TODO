@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
+* Write a `system' hook. (executes a shell command). 
 * Seems that can't correctly read elements with 1 node 
 * Make a test for Newton convergence with ns_id and lag_mul mixed. 
 * Correct DOC++ doc in `lagmul.h'
