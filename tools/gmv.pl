@@ -1,11 +1,23 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.6 2002/11/30 22:31:29 mstorti Exp $
+#$Id: gmv.pl,v 1.7 2003/01/08 12:25:04 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
 open NOD,"$nod";
 open GMV,">$gmv";
+
+sub entropy_hook {
+    my ($state) = @_;
+    my $s = $state->[3]/$state->[0]**$ga;
+    return $s;
+}
+
+sub enthalpy_hook {
+    my ($state) = @_;
+    my $h = $state->[3]/$state->[0]*($ga-1);
+    return $h;
+}
 
 sub print_rslt {
     my ($rslt,$nrslt,$nnod,$dim0,$dim1,$rec,$file) = @_;
@@ -77,6 +89,7 @@ while(<CON>) {
 }
 close CON;
 $nelem = ($#cone+1)/$nel;
+print "after reading connectivities...\n";
 
 if ($dim==2 && $nel==4) {
     $shape = 'quad';
@@ -109,9 +122,10 @@ if ($rslt) {
     }
 
 # Resultados
-    open RSLT,"$rslt";
+    open RSLT,"$rslt" || die "can't open result file $rslt\n";
     @rslt = ();			# result vector
     for (my $j=0; $j<$nnod_tot*($rec-1); $j++) { 
+	print;
 	<RSLT> || die "not enough records in file\n"; 
     }				# skip previous records
 
@@ -143,6 +157,45 @@ if ($rslt) {
 	print GMV "variables\n";
 	print GMV "pressure 1\n";
 	print_rslt(\@rslt,$nrslt,$nnod,$dim,$dim,0,GMV);
+	print GMV "endvars\n";
+
+    } elsif ($fields eq 'nsc') {
+	print GMV "velocity 1\n";
+	print_rslt(\@rslt,$nrslt,$nnod,1,$dim,0,GMV);
+	for (my $j=$dim; $j<3; $j++) {
+	    for (my $i=0; $i<$nnod; $i++) {
+		print GMV "0.\n";
+	    }
+	}
+
+	print GMV "variables\n";
+	print GMV "pressure 1\n";
+	print_rslt(\@rslt,$nrslt,$nnod,$dim+1,$dim+1,0,GMV);
+	print GMV "density 1\n";
+	print_rslt(\@rslt,$nrslt,$nnod,0,0,0,GMV);
+	if ($compute_s) {
+	    my @s = ((0) x $nnod);
+	    for (my $j=0; $j<$nnod; $j++) { 
+		my $n0=$j*$nrslt;
+		my $n1=($j+1)*$nrslt-1;
+		my @state = @rslt[$n0..$n1];
+		$s[$j] = entropy_hook(\@state);
+#		print "entropy $s[$j]\n";
+	    }
+	    print GMV "entropy 1\n";
+	    print_rslt(\@s,1,$nnod,0,0,0,GMV);
+	}
+	if ($compute_h) {
+	    my @h = ((0) x $nnod);
+	    for (my $j=0; $j<$nnod; $j++) { 
+		my $n0=$j*$nrslt;
+		my $n1=($j+1)*$nrslt-1;
+		my @state = @rslt[$n0..$n1];
+		$h[$j] = enthalpy_hook(\@state);
+	    }
+	    print GMV "enthalpy 1\n";
+	    print_rslt(\@h,1,$nnod,0,0,0,GMV);
+	}
 	print GMV "endvars\n";
 
     } elsif ($fields eq 'scalar' || ! defined $fields) {
