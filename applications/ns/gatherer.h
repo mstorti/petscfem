@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.8 2002/05/05 22:01:50 mstorti Exp $
+//$Id: gatherer.h,v 1.9 2002/05/16 18:44:54 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -63,7 +63,8 @@ public:
 */ 
 class force_integrator : public gatherer {
 private:
-  FastMat2 force;
+  FastMat2 force,moment;
+  int compute_moment;
 public:
   /// perform several checks and initialization
   void init();

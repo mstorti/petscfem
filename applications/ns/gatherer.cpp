@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.7 2002/04/10 17:57:44 mstorti Exp $
+//$Id: gatherer.cpp,v 1.8 2002/05/16 18:44:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -150,9 +150,10 @@ void force_integrator::init() {
   //o Dimenson of the element
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
   assert(ndimel==ndim-1);
-  assert(gather_length==ndim);
-
+  assert(gather_length==ndim || gather_length==2*ndim);
+  compute_moment = (gather_length==2*ndim);
   force.resize(1,ndim);
+  moment.resize(1,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -161,6 +162,9 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     double wpgdet,double time) {
   force.set(n).scale(-wpgdet*u.get(4));
   force.export_vals(pg_values.begin());
+  if (compute_moment) {
+    force.set(n).scale(-wpgdet*u.get(4));
+  
   // pg_values[0] = wpgdet;	// compute total area
 }
 
