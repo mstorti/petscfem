@@ -28,9 +28,9 @@
 ;;
 (defun query-replace-identifier()
   (interactive)
-  (query-replace-regexp (concat "\\([^a-zA-Z]\\)"
+  (query-replace-regexp (concat "\\([^a-zA-Z_]\\)"
 				(read-from-minibuffer "replace identifier: ") 
-				"\\([^a-zA-Z0-9]\\)")
+				"\\([^a-zA-Z0-9_]\\)")
 			(concat "\\1" (read-from-minibuffer "with: ") 
 				 "\\2")
 			)
