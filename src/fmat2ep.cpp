@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.20 2003/01/10 13:39:22 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.21 2003/07/02 02:55:36 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -34,7 +34,7 @@ if (was_cached) {
 } else {
   cache = new FastMatCache;
   cache_list->push_back(cache);
-  cache_list_begin = cache_list->begin();
+  cache_list_begin = &*cache_list->begin();
   cache_list->list_size =
     cache_list_size = cache_list->size();
   position_in_cache++;
@@ -81,8 +81,8 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
+    cache->pfrom = &*cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -111,7 +111,7 @@ _//>
 
 //<$gensetel=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS) {
+FastMat2 & FastMat2::__NAME__(const double val, INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
@@ -180,7 +180,7 @@ FastMat2 & FastMat2::set(const double *a) {
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
     op_count.get += cache->nelems;
     op_count.get += cache->nelems;
   }
@@ -221,7 +221,7 @@ FastMat2 & FastMat2::set(const Matrix & A) {
     int size = mem_size(fdims);
     cache->nelems = size;
     cache->to_elems.resize(size);
-    cache->pto = cache->to_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
 
     int jj=0;
     Indx indx(2,0);
@@ -307,7 +307,7 @@ _//>
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__ 
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
@@ -379,7 +379,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    cache->line_cache_start = &*cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
     LineCache *lc;
@@ -405,7 +405,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      lc->starta = &*lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -467,7 +467,7 @@ FastMat2 & FastMat2::__NAME__(__FUN_ARGS__) {
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
   }
 
   double **to = cache->pto;
@@ -485,7 +485,7 @@ _//>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 //<$prod = <<'//EOF';
-FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_VAR_ARGS) {
+FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
@@ -593,7 +593,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
   // it. 
     cache->nlines = mem_size(ndimsf);
     cache->prod_cache.resize(cache->nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    cache->line_cache_start = &*cache->prod_cache.begin();
     cache->line_size = mem_size(ndimsc);
     int line_size = cache->line_size;
 
@@ -639,8 +639,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
 	jj++;
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
-      lc->startb = lc->lineb.begin();
+      lc->starta = &*lc->linea.begin();
+      lc->startb = &*lc->lineb.begin();
       lc->inca = inca;
       lc->incb = incb;
       // lc->linear = 0; // force non-linear
@@ -731,7 +731,7 @@ __CONST__ FastMat2 & FastMat2::export_vals(__ARG__) __CONST__ {
       cache->from_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pfrom = cache->from_elems.begin();
+    cache->pfrom = &*cache->from_elems.begin();
   }
   __DEFINE_TARGET_POINTER__;
 
@@ -750,7 +750,7 @@ _//>
 //< export_vals_array();//>
 
 //<$contraction=<<'//EOF';
-FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
+FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
@@ -835,13 +835,13 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
     cache->prod_cache.resize(nlines);
     cache->nlines = nlines;
     cache->line_size = line_size;
-    cache->line_cache_start = cache->prod_cache.begin();
+    cache->line_cache_start = &*cache->prod_cache.begin();
 
     int jlc=0;
     while (1) {
       LineCache *lc = cache->line_cache_start + jlc++;
       lc->linea.resize(line_size);
-      lc->starta = lc->linea.begin();
+      lc->starta = &*lc->linea.begin();
       lc->target = location(findx);
 
       cindx= Indx(nc,1);
@@ -894,7 +894,7 @@ _//>
 
 //<$diag=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS) {
+FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
 
   __CACHE_OPERATIONS__;
 
@@ -958,8 +958,8 @@ FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS) {
     cache->to_elems.resize(nelems);
     cache->from_elems.resize(nelems);
     cache->nelems = nelems;
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
+    cache->pfrom = &*cache->from_elems.begin();
     int jj=0;
     while (1) {
       for (int k=0; k<ndims; k++) 
@@ -995,7 +995,7 @@ _//>
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 //<$get=<<'//EOF';
-double FastMat2::get(INT_VAR_ARGS) const {
+double FastMat2::get(INT_VAR_ARGS_ND) const {
 
   __CACHE_OPERATIONS__;
 
@@ -1066,7 +1066,7 @@ double FastMat2::det(void) const{
     if (m<=3) {
       cache->nelems=m*m;
       cache->from_elems.resize(cache->nelems);
-      cache->pfrom=cache->from_elems.begin();
+      cache->pfrom = &*cache->from_elems.begin();
       int jj=0;
       Indx indx(2,0);
       for (int j=1; j<=m; j++) {
@@ -1139,8 +1139,8 @@ FastMat2 & FastMat2::kron(const FastMat2 & A,const FastMat2 & B) {
     cache->nelems = nelems;
     cache->from_elems.resize(2*nelems);
     cache->to_elems.resize(nelems);
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
+    cache->pfrom = &*cache->from_elems.begin();
     double **pfrom_b = cache->pfrom + nelems;
     double **pfrom_a = cache->pfrom;
     double **pto = cache->pto;
@@ -1190,7 +1190,7 @@ _//>
 
 //<$eye=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::eye(const double a=1.) {
+FastMat2 & FastMat2::eye(const double a) {
   set(0.);
 
   __CACHE_OPERATIONS__;
@@ -1214,7 +1214,7 @@ FastMat2 & FastMat2::eye(const double a=1.) {
     } 
     cache->nelems = n;
 
-    cache->pto = cache->to_elems.begin();
+    cache->pto = &*cache->to_elems.begin();
 
     op_count.put += n;
     __COUNT_OPER__;
@@ -1245,7 +1245,7 @@ public:
 
 //<$detsur=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double FastMat2::detsur(FastMat2 *nor=NULL) {
+double FastMat2::detsur(FastMat2 *nor) {
   __CACHE_OPERATIONS__;
 
   detsur_cache * dsc;
