@@ -2514,3 +2514,6 @@ tag: beta-3.18.pl30 on Sun,  9 Mar 2003 23:26:56 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl31 on Mon, 10 Mar 2003 00:00:34 -0300 by mstorti in spider
      > Writing example for `nsid'. 
+----------
+tag: beta-3.18.pl32 on Mon, 10 Mar 2003 17:09:46 -0300 by mstorti in minerva.arcride.edu.ar
+     > Working on improve the `null_vort' condition. 
