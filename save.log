@@ -191,3 +191,6 @@ tag: beta-1.20 on Mon Jan 22 09:59:13 ARST 2001, by mstorti in minerva.arcride.e
 ----------
 tag: beta-1.21 on Tue Jan 23 10:27:36 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > Working on filters. It works in simple cases. 
+----------
+tag: beta-1.22 on Tue Jan 23 13:40:58 ARST 2001, by mstorti in minerva.arcride.edu.ar
+     > Almost merged turbulent shallow water (Beto)
