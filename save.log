@@ -2619,3 +2619,6 @@ tag: beta-3.18.pl63 on Fri,  4 Apr 2003 07:22:16 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl64 on Fri,  4 Apr 2003 17:45:12 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs long example with t=0.6, Fr=1.5, stable FS. 
+----------
+tag: beta-3.18.pl65 on Fri,  4 Apr 2003 18:37:00 -0300 by mstorti in minerva.arcride.edu.ar
+     > Running example. 
