@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.12 2002/07/17 02:55:01 mstorti Exp $
+#$Id: makeltag,v 1.13 2003/10/12 00:10:19 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -102,7 +102,7 @@ insertbef "----------\n[tag: $newtag_ on $d by $w in $h]\n",
     $notes, ".*Current line ===========" if $notes;
 
 open VRS,">VERSION";
-print VRS $newtag_;
+print VRS "$newtag_\n";
 close VRS;
 
 print "logging on $save_log\n";

@@ -9,6 +9,7 @@ $WHITE_BACKGROUND = 1;
 $SHOW_SECTION_NUMBERS = 0;
 
 $petscfem_version=`cat ../VERSION`;
+chomp $petscfem_version;
 $ADDRESS = <<EOM;
 
 <i> Copyright (C) 1999-2003
