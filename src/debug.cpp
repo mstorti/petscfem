@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.8 2002/09/12 11:40:05 mstorti Exp $
+//$Id: debug.cpp,v 1.9 2002/09/29 14:54:19 mstorti Exp $
  
 #include <src/debug.h>
+#include <sys/resource.h>
 #include <cstdio>
 #include <time.h>
 
@@ -82,6 +83,23 @@ void Debug::trace(const char *s=NULL) {
       strftime(t,MXTM,"%H:%M:%S",localtime(&tt));
       printf("-- %s -- [%s %10.3f]\n",s,t,chrono.elapsed());
     }
+#if 0
+    if (active("memory_usage")) {
+      rusage rusage_v;
+      long int rss_min, rss_max, rss_sum;
+      int ierr = getrusage(RUSAGE_CHILDREN,&rusage_v);
+      PETSCFEM_ASSERT0(!ierr,"Couldn't get memory size\n");  
+      MPI_Allreduce(&(rusage_v.ru_maxrss),
+		    &rss_min,1,MPI_INT,MPI_MIN,comm);
+      MPI_Allreduce(&(rusage_v.ru_maxrss),
+		    &rss_max,1,MPI_INT,MPI_MAX,comm);
+      MPI_Allreduce(&(rusage_v.ru_maxrss),
+		    &rss_sum,1,MPI_INT,MPI_SUM,comm);
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Memory usage[kB]: min %d, max %d, avrg %f\n",
+		  rss_min,rss_max,rss_sum);
+    }
+#endif
   }
   if (!active()) return;
   int ierr,nread,proc;
