@@ -2128,3 +2128,6 @@ tag: beta-3.14.pl24 on Fri, 10 Jan 2003 21:19:18 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl25 on Sat, 11 Jan 2003 12:24:22 -0300 by mstorti in spider
      > Runs viscous/inviscid coupling example for cylinder. 
+----------
+tag: beta-3.14.pl26 on Mon, 13 Jan 2003 00:31:45 -0300 by mstorti in spider
+     > Working on sphere problem mesh. 
