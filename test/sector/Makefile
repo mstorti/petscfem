@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2003/02/17 14:53:21 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/02/17 16:05:49 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -16,9 +16,20 @@ sector: sector.depl $(LAPLACE)
 	-mv sector.sal sector0.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-# Test chunk_size with the new chunk processing
+#w Tests processing of chunks
+chunk_size_process:
+	$(MAKE) -C sector chunk_size_process
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+triangle:
+	$(MAKE) -C sector triangle
+
+
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 NP := 2
 MCH := -machinefile machi.dat 
+#w Test chunk_size with the new chunk processing
 chunk_size_process: $(LAPLACE)
 	echo `uname -n` >machi.dat
 	echo `uname -n` >>machi.dat
@@ -44,6 +55,7 @@ chunk_size_process: $(LAPLACE)
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: triangle triangle_npg3 triangle_npg4 triangle_npg7
 
+#w Tests laplace with triangles
 triangle: triangle_npg3 triangle_npg4 triangle_npg7
 
 triangle_npg3:

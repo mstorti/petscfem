@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.86 2003/02/17 14:53:21 mstorti Exp $ 
+# $Id: Makefile,v 1.87 2003/02/17 16:05:46 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -97,12 +97,6 @@ bug100: $(ADVDIF)
 	$(MAKE) -C bug100 run
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Laplace on a sector of a circular sector
-#w with periodic b.c.'s
-sector: 
-	$(MAKE) -C sector sector
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Checks the constraint bug feature
 constraint_bug: laplace
 	$(MAKE) -C circ constraint_bug
@@ -116,16 +110,6 @@ sqcav5: ns sqcav5_dat
 
 sqcav5_dat: mksqcav5.m
 	$(OCTAVE)  mksqcav5.m >/dev/null
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Tests processing of chunks
-chunk_size_process:
-	$(MAKE) -C sector chunk_size_process
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Tests laplace with triangles
-triangle:
-	$(MAKE) -C sector triangle
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w FileStack class check
@@ -238,6 +222,12 @@ idmap:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Make advective plano tests
 plano:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Laplace on a sector of a circular sector
+#w with periodic b.c.'s
+sector: 
 	$(MAKE) -C $@ tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
