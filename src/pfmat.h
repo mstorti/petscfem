@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.17 2001/08/17 23:54:44 mstorti Exp $
+// $Id: pfmat.h,v 1.18 2001/08/18 01:11:40 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -61,8 +61,6 @@ protected:
   int sles_was_built;
   /// Defines the KSP method
   string KSP_method;
-  /// Expected LU fill ratio (see Petsc doc.). 
-  double pc_lu_fill;
 public:
   /// Constructor, initialize variables
   PFMat() : sles_was_built(0), A(NULL), P(NULL) {};
@@ -124,7 +122,7 @@ public:
   /// Prints the matrix to a PETSc viewer
   virtual int view(Viewer viewer)=0;
   /// Derive this if you want to manage directly the preconditioning. 
-  virtual int set_preco(const string & preco_type)=0;
+  virtual int set_preco(const string & preco_type);
 };
 
 /** Wrapper monitor. You customize the monitor by deriving the
@@ -175,8 +173,6 @@ public:
   */ 
   void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
   int view(Viewer viewer);
-  /// Derive this if you want to manage directly the preconditioning. 
-  int set_preco(const string & preco_type);
 };
 
 int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
