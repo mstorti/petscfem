@@ -15,7 +15,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 50;			# Number of elements per dimension
+$N = 70;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -101,7 +101,7 @@ solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 100
+iisd_subpart 300
 maxits 100
 report_consumed_time
 activate_debug_print
