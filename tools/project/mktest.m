@@ -1,5 +1,5 @@
 N = 50;
-nnod2 = 40000;
+nnod2 = 40;
 w = zhomo([0 1 0 1],N+1,N+1);
 
 [xnod,icone] = pfcm2fem(w);
@@ -19,6 +19,7 @@ asave("square1.dat.tmp",u);
 
 xnod2 = rand(nnod2,2);
 asave("square2.nod.tmp",xnod2);
+return
 
 start = clock();
 system("./project2.bin");

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.1 2005/03/01 02:12:00 mstorti Exp $
+// $Id: project3.cpp,v 1.2 2005/03/01 02:53:31 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -7,7 +7,7 @@
 #include <src/dvector2.h>
 #include <ANN/ANN.h>
 
-class fem_interp {
+class FemInterp {
 private:
   dvector<double> xnod;
   dvector<int> icone;
@@ -17,15 +17,27 @@ private:
   ANNdist *nn_dist;
   ANNpoint nn;
   
-  int knbr,ndim,ndimel,nel;
+  int knbr,ndim,nnod,ndimel,
+    nel,nelem,ndof,nd1;
 
+  FastMat2 C,C2,
+    invC,invC2, invCt,
+    x2,dx2, x2prj,x2prjmin, x12,
+    x13,x1, nor,L, b,u1_loc, u2,
+    Lmin;
+
+  FastMatCachePosition cp,cp1;
+  FastMatCacheList cache_list;
+
+  vector<int> restricted;
 public:
-  fem_interp() : 
+  int use_cache;
+  double tol;
+
+  FemInterp() : 
     kdtree(NULL), nn_idx(NULL),
     nn_dist(NULL), nn(NULL),
-    use_cache(0) {}
-
-  int use_cache;
+    use_cache(0), tol(1e-6) {}
 
   void clear() {
     if (kdtree) delete kdtree;
@@ -35,105 +47,114 @@ public:
     FastMat2::void_cache();
   }
 
-  void init(int knbr,const dvector<double> &xnod_a,
-	    const dvector<int> &icone_a) {
-    
-    clear();
-    nn_idx = new ANNidx[knbr];
+  ~FemInterp() { clear(); }
 
-    // Build ANN octree
-    FastMat2 xe(1,ndim),xn(1,ndim);
-    double inel = 1./nel;
-    ANNpointArray data_pts 
-      = annAllocPts(nelem1,ndim);
-    for (int k=0; k<nelem1; k++) {
-      xe.set(0.);
-      for (int j=0; j<nel; j++) {
-	int node = ico1.e(k,j);
-	xn.set(&xnod1.e(node-1,0));
-	xe.add(xn);
-      }
-      xe.scale(inel);
-      for (int j=0; j<ndim; j++)
-	data_pts[k][j] = xe.get(j+1);
-    }
-  }
+  void init(int knbr_a, int ndof_a, int ndimel_a,
+	    const dvector<double> &xnod_a,
+	    const dvector<int> &icone_a);
+
+  void interp(const dvector<double> &xnod2,
+	      const dvector<double> &u,
+	      dvector<double> &ui);
 };
 
-int main() {
-#define DATA_DIR "./"
-#if 0
-#define XNOD1 DATA_DIR "static_p_blade.nod"
-#define STATE1 DATA_DIR "static_p_blade.p"
-#define ICONE1 DATA_DIR "blade.con"
-#define XNOD2 DATA_DIR "patran.nod"
-  // #define XNOD2 "./patran.nod"
-#elif 0
-#define XNOD1 "mesh1.nod"
-#define ICONE1 "mesh1.con"
-#define STATE1 XNOD1
-#define XNOD2 "mesh2.nod"
-#else
-#define XNOD1 "square1.nod.tmp"
-#define ICONE1 "square1.con.tmp"
-#define STATE1 "square1.dat.tmp"
-#define XNOD2 "square2.nod.tmp"
-#endif
 
-  int ndim = 2;
-  int ndimel = 2;
-  int nel = 3;
-  int ndof = 2;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FemInterp::init(int knbr_a, int ndof_a, int ndimel_a,
+		     const dvector<double> &xnod_a,
+		     const dvector<int> &icone_a) {
+    
+  clear();
 
-  dvector<double> xnod1,xnod2,u1;
-  dvector<int> ico1;
+  ndof = ndof_a;
+  knbr = knbr_a;
+  ndimel = ndimel_a;
 
-  // Reads mesh1
-  xnod1.cat(XNOD1).defrag();
-  assert(xnod1.size() % ndim ==0);
-  int nnod1 = xnod1.size()/ndim;
-  xnod1.reshape(2,nnod1,ndim);
-  u1.a_resize(2,nnod1,ndof).read(STATE1);
+  nn_idx = new ANNidx[knbr];
+  nn_dist = new ANNdist[knbr];
+  nn = annAllocPt(ndim);
+    
+  nnod = xnod_a.size(0);
+  ndim = xnod_a.size(1);
+  nelem = icone_a.size(0);
+  nel = icone_a.size(1);
 
-  ico1.cat(ICONE1).defrag();
-  assert(ico1.size() % nel ==0);
-  int nelem1 = ico1.size()/nel;
-  ico1.reshape(2,nelem1,nel);
+  xnod.clone(xnod_a);
+  icone.clone(icone_a);
 
-  printf("mesh1: %d nodes, %d elems read\n",nnod1,nelem1);
+  // Build ANN octree
+  FastMat2 xe(1,ndim),xn(1,ndim);
+  double inel = 1./nel;
+  ANNpointArray data_pts 
+    = annAllocPts(nelem,ndim);
+  // fixme:= should `data_pts' be freed after??
+  for (int k=0; k<nelem; k++) {
+    xe.set(0.);
+    for (int j=0; j<nel; j++) {
+      int node = icone.e(k,j);
+      xn.set(&xnod.e(node-1,0));
+      xe.add(xn);
+    }
+    xe.scale(inel);
+    for (int j=0; j<ndim; j++)
+      data_pts[k][j] = xe.get(j+1);
+  }
+  kdtree = new ANNkd_tree(data_pts,nelem,ndim);
 
-  // Reads mesh2 nodes
-  xnod2.cat(XNOD2).defrag();
-  assert(xnod2.size() % ndim ==0);
-  int nnod2 = xnod2.size()/ndim;
-  xnod2.reshape(2,nnod2,ndim);
+  nd1 = ndim+1;
+  C.resize(2,nd1,nd1);
+  C2.resize(2,nd1,nd1);
+  invC.resize(2,nd1,nd1);
+  invC2.resize(2,nd1,nd1);
+  invCt.resize(2,nd1,nd1);
+  x2.resize(1,ndim);
+  dx2.resize(1,ndim);
+  x2prj.resize(1,ndim);
+  x2prjmin.resize(1,ndim);
+  x12.resize(1,ndim);
+  x13.resize(1,ndim);
+  x1.resize(1,ndim);
+  nor.resize(1,ndim);
+  L.resize(1,nd1);
+  Lmin.resize(1,nd1);
+  b.resize(1,ndim+1);
+  u1_loc.resize(2,ndof,nel);
+  u2.resize(1,ndof);
 
-  printf("mesh2: %d nodes read\n",nnod2);
-
-  make_fem_interp(xnod1,icone1);
-
+  restricted.resize(nel,0);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FemInterp::interp(const dvector<double> &xnod2,
+		       const dvector<double> &u,
+		       dvector<double> &ui) {
   double tryav=0.0;
+  int nnod2 = xnod2.size(0);
+  assert(xnod2.size(1) == ndim);
+  ui.a_resize(2,nnod2,ndof).defrag();
+
+  double d2min;			// Minimum distance to elements in mesh1
+  int k1min;			// Element in mesh1 with minimum distance
+
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
     if(use_cache) FastMat2::activate_cache(&cache_list);
     for (int j=0; j<ndim; j++) 
       nn[j] = xnod2.e(n2,j);
-    kdtree.annkSearch(nn,KNBR,nn_idx,nn_dist,0.0);
+    kdtree->annkSearch(nn,knbr,nn_idx,nn_dist,0.0);
 #if 0
-    for (int k=0; k<KNBR; k++)
+    for (int k=0; k<knbr; k++)
       printf("(%d %f) ",nn_idx[k],nn_dist[k]);
     printf("\n");
 #endif
     int q;
-    for (q=0; q<nelem1+KNBR; q++) {
-      int k = (q<KNBR ? nn_idx[q] : q-KNBR);
+    for (q=0; q<nelem+knbr; q++) {
+      int k = (q<knbr ? nn_idx[q] : q-knbr);
       FastMat2::reset_cache();
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
-	int node = ico1.e(k,j);
-	C.ir(2,j+1).set(&xnod1.e(node-1,0));
+	int node = icone.e(k,j);
+	C.ir(2,j+1).set(&xnod.e(node-1,0));
       }
       C.rs();
       C.ir(1,nd1).is(1,1,nel).set(1.0).rs();
@@ -232,8 +253,8 @@ int main() {
     // Load state values in `u1_loc'
     for (int j=1; j<=nel; j++) {
       u1_loc.ir(2,j);
-      int node = ico1.e(k1min,j-1);
-      u1_loc.set(&u1.e(node-1,0));
+      int node = icone.e(k1min,j-1);
+      u1_loc.set(&u.e(node-1,0));
     }
     u1_loc.rs();
     // Interpolate
@@ -241,13 +262,62 @@ int main() {
     u2.prod(u1_loc,Lmin,1,-1,-1);
     Lmin.rs();
     tryav += q+1;
-//     printf("try %d, node2 %d, dist min %f, nearest elem %d\n",
-// 	   q,n2, d2min,k1min);
-    for (int j=1; j<=ndof; j++)
-      fprintf(fid,"%f ",u2.get(j));
-    fprintf(fid,"\n");
-    // u2.print("u2");
+    u2.export_vals(&ui.e(n2,0));
   }
   printf("Averg. nbr of tries %f\n",tryav/nnod2);
-  fclose(fid);
+}
+
+int main() {
+#define DATA_DIR "./"
+#if 0
+#define XNOD1 DATA_DIR "static_p_blade.nod"
+#define STATE1 DATA_DIR "static_p_blade.p"
+#define ICONE1 DATA_DIR "blade.con"
+#define XNOD2 DATA_DIR "patran.nod"
+  // #define XNOD2 "./patran.nod"
+#elif 0
+#define XNOD1 "mesh1.nod"
+#define ICONE1 "mesh1.con"
+#define STATE1 XNOD1
+#define XNOD2 "mesh2.nod"
+#else
+#define XNOD1 "square1.nod.tmp"
+#define ICONE1 "square1.con.tmp"
+#define STATE1 "square1.dat.tmp"
+#define XNOD2 "square2.nod.tmp"
+#endif
+
+  int ndim = 2;
+  int ndimel = 2;
+  int nel = 3;
+  int ndof = 2;
+
+  dvector<double> xnod1,xnod2,u1,u2;
+  dvector<int> ico1;
+
+  // Reads mesh1
+  xnod1.cat(XNOD1).defrag();
+  assert(xnod1.size() % ndim ==0);
+  int nnod1 = xnod1.size()/ndim;
+  xnod1.reshape(2,nnod1,ndim);
+  u1.a_resize(2,nnod1,ndof).read(STATE1);
+
+  ico1.cat(ICONE1).defrag();
+  assert(ico1.size() % nel ==0);
+  int nelem1 = ico1.size()/nel;
+  ico1.reshape(2,nelem1,nel);
+
+  printf("mesh1: %d nodes, %d elems read\n",nnod1,nelem1);
+
+  // Reads mesh2 nodes
+  xnod2.cat(XNOD2).defrag();
+  assert(xnod2.size() % ndim ==0);
+  int nnod2 = xnod2.size()/ndim;
+  xnod2.reshape(2,nnod2,ndim);
+
+  printf("mesh2: %d nodes read\n",nnod2);
+
+  FemInterp fem_interp;
+  fem_interp.init(10,2,2,xnod1,ico1);
+  fem_interp.interp(xnod2,u1,u2);
 }

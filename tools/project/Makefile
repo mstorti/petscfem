@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
-default: project2.bin
+default: project3.o
 
-SRCS := project.cpp project2.cpp
+SRCS := project.cpp project2.cpp project3.cpp
 
-BOPT := O_c++
+# BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
@@ -21,6 +21,9 @@ project.bin: project.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 project2.bin: project2.o
+	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
+
+project3.bin: project3.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 yuv_compress:
