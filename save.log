@@ -2134,3 +2134,6 @@ tag: beta-3.14.pl26 on Mon, 13 Jan 2003 00:31:45 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl27 on Wed, 15 Jan 2003 20:51:10 -0300 by mstorti in spider
      > Working on smoke vizualization technique. 
+----------
+tag: beta-3.14.pl28 on Wed, 15 Jan 2003 23:08:34 -0300 by mstorti in spider
+     > Runs compressible flow at Mach=0.3. 
