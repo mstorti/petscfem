@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.68.4.1 2003/08/18 03:20:13 mstorti Exp $ 
+# $Id: Makefile,v 1.68.4.2 2003/08/18 15:00:55 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -207,10 +207,6 @@ test_fs:
 test_triangle:
 	$(MAKE) case=weak_form_1 use_triangles=1 runs
 
-#w Makes local link for running with debugger
-link:
-	ln -sf $(PROG) ns
-
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_file1 := output.CASE_sqcav.np_$(np).case_dx_file1.out.tmp
 #w Checks reading states from file in severa records. 
@@ -308,3 +304,7 @@ test_read_ini:
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 test_press_term:
 	$(MAKE) case=press_term runs
+
+#w Makes local link for running with debugger
+link:
+	ln -f $(PROG) $(LOC_PROG)
