@@ -1,4 +1,4 @@
-## $Id: proc22d.m,v 1.2 2005/01/27 14:11:37 mstorti Exp $
+## $Id: proc22d.m,v 1.3 2005/01/28 12:06:47 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -46,7 +46,7 @@ x = aload("gfabso2dn.nod.tmp");
 x = x(1:Nx+1,longindx);
 
 axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);
-m=5;
+m=3;
 
 for k=1:m:nt
   title(sprintf("step %d",k));

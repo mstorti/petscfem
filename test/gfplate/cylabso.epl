@@ -28,7 +28,7 @@ nsaverot 1
 nrec 1
 nfile 100000000
 
-#if 1
+#if 0
 solver "iisd"
 preco_type "jacobi"
 iisd_subpart_auto 4000
@@ -53,8 +53,8 @@ nnwt 4
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.05
-shocap 0.
+Dt 0.02
+shocap 0.2
 weak_form 0
 temporal_stability_factor 0
 
@@ -64,7 +64,7 @@ visco 0.001
 cond 0.001
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
-linear_abso 0
+linear_abso 1
 
 lagrange_diagonal_factor 1e-5
 # lagrange_residual_factor 1.0
@@ -103,7 +103,7 @@ data ./cylabso.con.tmp
 __END_HASH__
 
 #if !$dx && $abso
-#if 1
+#if 0
 elemset gasflow_abso 5
 props normal[2]
 dx 0

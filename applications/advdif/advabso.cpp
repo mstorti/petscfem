@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.5 2005/01/27 17:33:06 mstorti Exp $
+// $Id: advabso.cpp,v 1.6 2005/01/28 12:06:40 mstorti Exp $
 #include "./advabso.h"
 
 #define gasflow_abso gasflow_abso2
@@ -44,6 +44,7 @@ init() {
   Cp.resize(2,ndof,ndof);
   invCp.resize(2,ndof,ndof);
   get_prop(normal_prop,"normal");
+  assert(normal_prop.length == ndim);
   // The state on the reference node
   Uref.resize(1,ndof);
   dU.resize(1,ndof);
@@ -84,6 +85,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   // Pi_m + Pi_p = A_jac
   Pi_m.set(0.).d(1,2)
     .set(c).fun(msign).rs();
+  c.rs();
   tmp1.prod(Pi_m,invS,1,-1,-1,2);
   Pi_m.prod(S,tmp1,1,-1,-1,2);
 #if 0
@@ -105,6 +107,5 @@ res(int k,FastMat2 &U,FastMat2 &r,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvectiveAbso::
 element_hook(ElementIterator &element) {
-  assert(normal_prop.length == ndim);
   normal.set(prop_array(element,normal_prop));
 }

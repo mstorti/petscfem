@@ -97,17 +97,10 @@ __END_HASH__
 #if 1
 ## New absorbing b.c.'s 
 elemset gasflow_abso2 3
+props normal[2]
 dx 0
-normal <:=-$norx:> <:=-$nory:>
 __END_HASH__
-__INCLUDE__ gfabso2dn.con-nabso0.tmp
-__END_ELEMSET__
-
-elemset gasflow_abso2 3
-dx 0
-normal <:=$norx:> <:=$nory:>
-__END_HASH__
-__INCLUDE__ gfabso2dn.con-nabso1.tmp
+__INCLUDE__ gfabso2dn.con-nabso.tmp
 __END_ELEMSET__
 #else
 ## Old absorbing b.c.'s 

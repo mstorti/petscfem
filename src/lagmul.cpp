@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.6 2005/01/27 05:48:36 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.7 2005/01/28 12:06:43 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -92,11 +92,24 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
 
+  //#define COMPUTE_FD_RES_JACOBIAN
+#ifdef COMPUTE_FD_RES_JACOBIAN
+  FastMat2 res_fd_jac(3,nr,nel,ndof),
+    d_res_fd_jac(3,nr,nel,ndof),
+    res_pert(1,nr),U_pert(2,nel,ndof),
+    lambda_pert(3,nel-2,ndof,nr),fd_jac(3,nr,nel,ndof);
+  res_fd_jac.set(0.0);
+  res_pert.set(0.0);
+  U_pert.set(0.0);
+  lambda_pert.set(0.0);
+  fd_jac.set(0.0);
+#endif
+ 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
   int ielh=-1;
   nu=nodedata->nu;
-  
+
   int k_chunk;
   for (ElementIterator element = elemlist.begin();
        element!=elemlist.end(); element++) try {
@@ -139,7 +152,27 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
       R.rs().export_vals(element.ret_vector_values(*retval));
       matloc.rs().export_vals(element.ret_mat_values(*retvalmat));
+      jac.rs();
     }
+
+#ifdef COMPUTE_FD_RES_JACOBIAN
+    double eps_fd=1e-4;
+    for (int jele=1; jele<=nel; jele++) {
+      for (int jdof=1; jdof<=ndof; jdof++) {
+	U_pert.set(U);      	
+	U_pert.addel(eps_fd,jele,jdof);
+	res(elem,U_pert,res_pert,lambda_pert,fd_jac);
+	res_pert.rest(r).scale(1./eps_fd);
+	res_fd_jac.ir(2,jele).ir(3,jdof)
+	  .set(res_pert).rs();
+      }
+    }
+    d_res_fd_jac
+      .set(jac).rest(res_fd_jac);
+    double erro = d_res_fd_jac.sum_abs_all();
+    // printf("error %g\n",erro);
+#endif	
+
   } catch (GenericError e) {
     set_error(1);
     return;
