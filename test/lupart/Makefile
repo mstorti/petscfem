@@ -1,10 +1,10 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2001/07/25 18:22:25 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/07/26 03:43:17 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 run:
-	$(MAKE) NP=2 case=iisd case_size=large ksp=cgs test_case_poiseuille
+	$(MAKE) NP=3 case=iisd case_size=large test_case_poiseuille
 	mv -f save.state save.state.iisd.np2.tmp
 
 #w All tests

@@ -3,8 +3,6 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
-* write the transpose matrix product for IISD so that methods like
-    CGS, BiCG, etc... may be used.
 * adapt `advdif' to IISD
 * Add doc for IISD
 * Interface preconditioning for IISD
@@ -47,6 +45,8 @@ PROJECTS: [These are new improvements to be done in a future...]
 DONE:
 =====
 
+* write the transpose matrix product for IISD so that methods like
+    CGS, BiCG, etc... may be used.
 * Add a 'mass' to 'advdife' (non conservative?)
 * Fix Makefile in ./doc (it repeats many times the rules)
 * Access connectivities and properties for elements as methods of the

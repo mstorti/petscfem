@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.25 2001/07/24 02:22:34 mstorti Exp $
+//$Id: advdif.cpp,v 1.26 2001/07/26 03:43:14 mstorti Exp $
 
 #include <set>
 
@@ -269,12 +269,12 @@ int main(int argc,char **args) {
   arg_list argl;
 
   VOID_IT(argl);
-  argl.arg_add(&A,PROFILE|PFMAT);
+  argl.arg_add(A,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
-  argl.arg_add(&AA,PROFILE|PFMAT);
+  argl.arg_add(AA,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 #endif
 
@@ -335,10 +335,10 @@ int main(int argc,char **args) {
 #endif
 	argl.arg_add(&res,OUT_VECTOR);
 	argl.arg_add(&dtmin,VECTOR_MIN);
-	argl.arg_add(&A,OUT_MATRIX|PFMAT);
+	argl.arg_add(A,OUT_MATRIX|PFMAT);
 	argl.arg_add(&glob_param,USER_DATA);
 #ifdef CHECK_JAC
-	argl.arg_add(&AA,OUT_MATRIX_FDJ|PFMAT);
+	argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
 #endif
 
 	if (measure_performance) {
