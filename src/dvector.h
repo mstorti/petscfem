@@ -1,11 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.9 2003/06/09 02:37:18 mstorti Exp $
+// $Id: dvector.h,v 1.10 2003/07/02 23:22:19 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
 #include <vector>
 #define CHUNK_SIZE_INIT 10000
+
+using namespace std;
 
 template<class T>
 class dvector {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.28 2002/11/02 20:51:57 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.29 2003/07/02 23:22:19 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -77,7 +77,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
-#define ICONE(j,k) (icone[nel*(j)+(k)]) 
+  //#define ICONE(j,k) (icone[nel*(j)+(k)]) 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define ELEMIPROPS_ADD(j,k) VEC2(elemiprops_add,j,k,neliprops_add)
 #define NN_IDX(j) ELEMIPROPS_ADD(j,0)
@@ -134,7 +134,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
-    hmin = (arg_data_v[ja++].vector_assoc)->begin();
+    hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;

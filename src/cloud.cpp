@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: cloud.cpp,v 1.1 2003/02/25 00:06:11 mstorti Exp $
+// $Id: cloud.cpp,v 1.2 2003/07/02 23:22:19 mstorti Exp $
 #include <cmath>
 #include <src/cloud.h>
 
@@ -24,7 +24,7 @@ void Cloud::init(int nx_a, int nderiv_a,int npol_a) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Cloud::coef(FastMat2 &x, FastMat2 &w,double x0=0.) {
+void Cloud::coef(FastMat2 &x, FastMat2 &w,double x0) {
   A.ir(2,1).set(1.);
   xi.set(x).add(-x0);
   double h = xi.max_abs_all();

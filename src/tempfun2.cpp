@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.1 2002/08/05 03:05:30 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.2 2003/07/02 23:22:19 mstorti Exp $
 
 #include <math.h>
 
@@ -130,8 +130,8 @@ public:
     // Store pointers
     first = t_v.begin();
     end = t_v.end();
-    t = t_v.begin();
-    f = f_v.begin();
+    t = &*t_v.begin();
+    f = &*f_v.begin();
     tini = t_v[0];
     tend = t_v[ntime-1];
   }
@@ -258,7 +258,7 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
-			      TextHashTable *t=NULL) {
+			      TextHashTable *t) {
   Amplitude *amp;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;

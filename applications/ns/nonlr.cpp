@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.20 2001/10/04 20:43:37 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.21 2003/07/02 23:22:19 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -61,7 +61,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
     retvalmat = arg_data_v[ja++].retval;
-    hmin = (arg_data_v[ja++].vector_assoc)->begin();
+    hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.10 2003/07/02 20:00:42 mstorti Exp $
+//$Id: distmap2.h,v 1.11 2003/07/02 23:22:19 mstorti Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
@@ -31,7 +31,7 @@ processor(kv_iterator k) const {
 template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
   HPChrono hpc;
-  map<Key,Val>::iterator iter;
+  typename map<Key,Val>::iterator iter;
   // kv_iterator iter;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;

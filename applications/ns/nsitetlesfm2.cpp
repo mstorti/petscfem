@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.62 2003/06/08 21:42:00 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.63 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -99,7 +99,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
-    hmin = (arg_data_v[ja++].vector_assoc)->begin();
+    hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
 #else
     ja++;
 #endif

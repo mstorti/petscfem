@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.4 2002/07/22 19:08:37 mstorti Exp $
+// $Id: graphdv.h,v 1.5 2003/07/02 23:22:19 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
@@ -17,8 +17,19 @@ public:
     if (i!=q.i) return i<q.i;
     else return j<q.j;
   }
+  inline bool operator>=(int_pair q) const {
+    return !(q < *this);
+  }
   inline bool operator==(int_pair q) const {
     return i==q.i && j==q.j;
+  }
+  inline bool operator>(int_pair q) const {
+    if (i!=q.i) return i>q.i;
+    else return j>q.j;
+  }
+  inline bool operator!=(int_pair q) const {
+    if (i!=q.i) return 0;
+    else return j!=q.j;
   }
 };
 

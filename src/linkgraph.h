@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.13 2002/07/28 22:38:21 mstorti Exp $
+// $Id: linkgraph.h,v 1.14 2003/07/02 23:22:19 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -60,6 +60,7 @@ public:
       return row_;
     }
     int operator==(const_iterator q) const { return r==q.r; }
+    int operator!=(const_iterator q) const { return r!=q.r; }
     /// returns number of adjacents elements in the row
     int size() const { graph->size(r); }
   };

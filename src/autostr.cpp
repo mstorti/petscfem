@@ -1,6 +1,8 @@
 //__INSERT_LICENSE__
-// $Id: autostr.cpp,v 1.8 2003/05/04 16:43:50 mstorti Exp $
+// $Id: autostr.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <cstdlib>
 #include <cstring>
 #include <cassert>

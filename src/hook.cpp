@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.8 2003/05/04 16:43:50 mstorti Exp $
+//$Id: hook.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -23,7 +23,7 @@ Hook * Hook::factory(const char *name) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void HookList::init(Mesh &mesh,Dofmap &dofmap,
-		    HookFactory *hf = NULL) {
+		    HookFactory *hf) {
   Hook *hook;
   const char *line;
   mesh.global_options->get_entry("hook_list",line);

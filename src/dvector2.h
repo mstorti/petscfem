@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.7 2003/06/09 02:37:18 mstorti Exp $
+// $Id: dvector2.h,v 1.8 2003/07/02 23:22:19 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -65,11 +65,11 @@ void dvector<T>::push_heap (int first, int p, int u) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-dvector<T>::dvector(int cs = CHUNK_SIZE_INIT) { 
+dvector<T>::dvector(int cs) { 
   chunk_size = cs;
   chunks = NULL;
   size_m = nchunks = 0;
-  shape_p = shape.begin();
+  shape_p = &*shape.begin();
   rank = 1;
 }
 
@@ -132,7 +132,7 @@ void dvector<T>::push(const T &t) {
     assert(nchunks == chunk_vector.size());
     // resync `chunk_vector' and `nchunks'
     chunk_vector.push_back(new T[chunk_size]);
-    chunks = chunk_vector.begin();
+    chunks = &*chunk_vector.begin();
     nchunks++;
   }
   // copy object
@@ -174,7 +174,7 @@ void dvector<T>::clear(void) { shrink(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-int dvector<T>::bsearch(const T &t,int first=0, int last=-1) {
+int dvector<T>::bsearch(const T &t,int first, int last) {
   int lastt=last;
   if (lastt==-1) lastt=size();
   if (lastt<=first) return lastt; // vector is void
@@ -191,7 +191,7 @@ int dvector<T>::bsearch(const T &t,int first=0, int last=-1) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-int dvector<T>::find(const T &t,int first=0, int last=-1) {
+int dvector<T>::find(const T &t,int first, int last) {
   int lastt;
   lastt = (last==-1 ? size() : last);
   int indx = bsearch(t,first,lastt);
@@ -201,7 +201,7 @@ int dvector<T>::find(const T &t,int first=0, int last=-1) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 dvector<T> &
-dvector<T>::sort(int first=0, int last=-1) {
+dvector<T>::sort(int first, int last) {
   if (last==-1) last=size();
   int i, j, n = last-first;
   j = n / 2 ;
@@ -218,7 +218,7 @@ dvector<T>::sort(int first=0, int last=-1) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-int dvector<T>::remove_unique(int first=0, int last=-1) {
+int dvector<T>::remove_unique(int first, int last) {
   if (last==-1) last=size();
   sort(first,last);
   int p=first, e = last, q;
@@ -245,7 +245,7 @@ dvector<T>::reshapev(int rank_a,va_list ap) {
     new_size *= d;
     shape.push_back(d);
   }
-  shape_p = shape.begin();
+  shape_p = &*shape.begin();
   assert(new_size<0 || new_size==size());
   return *this;
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.35 2003/07/02 21:16:53 mstorti Exp $
+// $Id: sparse.h,v 1.36 2003/07/02 23:22:19 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -12,15 +12,11 @@
 #include <algorithm>
 
 #ifdef USE_SUPERLU
-#define MAX __MAX
-#define MAX __MIN
-#define FALSE __FALSE
-#define TRUE __TRUE
-#include <SRC/util.h>
 #undef MAX
 #undef MIN
 #undef FALSE
 #undef TRUE
+#include <SRC/util.h>
 #include <SRC/dsp_defs.h>
 #endif
 

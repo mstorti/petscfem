@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: propef.cpp,v 1.5 2003/02/09 22:39:57 mstorti Exp $
+//$Id: propef.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -17,7 +17,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "NewElemset::get_prop"
-void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
+void NewElemset::get_prop(Property &prop,const char *prop_name,int n) const {
 
   // looks int the properties-per-element table
   props_hash_entry *phe = (props_hash_entry *)
@@ -35,7 +35,7 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
   // Look as a constant in the text_hash_table.
   int ierr = get_vec_double(prop_name,prop.val,0);
   if (!ierr) {
-    prop.ptr = prop.val.begin();
+    prop.ptr = &*prop.val.begin();
     prop.length = prop.val.size();
     return;
   }

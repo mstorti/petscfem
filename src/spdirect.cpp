@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spdirect.cpp,v 1.5 2002/09/05 18:34:18 mstorti Exp $
+//$Id: spdirect.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -43,7 +43,7 @@ int SparseDirect::solve_only_a(Vec &res,Vec &dx) {
 }
 
 int SparseDirect::set_value_a(int row,int col,PetscScalar value,
-			     InsertMode mode=ADD_VALUES) {
+			     InsertMode mode) {
   double val = value;
   if (mode==ADD_VALUES)
     val += A_p->get(row,col);

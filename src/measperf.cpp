@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: measperf.cpp,v 1.5 2001/05/30 18:21:53 mstorti Exp $
+//$Id: measperf.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
 
 #include "fem.h"
 #include <set>
@@ -20,7 +20,7 @@ extern int MY_RANK,SIZE;
 #define __FUNC__ "int measure_performance_fun()"
 int measure_performance_fun(Mesh *mesh,arg_list argl,
 			Dofmap *dofmap,const char *jobinfo,const TimeData
-			*time=NULL) {
+			*time) {
   PetscPrintf(PETSC_COMM_WORLD,
 	      "----\n Measuring performance for jobinfo \"%s\"...\n",jobinfo);
   if (SIZE>1) 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.15 2003/02/09 14:50:57 mstorti Exp $
+//$Id: utils.cpp,v 1.16 2003/07/02 23:22:19 mstorti Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -221,7 +221,7 @@ int reshape(Matrix &A,int m,int n) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int wait_from_console(char *s=NULL) {
+int wait_from_console(char *s) {
   static int deac=0;
   if (deac) return 0;
   int myrank;

@@ -1,12 +1,14 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: util3.h,v 1.6 2003/03/24 02:35:08 mstorti Exp $
+// $Id: util3.h,v 1.7 2003/07/02 23:22:19 mstorti Exp $
 #ifndef PETSCFEM_UTIL3_H
 #define PETSCFEM_UTIL3_H
 #include <string>
 #ifdef USE_SSL
 #include <HDR/sockets.h>
 #endif
+
+using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int string2int(string &s,int &n);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.25 2003/03/30 15:55:08 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.26 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -111,7 +111,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
-    hmin = (arg_data_v[ja++].vector_assoc)->begin();
+    hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
 #else
     ja++;
 #endif

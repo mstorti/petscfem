@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.21 2002/08/27 02:53:49 mstorti Exp $
+//$Id: wallke.cpp,v 1.22 2003/07/02 23:22:19 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -95,7 +95,7 @@ void WallFunSecant::solve(double u_,double &ustar,double &tau_w,double &yplus,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "double WallFunSecant::residual()"
-double WallFunSecant::residual(double ustar,void *user_data=NULL) {
+double WallFunSecant::residual(double ustar,void *user_data) {
   // non-dimensional normal velocity at near wall
   double yp = y_wall*ustar/nu;
   // compute wall function and slope

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsgath.cpp,v 1.1 2003/01/25 17:15:10 mstorti Exp $
+//$Id: nsgath.cpp,v 1.2 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -37,14 +37,14 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   // Force contribution = normal * pressure * weight of Gauss point
   force.set(n).scale(-wpgdet*u.get(4));
   // export forces to return vector
-  force.export_vals(pg_values.begin());
+  force.export_vals(&*pg_values.begin());
   if (compute_moment) {
     // Position offset of local point to center of moments
     dx.set(xpg).rest(x_center);
     // Moment contribution = force X dx
     moment.cross(force,dx);
     // export forces to return vector
-    moment.export_vals(pg_values.begin()+ndim_m);
+    moment.export_vals(&*pg_values.begin()+ndim_m);
 #if 0
 #define SHM(name) name.print(#name ": ")
     SHM(xpg);
@@ -85,5 +85,5 @@ void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   u.is(1,1,ndim_m);
   Q.prod(n,u,-1,-1).scale(wpgdet);;
   u.rs();
-  Q.export_vals(pg_values.begin());
+  Q.export_vals(&*pg_values.begin());
 }

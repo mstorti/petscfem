@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.34 2003/02/08 14:27:53 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.35 2003/07/02 23:22:19 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -144,7 +144,7 @@ int IISDMat::create_a() {
       proc2glob[k] = neqp++;
     }
   }
-  dofs_proc_v = dofs_proc.begin();
+  dofs_proc_v = &*dofs_proc.begin();
 
   // these are the vectors for use with the PETSc matrix constructors
   // flag:= will contain `0' for local dof's and `1' for `interface'
@@ -186,7 +186,7 @@ int IISDMat::create_a() {
   // Each processor marks as interface dof's that belongs to them and
   // to other so that, after, we have to combine all them with an
   // Allreduce
-  MPI_Allreduce(flag0.begin(), flag.begin(), neq, MPI_INT, 
+  MPI_Allreduce(&*flag0.begin(), &*flag.begin(), neq, MPI_INT, 
 		MPI_MAX, comm);
 
   // SUBPARTITIONING. //---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -240,13 +240,13 @@ int IISDMat::create_a() {
 
   local_graph.lgraph = lgraph;
   local_graph.init(n_loc_pre);
-  local_graph.loc2dof = loc2dof.begin();
-  local_graph.dof2loc = dof2loc.begin();
-  local_graph.dofs_proc = dofs_proc.begin();
+  local_graph.loc2dof = &*loc2dof.begin();
+  local_graph.dof2loc = &*dof2loc.begin();
+  local_graph.dofs_proc = &*dofs_proc.begin();
   local_graph.proc2glob = &proc2glob;
   local_graph.partit = &part;
   local_graph.myrank = myrank;
-  local_graph.flag = flag.begin();
+  local_graph.flag = &*flag.begin();
 
   if (iisd_subpart_auto) {
     assert(iisd_subpart_auto>0);
@@ -275,10 +275,10 @@ int IISDMat::create_a() {
   loc2dof.clear();
 
   // We have to combine all them again with an Allreduce
-  MPI_Allreduce(flag.begin(), flag0.begin(), neq, MPI_INT, 
+  MPI_Allreduce(&*flag.begin(), &*flag0.begin(), neq, MPI_INT, 
 		MPI_MAX, comm);
   // recopy on `flag'...
-  memcpy(flag.begin(),flag0.begin(),neq*sizeof(int));
+  memcpy(&*flag.begin(),&*flag0.begin(),neq*sizeof(int));
   flag0.clear();
 
   // map:= map[k] is the location of dof `k1+k' in reordering such
@@ -511,24 +511,24 @@ int IISDMat::create_a() {
 
   ierr = MatCreateMPIAIJ(comm,n_loc,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
-			 PETSC_NULL,nnz[D][L][I].begin(),
-			 PETSC_NULL,nnz[O][L][I].begin(),
+			 PETSC_NULL,&*nnz[D][L][I].begin(),
+			 PETSC_NULL,&*nnz[O][L][I].begin(),
 			 &A_LI); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_LI, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_loc,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
-			 PETSC_NULL,nnz[D][I][L].begin(),
-			 PETSC_NULL,nnz[O][I][L].begin(),
+			 PETSC_NULL,&*nnz[D][I][L].begin(),
+			 PETSC_NULL,&*nnz[O][I][L].begin(),
 			 &A_IL); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_IL, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
     
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
-			 PETSC_NULL,nnz[D][I][I].begin(),
-			 PETSC_NULL,nnz[O][I][I].begin(),
+			 PETSC_NULL,&*nnz[D][I][I].begin(),
+			 PETSC_NULL,&*nnz[O][I][I].begin(),
 			 &A_II); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 

@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: secant.cpp,v 1.4 2001/05/30 18:21:53 mstorti Exp $
+//$Id: secant.cpp,v 1.5 2003/07/02 23:22:19 mstorti Exp $
 
 #include <cstdio>
+#include <cmath>
 #include "secant.h"
 
 // Solves the equation
@@ -20,7 +21,7 @@ double Secant::sol(void) {
     double slope = (f1-f0)/(x1-x0);
     x2=x0-f0/slope;
     f2=residual(x2);
-    if (abs(f2)<tol) {
+    if (std::abs(f2)<tol) {
       break;
     }
     x1=x0;

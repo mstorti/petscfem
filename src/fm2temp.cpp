@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: fm2temp.cpp,v 1.2 2003/02/27 03:32:41 mstorti Exp $
+// $Id: fm2temp.cpp,v 1.3 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fastmat2.h>
 #include <src/fm2temp.h>
@@ -13,7 +13,7 @@ FastMat2Tmp::~FastMat2Tmp() { clear(); }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2Tmp::sync() {
   size = store_v.size();
-  store = store_v.begin();
+  store = &*store_v.begin();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

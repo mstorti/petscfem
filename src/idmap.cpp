@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.8 2003/05/19 15:53:33 mstorti Exp $
+//$Id: idmap.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -309,7 +309,7 @@ void print(col_t &col,char *s=NULL) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void print(const row_t &row,char *s==NULL)" 
-void print(row_t &row,char *s=NULL) {
+void print(row_t &row,char *s) {
   printf("%s", (s==NULL ? "" : s));
   row_t::iterator it;
   for (it=row.begin(); it!=row.end(); it++) {
@@ -372,7 +372,7 @@ void idmap::get_val(const int i,const int j,double &val) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void idmap::print(char *s==NULL)"
-void idmap::print(char *s=NULL) {
+void idmap::print(char *s) {
 
   row_t row;
   printf("%s",(s==NULL ? "" : s));
@@ -388,7 +388,7 @@ void idmap::print(char *s=NULL) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void idmap::print_by_col(char *s==NULL)"
-void idmap::print_by_col(char *s=NULL) {
+void idmap::print_by_col(char *s) {
 
   printf("Size of matrix m,n: %d %d\n",m,n);
   row_t col;
@@ -415,7 +415,7 @@ void erase_null(row_t &row) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void idmap::set_elem(const int i,const int j,const double val=0.)"
-void idmap::set_elem(const int i,const int j,const double val=0.) {
+void idmap::set_elem(const int i,const int j,const double val) {
   row_t row,col;
   col_t coll;
   get_row(i,row);

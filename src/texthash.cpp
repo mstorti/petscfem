@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.19 2003/02/14 00:39:02 mstorti Exp $
+//$Id: texthash.cpp,v 1.20 2003/07/02 23:22:19 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -20,7 +20,7 @@ TextHashTable *GLOBAL_OPTIONS;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTableVal::TextHashTableVal(char *)"
-TextHashTableVal::TextHashTableVal(const char *s_=NULL) :
+TextHashTableVal::TextHashTableVal(const char *s_) :
   called_times(0), s(local_copy(s_)) {}
 
 
@@ -105,7 +105,7 @@ void TextHashTable::add_entry(const char * key,const char * value) {
 }
 
 void TextHashTable
-::add_entry(const char *key,const int *value,int n=1) {
+::add_entry(const char *key,const int *value,int n) {
   ostrstream s;
   for (int j=0; j<n; j++) s << value[j] << " ";
   s << ends;
@@ -115,7 +115,7 @@ void TextHashTable
 }
 
 void TextHashTable
-::add_entry(const char *key,const double *value,int n=1) {
+::add_entry(const char *key,const double *value,int n) {
   ostrstream s;
   for (int j=0; j<n; j++) s << value[j] << " ";
   s << ends;
@@ -182,7 +182,7 @@ int TextHashTable::access_count(const char * key) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::print(char * s = NULL ) const"
-void TextHashTable::print(const char * s = NULL ) const {
+void TextHashTable::print(const char * s) const {
   printf(((s == NULL) ? "Text hash table: \n" : "%s\n"),s);
   int count=0;
   g_hash_table_foreach (hash,&print_hash_entry,&count);
@@ -217,7 +217,7 @@ TextHashTable::~TextHashTable() {
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::include_table(const string &s)"
 void TextHashTable
-::include_table(const string &s,const TextHashTable *t=NULL) {
+::include_table(const string &s,const TextHashTable *t) {
   const TextHashTable *tt;
   THashTable::iterator k;
   if (t==NULL) {

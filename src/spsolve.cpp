@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.16 2002/11/05 16:12:52 mstorti Exp $
+//$Id: spsolve.cpp,v 1.17 2003/07/02 23:22:19 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -18,7 +18,7 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void Mat::solve(FullVec &bb) {
     assert(rows() == bb.length());
-    b = bb.begin();
+    b = &*bb.begin();
     fsm.solve();
   }
 
@@ -160,7 +160,7 @@ namespace Sparse {
     assert(m == cols());
     d_nnz.resize(m);
 
-    d_nnz_p = d_nnz.begin();
+    d_nnz_p = &*d_nnz.begin();
 
     e = end();
     for (j=0; j<m; j++) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.6 2002/07/30 20:05:09 mstorti Exp $
+//$Id: nssup.cpp,v 1.7 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -75,7 +75,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
-    hmin = (arg_data_v[ja++].vector_assoc)->begin();
+    hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;

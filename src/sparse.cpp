@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.33 2002/11/02 16:09:16 mstorti Exp $
+//$Id: sparse.cpp,v 1.34 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -42,7 +42,7 @@ namespace Sparse {
   } 
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void GenVec::print_f(const char *s = NULL) {
+  void GenVec::print_f(const char *s) {
     if (s) printf("%s\n",s);
     int m = length();
     for (int j=0; j<m; j++) {
@@ -52,7 +52,7 @@ namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /// print elements
-  void GenVec::print(const char *s = NULL) {
+  void GenVec::print(const char *s) {
     double v;
     if (s) printf("%s\n",s);
     int m = length();
@@ -109,7 +109,7 @@ namespace Sparse {
   };
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  Indx::Indx(int m,int n,int k=1) {
+  Indx::Indx(int m,int n,int k) {
     int j,v;
     assert(m>=0);
     assert(n>=0);
@@ -173,7 +173,7 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "Vec::print"
-  void Vec::print(const char * s = NULL) {
+  void Vec::print(const char * s) {
     print_g(1,s," -> ","\n","-- end vec --\n");
   }
 
@@ -339,7 +339,7 @@ namespace Sparse {
 #endif
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  Vec & Vec::purge(double tol = 1e-10) {
+  Vec & Vec::purge(double tol) {
     VecIt i,e;
 #if 0 // This doesn't compile. I think there is some problem
       // with the remove_if algorithm with maps
@@ -379,7 +379,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  Vec & Vec::random_fill(double fill=0.1,Generator & g=uniform) {
+  Vec & Vec::random_fill(double fill,Generator & g) {
     int j,k;
 
     clear();
@@ -431,7 +431,7 @@ namespace Sparse {
   }
   
   /// Constructor from the length
-  Mat::Mat(int m=0,int n=0,TextHashTable *t=NULL) 
+  Mat::Mat(int m,int n,TextHashTable *t) 
     : grow_m(1), nrows(m), ncols(n) {
     init_fsm(this); 
     // thash = (t!=NULL ? t : new TextHashTable);
@@ -485,7 +485,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::print_compact(const char *s = NULL) const {
+  void Mat::print_compact(const char *s) const {
     RowCIt i,e;
     if (s) printf("%s\n",s);
 
@@ -499,7 +499,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::print_matlab(const char *s = NULL) const {
+  void Mat::print_matlab(const char *s) const {
     RowCIt i,e;
     VecCIt q,qe;
     int j;
@@ -519,7 +519,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::print(const char *s = NULL) const {
+  void Mat::print(const char *s) const {
     const char *print_method;
     get_option("print_method",print_method);
     if (print_method==NULL || 
@@ -531,7 +531,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::print_f(const char *s = NULL) const {
+  void Mat::print_f(const char *s) const {
     RowCIt i,e;
     int j,k;
     if (s) printf("%s\n",s);
@@ -664,7 +664,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  Mat & Mat::id(double a=1.) {
+  Mat & Mat::id(double a) {
     fsm.fill();
     assert(nrows==ncols);
     clear();
@@ -711,7 +711,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  Mat & Mat::random_fill(double fill=0.1,Generator & g=uniform) {
+  Mat & Mat::random_fill(double fill,Generator & g) {
     int j,k,l,m,n;
 
     fsm.fill();
@@ -728,7 +728,7 @@ namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   //Computes w += c * a * b
-  Mat & Mat::prod(const Mat & a, const Mat & b,double c=1.) {
+  Mat & Mat::prod(const Mat & a, const Mat & b,double c) {
     RowCIt i,e;
     VecCIt jk,ee;
     Vec a_row,b_row,row;
@@ -773,7 +773,7 @@ namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /// Apply a scalar function with args to all elements
-  Vec & Vec::apply(ScalarFunD *fun,void * user_data = NULL) {
+  Vec & Vec::apply(ScalarFunD *fun,void * user_data) {
     scalar_fun_wrapper.user_data = user_data;
     scalar_fun_wrapper.sf = NULL;
     scalar_fun_wrapper.sfd = fun;
@@ -846,7 +846,7 @@ namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /// Apply a scalar function with args to all elements
-  Mat & Mat::apply(ScalarFunD *fun,void * user_data = NULL) {
+  Mat & Mat::apply(ScalarFunD *fun,void * user_data) {
 
     fsm.fill();
     scalar_fun_wrapper.user_data = user_data;
@@ -959,10 +959,11 @@ namespace Sparse {
 #include "matFSM.h"
 #include "matFSM.cpp"
 
+#undef FSM_OP
 #define FSM_OP(action) FSM_ACTION_DEF(action)
     FSM_ACTIONS;
 
-  Mat *Mat::dispatch(char *opt,const TextHashTable *t=NULL) {
+  Mat *Mat::dispatch(char *opt,const TextHashTable *t) {
     Mat *m; 
     if (!strcmp(opt,"PETSc")) {
       m = new PETScMat;

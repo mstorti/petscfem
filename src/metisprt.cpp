@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.18 2002/05/12 15:10:28 mstorti Exp $
+//$Id: metisprt.cpp,v 1.19 2003/07/02 23:22:19 mstorti Exp $
 
 #include "fem.h"
 #include "utils.h"
@@ -7,7 +7,9 @@
 #include "readmesh.h"
 #include "idmap.h"
 extern "C" {
+#define __log2 ___log
 #include <metis.h>
+#undef ___log2
 }
 
 #include "elemset.h"
@@ -259,7 +261,7 @@ void metis_part(int nelemfat,Mesh *mesh,
     set<int> &adj = adjncy_v[vrtxj];
     int e, adjs = adj.size();
     // Number of connected nodes may be zero (somewhat strange....)
-    e = (adjs > 0 ? int(floor(log(adjs)/log(2.0)+1e-5)) : 0 );
+    e = (adjs > 0 ? int(floor(log(double(adjs))/log(2.0)+1e-5)) : 0 );
     if (vrtx_count.size() <= e) vrtx_count.resize(e+1,0);
     vrtx_count[e]++;
     qe = adj.end();

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.16 2002/09/05 18:23:52 mstorti Exp $
+//$Id: util2.cpp,v 1.17 2003/07/02 23:22:19 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -199,7 +199,7 @@ double pw4(double x) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void show_mallinfo (char *s=NULL)"
-void show_mallinfo (char *s=NULL) {
+void show_mallinfo (char *s) {
   if (s!=NULL) printf("%s\n",s);
   printf("========== MEM USE ================================\n"
 	 "Total memory (sbrk) [arena]: %d b\n"

@@ -1,8 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: part.h,v 1.3 2002/07/18 20:01:40 mstorti Exp $
+// $Id: part.h,v 1.4 2003/07/02 23:22:19 mstorti Exp $
 #ifndef PART_H
 #define PART_H
+
+using namespace std;
 
 class DofPartitioner {
 public:

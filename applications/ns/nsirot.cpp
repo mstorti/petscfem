@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.3 2002/11/02 20:51:57 mstorti Exp $ */
+/* $Id: nsirot.cpp,v 1.4 2003/07/02 23:22:19 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -26,7 +26,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 /** Cutoff function. It is very near to ${\rm ctff(x)\approx \rm tol$ for
     $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$.
 */
-inline double ctff(double x, double & diff_ctff, double tol=1e-5) {
+inline double ctff(double x, double & diff_ctff, double tol) {
   double r=x/tol-1.;
   double ee,vaux,ret;
   if (fabs(r)<1e-7) {
@@ -135,7 +135,7 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
-    hmin = (arg_data_v[ja++].vector_assoc)->begin();
+    hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;

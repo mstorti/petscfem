@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.11 2002/09/05 19:24:01 mstorti Exp $
+//$Id: petscmat.cpp,v 1.12 2003/07/02 23:22:19 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -64,7 +64,7 @@ int PETScMat::create_a() {
       proc2glob[k] = neqp++;
     }
   }
-  dofs_proc_v = dofs_proc.begin();
+  dofs_proc_v = &*dofs_proc.begin();
 
   // vectors for dimensioning the PETSc matrix
   int *d_nnz,*o_nnz,diag_ok;
@@ -181,7 +181,7 @@ int PETScMat::solve_only_a(Vec &res,Vec &dx) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::view"
-int PETScMat::view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD) {
+int PETScMat::view(PetscViewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
 //    ierr = SLESView(sles,PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
   return 0;

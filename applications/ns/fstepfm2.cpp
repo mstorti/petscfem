@@ -249,6 +249,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   int SHV_debug=0;
+#undef SHV
 #define SHV(pp) { if (SHV_debug) pp.print(#pp); }
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;

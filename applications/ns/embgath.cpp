@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.38 2003/03/21 20:29:27 mstorti Exp $
+//$Id: embgath.cpp,v 1.39 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -318,6 +318,7 @@ void visc_force_integrator
 		double wpgdet,double time) {
   //#define SHV(pp) pp.print(#pp ": ")
 
+#undef SHV
 #define SHV(pp) {}
   SHV(grad_u);
   grad_u.is(2,1,ndim_m).rest(rigid_grad_u);
@@ -333,7 +334,7 @@ void visc_force_integrator
   // Force contribution = normal * pressure * weight of Gauss point
   force.prod(sigma,n,1,-1,-1).scale(wpgdet);
   // export forces to return vector
-  force.export_vals(pg_values.begin());
+  force.export_vals(&*pg_values.begin());
   SHV(force);
 
   if (compute_moment) {
@@ -346,7 +347,7 @@ void visc_force_integrator
     moment.cross(force,dx);
     SHV(moment);
     // export forces to return vector
-    moment.export_vals(pg_values.begin()+ndim_m);
+    moment.export_vals(&*pg_values.begin()+ndim_m);
   }
 }
 

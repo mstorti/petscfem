@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.39 2003/05/04 16:43:50 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.40 2003/07/02 23:22:19 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -264,7 +264,7 @@ IISDMat::~IISDMat() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::local_solve_SLU"
-int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
+int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans,double c) {
 
 #ifdef USE_SUPERLU
   int ierr,j;
@@ -298,7 +298,7 @@ int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::local_solve"
-int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
+int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans,double c) {
   int ierr,j;
   double *a,*aa;
   // ------------- IT SEEMS THIS COMMENTS ARE WRONG ????
@@ -522,7 +522,7 @@ int IISDMat::clean_mat_a() {
   if (local_solver == PETSc) {
     ierr = MatDestroy_maybe(A_LL); PF_CHKERRQ(ierr); 
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
-			   d_nnz_LL.begin(),&A_LL); PF_CHKERRQ(ierr); 
+			   &*d_nnz_LL.begin(),&A_LL); PF_CHKERRQ(ierr); 
     ierr =  MatSetOption(A_LL, MAT_NEW_NONZERO_ALLOCATION_ERR);
     CHKERRQ(ierr); 
     ierr=MatZeroEntries(A_LL); PF_CHKERRQ(ierr);
@@ -543,7 +543,7 @@ int IISDMat::clean_mat_a() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::view"
-int IISDMat::view(PetscViewer viewer=PETSC_VIEWER_STDOUT_WORLD) {
+int IISDMat::view(PetscViewer viewer) {
   int ierr;
   PetscViewer matlab;
   if (local_solver == PETSc) {
@@ -622,7 +622,7 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_value_a"
 int IISDMat::set_value_a(int row,int col,PetscScalar value,
-			InsertMode mode=ADD_VALUES) {
+			InsertMode mode) {
   int row_indx,col_indx,row_t,col_t;
   double val;
 

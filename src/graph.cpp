@@ -1,11 +1,13 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.18 2002/08/18 19:20:39 mstorti Exp $
+//$Id: graph.cpp,v 1.19 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
 #include <vector>
 extern "C" {
+#define __log2 ___log2
 #include <metis.h>
+#undef __log2
 }
 
 extern int SIZE, MY_RANK;
@@ -38,7 +40,7 @@ double Graph::weight(int vrtx_f) {return weight_scale;}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Graph::part(int max_partgraph_vertices,
-  int npart,float *tpwgts=NULL) {
+  int npart,float *tpwgts) {
 
   int visited,vrtx_f,vrtx_fk,vrtx,vrtxj,vrtxjj,p,j,k,
     edgecut,options=0,numflag=0,wgtflag=2;
@@ -214,7 +216,7 @@ void Graph::part(int max_partgraph_vertices,
   if (tpwgts==NULL) {
     tpwgts_v.resize(npart);
     for (k=0; k<npart; k++) tpwgts_v[k] = 1./float(npart);
-    tpwgts = tpwgts_v.begin();
+    tpwgts = &*tpwgts_v.begin();
   }
 
   if (npart>1) {

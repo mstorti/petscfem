@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distcont2.h,v 1.2 2002/08/28 19:55:37 mstorti Exp $
+//$Id: distcont2.h,v 1.3 2003/07/02 23:22:19 mstorti Exp $
 
 #ifndef DISTCONT2_H
 #define DISTCONT2_H
@@ -14,8 +14,7 @@ template<class Container,typename ValueType,class Partitioner>
 DistCont<Container,ValueType,Partitioner>::
 DistCont<Container,
   ValueType,
-  Partitioner>(Partitioner *pp=NULL, MPI_Comm comm_= MPI_COMM_WORLD, 
-	       iter_mode_t iter_mode_a) 
+  Partitioner>(Partitioner *pp, MPI_Comm comm_,iter_mode_t iter_mode_a) 
     : comm(comm_), iter_mode(iter_mode_a) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
@@ -70,7 +69,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   }
 
   // Compute the table `to_send'
-  for (iter = begin(); iter != end(); iter++) {
+  for (iter = begin(); !(iter == end()); iter++) {
     part->processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) 
       if (plist[j]!=myrank)
@@ -113,7 +112,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   }
 
   // Fill send buffers
-  for (iter = begin(); iter != end(); iter++) {
+  for (iter = begin(); !(iter == end()); iter++) {
     part->processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) {
       k = plist[j];

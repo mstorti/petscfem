@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.16 2003/05/12 02:09:00 mstorti Exp $
+//$Id: mainutl.cpp,v 1.17 2003/07/02 23:22:19 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -97,7 +97,7 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 #undef __FUNC__
 #define __FUNC__ "print_vector" 
 int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
-		 const TimeData *time_data=NULL,const int append=0) {
+		 const TimeData *time_data,const int append) {
 
   double *vseq_vals,*sstate;
   Vec vseq;
@@ -146,7 +146,7 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
 #undef __FUNC__
 #define __FUNC__ "state2fields" 
 int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
-		 const TimeData *time_data=NULL) {
+		 const TimeData *time_data) {
 
   double *vseq_vals,*sstate;
   Vec vseq;
@@ -186,10 +186,10 @@ int print_some(const char *filename,const State &s,Dofmap *dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "print_some(const char *,const Vec ,Dofmap *,
-                             set<int> ,const TimeData *=NULL)" 
+#define __FUNC__ "print_some(const char *,const Vec ,Dofmap *," \
+"set<int> ,const TimeData *=NULL)" 
 int print_some(const char *filename,const Vec x,Dofmap *dofmap,
-	       set<int> node_list,const TimeData *time_data=NULL) {
+	       set<int> node_list,const TimeData *time_data) {
 
   Vec vseq;
   double *sol;

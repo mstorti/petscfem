@@ -1,6 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.86 2003/06/09 02:37:18 mstorti Exp $
+//$Id: readmesh.cpp,v 1.87 2003/07/02 23:22:19 mstorti Exp $
+#ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
+#endif
 #include "fem.h"
 #include "utils.h"
 #include "util2.h"
@@ -1550,7 +1552,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   ierr = VecGetSize(ghost_vec,&nghost_tot); CHKERRQ(ierr);
 
   ierr = ISCreateGeneral(PETSC_COMM_WORLD,nghost_dofs,
-			 dofmap->ghost_dofs->begin(),
+			 &*dofmap->ghost_dofs->begin(),
 			 &is_ghost_glob);  CHKERRQ(ierr); 
   ierr = ISCreateStride(PETSC_COMM_WORLD,nghost_dofs,0,1,&is_ghost_loc);
 

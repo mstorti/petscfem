@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.11 2002/07/29 03:13:47 mstorti Exp $
+//$Id: fracstep.cpp,v 1.12 2003/07/02 23:22:19 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -228,6 +228,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   int SHV_debug=0;
+#undef SHV
 #define SHV(pp) { if (SHV_debug) cout << #pp ": " << endl << pp << endl; }
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;

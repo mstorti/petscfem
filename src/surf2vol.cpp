@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.5 2003/02/26 01:46:33 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
@@ -149,8 +149,8 @@ void Tri2Prism::face(int j,const int *&fc,const int *&vol_a) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Surf2Vol::Surf2Vol(const char *geom,int ndim,int nel,
-		   int npg,int mat_version=GP_NEWMAT,
-		   int use_exterior_normal_a=0) 
+		   int npg,int mat_version,
+		   int use_exterior_normal_a) 
   : GPdata(geom,ndim,nel,npg,mat_version),
     use_exterior_normal_m(use_exterior_normal_a) {}
 
@@ -228,7 +228,7 @@ void identify_volume_elements_fun(int nnod, int nel_surf, int layers,
 	if (found==nel_surf) {
 	  for (int j=0; j<nel_vol; j++) icorow_c[j] = vicorow[j];
 	  // Volume element was found, find map and
-	  if (sv_gp_data->map_mask(mask.begin(),icorow_c.begin())) {
+	  if (sv_gp_data->map_mask(&*mask.begin(),&*icorow_c.begin())) {
 	    match=1;
 	    for (int j=0; j<nel_vol; j++) icorow[j] = icorow_c[j];
 	    break;

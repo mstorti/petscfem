@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graphdv.cpp,v 1.4 2003/05/12 02:06:59 mstorti Exp $
+//$Id: graphdv.cpp,v 1.5 2003/07/02 23:22:19 mstorti Exp $
 
 #include <src/graphdv.h>
 
@@ -17,7 +17,7 @@ void graphdv::resync() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-graphdv::graphdv(int chunk_size=CHUNK_SIZE_DEF) : da (chunk_size) { 
+graphdv::graphdv(int chunk_size) : da (chunk_size) { 
   ordered = 0; MAX_INIT = 1000; 
   max=MAX_INIT; modif=0; 
 }
@@ -44,7 +44,7 @@ void graphdv::add(int j,int k) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void graphdv::print(const char *s=NULL) {
+void graphdv::print(const char *s) {
   resync(); 
   if (s) printf("%s",s);
   int ss = da.size();
