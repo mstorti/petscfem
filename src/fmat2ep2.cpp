@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep2.cpp,v 1.5 2002/11/29 12:56:29 mstorti Exp $
+//$Id: fmat2ep2.cpp,v 1.6 2002/12/04 23:33:57 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -238,8 +238,8 @@ FastMat2::seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors=1) {
       Windx[0] = j;
       ecache->W[j-1] = location(Windx);
       for (int k=1; k<=m; k++) {
-	Aindx[0]=j;
-	Aindx[1]=k;
+	Aindx[1]=j;
+	Aindx[0]=k;
 	ecache->A[jj] = A.location(Aindx);
 	if (cev) ecache->V[jj] = V.location(Aindx);
 	jj++;
