@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>myexpect.pl</title>
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<ul>
+
+		<li><a href="#special_directives">Special directives</a></li>
+		<li><a href="#embedded_blocks">Embedded blocks</a></li>
+		<li><a href="#sections">Sections</a></li>
+	</ul>
+
+	<li><a href="#author">AUTHOR</a></li>
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>myexpext.pl: verifies output from program tests</p>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<p><code>expect(FILE,MESSAGE,patlist)</code> verifies that each pattern in
+<code>patlist</code> matches lines in FILE.</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>The simplest way of using <code>expect()</code> is to write a list of patterns
+that should be found in the output of the test. Suppose the output
+contains:</p>
+<pre>
+  Output run of program QBFG running on day Sun Apr  8 08:48:23 ART 2001
+  ..... more lines here
+  Total volume: 34.56
+  more lines here...
+  Total area: 23.43
+  more lines here...
+  Total impedance: 46.4
+  more lines here...</pre>
+<p>You want to check that figures in lines <code>Total...</code> are precise
+to the first digit. The ouput is in file <code>QBFG.out</code> and you write a
+small perl program like this</p>
+<pre>
+   #!/usr/bin/perl
+   
+   require 'myexpect.pl';
+   
+   expect(&quot;QBFG.out&quot;,&quot;Check on ouput of QBFG.out&quot;,&lt;&lt;'EOT');
+   Total volume: 34.5
+   Total area: 23.4
+   Total impedance: 4
+   EOT</pre>
+<pre>
+   final_check();</pre>
+<p>In the default mode, <code>expect()</code> takes the first pattern at a time
+and starts scanning the file from the beginning, each lie at a time
+until it finds a line that matches the pattern. Patterns are the usual
+Perl patterns. So that remember to escape asterisks '<code>*</code>', question
+marks '<code>?</code>', dots and others. You can leave the dot unescaped since
+it matches itself, but the pattern is less strict (dot matches any
+other character also).  Normally, when entering patterns with a <em>here
+in</em> document, as in the previous example, you protect the backslash
+characters in the pattern list using quotes in the <code>'EOT'</code>
+terminator.</p>
+<p>If the pattern is not found an error is reported and the test is
+counted as a failure. If a line matching is found, <code>expect()</code> takes
+the folowing pattern and continue scanning the file from the line
+following the previous match. If all the patterns are matched, then
+the test is counted as a succes. If <code>FILE</code> can't be opened, then this
+is reported separately from error. The final count is reported by a
+call to <code>final_check()</code>.</p>
+<p>
+</p>
+<h2><a name="special_directives">Special directives</a></h2>
+<p>You can alter this default behavior adding <em>special directives</em> in
+the pattern list. They are</p>
+<dl>
+<dt><strong><a name="item___rewind__"><code>__REWIND__</code></a></strong><br />
+</dt>
+<dd>
+Rewind the file, i.e. scan for the next match starting from the
+beginning of the file, rather than from the last match. This is useful
+when you don't know exactly the order in which the lines will appear.
+For instance file
+</dd>
+<dd>
+<pre>
+   #------ contents of file test1.out
+   line at the beginning
+   ...
+   other line 
+   ...</pre>
+</dd>
+<dd>
+<p>matches the following call</p>
+</dd>
+<dd>
+<pre>
+   expect(&quot;test1.out&quot;,&quot;Check on ouput of test1.out&quot;,&lt;&lt;'EOT');
+   other line 
+   __REWIND__
+   line at the beginning
+   EOT
+  
+thanks to the presence of the L&lt;__REWIND__&gt; directive.</pre>
+</dd>
+<p></p>
+<dt><strong><a name="item___backward__"><code>__BACKWARD__</code></a></strong><br />
+</dt>
+<dd>
+Scan the file backward for the next and subsequent patterns.
+</dd>
+<p></p>
+<dt><strong><a name="item___forward__"><code>__FORWARD__</code></a></strong><br />
+</dt>
+<dd>
+Cancel the <a href="#item___backward__">__BACKWARD__</a> directive and continue scanning forward.
+</dd>
+<p></p>
+<dt><strong><a name="item___no_skip__"><code>__NO_SKIP__</code></a></strong><br />
+</dt>
+<dd>
+In no-skip mode the following pattern line is checked to match with
+exactly the following output line, rather to scan the whole output
+file from the following line down.
+</dd>
+<p></p>
+<dt><strong><a name="item___skip__"><code>__SKIP__</code></a></strong><br />
+</dt>
+<dd>
+Return to skip mode.
+</dd>
+<p></p>
+<dt><strong><a name="item___exact_match__"><code>__EXACT_MATCH__</code></a></strong><br />
+</dt>
+<dd>
+Pattern has to match exactly the beginning of the line. (No special 
+meaning for characters like <code>.</code>, <code>*</code>, etc...
+</dd>
+<p></p>
+<dt><strong><a name="item___regexp_match__"><code>__REGEXP_MATCH__</code></a></strong><br />
+</dt>
+<dd>
+Go back to regexp match.
+</dd>
+<p></p>
+<dt><strong><a name="item___switch_file___%3cfile%3e"><code>__SWITCH_FILE__ &lt;file</code>&gt;</a></strong><br />
+</dt>
+<dd>
+Stop reading this output file and switch over to <code>file</code>. File 
+name is taken absolute if starts with <code>/</code> otherwise relative to the 
+current working directory. The working directory is taken from the
+first file entered or changed with the <code>__CONFIG_ WD &quot;&lt;dir&gt;&quot;</code> 
+(directive. Example:
+
+</dd>
+<dd>
+<pre>
+
+   __SWITCH_FILE__ foodir/foofile.out</pre>
+</dd>
+<p></p>
+<dt><strong><a name="item___config__"><code>__CONFIG__</code></a></strong><br />
+</dt>
+<dd>
+Allows changing configuration variables. Syntax is
+</dd>
+<dd>
+<pre>
+      __CONFIG__  var &quot;value&quot; ...</pre>
+</dd>
+<dd>
+<p>Set configuration variable <code>$var</code> to <code>value</code>. Current configuration
+variables are</p>
+</dd>
+<dl>
+<dt><strong><a name="item_pre%2c_sep%2c_post"><code>PRE</code>, <code>SEP</code>, <code>POST</code></a></strong><br />
+</dt>
+<dd>
+The patterns that matches for the start, end and separator 
+of an embedded block. (See below)
+</dd>
+<p></p>
+<dt><strong><a name="item_comment"><code>COMMENT</code></a></strong><br />
+</dt>
+<dd>
+The pattern that, when at the start of a line means a
+comment. Default: <code>#&gt;&gt;</code>.
+</dd>
+<p></p>
+<dt><strong><a name="item_wd"><code>WD</code></a></strong><br />
+</dt>
+<dd>
+The working directory.
+</dd>
+<p></p></dl>
+<p>The double quote delimiter around <code>value</code> may be changed by any
+non-blank character. Examples:</p>
+<pre>
+   __CONFIG__ PRE &quot;&lt;&lt;&quot; SEP &quot;&gt;&lt;&quot; POST &quot;&gt;&gt;&quot; WD &quot;foodir/bardir&quot; COMMENT &quot;#&quot;
+   __CONFIG__ PRE COMMENT |#:|</pre>
+<p>The last one sets comment start to <code>#:</code>.</p>
+</dl>
+<p>
+</p>
+<h2><a name="embedded_blocks">Embedded blocks</a></h2>
+<p>You can embed Perl code blocks in the pattern for checking the result
+of the matches themselves. The syntax is <code>{{CONDITION}}</code> or
+<code>{{PATTERN}{CONDITION}}</code>. In the first form the <code>{{...}}</code> block is
+replaced with <code>(.*)</code>. If the output line matches, then every
+<code>CONDITION</code> is evaluated and the line matches if every condition
+returns true. Inside the condition the special variable <code>$W</code> takes 
+the value of the matching string. Example: the following output lines</p>
+<pre>
+  Total mass: 0.356, 
+    max density: 0.48956, min density: 0.001234</pre>
+<p>match the following pattern lines</p>
+<pre>
+  Total mass: {{abs($W-0.355)&lt;2e-3}}, 
+    max density: {{abs($W-0.4)&lt;0.1}}, min density: {{$W&lt;2e-3}}</pre>
+<p>In the second form the <code>PATTERN</code> section allows to specify pattern 
+which is replaces the block. Example: the output line</p>
+<pre>
+  Total items: 890.</pre>
+<p>matches</p>
+<pre>
+  Total items: {{\d*}{$W&lt;1000}}\.</pre>
+<p>The syntax of the block may be changed with the <a href="#item___config__"><code>__CONFIG__</code></a>
+directive. The corresponding variables are <code>PRE</code>, <code>SEP</code> y 
+&lt;POST&gt;. Possible choices are</p>
+<pre>
+  #&gt;&gt; Following three examples use matching delimiters (like &lt;&gt;, () or[])
+  #&gt;&gt; warning: angles (&lt;&gt;) may collide with comparison expressions
+  __CONFIG__ PRE &quot;((&quot; SEP &quot;)(&quot; POST &quot;))&quot;
+  __CONFIG__ PRE &quot;&lt;&lt;&quot; SEP &quot;&gt;&lt;&quot; POST &quot;&gt;&gt;&quot;
+  __CONFIG__ PRE &quot;[[&quot; SEP &quot;][&quot; POST &quot;]]&quot;
+  #&gt;&gt; This is very simple
+  __CONFIG__ PRE &quot;{&quot; SEP &quot;,&quot; POST &quot;}&quot;
+  #&gt;&gt; Another simple one
+  __CONFIG__ PRE &quot;&lt;&quot; SEP &quot;|&quot; POST &quot;}&quot;</pre>
+<p>In order to avoid collision you can increase the delimiter levels, e.g.</p>
+<pre>
+  #&gt;&gt; Very paranoid
+  __CONFIG__ PRE &quot;{{{{&quot; SEP &quot;}}{{&quot; POST &quot;}}}}&quot;
+  #&gt;&gt; Combines with colon
+  __CONFIG__ PRE &quot;&lt;&lt;:&quot; SEP &quot;:&gt;&lt;:&quot; POST &quot;:&gt;&gt;&quot;</pre>
+<p>
+</p>
+<h2><a name="sections">Sections</a></h2>
+<p>Sometimes it is useful to divide tests into sections. Start sections
+with <code>begin_section(&quot;section name&quot;)</code>, and end with <code>end_section()</code>.
+All enclosed calls to <code>expect()</code> are assumed to be in the same
+logical section of tests and a summary is reported for that section.
+Example:</p>
+<pre>
+ begin_section(&quot;Navier stokes tests&quot;);
+ expect(&quot;NS/output1.txt&quot;,&quot;NS Test 1&quot;,&quot;NS Test 1 OK&quot;);
+ expect(&quot;NS/output1.txt&quot;,&quot;NS Test 2&quot;,&quot;NS Test 2 OK&quot;);
+ expect(&quot;NS/output1.txt&quot;,&quot;NS Test 3&quot;,&quot;NS Test 3 OK&quot;);
+ end_section();</pre>
+<pre>
+ begin_section(&quot;Electro-magnetic tests&quot;);
+ expect(&quot;EM/output1.txt&quot;,&quot;EM Test 1&quot;,&quot;EM Test 1 OK&quot;);
+ expect(&quot;EM/output1.txt&quot;,&quot;EM Test 2&quot;,&quot;EM Test 2 OK&quot;);
+ expect(&quot;EM/output1.txt&quot;,&quot;EM Test 3&quot;,&quot;EM Test 3 OK&quot;);
+ expect(&quot;EM/output1.txt&quot;,&quot;EM Test 4&quot;,&quot;EM Test 4 OK&quot;);
+ end_section();</pre>
+<p>
+</p>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>Mario A. Storti &lt;<a href="mailto:mstorti@intec.unl.edu.ar">mstorti@intec.unl.edu.ar</a>&gt;</p>
+
+</body>
+
+</html>

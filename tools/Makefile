@@ -81,4 +81,10 @@ dxyuv: dxyuv.cpp
 local_clean::
 	-rm -f dxyuv
 
+#w Generate doc for myexpect.pl
+myexpect_doc: myexpect.1 myexpect.txt myexpect.html
+	pod2html myexpect.pl > myexpect.html
+	pod2text myexpect.pl > myexpect.txt
+	pod2man myexpect.pl > myexpect.1
+
 #s

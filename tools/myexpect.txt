@@ -2,11 +2,11 @@ NAME
     myexpext.pl: verifies output from program tests
 
 SYNOPSIS
-    `expect(FILE,MESSAGE,patlist)' verifies that each pattern in `patlist'
+    "expect(FILE,MESSAGE,patlist)" verifies that each pattern in "patlist"
     matches lines in FILE.
 
 DESCRIPTION
-    The simplest way of using `expect()' is to write a list of patterns that
+    The simplest way of using "expect()" is to write a list of patterns that
     should be found in the output of the test. Suppose the output contains:
 
       Output run of program QBFG running on day Sun Apr  8 08:48:23 ART 2001
@@ -18,9 +18,9 @@ DESCRIPTION
       Total impedance: 46.4
       more lines here...
 
-    You yount to chech that the figures in lines `Total...' are precise to
-    the first digit. The ouput is in file `QBFG.out' and you write a small
-    perl program like this
+    You want to check that figures in lines "Total..." are precise to the
+    first digit. The ouput is in file "QBFG.out" and you write a small perl
+    program like this
 
        #!/usr/bin/perl
    
@@ -34,28 +34,29 @@ DESCRIPTION
 
        final_check();
 
-    In the default mode, `expect()' takes the first pattern at a time and
+    In the default mode, "expect()" takes the first pattern at a time and
     starts scanning the file from the beginning, each lie at a time until it
     finds a line that matches the pattern. Patterns are the usual Perl
-    patterns. So that remember to escape asterisks '`*'', question marks
-    '`?'', dots and others. You can leave the dot unescaped since it matches
+    patterns. So that remember to escape asterisks '"*"', question marks
+    '"?"', dots and others. You can leave the dot unescaped since it matches
     itself, but the pattern is less strict (dot matches any other character
     also). Normally, when entering patterns with a *here in* document, as in
     the previous example, you protect the backslash characters in the
-    pattern list using quotes in the `'EOT'' terminator.
+    pattern list using quotes in the 'EOT' terminator.
 
     If the pattern is not found an error is reported and the test is counted
-    as a failure. If a line matching is found, `expect()' takes the folowing
+    as a failure. If a line matching is found, "expect()" takes the folowing
     pattern and continue scanning the file from the line following the
     previous match. If all the patterns are matched, then the test is
-    counted as a succes. If `FILE' can't be opened, then this is reported
+    counted as a succes. If "FILE" can't be opened, then this is reported
     separately from error. The final count is reported by a call to
-    `final_check()'.
+    "final_check()".
 
-    You can alter this default behavior adding *magic tokens* in the pattern
-    list. The magic tokens are
+  Special directives
+    You can alter this default behavior adding *special directives* in the
+    pattern list. They are
 
-    __REWIND__
+    "__REWIND__"
         Rewind the file, i.e. scan for the next match starting from the
         beginning of the file, rather than from the last match. This is
         useful when you don't know exactly the order in which the lines will
@@ -75,36 +76,129 @@ DESCRIPTION
            line at the beginning
            EOT
   
-        thanks to the presence of the `__REWIND__' directive.
+        thanks to the presence of the __REWIND__ directive.
 
-    __BACKWARD__
+    "__BACKWARD__"
         Scan the file backward for the next and subsequent patterns.
 
-    __FORWARD__
-        Cancel the `__BACKWARD__' directive and continue scanning forward.
+    "__FORWARD__"
+        Cancel the __BACKWARD__ directive and continue scanning forward.
 
-    __NO_SKIP__
-        In no-skip mode the following pattern is found to match with exactly
-        the following line, rather to scan the file from the following line
-        down.
+    "__NO_SKIP__"
+        In no-skip mode the following pattern line is checked to match with
+        exactly the following output line, rather to scan the whole output
+        file from the following line down.
 
-    __SKIP__
+    "__SKIP__"
         Return to skip mode.
 
-    __EXACT_MATCH__
+    "__EXACT_MATCH__"
         Pattern has to match exactly the beginning of the line. (No special
-        meaning for characters like `.', `*', etc...
+        meaning for characters like ".", "*", etc...
 
-    __REGEXP_MATCH__
+    "__REGEXP_MATCH__"
         Go back to regexp match.
 
-  Sections
+    "__SWITCH_FILE__ <file">
+        Stop reading this output file and switch over to "file". File name
+        is taken absolute if starts with "/" otherwise relative to the
+        current working directory. The working directory is taken from the
+        first file entered or changed with the "__CONFIG_ WD "<dir>""
+        (directive. Example:
 
-    Sometimes it is useful to divide tests into sections. For this call
-    `begin_section("section name")' before each section, and `end_section()'
-    at the end. All enclosed calls to `expect()' are assumed to be in the
-    same logical section of tests and a summary is reported for that
-    section.
+           __SWITCH_FILE__ foodir/foofile.out
+
+    "__CONFIG__"
+        Allows changing configuration variables. Syntax is
+
+              __CONFIG__  var "value" ...
+
+        Set configuration variable $var to "value". Current configuration
+        variables are
+
+        "PRE", "SEP", "POST"
+                The patterns that matches for the start, end and separator
+                of an embedded block. (See below)
+
+        "COMMENT"
+                The pattern that, when at the start of a line means a
+                comment. Default: "#>>".
+
+        "WD"    The working directory.
+
+        The double quote delimiter around "value" may be changed by any
+        non-blank character. Examples:
+
+           __CONFIG__ PRE "<<" SEP "><" POST ">>" WD "foodir/bardir" COMMENT "#"
+           __CONFIG__ PRE COMMENT |#:|
+
+        The last one sets comment start to "#:".
+
+  Embedded blocks
+    You can embed Perl code blocks in the pattern for checking the result of
+    the matches themselves. The syntax is "{{CONDITION}}" or
+    "{{PATTERN}{CONDITION}}". In the first form the "{{...}}" block is
+    replaced with "(.*)". If the output line matches, then every "CONDITION"
+    is evaluated and the line matches if every condition returns true.
+    Inside the condition the special variable $W takes the value of the
+    matching string. Example: the following output lines
+
+      Total mass: 0.356, 
+        max density: 0.48956, min density: 0.001234
+
+    match the following pattern lines
+
+      Total mass: {{abs($W-0.355)<2e-3}}, 
+        max density: {{abs($W-0.4)<0.1}}, min density: {{$W<2e-3}}
+
+    In the second form the "PATTERN" section allows to specify pattern which
+    is replaces the block. Example: the output line
+
+      Total items: 890.
+
+    matches
+
+      Total items: {{\d*}{$W<1000}}\.
+
+    The syntax of the block may be changed with the "__CONFIG__" directive.
+    The corresponding variables are "PRE", "SEP" y <POST>. Possible choices
+    are
+
+      #>> Following three examples use matching delimiters (like <>, () or[])
+      #>> warning: angles (<>) may collide with comparison expressions
+      __CONFIG__ PRE "((" SEP ")(" POST "))"
+      __CONFIG__ PRE "<<" SEP "><" POST ">>"
+      __CONFIG__ PRE "[[" SEP "][" POST "]]"
+      #>> This is very simple
+      __CONFIG__ PRE "{" SEP "," POST "}"
+      #>> Another simple one
+      __CONFIG__ PRE "<" SEP "|" POST "}"
+
+    In order to avoid collision you can increase the delimiter levels, e.g.
+
+      #>> Very paranoid
+      __CONFIG__ PRE "{{{{" SEP "}}{{" POST "}}}}"
+      #>> Combines with colon
+      __CONFIG__ PRE "<<:" SEP ":><:" POST ":>>"
+
+  Sections
+    Sometimes it is useful to divide tests into sections. Start sections
+    with "begin_section("section name")", and end with "end_section()". All
+    enclosed calls to "expect()" are assumed to be in the same logical
+    section of tests and a summary is reported for that section. Example:
+
+     begin_section("Navier stokes tests");
+     expect("NS/output1.txt","NS Test 1","NS Test 1 OK");
+     expect("NS/output1.txt","NS Test 2","NS Test 2 OK");
+     expect("NS/output1.txt","NS Test 3","NS Test 3 OK");
+     end_section();
+
+     begin_section("Electro-magnetic tests");
+     expect("EM/output1.txt","EM Test 1","EM Test 1 OK");
+     expect("EM/output1.txt","EM Test 2","EM Test 2 OK");
+     expect("EM/output1.txt","EM Test 3","EM Test 3 OK");
+     expect("EM/output1.txt","EM Test 4","EM Test 4 OK");
+     end_section();
 
 AUTHOR
     Mario A. Storti <mstorti@intec.unl.edu.ar>

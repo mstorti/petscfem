@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.18 2003/11/16 19:51:05 mstorti Exp $
+#$Id: myexpect.pl,v 1.19 2003/11/16 19:56:30 mstorti Exp $
 
 use English;
 ## position in count record
@@ -283,14 +283,14 @@ contains:
   more lines here...
 
 You want to check that figures in lines C<Total...> are precise
-to the first digit. The ouput is in file C<QBFG.out> and you write a
+to the first digit. The output is in file C<QBFG.out> and you write a
 small perl program like this
 
    #!/usr/bin/perl
    
    require 'myexpect.pl';
    
-   expect("QBFG.out","Check on ouput of QBFG.out",<<'EOT');
+   expect("QBFG.out","Check on output of QBFG.out",<<'EOT');
    Total volume: 34.5
    Total area: 23.4
    Total impedance: 4
@@ -311,9 +311,9 @@ terminator.
 
 If the pattern is not found an error is reported and the test is
 counted as a failure. If a line matching is found, C<expect()> takes
-the folowing pattern and continue scanning the file from the line
+the following pattern and continue scanning the file from the line
 following the previous match. If all the patterns are matched, then
-the test is counted as a succes. If C<FILE> can't be opened, then this
+the test is counted as a success. If C<FILE> can't be opened, then this
 is reported separately from error. The final count is reported by a
 call to C<final_check()>.
 
@@ -339,7 +339,7 @@ For instance file
 
 matches the following call
 
-   expect("test1.out","Check on ouput of test1.out",<<'EOT');
+   expect("test1.out","Check on output of test1.out",<<'EOT');
    other line 
    __REWIND__
    line at the beginning
@@ -446,11 +446,11 @@ which replaces the block. Example: the output line
 
 matches
 
-  Processed case: {{[A-Z]*}{$W eq 'ABC'}}{{\d*}{$W>800 && $W < 1000}}
+  Processed case: {{[A-Z]*}{$W eq 'ABC'}}{{\d*}{$W>800 && $W < 900}}
 
 The syntax of the block may be changed with the L<C<__CONFIG__>>
-directive. The corresponding variables are C<PRE>, C<SEP> y 
-<POST>. Possible choices are 
+directive. The corresponding variables are C<PRE>, C<SEP> y <POST>
+(mnemonic: prefix, separator and postfix). Possible choices are
 
   #>> Following three examples use matching delimiters (like <>, () or[])
   #>> warning: angles (<>) may collide with comparison expressions
@@ -477,7 +477,7 @@ All enclosed calls to C<expect()> are assumed to be in the same
 logical section of tests and a summary is reported for that section.
 Example:
 
- begin_section("Navier stokes tests");
+ begin_section("Navier-Stokes tests");
  expect("NS/output1.txt","NS Test 1","NS Test 1 OK");
  expect("NS/output1.txt","NS Test 2","NS Test 2 OK");
  expect("NS/output1.txt","NS Test 3","NS Test 3 OK");
