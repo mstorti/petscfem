@@ -4,6 +4,11 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'skew' unless $case_name;
+$noise = 0.;
+if ($case_name =~ /^(.*)_noise$/) {
+    $noise = 0.25;
+    $case_name = $1;
+}
 $N = 80;
 $M = 80;
 $Lx = $Ly = 1;
@@ -39,16 +44,22 @@ if ($case_name eq 'parallel_cone') {
     $Ly = 1;
     $ux = 1;
     $uy = 0;
+    if (1) {   # Run larger problem
+        my $scale = 2;
+        $M *= $scale;
+        $Lx *= $scale;
+    }
+    $Tend = ($Lx - 3*$xini)/$ux;
     $alpha = 0.5;
     $Courant = 0.5;
     $hx = $Lx/$N;
     $Dt = $Courant*$hx/$ux;
-    $Tend = 1.5;
     $nstep = ceil($Tend/$Dt);
     $case_name = 'cone';
 } 
 #
 if ($case_name eq 'skew_cone') {
+    print "# using \"skew_cone\" options\n";
     $N = $M =50;
     $Lx = $Ly = 2.5;
     $ux = $uy = 1;
@@ -68,6 +79,7 @@ if ($case_name =~ /cone/) {
     $traversed_length = sqrt($ux**2+$uy**2)*$Tend;
 }    
 if ($case_name eq 'rotating_cone') {
+    print "# using \"rotating_cone\" options\n";
     $N = $M = 30;
     $Lx = $Ly = 2;
     if (0) { # Large test
@@ -90,7 +102,7 @@ if ($case_name eq 'rotating_cone') {
 }
 #__END_TRANSCRIPT__
 @vars = qw(N M Lx Ly delta ydisc traversed_length Tend
-        ux uy case_name Courant xini yini cone Omega);
+        ux uy case_name Courant xini yini cone Omega noise);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH advec.m";

@@ -9,10 +9,11 @@ err_y = abs((xc(2)-xc0(2))-(uy*Tend))/traversed_length;
 tol = 2e-2;
 printf("Error in x position < tol OK ? %d (err_x %f, tol %f)\n",
        err_x<tol, err_x, tol);
+tol = 1e-4;
 printf("Error in y position < tol OK ? %d (err_y %f, tol %f)\n",
        err_y<tol, err_y, tol);
 
-max_rate = 6e-3;
+max_rate = 4e-3;
 xrate = (sx/sx0-1)/traversed_length;
 yrate = (sy/sy0-1)/traversed_length;
 printf("Max grouth in x second moment OK ? %d (rate %f, max_rate %f)\n",

@@ -16,9 +16,9 @@ under_shoot = (max(-min(phi_out),1)-1)/2
 
 ## We accept a 5% over- and under- shoots
 tol = 0.05;
-if noise
-  tol = 0.1;
-endif
+#  if noise
+#    tol = 0.1;
+#  endif
 printf("Over shoot < tol OK ? %d (over_shoot: %f, tol %f)\n",
        over_shoot<tol, over_shoot, tol);
 printf("Under shoot < tol OK ? %d (under_shoot: %f, tol %f)\n",

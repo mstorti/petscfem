@@ -2,6 +2,20 @@ source("data.m.tmp");
 
 w=zhomo([0 Lx 0 Ly],N+1,M+1);
 [xnod,icone]=pfcm2fem(w);
+if !exist("noise")
+  noise = 0.;
+endif
+hx = Lx/N;
+hy = Ly/M;
+nnod = rows(xnod);
+if noise
+  dx = noise*(2*rand(size(xnod))-1)*diag([hx hy]);
+  tol = 1e-2*min([hx hy]);
+  boundary = (abs(xnod(:,1))<tol | abs(xnod(:,2))<tol |
+	      abs(xnod(:,1)-Lx)<tol | abs(xnod(:,2)-Ly)<tol);
+  dx = leftscal(!boundary,dx);
+  xnod = xnod + dx;
+endif
 
 icone=[icone(:,[1 4 3]);
        icone(:,[3 2 1])];

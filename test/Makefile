@@ -1,12 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.72 2002/12/13 02:36:10 mstorti Exp $ 
+# $Id: Makefile,v 1.73 2002/12/15 21:40:39 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
 	constraint_bug fstack sector triangle advdif texthash log_vars		\
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
-	pfmat  aquifer nutatcyl mmove
+	pfmat  aquifer nutatcyl mmove advec
 
 SRCS = $(wildcard *.cpp)
 
@@ -63,7 +63,7 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl mmove
+	sparse graph sqcav pfmat aquifer nutatcyl mmove advec
 
 runtests_p:  sqcav pfmat aquifer nutatcyl
 
@@ -366,5 +366,10 @@ nutatcyl:
 #w Mesh momement tests
 mmove:
 	$(MAKE) -C mmove tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Linear advection 
+advec:
+	$(MAKE) -C $@ tests
 
 #s
