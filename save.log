@@ -932,3 +932,6 @@ tag: beta-2.72.pl2 on Tue Feb  5 18:39:13 ARST 2002 by mstorti in spider
 ----------
 tag: beta-2.73 on Tue Feb  5 23:37:37 ARST 2002, by mstorti in spider
      > aquifer+stream (class `stream_loss') is beginning to work
+----------
+tag: beta-2.73.pl1 on Tue Feb  5 23:54:59 ARST 2002 by mstorti in spider
+     > Added `Rf' and `impermeable' properties to `stream_loss' class.
