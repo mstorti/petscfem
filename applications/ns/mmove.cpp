@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.4 2002/11/28 18:27:02 mstorti Exp $
+//$Id: mmove.cpp,v 1.5 2002/11/29 20:39:20 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -93,17 +93,18 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
   if (ndim==3) la3=D.get(3);
 #endif
 
-  volref=1.;
+  // volref=1.;
+  volref=0.;
+  double diffla;
   if (ndim==2) {
+    diffla = (la1-la2)*(la1-la2);
     vol = la1*la2;
-    df = c_distor * pow((la1-la2)*(la1-la2)/(la1*la2),distor_exp)
-      + c_volume*(vol-volref)*(vol-volref);
   } else {
+    diffla = (la1-la2)*(la1-la2) + (la2-la3)*(la2-la3) + (la1-la3)*(la1-la3);
     vol = la1*la2*la3;
-    double sum = (la1-la2)*(la1-la2) + (la2-la3)*(la2-la3) + (la1-la3)*(la1-la3);
-    df = c_distor * pow(sum/pow(vol,2./3.),distor_exp)
-      + c_volume*(vol-volref)*(vol-volref);
   }
+  df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
+
   xlocp.reshape(1,nel*ndim);
 
   return df;
