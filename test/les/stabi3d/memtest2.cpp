@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: memtest2.cpp,v 1.1 2004/02/25 17:43:34 mstorti Exp $
+// $Id: memtest2.cpp,v 1.2 2004/02/25 17:54:58 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <unistd.h>
 #include <ctype.h>
+
+using namespace std;
 
 int MAX;
 
@@ -36,7 +38,6 @@ int main(int argc,char **argv) {
 
   char *opt_w = NULL;
   char c;
-  double ram_size = 0.;
   int nblocks = 0;
   int report = 200;
   int regenerate = 20;
@@ -53,9 +54,6 @@ int main(int argc,char **argv) {
 	     "-b <number-of-blocks> -l <log-file> \n"
 	     "-p <report-freq>");
       exit(0);
-    case 'm':
-      sscanf(optarg,"%lf",&ram_size);
-      break;
     case 'b':
       sscanf(optarg,"%d",&nblocks);
       break;
@@ -87,13 +85,7 @@ int main(int argc,char **argv) {
   }
 
   assert(block_size_m>0.);
-  block_size = int(block_size*pow(2.,17.));
-  assert(ram_size>0.);
-  assert(nblocks>0);
-  assert(report>0);
-  assert(regenerate>0);
-  fprintf(output,"checking %.2fMB RAM, %d blocks\n",
-	  ram_size,nblocks);
+  block_size = int(block_size_m*pow(2.,18.));
 
   MAX = int(sqrt(double(RAND_MAX)));
   vector<int *> buffers;
@@ -101,9 +93,10 @@ int main(int argc,char **argv) {
   while (1) {
     int *p = (int *)malloc(sizeof(int)*block_size);
     if(!p) break;
+    if (buffers.size()>=10) break;
     buffers.push_back(p);
   }
-  nblocks = buffers.size();
+  nblocks = buffers.size();n
   while (1) {
     rand_fill(buffers[0],block_size);
     for (int j=1; j<buffers.size(); j++) {
