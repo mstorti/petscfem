@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2003/02/17 14:53:21 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2003/09/02 02:27:37 mstorti Exp $ 
 
 tests: idmap
 
@@ -8,8 +8,7 @@ idmap: tidmap.bin
 	tidmap.bin >tidmap.sal
 
 tidmap.bin: tidmap.o $(LIBPETSCFEM)
-	${CXX_CLINKER} -o $@ tidmap.o $(LIBPETSCFEM) \
-		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat  $(MESCHACH)/libmes.a
+	${CXX_CLINKER} -o $@ tidmap.o $(LDFLAGS_NO_PROG_LIB)
 
 SRCS = 
 PETSCFEM_DIR = ../..

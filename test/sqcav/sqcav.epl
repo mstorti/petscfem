@@ -16,6 +16,7 @@ if ($case eq 'press_term') {
 
 $u_rini = 0.5;
 if ($case eq 'read_ini') {
+    $read_ini_case = 1;
     $case = 'iisd_sbp2';
     $save_file = "sqcav.read_ini.state.tmp";
 }
@@ -122,6 +123,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     die "don't know case $case\n";
 }
 $use_qharmm = 0;
+$nstep = 0 if defined $read_ini_case;
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re viscosity h Co Dt hratio g_body use_triangles u_rini);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.45 2003/08/17 13:30:48 mstorti Exp $
+//$Id: dxhook.cpp,v 1.46 2003/09/02 02:27:34 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -203,7 +203,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   TGETOPTDEF_ND(go,int,dx_auto_combine,0);
 
   //o If true, then issue a ``make dx_step=#step dx_make_command''
-  TGETOPTDEF(go,int,dx_do_make_command,0);
+  TGETOPTDEF_ND(go,int,dx_do_make_command,0);
 
   ndim = mesh->nodedata->ndim;
   nnod = mesh->nodedata->nnod;
@@ -395,7 +395,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     printf("dx_hook: Got steps %d, dx_step %d, state_file %s, record %d\n",
 	   steps,dx_step,state_file.c_str(),record);
 
-    if (do_make_command) {
+    if (dx_do_make_command) {
       AutoString s;
       s.sprintf("/usr/bin/make dx_step=%d dx_make_command",dx_step);
       system(s.str());
