@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.29 2001/07/20 12:09:34 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.30 2001/07/20 12:11:27 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -295,7 +295,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
-    FastMat2::deactivate_cache();
     if (comp_res || comp_mat_res) {
       ucols.set(locstate2.is(2,1,ndim));
       pcol.set(locstate2.rs().ir(2,ndof));
@@ -309,6 +308,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
     }
     
+    FastMat2::deactivate_cache();
     double shear_vel;
     int wall_elem;
     if (LES && comp_mat_res) {
