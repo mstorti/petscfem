@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.27 2004/12/21 12:20:40 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.28 2005/03/28 03:29:31 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -14,6 +14,7 @@
 #include <src/pfobject.h>
 
 #include "./nsi_tet.h"
+
 #include "./adaptor.h"
 #include "./elast.h"
 #include "./qharm.h"
@@ -30,6 +31,7 @@
 #include "./invcoupl.h"
 #include "./nullvort.h"
 #include "./interplns.h"
+#include "./condwall.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
@@ -78,6 +80,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(inviscid_coupling)
 
     SET_ELEMSET_TYPE(lin_gen_load)
+    SET_ELEMSET_TYPE(cond_wall)
 
     SET_ELEMSET_TYPE_ALIAS(interpolation,interpolation_ns)
       {

@@ -1,8 +1,8 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.2 2003/07/06 15:10:18 mstorti Exp $
-#ifndef PETSCFEM_LAGMUL_H
-#define PETSCFEM_LAGMUL_H
+// $Id: lagmul.h,v 1.3 2005/03/28 03:29:31 mstorti Exp $
+#ifndef PETSCFEM_NS_LAGMUL_H
+#define PETSCFEM_NS_LAGMUL_H
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic nonlinear restriction element. 
