@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.51 2003/09/09 18:02:09 mstorti Exp $
+//$Id: dxhook.cpp,v 1.52 2003/09/10 23:18:43 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -133,7 +133,8 @@ dx_hook::dx_hook() :
   connection_state_master(not_launched) , 
 #endif
   options(NULL), srvr_root(NULL), step_cntr(0), steps(0),
-  dx_read_state_from_file(0) { }
+  dx_read_state_from_file(0),
+  dx_cache_coords(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
@@ -169,7 +170,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
     printf("dx_hook: starting socket at port: %d\n",dx_port);
     sprintf(skthost,"S%d",dx_port);
     srvr_root = Sopen("",skthost);
-    assert(srvr_root);
+    PETSCFEM_ASSERT(srvr_root,"Couldn't open dx port on %s",skthost);
     PetscPrintf(PETSC_COMM_WORLD,"Done.\n");
   }
   mesh = &mesh_a;
@@ -187,6 +188,11 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   TGETOPTDEF_ND(go,int,dx_read_state_from_file,0);
   PETSCFEM_ASSERT0(dx_read_state_from_file>=0 && dx_read_state_from_file<=2,
 		   "dx_read_state_from_file should be between 0 and 2.");
+
+  //o Uses DX cache if possible in order to avoid sending the coordinates
+  //  each time step or frame. Use only if coordinates are not changing
+  //  in your problem. 
+  TGETOPTDEF_ND(go,int,dx_cache_coords,0);
 
   //o Generates DX fields by combination of the input fields
   TGETOPTDEF_S(go,string,dx_split_state,);
@@ -301,6 +307,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int dx_hook::build_state_from_file(double *state_p) {
   int recl = (record>=0 ? record : 0);
+  printf("record %d, recl %d\n",record,recl);
   PetscPrintf(PETSC_COMM_WORLD,
 	      "dx_hook: reading state from file %s, record %d\n",
 	      state_file.c_str(),recl);
@@ -409,12 +416,14 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     printf("dx_hook: Got steps %d, dx_step %d, state_file %s, record %d\n",
 	   steps,dx_step,state_file.c_str(),record);
 
+    printf("trace 0\n");
     if (dx_do_make_command) {
       AutoString s;
       s.sprintf("/usr/bin/make dx_step=%d dx_make_command",dx_step);
       system(s.str());
     }
     
+    printf("trace 1\n");
     if (read_coords) {
       AutoString coord_file;
       coord_file.sprintf(dx_node_coordinates.c_str(),dx_step);
@@ -430,8 +439,10 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
       }
       fclose(fid);
     }
+    printf("trace 2\n");
   }
 
+  printf("trace 3\n");
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
   ierr = MPI_Bcast (&stepso, 1, MPI_INT, 0,PETSC_COMM_WORLD);
@@ -439,7 +450,9 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   ierr = string_bcast(state_file,0,PETSC_COMM_WORLD);
   ierr = MPI_Bcast (&record, 1, MPI_INT, 0,PETSC_COMM_WORLD);
 
+  printf("trace 4\n");
   if (record==-1) throw GenericError("Received record=-1, stop.");
+  printf("trace 5\n");
 
   if (stepso>=0 && stepso!=steps) {
     PetscPrintf(PETSC_COMM_WORLD,
@@ -456,20 +469,28 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     // Send node coordinates
     cookie = rand();
     Sprintf(srvr,"step %d\n",step);
-    Sprintf(srvr,"nodes nodes %d %d %d use_cache\n",ndim,nnod,cookie);
-    Sgetline(&buf,&Nbuf,srvr);
-    tokenize(buf,tokens2);
-    assert(tokens2.size()==1);
-    if (tokens2[0]=="send_nodes") {
-      printf("Sending nodes...\n");
+    if (dx_cache_coords) {
+      Sprintf(srvr,"nodes nodes %d %d %d use_cache\n",ndim,nnod,cookie);
+      Sgetline(&buf,&Nbuf,srvr);
+      tokenize(buf,tokens2);
+      assert(tokens2.size()==1);
+      if (tokens2[0]=="send_nodes") {
+	printf("Sending nodes...\n");
+	for (int node=0; node<nnod; node++)
+	  for (int j=0; j<ndim; j++) sbuff.put((float)*(xnod+node*nu+j));
+	sbuff.flush();
+      } else if (tokens2[0]=="do_not_send_nodes") {
+	printf("Does not send nodes.\n");
+      } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
+			    tokens2[0].c_str());
+      CHECK_COOKIE(nodes);
+    } else {
+      Sprintf(srvr,"nodes nodes %d %d %d\n",ndim,nnod,cookie);
       for (int node=0; node<nnod; node++)
 	for (int j=0; j<ndim; j++) sbuff.put((float)*(xnod+node*nu+j));
       sbuff.flush();
-    } else if (tokens2[0]=="do_not_send_nodes") {
-       printf("Does not send nodes.\n");
-    } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
-			  tokens2[0].c_str());
-    CHECK_COOKIE(nodes);
+      CHECK_COOKIE(nodes);
+    }
   }
 
   // Send results
@@ -549,9 +570,9 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 #endif
 } catch(GenericError e) {
   if (!MY_RANK && srvr) {
+    printf("%s\n",e.c_str());
     Sprintf(srvr,"end\n");
     Sclose(srvr);
-    printf("%s\n",e.c_str());
   }
   PetscFinalize();
   exit(0);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxelmst.cpp,v 1.6 2003/09/07 17:16:39 mstorti Exp $
+//$Id: dxelmst.cpp,v 1.7 2003/09/10 23:18:43 mstorti Exp $
 
 #ifdef USE_DX
 #include <vector>
@@ -10,6 +10,24 @@
 #include <src/sockbuff.h>
 
 extern int MY_RANK,SIZE;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::dx_send_connectivities(Socket *sock,
+				     int nsubelem, int subnel,
+				     vector<int> &node_indices) {
+  SocketBuffer<int> sbuff(sock);
+  for (int j=0; j<nelem; j++) {
+    int *row = icone+j*nel;
+    for (int jj=0; jj<nsubelem; jj++) {
+      for (int n=0; n<subnel; n++) {
+	int k = node_indices[jj*subnel+n];
+	// Convert to 0 based (DX) node numbering
+	sbuff.put(*(row+k)-1);
+	    }
+    }
+  } 
+  sbuff.flush();
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
@@ -25,6 +43,11 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   TGETOPTDEF(thash,int,dx,0);
   if (!dx) return;
 
+  //o Uses DX cache if possible in order to avoid sending the connectivities
+  //  each time step or frame. Use only if the connectivities are not changing
+  //  in your problem. 
+  TGETOPTDEF(thash,int,dx_cache_connectivities,0);
+
   string type;
   int subnel,nsubelem;
   vector<int> node_indices;
@@ -36,32 +59,26 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   nsubelem = node_indices.size()/subnel;
 
   if (!MY_RANK) {
-    SocketBuffer<int> sbuff(sock);
     cookie = rand();
-    Sprintf(sock,"elemset %s %s %d %d %d use_cache\n",name(),type.c_str(),
-	    subnel,nelem*nsubelem,cookie);
-
-    Sgetline(&buf,&Nbuf,sock);
-    tokenize(buf,tokens);
-
-    if (tokens[0]=="send_elemset") {
-      printf("Sending elemset...\n");
-      for (int j=0; j<nelem; j++) {
-	int *row = icone+j*nel;
-	for (int jj=0; jj<nsubelem; jj++) {
-	  for (int n=0; n<subnel; n++) {
-	    int k = node_indices[jj*subnel+n];
-	    // Convert to 0 based (DX) node numbering
-	    sbuff.put(*(row+k)-1);
-	  }
-	}
-      } 
-      sbuff.flush();
-    } else if (tokens[0]=="do_not_send_elemset") {
-       printf("Does not send elemset.\n");
-    } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
-			  tokens[0].c_str());
-
+    if (dx_cache_connectivities) {
+      Sprintf(sock,"elemset %s %s %d %d %d use_cache\n",name(),type.c_str(),
+	      subnel,nelem*nsubelem,cookie);
+      
+      Sgetline(&buf,&Nbuf,sock);
+      tokenize(buf,tokens);
+      
+      if (tokens[0]=="send_elemset") {
+	printf("Sending elemset...\n");
+	dx_send_connectivities(sock,nsubelem,subnel,node_indices);
+      } else if (tokens[0]=="do_not_send_elemset") {
+	printf("Does not send elemset.\n");
+      } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
+			    tokens[0].c_str());
+    } else {
+      Sprintf(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
+	      subnel,nelem*nsubelem,cookie);
+      dx_send_connectivities(sock,nsubelem,subnel,node_indices);
+    }
     CHECK_COOKIE(elemset);
   }
 }

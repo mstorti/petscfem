@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.96 2003/07/03 10:46:23 mstorti Exp $ 
+# $Id: Makefile,v 1.97 2003/09/10 23:18:43 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -92,10 +92,7 @@ runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
 
 rp: runtests_p
-runtests_p: idmap fastvec			\
-	chunk_size_process constraint_bug fstack triangle advdif texthash	\
-	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
-	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
+runtests_p: pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

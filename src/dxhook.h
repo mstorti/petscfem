@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.18 2003/09/09 18:02:09 mstorti Exp $
+//$Id: dxhook.h,v 1.19 2003/09/10 23:18:43 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -65,6 +65,8 @@ private:
 
   /// Flags reading states from files
   int dx_read_state_from_file;
+  /// Flags sending coordinates each step or using cache
+  int dx_cache_coords;
 
 #ifdef USE_PTHREADS
   enum connection_state_t {

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.32 2003/09/08 15:19:44 mstorti Exp $
+//$Id: elemset.h,v 1.33 2003/09/10 23:18:43 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -334,6 +334,11 @@ public:
 #ifdef USE_DX
 private:
   DXSplit splitting;
+
+  /// Auxiliary function that sends connectivities to DX
+  void dx_send_connectivities(Socket *sock,
+			      int nsubelem, int subnel,
+			      vector<int> &node_indices);
 
 public:  
   /** Generates fields for processing with DX. 

@@ -7,7 +7,7 @@ get_var_env('case','lu');
 get_var_env('theta',0);
 get_var_env('nlay',0);
 get_var_env('subpart',0);
-get_var_env('N',0);
+get_var_env('N',10);
 get_var_env('isp_maxits',0);
 print "# incoming `case' : $case\n";
 $shell_hook_case = 0;
@@ -29,10 +29,9 @@ if ($case =~ /^g3d_(.*)$/) {
     }
 }
 $L = 1;				# Side of the cavity
-$N = (defined $N ? $N :200);
 $hratio = 0;			# refinement (h_center/h_wall)
 $solver = "petsc";
-$preco_type = "lu";
+$preco_type = "shlu";
 $maxits = 1;
 $nstep = 5;
 $save_file = ($case ? "qharm.$case.tmp" : "qharm.state.tmp");
