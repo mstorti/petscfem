@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.15 2002/08/12 22:07:17 mstorti Exp $
+//$Id: embgath.cpp,v 1.16 2002/08/12 23:33:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -381,6 +381,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void visc_force_integrator::init() {
   int ierr;
+  FastMat2 elc;
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
   ndim_m = ndim;
@@ -398,6 +399,14 @@ void visc_force_integrator::init() {
   //o _T: double[ndim] _N: moment_center _D: null vector 
   // _DOC: Center of moments. _END
   get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
+  //o Rest the component of this rigid movement. 
+  TGETOPTDEF_ND(thash,double,viscosity,0.);
+  // Rotation angular velocity 
+  Omega.resize(1,ndim).set(0.);
+  ierr = get_double(thash,"Omega",Omega.storage_begin(),1,ndim);
+  // Velocity gradient corresponding to the rigid movement
+  elc.eps_LC();
+  rigid_grad_u.prod(elc,Omega,1,2,-1,-1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -410,7 +419,7 @@ void visc_force_integrator
   //#define SHV(pp) pp.print(#pp ": ")
 #define SHV(pp) {}
   SHV(grad_u);
-  grad_u.is(2,1,ndim_m);
+  grad_u.is(2,1,ndim_m).rest(rigid_grad_u);
   strain_rate.set(grad_u);
   grad_u.t();
   strain_rate.add(grad_u).scale(0.5);
