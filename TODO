@@ -4,6 +4,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Wheb .ini file is not found advdif (don't know NS) 
+       aborts only in server. 
+* Printing "For elemset ..." element partitioning should
+	   give the elemset name and pointer. 
 * List grants in doc
 * Add `dataflow.obj' to doc.
 * Let `upload_vector_fast' to have several masks with integer values,
