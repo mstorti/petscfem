@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.49.2.1 2004/05/21 20:57:17 mstorti Exp $
+//$Id: advdif.cpp,v 1.49.2.2 2004/05/21 22:23:02 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -24,8 +24,6 @@ int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
   comp_mat_each_time_step_g=0;
-
-extern const char * jobinfo_fields;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
@@ -73,8 +71,6 @@ int main(int argc,char **args) {
   GlobParam glob_param;
   GLOB_PARAM = &glob_param;
   string save_file_res;
-
-  jobinfo_fields = "gasliq";
 
   // euler_volume::set_flux_fun(&flux_fun_euler);
   // euler_absorb::flux_fun = &flux_fun_euler;
