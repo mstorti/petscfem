@@ -1179,3 +1179,7 @@ tag: beta-2.94.pl17 on Thu, 16 May 2002 16:25:11 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-2.94.pl18 on Thu, 16 May 2002 21:38:36 -0300 by mstorti in spider
      > `force_integrator' computes moments OK.
+----------
+tag: beta-2.94.pl19 on Sun,  2 Jun 2002 20:34:04 -0300 by mstorti in spider
+     > Changed preprocessor directives "#elsif" for "#elif" (I don't kow why
+     > the preprocessor didn't blame before.
