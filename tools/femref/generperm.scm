@@ -16,8 +16,9 @@
   (let ((q (make-vector n))
 	(j 0))
     (while (< j n)
-	   ((vector-set! q j j))
-	   (set! j (+ 1 j)))))
+	   (vector-set! q j j)
+	   (set! j (+ 1 j)))
+    q))
 
 (define (prod-aux q G side)
   (format #t "hi\n")
@@ -77,6 +78,7 @@
 			(else (loop (cdr q) uniq-list))))))))
 
 (define (prod g G)
+  (format #t "in prod, g: ~A, G ~A\n" g G)
   (let ((gGg (append G 
 		     (map (lambda (x) (compose g x)) G) 
 		     (map (lambda (x) (compose x g)) G))))
@@ -92,11 +94,23 @@
 (define g (vector 1 2 3 4 5 0))
 (define G (list g))
 
-(define (generate g G)
+(define (generate-aux g G)
+  (format #t "in generate-aux, g: ~A, G ~A\n" g G)
   (let loop ((p1 G)
 	     (p2 (prod g G)))
 	(cond ((= (length p1) (length p2)) p1)
 	      (else (loop p2 (prod g p2))))))
 
-(format #t "(generate g G): ~A\n" (generate g G))
+(format #t "(perm-id 5): ~A\n" (perm-id 5))
+
+(define (generate G)
+  (format #t "G here: ~A\n" G)
+  (if (zero? (length G)) (error "G can't be null\n"))
+  (let loop ((gen-G (list (perm-id (vector-length (car G)))))
+	     (g G))
+    (format #t "g here: ~A\n" g)
+    (cond ((null? g) gen-G)
+	  (else (loop (generate-aux (car g) gen-G) (cdr g))))))
+
+(format #t "(generate G): ~A\n" (generate G))
 
