@@ -1,4 +1,4 @@
-## $Id: proc22d.m,v 1.6 2005/01/29 21:00:06 mstorti Exp $
+## $Id: proc22d.m,v 1.7 2005/02/04 12:22:21 mstorti Exp $
 
 source("data.m.tmp");
 nsome = Nx+1;
@@ -28,6 +28,8 @@ if 1
   scale = [scale,1];
   U = U(:,[1,2,4,5]);
   scale = scale([1,2,4,5]);
+  U = [U,U(:,3)./U(:,1)];
+  scale = [scale,1];
 endif
 
 ## Do not scale

@@ -6,6 +6,7 @@
 global_options
 
 # dx <:=$dx:>
+# <:pr('all_fields'):>
 
 nstep 5000
 alpha 1.
@@ -19,10 +20,10 @@ print_some_file "gfabso2dn.some-nodes.tmp"
 save_file_some "gfabso2dn.some-rslt.tmp"
 nsome 1
 
-# save_file_pattern "gfabso2dn.state_%d.tmp"
-# nsaverot 20
-# nrec 1
-# nfile 100000000
+save_file_pattern "gfabso2dn.state_%d.tmp"
+nsaverot 20
+nrec 1
+nfile 100000000
 
 #if 0
 solver "iisd"
@@ -49,15 +50,15 @@ nnwt 2
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.05
+Dt 0.1
 shocap 0.05
 weak_form 0
 temporal_stability_factor 0
 
 ndim 2
 Rgas <:=$Rgas:>
-visco 0.001
-cond 0.001
+visco 1
+cond 1
 steady 0
 Uref <:=$rhoref:> <:=$uref*$norx:> <:=$uref*$nory:> <:=$pref:> 
 linear_abso 1
@@ -87,11 +88,13 @@ __END_HASH__
 
 ##================================================================
 elemset gasflow 4
-props G_body[2]
 geometry cartesian2d
 dx 1
 npg 4
+#if 0
+props G_body[2]
 temp_fun[G_body_scale] ./gbody.efn gbody_scale
+#endif
 data ./gfabso2dn.con.tmp
 __END_HASH__
 
@@ -142,12 +145,21 @@ __END_ELEMSET__
 #endif
 #endif
 
+elemset gasflow_twall 2
+dx 0
+data ./gfabso2dn.twall-con.tmp
+__END_HASH__
+
 end_elemsets
 
 #if !$dx
 fixa
 #if $abso
 __INCLUDE__ ./gfabso2dn.fixa-ref.tmp
+#elsif $all_fields
+__INCLUDE__ ./gfabso2dn.fixa-unused.tmp
+__INCLUDE__ ./gfabso2dn.fixa-twall.tmp
+__INCLUDE__ ./gfabso2dn.fixa-u.tmp
 #else
 __INCLUDE__ ./gfabso2dn.fixa-outlet.tmp
 __INCLUDE__ ./gfabso2dn.fixa-in.tmp
