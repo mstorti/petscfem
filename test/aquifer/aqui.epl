@@ -122,7 +122,8 @@ npg 4
 <:pr('K'):> 
 <:pr('S'):>
 #if $var_rain
-temp_fun[rain] ./rain.efn rain
+rain0 2.
+temp_fun[rain] ./rain2.efn rain
 #endif
 __END_HASH__
 __INCLUDE__ aqui.con.tmp

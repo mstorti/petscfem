@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.22 2002/09/08 16:28:11 mstorti Exp $
+//$Id: elemset.h,v 1.23 2002/09/08 21:58:58 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -539,6 +539,8 @@ public:
 
   Property() : indx(-1), length(0), ptr(NULL),
   init_fun(NULL), eval_fun(NULL), clear_fun(NULL), fun_data(NULL) { val.clear(); };
+
+  ~Property() { if(clear_fun) (*clear_fun)(fun_data); }
 };
 
 #define PROP_INIT_FUN(name) extern "C" \
@@ -549,6 +551,22 @@ public:
 
 #define PROP_CLEAR_FUN(name) extern "C" \
           void name##_clear_fun(void *fun_data)
+
+#define PROPERTY_TEMP_FUN(name)			\
+PROP_INIT_FUN(name) {				\
+  name *fun_obj = new name;			\
+  fun_data = fun_obj;				\
+  fun_obj->init(thash);				\
+}						\
+						\
+PROP_EVAL_FUN(name) {				\
+  name *fun_obj = (name *)fun_data;		\
+  return fun_obj->eval(t,val);			\
+}						\
+						\
+PROP_CLEAR_FUN(name) {				\
+  delete (name *)fun_data;			\
+}
 
 /** This is an adaptor to the old Elemset class
     @author M. Storti

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: rain2.cpp,v 1.1 2002/09/08 20:37:01 mstorti Exp $
+//$Id: rain2.cpp,v 1.2 2002/09/08 21:59:01 mstorti Exp $
 
 #include <math.h>
 
@@ -8,24 +8,16 @@
 #include <src/elemset.h>
 
 class rain {
+private:
+  double rain0;
 public:
-  void init(TextHashTable *thash) {}
+  void init(TextHashTable *thash) {
+    int ierr;
+    TGETOPTDEF_ND(thash,double,rain0,0.);
+  }
   double eval(double t,double val) { 
-    return (t<0.01? 2. : 0.);
+    return (t<0.01? rain0 : 0.);
   }
 };
 
-PROP_INIT_FUN(rain) {
-  rain *fun_obj = new rain;
-  fun_data = fun_obj;
-  fun_obj->init(thash);
-}
-
-PROP_EVAL_FUN(rain) {
-  rain *fun_obj = (rain *)fun_data;
-  return fun_obj->eval(t,val);
-}
-
-PROP_CLEAR_FUN(rain) {
-  delete (rain *)fun_data;
-}
+PROPERTY_TEMP_FUN(rain);

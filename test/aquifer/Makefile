@@ -1,6 +1,8 @@
-# $Id: Makefile,v 1.22 2002/09/08 19:41:53 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2002/09/08 21:59:01 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
+
+SRCS = rain.cpp rain2.cpp fun.cpp fun2.cpp fun3.cpp
 
 #w All tests
 tests: test_plain test_var_eta test_transient test_stream test_as test_dl_fun
@@ -94,9 +96,10 @@ test_dl_fun3: funs
 	octave -q checkdlf.m > output.dl_fun3.verif.tmp
 
 #w case with constant aquifer depth
-test_var_rain:
+test_var_rain: rain2.efn
+	-rm -f var_rain.some_out.tmp
 	$(MAKE) casen=var_rain run
-#	octave -q check_var_rain.m > plain.verif.tmp
+	octave -q check_var_rain.m > var_rain.verif.tmp
 
 #w Make data
 data: force

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.63 2002/09/06 14:31:06 mstorti Exp $ 
+# $Id: Makefile,v 1.64 2002/09/08 21:59:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -16,7 +16,7 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
 		pfmat cubcav aquifer bubbly nutatcyl aquifer
 
 CLEAN_DIRS = $(DIRS)
-DEPEND_DIRS = texthash distmap sparse
+DEPEND_DIRS = texthash distmap sparse aquifer
 
 run: sqcav5
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: propef.cpp,v 1.2 2002/09/08 19:41:46 mstorti Exp $
+//$Id: propef.cpp,v 1.3 2002/09/08 21:58:58 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -74,7 +74,8 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
     GET_DL_FUN(InitFun,init_fun);
     GET_DL_FUN(EvalFun,eval_fun);
     GET_DL_FUN(ClearFun,clear_fun);
-    
+
+    if (prop.init_fun) prop.init_fun(thash,prop.fun_data);
     delete[] entry_c;
     return;
 #else
