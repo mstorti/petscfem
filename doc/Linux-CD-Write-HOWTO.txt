@@ -1,3 +1,5 @@
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.2 2004/06/29 11:18:30 mstorti Exp $
+
  COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
 		 INSTALADA EN UNA MAQUINA CON WINDOWS
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,12 +102,17 @@ Grabacion de DVD's
 ==================
 
 En este momento (Mon, 28 Jun 2004) se estan consiguiendo DVD's de
-4.7GB a u$s 1. La unidad para grabar DVD's cuesta u$s 140, con lo cual
+4.7GB a u$s 2. La unidad para grabar DVD's cuesta u$s 140, con lo cual
 es una opcion muy buena para hacer backup. 
 
 Basicamente los DVD's se graban igual que los CD's, pero el `cdrecord'
 que viene por default no graba sobre DVD's. Si lo hacen en `minerva'
-basta que usen `/u/mstorti/bin/dvdrecord'. Usen la opcion '-sao'. 
+basta que usen `/u/mstorti/bin/dvdrecord'. Se crea la imagen del DVD
+con `mkisofs', por ejemplo. 
+
+
+
+Hay que usar la opcion '-sao'. 
 
 
 Detalles de instalacion de cdrecord-ProDVD
