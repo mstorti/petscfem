@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spiller.epl,v 1.5 2003/03/17 20:40:44 mstorti Exp $ 
+## $Id: spiller.epl,v 1.6 2003/03/17 20:53:09 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -10,13 +10,13 @@ if (!$re_start && -f 'spiller.axis_nodes.rslt.tmp') {
     unlink 'spiller.axis_nodes.rslt.tmp';
 }
 $layers = 2;
-$C=0.053547;			# Constants of spiller expr.
+$C = 0.053547;			# Constants of spiller expr.
 $E = 1.85;
 $H1 = 66.50;			# vertical position of spiller top position
 $L1 = 18;			# Distance from top of spiller to start
 				# of flat bottom
 $L2 = 50;			# Flat bottom length
-$h1 = 4;				# water height at top of spiller
+$h1 = 4;                        # Water height at top of spiller
 $y2 = 60;			# restitution height
 
 $Ny = 30;
@@ -57,7 +57,7 @@ Krylov_dim 200
 nnwt 3
 alpha 1.0
 weak_form 0
-Dt 0.2
+Dt 0.5
 rtol 1e-4
 atol 1e-10
 iisdmat_print_statistics
