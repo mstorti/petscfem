@@ -189,7 +189,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
   FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10,
-    tmp11,tmp12,tmp13,tmp14,tmp15;
+    tmp11,tmp12,tmp13,tmp14,tmp15,tmp16;
 
   masspg.set(1.);
   grad_u_ext.set(0.);
@@ -440,12 +440,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	SHV(u);
 	SHV(u_star);
 
-#if 0 // not coded yet
       } else if (comp_mat_prj) {
 
 	// fixme:= esto me parece que deberia ir con signo - !!
-	matlocmom += wpgdet * SHAPE.t() * SHAPE ;
-#endif
+	tmp16.prod(SHAPE,SHAPE,1,2);
+	matlocmom.axpy(tmp16,wpgdet);
       } else {
 
 	printf("Don't know how to compute jobinfo: %s\n",jobinfo);
