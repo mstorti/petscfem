@@ -1936,3 +1936,6 @@ tag: beta-3.10.pl13 on Mon, 16 Dec 2002 23:23:52 -0300 by mstorti in spider
 ----------
 tag: beta-3.10.pl14 on Tue, 17 Dec 2002 11:16:20 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs qharmm wiwth ndof=2 and lin_gen_load (hfilm) example.
+----------
+tag: beta-3.10.pl15 on Wed, 18 Dec 2002 17:59:47 -0300 by mstorti in minerva.arcride.edu.ar
+     > Added doc for NS genload
