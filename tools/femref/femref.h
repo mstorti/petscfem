@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.25 2004/11/23 13:53:58 mstorti Exp $
+// $Id: femref.h,v 1.26 2004/11/23 16:47:43 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -174,46 +174,75 @@ private:
   /** Number of nodes, number of elements, number of
       nodes connected to an element */
   int nnod, nelem, nel;
-  
+  /// The ptr to the shape object
   const GeomObject::Template *tmpl;
+  /** Auxiliary function that searches the iterator
+      for a given object. If #its==NULL# then
+      returns the first iterator found in #it#. If
+      #its!=NULL# then returns the list of iterators
+      in #its#.
+      @param go (input) the geometric object for which 
+      to return the list of iterators. 
+      @param its (output) if not null, then return the list 
+      of iterators in its. 
+      @param it (output) if #its=NULL# then return the 
+      first iterator found here. */ 
   void find(GeomObject &go,list<iterator> *its,iterator &it);
 
 public:
+  /// Ctor from dimensions and shape
   UniformMesh(GeomObject::Template &tmpl_a,int ndim_a) 
     : tmpl(&tmpl_a), nel(tmpl_a.size_m), ndim(ndim_a) { 
+    // reshape dvectors to specicied shape
     coords.reshape(2,0,ndim);
     connec.reshape(2,0,nel);
   }
 
+  /// Read the mesh from specified files
   void read(const char *node_file,const char *conn_file) {
+    // This is used auxiliary
     LinkGraph lgraph;
+    // Reads coors file and resize
     coords.cat(node_file).defrag();
+    // Reads connectivity file and resizes
     connec.cat(conn_file).defrag();
+    // Gets number of nodes
     nnod = coords.size(0);
+    // Gets number of elements per node.
+    // This comes from the specified shape. 
     nel = connec.size(1);
+    // Add connections to graph
     lgraph.init(nnod);
     nelem = connec.size(0);
     for (int ele=0; ele<nelem; ele++) {
       for (int k=0; k<nel; k++) {
 	int node = connec.e(ele,k);
-	printf("add node %d, elem %d\n",node,ele);
+	// printf("add node %d, elem %d\n",node,ele);
 	lgraph.add(node,ele);
       }
     }
+
     GSet ngbrs;
+#if 0
     for (int node=0; node<nnod; node++) {
-      printf("node %d, elems ",node);
+      // printf("node %d, elems ",node);
+      // For each node get list of ngbrs and
       ngbrs.clear();
       lgraph.set_ngbrs(node,ngbrs);
       GSet::iterator p = ngbrs.begin();
       while (p!=ngbrs.end()) printf("%d ",*p++);
       printf("\n");
     }
+#endif
 
     // Pass the connectivity in graph `lgraph' to
-    // node_list
+    // to (n2e,n2e_ptr)
+    // Dimension `n2e_ptr'
     n2e_ptr.resize(nnod+1);
+    // Initialize `n2e_ptr'
     for (int j=0; j<nnod; j++) n2e_ptr.ref(j) = 0;
+    // Cummulate size of `ngbrs' in order
+    // to define `n2e_ptr'
     int nadj = 0;
     for (int nod=0; nod<nnod; nod++) {
       n2e_ptr.e(nod) = nadj;
@@ -223,15 +252,39 @@ public:
       GSet::iterator p = ngbrs.begin();
       while (p!=ngbrs.end()) n2e.push(*p++);
     }
+    // Set last (nnod+1) ptr
     n2e_ptr.ref(nnod) = nadj;
+    // Free memory in `lgraph'
     lgraph.clear();
   }
   
+  /** Sets #go# to object pointed by #it#. 
+      @param it (input) iterator to geometric object in mesh
+      @param go (output) the opject pointed by #it# */ 
   void set(iterator it,GeomObject &go);
+  /** Finds the _first_ iterator to object #go#. 
+      If there isn't, returns the empty iterator. 
+      @param go (input) the object to find
+      return first iterator that points to #go# */ 
   iterator find(GeomObject &go);
+  /** Finds _all_ the iterators that point to object #go#. 
+      @param go (input) the object to find
+      @param its (output) list of iterators that
+      point to #go# */ 
   void find(GeomObject &go,list<iterator> &its);
+  /** Get the list of iterators of type #t# 
+      adjacent to object pointed by #it#. 
+      @param it (input) iterator to object for which to get 
+      the adjacency list
+      @param t (input) find adjacent objects of type #t#
+      @param adj (output) the list of adjacent iterators */ 
   void get_adjacency(iterator it,GeomObject::Type t,
-		     list<iterator> &adj) { }
+		     list<iterator> &adj) { 
+    assert(0); // not implemented yet!
+  }
+  /** Predicate for determine if an iterator is the empty one. 
+      @param it (input) iterator to check
+      @return #true# if #it# is empty, #false# otherwise. */ 
   bool is_end(iterator it) { 
     return it.obj<0 || it.t==GeomObject::NULL_TYPE 
       || it.subobj<0; 
