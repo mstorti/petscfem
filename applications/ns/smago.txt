@@ -1,0 +1,28 @@
+Mario,
+
+aqui te mando como attachment un fichero en Matlab que genera las
+  - coordenadas [x3d]
+  - conectividades [ico3d]
+  - periodical bc [peri]
+  - fijaciones [fixa]
+
+Es una feta en z (dos capas, una entrante y la otra periodica saliente) y
+dos fetas en theta (circumferencial) para evitar un elemento triangular en
+el centro. En la direccion radial le especificas a la rutina Nr (nro de
+elementos radiales).
+
+Como condiciones de contorno,
+ -  a la entrada u=v=0 en toda la feta entrante (por ende al ser periodica
+la saliente tambien es asi)
+ - a la entrada w = 0 en la pared
+ - a la entrada w = 1 en el centro
+ - presion libre en todos lados
+ - a la salida todo es periodico con la entrada
+
+OJO:
+Al mediodia me avive que vos llamaste nu_t en el programa y eso habria que
+sumarlo al VISCO, no?
+
+Suerte
+
+Beto

@@ -1,0 +1,80 @@
+\Section{The \pfem{} philosophy} 
+
+\SSection{The three levels of interaction with \pfem} 
+
+\index{PETSc-FEM!programmers}
+\index{PETSc-FEM!application writers}
+\index{PETSc-FEM!users}
+%
+As stated in the \pfem{} description, it is both a library and an
+application suite. That means that some applications as Navier-Stokes,
+Euler (inviscid flow), shallow water, general advective linear systems
+and the Laplace/Poisson equation, come bundled with it, whereas the
+library is an abstract interface that allows people to write other
+applications. So that we distinguish between the \emph{``user''} for
+which the interaction with \pfem{} is limited to writing data files
+for the bundled applications, from the \emph{``application writers''}
+that is people that uses the library to develop new
+applications. Usually, application writers write a \verb+main()+
+routine that use routine calls to the \pfem{} library in order to
+assemble PETSc vectors and matrices and perform algebraic operations
+among them via calls to PETSc routines.  In addition, they also have
+to code \emph{``element routines''} that compute vectors and matrices
+at the element level. \pfem{} is the code layer that is in charge of
+assembling the individual contributions in the global vectors or
+matrices, taking into account fixations, etc...  Finally, there is the
+\emph{``\pfem{} programmers''}, that is people that write code for the
+core library.
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/petscfem.eps}}
+\caption{Typical structure of a \pfem{} application}
+\label{fg:petscfem}
+\end{figure*}
+
+\SSection{The elemset concept}
+
+\index{elemset}
+\pfem{} is written in the C++ language and sticks to the
+Object-Oriented Programming (OOP) philosophy. In OOP, data is stored
+in \emph{``objects''} and the programmer access them via an abstract
+interface. A first approach to writing a Finite Element program with
+OOP philosophy, is to define each element or node as an
+object. However, this is both time and memory consuming, since
+accessing each element or each node is performed by passing through
+the whole code layer of the element or node class. As one of the
+primary objectives of \pfem{} is the efficiency, we solved this by
+defining the basic objects as a whole set of elements of nodes that
+share almost all the properties, aside element connectivities or node
+coordinates. This is very common in CFD, where for each problem almost
+all the elements share the same physical properties (viscosity,
+density, etc...) and options (number of integration Gauss points,
+parameters for the FEM formulation, etc...). Thus, for each problem
+the user defines a \verb+nodedata+ object, and one or several
+\verb+elemset+ objects. 
+
+Each elemset groups elements of the same type, i.e. for which
+residuals and matrices are to be computed by the same routine.
+Usually, in CFD all the elements are processed by the same routine, so
+that one may ask for what it may serve to have several elemsets.
+First, some boundary conditions (constant flux or mixed boundary
+conditions for heat conduction, absorbing boundary conditions for
+advective systems) may be imposed more conveniently through an elemset
+abstraction.  Also, several elemsets may be used for reducing the
+space required for storing varying physical properties.  If some
+physical property is shared by all the elements, for instance
+viscosity or specific heat, then it is defined once for all the
+elemset. If the quantity varies continuously in the region, but it is
+known a priori, then it can be passed as a ``per-element'' property
+(see~\S\ref{sec:per_elem_prop}), but that means storage of a double
+(or the amount of memory needed for that property) for each
+element. If it is not the same on all the mesh, but is constant over
+large regions, then it may be convenient to divide the mesh in several
+elemsets, where the given property has the same value over the
+elements of each elemset.
+
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

@@ -1,0 +1,126 @@
+# -*- mode: shell-script -*-
+#
+<:require '../eperlini.pl':>// # Initializes ePerl 
+# ---- <>  ---- <>  ---- <>  ---- <>  ---- <>  ---- <>  ---- <>
+#<: $LES=0; :> USE LES: <:=$LES:>
+
+<: 
+$L=1;				# Plate separation
+$Re_laminar=1;			# Reynolds number
+$u_max=1;			# Average velocity
+$Co=1;				# Courant number to compute Dt
+
+$nz=readm("nlay","les.m");	# Number of elements in z
+$nx=readm("nx","les.m");	# Number of elements in x
+
+$u_av = (2/3)*$u_max;		# Average velocity
+$nu=$u_av * $L / $Re_laminar;	# Kinematic viscosity 
+$dpdx=8*$nu*$u_max/$L**2;	# Longitudinal pressure gradient 
+
+$hz = $L/2/$nz;			# aver. mesh size in z direction
+$hx = $L/2/$nx;			# mesh size in x direction
+$Dt = $Co*$hx/$u_max;		# Time step based on Courant
+:>//
+
+global_options
+
+nsave 100
+save_file_pattern les.state.%d.tmp
+nsaverot 50
+nfile 2
+nrec 20
+save_file les.state.tmp
+nstep 1
+#report_consumed_time 1
+chunk_size 2000
+proc_weights weights.dat
+temporal_stability_factor 1 # for compatibility with older versions
+
+#    Iterative parameters
+#update_jacobian_iters 1
+nnwt 3
+maxits 20
+Krylov_dim 20
+
+Dt <:=$Dt:>
+alpha 1.
+LES <:=$LES:>
+#if $LES
+C_smag 0.18
+#else
+C_smag 0.
+#endif
+G_body <:=$dpdx:> 0. 0.
+initial_state "les.inirand.tmp"
+verify_jacobian_with_numerical_one 0
+#print_linear_system_and_stop
+#measure_performance
+#measure_performance_loop_length 3
+#preco_type "LU"
+tol_newton 1e-5
+
+#tau_fac 1.
+shock_capturing_factor 0
+print_internal_loop_conv 0
+# Datos fisicos
+#
+viscosity <:=$nu:>
+weak_form 0
+y_wall_plus 25.
+__END_HASH__
+
+#================================================================
+# ndim nu ndof
+nodes  3  3  4
+__INCLUDE__ les.nod.tmp
+_END_NODES__
+
+#================================================================
+elemset nsi_tet_les_fm2 8
+props 
+name malla
+additional_iprops 1
+#if 1
+local_store
+cache_grad_div_u 1
+#endif
+geometry cartesian3d
+ndim 3
+npg 8
+__END_HASH__
+__INCLUDE__ les.con.tmp
+__END_ELEMSET__
+
+#================================================================
+#if 0
+elemset wall 4
+props 
+additional_props 1
+name malla
+geometry cartesian2d
+ndim 3
+npg 4
+__END_HASH__
+__INCLUDE__ les.wall.tmp
+__END_ELEMSET__
+#endif
+
+#================================================================
+fixa
+#__INCLUDE__ les.fixa.tmp
+#if !$LES   
+## Cuando no se usa LES hay
+## que fijar la pared
+__INCLUDE__ les.fixaw.tmp
+#else
+## Cuando se usa LES la pared se deja libre
+#endif
+# Fix pressure at some node 
+<:=int(1.5*$nx)*($nx+1)+int($nx/2)+1;:> 4 0.
+__END_FIXA__
+
+#================================================================
+constraint
+__INCLUDE__ les.peri.tmp
+__END_CONSTRAINT__
+

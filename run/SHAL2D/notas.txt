@@ -1,0 +1,35 @@
+===Mon Jun 21 10:00:18 ART 1999
+Anda bien el 2D como 1D. Transporta bien las ondas y se forma bien el
+perfil de altura y de velocidad cuando pongo u fondo con lomita
+gaussiana. 
+Salvo.
+ver: 1.3
+
+===Mon Jun 21 10:48:57 ART 1999
+El 2D anda bien como 1D incluso con el agregado de flujos
+transversales (en la direccion y). Salvo.
+ver: 1.4
+
+===Mon Jun 21 13:39:51 ART 1999
+Anda bien el 2D con eprturbaciones iniciales. Voy a probar con una
+lomita en el piso. Salvo.
+ver: 1.5
+
+===Mon Jul  5 19:55:54 ART 1999
+La idea es agregar el metodo de newton. Primero me construyo una
+funcion resshal que calcula el residuo. Despues voy a calcular el
+jacobiano por diferencias. Salvo.
+ver: 1.6
+
+===Wed Jul  7 10:35:57 ART 1999
+Tengo problemas. Para u0=[1 0.4 0] que deberia ser subcritico el flujo
+parece ser supercritico. Voy a probar un ejemplo 1d.
+Salvo. ver: 1.7
+
+
+
+%# Current line ===========  
+# Local Variables: $
+# eval: (local-set-key "\C-cD" (quote notas-insert-date)) $
+# eval: (local-set-key "\C-cs" (quote make-save)) $
+# End: $

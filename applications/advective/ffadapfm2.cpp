@@ -1,0 +1,93 @@
+/*
+  This file belongs to the PETSc - FEM package, a library and
+  application suite oriented to the Finite Element Method based on PETSc. 
+  Copyright (C) 1999, 2000  Mario Alberto Storti
+  
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+
+*/
+
+#include <stdio.h>
+#include <string.h>
+#include <vector>
+#include <cassert>
+
+#include "../../src/fem.h"
+#include "../../src/texthash.h"
+#include "../../src/getprop.h"
+#include "../../src/util2.h"
+#include "../../src/fastmat2.h"
+
+#include "advective.h"
+
+int flux_fun_euler_FM2(FLUX_FUN_ARGS_FM2);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "flux_fun_euler" 
+int flux_fun_eulerfm2(FLUX_FUN_ARGS) {
+
+#if 1
+  static FastMatCacheList cache_list;
+  if (start_chunk) {
+    FastMat2::void_cache();
+    FastMat2::activate_cache(&cache_list);
+    start_chunk=0;
+  }
+  FastMat2::reset_cache();
+#endif
+
+  // Convert to FastMat
+#define CONV_TO_FM2(M) static FastMat2 M##_FM2; M##_FM2.set(M)
+  CONV_TO_FM2(U);
+  CONV_TO_FM2(flux);
+  CONV_TO_FM2(tau_supg);
+  CONV_TO_FM2(iJaco);
+  CONV_TO_FM2(H);
+  CONV_TO_FM2(grad_H);
+  CONV_TO_FM2(grad_U);
+  CONV_TO_FM2(nor);
+  CONV_TO_FM2(lambda);
+  CONV_TO_FM2(Vr);
+  CONV_TO_FM2(Vr_inv);
+  CONV_TO_FM2(G_source);
+#undef CONV_TO_FM2
+
+  int ndof = U.Ncols();
+  static FastMat2 A_grad_U_FM2;
+  static FastMat2 A_jac_FM2(3,ndim,ndof,ndof);
+
+  flux_fun_euler_FM2(FLUX_FUN_CALL_ARGS_FM2);
+
+  //#define CONV_TO_NM(M) FM2_2_NM(M,M##_FM2)
+#define CONV_TO_NM(M) M##_FM2.export(M)
+  // Convert back to Newmat
+  CONV_TO_NM(flux);
+  CONV_TO_NM(A_grad_U);
+  CONV_TO_NM(G_source);
+  CONV_TO_NM(tau_supg);
+  CONV_TO_NM(lambda);
+  CONV_TO_NM(Vr);
+  CONV_TO_NM(Vr_inv);    
+#undef CONV_TO_NM
+
+  // static FastMat2 A_jac_j(2,ndof,ndof);
+  for (int jd=1; jd<=ndim; jd++) {
+    A_jac_FM2.rs().ir(1,jd).export(*(A_jac[jd-1]));
+//      A_jac_j.set(A_jac_FM2.rs().ir(1,jd));
+//      FM2_2_NM(*(A_jac[jd-1]),A_jac_j);
+  }
+  
+}

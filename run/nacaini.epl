@@ -1,0 +1,3 @@
+<:require '../test/eperlini.pl':>
+<:makeini([1.,1.,0.,180.5],2429,"nacacnst.tmp.ini",.0):>
+<:makeini([1.,1.,0.,180.5],2429,"nacanoise.tmp.ini",.1):>

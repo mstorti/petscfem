@@ -1,0 +1,412 @@
+dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp,
+	OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp,
+	OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp,
+	OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.c,
+	OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp,
+	OLD/trynm4.cpp, Makefile, PROJECTS: Moved OLD in TRY
+
+	* TRY/Makefile, TRY/ex1.cpp, TRY/fem.cpp, TRY/fem_1.cpp,
+	TRY/fem_2.cpp, TRY/fem_3.cpp, TRY/fem_4.cpp, TRY/fem_5.cpp,
+	TRY/try3.cpp, TRY/try4.cpp, TRY/try4_old.cpp, TRY/try5.cpp,
+	TRY/try6.cpp, TRY/try7.cpp, TRY/try8.cpp, TRY/try9.c,
+	TRY/try9.cpp, TRY/trynm.cpp, TRY/trynm2.cpp, TRY/trynm3.cpp,
+	TRY/trynm4.cpp: Moved OLD into TRY
+
+	* Makefile, datos5.dat, internal.cpp, read_mesh.cpp: Fixed errors
+	setting properties through get_prop() and friends.
+
+1999-10-16  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* utils.cpp, utils.h: moved mydet.h to util.cpp/h
+
+	* internal.cpp, Makefile: Moved mydet to utils.cpp
+
+	* PROJECTS, internal.cpp, internal.cpp.fastmat: I wil work on the
+	fastamat version of internal.
+
+	* Makefile: entered the "make tag" feature
+
+	* datos5.dat, fastmat.cpp, fem.cpp, internal.cpp.fastmat,
+	read_mesh.cpp, texthash.cpp, watchcom: Fixed a memory
+	leak. Checked that it runs OK.
+
+	* FM/fmcomp: The fast-mat compiler.
+
+	* .gdbinit, Makefile, PROJECTS, elemset.cpp, fastmat.cpp,
+	fastmat.h, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp.fastmat, internal.cpp.newmat, outvector.sal,
+	read_mesh.cpp: Fixed some errors that give memory leak. Will check
+	all the delete calls.
+
+	* notas.txt, proc.m, Makefile, fem.cpp,
+	internal.cpp.newmat-noadvec, malla3.m: Debugged some. There is
+	some memory leak in internal.
+
+1999-10-13  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* FM/fm.cpp, FM/fmcomp: Anda en el cluster!!  A compiler for small
+	matrices..
+
+	* fastmat.cpp, fastmat.h, fem.cpp, internal.cpp.fastmat,
+	notas.txt, .gdbinit, Makefile: Anda en el cluster!!
+
+1999-10-12  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* FM/Makefile, FM/fm.cpp: Debugging the FastMat version.
+
+	* fastmat.h, fem.cpp, fem.h, internal.cpp, internal.cpp.newmat,
+	outvector.sal, read_mesh.cpp, Makefile, fastmat.cpp: There is now
+	a FastMat version and a Newmat version of internal.cpp.  Debugging
+	the FastMat version.
+
+	* internal.cpp.newmat, outvector.sal, read_mesh.cpp, Makefile,
+	fem.cpp, internal.cpp, internal.cpp.fastmat: Fixed a bug in the
+	definition of dof_here
+
+	* FM/fm.o, FM/fm:
+	These are binary.
+
+	* FM/Makefile, FM/fm, FM/fm.cpp, FM/fm.o: Examples for FastMat.
+
+	* ChangeLog, Makefile, fastmat.cpp, fastmat.h, fem.h, internal.cpp, vecmacros.h:
+	Transforming element routine from newmat (class Matrix) to FastMat.
+
+1999-10-11  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* OLD/try9.c: A try program to test the libretto library.
+
+	* FM/Makefile, FM/fm, FM/fm.cpp, FM/fm.o: Adding the FastMat class
+	The FastMat class directory.
+
+	* Makefile, fastmat.cpp, fastmat.h, libretto.h, ChangeLog,
+	fem.cpp: Adding the FastMat class
+
+	* PROJECTS, fem.cpp, texthash.cpp: Modified hash_func() in
+	texthash so that now the hash function represents the integer
+	value of the first sizeof(int) characters of the string (in
+	correct order).
+
+	* .gdbinit, ChangeLog, Makefile, PROJECTS, datos4.dat,
+	elemset.cpp, fem.cpp, internal.cpp, outvector.sal, read_mesh.cpp:
+	Residual and Finite Difference Jacobian are assembled on a
+	partitioned mesh. I can't debug it now on a multiple processors
+	since I can't built mpich with egcs 1.2.xx
+
+1999-10-11  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* OLD/try9.c: A try program to test the libretto library.
+
+	* FM/Makefile, FM/fm, FM/fm.cpp, FM/fm.o:
+	Adding the FastMat class
+	The FastMat class directory.
+
+	* Makefile, fastmat.cpp, fastmat.h, libretto.h, ChangeLog, fem.cpp:
+	Adding the FastMat class
+
+	* PROJECTS, fem.cpp, texthash.cpp:
+	Modified hash_func() in texthash so that now the hash
+	function represents the integer value of the first sizeof(int)
+	characters of the string (in correct order).
+
+	* .gdbinit, ChangeLog, Makefile, PROJECTS, datos4.dat,
+	elemset.cpp, fem.cpp, internal.cpp, outvector.sal, read_mesh.cpp:
+	Residual and Finite Difference Jacobian are assembled on a
+	partitioned mesh. I can't debug it now on a multiple processors
+	since I can't built mpich with egcs 1.2.xx
+
+1999-10-11  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* PROJECTS, fem.cpp, texthash.cpp:
+	Modified hash_func() in texthash so that now the hash
+	function represents the integer value of the first sizeof(int)
+	characters of the string (in correct order).
+
+	* .gdbinit, ChangeLog, Makefile, PROJECTS, datos4.dat, elemset.cpp, fem.cpp, internal.cpp, outvector.sal, read_mesh.cpp:
+	Residual and Finite Difference Jacobian are assembled on
+	a partitioned mesh. I can't debug it now on a multiple processors since
+	I can't built mpich with egcs 1.2.xx
+
+1999-10-10  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* OLD/try9.cpp:
+	Made some manipulations in order to upgrade to RH 6.0
+	Libretto didn't compile on RH 6.0 (egcs 1.2.xx) . I had to modify
+	the definition of __P in libretto.h
+
+	* Makefile, fem.h, texthash.cpp, texthash.h:
+	Made some manipulations in order to upgrade to RH 6.0
+
+1999-10-10  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* OLD/try9.cpp:
+	Made some manipulations in order to upgrade to RH 6.0
+	Libretto didn't compile on RH 6.0 (egcs 1.2.xx) . I had to modify
+	the definition of __P in libretto.h
+
+	* Makefile, fem.h, texthash.cpp, texthash.h:
+	Made some manipulations in order to upgrade to RH 6.0
+
+1999-10-08  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* ChangeLog, datos4.dat, datos5.dat, outvector.sal.ref:
+	Added some auxiliary files.
+
+	* ChangeLog, Makefile, elemset.cpp, elemset.h, fem.cpp, fem.h,
+	internal.cpp, internal.h, read_mesh.cpp: Almost workin the
+	distributed stuff.
+
+	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo, elemset.h:
+	Anda  la definicion del scatter.
+
+1999-10-08  Mario Storti  <mstorti@minerva>
+
+	* ChangeLog, Makefile, elemset.cpp, elemset.h, fem.cpp, fem.h,
+	internal.cpp, internal.h, read_mesh.cpp: Almost working the
+	distributed stuff.
+
+	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo, elemset.h:
+	Anda  la definicion del scatter.
+
+1999-10-08  Mario Storti  <mstorti@minerva>
+
+	* fem.cpp, fem.h, read_mesh.cpp, ChangeLog, datos.dat.uncampo, elemset.h:
+	Anda  la definicion del scatter.
+
+1999-10-07  Mario Storti  <mstorti@minerva>
+
+	* fem.cpp: Paso el chequeo del scatter a read_mesh
+
+1999-10-06  Mario Storti  <mstorti@minerva>
+
+	* ChangeLog, Makefile, elemset.h, fem.cpp, fem.h, read_mesh.cpp:
+	Works passing ghost values with VecScatter
+
+	* ChangeLog, Makefile, read_mesh.cpp:
+	Compila y corre con Metis y porticiona aparentemente bien la malla.
+
+1999-10-06  Mario Storti  <mstorti@minerva>
+
+	* ChangeLog, Makefile, elemset.h, fem.cpp, fem.h, read_mesh.cpp:
+	Works passing ghost values with VecScatter
+
+	* ChangeLog, Makefile, read_mesh.cpp:
+	Compila y corre con Metis y porticiona aparentemente bien la malla.
+
+1999-10-06  Mario Storti  <mstorti@minerva>
+
+	* ChangeLog, Makefile, read_mesh.cpp:
+	Compila y corre con Metis y porticiona aparentemente bien la malla.
+
+1999-10-05  Mario Storti  <mstorti@minerva>
+
+	* ChangeLog, Makefile, datos3.dat, fem.cpp, fem.h, internal.cpp,
+	outvector.sal, read_mesh.cpp: debugging the metis interface
+
+1999-10-05  Mario Storti  <mstorti@minerva>
+
+	* ChangeLog, Makefile, datos3.dat, fem.cpp, fem.h, internal.cpp,
+	outvector.sal, read_mesh.cpp: debugging the metis interface
+
+1999-10-04  Mario Storti  <mstorti@minerva>
+
+	* internal.cpp: Pongo un comentario al pedo
+
+1999-10-04  Mario Storti  <mstorti@minerva>
+
+	* internal.cpp: Pongo un comentario al pedo
+
+1999-10-04  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* internal.cpp, read_mesh.cpp:
+	Debugging the determination of properties auto-magically from either
+	the elemset properties table or the element-wise table.
+
+1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* internal.cpp:
+	Wrote get_int() and somewhat debugged. Now I will rewrite the calls to
+	get_entry in interna::assemble() in terms of get_double() and
+	get_int().
+
+	* internal.cpp: Debugged get_double()
+
+	* internal.cpp, read_mesh.cpp, texthash.cpp, texthash.h, datos3.dat:
+	Writing get_double()
+
+	* internal.cpp: Fixed a bug for reading n>1 in get_double
+
+	* internal.cpp: Works get_double
+
+	* elemset.h, internal.cpp, read_mesh.cpp:
+	This revision compiles and passes the elemset information
+	(icone, hash table, etc... to the elemset routine).
+
+1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* internal.cpp:
+	Wrote get_int() and somewhat debugged. Now I will rewrite the calls to
+	get_entry in interna::assemble() in terms of get_double() and
+	get_int().
+
+	* internal.cpp: Debugged get_double()
+
+	* internal.cpp, read_mesh.cpp, texthash.cpp, texthash.h, datos3.dat:
+	Writing get_double()
+
+	* internal.cpp: Fixed a bug for reading n>1 in get_double
+
+	* internal.cpp: Works get_double
+
+	* elemset.h, internal.cpp, read_mesh.cpp:
+	This revision compiles and passes the elemset information
+	(icone, hash table, etc... to the elemset routine).
+
+1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* internal.cpp: Works get_double
+
+	* elemset.h, internal.cpp, read_mesh.cpp:
+	This revision compiles and passes the elemset information
+	(icone, hash table, etc... to the elemset routine).
+
+1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* elemset.h, internal.cpp, read_mesh.cpp:
+	This revision compiles and passes the elemset information
+	(icone, hash table, etc... to the elemset routine).
+
+1999-10-03  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* PROJECTS, datos3.dat, elemset.h, internal.h, notas.txt, read_mesh.cpp:
+	Defining a hash table for the element properties per element.
+
+	* read_mesh.cpp:
+	coded (but not debugged) the reading of the elem props hash table.
+
+	* elemset.h:
+	Now I don't have a constructor for the elemset. I directly define the
+	components in read_mesh.
+
+1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* PROJECTS, datos3.dat, elemset.h, internal.cpp, internal.h,
+	notas.txt, read_mesh.cpp:
+
+	Agrego la propiedad por elementos. La lee bien y llega bien al
+	elemset. Hay un pequenho drama con que da un segementation fault
+	despues de leer la hash table del elemeset, cuando esta haciendo
+	la alocacion de memoria para icone y elemprops. El traceback da
+	que revienta en chunk_free lo cual es curioso porque ahi no esta
+	librendo memoria sino alocando. Ademas parece estar relacionado
+	con que la ultima linea del hash table termine en punto o no.
+
+	* fem.cpp, internal.cpp, PROJECTS: *** empty log message ***
+
+	* outvector.sal.ref:
+	outvector.sal.ref era una solucion de referencia.
+
+	* ex1.cpp,v:
+	CV:S ---------------------------------------------------------------------i
+	ave:q
+	:q
+	q
+	:q
+	:
+	q
+	.
+	VS: Enter Log.  Lines beginning with `CVS:' are removed automatically
+
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
+	New file.
+
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
+	Start sources
+
+
+1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* elemset.h:
+	Now I don't have a constructor for the elemset. I directly define the
+	components in read_mesh.
+
+
+	* PROJECTS, datos3.dat, elemset.h, internal.cpp, internal.h,
+	notas.txt, read_mesh.cpp:
+
+	Agrego la propiedad por elementos. La lee bien y llega bien al
+	elemset. Hay un pequenho drama con que da un segementation fault
+	despues de leer la hash table del elemeset, cuando esta haciendo
+	la alocacion de memoria para icone y elemprops. El traceback da
+	que revienta en chunk_free lo cual es curioso porque ahi no esta
+	librendo memoria sino alocando. Ademas parece estar relacionado
+	con que la ultima linea del hash table termine en punto o no.
+
+	* fem.cpp, internal.cpp, PROJECTS: *** empty log message ***
+
+	* outvector.sal.ref:
+	outvector.sal.ref era una solucion de referencia.
+
+	* ex1.cpp,v:
+	CV:S ---------------------------------------------------------------------i
+	ave:q
+	:q
+	q
+	:q
+	:
+	q
+	.
+	VS: Enter Log.  Lines beginning with `CVS:' are removed automatically
+
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
+	New file.
+
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
+	Start sources
+
+1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
+
+	* PROJECTS, datos3.dat, elemset.h, internal.cpp, internal.h, 
+	notas.txt, read_mesh.cpp:
+
+	Agrego la propiedad por elementos. La lee bien y llega bien al
+	elemset. Hay un pequenho drama con que da un segementation fault
+	despues de leer la hash table del elemeset, cuando esta haciendo
+	la alocacion de memoria para icone y elemprops. El traceback da
+	que revienta en chunk_free lo cual es curioso porque ahi no esta
+	librendo memoria sino alocando. Ademas parece estar relacionado
+	con que la ultima linea del hash table termine en punto o no.
+
+	* fem.cpp, internal.cpp, PROJECTS: *** empty log message ***
+
+	* outvector.sal.ref:
+	outvector.sal.ref era una solucion de referencia.
+
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
+	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
+	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
+	OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp,
+	OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp,
+	OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp,
+	OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp,
+	OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat,
+	datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp,
+	elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
+	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
+	texthash.h: New file.
+
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
+	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
+	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
+	OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp,
+	OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp,
+	OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp,
+	OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp,
+	OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat,
+	datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp,
+	elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
+	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
+	texthash.h: Start sources

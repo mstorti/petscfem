@@ -1,0 +1,92 @@
+# -*- mode: shell-script -*-
+#
+<:require '../eperlini.pl':>// # Initializes ePerl 
+#================================================================
+global_options
+
+save_file state_save.sal
+nsave 10
+
+rtol 1e-2
+maxits 100
+
+save_file_pattern outvector%d.out
+nsaverot 10
+nrec  100
+nfile 2
+
+nstep 1000
+
+local_time_step 0
+auto_time_step 0
+consistent_supg_matrix 0
+Courant 0.6
+Dt 0.002
+
+initial_state turbchan.ini
+gravity 1
+weak_form 1
+addvisc 0.
+initial_state "turbchan.ini"
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  5
+__INCLUDE__ turbchan.nod
+
+__END_NODES__
+#===========================================================
+elemset volume_shallowfm2t 4
+#Datos del elemento
+geometry cartesian2d
+ndim 2
+npg 4
+
+lumped_mass 1
+chunk_size 500
+__END_HASH__
+__INCLUDE__ turbchan.con
+__END_ELEMSET__
+
+#================================================================
+elemset bcconv_adv_shallowfm2t 2
+#elemset bcconv_adv_shallow 2
+props 
+npg 2
+ndim 2
+geometry cartesian1d
+
+addvisc 0.
+
+__END_HASH__
+
+2 1
+201 202
+
+__END_ELEMSET__
+
+end_elemsets
+
+#================================================================
+fixa
+1 1 1.
+1 2 0.
+1 4 0.1
+1 5 0.1
+
+2 1 1.
+2 2 0.
+2 4 0.1
+2 5 0.1
+
+201 3 0.3
+202 3 0.3
+
+__END_FIXA__
+
+
+#================================================================
+constraint
+__INCLUDE__ turbchan.peri
+__END_CONSTRAINT__
+

@@ -1,0 +1,81 @@
+#===========================================================
+global_options
+
+save_file state_save.sal
+nsave 500
+nstep 1
+
+auto_time_step  0
+local_time_step 1
+Courant         0.65
+consistent_supg_matrix 0
+
+save_file_pattern outvector%d.sal
+nsaverot 500
+nrec  500
+nfile 1
+
+Dt 0.01
+#initial_state state_save.sal
+#initial_state circ_potential.ini
+initial_state circ.ini
+#initial_state circ_projected.ini
+
+proc_weights weights.dat
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  3
+__INCLUDE__ circ.nod
+
+__END_NODES__
+#===========================================================
+elemset volume_shallowfm2 4  
+props  
+#Datos del elemento
+geometry cartesian2d
+ndim 2
+npg 4
+
+lumped_mass 1.
+beta_supg .95
+
+gravity 1
+addvisc 0.
+#weak_form 1
+__END_HASH__
+__INCLUDE__ circ.con
+__END_ELEMSET__
+
+#================================================================
+elemset absorb_shallow 1
+props norx nory
+
+gravity 1
+
+__END_HASH__
+
+__INCLUDE__ circ.abso
+
+__END_ELEMSET__
+
+end_elemsets
+
+#fixa
+
+#   61 1 0.0000 
+#   76 2 0.0000 
+#   91 1 0.0000 
+#  106 2 0.0000 
+
+#__END_FIXA__
+
+
+#================================================================
+constraint
+
+# restricciones slip sobre el perfil interior
+
+__INCLUDE__ circ.slip
+
+__END_CONSTRAINT__

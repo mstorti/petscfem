@@ -1,0 +1,59 @@
+VERSION LINEAL
+================================================================
+n: 20, N: 1000, M: 1, loop: 37
+elapsed: 4.390000 [sec], ops: 592000000.000000 [flop], rate: 134.851936 [Mflops]
+
+n: 20, N: 1000, M: 1000, loop: 37
+elapsed: 4.810000 [sec], ops: 592000000.000000 [flop], rate: 123.076923 [Mflops]
+
+[mstorti@node7 test]$ for j in $(seq 1 10) ; do ( ./testfm2d.bin -n 30 -N 5000 -M 1 -t 1 | grep rate ) ; done
+elapsed: 2.390000 [sec], ops: 540000000.000000 [flop], rate: 225.941423 [Mflops]
+elapsed: 2.790000 [sec], ops: 540000000.000000 [flop], rate: 193.548387 [Mflops]
+elapsed: 2.360000 [sec], ops: 540000000.000000 [flop], rate: 228.813559 [Mflops]
+elapsed: 2.370000 [sec], ops: 540000000.000000 [flop], rate: 227.848101 [Mflops]
+elapsed: 2.350000 [sec], ops: 540000000.000000 [flop], rate: 229.787234 [Mflops]
+elapsed: 2.270000 [sec], ops: 540000000.000000 [flop], rate: 237.885463 [Mflops]
+elapsed: 2.450000 [sec], ops: 540000000.000000 [flop], rate: 220.408163 [Mflops]
+elapsed: 2.710000 [sec], ops: 540000000.000000 [flop], rate: 199.261993 [Mflops]
+
+[mstorti@node7 test]$ for j in $(seq 1 10) ; do ( ./testfm2d.bin -n 30 -N 1000 -M 1000 -t 1 | grep rate ) ; done
+elapsed: 0.820000 [sec], ops: 162000000.000000 [flop], rate: 197.560976 [Mflops]
+elapsed: 0.860000 [sec], ops: 162000000.000000 [flop], rate: 188.372093 [Mflops]
+elapsed: 0.840000 [sec], ops: 162000000.000000 [flop], rate: 192.857143 [Mflops]
+elapsed: 0.850000 [sec], ops: 162000000.000000 [flop], rate: 190.588235 [Mflops]
+elapsed: 0.840000 [sec], ops: 162000000.000000 [flop], rate: 192.857143 [Mflops]
+elapsed: 0.840000 [sec], ops: 162000000.000000 [flop], rate: 192.857143 [Mflops]
+elapsed: 0.850000 [sec], ops: 162000000.000000 [flop], rate: 190.588235 [Mflops]
+elapsed: 0.850000 [sec], ops: 162000000.000000 [flop], rate: 190.588235 [Mflops]
+elapsed: 0.860000 [sec], ops: 162000000.000000 [flop], rate: 188.372093 [Mflops]
+elapsed: 0.840000 [sec], ops: 162000000.000000 [flop], rate: 192.857143 [Mflops]
+
+VERSION NOLINEAL
+================================================================
+n: 20, N: 1000, M: 1000, loop: 37
+elapsed: 3.540000 [sec], ops: 592000000.000000 [flop], rate: 167.231638 [Mflops]
+
+n: 20, N: 1000, M: 1, loop: 37
+elapsed: 3.100000 [sec], ops: 592000000.000000 [flop], rate: 190.967742 [Mflops]
+
+n: 30, N: 500, M: 500, loop: 22
+elapsed: 3.330000 [sec], ops: 594000000.000000 [flop], rate: 178.378378 [Mflops]
+
+n: 30, N: 5000, M: 1, loop: 2
+elapsed: 2.450000 [sec], ops: 540000000.000000 [flop], rate: 220.408163 [Mflops]
+
+[mstorti@node7 test]$ for j in $(seq 1 10) ; do ( ./testfm2d.bin -n 30 -N 5000 -M 1 -t 1 | grep rate ) ; done
+elapsed: 7.140000 [sec], ops: 540000000.000000 [flop], rate: 75.630252 [Mflops]
+elapsed: 6.760000 [sec], ops: 540000000.000000 [flop], rate: 79.881657 [Mflops]
+elapsed: 6.520000 [sec], ops: 540000000.000000 [flop], rate: 82.822086 [Mflops]
+elapsed: 5.570000 [sec], ops: 540000000.000000 [flop], rate: 96.947935 [Mflops]
+elapsed: 8.110000 [sec], ops: 540000000.000000 [flop], rate: 66.584464 [Mflops]
+elapsed: 6.500000 [sec], ops: 540000000.000000 [flop], rate: 83.076923 [Mflops]
+
+[mstorti@node7 test]$ for j in $(seq 1 10) ; do ( ./testfm2d.bin -n 30 -N 1000 -M 1000 -t 1 | grep rate ) ; done
+elapsed: 7.470000 [sec], ops: 594000000.000000 [flop], rate: 79.518072 [Mflops]
+elapsed: 6.470000 [sec], ops: 594000000.000000 [flop], rate: 91.808346 [Mflops]
+elapsed: 5.530000 [sec], ops: 594000000.000000 [flop], rate: 107.414105 [Mflops]
+elapsed: 5.840000 [sec], ops: 594000000.000000 [flop], rate: 101.712329 [Mflops]
+elapsed: 7.060000 [sec], ops: 594000000.000000 [flop], rate: 84.135977 [Mflops]
+

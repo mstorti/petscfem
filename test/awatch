@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+use Getopt::Std;
+
+getopts("n:st");
+
+$secs= ($opt_n ? $opt_n : 1);
+
+print "will execute @ARGV each $secs secs\n";
+$sep = ('-' x 80)."\n";
+print $sep if $opt_s;
+while (1) {
+    print " // at ",scalar localtime(time()),"  //\n" if $opt_t;
+    print `@ARGV`;
+    print $sep if $opt_s;
+    sleep $secs;
+}

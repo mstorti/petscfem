@@ -1,0 +1,246 @@
+\Section{The Navier-Stokes module}
+
+\SSection{LES implementation}
+
+The Smagorisky LES model for the Navier-Stokes module follows ...
+%\cite{el libro del %chino }
+The implementation under \pfem{} has presents the following
+particularities
+%
+\begin{itemize}
+\item Wall boundary conditions are implemented as \emph{``mixed
+type''}. 
+
+\item The van Driest damping factor introduces non-localities in
+the sense that the turbulent viscosity at a volume element depends on
+the state of the fluid at a wall.
+\end{itemize}
+
+\SSSection{The wall elemset}
+
+Wall boundary conditions have been implemented via a \verb+wall+
+elemset. This is a surface element that computes, given the velocities
+at the nodes, the tractions corresponding to this velocities, for a
+given law of wall. Also, this shear velocities as stored internally in
+the element, so that the volume elements can get them and compute the
+van Driest damping factor. This requires to find, for each volume
+element, the nearest wall element. This is done \emph{before} the time
+loop, with the ANN (Approximate Nearest Neighbor) library. 
+
+\SSSection{The mixed type boundary condition}
+
+The contribution to the momentum equations from the wall element is
+%
+\begin{equation} 
+   R_{ip} = \int_\Se t_p N_i \dS \label{eq:wallres} 
+\end{equation}
+%
+where $R_{ip}$ is the contribution to the residual of the $p$-th
+momentum equation of the node $i$. $N_i$ is the shape function of node
+$i$ and $t_p$ are the tractions on the surface of the element
+$\Se$. The wall law is in general of the form
+%
+\begin{equation} 
+  \frac{u}{\ustar} = f(y^+) \label{eq:walllaw} 
+\end{equation}
+%
+where $u$ is the tangent velocity, $\ustar$ the shear velocity $\ustar
+= \sqrt{\tau_w/\rho}$, and $y^+ = y\ustar/\nu$, the non-dimensional
+distance to the wall. We have several possibilities regarding the
+positioning of the computational boundary. We first discuss the
+simplest, that is to set the computational boundary at a fixed $y^+$
+position. Note, that this means that the real position od the boundary
+$y^+$ changes during iteration. In this case (\ref{eq:walllaw}) can be
+rewritten as
+%
+\begin{equation} 
+   \tau_w = g(u) \,  u
+\end{equation}
+%
+where
+%
+\begin{equation}
+  \tau_w = g(u) \, u = \rho \LL(\frac u{f(y^+)}\RR)^2
+\end{equation}
+%
+or
+%
+\begin{equation} 
+   g(u) = \frac\rho{f(y^+)^2} u
+\end{equation}
+%
+The traction on the wall element is assumed to be parallel to the wall
+and in opposite direction to the velocity vector, that is
+%
+\begin{equation} 
+  t_p = -g(u) u_p
+\end{equation}
+%
+Replacing in (\ref{eq:wallres}) the residual term is
+%
+\begin{equation} 
+   R_{ip} = -\int_\Se  g(u) u_p N_i \dS
+\end{equation}
+%
+The Jacobian of the residual with respect to the state variables,
+needed for the Newton-Raphson algorithm is
+%
+\begin{align}
+   J_{ip,jq} &= - \dep{R_{ip}}{u_{jq}} = 
+                 \int_\Se  \dep{}{u_{jq}} (g(u) u_p) \,  N_i \dS \\
+       &\int_\Se  \LL(g(u) \, \dep{u_p}{u_{jq}} + g'(u) \, u_p \,
+                 \dep{u}{u_{jq}}\RR)  \,  N_i \dS  \label{eq:integ} 
+\end{align}
+%
+but
+%
+\begin{equation} 
+   u_p = \sum_l u_{lp} N_l
+\end{equation}
+%
+so that
+%
+\begin{align}
+   \dep{u_p}{u_{jq}} &= \sum_l \dep{u_{lp}}{u_{jq}} N_l\\
+                     &= \sum_l \delta_{lj} \, \delta_{pq} N_l\\
+                     &= \delta_{pq} \, N_j
+\end{align}
+%
+Similarly,
+%
+\begin{equation} 
+   u^2 = u_p\,u_p = u_{lp} N_l \, u_{mp} N_m
+\end{equation}
+
+%
+and
+%
+\begin{equation} 
+   2u \, \dep{u}{u_{jq}}  = 2 u_p \dep{u_p}{u_{jq}}
+\end{equation}
+%
+so that
+%
+\begin{equation} 
+   \dep{u}{u_{jq}}  = \frac{u_p}{u} N_j
+\end{equation}
+%
+Replacing in (\ref{eq:integ}),
+%
+\begin{equation} 
+   J_{ip,jq} = \int_\Se  \LL(g(u) \, \delta_{pq} + \frac{g'(u)}u \, u_p \,
+                 u_q\RR)  \,  N_i N_j\dS
+\end{equation}
+  
+\index{van Driest}
+\SSSection{The van Driest damping factor. Programming notes}
+
+\index{wall element}
+\index{ANN}
+\index{shear velocity}
+\index{octree}
+%
+This is a non-standard issue, since the computation of one volume
+element requires information of other (wall) elements.  First we
+compute the wall element that is associated to each volume
+element. \verb+assemble()+ is called with
+\verb+jobinfo="build_nneighbor_tree"+. This jobinfo is acknowledged
+only by the wall elemsets which compute their geometrical center and
+put them in the \verb+data_pts+ STL array.  Then, this is passed to
+the ANN package which computes the octree. All this is cached in the
+constructor of a \verb+WallData+ class. After this a call to \verb+assemble()+
+with \verb+jobinfo="get_nearest_wall_element"+ is acknowledged by all
+the volume elemsets, that compute for each volume element the neares
+wall element. This is stored as an \emph{``integer per element
+property''} in the volume elemsets. In order to reduce memory
+requirements only an index in the \verb+data_pts+ array is stored. As
+several wall elemsets may exists, an array of
+\verb+pair<int,elemset *>+ is used to store pointers to the
+\verb+data_pts+ array in order to know to which wall elemset the given
+index in \verb+data_pts+ belongs. 
+
+\begin{verbatim}
+vector<double> *data_pts_ = new vector<double>;
+vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
+WallData *wall_data;
+if (LES) {
+
+  VOID_IT(argl);
+  argl.arg_add(data_pts_,USER_DATA);
+  argl.arg_add(elemset_pointer,USER_DATA);
+  Elemset *elemset=NULL;
+  argl.arg_add(elemset,USER_DATA);
+  ierr = assemble(mesh,argl,dofmap,
+                   "build_nneighbor_tree",&time); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"After nearest neighbor tree.\n");
+
+  wall_data = new WallData(data_pts_,elemset_pointer,ndim);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Find nearest neighbor for each volume element
+  VOID_IT(argl);
+  argl.arg_add(wall_data,USER_DATA);
+  ierr = assemble(mesh,argl,dofmap,"get_nearest_wall_element",
+      	    &time); CHKERRA(ierr); 
+}
+\end{verbatim}
+
+In the \verb+jobinfo="build_nneighbor_tree"+ call to \verb+assemble()+
+a loop over all the elements in the elemset, ignoring to what
+processor it belongs, must be performed. Otherwise, each processor
+loads in \verb+data_pts+ only the coordinates of the elements that
+belong to him. A possible solution is, after the loop, to exchange the
+information among the processors, but the simplest solution id to
+simply bypass the element selection with \verb+compute_this_elem()+
+with a call like
+%
+\begin{verbatim}
+  for (int k=el_start; k<=el_last; k++) {
+    if (!(build_nneighbor_tree ||
+          comp_shear_vel ||
+          compute_this_elem(k,this,myrank,iter_mode))) continue;
+...
+\end{verbatim}
+%
+That means that for \verb+jobinfo="build_nneighbor_tree"+ and
+\verb+"comp_shear_vel"+ the normal element selection is bypassed. 
+
+\SSection{Options}
+
+{\raggedright
+\begin{description}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[General options:] ~
+
+\begin{itemize}
+\input odocns
+\end{itemize}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Elemset ``{\tt nsitetlesfm2}'':] ~
+
+\begin{itemize}
+\input odocnse
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Elemset ``{\tt bcconv\_ns\_fm2}'':] ~
+
+\begin{itemize}
+\input odocnsb
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Elemset ``{\tt wall}'':] ~
+
+\begin{itemize}
+\input odocnsw
+\end{itemize}
+
+\end{description}
+} % end of /raggedright
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *
+

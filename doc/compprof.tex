@@ -1,0 +1,93 @@
+\Section{The compute\_prof package} 
+
+\SSection{MPI matrices in PETSc} 
+
+\index{compute_prof package@\verb+compute_prof+ package}
+%
+When defining a matrix in PETSc with ``\verb+MatCreateMPIAIJ+'' you
+tell PETSc (see the PETSc documentation)
+%
+\begin{itemize}
+\item How many lines of the matrix live in the actual processoor ``\verb+m+''. 
+\item For each line of this processor how many non null elements it
+has in the diagonal block ``\verb+d_nnz[j]+''
+\item For each line of this processor how many non null elements it
+has in the off-diagonal block ``\verb+o_nnz[j]+''
+\end{itemize}
+%
+\index{COMP_MAT_PROF@\verb+COMP_MAT_PROF+}
+%
+In \pfem{} this quantities are computed in two steps. 
+\begin{itemize}
+\item Call assemble with ``\verb+ijob=COMP_MAT_PROF+'' or
+``\verb+ijob=COMP_FDJ_PROF+'' and appropriated ``\verb+jobinfo+'' in
+order to tell the element routine which matrix are you computing.
+This returns a Libretto dynamic array ``\verb+*da+'' containing the
+sparse structure of the given matrix.
+
+\index{compute_prof@\verb+compute_prof+}
+%
+\item function ``\verb+compute_prof+'' takes ``\verb+da+'' as argument
+and fills ``\verb+d_nnz+'', ``\verb+o_nnz+''. 
+\end{itemize} 
+
+\SSection{Profile determination} 
+
+\index{profile determination}
+%
+Let us describe first how the sparse profile is determined in the
+sequential (one processor only) case. We have to determine for each
+row index $i$ all the column indices $j$ that have a non null matrix
+entry $A_{ij}$. The amount of storage needed is a mattern oof concern
+here. It is allmost sure that we will need at least one integer per
+each non-null entry. A first attempt is to have a dynamic array for
+each $i$ index and store their all the connected $j$ indices. In
+typical applications we have $O(\nexpE4)$ to $O(\nexpE5)$ nodes per
+processor and the number of connected $j$ indices ranges from 10 to
+several hundred. In order to avoid this large number of small dynamic
+arrays growing we store all the indices in a big array, behaving as a
+sinly linked list. Each entry in
+the array is composed of two integers (``\verb+struct Node+''), one
+pointing to the next entry for this row, and other with the value of
+the row. Consider, for instance, a matrix with the following sparse
+structure: 
+
+% Consider, for instance, a mesh like that one in
+% figure~\ref{fg:profil}. We assume one field per node, natural boundary
+% conditions everywhere and no renumbering of unknowns, so that node
+% number is the same as unknown number in the matrix. The 
+% element number in the figure shows also the order in which elements
+% are loaded. 
+
+\begin{equation} 
+  !A = 
+\begin{sqmat}{ccc}
+      * & * & * \\    
+      . & * & . \\    
+      * & . & * 
+\end{sqmat} 
+\end{equation}
+
+Matrix coefficients $(i,j)$ are introduced in the following order (1,1),
+(2,2), (1,2), (3,1), (1,3), (3,3).  The dynamic array for this mesh
+results in
+
+\begin{figure*}[ht]
+\centerline{\includegraphics{./OBJ/profil.eps}}
+\caption{Structure of darray}
+\label{fg:profil}
+\end{figure*}
+
+For all $i$, the $i$-th row starts in position $i-1$. The first
+component of the pair shows the value of $j$ and the position of the
+next connected $j$ index. The sequence ends with a terminator
+$(0,-1)$. In this way, the storage needed is two integers per
+coefficient with an overhead of two integers per row for the
+terminator, and there is only one dynamic array growing at the same
+time. 
+
+To insert a new coefficient, say $(i,j)$, we traverse the $i$-th row,
+checking whether the $j$ coefficient is already present or not, and if
+the terminator is found, $j$ is inserted in its place, pointinf to the
+new terminator, which is placed at the end of the dynamic array.
+

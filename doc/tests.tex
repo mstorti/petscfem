@@ -1,0 +1,110 @@
+\Section{Tests and examples} 
+
+In this section we describe some examples that come with \pfem{}. They
+are intentionally small and sometimes almost trivial, but they are
+very light-weight and can be run in a short time (at most some
+minutes). They are put in the \verb+test+ directory and can be run
+with \verb+make tests+ command. The purpose of this tests is to check
+the corect behaviour of \pfem{}, but also they can serve people to
+understand the program. 
+
+\SSection{Flow in the anular region between to cylinders}
+
+\filehead{sector.dat}.  This example tests periodic boundary
+conditions. The mesh is a sector of circular strip ($2.72 < r <
+4.48$, $0 < \theta < pi/4$) and we impose. The governing equation is
+$\Delta !u=0$, where $!u$ is a velocity vector of two components.  On
+the internal radius we impose $!u=0$ and $!u=!t$ where $!t$ is the
+tangent vector. On the radii $\theta=0$ and $\theta=\pi/4$ we impose
+periodic boundary conditions so that it is close to flow in the region
+between two cylinders, with the internal cylinder fixed and the
+external one rotating with velocity 1. But the operator \emph{is not}
+the Stokes operator. However in this case the flow for this operator
+is divergence free and the gradient of pressure has no component in
+the angular direction, so that the solution \emph{do} coincide with
+the Stokes solution.
+
+In the output of the test (sector.sal), we check that the solution
+is aligned with the angular direction $u_x=-u_y$ at the outlet
+section ($\theta = \pi/4$).
+
+\SSection{Flow in a square with periodic boundary conditions}
+
+\filehead{lap\_per.dat} 
+This is similar to example ``sector.dat'' but in a region that is the
+square $-1<x,y<+1$. $!u$ is imposed on all sides, $|u|=1$ and in the
+tangential direction in the counter-clockwise sense, i.e.
+$!u=(0,\pm1)$ in $x=\pm1$, $!u=(\mp1,0)$ in $y=\pm1$. By symmetry we
+can solve it in $\sfr14$-th of the domain, i.e. in the square $x,y>0$
+(We could solve it also in $\sfr18$-th of the region, the triangle
+$y>0$, $y<x$, $x<1$). 
+
+\SSection{The oscilating plate problem} 
+
+\filehead{oscplate.dat}
+This is the flow produced between two infinite plates when one is at
+rest and the other oscillating with amplitude $A$ and frequency
+$\omega$ (see figure~\ref{fg:oscplate}).  This serves to test a
+problem with temporal dependent boundary conditions.  The problem is
+one-dimensional and the resulting field is $u=0$, $p=\cnst$ and
+$v=v(x)$. We set parameters lenght between plates $L=1$, viscosity
+$\nu=1$ and we model the problem with a strip $0\le x \le 1$, $0\le y
+\le 0.1$ and set periodic boundary conditions between $y=0.1$ and
+$y=0$. At the plate at rest ($x=L$) we set $u,p=0$ and at $x=0$ and at
+the moving plate ($x=0$) we set $u=\omega A \, \sin(\omega
+t)$. The analytic solution can be found easily.  The
+equation for $v$ is
+%
+\begin{equation}\label{eq:oeq}  
+  \dep vt = \nu \dep {^2v}{x^2}
+\end{equation}
+%
+with boundary conditions $v(0)=A\omega \, \sin(\omega t)$ and
+$v(L)=0$. The solution can be found by searching for solutions of the
+form
+%
+\begin{equation} 
+   v = \expe{\zi\omega t+\lambda x}
+\end{equation}
+%
+Replacing in (\ref{eq:oeq}) we arrive at the characteristic equation
+%
+\begin{equation} 
+   \zi\omega  = \nu\lambda^2 
+\end{equation}
+%
+whose solutions are
+%
+\begin{equation} 
+    \lambda = \pm \frac{1+\zi}{\sqrt2} \, \sqrt{\omega/\nu} = \pm \lambda_+
+\end{equation}
+%
+Setting the boundary conditions, the solution is
+%
+\begin{equation} 
+   v(x) = \Imag{\expe{\zi\omega t} \, 
+       \frac{ \expe{\lambda_+(x-L)} - \expe{-\lambda_+(x-L)}}
+            { \expe{-\lambda_+L} - \expe{\lambda_+L}}}
+\end{equation}
+%
+In the example we set $\nu=100$, $\omega=2000\pi\approx 6283$. We
+choose to have 16 time steps in one period so that $Dt =
+\nexp{6.2}{-5}$. The resulting profile velocity is compared with the
+analytical one in figure~\ref{fg:oscplsol}.4s
+
+\begin{figure*}[htb]
+%\centerline{\includegraphics{./OBJ/oscplate.eps}}
+\caption{Oscillating plates.}
+\label{fg:oscplate}
+\end{figure*}
+ 
+\begin{figure*}[htb]
+%\centerline{\includegraphics{./OBJ/oscplsol.eps}}
+\caption{Velocity profile for the oscilating plate problem.}
+\label{fg:oscplsol}
+\end{figure*}
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

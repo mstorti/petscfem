@@ -1,0 +1,11 @@
+%
+% Use \{ and \} in alltt environment. 
+%
+% Usage:
+% * \ttlb and \ttrb may be used in a `alltt' environment and
+%         produce { and } in the \tt font.
+% * \allttbraces inside the alltt environment allows to access braces
+% as \{ and \}. 
+\newcommand{\ttlb}{\char'173}     
+\newcommand{\ttrb}{\char'175} 
+\newcommand{\allttbraces}{\let\{=\ttlb \let\}=\ttrb}

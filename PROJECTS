@@ -1,0 +1,104 @@
+PROJECTS: 
+=========
+
+* Access connectivities and properties for elements as methods of the
+      elemset. 
+* For boundary dependent temporal conditions we should have arguments
+    that are a vector and a time.
+* Code a log option for the *GETOPT* functions so that they write a
+     log that tells in which hash-table they found the key. 
+* overload () operator on FM2 so that we can write expressions as 
+      A(j,k).prod(B(j,mu),C(k,mu))
+* write a change_sign() function for FM2
+* Fix Makefile in ./doc (it repeats many times the rules)
+* Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
+* Add targets to the Makefile like `distrib' `almost_clean' etc...
+* Create an Hyper-Fast version of FM2 for linear addressing.. 
+* Code not to have to call to FastMat2::branch/leave when there is no
+	 'else' block. 
+* include inject operations
+* code view copies
+* include a 'check of the caches' feature 
+* include count operations in kron and others.
+* write better doc for FM2
+* Find a better hash function for the text hashes. 
+* Put `const' keyword in `get_entry' and friends.
+* add a section `conventions' to documentation
+* write documentation for arglist class
+* symbol section in the documentation
+* arg_lists as list of objects of class "arg"
+* Code automatic load balancing. 
+
+DONE:
+=====
+
+* Add a list of required software to README
+* Add a `measure_performance' item
+* escribir un test para el bug de FastMat2::prod()
+* Fix error in test oscplate2b
+* FastMat2::deactivate_cache() gives a SIGSEGV if caches are not
+    active. 
+* thash: There is a SIGSEGV if an option  doesn't have a value. For
+      instance `print_linear_system_and_stop '
+* Finish with `option documentation' (odoc). 
+* Include doc for modules and options and code `optdoc.pl' to 
+   auto-include doc for options.
+* Write doc for LES.
+* Write doc for new features in TextHashTable
+* Fix bug when an option is a string and there are trailing spaces
+* Scripting interface with SWIG. [NOT DONE}
+* Include a call to Visual3. [NOT DONE}
+* add the "father" and "include" feature for the hashes
+* Introduce features in order to process LES
+* matrix compiler for element computations? (???) 
+  What was done: Written the FastMat2 package
+* set_row as node/field lists. (???)
+* write BCCONV routine for advective equations.  
+* Include tests with dejagnu/expect. Not so easy... Make tests with
+      self-made scripts. (a self written `runtest' script...). 
+  What was done: with a self-written `myexpext.pl' Perl code.
+* debug de idmap::set_elem() function. Create a test for. 
+* define an ir() operation that restricts an index to a single value
+and reduces the dimensions by one
+* define the double() operator
+* code caches
+* code `diag' feature to FM2
+* replace 'void *' for a class TimeData (???)
+* recover print_some from ".tempo" files
+* Add documentation to the temporal problems (class `Amplitude' and friends.)
+* Several fat elemsets.
+* Erase the A_jac_av .... computations. 
+* Local time stepping
+* Make CONSISTENT_SUPG_MATRIX and DIAG_MASS_MATRIX, etc.. be global
+           options. 
+* Automatic computation of critical time step. 
+* temporal problems: in progress...
+* Introduce load balancing
+* Finite difference jacobians using upload_vector(load_mat) en vez de
+   (load_mat_col). 
+* Finite difference jacobian with the new atg_list philosophy
+* get ghost values in a special vector. (Don't do a global scatter). 
+* reorganizar directorios
+    petscfem(src(lib,appls(ns,shallow,laplace)),doc,run)
+* documentar!! con doc++
+* poner licencia GPL
+* Surface element for convective, flux conditions
+* elementos que permiten definir integrales de superficie. 
+* cambiar todos los CHKERRA por CHKERRQ
+* tetra elements with 1 and 4 Gauss point
+* separar aplicaciones de la libreria de llamadas a elementos
+* add node and element properties
+* process elements by chunks
+* allocate "local value vectors" (retval, locst and friends) only for the
+        elements in   processor 
+* El GC no converge del todo bien. Habra algun error en el armado de
+		     la matriz???
+* dimensionar correctamente el numero de elementos no nulos,
+             etc... por fila
+* fix the "elemprops" feature
+* hashfunc no esta bien definida (not optimal). OK
+* preprocessor directives like include
+* Petrov-Galerkin formulation. Mejorar???
+* 3D elements
+* write functions for getting specific types from the hash table. 
+    For instance thash->get_entry_dble("conductivity",kond)

@@ -1,0 +1,449 @@
+\Section{General layout of the user input data file}
+
+\index{user input data file}
+%
+Input to application packages (like \verb+ns+, \verb+advective+ or
+\verb+laplace+) is feedvia input data files, usually with extension
+\verb+.dat+. This file contains global options, node coordinates,
+element connectivities, physical properties, fixations and boundary
+conditions, etc... Even if the precise format of the file may be
+changing it is worth to describe the general layout. 
+
+The file is divided in sections: the 
+\verb+table+ sections, the \verb+nodedata+ section, several
+\verb+elemset+ sections, the \verb+fixa+ section and \verb+constraint+
+section. 
+
+Each section starts with the keyword identifying the section in a
+separate line, followed by several parameters in the same
+line. Follows several lines that makes the section, ending with a
+terminator of the form
+\verb+__END_<+\emph{some-identifier}\verb+>__+. For instance, an
+elemset section is of the form
+
+\begin{alltt}
+elemset volume_euler 4
+
+geometry cartesian2d
+ndim 2
+npg 4
+chunk_size 1000
+lumped_mass 1
+shock_capturing 1
+gamma 1.4
+\Arg{... other element options go here }
+__END_HASH__
+    1    2   81   80
+    2    3   82   81
+    3    4   83   82
+    4    5   84   83
+    5    6   85   84
+    6    7   86   85
+    7    8   87   86
+    8    9   88   87
+\Arg{... more element connectivities follow here }
+__END_ELEMSET__
+\end{alltt}
+
+In this example, the keyword \verb+elemset+ is followed by the
+parameters \verb+volume_euler+ that is the elemset type, and
+\verb+4+ that is the number of nodes connected to each element. The
+line starting with \verb+props+ 
+describes some per-element quantities (more on this later, see
+\S\ref{sec:getprop}). Follows the assignation of some values to
+parameters for the actual elemset, for instance the value \verb+4+ is
+assigned to the \verb+npg+ parameter, that is, the number of Gauss
+points. The assignation of parameters ends with the \verb+__END_HASH__+
+terminator. Follows the element connectivities, one per line, ending
+with the terminator \verb+__END_ELEMSET__+. 
+
+% \SSection{Tables}
+
+\SSection{Preprocessing the user input data file}
+
+\index{Preprocessing}
+%
+It's very handy to have some preprocessing capabilitites when reading
+input files, for instance including files, if-else constructs, macro
+definitions, inline arithmetics, etc... Some degree of preprocessing
+is performed inside \pfem{} -- this includes file inclusion, skipping
+comments, and continuation lines and is described in
+section~\S\ref{sec:fstack}. Off course, this internal preprocessing
+may be combined with any previous preprocessing package, such as
+\verb+m4+ or \verb+ePerl+. In section~\S\ref{sec:fstack} we describe
+internal preprocessing while in section\S\ref{sec:eperl} we describe 
+preprocessing with ePerl. 
+
+The reason to have this two mechanisms of preprocessing is the
+following. Preprocessing with ePerl (or m4, or any other packages) is
+very powerful and well supported, however the mechanism is to create
+an intermediate file, and this file may be very large for large
+problems, so that some internal preprocessing including, at least, the
+file inclusion is needed. On the other hand, including all the
+preprocessing capabilities of preprocessing as in ePerl is beyond the
+scope of \pfem{}, so that we preferred to keep with this two levels of
+preprocessing. The idea is to have a small user data file where the
+strong capabilities of an external preprocessing package may be used
+while performing file inclusion of very large files containing node
+coordinates, element connectivities and so on, as the file is reading,
+avoiding the creation of large intermediate files.  In addition, this
+allows the user to choose the external preprocessing package.
+
+\SSection{Internal preprocessing. The FileStack class}\label{sec:fstack}  
+
+\index{preprocessing!internal}
+%
+This class allows reading from a set of linked files (the \pfem{}
+data file including node coordinates, mesh connectivities, etc...)
+with some preprocessing capabilities. Supports file inclusion,
+comments and continuation lines. The preprocessing capabilities
+supported in this class are the minimal ones needed in order to treat
+very large files efficiently. More advanced preprocessing capabilities
+will be added in a higher level layer written in Perl or similar (may
+be ePerl?).
+
+\SSSection{Syntax} 
+
+The syntax of comments and continuation lines is borrowed from Unix
+shells,
+
+\begin{description}
+
+\item[Comments:] From the first appearance of ``\verb+#+'' to the end
+of the lines is considered a comment. 
+
+\item[Continuation lines:] If a line ends in ``\verb+\+'',
+(i.e. if backslash is the last character in the line, before newline
+``\verb+^J+'') then the next line is appended to the previous one to
+form a logical single line. 
+
+\item [File inclusion: ] The directive 
+%
+\begin{verbatim}
+__INCLUDE__ path/to/file
+\end{verbatim}
+%
+inserts the contents of ``\verb+file+'' in directory
+``\verb+path/to/+'' to this file in the actual point. Directories may
+be absolute or relative (we use ``\verb+fopen+'' from
+``\verb+stdio+''). File inclusion may be recursive to the limit of the
+quantity of files that can be kept open simultaneously by the system.
+\end{description}
+
+\SSSection{Class internals} 
+
+As its names suggests, the class is based in a stack of files. When a 
+``\verb+get_line()+'' is issued a new line is read, comments are
+skipped and continuation lines are resolved. if the line is an
+``\verb+__INCLUDE__+'' directive, then the current line is ``pushed''
+in the stack and the new file is open and is the current file. 
+
+\SSection{Preprocessing with ePerl}\label{sec:eperl}  
+
+\index{preprocessing!external}
+\index{ePerl}
+\index{Perl}
+\index{embedded Perl}
+%
+ePerl (for \emph{``embedded Perl''}) is a package that allows
+inclusion of Perl commands within text files. Perl is the
+\emph{``Practical Extraction and Report Language''}, a scripting
+language optimized for scanning arbitrary text files, extracting
+information from those text files, and printing reports based on that
+information. For more information about ePerl see
+\htmladdnormallink{http://www.engelschall.com/sw/eperl/}
+{http://www.engelschall.com/sw/eperl/}, while for more information on
+Perl see \htmladdnormallink{http://www.perl.com}{http://www.perl.com}.
+
+Describing the possibilities of preprocessing with ePerl are far
+beyond the scope of this manual. We will describe some basic
+techniques of use in the context of writing \pfem{} user data files. 
+
+\SSSection{Basics of ePerl}
+
+ePerl allow you to embed Perl commands within text, enclosing them
+within \verb+<:+\emph{ and  }\verb+:>+ delimiters, for instance
+
+\begin{verbatim}
+<: $pi = 2*atan2(1,0); $theta = sin($pi/4); :>
+...
+some text here
+...
+
+theta <: print $theta :>
+beta <: print 4*$theta :>
+\end{verbatim}
+
+results, after being processed by ePerl in
+
+\begin{verbatim}
+ 
+...
+some text here
+...
+
+theta 0.707106781186547
+beta 2.82842712474619
+\end{verbatim}
+
+The basic rules are
+
+\begin{itemize}
+\item Variables start with \verb+$+ following by a C-like identifier
+(alphanumeric plus underscore, case sensitive), for instance \verb+$alpha+ or
+\verb+$my_variable+. 
+\item Statements end in semicolon. 
+\item The text inserted in place of the ePerl block is the output of
+the commands inside the block. This output is done in Perl with
+the \verb+print()+ function, but in ePerl there is a shortcut of the
+form \verb+<:=+\emph{expression}\verb+:>+. 
+\item Mathematical functions \verb+sin+, \verb+cos+, \verb+tan+, \verb+exp+,
+        \verb+atan2(y,x)+ are available, as in C, powers $x^y$ are expressed
+        as \verb+x**y+ (i.e. Fortran like). 
+\end{itemize}
+
+\SSSection{Variables}
+
+You can define variables to use them after in different places, and
+also in mathematical expressions
+
+\begin{verbatim}
+<: $Reynolds = 1000; $L = 2; $rho = 1.345; 
+   $velocity=3.54; $Grashof=6.e4; :>
+...
+mu <:=$rho*$velocity*$L/$Reynolds:>
+Nusselt <:=(($Reynolds*$Grashof)**0.25):>
+\end{verbatim}
+%
+which results in
+%
+\begin{verbatim}
+
+...
+mu 0.0095226
+Nusselt 88.0111736793393
+\end{verbatim}
+
+\SSSection{Text expansion}
+ 
+It is common to have several lines of text that have to be repeated
+several times. For instance some options that hae to be applied to
+several elemsets. The trick is to assign the text to a variable via
+the ``here-in document'' \verb+<<EOT+ feature and then inserting in
+the appropriate places, for instance
+
+\begin{verbatim}
+<: $common_options = <<EOT;
+option1   value1
+option2   value 2
+EOT
+_:>
+
+...
+
+elemset type1 4
+props
+<:=$common_options:>
+option3 value3
+
+...
+__END_ELEMSET__
+
+elemset type2 3
+props
+<:=$common_options:>
+option4 value4
+
+...
+__END_ELEMSET__
+\end{verbatim}
+%
+that expands to
+%
+\begin{verbatim}
+
+
+...
+
+elemset type1 4
+props
+option1   value1
+option2   value 2
+
+option3 value3
+
+...
+__END_ELEMSET__
+
+elemset type2 3
+props
+option1   value1
+option2   value 2
+
+option4 value4
+
+...
+__END_ELEMSET__
+\end{verbatim}
+
+Note the use of the underscore just before the \verb+:>+ terminator in
+the first ePerl block. This tells to ePerl not to include the
+semicolon terminator (see the ePerl documentation for further
+details.) The terminator \verb+EOT+ stands for ``End Of Text'' and may
+be replaced by any similar string. It must appear in a line by itself
+at the end of the text to be included. 
+
+\SSSection{Conditional processing}
+
+\index{Conditional processing}
+%
+ePerl allows conditional processing, as with the C preprocessor, with
+\verb+#if-#else-#endif+ constructs as in
+%
+\begin{verbatim}
+<:$method = "iterative"; :>
+...
+
+#if $method eq "iterative"
+maxits 100
+tolerance 1e-2
+#else
+maxits 1
+tolerance 1e-10
+#endif
+...
+\end{verbatim}
+%
+expands to
+%
+\begin{verbatim}
+
+...
+
+maxits 100
+tolerance 1e-2
+...
+\end{verbatim}
+
+\SSSection{File inclusion}
+
+\index{File inclusion}
+%
+In addition to the inclusion allowed in the internal preprocessor via
+the \verb+__INCLUDE__+ command, ePerl has his own inclusion directive,
+for instance
+%
+\begin{verbatim}
+some text
+...
+#include /home/mstorti/PETSC/petscfem/doc/options.txt
+...
+another text
+\end{verbatim}
+%
+and provided file \verb+options.txt contains+ 
+%
+\begin{verbatim}
+# File options.txt
+opion1 value1
+option2 value2
+\end{verbatim}
+%
+then the previous block expands to
+%
+\begin{verbatim}
+some text
+...
+# File options.txt
+opion1 value1
+option2 value2
+...
+another text
+\end{verbatim}
+%
+Including with the internal preprocessing directive \verb+__INCLUDE__+
+has the advantage of not creating an intermediate file. On the other
+hand, including with the ePerl directive, allows recursive ePerl
+preprocessing and more versatility in defining the inclusion path
+(with the \verb+@INC+ list, see Perl documentation). 
+
+\SSSection{Use of ePerl in makefiles}
+
+\index{ePerl!in makefiles}
+%
+Usually user data files have extension \verb+.dat+. When preprocessing
+with ePerl the convention is to use \verb+.epl+ suffix for the file
+written by the user with ePerl commands, i.e. the files to be
+preprocessed, and suffix \verb+.depl+ for the preprocessed file. 
+A line in the Makefile of the form
+%
+\begin{verbatim}
+%.depl: %.epl
+         eperl -P $< > $@
+\end{verbatim}
+%
+assures the translation when needed. 
+
+\index{ePerlini}
+\SSSection{ePerlini library} 
+
+Some useful constants and functions are found in the file
+\verb+eperlini.pl+. This may be included in the user data file with
+the following line
+
+\begin{verb}
+<:require 'eperlini.pl':>// # Initializes ePerl 
+\end{verb}
+
+It includes a definition for {\tt \$PI} (=$\pi$), trigonometric and
+hyperbolic functions, and others. 
+
+A common mistake when using preprocessing packages like ePerl is to
+edit manually the preprocessed file \verb+.depl+, instead to edit the 
+\verb+.epl+ file. In order to avoid this we write protect the
+\verb+.depl+ file, for instance the section in the Makefile is
+replaced by 
+%
+\begin{verb}
+%.depl: %.epl
+	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+	eperl -P $< > $@
+	chmod -w $@
+\end{verb}
+%
+In addition, inclusion of the \verb+eperlini.pl+ library inserts the
+following comment in the included file
+%
+\begin{verbatim}
+# DON'T EDIT MANUALLY THIS FILE !!!!!!
+# This files automatically generated by ePerl from 
+# the corresponding `.epl' file. 
+\end{verbatim}
+
+\SSSection{Errors in ePerl processing} 
+
+If the preprocessing stage with ePerl gives some error (on
+\verb+STDERR+) preprocessing is stopped no ePerl output is given. For
+instance, if you include a directive like 
+%
+\begin{verbatim}
+<:=atanh(2.):>
+\end{verbatim}
+%
+the output looks like
+%
+\begin{verbatim}
+ePerl:Error: Perl runtime error (interpreter rc=255)
+
+---- Contents of STDERR channel: ---------
+atanh: argument x must be |x| < 1.
+------------------------------------------
+\end{verbatim}
+%
+In such a case you have to fix the ePerl commands prior to any further
+debugging of the \pfem{} run. 
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

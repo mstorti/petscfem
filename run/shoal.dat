@@ -1,0 +1,92 @@
+#================================================================
+global_options
+
+save_file state_save.sal
+nsave 10
+
+save_file_pattern outvector%d.sal
+nsaverot 50
+nrec 50
+nfile 2
+
+nstep 100
+
+Dt 0.0095
+#initial_state outvector.sal
+initial_state shoal.ini
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  3
+__INCLUDE__ shoal.nod
+
+__END_NODES__
+#================================================================
+elemset volume_shallow 4 fat 4
+props  
+#Datos del elemento
+geometry cartesian2d
+ndim 2
+npg 4
+
+gravity 1
+addvisc 1.
+#weak_form 1
+__END_HASH__
+__INCLUDE__ shoal.con
+__END_ELEMSET__
+#================================================================
+elemset absorb_shallow 1
+props norx nory
+
+gravity 1
+
+__END_HASH__
+
+__INCLUDE__ shoal.abso
+
+__END_ELEMSET__
+
+end_elemsets
+#================================================================
+constraint
+
+# periodic conditions in the y direction
+
+__INCLUDE__ shoal.period
+
+__END_CONSTRAINT__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

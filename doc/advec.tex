@@ -1,0 +1,380 @@
+
+\Section{The general advective elemset} 
+
+\SSection{Introduction to advective systems of equations} 
+
+Advective system of equations are of the form
+%
+\begin{equation} 
+ \dep{U}t+\dep{\F_i(U)}{x_i} = G
+\end{equation}
+%
+\index{inviscid}
+\index{conservative variables}
+\index{Euler equations}
+\index{gas dynamic equations}
+\index{shallow water equations}
+%
+where $U$ is the \emph{``state vector''} of the fluid in
+\emph{``conservative variables''}. Examples of these are the inviscid
+fluid equations (the \emph{``Euler''} or \emph{``gas dynamic
+equations''}, the \emph{``shallow water equations''}, and scalar
+advective systems that represents the transport of a scalar property
+(like temperature or concentration of a component) by a moving fluid. 
+
+The conservative variables for the Euler equations are
+%
+\begin{equation} 
+ U=\begin{sqmat}{c}
+        \rho\\
+         \rho!u\\
+        \rho e
+   \end{sqmat}
+\end{equation}
+%
+for the Euler equations. In general, $U$ is a vector of $\ndof$
+components. $\F_i(U)$ is the \emph{``flux vector''}. t can be thought
+as a matrix of $\ndof\times\ndim$ components. The row index corresponds
+to a field value, whereas the column index is a spatial dimension. 
+$G$ is a source vector. For the 2D or 3D Euler equations it is null,
+but if we consider 1D flow in a tube of varying section, then it has a
+source term in the momentum equation, due to the reaction on the
+wall. Also, for the shallow water equations, there is a reaction term
+in the momentum balance equations if there is a varying bathymetry.
+
+The relation of the flux vector with the state vector is the heart of
+the advective system. In fact, the discretization of advective systems
+may be put in a completely abstract setting, where the unique thing
+that varies from one system to another is the definition of the flux
+function itself. The discretization of advective systems in \pfem{}
+has been done in this way, so that it is easy to add other advective
+systems by only adding the new flux function. 
+
+Applying the chain rule, and noting that the fluxes only depend on
+position through their dependence on the state vector, we arrive to
+%
+\begin{equation} 
+   \dep {F_i}{x_i} = A_i\, \dep U{x_i}
+\end{equation}
+%
+where 
+%
+\begin{equation}\label{eq:jacflux}
+A_i = \dep {F_i}U
+\end{equation}
+%
+\index{flux, jacobians}
+are the \emph{``jacobians of the advective fluxes''}. 
+
+\SSection{Discretization of advective systems} 
+
+Using the Finite Element Method, with weight functions $W_j(!x)$ and
+interpolation functions $N_j(!x)$ results in
+%
+\begin{equation} 
+   !M \dot !U + !F(!U) = !G
+\end{equation}
+%
+where 
+%
+\begin{equation} 
+  !U = \begin{sqmat}{c}
+        U_1\\
+        U_2\\
+        \vdots
+        U_\Nnod
+       \end{sqmat}
+\end{equation}
+%
+so that $!U$ has $\Ndof=\ndof\times\Nnod$ components. 
+
+$!M$ (of dimension $\Ndof\times\Ndof$) is the mass matrix. If we look
+at it as an $\Nnod\times\Nnod$ block matrix with blocks of
+size $\ndof\times\ndof$, then the $i,j$ block is
+%
+\begin{equation}
+   !M_{ij} = \int_\Omega N_i(!x) \, N_j(!x) \di{!x}
+\end{equation}
+%
+the $i$ block of the global flux and source vector $!F$ and $!G$ are 
+%
+\begin{align}
+   !F_{i} &= \int_\Omega N_i(!x) \, \dep{F_k}{x_k} \di{!x}\\
+   !G_{i} &= \int_\Omega N_i(!x) \, G(!x) \di{!x}
+\end{align}
+%
+If the flux vector term is integrated by parts then we have the
+\emph{``weak form''}
+%
+\begin{equation}
+   !F_{i} = -\int_\Omega \dep{N_i}{x_k} \, F_k \di{!x} + \int_\Gamma
+   n_k F_k(!x) \di{!x}
+\end{equation}
+%
+\index{finite difference method}
+\index{stabilizing term}
+\index{SUPG}
+\index{Streamline Upwind/Petrov Galerkin}
+\index{perturbation function}
+%
+where $\Gamma$ is the boundary of $\Omega$. This formulation is the
+\emph{``Galerkin''} or \emph{``centered''} one. It is equivalent to
+approximate first derivatives by centered differences in the Finite
+Difference Method. It is well known that the Galerkin formulation
+leads to oscillations for advective systems, and this is solved by
+adding a \emph{``stabilizing term''} to the discretized equations. 
+
+\SSSection{SUPG stabilization} 
+
+In the SUPG (for \emph{``Streamline Upwind/Petrov Galerkin''})
+formulation of Hughes et.al. The stabilized formulation is
+%
+\begin{equation}\label{eq:supg} 
+   (!M \dot !U + !F(!U) - !G)_j
+       + \sum_e \int_{\Omega_e} (\Psupg)^e_j \, (\dep Ut+\dep
+       {F_i}{x_i} -G) = 0
+\end{equation}
+%
+\index{weighted residual}
+\index{consistent formulation}
+%
+where the whole expression corresponds to the $j$-th block of size
+$\ndof$ in the global equations.  Note that, as the added term is a
+\emph{``weighted residual''} form of the residual (the term in
+parentheses), then the continuum solution is solution of these
+discrete equations -- we say that this is a \emph{``consistent
+formulation''}. $\Psupg$ is a matrix of $\ndof\times\ndof$ the SUPG
+\emph{``perturbation function''}, usually defined as
+%
+\begin{equation} 
+  (\Psupg)^e_j = \btau^e \, A_j \dep N{x_j}
+\end{equation}
+%
+\index{intrinsic time}
+where $\btau^e$ are the \emph{``characteristic''} or \emph{``intrinsic
+time''} of the element, defined as 
+%
+\begin{equation} 
+  \btau^e = \frac{h^e}{||!A||}
+\end{equation}
+%
+where $h^e$ is the size of the element and and $||!A||$ represents
+some norm of the vector of jacobians. There is a variety of
+possibilities for computing both quantities. For instance $h^e$ may be
+computed as the largest side of the element, or as the radius of the
+circle with the same area. On the other hand, $||!A||$ may be computed
+as the maximum eigenvalue of all the linear combinations of the form
+$n_jA_j$, with $n_j$ a unit vector, i.e. the maximum propagation
+velocity possible in the fluid, that is
+%
+\begin{equation}\label{eq:lammax} 
+    ||!A|| = \max_{j=1,...,\ndim} \max_{k=1,...,\ndof} |\lambda^j_k|
+\end{equation}
+%
+where $\lambda^j_k$ is the $k$-th eigenvalue of jacobian $A_j$.  For
+the Euler equations, it turns out to be that this corresponds to
+pressure waves propagating in the direction of the fluid and is $c+u$
+where $c$ is the speed of sound and $u$ the absolute value of
+velocity. For the shallow water equations, its value is $u+\sqrt{gh}$
+where $g$ is gravity acceleration and $h$ the local water elevation
+with respect to bottom. 
+
+\SSection{Shock capturing}\label{sec:shockcap} 
+
+For problems with strong shocks, (shock waves in Euler, or hydraulic
+jumps in shallow water) the standard SUPG stabilizing term may not be
+sufficient. Then an additional stabilizing term is added, so that the
+stabilized equations are now of the form
+%
+\begin{equation} 
+\begin{split}
+   (!M \dot !U + !F(!U) - !G)_j
+       + \sum_e \int_{\Omega_e} (\Psupg)^e_j \, (\dep Ut+\dep
+       {F_i}{x_i} -G) +\\
+       + \sum_e \int_{\Omega_e} \deltasc \, \dep{N_j}{x_i} \, \dep U{x_i} = 0
+\end{split}
+\end{equation}
+%
+Note that, in contrast with the SUPG term, the new, so-called shock
+capturing term is no more \emph{``consistent''}. $\deltasc$ is a
+scalar -- the so called \emph{``shock capturing parameter''}. Often,
+when shock capturing is added, we diminish the amount of stabilization
+in the SUPG term in order to compensate and not to have an
+over-diffusive scheme. We will not enter in the details of this
+computations, refer to \cite{HM_86B} for further details. 
+
+\SSection{Creating a new advective system}
+
+New advective systems may be added to \pfem{} only by defining their
+flux function, jacobians and other quantities. This means that you
+don't need to code details of the numerical discretization. Follow
+these steps
+
+\begin{enumerate}
+\item Create the flux function in a file by
+itself, in the \verb+applications/advective+ directory. (The better is
+to start copying one of the existing advective systems, for instance
+\verb+ffeuler.cpp+ or \verb+ffshallw.cpp+.) The arguments to flux
+function routines is described in section~\ref{sec:fluxfun}. 
+The name of the
+function has to be of the form \verb+flux_fun_+\emph{<system>} where
+\emph{<system>} identifies the new system. We assume that you write
+the flux function \verb+flux_fun_new_adv_sys+ in file 
+\verb+applications/advective/ffnadvs.cpp+. 
+
+\item Add the file in the \verb+MYOBJS+ variable in the Makefile, for
+instance
+
+\begin{verbatim} 
+MYOBJS = advective.o adv.o absorb.o ffeuler.o \
+		ffshallw.o ffadvec.o
+\end{verbatim}
+
+\item Define the new derived classes \verb+volume_new_adv_sys+ and
+\verb+absorb_new_adv_sys+ by adding a line at the end of the file
+\verb+applications/advective/advective.h+ as in the following
+example. 
+
+\begin{verbatim} 
+// Add here declarations for further advective elemsets. 
+/// Euler equations for inviscid (Gas dynamics eqs.)
+ADVECTIVE_ELEMSET(euler);    
+/// Shallow water equations. 
+ADVECTIVE_ELEMSET(shallow);
+/// Advection of multiple scalar fields with a velocity field. 
+ADVECTIVE_ELEMSET(advec);
+/// My new advective system          
+ADVECTIVE_ELEMSET(new_adv_sys);             // <- Add this line. 
+\end{verbatim}
+
+\item Recompile. 
+\end{enumerate}
+
+\SSection{Flux function routine arguments}\label{sec:fluxfun} 
+
+Currently, the interface is the following
+%
+\begin{verbatim}
+typedef int FluxFunction(const RowVector &U,
+        int ndim,const Matrix &iJaco, 
+	Matrix &H, Matrix &grad_H, 
+	Matrix &flux,vector<Matrix *> A_jac, 
+	Matrix &A_grad_U, Matrix &grad_U,  
+	Matrix &G_source,Matrix &tau_supg, double &delta_sc, 
+	double &lam_max, 
+	TextHashTable *thash,double *propel, 
+	void *user_data,int options)
+\end{verbatim}
+%
+(This may eventually change -- in any case, if you are interested in
+adding a new advective system, then see the actual description in the
+\verb+advective.h+ file in the distribution.) The meaning of these
+arguments are listed below. When the size is specified, it means that
+the argument is a Newmat or FastMat matrix. 
+
+In some situations the flux function routine must compute only some of
+the required values. For instance, when computing the contribution of
+the absorbing boundary elements there is no need to compute the
+parameters regarding stabilizing terms. This is controlled with the
+parameter \verb+options+ which can take the values \verb+DEFAULT+,
+\verb+COMP_UPWIND+ and \verb+COMP_SOURCE+. In the list below, it is
+indicated under which conditions the specific quantity must be
+computed. 
+
+%
+{\raggedright
+\begin{itemize}
+\item\verb+const RowVector &U+ (input, size $\ndof$)
+   This is the state vector -- you must return the flux, jacobians and
+other quantities for \emph{this} state vector. 
+
+\item\verb+int ndim+ (input) The dimension of the space. 
+
+\item\verb+const Matrix &iJaco+ (input, size $\ndim\times\ndim$) 
+The jacobian of the master
+to element coordinates in the actual gauss points. This may be used in
+order to calculate the characteristic size of the element
+
+\item\verb+Matrix &H+ (input, size $1\times n_H$) In the shallow
+water, the source term $G$ depends on the gradient of the depth
+$H(x)$, and in the 1D Euler equations, on the area of the tube section
+$A(x)$. This is taken into account by \pfem{} by assuming that the
+user enters in the \verb+nodedata+ section ${\tt nu}=\ndim+n_H$
+quantities per node, where the first $\ndim$ quantities are the node
+coordinates and the rest are assumed that are node data that has to be
+passed to the flux function routine (together with its gradient) in
+order to compute the source term.
+
+\item\verb+Matrix &grad_H+ (input, size $\ndim\times n_H$) the
+gradient of the quantities in $H$ (see previous entry). 
+
+\item\verb+Matrix &flux+ (output, size $\ndof\times\ndim$) Each
+column is the vector $F_j$ of fluxes for each of the governing
+equations. 
+
+\item\verb+vector<Matrix *> A_jac+ (output, size: a vector of
+$\ndim$ pointers to matrices of $\ndof\times\ndof$). Each matrix is
+the jacobian matrix as defined by (\ref{eq:jacflux}). To access the
+\verb+jd+ jacobian matrix  you may write \verb+(*A_jac[(jd)-1])+. The
+macro \verb+AJAC(jd)+, defined in \verb+advective.h+  expands to this. 
+
+\item\verb+Matrix &A_grad_U+ (output, size $\ndof\times 1$, 
+compute if \verb+options & COMP_UPWIND+) This is
+the accumulation term $A_k \deps{U}{x_j} = \dep{F_j}{x_j}$. 
+
+\item\verb+Matrix &grad_U+ (input, size $\ndim\times\ndof$) The
+gradient of the state vector. 
+
+\item\verb+Matrix &tau_supg+ (output, size: either $1\times1$ or
+$\ndof\times\ndof$, compute if \verb+options & COMP_UPWIND+). 
+This is the $\btau$ intrinsic time scale -- it
+may be either a scalar or a matrix. Beware that even in the case where
+it is a scalar it must be returned as a Newmat \verb+Matrix+ object of
+dimensions $1\times 1$. 
+
+\index{shock capturing}
+\item\verb+double &delta_sc+ (output, double, compute if
+\verb+options & COMP_UPWIND+) 
+This is the \emph{``shock capturing''}
+parameter as described in \ref{sec:shockcap}. Set to 0 if no shock
+capturing is added. 
+
+\item\verb+double &lam_max+ (output, double, compute if
+\verb+options & COMP_UPWIND+) 
+The maximum propagation
+speed. The expression is (\ref{eq:lammax}) but normally it may be
+computed directly from the state vector. This is used to compute
+upwind, and also the automatic and local time step. 
+
+\item\verb+TextHashTable *thash+ (input) This is the
+\verb+TextHashTable+ of the elemset. Physical and numerical parameters
+can be passed from the user input data file to the flux function
+routine through this (specific heat, specific heat ratio,
+gravity... for instance). Beware that the flux function routine is
+called at each Gauss point, and decoding of the table may be time
+expensive, so that if the properties are constant over all the mesh
+you can decode them once and leave the decoded data in static
+variables. 
+
+\item\verb+double *propel+ (input, double array, compute if
+\verb+options & COMP_UPWIND+) 
+This is the table
+of per-element properties. Physical and numerical parameters that are
+not constant for all the elemsets, can be passed from the user input
+data file to the flux function routine through this. 
+
+\item\verb+void *user_data+ (input). Arbitrary information may be
+passed from the main routine to the flux function through this
+pointer. 
+
+\item\verb+int options+ (input, integer). 
+
+\item\verb+Matrix &G_source+ (output, size $\ndof\times 1$, 
+           compute if \verb+options & COMP_SOURCE+) The
+           source vector. 
+\end{itemize}
+}
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

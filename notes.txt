@@ -1,0 +1,2213 @@
+OK. This is mostly in spanish...  Sorry :-)
+================================================================
+
+%===Mon Aug  2 23:29:29 ART 1999
+PetscFEM es una aplicacion PETSC para hacer un programa FEM. 
+Salvo. ver: 1.1
+
+%===Wed Aug  4 23:06:31 ART 1999
+habia unos cuantos errores en la lectura de datos y se colgaba al
+llamar a MatCreateSeqAIJ(). Ahora no se cuelga. 
+Salvo. ver: 1.3
+
+%===Sat Sep  4 12:18:45 ART 1999
+No andaba porque definia *elemset pero despues no le asignaba un valor
+con new. Siempre que se define un puntero despues hay que asignarle un
+valor!!
+Salvo. ver: 1.4
+
+%===Sat Sep  4 18:16:26 ART 1999
+Anda calculo de la matriz y del residuo. 
+Salvo. ver: 1.5
+
+%===Sat Sep 11 19:36:04 ART 1999
+Pongo toda la informacion de los puntos de Gauss en una estructura
+GPdata. Tuve problemas cuando hacia el delete en el destructor de
+GPdata, pero parece que ahora anda aunque no se bien porque. Lo probe
+para el triangulo, ahora hay que probar el cuadrilatero. 
+Salvo. ver: 1.6
+
+%===Sat Sep 11 22:50:33 ART 1999
+No es verdad que estaba andando bien el cuadrangulo. Estaba tomando el
+triangulo y en el cuadrangulo todavia hay errores. Estoy debuggeando. 
+
+%===Sat Sep 11 22:56:08 ART 1999
+Ahora parece que esta andando para cuadrangulos. 
+Salvo version: 1.7
+
+%===Sun Sep 12 08:31:22 ART 1999
+Parece que anda bien un ejemplito de adveccion difusion.
+version: 1.8
+
+%===Sun Sep 12 10:14:56 ART 1999
+Le puse que el determinante e inversa del jacobiano se calcule con las
+funciones de newmat. 
+version: 1.9
+
+%===Sun Sep 12 12:52:04 ART 1999
+Anda bien adveccion-difusion con cuadrangulos. Ahora voy a probar con
+triangulos. 
+version: 1.10
+
+%===Sun Sep 12 13:51:32 ART 1999
+Anda bien adveccion-difusion con triangulos. 
+version: 1.11
+
+%===Sun Sep 12 22:46:02 ART 1999
+Hice andar las GNU-hash-tables (try4.cpp). 
+version: 1.12
+
+%===Fri Sep 17 12:16:52 ART 1999
+Voy a hacer una clase TextHashTable.
+version: 1.13
+
+%===Fri Sep 17 13:47:38 ART 1999
+parece que anda la clase TextHashTable.
+version: 1.14
+
+%===Fri Sep 17 19:41:51 ART 1999
+Hecha la tabla texthash (.cpp y .h). 
+Ahora hay que meterla en fem.cpp
+version: 1.15
+
+%===Sat Sep 18 20:05:53 ART 1999
+Leo nodos en forma directa (sin leer dos veces el archivo) pero con
+alocacion dinamica, alocando en una serie de 'chunks" y despues se
+copia todo en la memoria. 
+version: 1.16
+
+%===Sat Sep 18 20:39:01 ART 1999
+Corregidos ciertos errores en la (buffereada) lectura de nodos. 
+Ahora voy a leer elementos. 
+version: 1.17
+
+%===Thu Sep 23 13:09:35 ART 1999
+Lee elememsets y los pone en una lista. Ahora tengo que hacer que lea
+fijaciones y etc. 
+Salvo. ver: 1.18
+
+%===Sat Sep 25 10:07:34 ART 1999
+Anda libretto!!! grande!!! Permite construir listas, etc... Hice una
+lista de enteros y de punteros a dobles. try9.cpp
+version: 1.19
+
+%===Sat Sep 25 11:01:20 ART 1999
+Estoy poniendo eleemsetlist en forma de un Darray. 
+version: 1.20
+
+%===Sat Sep 25 11:21:26 ART 1999
+Voy a cambiar el nombre xnod por nodedata. Se supone que contiene
+informacion de los nodos que no cambia. 
+
+%===Sat Sep 25 22:20:33 ART 1999
+Anda bien guardar los punteros a elemesets en un arregloe dinamico
+Darray de "libretto". 
+version: 1.21
+
+%===Sat Sep 25 23:19:27 ART 1999
+Tengo que ver como paso el valor de nu, el numero de columnas en
+nodedata. Probablemente tendria que definir una clase nodedata y
+entonces nu seria un miembro de la misma. 
+version: 1.22
+
+%===Sun Sep 26 20:46:42 ART 1999
+Anda bien la llamada por elemsets. Ahora hay que definir que le asigne
+el diferente tipo de elemset segun el string que esta en el archivo de
+datos. 
+version: 1.23
+
+%===Sun Sep 26 21:58:02 ART 1999
+falta debuggear print_vector
+version: 1.24
+
+%===Mon Sep 27 19:05:40 ART 1999
+Anda bien como triangulo y quad. 
+Salvo. ver: 1.25
+
+%===Mon Sep 27 19:14:19 ART 1999
+Voy a separar en mas archivos .cpp, .h.
+
+%===Mon Sep 27 20:06:58 ART 1999
+Estan splitteados los fuentes. Compila y corre bien.
+Salvo. ver: 1.26
+
+%===Mon Sep 27 21:05:08 ART 1999
+Llama a diferentes elemsets dependiendo de un macro. 
+CHECK_ELEMSET_TYPE.
+Salvo. ver: 1.27
+
+%===Tue Sep 28 08:43:12 ART 1999
+Voy a probar con el jacobiano numerico. Primero componente a
+componente. 
+Salvo. ver: 1.28
+
+%===Tue Sep 28 09:29:06 ART 1999
+Hago un wrapper sobre internal, para poder llamar al jacobiano
+numerico. 
+Salvo. ver: 1.29
+
+%===Wed Sep 29 19:10:30 ART 1999
+El programa anda medio chancho. Verificamos que newmat es bastante
+chancho para pequnhas dimensiones. 
+Tiempos (en secs.) para 1e6 evaluaciones de un producto de dos matrices de NxN. 
+-
+N            Newmat        A pata (en C++)
+----        --------     -------------------
+3             84             12.4
+6            129             84.3
+12           462            607.
+-
+-
+Se observa que para N=3 newmat es muy chancho (una relaicon 7 a 1),
+para N=6 ya andan ahi nomas y para N=12 ya la relacion se
+invierte. Conclusion: conviene seguir poe el momento ocn newmat. 
+Salvo. ver: 1.30
+
+%===Wed Sep 29 19:17:52 ART 1999
+Proximo objetivo: pasar "assemble" a que calcule los residuos
+desacoplados por elemento. Eso facilitaria el calculo del jacobiano
+numerico y tambien la programacion de cada "elemset". 
+
+%===Thu Sep 30 09:45:06 ART 1999
+Calcula residuos desacoplados por elemento. Ahora voy a hacer que
+ensamble matrices calculadas (no numericamente), despues viene el
+jacobiano numerico. 
+version: 1.31
+
+%===Thu Sep 30 12:09:23 ART 1999
+Calcula bien residuos y matrices con la forma "por elemento".
+Ahora: a calcular el jacobiano numerico. 
+version: 1.32
+
+%===Thu Sep 30 19:32:01 ART 1999
+Anda bien el calculo numerico del jacobiano!! Ahora, para
+verificar voy a probar de empezar desde un vector random. 
+version: 1.33
+
+%===Thu Sep 30 19:42:00 ART 1999
+Anda bien con el vector inicializado random!! 
+version: 1.34
+
+%===Thu Sep 30 19:44:08 ART 1999
+Cambio a nuevo nivel de version 2.0
+version: 2.1
+
+%===Thu Sep 30 19:54:41 ART 1999
+Vamos a hacer una prueba con un problema con
+dos grados de libertad. 
+
+%===Thu Sep 30 20:14:40 ART 1999
+Hago una estrategia Newton Raphson. Antes estaba en una forma muy
+lineal. Puede haber algunos quilombos con los signos. 
+
+%===Thu Sep 30 20:22:33 ART 1999
+Anda bien el Newton Raphson en lineal. 
+version: 2.2
+
+%===Thu Sep 30 20:51:33 ART 1999
+calcula determinante del jacobiano con una rutina mydet()
+version: 2.3
+
+%===Thu Sep 30 20:53:06 ART 1999
+Voy a tratar de resolver varios campos. Primero lo mas simple, dos
+campos acoplados, con las mismas condiciones de contorno,
+conductividad, etc... 
+
+%===Thu Sep 30 20:56:00 ART 1999
+Hay que chequear tambien como pone las cargas!! Hasta ahora no lo chequee!!
+
+%===Thu Sep 30 22:20:00 ART 1999
+Andan bien dos campos desacoplados. 
+version: 2.4
+
+%===Fri Oct  1 19:22:29 ART 1999
+Anda el 3D. Objetivo siguiente: fuente no lineal
+Salvo. ver: 2.5
+
+%===Sat Oct  2 08:44:19 ART 1999
+retomo en casa.
+
+%===Sat Oct  2 09:15:45 ART 1999
+Pequenhos cambios. 
+version: 2.6
+
+%===Sat Oct  2 17:49:59 ART 1999
+agrego la propiedad por elementos. La lee bien y llega bien al
+elemset. 
+
+%===Sat Oct  2 19:28:36 ART 1999
+Voy a agregar que lea una tabla de strings con las propiedades de los
+elementos entonces despues puede pedir una propiedad
+(por. ej. "conductividad")  y esta puede ser constante para todo el
+elemset o por elemento. 
+
+%===Wed Oct 13 12:53:06 ART 1999
+Performance de newmat versus fastmat
+Newmat: 6.9e-3 sec/hexa (Laplace,2 ptos de Gauss)
+FastMat: 8.8e-4 sec/hexa (Laplace,2 ptos de Gauss)
+
+%===Sun Oct 17 18:24:42 ART 1999
+Unified PROJECTS file with notas.txt.
+
+%===Sun Oct 17 18:25:22 ART 1999
+Voy a pasar r y A como variable arguments. 
+
+%===Sun Oct 17 18:45:11 ART 1999
+No, es demasiado enquilombado, voy a pasar o un puntero generico, o
+tantos argumentos como hagan falta!!
+
+%===Sat Nov 20 19:54:02 ART 1999
+Cambio de llamar a ident a llamar dofmap.get_row(), devuelve una fila
+del mapeo. 
+
+%===Mon Nov 22 10:27:01 ART 1999
+Anda bien el cambio ident -> dofmap con un solo procesador para el
+problemita del laplaciano. Lo voy a probar en dos procesadores.
+
+%===Mon Nov 22 10:52:18 ART 1999
+Anda bien en dos procesadores. Ahora a poner las condiciones
+periodicas. 
+
+%===Mon Nov 22 21:59:58 ART 1999
+Anda bien las fijaciones. 
+
+%===Mon Nov 22 23:25:00 ART 1999
+Estoy definiendo Q. Falta resinchronizar Q, ordenandolo. 
+
+%===Thu Nov 25 05:45:53 ART 1999
+Habia un error 
+
+%===Fri Nov 26 11:34:53 ART 1999
+Cambio download_vector a un miembro de la clase Elemset. Defino una
+funcion compute_this_elem que retorna un flag si hay que calcular este
+elemento o no. 
+
+%===Thu Dec  2 19:26:58 ART 1999
+Retomo despues de Fluidos99. Hay que debuggear porque hace mallocs()
+despues en la etapa de poisson y en las de momento. Ver que pasa con
+los chunks!!
+
+%===Thu Dec  2 19:39:42 ART 1999
+Con el lapli.dat (2x2) anda al pelo. 0 unneeded y 0 mallocs. 
+Tambien anda bien con chunk_size=1
+
+%===Thu Dec  2 20:20:26 ART 1999
+Cavidad chiquita de 3x3 elementos. Poisson y proyeccion andan
+bien. Momento da muchos unneeded  0 mallocs en la primera llamada y
+unneded y mallocs>0 en la segunda. A partir de la tercera da todo bien.
+
+%===Fri Dec  3 11:35:29 ART 1999
+Dimensiono correctamente matlocmom2. Ahora con un procesador y cuando
+parto de una corrida anterior hace todas las alocaciones bien, no
+mallocs y 0 unneedeed. Cuando parto de 0 ahi da unneeded en iter 1 y
+mallocs y unneded en iter 2. Voy a probar a comentar el zeroe-mat.
+
+%===Fri Dec  3 11:41:34 ART 1999
+Tambien hace mallocs y unneeded cuando saco el zeroe_mat.
+
+%===Fri Dec  3 12:08:20 ART 1999
+Voy a verificar si con la cavidad cubica 5x5x5 tambien anda todo bien
+al continuar una corrida anterior. 
+
+%===Fri Dec  3 12:16:52 ART 1999
+Con la cavidad cubica ocurre que en Poisson tambien hay unneeded y
+mallocs. 
+
+%===Fri Dec  3 12:30:47 ART 1999
+Largo la cavidad cubica 41x41x41 (media malla) relanzando de la
+corrida que hizo 72 iteraciones. 
+
+%===Fri Dec  3 12:33:02 ART 1999
+Mientras tanto voy a probar que pasa con la cavidad cubica 5x5x5 con
+uns solo procesador para ver si tambien hace mallocs en el poisson. 
+
+%===Fri Dec  3 12:36:14 ART 1999
+Si! Tambien anda mal el poisson con un solo procesador. 
+
+%===Fri Dec  3 15:28:21 ART 1999
+Bueno, la matriz del laplaciano en una malla cubica da cero entre un
+nodo y el nodo que da con el centro de las caras. O sea que la
+estructura del stencil es
+
+     1   2    1 
+  2    0    2
+1    2   1 
+
+     2   0    2 
+  0  -32    0
+2    0   2 
+
+     1   2    1 
+  2    0    2
+1    2   1 
+
+Con lo cual hay ceros (eso no ocurre con el cudrilatero 2D) y puede
+traer dramas al momento de alocar. 
+
+%===Fri Dec  3 16:15:11 ART 1999
+Hice un jobinfo = comp_mat_poi_prof para calcular el perfil del
+poisson. Ahora da 0 mallocs cuando se reinicializa. 
+
+%===Sat Dec  4 19:42:21 ART 1999
+Separe las aplicaciones NS y LAPLA de las librerias. la libreria la
+llame libpetscfem.a
+
+%===Sun Dec  5 10:28:02 ART 1999
+Estan andando tetras con npg=1 y npg=4. 
+
+%===Wed Dec  8 18:26:43 ART 1999
+El elmento de carga generico esta funcionando. A veces la resolucion
+del sistema lineal pareceria que le cuesta converger. Pero la matriz
+parece estar bien armada. 
+
+%===Wed Dec  8 23:22:55 ART 1999
+El flujo es el que llega a la capa u1, es decir que debe ser de la
+forma hfilm*(u2-u1) entonces en el caso de ser u2=0, debe ser
+-hfilm*u1. 
+
+%===Wed Dec  8 23:30:12 ART 1999
+No anda bien el newton cuando el intercambio convectivo es no-lineal. 
+
+%===Fri Dec 10 12:15:52 ART 1999
+Ahora anda bien el intercambio convectivo no-lineal. No hacia zero la
+matriz del jacobiano antes de empezar a recalcularla en el lazo. 
+
+%===Fri Dec 10 13:44:32 ART 1999
+Andan las opciones generales.
+
+%===Sat Dec 11 14:51:30 ART 1999
+Reescribi la lectura de datos. Ahora no hace mas lo de chunkptr's para
+leer nodos, etc.. y por lo tanto puede leer nodos y elementos de
+tamanho ilimitado. 
+
+%===Sun Dec 12 10:34:42 ART 1999
+Junto Nodedata y elemsetlist en un solo objeto `mesh'. 
+
+%===Sun Dec 12 20:08:04 ART 1999
+Ahora chunk_size se puede poner como un dato del elemento. 
+
+%===Mon Dec 13 10:08:25 ART 1999
+Anda file_stack. Es un objeto al cual le vas pidiendo lineas con
+get_line y te las va dando. Si hay includes te va pasando al arhivo
+siguiente y asi... 
+
+%===Wed Dec 15 17:21:51 ART 1999
+Retomo en casa. Anda bien la lectura de archivos, y `lapla' y `ns'
+estan reescritos con la estructura `Mesh'. Estoy debugueando porque no
+anda en 3D. Da un pico de presion y consecuente singularidad en el
+campo de velocidad cerca de donde se impone la presion a cero. Estoy
+verificando que el residuo sea igual ante un cambio de constante en el
+campo de presion. Inicializo de un vector de estado arbitrario e
+imponiendo la presion en dos nodos diferentes (el 1 y el 2) despues de
+dos iteraciones da un estado diferente. La diferencia tiene mucho
+ruido cerca de donde se impone la presion. 
+
+%===Wed Dec 15 17:38:28 ART 1999
+Pense que podria estar relacionado con la solucion iterativa de los
+subpasos. Pero aumentando la precision (bajando a tolerancia a 1e-8)
+da igual. 
+
+%===Wed Dec 15 17:39:57 ART 1999
+Vamos a ver si en 2D pasa lo mismo. 
+
+%===Wed Dec 15 18:24:14 ART 1999
+En 2D parece que SI da lo mismo. Volvamos a verificar el 3D. 
+
+%===Wed Dec 15 19:40:05 ART 1999
+Efectivamente parece que al pasar a 3D no es invariante al agregar una
+constante en la presion. 
+
+%===Wed Dec 15 20:19:41 ART 1999
+La matriz de poisson parece que esta bien. 
+
+%===Wed Dec 15 20:25:05 ART 1999
+Despues de un paso tambien la solucion es diferente. 
+
+%===Wed Dec 15 20:43:09 ART 1999
+La diferencia se produce en el paso de Poisson.
+
+%===Thu Dec 16 10:22:53 ART 1999 
+Encontrado el error! La suma de los residuos no daba nula porque el
+termino div.u en el miembro derecho del problema de Poisson no estaba
+escrito en forma conservativa. Debilitando es conservativo y se
+arregla. Pero queda un termino de contorno que es no nulo cuando hay
+una entrada de masa por el contorno y que en el caso general no se de
+de donde lo vamos a calcular. Tal vez si podria ser tratado como
+BCCONV.
+
+%===Thu Dec 16 10:47:05 ART 1999
+Voy a hacer el jacobiano analitico del Poisson y de la proyeccion. 
+
+%===Thu Dec 16 12:13:58 ART 1999
+Anda el jacobiano analitico para Poisson y de la proyeccion. 
+Voy a hacer una clase "sparse" para despues usar con los ghost nodes y
+poder eliminar los vectores `seq'. Despues haria lo de pasar
+como argumentos de entrada y salida una lista arbitraria de vectores y
+matrices. 
+
+%===Sun Dec 19 15:26:31 ART 1999
+Corriendo en casa. Problemas al hacer el upgrade a RedHat 6.1. Emacs
+no andaba, se colgaba. Mpich sigue sin compilar el serv_p4.c. Libretto
+sigue teniendo problemas al compilar. El debugger se cuelga al hacer
+`p da_length(algo)' o parece colgarse al ejecutar cualquier funcion. 
+#
+Problemas especificos del programa: Habia un lio al leer las
+conectividades propiedades. Fundamentalmente venia cuando nelprops=0 y
+era un probelma con libretto. Ahora leo conectividades y props en el
+mismo darray. Por otra parte leerlo en el mismo darray probablemente
+era bastante ineficiente. Para hacerlo hay que ir copiando a un buffer
+especial como si fueran "unsigned char". Ahora tengo que probarlo con
+un numero par de enteros, a ver si no se corrompe el double. 
+
+%===Sun Dec 19 15:36:02 ART 1999
+Anda bien tambien con un numero impar de enteros en icone. 
+
+%===Sun Dec 19 17:12:30 ART 1999
+Voy debuggear el shallow water. 
+
+%===Mon Dec 20 09:47:59 ART 1999
+Empieza a andar el shallow water. Voy a ponerle el termino fuente. 
+
+%===Mon Jan  3 13:09:04 ART 2000
+Retomo despues de un tiempo de no anotar en la bitacora. Estoy
+escribiendo una clase para reemplazar al dofmap. Primero estoy
+escribiendo una clase de matrices "block_matrix" tipo sparse. Ya
+esvribi las operaciones basicas, hasta `axpy'. Ahora tengo que
+escribir un `split'. 
+
+%===Mon Jan  3 19:31:01 ART 2000
+Hay un error en la concepcion de block_matrix(), n esta intercambiado
+con m. 
+
+%===Tue Jan  4 12:16:10 ART 2000
+Anda la funcion `split' que divide una block_matrix en
+sub-bloques. Voy a chequear que no pierda memoria. 
+
+%===Wed Jan  5 20:18:02 ART 2000
+Hice que contemple el caso de matrices `nulas'. 
+
+%===Fri Jan  7 13:07:37 ART 2000
+Estoy escribiendo la clase `idmap' que permite tratar matrices que son
+`casi' una permutacion. Ahora voy a escribir la inversion. 
+Salvo ver: 1.4
+
+%===Sat Jan  8 09:32:05 ART 2000
+Anda la resolucion de sistemas con "solve". 
+Salvo  version: 1.4
+
+%===Sat Jan  8 22:18:10 ART 2000
+Esta verificada la resolucion son solve. 
+Salvo version: 1.5
+
+%===Sun Jan  9 12:07:19 ART 2000
+Los templates tienen que ir en los header si no no se pueden hacer las
+instanciaciones apropriadas. 
+
+%===Sun Jan  9 13:25:44 ART 2000
+Habia un error con icur en la generacion de la matriz. Ahora parece
+andar bien. 
+Salvo version: 1.6
+
+%===Fri Jan 14 16:20:43 ART 2000
+Escribi bastante de documentacion. Ahora voy a poner las condiciones
+periodicas con `idmap'. 
+Salvo spider version: 1.9
+
+%===Fri Jan 14 18:00:22 ART 2000
+Voy a empezar a implementar el manejo de grados de libertad con
+`idmap'. Que hacer con las fijaciones? En principio la idea es
+asignarle a los valores fijos una posicion en el 
+
+%===Thu Jan 20 20:57:59 ART 2000
+Anda bien en read_mesh la puesta de fijaciones y numeracion de grados
+de libertad on `idmap' y `dofmap'. 
+Salvo spider version: 1.11
+
+%===Fri Jan 21 10:08:58 ART 2000 
+Al hacer que `dofmap' es creado con `new' en read_mesh, entonces hay
+que pasarlo por referencia `Dofmap *&dofmap' en los argumentos de
+read_mesh, sino no queda definida. Antes dofmap era definido en el
+main() y era pasada a readmesh.
+%
+Ojo con los vectores de STL (fixed, fixed_remapped) que no se puede
+referenciar a un elemento si previamente no fue definido. Al querer
+manipularlo con vec[k] no canta nada y puede dar un error de memoria. 
+
+%===Fri Jan 21 10:53:29 ART 2000
+Esta andando!! Corre un pequenho caso sin condiciones periodicas en un
+solo procesador. 
+Salvo spider version: 1.12
+
+%===Fri Jan 21 18:09:30 ART 2000 
+Habia dos errores. get_nodal_value() estaba acumulando sin inicializar
+a cero. Tambien habia un error en el direccionamiento en
+get_dofval(). Ahora da bien un problema con condiciones Dirichlet. 
+Salvo spider version: 1.13
+
+%===Fri Jan 21 18:11:21 ART 2000
+Voy a probar con 2 procesadores.
+
+%===Sat Jan 22 18:19:35 ART 2000
+No andaba con 2 procesadores. Era porque ahora get_row devuelve una
+lista con free dof's y fijaciones. En la parte ne que define dof_here
+hay que evitar las fijaciones. Para dejarlo bien ahora voy a hacer un
+get_row_free que en la lista no ponga las fijaciones. 
+
+%===Sat Jan 22 20:23:50 ART 2000
+Anda bien en dos procesadores. 
+
+%===Sun Jan 23 10:17:32 ART 2000
+Tambien en 4. 
+Salvo 1.14 2000/01/23 (spider)
+
+%===Sun Jan 23 20:27:20 ART 2000
+Andan bien las condiciones periodicas, ahora como "constraints". Voy a
+probar en dos procesadores. 
+Salvo 1.15 2000/01/23 (spider)
+
+%===Sun Jan 23 20:32:24 ART 2000
+Anda bien con dos procesadores.
+
+%===Mon Jan 24 20:55:24 ART 2000
+Anda bien un problema con condiciones periodicas. Ahora voy a probar
+con un sector de corona circular. 
+Salvo 1.16 2000/01/24 (spider)
+
+%===Tue Jan 25 10:35:18 ART 2000
+Anda bien el ejemplo de uns sector circular $2.7 < r < 4.5$ y $0 <
+\theta < \pi/4$. Se resuelve $\Delta !u=0$ donde $!u$ es un vector
+(velocidad?), con condiciones $!u=0$ en $r=r_\in$ y $!u=U\etheta$ en
+$r=r_\ext$ y condiciones periodicas $\at{u_{r,\theta}}{r_\in} =
+\at{u_{r,\theta}}{r_\ou}$. 
+
+%===Tue Jan 25 10:45:30 ART 2000
+Anda bien tambien calculando la matriz por diferencias finitas. Ahora
+voy a hacer lo de pasar "reacciones" por los "retval"'s. 
+
+%===Wed Jan 26 09:34:11 ART 2000
+Anda bien poner las restricciones mediante una clase Constraint. 
+Salvo version 1.17 2000/01/26 (spider)
+
+%===Fri Jan 28 17:24:53 ART 2000
+Estoy transformando el pasaje de ghost-values. Antes se hacia haciendo
+un scatter a un vector con todos los valores (locales y ghost). Ahora
+lo hcemos haciendo scatter solo de los valores ghost. Tambien, los
+argumentos se van a pasar a elemset por una lista de argumentos (clase
+`arg_list'). 
+%
+Originalmente pense en construir un vector con VecCreateGhost(), pero
+resulta que (parece ser un bug de PETSc) no se puede hacer un
+duplicate de vectores cuando no hay ghost values (por ejemplo cuando
+se corre en un solo procesador). 
+%
+En este momento esta andando el pasaje de argumentos por arg_list y
+hacer el scatter solo para los ghost values. 
+Salvo version 1.18 2000/01/28 (spider)
+
+%===Sat Jan 29 20:23:18 ART 2000
+Esta empezando a andar la adaptacion de ghost_dofs. 
+Salvo version 1.19 2000/01/29 (spider)
+
+%===Sun Jan 30 15:23:55 ART 2000
+Anda bien el pasaje de argmentos IN_VECTOR y OUT_VECTOR. Calcula bien
+el residuo ("comp_res" en Laplace). Verifique que no pierde memoria,
+corriendolo muchas veces y monitoreando con `top'. 
+Salvo version 1.20 2000/01/30 (spider)
+
+%===Sun Jan 30 15:26:28 ART 2000
+Ahora voy a definir el OUT_MATRIX. 
+
+%===Sun Jan 30 20:50:18 ART 2000
+Primero tuve que definir PROFILE. Parece que anda. 
+Salvo version 1.21 2000/01/30 (spider)
+
+%===Sun Jan 30 20:59:10 ART 2000
+Despes hay que verificar que pasa con varios procesadores y en un lazo
+grande si pierde memoria. 
+
+%===Mon Jan 31 09:54:23 ART 2000
+Anda el laplaciano con calculo de matriz y residuo en la misma llamada
+a assemble. Tambien anda de nuevo `print_vector()'. 
+Salvo version 1.22 2000/01/31 (spider)
+
+%===Mon Jan 31 10:33:11 ART 2000
+Anda en dos procesadores!! Tuve que hacer un scatter a un vector
+secuencial, pero que tiene "neq" valores en el procesador `0' y 0
+valores en los otros. 
+Salvo version 1.23 2000/01/31 (spider)
+
+%===Mon Jan 31 20:44:08 ART 2000
+Anda bien la inicializacion desde un vector "ini.dat". Se lee todo el
+vector, se resuelve con la matriz Q y se setean los valores en el
+vector global con VecSetValue(). 
+Salvo version 1.24 2000/01/31 (spider)
+
+%===Mon Jan 31 20:48:00 ART 2000
+Eventualmente habria que hacer que verifique si al resolver Q*x = y
+para x, despues cual es la norma de ||Q x-y||. 
+Ahora voy a hacer la opcion de vector IN/OUT. 
+
+%===Fri Feb  4 09:48:51 ART 2000
+Estoy tratando de hacer el shallow water con condiciones de contorno
+periodicas. Converti a shallow.cpp en una rutina generica que llama a
+`flux_fun.cpp', y ahora estoy debugeando con adveccion lineal.
+Salvo version 1.25 2000/02/04 (spider)
+
+%===Sat Feb  5 12:30:20 ART 2000
+Voy a escribir la rutina de condiciones absorbentes para shallow. 
+
+%===Sat Feb  5 13:18:40 ART 2000
+Cambie `shallow' a advective y `sw' a `adv'. 
+Salvo version 1.26 2000/02/05 (spider)
+
+%===Tue Feb  8 12:51:41 ART 2000
+Andan las condiciones absorbentes. Por lo menos en 1D. Ahora voya a
+probar con un fondo variable. 
+Salvo version 1.27 2000/02/08 (spider)
+
+%===Thu Feb 10 09:53:20 ART 2000
+Anda bien el shallow water unidimensional. Captura bien la solucion
+simetrica subcritica alrededor de una loma. Ahora voy a probar con la
+solucion sub->super->sub-critica. 
+
+%===Thu Feb 10 11:21:49 ART 2000
+Con <newmat.h> tambien anda en spider. 
+
+%===Fri Feb 11 11:04:46 ART 2000
+Tengo problemas con el shallow water. No consigo capturar una solucion
+sub-super-subsonica. 
+
+%===Tue Feb 15 15:13:10 ART 2000
+Dejo el shallow water. Hice un cambio en los Makefile, ahora puede
+correr en trantor para Ruperto, etc... 
+%
+Ahora voy a tratar de llevar el Navier-Stokes al formato nuevo. 
+
+%===Fri Mar 10 09:34:45 ART 2000
+Lo de llevar Navier-Stokes al formato nuevo anduvo bien, pero el tema
+de la memoria esta peor que antes. Despues me fui de vacaciones y
+ahora estoy debuggeando shallow-water. 
+%
+Ahora lo hice andar con condiciones de contorno periodicas en las dos
+direcciones, version debilitada. Quiero ver el tema de la
+estabilidad. 
+
+%===Mon Mar 13 13:35:27 ART 2000
+Para el problema de un escalon con condiciones periodicas andan bien
+tanto la version debilitada como la no debilitada. 
+
+%===Mon Mar 13 13:37:46 ART 2000
+Dan bastante iguales pero no exactamente iguales (lo cual esta bien). 
+
+%===Mon Mar 13 13:55:28 ART 2000
+Con condiciones absorbentes tambien da bien. 
+
+%===Tue Mar 14 15:01:22 ART 2000
+Descubrimos que en el KSPMonitor habia que destruir el vector de
+residuos. 
+%
+Estoy escribiendo una rutina print_vector_rota() que va guardando
+vectores en archivos rotandolos. 
+
+%===Fri Mar 24 13:39:01 ART 2000
+En NS, vimos que el precondicionador Jacobi debe ser aplicado a la
+derecha y no a la izquierda.
+%
+Escribimos un flux_fun para Euler y estoy debuggeando. La condicion
+absorbente anda bien, pero ahora 
+
+%===Mon Apr 10 09:41:21 ART 2000
+Estoy convirtiendo nsi_tet a fastmat. 
+%
+El tema de la memoria, en la cual la nueva version "aparentemente"
+consumia mucho mas memoria, no parecia dar problemas en spider, con
+una malla de 60x60. Esto lo dejo para despues. 
+
+%===Mon Apr 17 09:58:34 ART 2000
+La conversion ya anda. Mientras tanto tuve que escribir bastantes
+nuevasrutinas de fastmat y corregir otras. Ahora voy a comparar
+directamente con la version existente en el cluster. 
+
+%===Mon Apr 17 19:03:26 ART 2000
+Anda la version fastmat!! Converge identicamente con la version
+".tempo" que corria en el cluster cuando desactivo el
+precondicionador. 
+
+%===Mon Apr 17 19:18:36 ART 2000
+Parece que anda bien con precondicionador y tambien version fastamt
+pura. Antes estaba probando con newmat emulando a fastmat. Voy a tomar
+tiempos. 
+
+%===Mon Apr 17 20:21:09 ART 2000
+Tome tiempos. La version fastmat es 2.8 veces mas rapida que la
+newmat. Esta relacion dio igual para quads 2D (elemento nsi_tet) para
+chunk_size 20 que para 100 y los tiempos dierons practicamente igual,
+lo cual indica que el "over_head" por pocesar por chunks es bastante
+bajo. 
+
+%===Mon Apr 17 20:31:53 ART 2000
+Ya que estamos tocando el tema tiempos, con chunk_size=1 da 5.34
+segundos contra 4.66 para chunk_size=1=100, lo cual dice que el
+overhead es pequenho con respecto a elementos 'costosos' como
+Navier-Stokes. 
+%
+Tambien la relacion 2.8 de newmat/fastmat podria mejorar en elementos
+menos costosos. 
+
+%===Mon Apr 17 21:55:16 ART 2000
+Estoy tratando de debuggear el tema de la memoria. La nueva version
+pierde memoria por paso de tiempo. 
+%
+Nueva version:
+%
+Total memory (sbrk) [arena]: 208056 b
+Total memory (sbrk) [arena]: 961720 b
+Total memory (sbrk) [arena]: 1178808 b
+Total memory (sbrk) [arena]: 1932472 b
+Total memory (sbrk) [arena]: 2677944 b
+Total memory (sbrk) [arena]: 3423416 b
+Total memory (sbrk) [arena]: 4172984 b
+%
+%==============================
+Vieja version;
+%
+Total memory (sbrk) [arena]: 211732 b
+Total memory (sbrk) [arena]: 944916 b
+Total memory (sbrk) [arena]: 1698580 b
+Total memory (sbrk) [arena]: 1698580 b
+Total memory (sbrk) [arena]: 1698580 b
+Total memory (sbrk) [arena]: 1698580 b
+Total memory (sbrk) [arena]: 1698580 b
+%
+(Eso es medio curioso, porque no
+pierde en Euler? Sera porque no se ensamblan matrices?) Una cosa que
+puedo probar facilmente es cambiar el chunk_size. Ahora esta en 100.
+
+%===Mon Apr 17 21:59:30 ART 2000
+No, definitivamente no es el chunk_size... Estaba en 1. 
+%
+Bueno... Voy a probarlo en 100, a ver si cambia...
+
+%===Mon Apr 17 22:06:32 ART 2000
+El chunk_size no es. Pero si al bajar la dimension del espacio de
+Krylov, baja la memoria que se pierde por iteracion!!
+
+%===Mon Apr 17 22:12:01 ART 2000
+Ahora no pierde memoria. 
+%
+Version nueva:
+%
+Total memory (sbrk) [arena]: 962360 b
+Total memory (sbrk) [arena]: 1232696 b
+Total memory (sbrk) [arena]: 1232696 b
+Total memory (sbrk) [arena]: 1232696 b
+Total memory (sbrk) [arena]: 1232696 b
+Total memory (sbrk) [arena]: 1232696 b
+%
+La version vieja se comporta en forma similar pero con una alocacion
+total de 1338292 b. La diferencia se puede deber a los chunks, que
+ahora se aloca mejor. (???)
+
+%===Thu Apr 20 09:33:23 ART 2000
+Ahora coinciden bien la version nueva (con newmat) con la vieja,
+incluyendo el termino de shock-capturing para la
+incompresibilidad. (Termino nuevo que agrego Beto). 
+
+%===Thu Apr 20 12:34:34 ART 2000
+Ahora la cavidad chica anda bien hasta la ultima cifra decimal. 
+
+%===Fri Apr 21 20:46:24 ART 2000
+Voy a mofidifcar assemble para que calcule jacobianos por diferencias
+finitas. Por ahora los hago en una rutina aparte
+assemble_prof. Despues voy a unificar las dos funciones. 
+%
+Modifique el Makefile para que tenga un target depend: que corre el
+makedepend. 
+
+%===Sun Apr 23 11:27:27 ART 2000
+Reestructure los makefiles. Ahora hay un Makefile.base en el
+directorio raiz, y en este o bien se definen las variables o se
+pueden definir en un  Makefile.defs en el directorio padre del raiz. 
+%
+Ahora voy a probar si anda el jacobiano numerico con Navier Stokes. 
+%
+Tambien hay que probar que ande con varios procesadores. 
+
+%===Sun Apr 23 15:44:38 ART 2000
+Parece andar bien el Jacobiano con Navier-Stokes. No da exactamente
+igual, pero me imagino que se debe a que en realidad el jacobiano
+analitico no es completamente exacto. Voy a probar que el
+assemble_prof() sin calcular jacobianos numericos de igual que el
+assemble(). 
+Salvo version 1.2 2000/04/23 (spider)
+
+%===Sun Apr 23 17:28:45 ART 2000
+La version assemble_prof() da igual que la assmeble(). 
+Salvo version 1.3 2000/04/23 (spider)
+
+%===Sun Apr 23 17:37:06 ART 2000
+Con dos procesadores tambien da bien. 
+
+%===Sun Apr 23 21:47:15 ART 2000
+Calcula bien perfiles llenos con assemble_prof() (jacobiano por
+dif. finitas). Voy a probar con dos procs.
+
+%===Sun Apr 23 23:07:24 ART 2000
+Reiventa el calculo del jacobiano por diferencias finitas en mas de un
+procesador. 
+Salvo version 1.4 2000/04/24 (spider)
+
+%===Tue Apr 25 18:22:55 ART 2000
+Encontre una perdida de memoria. SI SE ALOCA CON NEW ENTONCES HAY QUE
+BORRAR CON DELETE!!! En el destructor de Gpdata hacia  
+ FM_shape[ipg]->~FastMat();
+ FM_dshapexi[ipg]->~FastMat();
+y habia que hacer
+ delete FM_shape[ipg];
+ delete FM_dshapexi[ipg];
+al borrar las componentes FastMat. 
+
+%===Tue Apr 25 19:47:13 ART 2000
+Tiempos:
+%
+Para el cilindro (30000 elementos cuadrangulares) a Re=5000. Con nnwt=3
+(iteraciones de Newton):
+%
+Version nueva: 1' por paso de tiempo, 20'' por subiteracion de
+Newton. 12'' evaluacion del residuo y matriz (una sola llamada en la
+nueva version) y 8'' de resolucion. evaluacion/total = 60%
+%
+Version vieja: 2'10'' por paso de tiempo, 43'' por subiteracion de
+Newton. 35'' evaluacion del residuo y matriz (dos  llamadas en la
+vieja version) y 8'' de resolucion. evaluacion/total = 80%
+%
+evaluacion del residuo (vieja/nueva) -> 3.0
+%
+total de la subiteracion de Newton (vieja/nueva) -> 2.15
+
+%===Wed Apr 26 10:17:03 ART 2000
+Todas las corridas anteriores fueron con el cluster desbalanceado (6
+procesadores, de los cuales uno es PII 350Mhz, otro PIII 450 Mhz y el
+resto PIII 500 MHz). Ahora trajeron el 7mo procesador PIII 500
+Mhz. Con lo cual probe a correr con 6 procesadores (todos los PIII y
+dejando afuera el PII) y el tiempo baja a 52 sec por paso de tiempo,
+17.5 por subiteracion de Newton. 
+
+%===Sun May  7 10:33:09 ART 2000
+Estoy introduciendo el balance de carga entre procesadores. Para eso
+Metis tiene una serie de rutinas de mas bajo nivel como
+METIS_WPartGraphKway donde la W indica que es pesado y se le pasa un
+peso por procesador. La macana es que en esta serie de rutinas hay que
+pasarle el grafo y no solamente las conectividades. De todas formas
+aprovecho y eso me permite hacer que particione tomando la informacion
+de varios elemsets, ya que voy a armar el grafo yo. 
+
+%===Sun May  7 14:14:48 ART 2000
+Anda la division con peso con METIS_WPartGraphKway. En la cavidad de
+20x20, poniendo dos procesadores con peso 0.25,0.75 da una division
+que agrupa unos 97 elementos en la esquina para el proc 1 y otros 303
+para el otro proc 2. 
+%
+Ahora hay que particionar los nodos. 
+
+%===Sun May  7 18:40:07 ART 2000
+Anda bien la particion de nodos inducida. Ahora hay que verificar que
+ande bien Navier Stokes en un solo procesador. Despues en dos
+procesadores sin y con diferencia de carga. Despues con dos
+procesadores y dos elemsets. 
+
+%===Sun May  7 18:59:24 ART 2000
+Coincide el calculo en un procesador y en dos procesadores. Ahora voy
+a comparar con la vieja rutina read_mesh. 
+
+%===Sun May  7 19:07:42 ART 2000
+Coincide con la vieja read_mesh. Ahora voy a probar con dos
+procesadores y dos fat elemset. 
+
+%===Sun May  7 19:22:27 ART 2000
+Anda bien con dos procesadores y dos fat_elemsets.
+
+%===Fri May 12 11:53:09 ART 2000
+Lo termine de implementar y lo corro en el cluster. En read_mesh busco
+una opcion `proc_weights' en el thash `global_options' y eso define un
+archivo donde estan los pesos de los diferentes procesadores
+(normalmente el archivo se llama weights.dat'). Un
+script de Perl llamado procsel lee una tabla `proctable' que contiene
+procesador/peso (valocidad) y escribe `weights.dat' y `machi.dat' para
+MPI. 
+
+%===Fri May 12 12:01:44 ART 2000
+Con balanceo de carga da 30 seg/iteracion mientras que sin balanceo da
+39 seg/iter. Lo curioso es porque tarda 39 seg/iter cuando antes
+tardaba 20 seg/iter. (nos referimos a subiters de Newton). 
+
+%===Fri May 12 12:44:56 ART 2000
+La discordancia de tiempos que pasaba antes es que habia un
+emacs corriendo que se chupaba toda la CPU. Ahora, balanceado da 15
+seg/iter (contra 18seg sin balancear). 
+
+%===Fri May 12 19:25:24 ART 2000
+Todavia tengo un quilombo con el assemble_prof y el assemble. Lo voy a
+unificar. Hago un save en .tgz en geronimo.
+
+%===Sat May 13 08:26:28 ART 2000
+Habia algo que estaba medio mal. En read_mesh la parte en la que
+hacia el da_sort() de los ghost_elems se hacia fuera del lazo sobre
+los elemsets, de manera que lo hacia solo para el ultimo elemset
+visitado y podria ocasionar que para los otros elemsets los
+ghost_elems quedaran desordenados. 
+
+%===Sat May 13 17:33:23 ART 2000
+En read_mesh.cpp: hace falta que line sea pasado como argumento de
+read_hash_table? Porque no que quede definido adentro?
+
+%===Sat May 13 17:37:23 ART 2000
+Voy a mover filestack a un archivo fstack.cpp/h
+
+%===Sun May 14 20:48:03 ART 2000
+Implemente las condiciones de contorno dependientes del tiempo. La
+idea es que ahora cada `fixation_entry' contiene un registro
+`Amplitude *amp'. Las fijaciones que no dependen del tiempo tienen un
+puntero nulo. Para las que si dependen del tiempo el objeto apuntado
+*amp contiene un string `char *amp_function_key' que identifica a la
+funcion apropiada y una serie de propiedades en una hash table
+`TextHashTable *thash'. Por ejemplo si la condicion es c+A*\sin(\omega
+t+\phi) entonces la entrada en el archivo de datos es del tipo
+%
+fixa_amplitude sine
+const_val <c>
+amplitude <A>
+omega <\omega>
+phase <\phi>
+__END_HASH__
+<node> <field> <val>
+<node> <field> <val>
+<node> <field> <val>
+...
+__END_FIXA__
+%
+values enclosed in <> are appropriate  numeric values for the
+quantities enclosed. El string en el objeto amplitude seria
+`sine'. Cuando se llama a la rutina que calcula residuos, esta va
+localizando los valores del vector de estado en la rutina
+`download_vector'. Cuando los valores nodales estan fijos, estos se
+calculan de las fijaciones. Si dependen del tiempo, el tiempo es
+pasado desde el main a las rutinas de mas bajo nivel por un `void
+*time_data' y finalmente es pasado a la funcion. Las funciones
+dependientes del tiempo se registran en una table `function_table'
+(miembro estatico de la clase `Amplitude'). Los de la amplitud
+dependiente del tiempo se calculan por `amp->eval(time_data)', donde
+`eval' es un miembro de la clase amplitude. 
+%
+Renegue bastante con un problema que tuve con el miembro estatico
+`static FunctionTable *function_table' de la clase `Amplitude'. La
+regla es que para acceder a estos miembros estaticos sin tener que
+referenciar a ningun objeto de la clase hay que hacerlo a traves de
+funciones tambien definidas como estaticas. Por otra aprte, las
+funciones estaticas no pueden acceder a los miembros no
+estaticos. Para llamarlos hay que usar el scope operator, por ejemplo
+`Amplitude::ad_entry("sine",&sine_function);". Ademas recordar que los
+miembros estaticos hay que inicializarlos!! Sino no los crea y despues
+en la etapa de linkedicion da un "undefined reference", por ejemplo
+`FunctionTable *Amplitude::function_table=NULL;' en `dofmap.cpp'. 
+No hay que inicializarlos en un header, porque sino da como una
+definicion multiple. O sea, la inicializacion hay que pensarla como la
+definicion de una funcion. Como no sabia como inicializar un
+`map<string,AmplitudeFunction *>' defini al miembro `function_table'
+de la clase `Amplitude' como un puntero a una `FunctionTable' que se
+puede inicializar simplemente como `NULL'. 
+
+%===Sun May 21 19:41:20 ART 2000
+Voy a agregar un tipo de argumento "USER_DATA" de tipo (void *).
+
+%===Wed May 24 13:18:07 ART 2000
+Fijado un "leak memory" en advective.cpp. Al final del archivo, al
+borrar A_jac y A_jac_av hay que hacer `delete' en vez de `~Matrix()' y
+ademas el contador iba hasta `j<ndim' en vez de `j<=ndim'
+%
+  for (int jd=1; jd<=ndim; jd++) {
+    delete A_jac[jd-1];
+    delete A_jac_av[jd-1];
+  }
+. 
+
+%===Thu May 25 18:24:43 ART 2000
+Implementado el auto_time-step. Ahora voy a implementar el 
+local_time_step. 
+
+%===Thu May 25 19:42:57 ART 2000
+Parece andar el local_time_step. Ahora voy a pasar las 
+opciones globales (mesh->global_options) como una
+variable global. 
+
+%===Thu May 25 20:11:09 ART 2000
+Abandono con lo de pasar las opciones en forma global. Voy a tratar de
+poder usar todos lo sistemas advectivos al mismo tiempo con clases
+derivadas.
+
+%===Sat May 27 10:11:25 ART 2000
+Finalmente pude hacer andar el euler de manera que ahora se puede
+correr euler, shallow-water, etc... dentro del mismo programa. Eso lo
+hice con clases derivadas. 
+
+%===Sat May 27 11:21:50 ART 2000
+Changed `read_mesh.cpp' to `readmesh.cpp' in order to have filenames
+8.3 compatible and flux_fun...cpp o ff....cpp. 
+
+%===Sat May 27 11:51:34 ART 2000
+Rewritten the TAGS target in the makefiles. 
+
+%===Wed Jun  7 20:47:17 ART 2000
+Added description of advective elemsets to the doc. 
+
+%===Fri Jun  9 12:02:34 ART 2000
+Escribiendo la documentacion de funciones temporales. 
+
+%===Sat Jun 10 14:11:16 ART 2000
+Cambio los nombres de los archivos en laplace: el main es `laplace.cpp' y
+el elemento es `lapla.cpp'. 
+
+%===Sun Jun 11 13:40:59 ART 2000
+
+Corregi un bug serio en la lectura de datos con get_double and
+friends. En realidad el problema era en la alocacion con `new
+char'. En varios lados estaba `new_string = new char[strlen(string)]'
+para despues copiar `string' en `new_string'. No se estaba reservando
+un lugar para el trailing NULL. (Esto es un error clasico!!!). Lo
+reemplaze en todos lados por `new_string = new
+char[strlen(string)+1]'.
+
+%===Sun Jun 11 13:44:02 ART 2000
+Estoy escribiendo un caso test para funciones dependientes del
+tiempo. 
+
+%===Sun Jun 11 22:00:51 ART 2000
+Cambie "read_mesh.h" por "readmesh.h". Estoy recuperando la rutina
+`print_some'. 
+
+%===Mon Jun 12 21:30:25 ART 2000
+Estoy debuggeando un efecto extranho. En geronimo no anda bien el test
+`sector.dat'. Mientras que en spider anda bien. En geronimo
+aparentemente no procesa 3 de los 100 elementos. Antes estaba con
+jacobiano por diferencias y ahora lo puse analitico. Sera eso?
+
+%===Mon Jun 12 21:37:46 ART 2000
+No. En casa da bien con jacobiano analitico y numerico. Tambien con
+chunks de 2, 200 y default (creo que 20).
+
+%===Tue Jun 13 13:40:03 ART 2000
+Encontre el error. Los datos de `sector.dat' estaban medio mal, es
+decir en ciertos nodos que estaban fijos ademas le imponia condiciones
+periodicas. 
+
+%===Tue Jun 13 22:47:31 ART 2000
+Arregle el error, pero de todas formas no lo pude verificar bien
+porque lo corri en minerva, pero donde andaba mal era en geronimo. Lo
+que hago ahora es que cuando perm[] del nodo fijado da 0, entonces no
+remapeo la fijacion. 
+%
+Defino una clase TimeData que es general y otra Time que es un
+doble. TimeData es mas general y podria tener cualquier cosa
+adentro. Pero de todas formas me da la sensacion que no lo estoy
+haciendo bien. Deberia hacerlo con clases virtuales o algo por el
+estilo.
+
+%===Fri Jun 23 09:45:16 ART 2000
+Estoy escribiendo la libreria FastMat2. 
+%
+Hasta ahora tenia una rutina sync_dims que sincronizaba las
+dimensiones de la matriz. Ahora voy a ser que devuelva las
+dimensiones, asi no hay que dejar de declarar `const' al objeto. 
+
+%===Tue Jun 27 21:16:22 ART 2000
+Borro location_abs(). Creo que no se esta usando. 
+
+%===Wed Jun 28 10:47:41 ART 2000
+Anda bien ir() e is(). Ahora voy  a hacer que is(j) sin mas argumentos
+limpia el filtro de la coordenada j. 
+
+%===Wed Jun 28 22:45:31 ART 2000
+Estaba mal el dimensionamiento de A_jac
+%
+A_jac_FM2(3,ndim,ndof,ndof);
+
+%===Fri Jun 30 21:50:09 ART 2000
+Ahora desde el advecive.cpp escrito en Newmat corre el ffeuler escrito
+en FM2 a traves de una rutina de adaptacion ffadapfm2.cpp. Ahora voy a
+probar que ande bien con Newmat y despues con FM2. 
+
+%===Sat Jul  1 20:35:42 ART 2000
+Andan los cache!! Hasta ahora andan para las operaciones`'one to
+one'. El paso siguiente es escribirlas para las operaciones setel,
+addel, scaleel. 
+%
+Para una operacion de 3x3 de copy, (set) y mult (multiplicacion
+elemento a elemento) da unos 8 Mflops. Para chunks de 10 baja a 7. 
+
+%===Wed Jul  5 11:45:53 ART 2000
+Anduve mirando tiempos en FastMat2 y anda bien, en algunos casos es
+unas 10 veces mas rapida que Newmat. Pero el overhead es realmente
+malo, hay que ir hasta 100 o 1000 veces ejecutar con cache para que
+deje de incidir el tiempo de armado del cache. Voy a escribir una
+mejor clase Indx. 
+
+%===Wed Jul  5 19:07:22 ART 2000
+La clase Indx esta mejor escrita. Es un vector de longitud MAXINDX,por
+ahora no hay chequeo de "out of bounds". FM2 da en el problemita de
+hacer c = a(:,1)*a(1,:) 5.55 Mflops y Newmat 0.64Mflops. 
+El punto de corte anda en Nin=100. (Antes estaba en 1000 o peor). 
+
+%===Thu Jul  6 12:55:26 ART 2000
+Agregue un conteo de operaciones en el cache_list. 
+
+%===Sun Jul  9 12:59:57 ART 2000
+Andan las listas de cache con branching, anda el conteo de
+operaciones.
+
+%===Mon Jul 10 19:44:07 ART 2000 mstorti@node1.beowulf.gtm
+;(defalias 'notas-insert-date (read-kbd-macro
+;			      "=== <<date>> C-e SPC C-u ESC !uname SPC -n RET <down> C-k \
+;<up> C-e 3*<C-left> C-u ESC !whoami RET <down> C-a DEL @ C-e <down>"))
+Nueva definicion de notas-insert-date. (ver arriba). 
+%
+En set(double *) y export(double *) tuve que hacer que si la matriz no
+esta definida entonces no exporta nada. 
+
+%===Wed Jul 12 06:18:24 ART 2000 mstorti@localhost.localdomain
+;(defalias 'notas-insert-date (read-kbd-macro
+;         "%=== <<date>> C-e SPC C-u ESC !whoami RET C-e @ C-u ESC !uname \
+;SPC -n RET C-a <down> 2*C-k"))
+New-new version of notas-insert-date. 
+%
+tau_supg is not reshaped now. If it is scalar it is passed in position
+1,1, the rest of the matrix is ignored, and this is flagged by the
+writer of the flux_fun routine through a bit filed in int variable
+'ret_options' (options for return values).
+
+%===Wed Jul 12 06:50:16 ART 2000 mstorti@localhost.localdomain
+Voy a escribir una clase de matrices derivada de FastMat2 pero solo
+para dos dimensiones. La llamo FMatrix. 
+
+%===Wed Jul 12 22:26:23 ART 2000 mstorti@localhost.localdomain
+Escribo double FastMat2::sum_square_all(). El truco es tener una
+matriz estatica escalar A adentro y entonces adentro se llama a
+A.sum_square(*this). Ahora lo voy a hacer para todos los otros. 
+
+%===Thu Jul 13 10:42:33 ART 2000 mstorti@node1.beowulf.gtm
+Acepto que una de las dimensiones al crear una matriz sea nula. En ese
+caso hago todo menos hacer el `new' y setear la bandera `defined' a 1.
+
+%===Thu Jul 13 12:58:07 ART 2000 mstorti@node1.beowulf.gtm
+Habia un bug en cuanto a que no se deleteaba el cache en toda una
+serie de rutinas cuando no se estaba usando la opcion de guardar el
+cache. 
+
+%===Thu Jul 13 13:10:05 ART 2000 mstorti@node1.beowulf.gtm
+FM2 sin cache da una iteracion del naca (2429 elementos) en 2' (a 50%
+CPU), es decir 24 [sec/1000 elem]. 
+%
+No pierde memoria! 
+%
+Ahora voy a ver cuanto da Newmat y despues FastMat con Cache.
+
+%===Thu Jul 13 13:15:00 ART 2000 mstorti@node1.beowulf.gtm 
+Con Newmat da 38'' el mismo caso, con la misma distribucion de
+carga. Es decir una relacion 3 a 1. Newmat estaria dando 8 [sec/1000
+elem].
+
+%===Thu Jul 13 18:30:21 ART 2000 mstorti@node1.beowulf.gtm
+Con FastMat2 cached da 12 seg (a 50% CPU), es decir 2.5
+[sec/1000elem].
+
+%===Fri Jul 14 08:48:09 ART 2000 mstorti@node1.beowulf.gtm
+Algo anda mal en las medidiones de tiempo. Por empezar el upload y
+download de vectores se lleva mucho tiempo, asi que voy a tratar de
+medir tiempo haciendo muchas llamadas a assemble solamente. 
+
+%===Fri Jul 14 09:38:26 ART 2000 mstorti@node1.beowulf.gtm
+%
+Dentro del debugger y con -pg activado da 1 sec/Ke para assemble fon
+FM2. Fuera del debugger  0.968273 sec/Ke.
+%
+Newmat: 7.404418 sec/Ke. 
+%
+FM2 sin el -pg para profiler 0.609000 sec/Ke. 
+%
+Newmat sin el -pg:
+total 32.270000, ntimes 10, nelems 500, rate 6.454000 [sec/1000/elems/iter]
+%
+Overhead en FM2: para chunk_size=100 la tasa baja a 0.825000 sec/Ke.
+Para chunk_size=30, la tasa es de  1.433333 sec/Ke. 
+%
+El ajuste por minimos cuadrados da t [sec] = 0.026 + 5.55e-3 * (Nro de
+elementos), lo cual da un overhead equivalente a 47 elementos. La
+eficiencia para unos 500 elementos estaria en 10/11 = 91% aprox.
+%
+Toda la rutina assemble en FM2:
+total 58.310000, ntimes 10, nelems 2429, rate 2.400576
+[sec/1000/elems/iter]. Quiere decir que le agrega unos 1.8 sec sobre
+los .6 que requiere la rutina advective con fm2.
+%
+Toda la rutina assemble en Newmat:
+total 195.340000, ntimes 10, nelems 2429, rate 8.041993
+[sec/1000/elems/iter]. Quiere decir que le agrega unos 1.6 sec a los
+6.45 de la rutina de Newmat. Coincide con la estimacion del overhead
+de upload/download para FM2.
+
+%===Fri Jul 14 13:14:34 ART 2000 mstorti@node1.beowulf.gtm
+%
+Voy a escribir versiones "rapidas" de los containers `map' y
+`vector'. Vector ya casi esta, (lo tomo de Indx) y map se va a basar
+en vector. 
+
+%===Sat Jul 15 12:10:17 ART 2000 mstorti@localhost.localdomain
+Ya andan las versiones rapidas. Para adv con chunk_size=500 da 0.93
+sec/Ke el assemble cuando el advective solamente requiere 0.63 sec/Ke
+significando que el overhead de element.cpp (upload/download) es de .3
+sec/ke (32%). Esta mucho mejor pero de todas formas es muy elevado. 
+
+%===Sat Jul 15 14:06:43 ART 2000 mstorti@localhost.localdomain
+Con gprof:
+total 423.870000, ntimes 100, nelems 2429, rate 1.745039 [sec/1000/elems/iter]
+%
+Quiere decir que con gprof se achancha bastante (sin gprof da .93
+sec/Ke). Pero esto va a cambiar cuando ponga el shock-captring. 
+%
+El gprof canta que todavia estamos gastando la mitad del tiempo en
+upload/download contra el tiempo de calculo puro. 
+
+%===Sat Jul 15 17:12:27 ART 2000 mstorti@localhost.localdomain
+%
+Ahora el target $(PROG).bin esta en Makefile.base. Guarda! que si en
+vez de `$(PROG).bin' pones `%.bin' entonces los `*.o' se convierten en
+secundarios y los borra despues de compilar. Una posibilidad es poner
+`.SECONDARY: $(MYOBJS)' pero parece ser mejor poner directamente como
+target `$(PROG).bin'. 
+
+%===Sat Jul 15 17:14:12 ART 2000 mstorti@localhost.localdomain
+%
+Verifico que la version rapida da bien los resultados en
+euler/naca.epl. 
+%
+Sacando el Mat/VecSetValue() se llega a 0.897900 sec/Ke. Lo cua quiere
+decir que el overhead por carga de valores no es sensible. 
+
+%===Sat Jul 15 17:47:53 ART 2000 mstorti@localhost.localdomain
+%
+Verifico la ganancia con la nueva version de upload/download:
+vieja version: 2.122684 sec/Ke. 
+nueva version: 0.929601 sec/Ke. Factor de ganancia: 2.3 
+
+%===Sat Jul 15 18:45:10 ART 2000 mstorti@localhost.localdomain
+%
+Verifico que no tiene perdidas de memoria.
+
+%===Sun Jul 16 10:17:23 ART 2000 mstorti@localhost.localdomain
+Con optimizacion da 0.474434 sec/Ke. Factor de ganancia: 1.98
+
+%===Sun Jul 16 12:36:52 ART 2000 mstorti@localhost.localdomain
+%
+Implemento la funcion de flujo para shallow water.
+%
+Performance para shallow water:
+total 16.160000, ntimes 50, nelems 200, rate 1.616000 [sec/1000/elems/iter]
+%
+Guarda que el numero de elementos es bajo. Despues voy a probar a
+llevarlo a 500. Esta compilado sin profiler y con debugger.
+%
+Con Newmat
+%
+total 37.780000, ntimes 50, nelems 200, rate 3.778000 [sec/1000/elems/iter]
+%
+Mas de dos veces mas lento.
+%
+Guarda que el chunk_size estaba en 20!! Paso el CHUNK_SIZE a 200 en
+`fem.h' y a 500 en plano.dat.
+Con Newmat:
+total 7.070000, ntimes 10, nelems 200, rate 3.535000
+[sec/1000/elems/iter]
+Con FastMat2 [chunk_size de 200]
+total 0.820000, ntimes 10, nelems 200, rate 0.410000 [sec/1000/elems/iter]
+Con FastMat2 [chunk_size de 500]
+total 1.960000, ntimes 10, nelems 500, rate 0.392000 [sec/1000/elems/iter]
+
+%===Sun Jul 16 19:55:00 ART 2000 mstorti@localhost.localdomain
+%
+Escribi el shock capturing en FastMat2. Da igual (a precision de la
+maquina) que con Newmat. Ahora tengo que activar el cache. 
+
+%===Sun Jul 16 20:22:18 ART 2000 mstorti@localhost.localdomain
+%
+Anda le euler con FastMat2 y caches. Es 5.7 veces mas rapido. 
+Ahora voy a probar con la version optimizada. 
+%
+Hay un problema con los caches. Si hay un `if' sin `else' entonces
+cuando no entra en el `if' entonces queda un cache desfasado. Por ahora
+se arregla poniendo siempre un `else'.
+
+%===Sun Jul 16 20:34:22 ART 2000 mstorti@localhost.localdomain
+La version optimizada da 1.274000 sec/iter para FM2 y 
+14.010000 sec/iter para Newmat. Pero guarda que Newmat no esta
+compilado con optimizacion. 
+%
+Con optimizacion Newmat baja a 7.57 sec/iter con lo cual la relacion
+baja a un factor 6.
+%
+La llamada a `assemble' solo da 3.03 sec/Ke con Newmat y 0.50 sec/Ke
+con FastMat2,  o sea tambien una relacion de 6 a 1.
+%
+La llamada al elemento solo (`advective' o `advectiveFM2') da 2.98
+sec/Ke con Newmat y 0.4 sec/Ke con FastMat2 o sea que la relacion sube
+a 7.45. 
+%
+Tambien se ve que para FastMat2 el overhead de upload y download es de
+un 20%. 
+
+%===Mon Jul 17 18:12:33 ART 2000 mstorti@node1.beowulf.gtm
+Habia un bug en los puntos de Gauss para triangulos. 
+
+%===Tue Jul 18 13:26:18 ART 2000 mstorti@node1.beowulf.gtm
+%
+Habia dos bugs que morfaban memoria. 
+%
+1./ En fem.cpp compute_prof() habia que hacer el `da_destroy(da)'
+*antes* de definir la matriz, sino estan ambas definidas al mismo
+tiempo. 
+%
+2./ En `fstack.cpp' habia que poner la linea compiled=1 para que no
+recompilara cada vec, lo cual ademas daba lugar a una perdidad de
+memoria. 
+
+%===Fri Jul 21 12:23:22 ART 2000 mstorti@node1.beowulf.gtm
+%
+Cuando quise compilar NS con el optimizador pow() me daba uns
+SIGSEGV. Lo arregle usando cbrt() (raiz cubica) y un macro SQ() que
+hace el cuadrado. 
+
+%===Fri Jul 21 12:24:42 ART 2000 mstorti@node1.beowulf.gtm
+%
+Perdida de memoria en remap_cols(). Despues de renegar y renegar no
+encontre el problema y resolvi escribir un nuevo remap_cols() que haga
+el remap copiando en un nuevo idmap y entonces despues borra el viejo
+y deja el nuevo. Esto va a ser mejor siempre, pero de todas formas no
+queda en claro que porque se pierde memoria con el set_elem() y esto
+puede ser peligroso en alguna aplicacion donde se use mucho. 
+
+%===Fri Jul 21 17:43:16 ART 2000 mstorti@node1.beowulf.gtm
+%
+Hago un directorio `PETSC/RUPERTO/advective.ruperto' donde Ruperto
+puede poner sus funciones temporales. 
+
+%===Sat Jul 22 11:50:15 ART 2000 mstorti@localhost.localdomain
+%
+Informe final sobre el remap_cols() bug:
+========================================
+%
+%
+El efecto de este bug es que, despues de definir el idmap dofmap->id,
+en readmesh, cuando hace la rutina `remap_cols()' que remapea las
+columnas (grados de libertad) de forma de dejar las que corresponden
+al procesador 0 primero, despues las del 1, etc... hasta nptoc-1, y
+despues los fijos, entonces despues de remapear las columnas se morfa
+una gran cantidad de memoria que despues no es liberada. No he llegado
+a la raiz del problema pero he logrado los siguientes diagnosticos:
+%
+*./ La memoria perdida depende del tamanho maximo al cual ha llegado
+los col_map y row_map y la suma de los row_t y col_t individuales, es
+decir de todos los `map'. Esto parece ser un `bug' o por lo menos un
+funcionamiento no deseado en el compilador o las librerias STL. 
+%
+*./ La memoria no se recupera ni siquiera destruyendo los objetos. Sin
+embargo, si se vuelven a usar maps (eventualmente otros) la memoria es
+reusada. Pareceria ser entonces que la implementacion de los maps
+reserva una cantidad de memoria para para los maps que nunca es
+liberada ni reducida, incluso si los maps son destruidos. 
+%
+*./ Hay un ejemplo tryme2.cpp que muestra esto.
+%
+*./ La solucion actual es cambiar el remap_cols() de manera que se van
+cargando las filas del viejo idmap en un nuevo idmap y despues se
+destruye el viejo. De esa forma la memoria perdida es nula porque no
+se usan los maps ya que no hay columnas ni filas especiales. 
+%
+*./ Otra posibilidad seria reimplementar el idmap de otra forma, por
+ejemplo tomando un `binary tree' de libretto, o algo mas pedestre
+implementado por mi directamente. 
+
+%===Sat Jul 22 12:48:05 ART 2000 mstorti@localhost.localdomain
+%
+Cambio la forma de actualizar makefile.d en los makefiles y como
+salvarlos. Ahora los makefile.d no se guardan en `source.tara'. Y en
+los Makefile se agrega dos lineas que dice "makefile.d: cat /dev/null
+>makefile.d ; makedepend -f makefile.d ...". De esta forma se generan
+los makefile.d cuando se necensitan. 
+
+%===Sat Jul 22 20:37:38 ART 2000 mstorti@localhost.localdomain
+%
+Fixed a bug introduced during the change of remap_cols(). In
+remap_cols the line `n = n_new;' should be `idnew.n = n_new;'. 
+
+%===Sat Jul 22 20:46:59 ART 2000 mstorti@localhost.localdomain
+%
+Hay un problema en al correr el plano.dat en ./run. Se produce un
+error al resolver por GMRES me parece que se debe a que en la nueva
+version la matriz que debe retornar es nula. 
+
+%===Sat Jul 22 21:18:38 ART 2000 mstorti@localhost.localdomain
+%
+Corregido el error. Habia quedado comentada una linea en advective.cpp
+al agregar el beta_supg.
+
+%===Sun Jul 23 06:29:41 ART 2000 mstorti@localhost.localdomain
+%
+Muevo el target %.depl de `run' y `test' a makefile.base.
+
+%===Sun Jul 23 10:30:01 ART 2000 mstorti@localhost.localdomain
+%
+Agrego para det() e inv() el calculo via Newmat. Ahora voy a hacer
+eig(). 
+
+%===Wed Jul 26 20:06:12 ART 2000 mstorti@node1.beowulf.gtm
+%
+Descubrimos cual era el problema por el cual para problemas grandes
+parecia que "duplicaba" la memoria. Se debia a que cuando haces
+MatSetValues los elementos quedan en un cache que recien es mandado a
+comunicacion cuando llamas a MatAssemblyBegin/End(). Entonces, si
+tenes muchos elementos el cache es tan grande como la matriz. Es
+preferible entonces hacer el MatAssemblyBegin/End() despues de cada
+chunks o cada cierto numero de chunks. Pero eso obliga a sincronizar
+el procesamiento de cada chunk si no se te desbalancea el calculo ya
+que el MatAssemblyBegin/End impone una barrera MPI. Entonces
+calculamos un tamanho local ideal del chunk de la forma
+%
+local_chunk_size = (int)(chunk_size*dofmap->tpwgts[myrank]/w_max) +1 ;
+%
+donde w_max es el maximo weight (maxima velocidad). Des esta forma el
+tamanho de los chunks es proporcional a la velocidad del procesador y
+en el de mayor velocidad (por lo tanto, el que tiene mayor tamanho de
+chunk) es el deseado chunk_size. 
+%
+Ahora bien, por problemas de `redondeo entero' etc... puede ser que el
+numero de chunks varie de procesador a procesador, pero todos tienen
+que llamar a MatAssemblyBegin/End el mismo numero de veces asi que en
+algunos procesadores hay que llamar a MatAssemblyBegin/End sin haber
+procesado elementos en ese chunk, solo para sincronizar. Para detectar
+si un dado procesador termino hacemos 
+%
+      int local_has_finished= (el_last==nelem-1);
+%
+Y despues para ver si todos terminaron hacemos un Allreduce
+%
+      int global_has_finished;
+      ierr = MPI_Allreduce((void *)&local_has_finished,
+			(void *)&global_has_finished,1,MPI_INT,
+			MPI_LAND,PETSC_COMM_WORLD);
+
+%===Fri Jul 28 11:04:08 ART 2000 mstorti@node1.beowulf.gtm
+%
+Habia un problema con el nuevo procesamiento por chunks. No andaba
+(daba un SIGSEGV) cuando se corria en mas de un procesador y con
+chunk_size grande de manera que todo entra en un solo chunk. Lo
+arregle cambiando `local_chunk_size' por `chunk_size' en la linea
+%
+	if (iele_here == chunk_size-1) break;
+%
+en `elemset.cpp'.
+
+%===Fri Jul 28 11:33:51 ART 2000 mstorti@node1.beowulf.gtm
+%
+Voy a resolver el problema del branch/leave en FM2. La idea es que
+funcione asi;
+%
+...
+spawn()
+if (...) {
+  choose(j1);
+  ...
+} else if (...) {
+  choose(j2);
+  ...
+} 
+leave();
+...
+%
+
+%===Sat Jul 29 13:03:49 ART 2000 mstorti@localhost.localdomain
+%
+Convierto FastMat2 a listas variables de argumentos pero via
+argumentos con valores defaults. La idea es que las llamadas son de la
+forma
+%
+fun(int m_0=0,int m_1=0,int m_2=0,int m_3=0,int m_4=0)
+%
+Y se supone que nunca es llamada con un numero variable de argumentos
+diferente de 0. Entonces el numero de argumentos se obtiene mirando
+cual es el primer argumento diferente de 0. Escribo unos macros
+ARG_LIST(type,name,default)  y
+READ_ARG_LIST(name,indx,default,exit_label) que expanden a la lista de
+argumentos y despues lo leen.
+
+%===Tue Aug  8 22:08:08 ART 2000 mstorti@localhost.localdomain
+Agrego la funcion `piecewise' (lineal a trozos) escrita por
+Beto. Agrego un campo en la clase `Amplitude' de tipo `void *' que es
+para que el usuario pueda calcular datos estaticos y dejarlos
+ahi. Atencion que no es lo mismo que tener datos de tipo `static' ya
+que entonces no podrian variar entre dos diferentes regiones que
+tienen la misma funcion de tipo 'piecewise', por ejemplo, pero tienen
+diferentes parametros.
+
+%===Tue Aug 15 19:51:41 ART 2000 mstorti@node1.beowulf.gtm
+Empezamos a implementar LES / Smagorinsky. 
+%
+Agregamos un coeficiente C_smag. Si es cero no se hace turbulencia.
+Por defecto es 0.18
+%
+Problema del ducto ciruclar: Hay que agregarle una gradiente de
+presion o fuerza por unidad de volumen. Le agrego una propiedad G_body
+que es un vector de ndim componentes. Se define en la tabla de
+propiedades globales. 
+%
+Defino un nuevo elemento `nsi_tet_les' que esta en el archivo
+`nsitetles.cpp'. A la larga la version con y sin LES deberian convivir
+en el mismo elemento pero por ahora mantengo los dos para poder
+comparar etc. De todas formas no se si voy a tener que tocar el
+elemento viejo por para agregarle el G_body.
+
+
+%================================================================
+%
+% Mensaje enviado por beto.
+%
+Mario,
+
+aqui te mando como attachment un fichero en Matlab que genera las
+  - coordenadas [x3d]
+  - conectividades [ico3d]
+  - periodical bc [peri]
+  - fijaciones [fixa]
+
+Es una feta en z (dos capas, una entrante y la otra periodica saliente) y
+dos fetas en theta (circumferencial) para evitar un elemento triangular en
+el centro. En la direccion radial le especificas a la rutina Nr (nro de
+elementos radiales).
+
+Como condiciones de contorno,
+ -  a la entrada u=v=0 en toda la feta entrante (por ende al ser periodica
+la saliente tambien es asi)
+ - a la entrada w = 0 en la pared
+ - a la entrada w = 1 en el centro
+ - presion libre en todos lados
+ - a la salida todo es periodico con la entrada
+
+OJO:
+Al mediodia me avive que vos llamaste nu_t en el programa y eso habria que
+sumarlo al VISCO, no?
+
+Suerte
+
+Beto
+
+%===Wed Aug 16 13:36:37 ART 2000 mstorti@node1.beowulf.gtm
+%
+Esta empezando a andar el flujo en un ducto en regimen laminar. La
+velocidad maxima me da 0.243 menor que la exacta (0.25). Pruebo a
+sacarle el upwind (tau_fac=0.) y no da mejor. Voy a probar a disminuir
+la abertura de la feta de elementos. 
+%
+Debemos tener un archivo de inicializacion con un perfil parabolico y
+maxima velocidad 1 y entonces para un dado Re hay que poner nu=1/Re y
+dp/dz= 4/Re
+
+%===Wed Aug 16 17:43:13 ART 2000 mstorti@node1.beowulf.gtm
+%
+Ahora, normalizado e inicializado desde el perfil parabolico da perfecto.
+
+%===Wed Aug 16 18:14:26 ART 2000 mstorti@node1.beowulf.gtm
+%
+Cuando usas pasos de tiempo grandes no podes seguir la evolucion
+temporal. No es fisicamente correcta. Parecia que en el centro del
+ducto evolucionaba mas lento que en r=0.5 pero se debia al efecto ese
+del paso de tiempo demasiado grande. 
+
+%===Wed Aug 16 19:02:20 ART 2000 mstorti@node1.beowulf.gtm
+%
+El lazo exterior de NS chequeaba convergencia para problemas
+estacionarios a sobre ||delta u||. Lo pase a que chequee sobre ||R||. 
+
+%===Thu Aug 24 13:19:00 ART 2000 mstorti@node1.beowulf.gtm
+%
+Habia un error en la implementacion del Crank-Nicholson. Primero, en
+la linea 634 en vez de 	"FMaxpy(matlocmom,alpha*nu_eff,tmp7);" va sin
+el alpha porque el alpha solo va en todas las lineas escaleando al
+Dt. Ademas el tiempo que hay que pasarle a `assemble' es t* no
+t^{n+1}, asi que definimos una variable  `Time time_star;' y en las
+llamadas dentro del lazo hay que pasarle `time_star'. 
+%
+Guarda!! Ademas en realidad cada vez que se pasa un estado habria que
+pasarlo con el tiempo asociado. Es decir pasar {u^n,t^n} y
+{u^n+1,t^n+1}. 
+%
+De todas formas el Crank-Nicholson tiene ahora una convergencia
+$\propto \Dt^2$. 
+
+%===Thu Aug 24 18:57:41 ART 2000 mstorti@node1.beowulf.gtm
+%
+Cuando agregue LES dejo de converger en la primera subiteracion lineal
+debido al tratamiento diferente que se le hace al tensor de tensiones
+que en el caso tubulento se pone como 1/2 (grad_u+ grad_u_t). Ahora
+corregi tambien el jacobiano y da todo bien. Por supuesto como el
+problema es no-lineal la convergencia no es en una iteracion pero de
+todas formas converge rapido (a Re pequenhos). 
+
+%===Thu Aug 24 19:43:38 ART 2000 mstorti@node1.beowulf.gtm
+%
+Performance para NS: Problema del qbend, 
+%* 51,129 elementos. 
+%* Corriendo junto con el adv.bin de Ruperto. 
+%* Krylov_dim 150
+%
+Da 6' por iteracion, es decir 284 elem/sec. 
+
+%===Thu Aug 24 20:11:35 ART 2000 mstorti@node1.beowulf.gtm
+%
+Pruebo con la version 1.48g que supuestamente es la que estaba activa
+cuando corria el qbend. Con esa da 5' contra 6'. Sera el chunk_size?
+
+%===Thu Aug 24 20:35:59 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con la version 1.45g y con un chunk_size de 1000 tambien da del mismo orden (4'50''). 
+
+%===Thu Aug 24 20:53:25 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con la version actual (seria la 1.63g) da 5'50'' por iteracion (igual
+que antes) con chunk_size=1000 o sea que pareceria ser independiente
+del chunk_size.
+
+%===Fri Aug 25 08:47:46 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con Dt=500 se va a la mierda. Claro, no hay que basarlo sobre el
+Fourier sino sobre el Courant. 
+
+%===Fri Aug 25 11:50:59 ART 2000 mstorti@node1.beowulf.gtm
+%
+Empiezo a escribir el nsi_tet con FM2. Escribo una funcion identidad
+`eye()'. 
+
+%===Fri Aug 25 19:56:26 ART 2000 mstorti@node1.beowulf.gtm
+%
+Tuve que corregir la funcion rs() en FM2 ya que no reseteaba la
+permutacion de indices.
+
+%===Sat Aug 26 15:29:31 ART 2000 mstorti@localhost.localdomain
+%
+Hice otro casito test que es la cavidad cuadrada con 5 elementitos por
+lado. Ahora lo uso para verificar que nsi_tet_les de lo mismo que
+nsi_tet_les_fm2. 
+%
+Ahora hay que agregar los cache para FM2. 
+
+%===Wed Aug 30 12:28:17 ART 2000 mstorti@node1.beowulf.gtm
+%
+El cache anda al pelo.  Estoy mirando el tema eficiencia. En casa me
+daba que FM2 no era mas eficiente que FM, pero ahora aca en geronimo
+da 3 veces mas rapido (sin optimizacion). Voy a ver ahora con
+optimizacion. 3 sec/Ke con FM y 1 sec/Ke con FM2.
+%
+Con optimizacion da .28 sec/Ke con FM2 y .655 sec/Ke con FM. 
+%
+Guarda que en estos resultados el `loop gordo' con los `matij' estaba
+comentado!! 
+%
+Incluyendo el lazo `matij' da 1.72 sec/Ke con FM2 y 1.43 sec/Ke para
+FM. Mas o menos como daba en casa.
+%
+Ahora voy a sacar el gprof (opcion -pg)
+%
+Sin -pg da .65 sec/Ke para FM y 1.1 con FM2. 
+
+%===Wed Aug 30 13:40:40 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con el lazo `matij' vectorizado FM2 pasa a ser ligeramente mas rapido
+que FM. 
+
+%===Fri Sep  1 18:58:45 ART 2000 mstorti@node1.beowulf.gtm
+%
+Retomo NS+LES en FM2. Parece haber un error en la version FastMat de
+`nsitetles.cpp'. Ahora dan iguales, pero me preocupa ese error que
+habia en la version FastMat2. 
+
+%===Tue Sep  5 11:17:57 ART 2000 mstorti@node1.beowulf.gtm
+%
+Detecto bug: En advective se detecta que cuando se ponen constraints
+con coeficientes nulos da mal.
+
+%===Wed Sep  6 10:57:54 ART 2000 mstorti@node1.beowulf.gtm
+%
+Fixed a serious bug in `elemset.cpp'. Temporary arrays (locst, retval)
+were not destroyed for all elemsets, but only for the last.
+%
+Los delete[] de locst, pref, retval, etc... hay que hacerlos para cada
+elemset, despues del lazo sobre los chunks. 
+
+%===Wed Sep  6 22:57:38 ART 2000 mstorti@localhost.localdomain
+%
+Escribo la version weak_form=1 en advecfm2. Agrego en bcconv_adv el
+termino H para shallow water. Tambien lo agrego a absorb (antes pasaba
+basura y generaba un hterm cualquier cosa, guarda esto era una
+bug!!). 
+%
+Agrego opciones __REWIND__, __FORWARD__ y __BACKWARD__ en
+`myexpect.pl'. 
+
+%===Fri Sep  8 20:12:38 ART 2000 mstorti@node1.beowulf.gtm
+%
+Arreglado un bug serio en la clase `idmap'. En `void
+idmap::get_row(const int,IdMapRow &)' no se ponia la fila a vacio en
+el caso `j==0', es decir ahora es:
+%
+  } else if (j==0) {
+    row.resize(0);   // linea agregada!!
+    return;
+  } else {
+
+%===Mon Sep 11 12:37:40 ART 2000 mstorti@node1.beowulf.gtm
+%
+`ffeuler.cpp' no compila con optimizacion asi que agregue una regla de
+compilacion especial para ese archivo en el Makefile para que siempre
+lo compile sin optimizacion. 
+%
+ffeuler.o: ffeuler.cpp
+	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O0 $<
+
+%===Tue Sep 12 11:23:20 ART 2000 mstorti@node1.beowulf.gtm
+%
+Hay una pequenha asimetria en el codigo advectivo/shallow. Eso se debe
+a que, cuando se usa local_time_step, el Jacobiano para calcular el
+paso local de la malla, para escalear la matriz de masa se tomaba del
+ultimo punto de Gauss visitado. Ahora se hace con un promedio de los
+jacobianos. Ahora da perfectamente simetrico. 
+%
+El ||delta u|| parecia no converger, porque faltaba eliminar la
+proyeccion de las condiciones absorbentes. Ahora formo el delta_u
+despues de la proyeccion y converge muy bien. 
+
+%===Tue Sep 12 13:25:13 ART 2000 mstorti@node1.beowulf.gtm
+%
+Voy a hacer un test para el bug de los `constraint'.
+
+%===Tue Sep 12 18:46:51 ART 2000 mstorti@node1.beowulf.gtm
+%
+BUG: No estaba declarado estatico el regex en get_string(). 
+Debia ser "static regex_t regex[2];" en getprop.cpp linea 109. 
+Se colgaba cuando se hacia mas de un `get_string'. 
+
+%===Tue Sep 12 19:29:54 ART 2000 mstorti@node1.beowulf.gtm
+%
+Hecho el test para el constraint bug. Esta hecho en un subdirectorio
+de /test (esto es nuevo). 
+
+%===Fri Sep 15 19:17:46 ART 2000 mstorti@node1.beowulf.gtm
+%
+Instale ANN (Approximate Nearest Neighbor) version 0.2 para LES. 
+Hice un programa de verificacion (nneighbor/tryme.cpp) para verificar
+los tiempos. Lo comparo con fuerza bruta (comparar con todos). 
+%
+ANN: total cpu_time: 2.010000, per point: 2.01e-09 , nnod: 10000, npoints: 100000
+Fuerza bruta: total cpu_time: 5.080000, per point: 5.08e-07 , nnod:
+100, npoints: 100000
+%
+O sea un factor 250 por lo menos. 
+
+%===Mon Sep 18 08:27:14 ART 2000 mstorti@localhost.localdomain
+%
+Agrego al elemset un `double * elemprops_add' e `int * elemiprops_add'
+para poner `propiedades adicionales', esto es, que son usadas
+internamente por el `application writer'. Cuantos dobles o enteros son
+necesarios es manejado por el campo `additional_props' y
+`additional_iprops'. 
+
+%===Tue Sep 19 11:24:23 ART 2000 mstorti@node1.beowulf.gtm
+%
+Estadistica de tiempos para back_step: (corriendo Beto). 
+10,400 elementos, 2D con nsi_tet_les_fm2. Tarda 20 seg/subiter de
+Newton. Es decir 60seg por iter del lazo exterior. Compitiendo con
+RUperto. Sin ek procesador 5. Es decir que 
+%
+* considerando una potencia instalada de 5.65 procs. (tomando como base
+el PIII  500Mhz). 
+* 50% de uso efectivo (el otro 50% para Ruperto). 
+%
+El costo es de 5.4 [sec*proc/subiter/1000 elem]
+%
+Quiere decir que 100,000 elementos con una potencia instalada de 30
+(14 PIII 700Mhz + los 6.65 PIII 500Mhz actuales) tendriamos un tiempo
+de 18 sec/subiter. 
+
+%===Tue Sep 19 17:05:32 ART 2000 mstorti@node1.beowulf.gtm
+%
+Sin correr Ruperto da 30 seg/iter lazo exterior como previsto. De
+todas formas esta raro que la carga da un poco desbalanceada, en el
+sentido de que con `$ bw uptime' da cargas fluctuando entre 60% y 90%
+entre los diferentes procesadore. 
+
+%===Thu Sep 21 10:54:13 ART 2000 mstorti@node1.beowulf.gtm
+%
+Debuggeando el elemento de pared LES `wall' encontre que los tiempos
+de ensamblaje de la matriz se disparaban (como cuando calculas mal el
+perfil). El perfil estaba bien calculado pero por eror estaba llamando
+a `assemble' con `jobinfo="comp_wall_stres"' pero con un argumento
+"A_tet,OUT_MATRIX" lo cual hacia que ensamblara la matriz. 
+
+%===Thu Sep 21 11:16:08 ART 2000 mstorti@node1.beowulf.gtm
+%
+Para que de un warning cuando no alocaste bien la matriz (esto es,
+cuando no calculaste bien el perfil) hay que poner:
+%
+  ierr =  MatSetOption(A_tet,MAT_NEW_NONZERO_ALLOCATION_ERR);
+
+%===Sun Sep 24 18:24:36 ART 2000 mstorti@localhost.localdomain
+%
+Parece estar andando la implementacion de LES, por lo menos en cuanto
+a la condicion de pared vista como condicion de contorno mixta. Si la
+funcion de pared es lineal, es decir $\tau_w \propto u$ entonces da
+convergencia en una iteracion. Si es no lineal, entonces da
+convergencia cuadratica. 
+
+%===Fri Oct  6 14:11:36 ART 2000 mstorti@node1.beowulf.gtm
+%
+Hago que FastMat2::print retorne void. Agrego una funcion
+FastMat2::printd() que imprime las dimensiones de la matriz. 
+
+%===Fri Oct  6 19:25:43 ART 2000 mstorti@node1.beowulf.gtm
+%
+Found serious bugs in 'FastMat2::reshape()'. It was missing a
+`set_indx = Indx(ndims,0);' in order to reset the index restrict
+vector, and a
+%
+   IndexFilter pp;
+   for (int jd=0; jd<ndims; jd++) {
+     ...
+     dims[jd] = pp;
+     ...
+   }
+%
+in order to reset the filters for each dimension. 
+%
+Comment: this stuff with the 'store' = the fixed store, etc.. is
+somewhat dangerous!! It should be rewritten properly!!
+
+%===Mon Oct  9 17:17:50 ART 2000 mstorti@node1.beowulf.gtm
+%
+Agrego una bandera `shock_capturing_threshold' para regular cuando se
+hace shock_capturing o no. 
+
+%===Mon Oct  9 19:45:40 ART 2000 mstorti@node1.beowulf.gtm
+%
+Habia un bug en el macro `SGETOPTDEF_ND' (fem.h). No seteaba la
+variable al valor default. 
+
+%===Sun Oct 22 19:02:42 ART 2000 mstorti@localhost.localdomain
+%
+Ahora get_int retorna 1 si la entrada no tiene "miembro derecho" es
+decir `print_internal_loop_conv' es equivalente a
+`print_internal_loop_conv 1'. 
+
+%===Mon Oct 23 19:11:47 ART 2000 mstorti@node1.beowulf.gtm
+%
+Abandono AFS y retomo LES. Da un error extranho cuando NP>1. Ahora me
+doy cuenta de que parece que no puedo hacer lo de "procesar todos los
+elementos" en cada procesador porque algunos no van a tener los datos
+apropiados. 
+
+%===Tue Oct 24 08:36:15 ART 2000 mstorti@node1.beowulf.gtm
+%
+Volviendo a hacer los calculos para "comp_shear_vel" por separado y
+despues haciendo un "communicate_shear_vel" anda bien. Daba un SIGSEGV
+pero era porque habia un FastMat2::deactivate_cache() cuando el cache
+no estaba activado. Eso habria que arreglarlo. 
+
+%===Tue Oct 24 11:07:15 ART 2000 mstorti@node1.beowulf.gtm
+%
+Ahora chequeo 'if (use_cache ...' antes de borrar el cache en
+'void_cache()'. 
+
+%===Wed Oct 25 11:57:59 ART 2000 mstorti@node1.beowulf.gtm
+%
+El les.epl tiene un problema que da NaN. Ahora esta andando, puede que
+sea el compilar con Optimizador. 
+
+%===Wed Oct 25 19:44:41 ART 2000 mstorti@node1.beowulf.gtm
+%
+Parece que se confirma que es el optimizador. 
+
+%===Wed Oct 25 19:48:40 ART 2000 mstorti@node1.beowulf.gtm
+%
+No, falsa alarma. Con el debugger tambien da NaN. 
+
+%===Wed Oct 25 19:53:02 ART 2000 mstorti@node1.beowulf.gtm
+%
+El mismo caso con LES=1 da NaN con LES=0 no. 
+
+%===Fri Oct 27 13:25:21 ART 2000 mstorti@node1.beowulf.gtm
+%
+Da NaN cuando la velocidad en la pared es 0. Hay una division por 0 en
+la formula. Habria que corregirlo (regularizarlo). 
+%
+Escribi un jobinfo "comp_res". La idea es no evaluar el jacobiano
+todas las veces sino solo algunas. Pero parece no andar bien. 
+
+%===Sat Nov  4 10:18:06 ART 2000 mstorti@localhost.localdomain
+%
+Tratando de mejorar la eficiencia. Observo que el tiempo de "comp_mat"
+es aprox. la mitad del de comp_mat_res, cuando deberia ser mucho
+menor!!!. Verifico que esto ocurre tanto con debugger como sin. 
+
+%===Sat Nov 11 10:19:10 ART 2000 mstorti@localhost.localdomain
+%
+
+%
+Agregue una version "linear" a FastMat2::prod(). En los experimentos
+se gana bastante, un factor 2 o mas. Por ejemplo da 200-220 Mflops con
+la version lineal y menos de 100 con la version no-lineal. Esto se
+puede deber a que la version no-lineal hace mas operaciones pero
+ademas requiere mas informacion ya que requiere un direccionamiento
+mas. Estos datos en un P-III 733Mhz. 
+%
+Puesto en Navier-Stokes no se gana nada. 
+%
+Lo que si que la version FastMat2 eficiente se gana como un 20% sobre
+le evaluacion del residuo. (11.32 sec/Ke contra 9.2 sec/Ke,
+nsi_tet_les_fm2, P-II 350Mhz(spider)). 
+%
+Ahora voy a probar que pasa con el "cache" de matrices. 
+
+%===Sat Nov 11 10:46:32 ART 2000 mstorti@localhost.localdomain
+%
+Con el cache de matrices se pasa de 9.2 sec/Ke a 6.7 sec/Ke!! Eso
+parece estar bastante bien!! 
+
+%===Sat Nov 11 10:49:18 ART 2000 mstorti@localhost.localdomain
+%
+Con el cache_grad_div_u tampoco parece haber diferencia entre la
+version linear y no-lineal. Ahora vamos a verificar si la version mas
+eficiente de todas `linear + cache_grad_div_u' da bien. (i.e., si
+coincide con versiones anteriores.)
+
+%===Sat Nov 11 17:44:00 ART 2000 mstorti@localhost.localdomain
+%
+Los tests dan bien. `oscaplate2b' da SIGSEGV pero despues no es usado
+en los tests, asi que no lo cuento como test.
+%
+Sin embargo corriendo `test/les.epl' no da lo mismo que con versiones
+anteriores. Voy a investigar esto. 
+
+%===Sun Nov 12 10:04:03 ART 2000 mstorti@localhost.localdomain
+%
+Lo que pasa es que se junta bastante incompatibilidad con la nueva
+estructura de datos, ya que ahora las opciones de elemento se pueden
+poner en las opciones generales. 
+
+%===Sun Nov 12 10:12:43 ART 2000 mstorti@localhost.localdomain
+%
+Tomando el caso test/sqcav5 parece dar lo mismo que la version 1.69g. 
+
+%===Sun Nov 12 10:22:40 ART 2000 mstorti@localhost.localdomain
+%
+Vamos a ver si el oscplate2b deja de andar cuando se compila con -O2. 
+
+%===Sun Nov 12 10:58:47 ART 2000 mstorti@localhost.localdomain
+%
+Efectivamente, con -O2 da un SIGSEGV. 
+
+%===Sun Nov 12 18:27:22 ART 2000 mstorti@localhost.localdomain
+%
+Found a bug in tempfun.cpp in spline_function and piecewise_function.
+Habia un error en la llamada a la sutina Fortran. Hay que reemplazar 
+% spline_(&npoints,sd->time_vals,ampl_vals,sd->b,sd->c,sd->d);
+por
+% spline_(&npoints,sd->time_vals,sd->ampl_vals,sd->b,sd->c,sd->d);
+
+%===Mon Nov 13 18:24:32 ART 2000 mstorti@node1.beowulf.gtm
+%
+En casa parecia que la version actual coincidia bien con una anterior
+a empezar a investigar la eficiencia (creo que probe con la 1.69g),
+pero ahora aca en geronimo no me coincide con la 2.16g. Voy a
+verificar esto. 
+
+%===Mon Nov 13 19:05:20 ART 2000 mstorti@node1.beowulf.gtm
+%
+Coincide bien pero si se usa la version vieja de `fmat2ep.cpp'. Quiere
+decir que hay algun drama con la version `lineal'. 
+
+%===Mon Nov 13 19:08:53 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con "force non-linear" anda bien. 
+
+%===Mon Nov 13 19:27:31 ART 2000 mstorti@node1.beowulf.gtm
+%
+Desactivando el "cache de fm2" anda mal igual. 
+
+%===Mon Nov 13 19:31:52 ART 2000 mstorti@node1.beowulf.gtm
+%
+Decididamente lo que anda mal es el "linear addressing" no los caches.
+
+%===Mon Nov 13 20:15:18 ART 2000 mstorti@node1.beowulf.gtm
+%
+Encontre el error! Cuando la dimension contraida era 1 (por ejemplo
+cuando prod() se usa para hacer un kron) entonces el inca e incb
+quedaban en 0 y el lazo no se hacia. Ahora dejo que si la dimension
+contraida es menor o igual que 1 entonces se usa la version
+no-lineal. 
+
+%===Mon Nov 13 20:20:22 ART 2000 mstorti@node1.beowulf.gtm
+%
+Ahora anda bien version lineal y tambien si activo
+EFFICIENT_FM2_VERSION en nsitetlesfm2.cpp.
+
+%===Mon Nov 13 20:23:58 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con `cache_grad_div_u' tambien da bien. 
+
+%===Mon Nov 13 20:27:24 ART 2000 mstorti@node1.beowulf.gtm
+%
+Tambien les.epl da bien ahora. Vamos a medir la performance ahora. 
+
+%===Tue Nov 14 09:21:50 ART 2000 mstorti@node1.beowulf.gtm
+%
+Con `cache_grad_div_u', linear addressing en FM2 y
+EFFICIENT_FM2_VERSION da un 33% mas rapido, es decir 4.1sec/Ke contra
+6.2sec/Ke. 
+%
+Ahora no me vuelve a coincidir con la version 2.16!! A revisar...
+
+%===Tue Nov 14 10:12:47 ART 2000 mstorti@node1.beowulf.gtm
+%
+les.epl no coincide pero `back_step_3d' si. Asumo que esta bien y
+genero una nueva version estable. 
+
+%===Tue Nov 14 11:05:58 ART 2000 mstorti@node1.beowulf.gtm
+%
+Generado un test para el bug en la opcion linear de
+FastMat2::prod(). Ademas hay una doble proteccion ya que ahora
+inicializo inca,incb a 1.
+
+%===Tue Dec  5 17:40:10 ART 2000 mstorti@node1.beowulf.gtm
+%
+BUG: en ffswfm2.cpp (funcion de flujo para shallow water). La matrix
+flux_mass estaba inicializada como `static FastMat2 flux_mass(u)' lo
+cual no tiene demasiado sentido y originaba que el almacenamiento de
+flux_mass era el mismo que el de u. Podria ser una idea para generar
+mascaras? 
+
+%===Tue Dec  5 18:58:12 ART 2000 mstorti@node1.beowulf.gtm
+%
+back_step_3d: Aparentemente ahora el programa corre, despues de haber
+booteado el nodo6. Guarda que quedo la version upgradeada o sea que
+ahora esta corriendo una version mas nueva. Los residuos parecen ser
+un poco diferentes. 
+%
+BUG: en ffswfm2.cpp ponia `start_chunk=1' despues de la
+inicializacion. Mientras que deberia ponerlo a 0 para que no vuelva a
+entrar. 
+%
+advdif: empiezo a escribir un `ffadvfm2.cpp' con flujos para adveccion
+difusion lineal. 
+
+%===Sat Dec  9 19:06:02 ARST 2000 mstorti@localhost.localdomain
+%
+Anda el problema de difusion lineal. Ahora voy a probar con algo de
+adveccion.
+
+%===Tue Dec 12 19:26:29 ARST 2000 mstorti@localhost.localdomain
+%
+Dejo lo de la difusion lineal por ahora. Voy a trabajar en hacer el
+jacobiano analitico. 
+
+%===Sat Dec 16 19:45:21 ARST 2000 mstorti@localhost.localdomain
+%
+Anda bien el jacobiano de la parte advectiva pura. Ahora voy a ver el
+del bcconv (bccadvfm2.cpp). 
+
+%===Sat Dec 16 20:05:02 ARST 2000 mstorti@localhost.localdomain
+%
+BUG en `advective': en `bccadvfm2.cpp' hay que pesar con `wpgdet' no
+con WPG?? 
+%
+NOOOOO!! En los bccadvfm2, el vector `normal' incluye el jacobiano de
+la trnasformacion (de superficie en superficie) asi que solo hace
+falta multiplicar por el peso de gauss (WPG). 
+%
+Ahora voy a hacer la version no debilitada.
+
+%===Sat Dec 16 20:50:09 ARST 2000 mstorti@localhost.localdomain
+%
+OJO! Hay que probar si anda con Jacobianos no simetricos...
+
+%===Sat Dec 16 21:28:50 ARST 2000 mstorti@localhost.localdomain
+%
+Anda bien la version no-debilitada. 
+
+%===Sun Dec 17 09:27:31 ARST 2000 mstorti@localhost.localdomain
+%
+Probar con la ec. de Burgers.
+Probar con alpha\neq 1
+
+%===Sun Dec 17 20:13:25 ARST 2000 mstorti@localhost.localdomain
+%
+Voy a llevar la ec. de Burgers a 2D como f = 0.5*u0*phi^2 donde u0 es
+un vector constante que se entra.
+
+%===Sat Dec 23 03:52:00 ARST 2000 mstorti@localhost.localdomain
+%
+Parece andar bien la ec. de Burgers 2D.
+
+%===Sat Dec 23 03:59:14 ARST 2000 mstorti@localhost.localdomain
+%
+Vamos a verificar ahora que ande bien $\alpha \neq 1$
+
+%===Sat Dec 23 10:55:38 ARST 2000 mstorti@localhost.localdomain
+%
+Estaba de mas el ALPHA en una contribucion al residuo:
+! 	veccontr.axpy(tmp8,wpgdet*ALPHA);
+cambiar por
+! 	veccontr.axpy(tmp8,wpgdet);
+Ahora converge bien la ecuacion del calor (u=0), es decir converge en
+una sola iteracion pero el problema global no converge. 
+
+%===Sat Dec 23 11:33:22 ARST 2000 mstorti@localhost.localdomain
+%
+Esta todo bien, solo era que el Crank-Nicholson puede no converger
+para llegar a una solucion estacionaria si se usa un paso de tiempo
+muy grande. Con paso de tiempo 0.8 anda todo bien. 
+%
+Ahora voy a probar que la convergencia de Newton-Raphson es
+cuadratica.
+
+%===Sat Dec 23 12:34:32 ARST 2000 mstorti@localhost.localdomain
+%
+No parece dar convergencia cuadratica.
+
+%===Sat Dec 23 18:55:05 ARST 2000 mstorti@localhost.localdomain
+%
+Si bien todavia hay un drama con el tema de que se debrian pasar
+argumentos que son vectores+tiempos, de todas formas por lo menos para
+hacer que el Crank-Nicholson de convergencia cuadratica hay que pasar
+como tiempo en todas las evalucaiones del residuo el tiempo
+$t^*=t+\alpha\Dt$. Ahora si da convergencia cuadratica. 
+
+%===Sat Dec 23 18:56:54 ARST 2000 mstorti@localhost.localdomain
+%
+vamos a probar si todas estas cosas dan bien con Burgers ahora.
+
+%===Mon Dec 25 18:04:03 ARST 2000 mstorti@localhost.localdomain
+%
+Pude construir la documentacion para `glib' y entonces ahora pude
+poner funciones de hash y de comparacion apropiadas para texthash. 
+
+%# Current line ===========  
+# Local Variables: $
+# eval: (local-set-key "\C-cD" (quote notas-insert-date)) $
+# eval: (local-set-key "\C-cs" (quote make-save)) $
+# eval: (setq paragraph-separate "[ \t\f%]*$") $
+# eval: (setq paragraph-start "[ \t\n\f%]") $
+# End: $

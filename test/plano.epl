@@ -1,0 +1,152 @@
+# -*- mode: shell-script -*-
+#
+<:require 'eperlini.pl':>// # Initializes ePerl 
+
+#default definitions
+<:$weak_form=0;
+$matrix_lib='fm2';
+$initial_state='plano.ini';
+:>
+
+#===========================================================
+global_options
+
+save_file state_save.sal
+nsave 10
+
+rtol 1e-2
+maxits 100
+
+save_file_pattern outvector%d.sal
+nsaverot 100
+nrec  100
+nfile 2
+
+nstep 5
+
+#if $consistent_supg
+<:$lumped=0:>//
+local_time_step 0
+consistent_supg_matrix 1
+auto_time_step 0
+Dt 0.1
+#elsif $consistent_supg_auto
+<:$lumped=0:>//
+local_time_step 0
+consistent_supg_matrix 1
+auto_time_step 1
+Courant 0.1
+#elsif $local_time_step
+<:$lumped=1;
+:>//
+local_time_step 1
+consistent_supg_matrix 0
+Courant 0.6
+#elsif $local_time_step_nm
+<:$lumped=1;
+$matrix_lib='';
+:>//
+local_time_step 1
+consistent_supg_matrix 0
+Courant 0.6
+#elsif $fm2_weak
+<:$lumped=1;
+$weak_form=1;
+$initial_state='plano_h.ini';
+:>//
+local_time_step 1
+auto_time_step 0
+consistent_supg_matrix 0
+Courant 0.6
+#elsif $local_time_step_weak
+<:$lumped=1;
+$matrix_lib='';
+$weak_form=1;
+$initial_state='plano_h.ini';
+:>//
+local_time_step 1
+auto_time_step 0
+consistent_supg_matrix 0
+Courant 0.6
+#elsif auto_time_step
+<:$lumped=1:>//
+local_time_step 0
+consistent_supg_matrix 0
+auto_time_step 1
+Courant 0.6
+#endif
+
+#initial_state outvector.sal
+initial_state <:=$initial_state:>
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  3
+__INCLUDE__ plano.nod
+
+__END_NODES__
+#===========================================================
+elemset volume_shallow<:=$matrix_lib:> 4
+
+props  
+#Datos del elemento
+geometry cartesian2d
+ndim 2
+npg 4
+
+lumped_mass <:=$lumped:>
+chunk_size 500
+gravity 1
+addvisc 0.
+weak_form <:=$weak_form:>
+__END_HASH__
+__INCLUDE__ plano.con
+__END_ELEMSET__
+
+
+#================================================================
+elemset absorb_shallow 1
+props norx nory
+
+addvisc 0.
+gravity 1
+
+__END_HASH__
+
+__INCLUDE__ plano.abso
+
+__END_ELEMSET__
+
+end_elemsets
+
+#================================================================
+elemset bcconv_adv_shallow<:=$matrix_lib:> 2
+#elemset bcconv_adv_shallow 2
+props 
+npg 2
+ndim 2
+geometry cartesian1d
+
+addvisc 0.
+gravity 1
+weak_form <:=$weak_form:>
+
+__END_HASH__
+
+2 1
+401 402
+
+__END_ELEMSET__
+
+end_elemsets
+
+
+#================================================================
+constraint
+
+# periodic conditions in the y direction
+
+__INCLUDE__ plano.period
+
+__END_CONSTRAINT__
+

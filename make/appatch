@@ -1,0 +1,70 @@
+#!/bin/bash
+
+source patch_utils_conf.sh
+
+if [ -e petscfem.patch.gz ]  
+    then echo "Unzipping petscfem.patch"
+	gunzip petscfem.patch.gz 
+fi
+
+if [ ! -e petscfem.patch ] 
+    then echo "No existe petscfem.patch!"
+    exit 1 
+fi
+
+if [ -e source.tara.$local.gz ] 
+    then echo "Unzipping source.tara.$local"
+    gunzip source.tara.$local 
+fi
+
+if [ ! -e source.tara.$local ] 
+    then echo "No existe source.tara.$local!"
+    exit 1 
+fi
+
+cp source.tara.$local source.tara.$local.tempo
+echo Patching...
+patch source.tara.$local.tempo < petscfem.patch
+
+echo -n "Continue? (y/n) > "
+read answer
+if [ ! "$answer" = "y" ] 
+    then exit 1
+fi
+
+echo "Re-compressing source.tara.$local"
+gzip source.tara.$local
+
+echo "Renaming to source.tara.$remote"
+mv -fv source.tara.$local.tempo source.tara.$remote
+
+echo "Applying tara2tar"
+if [ -e petscfem.tar ] 
+    then echo -n "petscfem.tar exists. Overwrite? (y/n) > "
+    read answer
+    if [ ! "$answer" = "y" ] 
+	then exit 1
+    fi
+fi
+tara2tar < source.tara.$remote > petscfem.tar
+
+echo "Re-compressing source.tara.$remote"
+gzip source.tara.$remote
+
+if [ -f pescfem.tar ] 
+    then echo -n "Remove pescfem.tar ? (y/n) > "
+    read answer
+    if [ ! "$answer" = "y" ]
+	then exit 1
+    fi
+fi
+rm pescfem.tar
+
+if [ -f petscfem.patch ] 
+    then echo -n "Remove pescfem.patch ? (y/n) > "
+    read answer
+    if [ ! "$answer" = "y" ]
+	then exit 1
+    fi
+fi
+rm pescfem.patch

@@ -1,0 +1,96 @@
+# -*- mode: shell-script -*-
+#
+<:require '../eperlini.pl':>// # Initializes ePerl 
+<:$N=readm("N","plano.m");	# Number of elements in z
+$T=.05;
+$omega=2*$PI/$T;
+$N_dt_per=128; # number of time steps per period
+$Nper=1;
+:>//
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+chunk_size 10
+save_file "save.state"
+nsave 20
+
+rtol 1e-2
+maxits 100
+
+save_file_pattern "outvector%d.sal"
+nsaverot 100
+nrec  100
+nfile 2
+
+nstep 10
+#nstep <:=$Nper*$N_dt_per:>
+nnwt 2
+tol_newton 0
+preco_type "LU"
+
+local_time_step 0
+consistent_supg_matrix 1
+auto_time_step 0
+
+Dt 0.1
+#Dt   <:=$T/$N_dt_per:>
+alpha 1.0
+diffusivity 0.01
+flux_law_coefficient 1.
+u0   1. 0.
+#tau_fac 0.
+weak_form 1
+
+#solve_system 0
+#print_linear_system_and_stop
+initial_state "burgers.ini"
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes   2  2  1
+__INCLUDE__ plano.nod
+__END_NODES__
+
+#===========================================================
+elemset advdif_burgers 4
+#Datos del elemento
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ plano.con
+__END_ELEMSET__
+
+#===========================================================
+elemset bcconv_adv_burgers 2
+npg 2
+geometry cartesian1d
+__END_HASH__
+
+2 1 
+<:=2*$N+1:> <:=2*$N+2:>
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+#if 0
+# condicion variable en el tiempo
+#
+fixa_amplitude cos
+omega <:=$omega:>
+amplitude 1.
+__END_HASH__
+#else
+# condicion constante en el tiempo
+#
+fixa
+#endif
+1 1 1.
+2 1 1.
+<:=2*$N+1:> 1 -1.
+<:=2*$N+2:> 1 -1.
+__END_FIXA__

@@ -1,0 +1,265 @@
+/*
+  This file belongs to the PETSc - FEM package, a library and
+  application suite oriented to the Finite Element Method based on PETSc. 
+  Copyright (C) 1999, 2000  Mario Alberto Storti
+  
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  as published by the Free Software Foundation; either version 2
+  of the License, or (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+
+*/
+  
+#include "fem.h"
+#include "readmesh.h"
+#include "getprop.h"
+
+#define MAXPROP 100
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
+void print_prop_hash_entry(void *p, void *q, void *u) {
+  char *pp; props_hash_entry *qq;
+  pp= (char *)p;
+  qq= (props_hash_entry *)q;
+  printf("%s -> %d, %d\n",pp,qq->width,qq->position);
+}
+#endif
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void load_props(double *propel,int *elprpsindx,int nprops,double *elemprops) {
+  for (int iprop=0; iprop<nprops; iprop++) {
+    int indx=elprpsindx[iprop];
+    if(indx!=-1) propel[iprop] = elemprops[indx];
+    //    printf("prop %d = %f\n",iprop,propel[iprop]);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "get_double"
+int get_double(TextHashTable *thash,char *name,
+	       double *retval,int defval=0,int n=1) {
+  if (n==0) return 0;
+  char *value,*token;
+  int k;
+
+  thash->get_entry(name,value);
+  if (value==NULL) {
+    if (defval) {
+//        for (k=0; k<n; k++) {
+//  	retval[k]=defval[k];
+//        }
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  char *buf= new char[strlen(value)+1];
+  strcpy(buf,value);
+  for (k=0; k<n; k++) {
+    token = strtok(k==0 ? buf : NULL ," ");
+    sscanf(token,"%lf",&(retval[k]));
+  }
+  delete[] buf;
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "get_int"
+int get_int(TextHashTable *thash,char *name,
+	       int *retval,int defval=0,int n=1) {
+  if (n==0) return 0;
+  char *value,*token;
+  int k;
+
+  thash->get_entry(name,value);
+  if (value==NULL) {
+    if (defval) {
+//        for (k=0; k<n; k++) {
+//  	retval[k]=defval[k];
+//        }
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  char *buf= new char[strlen(value)+1];
+  strcpy(buf,value);
+  for (k=0; k<n; k++) {
+    token = strtok(k==0 ? value : NULL ," ");
+    if (token==NULL && n==1) {
+      // Act as get_flag, returns 1 if no value is assigned
+      retval[k]=1;
+      return 0;
+    } else if (token==NULL) {
+      return 1;
+    }
+    sscanf(token,"%d",&(retval[k]));
+  }
+  delete[] buf;
+  return 0;
+}
+
+int get_string_from_string(string &buf,string &ret) {
+  static regex_t regex[2];
+  regmatch_t matchptr[2];
+  
+  // Compiles regexps only once.
+  static int was_compiled=0;
+  if (!was_compiled) {
+    was_compiled=1;
+    int ierr = regcomp (&regex[0],"^[ \t]*\"\\([^\"]*\\)\"",0);
+    assert(ierr==0);
+    ierr = regcomp (&regex[1],"^[ \t]*\\([^ \t]*\\)",0);
+    assert(ierr==0);
+  }
+
+  for (int k=0; k<2; k++) {
+    int flag = regexec(&regex[k],buf.c_str(),2,matchptr,0);
+    if (flag==0) {
+      int so=matchptr[1].rm_so;
+      int eo=matchptr[1].rm_eo;
+      ret = buf.substr(so,eo-so);
+      buf.erase(so,eo-so);
+      return 1;
+    }
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "get_string"
+int get_string(TextHashTable *thash,char *name,
+	       string &ret,int defval=0,int n=1) {
+  if (n==0) return 0;
+  char *value_;
+  int k;
+
+  // First of all, void the local buffer `ret'
+//    if (ret!=NULL) {
+//      delete[] ret;
+//      ret=NULL;
+//    }
+
+  thash->get_entry(name,value_);
+  if (value_ == NULL) {
+    if (defval) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  string value = string(value_);
+  int ierr=get_string_from_string(value,ret);
+  return 0;
+}
+
+#if 0
+    // Look for a not quoted string (can not include blanks)
+    flag = regexec(&regexnq,buf,2,matchptr,0);
+    if (flag==0) {
+      int len=matchptr[1].rm_eo-matchptr[1].rm_so;
+      ret = new char[len+1];
+      strncpy (ret,&buf[matchptr[1].rm_so],len);
+      ret[len]='\0';
+      *retval = ret;
+      break;
+    }
+
+  }
+  delete[] buf;
+#endif
+
+#if 0  // Por ahora no voy a definir un get_flag ya que basta con usar
+       // el get_int
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "get_flag"
+int get_flag(TextHashTable *thash,char *name,
+	     int retval,int defval=0) {
+
+  char *value,*token;
+  int k;
+
+  thash->get_entry(name,value);
+  if (value==NULL) {
+    if (defval) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
+  char *buf= new char[strlen(value)+1];
+  strcpy(buf,value);
+  token = strtok(k==0 ? value : NULL ," ");
+  sscanf(token,"%d",);
+  delete[] buf;
+  return 0;
+}
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "get_prop"
+
+/** This function returns the integer `iprop' which is the position in
+    the vector propel[] where the user will find this property at each
+    pass on the element loop. This property may be taken from the
+    elemset hash table or from the per-element property table. In the
+    first case, the property is put in propel[]. In the second case,
+    the corresponding entry in propel is set to 0, and elprpspindx[iprop]
+    is set to the corresponding column index in elemprops[]. 
+*/
+int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
+	     int *elprpsindx,double *propel,char *name,int n) {
+  
+  int ierr=0;
+  props_hash_entry *phe;
+
+  // looks int the properties-per-element table
+  phe = (props_hash_entry *)g_hash_table_lookup(props,(void *)name);
+  if(phe!=NULL) {
+    //    printf("entry phe is: %d %d\n",phe->width,phe->position);
+    int w = phe->width;
+    if (n!=w) ierr = 1; CHKERRA(ierr); 
+    for (int k=0; k<w; k++) {
+      elprpsindx[iprop]=(phe->position)+k;
+      propel[iprop]=0.;
+      //      printf("set elprpsindx[%d] = %d\n",iprop,elprpsindx[iprop]);
+      iprop++;
+    }
+    return 0;
+  }
+
+  // looks in the elemset table
+  double val;
+  ierr = get_double(thash,name,&val,1,n); CHKERRA(ierr);
+  for (int k=0; k<n; k++) {
+    elprpsindx[iprop]=-1;
+    propel[iprop]=val;
+    //    printf("set elprpsindx[%d] = %d\n",iprop,elprpsindx[iprop]);
+    iprop++;
+  }
+  return 0;
+}
+
+
+/*
+# Local Variables: $
+# mode: c++ $
+# End: $
+*/

@@ -1,0 +1,33 @@
+# -*- mode: makefile -*-
+
+#  Configure this variables
+BOPT = g_c++
+
+NEWMAT = $(HOME)/SOFT/NEWMAT/src
+MESCHACH = $(HOME)/SOFT/Matrix-0.02-test/meschach-1.2
+GLIB   = /usr/lib/glib/include
+METIS  = $(HOME)/SOFT/metis-4.0
+LIBRETTO_I = /usr/local/include
+LIBRETTO_LIB = /usr/local/lib
+
+CFLAGS	         =
+FFLAGS	         = 
+
+ifdef RH60
+   RH60 = -DRH60
+endif
+
+CPPFLAGS         = $(RH60) ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \
+                     -I$(METIS)/Lib \
+                    -I$(PETSCFEM_DIR) -I$(MESCHACH) \
+                    -I$(LIBRETTO_I)
+FPPFLAGS         =
+
+LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem.a
+SHARFILE = $(HOME_GERONIMO)/PETSC/source.shar
+
+TAGS: *.cpp *.h
+	etags *.cpp *.h
+
+include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
+

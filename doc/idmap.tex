@@ -1,0 +1,941 @@
+
+\Section{The ``idmap'' class}
+
+\SSection{Permutation matrices} 
+
+\index{idmap}
+\index{permutation matrices}
+%
+This class represents sparse matrices that are ``close'' to a
+permutation. Assume that the $n\times n$ matrix $Q$ is a permutation
+matrix, so that if $!y$, $!x$ are vectors of dimension $n$ and
+%
+\begin{equation} 
+   !y = !Q \, !x
+\end{equation}
+%
+then
+%
+\begin{equation} 
+  y_j = x_{P(j)}
+\end{equation}
+%
+where $P$ is the permutation associated with $Q$. For instance if
+$P=\{1,2,3,4\}\to\{2,4,3,1\}$ then
+%
+\begin{equation} 
+  !y = !Q \, !x = \begin{sqmat}{c} 
+                        x_2\\ 
+                        x_4\\
+                        x_3\\
+                        x_1
+                  \end{sqmat}
+\end{equation}
+%
+This matrix can be efficiently stored as an array of integers of
+dimension ${\rm ident[n]}$ such that ${\rm ident[j-1]} = P(j)$. Also,
+the inverse permutation can be stored in another integer array ${\rm
+iident[n]}$, so that both $Q$ and $Q\muno$ can be stored at the cost
+of  $n$ integer values for each. Also, both multiplication and
+inversion operations as $!y = !Q\,!x$, $!y = !Q^T\,!x$, $!x =
+!Q\muno\,!y$ and $!x = !Q^{-T}\,!y$, can be done with $n$-addressing
+operations. 
+
+\SSection{Permutation matrices in the FEM context}
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/idmap.eps}}
+\caption{Node/field to dof map. Example for NS or Euler in a duct.}
+\label{fg:idmap}
+\end{figure*}
+ 
+Permutation matrices are very common in FEM applications for
+describing the relation between node/field pairs and degrees of
+freedom. For instance consider a flow NS or Euler application in a
+mesh like that shown in figure~\ref{fg:idmap}. At each node we have a
+set of unknown ``fields'' (both components of velocity and pressure,
+$u$, $v$ and $p$).  In a first description, we may arrange the vector
+of unknowns as 
+%
+\begin{equation} 
+   !U_\NF = \begin{sqmat}{c}
+            u_1\\
+            v_1\\
+            p_1\\
+            u_2\\
+            v_2\\
+            p_2\\
+            \vdots\\
+            u_\Nnod\\
+            v_\Nnod\\
+            p_\Nnod
+        \end{sqmat}
+\end{equation}
+%
+The length of this vector is $\Nnod\times\ndof$ and this may be called
+the ``node/field'' (this accounts for the $NF$ subindex) description
+of the vector of unknowns.  However, we can not take this vector as
+the vector of unknowns for actual computations due to a series of
+facts,
+
+\begin{itemize}
+
+\item Not all of them are true unknowns, since some of them may be
+imposed to a given value by a Dirichlet boundary condition.
+
+\item There may be some constraints between them, for instance, in structural
+mechanics two material points linked by a rigid bar, or a node that is
+constrained to move on a surface or line. In CFD these constraints
+arise when periodic boundary conditions are considered 
+
+\item Some reordering may be necessary, either for reducing band-width
+if a direct solver is used, or either due to mesh partitioning, if the
+problem is solved in parallel. 
+
+\item Also, non-linear constraints may arise, for instance when
+considering absorbing boundary conditions or non-linear restrictions. 
+
+\end{itemize}
+
+So that we assume that we have a relation
+%
+\begin{equation} 
+  !U_\NF = !Q \, !U + \barQ \, \barU   \label{eq:urep} 
+\end{equation}
+%
+where $!U$ is the ``reduced'' array of unknowns, $\barU$ 
+representing the externally fixed values, and  $Q$, $Q^*$ appropriated
+matrices. Follows some common cases 
+
+\begin{description}
+\item[Dirichlet boundary conditions:] If the velocity  components of node 1 are
+fixed, then we have
+%
+\begin{align}
+   u_1 = \bar u_1\\
+   v_1 = \bar v_1
+\end{align}
+%
+so that the corresponding file in $!Q$ is null and the file in $\barQ$
+has a ``1'' in the entry corresponding to the barred values. 
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/slip.eps}}
+\caption{Slip boundary condition}
+\label{fg:slip}
+\end{figure*}
+
+\item[Slip boundary conditions:] For the Euler equations, if node $j$
+is on a slip wall and $\nor_j$ is the corresponding normal, then the
+normal component of velocity is null and the tangential component is
+free. (In 3D there are two free tangential components and one
+prescribed normal component). The normal component may be prescribed
+to some non-null value if transpirations fluxes are to be imposed. The
+corresponding equations may look like this
+%
+\begin{align}
+   u_j &= u_{jt} t_x + \bar u_{jn} n_x\\
+   v_j &= u_{jt} t_y + \bar u_{jn} n_y
+\end{align}
+%
+where $u_{jt}$ is the (free) tangential component and $\bar u_{jn}$
+the prescribed normal component. 
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/symme.eps}}
+\caption{Symmetrical arrangement of foils with specular symmetry.}
+\label{fg:symme}
+\end{figure*}
+ 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/nonsym.eps}}
+\caption{Non-symmetrical arrangement of foils.}
+\label{fg:nonsym}
+\end{figure*}
+ 
+\index{periodic boundary conditions}
+\index{boundary conditions!periodic}
+%
+\item[Periodic boundary conditions:] These kind of b.c.'s are useful
+when treating geometries with repetitive components, as is very common
+for rotating machinery. In some cases this can be done as slip
+boundary conditions (see figure~\ref{fg:symme}). Here the foils are
+symmetric about their centerline, and then the whole geometry not only
+posses symmetry of rotation about angles multiple of $2\pi/\nfoils$
+but in addition possess reflection symmetry about the centerline of a
+foil, like $BC$ and the centerline between two consecutive foils like
+$AB$. In consequence it suffices the domain $ADEC$ with inlet/outlet
+b.c.'s in $DE$ and $AC$, slip boundary conditions on those parts of
+$AD$ and $EFGHC$. On the foil (boundary $FGH$) pressure should be
+free, while on $AD$, $EF$ and $HC$ we can impose $\deps pn=0$. For
+Navier-Stokes we may impose solid wall b.c.'s on the foil, normal null
+velocity component on $AD$, $EF$ and $HC$, null tangential shear
+stress ($\deps {u_t}n=0$), and $\deps pn=0$. 
+
+However, if the foils are non-symmetric or they are not disposed
+symmetrically about a line passing by the rotation axis (see
+figure~\ref{fg:nonsym}) then there are no predefined streamlines, but
+given two corresponding point like $j$ and $j'$ that are obtained
+through rotation of $\alpha=2\pi/\nfoils$, then we can impose
+%
+\begin{align}
+        u_{j'} &= \cos\alpha \, u_j + \sin\alpha \, v_j\\
+        v_{j'} &=-\sin\alpha \, u_j + \cos\alpha \, v_j\\
+        p_{j'} &= p_j\\
+\end{align}
+
+\index{absorbing boundary conditions}
+\index{boundary conditions!absorbing}
+%
+\item[Absorbing boundary conditions] The basic concept about these
+b.c.'s is to impose the in-going components from outside (reference)
+values while leaving the outgoing components free. If $!w=[u,v,p]$ is
+the state vector of the fluid at some node $j$ on the outlet boundary
+(see figure~\ref{fg:idmap}), then $!V!w = !u$ are the
+eigen-components, where $!V$ is the change of basis matrix.
+The absorbing b.c. may be written as
+%
+\begin{equation} 
+  !u = !V\begin{sqmat}{c} \bar w^1\\ w^2 \\ w^3 \end{sqmat}
+          \label{eq:abso}  
+\end{equation}
+%
+% where $\bPi^+$ is a \emph{projection} matrix (i.e. $\bPi^+\bPi^+
+% =\bPi^+$) onto the ingoing components and $!w_\refer$ represents the
+% outer fluid state. $\bPi^+$ is computed through an eigenvalue
+% decomposition of the normal projection of the flux jacobians. $\bPi^+$
+% has a rank equal to the number $n^+$ of ingoing components, so that
+% only $n^+$ of the $\ndof$ equations in (\ref{eq:abso}) are linearly
+% independent. 
+Where $\bar w^1$ is the in-going component (taken from the reference
+value $!w_\refer$) and the other components $w^{2,3}$ are free,
+i.e. they go in $!U$. 
+
+\index{boundary conditions!non-linear Dirichlet}
+\index{Non-linear Dirichlet boundary conditions}
+%
+\item[Non-linear Dirichlet boundary conditions:] In some cases,
+Dirichlet boundary conditions are not expressed in terms of the state
+variables used in the computations, but on a non-linear combination of
+them, instead. For instance, consider the transport of moisture and
+heat through a porous media, and choose temperature $T$ and moisture
+content $H$ as the state variables. On an external boundary, we impose
+that the partial pressure of water should be equal to its external
+value $P_w = P_{w,\atm}$. As the partial pressure of water (which may
+be related to relative humidity) is a complex non-linear function of
+$T$ and $H$ through the sorption isotherms of the porous media and the
+saturation pressure of water, it results in a non-linear link of the
+form $P_w(T,H) = P_{w,\atm}$. By the moment we consider only a linear
+relation, since the non-linear case doesn't fit in the representation
+% fixme:= 
+(\ref{eq:urep}). The non linear case will be considered later on.
+
+\end{description}
+
+\SSection{A small example} 
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/mesh.eps}}
+\caption{A small example showing boundary conditions.}
+\label{fg:mesh}
+\end{figure*}
+ 
+Consider the region shown in figure~\ref{fg:mesh}, composed of 8
+triangle elements and 9 nodes. We have $9\times 3=27$ node/field
+values, but periodic boundary conditions on side 1-4-7 to side 3-6-9
+eliminates the 9 unknowns on these last three nodes. In addition, at
+the outlet boundary (nodes 1-2-3) there is only one in-going component
+so that the unknowns here are only $w^2_1$, $w^3_1$, $w^2_2$ and
+$w^3_2$. On the other hand, on the inlet boundary $u$, and $v$ are
+imposed so the vector of unknowns is
+%
+\begin{align}
+     U_1  &=   w^2_1\\
+     U_2  &=   w^3_1\\
+     U_3  &=   w^2_2\\
+     U_4  &=   w^3_2\\
+     U_5  &=   u_4\\
+     U_6  &=   v_4\\
+     U_7  &=   p_4\\
+     U_8  &=   u_5\\
+     U_9  &=   v_5\\
+     U_{10} &=   p_5\\
+     U_{11} &=   p_7\\
+     U_{12} &=   p_8
+\end{align}
+%
+while the prescribed values are
+%
+\begin{align}
+  \bU_1  &=  \bar w^1_1\\
+  \bU_2  &=  \bar w^1_2\\
+  \bU_3  &=   u_7\\
+  \bU_4  &=   v_7\\
+  \bU_5  &=   u_8\\
+  \bU_6  &=   v_8
+\end{align}
+%
+And the relation defining matrices $!Q$ and $\barQ$ are
+%
+\begin{align}
+   u_1 &= V^1_{11} \, \bU_1 + V^1_{12} \, U_1 + V^1_{13} \, U_2\\
+   v_1 &= V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2\\
+   p_1 &= V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2\\
+%
+   u_2 &= V^2_{11} \, \bU_2 + V^2_{12} \, U_3 + V^2_{13} \, U_4\\
+   v_2 &= V^2_{21} \, \bU_2 + V^2_{22} \, U_3 + V^2_{23} \, U_4\\
+   p_2 &= V^2_{21} \, \bU_2 + V^2_{22} \, U_3 + V^2_{23} \, U_4\\
+%
+   u_3 &= \cos\alpha \, (V^1_{11} \, \bU_1 + V^1_{12} \, U_1 + V^1_{13} \,
+             U_2) + \sin\alpha \, (V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2) \\
+   v_3 &=-\sin\alpha \, (V^1_{11} \, \bU_1 + V^1_{12} \, U_1 + V^1_{13} \,
+             U_2) + \cos\alpha \, (V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2) \\
+   p_3 &= V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2\\
+%
+   u_4 &= U_5\\
+   v_4 &= U_6\\
+   p_4 &= U_7\\
+%
+   u_5 &= U_8\\
+   v_5 &= U_9\\
+   p_5 &= U_10\\
+%
+   u_6 &= \cos\alpha \, U_5 + \sin\alpha \, U_6\\
+   v_6 &=-\sin\alpha \, U_5 + \cos\alpha \, U_6\\
+   p_6 &= U_7\\
+%
+   u_7 &= \bU_3\\
+   v_7 &= \bU_4\\
+   p_7 &= U_{11} \\
+%
+   u_8 &= \bU_5\\
+   v_8 &= \bU_6\\
+   p_8 &= U_{12} 
+%
+   u_9 &= \bU_3\\
+   v_9 &= \bU_4\\
+   p_9 &= U_{11} \\
+%
+\end{align}
+%
+As we can see the boundary conditions result in sparse $!Q$ and
+$\barQ$ matrices. Moreover, in real (large) problems most of the rows
+correspond to interior nodes (such as node 5 here) so that $!Q$ is
+very close to a permutation matrix. If we think at accessing the
+elements of $!Q$ by row, then could store $!Q$ as a sparse matrix, but
+in this case we need an average of two integers (for pointers) and a
+double (for the value) per unknown, whereas a permutation matrix can
+be stored with only one integer per unknown.  One possibility is to
+think at these matrices as permutations followed by a sequence of
+operations depending on each kind of boundary conditions, but it may
+happen also that several kind of b.c.'s superposes, as int the case of
+node 3 (periodic + absorbing) and node 9 (periodic+ Dirichlet).
+
+\SSection{Inversion of the map} 
+
+It is necessary sometimes to invert relation (\ref{eq:urep}),
+i.e. given $!U_\NF$ and $\barU$ to find $!U$, for instance when 
+initializing a temporal problem. Of course, this may not be possible
+for arbitrary  $!U_\NF$ and $\barU$, since $!Q$ is in general
+rectangular, but we assume that $!Q^T!Q$ is non singular and solve
+(\ref{eq:urep}) in a least square sense. After, we may verify if the given
+data ($!U_\NF$ and $\barU$) is \emph{``compatible''} by evaluating the
+residual of the equation. This operation should be performed in $O(N)$
+operations. 
+
+\SSection{Design and efficiency restrictions} 
+
+The class of matrices representing $!Q$ and $\barQ$ should have the
+following characteristics. 
+%
+\begin{itemize}
+\item Be capable of storing arbitrary matrices.
+
+\item Should be efficient for permutation like matrices, i.e. require
+as storage (order of) 2 integers per unknown and constant time access
+by row and column.
+\end{itemize}
+
+\SSection{Implementation} 
+
+An arbitrary  permutation $P$ of $N$ objects can be stored as two integer
+vectors ${\tt ident}[N]$ and ${\tt iident}[N]$ such that if $P(j) = k$, then
+%
+\begin{align}
+   {\tt ident}[j-1] = k\\
+   {\tt iident}[k-1] = j
+\end{align}
+%
+We will consider a slight modification to this. A row is 
+%
+\begin{description}
+\item[void:] If all its elements are null
+\item[normal:] If one element is one and the rest null (like in a
+permutation matrix). 
+\item[special: ] otherwise.
+\end{description}
+%
+Then we set
+%
+\begin{equation} 
+  {\tt ident}[j-1] = \begin{cases}
+      0;& \textrm{ if row $j$ is void}\\
+      k;& \textrm{ if row $j$ is normal and the non-null element is in
+                  position $k$}\\
+      -1;& \textrm{ if row $j$ is special}
+  \end{cases}
+\end{equation}
+%
+We need now how to access the coefficients of the special rows. 
+Rows are stored as a ``map'', in the STL language, from integer values to doubles, i.e.
+%
+\begin{verbatim}
+typedef map<int,double> row_t;
+\end{verbatim}
+%
+and we keep in class {\tt idmap} a map from row indices to pointers to
+rows of the form
+%
+\begin{verbatim}
+map<int,row_t*> row_map;
+\end{verbatim}
+%
+So that, for a given $j$ we can get the corresponding row by checking
+the value of ${\tt inode}[j-1]$. If the row is void or normal we
+return the corresponding row and if it is special, then we look for
+the pointer in $row_map$ and this returns the desired row. Similar
+information is stored by columns, but in this case it is not necessary
+to store the values for the special rows so that the columns are of the form
+%
+\begin{verbatim}
+typedef set<int> col_t;
+\end{verbatim}
+%
+and class {\tt idmap} contains a private member {\tt col\_map} of the form:
+%
+\begin{verbatim}
+map<int,col_t*> col_map;
+\end{verbatim}
+
+\SSection{Block matrices} 
+
+When solving a linear (\ref{eq:urep}) for $!U$, it is a key point to
+take into account that most part of $!Q$ are independent blocks, so
+that the inversion may be done with a minimum computational effort. We
+say that a given row and column indices $i,j$ we say that they are
+\emph{``directly connected''} if the element $Q_{ij}$ is non null. We
+can then define that two row indices $i,i'$ are \emph{``indirectly
+connected''} if they are connected by a path $i\to j_1\to i_1\to j_2
+\to \ldots \to j_n\to i'$ where the arrow means ``directly
+connected''. The definition applies also to pairs of column indices
+and row/column, column/row  pairs. 
+The indirect connection defines an equivalence class that
+splits the rows in disjoint sets.
+
+\SSSection{Example:} 
+
+Consider matrix
+%
+\begin{equation} 
+  !Q = 
+\begin{sqmat}{rcccccccccc} 
+\textrm{row}\to  &1  & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\
+\textrm{col}\downarrow
+          1      & . & . & . & . & . & . & . & * & * & . \\   
+          2      & . & . & . & . & . & . & . & . & . & .\\    
+          3      & . & . & . & . & . & . & . & * & * & .\\    
+          4      & . & . & . & . & . & . & . & . & . & *\\    
+          5      & . & . & . & * & * & . & * & . & . & .\\    
+          6      & . & . & . & * & * & . & * & . & . & .\\    
+          7      & * & . & . & . & . & . & . & . & . & .\\    
+          8      & . & . & . & . & . & * & . & . & . & .\\    
+          9      & . & . & . & . & . & . & . & . & . & .\\    
+         10      & . & . & . & . & . & . & . & * & * & .      
+\end{sqmat} 
+\end{equation}
+%
+where the asterisks means a non-null element. Starting with row index
+1, we see that its corresponding connecting set is rows 1,3,10 and
+columns 8,9. So that the linear transformation $!y = !Q!x$ can be
+represent as
+%
+\begin{align}
+ y_2&=0\\
+ y_9&=0\\
+%
+ \begin{sqmat}{c} y_1 \\ y_3 \\ y_{10} \end{sqmat} 
+   & = !Q^1 \begin{sqmat}{c} x_8 \\ x_9 \end{sqmat} \\
+%
+ y_4 & = Q^{4,10} x_{10}\\ 
+%
+ \begin{sqmat}{c} y_5 \\ y_6 \end{sqmat} 
+   & = !Q^3 \begin{sqmat}{c} x_4 \\ x_5\\ x_7 \end{sqmat} \\
+\end{align}
+%
+So that $!Q$ decomposes in three blocks of $3\times 2$, $1\times 1$,
+and $2\times 3$, two void rows (2,9) and two row columns (2,3). One
+basic operation of class idmap is to compute the row connected to a
+given column index. 
+
+\SSection{Temporal dependent boundary conditions} 
+
+Temporal dependent boundary conditions are treated in \pfem{} assuming
+that the boundary condition on a set of nodes $J=\{j_1,j_2,j_3,\dots,j_N\}$
+is of the form 
+%
+\begin{align}
+   \phi_{j_1}(t) &= a_1 \phi(t) \\
+   \phi_{j_2}(t) &= a_2 \phi(t) \\
+        &\vdots \\
+   \phi_{j_N}(t)& = a_N \phi(t) 
+\end{align}
+%
+where the $a_k$ are spatial amplitudes and the function $\phi(t)$ is
+the temporal part of the dependency. For instance consider the
+solution of a problem of heat conduction coupledt with diffusion of a
+component in a rectangular region, as depicted in
+figure~\ref{fg:tempbc}. The boundary condition on side $AD$ is of the
+form
+%
+\begin{equation} 
+   T(x,t) = 100\gC \, [4x(L-x)/L^2] \, \sin (5 t)
+\end{equation}
+%
+where $L$ is the distance $AD$. 
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/tempbc.eps}}
+\caption{Example with time dependent boundary conditions.}
+\label{fg:tempbc}
+\end{figure*}
+
+The nodes on side $AD$ are $\{1,7,13,19,25,31,37\}$ and
+we assume that concentration and temperature are fields 1 and 3
+respectively. Here we can take
+%
+\begin{align}
+   a_j &= 4x_j(L-x_j)/L^2], \textrm{ for  } j \textrm { in } J\\
+   \phi(t) = 100\gC \, \sin 5 t
+\end{align}
+%
+Boundary conditions depending on time, as in this example are entered
+in PETSc-FEM with a \verb+fixa_amplitude+ section. The general form is
+%
+\begin{alltt}
+fixa_amplitude  \Arg{function}
+\Arg{param1} \Arg{val1}
+\Arg{param2} \Arg{val2}
+...
+__END_HASH__
+\Arg{node1} \Arg{dof1} \Arg{val1}
+\Arg{node2} \Arg{dof2} \Arg{val2}
+...
+\Arg{nodeN} \Arg{dofN} \Arg{valN}
+__END_FIXA__
+\end{alltt}
+%
+For instance, for the example above it may look like this
+%
+\begin{verbatim}
+fixa_amplitude sine
+omega 5.
+amplitude 1.
+__END_HASH__
+  0.00000 2
+  0.55556 2
+  0.88889 2
+  1.00000 2
+  0.88889 2
+  0.55556 2
+  0.00000 2
+__END_FIXA__
+\end{verbatim}
+
+\SSSection{Built in temporal functions} 
+
+The following temporal functions are currently available in \pfem{}:
+%
+\begin{description}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{ramp}{Double ramp function}
+%
+See~\ref{fg:ramp}. 
+%
+\begin{equation} 
+  \phi(t) = \begin{cases} 
+                \phi_1 &; \textrm{ if } t\le t_1\\
+                \phi_2 &; \textrm{ if } t\ge t_2\\
+                \phi_1+s (t-t_1) &; \textrm{ if } t_1<t<t_2;
+            \end{cases}
+\end{equation}
+%
+where the slope $s$ is
+%
+\begin{equation} 
+  s = \frac{\phi_2-\phi_1}{t_2-t_1}
+\end{equation}
+%
+The parameters are
+\begin{itemize}
+\item\verb+start_time+=$t_1$. (default 0.) The starting time of the ramp. 
+\item\verb+start_value+=$\phi_1$. (default 0.) The starting value of the ramp.
+\item\verb+slope+=$s$. (default 0.) The slope in the ramp region. 
+\item\verb+end_time+=$t_2$. (default =\verb+start_time+) The end time of the ramp. 
+\item\verb+end_value+=$\phi_2$. (default =\verb+start_value+)  
+                The end value of the ramp.
+\end{itemize}
+%
+Only one of \verb+slope+ and \verb+end_value+ must be specified. If
+the end values are not defined, then they are assumed to be equal to
+the starting ones. If the end time is equal to the starting time, then
+the end time is taken as $\infty$, i.e. a single ramp starting at
+\verb+start_time+. 
+%
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/ramp.eps}}
+\caption{Ramp function}
+\label{fg:ramp}
+\end{figure*}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{smooth\_ramp}{Smooth double 
+              ramp function (hyperbolic tangent)}
+%
+See figure~\ref{fg:smramp}. 
+%
+\begin{equation} 
+  \phi(t) = \frac{\phi_1+\phi_0}2 + \frac{\phi_1-\phi_0}2 \, \tanh \frac{t-t_s}\tau
+\end{equation}
+%
+This function is somewhat analogous to \verb+ramp+ in the sense that
+it goes from a starting constant value to another final one, but 
+smoothly. Beware that the start and end values are reached only for
+$t\to\pm\infty$. 
+
+\begin{itemize}
+\item\verb+switch_time+=$t_s$. (default 0.) The time at which $\phi$
+passes by the mean value $\bar\phi$ between $\phi_0$ and $\phi_1$. 
+
+\item\verb+time_scale+=$\tau$. (default: none) This somewhat represents
+the duration of the change from the starting value to the end
+value. During the interval from $t_s-\tau$ to $t_s+\tau$ (i.e. a total
+duration of $2\tau$) $\phi$ goes from
+$\phi_0+0.12\Delta\phi$ to $\phi_0+0.88\Delta\phi$. 
+
+\item\verb+start_value+=$\phi_0$. (default 0.) The limit valu for
+$t\to-\infty$.
+ 
+\item\verb+end_value+=$\phi_1$. (default 1.) The limit valu for
+$t\to+\infty$. 
+\end{itemize}
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/smramp.eps}}
+\caption{Smooth ramp with the hyperbolic tangent function}
+\label{fg:smramp}
+\end{figure*}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{sin}{Trigonometric sine function}\label{sec:sine}  
+%
+\begin{equation} 
+  \phi(t) = \phi_0 + A \, \sin(\omega t +\varphi)
+\end{equation}
+%
+
+\begin{figure*}[htb]
+%\centerline{\includegraphics{./OBJ/sine.eps}}
+\caption{Sine function.}
+\label{fg:sine}
+\end{figure*}
+ 
+
+The parameters are
+%
+\begin{itemize}
+\item\verb+mean_val+=$\phi_0$. (default 0.) 
+\item\verb+amplitude+=$A$. (default 1.) 
+\item\verb+omega+=$\omega$. (default: none) 
+\item\verb+frequency+=$\omega/2\pi$. (default: none) 
+\item\verb+period+=$T = 2\pi/\omega$. (default: none) 
+\item\verb+phase+=$\varphi$. (default 0.) 
+\end{itemize}
+%
+Only one of \verb+omega+,  \verb+frequency+ or \verb+period+ must be
+specified. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{cos}{Trigonometric cosine function}\label{sec:cosine}  
+%
+\begin{equation} 
+  \phi(t) = \phi_0 + A \, \cos(\omega t +\varphi)
+\end{equation}
+%
+The parameters are the same as for \verb+sin+ (see~\ref{sec:sine})
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{piecewise}{Piecewise linear function}\label{sec:piecewise}  
+%
+This defines a piecewise linear interpolation for a given 
+series of time instants $t_j$ (ordered such that $t_j<t_{j+1}$) 
+and amplitudes $\phi_j$ ($1<j<n$) entered by
+the user. The interpolation is
+%
+\begin{equation} 
+  \phi(t) = \begin{cases}
+          0 ;& \textrm{ if } t<t_0 \textrm{ or } t>t_n \\
+          \phi_k + \frac{\phi_{k+1}-\phi_k}{t_{k+1}-t_k} \, {t-t_k} ;&
+                        \textrm{ if } t_k<t<t_{k+1}
+            \end{cases}
+\end{equation}
+%
+If \verb+final_time+ is defined, then th function is extended
+periodically with period $t_n-t_1$. The parameters are
+
+\begin{itemize}
+\item\verb+npoints+ (integer) The number $n$ of points to be entered.
+\item\verb+t+ ($n$ doubles) The instants $t_j$
+\item\verb+f+ ($n$ doubles) The function values $\phi_j$
+\item\verb+final_time+ (double) The function is extended from $t_n$ to
+this instant with period $t_n-t_1$. 
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{spline}{Spline interpolated function}\label{sec:spline}  
+%
+This is similar to \verb+piecewise+ but data is smoothly interpolated
+using splines. 
+%
+\begin{itemize}
+\item\verb+npoints+ (integer) The number $n$ of points to be entered.
+\item\verb+t+ ($n$ doubles) The instants $t_j$
+\item\verb+f+ ($n$ doubles) The function values $\phi_j$
+\item\verb+final_time+ (double) The function is extended from $t_n$ to
+this instant with period $t_n-t_1$. 
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item\funhead{spline_periodic}
+      {Spline interpolated periodic function}\label{sec:splineperiodic}  
+%
+Spline interpolation with \verb+piecewise+ may give poor results,
+specially if you try to match smoothly the beginning and end of the
+period. \verb+spline_periodic+  may give better results, at the cost
+of being restricted to enter the data function in an equally spaced
+grid ($t_{j+1}-t_j=\Delta t=\cnst$). 
+%
+\begin{itemize}\label{eq:cosinfun} 
+\item\verb+npoints+ (integer) The number $n$ of points to be
+entered. 
+\item\verb+period+ (double) The period $T$ of the function. 
+\item\verb+start_time+ (double, default = 0.) The first time instant $t_1$. The
+remaining instants are then defined as $t_j = t_1 +  [(j-1)/(n-1)]\, T$. 
+\item\verb+f+ ($n$ doubles) The function values $\phi_j$ at times
+           $\{t_j\}$. 
+\end{itemize}
+%
+\paragraph{Example:} The lines
+%
+\begin{verbatim}
+fixa_amplitude spline_periodic
+period 0.2
+npoints 5
+start_time 0.333
+ampl_vals  1            0        -1         0.     1.
+\end{verbatim}
+%
+Defines a function with period $T=0.2$ that takes the values 
+%
+\begin{align}
+\phi(0.333+n T) &= 1\\
+\phi(0.333+(n+\sfr14) T) &= 0\\
+\phi(0.333+(n+\sfr12) T) &= -1\\
+\phi(0.333+(n+\sfr34) T) &= 0
+\end{align}
+%
+Actually, the resulting interpolated function is simply
+%
+\begin{equation} 
+  \phi(t) = \cos \LL(2\pi \, \frac{t-0.333}T\RR)
+\end{equation}
+
+%# Current line ===========  
+
+\paragraph{Implementation details:} If we define the phase $\theta$ as 
+%
+\begin{equation} 
+   \theta = 2\pi \, \frac{t-t_1}T
+\end{equation}
+%
+then $\phi(\theta)$ is periodic with period $2\pi$. We can decompose
+it in two even functions $\phi^\pm(\theta)$ as
+%
+\newcommand{\phip}{{\phi^+}}
+\newcommand{\phim}{{\phi^-}}
+\newcommand{\Dtheta}{{\Delta\theta}}
+%
+\begin{align}
+   \phip(\theta) &= \frac{\phi(\theta)+\phi(-\theta)}2 \\
+   \phim(\theta) &= \frac{\phi(\theta)-\phi(-\theta)}{2\sin(\theta)}
+\end{align}
+%
+so that
+%
+\begin{equation} 
+   \phi(\theta) = \phip(\theta) + \sin(\theta) \, \phim(\theta)
+\end{equation}
+%
+As $\phi^\pm$ are even function, they may be put in terms of
+$x=(1-\cos\theta)/2$. So that $x_j$ and $\phi^\pm_j$ are computed and
+by construction, only one half of the values (say $j=1$ to
+$j=m=(n-1)/2+1$) are relevant. 
+The values $\phi^-_0$ and $\phi^-_m$ have to be computed
+specially, since $\sin(\phi_j)=0$ for them. If we take the limit 
+%
+\begin{equation} 
+  \phi^-_0 = \lim_{\theta\to0}
+  \frac{\phi(\theta)-\phi(-\theta)}{2\sin\theta}
+\end{equation}
+%
+then, if linear interpolation is assumed in each interval, it can be
+shown that 
+%
+\begin{equation} 
+  \frac{\phi(\theta)-\phi(-\theta)}2 = 
+        \frac{\phi_2-\phi_{n-1}}{\Dtheta} \, \theta,\ \ \textrm{ for }
+        |\theta|<\Dtheta
+\end{equation}
+%
+Then 
+%
+\begin{equation} \label{eq:philim}  
+  \lim_{\theta\to0}
+       \frac{\phi(\theta)-\phi(-\theta)}{2\sin\theta} = 
+             \frac{\phi_2-\phi_{n-1}}{2\Dtheta}
+\end{equation}
+%
+We could take then this value for $\phi^-_0$, however, this introduces
+some noise. For instance, if $\phi(\theta) = \sin(\theta)$ then
+$\phi^+\equiv=0$ and $\phi^-_j=1$ for $j\neq 1,m$, and
+(\ref{eq:philim}) gives 
+%
+\begin{equation} 
+  \lim_{\theta\to0}
+       \frac{\phi(\theta)-\phi(-\theta)}{2\sin\theta} = 
+             \frac{\sin\Dtheta}{\Dtheta}
+\end{equation}
+%
+We introduce, then a \emph{``correction factor''} $\frac{\Dtheta}{\sin\Dtheta}$
+so that we define
+%
+\begin{equation} 
+  \phi^-_0 = \frac{\phi_2-\phi_{n-1}}{2\sin\Dtheta}
+\end{equation}
+%
+Analogously, we define
+%
+\begin{equation} 
+  \phi^-_m = \frac{\phi_{m-1}-\phi_{m+1}}{2\sin\Dtheta}
+\end{equation}
+%
+\end{description}
+
+\SSSection{Implementation details} 
+
+Temporal boundary conditions are stored in an object of class
+\verb+Amplitude+. This objects contains a key string identifying the
+function and a text hash table containing the parameters for that
+function (for instance \verb+omega+$\to$3.5, \verb+amplitude+$\to$2.3,
+etc...). Recall that each node/field pair may depend on some free
+degrees of freedom (those in $U$ in (\ref{eq:urep})) and some others
+fixed (those in $\bar U$). For those fixed, there is an array
+containing both an amplitude (i.e. a double) and a pointer to an
+\verb+Amplitude+ object. If the condition don't depends on time, then
+the pointer is null. 
+
+\SSSection{How to add a new temporal function} 
+
+If none of the built-in time dependent functions fit your needs, then
+you can add you own temporal function. Suppose you want a function of
+the form 
+%
+\begin{equation} 
+   \phi(t) = \begin{cases}
+                 0                  &; t<0;\\
+                 \frac t{(1+t/\tau)}&; t>=0;
+             \end{cases}
+\end{equation}
+%
+Follow these steps
+%
+\begin{enumerate}
+\item Give a name to it ending in \verb+_function+. We will use
+\verb+my_own_function+ in the following. 
+%
+\item Declare it with a line like
+%
+\begin{verbatim}
+AmplitudeFunction my_own_function;
+\end{verbatim}
+%
+(In the core \pfem{} this is done in \verb+dofmap.h+.)
+
+\item Write the definition. (You can find typical definitions in file
+\verb+tempfun.cpp+). You can use the macro 
+%
+\begin{alltt}
+SGETOPTDEF(\Arg{type},\Arg{name},\Arg{default\_value});
+\end{alltt}
+%
+for retrieving values from the hash table defined by the user in the
+data file. 
+
+\item Register it in the temporal function table with a call such
+as the following, preferably after the call to
+\verb+Amplitude::initialize_function_table+ in the \verb+main()+. For
+instance
+
+%
+\begin{verbatim}
+  Amplitude::initialize_function_table();
+  Amplitude::add_entry("smooth_ramp",
+             &smooth_ramp_function); // <- add  this line
+\end{verbatim}
+%
+(In the core \pfem{} this is done inside
+the \verb+Amplitude::initialize_function_table+.)
+
+\item Use it in your data files as follows
+%
+\begin{verbatim}
+amplitude_function my_own
+tau 3.0
+__END_HASH__
+1 2 3.
+...
+\end{verbatim}
+\end{enumerate}
+
+\SSSection{Time like problems.} 
+
+The mechanism of passing time to boundary conditions and elemsets may
+be used to pass any other kind of data, since it is passed as a
+generic pointer \verb+void *time-data+. This may be used to treat
+other problems where an external parameter exists, for instance 
+
+\begin{description}
+\item[Continuation problems] For instance a NS solution at high Reynolds
+number may be obtained by continuation in Re, and then we can use it
+as the external (tome-like) parameter. In general, we can perform
+continuation in a set of parameters, so that the \verb+time_data+
+variable should be an array of scalars. 
+
+\item[Multiple right hand sides] Here the time like variable may be an
+integer: the number of right hand side case. 
+\end{description}
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

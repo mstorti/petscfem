@@ -1,0 +1,41 @@
+# -*- mode: makefile -*-
+
+#  Configure this variables
+BOPT = g_c++
+HOME_GERONIMO = /u/mstorti
+USR_GERONIMO = /usr
+USR_TRANTOR = /usr_trantor
+
+NEWMAT = $(HOME_GERONIMO)/SOFT/NEWMAT/src
+MESCHACH = $(USR_TRANTOR)/local/lib/meschach-1.2
+GLIB   = /usr/lib/glib/include
+METIS  = $(HOME_GERONIMO)/SOFT/metis-4.0
+LIBRETTO_I = $(USR_GERONIMO)/local/include
+LIBRETTO_LIB = $(USR_GERONIMO)/local/lib
+
+
+CFLAGS	         =
+FFLAGS	         = 
+
+ifdef RH60
+   RH60 = -DRH60
+endif
+
+CPPFLAGS         = $(RH60) ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \
+                     -I$(METIS)/Lib \
+                    -I$(PETSCFEM_DIR) -I$(MESCHACH) \
+                    -I$(LIBRETTO_I)
+FPPFLAGS         =
+
+LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem.a
+SHARFILE = $(HOME_GERONIMO)/PETSC/source.shar
+
+include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
+
+#redefines PETSC variables
+#MPI_HOME       = ${MPIHOME}
+#MPI_BUILD_HOME = ${MPI_HOME}/build/LINUX/ch_p4
+#MPI_LIB        = -L${MPI_BUILD_HOME}/lib -lpmpich -lmpich
+#MPI_INCLUDE    = -I${MPI_HOME}/include -I${MPI_BUILD_HOME}/include
+#MPIRUN         = ${MPI_BUILD_HOME}/bin/mpirun
+

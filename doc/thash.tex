@@ -1,0 +1,393 @@
+\Section{Text hash tables}
+
+\index{text hash tables}
+%
+In many cases, options are passed from the user data file to the
+program in the form of small databases which are called \emph{``text
+hash tables''}. This consist of several lines, each one starting with
+a keyword and followed by one or several values.  When reading this
+data in the \verb+read_mesh()+ routine, the program doesn't know
+anything about neither the keywords nor the appropriate values for
+these keywords. Just when the element is processed by the element
+module via the \verb+assemble()+ function call, for instance
+assembling residuals or matrices, the element routine written by the
+application writer reads values from this database and apply it to the
+elemset.  The text hash table is stored internally as a correspondence
+between the keys and the values, both in the form of strings. The key
+is the first (space delimited) token and the value is the rest of the
+string, from the end of the space separator to the end of the
+line. Usually the values are strings like a ``C'' identifier
+(\verb+chunk_size+ for instance). As the values are stored in the form
+of strings, almost any kind of values may be stored their, for
+instance 
+%
+\begin{verbatim}
+non_linear_method Newton    # string value
+max_iter 10                 # integer value
+viscosity 1.2e-4            # double value
+\end{verbatim}
+%
+or lists and combinations of them. It's up
+to the application writer to decode this values at the element routine
+level. Several routines in the \verb+getprop+ package help in getting
+this (see \S\ref{sec:getprop}).  
+
+Some of this options are used for internal use of the \pfem{} code,
+for instant \verb+chunk_size+ sets the quantity of elements that are
+processed by the elemset routine at each time. 
+
+In section \S\ref{sec:text_hash_elemset}, some specific properties of
+the elemset properties text hash table are described. 
+
+\SSection{The elemset hash table of properties}\label{sec:text_hash_elemset}  
+
+\index{elemset properties}
+%
+A very common problem in FEM codes is how to pass element physical or
+numerical properties (conductivities, viscosities, etc... ), to the
+element routine. In \pfem{} you can pass arbitrary \emph{``per elemset''}
+quantities via an \emph{``elemset properties hash table''}. This comes after the
+element header as in the following example
+
+\begin{verbatim}
+elemset nsi_tet 4 fat 4   # elemset header 
+props                     # per element properties (to be explained later)
+#
+# Elemset properties hash table
+#
+name My Mesh
+geometry cartesian2d
+ndim 2
+npg 4
+couple_velocity 0
+weak_form 1
+
+# physical properties
+Dt .1           # time step
+viscosity 1.
+# next lines flags end of the properties hash table
+__END_HASH__
+# element connectivities
+ 1 3 4 2
+ 3 5 6 4
+ 5 7 8 6
+...
+< more element connectivities here >
+...
+ 193 195 196 194
+ 195 197 198 196
+ 197 199 200 198
+ 199 201 202 200
+# next lines flags end of elemset connectivities
+__END_ELEMSET__
+\end{verbatim}
+
+In this example we define several properties, containing doubles
+(\verb+viscosity+ and \verb+Dt+), integers (\verb+ndim+, \verb+npg+,
+etc...) or strings (\verb+name+). This hash table is stored in the
+form of an associative array (\emph{``hash''}) with a text key, the
+first non-blank characters and a value composed of the rest of the
+line. In the previous example
+%
+\begin{align}
+  \textrm{Key: {\tt "name"}} &\to \textrm{Value: {\tt "My Mesh"}}\\
+  \textrm{Key: {\tt "ndim"}} &\to \textrm{Value: {\tt "2"}}\\
+  \textrm{Key: {\tt "viscosity"}} &\to \textrm{Value: {\tt "1."}}
+\end{align}
+%
+and so on. This hash table is read in an object of type
+``\verb+TextHashTable+'' without checking whether this properties apply
+to the particular elemset or not. The values are stored strictly as
+string, so that no check is performed on the syntax of entering double
+values or integers. 
+
+\SSection{Text hash table inclusion}
+
+Often, we have some physical or numerical parameter that is common to
+a set of elemsets, for instance gravity in shallow water, or viscosity
+in Navier-Stokes.  In this case, these common properties can be put in
+a separate table with a \verb+table ...+ header, and included in the
+elemsets with \verb+_table_include+ directives.  The \verb+table ...+
+sections (not associated to a particular elemset) have to be put in
+preference before the calling elemset, for instance
+%
+\begin{alltt}
+table steel_properties   
+density 13.2
+viscosity 0.001
+\Arg{more steel properties here ...}
+__END_HASH__
+
+elemset nsi_tet 4
+_table_include steel_properties
+npg 8
+weak_form 1
+\Arg{more properties for this elemset here ...}
+__END_HASH__
+ 1 3 4 2
+\Arg{more element connectivities here ...}
+\end{alltt}
+%
+Text hash tables may be recursively included to any depth. The text
+hash table for an elemset may be included in other elemset 
+referencing it by its \verb+name+ entry, for instance
+%
+\begin{alltt}
+elemset nsi_tet 4
+name volume_elemset_1
+geometry cartesian2d
+npg 4
+viscosity 0.23
+\Arg{more properties here ...}
+__END_HASH__
+1 3 4 2
+\Arg{more connectivities here ...}
+__END__ELEMSET__
+
+
+elemset nsi_tet 4
+name volume_elemset_2
+_table_include volume_elemset_1 # includes properties from the
+                                # previous elemset
+__END_HASH__
+ 5 4 76 45
+\Arg{more connectivities here ...}
+__END__ELEMSET__
+
+\end{alltt}
+
+\SSection{The global table}
+
+If one table is called \verb+global_options+ then all other hash
+tables inherit their properties, without needing to explicitly include
+it. For instance in this case
+%
+\begin{alltt}
+table global_options
+viscosity 0.023
+tau_fac 0.5
+__END_HASH__
+
+elemset nsi_tet 4
+name elemset_1
+__END_HASH__
+ 5 4 76 45
+\Arg{more connectivities here ...}
+__END__ELEMSET__
+\end{alltt}
+%
+the elemset \verb+elemset_1+ gets a value for viscosity from the
+global hash table of 0.023. The \verb+global_options+ table may
+include other tables as well. 
+
+\paragraph{Note:}
+In previous versions of the code, the \verb+table+ keyword may be
+omitted for the \verb+global_options+ table. For instance, the
+previous example can be entered as
+%
+\begin{alltt}
+global_options
+viscosity 0.023
+tau_fac 0.5
+__END_HASH__
+\end{alltt}
+%
+This usage is obsolete, and will be deprecated. 
+
+\SSection{Reading strings directly from the hash table}\label{sec:getprop}
+
+Once inside the element routine values can be
+retrieved with routines from the \verb+TextHashTable+ class, typically
+\verb+get_entry+, for instance
+%
+\begin{verbatim}
+char *geom;
+thash->get_entry("geometry",geom);
+\end{verbatim}
+%
+this returns a pointer to the internal value string ``\verb+geom+''
+% fixme:= verificar 
+(this is documented with the \verb+TextHashTable+ class. You can then
+read values from it with routines from \verb+stdio+ (\verb+sscanf+ and
+friends). You should not try to modify this strings, for instance with
+the \verb+strtok()+ function.  
+In that case, copy the string in a new fresh string (remember to
+delete it after to avoid memory leak). In this way you can pass
+arbitrary information (strings, integer, doubles) to the element
+routine.
+
+\SSection{Reading with `get\_int' and `get\_double'} 
+
+\index{get_int@get\_int}
+\index{get_double@get\_double}
+%
+As most of the time element properties are either of integer or double
+type, two specific routines are provided ``\verb+get_int+'' and
+``\verb+get_double+'', for instance
+%
+\begin{verbatim}
+ierr = get_int(thash,"npg",&npg); 
+\end{verbatim}
+%
+where the integer value is directly returned in ``\verb+npg+''. You
+can specify also a default value and read several values at once. 
+
+\SSection{Per element properties table}\label{sec:per_elem_prop}   
+
+\index{per element properties table}
+\index{element properties!per element}
+%
+Many applications need a mechanism for storing values per element, for
+instance when dealing with physical properties variable varying
+spatially in a continuous way. If the properties is piecewise constant,
+then you can define an elemset for each constant patch, but if it
+varies continuously, then you should need an elemset for each element,
+which conspires with efficiency. We provide a mechanism to pass ``per
+element'' values to the element routine. At the moment this is only
+possible for doubles. These properties are specified in the same line
+of the connectivities, for instance
+%
+\begin{verbatim}
+elemset nsi_tet 4         # elemset header 
+props   cond  cp  emiss   # name of properties to be defined "per element"
+# Elemset properties hash table
+geometry cartesian2d
+ndim 2
+npg 4
+# physical properties
+Dt .1           # time step
+viscosity 1.
+# next lines flags end of the properties hash table
+__END_HASH__
+# element connectivities, physical properties per element
+ 1 3 4 2  1.1 2.3 0.7
+ 3 5 6 4  1.2 2.1 0.8
+ 5 7 8 6  1.3 2.2 0.9
+...
+< more element connectivities and physical props. here >
+...
+ 193 195 196 194  1.5 2.0 0.8
+ 195 197 198 196  1.6 2.1 0.7
+ 197 199 200 198  1.7 2.2 0.6
+ 199 201 202 200  1.8 2.3 0.5
+# next lines flags end of elemset connectivities
+__END_ELEMSET__
+\end{verbatim}
+%
+Here we define that properties ``\verb+cond+'', ``\verb+cp+'' and
+``\verb+emiss+'' are to be defined per element. We add to each element
+connectivity line the three properties. There are two ways to access
+these properties. The corresponding values are stored in an array
+``\verb+elemprops+'' of
+length $\nprops\times\Nelem$, where $\nprops$ is the number of ``per
+element'' properties (3 in this example) and $\Nelem$ is the number of
+elements in the mesh. Also there is a macro
+``\verb+ELEMPROPS(k,iprop)+'' that allows treating it as a matrix. 
+So, you can access this values with 
+%
+\begin{verbatim}
+   cond = ELEMPROPS(k,0);  // conductivity of element k
+   cp   = ELEMPROPS(k,1);  // specific heat  of element k
+   emiss= ELEMPROPS(k,2);  // emissivity of element k
+\end{verbatim}
+
+\SSection{Taking values transparently from hash table or per element
+   table}
+
+With the tools described so far you can access constant properties on
+one hand (the same for the whole elemset) and per element
+properties. Now, given a property, you should decide whether it should
+be assumed to be constant for all the elemset or whether it can be
+taken ``per element''. The second is the more general case, but to
+take all the possible properties as ``per element' may be too much
+core memory consuming. There is then a mechanism to allow the
+application writer to get physical properties without bothering of
+whether the user has set them in the properties hash table or in the
+per-element properties table. 
+
+First, the application writer reserves an array of doubles large
+enough to contain all the needed properties. (This doesn't scale with
+mesh size so you can be generous here, or either use dynamic memory
+allocation). Before entering the element loop, the macro
+``\verb+DEFPROP(prop_name)+'' determines whether the property has been
+passed by one or the other of the mechanisms.  This information is
+stored in an integer vector ``\verb+elprpsindx[MAXPROP]+''.  Also, it
+assigns a position in array ``\verb+propel+'' so that
+``\verb+propel[prop_name_indx]+'' contains the given property.  Then,
+once inside the element loop a call to the function
+``\verb+load_props+'' loads the appropriate values on
+``\verb+propel[MAXPROP]+'', independently how thay have been
+defined. A typical call sequence is as follows
+%
+\latexonly{\catcode`\!=11}%
+\begin{verbatim}
+// Maximum number of properties to be loaded via load_prop
+#define MAXPROP 100
+int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
+
+// determine which mechanism passes `conductivity'
+DEFPROP(conductivity)
+
+// conductivity is found (after calling load_props()) in
+// propel[conductivity_indx]
+#define COND (propel[conductivity_indx])
+
+// Other properties 
+DEFPROP(propa)
+#define PROPA (propel[propa_indx])
+ 
+DEFPROP(propb)
+#define PROPB (propel[propb_indx])
+ 
+DEFPROP(propc)
+#define PROPC (propel[propc_indx])
+ 
+DEFPROP(propp)
+#define PROPP (propel[propp_indx])
+
+DEFPROP(propq)
+#define PROPQ (propel[propq_indx])
+
+// Total number of properties loaded
+int nprops=iprop;
+
+// Set error if maximum number of properties exceeded 
+assert(nprops<=MAXPROP);
+
+// ... code ...
+  
+// loop over elements
+for (int k=el_start; k<=el_last; k++) {
+    // check if this element is to be processed
+    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+
+    // Load properties either from properties hash table or from
+    // per element properties table
+    load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
+
+    // ... more code ...
+
+    // use physical element property
+    double veccontr += wpgdet * COND * dshapex.t() * dshapex;
+
+    // ...
+\end{verbatim}
+\latexonly{\catcode`\!=\active}%
+
+First, we allocate for 100 entries in ``\verb+elprpsindx+'' and
+``\verb+propel+''  arrays, and set the counter ``\verb+prop+'' to
+0. Then we call ``\verb+DEFPROP+'' for properties
+``\verb+conductivity+'' and ``\verb+propa+'' thru
+``\verb+propq+''. After this, we check that the maximum number of
+properties to be defined is not exceeded and enter the element
+loop. After checking, as usual, if the element needs processing, we
+call ``\verb+load_props+'' in order to effectively load element
+properties in propel and, after this, we can use them as
+``\verb+propel[conductivity_indx]+'' and so on. Macro shortcuts
+``\verb+COND+'', ``\verb+PROPA+'' are handy for this. 
+
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

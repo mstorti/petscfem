@@ -1,0 +1,43 @@
+# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+
+.PHONY: fstack force les_data
+
+run: les
+
+PETSCFEM_DIR = ../..
+include $(PETSCFEM_DIR)/Makefile.base
+include ../Makefile.base.test
+SRC_DIR = $(PETSCFEM_DIR)/src
+PETSCFEM_LIB = $(SRC_DIR)/libpetscfem.a
+SRCS = 
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+LES_DATA_FILES = les.nod.tmp  les.con.tmp les.fixa.tmp \
+		les.peri.tmp les.wall.tmp les.ini.tmp
+
+MCH = -machinefile ./machi.dat
+#NP_AVLBL := $(shell procsel proctable)
+NP := 1
+#NP := $(NP_AVLBL)
+NSO = $(PETSCFEM_DIR)/../petscfem-2.16g/applications/ns/ns.bin
+les: les_data
+	-$(MPIRUN) -np $(NP) $(MCH) $(NS) -case les.depl   | tee output.out
+
+prof: pfemprof.txt
+
+pfemprof.txt: gmon.out
+#	gprof $(NS) -l gmon.out >$@
+	gprof $(NS) gmon.out >$@
+
+les_data: les.depl les.nod.tmp
+
+$(LES_DATA_FILES): les.m
+	octave -q <les.m 
+#	touch les.flag
+
+lclean: add_clean
+
+add_clean: 
+	-rm les.flag 
+
+include makefile.d

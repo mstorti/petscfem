@@ -1,0 +1,305 @@
+%        -*- mode: text -*-
+This is the README file for PETSc-FEM in POD (Plain Old Documentation)
+format (this is the standard embedding doc system in the Perl world).
+It can be converted to text, latex and html with specific conversion
+programs.
+
+%================================================================
+
+=head1 NAME
+
+PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program 
+
+=head1 SYNOPSIS 
+
+This is PETSc-FEM, a general purpose, parallel, multi-physics FEM
+program for CFD applications based on PETSc. PETSc-FEM comprises both
+a library that allows the user to develop FEM (or FEM-like, i.e.
+structured mesh oriented) programs, and a suite of application
+programs.  It is written in the C++ language with an OOP (Object
+Oriented Programming) philosophy, but always keeping in mind the scope
+of efficiency.
+
+PETSc-FEM is GPL, for further details read the file COPYING in the
+root directory of the distribution.
+
+=head1 LICENSE
+
+This file belongs to he PETSc - FEM package a library and application
+suite oriented to the Finite Element Method based on PETSc.  Copyright
+(C) 1999, 2000 Mario Alberto Storti
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
+USA.
+
+=head1 INSTALLATION
+
+=head2 Platforms
+
+Currently, PETSc-FEM is known to run only on Beowulf class clusters
+based on Intel processors, running the GNU/Linux OS.  Off course, you
+can also install PETSc-FEM in a single Linux box, for use in
+sequential (i.e. non-parallel) mode or either for simulating parallel
+runs, by launching several processes in the same processor. (This is a
+feature of MPI).
+
+I guess it may be easy to install in other processor architectures
+(SPARC or Alpha) running Linux and also (maybe) on other Unix
+flavours.
+
+=head2 Required Software
+
+Before installing PETSc-FEM, please verify you have the following
+packages correctly installed in your system. 
+
+=over 4 
+
+=item MPI  
+
+This is the Message Passing Interface. We are currently using MPICH
+(C<http://www.mcs.anl.gov/mpich>) but I think there will be not problem
+with LAM MPI.
+
+=item PETSC
+
+This is the 'Portable, Extensible Toolkit for Scientific Computation'
+and can be found at C<http://www.mcs.anl.gov/petsc/>.
+
+=item LAPACK
+
+This is, in fact, a prerequisiste to install PETSc and can be found at 
+C<http://www.netlib.org/lapack/>. 
+
+=item Libretto
+
+This is a C library of generic containers and can be found at
+C<http://pobox.com/~aaronc/tech/libretto/>. I have learned recently
+that development of Libretto has been stopped since it has been
+superseded by B<GLIB>, so that I think that in a future I will replace
+the Libretto code by B<GLIB>. Also, the STL library (that comes with
+gcc) can replace all or some of the features provided by B<Libretto>
+but I found that the STL implementation (at least that one that comes
+with gcc) is rather inefficient. 
+
+=item GLIB
+
+GLIB is a library which includes support routines for C such as lists,
+trees, hashes, memory allocation, and many other things. The official
+web site is C<http://www.gtk.org/>. [RedHat RPM packages: C<GLIB>,
+C<glib-devel>]
+
+=item Newmat
+
+This is a matrix library to be used mainly at the element routine
+level, i.e. for small matrices and can be found at
+C<http://webnz.com/robert/>. It is not mandatory to use Newmat for all
+element calculations. In fact there is included a matrix class called
+FastMat2 that is more performant, but Newmat is still used in some
+internal parts and has much more functions, so that you have to
+install it. Also, you may prefer I<Newmat> over I<FastMat2> for
+element calculations since it supports overloading of algebraic
+operations. See the documentation on I<FastMat2> in the I<PETSc-FEM>
+documentation for reasons why to use FastMat2 instead of Newmat.
+
+=item ANN
+
+This is the I<Approximate Nearest Neighbor Library> and can be found
+at C<http://www.cs.umd.edu/~mount/ANN>. Currently it is only used in
+the Navier-Stokes module for calculating the damping functions in the
+Smagorinsky model. However, in a future it may be used more widely for
+some mesh manipulations.
+
+=item METIS
+
+METIS is a software package for partitioning unstructured graphs,
+partitioning meshes, and computing fill-reducing orderings of sparse
+matrices. It can be found at C<http://www.cs.umn.edu/~metis>. 
+
+=item Meschach
+
+The Meschach Library is a numerical library of C routines for
+performing calculations on matrices and vectors. It is used only for
+some functions that can not be done with Newmat. Currently, it is used
+in the advective module for performing eigenvalue decomposition of
+non-symettric matrices. I think that in a future this functionality
+could be replaced by calls to LAPACK. 
+
+=item ePerl
+
+B<ePerl> (for I<embedded Perl>) is a preprocessor much like the B<C>
+language preprocessor (home page:
+C<http://www.engelschall.com/sw/eperl/>). B<ePerl> allows you to embed
+arbitrary B<Perl> code in your document. It is not required at all,
+but is is very useful for preprocessing the data files. [RedHat RPM
+package: C<eperl>].
+
+=item Perl
+
+If you want to use B<ePerl> then you need to have B<Perl>
+installed. [RedHat RPM package: C<perl>].
+
+=back
+
+=head2 Unpacking
+
+Once you got the I<petscfem-beta-__INSERT_VERSION__.tar.gz> package,
+gunzip and untar it like this:
+
+  $ gunzip petscfem-beta-__INSERT_VERSION__.tar.gz
+  $ tar xvf petscfem-beta-__INSERT_VERSION__.tar
+
+This will create a I<petscfem-beta-__INSERT_VERSION__> directory with
+all the source files included.
+
+=head2 Makefile variables
+
+=over 
+
+=item C<$(PETSCFEM_DIR)>
+
+The root of the PETSc-FEM package
+
+=item C<$(PETSC_ARCH)>, C<$(PETSC_HOME)>
+
+These are variables relative to PETSc. See the PETSc documentation.
+
+=back
+
+=head2 Configuring
+
+Once you have all the software mentioned in L<Required Software>
+installed, you have to define the variables in the B<CONFIGURATION
+VARIABLES> section in file F<$(PETSCFEM_DIR)/Makefile.base>. 
+
+
+=over
+
+=item *
+
+First you have to set the C<BOPT PETSc> variable. You can set it to 
+
+=over 
+
+=item C<BOPT = g_c++>
+
+Compiles for debugging.
+
+=item C<BOPT = O_c++>
+
+Compiles with optimization enabled.
+
+=back
+
+The optimization level is inherited from the C<PETSc> installation (it
+is defined in C<$(PETSC_HOME)/bmake/$(PETSC_ARCH)>).
+
+=item *
+
+The C<PROF_FLAGS> variables allows you to turn on profiling. By default, profiling is deactivated. 
+
+=item *
+
+The reamining are Makefile variables that point to directories
+containing headers or libaries of required software. The lines come
+commented out and a line like this
+
+   include $(PETSCFEM_DIR)/../Makefile.defs
+
+includes a file containing the definitions. You have to either
+
+=over 
+
+=item *
+
+Comment the C<include> file out, uncomment the variable
+definition lines and set the appropriate values, or 
+
+=item *
+
+Edit a file F<$(PETSCFEM_DIR)/../Makefiles.defs> (i.e., in the
+directory inmediately above the C<$(PETSCFEM_DIR)> directory)
+containing the appropriate definitions.
+
+=back
+
+This last strategy allows you to configure several versions of
+B<PETSc-FEM> at the same directory, or changing the B<PETSc-FEM>
+version without having to reenter the variables. 
+
+=back
+
+=head2 Compiling
+
+C<cd> to directory C<$(PETSCFEM_DIR)> and do 
+
+  $ make newdepend
+  $ make libpetscfem        # to build the library
+  $ make all                # to build the library and all the modules
+
+If nothing goes wrong you will end with a F<src/libpetscfem.a> library
+and application binaries (ending in C<.bin>) in their respective
+directories, e.g. F<applications/ns/ns.bin> is the Navier-Stokes binary. 
+
+=head1 DOCUMENTATION
+
+Documentation for I<PETSc-FEM> is included in the
+C<$(PETSCFEM_DIR)/doc> directory. There is basically a reference
+manual written in I<LaTeX> (F<doc/petscfem.tex>), and embedded
+documentation for the routines to be used with C<Doc++>. In the
+standard distrib you should find both of them converted to HTML
+(C<LaTeX> is converted with C<latex2html>) and accessible from
+F<doc/index.html>. Other formats (perhaps PostScript) may be also
+found in the C<doc> directory.
+
+=head1 TESTS AND EXAMPLES
+
+Many tests and examples are in the C<$(PETSCFEM_DIR)/test> directory.
+
+=head1 WRITING A NEW APPLICATION MODULE
+
+The best way to start coding an application program is to duplicate a
+directory (for instance C<applications/laplace>) to a directory from
+your own (i.e. outside the C<$(PETSCFEM_DIR)> tree, say
+C</your/appl/path>. Configure the C<$(PETSCFEM_DIR)> variable in the
+local makefile (i.e. C</your/appl/path/Makefile>).You should have to
+configure other variables as well, perhaps C<$(MYOBJS)> (this is a
+list of the object (C<.o>) files in this local directory) and
+C<$(PROG)> (the name of the program to be built, without the suffix
+C<.bin>).
+
+=head1 AUTHORS
+
+Mario A. Storti, Norberto M. Nigro and others. CIMEC, Internacional
+Centre for Computational Methods in Engineering, Santa Fe, Argentina. 
+
+=head1 CONTACTS
+
+=over
+
+=item *
+
+B<e-mail:> C<<mstorti@intec.unl.edu.ar>>
+
+=item *
+
+B<www:> C<http://minerva.arcride.edu.ar/petscfem>
+
+=item *
+
+B<ordinary mail:> Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.
+
+=back
+
+=cut

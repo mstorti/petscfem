@@ -1,0 +1,72 @@
+#!/bin/bash
+
+echo 'Extracting tara file...'
+co -ko -r$1 source.tara
+if [ -f petscfem.tar ] 
+then echo -n "petscfem.tar exists, overwrite? > (y/n) "
+    read ans
+    if [ ! "$ans" = "y" ] ; then exit 1 ; fi
+fi
+
+echo 'converting to .tar ...'
+tara2tar <source.tara >petscfem.tar
+rm source.tara
+
+if [ -d pp.tempo ] 
+then echo 'du -s pp.tempo'
+    du -s pp.tempo
+    echo -n "pp.tempo exists, delete? > (y/n) "
+    read ans
+    if [ ! "$ans" = "y" ] ; then exit 1 ; fi
+    rm -rf pp.tempo
+fi
+
+mkdir pp.tempo
+mv petscfem.tar pp.tempo
+cd pp.tempo
+echo 'untarring petscfem.tar'
+tar -xvf petscfem.tar >/dev/null
+
+if [ ! -d petscfem.mario ]
+then echo 'contents of pp.tempo after decompressing petscfem.tar: '
+    ls -l
+    echo "couldn't find petscfem.mario!!"
+    exit 1
+fi
+
+rm petscfem.tar
+newver=pestcfem-$1g
+
+echo "renaming petscfem.mario to petscfem-$1g"
+mv petscfem.mario $newver
+
+if [ -f ../$newver ] 
+then echo "$newver already exists!!"
+    exit 1
+fi
+
+echo "Moving $newver from" $PWD to ..
+mv $newver ..
+
+cd ..
+if [ ! -d pp.tempo ] 
+then echo 'couldn t find pp.tempo!!'
+    exit 1
+fi
+
+echo "removing pp.tempo dir ..."
+rmdir pp.tempo
+
+#  echo -n "Delete pp.tempo directory ? (y/n) > "
+#  read ans
+#  if [ ! "$ans" = "y" ] ; then exit 1 ; fi
+#  rm -rf pp.tempo
+
+cd $newver
+echo "changing g_c++ to O_c++ option in Makefile.base"
+perl -pi.bak -e 's/g_c\+\+/O_c++/' Makefile.base
+
+echo -n "Compile ? (y/n) > "
+read ans
+if [ ! "$ans" = "y" ] ; then exit 1 ; fi
+make all

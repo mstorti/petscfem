@@ -1,0 +1,93 @@
+# -*- mode: makefile -*-
+
+######  begin of CONGIGURATION VARIABLES sectio  ####################
+#  Configure this variable!! (either g_c++ or O_c++) 
+BOPT = g_c++
+
+# uncomment in order to use the `gprof' profiler
+#PROF_FLAGS = -pg
+
+# NEWMAT = $(HOME)/SOFT/NEWMAT/src
+# MESCHACH = $(HOME)/SOFT/meschach-1.2
+# GLIB   = /usr/lib/glib/include
+# METIS  = $(HOME)/SOFT/metis-4.0
+# LIBRETTO_I = /usr/local/include
+# LIBRETTO_LIB = /usr/local/lib
+# ANN_HOME = $(HOME)/PETSC/ann_0.2
+
+# read variables from file
+include $(PETSCFEM_DIR)/../Makefile.defs
+######  end of CONGIGURATION VARIABLES sectio  ####################
+
+CFLAGS	         =
+FFLAGS	         = 
+
+ifdef RH60
+   RH60 = -DRH60
+endif
+
+CPPFLAGS         = $(PROF_FLAGS) $(RH60) ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \
+                     -I$(METIS)/Lib \
+                    -I$(PETSCFEM_DIR)/src -I$(MESCHACH) \
+                    -I$(LIBRETTO_I) -I$(ANN_HOME)/include
+FPPFLAGS         =
+
+LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem.a
+#SHARFILE = $(HOME_GERONIMO)/PETSC/source.shar
+TARFILE = $(PETSCFEM_DIR)/../source
+
+ODOC = $(PETSCFEM_DIR)/tools/odoc.pl
+
+include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
+G_COPTFLAGS      = -ggdb
+
+.PHONY: tags lclean general_clean force
+
+depend: 
+	-rm makefile.d
+	$(MAKE) makefile.d
+	for dir in $(DEPEND_DIRS) ; \
+		do $(MAKE) -C $$dir depend ;\
+	done
+
+makefile.d:
+# empties or creates the makefile.d file
+	cat /dev/null > makefile.d  
+	makedepend -f $@ -- $(CPPFLAGS) -- $(SRCS) &>/dev/null
+
+TAGS: *.cpp *.h
+	etags --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' \
+			*.cpp *.h $(TAGFLAGS)
+
+# Create preprocessed files
+%.cppi: %.cpp
+	g++ -E $(CPPFLAGS) $< > $@ ; chmod u-w $@
+
+# general elements to be removed in all cases.
+general_clean: 
+	cat /dev/null >makefile.d
+	-@rm -f *.o $(OBJS) $(PROG).bin octave-core *.cppi \
+		outvector.sal *.sal *.out TAGS
+	$(MAKE) clean
+
+# general program 
+$(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
+	-rm $@
+	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) \
+		-L$(PETSCFEM_DIR)/src -lpetscfem \
+                -L$(METIS) -L/usr/local/lib \
+                -lmetis  -L$(NEWMAT)  -lnewmat \
+		-lglib -L$(LIBRETTO_LIB) -libretto \
+		-lANN -L$(ANN_HOME)/lib \
+		-lc ${PETSC_SLES_LIB} \
+		$(MESCHACH)/libmes.a
+
+#
+# When using ePerl the convention is to use .epl extension for the
+# files previous to preprocessing and .depl for the preprocessed files 
+#
+%.depl: %.epl 
+	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+	eperl -P $< > $@
+	chmod -w $@
+

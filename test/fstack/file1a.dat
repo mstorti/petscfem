@@ -1,0 +1,10 @@
+__INCLUDE__ file1b.dat
+
+1a line continued ... \
+    continued ....
+#  commented out 
+2a several blank lines ...
+
+
+
+3a third line

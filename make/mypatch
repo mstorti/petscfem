@@ -1,0 +1,33 @@
+#!/bin/bash
+
+local=spider
+remote=geronimo
+
+if [ ! -e source.tara.$local.gz ] 
+    then echo "Not found source.tara.$local.gz " 
+    exit 1 
+fi
+
+if [ ! -e petscfem.patch.gz ] 
+    then echo "Not found petscfem.patch.gz" 
+    exit 1 
+fi
+
+cp source.tara.$local.gz  source.tara.$local.gz.bck
+gunzip source.tara.$local.gz 
+gunzip petscfem.patch.gz
+
+patch source.tara.$local < petscfem.patch
+
+mv source.tara.$local source.tara.$remote
+tara2tar < source.tara.$remote >petscfem.tar 
+if [ -d petscfem ] 
+    then du -s petscfem
+    echo -n "remove petscfem ? "
+    read answer
+    if [ "$answer" = "y" ] ; then rm -rf petscfem ; fi
+fi
+
+tar xvf petscfem.tar
+gzip source.tara.$remote
+mv source.tara.$local.gz.bck source.tara.$local.gz

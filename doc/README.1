@@ -1,0 +1,374 @@
+.rn '' }`
+''' $RCSfile: README.1,v $$Revision: 1.1 $$Date: 2000/12/28 12:54:42 $
+'''
+''' $Log: README.1,v $
+''' Revision 1.1  2000/12/28 12:54:42  mstorti
+''' Initial revision
+'''
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH README 1 "perl 5.005, patch 03" "23/Dec/2000" "User Contributed Perl Documentation"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+PETSc-FEM \- a general  purpose,  parallel, multi-physics  FEM program 
+.SH "SYNOPSIS"
+This is PETSc-FEM, a general purpose, parallel, multi-physics FEM
+program for CFD applications based on PETSc. PETSc-FEM comprises both
+a library that allows the user to develop FEM (or FEM\-like, i.e.
+structured mesh oriented) programs, and a suite of application
+programs.  It is written in the \*(C+ language with an OOP (Object
+Oriented Programming) philosophy, but always keeping in mind the scope
+of efficiency.
+.PP
+PETSc-FEM is GPL, for further details read the file COPYING in the
+root directory of the distribution.
+.SH "INSTALLATION"
+.Sh "Platforms"
+Currently, PETSc-\s-1FEM\s0 is known to run only on Beowulf class clusters
+based on Intel processors, running the \s-1GNU/\s0Linux \s-1OS\s0.  Off course, you
+can also install PETSc-\s-1FEM\s0 in a single Linux box, for use in
+sequential (i.e. non-parallel) mode or either for simulating parallel
+runs, by launching several processes in the same processor. (This is a
+feature of \s-1MPI\s0).
+.PP
+I guess it may be easy to install in other processor architectures
+(\s-1SPARC\s0 or Alpha) running Linux and also on other Unix flavours. 
+.Sh "Required Software"
+Before installing PETSc-\s-1FEM\s0, please verify you have the following
+packages correctly installed in your system. 
+This is the Message Passing Interface. We are currently using \s-1MPICH\s0
+(the section on \fI/www.mcs.anl.gov/mpich\fR in the \fIhttp:\fR manpage) but I think there will be not problem
+with \s-1LAM\s0 \s-1MPI\s0.
+.Ip "\s-1PETSC\s0" 4
+This is the \*(L'Portable, Extensible Toolkit for Scientific Computation\*(R'
+and can be found at the section on \fI/www.mcs.anl.gov/petsc/\fR in the \fIhttp:\fR manpage.
+.Ip "\s-1LAPACK\s0" 4
+This is, in fact, a prerequisiste to install PETSc and can be found at 
+the section on \fI/www.netlib.org/lapack/\fR in the \fIhttp:\fR manpage. 
+.Ip "Libretto" 4
+This is a C library of generic containers and can be found at
+the section on \fI/pobox.com/~aaronc/tech/libretto/\fR in the \fIhttp:\fR manpage. I have learned recently
+that development of Libretto has been stopped since it has been
+superseded by \fBglib\fR, so that I think that in a future I will replace
+the Libretto code by \fBglib\fR. Also, the \s-1STL\s0 library (that comes with
+gcc) can replace all or some of the features provided by \fBLibretto\fR
+but I found that the \s-1STL\s0 implementation (at least that one that comes
+with gcc) is rather inefficient. 
+.Ip "\s-1GLIB\s0" 4
+GLib is a library which includes support routines for C such as lists,
+trees, hashes, memory allocation, and many other things. The official
+web site is  the section on \fI/www.gtk.org/\fR in the \fIhttp:\fR manpage. [There are \s-1RPM\s0 packages for RedHat]
+.Ip "Newmat" 4
+This is a matrix library to be used mainly at the element routine
+level, i.e. for small matrices and can be found at
+the section on \fI/webnz.com/robert/\fR in the \fIhttp:\fR manpage. It is not mandatory to use Newmat for all
+element calculations. In fact there is included a matrix class called
+FastMat2 that is more performant, but Newmat is still used in some
+internal parts and has much more functions, so that you have to
+install it. Also, you may prefer \fINewmat\fR over \fIFastMat2\fR for
+element calculations since it supports overloading of algebraic
+operations. See the documentation on \fIFastMat2\fR in the \fIPETSc-\s-1FEM\s0\fR
+documentation for reasons why to use FastMat2 instead of Newmat.
+.Ip "\s-1ANN\s0" 4
+This is the \fIApproximate Nearest Neighbor Library\fR and can be found
+at the section on \fI/www.cs.umd.edu/~mount/\s-1ANN\s0\fR in the \fIhttp:\fR manpage. Currently it is only used in
+the Navier-Stokes module for calculating the damping functions in the
+Smagorinsky model. However, in a future it may be used more widely for
+some mesh manipulations.
+.Ip "\s-1METIS\s0" 4
+\s-1METIS\s0 is a software package for partitioning unstructured graphs,
+partitioning meshes, and computing fill-reducing orderings of sparse
+matrices. It can be found at the section on \fI/www.cs.umn.edu/~metis\fR in /usr/bin/pod2man: README.pod is missing required section: DESCRIPTION
+the \fIhttp:\fR manpage. 
+.Ip "Meschach" 4
+The Meschach Library is a numerical library of C routines for
+performing calculations on matrices and vectors. It is used only for
+some functions that can not be done with Newmat. Currently, it is used
+in the advective module for performing eigenvalue decomposition of
+non-symettric matrices. I think that in a future this functionality
+could be replaced by calls to \s-1LAPACK\s0. 
+.Sh "Unpacking"
+Once you got the \fIpetscfem-xxx.tar.gz\fR package, gunzip nd untar it
+like this:
+.PP
+.Vb 2
+\&  $ gunzip petscfem-xxx.tar.gz
+\&  $ tar xvf petscfem-xxx.tar
+.Ve
+This will create a \fIpetscfem-xxx\fR directory with all the source files
+included.
+.Sh "Configuring"
+Once you have all the software mentioned in the previous section
+installed, you have to define the variables in the \fB\s-1CONFIGURATION\s0
+\s-1VARIABLES\s0\fR section in file \fI$\s-1PETSCFEM_DIR/\s0Makefile.base\fR. This are
+usually Makefile variables that point to directories containing
+headers or libaries of required software. The lines come commented out
+and a line like this 
+.PP
+.Vb 1
+\&   include $(PETSCFEM_DIR)/../Makefile.defs
+.Ve
+includes a file containing the definitions. You have to either
+.Ip "Comment the \f(CWinclude\fR file out, uncomment the variable definition lines and set the appropriate values, or " 5
+.Ip "edit a file \fI$(\s-1PETSCFEM_DIR\s0)/../Makefiles.defs\fR (i.e., in the directory inmediately above the \f(CW$(PETSCFEM_DIR)\fR directory) containing the appropriate definitions." 5
+.PP
+This last strategy allows you to have configure several versions of
+\fBPETSc-\s-1FEM\s0\fR at the same directory, or changing the \fBPETSc-\s-1FEM\s0\fR
+version without having to reenter the variables. 
+.PP
+Finally you have to set the \f(CWBOPT\fR \f(CWPETSc\fR variable. You can set it to 
+.Ip "\f(CWBOPT = g_c++\fR" 5
+Compiles for debugging.
+.Ip "\f(CWBOPT = O_c++\fR" 5
+Compiles with optimization enabled.
+.PP
+The optimization level is inherited from the \f(CWPETSc\fR installation,
+i.e. it is defined in \f(CW$(PETSC_HOME)/bmake/$(PETSC_ARCH)\fR. 
+.Sh ""
+.SH "LICENSE"
+This file belongs to he PETSc \-  FEM package a library and application
+suite oriented to the Finite Element Method based on PETSc.  Copyright
+(C) 1999, 2000 Mario Alberto Storti
+.PP
+This program is free software;  you can redistribute it and/or  modify
+it under the terms  of the GNU General Public  License as published by
+the Free Software Foundation; either version  2 of the License, or (at
+your option) any later version.
+.PP
+This program  is distributed in  the hope that  it will be useful, but
+WITHOUT  ANY  WARRANTY;     without  even the   implied   warranty  of
+MERCHANTABILITY  or  FITNESS FOR A  PARTICULAR PURPOSE.    See the GNU
+General Public License for more details.
+.PP
+You should have received  a  copy of  the  GNU General Public  License
+along  with    this program;  if  not,  write  to  the   Free Software
+Foundation, Inc.,  59 Temple Place,  Suite 330, Boston, MA 02111-1307,
+USA.
+
+.rn }` ''
+.IX Title "README 1"
+.IX Name "PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program"
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "INSTALLATION"
+
+.IX Subsection "Platforms"
+
+.IX Subsection "Required Software"
+
+.IX Item "\s-1PETSC\s0"
+
+.IX Item "\s-1LAPACK\s0"
+
+.IX Item "Libretto"
+
+.IX Item "\s-1GLIB\s0"
+
+.IX Item "Newmat"
+
+.IX Item "\s-1ANN\s0"
+
+.IX Item "\s-1METIS\s0"
+
+.IX Item "Meschach"
+
+.IX Subsection "Unpacking"
+
+.IX Subsection "Configuring"
+
+.IX Item "Comment the \f(CWinclude\fR file out, uncomment the variable definition lines and set the appropriate values, or "
+
+.IX Item "edit a file \fI$(\s-1PETSCFEM_DIR\s0)/../Makefiles.defs\fR (i.e., in the directory inmediately above the \f(CW$(PETSCFEM_DIR)\fR directory) containing the appropriate definitions."
+
+.IX Item "\f(CWBOPT = g_c++\fR"
+
+.IX Item "\f(CWBOPT = O_c++\fR"
+
+.IX Subsection ""
+
+.IX Header "LICENSE"
+

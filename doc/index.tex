@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage{makeidx,epsf}
+\usepackage[spanish]{babel}
+\usepackage{html,htmllist,heqn}
+
+\makeindex
+\sloppy
+
+\begin{document}
+\latex{\hsize 15truecm
+\vsize 24.7truecm
+\advance \hoffset by -1truecm
+\advance \voffset by -3truecm}
+\sloppy
+
+\title{PETSc-FEM: A General Purpose, Parallel, Multi-Physics FEM Program.}
+\maketitle
+
+\begin{abstract}
+%fixme:= incluir referencia a PETSc
+This is the documentation root page for \pfem, a general purpose, parallel,
+multi-physics FEM program for CFD applications based on
+PETSc. \pfem{} comprises both a library that allows the user to
+develop FEM (or FEM-like, i.e. non-structured mesh oriented) programs, and
+a suite of application programs. It is written in the C++ language
+with an OOP (Object Oriented Programming) philosophy, but always
+keeping in mind the scope of efficiency. 
+\end{abstract}
+
+The documentation for PETSc-FEM is divided in 
+
+\begin{itemize}
+\item A \htmladdnormallink{user's guide}{petscfem/petscfem.html} (written
+in \LaTeX and also available in PostScript and HTML).
+
+\item The \htmladdnormallink{reference
+documentation}{manual/index.html} for all the routines in the
+library and the applications, stripped from the sources with Doc++.
+\end{itemize}
+
+\end{document}

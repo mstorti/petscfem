@@ -1,0 +1,629 @@
+\Section{The FastMat2 matrix class}
+
+\SSection{Introduction} 
+
+Finite element codes usually have to levels of programming.
+In the outer level a large vector describes the \emph{``state''} of
+the physical system. Usually this vector has as many entries as the
+number of nodes times the number of fields minus the number of
+fixations (i.e. Dirichlet boundary conditions). This vector can be
+computed at once by assembling the right hand side and the stiffness
+matrix in a linear problem, iterated in a non-linear problem or
+updated at each time step through solution of a linear or non-linear
+system. The point is that, at this outer level, you perform global
+assemble operations that build this vector and matrices. At the inner
+level, you perform a loop over all the elements in the mesh, compute
+the vector and matrix contributions of each element and assemble them
+in the global vector/matrix. From one application to another, the
+strategy at the outer level (linear/non-linear, steady/temporal
+dependent, etc...) and the physics of the problem that defines the
+FEM matrices and vectors may vary. 
+
+The FastMat2 matrix class has been designed in order to perform matrix
+computations at the element level. It is assumed that we have an outer
+loop (usually the loop over elements) that is executed many times, and
+at each execution of the loop a series of operations are performed
+with a rather reduced set of local vectors and matrices. There are
+many matrix libraries but often the performance is degraded for small
+dimensions. Sometimes performance is good for operations on the whole
+matrices, but it is degraded for operations on a subset of the elment
+of the matrices, like columns, rows, or individual elements. 
+This is due to the fact that acessing a given element in the matrix
+implies a certain number of arithmetic operations. Otherwise, we can
+copy the row or column in an intermediate object, but then there is an
+overhead du to the copy operations. 
+
+The particularity of FastMat2 is that at the first execution of the
+loop the address of the elements used in the operation are cached in
+an internal object, so that in the second ans subsequent executions of
+the loop the addresses are retrieved from the cache. 
+
+\SSection{Example}\label{sec:fastmat2_example}  
+
+Consider the following simple example. We are given a 2D finite
+element composed of triangles, i.e. an array \verb+xnod+ of
+$2\times\Nnod$ doubles with the node coordinates and an array
+\verb+icone+ with $3\times\Nelem$ elements with node
+connectivities. For each element $0<j<\Nelem$ its nodes are stored at
+\verb|icone[3*j+k]| for $0\le k\le 2$. We are required to compute the
+maximum and minimum value of the area of the triangles. This is a
+computation which is similar to those found in FEM analysis. 
+For each element we have to load the node coordinates in local vectors
+$!x_1$, $!x_2$ and $x_3$, compute the vectors along the sides of the
+elements $!a=!x_2-!x_1$ and $!b=!x_3-!x_1$. The area of the element
+is, then, the determinant of the $2\times 2$ matrix $!J$ formed by
+putting $!a$ and $!b$ as rows.
+
+The FastMat2 code for the computations is like this
+
+\listinginput{1}{fm2ex.cpp}
+
+Calls to the static members (those starting with \verb+FastMat2::+)
+are related with the caching manipulation and will be discussed
+later. Matrix are dimensioned in line 2, the first argument is the
+number of dimensions, and then follow the dimensions, for instance
+\verb+FastMat2 x(2,3,2)+ defines a matrix which 2 indices ranging from
+1 to 3, and 1 to 2 respectively. The rows of this matrix will store
+the coordinates of the local nodes to the element. FastMat2 matrices
+may have any number of indices. Actually the library is compiled for a
+maximum number of indices (10 by default. This limit may be modified
+by redefining variable {\tt\$max\_arg} in script \verb+readlist.eperl+
+and recompile.) Also they can have zero dimensions, which stands for
+scalars. 
+
+\SSSection{Current Matrix view} 
+In lines 9 to 12 the coordinates of the nodes are
+loaded in matrix \verb+x+. The underlying philosophy in FastMat2 is
+that you can set \emph{``views''} of the matrix without actually made
+ani copies of the underlying values. For instance the operation
+\verb+x.ir(1,k)+ (for \emph{``index restrcition''}) sets a view of
+\verb+x+ so that index 1 is restricted to take the value $k$ reducing
+in one the number of dimensions of the matrix. As \verb+x+ has to
+indices, the operation \verb+x.ir(1,k)+ gives a matrix of dimension
+one consisting in the $k$-th row of $x$. A call without arguments like
+in \verb+x.ir()+ cancels the restriction. Also, the function \verb+rs()+
+(for \emph{``reset''}) cancels the actual view. 
+
+\SSSection{Set operations} 
+The operation \verb+a.set(x.ir(1,2))+ copies the contents of the
+argument \verb+x.ir(1,2)+ in \verb+a+. Also we can use \verb+x.set(y)+
+with \verb+y+ a Newmat matrix (\verb+Matrix y+) or an array of doubles
+(\verb+double *y+). 
+
+\SSSection{Dimension matching} The \verb+x.set(y)+ operation requires
+that \verb+x+ and \verb+y+ have the same ``viewed'' dimensions.  As the
+\verb+.ir(1,2)+ operation restricts index to the value of 2,
+\verb+x.ir(1,2)+ is seen as a row vector of size 2 and then can be
+copied to $a$. If the ``viewed'' dimensions don't fit then an error is
+issued.
+
+\SSSection{Automatic dimensioning} 
+In the example, \verb+a+ has been dimensioned at line
+2, but most operations perform the dimensioning if the matrix has not
+been already dimensioned. For instance, if at line 2 we would declared
+\verb+FastMat2 a+ only, without specifying dimensions, then at line
+14, the matrix is created and dimensioned taking the dimensions from
+the argument. The same applies to \verb+set(Matrix &)+ but not to
+\verb+set(double *)+ since in this last case the argument
+(\verb+double *+) don't posses information about his dimensions. Other
+operations that define dimensions are products and contraction
+operations. 
+
+\SSSection{Concatenation of operations} Many operations return a
+reference to the matrix (return value \verb+FastMat2 &+) so that
+operations may be concatenated as in \verb+A.ir(1,k).ir(2,j)+.
+
+\SSection{Caching the adresses used in the operations} 
+
+If caching is not used the performance of the library is poor,
+typically one to two orders of magnitude slower than the cached
+version, and the cached version is very fast, in the sense that almost
+all the CPU time us spent in performing multiplications and additions,
+and negligible CPU time is spent in auxiliary operations. 
+
+The idea with caches is that they are objects
+(\verb+class FastMatCache+) that store the adresses needed for the
+current operation. In the first pass through the body of the loop a
+cache object is created for each of the operations, and stored in a
+list of class \verb+FastMatCacheList+. This list is basically an STL
+vector of pointers to cache objects. When the body of the loop is
+executed the second time and the following, the adresses are not
+needed to be recomputed but they are read from the cache instead. The
+use of the cache is rather automatic and requires little intervention
+by the user but in some cases the position in the cache-list can get
+out of sync with respect to the execution of the operations and severe
+errors may occur.
+
+The typical use can be seen in the example shown in section
+\S\ref{sec:fastmat2_example}. First we have to create a
+\verb+FastMatCacheList+ object as shown in line 3 and activate it with
+as in line 4. The outer loop here is the loop over elements. For the
+second and following executions of the body of the loop, you must
+``rewind'' the cache-list, this is done in line 8 with the
+\verb+FastMat2::reset_cache()+ operation (see figure~\ref{fg:cache}).
+
+The \verb+deactivate_cache()+ call at line 43 causes that subsequent
+operations after this line will not be cached. This call is required
+if subsequent calls to FastMat2 cached operations will be
+executed. Otherwise there will be an error since those posterior calls
+will not have a corresponding cache in the cache-list. 
+
+The \verb+void_cache()+ call deletes the cache claiming the space used
+by it. It's not required but it is a good idea in order to save memory
+space. It may be required if the loop will be called with other
+dimensions. For instance a FEM loop may be called first for triangles
+and then for quadrangles, and in this two calls the dimensions of the
+involved matrices are different. 
+
+The general layout of a code section which uses caching is like this
+%
+\begin{verbatim}
+...           // Initialization. Not cached operations. 
+
+FastMatCacheList cache_list;           // Cache-list object
+FastMat2::activate_cache(&cache_list); // activates the cache
+
+for (j=0; j<N; j++) {    // Outer loop. N very large number
+
+  FastMat2::reset_cache();            // Rewinds the cache list
+          
+  op_1;
+  op_2;
+  op_3;                               // Cached operations 
+  ...                                       
+  op_N;
+  
+   
+}                        // End of outer loop 
+
+FastMat2::deactivate_cache();         // deactivates cache
+FastMat2::void_cache();               // free memory
+\end{verbatim}
+
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/cache.eps}}
+\caption{Cache of operations for linear segment of code}
+\label{fg:cache}
+\end{figure*}
+ 
+\SSSection{Branching} 
+
+Caching \{ is straightforward if the sequence of operations are executed
+linearly, with the same local variables, without branching or looping.
+Special operations have to be executed if there are branching
+conditions (\verb+if+ sentences) that alter the order of execution of
+the operations in the loop. For instance an ``if'' sequence like this
+%
+\begin{alltt}
+\allttbraces%
+....
+op_prev_1;               // operations previous to the branch
+op_prev_2;
+...
+op_prev_k;
+if (\Arg{condition 0}) \{
+  op_0_1;
+  op_0_2;                // conditional block for branch 0
+  ...
+  op_0_N;
+\} else if (\Arg{condition 1}) \{
+  op_1_1;
+  op_1_2;                // conditional block for branch 1
+  ...
+  op_1_N;
+\} else \{
+  op_1_1;
+  op_1_2;               // conditional block for the `else' branch
+  ...
+  op_1_N;
+\}
+....
+op_pos_1;               // operations posterior to the branch
+op_pos_2;
+...
+op_pos_k;
+\end{alltt}
+%
+If branch '0' is followed in the first execution of the block, then
+the cache will look like that shown in figure~\ref{fg:branchnotok}.
+%
+\begin{figure*}[ht]
+\centerline{\includegraphics[height=0.7\hsize]{./OBJ/branchnotok.eps}}
+\caption{Cache list produced when branch 0 is chosen.}
+\label{fg:branchnotok}
+\end{figure*}
+%
+When in a subsequent execution of the loops another branch is chosen,
+say branch 1, then when reading trying to execute operation
+\verb+op_1_1+ the library will find in the cache list a cache
+corresponding to operation \verb+op_0_1+. 
+
+This is solved by creating \emph{``branch points''} in the cache list
+and choosing the appropriate branch as shown in the following
+code (see figure~lb{fg:branch}):
+%
+\begin{alltt}
+\allttbraces%
+....
+op_prev_1;               // operations previous to the branch
+op_prev_2;
+...
+op_prev_k;
+FastMat2::branch();
+if (\Arg{condition 0}) \{
+  FastMat2::choose(0);
+  op_0_1;
+  op_0_2;                // conditional block for branch 0
+  ...
+  op_0_N;
+\} else if (\Arg{condition 1}) \{
+  FastMat2::choose(1);
+  op_1_1;
+  op_1_2;                // conditional block for branch 1
+  ...
+  op_1_N;
+\} else \{
+  FastMat2::choose(\Arg{N});
+  op_e_1;
+  op_e_2;               // conditional block for the `else' branch
+  ...
+  op_e_N;
+\}
+FastMat2::leave();
+....
+op_prev_1;               // operations posterior to the branch
+op_prev_2;
+...
+op_prev_k;
+\end{alltt}
+%
+
+The \verb+branch()+ call tells the library that several branchs will
+start from there and a branch point is created. Then each conditional
+block code must start with
+\begin{alltt}choose(\Arg{j})\end{alltt} where \Arg{j} is a number that
+must be unique among all other branches. Finally when leaving all the
+branches we must call \verb+leave()+ in order to tell the library that
+the mainstream of the cache list must be retaken. 
+Branches can be nested at any level. 
+
+The call to branching is not needed if the ``execution path'' is the
+same for all executions of the loop.  This usually happens when the
+condition refer to some global option that is uniform over all
+elements.  For instance if branch '0' corresponds to ``include
+turbulence model A'' and branch '0' to model B, then the same branch
+is executed for all the elements and there is no need to call the
+static functions.
+
+\SSSection{Loops executed a non constant number of times}\label{sec:loop}  
+
+Another special case is when there are loops inside the body of the
+outer loop.  Note that no special branching is needed in general if
+the loop is executed a fixed number of times, since the sequence of
+operations is not altered from one execution to another.  
+For instance consider the following piece of code
+%
+\begin{verbatim}
+//   Case A. Inner code executed a fixed number of times
+...
+for (int k=0; k<N;k++) {              // N very large - Outer loop 
+  block_before;
+  for (int ll=0; ll<3; ll++) {
+    inner_block;                      // Operations that act on the
+                                      // same matrices.
+  }
+  block_after;
+}
+\end{verbatim}
+%
+Then the cache list generated in the first execution of the loop will
+be
+%
+\begin{verbatim}
+block_before
+inner_block
+inner_block
+inner_block
+block_after
+\end{verbatim}
+%
+and this is OK since the number of times \verb+inner_block+ is
+executed is always the same.  If the operations that are performed
+inside the loop are the the same for all executions of the loop but
+are executed an irregular number of times, then we can use a sequence
+as follows
+%
+\begin{verbatim}
+//   Case B. Inner code executed a variable number of times
+FastMatCachePosition cp1;
+...
+for (int k=0; k<N;k++) {              // N very large - Outer loop 
+  block_before
+  FastMat2::get_cache_position(cp1);
+  int n=irand(1,5);
+  for (int ll=0; ll<n; ll++) {
+    FastMat2::jump_to(cp1);
+    inner_block;                      // Operations that act on the
+                                      // same matrices.
+  }
+  FastMat2::resync_was_cached();
+  block_after;
+\end{verbatim}
+%
+Here the number of times the inner block is executed may vary randomly
+from 1 to 5.  (\verb+irand(m,n)+ returns an integer number randomly
+distributed between \verb+m+ and \verb+n+.) The
+\verb+FastMatCachePosition+ class objects store the position of the
+actual computation in the cache list. So that the call to
+\verb+jump_to()+ at the start of the loop restarts the position in the
+cache to the desired one. After leaving the loop we call to
+\verb+resync_was_cached()+ in order to resync the cache list. 
+
+This is OK if the inner loop is executed at least once the in the
+first execution of the outer loop. It it happens that in the first
+execution of the loop the inner loop is not entered, then the cache
+list will contain \verb+block_before,block+after+ and when the inner
+block will be entered in subsequent executions of the loop and error
+wil arise since there willl be missimng caches. 
+
+To fix this we have to combine this with branching as here
+%
+\begin{verbatim}
+FastMatCachePosition cp1;
+for (int k=0; k<N;k++) {    // N very large - Outer loop 
+  ....                      // Previous block
+  FastMat2::branch();       // Allows conditional execution 
+  FastMat2::choose(0);
+  
+  FastMat2::get_cache_position(cp1);  
+  n=irand(0,5);
+  if (k==0) n=0; // This is the critical case. 
+                 // n=0 the first execution
+    	         // of the loop. 
+  for (int ll=0; ll<n; ll++) {
+    FastMat2::jump_to(cp2);
+    ...                     // inner_block
+  }
+  FastMat2::resync_was_cached();
+  FastMat2::leave();
+  ...                       // posterior block
+}
+\end{verbatim}
+%
+Off course, if the number of times the inner loop is executed is very
+large, and the most time consuming part is the execution of this loop,
+then it may be convenient to choose this loop as the ``outer'' one. 
+
+\SSSection{Efficiency} 
+
+%Efficiency, memory required by the caches...
+%Amortization time
+
+As we mentioned before, When caching is enabled there is a gain in
+speed of ten to one hundreth, and the library is very performant. Off
+course, the first execution of loop is not cached and represents and
+overhead that has to be amortized by executing the loop in cached mode
+many times. The average speed increases when the number of executions
+of the loop is increased. The cut point, i.e. the number of executions
+of the loop for which the excution speed falls to one half the speed
+obtained for very large number o execution is currently between 10 and
+30, so that for loops larger than 200 the overhead time spent in
+building the caches is negligible. 
+
+Another issue is the memory required by the caches. First there is
+some space required by the caches themselves and then, there is a copy
+of the addresses of the elements involved. For instance in a
+\verb+a.set(b)+ operation with \verb+a+ and \verb+b+ of size $n\times
+m$, say, we have to store $2mn$ addresses. Usually this overhead in
+memory requirement is negligible, since the amount of variables and
+operations needed in the element routines are very small as compared
+with the size of the problem itself. However, some care must be taken
+when caching large inner loops. For instance in code A,
+section~\S\ref{sec:loop}, if the inner loop is executed a constant,
+but very large, number $M$ of times, then the amount of the cache
+required is proportional to $M$. Then, even if, as discussed before,
+no operations like those used in code B are required, it may be
+adviceable to spend some time in insert these calls in order to reduce
+memory cache and overhead time. Again, in the limit of $M$ very large,
+it will be more convenient to choose this loop as the ``outer'' one.
+
+\SSection{Synopsis of operations} 
+%A synopsis of the current implemented operations can be found in the
+%online reference manual.
+
+{\raggedright 
+\SSSection{One-to-one operations} These are operations that take one
+FastMat2 argument as in \verb+FastMat2& add(const FastMat2 & A)+.\hfil 
+The operations are from one element of \verb+A+ to the corresponding
+element in \verb+*this+. 
+
+The one-to-one operations implemented so far are
+%
+\begin{itemize}
+\item \verb+FastMat2& set(const FastMat2 & A)+
+              Copy matrix 
+
+\item \verb+FastMat2& add(const FastMat2 & A)+
+              Add matrix 
+
+\item \verb+FastMat2& rest(const FastMat2 & A)+
+              Substract a matrix 
+
+\item \verb+FastMat2& mult(const FastMat2 & A)+ 
+              Multiply (element by element) (like Matlab \verb+.*+). 
+
+\item \verb+FastMat2& div(const FastMat2 & A)+ 
+             Divide matrix (element by element, like Matlab \verb+./+). 
+
+\item \verb+FastMat2& axpy(const FastMat2 & A, const double alpha)+ 
+             Axpy operation (element by element): \verb+(*this) += alpha * A+ 
+\end{itemize}
+
+\SSSection{In-place operations}
+
+These operations perform an action on all the elements of a matrix. 
+
+\begin{itemize}
+\item \verb+FastMat2& set(const double val=0.)+
+              Sets all the element of a matrix to a constant value 
+\item \verb+FastMat2& scale(const double val)+ 
+              Scale by a constant value 
+\item\verb+FastMat2& add(const double val)+
+              Adds constant val 
+\item\verb+FastMat2& fun(scalar_fun_t *function)+
+              Apply a function to all elements 
+\item\verb+FastMat2& fun(scalar_fun_with_args_t *function, void *user_args)+
+              Apply a function with optional arguments to all elements 
+\end{itemize}
+
+\SSSection{Generic ``sum'' operations (sum over indices)}
+
+These operations perform some operation an all the indices of a given
+dimension resulting in a matrix which has less number of indices. It's
+a generalization of the \verb+sum/max/min+ operations in Matlab that
+returns the specified operation per columns, resulting in a row vector
+result (one element per column). Here you specify a number of integer
+arguments, in such a way that 
+%
+\begin{itemize}
+\item if the $j$-th integer argument is
+positive it represents the position of the index in the resulting
+matrix, otherwise 
+\item if the $j$-th argument is -1 then we perform the specified
+operation (sum/max/min etc...) over all this index.
+\end{itemize}
+%
+For instance is we declare \verb+FastMat2 A(4,2,2,3,3)+ then
+\verb+B.sum(A,-1,2,1,-1)+ means
+%
+\begin{equation} 
+   B_{ij} = \sum_{k=1..2,l=1..3} A_{kjil},\ \ \text{for}\ \
+   i=1..3,\ j=1..2
+\end{equation}
+%
+These operation can be extended to any binary associative
+operation. So far we have implemented the following
+%
+\begin{itemize}
+\item \verb+FastMat2& sum(const FastMat2 & A, const int m=0, ...)+
+              Sum over all selected indices 
+\item \verb+FastMat2& sum_square(const FastMat2 & A, const int m=0, ...) +
+              Sum of squares over all selected indices 
+\item \verb+FastMat2& sum_abs(const FastMat2 & A, const int m=0, ...) +
+              Sum of absolute values all selected indices 
+\item \verb+FastMat2& min(const FastMat2 & A, const int m=0, ...) +
+              Minimum over all selected indices 
+\item \verb+FastMat2& max(const FastMat2 & A, const int m=0, ...) +
+              Maximum over all selected indices 
+\item \verb+FastMat2& min_abs(const FastMat2 & A, const int m=0, ...) +
+              Min of absolute value over all selected indices 
+\item \verb+FastMat2& max_abs(const FastMat2 & A, const int m=0, ...) +
+              Min of absolute value over all selected indices 
+\end{itemize}
+
+\SSSection{Sum operations over all indices}
+
+When the sum is over all indices the resulting matriz has zero
+dimensions, so that it is a scalar. You can get this scalar by
+creating an auxiliar matrix (with zero dimensions) casting with
+operator \verb+double()+ as in
+%
+\begin{verbatim}
+   FastMat2 A(2,3,3),Z;
+
+   ...  // assign elements to A
+
+   double a = double(Z.sum(A,-1,-1));
+\end{verbatim}
+%
+or using the \verb+get()+ function 
+%
+\begin{verbatim}
+   double a = Z.sum(A,-1,-1).get();
+\end{verbatim}
+%
+without arguments, which returns a double. In addition there is for
+each of the previous mentioned ``generic sum'' function a companion
+function that sums over all indices. The name of this function is
+obtained by appending \verb+_all+ to the generic function
+%
+\begin{verbatim}
+   double a = A.sum_square_all();
+\end{verbatim}
+%
+The list of these functions is
+%
+\begin{itemize}
+\item \verb+double sum_all() const +
+              Sum over all indices 
+\item \verb+double sum_square_all() const +
+              Sum of squares over all indices 
+\item \verb+double sum_abs_all() const +
+              Sum of absolute values over all indices 
+\item \verb+double min_all() const +
+              Minimum over all indices 
+\item \verb+double max_all() const +
+              Maximum over all indices 
+\item \verb+double min_abs_all() const +
+              Minimum absolute value over all indices 
+\item \verb+double max_abs_all() const +
+              Maximum absolute value over all indices 
+\end{itemize}
+
+\SSSection{Export/Import operations}
+
+These routines allow to convert matrices from or to arrays of doubles
+and Newmat matrices
+%
+\begin{itemize}
+\item \verb+FastMat2& set(const Matrix & A) +
+              Copies to argument from Newmat matrix 
+\item \verb+FastMat2& set(const double *a) +
+              Copy from array of doubles 
+\item \verb+const FastMat2& export(double *a) const +
+              exports to a double vector 
+\item \verb+FastMat2& export(double *a) +
+              exports to a double vector 
+\item \verb+const FastMat2& export(Matrix & A) const +
+              Exports to a Newmat matrix 
+\item \verb+const FastMat2& export(Matrix & A) const +
+              Exports to a Newmat matrix 
+\end{itemize}
+
+\SSSection{Static cache operations}
+
+These routines control the use of the cache list.
+
+\begin{itemize}
+\item \verb+static void activate_cache(FastMatCacheList *cache_list_=NULL) +
+              Activates use of the cache 
+\item \verb+static(void) +
+              Deactivates use of the cache 
+\item \verb+static void reset_cache(void) +
+              Resets the cache 
+\item \verb+static void void_cache(void) +
+              Voids the cache 
+\item \verb+static void branch(void) +
+              Creates a branch point 
+\item \verb+static void choose(const int j) +
+              Follows a branch 
+\item \verb+static void leave(void) +
+              Leaves the current branch 
+\item \verb+static double operation_count(void) +
+              Computes the total number of operations in the cache list 
+\item \verb+static void print_count_statistics() +
+              Print statistics about the number of operations of
+                each type in the current cache list 
+\end{itemize}
+} % end of \raggedright
+
+% \SSection{Caching} 
+
+% This is rather straight-forward when the matrix operations are
+% performed in all the execution of the loop in the same maner. When
+% there is some
+
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *

@@ -1,0 +1,69 @@
+    # -*- mode: shell-script -*-
+#
+<:require '../eperlini.pl':>// # Initializes ePerl 
+
+<: # For the `triangle' test
+$nel=($triangle ? 3 : 4);
+$geometry=($triangle ? 'triangle' : 'cartesian2d');
+$npg=4 unless $npg;
+:>//
+
+global_options
+save_file sector.sal
+#debug_element_partitioning 2
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  2
+__INCLUDE__ sector.nod
+__END_NODES__
+
+
+elemset lapla <:=$nel:>
+
+#if $iprops
+props mean_node
+iprops max_node
+#endif
+<: option('chunk_size',2000) :>
+#
+#Datos del elemento
+#
+name malla
+geometry <:=$geometry:>
+ndim 2
+npg <:=$npg:>
+__END_HASH__
+#if $iprops
+__INCLUDE__ sec_iprop.con
+#elsif $triangle
+__INCLUDE__ sector.con.tri
+#else 
+__INCLUDE__ sector.con
+#endif
+__END_ELEMSET__
+
+end_elemsets
+
+#================================================================
+fixa
+
+#if $constraint_bug
+__INCLUDE__ sector.fix2
+#else
+__INCLUDE__ sector.fix
+#endif
+
+__END_FIXA__
+
+
+#================================================================
+constraint
+
+#if $constraint_bug
+__INCLUDE__ sector.constr
+#endif
+__INCLUDE__ sector.peri
+
+__END_CONSTRAINT__
+

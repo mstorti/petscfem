@@ -1,0 +1,30 @@
+#!/bin/bash
+
+source patch_utils_conf.sh
+
+co -ko source.tara
+mv -f source.tara source.tara.$local
+
+if [ -e source.tara.$remote.gz ]
+    then echo "gunzipping source.tara.$remote.gz"
+    gunzip source.tara.$remote.gz
+fi
+
+if [ ! -e source.tara.$remote ] 
+    then echo "Not found source.tara.$remote"
+fi
+
+echo "Making diff..."
+diff source.tara.$remote source.tara.$local >petscfem.patch
+if [ -e petscfem.patch.gz ] ; then rm petscfem.patch.gz ; fi
+echo "gzipping petscfem.patch"
+gzip petscfem.patch
+
+gzip_file() {
+    file="$1"
+    echo "gzipping $file ..."
+    gzip $file
+}
+
+gzip_file source.tara.$local
+gzip_file source.tara.$remote

@@ -1,0 +1,56 @@
+global_options
+
+nsave 10
+nstep 500
+
+Dt .005
+#initial_state outvector.sal
+initial_state cholo.ini
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  3
+__INCLUDE__ cholo.nod
+
+__END_NODES__
+
+#================================================================
+elemset advective 4 fat 4
+props  
+
+#Datos del elemento
+geometry cartesian2d
+ndim 2
+npg 4
+
+gravity 1
+addvisc 0.
+#upwind_factor 3
+__END_HASH__
+__INCLUDE__ cholo.con
+__END_ELEMSET__
+
+
+#================================================================
+elemset absorb 1
+props norx nory
+
+gravity 1
+
+__END_HASH__
+
+__INCLUDE__ cholo.abso
+
+__END_ELEMSET__
+
+
+end_elemsets
+
+#================================================================
+fixa
+
+# fija vel_y =0  en y=0, L
+
+__INCLUDE__ cholo.fixa
+
+__END_FIXA__

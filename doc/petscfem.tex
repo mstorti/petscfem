@@ -1,0 +1,190 @@
+\documentclass[dvips,a4paper,11pt]{article} 
+%
+%Section{
+%\usepackage{showkeys}
+\usepackage{makeidx}
+\usepackage[dvips]{graphicx}
+\usepackage[dvips]{changebar}
+\usepackage{html,htmllist,heqn}
+\usepackage{algorithm,algorithmic}
+\usepackage{amsmath,alltt,mstorti,moreverb,url}
+%
+\scrollmode
+\makeindex
+\sloppy
+\bibliographystyle{plain}
+%
+\setlength{\textheight}{22truecm}
+\setlength{\textwidth}{15truecm}
+\advance\hoffset by -1truecm
+\advance\voffset by -2truecm
+%<*>---<*>---<*>- MATH DEFINITIONS --<*>---<*>---<*>---<*>---<*> 
+\newcommand{\Nnod}{{N_{\mathrm{nod}}}}
+\newcommand{\dof}{{\mathrm{d.o.f.}}}
+\newcommand{\Ndof}{{N_\dof}}
+\newcommand{\ndof}{{n_\dof}}
+\newcommand{\ndim}{{n_d}}
+\newcommand{\NF}{{\mathrm{NF}}}
+\newcommand{\barU}{{\bar!U}}
+\newcommand{\bU}{{\bar U}}
+\newcommand{\barQ}{{\bar!Q}}
+\newcommand{\Nelem}{{n_\mathrm{elem}}}
+\newcommand{\nprops}{{n_\mathrm{props}}}
+\newcommand{\nfoils}{{n_\mathrm{foils}}}
+\newcommand{\refer}{{\mathrm{ref}}}
+\newcommand{\atm}{{\mathrm{atm}}}
+\newcommand{\bPi}{\boldsymbol{\Pi}}
+\newcommand{\btau}{\boldsymbol{\tau}}
+\newcommand{\pfem}{PETSc-FEM}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\Psupg}{{P_\mathrm{SUPG}}}
+\newcommand{\deltasc}{{\delta_\mathrm{sc}}}
+\newcommand{\Arg}[1]{$\langle${\rm\slshape #1}$\rangle$}
+% For LES
+\newcommand{\Se}{{\Sigma_e}}
+\newcommand{\dS}{{\di\Sigma}}
+\newcommand{\ustar}{{u^*}}
+%
+\newcommand{\AFS}{{Algebraic Fractional Step}}
+%
+% \newcommand{\ttlb}{\char'173} 
+% \newcommand{\ttrb}{\char'175} 
+% \newcommand{\allttbraces}{\let\{=\ttlb \let\}=\ttrb}
+%# Current line ===========  
+%
+% Translates section commands to \SSSSection commands
+%
+\newcommand{\Section}[1]{\section{#1}}
+\newcommand{\SSection}[1]{\subsection{#1}}
+\newcommand{\SSSection}[1]{\subsubsection{#1}}
+\newcommand{\SSSSection}[1]{\paragraph{#1}}
+%\def\defang#1{$\langle${\slshape #1}$\rangle$}
+\latex{\newcommand{\funhead}[2]{\boxed{{\tt #1}\textbf{: #2}}}}
+\html{\newcommand{\funhead}[2]{{\Large{\tt #1}\textbf{: #2}}}}
+%
+\latex{\newcommand{\filehead}[1]{\boxed{\hbox{\sl File: {\tt #1}}}}}
+\html{\newcommand{\filehead}[1]{\Large{File: \emph{#1}}}}
+%
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+%
+%
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{document}
+\sloppy
+%
+\title{\pfem: A General Purpose, Parallel, Multi-Physics FEM Program.\\
+User's Guide}
+\author{
+Mario Storti\\ 
+Centro Internacional de M\'etodos Computacionales en Ingenier\'\i{}a
+(CIMEC)\\
+Santa Fe, Argentina\\
+http://venus.arcride.edu.ar/CIMEC\\
+}
+\date{\today}
+\maketitle 
+{\tiny\verb+$Id: petscfem.tex,v 1.1 2000/12/28 12:54:42 mstorti Exp $+}
+%
+\begin{abstract}
+%fixme:= incluir referencia a PETSc
+This is the documentation for \pfem, a general purpose, parallel,
+multi-physics FEM program for CFD applications based on
+PETSc. \pfem{} comprises both a library that allows the user to
+develop FEM (or FEM-like, i.e. non-structured mesh oriented) programs, and
+a suite of application programs. It is written in the C++ language
+with an OOP (Object Oriented Programming) philosophy, but always
+keeping in mind the scope of efficiency. 
+\end{abstract}
+%
+\newpage
+\tableofcontents
+%
+\input prev1
+\input layout
+\input thash
+\input idmap
+\input compprof
+\input advec
+\input ns
+\input adv
+\input tests
+\input fastmat2
+
+\Section{Symbols and Acronyms}
+
+\SSection{Acronyms} 
+\begin{description}
+\item[CFD:] Computational Fluid Dynamics
+\item[eperl:] embedded Perl
+\item[FDM:] Finite Difference Method
+\item[FEM:] Finite Element Method
+\item[MPI:] Message Passing Interface
+\item[OOP:] Object Oriented Programming
+\item[Perl:] Practical Extraction and Report Language
+\item[PETSC:] Portable Extensible Toolkit for Scientific computations.
+\item[SUPG:] Streamline Upwind/Petrov Galerkin
+\item[ANN:] Approximate Nearest Neighbor problem. Also refers to the
+library developped by David Mount and Sunil Arya
+(\url{http://www.cs.umd.edu/~mount/ANN}). 
+
+\end{description}
+
+\Section{Symbols} 
+
+\begin{itemize}
+   \item $u,v=$ Streamwise and normal components of velocity.
+\end{itemize}
+
+\newpage
+\bibliography{petscfem}
+
+\begin{flushleft}
+\printindex
+\end{flushleft}
+
+\end{document}
+
+%Section{
+
+%**start of math-def
+\documentclass{article}
+\usepackage{epsf,mstorti,amsmath}
+%**end of math-def
+
+%# Current line ===========  
+%:eps:uosc:
+u(t)\propto \sin(\omega t)
+%:eps:tau2:
+2\tau
+%:eps:ts:
+t_s
+%:eps:t0:
+t_0
+%:eps:t1:
+t_1
+%:eps:phi:
+\phi
+%:eps:bphi:
+\bar\phi
+%:eps:phi0:
+\phi_0
+%:eps:phi1:
+\phi_1
+%:eps::
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+TODO:
+====
+
+* List of software needed to compile PETSc-FEM
+* classify sections as user / application developper / programmer.
+
+"DONE
+====
+%# Current line ===========  
+# Local Variables: $
+# mode: outline-minor $
+# eval: (setq outline-regexp "\\(\\\\\\|%\\)S*ection{") $
+# eval: (setq current-pos-regexp "^%# Current line ===========") $
+# eval: (font-lock-fontify-buffer) $
+# End: $

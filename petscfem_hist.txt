@@ -1,0 +1,443 @@
+
+RCS file: ./../source.tara,v
+Working file: ./../source.tara
+head: 2.27
+branch:
+locks: strict
+access list:
+symbolic names:
+keyword substitution: kv
+total revisions: 99;	selected revisions: 99
+description:
+This  is PETSc-FEM,  a general  purpose,  parallel, multi-physics  FEM
+program for CFD applications based  on PETSc. PETSc-FEM comprises both
+a library    that allows the    user to  develop FEM    (or  FEM-like,
+i.e.  structured mesh oriented)  programs,  and a suite of application
+programs.  It is  written  in the C++  language  with  an OOP  (Object
+Oriented Programming) philosophy, but always keeping in mind the scope
+of efficiency.
+----------------------------
+revision 2.27
+date: 2000/12/26 00:58:43;  author: mstorti;  state: Exp;  lines: +70097 -70535
+Start writing a Elemenset::ElementList:;iterator class.
+----------------------------
+revision 2.26
+date: 2000/12/25 22:48:34;  author: mstorti;  state: Exp;  lines: +81 -64
+Improving the Makefile `save' target.
+----------------------------
+revision 2.25
+date: 2000/12/25 21:45:10;  author: mstorti;  state: Exp;  lines: +2487 -502
+Updated doc. Changed `hash' and `comp' funcs
+int the texthash package.
+----------------------------
+revision 2.24
+date: 2000/12/24 23:20:41;  author: mstorti;  state: Exp;  lines: +2669 -378
+Writing documentation o installation.
+----------------------------
+revision 2.23
+date: 2000/12/18 01:25:17;  author: mstorti;  state: Exp;  lines: +757 -3672
+Writing `advdif' element with Burgers flux function.
+----------------------------
+revision 2.22
+date: 2000/12/15 01:00:22;  author: mstorti;  state: Exp;  lines: +3978 -592
+Writing the advdif program
+----------------------------
+revision 2.21
+date: 2000/12/10 21:49:12;  author: mstorti;  state: Exp;  lines: +1901 -346
+Writing the advdif program
+----------------------------
+revision 2.20
+date: 2000/12/04 01:12:44;  author: mstorti;  state: Exp;  lines: +12966 -7243
+Working on shallow-water + turbulence.
+Writing an advective-diffusive element.
+----------------------------
+revision 2.19
+date: 2000/11/13 01:15:48;  author: mstorti;  state: Exp;  lines: +621 -99
+Wrote a `measure_performance' feature and included
+in `na' and `adv'
+----------------------------
+revision 2.18
+date: 2000/11/12 21:25:01;  author: mstorti;  state: Exp;  lines: +3200 -3134
+Found a bug in tempfun.cpp in spline_function and piecewise_function
+----------------------------
+revision 2.17
+date: 2000/11/10 02:54:33;  author: mstorti;  state: Exp;  lines: +407 -115
+Working on linear version of FastMat2::prod()
+----------------------------
+revision 2.16
+date: 2000/11/06 10:56:28;  author: mstorti;  state: Exp;  lines: +2911 -2047
+Standard backup
+----------------------------
+revision 2.15
+date: 2000/10/22 22:57:23;  author: mstorti;  state: Exp;  lines: +666 -450
+Written doc.
+----------------------------
+revision 2.14
+date: 2000/10/22 13:49:18;  author: mstorti;  state: Exp;  lines: +66 -12047
+Standard backup.
+----------------------------
+revision 2.13
+date: 2000/10/20 01:22:58;  author: mstorti;  state: Exp;  lines: +1302 -1418
+Working on AFS
+----------------------------
+revision 2.12
+date: 2000/10/16 13:39:10;  author: mstorti;  state: Exp;  lines: +5478 -2195
+Written odoc.pl for documentating options.
+Implemented AFS.
+----------------------------
+revision 2.11
+date: 2000/10/03 15:53:40;  author: mstorti;  state: Exp;  lines: +1435 -143
+Working on AFS
+----------------------------
+revision 2.10
+date: 2000/10/01 23:51:03;  author: mstorti;  state: Exp;  lines: +239 -98
+Working on AFS
+----------------------------
+revision 2.9
+date: 2000/09/29 01:33:38;  author: mstorti;  state: Exp;  lines: +162 -2022
+Making some tests with AFS
+----------------------------
+revision 2.8
+date: 2000/09/28 12:06:07;  author: mstorti;  state: Exp;  lines: +76975 -62290
+Making some experiences regarding "Algebraic Fractional Step"
+----------------------------
+revision 2.7
+date: 2000/09/26 02:49:36;  author: mstorti;  state: Exp;  lines: +23 -336
+Standard backup.
+----------------------------
+revision 2.6
+date: 2000/09/26 00:12:06;  author: mstorti;  state: Exp;  lines: +782 -4295
+Fixed a bug. Not initializing nelprops and neliprops in
+readmesh.
+----------------------------
+revision 2.5
+date: 2000/09/25 02:58:40;  author: mstorti;  state: Exp;  lines: +139 -32
+Added an `include' feature to the TextHashTable class.
+----------------------------
+revision 2.4
+date: 2000/09/24 22:00:23;  author: mstorti;  state: Exp;  lines: +39290 -36475
+Debugging LES wall function (as mixed b.c.).
+----------------------------
+revision 2.3
+date: 2000/09/19 03:26:23;  author: mstorti;  state: Exp;  lines: +202 -32
+Writing nneighbor for LES
+----------------------------
+revision 2.2
+date: 2000/09/18 15:56:58;  author: mstorti;  state: Exp;  lines: +10125 -17846
+Writing nearest neighbor for LES
+----------------------------
+revision 2.1
+date: 2000/09/16 18:07:47;  author: mstorti;  state: Exp;  lines: +672 -130
+Added some features to the FileStack class
+----------------------------
+revision 2.0
+date: 2000/09/16 01:49:59;  author: mstorti;  state: Exp;  lines: +0 -0
+*** empty log message ***
+----------------------------
+revision 1.71
+date: 2000/09/16 01:47:36;  author: mstorti;  state: Exp;  lines: +5076 -442
+Start working with LES.
+----------------------------
+revision 1.70
+date: 2000/09/11 00:23:15;  author: mstorti;  state: Exp;  lines: +7810 -12415
+Standard backup.
+----------------------------
+revision 1.69
+date: 2000/09/10 20:51:28;  author: mstorti;  state: Exp;  lines: +53630 -47782
+Added a spline_periodic_function to tempfun.cpp
+Stable version
+----------------------------
+revision 1.68
+date: 2000/09/07 02:00:24;  author: mstorti;  state: Exp;  lines: +716 -216
+Written wek_form=1 en advecfm2.
+Fixed bug in bcconv_adv and absorb with respect to H.
+Added features to myexpect.pl
+----------------------------
+revision 1.67
+date: 2000/08/28 10:09:00;  author: mstorti;  state: Exp;  lines: +307 -3918
+Writing LES with FM2
+----------------------------
+revision 1.66
+date: 2000/08/26 21:25:03;  author: mstorti;  state: Exp;  lines: +4796 -777
+Writing the nsi_tet with LES and FM2.
+----------------------------
+revision 1.65
+date: 2000/08/09 01:29:56;  author: mstorti;  state: Exp;  lines: +20761 -16583
+Writing tempfun piecewise constant
+----------------------------
+revision 1.64
+date: 2000/07/31 15:45:21;  author: mstorti;  state: Exp;  lines: +239 -56
+Writing doc for FastMat2
+----------------------------
+revision 1.63
+date: 2000/07/31 02:49:41;  author: mstorti;  state: Exp;  lines: +1543 -4147
+Writing doc for FastMat2
+----------------------------
+revision 1.62
+date: 2000/07/29 15:10:55;  author: mstorti;  state: Exp;  lines: +228 -105
+Converted var_args in fastmat2 to var_args with default arguments.
+----------------------------
+revision 1.61
+date: 2000/07/29 13:26:57;  author: mstorti;  state: Exp;  lines: +4728 -903
+Changing fastmat2 to default arguments instead of var args.
+----------------------------
+revision 1.60
+date: 2000/07/28 02:48:11;  author: mstorti;  state: Exp;  lines: +2099 -802
+Written a test for idmap.
+Debugging new chunk processing and found a bug.
+----------------------------
+revision 1.59
+date: 2000/07/24 03:10:36;  author: mstorti;  state: Exp;  lines: +45197 -47917
+Writting tests and some fastmat2 routines.
+----------------------------
+revision 1.58
+date: 2000/07/23 00:19:24;  author: mstorti;  state: Exp;  lines: +5833 -2596
+Fixed some bugs.
+----------------------------
+revision 1.57
+date: 2000/07/22 15:03:19;  author: mstorti;  state: Exp;  lines: +790 -707
+Finished to work with the remap_cols() problem.
+See conclusions in notas.txt or in the idmap.cpp file.
+----------------------------
+revision 1.56
+date: 2000/07/22 03:20:48;  author: mstorti;  state: Exp;  lines: +13616 -4476
+Debugging idmap::remap_cols()
+----------------------------
+revision 1.55
+date: 2000/07/17 00:56:17;  author: mstorti;  state: Exp;  lines: +7 -6
+Standard backup.
+----------------------------
+revision 1.54
+date: 2000/07/16 23:52:58;  author: mstorti;  state: Exp;  lines: +76 -42
+The shock capturing term is working with caches.
+----------------------------
+revision 1.53
+date: 2000/07/16 22:56:12;  author: mstorti;  state: Exp;  lines: +160 -141
+Written the shock-capturing term for advective in
+FastMat2.
+----------------------------
+revision 1.52
+date: 2000/07/16 15:32:34;  author: mstorti;  state: Exp;  lines: +370 -1071
+Implemented flux_fun_shallowfm2, the flux function for shallow water.
+----------------------------
+revision 1.51
+date: 2000/07/15 17:25:45;  author: mstorti;  state: Exp;  lines: +195 -75
+Written a fast version of elemset.cpp with a faster version of
+row_t. Now I will see if I can lower farther cpu times by
+caching the Vec/MatSetValue operations.
+----------------------------
+revision 1.50
+date: 2000/07/14 22:47:43;  author: mstorti;  state: Exp;  lines: +979 -103
+Writing the get_row and get_col functions with
+fast implementations.
+----------------------------
+revision 1.49
+date: 2000/07/13 02:59:40;  author: mstorti;  state: Exp;  lines: +519 -183
+Writing the advective elemset in fastmat2
+----------------------------
+revision 1.48
+date: 2000/07/12 10:48:30;  author: mstorti;  state: Exp;  lines: +884 -57
+writing the advective element in fastMat2
+----------------------------
+revision 1.47
+date: 2000/07/12 09:46:48;  author: mstorti;  state: Exp;  lines: +253 -238
+flux_fun Euler with FM2 is working.
+Now I have to write the advective element and after
+the shock capturing term.
+----------------------------
+revision 1.46
+date: 2000/07/12 09:08:14;  author: mstorti;  state: Exp;  lines: +155 -80
+Fixed bug in flux_fun_euler.
+----------------------------
+revision 1.45
+date: 2000/07/11 02:47:42;  author: mstorti;  state: Exp;  lines: +133 -216
+Debugginf fastmat2 in euler
+----------------------------
+revision 1.44
+date: 2000/07/10 01:15:27;  author: mstorti;  state: Exp;  lines: +163 -489
+written euler in fastmat2
+----------------------------
+revision 1.43
+date: 2000/07/09 14:34:21;  author: mstorti;  state: Exp;  lines: +72 -28
+Stable release of fastmat2
+----------------------------
+revision 1.42
+date: 2000/07/09 03:12:52;  author: mstorti;  state: Exp;  lines: +50 -20
+cache with branches work and don't looses memory.
+Will accelerate the access to IndexFilter in the
+dims array.
+----------------------------
+revision 1.41
+date: 2000/07/08 21:20:49;  author: mstorti;  state: Exp;  lines: +20 -15
+works class Indx with resizing by chunks
+----------------------------
+revision 1.40
+date: 2000/07/08 21:08:59;  author: mstorti;  state: Exp;  lines: +90 -48
+works class Indx with reallocation
+----------------------------
+revision 1.39
+date: 2000/07/08 10:46:51;  author: mstorti;  state: Exp;  lines: +213 -134
+This is a stable version w.r.t. FastMat2.
+Caches with branches are working.
+I will start working on having a non-rigid Indx class.
+Specially for filters.
+----------------------------
+revision 1.38
+date: 2000/07/07 17:43:22;  author: mstorti;  state: Exp;  lines: +153 -188
+Start written branches
+----------------------------
+revision 1.37
+date: 2000/07/07 03:00:55;  author: mstorti;  state: Exp;  lines: +1805 -2117
+Written the diag function.
+----------------------------
+revision 1.36
+date: 2000/07/06 02:34:54;  author: mstorti;  state: Exp;  lines: +57 -936
+written some routines in fastmat2
+----------------------------
+revision 1.35
+date: 2000/07/06 01:56:33;  author: mstorti;  state: Exp;  lines: +107 -106
+written export to double * and Newmat
+----------------------------
+revision 1.34
+date: 2000/07/05 23:53:41;  author: mstorti;  state: Exp;  lines: +594 -357
+Written the caches
+----------------------------
+revision 1.33
+date: 2000/07/03 02:26:44;  author: mstorti;  state: Exp;  lines: +189 -226
+written the prod routine
+----------------------------
+revision 1.32
+date: 2000/07/03 01:48:26;  author: mstorti;  state: Exp;  lines: +106 -31
+written the in-plave functions
+----------------------------
+revision 1.31
+date: 2000/07/03 00:04:35;  author: mstorti;  state: Exp;  lines: +56 -1029
+Written all the gen_sum functions.
+----------------------------
+revision 1.30
+date: 2000/07/02 23:36:00;  author: mstorti;  state: Exp;  lines: +318 -25
+Written the cached generic sum funstions
+----------------------------
+revision 1.29
+date: 2000/07/02 23:07:22;  author: mstorti;  state: Exp;  lines: +299 -383
+Written de basic sum cached function
+----------------------------
+revision 1.28
+date: 2000/07/02 16:23:56;  author: mstorti;  state: Exp;  lines: +361 -48
+Writing the caches. Written set_array, setel like and gen_onte_to_one like.
+----------------------------
+revision 1.27
+date: 2000/07/02 12:18:21;  author: mstorti;  state: Exp;  lines: +917 -73
+writing caches
+----------------------------
+revision 1.26
+date: 2000/07/01 03:14:13;  author: mstorti;  state: Exp;  lines: +82 -9790
+starting writing the cache
+for fastmat2
+----------------------------
+revision 1.25
+date: 2000/07/01 01:02:04;  author: mstorti;  state: Exp;  lines: +10975 -365
+writing fastmat2
+----------------------------
+revision 1.24
+date: 2000/06/29 01:59:13;  author: mstorti;  state: Exp;  lines: +150 -407
+Writing fastmat2 library.
+----------------------------
+revision 1.23
+date: 2000/06/28 02:35:27;  author: mstorti;  state: Exp;  lines: +82 -86
+writing fastmat2 library.
+writing the is() function.
+----------------------------
+revision 1.22
+date: 2000/06/27 23:43:21;  author: mstorti;  state: Exp;  lines: +33 -88
+Wriring the fastmat2 library
+----------------------------
+revision 1.21
+date: 2000/06/27 15:21:20;  author: mstorti;  state: Exp;  lines: +119 -50
+Writine fastmat2 library and converting ffeuler
+----------------------------
+revision 1.20
+date: 2000/06/27 02:53:53;  author: mstorti;  state: Exp;  lines: +321 -298
+Writing fastmat2 version of ffeuler.
+----------------------------
+revision 1.19
+date: 2000/06/26 02:10:29;  author: mstorti;  state: Exp;  lines: +904 -904
+Translating to FastMat2 library.
+----------------------------
+revision 1.18
+date: 2000/06/23 02:20:37;  author: mstorti;  state: Exp;  lines: +2254 -1795
+Writing flux_fun_euler() in FastMat2
+----------------------------
+revision 1.17
+date: 2000/06/23 00:31:52;  author: mstorti;  state: Exp;  lines: +4289 -1274
+Writing the fastmat2 library
+----------------------------
+revision 1.16
+date: 2000/06/14 02:54:29;  author: mstorti;  state: Exp;  lines: +390 -290
+Writing an ArgEntry class.
+----------------------------
+revision 1.15
+date: 2000/06/14 01:59:53;  author: mstorti;  state: Exp;  lines: +731 -3762
+Adding TimeData and Time classes.
+Fixed a bug in setting fixations.
+----------------------------
+revision 1.14
+date: 2000/06/13 02:50:50;  author: mstorti;  state: Exp;  lines: +1543 -1107
+changing `void *time_data' por `TimeData *time_data'.
+----------------------------
+revision 1.13
+date: 2000/06/12 02:49:54;  author: mstorti;  state: Exp;  lines: +616 -884
+Adding the `print_some' function.
+Working on the oscilating plate case.
+----------------------------
+revision 1.12
+date: 2000/06/12 00:35:55;  author: mstorti;  state: Exp;  lines: +27575 -18201
+adding tests, writin documentatiom fixed a bug on decoding text hashes.
+----------------------------
+revision 1.11
+date: 2000/06/05 01:34:45;  author: mstorti;  state: Exp;  lines: +1175 -264
+Working on documentation.
+----------------------------
+revision 1.10
+date: 2000/05/29 01:44:42;  author: mstorti;  state: Exp;  lines: +181 -48
+Writting the swig interface to Perl
+----------------------------
+revision 1.9
+date: 2000/05/27 20:08:42;  author: mstorti;  state: Exp;  lines: +521 -3203
+ Improved the TAGS targets in the makefiles.
+----------------------------
+revision 1.8
+date: 2000/05/27 14:31:05;  author: mstorti;  state: Exp;  lines: +6966 -6961
+Changed `read_mesh.cpp' to `readmesh.cpp' in order to have filenames
+8.3 compatible and flux_fun...cpp o ff....cpp.
+----------------------------
+revision 1.7
+date: 2000/05/27 13:13:52;  author: mstorti;  state: Exp;  lines: +50 -51
+Advective elemset now can be derived as various
+kind of advective systems changing only the flux function.
+----------------------------
+revision 1.6
+date: 2000/05/26 11:35:20;  author: mstorti;  state: Exp;  lines: +628 -445
+Attempting to let advective be of different types.
+----------------------------
+revision 1.5
+date: 2000/05/25 22:44:08;  author: mstorti;  state: Exp;  lines: +68 -35
+local_time_step was implemented.
+----------------------------
+revision 1.4
+date: 2000/05/25 21:23:15;  author: mstorti;  state: Exp;  lines: +8362 -340
+Implementation of auto_time_step for advective systems.
+----------------------------
+revision 1.3
+date: 2000/05/22 01:58:47;  author: mstorti;  state: Exp;  lines: +25179 -20456
+Debugging passing time_data, user_data arguments.
+----------------------------
+revision 1.2
+date: 2000/05/15 03:05:37;  author: mstorti;  state: Exp;  lines: +1386 -770
+Partially implemented boundary conditions (fixations) depending
+on time.
+----------------------------
+revision 1.1
+date: 2000/05/13 08:43:50;  author: mstorti;  state: Exp;
+Initial revision
+=============================================================================

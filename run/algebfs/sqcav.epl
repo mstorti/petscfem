@@ -1,0 +1,101 @@
+# -*- mode: shell-script -*-
+#
+#< : $compute_ini = $ENV{'compute_ini'}; :>//
+#<: $compute_ini=1; :>
+global_options
+
+proc_weights weights.dat
+
+nsave 10
+#if $compute_ini
+nstep 10
+#else
+nstep 10
+#endif
+
+# save each nsaverot time step in a file
+nsaverot 50000
+# number of files to be used for solution storage
+nfile 2
+# number of time steps to be save
+nrec 20
+
+start_time .0
+
+#if $compute_ini
+save_file "sqcav.start"
+#else
+initial_state "sqcav.start"
+save_file sqcav.state
+#endif
+
+#print_dofmap_id 1
+#verify_jacobian_with_numerical_one 1
+
+#    Iterative parameters
+#preco_type "LU"
+nnwt 3
+maxits 20
+Krylov_dim 20
+tol_newton 1.e-12
+
+#if $compute_ini
+algeb_fs 0
+#else
+print_linear_system_and_stop 1
+algeb_fs 1
+#endif
+D_print_conv 0
+maxits_D 20
+H_print_conv 0
+#Krylov_dim_H 1
+maxits_H 3
+A_damping_factor .5
+A_print_conv 0
+maxits_A 10
+print_internal_loop_conv
+atol 0.
+
+Dt 0.01
+G_body       0. 0.
+C_smag 0
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ sqcav.nod.tmp
+__END_NODES__
+
+elemset nsi_tet_les_fm2 4
+props 
+#
+#Datos del elemento
+#
+name malla
+geometry cartesian2d
+ndim 2
+npg 4
+chunk_size 2000
+#
+# Datos fisicos
+#
+<:$Re = 800:>
+viscosity  <:= 1. / $Re :>
+weak_form 0
+
+shock_capturing_factor 0.
+
+__END_HASH__
+__INCLUDE__ sqcav.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+# fijacion en la presion
+1 3 0.
+# fijaciones de velocidad en las paredes
+__INCLUDE__ sqcav.fixau0.tmp
+__INCLUDE__ sqcav.fixau1.tmp
+__INCLUDE__ sqcav.fixav0.tmp
+__END_FIXA__
