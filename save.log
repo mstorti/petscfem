@@ -1690,3 +1690,6 @@ tag: beta-3.05.pl15 on Wed,  2 Oct 2002 06:55:18 -0300 by mstorti in spider
 ----------
 tag: beta-3.05.pl16 on Tue,  8 Oct 2002 17:03:13 -0300 by mstorti in minerva.arcride.edu.ar
      > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
+----------
+tag: beta-3.05.pl17 on Wed,  9 Oct 2002 10:38:53 -0300 by mstorti in minerva.arcride.edu.ar
+     > Aded `bcconv' test from Beto.
