@@ -2951,3 +2951,6 @@ tag: beta-3.20.pl10 on Thu, 11 Sep 2003 18:47:23 -0300 by mstorti in minerva.cer
 ----------
 tag: beta-3.20.pl11 on Fri, 12 Sep 2003 21:26:24 -0300 by mstorti in spider
      > Written doc for wiki syntax in `odoc.pl'
+----------
+tag: beta-3.20.pl12 on Sat, 13 Sep 2003 14:32:38 -0300 by mstorti in spider
+     > Fixed length-one line fstack bug and added a test for. 
