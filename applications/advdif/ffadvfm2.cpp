@@ -51,10 +51,6 @@ void newadvecfm2_ff_t::GlobalScalar
 		       FastMat2 & dshapex,double w) {
   tmp.prod(dshapex,dshapex,-1,1,-1,2).scale(w*(*(ff.difjac)));
   grad_N_D_grad_N.prod(tmp,ff.eye_ndof,1,3,2,4);
-#if 0
-  ff.tmp3.set(*(ff.difjac));
-  D_grad_N.d(3,2).prod(dshapex,ff.tmp3,1,3,2).rs();
-#endif
 }
 
 void newadvecfm2_ff_t::GlobalScalar
@@ -65,8 +61,8 @@ void newadvecfm2_ff_t::GlobalScalar
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
-  fluxd.set(grad_U);
-  for (int j=0; j<ff.elemset->ndof; j++) 
+  fluxd.t().set(grad_U).rs();
+  for (int j=1; j<=ff.elemset->ndof; j++) 
     fluxd.ir(1,j).scale(ff.D_jac.get(j));
   fluxd.rs();
 }
@@ -74,9 +70,9 @@ void newadvecfm2_ff_t::ScalarDifPerField
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
-#if 0
-  D_grad_N.prod(ff.D_jac,dshapex,1,-1,2,3,-1,4);
-#endif
+  tmp.set(ff.D_jac).scale(w);
+  grad_N_grad_N.prod(dshapex,dshapex,-1,1,-1,2);
+  grad_N_D_grad_N.d(2,4).prod(grad_N_grad_N,tmp,1,3,2).rs();
 }
 
 void newadvecfm2_ff_t::ScalarDifPerField

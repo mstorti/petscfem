@@ -124,6 +124,7 @@ public:
   friend class ScalarDifPerField;
   class ScalarDifPerField : public DJac {
     newadvecfm2_ff_t &ff;
+    FastMat2 grad_N_grad_N,tmp;
   public:
     ScalarDifPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_fluxd;
