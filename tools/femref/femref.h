@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.8 2004/11/18 23:34:05 mstorti Exp $
+// $Id: femref.h,v 1.9 2004/11/19 01:33:41 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -144,8 +144,10 @@ public:
     GeomObject& operator*() { return goa; } 
     GeomObject* operator->() { return &goa; }
   };
-  void get_adacency(const GeomObject &g1,int dim,
-		    std::list<iterator> &li) { }
+  void get_adjacency(const GeomObject &g1,int dim,
+		     std::list<iterator> &li) { 
+    
+  }
   Mesh(int ndim_a,int nel_a) 
     : ndim(ndim_a), nel(nel_a) { 
     coords.reshape(2,0,ndim);
