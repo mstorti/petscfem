@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $
+$Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
+! # $Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
+! # $Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
+! # $Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
+! # $Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
+  # $Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
+  # $Id: notes.txt,v 1.294 2003/07/03 10:46:21 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6646,6 +6646,34 @@ Con g_c++ corre casi todos los tests:
 > can't open newff/reac_adv_dif_temp_y_iisd.vrf.tmp
 > can't open newff/std_ard_x_y_iisd.vrf.tmp
 > Summary: "IISD solver. Checking with advdif" -- OK: 0.  Not OK: 1. Couldn't open: 8. Total: 9
+%
+07:45:09: Con BOPT=O_c++ tambien resuelve casi todos los
+casos. Algunos faltan porque no termino de correr. 
+> --------
+> Start section: "Plano tests on advdif"
+> Testing: "Adv/Sh.Water FastMat2/cons_supg" on file "plano/plano_cons.sal"...not OK.
+>         --->  Couldn't find "time_step 1, time: 0.1, res = 2.56344.*-02"
+> Summary: "Plano tests on advdif" -- OK: 0.  Not OK: 1. Couldn't open: 6. Total: 7
+> --------
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "testing for size of idmap n=.*, number of operations .*"
+> Testing: "Constraint bug, cant have null rows in idmap class" on file "circ/check_circ.sal"...not OK.
+>         --->  Couldn't find "error in u symmetry = .* OK . 1"
+> Summary: "Misc tests." -- OK: 18.  Not OK: 2. Couldn't open: 1. Total: 21
+> --------
+> Start section: "Misc tests."
+> Testing: "Read_vector function." on file "sqcav/verif.read_ini.tmp"...not OK.
+>         --->  Couldn't find "v=p=0 OK \? 1"
+> Summary: "Misc tests." -- OK: 11.  Not OK: 1. Couldn't open: 0. Total: 12
+> --------
+> Start section: "New flux function tests."
+> Testing: "newff/test case reac_adv_dif_temp_y" on file "newff/reac_adv_dif_temp_y.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Testing: "newff/test case reac_dif_temp" on file "newff/reac_dif_temp.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> Summary: "New flux function tests." -- OK: 17.  Not OK: 2. Couldn't open: 0. Total: 19
+
 
 
 
