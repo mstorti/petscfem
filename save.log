@@ -308,3 +308,8 @@ tag: beta-1.52 on Thu Mar 29 19:17:20 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.53 on Fri Mar 30 11:24:39 ART 2001, by mstorti in spider
      > Debugging the new flux functions
+----------
+tag: beta-1.54 on Fri Mar 30 17:54:14 ART 2001, by mstorti in spider
+     > Fixed several bugs for the new ff.
+     > Starts writing doc for the new ff.
+     > Pass all tests of the newff directory. (QUASI-STABLE)
