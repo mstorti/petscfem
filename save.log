@@ -254,3 +254,7 @@ tag: beta-1.38 on Wed Mar 21 11:44:32 ART 2001, by mstorti in spider
      > comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
      > 				    FastMat2 & dshapex,double w)
      > instead of doing this in two steps
+----------
+tag: beta-1.39 on Wed Mar 21 12:29:09 ART 2001, by mstorti in spider
+     > Added diffusive jacobian scalar per field.
+     > Works for the simple case of only one field.
