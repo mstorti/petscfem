@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.9 2003/11/11 21:40:33 mstorti Exp $
+// $Id: gasflow.h,v 1.9.30.1 2005/01/12 15:41:51 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -29,8 +29,10 @@ private:
   double Pr_t, C_smag;
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
-
+  int shocap_scheme;
+  double shocap_beta,shocap_factor;
   const NewAdvDif *advdf_e;
+  FastMat2 jvec;
 
   //  int axi;
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.18 2004/12/14 18:05:50 mstorti Exp $
+// $Id: dvector.h,v 1.18.2.1 2005/01/12 15:41:51 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -216,7 +216,7 @@ public:
   int rank() const;
 
   /** Recompute the shape vector. Verify that
-      #size()# is comptaible with the given shape. */ 
+      #size()# is compatible with the given shape. */ 
   void recompute_shape();
 
   /** Array resize the dynamic vector. Resizes and reshapes the vector

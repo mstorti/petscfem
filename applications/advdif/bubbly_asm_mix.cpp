@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.4 2004/12/21 12:20:37 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.4.2.1 2005/01/12 15:41:51 mstorti Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -999,26 +999,6 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
     }
     tau_supg.eye(tau_supg_a).setel(delta_supg,1,1);
 
-    // Fase gas
-    /*
-    vel_supg.set(v_g_old);
-    if(axi>0){
-      vel_supg.setel(0.,axi);
-    }
-    visco_supg = visco_g_eff/rho_g;
-    ijob=0;
-    compute_tau(ijob);
-
-    if (tau_fac != 1.) {
-      tau_pspg *= tau_fac;
-      tau_supg_a *= tau_fac;
-    }
-
-    tau_supg.setel(tau_supg_a,alpha_indx,alpha_indx);
-
-    //    if (comp_gas_prof) delta_sc = delta_supg;
-    */
-
     delta_supg_vp.set(0.);
 
     for (int j=1; j<=nphases; j++) {
@@ -1030,10 +1010,14 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       if(axi>0){
 	vel_supg.setel(0.,axi);
       }
-
+      
       visco_g_eff = visco_g_eff_vp.get(j);
-      if (disperse_eqs_without_rho==0) visco_supg = visco_g_eff/rho_g;
-
+      if (disperse_eqs_without_rho==0) { 
+	visco_supg = visco_g_eff/rho_g;
+      } else {
+	visco_supg  = visco_g_eff;
+      }
+      
       ijob=0;
       compute_tau(ijob);
 
@@ -1045,7 +1029,9 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       tau_supg.setel(tau_supg_a,alpha_indx_vp[j-1],alpha_indx_vp[j-1]);
       
       if (disperse_eqs_without_rho==0) {
-      delta_supg_vp.setel(delta_supg,j).scale(rho_g);
+	//      delta_supg_vp.setel(delta_supg,j).scale(rho_g);
+      delta_supg_vp.ir(1,j).set(delta_supg).scale(rho_g).rs();
+
       } else {
 	delta_supg_vp.setel(delta_supg,j);
       }

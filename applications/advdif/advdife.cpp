@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.88 2004/12/21 12:20:37 mstorti Exp $
+//$Id: advdife.cpp,v 1.88.2.1 2005/01/12 15:41:50 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -779,13 +779,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	*/
 
 	// adding shock-capturing term
+	delta_sc_v.set(0.0);
 	if (shocap>0. ) {
-	  delta_sc_v.set(0.0);
-	adv_diff_ff->compute_delta_sc_v(delta_sc_v);
+	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
-        delta_sc_v.addel(delta_sc,jdf);
+	    delta_sc_v.addel(delta_sc,jdf);
 	  }
-
+	  
 	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*ALPHA*wpgdet);
 	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
@@ -794,10 +794,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
             tmp_sc_v.ir(2,jdf).scale(-shocap*delta*ALPHA*wpgdet).rs();
 	    delta_sc_v.rs();
 	  }
-
+	  
 	  veccontr.add(tmp_sc_v);
 	}
-
+	
 #ifndef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
