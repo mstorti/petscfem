@@ -1,4 +1,4 @@
-## $Id: mkgfmovshock.m,v 1.1 2005/02/08 00:35:32 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.2 2005/02/08 01:03:14 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
@@ -57,13 +57,19 @@ c2 = u2/M2;
 rho2 = u1*rho1/u2;
 p2 = c2^2*rho2/gamma;
 
-U1 = [rho1,u1+du,0,p1];
-U2 = [rho2,u2+du,0,p2];
+U1 = [rho1,u1+du*nor',p1];
+U2 = [rho2,u2+du*nor',p2];
 
 ## Coordinate normal to shock
 xx = xnod*nor;
 
 nnod = rows(xnod);
-Uini = U1(ones(nnod,1),:);
+Lnor = Lx*nor(1);		# Domain length along
+				# normal direction
+dfx = (xx>0.1*Lnor) & (xx<0.4*Lnor);
+Uini(1:nnod,:) = U1(ones(nnod,1),:);
+dw = U2-U1;
+Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
+
 
 asave("gfmovshock.ini.tmp",Uini);

@@ -8,7 +8,8 @@ $Nx = 100;
 $perx = 0;			# solution is periodic 
 $pery = 1;			# U(i+pery,j+perx) = U(i,j) 
 
-$Machin = 0.5;
+$Machin = 1.5;
+$du = 0.2;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
