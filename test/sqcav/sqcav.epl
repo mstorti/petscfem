@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.19 2002/07/26 16:22:04 mstorti Exp $
+#$Id: sqcav.epl,v 1.20 2002/07/26 17:01:31 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -16,7 +16,7 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;
+$N = 100;
 $hratio = 4;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -80,7 +80,7 @@ global_options
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
-nstep 30
+nstep 1
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
@@ -151,7 +151,7 @@ nodes  2  2  3
 __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
-elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep_fm2):> 4 
+elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep):> 4 
 name malla
 
 # report_consumed_time
