@@ -4,6 +4,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Write a FastMat2::trace()
 * Sends multiple messages (from all processors) when can't open file
     in 
     > Couldn't open file "spillwgc.bcconv-all.tmp"!!
