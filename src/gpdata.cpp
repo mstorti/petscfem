@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.19 2003/01/07 10:33:42 mstorti Exp $
+//$Id: gpdata.cpp,v 1.20 2003/01/09 00:24:16 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -62,39 +62,38 @@ double xipgf(int ipg,int npg1d) {
   }
 }
 
-#if 0
 void cart_prod(int npg,int nel,int nel_lay,
-	       int ndim,RowVector *shape,Matrix *dshapexi,double *wpg,
+	       int ndim,RowVector *shape,Matrix *dshapexi,Matrix *dshapex,double *wpg,
 	       GPdata &base_gp) {
-  int ndimel = ndim-1;
   for (int ipg=0; ipg<npg; ipg++) {
     shape[ipg] = RowVector(nel);
     shape[ipg].Columns(1,nel_lay) = base_gp.shape[ipg];
 
-    dshapexi[ipg]= Matrix(ndimel,nel);
+    dshapexi[ipg]= Matrix(ndim,nel);
     dshapexi[ipg]= 0.;
-    dshapexi[ipg].SubMatrix(1,ndimel,1,nel_lay) = base_gp.dshapexi[ipg];
+    dshapexi[ipg].SubMatrix(1,ndim-1,1,nel_lay) = base_gp.dshapexi[ipg];
     assert(nel % nel_lay ==0);
     int nlay = nel/nel_lay;
-    int *coef[3];
     double coef2[] = {-0.5, 0.5};
     double coef3[] = {-1.5,2.0,-0.5};
     double coef4[] = {-(11./6.), +(18./6.), -( 9./6.), +( 2./6.)};
     double *coef;
-    if (nlay == 2) 
-    else if (nlay==3) 
-    else if (nlay==4) 
+    if (nlay == 2) coef = coef2;
+    else if (nlay==3) coef = coef3;
+    else if (nlay==4) coef = coef4;
     else assert(0);
+#define NEWMAT_DIMS(m) printf(#m ": dims -> %d x %d\n", \
+			      (m).Nrows(),(m).Ncols())
     for (int lay=0; lay<nlay; lay++)
+      // NEWMAT_DIMS(dshapexi[ipg]);
       dshapexi[ipg].	
-	SubMatrix(ndim,ndim,lay*nel_lay,(lay+1)*nel_lay) = 
+	SubMatrix(ndim,ndim,lay*nel_lay+1,(lay+1)*nel_lay) = 
 	coef[lay]*base_gp.shape[ipg];
-
+    
     wpg[ipg] = base_gp.wpg[ipg];
-    dshapex[ipg]= Matrix(ndimel,nel);
+    dshapex[ipg]= Matrix(ndim,nel);
   }
 }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
@@ -462,18 +461,13 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       }
     } else GPERROR;
       
-  } else if (!strcmp("quad2hexa",geom)) {
+  } else if (!strcmp(geom,"quad2hexa")) {
     
-    assert(0);
-#if 0
     assert(ndimel==3);
     assert(nel % 4 == 0 && 2<=(nel/4) && (nel/4)<=4 );
     assert(npg==4); // other cases may be considered
-
     GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
-
-    cart_prod(npg,nel,nel_lay,ndim,shape,dshapexi,wpg,quad);
-#endif
+    cart_prod(npg,nel,4,ndimel,shape,dshapexi,dshapex,wpg,quad);
 
   } else GPERROR;
   
