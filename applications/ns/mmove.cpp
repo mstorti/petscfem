@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.15 2002/12/05 00:24:57 mstorti Exp $
+//$Id: mmove.cpp,v 1.16 2002/12/11 21:50:04 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -219,6 +219,7 @@ void mesh_move::element_connector(const FastMat2 &xloc,
 #endif
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int mmove_hook::write_mesh(const State &s,const char *filename,
 			   const int append=0) {
@@ -274,4 +275,4 @@ void mmove_hook::time_step_post(double time,int step,
   int ierr = write_mesh(*GLOB_PARAM->state,"remeshing.dat",1); 
   assert(ierr=0);
 }
-
+#endif

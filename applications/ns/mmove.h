@@ -1,7 +1,7 @@
 
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.14 2002/12/09 03:23:01 mstorti Exp $
+//$Id: mmove.h,v 1.15 2002/12/11 21:50:04 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -70,6 +70,7 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 class mmove_hook {
 private:
   int write_mesh(const State &s,const char *filename,const int append=0);
@@ -83,6 +84,22 @@ public:
   void time_step_pre(double time,int step) {}
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
+};
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class  mesh_move_old : public adaptor { 
+public: 
+  FastMat2 G, J, dNdxi, xlocp, xloc0, res_Dir;
+  SymmetricMatrix  GG;
+  DiagonalMatrix D;
+  double c_volume, c_distor, distor_exp;
+  void init();
+  void element_connector(const FastMat2 &xloc,
+			 const FastMat2 &state_old,
+			 const FastMat2 &state_new,
+			 FastMat2 &res,FastMat2 &mat);
+  double distor_fun(FastMat2 & xlocp);
 };
 
 #endif
