@@ -13,8 +13,7 @@ alpha 1.
 #if $restart
 initial_state "cylabso.state.tmp"
 #else
-# initial_state "cylabso.ini.tmp"
-initial_state "cylabso.state-100.tmp"
+initial_state "cylabso.ini.tmp"
 #endif
 
 nsave 1
@@ -49,7 +48,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 2
+nnwt 4
 
 print_internal_loop_conv
 # print_linear_system_and_stop
@@ -65,7 +64,7 @@ visco 0.001
 cond 0.001
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
-linear_abso 1
+linear_abso 0
 
 lagrange_diagonal_factor 1e-5
 lagrange_residual_factor 1.0
