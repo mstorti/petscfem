@@ -1,11 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.13 2001/07/02 14:24:15 mstorti Exp $
+//$Id: wallke.cpp,v 1.14 2001/07/04 02:57:42 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
 
 #include "../../src/fastmat2.h"
+#include "../../src/secant.h"
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
@@ -29,21 +30,48 @@ extern int TSTEP; //debug:=
 // paragraph `Pure virtual destructors' 
 WallFun::~WallFun() {}; 
 
-void WallFun1::w(double yp,double &f,double &fprime) {
+WallFunStd::WallFunStd(Elemset *e) : elemset(e) {
+  c1 = -5.*log(5.)+5.;
+  c2 = 5.*log(30.)+c1-2.5*log(30.);
+};
+
+void WallFunStd::w(double yp,double &f,double &fprime) {
   if (yp<0) {
     PETSCFEM_ERROR0("y+<0. Invalid value for y+\n");
   } if (yp<5) {
     f = yp;
     fprime = 1.;
   } else if (yp<30) {
-    f = 5.0*log(yp)-3.05;
+    f = 5.0*log(yp)+c1;
     fprime = 5.0/yp;
   } else {
-    f = 2.5*log(yp)+5.5;
+    f = 2.5*log(yp)+c2;
     fprime = 2.5/yp;
-//      f = 1./Chi * log(E_star*yp);
-//      fprime = 1./Chi/yp;
   }
+}
+
+class WallFunSecant : public Secant {
+public:
+  double nu, y_wall, u;
+  WallFun *wf;
+  double residual(double ustar,void *user_data=NULL);
+  WallFunSecant(WallFun *wf_) : wf(wf_) {};
+  // virtual ~WallFunSecant()=0;
+};
+
+#if 0
+class WallFunSecantStd : public WallFunSecant {
+public:
+  WallFunSecantStd(Wallfun *wf_) : wf(wf_) {};
+  ~WallFunSecantStd() {};
+}
+#endif
+
+double WallFunSecant::residual(double ustar,void *user_data=NULL) {
+  double yp = y_wall*ustar/nu;
+  double f,fp;
+  wf->w(yp,f,fp);
+  return u - ustar * f;
 }
 
 #undef __FUNC__
@@ -90,7 +118,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,y_wall_plus,30.);
   //o The $y$ (normal) coordinate of the computational boundary. 
   // Only for laminar computations.
-  SGETOPTDEF(double,y_wall,1e-3);
+  SGETOPTDEF(double,y_wall,0.);
   //o Mask for using laminar relation (\verb+turbulence_coef=0+). 
   SGETOPTDEF(double,turbulence_coef,1.);
   //o Use lumped mass matric for the wall element contribution. Avoids
@@ -101,13 +129,19 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   PETSCFEM_ASSERT0(viscosity>0.,
 		   "Not entered `viscosity' property or "
 		   "null value  entered.\n");
-  WallFun1 wf1(this);
-  WallFun *wf = &wf1;
+  WallFunStd wf_std(this);
+  WallFun *wf = &wf_std;
+  WallFunSecant wfs(wf);
   wf->init();
 
   double fwall,fprime;
   if (comp_mat_res) {
-    wf->w(y_wall_plus,fwall,fprime);
+    if (y_wall>0.) {
+      wfs.nu = viscosity;
+      wfs.y_wall = y_wall;
+    } else {
+      wf->w(y_wall_plus,fwall,fprime);
+    }      
 
     locst = arg_data_v[0].locst;
     locst2 = arg_data_v[1].locst;
@@ -226,10 +260,35 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1).rest(u_wall);
+	// Warning: here `u_star' refers to the vector at time
+	// t_star  = t + alpha * Dt, in the trapeziodal method
 	double Ustar = sqrt(u_star.sum_square_all());
 	double gfun,gprime;
-	gprime = rho / (fwall*fwall);
-	gfun = gprime * Ustar;
+	if (y_wall>0.) {
+	  wfs.u = Ustar;
+	  wfs.x0 = sqrt(viscosity*Ustar/y_wall);
+	  // *This* is the friction velocity at the wall
+	  double uwstar = wfs.sol();
+	  double yplus = y_wall*uwstar/viscosity;
+	  wf->w(yplus,fwall,fprime);
+	  double tau_w = rho * square(uwstar);
+	  gfun = tau_w/Ustar;
+	  double dustar_du = 1./(fwall+yplus*fprime);
+	  // gprime = ( 2.*rho*uwstar*dustar_du - gfun)/Ustar;
+	  gprime = (2.*fwall*dustar_du-1.)*gfun/Ustar;
+//  	  SHV(uwstar);
+//  	  SHV(yplus);
+//  	  SHV(tau_w);
+//  	  SHV(dustar_du);
+//  	  SHV(fwall);
+//  	  SHV(fprime);
+//  	  SHV(gfun);
+//  	  SHV(gprime);
+	} else {
+	  gprime = rho / (fwall*fwall);
+	  gfun = gprime * Ustar;
+	}
+
 	if (turbulence_coef == 0.) {
 	  gprime = 0.;
 	  gfun = rho * viscosity / y_wall;

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.12 2001/06/29 20:19:22 mstorti Exp $
+//$Id: nsi_tet.h,v 1.13 2001/07/04 02:57:42 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -131,17 +131,19 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class WallFun1 : public WallFun {
+class WallFunStd : public WallFun {
   Elemset *elemset;
+  double c1,c2;
 public:
   void w(double yp,double &f,double &fprime);
   // assuming a wall law of the form f = 2.5*log(yplus) + 5.5
   // then if it has to be compatible with f = 1/Chi * log(E*yplus)
   // we find: Chi = 0.4; E = 9.025;
-  // WallFun1(double Chi_=0.4, double E_=9.025) : Chi(Chi_), E_star(E_) {};
-  // WallFun1() : Chi(Chi_), E_star(E_) {};
-  WallFun1(Elemset *e) : elemset(e) {};
-  ~WallFun1() {};
+  // WallFunStd(double Chi_=0.4, double E_=9.025) : Chi(Chi_), E_star(E_) {};
+  // WallFunStd() : Chi(Chi_), E_star(E_) {};
+  // WallFunStd(Elemset *e) : elemset(e) {};
+  WallFunStd(Elemset *e);
+  ~WallFunStd() {};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -173,7 +175,7 @@ public:
   void init();
   void res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 	   FastMat2 & jac);
-  wall_law_res() {wf = new WallFun1(this);};
+  wall_law_res() {wf = new WallFunStd(this);};
   ~wall_law_res() {delete wf;};
 };
 

@@ -64,7 +64,7 @@ maxits 100
 save_file_pattern "outvector%d.out"
 nsaverot 1
 
-#if 1
+#if 0
 initial_state "save.state"
 #elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"

@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: secant.h,v 1.4 2001/05/30 03:58:50 mstorti Exp $
+//$Id: secant.h,v 1.5 2001/07/04 02:58:16 mstorti Exp $
 #ifndef SECANT_H
 #define SECANT_H
 
@@ -25,7 +25,7 @@ public:
   /// relaxation factor
   double omega;
   /// Default constructor
-  Secant() {};
+  //  Secant() {};
   /// Constructor with default parameters
   Secant(double x0_=0) : x0(x0_), epsilon(1e-3), tol(1e-3), maxits(20),
     omega(1.) {};
