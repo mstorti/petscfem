@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.2 2002/01/16 01:19:06 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2002/01/16 19:26:43 mstorti Exp $ 
 
 .PHONY:  force test_plain test_var_eta
 
 #w All tests
-tests: test_plain test_var_eta
+tests: test_plain test_var_eta test_transient
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -38,9 +38,15 @@ test_var_eta:
 	$(MAKE) casen=var_eta1 run
 	octave -q check.m > var_eta1.verif.tmp
 
+#w Test transient with constant depth
+test_transient:
+	$(MAKE) casen=transient run
+	octave -q checku.m > transient.verif.tmp
+
 #w Runs program
 run:  data
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl > output.out
+	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
+			-case $(CASE).depl > output.$(casen).out
 
 data: force
 	$(MAKE) $(CASE).depl

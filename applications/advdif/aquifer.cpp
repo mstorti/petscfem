@@ -37,6 +37,7 @@ void aquifer_ff::end_chunk() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void aquifer_ff::element_hook(ElementIterator &element) {
+  S = elemset->prop_val(element,S_pr);
   K = elemset->prop_val(element,K_pr);
   eta = elemset->prop_val(element,eta_pr);
 #if 0

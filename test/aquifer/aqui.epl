@@ -4,8 +4,20 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('casen',undef);
+$casename = $casen;
+$steady = 1;
+if ($casen eq 'transient') {
+    $casen = 'plain';
+    $steady = 0;
+    $eta0=-100;
+    $alpha=0.6;
+    $nstep = 20;
+} else {
+    $eta0=-0.5;
+    $alpha=1;
+    $nstep=1;
+}
 $var_eta=0;
-$eta0 = -0.5;
 $etaL = $eta0;
 if ($casen eq 'var_eta0') {
     $var_eta = 1;
@@ -20,18 +32,17 @@ $Ny = 1;
 $Lx = 1;				# Side of the cavity
 $Ly = $Lx/$Nx;				# Side of the cavity
 $hratio = 1;			# refinement (h_center/h_wall)
-$K = 1;
-$S = 1;
+$K = 1.5;
+$S = 2.3;
 $eta = $eta0;
-$Dt = 1;			# time step
-$steady = 1;
+$Dt = 0.001;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 1;
+$t = $nstep*$Dt;
 #
 #__END_TRANSCRIPT__
-@vars = qw(Nx Ny Lx Ly hratio K S casen var_eta eta0 etaL Dt steady);
+@vars = qw(t Nx Ny Lx Ly hratio K S casen var_eta eta0 etaL Dt steady);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -70,8 +81,8 @@ print_internal_loop_conv 1
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady
-alpha 1.
+steady <:=$steady:>
+<:pr('alpha'):>
 
 __END_HASH__
 

@@ -1330,7 +1330,9 @@ expect("aquifer/const.verif.tmp","Flat aquifer bottom coincide.",
 expect("aquifer/var_eta1.verif.tmp","Variable aquifer bottom",
        'test OK \? 1');
 
-
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("aquifer/transient.verif.tmp","Transient - Constant aquifer bottom",
+       'test OK \? 1');
 
 end_section();
 
