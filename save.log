@@ -679,3 +679,6 @@ tag: beta-2.49 on Sun Dec  2 17:54:38 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.50 on Mon Dec  3 00:01:20 ARST 2001, by mstorti in spider
      > Added test for `adaptor_pg'
+----------
+tag: beta-2.51 on Mon Dec  3 12:16:27 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Added `Stat' class for printing statistics.
