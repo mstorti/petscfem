@@ -1816,3 +1816,6 @@ tag: beta-3.08.pl15 on Sun,  1 Dec 2002 22:00:50 -0300 by mstorti in spider
      > Computes OK derivatives of eigenvalues analytically. 
 ----------
 tag: beta-3.08.pl16 on Mon,  2 Dec 2002 16:05:15 -0300 by mstorti in node1.beowulf.gtm
+----------
+tag: beta-3.08.pl17 on Mon,  2 Dec 2002 16:05:57 -0300 by mstorti in node1.beowulf.gtm
+     > Will change all `octave -q' by `octave -qH' calls. 
