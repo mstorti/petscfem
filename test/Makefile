@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.37 2001/11/09 03:05:45 mstorti Exp $ 
+# $Id: Makefile,v 1.38 2001/11/10 03:15:41 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
-	newff burgers bug100 nonlr genload lupart distmap
+	newff burgers bug100 nonlr genload lupart distmap sparse
 
 SRCS = $(wildcard *.cpp)
 
@@ -376,6 +376,11 @@ distmap:
 #w Burgers with new flux functions
 burgers:
 	$(MAKE) -C burgers tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Sparse matrices
+sparse:
+	$(MAKE) -C sparse sparse
 
 
 #s
