@@ -122,6 +122,9 @@ int write_data(int s,const char *buf,int n) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void chomp(char *s) { s[strlen(s)-1] = '\0'; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PORT 5555
 #define SERVERHOST "spider"
 #define BUFSIZE 100
@@ -137,6 +140,7 @@ void talk(int sock,comm_mode &mode) {
     printf("> ");
     getline (&line,&N,stdin);
     assert(strlen(line)<BUFSIZE);
+    chomp(line);
     strcpy(buf2,line);
     printf("sending \"%s\"",buf2);
     write_data(sock,buf2,BUFSIZE);
@@ -144,7 +148,7 @@ void talk(int sock,comm_mode &mode) {
   } else if (mode==RECV) {
     read_data(sock,buf2,BUFSIZE);
     if (!strcmp(buf2,"OVER")) mode = SEND;
-    printf("%s",buf2);
+    printf("%s\n",buf2);
   } else assert(0);
 }
 
