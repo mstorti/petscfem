@@ -1,3 +1,4 @@
+#-*- mode: Makefile -*-
 SHELL = /bin/sh
 BASE = /usr/local/dx
 
@@ -5,6 +6,7 @@ BASE = /usr/local/dx
 # setenv DXARCH `dx -whicharch`
 include $(BASE)/lib_$(DXARCH)/arch.mak
 DX_RTL_LDFLAGS := -shared
+OBJEXT := o
 
 FILES_epimport = userepimport.$(OBJEXT) epimport.$(OBJEXT)
 

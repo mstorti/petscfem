@@ -559,7 +559,8 @@ ExtProgImport_worker(
     }
   }
   /* Set `connections' component */
-  
+  f = DXSetComponentValue(f,"connections",(Object)icone); if (!f) goto error;
+  f = DXEndField(f); if (!f) goto error;
      
   /*
    * successful completion
