@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.14 2001/07/22 23:20:25 mstorti Exp $
+//$Id: lusubd.cpp,v 1.15 2001/07/23 00:13:03 mstorti Exp $
 
 #include <typeinfo>
 #ifdef RH60
@@ -502,8 +502,9 @@ void IISDMat::set_value(int row,int col,Scalar value,
 void IISDMat::solve(Vec res,Vec dx) {
       
   int ierr,kloc,itss,j,jj;
-  double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a,scal;
-  Vec res_i,res_loc,x_i;
+  double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
+    *x_loc_seq_a,*dx_a,scal,*x_a,*x_i_a;
+  Vec res_i,x_i,res_loc,x_loc,res_loc_i;
   if (n_int_tot > 0 ) {
     ierr = VecCreateMPI(PETSC_COMM_WORLD,n_int,PETSC_DETERMINE,&res_i);
     PETSCFEM_ASSERT0(ierr==0,"Error creating `res_i' vector\n"); 
@@ -530,7 +531,7 @@ void IISDMat::solve(Vec res,Vec dx) {
     PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
     ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
 
-#if 1 // To print the Schur matrix by columns
+#if 0 // To print the Schur matrix by columns
     for (int kk=1; kk<=2; kk++) {
       for (j = 0; j < n_int_tot; j++) {
 	scal = 0.;
@@ -551,6 +552,8 @@ void IISDMat::solve(Vec res,Vec dx) {
 
     ierr = VecCreateMPI(PETSC_COMM_WORLD,n_loc,PETSC_DETERMINE,&res_loc);
     PETSCFEM_ASSERT0(ierr==0,"Error creating `res_loc' vector\n"); 
+    ierr = VecDuplicate(res_loc,&x_loc);
+    PETSCFEM_ASSERT0(ierr==0,"Error creating `x_i' vector\n"); 
     
     ierr = VecGetArray(res,&res_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
@@ -577,17 +580,53 @@ void IISDMat::solve(Vec res,Vec dx) {
     ierr = VecRestoreArray(res_i,&res_i_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
 
-    local_solve(res_loc,res_loc,-1.);
-    ierr = MatMultAdd(A_IL,res_loc,res_i,res_i);
-
-    ierr = VecView(res_i,VIEWER_STDOUT_SELF);
-    PETSCFEM_ASSERT0(ierr==0,"Error viewing `res_i'\n"); 
-
     ierr = SLESSolve(sles,res_i,x_i,&itss); 
     PETSCFEM_ASSERT0(ierr==0,"Error performing `SLESSolve'.\n"); 
     
-    ierr = VecView(x_i,VIEWER_STDOUT_SELF);
-    PETSCFEM_ASSERT0(ierr==0,"Error viewing `x_i'\n"); 
+    ierr = VecDuplicate(res_loc,&res_loc_i);
+    PETSCFEM_ASSERT0(ierr==0,"Error creating `res_loc_i' vector\n"); 
+
+    // Warning: x_loc is -x_loc !1
+    ierr = MatMult(A_LI,x_i,res_loc_i);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `A_LI*x_i' operation\n");
+
+    scal = -1.;
+    ierr = VecAXPY(scal,res_loc_i,res_loc);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `res_loc -= A_LI*x_i' operation\n");
+    
+    local_solve(res_loc,x_loc,-1.);
+    
+    ierr = VecGetArray(x,&x_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+    ierr = VecGetArray(x_loc,&x_loc_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+    ierr = VecGetArray(x_i,&x_i_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+    
+    for (j=0; j<neqp; j++) {
+      jj = map[k1+j];
+      if (jj < n_loc_tot) {
+	jj -= n_locp;
+	x_a[j] = x_loc_a[jj];
+      } else {
+	jj -= n_intp;
+	x_a[j] = x_i_a[jj];
+      }
+    }
+
+    ierr = VecRestoreArray(x,&x_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
+    ierr = VecRestoreArray(x_loc,&x_loc_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
+    ierr = VecRestoreArray(x_i,&x_i_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
+    
+    ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
+    ierr = VecDestroy(res_i); CHKERRQ(ierr); 
+    ierr = VecDestroy(x_i); CHKERRQ(ierr); 
+    ierr = VecDestroy(res_loc); CHKERRQ(ierr); 
+    ierr = VecDestroy(x_loc); CHKERRQ(ierr); 
+    ierr = VecDestroy(res_loc_i); CHKERRQ(ierr); 
 
     PetscFinalize();
     exit(0);
