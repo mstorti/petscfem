@@ -19,7 +19,6 @@ static Error doLeaf(Object *, Object *);
 /*
  * Declare the interface routine.
  */
-int
 ExtProgImport_worker(
     int, char *,
     int, double *);
@@ -28,13 +27,13 @@ ExtProgImport_worker(
 extern "C"
 #endif
 Error
-m_ExtProgImport(Object *in, Object *out)
-{
-  int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof;
+m_ExtProgImport(Object *in, Object *out) {
+  int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
+    nelem,nel;
   double *xnod_p,*data_p;
   Array icone=NULL,xnod=NULL,data=NULL; 
   Group g=NULL;
-  char *socket_name_p;
+  char *socket_name_p, *token;
   String s;
   Type t;
   Socket *clnt;
@@ -88,6 +87,35 @@ m_ExtProgImport(Object *in, Object *out)
   nread = Sreadbytes(clnt,data_p,ndof*nnod*sizeof(double));
   g = DXSetMember(g,"data",(Object)data);
   if (!g) goto error;
+
+  while(1) {
+    Sgets(buf,BUFSIZE,clnt);
+    token = strtok(buf,' ');
+    if(!strcmp(token,"end")) break;
+    assert(!strcmp(token,"icone"));
+    token = strtok(NULL,' ');
+    nread = sscanf(token,"%d",&nelem);
+    assert(nread==1);
+    nread = sscanf(token,"%d",&nel);
+    token = strtok(NULL,' ');
+    assert(token);
+    assert(strlen(token)>0);
+    string ename(token);
+    token = strtok(NULL,' ');
+    assert(token);
+    assert(strlen(token)>0);
+    DXMessage("Got elemset %s, nelem %d, nel %d, type %d\n",
+	      ename.c_str(),
+
+    icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1, nel);
+    if (!icone) goto error;
+    icone = DXAddArrayData(icone, 0, nelem, NULL);
+    if (!icone) goto error;
+    icone_p = (int *)DXGetArrayData(icone);
+    nread = Sreadbytes(clnt,icone_p,nelem*nel*sizeof(int));
+    g = DXSetMember(g,token,(Object)icone);
+    if (!g) goto error;
+  }
 
   out[0] = (Object)g;
   Sclose(clnt);
