@@ -1,4 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.2 2004/06/29 11:18:30 mstorti Exp $
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.3 2004/06/29 11:31:21 mstorti Exp $
 
  COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
 		 INSTALADA EN UNA MAQUINA CON WINDOWS
@@ -110,10 +110,13 @@ que viene por default no graba sobre DVD's. Si lo hacen en `minerva'
 basta que usen `/u/mstorti/bin/dvdrecord'. Se crea la imagen del DVD
 con `mkisofs', por ejemplo. 
 
+   $ mkisofs -r -o petsc.iso /u/mstorti/PETSC 
 
+y despues se graba (ojo, como root):
+
+     # /u/mstorti/bin/dvdrecord  -sao -v speed=8 dev=0,0,0 -data petsc.iso 
 
 Hay que usar la opcion '-sao'. 
-
 
 Detalles de instalacion de cdrecord-ProDVD
 ==========================================
@@ -131,6 +134,18 @@ para usarlo hay que definir una variable de entorno
 La pag. web de `cdrecord' es 
 
 http://www.fokus.gmd.de/research/cc/glone/employees/joerg.schilling/private/cdrecord.html
+
+Para instalar las grabadoras
+============================
+
+Tanto las grabadoras de CD como DVD deben instalarse `emulando
+SCSI'. Es decir hay que poner el comando 
+
+modprobe ide-scsi
+
+en `/etc/rc.local'. Ojo que de esa forma levanta todas las unidades de
+CD como `ide-scsi'. A partir de ahi las unidades se ven como `/dev/scd0',
+`/dev/scd1' ...
 
 <mstorti@intec.unl.edu.ar>
 Mon Sep 25 18:37:15 ART 2000
