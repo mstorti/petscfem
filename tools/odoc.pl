@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.17 2003/09/15 01:18:16 mstorti Exp $
+# $Id: odoc.pl,v 1.18 2003/11/15 16:05:18 mstorti Exp $
 
 @odoc=();
 
 use Getopt::Std;
 use English;
 
-getopts("wWs:o:h");
+getopts("wWs:o:he:");
 
 my $wiki_syntax = 1;
 
@@ -185,6 +185,14 @@ foreach $doc (@doclist) {
 }
 print TEXOUT $warn;
 close TEXOUT;
+
+if ($opt_e) {
+    die "couldn't open $opt_e\n" unless open EOUT,">$opt_e";
+    print EOUT "(setq petscfem-option-list '(\n";
+    foreach $doc (@doclist) { print EOUT "(\"$doc->[0]\")\n"; }
+    print EOUT "))\n";
+    close EOUT;
+}
 
 __END__
 

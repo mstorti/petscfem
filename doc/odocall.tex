@@ -73,6 +73,18 @@ van Driest constant for the damping law.
 van Driest constant for the damping law.
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{CN\_ctff@\verb+CN_ctff+}
+\item\verb+double CN_ctff+ {\rm(default=\verb|0.0|)}:
+
+Cutoff value for CN
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{CO\_ctff@\verb+CO_ctff+}
+\item\verb+double CO_ctff+ {\rm(default=\verb|0.0|)}:
+
+Cutoff value for CO
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_1@\verb+C_1+}
 \item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
 
@@ -176,6 +188,12 @@ C_smag
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.09|)}:
+
+C_smag
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
@@ -186,6 +204,18 @@ Smagorinsky constant.
 
 Smagorinsky constant.
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{CdN\_ctff@\verb+CdN_ctff+}
+\item\verb+double CdN_ctff+ {\rm(default=\verb|0.0|)}:
+
+Cutoff value for CdN
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{CdO\_ctff@\verb+CdO_ctff+}
+\item\verb+double CdO_ctff+ {\rm(default=\verb|0.0|)}:
+
+Cutoff value for CdO
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Chezy@\verb+Chezy+}
 \item\verb+double Chezy+ {\rm(default=\verb|110|)}:
@@ -310,6 +340,18 @@ Time step.
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:
  Vector of gravity acceleration (must be constant).  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{KN@\verb+KN+}
+\item\verb+double KN+ {\rm(default=\verb|0.6788e-5|)}:
+
+Henry constant for N2 \verb+[mol/m3/Pa]+
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{KO@\verb+KO+}
+\item\verb+double KO+ {\rm(default=\verb|1.3516e-5|)}:
+
+Henry constant for O2 \verb+[mol/m3/Pa]+
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{KSP\_method@\verb+KSP_method+}
 \item\verb+string KSP_method+ {\rm(default=\verb|gmres|)}:
 
@@ -328,6 +370,12 @@ system (Newton linear subiteration) by GMRES.
 
 Activates LES turbulence model
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
+Activates LES turbulence model
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
@@ -377,6 +425,18 @@ Add LES for this particular elemset.
 Add LES for this particular elemset.
  (found in file: \verb+../applications/ns/nssupg.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Nb\_ctff@\verb+Nb_ctff+}
+\item\verb+double Nb_ctff+ {\rm(default=\verb|0.0|)}:
+
+Cutoff value for Nb
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Nb\_scale@\verb+Nb_scale+}
+\item\verb+double Nb_scale+ {\rm(default=\verb|1.0|)}:
+
+Scale Nb eq. with this
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Poisson\_ratio@\verb+Poisson_ratio+}
 \item\verb+double Poisson_ratio+ {\rm(default=\verb|0.|)}:
 
@@ -390,10 +450,28 @@ Turbulent Prandtl number
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Pr\_t@\verb+Pr_t+}
+\item\verb+double Pr_t+ {\rm(default=\verb|1.|)}:
+
+Turbulent Prandtl number
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Pr\_t@\verb+Pr_t+}
 \item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
 
 turbulent Prandtl number.
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Rgas@\verb+Rgas+}
+\item\verb+double Rgas+ {\rm(default=\verb|8.314|)}:
+
+Gas constant
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Sc@\verb+Sc+}
+\item\verb+double Sc+ {\rm(default=\verb|0.83|)}:
+
+Turbulent Schmidt number
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{T@\verb+T+}
 \item\verb+double T+ {\rm(default=\verb|1.|)}:
@@ -406,6 +484,12 @@ The duration of the impulse
 
 The starting time
  (found in file: \verb+../src/tempfun2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Tgas@\verb+Tgas+}
+\item\verb+double Tgas+ {\rm(default=\verb|293.0|)}:
+
+Gas temperature
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Tinfty@\verb+Tinfty+}
 \item\verb+double Tinfty+ {\rm(default=\verb|0.|)}:
@@ -754,7 +838,7 @@ See documentation for the \verb+advective_jacobians+ option.
  (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{alpha@\verb+alpha+}
-\item\verb+double alpha+ {\rm(default=\verb|0.|)}:
+\item\verb+double alpha+ {\rm(default=\verb|1.|)}:
 
 The parameter of the trapezoidal rule
 for temporal integration. 
@@ -780,6 +864,14 @@ Backward Euler. \verb+alpha=0+: Forward Euler.
 
 Parameter for the trapezoidal rule time integration method.
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{aquifer\_phi\_dof@\verb+aquifer_phi_dof+}
+\item\verb+int aquifer_phi_dof+ {\rm(default=\verb|1|)}:
+
+We can have the \verb+phi+ dof of the aquifer to be
+ any of the dofs there. This indx flags which of the dof's
+ of the aquifer is the \verb+phi+ (piezometric height) field. 
+ (found in file: \verb+../applications/advdif/aquifer.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{atol@\verb+atol+}
 \item\verb+double atol+ {\rm(default=\verb|1e-6|)}:
@@ -832,6 +924,12 @@ selected Courant number
 
 Add axisymmetric version for this particular elemset.
  (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{axisymmetric@\verb+axisymmetric+}
+\item\verb+string axisymmetric+ {\rm(default=\verb|"none"|)}:
+
+Add axisymmetric version for this particular elemset.
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
@@ -892,6 +990,14 @@ Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
  (found in file: \verb+../applications/advdif/advdifeo.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{beta\_supg@\verb+beta_supg+}
+\item\verb+double beta_supg+ {\rm(default=\verb|1.|)}:
+
+Weights the temporal term with $N+\beta P$, i.e.
+$\beta=0$ is equivalent to waight the temporal term a la
+Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{beta\_supg@\verb+beta_supg+}
 \item\verb+double beta_supg+ {\rm(default=\verb|0.8|)}:
 
 Parameter to control the amount of SUPG perturbation 
@@ -914,6 +1020,12 @@ Parameter to control the amount of SUPG perturbation
 
 buoyancy coefficient for Boussinesq term
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{block\_uploading@\verb+block_uploading+}
+\item\verb+int block_uploading+ {\rm(default=\verb|1|)}:
+
+Use Fast up-loading method or not 
+ (found in file: \verb+../src/elmsupl.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{bottom\_length@\verb+bottom_length+}
 \item\verb+double bottom_length+ {\rm(default=\verb|0.|)}:
@@ -1000,6 +1112,22 @@ The file containing coefficients
 Size of chunk for the dynamic vector used in computing the
 mstrix profile. 
  (found in file: \verb+../src/iisdmat.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian@\verb+compute_fd_adv_jacobian+}
+\item\verb+int compute_fd_adv_jacobian+ {\rm(default=\verb|0|)}:
+
+Compute finite difference jacobian of fluxes for checking the
+ analytical one. For each element the following norms are printed:
+ analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and te
+ difference \verb+|A_a-A_n|+ .
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_eps@\verb+compute_fd_adv_jacobian_eps+}
+\item\verb+double compute_fd_adv_jacobian_eps+ {\rm(default=\verb|1e-4|)}:
+
+The perturbation scale for computing the numerical jacobian
+ (see \verb+compute_fd_adv_jacobian+ ).
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{conductivity@\verb+conductivity+}
 \item\verb+double conductivity+ {\rm(default=\verb|1.|)}:
@@ -1573,6 +1701,12 @@ Smoothing factor for the update of the free surface
 Name of extension function
  (found in file: \verb+../src/amplidl.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{g\_dir@\verb+g_dir+}
+\item\verb+int g_dir+ {\rm(default=\verb|ndim|)}:
+
+Direction of gravity
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gamma@\verb+gamma+}
 \item\verb+double gamma+ {\rm(default=\verb|1.4|)}:
 
@@ -1662,6 +1796,12 @@ Type of element geometry to define Gauss Point data
 
 Type of element geometry to define Gauss Point data
  (found in file: \verb+../applications/advdif/wallswt.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{geometry@\verb+geometry+}
+\item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
+
+Type of element geometry to define Gauss Point data
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
@@ -1892,6 +2032,12 @@ Defines constant source term for the generic load on
 surfaces. May be of length 0 (null load) or \verb+ndof+
 which represents a geven load per field. 
   (found in file: \verb+../applications/advdif/linhff.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{hm\_fac@\verb+hm_fac+}
+\item\verb+double hm_fac+ {\rm(default=\verb|1.0|)}:
+
+Scales bubble/liquid film exchange
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{id\_cn@\verb+id_cn+}
 \item\verb+double id_cn+ {\rm(default=\verb|0.|)}:
@@ -2210,6 +2356,12 @@ Use lumped mass (used mainly to avoid oscillations for small time steps).
  (found in file: \verb+../applications/advdif/diff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lumped\_mass@\verb+lumped_mass+}
+\item\verb+int lumped_mass+ {\rm(default=\verb|0|)}:
+
+Use lumped mass (used mainly to avoid oscillations for small time steps).
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{lumped\_mass@\verb+lumped_mass+}
 \item\verb+int lumped_mass+ {\rm(default=\verb|1|)}:
 
 Use lumped mass.
@@ -2315,6 +2467,12 @@ Weight for computing performance
 
 Dimension of the embedding space
  (found in file: \verb+../applications/advdif/advdfgth.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndim@\verb+ndim+}
+\item\verb+int ndim+ {\rm(default=\verb|0|)}:
+
+Dimension of the problem
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ndim@\verb+ndim+}
 \item\verb+int ndim+ {\rm(default=\verb|none|)}:
@@ -2843,6 +3001,12 @@ Output CPU time statistics for frequency in time steps.
 Output CPU time statistics for frequency in time steps. 
  (found in file: \verb+../applications/advective/adv.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{nu\_t@\verb+nu_t+}
+\item\verb+double nu_t+ {\rm(default=\verb|0.|)}:
+
+Turbulent viscosity
+ (found in file: \verb+../applications/advdif/gaschem.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{omega@\verb+omega+}
 \item\verb+double omega+ {\rm(default=\verb|0.|)}:
 
@@ -2866,6 +3030,12 @@ Relaxation factor for the Newton iteration
 
 Threshold value for pressure. See doc for rho_thrsh.
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{p\_thrsh@\verb+p_thrsh+}
+\item\verb+double p_thrsh+ {\rm(default=\verb|0.|)}:
+
+Threshold value for pressure. See doc for rho_thrsh.
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{part\_include\_fic@\verb+part_include_fic+}
 \item\verb+int part_include_fic+ {\rm(default=\verb|1|)}:
@@ -3327,6 +3497,14 @@ Threshold value for density. If density goes belows this value
  crashing of the code due to taking square root of negative values.
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho\_thrsh@\verb+rho_thrsh+}
+\item\verb+double rho_thrsh+ {\rm(default=\verb|0.|)}:
+
+Threshold value for density. If density goes belows this value
+ then a cutoff function is applied. This is a simple way to prevent
+ crashing of the code due to taking square root of negative values.
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{roughness@\verb+roughness+}
 \item\verb+double roughness+ {\rm(default=\verb|1.|)}:
 
@@ -3470,6 +3648,12 @@ Choose channel section shape, may be {\tt circular},
 
 Add a shock capturing term
  (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
+
+Add a shock capturing term
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing@\verb+shock_capturing+}
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
@@ -3857,6 +4041,12 @@ Mask for stabilization term
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
+Mask for stabilization term
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_fac@\verb+tau_fac+}
+\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
+
 Scale the SUPG upwind term. 
  (found in file: \verb+../applications/advective/ffeulerfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -4204,6 +4394,12 @@ Use log-vars for $k$ and $\epsilon$
 Use log-vars for $k$ and $\epsilon$
  (found in file: \verb+../applications/advdif/advdifeo.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_log\_vars@\verb+use_log_vars+}
+\item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
+
+Use log-vars for $k$ and $\epsilon$
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{vel\_min@\verb+vel_min+}
 \item\verb+double vel_min+ {\rm(default=\verb|1e-6|)}:
 
@@ -4289,6 +4485,12 @@ Use the weak form for the Galerkin part of the advective term.
 
 Use the weak form for the Galerkin part of the advective term. 
  (found in file: \verb+../applications/advdif/advdifeo.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{weak\_form@\verb+weak_form+}
+\item\verb+int weak_form+ {\rm(default=\verb|1|)}:
+
+Use the weak form for the Galerkin part of the advective term.
+ (found in file: \verb+../applications/advdif/advdife-new.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:

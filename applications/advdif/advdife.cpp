@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.76 2003/11/13 13:36:39 mstorti Exp $
+//$Id: advdife.cpp,v 1.77 2003/11/15 16:05:10 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -314,13 +314,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   if (axi) assert(ndim==3);
 
-#define COMPUTE_FD_ADV_JACOBIAN
+  //#define COMPUTE_FD_ADV_JACOBIAN
 #ifdef COMPUTE_FD_ADV_JACOBIAN
   FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
 #endif
-  FastMat2 U0(1,ndof);
-  double u0[] = {1.,1.,1.,2.,0.,0.,0.1,0.1};
-  U0.set(u0);
 
   Uo.resize(1,ndof);
   Id_ndof.set(0.);
@@ -350,8 +347,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       lambda_max=0;
       lstateo.set(element.vector_values(*stateo));
       lstaten.set(element.vector_values(*staten));
-      // log_transf(true_lstaten,lstaten,nlog_vars,log_vars);
-      // log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
     }
 
     // State at time t_{n+\alpha}
@@ -504,6 +499,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  A_fd_jac.ir(3,jdof).set(flux_pert).rs();
 	  flux_pert.rs();
 	}
+	// Last call for set_state with state U
+	adv_diff_ff->set_state(U,grad_U);
 #endif
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
