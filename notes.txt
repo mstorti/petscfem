@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.47 2001/06/20 02:14:51 mstorti Exp $
+$Id: notes.txt,v 1.48 2001/06/21 16:30:43 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.47 2001/06/20 02:14:51 mstorti Exp $ 
+! # $Id: notes.txt,v 1.48 2001/06/21 16:30:43 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.47 2001/06/20 02:14:51 mstorti Exp $ 
+! # $Id: notes.txt,v 1.48 2001/06/21 16:30:43 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.47 2001/06/20 02:14:51 mstorti Exp $ 
+  # $Id: notes.txt,v 1.48 2001/06/21 16:30:43 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3170,6 +3170,17 @@ Parece que hay un factor 'Dt' entre el jacobiano analitico y el
 numerico, pero eso se debe a una cuestion de convencion. 
 %
 El caso canal Poisuille, periodico da perfectamente lineal. 
+
+%===Thu Jun 21 10:48:50 ART 2001 mstorti@minerva
+%
+Corriendo el caso 2D. 
+%
+Se produce una inestabilidad en k y epsilon a la salida, cerca de la
+pared. Supongo que es la restriccion, voy a poner que el ultimo valor
+de la pared mire al anterior en k y en epsilon.
+% 
+Da un problema con la resolucion de la ecuacion de transporte en K y
+en epsilon. 
 
 %# Current line ===========  
 # Local Variables: $
