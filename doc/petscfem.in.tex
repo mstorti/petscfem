@@ -140,7 +140,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.2 2001/08/06 01:06:10 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.3 2001/08/06 20:36:01 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -164,18 +164,18 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
 \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
@@ -265,4 +265,5 @@ T_s
 # eval: (setq current-pos-regexp "^%# Current line ===========") $
 # eval: (font-lock-fontify-buffer) $
 # eval: (setq latex-run-command "make petscfem.tex ; latex petscfem") $
+# eval: (setq tex-command "make petscfem.tex ; latex petscfem") $
 # End: $

@@ -58,7 +58,7 @@ The \verb+view()+ member prints operator information to the output.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/iisd.eps}}
+\centerline{\includegraphics{./OBJ/iisd.\EPSPDF}}
 \caption{IISD deccomposition by subdomains}
 \label{fg:iisd}
 \end{figure*}
@@ -152,7 +152,7 @@ different for this solver than for the \PETSc{} iterative solver.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/iisd2.eps}}
+\centerline{\includegraphics{./OBJ/iisd2.\EPSPDF}}
 \caption{IISD deccomposition by subdomains. Actual decomposition.}
 \label{fg:iisd2}
 \end{figure*}
@@ -190,7 +190,7 @@ which is two times larger.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/iisd3.eps}}
+\centerline{\includegraphics{./OBJ/iisd3.\EPSPDF}}
 \caption{Non local element contribution due to bad partitioning}
 \label{fg:iisd3}
 \end{figure*}
@@ -275,7 +275,7 @@ in the other sense, i.e. first a \verb+MPI_Send()+ and after a
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/sched.eps}}
+\centerline{\includegraphics{./OBJ/sched.\EPSPDF}}
 \caption{Simple scheduling algorithm for transferring data among processors}
 \label{fg:sched}
 \end{figure*}
@@ -288,7 +288,7 @@ individual buffer from one process to other.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/sched2.eps}}
+\centerline{\includegraphics{./OBJ/sched2.\EPSPDF}}
 \caption{Improved scheduling algorithm for transferring data among processors}
 \label{fg:sched2}
 \end{figure*}
@@ -298,33 +298,34 @@ An improved strategy consists in a multilevel scheduling
 algorithm. Assume first that $\nproc$ is even and divide processors in
 subsets $S_1 = \{0,1,\ldots,\nproc/2\}$, $S_2 =
 \{n/2,n/2+1,\ldots,\nproc-1\}$. We first exchange all information
-between processors in $S_1$ with those in $S_2$ in $\nproc/2-1$ stages. In
-a first stage (see figure~\ref{fg:sched2}) processor $0$ exchanges
-data with $n/2$, 1 with $\nproc/2+1$, $\ldots$ and $n/2-1$ with $\nproc$. 
-i.e. processor 0 calls \verb+exchange+$(n/2)$ and
+between processors in $S_1$ with those in $S_2$ in $\nproc/2$
+stages. In a stage 0 (see figure~\ref{fg:sched2}) processor $0$
+exchanges data with $n/2$, 1 with $\nproc/2+1$, $\ldots$ and $n/2-1$
+with $\nproc$.  i.e. processor 0 calls \verb+exchange+$(n/2)$ and
 processor $n/2$ calls \verb+exchange+$(0)$, the code of procedure
-\verb+exchange()+ is shown in \label{lb:exch}. In the second stage
-processor 0
-exchanges with $\nproc/2+2$, 1 with $\nproc/2+3$, $\nproc/2-2$ with
-$\nproc$ and $\nproc/2-1$ with $\nproc/2$, i.e. processor
-$j$ exchanges with $(n/2)+(j+1)\%(\nproc/2)$. In general, in stage $k$
-processor $j$ exchanges with processor $(n/2)+(j+k)\%(\nproc/2)$. Note
-that in each stage all communications are paired and can be performed
-simultaneously, so that each stage can be performed in $2T$ (sending
-plus receiving). This $\nproc/2-1$ stages take then a total of
-$2(\nproc/2-1)T$. Now, all communication between processors in $S_1$ and
-$S_2$ has been performed, it only remains to perform the communication
-between processors in $S_1$ and processors in $S_2$. But then, we can
-apply this idea recursively and divide the processors in $S_1$ in two
-subsets $S_{11}$ and $S_{12}$ with $\nproc/4$ each (let's assume that
-the number of processors is a power of 2, $\nproc = 2^m$). Applying
-the idea recursively we arrive to an estimation of a total time of
+\verb+exchange()+ is shown in procedure~\ref{al:exch}. In the stage 1
+processor 0 exchanges with $\nproc/2+2$, 1 with $\nproc/2+3$,
+$\nproc/2-2$ with $\nproc$ and $\nproc/2-1$ with $\nproc/2$,
+i.e. processor $j$ exchanges with $(n/2)+(j+1)\%(\nproc/2)$. In
+general, in stage $k$ processor $j$ exchanges with processor
+$(n/2)+(j+k)\%(\nproc/2)$. Note that in each stage all communications
+are paired and can be performed simultaneously, so that each stage can
+be performed in $2T$ (sending plus receiving). This $\nproc/2$
+stages take then a total of $2(\nproc/2)T = \nproc T$ secs. Now, all communication
+between processors in $S_1$ and $S_2$ has been performed, it only
+remains to perform the communication between processors in $S_1$ and
+processors in $S_2$. But then, we can apply this idea recursively and
+divide the processors in $S_1$ in two subsets $S_{11}$ and $S_{12}$
+with $\nproc/4$ each (let's assume that the number of processors is a
+power of 2, $\nproc = 2^m$), with a required time of $(\nproc/2) T$. 
+Applying the idea recursively we arrive
+to an estimation of a total time of
 %
 \begin{equation} 
 \begin{split}
-  T(n) &= [(\nproc/2-1) + (\nproc/4-1) + \ldots + 1 ]2T\\
-        &= 2T \,(\nproc-\log_2\nproc)\\
-        &\sim 2\nproc T
+  T(n) &= [\nproc + (\nproc/2) + \ldots + 1 ]T\\
+        &= (2\nproc-1) T \\
+        &\sim O(2\nproc T)
 \end{split}
 \end{equation}
 %
@@ -332,7 +333,7 @@ Then, it is significantly better than the previous algorithm.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{algorithm}[htb]
-\label{lb:exch}
+\label{al:exch}
 \caption{Scheduling algorithm for exchanging data between processors}
 \begin{algorithmic}
 \STATE {\textbf{procedure exchange}(j)}
@@ -347,11 +348,6 @@ Then, it is significantly better than the previous algorithm.
 \end{algorithm}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
  
-
-
-
-
-
 % Local Variables: *
 % mode: latex *
 % tex-main-file: "petscfem.tex" *
