@@ -1,8 +1,12 @@
-;;; $Id: dvector.scm,v 1.5 2005/01/18 20:38:17 mstorti Exp $
+;;; $Id: dvector.scm,v 1.6 2005/03/03 02:20:56 mstorti Exp $
 (define-module (dvector))
 
-(load-extension "./libfemref" "dvint_init")
-(load-extension "./libfemref" "dvdbl_init")
+(load-extension 
+ (search-path %load-path "libfemref.so") 
+ "dvint_init")
+(load-extension 
+ (search-path %load-path "libfemref.so") 
+ "dvdbl_init")
 
 (define-public (dvdbl-resize! v . shape)
   (let loop ((size 1)

@@ -36,6 +36,7 @@ BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
+CPPFLAGS += -Wno-deprecated
 
 ifeq (makefilec.d,$(wildcard makefilec.d)) 
 include makefilec.d

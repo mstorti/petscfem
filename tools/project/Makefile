@@ -3,7 +3,8 @@
 
 default: project3.bin
 
-SRCS := project.cpp project2.cpp project3.cpp project4.cpp
+SRCS := project.cpp project2.cpp project3.cpp project4.cpp \
+	project-wrp.cpp
 
 BOPT := O_c++
 PETSCFEM_DIR = ../..
@@ -31,5 +32,11 @@ project4.bin: project4.o
 
 yuv_compress:
 	@echo nothing
+
+project-wrp.x: project-wrp.cpp
+
+libproject.so: project.o project-wrp.o
+	${CXX_CLINKER} -g -shared				\
+		-o $@ $^ `guile-config link` $(LDFLAGS_NO_PROG_LIB)
 
 #s

@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 #include <libguile.h>
 
 #include <src/dvector.h>
@@ -376,6 +377,8 @@ DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
 #define __FUN__ DVTYPE "-read-ctor"
 static int
 DVECTOR_READ_CTOR_FUN(SCM port) {
+  assert(0);
+#if 0
   static char buff[100];
   dvector_t *w;
   int k;
@@ -413,6 +416,7 @@ DVECTOR_READ_CTOR_FUN(SCM port) {
   if(n>nn) 
     scm_puts (" ... ", port);
   scm_puts (")", port);
+#endif
   return 1;
 }
 

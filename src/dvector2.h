@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.32 2005/01/17 23:51:25 mstorti Exp $
+// $Id: dvector2.h,v 1.33 2005/03/03 02:21:30 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -108,7 +108,7 @@ dvector<T> & dvector<T>::defrag() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-inline T &dvector<T>::ref(int j) {
+T &dvector<T>::ref(int j) {
   assert(j>=0 && j<size_m);
   int chunk,k;
   reff(j,chunk,k);
@@ -117,7 +117,7 @@ inline T &dvector<T>::ref(int j) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-inline const T &dvector<T>::ref(int j) const {
+const T &dvector<T>::ref(int j) const {
   assert(j>=0 && j<size_m);
   int chunk,k;
   reff(j,chunk,k);

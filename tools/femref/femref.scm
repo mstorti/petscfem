@@ -1,7 +1,7 @@
-;;; $Id: femref.scm,v 1.19 2005/01/17 03:45:45 mstorti Exp $
+;;; $Id: femref.scm,v 1.20 2005/03/03 02:20:56 mstorti Exp $
 (use-modules (ice-9 optargs))
-(load-extension "./libfemref" "init_femref")
-(load "./while2.scm")
+(load-extension "../femref/libfemref" "init_femref")
+(load-from-path "while2.scm")
 
 (define* (fem-smooth ctx surf-con elem-mass node-mass 
 		     u us #:key (niter 5) (verbose #f))

@@ -1,13 +1,15 @@
 //__INSERT_LICENSE__
-// $Id: project-wrp.cpp,v 1.1 2005/03/02 23:40:41 mstorti Exp $
+// $Id: project-wrp.cpp,v 1.2 2005/03/03 02:21:00 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
+#include <ANN/ANN.h>
 
 #include "./project.h"
 #include <libguile.h>
+#include "../femref/guilemac.h"
 
 scm_t_bits FemInterpTag;
 
@@ -22,16 +24,29 @@ SCM_DEFINE(make_fem_interp,"make-fem-interp", 0, 0, 0,
 #undef FUNC_NAME
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-SCM_DEFINE(free_fem_interp,"free-fem-interp", 1, 0, 0,
-	   (SCM s_w),
-	   "Frees fem interp object.")
-#define FUNC_NAME s_free_fem_interp
-{
+#undef __FUN__
+#define __FUN__ "free-fem-interp"
+static size_t
+free_fem_interp(SCM s_w) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(FemInterpTag,s_w),
               s_w, SCM_ARG1, __FUN__);
-  FemInterpTag *w = (FemInterpTag *)(SCM_SMOB_DATA(s_w));
+  FemInterp *w = (FemInterp *)(SCM_SMOB_DATA(s_w));
   delete w;
   return sizeof(FemInterp);
+}
+#undef FUNC_NAME
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+SCM_DEFINE(fem_interp_init_aux,"fem-interp-init-aux", 5, 0, 0,
+	   (SCM s_knbr, 
+	    SCM s_ndof, 
+	    SCM s_ndimel,
+	    SCM s_xnod,
+	    SCM s_icone), 
+	   "Initializes FEM-interp object from mesh data.")
+#define FUNC_NAME s_fem_interp_init_aux
+{
+  return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
 
@@ -42,6 +57,6 @@ init_fem_interp(void) {
   scm_set_smob_free(FemInterpTag,free_fem_interp);
   scm_c_define_gsubr("make-fem-interp",0,0,0,scm_fun(make_fem_interp));
 #ifndef SCM_MAGIC_SNARFER
-#include "./gsguile.x"
+#include "./project-wrp.x"
 #endif
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.27 2005/01/17 23:51:25 mstorti Exp $
+// $Id: dvector.h,v 1.28 2005/03/03 02:21:30 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -93,12 +93,12 @@ public:
   /** reference to the object in some position
       @param j (input) position in the vector
       @return a reference to the object inside the vector */ 
-  inline T &ref(int j);
+  T &ref(int j);
 
   /** reference to the object in some position (const version)
       @param j (input) position in the vector
       @return a reference to the object inside the vector */ 
-  inline const T &ref(int j) const;
+  const T &ref(int j) const;
 
   /** number of elements in the vector
       @return size of vector */ 

@@ -1,0 +1,29 @@
+Hi all!
+
+I have written a vector library, similar to the C++ STL vector<>
+library. I want to wrap it to use with Guile. Yes, I know that there
+are already components with similar functionality in Guile itself, as
+for instance the uniform arrays, and homogeneous vectors
+(SRFI-4). However I need them to interface with mi Finite Element
+Library (http://www.cimec.org.ar/petscfem). Finally, I think that is a
+good exercise to do. 
+
+So I already wrapped a subset of the functionality of my `dvector<>'
+library and I'm happy with it. However I did the wrapping for a
+`dvector<double>', i.e. a particular instantiation of the C++
+template. Now I can't figure how to wrap other instantiations (for
+instance `dvector<int>' or `dvector<float>') without duplicating
+code. For the C++ part (the wrappers to be loaded in Scheme) I had no
+problems by using some tricky macros, but the problem is with the
+Scheme code that calls the C++ primitives.
+
+To be more specificm let's say that I have the C++ primitives mapped
+to their Scheme versions `make-dvdbl', `dvdbl-set!', `dvdbl-ref' and
+`dvdbl-resize!', and the same for the `dvint' versions. Now I have
+some Scheme function `dvdbl-fill-with-proc v proc' that fills the
+vector of doubles `v' with a procedure that produces values. How can I
+make this more general, i.e. for other instantiations like
+`dvint-fill-with-proc v proc', for integers? Should I use OOP and made
+it generic, or is this an overkill?
+
+TIA, Mario
