@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.18 2004/11/22 19:35:22 mstorti Exp $
+// $Id: femref.h,v 1.19 2004/11/22 21:44:05 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -33,6 +33,7 @@ public:
     virtual const int* nodes(Type t,int j) const { assert(0); }
   };
   Template *go_template;
+  static Template* get_template(Type t);
 private:
   int cs, canonical;
   dvector<int> nodes_m;
@@ -134,7 +135,7 @@ public:
   }
   
   void set(iterator it,GeomObject &go);
-  iterator find(const GeomObject &go) { }
+  iterator find(const GeomObject &go);
   void get_adjacency(iterator it,GeomObject::Type t,
 		     list<iterator> &adj) { }
 };

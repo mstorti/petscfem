@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.9 2004/11/22 19:35:22 mstorti Exp $
+// $Id: femref.cpp,v 1.10 2004/11/22 21:44:05 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -53,6 +53,7 @@ void GeomObject::init(Type t,const int *nodes_a) {
 
   clear();
 
+#if 0
 #define SET_TEMPL(CLASS) \
 else if(t==CLASS##T) go_template = &CLASS##Template
 
@@ -63,7 +64,9 @@ else if(t==CLASS##T) go_template = &CLASS##Template
   // SET_TEMPL(Tri);
   SET_TEMPL(OrientedTetra);
   else assert(0);
+#endif
 
+  go_template = get_template(t);
   int sz = size();
   nodes_m.mono(sz);
   if (nodes_a) {
@@ -73,6 +76,23 @@ else if(t==CLASS##T) go_template = &CLASS##Template
       cs += node;
       nodes_m.ref(j) = node;
     }
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+GeomObject::Template* GeomObject::get_template(Type t) {
+
+#define SWITCH(TYPE) \
+ case TYPE##T: return &TYPE##Template
+
+  switch(t) {
+  case NULL_TYPE: return NULL;
+    // SWITCH(OrientedEdge);
+    // SWITCH(Edge);
+    SWITCH(OrientedTri);
+    // SWITCH(Tri);
+    SWITCH(OrientedTetra);
+  default: assert(0);
   }
 }
 
@@ -202,15 +222,63 @@ void UniformMesh::set(iterator it,GeomObject &go) {
   assert(0 <= it.obj && it.obj<nelem);
   int sz = tmpl->size(it.t);
   assert(it.subobj < sz);
-  go.init(it.t);
+  // go.init(it.t);
+  GeomObject::Template *so_tmpl = 
+    GeomObject::get_template(it.t);
   const int *local_nodes = tmpl->nodes(it.t,it.subobj);
   // Nodes of the subobject
   dvector<int> so_nodes;
-  int so_sz = go.size();
+  int so_sz = so_tmpl->size_m;
   so_nodes.mono(so_sz);
   for (int j=0; j<so_sz; j++)
     so_nodes.e(j) = connec.e(it.obj,local_nodes[j]);
   go.init(it.t,so_nodes.buff());
+}
+
+Mesh::iterator 
+UniformMesh::find(const GeomObject &go) { 
+  int sz = go.size();
+  assert(sz>0);
+  dvector<int> p, pe, vals;
+  p.mono(sz); pe.mono(sz); vals.mono(sz);
+  int *nodes_p = go.nodes(), emin, emax, jmin;
+  go.print("searching face: ");
+  for (int j=0; j<sz; j++) {
+    int node = nodes_p[j];
+    p.e(j) = n2e_ptr.e(node);
+    pe.e(j) = n2e_ptr.e(node+1);
+    assert(pe.e(j)>p.e(j));
+#if 0
+    if (j==0) {
+      emin = emax = ele;
+      jmin = 0;
+    }
+    if (ele>emax) emax = ele;
+    else if (ele<emin) {
+      emin = ele; jmin = j; 
+    } else {
+      printf("candidate elem %d\n",ele);
+    }
+#endif
+  }
+  while (true) {
+    // Which is min from the `p'
+    int pp = p.e(0);
+    emin = emax = n2e(pp); jmin=0;
+    for (int j=1; j<sz; j++) {
+      pp = p.e(j);
+      if (pp < pmin) {
+	pmin = pp;
+	jmin = j;
+      }
+      if (pp > pmax) pmax = pp
+    }
+    if (pmin<pmax) {
+      // advance jmin
+      pmin = 
+    }
+    
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
