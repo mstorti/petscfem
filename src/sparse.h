@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.5 2001/09/21 15:37:47 mstorti Exp $
+// $Id: sparse.h,v 1.6 2001/09/21 16:54:32 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -74,7 +74,8 @@ namespace Sparse {
     Vec & clear() {map<int,double>::clear(); return *this;}
     /// Resize vectors, truncates elements if greater than this value
     Vec & resize(int n);
-
+    /// Flags if the vector is empty or not
+    int empty() const;
 //      /// Equal operator
 //      Vec operator=(Vec v) { *this = v; return *this;}
 
@@ -116,6 +117,10 @@ namespace Sparse {
     double get(int j,int k) const;
     /// Set element at position j
     Mat & set(int j,int k,double v);
+    /// Set row j
+    Mat & setr(int j,Vec &v);
+    /// Set col j
+    Mat & setc(int j,const Vec &v);
 
     /// print elements
     void print(const char *s = NULL);

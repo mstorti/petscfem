@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.3 2001/09/21 15:37:57 mstorti Exp $
+// $Id: sp.cpp,v 1.4 2001/09/21 16:54:35 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -15,6 +15,13 @@ int irand(int imin,int imax) {
 }
 
 using namespace Sparse;
+
+void my_set(Vec &v,int k=1) {
+  v.clear();
+  int l = v.length();
+  for (int j=0; j<l; j+= k) 
+    v.set(j,double(j));
+}
 
 #define M 1000
 int main() {
@@ -40,11 +47,26 @@ int main() {
   v.print("v:");
   u.axpy(3.,v).print("u = u+3*v ... ");
 
+  printf("u empty? %d\n",u.empty());
+  u.clear();
+  printf("u empty after clear() ? %d\n",u.empty());
+
   m=5;
   a.resize(m,m);
   for (j=0; j<m; j++) 
     for (k=0; k<m; k++) 
       if ((j+k) % 2) a.set(j,k,double(j*10+k));
   a.print("checkerboard mat");
+  
+  u.resize(5);
+  my_set(u);
+  u.print("after my_set; ");
+  for (j=0; j<2; j++) 
+    a.setr(j,u);
+  a.print("rows 0 1  set to u: ");
+
+  for (j=3; j<5; j++) 
+    a.setc(j,u);
+  a.print("cols 3 4 set to u: ");
 
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.7 2001/09/21 15:37:47 mstorti Exp $
+//$Id: sparse.cpp,v 1.8 2001/09/21 16:54:32 mstorti Exp $
 
 #include "sparse.h"
 
@@ -223,6 +223,15 @@ namespace Sparse {
     }
   }
 
+  int Vec::empty() const {
+    VecCIt i,e;
+    
+    e = end();
+    for (i=begin(); i!=e; i++) 
+      if (i->second != 0.) return 0;
+    return 1;
+  }
+
   /// Set element at position j
   Mat & Mat::set(int j,int k,double v) {
     RowIt J;
@@ -278,6 +287,57 @@ namespace Sparse {
     for (i=begin(); i!=e; i++) i->second.resize(n);
     nrows = m;
     ncols = n;
+    return *this;
+  }
+
+  Mat & Mat::setr(int j,Vec &v) {
+    RowIt J = find(j);
+    int v_empty;
+
+    if (j >= nrows ) {
+      if (!grow_m) {
+	printf("sparse: index %d out of range, length %d\n",j,nrows);
+	abort();
+      }
+      nrows = j+1;
+    }
+    v_empty = v.empty();
+
+    if (J == end()) {
+      if (!v_empty) insert(RowP(j,v));
+    } else {
+      if (v_empty) {
+	erase(J);
+      } else {
+	J->second = v;
+      }
+    }
+    return *this;
+  }
+
+  Mat & Mat::setc(int j,const Vec &v) {
+    RowIt r;
+    VecCIt k,e;
+
+    if (j >= ncols ) {
+      if (!grow_m) {
+	printf("sparse: index %d out of range, ncols %d\n",j,ncols);
+	abort();
+      }
+      ncols = j+1;
+    }
+
+    // Clear the column
+    for (r=begin(); r!=end(); r++) {
+      r->second.set(j,0.);
+      if (r->second.empty()) erase(r);
+    }
+
+    // Set the column
+    e = v.end();
+    for (k=v.begin(); k!=e; k++) 
+      set(k->first,j,k->second);
+
     return *this;
   }
 
