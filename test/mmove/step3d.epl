@@ -1,0 +1,66 @@
+<:
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$N=8;
+$disp = 0.3;
+# $shape = 'quad';
+#
+octave_export_vars(">data.m.tmp",qw(N disp shape));
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 3
+
+save_file "step3d.state.tmp"
+nsave 5
+nsaverot 0
+
+#if 0
+solver "petsc"
+#else
+solver "iisd"
+iisd_subpart_auto 2000
+#endif
+report_consumed_time
+
+nnwt 1
+# newton_relaxation_factor 0.1 10 1.
+pc_lu_fill 8.
+rtol 1e-4
+atol 1e-10
+tol_newton 0
+maxits 100
+steady
+# c_volume 0.1
+# distor_exp 1.
+
+<:$nstep=20; pr('nstep');:>
+Dt <:= 1./$nstep;:>
+__END_HASH__
+
+# ndim nu ndof
+nodes 3 3 3
+__INCLUDE__ "step3d.nod.tmp"
+__END_NODES__
+
+#===========================================================
+elemset mesh_move 4
+geometry tetra
+npg 1
+__END_HASH__
+__INCLUDE__ "step3d.con-tet.tmp"
+__END_ELEMSET__
+
+end_elemsets
+
+fixa_amplitude piecewise_linear
+filename "piecewise.dat"
+__END_HASH__
+__INCLUDE__ "step3d.fixa.tmp"
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

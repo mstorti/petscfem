@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.6 2002/11/30 14:54:47 mstorti Exp $
+//$Id: mmove.cpp,v 1.7 2002/11/30 22:31:41 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -60,8 +60,8 @@ void mesh_move::init() {
       dNdxi.setel(0                       ,1,3);
       dNdxi.setel(+sin(M_PI/3)            ,2,3);
     } else if (nel==4) {
-      double cquad[] = {-1,-1,1,-1,1,1,-1,1};
-      C.resize(2,nel,ndim).set(c).t();
+      double cq[] = {-1,-1,1,-1,1,1,-1,1};
+      C.resize(2,nel,ndim).set(cq).t();
       dNdxi.set(C);
     } else PETSCFEM_ERROR("Only tringles ad quads in 2D: nel %d\n",nel);
   } else {
@@ -115,7 +115,6 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
     diffla /= pow(vol,2./3.);
   }
   df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
-
   xlocp.reshape(1,nel*ndim);
 
   return df;

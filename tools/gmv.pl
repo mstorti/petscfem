@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.5 2002/08/11 17:25:23 mstorti Exp $
+#$Id: gmv.pl,v 1.6 2002/11/30 22:31:29 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -82,6 +82,8 @@ if ($dim==2 && $nel==4) {
     $shape = 'quad';
 } elsif ($dim==3 && $nel==8) {
     $shape = 'hexa';
+} elsif ($dim==3 && $nel==4) {
+    $shape = 'tetra';
 } else {
     die "unknown case dim $dim, nel $nel\n";
 }
