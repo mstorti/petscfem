@@ -1,10 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: project2.cpp,v 1.3 2005/02/28 01:30:53 mstorti Exp $
+// $Id: project2.cpp,v 1.4 2005/02/28 02:56:58 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
+#include <ANN/ANN.h>
 
 static double drand() { 
   return double(rand())/double(RAND_MAX); 
@@ -82,9 +83,38 @@ int main() {
   int use_cache;
   FILE *fid = fopen("pinterp.tmp","w");
   use_cache = 0;
+
+  // Build ANN octree
+  FastMat2 xe(1,ndim),xn(1,ndim);
+  double inel = 1./nel;
+  ANNpointArray data_pts 
+    = annAllocPts(nelem1,ndim);
+  for (int k=0; k<nelem1; k++) {
+    xe.set(0.);
+    for (int j=0; j<nel; j++) {
+      int node = ico1.e(k,j);
+      xn.set(&xnod1.e(node-1,0));
+      xe.add(xn);
+    }
+    xe.scale(inel);
+    for (int j=0; j<ndim; j++)
+      data_pts[k][j] = xe.get(j+1);
+  }
+  ANNkd_tree kdtree(data_pts,nelem1,ndim);
+#define KNBR 10
+  ANNidx nn_idx[KNBR];
+  ANNdist nn_dist[KNBR];
+  ANNpoint nn = annAllocPt(ndim);
+
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
     if(use_cache) FastMat2::activate_cache(&cache_list);
+    for (int j=0; j<ndim; j++) 
+      nn[j] = xnod2.e(n2,j);
+    kdtree.annkSearch(nn,KNBR,nn_idx,nn_dist,0.0);
+    for (int k=0; k<KNBR; k++)
+      printf("(%d %f) ",nn_idx[k],nn_dist[k]);
+    printf("\n");
     for (int k=0; k<nelem1; k++) {
       FastMat2::reset_cache();
       C.is(1,1,ndim);
@@ -196,7 +226,8 @@ int main() {
     Lmin.is(1,1,nel);
     u2.prod(u1_loc,Lmin,1,-1,-1);
     Lmin.rs();
-    printf("node2 %d, dist min %f\n",n2,d2min);
+    printf("node2 %d, dist min %f, nearest elem %d\n",n2,
+	   d2min,k1min);
     for (int j=1; j<=ndof; j++)
       fprintf(fid,"%f ",u2.get(j));
     fprintf(fid,"\n");
