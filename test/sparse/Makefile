@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2002/07/19 02:00:43 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2002/07/19 20:16:22 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -40,4 +40,9 @@ tryme3.bin: tryme3.o
 
 tryme4.bin: tryme4.cpp
 	g++ -g -o $@ $<
+
+tryme5.o: CPPFLAGS = -I/u/mstorti/SOFT/boost_1_28_0/ -ftemplate-depth-30
+tryme5.bin: tryme5.o
+	g++ -g -o $@ $<
+
 #s

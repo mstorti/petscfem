@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.8 2002/07/19 15:59:57 mstorti Exp $
+// $Id: tryme4.cpp,v 1.9 2002/07/19 20:16:22 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -24,7 +24,8 @@ void print_set(set<int> &gg,const char *s=NULL) {
 }
 
 typedef pair<int,int> int_pair2;
-void print_set(set<int_pair2> &gg,const char *s=NULL) { 
+typedef set<int_pair2,less<int_pair2>,malloc_alloc> Set2;
+void print_set(Set2 &gg,const char *s=NULL) { 
     if (s) printf("%s",s);
     for (set<int_pair2>::iterator q=gg.begin(); q!=gg.end(); q++) 
     printf("(%d,%d) ",q->first,q->second);
@@ -46,10 +47,11 @@ public:
 template<class T>
 class Set {
 private:
-  typedef vector<T> cont;
+  typedef deque<T,malloc_alloc> cont;
   typedef cont::iterator cont_it;
   cont d;
   int ordered;
+  int MAX_INIT;
   // will resort if size passes max
   int max;
   // flag whether new elements have been inserted or not
@@ -75,7 +77,7 @@ private:
     }
   }
 public:
-  Set() { ordered = 0; max=10; modif=0; }
+  Set() { ordered = 0; MAX_INIT = 1000; max=MAX_INIT; modif=0; }
   ~Set() { d.clear(); }
   void insert(T t) {
     if (!binary_search(d.begin(),d.begin()+ordered,t)) {
@@ -97,6 +99,7 @@ public:
   }
   void print2();
   int size() { resync(); return d.size(); }
+  void clear() { d.clear(); modif=0; ordered=0; max = MAX_INIT; }
 };
 
 void Set<int>::print2() {
@@ -115,7 +118,7 @@ void Set<int_pair>::print2() {
 
 int main(int argc, char **argv) {
   Set<int_pair> g;
-  set<int_pair2> gg;
+  Set2 gg;
   int kk;
   for (kk=0; kk<1000000; kk++) { 
     int k = irand(1,1000);
@@ -131,9 +134,7 @@ int main(int argc, char **argv) {
       } else printf("on kk=%d OK: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
     }
   }
-  
-  // g.print("usando my_set<int>: ");
-  // print_set(gg,"usando set<int>: ");
-
+  g.clear();
+  gg.clear();
   printf("g.size(): %d, gg.size() %d\n",g.size(),gg.size());
 }
