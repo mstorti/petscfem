@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.28 2002/09/05 19:24:01 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.29 2002/09/05 20:10:17 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -780,7 +780,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
 #ifdef DEBUG_IISD    
     ierr = ViewerSetFormat(matlab,
-			   PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); PF_CHKERRQ(ierr);
+			   PETSC_VIEWER_ASCII_MATLAB,"dxiisd"); PF_CHKERRQ(ierr);
     ierr = VecView(dx,matlab);
     ierr = ViewerDestroy(matlab);
 #endif

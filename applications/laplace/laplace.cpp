@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.11 2002/08/18 15:03:47 mstorti Exp $
+//$Id: laplace.cpp,v 1.12 2002/09/05 20:10:17 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -60,7 +60,7 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&size);
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns-fracstep.cpp,v 1.8 2002/09/05 19:24:01 mstorti Exp $
+//$Id: ns-fracstep.cpp,v 1.9 2002/09/05 20:10:17 mstorti Exp $
  
 #include <time.h>
 #include <malloc.h>
@@ -79,7 +79,7 @@ int main(int argc,char **args) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
   //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
 
   // Read data
 
@@ -197,7 +197,7 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "matns.m",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-      			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res");
+      			     PETSC_VIEWER_ASCII_MATLAB,"res");
       CHKERRA(ierr);
 #endif 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -391,7 +391,7 @@ int main(int argc,char **args) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
   //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
 
   // Read data
 
@@ -494,7 +494,7 @@ int main(int argc,char **args) {
   ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
   ierr = ViewerSetFormat(matlab,
-			 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"A"); CHKERRA(ierr);
+			 PETSC_VIEWER_ASCII_MATLAB,"A"); CHKERRA(ierr);
   ierr = VecView(x,matlab); CHKERRA(ierr);      
 #endif
 
@@ -563,7 +563,7 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
-      			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"pepe"); CHKERRA(ierr);
+      			     PETSC_VIEWER_ASCII_MATLAB,"pepe"); CHKERRA(ierr);
       ierr = VecView(x,matlab); CHKERRA(ierr);      
       ViewerDestroy(matlab);
 #endif 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.94 2002/09/05 19:24:01 mstorti Exp $
+//$Id: ns.cpp,v 1.95 2002/09/05 20:10:17 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -10,6 +10,11 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
+
+// PETSc now doesn't have the string argument that represents the variable name
+// so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
+#define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
+          PetscViewerSetFormat(viewer,format)
 
 #include <applications/ns/nsi_tet.h>
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
@@ -30,10 +35,11 @@ int main(int argc,char **args) {
   PetscViewer matlab;
   PFMat *A_tet, *A_tet_c, *A_mom, *A_poi, *A_prj;;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
-  int     ierr, i, n = 10, flg, size, node,
+  int     ierr, i, n = 10, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
+  PetscTruth flg;
   // Initialize time
   Time time,time_old,time_star; time.set(0.);
   GlobParam glob_param;
@@ -60,7 +66,7 @@ int main(int argc,char **args) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
   //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
   CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
@@ -69,7 +75,7 @@ int main(int argc,char **args) {
     exit(0);
   }
 
-  ierr = OptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
+  ierr = PetscOptionsGetString(PETSC_NULL,"-o",output_file,FLEN,&flg);
   CHKERRA(ierr);
   if (flg) { 
     PetscPrintf(PETSC_COMM_WORLD,"PETSc-FEM: NS module: "
@@ -454,21 +460,22 @@ int main(int argc,char **args) {
 	debug.trace("After residual computation.");
 
 #if 0
-	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
-	ierr = ViewerSetFormat(matlab,
-			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
+	ierr = PetscViewerSetFormat(matlab,
+			       PETSC_VIEWER_ASCII_MATLAB); CHKERRA(ierr);
+	// ierr = PetscViewerSetFilename(matlab,"a_tet"); CHKERRA(ierr);
 	ierr = A_tet->view(matlab); CHKERRA(ierr); 
 #endif
 
 #if 0 //debug:=
-	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
-	ierr = ViewerSetFormat(matlab,
-			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"x"); CHKERRA(ierr);
+	ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			       PETSC_VIEWER_ASCII_MATLAB,"x"); CHKERRA(ierr);
 	ierr = VecView(x,matlab);
-	ierr = ViewerSetFormat(matlab,
-			       PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+	ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			       PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	ierr = VecView(res,matlab);
 	PetscFinalize();
 	exit(0);
@@ -476,10 +483,10 @@ int main(int argc,char **args) {
 
 	PetscViewer matlab;
 	if (verify_jacobian_with_numerical_one) {
-	  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 				 "system.dat.tmp",&matlab); CHKERRA(ierr);
-	  ierr = ViewerSetFormat(matlab,
-				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+				 PETSC_VIEWER_ASCII_MATLAB,
 				 "atet"); CHKERRA(ierr);
 
 	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
@@ -503,8 +510,8 @@ int main(int argc,char **args) {
 	  ierr = assemble(mesh,argl,dofmap,jobinfo,
 			  &time_star); CHKERRA(ierr);
 
-	  ierr = ViewerSetFormat(matlab,
-				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+				 PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
 	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
 
 	  PetscFinalize();
@@ -524,18 +531,18 @@ int main(int argc,char **args) {
 	  PetscPrintf(PETSC_COMM_WORLD,
 		      "Printing residual and matrix for"
 		      " debugging and stopping.\n");
-	  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 				 "system.dat",&matlab); CHKERRA(ierr);
-	  ierr = ViewerSetFormat(matlab,
-				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+				 PETSC_VIEWER_ASCII_MATLAB,"atet"); CHKERRA(ierr);
 	  ierr = A_tet->view(matlab);
-	  ierr = ViewerSetFormat(matlab,
-				 PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
+				 PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	  ierr = VecView(res,matlab);
 
 	  if (solve_system) {
-	    ierr = ViewerSetFormat(matlab,
-				   PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx");
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
+				   PETSC_VIEWER_ASCII_MATLAB,"dx");
 	    CHKERRA(ierr);
 	    ierr = VecView(dx,matlab);
 	  }
@@ -607,16 +614,16 @@ int main(int argc,char **args) {
       debug.trace("-PREDICTOR- After residual computation.");
 
 #if 0
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"amom"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"amom"); CHKERRA(ierr);
       ierr = A_mom->view(matlab);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
       ierr = VecView(res,matlab);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"dx"); CHKERRA(ierr);
       ierr = VecView(dx,matlab);
       PetscFinalize();
       exit(0);
@@ -665,16 +672,16 @@ int main(int argc,char **args) {
       ierr = VecAXPY(&scal,dx,x);
 
 #if 0
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
       ierr = A_poi->view(matlab);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
       ierr = VecView(res,matlab);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"dx"); CHKERRA(ierr);
       ierr = VecView(dx,matlab);
       PetscFinalize();
       exit(0);
@@ -716,16 +723,16 @@ int main(int argc,char **args) {
       ierr = VecAXPY(&scal,dx,x);
 
 #if 0
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
       ierr = A_prj->view(matlab);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"res"); CHKERRA(ierr);
       ierr = VecView(res,matlab);
-      ierr = ViewerSetFormat(matlab,
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+      ierr = PetscViewerSetFormat_WRAPPER(matlab,
+			     PETSC_VIEWER_ASCII_MATLAB,"dx"); CHKERRA(ierr);
       ierr = VecView(dx,matlab);
       PetscFinalize();
       exit(0);

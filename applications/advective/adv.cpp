@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.11 2002/09/05 19:24:01 mstorti Exp $
+//$Id: adv.cpp,v 1.12 2002/09/05 20:10:17 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -52,7 +52,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
 #define VECVIEW(name,label) \
 ierr = ViewerSetFormat(matlab, \
-		       PETSC_VIEWER_FORMAT_ASCII_MATLAB,#label); \
+		       PETSC_VIEWER_ASCII_MATLAB,#label); \
 ierr = VecView(name,matlab); CHKERRA(ierr)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -100,7 +100,7 @@ int main(int argc,char **args) {
 //    MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
       //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
@@ -372,10 +372,10 @@ int main(int argc,char **args) {
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab, 
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"res");
+			     PETSC_VIEWER_ASCII_MATLAB,"res");
       ierr = VecView(res,matlab);
       ierr = ViewerSetFormat(matlab, 
-			     PETSC_VIEWER_FORMAT_ASCII_MATLAB,"amass");
+			     PETSC_VIEWER_ASCII_MATLAB,"amass");
       ierr = MatView(A_mass,matlab);
       PetscFinalize();
       exit(0);
