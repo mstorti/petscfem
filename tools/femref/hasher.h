@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.6 2004/11/28 23:19:37 mstorti Exp $
+// $Id: hasher.h,v 1.7 2004/11/28 23:33:32 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
@@ -49,13 +49,15 @@ private:
 public:
   static int hashf(int x) {
     const unsigned int 
-      c = 24253464,
-      n = 4;
+      c = 0x238e1f29,
+      m = 0x6b8b4567,
+      n = 0;
     unsigned long int y, tmp;
     y = x;
     for (int j=0; j<n; j++) {
       tmp = y + c;
       y = tmp*tmp;
+      y ^= m;
     }
     return y;
   }
