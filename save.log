@@ -1419,3 +1419,6 @@ tag: beta-3.02.pl9 on Wed,  7 Aug 2002 12:26:45 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.02.pl10 on Wed,  7 Aug 2002 15:17:32 -0300 by mstorti in minerva.arcride.edu.ar
      > Compiles and runs `embedded_gatherer'.
+----------
+tag: beta-3.02.pl11 on Wed,  7 Aug 2002 16:31:37 -0300 by mstorti in minerva.arcride.edu.ar
+     > Found bug in `mydetsur'.
