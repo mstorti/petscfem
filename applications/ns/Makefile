@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.28 2002/03/17 03:53:40 mstorti Exp $ 
+ # $Id: Makefile,v 1.29 2002/03/29 20:59:37 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -16,7 +16,6 @@ LIBOBJS = ns.o  nsitetlesfm2.o					\
 
 MYOBJS = 
 
-.INTERMEDIATE: $(LIBOBJS) 
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"
