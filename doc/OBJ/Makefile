@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.5 2001/05/26 22:18:33 mstorti Exp $
+#$Id: Makefile,v 1.6 2002/07/28 14:43:35 mstorti Exp $
 
 EPS = $(patsubst %.obj, %.eps, $(wildcard *.obj))
 EPS_F = $(patsubst %.fig, %.eps, $(wildcard *.fig))
@@ -25,6 +25,7 @@ $(EPS_F): %.eps : %.fig
 	epstopdf $< -o $@
 
 local_dist_clean::
+	fixobj -c
 	rm -f *.eps *~ *.bak *.pdf
 
 local_clean:: local_dist_clean
