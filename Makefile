@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.38 2002/06/26 21:10:31 mstorti Exp $
+#$Id: Makefile,v 1.39 2002/07/11 00:34:56 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -165,7 +165,7 @@ sync_version:
 	echo "Creating src/version.cpp" ;				\
 	$(MAKE) -C src version.cpp
 
-#w This is somewhat obsolett. Now uses CVS
+#w This is somewhat obsolet. Now uses CVS
 save:
 	$(MAKE) sync_version
 	if [ -f $(TARFILE).tara,v ]  ;				\

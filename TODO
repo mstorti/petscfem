@@ -3,6 +3,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In `eperlini.pl' we have to check strings/number with `is_numeric()'
+   defined in 'perl/utils.pl' but this requires to update eperl in
+   spider. 
 * There is a problem with the `fstack' close and destruction
   functions. It gives a SIGSEGV for the following version of rosi2/pfm
 > ----------

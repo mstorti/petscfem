@@ -3,6 +3,10 @@
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
 $NP = $ENV{'NP'};
 
+# In `eperlini.pl' we have to check strings/number with `is_numeric()'
+#   defined in 'perl/utils.pl' but this requires to update eperl in
+#   spider. 
+
 sub quote_string {
     my $value = shift();
     # This is how to know if a variable is a number or a string. 
