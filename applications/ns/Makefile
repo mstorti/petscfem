@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.39 2002/09/11 00:27:49 mstorti Exp $ 
+ # $Id: Makefile,v 1.40 2002/09/17 15:25:02 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -48,8 +48,6 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 ns.o : CCPPFLAGS += -O0
 
 #compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a | sed s/\#//g)\""
-compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
-
 noafs:
 	@echo "making symbolic links to NO Algebraic FS formulation... "
 	@ls -l ns.cpp nsitetlesfm2.cpp ; \

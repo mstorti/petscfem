@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.93 2002/09/10 23:50:28 mstorti Exp $
+#$Id: Makefile.base,v 1.94 2002/09/17 15:25:02 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -334,3 +334,4 @@ petscfem.prof: gmon.out
 
 gprof: petscfem.prof
 
+compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
