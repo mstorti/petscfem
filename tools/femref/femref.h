@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.26 2004/11/23 16:47:43 mstorti Exp $
+// $Id: femref.h,v 1.27 2004/12/05 15:38:37 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -9,6 +9,9 @@
 #include <src/dvector2.h>
 #include <src/generror.h>
 #include <src/linkgraph.h>
+#include "./tree.h"
+
+extern MD5Hasher hasher;
 
 /** Represents a geomtric object `outside' its container.
     Basically, it represents a sequence of nodes and a 
@@ -102,6 +105,17 @@ public:
   void set(Type t,int j,GeomObject &go) const;
 };
 
+class Splitter {
+public:
+  /// Number of subobjetcs of type #t# in this shape. 
+  virtual int size(GeomObject::Type t) const { assert(0); }
+  /// Local nodes connected to subobject #j# of type #t#. 
+  virtual const int* nodes(GeomObject::Type t,int j) { assert(0); }
+};
+
+typedef double
+(*RefineFunction)(GeomObject &go,const double *xnod);
+
 /** A mesh is a container of geometrical objects
     linked (as in a graph).  Two objects are linked
     if they share a node. For reasons of efficiency,
@@ -176,6 +190,9 @@ private:
   int nnod, nelem, nel;
   /// The ptr to the shape object
   const GeomObject::Template *tmpl;
+  typedef tree<const Splitter *> ElemRef;
+  /// The refinement of each element
+  dvector<ElemRef> elem_ref;
   /** Auxiliary function that searches the iterator
       for a given object. If #its==NULL# then
       returns the first iterator found in #it#. If
@@ -191,73 +208,9 @@ private:
 
 public:
   /// Ctor from dimensions and shape
-  UniformMesh(GeomObject::Template &tmpl_a,int ndim_a) 
-    : tmpl(&tmpl_a), nel(tmpl_a.size_m), ndim(ndim_a) { 
-    // reshape dvectors to specicied shape
-    coords.reshape(2,0,ndim);
-    connec.reshape(2,0,nel);
-  }
-
+  UniformMesh(GeomObject::Template &tmpl_a,int ndim_a); 
   /// Read the mesh from specified files
-  void read(const char *node_file,const char *conn_file) {
-    // This is used auxiliary
-    LinkGraph lgraph;
-    // Reads coors file and resize
-    coords.cat(node_file).defrag();
-    // Reads connectivity file and resizes
-    connec.cat(conn_file).defrag();
-    // Gets number of nodes
-    nnod = coords.size(0);
-    // Gets number of elements per node.
-    // This comes from the specified shape. 
-    nel = connec.size(1);
-    // Add connections to graph
-    lgraph.init(nnod);
-    nelem = connec.size(0);
-    for (int ele=0; ele<nelem; ele++) {
-      for (int k=0; k<nel; k++) {
-	int node = connec.e(ele,k);
-	// printf("add node %d, elem %d\n",node,ele);
-	lgraph.add(node,ele);
-      }
-    }
-
-    GSet ngbrs;
-#if 0
-    for (int node=0; node<nnod; node++) {
-      // printf("node %d, elems ",node);
-      // For each node get list of ngbrs and
-      ngbrs.clear();
-      lgraph.set_ngbrs(node,ngbrs);
-      GSet::iterator p = ngbrs.begin();
-      while (p!=ngbrs.end()) printf("%d ",*p++);
-      printf("\n");
-    }
-#endif
-
-    // Pass the connectivity in graph `lgraph' to
-    // to (n2e,n2e_ptr)
-    // Dimension `n2e_ptr'
-    n2e_ptr.resize(nnod+1);
-    // Initialize `n2e_ptr'
-    for (int j=0; j<nnod; j++) n2e_ptr.ref(j) = 0;
-    // Cummulate size of `ngbrs' in order
-    // to define `n2e_ptr'
-    int nadj = 0;
-    for (int nod=0; nod<nnod; nod++) {
-      n2e_ptr.e(nod) = nadj;
-      ngbrs.clear();
-      lgraph.set_ngbrs(nod,ngbrs);
-      nadj += ngbrs.size();
-      GSet::iterator p = ngbrs.begin();
-      while (p!=ngbrs.end()) n2e.push(*p++);
-    }
-    // Set last (nnod+1) ptr
-    n2e_ptr.ref(nnod) = nadj;
-    // Free memory in `lgraph'
-    lgraph.clear();
-  }
-  
+  void read(const char *node_file,const char *conn_file);
   /** Sets #go# to object pointed by #it#. 
       @param it (input) iterator to geometric object in mesh
       @param go (output) the opject pointed by #it# */ 
@@ -289,6 +242,7 @@ public:
     return it.obj<0 || it.t==GeomObject::NULL_TYPE 
       || it.subobj<0; 
   }
+  void refine(RefineFunction rf);
 };
 
 #endif

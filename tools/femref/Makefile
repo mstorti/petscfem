@@ -5,7 +5,8 @@ N := 5
 OPT := -O2 -funroll-loops
 # OPT := -g
 
-default: myhash$(N).bin
+PROG := myhash$(N).bin
+default: $(PROG)
 
 scripts = odoc.pl makewhat.pl
 
@@ -14,7 +15,7 @@ scripts = odoc.pl makewhat.pl
 #w Builds all doc in this directory
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
-SRCS := femref.cpp hasher.cpp myhash.cpp myhash2.cpp \
+SRCS := femref.cpp femref2.cpp hasher.cpp myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp
 
 PETSCFEM_DIR = ../..
@@ -26,10 +27,10 @@ CLEAN_DIRS =
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 #w 
-femref.bin: femref.o # hasher.o
+femref.bin: femref.o femref2.o hasher.o md5r.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
-hasher.o: hasher.cpp	
+hasher.o: hasher.cpp
 	g++ $(OPT) -c -o $@ $<
 
 myhash.o: myhash.cpp	
