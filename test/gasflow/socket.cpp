@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
@@ -125,6 +126,28 @@ int write_data(int s,const char *buf,int n) {
 #define SERVERHOST "spider"
 #define BUFSIZE 100
 
+enum comm_mode { SEND, RECV };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void talk(int sock,comm_mode &mode) { 
+  static char *line = NULL;
+  static size_t N=0;
+  char buf2[100];
+  if (mode==SEND) {
+    printf("> ");
+    getline (&line,&N,stdin);
+    assert(strlen(line)<BUFSIZE);
+    strcpy(buf2,line);
+    printf("sending \"%s\"",buf2);
+    write_data(sock,buf2,BUFSIZE);
+    if (!strcmp(line,"OVER")) mode = RECV;
+  } else if (mode==RECV) {
+    read_data(sock,buf2,BUFSIZE);
+    if (!strcmp(buf2,"OVER")) mode = SEND;
+    printf("%s",buf2);
+  } else assert(0);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **args) {
   int s, sock;
@@ -132,7 +155,6 @@ int main(int argc,char **args) {
   sockaddr_in servername, clientname;
   // char buf[BUFSIZE];
   const char *buf = "Hello socket!\n\0";
-  char buf2[100];
   if(argc>1 && !strcmp(args[1],"-server")) {
     sock = make_socket (PORT);
     printf("server: trace 0\n");
@@ -147,10 +169,8 @@ int main(int argc,char **args) {
       perror ("accept");
       exit (EXIT_FAILURE);
     }
-    strcpy(buf2,buf);
-    printf("Sending: %s",buf2);
-    int nw = write_data(s,buf,BUFSIZE);
-    assert(nw == BUFSIZE);
+    comm_mode mode = SEND;
+    while (1) talk(s,mode);
   } else {
     sock = socket (PF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -164,9 +184,9 @@ int main(int argc,char **args) {
       exit (EXIT_FAILURE);
     }
     printf("client: trace 0\n");
-
-    int nr = read_data(sock,buf2,BUFSIZE);
-    printf("Got from server: %s",buf2);
+    
+    comm_mode mode = RECV;
+    while (1) talk(sock,mode);
 
     close(sock);
     exit(EXIT_SUCCESS);
