@@ -11,30 +11,37 @@ using namespace std;
 
 int main() {
 
+
   MD5Hasher hash;
-  FastHasher phasher;
-  // Hasher phasher;
+  FastHasher fhasher;
+  Hasher hasher;
   int N=20, M=10, NN=1000000;
-  set<int> shash, phash;
+  set<int> shash, sfhasher, shasher;
   for (int j=0; j<NN; j++) {
     hash.reset();
-    phasher.reset();
+    fhasher.reset();
+    hasher.reset();
     for (int k=0; k<N; k++) {
       int w = rand() % M;
       hash.hash(w);
-      phasher.hash(w);
+      fhasher.hash(w);
+      hasher.hash(w);
     }
-    int shv = hash.val();
-    shash.insert(shv);
-    int s = phasher.val();
-    // printf("hash %d\n",s);
-    phash.insert(s);
+    int s = hash.val();
+    shash.insert(s);
+
+    s = fhasher.val();
+    sfhasher.insert(s);
+
+    s = hasher.val();
+    shasher.insert(s);
   }
   printf("tries %d\n",NN);
   double perf_coll = double(NN)*double(NN)/pow(2.0,32.0);
   printf("nbr of collisions: perfect %f.\n"
-	 "For pow-hash-sum %d, md5-hash-sum %d, diff %d\n",
-	 perf_coll,NN-phash.size(), NN-shash.size(),
-	 shash.size()-phash.size());
-
+	 "For Md5Hasher %d, FastHasher %d, Hasher %d\n",
+	 perf_coll,
+	 NN-shash.size(), 
+	 NN-sfhasher.size(),
+	 NN-shasher.size());
 }
