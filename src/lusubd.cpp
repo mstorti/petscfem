@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.64 2001/12/09 13:40:20 mstorti Exp $
+//$Id: lusubd.cpp,v 1.65 2001/12/09 14:04:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -25,8 +25,6 @@ int SCHED_ALG=1;
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
-
-DofPartitioner::~DofPartitioner() {}
 
 enum PETScFEMErrors {
   iisdmat_set_value_out_of_range

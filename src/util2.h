@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.10 2001/12/08 20:30:56 mstorti Exp $
+//$Id: util2.h,v 1.11 2001/12/09 14:04:01 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -107,10 +107,4 @@ void read_int_array(vector<int> &v,const char * s);
 */ 
 double int_pow(double base,int exp);
 
-/** Cyclic `rem'. #rem(n,m)# computes the remainder of division but
-    extended cyclically to negative numbers so that For instance, for
-    the numbers #n# -4 to 4 we have: #rem (*,3) =
-    {-1,0,-2,-1,0,1,2,0,1}# whereas #crem (*,3) = {2,0,1,2,0,1,2,0}#
-*/
-int crem(int j, int m);
 #endif

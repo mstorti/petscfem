@@ -1,8 +1,18 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.9 2001/12/08 20:31:00 mstorti Exp $
+// $Id: tryme.cpp,v 1.10 2001/12/09 14:04:01 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
+
+/// Cyclic `rem' 
+int crem(int j, int m) {
+  int mm = (m>0 ? m : -m);
+  if (j>=0 ) {
+    return j % mm;
+  } else {
+    return mm -1 + ((j+1) % mm);
+  }
+}
 
 class TGraph : public Graph {
 public:

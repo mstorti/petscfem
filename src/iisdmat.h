@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.15 2001/12/09 13:40:20 mstorti Exp $
+// $Id: iisdmat.h,v 1.16 2001/12/09 14:04:01 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -155,9 +155,6 @@ class IISDMat : public PFMat {
   Mat *AA[2][2];
   /// Partitioner
   DofmapPartitioner *part;
-  /// Other partitioner
-  DofmapPartitione *part;
-  
   /** Here we put all non-local things that are in the loca-local
       block on other processors
   */
@@ -228,15 +225,6 @@ class IISDMat : public PFMat {
 
   int clean_factor();
 
-  /// DistMatrixPartitioner
-  class DMPartitioner : public IntPartitioner {
-  public:
-    DofPartitioner *dofpart;
-    int processor(map<int,Row>::iterator k) { 
-      return dofpart->(k->first); 
-    };
-  } dmpart;
-
 public:
 
   /// Local solver type
@@ -252,7 +240,6 @@ public:
   */ 
   void create(Darray *da,const Dofmap *dofmap_,
 	      int debug_compute_prof=0);
-
   /** Applies the Schur operator #y = S * x#
       @param x (input) a given interface vector
       @param y (output) the result of applying the Schur operator on

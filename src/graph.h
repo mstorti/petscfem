@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.9 2001/12/08 20:30:56 mstorti Exp $
+// $Id: graph.h,v 1.10 2001/12/09 14:04:01 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -29,15 +29,13 @@ class Graph {
   /// Vertex weights 
   double weight_scale;
   /// Constructor
-  Graph(int N=0) { init(N); };
-  /// Set number of vertices
-  virtual void init(int N);
+  Graph();
   /** Virtual destructor (Just to prevent instantiations of this
       class. See Thinking in C++, by Bruce Eckel).
   */
   virtual ~Graph()=0;
   /// partitioning routine (calls Metis)
-  void part(int max_partgraph_vertices,
+  void part(int nvrtx_f,int max_partgraph_vertices,
 	    int npart,float *tpwgts=NULL);
   /// return an array with the domain indices of all fine vertices 
   const int *vrtx_part();
@@ -51,8 +49,6 @@ class Graph {
   virtual double weight(int vrtx_f);
   /// Clean all memory related 
   void clear();
-  /// Print the graph
-  void print();
 };
 
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.10 2001/12/09 13:40:20 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.11 2001/12/09 14:04:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -43,7 +43,7 @@ public:
   /// Clean all memory related 
   ~IISDGraph() {clear();}
   /// Constructor
-  IISDGraph(int N=0) {init(N);}
+  IISDGraph() : Graph() {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
@@ -96,7 +96,7 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
-		int debug_compute_prof=0) {
+		int debug_compute_prof) {
 
   int myrank,size,max_partgraph_vertices_proc;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
@@ -190,7 +190,6 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   }
   
   // Fill Graph class members 
-  graph.init(n_loc_pre);
   graph.da = da;
   graph.dof2loc = dof2loc.begin();
   graph.loc2dof = loc2dof.begin();
@@ -210,7 +209,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
-  graph.part(max_partgraph_vertices_proc,iisd_subpart);
+  graph.part(n_loc_pre,max_partgraph_vertices_proc,iisd_subpart);
   // Mark those local dofs that are connected to a local dof in a
   // subdomain with lower index in the subpartitioning as interface.
   for (k=0; k<n_loc_pre; k++) {
@@ -232,13 +231,16 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   }
   ngbrs_v.clear();
 
+  debug.trace("after remarking flag");
   graph.clear();
   dof2loc.clear();
   loc2dof.clear();
 
   // We have to combine all them again with an Allreduce
+  debug.trace("before allreduce");
   MPI_Allreduce(flag.begin(), flag0.begin(), neq, MPI_INT, 
 		MPI_MAX, PETSC_COMM_WORLD);
+  debug.trace("after allreduce");
   // recopy on `flag'...
   memcpy(flag.begin(),flag0.begin(),neq*sizeof(int));
   flag0.clear();
@@ -315,6 +317,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   }
 #endif
 
+  debug.trace("trace 0");
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
   // PETSc sense)
@@ -333,6 +336,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     }
   }
     
+  debug.trace("trace 0.1");
   // For each dof in this processor we scan all connected dof's and
   // add the corresponding element in the `d_nnz' or `o_nnz' vectors. 
   for (k = 0; k < neqp; k++) {
@@ -372,6 +376,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     }
   }
 
+  debug.trace("trace 1");
   // deallocate Libretto dynamic darray
   da_destroy(da);
 
@@ -403,6 +408,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   exit(0);
 #endif
 
+  debug.trace("trace 2");
 //    ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 //   			 nnz[D][L][L].begin(),&A_LL); 
 //    PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix\n"); 
@@ -427,6 +433,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 			 &A_II);
   PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
   
+  debug.trace("trace 3");
   // extern int mult(Mat,Vec,Vec);
   ierr = MatCreateShell(PETSC_COMM_WORLD,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
