@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.20 2001/05/21 15:28:41 mstorti Exp $
+//$Id: ns.cpp,v 1.21 2001/05/29 02:26:15 mstorti Exp $
  
 #include <malloc.h>
 
@@ -52,6 +52,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(bcconv_nsther_fm2)
     SET_ELEMSET_TYPE(wall)
     SET_ELEMSET_TYPE(wallke)
+    SET_ELEMSET_TYPE(wall_law_res)
 	{
 	printf("not known elemset \"type\": %s\n",type);
 	exit(1);

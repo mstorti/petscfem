@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsi_tet.h,v 1.6 2001/05/21 15:28:41 mstorti Exp $
+//$Id: nsi_tet.h,v 1.7 2001/05/29 02:26:15 mstorti Exp $
 #ifndef NSI_TET_H  // -*- mode: C++ -*-
 #define NSI_TET_H
 
@@ -124,6 +124,25 @@ struct GlobParam {
 };
 
 void wall_fun(double yp,double &f,double &fprime);
+
+class NonLinearRes : public Elemset {
+ public:
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+  virtual int nres()=0;
+  virtual void init()=0;
+  virtual void res(FastMat2 &U,FastMat2 & r,
+		   FastMat2 & lambda,FastMat2 & jac)=0;
+  virtual ~NonLinearRes()=0;
+};
+
+class wall_law_res : public NonLinearRes {
+  int nk,ne;
+  int nres() {return 1;};
+  void init();
+  void res(FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
+	   FastMat2 & jac);
+};
 
 #endif
 
