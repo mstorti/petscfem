@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.3 2001/10/07 21:12:52 mstorti Exp $
+//$Id: nssup.cpp,v 1.4 2002/04/27 15:39:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -118,6 +118,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // Residual of equation (eta^{n+1}-eta^n)/Dt - w = 0
       res = -(eta_new-eta)*rec_Dt + w_star;
       veccontr.setel(res,2,1);
+      // alpha's here are not clear. 
       matlocf.setel(rec_Dt/alpha,2,1,2,1).setel(-alpha,2,1,1,ndim);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));

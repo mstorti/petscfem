@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.4 2002/03/28 21:45:54 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.5 2002/04/27 15:36:32 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -42,6 +42,6 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
   p = U.get(1,p_indx);
   eta = U.get(2,1);
   r.setel(p-rho*gravity*eta,1);
-  jac.setel(1.,1,1,p_indx).setel(-1.,1,2,1);
+  jac.setel(1.,1,1,p_indx).setel(-rho*gravity,1,2,1);
 }
 
