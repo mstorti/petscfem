@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.13 2002/02/19 01:38:22 mstorti Exp $
+// $Id: ampli.h,v 1.14 2002/02/20 01:47:33 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -181,7 +181,7 @@ INIT_FUN1(fun_obj_class) {					\
 								\
 EVAL_FUN1(fun_obj_class) {					\
   fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
-  return fun_obj_ptr->eval_fun(t);				\
+  return fun_obj_ptr->eval(t);					\
 }								\
 								\
 CLEAR_FUN1(fun_obj_class) {					\

@@ -104,6 +104,7 @@
 % \newcommand{\tl}{`\<}
 % \newcommand{\tg}{`\>}
 \newcommand{\Arg}[1]{{\rm\slshape \html{[#1]}\latex{\textless#1\textgreater}}}
+\newcommand{\vrbsl}[1]{{\rm\slshape \html{\*#1\*}\latex{#1}}}
 %\newcommand{\Arg}[1]{{{\tt\char`\<}{\rm\slshape #1}{\tt\char`\>}}}
 %\newcommand{\Arg}[1]{{\rm\slshape \textless#1\textgreater}}
 %# Current line ===========  
@@ -145,7 +146,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.8 2002/02/19 18:07:16 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.9 2002/02/20 01:47:33 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -173,7 +174,7 @@ keeping in mind the scope of efficiency.
 % \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
 % \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
 % \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input advec          %__UNCOMMENT_IN_FINAL_VERSION__

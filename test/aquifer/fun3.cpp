@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fun3.cpp,v 1.2 2002/02/10 23:03:52 mstorti Exp $
+//$Id: fun3.cpp,v 1.3 2002/02/20 01:47:33 mstorti Exp $
 
 #include <src/ampli.h>
 
@@ -7,7 +7,7 @@ class  smramp {
 public:
   double f0, f1, t0, t1, slope;
   void init(TextHashTable *thash);
-  double eval_fun(double);
+  double eval(double);
 };
 
 void smramp::init(TextHashTable *thash) {
@@ -19,7 +19,7 @@ void smramp::init(TextHashTable *thash) {
   slope = (f1-f0)/(t1-t0);
 }
 
-double  smramp::eval_fun(double t) {
+double  smramp::eval(double t) {
   if (t < t0) return f0;
   else if (t > t1) return f1;
   else return f0 + slope *(t - t0);
@@ -32,7 +32,7 @@ class tanh_ramp {
 public:
   double A, t0, delta, base;
   void init(TextHashTable *thash);
-  double eval_fun(double);
+  double eval(double);
 };
 
 void tanh_ramp::init(TextHashTable *thash) {
@@ -44,7 +44,7 @@ void tanh_ramp::init(TextHashTable *thash) {
   assert(delta>0.);
 }
 
-double  tanh_ramp::eval_fun(double t) {
+double  tanh_ramp::eval(double t) {
   if (t < t0) return base;
   else return base + A * tanh((t-t0)/delta);
 }

@@ -925,11 +925,11 @@ as the following, preferably after the call to
 instance
 
 %
-\begin{verbatim}
+\begin{alltt}
   Amplitude::initialize_function_table();
   Amplitude::add_entry("smooth_ramp",
-             &smooth_ramp_function); // <- add  this line
-\end{verbatim}
+             &smooth_ramp_function); // \vrbsl{\textless- add  this line}
+\end{alltt}
 %
 (In the core \pfem{} this is done inside
 the \verb+Amplitude::initialize_function_table+.)
@@ -944,6 +944,249 @@ __END_HASH__
 ...
 \end{verbatim}
 \end{enumerate}
+
+\SSSection{Dynamically loaded amplitude functions} 
+
+Another possibility to add new amplitude functions is through loading
+functions at run-time. This avoids re-linkage and modification of the
+sources. (Note: You need to have the module compiled with the
+appropriate flag (either the compilation flag \verb+-DUSE_DLEF+ or,
+the Makefile variable
+\verb+USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS = yes+, either in the
+\verb+Makefile.base+ or the \verb+../Makefile.defs+ file.) 
+
+These amplitude functions are written in C++ in source files, say
+\verb+fun.cpp+. The compiled files have extension \verb+.efn+ (from
+\emph{``extension function''}) for instance \verb+fun.efn+ in this
+example.  The \verb+Makefile.base+ file provides the appropriate rules
+to generate the compiled \verb+.efn+ functions from the source. For
+each amplitude you want to define you have to write three functions
+%
+\begin{alltt}
+extern "C" void \Arg{prefix}init_fun(TextHashTable *thash,void *&fun_data);
+extern "C" double \Arg{prefix}eval_fun(double t,void *fun_data);
+extern "C" void \Arg{prefix}clear_fun(void *fun_data) ; // \vrbsl{this is optional}
+\end{alltt}
+%
+Prefix may be an empty string, or a non-empty string ending in
+underscore. Use of non-empty prefix is explained below. 
+The macros \verb+INIT_FUN+, \verb+EVAL_FUN+ and \verb+CLEAR_FUN+
+expand to these definitions. 
+The second function \verb+eval_fun(..)+ is that one that defines the
+relation between the time and the corresponding amplitude. The first
+\verb+init_fun(...)+ one can be used to make some initialization,
+normally it is called only once. The last one \verb+clear_fun(...)+ is
+called after all calls to \verb+eval_fun(...)+. For simple functions
+you may not need the init and clear functions, for instance if you
+want a linear ramp from 0 at $t=0$ to 1 at $t=1$, then it can be done
+with a simple file \verb+fun0.cpp+ this:
+%
+\begin{verbatim}
+// File: fun0.cpp
+
+#include <math.h>
+#include <src/ampli.h>
+
+INIT_FUN {}
+
+EVAL_FUN {
+  if (t < 0) return 0.;
+  else if (t > 1.) return 1.;
+  else return t;
+}
+
+CLEAR_FUN {}
+\end{verbatim}
+%
+You then have to do a {\alltt \$ make fun0.efn} that will create the
+\verb+fun0.efn+ shared object file. Dynamically loaded functions can
+be used using the \verb+fixa_amplitude dl_generic+ clause and then
+giving the name of the file with the \verb+ext_filename+ option. 
+For instance,
+%
+\begin{alltt}
+\Arg{... previous lines here ...}
+fixa_amplitude dl_generic
+ext_filename "./fun0.efn"
+__END_HASH__
+ 1 1 1.
+\Arg{... more node/dof/val combinations here ...}
+__END_FIXA__
+\end{alltt}
+%
+You can also have dynamically loaded functions that use parameters
+loaded via the table of options at run time. For this you are passed
+the \verb+TextHashTable *+ object entered by the user to the
+\verb+init+ function. You then can read parameters from these but
+in order that the
+\emph{``init''} function do anything useful it has to be able to pass
+data to the \emph{``eval''} function. 
+% This is done by passing some
+% data through the generic \emph{``fun\_data''} pointer. 
+Normally you define a \emph{``struct''} or class to hold the data,
+create it with \verb+new+ or \verb+malloc()+ put the data in it, and
+then pass the address via the \emph{``fun\_data''} pointer. Later, in
+subsequent calls to \verb+eval_fun(...)+ it is passed the same pointer
+so that you can recover the information, previous a static cast. Of
+course, in order to avoid memory leak you have to free the allocated
+memory somewhere, this is done in the \verb+clear(...)+ function. For
+instance, the following file defines a ramp function where youcan set
+the four values $t_0, f_0,t_1, f_1$
+%
+\begin{verbatim}
+#include <math.h>
+
+#include <src/fem.h>
+#include <src/getprop.h>
+#include <src/ampli.h>
+
+struct  MyFunData {
+  double f0, f1, t0, t1, slope;
+};
+
+INIT_FUN {
+  int ierr;
+  // Read values from option table
+  TGETOPTDEF(thash,double,t0,0.);
+  TGETOPTDEF(thash,double,t1,1.);
+  TGETOPTDEF(thash,double,f0,0.);
+  TGETOPTDEF(thash,double,f1,1.);
+
+  // create struct data and set values
+  MyFunData *d = new MyFunData;
+  fun_data = d;
+  d->f0 = f0;
+  d->f1 = f1;
+  d->t0 = t0;
+  d->t1 = t1;
+  d->slope = (f1-f0)/(t1-t0);
+}
+
+EVAL_FUN {
+  MyFunData *d = (MyFunData *) fun_data;
+  // define ramp function
+  if (t < d->t0) return d->f0;
+  else if (t > d->t1) return d->f1;
+  else return d->f0 + d->slope *(t - d->t0);
+}
+
+CLEAR_FUN {
+  // clear allocated memory
+  MyFunData *d = (MyFunData *) fun_data;
+  delete d;
+  fun_data=NULL;
+}
+\end{verbatim}
+%
+Another possibility, perhaps more simple, would be to use a global
+\verb+MyFunData+ object but if several \verb+fixa_amplitude+ entries
+that use the same function are used then the data created by the first
+entry would be overwritten by the second entry. 
+
+\SSSection{Use of prefixes} 
+
+Several functions can be written in the same \verb+.cpp+ file using a
+prefix ending in underscore, for instance if you want to define a
+\verb+gaussian+ function then you define functions with
+{\alltt\Arg{prefix}=gaussian\_}, for instance
+%
+\begin{alltt}
+extern "C" void gaussian_init_fun(TextHashTable *thash,void *&fun_data);
+extern "C" double gaussian_eval_fun(double t,void *fun_data);
+extern "C" void gaussian_clear_fun(void *fun_data) ; // \vrbsl{this is optional}
+\end{alltt}
+%
+The macros \verb+INIT_FUN1(name)+, \verb+EVAL_FUN1(name)+ and
+\verb+CLEAR_FUN1(name)+ do it for you, where \verb+name+ is the
+prefix, with the underscore removed, for instance
+%
+\begin{alltt}
+\allttbraces%
+\Arg{... headers ...}
+
+struct  MyGaussFunData \{
+   \Arg{... your data here ...}
+\};
+
+INIT_FUN1(gaussian) \{
+   \Arg{... read data...}
+   MyGaussFunData *d = new MyGaussFunData;
+   fun_data = d;
+   \Arg{... set data in {\tt d} ...}
+\}
+
+EVAL_FUN(gaussian) \{
+  MyGaussFunData *d = (MyGaussFunData *) fun_data;
+  \Arg{... use data in {\tt d} and define amplitude ...}
+\}
+
+CLEAR_FUN(gaussian) \{
+  // clear allocated memory
+  MyGaussFunData *d = (MyGaussFunData *) fun_data;
+  delete d;
+  fun_data=NULL;
+\}
+\end{alltt}
+%
+Finally, yet another approach is to have a \emph{``wrapper''} class
+with methods, \verb+init+ and \verb+eval+. The macro
+\verb+DEFINE_EXTENDED_AMPLITUDE_FUNCTION(class_name)+ is in charge of
+creating and destroying the object. For instance the following file
+\verb+fun3.cpp+ defines two functions \$verb+linramp+ and
+\verb+tanh_ramp+.
+%
+\begin{verbatim}
+// File fun3.cpp
+#include <src/ampli.h>
+
+class  linramp {
+public:
+  double f0, f1, t0, t1, slope;
+  void init(TextHashTable *thash);
+  double eval(double);
+};
+
+void linramp::init(TextHashTable *thash) {
+  int ierr;
+  TGETOPTDEF_ND(thash,double,t0,0.);
+  TGETOPTDEF_ND(thash,double,t1,1.);
+  TGETOPTDEF_ND(thash,double,f0,0.);
+  TGETOPTDEF_ND(thash,double,f1,1.);
+  slope = (f1-f0)/(t1-t0);
+}
+
+double  linramp::eval(double t) {
+  if (t < t0) return f0;
+  else if (t > t1) return f1;
+  else return f0 + slope *(t - t0);
+}
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION(linramp);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class tanh_ramp {
+public:
+  double A, t0, delta, base;
+  void init(TextHashTable *thash);
+  double eval(double);
+};
+
+void tanh_ramp::init(TextHashTable *thash) {
+  int ierr;
+  TGETOPTDEF_ND(thash,double,base,0.);
+  TGETOPTDEF_ND(thash,double,A,1.);
+  TGETOPTDEF_ND(thash,double,t0,0.);
+  TGETOPTDEF_ND(thash,double,delta,1.);
+  assert(delta>0.);
+}
+
+double  tanh_ramp::eval(double t) {
+  if (t < t0) return base;
+  else return base + A * tanh((t-t0)/delta);
+}
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION(tanh_ramp);
+\end{verbatim}
 
 \SSSection{Time like problems.} 
 
@@ -962,6 +1205,7 @@ variable should be an array of scalars.
 \item[Multiple right hand sides] Here the time like variable may be an
 integer: the number of right hand side case. 
 \end{description}
+
 
 % Local Variables: *
 % mode: latex *
