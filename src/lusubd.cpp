@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.17 2001/07/23 17:20:51 mstorti Exp $
+//$Id: lusubd.cpp,v 1.18 2001/07/23 17:28:09 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -499,7 +499,7 @@ void IISDMat::set_value(int row,int col,Scalar value,
 	       1,&row_indx,1,&col_indx,&value,mode);
 }
 
-#define DEBUG_IISD
+//#define DEBUG_IISD
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
