@@ -5,16 +5,24 @@
 require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
 #
 $L = 1;                         # Semi distance between plates
-$N = 16;                        # Number of elements in transversal 'x' direction
+$N = 4;                        # Number of elements in transversal 'x' direction
 $hratio = 1;                    # refinement near the wall
 $hratioy = 1;                   # refinement to the exit
-$Ny = 40;                       # Number of elements in y dir
+$Ny = 2;                       # Number of elements in y dir
 $Ny_eq = 1;                     # last elements that are equal in size
                                 # in the y direction
-$Ly = 20;                        # longitudinal length 
+$Ly = 1;                        # longitudinal length 
 $Re = 10000;                        # laminar Re
 $Uav = 1;                       # 
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
+$case_size = $ENV{'case_size'};
+if ($case_size eq 'small') {
+$N = 4;                        # Number of elements in transversal 'x' direction
+$Ny = 2;                       # Number of elements in y dir
+$Ny_eq = 1;                     # last elements that are equal in size
+                                # in the y direction
+$Ly = 1;                        # longitudinal length 
+}
 octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
     L Ly Ny_eq Uav ));
 $case = $ENV{'case'};
@@ -38,8 +46,13 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
+#if $case_size eq 'small'
+nstep 2
+nnwt 2
+#else
 nstep 200
 nnwt 3
+#endif
 tol_newton 0
 #if $case eq 'iisd' 
 use_iisd
@@ -47,6 +60,9 @@ preco_type "none"
 rtol 1e-4
 atol 1e-10
 maxits 100
+#if $ENV{'ksp'} eq 'cgs' 
+KSP_method "cgs"
+#endif
 #elsif $case eq "lu"
 preco_type "lu"
 maxits 1
