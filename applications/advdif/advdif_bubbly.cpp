@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.9 2004/05/22 11:24:18 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.10 2004/11/17 21:26:57 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -10,6 +10,7 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/pfmat.h>
+#include <src/hook.h>
 
 #include "advective.h"
 
@@ -272,6 +273,19 @@ int bubbly_main() {
   GETOPTDEF(double,omega_newton_liq,omega_newton);
   GETOPTDEF(double,omega_newton_gas,omega_newton);
 
+  vector<double> gather_values;
+  //o Number of ``gathered'' quantities.
+  GETOPTDEF(int,ngather,0);
+  //o Print values in this file 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
+  // Initialize gather_file
+  FILE *gather_file_f;
+  if (MY_RANK==0 && ngather>0) {
+    gather_file_f = fopen(gather_file.c_str(),"w");
+    fprintf(gather_file_f,"");
+    fclose(gather_file_f);
+  }
+
   //o Chooses the preconditioning operator.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
@@ -354,6 +368,11 @@ int bubbly_main() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Hook stuff
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
@@ -383,6 +402,7 @@ int bubbly_main() {
     }
     chrono.start();
     ierr = VecCopy(x,xold);
+    hook_list.time_step_pre(time_star.time(),tstep);
 
     for (int inwt=0; inwt<nnwt; inwt++) {
       
@@ -577,6 +597,36 @@ int bubbly_main() {
     ierr = VecAXPY(&scal,xold,dx);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
 
+    if (ngather>0) {
+      gather_values.resize(ngather,0.);
+      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
+      arglf.clear();
+      arglf.arg_add(&x,IN_VECTOR);
+      arglf.arg_add(&xold,IN_VECTOR);
+      arglf.arg_add(&gather_values,VECTOR_ADD);
+      ierr = assemble(mesh,arglf,dofmap,"gather",&time);
+      CHKERRA(ierr);
+    }
+
+    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+
+    if (ngather>0) {
+      // Print gathered values
+      if (MY_RANK==0) {
+	if (gather_file == "") {
+	  printf("Gather results: \n");
+	  for (int j=0; j < gather_values.size(); j++) 
+	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
+	} else {
+	  gather_file_f = fopen(gather_file.c_str(),"a");
+	  for (int j=0; j<gather_values.size(); j++) 
+	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
+	  fprintf(gather_file_f,"\n");
+	  fclose(gather_file_f);
+	}
+      }
+    }
+
     PetscPrintf(PETSC_COMM_WORLD,
 		"time_step %d, time: %g, delta_u = %10.3e\n",
 		tstep,time_,delta_u);
@@ -600,6 +650,8 @@ int bubbly_main() {
     if (normres_ext < tol_steady) break;
 
   }
+  hook_list.close();
+
   print_vector(save_file.c_str(),x,dofmap,&time);
   if (print_residual)
     print_vector(save_file_res.c_str(),res,dofmap,&time);
