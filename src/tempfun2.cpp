@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.2 2003/07/02 23:22:19 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.2.2.1 2003/07/24 15:44:49 mstorti Exp $
 
 #include <math.h>
 
@@ -119,7 +119,7 @@ public:
       ff = A_0 + A_scale*(ff-A_0);
       // Check that time vector is ordered. Compare with the last
       // entered value
-      if (ntime>=2) assert(tt > t_v[ntime-2]);
+      if (ntime>=2) assert(tt > t_v[ntime-1]);
       // Load on vector
       t_v.push_back(tt);
       f_v.push_back(ff);

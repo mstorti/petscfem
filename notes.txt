@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.303 2003/07/14 03:06:21 mstorti Exp $
+$Id: notes.txt,v 1.299.2.1 2003/07/24 15:46:22 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.303 2003/07/14 03:06:21 mstorti Exp $ 
+! # $Id: notes.txt,v 1.299.2.1 2003/07/24 15:46:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.303 2003/07/14 03:06:21 mstorti Exp $ 
+! # $Id: notes.txt,v 1.299.2.1 2003/07/24 15:46:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.303 2003/07/14 03:06:21 mstorti Exp $ 
+  # $Id: notes.txt,v 1.299.2.1 2003/07/24 15:46:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -6671,39 +6671,13 @@ Aparentemente ahora _GNU_SOURCE viene definido por default.
 Eficiencia: Comparando los P4 actuales en el cluster con spider (P4
 2.4Ghz, 512Mb RAM DDR 333). Tiene un pico de 920Mflops para n=20 con el dyntest
 y despues baja a 170MFlops. Con PETSc-FEM, cavidad cubica para n=20
-(40000 elementos, 8000 nodos) da un rate d 0.2sec/ke para spider y 
-0.57-0.65 secs para node1!!
-Resolucion: 6.7891 node15
-            11.965 node1
+(40000 elementos, 8000 nodos) 
 
-%===Mon,  7 Jul 2003 17:07:41 -0300 mstorti@minerva
+%===Thu, 24 Jul 2003 12:48:41 -0300 mstorti@node1.beowulf.gtm
 %
-Cuando compilo en minerva con la nueva version de Newmat entonces da
-un SIGSEGV. Vuelvo a recompilar todo petscfem. 
-%
-19:26:58: Un fix para octave. EL plot en RH 8.0 (octave 2.1.36) no
-grafica, mas de 6 o 7 curvas. Aparentemente es un bug en sprintf, que
-va armando el gplot command y cuando tiene que imprimir un comando muy
-largo se queda corto. Lo arregle con el siguiente parche. 
-%
---------- cut here __plt2vm__.m patch ----------------------
---- __plt2vm__.m.orig	2002-09-03 18:29:54.000000000 -0300
-+++ __plt2vm__.m	2003-07-13 19:24:48.000000000 -0300
-@@ -64,8 +64,10 @@
-       k++;
-     endif
-     for i = 2:y_nc
--      cmd = sprintf ("%s, tmp(:,%d:%d:%d) %s", cmd, 1, i, i+1,
--                     deblank (fmt (k, :)));
-+#      cmd = sprintf ("%s, tmp(:,%d:%d:%d) %s", cmd, 1, i, i+1,
-+#                     deblank (fmt (k, :)));
-+      cmd = [cmd, sprintf (", tmp(:,%d:%d:%d) %s", 1, i, i+1,
-+                     deblank (fmt (k, :)))];
-       if (k < fmt_nr)
-         k++;
-       endif
---------- ends here __plt2vm__.m patch ----------------------
-
+En tempfun2.cpp `piecewise_linear' amplitude function, para verificar
+que el vector estuviera ordenado comparava con t_v[n-2] y yo creo que
+hay que comparar con t_v[n-1]. 
 
 # Current line ===========  %
 # Local Variables: $
