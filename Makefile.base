@@ -1,13 +1,13 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.198 2004/07/28 15:02:07 mstorti Exp $
+#$Id: Makefile.base,v 1.199 2004/07/28 22:06:17 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 
-PETSC_BOPT = O_c++
+PETSC_BOPT = g_c++
 
 # uncomment in order to use the `gprof' profiler
 # PROF_FLAGS = -pg
@@ -300,8 +300,15 @@ $(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
 	ranlib $@
 
 $(PROG_LIB)(%.o): %.o
+# 	@echo "Compiling $< in" `pwd` 
+# 	@ar ru $@ $<
+# 	-@rm -f $<
 	ar ru $@ $<
 	-rm -f $<
+
+# %.o: %.cpp
+# #	@echo "Compiling $< in" `pwd` 
+# 	$(CXX) $(CPPFLAGS) -c -o $@ $<
 
 PROG_BIN = $(PROG)$(osfx).bin
 

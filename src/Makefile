@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.92 2004/01/26 20:22:34 mstorti Exp $ 
+# $Id: Makefile,v 1.93 2004/07/28 22:06:17 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -46,8 +46,8 @@ $(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
 	ranlib $@
 
 $(LIBPETSCFEM)(%.o): %.o
-	ar ru $@ $<
-	-rm -f $<
+	@ar ru $@ $<
+	-@rm -f $<
 
 .SECONDARY: fm2eperl.cpp
 

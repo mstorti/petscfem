@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.111 2004/07/28 15:01:30 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.112 2004/07/28 22:06:01 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -124,6 +124,7 @@ viscosity <:=$nu:>
 >>endif
 __END_HASH__
 
+>>if 0
 elemset field_surf_integrator <:=$nel:>
 name integrator
 geometry <:=$geom:>
@@ -135,6 +136,7 @@ x0 0. 0. 0.
 gather_pos 0
 f_vals 0.12 0.35
 __END_HASH__
+>>endif
 
 end_elemsets
 

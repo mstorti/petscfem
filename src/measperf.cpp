@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: measperf.cpp,v 1.6 2003/07/02 23:22:19 mstorti Exp $
+//$Id: measperf.cpp,v 1.7 2004/07/28 22:06:18 mstorti Exp $
 
 #include "fem.h"
 #include <set>
@@ -41,7 +41,7 @@ int measure_performance_fun(Mesh *mesh,arg_list argl,
     
     //o Weight for computing performance
     TGETOPTDEF(elemset->thash,double,measure_performance_weight,1.);
-    TGETOPTDEF_S(elemset->thash,string,name,); //nd 
+    TGETOPTDEF_S(elemset->thash,string,name,""); //nd 
 
     wnelem += elemset->nelem * measure_performance_weight;
     PetscPrintf(PETSC_COMM_WORLD,

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.88 2004/07/28 15:01:30 mstorti Exp $ 
+# $Id: Makefile,v 1.89 2004/07/28 22:06:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -37,13 +37,13 @@ MCH :=
 endif
 
 ifneq ($(HOSTNAME),node1.beowulf.gtm)
-NP := $(shell procsel ./proctable.mono)
+# NP := $(shell procsel ./proctable.mono)
+NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 NL :=
 MCH := -machinefile ./machi.dat
 NP := 1
 endif
-
-NP := 4
+NP := 1
 export NP
 
 run_subdir_test:
@@ -171,6 +171,12 @@ link:
 	$(MAKE) -C ../../ $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
 
+#w Prepare for jumpshot
+pj:
+#	rcp geronimo:PETSC/petscfem.mario/test/cubcav/ns.clog .
+#	rcp geronimo:PETSC/curso_paralelo/curso-mpi-petsc/example/primes.clog .
+	/usr/local/mpi/bin/clog2slog ns.clog
+
 #w performance test:
 test_perfo:
-	$(MAKE) N=20 run
+	$(MAKE) N=10 run
