@@ -3082,3 +3082,7 @@ tag: beta-3.25.pl2 on Sun, 16 Nov 2003 10:20:05 -0300 by mstorti in spider
 ----------
 tag: beta-3.25.pl3 on Sun, 16 Nov 2003 16:57:16 -0300 by mstorti in spider
      > Verified `field match' in `myexpect.pl'
+----------
+tag: beta-3.25.pl4 on Sun, 16 Nov 2003 18:43:34 -0300 by mstorti in spider
+     > Added doc for `block_uploading'. 
+     > Runs all tests, except two in `test/newff'
