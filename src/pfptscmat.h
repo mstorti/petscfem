@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.8 2002/07/22 19:08:37 mstorti Exp $
+// $Id: pfptscmat.h,v 1.9 2002/07/23 03:42:38 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -54,7 +54,7 @@ protected:
   StoreGraph *lgraph;
   StoreGraph1 lgraph1;
   graphdv_dis lgraph_dv;
-  link_graph lgraph_lkg;
+  link_graph_wrapper lgraph_lkg;
 
   /// IntRowPartitioner based on a DofPartitioner
   class PFPETScPart : public IntRowPartitioner {

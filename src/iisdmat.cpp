@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.13 2002/07/22 19:08:37 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.14 2002/07/23 03:42:38 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -39,6 +39,21 @@ enum PETScFEMErrors {
 PFPETScMat::~PFPETScMat() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// Adjacency graph classes
+// based on STL map+set, demands too much memory, CPU time OK
+#define STORE_GRAPH_1 0
+
+// Based on dynamic vector of pair of indices with resorting,
+// demands too much CPU time, RAM is OK
+#define GRAPH_DV 1
+
+// For each vertex wee keep a linked list of cells containing the
+// adjacent nodes. Each insertion is O(m^2) where `m' is the average
+// number of adjacent vertices. This seems to be optimal for
+// FEM connectivities.
+#define LINK_GRAPH 2
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
   : sles(NULL), comm(comm_), part(pp), pf_part(part), 
   lgraph1(MM,&part,comm_), 
@@ -47,21 +62,32 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   lgraph(&lgraph1), 
   // lgraph(&lgraph_dv), 
   A(NULL), P(NULL), factored(0) { 
-  //o Use a representation of the profile graph that is
-  // muh slower but more efficient in memory management. 
-  TGETOPTDEF(GLOBAL_OPTIONS,int,use_compact_profile,0);
-  //o Use a representation of the profile graph that is
-  // muh slower but more efficient in memory management. 
+  //o Choice representation of the profile graph. Possible values are:
+  // #0#: Adjacency graph classes
+  // based on STL map+set, demands too much memory, CPU time OK
+  // #1#: Based on dynamic vector of pair of indices with resorting,
+  // demands too much CPU time, RAM is OK
+  // #2#: For each vertex wee keep a linked list of cells containing the
+  // adjacent nodes. Each insertion is O(m^2) where `m' is the average
+  // number of adjacent vertices. This seems to be optimal for
+  // FEM connectivities.
+  TGETOPTDEF(GLOBAL_OPTIONS,int,use_compact_profile,LINK_GRAPH);
+  //o Size of chunk for the dynamic vector used in computing the
+  // mstrix profile. 
   TGETOPTDEF(GLOBAL_OPTIONS,int,compact_profile_graph_chunk_size,0);
-  if (use_compact_profile==1) {
+  if (use_compact_profile==GRAPH_DV) {
+
     lgraph = &lgraph_dv;
     if (compact_profile_graph_chunk_size>0)
       lgraph_dv.set_chunk_size(compact_profile_graph_chunk_size);
-  } else if (use_compact_profile==2) {
+
+  } else if (use_compact_profile==LINK_GRAPH) {
+
     lgraph = &lgraph_lkg;
     if (compact_profile_graph_chunk_size>0)
       lgraph_lkg.set_chunk_size(compact_profile_graph_chunk_size);
     lgraph_lkg.init(MM);
+
   }
 }
 
