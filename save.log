@@ -430,3 +430,7 @@ tag: beta-1.82 on Sun May 27 13:16:06 ART 2001, by mstorti in spider
      > Added support to ndimel<ndim 
      > Added support to 0 length indices.
      > Added tests for ndimel<ndim in genload.
+----------
+tag: beta-1.83 on Sun May 27 18:29:58 ART 2001, by mstorti in spider
+     > Written FastMat2::detsur() with a SubCache. 
+     > Added a test in testfm2.
