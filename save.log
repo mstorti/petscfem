@@ -740,3 +740,9 @@ tag:  pfmat-rewrite-1.09.pl1 on Thu Dec 27 21:28:59 ARST 2001 by mstorti in spid
 ----------
 tag: pfmat-rewrite-1.09.pl2 on Thu Dec 27 21:33:32 ARST 2001 by mstorti in spider
      > Trying new "light" tag saving (2nd try)
+----------
+tag: pfmat-rewrite-1.09.pl3 on Fri Dec 28 18:14:02 ARST 2001 by mstorti in spider
+     > `PETScMat' class is working in the example. However, I think 
+     > there is a problem if the partitioner is not `consecutive', i.e. the
+     > dof's in a certain processor are consecutive, as for a PETSc matrix 
+     > or vector. 
