@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.54 2003/08/29 02:33:27 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.55 2003/08/29 14:52:23 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -749,6 +749,9 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   // Mapping of columns
   nc[L]=0;
   nc[I]=0;
+  dvector<int> ctype, coff;
+  ctype.mono(ncols);
+  coff.mono(ncols);
   for (int jc=0; jc<ncols; jc++) {
     map_dof_fun(idxc[jc],col_t,col_indx);
     int jcl = nc[col_t]++;
@@ -758,6 +761,8 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     dvector<int> *jndx = jndxc[col_t];
     grow_mono(*jndx,nc[col_t]);
     jndx->e(jcl) = jc;
+    ctype.ref(jc) = col_t;
+    coff.ref(jc) = jcl;
   }
 
 #if 0
@@ -778,10 +783,88 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   exit(0);
 #endif
 
+  // We conside first all blocks other than the LL one
+  // This is considered aside
   for (row_t=0; row_t<2; row_t++) {
     for (col_t=0; col_t<2; col_t++) {
-      
+      if (col_t==L && row_t==L) continue;
+      dvector<double> *vv = v[row_t][col_t];
+      int nrr = nr[row_t];
+      int ncc = nc[col_t];
+      // Load values in matrix
+      grow_mono(*vv,nr[row_t]*nc[col_t]);
+      double *vvv = vv->buff();
+      for (int jrl=0; jrl<nrr; jrl++) { 
+	int jr = jndxr[row_t]->e(jrl);
+	int *jndx = jndxc[col_t]->buff();
+	for (int jcl=0; jcl<ncc; jcl++) {
+	  int jc = jndx[jcl];
+	  vvv[jrl*nrr+jcl] = values[jr*nrows+jc];
+	}
+      }
+      ierr = MatSetValues(*(AA[row_t][col_t]),
+			  nrr,indxr[row_t]->buff(),ncc,
+			  indxc[col_t]->buff(),values,mode);
+      if (ierr) return ierr;
+    }
+  }    
 
+  // A_LL
+  dvector<double> *vv = v[L][L];
+  int nrr = nr[L];
+  int ncc = nc[L];
+  // Load values in matrix
+  grow_mono(*vv,nr[L]*nc[L]);
+  double *vvv = vv->buff();
+  for (int jrl=0; jrl<nrr; jrl++) { 
+    int jr = jndxr[L]->e(jrl);
+    int *jndx = jndxc[L]->buff();
+    for (int jcl=0; jcl<ncc; jcl++) {
+      int jc = jndx[jcl];
+      vvv[jrl*nrr+jcl] = values[jr*nrows+jc];
+    }
+  }
+
+  // Fix matrix indices (block LL is shifted)
+  int *p = indxr[L]->buff();
+  for (int jrl=0; jrl<nrr; jrl++) {
+    *p++ -= n_locp;
+    assert(*p >= 0 && *p < n_loc);
+  }
+
+  p = indxc[L]->buff();
+  for (int jcl=0; jcl<ncc; jcl++) {
+    *p++ -= n_locp;
+    assert(*p >= 0 && *p < n_loc);
+  }
+
+  ierr = MatSetValues(*(AA[L][L]),
+		      nrr,indxr[L]->buff(),ncc,
+		      indxc[L]->buff(),values,mode);
+  if (ierr) return ierr;
+
+  return 0;
+
+#if 0
+  // We conside first all non LL elements (they are considered aside). 
+  for (row_t=0; row_t<2; row_t++) {
+    for (col_t=0; col_t<2; col_t++) {
+      if (col_t==L && row_t==L) continue;
+      dvector<int> *indxc_p = indxc[col_t];
+      dvector<double> *vv = v[row_t][col_t];
+      int nrr = nr[row_t];
+      int ncc = nc[col_t];
+      // Load values in matrix
+      grow_mono(*vv,nr[row_t]*nc[col_t]);
+      doubl *w = values;
+      for (int jr=0; jr<nrr; jr++) 
+	for (int jc=0; jc<ncc; jc++) 
+	  vv.e(jr,jc) = *w++;
+      ierr = MatSetValues(*(AA[row_t][col_t]),
+			  nrr,&row_indx,1,&col_indx,&value,mode);
+    }
+  }    
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -1026,7 +1109,6 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
 
 	ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); PF_CHKERRQ(ierr); 
-	GLOBAL_DEBUG->trace("After solving in iisdmat.cpp...");
 
 	ierr = SLESDestroy(sles_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
 
@@ -1090,7 +1172,6 @@ int IISDMat::set_preco(const string & preco_type) {
   if (preco_type=="jacobi" || preco_type=="") {
     ierr = PCSetType(pc,PCSHELL); CHKERRQ(ierr);
     ierr = PCShellSetApply(pc,&iisd_pc_apply,this); 
-    // printf("[%d] setting apply to %p\n",MY_RANK,&iisd_pc_apply);
   } else if (preco_type=="none" ) {
     ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
   } else {
