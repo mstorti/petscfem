@@ -3814,3 +3814,6 @@ tag: beta-3.39.70 on Mon, 24 Jan 2005 16:23:40 -0300 by mstorti in spider
 tag: beta-3.39.71 on Mon, 24 Jan 2005 19:01:32 -0300 by mstorti in spider
      > Found an error in the data. Can't mix absorbing 
      > b.c.'s with slip b.c.'s or other. 
+----------
+tag: beta-3.39.72 on Mon, 24 Jan 2005 19:06:20 -0300 by mstorti in spider
+     > Works OK for linear absorbing b.c.' also. 
