@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $
+$Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $ 
+  # $Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.290 2003/07/02 20:00:39 mstorti Exp $ 
+  # $Id: notes.txt,v 1.291 2003/07/02 23:22:16 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6611,6 +6611,11 @@ fm2eperl.cpp compila todo OK.
 %
 Compila todo petscfem en minerva (GCC 2.96) con algunos agregados para
 que compile en GCC 3.x. 
+%
+20:21:15: Compila todos los fuentes pero despues da error el
+linkeditar. 
+
+
 
 # Current line ===========  %
 # Local Variables: $
