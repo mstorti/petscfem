@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.22 2003/01/31 16:18:37 mstorti Exp $
+## $Id: mkvtube.m,v 1.23 2003/01/31 19:55:15 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -108,7 +108,10 @@ for k=1:nn
     cold_outlet_nodes=[cold_outlet_nodes; k];
     fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;
-  elseif (abs(rho(k)-Rin)<tol && z(k)<L0-tol)
+  elseif (abs(rho(k)-Rin)<tol && z(k)<L0-tol) \
+	&& (cold_outlet || z(k)>tol)
+    ## The last condition above is: If there is not cold_outlet then the
+    ## node in the corner should be solid
     n_internal_axis = n_internal_axis + 1;
     fprintf(fid,"%d %d   %f\n",k,u_dof,0.);
   elseif is_wall

@@ -11,6 +11,7 @@
 #ifdef POST_DX_H
 #include "ExtProgImport_postdx.h"
 #endif
+/* #include <math.h> */
 
 static Error traverse(Object *, Object *);
 static Error doLeaf(Object *, Object *);
@@ -30,9 +31,9 @@ Error
 m_ExtProgImport(Object *in, Object *out)
 {
   int i;
-  int N=10, *icone_p, j,k,base, elem=0, node;
-  float *xnod_p,x,y;
-  Array icone=NULL,xnod=NULL; 
+  int N=40, *icone_p, j,k,base, elem=0, node;
+  float *xnod_p,x,y,*data_p,r2;
+  Array icone=NULL,xnod=NULL,data=NULL; 
   Field f=NULL; 
 
   /*
@@ -70,8 +71,11 @@ m_ExtProgImport(Object *in, Object *out)
       *icone_p++ = base+N+2;
     }
   }
+  icone = (Array)DXSetStringAttribute((Object)icone,
+				      "element type","quads"); if (!icone) goto error;
   /* Set `connections' component */
   f = DXSetComponentValue(f,"connections",(Object)icone); if (!f) goto error;
+  /* attribute "element type" string "quads" */
 
   /* ====================================================== */
   xnod = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 1,2);
@@ -79,17 +83,28 @@ m_ExtProgImport(Object *in, Object *out)
   xnod = DXAddArrayData(xnod, 0, (N+1)*(N+1), NULL);
   if (!xnod) goto error;
   xnod_p = (float *)DXGetArrayData(xnod);
-  /* Define positions */
+
+  data = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 0);
+  if (!data) goto error;
+  data = DXAddArrayData(data, 0, (N+1)*(N+1), NULL);
+  if (!data) goto error;
+  data_p = (float *)DXGetArrayData(data);
+
+  /* Define positions and results */
   for (j=0; j<=N; j++) {
-    x = (float)j/(float)N;
+    x = ((float) j)/((float) N);
     for (k=0; k<=N; k++) {
-      y = (float)k/(float)N;
+      y = ((float) k)/((float) N);
       *xnod_p++ = x;
       *xnod_p++ = y;
+#define SQ(a) ((a)*(a))
+      r2 = SQ(x-0.5) + SQ(y-0.5);
+      *data_p++ = 0.1/(0.1+r2);
     }
   }
   /* Set `connections' component */
   f = DXSetComponentValue(f,"positions",(Object)xnod); if (!f) goto error;
+  f = DXSetComponentValue(f,"data",(Object)data); if (!f) goto error;
 
   /* ====================================================== */
   f = DXEndField(f); if (!f) goto error;

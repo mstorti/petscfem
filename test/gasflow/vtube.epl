@@ -9,14 +9,15 @@ $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 $hot_outlet = 1;
-$cold_outlet = 1;
+$cold_outlet = 0;
 $small_test = 0;
 
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = ($small_test ? 
     2*$R0 : 0.520);		# [m] Length of tube
-$Rc = 0.0175;			# [m] Radius of cold outlet
-$Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
+## In the paper this is 0.017 I think
+$Rc = 0.02;			# [m] Radius of cold outlet
+$Rin = 0.01;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 8;			# refinement in `z' (axial) direction
 $r_ratio = 2;			# refinement in radial direction
 
@@ -40,8 +41,8 @@ $Nphi = 16*$refine;		# number of elements in circumferential direction
 
 $mass_flow_in = 0.12;		# [kg/s] mass flow at inlet
 $p_in = 200000;			# [N/m2] pressure at inlet
-$T_in = 500;			# [K] temperature at inlet
-$cut = 0.5;			# [1] ratio of cold to hot flow rate
+$T_in = 274.3;			# [K] temperature at inlet
+$cut = 0.24;			# [1] ratio of cold to hot flow rate
 
 ## PHYSICAL DATA
 $Pr      =  0.72;		# [1] Prandtl
@@ -62,15 +63,15 @@ $u_circunf_in = 200;		# [m/s] tangential velocity
 #  $Re = 1e3;			# [1] Reynolds based on diameter
 #  $visco = $rho_in
 #      *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
-$visco = 1e-3;			# [kg/m s]viscosity
+$visco = 2e-3;			# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
 # $p_c = 1.25e5;			# [N/m2] outlet cold pressure
-$p_c = 1.20e5;			# [N/m2] outlet cold pressure
+$p_c = 1.013e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
-$p_h = 1.366e5;			# [N/m2] outlet cold pressure
+$p_h = 1.38e5;			# [N/m2] outlet cold pressure
 
 # require './data.pl';
 $weak_form  = 0;
@@ -105,14 +106,7 @@ global_options
 nstep 1000
 alpha 1.
 
-# initial_state "vtube.ini.tmp"
-# initial_state "vtube.state.tmp"
-# initial_state "vtube.state_hot_only"
-# initial_state "vtube.state_hot_cold1"
-# initial_state "vtube.state_hot_cold_RUN1_step140"
-# initial_state "vtube.state_hot_cold_RUN3_step120"
-# initial_state "vtube.state_hot_cold_RUN8_step180"
-initial_state "vtube.state_hot_cold_RUN8_step210"
+initial_state "vtube.ini.tmp"
 nsave 1
 save_file "vtube.state.tmp"
 
@@ -138,16 +132,12 @@ atol 0
 rtol 1e-7
 dtol 1e3
 nnwt 3
-# omega_newton 0.01
 
 print_internal_loop_conv
 
-Dt 2.5e-6
-tau_fac 3
+Dt 1e-5
 weak_form 0
 temporal_stability_factor 0
-
-shock_capturing_factor 0
 
 ndim 3
 #if $compressible
@@ -179,13 +169,14 @@ nstream 2
 initial_pressure <:=$p_h:> <:=$p_c:>
 flow_rate <:=(1-$cut):> <:=$cut:>
 gather_pos 1 2
+flow_coef 1.25e6
 #else
 nstream 1
 initial_pressure <:=$p_h:>
 flow_rate 1.
 gather_pos 1
+flow_coef 0.
 #endif
-flow_coef 1.25e6
 __END_HASH__
 
 ##================================================================

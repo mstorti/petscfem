@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2003/01/28 19:53:02 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2003/01/31 19:55:15 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -61,4 +61,7 @@ gasflow.efn: gasflow.cpp
 move:
 	find .  -maxdepth 1 -name 'vtube.state_*.tmp' | xargs -n 1 echo gzip
 	stmove.pl -f ./ -t RUN -p 'vtube.state_*.tmp.gz'
+
+epi:
+	$(MAKE) -f epimport.make
 #s

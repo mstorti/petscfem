@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $
+$Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
+! # $Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
+  # $Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
+  # $Id: notes.txt,v 1.247 2003/01/31 19:55:14 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6140,6 +6140,9 @@ Dt=2.5e-6, empieza convirgiendo y despues diverge. Mas lentamente,
 pero eso se puede deber a que el paso de tiempo es mas chico. Pienso
 en ver de agregarle un shock-capturing. Tambien hay que tener en
 cuenta que el Mach en esa zona puede ser muy bajo. 
+%
+13:31:04: Voy a tratar de llevar los parametros a los parametros
+reales y aumentar un poco el radio interior. 
 
 
 # Current line ===========  %

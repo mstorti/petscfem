@@ -1,5 +1,6 @@
 q=aload("vtube.mass_flow_rate.tmp"); 
 q=[q -.5*q(:,1)];
+return
 
 mtime=0; ff="";
 for f=glob("nohup.out.*")'; 
