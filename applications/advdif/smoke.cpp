@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: smoke.cpp,v 1.6 2003/11/25 02:10:22 mstorti Exp $
+// $Id: smoke.cpp,v 1.7 2003/12/22 02:11:37 mstorti Exp $
 
 #include "./smoke.h"
 
@@ -17,7 +17,10 @@ void smoke_ff::start_chunk(int &ret_options) {
   //o Coefficient scaling the reaction 
   EGETOPTDEF_ND(new_adv_dif_elemset,double,Cr,0.);
   //o Equilibrium value
-  EGETOPTDEF_ND(new_adv_dif_elemset,double,phieq,0.);
+  EGETOPTDEF_ND(new_adv_dif_elemset,double,phieq,1.);
+  //o Dimension of problem
+  EGETOPTDEF_ND(new_adv_dif_elemset,int,ndim,0);
+  PETSCFEM_ASSERT0(ndim>0,"Dimension must be positive.");  
 
   assert(omega>0.);
 
@@ -69,7 +72,7 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   double uu = sqrt(u.sum_square_all());
   const double *GG = new_adv_dif_elemset->prop_array(element_m,G_prop);
   double t = new_adv_dif_elemset->time();
-  double T = 2*M_PI/omega;
+  double T = 2.0*M_PI/omega;
   double G = GG[0] * sin(omega*t) + GG[1] * cos(omega*t);
   // Convective flux
   // flux(j,mu) = A(j,mu,nu) * U(nu)

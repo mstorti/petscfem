@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: smoke.h,v 1.5 2003/06/02 00:09:08 mstorti Exp $
+// $Id: smoke.h,v 1.6 2003/12/22 02:11:37 mstorti Exp $
 #ifndef SMOKE_H
 #define SMOKE_H
 
@@ -19,7 +19,7 @@
 */ 
 class smoke_ff : public AdvDifFFWEnth {
 private:
-  const int ndim;
+  int ndim;
   Property u_prop, G_prop;
   double phi, omega, drdphi, Cr, phieq;
   FastMat2 u, U, Cp, W_N, A, Uintri;
@@ -27,7 +27,7 @@ private:
   ElementIterator element_m;
   FastMat2Tmp tmp;
 public:
-  smoke_ff(const NewAdvDif *e) : AdvDifFFWEnth(e), ndim(2) {}
+  smoke_ff(const NewAdvDif *e) : AdvDifFFWEnth(e) {}
   ~smoke_ff();
   
   void start_chunk(int &ret_options);
