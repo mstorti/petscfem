@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.6 2001/11/27 14:34:45 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.7 2001/11/27 16:07:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -98,7 +98,7 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
 
-  int myrank,size,max_partgraph_vertices;
+  int myrank,size,max_partgraph_vertices_proc;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
     n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
@@ -197,13 +197,18 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   graph.flag = flag.begin();
 
 #define INF INT_MAX
-  //o The maximum number of vertices in the coarse mesh. 
-  TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices,INF);
+  //o The maximum number of vertices in the coarse mesh for
+  // sub-partitioning the dof graph in the IISD matrix. 
+  TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices_proc,INF);
 #undef INF
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
-  // assert(iisd_subpart!=1);
+#if 0
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] max_partgraph_vertices_proc %d\n",
+			  myrank,max_partgraph_vertices_proc);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#endif
 
-  graph.part(n_loc_pre,max_partgraph_vertices,iisd_subpart);
+  graph.part(n_loc_pre,max_partgraph_vertices_proc,iisd_subpart);
   // Mark those local dofs that are connected to a local dof in a
   // subdomain with lower index in the subpartitioning as interface.
   for (k=0; k<n_loc_pre; k++) {
@@ -213,8 +218,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
       if (graph.vrtx_part(*q)<subdoj) {
-	printf("[%d] marking %d as interface\n",myrank,k1+loc2dof[k]);
 #if 0 // debug:=
+	printf("[%d] marking %d as interface\n",myrank,k1+loc2dof[k]);
 	int kkk = k1+loc2dof[k];
 	assert(0<= kkk &&kkk<neq);
 #endif
