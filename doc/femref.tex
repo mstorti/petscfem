@@ -1,4 +1,4 @@
-% $Id: femref.tex,v 1.8 2004/11/27 19:27:20 mstorti Exp $
+% $Id: femref.tex,v 1.9 2004/12/02 23:53:03 mstorti Exp $
 \SSection{Mesh refinement} \label{sec:femref}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 
@@ -269,7 +269,7 @@ a \emph{``hash-sum''} for the object ${\tt go}$ as
 %
 \begin{equation} 
   H({\tt go}) = \sum_{j=0}^{n-1} h({\tt (node go j)})
-\end{equation
+\end{equation}
 %
 where \verb+(node go j)+ is the \verb+j+ node of object \verb+go+. $H$
 is the hash-sum for the geometrical object \verb+go+, whereas $h$ is a
@@ -284,6 +284,76 @@ comparision procedure, as described above, must be performed. Note
 that the hash-sum is (and must be) independent of the ordering. 
 
 In order to reduce the probability that unequal objects give the same
-hash-sum we can device better hashing functions. 
+hash-sum we can device better hashing functions. Two kind of hashing
+functions will be discussed: functions that hashes a sequence of
+numbers (\emph{``hash-sequence functions''}) taking in account the
+ordering of the sequences and functions that hash the sequences in a
+way infependent of the ordering (\emph{``hash-sum
+functions''}). 
 
- 
+Consider first the hash-sequence functions. If we consider sequences
+of integers, then the hash functions should return a scalar value for
+each sequence of integers, in such a way that if two sequences are
+distinct (i.e. they have distinct numbers, or the same numbers in
+differente order) they should have different hashing functions. We
+restrict us to 32-bit integers, unsigned integers are bounded by
+$2^{32}$ and there are $2^{32n}$ distinct sequences of $n$ integers,
+so that it is impossible to have such un hashing function.  If for two
+distinct sequences we have the same hash values, then we said thar
+there is a \emph{``collision''} in the hashing process.  We, then, try
+to have a hashing functions that minimizes the number of
+collisions. Suppose we consider the set of number sequences 32-bit
+integers of length $n$. We have $N=2^{32n}$ sequences and $M=2^{32}$
+hash values, and in the best case we would have $N/M = 2^{32(n-1)}$
+sequences for each hash value. If we generate $m$ distinct (random)
+sequences and $m\ll N$ then, if the hashing funtion is good, there is
+very little probability of having collisions between them adn the
+probability of collision is almost by random, i.e. $m/M$. Then the
+number of collisions is, approximately
+%
+\begin{equation} 
+  \text{nbr. of collisions} = \sum_{j=0}^m {j/M} \propto \frac{m^2}{M}
+\end{equation}
+%
+
+We consider the following sequence-hasshing functions:
+%
+\begin{itemize}
+\compactlist 
+\item \textbf{{\tt Hasher} (SVID rand48 functions)} If we have some kind of
+  pseudo-random generator in the form $y=\rand(s)$ where $s$ is the
+  seed, then we can do a hashing function with the following seudocode
+%
+\begin{verbatim}
+int hash(int *x,int n) {
+  int v = 0;
+  for (int j=0; j<n; j++) {
+    v = rand(f(v,x[j]);
+  }
+  return v;
+}
+\end{verbatim}
+%
+where \verb+f(v,x)+ is some binary functions that combines the values
+of the current state \verb+v+ and the incoming sequence element
+\verb+x[j]+. The \emph{rand48} hasher is based on the random function
+based on the SVID library coming with the GNU C library (version
+5.3.12 at the moment of writing this). 
+
+\item \textbf{{\tt FastHasher}} This is based in a simple pseudo
+  random function of the form
+%
+\medskip
+\begin{verbatim}
+int rand(int v,int x) {
+  int y = (v+x)^2;
+  y = y % MAX;
+  y = y ^ m;
+}
+\end{verbatim}
+\medskip
+%
+where \verb+MAX+=$2^{32}$ y 
+
+
+\end{itemize}
