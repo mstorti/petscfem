@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.15 2005/01/23 18:25:09 mstorti Exp $
+//$Id: gasflow.cpp,v 1.16 2005/01/23 20:02:09 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -625,7 +625,7 @@ void gasflow_ff::
 Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
   maktgsp.make_tangent(normaln);
-#if 1
+#if 0
   // Speed of sound
   double a = sqrt(ga*p/rho);
   
@@ -671,46 +671,56 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   for (int k=3; k<=ndof; k++) 
     C.setel(un,k);
 #else
+  // Right now, verify that `normaln' is aligned with `x'
+//   for (int k=2; k<=ndim; k++)
+//     assert(normaln.get(k)==0.0);
+//   double nx = normaln.get(1);
+  Uref.is(1,2,ndim+1);
+  tmp20.prod(Uref,normaln,-1,-1);
+  Uref.rs();
+
+  tmp20.prod(vel,normaln,-1,-1);
+  double un = tmp20.get();
+
   // Standard (linear) absorbing b.c.'s
   double rhoref = Uref.get(1);
-  double uref = Uref.get(2)*nx;
+  double uref = tmp20.get();
   double pref = Uref.get(ndof);
   double aref = sqrt(ga*pref/rhoref);
   double rhoaref = rhoref*aref;
   double aref2 = aref*aref;
-  dUabso.set(U).rest(Uref);
 
-  // Riemman Invariants
-  Rie.setel(nx*dUabso.get(2)
-	    -dUabso.get(ndof)/rhoaref,1);
-  Rie.setel(nx*dUabso.get(2)
-	    +dUabso.get(ndof)/rhoaref,2);
-  Rie.setel(dUabso.get(1)
-	    -dUabso.get(ndof)/aref2,3);
-  for (int k=2; k<=ndim; k++)
-    Rie.setel(vel.get(k),2+k);
+  // These are the `equivalent' to
+  // Riemman Invariants (not truly)
+  Rie.setel(un-U.get(ndof)/rhoaref,1);
+  Rie.setel(un+U.get(ndof)/rhoaref,2);
+  Rie.setel(U.get(1)-U.get(ndof)/aref2,3);
+  Rie.is(1,4,ndof)
+    .prod(vel,maktgsp.tangent,-1,-1,1)
+    .rs();
 
   // Jacobians
   drdU.set(0.);
 
-  drdU.setel(nx,1,2);
+  drdU.ir(1,1).is(2,2,ndim+1)
+    .set(normaln).rs();
   drdU.setel(-1.0/rhoaref,1,ndof);
 
-  drdU.setel(nx,2,2);
+  drdU.ir(1,2).is(2,2,ndim+1)
+    .set(normaln).rs();
   drdU.setel(+1.0/rhoaref,2,ndof);
 
   drdU.setel(1.0,3,1);
   drdU.setel(-1.0/aref2,3,ndof);
 
-  for (int k=2; k<=ndim; k++) 
-    drdU.setel(1.0,k+2,k+1);
+  drdU.is(1,4,ndof).is(2,2,ndim+1)
+    .ctr(maktgsp.tangent,2,1).rs();
 
   // Characteristic speeds
   
   C.setel(uref-aref,1);
   C.setel(uref+aref,2);
 
-  for (int k=3; k<=ndof; k++) 
-    C.setel(uref,k);
+  C.is(1,3,ndof).set(uref).rs();
 #endif
 }

@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.12 2005/01/23 19:17:50 mstorti Exp $
+## $Id: mkgfabso.m,v 1.13 2005/01/23 20:01:52 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -63,9 +63,7 @@ nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
 Uini(nnod+[1:2:7],:) = 0;	# lagrange multipliers to 0
 
-dw = 0.3*[0 1 0 0]; ## entropy wave
-## dw = drho*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
-## dw = drho*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
+dw = 0.2*[0 0 0 1]; ## perturbation
 dw(2:3) = dw(2:3)*Orot;
 
 dfx = exp(-((x-Lx/2)/sigma).^2);

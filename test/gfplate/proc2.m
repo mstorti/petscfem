@@ -1,4 +1,4 @@
-## $Id: proc2.m,v 1.10 2005/01/23 19:17:50 mstorti Exp $
+## $Id: proc2.m,v 1.11 2005/01/23 20:01:52 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -27,7 +27,9 @@ else
   scale = [cref cref 10.0];
 endif
 
+ndof = columns(U);
 Uref = mean(U);
+## Uref = zeros(1,ndof);
 maxbound = max(U);
 minbound = min(U);
 
@@ -42,7 +44,6 @@ rem(rows(U),Nx+1)==0 || error("not correct size");
 nt = rows(U)/(Nx+1);
 x = aload("gfabso.nod.tmp");
 x = x(1:Nx+1,longindx);
-x = -x;
 
 axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);
 m=5;
