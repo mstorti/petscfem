@@ -1,4 +1,4 @@
-## $Id: proc7.m,v 1.7 2005/02/27 14:46:01 mstorti Exp $
+## $Id: proc7.m,v 1.8 2005/02/27 17:42:02 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -48,7 +48,7 @@ Ue0 = U(1+nsome*(0:nt-1),:);
 rho = reshape(U(:,1),nsome,nt);
 
 axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);
-m=10;
+m=1;
 
 for k=1:m:nt
   title(sprintf("step %d",k));

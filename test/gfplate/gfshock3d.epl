@@ -10,8 +10,8 @@ global_options
 nstep 1000
 alpha 1.
 
-## initial_state "gfshock3d.ini.tmp"
-initial_state "gfshock3d.state.tmp"
+initial_state "gfshock3d.ini.tmp"
+## initial_state "gfshock3d.state.tmp"
 nsave 1
 save_file "gfshock3d.state.tmp"
 
@@ -50,8 +50,8 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-shocap 0.2
-shocap_aniso 0.2
+shocap 0.1
+shocap_aniso 0.1
 # use_log_vars
 lumped_mass
 # tau_fac 4
@@ -64,6 +64,7 @@ visco 1e-8
 cond 1e-8
 steady 0
 gamma <:=$ga:>
+axisymmetric y
 
 # lagrange_diagonal_factor 1e-5
 

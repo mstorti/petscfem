@@ -3,8 +3,8 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 1.797525440;
-$Nx = 30;
-$Nr = 10;
+$Nx = 50;
+$Nr = 5;
 $dtheta = 1*$PI/180;
 
 $ga = 1.17;
@@ -32,7 +32,7 @@ if (0) {
 } else { 
 ## 0.00023833 is the target $pin/$pout
 #    $pout = 143;
-    $pout = 0.1*$pin;
+    $pout = 0.2*$pin;
     $Tout = 262;
     $Tout = $Tin;
     $rhoout = $pout/($Rgas*$Tout);
@@ -40,7 +40,7 @@ if (0) {
 $pout0 = $pout/$pref;
 $rhoout0 = $rhoout/$rhoref;
 
-$Co = 0.5;
+$Co = 2;
 $h = 1/$Nx;
 $Dt = $Co*$h/($uin0+1);
 $tramp = 20*$Dt;
@@ -55,6 +55,8 @@ $mkmesh = 0 if !defined $mkmesh;
 if (!defined $mkmesh || $mkmesh) {
     system "octave -qH mkgfshock3d.m";
 }
-system "echo -n > gfshock3d.some-rslt.tmp";
+
+system "echo -n > gfshock3d.some-rslt.tmp"
+    unless $dx;
 
 1;
