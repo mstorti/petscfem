@@ -3288,3 +3288,6 @@ tag: beta-3.31.10 on Fri, 24 Sep 2004 08:45:27 -0300 by mstorti in minerva.cerid
 tag: beta-3.31.11 on Fri, 24 Sep 2004 09:01:43 -0300 by mstorti in minerva.ceride.gov.ar
      > Reverted changes from (beta-3.31.6)-(beta-3.31.5) 
      >     (will be passed to a branch)
+----------
+tag: beta-3.31.12 on Sat, 25 Sep 2004 06:38:26 -0300 by mstorti in spider
+     > Fixed `delayed_flush' problem. 
