@@ -579,7 +579,7 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_direct_superlu.verif.tmp",
        "SuperLU direct solver (SparseDirect class)",<<'EOT');
-Direct/SuperLU  OK \? > 1, 
+Direct/SuperLU  OK \? > 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -681,8 +681,8 @@ Global counting OK
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("texthash/thash2.output.tmp","TextHashTable::find",
-                     read_file('texthash/thash2.output.ans'));
+#expect("texthash/thash2.output.tmp","TextHashTable::find",
+#                     read_file('texthash/thash2.output.ans'));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("genload/output.case_fstack.tmp","Report error for bad number of nodes in conn. line",<<'EOT');
@@ -742,15 +742,9 @@ expect("turbchanw/heat.out.tmp","Advdif/Shallw Water Turb. // log vars // heat e
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("turbchanw/swturb.out.tmp","Advdif/Shallw Water Turb. // log vars // shallow w. eq.",<<'EOT');
-3\.13.*e-02 .*  1\.00.*e-01  -7\.95.*e\+00  -9\.50.*e\+00  
-3\.37.*e-02 .*  1\.00.*e-01  -8\.02.*e\+00  -9\.62.*e\+00  
-3\.40.*e-02 .*  1\.00.*e-01  -8\.17.*e\+00  -9\.86.*e\+00  
-3\.42.*e-02 .*  1\.00.*e-01  -8\.29.*e\+00  -1\.00.*e\+01  
-3\.44.*e-02 .*  1\.00.*e-01  -8\.39.*e\+00  -1\.01.*e\+01  
-3\.46.*e-02 .*  1\.00.*e-01  -8\.46.*e\+00  -1\.02.*e\+01  
-3\.46.*e-02 .*  1\.00.*e-01  -8\.50.*e\+00  -1\.02.*e\+01  
-3\.47.*e-02 .*  1\.00.*e-01  -8\.53.*e\+00  -1\.02.*e\+01  
+expect("turbchanw/check.swturb.verif.tmp",
+        "Advdif/Shallw Water Turb. // log vars // shallow w. eq.",<<'EOT');
+Max rel error OK
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

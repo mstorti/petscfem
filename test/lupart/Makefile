@@ -1,11 +1,7 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.41 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.42 2002/11/03 01:35:12 mstorti Exp $ 
 
 .PHONY: force all run tests data
-
-pp: 
-	$(MAKE) NP=1 case=iisd case_size=small test_case
-	mv -f save.state save.state.iisd.np1.tmp
 
 test_eff: 
 #	$(MAKE) PROG=$(NSO) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
@@ -53,6 +49,7 @@ test_iisd:
 
 #w Tests IISD wirh local_solver = SuperLU
 test_iisd_superlu:
+ifneq ($(SUPERLU),)
 	$(MAKE) NP=2 local_solver=iisd_superlu \
 			case=iisd case_size=small part=random test_case
 	mv -f save.state save.state.iisd_superlu.np2.rand.tmp
@@ -65,14 +62,19 @@ test_iisd_superlu:
 	mv -f save.state save.state.iisd_superlu.np1.tmp
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
+endif
 	octave -q check_iisd_superlu.m > check_iisd_superlu.verif.tmp
 
 #w Tests IISD wirh local_solver = SuperLU
 test_superlu:
+ifneq ($(SUPERLU),)
 	$(MAKE) NP=1 local_solver=direct_superlu case=iisd case_size=small test_case
 	mv -f save.state save.state.direct_superlu.tmp
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
+# else
+#	$(MAKE) NP=1 local_solver=direct_superlu case=iisd case_size=small test_case
+endif
 	octave -q check_direct_superlu.m > check_direct_superlu.verif.tmp
 
 #w Tests IISD wirh local_solver = SuperLU

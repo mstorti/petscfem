@@ -1,16 +1,13 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.103 2002/11/02 20:51:54 mstorti Exp $
+#$Id: Makefile.base,v 1.104 2002/11/03 01:35:08 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 
-ifeq ($(BOPT),)
-BOPT = g_c++
-endif
-export BOPT
+PETSC_BOPT = g_c++
 
 # uncomment in order to use the `gprof' profiler
 # PROF_FLAGS = -pg
@@ -25,6 +22,11 @@ export BOPT
 # variables inside.
 include $(PETSCFEM_DIR)/Makefile.defs
 ######  end of CONGIGURATION VARIABLES section  ####################
+
+ifeq ($(BOPT),)
+BOPT = $(PETSC_BOPT)
+endif
+export BOPT
 
 # This allows to specify whether optimized version (compiler -O2
 # flag) or the debugger version (compiler -g flag) should be generated
@@ -56,6 +58,7 @@ ifeq ($(SUPERLULIB),)
 SUPERLULIB = $(SUPERLU)/libsuperlu.a
 endif
 endif
+export SUPERLU
 
 # If the $(ANN_HOME) variable is not set then doesn't compile with the
 # ANN library

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.6 2002/09/05 19:24:01 mstorti Exp $
+// $Id: pfmat.cpp,v 1.7 2002/11/03 01:35:12 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -142,13 +142,21 @@ int main(int argc,char **args) {
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
   PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
   SparseDirect Aspd(N,"PETSc");
+#ifdef USE_SUPERLU
   SparseDirect Aspdl(N,"SuperLU");
+#else
+  SparseDirect &Aspdl = Aspd;
+#endif
   if (mat_type==0) {
     A_p = &AA;
     A_p->set_option("local_solver","PETSc");
   } else if (mat_type==1) {
     A_p = &AA;
+#ifdef USE_SUPERLU
     A_p->set_option("local_solver","SuperLU");
+#else
+    A_p->set_option("local_solver","PETSc");
+#endif
   } else if (mat_type==2) {
     A_p = &AAA;
   } else if (mat_type==3) {

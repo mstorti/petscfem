@@ -207,26 +207,41 @@ VARIABLES> section in file F<$(PETSCFEM_DIR)/Makefile.base>.
 
 =item *
 
-First you have to set the C<BOPT PETSc> variable. You can set it to 
+First you have to set the C<PETSC_BOPT> variable which is the default
+value for the C<PETSc> C<BOPT> variable, which sets the
+optimization level to be used in compilation. You can set it to 
 
 =over 
 
-=item C<BOPT = g_c++>
+=item C<PETSC_BOPT = g_c++>
 
 Compiles for debugging.
 
-=item C<BOPT = O_c++>
+=item C<PETSC_BOPT = O_c++>
 
 Compiles with optimization enabled.
 
 =back
 
-The optimization level is inherited from the C<PETSc> installation (it
-is defined in C<$(PETSC_HOME)/bmake/$(PETSC_ARCH)>).
+The optimization level is inherited by the C<PETSc> libraries so that
+if you compile with C<PETSC_BOPT=O_c++> then not only C<PETSc-FEM>
+will be compiled with optimization, but also the C<PETSc> optimized
+libraries will be used. The specific optimization options are set in 
+C<$(PETSC_FIR)/bmake/linux/variables> (C<OCXX_COPTFLAGS> variable). 
+According to our experience
+maximum optimization is achieved with <BOPT=-O2 -funroll-loops>. 
+
+The default value can be superseded by, for instance, issuing 
+
+  $ make BOPT=O_c++ ns
+
+This compiles the Navier-Stokes module with optimization enabled
+independently of the C<PETSC_BOPT> default value.
 
 =item *
 
-The C<PROF_FLAGS> variables allows you to turn on profiling. By default, profiling is deactivated. 
+The C<PROF_FLAGS> variables allows you to turn on profiling. By
+default, profiling is deactivated.
 
 =item *
 

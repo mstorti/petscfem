@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/07/25 22:35:10 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/11/03 01:35:12 mstorti Exp $ 
 
 CASE = turbchanw
 tests: heat swturb
@@ -34,3 +34,4 @@ heat:
 
 swturb:
 	$(MAKE) SUBCASE=swturb $(CASE)
+	octave -q check.swturb.m > check.swturb.verif.tmp

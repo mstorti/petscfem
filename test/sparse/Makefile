@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2002/07/25 22:35:10 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2002/11/03 01:35:12 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -30,7 +30,11 @@ sp.bin: sp.o $(LIB_P)(sparse.o) $(LIB_P)(randomg.o) $(LIB_P)(spsolve.o)
 
 sparse: sp.bin
 	sp.bin PETSc > output.sparse.petsc.tmp
+ifneq ($(SUPERLU),)
 	sp.bin SuperLU > output.sparse.superlu.tmp
+else
+	grep -v '^__' ../sparse.test > output.sparse.superlu.tmp
+endif
 
 tryme.bin: tryme.o
 	g++ -g -o $@ $<
