@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.6 2003/10/10 23:13:55 mstorti Exp $
+// $Id: gasflow.h,v 1.7 2003/10/11 23:57:14 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -27,6 +27,8 @@ private:
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
   double tau_supg_a,visco_supg,velmod, h_supg, h_pspg;
   double Pr_t, C_smag;
+  double rho_thrsh, p_thrsh;
+  int stop_on_neg_val;
 
   const NewAdvDif *advdf_e;
 

@@ -1,14 +1,18 @@
-# $Id: Makefile,v 1.32 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.33 2003/10/11 23:57:17 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: vtube
+default: cutoff
 
 tests: 
 
 #w Gas flow example (basic)
 gasflow:
 	$(MAKE) CASE_NAME=gasflow_test_2d run
+
+#w Test cutoff functions 
+cutoff:
+	$(MAKE) case=cutoff CASE_NAME=gasflow_test_2d run
 
 #w Nozzle example
 nozzle:
@@ -77,5 +81,8 @@ socket2.bin: LDFLAGS = $(SSL)/simpleskts.a -lpthread
 socket2.bin: socket2.o
 	$(CXX) -o $@ $< $(LDFLAGS)
 
+link:
+	$(MAKE) -C ../../ advdif
+	ln -f ../../applications/advdif/advdif_g.bin advdif
 
 #s

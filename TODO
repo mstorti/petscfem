@@ -18,7 +18,6 @@ TODO: [Mainly fixes go here...]
 * Pass fix to `ns.cpp' (define MPI_RANK *before* `print_copyright') to
       stable 3.22
 * Make user can call PETSc-FEM assert call abort() or exit(). 
-* Generate a summary of `odoc' options in the doc with `odoc.pl'. 
 * Check caching DX objects for multiple elemsets
 * Code and test changing coords and elemset conectivities 
   caching by the user/ appl. writer. 
@@ -121,6 +120,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Generate a summary of `odoc' options in the doc with `odoc.pl'. 
 * Generate a test for exception handling in `advdif'. 
 * Convert negative jacobian errors in advdif to set_error. 
 * DX: make epimport.cpp to print shapes in one line. 

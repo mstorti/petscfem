@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.72 2003/10/08 11:51:37 mstorti Exp $
+//$Id: advdife.cpp,v 1.73 2003/10/11 23:57:14 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -108,7 +108,7 @@ NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_)
 void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
-			     const TimeData *time_data) {
+			     const TimeData *time_data) try {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -741,6 +741,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+} catch (GenericError e) {
+  set_error(1);
 }
 
 double NewAdvDif::volume() const {

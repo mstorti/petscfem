@@ -1,9 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.6 2003/10/10 23:13:55 mstorti Exp $
+//$Id: gasflow.cpp,v 1.7 2003/10/11 23:57:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
+#include <src/generror.h>
 
 #include "gasflow.h"
 
@@ -28,10 +29,24 @@ void gasflow_ff::start_chunk(int &ret_options) {
   //o Mask for stabilization term
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
+  //o Threshold value for density. If density goes belows this value
+  //  then a cutoff function is applied. This is a simple way to prevent
+  //  crashing of the code due to taking square root of negative values.
+  EGETOPTDEF_ND(elemset,double,rho_thrsh,0.);
+  //o Threshold value for pressure. See doc for rho_thrsh.
+  EGETOPTDEF_ND(elemset,double,p_thrsh,0.);
+  //o If this flag is activated the code stops when a negative 
+  //  value for density or pressure is found. Setting either
+  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val#. 
+  EGETOPTDEF_ND(elemset,int,stop_on_neg_val,1);
+  PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");  
+  PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");  
+  if (rho_thrsh>0 || p_thrsh>0) stop_on_neg_val=0;
+
   //o Adjust the stability parameters, taking into account
-  // the time step. If the \verb+steady+ option is in effect,
+  // the time step. If the #steady# option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
-  // \verb+temporal_stability_factor+ is set to 0.
+  // #temporal_stability_factor# is set to 0.
   EGETOPTDEF_ND(elemset,double,temporal_stability_factor,1.);
 
   // gamma coeficient
@@ -109,10 +124,13 @@ gasflow_ff::~gasflow_ff() { }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::set_state(const FastMat2 &UU) {
   U.set(UU);
-  double p_thrsh = 1.0e2,  rho_thrsh = 0.01, dummy;
+  double dummy;
   // Scalar variables
   rho = U.get(1);
   p = U.get(ndof);
+
+  if (stop_on_neg_val && (p<0 || rho<0)) 
+    throw GenericError("negative pressure or density detected.");
 
   // Cutoff values
   rho = ctff(rho,dummy,rho_thrsh);

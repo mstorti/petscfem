@@ -6,7 +6,8 @@ $ip = $ENV{'ip'};
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
-$save_file = ($case ? "gasflow_test_2d.$case.tmp" : "gasflow_test_2d.state.tmp");
+$cutoff=($case eq 'cutoff' ? 1 : 0);
+# $save_file = ($case ? "gasflow_test_2d.$case.tmp" : "gasflow_test_2d.state.tmp");
 #$ipm=$ip-1;
 #$save_file_pattern = ($case ? "gasflow_test_2d.$case.tmp" : "gasflow_test_2d.state.$ipm.tmp");
 ## Test the 'G_body' feature. 
@@ -35,7 +36,7 @@ $gravity = -9.8;
 # BOUNDARY CONDITIONS
 $Mach_ref   = 0.1;
 $rho_ini    = 1.15;
-$p_ini      = 1.0e5; 
+$p_ini      = ($cutoff ? -1.0e5 : 1.0e5); 
 $p_ref      = 1.0e5;
 $rho_ref    = 1.15;
 
@@ -52,7 +53,7 @@ $Dt = 0.001;		# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep =  100;
+$nstep =  ($cutoff ? 2 : 100);
 
 $cache_gdu = 0;
 #
@@ -137,6 +138,10 @@ C_mu 0.
 <:pr('ga'):> 
 <:pr('cond'):> 
 
+#if $cutoff
+#p_thrsh 1e3
+#rho_thrsh 0.1
+#endif
 __END_HASH__
 
 ##================================================================
@@ -173,4 +178,3 @@ __INCLUDE__ gasflow_test_2d.fixa_wall.tmp
 __INCLUDE__ gasflow_test_2d.fixa_out.tmp
 
 __END_FIXA__
-y
