@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.8 2003/09/17 00:51:31 mstorti Exp $
+//$Id: adaptor.cpp,v 1.9 2003/10/11 14:08:10 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,6 +16,12 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 adaptor::adaptor() : elem_init_flag(0) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void adaptor::after_assemble(const char *jobinfo) {
+  GET_JOBINFO_FLAG(comp_mat_res);
+  if (comp_mat_res && !elem_init_flag) elem_init_flag=1;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -118,7 +124,6 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   matloc_prof.set(1.);
 
   if (comp_mat_res && !elem_init_flag) {
-    elem_init_flag = 1;
     for (elem=el_start; elem<=el_last; elem++) {
       if (!compute_this_elem(elem,this,myrank,iter_mode)) continue;
       element_init();

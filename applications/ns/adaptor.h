@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.11 2003/09/16 21:17:29 mstorti Exp $
+//$Id: adaptor.h,v 1.12 2003/10/11 14:08:10 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -65,6 +65,8 @@ public:
   /** This is called only once for each element after calling 
       initialize().  */ 
   virtual void element_init() { } 
+
+  void after_assemble(const char *jobinfo);
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 

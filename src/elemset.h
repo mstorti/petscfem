@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.35 2003/09/17 00:51:35 mstorti Exp $
+//$Id: elemset.h,v 1.36 2003/10/11 14:08:14 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -94,8 +94,34 @@ public:
   /// Returns the list of "real" nodes (this is used for computing the graph)
   virtual int real_nodes(int iele,const int *&nodes);
 
+  /** This called only once before calling assemble for each 
+      chunk. The arguments are the same as for the assemble 
+      function. 
+      @param nodedata (input) vector with properties per node
+      @param locst (input) state vectors localized to elements 
+      @param locst2 (input) same for alternative  state vector (this may be
+      used in temporal integration), etc...
+      @param dofmap (input) maps the node/field representation to the vector
+      state
+      @param jobinfo (input) tells the routine element what kind of
+      matrix or vector has to be assembled
+      @param myrank (input) identifies this processor
+      @param el_start (input) low end of the range of elements to be
+      processed
+      @param el_last (input) high end of the range of elements to be
+      processed
+      @param iter_mode (input) include or not ghost elements */ 
+  virtual void 
+  before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
+		  Dofmap *dofmap, const char *jobinfo,int myrank,
+		  int el_start,int el_last,int iter_mode,
+		  const TimeData *time_data) {}
+
+  /** This called only once after calling assemble for each 
+      chunk. */ 
+  virtual void after_assemble(const char *jobinfo) {}
+
   /** Assembles residuals, matrices, scalars and other quantities. 
-      @author M. Storti
       @param retval (output) here returns contributions vectors
       (residuals), and matrices
       @param nodedata (input) vector with properties per node
@@ -104,9 +130,6 @@ public:
       used in temporal integration), etc...
       @param dofmap (input) maps the node/field representation to the vector
       state
-      @param ijob (input) tells the global assemble function  what kind of job
-      should be done (assemble vector, profile or matrix). To be
-      processed by the global assemble function. 
       @param jobinfo (input) tells the routine element what kind of
       matrix or vector has to be assembled
       @param myrank (input) identifies this processor
@@ -119,9 +142,7 @@ public:
   virtual int assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
 		       const char *jobinfo,int myrank,
 		       int el_start,int el_last,int iter_mode,
-		       const TimeData *time_data) {
-    
-    printf("assemble: not known Elemset\n"); exit(1);};
+		       const TimeData *time_data);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Ask the elemset if it should be processed for this jobinfo. 

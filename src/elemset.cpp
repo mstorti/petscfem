@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.81 2003/09/17 00:51:35 mstorti Exp $
+//$Id: elemset.cpp,v 1.82 2003/10/11 14:08:14 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -505,6 +505,12 @@ int assemble(Mesh *mesh,arg_list argl,
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
+    // here application writers can perform tasks before the
+    // chunk loop calling `assemble'
+    elemset->before_assemble(arg_data_v,nodedata,dofmap,
+			     jobinfo,myrank,el_start,el_last,iter_mode,
+			     time_data);
+    
     out_of_loop.add(hpchrono.elapsed());
 
     while (1) { // Loop over chunks. 
@@ -722,6 +728,8 @@ int assemble(Mesh *mesh,arg_list argl,
       if (global_has_finished) break;
     } // end loop over chunks
 
+    elemset->after_assemble(jobinfo);
+
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Performance report elemset \"%s\" task \"%s\"\n"
@@ -847,6 +855,14 @@ void Elemset::print() {
   SHVS(ndof,d);
   thash->print();
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Elemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
+		      const char *jobinfo,int myrank,
+		       int el_start,int el_last,int iter_mode,
+		      const TimeData *time_data) {
+  printf("assemble: not known Elemset\n"); exit(1);
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double Elemset::weight() {
