@@ -4,7 +4,7 @@ require '../../tools/dx.pl';
 $dir = "./" unless defined $dir;
 $dir .= "/" unless $dir =~ m|/$|;
 $state = "./vtube.state.tmp";
-if (defined $step) {
+if (defined $step && $step>=0) {
     if (-f "${dir}vtube.state_$step.tmp.gz") {
 	print "# unpacking \"${dir}vtube.state_$step.tmp.gz\"\n";
 	system "gunzip -c ${dir}vtube.state_$step.tmp.gz > ./vtube.tempo.tmp";
