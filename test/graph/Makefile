@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/07/23 12:27:54 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/07/24 01:19:58 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -7,7 +7,7 @@ tests: graph
 
 tryme: tryme.bin
 
-SRCS = tryme.cpp
+SRCS = tryme.cpp tryme3.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -43,11 +43,8 @@ LDFLAGS =					\
           $(MESCHACH)/libmes.a			\
           $(SUPERLULIB)
 
-compile_lib: force
-	$(MAKE) -C ../../src compile
-
-tryme3.o: compile_lib
 tryme3.bin: tryme3.o
+	$(MAKE) -C ../../src compile
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS)
 
 #s

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.4 2002/07/23 17:07:02 mstorti Exp $
+// $Id: tryme3.cpp,v 1.5 2002/07/24 01:19:58 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/linkgraph.h>
@@ -41,7 +41,7 @@ int main(int argc, char **args) {
     graph.add(j,modulo(j+1,M));
     graph.add(j,modulo(j-1,M));
   }
-  // graph.scatter();
+  graph.scatter();
   LinkGraphDis::iterator k;
   for (k=graph.begin(); k!=graph.end(); k++) {
     row_print(*k);

@@ -1,11 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.8 2002/07/23 17:06:59 mstorti Exp $
+// $Id: linkgraph.h,v 1.9 2002/07/24 01:19:54 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
 extern int MY_RANK,SIZE;
 
+#include <src/buffpack.h>
 #include <src/distcont.h>
 #include <src/graph.h>
 #include <src/iisdgraph.h>
@@ -30,6 +31,8 @@ protected:
   void list_insert(int header, int val);
   /// return a cursor to an available cell
   int available();
+  /// free a cell (put it in free list)
+  void free_cell(int cell);
 public:
   class Row : public GSet {
   public:
@@ -73,8 +76,8 @@ public:
   };    
   iterator begin() { return iterator(0,this); }
   iterator end() { return iterator(M,this); }
-  void erase(iterator q) { assert(0); } // not coded yet...
-  void erase(iterator first,iterator last) { assert(0); } // not coded yet...
+  void erase(iterator q);
+  void erase(iterator first,iterator last);
   /// cuasi constructor
   void init(int MM);
   /** Set new chunk size (container must be empty).
@@ -100,13 +103,18 @@ public:
   int size(int r);
   /// Clear all edges
   void clear() { M=0; da.clear(); }
-#if 0
-  int size_of_pack(const_iterator iter) const {
-    int n = iter->second.size();
+  /// Size of packed row (plus header)
+  int size_of_pack(Row const & row) const {
+    int n = row.size();
     // size + row number + size*(int+double)
-    return (n+2)*sizeof(int)+n*sizeof(double);
+    return (n+2)*sizeof(int);
   }
-#endif
+  /// Pack the row
+  void pack(const Row & row,char *&buff) const;
+  /// un-pack the row
+  void unpack(Row & row,const char *&buff);
+  /// combine a row in the container
+  void combine(const Row &row);
 };
 
 typedef LinkGraph::Row LinkGraphRow; 
