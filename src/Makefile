@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.42 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.43 2002/02/09 21:03:52 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -82,8 +82,8 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 
 # This doesn't compile with -O2
 #measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'
-measperf.o: measperf.cpp
-	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
+# measperf.o: measperf.cpp
+#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp libpetscfem.a # &> /dev/null

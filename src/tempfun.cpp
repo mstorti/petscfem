@@ -1,17 +1,18 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.5 2001/05/30 18:21:53 mstorti Exp $
+//$Id: tempfun.cpp,v 1.6 2002/02/09 21:03:52 mstorti Exp $
 
 #include <math.h>
 
 #include "fem.h"
 #include "getprop.h"
 #include "dofmap.h"
+#include "ampli.h"
 #include "utils.h"
 #include "util2.h"
 
 using namespace std;
 
-FunctionTable *Amplitude::function_table=NULL;
+FunctionTable *OldAmplitude::function_table=NULL;
 
 // Useful for definitions inside functions defining a `fun-data' class
 // object 
@@ -21,9 +22,9 @@ FunctionTable *Amplitude::function_table=NULL;
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "static void initialize_function_table(void)" 
-void Amplitude::initialize_function_table(void) {
+void OldAmplitude::initialize_function_table(void) {
+  if (function_table) return; // already loaded may be
+  function_table = new FunctionTable;
   add_entry("smooth_ramp",&smooth_ramp_function);
   add_entry("ramp",&ramp_function);
   add_entry("sin",&sin_function);
@@ -34,8 +35,6 @@ void Amplitude::initialize_function_table(void) {
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "AmplitudeFunction cos_function"
 double cos_function(TextHashTable *thash,const TimeData *t,
 		    void *& fun_data) {
   int ierr;
@@ -61,8 +60,6 @@ double cos_function(TextHashTable *thash,const TimeData *t,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "AmplitudeFunction sin_function"
 double sin_function(TextHashTable *thash,const TimeData *t,
 		    void *& fun_data) {
   int ierr;
@@ -91,8 +88,6 @@ double sin_function(TextHashTable *thash,const TimeData *t,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "AmplitudeFunction smooth_ramp_function"
 double smooth_ramp_function(TextHashTable *thash,const TimeData *t,
 		    void *& fun_data) {
   int ierr;
@@ -118,8 +113,6 @@ double smooth_ramp_function(TextHashTable *thash,const TimeData *t,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "AmplitudeFunction ramp_function"
 double ramp_function(TextHashTable *thash,const TimeData *t,
 		    void *& fun_data) {
   int ierr;
@@ -151,8 +144,6 @@ struct piecewise_data {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "AmplitudeFunction piecewise_function"
 double piecewise_function(TextHashTable *thash,const TimeData *t,
 			  void *& fun_data) {
   int ierr,npoints;
@@ -303,8 +294,6 @@ struct spline_periodic_data {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "AmplitudeFunction spline_periodic_function"
 double spline_periodic_function(TextHashTable *thash,const TimeData *t,
 		       void *& fun_data) {
 
@@ -366,8 +355,6 @@ double spline_periodic_function(TextHashTable *thash,const TimeData *t,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "spline_periodic_data::eval(double time)"
 double spline_periodic_data::eval(double time) {
 
   double phase = fmod(time-start_time,period)/period;
@@ -392,19 +379,13 @@ double spline_periodic_data::eval(double time) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void Amplitude::read_hash_table(FileStack *)"
-void Amplitude::read_hash_table(FileStack *fstack) {
+void OldAmplitude::read_hash_table(FileStack *fstack) {
   ::read_hash_table(fstack,thash);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void Amplitude::add_entry(const char *,
-const AmplitudeFunction *)"
-void Amplitude::add_entry(const char * s,
+void OldAmplitude::add_entry(const char * s,
 			  AmplitudeFunction *f) {
-  if (function_table==NULL) function_table = new FunctionTable;
   pair<string,AmplitudeFunction *> pp(s,f);
   function_table->insert(pp);
   // function_table.insert(pair(string(s),f));
@@ -412,17 +393,13 @@ void Amplitude::add_entry(const char * s,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void Amplitude::print(void) const"
-void Amplitude::print(void) const {
+void OldAmplitude::print(void) const {
   thash->print();
   PetscPrintf(PETSC_COMM_WORLD,"amp_function_key: %s\n",amp_function_key);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "double Amplitude::eval(const void *) "
-double Amplitude::eval(const TimeData *time_data)  {
+double OldAmplitude::eval(const TimeData *time_data)  {
   assert(function_table!=NULL);
   AmplitudeFunction *func;
   FunctionTable::iterator it;
@@ -440,3 +417,23 @@ double Amplitude::eval(const TimeData *time_data)  {
   return amplitude;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Amplitude * Amplitude::old_factory(char *& label,FileStack &fstack) {
+  FunctionTable::iterator it;
+  if (!OldAmplitude::function_table) OldAmplitude::initialize_function_table();
+  it = OldAmplitude::function_table->find(label);
+  if (it == OldAmplitude::function_table->end()) {
+    return NULL;
+  } else {
+    OldAmplitude *amp = new OldAmplitude(label);
+    amp->read_hash_table(&fstack);
+    return amp;
+  }
+} 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Amplitude *Amplitude::factory(char *& label,
+			      TextHashTable *tht_=NULL) {
+  assert(0);
+}
+  

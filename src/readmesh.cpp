@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.38 2001/11/26 20:10:22 mstorti Exp $
+//$Id: readmesh.cpp,v 1.39 2002/02/09 21:03:52 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -492,12 +492,18 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       char *label = new char[strlen(token)+1];
       strcpy(label,token);
 
-      // create a new Amplitude and insert pointer in the list
-      Amplitude *amp = new Amplitude(label);
+      Amplitude *amp = Amplitude::old_factory(label,*fstack);
 
+      if (!amp) {
+	// Read option table
+	TextHashTable *thash = new TextHashTable;
+	read_hash_table(fstack,thash);
+	
+	// create a new Amplitude
+	Amplitude *amp = Amplitude::factory(label,thash);
+      }
       // amplitude_list:= stores a list of all the amplitudes defined 
       amplitude_list.push_back(amp);
-      amp->read_hash_table(fstack);
 
       nfixa=0;
       while (1) {

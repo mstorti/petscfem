@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.6 2002/01/14 03:45:06 mstorti Exp $
+//$Id: dofmap.h,v 1.7 2002/02/09 21:03:52 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -35,58 +35,19 @@ private:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** This is the type of temporal functions. A TextHashTable stores
-    various parameters, and the time (or time like data) is passed to
-    the function. 
-    @author M. Storti
-*/ 
-typedef double AmplitudeFunction(TextHashTable *thash,const TimeData *time_data,
-				 void *& fun_data);
-
-AmplitudeFunction smooth_ramp_function;
-AmplitudeFunction ramp_function;
-AmplitudeFunction sin_function;
-AmplitudeFunction cos_function;
-AmplitudeFunction piecewise_function;
-AmplitudeFunction spline_function;
-AmplitudeFunction spline_periodic_function;
-typedef map<string,AmplitudeFunction *> FunctionTable;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** An amplitude is basically a pointer to a
-    function that depends on some fixed parameters passed through
-    a hash table and a variable parameter (typically time). 
-    For instance function `sine'  with constant parameters  omega and
-    phase, depending on time. 
+/** An amplitude is basically a function object that returns the
+    Dirichlet value for a given time. For instance function `sine'  
+    with constant parameters  omega and phase, depending on time. 
     @author M. Storti
 */ 
 class Amplitude {
 public:
-  /// Constructor
-  Amplitude(char *& s_,TextHashTable *tht_=NULL) :
-    amp_function_key(s_), thash(tht_) {fun_data=NULL;};
+  static Amplitude *factory(char *& label,TextHashTable *tht_=NULL);
+  static Amplitude *old_factory(char *& label,FileStack &fstack);
   /// Eval the amplitude of the function at this time. 
-  double eval(const TimeData *time_data);
-  /// Adds an entry to the static table. 
-  static void add_entry(const char * s,AmplitudeFunction *f);
-  /// Initializes the function table. 
-  static void initialize_function_table(void);
-  /// Reads the table from a fstack
-  void read_hash_table(FileStack *fstack);
+  virtual double eval(const TimeData *time_data)=0;
   /// prints the amplitude entry. 
-  void print(void) const; 
-private:
-  /** A static table from the key to a pointer to the corresponding function. 
-  */
-  static FunctionTable *function_table;
-  /// The key, i.e. the string identifying the function (e.g. `sine')
-  char *amp_function_key;
-  /** A table with parameters for the function (amplitude, starting
-      time, for instance. )
-  */
-  TextHashTable *thash;
-  /// A place where to store things
-  void *fun_data;
+  virtual void print(void) const=0; 
 };
 
 /** @name dofmap.
