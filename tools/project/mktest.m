@@ -1,4 +1,5 @@
-N = 50;
+N = 500;
+nnod2 = 4000;
 w = zhomo([0 1 0 1],N+1,N+1);
 
 [xnod,icone] = pfcm2fem(w);
@@ -16,10 +17,12 @@ phi = x.*(1-x).*y.*(1-y);
 u = [phi,sqrt(phi)];
 asave("square1.dat",u);
 
-xnod2 = rand(40,2);
+xnod2 = rand(nnod2,2);
 asave("square2.nod",xnod2);
 
+start = clock();
 system("./project2.bin");
+printf("elapsed %f\n",etime(clock(),start));
 
 xx = xnod2(:,1);
 yy = xnod2(:,2);
