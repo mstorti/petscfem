@@ -761,3 +761,6 @@ tag: pfmat-rewrite-1.11 on Sun Dec 30 18:29:48 ARST 2001, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.12 on Sun Dec 30 20:07:31 ARST 2001, by mstorti in spider
      > Added the PFMat test to the test routine.
+----------
+tag: pfmat-rewrite-1.13 on Mon Dec 31 01:02:12 ARST 2001, by mstorti in spider
+     > `sles_was_built' now included in `factored'
