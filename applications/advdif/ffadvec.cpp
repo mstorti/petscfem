@@ -1,14 +1,14 @@
 //__INSERT_LICENSE__
-//$Id: ffadvec.cpp,v 1.4 2001/05/30 18:21:43 mstorti Exp $
+//$Id: ffadvec.cpp,v 1.4.10.1 2001/12/21 00:13:28 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
 #include "newmat.h"
 #include <vector>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
 
 #include "advective.h"
 

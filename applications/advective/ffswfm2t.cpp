@@ -1,15 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.5 2001/05/30 18:21:45 mstorti Exp $
+//$Id: ffswfm2t.cpp,v 1.5.10.1 2001/12/21 00:13:32 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
 #include <vector>
 #include <cassert>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
+#include <src/util2.h>
 
 #include "advective.h"
 

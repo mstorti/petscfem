@@ -1,13 +1,13 @@
 //__INSERT_LICENSE__
-//$Id: wallswt.cpp,v 1.10 2001/05/30 18:21:43 mstorti Exp $
+//$Id: wallswt.cpp,v 1.10.10.1 2001/12/21 00:13:28 mstorti Exp $
   
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/secant.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/secant.h>
 
-#include "../../src/fastmat2.h"
+#include <src/fastmat2.h>
 #include "advective.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;

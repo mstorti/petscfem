@@ -1,9 +1,9 @@
 /*__INSERT_LICENSE__*/
-//$Id: tfastvec.cpp,v 1.3 2001/05/30 03:58:53 mstorti Exp $
+//$Id: tfastvec.cpp,v 1.3.8.1 2001/12/21 00:13:32 mstorti Exp $
  
 #include <iostream>
 #include <stdio.h>
-#include "../src/fastlib.h"
+#include <src/fastlib.h>
 
 int main() {
   // dimension a vector of 10 components

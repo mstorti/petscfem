@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16.6.4 2001/12/18 12:59:24 mstorti Exp $ 
+# $Id: Makefile,v 1.16.6.5 2001/12/21 00:13:32 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -14,7 +14,7 @@ dm2: distmat.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distmat.bin \
 		4 4 1e-12 0
 
-# check basic template (map<int,double>)
+#w check basic template (map<int,double>)
 distmap: distmap.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
 		100 10000 1e-12 g > distmapg.sal.tmp
@@ -44,6 +44,7 @@ distmap.bin: distmap.o
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmap.o   $(LDFLAGS)
 
+#w Builds binary
 distcont.bin: distcont.o 
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distcont.o   $(LDFLAGS)
@@ -82,6 +83,7 @@ tryme7.bin: tryme7.o $(LIB_OBJS_LIB)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ tryme7.o $(LDFLAGS)
 
+#w Checks distributed graph class 'StoreGraph'
 dist_graph: tryme7.bin
 	tryme7.bin 20 > dist_graph.np1.out.tmp
 	$(MPIRUN) -np 2 -machinefile machi.dat tryme7.bin 20 > dist_graph.np2.out.tmp

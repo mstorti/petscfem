@@ -1,14 +1,14 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.27 2001/08/20 14:12:31 mstorti Exp $
+//$Id: advdif.cpp,v 1.27.6.1 2001/12/21 00:13:28 mstorti Exp $
 
 #include <set>
 
-#include "../../src/fem.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/utils.h"
-#include "../../src/util2.h"
-#include "../../src/pfmat.h"
+#include <src/fem.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/utils.h>
+#include <src/util2.h>
+#include <src/pfmat.h>
 
 #include "advective.h"
 #include "nwadvdif.h"

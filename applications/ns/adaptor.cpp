@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.3 2001/11/30 13:22:24 mstorti Exp $
+//$Id: adaptor.cpp,v 1.3.4.1 2001/12/21 00:13:32 mstorti Exp $
 
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/fastmat2.h>
 
 #include "nsi_tet.h"
 #include "adaptor.h"

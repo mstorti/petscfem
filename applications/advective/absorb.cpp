@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: absorb.cpp,v 1.7 2001/05/30 18:21:45 mstorti Exp $
+//$Id: absorb.cpp,v 1.7.10.1 2001/12/21 00:13:32 mstorti Exp $
 
 #include <cassert>  
 #include <vector>
@@ -8,11 +8,11 @@
 
 using namespace std;
 
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/util2.h>
 #include "advective.h"
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)

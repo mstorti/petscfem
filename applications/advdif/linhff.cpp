@@ -1,12 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: linhff.cpp,v 1.5 2001/05/30 18:21:43 mstorti Exp $
+//$Id: linhff.cpp,v 1.5.10.1 2001/12/21 00:13:28 mstorti Exp $
  
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/util2.h>
+#include <src/fastmat2.h>
 
 #include "advective.h"
 #include "genload.h"

@@ -1,12 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: lapla.cpp,v 1.7 2001/05/30 18:21:48 mstorti Exp $
+//$Id: lapla.cpp,v 1.7.10.1 2001/12/21 00:13:32 mstorti Exp $
   
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
 //#include "fastmat.h"
 #include "newmat.h"
-#include "../../src/getprop.h"
+#include <src/getprop.h>
 #include "lapla.h"
 
 #define MAXPROP 100

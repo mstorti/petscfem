@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffshallwl.cpp,v 1.4 2001/05/30 18:21:45 mstorti Exp $
+//$Id: ffshallwl.cpp,v 1.4.10.1 2001/12/21 00:13:32 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -7,9 +7,9 @@
 #include <vector>
 #include <cassert>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
 #include "advective.h"
 #include "util2.h"
 

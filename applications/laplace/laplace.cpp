@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.7 2001/06/01 02:24:51 mstorti Exp $
+//$Id: laplace.cpp,v 1.7.10.1 2001/12/21 00:13:32 mstorti Exp $
  
-#include "../../src/fem.h"
-#include "../../src/readmesh.h"
-#include "../../src/arglist.h"
-#include "../../src/utils.h"
-#include "../../src/getprop.h"
+#include <src/fem.h>
+#include <src/readmesh.h>
+#include <src/arglist.h>
+#include <src/utils.h>
+#include <src/getprop.h>
 
 #include "genload.h"
 #include "lapla.h"

@@ -1,10 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: nsvol.cpp,v 1.5 2001/05/30 18:21:50 mstorti Exp $
+//$Id: nsvol.cpp,v 1.5.10.1 2001/12/21 00:13:32 mstorti Exp $
   
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
 
 #include "nsi_tet.h"
 

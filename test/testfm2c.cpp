@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2c.cpp,v 1.3 2001/05/30 03:58:53 mstorti Exp $
+//$Id: testfm2c.cpp,v 1.3.8.1 2001/12/21 00:13:32 mstorti Exp $
  
 //< if (0) { //>//
 #include <stdio.h>
@@ -7,10 +7,10 @@
 
 #include <sles.h>
 
-#include "../src/fastmat2.h"
-#include "../src/fem.h"
-#include "../src/utils.h"
-#include "../src/util2.h"
+#include <src/fastmat2.h>
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/util2.h>
 
 #define XNOD(j,k) (xnod[2*(j)+(k)])
 #define ICONE(j,k) (icone[3*(j)+(k)])

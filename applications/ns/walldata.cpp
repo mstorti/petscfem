@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.5 2001/05/30 18:21:50 mstorti Exp $
+//$Id: walldata.cpp,v 1.5.10.1 2001/12/21 00:13:32 mstorti Exp $
  
-#include "../../src/fem.h"
-//  #include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/utils.h"
-#include "../../src/util2.h"
+#include <src/fem.h>
+//  #include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/utils.h>
+#include <src/util2.h>
 #include "nsi_tet.h"
 
 extern int MY_RANK,SIZE;
