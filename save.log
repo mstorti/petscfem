@@ -2809,3 +2809,6 @@ tag: beta-3.19.pl45 on Sun, 17 Aug 2003 12:11:21 -0300 by mstorti in spider
 ----------
 tag: beta-isp.pl1 on Mon, 18 Aug 2003 00:21:00 -0300 by mstorti in spider
      > Builds layer map in parallel. 
+----------
+tag: beta-isp.pl2 on Mon, 18 Aug 2003 12:01:28 -0300 by mstorti in spider
+     > Builds OK the `d_nnz' and `o_nnz' vectors for A_isp. 
