@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: linhff.cpp,v 1.3 2001/05/26 17:09:44 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: linhff.cpp,v 1.4 2001/05/30 03:58:35 mstorti Exp $
  
 #include "../../src/fem.h"
 #include "../../src/utils.h"

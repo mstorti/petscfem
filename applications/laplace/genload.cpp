@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.6 2001/05/02 00:08:56 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: genload.cpp,v 1.7 2001/05/30 03:58:41 mstorti Exp $
  
 #include "../../src/fem.h"
 #include "../../src/utils.h"

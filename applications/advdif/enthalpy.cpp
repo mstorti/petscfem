@@ -1,4 +1,4 @@
-//__INSERT_LICENSE__
+/*__INSERT_LICENSE__*/
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/getprop.h"

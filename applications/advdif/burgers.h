@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
-//__INSERT_LICENSE__
-//$Id: burgers.h,v 1.3 2001/04/04 22:55:30 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: burgers.h,v 1.4 2001/05/30 03:58:35 mstorti Exp $
 #ifndef BURGERS_H
 #define BURGERS_H
 

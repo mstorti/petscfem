@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: nsi_tet.h,v 1.7 2001/05/29 02:26:15 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: nsi_tet.h,v 1.8 2001/05/30 03:58:44 mstorti Exp $
 #ifndef NSI_TET_H  // -*- mode: C++ -*-
 #define NSI_TET_H
 

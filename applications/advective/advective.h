@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: advective.h,v 1.2 2001/04/01 01:34:41 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: advective.h,v 1.3 2001/05/30 03:58:38 mstorti Exp $
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.4 2001/05/27 17:14:47 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: gpdata.cpp,v 1.5 2001/05/30 03:58:50 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>

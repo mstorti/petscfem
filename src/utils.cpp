@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.5 2001/05/12 22:33:21 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: utils.cpp,v 1.6 2001/05/30 03:58:50 mstorti Exp $
  
 #include <stdio.h>
 

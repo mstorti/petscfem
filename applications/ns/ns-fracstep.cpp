@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: ns-fracstep.cpp,v 1.2 2001/04/01 01:34:59 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: ns-fracstep.cpp,v 1.3 2001/05/30 03:58:44 mstorti Exp $
  
 #include <time.h>
 #include <malloc.h>

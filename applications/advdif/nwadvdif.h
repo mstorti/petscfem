@@ -1,5 +1,5 @@
 // -*- mode: C++ -*- 
-//__INSERT_LICENSE__
+/*__INSERT_LICENSE__*/
 #ifndef NWADVDIF_H
 #define NWADVDIF_H
 

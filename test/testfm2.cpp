@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: testfm2.cpp,v 1.5 2001/05/27 22:28:20 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: testfm2.cpp,v 1.6 2001/05/30 03:58:53 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>

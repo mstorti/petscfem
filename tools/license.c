@@ -8,7 +8,7 @@
   Marcelo Nigro, Centro Internacional de Metodos Numericos en Ingenieria
   (CIMEC-Argentina),  Universidad Nacional del  Litoral (UNL-Argentina),
   Consejo   Nacional   de   Investigaciones   Cientificas   y   Tecnicas
-  (UNL-Argentina). Current version of the package is: beta-1.83
+  (UNL-Argentina).
   
   This program is  free software; you can redistribute  it and/or modify
   it under the  terms of the GNU General Public  License as published by

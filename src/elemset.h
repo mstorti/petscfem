@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: elemset.h,v 1.14 2001/05/02 00:09:04 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: elemset.h,v 1.15 2001/05/30 03:58:50 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: absorb.cpp,v 1.5 2001/05/02 00:08:54 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: absorb.cpp,v 1.6 2001/05/30 03:58:38 mstorti Exp $
 
 #include <cassert>  
 #include <vector>

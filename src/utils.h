@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
-//__INSERT_LICENSE__
-//$Id: utils.h,v 1.6 2001/05/12 22:33:21 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: utils.h,v 1.7 2001/05/30 03:58:50 mstorti Exp $
  
 
 #ifndef UTILS_H

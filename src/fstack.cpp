@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.7 2001/05/27 17:14:47 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: fstack.cpp,v 1.8 2001/05/30 03:58:50 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 

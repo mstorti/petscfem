@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
-//__INSERT_LICENSE__
-//$Id: arglist.h,v 1.4 2001/04/01 01:35:06 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: arglist.h,v 1.5 2001/05/30 03:58:50 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: advective.h,v 1.34 2001/05/27 23:25:38 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: advective.h,v 1.35 2001/05/30 03:58:35 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.10 2001/05/21 15:28:41 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: wall.cpp,v 1.11 2001/05/30 03:58:44 mstorti Exp $
   
 #include "../../src/fem.h"
 #include "../../src/utils.h"

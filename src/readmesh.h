@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: readmesh.h,v 1.9 2001/04/09 04:03:45 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: readmesh.h,v 1.10 2001/05/30 03:58:50 mstorti Exp $
  
 #ifndef READ_MESH_H
 #define READ_MESH_H

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: bccnstherfm2.cpp,v 1.1 2001/05/21 15:31:15 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: bccnstherfm2.cpp,v 1.2 2001/05/30 03:58:44 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"

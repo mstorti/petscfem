@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.32 2001/05/26 22:20:11 mstorti Exp $
+#$Id: Makefile.base,v 1.33 2001/05/30 03:58:31 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -50,6 +50,8 @@ ODOC = $(PETSCFEM_DIR)/tools/odoc.pl
 INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 
 OCTAVE = octave
+
+PETSCFEM_VERSION := $(shell cat $(PETSCFEM_DIR)/VERSION)
 
 include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
 

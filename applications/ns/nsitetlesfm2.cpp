@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.14 2001/05/07 01:54:26 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: nsitetlesfm2.cpp,v 1.15 2001/05/30 03:58:44 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"

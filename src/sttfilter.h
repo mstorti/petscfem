@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: sttfilter.h,v 1.7 2001/04/09 04:03:45 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: sttfilter.h,v 1.8 2001/05/30 03:58:50 mstorti Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
-//__INSERT_LICENSE__
-//$Id: nwadvdifj.h,v 1.1 2001/04/02 21:21:54 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: nwadvdifj.h,v 1.2 2001/05/30 03:58:35 mstorti Exp $
 #ifndef NWADVDIFJ_H
 #define NWADVDIFJ_H
 

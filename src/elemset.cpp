@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.12 2001/05/12 22:33:21 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: elemset.cpp,v 1.13 2001/05/30 03:58:50 mstorti Exp $
 
 #include "fem.h"
 #include <vector>

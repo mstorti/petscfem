@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: fem.h,v 1.19 2001/05/22 02:21:10 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: fem.h,v 1.20 2001/05/30 03:58:50 mstorti Exp $
  
 
 #ifndef FEM_H

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.21 2001/05/29 02:26:15 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: ns.cpp,v 1.22 2001/05/30 03:58:44 mstorti Exp $
  
 #include <malloc.h>
 

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: tfstack.cpp,v 1.3 2001/05/26 19:58:17 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: tfstack.cpp,v 1.4 2001/05/30 03:58:56 mstorti Exp $
 
 #include <fstack.h>
 #include <petsc.h>

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: internal.h,v 1.4 2001/05/02 00:08:59 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: internal.h,v 1.5 2001/05/30 03:58:44 mstorti Exp $
 #ifndef INTERNAL_H
 #define INTERNAL_H
 

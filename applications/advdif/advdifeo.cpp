@@ -1,4 +1,4 @@
-//__INSERT_LICENSE__
+/*__INSERT_LICENSE__*/
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,

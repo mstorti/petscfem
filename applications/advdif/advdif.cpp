@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.22 2001/05/23 20:23:42 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: advdif.cpp,v 1.23 2001/05/30 03:58:35 mstorti Exp $
 
 #include <set>
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: fastmat2.h,v 1.6 2001/05/27 23:26:01 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: fastmat2.h,v 1.7 2001/05/30 03:58:50 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
-//__INSERT_LICENSE__
-//$Id: genload.h,v 1.4 2001/05/02 00:08:56 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: genload.h,v 1.5 2001/05/30 03:58:41 mstorti Exp $
 
 #ifndef GENLOAD_H
 #define GENLOAD_H

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.6 2001/04/09 04:03:45 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: texthash.cpp,v 1.7 2001/05/30 03:58:50 mstorti Exp $
  
 //  #include <stdio.h>
 //  #include <string.h>

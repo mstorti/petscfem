@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.40 2001/05/27 23:25:38 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: ffadvfm2.cpp,v 1.41 2001/05/30 03:58:35 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>

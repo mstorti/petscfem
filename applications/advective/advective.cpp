@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: advective.cpp,v 1.5 2001/05/02 00:08:54 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: advective.cpp,v 1.6 2001/05/30 03:58:38 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,

@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: state.cpp,v 1.5 2001/04/01 01:35:06 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: state.cpp,v 1.6 2001/05/30 03:58:50 mstorti Exp $
 
 #include "sttfilter.h"
  

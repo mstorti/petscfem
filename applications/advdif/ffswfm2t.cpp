@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.8 2001/05/26 17:09:44 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: ffswfm2t.cpp,v 1.9 2001/05/30 03:58:35 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>

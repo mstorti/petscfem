@@ -1,5 +1,5 @@
-//__INSERT_LICENSE__
-//$Id: getarray.cpp,v 1.6 2001/05/05 01:20:43 mstorti Exp $
+/*__INSERT_LICENSE__*/
+//$Id: getarray.cpp,v 1.7 2001/05/30 03:58:50 mstorti Exp $
 
 #include <cstdio>
 #include <ctype.h>
