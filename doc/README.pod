@@ -187,6 +187,9 @@ Most of the SSL's functions resemble C's file i/o functions, so C
 programmers will find the SSL easy to learn. Currently used for
 communication with the IBM Data Explorer visualization tool, but 
 but it might be used for other things in a near future. 
+[Current verision: 2.11a Tue Mar  6 09:46:16 EST 2001]
+[Note: If you do a web search you can find it as a file C<COSMIC.tar.gz>
+or C<ssl.tar.gz>].
 
 =back
 

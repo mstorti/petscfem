@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.76 2003/02/13 21:57:52 mstorti Exp $
+//$Id: readmesh.cpp,v 1.77 2003/02/14 00:39:02 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -59,9 +59,14 @@ void metis_part(int nelemfat,Mesh *mesh,
 #define ELEMIPROPS(j,k) VEC2(elemiprops,j,k,neliprops)
 #define NODEDATA(j,k) VEC2(mesh->nodedata->nodedata,j,k,nu)
 
-#define CHECK_PAR_ERR(ierro)					\
+#define CHECK_PAR_ERR(ierro,text)				\
       ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
-      PETSCFEM_ASSERT0(!ierro,"");  
+      PETSCFEM_ASSERT0(!ierro,text);  
+
+#define RM_ASSERT(cond,mess)					\
+PETSCFEM_ASSERT(cond,mess "%s:%d: at (or after) line: \"%s\"",	\
+fstack->file_name(),fstack->line_number(),fstack->line_read());
+
       
 // fixme:= aca no se porque tuve que pasar neq por referenciar
 // porque sino no pasaba correctamente el valor. 
@@ -139,23 +144,22 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       double *row = new double[nu];
       darray *xnod;
       xnod = da_create(nu*sizeof(double));
-      while (1) {
-	fstack->get_line(line);
+      while (!fstack->get_line(line)) {
 	astr_copy_s(linecopy, line);
 	if (strstr("__END_NODES__",line)) break;
 	node++;
 	for (int kk=0; kk<nu; kk++) {
 	  token = strtok((kk==0 ? line : NULL),bsp);
-	  PETSCFEM_ASSERT(token!=NULL,
-			  "Error reading coordinates in line:\n\"%s\"\n"
-			  "Not enough values in line!!\n",astr_chars(linecopy));
+	  
+	  RM_ASSERT(token!=NULL,"Error reading coordinates\n");
 	  int nread = sscanf(token,"%lf",row+kk);
-	  PETSCFEM_ASSERT(nread == 1,
-			  "Error reading coordinates in line:\n\"%s\"",line);
+	  RM_ASSERT(nread==1,"Error reading coordinates\n");
 	}
 	int indx = da_append (xnod,row);
 	if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
       }
+      RM_ASSERT(fstack->last_error()==FileStack::read_ok,
+		"Error reading coordinates\n");
 
       nnod=node;
       dofmap->nnod = nnod;
@@ -204,7 +208,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	fstack_nodes_data = new FileStack(data);
 	ierro = !fstack_nodes_data->ok();
       }
-      CHECK_PAR_ERR(ierro);
+      CHECK_PAR_ERR(ierro,"Error reading nodes");
       if (!myrank) {
 	xnod = da_create(nu*sizeof(double));
 	while (!fstack_nodes_data->get_line(line)) {
@@ -229,7 +233,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	fstack_nodes_data->close();
 	delete fstack_nodes_data;
       }
-      CHECK_PAR_ERR(ierro);
+      CHECK_PAR_ERR(ierro,"Error reading nodes");
       ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;
@@ -461,7 +465,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  file_connect = new FileStack(data);
 	  ierro = !file_connect->ok();
 	}
-	CHECK_PAR_ERR(ierro);
+	CHECK_PAR_ERR(ierro,"Error opening connectivity file");
 	if (!myrank) {
 	  nelem=0;
 	  while (!file_connect->get_line(line)) {
@@ -518,7 +522,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  file_connect->close();
 	  delete file_connect;
 	}
-	CHECK_PAR_ERR(ierro);
+	CHECK_PAR_ERR(ierro,"Error reading connectivity file");
 	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSC_COMM_WORLD);
 	// Resize `da_icone' in other processors
 	if (myrank) ierr =  abuf_set (tempo,nelem*rowsize,0);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.18 2003/02/13 21:57:52 mstorti Exp $
+//$Id: texthash.cpp,v 1.19 2003/02/14 00:39:02 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -263,7 +263,7 @@ void TextHashTable::read(FileStack *& fstack) {
       add_entry(key,val);
     }
   }
-  PETSCFEM_ASSERT(fstack->last_error()==FileStack::eof,
+  PETSCFEM_ASSERT(fstack->last_error()==FileStack::read_ok,
 		  "Couldn't read correctly hash table at\n"
 		  "%s:%d: at (or after) line: \"%s\"",fstack->file_name(),
 		  fstack->line_number(),

@@ -29,27 +29,32 @@ rtol 1e-2
 maxits 100
 
 save_file_pattern "outvector%d.tmp"
-#nsaverot 1000000
-
 nnwt 1
 tol_newton 0
 preco_type "lu"
-
 steady
 nstep 1
 print_dofmap_id
-
 #if $fstack_global
-__INCLUDE__ dummy_archive
+__INCLUDE__ "dummy_archive"
 #endif
-
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
+#if $fstack_nodes
 nodes   2  2  2
-__INCLUDE__ genload.nod
+__INCLUDE__ "dummy_archive"
 __END_NODES__
+#elsif $fstack_nodes2
+nodedata   2  2  2
+data dummy_archive
+__END_HASH__
+#else
+nodes   2  2  2
+__INCLUDE__ "genload.nod"
+__END_NODES__
+#endif
 
 #===========================================================
 elemset qharmm 4

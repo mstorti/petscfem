@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.66 2003/02/12 00:36:26 mstorti Exp $ 
+# $Id: Makefile,v 1.67 2003/02/14 00:39:02 mstorti Exp $ 
 
-.PHONY: all run lclean save compile
+.PHONY: all run lclean save compile default
+
+default: compile
 
 PETSCFEM_DIR = ..
 

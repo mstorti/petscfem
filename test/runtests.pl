@@ -693,54 +693,7 @@ end_section();
 begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("fstack/tfstack.out","FileStack class",<<'EOT');
-line 1 on file_stack 1: <1 line continued ...    continued ....>
-replaced line 2 on file_stack 1: <replaced line>
-line 3 on file_stack 2: <1 line continued ...    continued .... .copy 2.>
-line 4 on file_stack 1: <2 several blank lines ...>
-replaced line 5 on file_stack 1: <replaced line>
-line 6 on file_stack 2: <2 several blank lines ... .copy 2.>
-line 7 on file_stack 1: <1b line continued ...    continued ....>
-replaced line 8 on file_stack 1: <replaced line>
-line 9 on file_stack 2: <1b line continued ...    continued .... .copy 2.>
-line 10 on file_stack 1: <2b several blank lines ...>
-replaced line 11 on file_stack 1: <replaced line>
-line 12 on file_stack 2: <2b several blank lines ... .copy 2.>
-line 13 on file_stack 1: <3b third line>
-replaced line 14 on file_stack 1: <replaced line>
-line 15 on file_stack 2: <3b third line .copy 2.>
-line 16 on file_stack 1: <1a line continued ...    continued ....>
-replaced line 17 on file_stack 1: <replaced line>
-line 18 on file_stack 2: <1a line continued ...    continued .... .copy 2.>
-line 19 on file_stack 1: <2a several blank lines ...>
-replaced line 20 on file_stack 1: <replaced line>
-line 21 on file_stack 2: <2a several blank lines ... .copy 2.>
-line 22 on file_stack 1: <3a third line>
-replaced line 23 on file_stack 1: <replaced line>
-line 24 on file_stack 2: <3a third line .copy 2.>
-line 25 on file_stack 1: <3 third line>
-replaced line 26 on file_stack 1: <replaced line>
-line 27 on file_stack 2: <3 third line .copy 2.>
-cat file1 reversed at the start of file2:
-line 1 : <3 third line .copy 2.>
-line 2 : <3a third line .copy 2.>
-line 3 : <2a several blank lines ... .copy 2.>
-line 4 : <1a line continued ...    continued .... .copy 2.>
-line 5 : <3b third line .copy 2.>
-line 6 : <2b several blank lines ... .copy 2.>
-line 7 : <1b line continued ...    continued .... .copy 2.>
-line 8 : <2 several blank lines ... .copy 2.>
-line 9 : <1 line continued ...    continued .... .copy 2.>
-line 10 : <1 line continued ...    continued ....>
-line 11 : <2 several blank lines ...>
-line 12 : <1b line continued ...    continued ....>
-line 13 : <2b several blank lines ...>
-line 14 : <3b third line>
-line 15 : <1a line continued ...    continued ....>
-line 16 : <2a several blank lines ...>
-line 17 : <3a third line>
-line 18 : <3 third line>
-EOT
+expect("fstack/tfstack.out","FileStack class",read_file('fstack/tfstack.ans'));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/fstack2.verif.tmp","FileStack class, file name and line pos.",<<'EOT');
@@ -786,6 +739,26 @@ expect("advdif/sine_crank_nic.out","Advdif // quad. conv. for Crank Nic.",<<'EOT
 ||u_16-u_128|| = 
 ||u_32-u_128|| = 
 ||u_32-u_128|| / ||u_16-u_128|| = .*, < 0.25 OK\? 1 
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/output.fstack_global.tmp",
+       "Readmesh complains about bad file inclusion",<<'EOT');
+Couldn't open file.*dummy_archive
+genload.depl
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/output.fstack_nodes.tmp",
+       "Readmesh complains bad file inclusion in nodes",<<'EOT');
+Couldn't open file.*dummy_archive
+genload.depl
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/output.fstack_nodes2.tmp",
+       "Readmesh complains bad file inclusion in nodes(2)",<<'EOT');
+Couldn't open file.*dummy_archive
 EOT
 
 end_section();
