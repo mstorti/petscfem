@@ -13,6 +13,7 @@ ndim 2
 chunk_size 4
 save_file "save.state"
 steady
+nstep 1
 solver "iisd"
 iisd_subpart 1
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.51 2002/07/11 00:34:32 mstorti Exp $
+//$Id: advective.h,v 1.52 2002/07/11 16:35:53 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -208,6 +208,7 @@ public:
 */
 class IdentityEF : public GlobalScalarEF {
 public:
+  IdentityEF() { Cp=1.; }
   /// Does nothing
   void update(const double *Cp_) { }
   /// Copies #U# in #H#
