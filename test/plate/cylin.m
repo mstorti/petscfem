@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.25 2003/03/10 00:17:32 mstorti Exp $
+## $Id: cylin.m,v 1.26 2003/03/10 02:25:29 mstorti Exp $
 global Rint Rext Rext2 L Rmean parab_param
 source("data.m.tmp");
 
@@ -7,8 +7,8 @@ rem(Ntheta,8)==0 || error("Ntheta must multiple of 8");
 Rmean = (Rint+Rext)/2;
 
 ## Choose mesh:
-circular_mesh
-## parabolic_mesh
+## circular_mesh
+parabolic_mesh
 
 XNOD = XNOD(:,2:3);
 
