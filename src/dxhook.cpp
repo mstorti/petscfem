@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.55 2003/09/14 00:23:22 mstorti Exp $
+//$Id: dxhook.cpp,v 1.56 2003/10/04 23:28:10 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -324,7 +324,7 @@ int dx_hook::build_state_from_file(double *state_p) {
 	    fclose(fid);
 	    throw GenericError("Can't read line.");
 	  }
-	  if (j>base) state_p[j-base] = val;
+	  if (j>=base) state_p[j-base] = val;
 	}
       } else if (dx_read_state_from_file==2) {
 	printf("dx_hook: Reading from binary file.\n");
