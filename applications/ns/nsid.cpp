@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.1 2001/10/15 01:30:10 mstorti Exp $
+//$Id: nsid.cpp,v 1.2 2001/10/15 19:44:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -60,7 +60,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } 
 
   //o Residual value is #ns_id_fac*(ns_id_cn * x^n + ns_id_cn1 * x^{n+1})#
-  SGETOPTDEF(double,ns_id_fac,0.);
+  SGETOPTDEF(double,ns_id_fac,1.);
   //o see doc for #ns_id_fac#
   SGETOPTDEF(double,ns_id_cn,0.);
   //o see doc for #ns_id_fac#
