@@ -1,4 +1,4 @@
-r$Id: notes.txt,v 1.206 2003/01/07 10:33:38 mstorti Exp $
+r$Id: notes.txt,v 1.207 2003/01/08 10:27:28 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.206 2003/01/07 10:33:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.207 2003/01/08 10:27:28 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.206 2003/01/07 10:33:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.207 2003/01/08 10:27:28 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.206 2003/01/07 10:33:38 mstorti Exp $ 
+  # $Id: notes.txt,v 1.207 2003/01/08 10:27:28 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5728,6 +5728,23 @@ Parametros a tocar:
 * Refinamiento - refinamiento hacia la pared
 * Parametros de integracion temporal, paso de tiempo
        parametros de acoplamiento potencial/inviscido
+
+%===Tue,  7 Jan 2003 23:27:00 -0300 mstorti@spider
+%
+Ya esta!! Era un error: al tomar los puntos donde `v(x0,t)'  cambia de
+signo (para un dado `x0') , la diferencia entre esos puntos es _la
+mitad_ del periodo. De ahi el factor 2. Incluso con `omega=0.5' da
+> Strouhal 0.173946, max dev. rel .0.016894
+Ahora voy a ver que pasa con omega=0, o sea que 
+
+%===Wed,  8 Jan 2003 07:24:31 -0300 mstorti@spider
+%
+Sin acoplar con el potencial en 311 pasos la oscilacion sigue
+creciendo y se hace muy intensa. (La verdad que no se si es demasiado
+o si cuando ponemos el acoplamiento esta dando demasiado poco). Si lo
+tomamos como una siunoside creciente en el tiempo y le calculamos el
+Strouhal da 0.2 (lo cual estaria mal). 
+
 
 # Current line ===========  %
 # Local Variables: $

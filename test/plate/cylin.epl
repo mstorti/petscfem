@@ -11,7 +11,7 @@ if (!$re_start && -f 'cylin.axis_nodes.rslt.tmp') {
 $layers = 2;
 #__END_TRANSCRIPT__
 @vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert 
-    Next re_start layers);
+    Next re_start layers Dt);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH cylin.m";
@@ -36,7 +36,7 @@ nrec 1
 nfile 100000000
 
 initial_state <:= ($re_start ? "cylin.state.tmp" : "cylin.ini.tmp") :>
-nstep 300
+nstep 500
 # steady
 solver "iisd"
 iisd_subpart_auto 2000
@@ -45,7 +45,7 @@ Krylov_dim 200
 nnwt 2
 alpha 0.6
 weak_form 0
-Dt <:=$Co*$hmin:>
+<:pr('Dt'):>
 rtol 1e-4
 atol 1e-10
 iisdmat_print_statistics

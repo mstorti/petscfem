@@ -1,6 +1,6 @@
 $Re = 100;
 $Co = 2;
-$re_start = 1;
+$re_start = 0;
 
 if (1) {   ## large mesh
     $Rint=1;
@@ -22,5 +22,6 @@ if (1) {   ## large mesh
 $Rext2=2*$Rext;
 $Next = $Nr/2;
 $hmin = 2*$PI*$Rint/$Ntheta;
+$Dt=$Co*$hmin;
 
 1;
