@@ -760,7 +760,7 @@ end_section();
 begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("fstack/tfstack.sal","FileStack class",<<'EOT');
+expect("fstack/tfstack.out","FileStack class",<<'EOT');
 line 1 on file_stack 1: <1 line continued ...    continued ....>
 replaced line 2 on file_stack 1: <replaced line>
 line 3 on file_stack 2: <1 line continued ...    continued .... .copy 2.>
@@ -810,8 +810,21 @@ line 18 : <3 third line>
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("fstack/fstack2.verif.tmp","FileStack class, file name and line pos.",<<'EOT');
+file ok. 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("texthash/tthash.sal","TextHashTable class",<<'EOT');
 Global counting OK
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("genload/output.case_fstack.tmp","Report error for bad number of nodes in conn. line",<<'EOT');
+Assertion failed:
+Error reading element connectivities at line
+"35 36 37 38"
+PETSC-FEM error at file "readmesh.cpp"
 EOT
 
 end_section();

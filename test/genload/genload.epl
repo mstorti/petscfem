@@ -1,6 +1,13 @@
 <:
 require '../eperlini.pl';       # Initializes ePerl 
 doc_vals(qw(case));
+# case fstack is to check if report errors when number or nodes in
+# connect. lines i not equal to those reported
+# in the header
+if ($case eq 'fstack') {
+    $case = '2a'; 
+    $ne = 6;
+}
 :>//                            # ends ePerl block
 
 #default definitions
@@ -83,7 +90,7 @@ __END_HASH__
 17 18 19 20 
 __END_ELEMSET__
 
-elemset lin_gen_load <:= $case eq '2b' ? 2 : 4 :>
+elemset lin_gen_load <:= defined $ne ? $ne : $case eq '2b' ? 2 : 4 :>
 geometry cartesian1d
 npg 2
 #if $case ne '2b'
