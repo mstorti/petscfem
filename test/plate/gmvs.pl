@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 require "utils.pl";
-$case = 'cylin';
+$case = 'sphere';
 $nod = "$case.nod.tmp";	# nodes
 $con = "$case.con.tmp";	# connectivities
 $gmv = "$case.gmv.tmp";	# MV input file

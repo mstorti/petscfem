@@ -1,0 +1,127 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};
+$case_name = 'default' unless defined $case_name;
+require './datas.pl';
+if (!$re_start && -f 'sphere.axis_nodes.rslt.tmp') {
+    unlink 'sphere.axis_nodes.rslt.tmp';
+}
+$layers = 2;
+#__END_TRANSCRIPT__
+@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert 
+    Next Nphi re_start layers Dt);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH sphere.m";
+$nnod = count_lines("./sphere.nod.tmp");
+:>//                            # ends ePerl block
+
+#if 0
+# <:pr('case_name'):>
+#===========================================================
+global_options
+ndim 2
+
+print_some_file "sphere.axis_nodes.tmp"
+save_file_some "sphere.axis_nodes.rslt.tmp"
+nsome 1
+
+save_file "sphere.state.tmp"
+nsave 1
+
+save_file_pattern "sphere.state_%d.tmp"
+nsaverot 20
+nrec 1
+nfile 100000000
+
+initial_state <:= ($re_start ? "sphere.state.tmp" : "sphere.ini.tmp") :>
+nstep 500
+# steady
+solver "iisd"
+iisd_subpart_auto 2000
+print_internal_loop_conv 1
+Krylov_dim 200
+nnwt 2
+alpha 0.6
+weak_form 0
+<:pr('Dt'):>
+rtol 1e-4
+atol 1e-10
+iisdmat_print_statistics
+print_partitioning_statistics
+hook_list dl_generic_hook coupling_visc_hook 
+
+coupling_visc_hook.filename ./inviscid.efn
+coupling_visc_hook.prefix   coupling_visc_hook
+
+ngather 3
+gather_file "sphere.force.tmp"
+viscosity <:=2*$Rint/$Re:>
+
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  3
+data sphere.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset nsi_tet_les_fm2 4
+name viscous_fluid_elemset
+geometry cartesian2d
+npg 4
+data sphere.con.tmp
+__END_HASH__
+
+#===========================================================
+## Because we have no more surface integrators
+elemset visc_force_integrator <:=2*(1+$layers):>:
+gather_pos 0
+is_fat 0
+geometry "line2quad"
+npg 2
+ndimel 1
+gather_length 3
+volume_elemset viscous_fluid_elemset
+# use_exterior_normal 0
+<:pr('layers'):>
+identify_volume_elements 1
+__END_HASH__
+__INCLUDE__ "sphere.skin_int.tmp"
+__END_ELEMSET__
+
+elemset ns_id 1
+ns_id_fac 0.
+__END_HASH__
+__INCLUDE__ "sphere.nod_fic_ext.tmp"
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+__INCLUDE__ "sphere.outlet.tmp"
+__INCLUDE__ "sphere.skin.tmp"
+__END_FIXA__
+
+#===========================================================
+fixa_amplitude dl_generic
+ext_filename "./inviscid.efn"
+function_name "visc_coupling"
+__END_HASH__
+__INCLUDE__ "sphere.nod_ext_fix.tmp"
+__END_FIXA__
+
+#===========================================================
+constraint
+__INCLUDE__ "sphere.normal.tmp"
+__END_CONSTRAINT__
+#endif
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

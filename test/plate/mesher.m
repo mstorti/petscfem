@@ -1,5 +1,11 @@
 ## usage: [xnod,icone,mesh]= mesher (XNOD,ICONE,H)
-function [xnod,icone,mesh]= mesher (XNOD,ICONE,H)
+function [xnod,icone,mesh]= mesher (XNOD,ICONE,H,mapbou_fun)
+
+  if nargin<4; 
+    mesh.mapbou = "mapbou"; 
+  else
+    mesh.mapbou = mapbou_fun; 
+  endif
 
   maxnode = rows(XNOD);
   
@@ -51,8 +57,9 @@ function [xnod,icone,mesh]= mesher (XNOD,ICONE,H)
   xnod = []; icone=[];
 
   mesh.block_start = zeros(rows(icone));
+  mesh.maxnode = maxnode;
   for k=1:rows(ICONE)
-    [xx,ii] = isomap(XNOD,ICONE(k,:),HH);
+    [xx,ii] = mesher_isomap(mesh,XNOD,ICONE(k,:),HH);
     nnod = rows(xnod);
     mesh.block_start(k) = nnod;
     xnod = [xnod; xx];

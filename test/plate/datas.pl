@@ -45,6 +45,7 @@ if (0) {   ## large mesh
     $Nx=16;
     $du_ini_pert = 0.3;
 }
+$Nphi = $Ntheta;
 $Rext2=10;
 $Next = 3*$Nr/2;
 $hmin = 2*$PI*$Rint/$Ntheta;

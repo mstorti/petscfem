@@ -1,11 +1,14 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2003/01/10 12:38:54 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2003/01/13 03:30:50 mstorti Exp $ 
 
-.PHONY: force all run tests data viscous inviscid
+.PHONY: force all run tests data viscous inviscid sphere
 
 default: viscous
 
 tests: 
+
+sphere:
+	$(MAKE) CASE_NAME=sphere run
 
 inviscid:
 	$(MAKE) CASE_NAME=ext run > inviscid.output.tmp

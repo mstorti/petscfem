@@ -6,7 +6,7 @@ function nodes = mesher_bound (mesh,edge,elem);
     for k=1:size(edge,2)-1
       nodess = mesher_bound (mesh,edge([k k+1]));
       k==1 || nodes(length(nodes)) == nodess(1) || \
-	  error("couldn't concatenate set od edges");
+	  error("Couldn't concatenate set of edges");
       if k!=1; nodess(1) = []; endif
       nodes = [nodes; nodess];
     endfor

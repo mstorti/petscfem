@@ -1,7 +1,7 @@
 #usage: 
-function [xnod,icone]= isomap(XNOD,ICONE,HH)
+function [xnod,icone]= mesher_isomap(mesh,XNOD,ICONE,HH)
 
-  maxnode = sqrt(length(HH));
+  maxnode = mesh.maxnode;
   edgex = ICONE([1 2]);
   edgex = min(edgex)+maxnode*(max(edgex)-1);
   m = HH(edgex);
@@ -24,16 +24,17 @@ function [xnod,icone]= isomap(XNOD,ICONE,HH)
   eta = (0:n)'/n;
   X12 = zeros(m+1,2);
   X43 = zeros(m+1,2);
+
   for k=1:m+1
-    X12(k,:) = mapbou(ICONE(1),ICONE(2),xi(k),XNOD);
-    X43(k,:) = mapbou(ICONE(4),ICONE(3),xi(k),XNOD);
+    X12(k,:) = feval(mesh.mapbou,ICONE(1),ICONE(2),xi(k),XNOD);
+    X43(k,:) = feval(mesh.mapbou,ICONE(4),ICONE(3),xi(k),XNOD);
   endfor
   
   X14 = zeros(n+1,2);
   X23 = zeros(n+1,2);
   for k=1:n+1
-    X14(k,:) = mapbou(ICONE(1),ICONE(4),eta(k),XNOD);
-    X23(k,:) = mapbou(ICONE(2),ICONE(3),eta(k),XNOD);
+    X14(k,:) = feval(mesh.mapbou,ICONE(1),ICONE(4),eta(k),XNOD);
+    X23(k,:) = feval(mesh.mapbou,ICONE(2),ICONE(3),eta(k),XNOD);
   endfor
   
   tol = 1e-10;
