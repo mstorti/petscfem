@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.8 2004/12/26 16:08:07 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.9 2004/12/26 16:37:46 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -78,8 +78,11 @@ nref_nodes() const { return 6; }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 
 Tetra2TetraSplitterClass::
-ref_node(int indx,int &nnod, 
+ref_node(int indx,
+	 const GeomObject::Template *&tmpl,
+	 int &nnod, 
 	 const int *&nodes) {
   nnod = 2;
   nodes = &ref_nodes.e(indx,0);
+  tmpl = &EdgeRefNodeTemplate;
 }
