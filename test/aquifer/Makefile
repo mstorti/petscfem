@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2002/02/10 02:32:58 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2002/02/10 22:33:28 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -57,7 +57,7 @@ test_transient:
 	$(MAKE) casen=transient run
 
 #w Test for the stream elemset
-test_stream_chezy_rect: fun.efn
+test_stream_chezy_rect: fun.efn fun2.efn fun3.efn
 	$(MAKE) casen=chezy_rect runs
 
 #w Test the coupled aquifer+stream test
