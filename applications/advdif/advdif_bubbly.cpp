@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.10 2004/11/17 21:26:57 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.11 2004/11/18 13:09:48 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -37,6 +37,8 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
+
+Hook *advdif_hook_factory(const char *name);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>-------
 #undef __FUNC__
@@ -324,7 +326,7 @@ int bubbly_main() {
   scal=0;
   ierr = VecSet(&scal,x); CHKERRA(ierr);
 
-  arg_list argl;
+  arg_list argl,arglf;
 
   for (int kstage=0; kstage<nstage; kstage++) {
 
