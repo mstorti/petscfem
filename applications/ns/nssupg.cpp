@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.13 2002/11/04 20:10:50 mstorti Exp $
+//$Id: nssupg.cpp,v 1.14 2002/12/13 02:36:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -39,10 +39,10 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // no scaling, a zero value means infinitely rigid (as for an
   // inifinite gravity).
   TGETOPTDEF(thash,double,fs_eq_factor,1.);
-  //o $\Cnst{lf}=$\altt{free\_surface\_set\_level\_factor} tries to
+  //o $\Cnst{lf}=${\alltt free\_surface\_set\_level\_factor} tries to
   // keep the free surface level constant by adding a term $\propto
-  // \bar\eta$ to the free surface level.  (see doc //for {\tt
-  // free\_surface\_damp}})
+  // \bar\eta$ to the free surface level.  (see doc for {\tt
+  // free\_surface\_damp})
   //i_tex ../../doc/nsdoc.tex free_surface_damp
   TGETOPTDEF(thash,double,free_surface_damp,0.);
   //o This adds a $\Cnst{lf}\bar\eta$ term in the free surface equation

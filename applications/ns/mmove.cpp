@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.17 2002/12/12 19:35:19 mstorti Exp $
+//$Id: mmove.cpp,v 1.18 2002/12/13 02:36:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -83,24 +83,30 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
   // Computes jacobian of master element
   //        -> actual element transformation
   J.prod(dNdxi,x,2,-1,-1,1);
+  // Check that element is not collapsed 
   double detJaco;
   detJaco = J.det();
   if (detJaco <= 0.) {
     PETSCFEM_ERROR("Jacobian of element %d is negative or null\n"
 		   " Jacobian: %f\n",elem,detJaco);  
   }
+  // metric tensor
   G.prod(J,J,-1,1,-1,2);
+  // eigenvalues of metric tensor
   lambda.seig(G,V);
-  tmp3.prod(G,V,1,-1,-1,2);
-  tmp4.prod(V,tmp3,-1,1,-1,2);
 #define SHF(n) n.print(#n ": ")
 #ifdef DEBUG_ANAL
+  tmp3.prod(G,V,1,-1,-1,2);
+  tmp4.prod(V,tmp3,-1,1,-1,2);
   tmp4.print("V' G V (D?): ");
   SHF(J);
   SHF(G);
   SHF(lambda);
   SHF(V);
 #endif
+  // The derivative of an eigenvalue lambda w.r.t. to a node coordinate $x_j$
+  // is:
+  // \dep\lambda{x_j} = 
   tmp1.prod(J,V,1,-1,-1,2);
   tmp2.prod(dNdxi,V,-1,1,-1,2);
   for (int q=1; q<=ndim; q++) {

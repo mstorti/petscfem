@@ -22,10 +22,10 @@ inifinite gravity).
 \index{free\_surface\_damp@\verb+free_surface_damp+}
 \item\verb+double free_surface_damp+ {\rm(default=\verb|0.|)}:
 
-$\Cnst{lf}=$\altt{free\_surface\_set\_level\_factor} tries to
+$\Cnst{lf}=${\alltt free\_surface\_set\_level\_factor} tries to
 keep the free surface level constant by adding a term $\propto
-\bar\eta$ to the free surface level.  (see doc //for {\tt
-free\_surface\_damp}})
+\bar\eta$ to the free surface level.  (see doc for {\tt
+free\_surface\_damp})
 \label{sec:free_surface}
 The equation of the free surface is
 %
@@ -38,7 +38,7 @@ elevation, and $w$ is the velocity component normal to the free
 surface. We modify this as follows 
 %
 \begin{equation} \label{eq:fsmod}  
-\Cnst{eq}\,\dtotd\eta t 
+\Cnst{eq}\,\dtot\eta t 
    + \Cnst{lf} \bar{\eta} + \Cnst{damp} \, \Delta \eta = w
 \end{equation}
 %
@@ -58,7 +58,7 @@ g^0.5$ with $\Cnst{damp}'\approx 2$.
 \index{free\_surface\_set\_level\_factor@\verb+free_surface_set_level_factor+}
 \item\verb+double free_surface_set_level_factor+ {\rm(default=\verb|0.|)}:
 
-This adds a $\Cnst{lf}\eta$ term in the free surface equation
+This adds a $\Cnst{lf}\bar\eta$ term in the free surface equation
 in order to have the total meniscus volume constant. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>

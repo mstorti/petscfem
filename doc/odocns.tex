@@ -45,11 +45,29 @@ Activate report of memory usage
 Dimension of the problem.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{displ\_factor@\verb+displ_factor+}
+\item\verb+double displ_factor+ {\rm(default=\verb|0.1|)}:
+
+Scales displacement for ALE-like mesh relocation. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nnwt@\verb+nnwt+}
 \item\verb+int nnwt+ {\rm(default=\verb|1|)}:
 
 Number of inner iterations for the global non-linear
 Newton  problem. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_steps@\verb+update_jacobian_steps+}
+\item\verb+int update_jacobian_steps+ {\rm(default=\verb|0|)}:
+
+Update jacobian each $n$-th time step. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_start\_steps@\verb+update_jacobian_start_steps+}
+\item\verb+int update_jacobian_start_steps+ {\rm(default=\verb|INF|)}:
+
+Update jacobian each $n$-th time step. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tol\_newton@\verb+tol_newton+}
@@ -71,19 +89,7 @@ Don't update if null.
 Update jacobian each $n$-th Newton iteration
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{update\_jacobian\_steps@\verb+update_jacobian_steps+}
-\item\verb+int update_jacobian_steps+ {\rm(default=\verb|1|)}:
-
-Update jacobian each $n$-th time step. 
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{update\_jacobian\_start\_steps@\verb+update_jacobian_start_steps+}
-\item\verb+int update_jacobian_start_steps+ {\rm(default=\verb|INF|)}:
-
-Update jacobian each $n$-th time step. 
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\item\verb+ vector<int>+ \verb+ newton_relaxation_factor+ {\rm(default=\verb| (none)|)}:
+\item\verb+ vector<double>+ \verb+ newton_relaxation_factor+ {\rm(default=\verb| (none)|)}:
 
 Relaxation parameter for Newton iteration. Several
 values may be entered in the form
@@ -271,6 +277,13 @@ Print values in this file
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
 Use the LES/Smagorinsky turbulence model. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{A\_van\_Driest@\verb+A_van_Driest+}
+\item\verb+int A_van_Driest+ {\rm(default=\verb|0|)}:
+
+If {\tt A\_van\_Driest=0} then the van Driest
+   damping factor is not used 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_iisd@\verb+use_iisd+}

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.50 2002/12/12 19:35:19 mstorti Exp $ 
+ # $Id: Makefile,v 1.51 2002/12/13 02:36:07 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -34,7 +34,8 @@ CPPFLAGS += -DROSI_COUPLING_MODULE
 
 # documentation of options with the script `odoc.pl'
 odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
-	../../doc/odocnsb.tex  ../../doc/odocnsw.tex 
+	../../doc/odocnsb.tex  ../../doc/odocnsw.tex \
+	../../doc/odocnsfs.tex 
 
 ../../doc/odocns.tex: ns.cpp 
 	$(run_odoc)
