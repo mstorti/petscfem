@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.44 2001/10/15 01:30:59 mstorti Exp $
+//$Id: ns.cpp,v 1.45 2001/11/09 19:45:02 mstorti Exp $
  
 #include <malloc.h>
 
@@ -523,6 +523,7 @@ int main(int argc,char **args) {
   ierr = VecDestroy(res); CHKERRA(ierr); 
 
   delete A_tet;
+  delete A_tet_c;
 
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);

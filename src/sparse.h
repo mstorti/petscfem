@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.26 2001/11/09 03:05:42 mstorti Exp $
+// $Id: sparse.h,v 1.27 2001/11/09 19:45:09 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -406,7 +406,7 @@ void MatFSMContext::action() {			\
     void init_fsm(Mat *) {fsm.matrix_p = this;};
   public:
 
-    static Mat *dispatch(char *opt);
+    static Mat *dispatch(char *opt = "PETSc");
 
     double *b;
 

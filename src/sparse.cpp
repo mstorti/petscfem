@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.23 2001/11/09 03:05:42 mstorti Exp $
+//$Id: sparse.cpp,v 1.24 2001/11/09 19:45:09 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -924,9 +924,9 @@ namespace Sparse {
 
   Mat *Mat::dispatch(char *opt) {
     if (!strcmp(opt,"PETSc")) {
-      return new SuperLUMat;
-    } else if (!strcmp(opt,"SuperLU")) {
       return new PETScMat;
+    } else if (!strcmp(opt,"SuperLU")) {
+      return new SuperLUMat;
     } else assert(0);
   }  
 

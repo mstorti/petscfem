@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.11 2001/11/09 03:05:42 mstorti Exp $
+//$Id: spsolve.cpp,v 1.12 2001/11/09 19:45:09 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -137,6 +137,8 @@ namespace Sparse {
     d_nnz.resize(m);
 
     d_nnz_p = d_nnz.begin();
+
+    e = end();
     for (j=0; j<m; j++) {
       row = find(j);
       assert(row != e);
