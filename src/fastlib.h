@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastlib.h,v 1.6 2003/07/02 02:32:47 mstorti Exp $
+//$Id: fastlib.h,v 1.6.36.1 2005/02/18 09:03:28 mstorti Exp $
 
 #ifndef FASTLIB_H
 #define FASTLIB_H
@@ -14,7 +14,7 @@ class FastVector {
   inline FastVector(void) {size_=0; storage=chunk_size; 
   store=rigid_store; flexible_store=0;}; 
   inline FastVector(const int m,const T n);
-  inline ~FastVector();
+  ~FastVector();
   void print(const char *s=NULL) const;
   T & operator[] (const int j) {return store[j];};
   const T & operator[] (const int j) const {return store[j];};
