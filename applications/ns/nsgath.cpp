@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsgath.cpp,v 1.2 2003/07/02 23:22:19 mstorti Exp $
+//$Id: nsgath.cpp,v 1.3 2005/04/01 21:23:04 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -67,13 +67,14 @@ void force_integrator::clean() {
 void flow_rate_integrator::init() {
   int ierr;
   //o Dimension of the embedding space
-  TGETOPTNDEF(thash,int,ndim,none);
-  //o If Navier-Stokes compressible
-  TGETOPTNDEF(thash,int,nsc,1);
+  TGETOPTDEF(thash,int,ndim,0);
+  assert(ndim>0);
+  // o If Navier-Stokes compressible
+  // TGETOPTNDEF(thash,int,nsc,1);
   ndim_m=ndim;
   //o Dimenson of the element
-  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
-  assert(ndimel==ndim-1);
+  TGETOPTDEF(thash,int,ndimel,ndim-1); 
+  assert(ndimel==ndim-1); // not implemented ndimel!=ndim-1
   assert(gather_length==1);
   Q.resize(0);
 }
