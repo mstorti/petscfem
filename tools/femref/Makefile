@@ -6,7 +6,7 @@ OPT := -O2 -funroll-loops
 # OPT := -g
 
 PROG := myhash$(N).bin
-default: $(PROG)
+default: tryme2.bin
 
 scripts = odoc.pl makewhat.pl
 
@@ -26,6 +26,9 @@ include makefilec.d
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
+
+tryme2.bin: tryme2.o
+	g++ -o $@ $^
 
 trytree.bin: trytree.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
