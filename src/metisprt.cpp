@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.12 2002/05/04 03:16:56 mstorti Exp $
+//$Id: metisprt.cpp,v 1.13 2002/05/04 23:56:23 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -223,11 +223,13 @@ void  metis_part(int nelemfat,Mesh *mesh,
     //if (myrank==0) printf("elemento: %d, conec: %d\n",ielset,elemset);
     icone = elemset->icone;
     nel = elemset->nel;
+    const int *conn; int nell;
     for (int iel=0; iel<elemset->nelem; iel++) {
       int ielgj = nelemsetptr[ielset]+iel;
       vrtxj = el2vrtx[ielgj];
-      for (int iloc=0; iloc<elemset->nel; iloc++) {
-	node = ICONE(iel,iloc);
+      nell = elemset->real_nodes(iel,conn);
+      for (int iloc=0; iloc<nell; iloc++) {
+	node = conn[iloc];
 	
 	// loop over all the elements connected to this node
 	for (int jj=n2eptr[node-1]; jj<n2eptr[node]; jj++) {
@@ -247,14 +249,30 @@ void  metis_part(int nelemfat,Mesh *mesh,
     xadj[vrtxj+1] = xadj[vrtxj] + adjncy_v[vrtxj].size();
 
   // Once computed the adjncy size, it is created.
+  // Computes statistics
+  vector<int> vrtx_count;
   adjncy = new int[xadj[nvrtx]];
   for (vrtxj=0; vrtxj<nvrtx; vrtxj++) {
     set<int> &adj = adjncy_v[vrtxj];
+    int e = int(floor(log2(adj.size())+1e-5));
+    if (vrtx_count.size() <= e) vrtx_count.resize(e+1,0);
+    vrtx_count[e]++;
     qe = adj.end();
     p = xadj[vrtxj];
     for (q=adj.begin(); q!=qe; q++) adjncy[p++] = *q;
   }
 
+  if (myrank==0) {
+    printf("Neighbor statistics for element graph:");
+    int nne = 1;
+    for (int e=0; e<vrtx_count.size(); e++) {
+      printf("%d elements with %d <= neighbors <  %d\n",
+	     vrtx_count[e],nne,2*nne);
+      nne *= 2;
+    }
+  }
+  vrtx_count.clear();
+      
 #if 0
   // print the graph
   for (int ielgj=0; ielgj<nvrtx; ielgj++) {

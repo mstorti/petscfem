@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.28 2002/05/03 21:24:07 mstorti Exp $
+//$Id: nsi_tet.h,v 1.29 2002/05/04 23:54:13 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -43,12 +43,6 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_tet_keps : public ns_volume_element { 
-public: 
-  ASSEMBLE_FUNCTION;
-};
-
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-class nsi_tet_keps_rot : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
 };

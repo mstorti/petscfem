@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.18 2001/11/13 12:54:17 mstorti Exp $
+//$Id: elemset.h,v 1.19 2002/05/04 23:56:23 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -66,6 +66,12 @@ public:
   GHashTable *elem_prop_names;
   /// hash of properties in the per element int properties table
   GHashTable *elem_iprop_names;
+
+  /// Makes some initialization from the hash table
+  virtual void initialize() {}
+
+  /// Returns the list of "real" nodes (this is used for computing the graph)
+  virtual int real_nodes(int iele,const int *&nodes);
 
   /** Assembles residuals, matrices, scalars and other quantities. 
       @author M. Storti
@@ -564,6 +570,7 @@ public:
     printf("assemble: not known New Elemset\n"); exit(1);
   };
 
+  Elemset::initialize;
   Elemset::elem_params;
   Elemset::local_store_address;
   Elemset::element_node_data;

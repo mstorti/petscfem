@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.12 2002/04/18 02:27:26 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.13 2002/05/04 23:54:13 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,6 +9,7 @@
 #include <src/fastmat2.h>
 
 #include "nsi_tet.h"
+#include "nsikepsrot.h"
 
 //#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -19,6 +20,21 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 //#define SQ(n) ((n)*(n))
 #define SQ(n) square(n)
+
+#define ICONE(j,k) VEC2(icone,j,k,nel)
+int nsi_tet_keps_rot::real_nodes(int iele,const int *&node) {
+  node = &ICONE(iele,0);
+  return (non_inertial_frame && part_include_fic ? nel-2 : nel);
+}  
+
+void nsi_tet_keps_rot::initialize() {
+  int ierr;
+  //o Do partitioning including fictitious nodes
+  TGETOPTDEF(thash,int,part_include_fic,1);
+  //o The system is in a non-inertial frame. Get linear and rotational
+  // velocities and accelerations from fictitious nodes. The
+  TGETOPTDEF_ND(thash,int,non_inertial_frame,0);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -76,9 +92,6 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTNDEF(thash,int,npg,none);
   // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
   TGETOPTNDEF(thash,int,ndim,none); //nd
-  //o The system is in a non-inertial frame. Get linear and rotational
-  // velocities and accelerations from fictitious nodes. The
-  TGETOPTDEF(thash,int,non_inertial_frame,0);
   //o Reverse sign so that the fictitious node velocities and
   // accelerations represent the movement of the container with
   // respect to an instantaneous inertial frame. 

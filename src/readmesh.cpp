@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.42 2002/05/04 03:16:56 mstorti Exp $
+//$Id: readmesh.cpp,v 1.43 2002/05/04 23:56:23 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -409,10 +409,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // adding a line CHECK_ELEMSET_TYPE(type) for each
       // type of elemset to be added
       bless_elemset(type,elemset);
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "elemset number %d, pointer %p, number of elements %d\n",
-		  elemsetnum,elemset,nelem);
-      
+
       elemset->type = type;
       elemset->nelem = nelem; 
       elemset->nel   = nel  ; 
@@ -432,6 +429,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       elemset->epart = NULL;
       elemset->isfat = 0;
 
+      elemset->initialize();
+
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "elemset number %d, pointer %p, number of elements %d\n",
+		  elemsetnum,elemset,nelem);
+      
       // Append to the list
       da_append(mesh->elemsetlist,&elemset);
       PetscPrintf(PETSC_COMM_WORLD,"Ends reading  elemset\n");
@@ -678,10 +681,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     is_any_fat=1;
     nelemfat += nelem;
     nelemsetptr[ielset+1]=nelemsetptr[ielset]+nelem;
+    const int *conn; int nell;
     for (int iel=0; iel<nelem; iel++) {
-      for (int iloc=0; iloc<nel; iloc++) {
-	// printf("adding to node %d\n",ICONE(iel,iloc));
-	n2eptr[ICONE(iel,iloc)]++;
+      nell = elemset->real_nodes(iel,conn);
+      for (int iloc=0; iloc<nell; iloc++) {
+	// printf("adding to node %d\n",CONN(iel,iloc));
+	n2eptr[conn[iloc]]++;
       }
     }
   }
@@ -707,15 +712,17 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
     if (!elemset->isfat) continue;
     nelem = elemset->nelem;
-    icone = elemset->icone;
+    // icone = elemset->icone;
     nel = elemset->nel;
     for (int iel=0; iel<nelem; iel++) {
       // iel:= global element number cumulated through the elemsetlist,
       // (only on fat elemsets)
       int ielg = nelemsetptr[ielset]+iel;
-      for (int iloc=0; iloc<nel; iloc++) {
+      const int *conn; int nell;
+      nell = elemset->real_nodes(iel,conn);
+      for (int iloc=0; iloc<nell; iloc++) {
 	// search for the next free position on the array
-	node=ICONE(iel,iloc);
+	node=conn[iloc];
 	int jpos;
 	for (jpos=n2eptr[node-1]; jpos<n2eptr[node]; jpos++) 
 	  if (node2elem[jpos]==-1) break;
@@ -769,7 +776,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 		   partitioning_method.c_str());
   }
   PetscPrintf(PETSC_COMM_WORLD,"Starts partitioning.\n"); 
-
 
   int *vpart = new int[nelemfat];
   if (partflag==0 || partflag==2) {
@@ -1074,8 +1080,10 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       for (iele=0; iele<nelem; iele++) {
 	if(elemset->epart[iele]!=myrank+1) continue;
 	elemset->nelem_here++;
-	for (jel=0; jel<nel; jel++) {
-	  node = ICONE(iele,jel);
+	const int *conn; int nell;
+	nell = elemset->real_nodes(iele,conn);
+	for (jel=0; jel<nell; jel++) {
+	  node = conn[jel];
 	  for (kdof=1; kdof<=ndof; kdof++) {
 	    dofmap->get_row(node,kdof,row);
 	    for (kndx=row.begin(); kndx!=row.end(); kndx++) {
@@ -1090,9 +1098,13 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
     } else {
       elemset->epart = new int[nelem];
+      const int *conn; int nell;
       for (iele=0; iele<nelem; iele++) {
 	// Decide in which processor will be computed this element
-	node = ICONE(iele,0);
+	assert(nel>0);		// Elements should have at least one
+				// node
+	nell = elemset->real_nodes(iele,conn);
+	node = conn[0];
 	proc = npart[node-1];
 	if (proc<1 || proc>size) {
 	  PetscPrintf(PETSC_COMM_WORLD,

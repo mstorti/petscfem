@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.36 2002/03/13 02:04:59 mstorti Exp $
+//$Id: elemset.cpp,v 1.37 2002/05/04 23:56:23 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -79,6 +79,12 @@ void node_insert(Darray *da,int j,int k) {
     }
   }
 } 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Elemset::real_nodes(int iele,const int *&nodes) {
+  nodes = &ICONE(iele,0);
+  return nel;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
