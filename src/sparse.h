@@ -1,9 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.12 2001/09/22 20:40:43 mstorti Exp $
-#ifndef SEQMAT_H
-#define SEQMAT_H
+// $Id: sparse.h,v 1.13 2001/09/23 14:59:24 mstorti Exp $
+#ifndef SPARSE_H
+#define SPARSE_H
 
+#include <cmath>
 #include <cstdio>
 
 #include <map>
@@ -16,9 +17,150 @@ using namespace Random;
 
 namespace Sparse {
 
+  const double MaxDouble=1.e300;
+  const double MinDouble=-1.e300;
+
+  class ScalarFunObj {
+  public:
+    virtual ~ScalarFunObj() =0;
+    virtual double fun(double v) const=0;
+  };
+
+  class Scale : public ScalarFunObj {
+  public:
+    double c;
+    ~Scale() {};
+    double fun(double v) const {return c*v;};
+  };
+
+  extern Scale scale_fun_obj;
+
+  typedef double ScalarFunD(double v,void * user_data = NULL);
+  typedef double ScalarFun(double v);
+
+  class ScalarFunWrapper : public ScalarFunObj {
+  public:
+    ~ScalarFunWrapper() {};
+    void * user_data;
+    ScalarFunD *sfd;
+    ScalarFun *sf;
+    virtual double fun(double v) const;
+    ScalarFunWrapper() : sfd(NULL), sf(NULL) {};
+  };
+
+  extern ScalarFunWrapper scalar_fun_wrapper;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class BinAssoc {
+  public:
+    double null;
+    virtual ~BinAssoc() =0;
+    // `v' is the "cumulated" value!! This may help in improve
+    // efficiency. 
+    virtual double op(double v,double w) const = 0;
+  };
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  class Sum : public BinAssoc {
+  public:
+    ~Sum() {}
+    double op(double v,double w) const {return v+w;};
+    Sum() {null=0;};
+  };
+
+  extern Sum sum_bin_assoc;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class SumAbs : public BinAssoc {
+  public:
+    ~SumAbs() {}
+    double op(double v,double w) const {return v + fabs(w);};
+    SumAbs() {null=0;};
+  };
+
+  extern SumAbs sum_abs_bin_assoc;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
+  class SumSq : public BinAssoc {
+  public:
+    ~SumSq() {}
+    double op(double v,double w) const {return v + w*w;};
+    SumSq() {null=0;};
+  };
+
+  extern SumSq sum_sq_bin_assoc;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class SumPow : public BinAssoc {
+  public:
+    double n;
+    ~SumPow() {}
+    double op(double v,double w) const {return v + pow(fabs(w),n);};
+    SumPow() {null=0;};
+  };
+
+  extern SumPow sum_pow_bin_assoc;
+#endif 
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class Max : public BinAssoc {
+  public:
+    ~Max() {};
+    double op(double v,double w) const {return (v>w? v : w);};
+    Max() {null=MinDouble;};
+  };
+
+  extern Max max_bin_assoc;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class MaxAbs : public BinAssoc {
+  public:
+    ~MaxAbs() {};
+    double op(double v,double w) const {
+      double a = fabs(w); return (v>a? v : a);};
+    MaxAbs() {null=0.;};
+  };
+
+  extern MaxAbs max_abs_bin_assoc;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class Min : public BinAssoc {
+  public:
+    ~Min() {};
+    double op(double v,double w) const {return (v<w? v : w);};
+    Min() {null=MaxDouble;};
+  };
+
+  extern Min min_bin_assoc;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  class Accumulator {
+    double s;
+    virtual ~Accumulator() =0;
+    virtual void init() {s = 0.;};
+    virtual void accum(double v)=0;
+    virtual double val() {return s;};
+  }
+
+  class SumSq : public Accumulator {
+    ~SumSq() {};
+    double accum(double v) {return s += v*v;};
+  }
+
   class Mat;
       
   class GenVec {
+  protected:
+    /// Value of those elements that are not represented
+    static double not_represented_val;
   public:
     /// Pure virtual class
     virtual ~GenVec()=0;
@@ -121,6 +263,34 @@ namespace Sparse {
     Vec & purge(double tol = 1e-10);
     /// Fill with random values
     Vec & random_fill(double fill=0.1,Generator & g = uniform);
+    /// Apply a function object to all elements
+    Vec & apply(const ScalarFunObj & fun);
+    /// Apply a scalar function with args to all elements
+    Vec & apply(ScalarFunD *fun,void * user_data = NULL);
+    /// Apply a scalar function with no args to all elements
+    Vec & apply(ScalarFun *fun);
+
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    /// perform an asscociative function on all non-null elements
+    double assoc(BinAssoc & op) const;
+
+    /// Sum of all elements
+    double sum() const {return assoc(sum_bin_assoc);} ;
+#if 0
+    /// Sum of absolute value of all elements
+    double sum_abs() const {return assoc(sum_abs_bin_assoc);} ;
+    /// Sum of squares of all elements
+    double sum_sq() const {return assoc(sum_sq_bin_assoc);} ;
+#endif
+    /// Sum of power of all absolute value of all elements
+    double sum_pow(double n) const {sum_pow_bin_assoc.n = n;
+    return assoc(sum_pow_bin_assoc);} ;
+    /// Max of all elements
+    double max() const {return assoc(max_bin_assoc);} ;
+    /// Max of absolute value of all elements
+    double max_abs() const {return assoc(max_abs_bin_assoc);} ;
+    /// Min of all elements
+    double min() const {return assoc(min_bin_assoc);} ;
 
   };
   
@@ -136,12 +306,16 @@ namespace Sparse {
     int nrows,ncols;
     /// Flag indicating where you can add values past the specified dimensions 
     int grow_m; 
+    /// Value of those elements that are not represented
+    static double not_represented_val;
+
   public:
     friend class GenVec;
     friend class Vec;
 
     /// Constructor from the length
     Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n) {};
+
     /// Return row dimension
     int rows() const {return nrows;};
     /// Return column dimension
@@ -175,6 +349,36 @@ namespace Sparse {
     /// Product of sparse matrices
     Mat & prod(const Mat & a, const Mat & b,double c=1.);
 
+    /// Apply a function object to all elements
+    Mat & apply(const ScalarFunObj & fun);
+    /// Apply a scalar function with args to all elements
+    Mat & apply(ScalarFunD *fun,void * user_data = NULL);
+    /// Apply a scalar function with no args to all elements
+    Mat & apply(ScalarFun *fun);
+
+    /// Scale elements 
+    Vec & scale(double c) {scale_fun_obj.c = c; apply(scale_fun_obj);};
+
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    /// perform an asscociative function on all non-null elements
+    double assoc(BinAssoc & op) const;
+
+    /// Sum of all elements
+    double sum() const {return assoc(sum_bin_assoc);} ;
+    /// Sum of absolute value of all elements
+    double sum_abs() const {return assoc(sum_abs_bin_assoc);} ;
+    /// Sum of squares of all elements
+    double sum_sq() const {return assoc(sum_sq_bin_assoc);} ;
+    /// Sum of power of all absolute value of all elements
+    double sum_pow(double n) const {sum_pow_bin_assoc.n = n;
+    return assoc(sum_pow_bin_assoc);} ;
+    /// Max of all elements
+    double max() const {return assoc(max_bin_assoc);} ;
+    /// Max of absolute value of all elements
+    double max_abs() const {return assoc(max_abs_bin_assoc);} ;
+    /// Min of all elements
+    double min() const {return assoc(min_bin_assoc);} ;
+
     /// print elements (sparse version)
     void print(const char *s = NULL);
     /// print elements (full version)
@@ -190,6 +394,7 @@ namespace Sparse {
     int empty() const;
     /// Number of non null elements
     int size() const;
+
   };
 
 }
