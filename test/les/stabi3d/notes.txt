@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.4 2004/01/22 16:38:18 mstorti Exp $
+$Id: notes.txt,v 1.5 2004/02/11 18:19:29 mstorti Exp $
 
 Diario de establidad del cluster
 
@@ -83,6 +83,10 @@ Se corta a los 894 pasos en node17 (master)
 > PETSC ERROR: determine where problem occurs
 > PETSC ERROR: compile, link, and run with BOPT=g or g_c++ or g_complex
 > PETSC ERROR: to get more information on the crash.
+
+%===Tue, 10 Feb 2004 11:08:16 -0300 mstorti@node1.beowulf.gtm
+%
+Corriendo el gaschem. 
 
 # Current line ===========  %
 # Local Variables: $
