@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.37 2003/11/13 02:49:28 mstorti Exp $
+//$Id: elemset.h,v 1.38 2003/11/15 21:38:45 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -158,6 +158,9 @@ public:
     return 0;
   };
     
+  /** Returns the number of elements in the elemset.
+      @return number of elements */
+  int size();
 
   /// dynamic aray with ghost elements
   Darray *ghost_elems;
@@ -731,6 +734,7 @@ public:
   Elemset::set_error;
   Elemset::check_error;
   Elemset::handle_error;
+  Elemset::size;
 
   // Elemset::thash;
   void get_entry(const char *k,const char *&v) const {

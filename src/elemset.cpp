@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.82 2003/10/11 14:08:14 mstorti Exp $
+//$Id: elemset.cpp,v 1.83 2003/11/15 21:38:29 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -994,6 +994,9 @@ void Elemset::register_name(const string &name_a,const char *type) {
   }
   elemset_table[name_m] = this;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Elemset::size() { return nelem; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::read(FileStack *fstack) {}
