@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.50 2003/01/24 19:52:36 mstorti Exp $
+//$Id: advdif.cpp,v 1.51 2003/01/24 20:03:31 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -242,6 +242,19 @@ int main(int argc,char **args) {
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
 
+  vector<double> gather_values;
+  //o Number of ``gathered'' quantities.
+  GETOPTDEF(int,ngather,0);
+  //o Print values in this file 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,"gather.out");
+  // Initialize gather_file
+  FILE *gather_file_f;
+  if (MY_RANK==0 && ngather>0) {
+    gather_file_f = fopen(gather_file.c_str(),"w");
+    fprintf(gather_file_f,"");
+    fclose(gather_file_f);
+  }
+
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
@@ -278,7 +291,7 @@ int main(int argc,char **args) {
   scal=0;
   ierr = VecSet(&scal,x); CHKERRA(ierr);
 
-  arg_list argl;
+  arg_list argl,arglf;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
@@ -422,6 +435,34 @@ int main(int argc,char **args) {
 #endif
 	PetscFinalize();
 	exit(0);
+      }
+
+      if (ngather>0) {
+	gather_values.resize(ngather,0.);
+	for (int j=0; j<ngather; j++) gather_values[j] = 0.;
+	arglf.clear();
+	arglf.arg_add(&x,IN_VECTOR);
+	arglf.arg_add(&xold,IN_VECTOR);
+	arglf.arg_add(&gather_values,VECTOR_ADD);
+	ierr = assemble(mesh,arglf,dofmap,"gather",&time);
+	CHKERRA(ierr);
+      }
+
+      if (ngather>0) {
+	// Print gathered values
+	if (MY_RANK==0) {
+	  if (gather_file == "") {
+	    printf("Gather results: \n");
+	    for (int j=0; j < gather_values.size(); j++) 
+	      printf("v_component_%d = %12.10e\n",j,gather_values[j]);
+	  } else {
+	    gather_file_f = fopen(gather_file.c_str(),"a");
+	    for (int j=0; j<gather_values.size(); j++) 
+	      fprintf(gather_file_f,"%12.10e ",gather_values[j]);
+	    fprintf(gather_file_f,"\n");
+	    fclose(gather_file_f);
+	  }
+	}
       }
 
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.7 2003/01/08 13:09:38 mstorti Exp $
+//$Id: blessf.cpp,v 1.8 2003/01/24 20:03:31 mstorti Exp $
 
 #include <set>
 
@@ -9,6 +9,8 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/pfmat.h>
+
+#include <src/gatherer.h>
 
 #include "advective.h"
 #include "nwadvdif.h"
@@ -56,9 +58,10 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(advec)
     SET_ELEMSET_TYPE(gasflow)
     SET_ELEMSET_TYPE(gasflow_bcconv)
+
+    SET_ELEMSET_TYPE(force_integrator)
     {
       printf("not known elemset type: \"%s\"\n",type);
       exit(1);
     }
 }
-

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.15 2003/01/24 20:03:34 mstorti Exp $
+//$Id: gatherer.cpp,v 1.1 2003/01/24 20:04:05 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -7,11 +7,11 @@
 #include <src/getprop.h>
 #include <src/fastmat2.h>
 
-#include "gatherer.h"
+#include "./gatherer.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "gatherer::ask(char *,int &)"
+#define __FUNC__ "int ns_volume_element::ask(char *,int &)"
 int gatherer::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   DONT_SKIP_JOBINFO(gather);
@@ -200,8 +200,6 @@ void flow_rate_integrator::init() {
   int ierr;
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
-  //o If Navier-Stokes compressible
-  TGETOPTNDEF(thash,int,nsc,1);
   ndim_m=ndim;
   //o Dimenson of the element
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
