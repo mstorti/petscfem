@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.15 2001/07/13 03:48:23 mstorti Exp $
+//$Id: elemset.cpp,v 1.16 2001/07/16 14:14:16 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -11,7 +11,7 @@
 #include "dofmap.h"
 #include "arglist.h"
 #include "readmesh.h"
-#include "lusubd.h"
+#include "pfmat.h"
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -114,7 +114,8 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int klocc=0,int kdofc=0) {
 
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
-    load_vec,load_mat,load_mat_col,comp_prof,comp_mat,iele_here;
+    load_vec,load_mat,load_mat_col,comp_prof,comp_mat,iele_here,
+    pfmat;
 
   double *retval = argd.retval;
 
@@ -133,6 +134,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   load_vec = (options & (UPLOAD_VECTOR | UPLOAD_VECTOR_LOCST));
   load_mat = (options & (UPLOAD_MATRIX | UPLOAD_PROFILE));
   load_mat_col = (options & IS_FDJ);
+  pfmat = (options & PFMAT);
 
   // In order to compute profiles (comp_prof==1) we have to do all the
   // work in all th processors
@@ -178,7 +180,11 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		if (comp_prof) {
 		  node_insert(argd.da,kd,kdl);
 		} else {
-		  MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
+		  if (pfmat) {
+		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
+		  } else {
+		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
+		  }
 		}
 	      }
 	    }
@@ -204,7 +210,11 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		    node_insert(argd.da,locdof-1,locdofl-1);
 		  } else {
 		    // printf("(%d,%d) -> %f\n",locdof,locdofl,val);
-		    MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
+		    if (pfmat) {
+		      argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
+		    } else {
+		      MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
+		    }
 		  }
 		}
 	      }
@@ -321,8 +331,8 @@ int assemble(Mesh *mesh,arg_list argl,
     if (argl[j].options & UPLOAD_VECTOR) 
       ARGVJ.x = (Vec *) (argl[j].arg);
 
-    if (argl[j].options & (UPLOAD_MATRIX | IS_FDJ_MATRIX)) 
-      ARGVJ.A = (Mat *) (argl[j].arg);
+    if (argl[j].options & (UPLOAD_MATRIX | IS_FDJ_MATRIX))
+      ARGVJ.pfA = (PFMat *) (argl[j].arg);
 
     if (argl[j].options & UPLOAD_PROFILE ) {
       iter_mode = INCLUDE_GHOST_ELEMS;
@@ -550,10 +560,17 @@ int assemble(Mesh *mesh,arg_list argl,
 
       for (j=0; j<narg; j++) {
 	if (argl[j].options & ASSEMBLY_MATRIX) {
-	  ierr = MatAssemblyBegin(*(ARGVJ.A),
+	  if (argl[j].options & PFMAT) {
+	    ierr = (ARGVJ.pfA)
+	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	    ierr = (ARGVJ.pfA)
+	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	  } else {
+	    ierr = MatAssemblyBegin(*(ARGVJ.A),
+				    MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	    ierr = MatAssemblyEnd(*(ARGVJ.A),
 				  MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	  ierr = MatAssemblyEnd(*(ARGVJ.A),
-				MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	  }
 	}
       }
       // Has finished processing chunks this processor?
@@ -626,12 +643,17 @@ int assemble(Mesh *mesh,arg_list argl,
     }
 
     if (argl[j].options & ASSEMBLY_MATRIX) {
-      // wait_from_console("antes de assembly FINAL en FINAL");  
-      ierr = MatAssemblyBegin(*(ARGVJ.A),
+      if (argl[j].options & PFMAT) {
+	ierr = (ARGVJ.pfA)->assembly_begin(MAT_FINAL_ASSEMBLY); 
+	CHKERRQ(ierr);
+	ierr = (ARGVJ.pfA)->assembly_end(MAT_FINAL_ASSEMBLY); 
+	CHKERRQ(ierr);
+      } else {
+	ierr = MatAssemblyBegin(*(ARGVJ.A),
+				MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+	ierr = MatAssemblyEnd(*(ARGVJ.A),
 			      MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-      ierr = MatAssemblyEnd(*(ARGVJ.A),
-			    MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-      // wait_from_console("despues de assembly FINAL en FINAL");  
+      }
     }
 
     if (argl[j].options & ASSEMBLY_VECTOR) {
@@ -640,11 +662,13 @@ int assemble(Mesh *mesh,arg_list argl,
     }
 
     if (argl[j].options & UPLOAD_PROFILE) {
-      PFMatLU pfmat(dofmap,ARGVJ.da);
-      ierr = compute_prof(ARGVJ.da,dofmap,
-			  myrank,(Mat *)(argl[j].arg),
-			  debug_compute_prof);
-      
+      if (argl[j].options & PFMAT) {
+	((PFMat *)(argl[j].arg))->create(ARGVJ.da,dofmap,debug_compute_prof);
+      } else {
+        ierr = compute_prof(ARGVJ.da,dofmap,
+			    myrank,(Mat *)(argl[j].arg),
+			    debug_compute_prof);
+      }
     }
 
     if (argl[j].options & VECTOR_ASSOC ) {

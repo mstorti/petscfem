@@ -1,5 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: arglist.cpp,v 1.4 2001/05/30 18:21:53 mstorti Exp $
+//$Id: arglist.cpp,v 1.5 2001/07/16 14:14:16 mstorti Exp $
+#include "fem.h"
+#include "dofmap.h"
+#include "elemset.h"
 #include "arglist.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

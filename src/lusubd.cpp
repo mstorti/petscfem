@@ -1,11 +1,23 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.4 2001/07/14 10:53:24 mstorti Exp $
+//$Id: lusubd.cpp,v 1.5 2001/07/16 14:14:16 mstorti Exp $
 
-#include "lusubd.h"
+#ifdef RH60
+#include "libretto.h"
+#else
+#include <libretto/libretto.h>
+#endif
+#include "mat.h"
+
+#include "fem.h"
+#include "dofmap.h"
+#include "elemset.h"
+#include "pfmat.h"
 
 PFMat::~PFMat() {};
 
-PFMatLU::PFMatLU(Dofmap *dofmap_,Darray *da) {
+#if 0
+void LUsubdMat::create(Darray *da,const Dofmap *dofmap_,
+		int debug_compute_prof) {
   int myrank,size;
   int k,k1,k2,neqp,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr;
@@ -14,7 +26,7 @@ PFMatLU::PFMatLU(Dofmap *dofmap_,Darray *da) {
 
   dofmap = dofmap_;
   
-  int &neq=dofmap->neq;
+  const int &neq=dofmap->neq;
   Node *nodep;
   // neqp:= k2:= k1:= unknowns in this processor are thos in the range
   // k1 <= k <= k2 = k1+neqp-1
@@ -184,6 +196,217 @@ PFMatLU::PFMatLU(Dofmap *dofmap_,Darray *da) {
 			 &A_II);
   PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix"); 
     
-  PetscFinalize();
-  exit(0);
 }
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int PFMatPETSc::create(Darray *,Dofmap *,int =0)"
+void PETScMat::create(Darray *da,const Dofmap *dofmap,
+		     int debug_compute_prof=0) {
+  int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
+
+  MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
+  Node *nodep;
+  // range of dofs in this processor: k1 <= dof <= k2
+  k1=dofmap->startproc[myrank];
+  neqp=dofmap->neqproc[myrank];
+  k2=k1+neqp-1;
+
+  // vectors for dimensioning the PETSc matrix
+  int *d_nnz,*o_nnz,diag_ok;
+  d_nnz = new int[neqp];
+  o_nnz = new int[neqp];
+  //loop over local dof's
+  for (k=0;k<neqp;k++) {
+    // initialize vector
+    d_nnz[k]=0;
+    o_nnz[k]=0;
+    // global dof number
+    keq=k1+k;
+    if (debug_compute_prof) printf("-------- keq = %d: ",keq);
+    // dofs connected to a particular dof are stored in the Darray as
+    // a single linked list of integers. `pos' is a cursor to the
+    // cells
+    // The list for dof `keq' starts at position `keq' and is linked
+    // by the `next' field. 
+    // fixme:= we could have only the headers for the local dof's
+    pos=keq;
+    // PETSc doc says that you have to add room for the diagonal entry
+    // even if it doesn't exist. But apparently it isn't needed. 
+    // diag_ok=0;
+    while (1) {
+      // Recover cell
+      nodep = (Node *)da_ref(da,pos);
+      // Is the terminator cell?
+      if (nodep->next==-1) break;
+      // connected dof
+      leq = nodep->val;
+      if (debug_compute_prof) printf("%d ",leq);
+      // if (leq==keq) diag_ok=1;
+      if (k1<=leq && leq<=k2) {
+	// Count in `diagonal' part (i.e. `leq' in the same processor
+	// than `keq')
+	d_nnz[k]++;
+      } else {
+	// Count in `off-diagonal' part (i.e. `leq' NOT in the same
+	// processor than `keq')
+	o_nnz[k]++;
+      }	
+      // Follow link
+      pos = nodep->next;
+    }
+    if (debug_compute_prof) 
+      printf("     --    d_nnz %d   o_nnz %d\n",d_nnz[k],o_nnz[k]);
+    //d_nnz[k] += 1;
+    //o_nnz[k] += 1;
+    // To add room for the diagonal entry, even if it doesn't exist
+    // if (!diag_ok) {
+    //      printf("No diagonal element for dof %d in proc %d\n",keq,myrank);
+    // fixme:= Do not add room for the diagonal term. 
+    // d_nnz[k]+=1; 
+    // }
+    // For statistics
+    sumd += d_nnz[k];
+    sumdcorr += d_nnz[k];
+    sumo += o_nnz[k];
+  }
+
+  // deallocate darray
+  da_destroy(da);
+
+  // Print statistics
+  double avo,avd,avdcorr;
+  avo = double(sumo)/double(neqp); // Average off-diag
+  avd = double(sumd)/double(neqp); // Average diag
+  avdcorr = double(sumdcorr)/double(neqp); // Average corrected
+					   // (Used no more)
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			  "On processor %d,\n"
+			  "       diagonal block terms: %d, (%f av.)\n"
+			  // Corrected does not make sense anymore
+			  // since it seems that PETSc does not need
+			  // the diagonal terms. 
+			  // "                (corrected): %d, (%f av.)\n"
+			  "   off diagonal block terms: %d, (%f av.)\n",
+			  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
+			  myrank,sumd,avd,sumo,avo);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  
+  // Create matrices
+  int neq=dofmap->neq;
+  ierr =  MatCreateMPIAIJ(PETSC_COMM_WORLD,dofmap->neqproc[myrank],
+			  dofmap->neqproc[myrank],neq,neq,
+			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A); 
+  // P and A are pointers (in PETSc), otherwise this may be somewhat risky
+  P=A;
+  PETSCFEM_ASSERT0(ierr==0,"Error creating PETSc matrix\n");
+  delete[] d_nnz;
+  delete[] o_nnz;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void PFMat::clear()"
+void PFMat::clear() {
+  if (sles_was_built) {
+    int ierr = SLESDestroy(sles); CHKERRA(ierr);
+    PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void PETScMat::clear()"
+void PETScMat::clear() {
+  // P is not destroyed, since P points to A
+  int ierr = MatDestroy(A); 
+  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix\n");
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
+void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
+
+  int ierr;
+  //o Absolute tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND(thash,double,atol,1e-6);
+  //o Relative tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND(thash,double,rtol,1e-3);
+  //o Divergence tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND(thash,double,dtol,1e+3);
+  //o Krylov space dimension in solving the monolithic linear
+  // system (Newton linear subiteration) by GMRES.
+  TGETOPTDEF_ND(thash,int,Krylov_dim,50);
+  //o Maximum iteration number in solving the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND(thash,int,maxits,Krylov_dim);
+  //o Prints convergence in the solution of the GMRES iteration. 
+  TGETOPTDEF_ND(thash,int,print_internal_loop_conv,0);
+  //o After computing the analytic Jacobian, Computes the
+  // Jacobian in order to verify the analytic one. 
+
+  //o Chooses the preconditioning operator. 
+  TGETOPTDEF_S(thash,string,preco_type,jacobi);
+  // I had to do this since `c_str()' returns `const char *'
+  char *preco_type_ = new char[preco_type.size()+1];
+  strcpy(preco_type_,preco_type.c_str());
+
+  ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRA(ierr);
+  ierr = SLESSetOperators(sles,A,
+			  P,SAME_NONZERO_PATTERN); CHKERRA(ierr);
+  ierr = SLESGetKSP(sles,&ksp); CHKERRA(ierr);
+  ierr = SLESGetPC(sles,&pc); CHKERRA(ierr);
+
+  ierr = KSPSetType(ksp,KSPGMRES); CHKERRA(ierr);
+
+  ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRA(ierr);
+  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
+
+  ierr = PCSetType(pc,preco_type_); CHKERRA(ierr);
+  delete[] preco_type_;
+  ierr = KSPSetMonitor(ksp,PFMat_default_monitor,this);
+  sles_was_built = 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
+  PFMat *A = (PFMat *)A_;
+  return A->monitor(ksp,n,rnorm);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+int PFMat::monitor(KSP ksp,int n,double rnorm) {
+  int ierr;
+  if (print_internal_loop_conv) {
+    if (n==1) PetscPrintf(PETSC_COMM_WORLD,
+			  " Begin internal iterations "
+			  "--------------------------------------\n");
+    PetscPrintf(PETSC_COMM_WORLD,
+		"iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+  }
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void PETScMat::solve(Vec res,Vec dx)"
+void PFMat::solve(Vec res,Vec dx) {
+  int ierr = SLESSolve(sles,res,dx,&its_); 
+  PETSCFEM_ASSERT0(ierr==0,"Error solving linear system"); 
+}
+
+/*
+  Local Variables: 
+  eval: (setq c-macro-preprocessor "~/PETSC/petscfem/tools/pfcpp")
+  End: 
+*/

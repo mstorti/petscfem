@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.5 2001/05/30 03:58:50 mstorti Exp $
+//$Id: arglist.h,v 1.6 2001/07/16 14:14:16 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -9,7 +9,9 @@
 #include <string>
 #include <mat.h>
 #include <vec.h>
+
 #include "libretto.h"
+#include "pfmat.h"
 
 /// Type of arguments and processing information for items in the arglists's.
 enum arg_options {
@@ -30,7 +32,8 @@ enum arg_options {
   VECTOR_MAX             = 0x00001000,
   VECTOR_ADD             = 0x00002000,
   USER_DATA              = 0x00004000,
-
+  PFMAT                  = 0x00008000,
+ 
   // Some useful combinations. 
   IS_FDJ = IS_FDJ_PROFILE | IS_FDJ_MATRIX,
   UPLOAD_RETVAL = UPLOAD_VECTOR | UPLOAD_MATRIX
@@ -113,8 +116,10 @@ public:
   double *ghost_vals;
   /// Local values (one row per element). 
   double *locst;
-  /// MPI Matrix 
+  /// PETSc-MPI Matrix 
   Mat *A;
+  /// PETSc-FEM Matrix 
+  PFMat *pfA;
   /// Returned local values(one row per element) . 
   double *retval;
   /// reference state for finite difference calculation of jacobians.

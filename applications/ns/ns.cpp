@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.27 2001/07/04 18:37:55 mstorti Exp $
+//$Id: ns.cpp,v 1.28 2001/07/16 14:14:44 mstorti Exp $
  
 #include <malloc.h>
 
@@ -9,6 +9,7 @@
 #include "../../src/utils.h"
 #include "../../src/util2.h"
 #include "../../src/sttfilter.h"
+#include "../../src/pfmat.h"
 
 //#include "fracstep.h"
 #include "nsi_tet.h"
@@ -21,21 +22,6 @@ TextHashTable *GLOBAL_OPTIONS;
 //debug:=
 int TSTEP=0;
 
-int print_internal_loop_conv_g=0;
-
-     
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy)
-{
-  int      ierr;
-
-  if (print_internal_loop_conv_g) 
-  PetscPrintf(PETSC_COMM_WORLD,
-	      "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
-  return 0;
-}
-
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
@@ -81,12 +67,10 @@ int main(int argc,char **args) {
 
   Vec     x, dx, xold,
     dx_step, res;		// approx solution, RHS, residual
-  Mat     A_tet;		// linear system matrix 
-  SLES    sles_tet;		// linear solver context
-  PC      pc_tet;		// preconditioner context 
-  KSP     ksp_tet;		// Krylov subspace method context
+  PETScMat PETSc_A_tet;		// linear system matrix 
+  PFMat *A_tet = &PETSc_A_tet;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
-  int     ierr, i, n = 10, col[3], its, flg, size, node,
+  int     ierr, i, n = 10, col[3], flg, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
@@ -94,6 +78,7 @@ int main(int argc,char **args) {
   Time time,time_star; time.set(0.);
   GlobParam glob_param;
 
+  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1];
   Dofmap *dofmap = new Dofmap;
   Mesh *mesh;
@@ -144,25 +129,6 @@ int main(int argc,char **args) {
   //o Relaxation parameter for Newton iteration. 
   GETOPTDEF(double,newton_relaxation_factor,1.);
 
-  //o Absolute tolerance to solve the monolithic linear
-  // system (Newton linear subiteration).
-  GETOPTDEF(double,atol,1e-6);
-  //o Relative tolerance to solve the monolithic linear
-  // system (Newton linear subiteration).
-  GETOPTDEF(double,rtol,1e-3);
-  //o Divergence tolerance to solve the monolithic linear
-  // system (Newton linear subiteration).
-  GETOPTDEF(double,dtol,1e+3);
-  //o Krylov space dimension in solving the monolithic linear
-  // system (Newton linear subiteration) by GMRES.
-  GETOPTDEF(int,Krylov_dim,50);
-  //o Maximum iteration number in solving the monolithic linear
-  // system (Newton linear subiteration).
-  GETOPTDEF(int,maxits,Krylov_dim);
-  //o Prints convergence in the solution of the GMRES iteration. 
-  GETOPTDEF(int,print_internal_loop_conv,0);
-  //o After computing the analytic Jacobian, Computes the
-  // Jacobian in order to verify the analytic one. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
@@ -171,14 +137,6 @@ int main(int argc,char **args) {
   GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
   GETOPTDEF(int,measure_performance,0);
-
-  print_internal_loop_conv_g=print_internal_loop_conv;
-
-  //o Chooses the preconditioning operator. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
-  // I had to do this since `c_str()' returns `const char *'
-  char *preco_type_ = new char[preco_type.size()+1];
-  strcpy(preco_type_,preco_type.c_str());
 
   //o Sets the save frequency in iterations 
   GETOPTDEF(int,nsave,10);
@@ -275,14 +233,14 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // COMPUTE ACTIVE PROFILE
   VOID_IT(argl);
-  argl.arg_add(&A_tet,PROFILE);
+  argl.arg_add(A_tet,PROFILE|PFMAT);
   PetscPrintf(PETSC_COMM_WORLD,"Computing profile...\n");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
 
 #if 0 //dbg
   VOID_IT(argl);
-  argl.arg_add(&A_tet,OUT_MATRIX);
+  argl.arg_add(A_tet,OUT_MATRIX);
   for (int jjj=0; jjj<10; jjj++) {
     printf("[loop iter %d]\n",jjj);
     ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
@@ -344,9 +302,6 @@ int main(int argc,char **args) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
-    if (print_internal_loop_conv_g) 
-      PetscPrintf(PETSC_COMM_WORLD,
-		  " --------------------------------------\n");
     PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g %s\n",
 		tstep,time.time(),(steady ? " (steady) " : ""));
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -387,15 +342,13 @@ int main(int argc,char **args) {
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (update_jacobian) {
-	ierr = MatZeroEntries(A_tet); CHKERRA(ierr);
-      }
+      if (update_jacobian) A_tet->zero_entries();
 
       VOID_IT(argl);
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
       argl.arg_add(&res,OUT_VECTOR);
-      if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
+      if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
       argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -416,13 +369,15 @@ int main(int argc,char **args) {
 
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
 
+#if 0 // fixme:= adaptando to PFMAT
       Viewer matlab;
       if (verify_jacobian_with_numerical_one) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "output.m",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"ateta"); CHKERRA(ierr);
-	ierr = MatView(A_tet,matlab);
+	// ierr = MatView(A_tet,matlab);
+	A_tet->view(matlab);
 
 	Mat A_tet_c;
 	ierr = MatDuplicate(A_tet,MAT_DO_NOT_COPY_VALUES,&A_tet_c); CHKERRA(ierr);
@@ -452,33 +407,15 @@ int main(int argc,char **args) {
 	PetscFinalize();
 	exit(0);
       }
+#endif
 
-      // SLES para el esquema global
-//  	if (inwt>0) {
-//  	  ierr = SLESDestroy(sles_tet); CHKERRA(ierr);  
-//  	}
-      ierr = SLESCreate(PETSC_COMM_WORLD,&sles_tet); CHKERRA(ierr);
-      ierr = SLESSetOperators(sles_tet,A_tet,
-			      A_tet,SAME_NONZERO_PATTERN); CHKERRA(ierr);
-      ierr = SLESGetKSP(sles_tet,&ksp_tet); CHKERRA(ierr);
-      ierr = SLESGetPC(sles_tet,&pc_tet); CHKERRA(ierr);
-
-      ierr = KSPSetType(ksp_tet,KSPGMRES); CHKERRA(ierr);
-
-	// NEW!!!!!!!! ====================================
-      ierr = KSPSetPreconditionerSide(ksp_tet,PC_RIGHT);
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-	//ierr = KSPSetType(ksp_tet,KSPBICG); CHKERRA(ierr);
-      ierr = KSPGMRESSetRestart(ksp_tet,Krylov_dim); CHKERRA(ierr);
-      ierr = KSPSetTolerances(ksp_tet,rtol,atol,dtol,maxits);
-
-      ierr = PCSetType(pc_tet,preco_type_); CHKERRA(ierr);
-      ierr = KSPSetMonitor(ksp_tet,MyKSPMonitor,PETSC_NULL);
+      A_tet->build_sles(GLOBAL_OPTIONS);
 
       if (!print_linear_system_and_stop || solve_system)
-	ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
+	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
+	A_tet->solve(res,dx); 
 
+#if 0
       if (print_linear_system_and_stop) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
@@ -503,6 +440,7 @@ int main(int argc,char **args) {
 	exit(0);
 
       }	
+#endif
 
       double normres;
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
@@ -521,7 +459,6 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-      ierr = SLESDestroy(sles_tet); CHKERRA(ierr);
     } // end of loop over Newton subiteration (inwt)
 
     // error difference
@@ -557,7 +494,7 @@ int main(int argc,char **args) {
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 
-  ierr = MatDestroy(A_tet); CHKERRA(ierr); 
+  // ierr = MatDestroy(A_tet); CHKERRA(ierr); 
 
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
+//$Id: fem.cpp,v 1.8 2001/07/16 14:14:16 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -8,6 +8,7 @@
 #include "readmesh.h"
 #include "utils.h"
 #include "getprop.h"
+#include "pfmat.h"
 
 static char help[] = "Basic finite element program.\n\n";
 
@@ -24,6 +25,7 @@ int zeroe_mat(Mat A,int & ass_flag) {
     return ierr;
   }
 }
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -105,6 +107,9 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   return 0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void petscfem_printf(const char *,va_list )"
 void petscfem_printf(const char *templ,va_list list) {
   int myrank;
 //    va_list list;
@@ -113,6 +118,9 @@ void petscfem_printf(const char *templ,va_list list) {
   if (myrank==0) vprintf(templ,list);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void petscfem_error(const char *,...)"
 void petscfem_error(const char *templ,...) {
   va_list list;
   va_start(list,templ);
