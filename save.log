@@ -265,3 +265,6 @@ tag: beta-1.40 on Wed Mar 21 20:35:00 ART 2001, by mstorti in spider
 tag: beta-1.41 on Wed Mar 21 22:50:20 ART 2001, by mstorti in spider
      > Added a diffusion tensor per field and fixed some error in 
      > full diff jacobian.
+----------
+tag: beta-1.42 on Thu Mar 22 18:18:43 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Working on nw version of flux functions
