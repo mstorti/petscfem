@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.11 2002/04/08 17:25:06 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.12 2002/04/08 19:39:57 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,10 +9,6 @@
 #include <src/fastmat2.h>
 #include "nsi_tet.h"
 
-// BETO : esto se usa ???  #include <src/util2.h>
-// BETO : esto se usa ???  #define USE_FASTMAT
-
-// BETO : esto se usa ???  
 extern TextHashTable *GLOBAL_OPTIONS;
 #define MAXPROP 100
 

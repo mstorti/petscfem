@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.6 2002/04/08 16:16:47 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.7 2002/04/08 19:39:57 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -145,6 +145,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     elc;
   // This is the Levi-Civita density tensor $\eps_{ijk}$
   elc.eps_LC();
+  fmatlocf.set(0.);
+  fveccontr.set(0.);
 
   // Traslational acceleration of the system
   FMatrix acel_lin(ndim);
