@@ -1,8 +1,12 @@
 //
-// time: Wed May 21 14:00:13 2003
+// time: Thu May 22 21:21:25 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
+//
+//
+// macro reference (direct): SystemDrivesImport2 /u/mstorti/PETSC/petscfem/dx/systemdi.net
+include "systemdi.net"
 //
 // MODULE main
 //
@@ -15,18 +19,61 @@
 // page assignment: import	order=2, windowed=0, showing=0
 // page assignment: proc_u	order=3, windowed=0, showing=0
 // page assignment: scalar	order=4, windowed=0, showing=0
-// workspace: width = 1128, height = 742
+// workspace: width = 1128, height = 842
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
 ) -> (
 ) {
     // 
-    // node ExtProgImport[1]: x = 40, y = 100, inputs = 7, label = ExtProgImport
+    // node Sequencer[2]: x = 80, y = 20, inputs = 7, label = Sequencer
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Sequencer_2"
+    // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
+    // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
+    // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 1 0 1000 1 }
+    // page group: import
+    // vcr[2]: min = 0, max = 1000, beg = 0, end = 1000, cur = 4, inc = 1, loop = off, step = off, pal = off
+    // window: position = (0.3857,0.1732), size = 0.2734x0.1042
+    //
+    main_Sequencer_2_in_3 = @frame;
+main_Sequencer_2_out_1[cache: 2] = 
+    Sequencer(
+    main_Sequencer_2_in_1,
+    main_Sequencer_2_in_2,
+    main_Sequencer_2_in_3,
+    main_Sequencer_2_in_4,
+    main_Sequencer_2_in_5,
+    main_Sequencer_2_in_6,
+    main_Sequencer_2_in_7
+    ) [instance: 2, cache: 1];
+    // 
+    // node SystemDrivesImport2[1]: x = 80, y = 100, inputs = 2, label = SystemDrivesImport2
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "rsh geronimo make step=%d dx_input"
+    // page group: import
+    //
+main_SystemDrivesImport2_1_out_1 = 
+    SystemDrivesImport2(
+    main_Sequencer_2_out_1,
+    main_SystemDrivesImport2_1_in_2
+    ) [instance: 1, cache: 1];
+    // 
+    // node Parse[2]: x = 120, y = 180, inputs = 2, outputs = 2, label = Parse
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "%d"
+    // page group: import
+    //
+main_Parse_2_out_1,
+main_Parse_2_out_2 = 
+    Parse(
+    main_SystemDrivesImport2_1_out_1,
+    main_Parse_2_in_2
+    ) [instance: 2, cache: 1];
+    // 
+    // node ExtProgImport[1]: x = 60, y = 280, inputs = 7, label = ExtProgImport
     // input[1]: defaulting = 0, visible = 1, type = 1, value = 1
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "@geronimo"
     // input[3]: defaulting = 0, visible = 1, type = 1, value = 5315
-    // input[6]: defaulting = 0, visible = 1, type = 32, value = "outvector.out"
+    // input[6]: defaulting = 0, visible = 1, type = 32, value = "spillway.state.tmp"
     // page group: import
     //
 main_ExtProgImport_1_out_1,
@@ -37,12 +84,12 @@ main_ExtProgImport_1_out_3 =
     main_ExtProgImport_1_in_2,
     main_ExtProgImport_1_in_3,
     main_ExtProgImport_1_in_4,
-    main_ExtProgImport_1_in_5,
+    main_Parse_2_out_1,
     main_ExtProgImport_1_in_6,
     main_ExtProgImport_1_in_7
     ) [instance: 1, cache: 1];
     // 
-    // node Select[7]: x = 60, y = 200, inputs = 3, label = Select
+    // node Select[7]: x = 80, y = 400, inputs = 3, label = Select
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "fluid_u"
     // page group: import
     //
@@ -53,7 +100,7 @@ main_Select_7_out_1 =
     main_Select_7_in_3
     ) [instance: 7, cache: 1];
     // 
-    // node Transmitter[27]: x = 80, y = 300, inputs = 1, label = u
+    // node Transmitter[27]: x = 100, y = 500, inputs = 1, label = u
     // page group: import
     //
 u = main_Select_7_out_1;
@@ -144,7 +191,7 @@ main_Compute_29_out_1 =
     main_Receiver_38_out_1
     ) [instance: 29, cache: 1];
     // 
-    // node Select[9]: x = 120, y = 200, inputs = 3, label = Select
+    // node Select[9]: x = 140, y = 400, inputs = 3, label = Select
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "fluid_p"
     // page group: import
     //
@@ -155,7 +202,7 @@ main_Select_9_out_1 =
     main_Select_9_in_3
     ) [instance: 9, cache: 1];
     // 
-    // node Transmitter[26]: x = 140, y = 300, inputs = 1, label = p
+    // node Transmitter[26]: x = 160, y = 500, inputs = 1, label = p
     // page group: import
     //
 p = main_Select_9_out_1;
@@ -277,7 +324,7 @@ main_AutoGlyph_3_out_1 =
     main_AutoGlyph_3_in_7
     ) [instance: 3, cache: 1];
     // 
-    // node Transmitter[28]: x = 320, y = 200, inputs = 1, label = pf_step
+    // node Transmitter[28]: x = 340, y = 400, inputs = 1, label = pf_step
     // page group: import
     //
 pf_step = main_ExtProgImport_1_out_3;
@@ -710,16 +757,16 @@ main_Compute_8_out_1 =
     // toggle : 0
     //
     // 
-    // node Image[4]: x = 160, y = 640, inputs = 49, label = Image
+    // node Image[4]: x = 160, y = 620, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [75.7335 -0.03934 54.4395]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [75.7335 -474.195 54.4395]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 142.108
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [61.123 1.28047 52.2269]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [219.638 -410.022 226.948]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 94.3766
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 0 1]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 17.0451
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.144273 0.339274 0.929558]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 11.3668
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -731,7 +778,7 @@ main_Compute_8_out_1 =
     // input[25]: defaulting = 0, visible = 0, type = 32, value = "/u/mstorti/PETSC/verte_new.tiff"
     // input[26]: defaulting = 0, visible = 0, type = 32, value = "tiff"
     // input[29]: defaulting = 0, visible = 0, type = 3, value = 0
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "zoom"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "panzoom"
     // output[1]: visible = 0
     // output[3]: visible = 0
     // page group: image
@@ -806,26 +853,24 @@ main_MapToPlane_1_out_1 =
     main_MapToPlane_1_in_3
     ) [instance: 1, cache: 1];
     // 
-    // node Sequencer[1]: x = 60, y = 20, inputs = 7, label = Sequencer
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Sequencer_1"
-    // input[4]: defaulting = 1, visible = 1, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
-    // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 1 1000 1 1 1000 1 }
+    // node Transmitter[30]: x = 360, y = 80, inputs = 1, label = t
     // page group: import
-    // vcr[1]: min = 1, max = 1000, beg = 1, end = 1000, cur = 46, inc = 1, loop = off, step = off, pal = off
-    // window: position = (0.4287,-0.9284), size = 0.3496x0.1328
     //
-    main_Sequencer_1_in_3 = @frame;
-main_Sequencer_1_out_1[cache: 2] = 
-    Sequencer(
-    main_Sequencer_1_in_1,
-    main_Sequencer_1_in_2,
-    main_Sequencer_1_in_3,
-    main_Sequencer_1_in_4,
-    main_Sequencer_1_in_5,
-    main_Sequencer_1_in_6,
-    main_Sequencer_1_in_7
+t = main_Sequencer_2_out_1;
+    // 
+    // node Receiver[41]: x = 180, y = 700, inputs = 1, label = t
+    // page group: image
+    //
+main_Receiver_41_out_1[cache: 0] = t;
+    // 
+    // node Render[1]: x = 40, y = 680, inputs = 3, label = Render
+    // page group: image
+    //
+main_Render_1_out_1 = 
+    Render(
+    main_Collect_2_out_1,
+    main_Image_4_out_2,
+    main_Render_1_in_3
     ) [instance: 1, cache: 1];
     // 
     // node Transmitter[11]: x = 240, y = 180, inputs = 1, label = v
@@ -842,15 +887,43 @@ u2d = main_Compute_11_out_1;
     // page group: scalar
     //
 abs_u = main_Compute_29_out_1;
+    // 
+    // node WriteImage[1]: x = 20, y = 780, inputs = 4, label = WriteImage
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "spillway.tiff"
+    // input[3]: defaulting = 0, visible = 1, type = 32, value = "tiff"
+    // page group: image
+    //
+    WriteImage(
+    main_Render_1_out_1,
+    main_WriteImage_1_in_2,
+    main_WriteImage_1_in_3,
+    main_Receiver_41_out_1
+    ) [instance: 1, cache: 1];
 // network: end of macro body
 CacheScene(main_Image_4_in_1, main_Image_4_out_1, main_Image_4_out_2);
 }
+main_Sequencer_2_in_1 = "Sequencer_2";
+main_Sequencer_2_in_2 = NULL;
+main_Sequencer_2_in_3 = NULL;
+main_Sequencer_2_in_4 = 0;
+main_Sequencer_2_in_5 = 1000;
+main_Sequencer_2_in_6 = NULL;
+main_Sequencer_2_in_7 = { 0 1000 1 0 1000 1 };
+main_Sequencer_2_out_1 = NULL;
+
+@startframe = 0;
+@nextframe  = @startframe;
+@endframe   = 1000;
+@deltaframe = 1;
+main_SystemDrivesImport2_1_in_2 = "rsh geronimo make step=%d dx_input";
+main_SystemDrivesImport2_1_out_1 = NULL;
+main_Parse_2_in_2 = "%d";
+main_Parse_2_out_1 = NULL;
 main_ExtProgImport_1_in_1 = 1;
 main_ExtProgImport_1_in_2 = "@geronimo";
 main_ExtProgImport_1_in_3 = 5315;
 main_ExtProgImport_1_in_4 = NULL;
-main_ExtProgImport_1_in_5 = NULL;
-main_ExtProgImport_1_in_6 = "outvector.out";
+main_ExtProgImport_1_in_6 = "spillway.state.tmp";
 main_ExtProgImport_1_in_7 = NULL;
 main_ExtProgImport_1_out_2 = NULL;
 main_ExtProgImport_1_out_3 = NULL;
@@ -1403,12 +1476,12 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [75.7335 -0.03934 54.4395];
-main_Image_4_in_6 = [75.7335 -474.195 54.4395];
-main_Image_4_in_7 = 142.108;
+main_Image_4_in_5 = [61.123 1.28047 52.2269];
+main_Image_4_in_6 = [219.638 -410.022 226.948];
+main_Image_4_in_7 = 94.3766;
 main_Image_4_in_8 = 1000;
 main_Image_4_in_9 = 0.697;
-main_Image_4_in_10 = [0 0 1];
+main_Image_4_in_10 = [-0.144273 0.339274 0.929558];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
 main_Image_4_in_13 = NULL;
@@ -1437,7 +1510,7 @@ main_Image_4_in_37 = NULL;
 main_Image_4_in_38 = NULL;
 main_Image_4_in_39 = NULL;
 main_Image_4_in_40 = NULL;
-main_Image_4_in_41 = "zoom";
+main_Image_4_in_41 = "panzoom";
 main_Image_4_in_42 = NULL;
 main_Image_4_in_43 = NULL;
 main_Image_4_in_44 = NULL;
@@ -1446,20 +1519,15 @@ main_Image_4_in_46 = NULL;
 main_Image_4_in_47 = NULL;
 main_Image_4_in_48 = NULL;
 main_Image_4_in_49 = NULL;
+main_Image_4_out_2 = NULL;
 main_MapToPlane_1_in_2 = [0.5 0.5 0.5];
 main_MapToPlane_1_in_3 = [1 0 0];
-main_Sequencer_1_in_1 = "Sequencer_1";
-main_Sequencer_1_in_2 = NULL;
-main_Sequencer_1_in_3 = NULL;
-main_Sequencer_1_in_4 = NULL;
-main_Sequencer_1_in_5 = 1000;
-main_Sequencer_1_in_6 = NULL;
-main_Sequencer_1_in_7 = { 1 1000 1 1 1000 1 };
-
-@startframe = 1;
-@nextframe  = @startframe;
-@endframe   = 1000;
-@deltaframe = 1;
+main_Transmitter_30_out_1 = NULL;
+main_Receiver_41_out_1 = NULL;
+main_Render_1_in_3 = NULL;
+main_Render_1_out_1 = NULL;
+main_WriteImage_1_in_2 = "spillway.tiff";
+main_WriteImage_1_in_3 = "tiff";
 Executive("product version 4 2 0");
 $sync
 
