@@ -2574,3 +2574,6 @@ tag: beta-3.18.pl49 on Sun, 30 Mar 2003 21:01:21 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl50 on Mon, 31 Mar 2003 14:08:30 -0300 by mstorti in spider
      > Fixed error in updating FS. 
+----------
+tag: beta-3.18.pl51 on Mon, 31 Mar 2003 18:20:36 -0300 by mstorti in spider
+     > Added ePerl license to README. 
