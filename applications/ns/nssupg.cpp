@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.2 2002/07/30 20:00:50 mstorti Exp $
+//$Id: nssupg.cpp,v 1.3 2002/07/30 23:28:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -97,17 +97,19 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr(2,nel,ndof),
     eta(1,nel2), eta_new(1,nel2), 
     w(1,nel2), w_new(1,nel2), w_star(1,nel2), 
-    res, matlocf(4,nel,ndof,nel,ndof),xloc(2,nel2,ndim),
-    res_pg, res_pgg, n, tmp, tmp1, grad_eta, tmp2, mass_mat, lap_mat,
-    tmp3, tmp4, eta_star, Jaco;
+    res(1,nel2), matlocf(4,nel,ndof,nel,ndof),xloc(2,nel2,ndim),
+    res_pg, res_pgg, n(1,ndim), tmp, tmp1, grad_eta, tmp2, 
+    mass_mat(2,nel2,nel2), lap_mat(2,nel2,nel2),
+    tmp3, tmp4, eta_star(1,nel2), Jaco;
 
+  int ndimel = ndim-1;
   // Unpack nodedata
   int nu=nodedata->nu;
   //o Number of Gauss points.
   TGETOPTNDEF(thash,int,npg,none);
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndimel,nel2,npg,GP_FASTMAT2);
 
   veccontr.set(0.);
   matlocf.set(0.);
@@ -202,11 +204,11 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       veccontr.rs().export_vals(&(RETVAL(ielh,0,0)));
 
-      matlocf.is(1,nel2+1,nel).ir(1,1).is(3,nel2+1,nel).ir(4,1)
+      matlocf.is(1,nel2+1,nel).ir(2,1).is(3,nel2+1,nel).ir(4,1)
 	.set(mass_mat).scale(rec_Dt/alpha*fs_eq_factor) // temporal term
 	.axpy(lap_mat,free_surface_visco) // surface diffusion term
 	.rs();
-      matlocf.is(1,nel2+1,nel).ir(1,1).is(3,1,nel2).ir(4,normal_dir)
+      matlocf.is(1,nel2+1,nel).ir(2,1).is(3,1,nel2).ir(4,normal_dir)
 	.set(mass_mat).scale(-alpha).rs();
       
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
