@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.54 2003/02/19 15:57:48 mstorti Exp $ 
+# $Id: Makefile,v 1.55 2003/02/19 17:40:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -15,10 +15,12 @@ runn:
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
 	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests
 
-dx_tests := dx_hook_test_post_run_file_record dx_hook_test_post_run_files \
+dx_tests_np1 := dx_hook_test_post_run_file_record dx_hook_test_post_run_files \
 		dx_hook_test_synchro dx_hook_test_allf
-dx_tests := $(dx_tests) $(patsubst dx_hook_test_%,dx_test_%_np2,$(dx_tests))
-dx_tests: $(dx_tests)
+dx_tests_np2 := $(patsubst dx_hook_test_%,dx_test_%_np2,$(dx_tests_np1))
+dx_tests_np1: $(dx_tests_np1) 
+dx_tests_np2: $(dx_tests_np2) 
+dx_tests: dx_tests_np1 dx_tests_np2
 
 dx_test_%_np2: 
 	$(MAKE) np=2 dx_hook_test_$*

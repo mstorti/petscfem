@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.122 2003/02/08 14:27:53 mstorti Exp $
+//$Id: ns.cpp,v 1.123 2003/02/19 17:40:12 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -106,11 +106,9 @@ int main(int argc,char **args) {
 
   // Read the mesh
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"After readmesh...\n");
 
   GLOBAL_OPTIONS = mesh->global_options;
-
-  HookList hook_list;
-  hook_list.init(*mesh,*dofmap,ns_hook_factory);
 
 #if 0
   //o If set, redirect output to this file.
@@ -138,10 +136,11 @@ int main(int argc,char **args) {
   GETOPTDEF(int,activate_debug_memory_usage,0);
   if (activate_debug_memory_usage) debug.activate("memory_usage");
 
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap,ns_hook_factory);
+
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
-
-  PetscPrintf(PETSC_COMM_WORLD,"After readmesh...\n");
 
   //o Scales displacement for ALE-like mesh relocation. 
   GETOPTDEF(double,displ_factor,0.1);
