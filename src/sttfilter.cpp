@@ -1,4 +1,4 @@
-/* $Id: sttfilter.cpp,v 1.2 2001/01/19 12:46:32 mstorti Exp $ */
+/* $Id: sttfilter.cpp,v 1.3 2001/01/22 00:51:47 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -23,38 +23,10 @@
 
 #include "sttfilter.h"
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-#undef __FUNC__
-#define __FUNC__ "Filter::Filter(Vec &,Mesh &)"
-Filter::Filter(Vec &x,Mesh &mesh) {
-  // Read values from Texthash
-  //o Flag defining whether to define a average filter
-  TGETOPTDEF_ND(mesh.global_options,int,"filter_av",0);
-
-  if (filter_av) {
-    ierr = VecDuplicate(x,xav); CHKERRA(ierr);
-  }
-
-}
-#endif
-
 void LowPass::update() {
-  if (input->step() < step()) input->update(); 
-  i_state.scale(1-alpha).axpy(alpha,input->state());
+  if (input->step() <= step()) input->update(); 
+  i_state.scale(gamma).axpy(1-gamma,input->state());
   Filter::update();
-}
-
-const State & Inlet::state() { 
-  return *state_;
-}
-
-const State & LowPass::state() {
-  return i_state;
-}
-
-const State & Mixer::state() {
-  return i_state;
 }
 
 Mixer & Mixer::add_input(Filter &input,double g) {
@@ -76,11 +48,9 @@ void Mixer::update() {
   i_state.set_cnst(0.);
   for (int j=0; j<filter_l.size(); j++) {
     Filter *f = filter_l[j];
-    if (f->step() < step()) f->update(); 
+    if (f->step() <= step()) f->update(); 
     f->update();
     i_state.axpy(gain_l[j],f->state());
   }
   Filter::update();
-  // time_step++;
 }
-

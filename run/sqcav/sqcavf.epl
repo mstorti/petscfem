@@ -1,0 +1,106 @@
+# -*- mode: shell-script -*-
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+$case="sqcav";			# case name
+require '../../test/eperlini.pl';       # Initializes ePerl 
+$U = 1;				# typical velocity scale
+$L = 1;				# Side of the cavity
+$Re = 400;			# Desired Reynolds number
+$visco = $L/$Re;		# viscosity
+#
+$h = 1/20;			# typical mesh length
+$Co = 10;			# Courant number
+#$Dt = $Co*$h/$U;		# time step
+$Dt = 100;			# time step
+$omega = 2*$PI;			# frequency
+#__END_TRANSCRIPT__
+transcript("", qw(visco Dt));	# print variables on output
+:>//                            # ends ePerl block
+
+global_options
+
+low_pass_filter <:=0.5*$omega:> 2
+nsave 1
+nstep 10
+#initial_state sqcav.ini
+preco_type "lu"
+
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+chunk_size 1000
+
+#    Iterative parameters
+tol_tet 1e-5
+#tol_newton
+#atol
+#rtol
+#dtol
+nnwt 1
+maxits 1
+Krylov_dim 1
+print_internal_loop_conv 1
+#print_linear_system_and_stop 1
+#verify_jacobian_with_numerical_one 1
+
+#print_nodal_partitioning 1
+Dt <:=$Dt:>
+
+shock_capturing_factor 0
+#if 1
+local_store
+cache_grad_div_u
+#endif
+
+print_some_file "nodes.some"
+nsome 1
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ sqcav.nod
+_END_NODES__
+
+elemset nsi_tet_les_fm2 4 
+
+name malla
+
+#report_consumed_time
+geometry cartesian2d
+#if 0
+local_store
+cache_grad_div_u 1
+#endif
+ndim 2
+npg 4
+#
+# Datos fisicos
+#
+viscosity  <:=$visco:>
+weak_form 0
+LES 0
+__END_HASH__
+__INCLUDE__ sqcav.con
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+# fijacion en la presion
+1 3 0.
+# fijaciones de velocidad en las paredes
+__INCLUDE__ sqcav.fixa
+__END_FIXA__
+
+
+fixa_amplitude cos
+omega     <:=$omega:>
+#if 1
+amplitude 1.
+#else 
+amplitude 0.   # no temporal dependence
+mean_val 1
+#endif
+__END_HASH__
+__INCLUDE__ sqcav.tmpfixa
+__END_FIXA__

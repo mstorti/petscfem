@@ -86,5 +86,10 @@ public:
 				   const double *& coords);
 };
 
+// Global parameters
+struct GlobParam {
+  double alpha,Dt;
+};
+
 #endif
 

@@ -25,18 +25,35 @@
 #undef __FUNC__
 #define __FUNC__ "State::axpy(double,const State &)"
 State & State::axpy(double alpha,const State &v) {
-  int ierr = VecAXPY(&alpha,*(v.vec),*(this->vec));
+  int ierr = VecAXPY(&alpha,*(v.vec),*vec);
   return *this;
 }
 
 State::State(const State &v) : time(v.time) {
-  int ierr = VecDuplicate(*vec,v.vec);
+  vec = new Vec;
+  int ierr = VecDuplicate(*v.vec,vec);
 }
-  
+
+#if 0  
 State::~State() {
   int ierr = VecDestroy(*vec); 
 }
+#endif
   
+State::~State() {
+  if (vec) {
+    int ierr = VecDestroy(*vec);
+    assert(ierr==0);
+    delete vec;
+  }
+}
+
+const State & State::print_some(const char *filename,Dofmap *dofmap,
+	       set<int> & node_list) const {
+  ::print_some(filename,v(),dofmap,node_list,&t());
+  return *this;
+}
+
 State & State::scale(double alpha) {
   double alpha_ = alpha;
   int ierr = VecScale(&alpha_,*vec);

@@ -1,6 +1,6 @@
 # -*- mode: shell-script -*-
 
-set args -case sqcav.depl
+set args -case sqcavf.depl
 file ns
 
 

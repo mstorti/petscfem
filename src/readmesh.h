@@ -24,6 +24,8 @@
 #ifndef READ_MESH_H
 #define READ_MESH_H
 
+#include "sttfilter.h"
+
 /** @name read\_mesh package */
 //@{
 /** This struct contains the info for the `props' hash table which
@@ -74,14 +76,26 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     relative directories. 
     @param x (input) PETSc MPI vector to be written 
     @param dofmap (input) corresponding dofmap 
+    @param node_list (input) set of nodes to print. 
     @param time_data (input, def=NULL) an external parameter in order to compute
     external boundary conditions, etc...
-    @param node_list (input) set of nodes to print. 
-    @param append (input, def=0) appending mode (append if
-    `append==0') 
 */ 
-int print_some(const char *filename,Vec x,Dofmap *dofmap,
+int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 	       set<int> node_list,const TimeData *time_data=NULL);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** For a given state vector, prints the state for some nodes.
+    @author M. Storti
+    @param (input) filename file where to write the vector. May contain
+    relative directories. 
+    @param s (input) State vector
+    @param dofmap (input) corresponding dofmap 
+    @param node_list (input) set of nodes to print. 
+*/ 
+#if 0
+int print_some(const char *filename,const State &s,Dofmap *dofmap,
+	       set<int> & node_list);
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Initializes the verb+print_some+ saving mechnism. 

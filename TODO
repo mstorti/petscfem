@@ -3,15 +3,22 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Fix error while opening data file, when no case gives
-           "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!
+* Why not to do a 
+* Check no memory leaks in constructing and destruting filters.
+* sqcav and burgers test
+* ffswfm2t test
+* Document sttilter etc...
 * Document the element locker function
 * Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
+* Making html doc, doesn't reuse the generated gifs, which is very
+           time consuming.
 
 
 DONE:
 =====
 
+* Fix error while opening data file, when no case gives
+           "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!
 * Add targets to the Makefile like `distrib' `almost_clean' etc...
 * Find a better hash function for the text hashes. 
 * Put `const' keyword in `get_entry' and friends.

@@ -23,7 +23,6 @@
 #include "util2.h"
 #include "readmesh.h"
 #include "idmap.h"
-
 #include "elemset.h"
 
 extern int MY_RANK,SIZE;
@@ -152,8 +151,18 @@ int print_vector(const char *filename,const Vec x,const Dofmap *dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "print_some" 
-int print_some(const char *filename,Vec x,Dofmap *dofmap,
+#define __FUNC__ "print_some(const char *,const State &,Dofmap *,set<int> &)" 
+int print_some(const char *filename,const State &s,Dofmap *dofmap,
+	       set<int> & node_list) {
+  print_some(filename,s.v(),dofmap,node_list,&s.t());
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "print_some(const char *,const Vec ,Dofmap *,
+                             set<int> ,const TimeData *=NULL)" 
+int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 	       set<int> node_list,const TimeData *time_data=NULL) {
 
   Vec vseq;
