@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.4 2001/07/31 03:01:27 mstorti Exp $
+// $Id: distmap.h,v 1.5 2001/07/31 14:23:42 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -78,9 +78,8 @@ void DistMap<Key,Val>::scatter() {
     dest,source;
   pair<Key,Val> p;
 
-  // recv_buff_pos:= an array of positions in each of the buffers
-  // recv_buff:= An array of buffers for receiving
-  char **send_buff,**send_buff_pos,*recv_buff,*recv_buff_pos;
+  char **send_buff,**send_buff_pos,*recv_buff,*recv_buff_pos,
+    *recv_buff_pos_end;
   MPI_Request send_rq,recv_rq;
   MPI_Status status;
   int j,k,nsent;
@@ -132,19 +131,12 @@ void DistMap<Key,Val>::scatter() {
   // send_rq:= sendings and receives are non-blocking so that we
   // create a `MPI_Request' object for each of them. 
 
-  // Request objects for receiving
-  // recv_ok:= flags whether the receive from processor `k' to this
-  // has been performed
-  recv_ok = new int[size];
-
   // allocate buffers and initialize data
   for (k=0; k<size; k++) {
     // allocate send buffer to proc `k'
     send_buff[k] = new char[SEND(myrank,k)];
     // initialize position 
     send_buff_pos[k] = send_buff[k];
-    // initialize flags
-    recv_ok[k]=0;
   }
 
   // Fill send buffers
@@ -165,6 +157,9 @@ void DistMap<Key,Val>::scatter() {
     }
   }
   
+  // recv_buff:= buffer for receiving 
+  // recv_buff_pos:= positions in the receive buffer
+  // recv_buff_pos_end:= end of receive buffer
   for (k=1; k<size; k++) { 
     dest = (myrank+k) % size;
     source = (myrank-k+size) % size;
@@ -191,12 +186,12 @@ void DistMap<Key,Val>::scatter() {
       printf("[%d] Didn't receive expected amount of data\n"
 	     "expected %d, received  %d\n",
 	     myrank,SEND(k,myrank),nsent);
-    
-    while (recv_buff_pos < recv_buff + SEND(source,myrank)) {
+    recv_buff_pos_end = recv_buff + SEND(source,myrank);
+    while (recv_buff_pos < recv_buff_pos_end ) {
       unpack(p.first,p.second,recv_buff_pos);
       PetscPrintf(PETSC_COMM_WORLD,"unpacking: key %d, val %f\n",
 		  p.first,p.second);
-      combine(p);
+      // combine(p);
     }
     delete[] recv_buff;
   }
@@ -208,13 +203,8 @@ void DistMap<Key,Val>::scatter() {
   }
 
   // Delete all auxiliary vectors
-  delete[] recv_ok;
-
   delete[] send_buff_pos;
   delete[] send_buff;
-
-  delete[] recv_buff_pos;
-  delete[] recv_buff;
 
   delete[] to_send;
   delete[] to_send_buff;
