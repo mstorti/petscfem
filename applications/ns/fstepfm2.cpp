@@ -453,16 +453,17 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
     }
-#if 0 // not coded yet
     if (comp_res_mom) {
-      veccontr.Columns(1,ndim) = resmom;
-      veccontr >> &(RETVAL(ielh));
-      matloc = kron(matlocmom,seed) + mom_mat_fix;
-      matloc >> &(RETVALMAT(ielh));
+      veccontr.is(2,1,ndim).set(resmom);
+      veccontr.export_vals(&(RETVAL(ielh)));
+      veccontr.rs();
+      matloc.prod(seed,matlocmom,1,3,2,4).add(mom_mat_fix);
+      matloc.export_vals(&(RETVALMAT(ielh)));
     } else if (comp_mat_poi) {
-      matloc = kron(matlocmom,seed) + poi_mat_fix;
-      matloc >> &(RETVALMAT_POI(ielh));
+      matloc.prod(seed,matlocmom,1,3,2,4).add(poi_mat_fix);
+      matloc.export_vals(&(RETVALMAT_POI(ielh)));
     } else if (comp_res_poi) {
+#if 0 // not coded yet
       veccontr.Column(ndim+1) = rescont;
       veccontr >> &(RETVAL(ielh));
     } else if (comp_mat_prj) {
@@ -471,8 +472,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     } else if (comp_res_prj) {
       veccontr.Columns(1,ndim) = resmom;
       veccontr >> &(RETVAL(ielh));
-    } else assert(0);
 #endif
+    } else assert(0);
   }
   return 0;
 }
