@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.29 2001/08/06 01:07:36 mstorti Exp $
+//$Id: readmesh.cpp,v 1.30 2001/08/06 20:37:12 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -972,8 +972,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  proc = vpart[node2elem[ele]]+1;
       }
       npart[node] = proc;
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "node: %d, proc: %d\n",node+1,proc);
+//        PetscPrintf(PETSC_COMM_WORLD,
+//  		  "node: %d, proc: %d\n",node+1,proc);
     }
     if (print_nodal_partitioning)
       PetscPrintf(PETSC_COMM_WORLD,

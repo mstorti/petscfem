@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.6 2001/08/06 01:07:36 mstorti Exp $
+// $Id: distmat.cpp,v 1.7 2001/08/06 20:37:12 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -30,16 +30,18 @@ size_of_pack(const DistMat::iterator iter) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DistMat::
 pack(const int &k,const Row &row,char *&buff) const {
+
   int n = row.size();
   Row::const_iterator iter;
   // number of elements in the row
-  BufferPack::pack(n,buff);
+  //  BufferPack::pack(n,buff);
+  BUFFER_PACK(n,buff);
   // the number of the row (key)
-  BufferPack::pack(k,buff);
+  BUFFER_PACK(k,buff);
   // pack the row, each pair (int,double) at a time
   for (iter=row.begin(); iter!=row.end(); iter++) {
-    BufferPack::pack(iter->first,buff);
-    BufferPack::pack(iter->second,buff);
+    BUFFER_PACK(iter->first,buff);
+    BUFFER_PACK(iter->second,buff);
   }
 }
 
@@ -53,13 +55,13 @@ unpack(int &k,Row &row,const char *&buff) {
   // Clear the row
   row.clear();
   // unpack the number of elements
-  BufferPack::unpack(n,buff);
+  BUFFER_UNPACK(n,buff);
   // unpack the key (number of row)
-  BufferPack::unpack(k,buff);
+  BUFFER_UNPACK(k,buff);
   // unpack the pair (key vals) each at a time
   for (j=0; j<n; j++) {
-    BufferPack::unpack(key,buff);
-    BufferPack::unpack(val,buff);
+    BUFFER_UNPACK(key,buff);
+    BUFFER_UNPACK(val,buff);
     // insert the pair key,val in the row.
     row[key] += val;
   }
