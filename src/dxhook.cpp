@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.44 2003/08/06 22:39:32 mstorti Exp $
+//$Id: dxhook.cpp,v 1.45 2003/08/17 13:30:48 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -414,6 +414,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	  x[k*nu+j] = coef0*x0.e(k,j) + coef*d;
 	}
       }
+      fclose(fid);
     }
   }
 
