@@ -560,3 +560,8 @@ tag: beta-2.17 on Fri Nov  9 09:30:27 ART 2001, by mstorti in minerva.arcride.ed
      > Included a PETSc version of the SparseDirect matrix. 
      > Quasi stable version. Apparently runs most tests but stopped because
      > of Makefile conflicts. 
+----------
+tag: beta-2.18 on Sat Nov 10 00:16:48 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Working on sloshing. SparseDirect/PFMat matrices.
+     > Tests run.
