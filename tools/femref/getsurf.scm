@@ -1,6 +1,6 @@
-;;; $Id: getsurf.scm,v 1.14 2005/01/18 02:29:47 mstorti Exp $
-(load "./dvector.scm")
+;;; $Id: getsurf.scm,v 1.15 2005/01/18 02:47:49 mstorti Exp $
 (load "./femref.scm")
+(use-modules (dvector))
 
 (define (ddump s v)
   (format #t "\n\n~A: \n" s)
@@ -27,6 +27,10 @@
 (ddump "x: " x)
 (dvdbl-scale! x 4.)
 (ddump "x *= 4" x)
+
+(define (dvdbl-scaleb! v alpha)
+  (dvdbl-apply! v (lambda (y) (* alpha y))))
+
 (dvdbl-scaleb! x 0.5)
 (ddump "x /= 2" x)
 (dvdbl-add! x 100)
