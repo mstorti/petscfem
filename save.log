@@ -1620,3 +1620,6 @@ tag: beta-3.04.pl17 on Tue, 17 Sep 2002 14:15:34 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.04.pl18 on Fri, 20 Sep 2002 00:02:31 -0300 by mstorti in spider
      > Trying to have IISD solver work for cero eqs. in one processor. 
+----------
+tag: beta-3.04.pl19 on Fri, 20 Sep 2002 18:26:45 -0300 by mstorti in minerva.arcride.edu.ar
+     > Can run with weight 0 in processors. (SImulates -nolocal)
