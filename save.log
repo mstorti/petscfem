@@ -2313,3 +2313,6 @@ tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300, by mstorti in spider
 ----------
 tag: beta-3.16.pl1 on Sat,  8 Feb 2003 10:08:51 -0300 by mstorti in spider
      > Coded better protocol for DX.
+----------
+tag: beta-3.16.pl2 on Sat,  8 Feb 2003 11:28:20 -0300 by mstorti in spider
+     > Checked that runs in parallel. 
