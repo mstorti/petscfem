@@ -9,11 +9,14 @@ DX_RTL_LDFLAGS := -shared
 OBJEXT := o
 SSL := $(HOME)/SOFT/SSL
 
+PETSCFEM_DIR := ../..
+include $(PETSCFEM_DIR)/Makefile.base
+
 FILES_epimport = userepimport.$(OBJEXT) epimport.$(OBJEXT)
 
 BIN = $(BASE)/bin
 
-CFLAGS = -I./ -I$(BASE)/include $(DX_CFLAGS) -I$(SSL)
+CFLAGS = -I./ -I$(BASE)/include $(DX_CFLAGS) -I$(SSL) -I$(PETSCFEM_DIR)
 
 LDFLAGS = -L$(BASE)/lib_$(DXARCH)
 
@@ -27,9 +30,15 @@ BIN = $(BASE)/bin
 epimport: $(FILES_epimport) 
 	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT)	\
 		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)			\
-		$(SSL)/simpleskts.a -lstdc++
+		$(SSL)/simpleskts.a $(LIBPETSCFEM)xs -lstdc++
 
-.cpp.o: ; g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $*.cpp
+.PHONY: dx_force
+%.o: %.cpp dx_force
+	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $*.cpp
+
+dx_force: ;
+
+epimport.o: epimport.cpp dx_force
 
 # a command to run the user module
 run: epimport 
