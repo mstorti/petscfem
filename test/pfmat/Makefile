@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.14 2002/01/12 00:25:17 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.15 2002/01/14 02:17:14 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -35,7 +35,7 @@ pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
 	$(MPIRUN) -np $(1) -machinefile			\
         machi.dat ./pfmat.bin $(2)  >> $$out
 
-pfmat: iisdmat_petsc petscmat spd_petsc spd_slu
+pfmat: pfmat.bin iisdmat_petsc petscmat spd_petsc spd_slu
 
 #w IISDMat/PETSc  matrix tests
 iisdmat_petsc:

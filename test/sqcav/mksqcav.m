@@ -21,7 +21,13 @@ b=create_set([find(abs(x)<tol);
 b=complement(lid,b);
 nb=length(b);
 
-fixa=[lid' ones(nlid,2)*diag([1 1]);
+if g_body 
+  utop = 0;
+else
+  utop = 1;
+endif
+
+fixa=[lid' ones(nlid,2)*diag([1 utop]);
       lid' ones(nlid,2)*diag([2 0]);
       b' ones(nb,2)*diag([1 0]);
       b' ones(nb,2)*diag([2 0])];

@@ -1,12 +1,14 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16.6.5 2001/12/21 00:13:32 mstorti Exp $ 
+# $Id: Makefile,v 1.16.6.6 2002/01/14 02:17:14 mstorti Exp $ 
+
+.PHONY: distcont distmap distmat dist_graph
 
 #s Local Targets
 #w all tests
-tests: distmap distmat dist_graph
+tests: distcont distmap distmat dist_graph
 
 #w Tests the distributed container class
-dm: distcont.bin
+distcont: distcont.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distcont.bin \
 		10 100 1e-12   > distcont.sal.tmp
 

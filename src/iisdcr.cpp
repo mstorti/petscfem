@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.15 2002/01/12 00:26:14 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.16 2002/01/14 02:17:14 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -102,7 +102,7 @@ int IISDMat::create_a() {
   //o Chooses the local solver (may be "PETSc" or "SuperLU")
   TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
   }
-  printf("&localsolver %p\n",&local_solver);
+  // printf("&localsolver %p\n",&local_solver);
   if (local_solver_s == "PETSc") local_solver = PETSc;
   else if (local_solver_s == "SuperLU") local_solver = SuperLU;
   else assert(0);

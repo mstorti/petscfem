@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.58.2.1 2002/01/13 14:27:24 mstorti Exp $
+//$Id: ns.cpp,v 1.58.2.2 2002/01/14 02:17:14 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -22,7 +22,7 @@
 
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
-int MY_RANK,SIZE;
+extern int MY_RANK,SIZE;
 TextHashTable *GLOBAL_OPTIONS;
 
 //debug:=

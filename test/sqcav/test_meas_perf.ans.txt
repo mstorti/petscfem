@@ -1,0 +1,12 @@
+\[loop iter 1\] elapsed 
+\[loop iter 2\] elapsed 
+\[loop iter 3\] elapsed 
+\[loop iter 4\] elapsed 
+\[loop iter 5\] elapsed 
+\[loop iter 6\] elapsed 
+\[loop iter 7\] elapsed 
+\[loop iter 8\] elapsed 
+\[loop iter 9\] elapsed 
+\[loop iter 10\] elapsed 
+Total .*, ntimes .*, nelems .*
+Rate \[sec/Kelems\]: mean .*, min .*, max .*, std.dev. .*

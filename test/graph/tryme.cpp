@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.8.4.1 2001/12/09 14:00:20 mstorti Exp $
+// $Id: tryme.cpp,v 1.8.4.2 2002/01/14 02:17:14 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -60,6 +60,8 @@ int main(int argc, char **args) {
   }
   assert(M>0);
 
+  G.init(N*M);
+
   if (argc>arg++) {
     sscanf(args[arg],"%d",&compact);
   }
@@ -74,7 +76,7 @@ int main(int argc, char **args) {
   printf("partitioning graph %d\n",k++);
   GG.N = N;
   GG.M = M;
-  G.part(N*M,N*M,npart);
+  G.part(N*M,npart);
   if (compact) {
     for (j=0; j<N; j++) {
       for (k=0; k<M; k++)

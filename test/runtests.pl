@@ -690,14 +690,16 @@ Weak form 1. error < tol OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sqcav/check.iisd.verif.tmp",
-       "Square cavity, IISD part.",<<'EOT');
-IISD iisd_subpart=1. error < tol OK \? 1 
-IISD iisd_subpart=2. error < tol OK \? 1 
-IISD iisd_subpart=4. error < tol OK \? 1 
-IISD iisd_subpart=8. error < tol OK \? 1 
-IISD iisd_subpart=16. error < tol OK \? 1
-EOT
+expect("sqcav/check.iisd.verif.np1.tmp",
+       "Square cavity, IISD part. in 1 proc.",read_file("sqcav/sqcav.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.g_body.verif.tmp",
+       "Square cavity, test G_body term.",read_file("sqcav/g_body.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.iisd.verif.np2.tmp",
+       "Square cavity, IISD part. in 2 proc.",read_file("sqcav/sqcav.ans.np2.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("graph/output.graph.tmp","Graph partitioning",
@@ -854,6 +856,10 @@ expect("lupart/check_direct_petsc.verif.tmp",
        "PETSc direct solver (SparseDirect class)",<<'EOT');
 Direct/PETSc  OK \? > 1, 
 EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_1.case_lu.out.tmp",
+       "Measure performance test.",read_file("test_meas_perf.ans.txt"));
 
 end_section();
 
@@ -1197,14 +1203,14 @@ IISD on 2 processors with CGS OK \? > 1,
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("lupart/check_iisd_superlu.verif.tmp",
-       "IISD/SuperLU solver",<<'EOT');
-__EXACT_MATCH__
-IISD/SuperLU on 1 processors OK ? > 1, 
-IISD/SuperLU on 2 processors OK ? > 1, 
-IISD/SuperLU on 2 processors with rand part. OK ? > 1, 
-IISD/SuperLU on 2 processors with CGS OK ? > 1
-EOT
+#  expect("lupart/check_iisd_superlu.verif.tmp",
+#         "IISD/SuperLU solver",<<'EOT');
+#  __EXACT_MATCH__
+#  IISD/SuperLU on 1 processors OK ? > 1, 
+#  IISD/SuperLU on 2 processors OK ? > 1, 
+#  IISD/SuperLU on 2 processors with rand part. OK ? > 1, 
+#  IISD/SuperLU on 2 processors with CGS OK ? > 1
+#  EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_peri.verif.tmp",
