@@ -3695,3 +3695,6 @@ tag: beta-3.38.35 on Sun, 16 Jan 2005 18:14:52 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.36 on Sun, 16 Jan 2005 20:40:32 -0300 by mstorti in spider
      > Added `dvector<>::reshape(const vector<int> &shape)'
+----------
+tag: beta-3.38.37 on Sun, 16 Jan 2005 23:48:10 -0300 by mstorti in spider
+     > Implemented `dvector-reshape!'. 
