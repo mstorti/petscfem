@@ -2676,3 +2676,6 @@ tag: beta-3.19.pl9 on Sun, 11 May 2003 14:14:27 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl10 on Sun, 11 May 2003 22:34:13 -0300 by mstorti in spider
      > Runs test for new `read_vector' function. 
+----------
+tag: beta-3.19.pl11 on Sun, 11 May 2003 22:48:32 -0300 by mstorti in spider
+     > Now, `read_vector' uses `dvector<double>'s' as buffers. 
