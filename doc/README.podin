@@ -65,9 +65,9 @@ runs, by launching several processes in the same processor. (This is a
 feature of MPI). PETSc-FEM compiles cleanly with the GNU compiler GCC
 3.2 that comes with Red-Hat 8.0. 
 
-I guess it should be easy to install in other processor architectures
-(SPARC or Alpha) running GNU/Linux and also (maybe) on other Unix
-flavours.
+I guess it should be relatively easy to install in other processor
+architectures (SPARC or Alpha) running GNU/Linux and also (maybe) on
+other Unix flavor's.
 
 =head2 Required Software
 
@@ -78,25 +78,25 @@ packages correctly installed in your system.
 
 =item MPI  
 
-This is the Message Passing Interface. We are currently using MPICH 1.2.1
-(C<http://www.mcs.anl.gov/mpich>) but I think there will be not problem
+I<Message Passing Interface>. We are currently using MPICH 1.2.1
+(L<http://www.mcs.anl.gov/mpich>) but I think there will be no problem
 with LAM MPI.
 
 =item PETSC
 
-This is the 'Portable, Extensible Toolkit for Scientific Computation'
-and can be found at C<http://www.mcs.anl.gov/petsc/>. Current version
+I<Portable, Extensible Toolkit for Scientific Computation>
+and can be found at L<http://www.mcs.anl.gov/petsc/>. Current version
 of PETSc-FEM compiles with PETSc 2.1.6. 
 
 =item LAPACK
 
-This is, in fact, a prerequisiste to install PETSc and can be found at 
-C<http://www.netlib.org/lapack/>. 
+This is, in fact, a prerequisite to install PETSc and can be found at 
+L<http://www.netlib.org/lapack/>. 
 
 =item Libretto
 
 This is a C library of generic containers and can be found at
-C<http://pobox.com/~aaronc/tech/libretto/>. I have learned recently
+L<http://pobox.com/~aaronc/tech/libretto/>. I have learned recently
 that development of Libretto has been stopped since it has been
 superseded by B<GLIB>, so that I think that in a future I will replace
 the Libretto code by B<GLIB>. Also, the STL library (that comes with
@@ -108,16 +108,16 @@ with gcc) is rather inefficient.
 
 GLIB is a library which includes support routines for C such as lists,
 trees, hashes, memory allocation, and many other things. The official
-web site is C<http://www.gtk.org/>. [RedHat RPM packages: C<GLIB>,
+web site is L<http://www.gtk.org/>. [RedHat RPM packages: C<GLIB>,
 C<glib-devel>]
 
 =item Newmat
 
 This is a matrix library to be used mainly at the element routine
 level, i.e. for small matrices and can be found at
-C<http://webnz.com/robert/>. It is not mandatory to use Newmat for all
+L<http://webnz.com/robert/>. It is not mandatory to use Newmat for all
 element calculations. In fact there is included a matrix class called
-FastMat2 that is more performant, but Newmat is still used in some
+FastMat2 that is more performing, but Newmat is still used in some
 internal parts and has much more functions, so that you have to
 install it. Also, you may prefer I<Newmat> over I<FastMat2> for
 element calculations since it supports overloading of algebraic
@@ -128,7 +128,7 @@ documentation for reasons why to use FastMat2 instead of Newmat.
 
 METIS is a software package for partitioning unstructured graphs,
 partitioning meshes, and computing fill-reducing orderings of sparse
-matrices. It can be found at C<http://www.cs.umn.edu/~metis>. 
+matrices. It can be found at L<http://www.cs.umn.edu/~metis>. 
 
 =item Meschach
 
@@ -136,14 +136,14 @@ The Meschach Library is a numerical library of C routines for
 performing calculations on matrices and vectors. It is used only for
 some functions that can not be done with Newmat. Currently, it is used
 in the advective module for performing eigenvalue decomposition of
-non-symettric matrices. I think that in a future this functionality
+non-symmetric matrices. I think that in a future this functionality
 could be replaced by calls to LAPACK. 
 
 =item ePerl
 
 B<ePerl> (for I<embedded Perl>) is a preprocessor much like the B<C>
 language preprocessor (home page:
-C<http://www.engelschall.com/sw/eperl/>). B<ePerl> allows you to embed
+L<http://www.engelschall.com/sw/eperl/>). B<ePerl> allows you to embed
 arbitrary B<Perl> code in your document. It is not required at all,
 but is is very useful for preprocessing the data files. 
 [RedHat RPM package: C<eperl>]. NEW: from version 3.18.pl44 on the
@@ -153,7 +153,7 @@ marginally different from the C<C> version. If you want to specify your
 own C<eperl> preprocessor then you have to modify the C<EPERL>
 variable in C<Makefile.base>. The Perl version of ePerl is written
 and maintained by David Ljung Madison C<< <DaveSource.com> >>
-C<http://MarginalHacks.com>. License: GPL (See C<tools/eperl_license.txt>). 
+L<http://MarginalHacks.com>. License: GPL (See C<tools/eperl_license.txt>). 
 
 =item Perl
 
@@ -163,14 +163,14 @@ installed. [RedHat RPM package: C<perl>].
 =item SuperLU (optional)
 
 A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>. 
+equations. Can be found at L<http://www.nersc.gov/~xiaoye/SuperLU/>. 
 This package is optional, install it if you think that SuperLU is faster
 than PETSc for direct factorization of sparse matrices. 
 
 =item ANN (optional)
 
 This is the I<Approximate Nearest Neighbor Library> and can be found
-at C<http://www.cs.umd.edu/~mount/ANN>. Currently it is only used in
+at L<http://www.cs.umd.edu/~mount/ANN>. Currently it is only used in
 the Navier-Stokes module for calculating the damping functions in the
 Smagorinsky model. However, in a future it may be used more widely for
 some mesh manipulations. Currently it is optional. 
@@ -191,7 +191,7 @@ Most of the SSL's functions resemble C's file i/o functions, so C
 programmers will find the SSL easy to learn. Currently used for
 communication with the IBM Data Explorer visualization tool, but 
 but it might be used for other things in a near future. 
-[Current verision: 2.11a Tue Mar  6 09:46:16 EST 2001]
+[Current version: 2.11a Tue Mar  6 09:46:16 EST 2001]
 [Note: If you do a web search you can find it as a file C<COSMIC.tar.gz>
 or C<ssl.tar.gz>].
 
@@ -272,7 +272,7 @@ default, profiling is deactivated.
 
 Other configuration variables are defined in a file C<Makefile.defs>,
 but normally they are set only when you first install PETSc-FEM, so
-the best is to put C<Makefile.defs> in the directory inmediately above
+the best is to put C<Makefile.defs> in the directory immediately above
 PETSc-FEM directory (i.e. C<$(PETSCFEM_DIR)/..>).  So that, if you
 install another version of PETSc-FEM, the settings will be seen
 immediately by the new version. A version of C<Makefile.defs> is
