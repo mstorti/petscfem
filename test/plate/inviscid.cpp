@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.14 2003/01/05 12:53:06 mstorti Exp $
+//$Id: inviscid.cpp,v 1.15 2003/01/05 22:32:17 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -10,7 +10,7 @@ extern int MY_RANK,SIZE;
 extern int MY_RANK,SIZE;
 #define NDIM 2    
 #define NDOF (NDIM+1)    
-//#define COUPLING_DEBUG
+static const int n_stage = 3;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ext_node {
@@ -19,9 +19,19 @@ public:
   // potential node on second layer
   int vn, pn, pn1;
   // position, velocity, potential at node
-  double x[NDIM], x1[NDIM], u[NDIM], phi, phi1, dpot_dx_prev[NDIM];
-  ext_node() { for (int j=0; j<NDIM; j++) dpot_dx_prev[j]=0.; }
+  double x[NDIM], x1[NDIM], u[NDIM], phi, phi1, 
+    dpot_dx[n_stage*NDIM], dpot_dx_filt[n_stage*NDIM];
+  ext_node();
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+ext_node::ext_node() { 
+  // for (int j=0; j<NDIM; j++) dpot_dx_prev[j]=0.; 
+  for (int j=0; j<NDIM*n_stage; j++) {
+    dpot_dx[j] = 0.;
+    dpot_dx_filt[j] = 0.;
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class inv_ext_node {
@@ -395,9 +405,21 @@ void coupling_inv_hook::time_step_post(double time,int step,
   FastMat2 x(2,npoint,NDIM), xi(2,npoint,NDIM), psi(2,npoint,nterm), 
     jac(2,NDIM,NDIM), ijac(2,NDIM,NDIM), xc(1,NDIM), tmp(2,npoint,3),
     ipsi(2,npoint,nterm), a(1,nterm),
-    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(1,NDIM), dpot_dx_prev(1,NDIM),
-    t(1,NDIM), norm(1,NDIM), tmp1;
+    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(2,n_stage,NDIM), 
+    dpot_dx_filt(2,n_stage,NDIM), t(1,NDIM), norm(1,NDIM), tmp1,
+    rhs(1,NDIM),tmp2, dpot_dx_k(1,NDIM);
   double dphidn;
+  // filter coefficients 
+  double omega=0.9, xif=0.1;
+#if 0
+  double a_coef[] = {1./square(omega)+xif/omega+0.5, 
+		     -2/square(omega),
+		     1./square(omega)-xif/omega+0.5};
+  double b_coef[] = {0.5,0.,0.5};
+#else
+  double a_coef[] = {1., 0., 0.};
+  double *b_coef = a_coef;
+#endif
 
   assert(fid = fopen("ext.coupling_normal_vel.tmp","w"));
   for (int k=0; k<nnod_ext; k++) {
@@ -451,17 +473,59 @@ void coupling_inv_hook::time_step_post(double time,int step,
     ipsi.inv(psi);
     a.prod(ipsi,pot,1,-1,-1);
     dpot_dxi.setel(a.get(2),1).setel(a.get(4),2);
-    dpot_dx.prod(ijac,dpot_dxi,-1,1,-1);
 
-    // Sub realaxation
+    dpot_dx.set(ext_node_data[k].dpot_dx);
+    dpot_dx_filt.set(ext_node_data[k].dpot_dx_filt);
+    dpot_dx.ir(1,1).prod(ijac,dpot_dxi,-1,1,-1);
+    
+    // Recursive filter
+    rhs.set(0.);
+    for (int j=0; j<n_stage; j++) {
+      dpot_dx.ir(1,j+1);
+      rhs.axpy(dpot_dx,b_coef[j]);
+    }
+    dpot_dx.rs();
+
+    for (int j=1; j<n_stage; j++) {
+      dpot_dx_filt.ir(1,j+1);
+      rhs.axpy(dpot_dx_filt,-a_coef[j]);
+    }
+
+    dpot_dx_filt.ir(1,1).set(rhs).scale(1./a_coef[0]);
+    dpot_dx_k.set(dpot_dx_filt);
+    dpot_dx_filt.rs();
+
+#if 1
+    if (k==10) {
+      printf("on step %d\n",step);
+      dpot_dx.print("dpot_dx: ");
+      dpot_dx_filt.print("dpot_dx_filt: ");
+    }
+#endif
+
+    // rotate the states
+    for (int j=n_stage; j>=2; j--) {
+      dpot_dx.ir(1,j-1);
+      tmp2.set(dpot_dx);
+      dpot_dx.ir(1,j).set(tmp2);
+
+      dpot_dx_filt.ir(1,j-1);
+      tmp2.set(dpot_dx_filt);
+      dpot_dx_filt.ir(1,j).set(tmp2);
+    }
+    dpot_dx.rs().export_vals(ext_node_data[k].dpot_dx);
+    dpot_dx_filt.rs().export_vals(ext_node_data[k].dpot_dx_filt);
+
+#if 0
+    // Sub relaxation
     dpot_dx_prev.set(ext_node_data[k_center+1].dpot_dx_prev);
     dpot_dx.scale(omega).axpy(dpot_dx_prev,1-omega);
     dpot_dx.export_vals(ext_node_data[k_center+1].dpot_dx_prev);
-
-    // dpot_dx.set(0.);		// DEBUG
-    dpot_dx.addel(Uinf,1);
+#endif
+    
+    dpot_dx_k.addel(Uinf,1);
     // dpot_dx.print("dpot_dx: ");
-    dphidn = tmp1.prod(dpot_dx,norm,-1,-1).get();
+    dphidn = tmp1.prod(dpot_dx_k,norm,-1,-1).get();
 
 #ifdef COUPLING_DEBUG
     printf("node %d, indx %d, dphidn  %f\n",ext_node_data[k].vn,k,dphidn);
