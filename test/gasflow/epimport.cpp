@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.8 2003/02/07 13:19:26 mstorti Exp $
+// $Id: epimport.cpp,v 1.9 2003/02/07 14:32:08 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -349,8 +349,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     return ERROR;
   }
 
-  Array p,c,d;
-  Field f;
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
     DXMessage("Got buf %s",buf);
@@ -369,7 +367,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
-      p = array;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
       name = tokens[1];
@@ -381,7 +378,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"State\" name %s, ptr %p, ndof %d, nnod %d",
 		name.c_str(),array,ndof,nnod);
-      d = array;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
       string &name = tokens[1];
@@ -399,10 +395,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
 		name.c_str(),array,nel,nelem);
-      c = array;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="field") {
-#if 0
       // Get components 
       Object positions,connections,data;
       string &name = tokens[1];
@@ -431,30 +425,15 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       field = DXSetComponentValue(field,"data",(Object)data); 
       if (!field) goto error;
       DXMessage("trace 5, data %p",data);
+#if 0
       field = DXEndField(field); if (!field) goto error;
       DXMessage("trace 6");
+#endif
 
       // Load new field in table
       ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));
       if(ierr!=OK) return ierr;
       DXMessage("trace 7");
-#endif
-      DXMessage("trace 8");
-      Field field = DXNewField();
-      if (!field) goto error;
-      DXMessage("trace 9");
-      field = DXSetComponentValue(field,"positions",(Object)p); 
-      if (!field) goto error;
-      DXMessage("trace 10");
-      field = DXSetComponentValue(field,"connections",(Object)c); 
-      if (!field) goto error;
-      DXMessage("trace 11");
-      field = DXSetComponentValue(field,"data",(Object)d); 
-      if (!field) goto error;
-      DXMessage("trace 12");
-      field = DXEndField(field); if (!field) goto error;
-      f = field;
-      DXMessage("trace 13");
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else {
@@ -464,7 +443,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     }
   }
 
-#if 0
   g = DXNewGroup();
   if (!g) goto error;
 
@@ -474,8 +452,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   }
 
   out[0] = (Object)g;
-#endif
-  out[0] = (Object)f;
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;
