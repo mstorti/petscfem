@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.21 2005/01/07 01:01:11 mstorti Exp $
+// $Id: visitor.cpp,v 1.22 2005/01/07 01:42:24 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -21,12 +21,11 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
   if (visit_mode==UniformMesh::Natural) {
     elem = elem_a;
   } else if (visit_mode==UniformMesh::BreadthFirst) {
-    int stat=0;
+    char stat=0;
     visited.resize(mesh->nelem,stat);
-    elem = elem_a;
-    visited.ref(elem_a) = 1;
+    element_stack.push_front(elem_a);
+    pop_elem();
   }
-  elem = elem_a;
   while(!ref_stack.empty()) pop();
   mesh  = &mesh_a;
   etree_p = mesh->elem_ref.e(elem);
@@ -137,7 +136,8 @@ bool UniformMesh::visitor::so_next() {
 bool UniformMesh::visitor::
 next() { 
   if (so_next()) return true;
-  if(!next_elem()) return false;
+  next_elem();
+  if(end_elem()) return false;
   init(*mesh,elem);
   return true;
 }
@@ -337,11 +337,38 @@ pop() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::next_elem() { 
+void UniformMesh::visitor::next_elem() { 
   if (visit_mode==UniformMesh::Natural) {
     elem++;
-    return elem < mesh->nelem;
   } else if (visit_mode==UniformMesh::BreadthFirst) {
-    assert(0);
+    pop_elem();
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool UniformMesh::visitor::end_elem() { 
+  if (visit_mode==UniformMesh::Natural) {
+    return elem >= mesh->nelem;
+  } else if (visit_mode==UniformMesh::BreadthFirst) {
+    return nvisited == mesh->nelem;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void 
+UniformMesh::visitor::
+pop_elem() { 
+  if (element_stack.empty())
+    assert(nvisited==mesh->nelem);
+  elem = element_stack.front();
+  element_stack.pop_front();
+  int 
+    e0 = mesh->n2e_ptr.ref(elem),
+    e1 = mesh->n2e_ptr.ref(elem+1);
+  for (int k=e0; k<e1; k++) {
+    int ngbr_elem = mesh->n2e.ref(k);
+    if (visited.ref(ngbr_elem)) continue;
+    element_stack.push_back(ngbr_elem);
+    visited.ref(ngbr_elem) = 1;
   }
 }

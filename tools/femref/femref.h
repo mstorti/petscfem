@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.48 2005/01/07 01:01:11 mstorti Exp $
+// $Id: femref.h,v 1.49 2005/01/07 01:42:24 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -430,9 +430,12 @@ public:
     /// Go to next basic element. This is a callback
     /// for defining breadth first and natural order traversing
     /// algorithms. 
-    bool next_elem();
-    dvector<int> visited;
+    void next_elem();
+    bool end_elem();
+    int nvisited;
+    dvector<char> visited;
     deque<int> element_stack;
+    void pop_elem();
   public: 
     VisitMode visit_mode;
     /// The type for the refinement stack
