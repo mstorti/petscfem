@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.140 2004/01/26 20:22:06 mstorti Exp $
+//$Id: ns.cpp,v 1.141 2004/07/28 15:02:07 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -11,6 +11,7 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 #include <src/hook.h>
+#include <mpe.h>
 
 // PETSc now doesn't have the string argument that represents the variable name
 // so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
@@ -80,6 +81,7 @@ int main(int argc,char **args) {
 #endif
 
   PetscInitialize(&argc,&args,(char *)0,help);
+  MPE_Init_log();
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
@@ -869,6 +871,7 @@ int main(int argc,char **args) {
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif
+  MPE_Finish_log("ns");
   PetscFinalize();
   exit(0);
 }

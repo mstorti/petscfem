@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.84 2004/07/28 01:38:32 mstorti Exp $
+//$Id: elemset.cpp,v 1.85 2004/07/28 15:02:07 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -20,6 +20,7 @@
 #include <src/timestat.h>
 #include <src/util3.h>
 #include <src/autostr.h>
+#include <mpe.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -270,6 +271,19 @@ int assemble(Mesh *mesh,arg_list argl,
 
   int iele,nelem,nel,ndof,*icone,ndoft,kloc,kdof,
     myrank,ierr,kdoft,iele_here,k;
+  static int mpe_initialized = 0;
+  static int start_comp, end_comp, start_assmbly, end_assmbly;
+  if (!mpe_initialized) {
+    mpe_initialized = 1;
+    start_comp = MPE_Log_get_event_number();
+    end_comp = MPE_Log_get_event_number();
+    start_assmbly = MPE_Log_get_event_number();
+    end_assmbly = MPE_Log_get_event_number();
+    if (!myrank) {
+      MPE_Describe_state(start_comp,end_comp,"comp","green:gray");
+      MPE_Describe_state(start_assmbly,end_assmbly,"assmbly","red:white");
+    }
+  }
 
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
@@ -574,14 +588,29 @@ int assemble(Mesh *mesh,arg_list argl,
       if (iele_here > -1) {
 	// if (1) {
 	compt_s = MPI_Wtime();
+	MPE_Log_event(start_comp,chunk,"start-comp");
 	elemset->assemble(arg_data_v,nodedata,dofmap,
 			  jobinfo,myrank,el_start,el_last,iter_mode,
 			  time_data);
+	MPE_Log_event(end_comp,chunk,"end-comp");
 	compt += MPI_Wtime() - compt_s;
       } else {
 	// printf("[%d] not processing because no elements...\n",myrank);
       }
       elemset->check_error();
+
+      for (j=0; j<narg; j++) {
+	assmbly_s = MPI_Wtime();
+	MPE_Log_event(start_assmbly,0,"start-assmbly");
+	if ((argl[j].options & ASSEMBLY_MATRIX) 
+	    && ARGVJ.must_flush) {
+	  ierr = (ARGVJ.pfA)
+	    ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	  ARGVJ.must_flush = 0;
+	}
+	assmbly += MPI_Wtime() - assmbly_s;
+	MPE_Log_event(end_assmbly,0,"end-assmbly");
+      }
 
       // Upload return values
       for (j=0; j<narg; j++) {
@@ -679,9 +708,6 @@ int assemble(Mesh *mesh,arg_list argl,
 	if (argl[j].options & ASSEMBLY_MATRIX) {
 	  if (report_assembly_time) hpcassmbl.start();
 	  if (argl[j].options & PFMAT) {
-	    if (ARGVJ.must_flush)
-	      ierr = (ARGVJ.pfA)
-		->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	    ierr = (ARGVJ.pfA)
 	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	    ARGVJ.must_flush = 1;

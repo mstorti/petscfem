@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: arglist.cpp,v 1.9 2003/07/02 02:32:47 mstorti Exp $
+//$Id: arglist.cpp,v 1.10 2004/07/28 15:02:07 mstorti Exp $
 #include "fem.h"
 #include "dofmap.h"
 #include "elemset.h"
@@ -14,6 +14,7 @@ void arg_list::arg_add(void *arg,int options,string arginfo="") {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 arg_data::arg_data(void) : time_data(NULL) {
+  must_flush = 0;
   x = NULL;
   ghost_vec=NULL;
   ghost_vals=NULL;

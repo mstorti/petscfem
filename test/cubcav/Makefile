@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.87 2004/05/13 02:58:03 mstorti Exp $ 
+# $Id: Makefile,v 1.88 2004/07/28 15:01:30 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
 
-default: test_re1000
+default: test_perfo
 
 #default case
 # case := laplace
@@ -25,8 +25,8 @@ PROG := $(NS)
 CASE := $(CASE_NAME)
 ################################################################
 ifeq (1,1)
-# NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
-NP := $(shell procsel -n ./proctable)
+NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+# NP := $(shell procsel -n ./proctable)
 NL := -nolocal
 MCH := -machinefile ./machi.dat
 endif
@@ -43,7 +43,7 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
-NP := 1
+NP := 4
 export NP
 
 run_subdir_test:
@@ -170,3 +170,7 @@ step_server:
 link:
 	$(MAKE) -C ../../ $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
+
+#w performance test:
+test_perfo:
+	$(MAKE) N=20 run

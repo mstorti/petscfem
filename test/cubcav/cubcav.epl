@@ -1,9 +1,8 @@
-#$Id: cubcav.epl,v 1.110 2004/01/30 03:44:33 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.111 2004/07/28 15:01:30 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
-# <:prc('dx case subpart_entered NP N subpart nlay surfgath 
-	    use_tetra use_prismatic'):>
+# <:prc('dx case subpart_entered NP N subpart nlay surfgath use_tetra use_prismatic'):>
 ndim 3
 
 >>if $case ne 'plain'
@@ -20,6 +19,7 @@ save_file cubcav.state.<:=$case_in:>.tmp
 nsave 1
 >>endif
 
+nstep 1
 chunk_size 40000
 
 >>if $iisd_subpart
@@ -95,7 +95,13 @@ hook_list shell_hook cubcav
 >>endif
 >>endif
 
-ngather 8
+ngather 10
+
+compact_profile_graph_chunk_size 40000
+max_partgraph_vertices 5000
+max_partgraph_vertices_proc 5000
+chunk_size 500
+
 __END_HASH__
 
 # ndim nu ndof

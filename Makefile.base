@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.197 2004/05/31 03:37:32 mstorti Exp $
+#$Id: Makefile.base,v 1.198 2004/07/28 15:02:07 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -260,7 +260,7 @@ distclean:
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
 ## PETSc Libraries used by most PETSc-FEM applications
-PETSCFEM_PETSC_LIBS := ${PETSC_SLES_LIB} -lpetscfortran
+PETSCFEM_PETSC_LIBS := $(MPI_HOME)/lib/libmpe.a ${PETSC_SLES_LIB} -lpetscfortran
 
 LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(PROG_LIB)				\
