@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.6 2002/07/19 13:44:59 mstorti Exp $
+// $Id: tryme4.cpp,v 1.7 2002/07/19 13:47:11 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -29,7 +29,7 @@ private:
   typedef vector<T> cont;
   typedef cont::iterator cont_it;
   cont d;
-  cont_it end_ord;
+  int ordered;
   // will resort if size passes max
   int max;
   // flag whether new elements have been inserted or not
@@ -41,13 +41,13 @@ private:
       sort(d.begin(),d.end());
       cont_it p=d.begin(), e=d.end(), q;
       if (p==e) {
-	end_ord = e;
+	ordered = 0;
 	return;
       }
       q=p;
       while (++q!=e) if (*q!=*p) *++p = *q;
       d.erase(++p,e);
-      end_ord = p;
+      ordered = p-d.begin();
       modif = 0;
       printf("after: ");
       print2();
@@ -55,10 +55,10 @@ private:
     }
   }
 public:
-  SET() { end_ord = d.end(); max=10; modif=0; }
+  SET() { ordered = 0; max=10; modif=0; }
   ~SET() { d.clear(); }
   void insert(T t) {
-    if (!binary_search(d.begin(),end_ord,t)) {
+    if (!binary_search(d.begin(),d.begin()+ordered,t)) {
       d.push_back(t); modif=1;
       if (d.size()>max) {
 	resync();
