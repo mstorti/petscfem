@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.53 2002/03/01 21:03:48 mstorti Exp $
+//$Id: advdife.cpp,v 1.54 2002/03/04 12:43:58 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -442,14 +442,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 
 	  tmp23.set(SHAPE).scale(-wpgdet*ALPHA);
-#if 1     // La verdad es que no se cual de estos dos es!!!
-	  // Parece que este es el correcto
 	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
 	  matlocf.add(tmp14);
-#else
-	  tmp14.prod(A_grad_N,tmp23,3,2,4,1);
-	  matlocf.rest(tmp14);
-#endif
 	} else {
 	  // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dUdt - A_grad_U)
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
@@ -457,15 +451,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
 
 	  tmp23.set(SHAPE).scale(wpgdet*ALPHA);
-#if 1     // La verdad es que no se cual de estos dos es!!!
-	  // Parece que este es el correcto
 	  tmp14.prod(A_grad_N,tmp23,3,2,4,1); 
 	  matlocf.add(tmp14);
-#else
-	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
-	  matlocf.rest(tmp14);
-#endif
-
 	}
 	// tmp8= DSHAPEX * (w*flux_c - flux_d)
 	//            w = weak_form
