@@ -682,7 +682,6 @@ end_section();
 
 begin_section('Misc tests.');
 
-
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("tfastvec.sal",
        "FastVector library",<<'EOT');
@@ -805,6 +804,12 @@ expect("lupart/check_part.verif.tmp",
        "Partitioning test",<<'EOT');
 Hitchhiking partitioning OK \? > 1
 Nearest neighbor partitioning OK \? > 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/distmap.sal.tmp",
+       "Distributed map<int,double>",<<'EOT');
+error < tol OK \? > 1
 EOT
 
 end_section();
