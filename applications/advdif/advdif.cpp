@@ -70,6 +70,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(advdif_advecfm2)
     SET_ELEMSET_TYPE(bcconv_adv_burgers)
     SET_ELEMSET_TYPE(advdif_burgers)
+    SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
+    SET_ELEMSET_TYPE(advdif_swfm2t)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);

@@ -43,6 +43,7 @@
               double *propel,							\
 	      void *user_data,int options, int &start_chunk, int & ret_options
 
+<<<<<<< advective.h
 #define FLUX_FUN_ARGS_GENER(ML_) const ML_ &U,			\
               int ndim,const ML_ &iJaco,			\
 	      ML_ &H, ML_ &grad_H,				\
@@ -61,10 +62,32 @@
 	      FastMat2  &grad_H,  FastMat2  &flux, FastMat2 &fluxd,		\
 	      FastMat2  &A_jac,  FastMat2  &A_grad_U,				\
 	      FastMat2  &grad_U,  FastMat2  &G_source,				\
-              FastMat2  &D_jac, FastMat2 &C_jac,				\
+              FastMat2  &D_jac,							\
 	      FastMat2  &tau_supg, double &delta_sc, double &lam_max,		\
 	      TextHashTable *thash,  FastMat2  &nor, FastMat2  &lambda,		\
 	      FastMat2  &Vr, FastMat2  &Vr_inv, double *propel,			\
+=======
+#define FLUX_FUN_ARGS_GENER(ML_) const ML_ &U,int ndim,const ML_ &iJaco, \
+	      ML_ &H, ML_ &grad_H, \
+	      ML_ &flux,vector<ML_ *> A_jac, \
+	      ML_ &A_grad_U, ML_ &grad_U,  \
+	      ML_ &G_source,ML_ &tau_supg, double &delta_sc, \
+	      double &lam_max, \
+	      TextHashTable *thash, \
+              ML_ &nor,ML_ &lambda,ML_ &Vr,ML_ &Vr_inv, \
+              double *propel, \
+	      void *user_data,int options,int &start_chunk, int & ret_options
+
+#define AD_FLUX_FUN_ARGS const  FastMat2  &U, \
+	      int ndim, const  FastMat2  &iJaco,  FastMat2  &H, \
+	      FastMat2  &grad_H,  FastMat2  &flux, FastMat2 &fluxd, \
+	      FastMat2  &A_jac,  FastMat2  &A_grad_U, \
+	      FastMat2  &grad_U,  FastMat2  &G_source, \
+              FastMat2  &D_jac,FastMat2 &C_jac, \
+	      FastMat2  &tau_supg, double &delta_sc, double &lam_max, \
+	      TextHashTable *thash,  FastMat2  &nor, FastMat2  &lambda, \
+	      FastMat2  &Vr, FastMat2  &Vr_inv, double *propel, \
+>>>>>>> ../B/advective.h
 	      void *user_data,int options,int &start_chunk, int & ret_options
 
 #define FLUX_FUN_ARGS_FM FLUX_FUN_ARGS_GENER(FastMat)
@@ -100,7 +123,7 @@ typedef int FluxFunctionFM2 (FLUX_FUN_ARGS_FM2);
 	   FastMat2  &grad_H,  FastMat2  &flux, FastMat2 &fluxd,		\
 	   FastMat2  &A_jac,  FastMat2  &A_grad_U,				\
 	   FastMat2  &grad_U,  FastMat2  &G_source,				\
-	   FastMat2  &D_jac,	FastMat2  &C_jac,				\
+	   FastMat2  &D_jac,							\
 	   FastMat2  &tau_supg, double &delta_sc, double &lam_max,		\
 	   FastMat2  &nor, FastMat2  &lambda,					\
 	   FastMat2  &Vr, FastMat2  &Vr_inv, double *propel,			\
@@ -218,7 +241,13 @@ public:							\
 
 ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
 ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
+<<<<<<< advective.h
+=======
 ADVDIF_ELEMSET(swfm2t);	        // shallow water turbulent
+
+// use FastMat2 cache or not in advecfm2/eulerfm2.cpp
+#define USE_FASTMAT2_CACHE
+>>>>>>> ../B/advective.h
 
 // Global parameters
 struct GlobParam {

@@ -162,9 +162,10 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
-    tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23;
+    tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23,
+    tmp24,tmp25,tmp26,tmp27,tmp28;
   FastMat2 A_jac(3,ndim,ndof,ndof),D_jac(4,ndim,ndim,ndof,ndof),
-    A_grad_N(3,nel,ndof,ndof);
+    C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -248,7 +249,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	double lambda_max_pg;
 
 	ierr = (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
-			      A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
+			      A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
 			      lambda_max_pg,
 			      nor,lambda,Vr,Vr_inv,
 			      element.props(),NULL,COMP_SOURCE |
@@ -310,6 +311,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	tmp18.prod(tmp16,dshapex,-1,2,4,1,-1,3);
 	matlocf.add(tmp18);
 
+        // Reactive term in matrix (Galerkin part)
+        tmp23.set(SHAPE).scale(wpgdet*ALPHA);
+	tmp24.prod(SHAPE,tmp23,1,2); // tmp24 = SHAPE' * SHAPE
+	tmp25.prod(tmp24,C_jac,1,3,2,4); // tmp25 = SHAPE' * SHAPE * C_jac
+	matlocf.add(tmp25);
+
 	for (int jel=1; jel<=nel; jel++) {
 
 	  // Should we branch? Not if we take always
@@ -331,6 +338,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
 	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
+
+          // Reactive term in matrix (SUPG term)
+          tmp26.set(P_supg).scale(wpgdet*ALPHA);
+          tmp27.prod(SHAPE,C_jac,1,2,3); // tmp27 = SHAPE * C_jac 
+	  tmp28.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * SHAPE
+	  matlocf.add(tmp28);
 
 	  tmp21.set(SHAPE).scale(wpgdet/DT);
 	  tmp22.prod(P_supg,tmp21,1,3,2);

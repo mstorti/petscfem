@@ -88,6 +88,7 @@ int burgers_ff_t::operator()(ADVDIFFF_ARGS) {
 
   if (options & COMP_UPWIND) {
 
+    C_jac.set(0.);
     D_jac.set(0.).ir(3,1).ir(4,1).eye(diffusivity).rs();
     grad_U.t();
     fluxd.set(grad_U).scale(diffusivity);

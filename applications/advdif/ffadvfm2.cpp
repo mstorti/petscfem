@@ -43,12 +43,12 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
   static int flag=0,ndof;
   double tau_a, tau_delta, gU, A01v[9];
-  static int shock_capturing,na,nd;
-  static FastMat2 A_jac_l, D_jac_l, tmp0;
+  static int shock_capturing,na,nd,nc;
+  static FastMat2 A_jac_l, D_jac_l, C_jac_l, tmp0;
   static double tau_fac;
   static FastMat2 u,u2,Uintri(1,ndim),AA;
-  static vector<double> ajacv,djacv;
-  static double *ajacvp,*djacvp;
+  static vector<double> ajacv,djacv,cjacv;
+  static double *ajacvp,*djacvp,*cjacvp;
 
   // Load properties only once.
   FastMat2::branch();
@@ -84,25 +84,42 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     djacvp=djacv.begin();
     D_jac_l.set(0.);
 
+    // Read reactive jacobians (reactive  matrix)
+    //o _T: double[var_len] 
+    //  _N: reactive_jacobians _D: no default  _DOC: 
+    //  FIXME:= TO BE DOCUMENTED LATER
+    //  _END
+    C_jac_l.resize(2,ndof,ndof);
+    const char *reaje;
+    VOID_IT(cjacv);
+    elemset->get_entry("reactive_jacobians",reaje); CHKERRQ(reaje==0);
+    read_double_array(cjacv,reaje); 
+    cjacvp=cjacv.begin();
+    C_jac_l.set(0.);
+
     //o Scale the SUPG upwind term. 
     EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
     na = ajacv.size();
     nd = djacv.size();
+    nc = cjacv.size();
 
-    if (na==ndim*ndof && nd==ndof) {
-      // An advection velocity and a diffusivity for each field 
+    if (na==ndim*ndof && nd==ndof && nc==ndof) {
+      // An advection velocity and a diffusivity and a reactive for each field 
       u.set(ajacv.begin());
       ret_options &= !SCALAR_TAU; // tell the advective element routine
 				// that we are returning a non-scalar tau
       A_jac_l.set(0.);
       D_jac_l.set(0.);
+      C_jac_l.set(0.);
       for (int k=1; k<=ndof; k++) {
 	double alpha=djacv[k-1];
+	double beta=cjacv[k-1];
 	for (int j=1; j<=ndim; j++) {
 	  A_jac_l.setel(u.get(k,j),j,k,k);
 	  D_jac_l.setel(alpha,j,j,k,k);
 	}
+	C_jac_l.setel(beta,k,k);
       }
 
     } else if (na==ndim && (nd==1 || nd==ndof)) {
@@ -212,6 +229,10 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
   if (options & COMP_SOURCE) {
     G_source.set(0.);		// Only null source term allowed
 				// right now!!
+
+    C_jac.set(C_jac_l);
+    G_source.prod(C_jac,U,1,-1,-1).scale(-1.);
+
   }
 
 }

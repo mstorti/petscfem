@@ -1,10 +1,10 @@
- # $Id: Makefile,v 1.8 2001/01/23 13:25:16 mstorti Exp $ 
+ # $Id: Makefile,v 1.9 2001/01/23 16:40:26 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = advdif
 PETSCFEM_DIR   = ../..
-MYOBJS = advdife.o advdif.o ffadvfm2.o  bccadvfm2.o  ffburg.o
+MYOBJS = advdife.o advdif.o ffadvfm2.o  bccadvfm2.o  ffburg.o ffswfm2t.o
 #		absorb.o \
 # 		advective.o advecfm2.o \
 # 		ffshallw.o ffadvec.o ffeulerfm2.o \

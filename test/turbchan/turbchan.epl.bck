@@ -5,39 +5,29 @@
 global_options
 
 save_file state_save.sal
-nsave 100
+nsave 10
 
-rtol 0
-atol 0
-dtol 1e10
-maxits 2
+rtol 1e-2
+maxits 100
 
 save_file_pattern outvector%d.out
-nsaverot 100
+nsaverot 10
 nrec  100
 nfile 2
 
-nstep 100
+nstep 1000
 
 local_time_step 0
 auto_time_step 0
-consistent_supg_matrix 1
+consistent_supg_matrix 0
 Courant 0.6
 Dt 0.002
-alpha 1
 
-nnwt 3
-tol_newton 1e-10
-preco_type "lu"
-
-print_internal_loop_conv 0
-
+initial_state turbchan.ini
 gravity 1
-weak_form 0
+weak_form 1
 addvisc 0.
-#initial_state "turbchan.ini"
-initial_state "state_save.sal_0"
-
+initial_state "turbchan.ini"
 __END_HASH__
 
 # ndim nu ndof
@@ -46,22 +36,20 @@ __INCLUDE__ turbchan.nod
 
 __END_NODES__
 #===========================================================
-#elemset volume_shallowfm2t 4
-elemset advdif_swfm2t 4
+elemset volume_shallowfm2t 4
 #Datos del elemento
 geometry cartesian2d
 ndim 2
 npg 4
 
-#lumped_mass 0
+lumped_mass 1
 chunk_size 500
 __END_HASH__
 __INCLUDE__ turbchan.con
 __END_ELEMSET__
 
 #================================================================
-elemset bcconv_adv_swfm2t 2
-#elemset bcconv_adv_shallowfm2t 2
+elemset bcconv_adv_shallowfm2t 2
 #elemset bcconv_adv_shallow 2
 props 
 npg 2

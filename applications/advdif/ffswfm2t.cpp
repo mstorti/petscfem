@@ -33,11 +33,13 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "flux_fun_shallowt" 
+#define __FUNC__ "flux_fun_swfm2t" 
 #define NDOF 5
 #define AJACX(j,k) VEC2(ajacx,((j)-1),((k)-1),NDOF)
 #define AJACY(j,k) VEC2(ajacy,((j)-1),((k)-1),NDOF)
-int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
+
+//int flux_fun_swfm2t(AD_FLUX_FUN_ARGS) {
+int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
 
   static double ajacx[NDOF*NDOF],ajacy[NDOF*NDOF];
   int ierr;
@@ -49,25 +51,35 @@ int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
   static int flag=0,ndof;
   static double g, gravity, tau_fac,shock_capturing_threshold,
     sigma_k,sigma_e,C_mu,C_1,C_2,D,Chezy,C_P_e,eps_min,ket_min,
-    P_h,P_e,P_k;
+    P_h,P_e,P_k,h_min,vel_min;
   double tau_a, tau_delta, gU, A01v[9];
   static int shock_capturing;
+  // static FastMat2 C_jac;
 
   // Load properties only once.
+
+  FastMat2::branch();
   if (start_chunk) {
-    start_chunk = 1;
+    FastMat2::choose(0);
+    start_chunk = 0;
+
+//    if (start_chunk) {
+//      start_chunk = 1;
 
     ndof = U.dim(1);
+
+    C_jac.resize(2,ndof,ndof);
+
     //o Acceleration of gravity
-    SGETOPTDEF_ND(double,gravity,1.);
+    EGETOPTDEF_ND(elemset,double,gravity,1.);
     g=gravity;
     //o Scale the SUPG upwind term. 
-    SGETOPTDEF_ND(double,tau_fac,1.);
+    EGETOPTDEF_ND(elemset,double,tau_fac,1.);
     //o Add shock-capturing term.
-    SGETOPTDEF_ND(int,shock_capturing,0);
+    EGETOPTDEF_ND(elemset,int,shock_capturing,0);
     //o Add shock-capturing term if relative variation of variables
     // inside the element exceeds this.
-    SGETOPTDEF_ND(double,shock_capturing_threshold,0.1);
+    EGETOPTDEF_ND(elemset,double,shock_capturing_threshold,0.1);
 
     for (int jj=0; jj<NDOF*NDOF; jj++) {
       ajacx[jj]=0.;
@@ -85,11 +97,14 @@ int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
     C_P_e = C_2*sqrt(C_mu)*pow(g,1.25)/sqrt(D)/pow(Chezy,2.5);
     eps_min = 1e-6;
     ket_min = 1e-6;
+    h_min   = 1e-6;
+    vel_min = 1e-6;
   }
+  FastMat2::leave();
 
   static FMatrix u(ndim),flux_mass(ndim),UU,flux_mom,
     Uintri,vref(ndof),A01(ndof,ndof),tmp1,tmp2,tmp3,tmp4,grad_U_psi,
-    dev_tens(2,2),tmp5;
+    dev_tens(2,2),tmp5,tmp61,tmp62,tmp63,tmp64,tmp65,tmp66;
   UU.rs().set(U);
 
   double h = UU.get(ndim+1);
@@ -147,6 +162,32 @@ int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
   if (options & COMP_UPWIND) {
 
     // Code D_jac here...
+    D_jac.set(0.);
+    double nu_t_h= nu_t / h;
+    D_jac.setel( 2.*nu_t_h   ,1,1,1,1);
+    D_jac.setel(-2.*ux*nu_t_h,1,1,1,3);
+
+    D_jac.setel(-uy*nu_t_h   ,1,1,2,3);
+    D_jac.setel( nu_t_h      ,1,1,2,2);
+
+    D_jac.setel( nu_t/sigma_k,1,1,4,4);
+    D_jac.setel( nu_t/sigma_e,1,1,5,5);
+
+    D_jac.setel( nu_t_h      ,2,2,1,1);
+    D_jac.setel(-ux*nu_t_h   ,2,2,1,3);
+
+    D_jac.setel(-2.*uy*nu_t_h,2,2,2,3);
+    D_jac.setel( 2.*nu_t_h   ,2,2,2,2);
+
+    D_jac.setel( nu_t/sigma_k,2,2,4,4);
+    D_jac.setel( nu_t/sigma_e,2,2,5,5);
+
+    D_jac.setel( nu_t_h      ,1,2,2,1);
+    D_jac.setel(-ux*nu_t_h   ,1,2,2,3);
+
+    D_jac.setel(-uy*nu_t_h   ,2,1,1,3);
+    D_jac.setel( nu_t_h      ,2,1,1,2);
+
 
     // Turbulent viscous stresses
     grad_U.is(2,1,2);
@@ -155,7 +196,9 @@ int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
     dev_tens.add(tmp5);
 
     // Production of kinetic turbulence
-    P_h = dev_tens.sum_square_all()*0.5*nu_t/h;
+    double tmp62 = 0.5*dev_tens.sum_square_all();
+
+    P_h = tmp62*nu_t/h;
 
     dev_tens.scale(nu_t);
     grad_U.rs();
@@ -171,11 +214,44 @@ int flux_fun_shallowt(AD_FLUX_FUN_ARGS) {
     fluxd.ir(1,5).axpy(grad_U,nu_t/sigma_e);
     grad_U.rs(); fluxd.rs();
 
+    double vel = sqrt(u2);
+
+    // Code C_jac here...
+
+    double tmp61=SQ(Chezy)*(h<h_min ? h_min : h)*(vel<vel_min ? vel_min : vel);
+    C_jac.set(0.);
+
+    C_jac.setel(-g*(SQ(ux)+u2)/tmp61,1,1);
+    C_jac.setel(-g*ux*uy/tmp61,1,2);
+    C_jac.setel(-g*grad_H.get(1,1)+2*g*u2*ux/tmp61,1,3);
+
+    C_jac.setel(-g*(SQ(uy)+u2)/tmp61,2,2);
+    C_jac.setel(-g*ux*uy/tmp61,2,1);
+    C_jac.setel(-g*grad_H.get(2,1)+2*g*u2*uy/tmp61,2,3);
+
+    double tmp63=C_2*sqrt(C_mu)*pow(g,1.25)/sqrt(D)/pow(Chezy,2.5);
+    double tmp64=C_1*C_mu*tmp62/SQ((h<h_min?h_min:h));
+    double tmp65=SQ((h<h_min?h_min:h))*(eps<eps_min?eps_min:eps);
+    double tmp66=SQ((h<h_min?h_min:h))*SQ((eps<eps_min?eps_min:eps));
+
+    C_jac.setel(3*g*u2*ux/tmp61,4,1);
+    C_jac.setel(3*g*u2*uy/tmp61,4,2);
+    C_jac.setel(-2*C_mu*SQ(ket)/tmp65*tmp62-3*g*SQ(u2)/tmp61,4,3);
+    C_jac.setel( 2*C_mu*ket/tmp65*tmp62,4,4);
+    C_jac.setel(-C_mu*SQ(ket)/tmp66*tmp62-1.,4,5);
+
+    C_jac.setel(4*tmp63*ux*u2/SQ((h<h_min?h_min:h)),5,1);
+    C_jac.setel(4*tmp63*uy*u2/SQ((h<h_min?h_min:h)),5,2);
+    C_jac.setel(-2*tmp64*ket-5*tmp63*SQ(u2)/SQ((h<h_min?h_min:h)),5,3);
+    C_jac.setel(tmp64+C_2*SQ(eps)/SQ((ket<ket_min?ket_min:ket)),5,4);
+    C_jac.setel(-2*C_2*eps/(ket<ket_min?ket_min:ket),5,5);
+
+    C_jac.scale(-1.0);
+
     // A_grad_U es ndof x 1
     A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
 
     Uintri.prod(iJaco,u,1,-1,-1);
-    double vel = sqrt(u2);
     double h_supg;
 
     FastMat2::branch();

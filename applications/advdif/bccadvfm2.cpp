@@ -143,7 +143,7 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     fluxn(ndof),iJaco,normal(ndim),nor,lambda,Vr,Vr_inv,U(ndof);
 
   FastMat2 A_jac(3,ndim,ndof,ndof),D_jac(4,ndim,ndof,ndof),
-    A_jac_n(2,ndof,ndof);
+    A_jac_n(2,ndof,ndof),C_jac(2,ndof,ndof);
   FastMat2 tmp1,tmp2,tmp3;
 
   FastMatCacheList cache_list;
@@ -205,7 +205,7 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       delta_sc=0;
       double lambda_max_pg;
       ierr =  (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
-			     A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
+			     A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
 			     lambda_max_pg,nor,lambda,Vr,Vr_inv,
 			     element.props(),NULL,DEFAULT,
 			     start_chunk,ret_options);
