@@ -1,4 +1,4 @@
-#$Id: cubcav-fs.epl,v 1.6 2004/11/10 14:29:54 mstorti Exp $ 
+#$Id: cubcav-fs.epl,v 1.7 2004/11/10 19:52:15 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -45,7 +45,7 @@ tol_newton -1.
 atol 0
 rtol 1e-3
 dtol 1e3
-block_uploading 0
+block_uploading 2
 
 print_internal_loop_conv 1
 # print_linear_system_and_stop 1

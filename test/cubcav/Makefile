@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.108 2004/11/10 14:29:54 mstorti Exp $ 
+# $Id: Makefile,v 1.109 2004/11/10 19:52:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -12,7 +12,7 @@ export case
 
 tests: block_uploading
 
-BOPT := O_c++
+BOPT := g_c++
 PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
 include $(PETSCFEM_DIR)/Makefile.base
@@ -170,7 +170,7 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=50 run
+	$(MAKE) N=30 run
 
 sync:
 	chmod 755 *.pl *.sh
