@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.7 2004/11/28 23:33:32 mstorti Exp $
+// $Id: hasher.h,v 1.8 2004/11/29 03:42:10 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
@@ -43,25 +43,26 @@ public:
   long int val();
 };
 
-class PowSumHasher : public BaseHasher {
+class FastSumHasher : public BaseHasher {
 private:
   int retval;
 public:
   static int hashf(int x) {
     const unsigned int 
       c = 0x238e1f29,
-      m = 0x6b8b4567,
-      n = 0;
+      m = 0x6b8b4567;
     unsigned long int y, tmp;
-    y = x;
-    for (int j=0; j<n; j++) {
-      tmp = y + c;
-      y = tmp*tmp;
-      y ^= m;
-    }
+#if 1
+    tmp = x + c;
+    y = tmp*tmp;
+    y ^= m;
+#else
+    tmp = x ^ m;
+    y = tmp*tmp;
+#endif
     return y;
   }
-  PowSumHasher() : retval(0) { }
+  FastSumHasher() : retval(0) { }
   void reset() { retval=0; }
   void hash(int w) { retval += hashf(w); }
   void hash(int *w,int n) {
@@ -69,6 +70,49 @@ public:
       retval += hashf(w[j]); 
   }
   long int val() { return retval; }
+};
+
+class FastHasher : public BaseHasher {
+private:
+  const unsigned int c,m,n;
+  int state;
+#if 1
+  void hashf(int x) {
+    unsigned long int tmp;
+    state ^= x;
+    for (int j=0; j<n; j++) {
+      tmp = state + c;
+      state = tmp*tmp;
+      state ^= m;
+    }
+  }
+#else
+  void hashf(int x) {
+    unsigned long int tmp1,tmp2;
+    state ^= x;
+    for (int j=0; j<n; j++) {
+      memcpy(&tmp1,&state,2);
+      memcpy(&tmp2,&state+2,2);
+      state = tmp1*tmp1+tmp2*tmp2;
+      state ^= m;
+    }
+  }
+#endif
+public:
+  FastHasher() 
+    : state(0), 
+#if 1
+      c(0x238e1f29), m(0x6b8b4567),
+#else
+      c(54841), m(0x5c32b3a3), 
+#endif
+      n(1) { }
+  void reset() { state = c; }
+  void hash(int w) { hashf(w); }
+  void hash(int *w,int n) {
+    for (int j=0; j<n; j++) hashf(w[j]); 
+  }
+  long int val() { return state; }
 };
 
 class BasicSumHasher : public BaseHasher {
@@ -99,6 +143,7 @@ public:
   }
   long int val() {
     int retval;
+    MD5Final(&ctx);
     memcpy(&retval,ctx.digest,sizeof(int));
     return retval;
   }

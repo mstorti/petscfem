@@ -2,6 +2,9 @@
 .PHONY: all
 
 N := 4
+OPT := -O2 -funroll-loops
+# OPT := -g
+
 default: myhash$(N).bin
 
 scripts = odoc.pl makewhat.pl
@@ -12,7 +15,7 @@ scripts = odoc.pl makewhat.pl
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
 SRCS := femref.cpp hasher.cpp myhash.cpp myhash2.cpp \
-	myhash3.cpp myhash4.cpp
+	myhash3.cpp myhash4.cpp myhash5.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -21,8 +24,6 @@ include makefilec.d
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
-
-OPT := -O2 -funroll-loops
 
 #w 
 femref.bin: femref.o # hasher.o

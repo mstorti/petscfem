@@ -10,13 +10,18 @@
 using namespace std;
 
 int main() {
-  BasicSumHasher hash;
+  // BasicSumHasher hash;
   // SumHasher hash;
   // MD5SumHasher hash;
-  // PowSumHasher hash;
+  // FastSumHasher hash;
+#define SET_HASHER(name) 			\
+  name hash;					\
+  const char hasher[] = #name
+
+  SET_HASHER(FastHasher);
   time_t start, end;
-  int N=20, M=10, NN=10000, 
-    ntime=1000, NBUFF=N*NN;
+  int N=20, M=10, NN=100, 
+    ntime=10000, NBUFF=N*NN;
   vector<int> buffer(NBUFF);
   for (int j=0; j<NBUFF; j++)
     buffer[j] = rand() % M;
@@ -32,8 +37,9 @@ int main() {
     }
   }
   double elaps = difftime(time(NULL),start);
-  printf("%dx%dx%d evals, elapsed %f, "
+  printf("Stats for %s hash class:\n" 
+	 "%dx%dx%d evals, elapsed %f, "
 	 "rate %g secs/M-int-hash\n",
-	 N,NN,ntime,elaps,
+	 hasher,N,NN,ntime,elaps,
 	 elaps/double(NBUFF)/double(ntime)*1.0e6);
 }

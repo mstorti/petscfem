@@ -9,46 +9,25 @@
 
 using namespace std;
 
-int count_unique(vector<int> &v) {
-  sort(v.begin(),v.end());
-  vector<int>::iterator
-    last_diff = unique(v.begin(),v.end());
-  return last_diff-v.begin();
-}
-
-void print_vec(const vector<int> &v) {
-  printf("#(");
-  for (int k=0; k<v.size(); k++)
-    printf("%d ",v[k]);
-  printf(")\n");
-}
-
 int main() {
 
-#if 1
-  MD5SumHasher hash;
-  FastSumHasher phasher;
-  int N=20, M=10, NN=10000;
-  vector<int>  stat(M);
+  MD5Hasher hash;
+  FastHasher phasher;
+  // Hasher phasher;
+  int N=20, M=10, NN=1000000;
   set<int> shash, phash;
-  //#define EXACT_CHECK
-#ifdef EXACT_CHECK
-  set< vector<int> > val_set;
-  map<int, set< vector<int> > > hash_collisions;
-#endif
   for (int j=0; j<NN; j++) {
     hash.reset();
     phasher.reset();
-    stat.clear(); stat.resize(M,0);
     for (int k=0; k<N; k++) {
       int w = rand() % M;
-      stat[w] += 1;
       hash.hash(w);
       phasher.hash(w);
     }
     int shv = hash.val();
-    int s = phasher.val();
     shash.insert(shv);
+    int s = phasher.val();
+    // printf("hash %d\n",s);
     phash.insert(s);
   }
   printf("tries %d\n",NN);
@@ -56,8 +35,6 @@ int main() {
   printf("nbr of collisions: perfect %f.\n"
 	 "For pow-hash-sum %d, md5-hash-sum %d, diff %d\n",
 	 perf_coll,NN-phash.size(), NN-shash.size(),
-	 phash.size()-shash.size());
+	 shash.size()-phash.size());
 
-#endif
-  
 }
