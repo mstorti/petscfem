@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.9 2002/07/24 01:19:54 mstorti Exp $
+// $Id: linkgraph.h,v 1.10 2002/07/24 03:51:34 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -103,18 +103,6 @@ public:
   int size(int r);
   /// Clear all edges
   void clear() { M=0; da.clear(); }
-  /// Size of packed row (plus header)
-  int size_of_pack(Row const & row) const {
-    int n = row.size();
-    // size + row number + size*(int+double)
-    return (n+2)*sizeof(int);
-  }
-  /// Pack the row
-  void pack(const Row & row,char *&buff) const;
-  /// un-pack the row
-  void unpack(Row & row,const char *&buff);
-  /// combine a row in the container
-  void combine(const Row &row);
 };
 
 typedef LinkGraph::Row LinkGraphRow; 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.7 2002/07/24 01:19:54 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.8 2002/07/24 03:51:34 mstorti Exp $
 
 #include <src/linkgraph.h>
 
@@ -23,6 +23,7 @@ void LinkGraph::erase(iterator q) {
     free_cell(p);
     p = pp;
   }
+  da.ref(q.r)=int_pair(0,null);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -82,35 +83,5 @@ int LinkGraph::size(int r) {
   int_pair *p = &da.ref(r);
   while (p->j != null) { s++; p = &da.ref(p->j); }
   return s;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// Pack the row
-void LinkGraph::pack(const Row & row,char *&buff) const {
-  int n=row.size();
-  BUFFER_PACK<int>(row.row,buff);
-  BUFFER_PACK<int>(n,buff);
-  Row::iterator q;
-  for (q=row.begin(); q!=row.end(); q++)
-    BUFFER_PACK<int>(*q,buff);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LinkGraph::unpack(Row & row,const char *&buff)  {
-  int n,k;
-  BUFFER_UNPACK<int>(row.row,buff);
-  BUFFER_UNPACK<int>(n,buff);
-  for (int j=0; j<n; j++) {
-    BUFFER_UNPACK<int>(k,buff);
-    row.insert(k);
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// combine a row in the container
-void LinkGraph::combine(const Row &row) {
-  int j=row.row;
-  Row::iterator q;
-  for (q=row.begin(); q!=row.end(); q++) list_insert(j,*q);
 }
 

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.7 2002/07/24 03:03:53 mstorti Exp $
+// $Id: tryme3.cpp,v 1.8 2002/07/24 03:51:38 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -84,28 +84,44 @@ int main(int argc, char **args) {
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
+#define BUFSIZE 10000
+  char buff[BUFSIZE], *buffd;
+  const char *buffc;
 
 #if 1
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // SEQUENTIAL DEBUG
-  LinkGraphDis graph(&part,MPI_COMM_WORLD), graph2(&part,MPI_COMM_WORLD);
+  LinkGraphDis graph(&part,MPI_COMM_WORLD),
+    graph2(&part,MPI_COMM_WORLD),
+    *from, *to;
   
   graph.init(M);
   graph2.init(M);
-  for (int j=0; j<M; j++) {
-    graph.add(j,modulo(j+1,M));
-    graph.add(j,modulo(j-1,M));
+  for (int j=0; j<20*M; j++) {
+    graph.add(irand(M),irand(M));
+    graph2.add(irand(M),irand(M));
   }
 
   printf("-------------\nBefore copying: \n");
   graph_print(graph,"graph: ");
   graph_print(graph2,"graph2: ");
+  
+  int indx=0;
+  LinkGraph::iterator q=graph.begin(), q2=graph2.begin(), qq;
+  while (q!=graph.end() && q2!=graph2.end()) {
+    if (indx % 2 != 0) { from = &graph; to = &graph2; qq=q; }
+    else { from = &graph2; to = &graph; qq=q2; }
+    LinkGraphRow row = *qq,roww;
+    int n = from->size_of_pack(row);
+    assert(n<=BUFSIZE);
+    buffd=buff;
+    from->pack(row,buffd);
+    from->erase(qq);
 
-  for (LinkGraph::iterator q=graph.begin();
-       q!=graph.end(); q++) {
-    LinkGraphRow row = *q;
-    graph2.combine(row);
-    graph.erase(q);
+    buffc=buff;
+    to->unpack(roww,buffc);
+    to->combine(roww);
+    indx++; q++; q2++;
   }
 
   printf("-------------\nAfter copying: \n");
