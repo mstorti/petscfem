@@ -1,0 +1,170 @@
+---------
+tag: beta-1.10 on Thu Jan 11 08:36:22 ARST 2001, by  mstorti in minerva.arcride.edu.ar
+     > Improved the OOP in Elemset. 
+     > Adapted to gcc 2.96.
+     > Adapted tests to new versions.
+----------
+tag: beta-1.11 on Thu Jan 11 12:56:03 ARST 2001, by mstorti in minerva.arcride.edu.ar
+     > Added two examples for advdif.
+----------
+tag: beta-1.13 on Mon Jan 15 08:51:15 ARST 2001, by mstorti in minerva.arcride.edu.ar
+     > Written `make what' targets. Written a tool for this.
+     > Added two tests for advdif.
+     > Made some changes in order to compile older versions with egcs++.
+----------
+tag: beta-1.17 on Sat Jan 20 07:24:34 ARST 2001, by mstorti in spider
+     > [Only problems with adv, which gives SISGSEGV always]
+----------
+tag: beta-1.18 on Sat Jan 20 09:26:32 ARST 2001, by mstorti in spider
+     > Fixed a problem related with the Newmat library in spider.
+----------
+tag: beta-1.23 on Tue Jan 23 22:51:27 ARST 2001, by mstorti in spider
+     > Turbulent Shallow Water is working.
+     > Fixed a bug in elemlist, get_node_data. Didn't compute well Hloc.
+     > Added a test for advdif: turbchan
+----------
+tag: beta-1.28 on Sat Mar  3 05:21:53 ARST 2001, by mstorti in spider
+     > Added access count to TextHashTable class.
+     > Added a test for TextHashTable.
+----------
+tag: beta-1.29 on Mon Mar  5 00:19:47 ART 2001, by mstorti in spider
+     > Converting the per-element property feature to OOP.
+----------
+tag: beta-1.33 on Sun Mar 18 12:48:57 ART 2001, by mstorti in spider
+     > Added a 'diag' mask to FastMat2.
+     > Writing new version (improved OOP) for advdif.
+----------
+tag: beta-1.46 on Sat Mar 24 10:52:07 ART 2001, by mstorti in spider
+     > New flux functions for linear advection-diffusion are working. 
+     > Fixed the 'mydetsur' bug.
+----------
+tag: beta-1.50 on Wed Mar 28 12:34:47 ART 2001, by mstorti in spider
+     > Added tests for the new flux functions
+----------
+tag: beta-1.51 on Wed Mar 28 21:42:10 ART 2001, by mstorti in spider
+     > Added new tests for the new flux functions
+----------
+tag: beta-1.54 on Fri Mar 30 17:54:14 ART 2001, by mstorti in spider
+     > Fixed several bugs for the new ff.
+     > Starts writing doc for the new ff.
+----------
+tag: beta-1.55 on Fri Mar 30 21:25:28 ART 2001, by mstorti in spider
+     > Added a null diffusive jacobian
+     > Starting documenttion for new ffluxes
+----------
+tag: beta-1.56 on Sat Mar 31 19:53:03 ART 2001, by mstorti in spider
+     > Added doc for the new flux functions.
+     > Adapted bcconv to the new flux functions. 
+----------
+tag: beta-1.57 on Sat Mar 31 21:36:50 ART 2001, by mstorti in spider
+     > Modified the license file
+----------
+tag: beta-1.58 on Sat Mar 31 23:12:17 ART 2001, by mstorti in spider
+     > Added LICENSE to makefiles
+----------
+tag: beta-1.60 on Mon Apr  2 17:22:55 ART 2001, by mstorti in spider
+     > Added tests for burgers
+----------
+tag: beta-1.61 on Mon Apr  2 21:22:23 ART 2001, by mstorti in spider
+     > Added entalphy function. Works for identity T/H relationship. 
+----------
+tag: beta-1.62 on Tue Apr  3 11:33:10 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Added burgers target to test/Makefile
+----------
+tag: beta-1.63 on Sat Apr  7 17:44:32 ART 2001, by mstorti in spider
+     > Added enthalpies of different types. 
+     > It remains to add enthalpies to the SUPG term!!!
+----------
+tag: beta-1.64 on Sun Apr  8 09:40:02 ART 2001, by mstorti in spider
+     > Fixed bug in enthalpy module.
+----------
+tag: beta-1.66 on Tue Apr 10 22:42:32 ART 2001, by mstorti in spider
+     > Added sectioning to `myexpext.pl'
+----------
+tag: beta-1.73 on Sat May  5 07:49:42 ART 2001, by mstorti in spider
+     > Tests ran on spider.
+     > Redefined 'VOID_IT' to 'clear()'. 
+----------
+tag: beta-1.75 on Sat May 12 18:34:01 ART 2001, by mstorti in spider
+     > Fixed `bug100' bug.
+     > Added a test.
+----------
+tag: beta-1.80 on Sat May 26 16:55:19 ART 2001, by mstorti in spider
+     > Added generic load element. 
+     > Run tests.
+----------
+tag: beta-1.82 on Sun May 27 13:16:06 ART 2001, by mstorti in spider
+     > Added support to ndimel<ndim 
+     > Added support to 0 length indices.
+     > Added tests for ndimel<ndim in genload.
+BRANCHED:------ branch beta--1-82-slosh
+     para correr problemas de sloshing
+----------
+tag: beta-1.91 on Mon Jul 23 21:20:33 ART 2001, by mstorti in spider
+     > Coded IISD solver.
+     > Added a test for IISD solver.
+----------
+tag: beta-1.92 on Sat Jul 28 16:05:04 ART 2001, by mstorti in spider
+     > Only a test with in newff complains. 
+     > Found a bug in IISD. 
+     > Added tests for advdif and ns with IISD.
+----------
+tag: beta-1.93 on Fri Aug  3 15:58:36 ART 2001, by mstorti in spider
+     > IISD with distributed map is working.
+----------
+tag: beta-1.95 on Wed Aug  8 08:29:11 ART 2001, by mstorti in spider
+     > Run tests.
+----------
+tag: beta-2.05 on Tue Aug 21 23:10:29 ART 2001, by mstorti in spider
+     > Working on distributed maps for interface preconditioning in IISD. 
+----------
+tag: beta-2.11 on Sun Sep 30 15:06:16 ART 2001, by mstorti in spider
+     > IISD with SuperLU is working. Added a test. 
+----------
+tag: beta-2.16 on Thu Nov  1 16:21:32 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Working on sloshing. Added `.profile' member to arguments
+     > to assemble (class `arg_data'). 
+----------
+tag: beta-2.18 on Sat Nov 10 00:16:48 ARST 2001, by mstorti in spider
+     > Working on sloshing. SparseDirect/PFMat matrices.
+     > Tests run.
+----------
+tag: beta-2.21 on Tue Nov 13 09:30:10 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Added test for IISD with sub_partitioning
+----------
+tag: beta-2.28 on Tue Nov 20 20:11:46 ARST 2001, by mstorti in spider
+     > Fixed a bug in `iisd' subpartitioning.
+     > Fixed a bug in Sparse::Mat constructor.
+----------
+tag: beta-2.37 on Tue Nov 27 12:34:25 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Added subpartitioning to IISD. 
+----------
+tag: beta-2.45 on Sat Dec  1 13:15:44 ARST 2001, by mstorti in spider
+     > Incorporated changes in turbulence from Beto.
+     > Merged sources (tests not run yet).
+----------
+tag: beta-2.48 on Sun Dec  2 15:47:33 ARST 2001, by mstorti in spider
+     > Added test for sqcav with IISD. 
+     > Working on adaptors. 
+----------
+tag: pfmat-rewrite-1.28 on Sun Jan 13 23:18:27 ARST 2002, by mstorti in spider
+     > Runs the `sqcav' test, but gives some `PFMat' bad errors.
+----------
+tag: beta-2.60 on Wed Dec 12 23:11:37 ARST 2001, by mstorti in spider
+     > Added `test_iisd', basically the same as `test_iisd' but for 2 processors.
+     > Tests run.
+----------
+tag: beta-2.61 on Tue Dec 18 18:12:38 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Removed `iisd_superlu' test.
+----------
+tag: pfmat-rewrite-1.29 on Sun Jan 13 23:46:34 ARST 2002, by mstorti in spider
+     > Merged all files with the main trunk. 
+     > Runs all tests `from start' (i.e. `$make lclean sw ;
+     > cd test ; make tests' is fine).
+----------
+tag: beta-2.64 on Mon Jan 14 05:07:18 ARST 2002, by mstorti in spider
+     > Merged all files from the `pfmat-rewrite-branch'.
+----------
+tag: beta-2.76 on Thu Feb  7 11:48:14 ART 2002, by mstorti in minerva.arcride.edu.ar
+     > Implemented aquifer+stream
+     > Passes all tests.
