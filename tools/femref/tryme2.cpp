@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: tryme2.cpp,v 1.5 2004/12/29 00:40:24 mstorti Exp $
+// $Id: tryme2.cpp,v 1.6 2004/12/29 00:44:27 mstorti Exp $
 
 #include <ctime>
 #include <cstdio>
@@ -11,7 +11,6 @@
 using namespace std;
 
 int its;
-bool linear_ok;
 
 int ilog2(int x) {
   return int(ceil(log(double(x))/log(2.0)));
@@ -82,13 +81,12 @@ int lower_boundbl(vector<int> &v, int x) {
   j = j1 + int((double(x-v1)*double(j2-j1))/double(v2-v1));
   int dj = int(pow(double(j),0.5));
   int jj1 = j-dj;
-  linear_ok = true;
   if (jj1>=0) {
     int vjj1 = v[jj1];
     if (vjj1 < x) {
       v1=vjj1;
       j1=jj1;
-    } else linear_ok = false;
+    }
   }
   int jj2 = j + dj;
   if (jj2<v.size()) {
@@ -96,7 +94,7 @@ int lower_boundbl(vector<int> &v, int x) {
     if (vjj2 >= x) {
       v2 = vjj2;
       j2=jj2;
-    } else linear_ok = false;
+    }
   }
   return lower_boundb(v,x,j1,j2);
 }
@@ -122,7 +120,9 @@ int main() {
 #endif
 
   char *method = NULL;
-#if 1
+#define USE_LINEAR
+
+#ifndef USE_LINEAR
     method = "binary search";
 #define FUN lower_boundb
 #else
@@ -134,11 +134,6 @@ int main() {
   int iters = 0;
   for (int k=0; k<ntries; k++) {
     int j = rand() % N;
-#if 0
-    if (j == 0) {
-      printf("here\n");
-    }
-#endif
 
     int jj = FUN(v,v[j]);
     iters += its;
@@ -157,4 +152,5 @@ int main() {
 	 double(iters)/double(ntries),
 	 int(elaps), 
 	 elaps/(double(N)*double(ntries))*1e12);
+
 }
