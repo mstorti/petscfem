@@ -3655,3 +3655,6 @@ tag: beta-3.38.23 on Thu, 13 Jan 2005 17:25:11 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.38.24 on Thu, 13 Jan 2005 20:15:22 -0300 by mstorti in spider
      > Good smoothing with `getsurf'. 
+----------
+tag: beta-3.38.25 on Sat, 15 Jan 2005 08:56:10 -0300 by mstorti in spider
+     > Using `dvector<>' in getsurf.
