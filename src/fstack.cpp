@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.16 2004/09/25 23:11:39 mstorti Exp $
+//$Id: fstack.cpp,v 1.17 2004/12/05 19:50:53 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -179,6 +179,11 @@ int FileStack::get_line(char * & line) {
       // read filename
       token = strtok((char *)abuf_data(abufr),BSP);
       token = strtok(NULL,BSP); 
+      if(!token) {
+	last_error_m = bad_syntax;
+	return 1;
+      }
+	
       string token_cpy(token);
       if (token_cpy[0]=='"') {
 	int m = strlen(token);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fstack.h,v 1.12 2004/09/25 23:11:39 mstorti Exp $
+//$Id: fstack.h,v 1.13 2004/12/05 19:50:53 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -47,7 +47,8 @@ private:
 public:
 
   int quiet;
-  enum error { read_ok, cant_open, eof} last_error_m;
+  enum error { read_ok, cant_open, 
+	       eof, bad_syntax } last_error_m;
   error last_error();
   /** Reads a line from the file stack. 
       @author M. Storti
