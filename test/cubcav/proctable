@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*- 
-# $Id: proctable,v 1.24 2003/10/21 22:18:07 mstorti Exp $
+# $Id: proctable,v 1.25 2003/10/24 22:51:19 mstorti Exp $
 # Processor -  weight   table 
 #
 # Script `procsel' generates weigths.dat
@@ -29,15 +29,16 @@ node19    9.09
 node18    9.09
 node15    9.09
 node14    9.09
-# node17    9.09
+node17    9.09
 #================================================================
 # P4 1.7GHz, 512MB RAM RIMM 400/800MHz
+# node2     4.00    
 # node4     4.00    
 # node5     4.00    
-node6     4.00    
-node11    4.00    
-node13    4.00    
-node16    4.00    
+# node6     4.00    
+# node11    4.00    
+# node13    4.00    
+# node16    4.00    
 #================================================================
 # Viejos: < 1.8GHz, 256MB Ram
 # node7     3.00    
