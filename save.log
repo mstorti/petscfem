@@ -750,3 +750,7 @@ tag: pfmat-rewrite-1.09.pl3 on Fri Dec 28 18:14:02 ARST 2001 by mstorti in spide
 tag: pfmat-rewrite-1.10 on Sat Dec 29 21:02:45 ARST 2001, by mstorti in spider
      > Things that worked before (several rhs's, several matrices..), 
      > now they doesn't work. Treating to go back to previous versions.
+----------
+tag: pfmat-rewrite-1.10 on Sun Dec 30 18:27:49 ARST 2001, by mstorti in spider
+     > PETScMat and IISDMat work. 
+     > Made a test for both.
