@@ -1,5 +1,9 @@
 ##__INSERT_LICENSE__
-## $Id: mksqcav.m,v 1.8 2004/11/11 21:52:26 mstorti Exp $
+## $Id: mksqcav.m,v 1.9 2005/02/17 11:51:46 mstorti Exp $
+
+global onedstr_use_log
+## onedstr_use_log = 1;
+
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
