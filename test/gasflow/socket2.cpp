@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.5 2003/02/03 17:12:49 mstorti Exp $
+// $Id: socket2.cpp,v 1.6 2003/02/03 18:35:25 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -22,16 +22,30 @@ void chomp(char *s) { s[strlen(s)-1] = '\0'; }
 #define SGETLINE_MAX_SIZE INT_MAX
 ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   unsigned int &N = *N_a;	// better readbility
-  while (N==0 || !Sgets(*lineptr,N,sock)) {
+  char * new_line_ptr = NULL, *q, *qe;
+  int old_N;
+  while (1) {
+    old_N = N;
     N = (N ? 2*N : SGETLINE_INIT_SIZE);
 #define DEBUG
 #ifdef DEBUG
     printf("Allocating %d bytes\n",N);
 #endif
     if (N > SGETLINE_MAX_SIZE) return 0;
-    if (!*lineptr) free(*lineptr);
-    *lineptr = (char *) malloc(N);
-    if (!*lineptr) return 0;
+    new_line_ptr = (char *) malloc(N);
+    assert(new_line_ptr);
+    if (*lineptr) {
+      memcpy(new_line_ptr,*lineptr,old_N);
+      free(*lineptr);
+    }
+    *lineptr = new_line_ptr;
+    new_line_ptr = NULL;
+    Sgets(*lineptr+old_N,N-old_N,sock);
+    qe = *lineptr+N;
+    for (q = *lineptr+old_N; q<qe; q++) {
+      if (*q == '\0') break;
+    }
+    if (q<qe) break;
   }
   return strlen(*lineptr)+1;
 }
@@ -45,7 +59,7 @@ inline double drand() {
 int talk(Socket *sock,comm_mode &mode) { 
   static char *line = NULL;
   static size_t N=0,NN=0;
-  char *buf;
+  char *buf=NULL;
   int stop;
 
   if (mode==SEND) {
