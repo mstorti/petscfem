@@ -1314,3 +1314,6 @@ tag: beta-3.00.pl19 on Wed, 24 Jul 2002 14:25:03 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.00.pl20 on Wed, 24 Jul 2002 15:13:01 -0300 by mstorti in minerva.arcride.edu.ar
      > Improved argument iter_mode to DistCont<> template
+----------
+tag: beta-3.00.pl21 on Wed, 24 Jul 2002 16:59:27 -0300 by mstorti in minerva.arcride.edu.ar
+     > Compiles `LinkGraphWrapper' in NS
