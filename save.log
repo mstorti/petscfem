@@ -3995,3 +3995,25 @@ tag: beta-3.41.44 on Wed, 16 Feb 2005 17:08:10 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.45 on Thu, 17 Feb 2005 22:47:23 -0300 by mstorti in spider
      > Now with `use_Ajac_old=0' doesn't use `Ao_grad_U'. 
+----------
+tag: beta-3.43 on Fri, 18 Feb 2005 06:43:40 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Fixed a bug that prevents use of `gasflow_abso' elemset. 
+     > Administrative tag.
+     > Implemented new absorbing boundary condition. 
+     > Changed `LagrangeMult' (src/lagmul.h) from
+     >     `Elemset' to `NewElemset'. 
+     > Implemented `gftwall' elemset (Dirichlet b.c. on temperature) 
+     >        with the new `src/lagmul' class (based on `NewElemset'). 
+     > Fixed `fastmat2-eig-crev' bug in `src/fmat2ep2.cpp'. 
+     > Implemented linear absorbing boundary condition based on 
+     >     old state. 
+     > Promoted `G_body' to a `Property' in gasflow. 
+     > Written doc for absorbing boundary conditions. 
+     > Added `get_C()' to `gasflow' for use with `lumped_mass'. 
+     > Fixed a bug in advdif. When isotropic shock capturing is used and
+     >   an enthalpy function is used, then the shock capturing term should be
+     >   of  the form `\div( C_p \delta \grad U)'. In previous versions the
+     >   `C_p' matrix was not used.
+     > Merged from `bubbly7-branch'. 
+     > Now with `use_Ajac_old=0' doesn't use `Ao_grad_U'. 
