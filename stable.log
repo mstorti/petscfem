@@ -502,3 +502,11 @@ tag: beta-3.34 on Mon Oct 25 01:23:22 GMT+3 2004, by mstorti in spider
      > Added option `fractional_step_use_petsc_symm'
      > Passes FS test with LU. 
      > Solution coincides with previous one with CG. 
+----------
+tag: beta-3.37 on Thu Nov 11 22:16:43 GMT+3 2004, by mstorti in spider
+     > Fixed fractional step solver. 
+     > Optimized fractional-step with cubcav. 
+     > Implemented multi-block assembling. 
+     > Rus big cubcav example (11.5Mtet). 
+     > Added test for Fractional Step sqcav at Re=1000. 
+     > Fixed error in `elmsupl.cpp' 
