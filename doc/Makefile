@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.38 2003/11/17 02:49:32 mstorti Exp $
+#$Id: Makefile,v 1.39 2003/11/19 02:25:08 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
+
+default: odoc_all
 
 #p [in doc/Makefile]
 #s Main targets
@@ -115,9 +117,9 @@ odoc:
 allcpp = $(shell find .. -name '*.cpp')
 odoc_all: 
 	$(ODOC) -o odoc_all.tex -e odoc.el $(allcpp)
-	etags --lang=none				\
-		--regex='/^Option: .* <\([^ ]*\)>/\1/'	\
-		petscfem-opt-tags
+# 	etags --lang=none				\
+# 		--regex='/^Option: .* <\([^ ]*\)>/\1/'	\
+# 		petscfem-opt-tags
 
 
 #w Make html home-page

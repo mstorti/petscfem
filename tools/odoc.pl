@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.19 2003/11/17 02:49:37 mstorti Exp $
+# $Id: odoc.pl,v 1.20 2003/11/19 02:25:08 mstorti Exp $
 
 @odoc=();
 
@@ -201,15 +201,32 @@ if (0 && $opt_e) {
     close EOUT;
 }
 
+%marked = ();
 if ($opt_e) {
-    open TAGS,">petscfem-opt-tags";
+    open TEXI,">options2.texi";
     foreach $doc (@doclist) { 
-	print TAGS "Option: $doc->[1] <$doc->[0]> ",
-	"(Default: $doc->[2])\n",
-	"Description: ",$doc->[5],"\n",
-	"[Found in file: \"$doc->[4]\"]\n","-" x 80,"\n";
+	my $d = $doc->[5];
+	$d =~ s/@/@@/g;
+	$d =~ s/\}/@\}/g;
+	$d =~ s/\{/@\{/g;
+	my $k = $doc->[0];
+	if (! exists($marked{$k})) { $marked{$k} = 0; }
+	else { $marked{$k}++; }
+	my $node = $k;
+	$node = $k."(".$marked{$k}.")" if $marked{$k}>0;
+	print TEXI 
+	    "\@node $node\n",
+	    "\@section $k\n",
+	    "\@vindex $k\n\n",
+	    "$d\n",
+	    "\@noindent\n",
+	    "[Type: $doc->[1]]\@*\n",
+	    "[Default: $doc->[2]]\@*\n",
+	    "[Found in file: \"$doc->[4]\"]\@*\n",
+	    "[Yank: <<$k>>]\n",
+	    "\@c -----------------------------------\n";
     }
-    close TAGS;
+    close TEXI;
 }
 
 __END__

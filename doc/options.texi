@@ -61,23 +61,24 @@ for PETSc-FEM can be downloaded at the home page.
 
 @menu
 * Copying::                     
-* NS Options::                  
+* Options::                     
 * Options Index::               
 @end menu
 
-@node Copying, NS Options, Top, Top
+@node Copying, Options, Top, Top
 @chapter PETSc-FEM license
 @insertcopying
 
-@node NS Options, Options Index, Copying, Top
-@chapter Navier Stokes options
+@node Options, Options Index, Copying, Top
+@chapter Options
 
-@vtable @code
-@include options2.texi
+The list of all options
 
-@end vtable
+@menu
+@end menu
 
-@node Options Index,  , NS Options, Top
+
+@node Options Index,  , Options, Top
 @unnumbered Options Index
      
 @printindex vr
