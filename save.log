@@ -3780,3 +3780,7 @@ tag: beta-3.39.61 on Sun, 23 Jan 2005 19:03:35 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.62 on Sun, 23 Jan 2005 19:39:52 -0300 by mstorti in spider
      > Tested `gasflow_abso' in a 3D strip. 
+----------
+tag: beta-3.39.63 on Sun, 23 Jan 2005 19:46:57 -0300 by mstorti in spider
+     > Tested `gasflow_abso' in a 3D strip with
+     > perturbation in lateral velocity. 
