@@ -92,9 +92,8 @@ LES 1
 A_van_Driest 0.
 viscosity <:=$nu:>
 weak_form 1
+data stabi.con.tmp
 __END_HASH__
-__INCLUDE__ stabi.con.tmp
-__END_ELEMSET__
 
 #================================================================
 fixa

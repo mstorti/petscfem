@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.8 2003/11/11 15:41:09 mstorti Exp $
+// $Id: gasflow.h,v 1.9 2003/11/11 21:40:33 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -149,6 +149,12 @@ public:
       fixme:= should destroy the flux functin.
   */
   gasflow() :  NewAdvDif(new gasflow_ff(this)) {};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+class gasflow_bcconv : public NewBcconv {
+public:
+  gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
 };
 
 #endif

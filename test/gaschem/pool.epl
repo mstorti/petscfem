@@ -17,7 +17,7 @@ $nu_t = 0.1;			# turbulent viscosity
 $hm_fac = 0.0;			# factor controlling gas-liquid exchange
 $L_inject = 4;			# Length of injection
 $x_inject = 4;			# Position of center of injection
-$u = 1;				# lateral velocity
+$u = 0.2;			# lateral velocity
 $rb = 0.01;			# radius of bubble at inlet
 $alpha = 0.1;			# gas fraction at inlet
 $patm = 1e5;			# Atmosferic pressure
@@ -58,7 +58,7 @@ save_file pool.state.tmp
 
 nsaverot 1
 save_file_pattern pool.state_%d.tmp
-nrc 1
+nrec 1
 nfile 100000
 
 initial_state "pool.ini.tmp"
