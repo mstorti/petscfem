@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.21 2003/11/24 03:40:58 mstorti Exp $
+# $Id: odoc.pl,v 1.22 2003/11/25 00:17:12 mstorti Exp $
 
 @odoc=();
 
@@ -203,23 +203,22 @@ if (0 && $opt_e) {
     close EOUT;
 }
 
-%marked = ();
 if ($opt_e) {
     die "can't open \"$opt_e\"" unless open TEXI,">$opt_e";
-    foreach $doc (@doclist) { 
-	my $d = $doc->[5];
-	$d =~ s/@/@@/g;
-	$d =~ s/\}/@\}/g;
-	$d =~ s/\{/@\{/g;
-	my $k = $doc->[0];
-	if (! exists($marked{$k})) { $marked{$k} = 0; }
-	else { $marked{$k}++; }
-	my $node = $k;
-	$node = $k."(".$marked{$k}.")" if $marked{$k}>0;
-	print TEXI 
-	    "\@node $node\n",
-	    "\@section $k\n",
-	    "\@vindex $k\n\n",
+    print scalar(@doclist),"\n";
+    while (@doclist) { 
+	my $k = $doclist[0]->[0];
+	my @doc_text = ("\@node $k\n",
+			"\@section $k\n",
+			"\@vindex $k\n\n");
+	while (@doclist && $doclist[0]->[0] eq $k) {
+	    my $doc = shift @doclist;
+	    my $d = $doc->[5];
+	    $d =~ s/@/@@/g;
+	    $d =~ s/\}/@\}/g;
+	    $d =~ s/\{/@\{/g;
+	    my $node = $k;
+	    push @doc_text, 
 	    "$d\n",
 	    "\@noindent\n",
 	    "[Type: $doc->[1]]\@*\n",
@@ -227,6 +226,8 @@ if ($opt_e) {
 	    "[Found in file: \"$doc->[4]\"]\@*\n",
 	    "[Yank: <<$k>>]\n",
 	    "\@c -----------------------------------\n";
+	}
+	print TEXI @doc_text;
     }
     close TEXI;
 }

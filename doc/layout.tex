@@ -529,20 +529,33 @@ text editor, that can colorize and indent text files according to the
 syntax of the language you are editing. Emacs has \emph{``modes''} for
 most languages (C/C++, Pascal, Fortran, Lisp, Perl, ...). We have
 written a basic mode for PETSc-FEM data files that is distributed with
-PETSc-FEM in the \verb+tools/petscfem.el+ Emacs Lisp file. In order to
-use the mode, you have to copy the file  \verb+tools/petscfem.el+ to
-somewhere accessible for Emacs (\verb+/usr/share/emacs/site-lisp+  is
-a good candidate). There is also a file \verb+tools/petscfem-init.el+
-that contains some basic configuration, you can also copy it, or
-insert directly its contents into your \verb+.emacs+. 
+PETSc-FEM in the \verb+tools/petscfem.el+ Emacs Lisp file. Another
+mode that can serve for colorization is the \emph{``shell-script''}
+mode. In order to associate the \verb+.epl+ or \verb+.depl+ extensions
+to this mode, add this to your \verb+~/.emacs+ file
+%
+\begin{verbatim}
+(setq auto-mode-alist 
+  (cons '("\\.\\(\\|d\\)epl$" . shell-script-mode) auto-mode-alist))
+\end{verbatim}
+\let\qq$ % Emacs is fooled by previous expression
+
+\SSSection{Installing PETSc-FEM mode} 
+
+In order to use the mode, you have to copy the file
+\verb+tools/petscfem.el+ to somewhere accessible for Emacs
+(\verb+/usr/share/emacs/site-lisp+ is a good candidate). There is also
+a file \verb+tools/petscfem-init.el+ that contains some basic
+configuration, you can also copy it, or insert directly its contents
+into your \verb+.emacs+.
 %
 \begin{verbatim}
 ;; Load basic PETSc-FEM mode
-(load-file "/path/to/tools/petscfem.el")
+(load-file "/path/to/petscfem/tools/petscfem.el")
 
 ;; Load `petscfem-init' or insert directly its contents
 ;; below and configure
-(load-file "/path/to/tools/petscfem-init.el")
+(load-file "/path/to/petscfem/tools/petscfem-init.el")
 \end{verbatim}
 %
 
@@ -553,7 +566,7 @@ PETSc-FEM modules have a lot of options, and is mandatory to have
 fast access to all of them and to their documentation. The HTML
 documentation has a list of all of them at the end of the user's
 guide. For easier access there is also an info file
-(\verb+tools/options.info+) that has a page for each of the
+(\verb+doc/options.info+) that has a page for each of the
 options. You can browse it with the standalone \emph{GNU Info} program
 or within Emacs with the info commands. In the last case you have the
 additional advantage that you can very easily find the
@@ -584,7 +597,7 @@ writing the option.
 If you want to copy some option from the info manual to the data file,
 then you can use the usual keyboard or mouse \emph{copy-and-paste}
 methods of Emacs. Also pressing \verb+c+
-(\verb+my-Info-lookup-copy-keyword)+) in the info manual copies the
+(\verb+my-Info-lookup-copy-keyword+) in the info manual copies the
 name of the currently visited option to the
 \emph{``kill-ring''}. Then, in the data file buffer press as usual,
 \verb+C-y+ (\verb+yank+) to paste the last killed option. If you paste

@@ -4,12 +4,12 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Mention in the doc that shell-script-mode is appropriate for fontifying
-      PETSc-FEM data files. 
+* Gather several instances of the same keyword in the same
+     options.info page. 
 * List grants in doc
 * Add `dataflow.obj' to doc.
 * Let `upload_vector_fast' to have several masks with integer values,
-  e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
+    e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
 * Finish completing_read with petscfem_options
 * Make use FastMat2 cache optional in advdife via an option
 * There is a conflict between the computation of residual jacobians 
@@ -132,6 +132,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Mention in the doc that shell-script-mode is appropriate for fontifying
+      PETSc-FEM data files. 
 * Document `shell-hooks'. 
 * Add doc for block_uploading
 * Add doc for new features in `myexpect.pl' (__SWITCH_FILE__, 
