@@ -2856,3 +2856,7 @@ tag: beta-3.19.pl54 on Sun, 31 Aug 2003 10:54:08 -0300 by mstorti in spider
 tag: beta-3.19.pl55 on Sun, 31 Aug 2003 12:31:07 -0300 by mstorti in spider
      > Fixed a bug in Dofmap::get_nodal_value. Runs `sector' example
      > checking constraints.
+----------
+tag: beta-3.19.pl56 on Sun, 31 Aug 2003 18:22:50 -0300 by mstorti in spider
+     > Implementing A_LL_other support for new efficient iisdmat loading
+     > functions.
