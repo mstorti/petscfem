@@ -1,11 +1,6 @@
 #-*- shell-script -*-
-<: 
-require '../../tools/dx.pl';
-connect_0("./cubcav.con-tetra.tmp","./cubcav.con-tetra0.tmp");
-$nnod = count_lines("cubcav.nod.tmp");
-$nelem = count_lines("cubcav.con-tetra0.tmp");
-ns_extract("./cubcav.state.tmp","u.dat","p.dat");
-:>//
+<: require '../../tools/dx.pl'; :>//
+
 # The following example describes an irregular grid. Note that the values
 # of the "positions" component and "connections" component are irregular,
 # and so must be enumerated.
@@ -15,22 +10,16 @@ object "xnod" class array type float rank 1 shape 3
 	items <:=$nnod:> data file cubcav.nod.tmp
 
 # The irregular connections, which are tetrahedra
-object "icone" class array type int rank 1 shape 4
-	items <:=$nelem:> data file "cubcav.con-tetra0.tmp"
-attribute "element type" string "tetrahedra"
-attribute "ref" string "positions"
+<: require './parti.pl'; :>//
 
 # The data, which is in a one-to-one correspondence with the positions
-object "u" class array type float rank 1 shape 3 items <:=$nnod:> data file "u.dat"
-attribute "dep" string "positions"
+object "p" class array type float rank 0 items <:=$nelem:> 
+           data file "epart.dat"
+attribute "dep" string "connections"
 
-# The data, which is in a one-to-one correspondence with the positions
-object "p" class array type float rank 0 items <:=$nnod:> data file "p.dat"
-attribute "dep" string "positions"
-
-object "irregular positions irregular connections" class field
+object "part" class field 
+# irregular positions irregular connections
 component "positions" value "xnod"
 component "connections" value "icone"
-component "data" value "u"
-component "p" value "p"
+component "data" value "p"
 end
