@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.27 2003/07/02 03:36:13 mstorti Exp $
+//$Id: gpdata.cpp,v 1.28 2003/07/03 18:34:30 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -136,6 +136,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     int npg_seg, npg_tri;
     if (npg==1) { npg_seg=1; npg_tri=1; }
     else if (npg==6) { npg_seg=2; npg_tri=3; }
+    else if (npg==8) { npg_seg=2; npg_tri=4; }
     GPdata gp_seg("cartesian1d",1,2,npg_seg);
     GPdata gp_tri("triangle",2,3,npg_tri);
 
