@@ -235,3 +235,6 @@ tag: beta-1.33 on Sun Mar 18 12:48:57 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added a 'diag' mask to FastMat2.
      > Writing new version (improved OOP) for advdif.
+----------
+tag: beta-1.34 on Sun Mar 18 21:20:54 ART 2001, by mstorti in spider
+     > Writing advdif flux functions more OOP
