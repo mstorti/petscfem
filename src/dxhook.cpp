@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.50 2003/09/09 11:45:08 mstorti Exp $
+//$Id: dxhook.cpp,v 1.51 2003/09/09 18:02:09 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -132,7 +132,8 @@ dx_hook::dx_hook() :
   connection_state_m(not_launched),
   connection_state_master(not_launched) , 
 #endif
-  options(NULL), srvr_root(NULL), step_cntr(0), steps(0) { }
+  options(NULL), srvr_root(NULL), step_cntr(0), steps(0),
+  dx_read_state_from_file(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
@@ -146,7 +147,7 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   //o Mesh where updated coordinates must be read
   TGETOPTDEF_S_ND(mesh_a.global_options,string,dx_node_coordinates,<none>);
   read_coords = (dx_node_coordinates != "<none>");
-  //o Coefficient affecting the new displacments read. 
+  //o Coefficient affecting the new displacements read. 
   //  New coordinates are \verb|c0*x0+c*u| where
   //  \verb+c0=dx_coords_scale_factor0+, \verb+c1=dx_coords_scale_factor+,
   //  \verb+x0+ are the initial coordinates and \verb+u+ are the coordinates read
@@ -178,8 +179,14 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   int dx_split_state_flag=0;
 
   //o Read states from file instead of computing them . Normally
-  //  this is done to analyze a previous run. 
-  TGETOPTDEF(go,int,dx_read_state_from_file,0);
+  //  this is done to analyze a previous run. If 1 the file is
+  //  ASCII, if 2 then it is a binary file. In both cases the order
+  //  of the elements must be: #u(1,1),# #u(1,2),# #u(1,3),# 
+  //  #u(1,ndof),# #u(2,1),# ... #u(nnod,ndof)# where #u(i,j)# is
+  //  the value of field #j# at node #i#. 
+  TGETOPTDEF_ND(go,int,dx_read_state_from_file,0);
+  PETSCFEM_ASSERT0(dx_read_state_from_file>=0 && dx_read_state_from_file<=2,
+		   "dx_read_state_from_file should be between 0 and 2.");
 
   //o Generates DX fields by combination of the input fields
   TGETOPTDEF_S(go,string,dx_split_state,);
@@ -293,23 +300,20 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int dx_hook::build_state_from_file(double *state_p) {
-#if 1 // debug:=
-  int record_local = (record>=0 ? record : 0);
-#define record record_local
-#endif
+  int recl = (record>=0 ? record : 0);
   PetscPrintf(PETSC_COMM_WORLD,
 	      "dx_hook: reading state from file %s, record %d\n",
-	      state_file.c_str(),record);
+	      state_file.c_str(),recl);
   if (!MY_RANK) {
     FILE *fid = fopen(state_file.c_str(),"r");
     if(!fid) {
       printf("Can't open file \"%s\". Sending null state file. \n",state_file.c_str());
-      for (int j=0; j<(record+1)*nnod*ndof; j++) state_p[j] = 0.;
+      for (int j=0; j<(recl+1)*nnod*ndof; j++) state_p[j] = 0.;
     } else {
-      int base = record*nnod*ndof;
-      if (0) {
+      int base = recl*nnod*ndof;
+      if (dx_read_state_from_file==1) {
 	// Formatted read
-	for (int j=0; j<(record+1)*nnod*ndof; j++) {
+	for (int j=0; j<(recl+1)*nnod*ndof; j++) {
 	  double val=0.;
 	  int nread;
 	  nread = fscanf(fid,"%lf",&val);
@@ -319,15 +323,17 @@ int dx_hook::build_state_from_file(double *state_p) {
 	  }
 	  if (j>base) state_p[j-base] = val;
 	}
-      } else {
+      } else if (dx_read_state_from_file==2) {
 	int count = fread (state_p,sizeof(double),nnod*ndof,fid);
 	assert(count==nnod*ndof);
+      } else { 
+	PETSCFEM_ERROR("Bad `dx_read_state_from_file' value %d",
+		       dx_read_state_from_file);
       }
       fclose(fid);
     }
   }
   return 0;
-#undef record
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

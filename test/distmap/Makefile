@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.19 2002/07/26 00:57:31 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2003/09/09 18:02:09 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -39,7 +39,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
-#LDFLAGS := -L/usr/local/lib -lc ${PETSC_SLES_LIB}
+#LDFLAGS := -L/usr/local/lib -lc ${PETSCFEM_PETSC_LIBS}
 
 #w Builds binary 
 distmap.bin: distmap.o 

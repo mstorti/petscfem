@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.17 2003/09/02 02:27:34 mstorti Exp $
+//$Id: dxhook.h,v 1.18 2003/09/09 18:02:09 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -62,6 +62,10 @@ private:
   dvector<double> x0;
   // The step solicited by DX
   int dx_step;
+
+  /// Flags reading states from files
+  int dx_read_state_from_file;
+
 #ifdef USE_PTHREADS
   enum connection_state_t {
     not_launched, not_connected, connected} connection_state_m,

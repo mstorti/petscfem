@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2003/05/04 16:43:50 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2003/09/09 18:02:09 mstorti Exp $ 
 
 .PHONY: fstack force tests test_autostr
 
@@ -24,7 +24,7 @@ $(SRC_DIR)/%.o: force
 tfstack.bin: tfstack.o $(LIB)(fstack.o)
 #	${CXX_CLINKER} -shared -Wl,-rpath,$(LD_LIBRARY_PATH) 
 	${CXX_CLINKER}	-g -Wl,-rpath,$(LD_LIBRARY_PATH) -o $@ tfstack.o	\
-		$(LIBPETSCFEM) -lc ${PETSC_SLES_LIB}			\
+		$(LIBPETSCFEM) -lc ${PETSCFEM_PETSC_LIBS}			\
 		-L$(LIBRETTO_LIB) -libretto
 
 test_autostr: tautostr.bin
