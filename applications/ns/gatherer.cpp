@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.10 2002/05/17 00:37:59 mstorti Exp $
+//$Id: gatherer.cpp,v 1.11 2002/05/17 20:51:35 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -166,22 +166,26 @@ void force_integrator::init() {
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
+  // Force contribution = normal * pressure * weight of Gauss point
   force.set(n).scale(-wpgdet*u.get(4));
+  // export forces to return vector
   force.export_vals(pg_values.begin());
   if (compute_moment) {
+    // Position offset of local point to center of moments
     dx.set(xpg).rest(x_center);
+    // Moment contribution = force X dx
     moment.cross(force,dx);
+    // export forces to return vector
     moment.export_vals(pg_values.begin()+ndim_m);
   }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::clean() {
-#if 0
   force.clear();
   x_center.clear();
+  dx.clear();
   moment.clear();
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
