@@ -188,7 +188,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     grad_u(2,ndim,ndim),grad_u_star(2,ndim,ndim),dshapext(2,nel,ndim),
     resmom(2,nel,ndim), fi(1,ndof), grad_p(1,ndim),
     u(1,ndim),u_star(1,ndim),uintri(1,ndim),rescont(1,nel);
-  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10;
+  FastMat2 tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,tmp7,tmp8,tmp9,tmp10,
+    tmp11,tmp12;
 
   masspg.set(1.);
   grad_u_ext.set(0.);
@@ -374,7 +375,6 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Parte temporal
 	matlocmom.axpy(masspg,wpgdet/Dt);
        
-#if 0 // not coded yet
       } else if (comp_res_poi) {
 
 	//double h_max = 2*Jaco.Norm1();
@@ -385,25 +385,35 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// printf("Dt %f, h_max %f, Dt_crit %f, Dt_art %f\n",
 	// Dt, h_max, Dt_crit, Dt_art);
+	locstate.ir(2,ndof);
+	grad_p.prod(dshapex,locstate,1,-1,-1);
+	locstate.rs();
 
-	ustate2 = locstate2.Columns(1,ndim);
-	grad_p = dshapex * locstate.Column(ndim+1);
 	// fixme:= Debilito el termino de la divergencia en el miembro
 	// derecho de Poisson para que me de un r.h.s. con suma nula y
 	// asi el Poisson sea independiente del nodo que se fija. 
 
 	// version debilitada
 	if (weak_poisson) {
-	  u_star = (SHAPE * ustate2).t();
-	  rescont -= wpgdet * (-(rho/Dt_art) * dshapex.t() * u_star
-			       + dshapex.t() * grad_p);
+
+	  locstate2.is(2,1,ndim);
+	  u_star.prod(SHAPE,locstate2,-1,-1,1);
+	  locstate2.rs();
+	  tmp12.set(grad_p).axpy(u_star,-rho/Dt_art);
+	  tmp11.prod(dshapex,tmp12,-1,2,-1);
+	  rescont.axpy(tmp11,-wpgdet);
+
 	} else {
+	  assert(0); // not coded yet
+#if 0
 	  // version no debilitada
 	  div_u_star = (dshapex * ustate2).Trace();
 	  rescont -= wpgdet * ((rho/Dt_art) * SHAPE.t() * div_u_star
 			       + dshapex.t() * grad_p);
+#endif
 	}
 
+#if 0
       } else if (comp_mat_poi) {
 
 	matlocmom += wpgdet * dshapex.t() * dshapex; 
