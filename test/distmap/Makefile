@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.22 2004/01/09 17:03:16 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2004/01/09 19:47:43 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -28,7 +28,7 @@ distmat: distmat.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat distmat.bin \
 		100 10000 1e-12 0 > distmat.sal.tmp
 
-SRCS = distmap.cpp distmat.cpp
+SRCS = $(wildcard *.cpp)
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base

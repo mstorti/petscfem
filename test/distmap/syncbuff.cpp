@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.5 2004/01/09 17:03:16 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.6 2004/01/09 19:47:08 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+
+#include "./syncbuff.h"
 
 int SIZE, MY_RANK;
 
@@ -31,6 +33,8 @@ public:
   void pack(char *&buff) const;
   void unpack(const char *& buff);
 };
+
+SYNC_BUFFER_FUNCTIONS(PO);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int PO::size_of_pack() const { return (2+nelem)*sizeof(int); }
@@ -76,90 +80,6 @@ void PO::print() {
   cout << "key: " << k << ", elems: ";
   for (int j=0; j<nelem; j++) cout << elems[j] << " ";
   cout << endl;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class TrivialPartitioner {
-public:
-  void processor(const PO &po,int &nproc,int *plist);
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void 
-TrivialPartitioner::processor(const PO &po,int &nproc,int *plist) {
-  nproc=1;
-  plist[0] = 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename T>
-class SyncBuffer :   
-  public DistCont<list<T>,T,TrivialPartitioner>   {
-  //    typedef typename DistCont<list<T>,T,TrivialPartitioner> cont;
-  TrivialPartitioner part;
-public:
-  SyncBuffer() : 
-    DistCont<list<T>,T,TrivialPartitioner>(&part) {}
-  void print() { 
-    scatter();
-    sort();
-    if (!MY_RANK) {
-      typename list<T>::iterator q;
-      for (q=begin(); q!=end(); q++) { q->print(); }
-    }
-  }
-  void check_pack();
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int DistCont<list<PO>,PO,TrivialPartitioner>
-::size_of_pack(const PO &po) const {
-  return po.size_of_pack();
-}
-
-// Copy the int and double to the buffer. Update pointer *buff
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistCont<list<PO>,PO,TrivialPartitioner>
-::pack(const PO &po,char *&buff) const { po.pack(buff); }
-  
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistCont<list<PO>,PO,TrivialPartitioner>
-::unpack(PO &po,const char *& buff) { po.unpack(buff); }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistCont<list<PO>,PO,TrivialPartitioner>
-::combine(const PO &po) { 
-  push_back(po);
-#if 0
-  back() = po;
-  back().elems = new int[po.nelem];
-  for (int j=0; j<po.nelem; j++) back().elems[j] = po.elems[j];
-#endif
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename T>
-void SyncBuffer<T>::check_pack() {
-  print();
-  int bufsize = 0;
-  typename list<T>::iterator q;
-  for (q=begin(); q!=end(); q++) 
-    bufsize += q->size_of_pack();
-  char *buff = new char[bufsize], *p=buff, *pe = buff+bufsize;
-  printf("%d elems in buffer\n",list<T>::size());
-  for (q =begin(); q!=end(); q++) q->pack(p);
-  assert(p == pe);
-  clear();
-  const char *pp = buff;
-  int nelems=0;
-  while (pp<pe) {
-    nelems++;
-    push_back();
-    back().unpack(pp);
-  }
-  assert(pp==pe);
-  print();
-  printf("%d elems recovered from buffer\n",list<T>::size());
 }
 
 int main(int argc,char **argv) {
