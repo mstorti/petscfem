@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.14 2003/09/14 00:23:19 mstorti Exp $
+//$Id: aquifer.cpp,v 1.14.4.1 2003/10/16 19:07:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -28,7 +28,7 @@ void aquifer_ff::start_chunk() {
   assert(ndim==2);
 
   elemset->elem_params(nel,ndof,nelprops);
-  assert(ndof==1);
+  // assert(ndof==2);
 
   // elemset->get_prop(eta_pr,"eta");
   elemset->get_prop(K_pr,"K");
@@ -67,7 +67,8 @@ void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
 			      &grad_U,FastMat2 &fluxd,FastMat2 &G,
 			      FastMat2 &H, FastMat2 &grad_H) {
   eta = H.get(1);
-  phi = U.get(1);
+  phi = U.get(2);
+  ///  phi = U.get(1);
   double wet_aquifer_width = phi-eta;
   if(dry_aquifer_stop && phi-eta<=0.) 
     throw GenericError("Aquifers got dried.");
@@ -78,11 +79,10 @@ void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void aquifer_ff
-::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+void aquifer_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
   tmp.set(dshapex).scale(w*K*(phi-eta));
-  grad_N_D_grad_N.ir(2,1).ir(4,1);
+  grad_N_D_grad_N.set(0.).ir(2,2).ir(4,2);
   grad_N_D_grad_N.prod(tmp,dshapex,-1,1,-1,2);
   grad_N_D_grad_N.rs();
 }
@@ -96,6 +96,6 @@ void aquifer_ff::enthalpy(FastMat2 &H, FastMat2 &U) {
 void aquifer_ff::comp_N_Cp_N(FastMat2 &N_Cp_N,FastMat2 &N, double w) {
   tmp2.set(N).scale(S*(phi-eta)*w);
   tmp3.prod(N,tmp2,1,2);
-  N_Cp_N.ir(2,1).ir(4,1).set(tmp3);
+  N_Cp_N.set(0.).ir(2,2).ir(4,2).set(tmp3);
   N_Cp_N.rs();
 }

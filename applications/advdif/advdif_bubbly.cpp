@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.6 2003/01/24 19:52:36 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.6.8.1 2003/10/16 19:07:15 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -580,7 +580,8 @@ int bubbly_main() {
 	  ierr = A_gas->view(matlab);
 	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	  ierr = ViewerSetFormat(matlab, 
+	  // PetscViewer matlab;
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 				 PETSC_VIEWER_ASCII_MATLAB,"AA");
 	  ierr = AA_gas->view(matlab);
 #endif

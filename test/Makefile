@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.97 2003/09/10 23:18:43 mstorti Exp $ 
+# $Id: Makefile,v 1.97.4.1 2003/10/16 19:11:26 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -7,7 +7,7 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars		\
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap
+	idmap sw_abso
 
 SRCS = $(wildcard *.cpp)
 
@@ -16,7 +16,7 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash		\
 		wkepipe wallkechan lupart distmap sparse graph sqcav		\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2		\
 		nsgenload plate gasflow idmap mmove advec plano oscplate 	\
-		spillway
+		spillway sw_abso
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
@@ -89,7 +89,8 @@ tests: runtests
 runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	chunk_size_process constraint_bug fstack triangle advdif texthash	\
 	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
-	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
+	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap       \
+	sw_abso
 
 rp: runtests_p
 runtests_p: pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
@@ -228,5 +229,11 @@ sector:
 #w Gneric load elemeset for NS
 nsgenload:
 	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# sw absorbent bc
+sw_abso:
+	$(MAKE) -C sw_abso tests
+
 
 #s

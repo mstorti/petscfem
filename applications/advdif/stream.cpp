@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.17 2003/09/14 00:23:19 mstorti Exp $
+//$Id: stream.cpp,v 1.17.4.1 2003/10/16 19:07:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -9,27 +9,23 @@
 #include "stream.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DummyEnthalpyFun
-::set_state(const FastMat2 &U) { 
+void DummyEnthalpyFun::set_state(const FastMat2 &U) { 
   s->set_state(U); 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DummyEnthalpyFun
-::enthalpy(FastMat2 &H) {
+void DummyEnthalpyFun::enthalpy(FastMat2 &H) {
   s->enthalpy(H); 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DummyEnthalpyFun
-::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
+void DummyEnthalpyFun::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 	      double w) {
   s->comp_W_Cp_N(W_Cp_N,W,N,w);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DummyEnthalpyFun
-::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
+void DummyEnthalpyFun::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   s->comp_P_Cp(P_Cp,P_supg);
 }
 
@@ -65,8 +61,8 @@ stream_ff::~stream_ff() { delete friction_law; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::set_state(const FastMat2 &U) {
-  u = U.get(1);
-  channel->geometry(u,area,wl_width,perimeter);
+  h = U.get(1);
+  channel->geometry(h,area,wl_width,perimeter);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -80,8 +76,7 @@ void stream_ff::enthalpy(FastMat2 &H) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void stream_ff
-::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
+void stream_ff::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 	      double weight) {
   W_Cp_N.ir(2,1).ir(4,1);
   W_Cp_N.prod(W,N,1,2).scale(wl_width*weight).rs();
@@ -93,8 +88,7 @@ void stream_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void stream_ff
-::compute_flux(const FastMat2 &U,
+void stream_ff::compute_flux(const FastMat2 &U,
 	       const FastMat2 &iJaco, FastMat2 &H,
 	       FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,
 	       FastMat2 &A_grad_U,FastMat2 &grad_U, FastMat2 &G_source,
@@ -185,13 +179,15 @@ void stream_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 ChannelShape *ChannelShape::factory(const NewElemset *elemset) {
   int ierr;
-  //o Choose channel section shape, may be {\tt circular}
-  // or {\tt rectangular}
+  //o Choose channel section shape, may be {\tt circular},
+  //  {\tt rectangular} or {\tt triangular}.
   EGETOPTDEF(elemset,string,shape,string("undefined"));
   if (shape=="rectangular" || shape=="undefined")  {
     return new rect_channel(elemset);
   } else if (shape=="circular") {
     return new circular_channel(elemset);
+  } else if (shape=="triangular") {
+    return new triang_channel(elemset);
   } else assert(0); // Not valid shape
 }
 
@@ -221,10 +217,18 @@ void Manning::init() {
   assert(ierr==0);
 }
 
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void StreamLossFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 			  FastMat2 &jacin,FastMat2 &jacout) {
+  flux.set(0.);
+  flux.is(1,ndof);
+  uin.is(1,ndof);
+  uout.is(1,ndof);
   flux.set(uout).rest(H_in).rest(uin).scale(k);
-  jacin.set(k);
-  jacout.set(-k);
+  jacin.eye(k);
+  jacout.eye(-k);
+  flux.rs();
+  uin.rs();
+  uout.rs();
 }

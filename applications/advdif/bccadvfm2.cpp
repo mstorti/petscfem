@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.19 2003/09/14 00:23:19 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.19.4.1 2003/10/16 19:07:15 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -51,10 +51,18 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // Initialize flux functions
   int ret_options=0;
-  adv_diff_ff->start_chunk(ret_options); 
+  adv_diff_ff->start_chunk(ret_options); //por el termino de frontera (weak form)
 
-  int ndimel = ndim-1;
-  int nel,ndof,nelprops;
+  // int ndimel = ndim-1; ndimelf:ndimel de la frontera
+  // es necesario ya que no se puede definir ndimelf en funcion de ndim en caso de probs 1D
+  // entonces cdo tengamos bcconv's que sean puntos hay que poner el flag en elemset ndimel=0
+  // en otro caso ndimelf=ndim-1=ndimel
+  // Es necesario tambien conocer la dimension de elemento del cual es frontera
+  // entonces debo pasarlo como param
+  NSGETOPTDEF(int,ndimel,ndim);
+  //o Dimension of bcconv element
+  NSGETOPTDEF(int,ndimelf,ndimel-1);
+  int  nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 
@@ -100,7 +108,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 prof_nodes(2,nel,nel),prof_fields(2,ndof,ndof),matlocf_fix(4,nel,ndof,nel,ndof);
   FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),prof_fields_diag_fixed(2,ndof,ndof);
 
-  adv_diff_ff->set_profile(prof_fields); // profile by equations
+  adv_diff_ff->set_profile(prof_fields); // profile by equations (seteada en 1.)
   prof_nodes.set(1.);
 
   Id_ndf.eye();
@@ -111,7 +119,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   prof_fields_diag_fixed.d(1,2);
   prof_fields_diag_fixed.set(prof_fields);
   prof_fields.rs();
-  prof_fields_diag_fixed.rs();
+  prof_fields_diag_fixed.rs(); //termina siendo deltaij
   prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
 
   matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
@@ -146,14 +154,21 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Gauss Point data
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian2d);
-  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
+  // Gauss Point data
+  //o Normal (only makes sense in 1D). 
+  NSGETOPTDEF(double,normal_1d,0.);
+  // hay que tener un elemset para los flujos entrantes y otro para los salientes
+  // y se le pasa la normal por elemset
+  if (ndimelf==0) { assert(normal_1d==1. || normal_1d==-1.); }
+  
+  GPdata gp_data(geometry.c_str(),ndimelf,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco, delta_sc;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix Jaco(ndimel,ndim),flux(ndof,ndim),fluxd(ndof,ndim),grad_U(ndim,ndof),
+  FMatrix Jaco(ndimel,ndim),flux(ndof,ndimel),fluxd(ndof,ndimel),grad_U(ndim,ndof),
     A_grad_U(ndof),G_source(ndof),tau_supg(ndof,ndof),    
     fluxn(ndof),iJaco,normal(ndim),nor,lambda,Vr,Vr_inv,U(ndof);
 
@@ -201,15 +216,20 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     for (ipg=0; ipg<npg; ipg++) {
 
-      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-      // normal:= normal vector times the surface of the element
-      detJaco = Jaco.detsur(&normal);
-      normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
-      if (detJaco<=0.) {
-	detj_error(detJaco,k);
-	set_error(1);
-      }
-
+      if (ndimelf>0) {
+	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+	// normal:= normal vector times the surface of the element
+	detJaco = Jaco.detsur(&normal);
+	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
+	if (detJaco<=0.) {
+	  cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
+	       << " Jacobian: " << detJaco << endl ;
+	  assert(0);
+	  //	  detj_error(detJaco,k);
+	  //set_error(1);
+	}
+      } else normal.resize(1,ndimel).set(normal_1d);
+      
       // This is because I don't know how to use 0
       // dimension matrices. 
       if (nH>0) H.prod(SHAPE,Hloc,-1,-1,1);
