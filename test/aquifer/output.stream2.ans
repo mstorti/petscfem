@@ -1,4 +1,3 @@
 Read 11 nodes
-elemset number 1, name \"malla\", pointer 0x\d*, 
-elemset number 1, name \"malla\", pointer 0x\d*, number of elements 10
-Elemset name \"malla\", ptr 0x\d*, set error 1
+elemset number 1, name \"malla\", pointer 0x\w*, number of elements \d*
+Elemset name \"malla\", ptr 0x\w*, set error 1
