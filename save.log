@@ -2471,3 +2471,8 @@ tag: beta-3.18.pl17 on Thu, 27 Feb 2003 00:32:54 -0300 by mstorti in spider
 tag: beta-3.18.pl18 on Fri, 28 Feb 2003 13:18:09 -0300 by mstorti in spider
      > Added coef(x,w) (x0=0 by default.
      > Added a test for x0=0 and x0!=0. 
+----------
+tag: beta-3.18.pl19 on Fri, 28 Feb 2003 20:51:18 -0300 by mstorti in spider
+     > Runs OK the wave problem with `nul_vort'. However it seems to be
+     > too inefficient, while setting the constraints. I will measure if
+     > it has an impact on the solution step also. 
