@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.16 2002/08/30 01:43:32 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.17 2002/08/30 02:19:35 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -3955,7 +3955,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
   detsur_cache * dsc;
   if (!was_cached) {
-    // printf("creating detsur cache\n");
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==2);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnstherfm2.cpp,v 1.6 2002/08/27 02:53:49 mstorti Exp $
+//$Id: bccnstherfm2.cpp,v 1.7 2002/08/30 02:19:35 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -153,10 +153,8 @@ int bcconv_nsther_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     matloc_prof.set(1.);
   }
     
-#ifdef USE_FASTMAT2_CACHE
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
-#endif
 
   int ielh=-1;
   int start_chunk=1; // BETO : esto parece que no se usa

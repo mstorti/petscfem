@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.15 2002/08/30 01:43:32 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.16 2002/08/30 02:19:35 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1353,7 +1353,6 @@ double FastMat2::detsur(FastMat2 *nor=NULL) {
 
   detsur_cache * dsc;
   if (!was_cached) {
-    // printf("creating detsur cache\n");
     Indx fdims;
     get_dims(fdims);
     assert(fdims.size()==2);
