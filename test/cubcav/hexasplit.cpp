@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.3 2002/07/28 21:44:03 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.4 2002/07/28 22:15:24 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <vector>
@@ -30,7 +30,6 @@ void graph_print(LinkGraphDis &graph, char *s=NULL) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc, char **args) {
 
-  // SEQUENTIAL DEBUG
   LinkGraph graph;
   // graph.init(M);
   char *line=NULL;
@@ -42,9 +41,11 @@ int main(int argc, char **args) {
 
 #define MIN_CHUNK_SIZE 40000
   icone.set_chunk_size(MIN_CHUNK_SIZE);
-  // Incompatible nodes in a hexa
+  // Incompatible nodes in a hexa. Two nodes have the same entry
+  // (0/1) if they are not linked by an edge. 
   int incompat[] = {0,1,0,1,1,0,1,0};
 
+  // Reads connectivities
   FILE *fid = fopen(args[1],"r");
   assert(fid);
   int nelem=0;
@@ -62,9 +63,14 @@ int main(int argc, char **args) {
     }
   }
   printf("read %d elems, %d nodes\n",nelem,nnod);
+  // split[j] may be -1/+1 depending on whether the
+  // node is marked up or down. split[j]==0 implies
+  // that the node is not split yet. 
   vector<int> split(nnod);
   for (int j=0; j<nelem; j++) split[j]=0;
 
+  // Build the graph of incompatibilities. Two nodes are connected
+  // by an edge if they are connected by an edge of an hexa. 
   fclose(fid);
   graph.set_chunk_size(nnod/2 < MIN_CHUNK_SIZE ? MIN_CHUNK_SIZE : nnod/2);
   graph.init(nnod);
@@ -72,10 +78,13 @@ int main(int argc, char **args) {
     int *row = &icone.ref(e*NEL);
     for (int j=0; j<NEL; j++) 
       for (int k=0; k<NEL; k++) 
+	// Nodes are incompatible if they have not the same entry in
+	// the incompatibility table
 	if (incompat[j]!=incompat[k]) graph.add(row[j]-1,row[k]-1);
   }
 
 #if 0
+  // Print the graph
   for (int q=0; q<nnod; q++) {
     GSet row;
     graph.set_ngbrs(q,row);
@@ -86,26 +95,70 @@ int main(int argc, char **args) {
   }
 #endif
 
-  // Arbitrarily split first node as `up'
+  // GREEDY COLORING ALGORITHM
+  // Starting from an arbitrary node we put it in a queue. Then at a
+  // turn we take a node from the queue, put all their not-yet-marked
+  // neighbors in the queue and mark it as up or down depending on the
+  // color of their neighbors. 
+
+  // Arbitrarily start from node `0'.
+  // Split start node as `up'
   front.push_back(0);
   split[0]=1;
   while (front.size()) {
+    // Take same node from the queue
     int node = front.front();
     front.pop_front();
+    // `s' is the set of neighbors of `node'. 
     GSet s;
     graph.set_ngbrs(node,s);
+    // iterate on the neighbors of `node'
     for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
       if (!split[*r]) {
+	// If not already split put it in the queue
 	front.push_back(*r);
       } else if (!split[node]) {
+	// if not already marked, mark as the opposite of the neighbor
 	split[node] = -split[*r];
       } else if (split[*r] == split[node]) {
+	// if already marked and find an incompatible neighbor complain
 	printf("Can't split the mesh!!\n");
 	exit(1);
       }
     }
   }
 
+#if 0
   for (int k=0; k<nnod; k++) printf("split[%d] = %d\n",k,split[k]);
+#endif
 
+  // Print results. We simply look at the value of split[]
+  // at some node of the element (say node `0') and depending of
+  // this value we take the standard split on a remapped element
+  // connectivity. `map_up' is the identity map, and `map_down' is
+  // a map rotated 90 degrees. 
+  int map_up[] = {0,1,2,3,4,5,6,7};
+  int map_down[] = {1,2,3,0,5,6,7,4};
+  // This will point to `map_up' or `map_down'
+  int *map;
+  // Standard split of an hexa in tetras. 
+  int tetra[][4]={{0,2,5,1},
+		  {0,2,7,3},
+		  {2,7,5,6},
+		  {0,5,7,4},
+		  {0,5,2,7}};
+  for (int k=0; k<nelem; k++) {
+    // Connectivity row
+    int *row = &icone.ref(k*NEL);
+    // Choose map depending on split value
+    map = (split[row[0]]==1 ? map_up : map_down);
+    // loop over local tetras
+    for (int t=0; t<5; t++) {
+      // loop over nodes in the tetra
+      for (int q=0; q<4; q++) 
+	// node of local tetra, eventually remapped
+	printf("%d ",row[map[tetra[t][q]]]-1);
+      printf("\n");
+    }
+  }
 }
