@@ -706,3 +706,8 @@ tag: beta-2.57 on Sun Dec  9 11:07:45 ARST 2001, by mstorti in spider
      > on `dofmap', but on a graph and a partitioner class. This finally
      > proved to be too much work and I made it this branch. Then I went back
      > to version beta-2.54.
+----------
+tag: beta-2.58 on Sun Dec  9 23:11:09 ARST 2001, by mstorti in spider
+     > Deleted call to `PFMat::build_sles' since now this is inside either
+     > the destructor or the `clear()' method. Now working for `PETScMat' and
+     > `IISDMat' matrices. Runs all `oscplate_all' tests. 
