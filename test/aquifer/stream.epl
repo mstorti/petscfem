@@ -103,6 +103,10 @@ __END_ELEMSET__
 end_elemsets
 
 fixa_amplitude dl_generic
+t0 0.
+f0 1.
+t1 1.
+f1 0.5
 __END_HASH__
 1 1 1.
 __END_FIXA__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.1 2002/02/10 00:20:09 mstorti Exp $
+//$Id: amplidl.cpp,v 1.2 2002/02/10 02:33:32 mstorti Exp $
 
 #include <math.h>
 
@@ -19,9 +19,9 @@ void DLGeneric::print() const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DLGeneric::init(TextHashTable *thash_) {
+void DLGeneric::init(TextHashTable *thash) {
   char *error;
-  handle = dlopen ("./fun.efn",RTLD_LAZY);
+  handle = dlopen ("/home/mstorti/PETSC/petscfem/test/aquifer/fun.efn",RTLD_LAZY);
   assert(handle);
   fun = (EvalFun *) dlsym(handle,"eval_fun");
   if ((error = dlerror()) != NULL)  {
@@ -29,6 +29,17 @@ void DLGeneric::init(TextHashTable *thash_) {
     printf("\n");
     exit(1);
   }
+  InitFun *init_fun = (InitFun *) dlsym(handle,"init_fun");
+  if ((error = dlerror()) != NULL)  {
+    fputs(error, stderr);
+    printf("\n");
+    exit(1);
+  }
+#ifdef USE_ADVANCED_DL_EFN
+  (*init_fun)(thash);
+#else
+  (*init_fun)();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
