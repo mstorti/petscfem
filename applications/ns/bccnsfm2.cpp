@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.10 2002/01/14 03:45:05 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.11 2002/04/08 17:25:06 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -97,9 +97,11 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof),
     locstate2(nel,ndof),xpg; 
 
+#if 0				// allow nsikeps elemset
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
   }
+#endif
 
   nen = nel*ndof;
   FMatrix matloc(nen,nen), matlocmom(nel,nel);
@@ -129,16 +131,14 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
     
-  FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim),matij(ndof,ndof);
+  FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim),matij(ndim+1,ndim+1);
           
   FMatrix grad_p_star(ndim),u,u_star,ucols,ucols_new,ucols_star,
     pcol_star,pcol_new,pcol,tmp1,tmp2,tmp3,tmp4;
 
   FMatrix matloc_prof(nen,nen);
 
-  if (comp_mat) {
-    matloc_prof.set(1.);
-  }
+  if (comp_mat) matloc_prof.set(1.);
     
 #ifdef USE_FASTMAT2_CACHE
   FastMatCacheList cache_list;
@@ -175,11 +175,11 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     resmom.set(0.);
 
     ucols.set(locstate2.is(2,1,ndim));
-    pcol.set(locstate2.rs().ir(2,ndof));
+    pcol.set(locstate2.rs().ir(2,ndim+1));
     locstate2.rs();
 
     ucols_new.set(locstate.is(2,1,ndim));
-    pcol_new.set(locstate.rs().ir(2,ndof));
+    pcol_new.set(locstate.rs().ir(2,ndim+1));
     locstate.rs();
 
     ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
@@ -226,14 +226,14 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
             // matij.set(0.);
 	    if (weak_form) {
 	      // matij.ir(2,ndof).is(1,1,ndim).axpy(tmp2,SHAPE_iloc);
-	      matij.ir(2,ndof).is(1,1,ndim).set(tmp2);
+	      matij.ir(2,ndim+1).is(1,1,ndim).set(tmp2);
 	    } 
 	    matij.rs();
 
 	    int il1=(iloc-1)*ndof+1;
-	    int il2=il1+ndof-1;
+	    int il2=il1+ndim;
 	    int jl1=(jloc-1)*ndof+1;
-	    int jl2=jl1+ndof-1;
+	    int jl2=jl1+ndim;
 	    matloc.is(1,il1,il2).is(2,jl1,jl2).axpy(matij,-WPG).rs();
 	    
 	  }
