@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.21 2001/07/20 11:38:58 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.22 2001/07/20 11:41:50 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -252,6 +252,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       continue;
     }
 
+    FastMat2::deactivate_cache(); // Aqui no da SIGSEGV
     double grad_div_u_coef=0.;	// multiplies grad_div_u term
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
@@ -323,7 +324,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
-    FastMat2::deactivate_cache(); // pos 1,2
+    // FastMat2::deactivate_cache(); // pos 1,2
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
@@ -572,7 +573,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
     }
-    // FastMat2::activate_cache(); // pos 1, gives SIGSEGV
+    // FastMat2::deactivate_cache();
 
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
