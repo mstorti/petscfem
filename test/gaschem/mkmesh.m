@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.5 2003/11/12 12:47:02 mstorti Exp $
+## $Id: mkmesh.m,v 1.6 2003/11/12 14:04:09 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -38,11 +38,13 @@ fclose(fidlat);
 fid = fopen("pool.fixa.tmp","w");
 for k=1:Nx+1
   node = k;
+  fac = Nb_fac;
   if abs(xnod(node,1)-x_inject)<L_inject/2
-    fprintf(fid,"%d %d %f\n",node,1,Nb);
-    fprintf(fid,"%d %d %f\n",node,2,CO);
-    fprintf(fid,"%d %d %f\n",node,3,CN);
+    fac = 1;
   endif
+  fprintf(fid,"%d %d %f\n",node,1,Nb*fac);
+  fprintf(fid,"%d %d %f\n",node,2,CO*fac);
+  fprintf(fid,"%d %d %f\n",node,3,CN*fac);
 endfor
 fclose(fid);
 
@@ -61,6 +63,6 @@ for k=1:Ny
 endfor
 fclose(fidr);
 
-ini = [Nb CO CN CdO CdN];
+ini = [Nb*Nb_fac CO CN CdO CdN];
 ini = ini(ones(nnod,1),:);
 asave("pool.ini.tmp",ini);

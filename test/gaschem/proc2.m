@@ -1,6 +1,6 @@
 ###key proc.m
 ##__INSERT_LICENSE__
-## $Id: proc2.m,v 1.4 2003/11/12 13:03:00 mstorti Exp $
+## $Id: proc2.m,v 1.5 2003/11/12 14:04:09 mstorti Exp $
 source("data.m.tmp");
 
 U=aload_any("pool.state_%d.tmp",0);
@@ -22,4 +22,4 @@ y = xnod(:,2);
 pg = patm+rho_liq*gravity*(max(y)-y);
 pg = reshape(pg,Nx+1,Ny+1);
 
-satO = COd./(KO*pg*xO_in);
+satO = COd./(KO*patm*xO_in);

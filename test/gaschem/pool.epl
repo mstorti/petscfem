@@ -2,18 +2,18 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 50;			# nbr of elements in x-y dir
-$Ny = 50;
+$Nx = 30;			# nbr of elements in x-y dir
+$Ny = 30;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
-$rho_liq = 1;			# density of liquid
+$rho_liq = 1000;		# density of liquid
 $gravity = 9.8;			# gravity acc.
 $xO_in = 0.2;			# molar fraction O2 at inlet
 $KO = 1.3516e-5;		# Henry constant O2 - N2
 $KN = 0.6788e-5; 
 $Rgas = 8.314;			# Gas const
 $Tgas = 293.0;			# Temperature
-$nu_t = 0.01;			# turbulent viscosity
+$nu_t = 0.001;			# turbulent viscosity
 $hm_fac = 1.0;			# factor controlling gas-liquid exchange
 $L_inject = 2;			# Length of injection
 $x_inject = 4;			# Position of center of injection
