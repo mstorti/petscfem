@@ -1,4 +1,4 @@
-## $Id: mkgfshock3d.m,v 1.6 2005/03/09 19:46:23 mstorti Exp $
+## $Id: mkgfshock3d.m,v 1.7 2005/03/09 20:32:39 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -10,7 +10,7 @@ xtuy = z(:,1);
 Rtuy = z(:,2);
 ntuy = rows(z);
 xtuy=xtuy(1:50:ntuy);
-Rtuy=Rtuy(1:50:ntuy);
+Rtuy=Rscale*Rtuy(1:50:ntuy);
 x0 = min(z(:,1));
 x1 = max(z(:,1));
 Ltuy = x1-x0;
