@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.9 2002/04/13 01:29:23 mstorti Exp $
+#$Id: makeltag,v 1.10 2002/06/07 00:16:07 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -98,4 +98,4 @@ close VRS;
 
 print "logging on $save_log\n";
 
-system "cvs ci -m \"Administrative files\" save.log VERSION";
+system "cvs ci -m \"Administrative files\" notes.txt save.log VERSION";
