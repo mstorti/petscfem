@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mknozzle.m,v 1.4 2003/01/08 18:04:25 mstorti Exp $
+## $Id: mknozzle.m,v 1.5 2003/01/15 19:16:04 mstorti Exp $
 global Rin Rn nw L
 
 source("data.m.tmp");
@@ -38,14 +38,31 @@ for k=2:length(inlet)
 endfor
 fclose(fid);
 
-fid = fopen("nozzle.fixa_wall.tmp","w");
-for k=1:length(wall)
-  node = wall(k);
-  fprintf(fid,"%d %d  %f\n",node,2,0.);
-  fprintf(fid,"%d %d  %f\n",node,3,0.);
-endfor
-fclose(fid);
-
+if slip 
+  ## vector tangent to wall
+  nwall = length(wall);
+  t = xnod(3:nwall,:)-xnod(1:nwall-2,:);
+  normal = [+t(:,2) -t(:,1)];
+  normal = leftscal(1./l2(normal),normal);
+  normal = [0 1;
+	    normal;
+	    0 1];
+  fid = fopen("nozzle.slip.tmp","w");
+  for k=1:length(wall)
+    fprintf(fid,"%f %d %d     %f %d %d\n",
+	    normal(k,1),wall(k),1,normal(k,2),wall(k),2);
+  endfor
+  fclose(fid);
+else
+  fid = fopen("nozzle.fixa_wall.tmp","w");
+  for k=1:length(wall)
+    node = wall(k);
+    fprintf(fid,"%d %d  %f\n",node,2,0.);
+    fprintf(fid,"%d %d  %f\n",node,3,0.);
+  endfor
+  fclose(fid);
+endif
+  
 fid = fopen("nozzle.fixa_axis.tmp","w");
 for k=2:length(axis_b)-1
   node = axis_b(k);
