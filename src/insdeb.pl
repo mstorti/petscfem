@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: insdeb.pl,v 1.1.2.2 2002/01/09 12:30:12 mstorti Exp $
+# $Id: insdeb.pl,v 1.1.2.3 2002/01/09 12:30:26 mstorti Exp $
 
 sub flushin { print OUT @in; @in = (); }
 
@@ -18,7 +18,7 @@ open IN,"$in";
 open OUT,">$out";
 
 print OUT "// Insert Debug Info for SMC Finite State Machine generated code\n",
-    "// ",'$Id',"\n";
+    "// ",'$Id: insdeb.pl,v 1.1.2.3 2002/01/09 12:30:26 mstorti Exp $',"\n";
     "// $key\n";
 
 @in = ();
