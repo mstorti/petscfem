@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.5 2003/02/22 22:09:38 mstorti Exp $
+//$Id: adappg.cpp,v 1.6 2003/02/23 16:49:38 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,14 +11,16 @@
 #include "adaptor.h"
 #include "elast.h"
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & adaptor_pg::normal() { return normal_m; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor_pg::init() {
-  int ierr;
-  TGETOPTDEF_ND(thash,int,ndimel,ndim);
   // This covers may real cases, it only remains lines in 3D.
   // But maybe it should work also. 
   assert(ndimel==ndim || ndimel==ndim-1);
   xpg.resize(1,ndim);
-  normal.resize(1,ndim);
+  normal_m.resize(1,ndim);
   g.resize(2,ndimel,ndimel);
   ig.resize(2,ndimel,ndimel);
   Jaco.resize(2,ndimel,ndim);
@@ -34,6 +36,7 @@ void adaptor_pg::init() {
   elemset_init();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor_pg::clean() {
   // Clean up local functions
   xpg.clear();
@@ -45,7 +48,7 @@ void adaptor_pg::clean() {
   state_old_pg.clear();
   res_pg.clear();
   mat_pg.clear();
-  normal.clear();
+  normal_m.clear();
   g.clear();
   ig.clear();
   tmp.clear();
@@ -53,6 +56,7 @@ void adaptor_pg::clean() {
   elemset_end();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void adaptor_pg::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
@@ -70,8 +74,8 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     if (ndimel==ndim) {
       detJaco = Jaco.det();
     } else {
-      detJaco = Jaco.detsur(&normal);
-      normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
+      detJaco = Jaco.detsur(&normal_m);
+      normal_m.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
     }
     if (detJaco <= 0.) {
       printf("Jacobian of element %d is negative or null\n"
