@@ -101,8 +101,8 @@ The FastMat2 code for the computations is like this
 	 "rate: %g [sec/Me], %g Mflops\n",
 	 cpu,nelem,cpu*1e6/nelem,
 	 nelem*FastMat2::operation_count()/cpu/1e6);
-  FastMat2::deactivate_cache();
   FastMat2::void_cache();
+  FastMat2::deactivate_cache();
 
 \end{verbatim}
 
@@ -224,8 +224,8 @@ for (j=0; j<N; j++) {    // Outer loop. N very large number
    
 }                        // End of outer loop 
 
-FastMat2::deactivate_cache();         // deactivates cache
 FastMat2::void_cache();               // free memory
+FastMat2::deactivate_cache();         // deactivates cache
 \end{verbatim}
 
 \begin{figure*}[htb]
