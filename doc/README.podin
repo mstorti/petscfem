@@ -148,7 +148,7 @@ Perl based version of C<eperl> is include in the <tools> directory. So
 that it is not needed to install it!! The Perl based version can be
 marginally different from the C<C> version. If you want to specify your
 own C<eperl> preprocessor then you have to modify the C<EPERL>
-variable in C<Makefiele.base>. The Perl version of ePerl is written
+variable in C<Makefile.base>. The Perl version of ePerl is written
 and maintained by David Ljung Madison C<< <DaveSource.com> >>
 C<http://MarginalHacks.com>. License: GPL (See C<tools/eperl_license.txt>). 
 

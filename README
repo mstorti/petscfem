@@ -126,9 +126,10 @@ INSTALLATION
         is not needed to install it!! The Perl based version can be
         marginally different from the `C' version. If you want to specify
         your own `eperl' preprocessor then you have to modify the `EPERL'
-        variable in `Makefiele.base'. The Perl version of ePerl is written
+        variable in `Makefile.base'. The Perl version of ePerl is written
         and maintained by David Ljung Madison `<DaveSource.com>'
-        `http://MarginalHacks.com'.
+        `http://MarginalHacks.com'. License: GPL (See
+        `tools/eperl_license.txt').
 
     Perl
         If you want to use ePerl then you need to have Perl installed.
