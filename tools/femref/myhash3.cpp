@@ -39,9 +39,9 @@ int hash_fun(int w) {
 
 int main() {
 
-#if 0
-  SumHasher hash;
-  int N=10, M=3, NN=1000;
+#if 1
+  MD5SumHasher hash;
+  int N=30, M=10, NN=1000000;
   vector<int>  stat(M);
   set<int> shash, sum;
   set< vector<int> > val_set;
@@ -57,12 +57,14 @@ int main() {
       s += w;
     }
     int shv = hash.val();
+#if 0
     if (val_set.find(stat) == val_set.end()
 	&& (sum.find(s) != sum.end() 
 	    || shash.find(shv) != shash.end())) {
       printf("collision! for stat "); print_vec(stat);
       printf(" sum %d, hash-sum %d\n",s,shv);
     }
+#endif
     hash_collisions[shv].insert(stat);
     shash.insert(shv);
     sum.insert(s);
@@ -94,7 +96,7 @@ int main() {
 #endif
 #endif
 
-#if 1
+#if 0
   int v1[] = {1,1,1,1,1,1,1,2,2,2};
   int v2[] = {0,0,1,1,1,2,2,2,2,2};
 
