@@ -1,19 +1,19 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2001/08/01 02:25:43 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/08/02 01:49:51 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
-tests: distmap
+tests: distmap distmat
 
 #w Runs test
 distmap: distmap.bin
-	mpirun -np 5 -machinefile machi.dat distmap.bin \
-		100 10000 1e-6 > distmap.sal.tmp
+	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
+		100 10000 1e-12 > distmap.sal.tmp
 
 #w Runs test
 distmat: distmat.bin
-	mpirun -np 5 -machinefile machi.dat distmat.bin \
-		100 10000 1e-6 > distmat.sal.tmp
+	$(MPIRUN) -np 3 -machinefile machi.dat distmat.bin \
+		100 10000 1e-12 0 > distmat.sal.tmp
 
 SRCS = distmap.cpp distmat.cpp
 
