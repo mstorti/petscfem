@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.9 2001/12/28 21:13:24 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.10 2001/12/29 23:59:35 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -21,10 +21,13 @@ public:
   ~Part() {}
 } part;
 
+#define CHKOPT(name)  assert(!strcmp(#name,args[++arg]))
+
 int main(int argc,char **args) {
 
+  PFMat *A_p;
   Vec x,b,xex;
-  int ierr,iisd_subpart,nsolve;
+  int ierr,iisd_subpart,nsolve,rand_rhs,mat_type;
   // debug.activate();
   int myrank,size;
   PetscInitialize(&argc,&args,NULL,NULL);
@@ -32,40 +35,59 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&size);
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
-  double cond,L,Q;
+  double cond,L,Q,rand_coef=1.;
   int Nelem=10, debug_print=0, nmat;
   int arg=0;
 
-  // usage: pfmat.bin <Nelem> <debug_print> <nsolve> <iisd_subpart> <nmat>
-  
+  // usage: pfmat.bin ne <Nelem> deb <debug_print> nsl <nsolve> sbdp
+  // <iisd_subpart> nmat <nmat> rrhs <rand_rhs> mtyp <mat_type>
+
+  CHKOPT(ne);
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&Nelem);
   ierr = MPI_Bcast (&Nelem, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   int N=Nelem-1;
 
-  debug.trace("main 0");
+  CHKOPT(deb);
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&debug_print);
   ierr = MPI_Bcast (&debug_print, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
 
+  CHKOPT(nsl);
   nsolve=1;
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&nsolve);
   ierr = MPI_Bcast (&nsolve, 1, 
 		    MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
     
+  CHKOPT(sbdp);
   iisd_subpart=1;
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&iisd_subpart);
   ierr = MPI_Bcast (&iisd_subpart, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
 
+  CHKOPT(nmat);
   nmat=1;
   if (myrank==0 && argc>++arg) 
     sscanf(args[arg],"%d",&nmat);
   ierr = MPI_Bcast (&nmat, 
+		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+
+  CHKOPT(rrhs);
+  rand_rhs=0;
+  if (myrank==0 && argc>++arg) 
+    sscanf(args[arg],"%d",&rand_rhs);
+  ierr = MPI_Bcast (&rand_rhs, 
+		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+
+  CHKOPT(mtyp);
+  mat_type=0; // 0 -> IISDMat, 1 -> PETScMat
+  if (myrank==0 && argc>++arg) 
+    sscanf(args[arg],"%d",&mat_type);
+  ierr = MPI_Bcast (&mat_type, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
 
   PetscPrintf(PETSC_COMM_WORLD,
@@ -76,9 +98,16 @@ int main(int argc,char **args) {
   part.N = N;
   MY_RANK = myrank;
   SIZE = size;
+
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
   PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
-  PFMat &A = AAA;
+  if (mat_type==0) {
+    A_p = &AA;
+  } else if (mat_type==0) {
+    A_p = &AAA;
+  } else assert(0);
+  PFMat &A = *A_p;
+
   for (int j=0; j<N; j++) {
     if (j % size != myrank) continue; // Load periodically
     A.set_profile(j,j);
@@ -104,8 +133,8 @@ int main(int argc,char **args) {
   for (int imat=0; imat<nmat; imat++) {
     A.zero_entries();
     if (myrank==0) {
-      cond = 1. + ::drand();
-      L = 1. + ::drand();
+      cond = 1. + rand_coef * ::drand();
+      L = 1. + rand_coef * ::drand();
     }
 
     ierr = MPI_Bcast (&cond, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
@@ -115,7 +144,6 @@ int main(int argc,char **args) {
 
     for (int j=0; j<N; j++) {
       if (j % size != myrank) continue; // Load periodically
-      if (j % 100 == 0) printf("adding %d\n",j);
       A.set_value(j,j,2.*coef);
       if (j+1 <  N ) A.set_value(j,j+1,-coef);
       if (j-1 >= 0 ) A.set_value(j,j-1,-coef);
@@ -126,16 +154,18 @@ int main(int argc,char **args) {
     for (int ksolve=0; ksolve<nsolve; ksolve++) {
 
       if (myrank==0) {
-	Q = 1. + ::drand();
-	printf("cond %f, Q %f, L %f\n",cond,L,Q);
+	Q = 1. + rand_coef * ::drand();
+	printf("cond %f, Q %f, L %f\n",cond,Q,L);
       }
       ierr = MPI_Bcast (&Q, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
 
       if (myrank==0) {
 	for (int j=0; j<N; j++) {
-	  ierr = VecSetValues(b,1,&j,&Q,INSERT_VALUES); CHKERRA(ierr);
 	  double x = double(j+1)/double(Nelem)*L;
-	  double val = x*(L-x)*Q/cond/2.;
+	  double Qx = Q*(x-L/2);
+	  ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES); CHKERRA(ierr);
+	  // double val = x*(L-x)*Q/cond/2.;
+	  double val=Q/cond*x*(L-x)*(x-L/2.)/6.;
 	  ierr = VecSetValues(xex,1,&j,&val,INSERT_VALUES); CHKERRA(ierr);
 	}
       }
