@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.11 2002/08/13 01:38:14 mstorti Exp $
+//$Id: embgath.h,v 1.12 2002/08/14 14:23:03 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -113,7 +113,7 @@ class embedded_gatherer : public Elemset {
   Surf2Vol *sv_gp_data;
   /// Number of Gauss points. 
   int npg;
-  int layer, layers;
+  int nel_surf, nel_vol, layer, layers;
 public: 
   /** Constructor. Initializes the pointer 
       to interpolation/integration element. */

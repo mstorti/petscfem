@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.21 2002/08/14 01:58:02 mstorti Exp $
+//$Id: embgath.cpp,v 1.22 2002/08/14 14:23:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -197,12 +197,11 @@ void embedded_gatherer::initialize() {
 			       GP_FASTMAT2,use_exterior_normal);
   } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry %s\n",geometry.c_str());
 
-  int nel_surf, nel_vol;
   surface_nodes(nel_surf,nel_vol);
   assert(nel_surf>0 && nel_surf<=nel);
   assert(nel_vol <= nel); //
   assert(nel_vol <= vol_elem->nel);
-  assert(nel==(nlayers+1)*nel_surf);
+  assert(nel == nel_surf*(layers+1));
   if (identify_volume_elements) {
     assert(2*nel_surf==nel_vol);
     for (layer=0; layer<layers; layer++) {
@@ -337,9 +336,9 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define SHAPE    (*(*sv_gp_data).FM2_shape[ipg])
 #define WPG      ((*sv_gp_data).wpg[ipg])
 #else
-#define DSHAPEXI (*(*gp_data).FM2_dshapexi[ipg])
-#define SHAPE    (*(*gp_data).FM2_shape[ipg])
-#define WPG      ((*gp_data).wpg[ipg])
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE    (*gp_data.FM2_shape[ipg])
+#define WPG      (gp_data.wpg[ipg])
 #endif
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
@@ -362,15 +361,17 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 xloc(2,nel,ndim);
 
   Cloud cloud;
-  cloud.init(nlayers+1,1,nlayers);
+  cloud.init(layers+1,1,layers);
   
   FastMat2 Jaco(2,ndim,ndim),Jacosur(2,ndimel,ndim),
-    iJaco(2,ndim,ndim),staten(3,nlayers+1,nel_surf,ndof), 
-    stateo(3,nlayers+1,nel_surf,ndof),
-    u_old(2,nlayers+1,ndof),u(2,nlayers+1,ndof),
-    n(1,ndim),xpg(1,ndim),grad_u(2,ndim,ndof),
+    iJaco(2,ndim,ndim),staten(3,layers+1,nel_surf,ndof), 
+    stateo(3,layers+1,nel_surf,ndof),
+    u_old_l(2,layers+1,ndof),u_l(2,layers+1,ndof),
+    u(1,ndof), u_old(1,ndof),
+    n(1,ndim),xpgl(2,layers+1,ndim),xpg(1,ndim),grad_u(2,ndim,ndof),
     grad_uold(2,ndim,ndof),dshapex(2,ndim,nel),
-    xn(1,nlayers+1),w(1,nlayers+1);
+    xn(1,layers+1),w(1,layers+1),state_pg(2,layers+1,ndof),
+    grad_u_xi(2,ndim,ndof),grad_uold_xi(2,ndim,ndof);
 
   Time * time_c = (Time *)time;
   double t = time_c->time();
@@ -394,7 +395,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
     }
     xloc.rs();
-    xloc.reshape(3,nlayers+1,nel_surf,ndim);
+    xloc.reshape(3,layers+1,nel_surf,ndim);
 
     staten.set(&(LOCST(ielh,0,0)));
     stateo.set(&(LOCST2(ielh,0,0)));
@@ -405,25 +406,21 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (int ipg=0; ipg<npg; ipg++) {
       FastMat2 &shape = SHAPE;
       FastMat2 &dshapexi = DSHAPEXI;
-      // Gauss point coordinates
-      xpg.prod(shape,xloc,-1,1,-1,2);
-      // Jacobian master coordinates -> real coordinates
+      // Gauss point coordinates in several layers (layers+1 x npg x ndim)
+      xpgl.prod(shape,xloc,-1,1,-1,2);
+
+      // Jacobian master coordinates -> real coordinates (on surface)
+      Jaco.is(1,1,2);
+      xloc.ir(1,1);
       Jaco.prod(dshapexi,xloc,1,-1,-1,2);
-      iJaco.inv(Jaco);
-      
+      xloc.rs();
+
+      // In surface jacobian
       double detJaco;
-      Jaco.is(1,1,ndimel);
       Jacosur.set(Jaco);
       detJaco = mydetsur(Jacosur,n);
       Jaco.rs();
       n.scale(1./detJaco);
-      double an = n.norm_p_all(2.);
-
-      xn.prod(n,xpg,-1,1,-1).scale(1./an);
-      cloud.coef(xn,w);
-
-      dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
-
       if (detJaco <= 0.) {
 	printf("Jacobian of element %d is negative or null\n"
 	       " Jacobian: %f\n",k,detJaco);
@@ -432,14 +429,37 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       double wpgdet = detJaco*WPG;
 
-      // Values of variables at Gauss point
-      u.prod(shape,staten,-1,1,-1,2);
-      u_old.prod(shape,stateo,-1,1,-1,2);
+      // `w' is the coefficients to compute the derivative of a function with coordinates `xn' 
+      xn.prod(n,xpgl,-1,1,-1);
+      xn.add(-xn.get(1));
+      cloud.coef(xn,w);
+      
+      // 3D Jacobian
+      Jaco.ir(1,3).prod(xpgl,w,-1,1,-1).rs();
+      iJaco.inv(Jaco);
+      
+      // Values and Gradients of variables at Gauss point
+      // new state (t^n+1)
+      staten.ir(1,1);
+      u.prod(shape,staten,-1,-1,1);
+      grad_u_xi.is(1,1,ndimel).prod(dshapexi,staten,1,-1,-1,2).rs();
+      staten.rs();
+      // old state (t^n)
+      stateo.ir(1,1);
+      u_old.prod(shape,stateo,-1,-1,1);
+      grad_uold_xi.is(1,1,ndimel).prod(dshapexi,stateo,1,-1,-1,2).rs();
+      stateo.rs();
 
-      // Gradients of variables at Gauss point
-      grad_u.prod(dshapex,staten,1,-1,-1,2);
-      grad_uold.prod(dshapex,stateo,1,-1,-1,2);
-
+      // state in all layers
+      state_pg.prod(shape,staten,-1,1,-1,2);
+      grad_u_xi.ir(1,ndim).prod(state_pg,w,-1,1,-1).rs();
+      grad_u.prod(iJaco,grad_u_xi,1,-1,-1,2);
+      
+      state_pg.prod(shape,stateo,-1,1,-1,2);
+      grad_uold_xi.ir(1,ndim).prod(state_pg,w,-1,1,-1).rs();
+      grad_uold.prod(iJaco,grad_uold_xi,1,-1,-1,2);
+      
+      xpgl.ir(1,1); xpg.set(xpgl); xpgl.rs();
       set_pg_values(pg_values,u,u_old,grad_u,grad_uold,xpg,n,wpgdet,t);
       if (options & VECTOR_ADD) {
 	for (int j=0; j<gather_length; j++) {
