@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.48 2001/09/30 22:52:22 mstorti Exp $
+//$Id: lusubd.cpp,v 1.49 2001/10/02 16:02:39 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -803,7 +803,7 @@ int IISDMat::solve(Vec res,Vec dx) {
 
       ierr = KSPSetType(ksp_ll,KSPPREONLY); CHKERRQ(ierr); 
       ierr = PCSetType(pc_ll,PCLU); CHKERRQ(ierr); 
-      printf("setting pc_lu_fill = %f\n",pc_lu_fill);
+      // printf("setting pc_lu_fill = %f\n",pc_lu_fill);
       // ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
       ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr);
 
