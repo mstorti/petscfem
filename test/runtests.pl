@@ -695,7 +695,7 @@ expect("sqcav/check.iisd.verif.np1.tmp",
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.iisd.verif.np2.tmp",
-       "Square cavity, IISD part. in 2 proc.",read_file("sqcav/sqcav.ans.txt"));
+       "Square cavity, IISD part. in 2 proc.",read_file("sqcav/sqcav.ans.np2.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("graph/output.graph.tmp","Graph partitioning",
