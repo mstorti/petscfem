@@ -10,8 +10,8 @@ Hasher::Hasher() {
 }
 
 void Hasher::reset() {
-  memset(&buffer,'\0',
-	 sizeof(struct drand48_data));
+  memset(&xsubi,'\0',
+	 3*sizeof(unsigned short int));
 }
 
 void Hasher::hash(int w) {

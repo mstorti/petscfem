@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
   Hasher hash;
-  for (int N=26; N<27; N++) {
+  for (int N=3; N<10; N++) {
     // printf("N %d\n",N);
     vector<int> vec(N);
     int NN = int(pow(2.0,N));
@@ -18,7 +18,7 @@ int main() {
     int count=0;
     int print=0;
     while (1) {
-#if 0
+#if 1
       hash.reset();
       hash.hash(&vec[0],vec.size());
       int h = hash.hash_val();

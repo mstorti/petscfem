@@ -1,8 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.17 2004/11/23 19:50:55 mstorti Exp $
+// $Id: femref.cpp,v 1.18 2004/11/25 01:49:22 mstorti Exp $
 
 #include <string>
 #include <limits.h>
+#include "./hasher.h"
+
+Hasher hasher;
 
 using namespace std;
 
@@ -61,12 +64,13 @@ void GeomObject::init(Type t,const int *nodes_a) {
   // Copy node array in internal vector
   // and compute check-sum
   if (nodes_a) {
-    cs = 0;
+    hasher.reset();
     for (int j=0; j<sz; j++) {
       int node = nodes_a[j];
-      cs += node;
+      hasher.hash(node);
       nodes_m.ref(j) = node;
     }
+    cs = hasher.hash_val();
   }
 }
 
