@@ -1293,3 +1293,6 @@ tag: beta-3.00.pl12 on Tue, 23 Jul 2002 00:42:55 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl13 on Tue, 23 Jul 2002 09:28:06 -0300 by mstorti in spider
      > Writing distributed graph class.
+----------
+tag: beta-3.00.pl14 on Tue, 23 Jul 2002 13:40:13 -0300 by mstorti in minerva.arcride.edu.ar
+     > Almost compiles (it remains to write pack, unpack, etc...)
