@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.12 2003/08/10 13:54:09 mstorti Exp $
+// $Id: dvector2.h,v 1.13 2003/08/10 23:30:58 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -137,9 +137,7 @@ void dvector<T>::push(const T &t) {
     // allocate new chunk
     assert(nchunks == chunk_vector.size());
     // resync `chunk_vector' and `nchunks'
-    printf("antes...\n");
     T* p = new T[chunk_size];
-    printf("despues...\n");
     chunk_vector.push_back(p);
     chunks = &*chunk_vector.begin();
     nchunks++;
@@ -225,13 +223,12 @@ int dvector<T>::print(FILE *fid,T t) {
 template<class T>
 dvector<T>& dvector<T>::read(FILE *fid) {
   // Currently for vectors only (reshape after)
-  assert(rank==1);
+  // assert(rank==1);
   int m=size();
   for (int j=0; j<m; j++) {
-    int ierr = read(fid,e(j));
+    int ierr = read(fid,ref(j));
     assert(!ierr);
   }
-  fclose(fid);
   return *this;
 }
 
@@ -249,12 +246,13 @@ dvector<T>& dvector<T>::read(const char *name) {
 template<class T>
 dvector<T>& dvector<T>::cat(FILE *fid) {
   // Currently for vectors only (reshape after)
-  assert(rank==1);
+  nread = 0;
   while(1) {
     T val;
     int ierr = read(fid,val);
     if(ierr) break;
     push(val);
+    nread++;
   }
   return *this;
 }
@@ -271,10 +269,20 @@ dvector<T>& dvector<T>::cat(const char *name) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
+dvector<T>& dvector<T>::cat(const char *name, int &nread_a) {
+  FILE *fid = fopen(name,"r");
+  assert(fid);
+  cat(fid);
+  fclose(fid);
+  nread_a = nread;
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
 dvector<T>& dvector<T>::print(FILE *fid) {
-  assert(rank==1);
   int M=size();
-  for (int j=0; j<M; j++) print(fid,e(j));
+  for (int j=0; j<M; j++) print(fid,ref(j));
   return *this;
 }
 

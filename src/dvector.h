@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.12 2003/08/09 14:27:43 mstorti Exp $
+// $Id: dvector.h,v 1.13 2003/08/10 23:30:58 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -53,6 +53,8 @@ private:
   /// Reads an element from a file
   int print(FILE *fid,T t);
 
+  /// Number of elements read with cat, read and friends
+  int nread;
 public:
   /** Constructor 
       @param cs (input) chunk size for this vector
@@ -124,17 +126,29 @@ public:
   /// Resizes monolithically and initializes
   dvector<T>& mono(int size,T e);
 
-  /** Read from a stream, like Octave's `aload'. */ 
+  /** Read from a stream, like Octave's `aload'.
+      @param fid (input) stream to read in
+      @return reference to self  */ 
   dvector<T>& read(FILE *fid);
 
-  /** Read from a file, given its name, like Octave's `aload'. */
+  /** Read from a file, given its name, like Octave's `aload'.
+      @param name (input) name of file to read
+      @return reference to self  */ 
   dvector<T>& read(const char *name);
 
-  /// Read from a file, as much as possible, appending to the vector
+  /** Read from a stream, as much as possible,
+      appending to the vector */
   dvector<T>& cat(FILE *fid);
 
-  /// Read from a file, as much as possible, appending to the vector
+  /** Read from a file, as much as possible, 
+      appending to the vector */
   dvector<T>& cat(const char *name);
+
+  /** Read from a file, given its name, like Octave's `aload'.
+      @param name (input) name of file to read
+      @param nread (output) number of elments read
+      @return reference to self  */ 
+  dvector<T>& cat(const char *name,int &nread);
 
   /// Write to a stream
   dvector<T>& print(FILE *fid);
