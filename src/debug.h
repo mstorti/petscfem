@@ -1,10 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.8 2003/02/09 14:50:57 mstorti Exp $
+// $Id: debug.h,v 1.9 2003/07/02 02:32:47 mstorti Exp $
 #ifndef PF_DEBUG_H
 #define PF_DEBUG_H
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <unistd.h>
 #include <sys/types.h>

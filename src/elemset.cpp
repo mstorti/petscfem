@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.66 2003/06/09 02:37:18 mstorti Exp $
+//$Id: elemset.cpp,v 1.67 2003/07/02 02:32:47 mstorti Exp $
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <vector>
 #include <set>
@@ -93,7 +95,7 @@ int Elemset::real_nodes(int iele,const int *&nodes) {
 int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 			     arg_data &argd,
 			     int myrank,int el_start,int el_last,
-			     int iter_mode,const TimeData *time_data=NULL) {
+			     int iter_mode,const TimeData *time_data) {
 
   int iele,iele_here,kloc,node,kdof;
   
@@ -131,7 +133,7 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
-		  int klocc=0,int kdofc=0) {
+		  int klocc,int kdofc) {
 
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
@@ -357,7 +359,7 @@ public:
 #undef __FUNC__
 #define __FUNC__ "int assemble(Mesh *,arg_list ,Dofmap *,char *)"
 int assemble(Mesh *mesh,arg_list argl,
-	     Dofmap *dofmap,const char *jobinfo,const TimeData *time_data=NULL) {
+	     Dofmap *dofmap,const char *jobinfo,const TimeData *time_data) {
 
 #define ARGVJ (arg_data_v[j])
 
@@ -946,7 +948,7 @@ const double *NewElemset::prop_array(ElementIterator &element,
 #define __FUNC__ \
    "int NewElemset::get_vec_double(const char *,vector<double> &,int=0) const"
 int NewElemset::get_vec_double(const char *name,
-		   vector<double> &retval,int defval=0) const {
+		   vector<double> &retval,int defval) const {
 
   const char *value;
   if (!defval) retval.clear();

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.25 2003/01/10 13:39:22 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.26 2003/07/02 02:32:47 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -85,18 +85,21 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
     ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ = **pfrom++;
   }
@@ -157,8 +160,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -166,10 +169,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ += **pfrom++;
   }
@@ -230,8 +236,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -239,10 +245,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ -= **pfrom++;
   }
@@ -303,8 +312,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -312,10 +321,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ *= **pfrom++;
   }
@@ -376,8 +388,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -385,10 +397,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ /= **pfrom++;
   }
@@ -396,7 +411,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::rcp(const FastMat2 & A ,double c=1.) {
+FastMat2 & FastMat2::rcp(const FastMat2 & A ,double c) {
 
   FastMatCache *cache;
 
@@ -449,8 +464,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -458,10 +473,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ = c/(**pfrom++);
   }
@@ -522,8 +540,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       flag=inc(indx,fdims);
     } 
     cache->nelems = cache->to_elems.size();
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
 
     op_count.put += cache->nelems;
     op_count.get += cache->nelems;
@@ -532,10 +550,13 @@ op_count.sum += cache->nelems;
 ;
   }
 
-  double **pto,**pfrom,**pto_end;
-  pto = cache->pto;
+  // double **pto,**pfrom,**pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // pfrom = cache->pfrom;
+  pto = cache->from_elems.begin();
   while (pto < pto_end) {
     **pto++ += alpha * **pfrom++;
   }
@@ -548,7 +569,7 @@ op_count.sum += cache->nelems;
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS) {
+FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -601,7 +622,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS) {
+FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -655,7 +676,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS) {
+FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -761,14 +782,16 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
     op_count.get += cache->nelems;
     op_count.get += cache->nelems;
   }
   const double *from = a;
 
-    double **pto,**pto_end;
-  pto = cache->pto;
+    // double **pto,**pto_end;
+  vector<double *>::iterator pto, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
   while (pto < pto_end) {
     **pto++ = *from++;
@@ -831,7 +854,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     int size = mem_size(fdims);
     cache->nelems = size;
     cache->to_elems.resize(size);
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
 
     int jj=0;
     Indx indx(2,0);
@@ -846,8 +869,10 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   }
   double *from = A.Store();
 
-    double **pto,**pto_end;
-  pto = cache->pto;
+    // double **pto,**pto_end;
+  vector<double *>::iterator pto, pto_end;
+  // pto = cache->pto;
+  pto = cache->to_elems.begin();
   pto_end = pto + cache->nelems;
   while (pto < pto_end) {
     **pto++ = *from++;
@@ -877,7 +902,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::sum(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -973,12 +998,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -999,7 +1026,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -1009,12 +1036,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   ;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=0;
@@ -1050,7 +1080,7 @@ op_count.mult += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::sum_square(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -1146,12 +1176,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -1172,7 +1204,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -1183,12 +1215,15 @@ op_count.mult += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   double aux;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=0;
@@ -1224,7 +1259,7 @@ op_count.abs += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::sum_abs(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -1320,12 +1355,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -1346,7 +1383,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -1357,12 +1394,15 @@ op_count.abs += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   ;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=0;
@@ -1398,7 +1438,7 @@ op_count.abs += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p , 
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -1494,12 +1534,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -1520,7 +1562,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -1531,12 +1573,15 @@ op_count.abs += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   ;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=0;
@@ -1572,7 +1617,7 @@ op_count.abs += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p , 
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -1668,12 +1713,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -1694,7 +1741,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -1705,12 +1752,15 @@ op_count.abs += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   ;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=0;
@@ -1745,7 +1795,7 @@ double FastMat2::norm_p_all(const int p) const {
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f , 
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -1841,12 +1891,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -1867,7 +1919,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -1877,12 +1929,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   f.pre_all();
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     f.pre();
@@ -1918,7 +1973,7 @@ op_count.fun += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::max(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -2014,12 +2069,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -2040,7 +2097,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -2051,12 +2108,15 @@ op_count.fun += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   double aux;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=**pa++;;
@@ -2092,7 +2152,7 @@ op_count.fun += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::min(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -2188,12 +2248,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -2214,7 +2276,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -2225,12 +2287,15 @@ op_count.fun += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   double aux;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=**pa++;;
@@ -2267,7 +2332,7 @@ op_count.abs += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::max_abs(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -2363,12 +2428,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -2389,7 +2456,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -2401,12 +2468,15 @@ op_count.abs += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   double aux;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=fabs(**pa++);;
@@ -2443,7 +2513,7 @@ op_count.abs += ntot;
 */
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::min_abs(const FastMat2 & A,   
-			      const int m=0,INT_VAR_ARGS) {
+			      const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -2539,12 +2609,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     // list of addresses of the lines of elements that contribute to
     // it. 
     cache->prod_cache.resize(nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
-    LineCache *lc;
+    vector<LineCache>::iterator lc;
     for (int jlc=0; jlc<nlines; jlc++) {
-      lc = cache->line_cache_start + jlc;
+      lc = line_cache_start + jlc;
       lc->linea.resize(line_size);
       // cache->prod_cache.push_back(LineCache());
       lc->target = location(findx);
@@ -2565,7 +2637,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	lc->linea[kk++] = A.location(tot_indx);
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       if (!inc(findx,ndimsf)) break;
     }
     int ntot = nlines*line_size;
@@ -2577,12 +2649,15 @@ op_count.abs += ntot;
 ;
   }
 
-  LineCache *lc;
-  double **pa,**pe,val;
+  vector<LineCache>::iterator lc;
+  // double **pa,**pe,val;
+  double val;
+  vector<double *>::iterator pa,pe;
   double aux;
   for (int j=0; j<cache->nlines; j++) {
-    lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = (cache->prod_cache.begin())+j;
+    // lc = cache->line_cache_start+j;
+    pa = lc->linea.begin();
     pe = pa + cache->line_size;
     // val=0;
     val=fabs(**pa++);;
@@ -2608,7 +2683,7 @@ double FastMat2::min_abs_all() const {
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::set(const double val=0.) {
+FastMat2 & FastMat2::set(const double val) {
 
   FastMatCache *cache;
 
@@ -2652,11 +2727,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
   }
 
-  double **to = cache->pto;
-  double **to_end = to + cache->nelems;
+  vector<double *>::iterator to, to_end;
+  // double **to = cache->pto;
+  to = cache->to_elems.begin();
+  to_end = to + cache->nelems;
   while (to<to_end) {
     **to++ = val;
   }
@@ -2709,11 +2786,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
   }
 
-  double **to = cache->pto;
-  double **to_end = to + cache->nelems;
+  vector<double *>::iterator to, to_end;
+  // double **to = cache->pto;
+  to = cache->to_elems.begin();
+  to_end = to + cache->nelems;
   while (to<to_end) {
     **to++ *= val;
   }
@@ -2766,11 +2845,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
   }
 
-  double **to = cache->pto;
-  double **to_end = to + cache->nelems;
+  vector<double *>::iterator to, to_end;
+  // double **to = cache->pto;
+  to = cache->to_elems.begin();
+  to_end = to + cache->nelems;
   while (to<to_end) {
     **to++ += val;
   }
@@ -2779,7 +2860,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::rcp(const double val=1.) {
+FastMat2 & FastMat2::rcp(const double val) {
 
   FastMatCache *cache;
 
@@ -2823,11 +2904,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
   }
 
-  double **to = cache->pto;
-  double **to_end = to + cache->nelems;
+  vector<double *>::iterator to, to_end;
+  // double **to = cache->pto;
+  to = cache->to_elems.begin();
+  to_end = to + cache->nelems;
   while (to<to_end) {
     **to = val/(**to++);
   }
@@ -2880,11 +2963,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
   }
 
-  double **to = cache->pto;
-  double **to_end = to + cache->nelems;
+  vector<double *>::iterator to, to_end;
+  // double **to = cache->pto;
+  to = cache->to_elems.begin();
+  to_end = to + cache->nelems;
   while (to<to_end) {
     **to = (*fun_)(**to); **to++;
   }
@@ -2937,11 +3022,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->to_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
   }
 
-  double **to = cache->pto;
-  double **to_end = to + cache->nelems;
+  vector<double *>::iterator to, to_end;
+  // double **to = cache->pto;
+  to = cache->to_elems.begin();
+  to_end = to + cache->nelems;
   while (to<to_end) {
     **to = (*fun_)(**to,user_args); **to++;
   }
@@ -2954,7 +3041,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 
-FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_VAR_ARGS) {
+FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -3086,14 +3173,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   // it. 
     cache->nlines = mem_size(ndimsf);
     cache->prod_cache.resize(cache->nlines);
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
     cache->line_size = mem_size(ndimsc);
     int line_size = cache->line_size;
 
     int jlc=0,inca,incb;
-    LineCache *lc;
+    vector<LineCache>::iterator lc, line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
     while (1) {
-      lc = cache->line_cache_start + jlc++;
+      lc =  line_cache_start + jlc++;
       lc->linea.resize(line_size);
       lc->lineb.resize(line_size);
       lc->target = location(findx);
@@ -3132,8 +3220,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 	jj++;
 	if (!inc(cindx,ndimsc)) break;
       }
-      lc->starta = lc->linea.begin();
-      lc->startb = lc->lineb.begin();
+      // lc->starta = lc->linea.begin();
+      // lc->startb = lc->lineb.begin();
       lc->inca = inca;
       lc->incb = incb;
       // lc->linear = 0; // force non-linear
@@ -3151,11 +3239,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
   // Perform computations using cached addresses
   int nlines = cache->nlines;
-  double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
+  vector<LineCache>::iterator lc, line_cache_start;
+  line_cache_start = cache->prod_cache.begin();
+  // double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
+  vector<double*>::iterator pa, pb, pa_end;
+  double sum, *paa,*pbb,*paa_end;
   for (int j=0; j<nlines; j++) {
-    LineCache *lc = cache->line_cache_start+j;
-    pa = lc->starta;
-    pb = lc->startb;
+    lc = line_cache_start + j;
+    pa = lc->linea.begin();
+    pb = lc->lineb.begin();
     if (lc->linear) {
       paa = *pa;
       pbb = *pb;
@@ -3243,16 +3335,15 @@ if (A.Nrows()==0) {
       cache->from_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
   }
   double *to = A.Store();
 
-  double **pfrom,**pfrom_end;
-  pfrom = cache->pfrom;
+  // double **pfrom,**pfrom_end;
+  vector<double *>::iterator pfrom, pfrom_end;
+  pfrom = cache->from_elems.begin();
   pfrom_end = pfrom + cache->nelems;
-  while (pfrom < pfrom_end) {
-    *to++ = **pfrom++;
-  }
+  while (pfrom < pfrom_end) *to++ = **pfrom++;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -3312,16 +3403,15 @@ if (A.Nrows()==0) {
       cache->from_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
   }
   double *to = A.Store();
 
-  double **pfrom,**pfrom_end;
-  pfrom = cache->pfrom;
+  // double **pfrom,**pfrom_end;
+  vector<double *>::iterator pfrom, pfrom_end;
+  pfrom = cache->from_elems.begin();
   pfrom_end = pfrom + cache->nelems;
-  while (pfrom < pfrom_end) {
-    *to++ = **pfrom++;
-  }
+  while (pfrom < pfrom_end) *to++ = **pfrom++;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -3375,16 +3465,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->from_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
   }
   double *to = a;
 
-  double **pfrom,**pfrom_end;
-  pfrom = cache->pfrom;
+  // double **pfrom,**pfrom_end;
+  vector<double *>::iterator pfrom, pfrom_end;
+  pfrom = cache->from_elems.begin();
   pfrom_end = pfrom + cache->nelems;
-  while (pfrom < pfrom_end) {
-    *to++ = **pfrom++;
-  }
+  while (pfrom < pfrom_end) *to++ = **pfrom++;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -3438,16 +3527,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       cache->from_elems[j++] = location(indx);
       flag=inc(indx,fdims);
     } 
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
   }
   double *to = a;
 
-  double **pfrom,**pfrom_end;
-  pfrom = cache->pfrom;
+  // double **pfrom,**pfrom_end;
+  vector<double *>::iterator pfrom, pfrom_end;
+  pfrom = cache->from_elems.begin();
   pfrom_end = pfrom + cache->nelems;
-  while (pfrom < pfrom_end) {
-    *to++ = **pfrom++;
-  }
+  while (pfrom < pfrom_end) *to++ = **pfrom++;
   if (!use_cache) delete cache;
   return *this;
 }  
@@ -3455,7 +3543,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 
 
-FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
+FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -3564,13 +3652,15 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->prod_cache.resize(nlines);
     cache->nlines = nlines;
     cache->line_size = line_size;
-    cache->line_cache_start = cache->prod_cache.begin();
+    // cache->line_cache_start = cache->prod_cache.begin();
+    vector<LineCache>::iterator lc, line_cache_start;
+    line_cache_start = cache->prod_cache.begin();
 
     int jlc=0;
     while (1) {
-      LineCache *lc = cache->line_cache_start + jlc++;
+      lc = line_cache_start + jlc++;
       lc->linea.resize(line_size);
-      lc->starta = lc->linea.begin();
+      // lc->starta = lc->linea.begin();
       lc->target = location(findx);
 
       cindx= Indx(nc,1);
@@ -3601,15 +3691,18 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
   // Perform computations using cached addresses
   int nlines = cache->nlines;
-  double **pa,**pa_end,sum;
+  // double **pa,**pa_end,sum;
+  vector<double *>::iterator pa, pa_end;
+  double sum;
+  vector<LineCache>::iterator lc, line_cache_start;
+  line_cache_start = cache->prod_cache.begin();
   for (int j=0; j<nlines; j++) {
-    LineCache *lc = cache->line_cache_start+j;
-    pa = lc->starta;
+    lc = line_cache_start+j;
+    // pa = lc->starta;
+    pa = lc->linea.begin();
     pa_end = pa + cache->line_size;
     sum=0.;
-    while (pa<pa_end) {
-      sum += **pa++;
-    }
+    while (pa<pa_end) sum += **pa++;
     *(lc->target) = sum;
   }
 
@@ -3620,7 +3713,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS) {
+FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS_ND) {
 
   FastMatCache *cache;
 
@@ -3708,8 +3801,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->to_elems.resize(nelems);
     cache->from_elems.resize(nelems);
     cache->nelems = nelems;
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
     int jj=0;
     while (1) {
       for (int k=0; k<ndims; k++) 
@@ -3725,10 +3818,11 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   }
 
   // Perform computations using cached addresses
-  double **pto, **pfrom, **pto_end;
-  pto = cache->pto;
-  pto_end = cache->pto + cache->nelems;
-  pfrom = cache->pfrom;
+  // double **pto, **pfrom, **pto_end;
+  vector<double *>::iterator pto, pfrom, pto_end;
+  pto = cache->to_elems.begin();
+  pto_end = pto + cache->nelems;
+  pfrom = cache->from_elems.begin();
   
   while  (pto<pto_end) {
     **pto++ = **pfrom++;
@@ -3742,7 +3836,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 
 
-double FastMat2::get(INT_VAR_ARGS) const {
+double FastMat2::get(INT_VAR_ARGS_ND) const {
 
   FastMatCache *cache;
 
@@ -3973,23 +4067,28 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->nelems = nelems;
     cache->from_elems.resize(2*nelems);
     cache->to_elems.resize(nelems);
-    cache->pto = cache->to_elems.begin();
-    cache->pfrom = cache->from_elems.begin();
-    double **pfrom_b = cache->pfrom + nelems;
-    double **pfrom_a = cache->pfrom;
-    double **pto = cache->pto;
+    // cache->pto = cache->to_elems.begin();
+    // cache->pfrom = cache->from_elems.begin();
+    // double **pfrom_b = cache->pfrom + nelems;
+    // double **pfrom_a = cache->pfrom;
+    // double **pto = cache->pto;
+    vector<double *>::iterator pto, pfrom, pfrom_b, pfrom_a;
+    pto = cache->to_elems.begin();
+    pfrom = cache->from_elems.begin();
+    pfrom_a = pfrom;
+    pfrom_b = pfrom + nelems;
 
     // Load addresses in cache
     Indx Aindx(ndims,1),Bindx(ndims,1),indx_(ndims,0);
     int jj=0;
     while (1) {
       while (1) {
-	pfrom_a[jj] = A.location(Aindx);
-	pfrom_b[jj] = B.location(Bindx);
+	*(pfrom_a +jj) = A.location(Aindx);
+	*(pfrom_b +jj) = B.location(Bindx);
 
 	for (int jd=0; jd<ndims; jd++) 
 	  indx_[jd] = (Aindx[jd]-1)*Bdims[jd] + Bindx[jd];
-	pto[jj] = location(indx_);
+	*(pto+jj) = location(indx_);
 
 	jj++;
 	if (!inc(Bindx,Bdims)) break;
@@ -4003,11 +4102,18 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   }
 
   // Perform computations using cached addresses
+#if 0
   double **pto, **pfrom_a, **pfrom_b, **pto_end;
   pto = cache->pto;
   pto_end = cache->pto + cache->nelems;
   pfrom_a = cache->pfrom;
   pfrom_b = cache->pfrom + cache->nelems;
+#endif
+  vector<double *>::iterator pto, pfrom, pfrom_b, pfrom_a;
+  pto = cache->to_elems.begin();
+  pfrom = cache->from_elems.begin();
+  pfrom_a = pfrom;
+  pfrom_b = pfrom + nelems;
   
   while  (pto<pto_end) 
     (**pto++) = (**pfrom_a++) * (**pfrom_b++);
@@ -4021,7 +4127,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::eye(const double a=1.) {
+FastMat2 & FastMat2::eye(const double a) {
   set(0.);
 
   FastMatCache *cache;
@@ -4069,15 +4175,18 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     } 
     cache->nelems = n;
 
-    cache->pto = cache->to_elems.begin();
+    // cache->pto = cache->to_elems.begin();
 
     op_count.put += n;
     op_count.mult += 1;
 ;
   }
 
-  double **pto = cache->pto;
-  double **pto_end = pto + cache->nelems;
+  // double **pto = cache->pto;
+  // double **pto_end = pto + cache->nelems;
+  vector<double *>::iterator pto, pto_end;
+  pto = cache->to_elems.begin();
+  pto_end = pto + cache->nelems;
 
   while (pto < pto_end) {
     **pto++ = a;

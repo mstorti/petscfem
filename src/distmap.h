@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.27 2002/08/28 00:48:18 mstorti Exp $
+// $Id: distmap.h,v 1.28 2003/07/02 02:32:47 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -20,7 +20,9 @@
 */
 template <class Key,class Val,class Partitioner>
 class DistMap : public map<Key,Val> {
- protected:
+private:
+  typedef typename map<Key,Val>::const_iterator kv_iterator;
+protected:
   /// MPI communicator
   MPI_Comm comm;
   /// This returns the number of processor for a given dof
@@ -40,12 +42,12 @@ class DistMap : public map<Key,Val> {
       @param k (input) iterator to the considered entry. 
       @return the number of processor where these matrix should go. 
   */ 
-  int processor(const map<Key,Val>::iterator k) const;
+  int processor(kv_iterator k) const;
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
    */ 
-  int size_of_pack(map<Key,Val>::const_iterator k) const;
+  int size_of_pack(kv_iterator k) const;
   /** Packs the entry #(k,v)# in buffer #buff#. This function should
       be defined by the user. 
       @param k (input) key of the entry

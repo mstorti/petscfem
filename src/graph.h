@@ -1,12 +1,14 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.15 2002/10/07 00:26:08 mstorti Exp $
+// $Id: graph.h,v 1.16 2003/07/02 02:32:47 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include <queue>
 #include <set>
+#include <memory>
 
+using namespace std;
 
 // Allocators, from http://www.sgi.com
 
@@ -30,9 +32,10 @@
 //  information from bounds-checking or leak-detection tools while you
 //  are debugging.
 
-#define STL_ALLOCATOR alloc
-//#define STL_ALLOCATOR malloc_alloc
-//#define STL_ALLOCATOR single_client_alloc 
+//#define STL_ALLOCATOR __alloc
+//#define STL_ALLOCATOR __new_alloc
+//#define STL_ALLOCATOR __malloc_alloc
+#define STL_ALLOCATOR __single_client_alloc 
 
 /// A set of neighbors. 
 typedef set<int,less<int>,STL_ALLOCATOR> GSet;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.13 2003/05/04 16:43:50 mstorti Exp $
+//$Id: debug.cpp,v 1.14 2003/07/02 02:32:47 mstorti Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
@@ -25,7 +25,7 @@ void Debug::set_signal(int sig) {
   }
 }
 
-int Debug::active(const char *s=NULL) const {
+int Debug::active(const char *s) const {
   string ss = string(s!=NULL ? s : "");
   map<string,int>::const_iterator k;
   k = active_flags.find(ss);
@@ -36,17 +36,17 @@ int Debug::active(const char *s=NULL) const {
   }
 }
 
-void Debug::activate(const char *s=NULL) {
+void Debug::activate(const char *s) {
   string ss = string(s!=NULL ? s : "");
   active_flags[ss] = 1;
 }
 
-void Debug::deactivate(const char *s=NULL) {
+void Debug::deactivate(const char *s) {
   string ss = string(s!=NULL ? s : "");
   active_flags[ss] = 0;
 }
 
-void Debug::release_proc(int proc=0) {
+void Debug::release_proc(int proc) {
   if (proc<0 || proc>=size) {
     printf("bad procesor number: %d",proc);
     return;
@@ -61,7 +61,7 @@ void Debug::release_proc(int proc=0) {
   flags[proc]=1;
 }
 
-void Debug::trace(const char *s=NULL) {
+void Debug::trace(const char *s) {
   time_t tt;
   int stopp;
   char *token;
@@ -185,7 +185,7 @@ void Debug::init() {
   orig_handler = signal(SIGINT,&Debug::set_signal);
 }
 
-Debug::Debug(int active_=0,MPI_Comm comm_=PETSC_COMM_WORLD) : 
+Debug::Debug(int active_,MPI_Comm comm_) : 
   comm(comm_), was_initialized(0) {
   N = 100;
   line = (char *)malloc(sizeof(char)*N);

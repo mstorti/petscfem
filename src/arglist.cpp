@@ -1,14 +1,16 @@
 //__INSERT_LICENSE__
-//$Id: arglist.cpp,v 1.8 2002/03/13 02:04:59 mstorti Exp $
+//$Id: arglist.cpp,v 1.9 2003/07/02 02:32:47 mstorti Exp $
 #include "fem.h"
 #include "dofmap.h"
 #include "elemset.h"
 #include "arglist.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 void arg_list::arg_add(void *arg,int options,string arginfo="") {
   push_back(arg_entry(arg,options,arginfo));
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 arg_data::arg_data(void) : time_data(NULL) {

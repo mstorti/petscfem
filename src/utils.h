@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.16 2003/02/09 14:50:57 mstorti Exp $
+//$Id: utils.h,v 1.17 2003/07/02 02:32:47 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -123,12 +123,13 @@ int reshape(Matrix &A,int m,int n);
     @param Tset the set
     @return random element in set
 */
-template<class T> 
+template<typename T> 
 T random_pop(set<T> &Tset) {
+  typedef typename set<T>::iterator T_iterator;
   T retval;
   int n=Tset.size();
   int j = irand(1,n);
-  set<T>::iterator it=Tset.begin();
+  T_iterator it=Tset.begin();
   for (int k=1; k<j; k++) it++;
   retval = *it;
   Tset.erase(it);

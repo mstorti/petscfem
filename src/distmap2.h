@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: distmap2.h,v 1.8 2002/08/29 02:06:50 mstorti Exp $
+//$Id: distmap2.h,v 1.9 2003/07/02 02:32:47 mstorti Exp $
 
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
@@ -10,8 +10,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val,class Partitioner>
 DistMap<Key,Val,Partitioner>::
-DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,
-			     MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
+DistMap<Key,Val,Partitioner>(Partitioner *pp, MPI_Comm comm_) : comm(comm_) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
@@ -22,7 +21,7 @@ DistMap<Key,Val,Partitioner>(Partitioner *pp=NULL,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val,class Partitioner> 
 int DistMap<Key,Val,Partitioner>::
-processor(const map<Key,Val>::iterator k) const {
+processor(kv_iterator k) const {
   return part->processor(k);
 };
 
@@ -32,7 +31,7 @@ processor(const map<Key,Val>::iterator k) const {
 template <class Key,class Val,class Partitioner>
 void DistMap<Key,Val,Partitioner>::scatter() {
   HPChrono hpc;
-  map<Key,Val>::iterator iter;
+  kv_iterator iter;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
   pair<Key,Val> p;

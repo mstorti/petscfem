@@ -21,6 +21,14 @@ type name##_3 = default,type name##_4 = default,type name##_5 = default,  \
 type name##_6 = default,type name##_7 = default,type name##_8 = default,  \
 type name##_9 = default
 
+/** Same, but without the default value
+ */
+#define ARG_LIST_ND(type,name) \
+type name##_0,type name##_1,type name##_2,  \
+type name##_3,type name##_4,type name##_5,  \
+type name##_6,type name##_7,type name##_8,  \
+type name##_9
+
 /** Reads the argument list in a FastVector of the corresponding type. 
     @doc Example: READ\_ARG\_LIST(name,indx,default,exit\_label)
     This is set in `readlist.eperl'. 

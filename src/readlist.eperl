@@ -23,6 +23,15 @@
 }:>//
 type name##_<:=$max_arg-1:> = default
 
+/** Same, but without the default value
+ */
+#define ARG_LIST_ND(type,name) \
+<:for ($j=0; $j<$max_arg-1; $j++) {
+    print "type name##_$j,";
+    if (($j+1) % 3 == 0) {print "  \\\n";}
+}:>//
+type name##_<:=$max_arg-1:>
+
 /** Reads the argument list in a FastVector of the corresponding type. 
     @doc Example: READ\_ARG\_LIST(name,indx,default,exit\_label)
     This is set in `readlist.eperl'. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.11 2003/01/01 23:49:15 mstorti Exp $
+//$Id: amplidl.cpp,v 1.12 2003/07/02 02:32:47 mstorti Exp $
 
 #ifdef USE_DLEF
 
@@ -12,6 +12,8 @@
 #include "utils.h"
 #include "util2.h"
 #include <dlfcn.h>
+
+using namespace std;
 
 DLGeneric::FileHandleTable DLGeneric::file_handle_table;
 

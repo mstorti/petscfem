@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.10 2002/09/05 18:23:52 mstorti Exp $
+//$Id: arglist.h,v 1.11 2003/07/02 02:32:47 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -89,7 +89,9 @@ public:
 */ 
 class arg_list : public vector<arg_entry> {
 public:
-  void arg_add(void *arg,int options,string arginfo="");
+  void arg_add(void *arg,int options,string arginfo="") {
+    push_back(arg_entry(arg,options,arginfo));
+  }
 };  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

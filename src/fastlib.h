@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastlib.h,v 1.5 2002/08/28 01:59:37 mstorti Exp $
+//$Id: fastlib.h,v 1.6 2003/07/02 02:32:47 mstorti Exp $
 
 #ifndef FASTLIB_H
 #define FASTLIB_H
@@ -19,6 +19,7 @@ class FastVector {
   T & operator[] (const int j) {return store[j];};
   const T & operator[] (const int j) const {return store[j];};
   inline int operator== (const FastVector & indx) const;
+  inline int operator!= (const FastVector & indx) const;
   inline FastVector & operator= (const FastVector & indx);
   int size(void) const {return size_;};
   int push_back(const T j) {resize_(size_+1); store[size_++]=j; return 0;};

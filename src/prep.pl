@@ -42,7 +42,7 @@ sub genone_all {
     genone('rest','','**pto++ -= **pfrom++','sum') ;
     genone('mult','','**pto++ *= **pfrom++','mult') ;
     genone('div','','**pto++ /= **pfrom++','div') ;
-    genone('rcp',',double c=1.',
+    genone('rcp',',double c',
 	   '**pto++ = c/(**pfrom++)','div') ;
     genone('axpy',',double alpha',
 	   '**pto++ += alpha * **pfrom++','mult','sum');
@@ -84,10 +84,10 @@ sub in_place {
 }
 
 sub in_place_all {
-    in_place('set','**to++ = val',{'FUN_ARGS' => 'const double val=0.'});
+    in_place('set','**to++ = val',{'FUN_ARGS' => 'const double val'});
     in_place('scale','**to++ *= val');
     in_place('add','**to++ += val');
-    in_place('rcp','**to = val/(**to++)',{'FUN_ARGS' => 'const double val=1.'});
+    in_place('rcp','**to = val/(**to++)',{'FUN_ARGS' => 'const double val'});
     in_place('fun','**to = (*fun_)(**to); **to++',
 	     {'FUN_ARGS' => 'scalar_fun_t *fun_'});
     in_place('fun','**to = (*fun_)(**to,user_args); **to++',

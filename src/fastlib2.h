@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: fastlib2.h,v 1.1 2002/08/28 01:59:37 mstorti Exp $
+// $Id: fastlib2.h,v 1.2 2003/07/02 02:32:47 mstorti Exp $
 #ifndef FASTLIB2_H
 #define FASTLIB2_H
 
@@ -53,6 +53,12 @@ inline int FastVector <T,chunk_size>::operator== (const FastVector & indx) const
     if (store[j] != indx.store[j]) return 0;
   }
   return 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template <class T,int chunk_size>
+inline int FastVector <T,chunk_size>::operator!= (const FastVector & indx) const {
+  return !(*this == indx);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.12 2003/01/04 07:35:49 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.13 2003/07/02 02:32:47 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -12,6 +12,8 @@
 #include <libretto/libretto.h>
 #endif
 #include <libretto/darray.h>
+
+using namespace std;
 
 #include <newmat.h>
 

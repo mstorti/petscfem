@@ -1,9 +1,10 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.15 2002/12/16 14:42:45 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.16 2003/07/02 02:32:47 mstorti Exp $
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
+using namespace std;
 #include "fem.h"
 #include "fastmat2.h"
 
@@ -156,7 +157,8 @@ int FastMat2::use_cache = 0;
 int FastMat2::was_cached = 0;
 int FastMat2::was_cached_save = 0;
 int FastMat2::position_in_cache=0;
-FastMatCache **FastMat2::cache_list_begin=NULL;
+// FastMatCache **FastMat2::cache_list_begin=NULL;
+vector<FastMatCache*>::iterator cache_list_begin(NULL);
 int FastMat2::cache_list_size;
 vector<FastMatCachePosition> FastMat2::cache_list_stack;
 OperationCount FastMat2::op_count;
@@ -203,7 +205,7 @@ void FastMat2::print_count_statistics(void) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::activate_cache(FastMatCacheList *cache_list_=NULL) {
+void FastMat2::activate_cache(FastMatCacheList *cache_list_) {
   use_cache=1;
   assert(cache_list_root != NULL || cache_list_ !=NULL);
   if (cache_list_!=NULL) {
@@ -217,7 +219,9 @@ void FastMat2::activate_cache(FastMatCacheList *cache_list_=NULL) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void purge_cache_list(FastMatCacheList *cache_list) {
-  FastMatCache **cache_list_begin,*cache;
+  // FastMatCache **cache_list_begin,*cache;
+  vector<FastMatCache*>::iterator cache_list_begin;
+  FastMatCache *cache;
   FastMatCacheList cl;
   if (!cache_list) return;
 #ifdef FM2_CACHE_DBG
@@ -268,7 +272,7 @@ Perm::Perm(const int m) : vector<int>(m) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Perm::print(const char *s=NULL) const {
+void Perm::print(const char *s) const {
   if (s!=NULL) printf(" %s \n",s);
   for (unsigned int j=0; j<this->size(); j++) {
     printf("%d -> %d, ",j+1,(*this)[j]+1);
@@ -317,7 +321,7 @@ FastMat2::~FastMat2(void) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS) {
+FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS_ND) {
 
   if (was_cached) return *this;
   assert(ndims>0);
@@ -354,7 +358,7 @@ FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS) {
 FastMatSubCache::~FastMatSubCache() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS) {
+FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS_ND) {
 
   // This can't be cached
   if (was_cached) {
@@ -419,7 +423,7 @@ void FastMat2::create_from_indx(const Indx & dims_) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2::FastMat2(const int m,INT_VAR_ARGS) {
+FastMat2::FastMat2(const int m,INT_VAR_ARGS_ND) {
   //  assert(m>0);
   Indx indx;
 #ifdef USE_VAR_ARGS
@@ -434,8 +438,8 @@ FastMat2::FastMat2(const int m,INT_VAR_ARGS) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::is(const int index,const int start=0,const int finish=0,
-	       const int step=1) {
+FastMat2 & FastMat2::is(const int index,const int start,const int finish,
+	       const int step) {
   if (was_cached) return *this;
   assert(defined);
   if (start==0) {
@@ -453,7 +457,7 @@ FastMat2 & FastMat2::is(const int index,const int start=0,const int finish=0,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::ir(const int indx,const int j=0) {
+FastMat2 & FastMat2::ir(const int indx,const int j) {
   if (was_cached) return *this;
   assert(defined);
   set_indx[indx-1] = j;
@@ -497,7 +501,7 @@ void FastMat2::define_matrix(void) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::print(const char *s=NULL) const {
+void FastMat2::print(const char *s) const {
   if (s!=NULL) printf("--- %s ----\n",s);
   Indx fdims;
   get_dims(fdims);
@@ -529,7 +533,7 @@ void FastMat2::print(const char *s=NULL) const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::printd(char *s=NULL) {
+void FastMat2::printd(char *s) {
   Indx fdims;
   get_dims(fdims);
   fdims.print(s);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fastmat.cpp,v 1.5 2001/05/30 18:21:53 mstorti Exp $
+//$Id: fastmat.cpp,v 1.6 2003/07/02 02:32:47 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -18,7 +18,7 @@ int FastMat::lastid=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
-FastMat::FastMat(int m_=0,int n_=0,double *s=NULL) :
+FastMat::FastMat(int m_,int n_,double *s) :
   m(m_), n(n_), store(s) {
 
   m=0;
@@ -93,7 +93,7 @@ void FastMat::add(const int i,const int j,const double val) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat::set(double *val,int nn=0) {
+void FastMat::set(double *val,int nn) {
   if (nn==0) nn=m*n;
   double *from=val,*to=store;
   for (int i=0; i<nn; i++) {
@@ -102,13 +102,13 @@ void FastMat::set(double *val,int nn=0) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat::set(const FastMat & A,int nn=0) {
+void FastMat::set(const FastMat & A,int nn) {
   if (!defined) set_size(A.m,A.n);
   set(A.store,nn);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat::copy(double *val,int nn=0) const {
+void FastMat::copy(double *val,int nn) const {
   if (nn==0) nn=m*n;
   double *from=store,*to=val;
   for (int i=0; i<nn; i++) {

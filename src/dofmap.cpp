@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.14 2003/01/01 23:49:15 mstorti Exp $
+//$Id: dofmap.cpp,v 1.15 2003/07/02 02:32:47 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -13,6 +13,8 @@
 #endif
 #include <libretto/darray.h>
 
+using namespace std;
+
 #include <newmat.h>
 
 #include "fem.h"
@@ -22,8 +24,6 @@
 #include "utils.h"
 #include "util2.h"
 #include "fastlib.h"
-
-using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
