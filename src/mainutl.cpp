@@ -269,6 +269,8 @@ int print_some_file_init(TextHashTable *thash,
     if (fid==NULL) {
       PetscPrintf(PETSC_COMM_WORLD,"Couldn't open `print_some_file': \"%s\"\n",
 		  print_some_file);
+      PetscFinalize();
+      exit(0);
     }
     while (1) {
       int nread = fscanf(fid,"%d",&nodo);
