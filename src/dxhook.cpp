@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.27 2003/02/16 17:13:14 mstorti Exp $
+//$Id: dxhook.cpp,v 1.28 2003/02/16 22:03:18 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -158,6 +158,11 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   
   TextHashTable *go = mesh_a.global_options;
   int dx_split_state_flag=0;
+
+  //o Read states from file instead of computing them . Normally
+  //  this is done to analyze a previous run. 
+  TGETOPTDEF(go,int,dx_read_state_from_file,0);
+
   //o Generates DX fields by combination of the input fields
   TGETOPTDEF_S(go,string,dx_split_state,);
   if (dx_split_state!="") {
@@ -178,6 +183,13 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 
   //o Auto generate states by combining elemsets with fields
   TGETOPTDEF_ND(go,int,dx_auto_combine,0);
+
+  if (dx_read_state_from_file) {
+    int step=0;
+    while(1) {
+      send_state(step++,&dx_hook::build_state_from_file);
+    }
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -228,16 +240,19 @@ void dx_hook::re_launch_connection() {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void dx_hook::build_state_from_state(double *state_p) {
-  int ierr = state2fields(state_p,state(),dofmap,time_data()); 
-  assert(!ierr);
+int dx_hook::build_state_from_state(double *state_p) {
+  return state2fields(state_p,state(),dofmap,time_data()); 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int dx_hook::build_state_from_file(double *state_p) {
+  return 1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
 #define sock srvr
   int cookie, cookie2, dx_step;
-  string state_file;
   if (steps && step_cntr--) return;
   if (!steps) {
 #ifdef USE_PTHREADS
@@ -347,8 +362,9 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
 
   double *state_p = NULL;
   if (!MY_RANK) state_p = new double[ndof*nnod];
-  if (!MY_RANK) state_p = new double[ndof*nnod];
-  (this->*build_state_fun)(state_p);
+  if ((this->*build_state_fun)(state_p)) {
+    delete[] state_p;
+  }
   
   if (!MY_RANK) {
     cookie = rand();
@@ -427,7 +443,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
 void dx_hook::
 time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
-  void send_state(int step,build_state_fun_t bf);
+  send_state(step,&dx_hook::build_state_from_state);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -13,7 +13,9 @@ ADVDIF_G = $(PETSCFEM_DIR)/applications/advdif/advdif_g.bin
 NS_O    = $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 ADVDIF_O = $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin
 
+ifeq ($(SRCS),)
 SRCS = $(wildcard *.cpp)
+endif
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Shortcuts to programs

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.3 2003/02/16 21:43:54 mstorti Exp $
+// $Id: dvector.h,v 1.4 2003/02/16 22:03:18 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -247,6 +247,7 @@ public:
     for (int j=0; j<rank; j++) {
       int d = va_arg (ap, int);
       assert(j==0 || d>0);
+      new_size *= d;
       shape.push_back(d);
     }
     shape_p = shape.begin();
@@ -268,6 +269,7 @@ public:
     int new_size=1;
     for (int j=0; j<rank; j++) {
       int d = va_arg (ap, int);
+      new_size *= d;
       assert(d>0);
     }
     resize(new_size);
@@ -281,15 +283,15 @@ public:
   const T& e(int j,va_list ap) const {
     return ref(0);
   }
-  T& e(int j,va_list ap) {
-    int pos = va_arg(ap,int);
+  T& ve(int j,va_list ap) {
+    int pos = j;
     for (int j=1; j<rank; j++) pos = pos*shape_p[j]+va_arg(ap,int);
     return ref(pos);
   }
   T& e(int j,...) {
     va_list ap;
-    va_start(j,ap);
-    return e(j,ap);
+    va_start(ap,j);
+    return ve(j,ap);
   }
 };
 

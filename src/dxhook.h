@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.10 2003/02/16 17:13:14 mstorti Exp $
+//$Id: dxhook.h,v 1.11 2003/02/16 22:03:18 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -37,6 +37,7 @@ private:
   Dofmap *dofmap;
   int step_cntr, steps, ierr, dx_auto_combine;
   FieldGenList field_gen_list;
+  string state_file;
 
 #ifdef USE_PTHREADS
   enum connection_state_t {
@@ -60,7 +61,8 @@ public:
   virtual Vec state()=0;
   virtual TimeData *time_data()=0;
   typedef void (dx_hook::*build_state_fun_t)(double *);
-  void build_state_from_state(double *);
+  int build_state_from_state(double *);
+  int build_state_from_file(double *);
   void send_state(int step,build_state_fun_t bf);
 #else
 public:
