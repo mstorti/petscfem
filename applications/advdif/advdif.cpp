@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.60 2003/11/25 01:13:36 mstorti Exp $
+//$Id: advdif.cpp,v 1.49.2.1 2004/05/21 20:57:17 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -10,7 +10,6 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/pfmat.h>
-#include <src/hook.h>
 
 #include "advective.h"
 
@@ -24,8 +23,9 @@ extern int MY_RANK,SIZE;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
-  comp_mat_each_time_step_g=0,
-  verify_jacobian_with_numerical_one;
+  comp_mat_each_time_step_g=0;
+
+extern const char * jobinfo_fields;
 
 #define VECVIEW(name,label) \
 ierr = PetscViewerSetFormat(matlab, \
@@ -39,24 +39,20 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 
 int bubbly_main();
 
-Hook *advdif_hook_factory(const char *name);
-
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+//-------<*>-------<*>-------<*>-------<*>-------<*>-------
 #undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
+  int bubbly=0;
+  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-bubbly")) bubbly=1;
+  MPI_Bcast(&bubbly,1,MPI_INT,0,PETSC_COMM_WORLD);
 
-  // Get MPI info
-  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
-  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+  if (bubbly) return bubbly_main();
 
-  if (argc>1 && !strcmp(args[1],"-bubbly")) return bubbly_main();
-  
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  PFMat *A,*AA;			// linear system matrix 
-  PFMat *A_tet, *A_tet_c;
+  PFMat *A,*AA;			// linear system matrix
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
   int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
@@ -78,6 +74,8 @@ int main(int argc,char **args) {
   GLOB_PARAM = &glob_param;
   string save_file_res;
 
+  jobinfo_fields = "gasliq";
+
   // euler_volume::set_flux_fun(&flux_fun_euler);
   // euler_absorb::flux_fun = &flux_fun_euler;
 
@@ -86,8 +84,11 @@ int main(int argc,char **args) {
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive  module ---------\n");
 
-  Debug debug(0,PETSC_COMM_WORLD);
-  GLOBAL_DEBUG = &debug;
+  // Get MPI info
+  MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
+
+  Debug debug2(0,PETSC_COMM_WORLD);
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
@@ -104,15 +105,15 @@ int main(int argc,char **args) {
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
-    debug.activate();
+    debug2.activate();
     Debug::init();
   }
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
-  if (activate_debug_print) debug.activate("print");
+  if (activate_debug_print) debug2.activate("print");
   //o Activate report of memory usage
   GETOPTDEF(int,activate_debug_memory_usage,0);
-  if (activate_debug_memory_usage) debug.activate("memory_usage");
+  if (activate_debug_memory_usage) debug2.activate("memory_usage");
 
   //o Absolute tolerance when solving a consistent matrix
   GETOPTDEF(double,atol,1e-6);
@@ -125,7 +126,7 @@ int main(int argc,char **args) {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the  #comp_mat_res#  jobinfo. 
+  //o Measure performance of the \verb+comp_mat_res+ jobinfo. 
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)
@@ -147,7 +148,7 @@ int main(int argc,char **args) {
   //o After computing the linear system prints Jacobian and
   // right hand side and stops.. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Solve system before  #print\_linear_system_and_stop# 
+  //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
   //o If #print_linear_system_and_stop# is active,
   // then print system in this Newton iteration 
@@ -155,7 +156,7 @@ int main(int argc,char **args) {
   //o If #print_linear_system_and_stop# is active,
   // then print system in this time step
   GETOPTDEF(int,time_step_stop,1);
-  //o Print the residual each  #nsave#  steps. 
+  //o Print the residual each \verb+nsave+ steps. 
   GETOPTDEF(int,print_residual,0);
 
   //o Sets the save frequency in iterations for the ``print some''
@@ -173,11 +174,9 @@ int main(int argc,char **args) {
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
-  //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_steps,0);
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
-  //o Type of solver. May be  #iisd#  or  #petsc# . 
+  //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
 
@@ -208,17 +207,17 @@ int main(int argc,char **args) {
   GETOPTDEF(double,Courant,0.6);
   //o Time step. 
   GETOPTDEF(double,Dt,0.);
-  //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
+  //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
   // is set to 1, then the computations are as if $\Dt=\infty$. 
-  // The value of  #Dt#  is used for printing etc... If  #Dt# 
-  // is not set and  #steady#  is set then  #Dt#  is set to one.
+  // The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
+  // is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
   GETOPTDEF(int,steady,0);
   if (steady && Dt==0.) Dt=1.;
   glob_param.Dt = Dt;
   glob_param.steady = steady;
   //o The parameter of the trapezoidal rule
   // for temporal integration. 
-  GETOPTDEF(double,alpha,1.);
+  GETOPTDEF(double,alpha,0.);
   glob_param.alpha=alpha;
 #define ALPHA (glob_param.alpha)
   if (ALPHA>0.) {
@@ -249,34 +248,6 @@ int main(int argc,char **args) {
   GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
-  //
-  GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
-  //
-#define INF INT_MAX
-  //o Update jacobian each $n$-th time step. 
-  GETOPTDEF(int,update_jacobian_start_steps,INF);
-  //o Update jacobian only until n-th Newton subiteration. 
-  // Don't update if null. 
-  GETOPTDEF(int,update_jacobian_iters,1);
-  assert(update_jacobian_iters>=1);
-  //o Update jacobian each $n$-th Newton iteration
-  GETOPTDEF(int,update_jacobian_start_iters,INF);
-  assert(update_jacobian_start_iters>=0);
-#undef INF
-
-
-  vector<double> gather_values;
-  //o Number of ``gathered'' quantities.
-  GETOPTDEF(int,ngather,0);
-  //o Print values in this file 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,gather.out);
-  // Initialize gather_file
-  FILE *gather_file_f;
-  if (MY_RANK==0 && ngather>0) {
-    gather_file_f = fopen(gather_file.c_str(),"w");
-    fprintf(gather_file_f,"");
-    fclose(gather_file_f);
-  }
 
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
@@ -309,24 +280,20 @@ int main(int argc,char **args) {
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
-  // Set pointers in glob_param
-  glob_param.x = x;
-  glob_param.xold = xold;
-
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
   scal=0;
   ierr = VecSet(&scal,x); CHKERRA(ierr);
 
-  arg_list argl,arglf;
+  arg_list argl;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
-  debug.trace("Computing profiles...");
+  debug2.trace("Computing profiles...");
   VOID_IT(argl);
   argl.arg_add(A,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-  debug.trace("After computing profile.");
+  debug2.trace("After computing profile.");
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
@@ -337,18 +304,12 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // Hook stuff
-  HookList hook_list;
-  hook_list.init(*mesh,*dofmap,advdif_hook_factory);
-
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
   Chrono chrono; 
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
-  int update_jacobian_this_step,update_jacobian_this_iter;
   for (int tstep=1; tstep<=nstep; tstep++) {
     time_star.set(time.time()+alpha*Dt);
     // Take cputime statistics
@@ -372,7 +333,6 @@ int main(int argc,char **args) {
     }
     chrono.start();
     ierr = VecCopy(x,xold);
-    hook_list.time_step_pre(time_star.time(),tstep);
 
     for (int inwt=0; inwt<nnwt; inwt++) {
 
@@ -410,14 +370,14 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	debug.trace("Before residual computation...");
+	debug2.trace("Before residual computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	debug.trace("After residual computation.");
+	debug2.trace("After residual computation.");
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  debug.trace("Before solving linear system...");
+	  debug2.trace("Before solving linear system...");
 	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  debug.trace("After solving linear system.");
+	  debug2.trace("After solving linear system.");
 	}
 	// ierr = SLESDestroy(sles);
 	// ierr = A->destroy_sles(); CHKERRA(ierr); 
@@ -443,45 +403,6 @@ int main(int argc,char **args) {
 	}
       }
 
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-      // FEM matrix jacobian debug  (perturbation)
-#if 0
-	PetscViewer matlab;
-	if (verify_jacobian_with_numerical_one) {
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-				      "system.dat.tmp",&matlab); CHKERRA(ierr);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					      PETSC_VIEWER_ASCII_MATLAB,
-					      "atet"); CHKERRA(ierr);
-	  
-	  ierr = A_tet->view(matlab); CHKERRQ(ierr); 
-	  
-	  ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
-	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
-	  
-	  argl.clear();
-	  argl.arg_add(&x,PERT_VECTOR);
-	  argl.arg_add(&xold,IN_VECTOR);
-	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	  
-	  argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&hmin,VECTOR_MIN);
-
-	  argl.arg_add(&glob_param,USER_DATA);
-	  argl.arg_add(wall_data,USER_DATA);
-	  ierr = assemble(mesh,argl,dofmap,jobinfo,
-			  &time_star); CHKERRA(ierr);
-	  
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
-					      PETSC_VIEWER_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	  ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
-	  
-	  PetscFinalize();
-	  exit(0);
-	}
-#endif
-      
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
@@ -538,7 +459,6 @@ int main(int argc,char **args) {
     argl.arg_add(&x,IN_OUT_VECTOR);
     argl.arg_add(&xold,IN_VECTOR);
     ierr = assemble(mesh,argl,dofmap,"absorb_bc_proj",&time_star); CHKERRA(ierr);
-    glob_param.time = &time;
 
     double time_=time;
 
@@ -548,36 +468,6 @@ int main(int argc,char **args) {
     scal=-1.;
     ierr = VecAXPY(&scal,xold,dx);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
-
-    if (ngather>0) {
-      gather_values.resize(ngather,0.);
-      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
-      arglf.clear();
-      arglf.arg_add(&x,IN_VECTOR);
-      arglf.arg_add(&xold,IN_VECTOR);
-      arglf.arg_add(&gather_values,VECTOR_ADD);
-      ierr = assemble(mesh,arglf,dofmap,"gather",&time);
-      CHKERRA(ierr);
-    }
-
-    hook_list.time_step_post(time_star.time(),tstep,gather_values);
-
-    if (ngather>0) {
-      // Print gathered values
-      if (MY_RANK==0) {
-	if (gather_file == "") {
-	  printf("Gather results: \n");
-	  for (int j=0; j < gather_values.size(); j++) 
-	    printf("v_component_%d = %12.10e\n",j,gather_values[j]);
-	} else {
-	  gather_file_f = fopen(gather_file.c_str(),"a");
-	  for (int j=0; j<gather_values.size(); j++) 
-	    fprintf(gather_file_f,"%12.10e ",gather_values[j]);
-	  fprintf(gather_file_f,"\n");
-	  fclose(gather_file_f);
-	}
-      }
-    }
 
     PetscPrintf(PETSC_COMM_WORLD,
 		"time_step %d, time: %g, delta_u = %10.3e\n",
@@ -602,8 +492,6 @@ int main(int argc,char **args) {
     if (normres_ext < tol_steady) break;
       
   }
-  hook_list.close();
-
   print_vector(save_file.c_str(),x,dofmap,&time);
   if (print_residual) 
     print_vector(save_file_res.c_str(),res,dofmap,&time);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.8 2003/11/25 01:13:36 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.5.2.1 2004/05/21 20:57:44 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -14,6 +14,8 @@
 #include "advective.h"
 
 #include <time.h>
+
+extern GlobParam *GLOB_PARAM;
 
 static char help[] = "Basic finite element program.\n\n";
 
@@ -35,20 +37,29 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+//-------<*>-------<*>-------<*>-------<*>-------<*>-------
 #undef __FUNC__
 #define __FUNC__ "main"
 int bubbly_main() {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  Vec     dx_out,res_out; 
-  // Vec     dx_liq,res_liq; 
-  PFMat *A_liq,*A_gas,*AA_liq,*AA_gas;	   // linear system matrix 
+  Vec     dx_out,res_out;
+  // Vec     dx_liq,res_liq;
+//  PFMat *A_liq,*A_gas,*AA_liq,*AA_gas;	   // linear system matrix
+//  PFMat *A_stage[2,NULL],*AA_stage[2,NULL];	   // linear system matrix
+//  PFMat *A_stage,*AA_stage;	   // linear system matrix
+  vector<PFMat *> A_stage,AA_stage;
+
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
   int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
+//  int nnwt_in,nstage=2;
+  int nnwt_in;
+  double omega_newton_in;
+
+
   PetscTruth flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
@@ -62,6 +73,7 @@ int bubbly_main() {
   vector<double> dtmin(1,0.);
   Vec a;
   GlobParam glob_param;
+  GLOB_PARAM = &glob_param;
   string save_file_res;
 
   // euler_volume::set_flux_fun(&flux_fun_euler);
@@ -91,6 +103,12 @@ int bubbly_main() {
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
 
+  //o number of stages in which the continuum problem is split
+  GETOPTDEF(int,nstage,1);
+
+  A_stage.resize(nstage,NULL);
+  AA_stage.resize(nstage,NULL);
+
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
@@ -115,7 +133,7 @@ int bubbly_main() {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the  #comp_mat_res#  jobinfo. 
+  //o Measure performance of the \verb+comp_mat_res+ jobinfo.
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)
@@ -126,38 +144,38 @@ int bubbly_main() {
   //o Sets the number of states saved in a given file
   // in the ``rotary save'' mechanism (see \ref{sec:rotary_save}
   GETOPTDEF(int,nrec,1000000);
-  //o Sets the number of files in the ``rotary save'' mechanism. 
+  //o Sets the number of files in the ``rotary save'' mechanism.
   // (see \ref{sec:rotary_save})
   GETOPTDEF(int,nfile,1);
 
-  //o The number of time steps. 
+  //o The number of time steps.
   GETOPTDEF(int,nstep,10000);
-  //o Output CPU time statistics for frequency in time steps. 
+  //o Output CPU time statistics for frequency in time steps.
   GETOPTDEF(int,nstep_cpu_stat,10);
   //o After computing the linear system prints Jacobian and
-  // right hand side and stops.. 
+  // right hand side and stops..
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Solve system before  #print\_linear_system_and_stop# 
+  //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
   //o If #print_linear_system_and_stop# is active,
-  // then print system in this Newton iteration 
+  // then print system in this Newton iteration
   GETOPTDEF(int,inwt_stop,0);
   //o If #print_linear_system_and_stop# is active,
   // then print system in this time step
   GETOPTDEF(int,time_step_stop,1);
-  //o Print the residual each  #nsave#  steps. 
+  //o Print the residual each \verb+nsave+ steps.
   GETOPTDEF(int,print_residual,0);
 
   //o Sets the save frequency in iterations for the ``print some''
   // mechanism. (see doc in the Navier-Stokes module)
   GETOPTDEF(int,nsome,10000);
-  //o Name of file where to read the nodes for the ``print some'' 
-  // feature. 
+  //o Name of file where to read the nodes for the ``print some''
+  // feature.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,print_some_file,);
-  //o Name of file where to save node values for the ``print some'' 
-  // feature. 
+  //o Name of file where to save node values for the ``print some''
+  // feature.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
-  //o Access mode to the ``some'' file. If 0 rewind file. If 1 
+  //o Access mode to the ``some'' file. If 0 rewind file. If 1
   //  append to previous  results.
   TGETOPTDEF(GLOBAL_OPTIONS,int,save_file_some_append,1);
   //o Print, after execution, a report of the times a given option
@@ -165,16 +183,22 @@ int bubbly_main() {
   GETOPTDEF(int,report_option_access,1);
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
-  //o Type of solver. May be  #iisd#  or  #petsc# . 
+  //o Type of solver. May be \verb+iisd+ or \verb+petsc+.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
 
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  A_liq  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-  AA_liq = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-  A_gas  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-  AA_gas = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+
+//  A_liq  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+//  AA_liq = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+//  A_gas  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+//  AA_gas = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+
+    for (int kstage=0; kstage<nstage; kstage++) {
+  A_stage[kstage]  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  AA_stage[kstage] = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+}
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -183,37 +207,37 @@ int bubbly_main() {
 		       save_file_some_append);
 
   // warning: passed to advective.cpp via a global variable
-  //o Uses consistent SUPG matrix for the temporal term or not. 
+  //o Uses consistent SUPG matrix for the temporal term or not.
   GETOPTDEF(int,consistent_supg_matrix,0);
   consistent_supg_matrix_g = consistent_supg_matrix;
-  //o Chooses automatically the time step from the 
+  //o Chooses automatically the time step from the
   // selected Courant number
   GETOPTDEF(int,auto_time_step,1);
   // warning: passed to advective.cpp via a global variable
   //o Chooses a time step that varies locally. (Only makes sense
-  // when looking for steady state solutions. 
+  // when looking for steady state solutions.
   GETOPTDEF(int,local_time_step,1);
   local_time_step_g=local_time_step;
   //o The Courant number.
   GETOPTDEF(double,Courant,0.6);
-  //o Time step. 
+  //o Time step.
   GETOPTDEF(double,Dt,0.);
-  // The value of  #Dt#  is used for printing etc... If  #Dt# 
-  // is not set and  #steady#  is set then  #Dt#  is set to one.
+  // The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
+  // is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
   GETOPTDEF(int,steady,0);
   if (steady && Dt==0.) Dt=1.;
   glob_param.Dt = Dt;
   glob_param.steady = steady;
   //o The parameter of the trapezoidal rule
-  // for temporal integration. 
+  // for temporal integration.
   GETOPTDEF(double,alpha,0.);
   glob_param.alpha=alpha;
 #define ALPHA (glob_param.alpha)
 
-  //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
+  //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
   GETOPTDEF(int,nnwt_liq,3);
   GETOPTDEF(int,nnwt_gas,3);
-  // is set to 1, then the computations are as if $\Dt=\infty$. 
+  // is set to 1, then the computations are as if $\Dt=\infty$.
   if (ALPHA==0.) nnwt_liq=1;
   if (ALPHA==0.) nnwt_gas=1;
 
@@ -224,16 +248,16 @@ int bubbly_main() {
     local_time_step=0;
   }
   //o Number of iterations in the Newton loop. (
-  // for the implicit method. 
+  // for the implicit method.
   GETOPTDEF(int,nnwt,3);
   if (ALPHA==0.) nnwt=1;
 
-  comp_mat_each_time_step_g = 
+  comp_mat_each_time_step_g =
     consistent_supg_matrix || local_time_step;
 
   //o Counts time from here.
   GETOPTDEF(double,start_time,0.);
-  //o Tolerance when solving with the mass matrix. 
+  //o Tolerance when solving with the mass matrix.
   GETOPTDEF(double,tol_mass,1e-3);
   //o Tolerance when solving the sublinear problem
   // at each iteration.
@@ -245,8 +269,10 @@ int bubbly_main() {
   GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
+  GETOPTDEF(double,omega_newton_liq,omega_newton);
+  GETOPTDEF(double,omega_newton_gas,omega_newton);
 
-  //o Chooses the preconditioning operator. 
+  //o Chooses the preconditioning operator.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
   char *preco_type_ = new char[preco_type.size()+1];
@@ -268,7 +294,7 @@ int bubbly_main() {
   ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			      "matns.m",&matlab); CHKERRA(ierr);
 #endif
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
   dofmap->create_MPI_vector(x);
 
@@ -279,42 +305,59 @@ int bubbly_main() {
   ierr = VecDuplicate(x,&res_out); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx_out); CHKERRA(ierr);
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // initialize state vectors
   scal=0;
   ierr = VecSet(&scal,x); CHKERRA(ierr);
 
   arg_list argl;
 
-  VOID_IT(argl);
-  argl.arg_add(A_liq,PROFILE|PFMAT);
-  jobinfo_fields = "liq";
-  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+  for (int kstage=0; kstage<nstage; kstage++) {
+
+      if (nstage==1) {
+		  jobinfo_fields = "gasliq";
+		  nnwt_in = nnwt_liq;
+		  omega_newton_in = omega_newton_liq;
+	  }
+
+	  else if (kstage==0) {
+		  jobinfo_fields = "liq";
+		  nnwt_in = nnwt_liq;
+		  omega_newton_in = omega_newton_liq;
+	  }
+	  else if (kstage==1) {
+		  jobinfo_fields = "gas";
+		  nnwt_in = nnwt_gas;
+		  omega_newton_in = omega_newton_gas;
+	  }
+	  else if (kstage==2) {
+		  jobinfo_fields = "kep";
+		  nnwt_in = nnwt_liq;
+		  omega_newton_in = omega_newton_liq;
+	  }
 
   VOID_IT(argl);
-  jobinfo_fields = "gas";
-  argl.arg_add(A_gas,PROFILE|PFMAT);
+//  argl.arg_add(A_liq,PROFILE|PFMAT);
+//  jobinfo_fields = "liq";
+  argl.arg_add(A_stage[kstage],PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
-  jobinfo_fields = "liq";
-  argl.arg_add(AA_liq,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-
-  VOID_IT(argl);
-  jobinfo_fields = "gas";
-  argl.arg_add(AA_gas,PROFILE|PFMAT);
+//  jobinfo_fields = "liq";
+//  argl.arg_add(AA_liq,PROFILE|PFMAT);
+  argl.arg_add(AA_stage[kstage],PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 #endif
+  }
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
-  Chrono chrono; 
+  Chrono chrono;
 #define STAT_STEPS 5
   double cpu[STAT_STEPS],cpuav;
   for (int tstep=1; tstep<=nstep; tstep++) {
@@ -330,7 +373,7 @@ int bubbly_main() {
 	  }
 	}
 	cpuav = 0;
-	for (int jstep=0; jstep<STAT_STEPS; jstep++) 
+	for (int jstep=0; jstep<STAT_STEPS; jstep++)
 	  cpuav+= cpu[jstep];
 	cpuav /= STAT_STEPS;
 	if (tstep % nstep_cpu_stat == 0)
@@ -342,248 +385,130 @@ int bubbly_main() {
     ierr = VecCopy(x,xold);
 
     for (int inwt=0; inwt<nnwt; inwt++) {
-
-      for (int inwt_in=0; inwt_in<nnwt_liq; inwt_in++) {
-
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// Liquid phase
-
-	// Initializes res
-	scal=0;
-	ierr = VecSet(&scal,res); CHKERRA(ierr);
-
-	if (comp_mat_each_time_step_g) {
-
-	  ierr = A_liq->clean_mat(); CHKERRA(ierr); 
-#ifdef CHECK_JAC
-	  ierr = AA_liq->clean_mat(); CHKERRA(ierr);
-#endif
-	  VOID_IT(argl);
-	  argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	  argl.arg_add(&x,IN_VECTOR);
-#else
-	  argl.arg_add(&x,PERT_VECTOR);
-#endif
-	  argl.arg_add(&res,OUT_VECTOR);
-	  argl.arg_add(&dtmin,VECTOR_MIN);
-	  argl.arg_add(A_liq,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	  argl.arg_add(AA_liq,OUT_MATRIX_FDJ|PFMAT);
-#endif
-
-	  if (measure_performance) {
-	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					   &time_star); CHKERRA(ierr);
-	    PetscFinalize();
-	    exit(0);
-	  }
-	  jobinfo_fields = "liq";
-	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-
-	  if (!print_linear_system_and_stop || solve_system) {
-	    ierr = A_liq->solve(res,dx); CHKERRA(ierr); 
-	  }
-	  // ierr = SLESDestroy(sles);
-	  // ierr = A->destroy_sles(); CHKERRA(ierr); 
-
-	  if (0) {
-	    // DEBUG
-	    PetscViewer matlab;
-	    ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-					"mat_liq.output",&matlab); CHKERRA(ierr);
-
-	    ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-						PETSC_VIEWER_ASCII_MATLAB,"res_liq");
-	    ierr = VecView(res,matlab);
-
-	    ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-						PETSC_VIEWER_ASCII_MATLAB,"A");
-	    ierr = A_liq->view(matlab);
-	    print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-	    // END DEBUG
-	  }
       
-	} else {
-
-	  VOID_IT(argl);
-	  argl.arg_add(&x,IN_VECTOR);
-	  argl.arg_add(&res,OUT_VECTOR);
-	  argl.arg_add(&dtmin,VECTOR_MIN);
-
-	  if (measure_performance) {
-	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					   &time_star); CHKERRA(ierr);
-	    PetscFinalize();
-	    exit(0);
-	  }
-	  jobinfo_fields = "liq";
-	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-
-	  if (!print_linear_system_and_stop || solve_system) {
-	    ierr = A_liq->solve(res,dx); CHKERRA(ierr); 
-	    // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
-	  }
-
+      
+      for (int kstage=0; kstage<nstage; kstage++) {
+	
+	scal=0;
+	ierr = VecSet(&scal,res_out); CHKERRA(ierr);
+	ierr = VecSet(&scal,dx_out); CHKERRA(ierr);
+	
+	if (nstage==1) {
+	  jobinfo_fields = "gasliq";
+	  nnwt_in = nnwt_liq;
+	  omega_newton_in = omega_newton_liq;
 	}
+	
+	else if (kstage==0) {
+	  jobinfo_fields = "liq";
+	  nnwt_in = nnwt_liq;
+	  omega_newton_in = omega_newton_liq;
+	}
+	else if (kstage==1) {
+	  jobinfo_fields = "gas";
+	  nnwt_in = nnwt_gas;
+	  omega_newton_in = omega_newton_gas;
+	}
+	else if (kstage==2) {
+	  jobinfo_fields = "kep";
+	  nnwt_in = nnwt_liq;
+	  omega_newton_in = omega_newton_liq;
+	}
+	
+	
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+	// Stages loop  "kstage"
+	
+	for (int inwt_in=0; inwt_in<nnwt_in; inwt_in++) {
+	  
+	  // Initializes res
+	  scal=0;
+	  ierr = VecSet(&scal,res); CHKERRA(ierr);
+	  ierr = VecSet(&scal,dx); CHKERRA(ierr);
+	  
+	  if (comp_mat_each_time_step_g) {
+	    
+	    ierr = A_stage[kstage]->clean_mat(); CHKERRA(ierr);
+#ifdef CHECK_JAC
+	    ierr = AA_stage[kstage]->clean_mat(); CHKERRA(ierr);
+#endif
+	    VOID_IT(argl);
+	    argl.arg_add(&xold,IN_VECTOR);
+#ifndef CHECK_JAC
+	    argl.arg_add(&x,IN_VECTOR);
+#else
+	    argl.arg_add(&x,PERT_VECTOR);
+#endif
+	    argl.arg_add(&res,OUT_VECTOR);
+	    argl.arg_add(&dtmin,VECTOR_MIN);
+	    argl.arg_add(A_stage[kstage],OUT_MATRIX|PFMAT);
+	    argl.arg_add(&glob_param,USER_DATA);
+#ifdef CHECK_JAC
+	    argl.arg_add(AA_stage[kstage],OUT_MATRIX_FDJ|PFMAT);
+#endif
+	    
+	    if (measure_performance) {
+	      ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					     &time_star); CHKERRA(ierr);
+	      PetscFinalize();
+	      exit(0);
+	    }
+	    
+	    // jobinfo_fields = "gas";
+	    
+	    ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	    debug2.trace("After residual computation.");
+	    
+	    if (!print_linear_system_and_stop || solve_system) {
+	      ierr = A_stage[kstage]->solve(res,dx); CHKERRA(ierr);
+	    }
+	    
+	  } else {
+	    
+	    VOID_IT(argl);
+	    argl.arg_add(&x,IN_VECTOR);
+	    argl.arg_add(&res,OUT_VECTOR);
+	    argl.arg_add(&dtmin,VECTOR_MIN);
+	    
+	    if (measure_performance) {
+	      ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					     &time_star); CHKERRA(ierr);
+	      PetscFinalize();
+	      exit(0);
+	    }
 
-	if (print_linear_system_and_stop && 
+	    // jobinfo_fields = "gas";
+	    ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	    
+	    if (!print_linear_system_and_stop || solve_system) {
+	      ierr =A_stage[kstage]->solve(res,dx); CHKERRA(ierr);
+	    }
+	  }
+	  
+
+	if (print_linear_system_and_stop &&
 	    inwt==inwt_stop && tstep==time_step_stop) {
 	  PetscPrintf(PETSC_COMM_WORLD,
 		      "Printing residual and matrix for debugging and stopping..\n");
 	  PetscViewer matlab;
 	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 				      "mat.output",&matlab); CHKERRA(ierr);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,"res");
 	  ierr = VecView(res,matlab);
 	  if (solve_system) {
-	    ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+	    ierr = PetscViewerSetFormat_WRAPPER(matlab,
 						PETSC_VIEWER_ASCII_MATLAB,"dx");
 	    ierr = VecView(dx,matlab);
 	  }
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab,
 					      PETSC_VIEWER_ASCII_MATLAB,"A");
-	  ierr = A_liq->view(matlab);
+	  ierr = A_stage[kstage]->view(matlab);
 	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-					      PETSC_VIEWER_ASCII_MATLAB,"AA");
-	  ierr = AA_liq->view(matlab);
-#endif
-	  PetscFinalize();
-	  exit(0);
-	}
-
-	if (inwt_in==0){
-	  ierr = VecCopy(res,res_out);
-	  ierr = VecCopy(dx,dx_out);
-	}
-
-	// convergence check and update 
-	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-	//      if (inwt_in==0) normres_ext = normres;
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "Newton subiter (inner liq) %d, norm_res  = %10.3e\n",
-		    inwt_in,normres);
-	scal=omega_newton;
-	ierr = VecAXPY(&scal,dx,x);
-	if (normres < tol_newton) break;
-      }  // end inwt_in liq phase
-
-      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-      // Gas phase
-
-      for (int inwt_in=0; inwt_in<nnwt_gas; inwt_in++) {
-
-	// Initializes res
-	scal=0;
-	ierr = VecSet(&scal,res); CHKERRA(ierr);
-	ierr = VecSet(&scal,dx); CHKERRA(ierr);
-
-	if (comp_mat_each_time_step_g) {
-
-	  ierr = A_gas->clean_mat(); CHKERRA(ierr); 
-#ifdef CHECK_JAC
-	  ierr = AA_gas->clean_mat(); CHKERRA(ierr);
-#endif
-	  VOID_IT(argl);
-	  argl.arg_add(&xold,IN_VECTOR);
-#ifndef CHECK_JAC
-	  argl.arg_add(&x,IN_VECTOR);
-#else
-	  argl.arg_add(&x,PERT_VECTOR);
-#endif
-	  argl.arg_add(&res,OUT_VECTOR);
-	  argl.arg_add(&dtmin,VECTOR_MIN);
-	  argl.arg_add(A_gas,OUT_MATRIX|PFMAT);
-	  argl.arg_add(&glob_param,USER_DATA);
-#ifdef CHECK_JAC
-	  argl.arg_add(AA_gas,OUT_MATRIX_FDJ|PFMAT);
-#endif
-
-	  if (measure_performance) {
-	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					   &time_star); CHKERRA(ierr);
-	    PetscFinalize();
-	    exit(0);
-	  }
-	  jobinfo_fields = "gas";
-	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	  debug2.trace("After residual computation.");
-
-	  if (!print_linear_system_and_stop || solve_system) {
-	    ierr = A_gas->solve(res,dx); CHKERRA(ierr); 
-	  }
-	  // ierr = SLESDestroy(sles);
-	  // ierr = A->destroy_sles(); CHKERRA(ierr); 
-      
-	} else {
-
-	  VOID_IT(argl);
-	  argl.arg_add(&x,IN_VECTOR);
-	  argl.arg_add(&res,OUT_VECTOR);
-	  argl.arg_add(&dtmin,VECTOR_MIN);
-
-	  if (measure_performance) {
-	    ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
-					   &time_star); CHKERRA(ierr);
-	    PetscFinalize();
-	    exit(0);
-	  }
-	  jobinfo_fields = "gas";
-	  ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-
-	  if (!print_linear_system_and_stop || solve_system) {
-	    ierr =A_gas->solve(res,dx); CHKERRA(ierr); 
-	    // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
-	  }
-	}
-
-#if 0
-	if (0) {
-	  // DEBUG
-	  PetscViewer matlab;
-	  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-				 "mat_gas.output",&matlab); CHKERRA(ierr);
-
-	  ierr = ViewerSetFormat(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"res_gas");
-	  ierr = VecView(res,matlab);
-
-	  ierr = ViewerSetFormat(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"A");
-	  ierr = A_gas->view(matlab);
-	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-	  // END DEBUG
-	}
-#endif
-
-	if (print_linear_system_and_stop && 
-	    inwt==inwt_stop && tstep==time_step_stop) {
-	  PetscPrintf(PETSC_COMM_WORLD,
-		      "Printing residual and matrix for debugging and stopping..\n");
-	  PetscViewer matlab;
-	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
-				      "mat.output",&matlab); CHKERRA(ierr);
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-					      PETSC_VIEWER_ASCII_MATLAB,"res");
-	  ierr = VecView(res,matlab);
-	  if (solve_system) {
-	    ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-						PETSC_VIEWER_ASCII_MATLAB,"dx");
-	    ierr = VecView(dx,matlab);
-	  }
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-					      PETSC_VIEWER_ASCII_MATLAB,"A");
-	  ierr = A_gas->view(matlab);
-	  print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
-#ifdef CHECK_JAC
-	  // PetscViewer matlab;
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+	  ierr = ViewerSetFormat(matlab,
 				 PETSC_VIEWER_ASCII_MATLAB,"AA");
-	  ierr = AA_gas->view(matlab);
+	  ierr = AA_stage[kstage]->view(matlab);
 #endif
 	  PetscFinalize();
 	  exit(0);
@@ -596,22 +521,24 @@ int bubbly_main() {
 	}
 
 	ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
-	//      if (inwt_in==0) normres_ext = normres;
 	PetscPrintf(PETSC_COMM_WORLD,
-		    "Newton subiter (inner gas) %d, norm_res  = %10.3e\n",
-		    inwt_in,normres);
-	scal=omega_newton;
+		    "Newton subiter (inner) %d, stage  %d, norm_res  = %10.3e\n",
+		    inwt_in,kstage,normres);
+	scal=omega_newton_in;
 	ierr = VecAXPY(&scal,dx,x);
 	if (normres < tol_newton) break;
-      }
 
-      // convergence check and update 
+	}  // end of inwt (inner) loop
+
+	} // end of kstage loop
+
+      // convergence check and update
       //      scal=1;
       //      ierr = VecAXPY(&scal,res_out,res);
       //      ierr = VecAXPY(&scal,dx_out,dx);
 
       ierr = VecCopy(res_out,res);
-    
+
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_ext = normres;
       PetscPrintf(PETSC_COMM_WORLD,
@@ -620,11 +547,11 @@ int bubbly_main() {
       //      scal=omega_newton;
       //      ierr = VecAXPY(&scal,dx,x);
       if (normres < tol_newton) break;
-    }
-    
+    }  // end of inwt (outer) loop
+
     // Prints residual and mass matrix in Matlab format
     // Define time step depending on strategy. Automatic time step,
-    // local time step, etc... 
+    // local time step, etc...
     if (auto_time_step) Dt = Courant*dtmin[0];
     if (local_time_step) Dt = Courant;
     if (Dt<=0.) {
@@ -664,33 +591,40 @@ int bubbly_main() {
 		  tstep);
 
       print_vector(save_file.c_str(),x,dofmap,&time);
-      if (print_residual) 
+      if (print_residual)
 	print_vector(save_file_res.c_str(),res,dofmap,&time);
     }
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
-    
+
     if (normres_ext < tol_steady) break;
-      
+
   }
   print_vector(save_file.c_str(),x,dofmap,&time);
-  if (print_residual) 
+  if (print_residual)
     print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
-  ierr = VecDestroy(x); CHKERRA(ierr); 
-  ierr = VecDestroy(xold); CHKERRA(ierr); 
-  ierr = VecDestroy(dx); CHKERRA(ierr); 
-  ierr = VecDestroy(res); CHKERRA(ierr); 
-  ierr = VecDestroy(res_out); CHKERRA(ierr); 
-  ierr = VecDestroy(dx_out); CHKERRA(ierr); 
+  ierr = VecDestroy(x); CHKERRA(ierr);
+  ierr = VecDestroy(xold); CHKERRA(ierr);
+  ierr = VecDestroy(dx); CHKERRA(ierr);
+  ierr = VecDestroy(res); CHKERRA(ierr);
+  ierr = VecDestroy(res_out); CHKERRA(ierr);
+  ierr = VecDestroy(dx_out); CHKERRA(ierr);
+
+    for (int kstage=0; kstage<nstage; kstage++) {
+
 #ifdef DIAG_MAT_MATRIX
-  ierr = MatDestroy(A_liq); CHKERRA(ierr); 
-  ierr = MatDestroy(A_gas); CHKERRA(ierr); 
+//  ierr = MatDestroy(A_liq); CHKERRA(ierr);
+//  ierr = MatDestroy(A_gas); CHKERRA(ierr);
+  ierr = MatDestroy(A_stage[kstage]); CHKERRA(ierr);
 #endif
-  
-  delete A_liq,A_gas;
-  delete AA_liq,AA_gas;
+
+//  delete A_liq,A_gas;
+//  delete AA_liq,AA_gas;
+  delete A_stage[kstage];
+  delete AA_stage[kstage];
+}
 
   PetscFinalize();
   exit(0);
