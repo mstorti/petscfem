@@ -337,3 +337,7 @@ tag: beta-1.58 on Sat Mar 31 23:12:17 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.59 on Sun Apr  1 00:47:36 ART 2001, by mstorti in spider
      > Added license to .tex files
+----------
+tag: beta-1.60 on Mon Apr  2 17:22:55 ART 2001, by mstorti in spider
+     > QUASI STABLE. Passes all tests in test/newff and test/burger
+     > Added tests for burgers
