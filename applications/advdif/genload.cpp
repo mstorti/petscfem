@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.7 2001/05/24 17:39:59 mstorti Exp $
+//$Id: genload.cpp,v 1.8 2001/05/25 04:12:29 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -224,7 +224,6 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       xloc.rs();
       detJ = mydetsur(Jaco,S);
-      S.scale(-1.); // fixme:= This should be avoided !!
 
       if (!double_layer) {
 	// h_film_fun->q(flux);

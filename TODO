@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* new scheduling algorithm for load balancing in `elemset.cpp'
+* cambiar 'ceride.gov' por 'arcride.edu'
 * write a generic non-linear restriction element
 * add the genload elemset to advdif.
 * fix some incompatibilities that exclude compilation with LES under old RH5.2
