@@ -1126,3 +1126,8 @@ tag: beta-2.94.pl4 on Fri,  5 Apr 2002 17:13:26 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-2.94.pl5 on Fri, 12 Apr 2002 11:05:50 -0300 by mstorti in minerva.arcride.edu.ar
      > Fixed bug in cross-product matrix definition for rotation.
+----------
+tag: beta-2.94.pl6 on Sat, 13 Apr 2002 17:51:06 -0300 by mstorti in spider
+     > First fictitious node in `nsi_tet_keps_rot' state is now acceleration
+     > not velocity. 
+     > Fixed a bug in `nsikepsrot.cpp'. `acel_lin' was divided by Dt. Fixed.
