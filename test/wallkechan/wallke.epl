@@ -5,9 +5,9 @@ $L = 1;                         # Semi distance between plates
 $N = 16;                        # Number of elements in transversal 'x' direction
 $hratio = 20;                   # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
-$Ny = 100;                       # Number of elements in y dir
-$Ny_eq = 20;                    # last elements that are equal in size in the y direction
-$Ly = 60;                       # longitudinal length 
+$Ny = 40;                       # Number of elements in y dir
+$Ny_eq = 15;                    # last elements that are equal in size in the y direction
+$Ly = 10;                       # longitudinal length 
 $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
@@ -64,7 +64,7 @@ maxits 100
 save_file_pattern "outvector%d.out"
 nsaverot 1
 
-#if 1
+#if 0
 initial_state "save.state"
 #elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"
@@ -78,13 +78,13 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 10
+nstep 1
 nnwt 4
 tol_newton 0
 preco_type "lu"
-Dt 10
+Dt 1
 #steady
-newton_relaxation_factor 1
+newton_relaxation_factor 0.1
 kap_ctff_val 1e-5
 eps_ctff_val 1e-5
 #pspg_advection_factor 0.
