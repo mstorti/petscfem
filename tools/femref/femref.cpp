@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.10 2004/11/22 21:44:05 mstorti Exp $
+// $Id: femref.cpp,v 1.11 2004/11/22 23:13:06 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -184,7 +184,7 @@ GeomObject::Template
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void GeomObject::print(const char*s) {
+void GeomObject::print(const char*s) const {
   if (!go_template) {
     printf("<empty>\n");
     return;
@@ -241,7 +241,8 @@ UniformMesh::find(const GeomObject &go) {
   assert(sz>0);
   dvector<int> p, pe, vals;
   p.mono(sz); pe.mono(sz); vals.mono(sz);
-  int *nodes_p = go.nodes(), emin, emax, jmin;
+  const int *nodes_p = go.nodes();
+  int emin, emax, jmin;
   go.print("searching face: ");
   for (int j=0; j<sz; j++) {
     int node = nodes_p[j];
@@ -257,28 +258,48 @@ UniformMesh::find(const GeomObject &go) {
     else if (ele<emin) {
       emin = ele; jmin = j; 
     } else {
-      printf("candidate elem %d\n",ele);
+      printf("candidate elem %d ",ele);
     }
 #endif
   }
-  while (true) {
-    // Which is min from the `p'
-    int pp = p.e(0);
-    emin = emax = n2e(pp); jmin=0;
-    for (int j=1; j<sz; j++) {
-      pp = p.e(j);
-      if (pp < pmin) {
-	pmin = pp;
-	jmin = j;
-      }
-      if (pp > pmax) pmax = pp
+  bool found = false, done = false;
+#if 1
+  for (int j=0; j<sz; j++) {
+    printf("ngbrs elems for node %d: ",nodes_p[j]);
+    for (int k=p.e(j); k<pe.e(j); k++) {
+      printf("%d ",n2e.e(k));
     }
-    if (pmin<pmax) {
-      // advance jmin
-      pmin = 
-    }
-    
+    printf("\n");
   }
+#endif
+  while (!done) {
+    // Search for min and max elements
+    printf("elems in ptrs: ");
+    for (int j=0; j<sz; j++) {
+      int pp = p.e(j);
+      int ele = n2e.e(pp);
+      printf("%d ",ele);
+      if (j==0) emin = emax = ele; 
+      if (ele < emin) emin = ele;
+      else if (ele > emax) emax = ele;
+    }
+    printf("\n");
+    // If all elems are equal 
+    if (emin==emax) {
+      printf("candidate elem %d\n",emin);
+      found = true;
+    } 
+    for (int j=0; j<sz; j++) {
+      int pp = p.e(j);
+      if (n2e.e(pp) == emin) {
+	if (++p.e(j) >= pe.e(j)) {
+	  done = true;
+	  break;
+	} 
+      }
+    }
+  }
+  if (!found) printf("can't find an element\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -328,4 +349,5 @@ int main() {
       go.print();
     }
   }
+  mesh.find(go);
 }

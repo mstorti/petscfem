@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.19 2004/11/22 21:44:05 mstorti Exp $
+// $Id: femref.h,v 1.20 2004/11/22 23:13:06 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -38,24 +38,24 @@ private:
   int cs, canonical;
   dvector<int> nodes_m;
 public:
-  int size() { return go_template->size_m; }
+  int size() const { return go_template->size_m; }
   int size(Type t) const;
-  int csum() { return cs; }
-  int dim() { return go_template->dim_m; }
-  int nperms() { return go_template->nperms_m; }
+  int csum() const { return cs; }
+  int dim() const { return go_template->dim_m; }
+  int nperms() const { return go_template->nperms_m; }
   void clear() { go_template=NULL; nodes_m.clear(); canonical=0; cs=0; }
   void init(Type t,const int *nodes_a=NULL);
-  const int* perm(int perm_indx) {
+  const int* perm(int perm_indx) const {
     return &(go_template->perms_v.e(perm_indx,0)); 
   }
-  Type type() { return go_template->type;}
+  Type type() const { return go_template->type;}
   GeomObject() : canonical(0), go_template(NULL) { }
   GeomObject(Type t,const int *nodes_a=NULL);
   void make_canonical();
   /// Compare two objects
   bool equal(GeomObject &go);
-  void print(const char*s = NULL);
-  const int* nodes() { return nodes_m.buff(); }
+  void print(const char*s = NULL) const;
+  const int* nodes() const { return nodes_m.buff(); }
 };
 
 class Mesh {
