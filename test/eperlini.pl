@@ -200,9 +200,15 @@ EOM
 
 sub octave_export_vars {
     my ($file,@vars) = @_;
-    open O,">$file";
+    open O,">>$file";
     for $v (@vars) {
-	print O "$v = ${$v};\n";
+	my $vv = ${$v};
+    # This is how to knw if a variable is a number or a string. 
+    if ($vv == 0 && $a !~/^0$/) {
+	    print O "$v = \"$vv\";\n";
+	} else {
+	    print O "$v = $vv;\n";
+	}
     }
     close O;
 }
