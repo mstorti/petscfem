@@ -1,5 +1,13 @@
 #usage: 
-function [xnod,icone]= isomap(XNOD,ICONE,m,n)
+function [xnod,icone]= isomap(XNOD,ICONE,HH)
+
+  maxnode = sqrt(length(HH));
+  edgex = ICONE([1 2]);
+  edgex = min(edgex)+maxnode*(max(edgex)-1);
+  m = HH(edgex);
+  edgey = ICONE([1 4]);
+  edgey = min(edgey)+maxnode*(max(edgey)-1);
+  n = HH(edgey);
 
   w = zhomo([0 1 0 1],m+1,n+1);
   [xinod,icone] = pfcm2fem(w);
