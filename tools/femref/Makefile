@@ -112,6 +112,30 @@ libfemref.so: getsurf2.o
 		$(LDFLAGS_NO_PROG_LIB)
 endif
 
+LDFLAGS := 						\
+	-lstdc++ -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
+	-L$(PETSCFEM_DIR)/src				\
+	-lpetscfem$(osfx)				\
+	-L$(NEWMAT)  -lnewmat				\
+	-lglib						\
+	-L$(LIBRETTO_LIB) -libretto			\
+	-L$(PETSC_DIR)/lib/lib$(BOPT)/linux/		\
+	$(PETSC_SLES_LIB)				\
+	$(SUPERLU)/libsuperlu$(osfx).a			\
+	$(MESCHACH)/libmes.a				\
+	-L$(METIS) -lmetis				\
+	$(SSL)/simpleskts.a				\
+	-lpthread					\
+	-lblas -llapack 
+
+mpiguile: mpiguile.o
+	gcc -g -o $@ $< `guile-config link` 	\
+	$(LDFLAGS)
+
+mpitest: mpitest.o
+	gcc -g -o $@ $< `guile-config link` 	\
+	$(LDFLAGS)
+
 yuv_compress:
 	@echo nothing
 

@@ -1,0 +1,63 @@
+On Sat, 5 Feb 2005 11:40:36 -0600 (CST), Mario Storti
+<mariostorti@yahoo.com> wrote:
+> I´m writing a parallel Finite Element
+> (http://www.cimec.org.ar/petscfem) program and I´m making some
+> experiments with extending it with Guile.
+
+That's very exciting!  I've written a neuron simulator which is
+parallelized with MPI and extended with Guile.  (It's not publicly
+available right now.  It's GPL:ed alright, but not in a releasable
+state and doesn't have enough docs.)
+
+> The program runs in parallel using Message Passing with the MPI Library
+> (http://www-unix.mcs.anl.gov/mpi/). I have wrapped some basic MPI
+> functions (MPI_Comm_rank,MPI_Comm_size,MPI_Recv and MPI_Wend), and it
+> seems to work fine, but I ask you people if someone knows of a port of
+> MPI to Guile.
+
+I've never seen one.  I don't think it exists.  However, I would welcome one!
+
+> When running in parallel I had to compile myself the Guile interpreter
+> since I need that all processes read and interpret the script. This
+> prevents me to using the interpreter in interactive form (when running
+> in parallel) because MPI does not broadcast the standard input to the
+> other processes. I think that this can be fixed by modifiying the REPL,
+> i.e. when running in interactive mode, in parallel, the REPL in the
+> master node should be in charge of broadcasting the standard input to
+> the nodes. Any ideas?
+
+Maybe you should have a look at how to implement custom port objects. 
+There should be some documentation in the reference manual and
+guile-readline is one example. The idea would then be that you
+interact with a master process with a custom standard input port. At
+every newline, it sends data to another kind of custom standard input
+port on the slaves.
+
+Once you have figured out how to make the ports, you can simply
+redirect input with:
+
+(set-current-input-port MY-PORT)
+
+> Also, i´m not very happy with the way I do the MPI initialization. I
+> had to write my own guile interpreter because MPI needs to have accesss
+> to the argc, argv arguments of main(), so that MPI initialization is
+> done _always_. I would like rather to have a Scheme `mpi-init' function
+> called by the user.
+
+My view on this situation is that since the installed Guile
+interpreter currently can't run any custom code before parsing its
+arguments and since MPI *has to* parse the arguments before that,
+there's no other choice but to write your own interpreter like you've
+done.
+
+> But, on the other hand I can´t do the finalization
+> in the `inner_main()´ because I receive a lot of `net_recv' errors
+> _before_ reaching the MPI_Finalize().
+
+But this should be due to some synchronization problem in your
+program.  Maybe everybody hasn't received all data before senders
+begin to finalize?  Have you tried to but a call to MPI_Barrier right
+before MPI_Finalize?
+
+Best regards,
+Mikael D.

@@ -339,13 +339,21 @@ DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
               s_w, SCM_ARG1, __FUN__);
   w = (dvector_t *) SCM_SMOB_DATA (s_w);
 
-#define TT "#<" DVTYPE " "
+#define TT "#,(" DVTYPE " "
   scm_puts (TT, port);
   int n = w->size();
-  sprintf(buff,"%p, %d (",w,n);
+  sprintf(buff," %d (",n);
+  scm_lfwrite (buff,strlen(buff),port);
+  int m = w->rank();
+  for (int j=0; j<m; j++) {
+    sprintf(buff,"%d ",w->size(j));
+    scm_lfwrite (buff,strlen(buff),port);
+  }
+  sprintf(buff,") ");
   scm_lfwrite (buff,strlen(buff),port);
 #define NPMAX 20
-  int nn = (n>NPMAX ? NPMAX : n);
+  // int nn = (n>NPMAX ? NPMAX : n);
+  int nn = n;
   for (int j=0; j<nn; j++) {
 #if defined DV_INT
 #define PRINTF_FORMAT "%d "
@@ -357,9 +365,54 @@ DVECTOR_PRINT_FUN(SCM s_w,SCM port, scm_print_state *pstate) {
     sprintf(buff,PRINTF_FORMAT,w->ref(j));
     scm_lfwrite (buff,strlen(buff),port);
   }
-  if(n>NPMAX) 
+  if(n>nn) 
     scm_puts (" ... ", port);
-  scm_puts (")>", port);
+  scm_puts (")", port);
+  return 1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
+#define __FUN__ DVTYPE "-read-ctor"
+static int
+DVECTOR_READ_CTOR_FUN(SCM port) {
+  static char buff[100];
+  dvector_t *w;
+  int k;
+
+  SCM_ASSERT (SCM_SMOB_PREDICATE (TAG, s_w),
+              s_w, SCM_ARG1, __FUN__);
+  w = (dvector_t *) SCM_SMOB_DATA (s_w);
+
+#define TT "#,(" DVTYPE " "
+  scm_puts (TT, port);
+  int n = w->size();
+  sprintf(buff," %d (",n);
+  scm_lfwrite (buff,strlen(buff),port);
+  int m = w->rank();
+  for (int j=0; j<m; j++) {
+    sprintf(buff,"%d ",w->size(j));
+    scm_lfwrite (buff,strlen(buff),port);
+  }
+  sprintf(buff,") ");
+  scm_lfwrite (buff,strlen(buff),port);
+#define NPMAX 20
+  // int nn = (n>NPMAX ? NPMAX : n);
+  int nn = n;
+  for (int j=0; j<nn; j++) {
+#if defined DV_INT
+#define PRINTF_FORMAT "%d "
+#elif defined DV_DBL
+#define PRINTF_FORMAT "%.12g "
+#else
+#error undefined type!! 
+#endif
+    sprintf(buff,PRINTF_FORMAT,w->ref(j));
+    scm_lfwrite (buff,strlen(buff),port);
+  }
+  if(n>nn) 
+    scm_puts (" ... ", port);
+  scm_puts (")", port);
   return 1;
 }
 
