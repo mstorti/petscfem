@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.24 2002/09/22 13:18:21 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.25 2002/09/23 21:17:10 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -404,8 +404,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #warning Compiling with ROSI_COUPLING_MODULE enabled
 	  AXIAL_ACCELERATION = acel_lin.get(3);
 	  GLOBAL_TIME = time_alpha;
-  	  printf("nsi_keps_rot: putting t=%f, ax=%f\n",
-  		 GLOBAL_TIME,AXIAL_ACCELERATION);
+	  // printf("nsi_keps_rot: putting t=%f, ax=%f\n",
+	  // GLOBAL_TIME,AXIAL_ACCELERATION);
 #endif
 
 	  //fixme:= This must be rewritten a new.

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.6 2002/09/22 13:18:21 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.7 2002/09/23 21:17:10 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -49,6 +49,8 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
 //  	 GLOBAL_TIME,AXIAL_ACCELERATION);
   double total_axial_acc;
   total_axial_acc = gravity + AXIAL_ACCELERATION;
+  // We could have problems with the free surface if the axal acceleration is too low
+  if (total_axial_acc < 0.3 * gravity) total_axial_acc = 0.3 * gravity;
 #define gravity total_axial_acc
 #endif
 
