@@ -16,8 +16,7 @@
 node1     1.0       server
 node12    9.09    
 node14    9.09
-# A este le bajamos el peso para que entre por memoria. 
-node15    5.00
+node15    9.09
 node4     4.00    
 node5     4.00    
 node6     4.00    
