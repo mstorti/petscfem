@@ -2103,3 +2103,6 @@ tag: beta-3.14.pl16 on Wed,  8 Jan 2003 23:38:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl17 on Thu,  9 Jan 2003 10:40:06 -0300 by mstorti in minerva.arcride.edu.ar
      > Filter is now entered through options. 
+----------
+tag: beta-3.14.pl18 on Fri, 10 Jan 2003 09:28:08 -0300 by mstorti in minerva.arcride.edu.ar
+     > Working on viscous/inviscid coupling.
