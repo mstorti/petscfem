@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.138 2003/11/25 01:13:36 mstorti Exp $
+//$Id: ns.cpp,v 1.139 2003/11/27 21:22:50 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -208,7 +208,7 @@ int main(int argc,char **args) {
   GETOPTDEF(int,print_linear_system_and_stop,0);
   //o Print the residual each  #nsave#  steps. 
   GETOPTDEF(int,print_residual,0);
-  //o Solve system before  #print\_linear_system_and_stop# 
+  //o Solve system before  #print_linear_system_and_stop# 
   GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
   GETOPTDEF(int,measure_performance,0);

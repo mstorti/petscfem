@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.22 2003/11/16 01:15:38 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.23 2003/11/27 21:22:50 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -62,6 +62,10 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,ndimel,ndim);
   //o Dimension of bcconv element
   NSGETOPTDEF(int,ndimelf,ndimel-1);
+  //o Reverse sense of normal. Useful if, for instance,
+  //  you generated, by mistake, the wrong sense of
+  //  numeration of nodes in the connectivities. 
+  NSGETOPTDEF(int,reverse_normal,0);
   int  nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
@@ -229,6 +233,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  //set_error(1);
 	}
       } else normal.resize(1,ndimel).set(normal_1d);
+      if (reverse_normal) normal.scale(-1.);
       
       // This is because I don't know how to use 0
       // dimension matrices. 

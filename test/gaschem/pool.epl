@@ -78,7 +78,7 @@ solver "petsc"
 preco_type "lu"
 #endif
 
-nstep 20
+nstep 2
 nnwt 2
 atol 0
 rtol 1e-6
