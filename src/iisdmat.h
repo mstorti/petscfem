@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.7 2001/10/06 23:37:08 mstorti Exp $
+// $Id: iisdmat.h,v 1.8 2001/11/08 03:28:12 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -103,7 +103,7 @@ class IISDMat : public PFMat {
   /// The PETSc nnz vector for the local part
   vector<int> d_nnz_LL;
   /// Version SuperLU of the local matrix
-  Sparse::Mat A_LL_SLU;
+  Sparse::SuperLUMat A_LL_SLU;
   /// Local-Local matrix (sequential matrix on each processor). 
   Mat A_LL;
   /// Local-Interface matrix (MPI matrix).
@@ -240,7 +240,7 @@ public:
 /// Direct SuperLU solver. 
 class SparseDirect : public PFMat {
 public:
-  Sparse::Mat A;
+  Sparse::SuperLUMat A;
   /// destructor
   ~SparseDirect() {A.clear();};
   /// clear memory (almost destructor)

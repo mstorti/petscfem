@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.23 2001/09/30 17:17:51 mstorti Exp $
+// $Id: sparse.h,v 1.24 2001/11/08 03:28:12 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -401,13 +401,10 @@ void MatFSMContext::action() {			\
     /// Value of those elements that are not represented
     static double not_represented_val;
 
-    /// Factored matrix
-    SuperMatrix A,L,U,B;
-    int *perm_r, *perm_c;
-    
     void init_fsm(Mat *) {fsm.matrix_p = this;};
-    double *b;
   public:
+
+    double *b;
 
     friend class MatFSM;
     MatFSM fsm;
@@ -517,11 +514,32 @@ void MatFSMContext::action() {			\
 //  #undef FSM_OP
 //  #define FSM_OP(action) FSM_ACTION_DECL(action)
 //      FSM_ACTIONS;
-    void clean_factor();
+    virtual void clean_factor()=0;
     void clean_mat();
+    virtual void solve_only()=0;
+    virtual void fact_and_solve()=0;
+
+  };
+
+  class SuperLUMat : public Mat {
+  private:
+    /// Factored matrix
+    SuperMatrix A,L,U,B;
+    int *perm_r, *perm_c;
+  public:
+    void clean_factor();
     void solve_only();
     void fact_and_solve();
+  };
 
+  class PETScMat : public Mat {
+  private:
+    /// Factored matrix
+    ::Mat A;
+  public:
+    void clean_factor();
+    void solve_only();
+    void fact_and_solve();
   };
 
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.7 2001/09/30 17:17:51 mstorti Exp $
+//$Id: spsolve.cpp,v 1.8 2001/11/08 03:28:12 mstorti Exp $
 
 #include "sparse.h"
 
@@ -23,7 +23,22 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::fact_and_solve() {
+  Mat & Mat::clear() {
+
+    fsm.clear();
+    return *this;
+
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void Mat::clean_mat() {
+    
+    map<int,Vec>::clear();
+
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void SuperLUMat::fact_and_solve() {
 
     int j,m,nnz,curs,info;
     RowCIt row,e;
@@ -72,7 +87,7 @@ namespace Sparse {
 
       
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::solve_only() {
+  void SuperLUMat::solve_only() {
 
     int j,m,nnz,curs,info;
 
@@ -87,22 +102,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  Mat & Mat::clear() {
-
-    fsm.clear();
-    return *this;
-
-  }
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::clean_mat() {
-    
-    map<int,Vec>::clear();
-
-  }
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::clean_factor() {
+  void SuperLUMat::clean_factor() {
 
 #if 0
     dPrint_CompCol_Matrix("A", &A);
@@ -123,5 +123,43 @@ namespace Sparse {
     delete[] perm_c;
   }
     
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void SuperLUMat::fact_and_solve() {
+
+    vector<int> d_nnz;
+    int* d_nnz_p;
+    RowCIt row,e;
+    VecCIt l,el;
+
+    m = rows();
+    assert(m == cols());
+    d_nnz.resize(m);
+
+    d_nnz_p = d_nnz.begin();
+    for (j=0; j<m; j++) {
+      row = find(j);
+      assert(row != e);
+      const Vec & v = row->second;
+      d_nnz_p[j] = v.size();
+    }
+
+    ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,m,m,
+			   PETSC_NULL,d_nnz_p,&A); assert(!ierr);
+    ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    for (j=0; j<m; j++) {
+      row = find(j);
+      assert(row != e);
+      const Vec & v = row->second;
+      el = v.end();
+      for (l=v.begin(); l!=el; l++) {
+	ierr = MatSetValues(A,1,&j,1,&l->first,
+			    &l->second,INSERT_VALUES); assert(!ierr);
+      }
+    }
+    ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); assert(ierr);
+    ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); assert(ierr);
+
+  }
+
 }
 
