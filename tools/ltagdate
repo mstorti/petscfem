@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+#__INSERT_LICENSE__
+#$Id: ltagdate,v 1.1 2002/02/10 21:14:52 mstorti Exp $
+
+use Date::Parse;
+
+$savelog = "$ENV{'PETSCFEM_DIR'}/save.log";
+
+open SAVELOG,$savelog;
+$tag = shift();
+
+while (<SAVELOG>) {
+    if (/^tag: $tag on (.*), by/) {
+	$date = $1;
+	$date =~ s/ARST/-0300/;
+	print "$date\n";
+	exit(0);
+    }
+}
+
+print "Couldn't find tag\n";
+exit(1);
