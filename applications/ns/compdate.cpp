@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.3 2003/09/11 16:02:07 mstorti Exp $
+//$Id: compdate.cpp,v 1.4 2003/09/13 17:32:09 mstorti Exp $
 #include <cstdio>
 #include <petsc.h>
 

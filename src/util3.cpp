@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.10 2003/09/11 21:44:58 mstorti Exp $
+// $Id: util3.cpp,v 1.11 2003/09/13 17:32:09 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
@@ -158,6 +158,7 @@ void DXSplit::dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_print_date(void) {
   time_t t = time(NULL);
-  printf("Hi there.   Today is %sHave fun and a nice run! [The PETSc-FEM team]"
+  printf("Hi user!       Today is %s"
+	 "Have fun and a nice run!    [The PETSc-FEM team]"
 	 "\n---------------------------------------------\n",ctime(&t));
 }

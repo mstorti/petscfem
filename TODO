@@ -5,8 +5,8 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
-* Make PETSCFEM_ASSERT not to print a dot in the message i.e. "condition." 
-* Add `wiki' syntax to //o options (#tt#, *bf*, _em_ ...)
+* Can't read element lines with only one node with one digit
+* put dependency of `compdate.cpp' on `compdate.cppin' in the Makefiles
 * Generate a test for the disconnected graph bug. 
 * Check caching DX objects for multiple elemsets
 * Code and test changing coords and elemset conectivities 
@@ -114,6 +114,8 @@ DONE:
 =====
 
 ### Current line =========== 
+* Add `wiki' syntax to //o options (#tt#, *bf*, _em_ ...)
+* Make PETSCFEM_ASSERT not to print a dot in the message i.e. "condition." 
 * document wiki syntax for `odoc.pl'
 * print the date of running on the start
 * OK Write a `system' hook. (executes a shell command). 

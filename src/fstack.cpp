@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.14 2003/08/06 21:28:04 mstorti Exp $
+//$Id: fstack.cpp,v 1.15 2003/09/13 17:32:09 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -197,7 +197,7 @@ int FileStack::get_line(char * & line) {
     }
       
     readlen = strlen(bufrp);
-    if (readlen>1) {
+    if (readlen>0) {
       contnd=0;
       if (bufrp[readlen-1] == '\\' ) {
 	readlen -= 1;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.90 2003/09/04 01:37:26 mstorti Exp $
+//$Id: readmesh.cpp,v 1.91 2003/09/13 17:32:09 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -393,7 +393,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       if (!data) {
 	while (1) {
 	  fstack->get_line(line);
-	  
+
+	  printf("line: %s\n",line);
 	  // reading element connectivities
 	  for (int jel=0; jel<nel; jel++) {
 	    token =  strtok(( jel==0 ? line : NULL),bsp);
@@ -406,6 +407,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    if (jel==0 && !strcmp(token,"__END_ELEMSET__"))
 	      goto DONE;
 	    sscanf(token ,"%d",&node);
+	    printf("node: %d\n",node);
 	    icorow[jel]= node;
 	    // This should be done AFTER reading the nodes 
 	    // Set all nodes that are connected to an element as degrees of freedom
@@ -934,6 +936,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     nel = elemset->nel;
     is_any_fat=1;
     nelemfat += nelem;
+    printf("elemset %p, nelem %d, nelemfat %d\n",elemset,nelem,nelemfat);
     nelemsetptr[ielset+1]=nelemsetptr[ielset]+nelem;
     const int *conn; int nell;
     for (int iel=0; iel<nelem; iel++) {
