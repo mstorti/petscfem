@@ -19,6 +19,8 @@ BOPT = g_c++
 include $(PETSCFEM_DIR)/../Makefile.defs
 ######  end of CONGIGURATION VARIABLES sectio  ####################
 
+export PETSCFEM_DIR
+
 CFLAGS	         =
 FFLAGS	         = 
 
@@ -66,7 +68,8 @@ TAGS: $(SRCS)
 # regex don't work with the new etags!!
 #	etags --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' \
 #			*.cpp *.h $(TAGFLAGS)
-	$(MAKE) $(NEWSRCS)
+	echo $(SRCS)
+#	$(MAKE) $(NEWSRCS)
 	etags *.cpp *.h $(TAGFLAGS)
 
 # Create preprocessed files

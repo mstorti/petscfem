@@ -1,13 +1,13 @@
-# $Id: Makefile,v 1.9 2001/01/08 13:08:37 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/01/09 16:57:37 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
-		sw startwork fm2new
+		sw startwork fm2new sync_version
 
-all: newdepend tags adv ns laplace 
+all: sync_version depend tags adv advdif ns laplace 
 
 #sw: newdepend tags ns
-sw: newdepend tags advdif
+sw: sync_version depend tags advdif
 
 fm2new:
 	cd src ; ln -sf fmat2ep.cpp.new fmat2ep.cpp
@@ -75,8 +75,10 @@ DEPEND_DIRS = $(SRCDIRS)
 #	for dir in $(SRCDIRS) ; do $(MAKE) -C $$dir depend ; done 
 
 sync_version: 	
-	$(MAKE) -C src version.cpp
-	$(MAKE) -C doc readme
+	version=`cat VERSION` ; \
+	echo "\\def\\petscfemversion{$$version}" > doc/version.tex ; \
+#	$(MAKE) -C src version.cpp
+#	$(MAKE) -C doc readme
 
 save:
 	$(MAKE) sync_version
@@ -108,21 +110,21 @@ tag:
 	echo shell: $(SHELL)
 	@echo Verify that current directory is OK...
 	echo n | cvs release .
-	@echo "Continue? (y/n) > " ; \
+	@echo -n "Continue? (y/n) > " ; \
 	read answer ; \
 	if [ ! $$answer = "y" ] ; then \
 		exit ; \
 	fi
 	@echo Last tags:
 	@grep "^tag: " save.log | tail
-	@echo -n "Enter new tag: >" ; \
+	@echo -n "Enter new tag: > " ; \
 	read newtag ; \
-	newtag_=`echo $$nwtag | perl -pe 's/-/--/g; s/./-/g;'` ; \
+	newtag_=`echo $$newtag | perl -pe 's/\-/--/g; s/\./-/g;'` ; \
 	echo "encoded tag: $$newtag_" ; \
-	echo "tag: $$newtag on `date`, `hostname -f`" >> save.log ; \
-	echo $$newtag_ > VERSION ; \
+	echo "tag: $$newtag on `date`, by `whoami` in `hostname -f`" >> save.log ; \
+	echo $$newtag > VERSION ; \
 	echo "Proceed to tag files (y/n) > " ; \
 	read answer ; \
 	if [ $$answer = "y" ] ; then \
-		cvs tag . ; \
+		cvs tag $$newtag_ . ; \
 	fi
