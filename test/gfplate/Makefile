@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.13 2005/01/24 18:36:10 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2005/01/24 19:23:30 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runc
+default: runa2d
 
 # BOPT := O_c++
 SRCS = 
@@ -20,6 +20,9 @@ PROG := $(ADVDIF)
 NL :=
 NP := 1
 endif
+
+runa2d:
+	$(MAKE) CASE_NAME=gfabso2d run
 
 run: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
