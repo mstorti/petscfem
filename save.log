@@ -1205,3 +1205,6 @@ tag: beta-2.94.pl24 on Sun, 30 Jun 2002 21:15:14 -0300 by mstorti in spider
 ----------
 tag: beta-2.94.pl25 on Mon,  1 Jul 2002 23:33:33 -0300 by mstorti in spider
      > Added `smooth_impulse' to temporal functions. 
+----------
+tag: beta-2.94.pl26 on Thu, 11 Jul 2002 13:36:51 -0300 by mstorti in minerva.arcride.edu.ar
+     > advdif classes with `comp_P_supg()' work
