@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/01/08 12:26:12 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/01/08 13:00:08 mstorti Exp $ 
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -113,9 +113,12 @@ tag:
 	fi
 	@echo Last tags:
 	grep "^tag: " save.log | tail
-	@echo -n "new tag: >" ; \
+	@echo -n "Enter new tag: >" ; \
 	@read newtag
-	echo "tag: $newtag" >> save.log
+	newtag_=`echo $nwtag | perl -pe 's/-/--/g; s/./-/g;'`
+	@echo "encoded tag: $newtag_"
+	echo "tag: $newtag on `date`, `hostname -f`" >> save.log
+	echo $newtag_ > VERSION 
 	@echo "Proceed to tag files (y/n) > " ; \
 	@read answer ; \
 	if [ $$answer = "y" ] ; then \
