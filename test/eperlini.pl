@@ -126,6 +126,20 @@ sub readm_all {
     return \@read_var;
 }
 
+sub readm_all_v {
+    my @read_var=();
+    my ($file)=@_;
+    die "Couldn't open file $file\n" unless open MFILE,"$file";
+    while (<MFILE>) {
+	if (/^\s*(\w*)\s*=(\S*);/) {
+	    push @read_var,$1;
+	    $ {$1} = $2;
+	}
+    }
+    close MFILE;
+    return @read_var;
+}
+
 sub P {
     my $name = shift();
     my $val = shift();
@@ -167,6 +181,21 @@ EOM
 	print OCT "$v = ${$v};\n" if $octtmpfile;
     }
     close OCT if $octtmpfile;
+}
+
+# Added 'octave_string' that strips quotes from arguments read from
+# Octave data files. 
+# usage octave_string(IDENTIFIERS...).
+# e.g.: octave_string(qw(var1 var2 var3))
+sub octave_string {
+    my @args=@_;
+    for $id (@args) {
+	next unless defined(${$id});
+	my $t=${$id};
+	$t=~ s/^\s*\"//;
+	$t=~ s/\"\s*$//;
+	${$id} = $t;
+    }
 }
 
 print <<'EOM';
