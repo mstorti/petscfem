@@ -1,0 +1,73 @@
+# -*- mode: shell-script -*-
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+get_var_env('casen',undef);
+$save_file = ($casen ? "aqui.$casen.tmp" : "aqui.state.tmp");
+$casename = $casen;
+$Nx = 20;
+$Lx = 1;			# Side of the cavity
+$Dt = 0.001;			# time step
+$nstep = 50;
+$t = $nstep*$Dt;
+#
+#__END_TRANSCRIPT__
+@vars = qw(t Nx Lx Dt nstep);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+:>//                            # ends ePerl block
+
+# <:pr('casen'):> 
+
+global_options
+
+ndim 2
+nsave 5
+<:pr('nstep'):> 
+# initial_state stream.state
+<:pr('save_file'):> 
+
+solver "petsc"
+preco_type "lu"
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-6
+dtol 1e3
+nnwt 5
+
+Krylov_dim <:=$maxits:>
+print_internal_loop_conv 1
+# print_linear_system_and_stop 1
+# verify_jacobian_with_numerical_one 1
+
+# print_nodal_partitioning 1
+Dt <:=$Dt:>
+steady <:=$steady:>
+alpha 1.
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  1
+__INCLUDE__ stream.nod.tmp
+_END_NODES__
+
+elemset stream 2
+name malla
+geometry cartesian1d
+npg 2
+__END_HASH__
+__INCLUDE__ stream.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+1 1 1.
+__END_FIXA__

@@ -226,13 +226,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double detJaco, wpgdet, delta_sc;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix dshapex(ndimel,nel),Jaco(ndimel,ndimel),Jaco_av(ndimel,ndimel),
+  FMatrix dshapex(ndimel,nel),Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
     iJaco(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), 
-    Ho(ndof),Hn(ndof), 
-    tau_supg(ndof,ndof);
+    Ho(ndof),Hn(ndof), tau_supg(ndof,ndof);
   // These are edclared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),

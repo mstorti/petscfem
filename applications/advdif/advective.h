@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.39 2002/01/17 12:58:19 mstorti Exp $
+//$Id: advective.h,v 1.40 2002/01/17 15:24:38 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -159,6 +159,7 @@ public:
 class GlobalScalarEF : public EnthalpyFun {
   /// Aux var. identity of size ndof
   FastMat2 eye_ndof,htmp1,htmp2;
+protected:
   /// The actual Cp
   double Cp;
 public:
@@ -274,7 +275,7 @@ public:
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
 
-  /** Returns the dimension of the elemenst (May be different from the
+  /** Returns the dimension of the element (May be different from the
       dimension space). For instance, a river may be a 1D elemset in a
       2D space. If this is equal to the space dimension (the most
       common case) then return -1. 
@@ -299,7 +300,12 @@ public:
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
-  /// Destructor. Destroys the flux function object. 
+  /** Destructor. Destroys the flux function object. fixme:= Warning: this is
+      not good!! We cannot destroy the flux function object here if it
+      is built in the derived class, because it may happen, for
+      instance, that we pass a pointer to a global object. To be fixed
+      later... 
+   */
   ~NewAdvDif() {delete adv_diff_ff;}
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;

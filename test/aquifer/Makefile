@@ -1,19 +1,28 @@
-# $Id: Makefile,v 1.3 2002/01/16 19:26:43 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/01/17 15:24:02 mstorti Exp $ 
 
-.PHONY:  force test_plain test_var_eta
+.PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
 #w All tests
 tests: test_plain test_var_eta test_transient
+
+#w Runs program for the `aquifer' tests
+run: CASE=aqui
+run: mkm=mkmesh
+run: rung
+
+#w Runs program for the `stream' tests
+runs: CASE=stream
+runs: mkm=mkmeshs
+runs: rung
+
+LOC_PROG := advdif
+CASE_NAME := $(CASE)
+PROG := $(ADVDIF)
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-LOC_PROG := advdif
-CASE_NAME := aqui
-PROG := $(ADVDIF)
-
-CASE = $(CASE_NAME)
 ################################################################
 NP = 1
 
@@ -43,14 +52,15 @@ test_transient:
 	$(MAKE) casen=transient run
 	octave -q checku.m > transient.verif.tmp
 
-#w Runs program
-run:  data
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
-			-case $(CASE).depl > output.$(casen).out
-
+#w Make data
 data: force
 	$(MAKE) $(CASE).depl
-	octave -q mkmesh.m
+	octave -q $(mkm).m
+
+#w Runs program
+rung: data force
+	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
+			-case $(CASE).depl # > output.$(casen).out
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
@@ -59,3 +69,4 @@ $(CASE).depl: force
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
+

@@ -9,6 +9,11 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
   v = 10.;
+  int nel,ndof,nelprops;
+  elemset->elem_params(nel,ndof,nelprops);
+  IdentityEF *ef = dynamic_cast<IdentityEF *>(enthalpy_fun);
+  assert(ef);
+  ef->init(ndof,1,nel);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -27,9 +32,11 @@ void stream_ff
 
   options |= SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a scalar tau
-  flux.set(U).scale(v);
+  flux.ir(1,1).set(U).scale(v).rs();
   fluxd.set(0.);
+  grad_U.ir(2,1);
   A_grad_U.set(grad_U).scale(v);
+  grad_U.rs();
 
   if ( options & COMP_UPWIND ) {
     double h_supg = 2./iJaco.get(1,1);
@@ -47,7 +54,10 @@ void stream_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
-  A_grad_N.set(grad_N).scale(v);
+  grad_N.ir(1,1);
+  A_grad_N.ir(2,1).ir(3,1).set(grad_N).scale(v);
+  grad_N.rs();
+  A_grad_N.rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
