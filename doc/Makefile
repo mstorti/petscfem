@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.5 2001/01/03 13:51:06 mstorti Exp $
+#$Id: Makefile,v 1.6 2001/01/09 16:58:51 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -67,8 +67,11 @@ index.html: index.tex
 readme: ../README ../README.html
 
 README.pod: README.podin $(TARFILE).tara,v
+# 	-chmod +w README.pod
+# 	fversion -is $(TARFILE).tara,v README.podin README.pod
+# 	-chmod -w README.pod
 	-chmod +w README.pod
-	fversion -is $(TARFILE).tara,v README.podin README.pod
+	eperl -P README.podin > README.pod
 	-chmod -w README.pod
 
 ../README: README.pod
@@ -80,7 +83,7 @@ README.pod: README.podin $(TARFILE).tara,v
 	-chmod +w $@
 	pod2html $< > $@
 	-chmod -w $@
-	-rm pod2html-{dir,item}cache
+	-@rm pod2html-{dir,item}cache &> /dev/null
 
 local_clean::
 	$(MAKE) -C manual clean

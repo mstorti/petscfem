@@ -2,11 +2,13 @@
 
 $ICONSERVER = '../icons';
 
+$petscfem_version=`cat ../VERSION`;
 $ADDRESS = <<EOM;
-<I> Copyright (C) 1999, 2000, 2001  
+<i> Copyright (C) 1999, 2000, 2001  
 <a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti.</a><br>
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY. 
-For details see the GNU General Public License. <BR>
+For details see the GNU General Public License. <br>
+Current PETSc-FEM version is <b> petscfem-$petscfem_version </b>. <br>
 Processed on $address_data[1]</I>
 EOM
 

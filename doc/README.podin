@@ -1,3 +1,4 @@
+<:$version=`cat ../VERSION`; chomp $version; :>
 %        -*- mode: text -*-
 This is the README file for PETSc-FEM in POD (Plain Old Documentation)
 format (this is the standard embedding doc system in the Perl world).
@@ -154,13 +155,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-__INSERT_VERSION__.tar.gz> package,
+Once you got the I<petscfem-<:=$version:>.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-__INSERT_VERSION__.tar.gz
-  $ tar xvf petscfem-beta-__INSERT_VERSION__.tar
+  $ gunzip petscfem-<:=$version:>.tar.gz
+  $ tar xvf petscfem-<:=$version:>.tar
 
-This will create a I<petscfem-beta-__INSERT_VERSION__> directory with
+This will create a I<petscfem-<:=$version:>> directory with
 all the source files included.
 
 =head2 Makefile variables
