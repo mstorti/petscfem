@@ -13,7 +13,7 @@ $ADDRESS = <<EOM;
 
 <i> Copyright (C) 1999-2003
 <a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti</a>, Norberto Nigro, 
-CIMEC-CONICET-UNL.<br>
+Rodrigo P.Paz, CIMEC-CONICET-UNL.<br>
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY. 
 For details see the GNU General Public License. <br>
 Current PETSc-FEM version is <b> petscfem-$petscfem_version </b>. <br>
