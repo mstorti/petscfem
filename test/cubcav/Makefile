@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.109 2004/11/10 19:52:15 mstorti Exp $ 
+# $Id: Makefile,v 1.110 2004/11/11 18:23:25 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -12,16 +12,16 @@ export case
 
 tests: block_uploading
 
-BOPT := g_c++
+# BOPT := g_c++
 PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-#CASE_NAME := qharm
-# CASE_NAME := cubcav
-CASE_NAME := cubcav-fs
+# CASE_NAME := qharm
+CASE_NAME := cubcav
+# CASE_NAME := cubcav-fs
 PROG := $(NS)
 
 CASE := $(CASE_NAME)
@@ -37,7 +37,7 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
-run_subdir_test:							\
+run_subdir_test:
 	if [ -e $(sub_dir) ] ; then rrm -rf $(sub_dir) ; fi ;		\
 	mkdir $(sub_dir) ;						\
 	echo "node1 1.3 server" > $(sub_dir)/proctable ;		\
@@ -64,6 +64,9 @@ local_sw::
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
+
+hexasplit.bin: hexasplit.o
+	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
 nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 
@@ -122,6 +125,8 @@ block_uploading:
 		> $(CASE_NAME).out.plain_bupl0.tmp
 	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run \
 		> $(CASE_NAME).out.plain_bupl1.tmp
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl2 run \
+		> $(CASE_NAME).out.plain_bupl2.tmp
 	$(OCTAVE) check_plain.m				\
 		> $(CASE_NAME).plain-bupl.verif.tmp
 
@@ -170,7 +175,7 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=30 run
+	$(MAKE) N=4 run
 
 sync:
 	chmod 755 *.pl *.sh
