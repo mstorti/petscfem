@@ -1,4 +1,4 @@
-$Id: Version-Policy-HOWTO.txt,v 1.11 2005/02/18 09:51:04 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.12 2005/03/09 10:44:19 mstorti Exp $
 
 (progn
 (defun do-replace(from to)
@@ -6,30 +6,30 @@ $Id: Version-Policy-HOWTO.txt,v 1.11 2005/02/18 09:51:04 mstorti Exp $
        (goto-char (point-min))
        (search-forward-regexp "^__MARKER__")
        (replace-string from to nil (point) (point-max)))
+(do-replace "3.43" "3.45")
+(do-replace "3.42" "3.44")
 (do-replace "3.41" "3.43")
-(do-replace "3.40" "3.42")
-(do-replace "3.39" "3.41")
-(do-replace "3.38" "3.40"))
+(do-replace "3.40" "3.42"))
 __MARKER__
 
 These are the steps for saving a new stable version of PETSc-FEM. The
 policy version herself is described in the doc. Say that we are
-working in unstable version 3.41, stable 3.40 and want to save a new
-stable version 3.42 (unstable 3.43)
+working in unstable version 3.43, stable 3.42 and want to save a new
+stable version 3.44 (unstable 3.45)
 
 *./ Save CVS repository (directory `cvsroot') in cvsroot-DATE.tgz
-*./ Make $ make tag with version=3.43
+*./ Make $ make tag with version=3.45
 *./ Make a branch tag starting on the newly created stable one with:
-         $ cvs tag -b -r beta--3-43 beta--3-42
+         $ cvs tag -b -r beta--3-45 beta--3-44
 *./ Make a new directory in PETSC/ with the new stable release
-    $ cvs co -d petscfem-beta-3.42 -r beta--3-42 petscfem
-*./ In that directory replace 3.43 by 3.42 in files `stable.log' and
+    $ cvs co -d petscfem-beta-3.44 -r beta--3-44 petscfem
+*./ In that directory replace 3.45 by 3.44 in files `stable.log' and
          `save.log'. Set BOPT to O_c++ in Makefile.base. Commit. 
 *./ Create a new administrative light tag in the stable version
-    (directory `petscfem-beta-3.42') with version `beta-3.42.1'. 
-*./ Replace 3.43 by 3.42 in files `stable.log' and `save.log' on 
+    (directory `petscfem-beta-3.44') with version `beta-3.44.1'. 
+*./ Replace 3.45 by 3.44 in files `stable.log' and `save.log' on 
 	    the HEAD branch (probably directory PETSC/petscfem)
 *./ Create a new `light' administrative version on the `HEAD' branch
-       with numbering 3.43.1 (WARNING: the script will suggest 3.42.1).
+       with numbering 3.45.1 (WARNING: the script will suggest 3.44.1).
 *./ Update `doc/versions-tree.fig'
-*./ Probably compile programs in directory `petscfem-beta-3.42'
+*./ Probably compile programs in directory `petscfem-beta-3.44'
