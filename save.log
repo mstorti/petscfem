@@ -2535,3 +2535,6 @@ tag: beta-3.18.pl37 on Wed, 19 Mar 2003 18:23:21 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.18.pl38 on Thu, 20 Mar 2003 13:25:44 -0300 by mstorti in node1.beowulf.gtm
      > Runs example with fs_relax=0.1 and 30x150 mesh. 
+----------
+tag: beta-3.18.pl39 on Thu, 20 Mar 2003 15:23:09 -0300 by mstorti in node1.beowulf.gtm
+     > Running spiller example. 
