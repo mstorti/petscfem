@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: genload.h,v 1.4 2002/12/18 20:07:20 mstorti Exp $
+//$Id: genload.h,v 1.5 2003/06/26 22:27:23 mstorti Exp $
 #ifndef GENLOAD_H
 #define GENLOAD_H
 
@@ -60,7 +60,7 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Surface flux element where #flux_in = -flux_out#. It's called
-    conservative since the sum of the fluzes is null. (Normally this
+    conservative since the sum of the fluxes is null. (Normally this
     is true).  */
 class ConsGenLoad : public GenLoad { 
 private:
@@ -96,7 +96,7 @@ public:
 class lin_gen_load : public ConsGenLoad {
 private:
   ///  #h_film# Stores the matrix of coefficients: #flux = h_film (U_out-U_in)# 
-  FastMat2 h_film;
+  FastMat2 h_film, const_flux, U_out_sl;
   /// Temporary variable
   FastMat2 tmp1;
 public:
@@ -108,6 +108,8 @@ public:
       @param Jac (output) is #Jac = [h_film -h_film]# */ 
   void q(FastMat2 &u_in,FastMat2 &u_out, 
 	 FastMat2 &flux_in, FastMat2 &Jac);
+  /// One layer callback flux function. 
+  void q(FastMat2 &u,FastMat2 &flux,FastMat2 &jac);
   /** Initializes */ 
   void start_chunk_c();
 };

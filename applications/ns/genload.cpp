@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.9 2002/12/18 21:32:15 mstorti Exp $
+//$Id: genload.cpp,v 1.10 2003/06/26 22:27:22 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -24,7 +24,7 @@ int GenLoad::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void GenLoad::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		FastMat2 &jacin,FastMat2 &jacout) { 
-  // This is default, we should never enter herer. Flux function
+  // This is default, we should never enter here. Flux function
   // writer defines either the one layer flux function or 
   // the other. 
   PETSCFEM_ERROR0("Not defined one layer flux function!\n");
@@ -96,6 +96,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int ndimel = ndim-1;
   // Unpack nodedata
   int nu=nodedata->nu;
+
   //o Number of Gauss points.
   TGETOPTNDEF(thash,int,npg,none);
   //o Type of element geometry to define Gauss Point data
@@ -132,7 +133,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     // (should be flux_out = -flux_in for a conservative film
     flux_in(1,ndof), flux_out(1,ndof), 
     // Jacobian of fluxes
-    jac(2,ndof,ndof), 
+    jac(4,1,1,ndof,ndof), 
     // Residual 
     veccontr(2,nel,ndof), 
     // Jacobian of the master to global coordiantes, inverse
@@ -144,11 +145,12 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     // H values at the inner/outer layer
     h_in, h_out, 
     // Auxiliary matrices
-    tmp1, tmp2, tmp3, tmp4, vecc2;
+    tmp1, tmp2, tmp3, tmp4, vecc2, jac1;
 
   if (double_layer) {
     // there are 2x2 ndofxndof matrices
     jac.resize(4,2,2,ndof,ndof);
+    jac1.resize(2,ndof,ndof);
   }
 
   // Assume all dofs connected
@@ -228,10 +230,8 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Compute double layer flux function
 	q(U_in,U_out,flux_in,flux_out,jac);
       } else {
-	// Compute single layer flux function
-	// (Not implemented yet)
-	assert(0);
-	// q(U_in,flux,jac_in);
+	q(U_in,flux_in,jac1);
+	jac.ir(1,1).ir(2,1).set(jac1).rs();
       }
 
       // Computes contribution to \int N_j f_\mu
@@ -326,6 +326,26 @@ void lin_gen_load::start_chunk_c() {
   // normally $!h$ should be a symmeteic, positive definite matrix. 
   // _END
   read_cond_matrix(thash,"h_film",ndof,h_film);
+
+  vector<double> v;
+  const char *line;
+  thash->get_entry("const_flux",line);
+  if (line) {
+    read_double_array(v,line);
+    assert(v.size()==ndof);
+  } else v.resize(ndof,0);
+
+  const_flux.resize(1,ndof).set(v.begin());
+
+  v.clear();
+  line = NULL;
+  thash->get_entry("u_out",line);
+  if (line) {
+    read_double_array(v,line);
+    assert(v.size()==ndof);
+  } else v.resize(ndof,0);
+
+  U_out_sl.resize(1,ndof).set(v.begin());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -334,8 +354,18 @@ void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
   // Compute state difference at the Gauss point
   tmp1.set(U_out).rest(U_in);
   // Scale by film coefficient matrix. 
-  flux_in.prod(h_film,tmp1,1,-1,-1);
+  flux_in.prod(h_film,tmp1,1,-1,-1).add(const_flux);
   // Fill Jaocbian
   jac.ir(1,1).set(h_film).rs()
     .ir(1,2).set(h_film).scale(-1.).rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void lin_gen_load::q(FastMat2 &U_in,FastMat2 &flux_in,FastMat2 &jac) {
+  // Compute state difference at the Gauss point
+  tmp1.set(U_out_sl).rest(U_in);
+  // Scale by film coefficient matrix. 
+  flux_in.prod(h_film,tmp1,1,-1,-1).add(const_flux);
+  // Fill Jaocbian
+  jac.set(h_film);
 }
