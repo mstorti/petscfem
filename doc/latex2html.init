@@ -39,13 +39,13 @@ sub top_navigation_panel {
     #  Line Break, horizontal rule (3-d dividing line) and new paragraph  
 	"\n" . <<END_OF_TEXT;
        
-<form method="post" action="http://minerva.arcride.edu.ar/cgi-bin/htsearch">
+<form method="post" action="http://www.cimec.org.ar/cgi-bin/htsearch">
 <input type="hidden" name="config" value="htdig">
-<input type="hidden" name="restrict" value="http://minerva.arcride.edu.ar/petscfem">
+<input type="hidden" name="restrict" value="http://www.cimec.org.ar/petscfem">
 <input type="hidden" name="exclude" value="">
 <input type="text" size="30" name="words" value="">
 <input type="submit" value="Quick search">
-| <a href="http://minerva.arcride.edu.ar/petscfem"> Advanced search</a>
+| <a href="http://www.cimec.org.ar/petscfem"> Advanced search</a>
 </form>
 <hr>
 END_OF_TEXT
