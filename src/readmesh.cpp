@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.79 2003/02/24 00:14:23 mstorti Exp $
+//$Id: readmesh.cpp,v 1.80 2003/02/25 04:18:10 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -29,6 +29,7 @@ extern "C" {
 #include <cassert>
 #include <queue>
 #include <src/getprop.h>
+#include <src/pfobject.h>
 
 #undef TRACE
 #if 0
@@ -836,9 +837,15 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 #undef ERRLINE
 
     } else {
-      PetscPrintf(PETSC_COMM_WORLD,"Bad section name in data file.\n"
-		  "line: \"%s\"\n",line);
-      CHKERRQ(1);
+      string basic_object_type(token);
+      BasicObject *obj = BasicObject::factory(basic_object_type);
+      if (obj) {
+	obj->read(fstack);
+      } else {
+	PetscPrintf(PETSC_COMM_WORLD,"Bad section name in data file.\n"
+		    "line: \"%s\"\n",line);
+	CHKERRQ(1);
+      }
     }
 
   }

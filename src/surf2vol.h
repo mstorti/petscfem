@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: surf2vol.h,v 1.1 2003/02/25 03:14:04 mstorti Exp $
+// $Id: surf2vol.h,v 1.2 2003/02/25 04:18:10 mstorti Exp $
 #ifndef PETSCFEM_SURF2VOL_H
 #define PETSCFEM_SURF2VOL_H
 
@@ -63,7 +63,14 @@ public:
       connectivities so that their normal is oriented to
       the exterior normal and #false# otherwise. */
   int use_exterior_normal() { return (use_exterior_normal_m); }
+
 };
+
+void factory(TextHashTable *thash, string &volume_elemset,
+	     int nel,
+	     Surf2Vol *sv_gp_data, Elemset *& vol_elem,
+	     int &identify_volume_elements,int &layers,
+	     int &use_exterior_normal,int &ndimel);
 
 void identify_volume_elements_fun(int nnod, int nel_surf, int layers,
 				  int nelem, int *icone, int nel, int nel_vol,

@@ -1,10 +1,12 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.1 2003/02/25 03:14:04 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.2 2003/02/25 04:18:10 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
 #include <src/surf2vol2.h>
 #include <src/linkgraph.h>
+
+extern Mesh *GLOBAL_MESH;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Contains the three non-trivial face orientations. All
@@ -257,4 +259,48 @@ void identify_volume_elements_fun(int nnod, int nel_surf, int layers,
     surface.clear();
     srf2glb.clear();
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void factory(TextHashTable *thash, string &volume_elemset,
+	     int nel,
+	     Surf2Vol *sv_gp_data, Elemset *& vol_elem,
+	     int &identify_volume_elements,int &layers,
+	     int &use_exterior_normal,int &ndimel) {
+  int ierr;
+  // Find volume elemset
+  vol_elem = GLOBAL_MESH->find(volume_elemset);
+  // Verifiy that the elemset was found
+  PETSCFEM_ASSERT(vol_elem,"Can't find volume element name: %s\n",
+		  volume_elemset.c_str())
+
+  //o Type of element geometry to define Gauss Point data
+  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  //o Number of Gauss points.
+  TGETOPTNDEF(thash,int,npg,none);
+  // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
+  TGETOPTNDEF(thash,int,ndim,none); //nd
+  //o Use exterior or interior normal
+  TGETOPTDEF_ND(thash,int,use_exterior_normal,1);
+  //o Identify automatically the internal volume elements with a face
+  // on the surface
+  TGETOPTDEF_ND(thash,int,identify_volume_elements,0);
+  //o Number of layers in the normal direction.
+  TGETOPTDEF_ND(thash,int,layers,1);
+  PETSCFEM_ASSERT0(layers>=1,
+		   "embedded_gatherer: Number of layers must be integer >=1\n");
+  PETSCFEM_ASSERT(layers<=3,"embedded_gatherer: not supported yet layers>2,"
+		  " entered layers: %d\n",layers);
+
+  ndimel=ndim-1;
+  if (geometry=="quad2hexa") {
+    sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,
+			       GP_FASTMAT2,use_exterior_normal);
+  } else if (geometry=="tri2prism") {
+    sv_gp_data = new Tri2Prism(geometry.c_str(),ndim,nel,npg,
+			       GP_FASTMAT2,use_exterior_normal);
+  } else if (geometry=="line2quad") {
+    sv_gp_data = new Line2Quad(geometry.c_str(),ndim,nel,npg,
+			       GP_FASTMAT2,use_exterior_normal);
+  } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry \"%s\"\n",geometry.c_str());
 }
