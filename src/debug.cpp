@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.2 2001/11/21 19:35:59 mstorti Exp $
+//$Id: debug.cpp,v 1.3 2001/11/22 18:04:09 mstorti Exp $
  
 #include <cstdio>
 #include <petsc.h>
@@ -29,13 +29,13 @@ void Debug::deactivate(const char *s=NULL) {
 }
 
 void Debug::trace(const char *s=NULL) {
+  MPI_Comm_rank(comm,&myrank);
   if ((active() || active("print")) && myrank==0) 
     printf("-- %s -- ",s);
   if (!active()) {
     printf("\n");
     return;
   }
-  MPI_Comm_rank(comm,&myrank);
   int ierr;
   char ans;
   ierr = MPI_Barrier(comm);
@@ -60,5 +60,4 @@ void Debug::trace(const char *s=NULL) {
 Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
   comm(comm_) {
   if (active_) activate();
-  MPI_Comm_rank(comm,&myrank);
 }
