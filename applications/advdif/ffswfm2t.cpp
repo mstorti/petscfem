@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.13 2002/10/12 15:49:37 mstorti Exp $
+//$Id: ffswfm2t.cpp,v 1.14 2003/04/01 20:10:01 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -106,7 +106,7 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     //o Threshold value for $h$ while computing turbulence model.
     EGETOPTDEF_ND(elemset,double,h_min,1e-6);
     //o Threshold value for velocity while computing turbulence model.
-    EGETOPTDEF_ND(elemset,double,h_min,1e-6);
+    EGETOPTDEF_ND(elemset,double,vel_min,1e-6);
 
     C_P_e = C_2*sqrt(C_mu)*pow(g,1.25)/sqrt(D)/pow(Chezy,2.5);
   }
