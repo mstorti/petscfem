@@ -1,14 +1,15 @@
 # -*- mode: shell-script -*-
 # case: <:=$ENV{'case'}:>
-
+# <: require './data.pl'; :>
 ## Derived quantities:
 ## ==================
 global_options
 
-nstep 10
+nstep 100
 alpha 1.
 
-initial_state "gfplate.ini.tmp"
+# initial_state "gfplate.ini.tmp"
+initial_state "gfplate.state.tmp"
 nsave 1
 save_file "gfplate.state.tmp"
 
@@ -34,20 +35,20 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 2
+nnwt 3
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 1e-5
-shocap 1.0
+Dt 5e-4
+# shocap 1.0
 weak_form 0
 temporal_stability_factor 0
 
 ndim 2
 Rgas 287.0
-visco 10.0
-cond 10.0
+visco 0.1
+cond 0.1
 steady 0
 __END_HASH__
 

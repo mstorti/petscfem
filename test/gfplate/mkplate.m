@@ -1,16 +1,6 @@
-## $Id: mkplate.m,v 1.1 2005/01/08 13:28:10 mstorti Exp $
+## $Id: mkplate.m,v 1.2 2005/01/08 14:34:26 mstorti Exp $
+source("data.m.tmp");
 
-Nx=20;
-Ny=10;
-Lx = 4;
-Lplate=10;
-
-Machin = 0.5;
-
-gamma = 1.4;
-Rgas = 287;
-rhoref = 1;
-Tref = 300;
 pref = Rgas*Tref*rhoref;
 cref = sqrt(gamma*Tref*Rgas);
 
@@ -51,9 +41,10 @@ tmp = complement(inlet,outer);
 pffixa("gfplate.fixa-outer.tmp",tmp,3);
 
 ## p fixed at outlet
-pffixa("gfplate.fixa-outlet.tmp",outlet,4,pref);
+tmp = complement(wall,outlet);
+pffixa("gfplate.fixa-outlet.tmp",tmp,4,pref);
 
-Uini=[rhoref,uini,0,pref];
+Uini = [rhoref,uini,0,pref];
 
 nnod = size(xnod,1);
 Uini = Uini(ones(nnod,1),:);
