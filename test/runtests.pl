@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.111 2003/09/14 05:22:06 mstorti Exp $
+#$Id: runtests.pl,v 1.112 2003/09/14 21:48:53 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -395,11 +395,20 @@ end_section();
 begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("aquifer/output.stream2.out.tmp",
+       "Exception handling in `advdif'",read_file("aquifer/output.stream2.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("aquifer/output.stream2-np2.out.tmp",
+       "Exception handling in `advdif' 2 procs.",read_file("aquifer/output.stream2.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sparse/verif.cloud.tmp",
        "Least squares coeff. for derivs. in 3x3 grid",<<'EOF');
 2D 3x3 cloud  OK\? 1,
 2D 3x3 cloud.*x0.* OK\? 1,
 EOF
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.iisd.verif.np1.tmp",
        "Square cavity, IISD part. in 1 proc.",read_file("sqcav/sqcav.ans.txt"));

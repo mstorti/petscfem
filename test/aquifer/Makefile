@@ -1,14 +1,15 @@
-# $Id: Makefile,v 1.29 2003/09/14 00:23:31 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2003/09/14 21:48:57 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
-default: test_positive_slope
+default: test_positive_slope test_positive_slope_np2
 
 SRCS = rain.cpp rain2.cpp fun.cpp fun2.cpp fun3.cpp
 
 #w All tests
-tests: test_plain test_var_eta test_transient test_stream \
-		test_as test_dl_fun test_var_rain
+tests: test_plain test_var_eta test_transient test_stream	\
+		test_as test_dl_fun test_var_rain 		\
+		test_positive_slope test_positive_slope_np2
 
 #w Runs program for the `aquifer' tests
 run: CASE=aqui
@@ -112,12 +113,17 @@ data: force
 #w Runs program
 rung: data force
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
-			-case $(CASE).depl > output.$(casen).out
+			-case $(CASE).depl > output.$(casen).out.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Detects positive slope.
 test_positive_slope: 
 	$(MAKE) CASE=stream2 casen=stream2 rung
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Detects positive slope 2 procs.
+test_positive_slope_np2: 
+	$(MAKE) np=2 CASE=stream2 casen=stream2-np2 rung
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 # EPERLFLAGS = -d case=$$case
