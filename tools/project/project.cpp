@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.4 2005/02/24 02:26:58 mstorti Exp $
+// $Id: project.cpp,v 1.5 2005/02/24 18:48:03 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -72,7 +72,7 @@ int main() {
   xnod2.reshape(2,nnod2,ndim);
 
   FastMat2 x2(1,ndim),L(1,ndim),
-    dx(1,ndim),ddx(1,ndim);
+    dx(1,ndim),xcloser(1,ndim);
   // Loop over mesh2 nodes
   for (int k2=0; k2<nnod2; k2++) {
     // A node in the second mesh (test node)
@@ -97,17 +97,22 @@ int main() {
 	     x2.get(1),x2.get(2),x2.get(3),
 	     L.get(1),L.get(2),L.get(3));
       // Number of negative area coordinates
-      int neg=0;
-      for (int j=0; j<ndim; j++) 
+      int neg=0, // nbr of negative area coordinates
+	pos=-1; //some area coordinate that is positive
+      for (int j=0; j<ndim; j++) {
 	neg += lv[j]<0;
-      assert(neg<=2);
-      if (neg==0) {}
-      else if (neg==1) {
+	if (lv[j]>=0) pos = j;
+      }
+      assert(neg<ndim);
+      assert(pos>=0);
+      if (neg==0) {
+	xcloser.prod(S,
+      } else if (neg==1) {
 	int indx;
 	if (lv[0]<0) indx=1;
 	else if (lv[1]<0) indx=2;
 	else if (lv[2]<0) indx=3;
-	ddx.set
+	
       }
     }
   }
