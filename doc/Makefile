@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.25 2002/02/19 18:07:16 mstorti Exp $
+#$Id: Makefile,v 1.26 2002/08/09 20:14:03 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -112,23 +112,20 @@ index.html: index.tex
 #w Make the README in text and html format
 readme: ../README ../README.html
 
-README.pod: README.podin
-# 	-chmod +w README.pod
-# 	fversion -is $(TARFILE).tara,v README.podin README.pod
-# 	-chmod -w README.pod
+README.pod: README.podin ../VERSION
 	-chmod +w README.pod
 	eperl -P README.podin > README.pod
 	-chmod -w README.pod
 
-../README: README.pod
+../README: README.pod ../VERSION
 	-chmod +w $@
 	cat ./banner >$@
-	pod2text $< >> $@
+	pod2text README.pod >> $@
 	-chmod -w $@
 
-../README.html: README.pod
+../README.html: README.pod ../VERSION
 	-chmod +w $@
-	pod2html $< > $@
+	pod2html README.pod > $@
 	-chmod -w $@
 	-@rm pod2html-{dir,item}cache &> /dev/null
 

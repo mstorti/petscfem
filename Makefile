@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.41 2002/07/30 23:56:59 mstorti Exp $
+#$Id: Makefile,v 1.42 2002/08/09 20:13:55 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -172,6 +172,7 @@ sync_version:
 	echo "\\def\\petscfemversion{$$version}" > doc/version.tex ;	\
 	echo "Creating src/version.cpp" ;				\
 	$(MAKE) -C src version.cpp
+	$(MAKE) -C doc readme
 
 #w This is somewhat obsolet. Now uses CVS
 save:
