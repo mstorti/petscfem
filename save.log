@@ -3909,3 +3909,8 @@ tag: beta-3.41.19 on Sat, 29 Jan 2005 12:36:52 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.20 on Sat, 29 Jan 2005 13:51:43 -0300 by mstorti in spider
      > Runs good example of pulsating pipe. 
+----------
+tag: beta-3.41.21 on Sat, 29 Jan 2005 18:00:15 -0300 by mstorti in spider
+     > Runs 1d examples with oscillating pumping forces (Gbody)
+     > changing conditions in boundaries from inlet to outlet, 
+     > subsonic to supersonic. 
