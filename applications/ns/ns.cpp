@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.117 2002/11/28 20:48:00 mstorti Exp $
+//$Id: ns.cpp,v 1.118 2002/11/30 14:54:47 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -28,95 +28,7 @@ int reuse_mat;
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
-#define XNOD(j,k) VEC2(xnod,j,k,dofmap->ndof)
-#if 0
-int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
-		double displ_factor) {
-
-  double *vseq_vals,*sstate,*xnod;
-  Vec vseq;
-  TimeData *time_data = NULL;
-
-  int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-
-  // fixme:= Now we can make this without a scatter. We can use
-  // the version of get_nodal_value() with ghost_values. 
-  int neql = (myrank==0 ? dofmap->neq : 0);
-  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
- 
-  xnod = mesh->nodedata->nodedata;
-
-  if (myrank==0) {
-    int ndof=dofmap->ndof;
-    double dval;
-    for (int k=1; k<=dofmap->nnod; k++) {
-      for (int kldof=1; kldof<=ndof; kldof++) {
-	dofmap->get_nodal_value(k,kldof,vseq_vals,time_data,dval);
-	XNOD(k-1,kldof-1) += displ_factor * dval;
-      }
-    }
-  }
-
-  ierr = MPI_Bcast(xnod,dofmap->nnod*dofmap->ndof,
-		   MPI_DOUBLE,0,PETSC_COMM_WORLD);
-
-  ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
-  ierr = VecDestroy(vseq);
-  return 0;
-}
-#endif
-
-int write_mesh(const Vec x,TimeData &t,const char *filename,const Dofmap *dofmap,Mesh *mesh,
-		 const int append=0) {
-
-  int myrank;
-  double *vseq_vals,*sstate,*xnod;
-  Vec vseq;
-
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-
-  // fixme:= Now we can make this without a scatter. We can use
-  // the version of get_nodal_value() with ghost_values. 
-  int neql = (myrank==0 ? dofmap->neq : 0);
-  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
-
-  xnod = mesh->nodedata->nodedata;
-
-  if (myrank==0) {
-    printf("Writing vector to file \"%s\"\n",filename);
-    FILE *output;
-    output = fopen(filename,(append == 0 ? "w" : "a" ) );
-    if (output==NULL) {
-      printf("Couldn't open output file\n");
-      // fixme:= esto esta mal. Todos los procesadores
-      // tienen que llamar a PetscFinalize()
-      exit(1);
-    }
-
-    int ndof=dofmap->ndof;
-    double dval;
-    for (int k=1; k<=dofmap->nnod; k++) {
-      for (int kldof=1; kldof<=ndof; kldof++) {
-	dofmap->get_nodal_value(k,kldof,vseq_vals,&t,dval);
-	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1)+dval);
-      }
-      fprintf(output,"\n");
-    }
-    fclose(output);
-  }
-  return 0;
-}
+GlobParam *GLOB_PARAM;
 
 #define __FUNC__ "main"
 int main(int argc,char **args) {
@@ -133,6 +45,7 @@ int main(int argc,char **args) {
   // Initialize time
   Time time,time_old,time_star; time.set(0.);
   GlobParam glob_param;
+  GLOB_PARAM = &glob_param;
   string save_file_res;
   State state(x,time),statep(xp,time),state_old(xold,time_old);
   
@@ -246,7 +159,7 @@ int main(int argc,char **args) {
   assert(update_jacobian_start_iters>=0);
 #undef INF
 
-  //o _T: vector<int>
+  //o _T: vector<double>
   // _N: newton_relaxation_factor
   // _D: (none)
   // _DOC:
@@ -306,6 +219,8 @@ int main(int argc,char **args) {
   // Set values to be passed through global options
   glob_param.steady=steady;
   glob_param.Dt=Dt;
+  glob_param.state = &state;
+  glob_param.state_old = &state_old;
   //o Trapezoidal method parameter. \verb+alpha=1+:
   // Backward Euler. \verb+alpha=0+: Forward Euler.
   // \verb+alpha=0.5+: Crank-Nicholson. 
@@ -673,7 +588,8 @@ int main(int argc,char **args) {
 	  nrf_indx += 2;
 	}
 	relfac = newton_relaxation_factor[nrf_indx-1];
-      
+	if (relfac!=1.) PetscPrintf(PETSC_COMM_WORLD,
+				    "relaxation factor %f\n",relfac);
 	scal= relfac/alpha;
 	ierr = VecAXPY(&scal,dx,x);
 
@@ -843,10 +759,6 @@ int main(int argc,char **args) {
 #endif
 
     }
-
-    // update_mesh(x,dofmap,mesh,displ_factor);
-    ierr = write_mesh(x,time_star,"remeshing.dat",dofmap,mesh,1); CHKERRQ(ierr); 
-    ierr = write_mesh(x,time_star,"lastmesh.dat",dofmap,mesh,0); CHKERRQ(ierr); 
 
     // error difference
     scal = -1.0;

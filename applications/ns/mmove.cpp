@@ -1,11 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.5 2002/11/29 20:39:20 mstorti Exp $
+//$Id: mmove.cpp,v 1.6 2002/11/30 14:54:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
 #include <src/getprop.h>
 #include <src/fastmat2.h>
+#include <src/texthf.h>
 #ifdef USE_NEWMAT
 #include <newmatap.h>
 #endif
@@ -13,6 +14,8 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "mmove.h"
+
+extern GlobParam *GLOB_PARAM;
 
 void mesh_move::init() {
 
@@ -39,7 +42,7 @@ void mesh_move::init() {
   xloc0.resize(1,nel*ndim); // The perturbed coordinates
   assert(ndof==ndim);
   assert(ndim==2 || ndim==3);
-  assert(nel==ndim+1); // Only for triangles in 2D, tetras in 3D
+  // assert(nel==ndim+1); // Only for triangles in 2D, tetras in 3D
   J.resize(2,ndim,ndim);
   dNdxi.resize(2,ndim,nel);
 
@@ -49,12 +52,18 @@ void mesh_move::init() {
 #endif
 
   if (ndim==2) {
-    dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
-    dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,1);
-    dNdxi.setel(+sin(M_PI/3)*cos(M_PI/6),1,2);
-    dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,2);
-    dNdxi.setel(0                       ,1,3);
-    dNdxi.setel(+sin(M_PI/3)            ,2,3);
+    if (nel==3) {
+      dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
+      dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,1);
+      dNdxi.setel(+sin(M_PI/3)*cos(M_PI/6),1,2);
+      dNdxi.setel(-sin(M_PI/3)*sin(M_PI/6),2,2);
+      dNdxi.setel(0                       ,1,3);
+      dNdxi.setel(+sin(M_PI/3)            ,2,3);
+    } else if (nel==4) {
+      double cquad[] = {-1,-1,1,-1,1,1,-1,1};
+      C.resize(2,nel,ndim).set(c).t();
+      dNdxi.set(C);
+    } else PETSCFEM_ERROR("Only tringles ad quads in 2D: nel %d\n",nel);
   } else {
 #if 0
     dNdxi.set(0.);
@@ -97,11 +106,13 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
   volref=0.;
   double diffla;
   if (ndim==2) {
-    diffla = (la1-la2)*(la1-la2);
     vol = la1*la2;
+    diffla = (la1-la2)*(la1-la2);
+    diffla /= vol;
   } else {
     diffla = (la1-la2)*(la1-la2) + (la2-la3)*(la2-la3) + (la1-la3)*(la1-la3);
     vol = la1*la2*la3;
+    diffla /= pow(vol,2./3.);
   }
   df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
 
@@ -118,7 +129,6 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   double distor,distor_p,distor_m,eps=1e-4,
     distor_pp,distor_pm,distor_mp,distor_mm, d2f;
   int nen = nel*ndim;
-  // xloc0.reshape(2,nel,ndim).set(xloc).reshape(1,nel*ndim);
   xloc0.reshape(2,nel,ndim).set(xloc).add(state_new).reshape(1,nel*ndim);
   distor = distor_fun(xloc0);
 
@@ -136,6 +146,8 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   }
   res.reshape(2,nel,ndim);
 
+  const FastMat2 *state = (glob_param->inwt==0 ? &state_old : &state_new);
+  xloc0.reshape(2,nel,ndim).set(xloc).add(*state).reshape(1,nel*ndim);
   mat.reshape(2,nen,nen);
   for (int k=1; k<=nel*ndim; k++) {
     for (int l=k; l<=nel*ndim; l++) {
@@ -172,7 +184,61 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   }
 
   mat.reshape(4,nel,ndim,nel,ndim);
-//    res_Dir.prod(mat,state_new,1,2,-1,-2,-1,-2);
-//    res.axpy(res_Dir,-1.);
-    
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int mmove_hook::write_mesh(const State &s,const char *filename,
+			   const int append=0) {
+#define XNOD(j,k) VEC2(xnod,j,k,dofmap->ndof)
+  int myrank;
+  double *vseq_vals,*sstate,*xnod;
+  Vec vseq;
+  const Vec &x = s.v();
+
+  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+
+  // fixme:= Now we can make this without a scatter. We can use
+  // the version of get_nodal_value() with ghost_values. 
+  int neql = (myrank==0 ? dofmap->neq : 0);
+  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
+  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
+			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
+		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
+
+  xnod = mesh->nodedata->nodedata;
+
+  if (myrank==0) {
+    printf("Writing vector to file \"%s\"\n",filename);
+    FILE *output;
+    output = fopen(filename,(append == 0 ? "w" : "a" ) );
+    if (output==NULL) {
+      printf("Couldn't open output file\n");
+      // fixme:= esto esta mal. Todos los procesadores
+      // tienen que llamar a PetscFinalize()
+      exit(1);
+    }
+
+    int ndof=dofmap->ndof;
+    double dval;
+    const Time *t = &s.t();
+    for (int k=1; k<=dofmap->nnod; k++) {
+      for (int kldof=1; kldof<=ndof; kldof++) {
+	dofmap->get_nodal_value(k,kldof,vseq_vals,t,dval);
+	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1)+dval);
+      }
+      fprintf(output,"\n");
+    }
+    fclose(output);
+  }
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void mmove_hook::time_step_post(double time,int step,
+				const vector<double> &gather_values) {
+  int ierr = write_mesh(*GLOB_PARAM->state,"remeshing.dat",1); 
+  assert(ierr=0);
+}
+

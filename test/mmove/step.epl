@@ -1,8 +1,9 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-$N=4;
+$N=10;
+$disp = 0.2;
 #
-octave_export_vars(">data.m.tmp",qw(N));
+octave_export_vars(">data.m.tmp",qw(N disp));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -20,14 +21,17 @@ solver "petsc"
 # solver "iisd"
 iisd_subpart 1
 #endif
+
 nnwt 5
+# newton_relaxation_factor 0.1 10 1.
 pc_lu_fill 8.
 rtol 1e-4
 atol 1e-10
 tol_newton 0
 maxits 100
 steady
-c_volume 1.
+c_volume 0.
+# distor_exp 1.
 
 <:$nstep=10; pr('nstep');:>
 Dt <:= 1./$nstep:>

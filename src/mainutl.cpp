@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.10 2002/04/25 02:52:51 mstorti Exp $
+//$Id: mainutl.cpp,v 1.11 2002/11/30 14:54:51 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -74,7 +74,8 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 		       Dofmap *dofmap,const TimeData *time_data,
 		       const int j,const int nsave,const int nrec,
 		       const int nfile) {
-
+  
+  if (nsave==0) return;
   div_t ressave,resrec;
   ressave = div(j,nsave);
   if (ressave.rem !=0) return;

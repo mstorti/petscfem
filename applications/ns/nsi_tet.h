@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.35 2002/11/02 20:51:57 mstorti Exp $
+//$Id: nsi_tet.h,v 1.36 2002/11/30 14:54:47 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -137,6 +137,8 @@ struct GlobParam {
   int steady;
   /// Newton iteration
   int inwt;
+  // States
+  State *state,*state_old;
 };
 
 void wall_fun(double yp,double &f,double &fprime);
