@@ -1,8 +1,11 @@
 # -*- mode: shell-script -*-
 #
 <:require '../eperlini.pl';	# Initializes ePerl 
-$CASE=$ENV{'CASE'};
-@read_var = readm_all_v("data.m");# read all variables in octave file
+get_var_env2('CASE','');
+$fd_jac = $1 if $CASE =~ /fd_jac_(\d*)/;
+$ref = ($CASE =~ /fd_jac_(\d*)_ref/ ? 1 : 0);
+$N=50;
+$N = 10 if $fd_jac;
 $T=.05;
 $omega=2*$PI/$T;
 $N_dt_per=128; # number of time steps per period
@@ -13,11 +16,13 @@ $diff = $1*10**(-$2) if $diff =~ /^(.*)em(\d*)$/;
 $diff = 0.1 unless defined $diff;
 $weak_form = 1 if $CASE=~/_wf/;
 $weak_form = 0 if $CASE=~/_nwf/;
+$weak_form = 1 if $fd_jac;
 $weak_form = 1 unless defined $weak_form;
+octave_export_vars(">data.m.tmp",qw(N));
+system "octave -qH mmesh.m";
 :>//
 
-# CASE = <:=$CASE:>
-
+# <:prc('CASE fd_jac ref'):>
 #===========================================================
 global_options
 ndim 2
@@ -34,9 +39,14 @@ nsaverot 1
 nrec  100
 nfile 2
 
-nstep 20
 #nstep <:=$Nper*$N_dt_per:>
+#if $fd_jac==0
+nstep 20
 nnwt 2
+#else
+nstep 1
+nnwt 1
+#endif
 tol_newton 0
 preco_type "lu"
 
@@ -49,9 +59,14 @@ alpha 1.0
 diffusivity <:=$diff:>
 flux_law_coefficient 1.
 u0   1. 0.
-#tau_fac 0.
 weak_form <:=$weak_form:>
-
+#if $fd_jac==1 
+compute_fd_adv_jacobian <:=($ref ? 0 : 2):>
+compute_fd_adv_jacobian_rel_err_threshold 1e-3
+#elsif $fd_jac==2
+compute_fd_adv_jacobian 3
+compute_fd_adv_jacobian_rel_err_threshold 1e-3
+#endif 
 #solve_system 0
 #print_linear_system_and_stop
 initial_state "burgers.ini.tmp"

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.80 2003/11/16 00:38:19 mstorti Exp $
+//$Id: advdife.cpp,v 1.81 2003/11/16 13:19:50 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -592,6 +592,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  }
 	  // Reset state in flux function to state U
 	  adv_diff_ff->set_state(U,grad_U);
+	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
+				    A_grad_U,grad_U,G_source,
+				    tau_supg,delta_sc,
+				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
 	}
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;

@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.56 2003/09/09 18:51:26 mstorti Exp $
+#$Id: Makefile,v 1.57 2003/11/16 13:19:46 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -57,6 +57,10 @@ apps applications:
 apps_all: 
 	$(MAKE) BOPT=g_c++ apps
 	$(MAKE) BOPT=O_c++ apps
+
+#w Make all `new' (NS and Advdif) applications
+napps_all: 
+	$(MAKE) advdif_all ns_all
 
 #w Builds a package + doc + applications 
 bin_distrib: license sw finaldoc pflib applications

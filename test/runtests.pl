@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.114 2003/11/14 00:16:42 mstorti Exp $
+#$Id: runtests.pl,v 1.115 2003/11/16 13:18:47 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -738,6 +738,19 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('Advdif compute_fd_adv_jacobian');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("burgers/burgers.fd_jac_1.out.tmp",
+       "compute_fd_adv_jacobian verbose print + threshold",
+       read_file("burgers/burgers.fd_jac_1.ans"));
+
+expect("burgers/burgers.fd_jac_2.out.tmp",
+       "compute_fd_adv_jacobian print matrices",
+       read_file("burgers/burgers.fd_jac_2.ans"));
+
+end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

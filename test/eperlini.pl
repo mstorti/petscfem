@@ -1,5 +1,6 @@
 #__INSERT_LICENSE__
 
+use English;
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
 $NP = $ENV{'NP'};
 
@@ -32,12 +33,36 @@ sub get_var_env2 {
     ${$name} = (exists($ENV{"$name"}) ? $ENV{"$name"} : $def);
 }
 
+sub pr_auto {
+    my $line = shift();
+    my $begl = '';
+    if ($line =~ /^(\W*)(\w)/) {
+	$begl = $1;
+	$line = $2.$POSTMATCH;
+    }
+    my @names = split " ",$line;
+    my @text = ();
+    foreach $name (@names) { push @text,"$name ",quote_string(${$name}),"\n"; }
+    pop @text;
+    print @text;
+}
+
 sub pr {
     my $line = shift();
     my @names = split " ",$line;
     my @text = ();
     foreach $name (@names) { push @text,"$name ",quote_string(${$name}),"\n"; }
     pop @text;
+    print @text;
+}
+
+sub prc {
+    my $line = shift();
+    my @names = split " ",$line;
+    my @text = ();
+    foreach $name (@names) { push @text,"# ","$name ",quote_string(${$name}),"\n"; }
+    pop @text;
+    shift @text;
     print @text;
 }
 

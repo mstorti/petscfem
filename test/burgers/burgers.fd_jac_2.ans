@@ -1,8 +1,19 @@
-^compute_fd_adv_jacobian.*2
+^compute_fd_adv_jacobian.*3
 Done.
 __NO_SKIP__
 elem 4, \|A_a\|=.*, \|A_n\|=.*, \|A_a-A_n\|={{$W<1e-4}}, \(rel.err {{$W<2e-3}}\)
+--- A_a:  ----
+for first indices ->   1  
+ .*
+for first indices ->   2  
+ 0
+--- A_n:  ----
+for first indices ->   1  
+ .*
+for first indices ->   2  
+ 0
 elem 4, \|A_a\|=.*, \|A_n\|=.*, \|A_a-A_n\|={{$W<1e-4}}, \(rel.err {{$W<2e-3}}\)
+__SKIP__
 elem 5, \|A_a\|=.*, \|A_n\|=.*, \|A_a-A_n\|={{$W<1e-4}}, \(rel.err {{$W<2e-3}}\)
 elem 5, \|A_a\|=.*, \|A_n\|=.*, \|A_a-A_n\|={{$W<1e-4}}, \(rel.err {{$W<2e-3}}\)
 Flux jacobian comps: total 40, checked 40 \(100\.00%\)
@@ -10,8 +21,4 @@ Flux jacobian comps: total 40, checked 40 \(100\.00%\)
 \|A_n\|: min {{abs($W-0.042215)<1e-5}}, max {{abs($W-0.957785)<1e-5}}
 \|A_a - A_n\|: min {{$W<1e-4}}, max {{$W<1e-4}}
 \|A_a - A_n\|/\|A_n\|: min {{$W<1e-4}}, max {{$W<2e-3}}
-__SWITCH_FILE__ burgers.fd_jac_1_ref.out.tmp
-__SKIP__
-^compute_fd_adv_jacobian.*0
-__SWITCH_FILE__ fd_jac_1.check.tmp
-Solution with fd jac. computed OK \? 1
+

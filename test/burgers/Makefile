@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2003/11/15 16:04:10 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2003/11/16 13:18:50 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-default: test__d01_wf
+default: fd_jac_2
 
 all: run
 
@@ -11,7 +11,7 @@ test_%:
 	$(MAKE) CASE=$* run
 
 #w tests: test__d05 test__d01 test__d001
-tests: test__d01 test__d001
+tests: test__d01 test__d001 fd_jac_1 fd_jac_2
 
 #w Burger test with viscosity 0.1
 test__d01: test__d01_wf test__d01_nwf 
@@ -25,6 +25,20 @@ test__d05: test__d05_wf test__d05_nwf
 test__d001: test__d001_wf test__d001_nwf 
 	CASE=_d001 $(OCTAVE) verif.m > $@.out.tmp
 
+#w Test `compute_fd_adv_jacobian' feature with
+#w verbose printing and threshold
+fd_jac_1:
+	$(MAKE) CASE=fd_jac_1_ref run
+	$(MAKE) CASE=fd_jac_1 run
+	octave -qH verif_fd_jac_1.m > fd_jac_1.check.tmp
+
+#w Test `compute_fd_adv_jacobian' feature with
+#w printing of jacobians and higher threshold
+fd_jac_2:
+	$(MAKE) CASE=fd_jac_2 fd_jac=2 run
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
@@ -35,7 +49,6 @@ SRCS =
 
 OF = burgers.nod.tmp burgers.con.tmp burgers.ini.tmp
 $(OF): mmesh.m data.m
-	$(OCTAVE) mmesh.m
 
 data: burgers.depl $(OF) 
 burgers.depl: burgers.epl data.m force
@@ -44,10 +57,13 @@ burgers.depl: burgers.epl data.m force
 # TESTS FOR THE NEW FLUX FUNCTIONS...
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-run: data
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+run: 
+	make-depl burgers.epl burgers.depl 
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF)		\
 			-case burgers.depl > burgers.$(CASE).out.tmp
-	mv -f save.state.tmp save.state.$(CASE).tmp
+	if [ -f save.state.tmp ] ;					\
+		then mv -f save.state.tmp save.state.$(CASE).tmp ;	\
+	fi
 
 local_clean::
 

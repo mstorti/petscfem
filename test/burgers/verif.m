@@ -1,6 +1,7 @@
 ##__INSERT_LICENSE__
-## $Id: verif.m,v 1.3 2003/04/17 22:50:39 mstorti Exp $
-data
+## $Id: verif.m,v 1.4 2003/11/16 13:18:50 mstorti Exp $
+source("data.m.tmp");
+
 CASE=getenv("CASE");
 if strcmp(CASE,"_d001") 
   tol=1e-3;

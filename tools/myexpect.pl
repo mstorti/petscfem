@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.13 2003/11/16 03:47:37 mstorti Exp $
+#$Id: myexpect.pl,v 1.14 2003/11/16 13:19:54 mstorti Exp $
 
 use English;
 ## position in count record
@@ -15,6 +15,9 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 
 $PRE = "{{";
 $POST = "}}";
+$WD = "";
+
+sub P { print @_; }
 
 sub read_file {
     my $file = shift();
@@ -85,14 +88,22 @@ sub match_regexp {
     return 1;
 }
 
-sub expect {
-    ($file,$descr,$pattern_list) = @_;
-    printo_push();
+sub read_output {
+    my ($sal,$file) = @_;
     open (SAL,$file) || do {printo "can't open $file\n" 
 				unless ! $COMPLAIN_ON_CANT_OPEN;
-			    cant_open(); return;};
-    @sal=(<SAL>);
+			    cant_open(); return 1; };
+    @$sal=(<SAL>);
     close SAL;
+    return 0;
+}
+
+sub expect {
+    ($file,$descr,$pattern_list) = @_;
+    @sal = ();
+    return if $file && $file!~ m|/$| && read_output(\@sal,$file);
+    $WD = $1 if $file =~ m|^(.*/)[^/]*$|;
+    printo_push();
     printo "Testing: \"$descr\" on file \"$file\"...";
     printo "\n" if $opt_d;
     @pattern = split("\n",$pattern_list);
@@ -100,6 +111,7 @@ sub expect {
     my $inc=1;
     my $skip=1;
     my $match_fun = \&match_regexp;
+    my $file_changed = 0;
     while ($pattern=shift @pattern) {
 	if ($pattern =~ /^__REWIND__$/) {
 	    $inc=1;
@@ -122,6 +134,15 @@ sub expect {
 	    $skip=0;
 	    next;
 	}
+	if ($pattern =~ /^__SWITCH_FILE__\s*(\S*)\s*$/) {
+	    $file = $1;
+	    $file = "$WD/$file" unless $file=~ m|^/|;
+	    @sal = ();
+	    read_output(\@sal,$file);
+	    $record=0;
+	    $file_changed = 1;
+	    next;
+	}
 	if ($pattern =~ /^__EXACT_MATCH__$/) {
 	    $match_fun = \&match_exactly;
 	    next;
@@ -142,6 +163,7 @@ sub expect {
 	}
 	not_ok();
 	printo "not OK.\n        --->  Couldn't find \"$pattern\"\n";
+	printo "    [on file $file]\n" if $file_changed;
 	return;
       NEXT:;
     }
