@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 64;			# Number of elements per dimension
+$N = 20;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -88,7 +88,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case \"$case\"\n";
 }
-$maxits=500;
+$maxits=10;
 $CASE = $case;
 #
 #__END_TRANSCRIPT__
@@ -114,16 +114,19 @@ reuse_mat 0
 #if 1
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
 #endif
-# solver     "petsc"
-solver     "iisd"
-solver_mom "petsc"
+solver     "petsc"
 preco_type "jacobi"
+#solver     "iisd"
+#solver_mom "petsc"
+#preco_type "jacobi"
 # rtol 1e-6
 chunk_size 1000
-<:pr('iisd_subpart'):>
+# <:pr('iisd_subpart'):>
+iisd_subpart_auto 2000
 <:pr('maxits'):>
 report_consumed_time
 activate_debug_print
+activate_debug_memory_usage
 # activate_debug
 use_interface_full_preco 1
 print_interface_full_preco_conv 0
