@@ -1,17 +1,17 @@
 //__INSERT_LICENSE__
-//$Id: ffburg_old.cpp,v 1.3 2001/05/30 18:21:43 mstorti Exp $
+//$Id: ffburg_old.cpp,v 1.4 2001/12/20 21:58:51 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
 #include <vector>
 #include <cassert>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
-#include "../../src/utils.h"
-#include "../../src/util2.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
+#include <src/utils.h>
+#include <src/util2.h>
+#include <src/fastmat2.h>
 
 #include "advective.h"
 

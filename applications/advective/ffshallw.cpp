@@ -1,15 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: ffshallw.cpp,v 1.4 2001/05/30 18:21:45 mstorti Exp $
+//$Id: ffshallw.cpp,v 1.5 2001/12/20 21:58:55 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
 #include <vector>
 #include <cassert>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
-#include "../../src/utils.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
+#include <src/utils.h>
 
 #include "advective.h"
 

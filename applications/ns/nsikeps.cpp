@@ -1,12 +1,12 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.15 2001/12/01 15:04:55 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.16 2001/12/20 21:58:55 mstorti Exp $ */
 
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/util2.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/util2.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/fastmat2.h>
 
 #include "nsi_tet.h"
 

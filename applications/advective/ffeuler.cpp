@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffeuler.cpp,v 1.4 2001/05/30 18:21:45 mstorti Exp $
+//$Id: ffeuler.cpp,v 1.5 2001/12/20 21:58:55 mstorti Exp $
 
 // THIS FILE APPARENTLY DOESN'T COMPILE WITH OPTIMIZATION.
 // SO THAT I MODIFIED THE RULE IN THE MAKEFILE SO THAT IT
@@ -10,10 +10,10 @@
 #include <vector>
 #include <cassert>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
+#include <src/util2.h>
 
 #include "advective.h"
 

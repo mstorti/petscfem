@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.43 2001/06/05 21:38:36 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.44 2001/12/20 21:58:51 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -7,12 +7,12 @@
 #include <cassert>
 //#include <string>
 
-#include "../../src/fem.h"
-#include "../../src/texthash.h"
-#include "../../src/getprop.h"
-#include "../../src/utils.h"
-#include "../../src/util2.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/texthash.h>
+#include <src/getprop.h>
+#include <src/utils.h>
+#include <src/util2.h>
+#include <src/fastmat2.h>
 
 #include "nwadvdif.h"
 

@@ -4,11 +4,11 @@ extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
   
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/util2.h>
 #include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

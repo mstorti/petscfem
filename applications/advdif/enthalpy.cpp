@@ -1,9 +1,9 @@
 //__INSERT_LICENSE__
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/getprop.h>
+#include <src/util2.h>
+#include <src/fastmat2.h>
 
 #include "nwadvdif.h"
 

@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.17 2001/08/06 01:07:33 mstorti Exp $
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
+//$Id: wallke.cpp,v 1.18 2001/12/20 21:58:55 mstorti Exp $
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
 
-#include "../../src/fastmat2.h"
+#include <src/fastmat2.h>
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advecfm2.cpp,v 1.7 2001/05/30 18:21:45 mstorti Exp $
+//$Id: advecfm2.cpp,v 1.8 2001/12/20 21:58:55 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -7,11 +7,11 @@ extern int comp_mat_each_time_step_g,
   
 #include <vector>
 
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/util2.h>
 
 #include "advective.h"
 

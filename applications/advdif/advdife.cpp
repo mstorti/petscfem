@@ -7,12 +7,12 @@ extern int MY_RANK,SIZE;
 #include <vector>
 #include <string>
 
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/util2.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/util2.h>
+#include <src/fastmat2.h>
 
 #include "nwadvdif.h"
 

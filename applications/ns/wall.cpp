@@ -1,12 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.12 2001/05/30 18:21:50 mstorti Exp $
+//$Id: wall.cpp,v 1.13 2001/12/20 21:58:55 mstorti Exp $
   
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
 
-#include "../../src/fastmat2.h"
+#include <src/fastmat2.h>
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
