@@ -3033,3 +3033,6 @@ tag: beta-3.23.pl15 on Mon, 10 Nov 2003 23:15:53 -0300 by mstorti in spider
 ----------
 tag: beta-3.23.pl16 on Tue, 11 Nov 2003 09:51:56 -0300 by mstorti in minerva.ceride.gov.ar
      > Gaschem is running simple 1D case. 
+----------
+tag: beta-3.23.pl17 on Tue, 11 Nov 2003 12:41:29 -0300 by mstorti in minerva.ceride.gov.ar
+     > Running gaschem 2D example. 
