@@ -86,12 +86,14 @@ Replacing in (\ref{eq:wallres}) the residual term is
 The Jacobian of the residual with respect to the state variables,
 needed for the Newton-Raphson algorithm is
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    J_{ip,jq} &= - \dep{R_{ip}}{u_{jq}} = 
                  \int_\Se  \dep{}{u_{jq}} (g(u) u_p) \,  N_i \dS \\
        &\int_\Se  \LL(g(u) \, \dep{u_p}{u_{jq}} + g'(u) \, u_p \,
                  \dep{u}{u_{jq}}\RR)  \,  N_i \dS  \label{eq:integ} 
-\end{align}
+\end{aligned}
+\end{equation}
 %
 but
 %
@@ -101,11 +103,13 @@ but
 %
 so that
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    \dep{u_p}{u_{jq}} &= \sum_l \dep{u_{lp}}{u_{jq}} N_l\\
                      &= \sum_l \delta_{lj} \, \delta_{pq} N_l\\
                      &= \delta_{pq} \, N_j
-\end{align}
+\end{aligned}
+\end{equation}
 %
 Similarly,
 %

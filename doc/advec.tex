@@ -99,10 +99,12 @@ size $\ndof\times\ndof$, then the $i,j$ block is
 %
 the $i$ block of the global flux and source vector $!F$ and $!G$ are 
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    !F_{i} &= \int_\Omega N_i(!x) \, \dep{F_k}{x_k} \di{!x}\\
    !G_{i} &= \int_\Omega N_i(!x) \, G(!x) \di{!x}
-\end{align}
+\end{aligned}
+\end{equation}
 %
 If the flux vector term is integrated by parts then we have the
 \emph{``weak form''}

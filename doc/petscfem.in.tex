@@ -1,20 +1,31 @@
 %__INSERT_LICENSE__
 \documentclass[a4paper,11pt]{article} 
+%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+% HOW TO ADD MATERIAL HERE
 %
+% 1./ Do not use environment 'align'
+% 2./ Be careful with calls to $!a$ for vector a. Sometimes if
+%     the material inside an equation is too simple latex2html may
+%     not process it. 
+%
+%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 %Section{
+%<: if (!$html) { :>
 \newif\ifpdf 
 \ifx\pdfoutput\undefined
-  \pdffalse % we are not running PDFLaTeX 
-%<: } :>
+  \pdffalse % Not running PDFLaTeX 
   \usepackage[dvips]{graphicx}
-%<: if (! $plain ) {:>
   \def\EPSPDF{eps}
 \else
-  \pdfoutput=1 % we are running PDFLaTeX 
+  \pdfoutput=1 % Running PDFLaTeX 
   \pdftrue 
   \usepackage[pdftex]{graphicx} \pdfcompresslevel=9
   \def\EPSPDF{pdf}
 \fi
+%<: } else { :>
+\usepackage[dvips]{graphicx}
+\newcommand{\EPSPDF}{eps}
+%<: } :>
 %\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 %\usepackage[dvips]{graphicx}
@@ -124,7 +135,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.tex,v 1.19 2001/05/26 22:18:30 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.1 2001/05/30 17:27:24 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -155,7 +166,7 @@ keeping in mind the scope of efficiency.
 \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
 \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
 \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
- \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
 \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
 \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
@@ -246,4 +257,5 @@ T_s
 # eval: (setq outline-regexp "\\(\\\\\\|%\\)S*ection{") $
 # eval: (setq current-pos-regexp "^%# Current line ===========") $
 # eval: (font-lock-fontify-buffer) $
+# eval: (setq tex-run-command "make petscfem.tex ; latex petscfem") $
 # End: $

@@ -112,10 +112,12 @@ matrices. Follows some common cases
 \item[Dirichlet boundary conditions:] If the velocity  components of node 1 are
 fixed, then we have
 %
-\begin{align}
+\begin{equation} 
+\begin{aligned}
    u_1 = \bar u_1\\
    v_1 = \bar v_1
-\end{align}
+\end{aligned}
+\end{equation}
 %
 so that the corresponding file in \lfrc{$!Q$} is null and the file in $\barQ$
 has a ``1'' in the entry corresponding to the barred values. 
@@ -134,10 +136,12 @@ prescribed normal component). The normal component may be prescribed
 to some non-null value if transpirations fluxes are to be imposed. The
 corresponding equations may look like this
 %
-\begin{align}
+\begin{equation} 
+\begin{aligned}
    u_j &= u_{jt} t_x + \bar u_{jn} n_x\\
    v_j &= u_{jt} t_y + \bar u_{jn} n_y
-\end{align}
+\end{aligned}
+\end{equation}
 %
 where $u_{jt}$ is the (free) tangential component and $\bar u_{jn}$
 the prescribed normal component. 
@@ -179,11 +183,13 @@ figure~\ref{fg:nonsym}) then there are no predefined streamlines, but
 given two corresponding point like $j$ and $j'$ that are obtained
 through rotation of $\alpha=2\pi/\nfoils$, then we can impose
 %
-\begin{align}
+\begin{equation} 
+\begin{aligned}
         u_{j'} &= \cos\alpha \, u_j + \sin\alpha \, v_j\\
         v_{j'} &=-\sin\alpha \, u_j + \cos\alpha \, v_j\\
         p_{j'} &= p_j\\
-\end{align}
+\end{aligned}
+\end{equation}
 
 \index{absorbing boundary conditions}
 \index{boundary conditions!absorbing}
@@ -250,7 +256,8 @@ so that the unknowns here are only $w^2_1$, $w^3_1$, $w^2_2$ and
 $w^3_2$. On the other hand, on the inlet boundary $u$, and $v$ are
 imposed so the vector of unknowns is
 %
-\begin{align}
+\begin{equation} 
+\begin{aligned}
      U_1  &=   w^2_1\\
      U_2  &=   w^3_1\\
      U_3  &=   w^2_2\\
@@ -263,22 +270,26 @@ imposed so the vector of unknowns is
      U_{10} &=   p_5\\
      U_{11} &=   p_7\\
      U_{12} &=   p_8
-\end{align}
+\end{aligned}
+\end{equation}
 %
 while the prescribed values are
 %
-\begin{align}
+\begin{equation} 
+\begin{aligned}
   \bU_1  &=  \bar w^1_1\\
   \bU_2  &=  \bar w^1_2\\
   \bU_3  &=   u_7\\
   \bU_4  &=   v_7\\
   \bU_5  &=   u_8\\
   \bU_6  &=   v_8
-\end{align}
+\end{aligned}
+\end{equation}
 %
 And the relation defining matrices \lfrc{$!Q$} and $\barQ$ are
 %
-\begin{align}
+\begin{equation} 
+\begin{aligned}
    u_1 &= V^1_{11} \, \bU_1 + V^1_{12} \, U_1 + V^1_{13} \, U_2\\
    v_1 &= V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2\\
    p_1 &= V^1_{21} \, \bU_1 + V^1_{22} \, U_1 + V^1_{23} \, U_2\\
@@ -311,13 +322,14 @@ And the relation defining matrices \lfrc{$!Q$} and $\barQ$ are
 %
    u_8 &= \bU_5\\
    v_8 &= \bU_6\\
-   p_8 &= U_{12} 
+   p_8 &= U_{12}\\
 %
    u_9 &= \bU_3\\
    v_9 &= \bU_4\\
    p_9 &= U_{11} \\
 %
-\end{align}
+\end{aligned}
+\end{equation}
 %
 As we can see the boundary conditions result in sparse \lfrc{$!Q$} and
 $\barQ$ matrices. Moreover, in real (large) problems most of the rows
@@ -362,10 +374,12 @@ by row and column.
 An arbitrary  permutation $P$ of $N$ objects can be stored as two integer
 vectors ${\tt ident}[N]$ and ${\tt iident}[N]$ such that if $P(j) = k$, then
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    {\tt ident}[j-1] = k\\
    {\tt iident}[k-1] = j
-\end{align}
+\end{aligned}
+\end{equation}
 %
 We will consider a slight modification to this. A row is 
 %
@@ -460,7 +474,8 @@ where the asterisks means a non-null element. Starting with row index
 columns 8,9. So that the linear transformation $!y = !Q!x$ can be
 represent as
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
  y_2&=0\\
  y_9&=0\\
 %
@@ -471,7 +486,8 @@ represent as
 %
  \begin{sqmat}{c} y_5 \\ y_6 \end{sqmat} 
    & = !Q^3 \begin{sqmat}{c} x_4 \\ x_5\\ x_7 \end{sqmat} \\
-\end{align}
+\end{aligned}
+\end{equation}
 %
 So that \lfrc{$!Q$} decomposes in three blocks of $3\times 2$, $1\times 1$,
 and $2\times 3$, two void rows (2,9) and two row columns (2,3). One
@@ -484,12 +500,14 @@ Temporal dependent boundary conditions are treated in \pfem{} assuming
 that the boundary condition on a set of nodes $J=\{j_1,j_2,j_3,\dots,j_N\}$
 is of the form 
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    \phi_{j_1}(t) &= a_1 \phi(t) \\
    \phi_{j_2}(t) &= a_2 \phi(t) \\
         &\vdots \\
    \phi_{j_N}(t)& = a_N \phi(t) 
-\end{align}
+\end{aligned}
+\end{equation}
 %
 where the $a_k$ are spatial amplitudes and the function $\phi(t)$ is
 the temporal part of the dependency. For instance consider the
@@ -514,10 +532,12 @@ The nodes on side $AD$ are $\{1,7,13,19,25,31,37\}$ and
 we assume that concentration and temperature are fields 1 and 3
 respectively. Here we can take
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    a_j &= 4x_j(L-x_j)/L^2], \textrm{ for  } j \textrm { in } J\\
    \phi(t) = 100\gC \, \sin 5 t
-\end{align}
+\end{aligned}
+\end{equation}
 %
 Boundary conditions depending on time, as in this example are entered
 in PETSc-FEM with a \verb+fixa_amplitude+ section. The general form is
@@ -646,7 +666,7 @@ $t\to+\infty$.
 %
 
 \begin{figure*}[htb]
-%\centerline{\includegraphics{./OBJ/sine.\EPSPDF}}
+\centerline{\includegraphics{./OBJ/sine.\EPSPDF}}
 \caption{Sine function.}
 \label{fg:sine}
 \end{figure*}
@@ -748,12 +768,14 @@ ampl_vals  1            0        -1         0.     1.
 %
 Defines a function with period $T=0.2$ that takes the values 
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
 \phi(0.333+n T) &= 1\\
 \phi(0.333+(n+\sfr14) T) &= 0\\
 \phi(0.333+(n+\sfr12) T) &= -1\\
 \phi(0.333+(n+\sfr34) T) &= 0
-\end{align}
+\end{aligned}
+\end{equation}
 %
 Actually, the resulting interpolated function is simply
 %
@@ -776,10 +798,12 @@ it in two even functions $\phi^\pm(\theta)$ as
 \newcommand{\phim}{{\phi^-}}
 \newcommand{\Dtheta}{{\Delta\theta}}
 %
-\begin{align}
+\begin{equation}
+\begin{aligned}
    \phip(\theta) &= \frac{\phi(\theta)+\phi(-\theta)}2 \\
    \phim(\theta) &= \frac{\phi(\theta)-\phi(-\theta)}{2\sin(\theta)}
-\end{align}
+\end{aligned}
+\end{equation}
 %
 so that
 %
