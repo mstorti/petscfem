@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.26 2001/08/22 03:09:10 mstorti Exp $ 
+# $Id: Makefile,v 1.27 2001/09/30 19:04:57 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -15,7 +15,7 @@ test_eff:
 #	time $(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large test_case
 
 #w All tests
-tests: test_iisd test_partitioning test_distmap
+tests: test_iisd test_superlu test_partitioning test_distmap
 
 #w Tests IISD with periodic boundary conditions
 NS := $(NSO)
@@ -39,6 +39,20 @@ test_iisd:
 	$(MAKE) NP=1 case=lu case_size=small test_case
 	mv -f save.state save.state.lu.tmp
 	octave -q check_iisd.m > check_iisd.verif.tmp
+
+#w Tests IISD wirh local_solver = SuperLU
+test_superlu:
+	$(MAKE) NP=2 local_solver=superlu case=iisd case_size=small part=random test_case
+	mv -f save.state save.state.superlu.np2.rand.tmp
+	$(MAKE) NP=2 local_solver=superlu case=iisd case_size=small test_case
+	mv -f save.state save.state.superlu.np2.tmp
+	$(MAKE) NP=2 local_solver=superlu case=iisd ksp=cgs case_size=small test_case
+	mv -f save.state save.state.superlu.cgs.np2.tmp
+	$(MAKE) NP=1 local_solver=superlu case=iisd case_size=small test_case
+	mv -f save.state save.state.superlu.np1.tmp
+	$(MAKE) NP=1 case=lu case_size=small test_case
+	mv -f save.state save.state.lu.tmp
+	octave -q check_superlu.m > check_superlu.verif.tmp
 
 #w Tests different methods of partitioning. 
 test_partitioning: 

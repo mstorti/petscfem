@@ -2,6 +2,7 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #
 $case = $ENV{'case'};
+$local_solver = $ENV{'local_solver'};
 $Re = $ENV{'Re'};
 if ($case eq 'iisd_eff') {
     $eff = 1;
@@ -116,8 +117,11 @@ nnwt 3
 tol_newton 0
 #if $case eq 'iisd' 
 #use_iisd
-#solver "iisd_superlu"
+#if $local_solver eq 'superlu'
+solver "iisd_superlu"
+#else
 solver "iisd_petsc"
+#endif
 pc_lu_fill 8.
 preco_type "<:=$preco:>"
 rtol 1e-4

@@ -792,21 +792,6 @@ PETSC-FEM error at file "readmesh.cpp", line
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("lupart/check_iisd.verif.tmp",
-       "IISD solver",<<'EOT');
-IISD on 1 processors OK \? > 1, 
-IISD on 2 processors OK \? > 1, 
-IISD on 2 processors with rand part. OK \? > 1
-IISD on 2 processors with CGS OK \? > 1, 
-EOT
-
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("lupart/check_peri.verif.tmp",
-       "IISD solver",<<'EOT');
-IISD on 2 processors with periodic b.c.'s OK \? > 1
-EOT
-
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_part.verif.tmp",
        "Partitioning test",<<'EOT');
 Hitchhiking partitioning OK \? > 1
@@ -1029,20 +1014,6 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
-begin_section('IISD checking with advdif');
-
-check_newff('adv_dif_temp_iisd');
-check_newff('adv_temp_cp_iisd');
-check_newff('dif_temp_iisd');
-check_newff('full_full_jacs_iisd');
-check_newff('full_jacs_iisd');
-check_newff('full_jacs_cp_iisd');
-check_newff('pure_adv_iisd');
-check_newff('reac_adv_dif_temp_y_iisd');
-check_newff('std_ard_x_y_iisd');
-
-end_section();
-
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -1167,6 +1138,57 @@ expect("genload/save.case_genl1d.tmp",
        "Generic Load, 0d element with source term",$genl_check);
 expect("genload/save.case_genl1dh.tmp",
        "Generic Load, 0d element with hfilm coeff",$genl_check);
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('IISD solver');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("lupart/check_iisd.verif.tmp",
+       "IISD solver",<<'EOT');
+IISD on 1 processors OK \? > 1, 
+IISD on 2 processors OK \? > 1, 
+IISD on 2 processors with rand part. OK \? > 1
+IISD on 2 processors with CGS OK \? > 1, 
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("lupart/check_superlu.verif.tmp",
+       "IISD/SuperLU solver",<<'EOT');
+__EXACT_MATCH__
+IISD/SuperLU on 1 processors OK ? > 1, 
+IISD/SuperLU on 2 processors OK ? > 1, 
+IISD/SuperLU on 2 processors with rand part. OK ? > 1, 
+IISD/SuperLU on 2 processors with CGS OK ? > 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("lupart/check_peri.verif.tmp",
+       "IISD solver",<<'EOT');
+IISD on 2 processors with periodic b.c.'s OK \? > 1
+EOT
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('IISD solver. Checking with advdif');
+
+check_newff('adv_dif_temp_iisd');
+check_newff('adv_temp_cp_iisd');
+check_newff('dif_temp_iisd');
+check_newff('full_full_jacs_iisd');
+check_newff('full_jacs_iisd');
+check_newff('full_jacs_cp_iisd');
+check_newff('pure_adv_iisd');
+check_newff('reac_adv_dif_temp_y_iisd');
+check_newff('std_ard_x_y_iisd');
 
 end_section();
 
