@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.101 2003/12/06 17:13:51 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.102 2003/12/07 18:39:11 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -95,8 +95,6 @@ hook_list shell_hook cubcav
 >>endif
 
 __END_HASH__
-
-__INCLUDE__ qqrr
 
 # ndim nu ndof
 nodedata  3 3 4
