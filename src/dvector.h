@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.23 2005/01/16 23:40:24 mstorti Exp $
+// $Id: dvector.h,v 1.24 2005/01/17 14:23:31 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -52,6 +52,9 @@ private:
 
   /// Prints an element to a stream
   int printe(FILE *fid,T t);
+
+  /// Prints an element to a stream
+  T new_t_elem();
 
   /// Number of elements read with cat, read and friends
   int nread;

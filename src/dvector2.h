@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.28 2005/01/16 23:40:24 mstorti Exp $
+// $Id: dvector2.h,v 1.29 2005/01/17 14:23:31 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -181,7 +181,7 @@ resize(int new_size,T &t) {
 template<class T>
 dvector<T>& dvector<T>::
 resize(int new_size) { 
-  T t; 
+  T t = new_t_elem(); 
   resize(new_size,t); 
   return *this;
 }
@@ -212,18 +212,6 @@ dvector<T>& dvector<T>::mono(int s,T e) {
   return *this;
 }
 
-int dvector<double>::read(FILE *fid,double &t);
-
-int dvector<int>::read(FILE *fid,int &t);
-
-int dvector<float>::read(FILE *fid,float &t);
-
-int dvector<double>::printe(FILE *fid,double t);
-
-int dvector<int>::printe(FILE *fid,int t);
-
-int dvector<float>::printe(FILE *fid,float t);
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 int dvector<T>::read(FILE *fid,T &t) {
@@ -233,9 +221,31 @@ int dvector<T>::read(FILE *fid,T &t) {
   return 0;
 }
 
+int dvector<double>::read(FILE *fid,double &t);
+
+int dvector<int>::read(FILE *fid,int &t);
+
+int dvector<float>::read(FILE *fid,float &t);
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 int dvector<T>::printe(FILE *fid,T t) { return 1; }
+
+int dvector<double>::printe(FILE *fid,double t);
+
+int dvector<int>::printe(FILE *fid,int t);
+
+int dvector<float>::printe(FILE *fid,float t);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+T dvector<T>::new_t_elem() { T t; return t; }
+
+double dvector<double>::new_t_elem();
+
+int dvector<int>::new_t_elem();
+
+float dvector<float>::new_t_elem();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>

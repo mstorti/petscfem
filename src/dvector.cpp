@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dvector.cpp,v 1.5 2005/01/15 23:41:32 mstorti Exp $
+//$Id: dvector.cpp,v 1.6 2005/01/17 14:23:31 mstorti Exp $
  
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -44,3 +44,9 @@ int dvector<float>::printe(FILE *fid,float t) {
   return ierr<0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double dvector<double>::new_t_elem() { return 0.0; }
+
+int dvector<int>::new_t_elem() {return 0; }
+
+float dvector<float>::new_t_elem() { return 0.0; }
