@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2001/12/10 21:51:12 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/12/10 23:27:23 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -28,7 +28,7 @@ MCH = -machinefile ./machi.dat
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 #w Runs program
-case := iisd_sbp1_uj 
+case := iisd_sbp1_uj
 export case
 $(CASE).depl: force
 run: $(CASE).depl

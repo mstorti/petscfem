@@ -7,8 +7,9 @@ source("data.m.tmp");
 w=zhomo([0 1 0 1],N+1,N+1,[1 hratio 1 1 hratio 1]);
 [x2,i2] = pfcm2fem(w);
 x2 = x2(:,[2 1]);
+xx=x2(1:N+1,1);
 
-[x3,i3] = extrude(x2,i2,N,1/N);
+[x3,i3] = extrude(x2,i2,N,xx);
 
 x = x3(:,1);
 y = x3(:,2);

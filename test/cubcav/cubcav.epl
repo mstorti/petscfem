@@ -5,11 +5,13 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('weak_form',0);
 get_var_env('case',undef);
+$case =~ s/^\s*(.*)\s*$/$1/;
+$ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;
-$hratio = 10;			# refinement (h_center/h_wall)
-$Re = 1;			# Reynolds number
+$N = 20;			# Number of elements per dimension
+$hratio = 5;			# refinement (h_center/h_wall)
+$Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
 $solver = "petsc";
@@ -42,8 +44,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
 	$update_jacobian = 1;
 	$nstep = 2000;
 	$maxits=100;
-	$iisd_subpart = 2;
-	$N = 200;
+	$iisd_subpart = 10;
     }
     $preco_type = "jacobi";
 } elsif ($case eq 'big') {
@@ -67,7 +68,7 @@ octave_export_vars(">data.m.tmp",qw(U L N Re viscosity h Co Dt hratio leaky tol)
 
 global_options
 
-ndim 3
+<:pr('ndim'):>
 nsave 5
 <:pr('nstep'):> 
 # initial_state cubcav.state
@@ -140,7 +141,7 @@ end_elemsets
 
 fixa
 # fijacion en la presion
-1 4 0.
+1 <:=ndim+1> 0.
 # fijaciones de velocidad en las paredes
 __INCLUDE__ cubcav.fixa.tmp
 __END_FIXA__
