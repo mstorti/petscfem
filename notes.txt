@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $
+$Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
+! # $Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
+  # $Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
+  # $Id: notes.txt,v 1.260 2003/03/11 22:03:56 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6353,6 +6353,14 @@ del elemento). No mejora.
 Pruebo a sacarle la condicion de vorticidad y converge mejor (pero no
 demasiado bien, digamos 1om/iter) y la vorticidad es bastante mas alta
 (0.8 en el contorno de entrada). 
+
+%===Tue, 11 Mar 2003 17:51:45 -0300 mstorti@minerva
+%
+Enel `wave.epl', con el elmento de traccion en la interfase
+`inviscid_coupling', la vorticidad da un maximo de 0.6. 
+%
+17:55:40: Sin el `inviscid_coupling' da muy similar. 
+
 
 # Current line ===========  %
 # Local Variables: $

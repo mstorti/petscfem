@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: invcoupl.cpp,v 1.4 2003/02/27 03:32:41 mstorti Exp $
+//$Id: invcoupl.cpp,v 1.5 2003/03/11 22:03:56 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,7 +18,7 @@ void inviscid_coupling::elemset_init() {
   assert(ndof==ndim+1);
   int ierr;
   //o Dynamic viscosity
-  TGETOPTDEF_ND(thash,double,viscosity,1.);
+  TGETOPTDEF_ND(thash,double,viscosity,0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
