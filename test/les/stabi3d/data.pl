@@ -1,7 +1,7 @@
 # -*- mode: shell-script -*-
 
 $hratio=1;			# refinement ratio center/wall
-$Rel=4000;			# Reynolds number
+$Rel=3000;			# Reynolds number
 $Lx=2;				# Length in the longitudinal direction
 $Ly=1;				# Plate separation
 $Lz=2;				# Length in transversal (periodic)  direction

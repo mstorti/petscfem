@@ -1,11 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2002/11/22 22:05:19 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2002/11/22 22:10:24 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
 run: stabi
 
 CASE := stabi
+PETSCFEM_DIR := ../../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
