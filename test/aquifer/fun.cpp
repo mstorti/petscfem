@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fun.cpp,v 1.6 2002/02/10 19:42:08 mstorti Exp $
+//$Id: fun.cpp,v 1.7 2002/02/10 20:11:48 mstorti Exp $
 
 #include <math.h>
 
@@ -11,7 +11,7 @@ struct  MyFunData {
   double f0, f1, t0, t1, slope;
 };
 
-extern "C" void init_fun(TextHashTable *thash,void *&fun_data) {
+INIT_FUN {
   int ierr;
   TGETOPTDEF(thash,double,t0,0.);
   TGETOPTDEF(thash,double,t1,1.);
@@ -28,7 +28,7 @@ extern "C" void init_fun(TextHashTable *thash,void *&fun_data) {
   d->slope = (f1-f0)/(t1-t0);
 }
 
-extern "C" double eval_fun(double t,void *fun_data) {
+EVAL_FUN {
   MyFunData *d = (MyFunData *) fun_data;
   // printf("in eval_fun: t0 %f,t1 %f,f0 %f,f1 %f\n",d->t0,d->t1,d->f0,d->f1);
   if (t < d->t0) return d->f0;
@@ -36,14 +36,14 @@ extern "C" double eval_fun(double t,void *fun_data) {
   else return d->f0 + d->slope *(t - d->t0);
 }
 
-extern "C" void clear(void *fun_data) {
+CLEAR_FUN {
   MyFunData *d = (MyFunData *) fun_data;
   delete d;
   fun_data=NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-extern "C" void smramp_init_fun(TextHashTable *thash,void *&fun_data) {
+INIT_FUN1(smramp) {
   int ierr;
   TGETOPTDEF(thash,double,t0,0.);
   TGETOPTDEF(thash,double,t1,1.);
@@ -60,7 +60,7 @@ extern "C" void smramp_init_fun(TextHashTable *thash,void *&fun_data) {
   d->slope = (f1-f0)/(t1-t0);
 }
 
-extern "C" double smramp_eval_fun(double t,void *fun_data) {
+EVAL_FUN1(smramp) {
   MyFunData *d = (MyFunData *) fun_data;
   if (t < d->t0) return d->f0;
   else if (t > d->t1) return d->f1;
@@ -73,7 +73,7 @@ extern "C" double smramp_eval_fun(double t,void *fun_data) {
   }
 }
 
-extern "C" void smramp_clear(void *fun_data) {
+CLEAR_FUN1(smramp) {
   MyFunData *d = (MyFunData *) fun_data;
   delete d;
   fun_data=NULL;

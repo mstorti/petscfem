@@ -1,8 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.8 2002/02/10 19:52:17 mstorti Exp $
+// $Id: ampli.h,v 1.9 2002/02/10 20:11:44 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
+
+#include <math.h>
+#include <src/fem.h>
+#include <src/getprop.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** This is the type of temporal functions. A TextHashTable stores
@@ -126,5 +130,19 @@ public:
   /// Destructor
   ~DLGeneric();
 };
+
+#define INIT_FUN extern "C" void init_fun(TextHashTable *thash,void *&fun_data)
+
+#define INIT_FUN1(name) extern "C" \
+        void name##_init_fun(TextHashTable *thash,void *&fun_data)
+
+#define EVAL_FUN extern "C" double eval_fun(double t,void *fun_data)
+
+#define EVAL_FUN1(name) extern "C" double name##_eval_fun(double t,void *fun_data)
+
+#define CLEAR_FUN extern "C" void clear_fun(void *fun_data) 
+
+#define CLEAR_FUN1(name) extern "C" void name##_clear_fun(void *fun_data) 
+
 
 #endif
