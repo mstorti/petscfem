@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.8 2001/09/21 19:25:55 mstorti Exp $
+// $Id: sparse.h,v 1.9 2001/09/21 22:47:33 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -31,8 +31,12 @@ namespace Sparse {
     int len;
     /// Flag indicating where you can add values past the specified length or not 
     int grow_m; 
+    /// Get element at specified position (do not check bounds)
+    double get_nc(int j) const;
+      
   public:
-    
+
+    friend class Mat;
     /// Constructor from the length
     Vec(int l=0) : grow_m(1) {len=l;};
     /// Return length of the vector 
@@ -114,21 +118,27 @@ namespace Sparse {
     /// Constructor from another vector
     Mat(const Mat &a) {*this = a;};
 
-    /// Get element at specified position
+    /// Get element at specified position: v = w(j,k)
     double get(int j,int k) const;
-    /// Get row
+    /// Get row: v = w(j,:)
     void getr(int j,Vec & v) const;
-    /// Get rows
-    void getr(Indx J,Mat & v) const;
-    /// Set element at position j
+    /// Set element at position j: w(j,k) = v
     Mat & set(int j,int k,double v);
-    /// Set row j
-    Mat & setr(int j,Vec &v);
-    /// Set col j
-    Mat & setc(int j,const Vec &v);
 
-    /// print elements
+    /// Set row j: w(j,:) = v;
+    Mat & setr(int j,Vec &v);
+    /// set to J rows of a: w = a(J,:)
+    Mat & setr(const Mat & a,Indx &J);
+
+    /// Set col j: w(:,j) = v;
+    Mat & setc(int j,const Vec &v);
+    /// set to J cols of a: w = a(:,J)
+    Mat & setc(const Mat & a,Indx &J);
+
+    /// print elements (sparse version)
     void print(const char *s = NULL);
+    /// print elements (full version)
+    void print_f(const char *s = NULL);
 
     /// Resize vectors, truncates elements if greater than this value
     Mat & resize(int m,int n);

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.5 2001/09/21 19:25:58 mstorti Exp $
+// $Id: sp.cpp,v 1.6 2001/09/21 22:47:40 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -56,23 +56,23 @@ int main() {
   for (j=0; j<m; j++) 
     for (k=0; k<m; k++) 
       if ((j+k) % 2) a.set(j,k,double(j*10+k));
-  a.print("checkerboard mat");
+  a.print_f("checkerboard mat");
   
   u.resize(5);
   my_set(u);
   u.print("after my_set; ");
   for (j=0; j<2; j++) 
     a.setr(j,u);
-  a.print("rows 0 1  set to u: ");
+  a.print_f("rows 0 1  set to u: ");
 
   for (j=3; j<5; j++) 
     a.setc(j,u);
-  a.print("cols 3 4 set to u: ");
+  a.print_f("cols 3 4 set to u: ");
 
   u.set(a,3).print("u = 3rd row of a\n");
   u.setc(a,3).print("u = 3rd col of a\n");
 
-  a.getr(K,b);
-  b.print("rows 0 2 4 of a");
+  b.setr(a,K).print_f("b set to rows 0 2 4 of a");
+  b.setc(a,K).print_f("b set to cols 0 2 4 of a");
 
 }

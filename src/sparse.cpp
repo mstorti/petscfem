@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.9 2001/09/21 19:25:55 mstorti Exp $
+//$Id: sparse.cpp,v 1.10 2001/09/21 22:47:33 mstorti Exp $
 
 #include "sparse.h"
 
@@ -59,6 +59,10 @@ namespace Sparse {
 #define __FUNC__ "Vec::get"
   double Vec::get(int j) const {
     assert(j<len);
+    return get_nc(j);
+  }
+
+  double Vec::get_nc(int j) const {
     const VecCIt J = find(j);
     if (J == end()) {
       return 0.;
@@ -215,11 +219,12 @@ namespace Sparse {
 
   double Mat::get(int j,int k) const {
     assert(j<nrows);
+    assert(k<ncols);
     const RowCIt J = find(j);
     if (J == end()) {
       return 0.;
     } else {
-      return J->second.get(k);
+      return J->second.get_nc(k);
     }
   }
 
@@ -268,10 +273,26 @@ namespace Sparse {
     RowCIt i,e;
     if (s) printf("%s\n",s);
 
+    printf("size %d %d \n",nrows,ncols);
     e = end();
     for (i=begin(); i!=e; i++) {
       printf("row %d -> ",i->first);
       i->second.print_g(0,NULL,": ","  ","\n");
+    }
+    printf("-- end mat --\n");
+  }
+
+  void Mat::print_f(const char *s = NULL) {
+    RowCIt i,e;
+    int j,k;
+    if (s) printf("%s\n",s);
+
+    printf("size %d %d \n",nrows,ncols);
+    for (j=0; j<nrows; j++) {
+      printf("row %d: ",j);
+      for (k=0; k<ncols; k++) 
+	printf("%f ",get(j,k));
+      printf("\n");
     }
     printf("-- end mat --\n");
   }
@@ -372,18 +393,37 @@ namespace Sparse {
     return *this;
   }
 
-  void Mat::getr(Indx J,Mat & a) const {
+  Mat & Mat::setr(const Mat & a,Indx &J) {
     int j,m,p;
     Vec row;
-
+    
     m = J.size();
-    a.clear().resize(m,ncols);
+    clear();
+    resize(m,a.ncols);
     for (j=0; j<m; j++) {
       p = J[j];
-      assert(p<nrows);
-      getr(p,row);
-      a.setr(j,row);
+      assert(p<a.nrows);
+      a.getr(p,row);
+      setr(j,row);
     }
+    return *this;
+  }
+
+  Mat & Mat::setc(const Mat & a,Indx &J) {
+    RowCIt r,e;
+    int m;
+    Vec row;
+
+    m=J.size();
+    clear();
+    resize(a.nrows,m);
+
+    e = a.end();
+    for (r=a.begin(); r!=e; r++) {
+      row.set(r->second,J);
+      insert(RowP(r->first,row));
+    }
+    return *this;
   }
 }
 
