@@ -1,12 +1,15 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 $case="advec";                   # case name
-$N = 10;
-$M = 10;
+$N = 40;
+$M = 40;
+$ydisc = 0.4;
 $delta = 0.01;
+$ux = 2;
+$uy = 1;
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #__END_TRANSCRIPT__
-octave_export_vars(">data.m.tmp",qw(N M delta));
+octave_export_vars(">data.m.tmp",qw(N M delta ydisc ux uy));
 system "octave -qH advec.m";
 :>//                            # ends ePerl block
 
@@ -40,8 +43,8 @@ __END_HASH__
 elemset advec 3
 geometry triangle
 npg 3
-u 1 0
-diff 1.e-5
+u <:=$ux:> <:=$uy:> 
+diff 1e-4
 data advec.con.tmp
 __END_HASH__
 
@@ -50,6 +53,7 @@ end_elemsets
 #===========================================================
 fixa
 __INCLUDE__ "advec.fixa.tmp"
+__INCLUDE__ "advec.fixa-y0.tmp"
 __END_FIXA__
 
 # Local Variables: $
