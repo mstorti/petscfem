@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.3 2003/01/01 15:11:15 mstorti Exp $
+//$Id: inviscid.cpp,v 1.4 2003/01/01 15:21:20 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -14,7 +14,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ext_node {
 public:
-  double x[NDIM], u[NDIM];
+  double x[NDIM], u[NDIM], phi;
 };
 
 vector<int> visc_nodes,ext_nodes;
@@ -76,6 +76,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       coup_vals[en] = ext_node();      
     }
     assert(nread==EOF);
+    fclose(fid);
 
     fid = fopen("cylin.nod.tmp","r");
     double x[NDIM];
@@ -92,6 +93,7 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       }
     }
     assert(nread==EOF);
+    fclose(fid);
   }
 }
 
@@ -100,13 +102,29 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   double step_sent = read_doubles(visc2inv,"computed_step");
   assert(int(step_sent)==step);
   FILE *fid = fopen("cylin.state.tmp","r");
+  double u[NDIM];
+  int node=0;
+  ext_map::iterator q, qe=coup_vals.end();
   int nread;
-  for (int j=0; j<nnod*NDOF; j++) {
-    nread = fscanf(fid,"%lf",&u[j]);
-    if(nread!=1) break;
+  while (1) {
+    nread = fscanf(fid,"%lf %lf",&u[0],&u[1]);
+    if(nread!=NDIM) break;
+    node++;
+    q = coup_vals.find(node);
+    if (q!=qe) {
+      q->second.u[0] = u[0];
+      q->second.u[1] = u[1];
+    }
   }
   assert(nread==EOF);
   fclose(fid);
+
+  // Computes potential on the external side, integrating
+  // the tangential component of velocity
+  int nnod_ext = visc_nodes.size();
+  FastMat2 u1(1,NDIM), u2(1,NDIM), x1(1,NDIM), x2(1,NDIM);
+  
+  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
