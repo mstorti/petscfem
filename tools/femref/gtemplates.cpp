@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.7 2004/12/14 22:32:42 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.8 2004/12/26 16:08:07 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -23,30 +23,23 @@ Tetra2TetraSplitter_v[]
    5,9,6,8,
    9,7,8,6,GeomObject::NULL_NODE};
 
+int 
+Tetra2TetraSplitter_rn[] 
+= {0, 1,
+   1, 2,
+   0, 2,
+   0, 3,
+   1, 3,
+   2, 3,GeomObject::NULL_NODE};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Tetra2TetraSplitterClass::
 Tetra2TetraSplitterClass() {
-  subobj_conn.a_resize(3,8,4,2);
-  int nel = 4;
-  int nso = 8;
-  int nelso = 4;
-  for (int j=0; j<nso; j++) {
-    for (int k=0; k<nelso; k++) {
-      int n2=GeomObject::NULL_NODE, 
-	n1 = Tetra2TetraSplitter_v[nelso*j+k];
-      if (n1>=nel) switch(n1) {
-      case 4: n1=0; n2=1; break;
-      case 5: n1=1; n2=2; break;
-      case 6: n1=0; n2=2; break;
-      case 7: n1=0; n2=3; break;
-      case 8: n1=1; n2=3; break;
-      case 9: n1=2; n2=3; break;
-      default: assert(0);
-      }
-      subobj_conn.e(j,k,0) = n1;
-      subobj_conn.e(j,k,1) = n2;
-    }
-  }
+  subobj_conn.mono(32);
+  subobj_conn.reshape(2,8,4);
+  ref_nodes.cat(Tetra2TetraSplitter_rn,
+		GeomObject::NULL_NODE);
+  ref_nodes.reshape(2,6,2);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -61,7 +54,7 @@ const int*
 Tetra2TetraSplitterClass::
 nodes(GeomObject::Type t,int j) const { 
   if (t==GeomObject::TetraT) 
-    return &subobj_conn.e(j,0,0);
+    return &subobj_conn.e(j,0);
   else assert(0);
 }
 
@@ -74,5 +67,19 @@ const int*
 Tetra2TetraSplitterClass::
 nodes(int j,GeomObject::Type &t) const { 
   t=GeomObject::OrientedTetraT;
-  return &subobj_conn.e(j,0,0);
+  return &subobj_conn.e(j,0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int 
+Tetra2TetraSplitterClass::
+nref_nodes() const { return 6; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void 
+Tetra2TetraSplitterClass::
+ref_node(int indx,int &nnod, 
+	 const int *&nodes) {
+  nnod = 2;
+  nodes = &ref_nodes.e(indx,0);
 }
