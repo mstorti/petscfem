@@ -1,9 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.2 2002/07/22 15:45:12 mstorti Exp $
+// $Id: dvector.h,v 1.3 2003/02/16 21:43:54 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
-
+#include <cstdarg>
+#include <vector>
 #define CHUNK_SIZE_INIT 10000
 
 template<class T>
@@ -17,6 +18,12 @@ private:
   int nchunks;
   /// pointers to chunks
   vector<T *> chunk_vector;
+  /// Defines the shape for accessing through #[]#
+  vector<int> shape;
+  /// Pointer to the shape vector
+  int *shape_p;
+  /// rank of the tensor (number of indices)
+  int rank;
   /// pointer to STL storage array in chunk_vector
   T **chunks;
   /** Find in what chunk, in what position 'k' is 'j'
@@ -32,7 +39,7 @@ private:
       k += chunk_size;
     }
   }
-  /** Exchange objescts `u' and `v'
+  /** Exchange objects `u' and `v'
       @param u (input/output) first element to be exchanged
       @param v (input/output) second element to be exchanged
   */ 
@@ -87,6 +94,8 @@ public:
     chunk_size = cs;
     chunks = NULL;
     size_m = nchunks = 0;
+    shape_p = shape.begin();
+    rank = 1;
   }
   /** Set new chunk size (container must be empty).
       @param new_chunk_size (input) new chunk size for the vector.
@@ -229,6 +238,59 @@ public:
       if (ref(q)!=ref(p)) ref(++p) = ref(q);
     return p+1;
   }  
+
+  void reshape(int rank_a,va_list ap) {
+    rank = rank_a;
+    assert(rank>0);
+    int new_size=1;
+    shape.clear();
+    for (int j=0; j<rank; j++) {
+      int d = va_arg (ap, int);
+      assert(j==0 || d>0);
+      shape.push_back(d);
+    }
+    shape_p = shape.begin();
+    assert(new_size<0 || new_size==size());
+  }
+
+  void reshape(int rank_a,...) {
+    va_list ap;
+    va_start(ap,rank_a);
+    reshape(rank_a,ap);
+  }
+
+  // array resize
+  void a_resize(int rank_a,...) {
+    rank = rank_a;
+    va_list ap;
+    va_start(ap,rank_a);
+    assert(rank>0);
+    int new_size=1;
+    for (int j=0; j<rank; j++) {
+      int d = va_arg (ap, int);
+      assert(d>0);
+    }
+    resize(new_size);
+
+    va_start(ap,rank_a);
+    reshape(rank,ap);
+  }
+
+  //  T& operator[]();
+  //  T& operator[](int j,...);
+  const T& e(int j,va_list ap) const {
+    return ref(0);
+  }
+  T& e(int j,va_list ap) {
+    int pos = va_arg(ap,int);
+    for (int j=1; j<rank; j++) pos = pos*shape_p[j]+va_arg(ap,int);
+    return ref(pos);
+  }
+  T& e(int j,...) {
+    va_list ap;
+    va_start(j,ap);
+    return e(j,ap);
+  }
 };
 
 #endif
