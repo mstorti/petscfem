@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.3 2001/08/02 19:50:22 mstorti Exp $
+// $Id: distmat.cpp,v 1.4 2001/08/03 17:07:25 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -42,6 +42,7 @@ void DistMat::
 unpack(int &k,Row &row,const char *&buff) {
   int n,j,key;
   double val;
+  row.clear();
   BufferPack::unpack(n,buff);
   BufferPack::unpack(k,buff);
   for (j=0; j<n; j++) {
@@ -77,7 +78,7 @@ combine(const pair<int,Row> &p) {
   Row::iterator r;
   Row::const_iterator q;
   if (iter == end()) {
-    printf("[%d] inserting row %d\n",myrank,p.first);
+    //    printf("[%d] inserting row %d\n",myrank,p.first);
     // insert(p);
     (*this)[p.first] = p.second;
   } else {

@@ -17,9 +17,16 @@ $part_case = ($case =~ /^(.*)_part$/);
 $part_method = $1;
 $case_size = "medium" if $part_case;
 $case_size = $ENV{'case_size'} unless $case_size;
+$peri = $ENV{'peri'};
 if ($case_size eq 'small') {
 $N = 4;                         # Number of elements in transversal 'x' direction
 $Ny = 2;                        # Number of elements in y dir
+$Ny_eq = 1;                     # last elements that are equal in size
+                                # in the y direction
+$Ly = 1;                        # longitudinal length 
+} elsif ($case_size eq 'small2') {
+$N = 4;                         # Number of elements in transversal 'x' direction
+$Ny = 6;                        # Number of elements in y dir
 $Ny_eq = 1;                     # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
@@ -61,13 +68,17 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-#if $case_size eq 'small'
+#if $case_size eq 'small' 
 nstep 2
 nnwt 2
 #elsif $part_case
 nstep 1
 nnwt 1
 partitioning_method "<:=$part_method:>"
+debug_element_partitioning
+#elsif $peri
+nstep 1
+nnwt 1
 debug_element_partitioning
 #else
 nstep 200
@@ -107,6 +118,9 @@ print_internal_loop_conv
 #print_dofmap_id
 
 viscosity <:=$nu:>
+#if $peri
+G_body 0. 1.
+#endif
 
 # todavia no tenemos el weak form para k-e (???)
 weak_form 0 
@@ -132,9 +146,6 @@ end_elemsets
 #if 1
 fixa
 
-# pressure fixed at some node
-#:print (($Ny+1)*($N-1)+2):> 3  0.
-
 # u velocity imposed to 0 in all the center line (right)
 __INCLUDE__ wallke.u_0_right_wall.tmp
 
@@ -145,6 +156,13 @@ __INCLUDE__ wallke.u0.tmp
 # in turbulent case this should be done via wall functions
 __INCLUDE__ wallke.v_0_left_wall.tmp
 
+#if $peri
+
+# pressure fixed at some node
+<:print (($Ny+1)*($N-1)+2):> 3  0.
+
+#else
+
 # fix lateral (u) velocity to 0 at the outlet
 __INCLUDE__ wallke.u_out_0.tmp
 
@@ -153,33 +171,12 @@ __INCLUDE__ wallke.p_out_0.tmp
 
 # quantities at inlet 
 __INCLUDE__ wallke.fixa_in.tmp
+#endif
 
 __END_FIXA__
 #endif
 
-#if 0
-constraint
-# fix u,v,k,e periodic at output
-__INCLUDE__ wallke.fixa_out_peri.tmp
-__END_CONSTRAINT__
-#endif
-
-#if 0
-constraint
-# ultimo nodo en la pared periodico en k y epsilon con respecto al anterior
--1. <:=$Ny+1:> 4 +1. <:=$Ny:> 4 
--1. <:=$Ny+1:> 5 +1. <:=$Ny:> 5 
-__END_CONSTRAINT__
-#endif
-
-#if 0
-constraint
-# fix p to 0 at the outlet (weighted version) 
-__INCLUDE__ wallke.wp_out_0.tmp
-__END_CONSTRAINT__
-#endif
-
-#if 0
+#if $peri
 constraint
 __INCLUDE__ wallke.peri.tmp
 __END_CONSTRAINT__

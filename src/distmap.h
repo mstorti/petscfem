@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.9 2001/08/02 19:50:22 mstorti Exp $
+// $Id: distmap.h,v 1.10 2001/08/03 17:07:25 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -33,12 +33,11 @@ class DistMap : public map<Key,Val> {
   /// size and rank in the comunicator
   int size,myrank;
  public:
-  DistMap(Partitioner *p) : part(p) {};
   /** Constructor from a communicator
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Key,Val>(MPI_Comm comm_=MPI_COMM_WORLD);
+  DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
@@ -78,9 +77,10 @@ class DistMap : public map<Key,Val> {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val> DistMap<Key,Val>::
-DistMap<Key,Val>(MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
+DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
+  part=p;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

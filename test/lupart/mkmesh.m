@@ -50,9 +50,8 @@ for k=1:N+1
           1,out,3,
           r,out-1,3,
           r^2,out-2,3);
-  for j=[1 2 4 5]
+  for j=1:3
     fprintf(fid,"%f %d %d    %f %d %d \n",-1.,out,j,+1.,in,j);
-##    fprintf(fidfop,"%f %d %d    %f %d %d \n",-1.,out,j,+1.,out-1,j);
     fprintf(fidfop,"%f %d %d    %f %d %d    %f %d %d \n",-1.,out,j,+2.,out-1,j,-1.,out-2,j);
   endfor
 endfor

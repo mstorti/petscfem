@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2001/08/01 20:05:36 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2001/08/03 17:07:34 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -11,16 +11,20 @@ run:
 tests: test_iisd test_partitioning
 
 #w Tests 
-test_iisd: 
+test_distmap: 
+	$(MAKE) NP=2 peri=1 case=iisd case_size=small2 test_case
+	mv -f save.state save.state.iisd.np2.tmp
+
+test_iisd:
 	$(MAKE) NP=2 case=iisd case_size=small test_case
 	mv -f save.state save.state.iisd.np2.tmp
-# 	$(MAKE) NP=2 case=iisd ksp=cgs case_size=small test_case
-# 	mv -f save.state save.state.iisd.cgs.np2.tmp
-# 	$(MAKE) NP=1 case=iisd case_size=small test_case
-# 	mv -f save.state save.state.iisd.np1.tmp
-# 	$(MAKE) NP=1 case=lu case_size=small test_case
-# 	mv -f save.state save.state.lu.tmp
-# 	octave -q check_iisd.m > check_iisd.verif.tmp
+	$(MAKE) NP=2 case=iisd ksp=cgs case_size=small test_case
+	mv -f save.state save.state.iisd.cgs.np2.tmp
+	$(MAKE) NP=1 case=iisd case_size=small test_case
+	mv -f save.state save.state.iisd.np1.tmp
+	$(MAKE) NP=1 case=lu case_size=small test_case
+	mv -f save.state save.state.lu.tmp
+	octave -q check_iisd.m > check_iisd.verif.tmp
 
 #w Tests different methods of partitioning. 
 test_partitioning: 
@@ -65,10 +69,7 @@ test_case: test_case_data
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
 
-auxi_o:
-	if [ ! -L advdif ] ; \
-	 then ln -sf $(PROG) $(LOC_PROG) ; \
-	fi
-	echo file ns >.gdbinit
-	echo set args -case $(NAME).depl >>.gdbinit
+PROG = $(NS)
+LOC_PROG = ns
+CASE_NAME = wallke
 #s

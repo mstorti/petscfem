@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.26 2001/08/02 19:50:22 mstorti Exp $
+//$Id: lusubd.cpp,v 1.27 2001/08/03 17:07:25 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -81,7 +81,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
   dofmap = dofmap_;
-  A_LL_other = new DistMatrix(dofmap);
+  A_LL_other = new DistMatrix(dofmap,PETSC_COMM_WORLD);
   const int &neq = dofmap->neq;
   
   Node *nodep;
@@ -435,9 +435,10 @@ int IISDMat::mult_trans(Vec x,Vec y) {
 int IISDMat::assembly_begin(MatAssemblyType type) {
   int ierr;
 
-  DistMat::iterator I,I1,I2;
-  Row::iterator J,J1,J2;
+  DistMat::const_iterator I,I1,I2;
+  Row::const_iterator J,J1,J2;
   int row_indx,col_indx,row_t,col_t;
+  double v;
 
   A_LL_other->scatter();
 
@@ -446,6 +447,8 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
   for (I = I1; I != I2; I++) {
     map_dof(I->first,row_t,row_indx);
     const Row &row = I->second;
+    J1 = row.begin();
+    J2 = row.end();
     for (J = J1; J != J2; J++) {
       map_dof(J->first,col_t,col_indx);
       assert (row_t == L && col_t == L);
@@ -459,8 +462,9 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
 	       J->first,col_indx,n_loc,n_locp);
 	MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
       } 
-      printf("[%d] debuffering (%d,%d) -> %f\n",I->first,J->first,J->second);
-      MatSetValues(A_LL,1,&row_indx,1,&col_indx,&J->second,insert_mode);
+      printf("[%d] debuffering (%d,%d) -> %f\n",MY_RANK,I->first,J->first,J->second);
+      v = J->second;
+      MatSetValues(A_LL,1,&row_indx,1,&col_indx,&v,insert_mode);
     }
   }
   A_LL_other->clear();
@@ -564,14 +568,13 @@ void IISDMat::set_value(int row,int col,Scalar value,
   int row_indx,col_indx,row_t,col_t;
   map_dof(row,row_t,row_indx);
   map_dof(col,col_t,col_indx);
-  // int error_code=2; ??????????
+  insert_mode = mode;  
   if (row_t == L && col_t == L) {
     row_indx -= n_locp;
     col_indx -= n_locp;
     if (row_indx < 0 || row_indx >= n_loc
 	|| col_indx < 0 || col_indx >= n_loc) {
-      insert_mode = mode;  
-      printf("[%d] buffering (%d,%d) -> %f\n",row,col,value);
+      printf("[%d] buffering (%d,%d) -> %f\n",MY_RANK,row,col,value);
       A_LL_other->insert_val(row,col,value);
     }
   } 

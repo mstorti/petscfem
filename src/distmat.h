@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmat.h,v 1.3 2001/08/02 19:50:22 mstorti Exp $
+// $Id: distmat.h,v 1.4 2001/08/03 17:07:25 mstorti Exp $
 #ifndef DISTMAT_H
 #define DISTMAT_H
 
@@ -13,14 +13,6 @@ class Row : public  map<int,double> {
 };
 
 typedef DistMap<int,Row> DistMat;
-#if 0
-class DistMat : public DistMap<int,Row> {
-public:
-  DistMat(Partitioner *p) : DistMap<int,Row>(p) {};
-};
-#endif
-//typedef map<int,Row> BasMap;
-//DistMat::DistMat(const Dofmap *dfm) : DistMap<int,Row>(new DofmapPartitioner(dfm);) {};
 
 class DofmapPartitioner : public Partitioner {
   const Dofmap *dofmap;
@@ -34,7 +26,8 @@ class DistMatrix : public DistMat {
 public:
   void insert_val(int i,int j,double v);
   double val(int i,int j);
-  DistMatrix(const Dofmap *dfm) : DistMat(new DofmapPartitioner(dfm)) {};
+  DistMatrix(const Dofmap *dfm, MPI_Comm comm=MPI_COMM_WORLD) 
+    : DistMat(new DofmapPartitioner(dfm),comm) {};
   ~DistMatrix() {delete part;};
 };
 
