@@ -3187,3 +3187,6 @@ tag: beta-3.27.pl10 on Sun, 18 Jan 2004 18:39:08 -0300 by mstorti in spider
 tag: beta-3.27.pl11 on Sun, 18 Jan 2004 19:54:12 -0300 by mstorti in spider
      > Added tests for `SyncBuff' and `KeyedOutputBuffer'
      > Improved doc for `SyncBuff' and `KeyedOutputBuffer'
+----------
+tag: beta-3.27.pl12 on Sun, 18 Jan 2004 20:25:43 -0300 by mstorti in spider
+     > Moved EPSI directory from doc/EPSI to doc/OBJ/EPSI
