@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.90 2002/09/07 20:46:37 mstorti Exp $
+#$Id: Makefile.base,v 1.91 2002/09/07 21:54:54 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -173,7 +173,7 @@ local_dist_clean::
 
 #w cleans directory
 lclean: 
-	$(MAKE) clean local_clean &> /dev/null
+	$(MAKE) local_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
 
 #w Builds all necessary things after checking out a version

@@ -415,7 +415,7 @@ expect("sqcav/check.iisd.verif.np1.tmp",
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.g_body.verif.tmp",
-       "Square cavity, test G_body term.",read_file("sqcav/g_body.ans.txt"));
+       "Square cavity, test G_body term.",read_file("sqcav/gbody.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.iisd.verif.np2.tmp",
