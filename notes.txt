@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.360 2003/11/13 13:57:59 mstorti Exp $
+$Id: notes.txt,v 1.361 2003/11/14 00:16:36 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.360 2003/11/13 13:57:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.361 2003/11/14 00:16:36 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.360 2003/11/13 13:57:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.361 2003/11/14 00:16:36 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.360 2003/11/13 13:57:59 mstorti Exp $ 
+  # $Id: notes.txt,v 1.361 2003/11/14 00:16:36 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7684,6 +7684,44 @@ cuelga y en cuales no. Por otra parte ahora que implemente el
 el no-block uploading anda mal cuando los perfiles son ralos. Aparecen
 numeros extranios, no se si se debe a que hay algo no inicializado en
 gaschem o es generico. 
+
+%===Thu, 13 Nov 2003 20:04:46 -0300 mstorti@spider
+%
+Corriendo los tests: en test/aquifer desaprecio el archivo
+`output.stream2.ans', aparentemente fue renominado por
+`stream2.output.ans'. Creo recordar que habia un problema con los
+archivos llamados `output.*' o algo por el estilo. 
+%
+20:33:37: Hay un lio con los grados de libertad del
+acuifero. Inicialmente era 1, pero ahora en los casos del FLAGS
+Rodrigo lo pone en 2, o sea que lo vamos a dejar como una opcion a
+setear. 
+%
+21:13:08: Corre casi todos los tests menos los de Burgers, que tienden
+como a no converger (antes convergian mal) y no dan los valores
+correctos (perdieron un poco la simetria). 
+%
+> Start section: "Burgers/advdif tests."
+> Testing: "Advdif/Burgers with weak form+bcconv, d=0.1" on file
+>     "burgers/save.state._d01_wf.tmp"...not OK.
+>         --->  Couldn't find "e\-1(4|5|6)"
+> Testing: "Advdif/Burgers with no weak form, d=0.1" on file
+>   "burgers/save.state._d01_nwf.tmp"...not OK.
+>         --->  Couldn't find "e\-1(4|5|6)"
+> Testing: "Advdif/Burgers coincidence weak/no weak form, d=0.1" on
+>   file "burgers/test__d01.out.tmp"...not OK.
+>         --->  Couldn't find "max. error .*, <tol\(.*\) OK\? 1"
+> Testing: "Advdif/Burgers with weak form+bcconv, d=0.01" on file
+>   "burgers/save.state._d001_wf.tmp"...not OK.
+>         --->  Couldn't find "e\-1(4|5|6)  "
+> Testing: "Advdif/Burgers with no weak form, d=0.01" on file
+>    "burgers/save.state._d001_nwf.tmp"...not OK.
+>         --->  Couldn't find "e\-1(4|5|6|7)"
+> Testing: "Advdif/Burgers coincidence weak/no weak form, d=0.01" on
+>      file "burgers/test__d001.out.tmp"...not OK.
+>         --->  Couldn't find "max. error .*, <tol\(.*\) OK\? 1"
+> Summary: "Burgers/advdif tests." -- OK: 0.  Not OK: 6. Couldn't
+>     open: 0. Total: 6
 
 
 # Current line ===========  %

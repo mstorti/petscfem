@@ -22,7 +22,7 @@ ADVDIF = $(APPDIR)/advdif/advdif_g.bin
 test_abso:
 	$(MAKE) $(CASE).depl
 	octave -q $(CASE).m
-	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl
+	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl > $(CASE).log.tmp
 	$(octave) -qH check_test_abso.m
 
 

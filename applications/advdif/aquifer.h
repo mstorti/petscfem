@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.10 2002/09/08 16:28:07 mstorti Exp $
+// $Id: aquifer.h,v 1.11 2003/11/14 00:16:39 mstorti Exp $
 #ifndef AQUIFER_H
 #define AQUIFER_H
 
@@ -27,6 +27,7 @@ class aquifer_ff : public DiffFF {
       propoerties per element
   */
   int nel,ndof,nelprops;
+  int aquifer_phi_dof;
   /// Auxiliary matrices
   FastMat2 tmp,tmp1,tmp2,tmp3;
   // Stores element number for use at the Gauss point level
