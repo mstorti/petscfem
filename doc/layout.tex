@@ -131,6 +131,36 @@ inserts the contents of ``\verb+file+'' in directory
 be absolute or relative (we use ``\verb+fopen+'' from
 ``\verb+stdio+''). File inclusion may be recursive to the limit of the
 quantity of files that can be kept open simultaneously by the system.
+
+\item [Echo control: ] The directives \verb+__ECHO_ON__+,
+\verb+__ECHO_OFF__+ controls whether the lines read from input should
+be copied to the output. Usually one may be interested in copying some
+part of the input to the output in order to remember the parameters of
+the run. As implemented so far, this feature is recursive so that if
+included files (with the internal preprocessing, i.e. with the
+\verb+__INCLUDE__+ directive) will be also copied to the output, unless you
+enclose the \verb+__INCLUDE__+ line itself with a \verb+__ECHO_OFF__+,
+\verb+__ECHO_ON__+ pair. For instance
+
+\begin{verbatim}
+__ECHO_ON__
+global_options
+...             # more options here
+nsaverot 50
+viscosity 13.3333333333333
+weak_form 0
+...             # and here
+__END_HASH__
+
+nodes  2  2  3
+                # do not echo coordinates
+__ECHO_OFF__
+__INCLUDE__ stabi.nod.tmp
+__ECHO_ON__
+__END_NODES__
+...
+\end{verbatim}
+
 \end{description}
 
 \SSSection{Class internals} 
