@@ -37,7 +37,7 @@ extern int MY_RANK,SIZE;
 #undef __FUNC__
 #define __FUNC__ "int measure_performance_fun()"
 int measure_performance_fun(Mesh *mesh,arg_list argl,
-			Dofmap *dofmap,char *jobinfo,const TimeData
+			Dofmap *dofmap,const char *jobinfo,const TimeData
 			*time=NULL) {
   PetscPrintf(PETSC_COMM_WORLD,
 	      "----\n Measuring performance for jobinfo \"%s\"...\n",jobinfo);

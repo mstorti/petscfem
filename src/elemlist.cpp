@@ -109,7 +109,7 @@ int ElementIterator::operator!=(const ElementIterator &other) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int 
 NewElemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
-		     char *jobinfo,int myrank,
+		     const char *jobinfo,int myrank,
 		     int el_start,int el_last,int iter_mode,
 		     const TimeData *time_data) {
 

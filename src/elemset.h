@@ -107,7 +107,7 @@ public:
       @param iter_mode (input) include or not ghost elements
   */
   virtual int assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
-		       char *jobinfo,int myrank,
+		       const char *jobinfo,int myrank,
 		       int el_start,int el_last,int iter_mode,
 		       const TimeData *time_data) {
     
@@ -120,7 +120,7 @@ public:
       @param answer (output) 1 = process (0 = do not process) this
       elemset. 
   */ 
-  virtual int ask(char *jobinfo,int &skip_elemset) {
+  virtual int ask(const char *jobinfo,int &skip_elemset) {
 
     // By default process the elemset. 
     skip_elemset = 0;
@@ -218,7 +218,7 @@ public:
     external boundary conditions, etc...
     @return error code
 */
-int assemble(Mesh *mesh,arg_list argl,Dofmap *dofmap,char *jobinfo,
+int assemble(Mesh *mesh,arg_list argl,Dofmap *dofmap,const char *jobinfo,
 	     const TimeData *time_data=NULL);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -332,21 +332,18 @@ int int_cmp (const void *left,const void *right, void *args);
 int compute_this_elem(const int & iele,const Elemset *elemset,const int & myrank,
 		      int iter_mode);
 
-#define ELEMSET_CLASS(name) \
-class name : public Elemset { \
-public: \
-  int assemble(arg_data_list &arg_data_v,Nodedata *nodedata, \
-	       Dofmap *dofmap,char *jobinfo,int myrank, \
-	       int el_start,int el_last,int iter_mode); \
-}
-
 #define ASSEMBLE_FUNCTION \
   int assemble(arg_data_list &arg_data_v,Nodedata *nodedata, \
-	       Dofmap *dofmap,char *jobinfo,int myrank, \
+	       Dofmap *dofmap,const char *jobinfo,int myrank, \
 	       int el_start,int el_last,int iter_mode, \
 	       const TimeData *)
 
-#define ASK_FUNCTION int ask(char *jobinfo,int &answer)
+#define ELEMSET_CLASS(name) \
+class name : public Elemset { \
+public: ASSEMBLE_FUNCTION; \
+}
+
+#define ASK_FUNCTION int ask(const char *jobinfo,int &answer)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Loops many times executing assmble() with the same arguments and
@@ -363,7 +360,7 @@ public: \
     @return error code
 */ 
 int measure_performance_fun(Mesh *mesh,arg_list argl,
-			Dofmap *dofmap,char *jobinfo,const TimeData
+			Dofmap *dofmap,const char *jobinfo,const TimeData
 			*time_data=NULL);
 
 typedef void 
@@ -377,7 +374,7 @@ NewAssembleFunction(arg_data_list &arg_datav,const Nodedata *nodedata,const Dofm
 class NewElemset : public Elemset {
   /// This is the adaptor to the old assemble function.
   int assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
-	       char *jobinfo,int myrank,
+	       const char *jobinfo,int myrank,
 	       int el_start,int el_last,int iter_mode,
 	       const TimeData *time_data);
   /// The new assemble function
@@ -392,7 +389,7 @@ class NewElemset : public Elemset {
 #if 0
 #define NEW_ASSEMBLE_FUNCTION \
   int assemble(arg_data_list &arg_data_v,Nodedata *nodedata, \
-	       Dofmap *dofmap,char *jobinfo,int myrank, \
+	       Dofmap *dofmap,const char *jobinfo,int myrank, \
 	       int el_start,int el_last,int iter_mode, \
 	       const TimeData *)
 #endif

@@ -291,7 +291,7 @@ int vector_assoc_gather(vector<double> *vector_assoc,
 #undef __FUNC__
 #define __FUNC__ "int assemble(Mesh *,arg_list ,Dofmap *,char *)"
 int assemble(Mesh *mesh,arg_list argl,
-	     Dofmap *dofmap,char *jobinfo,const TimeData *time_data=NULL) {
+	     Dofmap *dofmap,const char *jobinfo,const TimeData *time_data=NULL) {
 
 #define ARGVJ (arg_data_v[j])
 
