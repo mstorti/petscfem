@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.18 2003/09/20 23:07:12 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2003/10/11 14:03:44 mstorti Exp $ 
 
 .PHONY: force all run tests data
+
+default: step
 
 tests: step step3d
 
@@ -24,13 +26,21 @@ LOC_PROG := ns
 CASE_NAME := $(NAME)
 PROG := $(NS)
 
+#w Deformation of cube with a axisymmetric ramp on one face
 step3d:
 	@$(MAKE) -C ../../tools hexasplit.bin >/dev/null
 	$(MAKE) NAME=step3d OCT_SCRIPT=mkstep3d.m test_case > step3d.out.tmp
 	$(OCTAVE) proc2.m > step3d.verif.tmp
 
+#w Deformation of square with a ramp on one side
 step:
 	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case > step.out.tmp
+	$(OCTAVE) proc.m > step.verif.tmp
+
+#w Check whether lockers are created correctly in adaptor
+locker:
+	$(MAKE) NAME=step case=locker OCT_SCRIPT=mkstep.m \
+		test_case > step-locker.out.tmp
 	$(OCTAVE) proc.m > step.verif.tmp
 
 mmove:

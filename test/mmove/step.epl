@@ -3,7 +3,8 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.9;
+get_var_env2('case',undef);
+$disp = ($case eq 'locker' ? 0.1 : 0.9);
 $slope = 2;
 # $shape = 'quad';
 #
@@ -16,7 +17,7 @@ ndim 2
 nsave 5
 nsaverot 0
 steady
-<:$nstep=40;:>
+<:$nstep= ($case eq 'locker' ? 2 : 40) ;:>
 nstep <:=$nstep+4:>
 Dt <:=1./$nstep:>
 
@@ -29,7 +30,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 1
+nnwt <:=($case eq 'locker' ? 5 : 1):>
 # newton_relaxation_factor 0.1 2 1.
 
 solver "iisd"
@@ -52,12 +53,19 @@ nodes  2 2 2
 __INCLUDE__ step.nod.tmp
 _END_NODES__
 
-elemset mesh_move 3
+elemset <:=($case eq 'locker' ? elasticity : mesh_move):> 3
 name malla
 # report_consumed_time
 geometry triangle
 npg 1
+#if $case eq 'locker'
+Young_modulus 1.
+Poisson_ratio 0.3
+local_store
+chunk_size 20
+#else
 distor_exp 1.
+#endif
 __END_HASH__
 __INCLUDE__ step.con.tmp
 __END_ELEMSET__
