@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: tree.h,v 1.1 2004/12/05 15:38:37 mstorti Exp $
+// $Id: tree.h,v 1.2 2004/12/26 00:41:00 mstorti Exp $
 #ifndef PETSCFEM_TREE_H
 #define PETSCFEM_TREE_H
 
@@ -13,7 +13,7 @@ class tree {
     friend class tree;
     friend class iterator;
     T t;
-    cell *right, *left_child;
+    cell *right, *left_child, *father;
     cell() : right(NULL), left_child(NULL) {}
   };
   cell *header;
@@ -36,23 +36,45 @@ class tree {
   class iterator {
   private:
     friend class tree;
-    cell *ptr,*prev,*father;
-    iterator(cell *p,cell *prev_a,cell *f_a) : ptr(p), 
-      prev(prev_a), father(f_a) { }
+    tree<T> *tree_p;
+    cell *ptr,*prev,*father_p;
+    iterator(cell *p,cell *prev_a,cell *father_a,tree<T> *t) : ptr(p), 
+      prev(prev_a), tree_p(t), father_p(father_a) { }
   public:
     iterator(const iterator &q) {
       ptr = q.ptr;
       prev = q.prev; 
-      father = q.father;
+      father_p =q.father_p;
+      tree_p = q.tree_p;
     }
     T &operator*() { return ptr->t; }
     T *operator->() { return &ptr->t; }
     bool operator!=(iterator q) { return ptr!=q.ptr; }
     bool operator==(iterator q) { return ptr==q.ptr; }
-    iterator() : ptr(NULL), prev(NULL), father(NULL) { }
+    iterator() : ptr(NULL), prev(NULL), 
+		 tree_p(NULL), father_p(NULL) { }
 
-    iterator lchild() { return iterator(ptr->left_child,NULL,ptr); }
-    iterator right() { return iterator(ptr->right,ptr,father); }
+    iterator lchild() { 
+      return iterator(ptr->left_child,
+		      NULL,ptr,tree_p); 
+    }
+    iterator right() { 
+      return iterator(ptr->right,ptr,
+		      father_p,tree_p); 
+    }
+    iterator father() { 
+      cell *father_p = ptr->father;
+      if (father_p == tree_p->header) return end();
+      cell *grand_father = father_p->father;
+      cell *father_prev = grand_father->left_child;
+      assert(father_prev);
+      if(father_prev == father_p) 
+	return iterator(father_p,NULL,grand_father,tree_p);
+      while (father_prev 
+	     && father_prev->right!=father_p)
+	father_prev = father_prev->right;
+      return iterator(father_p,father_prev,grand_father,tree_p);
+    }
 
     // Prefix:
     iterator operator++() {
@@ -72,6 +94,7 @@ class tree {
     cell_count_m++;
     header->right = NULL;
     header->left_child = NULL;
+    header->father = NULL;
   }
   tree<T>(const tree<T> &TT) { 
     if (&TT != this) {
@@ -79,6 +102,7 @@ class tree {
       cell_count_m++;
       header->right = NULL;
       header->left_child = NULL;
+      header->father = NULL;
       tree<T> &TTT = (tree<T> &) TT;
       if (TTT.begin()!=TTT.end()) 
 	tree_copy_aux(begin(),TTT,TTT.begin()); 
@@ -86,14 +110,15 @@ class tree {
   }
   ~tree() { clear(); delete header; cell_count_m--; }
   iterator insert(iterator p,T t) {
-    assert(!(p.father==header && p.ptr));
+    assert(!(p.ptr && p.ptr->father == header));
     cell *c = new cell;
     cell_count_m++;
     c->right = p.ptr;
     c->t = t;
+    c->father = p.father_p;
     p.ptr = c;
     if (p.prev) p.prev->right = c;
-    else p.father->left_child = c;	
+    else p.father_p->left_child = c;	
     return p;
   }
   iterator erase(iterator p) {
@@ -103,23 +128,24 @@ class tree {
     cell *q = p.ptr;
     p.ptr = p.ptr->right;
     if (p.prev) p.prev->right = p.ptr;
-    else p.father->left_child = p.ptr;
+    else p.father_p->left_child = p.ptr;
     delete q;
     cell_count_m--;
     return p;
   }
 
   iterator splice(iterator to,iterator from) {
-    assert(!(to.father==header && to.ptr));
+    assert(!(to.father_p==header && to.ptr));
     cell *c = from.ptr;
 
     if (from.prev) from.prev->right = c->right;
-    else from.father->left_child = c->right;
+    else from.father_p->left_child = c->right;
+    c->father = to.father_p;
 
     c->right = to.ptr;
     to.ptr = c;
     if (to.prev) to.prev->right = c;
-    else to.father->left_child = c;	
+    else to.father_p->left_child = c;	
 
     return to;
   }
@@ -135,7 +161,9 @@ class tree {
     return iterator();
   }
   void clear() { erase(begin()); }
-  iterator begin() { return iterator(header->left_child,NULL,header); }
+  iterator begin() { 
+    return iterator(header->left_child,NULL,header,this); 
+  }
   iterator end() { return iterator(); }
 
   //PP>if 0

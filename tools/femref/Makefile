@@ -17,7 +17,7 @@ all: $(scripts:pl=1) $(scripts:pl=txt)
 
 SRCS := femref.cpp femref2.cpp hasher.cpp myhash.cpp myhash2.cpp	\
 	myhash3.cpp myhash4.cpp myhash5.cpp gtemplates.cpp 		\
-	visitor.cpp combiner.cpp
+	visitor.cpp combiner.cpp trytree.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -27,7 +27,9 @@ include makefilec.d
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
-#w 
+trytree.bin: trytree.o
+	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
+
 femref.bin: femref.o femref2.o hasher.o md5r.o gtemplates.o \
 		visitor.o combiner.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)

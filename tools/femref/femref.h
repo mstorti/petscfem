@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.42 2004/12/25 03:45:38 mstorti Exp $
+// $Id: femref.h,v 1.43 2004/12/26 00:41:00 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -14,7 +14,7 @@
 extern MD5Hasher hasher;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Represents a geomtric object `outside' its container.
+/** Represents a geometric object `outside' its container.
     Basically, it represents a sequence of nodes and a 
     topological shape (template). */ 
 class GeomObject {
