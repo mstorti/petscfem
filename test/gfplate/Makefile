@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.22 2005/01/27 15:35:02 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2005/01/27 16:14:33 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runa2dn
+default: runc
 
-# BOPT := O_c++
+BOPT := O_c++
 SRCS = 
 # PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.40
 PETSCFEM_DIR = ../..
@@ -45,8 +45,13 @@ runa:
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
 dx_make_command:
-	cp STEPS/cylabso.state_$$dx_step.tmp ./cylabso.dx-state.tmp
-	@echo dx_step: $$dx_step
+	@state=STEPS/cylabso.state_$$dx_step.tmp ;	\
+	if [ -f $$state ] ; then			\
+		cp $$state ./cylabso.dx-state.tmp ;	\
+	else if [ -f $$state.gz ] ; then		\
+		gunzip -c $$state.gz >			\
+		./cylabso.dx-state.tmp ; fi ; fi ;	\
+	echo in target dx_make_command: dx_step: $$dx_step
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1
@@ -56,5 +61,11 @@ dx:
 link:
 	$(MAKE) -C ../../ $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
+
+zip:
+	for f in STEPS*/*.state*.tmp ;		\
+		do echo gzipping $$f ;		\
+		gzip $$f ;			\
+	done
 
 #s
