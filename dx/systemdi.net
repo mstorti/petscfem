@@ -1,5 +1,5 @@
 //
-// time: Fri Mar 28 16:31:21 2003
+// time: Fri Mar 28 16:56:46 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -7,18 +7,18 @@
 // Begin MDF
 // MODULE SystemDrivesImport2
 // CATEGORY Macros
-// INPUT n; value list or string; (no default);  
-// INPUT input_2; string; (make step=%d  dx_input);  
-// OUTPUT output_1; string;  
+// INPUT n; integer; (no default);  
+// INPUT command; string; (make step=%d  dx_input);  
+// OUTPUT step; integer;  
 // End MDF
-// workspace: width = 387, height = 305
+// workspace: width = 357, height = 291
 // layout: snap = 0, width = 50, height = 50, align = NN
 //
 macro SystemDrivesImport2(
  n
 ,input_2
 ) -> (
- output_1
+ step
 ) {
     // 
     // node Input[2]: x = 176, y = 39, inputs = 0, label = Input
@@ -41,20 +41,10 @@ SystemDrivesImport2_Format_1_out_1 =
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node Format[3]: x = 315, y = 144, inputs = 3, label = Format
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "/u/mstorti/PETSC/RUN_GERARDO/AHMED/DX/viewero_%d.dx"
+    // node Output[1]: x = 273, y = 226, inputs = 1, label = Output
+    // parameter: position = 1, name = 'step', value = '(NULL)', descriptive = 1, description = ' ', required = 0, visible = 1
     //
-SystemDrivesImport2_Format_3_out_1 = 
-    Format(
-    "/u/mstorti/PETSC/RUN_GERARDO/AHMED/DX/viewero_%d.dx",
-    SystemDrivesImport2_Input_1_out_1,
-    NULL
-    ) [instance: 3, cache: 1];
-    // 
-    // node Output[1]: x = 324, y = 243, inputs = 1, label = Output
-    // parameter: position = 1, name = 'output_1', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
-    //
-output_1 = SystemDrivesImport2_Format_3_out_1;
+step = SystemDrivesImport2_Input_1_out_1;
     // 
     // node System[1]: x = 158, y = 229, inputs = 1, label = System
     //
@@ -66,4 +56,3 @@ output_1 = SystemDrivesImport2_Format_3_out_1;
 SystemDrivesImport2_Input_2_out_1 = NULL;
 SystemDrivesImport2_Input_1_out_1 = NULL;
 SystemDrivesImport2_Format_1_out_1 = NULL;
-SystemDrivesImport2_Format_3_out_1 = NULL;
