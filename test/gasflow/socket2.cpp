@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.7 2003/02/03 22:36:29 mstorti Exp $
+// $Id: socket2.cpp,v 1.8 2003/02/08 23:08:52 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cmath>
 #include <HDR/sockets.h>
+#include <pthread.h>
 
 enum comm_mode { SEND, RECV };
 
@@ -46,7 +47,7 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
       qe = *lineptr+N;
       for (q = q0; q< qe; q++) *q = '\0';
       Sgets(q0,N-read_so_far,sock);
-      pprint(*lineptr,N);
+      // pprint(*lineptr,N);
       for (q = q0; q<qe; q++) if (*q == '\n') break;
       if (q<qe) break;
       read_so_far = N-2;
@@ -111,18 +112,53 @@ int talk(Socket *sock,comm_mode &mode) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Socket *SRVR, *srvr;
+int connected=0;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void *wait_connection(void *arg) {
+  srvr = Saccept(SRVR);
+  connected=1;
+  return NULL;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **args) {
   comm_mode mode;
-  Socket *SRVR=NULL, *srvr = NULL, *clnt = NULL;
+  Socket *clnt = NULL;
+  pthread_t *thread;
+  double inside=0., counter=0.;
+  int ierr;
   if(argc>1 && !strcmp(args[1],"-server")) {
     SRVR = Sopen("","s5555");
     assert(SRVR);
-    printf("Waiting connection...\n");
-    srvr = Saccept(SRVR);
-    assert(srvr);
-    mode = SEND;
-    while (!talk(srvr,mode));
-    Sclose(srvr);
+
+    while (1) {
+      printf("Waiting connection...\n");
+      connected=0;
+      ierr =  pthread_create(thread,NULL,&wait_connection,NULL);
+      int computed=0;
+      while (1) {
+	int chunk = 100;
+	for (int j=0; j<chunk; j++) {
+	  computed++;
+	  double x,y;
+	  x = drand();
+	  y = drand();
+	  counter += 1.0;
+	  if (x*x+y*y<1.) inside += 1.;
+	}
+	if (connected) break;
+      }
+      double cpi = 4.*inside/counter;
+      printf("computed %d, current pi %f, error %g\n",
+	     computed,cpi,fabs(cpi-M_PI));
+
+      mode = SEND;
+      while (!talk(srvr,mode));
+      Sclose(srvr);
+    }
+    
     Sclose(SRVR);
   } else {
     clnt = Sopen("","c5555");
