@@ -1,11 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.h,v 1.3 2001/08/21 23:16:57 mstorti Exp $
+// $Id: distmap2.h,v 1.4 2001/08/22 02:10:26 mstorti Exp $
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
 
 #include <vector>
-#include <algorithm>
+//#include <algorithm>
 
 #include <mpi.h>
 
@@ -114,6 +114,7 @@ processor(const ValueType &p,int &nproc,int *plist) const {
   return part->processor(p,nproc,plist);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
 int DistMap<Container,ValueType,Partitioner>::
 belongs(typename Container::const_iterator k,int *plist) const {
@@ -159,9 +160,9 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
   // Compute the table `to_send'
   for (iter = begin(); iter != end(); iter++) {
     processor(*iter,nproc,plist);
-    for (j=0; j<nproc; j++) {
-      SEND(myrank,plist[j]) += size_of_pack(*iter);
-    }
+    for (j=0; j<nproc; j++) 
+      if (plist[j]!=myrank)
+	SEND(myrank,plist[j]) += size_of_pack(*iter);
   }
   // do not send data to itself
   SEND(myrank,myrank)=0;
@@ -204,12 +205,16 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
     processor(*iter,nproc,plist);
     for (j=0; j<nproc; j++) {
       k = plist[j];
-      pack(*iter,send_buff_pos[k]);
+      if (k!=myrank) pack(*iter,send_buff_pos[k]);
     }
   }
 
   // Erase members that do not belong to this processor.
+  // This implementation may be very slow for non-linked containers. 
+
+  // predicate belongs() tells if the element remains here
 #if 1
+#if 0
   // Advance until find the first element that remains here
   while (1) {
     iter = begin();
@@ -217,18 +222,24 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
     erase(iter);
   }
   if (iter != end()) {
+    // This implementation is very careful with respect to not reusing
+    // iterators that have been deleted. (That may cause problems). 
+
+    // iter:= keeps on the last element that remains here
+    // next:= we compute `next' as `iter++' and check if belongs or
+    // not. The we remove it or advence iter. 
     while (1) {
       next = iter;
       next++;
-      if (next == end()) break;
+      if (next == end()) break; // Reaches container end
       if (belongs(next,plist)) {
-	iter = next;
+	iter = next;		// advance iterator
       } else {
-	erase(next);
+	erase(next);		// remove item
       }
     }
   }
-
+#endif
 #else
   iter = remove_if(begin(),end(),Belongs());
   erase(iter,end());
@@ -346,7 +357,7 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
 	      unpack(p,recv_buff_pos);
 	      combine(p);
 	    }
-	    // assert(recv_buff_pos == recv_buff_pos_end);
+	    assert(recv_buff_pos == recv_buff_pos_end);
 	  }
 	}
       }

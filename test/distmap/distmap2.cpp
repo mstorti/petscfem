@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.cpp,v 1.1 2001/08/21 02:10:07 mstorti Exp $
+// $Id: distmap2.cpp,v 1.2 2001/08/22 02:10:29 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -40,7 +40,7 @@ int wait_from_console(char *s=NULL) {
 }
 
 typedef map<int,double> Map;
-typedef pair<int,double> VT;
+typedef pair<int,double> VT; // ValueType
 
 class TrivialPartitioner {
 public:
@@ -78,10 +78,9 @@ pack(const VT &p,char *&buff) const {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DistMap<Map,VT,TrivialPartitioner>::
 unpack(VT &p,const char *& buff) {
-  // fixme:= I don't know I have to do this explicit cast
-  memcpy(&p.first,buff,sizeof(int));
+  memcpy(&p.first,buff,sizeof(int)); // debug:=
   buff += sizeof(int);
-  memcpy(&p.second,buff,sizeof(double));
+  memcpy(&p.second,buff,sizeof(double)); // debug:=
   buff += sizeof(double);
 }
 

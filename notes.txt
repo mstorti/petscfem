@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.71 2001/08/21 02:10:02 mstorti Exp $
+$Id: notes.txt,v 1.72 2001/08/22 02:10:21 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.71 2001/08/21 02:10:02 mstorti Exp $ 
+! # $Id: notes.txt,v 1.72 2001/08/22 02:10:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.71 2001/08/21 02:10:02 mstorti Exp $ 
+! # $Id: notes.txt,v 1.72 2001/08/22 02:10:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.71 2001/08/21 02:10:02 mstorti Exp $ 
+  # $Id: notes.txt,v 1.72 2001/08/22 02:10:21 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3758,7 +3758,16 @@ Branchear a partir de beta-2.02 si se quiere evitar el lio generado
 por esto. 
 %
 11:39:52: Fuerzo a que los perfiles sean simetricos, haciendo que en
-`compute_prof' se inserten `j,k' y `k,j'.  
+`compute_prof' se inserten `j,k' y `k,j'. 
+
+%===Tue Aug 21 22:08:28 ART 2001 mstorti@spider
+%
+Escribiendo la clase DistMap (distributed Container). Habia un error
+que ponia hacia pack tambien para mandarse a si mismo (myrank ->
+myrank). Entonces hay que poner:
+%
+      if (k!=myrank) pack(*iter,send_buff_pos[k]);
+ 
 
 %# Current line ===========  
 # Local Variables: $
