@@ -3295,6 +3295,11 @@ tag: beta-3.31.12 on Sat, 25 Sep 2004 06:38:26 -0300 by mstorti in spider
 tag: beta-3.31.13 on Sat, 25 Sep 2004 08:33:17 -0300 by mstorti in spider
      > Runs all tests with g_c++
 ----------
+tag: mpe-0.0.1 on Sat, 25 Sep 2004 20:20:42 -0300 by mstorti in spider
+     > Added all modifications for resolving the 
+     > 	problem of efficiency. 
+     > Also contains modifications to do some basic MPE logging. 
+----------
 tag: beta-3.32 on Sat, 25 Sep 2004 13:22:40 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Merged from hydro2-branch
