@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.14 2002/04/05 20:13:05 mstorti Exp $
+//$Id: fastmat2.h,v 1.15 2002/05/16 18:43:56 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -283,14 +283,12 @@ public:
   */ 
   int dim(const int jd) const;
 
-#if 0 // This is obsolete
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Sets one or two dimensions
+  /** Returns the number of indices
       @author M. Storti
-      @param (input)
-   */ 
-  void sd(const int i,const int j=0);
-#endif
+      @return the number of indices 
+  */ 
+  int n() const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Flags if matrix was already defined
@@ -588,6 +586,15 @@ public:
   FastMat2 & fun(scalar_fun_with_args_t *function,void *user_args);
   //@}
 
+  /** @name Miscellaneous utilities. */
+  //@{
+  /** Cross product of `a' and `b'. (all must be vectors of length 3).
+      @author M. Storti
+      @param a (input) first vector
+      @param b (input) second vector
+      @return a reference to the matrix.
+  */ 
+  FastMat2 & cross(const FastMat2 & a,const FastMat2 & b);
   /** Sets to the Levi-Civita density tensor. This is a third 
       order tensor $\epsilon_{ijk}$ ($3\times3\times3$) 
       such that $\epsilon_{ijk}$ is 1 if $ijk$ is 
@@ -606,7 +613,10 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & eye(const double a=1.);
+  //@}
 
+  /** @name Product and contraction operation. */
+  //@{
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Contraction operation. Contracts pairs of indices. (generalized trace). 
       @author M. Storti

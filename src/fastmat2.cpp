@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.9 2002/04/05 20:13:05 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.10 2002/05/16 18:43:56 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -658,6 +658,13 @@ int FastMat2::dim(const int jd) const {
   get_dims(fdims); 
   assert(jd<=fdims.size());
   return fdims[jd-1];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int FastMat2::n() const {
+  Indx fdims; 
+  get_dims(fdims); 
+  return fdims.size();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

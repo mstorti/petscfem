@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.11 2001/07/23 22:22:56 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.12 2002/05/16 18:43:56 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1372,6 +1372,72 @@ double FastMat2::detsur() {
 _//>
 
 //< print template_subst($detsur); //>//
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class cross_cache : public FastMatSubCache {
+public:
+  const double **a,**b;
+  double **c;
+  cross_cache() { a=b=NULL; c=NULL; }
+  ~cross_cache();
+};
+
+//<$cross=<<'//EOF';
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
+  __CACHE_OPERATIONS__;
+
+  // Cross product of vectors
+  cross_cache *ccache;
+  if (!was_cached) {
+    assert(a.defined);
+    assert(a.n()==1);
+    assert(a.dim(1)==3);
+    assert(b.defined);
+    assert(b.n()==1);
+    assert(b.dim(1)==3);
+    if (defined) {
+      assert(n()==1);
+      assert(dim(1)==3);
+    } else resize(1,3);
+    
+    ccache = new cross_cache();
+    ccache->a = new (const double *)[3];
+    ccache->b = new (const double *)[3];
+    ccache->c = new (double *)[3];
+
+    Indx indx(1,0);
+    for (int j=1; j<=3; j++) {
+      indx[0]=j;
+      ccache->a[j-1] = a.location(indx);
+      ccache->b[j-1] = b.location(indx);
+      ccache->c[j-1] = location(indx);
+    }
+    cache->sc = ccache;
+  }
+
+  ccache  = dynamic_cast<cross_cache *> (cache->sc);
+  const double **&aa = ccache->a;
+  const double **&bb = ccache->b;
+  double **&c = ccache->c;
+
+  *c[0] = *aa[1] * *bb[2] - *aa[2] * *bb[1];
+  *c[1] = *aa[2] * *bb[0] - *aa[0] * *bb[2];
+  *c[2] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
+
+  return *this;
+}
+//EOF
+_//>
+
+//< print template_subst($cross); //>//
+
+cross_cache::~cross_cache() {
+  delete[] a;
+  delete[] b;
+  delete[] c;
+}
+
 
 //<=$warn_dont_modify //>
 
