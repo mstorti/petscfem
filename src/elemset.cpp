@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.30 2001/11/01 19:19:27 mstorti Exp $
+//$Id: elemset.cpp,v 1.31 2001/11/13 12:55:07 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -737,6 +737,13 @@ void Elemset::print() {
   thash->print();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Elemset::weight() {
+  int ierr;
+  //o Element weight for the processor
+  TGETOPTDEF(thash,int,element_weight,1);
+  return element_weight;
+}  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -776,10 +783,12 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double NewElemset::prop_val(ElementIterator &element,Property &prop) const {
   return *prop_array(element,prop);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const double *NewElemset::prop_array(ElementIterator &element,
 				     Property &prop) const {
   if (prop.indx<0) {

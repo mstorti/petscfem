@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.17 2001/11/12 01:50:29 mstorti Exp $
+//$Id: elemset.h,v 1.18 2001/11/13 12:54:17 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -119,7 +119,7 @@ public:
   /** Returns the amount of work needed to process this element.
       @return the weight of the processor
   */ 
-  virtual double weight() {return 1.;}
+  virtual double weight();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Builds localized vectors (in node/field) representation of state
