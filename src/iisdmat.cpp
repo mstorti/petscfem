@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.43 2003/07/07 14:08:24 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.44 2003/07/07 21:15:26 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -22,6 +22,7 @@ extern int MY_RANK,SIZE;
 #include <src/graph.h>
 #include <src/distmap2.h>
 #include <src/distcont2.h>
+#include <src/monitor2.h>
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -30,7 +31,10 @@ enum PETScFEMErrors {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PFPETScMat::~PFPETScMat() {}
+PFPETScMat::~PFPETScMat() {
+  delete monitor;
+  monitor = NULL;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Adjacency graph classes
@@ -86,6 +90,9 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
       lgraph_lkg.set_chunk_size(compact_profile_graph_chunk_size);
     lgraph_lkg.init(MM);
   }
+  DefaultMonitor *dm = new DefaultMonitor;
+  dm->A = this;
+  monitor = dm;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -224,11 +231,12 @@ int IISDMat::clean_factor_a() {
 int PFPETScMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
   PFPETScMat *A = dynamic_cast<PFPETScMat *>((PFMat *)A_);
   assert(A);
-  return A->monitor(n,rnorm);
+  if (A->monitor) A->monitor->step(n,rnorm);
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::monitor"
 int PFPETScMat::monitor(int n,double rnorm) {
@@ -242,6 +250,7 @@ int PFPETScMat::monitor(int n,double rnorm) {
   }
   return 0;
 }
+#endif
 
 const int IISDMat::D=0;
 const int IISDMat::O=1;

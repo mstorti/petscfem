@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
+//$Id: pfmat.cpp,v 1.10 2003/07/07 21:15:26 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -85,8 +85,8 @@ void report_transition_event(const char *from, const char *event,
 #include "pfmatFSM.cpp"
 
 PFMat::PFMat() : ierr(0), 
-  print_fsm_transition_info(0), fsm(new pfmatFSM) { 
-  fsm->matrix_p = this; }
+  print_fsm_transition_info(0), fsm(new pfmatFSM),
+  monitor(NULL) { fsm->matrix_p = this; }
 
 PFMat::~PFMat() { delete fsm; }
 
