@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.24 2001/07/21 16:51:02 mstorti Exp $
+//$Id: readmesh.cpp,v 1.25 2001/07/25 03:28:22 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -16,14 +16,13 @@ extern "C" {
 #include <libretto/autostr.h>
 #include <libretto/autobuf.h>
 #include <regex.h>
-
 // STL components
 #include <set>
 #include <vector>
 #include <map>
 #include <algorithm>
 #include <cassert>
-
+#include <queue>
 #include "getprop.h"
 
 using namespace std;
@@ -43,7 +42,7 @@ using namespace std;
 #define __FUNC__ "read_mesh"
 int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      int & neq,int size,int myrank) {
-
+  queue<int> vecinos; 
   vector<Amplitude *> amplitude_list;
 
   char *p1,*p2, *token, *type, *bsp=" \t";
@@ -720,8 +719,23 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     printf("\n");
   }
 #endif
-
-  // wait_from_console("before partitioning"); 
+  // partflag = 0 -> METIS partition;
+  // partflag = 1 -> Hitchhiking partition;
+  // partflag = 2 -> Neighbor partition. 
+  // Set partition method
+  int partflag;
+  TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);
+  if (partitioning_method == string("metis")) {
+    partflag = 0;
+  } else if (partitioning_method == string("hitchhiking")) {
+    partflag = 1;
+  } else if (partitioning_method == string("nearest_neighbor")) {
+    partflag = 2;
+  } else {
+    PETSCFEM_ERROR("partitioning method not known \"%s\"\n",
+		   partitioning_method.c_str());
+  }
+  //wait_from_console("before partitioning"); 
   PetscPrintf(PETSC_COMM_WORLD,"Starts partitioning.\n"); 
 
 #define USE_METIS_PARTITION
@@ -738,71 +752,171 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   { // This artificial block is in order to adjncy be deleted.
     vector<int> adjncy;
     int *xadj = new int[nelemfat+1];
-
-    // mark:= auxiliary vector that flags if an element has been marked
-    // already as a linked node in the graph
-    int *mark = new int[nelemfat];
-    for (int ielgj=0; ielgj<nelemfat; ielgj++) 
+    if (partflag==0 || partflag==2){
+      // mark:= auxiliary vector that flags if an element has been marked
+      // already as a linked node in the graph
+      int *mark = new int[nelemfat];
+      //wait_from_console("antes de crear las adyacencias");
+      for (int ielgj=0; ielgj<nelemfat; ielgj++) 
       mark[ielgj]=-1;
 
     // Define graph descriptors 
-    xadj[0]=0;
-    for (int ielset=0; ielset<nelemsets; ielset++) {
-      elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
-      icone = elemset->icone;
-      nel = elemset->nel;
-      for (int iel=0; iel<elemset->nelem; iel++) {
-	int ielgj = nelemsetptr[ielset]+iel;
-
-	xadj[ielgj+1]=xadj[ielgj];
-	// loop over the connected nodes
-	for (int iloc=0; iloc<elemset->nel; iloc++) {
-	  node = ICONE(iel,iloc);
+      xadj[0]=0;
+      for (int ielset=0; ielset<nelemsets; ielset++) {
+	elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
+	//if (myrank==0) printf("elemento: %d, conec: %d\n",ielset,elemset);
+	icone = elemset->icone;
+	nel = elemset->nel;
+	for (int iel=0; iel<elemset->nelem; iel++) {
+	  int ielgj = nelemsetptr[ielset]+iel;
+	  xadj[ielgj+1]=xadj[ielgj];
+	  // loop over the connected nodes
+	  for (int iloc=0; iloc<elemset->nel; iloc++) {
+	    node = ICONE(iel,iloc);
 	
-	  // loop over all the elements connected to this node
-	  for (int jj=n2eptr[node-1];
-	       jj<n2eptr[node]; jj++) {
-	    int ielgjj = node2elem[jj];
-	    if (ielgjj==ielgj) continue;
+	    // loop over all the elements connected to this node
+	    for (int jj=n2eptr[node-1];
+		 jj<n2eptr[node]; jj++) {
+	      int ielgjj = node2elem[jj];
+	      if (ielgjj==ielgj) continue;
 
-	    // check if the element has been already loaded
-	    if (mark[ielgjj]!=ielgj) {
-	      adjncy.push_back(ielgjj);
-	      mark[ielgjj]=ielgj;
-	      xadj[ielgj+1]++;
-	      // printf("adding %d %d\n",ielgj,ielgjj);
+	      // check if the element has been already loaded
+	      if (mark[ielgjj]!=ielgj) {
+		mark[ielgjj]=ielgj;
+		xadj[ielgj+1]++;
+		// printf("adding %d %d\n",ielgj,ielgjj);
+	      }
 	    }
 	  }
 	}
       }
-    }
+      // una vez que lei la dimension que tendra adjncy lo creo      
+      int adycont=0;
+      int *adjncy = new int[xadj[nelemfat]];
+      for (int ielgj=0; ielgj<nelemfat; ielgj++) 
+      mark[ielgj]=-1;
+    // Define graph descriptors 
+      xadj[0]=0;
+      for (int ielset=0; ielset<nelemsets; ielset++) {
+	elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
+	icone = elemset->icone;
+	nel = elemset->nel;
+	for (int iel=0; iel<elemset->nelem; iel++) {
+	  int ielgj = nelemsetptr[ielset]+iel;
+	  //if (iel % 25000 == 0) {
+	  //PetscPrintf(PETSC_COMM_WORLD,"iel= %d\n",iel);
+	  //wait_from_console("");
+	  //}
+	  xadj[ielgj+1]=xadj[ielgj];
+	  // loop over the connected nodes
+	  for (int iloc=0; iloc<elemset->nel; iloc++) {
+	    node = ICONE(iel,iloc);
+	
+	    // loop over all the elements connected to this node
+	    for (int jj=n2eptr[node-1];
+		 jj<n2eptr[node]; jj++) {
+	      int ielgjj = node2elem[jj];
+	      if (ielgjj==ielgj) continue;
+
+	      // check if the element has been already loaded
+	      if (mark[ielgjj]!=ielgj) {
+		adjncy[adycont]=ielgjj;
+		mark[ielgjj]=ielgj;
+		xadj[ielgj+1]++;
+		adycont++;
+	      }
+	    }
+	  }
+	}
+      }
+      //wait_from_console("despues de crear las adyacencias");
+      delete[] mark;
 
 #if 0
-    // print the graph
-    for (int ielgj=0; ielgj<nelemfat; ielgj++) {
-      printf("%d: ",ielgj);
-      for (int jj=xadj[ielgj]; jj<xadj[ielgj+1]; jj++) 
-	printf(" %d",adjncy[jj]);
-      printf("\n");
-    }
+      // print the graph
+      for (int ielgj=0; ielgj<nelemfat; ielgj++) {
+	printf("%d: ",ielgj);
+	for (int jj=xadj[ielgj]; jj<xadj[ielgj+1]; jj++) 
+	  printf(" %d",adjncy[jj]);
+	printf("\n");
+      }
 #endif
 
-    int options=0,edgecut,numflag=0,wgtflag=0;
-  
-    if (size>1) {
-      METIS_WPartGraphKway(&nelemfat,xadj,adjncy.begin(),NULL, 
-			   NULL,&wgtflag,&numflag,&size, 
-			   tpwgts,&options,&edgecut,vpart);
+      int options=0,edgecut,numflag=0,wgtflag=0;
+      if (size>1) {
+	if (partflag==0) {
+	  if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
+	  METIS_WPartGraphKway(&nelemfat,xadj,adjncy,NULL, 
+			       NULL,&wgtflag,&numflag,&size, 
+			       tpwgts,&options,&edgecut,vpart);
+	  //	  wait_from_console("salida de MEtis");
+	} else { // partflag=2
+	  if (myrank==0) printf("Neighbor Partition - partflag = %d\n",partflag);
+	    int *mnnel = new int [size+1];
+	  for (int nnod=0; nnod<size; nnod++) {
+	    mnnel[0]=0;
+	    mnnel[nnod+1] = mnnel[nnod]+int(nelemfat*tpwgts[nnod]);
+	    if (mnnel[size] < nelemfat) mnnel[size] = nelemfat;
+	  }
+	  // hago una busqueda de vecinos por capas en adjncy y marco los
+	  // elementos (nodos del grafo) a los que le asigne una particion
+	  for (int imar=0; imar < nelemfat; imar++) {
+	    vpart[imar]=0;
+	  }
+	  vecinos.push(0);
+	  int counter=0;
+	  int inod=1;
+	  while (vecinos.size()>0) {
+	    int nods=vecinos.front();
+	    vecinos.pop();
+	    for (int vecnod_c=xadj[nods]; vecnod_c<xadj[nods+1];
+		 vecnod_c++) {
+	      int vecnod = adjncy[vecnod_c];
+	      if (vecnod==nods) continue;
+	      if (vpart[vecnod]!=0) continue;
+	      vecinos.push(vecnod);
+	      vpart[vecnod]=inod; 
+	    }
+	    ++counter;
+	    if (counter>mnnel[inod]) inod++;
+	    vpart[nods]=inod;
+	  }
+	  for (int cnod=0; cnod<nelemfat; cnod++) {
+	    vpart[cnod]=vpart[cnod]-1;
+	  }
+	}
+	// length(vpart) = number of nelemfat in the graph
+      } else {
+	for (int jj=0; jj<nelemfat; jj++) 
+	  vpart[jj]=0;
+      }
+      delete[] adjncy;
     } else {
-      for (int jj=0; jj<nelemfat; jj++) 
-	vpart[jj]=0;
+      int *mnel = new int[size+1];
+      if (size>1) {
+	if (myrank==0) printf("Hitchicking partition, partflag = %d\n",partflag);
+	for (int nproc=0; nproc < size; nproc++) {
+	  mnel[0] = 0;
+	  mnel[nproc+1] = mnel[nproc]+int(nelemfat*tpwgts[nproc]);
+	  if (mnel[size] < nelemfat) mnel[size] = nelemfat-1;
+	  for (int jelem=mnel[nproc]; jelem < mnel[nproc+1]+1; jelem++) { 
+	    vpart[jelem]=nproc;
+	  }
+	}
+      } else {
+	for (int jjy=0; jjy<nelemfat; jjy++) 
+	  vpart[jjy]=0;
+      }	
     }
-
-    // wait_from_console("antes de borrar cosas para part.");  
+#if 0
+    for (int jm=0; jm < nelemfat; jm++) {
+      if (myrank==0) printf("vpart[%d]= %d\n",jm,vpart[jm]);
+    }
+#endif
+    // wait_from_console("antes de borrar cosas para part.");
+    assert(vecinos.empty());
     delete[] xadj;
-    VOID_IT(adjncy);
-    // adjncy.~vector();
-    delete[] mark;
+    //wait_from_console("despues de particionar");
     // delete[] tpwgts; // don't delete, keep it in dofmap
     // wait_from_console("despues de borrar cosas para part.");  
   }
@@ -883,10 +997,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     PetscPrintf(PETSC_COMM_WORLD,"warning! there is at least one"
 		" node not linked to any fat elemset. \n"
 		"This induces artificial numbering\n");
-  
-  // define the eparts of each fat elemset as the corresponding part
-  // of vpart. 
+
+  //o Prints element partitioning. 
   GETOPTDEF(int,debug_element_partitioning,0);
+
+  // Define the eparts of each fat elemset as the corresponding part
+  // of vpart. 
   for (int ielset=0; ielset<nelemsets; ielset++) {
     elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
     if (!elemset->isfat) continue;
@@ -898,8 +1014,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     }
     if (debug_element_partitioning) {
       PetscPrintf(PETSC_COMM_WORLD,
-		  "Element \"%s\", type \"%s\", nelem %d\n."
-		  "Partitioning table: \n");
+		  "Elemset \"%s\", type \"%s\", nelem %d\n."
+		  "Partitioning table: \n",elemset->name,elemset->type,nelem);
       for (int kk=0; kk<nelem; kk++) 
 	PetscPrintf(PETSC_COMM_WORLD,"%d -> %d\n",kk,epart[kk]);
     }
@@ -1152,7 +1268,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     //o Defines a ``locker'' for each element
     TGETOPTDEF(elemset->thash,int,local_store,0);
     if (local_store) {
-      elemset->local_store = new (void *)[elemset->nelem];
+      elemset->local_store = new (void *)[elemset->nelem_here];
       for (int j=0; j<elemset->nelem_here; j++) {
 	elemset->local_store[j]=NULL;
       }
@@ -1373,5 +1489,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   astr_destroy(linecopy);
  
   return 0;
-
 }
+
+
+
+

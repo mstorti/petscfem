@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2001/07/24 01:19:09 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/07/25 03:28:25 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -15,6 +15,9 @@ test_iisd:
 	$(MAKE) NP=1 case=lu case_size=small test_case_poiseuille
 	mv -f save.state save.state.lu.tmp
 	octave -q check_iisd.m > check_iisd.verif.tmp
+
+test_partitioning: 
+	$(MAKE) NP=1  test_case_metis_part
 
 all: test_case_poiseuille
 dat: test_case_poiseuille_data
@@ -46,7 +49,7 @@ endif
 test_case_%: test_case_%_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl > output.case_$*.tmp
+			-case $(NAME).depl #> output.case_$*.tmp
 #			-case $(NAME).depl 
 #			-case $(NAME).depl | tee output.case_$*.tmp
 

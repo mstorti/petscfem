@@ -4,6 +4,7 @@
 # `octave-export_vars()' is not available. 
 require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
 #
+#$case = $ENV{'case'};
 $L = 1;                         # Semi distance between plates
 $N = 4;                        # Number of elements in transversal 'x' direction
 $hratio = 1;                    # refinement near the wall
@@ -15,18 +16,29 @@ $Ly = 1;                        # longitudinal length
 $Re = 10000;                        # laminar Re
 $Uav = 1;                       # 
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
-$case_size = $ENV{'case_size'};
+$part_case = ($case =~ /^(.*)_part$/);
+$part_method = $1;
+$case_size = "medium" if $part_case;
+$case_size = $ENV{'case_size'} unless $case_size;
 if ($case_size eq 'small') {
-$N = 4;                        # Number of elements in transversal 'x' direction
-$Ny = 2;                       # Number of elements in y dir
+$N = 4;                         # Number of elements in transversal 'x' direction
+$Ny = 2;                        # Number of elements in y dir
 $Ny_eq = 1;                     # last elements that are equal in size
+                                # in the y direction
+$Ly = 1;                        # longitudinal length 
+} elsif ($case_size eq 'medium') {
+$N = 16;                        # Number of elements in transversal 'x' direction
+$Ny = 8;                        # Number of elements in y dir
+$Ny_eq = 2;                     # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
 }
 octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
     L Ly Ny_eq Uav ));
-$case = $ENV{'case'};
 :>//                            # ends ePerl block
+
+#case <:=$case:>
+#part_case <:=$part_case:>
 
 #default definitions
 #===========================================================
@@ -49,6 +61,11 @@ alpha 1.
 #if $case_size eq 'small'
 nstep 2
 nnwt 2
+#elsif $part_case
+nstep 1
+nnwt 1
+partitioning_method "<:=$part_method:>"
+debug_element_partitioning
 #else
 nstep 200
 nnwt 3
@@ -70,7 +87,11 @@ maxits 1
 preco_type "jacobi"
 rtol 1e-4
 atol 1e-10
+#if ! $part_case
 maxits 10
+#else 
+maxits 1
+#endif
 #endif
 Dt 1
 steady
