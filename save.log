@@ -2612,3 +2612,7 @@ tag: beta-3.18.pl61 on Thu,  3 Apr 2003 14:10:25 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.18.pl62 on Thu,  3 Apr 2003 18:37:47 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs example with filtering.
+----------
+tag: beta-3.18.pl63 on Fri,  4 Apr 2003 07:22:16 -0300 by mstorti in spider
+     > Runs example with stable FS at Dt=0.1 with high filtering and at
+     > Dt=0.02 with low filtering.
