@@ -1522,3 +1522,6 @@ tag: beta-3.03.pl12 on Sat, 31 Aug 2002 16:39:38 -0300 by mstorti in spider
 tag: beta-3.03.pl13 on Sat, 31 Aug 2002 16:40:36 -0300 by mstorti in spider
      > After the modificiation for efficiently return matrices (only
      > masked values). Not completed!!
+----------
+tag: beta-3.03.pl14 on Sat, 31 Aug 2002 17:15:12 -0300 by mstorti in spider
+     > `fstack' now accepts quotes in names in includes (e.g. __INCLUDE__ "name")
