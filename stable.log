@@ -185,3 +185,6 @@ tag: beta-2.96 on Sun May  5 19:03:31 GMT+3 2002, by mstorti in spider
 tag: beta-3.01 on Thu Jul 25 19:36:18 -0300 2002, by mstorti in minerva.arcride.edu.ar
      > Runs all tests but those in the `aquifer' directory. 
      > Also doesn't give the correct value for the oscplate1 test. 
+----------
+tag: beta-3.03 on Sun Aug 18 20:40:26 GMT+3 2002, by mstorti in spider
+     > Runs all tests.
