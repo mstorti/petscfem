@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.55 2001/11/20 02:28:59 mstorti Exp $
+//$Id: lusubd.cpp,v 1.56 2001/11/20 02:58:34 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -330,6 +330,9 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       pos = nodep->next;
     }
   }
+
+  // deallocate Libretto dynamic darray
+  da_destroy(da);
 
 #if 0
   // Prints d_nnz, o_nnz for block LL, IL, IL and II in turn
