@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.20 2003/02/15 02:29:39 mstorti Exp $
+//$Id: dxhook.cpp,v 1.21 2003/02/15 15:49:56 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -341,7 +341,6 @@ time_step_post(double time,int step,
 	int size=1;
 	for (int jd=0; jd<rank.size(); jd++) size *= rank[jd];
 	vector<double> in(ndof),out(size);
-	printf("sending \"state %s %d %d %d\"\n",name.c_str(),size,nnod,cookie);
 	Sprintf(srvr,"state %s %d %d %d\n",name.c_str(),size,nnod,cookie);
 	for (int j=0; j<nnod; j++) {
 	  double *base_node = state_p+j*ndof;
@@ -369,6 +368,12 @@ time_step_post(double time,int step,
     e->dx(srvr,nodedata,state_p);
   }
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Send signal for automatically pairing connections and fields
+  cookie = rand();
+  Sprintf(srvr,"fields_auto %d\n",cookie);
+  CHECK_COOKIE(fields_auto);
+    
   // Send termination signal
   if (!MY_RANK) {
     Sprintf(srvr,"end\n");

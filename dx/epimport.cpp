@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.4 2003/02/15 02:29:39 mstorti Exp $
+// $Id: epimport.cpp,v 1.5 2003/02/15 15:49:52 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -225,6 +225,31 @@ Error build_dx_array_int(Socket *clnt,int shape,int size, Array &array) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class AutoString {
+private:
+  char *s;
+  int n;
+public:
+  AutoString() : s(NULL) {}
+  ~AutoString() { free(s); }
+  char *str() const { return s; }
+  int *N() { return &n; }
+  void resize(int m) { 
+    if (m>n) {
+      char *new_s = (char *)malloc(m);
+      if (n>0) {
+	strcpy(new_s,s);
+	free(s);
+      }
+      n=m;
+    }
+  }
+  void clear() {
+    if (n>0) { n=0; free(s); }
+  }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
     nelem,nel,cookie;
@@ -238,7 +263,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   vector<string> tokens;
   string name; 
   DXObjectsTable dx_objects_table;
-  DXObjectsTable::iterator q, qe=dx_objects_table.end();
+  DXObjectsTable::iterator q,r,qe;
   Array array = NULL;
   Error ierr;
   char spc[] = " \t\n";
@@ -346,7 +371,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
       Sprintf(clnt,"nodes_OK %d\n",cookie);
-    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
       name = tokens[1];
       if (string2int(tokens[2],ndof)) goto error;
@@ -359,7 +384,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       DXMessage("Got new \"State\" name %s, ptr %p, ndof %d, nnod %d",
 		name.c_str(),array,ndof,nnod);
       Sprintf(clnt,"state_OK %d\n",cookie);
-    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
       DXMessage("Got line %s",buf);
       string &name = tokens[1];
@@ -379,7 +404,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
 		name.c_str(),array,nel,nelem);
       Sprintf(clnt,"elemset_OK %d\n",cookie);
-    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="field") {
       // Get components 
       Object positions,connections,data;
@@ -412,6 +437,52 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));
       if(ierr!=OK) return ierr;
 
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    } else if (tokens[0]=="fields_auto") {
+
+      if (string2int(tokens[1],cookie)) goto error;
+      DXMessage("Got \"fields_auto\" directive, cookie %d",cookie);
+
+      Object positions,connections,data;
+      string p("nodes");
+      ierr = dx_objects_table.get_positions(p,positions);
+      if(ierr!=OK) return ierr;
+
+      qe=dx_objects_table.end();
+      for (q=dx_objects_table.begin(); q!=qe; q++) {
+	Elemset *elemset = dynamic_cast<Elemset *>(q->second);
+	if (!elemset) continue;
+	Object connections = elemset->dx_object();
+	for (r=dx_objects_table.begin(); r!=qe; r++) {
+	  State *state = dynamic_cast<State *>(r->second);
+	  if (!state) continue;
+	  Object data = state->dx_object();
+
+	  Field field = DXNewField();
+	  if (!field) goto error;
+	  field = DXSetComponentValue(field,"positions",(Object)positions); 
+	  if (!field) goto error;
+	  field = DXSetComponentValue(field,"connections",connections); 
+	  if (!field) goto error;
+	  field = DXSetComponentValue(field,"data",data); 
+	  if (!field) goto error;
+
+	  field = DXEndField(field); if (!field) goto error;
+
+	  // Load new field in table
+	  string n("nodes");
+	  string cname(q->first);
+	  string dname(r->first);
+	  DXField *dxf = new DXField(n,cname,dname,field);
+	  string fname = cname + "_" + dname;
+	  DXMessage("Creating field %s",fname.c_str());
+	  ierr = dx_objects_table.load_new(fname,dxf);
+	  if(ierr!=OK) return ierr;
+	}
+      }      
+
+      Sprintf(clnt,"fields_auto_OK %d\n",cookie);
+
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else {
       DXSetError(ERROR_INTERNAL,
@@ -425,6 +496,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   flist = DXNewGroup();
   if (!flist) goto error;
 
+  qe = dx_objects_table.end();
   for (q=dx_objects_table.begin(); q!=qe; q++) {
     DXField *field = dynamic_cast<DXField *>(q->second);
     Object o;

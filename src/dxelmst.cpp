@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxelmst.cpp,v 1.2 2003/02/12 00:36:27 mstorti Exp $
+//$Id: dxelmst.cpp,v 1.3 2003/02/15 15:49:55 mstorti Exp $
 
 #ifdef USE_DX
 #include <vector>
@@ -53,8 +53,8 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
     }
     CHECK_COOKIE(elemset);
     cookie = rand();
-    Sprintf(sock,"field %s_field nodes %s state %d\n",name(),name(),cookie);
-    CHECK_COOKIE(field);
+//      Sprintf(sock,"field %s_field nodes %s state %d\n",name(),name(),cookie);
+//      CHECK_COOKIE(field);
   }
 }
 
