@@ -331,22 +331,41 @@ to an estimation of a total time of
 %
 Then, it is significantly better than the previous algorithm. 
 
+%\begin{latexonly}
+\begin{figure*}[htb]
+%\begin{algorithm}[htb]
+\label{al:exch}
+\caption{Scheduling algorithm for exchanging data between processors}
+\begin{algorithmic}
+\STATE {\textbf{procedure exchange}(j)}
+  \IF{{\tt myrank}$>j$}
+    \STATE send to $j$
+    \STATE receive from $j$
+  \ELSE
+    \STATE receive from $j$
+    \STATE send to $j$
+  \ENDIF
+\end{algorithmic}
+%\end{algorithm}
+\end{figure*}
+%\end{latexonly}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-% \begin{algorithm}[htb]
-% \label{al:exch}
+
+
+% \begin{htmlonly}
 % \caption{Scheduling algorithm for exchanging data between processors}
-% \begin{algorithmic}
-% \STATE {\textbf{procedure exchange}(j)}
-%   \IF{{\tt myrank}$>j$}
-%     \STATE send to $j$
-%     \STATE receive from $j$
-%   \ELSE
-%     \STATE receive from $j$
-%     \STATE send to $j$
-%   \ENDIF
-% \end{algorithmic}
-% \end{algorithm}
-%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+% \begin{verbatim}
+% procedure exchange(int j) [
+%   if (myrank > j) {
+%     send to j;
+%     receive from j;
+%   } else {
+%     receive from j;
+%     send to j;
+%   }
+% }
+% \end{verbatim}
+% \end{htmlonly}
  
 % Local Variables: *
 % mode: latex *
