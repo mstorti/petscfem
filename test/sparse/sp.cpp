@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.4 2001/09/21 16:54:35 mstorti Exp $
+// $Id: sp.cpp,v 1.5 2001/09/21 19:25:58 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -28,8 +28,8 @@ int main() {
   int j,k,m;
 
   Vec v(5),w(4),u;
-  Mat a;
-  Indx I(14,17),J(8,14,2);
+  Mat a,b;
+  Indx I(14,17),J(8,14,2),K(0,4,2);
 
   v.set(2,1.).set(3,2.).print("set values ...  ");
   v.set(10,10.).set(11,11.).print("set at 10 11 ...  ");
@@ -68,5 +68,11 @@ int main() {
   for (j=3; j<5; j++) 
     a.setc(j,u);
   a.print("cols 3 4 set to u: ");
+
+  u.set(a,3).print("u = 3rd row of a\n");
+  u.setc(a,3).print("u = 3rd col of a\n");
+
+  a.getr(K,b);
+  b.print("rows 0 2 4 of a");
 
 }

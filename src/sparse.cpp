@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.8 2001/09/21 16:54:32 mstorti Exp $
+//$Id: sparse.cpp,v 1.9 2001/09/21 19:25:55 mstorti Exp $
 
 #include "sparse.h"
 
@@ -341,6 +341,50 @@ namespace Sparse {
     return *this;
   }
 
+  Vec & Vec::setc(const Mat &a,int j) {
+    RowCIt r,e;
+
+    assert (j < a.ncols ) ;
+
+    clear();
+    resize(a.ncols);
+    // Clear the column
+    e = a.end();
+    for (r = a.begin(); r!=e; r++) 
+      set(r->first,r->second.get(j));
+    return *this;
+  }
+
+  void Mat::getr(int j,Vec & v) const {
+    RowCIt it;
+    v.clear();
+    it = find(j);
+    if (it!=end()) 
+      v.copy(it->second).resize(ncols);
+  }
+
+  Vec & Vec::set(const Mat & a,int j) {
+    RowCIt it;
+    clear();
+    it = a.find(j);
+    if (it!=a.end()) 
+      copy(it->second).resize(a.ncols);
+    return *this;
+  }
+
+  void Mat::getr(Indx J,Mat & a) const {
+    int j,m,p;
+    Vec row;
+
+    m = J.size();
+    a.clear().resize(m,ncols);
+    for (j=0; j<m; j++) {
+      p = J[j];
+      assert(p<nrows);
+      getr(p,row);
+      a.setr(j,row);
+    }
+  }
 }
 
 /*

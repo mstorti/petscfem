@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.7 2001/09/21 19:06:22 mstorti Exp $
+// $Id: sparse.h,v 1.8 2001/09/21 19:25:55 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -22,6 +22,8 @@ namespace Sparse {
   typedef map<int,double>::iterator VecIt;
   typedef map<int,double>::const_iterator VecCIt;
   typedef pair<int,double> VecP;
+
+  class Mat;
       
   /// A simple sparse vector class (0 indexed). 
   class Vec : public map<int,double> {
@@ -57,6 +59,10 @@ namespace Sparse {
     Vec & set(const Vec & v,const Indx & I);
     /// Set vector elements at I to elements f of v at position J. w[I] = v[J]
     Vec & set(const Indx & I,const Vec & v,const Indx & K);
+    /// Set to row of a matrix
+    Vec & set(const Mat & a,int j);
+    /// Set vector to k-th column of matrix a. w = a(:,k)
+    Vec & setc(const Mat &a,int k);
 
     /// Scale elements 
     Vec & scale(double c);
@@ -89,16 +95,6 @@ namespace Sparse {
   typedef pair<int,Vec> RowP;
   typedef pair<const int,Vec> RowCP;
 
-#if 0
-  class IntTrunc {
-  private:
-    int bound;
-  public:
-    IntTrunc(int b) : bound(b) {};
-    int operator()(pair<int,Vec> j) { return j.first >= bound;}
-  };
-#endif
-
     // Simple sparse matrix class. 
   class Mat : public map< int, Vec >  {
 
@@ -107,6 +103,8 @@ namespace Sparse {
     /// Flag indicating where you can add values past the specified dimensions 
     int grow_m; 
   public:
+    friend class Vec;
+
     /// Constructor from the length
     Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n) {};
     /// Return row dimension
