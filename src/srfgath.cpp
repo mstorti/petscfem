@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.12 2004/01/30 03:44:29 mstorti Exp $
+//$Id: srfgath.cpp,v 1.13 2004/02/06 21:37:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -261,7 +261,9 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nvalues = values->size();
   // check that we don't put values beyond the end of global vector
   // `values'
-  assert(gather_pos + gather_length <= nvalues); 
+  PETSCFEM_ASSERT(gather_pos + gather_length <= nvalues,
+		  "gather_pos %d, gather_length %d, nvalues %d, ",
+		  gather_pos, gather_length, nvalues);  
 
   FastMat2 xloc(2,nel,ndim);
 
@@ -487,13 +489,14 @@ void SurfGatherer::handle_error(int error) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int field_surf_integrator::vals_per_plane() { return ndof; }
+int field_surf_integrator::vals_per_plane() { return ndof+1; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void field_surf_integrator
 ::set_ip_values(vector<double> &ip_values,FastMat2 &u,
 		FastMat2 &xpg,FastMat2 &n,double time) {
-  for (int j=0; j<ndof; j++) ip_values[j] = u.get(j+1);
+  ip_values[0] = 1.0;
+  for (int j=1; j<=ndof; j++) ip_values[j] = u.get(j);
 }
 
 #undef SHAPE    

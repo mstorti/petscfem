@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.14 2003/11/10 21:30:10 mstorti Exp $
+//$Id: blessf.cpp,v 1.15 2004/02/06 21:37:16 mstorti Exp $
 
 #include <set>
 
@@ -34,6 +34,9 @@
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
 void bless_elemset(char *type,Elemset *& elemset) {
+  elemset=NULL;
+  bless_elemset0(type,elemset);
+  if (elemset) return;
     // General linear advective-diffusive system
     SET_ELEMSET_TYPE(advdif_advecfm2)
     SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
