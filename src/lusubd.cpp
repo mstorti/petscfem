@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.37 2001/08/18 01:12:11 mstorti Exp $
+//$Id: lusubd.cpp,v 1.38 2001/08/18 14:08:24 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -643,12 +643,12 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = SLESGetKSP(sles_ll,&ksp_ll); CHKERRQ(ierr); 
     ierr = SLESGetPC(sles_ll,&pc_ll); CHKERRQ(ierr); 
 
-    ierr = KSPSetType(ksp_ll,KSPGMRES); CHKERRQ(ierr); 
-
-    ierr = KSPSetTolerances(ksp_ll,0,0,1e10,1); CHKERRQ(ierr); 
-
+    ierr = KSPSetType(ksp,KSPPREONLY); CHKERRQ(ierr);
+    
+    double pc_lu_fill=8.;
     ierr = PCSetType(pc_ll,PCLU); CHKERRQ(ierr); 
-    ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
+    ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
+    ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr);
 
 #if 0 // To print the Schur matrix by columns
     for (int kk=1; kk<=2; kk++) {
