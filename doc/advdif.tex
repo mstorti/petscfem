@@ -326,7 +326,153 @@ and the trapezoidal discretization is
              f(u^{n+\alpha},t^{n+\alpha})
 \end{equation}
 
+\index{load element}
+\index{film element}
+\SSection{Generic surface load element/film coefficient}
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/genloadsl.eps}}
+\caption{Constant surface heat load on a surface}
+\label{fg:genloadsl}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/genloaddl.eps}}
+\caption{$\Delta T$ driven surface heat load on a surface}
+\label{fg:genloaddl}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+This element allows the user to apply generic loads to surfaces
+volumes, lines of nodes or even individual nodes. Taking for instance
+the heat equation, consider boundary conditions of the form
+%
+\begin{equation} \label{eq:hfilm}  
+  k\dep Tn = q'' = \begin{cases}
+                        q''_0;&\text{constant flux}\\
+                        h\, (T_\infty - T_s);&\text{$\Delta T$ driven flux}
+                   \end{cases}
+\end{equation}
+%
+Where $q''_0$ is a heat flow applied to the surface, independently of
+its temperature and the second term represents the exchange of heat to
+an external fluid of temperature $T_\infty$ to the surface of the body
+at temperature $T_s$. $h>0$ is the \emph{``film coefficient''}.  The
+generic elemset that represents generic non-linear loads of the form
+$!q(!U_\infty,!U_s)$ where $!U$ is the generic state of the fluid and
+$!q$ the generic flux is the \verb+GenLoad+ class. Specific classes
+can be derived by defining the specific flux function. The simplest is
+the \verb+lin_gen_load+ class that represents constant or linear relation, as in
+(\ref{eq:hfilm}), or a combination of both of them. 
+
+If there is no temperature dependent exchange, i.e. if $h=0$ then you
+simply enter the nodes on the surface element and the heat source as
+the \verb+hfilm_source+ property. You should enter as many real values
+as fields there are in the problem, they represent the constant load
+to be applied to the respective field.  Note that in that case the amount
+of heat entered is constant per element. This element can be entered
+as constant for the elemset or entered per-element. The quantity
+entered must be a density of heat flux, i.e. a flux heat per unit
+length or unit surface depending if in 2D or 3D. For instance 
+%
+\begin{verbatim}
+elemset lin_gen_load 2
+geometry cartesian1d
+npg 2
+hfilm_source -3. -1.
+__END_HASH__
+35 36
+__END_ELEMSET__
+\end{verbatim}
+%
+means an elemset with only one surface element with constant heat load
+but not film coefficient load. The loads are $-3 \rm W/m$ for the first field
+and $-1 \rm W/m$ for the second. 
+
+In the $\Delta T$ driven case you must specify the $T_\infty$
+temperature by including fictitious nodes, for instance
+%
+\begin{verbatim}
+elemset lin_gen_load 4
+geometry cartesian1d
+double_layer
+npg 2
+hfilm_coeff 3. 0. 0. 1.
+__END_HASH__
+35 36 120 121
+__END_ELEMSET__
+\end{verbatim}
+%
+Represents a film between a surface and an external medium (see
+figure~\ref{fg:genloaddl}), nodes 35 and 36 are on the surface while
+120 and 121 in the external medium. There are two fields and the
+applied flux is
+%
+\begin{equation}
+\begin{split}
+   k \dep{U_1} n &= q''_1 = 3 \, (U_\infty-U_1)\\
+   k \dep{U_2} n &= q''_2 = 1 \, (U_\infty-U_1)
+\end{split}
+\end{equation}
+%
+The option \verb+double_layer+ has to be set for this case. In general
+you can have almost any kind of surface element (linear in 2D,
+triangle or quadrangle in 3D, see figure~\ref{fg:genlother}). In
+general you enter the connectivities of the surface element on the
+body (first layer) and then the corresponding nodes in the fluid
+(second layer). For instance 
+%
+\index{lin_gen_load elemset@\verb+lin_gen_load+ elemset}
+\begin{verbatim}
+elemset lin_gen_load 6
+geometry cartesian2d
+double_layer
+npg 2
+hfilm_coeff 3. 0. 0. 1.
+__END_HASH__
+n1 n2 n3 n4 n5 n6
+__END_ELEMSET__
+\end{verbatim}
+%
+for triangles or
+%
+\begin{verbatim}
+elemset lin_gen_load 6
+geometry cartesian2d
+double_layer
+npg 2
+hfilm_coeff 3. 0. 0. 1.
+__END_HASH__
+n1 n2 n3 n4 n5 n6 n7 n8
+__END_ELEMSET__
+\end{verbatim}
+%
+for quadrangles in 3D. 
+
+In general the state of the external medium ($T_\infty$) is specified
+so that the degrees of freedom of the corresponding nodes should be
+fixed. It may be also the reverse case (first layer fixed and second
+layer free) or both layers free. This last case may serve, for
+instance, to represent a thermal resistance caused by a thin layer of
+a very insulating material, where we can neglect the lateral gradients
+of temperature. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/genlother.eps}}
+\caption{$\Delta T$ driven surface heat load on a surface}
+\label{fg:genlother}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+\SSSection{Related Options}
+
+\begin{itemize}
+\input odocgenl
+\end{itemize}
 
 \end{description}
 

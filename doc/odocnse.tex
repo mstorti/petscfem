@@ -45,12 +45,6 @@ Smagorinsky constant.
 van Driest constant for the damping law.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{alpha@\verb+alpha+}
-\item\verb+double alpha+ {\rm(default=\verb|1.|)}:
-
-Parameter for the trapezoidal rule time integration method. 
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
@@ -61,7 +55,9 @@ Scale the SUPG upwind term.
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
 
 Adjust the stability parameters, taking into account
-the time step. 
+the time step. If the \verb+steady+ option is in effect,
+(which is equivalent to $\Dt=\infty$) then
+\verb+temporal_stability_factor+ is set to 0.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector|)}:

@@ -184,6 +184,15 @@ The number of time steps.
 The time step.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{steady@\verb+steady+}
+\item\verb+int steady+ {\rm(default=\verb|0|)}:
+
+Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+is set to 1, then the computations are as if $\Dt=\infty$. 
+The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
+is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{alpha@\verb+alpha+}
 \item\verb+double alpha+ {\rm(default=\verb|1.|)}:
 
@@ -223,6 +232,13 @@ feature.
 
 Name of file where to save node values for the ``print some'' 
 feature. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{report\_option\_access@\verb+report_option_access+}
+\item\verb+int report_option_access+ {\rm(default=\verb|1|)}:
+
+Print, after execution, a report of the times a given option
+was accessed. Useful for detecting if an option was used or not.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>

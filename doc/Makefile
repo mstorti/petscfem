@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.16 2001/04/12 00:22:28 mstorti Exp $
+#$Id: Makefile,v 1.17 2001/05/26 17:00:34 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -11,8 +11,10 @@ all: latex index.html html ps readme eps
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
 
-ODOCFILES = odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex \
-	odocnsw.tex odocns.tex odocnsb.tex odocnse.tex
+ODOCFILES = odocadv.tex odocadvdif.tex odocadvdife.tex \
+	odocadve.tex odocadvfe.tex odocadvfm2.tex odocadvfs.tex \
+	odocburgers.tex odocgenl.tex \
+	odocns.tex odocnsb.tex odocnse.tex odocnsw.tex odocnswfm2t.tex 
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)

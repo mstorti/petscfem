@@ -229,6 +229,12 @@ If branch '0' is followed in the first execution of the block, then
 the cache will look like that shown in figure~\ref{fg:branchnotok}.
 %
 \begin{figure*}[ht]
+\centerline{\includegraphics[height=0.7\hsize]{./OBJ/branch.eps}}
+\caption{Cache list produced when branch 0 is chosen.}
+\label{fg:branch}
+\end{figure*}
+%
+\begin{figure*}[ht]
 \centerline{\includegraphics[height=0.7\hsize]{./OBJ/branchnotok.eps}}
 \caption{Cache list produced when branch 0 is chosen.}
 \label{fg:branchnotok}
@@ -241,7 +247,7 @@ corresponding to operation \verb+op_0_1+.
 
 This is solved by creating \emph{``branch points''} in the cache list
 and choosing the appropriate branch as shown in the following
-code (see figure~lb{fg:branch}):
+code (see figure~\lb{fg:branch}):
 %
 \begin{alltt}
 \allttbraces%
