@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.98 2005/02/17 11:52:00 mstorti Exp $
+//$Id: advdife.cpp,v 1.99 2005/02/18 01:47:15 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -411,7 +411,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double detJaco_axi;
 
   FastMat2 Cr(2,ndof,ndof);
-  FastMat2 Cp_bis(2,ndof,ndof),Cp_bis_old(2,ndof,ndof),Ao(3,ndim,ndof,ndof);
+  FastMat2 Cp_bis(2,ndof,ndof),
+    Cp_bis_old(2,ndof,ndof),Ao(3,ndim,ndof,ndof);
   FastMat2 delta_sc_v(1,ndof);
 
   if (axi) assert(ndim==3);
@@ -707,8 +708,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
 
-	Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
-	tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+	if (use_Ajac_old) {
+	  Ao_grad_U.prod(Ao,grad_U,-1,1,-2,-1,-2);
+	  tmp1_old.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+	}
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
