@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.38 2004/01/29 00:12:44 mstorti Exp $
+//$Id: gpdata.cpp,v 1.39 2004/04/30 22:52:00 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -204,7 +204,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       }
     }
 #ifdef USE_DX
-    splitting.parse("1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra");
+    // This one splits in three tetras
+    // splitting.parse("1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra");
+    // This one splits in one hexa
+    splitting.parse("1 2 3 3  4 5 6 6 cubes");
 #endif
     // edges
     nedges_m = 9;
