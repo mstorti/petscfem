@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.146 2003/07/07 21:15:18 mstorti Exp $
+#$Id: Makefile.base,v 1.147 2003/07/11 14:03:21 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -109,6 +109,12 @@ endif
 # here goes -frepo if needed
 # CPPFLAGS         := -frepo $(PROF_FLAGS) $(RH60)
 
+ifeq ($(LIBRETTO_I),)
+LIBRETTO_INCLUDE_FLAGS = 
+else
+LIBRETTO_INCLUDE_FLAGS = -I/$(LIBRETTO_I)
+endif
+
 CPPFLAGS         := 					\
 		 $(PROF_FLAGS) $(RH60)			\
 		 -Wno-deprecated			\
@@ -118,7 +124,7 @@ CPPFLAGS         := 					\
                  ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT)	\
                  -I$(METIS)/Lib				\
                  -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
-                 -I$(LIBRETTO_I)			\
+                 $(LIBRETTO_INCLUDE_FLAGS)		\
 		 $(ANN_CPPFLAGS)			\
                  $(SUPERLU_CPPFLAGS)
 
