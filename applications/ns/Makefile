@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.23 2002/02/13 19:42:08 mstorti Exp $ 
+ # $Id: Makefile,v 1.24 2002/02/13 19:46:22 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -31,6 +31,20 @@ MYOBJS =
 				"level BOPT: $(BOPT)" ;				\
 		rm $< ;								\
 		$(MAKE) $< ;							\
+#	If object does not have the appropriate debugging level recompile	\
+#	[ OK. This is very tricky... I don't know the portability of this ]	\
+	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
+		> /dev/null ; then						\
+		obj_optl='O' ;							\
+		else								\
+		obj_optl='g' ;							\
+	fi ;									\
+	if [ ! "x$(opt_level)"="x$$obj_optl" ] ; then				\
+		echo "OptLevelCheck: object $< does not match optimization "	\
+				"level BOPT: $(BOPT)" ;				\
+		rm $< ;								\
+		$(MAKE) $< ;							\
+	fi ;									\
 	fi ;									\
 	mv -fv $< $@
 
