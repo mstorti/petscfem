@@ -4110,4 +4110,6 @@ tag: beta-3.43.25 on Sat, 26 Feb 2005 15:32:16 -0300 by mstorti in spider
      > With 143Pa, reaches 10iters. 
 ----------
 tag: beta-3.43.26 on Sat, 26 Feb 2005 23:38:17 -0300 by mstorti in spider
-     > Runs shock/tuyere problem at pout=143Pa. 
+     > Runs shock/tuyere problem at pout=143Pa. ----------
+tag: beta-3.43.27 on Sun, 27 Feb 2005 10:01:16 -0300 by mstorti in spider
+     > Starts working tuyere 3D (`gfshock3d.epl'). 
