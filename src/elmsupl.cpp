@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.29 2004/11/10 14:29:51 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.30 2004/11/11 18:32:23 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -200,23 +200,13 @@ int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
       int *cm = col_mask.buff();
       for (kloc=0; kloc<nel; kloc++) {
 	node = ICONE(iele,kloc);
-	for (kdof=0; kdof<ndof; kdof++) {
+	for (kdof=0; kdof<ndof; kdof++,rm++,cm++) {
 	  if (!*rm && !*cm) continue;
-#if 0
-          // Slow
-	  dofmap->get_row(node,kdof+1,row_v);
-	  for (int ientry=0; ientry<row_v.size(); ientry++) {
-	    entry_v = &row_v[ientry];
-	    locdof = entry_v->j;
-	    coef = entry_v->coef;
-	  }
-#else
 	  // Fast 
 	  dofmap->get_row(node,kdof+1,n,&dofv,&coefv);
 	  for (int j=0; j<n; j++) {
 	    locdof = dofv[j];
 	    coef = coefv[j];
-#endif
 	    if (locdof>neq) continue; // ony load free nodes
 	    if (*rm) {
 	      if (jr==rsize) {
@@ -270,8 +260,6 @@ int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
 	      jc++;
 	    }
 	  }
-	  rm++;
-	  cm++;
 	}
       }
       nr = jr;

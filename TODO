@@ -2,6 +2,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Readd  `sqcav', `cubcav', `pfmat2' to test/Makefile
 * Add test for `surf_gatherer' in test/cubcav. Apparently it is
        almost already done. 
 * Fix warnings that are currently disabled with '-Wno-deprecated'

@@ -24,7 +24,7 @@ $Dt = 0.2;			# time step
 $solver = "petsc";
 $preco_type = "jacobi";
 $maxits = 20;
-$nstep = 2;
+$nstep = 100;
 #
 $weak_form = 0;
 $cache_gdu = 0;

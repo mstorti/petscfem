@@ -1,11 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2004/10/25 02:09:38 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2004/11/11 18:32:38 mstorti Exp $ 
 #s Local Targets
 
 default: pfmat7
 
 #w all tests
-tests: pfmat pfmat2
+# tests: pfmat pfmat2
+tests: pfmat
 
 .PHONY: pfmat pfmat2 force iisdmat_petsc iisdmat_slu petscmat \
 			spd_petsc spd_slu

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.123 2004/09/25 11:32:26 mstorti Exp $
+#$Id: runtests.pl,v 1.124 2004/11/11 18:32:27 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -1015,9 +1015,7 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_peri.verif.tmp",
-       "IISD solver",<<'EOT');
-IISD on 2 processors with periodic b.c.'s OK \? > 1
-EOT
+       "IISD solver",read_file("./lupart/check_peri.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_subpart.verif.tmp",
@@ -1029,8 +1027,8 @@ EOT
 for ($case=1; $case<=4; $case++) {
 #    print "checking pfmat/output.case${case}iip.tmp\n";
     expect("pfmat/output.case${case}iip.tmp",
-          "PFMat/case$case/(local_solver=petsc)",
-          "All tests OK.*1");
+	   "PFMat/case$case/(local_solver=petsc)",
+	   "All tests OK.*1");
 }
 
 =cut

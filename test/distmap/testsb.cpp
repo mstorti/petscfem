@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.6 2004/01/18 22:46:17 mstorti Exp $
+// $Id: testsb.cpp,v 1.7 2004/11/11 18:32:30 mstorti Exp $
 
 #include <unistd.h>
 #include <list>
@@ -77,7 +77,9 @@ KeyedObject::KeyedObject(const KeyedObject &po) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void KeyedObject::print() {
-  for (int j=0; j<nelem; j++) cout << elems[j] << " ";
+  cout << "k: " << k << ", ";
+  for (int j=0; j<nelem; j++) 
+    cout << elems[j] << " ";
   cout << endl;
 }
 
@@ -146,7 +148,9 @@ int main(int argc,char **argv) {
   CHKERRA(ierr); 
 
   if (!keyed) {
-    PetscPrintf(PETSC_COMM_WORLD,"Testing basic SyncBuffer class\n");
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Testing basic SyncBuffer class\n");
+		// "Disordered elements: \n");
     SyncBuffer<KeyedObject> sb;
     
     k=MY_RANK;
@@ -159,7 +163,7 @@ int main(int argc,char **argv) {
       int *elems = new int[nelem];
       sb.back().elems = elems;
       for (int jj=0; jj<nelem; jj++) elems[jj] = k+jj;
-      sb.back().print();
+      // sb.back().print();
       k += SIZE;
     }
 

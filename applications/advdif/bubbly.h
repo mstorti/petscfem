@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.12 2004/09/30 16:52:35 mstorti Exp $
+// $Id: bubbly.h,v 1.13 2004/11/11 18:32:19 mstorti Exp $
 
 #include "./advective.h"
 #include "./stream.h"
@@ -14,6 +14,7 @@ class bubbly_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
     vl_indxe,vg_indxe;
+  int coupled;
   FastMat2 U,v_l,v_g,v_mix,Cp,Ajac,Id,Amoml,Amomg,Y,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
     grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,

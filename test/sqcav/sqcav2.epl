@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav2.epl,v 1.8 2004/11/10 02:06:39 mstorti Exp $
+#$Id: sqcav2.epl,v 1.9 2004/11/11 18:31:52 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './sqcav.pl'; :>
 global_options
@@ -16,7 +16,7 @@ nsave 5
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
-#if 1
+#if 0
 #<:$maxits=1;:>
 solver "petsc"
 solver_mom "petsc"

@@ -234,7 +234,7 @@ dx_steps 1
 #endif
 
 pressure_control_coef 0.
-block_uploading 2
+# block_uploading 2
 
 __END_HASH__
 
