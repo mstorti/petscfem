@@ -180,7 +180,7 @@ INSTALLATION
     "$(PETSCFEM_DIR)"
         The root of the PETSc-FEM package
 
-    "$(PETSC_ARCH)", "$(PETSC_HOME)"
+    "$(PETSC_ARCH)", "$(PETSC_DIR)"
         These are variables relative to PETSc. See documentation.
 
   Configuring

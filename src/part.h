@@ -1,8 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: part.h,v 1.4 2003/07/02 23:22:19 mstorti Exp $
+// $Id: part.h,v 1.5 2004/10/22 17:33:53 mstorti Exp $
 #ifndef PART_H
 #define PART_H
+
+#include <cassert>
 
 using namespace std;
 

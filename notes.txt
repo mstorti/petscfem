@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.394 2004/10/01 23:43:08 mstorti Exp $
+$Id: notes.txt,v 1.395 2004/10/22 17:33:44 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.394 2004/10/01 23:43:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.395 2004/10/22 17:33:44 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.394 2004/10/01 23:43:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.395 2004/10/22 17:33:44 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.394 2004/10/01 23:43:08 mstorti Exp $ 
+  # $Id: notes.txt,v 1.395 2004/10/22 17:33:44 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -8100,6 +8100,142 @@ Curiosamente en `O_c++' si lo hace bien.
 %
 20:33:13: Ahora volvi a correr independientemente el test SyncBuffer y
 parece andar bien. 
+
+%=== Wed Oct 20 11:44:27 2004 mstorti@ITC-CC-02
+%
+11:44:27: Compilando en el ITC con gcc 3.3
+%
+Other errors: in addition complains about ref() fuunction in fastlib
+> ../src/fastlib.h:17: warning: inline function `FastVector<T, 
+>    chunk_size>::~FastVector() [with T = int, int chunk_size = 10]' used but 
+>    never defined
+Index: src/Makefile
+ -o option were duplicated
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/src/Makefile,v
+retrieving revision 1.95
+diff -u -r1.95 Makefile
+--- src/Makefile	24 Sep 2004 12:00:56 -0000	1.95
++++ src/Makefile	20 Oct 2004 09:14:05 -0000
+@@ -128,7 +128,7 @@
+ getarrgr.tab.o: getarrgr.tab.c
+ 
+ %.o: %.c
+-	$(GNU_C_COMPILER) -o $@ -c $(CPPFLAGS) $(CFLAGS) $< -o $@
++	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+ 
+ odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odociisdm.tex \
+ 		$(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex \
+
+
+Index: src/dvector2.h
+Seems that <cassert> was not properly includeed. May be is caused by
+the no inclusion of some other header. due to a compilation flag.
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/src/dvector2.h,v
+retrieving revision 1.19
+diff -u -r1.19 dvector2.h
+--- src/dvector2.h	2 Sep 2003 21:59:02 -0000	1.19
++++ src/dvector2.h	20 Oct 2004 09:11:32 -0000
+@@ -5,6 +5,7 @@
+ #define PETSCFEM_DVECTOR2_H
+ 
+ #include <cstdarg>
++#include <cassert>
+ #include <vector>
+ #define CHUNK_SIZE_INIT 10000
+ 
+
+
+Index: src/graphdv.cpp
+Same as above
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/src/graphdv.cpp,v
+retrieving revision 1.5
+diff -u -r1.5 graphdv.cpp
+--- src/graphdv.cpp	2 Jul 2003 23:22:19 -0000	1.5
++++ src/graphdv.cpp	20 Oct 2004 08:59:14 -0000
+@@ -2,6 +2,7 @@
+ //$Id: notes.txt,v 1.395 2004/10/22 17:33:44 mstorti Exp $
+ 
+ #include <src/graphdv.h>
++#include <cassert>
+ 
+ int graphdv::CHUNK_SIZE_DEF = 10000;
+ 
+@@ -71,3 +72,5 @@
+   e = da.bsearch(int_pair(v+1,0));
+   for (q=f; q<e; q++) ngbrs.insert(da.ref(q).j);
+ }
++
++void graphdv_dis::scatter() { assert(SIZE==1); }
+
+
+
+
+Index: src/graphdv.h
+Seems that now needs the `dvector2.h' 
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/src/graphdv.h,v
+retrieving revision 1.5
+diff -u -r1.5 graphdv.h
+--- src/graphdv.h	2 Jul 2003 23:22:19 -0000	1.5
++++ src/graphdv.h	20 Oct 2004 09:03:45 -0000
+@@ -8,6 +8,7 @@
+ 
+ #include <src/iisdgraph.h>
+ #include <src/dvector.h>
++#include <src/dvector2.h>
+ 
+ class int_pair { 
+ public: 
+@@ -110,7 +111,7 @@
+     init(M);
+   }
+   /// Scatter among processors
+-  void scatter() { assert(SIZE==1); }
++  void scatter();
+ };
+ 
+ #endif
+
+
+Index: src/part.h
+same as above
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/src/part.h,v
+retrieving revision 1.4
+diff -u -r1.4 part.h
+--- src/part.h	2 Jul 2003 23:22:19 -0000	1.4
++++ src/part.h	20 Oct 2004 09:01:53 -0000
+@@ -4,6 +4,8 @@
+ #ifndef PART_H
+ #define PART_H
+ 
++#include <cassert>
++
+ using namespace std;
+ 
+ class DofPartitioner {
+
+
+
+Index: src/util3.cpp
+Same as above
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/src/util3.cpp,v
+retrieving revision 1.12
+diff -u -r1.12 util3.cpp
+--- src/util3.cpp	14 Sep 2003 00:23:22 -0000	1.12
++++ src/util3.cpp	20 Oct 2004 09:09:51 -0000
+@@ -2,6 +2,7 @@
+ // $Id: notes.txt,v 1.395 2004/10/22 17:33:44 mstorti Exp $
+ #include <cstring>
+ #include <cstdio>
++#include <cassert>
+ #include <string>
+ #include <vector>
+ #include <mpi.h>
 
 
 # Current line ===========  %

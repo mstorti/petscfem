@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.12 2003/09/14 00:23:22 mstorti Exp $
+// $Id: util3.cpp,v 1.13 2004/10/22 17:33:53 mstorti Exp $
 #include <cstring>
 #include <cstdio>
+#include <cassert>
 #include <string>
 #include <vector>
 #include <mpi.h>

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.5 2003/07/02 23:22:19 mstorti Exp $
+// $Id: graphdv.h,v 1.6 2004/10/22 17:33:53 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
@@ -8,6 +8,7 @@ extern int MY_RANK,SIZE;
 
 #include <src/iisdgraph.h>
 #include <src/dvector.h>
+#include <src/dvector2.h>
 
 class int_pair { 
 public: 
@@ -110,7 +111,7 @@ public:
     init(M);
   }
   /// Scatter among processors
-  void scatter() { assert(SIZE==1); }
+  void scatter();
 };
 
 #endif

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.95 2004/09/24 12:00:56 mstorti Exp $ 
+# $Id: Makefile,v 1.96 2004/10/22 17:33:53 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -128,7 +128,7 @@ local_depend: getarrgr.tab.c getarrgr.tab.h
 getarrgr.tab.o: getarrgr.tab.c
 
 %.o: %.c
-	$(GNU_C_COMPILER) -o $@ -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odociisdm.tex \
 		$(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex \

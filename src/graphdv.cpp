@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: graphdv.cpp,v 1.5 2003/07/02 23:22:19 mstorti Exp $
+//$Id: graphdv.cpp,v 1.6 2004/10/22 17:33:53 mstorti Exp $
 
 #include <src/graphdv.h>
+#include <cassert>
 
 int graphdv::CHUNK_SIZE_DEF = 10000;
 
@@ -71,3 +72,5 @@ void graphdv::set_ngbrs(int v,GSet &ngbrs) {
   e = da.bsearch(int_pair(v+1,0));
   for (q=f; q<e; q++) ngbrs.insert(da.ref(q).j);
 }
+
+void graphdv_dis::scatter() { assert(SIZE==1); }

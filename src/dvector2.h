@@ -1,10 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.19 2003/09/02 21:59:02 mstorti Exp $
+// $Id: dvector2.h,v 1.20 2004/10/22 17:33:53 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
 #include <cstdarg>
+#include <cassert>
 #include <vector>
 #define CHUNK_SIZE_INIT 10000
 
