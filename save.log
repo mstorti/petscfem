@@ -2459,3 +2459,7 @@ tag: beta-3.18.pl14 on Tue, 25 Feb 2003 22:47:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl15 on Tue, 25 Feb 2003 23:32:36 -0300 by mstorti in spider
      > Computes the neighbors of nodes on the surface. 
+----------
+tag: beta-3.18.pl16 on Wed, 26 Feb 2003 11:17:17 -0300 by mstorti in spider
+     > Constructs `coupling_nodes_table'. 
+     > Found a bug in `dvector'. 
