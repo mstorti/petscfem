@@ -2700,3 +2700,7 @@ tag: beta-3.19.pl17 on Sun,  1 Jun 2003 21:09:27 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl18 on Fri,  6 Jun 2003 17:44:14 -0300 by mstorti in minerva.arcride.edu.ar
      > Good visualization of square cavity with smoke. 
+----------
+tag: beta-3.19.pl19 on Sun,  8 Jun 2003 10:10:56 -0300 by mstorti in spider
+     > Now communication through sockets with DX is buffered improving very
+     > much the speed.
