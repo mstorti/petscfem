@@ -7,6 +7,7 @@ nsave 1
 ## should stop on signal from cylin.epl
 nstep 10000000
 save_file_pattern "ext.out_%d.tmp"
+nsaverot 1
 steady
 solver "iisd"
 iisd_subpart_auto 2000
@@ -27,6 +28,7 @@ hook_list dl_generic_hook coupling_inv_hook
 
 coupling_inv_hook.filename ./inviscid.efn
 coupling_inv_hook.prefix   coupling_inv_hook
+omega_coupling 0.3
 
 __END_HASH__
 

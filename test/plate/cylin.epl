@@ -18,12 +18,14 @@ $nnod = count_lines("./cylin.nod.tmp");
 global_options
 ndim 2
 save_file "cylin.state.tmp"
-save_file_pattern "cylin.state_%d.tmp"
 nsave 1
-nsaverot 10
+save_file_pattern "cylin.state_%d.tmp"
+nsaverot 1
+nrec 1
+nfile 100000000
 # initial_state "cylin.state.tmp"
 initial_state "cylin.ini.tmp"
-nstep 10
+nstep 200
 # steady
 solver "iisd"
 iisd_subpart_auto 2000

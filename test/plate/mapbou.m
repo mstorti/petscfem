@@ -27,6 +27,8 @@ function x = mapbou (nodi,nodj,xi,XNOD)
       theta = (1+2*xi)*pi/4;
       x = Rext*[cos(theta) sin(theta)];
     endif
+  elseif nodi==9 && nodj==12
+    x = mapbou_circle(9,12,xi,XNOD);
   elseif nodi==14 && nodj==19
     x = mapbou(3,8,xi,XNOD) .* reflex;
   elseif nodi==12 && nodj==17

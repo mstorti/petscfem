@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.12 2003/01/04 00:49:56 mstorti Exp $
+//$Id: inviscid.cpp,v 1.13 2003/01/04 16:21:45 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -19,7 +19,8 @@ public:
   // potential node on second layer
   int vn, pn, pn1;
   // position, velocity, potential at node
-  double x[NDIM], x1[NDIM], u[NDIM], phi, phi1;
+  double x[NDIM], x1[NDIM], u[NDIM], phi, phi1, dpot_dx_prev[NDIM];
+  ext_node() { for (int j=0; j<NDIM; j++) dpot_dx_prev[j]=0.; }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -65,41 +66,39 @@ void coupling_visc_hook::time_step_pre(double t,int step) {
     assert(int(step_sent)==step-1);
     PetscPrintf(PETSC_COMM_WORLD,
 		"VISCOUS: received computed_step flag OK, step %d\n",step);
-
-    FILE *fid = fopen("ext.coupling_normal_vel.tmp","r");
-    assert(fid);
-    FILE *fid2 = fopen("cylin.nod_fic_ext.tmp","r");
-    assert(fid2);
-    int nread;
-    char *line = NULL; size_t N=0;
-    int k=0;
-    while (1) {
-      if (getline(&line,&N,fid)==-1) break;
-      int node; double u_n;
-      nread = sscanf(line,"%d %lf",&node,&u_n);
-      assert(nread==2);
-      if (getline(&line,&N,fid2)==-1) break;
-      nread = sscanf(line,"%d",&node);
-      assert(nread==1);
-
-      inv_ext_node & n = coupling_visc_vel[node];
-      n.u_n = u_n;
-      n.indx = k;
-#ifdef COUPLING_DEBUG
-      printf("VISCOUS: loads node %d, u_n %f, on coupling_visc_vel\n",
-	     node,u_n);
-#endif
-      k++;
-    }
-    fclose(fid);
-    fclose(fid2);
-    free(line); line=NULL; N=0;
-    computed_coupling_visc_vel=1;
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
-		"VISCOUS: step 1 do nothing ... Continue\n");
-    computed_coupling_visc_vel=0;
+		"VISCOUS: step 1 don't wait for flag ... Continue\n");
   }
+  FILE *fid = fopen("ext.coupling_normal_vel.tmp","r");
+  assert(fid);
+  FILE *fid2 = fopen("cylin.nod_fic_ext.tmp","r");
+  assert(fid2);
+  int nread;
+  char *line = NULL; size_t N=0;
+  int k=0;
+  while (1) {
+    if (getline(&line,&N,fid)==-1) break;
+    int node; double u_n;
+    nread = sscanf(line,"%d %lf",&node,&u_n);
+    assert(nread==2);
+    if (getline(&line,&N,fid2)==-1) break;
+    nread = sscanf(line,"%d",&node);
+    assert(nread==1);
+
+    inv_ext_node & n = coupling_visc_vel[node];
+    n.u_n = u_n;
+    n.indx = k;
+#ifdef COUPLING_DEBUG
+    printf("VISCOUS: loads node %d, u_n %f, on coupling_visc_vel\n",
+	   node,u_n);
+#endif
+    k++;
+  }
+  fclose(fid);
+  fclose(fid2);
+  free(line); line=NULL; N=0;
+  computed_coupling_visc_vel=1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -271,6 +270,8 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
     fclose(fid);
   }
   TGETOPTDEF_ND(options,double,Uinf,0.);
+  TGETOPTDEF(options,double,omega_coupling,1.);
+  omega = omega_coupling;
   assert(Uinf!=0.);
 }
 
@@ -375,14 +376,14 @@ void coupling_inv_hook::time_step_post(double time,int step,
   FastMat2 x(2,npoint,NDIM), xi(2,npoint,NDIM), psi(2,npoint,nterm), 
     jac(2,NDIM,NDIM), ijac(2,NDIM,NDIM), xc(1,NDIM), tmp(2,npoint,3),
     ipsi(2,npoint,nterm), a(1,nterm),
-    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(1,NDIM),
+    pot(1,npoint),dpot_dxi(1,NDIM), dpot_dx(1,NDIM), dpot_dx_prev(1,NDIM),
     t(1,NDIM), norm(1,NDIM), tmp1;
   double dphidn;
 
   assert(fid = fopen("ext.coupling_normal_vel.tmp","w"));
   for (int k=0; k<nnod_ext; k++) {
     int k_center = k + (k==0? 1 : k==nnod_ext-1? -1 : 0);
-    xc.set(ext_node_data[k_center].x);
+    xc.set(ext_node_data[k].x);
 
     x.ir(1,1).set(ext_node_data[k_center-1].x).rest(xc);
     x.ir(1,2).set(ext_node_data[k_center].x).rest(xc);
@@ -428,10 +429,19 @@ void coupling_inv_hook::time_step_post(double time,int step,
     psi.rs();
     xi.rs();
 
+    double omega=0.1;
     ipsi.inv(psi);
     a.prod(ipsi,pot,1,-1,-1);
     dpot_dxi.setel(a.get(2),1).setel(a.get(4),2);
     dpot_dx.prod(ijac,dpot_dxi,-1,1,-1);
+
+    // Sub realaxation
+    dpot_dx_prev.set(ext_node_data[k_center+1].dpot_dx_prev);
+    dpot_dx.scale(omega).axpy(dpot_dx_prev,1-omega);
+    dpot_dx.export_vals(ext_node_data[k_center+1].dpot_dx_prev);
+
+    // dpot_dx.set(0.);		// DEBUG
+    dpot_dx.addel(Uinf,1);
     // dpot_dx.print("dpot_dx: ");
     dphidn = tmp1.prod(dpot_dx,norm,-1,-1).get();
 

@@ -104,21 +104,27 @@ normal = [0 1;
 	  0 -1];
 
 fid = fopen("cylin.normal.tmp","w");
-fidf = fopen("cylin.nod_ext_fix.tmp","w");
 for k=2:length(normal)-1
   node = external(k);
   nod_fic = nod_fic_ext(k);
   fprintf(fid,"%f   %d %d      %f   %d %d    %f   %d %d\n",
 	  normal(k,1),node,1, normal(k,2),node,2,-1.,nod_fic,1);
-  fprintf(fidf,"%d %d   %f\n",nod_fic,1,1.);
-  fprintf(fidf,"%d %d   %f\n",nod_fic,2,1.);
-  fprintf(fidf,"%d %d   %f\n",nod_fic,3,1.);
 endfor
 fclose(fid);
-fclose(fidf);
+
+fid = fopen("cylin.nod_ext_fix.tmp","w");
+fid2 = fopen("ext.coupling_normal_vel.tmp","w");
+for k=1:length(normal)
+  nod_fic = nod_fic_ext(k);
+  fprintf(fid,"%d %d   %f\n",nod_fic,1,1.);
+  fprintf(fid,"%d %d   %f\n",nod_fic,2,1.);
+  fprintf(fid,"%d %d   %f\n",nod_fic,3,1.);
+  fprintf(fid2,"%d %f\n",nod_fic,normal(k,1));
+endfor
+fclose(fid);
+fclose(fid2);
 
 fid = fopen("cylin.skin.tmp","w");
-
 for k=1:length(skin)
   node = skin(k);
   fprintf(fid,"%d %d    %f\n",node,1,0.);
