@@ -3666,3 +3666,6 @@ tag: beta-3.38.26 on Sat, 15 Jan 2005 09:58:42 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.27 on Sat, 15 Jan 2005 10:13:26 -0300 by mstorti in spider
      > Added `dv-*cat!'. 
+----------
+tag: beta-3.38.28 on Sat, 15 Jan 2005 10:45:17 -0300 by mstorti in spider
+     > Writing a library version without scheme for debugging. 
