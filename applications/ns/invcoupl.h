@@ -1,8 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: invcoupl.h,v 1.3 2003/02/27 03:32:41 mstorti Exp $
+// $Id: invcoupl.h,v 1.4 2003/02/27 17:29:39 mstorti Exp $
 #ifndef PETSCFEM_INVCOUPL_H
 #define PETSCFEM_INVCOUPL_H
+
+#include <src/fm2temp.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class inviscid_coupling : public adaptor_pg {
