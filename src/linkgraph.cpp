@@ -1,11 +1,13 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.12 2003/02/17 01:27:58 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.13 2003/05/12 02:06:59 mstorti Exp $
 
 #include <src/linkgraph.h>
 #include <src/dvector2.h>
 
 int LinkGraph::CHUNK_SIZE_DEF = 10000;
 int LinkGraph::null = -1;
+
+template class dvector<int_pair>;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinkGraph::free_cell(int cell) {

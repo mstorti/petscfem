@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.14 2003/05/12 01:48:05 mstorti Exp $
+//$Id: mainutl.cpp,v 1.15 2003/05/12 02:06:59 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -8,7 +8,6 @@
 #include "idmap.h"
 #include "elemset.h"
 #include <src/dvector.h>
-#include <src/dvector2.h>
 
 extern int MY_RANK,SIZE;
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.39 2003/03/01 23:26:18 mstorti Exp $
+//$Id: dxhook.cpp,v 1.40 2003/05/12 02:06:59 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -11,7 +11,6 @@
 #include <src/dxhook.h>
 #include <src/autostr.h>
 #include <src/dvector.h>
-#include <src/dvector2.h>
 
 #ifdef USE_SSL
 

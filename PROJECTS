@@ -6,7 +6,7 @@ PROJECTS: [These are new improvements to be done in a future...]
 * Interface preconditioning for IISD
 * Modify 'elemset.cpp' so that processing of several elemsets 
   is non blocking, for instance using a self-scheduling algorithm. 
-* Scripting interface with Perl (SWIG?)
+* Scripting interface with Perl
 * Make Makefile not that verbose. 
 * Use a more consistent system for reporting errors and
        aborting. Maybe using more advanced C++ exception handling.
@@ -18,7 +18,7 @@ PROJECTS: [These are new improvements to be done in a future...]
 * overload () operator on FM2 so that we can write expressions as 
       A(j,k).prod(B(j,mu),C(k,mu))
 * write a change_sign() function for FM2
-* Create an Hyper-Fast version of FM2 for linear addressing.. 
+* Create an `Hyper-Fast' version of FM2 for linear addressing.. 
 * Code not to have to call to FastMat2::branch/leave when there is no
 	 'else' block. 
 * include inject operations
