@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.8 2001/12/03 02:59:49 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -365,7 +365,7 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS) {
   }
 
   if (defined) {
-    delete[] store; // Esta tiene problemas
+    delete[] store;
     defined=0;
   }
   Indx dims_;
@@ -380,6 +380,22 @@ FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS) {
 #endif
 
   create_from_indx(dims_);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::clear() {
+
+  // This can't be cached
+  if (was_cached) {
+    printf("fastmat2: can't call clear() while in cached mode\n");
+    exit(0);
+  }
+
+  if (defined) {
+    delete[] store;
+    defined=0;
+  }
   return *this;
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.12 2001/12/02 19:23:30 mstorti Exp $
+//$Id: fastmat2.h,v 1.13 2001/12/03 02:59:49 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -816,7 +816,7 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Resizes to one dimension ans zero elements.
    */ 
-  FastMat2 & clear() { resize(1,0);};
+  FastMat2 & clear();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets vector to diagonal part 

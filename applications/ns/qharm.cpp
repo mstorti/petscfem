@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharm.cpp,v 1.2 2001/12/02 20:54:08 mstorti Exp $
+//$Id: qharm.cpp,v 1.3 2001/12/03 02:59:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -32,7 +32,7 @@ void qharm::pg_connector(const FastMat2 &xpg,
     .ir(2,1)			// Set `dof' indices
     .ir(4,1)
     .prod(dshapex,dshapex,-1,1,-1,2) // add prod.
-    .scale(-conductivity)	// scale by conductivity
+    .scale(conductivity)	// scale by conductivity
     .rs();
   
 }

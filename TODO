@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* add tests with `sqcav' and several processors
 * Check if the `-O1 measperf.cpp' problem is fixed.
 * reenable the `cache_grad_div_u' feature
 * merge turbulence enhancements.

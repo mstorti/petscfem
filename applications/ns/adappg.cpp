@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.3 2001/12/02 20:17:16 mstorti Exp $
+//$Id: adappg.cpp,v 1.4 2001/12/03 02:59:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,6 @@ void adaptor_pg::init() {
   xpg.resize(1,ndim);
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
-  dshapex_pg.resize(1,ndim);  
   grad_state_new_pg.resize(2,ndim,ndof);
   grad_state_old_pg.resize(2,ndim,ndof);
   state_new_pg.resize(1,ndof);
@@ -30,7 +29,6 @@ void adaptor_pg::clean() {
   xpg.clear();
   Jaco.clear();
   dshapex.clear();  
-  dshapex_pg.clear();  
   grad_state_new_pg.clear();
   grad_state_old_pg.clear();
   state_new_pg.clear();
@@ -76,6 +74,7 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     pg_connector(xpg,state_old_pg,grad_state_old_pg,
 		 state_new_pg,grad_state_new_pg,res_pg,mat_pg);
     mat.axpy(mat_pg,wpgdet);
+    res.axpy(res_pg,wpgdet);
     
   }
   elem_end();

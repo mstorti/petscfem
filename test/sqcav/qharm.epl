@@ -3,20 +3,15 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-get_var_env('weak_form',0);
-get_var_env('case',undef);
-$U = 1;				# typical velocity scale
+get_var_env('case','lu');
 $L = 1;				# Side of the cavity
-$N = 20;
-$hratio = 10;			# refinement (h_center/h_wall)
-$Re = 1000;			# Reynolds number
-$viscosity = $L/$Re;		# viscosity
-$Dt = 0.01;			# time step
+$N = 400;
+$hratio = 0;			# refinement (h_center/h_wall)
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
 $nstep = 100;
-$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
+$save_file = ($case ? "qharm.$case.tmp" : "qharm.state.tmp");
 #
 $weak_form = 0;
 # `scalar' avoids returning the first match, which can be zero
@@ -32,9 +27,14 @@ if (scalar $case =~ /weak_form_(\d)/) {
     $solver = "iisd";
     $iisd_subpart = 2;
     $maxits = 200;
-    $nstep = 1;
+    $nstep = 2;
     $iisd_subpart = $1 if $case=~/sbp(\d*)/;
     $preco_type = "jacobi";
+} elsif ($case =~ /^petsc/) {
+    $solver = "petsc";
+    $preco_type = "jacobi";
+    $maxits = 200;
+    $nstep = 2;
 } else {
     die "don't know case $case\n";
 }
@@ -48,7 +48,7 @@ global_options
 
 nsave 5
 <:pr('nstep'):> 
-# initial_state sqcav.state
+# initial_state qharm.state
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -76,46 +76,30 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
-Dt <:=$Dt:>
+Dt 1.
 steady
-temporal_stability_factor 0
-
-shock_capturing_factor 0
-#if 0
-local_store
-cache_grad_div_u
-#endif
 
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  3
-__INCLUDE__ sqcav.nod.tmp
+nodes  2  2  1
+__INCLUDE__ qharm.nod.tmp
 _END_NODES__
 
-elemset nsi_tet_les_fm2 4 
-
+elemset qharm 4 
 name malla
-
-#report_consumed_time
 geometry cartesian2d
 ndim 2
 npg 4
+# Physucal data
 #
-# Datos fisicos
-#
-<:pr('viscosity'):> 
-<:pr('weak_form'):>
-LES 0
 __END_HASH__
-__INCLUDE__ sqcav.con.tmp
+__INCLUDE__ qharm.con.tmp
 __END_ELEMSET__
 
 end_elemsets
 
 fixa
-# fijacion en la presion
-1 3 0.
-# fijaciones de velocidad en las paredes
-__INCLUDE__ sqcav.fixa.tmp
+# Set value at the wall
+__INCLUDE__ qharm.fixa.tmp
 __END_FIXA__

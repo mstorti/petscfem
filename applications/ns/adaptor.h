@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.5 2001/12/02 20:17:16 mstorti Exp $
+//$Id: adaptor.h,v 1.6 2001/12/03 02:59:49 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -71,7 +71,7 @@ class adaptor_pg : public adaptor {
   void clean();
 public: 
   FastMat2 Jaco,iJaco,grad_state_new_pg,grad_state_old_pg,
-    state_old_pg,state_new_pg,dshapex_pg,res_pg,mat_pg,
+    state_old_pg,state_new_pg,res_pg,mat_pg,
     xpg;
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,
