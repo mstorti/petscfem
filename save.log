@@ -1965,3 +1965,6 @@ tag: beta-3.11.pl2 on Sun, 22 Dec 2002 03:20:56 -0300 by mstorti in spider
 ----------
 tag: beta-3.11.pl3 on Sun, 22 Dec 2002 04:02:50 -0300 by mstorti in spider
      > Now constraints seem to work OK. 
+----------
+tag: beta-3.11.pl4 on Sun, 22 Dec 2002 16:45:59 -0300 by mstorti in spider
+     > Added test for cyclic constraints.
