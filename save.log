@@ -3732,3 +3732,6 @@ tag: beta-3.39.47 on Mon, 17 Jan 2005 23:30:09 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.48 on Mon, 17 Jan 2005 23:48:06 -0300 by mstorti in spider
      > Now `dvector' is in a module. 
+----------
+tag: beta-3.39.49 on Tue, 18 Jan 2005 12:23:36 -0300 by mstorti in minerva.ceride.gov.ar
+     > Added `dvdbl-set-with-filler'. 
