@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.18 2001/08/18 01:11:40 mstorti Exp $
+// $Id: pfmat.h,v 1.19 2001/08/19 15:55:38 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -65,7 +65,7 @@ public:
   /// Constructor, initialize variables
   PFMat() : sles_was_built(0), A(NULL), P(NULL) {};
   /// Virtual destructor
-  virtual ~PFMat()=0;
+  virtual ~PFMat();
   /// clear memory (almost destructor)
   virtual void clear();
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
@@ -124,6 +124,8 @@ public:
   /// Derive this if you want to manage directly the preconditioning. 
   virtual int set_preco(const string & preco_type);
 };
+
+PFMat * PFMat_dispatch(const char *s);
 
 /** Wrapper monitor. You customize the monitor by deriving the
     #monitor# function member. 
@@ -219,6 +221,8 @@ class IISDMat : public PFMat {
       #n_loc_v[myrank] <= dof < #n_loc_v[myrank+1]
    */
   vector<int> n_int_v;
+  /// The PETSc nnz vector for the local part
+  vector<int> d_nnz_LL;
   /// Local-Local matrix (sequential matrix on each processor). 
   Mat A_LL;
   /// Local-Interface matrix (MPI matrix).
@@ -324,7 +328,9 @@ public:
   int solve(Vec res,Vec dx);
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
-  IISDMat() : A_LL_other(NULL), part(NULL) {};
+  /// Destroy the SLES associated with the operator. 
+  virtual int destroy_sles();
+  IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.34 2001/08/07 17:09:28 mstorti Exp $
+//$Id: ns.cpp,v 1.35 2001/08/19 15:55:35 mstorti Exp $
  
 #include <malloc.h>
 
@@ -54,8 +54,6 @@ int main(int argc,char **args) {
   Vec     x, dx, xold,
     dx_step, res;		// approx solution, RHS, residual
   Viewer matlab;
-  PETScMat PETSc_A_tet;		// linear system matrix 
-  IISDMat IISD_A_tet;		// linear system matrix 
   PFMat *A_tet;			// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, col[3], flg, size, node,
@@ -165,6 +163,9 @@ int main(int argc,char **args) {
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
+  //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,iisd);
+  if (use_iisd) solver = string("iisd");
 
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
@@ -196,11 +197,7 @@ int main(int argc,char **args) {
   
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  if (use_iisd) {
-    A_tet = &IISD_A_tet;
-  } else {
-    A_tet= &PETSc_A_tet;
-  }
+  A_tet = PFMat_dispatch(solver.c_str());
 
 #if 0
   const int NT=200;
@@ -394,7 +391,7 @@ int main(int argc,char **args) {
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"ateta"); CHKERRA(ierr);
 	// ierr = MatView(A_tet,matlab);
-	A_tet->view(matlab);
+	A_tet->view(matlab); CHKERRQ(ierr); 
 
 	Mat A_tet_c;
 	ierr = MatDuplicate(A_tet,MAT_DO_NOT_COPY_VALUES,&A_tet_c); CHKERRA(ierr);
@@ -512,7 +509,7 @@ int main(int argc,char **args) {
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 
-  // ierr = MatDestroy(A_tet); CHKERRA(ierr); 
+  delete A_tet;
 
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);

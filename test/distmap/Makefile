@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2001/08/16 18:01:33 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2001/08/19 15:55:41 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -51,8 +51,12 @@ distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) ../../src/libpetscfem.a(
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS) 
 
-P = tryme
-$(P).bin: $(P).cpp
-	g++ -o $(P).bin $(P).cpp
+P := tryme4
+$(P).bin: $(P).o $(LIBPETSCFEM) 
+	-rm $@
+	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(P).o $(OTHER_OBJS) $(LDFLAGS)
+
+#$(P).bin: $(P).cpp
+#	g++ -o $(P).bin $(P).cpp
 
 #s

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.39 2001/08/19 15:51:38 mstorti Exp $
+//$Id: lusubd.cpp,v 1.40 2001/08/19 15:55:38 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -520,12 +520,10 @@ int IISDMat::zero_entries() {
   }    
   ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			 d_nnz_LL.begin(),&A_LL); CHKERRQ(ierr); 
-  wait_from_console(" zero_entries::0");
   ierr=MatZeroEntries(A_LL); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_IL); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_LI); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_II); CHKERRQ(ierr);
-  wait_from_console("exit from zero_entries::");
   return 0;
 }
 
