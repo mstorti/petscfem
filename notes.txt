@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $
+$Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.235 2003/01/24 13:38:11 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6004,6 +6004,14 @@ hacia la salida fria. Pero hay que ver por el factor 'r'.
 %
 15:43:24: Termina bien la corrida con salida fria. Ahora hay que
 empezar a bajar la temperatura de entrada y presion de salida. 
+
+%===Thu, 23 Jan 2003 13:54:19 -0300 mstorti@node1.beowulf.gtm
+%
+Una cosa a observar con respecto a la corrida con salida fria es que
+por la salida fria el gas sale mas caliente. Pero esto se puede deber
+a que todavia no estan bien puestos los parametros geometricos, el Re
+no es el correcto y el Pr esta incrementado en un factor 10. Salvo en 
+`gasflow.hot_cold_outlet.tgz'. 
 
 # Current line ===========  %
 # Local Variables: $

@@ -16,7 +16,7 @@ object "udat" class array type float rank 1 shape 3
      items  <:=$nnod:>  data file u.dat.tmp
 attribute "dep" string "positions"
 
-object "rhodat" class array type float rank 0
+object "rho_dat" class array type float rank 0
      items  <:=$nnod:>  data file rho.dat.tmp
 attribute "dep" string "positions"
 
@@ -33,7 +33,7 @@ component "data" value "udat"
 object "results" class group
 member "u" value "u_field"
 member "p" value "p_field"
-member "rho" value "rhodat"
+member "rho" value "rho_dat"
 
 end
 
