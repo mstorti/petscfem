@@ -1,6 +1,8 @@
-# $Id: Makefile,v 1.28 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.29 2003/09/14 00:23:31 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
+
+default: test_positive_slope
 
 SRCS = rain.cpp rain2.cpp fun.cpp fun2.cpp fun3.cpp
 
@@ -105,13 +107,19 @@ test_var_rain: rain2.efn
 #w Make data
 data: force
 	$(MAKE) -W $(CASE).epl $(CASE).depl
-	$(OCTAVE) $(mkm).m
+	if [ -f $(mkm).m ] ; then $(OCTAVE) $(mkm).m ; fi
 
 #w Runs program
 rung: data force
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
 			-case $(CASE).depl > output.$(casen).out
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Detects positive slope.
+test_positive_slope: 
+	$(MAKE) CASE=stream2 casen=stream2 rung
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
 #	echo in target \$(CASE).depl : CASE $(CASE)
@@ -119,3 +127,9 @@ $(CASE).depl: force
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Makes local link for running with debugger
+link:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
+	ln -f $(PROG) $(LOC_PROG)
