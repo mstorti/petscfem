@@ -1267,3 +1267,7 @@ tag: beta-3.00.pl4 on Sun, 21 Jul 2002 12:06:17 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl5 on Sun, 21 Jul 2002 16:02:07 -0300 by mstorti in spider
      > `graphdv' computes neighbors with test.
+----------
+tag: beta-3.00.pl6 on Sun, 21 Jul 2002 19:38:49 -0300 by mstorti in spider
+     > Runs OK a 30x30x30 mesh using 120Mb in spider. Spends 30mins in computing 
+     > the profile. 
