@@ -43,9 +43,9 @@ Activate printing in debugging
 \index{alpha@\verb+alpha+}
 \item\verb+double alpha+ {\rm(default=\verb|1.|)}:
 
-Trapezoidal method parameter. \verb+alpha=1+:
-Backward Euler. \verb+alpha=0+: Forward Euler.
-\verb+alpha=0.5+: Crank-Nicholson. 
+Trapezoidal method parameter.  \verb+alpha=1+ :
+Backward Euler.  \verb+alpha=0+ : Forward Euler.
+ \verb+alpha=0.5+ : Crank-Nicholson. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{displ\_factor@\verb+displ_factor+}
@@ -60,8 +60,14 @@ Scales displacement for ALE-like mesh relocation.
 Use fractional step or TET algorithm
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{fractional\_step\_use\_petsc\_symm@\verb+fractional_step_use_petsc_symm+}
+\item\verb+int fractional_step_use_petsc_symm+ {\rm(default=\verb|1|)}:
+
+Fractional step uses symmetric matrices (only CG iterative KSP).
+ (found in file: \verb+ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{gather\_file@\verb+gather_file+}
-\item\verb+string gather_file+ {\rm(default=\verb|"gather.out"|)}:
+\item\verb+string gather_file+ {\rm(default=\verb|gather.out|)}:
 
 Print values in this file 
  (found in file: \verb+ns.cpp+)
@@ -226,7 +232,7 @@ right hand side and solution vector, and stops.
 \index{print\_residual@\verb+print_residual+}
 \item\verb+int print_residual+ {\rm(default=\verb|0|)}:
 
-Print the residual each \verb+nsave+ steps. 
+Print the residual each  \verb+nsave+  steps. 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_some\_file@\verb+print_some_file+}
@@ -279,20 +285,20 @@ Access mode to the ``some'' file. If 0 rewind file. If 1
 \index{solve\_system@\verb+solve_system+}
 \item\verb+int solve_system+ {\rm(default=\verb|1|)}:
 
-Solve system before \verb+print\_linear_system_and_stop+
+Solve system before  \verb+print_linear_system_and_stop+ 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solver@\verb+solver+}
 \item\verb+string solver+ {\rm(default=\verb|petsc|)}:
 
-Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+Type of solver. May be  \verb+iisd+  or  \verb+petsc+ . 
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solver\_mom@\verb+solver_mom+}
 \item\verb+string solver_mom+ {\rm(default=\verb|petsc|)}:
 
 Type of solver for the projection and momentum steps
-(fractional-step). May be \verb+iisd+ or \verb+petsc+.
+(fractional-step). May be  \verb+iisd+  or  \verb+petsc+ .
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{start\_comp\_time@\verb+start_comp_time+}
@@ -310,10 +316,10 @@ If set, redirect output to this file.
 \index{steady@\verb+steady+}
 \item\verb+int steady+ {\rm(default=\verb|0|)}:
 
-Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+Flag if steady solution or not (uses Dt=inf). If  \verb+steady+ 
 is set to 1, then the computations are as if $\Dt=\infty$. 
-The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
-is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+The value of  \verb+Dt+  is used for printing etc... If  \verb+Dt+ 
+is not set and  \verb+steady+  is set then  \verb+Dt+  is set to one.
  (found in file: \verb+ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tol\_newton@\verb+tol_newton+}

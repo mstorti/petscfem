@@ -1,9 +1,34 @@
-% $Id: femref.tex,v 1.1 2004/11/26 02:18:40 mstorti Exp $
+% $Id: femref.tex,v 1.2 2004/11/26 21:44:57 mstorti Exp $
 \SSection{Mesh refinement} \label{sec:femref}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 
-This is a work in progress.
+\emph{[Warning: This is a work in progress.]}
 
 We conceive a mesh as a graph, connecting nodes and other higher
-dimension entities based on these nodes. Consider for instance a
-simple mesh as shown in figure 
+dimension entities based on these nodes. Consider for example five
+nodes (labeled from 0 to 40 and an edge connecting two of these nodes
+as in figure~\ref{fg:meshgraph2}. In total, there are 6
+\emph{``geometrical objects''} (5 nodes and the edge) in the
+figure. In order to identify these higher order objects, we could add
+a new index for it, say index 5, but instead we can associate the edge
+with the connected pair of node indices, \verb+(edge 2 3)+. Note that,
+if we consider that the edge has no orientation, then the sequence
+must be considered as a \emph{``set''},
+i.e. \verb+(edge 2 3) = (edge 3 2)+, (Lisp-like \emph{``S-exp''}
+expressions will be used throughout in order to describe objects)
+whereas if oritentation matters, then
+\verb+(edge 2 3) != (edge 3 2)+. We could, then define geometrical
+objects of type \verb+edge+ as unordered sequences of two node
+indices, while the type \verb+ordered-edge+ is associated with ordered
+sequences of two nodes. We say that the set of permutations that leave
+invariant \verb+edge+ objects is \verb+((0 1) (1 0))+, whereas for the
+oriented edge is only the identity permutation \verb+((0 1))+. For
+larger objects, the set of permutations that leave invariant the node
+sequence that defines the object is more complex than that, it doesn't
+reduce to the special case of ordered and unordered sequences as for
+edges. Consider for instance the case of triangles. For an oriented
+triangle, the set of nodes that leave invariant the triangle is
+\verb+((0 1 2) (1 2 0) (2 0 1))+, i.e. shifts clockwise and
+counter-clockwise of the node sequence, whereas for unordered objects
+the sequences are the same 
+\verb+((0 1 2) (1 2 0) (2 0 1) (0 2 1) (1 0 2) (2 1 0))+. 
