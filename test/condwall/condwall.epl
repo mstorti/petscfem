@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.7 2005/03/30 01:17:56 mstorti Exp $
+#$Id: condwall.epl,v 1.8 2005/03/31 23:48:37 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -37,7 +37,7 @@ Krylov_dim 300
 maxits 300
 print_internal_loop_conv
 
-Dt 0.05
+Dt 0.1
 # steady
 
 #if 0
@@ -113,6 +113,7 @@ __END_ELEMSET__
 #if !$dx && !$use_peri
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 elemset cond_wall 4
+name wall
 __END_HASH__
 __INCLUDE__ condwall.condwall-con.tmp
 __END_ELEMSET__

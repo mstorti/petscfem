@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.6 2005/03/29 21:05:26 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2005/03/31 23:48:37 mstorti Exp $ 
 
 default: condwall
 
-BOPT = O_c++
+# BOPT = O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -54,7 +54,7 @@ dx_make_command:
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Makes local link for running with debugger
-link:
+link: movwall.efn
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
 

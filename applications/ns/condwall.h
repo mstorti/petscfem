@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwall.h,v 1.4 2005/03/30 03:01:03 mstorti Exp $
+// $Id: condwall.h,v 1.5 2005/03/31 23:48:51 mstorti Exp $
 #ifndef PETSCFEM_CONDWALL_H
 #define PETSCFEM_CONDWALL_H
 
@@ -15,12 +15,13 @@
 #include "./nslagmul.h"
 #include "./nsi_tet.h"
 
-struct cond_wall_data {
+struct cond_wall_data_t {
   dvector<double> 
-  cond_wall_resistance,u1,u2;
+  Rv,u1,u2;			// Resistance vector,
+				// velocity on both layers. 
 };
 
-typedef map<string,cond_wall_data> 
+typedef map<string,cond_wall_data_t> 
 cond_wall_data_map_t;
 
 extern cond_wall_data_map_t cond_wall_data_map;
@@ -37,10 +38,11 @@ private:
   double R;			// Resistance of the membrane
   // Property normal_prop;
   FastMat2 U1,U2;
+  cond_wall_data_t *data_p;
 public:
   // First two nodes are real nodes at both sides of the membrane. 
   // Other two nodes are lagrange multipliers. 
-  cond_wall() { } 
+  cond_wall() : data_p(NULL) { } 
   ~cond_wall() { } 
   int nres();
   void lag_mul_dof(int jr,int &node,int &dof);

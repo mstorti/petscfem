@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.6 2005/03/30 03:00:49 mstorti Exp $
+// $Id: condwall.cpp,v 1.7 2005/03/31 23:48:50 mstorti Exp $
 
 #include "./condwall.h"
 
@@ -35,13 +35,13 @@ init() {
   NSGETOPTDEF_ND(int,ndim,0);
   assert(ndof==ndim+1); // Only NS incompressible so far
   R = resistance;
-  //o Flags taking a per element resistance from
-  //  global #cond_wall_resistance# vector. 
-  NSGETOPTDEF_ND(int,use_vector_resistance,0);
-  double r = 0.;
-  if (use_vector_resistance)
-    cond_wall_resistance.resize(size(),r);
-  cond_wall_data_map[name()] = cond_wall_data();
+
+  string ename = name();
+  if(cond_wall_data_map.find(ename)
+     != cond_wall_data_map.end()) {
+    data_p = &cond_wall_data_map[ename];
+    printf("in cond_wall::init(), data_p %p\n",data_p);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -53,8 +53,11 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.ir(1,2);
   U2.set(U);
   U.rs();
-  if (use_vector_resistance) 
-    R = cond_wall_resistance.ref(k);
+  if (data_p && data_p->Rv.size()>0) {
+    if (k==0) assert(data_p->Rv.size()==size());
+    R = data_p->Rv.ref(k);
+    printf("k %d, R %f\n",k,R);
+  }
   if (R>0) {
     // Closed
     U1.is(1,1,ndim);
