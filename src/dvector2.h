@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.31 2005/01/17 18:37:24 mstorti Exp $
+// $Id: dvector2.h,v 1.32 2005/01/17 23:51:25 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -332,6 +332,21 @@ clone(const dvector<T> &w) {
   int n = w.size();
   for (int j=0; j<n; j++)
     ref(j) = w.ref(j);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::
+axpy(double alpha,const dvector<T> &w) {
+  assert(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::
+scale(double alpha) {
+  assert(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

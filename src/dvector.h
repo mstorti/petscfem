@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.26 2005/01/17 18:37:24 mstorti Exp $
+// $Id: dvector.h,v 1.27 2005/01/17 23:51:25 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -181,6 +181,17 @@ public:
       @param w (input) the vector to clone. 
       @return reference to self  */ 
   dvector<T>& clone(const dvector<T> &w);
+
+  /** Perform the AXPY operation #*this += alpha*y#
+      @param alpha (input) the scalar parameter
+      @param y (input) the vector
+      @return reference to self */ 
+  dvector<T>& axpy(double alpha,const dvector<T> &y);
+
+  /** Scale #*this# by #alpha#. 
+      @param alpha (input) the scalar to scale. 
+      @return reference to self  */ 
+  dvector<T>& scale(double alpha);
 
   /// Write to a stream
   dvector<T>& print(FILE *fid=stdout,int rowsz=0);

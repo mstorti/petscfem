@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dvector.cpp,v 1.6 2005/01/17 14:23:31 mstorti Exp $
+//$Id: dvector.cpp,v 1.7 2005/01/17 23:51:25 mstorti Exp $
  
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -50,3 +50,23 @@ double dvector<double>::new_t_elem() { return 0.0; }
 int dvector<int>::new_t_elem() {return 0; }
 
 float dvector<float>::new_t_elem() { return 0.0; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+dvector<double>& dvector<double>::
+axpy(double alpha,const dvector<double> &w) {
+  assert(size()==w.size());
+  int n = size();
+  for (int j=0; j<n; j++) 
+    ref(j) += alpha*w.ref(j);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+dvector<double>& dvector<double>::
+scale(double alpha) {
+  int n = size();
+  for (int j=0; j<n; j++) 
+    ref(j) *= alpha;
+  return *this;
+}
+
