@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat6.cpp,v 1.2 2004/07/07 16:56:25 rodrigop Exp $
+// $Id: pfmat6.cpp,v 1.3 2004/07/19 16:38:55 rodrigop Exp $
 
 // Tests for the `PFMat' class
 
@@ -121,5 +121,6 @@ int main(int argc,char **args) {
   }
   ierr = A.solve(b,x); CHKERRA(ierr); 
   //  ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD);
+  A.clear();
   PetscFinalize();
 }
