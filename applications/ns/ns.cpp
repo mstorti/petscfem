@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.6 2002/07/16 00:33:54 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.7 2002/07/16 02:51:36 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -311,7 +311,7 @@ int main(int argc,char **args) {
   vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
   WallData *wall_data;
   if (LES) {
-    VOID_IT(argl);
+    argl.clear();
     argl.arg_add(data_pts_,USER_DATA);
     argl.arg_add(elemset_pointer,USER_DATA);
     Elemset *elemset=NULL;
@@ -323,7 +323,7 @@ int main(int argc,char **args) {
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // Find nearest neighbor for each volume element
-    VOID_IT(argl);
+    argl.clear();
     argl.arg_add(wall_data,USER_DATA);
     ierr = assemble(mesh,argl,dofmap,"get_nearest_wall_element",
 		    &time); CHKERRA(ierr); 
@@ -392,7 +392,7 @@ int main(int argc,char **args) {
 	}
 
 	// Compute wall stresses
-	VOID_IT(argl);
+	argl.clear();
 	argl.arg_add(&x,IN_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
 	ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
@@ -406,7 +406,7 @@ int main(int argc,char **args) {
 	// because the at each processor there is not a global version
 	// of the state.
 	if (LES && SIZE>1) {
-	  VOID_IT(argl);
+	  argl.clear();
 	  ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
 			  &time_star); CHKERRA(ierr);
 	}
@@ -417,7 +417,7 @@ int main(int argc,char **args) {
 	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
 	}
 
-	VOID_IT(argl);
+	argl.clear();
 	state.set_time(time);
 	state_old.set_time(time_old);
 	argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
@@ -482,7 +482,7 @@ int main(int argc,char **args) {
 	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
 	  ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
 
-	  VOID_IT(argl);
+	  argl.clear();
 	  argl.arg_add(&x,PERT_VECTOR);
 	  argl.arg_add(&xold,IN_VECTOR);
 	  argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
@@ -587,7 +587,7 @@ int main(int argc,char **args) {
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
       // FIRST (PREDICTOR) STEP
-      VOID_IT(argl);
+      argl.clear();
       state.set_time(time);
       state_old.set_time(time_old);
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
@@ -630,7 +630,7 @@ int main(int argc,char **args) {
       ierr = VecSet(&scal,res); CHKERRA(ierr);
 
       if (tstep==1) {
-	VOID_IT(argl);
+	argl.clear();
 	argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
 	debug.trace("Before poisson matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
@@ -638,7 +638,7 @@ int main(int argc,char **args) {
 	debug.trace("After poisson matrix computation.");
       }
 
-      VOID_IT(argl);
+      argl.clear();
       statep.set_time(time);	// fixme:= what time?
       argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
@@ -678,7 +678,7 @@ int main(int argc,char **args) {
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
       if (tstep==1) {
-	VOID_IT(argl);
+	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
 	debug.trace("Before projection matrix computation...");
@@ -687,17 +687,7 @@ int main(int argc,char **args) {
 	debug.trace("After projection matrix computation.");
       }
 
-#if 1
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
-      ierr = A_prj->view(matlab);
-      PetscFinalize();
-      exit(0);
-#endif
-
-      VOID_IT(argl);
+      argl.clear();
       statep.set_time(time);	// fixme:= what time?
       argl.arg_add(&statep,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
@@ -709,11 +699,28 @@ int main(int argc,char **args) {
       debug.trace("After -PROJECTION- residual computation.");
       
       debug.trace("Before solving -PROJECTION- linear system...");
-      ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
+      ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
       debug.trace("After solving -PROJECTION- linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
+
+#if 1
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
+      ierr = A_prj->view(matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = VecView(res,matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+      ierr = VecView(dx,matlab);
+      PetscFinalize();
+      exit(0);
+#endif
+
     }
 
     // error difference

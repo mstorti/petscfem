@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.7 2002/07/16 00:33:54 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.8 2002/07/16 02:51:36 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -122,6 +122,13 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     int ja=0;
     A_prj_arg = &arg_data_v[ja];
     retvalmat_prj = arg_data_v[ja].retval;
+  } else if (comp_res_prj) {
+    int ja=0;
+    locst = arg_data_v[ja++].locst;
+    locst2 = arg_data_v[ja++].locst;
+    retval = arg_data_v[ja++].retval;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    Dt = glob_param->Dt;
   } else assert(0); // Not implemented yet!!
 
   Matrix veccontr(nel,ndof),xloc(nel,ndim),
@@ -200,6 +207,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } else if (comp_res_poi) {
   } else if (comp_mat_prj) {
     mom_profile >> A_prj_arg->profile;
+  } else if (comp_res_prj) {
   } else assert(0);
 
   Matrix seed;
@@ -393,8 +401,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     if (comp_res_mom) {
       veccontr.Columns(1,ndim) = resmom;
-      matloc = kron(matlocmom,seed) + mom_mat_fix;
       veccontr >> &(RETVAL(ielh));
+      matloc = kron(matlocmom,seed) + mom_mat_fix;
       matloc >> &(RETVALMAT(ielh));
     } else if (comp_mat_poi) {
       matloc = kron(matlocmom,seed) + poi_mat_fix;
@@ -405,6 +413,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     } else if (comp_mat_prj) {
       matloc = kron(matlocmom,seed) + mom_mat_fix;
       matloc >> &(RETVALMAT_PRJ(ielh));
+    } else if (comp_res_prj) {
+      veccontr.Columns(1,ndim) = resmom;
+      veccontr >> &(RETVAL(ielh));
     } else assert(0);
 
   }
