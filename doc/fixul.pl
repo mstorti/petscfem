@@ -1,13 +1,4 @@
 #!/usr/bin/perl -w
-#__INSERT_LICENSE__
-# $Id: fixul.pl,v 1.3 2003/02/10 14:54:54 mstorti Exp $
-
-# It seems that Latex2html has a bug and it doesn't close the lists
-# with the partial contents for the childs, when splitting a document. 
-# This simple script fixes this, by counting the number of <UL> lines and
-# of </UL> lines, and adding as many </UL> lines as needed in order
-# to balance the tags. 
-
 use strict;
 
 my $name = shift();
