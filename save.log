@@ -2788,3 +2788,6 @@ tag: beta-3.19.pl38 on Wed,  6 Aug 2003 19:39:27 -0300 by mstorti in node1.beowu
 tag: beta-3.19.pl39 on Fri,  8 Aug 2003 13:11:15 -0300 by mstorti in minerva.ceride.gov.ar
      > Found a serious bug in dvector<>. The clear() functions was not called
      > on destruction.
+----------
+tag: beta-3.19.pl40 on Sat, 09 Aug 2003 11:28:17 -0300 by mstorti in spider
+     > Added cat, read and print functions to `dvector'.
