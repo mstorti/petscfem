@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.9 2001/07/18 22:45:02 mstorti Exp $
+//$Id: lusubd.cpp,v 1.10 2001/07/19 00:35:03 mstorti Exp $
 
 #include <typeinfo>
 #ifdef RH60
@@ -286,6 +286,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   ierr = VecDuplicate(y_loc_seq,&x_loc_seq);
   PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
 
+#if 0 
   ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); 
   PETSCFEM_ASSERT0(ierr==0,"Error creating SLES.\n"); 
   ierr = SLESSetOperators(sles_ll,A_LL,
@@ -305,6 +306,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   ierr = PCSetType(pc_ll,PCLU);
   PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
   ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
+#endif
 
   // Shortcuts
   AA[L][L] = &A_LL;
@@ -420,8 +422,8 @@ int IISDMat::view(Viewer viewer) {
   ViewerASCIIPrintf(viewer,"% IISD matrix - printing [INT][INT] block\n");
   ierr = MatView(A_II,viewer); CHKERRQ(ierr);
 
-  ViewerASCIIPrintf(viewer,"% IISD SLES\n");
-  ierr =  SLESView(sles,viewer);
+//    ViewerASCIIPrintf(viewer,"% IISD SLES\n");
+//    ierr =  SLESView(sles,viewer);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -501,7 +503,31 @@ void IISDMat::solve(Vec res,Vec dx) {
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `y_loc_seq'.\n"); 
 #endif
     if (n_loc > 0) {
-      ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&itss); 
+      SLES sles_lll;
+      KSP ksp_lll;
+      PC pc_lll;
+
+      ierr = SLESCreate(PETSC_COMM_SELF,&sles_lll); 
+      PETSCFEM_ASSERT0(ierr==0,"Error creating SLES.\n"); 
+      ierr = SLESSetOperators(sles_lll,A_LL,
+			      A_LL,SAME_NONZERO_PATTERN);
+      PETSCFEM_ASSERT0(ierr==0,"Error with `SLESSetOperators'.\n"); 
+      ierr = SLESGetKSP(sles_lll,&ksp_lll); 
+      PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetKSP'.\n"); 
+      ierr = SLESGetPC(sles_lll,&pc_lll);
+      PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetPC'.\n"); 
+
+      ierr = KSPSetType(ksp_lll,KSPGMRES);
+      PETSCFEM_ASSERT0(ierr==0,"Error with `KSPSetType'.\n"); 
+
+      ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1);
+      PETSCFEM_ASSERT0(ierr==0,"Error setting tolerances.\n"); 
+
+      ierr = PCSetType(pc_lll,PCLU);
+      PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
+      ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL);
+
+      ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); 
       PETSCFEM_ASSERT0(ierr==0,"Error solving local system"); 
     }
 #if 0
@@ -691,7 +717,7 @@ void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
     warn_iisdmat=1;
     PetscPrintf(PETSC_COMM_WORLD,
 		"PETScFEM warning: IISD operator does not support any\n"
-		"preconditioning. Entered %s, switching to \"none\"\n",
+		"preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
 		preco_type.c_str());
     preco_type = "none";
   }
@@ -754,7 +780,7 @@ void PFMat::solve(Vec res,Vec dx) {
 #define __FUNC__ "int view(Viewer viewer)"
 int PETScMat::view(Viewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
-  ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
+//    ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
 };
 
 /*
