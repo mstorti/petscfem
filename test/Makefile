@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 16:52:05 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -266,4 +266,4 @@ tests: runtests
 iterator: iterator.cpp
 	g++ -o $@ $<
 
-include makefile.d
+#

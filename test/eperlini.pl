@@ -85,11 +85,61 @@ sub readm {
     
 }
 
+sub readm_all {
+    my @read_var=();
+    my ($file)=@_;
+    die "Couldn't open file $file\n" unless open MFILE,"$file";
+    while (<MFILE>) {
+	if (/^\s*(\w*)\s*=(\S*);/) {
+	    push @read_var,$1;
+	    $ {$1} = $2;
+	}
+    }
+    close MFILE;
+    return \@read_var;
+}
+
 sub P {
     my $name = shift();
     my $val = shift();
     eval "\${\"$name\"} = $val";
     print "$name $val";
+}
+
+sub transcript {
+    my $octtmpfile = shift();
+    if ($octtmpfile) {
+	die "couldn't open $octtmpfile" unless open OCT,">$octtmpfile";
+    }
+    my $eperlfile = $ENV{'SCRIPT_SRC_PATH'};
+    /`/;print <<EOM;
+#
+# Transcript of ePerl script: $eperlfile
+# ===========================
+#
+EOM
+/`/;
+    open SCRIPT,$eperlfile;
+    my $tr=0;
+    while (<SCRIPT>) {
+	$tr=0 if /^\#__END_TRANSCRIPT__$/;
+	print "#  >$_" if $tr;
+	$tr=1 if /^\#__TRANSCRIPT__$/;
+    }
+    close SCRIPT;
+
+    return if $#_<0;
+    /`/; print <<EOM;
+#
+# Values:
+# =======
+EOM
+/`/;
+    foreach $v (@_) {
+	print "# \$$v: ${$v}\n";
+	print OCT "$v = ${$v};\n";
+    }
+    close OCT;
 }
 
 print <<'EOM';
