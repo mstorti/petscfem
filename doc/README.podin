@@ -287,7 +287,8 @@ Many tests and examples are in the C<$(PETSCFEM_DIR)/test> directory.
 =head1 WRITING A NEW APPLICATION MODULE
 
 The best way to start coding an application program is to duplicate a
-directory (for instance C<applications/laplace>) to a directory from
+directory (for instance C<applications/advdif>) or (for instance
+C<applications/ns>) to a directory from
 your own (i.e. outside the C<$(PETSCFEM_DIR)> tree, say
 C</your/appl/path>. Configure the C<$(PETSCFEM_DIR)> variable in the
 local makefile (i.e. C</your/appl/path/Makefile>).You should have to
@@ -299,7 +300,7 @@ C<.bin>).
 =head1 AUTHORS
 
 Mario A. Storti, Norberto M. Nigro and others. CIMEC, Internacional
-Centre for Computational Methods in Engineering, Santa Fe, Argentina. 
+Center for Computational Methods in Engineering, Santa Fe, Argentina. 
 
 =head1 CONTACTS
 

@@ -180,12 +180,12 @@ installed. [RedHat RPM package: <CODE>perl</CODE>].
 <P></P></DL>
 <P>
 <H2><A NAME="unpacking">Unpacking</A></H2>
-<P>Once you got the <EM>petscfem-beta-2.08.tar.gz</EM> package,
+<P>Once you got the <EM>petscfem-beta-2.12.tar.gz</EM> package,
 gunzip and untar it like this:</P>
 <PRE>
-  $ gunzip petscfem-beta-2.08.tar.gz
-  $ tar xvf petscfem-beta-2.08.tar</PRE>
-<P>This will create a <EM>petscfem-beta-2.08</EM> directory with
+  $ gunzip petscfem-beta-2.12.tar.gz
+  $ tar xvf petscfem-beta-2.12.tar</PRE>
+<P>This will create a <EM>petscfem-beta-2.12</EM> directory with
 all the source files included.</P>
 <P>
 <H2><A NAME="makefile variables">Makefile variables</A></H2>
@@ -274,7 +274,8 @@ found in the <CODE>doc</CODE> directory.</P>
 <HR>
 <H1><A NAME="writing a new application module">WRITING A NEW APPLICATION MODULE</A></H1>
 <P>The best way to start coding an application program is to duplicate a
-directory (for instance <CODE>applications/laplace</CODE>) to a directory from
+directory (for instance <CODE>applications/advdif</CODE>) or (for instance
+<CODE>applications/ns</CODE>) to a directory from
 your own (i.e. outside the <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> tree, say
 <CODE>/your/appl/path</CODE>. Configure the <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> variable in the
 local makefile (i.e. <CODE>/your/appl/path/Makefile</CODE>).You should have to
@@ -286,7 +287,7 @@ list of the object (<CODE>.o</CODE>) files in this local directory) and
 <HR>
 <H1><A NAME="authors">AUTHORS</A></H1>
 <P>Mario A. Storti, Norberto M. Nigro and others. CIMEC, Internacional
-Centre for Computational Methods in Engineering, Santa Fe, Argentina.</P>
+Center for Computational Methods in Engineering, Santa Fe, Argentina.</P>
 <P>
 <HR>
 <H1><A NAME="contacts">CONTACTS</A></H1>

@@ -136,13 +136,13 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-2.08.tar.gz* package, gunzip and untar
+    Once you got the *petscfem-beta-2.12.tar.gz* package, gunzip and untar
     it like this:
 
-      $ gunzip petscfem-beta-2.08.tar.gz
-      $ tar xvf petscfem-beta-2.08.tar
+      $ gunzip petscfem-beta-2.12.tar.gz
+      $ tar xvf petscfem-beta-2.12.tar
 
-    This will create a *petscfem-beta-2.08* directory with all the source
+    This will create a *petscfem-beta-2.12* directory with all the source
     files included.
 
   Makefile variables
@@ -225,9 +225,10 @@ TESTS AND EXAMPLES
 
 WRITING A NEW APPLICATION MODULE
     The best way to start coding an application program is to duplicate a
-    directory (for instance `applications/laplace') to a directory from your
-    own (i.e. outside the `$(PETSCFEM_DIR)' tree, say `/your/appl/path'.
-    Configure the `$(PETSCFEM_DIR)' variable in the local makefile (i.e.
+    directory (for instance `applications/advdif') or (for instance
+    `applications/ns') to a directory from your own (i.e. outside the
+    `$(PETSCFEM_DIR)' tree, say `/your/appl/path'. Configure the
+    `$(PETSCFEM_DIR)' variable in the local makefile (i.e.
     `/your/appl/path/Makefile').You should have to configure other variables
     as well, perhaps `$(MYOBJS)' (this is a list of the object (`.o') files
     in this local directory) and `$(PROG)' (the name of the program to be
@@ -235,7 +236,7 @@ WRITING A NEW APPLICATION MODULE
 
 AUTHORS
     Mario A. Storti, Norberto M. Nigro and others. CIMEC, Internacional
-    Centre for Computational Methods in Engineering, Santa Fe, Argentina.
+    Center for Computational Methods in Engineering, Santa Fe, Argentina.
 
 CONTACTS
     *   e-mail: `<mstorti@intec.unl.edu.ar'>
