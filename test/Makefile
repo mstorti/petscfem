@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.28 2001/06/07 01:58:07 mstorti Exp $ 
+# $Id: Makefile,v 1.29 2001/06/08 14:26:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -250,6 +250,7 @@ tidmap.bin: tidmap.o $(LIBPETSCFEM)
 		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
 
 
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Checks the constraint bug feature
 constraint_bug: laplace
@@ -335,9 +336,10 @@ testfm2d.bin: testfm2d.o daxpy.o libpetscfem
 fastmat2b: testfm2.bin
 	testfm2.bin > fastmat2.sal
 
-testfm2.bin: testfm2.o libpetscfem
+testfm2.bin: testfm2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o util2.o) 
 	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin testfm2.o \
-		$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
+		$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat \
+		$(MESCHACH)/libmes.a
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test c 

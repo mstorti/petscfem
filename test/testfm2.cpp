@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.6 2001/05/30 03:58:53 mstorti Exp $
+//$Id: testfm2.cpp,v 1.7 2001/06/08 14:26:01 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -49,13 +49,13 @@ int main() {
   Chrono chrono;
   FastMatCacheList cache_list;
   FastMatCachePosition cp1,cp2;
-  int n=3,Nin=1000,Nout=1000;
-  //int n=3,Nin=10,Nout=10;
+  //  int n=3,Nin=1000,Nout=1000;
+  int n=3,Nin=10,Nout=10;
   FastMat2 AA(2,n,n),A(2,3,3),B,C,D,E(2,3,3),G,H,K,L,M,P,Q,R,S,T,U,V,
     W,X,XX(2,n,n),Y,Z,Z1,Z2(1,3),Z3,Z4(2,3,3),Z121,Z20(2,3,5),Z21(3,3,5,5);
   FastMat2 Z5(2,20,20),Z6;
   FMatrix Z7(3,3),Z8,Z9,Z10(2,2),Z11,Z12,Z15(4,4),Z16,Z17,Z18,
-    Z116,Z117,Z118,Z19(3,3),Z30(3,3);
+    Z116,Z117,Z118,Z19(3,3),Z30(3,3),Z31,Z32;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -65,7 +65,7 @@ int main() {
   init123(Z15);
   Z15.setel(20.,1,1).setel(20.,2,2);
   double e[] = {1.,2.,4.,5.,3.,2.,3.,2.,1.};
-  double pp[9],dz8,z12,z121,z13,z14,z15,z115;
+  double pp[9],dz8,z12,z121,z13,z14,z15,z115,z31,z32;
   chrono.start();
   srand(time(0));
   double z10[] = {1.,2.,3.,4.};
@@ -288,12 +288,20 @@ int main() {
 
       Z21.d(2,3).set(Z20).rs();
 
+      // For a rectangular matrix A(n,m) (n>m) detsur is the
+      // sqrt() of the determinant of A*A'. It is helpful to compute
+      // the jacobian on surfaces or lines. 
       d[3]=Z30.detsur();
       Z30.is(1,1,2);
       d[2]=Z30.detsur();
       Z30.rs().is(1,1);
       d[1]=Z30.detsur();
       Z30.rs();
+
+      Z31.norm_p(Z30,2.3,-1,1);
+      Z32.norm_p(Z30,5,-1,1);
+      z31 = Z30.norm_p_all(2.3);
+      z32 = Z30.norm_p_all(5);
       
     }
     FastMat2::void_cache();
@@ -353,10 +361,14 @@ int main() {
   SH(Z19);
   Z21.d(3,2);SH(Z21);
   Z21.rs().d(2,3);SH(Z21);
-  // SH(Z30);
   SHV(d[1]);
   SHV(d[2]);
   SHV(d[3]);
+  // SH(Z30);
+  SH(Z31);
+  SH(Z32);
+  SHV(z31);
+  SHV(z32);
 
 #undef SH
 

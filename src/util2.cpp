@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.8 2001/05/30 18:21:53 mstorti Exp $
+//$Id: util2.cpp,v 1.9 2001/06/08 14:25:56 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -273,3 +273,26 @@ char *local_copy(const char *s) {
   strcpy(buf,s);
   return buf;
 }  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "inline double int_pow(double base,int exp)"
+double int_pow(double base,int exp) {
+  if (exp>=2) {
+    double r=base;
+    for (int j=1; j<exp; j++)
+      r *= base;
+    return r;
+  } else if (exp<=-2) {
+    double ibase = 1./base;
+    double r=ibase;
+    for (int j=2; j<-exp; j++)
+      r *= ibase;
+  } else if (exp=1) {
+    return base;
+  } else if (exp=0) {
+    return 1.;
+  } else if (exp=-1) {
+    return 1./base;
+  } 
+}

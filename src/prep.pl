@@ -89,19 +89,24 @@ sub in_place_all {
 }
 
 sub gen_sum {
-    my %defargs = {
+    my $args = {
 	'INI_LOOP' => 'val=0', 
 	'NAME' => shift(), 
 	'ELEM_OPERATIONS' => shift(),
 	'COUNT_OPER' => shift(),
 	'CACHE_OPERATIONS' => $cache_op,
 	'OTHER_ARGS' => '',
+	'OTHER_ARGS_P' => '',
 	'POST_LOOP_OPS' => ''};
     my $new_args = shift();
-    for (($k,$v) = each(%{$new_args}) {
-	$defargs{$k} = $v;
+#    print "new gen_sum call:\n";
+    while (my ($k,$v) = each %{$new_args}) {
+#	print "arg: '$k' -> '$v'\n";
+	$args->{$k} = $v;
     }
-    print template_subst($gen_sum,\%defargs);
+    # Put a comma for arguments
+    $args->{'C'} = ($args->{'OTHER_ARGS'} !~ /^\s*$/ ? "," : "");
+    print template_subst($gen_sum,$args);
 }
 
 sub gen_max {
@@ -118,6 +123,14 @@ sub gen_sum_all {
     gen_sum('sum','val += **pa++',copg('sum'));
     gen_sum('sum_square','aux= **pa++; val += aux*aux',copg(qw(sum mult)));
     gen_sum('sum_abs','val += fabs(**pa++)',copg(qw(sum abs)));
+    gen_sum('norm_p','val += pow(fabs(**pa++),p)',copg(qw(sum abs)),
+	    {'OTHER_ARGS'=>'const double p',
+	     'OTHER_ARGS_P'=>'p',
+	     'POST_LOOP_OPS'=>'val = pow(val,1./p)'});
+    gen_sum('norm_p','val += int_pow(fabs(**pa++),p)',copg(qw(sum abs)),
+	    {'OTHER_ARGS'=>'const int p',
+	     'OTHER_ARGS_P'=>'p',
+	     'POST_LOOP_OPS'=>'val = pow(val,1./double(p))'});
     gen_max('max','val=**pa++;','aux=**pa++; if (aux>val) val=aux',copg(qw(sum fun)));
     gen_max('min','val=**pa++;','aux=**pa++; if (aux<val) val=aux',copg(qw(sum fun)));
     gen_max('max_abs','val=fabs(**pa++);',

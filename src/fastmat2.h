@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.8 2001/06/04 04:06:06 mstorti Exp $
+//$Id: fastmat2.h,v 1.9 2001/06/08 14:25:56 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -671,7 +671,18 @@ public:
       @param i,j,k,l... (input) indices that define indices to be contracted
       @return a reference to the matrix.
    */ 
-  FastMat2 & norm(const FastMat2 & A,double p,const int m=0,INT_VAR_ARGS);
+  FastMat2 & norm_p(const FastMat2 & A,double p,const int m=0,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Norm p of matrix (per column) for p integer (more efficient)
+      $(\sum_j |a_j|^p)^\sfr 1p$
+      @author M. Storti
+      @param A (input) matrix to contract
+      @param p (input) exponent of norm
+      @param i,j,k,l... (input) indices that define indices to be contracted
+      @return a reference to the matrix.
+   */ 
+  FastMat2 & norm_p(const FastMat2 & A,int p,const int m=0,INT_VAR_ARGS);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Minimum over all selected indices.
@@ -739,6 +750,20 @@ public:
       @return the result of the operation
   */ 
   double sum_abs_all() const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Norm p over all indices.
+      @author M. Storti
+      @return the result of the operation
+  */ 
+  double norm_p_all(const double p) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Norm p over all indices for integer p.
+      @author M. Storti
+      @return the result of the operation
+  */ 
+  double norm_p_all(const int p) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Minimum  over all indices.
@@ -1061,4 +1086,5 @@ void read_int_list(const int m,va_list v,Indx *indx);
 /// indices
 int mem_size(const Indx & indx);
 
+double int_pow(double base,int exp);
 #endif

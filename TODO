@@ -5,9 +5,9 @@ TODO: [Mainly fixes go here...]
 
 * write better error messages in FM2
 * while reading constraints complain if dofs out of range
-* escribir una funcion "double pow_int(double base,int exp)"
 * new scheduling algorithm for load balancing in `elemset.cpp'
-* write a generic non-linear restriction element
+* adapt generic non-linear restriction element to general case
+    (arbitrary argument list)
 * fix some incompatibilities that exclude compilation with LES under old RH5.2
          of some STL vector usage.
 * Dofmap may be eliminated of the arguments to the elemset 'assemble'
@@ -43,6 +43,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* write a generic non-linear restriction element
+* escribir una funcion "double pow_int(double base,int exp)"
 * Cached version of detsur
 * add wall laws to turbulent shallow water
 * move 'awatch' from test/

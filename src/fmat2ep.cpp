@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.8 2001/06/04 04:06:07 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.9 2001/06/08 14:25:56 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -296,7 +296,17 @@ _//>
 
 //<$gen_sum=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::__NAME__(const FastMat2 & A,  __OTHER_ARGS__ 
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => '__INI_LOOP__'
+   'NAME' => '__NAME__'
+   'ELEM_OPERATIONS' => '__ELEM_OPERATIONS__'
+   'COUNT_OPER' => '__COUNT_OPER__'
+   'OTHER_ARGS' => '__OTHER_ARGS__'
+   'C' => '__C__'
+   'POST_LOOP_OPS' => '__POST_LOOP_OPS__'
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__ 
 			      const int m=0,INT_VAR_ARGS) {
 
   __CACHE_OPERATIONS__;
@@ -421,9 +431,9 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A,  __OTHER_ARGS__
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double FastMat2::__NAME___all() const {
+double FastMat2::__NAME___all(__OTHER_ARGS__) const {
   static FastMat2 retval(0);
-  retval.__NAME__(*this);
+  retval.__NAME__(*this __C__ __OTHER_ARGS_P__);
   return *retval.store;
 }
 

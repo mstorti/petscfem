@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.11 2001/06/04 17:46:37 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.12 2001/06/08 14:25:52 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
+#include "../../src/util2.h"
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
 #include "../../src/fastmat2.h"
@@ -12,26 +13,6 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 
 NonLinearRes::~NonLinearRes() {};
-
-inline double int_pow(double base,int exp) {
-  if (exp>=2) {
-    double r=base;
-    for (int j=1; j<exp; j++)
-      r *= base;
-    return r;
-  } else if (exp<=-2) {
-    double ibase = 1./base;
-    double r=ibase;
-    for (int j=2; j<-exp; j++)
-      r *= ibase;
-  } else if (exp=1) {
-    return base;
-  } else if (exp=0) {
-    return 1.;
-  } else if (exp=-1) {
-    return 1./base;
-  } 
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

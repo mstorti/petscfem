@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.7 2001/05/30 03:58:50 mstorti Exp $
+//$Id: utils.h,v 1.8 2001/06/08 14:25:56 mstorti Exp $
  
 
 #ifndef UTILS_H
@@ -130,4 +130,3 @@ T random_pop(set<T> &Tset) {
 int wait_from_console(char *s=NULL);
 
 #endif
-

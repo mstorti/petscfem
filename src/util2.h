@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.6 2001/05/30 03:58:50 mstorti Exp $
+//$Id: util2.h,v 1.7 2001/06/08 14:25:56 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -78,4 +78,10 @@ void read_double_array(vector<double> &v,const char * s);
 */ 
 void read_int_array(vector<int> &v,const char * s);
 
+/** Equivalent to 'pow' but for integer powers.
+    (May be more efficient).
+    @param (input)
+    @return a reference to the matrix.
+*/ 
+double int_pow(double base,int exp);
 #endif

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.8 2001/06/04 17:46:40 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.9 2001/06/08 14:25:56 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -802,7 +802,19 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::sum(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=0'
+   'NAME' => 'sum'
+   'ELEM_OPERATIONS' => 'val += **pa++'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::sum(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -944,6 +956,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     while (pa<pe) {
       val += **pa++;
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -953,12 +966,25 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_all() const {
   static FastMat2 retval(0);
-  retval.sum(*this);
+  retval.sum(*this  );
   return *retval.store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::sum_square(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=0'
+   'NAME' => 'sum_square'
+   'ELEM_OPERATIONS' => 'aux= **pa++; val += aux*aux'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.mult += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::sum_square(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -1101,6 +1127,7 @@ op_count.mult += ntot;
     while (pa<pe) {
       aux= **pa++; val += aux*aux;
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -1110,12 +1137,25 @@ op_count.mult += ntot;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_square_all() const {
   static FastMat2 retval(0);
-  retval.sum_square(*this);
+  retval.sum_square(*this  );
   return *retval.store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::sum_abs(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=0'
+   'NAME' => 'sum_abs'
+   'ELEM_OPERATIONS' => 'val += fabs(**pa++)'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.abs += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::sum_abs(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -1258,6 +1298,7 @@ op_count.abs += ntot;
     while (pa<pe) {
       val += fabs(**pa++);
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -1267,12 +1308,367 @@ op_count.abs += ntot;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::sum_abs_all() const {
   static FastMat2 retval(0);
-  retval.sum_abs(*this);
+  retval.sum_abs(*this  );
   return *retval.store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::max(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=0'
+   'NAME' => 'norm_p'
+   'ELEM_OPERATIONS' => 'val += pow(fabs(**pa++),p)'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.abs += ntot;
+'
+   'OTHER_ARGS' => 'const double p'
+   'C' => ','
+   'POST_LOOP_OPS' => 'val = pow(val,1./p)'
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p , 
+			      const int m=0,INT_VAR_ARGS) {
+
+  FastMatCache *cache;
+LineCache *lc;
+
+if (was_cached) {
+  cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+  printf ("reusing cache: ");
+#endif
+} else if (!use_cache) {
+  cache = new FastMatCache;
+} else {
+  cache = new FastMatCache;
+  cache_list->push_back(cache);
+  cache_list_begin = cache_list->begin();
+  cache_list->list_size =
+    cache_list_size = cache_list->size();
+  position_in_cache++;
+#ifdef FM2_CACHE_DBG
+  printf ("defining cache: ");
+#endif
+}
+#ifdef FM2_CACHE_DBG
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
+       cache_list,cache,position_in_cache-1);
+#endif
+;
+
+  if (!was_cached  ) {
+    Indx sindx,fdims,Afdims;
+    assert(A.defined);
+    A.get_dims(Afdims);
+
+    if (m!=0) {
+      sindx.push_back(m);
+#ifdef USE_VAR_ARGS
+      va_list ap;
+      va_start(ap,m);
+      read_int_list(Afdims.size()-1,ap,&sindx);
+#else
+      READ_INT_ARG_LIST(sindx);
+      assert(sindx.size() == Afdims.size());
+#endif
+    } else {
+      sindx = Indx(Afdims.size(),-1);
+    }
+
+    int nfree=0,nc=0;
+    for (int j=0; j<sindx.size(); j++) {
+      int k = sindx[j];
+      if (k>0 && k>nfree) nfree = k;
+      if (k<0) nc++;
+    }
+
+    Indx ifree(nfree,0),icontr(nc,0);
+    int ic=0;
+    for (int j=0; j<sindx.size(); j++) {
+      int k = sindx[j];
+      if (k>0) {
+	ifree[k-1] = j+1;
+      } else {
+	icontr[ic++] = j+1;
+      }
+    }
+  
+    Indx ndimsf(nfree,0),ndimsc(nc,0);
+    int nlines=1;
+    for (int j=0; j<nfree; j++) {
+      int k = ifree[j];
+      ndimsf[j] = Afdims[k-1];
+      nlines *= ndimsf[j];
+    }
+
+    // Dimension B (*this) if necessary
+    if (!defined) {
+      create_from_indx(ndimsf);
+    }
+
+    get_dims(fdims);
+    assert(ndimsf == fdims);
+
+    int line_size=1;
+    for (int j=0; j<nc; j++) {
+      int k = icontr[j];
+      ndimsc[j] = Afdims[k-1];
+      line_size *= ndimsc[j];
+    }
+
+    int ndims = Afdims.size();
+    Indx findx(nfree,1),cindx(nc,1),tot_indx(ndims,0);
+
+    // Loading addresses in cache
+    // For each element in the distination target, we store the complete
+    // list of addresses of the lines of elements that contribute to
+    // it. 
+    cache->prod_cache.resize(nlines);
+    cache->line_cache_start = cache->prod_cache.begin();
+    cache->nlines = nlines;
+    cache->line_size = line_size;
+    for (int jlc=0; jlc<nlines; jlc++) {
+      lc = cache->line_cache_start + jlc;
+      lc->linea.resize(line_size);
+      // cache->prod_cache.push_back(LineCache());
+      lc->target = location(findx);
+      // findx.print("for free indx: ");
+
+      cindx= Indx(nc,1);
+      for (int j=0; j<nfree; j++)
+	tot_indx[ifree[j]-1] = findx[j];
+
+      int kk=0;
+      while(1) {
+	for (int j=0; j<nc; j++) {
+	  int k=icontr[j];
+	  tot_indx[k-1] = cindx[j];
+	}
+	// tot_indx.print("tot_indx: ");
+
+	lc->linea[kk++] = A.location(tot_indx);
+	if (!inc(cindx,ndimsc)) break;
+      }
+      lc->starta = lc->linea.begin();
+      if (!inc(findx,ndimsf)) break;
+    }
+    int ntot = nlines*line_size;
+    op_count.get += ntot;
+    op_count.put += nlines;
+    op_count.sum += ntot;
+op_count.abs += ntot;
+;
+  }
+
+  double **pa,**pe,val,aux;
+  for (int j=0; j<cache->nlines; j++) {
+    lc = cache->line_cache_start+j;
+    pa = lc->starta;
+    pe = pa + cache->line_size;
+    // val=0;
+    val=0;
+    while (pa<pe) {
+      val += pow(fabs(**pa++),p);
+    }
+    val = pow(val,1./p);
+    *lc->target = val;
+  }
+  if (!use_cache) delete cache;
+  return *this;
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double FastMat2::norm_p_all(const double p) const {
+  static FastMat2 retval(0);
+  retval.norm_p(*this , p);
+  return *retval.store;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=0'
+   'NAME' => 'norm_p'
+   'ELEM_OPERATIONS' => 'val += int_pow(fabs(**pa++),p)'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.abs += ntot;
+'
+   'OTHER_ARGS' => 'const int p'
+   'C' => ','
+   'POST_LOOP_OPS' => 'val = pow(val,1./double(p))'
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p , 
+			      const int m=0,INT_VAR_ARGS) {
+
+  FastMatCache *cache;
+LineCache *lc;
+
+if (was_cached) {
+  cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+  printf ("reusing cache: ");
+#endif
+} else if (!use_cache) {
+  cache = new FastMatCache;
+} else {
+  cache = new FastMatCache;
+  cache_list->push_back(cache);
+  cache_list_begin = cache_list->begin();
+  cache_list->list_size =
+    cache_list_size = cache_list->size();
+  position_in_cache++;
+#ifdef FM2_CACHE_DBG
+  printf ("defining cache: ");
+#endif
+}
+#ifdef FM2_CACHE_DBG
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
+       cache_list,cache,position_in_cache-1);
+#endif
+;
+
+  if (!was_cached  ) {
+    Indx sindx,fdims,Afdims;
+    assert(A.defined);
+    A.get_dims(Afdims);
+
+    if (m!=0) {
+      sindx.push_back(m);
+#ifdef USE_VAR_ARGS
+      va_list ap;
+      va_start(ap,m);
+      read_int_list(Afdims.size()-1,ap,&sindx);
+#else
+      READ_INT_ARG_LIST(sindx);
+      assert(sindx.size() == Afdims.size());
+#endif
+    } else {
+      sindx = Indx(Afdims.size(),-1);
+    }
+
+    int nfree=0,nc=0;
+    for (int j=0; j<sindx.size(); j++) {
+      int k = sindx[j];
+      if (k>0 && k>nfree) nfree = k;
+      if (k<0) nc++;
+    }
+
+    Indx ifree(nfree,0),icontr(nc,0);
+    int ic=0;
+    for (int j=0; j<sindx.size(); j++) {
+      int k = sindx[j];
+      if (k>0) {
+	ifree[k-1] = j+1;
+      } else {
+	icontr[ic++] = j+1;
+      }
+    }
+  
+    Indx ndimsf(nfree,0),ndimsc(nc,0);
+    int nlines=1;
+    for (int j=0; j<nfree; j++) {
+      int k = ifree[j];
+      ndimsf[j] = Afdims[k-1];
+      nlines *= ndimsf[j];
+    }
+
+    // Dimension B (*this) if necessary
+    if (!defined) {
+      create_from_indx(ndimsf);
+    }
+
+    get_dims(fdims);
+    assert(ndimsf == fdims);
+
+    int line_size=1;
+    for (int j=0; j<nc; j++) {
+      int k = icontr[j];
+      ndimsc[j] = Afdims[k-1];
+      line_size *= ndimsc[j];
+    }
+
+    int ndims = Afdims.size();
+    Indx findx(nfree,1),cindx(nc,1),tot_indx(ndims,0);
+
+    // Loading addresses in cache
+    // For each element in the distination target, we store the complete
+    // list of addresses of the lines of elements that contribute to
+    // it. 
+    cache->prod_cache.resize(nlines);
+    cache->line_cache_start = cache->prod_cache.begin();
+    cache->nlines = nlines;
+    cache->line_size = line_size;
+    for (int jlc=0; jlc<nlines; jlc++) {
+      lc = cache->line_cache_start + jlc;
+      lc->linea.resize(line_size);
+      // cache->prod_cache.push_back(LineCache());
+      lc->target = location(findx);
+      // findx.print("for free indx: ");
+
+      cindx= Indx(nc,1);
+      for (int j=0; j<nfree; j++)
+	tot_indx[ifree[j]-1] = findx[j];
+
+      int kk=0;
+      while(1) {
+	for (int j=0; j<nc; j++) {
+	  int k=icontr[j];
+	  tot_indx[k-1] = cindx[j];
+	}
+	// tot_indx.print("tot_indx: ");
+
+	lc->linea[kk++] = A.location(tot_indx);
+	if (!inc(cindx,ndimsc)) break;
+      }
+      lc->starta = lc->linea.begin();
+      if (!inc(findx,ndimsf)) break;
+    }
+    int ntot = nlines*line_size;
+    op_count.get += ntot;
+    op_count.put += nlines;
+    op_count.sum += ntot;
+op_count.abs += ntot;
+;
+  }
+
+  double **pa,**pe,val,aux;
+  for (int j=0; j<cache->nlines; j++) {
+    lc = cache->line_cache_start+j;
+    pa = lc->starta;
+    pe = pa + cache->line_size;
+    // val=0;
+    val=0;
+    while (pa<pe) {
+      val += int_pow(fabs(**pa++),p);
+    }
+    val = pow(val,1./double(p));
+    *lc->target = val;
+  }
+  if (!use_cache) delete cache;
+  return *this;
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double FastMat2::norm_p_all(const int p) const {
+  static FastMat2 retval(0);
+  retval.norm_p(*this , p);
+  return *retval.store;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=**pa++;'
+   'NAME' => 'max'
+   'ELEM_OPERATIONS' => 'aux=**pa++; if (aux>val) val=aux'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.fun += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::max(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -1415,6 +1811,7 @@ op_count.fun += ntot;
     while (pa<pe) {
       aux=**pa++; if (aux>val) val=aux;
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -1424,12 +1821,25 @@ op_count.fun += ntot;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_all() const {
   static FastMat2 retval(0);
-  retval.max(*this);
+  retval.max(*this  );
   return *retval.store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::min(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=**pa++;'
+   'NAME' => 'min'
+   'ELEM_OPERATIONS' => 'aux=**pa++; if (aux<val) val=aux'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.fun += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::min(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -1572,6 +1982,7 @@ op_count.fun += ntot;
     while (pa<pe) {
       aux=**pa++; if (aux<val) val=aux;
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -1581,12 +1992,26 @@ op_count.fun += ntot;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_all() const {
   static FastMat2 retval(0);
-  retval.min(*this);
+  retval.min(*this  );
   return *retval.store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::max_abs(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=fabs(**pa++);'
+   'NAME' => 'max_abs'
+   'ELEM_OPERATIONS' => 'aux=fabs(**pa++); if (aux>val) val=aux'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.fun += ntot;
+op_count.abs += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::max_abs(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -1730,6 +2155,7 @@ op_count.abs += ntot;
     while (pa<pe) {
       aux=fabs(**pa++); if (aux>val) val=aux;
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -1739,12 +2165,26 @@ op_count.abs += ntot;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::max_abs_all() const {
   static FastMat2 retval(0);
-  retval.max_abs(*this);
+  retval.max_abs(*this  );
   return *retval.store;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::min_abs(const FastMat2 & A,const int m=0,INT_VAR_ARGS) {
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'val=fabs(**pa++);'
+   'NAME' => 'min_abs'
+   'ELEM_OPERATIONS' => 'aux=fabs(**pa++); if (aux<val) val=aux'
+   'COUNT_OPER' => 'op_count.sum += ntot;
+op_count.fun += ntot;
+op_count.abs += ntot;
+'
+   'OTHER_ARGS' => ''
+   'C' => ''
+   'POST_LOOP_OPS' => ''
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::min_abs(const FastMat2 & A,   
+			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
 LineCache *lc;
@@ -1888,6 +2328,7 @@ op_count.abs += ntot;
     while (pa<pe) {
       aux=fabs(**pa++); if (aux<val) val=aux;
     }
+    ;
     *lc->target = val;
   }
   if (!use_cache) delete cache;
@@ -1897,7 +2338,7 @@ op_count.abs += ntot;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::min_abs_all() const {
   static FastMat2 retval(0);
-  retval.min_abs(*this);
+  retval.min_abs(*this  );
   return *retval.store;
 }
 
