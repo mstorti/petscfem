@@ -700,3 +700,6 @@ tag: beta-2.55 on Sat Dec  8 17:35:05 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.56 on Sun Dec  9 10:43:58 ARST 2001, by mstorti in spider
      > Discarding modifications to the `pfmat' class.
+----------
+tag: pfmat-rewrite-1.00 on Fri Dec 14 00:12:26 ARST 2001, by mstorti in spider
+     > Working on new version of PFMat
