@@ -1740,3 +1740,6 @@ tag: beta-3.06.pl10 on Sat,  2 Nov 2002 08:43:04 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.06.pl11 on Sat,  2 Nov 2002 17:52:08 -0300 by mstorti in spider
      > Compiles without ANN and `libretto'
+----------
+tag: beta-3.06.pl12 on Sat,  2 Nov 2002 22:35:25 -0300 by mstorti in spider
+     > Runs all tests
