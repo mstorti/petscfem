@@ -1,0 +1,93 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+get_var_env('case',undef);
+$save_file = ($case ? "aqui.$case.tmp" : "aqui.state.tmp");
+## Test the 'G_body' feature. 
+$Nx = 20;
+$Ny = 1;
+$Lx = 1;				# Side of the cavity
+$Ly = $Lx/$Nx;				# Side of the cavity
+$hratio = 1;			# refinement (h_center/h_wall)
+$K = 1;
+$S = 1;
+$eta = -100.;
+$Dt = 1;			# time step
+$steady = 1;
+$solver = "petsc";
+$preco_type = "lu";
+$maxits = 1;
+$nstep = 1;
+#
+#__END_TRANSCRIPT__
+@vars = qw(Nx Ny Lx Ly hratio K S eta Dt steady);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+:>//                            # ends ePerl block
+
+global_options
+
+nsave 5
+<:pr('nstep'):> 
+# initial_state aqui.state
+<:pr('save_file'):> 
+
+# type of solver (may be "iisd", "petsc"...)
+<:pr('solver'):>
+<:pr('preco_type'):> 
+<:pr('maxits'):> 
+# Number of subdomains
+# <:pr('iisd_subpart'):>
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-6
+dtol 1e3
+nnwt 5
+
+Krylov_dim <:=$maxits:>
+print_internal_loop_conv 1
+#print_linear_system_and_stop 1
+#verify_jacobian_with_numerical_one 1
+
+#print_nodal_partitioning 1
+Dt <:=$Dt:>
+steady
+alpha 1.
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  1
+__INCLUDE__ aqui.nod.tmp
+_END_NODES__
+
+elemset aquifer 4 
+name malla
+
+# report_consumed_time
+geometry cartesian2d
+ndim 2
+npg 4
+#
+# Datos fisicos
+#
+<:pr('K'):> 
+<:pr('S'):>
+<:pr('eta'):>
+__END_HASH__
+__INCLUDE__ aqui.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+__INCLUDE__ aqui.fixa.tmp
+__END_FIXA__
