@@ -1,9 +1,13 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.1 2002/09/24 02:50:48 mstorti Exp $
+//$Id: dlhook.h,v 1.2 2002/09/24 17:59:56 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
+
+#ifdef USE_DLEF
+#include <dlfcn.h>
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class dl_generic_hook : public Hook {

@@ -19,5 +19,5 @@ void TextHashTableFilter::set_key(const char *name,string &kk) const {
 void TextHashTableFilter::get_entry(const char *kk,const char *&val)
   const {
   set_key(kk,key);
-  get_entry(key.c_str(),val);
+  thash->get_entry(key.c_str(),val);
 }
