@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.16 2001/08/11 16:13:36 mstorti Exp $
+// $Id: distmap.h,v 1.17 2001/08/11 22:10:45 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -23,7 +23,7 @@ public:
      @param element (input) the element to ask
      @return the processor to which #element# belongs
   */ 
-  // virtual int epart(ElementIterator &element) {return 0;};
+  virtual int epart(ElementIterator &element) {return 0;};
 
   /* To which processor belongs a node.
      NOT IMPLEMENTED YET
@@ -51,8 +51,6 @@ class DistMap : public map<Key,Val> {
  protected:
   /// MPI communicator
   MPI_Comm comm;
-  /// This returns the number of processor for a given dof
-  Partitioner *part;
   /// size and rank in the comunicator
   int size,myrank;
  public:
@@ -63,8 +61,7 @@ class DistMap : public map<Key,Val> {
       @return a reference to the matrix.
   */ 
   DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
-  /** User defines this function that determine to which processor
-      belongs each entry
+  /** Determines 
       @param k (input) iterator to the considered entry. 
       @return the number of processor where these matrix should go. 
   */ 
@@ -107,7 +104,7 @@ DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
   // initialize the partitioner 
-  part=p;
+  // part=p;
   sched = grouping;
 };
 
