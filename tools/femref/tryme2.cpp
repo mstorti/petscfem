@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: tryme2.cpp,v 1.6 2004/12/29 00:44:27 mstorti Exp $
+// $Id: tryme2.cpp,v 1.7 2004/12/29 00:52:30 mstorti Exp $
 
 #include <ctime>
 #include <cstdio>
@@ -15,37 +15,6 @@ int its;
 int ilog2(int x) {
   return int(ceil(log(double(x))/log(2.0)));
 }
-
-#if 0
-int lower_bound(vector<int> &v, int x) {
-  its = 0;
-  int 
-    j, vj,
-    j1 = 0,
-    v1 = v[j1],
-    j2 = v.size()-1,
-    v2 = v[j2];
-  if (x > v2) return v.size();
-  if (x == v2) {
-    while (j2>=0 && v[j2]==x) { j2--; }
-    return j2;
-  }
-  while (j2-j1 > 1) {
-    its++;
-    if (v2 == v1) return j1;
-    j = j1 + int((double(x-v1)*double(j2-j1))/double(v2-v1));
-    if (j==j1) j++;
-    if (j==j2) j--;
-    vj = v[j];
-    if (x < vj ) { j2=j; v2=vj; }
-    else if (x > vj ) { j1=j; v1=vj; }
-    else {
-      while (j>0 && v[j-1]==x) { j--; }
-      return j;
-    }
-  }
-}
-#endif
 
 static int 
 lower_boundb_aux(vector<int> &v, 
@@ -67,6 +36,8 @@ int lower_boundb(vector<int> &v,
   return j2;
 }
 
+int DJGLOB;
+
 int lower_boundbl(vector<int> &v, int x) {
   its = 0;
   int 
@@ -79,23 +50,13 @@ int lower_boundbl(vector<int> &v, int x) {
   if (x < v1) return 0;
   if (v1 == v2) return 0;
   j = j1 + int((double(x-v1)*double(j2-j1))/double(v2-v1));
-  int dj = int(pow(double(j),0.5));
+  // int dj = int(pow(double(j),0.5));
+  int dj = int(sqrt(double(j)));
+  // int dj = DJGLOB;
   int jj1 = j-dj;
-  if (jj1>=0) {
-    int vjj1 = v[jj1];
-    if (vjj1 < x) {
-      v1=vjj1;
-      j1=jj1;
-    }
-  }
+  if (jj1>=0 && v[jj1] < x) j1=jj1;
   int jj2 = j + dj;
-  if (jj2<v.size()) {
-    int vjj2 = v[jj2];
-    if (vjj2 >= x) {
-      v2 = vjj2;
-      j2=jj2;
-    }
-  }
+  if (jj2<v.size() && v[jj2]>= x) j2=jj2;
   return lower_boundb(v,x,j1,j2);
 }
 
@@ -109,6 +70,7 @@ int lower_boundb(vector<int> &v, int x) {
 int main() {
   time_t start, end;
   int N=10000000, ntries=10000000;
+  DJGLOB = int(sqrt(double(N)));
   vector<int> v(N);
   for (int j=0; j<N; j++) 
     v[j] = rand();
