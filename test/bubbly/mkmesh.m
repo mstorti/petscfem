@@ -3,6 +3,7 @@ source("data.m.tmp");
 ## rem(N,2)==0 || warning("N should be even");
 
 w=zhomo([0 1 0 1],N+1,N+1,[1 hratio 1 1 hratio 1]);
+#w=zhomo([0 1 0 1],N+1,N+1);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
@@ -39,6 +40,7 @@ fixa_l=[lid' ones(nlid,2)*diag([ul utop]);
 fixa = [fixa;fixa_l];
 endif
 
+if 1
 ul=5;
 vl=6;
 fixa_g=[lid' ones(nlid,2)*diag([ul utop]);
@@ -46,11 +48,12 @@ fixa_g=[lid' ones(nlid,2)*diag([ul utop]);
       b' ones(nb,2)*diag([ul 0]);
       b' ones(nb,2)*diag([vl 0])];
 fixa = [fixa;fixa_g];
+endif
 
 asave("bubbly.fixa.tmp",fixa);
 fid = fopen("bubbly.fixa_all.tmp","w");
 for j=1:(N+1)^2;
-  fprintf(fid,"%d %d %f\n",j,2,alpha_l);
+#  fprintf(fid,"%d %d %f\n",j,2,alpha_l);
 #  fprintf(fid,"%d %d %f\n",j,3,u_l);
 #  fprintf(fid,"%d %d %f\n",j,4,v_l);
 #  fprintf(fid,"%d %d %f\n",j,5,u_g);
@@ -61,7 +64,8 @@ endfor
 fclose(fid);
 
 nnod = length(x);
-uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
+##uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
+uini = [0. alpha_l 1.e-5 1.e-6 2.e-5 2.e-6 0.1 0.1];
 uini=uini(ones(rows(x),1),:);
 #uini=0.01*randn(rows(x),8);
 asave("bubbly.ini.tmp",uini);

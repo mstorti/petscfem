@@ -5,32 +5,41 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
-$save_file = ($case ? "bubbly.$case.tmp" : "bubbly.state.tmp");
+$save_file = ($case ? "poise2fases.$case.tmp" : "poise2fases.state.tmp");
 ## Test the 'G_body' feature. 
-$g_body= 0;
+$g_body= 1;
 if ($case eq 'g_body') {
     $case='lu';
     $g_body=1;
 }
+
+
+$fixa_fase = 2;               # 0 : ambas fases ; sino 1 o 2 segun la que fije 
 $U = 1;				# typical velocity scale
-$L = 1;				# Side of the cavity
-$N = 20;
+$Lx = 10;				# Side of the cavity
+$Ly = 1;				# Side of the cavity
+$Nx = 30;
+$Ny = 20;
 $hratio = 1;			# refinement (h_center/h_wall)
 $Re =100;			# Reynolds number
-$visco_l = $L/$Re;		# viscosity
-$Dt = 0.1;			# time step
+$visco_l = $Ly/$Re;		# viscosity
+$Dt = 10.0;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 100;
-#$alpha_l = 1.;
-$alpha_l = 0.5;
-$u_l=0;
+$nstep =  1000;
+
+# CONDICIONES A LA ENTRADA
+$alpha_g = 0.5;
+$alpha_l = 1-$alpha_g;
+$u_l=0; 
 $v_l=0;
 $u_g=0;
 $v_g=0;
 $k = 0.1;
 $eps = 0.1;
+$p_out = 0;
+
 #
 $cache_gdu = 0;
 # `scalar' avoids returning the first match, which can be zero
@@ -39,20 +48,23 @@ $solver = "petsc";
 $preco_type = "lu";
 #
 #__END_TRANSCRIPT__
-@vars = qw(U L N Re visco_l h Co Dt hratio 
-		g_body alpha_l u_l v_l u_g v_g k eps);
+@vars = qw(U Lx Ly Nx Ny Re visco_l h Co Dt hratio 
+		g_body alpha_l alpha_g u_l v_l u_g v_g k eps p_out save_file fixa_fase);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
 
+
 ##================================================================
 global_options
+
+####<: $fixa_fase = $ENV{'ip'}; :>
 
 alpha 1.
 nsave 1
 <:pr('nstep'):> 
-#initial_state "bubbly.ini.tmp"
-initial_state "bubbly.state.tmp"
+#initial_state "poise2fases.ini.tmp"
+initial_state "poise2fases.state.tmp"
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -67,13 +79,13 @@ proc_weights weights.dat
 
 #    Iterative parameters
 tol_tet 1e-5
-tol_newton 1e-10
+tol_newton 1e-6
 atol 0
 rtol 0
 dtol 1e3
-nnwt 5
+nnwt 4
+omega_newton 1.0
 
-omega_newton 0.5
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv
 #if 0
@@ -86,8 +98,8 @@ print_linear_system_and_stop
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
-#steady
-weak_form 1
+steady
+weak_form 0
 temporal_stability_factor 0
 #tau_fac 1.0
 
@@ -98,7 +110,7 @@ cache_grad_div_u
 #endif
 
 #if $g_body
-G_body 0 -1.
+G_body -1.0 0.
 #endif
 
 ndim 2
@@ -106,15 +118,21 @@ ndim 2
 #visco_g <:=$visco_l/1000;:>
 visco_g <:=$visco_l/1*1e-10;:>
 C_mu 0.
-rho_l 1.
+rho_l 1000.
 #rho_g 1e-3
-rho_g 1.
+#rho_g 1e-2
+rho_g 1.0
+
+#d_bubble 0.001
+d_bubble 0.006
+comp_interphase_terms 1
+
 __END_HASH__
 
 ##================================================================
 # ndim nu ndof
 nodes  2  2  8
-__INCLUDE__ bubbly.nod.tmp
+__INCLUDE__ poise2fases.nod.tmp
 _END_NODES__
 
 ##================================================================
@@ -122,7 +140,7 @@ elemset bubbly 4
 geometry cartesian2d
 npg 4
 __END_HASH__
-__INCLUDE__ bubbly.con.tmp
+__INCLUDE__ poise2fases.con.tmp
 __END_ELEMSET__
 
 ##================================================================
@@ -131,7 +149,7 @@ elemset bubbly_bcconv 2
 geometry cartesian1d
 npg 2
 __END_HASH__
-__INCLUDE__ bubbly.bcconv.tmp
+__INCLUDE__ poise2fases.bcconv.tmp
 __END_ELEMSET__
 #endif
 
@@ -139,14 +157,15 @@ end_elemsets
 
 ##================================================================
 fixa
+
 #if 1
 # fijacion de la presion en un nodo
-1 1 0.
+#1 1 0.
 # fijacion de alpha en un nodo
-11 2 <:=$alpha_l;:>
+#11 2 <:=$alpha_l;:>
 
 # fijaciones de velocidad en las paredes
-__INCLUDE__ bubbly.fixa.tmp
+__INCLUDE__ poise2fases.fixa.tmp
 #endif
-__INCLUDE__ bubbly.fixa_all.tmp
+__INCLUDE__ poise2fases.fixa_all.tmp
 __END_FIXA__

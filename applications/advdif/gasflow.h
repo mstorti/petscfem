@@ -1,40 +1,31 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.9 2003/01/08 13:09:38 mstorti Exp $
-#ifndef BUBBLY_H
-#define BUBBLY_H
+// $Id: gasflow.h,v 1.2 2003/01/08 13:09:38 mstorti Exp $
+#ifndef gasflow_H
+#define gasflow_H
 
 #include "./advective.h"
 #include "./stream.h"
 
-// #include "nwadvdifj.h"
+#include "nwadvdifj.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-/** Flux function for multi-phase flow
+/** Flux function for compressible viscous flow 
  */
-class bubbly_ff : public AdvDifFFWEnth {
+class gasflow_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
     vl_indxe,vg_indxe;
-  FastMat2 U,v_l,v_g,v_mix,Cp,Ajac,Id,Amoml,Amomg,Y,
-    Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
-    grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
-    uintri,svec,tmp9,W_N,grad_alpha_g,grad_p,tmp6,tmp7,tmp10;
-  FastMat2 Cpc,Ajacc,Djacc,Cjacc;
-  FastMat2 Phi_1,Phi_2,v_g_l;
-  FastMat2 tau_supg_c, vel_supg;
-  double alpha_l,alpha_g,arho_l,arho_g,p,k,eps,
-    visco_l,visco_g,visco_l_eff,visco_g_eff,
-    C_mu,C_1,C_2,sigma_k,sigma_e,P_k,tau_fac,
-    visco_t,temporal_stability_factor;
-  double tmp1_drag,tmp2_drag,tmp3_drag,tmp4_drag,C1_drag,v_slip,Rey_bubble;
-  double dRedU,C_drag_ff,dCDdRe_ff,id_liq,id_gas;
-  double rho_l,rho_g;
-  double d_bubble;
-  int comp_interphase_terms;
-  FastMat2 v_l_old,v_g_old;
-
-  double tau_supg_a,tau_pspg,delta_supg,visco_supg,velmod, h_supg, h_pspg;
+  FastMat2 U,vel,Cp,Ajac,Id_ndim,Amom,Y,vel_old,
+    Djac,tmp1,Cjac,tmp2,tmp3,grad_vel,strain_rate,IdId,G_body,
+    uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,tmp6,tmp7,tmp05,tmp10,tmp_vel;
+  FastMat2 viscous_work,heat_flux,sigma;
+  FastMat2 tau_supg_c,vel_supg;
+  FastMat2 Ajac_tmp,Djac_tmp;
+  double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff;
+  double C_mu,C_1,C_2,sigma_k,sigma_e,tau_fac,temporal_stability_factor;
+  double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
+  double tau_supg_a,delta_supg,visco_supg,velmod, h_supg, h_pspg;
 
   const NewAdvDif *advdf_e;
 
@@ -43,9 +34,11 @@ private:
   void compute_tau(int ijob);
 
 public:
-  bubbly_ff(NewElemset *elemset_);
+  gasflow_ff(NewElemset *elemset_);
 
-  ~bubbly_ff();
+  ~gasflow_ff();
+
+  void set_profile(FastMat2 &seed);
 
   /** This is called before any other in a loopnike and may help in
       optimization
@@ -146,19 +139,19 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-/// The elemset corresponding to the `bubbly_ff' flux function.
-class bubbly : public NewAdvDif {
+/// The elemset corresponding to the `gasflow_ff' flux function.
+class gasflow : public NewAdvDif {
 public:
   /** Constructor, creates the fluc function object.
       fixme:= should destroy the flux functin.
   */
-  bubbly() :  NewAdvDif(new bubbly_ff(this)) {};
+  gasflow() :  NewAdvDif(new gasflow_ff(this)) {};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-class bubbly_bcconv : public NewBcconv {
+class gasflow_bcconv : public NewBcconv {
 public:
-  bubbly_bcconv() : NewBcconv(new bubbly_ff(this)) {};
+  gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
 };
 
 #endif

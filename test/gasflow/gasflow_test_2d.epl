@@ -1,0 +1,176 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+$ip = $ENV{'ip'};
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+get_var_env('case',undef);
+get_var_env('meas_perf',undef);
+$save_file = ($case ? "gasflow_test_2d.$case.tmp" : "gasflow_test_2d.state.tmp");
+#$ipm=$ip-1;
+#$save_file_pattern = ($case ? "gasflow_test_2d.$case.tmp" : "gasflow_test_2d.state.$ipm.tmp");
+## Test the 'G_body' feature. 
+
+## GEOMETRY
+$H = 1;                   # Laddle height
+$D = 1;		      # Laddle diameter
+$Nr = 10;                     # number of nodes in the radial direction   
+$Nz = 10;                     # number of nodes in the axial direction
+$hratio = 1;		      # refinement (H_center/H_wall)
+$rratio = 1;		      # refinement (R_center/R_wall)
+
+## PHYSICAL DATA
+$visco   =  1e-02;          # liquid phase viscosity
+$visco   = 100*$visco;
+$Pr      =  0.72;
+$Pr      = 10*$Pr;
+$Rgas    =  287.;
+$ga      =   1.4;
+$Cv      = $Rgas/($ga-1);
+$Cp      = $ga*$Cv;
+$cond    = $Cp*$visco/$Pr;
+$g_body  =  0;
+$gravity = -9.8;
+
+# BOUNDARY CONDITIONS
+$Mach_ref   = 0.1;
+$rho_ini    = 1.15;
+$p_ini      = 1.0e5; 
+$p_ref      = 1.0e5;
+$rho_ref    = 1.15;
+
+$cc_ref     = sqrt($ga*$p_ref/$rho_ref);
+$u_ref      = $Mach_ref*$cc_ref;
+$u_ini      = $u_ref;
+$v_ini      = 0.01*$u_ini;
+$v_ref      = $v_ini;
+
+$weak_form  = 1;
+
+## SOLVER DATA
+$Dt = 0.001;		# time step
+$solver = "petsc";
+$preco_type = "lu";
+$maxits = 1;
+$nstep =  100;
+
+$cache_gdu = 0;
+#
+#__END_TRANSCRIPT__
+@vars = qw(H D Nr Nz rho_ini u_ini v_ini p_ini rho_ref u_ref v_ref p_ref hratio rratio 
+           save_file weak_form);
+
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH mkgasflow_test_2d.m";
+:>//                            # ends ePerl block
+
+
+##================================================================
+global_options
+
+####<: $fixa_fase = $ENV{'ip'}; :>
+
+alpha 1.
+nsave 1
+<:pr('nstep'):> 
+
+initial_state "gasflow_test_2d.ini.tmp"
+#initial_state "gasflow_test_2d.state.tmp"
+#initial_state "gasflow_test_2d.state"
+#<:pr('save_file_pattern'):> 
+<:pr('save_file'):> 
+
+#save_file "gasflow_test_2d.state.tmp" 
+save_file_pattern "outvector%d.out"
+
+# type of solver (may be "iisd", "petsc"...)
+solver "petsc"
+preco_type "lu"
+<:pr('maxits'):> 
+# Number of subdomains
+# <:pr('iisd_subpart'):>
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 0
+dtol 1e3
+nnwt 10
+omega_newton 1
+
+Krylov_dim <:=$maxits:>
+print_internal_loop_conv
+#if 0
+print_residual
+# solve_system 0
+verify_jacobian_with_numerical_one 1
+inwt_stop 2
+print_linear_system_and_stop
+#endif
+
+# print_nodal_partitioning 1
+Dt <:=$Dt:>
+#steady
+<:pr('weak_form'):> 
+temporal_stability_factor 0
+#tau_fac 1.
+
+shock_capturing_factor 0
+#if $cache_gdu
+local_store
+cache_grad_div_u
+#endif
+
+#if $g_body
+G_body 0 <:=$gravity:>
+#endif
+
+ndim 2
+<:pr('visco'):> 
+<:pr('Rgas'):> 
+C_mu 0.
+<:pr('ga'):> 
+<:pr('cond'):> 
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodes  2  2  4
+__INCLUDE__ gasflow_test_2d.nod.tmp
+_END_NODES__
+
+##================================================================
+elemset gasflow 4 
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ gasflow_test_2d.con.tmp
+__END_ELEMSET__
+
+##================================================================
+#if 1
+elemset gasflow_bcconv 2
+geometry cartesian1d
+npg 2
+__END_HASH__
+__INCLUDE__ gasflow_test_2d.bcconv.tmp
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+##================================================================
+fixa
+
+__INCLUDE__ gasflow_test_2d.fixa_in.tmp
+__INCLUDE__ gasflow_test_2d.fixa_wall.tmp
+__INCLUDE__ gasflow_test_2d.fixa_out.tmp
+
+__END_FIXA__
+y

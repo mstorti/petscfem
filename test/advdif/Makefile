@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.26 2002/12/02 19:09:45 mstorti Exp $ 
+# $Id: Makefile,v 1.27 2003/01/08 13:09:46 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -142,7 +142,7 @@ sine.data: sine.data.epl
 
 #include makefile.d
 
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+#NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \

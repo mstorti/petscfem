@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.17 2003/01/08 13:09:38 mstorti Exp $
+//$Id: bccbubbly.cpp,v 1.2 2003/01/08 13:09:38 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -14,7 +14,7 @@ extern int comp_mat_each_time_step_g,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int BcconvAdv::ask(char *,int &)"
+#define __FUNC__ "int bubbly_bcconv::ask(char *,int &)"
 int NewBcconv::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
@@ -28,7 +28,7 @@ int NewBcconv::ask(const char *jobinfo,int &skip_elemset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "BcconvAdv::assemble"
+#define __FUNC__ "bubbly_bcconv::assemble"
 void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
@@ -172,7 +172,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       // normal:= normal vector times the surface of the element
-      detJaco = Jaco.detsur(&normal);
+      detJaco = mydetsur(Jaco,normal);
       normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
@@ -191,12 +191,19 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       delta_sc=0;
       double lambda_max_pg;
-      adv_diff_ff->set_state(U,grad_U);
+#if 1
       adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
 				A_grad_U,grad_U,G_source,
 				tau_supg,delta_sc,
 				lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				DEFAULT);
+#else
+      ierr =  (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
+			     A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
+			     lambda_max_pg,nor,lambda,Vr,Vr_inv,
+			     element.props(),NULL,DEFAULT,
+			     start_chunk,ret_options);
+#endif
 
       // normal = pvec(Jaco.SubMatrix(1,1,1,ndim).t(),
       // Jaco.SubMatrix(2,2,1,ndim).t());
