@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.8 2003/11/25 02:10:22 mstorti Exp $
+//$Id: gasflow.cpp,v 1.9 2005/01/12 16:15:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -53,6 +53,15 @@ void gasflow_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,ga,1.4);
   // constant of a particular gas for ideal gas law (state equation for the gas)
   EGETOPTDEF_ND(elemset,double,Rgas,287.);
+
+  // shock capturing scheme 
+  // [0] standard [default]
+  // [1] see Tezduyar & Senga WCCM VI (2004) 
+  EGETOPTDEF_ND(elemset,int,shocap_scheme,0);
+  // beta parameter for shock capturing, see Tezduyar & Senga WCCM VI (2004)
+  EGETOPTDEF_ND(elemset,double,shocap_beta,1.0);
+  // factor used to add some standard shocap to Tezduyar & Senga shocap
+  EGETOPTDEF_ND(elemset,double,shocap_factor,0.0);
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -204,15 +213,43 @@ void gasflow_ff::compute_tau(int ijob,double &delta_sc) {
 
     double Peclet = velmod * h_supg / (2. * visco_supg);
     double sonic_speed = sqrt(ga*p/rho);
-
     double velmax = velmod+sonic_speed;
-
+    
     tau_supg_a = h_supg/2./velmax;
+    
+    if (shocap_scheme==0) {
+      double fz = (Peclet < 3. ? Peclet/3. : 1.);
+      delta_sc = 0.5*h_supg*velmax*fz;
+    } else {
+      double tol_shoc = 1e-010;
+      // compute j direction , along density gradient 
+      double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
+      FastMat2::branch();
+      if(grad_rho_mod>tol_shoc) {
+	FastMat2::choose(0);	
+	//      grad_rho_mod = (grad_rho_mod <= 0 ? tol_shoc : grad_rho_mod);
+	jvec.set(grad_rho).scale(1.0/grad_rho_mod);      
+	h_shoc = tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all();
+	h_shoc = (h_shoc < tol ? tol : h_shoc);
+	h_shoc = 2./h_shoc;
+      } else {
+	h_shoc = h_supg;
+      }
+      FastMat2::leave();
+      double fz = grad_rho_mod*h_shoc/rho;
+      fz = pow(fz,shocap_beta);
+      delta_sc = 0.5*h_shoc*velmax*fz;
 
-    double fz = (Peclet < 3. ? Peclet/3. : 1.);
-//    delta_sc = 0.5*h_supg*velmod*fz;
-    delta_sc = 0.5*h_supg*velmax*fz;
+      //      printf("en shocap [1], fz %g, delta_sc %g\n",
+      //       fz,delta_sc);
 
+      double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+      delta_sc += shocap_factor*0.5*h_supg*velmax*fz2;
+
+      //      printf("en shocap [2], fz2 %g, delta_sc %g\n",
+      //       fz2,delta_sc);
+      
+    }    
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
