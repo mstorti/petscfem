@@ -1,49 +1,46 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program</title>
-<link rev="made" href="mailto:root@localhost" />
-</head>
+<HTML>
+<HEAD>
+<TITLE>PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program</TITLE>
+<LINK REV="made" HREF="mailto:prospector@porky.devel.redhat.com">
+</HEAD>
 
-<body style="background-color: white">
+<BODY>
 
-<p><a name="__index__"></a></p>
+<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
-<ul>
+<UL>
 
-	<li><a href="#name">NAME</a></li>
-	<li><a href="#synopsis">SYNOPSIS</a></li>
-	<li><a href="#license">LICENSE</a></li>
-	<li><a href="#installation">INSTALLATION</a></li>
-	<ul>
+	<LI><A HREF="#name">NAME</A></LI>
+	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
+	<LI><A HREF="#license">LICENSE</A></LI>
+	<LI><A HREF="#installation">INSTALLATION</A></LI>
+	<UL>
 
-		<li><a href="#platforms">Platforms</a></li>
-		<li><a href="#required_software">Required Software</a></li>
-		<li><a href="#unpacking">Unpacking</a></li>
-		<li><a href="#makefile_variables">Makefile variables</a></li>
-		<li><a href="#configuring">Configuring</a></li>
-		<li><a href="#compiling">Compiling</a></li>
-	</ul>
+		<LI><A HREF="#platforms">Platforms</A></LI>
+		<LI><A HREF="#required software">Required Software</A></LI>
+		<LI><A HREF="#unpacking">Unpacking</A></LI>
+		<LI><A HREF="#makefile variables">Makefile variables</A></LI>
+		<LI><A HREF="#configuring">Configuring</A></LI>
+		<LI><A HREF="#compiling">Compiling</A></LI>
+	</UL>
 
-	<li><a href="#documentation">DOCUMENTATION</a></li>
-	<li><a href="#tests_and_examples">TESTS AND EXAMPLES</a></li>
-	<li><a href="#writing_a_new_application_module">WRITING A NEW APPLICATION MODULE</a></li>
-	<li><a href="#authors">AUTHORS</a></li>
-	<li><a href="#contacts">CONTACTS</a></li>
-</ul>
+	<LI><A HREF="#documentation">DOCUMENTATION</A></LI>
+	<LI><A HREF="#tests and examples">TESTS AND EXAMPLES</A></LI>
+	<LI><A HREF="#writing a new application module">WRITING A NEW APPLICATION MODULE</A></LI>
+	<LI><A HREF="#authors">AUTHORS</A></LI>
+	<LI><A HREF="#contacts">CONTACTS</A></LI>
+</UL>
 <!-- INDEX END -->
 
-<hr />
-<p>
-</p>
-<h1><a name="name">NAME</a></h1>
-<p>PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program</p>
-<p>
-</p>
-<hr />
-<h1><a name="synopsis">SYNOPSIS</a></h1>
-<p>This is PETSc-FEM, a general purpose, parallel, multi-physics FEM
+<HR>
+<P>
+<H1><A NAME="name">NAME</A></H1>
+<P>PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program</P>
+<P>
+<HR>
+<H1><A NAME="synopsis">SYNOPSIS</A></H1>
+<P>This is PETSc-FEM, a general purpose, parallel, multi-physics FEM
 program for CFD applications based on PETSc. PETSc-FEM comprises both
 a library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
@@ -51,189 +48,158 @@ programs.  It is written in the C++ language with an OOP (Object
 Oriented Programming) philosophy, keeping in mind the scope
 of efficiency. PETSc-FEM may run in parallel using the MPI standard on a
 variety of architectures, but currently it has been tested in Beowulf
-clusters only.</p>
-<p>PETSc-FEM is GPL, for further details read the file COPYING in the
-root directory of the distribution.</p>
-<p>
-</p>
-<hr />
-<h1><a name="license">LICENSE</a></h1>
-<p>This file belongs to the PETSc - FEM package a library and application
+clusters only.</P>
+<P>PETSc-FEM is GPL, for further details read the file COPYING in the
+root directory of the distribution.</P>
+<P>
+<HR>
+<H1><A NAME="license">LICENSE</A></H1>
+<P>This file belongs to the PETSc - FEM package a library and application
 suite oriented to the Finite Element Method based on PETSc.  Copyright
 (C) 1999-2003, Mario Alberto Storti, Norberto Marcelo Nigro, Centro
 Internacional de Metodos Numericos en Ingenieria (CIMEC-Argentina),
 Universidad Nacional del Litoral (UNL-Argentina), Consejo Nacional de
-Investigaciones Cientificas y Tecnicas (CONICET-Argentina).</p>
-<p>This program is free software; you can redistribute it and/or modify
+Investigaciones Cientificas y Tecnicas (CONICET-Argentina).</P>
+<P>This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful, but
+your option) any later version.</P>
+<P>This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
+General Public License for more details.</P>
+<P>You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-USA.</p>
-<p>
-</p>
-<hr />
-<h1><a name="installation">INSTALLATION</a></h1>
-<p>
-</p>
-<h2><a name="platforms">Platforms</a></h2>
-<p>Currently, PETSc-FEM is known to run only on Beowulf class clusters
+USA.</P>
+<P>
+<HR>
+<H1><A NAME="installation">INSTALLATION</A></H1>
+<P>
+<H2><A NAME="platforms">Platforms</A></H2>
+<P>Currently, PETSc-FEM is known to run only on Beowulf class clusters
 based on Intel processors, running the GNU/Linux OS.  Off course, you
 can also install PETSc-FEM in a single GNU/Linux box, for use in
 sequential (i.e. non-parallel) mode or either for simulating parallel
 runs, by launching several processes in the same processor. (This is a
 feature of MPI). PETSc-FEM compiles cleanly with the GNU compiler GCC
-3.2 that comes with Red-Hat 8.0.</p>
-<p>I guess it should be easy to install in other processor architectures
+3.2 that comes with Red-Hat 8.0.</P>
+<P>I guess it should be easy to install in other processor architectures
 (SPARC or Alpha) running GNU/Linux and also (maybe) on other Unix
-flavours.</p>
-<p>
-</p>
-<h2><a name="required_software">Required Software</a></h2>
-<p>Before installing PETSc-FEM, please verify you have the following
-packages correctly installed in your system.</p>
-<dl>
-<dt><strong><a name="item_mpi">MPI</a></strong><br />
-</dt>
-<dd>
+flavours.</P>
+<P>
+<H2><A NAME="required software">Required Software</A></H2>
+<P>Before installing PETSc-FEM, please verify you have the following
+packages correctly installed in your system.</P>
+<DL>
+<DT><STRONG><A NAME="item_MPI">MPI</A></STRONG><BR>
+<DD>
 This is the Message Passing Interface. We are currently using MPICH
-(<code>http://www.mcs.anl.gov/mpich</code>) but I think there will be not problem
+(<CODE>http://www.mcs.anl.gov/mpich</CODE>) but I think there will be not problem
 with LAM MPI.
-</dd>
-<p></p>
-<dt><strong><a name="item_petsc">PETSC</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_PETSC">PETSC</A></STRONG><BR>
+<DD>
 This is the 'Portable, Extensible Toolkit for Scientific Computation'
-and can be found at <code>http://www.mcs.anl.gov/petsc/</code>.
-</dd>
-<p></p>
-<dt><strong><a name="item_lapack">LAPACK</a></strong><br />
-</dt>
-<dd>
+and can be found at <CODE>http://www.mcs.anl.gov/petsc/</CODE>.
+<P></P>
+<DT><STRONG><A NAME="item_LAPACK">LAPACK</A></STRONG><BR>
+<DD>
 This is, in fact, a prerequisiste to install PETSc and can be found at 
-<code>http://www.netlib.org/lapack/</code>.
-</dd>
-<p></p>
-<dt><strong><a name="item_libretto">Libretto</a></strong><br />
-</dt>
-<dd>
+<CODE>http://www.netlib.org/lapack/</CODE>.
+<P></P>
+<DT><STRONG><A NAME="item_Libretto">Libretto</A></STRONG><BR>
+<DD>
 This is a C library of generic containers and can be found at
-<code>http://pobox.com/~aaronc/tech/libretto/</code>. I have learned recently
+<CODE>http://pobox.com/~aaronc/tech/libretto/</CODE>. I have learned recently
 that development of Libretto has been stopped since it has been
-superseded by <strong>GLIB</strong>, so that I think that in a future I will replace
-the Libretto code by <strong>GLIB</strong>. Also, the STL library (that comes with
-gcc) can replace all or some of the features provided by <strong>Libretto</strong>
+superseded by <STRONG>GLIB</STRONG>, so that I think that in a future I will replace
+the Libretto code by <STRONG>GLIB</STRONG>. Also, the STL library (that comes with
+gcc) can replace all or some of the features provided by <STRONG>Libretto</STRONG>
 but I found that the STL implementation (at least that one that comes
 with gcc) is rather inefficient.
-</dd>
-<p></p>
-<dt><strong><a name="item_glib">GLIB</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_GLIB">GLIB</A></STRONG><BR>
+<DD>
 GLIB is a library which includes support routines for C such as lists,
 trees, hashes, memory allocation, and many other things. The official
-web site is <code>http://www.gtk.org/</code>. [RedHat RPM packages: <a href="#item_glib"><code>GLIB</code></a>,
-<code>glib-devel</code>]
-</dd>
-<p></p>
-<dt><strong><a name="item_newmat">Newmat</a></strong><br />
-</dt>
-<dd>
+web site is <CODE>http://www.gtk.org/</CODE>. [RedHat RPM packages: <A HREF="#item_GLIB"><CODE>GLIB</CODE></A>,
+<CODE>glib-devel</CODE>]
+<P></P>
+<DT><STRONG><A NAME="item_Newmat">Newmat</A></STRONG><BR>
+<DD>
 This is a matrix library to be used mainly at the element routine
 level, i.e. for small matrices and can be found at
-<code>http://webnz.com/robert/</code>. It is not mandatory to use Newmat for all
+<CODE>http://webnz.com/robert/</CODE>. It is not mandatory to use Newmat for all
 element calculations. In fact there is included a matrix class called
 FastMat2 that is more performant, but Newmat is still used in some
 internal parts and has much more functions, so that you have to
-install it. Also, you may prefer <em>Newmat</em> over <em>FastMat2</em> for
+install it. Also, you may prefer <EM>Newmat</EM> over <EM>FastMat2</EM> for
 element calculations since it supports overloading of algebraic
-operations. See the documentation on <em>FastMat2</em> in the <em>PETSc-FEM</em>
+operations. See the documentation on <EM>FastMat2</EM> in the <EM>PETSc-FEM</EM>
 documentation for reasons why to use FastMat2 instead of Newmat.
-</dd>
-<p></p>
-<dt><strong><a name="item_metis">METIS</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_METIS">METIS</A></STRONG><BR>
+<DD>
 METIS is a software package for partitioning unstructured graphs,
 partitioning meshes, and computing fill-reducing orderings of sparse
-matrices. It can be found at <code>http://www.cs.umn.edu/~metis</code>.
-</dd>
-<p></p>
-<dt><strong><a name="item_meschach">Meschach</a></strong><br />
-</dt>
-<dd>
+matrices. It can be found at <CODE>http://www.cs.umn.edu/~metis</CODE>.
+<P></P>
+<DT><STRONG><A NAME="item_Meschach">Meschach</A></STRONG><BR>
+<DD>
 The Meschach Library is a numerical library of C routines for
 performing calculations on matrices and vectors. It is used only for
 some functions that can not be done with Newmat. Currently, it is used
 in the advective module for performing eigenvalue decomposition of
 non-symettric matrices. I think that in a future this functionality
 could be replaced by calls to LAPACK.
-</dd>
-<p></p>
-<dt><strong><a name="item_eperl">ePerl</a></strong><br />
-</dt>
-<dd>
-<strong>ePerl</strong> (for <em>embedded Perl</em>) is a preprocessor much like the <strong>C</strong>
+<P></P>
+<DT><STRONG><A NAME="item_ePerl">ePerl</A></STRONG><BR>
+<DD>
+<STRONG>ePerl</STRONG> (for <EM>embedded Perl</EM>) is a preprocessor much like the <STRONG>C</STRONG>
 language preprocessor (home page:
-<code>http://www.engelschall.com/sw/eperl/</code>). <strong>ePerl</strong> allows you to embed
-arbitrary <strong>Perl</strong> code in your document. It is not required at all,
+<CODE>http://www.engelschall.com/sw/eperl/</CODE>). <STRONG>ePerl</STRONG> allows you to embed
+arbitrary <STRONG>Perl</STRONG> code in your document. It is not required at all,
 but is is very useful for preprocessing the data files. 
-[RedHat RPM package: <code>eperl</code>]. NEW: from version 3.18.pl44 on the
-Perl based version of <code>eperl</code> is include in the &lt;tools&gt; directory. So
+[RedHat RPM package: <CODE>eperl</CODE>]. NEW: from version 3.18.pl44 on the
+Perl based version of <CODE>eperl</CODE> is include in the &lt;tools&gt; directory. So
 that it is not needed to install it!! The Perl based version can be
-marginally different from the <code>C</code> version. If you want to specify your
-own <code>eperl</code> preprocessor then you have to modify the <code>EPERL</code>
-variable in <code>Makefile.base</code>. The Perl version of ePerl is written
-and maintained by David Ljung Madison <code>&lt;DaveSource.com&gt;</code>
-<code>http://MarginalHacks.com</code>. License: GPL (See <code>tools/eperl_license.txt</code>).
-</dd>
-<p></p>
-<dt><strong><a name="item_perl">Perl</a></strong><br />
-</dt>
-<dd>
-If you want to use <strong>ePerl</strong> then you need to have <strong>Perl</strong>
-installed. [RedHat RPM package: <code>perl</code>].
-</dd>
-<p></p>
-<dt><strong><a name="item_superlu">SuperLU (optional)</a></strong><br />
-</dt>
-<dd>
+marginally different from the <CODE>C</CODE> version. If you want to specify your
+own <CODE>eperl</CODE> preprocessor then you have to modify the <CODE>EPERL</CODE>
+variable in <CODE>Makefile.base</CODE>. The Perl version of ePerl is written
+and maintained by David Ljung Madison <CODE>&lt;DaveSource.com&gt;</CODE>
+<CODE>http://MarginalHacks.com</CODE>. License: GPL (See <CODE>tools/eperl_license.txt</CODE>).
+<P></P>
+<DT><STRONG><A NAME="item_Perl">Perl</A></STRONG><BR>
+<DD>
+If you want to use <STRONG>ePerl</STRONG> then you need to have <STRONG>Perl</STRONG>
+installed. [RedHat RPM package: <CODE>perl</CODE>].
+<P></P>
+<DT><STRONG><A NAME="item_SuperLU">SuperLU (optional)</A></STRONG><BR>
+<DD>
 A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at <code>http://www.nersc.gov/~xiaoye/SuperLU/</code>. 
+equations. Can be found at <CODE>http://www.nersc.gov/~xiaoye/SuperLU/</CODE>. 
 This package is optional, install it if you think that SuperLU is faster
 than PETSc for direct factorization of sparse matrices.
-</dd>
-<p></p>
-<dt><strong><a name="item_ann">ANN (optional)</a></strong><br />
-</dt>
-<dd>
-This is the <em>Approximate Nearest Neighbor Library</em> and can be found
-at <code>http://www.cs.umd.edu/~mount/ANN</code>. Currently it is only used in
+<P></P>
+<DT><STRONG><A NAME="item_ANN">ANN (optional)</A></STRONG><BR>
+<DD>
+This is the <EM>Approximate Nearest Neighbor Library</EM> and can be found
+at <CODE>http://www.cs.umd.edu/~mount/ANN</CODE>. Currently it is only used in
 the Navier-Stokes module for calculating the damping functions in the
 Smagorinsky model. However, in a future it may be used more widely for
 some mesh manipulations. Currently it is optional.
-</dd>
-<p></p>
-<dt><strong><a name="item_library">pthreads library (optional)</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_library">pthreads library (optional)</A></STRONG><BR>
+<DD>
 This is a POSIX compliant library for threads, currently used for
 asynchronous communication with the IBM Data Explorer visualization
 tool, but it might be used for other things in a near future. 
 It comes with gcc, so that if you use gcc, you probably have it
 already installed.
-</dd>
-<p></p>
-<dt><strong><a name="item_library">Simple Sockets Library (SSL) (optional)</a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_Library">Simple Sockets Library (SSL) (optional)</A></STRONG><BR>
+<DD>
 The Simple Sockets Library (SSL) allows C programmers to use
 interprocess communications via Berkeley sockets simply and quickly.
 Most of the SSL's functions resemble C's file i/o functions, so C
@@ -241,156 +207,138 @@ programmers will find the SSL easy to learn. Currently used for
 communication with the IBM Data Explorer visualization tool, but 
 but it might be used for other things in a near future. 
 [Current verision: 2.11a Tue Mar  6 09:46:16 EST 2001]
-[Note: If you do a web search you can find it as a file <code>COSMIC.tar.gz</code>
-or <code>ssl.tar.gz</code>].
-</dd>
-<p></p></dl>
-<p>
-</p>
-<h2><a name="unpacking">Unpacking</a></h2>
-<p>Once you got the <code>petscfem-xxx.tar.gz</code> package (<code>xxx</code> stands for the
-version), gunzip and untar it like this:</p>
-<pre>
+[Note: If you do a web search you can find it as a file <CODE>COSMIC.tar.gz</CODE>
+or <CODE>ssl.tar.gz</CODE>].
+<P></P></DL>
+<P>
+<H2><A NAME="unpacking">Unpacking</A></H2>
+<P>Once you got the <CODE>petscfem-xxx.tar.gz</CODE> package (<CODE>xxx</CODE> stands for the
+version), gunzip and untar it like this:</P>
+<PRE>
   $ gunzip petscfem-xxx.tar.gz
-  $ tar xvf petscfem-xxx.tar</pre>
-<p>This will create a <em>petscfem-xxx</em> directory with
-all the source files included.</p>
-<p>
-</p>
-<h2><a name="makefile_variables">Makefile variables</a></h2>
-<dl>
-<dt><strong><a name="item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a></strong><br />
-</dt>
-<dd>
+  $ tar xvf petscfem-xxx.tar</PRE>
+<P>This will create a <EM>petscfem-xxx</EM> directory with
+all the source files included.</P>
+<P>
+<H2><A NAME="makefile variables">Makefile variables</A></H2>
+<DL>
+<DT><STRONG><A NAME="item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A></STRONG><BR>
+<DD>
 The root of the PETSc-FEM package
-</dd>
-<p></p>
-<dt><strong><a name="item_%24%28petsc_arch%29%2c_%24%28petsc_home%29"><code>$(PETSC_ARCH)</code>, <code>$(PETSC_HOME)</code></a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_%24%28PETSC_ARCH%29%2C_%24%28PETSC_HOME%29"><CODE>$(PETSC_ARCH)</CODE>, <CODE>$(PETSC_HOME)</CODE></A></STRONG><BR>
+<DD>
 These are variables relative to PETSc. See documentation.
-</dd>
-<p></p></dl>
-<p>
-</p>
-<h2><a name="configuring">Configuring</a></h2>
-<p>Once you have all the software mentioned in <a href="#required_software">Required Software</a>
-installed, you have to define the variables in the <strong>CONFIGURATION
-VARIABLES</strong> section in file <em>$(PETSCFEM_DIR)/Makefile.base</em>.</p>
-<ul>
-<li></li>
-First you have to set the <code>PETSC_BOPT</code> variable which is the default
-value for the <code>PETSc</code> <code>BOPT</code> variable, which sets the
+<P></P></DL>
+<P>
+<H2><A NAME="configuring">Configuring</A></H2>
+<P>Once you have all the software mentioned in <A HREF="#required software">Required Software</A>
+installed, you have to define the variables in the <STRONG>CONFIGURATION
+VARIABLES</STRONG> section in file <EM>$(PETSCFEM_DIR)/Makefile.base</EM>.</P>
+<UL>
+<LI>
+First you have to set the <CODE>PETSC_BOPT</CODE> variable which is the default
+value for the <CODE>PETSc</CODE> <CODE>BOPT</CODE> variable, which sets the
 optimization level to be used in compilation. You can set it to
-<dl>
-<dt><strong><a name="item_petsc_bopt_%3d_g_c%2b%2b"><code>PETSC_BOPT = g_c++</code></a></strong><br />
-</dt>
-<dd>
+<DL>
+<DT><STRONG><A NAME="item_PETSC_BOPT_%3D_g_c%2B%2B"><CODE>PETSC_BOPT = g_c++</CODE></A></STRONG><BR>
+<DD>
 Compiles for debugging.
-</dd>
-<p></p>
-<dt><strong><a name="item_petsc_bopt_%3d_o_c%2b%2b"><code>PETSC_BOPT = O_c++</code></a></strong><br />
-</dt>
-<dd>
+<P></P>
+<DT><STRONG><A NAME="item_PETSC_BOPT_%3D_O_c%2B%2B"><CODE>PETSC_BOPT = O_c++</CODE></A></STRONG><BR>
+<DD>
 Compiles with optimization enabled.
-</dd>
-<p></p></dl>
-<p>The optimization level is inherited by the <code>PETSc</code> libraries so that
-if you compile with <code>PETSC_BOPT=O_c++</code> then not only <code>PETSc-FEM</code>
-will be compiled with optimization, but also the <code>PETSc</code> optimized
+<P></P></DL>
+<P>The optimization level is inherited by the <CODE>PETSc</CODE> libraries so that
+if you compile with <CODE>PETSC_BOPT=O_c++</CODE> then not only <CODE>PETSc-FEM</CODE>
+will be compiled with optimization, but also the <CODE>PETSc</CODE> optimized
 libraries will be used. The specific optimization options are set in 
-<code>$(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables</code> (<code>OCXX_COPTFLAGS</code> variable). 
+<CODE>$(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables</CODE> (<CODE>OCXX_COPTFLAGS</CODE> variable). 
 According to our experience
-maximum optimization is achieved with &lt;BOPT=-O2 -funroll-loops&gt;.</p>
-<p>The default value can be superseded by, for instance, issuing</p>
-<pre>
-  $ make BOPT=O_c++ ns</pre>
-<p>This compiles the Navier-Stokes module with optimization enabled
-independently of the <code>PETSC_BOPT</code> default value.</p>
-<li></li>
-The <code>PROF_FLAGS</code> variables allows you to turn on profiling. By
+maximum optimization is achieved with &lt;BOPT=-O2 -funroll-loops&gt;.</P>
+<P>The default value can be superseded by, for instance, issuing</P>
+<PRE>
+  $ make BOPT=O_c++ ns</PRE>
+<P>This compiles the Navier-Stokes module with optimization enabled
+independently of the <CODE>PETSC_BOPT</CODE> default value.</P>
+<LI>
+The <CODE>PROF_FLAGS</CODE> variables allows you to turn on profiling. By
 default, profiling is deactivated.
-<p></p>
-<li></li>
-Other configuration variables are defined in a file <code>Makefile.defs</code>,
+<P></P>
+<LI>
+Other configuration variables are defined in a file <CODE>Makefile.defs</CODE>,
 but normally they are set only when you first install PETSc-FEM, so
-the best is to put <code>Makefile.defs</code> in the directory inmediately above
-PETSc-FEM directory (i.e. <code>$(PETSCFEM_DIR)/..</code>).  So that, if you
+the best is to put <CODE>Makefile.defs</CODE> in the directory inmediately above
+PETSc-FEM directory (i.e. <CODE>$(PETSCFEM_DIR)/..</CODE>).  So that, if you
 install another version of PETSc-FEM, the settings will be seen
-immediately by the new version. A version of <code>Makefile.defs</code> is
+immediately by the new version. A version of <CODE>Makefile.defs</CODE> is
 included in the PETSc-FEM directory.  Copy it to the directory _above_
 the PETSC-FEM directory and configure the variables inside. If you
 install another version of PETSc-FEM then probably you have not to
 configure again these variables, unless a new package has been added
 or you have moved it.
-<p></p></ul>
-<p>
-</p>
-<h2><a name="compiling">Compiling</a></h2>
-<p><code>cd</code> to directory <a href="#item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a> and do</p>
-<pre>
+<P></P></UL>
+<P>
+<H2><A NAME="compiling">Compiling</A></H2>
+<P><CODE>cd</CODE> to directory <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> and do</P>
+<PRE>
   $ make depend
   $ make libpetscfem        # to build the library
-  $ make all                # to build the library and all the modules</pre>
-<p>also</p>
-<pre>
-  $ make what</pre>
-<p>can help you on other useful targets.</p>
-<p>If nothing goes wrong you will end with a <em>src/libpetscfem.a</em> library
-and application binaries (ending in <code>.bin</code>) in their respective
-directories, e.g. <em>applications/ns/ns.bin</em> is the Navier-Stokes binary.</p>
-<p>
-</p>
-<hr />
-<h1><a name="documentation">DOCUMENTATION</a></h1>
-<p>Documentation for <em>PETSc-FEM</em> is included in the
-<code>$(PETSCFEM_DIR)/doc</code> directory. There is basically a reference
-manual written in <em>LaTeX</em> (<em>doc/petscfem.tex</em>), and embedded
-documentation for the routines to be used with <code>Doc++</code>. In the
+  $ make all                # to build the library and all the modules</PRE>
+<P>also</P>
+<PRE>
+  $ make what</PRE>
+<P>can help you on other useful targets.</P>
+<P>If nothing goes wrong you will end with a <EM>src/libpetscfem.a</EM> library
+and application binaries (ending in <CODE>.bin</CODE>) in their respective
+directories, e.g. <EM>applications/ns/ns.bin</EM> is the Navier-Stokes binary.</P>
+<P>
+<HR>
+<H1><A NAME="documentation">DOCUMENTATION</A></H1>
+<P>Documentation for <EM>PETSc-FEM</EM> is included in the
+<CODE>$(PETSCFEM_DIR)/doc</CODE> directory. There is basically a reference
+manual written in <EM>LaTeX</EM> (<EM>doc/petscfem.tex</EM>), and embedded
+documentation for the routines to be used with <CODE>Doc++</CODE>. In the
 standard distrib you should find both of them converted to HTML
-(<code>LaTeX</code> is converted with <code>latex2html</code>) and accessible from
-<em>doc/index.html</em>. Other formats (perhaps PostScript and PDF) may be also
-found in the <code>doc</code> directory.</p>
-<p>
-</p>
-<hr />
-<h1><a name="tests_and_examples">TESTS AND EXAMPLES</a></h1>
-<p>Many tests and examples are in the <code>$(PETSCFEM_DIR)/test</code> directory.</p>
-<p>
-</p>
-<hr />
-<h1><a name="writing_a_new_application_module">WRITING A NEW APPLICATION MODULE</a></h1>
-<p>The best way to start coding an application program is to duplicate a
-directory (for instance <code>applications/advdif</code>) or (for instance
-<code>applications/ns</code>) to a directory from
-your own (i.e. outside the <a href="#item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a> tree, say
-<code>/your/appl/path</code>. Configure the <a href="#item_%24%28petscfem_dir%29"><code>$(PETSCFEM_DIR)</code></a> variable in the
-local makefile (i.e. <code>/your/appl/path/Makefile</code>).You should have to
-configure other variables as well, perhaps <code>$(MYOBJS)</code> (this is a
-list of the object (<code>.o</code>) files in this local directory) and
-<code>$(PROG)</code> (the name of the program to be built, without the suffix
-<code>.bin</code>).</p>
-<p>
-</p>
-<hr />
-<h1><a name="authors">AUTHORS</a></h1>
-<p>Mario A. Storti, Norberto M. Nigro and others. CIMEC, Internacional
-Center for Computational Methods in Engineering, Santa Fe, Argentina.</p>
-<p>
-</p>
-<hr />
-<h1><a name="contacts">CONTACTS</a></h1>
-<ul>
-<li></li>
-<strong>e-mail:</strong> <code>&lt;mstorti@intec.unl.edu.ar</code>&gt;
-<p></p>
-<li></li>
-<strong>www:</strong> <code>http://www.cimec.org.ar/petscfem</code>
-<p></p>
-<li></li>
-<strong>ordinary mail:</strong> Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.
-<p></p></ul>
+(<CODE>LaTeX</CODE> is converted with <CODE>latex2html</CODE>) and accessible from
+<EM>doc/index.html</EM>. Other formats (perhaps PostScript and PDF) may be also
+found in the <CODE>doc</CODE> directory.</P>
+<P>
+<HR>
+<H1><A NAME="tests and examples">TESTS AND EXAMPLES</A></H1>
+<P>Many tests and examples are in the <CODE>$(PETSCFEM_DIR)/test</CODE> directory.</P>
+<P>
+<HR>
+<H1><A NAME="writing a new application module">WRITING A NEW APPLICATION MODULE</A></H1>
+<P>The best way to start coding an application program is to duplicate a
+directory (for instance <CODE>applications/advdif</CODE>) or (for instance
+<CODE>applications/ns</CODE>) to a directory from
+your own (i.e. outside the <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> tree, say
+<CODE>/your/appl/path</CODE>. Configure the <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> variable in the
+local makefile (i.e. <CODE>/your/appl/path/Makefile</CODE>).You should have to
+configure other variables as well, perhaps <CODE>$(MYOBJS)</CODE> (this is a
+list of the object (<CODE>.o</CODE>) files in this local directory) and
+<CODE>$(PROG)</CODE> (the name of the program to be built, without the suffix
+<CODE>.bin</CODE>).</P>
+<P>
+<HR>
+<H1><A NAME="authors">AUTHORS</A></H1>
+<P>Mario A. Storti, Norberto M. Nigro and others. CIMEC, Internacional
+Center for Computational Methods in Engineering, Santa Fe, Argentina.</P>
+<P>
+<HR>
+<H1><A NAME="contacts">CONTACTS</A></H1>
+<UL>
+<LI>
+<STRONG>e-mail:</STRONG> <CODE>&lt;mstorti@intec.unl.edu.ar</CODE>&gt;
+<P></P>
+<LI>
+<STRONG>www:</STRONG> <CODE>http://www.cimec.org.ar/petscfem</CODE>
+<P></P>
+<LI>
+<STRONG>ordinary mail:</STRONG> Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.
+<P></P></UL>
 
-</body>
+</BODY>
 
-</html>
+</HTML>
