@@ -1,4 +1,4 @@
-## $Id: mknozzle.m,v 1.1 2005/01/31 02:20:52 mstorti Exp $
+## $Id: mknozzle.m,v 1.2 2005/01/31 02:35:52 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -25,15 +25,15 @@ y = (Ly-eta*Hin);
 
 xnod = [x,y];
 
-asave("gfnozzle.xnod.tmp",xnod);
+asave("gfnozzle.nod.tmp",xnod);
 asave("gfnozzle.con.tmp",icone);
 
 inlet = (1:Ny+1)';
 slip = (Ny+1)*(1:Nx+1);
 outlet = Nx*(Ny+1)+inlet;
-wall = 1+(Ny+1)*(0:Nx);
+wall = 1+(Ny+1)*(0:Nx)';
 
-## Normals on the wall
+## Tangents at the wall
 nwall = length(wall);
 tan = zeros(nwall,2);
 tan(2:nwall-1,:) = xnod(wall(3:nwall),:) \
@@ -46,3 +46,20 @@ nor = [-tan(:,2),tan(:,1)];
 
 xwall = xnod(wall,:);
 xwall2 = xwall+0.1*nor;
+
+## Slip at the wall
+tmp = complement(inlet,wall)';
+pfconstr("gfnozzle.constr-wall.tmp",[tmp,tmp],2:3,nor);
+
+## [rho u v] at inlet
+pffixa("gfnozzle.fixa-in.tmp",inlet,1:3,[rhoref,uref,0]);
+
+## `p' at outlet
+pffixa("gfnozzle.fixa-out.tmp",outlet,4,pref);
+
+## `v=0' at axis
+pffixa("gfnozzle.fixa-slip.tmp",slip,3);
+
+nnod = rows(xnod);
+uini = Uref(ones(nnod,1),:);
+asave("gfnozzle.ini.tmp",uini);

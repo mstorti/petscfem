@@ -14,9 +14,14 @@ $Tref = 1;
 $rhoref = 1;
 $gamma = 1;
 $Machin = 0.5;
+$pref = $rhoref*$Rgas*$Tref;
+$cref = sqrt($gamma*$pref/$rhoref);
+$uref = $Machin*$cref;
+$Uref = [$rhoref,$uref,0,$pref];
 
 @vars = qw(Machin gamma rhoref Tref Rgas
-	   Ly yratio Ny Nx  Lx Aratio Lnozzle);
+	   Ly yratio Ny Nx  Lx Aratio Lnozzle
+	   pref cref uref Uref);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mknozzle.m";

@@ -86,17 +86,8 @@ npg 4
 data ./gfnozzle.con.tmp
 __END_HASH__
 
-#if !$dx
-#if $Twall
 ##================================================================
-elemset gasflow_twall 2
-dx 0
-data ./gfnozzle.twall.tmp
-__END_HASH__
-#endif
-
-##================================================================
-#if $abso
+#if 0 && $abso
 elemset gasflow_abso2 3
 normal 1 0
 dx 0
@@ -106,18 +97,14 @@ __INCLUDE__ gfnozzle.abso-con.tmp
 __END_ELEMSET__
 #endif
 
-#endif
-
 #if !$dx
 fixa
-__INCLUDE__ ./gfnozzle.fixa-in.tmp
-__INCLUDE__ ./gfnozzle.fixa-outer.tmp
-__INCLUDE__ ./gfnozzle.fixa-outlet.tmp
-__INCLUDE__ ./gfnozzle.fixa-slip.tmp
-__INCLUDE__ ./gfnozzle.fixa-wall.tmp
-#if $Twall
-__INCLUDE__ ./gfnozzle.fixa-twall.tmp
-#endif
-# __INCLUDE__ ./gfnozzle.fixa-lagmul-tw.tmp
+__INCLUDE__ gfnozzle.fixa-slip.tmp
+__INCLUDE__ gfnozzle.fixa-out.tmp
+__INCLUDE__ gfnozzle.fixa-in.tmp
 __END_FIXA__
+
+constraint
+__INCLUDE__ gfnozzle.constr-wall.tmp
+__END_CONSTRAINT__
 #endif
