@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.52 2003/09/10 23:18:43 mstorti Exp $
+//$Id: dxhook.cpp,v 1.53 2003/09/11 03:03:15 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -182,9 +182,9 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   //o Read states from file instead of computing them . Normally
   //  this is done to analyze a previous run. If 1 the file is
   //  ASCII, if 2 then it is a binary file. In both cases the order
-  //  of the elements must be: #u(1,1),# #u(1,2),# #u(1,3),# 
+  //  *of the* _elements must_ be: #u(1,1),# #u(1,2),# #u(1,3),#
   //  #u(1,ndof),# #u(2,1),# ... #u(nnod,ndof)# where #u(i,j)# is
-  //  the value of field #j# at node #i#. 
+  //  the value of field #j# at node #i.# 
   TGETOPTDEF_ND(go,int,dx_read_state_from_file,0);
   PETSCFEM_ASSERT0(dx_read_state_from_file>=0 && dx_read_state_from_file<=2,
 		   "dx_read_state_from_file should be between 0 and 2.");
@@ -416,14 +416,12 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     printf("dx_hook: Got steps %d, dx_step %d, state_file %s, record %d\n",
 	   steps,dx_step,state_file.c_str(),record);
 
-    printf("trace 0\n");
     if (dx_do_make_command) {
       AutoString s;
       s.sprintf("/usr/bin/make dx_step=%d dx_make_command",dx_step);
       system(s.str());
     }
     
-    printf("trace 1\n");
     if (read_coords) {
       AutoString coord_file;
       coord_file.sprintf(dx_node_coordinates.c_str(),dx_step);
@@ -439,10 +437,8 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
       }
       fclose(fid);
     }
-    printf("trace 2\n");
   }
 
-  printf("trace 3\n");
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
   ierr = MPI_Bcast (&stepso, 1, MPI_INT, 0,PETSC_COMM_WORLD);
@@ -450,9 +446,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   ierr = string_bcast(state_file,0,PETSC_COMM_WORLD);
   ierr = MPI_Bcast (&record, 1, MPI_INT, 0,PETSC_COMM_WORLD);
 
-  printf("trace 4\n");
   if (record==-1) throw GenericError("Received record=-1, stop.");
-  printf("trace 5\n");
 
   if (stepso>=0 && stepso!=steps) {
     PetscPrintf(PETSC_COMM_WORLD,

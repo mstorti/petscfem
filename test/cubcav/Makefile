@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.58 2003/09/09 11:45:11 mstorti Exp $ 
+# $Id: Makefile,v 1.59 2003/09/11 03:03:00 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -126,3 +126,6 @@ clean_fifo:
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
 	fifo="comp_server.fifo2" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
+
+step_server:
+	octave -qH comp_step2.m

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.72 2003/09/10 23:18:43 mstorti Exp $ 
+# $Id: Makefile,v 1.73 2003/09/11 03:03:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -62,8 +62,8 @@ dx_test_%_np2:
 dx:
 	$(MAKE) -C ../../dx
 
-# PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.20
-PETSCFEM_DIR = ../..
+PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.20
+# PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 

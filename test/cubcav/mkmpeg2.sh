@@ -1,5 +1,5 @@
 #!/bin/bash
-#$Id: mkmpeg2.sh,v 1.5 2003/09/09 11:45:11 mstorti Exp $
+#$Id: mkmpeg2.sh,v 1.6 2003/09/11 03:03:00 mstorti Exp $
 
 nstep=360
 
@@ -21,4 +21,4 @@ yuv_cat YUV-box
 nstep=600
 yuv_cat YUV-iso
 yuv_cat YUV-iso2
-yuv_cat YUV
+yuv_cat YUV-iso3
