@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.76 2003/09/13 18:01:23 mstorti Exp $ 
+# $Id: Makefile,v 1.77 2003/09/14 13:20:24 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -218,15 +218,15 @@ dx_hook_test_post_run_file_record: dx
 # records in the same file. Then stops by sending record=-1 to DX. 
 #
 # Clean files
-	-rm -f dx_ouput.file1.tmp $(output_file1)
+	-rm -f dx_output.file1.tmp $(output_file1)
 # Generates all states in a file 'sqcav.state_0.tmp'
 	$(MAKE) case=dx_file0 runs
 # Runs DX in background and PETSc-FEM 
 	dx -mdf ./epimport.mdf -cache off -memory 100 \
-			-script qq1.net > dx_ouput.file1.tmp &
+			-script qq1.net > dx_output.file1.tmp &
 	$(MAKE) case=dx_file1 runs
 	echo "------<snip>-----------" >> $(output_file1)
-	cat dx_ouput.file1.tmp >> $(output_file1)
+	cat dx_output.file1.tmp >> $(output_file1)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_file3 := output.CASE_sqcav.np_$(np).case_dx_file3.out.tmp
@@ -238,19 +238,19 @@ dx_hook_test_post_run_files: dx
 # files. Then stops by sending record=-1 to DX. 
 #
 # Clean files
-	-rm -f dx_ouput.file3.tmp $(output_file3) sqcav.state_*.tmp
+	-rm -f dx_output.file3.tmp $(output_file3) sqcav.state_*.tmp
 # Generates all states in a file 'sqcav.state_0.tmp'
 	$(MAKE) case=dx_file2 runs
 # Runs DX in background and PETSc-FEM 
 	dx -mdf ./epimport.mdf -cache off -memory 100 \
-			-script qq3.net > dx_ouput.file3.tmp &
+			-script qq3.net > dx_output.file3.tmp &
 	$(MAKE) case=dx_file3 runs
 	echo "------<snip>-----------" >> $(output_file3)
-	cat dx_ouput.file3.tmp >> $(output_file3)
+	cat dx_output.file3.tmp >> $(output_file3)
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_synchro := output.CASE_sqcav.np_$(np).case_dx_synchro.out.tmp
-dx_output := dx_ouput.synchro.tmp
+dx_output := dx_output.synchro.tmp
 #w Checks reading states in synchronous form
 dx_hook_test_synchro: dx
 #
@@ -267,7 +267,7 @@ dx_hook_test_synchro: dx
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_allf := output.CASE_sqcav.np_$(np).case_dx_allf.out.tmp
-dx_output := dx_ouput.allf.tmp
+dx_output := dx_output.allf.tmp
 #w Checks reading states in synchronous form
 dx_hook_test_allf: dx
 #

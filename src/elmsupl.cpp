@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.20 2003/09/02 09:56:40 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.21 2003/09/14 13:20:21 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -129,7 +129,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       for (kdof=0; kdof<ndof; kdof++) {
 	for (lloc=0; lloc<nel; lloc++) {
 	  for (ldof=0; ldof<ndof; ldof++) {
-	    if (MASK(kloc,kdof,klocc,kdofc)) {
+	    if (MASK(kloc,kdof,lloc,ldof)) {
 	      row_mask.e(kloc,kdof)=1;
 	      col_mask.e(lloc,ldof)=1;
 	    }

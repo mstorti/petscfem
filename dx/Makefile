@@ -32,8 +32,8 @@ BIN = $(BASE)/bin
 epimport: $(FILES_epimport) $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
 	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT)	\
 		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)			\
-		$(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++
-
+		$(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++			\
+		$(LDFLAGS_NO_PROG_LIB)
 epimport.o: epimport.cpp
 	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) epimport.cpp
 
@@ -58,3 +58,5 @@ dxdumm.o: dxdumm.cpp
 
 local_clean::
 	-rm -f epimport dxdumm
+
+LDFLAGS = 

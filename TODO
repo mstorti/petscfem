@@ -4,7 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Convert negative jacobian errors in advdif to set_error. 
+* Make user can call PETSc-FEM assert call abort() or exit(). 
+* Generate a test for exception handling in `advdif'. 
 * Generate a summary of `odoc' options in the doc with `odoc.pl'. 
 * Check caching DX objects for multiple elemsets
 * Code and test changing coords and elemset conectivities 
@@ -108,6 +109,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Convert negative jacobian errors in advdif to set_error. 
 * DX: make epimport.cpp to print shapes in one line. 
 * Seems that can't correctly read elements with 1 node. STATUS:
 	 fixed. 
