@@ -17,7 +17,7 @@ if ($case_name eq 'cone') {
     $Ly = 1;
     $ux = 1;
     $uy = 0;
-    $alpha = 0.7;
+    $alpha = 0.55;
     $Courant = 0.7;
     $hx = $Lx/$N;
     $nstep = 100;
