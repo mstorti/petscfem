@@ -99,18 +99,21 @@ fixa_amplitude ramp
 start_value <:=$pout0:>
 end_value <:=$pin0:>
 start_time 0.0
-end_time <:=50*$Dt:>
+end_time <:=$tramp:>
 __END_HASH__
 1 4 1.0
 __END_FIXA__
 
 fixa
 1 1 <:=$rhoin0:>
-1 3 0.0
+# 1 3 0.0
 <:=$Nx+1:> 4 <:=$pout0:>
 __END_FIXA__
 
 constraint
+gfshock.peri.tmp
+gfshock.v-peri.tmp
+gfshock.slip.tmp
 __END_CONSTRAINT__
 
 #endif

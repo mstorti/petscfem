@@ -1,4 +1,4 @@
-## $Id: proc7.m,v 1.4 2005/02/26 01:31:06 mstorti Exp $
+## $Id: proc7.m,v 1.5 2005/02/26 13:54:58 mstorti Exp $
 
 source("data.m.tmp");
 nsome = Nx+1;
@@ -19,10 +19,9 @@ endif
 U=U0;
 rem(rows(U),nsome)==0 || error("not correct size");
 nt = rows(U)/nsome;
-U(:,3)=[];
 
 cin0 = sqrt(ga*pin0/rhoin0);
-scale = [rhoin0 cin0 pin0];
+scale = [rhoin0 cin0 cin0 pin0];
 
 ndof = columns(U);
 Uref = zeros(1,ndof);
