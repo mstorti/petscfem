@@ -1555,3 +1555,6 @@ tag: beta-3.03.pl22 on Thu,  5 Sep 2002 17:26:00 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.03.pl23 on Thu,  5 Sep 2002 19:28:59 -0300 by mstorti in minerva.arcride.edu.ar
      > Migrating to petsc-2.1.3. Runs many tests. 
+----------
+tag: beta-3.03.pl24 on Thu,  5 Sep 2002 23:50:35 -0300 by mstorti in spider
+     > Runs allmost all tests. 
