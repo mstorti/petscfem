@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.3 2004/10/24 17:56:02 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.4 2004/10/24 21:46:26 mstorti Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -7,9 +7,20 @@
 #include <src/graph.h>
 #include <src/pfgtpmacr.h>
 
-extern int MY_RANK,SIZE;
-
 static int spetscmat_mult(Mat A,Vec x,Vec y);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFSymmPETScMat::build_sles"
+PFSymmPETScMat
+::PFSymmPETScMat(int MM,int NN,
+		 const DofPartitioner &part_a,
+		 MPI_Comm comm_a) 
+  : PETScMat(MM,NN,part_a,comm_a) {
+  MPI_Comm_rank(comm,&myrank);
+  MPI_Comm_size(comm,&size);
+}
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -75,6 +86,37 @@ int PFSymmPETScMat::mult(Vec x,Vec y) {
   ierr = MatMultTransposeAdd(A,x,y,y); CHKERRQ(ierr); 
   double scal=0.5;
   ierr = VecScale(&scal,y); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int PFSymmPETScMat::split(int row,int col) {
+#if 0
+  return col>=row;
+#else
+  return ((col%size)>=(row%size));
+#endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFSymmPETScMat::set_value_a"
+int PFSymmPETScMat
+::set_value_a(int row,int col,PetscScalar value,
+	      InsertMode mode) {
+  int roww = row, coll = col;
+  if (!split(row,col)) { roww=col; coll=row; }
+  ierr = MatSetValues(A,1,&roww,1,&coll,&value,mode); 
+  CHKERRQ(ierr); 
+  return 0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFSymmPETScMat::set_profile_a"
+int PFSymmPETScMat
+::set_profile_a(int row,int col) {
+  if (split(row,col)) lgraph->add(row,col);
   return 0;
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.2 2004/10/24 17:51:06 mstorti Exp $
+// $Id: spetscmat.h,v 1.3 2004/10/24 21:46:26 mstorti Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -19,29 +19,22 @@ class PFSymmPETScMat : public PETScMat {
 
 protected:
   Mat Asymm;
+  int myrank, size;
+
+  int split(int row,int col);
 
 public:
 
   PFSymmPETScMat(int MM,int NN,const DofPartitioner &part_a,
-		 MPI_Comm comm_a = PETSC_COMM_WORLD) 
-    : PETScMat(MM,NN,part_a,comm_a) {}
+		 MPI_Comm comm_a = PETSC_COMM_WORLD);
 
   int mult(Vec x,Vec y);
 
   /// Adds an element to the matrix profile
-  int set_profile_a(int j,int k) {
-    if (k>=j) lgraph->add(j,k);
-    return 0;
-  }
+  int set_profile_a(int j,int k);
 
   int set_value_a(int row,int col,PetscScalar value,
-		  InsertMode mode=ADD_VALUES) {
-    int roww=row, coll=col;
-    if (col<row) { roww=col; coll=row; }
-    ierr = MatSetValues(A,1,&roww,1,&coll,&value,mode); 
-    CHKERRQ(ierr); 
-    return 0;
-  };
+		  InsertMode mode=ADD_VALUES);
 
   int duplicate_a(MatDuplicateOption op,const PFMat &A) { assert(0); }
 
