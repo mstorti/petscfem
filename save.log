@@ -3971,3 +3971,9 @@ tag: beta-3.41.37 on Tue, 08 Feb 2005 00:38:28 -0300 by mstorti in spider
 tag: beta-3.41.38 on Tue, 08 Feb 2005 00:45:20 -0300 by mstorti in spider
      > Working moving oblique shock example.
      > Direction (1,1) runs ok with a shock at Mach=2. 
+----------
+tag: beta-3.41.39 on Tue, 08 Feb 2005 15:51:44 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed a bug in advdif. When isotropic shock capturing is used and
+     > an enthalpy function is used, then the shock capturing term should be
+     > of the form `\div( C_p \delta \grad U)'. In previous versions the
+     > `C_p' matrix was not used.
