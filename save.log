@@ -3605,3 +3605,7 @@ tag: beta-3.38.7 on Sun, 26 Dec 2004 00:09:40 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.8 on Mon, 27 Dec 2004 00:38:00 -0300 by mstorti in spider
      > Working on `RefNodeIterator'. 
+----------
+tag: beta-3.38.9 on Thu, 06 Jan 2005 22:44:27 -0300 by mstorti in spider
+     > Improved basic visitor mode strategy. 
+     > Added alehook directory. A test for ALEHOOK. 
