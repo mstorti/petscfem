@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.60 2002/07/12 02:54:38 mstorti Exp $
+//$Id: advdife.cpp,v 1.61 2002/07/12 14:32:33 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -90,7 +90,7 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_=NULL) 
     : elemset(elemset_), enthalpy_fun(NULL) {
   // This is ugly!!
-  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
+  assert(new_adv_dif_elemset);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -182,8 +182,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,lumped_mass,0);
 
   // Initialize flux functions
-  ret_options=0;
-  adv_diff_ff->start_chunk(ret_options); 
+  ff_options=0;
+  adv_diff_ff->start_chunk(ff_options); 
   int ndimel = adv_diff_ff->dim();
   if (ndimel<0) ndimel = ndim;
   FMatrix grad_H(ndimel,nH);
@@ -255,7 +255,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof);
   Ao_grad_N.resize(3,nel,ndof,ndof);
-  tau_supg.resize(ndof,ndof);
+  tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
 
   //#define COMPUTE_FD_ADV_JACOBIAN
@@ -661,13 +661,13 @@ void NewAdvDif::comp_P_supg(int is_tau_scalar) {
 #endif
 
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
-  if (is_tau_scalar) {
-    double tau_supg_d = tau_supg.get(1,1);
-    P_supg.set(Ao_grad_N).scale(tau_supg_d);
+  const NewAdvDif *e = new_adv_dif_elemset;
+  if (e->ff_options & SCALAR_TAU) {
+    double tau_supg_d = e->tau_supg.get(1,1);
+    P_supg.set(e->Ao_grad_N).scale(tau_supg_d);
   } else {
-    P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
+    P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
   }
-  // new_adv_dif_elemset->comp_P_supg();
 }
 
 #undef SHAPE    

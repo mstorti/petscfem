@@ -35,6 +35,8 @@ __END_NODES__
 elemset advec 4
 geometry cartesian2d
 npg 4
+u -1 0
+diff 1e-2
 __END_HASH__
 __INCLUDE__ plano.con
 __END_ELEMSET__

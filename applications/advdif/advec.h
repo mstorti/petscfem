@@ -1,11 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: advec.h,v 1.5 2002/07/11 18:31:47 mstorti Exp $
+//$Id: advec.h,v 1.6 2002/07/12 14:32:33 mstorti Exp $
 #ifndef ADVEC_H
 #define ADVEC_H
 
 #include "advective.h"
 
+// This flag sets whether `P_supg' is computed in the flux function or 
+// the standard computation P_supg = tau * A * grad_N is perfomed.
 #define USE_COMP_P_SUPG
 
 /** This a simple example of an advective class with
@@ -41,6 +43,7 @@ class advec_ff : public NewAdvDifFF {
   ~advec_ff() {}
   /// This is executed {\em before} the element loop.
   void start_chunk(int &options) {
+    new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
     int ierr;
     // Tell `advdife' that we will use a scalar `tau'
     options &= ~SCALAR_TAU;
