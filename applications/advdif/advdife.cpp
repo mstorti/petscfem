@@ -344,7 +344,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// Pass to the flux function the true positive values
 	U.prod(SHAPE,true_lstate,-1,-1,1);
-	grad_U.prod(dshapex,true_lstate,1,-1,-1,2) ;
+	grad_U.prod(dshapex,true_lstate,1,-1,-1,2);
+	// Set the state of the fluid so that it can be used to
+	// compute matrix products
+	adv_diff_ff->set_state(U,grad_U);
+	adv_diff_ff->enthalpy_fun->set_state(U);
 
 	delta_sc=0;
 	double lambda_max_pg;

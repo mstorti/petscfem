@@ -11,15 +11,15 @@ class ScalarPerFieldEF : public EnthalpyFun {
 public:
   /// initializes the object
   void init(int ndim,int ndof,int nel);
-  /// sets the cp coefficients for each field
+  /// sets the Cp coefficients for each field
   void update(const double *ejac);
   /// Scales each $U$ value by the corresponding $C_p$ coefficient.
-  void enthalpy(FastMat2 &H, FastMat2 &U);
+  void enthalpy(FastMat2 &H);
   /// Efficient implementation
-  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
   /// Efficient implementation
-  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
+  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 };
 
 /// A general Cp matrix. See base class documentation.
@@ -31,12 +31,12 @@ public:
   /// Full implementation
   void update(const double *ejac);
   /// Full implementation
-  void enthalpy(FastMat2 &H, FastMat2 &U);
+  void enthalpy(FastMat2 &H);
   /// Full implementation
-  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
   /// Full implementation
-  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
+  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 };
 
 #endif

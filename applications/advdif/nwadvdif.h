@@ -309,15 +309,24 @@ public:
   ScalarDifPerField scalar_dif_per_field;
 
   newadvecfm2_ff_t(NewElemset *elemset);
+
   void start_chunk(int &ret_options);
+
   void element_hook(ElementIterator &element);
+
+  void set_state(const FastMat2 &U,const FastMat2 &grad_U) { 
+    enthalpy_fun->set_state(U); }
+
   void compute_flux(COMPUTE_FLUX_ARGS);
+
   void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
     a_jac->comp_A_jac_n(A_jac_n,normal);
   }
+
   void comp_A_grad_N(FastMat2 & A,FastMat2 & B) {
     a_jac->comp_A_grad_N(A,B);
   }
+
   void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 			    FastMat2 &dshapex,double w) {
     d_jac->comp_grad_N_D_grad_N(grad_N_D_grad_N,dshapex,w);

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.41 2002/01/18 00:32:47 mstorti Exp $
+//$Id: advective.h,v 1.42 2002/02/03 12:38:56 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -130,50 +130,79 @@ public:
 */ 
 class EnthalpyFun {
 public:
+  /// The actual state
+  FastMat2 UU;
   /** Allows updating the data for the object. 
       @param e (input) cofficients for updating the object
   */ 
-  virtual void update(const double *e) {};
+  virtual void update(const double *e) {}
+
+  /** Allows setting the state of the object
+      @param U (input) the state of the object
+  */ 
+  virtual void set_state(const FastMat2 &U) { UU.set(U); }
+
   /** Computes the enthalpy vector from the state vector
       @param H (output) the enthalpy content vector
       @param U (input) the state vector
   */ 
-  virtual void enthalpy(FastMat2 &H, FastMat2 &U)=0;
+  virtual void enthalpy(FastMat2 &H,const  FastMat2 &U) {
+    // fixme:= This may be wrong, we should first
+    // `U.resize()' in a `init()' function and then `U.clear()' in a
+    // `clear()' function 
+    UU.set(U);			
+    enthalpy(H);
+  }
+
+  /** Computes the enthalpy vector from the state vector.
+      Uses the state previously set with `set_state'
+      @param H (output) the enthalpy content vector
+  */ 
+  virtual void enthalpy(FastMat2 &H)=0;
+
   /** Computes the product #(W_Cp_N)_(p,mu,q,nu) = W_p N_q Cp_(mu,nu)#
       @param W_Cp_N (output) size #nel# x #ndof# x #nel# x #ndof#
       @param W (input) weight function, size #nel#
       @param N (input) interpolation function, size #nel#
       @param w (input) scalar weight
   */ 
-  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 			   double w)=0;
   /** Computes the product #(P_Cp)_(mu,nu) = (P_supg)_(mu,lambda) 
       Cp_(lambda,nu)#
       @param P_Cp (output) size #ndof# x #ndof#
       @param P_supg (input) matricial weight function, size #ndof# x #ndof#
   */ 
-  virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
+  virtual void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg)=0;
 };
 
 /// Constant Cp for all fields
 class GlobalScalarEF : public EnthalpyFun {
   /// Aux var. identity of size ndof
   FastMat2 eye_ndof,htmp1,htmp2;
+
 protected:
   /// The actual Cp
   double Cp;
+
 public:
   /// initializes dimensions and sets Cp
   void init(int ndim,int ndof,int nel,double Cp=1.);
+
   /// Sets Cp from elemset data
   void update(const double *Cp_) {Cp=*Cp_;};
+
+  void set_state(const FastMat2 &U) {}
+
   /// Multiplies U by Cp with 'scale'
-  void enthalpy(FastMat2 &H, FastMat2 &U);
+  void enthalpy(FastMat2 &H);
+
   /// Scales at the same time by w*Cp
-  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
+
   /// Scales #P_supg# by #Cp#
-  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
+  void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 };
 
 /** Constant Cp=1 for all the fields. 
@@ -182,11 +211,11 @@ public:
 class IdentityEF : public GlobalScalarEF {
 public:
   /// Does nothing
-  void update(const double *Cp_) {};
+  void update(const double *Cp_) { }
   /// Copies #U# in #H#
-  void enthalpy(FastMat2 &H, FastMat2 &U) {H.set(U);};
+  void enthalpy(FastMat2 &H) { H.set(UU); }
   /// Copies #P_supg# in #P_Cp#
-  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {P_Cp.set(P_supg);};
+  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) { P_Cp.set(P_supg); }
 };
 
 extern IdentityEF identity_ef;
@@ -233,12 +262,21 @@ public:
       @param A_grad_N (output, size #nel# x #nd# x #nd#) 
       @param grad_N (input, size #nel# x #ndof#)
   */ 
-  virtual void comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N)=0;
+  virtual void comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) =0;
+
   /** Computes the product #(A_jac_n)_(mu,nu) = A_(i,mu,nu) normal_i#
       @param A_jac_n (output, size #ndof# x #ndof#) 
       @param normal (input, size #ndim#)
   */ 
-  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
+  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) =0;
+
+  /** This sets the local state of the flow and is called before to
+      call all the `comp_grad_N_D_grad_N' functions and alike.
+      @param U (input) the local state of the fluid
+      @param grad_U (input) the local gradient of state of the fluid 
+  */
+  virtual void set_state(const FastMat2 &U,const FastMat2 &grad_U) {}
+
   /** Computes fluxes, upwind parameters etc...
       fixme:= more doc here ...
   */ 
