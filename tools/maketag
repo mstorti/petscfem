@@ -43,7 +43,8 @@ if [ ! $answer = "y" ] ; then \
 	exit 1
 fi
 
-cvs rtag $newtag_ -m petscfem
+#cvs tag $newtag_ .
+cvs rtag $newtag_ petscfem
 
 echo "updating VERSION..."
 echo $newtag > VERSION 
