@@ -1,9 +1,8 @@
-# $Id: Makefile,v 1.3 2001/01/02 22:28:22 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/01/08 12:12:31 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PETSCFEM_DIR = ..
-include $(PETSCFEM_DIR)/Makefile.base
 
 # Add new files here
 LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
@@ -22,6 +21,8 @@ LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o)
 SRCS := $(LIBOBJS_:=.cpp)
 
 TAGFLAGS = 
+
+include $(PETSCFEM_DIR)/Makefile.base
 
 all: libpetscfem.a
 
@@ -51,7 +52,6 @@ fm2eperl.cpp: fmat2ep.cpp prep.pl
 # This doesn't compile with -O2
 measperf.o: measperf.cpp
 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
-
 
 local_clean::
 	-rm *.o libpetscfem.a &> /dev/null

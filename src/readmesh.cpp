@@ -118,6 +118,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       PetscPrintf(PETSC_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
       mesh->nodedata->nu = nu;
+      mesh->nodedata->ndim = ndim;
 
       dofmap->ndof = ndof;
       node = 0;
@@ -404,6 +405,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       elemset->type = type;
       elemset->nelem = nelem; 
       elemset->nel   = nel  ; 
+      elemset->elem_conne = new int[nel];
       elemset->ndof  = ndof ; 
       elemset->nelprops = nelprops; 
       elemset->neliprops = neliprops; 

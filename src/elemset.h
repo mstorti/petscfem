@@ -199,8 +199,74 @@ public:
     return local_store[local_elem];
   }
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns coordinates and node data for the element
+      @author M. Storti
+      @param element (input) intertor to the element for which 
+      to return the data
+      @param nodedata (input) the node coordinate info
+      @param xloc (input) the coordinates of the element nodes
+      @param Hloc (input) the auxiliary data for the nodes
+  */ 
+  void element_node_data(const ElementIterator &element,
+			 const Nodedata *nodedata,
+			 double *xloc,double *Hloc) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns node indices for the element
+      @author M. Storti
+      @param element (input) intertor to the element for which 
+      to return the data
+      @param connect (input) indices of the element nodes
+  */ 
+  void element_connect(const ElementIterator &element,
+		       int *connect) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized vector values for a given element
+      @param element (input) intertor to the element for which 
+      to return the data
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  const double *
+  element_vector_values(const ElementIterator &element,
+			arg_data &ad) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized element vector contributions for a given element
+      @param element (input) intertor to the element for which 
+      to return the data
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  double *
+  element_ret_vector_values(const ElementIterator &element,
+			    arg_data &ad) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized element contributions to FD 
+      jacobian for a given element
+      @param element (input) intertor to the element for which 
+      to return the data
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  double *
+  element_ret_fdj_values(const ElementIterator &element,
+			    arg_data &ad) const;
+
   friend class ElementList;
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // The following will be declared private in the future
+  //private: 
+
+  /// Stores temporarily element connectivities
+  int *elem_conne;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -267,7 +333,7 @@ public:
   /// Not equal operator
   int operator!=(const ElementIterator &other) const;
   /// Return position in chunk
-  void position(int &pos_in_elemset, int &pos_in_chunk) {
+  void position(int &pos_in_elemset, int &pos_in_chunk) const {
     pos_in_elemset = rank_in_elemset; pos_in_chunk = rank_in_chunk;
   }
   /// Returns true/false whether the current element is
@@ -276,6 +342,45 @@ public:
   /// Advances iterator to 
   /// in the restricted list or not
   void advance_to_valid();
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns coordinates and node data for the element
+      @author M. Storti
+      @param nodedata (input) the node coordinate info
+      @param xloc (input) the coordinates of the element nodes
+      @param Hloc (input) the auxiliary data for the nodes
+  */ 
+  void node_data(const Nodedata *nodedata,double *xloc,double *Hloc);
+  
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized vector values for a given element
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  const double *
+  vector_values(arg_data &ad) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized vector element contributions for a given element
+      @param element (input) intertor to the element for which 
+      to return the data
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  double *
+  ret_vector_values(arg_data &ad) const;
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Returns localized element contributions to FD 
+      jacobian for a given element
+      @param ad (input) the argument in the arglist.
+      @return a pointer to the element values
+      @author M. Storti
+  */ 
+  double *
+  ret_fdj_values(arg_data &ad) const;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

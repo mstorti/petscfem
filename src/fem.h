@@ -221,7 +221,7 @@
 class Nodedata {
 public:
   double *nodedata;
-  int nnod,nu;
+  int nnod,ndim,nu;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

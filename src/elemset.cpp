@@ -48,27 +48,7 @@ int compute_this_elem(const int & iele,const Elemset *elemset,const int & myrank
   flag = (elemset->epart[iele] == myrank+1);
   if (flag) return 1;
   if (iter_mode == INCLUDE_GHOST_ELEMS) {
-
-#if 0
-    Darray *gh = elemset->ghost_elems;
-    if (myrank==0) {
-      printf("En el proc. 0, lista de ghost_elems\n");
-      for (int kk=0; kk<da_length(gh); kk++) {
-	int elem = *(int *) da_ref(gh,kk);
-	printf("%d -> %d\n",kk,elem);
-      }
-    }
-#endif
-
     int is_ghost_elem = da_bsearch(elemset->ghost_elems,&iele,int_cmp,NULL);
-//      if (myrank==0) {
-//        printf("elem %d,  is_ghost_elem = %d\n",iele,is_ghost_elem);
-//      }
-//      if (is_ghost_elem >=0) {
-//        PetscPrintf(PETSC_COMM_WORLD,"Element %d is ghost on pocessor %d\n",
-//  		  iele,myrank);
-//      }
-    printf("processing ghost_elem %d: ... %d\n",iele,is_ghost_elem>=0);
     return (is_ghost_elem>=0);
   } else {
     return 0;
@@ -332,6 +312,8 @@ int assemble(Mesh *mesh,arg_list argl,
   // perturbed. 
   int any_fdj = 0,j_pert;
   for (j=0; j<narg; j++) {
+    /// Copy the options to the arg_data_v structure. 
+    ARGVJ.options = argl[j].options; 
     // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
 

@@ -121,3 +121,100 @@ NewElemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
   return 0;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "element_connect"
+void Elemset::element_connect(const ElementIterator &element,
+			      int *connect) const {
+  int k,ielh;
+  element.position(k,ielh);
+  for (int kloc=0; kloc<nel; kloc++) {
+    connect[kloc] = icone[nel*k+kloc];
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "element_node_data"
+void 
+Elemset::element_node_data(const ElementIterator &element,
+			   const Nodedata *nodedata,
+			   double *xloc,double *Hloc) const {
+#define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nodedata->nu)
+#define XLOC(j,k) VEC2(xloc,j,k,nodedata->ndim)
+#define HLOC(j,k) VEC2(Hloc,j,k,nH)
+  element_connect(element,elem_conne);
+  int nH = nodedata->nu - nodedata->ndim;
+  for (int kloc=0; kloc<nel; kloc++) {
+    int node = elem_conne[kloc];
+    for (int jdim=0; jdim<nodedata->ndim; jdim++)
+      XLOC(kloc,jdim) = NODEDATA(node-1,jdim);
+    for (int ih=1; ih<=nH; ih++) 
+      XLOC(kloc,ih) = NODEDATA(node-1,ih);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "ElementIterator::node_data"
+void ElementIterator::node_data(const Nodedata *nodedata,
+				double *xloc,double *Hloc) {
+  elemlist->elemset->element_node_data(*this,nodedata,xloc,Hloc);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Elemset::element_vector_values"
+const double *
+Elemset::element_vector_values(const ElementIterator &element,
+			       arg_data &ad) const {
+  int k,ielh;
+  element.position(k,ielh);
+  return (ad.locst)+ielh*nel*ndof;
+}
+  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "ElementIterator::vector_values"
+const double *
+ElementIterator::vector_values(arg_data &ad) const {
+  return elemlist->elemset->element_vector_values(*this,ad);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Elemset::element_ret_vector_values"
+double *
+Elemset::element_ret_vector_values(const ElementIterator &element,
+				   arg_data &ad) const {
+  int k,ielh;
+  element.position(k,ielh);
+  return (ad.retval)+ielh*nel*ndof;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "ElementIterator::ret_vector_values"
+double *
+ElementIterator::ret_vector_values(arg_data &ad) const {
+  return elemlist->elemset->element_ret_vector_values(*this,ad);
+}
+  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Elemset::element_ret_fdj_values"
+double *
+Elemset::element_ret_fdj_values(const ElementIterator &element,
+				arg_data &ad) const {
+  int k,ielh;
+  element.position(k,ielh);
+  return (ad.retval)+ielh*nel*ndof;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "ret_fdj_values"
+double *
+ElementIterator::ret_fdj_values(arg_data &ad) const {
+  return elemlist->elemset->element_ret_fdj_values(*this,ad);
+}  
