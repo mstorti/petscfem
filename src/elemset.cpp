@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.86 2004/07/28 22:06:18 mstorti Exp $
+//$Id: elemset.cpp,v 1.87 2004/07/29 13:41:04 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -271,6 +271,9 @@ int assemble(Mesh *mesh,arg_list argl,
 
   int iele,nelem,nel,ndof,*icone,ndoft,kloc,kdof,
     myrank,ierr,kdoft,iele_here,k;
+
+  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+
   static int mpe_initialized = 0;
   static int start_comp, end_comp, start_assmbly, end_assmbly,
     start_assm, end_assm;
@@ -318,8 +321,6 @@ int assemble(Mesh *mesh,arg_list argl,
 
   // pref:= Local values (reference state for finite difference jacobian).
   double *pref,fdj;
-
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
   // max weight (processor speed)
   float w_max=dofmap->tpwgts[0]; 
