@@ -1119,3 +1119,7 @@ tag: beta-2.94.pl2 on Mon,  1 Apr 2002 23:52:23 -0300 by mstorti in spider
 ----------
 tag: beta-2.94.pl3 on Wed,  3 Apr 2002 22:42:54 -0300 by mstorti in spider
      > Start adding rotation taking data from fictitious nodes.
+----------
+tag: beta-2.94.pl4 on Fri,  5 Apr 2002 17:13:26 -0300 by mstorti in minerva.arcride.edu.ar
+     > Added rotation to `nsikepsrot', taking rotation and
+     > translation infomation from fictitious nodes.
