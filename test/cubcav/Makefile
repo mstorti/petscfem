@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.49 2003/08/25 22:20:21 mstorti Exp $ 
+# $Id: Makefile,v 1.50 2003/08/26 23:28:52 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -38,8 +38,6 @@ NP = 1
 MCH =
 endif
 
-NP:=1
-
 export NP
 
 PROG := $(NS)
@@ -75,3 +73,15 @@ dx:
 
 k:
 	-killall ns_O.bin job.pl
+
+#================================================================
+# For the shell-hook
+cubcav_init:
+	perl $(HOME)/ROCKET/ALE/mkstepsdir.pl
+
+cubcav_pre:
+cubcav_post:
+	for f in `find STEPS -name '$(CASE_NAME).state_*.tmp'` ; \
+		do echo "gzipping $$f" ; gzip -f $$f ; done
+
+cubcav_close:
