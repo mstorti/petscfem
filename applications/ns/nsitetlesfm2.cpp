@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.60 2003/03/30 20:45:11 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.61 2003/05/25 13:52:05 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -113,6 +113,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,weak_form,1);
   //o Add shock-capturing term.
   SGETOPTDEF(double,shock_capturing_factor,0);
+  //o Add pressure controlling term. 
+  SGETOPTDEF(double,pressure_control_coef,0.);
+  assert(pressure_control_coef>=0.);
 
   // allocate local vecs
   int kdof;
@@ -213,6 +216,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
+  FastMat2 tmp20(2,nel,nel),tmp21;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -582,6 +586,12 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// PSPG perturbation - continuity
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
 	rescont.axpy(tmp5,wpgdet);
+	
+	// Penalization term?
+	if (pressure_control_coef) {
+	  double p_star = tmp21.prod(SHAPE,pcol_star,-1,-1).get();
+	  rescont.axpy(SHAPE,pressure_control_coef*p_star*wpgdet);
+	}
 
 	// temporal part + convective (Galerkin)
 #ifdef ADD_GRAD_DIV_U_TERM
@@ -603,7 +613,10 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// assert(delta_supg==0); // para no poner shock-capturing despues
 	tmp13.prod(P_pspg,dshapex,-1,1,-1,2);
-	// W_pspg.set(SHAPE).add(P_pspg);
+	if (pressure_control_coef) {
+	  tmp20.prod(SHAPE,SHAPE,1,2);
+	  tmp13.axpy(tmp20,pressure_control_coef);
+	}
 
 	if (update_jacobian) {
 	  for (int iloc=1; iloc<=nel; iloc++) {

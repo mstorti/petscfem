@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.66 2003/05/12 01:48:08 mstorti Exp $ 
+# $Id: Makefile,v 1.67 2003/05/25 13:52:05 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
 	dx_hook_test_post_run_file_record test_read_ini
 
-default: test_read_ini
+default: test_press_term
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf		\
@@ -81,7 +81,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	     > $(output_file)
+	 	    #  > $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -301,3 +301,7 @@ shell_hook_%:
 test_read_ini:
 	$(MAKE) case=read_ini np=4 runs
 	octave -qH check.read_ini.m > verif.read_ini.tmp
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
+test_press_term:
+	$(MAKE) case=press_term runs

@@ -8,6 +8,12 @@ print "# case: $case\n";
 get_var_env('meas_perf',undef);
 get_var_env('use_triangles',0);
 
+$press_term=0;
+if ($case eq 'press_term') {
+    $press_term=1;
+    $case='weak_form_0';
+}
+
 $u_rini = 0.5;
 if ($case eq 'read_ini') {
     $case = 'iisd_sbp2';
@@ -134,8 +140,7 @@ octave_export_vars(">data.m.tmp",@vars);
 global_options
 
 nsave 5
-# <:pr('nstep'):> 
-nstep 0
+<:pr('nstep'):> 
 initial_state "sqcav.ini.tmp"
 # initial_state sqcav.weak_form_0.tmp
 <:pr('save_file'):> 
@@ -225,6 +230,8 @@ dx_auto_combine
 dx_state_all_fields 0
 dx_steps 1
 #endif
+
+pressure_control_coef 0.
 
 __END_HASH__
 
