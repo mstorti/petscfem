@@ -719,3 +719,7 @@ tag: beta-2.60 on Wed Dec 12 23:11:37 ARST 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added `test_iisd', basically the same as `test_iisd' but for 2 processors.
      > Tests run.
+----------
+tag: beta-2.61 on Tue Dec 18 18:12:38 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Removed `iisd_superlu' test.
