@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.22 2005/03/09 01:43:57 mstorti Exp $
+// $Id: project.cpp,v 1.23 2005/03/09 01:52:25 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -280,6 +280,7 @@ void nod_vol(const dvector<double> &xnod,
       area.e(node-1) += area_nod;
     }
   }
+#if 0
   printf("total area (sum over elems) %f\n",area_tot);
   
   area_tot = 0.0;
@@ -288,4 +289,5 @@ void nod_vol(const dvector<double> &xnod,
     // printf("nodo %d, area %f\n",j,area.e(j));
   }
   printf("total area (sum over nodes) %f\n",area_tot);
+#endif
 }
