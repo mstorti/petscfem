@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.68 2002/11/03 11:04:15 mstorti Exp $ 
+# $Id: Makefile,v 1.69 2002/11/05 21:57:00 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -282,7 +282,7 @@ fstack:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Texthash class check
 texthash:
-	$(MAKE) -C texthash texthash
+	$(MAKE) -C texthash tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Tests the new iterator class
