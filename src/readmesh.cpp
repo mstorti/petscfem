@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.60 2002/10/24 23:28:09 mstorti Exp $
+//$Id: readmesh.cpp,v 1.61 2002/10/24 23:55:26 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -444,12 +444,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      icorow[jel]= node;
 	    }
 	  }
-	  ierr = MPI_Bcast(icorow,nel,MPI_INT,0,PETSC_COMM_WORLD);
+	  if (nel) ierr = MPI_Bcast(icorow,nel,MPI_INT,0,PETSC_COMM_WORLD);
 	  // This should be done AFTER reading the nodes 
 	  // Set all nodes that are connected to an element as degrees of freedom
-	  for (int kdof=1; kdof<=ndof; kdof++) {
-	    edof = dofmap->edof(node,kdof);
-	    dofmap->id->set_elem(edof,edof,1.);
+	  for (int jel=0; jel<nel; jel++) {
+	    node = icorow[jel];
+	    for (int kdof=1; kdof<=ndof; kdof++) {
+	      edof = dofmap->edof(node,kdof);
+	      dofmap->id->set_elem(edof,edof,1.);
+	    }
 	  }
 
 	  // reading element properties
@@ -465,7 +468,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      sscanf(token,"%lf",proprow+jprop);
 	    }
 	  }
-	  ierr = MPI_Bcast(proprow,nelprops,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+	  if (nelprops) 
+	    ierr = MPI_Bcast(proprow,nelprops,MPI_DOUBLE,0,PETSC_COMM_WORLD);
 
 	  // reading integer element properties
 	  if (!myrank) {
@@ -481,7 +485,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      sscanf(token,"%d",iproprow+jprop);
 	    }
 	  }
-	  ierr = MPI_Bcast(iproprow,neliprops,MPI_INT,0,PETSC_COMM_WORLD);
+	  if (neliprops) 
+	    ierr = MPI_Bcast(iproprow,neliprops,MPI_INT,0,PETSC_COMM_WORLD);
 	
 	  // Copying to buffer
 	  abuf_zero (buff);
@@ -492,9 +497,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    
 	  int indxi = da_append(da_icone,abuf_data(buff));
 	  if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
-	  TRACE(-5.3.2.1);
 	}
-	if (!myrank) delete file_connect;
+	if (!myrank) {
+	  file_connect->close();
+	  delete file_connect;
+	}
       }	
     
       TRACE(-5.3.3);
