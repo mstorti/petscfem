@@ -3581,3 +3581,7 @@ tag: beta-3.38 on Thu, 23 Dec 2004 12:00:02 -0300 by mstorti in spider
      >    when the vector is not `shaped' (shape.size()>
      > Merged a fix to the Fractional Step solver (Beto).
      > Added the bcconv for FS (Beto).
+----------
+tag: beta-3.38.1 on Fri, 18 Feb 2005 06:03:59 -0300 by mstorti in spider
+     > Fixed some C++ stuff that prevents compilation in 
+     >   GCC 3.3.3 (Fedora Core 2 Tettnang). Patch gcc-3.3.3.patch
