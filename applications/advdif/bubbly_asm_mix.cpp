@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly_asm_mix.cpp,v 1.1 2004/09/30 16:52:35 mstorti Exp $
+//$Id: bubbly_asm_mix.cpp,v 1.2 2004/11/01 15:56:22 mstorti Exp $
 //
 //
 // <<<<<<<<<<<<<<<<<< VERSION ASM >>>>>>>>>>>>>>>>>>>>>>>>
@@ -131,6 +131,9 @@ void bubbly_ff::start_chunk(int &ret_options) {
   // 1111 todas prendidas
   EGETOPTDEF_ND(elemset,int,flag_debug,0);
   EGETOPTDEF_ND(elemset,int,mask_matrix,1111);
+
+  // stronger coupling between continuous and disperse phases
+  EGETOPTDEF_ND(elemset,int,coupled,1);
 
   // key to add stabilization for gas continuity equation as for incompressible
   // as suggested by a Finland researcher
@@ -366,7 +369,7 @@ void bubbly_ff::set_state(const FastMat2 &UU) {
   arho_g = alpha_g*rho_g;
 
   // rho_g diagonal matrix
-  Id_vp.d(1,2);
+  Id_vp.set(0.).d(1,2);
   Id_vp.set(rho_g_vp).rs();
 
   arho_g_vp.prod(Id_vp,alpha_g_vp,1,-1,-1);
@@ -401,31 +404,16 @@ void bubbly_ff::set_state(const FastMat2 &UU) {
   rho_m = arho_l+arho_g;
   rho_m = arho_l+arho_g_vp.sum_all();
 
-  // velocidad slip respecto a la de la mezcla
-  vslip_m = vslip*arho_l/rho_m;
+  // velocidad slip respecto a la de la mezcla = a la del usuario
+  vslip_m = vslip;
   vslip_m_vp.set(vslip_vp);
 
-#if 1
-  double tmp_vslip = arho_l/rho_m;
-  vslip_m_vp.ir(1,2).scale(tmp_vslip).rs();
-#else
-  double tmp_vslip = exp((alpha_l-1.)*10);
-  vslip_m_vp.ir(1,2).scale(tmp_vslip).rs();
-#endif
-
-/*
-// escaleo a la fase gas pero le impido que se de vuelta la velocidad slip
-  tmp_vslip = (tmp_vslip < 0.0 ? 0.0 : tmp_vslip);
-  vslip_m_vp.ir(1,1).scale(tmp_vslip).rs();
-*/
-
-// escaleo a todas las fases por igual
-//  vslip_m_vp.set(vslip_vp).scale(tmp_vslip);
-
+  // modifico velocidad slip de la escoria por la diferencia de densidades con la mezcla
+  rho_g = rho_g_vp.get(nphases);
+  vslip_m_vp.ir(1,nphases).scale(1.-rho_g/rho_m).rs();
+  
   // velocidad del gas
   v_g.set(v_l).addel(vslip_m,abs(g_dir));
-  //  v_g_vp.prod(v_l,ones_vp,1,2).axpy(vslip_m_vp,abs(g_dir));
-
 
   for (int j=1; j<=nphases; j++) {
     v_g_vp.ir(2,j);
@@ -664,6 +652,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   // mixture momentum conservation
   Cp.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).eye(rho_m).rs();
 
+  if(coupled) {
     for (int j=1; j<=nphases; j++) {
       rho_g = rho_g_vp.get(j);
   // mixtures mass conservation
@@ -671,21 +660,18 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   // mixture momentum conservation
   Cp.is(1,vl_indx,vl_indxe).ir(2,alpha_indx_vp[j-1]).set(v_l).scale(rho_g-rho_l).rs();
   }
-
-
+  }
   }
 
   if (comp_gas_prof) {
-
   // gas mass conservation
     /*
   Cp.setel(rho_g,alpha_indx,alpha_indx);
     */
-
-  Id_vp.d(1,2);
+  Id_vp.set(0.).d(1,2);
   Id_vp.set(rho_g_vp).rs();
 
-  Cp.is(1,alpha_indx_vp[0],alpha_indx_vp[nphases-1]).is(2,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);;
+  Cp.is(1,alpha_indx_vp[0],alpha_indx_vp[nphases-1]).is(2,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);
   Cp.set(Id_vp).rs();
 
   }
@@ -696,89 +682,73 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Advective fluxes
   Amoml.prod(v_l,v_l,1,2).scale(rho_m).axpy(Id,p);
-
+  double vaux; 
+  
   flux.set(0.);
   if (comp_liq_prof) {
-  // mixture mass conservation
-  flux.ir(1,1).set(v_l).scale(rho_m).rs();
-  // mixture momentum conservation
-  flux.is(1,vl_indx,vl_indxe).set(Amoml).rs();
-  }
+    // mixture mass conservation
+    flux.ir(1,1).set(v_l).scale(rho_m).rs();
+    // mixture momentum conservation
+    flux.is(1,vl_indx,vl_indxe).set(Amoml).rs();
 
+    flux.ir(1,vl_indx-1+abs(g_dir)).ir(2,abs(g_dir));
+    for (int j=1; j<=nphases; j++) {
+      rho_g = rho_g_vp.get(j);
+      alpha_g = alpha_g_vp.get(j);
+      vslip_m = vslip_m_vp.get(j);
+      vaux = rho_g*alpha_g*vslip_m*vslip_m;
+      flux.add(vaux);
+    }
+    flux.rs();
+  }
+  
   if (comp_gas_prof) {
-  // gas mass conservation
+    // gas mass conservation
     /*
   flux.ir(1,alpha_indx).set(v_g).scale(arho_g).rs();
     */
 
-  Id_vp.d(1,2);
+  Id_vp.set(0.).d(1,2);
   Id_vp.set(arho_g_vp).rs();
 
   flux.is(1,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);
   flux.prod(Id_vp,v_g_vp,1,-1,2,-1).rs();
 
   }
-
+  
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Adjective Jacobians
   Ajac.set(0.);
-
+  
   if (comp_liq_prof) {
-  // mixture mass conservation
-  Ajac.ir(2,1).is(3,vl_indx,vl_indxe).axpy(Id,rho_m).rs();
-
-/*
-  // mixture momentum conservation
-  Ajac.is(2,vl_indx,vl_indxe).ir(3,1).axpy(Id,1.0).rs();
-  Y.prod(v_l,Id,2,1,3).scale(rho_m);
-  Ajac.is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe).add(Y);
-  Y.prod(v_l,Id,1,2,3).scale(rho_m).rs();
-  Ajac.add(Y).rs();
-*/
-
-    for (int j=1; j<=nphases; j++) {
-      rho_g = rho_g_vp.get(j);
-  Ajac.ir(2,1).ir(3,alpha_indx_vp[j-1]).set(v_l).scale(rho_g-rho_l).rs();
-  Ajac.is(2,vl_indx,vl_indxe).ir(3,alpha_indx_vp[j-1]).prod(v_l,v_l,1,2).scale(rho_g-rho_l).rs();
+    // mixture mass conservation
+    Ajac.ir(2,1).is(3,vl_indx,vl_indxe).axpy(Id,rho_m).rs();
+    
+    if(coupled) {
+      for (int j=1; j<=nphases; j++) {
+	rho_g = rho_g_vp.get(j);
+	Ajac.ir(2,1).ir(3,alpha_indx_vp[j-1]).set(v_l).scale(rho_g-rho_l).rs();
+	Ajac.is(2,vl_indx,vl_indxe).ir(3,alpha_indx_vp[j-1]).prod(v_l,v_l,1,2).scale(rho_g-rho_l).rs();
+	vslip_m = vslip_m_vp.get(j);
+	vaux = rho_g*vslip_m*vslip_m;
+	Ajac.ir(1,abs(g_dir)).is(2,vl_indx-1+abs(g_dir)).ir(3,alpha_indx_vp[j-1]).add(vaux).rs();
       }
-
-  // mixture momentum conservation
-  Ajac.rs().is(2,vl_indx,vl_indxe).ir(3,1).axpy(Id,1.0);
-
-  Y.rs().prod(v_l,Id,2,1,3).scale(rho_m);
-  Ajac.rs().is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe).add(Y);
-  Y.prod(v_l,Id,1,2,3).scale(rho_m).rs();
-  Ajac.add(Y);
-  Y.rs();
-  Ajac.rs();
-
-
-
+    }
+    
+    // mixture momentum conservation
+    Ajac.rs().is(2,vl_indx,vl_indxe).ir(3,1).axpy(Id,1.0);
+    
+    Y.rs().prod(v_l,Id,2,1,3).scale(rho_m);
+    Ajac.rs().is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe).add(Y);
+    Y.prod(v_l,Id,1,2,3).scale(rho_m).rs();
+    Ajac.add(Y);
+    Y.rs();
+    Ajac.rs();
   }
-
+  
   if (comp_gas_prof) {
     // gas mass conservation
-
-    /*
-    Ajac.ir(2,alpha_indx).ir(3,alpha_indx).set(v_g).scale(rho_g).rs();
-
-    v_rel.set(v_l).scale(0.0);
-    v_rel.addel(vslip,abs(g_dir));
-
-    double nume = -alpha_g*rho_l/rho_m*(1.+alpha_l/rho_m*(rho_g-rho_l));
-    Ajac.ir(2,alpha_indx).ir(3,alpha_indx).axpy(v_rel,nume*rho_g).rs();
-
-    Ajac.ir(2,alpha_indx).is(3,vl_indx,vl_indxe).axpy(Id,arho_g).rs();
-    */
-
-    /*
-      Id_vp.d(1,2);
-      Id_vp.set(rho_g_vp).rs();
-      Ajac.is(2,alpha_indx_vp[0],alpha_indx_vp[nphases-1]).is(3,alpha_indx_vp[0],alpha_indx_vp[nphases-1]);
-      Ajac.prod(v_g_vp,Id_vp,1,-1,2,-1).rs();
-    */
-
-
+    
     for (int j=1; j<=nphases; j++) {
       v_g_vp.ir(2,j);
       rho_g = rho_g_vp.get(j);
@@ -787,25 +757,32 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
       Ajac.ir(2,alpha_indx_vp[j-1]).ir(3,alpha_indx_vp[j-1]);
       Ajac.set(v_g_vp).scale(rho_g);
       v_g_vp.rs();
-      vslip = vslip_vp.get(j);
-      v_rel.set(v_l).scale(0.0);
-      v_rel.addel(vslip,abs(g_dir));
       Ajac.rs();
-
-      if(j==2) {
-      Ajac.ir(2,alpha_indx_vp[j-1]).ir(3,alpha_indx_vp[j-1]);
-      double nume = -alpha_g*rho_l/rho_m*(1.+alpha_l/rho_m*(rho_g-rho_l));
-      Ajac.axpy(v_rel,nume*rho_g).rs();
-      Ajac.rs();
+      
+      /*
+	vslip = vslip_vp.get(j);
+	v_rel.set(v_l).scale(0.0);
+	v_rel.addel(vslip,abs(g_dir));
+      */
+      if(coupled) {	
+	arho_g = arho_g_vp.get(j);
+	Ajac.ir(2,alpha_indx_vp[j-1]).is(3,vl_indx,vl_indxe).axpy(Id,arho_g).rs();
+	
       }
-
-      arho_g = arho_g_vp.get(j);
-      Ajac.ir(2,alpha_indx_vp[j-1]).is(3,vl_indx,vl_indxe).axpy(Id,arho_g).rs();
+    }    
+    
+    if(coupled) {	
+      // agregado termino del jacobiano por modificacion de la velocidad slip en la escoria
+      rho_g = rho_g_vp.get(nphases);
+      arho_g = arho_g_vp.get(nphases);
+      vslip = vslip_vp.get(nphases);
+      
+      vaux = arho_g*vslip*(rho_g-rho_l)*rho_g/rho_m/rho_m;
+      Ajac.ir(1,abs(g_dir)).ir(2,alpha_indx_vp[nphases-1]).ir(3,alpha_indx_vp[nphases-1]).add(vaux).rs();
     }
-
   }
   Ajac.scale(mask_Ajac);
-
+  
   // mixture mass conservation
   // mixture momentum conservation
   // gas mass conservation
@@ -916,22 +893,23 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 
   G_source.set(0.);
   Cjac.set(0.);
-
+  
   if (options & COMP_SOURCE) {
     // gravity forces
     if (comp_liq_prof) {
       G_source.is(1,vl_indx,vl_indxe).axpy(G_body,rho_m).rs();
-
-    for (int j=1; j<=nphases; j++) {
-      rho_g = rho_g_vp.get(j);
-      Cjac.is(1,vl_indx,vl_indxe).ir(2,alpha_indx_vp[j-1]).axpy(G_body,-(rho_g-rho_l)).rs();
+      
+      if(coupled) {	
+	for (int j=1; j<=nphases; j++) {
+	  rho_g = rho_g_vp.get(j);
+	  Cjac.is(1,vl_indx,vl_indxe).ir(2,alpha_indx_vp[j-1]).axpy(G_body,-(rho_g-rho_l)).rs();
+	}
       }
-
     }
-
-
+    
+    
     if (comp_gas_prof) {
-
+      
       //    G_source.addel(alpha_source*rho_g,alpha_indx);
       for (int j=1; j<=nphases; j++) {
 	rho_g = rho_g_vp.get(j);
@@ -1108,7 +1086,9 @@ void bubbly_ff::comp_P_supg(FastMat2 &P_supg) {
       P_supg.add(tmp6).rs();
 
       // epsilon perturbation function for the liquid phase
-      tau=tau/rho_m;
+      //      tau=tau/rho_m;
+      tau=tau/rho_l;
+
       tmp7.set(grad_N).scale(tau);
       tmp7.t();
       P_supg.ir(2,1).is(3,vl_indx,vl_indxe).add(tmp7).rs();
@@ -1117,8 +1097,8 @@ void bubbly_ff::comp_P_supg(FastMat2 &P_supg) {
       if (shocap>0 ) {
 	// stabilization enhancement of continuity equation
 	tau=double(tau_supg_c.get(1,1));
-	//      rho_m=rho_l;
-	tau=tau*rho_m;
+	//	tau=tau*rho_m;
+	tau=tau*rho_l;
 	tmp7.rs();
 	tmp7.set(grad_N).scale(tau);
 	tmp7.t();
