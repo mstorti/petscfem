@@ -1,20 +1,19 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2001/04/15 22:39:03 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2001/05/02 00:09:04 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PETSCFEM_DIR = ..
 
 # Add new files here
-LIBOBJS_ = gpdata texthash readmesh elemset elemlist		\
-          fastmat utils getprop					\
-	  dofmap fem idmap arglist version util2		\
-	  fstack tempfun fastmat2 fm2eperl			\
-	  measperf mainutl sttfilter state secant getarray	\
-	  parsefldm
+LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
+          fastmat utils getprop \
+	  dofmap fem idmap arglist version util2 \
+	  fstack tempfun fastmat2 fm2eperl \
+	  measperf mainutl sttfilter state secant getarray
 
 # C files
-CLIBOBJS_ =  getarrgr.tab parsefld.tab
+CLIBOBJS_ =  getarrgr.tab
 
 # Fortran files
 FLIBOBJS_ =  spline seval
@@ -89,22 +88,15 @@ tryme.o: tryme.cpp
 	g++ -c $<
 
 local_clean::
-	-rm -rf *.tab.* parsefldm.bin
+	-rm -rf tryme *.tab.*
 
-local_depend: getarrgr.tab.c getarrgr.tab.h parsefld.tab.c parsefld.tab.h
+local_depend: getarrgr.tab.c getarrgr.tab.h
 
 #.INTERMEDIATE: *.tab.*
 %.tab.c %.tab.h: %.y
-	$(BISON) $(BISON_OPTS) $<
+	$(BISON) $<
 
 getarrgr.tab.o: getarrgr.tab.c
-parsefld.tab.o: parsefld.tab.c
-parsefld.tab.c: BISON_OPTS = -p 'field_'
-
-%.tab.o: CFLAGS = -g
-
-parsefldm.bin: parsefld.tab.o parsefldm.o
-	g++ parsefldm.o parsefld.tab.o -o $@
 
 %.o: %.c
 	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@

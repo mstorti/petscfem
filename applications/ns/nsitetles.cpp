@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetles.cpp,v 1.6 2001/04/14 13:21:07 mstorti Exp $
+//$Id: nsitetles.cpp,v 1.7 2001/05/02 00:08:59 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -47,7 +47,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 // modif nsi_tet
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les::assemble"
-int nsi_tet_les::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
+int nsi_tet_les::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time_) {

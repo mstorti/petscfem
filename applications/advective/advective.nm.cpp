@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advective.nm.cpp,v 1.3 2001/04/14 13:21:00 mstorti Exp $
+//$Id: advective.nm.cpp,v 1.4 2001/05/02 00:08:54 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -34,7 +34,7 @@ int Advective::ask(char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
-int Advective::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
+int Advective::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			Dofmap *dofmap,char *jobinfo,int myrank,
 			int el_start,int el_last,int iter_mode,
 			const TimeData *time_data) {

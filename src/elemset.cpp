@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.10 2001/04/14 13:20:06 mstorti Exp $
+//$Id: elemset.cpp,v 1.11 2001/05/02 00:09:04 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -265,7 +265,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
-  NodeData *nodedata = mesh->nodedata;
+  Nodedata *nodedata = mesh->nodedata;
   Chrono chrono;
 
   //o Debug the process of building the matrix profile. 

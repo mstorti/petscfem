@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/05/01 21:47:15 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/05/02 00:09:08 mstorti Exp $ 
 
-.PHONY: fstack force les_data
+.PHONY: force tangent stabi data
 
-run: stabi
+run: tangent stabi
 
 PETSCFEM_DIR = ../../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -14,13 +14,15 @@ SRCS =
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 DATA_FILES = stabi.peri.tmp stabi.nod.tmp stabi.con.tmp 
-.PHONY: data
 data:
 	octave -q < mkmesh.m 
-	$(MAKE) -W stabi.epl stabi.depl
 
-.PHONY: stabi
-stabi: $(DATA_FILES) stabi.depl
+tangent: 
+	$(MAKE) -W stabi.epl stabi.depl
+	-$(MPIRUN) -np 1 $(NS) -case stabi.depl 
+
+stabi: 
+	$(MAKE) EPERLFLAGS='-d stabi=1' -W stabi.epl stabi.depl
 	-$(MPIRUN) -np 1 $(NS) -case stabi.depl 
 
 local_clean::

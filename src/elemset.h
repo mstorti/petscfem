@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: elemset.h,v 1.13 2001/04/14 13:20:06 mstorti Exp $
+//$Id: elemset.h,v 1.14 2001/05/02 00:09:04 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -89,7 +89,7 @@ public:
       processed
       @param iter_mode (input) include or not ghost elements
   */
-  virtual int assemble(arg_data_list &arg_datav,NodeData *nodedata,Dofmap *dofmap,
+  virtual int assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
 		       const char *jobinfo,int myrank,
 		       int el_start,int el_last,int iter_mode,
 		       const TimeData *time_data) {
@@ -191,7 +191,7 @@ public:
       @param Hloc (input) the auxiliary data for the nodes
   */ 
   void element_node_data(const ElementIterator &element,
-			 const NodeData *nodedata,
+			 const Nodedata *nodedata,
 			 double *xloc,double *Hloc) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -366,7 +366,7 @@ public:
       @param xloc (input) the coordinates of the element nodes
       @param Hloc (input) the auxiliary data for the nodes
   */ 
-  void node_data(const NodeData *nodedata,double *xloc,double *Hloc);
+  void node_data(const Nodedata *nodedata,double *xloc,double *Hloc);
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns localized vector values for a given element
@@ -472,7 +472,7 @@ int compute_this_elem(const int & iele,const Elemset *elemset,const int & myrank
 		      int iter_mode);
 
 #define ASSEMBLE_FUNCTION \
-  int assemble(arg_data_list &arg_data_v,NodeData *nodedata, \
+  int assemble(arg_data_list &arg_data_v,Nodedata *nodedata, \
 	       Dofmap *dofmap,const char *jobinfo,int myrank, \
 	       int el_start,int el_last,int iter_mode, \
 	       const TimeData *)
@@ -503,7 +503,7 @@ int measure_performance_fun(Mesh *mesh,arg_list argl,
 			    *time_data=NULL);
 
 typedef void 
-NewAssembleFunction(arg_data_list &arg_datav,const NodeData *nodedata,
+NewAssembleFunction(arg_data_list &arg_datav,const Nodedata *nodedata,
 		    const Dofmap *dofmap,
 		    const char *jobinfo,const ElementList &elemlist,
 		    const TimeData *time_data);
@@ -533,7 +533,7 @@ public:
 */
 class NewElemset : private Elemset {
   /// This is the adaptor to the old assemble function.
-  int assemble(arg_data_list &arg_datav,NodeData *nodedata,Dofmap *dofmap,
+  int assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
 	       const char *jobinfo,int myrank,
 	       int el_start,int el_last,int iter_mode,
 	       const TimeData *time_data);
@@ -551,7 +551,7 @@ class NewElemset : private Elemset {
 public:
   /// The new assemble function
   virtual void 
-  new_assemble(arg_data_list &arg_datav,const NodeData *nodedata,const Dofmap *dofmap,
+  new_assemble(arg_data_list &arg_datav,const Nodedata *nodedata,const Dofmap *dofmap,
 	       const char *jobinfo,const ElementList &elemlist,
 	       const TimeData *time_data) {
     printf("assemble: not known New Elemset\n"); exit(1);
@@ -606,7 +606,7 @@ public:
 
 #if 0
 #define NEW_ASSEMBLE_FUNCTION \
-  int assemble(arg_data_list &arg_data_v,NodeData *nodedata, \
+  int assemble(arg_data_list &arg_data_v,Nodedata *nodedata, \
 	       Dofmap *dofmap,const char *jobinfo,int myrank, \
 	       int el_start,int el_last,int iter_mode, \
 	       const TimeData *)

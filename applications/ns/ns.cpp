@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.16 2001/05/01 21:45:34 mstorti Exp $
+//$Id: ns.cpp,v 1.17 2001/05/02 00:08:59 mstorti Exp $
  
 #include <malloc.h>
 
@@ -190,8 +190,10 @@ int main(int argc,char **args) {
   //o The time step.
   GETOPTDEF(double,Dt,0.);
   glob_param.Dt=Dt;
-  //o Flag if steady solution or not (uses Dt=inf)
-  GETOPTDEF(int,steady,0.);
+  //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+  // is set to 1, then the computations are as if $\Dt=\infty$. 
+  // The value of $Dt$ is used for printing etc...
+  GETOPTDEF(int,steady,0);
   glob_param.steady=steady;
   //o Trapezoidal method parameter. \verb+alpha=1+:
   // Backward Euler. \verb+alpha=0+: Forward Euler.
@@ -214,6 +216,9 @@ int main(int argc,char **args) {
   //o Name of file where to save node values for the ``print some'' 
   // feature. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
+  //o Print, after execution, a report of the times a given option
+  // was accessed. Useful for detecting if an option was used or not.
+  GETOPTDEF(int,report_option_access,1);
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -381,7 +386,7 @@ int main(int argc,char **args) {
       argl.arg_add(&res,OUT_VECTOR);
       if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
       argl.arg_add(&hmin,VECTOR_MIN);
-      argl.arg_add(&Dt,USER_DATA);
+      argl.arg_add(&glob_param,USER_DATA);
       argl.arg_add(wall_data,USER_DATA);
 
       const char *jobinfo = (update_jacobian ? "comp_mat_res" : "comp_res");
@@ -522,6 +527,7 @@ int main(int argc,char **args) {
 
   }
 
+  if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
   print_vector(save_file.c_str(),x,dofmap,&time);
 
   ierr = VecDestroy(x); CHKERRA(ierr); 

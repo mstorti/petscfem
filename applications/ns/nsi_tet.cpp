@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsi_tet.cpp,v 1.6 2001/04/14 13:21:07 mstorti Exp $
+//$Id: nsi_tet.cpp,v 1.7 2001/05/02 00:08:59 mstorti Exp $
 
 #include <string>
 
@@ -66,7 +66,7 @@ void newmat_print(const Matrix & A) {
 // modif nsi_tet
 #undef __FUNC__
 #define __FUNC__ "nsi_tet::assemble"
-int nsi_tet::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
+int nsi_tet::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time_) {

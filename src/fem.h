@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.15 2001/04/14 13:20:06 mstorti Exp $
+//$Id: fem.h,v 1.16 2001/05/02 00:09:04 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -306,7 +306,18 @@ if (!(bool_cond)) {					\
 #define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD,		\
      "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)
 
-class NodeData;
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+/** Contains (constant) data relative to nodes (may be coordinates and
+    other). 
+    @author M. Storti
+    @param nnod number of nodes
+    @param nu number of real quantities per node
+*/ 
+class Nodedata {
+public:
+  double *nodedata;
+  int nnod,ndim,nu;
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Contains a list of the elemsets, node information and a hash table
@@ -319,7 +330,7 @@ class NodeData;
 class Mesh {
 public:
   Darray *elemsetlist;
-  NodeData *nodedata;
+  Nodedata *nodedata;
   TextHashTable *global_options;
 };
 

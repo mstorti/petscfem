@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.10 2001/05/01 21:45:34 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.11 2001/05/02 00:08:59 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -25,7 +25,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 // modif nsi_tet
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_fm2::assemble"
-int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
+int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time_) {
@@ -91,6 +91,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
   }
 
   // iDt is the reciprocal of Dt (i.e. 1/Dt)
+  GlobParam *glob_param;
   double *hmin,Dt,iDt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
@@ -102,9 +103,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
     hmin = (arg_data_v[ja++].vector_assoc)->begin();
     ja_hmin=ja;
-    Dt = *(double *)(arg_data_v[ja++].user_data);
-    iDt = 1./Dt;
-    if (glob_param.steady) iDt=0.
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    iDt = 1./glob_param->Dt;
+    if (glob_param->steady) iDt=0.;
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
@@ -140,8 +141,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,26); 
-  //o Parameter for the trapezoidal rule time integration method. 
-  GGETOPTDEF(double,alpha,1.);
+  // o Parameter for the trapezoidal rule time integration method. 
+  // GGETOPTDEF(double,alpha,1.);
+  double &alpha = glob_param->alpha;
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
@@ -413,7 +415,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
 	  +9.*SQ(4.*nu_eff/SQ(h_supg));
         tau_supg = 1./sqrt(tau_supg);
 
-        tau_pspg = tsf*SQ(2(iDt)+SQ(2.*velmod/h_pspg)
+        tau_pspg = tsf*SQ(2*iDt)+SQ(2.*velmod/h_pspg)
 	  +9.*SQ(4.*nu_eff/SQ(h_pspg));
 
         tau_pspg = 1./sqrt(tau_pspg);

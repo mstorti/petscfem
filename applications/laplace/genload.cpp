@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.5 2001/04/14 13:21:03 mstorti Exp $
+//$Id: genload.cpp,v 1.6 2001/05/02 00:08:56 mstorti Exp $
  
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -14,7 +14,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "genload::assemble"
-int genload::assemble(double *retval,NodeData *nodedata,double *locst,
+int genload::assemble(double *retval,Nodedata *nodedata,double *locst,
 		    double *locst2,Dofmap *dofmap,int ijob,
 		    char *jobinfo,int myrank,
 		    int el_start,int el_last,int iter_mode) {
