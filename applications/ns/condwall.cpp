@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.2 2005/03/28 14:27:57 mstorti Exp $
+// $Id: condwall.cpp,v 1.3 2005/03/28 16:42:53 mstorti Exp $
 
 #include "./condwall.h"
 
@@ -51,13 +51,14 @@ res(int k,FastMat2 &U,FastMat2 &r,
   } else {
     // Open
     r.set(0.).is(1,1,ndof).set(U1).rest(U2).rs();
-    w.set(0.)
+    w.set(0.).is(3,1,ndof)
       .ir(1,1).eye()
-      .ir(1,2).eye().rs();
+      .ir(1,2).eye(-1.0).rs();
     jac.set(0.)
       .is(1,1,ndof).ir(2,1).eye()
       .ir(2,2).eye(-1.)
       .rs();
+    // printf("hi hi \n");
   }
 }
 

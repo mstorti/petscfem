@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.8 2005/01/28 18:16:48 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.9 2005/03/28 16:42:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -91,12 +91,12 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
 
-  //#define COMPUTE_FD_RES_JACOBIAN
+#define COMPUTE_FD_RES_JACOBIAN
 #ifdef COMPUTE_FD_RES_JACOBIAN
   FastMat2 res_fd_jac(3,nr,nel,ndof),
     d_res_fd_jac(3,nr,nel,ndof),
     res_pert(1,nr),U_pert(2,nel,ndof),
-    lambda_pert(3,nel-2,ndof,nr),fd_jac(3,nr,nel,ndof);
+    lambda_pert(3,nel,ndof,nr),fd_jac(3,nr,nel,ndof);
   res_fd_jac.set(0.0);
   res_pert.set(0.0);
   U_pert.set(0.0);

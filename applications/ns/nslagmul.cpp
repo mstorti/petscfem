@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nslagmul.cpp,v 1.1 2005/03/28 03:29:31 mstorti Exp $ */
+/* $Id: nslagmul.cpp,v 1.2 2005/03/28 16:42:53 mstorti Exp $ */
 
 #include "./nslagmul.h"
 
@@ -23,7 +23,7 @@ get_comp_flags(const char *jobinfo,
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_mat_res);
-  comp_mat_a = comp_mat || comp_mat_res;
+  comp_mat_a = comp_mat;
   comp_mat_res_a = comp_mat_res;
 }
 

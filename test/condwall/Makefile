@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2005/03/28 02:27:45 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2005/03/28 16:42:59 mstorti Exp $ 
 
 default: condwall
 
@@ -21,7 +21,6 @@ condwall:
 
 #w Runs program
 run:
-	echo
 	make-depl $(CASE).epl $(CASE).depl
 	-${MPIRUN} $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
 

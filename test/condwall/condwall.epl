@@ -1,15 +1,17 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.1 2005/03/28 02:27:45 mstorti Exp $
+#$Id: condwall.epl,v 1.2 2005/03/28 16:42:59 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 global_options
+ndim 2
 
 nsave 5
 nstep 1
 save_file condwall.state.tmp
 
 solver "iisd"
-solver_mom "petsc"
+# solver "petsc"
 preco_type "jacobi"
 maxits 100
 
@@ -22,25 +24,32 @@ tol_tet 1e-5
 tol_newton 1e-10
 atol 0
 rtol 1e-6
-dtol 1e3
-nnwt 5
+tol 1e3
+nnwt 10
 
 Krylov_dim 100
 print_internal_loop_conv 1
 
+Dt 1.0
 steady
+
+#if 0
+print_linear_system_and_stop
+solver_system 0
+#endif
 
 __END_HASH__
 
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 # ndim nu ndof
 nodes  2  2  3
 __INCLUDE__ condwall.nod.tmp
 _END_NODES__
 
-elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep_fm2):> 4 
-name malla
 
-# report_consumed_time
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+elemset nsi_tet_les_fm2 4 
+name fluid
 geometry cartesian2d
 ndim 2
 npg 4
@@ -54,16 +63,44 @@ __END_HASH__
 __INCLUDE__ condwall.con.tmp
 __END_ELEMSET__
 
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+elemset qharmm 4 
+geometry cartesian2d
+npg 4
+conductivity 0.
+C 0.001 0.001 0.
+Cp 0.
+__END_HASH__
+__INCLUDE__ condwall.con.tmp
+__END_ELEMSET__
+
+#if !$use_peri
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+elemset cond_wall 4
+lagrange_diagonal_factor 1e-6
+resistance 0.
+__END_HASH__
+__INCLUDE__ condwall.condwall-con.tmp
+__END_ELEMSET__
+#endif
+
 end_elemsets
 
+#if 1
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 fixa
 __INCLUDE__ ./condwall.fixa-in.tmp
 __INCLUDE__ ./condwall.fixa-out.tmp
-__INCLUDE__ ./condwall.fixa-wall2.tmp
-__INCLUDE__ ./condwall.fixa-wall1.tmp
+# __INCLUDE__ ./condwall.fixa-wall2.tmp
+# __INCLUDE__ ./condwall.fixa-wall1.tmp
 __END_FIXA__
 
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 constraint
 __INCLUDE__ ./condwall.peri2.tmp
 __INCLUDE__ ./condwall.peri1.tmp
+#if $use_peri
+__INCLUDE__ ./condwall.wall-peri.tmp
+#endif
 __END_CONSTRAINT__
+#endif

@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkcondwall.m,v 1.1 2005/03/28 02:27:45 mstorti Exp $
+## $Id: mkcondwall.m,v 1.2 2005/03/28 16:42:59 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -17,9 +17,6 @@ xnod = [xnod1;xnod2];
 icone = [icone1;
 	 icone2+nnod1];
 icone = icone(:,[1 4 3 2]);
-
-asave("condwall.nod.tmp",xnod);
-asave("condwall.con.tmp",icone);
 
 ## gplfem(xnod,icone);
 
@@ -55,3 +52,31 @@ pffixa("condwall.fixa-wall2.tmp",tmp,1:2);
 ## Pressure at outlet
 tmp = complement(top2,right2);
 pffixa("condwall.fixa-out.tmp",tmp,ndof,0);
+
+## Two layers of fictitious nodes at the internal wall
+fic1_base = nnod1+nnod2;
+fic1 = fic1_base+(1:Ny+1);
+
+xnod = [xnod;
+	xnod(right1,:)];
+
+## Two layers of fictitious nodes at the internal wall
+fic1_base = nnod1+nnod2;
+fic1 = fic1_base+(1:Ny+1)';
+
+xnod = [xnod;
+	xnod(left2,:)];
+
+fic2_base = nnod1+nnod2+(Ny+1);
+fic2 = fic2_base+(1:Ny+1)';
+
+## Connectivities for the `cond_wall' elemeset
+icowall = [right1,left2,fic1,fic2];
+## icowall(Ny+1,:)=[]; ## Last node goes by periodic b.c.'s
+
+asave("condwall.nod.tmp",xnod);
+asave("condwall.con.tmp",icone);
+asave("condwall.condwall-con.tmp",icowall);
+
+## Connectivities for the `cond_wall' elemeset
+pfperi("condwall.wall-peri.tmp",right1,left2,(1:ndof)');
