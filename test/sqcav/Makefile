@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.84 2004/11/11 21:52:26 mstorti Exp $ 
+# $Id: Makefile,v 1.85 2004/11/12 01:09:11 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -15,8 +15,7 @@ isp_test:
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf		\
 	test_g_body test_zero_w_proc test_zero_w_proc2		\
 	test_triangle dx_tests test_qharm_3d test_shell_hook	\
-	test_read_ini test_disconnected_graph
-# agregar test_fs!!
+	test_read_ini test_disconnected_graph test_fs
 
 test_shell_hook: test_shell_hook1 test_shell_hook2
 
