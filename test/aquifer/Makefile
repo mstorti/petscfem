@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2002/01/17 15:24:02 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/02/05 00:57:29 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -54,6 +54,7 @@ test_transient:
 
 #w Make data
 data: force
+	echo CASE: $(CASE)
 	$(MAKE) $(CASE).depl
 	octave -q $(mkm).m
 

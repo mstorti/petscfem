@@ -10,9 +10,13 @@ $Lx = 1;			# Side of the cavity
 $Dt = 0.1;			# time step
 $nstep = 50;
 $t = $nstep*$Dt;
+$slope = 0.01;			# Slope of the bottom
+$circular_path = 1;		# Use a circular stream instead of
+				# a rectangular one (should give almost
+				# the same answer)
 #
 #__END_TRANSCRIPT__
-@vars = qw(t Nx Lx Dt nstep);
+@vars = qw(t Nx Lx Dt nstep slope circular_path);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -59,7 +63,7 @@ tau_fac 0.1
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  1
+nodes  2  3  1
 __INCLUDE__ stream.nod.tmp
 _END_NODES__
 
@@ -72,7 +76,7 @@ friction_law "Chezy"
 Ch 1.
 roughness 1.345
 width 1.
-slope 0.01
+# slope 0.01
 shape "circular"
 radius 5
 __END_HASH__
