@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.54 2005/02/26 16:50:50 mstorti Exp $ 
+# $Id: Makefile,v 1.55 2005/02/26 17:50:30 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -24,7 +24,7 @@ endif
 gbody.efn: gbody.cpp
 
 run_shock:
-#	mkstepsdir.pl
+	mkstepsdir.pl
 	$(MAKE) CASE_NAME=gfshock run
 
 run_adre:
@@ -69,16 +69,13 @@ mesh:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
 
 run:
-	@if [ ! $$mkmesh ] ; then mkmesh=0 ; fi ;			\
-	if [ $$mkmesh -gt 0 ] ; then $(MAKE) mesh ; fi ;		\
-	$(MPIRUN) $(NL) -np $(NP) -machinefile				\
-	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
-
-qqq:
-
+	@if [ ! $$mkmesh ] ; then mkmesh=0 ; fi ;		\
+	if [ $$mkmesh -gt 0 ] ; then $(MAKE) mesh ; fi ;	\
+	$(MPIRUN) $(NL) -np $(NP) -machinefile			\
+	machi.dat $(PROG) -case $(CASE_NAME).depl		\
+		> $(CASE_NAME).log
 
 STEPS_DIR := ./STEPS
-## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
 dx_make_command:
 ifeq (1,0)
 	@state=$(STEPS_DIR)/$(CASE_NAME).state_$$dx_step.tmp ;	\

@@ -28,14 +28,14 @@ if (0) {
     $pout = 143; 
     $Tout = 262;
 } else { 
-    $pout = 0.1*$pin; 
+    $pout = 0.01*$pin; 
     $Tout = 262;
     $rhoout = $pout/($Rgas*$Tout);
 }
 $pout0 = $pout/$pref;
 $rhoout0 = $rhoout/$rhoref;
 
-$Co = 2;
+$Co = 0.5;
 $h = 1/$Nx;
 $Dt = $Co*$h/($uin0+1);
 $tramp = 10*$Dt;
