@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.61 2002/02/12 19:44:16 mstorti Exp $
+//$Id: ns.cpp,v 1.62 2002/02/12 20:33:30 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -153,7 +153,11 @@ int main(int argc,char **args) {
   //i_tex ../../doc/nsdoc.tex newton_relaxation_factor
   // _END
   vector<double> newton_relaxation_factor;
-  mesh->global_options->get_entry("newton_relaxation_factor",newton_relaxation_factor);
+  mesh->global_options->get_entry("newton_relaxation_factor",
+				  newton_relaxation_factor);
+  // If entered empty vector, then set to 1.
+  if (newton_relaxation_factor.size()==0) 
+    newton_relaxation_factor.push_back(1.);
   // Check number of elements is odd
   assert(newton_relaxation_factor.size() % 2 ==1);
   // Check even entries are integer
