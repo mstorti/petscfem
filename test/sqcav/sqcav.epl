@@ -35,6 +35,12 @@ if (scalar $case =~ /weak_form_(\d)/) {
     $nstep = 1;
     $iisd_subpart = $1 if $case=~/sbp(\d*)/;
     $preco_type = "jacobi";
+} elsif ($case eq 'big') {
+    $N = 100;
+    $solver = "iisd";
+    $preco_type = "jacobi";
+    $maxits = 200;
+    $nstep = 1;
 } else {
     die "don't know case $case\n";
 }

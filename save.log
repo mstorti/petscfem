@@ -675,7 +675,7 @@ tag: beta-2.48 on Sun Dec  2 15:47:33 ARST 2001, by mstorti in spider
      > Working on adaptors. 
 ----------
 tag: beta-2.49 on Sun Dec  2 17:54:38 ARST 2001, by mstorti in spider
-     > `qharm', a test class for `adaptor_pg' comiples.
+     > `qharm', a test class for `adaptor_pg' compiles.
 ----------
 tag: beta-2.50 on Mon Dec  3 00:01:20 ARST 2001, by mstorti in spider
      > Added test for `adaptor_pg'

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2001/12/03 02:59:19 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/12/03 15:15:34 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -41,6 +41,10 @@ runq: force
 		do time $(MAKE) case=iisd_sbp$$n run ; \
 		mv output.out output.iisd$$n.out ; \
 	done
+
+runs: CASE := sqcav
+test_big:
+	$(MAKE) case=big runs
 
 # tests the square cavity in a 20x20 mesh at Re=1000
 # with respect with a reference solution obtained also with Petscfem and

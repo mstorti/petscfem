@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.31 2001/11/13 12:55:07 mstorti Exp $
+//$Id: elemset.cpp,v 1.32 2001/12/03 15:15:34 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -271,6 +271,62 @@ int vector_assoc_gather(vector<double> *vector_assoc,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class Stat {
+public:
+  double vmin,vmax,sum;
+  int count,initialized;
+  Stat() {initialized=0;}
+  void reset() {initialized=0;}
+  void add(double val) {
+    if (!initialized) {
+      initialized = 1;
+      vmin = val;
+      vmax = val;
+      count = 1;
+    } else {
+      if (val<vmin) vmin = val;
+      if (val>vmax) vmax = val;
+      sum += val;
+      count++;
+    }
+  }
+  double avrg() { 
+    assert(initialized);
+    return sum/double(count);
+  }
+  double min() { 
+    assert(initialized);
+    return vmin;
+  }
+  double max() { 
+    assert(initialized);
+    return vmax;
+  }
+  int n() {
+    assert(initialized);
+    return count;
+  }
+  double total() {
+    assert(initialized);
+    return sum;
+  }
+  void print_stat(char * s= NULL) {
+    if (s) PetscPrintf(PETSC_COMM_WORLD,
+		       "Event %s ------------------------\n",s);
+    if (initialized) {
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
+			      "[%d] total: %g, max: %g, min: "
+			      "%g, avrg: %g, count: %d\n",
+			      MY_RANK, total(), max(), min(), 
+			      avrg(), n());
+    } else {
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[not initialized]\n");
+    }
+    PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int assemble(Mesh *,arg_list ,Dofmap *,char *)"
 int assemble(Mesh *mesh,arg_list argl,
@@ -285,8 +341,12 @@ int assemble(Mesh *mesh,arg_list argl,
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
   Nodedata *nodedata = mesh->nodedata;
+  HPChrono hpchrono,hpc2;
   Chrono chrono;
+  Stat out_of_loop, in_loop, assemble, wait;
 
+  hpc2.start();
+  hpchrono.start();
   //o Debug the process of building the matrix profile. 
   TGETOPTDEF(mesh->global_options,int,debug_compute_prof,0);
 
@@ -463,7 +523,10 @@ int assemble(Mesh *mesh,arg_list argl,
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
+    out_of_loop.add(hpchrono.elapsed());
+
     while (1) { // Loop over chunks. 
+      hpchrono.start();
       chunk++; // number of the current chunk
 
       iele_here = -1;
@@ -514,6 +577,7 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 #endif 
 
+      
       if (iele_here > -1) {
 	// if (1) {
 	elemset->assemble(arg_data_v,nodedata,dofmap,
@@ -599,6 +663,9 @@ int assemble(Mesh *mesh,arg_list argl,
 	}
       }
 
+      in_loop.add(hpchrono.elapsed());
+      hpchrono.start();
+  
       for (j=0; j<narg; j++) {
 	if (argl[j].options & ASSEMBLY_MATRIX) {
 	  if (argl[j].options & PFMAT) {
@@ -614,6 +681,10 @@ int assemble(Mesh *mesh,arg_list argl,
 	  }
 	}
       }
+
+      wait.add(hpchrono.elapsed());
+      hpchrono.start();
+
       // Has finished processing chunks this processor?
       int local_has_finished= (el_last==nelem-1);
 
@@ -636,6 +707,8 @@ int assemble(Mesh *mesh,arg_list argl,
 #endif
 
       el_start = el_last+1;
+      in_loop.add(hpchrono.elapsed());
+      hpchrono.start();
       if (global_has_finished) break;
     } // end loop over chunks
 
@@ -648,7 +721,7 @@ int assemble(Mesh *mesh,arg_list argl,
 		  "[proc] - total[sec] - rate[sec/Kelement]\n",
 		  elemset->type,jobinfo);
       double elapsed;
-      elapsed=chrono.elapsed();
+      elapsed=chrono. elapsed();
       double rate=1000.0*elapsed/elemset->nelem_here;
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "[proc %d]   %g   %g\n",myrank,elapsed,rate);
@@ -725,6 +798,13 @@ int assemble(Mesh *mesh,arg_list argl,
     }
   }
 
+  out_of_loop.add(hpchrono.elapsed());
+  out_of_loop.print_stat("Out of loop");
+  in_loop.print_stat("In loop");
+  wait.print_stat("Wait");
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] Total in assemble: %g\n",
+	      MY_RANK,hpc2.elapsed());
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
   return 0;
 }
 
