@@ -2746,3 +2746,7 @@ tag: beta-3.19.pl29 on Thu, 03 Jul 2003 07:46:34 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl30 on Sat, 05 Jul 2003 00:28:44 -0300 by mstorti in spider
      > Will apply the `axial_acceleration' patch. 
+----------
+tag: beta-3.19.pl31 on Sat, 05 Jul 2003 09:38:31 -0300 by mstorti in spider
+     > Added axial_acc patch. But it's not already added the 
+     > `lm_initialize' fuction. 
