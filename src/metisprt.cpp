@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.11 2001/11/23 00:34:07 mstorti Exp $
+//$Id: metisprt.cpp,v 1.12 2002/05/04 03:16:56 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -219,6 +219,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
   // Initializa graph ptrs
   for (int ielset=0; ielset<nelemsets; ielset++) {
     elemset  = *(Elemset **)da_ref(mesh->elemsetlist,ielset);
+    if (!elemset->isfat) continue;
     //if (myrank==0) printf("elemento: %d, conec: %d\n",ielset,elemset);
     icone = elemset->icone;
     nel = elemset->nel;

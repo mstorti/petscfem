@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.41 2002/02/18 03:36:13 mstorti Exp $
+//$Id: readmesh.cpp,v 1.42 2002/05/04 03:16:56 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -878,8 +878,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
   if (node_not_connected_to_fat)
     PetscPrintf(PETSC_COMM_WORLD,"warning! there is at least one"
-		" node not linked to any fat elemset. \n"
-		"This induces artificial numbering\n");
+		" node not linked to any \"fat\" elemset. \n"
+		"This induces artificial numbering. [But may be OK]\n");
 
   //o Prints element partitioning. 
   GETOPTDEF(int,debug_element_partitioning,0);
