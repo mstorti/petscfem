@@ -13,8 +13,10 @@ chomp $petscfem_version;
 $ADDRESS = <<EOM;
 
 <i> Copyright (C) 1999-2003
-<a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti</a>, Norberto Nigro, 
-Rodrigo P.Paz, CIMEC-CONICET-UNL.<br>
+<a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti</a>, 
+<a href=\"mailto:nnigro\@intec.unl.edu.ar\">Norberto Nigro</a>, 
+<a href=\"mailto:rodrigop\@intec.unl.edu.ar\">Rodrigo R.Paz</a>, 
+CIMEC-CONICET-UNL.<br>
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY. 
 For details see the GNU General Public License. <br>
 Current PETSc-FEM version is <b> petscfem-$petscfem_version </b>. <br>
