@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.21 2005/03/09 01:29:06 mstorti Exp $
+// $Id: project.cpp,v 1.22 2005/03/09 01:43:57 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -272,9 +272,9 @@ void nod_vol(const dvector<double> &xnod,
     a.set(x2).rest(x1);
     b.set(x3).rest(x1);
     c.cross(a,b);
-    double area_elem = c.norm_p_all(2.0);
+    double area_elem = 0.5*c.norm_p_all(2.0);
     area_tot += area_elem;
-    double area_nod = 0.5*area_elem/nel;
+    double area_nod = area_elem/nel;
     for (int k=0; k<nel; k++) {
       int node = icone.e(j,k);
       area.e(node-1) += area_nod;
@@ -285,7 +285,7 @@ void nod_vol(const dvector<double> &xnod,
   area_tot = 0.0;
   for (int j=0; j<nnod; j++) {
     area_tot += area.e(j);
-    printf("nodo %d, area %f\n",j,area.e(j));
+    // printf("nodo %d, area %f\n",j,area.e(j));
   }
   printf("total area (sum over nodes) %f\n",area_tot);
 }
