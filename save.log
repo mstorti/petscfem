@@ -2425,3 +2425,6 @@ tag: beta-3.18.pl4 on Tue, 18 Feb 2003 20:49:55 -0300 by mstorti in spider
 tag: beta-3.18.pl5 on Wed, 19 Feb 2003 09:46:43 -0300 by mstorti in spider
      > Added tests for DX. 
      > Fixed a bug in tools/myexpect.pl
+----------
+tag: beta-3.18.pl6 on Wed, 19 Feb 2003 14:40:29 -0300 by mstorti in spider
+     > Runs DX tests with NP=2
