@@ -336,39 +336,25 @@ C<.bin>).
 
 =head1 AUTHORS
 
-=item Mario A. Storti*
+=over
+
+=item Mario A. Storti* C<< <mstorti@intec.unl.edu.ar> >>
 
 PETSc-FEM kernel, NS and AdvDif modules. 
 
-=item  Norberto M. Nigro*
+=item  Norberto M. Nigro* C<< <nnigro@intec.unl.edu.ar" >>
 
 PETSc-FEM kernel, NS and AdvDif modules. 
 
-=item Rodrigo P. Paz*
+=item Rodrigo P. Paz* C<< <rodrigop@intec.unl.edu.ar> >>
 
 AdvDif module, specially the hydrology module. 
 
 =back 
 
 * CIMEC, Internacional Center for Computational Methods in Engineering,
-Santa Fe, Argentina.
-
-=head1 CONTACTS
-
-=over
-
-=item *
-
-B<e-mail:> C<<mstorti@intec.unl.edu.ar>>
-
-=item *
-
-B<www:> C<http://www.cimec.org.ar/petscfem>
-
-=item *
-
-B<ordinary mail:> Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.
-
-=back
+Santa Fe, Argentina. 
+L<http://www.cimec.org.ar/petscfem|http://www.cimec.org.ar/petscfem> 
+Ordinary mail: CIMEC-INTEC, Guemes 3450, 3000 Santa Fe, Argentina.
 
 =cut
