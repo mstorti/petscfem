@@ -4,11 +4,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Finish with the GenericError and CHECK_PARR_ macros in readmesh... 
-  Doesn't crash correctly when	
-  > 	  Error reading coordinates in line:
-  > 	  " 186.479250051526 0 65.8289085858449 5 0 100526.561473902"
-  > 	  Not enough values in line!!
 * Bad parallel error reporting when not known elemset type 
 in NS (and advdif??)
    > not known elemset type: "ns_id"
@@ -152,6 +147,11 @@ in NS (and advdif??)
 DONE:
 =====
 
+* Finish with the GenericError and CHECK_PARR_ macros in readmesh... 
+  Doesn't crash correctly when	
+  > 	  Error reading coordinates in line:
+  > 	  " 186.479250051526 0 65.8289085858449 5 0 100526.561473902"
+  > 	  Not enough values in line!!
 * Write test for `compute_fd_adv_jacobian'. 
 	DONE: Wed, 26 Nov 2003 21:03:25 -0300
 * Advdif crashes when no filename is pased via the -case option

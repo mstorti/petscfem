@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.102 2003/12/03 12:42:04 mstorti Exp $
+//$Id: readmesh.cpp,v 1.103 2003/12/06 15:11:09 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -68,12 +68,17 @@ void metis_part(int nelemfat,Mesh *mesh,
       ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
       PETSCFEM_ASSERT0(!ierro,text);  
 
+#define NEW
 #ifdef NEW
-#define CHECK_PAR_ERR_GE 				\
-catch(GenericError e) { ierro = 1; ge=e; }		\
-ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
-printf("[%d] %s\n",myrank,ge.c_str());\
-PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
+
+void petscfem_check_par_err(int ierro,GenericError &ge,int myrank) {
+  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
+  PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
+}
+
+#define CHECK_PAR_ERR_GE			\
+catch(GenericError e) { ierro = 1; ge=e; }	\
+petscfem_check_par_err(ierro,ge,myrank);
 
 #define PETSCFEM_ASSERT_GE(cond,templ,...)		\
 if (!(cond)) { throw GenericError(templ,__VA_ARGS__); }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: generror.cpp,v 1.1 2003/12/04 12:11:54 mstorti Exp $
+// $Id: generror.cpp,v 1.2 2003/12/06 15:11:09 mstorti Exp $
 
 #include <string>
 
@@ -12,7 +12,7 @@ GenericError::
 GenericError(char *s,va_list ap) {
   AutoString as;
   as.vsprintf(s,ap);
-  string(as.str());
+  *this = GenericError(string(as.str()));
 }
 
 GenericError::
@@ -22,5 +22,5 @@ GenericError(char *s,...) {
 
   va_start(ap,s);
   as.vsprintf(s,ap);
-  string(as.str());
+  *this = GenericError(string(as.str()));
 }
