@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.11 2001/05/02 00:09:04 mstorti Exp $
+//$Id: elemset.cpp,v 1.12 2001/05/12 22:33:21 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -383,8 +383,15 @@ int assemble(Mesh *mesh,arg_list argl,
     local_chunk_size = (int)(chunk_size*dofmap->tpwgts[myrank]/w_max) +1 ;
 
     CHKERRQ(ierr);
-    chunk_size = mini(2,local_chunk_size,nel_here);
-
+    // This fixes the 'bug100' bug: If the number of ghost_elements is
+    // lower than the numberof local elements in this elemset, then we
+    // have to allocate, at less room for the ghost elements (if we
+    // have to iterate on the ghost_elems also). 
+    int max_chunk_size = nel_here;
+    if (iter_mode == INCLUDE_GHOST_ELEMS) 
+      max_chunk_size = maxi(2,max_chunk_size,da_length(ghostel));
+    chunk_size = mini(2,local_chunk_size,max_chunk_size);
+      
     for (j=0; j<narg; j++) {
       if (argl[j].options & DOWNLOAD_VECTOR) 
 	ARGVJ.locst = new double[chunk_size*ndoft];

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: fstack.h,v 1.4 2001/05/05 13:13:26 mstorti Exp $
+//$Id: fstack.h,v 1.5 2001/05/12 22:33:21 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -75,6 +75,12 @@ public:
       @author M. Storti
   */ 
   ~FileStack(void);
+
+  /** Check if the file has been opened correctly
+      @param (input)
+      @return a reference to the matrix.
+  */ 
+  int ok(void) {return file_at_top!=NULL;};
 
   /** Set stream where to write echo lines
       @param echo_s (input) the output stream

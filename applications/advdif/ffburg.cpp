@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.11 2001/04/12 00:43:25 mstorti Exp $
+//$Id: ffburg.cpp,v 1.12 2001/05/12 22:33:18 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -143,7 +143,7 @@ void burgers_ff::start_chunk(int &ret_options) {
   // _END
   u0.set(0.); u0.setel(1.,1);
   ierr = elemset->get_double("u0",*u0.storage_begin(),1,ndim); 
-  PETSCFEM_ASSERT(ierr==0,"Error reading variable u0");
+  PETSCFEM_ASSERT0(ierr==0,"Error reading variable u0");
   ret_options |= SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a scalar tau
 }

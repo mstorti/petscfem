@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.17 2001/05/05 13:13:26 mstorti Exp $
+//$Id: readmesh.cpp,v 1.18 2001/05/12 22:33:21 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -72,6 +72,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // Read data
   FileStack *fstack;
   fstack = new FileStack(fcase);
+  PETSCFEM_ASSERT(fstack->ok(),"read_mesh: "
+		  "Couldn't open file \"%s\"\n",fcase);
   if (myrank==0) fstack->set_echo_stream(stdout);
 
   // Initialize number of eqs.

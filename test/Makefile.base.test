@@ -4,6 +4,7 @@ LAPLACE = $(PETSCFEM_DIR)/applications/laplace/laplace.bin
 NS    = $(PETSCFEM_DIR)/applications/ns/ns.bin
 NS_STBL    = $(PETSCFEM_DIR)/../petscfem/applications/ns/ns.bin
 ADV    = $(PETSCFEM_DIR)/applications/advective/adv.bin
+ADVDIF = $(PETSCFEM_DIR)/applications/advdif/advdif.bin
 
 SRCS = $(wildcard *.cpp)
 
@@ -21,6 +22,9 @@ $(ADV): force
 
 $(LAPLACE): force
 	$(MAKE) -C $(PETSCFEM_DIR) laplace
+
+$(ADVDIF): force
+	$(MAKE) -C $(PETSCFEM_DIR) advdif
 
 local_clean::
 	-rm -f *.o *.sal tmp_file_*.tmp *.bin *~ *.tmp \

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.4 2001/05/05 13:13:26 mstorti Exp $
+//$Id: fstack.cpp,v 1.5 2001/05/12 22:33:21 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -46,11 +46,15 @@ void FileStack::close(void) {
 FileStack::FileStack(const char *filename) : echo_stream (NULL), echo(0) {
 
   // char line[LINESIZE];
+#if 0
   file_at_top = fopen(filename,"r");
   if (!file_at_top) {
     printf("Couldn't open file \"%s\"!!\n",filename);
     exit(0);
   }
+#endif
+  open(filename);
+  if (!ok()) return;
   file_stack = da_create(sizeof(FILE *));
   read_buffer = da_create(sizeof(Autobuf *));
   buf = astr_create();
@@ -72,7 +76,6 @@ void FileStack::open(const char *filename) {
   file_at_top = fopen(filename,"r");
   if (!file_at_top) {
     printf("Couldn't open file \"%s\"!!\n",filename);
-    exit(0);
   }
 }
 

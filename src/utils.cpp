@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.4 2001/04/01 01:35:06 mstorti Exp $
+//$Id: utils.cpp,v 1.5 2001/05/12 22:33:21 mstorti Exp $
  
 #include <stdio.h>
 
@@ -170,6 +170,19 @@ int mini(int n,...) {
   }
   va_end(list);
   return min;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int maxi(int n,...) {
+  va_list list;
+  va_start(list,n);
+  int max,item;
+  for (int kk=0; kk<n; kk++) {
+    item = va_arg(list,int);
+    max = ( kk==0 ? item : ( max > item ? max : item));
+  }
+  va_end(list);
+  return max;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: utils.h,v 1.5 2001/05/05 13:13:26 mstorti Exp $
+//$Id: utils.h,v 1.6 2001/05/12 22:33:21 mstorti Exp $
  
 
 #ifndef UTILS_H
@@ -81,6 +81,14 @@ int irand(int imin,int imax);
   @return the minimum of these integers
 */ 
 int mini(int n,...);
+
+/** Maximum value of a set of integers.
+  @author M. Storti
+  @param n number of integer values
+  @param ... set of integers
+  @return the minimum of these integers
+*/ 
+int maxi(int n,...);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Reshapes a matrix to be m x n. (Clon of matlab reshape()).

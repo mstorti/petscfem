@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2001/05/05 11:49:15 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2001/05/12 22:33:24 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
-	newff burgers
+	newff burgers bug100
 
 run: sqcav5
 
@@ -54,7 +54,7 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers
+	advdif texthash log_vars newff burgers bug100
 runtests_p: 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers
 
@@ -63,6 +63,11 @@ runtests_p: 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 #w Lapace on a square with periodic b.c.'s
 lap_per: lap_per.dat laplace
 	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Check bug100 (don't allocate chunk_size see notes.txt)
+bug100: $(ADVDIF)
+	$(MAKE) -C bug100 run
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Laplace on a sector of a circular sector
@@ -177,9 +182,6 @@ plano.depl: force
 ADVO = $(PETSCFEM_DIR)/../petscfem-beta-1.14/applications/advective/adv.bin
 
 export EPERLFLAGS
-
-pp:
-	echo RH60 = $(RH60)
 
 ifneq ($(RH60),) 
 

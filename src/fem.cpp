@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.4 2001/05/05 01:20:43 mstorti Exp $
+//$Id: fem.cpp,v 1.5 2001/05/12 22:33:21 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -105,22 +105,29 @@ int compute_prof(Darray *da,Dofmap *dofmap,int myrank,
   return 0;
 }
 
-#ifndef RH60
-void PETSCFEM_ERROR(const char *templ,...) {
-  va_list list;
-  va_start(list,templ);
-  PetscPrintf(PETSC_COMM_WORLD,templ,list);
-  abort();
+void petscfem_printf(const char *templ,va_list list) {
+  int myrank;
+//    va_list list;
+//    va_start(list,templ);
+  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+  if (myrank==0) vprintf(templ,list);
 }
 
-void PETSCFEM_ASSERT(int cond, const char *templ,...) {
+void petscfem_error(const char *templ,...) {
+  va_list list;
+  va_start(list,templ);
+  petscfem_printf(templ,list);
+  PetscFinalize();
+  exit(0);
+}
+
+void petscfem_assert(int cond, const char *templ,...) {
   if (!cond) {
     va_list list;
     va_start(list,templ);
-    PETSCFEM_ERROR(templ,list);
+    petscfem_error(templ,list);
   }
 }
-#endif
 
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

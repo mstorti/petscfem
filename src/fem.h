@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.17 2001/05/05 01:20:43 mstorti Exp $
+//$Id: fem.h,v 1.18 2001/05/12 22:33:21 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -274,40 +274,44 @@
 #define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(0);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** If #bool_cond# evaluates to true issues 
-    an error (with #PetscPrintf(...))# and
-    calls #abort()#
-    @author M. Storti
+/** Issues an error (with #PetscPrintf(...))# and
+    calls #PetscFinalize()#. Argument are as for 'printf()'
+    usage: PETSCFEM_ERROR(template,args).
 */ 
 #ifdef RH60
-#define PETSCFEM_ERROR(...)				\
-  PetscPrintf(PETSC_COMM_WORLD,				\
-              "---------------"				\
-	      "PETSC-FEM error at file %s, line %d\n",	\
-	      __FILE__,__LINE__);			\
-  PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
-  abort();
+#define USE_VARARG_MACROS
+#endif
+#ifdef USE_VARARG_MACROS
+#define PETSCFEM_ERROR(templ,...)				\
+  petscfem_error(templ "\n---------------\n"			\
+	      "PETSC-FEM error at file \"%s\", line %d\n",	\
+		 __VA_ARGS__,__FILE__,__LINE__)
+#define PETSCFEM_ERROR0(templ)					\
+  petscfem_error(templ "\n---------------\n"			\
+	      "PETSC-FEM error at file \"%s\", line %d\n",	\
+		 __FILE__,__LINE__)
+#else
+#define PETSCFEM_ERROR petscfem_error
+#define PETSCFEM_ERROR0 petscfem_error
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** If #bool_cond# evaluates to false issues 
-    an error (with #PetscPrintf(...))# and
-    calls #abort()#
-    @author M. Storti
+    an error (with #PETSCFEM_ERROR#).
+    usage: #PETSCFEM_ASSERT(bool_cond,printf_args)#;
 */ 
-#define PETSCFEM_ASSERT(bool_cond, ...)			\
-if (!(bool_cond)) {					\
-  PetscPrintf(PETSC_COMM_WORLD,				\
-              "---------------"				\
-	      "PETSC-FEM error at file %s, line %d\n",	\
-	      __FILE__,__LINE__);			\
-  PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
-  abort();						\
-}
-
-#else  // The old C preprocessor doesn't support variable arg. marcos
-void PETSCFEM_ERROR(const char *templ,...);
-void PETSCFEM_ASSERT(int bool_cond,const char *templ,...);
+#ifdef USE_VARARG_MACROS
+#define PETSCFEM_ASSERT(bool_cond,templ,...)		\
+if (!(bool_cond)) {PETSCFEM_ERROR(templ,__VA_ARGS__);}
+#define PETSCFEM_ASSERT0(bool_cond,templ)		\
+if (!(bool_cond)) {PETSCFEM_ERROR0(templ);}
+#else
+#define PETSCFEM_ASSERT petscfem_assert
+#define PETSCFEM_ASSERT0 petscfem_assert
 #endif
+
+void petscfem_error(const char *templ,...);
+void petscfem_assert(int bool_cond,const char *templ,...);
 
 #define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD,		\
      "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)
