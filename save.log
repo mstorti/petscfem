@@ -3377,7 +3377,7 @@ tag: beta-3.33.18 on Sun, 24 Oct 2004 23:43:42 -0300 by mstorti in spider
      > Passes FS test with LU. 
      > Solution coincides with previous one with CG. 
 ----------
-tag: beta-3.35 on Mon, 25 Oct 2004 01:23:21 -0300 by mstorti in spider
+tag: beta-3.34 on Mon, 25 Oct 2004 01:23:21 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Changed Version Policy. 
      > Removed `DRH60' compilation flag.
