@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.43 2001/10/06 23:39:59 mstorti Exp $
+//$Id: ns.cpp,v 1.44 2001/10/15 01:30:59 mstorti Exp $
  
 #include <malloc.h>
 
@@ -31,6 +31,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
+    SET_ELEMSET_TYPE(ns_id)
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_res)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.25 2001/10/12 16:03:33 mstorti Exp $
+//$Id: elemset.cpp,v 1.26 2001/10/15 01:31:02 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -395,6 +395,14 @@ int assemble(Mesh *mesh,arg_list argl,
     
     //o Chunk size for the elemset. 
     TGETOPTDEF(elemset->thash,int,chunk_size,ELEM_CHUNK_SIZE);
+    //o The increment in the variables in order to
+    // compute the finite difference approximation to the
+    // Jacobian. Should be order epsilon=sqrt(precision)*(typical
+    // magnitude of the variable). Normally, precision=1e-15 so
+    // that epsilon=1e-7*(typical magnitude of the
+    // variable)
+    TGETOPTDEF(elemset->thash,double,epsilon_fdj,EPSILON_FDJ);
+
     // int chunk_size = ELEM_CHUNK_SIZE;
     // ierr = get_int(elemset->thash,"chunk_size",&chunk_size,1);
 
@@ -525,13 +533,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	    memcpy (ARGVJ.refres,ARGVJ.retval,
 		    sizeof(double)*chunk_size*ndoft);
 
-	// epsilon:= the increment in the variables in order to
-	// compute the finite difference approximation to the
-	// Jacobian. Should be order epsilon=sqrt(precision)*(typical
-	// magnitude of the variable). Normally, precision=1e-15 so
-	// that epsilon=1e-7*(typical magnitude of the
-	// variable)
-	double epsilon=EPSILON_FDJ;
+	//	double epsilon=EPSILON_FDJ;
 	for (kloc=0; kloc<nel; kloc++) {
 	  for (kdof=0; kdof<ndof; kdof++) {
 
@@ -545,7 +547,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	    for (iele=el_start; iele <= el_last; iele++) {
 	      if (!compute_this_elem(iele,elemset,myrank,iter_mode)) continue;
 	      iele_here++;
-	      PSTAT(iele_here,kloc,kdof) += epsilon;
+	      PSTAT(iele_here,kloc,kdof) += epsilon_fdj;
 	    }
 
 	    // compute perturbed residual
@@ -564,7 +566,7 @@ int assemble(Mesh *mesh,arg_list argl,
 		  iele_here++;
 		  for (kdoft=0; kdoft<ndoft; kdoft++) {
 		    RETVALT(iele_here,kdoft) =
-		      -(RETVALT(iele_here,kdoft)-REFREST(iele_here,kdoft))/epsilon;
+		      -(RETVALT(iele_here,kdoft)-REFREST(iele_here,kdoft))/epsilon_fdj;
 		  }
 		}
 
