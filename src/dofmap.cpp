@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.5 2001/05/30 18:21:53 mstorti Exp $
+//$Id: dofmap.cpp,v 1.6 2001/06/05 02:16:23 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -115,6 +115,15 @@ int Dofmap::get_column(int const & node,int const & kdof,Darray *da) {
   if (locdof>0) da_append(da,&spe);
 }
 #endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int Dofmap::edof(const int node,const int field) const"
+int Dofmap::edof(const int node,const int field) const {
+  PETSCFEM_ASSERT(node>=1 && node<=nnod,"Node out of range: %d\n",node);
+  PETSCFEM_ASSERT(field>=1 && field<=ndof,"Field out of range: %d\n",field);
+  return (node-1)*ndof+field;
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

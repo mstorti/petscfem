@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.4 2001/05/30 03:58:50 mstorti Exp $
+//$Id: dofmap.h,v 1.5 2001/06/05 02:16:23 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -359,7 +359,7 @@ public:
       @param kdof (input) the field 
       @return the unique number
    */ 
-  int edof(const int node,const int field) const {return (node-1)*ndof+field;};
+  int edof(const int node,const int field) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /**  Transforms nodf to (node,field). This is the inverse of edof().
