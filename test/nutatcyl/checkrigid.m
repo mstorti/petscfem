@@ -1,3 +1,12 @@
+## Copyright (C) 2002 Mario A. Storti
+##
+## This file is part of Octave.
+##__INSERT_LICENSE__
+## $Id: checkrigid.m,v 1.2 2002/08/19 16:05:10 mstorti Exp $
+
+## Author: Mario Storti
+## Keywords: petscfem-test, viscous-force-intgrator
+
 source("data.m.tmp");
 
 f0=aload("cylinder.force.rigid.tmp");

@@ -1,3 +1,12 @@
+## Copyright (C) 2002 Mario A. Storti
+##
+## This file is part of Octave.
+##__INSERT_LICENSE__
+## $Id: checknutcyl.m,v 1.2 2002/08/19 16:06:15 mstorti Exp $
+
+## Author: Mario Storti
+## Keywords: petscfem-test, nutating-cylinder
+
 f0=aload("cylinder.force.nuta0.tmp");
 f15=aload("cylinder.force.nuta15.tmp");
 
