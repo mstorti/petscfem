@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $
+$Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $ 
+! # $Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $ 
+! # $Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $ 
+! # $Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $ 
+! # $Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $ 
+  # $Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.230 2003/01/22 13:30:23 mstorti Exp $ 
+  # $Id: notes.txt,v 1.231 2003/01/22 13:38:06 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -5974,9 +5974,18 @@ seria compartido.
 Empiezo a correr el `vtube' en compresible. Con `refine=2' y
 `u_rad_in=20', y solo salida caliente converge bien y se forma un
 flujo saliente correcto. 
-
->>>>>>> 1.228.2.1
-
+%
+22:26:21: A `nstep=85' lo corto para relanzarlo con salida fria. 
+%
+22:43:34: Le largo la salida fria con p_c = 1.013e5 pero revienta. Le
+bajo el Dt de 1e4  a 5e-5 y le pongo una presion de salida fria mas
+alta 1.2e5. 
+%
+22:57:55: Sigue divirgiendo. El flujo se va todo hacia la salida
+fria, e incluso se invierte el sentido de la salida caliente. 
+%
+23:24:16: Con p_c=1.3e5 converge bien. Sale casi todo por la salida
+fria, asi que en realidad se deberia usar una p_c todavia mayor. 
 
 # Current line ===========  %
 # Local Variables: $
