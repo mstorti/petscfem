@@ -6,9 +6,13 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('case','lu');
 get_var_env('theta',0);
 print "# incoming `case' : $case\n";
-$shell_hook = 0;
+$shell_hook_case = 0;
 if ($case eq 'shell_hook') {
-    $shell_hook = 1;
+    $shell_hook_case = 1;
+    $case = 'g3d_ref';
+}
+if ($case eq 'shell_hook2') {
+    $shell_hook_case = 2;
     $case = 'g3d_ref';
 }
 if ($case =~ /^g3d_(.*)$/) { 
@@ -98,8 +102,10 @@ print_internal_loop_conv 1
 Dt 0.01
 # steady 
 
-#if $shell_hook
-hook_list shell_hook shell_hook2
+#if $shell_hook_case==1
+hook_list shell_hook shell_hook
+#elsif $shell_hook_case==2
+hook_list shell_hook shell_hook
 shell_hook "echo stage %s, step %d, time %f"
 #endif
 

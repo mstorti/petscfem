@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: autostr.cpp,v 1.6 2003/05/04 16:28:15 mstorti Exp $
+// $Id: autostr.cpp,v 1.7 2003/05/04 16:34:54 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstring>
@@ -7,11 +7,13 @@
 #include <cstdio>
 #include <src/autostr.h>
 
+int AutoString::total=0;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 AutoString::AutoString() : s(NULL), n(0) { clear(); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-AutoString::~AutoString() { clear(); delete[] s; }
+AutoString::~AutoString() { clear(); total -= n; free(s); s=NULL; n=0; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const char *AutoString::str() const { return s; }
@@ -21,12 +23,15 @@ int AutoString::size() const { return n; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AutoString::resize(int m) { 
+  // Allocate new size and copy old vector
   if (m>n) {
     char *new_s = (char *)malloc(m);
+    total += m;
     new_s[0] = '\0';
     if (s) {
       strcpy(new_s,s);
       free(s);
+      total -= n;
     }
     s = new_s;
     n = m;
@@ -35,6 +40,10 @@ void AutoString::resize(int m) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 AutoString & AutoString::clear() {
+  total -= n;
+  free(s);
+  s = NULL;
+  n = 0;
   resize(1);
   return *this;
 }
@@ -49,6 +58,11 @@ AutoString & AutoString::cat(const AutoString &as) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 AutoString &  AutoString::vsprintf(const char *f,va_list ap) { 
+  if (s) {
+    free(s);
+    n=0;
+    s=NULL;
+  }
   n = vasprintf(&s,f,ap);
   return *this;
 }

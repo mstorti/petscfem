@@ -1,18 +1,26 @@
-# $Id: Makefile,v 1.62 2003/05/04 16:28:15 mstorti Exp $ 
+# $Id: Makefile,v 1.63 2003/05/04 16:34:54 mstorti Exp $ 
 
-.PHONY: all run  compile lclean laplace adv nso laplace_tests force \
-        ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
+.PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
+        ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
 	dx_hook_test_post_run_file_record
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
-tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
-	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests test_qharm_3d
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf 		\
+	test_g_body test_fs test_zero_w_proc test_zero_w_proc2 	\
+	test_triangle dx_tests test_qharm_3d test_shell_hook
 
-test_shell_hook:
+test_shell_hook: test_shell_hook1 test_shell_hook2
+
+test_shell_hook1:
 	$(MAKE) CASE=qharm case=shell_hook run
+	-rm -f outvector0.out
+
+test_shell_hook2:
+	$(MAKE) CASE=qharm case=shell_hook2 run
+	-rm -f outvector0.out
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 #w Tests the adaptor_pg class when ndimel<ndim (quad panels in 3D). 
@@ -286,5 +294,5 @@ local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
 
-shell_hook2_%:
+shell_hook_%:
 	@echo target $@, step: $$petscfem_step, time: $$petscfem_time

@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#$Id: runtests.pl,v 1.105 2003/05/04 16:34:54 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -8,7 +9,7 @@ getopts("hond");
 
 if ($opt_h) {
     print <<'EOM';
-usage: ` $ runtests.pl [OPTIONS]'
+usage:  $ runtests.pl [OPTIONS]'
 
 OPTIONS: -h print help
          -o complain when can't open files
@@ -25,7 +26,7 @@ begin_section('All tests');
 begin_section('FastMat2');
 
 ##------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-/'/; # to disable auto-filling an indenting in Emacs
+; # to disable auto-filling an indenting in Emacs
 expect("fastmat2/fastmat2a.out.tmp","FastMat2 library",
         read_file("fastmat2/fastmat2a.ans.txt"));
 
@@ -518,7 +519,6 @@ expect("nsgenload/verif.constraint.tmp",
 Error < tol OK \? 1
 EOT
 
-
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/verif.g3d.tmp",
        "Adaptor_pg for surfaces. Plane at various angles",
@@ -563,6 +563,16 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("fstack/test_autostr.output.tmp","AutoString class.",
                read_file('fstack/test_autostr.output.ans'));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_qharm.np_1.case_shell_hook.out.tmp",
+       "Shell hook with make.",
+       read_file('sqcav/case_shell_hook.ans'));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_qharm.np_1.case_shell_hook2.out.tmp",
+       "Shell hook with shell script.",
+       read_file('sqcav/case_shell_hook2.ans'));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("texthash/tthash.sal","TextHashTable class",<<'EOT');
@@ -612,21 +622,21 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_global.tmp",
        "Readmesh complains about bad file inclusion",<<'EOT');
-Couldn't open file.*dummy_archive
+Couldn.t open file.*dummy_archive
 genload.depl
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_nodes.tmp",
        "Readmesh complains bad file inclusion in nodes",<<'EOT');
-Couldn't open file.*dummy_archive
+Couldn.t open file.*dummy_archive
 genload.depl
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/output.fstack_nodes2.tmp",
        "Readmesh complains bad file inclusion in nodes(2)",<<'EOT');
-Couldn't open file.*dummy_archive
+Couldn.t open file.*dummy_archive
 EOT
 
 end_section();
@@ -1139,6 +1149,5 @@ print "\n",'-' x 50,"\n\n";
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-/'/; # to disable auto-filling an indenting in Emacs
 
 final_check();

@@ -5,7 +5,6 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
-* Write a `system' hook. (executes a shell command). 
 * Seems that can't correctly read elements with 1 node 
 * Make a test for Newton convergence with ns_id and lag_mul mixed. 
 * Correct DOC++ doc in `lagmul.h'
@@ -105,6 +104,7 @@ DONE:
 =====
 
 ### Current line =========== 
+* OK Write a `system' hook. (executes a shell command). 
 * DX: let the user to dynamically split fields in scalar, vectors, etc...
 * if it can't open the connectivity file, it hangs with a SIGSEGV
   write test. FIXED

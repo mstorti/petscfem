@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.6 2003/05/04 16:28:15 mstorti Exp $
+//$Id: hook.cpp,v 1.7 2003/05/04 16:34:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
