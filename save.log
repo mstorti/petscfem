@@ -451,3 +451,7 @@ tag: beta-1.87 on Fri Jun  8 10:26:43 ART 2001, by mstorti in spider
 tag: beta-1.88 on Thu Jun 14 20:27:36 ART 2001, by mstorti in spider
      > Added control for dofs/fields.
      > Added tests.
+----------
+tag: beta-1.89 on Tue Jun 19 22:17:17 ART 2001, by mstorti in spider
+     > Working on wallkechan test case.
+     > Will replace all the files in test/wallkechan dir
