@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.11 2002/05/17 20:51:35 mstorti Exp $
+//$Id: gatherer.cpp,v 1.12 2002/05/19 19:36:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -177,6 +177,13 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
     moment.cross(force,dx);
     // export forces to return vector
     moment.export_vals(pg_values.begin()+ndim_m);
+#if 0
+#define SHM(name) name.print(#name ": ")
+    SHM(xpg);
+    SHM(dx);
+    SHM(force);
+    SHM(moment);
+#endif
   }
 }
 
