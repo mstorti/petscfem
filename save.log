@@ -3663,3 +3663,6 @@ tag: beta-3.38.26 on Sat, 15 Jan 2005 09:58:42 -0300 by mstorti in spider
      > Now, most functions from `dvector<>' return a reference. 
      > Implemented `dv*-read!' function in scheme. 
      > 
+----------
+tag: beta-3.38.27 on Sat, 15 Jan 2005 10:13:26 -0300 by mstorti in spider
+     > Added `dv-*cat!'. 
