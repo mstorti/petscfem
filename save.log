@@ -1219,7 +1219,7 @@ tag: beta-2.94.pl28 on Fri, 12 Jul 2002 11:33:25 -0300 by mstorti in minerva.arc
 tag: beta-2.94.pl29 on Sun, 14 Jul 2002 00:07:36 -0300 by mstorti in spider
      > Runs big test with 60^3*5 = 1.08Melements in spider.
 ----------
-tag: beta-2.98 on Sun, 14 Jul 2002 09:23:19 -0300 by mstorti in spider
+tag: beta-2.98 on Sun, 14 Jul 2002 09:23:19 -0300, by mstorti in spider
      > Will branch the development of new version of Fractional-Step.
 ----------
 tag: beta-2.98.pl1 on Sun, 14 Jul 2002 13:48:31 -0300 by mstorti in spider
@@ -1240,7 +1240,7 @@ tag: beta-2.98.pl5 on Mon, 15 Jul 2002 21:22:41 -0300 by mstorti in spider
 tag: beta-2.98.pl6 on Mon, 15 Jul 2002 21:34:09 -0300 by mstorti in spider
      > Computes `A_prj' matrix 
 ----------
-tag: beta-2.99 on Tue, 16 Jul 2002 00:30:19 -0300 by mstorti in spider
+tag: beta-2.99 on Tue, 16 Jul 2002 00:30:19 -0300, by mstorti in spider
      > Runs fractional step
 ----------
 tag: beta-2.99.pl1 on Tue, 16 Jul 2002 21:14:39 -0300 by mstorti in spider
@@ -1249,7 +1249,7 @@ tag: beta-2.99.pl1 on Tue, 16 Jul 2002 21:14:39 -0300 by mstorti in spider
 tag: beta-2.99.pl2 on Tue, 16 Jul 2002 23:48:31 -0300 by mstorti in spider
      > Running large problem with `cubcav'
 ----------
-tag: beta-3.00 on Tue, 16 Jul 2002 23:49:35 -0300 by mstorti in spider
+tag: beta-3.00 on Tue, 16 Jul 2002 23:49:35 -0300, by mstorti in spider
      > Fractional-step is working
 ----------
 tag: beta-3.00.pl1 on Tue, 16 Jul 2002 23:55:48 -0300 by mstorti in spider
@@ -1340,7 +1340,7 @@ tag: beta-3.00.pl27 on Thu, 25 Jul 2002 00:32:43 -0300 by mstorti in spider
 tag: beta-3.00.pl28 on Thu, 25 Jul 2002 11:54:33 -0300 by mstorti in node1.beowulf.gtm
      > Runs 50^3 mesh with nsi_tet_les_fm2 in geronimo with the 5xP4 subcluster. 
 ----------
-tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300 by mstorti in minerva.arcride.edu.ar
+tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Runs all tests but those in the `aquifer' directory. 
 ----------
@@ -1385,7 +1385,7 @@ tag: beta-3.01.pl12 on Sun, 28 Jul 2002 11:45:36 -0300 by mstorti in spider
 tag: beta-3.01.pl13 on Sun, 28 Jul 2002 13:46:14 -0300 by mstorti in spider
      > Fixed some doc stuff.
 ----------
-tag: beta-3.02 on Sun, 28 Jul 2002 20:26:00 -0300 by mstorti in spider
+tag: beta-3.02 on Sun, 28 Jul 2002 20:26:00 -0300, by mstorti in spider
      > Rewritten hexasplit.
 ----------
 tag: beta-3.02.pl1 on Mon, 29 Jul 2002 00:13:59 -0300 by mstorti in spider
@@ -1473,7 +1473,7 @@ tag: beta-3.02.pl25 on Sun, 18 Aug 2002 18:27:30 -0300 by mstorti in spider
 tag: beta-3.02.pl26 on Sun, 18 Aug 2002 19:42:19 -0300 by mstorti in spider
      > Runs all tests, some fixes.
 ----------
-tag: beta-3.03 on Sun, 18 Aug 2002 20:40:26 -0300 by mstorti in spider
+tag: beta-3.03 on Sun, 18 Aug 2002 20:40:26 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs all tests.
      > Runs all tests with BOPT=O_c++
@@ -1559,7 +1559,7 @@ tag: beta-3.03.pl23 on Thu,  5 Sep 2002 19:28:59 -0300 by mstorti in minerva.arc
 tag: beta-3.03.pl24 on Thu,  5 Sep 2002 23:50:35 -0300 by mstorti in spider
      > Runs allmost all tests. 
 ----------
-tag: beta-3.04 on Fri,  6 Sep 2002 11:35:46 -0300 by mstorti in minerva.arcride.edu.ar
+tag: beta-3.04 on Fri,  6 Sep 2002 11:35:46 -0300, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Updated to PETSc 2.1.3
 ----------
@@ -1627,7 +1627,7 @@ tag: beta-3.04.pl19 on Fri, 20 Sep 2002 18:26:45 -0300 by mstorti in minerva.arc
 tag: beta-3.04.pl20 on Fri, 20 Sep 2002 19:51:44 -0300 by mstorti in spider
      > Can have 0 weight processors. 
 ----------
-tag: beta-3.05 on Fri, 20 Sep 2002 23:21:29 -0300 by mstorti in spider
+tag: beta-3.05 on Fri, 20 Sep 2002 23:21:29 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Updated to PETSc 2.1.3
      > Fixed the `KSPGMRESSetOrthogonalization()' bug. 
@@ -1694,7 +1694,7 @@ tag: beta-3.05.pl16 on Tue,  8 Oct 2002 17:03:13 -0300 by mstorti in minerva.arc
 tag: beta-3.05.pl17 on Wed,  9 Oct 2002 10:38:53 -0300 by mstorti in minerva.arcride.edu.ar
      > Aded `bcconv' test from Beto.
 ----------
-tag: beta-3.06 on Thu, 10 Oct 2002 20:38:40 -0300 by mstorti in spider
+tag: beta-3.06 on Thu, 10 Oct 2002 20:38:40 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Modified test for 0-weight proc.
      > Changed printing dof statistics for IISD
@@ -1744,7 +1744,7 @@ tag: beta-3.06.pl11 on Sat,  2 Nov 2002 17:52:08 -0300 by mstorti in spider
 tag: beta-3.06.pl12 on Sat,  2 Nov 2002 22:35:25 -0300 by mstorti in spider
      > Runs all tests
 ----------
-tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300 by mstorti in spider
+tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Merged some fixes from hydrology module
      > Some fixes related with ROSI interaction. 
@@ -1763,7 +1763,7 @@ tag: beta-3.07.pl1 on Sun,  3 Nov 2002 06:37:39 -0300 by mstorti in spider
 tag: beta-3.07.pl2 on Sun,  3 Nov 2002 08:04:30 -0300 by mstorti in spider
      > Passed `fastmat2' tests to `test/fastmat2'
 ----------
-tag: beta-3.08 on Tue,  5 Nov 2002 19:09:56 -0300 by mstorti in spider
+tag: beta-3.08 on Tue,  5 Nov 2002 19:09:56 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Rewritten example `text/texthash/thash2.cpp' for TextHashTable::find()
      > Fixed many warnings that were issued with (possibly?) `g++ -pedantic'
@@ -1823,7 +1823,7 @@ tag: beta-3.08.pl17 on Mon,  2 Dec 2002 16:05:57 -0300 by mstorti in node1.beowu
 tag: beta-3.08.pl18 on Mon,  2 Dec 2002 16:09:42 -0300 by mstorti in node1.beowulf.gtm
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
 ----------
-tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300 by mstorti in node1.beowulf.gtm
+tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.gtm
      > -- STABLE VERSION -- 
      > Visualization with DX
      > Can use LES without the van Driest dmping factor. 
@@ -1834,7 +1834,7 @@ tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300 by mstorti in node1.beowulf.gt
      > Added FastMat2::rcp() function.
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
 ----------
-tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300 by mstorti in node1.beowulf.gtm
+tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.gtm
      > -- STABLE VERSION -- 
      > Visualization with DX
      > Can use LES without the van Driest dmping factor. 
@@ -1886,7 +1886,7 @@ tag: beta-3.09.pl11 on Thu, 12 Dec 2002 17:30:38 -0300 by mstorti in minerva.arc
 tag: beta-3.09.pl12 on Thu, 12 Dec 2002 23:36:19 -0300 by mstorti in spider
      > Added doc for `mesh_move'
 ----------
-tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300 by mstorti in minerva.arcride.edu.ar
+tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Runs mesh movement with very large deformation example (95% on step.epl) in 40 steps. 
      > Working on the `mesh_move' with analytic computation of eigenvalues. 
@@ -1943,7 +1943,7 @@ tag: beta-3.10.pl15 on Wed, 18 Dec 2002 17:59:47 -0300 by mstorti in minerva.arc
 tag: beta-3.10.pl16 on Wed, 18 Dec 2002 18:32:31 -0300 by mstorti in minerva.arcride.edu.ar
      > Added tests for NS genload
 ----------
-tag: beta-3.11 on Wed, 18 Dec 2002 21:56:52 -0300 by mstorti in spider
+tag: beta-3.11 on Wed, 18 Dec 2002 21:56:52 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs cone advection example. 
      > Runs test for advection at the diagonal.  
@@ -1975,7 +1975,7 @@ tag: beta-3.11.pl5 on Sun, 22 Dec 2002 20:13:26 -0300 by mstorti in spider
 tag: beta-3.11.pl6 on Mon, 23 Dec 2002 07:57:19 -0300 by mstorti in spider
      > Runs all test but I had to change the constraints in newff/newff.m
 ----------
-tag: beta-3.12 on Mon, 23 Dec 2002 07:58:26 -0300 by mstorti in spider
+tag: beta-3.12 on Mon, 23 Dec 2002 07:58:26 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added plate example. 
      > Fixing problems with circular constraints. 
@@ -1992,7 +1992,7 @@ tag: beta-3.12.pl2 on Wed, 25 Dec 2002 21:31:40 -0300 by mstorti in spider
 tag: beta-3.12.pl3 on Thu, 26 Dec 2002 07:55:26 -0300 by mstorti in spider
      > Runs OK all tests except those in test/sector
 ----------
-tag: beta-3.13 on Thu, 26 Dec 2002 11:36:50 -0300 by mstorti in minerva.arcride.edu.ar
+tag: beta-3.13 on Thu, 26 Dec 2002 11:36:50 -0300, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Now can have more general constraints and fixations. 
      > Runs OK plate with coupling with exterior potential solution 
@@ -2039,7 +2039,7 @@ tag: beta-3.13.pl11 on Wed,  1 Jan 2003 22:44:53 -0300 by mstorti in spider
 tag: beta-3.13.pl12 on Thu,  2 Jan 2003 00:08:56 -0300 by mstorti in spider
      > Passes all tests in BOPT=g_c++ mode
 ----------
-tag: beta-3.14 on Thu,  2 Jan 2003 07:57:29 -0300 by mstorti in spider
+tag: beta-3.14 on Thu,  2 Jan 2003 07:57:29 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Working on mesh generation for cylinder. 
      > Implemented Octave multiblock `mesher' 
@@ -2183,1050 +2183,5 @@ tag: beta-3.14.pl41 on Tue, 21 Jan 2003 14:47:59 -0300 by mstorti in minerva.arc
 tag: beta-3.14.pl42 on Tue, 21 Jan 2003 15:18:43 -0300 by mstorti in minerva.arcride.edu.ar
      > Merged last modifications to advdif_bubbly.cpp from Beto. 
 ----------
-tag: beta-3.14.pl43 on Wed, 22 Jan 2003 10:30:35 -0300 by mstorti in minerva.arcride.edu.ar
-     > Merged vtube1.patch
-----------
-tag: beta-3.14.pl44 on Wed, 22 Jan 2003 10:38:49 -0300 by mstorti in minerva.arcride.edu.ar
-     > Merged vtube2.patch
-----------
-tag: beta-3.14.pl45 on Wed, 22 Jan 2003 10:43:55 -0300 by mstorti in minerva.arcride.edu.ar
-     > Merged vtube3.patch and vtube4.patch
-----------
-tag: beta-3.14.pl46 on Wed, 22 Jan 2003 11:42:05 -0300 by mstorti in node1.beowulf.gtm
-     > Runs vtube example with no cold outlet in geronimo. 
-----------
-tag: beta-3.14.pl47 on Wed, 22 Jan 2003 16:06:49 -0300 by mstorti in node1.beowulf.gtm
-     > Working on vtube. 
-----------
-tag: beta-3.14.pl48 on Fri, 24 Jan 2003 16:48:58 -0300 by mstorti in node1.beowulf.gtm
-     > Fixed bug in processing `-bubbly' option
-----------
-tag: beta-3.14.pl49 on Fri, 24 Jan 2003 17:04:22 -0300 by mstorti in minerva.arcride.edu.ar
-     > Trying to move gatherer to all modules.
-----------
-tag: beta-3.14.pl50 on Sat, 25 Jan 2003 09:41:18 -0300 by mstorti in spider
-     > Gatherer is now in src/ (works for both `advdif' and `ns'). 
-----------
-tag: beta-3.14.pl51 on Sat, 25 Jan 2003 12:29:10 -0300 by mstorti in spider
-     > Compiles changed file location for `gatherer'. 
-     > generic class `gatherer' in src/ and implementations in 
-     > `applications/ns' and  `applications/advdif'. 
-----------
-tag: beta-3.14.pl52 on Sat, 25 Jan 2003 14:26:34 -0300 by mstorti in spider
-     > Added hook to advdif. Compiles OK
-----------
-tag: beta-3.15 on Sat, 25 Jan 2003 18:31:49 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Modified strategy for choosing node to be eliminated in constraints. 
-     > Runs cylinder example with viscous/potential coupling. 
-     > Merged from Navier-Stokes compressible code (advdif/gasflow) written
-     > by Beto.
-     > Changed 'octave -qH' by `$(OCTAVE)' in all headers. 
-     > Implemented `line2quad' and `tri2pism' integrators. 
-     > Added FastMat2 cross product for length 2 vectors. 
-     > Written tests for embedded gatherer integrators (in nutatcyl).  
-     > Written test for line2quad with inverted normal. 
-     > Working on sphere problem mesh. 
-     > Working on smoke vizualization technique. 
-     > Running vtube example with NS incompressible and compressible
-     > (gasflow).
-     > Merged bubbly from Beto. 
-     > Gatherer is now in src/ (works for both `advdif' and `ns'). 
-----------
-tag: beta-3.15.pl1 on Sat, 25 Jan 2003 21:21:35 -0300 by mstorti in spider
-     > Runs all tests with BOPT=O_c++
-----------
-tag: beta-3.15.pl2 on Sun, 26 Jan 2003 18:12:53 -0300 by mstorti in spider
-     > Runs vtube with `flow_rate_controller' (hook plus boundary condition). 
-----------
-tag: beta-3.15.pl3 on Sun, 26 Jan 2003 21:37:22 -0300 by mstorti in spider
-     > Changes flow regulator strategy. 
-----------
-tag: beta-3.15.pl4 on Mon, 27 Jan 2003 23:37:17 -0300 by mstorti in spider
-     > Running vortex tube. 
-----------
-tag: beta-3.15.pl5 on Tue, 28 Jan 2003 07:44:44 -0300 by mstorti in spider
-     > Working on vtube example. 
-----------
-tag: beta-3.15.pl6 on Tue, 28 Jan 2003 16:49:53 -0300 by mstorti in node1.beowulf.gtm
-     > Running vtube example. 
-----------
-tag: beta-3.15.pl7 on Wed, 29 Jan 2003 15:03:09 -0300 by mstorti in node1.beowulf.gtm
-     > Running vtbe example. Will impose slip condition on the internal axis. 
-----------
-tag: beta-3.15.pl8 on Wed, 29 Jan 2003 17:42:07 -0300 by mstorti in node1.beowulf.gtm
-     > Working on vtube.
-----------
-tag: beta-3.15.pl9 on Thu, 30 Jan 2003 13:57:27 -0300 by mstorti in node1.beowulf.gtm
-     > Good results with cut-regulator. 
-----------
-tag: beta-3.15.pl10 on Thu, 30 Jan 2003 14:58:19 -0300 by mstorti in node1.beowulf.gtm
-     > Will run with a resitution coefficient for each outlet stream. 
-----------
-tag: beta-3.15.pl11 on Thu, 30 Jan 2003 17:17:35 -0300 by mstorti in node1.beowulf.gtm
-     > Runs vtube example with cut_regulator
-----------
-tag: beta-3.15.pl12 on Thu, 30 Jan 2003 23:56:48 -0300 by mstorti in spider
-     > Working on ExpProgImport DX module. 
-----------
-tag: beta-3.15.pl13 on Sat,  1 Feb 2003 12:30:27 -0300 by mstorti in spider
-     > Working on ExpProgImport DX module. 
-----------
-tag: beta-3.15.pl14 on Sun,  2 Feb 2003 17:05:02 -0300 by mstorti in spider
-     > `socket.cpp' can communicate over a socket bidirectionally. 
-----------
-tag: beta-3.15.pl15 on Mon,  3 Feb 2003 12:53:14 -0300 by mstorti in spider
-     > Socket example with Simple Sockets Library OK. 
-     > Uses Stest()
-     > Writing DX hook
-----------
-tag: beta-3.15.pl16 on Tue,  4 Feb 2003 20:29:01 -0300 by mstorti in spider
-     > Runs `dx_hook' and `epimport' coupled OK. Passes coords.
-     > and data (results). 
-----------
-tag: beta-3.15.pl17 on Wed,  5 Feb 2003 16:29:05 -0300 by mstorti in spider
-     > Working on dxhook/epimport.
-----------
-tag: beta-3.15.pl18 on Thu,  6 Feb 2003 17:33:34 -0300 by mstorti in spider
-     > Making `ExtProgImport' more object oriented. 
-----------
-tag: beta-3.15.pl19 on Fri,  7 Feb 2003 15:52:09 -0300 by mstorti in spider
-     > Runs OK dxhook and can visualize square cavity results. 
-----------
-tag: beta-3.15.pl20 on Fri,  7 Feb 2003 16:27:38 -0300 by mstorti in spider
-     > Converted to floats in with a `DX_USE_FLOATS' flag
-----------
-tag: beta-3.15.pl21 on Fri,  7 Feb 2003 20:18:56 -0300 by mstorti in spider
-     > ExtProgImport takes `steps' as an option. 
-----------
-tag: beta-3.15.pl22 on Fri,  7 Feb 2003 22:08:51 -0300 by mstorti in spider
-     > Coding auto-naming of elemsets. 
-----------
-tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Running vortex tube example. 
-     > Runs vtube with `flow_rate_controller' (hook plus boundary condition). 
-     > Implementing  cut-regulator. 
-     > Working on `ExpProgImport' and `dxhook' (DX module)
-     > Coded auto-naming of elemsets. 
-     > Passes all tests with BOPT=O_c++ and g_c++
-----------
-tag: beta-3.16.pl1 on Sat,  8 Feb 2003 10:08:51 -0300 by mstorti in spider
-     > Coded better protocol for DX.
-----------
-tag: beta-3.16.pl2 on Sat,  8 Feb 2003 11:28:20 -0300 by mstorti in spider
-     > Checked that runs in parallel. 
-----------
-tag: beta-3.16.pl3 on Sat,  8 Feb 2003 13:09:02 -0300 by mstorti in spider
-     > Runs dxhook with sequencer
-----------
-tag: beta-3.16.pl4 on Sat,  8 Feb 2003 20:14:22 -0300 by mstorti in spider
-     > Example `test/gasflow/socket2.cpp' waits a connection to
-     > a socket through a thread OK.
-----------
-tag: beta-3.16.pl5 on Sun,  9 Feb 2003 11:51:07 -0300 by mstorti in spider
-     > Working with DX+threads
-----------
-tag: beta-3.16.pl6 on Sun,  9 Feb 2003 19:40:12 -0300 by mstorti in spider
-     > Runs `dx_hook' for steps=0 (asynchronously) and steps>0 (synchronously). 
-     > But for the moment cant switch between modes. 
-----------
-tag: beta-3.16.pl7 on Sun,  9 Feb 2003 20:16:02 -0300 by mstorti in spider
-     > Switchs OK between asynchronous and synchronous modes in dx_hook. 
-----------
-tag: beta-3.16.pl8 on Sun,  9 Feb 2003 20:24:50 -0300 by mstorti in spider
-     > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
-     > from asynchronous to synchronous mode. 
-----------
-tag: beta-3.16.pl9 on Mon, 10 Feb 2003 00:46:12 -0300 by mstorti in spider
-     > Written doc for DX
-----------
-tag: beta-3.16.pl10 on Tue, 11 Feb 2003 10:25:14 -0300 by mstorti in spider
-     > Checked splitting with triangles in sqcav. 
-----------
-tag: beta-3.16.pl11 on Tue, 11 Feb 2003 21:36:43 -0300 by mstorti in spider
-     > Automatically detects quads, cubes, triangles, tetras and prisms. 
-----------
-tag: beta-3.17 on Wed, 12 Feb 2003 09:06:21 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Coded better protocol for DX.
-     > Checked that runs in parallel. 
-     > Runs dxhook with sequencer
-     > Runs `dx_hook' for steps=0 (asynchronously) and steps>0 (synchronously). 
-     > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
-     > Written doc for DX
-     > Automatically detects quads, cubes, triangles, tetras and prisms. 
-----------
-tag: beta-3.17.pl1 on Wed, 12 Feb 2003 11:26:43 -0300 by mstorti in spider
-     > Changed 2002 -> 2003 in copyright files, etc...
-     > Runs all tests with O_c++
-----------
-tag: beta-3.17.pl2 on Thu, 13 Feb 2003 11:12:27 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Aborts `synchronizedly' if error in reading connectivities 
-     > or coordinates with the `data' option. 
-----------
-tag: beta-3.17.pl3 on Sat, 15 Feb 2003 22:42:15 -0300 by mstorti in spider
-     > Splits fields 
-----------
-tag: beta-3.17.pl4 on Sun, 16 Feb 2003 14:03:21 -0300 by mstorti in spider
-     > Now the state is build in `dx_hook' through calling a function pointer
-     > to member `build_state'. The idea is to write a
-     > `build_state_from_state' for use when PETSc-FEM is runninf and
-     > `build_state_from_file' for post-run analysis.
-----------
-tag: beta-3.17.pl5 on Sun, 16 Feb 2003 14:13:31 -0300 by mstorti in spider
-     > `build_state' ptr. to member is now passed as an argument to `send_state'. 
-----------
-tag: beta-3.17.pl6 on Sun, 16 Feb 2003 22:28:15 -0300 by mstorti in spider
-     > Uses `dvector' for buffer in `dxhook'. Uses pointers to members for
-     > the `set_state' step in `dxhook'. 
-----------
-tag: beta-3.17.pl7 on Sun, 16 Feb 2003 23:09:49 -0300 by mstorti in spider
-     > Runs OK with reading state from a file.
-----------
-tag: beta-3.17.pl8 on Sun, 16 Feb 2003 23:47:30 -0300 by mstorti in spider
-     > Reads states from records in state files.
-----------
-tag: beta-3.17.pl9 on Mon, 17 Feb 2003 09:39:40 -0300 by mstorti in spider
-     > Moved oscplate tests to directory test/oscplate
-----------
-tag: beta-3.17.pl10 on Mon, 17 Feb 2003 11:53:36 -0300 by mstorti in spider
-     > Moved all tests (oscplate, plano, idmap) to subdirs in test/
-----------
-tag: beta-3.18 on Mon, 17 Feb 2003 11:57:38 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Changed 2002 -> 2003 in copyright files, etc...
-     > Aborts `synchronizedly' if error in reading connectivities 
-     > or coordinates with the `data' option. 
-     > Splits fields 
-     > Now the state is build in `dx_hook' through calling a function pointer
-     > to member `build_state'. The idea is to write a
-     > `build_state_from_state' for use when PETSc-FEM is runninf and
-     > `build_state_from_file' for post-run analysis.
-     > Uses `dvector' for buffer in `dxhook'. Uses pointers to members for
-     > the `set_state' step in `dxhook'. 
-     > Reads states from records in state files.
-     > Moved all tests (oscplate, plano, idmap) to subdirs in test/
-----------
-tag: beta-3.18.pl1 on Mon, 17 Feb 2003 13:06:02 -0300 by mstorti in spider
-     > Runs all tests with O_c++
-----------
-tag: beta-3.18.pl2 on Mon, 17 Feb 2003 19:36:47 -0300 by mstorti in spider
-     > Runs dxhook with a DX script for debugging. 
-----------
-tag: beta-3.18.pl3 on Tue, 18 Feb 2003 12:54:06 -0300 by mstorti in spider
-     > Added polling loop for avoid ExtProgImport to abort if the server is not 
-     > open. 
-----------
-tag: beta-3.18.pl4 on Tue, 18 Feb 2003 20:49:55 -0300 by mstorti in spider
-     > Runs DX tests for reading states from files. 
-----------
-tag: beta-3.18.pl5 on Wed, 19 Feb 2003 09:46:43 -0300 by mstorti in spider
-     > Added tests for DX. 
-     > Fixed a bug in tools/myexpect.pl
-----------
-tag: beta-3.18.pl6 on Wed, 19 Feb 2003 14:40:29 -0300 by mstorti in spider
-     > Runs DX tests with NP=2
-----------
-tag: beta-3.18.pl7 on Wed, 19 Feb 2003 19:20:57 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Fixed few errors. Runs all tests with g_c++ and O_c++
-----------
-tag: beta-3.18.pl8 on Sat, 22 Feb 2003 01:21:18 -0300 by mstorti in spider
-     > Fixed a bug in `inviscid.cpp'. 
-----------
-tag: beta-3.18.pl9 on Mon, 24 Feb 2003 20:19:48 -0300 by mstorti in spider
-     > Good results in wave problem (potential/inviscid coupling with)
-     > with null vorticity condition. 
-----------
-tag: beta-3.18.pl10 on Mon, 24 Feb 2003 21:06:25 -0300 by mstorti in spider
-     > Passed Cloud to an independent file (cloud.h/cpp). 
-----------
-tag: beta-3.18.pl11 on Tue, 25 Feb 2003 00:14:26 -0300 by mstorti in spider
-     > Passed `Surf2Vol' class to its hown header/cpp. 
-     > Runs all tests in `nutatcyl'. 
-----------
-tag: beta-3.18.pl12 on Tue, 25 Feb 2003 17:34:37 -0300 by mstorti in spider
-     > Writing `null_vort' object. 
-----------
-tag: beta-3.18.pl13 on Tue, 25 Feb 2003 21:55:03 -0300 by mstorti in spider
-     > Runs the `identify_volume_elements_fun' functions and seems to identify 
-     > the volume elements. 
-----------
-tag: beta-3.18.pl14 on Tue, 25 Feb 2003 22:47:01 -0300 by mstorti in spider
-     > Fixed bugs in `dvector'
-----------
-tag: beta-3.18.pl15 on Tue, 25 Feb 2003 23:32:36 -0300 by mstorti in spider
-     > Computes the neighbors of nodes on the surface. 
-----------
-tag: beta-3.18.pl16 on Wed, 26 Feb 2003 11:17:17 -0300 by mstorti in spider
-     > Constructs `coupling_nodes_table'. 
-     > Found a bug in `dvector'. 
-----------
-tag: beta-3.18.pl17 on Thu, 27 Feb 2003 00:32:54 -0300 by mstorti in spider
-     > `Cloud2' computes approximations for first derivatives
-     > in a regular mesh. 
-----------
-tag: beta-3.18.pl18 on Fri, 28 Feb 2003 13:18:09 -0300 by mstorti in spider
-     > Added coef(x,w) (x0=0 by default.
-     > Added a test for x0=0 and x0!=0. 
-----------
-tag: beta-3.18.pl19 on Fri, 28 Feb 2003 20:51:18 -0300 by mstorti in spider
-     > Runs OK the wave problem with `nul_vort'. However it seems to be
-     > too inefficient, while setting the constraints. I will measure if
-     > it has an impact on the solution step also. 
-----------
-tag: beta-3.18.pl20 on Sat,  1 Mar 2003 20:27:09 -0300 by mstorti in spider
-     > Trying to make movies for the cylinder problem.
-----------
-tag: beta-3.18.pl21 on Mon,  3 Mar 2003 01:37:17 -0300 by mstorti in spider
-     > Runnig cylinder with parabolic mesh. 
-----------
-tag: beta-3.18.pl22 on Wed,  5 Mar 2003 20:58:12 -0300 by mstorti in spider
-     > Added visualization to rotating cone example. 
-----------
-tag: beta-3.18.pl23 on Wed,  5 Mar 2003 23:38:46 -0300 by mstorti in spider
-     > Writing lagrange multiplier version of `null_vort'. 
-----------
-tag: beta-3.18.pl24 on Thu,  6 Mar 2003 15:58:59 -0300 by mstorti in minerva.arcride.edu.ar
-     > Builds correctly the connectivity table for the lagrange multipliers 
-     > elemset of null_vort. 
-----------
-tag: beta-3.18.pl25 on Thu,  6 Mar 2003 19:46:10 -0300 by mstorti in spider
-     > `null_vort' moved to `applications/ns'. 
-----------
-tag: beta-3.18.pl26 on Fri,  7 Mar 2003 00:13:20 -0300 by mstorti in spider
-     > Compiles `null_vort' (elemset) and creates a `null_vort' elemset. 
-----------
-tag: beta-3.18.pl27 on Fri,  7 Mar 2003 18:24:04 -0300 by mstorti in minerva.arcride.edu.ar
-     > `null_vort' works. 
-----------
-tag: beta-3.18.pl28 on Fri,  7 Mar 2003 23:16:06 -0300 by mstorti in spider
-     > Now we can run parabolic or circular mesh. 
-----------
-tag: beta-3.18.pl29 on Sun,  9 Mar 2003 21:17:47 -0300 by mstorti in spider
-     > Fixed bug in `ns_id'. 
-     > Working on `null_vort'. 
-----------
-tag: beta-3.18.pl30 on Sun,  9 Mar 2003 23:26:56 -0300 by mstorti in spider
-     > Running cylinder example with parabolic mesh. 
-----------
-tag: beta-3.18.pl31 on Mon, 10 Mar 2003 00:00:34 -0300 by mstorti in spider
-     > Writing example for `nsid'. 
-----------
-tag: beta-3.18.pl32 on Mon, 10 Mar 2003 17:09:46 -0300 by mstorti in minerva.arcride.edu.ar
-     > Working on improve the `null_vort' condition. 
-----------
-tag: beta-3.18.pl33 on Thu, 13 Mar 2003 18:41:29 -0300 by mstorti in node1.beowulf.gtm
-     > Fixed some bugs in LES. 
-----------
-tag: beta-3.18.pl34 on Sat, 15 Mar 2003 21:17:47 -0300 by mstorti in spider
-     > Creating spiller mesh. 
-----------
-tag: beta-3.18.pl35 on Sat, 15 Mar 2003 21:46:26 -0300 by mstorti in spider
-     > Spiller mesh is generated. 
-----------
-tag: beta-3.18.pl36 on Wed, 19 Mar 2003 16:07:08 -0300 by mstorti in minerva.arcride.edu.ar
-     > Working on `pseudo-ale' for `spillway'
-----------
-tag: beta-3.18.pl37 on Wed, 19 Mar 2003 18:23:21 -0300 by mstorti in node1.beowulf.gtm
-     > Running dam problem wth `ale_hook'
-----------
-tag: beta-3.18.pl38 on Thu, 20 Mar 2003 13:25:44 -0300 by mstorti in node1.beowulf.gtm
-     > Runs example with fs_relax=0.1 and 30x150 mesh. 
-----------
-tag: beta-3.18.pl39 on Thu, 20 Mar 2003 15:23:09 -0300 by mstorti in node1.beowulf.gtm
-     > Running spiller example. 
-----------
-tag: beta-3.18.pl40 on Thu, 20 Mar 2003 19:58:47 -0300 by mstorti in spider
-     > Renamed `spiller->spillway'. Changed `p=patm' condition
-     > on free surface for slip. 
-----------
-tag: beta-3.18.pl41 on Thu, 20 Mar 2003 22:47:21 -0300 by mstorti in spider
-     > Found a bug in spiller data. `G_body' goes
-     > in the global options. 
-----------
-tag: beta-3.18.pl42 on Sat, 22 Mar 2003 19:20:43 -0300 by mstorti in spider
-     > Will start with the `mesh_move' version. 
-----------
-tag: beta-3.18.pl43 on Sun, 23 Mar 2003 14:29:44 -0300 by mstorti in spider
-     > Running spillway with `mesh_move'
-----------
-tag: beta-3.18.pl44 on Sun, 23 Mar 2003 17:52:58 -0300 by mstorti in spider
-     > Changed ePerl to the Perl based ePerl by David Ljung Madison. 
-----------
-tag: beta-3.18.pl45 on Tue, 25 Mar 2003 19:31:53 -0300 by mstorti in node1.beowulf.gtm
-     > Adding LES corrections to nsilesther
-----------
-tag: beta-3.18.pl46 on Wed, 26 Mar 2003 15:38:42 -0300 by mstorti in node1.beowulf.gtm
-     > Added fix for `nsilesther.cpp' and `wall.cpp'
-----------
-tag: beta-3.18.pl47 on Sun, 30 Mar 2003 13:29:31 -0300 by mstorti in spider
-     > Writing `wave' example for FS movement. 
-----------
-tag: beta-3.18.pl48 on Sun, 30 Mar 2003 17:45:24 -0300 by mstorti in spider
-     > Working on `wave' example for FS
-----------
-tag: beta-3.18.pl49 on Sun, 30 Mar 2003 21:01:21 -0300 by mstorti in spider
-     > Runs correctly wave problem at Re=100, Fr=0.5, with deformations
-     > eta0 up to 0.3. 
-----------
-tag: beta-3.18.pl50 on Mon, 31 Mar 2003 14:08:30 -0300 by mstorti in spider
-     > Fixed error in updating FS. 
-----------
-tag: beta-3.18.pl51 on Mon, 31 Mar 2003 18:20:36 -0300 by mstorti in spider
-     > Added ePerl license to README. 
-----------
-tag: beta-3.18.pl52 on Mon, 31 Mar 2003 19:05:16 -0300 by mstorti in spider
-     > Runs example with low Froude. 
-----------
-tag: beta-3.18.pl53 on Mon, 31 Mar 2003 19:37:57 -0300 by mstorti in spider
-     > Runs Fr=2 example. 
-----------
-tag: beta-3.18.pl54 on Mon, 31 Mar 2003 20:47:47 -0300 by mstorti in spider
-     > Runs bump example. 
-----------
-tag: beta-3.18.pl55 on Mon, 31 Mar 2003 23:04:17 -0300 by mstorti in spider
-     > Runs `wave/bump' example with `t=0.4'. 
-----------
-tag: beta-3.18.pl56 on Tue,  1 Apr 2003 09:40:53 -0300 by mstorti in minerva.arcride.edu.ar
-     > Will start to write the volume integrator. 
-----------
-tag: beta-3.18.pl57 on Tue,  1 Apr 2003 19:47:41 -0300 by mstorti in minerva.arcride.edu.ar
-     > Implemented volume integrator. 
-----------
-tag: beta-3.18.pl58 on Wed,  2 Apr 2003 11:11:59 -0300 by mstorti in minerva.arcride.edu.ar
-     > Will start to write the volume integrator. 
-----------
-tag: beta-3.18.pl59 on Wed,  2 Apr 2003 15:05:47 -0300 by mstorti in minerva.arcride.edu.ar
-     > Fixed error in update of FS in `alehook.cpp'. 
-----------
-tag: beta-3.18.pl60 on Wed,  2 Apr 2003 17:57:55 -0300 by mstorti in minerva.arcride.edu.ar
-     > Runs `wave' problem with `fs_relax=0.1' and results unstable. Will add
-     > a smoothing term. 
-----------
-tag: beta-3.18.pl61 on Thu,  3 Apr 2003 14:10:25 -0300 by mstorti in minerva.arcride.edu.ar
-     > Runs the explicit filter. Continues to be unstable. Will write a
-     > better filter.
-----------
-tag: beta-3.18.pl62 on Thu,  3 Apr 2003 18:37:47 -0300 by mstorti in minerva.arcride.edu.ar
-     > Runs example with filtering.
-----------
-tag: beta-3.18.pl63 on Fri,  4 Apr 2003 07:22:16 -0300 by mstorti in spider
-     > Runs example with stable FS at Dt=0.1 with high filtering and at
-     > Dt=0.02 with low filtering.
-----------
-tag: beta-3.18.pl64 on Fri,  4 Apr 2003 17:45:12 -0300 by mstorti in minerva.arcride.edu.ar
-     > Runs long example with t=0.6, Fr=1.5, stable FS. 
-----------
-tag: beta-3.18.pl65 on Fri,  4 Apr 2003 18:37:00 -0300 by mstorti in minerva.arcride.edu.ar
-     > Running example. 
-----------
-tag: beta-3.18.pl66 on Sun,  6 Apr 2003 13:09:59 -0300 by mstorti in spider
-     > Will start with the bump example. 
-----------
-tag: beta-3.18.pl67 on Mon,  7 Apr 2003 07:24:13 -0300 by mstorti in spider
-     > Running bump example. 
-----------
-tag: beta-3.18.pl68 on Fri, 11 Apr 2003 20:08:49 -0300 by mstorti in minerva.arcride.edu.ar
-     > Working on wave example. 
-----------
-tag: beta-3.18.pl69 on Thu, 17 Apr 2003 07:49:30 -0300 by mstorti in spider
-     > Works filter (heat eq.) with `qharmm'. 
-----------
-tag: beta-3.18.pl70 on Thu, 17 Apr 2003 19:51:01 -0300 by mstorti in spider
-     > Runs all tests after fixing some errors. 
-----------
-tag: beta-3.19 on Fri, 18 Apr 2003 01:17:03 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Runs dxhook with a DX script for debugging. 
-     > Added polling loop for avoid ExtProgImport to abort if the server is not open. 
-     > Runs DX tests for reading states from files. 
-     > Added tests for DX. 
-     > Fixed a bug in tools/myexpect.pl
-     > Runs DX tests with NP=2
-     > Fixed a bug in `inviscid.cpp'. 
-     > Fixed bugs in `dvector'
-     > `Cloud2' computes approximations for first derivatives in a regular mesh. 
-     > Fixed bug in `ns_id'. 
-     > Fixed some bugs in LES. 
-     > Changed ePerl to the Perl based ePerl by David Ljung Madison. 
-     > Added LES corrections to nsilesther
-     > Added fix for `nsilesther.cpp' and `wall.cpp'
-     > Implemented volume integrator. 
-     > Works filter (heat eq.) with `qharmm'. 
-     > Working on spillway example. 
-----------
-tag: beta-3.19.pl8 on Sun,  4 May 2003 13:44:41 -0300 by mstorti in spider
-     > Runs all tests (torture).
-     > Writing hook doc.
-     > Changed all occurrences of `asprintf' to AutoString.
-     > Fixed `AutoString/asprintf' bug in `epimport.cpp'.
-     > Detected a bug in `AutoString' (miss-interpreted libc doc for
-     > `asprintf').
-     > Runs two tests for shell hook.
-     > Runs test for `AutoString'.
-     > Runs `shell_hook' with.
-     > Added `const' to several 'char *' in `AutoString'.
-     > Added `cat(char *)' to `AutoString'.
-----------
-tag: beta-3.19.pl9 on Sun, 11 May 2003 14:14:27 -0300 by mstorti in spider
-     > Running bump example without `cyclic_fs'. 
-----------
-tag: beta-3.19.pl10 on Sun, 11 May 2003 22:34:13 -0300 by mstorti in spider
-     > Runs test for new `read_vector' function. 
-----------
-tag: beta-3.19.pl11 on Sun, 11 May 2003 22:48:32 -0300 by mstorti in spider
-     > Now, `read_vector' uses `dvector<double>'s' as buffers. 
-----------
-tag: beta-3.19.pl12 on Sun, 11 May 2003 23:07:13 -0300 by mstorti in spider
-     > Almost eliminated all redundant inclusions of `dvector2.h'
-----------
-tag: beta-3.19.pl13 on Mon, 19 May 2003 12:48:13 -0300 by mstorti in node1.beowulf.gtm
-     > Fixed read_vector:bug (set<int> -> vector<int> in idmap::solve())
-----------
-tag: beta-3.19.pl14 on Fri, 23 May 2003 18:50:54 -0300 by mstorti in minerva.arcride.edu.ar
-     > Agregadas las figuras scanneadas de Zienkiewicz & Morgan 
-----------
-tag: beta-3.19.pl15 on Mon, 26 May 2003 00:08:19 -0300 by mstorti in spider
-     > Writing `smoke' 
-----------
-tag: beta-3.19.pl16 on Sun,  1 Jun 2003 12:55:46 -0300 by mstorti in spider
-     > Smoke gives good visualization in a simple cavity flow. 
-----------
-tag: beta-3.19.pl17 on Sun,  1 Jun 2003 21:09:27 -0300 by mstorti in spider
-     > Smoke gives good visualization in the square cavity problem. 
-----------
-tag: beta-3.19.pl18 on Fri,  6 Jun 2003 17:44:14 -0300 by mstorti in minerva.arcride.edu.ar
-     > Good visualization of square cavity with smoke. 
-----------
-tag: beta-3.19.pl19 on Sun,  8 Jun 2003 10:10:56 -0300 by mstorti in spider
-     > Now communication through sockets with DX is buffered improving very
-     > much the speed.
-----------
-tag: beta-3.19.pl20 on Sun,  8 Jun 2003 18:42:15 -0300 by mstorti in spider
-     > Adding `interpolation' object/elemset and pfinterp (Octave script). 
-----------
-tag: beta-3.19.pl21 on Sun,  8 Jun 2003 23:37:31 -0300 by mstorti in spider
-     > Writing the `interpolation' elemset. 
-----------
-tag: beta-3.19.pl22 on Mon,  9 Jun 2003 18:14:20 -0300 by mstorti in minerva.arcride.edu.ar
-     > Generates `sqcav_movie5.gif'
-----------
-tag: beta-3.19.pl23 on Mon, 16 Jun 2003 16:56:24 -0300 by mstorti in spider
-     > Now prints all rank in one line with `AutoString'
-----------
-tag: beta-3.19.pl24 on Thu, 26 Jun 2003 19:27:32 -0300 by mstorti in minerva.arcride.edu.ar
-     > Added constant flux to `lin_gen_load'
-----------
-tag: beta-3.19.pl25 on Tue, 01 Jul 2003 23:32:58 -0300 by mstorti in spider
-     > Upgrading to RH 8.0
-----------
-tag: beta-3.19.pl26 on Wed,  2 Jul 2003 17:00:59 -0300 by mstorti in minerva.arcride.edu.ar
-     > Adapting to GCC 3.x
-----------
-tag: beta-3.19.pl27 on Wed, 02 Jul 2003 20:22:28 -0300 by mstorti in spider
-     > Compiles all sources but doesn't link
-----------
-tag: beta-3.19.pl28 on Thu, 03 Jul 2003 01:32:48 -0300 by mstorti in spider
-     > Runs allmost all tests with g_c++
-----------
-tag: beta-3.19.pl29 on Thu, 03 Jul 2003 07:46:34 -0300 by mstorti in spider
-     > Runs almost all tests
-----------
-tag: beta-3.19.pl30 on Sat, 05 Jul 2003 00:28:44 -0300 by mstorti in spider
-     > Will apply the `axial_acceleration' patch. 
-----------
-tag: beta-3.19.pl31 on Sat, 05 Jul 2003 09:38:31 -0300 by mstorti in spider
-     > Added axial_acc patch. But it's not already added the 
-     > `lm_initialize' fuction. 
-----------
-tag: beta-3.19.pl32 on Sun, 06 Jul 2003 12:11:24 -0300 by mstorti in spider
-     > Merged more stuff from `beta--3-08-branch'
-     > Added `start_time' to ns main options.
-     > Added `interface_full_preco_pc' option, allows
-     > user to change the preconditioner for the A_II
-     > diagonal block matrix (not the Schur matrix).
-----------
-tag: beta-3.19.pl32.pl1 on Tue, 22 Jul 2003 21:32:06 -0300 by mstorti in spider
-     > Allows visualization of deforming meshes by reading the displacements
-     > from a file.
-----------
-tag: beta-3.19.pl32.pl1 on Tue, 22 Jul 2003 21:32:06 -0300 by mstorti in spider
-     > Allows visualization of deforming meshes by reading the displacements
-     > from a file.
-----------
-tag: beta-3.19.pl33 on Fri, 11 Jul 2003 11:03:33 -0300 by mstorti in minerva.arcride.edu.ar
-     > Fixed bug in Makefile.base, LIBRETTO_I variable. 
-----------
-tag: beta-3.19.pl34 on Fri, 25 Jul 2003 21:48:42 -0300 by mstorti in spider
-     > Merged from 3.19.pl32-branch. Discarded all the 
-     > `monitor' monidifcations. 
-----------
-tag: beta-3.19.pl35 on Fri, 25 Jul 2003 21:58:11 -0300 by mstorti in spider
-     > Merged changes from `beta-3.19.pl32-branch'
-----------
-tag: beta-3.19.pl36 on Fri, 25 Jul 2003 23:00:14 -0300 by mstorti in spider
-     > Fix `chmod 755 scripts' in sw target
-     > Fix `LIBRETTO_I' makefile variable
-     > Patch for Octave plot functions
-     > Add `interface_full_preco_fill' option
-     > Fix `src/tempfun.cpp' `ramp' function
-     > Add `elasticity' fields to gmv.pl 
-     > Adds some `axi' fixes by Beto
-     > Adds wpg_sum for gpdata
-     > Adds mesh update for dx_hook
-     > Fixes tempfun2.cpp `piecewise_linear' function. 
-----------
-tag: beta-3.19.pl37 on Tue, 29 Jul 2003 17:52:43 -0300 by mstorti in node1.beowulf.gtm
-     > Added a shell command to the `dx_hook'
-----------
-tag: beta-3.19.pl38 on Wed,  6 Aug 2003 19:39:27 -0300 by mstorti in node1.beowulf.gtm
-     > Now dx-hook doesn't stop if it doesn't find the state file. 
-----------
-tag: beta-3.19.pl39 on Fri,  8 Aug 2003 13:11:15 -0300 by mstorti in minerva.ceride.gov.ar
-     > Found a serious bug in dvector<>. The clear() functions was not called
-     > on destruction.
-----------
-tag: beta-3.19.pl40 on Sat, 09 Aug 2003 11:28:17 -0300 by mstorti in spider
-     > Added cat, read and print functions to `dvector'.
-----------
-tag: beta-3.19.pl41 on Sat, 09 Aug 2003 22:32:13 -0300 by mstorti in spider
-     > Fixed some bugs in dvector<>
-----------
-tag: beta-3.19.pl42 on Sun, 10 Aug 2003 20:31:07 -0300 by mstorti in spider
-     > Fixed bugs in new dvector<> methods. 
-----------
-tag: beta-3.19.pl43 on Tue, 12 Aug 2003 18:21:03 -0300 by mstorti in spider
-     > Some small modifications to dvector<>
-----------
-tag: beta-3.19.pl44 on Thu, 14 Aug 2003 08:37:10 -0300 by mstorti in node1.beowulf.gtm
-     > Fixed some incnsistencies in dvector<>::print
-----------
-tag: beta-3.19.pl45 on Sun, 17 Aug 2003 12:11:21 -0300 by mstorti in spider
-     > Fixed a bug in dxhook when reading mesh. 
-----------
-tag: beta-isp.pl1 on Mon, 18 Aug 2003 00:21:00 -0300 by mstorti in spider
-     > Builds layer map in parallel. 
-----------
-tag: beta-isp.pl2 on Mon, 18 Aug 2003 12:01:28 -0300 by mstorti in spider
-     > Builds OK the `d_nnz' and `o_nnz' vectors for A_isp. 
-----------
-tag: beta-isp.pl3 on Mon, 18 Aug 2003 13:19:20 -0300 by mstorti in spider
-     > Loads OK values on the A_II_isp matrix. 
-----------
-tag: beta-isp.pl4 on Mon, 18 Aug 2003 17:00:25 -0300 by mstorti in spider
-     > Seems that ISP preconditioning is working with nlay>1. 
-----------
-tag: beta-isp.pl5 on Mon, 18 Aug 2003 17:41:32 -0300 by mstorti in spider
-     > Runs on two processsors OK. 
-----------
-tag: beta-isp.pl6 on Mon, 18 Aug 2003 21:53:53 -0300 by mstorti in spider
-     > Fixed a bug: nlay not initialized in constructor. 
-----------
-tag: beta-3.19.pl46 on Mon, 18 Aug 2003 22:18:02 -0300 by mstorti in spider
-     > Merged from `isp-branch' branch
-----------
-tag: beta-3.19.pl47 on Sun, 24 Aug 2003 23:52:30 -0300 by mstorti in spider
-     > Runs cubcab example for statistics. 
-----------
-tag: beta-3.19.pl48 on Thu, 28 Aug 2003 19:43:30 -0300 by mstorti in spider
-     > Written `upload_vector' in block matrix mode, i.e. using MatSetValues
-     > instead of MatSetValue. 
-----------
-tag: beta-3.19.pl49 on Fri, 29 Aug 2003 12:29:16 -0300 by mstorti in minerva.ceride.gov.ar
-     > Almost implemented the PETSc Fast loading function.
-----------
-tag: beta-3.19.pl50 on Sat, 30 Aug 2003 15:02:41 -0300 by mstorti in spider
-     > More efficient verison of `upload_vector()'
-----------
-tag: beta-3.19.pl51 on Sat, 30 Aug 2003 23:19:39 -0300 by mstorti in spider
-     > Will go back because times have strangely increased.
-----------
-tag: beta-3.19.pl52 on Sun, 31 Aug 2003 09:15:08 -0300 by mstorti in spider
-     > Upload=5.11secs, download=0.489secs in cubcav 30x30x30
-----------
-tag: beta-3.19.pl53 on Sun, 31 Aug 2003 10:24:08 -0300 by mstorti in spider
-     > Slightly modified `dofmap3.cpp'
-----------
-tag: beta-3.19.pl54 on Sun, 31 Aug 2003 10:54:08 -0300 by mstorti in spider
-     > Found bug in efficiency improvement.
-----------
-tag: beta-3.19.pl55 on Sun, 31 Aug 2003 12:31:07 -0300 by mstorti in spider
-     > Fixed a bug in Dofmap::get_nodal_value. Runs `sector' example
-     > checking constraints.
-----------
-tag: beta-3.19.pl56 on Sun, 31 Aug 2003 18:22:50 -0300 by mstorti in spider
-     > Implementing A_LL_other support for new efficient iisdmat loading
-     > functions.
-----------
-tag: beta-3.19.pl57 on Sun, 31 Aug 2003 22:10:38 -0300 by mstorti in spider
-     > Fixed a bug in iisdmat::set_values_a()
-----------
-tag: beta-3.19.pl58 on Mon, 01 Sep 2003 07:46:10 -0300 by mstorti in spider
-     > Runs many tests in spider.
-----------
-tag: beta-3.19.pl59 on Mon, 01 Sep 2003 23:27:57 -0300 by mstorti in spider
-     > Runs all tests (some with O_c++ other tieh g_c++). 
-     > I have to run all of them again. 
-----------
-tag: beta-3.20 on Wed, 03 Sep 2003 00:08:54 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Runs test for new `read_vector' function. 
-     > Now, `read_vector' uses `dvector<double>'s' as buffers. 
-     > Almost eliminated all redundant inclusions of `dvector2.h'
-     > Fixed read_vector:bug (set<int> -> vector<int> in idmap::solve())
-     > A `smoke' elemset gives good visualization in the square cavity problem. 
-     > Now communication through sockets with DX is buffered improving very
-     > much the speed.
-     > Adding `interpolation' object/elemset and pfinterp (Octave script).
-     > (Not implemented fully yet, though). 
-     > Dx hook now prints all rank in one line with `AutoString'
-     > Added constant flux to `lin_gen_load'
-     > Upgraded to RH 8.0 - GCC 3.x
-     > Added `start_time' to ns main options.
-     > Added `interface_full_preco_pc' option, allows
-     > user to change the preconditioner for the A_II
-     > diagonal block matrix (not the Schur matrix).
-     > Allows visualization of deforming meshes by reading the displacements
-     > from a file.
-     > Allows visualization of deforming meshes by reading the displacements
-     > from a file.
-     > Fixed bug in Makefile.base, LIBRETTO_I variable. 
-     > Fix `chmod 755 scripts' in sw target
-     > Fix `LIBRETTO_I' makefile variable
-     > Written a patch for Octave plot functions
-     > Add `interface_full_preco_fill' option
-     > Fixed bug in  `src/tempfun.cpp' `ramp' function
-     > Added `elasticity' fields to gmv.pl 
-     > Adds some `axi' fixes 
-     > Adds wpg_sum for gpdata
-     > Adds mesh update for dx_hook
-     > Fixes tempfun2.cpp `piecewise_linear' function. 
-     > Added a shell command to the `dx_hook'
-     > Now dx-hook doesn't stop if it doesn't find the state file. 
-     > Found a serious bug in dvector<>. The clear() functions was not called
-     > on destruction.
-     > Added cat, read and print functions to `dvector'.
-     > Fixed some bugs in dvector<>
-     > Fixed bugs in new dvector<> methods. 
-     > Some small modifications to dvector<>
-     > Fixed some inconsistencies in dvector<>::print
-     > Fixed a bug in dxhook when reading mesh. 
-     > ISP preconditioning is working with nlay>1. 
-     > Runs cubcab example for statistics. 
-     > Written `upload_vector' in block matrix mode, i.e. using MatSetValues
-     > instead of MatSetValue. 
-     > More efficient verison of `upload_vector()'
-----------
-tag: beta-3.20.pl1 on Wed, 03 Sep 2003 22:39:07 -0300 by mstorti in spider
-     > Added natural partitioning. 
-----------
-tag: beta-3.20.pl3 on Mon, 08 Sep 2003 07:20:55 -0300 by mstorti in spider
-     > Makes cubcav videos.
-----------
-tag: beta-3.20.pl4 on Mon,  8 Sep 2003 12:18:15 -0300 by mstorti in node1.beowulf.gtm
-     > Added simple error handling in elemset. 
-----------
-tag: beta-3.20.pl5 on Mon,  8 Sep 2003 16:59:54 -0300 by mstorti in node1.beowulf.gtm
-     > Fixed disconnected graph bug.
-----------
-tag: beta-3.20.pl6 on Tue,  9 Sep 2003 08:45:20 -0300 by mstorti in minerva.ceride.gov.ar
-     > Reads state file in dx_hook from binary file improving speed. 
-----------
-tag: beta-3.20.pl7 on Wed, 10 Sep 2003 20:18:55 -0300 by mstorti in minerva.ceride.gov.ar
-     > Running tests.
-----------
-tag: beta-3.20.pl8 on Thu, 11 Sep 2003 13:02:16 -0300 by mstorti in minerva.ceride.gov.ar
-     > Now PETSc-FEM prints the day of the run. 
-----------
-tag: beta-3.20.pl9 on Thu, 11 Sep 2003 14:47:31 -0300 by mstorti in minerva.ceride.gov.ar
-     > Changed set_error() for all detJaco checks. 
-     > Default A_van_Driest=0 now. 
-     > No wall_data sets error. 
-----------
-tag: beta-3.20.pl10 on Thu, 11 Sep 2003 18:47:23 -0300 by mstorti in minerva.ceride.gov.ar
-     > Added error handling to several NS elemsets.
-----------
-tag: beta-3.20.pl11 on Fri, 12 Sep 2003 21:26:24 -0300 by mstorti in spider
-     > Written doc for wiki syntax in `odoc.pl'
-----------
-tag: beta-3.20.pl12 on Sat, 13 Sep 2003 14:32:38 -0300 by mstorti in spider
-     > Fixed length-one line fstack bug and added a test for. 
-----------
-tag: beta-3.20.pl13 on Sat, 13 Sep 2003 15:01:53 -0300 by mstorti in spider
-     > Added a test for the `disconnected-graph-bug'. 
-----------
-tag: beta-3.20.pl14 on Sat, 13 Sep 2003 21:23:39 -0300 by mstorti in spider
-     > Uses excpetion handling in `advdif' (GenericError). 
-     > Modified `bubbly' module launching. 
-----------
-tag: beta-3.22 on Sun, 14 Sep 2003 10:29:14 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Added natural partitioning. 
-     > Added simple error handling in elemset. 
-     > Fixed disconnected graph bug.
-     > Reads state file in dx_hook from binary file improving speed. 
-     > Now PETSc-FEM prints the day of the run. 
-     > Changed set_error() for all detJaco checks. 
-     > Default A_van_Driest=0 now. 
-     > No wall_data sets error. 
-     > Added error handling to several NS elemsets.
-     > Written doc for wiki syntax in `odoc.pl'
-     > Fixed length-one line fstack bug and added a test for. 
-     > Added a test for the `disconnected-graph-bug'. 
-     > Uses excpetion handling in `advdif' (GenericError). 
-     > Modified `bubbly' module launching. 
-----------
-tag: beta-3.23 on Sun, 14 Sep 2003 10:59:22 -0300 by mstorti in spider
-     > Administrative tag (unstable version).
-----------
-tag: beta-3.23.pl1 on Sun, 14 Sep 2003 10:59:22 -0300 by mstorti in spider
-     > Administrative ltag. 
-----------
-tag: beta-3.23.pl2 on Sun, 14 Sep 2003 18:49:26 -0300 by mstorti in spider
-     > Settled version policy in `notes.txt'
-     > Added test for exception handling in `advdif'. 
-----------
-tag: beta-3.23.pl3 on Sun, 14 Sep 2003 22:18:36 -0300 by mstorti in spider
-     > Written `odoc.pl' complete list of options. 
-----------
-tag: beta-3.23.pl4 on Tue, 16 Sep 2003 18:17:14 -0300 by mstorti in node1.beowulf.gtm
-     > Adding locker support to adaptor. 
-----------
-tag: beta-3.23.pl5 on Wed, 17 Sep 2003 14:02:02 -0300 by mstorti in node1.beowulf.gtm
-     > Example modifying elast.cpp and using locker and simulating 
-     > swapping on inwt==0
-----------
-tag: beta-3.23.pl6 on Wed, 24 Sep 2003 23:19:54 -0300 by mstorti in spider
-     > Runs all tests except two in test/newff. 
-----------
-tag: beta-3.23.pl7 on Mon, 06 Oct 2003 00:03:14 -0300 by mstorti in spider
-     > Undone some changes in Elasticity. 
-     > These changes where made temporarily for testing the new locker functions. 
-----------
-tag: beta-3.23.pl8 on Sat, 11 Oct 2003 11:08:52 -0300 by mstorti in spider
-     > Fixed bug in adaptor/element locker init when multiple chunks.
-     > Added Elemset::before_assemble(jobinfo ...) and Elemset::after_assemble(jobinfo).
-----------
-tag: beta-3.23.pl9 on Sat, 11 Oct 2003 20:57:33 -0300 by mstorti in spider
-     > Cutoff parameters to gasflow now passed via options. 
-----------
-tag: beta-3.23.pl10 on Sat, 11 Oct 2003 21:02:10 -0300 by mstorti in spider
-     > Added Rodrigo Paz to several doc files. 
-----------
-tag: beta-3.23.pl11 on Sat, 11 Oct 2003 21:10:33 -0300 by mstorti in spider
-     > Making VERSION to work with the newline at the end. 
-----------
-tag: beta-3.23.pl12 on Sat, 11 Oct 2003 21:35:42 -0300 by mstorti in spider
-     > Fixed bug when lacking of and __END_FIXA__ tag (and others) also.
-----------
-tag: beta-3.23.pl13 on Sat, 11 Oct 2003 22:04:25 -0300 by mstorti in spider
-     > Fixed bug: no more crashes when reading empty file. 
-----------
-tag: beta-3.23.pl14 on Thu, 16 Oct 2003 16:14:13 -0300 by mstorti in minerva.ceride.gov.ar
-     > Merged from hydro-branch
-----------
-tag: beta-3.23.pl15 on Mon, 10 Nov 2003 23:15:53 -0300 by mstorti in spider
-     > Runs example for gaschem. 
-----------
-tag: beta-3.23.pl16 on Tue, 11 Nov 2003 09:51:56 -0300 by mstorti in minerva.ceride.gov.ar
-     > Gaschem is running simple 1D case. 
-----------
-tag: beta-3.23.pl17 on Tue, 11 Nov 2003 12:41:29 -0300 by mstorti in minerva.ceride.gov.ar
-     > Running gaschem 2D example. 
-----------
-tag: beta-3.23.pl18 on Wed, 12 Nov 2003 19:18:52 -0300 by mstorti in node1.beowulf.gtm
-     > Backup
-----------
-tag: beta-3.23.pl19 on Thu, 13 Nov 2003 11:27:11 -0300 by mstorti in node1.beowulf.gtm
-     > Runs 2D example. 
-     > Detected bug in gaschem.cpp: off-diagonal 
-     >     elements in tau_supg not initialized. 
-----------
-tag: beta-3.23.pl20 on Thu, 13 Nov 2003 21:16:56 -0300 by mstorti in spider
-     > Runs almost all tests, except thos in Burgers
-----------
-tag: beta-3.23.pl21 on Thu, 13 Nov 2003 23:28:10 -0300 by mstorti in spider
-     > Fixing burger tests. 
-----------
-tag: beta-3.24 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Settled version policy in `notes.txt'
-     > Added test for exception handling in `advdif'. 
-     > Written `odoc.pl' complete list of options. 
-     > Adding locker support to adaptor. 
-     > Fixed bug in adaptor/element locker init when multiple chunks.
-     > Added Elemset::before_assemble(jobinfo ...) 
-     >      and Elemset::after_assemble(jobinfo).
-     > Cutoff parameters to gasflow now passed via options. 
-     > Making VERSION to work with the newline at the end. 
-     > Fixed bug when lacking of an __END_FIXA__ tag (and others) also.
-     > Fixed bug: no more crashes when reading empty file. 
-     > Merged from hydro-branch
-     > Added gaschem module
-     > Detected bug in gaschem.cpp: off-diagonal 
-     >     elements in tau_supg not initialized. 
-     > Fixed a bug in `advdife.cpp': U was not reset when
-     > 	perturbing for computation of the finite 
-     > 	difference flux jacobian. 
-     > Starts working on `petscfem-completing-read' under Emacs
-----------
-tag: beta-3.25.pl1 on Sat, 15 Nov 2003 13:18:08 -0300 by mstorti in spider
-     > Administrative light version
-----------
-tag: beta-3.25.pl2 on Sun, 16 Nov 2003 10:20:05 -0300 by mstorti in spider
-     > Added tests for `compute_fd_adv_jacobian' in `test/burgers'. 
-     > Added `__SWITCH_FILE__' and `field match' to `myexpect.pl'
-----------
-tag: beta-3.25.pl3 on Sun, 16 Nov 2003 16:57:16 -0300 by mstorti in spider
-     > Verified `field match' in `myexpect.pl'
-----------
-tag: beta-3.25.pl4 on Sun, 16 Nov 2003 18:43:34 -0300 by mstorti in spider
-     > Added doc for `block_uploading'. 
-     > Runs all tests, except two in `test/newff'
-----------
-tag: beta-3.25.pl5 on Wed, 19 Nov 2003 14:56:57 -0300 by mstorti in minerva.ceride.gov.ar
-     > Added Nb_source to `gaschem'
-----------
-tag: beta-3.25.pl6 on Mon, 24 Nov 2003 00:41:46 -0300 by mstorti in spider
-     > Wrote `petscfem-mode' for Emacs support.
-     > Creates a texinfo file for browsing options and pasting
-     > 	into data file. 
-----------
-tag: beta-3.25.pl7 on Mon, 24 Nov 2003 21:17:21 -0300 by mstorti in spider
-     > Now odoc.pl generates several instances of the same
-     > option in onyly one page. 
-----------
-tag: beta-3.25.pl8 on Mon, 24 Nov 2003 21:32:54 -0300 by mstorti in spider
-     > Fixed '-bubbly' initialization bug. 
-----------
-tag: beta-3.25.pl9 on Tue, 25 Nov 2003 21:12:45 -0300 by mstorti in spider
-     > Now stops OK when there is no `ini' state vector file. 
-----------
-tag: beta-3.25.pl10 on Tue, 25 Nov 2003 21:18:22 -0300 by mstorti in spider
-     > Now printing "For elemset ..." element partitioning should
-     > 	   give the elemset name and pointer. 
-----------
-tag: beta-3.25.pl11 on Thu, 04 Dec 2003 09:24:29 -0300 by mstorti in minerva.ceride.gov.ar
-     > Merged from `algebraic-slip-model-1' onto `beta-3.25.pl10'
-----------
-tag: beta-3.25.pl12 on Sat, 06 Dec 2003 12:11:30 -0300 by mstorti in spider
-     > Written `GenericError(char *,...)'
-     > Uses `PETSCFEM_ASSERT_GE()' for not enough nodes in one line error. 
-----------
-tag: beta-3.25.pl13 on Sat, 06 Dec 2003 13:00:39 -0300 by mstorti in spider
-     > Improved `GenericError' 
-----------
-tag: beta-3.25.pl14 on Sat, 06 Dec 2003 14:14:02 -0300 by mstorti in spider
-     > Added two index FastMat2::trace()
-----------
-tag: beta-3.25.pl15 on Sun, 07 Dec 2003 18:25:12 -0300 by mstorti in spider
-     > Found a SERIOUS BUG in `gpdata.cpp':
-     > 	 Tetras had a volume of 1/3!!! (in place of 1/6). 
-     > Gaschem 3D is working. 
-----------
-tag: beta-3.26 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Added tests for `compute_fd_adv_jacobian' in `test/burgers'. 
-     > Added `__SWITCH_FILE__' and `field match' to `myexpect.pl'
-     > Verified `field match' in `myexpect.pl'
-     > Added doc for `block_uploading'. 
-     > Added Nb_source to `gaschem'
-     > Wrote `petscfem-mode' for Emacs support.
-     > Creates a texinfo file for browsing options and pasting
-     > 	into data file. 
-     > Now odoc.pl generates several instances of the same
-     >         option in only one page. 
-     > Fixed '-bubbly' initialization bug. 
-     > Now stops OK when there is no `ini' state vector file. 
-     > Now printing "For elemset ..." element partitioning should
-     > 	   give the elemset name and pointer. 
-     > Merged from `algebraic-slip-model-1' onto `beta-3.25.pl10'
-     > Written `GenericError(char *,...)'
-     > Uses `PETSCFEM_ASSERT_GE()' for not enough nodes in one line error. 
-     > Added two index FastMat2::trace()
-     > Found a SERIOUS BUG in `gpdata.cpp':
-     > 	 Tetras had a volume of 1/3!!! (in place of 1/60). 
-     > Gaschem 3D is working. 
-----------
-tag: beta-3.27.pl1 on Sun, 07 Dec 2003 21:21:15 -0300 by mstorti in spider
-     > Administrative tag.
-----------
-tag: beta-3.27.pl2 on Mon, 08 Dec 2003 08:40:19 -0300 by mstorti in spider
-     > Fixed `bcconv' normal orientation policy. 
-----------
-tag: beta-3.27.pl3 on Mon, 08 Dec 2003 10:34:29 -0300 by mstorti in spider
-     > Added test with reference solution for cubic cavity at Re=100. 
-----------
-tag: beta-3.27.pl4 on Mon, 08 Dec 2003 13:38:41 -0300 by mstorti in spider
-     > Modified the Makefile structure for the `newff' tests directory. 
-----------
-tag: beta-3.27.pl5 on Mon, 08 Dec 2003 20:25:33 -0300 by mstorti in spider
-     > Added test for shallow water 1D + absorbing b.c.
-     > Added `ask' function for `advdif/id'.
-     > 
-----------
-tag: beta-3.27.pl6 on Wed, 10 Dec 2003 20:04:36 -0300 by mstorti in node1.beowulf.gtm
-     > Added constant bubble radius option to `gaschem'. 
-----------
-tag: beta-3.27.pl7 on Sun, 11 Jan 2004 12:01:46 -0300 by mstorti in spider
-     > Starts working `KeyedOutputBuffer'. 
-----------
-tag: beta-3.27.pl8 on Sun, 11 Jan 2004 12:35:42 -0300 by mstorti in spider
-     > `KeyedOutputBuffer' prints in parallel. 
-----------
-tag: beta-3.27.pl9 on Sun, 11 Jan 2004 12:47:30 -0300 by mstorti in spider
-     > Minor fixes to `KeyedOutputBuffer'
-----------
-tag: beta-3.27.pl10 on Sun, 18 Jan 2004 18:39:08 -0300 by mstorti in spider
-     > Made some improvements to `SyncBuffer' and `KeyedOutputBuffer'. 
-     > Writing test.
-----------
-tag: beta-3.27.pl11 on Sun, 18 Jan 2004 19:54:12 -0300 by mstorti in spider
-     > Added tests for `SyncBuff' and `KeyedOutputBuffer'
-     > Improved doc for `SyncBuff' and `KeyedOutputBuffer'
-----------
-tag: beta-3.27.pl12 on Sun, 18 Jan 2004 20:25:43 -0300 by mstorti in spider
-     > Moved EPSI directory from doc/EPSI to doc/OBJ/EPSI
-----------
-tag: beta-3.28 on Mon, 19 Jan 2004 18:55:10 -0300 by mstorti in spider
-     > -- STABLE VERSION -- 
-     > Fixed `bcconv' normal orientation policy. 
-     > Added test with reference solution for cubic cavity at Re=100. 
-     > Modified the Makefile structure for the `newff' tests directory. 
-     > Added test for shallow water 1D + absorbing b.c.
-     > Added `ask' function for `advdif/id'.
-     > Added constant bubble radius option to `gaschem'. 
-     > Written `SyncBuffer' and `KeyedOutputBuffer' classes. 
-     >    (Replace PetscSynchronizedPrintf)
-     > Moved EPSI directory from doc/EPSI to doc/OBJ/EPSI
-----------
-tag: beta-3.29.pl1 on Mon, 19 Jan 2004 19:03:18 -0300 by mstorti in spider
-     > Administrative tag.
-----------
-tag: beta-3.29.pl2 on Mon, 26 Jan 2004 17:22:48 -0300 by mstorti in minerva.ceride.gov.ar
-     > Added `surf_gatherer'
-----------
-tag: beta-3.29.pl3 on Mon, 26 Jan 2004 20:45:20 -0300 by mstorti in spider
-     > Writing `SurfGatherer'
-----------
-tag: beta-3.29.pl4 on Tue, 27 Jan 2004 16:54:21 -0300 by mstorti in minerva.ceride.gov.ar
-     > Writing `Surfgatherer'
-----------
-tag: beta-3.29.pl5 on Tue, 27 Jan 2004 22:23:24 -0300 by mstorti in spider
-     > Runs integrator. Computes OK area in the cubcav case. 
-----------
-tag: beta-3.29.pl6 on Wed, 28 Jan 2004 22:05:34 -0300 by mstorti in spider
-     > Added `sphere' and `cylinder' surfaces. 
-     > Checked on cubcav. 
-----------
-tag: beta-3.29.pl7 on Thu, 29 Jan 2004 23:24:11 -0300 by mstorti in spider
-     > Improved `SrfGatherer'
-----------
-tag: beta-3.29.pl8 on Fri, 30 Jan 2004 00:44:44 -0300 by mstorti in spider
-     > Improved `SrfGatherer'
-----------
-tag: beta-3.29.pl9 on Wed, 12 May 2004 23:58:39 -0300 by mstorti in spider
-     > Fixing `read_vector' with no file bug. 
+tag: bubbly-branch-1.pl0 on Fri, 21 May 2004 18:22:23 -0300 by mstorti in minerva.ceride.gov.ar
+     > Merging bubbly-branch. 
