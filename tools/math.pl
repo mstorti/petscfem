@@ -1,4 +1,4 @@
-# $Id: math.pl,v 1.7 2002/11/19 21:35:46 mstorti Exp $
+# $Id: math.pl,v 1.8 2004/08/23 02:25:50 mstorti Exp $
 # Some useful definitions for use with ePerl
 #
 
@@ -18,20 +18,23 @@ sub floor {
     $y = 1 unless $y;
     my $rr = $x/$y;
     my $r = int($rr);
-    $r-- if $rr<0;
+    $r-- if ($rr<0 && $r!=$rr);
     return $r;
 }
 
 sub ceil {
-    return floor(@_)+1;
+    my $x = $_[0];
+    my $c = floor($x);
+    $c++ if $c!=$x;
+    return $c;
 }
 
 sub tan { return sin($_[0])/cos($_[0]); }
 
-sub asin {
-    my $x=shift();
-    return atan2($x,sqrt(1-$x*$x));
-}
+# sub asin {
+#     my $x=shift();
+#     return atan2($x,sqrt(1-$x*$x));
+# }
   
 sub acos {
     my $x=shift();
@@ -70,12 +73,11 @@ sub atanh {
     return log((1+$y)/(1-$y))/2.;
 }
 
-=cut
+
 sub asin {
     my $y=shift();
     return atan2($y,sqrt(1-$y**2));
 }
-=cut
 
 sub log10 {
     my $y=shift();
@@ -185,116 +187,6 @@ sub irand {
     if ($#_ == 0) { return int(rand()*$_[0]); }
     elsif ($#_ == 1) { return $_[0]+irand($_[1]-$_[0]+1); }
     else { die "usage: irand(n) or irand(i,j)\n"; }
-}
-
-# usage: ($dist,$nearer) = distance($x,\@v)
-# compute nearer point from values in @v to $x
-sub distance {
-    my ($x,$v) = @_;
-    my ($dist_min, $nearer, $dist);
-    for ($k=0; $k<=$#$v; $k++) {
-	$dist = abs($x-$v->[$k]);
-	if (!defined $dist_min || $dist < $dist_min) {
-	    $dist_min = $dist;
-	    $nearer = $v->[$k];
-	}
-    }
-    return $dist_min,$nearer;
-}
-
-=head1 NAME
-
-refine2: finds a new point where to compute a value
-
-=head1 SYNOPSIS
-
-Usage: C<@v_ref = refine2($v1,$v2,\@v); >
-
-Finds the next point to compute a value in the range C<$v1,$v2>, if
-you already computed at @v. It finds the point in the interval
-C<[$v1,$v2]> that is at the larger distance from all points in C<@v>. 
-
-=head1 DESCRIPTION
-
-Suppose you are running a program for a series of values of parameter
-C<x> and recover the value of magitude C<y>. You already computed the
-values in C<@v> and want to compute a new value. C<refine2> finds the
-best point in the interval C<[$v1,$v2]> where to compute the next
-value, that is the point int the interval that is at the larger
-distance from all points in C<@v>. The algorithm is based in noting
-that the point should be either one of the extremes of the interval or
-either the midpoints of those points in C<@v> that fall in the interval. 
-For instance if you call 
-
-    @v = ();
-    while (...) { @v = refine2(0,1,\@v; }
-
-then the sequence generated is C<{0,1,0.5,0.25,0.75,0.125,0.375,...}>.
-Restart: Note that if the points in C<@v> may fall outside the
-interval. This is useful if you computed at a some values, then have
-some interest at some interval, for instance C<0.3,0.5]>, then you
-simply restart with 
-
-    while (...) { @v = refine2(0.3,0.5,\@v; }
-
-and this will find optimal points in the given interval. 
-
-=head1 AUTHOR
-
-Mario A. Storti C<mstorti@intec.unl.edu.ar>
-
-=cut
-
-sub refine2 {
-    my ($v1,$v2,$v) = @_;
-    my $tol = 1e-6*($v2-$v1);
-    my @v = @$v;
-    my $newv;
-    # eliminate all values outside [$v1,$v2]
-    my @vv = ();
-    foreach $w (@v) { push @vv,$w if $w > $v1-$tol && $w < $v2+$tol; }
-
-    # put tentative evaluation points
-    @v = ();
-    push @v,$v1,$v2;
-    for (my $j=0; $j<$#vv; $j++) { push @v,($vv[$j]+$vv[$j+1])/2.; }
-    undef @vv;
-    my ($dmax, $wref);
-    foreach $w (@v) {
-	my ($d,$n) = distance($w,$v);
-	if (!defined $dmax || $d > $dmax) {
-	    $wref = $w;
-	    $dmax = $d;
-	}
-    }
-    my @w = @$v;
-    push @w,$wref;
-    @$v = sort @w;
-    return $wref;
-}
-
-# other version of refine.
-sub refine3 {
-    my ($v1,$v2,$v) = @_;
-    my @v = @$v;
-    my $newv;
-    if ($#v==-1) {
-	$newv = $v1;
-    } elsif ($#v==0) {
-	$newv = $v2;
-    } else {
-	my $maxdif = 0;
-	for (my $k=0; $k<$#v; $k++) {
-	    my $dv = $v[$k+1]-$v[$k];
-	    if ($dv > $maxdif) {
-		$maxdif = $dv;
-		$newv = ($v[$k+1]+$v[$k])/2;
-	    }
-	}
-    }
-    push @$v,$newv;
-    @$v = sort {$a <=> $b } @$v;
-    return $newv;
 }
 
 1;
