@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.99 2002/09/17 17:15:14 mstorti Exp $
+//$Id: ns.cpp,v 1.100 2002/09/18 20:53:17 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -102,7 +102,7 @@ int main(int argc,char **args) {
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,petscfem2pfm_file,);
   TGETOPTDEF(GLOBAL_OPTIONS,int,petscfem2pfm_verbose,0);
   FILE *petscfem2pfm=NULL;
-  if (petscfem2pfm_file != "") {
+  if (petscfem2pfm_file != "" && !MY_RANK) {
     petscfem2pfm = fopen(petscfem2pfm_file.c_str(),"w");
     assert(petscfem2pfm);
     setvbuf(petscfem2pfm,NULL,_IOLBF,0);
@@ -782,7 +782,7 @@ int main(int argc,char **args) {
 	  fprintf(gather_file_f,"\n");
 	  fclose(gather_file_f);
 	}
-	if (petscfem2pfm) {
+	if (petscfem2pfm && !MY_RANK) {
 	  assert(ngather>=6);
 	  if (petscfem2pfm_verbose) {
 	    printf("sending to PFM: time %f, forces %f %f %f\n",
