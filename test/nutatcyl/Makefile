@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2002/08/19 16:49:11 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/08/20 20:11:37 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -60,5 +60,8 @@ test_strip:
 	-rm -f strip.force.tmp strip.verif.tmp
 	$(MAKE) NAME=strip run
 	octave -q checkstrip.m > strip.verif.tmp
+
+figure:
+	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run
 
 #s
