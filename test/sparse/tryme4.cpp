@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.10 2002/07/20 13:50:17 mstorti Exp $
+// $Id: tryme4.cpp,v 1.11 2002/07/20 23:14:14 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -69,7 +69,7 @@ private:
       // printf("before: ");
       // print2();
       da_sort(da,compare<T>,NULL);
-      printf("antes length: %d\n",da_length(da));
+      // printf("antes length: %d\n",da_length(da));
       int p=0, e = da_length(da), q;
       if (p==e) {
 	ordered = 0;
@@ -80,8 +80,12 @@ private:
 	if (compare<T>(at(q),at(p),NULL)) 
 	  da_set (da,++p,da_ref(da,q));
       ordered = p+1;
-      // da_resize(da,ordered);
-      printf("despues length: %d\n",da_length(da));
+      Darray *new_da = da_create_len (sizeof(T),ordered); 
+      for (int j=0; j<ordered; j++) 
+	*(T *)da_ref(new_da,j) = *(T *)da_ref(da,j);
+      da_destroy(da);
+      da = new_da;
+      // printf("despues length: %d\n",da_length(da));
       modif = 0;
       // printf("after: ");
       // print2();
@@ -108,7 +112,7 @@ public:
 	  printf("new size %d\n",max);
 	}
       }
-    }  else printf("already in set...\n");
+    }  // else printf("already in set...\n");
   }
   void print(const char *s=NULL) { 
     resync(); 
@@ -138,22 +142,22 @@ void Set<int_pair>::print2() {
 
 int main(int argc, char **argv) {
   Set<int_pair> g;
-  Set<int_pair> gg;
-  // Set2 gg;
+  // Set<int_pair> gg;
+  Set2 gg;
   int kk;
-  int N = 100000, M = int(N/10), NN = int(sqrt(N/4));
+  int N = 10000, M = int(N/10), NN = int(sqrt(N/4));
   for (kk=1; kk<=N; kk++) { 
     int k = irand(1,NN);
     int l = irand(1,NN);
     // printf("inserting (%d,%d)\n",k,l);
     g.insert(int_pair(k,l)); 
-    gg.insert(int_pair(k,l)); 
+    gg.insert(int_pair2(k,l)); 
     if (kk % M == 0 ) {
       if (g.size()!=gg.size()) {
 	printf("on kk=%d bad: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
 	g.print("usando my_set<int>: ");
-	gg.print("usando my_set<int>: ");
-	// print_set(gg,"usando set<int>: ");
+	// gg.print("usando my_set<int>: ");
+	print_set(gg,"usando set<int>: ");
 	exit(0);
       } else printf("on kk=%d OK: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
     }
