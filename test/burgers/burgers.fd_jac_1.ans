@@ -1,0 +1,14 @@
+^compute_fd_adv_jacobian.*2
+^ *ndim.*2
+Done.
+__NO_SKIP__
+elem 3, \|A_a\|={{abs($W-0.482)<1e-2}}, \|A_n\|={{abs($W-0.482759)<1e-2}}, \|A_a-A_n\|={{$W<1e-4}}, \(rel.err {{$W<1e-3}}\)
+__SKIP__
+elem 37, \|A_a\|={{abs($W-0.488353)<1e-4}}, \|A_n\|={{abs($W-0.488403)<1e-4}}, \|A_a-A_n\|={{$W<1e-4}}, \(rel.err {{$W<1e-3}}\)
+__NO_SKIP__
+\S
+Flux jacobian comps: total 200, checked 200 \(100\.00%\)
+\|A_a\|: min {{abs($W-0.00835299)<1e-5}}, max {{abs($W-0.991647)<1e-5}}
+\|A_n\|: min {{abs($W-0.00840299)<1e-5}}, max {{abs($W-0.991597)<1e-5}}
+\|A_a - A_n\|: min {{$W<1e-4}}, max {{$W<1e-4}}
+\|A_a - A_n\|/\|A_n\|: min {{$W<1e-4}}, max {{$W<1e-2}}
