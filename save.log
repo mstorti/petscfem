@@ -3337,4 +3337,4 @@ tag: beta-3.33.6 on Thu, 30 Sep 2004 15:36:44 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.33.7 on Thu, 30 Sep 2004 21:56:28 -0300 by mstorti in spider
      > Eliminated `RH60' from some NS components. 
-     > Runs all tests with `g_c++'. 
+     > Runs all tests with `g_c++' and `O_c++'. 
