@@ -4,8 +4,19 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Check the `advdif/bcconv' elemset in 3D. Seems that there is a sign
-     problem. 
+* Make a test for block_uploading. 
+       Mon, 08 Dec 2003 08:58:53 -0300: Almost done in
+       `cubcav'. Finish it. 
+* Add `start_step' feature. 
+* List grants in doc
+* Add `dataflow.obj' to doc.
+* Let `upload_vector_fast' to have several masks with integer values,
+    e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
+* Finish completing_read with petscfem_options
+* Make use FastMat2 cache optional in advdife via an option
+* There is a conflict between the computation of residual jacobians 
+	  in advdif and the use of masks/profiles for element
+	  uploading. 
 * Bad parallel error reporting when not known elemset type 
       in NS (and advdif??)
    > not known elemset type: "ns_id"
@@ -26,17 +37,10 @@ TODO: [Mainly fixes go here...]
     > Assertion failed: "ierr==0"
     > Couldn't find __END_ELEMSET__ tag
     Sat, 06 Dec 2003 13:15:41 -0300: Can't reproduce
-* Add `start_step' feature. 
-* List grants in doc
-* Add `dataflow.obj' to doc.
-* Let `upload_vector_fast' to have several masks with integer values,
-    e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
-* Finish completing_read with petscfem_options
-* Make use FastMat2 cache optional in advdife via an option
-* There is a conflict between the computation of residual jacobians 
-	  in advdif and the use of masks/profiles for element
-	  uploading. 
-* Make a test for block_uploading
+* Check the `advdif/bcconv' elemset in 3D. Seems that there is a sign
+     problem. 
+  Mon, 08 Dec 2003 08:56:00 -0300: See discussion and patch in
+     `notes.txt'. Patch is not applied yet, though. 
 * Add `sw_abso' to tests
 * Doesn't report correctly acesses to the last thash table, probably 
 	  related to the weights flag. (Reported by
