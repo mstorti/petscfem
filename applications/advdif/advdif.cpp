@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.32 2002/01/15 21:38:29 mstorti Exp $
+//$Id: advdif.cpp,v 1.33 2002/01/17 12:58:19 mstorti Exp $
 
 #include <set>
 
@@ -11,11 +11,6 @@
 #include <src/pfmat.h>
 
 #include "advective.h"
-#include "nwadvdif.h"
-#include "nwadvdifj.h"
-#include "burgers.h"
-#include "genload.h"
-#include "aquifer.h"
 
 #include <time.h>
 
@@ -27,36 +22,6 @@ int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
   comp_mat_each_time_step_g=0;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "bless_elemset"
-void bless_elemset(char *type,Elemset *& elemset) {
-    // General linear advective-diffusive system
-    SET_ELEMSET_TYPE(advdif_advecfm2)
-    SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
-    // new version
-    SET_ELEMSET_TYPE(newadvdif_advecfm2)
-    SET_ELEMSET_TYPE(newbcconv_advecfm2)
-    // Burger's eq.
-    SET_ELEMSET_TYPE(bcconv_adv_burgers)
-    SET_ELEMSET_TYPE(advdif_burgers)
-    // new version
-    SET_ELEMSET_TYPE(newadvdif_burgers)
-    SET_ELEMSET_TYPE(newbcconv_burgers)
-    // Turbulent shallow water
-    SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
-    SET_ELEMSET_TYPE(advdif_swfm2t)
-    SET_ELEMSET_TYPE(wall_swfm2t)
-
-    SET_ELEMSET_TYPE(lin_gen_load)
-
-    SET_ELEMSET_TYPE(aquifer)
-    {
-      printf("not known elemset \"type\": %s\n",type);
-      exit(1);
-    }
-}
 
 #define VECVIEW(name,label) \
 ierr = ViewerSetFormat(matlab, \

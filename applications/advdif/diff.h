@@ -1,16 +1,18 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: diff.h,v 1.1 2002/01/15 21:38:29 mstorti Exp $
+// $Id: diff.h,v 1.2 2002/01/17 12:58:19 mstorti Exp $
 #ifndef DIFF_H
 #define DIFF_H
+
+class Diff;
 
 /// This is the flux function for a given physical problem. 
 class DiffFF {
  public:
   /// The elemset associated with the flux function
-  const NewElemset *elemset;
+  const Diff *elemset;
   /// Constructor from the elemset
-  DiffFF(const NewElemset *elemset_=NULL) : elemset(elemset_) {};
+  DiffFF(const Diff *elemset_=NULL) : elemset(elemset_) {};
 
   /// This flags whether a given task is processed or not
   int ask(const char *jobinfo,int &skip_elemset);
@@ -70,7 +72,7 @@ class Diff : public NewElemset {
   */
   DiffFF *diff_ff;
 public:
-  /// Contructor from the poitner to the fux function
+  /// Contructor from the pointer to the fux function
   Diff(DiffFF *diff_ff_=NULL) : diff_ff(diff_ff_) {};
   /// Destructor. Destroys the flux function object. 
   ~Diff() {delete diff_ff;}

@@ -29,6 +29,8 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
+IdentityEF identity_ef;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
@@ -103,7 +105,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,ndim,0); //nd
   assert(npg>0);
   assert(ndim>0);
-  NSGETOPTDEF(int,ndimel,ndim); //nd
   
   int nelprops,nel,ndof;
   elem_params(nel,ndof,nelprops);
@@ -174,6 +175,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Initialize flux functions
   int ret_options=0;
   adv_diff_ff->start_chunk(ret_options); 
+  int ndimel = adv_diff_ff->dim();
+  if (ndimel<0) ndimel = ndim;
 
   int nlog_vars;
   const int *log_vars;

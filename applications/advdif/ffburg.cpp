@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.16 2002/01/14 03:45:05 mstorti Exp $
+//$Id: ffburg.cpp,v 1.17 2002/01/17 12:58:19 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -96,7 +96,7 @@ advdif_wjac_ff::advdif_wjac_ff(NewElemset *elemset_,
 #if 0
 #undef __FUNC__
 #define __FUNC__ "burgers_ff::burgers_ff()"
-burgers_ff::burgers_ff(NewElemset *elemset_) 
+burgers_ff::burgers_ff(NewAdvDif *elemset_) 
   : advdif_wjac_ff(elemset_), a_jac(&u_a_jac),
     source_term(&st), c_jac(&n_c_jac), d_jac(&g_d_jac) {};
 #endif

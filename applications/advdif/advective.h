@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.38 2002/01/15 21:38:29 mstorti Exp $
+//$Id: advective.h,v 1.39 2002/01/17 12:58:19 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -188,7 +188,7 @@ public:
   void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {P_Cp.set(P_supg);};
 };
 
-class NewAdvDif;
+extern IdentityEF identity_ef;
 
 /// This is the flux function for a given physical problem. 
 class NewAdvDifFF {
@@ -202,13 +202,14 @@ public:
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
   NewAdvDifFF(const NewElemset *elemset_=NULL) 
-    : elemset(elemset_), enthalpy_fun(NULL) {};
+    : elemset(elemset_), enthalpy_fun(&identity_ef) {};
 
   /** Define the list of variables that are 
       treated logarithmically. Reads from the options 
       #nlog_vars# and #log_vars#. 
   */
   virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
+
   /** This is called before any other in a loop and may help in
       optimization 
       @param ret_options (input/output) this is used by the flux
@@ -218,6 +219,7 @@ public:
       #tau_supg#. 
   */ 
   virtual void start_chunk(int &ret_options) =0;
+
   /** This is called before entering the Gauss points loop and may
       help in optimization. 
       @param element (input) an iterator on the elemlist. 
@@ -272,6 +274,14 @@ public:
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
 
+  /** Returns the dimension of the elemenst (May be different from the
+      dimension space). For instance, a river may be a 1D elemset in a
+      2D space. If this is equal to the space dimension (the most
+      common case) then return -1. 
+      @return the dimension of the advective elemset.
+  */
+  virtual int dim() const { return -1; }
+
   virtual ~NewAdvDifFF()=0;
   //@}
 };
@@ -286,7 +296,7 @@ class NewAdvDif : public NewElemset {
   */
   NewAdvDifFF *adv_diff_ff;
 public:
-  /// Contructor from the poitner to the fux function
+  /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
   /// Destructor. Destroys the flux function object. 
@@ -306,8 +316,11 @@ class NewBcconv : public NewElemset {
   */
   NewAdvDifFF *adv_diff_ff;
 public:
-  /// Contructor from the poitner to the fux function
-  NewBcconv(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
+  /// Contructor from the pointer to the fux function
+  NewBcconv(NewAdvDifFF *adv_diff_ff_=NULL) : 
+    adv_diff_ff(adv_diff_ff_) {};
+  /// Destructor. Destroys the flux function object. 
+  ~NewBcconv() { delete adv_diff_ff; }
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
