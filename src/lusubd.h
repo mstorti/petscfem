@@ -1,5 +1,5 @@
 // -*- mode: C++ -*- 
-// $Id: lusubd.h,v 1.3 2001/07/13 03:48:23 mstorti Exp $
+// $Id: lusubd.h,v 1.4 2001/07/14 10:54:07 mstorti Exp $
 #ifndef LUSUBD_H
 #define LUSUBD_H
 
@@ -17,6 +17,7 @@ class PFMatLU : public PFMat {
   Dofmap *dofmap;
   int n_int,n_loc;
   vector<int> map;
+  Mat A_LL,A_LI,A_IL,A_II;
 public:
   PFMatLU(Dofmap *dofmap_,Darray *da);
 };
