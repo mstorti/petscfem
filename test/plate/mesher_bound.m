@@ -6,6 +6,15 @@ function nodes = mesher_bound (mesh,edge,elem);
     invert_flag = edge(1)>edge(2);
     edge = mesher_edge(mesh,edge);
   endif
+
+  if nargin<=2
+    elems = find(mesh.edge2elem(:,1)==edge);
+    elems = mesh.edge2elem(elems,2);
+    length(elems)==1 || length(elems)==2 || \
+	error("edge should be connected to 1 or 2 elements");
+    elem = elems(1);
+  endif
+
   ICONE = mesh.ICONE(elem,:);
 
   edges = [ICONE([1 2]);
@@ -34,5 +43,9 @@ function nodes = mesher_bound (mesh,edge,elem);
     nodes = nodes(length(nodes):-1:1);
   endif
   nodes = nodes + mesh.block_start(elem);
+
+  if struct_contains(mesh,"nodemap")
+    nodes = mesh.nodemap(nodes);
+  endif
 
 endfunction
