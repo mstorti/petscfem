@@ -3179,3 +3179,7 @@ tag: beta-3.27.pl8 on Sun, 11 Jan 2004 12:35:42 -0300 by mstorti in spider
 ----------
 tag: beta-3.27.pl9 on Sun, 11 Jan 2004 12:47:30 -0300 by mstorti in spider
      > Minor fixes to `KeyedOutputBuffer'
+----------
+tag: beta-3.27.pl10 on Sun, 18 Jan 2004 18:39:08 -0300 by mstorti in spider
+     > Made some improvements to `SyncBuffer' and `KeyedOutputBuffer'. 
+     > Writing test.
