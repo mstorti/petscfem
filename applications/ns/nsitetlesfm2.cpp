@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.25 2001/07/20 11:54:47 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.26 2001/07/20 11:57:04 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -356,7 +356,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       
       if (comp_mat_res) {
-	FastMat2::deactivate_cache();
 	// computes the minimum size of the mesh
 	if (!WAS_SET || h_pspg<*hmin) {
 	  WAS_SET = 1;
@@ -565,7 +564,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
 	}
 
-	FastMat2::activate_cache();
       } else if (comp_mat) {
 	// don't make anything here !!
       } else {
