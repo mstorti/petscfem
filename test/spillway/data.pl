@@ -7,7 +7,7 @@ $L2 = 50;			# Flat bottom length
 $h1 = 4;                        # Water height at top of spillway
 $y2 = 65.79;			# restitution height
 
-$ref = 1;                       # refinement parameter
+$ref = 4;                       # refinement parameter
 $Ny = 10*$ref;                  # Number of elements along vert. direction
 $Nx = 50*$ref;                  # Number of elements along horiz. direction
 

@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.7 2003/03/25 21:23:22 mstorti Exp $
+## $Id: spillway.m,v 1.8 2003/03/25 22:36:15 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
@@ -235,7 +235,8 @@ fid3 = fopen("spillway.bcconv_out.tmp","w");
 for j=2:length(outlet)
   k1=outlet(j-1);
   k=outlet(j);
-  fprintf(fid,"%d %d %f\n",k,3,-gravity*xnod(k,2));
+  fprintf(fid,"%d %d %f\n",k,3,rho*gravity(xnod(k,2)-xnod(corner_node,2)));
+  ## fprintf(fid,"%d %d %f\n",k,3,-gravity*xnod(k,2));
   fprintf(fid2,"%d %d %f\n",k,1,0.);
   fprintf(fid2,"%d %d %f\n",k,2,0.);
   fprintf(fid3,"%d %d\n",k1,k);

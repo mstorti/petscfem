@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.22 2003/01/28 15:15:43 nnigro Exp $
+//$Id: nsilesther.cpp,v 1.23 2003/03/25 22:36:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,12 +16,12 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 
 #define STOP {PetscFinalize(); exit(0);}
-   
+
 #define MAXPROP 100
 
 //#define SQ(n) ((n)*(n))
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 // modif nsi_tet
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_fm2::assemble"
@@ -47,7 +47,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Essentially treat comp_res as comp_mat_res but
   // with the side effect of update_jacobian=1
-  int update_jacobian=1;	
+  int update_jacobian=1;
   if (comp_res) {
     comp_mat_res=1;
     update_jacobian=0;
@@ -62,11 +62,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesther\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
-#define ICONE(j,k) (icone[nel*(j)+(k)]) 
+#define ICONE(j,k) (icone[nel*(j)+(k)])
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define ELEMIPROPS_ADD(j,k) VEC2(elemiprops_add,j,k,neliprops_add)
 #define NN_IDX(j) ELEMIPROPS_ADD(j,0)
-#define IDENT(j,k) (ident[ndof*(j)+(k)]) 
+#define IDENT(j,k) (ident[ndof*(j)+(k)])
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
 
 
@@ -120,7 +120,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     rec_Dt = 1./glob_param->Dt;
     if (glob_param->steady) rec_Dt=0.;
     wall_data = (WallData *)arg_data_v[ja++].user_data;
-  } 
+  }
 
   //o Use a weak form for the gradient of pressure term.
   SGETOPTDEF(int,weak_form,1);
@@ -129,7 +129,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // allocate local vecs
   int kdof;
-  FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
+  FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof),
          locstate2(nel,ndof),xpg,G_body(ndim),gravity(ndim);
 
   if (ndof != ndim+2) {
@@ -150,7 +150,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,rho,1.);
   //o Thermal conductivity
   SGETOPTDEF(double,kappa,1.);
-  //o Specific heat - constant pressure 
+  //o Specific heat - constant pressure
   SGETOPTDEF(double,Cp,1.);
   //o buoyancy coefficient for Boussinesq term
   SGETOPTDEF(double,betath,0.);
@@ -182,16 +182,17 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
-  SGETOPTDEF(double,A_van_Driest,26); 
-  //o Parameter for the trapezoidal rule time integration method. 
+  SGETOPTDEF(double,A_van_Driest,26);
+  assert(A_van_Driest>=0.);
+  //o Parameter for the trapezoidal rule time integration method.
   GGETOPTDEF(double,alpha,1.);
-  //o Scale the SUPG upwind term. 
+  //o Scale the SUPG upwind term.
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
-  // the time step. 
+  // the time step.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
 
-  //o _T: double[ndim] _N: G_body _D: null vector 
+  //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
   G_body.set(0.);
   ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
@@ -214,10 +215,10 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 
   int nprops=iprop;
-  
+
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  
+
   //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
@@ -253,7 +254,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 matlocmomther(3,nel,ndim,nel);
 
   double tmp12;
-  double nu_eff;
+  double nu_eff, mu_eff, mu_l;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
@@ -261,7 +262,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix Jaco_axi(2,2),u_axi;
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
-         
+
   if (axi) assert(ndim==3);
 
   eye.eye();
@@ -309,7 +310,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     xloc.rs();
 
-    if (get_nearest_wall_element) {
+    if (get_nearest_wall_element && A_van_Driest>0.) {
       assert(LES);
 #ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nel));
@@ -333,8 +334,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_div_u_cache = (double *)local_store_address(ielh);
 	grad_div_u_was_cached = (grad_div_u_cache!=NULL);
 	if (!grad_div_u_was_cached) {
-	  local_store_address(ielh) 
-	    = grad_div_u_cache 
+	  local_store_address(ielh)
+	    = grad_div_u_cache
 	    = new double[ndim*ndim*nel*nel];
 	}
       }
@@ -370,10 +371,10 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
     pcol_star.set(pcol_new).scale(alpha).axpy(pcol,1-alpha);
     Tcol_star.set(Tcol_new).scale(alpha).axpy(Tcol,1-alpha);
-    
+
     double shear_vel;
     int wall_elem;
-    if (LES && comp_mat_res) {
+    if (LES && comp_mat_res && A_van_Driest>0.) {
 #ifdef USE_ANN
       Elemset *wall_elemset;
       const double *wall_coords_;
@@ -437,7 +438,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       } else {
 	PFEMERRQ("Only dimensions 2 and 3 allowed for this element.\n");
       }
-      
+
       if (comp_mat_res || comp_mat_res_th) {
 	// computes the minimum size of the mesh
 	if (!WAS_SET || h_pspg<*hmin) {
@@ -477,21 +478,25 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  grad_u_star.t();
 	  strain_rate.add(grad_u_star).scale(0.5);
 	  grad_u_star.rs();
+	  mu_l = VISC;
 
 	  // Smagorinsky turbulence model
 	  if (LES) {
 	    double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+	    double van_D;
+	    if (A_van_Driest>0.) {
+	      dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	      double ywall = sqrt(dist_to_wall.sum_square_all());
+	      double y_plus = ywall*shear_vel/mu_l;
+	      double van_D = 1.-exp(-y_plus/A_van_Driest);
+        } else van_D = 1.;
 
-	    dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-	    double ywall = sqrt(dist_to_wall.sum_square_all());
-	    double y_plus = ywall*shear_vel/VISC;
-	    double van_D = 1.-exp(-y_plus/A_van_Driest);
-	  
 	    double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-	    nu_eff = VISC + nu_t;
+	    mu_eff = mu_l + rho*nu_t;
 	  } else {
-	    nu_eff = VISC;
+	    mu_eff = mu_l;
 	  }
+	  nu_eff = mu_eff/rho;
         }
 
 	// u2 = u.sum_square_all();
@@ -530,14 +535,14 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
           fz = (Peclet < 3 ? Peclet/3 : 1);
           delta_supg = 0.5*h_supg*velmod*fz;
-	
+
 	  if (tau_fac != 1.) {
 	    tau_pspg *= tau_fac;
 	    tau_supg *= tau_fac;
 	  }
 	  delta_supg *= shock_capturing_factor;
 
-        } 
+        }
         if (comp_mat_res_th || comp_res_th) {
 	  if (velmod>tol) {
 	    double diff_coe=kappa/rho/Cp;
@@ -549,18 +554,18 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
         }
 
-        if (comp_mat_res || comp_res) {	
+        if (comp_mat_res || comp_res) {
 	  // P_supg es un vector fila
 	  P_supg.prod(u,dshapex,-1,-1,1).scale(tau_supg);
 
-	  // Weight function 
+	  // Weight function
 	  W_supg.set(P_supg).add(SHAPE);
 
 	  // Pressure stabilizing term
 	  P_pspg.set(dshapex).scale(tau_pspg/rho);
         }
 
-        if (comp_mat_res_th || comp_res_th) {	
+        if (comp_mat_res_th || comp_res_th) {
 
 	  // P_supg stabilizing term for thermal equation
 	  P_supg_th.prod(u,dshapex,-1,-1,1).scale(tau_supg_th);
@@ -579,7 +584,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  du.set(u_star).rest(u);
 	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
-	
+
 	  div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
 	  // Galerkin - momentum
@@ -588,11 +593,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  resmom.axpy(dresmom,-wpgdet * rho);
 
 	  if (weak_form) {
-	    tmp1.set(strain_rate).scale(2*nu_eff).axpy(eye,-p_star);
+	    tmp1.set(strain_rate).scale(2*mu_eff).axpy(eye,-p_star);
 	    tmp2.prod(dshapex,tmp1,-1,1,-1,2);
 	    resmom.axpy(tmp2,-wpgdet);
 	  } else {
-	    tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*nu_eff);
+	    tmp6.prod(dshapex,strain_rate,-1,1,-1,2).scale(2*mu_eff);
 	    tmp11.prod(SHAPE,grad_p_star,1,2).add(tmp6);
 	    resmom.axpy(tmp11,-wpgdet);
 	  }
@@ -627,7 +632,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  // thermal residue
 	  // dT.set(T_star).rest(T).scale(rho*Cp);
-	  dT = (T_star-T)/(rho*Cp);
+	  //	  dT = (T_star-T)/(rho*Cp);
+	  dT = (T_star-T)*(rho*Cp);
 	  // Guarda que pasa con esto? Aparentemente deberia ser la
 	  // linea de arriba
 #if 0   // Este es el corregido por mi
@@ -704,28 +710,28 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
             tmp15_th.set(dshapex).scale(rho*Cp*T_star);
 	    tmp16_th.prod(tmp15_th,SHAPE,3,1,2).scale(-wpgdet);
 	    matlocf.is(4,1,ndim).ir(2,ndof).add(tmp16_th).rs();
-         
+
             tmp17_th.set(grad_T_star).scale(rho*Cp);
 	    tmp18_th.prod(tmp17_th,SHAPE,1,2);
 	    tmp19_th.prod(P_supg_th,tmp18_th,1,3,2).scale(wpgdet);
 	    matlocf.is(4,1,ndim).ir(2,ndof).add(tmp19_th).rs();
-            
+
           } else {
             tmp17_th.set(grad_T_star).scale(rho*Cp);
 	    tmp18_th.prod(tmp17_th,SHAPE,1,2);
 	    tmp19_th.prod(W_supg_th,tmp18_th,1,3,2).scale(wpgdet);
 	    matlocf.is(4,1,ndim).ir(2,ndof).add(tmp19_th).rs();
           }
-          
+
         }
 
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
         if (comp_mat_res || comp_res) {
 
 	// Parte difusiva
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
-	matlocmom.axpy(tmp7,nu_eff);
+	matlocmom.axpy(tmp7,mu_eff);
 
 	// dmatw =  rho * ((1/Dt)*SHAPE + u * dshapex);
 	dmatw.set(massm).scale(rho);
@@ -757,8 +763,8 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
              tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
              matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
          }
- 
-    
+
+
 	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
@@ -770,21 +776,21 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndim+1).ir(4,ndim+1).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-            tmp19.set(dshapex).scale(nu_eff*wpgdet);
+            tmp19.set(dshapex).scale(mu_eff*wpgdet);
             tmp18.prod(dshapex,tmp19,2,3,4,1);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
             tmp19.set(dshapex).scale(delta_supg*rho*wpgdet);
             tmp18.prod(dshapex,tmp19,2,1,4,3);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 	  } else {
-	    grad_div_u_coef += (delta_supg*rho+nu_eff)*wpgdet;
+	    grad_div_u_coef += (delta_supg*rho+mu_eff)*wpgdet;
 	    if (!grad_div_u_was_cached) {
 	      tmp18.prod(dshapex,dshapex,2,1,4,3);
 	      grad_div_u.add(tmp18);
 	    }
 	  }
-	} 
-        } 
+	}
+        }
         if (comp_mat_res_th || comp_res_th) {
 	  for (int iloc=1; iloc<=nel; iloc++) {
 	    for (int jloc=1; jloc<=nel; jloc++) {
@@ -806,7 +812,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-    }      
+    }
 
     if (comp_mat_res) {
       if (cache_grad_div_u) {
@@ -825,13 +831,18 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+#if 0
+      matlocf.reshape(2,nel*ndof,nel*ndof);
+      if (k % 1000==0) matlocf.print("nsilesther, matriz elemental:");
+      matlocf.reshape(4,nel,ndof,nel,ndof);
+#endif
     }
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 }
 
-#undef SHAPE    
-#undef DSHAPEXI 
-#undef WPG      
+#undef SHAPE
+#undef DSHAPEXI
+#undef WPG
 #undef SQ

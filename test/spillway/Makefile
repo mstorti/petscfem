@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2003/03/25 21:23:22 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2003/03/25 22:36:15 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -37,9 +37,7 @@ alehook.efn: EFN_LDFLAGS = ../plate/fifo.o $(LIBPETSCFEM)
 	$(MAKE) -C ../plate fifo.o
 
 .PHONY: force
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-NP := 1
-# NP := $(shell procsel ./proctable.tmp)
+NP := $(shell procsel -l $(PETSCFEM_PROCTABLE))
 run: $(CASE_NAME).depl alehook.efn
 #	../../tools/eperl_min -P $(CASE_NAME).epl > $(CASE_NAME).depl
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 

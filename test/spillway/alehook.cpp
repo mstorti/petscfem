@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.6 2003/03/25 21:23:22 mstorti Exp $
+//$Id: alehook.cpp,v 1.7 2003/03/25 22:36:15 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -109,7 +109,10 @@ public:
 void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
 	  TextHashTableFilter *options,const char *name) { 
   if (!MY_RANK) {
-    if (1) {
+    int ierr;
+    //o Flag fo launching the `mesh_move' process.
+    TGETOPTDEF(GLOBAL_OPTIONS,int,launch_mesh_move,1);
+    if (launch_mesh_move) {
       printf("ALE_HOOK2_INIT: Starting ALE_HOOK...\n");
       pid_t pid = fork();
       if (pid==-1) {

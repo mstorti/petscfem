@@ -1,6 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.18 2003/03/13 19:52:12 mstorti Exp $
-  
+//$Id: wall.cpp,v 1.19 2003/03/25 22:36:15 mstorti Exp $
+
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -19,26 +19,26 @@ extern int TSTEP; //debug:=
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
-#define ICONE(j,k) (icone[nel*(j)+(k)]) 
+#define ICONE(j,k) (icone[nel*(j)+(k)])
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
 #define ELEMPROPS_ADD(j,k) VEC2(elemprops_add,j,k,nelprops_add)
 #define SHEAR_VEL(j) ELEMPROPS_ADD(j,0)
-#define IDENT(j,k) (ident[ndof*(j)+(k)]) 
+#define IDENT(j,k) (ident[ndof*(j)+(k)])
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
-  
+
 
 extern vector<double> data_pts;
 extern vector<ElemToPtr> elemset_pointer;
 
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "int wall::ask(char *,int &)"
 int wall::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   int ierr;
 
-  // Use LES or not. 
+  // Use LES or not.
   TGETOPTDEF(GLOBAL_OPTIONS,int,LES,0); //nd
   if (!LES) return 0;
 
@@ -53,21 +53,21 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
   }
 
   if (!strcmp(jobinfo,"communicate_shear_vel") && SIZE>1 ) {
-    // I dont't know if I can do the reduce `in place', 
+    // I dont't know if I can do the reduce `in place',
     // meanwhile, I use a temporary storage
     double *recv_buff = new double[nelem];
     ierr = MPI_Allreduce((void *)elemprops_add,
 			 (void *)recv_buff,nelem,MPI_DOUBLE,
-			 MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);  
+			 MPI_SUM,PETSC_COMM_WORLD); CHKERRQ(ierr);
     for (int j=0; j<nelem; j++) elemprops_add[j] = recv_buff[j];
     delete[] recv_buff;
   }
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void wall::initialize() {
   int ierr;
-  ierr = get_int(thash,"ndim",&ndim); 
+  ierr = get_int(thash,"ndim",&ndim);
   assert(!ierr);
   // convert pointers
   data_pts.resize(ndim*nelem); // Not implemented yet
@@ -78,14 +78,14 @@ void wall::initialize() {
 				// see above!!
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
-#define __FUNC__ "" 
+#define __FUNC__ ""
 void wall_fun(double yp,double &f,double &fprime) {
-  
+
   static double a1=5.0, b1=-3.05, a2=2.5, b2=5.5,
     yp1=5, yp2=30;
-  
+
   if (yp < yp1) {
     f = yp;
     fprime = 1.;
@@ -99,7 +99,7 @@ void wall_fun(double yp,double &f,double &fprime) {
 }
 
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "wall::assemble"
 int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
@@ -107,7 +107,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {
 
-  // wait_from_console("entra a wall::assemble");  
+  // wait_from_console("entra a wall::assemble");
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
   GET_JOBINFO_FLAG(comp_res);
@@ -149,29 +149,32 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),xc(ndim),locstate(nel,ndof),
-    locstate2(nel,ndof),xpg; 
+    locstate2(nel,ndof),xpg;
 
   nen = nel*ndof;
   FastMat2 matloc(4,nel,ndof,nel,ndof);
   FMatrix matlocmom(nel,nel);
 
-  double rho=1.;
-  // Trapezoidal method parameter. 
+  //  double rho=1.;
+  //o Density
+  TGETOPTDEF(thash,double,rho,1.);
+
+  // Trapezoidal method parameter.
   TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.);    //nd
 
   // Gauss Point data
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  
+
   GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,wpgdet;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
-    
+
   FMatrix Jaco(ndimel,ndim),resmom(nel,ndim),normal(ndim);
-          
+
   FMatrix grad_p_star(ndim),u,u_star,ucols,ucols_new,ucols_star,
     pcol_star,pcol_new,pcol;
 
@@ -181,7 +184,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //      seed.eye().setel(0.,ndof,ndof);
 //    }
   seed.set(0.);
-  for (int j=1; j<=ndim; j++) 
+  for (int j=1; j<=ndim; j++)
     seed.setel(1.,j,j);
 
   if (comp_mat) {
@@ -232,7 +235,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
-    }      
+    }
 
     if (build_nneighbor_tree) {
       // This doesn't compile under RH 5.2
@@ -249,7 +252,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
-    
+
     if (comp_mat_res) {
       // loop over Gauss points
       veccontr.is(2,1,ndim);
@@ -290,11 +293,11 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
   }
-      
+
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;
 }
-#undef SHAPE    
-#undef DSHAPEXI 
-#undef WPG      
+#undef SHAPE
+#undef DSHAPEXI
+#undef WPG
