@@ -654,3 +654,6 @@ tag: beta-2.42 on Thu Nov 29 21:51:56 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.43 on Fri Nov 30 09:42:13 ARST 2001, by mstorti in spider
      > Merged from Chile. Included adaptor class.
+----------
+tag: beta-2.44 on Fri Nov 30 10:23:09 ARST 2001, by mstorti in spider
+     > Writing adaptors.
