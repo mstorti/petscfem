@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.1 2004/01/08 21:10:25 mstorti Exp $
+$Id: notes.txt,v 1.2 2004/01/09 13:18:55 mstorti Exp $
 
 Diario de establidad del cluster
 
@@ -18,6 +18,22 @@ lanzar de nuevo.
 %
 Se corta por falta de memoria en el proc 4 (nodo19), lo cual es un
 poco raro. Lo lanzo de nuevo. 
+
+%===Fri, 09 Jan 2004 10:07:22 -0300 mstorti@minerva
+%
+Corre unas 20Hs OK y se corta por SIGSEGV en el proc 8 (node6). 
+%
+[8] MPI Abort by user Aborting program !
+[8] Aborting program!
+[8] MPI Abort by user Aborting program !
+[8]PETSC ERROR: MatSetValues_MPIAIJ() line 252 in src/mat/impls/aij/mpi/mpiaij.c
+[8]PETSC ERROR:   Argument out of range!
+[8]PETSC ERROR:   Inserting a new nonzero (221, -1) in the matrix!
+[8]PETSC ERROR: MatAssemblyEnd_MPIAIJ() line 364 in src/mat/impls/aij/mpi/mpiaij.c
+%
+Voy a bootear todo y lanzar sin el node6. El gaschem corrio bien unas
+17hs hasta que lo corte porque divirgio. 
+
 
 # Current line ===========  %
 # Local Variables: $
