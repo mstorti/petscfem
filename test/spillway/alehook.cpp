@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.11 2003/03/31 17:07:10 mstorti Exp $
+//$Id: alehook.cpp,v 1.12 2003/03/31 22:05:04 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -369,7 +369,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     x2.set(&nodedata[nu*(node2-1)]);
     x2.addel(div2*cyclic_length,1);
 
-#if 1
+#if 0
     printf("indx %d, div0 %d, div2 %d\n",indx,div0,div2);
     x0.print("x0:");
     x1.print("x1:");

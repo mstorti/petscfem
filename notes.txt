@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $
+$Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.267 2003/03/31 17:07:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6424,6 +6424,26 @@ $!dx = (!v.!s) !s$ donde $!s$ es la direccion del spin, mientras que lo que
 hay que exigir es $(!dx.!n) = Dt (!v.!n)$ de donde, si $!dx = d !s$,
 entonces tenemos que $d = Dt (!v.!n)/(!s.!n)$ y por lo tanto 
 $!dx = Dt (!v.!n)/(!s.!n) s$ 
+%
+18:52:41: Corro a Fr=0.1, Re=100, eta0=0.1 y se observa un periodo de
+2.1sec lo cual esta +/- de acuerdo con el valor teorico de `
+%
+$ T = 2\pi/\sqrt{gk} = \sqrt{2\pi L/g} = 1.79 $
+%
+La velocidad mxima es de 0.47 con lo cual la velocidad de fase
+estacionaria deberia ser: 
+%
+octave> kw=2*pi/5
+kw = 1.25663706143592
+octave> omega = sqrt(9.8*kw)
+omega = 3.50927958448340
+octave> c = omega/kw
+c = 2.79259596281003
+%
+Con lo cual se deberian desprender dos ondas con velocidad 0.47 +/-
+2.8. O sea que es casi una onda estacionaria. Se observa un
+amortiguamiento razonable: en 6 periodos se amortigua la amplitud baja
+un 30% mas o menos. Ahora voy a probar con un Froude mayor. 
 
 # Current line ===========  %
 # Local Variables: $
