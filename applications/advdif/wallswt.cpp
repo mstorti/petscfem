@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallswt.cpp,v 1.13 2002/08/27 02:53:46 mstorti Exp $
+//$Id: wallswt.cpp,v 1.14 2003/07/03 04:32:11 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -38,7 +38,7 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "SwtWallFun::residual()"
-double SwtWallFun::residual(double g,void *u=NULL) {
+double SwtWallFun::residual(double g,void *u) {
 
   double U_star = g/rho;
   // double y_plus = U_star*yn/viscosity;

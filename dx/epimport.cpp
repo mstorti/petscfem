@@ -1,14 +1,14 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.12 2003/06/16 19:55:58 mstorti Exp $
+// $Id: epimport.cpp,v 1.13 2003/07/03 04:32:11 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
-#include <strstream>
+#include <sstream>
 
 // `or' and `string' are used in DX so that one possibility is to
 // use a namespace for DX or to remap this colliding names with
 // `#defines'
-#define or __or__
+//#define or __or__
 #define string __string__
 /* define your pre-dx.h include file for inclusion here*/ 
 #ifdef PRE_DX_H
@@ -20,9 +20,9 @@
 #include "ExtProgImport_postdx.h"
 #endif
 #include <HDR/sockets.h>
-#undef or
+//#undef or
 #undef string
-#define USE_SSL
+//#define USE_SSL
 #include <src/util3.h>
 #include <src/autostr.h>
 
@@ -216,7 +216,7 @@ Error build_dx_array_v(Socket *clnt,int rank,
 		       vector<int> shape, int size, 
 		       int length, Array &array) {
   array = NULL;
-  array = DXNewArrayV(DX_SCALAR_TYPE, CATEGORY_REAL, rank, shape.begin());
+  array = DXNewArrayV(DX_SCALAR_TYPE, CATEGORY_REAL, rank, &*shape.begin());
   if (!array) return ERROR;
   array = DXAddArrayData(array, 0, length, NULL);
   if (!array) return ERROR;

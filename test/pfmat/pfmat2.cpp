@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.5 2002/09/05 19:24:01 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.6 2003/07/03 04:32:11 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -173,7 +173,7 @@ int main(int argc,char **args) {
 	is_diag[je] = v > fill;
       }
     }
-    ierr = MPI_Bcast (is_diag.begin(), Nelem, MPI_INT, 0,MPI_COMM_WORLD);
+    ierr = MPI_Bcast (&*is_diag.begin(), Nelem, MPI_INT, 0,MPI_COMM_WORLD);
     
     // Define profile
     for (int j=0; j<Nelem; j++) {

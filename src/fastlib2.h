@@ -1,8 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: fastlib2.h,v 1.2 2003/07/02 02:32:47 mstorti Exp $
+// $Id: fastlib2.h,v 1.3 2003/07/03 04:32:11 mstorti Exp $
 #ifndef FASTLIB2_H
 #define FASTLIB2_H
+
+using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template <class T,int chunk_size>

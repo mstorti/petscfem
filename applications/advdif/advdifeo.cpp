@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advdifeo.cpp,v 1.11 2002/02/03 23:48:12 mstorti Exp $
+// $Id: advdifeo.cpp,v 1.12 2003/07/03 04:32:11 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -53,7 +53,7 @@ void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars,
   int nel,ndof,nelprops;
   elemset->elem_params(nel,ndof,nelprops);
   nlog_vars=log_vars_v.size();
-  log_vars = log_vars_v.begin();
+  log_vars = &*log_vars_v.begin();
   int ierr=0;
   for (int j=0; j<nlog_vars; j++) {
     if (log_vars_v[j]<=0) {

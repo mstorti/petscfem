@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $
+$Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $ 
+! # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $ 
+  # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.292 2003/07/03 00:01:50 mstorti Exp $ 
+  # $Id: notes.txt,v 1.293 2003/07/03 04:32:11 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6616,6 +6616,36 @@ que compile en GCC 3.x.
 linkeditar. 
 %
 21:01:39: Compila y linkea con g_c++
+
+%===Thu, 03 Jul 2003 01:29:53 -0300 mstorti@spider
+%
+Con g_c++ corre casi todos los tests:
+> OK: 148.  Not OK: 4. Couldn't open: 9. Total: 161
+> Start section: "Misc tests."
+> Testing: "Idmap class" on file "idmap/tidmap.sal"...not OK.
+>         --->  Couldn't find "testing for size of idmap n=.*, number of operations .*"
+> Testing: "Constraint bug, cant have null rows in idmap class" on file "circ/check_circ.sal"...not OK.
+>         --->  Couldn't find "error in u symmetry = .* OK . 1"
+> can't open bug100/save.state.tmp
+> Summary: "Misc tests." -- OK: 18.  Not OK: 2. Couldn't open: 1. Total: 21
+> --------
+> Start section: "Misc tests."
+> Testing: "Read_vector function." on file "sqcav/verif.read_ini.tmp"...not OK.
+>         --->  Couldn't find "v=p=0 OK \? 1"
+> Summary: "Misc tests." -- OK: 11.  Not OK: 1. Couldn't open: 0. Total: 12
+> --------
+> Start section: "IISD solver. Checking with advdif"
+> Testing: "newff/test case adv_dif_temp_iisd" on file "newff/adv_dif_temp_iisd.vrf.tmp"...not OK.
+>         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
+> can't open newff/adv_temp_cp_iisd.vrf.tmp
+> can't open newff/dif_temp_iisd.vrf.tmp
+> can't open newff/full_full_jacs_iisd.vrf.tmp
+> can't open newff/full_jacs_iisd.vrf.tmp
+> can't open newff/full_jacs_cp_iisd.vrf.tmp
+> can't open newff/pure_adv_iisd.vrf.tmp
+> can't open newff/reac_adv_dif_temp_y_iisd.vrf.tmp
+> can't open newff/std_ard_x_y_iisd.vrf.tmp
+> Summary: "IISD solver. Checking with advdif" -- OK: 0.  Not OK: 1. Couldn't open: 8. Total: 9
 
 
 

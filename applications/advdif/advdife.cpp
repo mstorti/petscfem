@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.69 2003/06/08 14:42:55 mstorti Exp $
+//$Id: advdife.cpp,v 1.70 2003/07/03 04:32:11 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -46,7 +46,7 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
     read_int_array(log_vars_v,log_vars_entry); 
   }
   nlog_vars=log_vars_v.size();
-  log_vars = log_vars_v.begin();
+  log_vars = &*log_vars_v.begin();
   int ierr=0;
   for (int j=0; j<nlog_vars; j++) {
     if (log_vars_v[j]<=0) {
@@ -87,7 +87,7 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
   true_lstate.ir(2);
 }
 
-NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_=NULL) 
+NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_) 
     : elemset(elemset_), enthalpy_fun(NULL), new_adv_dif_elemset(NULL) {
   // This is ugly!!
   // assert(new_adv_dif_elemset);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.67 2003/07/02 02:32:47 mstorti Exp $
+//$Id: elemset.cpp,v 1.68 2003/07/03 04:32:11 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -296,6 +296,7 @@ int vector_assoc_gather(vector<double> *vector_assoc,
     // myrank,j,(*vector_assoc)[j]);
   }
   ierr = VecDestroy(one_elem_per_proc);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

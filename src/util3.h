@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: util3.h,v 1.7 2003/07/02 23:22:19 mstorti Exp $
+// $Id: util3.h,v 1.8 2003/07/03 04:32:11 mstorti Exp $
 #ifndef PETSCFEM_UTIL3_H
 #define PETSCFEM_UTIL3_H
 #include <string>
@@ -34,9 +34,11 @@ void tokenize(const char *line,vector<string> &tokens);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #ifdef USE_SSL
+#if 0
 #define SGETLINE_FACTOR 2
 #define SGETLINE_INIT_SIZE 512
 #define SGETLINE_MAX_SIZE INT_MAX
+#endif
 /** Reads a line from a socket using the Simple sockets 
     library function #Sgets# but with eventual reallocation, 
     using #malloc#. (This is similar ro the GNU #getline# function). 

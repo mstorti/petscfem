@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.13 2002/09/06 02:50:22 mstorti Exp $
+// $Id: distmat.cpp,v 1.14 2003/07/03 04:32:11 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -18,7 +18,7 @@ int M;
 class TrivialPartitioner : public IntRowPartitioner {
 public:
   int processor(int dof) { return int((dof*SIZE)/M); };
-  int processor(map<int,Row>::iterator k) {
+  int processor(map<int,Row>::const_iterator k) {
     return processor(k->first);
   };
 };

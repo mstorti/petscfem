@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2_old.cpp,v 1.4 2002/02/03 23:48:12 mstorti Exp $
+//$Id: ffadvfm2_old.cpp,v 1.5 2003/07/03 04:32:11 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -50,7 +50,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     VOID_IT(ajacv);
     elemset->get_entry("advective_jacobians",advje); CHKERRQ(advje==0);
     read_double_array(ajacv,advje);
-    ajacvp=ajacv.begin();
+    ajacvp = &*ajacv.begin();
 
     // Read diffusive jacobians (diffusivity matrices)
     D_jac_l.resize(4,ndim,ndim,ndof,ndof);
@@ -63,7 +63,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     VOID_IT(djacv);
     elemset->get_entry("diffusive_jacobians",difje); CHKERRQ(difje==0);
     read_double_array(djacv,difje); 
-    djacvp=djacv.begin();
+    djacvp = &*djacv.begin();
     D_jac_l.set(0.);
 
     // Read reactive jacobians (reactive  matrix)
@@ -80,7 +80,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     } else {
       read_double_array(cjacv,reaje); 
     }
-    cjacvp=cjacv.begin();
+    cjacvp = &*cjacv.begin();
     C_jac_l.set(0.);
 
     //o Scale the SUPG upwind term. 
@@ -92,7 +92,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
     if (na==ndim*ndof && nd==ndof && nc==ndof) {
       // An advection velocity and a diffusivity and a reactive for each field 
-      u.set(ajacv.begin());
+      u.set(&*ajacv.begin());
       ret_options &= !SCALAR_TAU; // tell the advective element routine
 				// that we are returning a non-scalar tau
       A_jac_l.set(0.);
@@ -144,7 +144,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     } else if (na==ndim*ndof*ndof) {
       assert(0);
       // The full jacobian for each dimension
-      A_jac_l.set(ajacv.begin());
+      A_jac_l.set(&*ajacv.begin());
       double vel=0.;
       for (int k=1; k<=ndim; k++) {
 	A_jac_l.ir(1,k);

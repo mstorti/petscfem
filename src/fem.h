@@ -1,9 +1,11 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.32 2003/02/04 23:28:47 mstorti Exp $
+//$Id: fem.h,v 1.33 2003/07/03 04:32:11 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
+
+using namespace std;
 
 #include <newmatio.h>
 #include <petscsles.h>

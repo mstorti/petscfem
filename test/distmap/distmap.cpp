@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.11 2002/09/06 02:50:22 mstorti Exp $
+// $Id: distmap.cpp,v 1.12 2003/07/03 04:32:11 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -15,7 +15,7 @@ int SIZE, MYRANK, M;
 class TrivialPartitioner {
 public:
   int processor(int j) { return int((j*SIZE)/M);};
-  int processor(const map<int,double>::iterator k) {
+  int processor(map<int,double>::const_iterator k) {
     return processor(k->first);
   }
 };
@@ -135,7 +135,7 @@ int main(int argc,char **argv) {
   }
 
   S.scatter();
-  MPI_Allreduce(vec.begin(),vecc.begin(),M,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+  MPI_Allreduce(&*vec.begin(),&*vecc.begin(),M,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
 
 //    if (MYRANK==0) 
 //      for (j=0; j<M; j++) printf("%d -> %f\n",j,vecc[j]);

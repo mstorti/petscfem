@@ -1,11 +1,12 @@
 //__INSERT_LICENSE__
-//$Id: bcconv_adv.cpp,v 1.10 2002/01/14 03:45:05 mstorti Exp $
+//$Id: bcconv_adv.cpp,v 1.11 2003/07/03 04:32:11 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
   
 #include <vector>
+#include <iostream>
 
 #include <newmat.h>
 

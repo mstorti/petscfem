@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2003/07/03 04:32:11 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -23,6 +23,15 @@ oscplate: ns
 	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl >/dev/null
 	mv oscplate.sal oscplate1.sal
 
+SRCS = 
+PETSCFEM_DIR = ../..
+include $(PETSCFEM_DIR)/Makefile.base
+include $(PETSCFEM_DIR)/test/Makefile.base.test
+
+LOC_PROG := ns
+CASE_NAME := oscplate3
+PROG := $(NS_G)
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
 #w Verifies quadratic convergence of the
@@ -35,7 +44,7 @@ oscplate3: ns
 	-chmod +w oscplate3.depl
 #
 	$(EPERL) -P -d alpha=0.5 -d N=16 oscplate.epl >oscplate3.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
+	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl >/dev/null
 	mv oscplate.sal oscplate_16.sal
 #
 	$(EPERL) -P -d alpha=0.5 -d N=32 oscplate.epl >oscplate3.depl
@@ -85,9 +94,5 @@ oscplate4_30deg: ns
 	mv oscsome.sal oscsome4_30deg.sal
 	$(OCTAVE) oscplate4_30deg.m &> oscplate4_30dego.sal
 
-SRCS = 
-PETSCFEM_DIR = ../..
-include $(PETSCFEM_DIR)/Makefile.base
-include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 #s

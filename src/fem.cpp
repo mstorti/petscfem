@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.10 2002/11/05 19:59:36 mstorti Exp $
+//$Id: fem.cpp,v 1.11 2003/07/03 04:32:11 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -152,6 +152,7 @@ int opt_read_vector(Mesh *mesh,Vec x, Dofmap *dofmap,int myrank) {
     double scal = 0.;
     ierr = VecSet(&scal,x); CHKERRA(ierr);
   }
+  return ierr;
 }
 #endif
 

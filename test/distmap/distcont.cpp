@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distcont.cpp,v 1.5 2002/09/06 02:50:22 mstorti Exp $
+// $Id: distcont.cpp,v 1.6 2003/07/03 04:32:11 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -169,7 +169,7 @@ int main(int argc,char **argv) {
   }
 
   S.scatter();
-  MPI_Allreduce(vec.begin(),vecc.begin(),M,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+  MPI_Allreduce(&*vec.begin(),&*vecc.begin(),M,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
 
   err = 0;
   for (j=0; j<N; j++) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: enthalpy.cpp,v 1.14 2002/02/03 23:48:12 mstorti Exp $
+//$Id: enthalpy.cpp,v 1.15 2003/07/03 04:32:11 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/getprop.h>
@@ -11,7 +11,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void GlobalScalarEF::init"
-void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_=1.) {
+void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_) {
   Cp=Cp_;
   eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
   htmp1.resize(1,nel);

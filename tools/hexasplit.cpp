@@ -1,6 +1,9 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.8 2003/02/17 12:39:28 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.9 2003/07/03 04:32:11 mstorti Exp $
+
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <vector>
 #include <deque>

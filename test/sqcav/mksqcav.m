@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mksqcav.m,v 1.6 2003/05/12 01:33:58 mstorti Exp $
+## $Id: mksqcav.m,v 1.7 2003/07/03 04:32:11 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -17,6 +17,7 @@ asave("sqcav.nod.tmp",xnod);
 asave("sqcav.con.tmp",icone);
 
 nnod = rows(xnod);
+if ! exist("u_rini"); u_rini=1; end
 uini = [u_rini 0 0];
 uini = uini(ones(nnod,1),:);
 asave("sqcav.ini.tmp",uini);

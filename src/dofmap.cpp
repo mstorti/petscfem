@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.15 2003/07/02 02:32:47 mstorti Exp $
+//$Id: dofmap.cpp,v 1.16 2003/07/03 04:32:11 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -365,14 +365,15 @@ int Dofmap::create_MPI_vector(Vec &v) {
 #define __FUNC__ "Dofmap::create_MPI_ghost_vector(Vec &)"
 int Dofmap::create_MPI_ghost_vector(Vec &v) {
   
-  int myrank;
+  int myrank, ierr;
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 //    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 //  	      "[%d] Dofmap::create_MPI_ghost_vector ghost_dofs->size(): %d\n",
 //  	      myrank, ghost_dofs->size());
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
-  int ierr = VecCreateSeq(PETSC_COMM_SELF,
-			  ghost_dofs->size(),&v); CHKERRQ(ierr);
+  ierr = VecCreateSeq(PETSC_COMM_SELF,
+		      ghost_dofs->size(),&v); CHKERRQ(ierr);
+  return ierr;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

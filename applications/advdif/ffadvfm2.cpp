@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.46 2002/07/25 22:35:31 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.47 2003/07/03 04:32:11 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -66,18 +66,18 @@ add_source_term(FastMat2 &G_source) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ \
-"void newadvecfm2_ff_t::NullCJac\
-::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)"
+#define __FUNC__					\
+"void newadvecfm2_ff_t::NullCJac"			\
+"::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)"
 void newadvecfm2_ff_t::NullCJac
 ::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   N_N_C.set(0.);
 }
 
 #undef __FUNC__
-#define __FUNC__ \
-"void newadvecfm2_ff_t::NullCJac::\
-comp_G_source(FastMat2 &G_source, FastMat2 &U)"
+#define __FUNC__					\
+"void newadvecfm2_ff_t::NullCJac::"			\
+"comp_G_source(FastMat2 &G_source, FastMat2 &U)"
 void newadvecfm2_ff_t::NullCJac::
 comp_G_source(FastMat2 &G_source, FastMat2 &U) {
   G_source.set(0.);
@@ -85,10 +85,10 @@ comp_G_source(FastMat2 &G_source, FastMat2 &U) {
 
 
 #undef __FUNC__
-#define __FUNC__ \
-"void newadvecfm2_ff_t::NullCJac::\
-comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
-	   FastMat2 &N,double w)"
+#define __FUNC__				\
+"void newadvecfm2_ff_t::NullCJac::"		\
+"comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,"	\
+ "FastMat2 &N,double w)"
 void newadvecfm2_ff_t::NullCJac::
 comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {
@@ -119,9 +119,7 @@ comp_G_source(FastMat2 &G_source, FastMat2 &U) {
 
 #undef __FUNC__
 #define __FUNC__ \
-"void newadvecfm2_ff_t::FullCJac::\
-comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
-	   FastMat2 &N,double w)"
+"newadvecfm2_ff_t::FullCJac::comp_N_P_C()"
 void newadvecfm2_ff_t::FullCJac::
 comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {

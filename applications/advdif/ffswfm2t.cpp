@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffswfm2t.cpp,v 1.14 2003/04/01 20:10:01 mstorti Exp $
+//$Id: ffswfm2t.cpp,v 1.15 2003/07/03 04:32:11 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -74,7 +74,7 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     if (bs!=NULL) {
       read_double_array(bottom_slope_v,bs);
       assert(bottom_slope_v.size()==ndim);
-      bottom_slope.set(bottom_slope_v.begin());
+      bottom_slope.set(&*bottom_slope_v.begin());
     }
     
     

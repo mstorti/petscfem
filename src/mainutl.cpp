@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.17 2003/07/02 23:22:19 mstorti Exp $
+//$Id: mainutl.cpp,v 1.18 2003/07/03 04:32:11 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -173,6 +173,7 @@ int state2fields(double *fields,const Vec x,const Dofmap *dofmap,
   }
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
   ierr = VecDestroy(vseq);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -296,6 +297,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
   PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
+  return ierr;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
