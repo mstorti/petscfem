@@ -25,4 +25,5 @@
 //@Include: ../../applications/advdif/enthalpy.h
 //@Include: ../../applications/advdif/nwadvdif.h
 //@Include: ../../applications/advdif/nwadvdifj.h
+//@Include: ../../applications/advdif/genload.h
 //@}
