@@ -7,6 +7,7 @@ default: project.bin
 
 SRCS := project.cpp
 
+BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
