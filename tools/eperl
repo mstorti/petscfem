@@ -817,9 +817,10 @@ sub get_line {
   }
 
   # if-elsif-else-endif
-  s/^\s*#(elsif|if)\s+(\S.*)$/$opt_H->{'BeginDelimiter'} $1 ($2) { _$opt_H->{'EndDelimiter'}\/\//g;
-  s/^\s*#else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
-  s/^\s*#endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*\#if\s+(\S.*)$/$opt_H->{'BeginDelimiter'} if ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*\#elsif\s+(\S.*)$/$opt_H->{'BeginDelimiter'} } elsif ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*\#else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*\#endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
 
   # sinclude needs to replace delimiters
   if ($opt_H->{'sinclude'} && $opt_H->{'sinclude'}[0]) {
