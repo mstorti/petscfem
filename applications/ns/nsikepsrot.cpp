@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.13 2002/05/04 23:54:13 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.14 2002/05/05 22:01:50 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -24,13 +24,13 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define ICONE(j,k) VEC2(icone,j,k,nel)
 int nsi_tet_keps_rot::real_nodes(int iele,const int *&node) {
   node = &ICONE(iele,0);
-  return (non_inertial_frame && part_include_fic ? nel-2 : nel);
+  return (non_inertial_frame && !part_include_fic ? nel-2 : nel);
 }  
 
 void nsi_tet_keps_rot::initialize() {
   int ierr;
   //o Do partitioning including fictitious nodes
-  TGETOPTDEF(thash,int,part_include_fic,1);
+  TGETOPTDEF_ND(thash,int,part_include_fic,1);
   //o The system is in a non-inertial frame. Get linear and rotational
   // velocities and accelerations from fictitious nodes. The
   TGETOPTDEF_ND(thash,int,non_inertial_frame,0);

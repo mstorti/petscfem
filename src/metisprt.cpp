@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.13 2002/05/04 23:56:23 mstorti Exp $
+//$Id: metisprt.cpp,v 1.14 2002/05/05 22:01:59 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -72,7 +72,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
 		 int *node2elem,int size,const int myrank,
 		 const int partflag,float *tpwgts,
 		 int max_partgraph_vertices,
-		 int iisd_subpart) {
+		 int iisd_subpart,int print_statistics) {
 
   Elemset *elemset;
   int *icone,nel,node,nvrtx,adjcount,j,elem,elemk,vrtx,
@@ -96,6 +96,9 @@ void  metis_part(int nelemfat,Mesh *mesh,
   // very low. 
   nvrtx = (nelemfat/2 > max_partgraph_vertices ?
 	    max_partgraph_vertices : nelemfat);
+  if (print_statistics && myrank==0) 
+    printf("-- Graph partitioning statistics: ----------- \n"
+	   "Using %d hraph vertices\n",nvrtx);
 
   // Create adjacency table for partitioning with Metis. In the
   // adjacency graph the nodes are elements or group of elments of the
@@ -262,11 +265,11 @@ void  metis_part(int nelemfat,Mesh *mesh,
     for (q=adj.begin(); q!=qe; q++) adjncy[p++] = *q;
   }
 
-  if (myrank==0) {
-    printf("Neighbor statistics for element graph:");
+  if (print_statistics && myrank==0) {
+    printf("Neighbor statistics for element graph:\n");
     int nne = 1;
     for (int e=0; e<vrtx_count.size(); e++) {
-      printf("%d elements with %d <= neighbors <  %d\n",
+      printf("%5d graph vertices with %7d <= neighbors < %7d\n",
 	     vrtx_count[e],nne,2*nne);
       nne *= 2;
     }

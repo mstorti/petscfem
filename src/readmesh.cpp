@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.43 2002/05/04 23:56:23 mstorti Exp $
+//$Id: readmesh.cpp,v 1.44 2002/05/05 22:01:59 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -29,13 +29,14 @@ using namespace std;
 
 #define IDENT(j,k) VEC2(ident,j,k,ndof)
 
-void  metis_part(int nelemfat,Mesh *mesh,
-		 const int nelemsets,int *vpart,
-		 int *nelemsetptr,int *n2eptr,
-		 int *node2elem,int size,const int myrank,
-		 const int partflag,float *tpwgts,
-		 int max_partgraph_vertices,
-		 int iisd_subpart);
+void metis_part(int nelemfat,Mesh *mesh,
+		const int nelemsets,int *vpart,
+		int *nelemsetptr,int *n2eptr,
+		int *node2elem,int size,const int myrank,
+		const int partflag,float *tpwgts,
+		int max_partgraph_vertices,
+		int iisd_subpart,
+		int print_partitioning_statistics);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
@@ -748,6 +749,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   //o Set partitioning method. May be set to \verb+metis+,
   // \verb+hitchhiking+, \verb+nearest_neighbor+ or \verb+random+.
   TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);
+  //o Print graph statistics
+  TGETOPTDEF(mesh->global_options,int,print_partitioning_statistics,0);
 #define INF INT_MAX
   //o Maximum number of vertices admissible while computing the
   // partitioning graph.
@@ -783,7 +786,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     metis_part(nelemfat,mesh,nelemsets,vpart,
 	       nelemsetptr,n2eptr,node2elem,size,myrank,
 	       partflag,tpwgts,max_partgraph_vertices,
-	       iisd_subpart);
+	       iisd_subpart,print_partitioning_statistics);
 
   } else if (partflag==1) {
 

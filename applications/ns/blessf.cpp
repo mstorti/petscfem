@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.1 2002/05/04 23:31:18 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.2 2002/05/05 22:01:50 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -47,6 +47,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(wall_law_res)
     SET_ELEMSET_TYPE(force_integrator)
     SET_ELEMSET_TYPE(flow_rate_integrator)
+    SET_ELEMSET_TYPE(free_surface_level_integrator)
 	{
 	printf("not known elemset type: \"%s\"\n",type);
 	exit(1);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.7 2002/04/10 17:57:44 mstorti Exp $
+//$Id: gatherer.h,v 1.8 2002/05/05 22:01:50 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -88,6 +88,24 @@ public:
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
 		     double wpgdet,double time);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Computes the total height of the free surface (linear free surface
+    b.c. version).
+    fixme:= agregar doc.
+*/ 
+class free_surface_level_integrator : public gatherer {
+private:
+public:
+  /// perform several checks and initialization
+  void init() { assert(gather_length==1); }
+  /// set forces 
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+		     double wpgdet,double time) {
+    pg_values[0] = wpgdet * u.get(1);
+  }
 };
 
 #endif
