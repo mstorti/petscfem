@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2002/12/01 16:07:26 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/12/02 01:00:36 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -11,10 +11,6 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
-LOC_PROG := ns
-CASE_NAME := $(NAME)
-PROG := $(PETSCFEM_DIR)/applications/ns/ns_O.bin
-
 .PHONY: data force
 test_case_data: force;
 	$(MAKE) data
@@ -22,6 +18,10 @@ test_case_data: force;
 ifeq ($(NAME),)
 NAME = step3d
 endif
+
+LOC_PROG := ns
+CASE_NAME := $(NAME)
+PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin
 
 # ifeq ($(NAME),step)
 # PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin

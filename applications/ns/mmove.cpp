@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.10 2002/12/01 21:49:37 mstorti Exp $
+//$Id: mmove.cpp,v 1.11 2002/12/02 01:00:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -81,6 +81,7 @@ void mesh_move_eig::init_dfun() {
   TGETOPTDEF_ND(thash,double,c_volume,1.);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double mesh_move::distor_fun(FastMat2 & xlocp) {
   xlocp.reshape(2,nel,ndim);
   J.prod(xlocp,dNdxi,-1,1,2,-1);
@@ -108,9 +109,6 @@ double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   if (ndim==3) la3=D.get(3);
 #endif
 #if 1
-#warning Using diff-eig version
-  static int flag=0;
-  if(!flag) { printf("diff-eig\n"); flag=1; }
   double diffla;
   if (ndim==2) {
     vol = la1*la2;
@@ -124,9 +122,6 @@ double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
   return df;
 #elif 0
-#warning Using norm/norm(-1) eig version
-  static int flag=0;
-  if(!flag) { printf("norm/norm(-1)\n"); flag=1; }
   double p = 1.;
   double norm_D = D.norm_p_all(p);
   double norm_iD = D.norm_p_all(-p);

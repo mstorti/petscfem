@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.10 2002/12/01 16:07:21 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.11 2002/12/02 01:00:32 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -59,6 +59,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE_ALIAS(mesh_move,mesh_move_eig)
     SET_ELEMSET_TYPE(mesh_move_eig)
+    SET_ELEMSET_TYPE(mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move_rcond)
 	{
 	printf("not known elemset type: \"%s\"\n",type);

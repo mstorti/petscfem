@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.1 2002/12/02 00:01:31 mstorti Exp $
+//$Id: mmove2.cpp,v 1.2 2002/12/02 01:00:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -59,20 +59,18 @@ void mesh_move_eig_anal::init() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &lambda,
 				 FastMat2 &glambda) {
-  xlocp.reshape(2,nel,ndim);
-  J.prod(xlocp,dNdxi,-1,1,2,-1);
-  xlocp.reshape(1,nel*ndim);
+  J.prod(x,dNdxi,-1,1,2,-1);
   G.prod(J,J,-1,1,-1,2);
   lambda.seig(G,V);
-  tmp1.prod(V,J,-1,1,-1,2);
+  tmp1.prod(J,V,1,-1,-1,2);
   tmp2.prod(dNdxi,V,-1,1,-1,2);
   for (int q=1; q<=ndim; q++) {
     glambda.ir(1,q);
-    tmp1.ir(1,q);
+    tmp1.ir(2,q);
     tmp2.ir(2,q);
     glambda.prod(tmp1,tmp2,2,1);
   }
-  glambda.rs();
+  glambda.rs().scale(2.);
   tmp1.rs();
   tmp2.rs();
 }
@@ -83,4 +81,19 @@ void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
 					   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
   df_grad(xloc,lambda,glambda);
+  x0.set(xloc);
+  x0.reshape(1,nel*ndim);
+  double epsilon=1e-4;
+  glambda_diff.set(glambda).set(0.).reshape(2,ndim,nel*ndim);
+  glp.set(glambda);
+  for (int k=1; k<=nel*ndim; k++) {
+    xp.set(x0);
+    xp.ir(1,k).add(epsilon).rs();
+    xp.reshape(2,nel,ndim);
+    df_grad(xp,lambdap,glp);
+    glambda_diff.ir(2,k).set(lambdap).rest(lambda).scale(1/epsilon);
+    xp.reshape(1,nel*ndim);
+  }
+  x0.reshape(2,nel,ndim);
+  glambda_diff.rs().reshape(3,ndim,nel,ndim);
 }

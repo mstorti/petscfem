@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-$N=10;
-$disp = 0.4;
+$N=4;
+$disp = 0.1;
 # $df = 'rcond';
 $df = 'eig';
 $slope = 5;
@@ -52,7 +52,8 @@ elemset mesh_move_<:=$df:> 4
 geometry cartesian2d
 npg 4
 #else
-elemset mesh_move_<:=$df:> 3
+# elemset mesh_move_<:=$df:> 3
+elemset mesh_move_eig_anal 3
 geometry triangle
 npg 1
 #endif

@@ -1,12 +1,11 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.6 2002/11/30 23:42:06 mstorti Exp $
+//$Id: mmove.h,v 1.7 2002/12/02 01:00:32 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
 
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-/// 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class  mesh_move : public adaptor { 
 private:
   FastMat2 G, J, dNdxi, xlocp, xloc0, res_Dir;
@@ -22,6 +21,7 @@ public:
   virtual double distor_fun_G(FastMat2 &G)=0;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class mesh_move_eig : public mesh_move {
 private:
 #ifdef USE_NEWMAT
@@ -36,6 +36,23 @@ public:
   double distor_fun_G(FastMat2 & G);
 };
 
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+/// 
+class  mesh_move_eig_anal : public adaptor { 
+private:
+  FastMat2 G, lambda, glambda, V, J, tmp1, tmp2, 
+    dNdxi, xlocp, xloc0, x0,xp,lambdap,glp,glambda_diff;
+  void df_grad(const FastMat2 &x,FastMat2 &lambda,
+	       FastMat2 &glambda);
+public: 
+  void init();
+  void element_connector(const FastMat2 &xloc,
+			 const FastMat2 &state_old,
+			 const FastMat2 &state_new,
+			 FastMat2 &res,FastMat2 &mat);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class mesh_move_rcond : public mesh_move {
 private:
   FastMat2 iG;
@@ -43,6 +60,7 @@ public:
   double distor_fun_G(FastMat2 & G);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class mmove_hook {
 private:
   int write_mesh(const State &s,const char *filename,const int append=0);
