@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.5 2001/07/31 14:23:42 mstorti Exp $
+// $Id: distmap.h,v 1.6 2001/07/31 14:29:04 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -144,6 +144,12 @@ void DistMap<Key,Val>::scatter() {
     k = processor(iter);
     if (k!=myrank) 
       pack(iter->first,iter->second,&send_buff_pos[k]);
+  }
+
+  // Erase members
+  for (iter = begin(); iter != end(); iter++) {
+    k = processor(iter);
+    if (k!=myrank) erase(iter);
   }
 
   // Check that all buffers must remain at the end
