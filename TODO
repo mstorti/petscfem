@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Not reporting error in 
+  parallell "Couldn't open file "../proy.skin.tmp"!!" while reading
+  fixations. 
 * make `epsilon' relative in `srfgath' 
 * `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
 * `advdif/id' elemset does some `proj' task or something. We should write
