@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.16 2002/12/16 04:11:35 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.17 2002/12/17 02:13:57 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -16,6 +16,7 @@
 #include "adaptor.h"
 #include "elast.h"
 #include "qharm.h"
+#include "qharmm.h"
 #include "gatherer.h"
 #include "embgath.h"
 #include "nssup.h"
@@ -35,6 +36,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
     SET_ELEMSET_TYPE(qharm)
+    SET_ELEMSET_TYPE(qharmm)
     SET_ELEMSET_TYPE(ns_id)
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_g)
