@@ -1219,17 +1219,15 @@ IISD/Subpartitioning  OK \? > 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for ($case=1; $case<=8; $case++) {
-   expect("pfmat/output.case$case.tmp",
-       "PFMat/case$case/(local_solver=PETsc)",
-      "All tests OK.*1");
-}
-
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for ($case=1; $case<=8; $case++) {
-   expect("pfmat/output.case${case}s.tmp",
-       "PFMat/case$case/(local_solver=SuperLU)",
-      "All tests OK.*1");
+for ($case=1; $case<=4; $case++) {
+  for $mtyp ((0,1)) {
+    for $s (("","s")) {
+        $solver = ($s eq "s" ? "SuperLU" : "PETSc");
+        expect("pfmat/output.case$case$s.m$mtyp.tmp",
+            "PFMat/case$case/(local_solver=$solver)",
+            "All tests OK.*1");
+        }
+    }
 }
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

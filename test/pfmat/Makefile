@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.11 2002/01/09 20:33:14 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.12 2002/01/09 21:09:31 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -28,33 +28,31 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 args = ne 40 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
-pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
+pfmat = out=output.$(3).m$(mtyp).tmp ; rm -f $$out ;	\
 	echo args: $(2) > $$out ;		\
 	$(MPIRUN) -np $(1) -machinefile		\
         machi.dat ./pfmat.bin $(2)  >> $$out
 
+pfmat: pfmat_petsc pfmat_slu
+
+pfmat_petsc:
+	$(MAKE) mtyp=0 pfmat_type
+
+pfmat_slu:
+	$(MAKE) mtyp=1 pfmat_type
+
 #w Several tests PFMat matrices
-pfmat:  pfmat.bin force
+pfmat_type:  pfmat.bin force
 #	Try all combinations of: np=1,2, iisd_subpart=1,10, mtyp=0,1
-	$(call pfmat,1,$(call args,sbdp 4, mtyp 0, ls 0),case1)
-	$(call pfmat,2,$(call args,sbdp 4, mtyp 0, ls 0),case2)
-	$(call pfmat,1,$(call args,sbdp 1, mtyp 0, ls 0),case3)
-	$(call pfmat,2,$(call args,sbdp 1, mtyp 0, ls 0),case4)
-#		       	       	      
-# 	$(call pfmat,1,$(call args,sbdp 4, mtyp 1, ls 0),case5)
-# 	$(call pfmat,2,$(call args,sbdp 4, mtyp 1, ls 0),case6)
-# 	$(call pfmat,1,$(call args,sbdp 1, mtyp 1, ls 0),case7)
-# 	$(call pfmat,2,$(call args,sbdp 1, mtyp 1, ls 0),case8)
+	$(call pfmat,1,$(call args,sbdp 4, mtyp $(mtyp), ls 0),case1)
+	$(call pfmat,2,$(call args,sbdp 4, mtyp $(mtyp), ls 0),case2)
+	$(call pfmat,1,$(call args,sbdp 1, mtyp $(mtyp), ls 0),case3)
+	$(call pfmat,2,$(call args,sbdp 1, mtyp $(mtyp), ls 0),case4)
 #
-	$(call pfmat,1,$(call args,sbdp 4, mtyp 0, ls 1),case1s)
-	$(call pfmat,2,$(call args,sbdp 4, mtyp 0, ls 1),case2s)
-	$(call pfmat,1,$(call args,sbdp 1, mtyp 0, ls 1),case3s)
-	$(call pfmat,2,$(call args,sbdp 1, mtyp 0, ls 1),case4s)
-#		       	       	      
-# 	$(call pfmat,1,$(call args,sbdp 4, mtyp 1, ls 1),case5s)
-# 	$(call pfmat,2,$(call args,sbdp 4, mtyp 1, ls 1),case6s)
-# 	$(call pfmat,1,$(call args,sbdp 1, mtyp 1, ls 1),case7s)
-# 	$(call pfmat,2,$(call args,sbdp 1, mtyp 1, ls 1),case8s)
+	$(call pfmat,1,$(call args,sbdp 4, mtyp $(mtyp), ls 1),case1s)
+	$(call pfmat,2,$(call args,sbdp 4, mtyp $(mtyp), ls 1),case2s)
+	$(call pfmat,1,$(call args,sbdp 1, mtyp $(mtyp), ls 1),case3s)
+	$(call pfmat,2,$(call args,sbdp 1, mtyp $(mtyp), ls 1),case4s)
 
 args2 = ne 100 deb 0 nsl 2 $(1) nmat 2 nprof 2 $(2) f 0.9
 
