@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.11 2003/02/08 13:08:37 mstorti Exp $
+//$Id: dxhook.cpp,v 1.12 2003/02/08 14:25:40 mstorti Exp $
 #ifdef USE_SSL
 
+#include <src/debug.h>
 #include <src/fem.h>
 #include <src/readmesh.h>
 #include <src/util2.h>
@@ -52,11 +53,18 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::time_step_pre(double time,int step) {}
 
+#define PF_DBG(name,format)					\
+PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] " 		\
+                        #name "  " #format "\n",MY_RANK,name);	\
+PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+#define PF_DBG_INT(name)  PF_DBG(name,%d) 
+#define PF_DBG_DBL(name)  PF_DBG(name,%f) 
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::
 time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
-  // for CHECK_COOKIE
+  // this is for CHECK_COOKIE
 #define sock srvr
   int ierr, cookie, cookie2;
   if (steps && step_cntr--) return;
@@ -65,6 +73,7 @@ time_step_post(double time,int step,
   static char *buf = (char *)malloc(BUFSIZE);
   static size_t Nbuf = BUFSIZE;
 
+  vector<string> tokens;
   Nodedata *nodedata = mesh->nodedata;
   double *xnod = nodedata->nodedata;
   int ndim = nodedata->ndim;
@@ -72,50 +81,51 @@ time_step_post(double time,int step,
   int nu = nodedata->nu;
   PetscPrintf(PETSC_COMM_WORLD,
 	      "dx_hook: accepting connections, step %d\n",step);
+
+  // Process DX options. 
   if (!MY_RANK) {
     srvr = Saccept(srvr_root);
     assert(srvr);
 
-#if 1
     Sgetline(&buf,&Nbuf,srvr);
-#else // DEBUG -----
-    Sgets(buf,Nbuf,srvr);
-    printf("Got buf %s\n",buf);
-#endif
-  }
-  int Nbuff = Nbuf;
-  ierr = MPI_Bcast (&Nbuf, 1, MPI_INT, 0,PETSC_COMM_WORLD);
-  if (MY_RANK && Nbuf>Nbuff) {
-    free(buf); buf = (char *)malloc(Nbuf);
-  }
-  ierr = MPI_Bcast (buf, Nbuf, MPI_CHAR, 0,PETSC_COMM_WORLD);
-  vector<string> tokens;
-  tokenize(buf,tokens);
-
-  // Parse DX options
-  int j=0;
-  while (1) {
-    if (j>=tokens.size()) break;
-    if (tokens[j]=="steps") {
-      int stepso;
-      assert(!string2int(tokens[++j],stepso));
-      if (stepso>=0) {
-	if (stepso!=steps) 
-	  PetscPrintf(PETSC_COMM_WORLD,
-		      "dx_hook: changed \"steps\" %d -> %d from DX\n",
-		      steps,stepso);
-	steps=stepso;
-      }
-    } else {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Unknown option \"%s\"\n",tokens[j].c_str());
+#if 0
+    int Nbuff = Nbuf;
+    ierr = MPI_Bcast (&Nbuf, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+    if (MY_RANK && Nbuf>Nbuff) {
+      free(buf); buf = (char *)malloc(Nbuf);
     }
-    j++;
+    ierr = MPI_Bcast (buf, Nbuf, MPI_CHAR, 0,PETSC_COMM_WORLD);
+#endif
+    tokenize(buf,tokens);
+
+    // Parse DX options
+    int j=0;
+    while (1) {
+      if (j>=tokens.size()) break;
+      if (tokens[j]=="steps") {
+	int stepso;
+	assert(!string2int(tokens[++j],stepso));
+	if (stepso>=0) {
+	  if (stepso!=steps) 
+	    PetscPrintf(PETSC_COMM_WORLD,
+			"dx_hook: changed \"steps\" %d -> %d from DX\n",
+			steps,stepso);
+	  steps=stepso;
+	}
+      } else {
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "Unknown option \"%s\"\n",tokens[j].c_str());
+      }
+      j++;
+    }
   }
+  // Options are read in master and
+  // each option is sent to the slaves with MPI_Bcast
+  ierr = MPI_Bcast (&steps, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+
   step_cntr = steps-1;
-  ierr = MPI_Bcast (&step_cntr, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+  GLOBAL_DEBUG->trace("dxhook 0");
   
-#if 1
   if (!MY_RANK) {
     // Send node coordinates
     cookie = rand();
@@ -136,6 +146,7 @@ time_step_post(double time,int step,
 
   // Send results
   int ndof = dofmap->ndof;
+  GLOBAL_DEBUG->trace("dxhook 1");
   
   double *state_p = NULL;
   if (!MY_RANK) state_p = new double[ndof*nnod];
@@ -154,6 +165,7 @@ time_step_post(double time,int step,
     CHECK_COOKIE(state);
   }
   delete[] state_p;
+  GLOBAL_DEBUG->trace("dxhook 2");
 
   // Send connectivities for each elemset
   Darray *elist = mesh->elemsetlist;
@@ -161,17 +173,20 @@ time_step_post(double time,int step,
     Elemset *e = *(Elemset **)da_ref(elist,j);
     e->dx(srvr,nodedata,state_p);
   }
+  GLOBAL_DEBUG->trace("dxhook 3");
 
   // Send termination signal
-  if (!MY_RANK) Sprintf(srvr,"end\n");
-#endif
-
-  Sclose(srvr);
+  if (!MY_RANK) {
+    Sprintf(srvr,"end\n");
+    Sclose(srvr);
+  }
+  GLOBAL_DEBUG->trace("dxhook 4");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void dx_hook::close() {
-  Sclose(srvr_root);
+void dx_hook::close() { 
+  if (!MY_RANK) Sclose(srvr_root); 
+  GLOBAL_DEBUG->trace("dxhook 5");
 }
 
 #endif
