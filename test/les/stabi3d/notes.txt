@@ -1,0 +1,28 @@
+$Id: notes.txt,v 1.1 2004/01/08 21:10:25 mstorti Exp $
+
+Diario de establidad del cluster
+
+%===Mon,  5 Jan 2004 17:01:27 -0300 jdelia@node1.beowulf.gtm
+%
+Estabilidad del cluster:
+Se cuelga en nodo22 y nodo23, los saco y agrego los nodos `chicos'
+node4, node5, node6, node11, node13 y node16 (para compensar la
+perdida de RAM). 
+
+%===Wed, 07 Jan 2004 11:30:57 -0300 mstorti@minerva
+%
+Lo lanzo y da un jacobiano negativo. Que raro... Lo voy a probar a
+lanzar de nuevo. 
+
+%===Thu, 08 Jan 2004 12:36:27 -0300 mstorti@minerva
+%
+Se corta por falta de memoria en el proc 4 (nodo19), lo cual es un
+poco raro. Lo lanzo de nuevo. 
+
+# Current line ===========  %
+# Local Variables: $
+# eval: (local-set-key "\C-cD" (quote notas-insert-date)) $
+# eval: (local-set-key "\C-ct" (quote notas-insert-time)) $
+# eval: (setq paragraph-separate "[ \t\f%]*$") $
+# eval: (setq paragraph-start "[ \t\n\f%]") $
+# End: $
