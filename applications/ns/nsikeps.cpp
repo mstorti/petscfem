@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.22 2002/06/26 20:59:07 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.23 2002/06/29 14:18:43 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -639,7 +639,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  du.set(u_star).rest(u);
 	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
-	  div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
+	  div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
 	  // Galerkin - momentum
 	  // resmom tiene que tener nel*ndim

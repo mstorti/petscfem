@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsirot.cpp,v 1.1 2002/05/03 21:24:07 mstorti Exp $ */
+/* $Id: nsirot.cpp,v 1.2 2002/06/29 14:18:43 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -607,9 +607,9 @@ int nsi_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 
 	  // adding rotational forces, only for the residual contribution
-      dmatu.add(acel_rot);
+	  dmatu.add(acel_rot);
 
-	  div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
+	  div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
 	  // Galerkin - momentum
 	  // resmom tiene que tener nel*ndim
