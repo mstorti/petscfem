@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.19 2004/02/25 19:28:45 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2004/07/26 19:54:48 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -34,10 +34,3 @@ PROG := $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 
 local_clean::
 	-rm -rf viewer_tmp.dx
-
-.PHONY: memtest memtest2
-memtest: memtest.cpp
-	g++ -O2 -o $@ $<
-
-memtest2: memtest2.cpp
-	g++ -g -o $@ $<
