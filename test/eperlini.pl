@@ -281,8 +281,13 @@ sub aload {
     my @data;
     while(<F>) { 
 #	my @v = map { $_ = getnum($_); } split(" ",$_);
+	next if /^\s*\#/;
 	my @v = split(" ",$_);
-	push @data,[@v]; 
+	if (@v==1) {
+	    push @data,$v[0]; 
+	} else {
+	    push @data,[@v]; 
+	}
     }
     return \@data;
 }
