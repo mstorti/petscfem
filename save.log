@@ -3906,3 +3906,6 @@ tag: beta-3.41.18 on Fri, 28 Jan 2005 21:39:38 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.19 on Sat, 29 Jan 2005 12:36:52 -0300 by mstorti in spider
      > Now `G_body' is a `Property' in gasflow. 
+----------
+tag: beta-3.41.20 on Sat, 29 Jan 2005 13:51:43 -0300 by mstorti in spider
+     > Runs good example of pulsating pipe. 
