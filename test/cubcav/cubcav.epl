@@ -8,7 +8,7 @@ $case = 'laplace' unless $case;
 get_var_env2('job',undef);
 $CASE = $case;
 get_var_env2('N',60);
-$N = 10 if $conf eq 'small';
+$N = 30 if $conf eq 'small';
 $nelem = $N**3.0;
 $cs = 0.2*$nelem;		# desired chunk_size
 $chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
@@ -41,7 +41,7 @@ global_options
 # <:pr('nlay'):>
 ndim 3
 nsave 10
-nstep 30
+nstep 10
 nsaverot 5
 nfile 2000000
 nrec 1

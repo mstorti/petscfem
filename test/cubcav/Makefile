@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.54 2003/08/28 22:43:20 mstorti Exp $ 
+# $Id: Makefile,v 1.55 2003/08/31 21:22:38 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -16,6 +16,7 @@ export case
 tests: test_re1000 test_iisd
 
 PETSCFEM_DIR = ../..
+# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.19.pl47
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
@@ -94,5 +95,5 @@ cubcav_post:
 cubcav_close:
 
 link:
-	$(MAKE) -C ../../ ns
+	$(MAKE) -C $(PETSCFEM_DIR) ns
 	ln -f $(PROG) ns

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.14 2003/08/31 02:19:20 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.15 2003/08/31 21:22:34 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -39,12 +39,14 @@ extern int MY_RANK,SIZE;
 #define __FUNC__ "upload_vector"
 #if 1
 // New Fast PETSc matrix loading version (uses MatSetValues)
+
+extern int any_A_LL_other_stop;
+
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
-  double start = MPI_Wtime();
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
@@ -391,7 +393,19 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
-  printf("Elemset::upload_vector(): fast version: %.3gsecs\n",MPI_Wtime()-start);
+  if (load_mat) {
+    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+    int any_A_LL_other_stop_all;
+    MPI_Allreduce(&any_A_LL_other_stop,
+		  &any_A_LL_other_stop_all,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+    if (any_A_LL_other_stop_all) {
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			      "any_A_LL_other: %d\n",any_A_LL_other_stop);
+      PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+      PetscFinalize();
+      exit(0);
+    }
+  }
 }
 #else
 // Old slow PETSc matrix loading version (uses MatSetValue)

@@ -1,12 +1,13 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.44 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.45 2003/08/31 21:22:42 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
+default:
+	$(MAKE) NP=2 case=iisd case_size=small part=random test_case
+
 test_eff: 
-#	$(MAKE) PROG=$(NSO) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
 	$(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
-#	time $(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large test_case
 
 #w All tests
 tests: test_iisd test_partitioning test_distmap \
@@ -118,7 +119,7 @@ NP := 1
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl > output.case_$(case).tmp
+			-case $(NAME).depl # > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
@@ -129,11 +130,8 @@ ifeq ($(PROG),)
 PROG := $(NS)
 endif
 
-# PROG = tryme
-# tryme.bin: tryme.o
-# $(PROG).bin: $(PROG).o $(LIBPETSCFEM)
-# #	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
-# 	${CXX_CLINKER} -o $@ $(PROG).o $(LDFLAGS)
-# tryme.o: tryme.cpp
+link:
+	$(MAKE) -C $(PETSCFEM_DIR) ns
+	ln -f $(PROG) ns
 
 #s

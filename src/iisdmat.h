@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.29 2003/08/29 02:33:27 mstorti Exp $
+// $Id: iisdmat.h,v 1.30 2003/08/31 21:22:34 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -318,5 +318,14 @@ public:
   /// Destructor
   ~IISDMat();
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+inline void grow_mono(dvector<T> &v,int new_size) {
+  if (new_size>v.size()) {
+    v.resize(new_size);
+    v.defrag();
+  }
+}
 
 #endif

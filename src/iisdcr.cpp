@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.42 2003/08/29 15:29:04 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.43 2003/08/31 21:22:34 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -236,6 +236,7 @@ int IISDMat::create_a() {
 		"Using 'nlay=0' forces 'use_interface_full_preco=0'\n");
     use_interface_full_preco=0;
   }
+  if (!use_interface_full_preco) nlay=0;
   //o Number of iters in solving the preconditioning for the 
   // interface problem when using \verb+use_interface_full_preco+. 
   TGETOPTDEF_ND_PF(thash,int,interface_full_preco_maxits,5);
