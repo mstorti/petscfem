@@ -978,3 +978,6 @@ tag: beta-2.78.pl3 on Sun Feb 10 17:12:15 ARST 2002 by mstorti in spider
 tag: beta-2.78.pl4 on Sun Feb 10 18:20:35 ARST 2002 by mstorti in spider
      > Added `tools/ltagdate' script that returns the date (as 
      > to be used with CVS) for a given `light tag'. 
+----------
+tag: beta-2.79 on Sun Feb 10 18:45:44 ARST 2002, by mstorti in spider
+     > Added scripts for checking tags
