@@ -16,7 +16,7 @@ OMKFLS =
 
 
 #w 
-femref.bin: nettest.o
+femref.bin: femref.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
 
