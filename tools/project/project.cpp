@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.6 2005/02/24 22:44:05 mstorti Exp $
+// $Id: project.cpp,v 1.7 2005/02/25 00:28:13 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -36,17 +36,26 @@ int main() {
   int nelem1 = ico1.size()/nel;
   ico1.reshape(2,nelem1,nel);
 
-  printf("%d nodes, %d elems read\n",nnod1,nelem1);
+  printf("mesh1: %d nodes, %d elems read\n",nnod1,nelem1);
+
+  // Reads mesh2 nodes
+  xnod2.cat(XNOD2).defrag();
+  assert(xnod2.size() % ndim ==0);
+  int nnod2 = xnod2.size()/ndim;
+  xnod2.reshape(2,nnod2,ndim);
+
+  printf("mesh2: %d nodes read\n",nnod2);
 
   // Constructs `Sinv_v' a vector of doubles storing
   // the coefficients of the inverse of element
   // coordinates matrix. 
   int nd1 = ndim+1;
   FastMat2 C(2,nd1,nd1),invC(2,nd1,nd1);
+  for (int n2=0; n2<
   for (int k=0; k<nelem1; k++) {
     // Nodes of element (base 0)
     for (int j=0; j<nel; j++) {
-    int 
+      int node = ico1.e(k.
       n1 = ico1.e(k,0),
       n2 = ico1.e(k,1),
       n3 = ico1.e(k,2);
@@ -63,11 +72,6 @@ int main() {
     Sinv.export_vals(&Sinv_v.e(k,0,0));
   }
 
-  // Reads mesh2 nodes
-  xnod2.cat(XNOD2).defrag();
-  assert(xnod2.size() % ndim ==0);
-  int nnod2 = xnod2.size()/ndim;
-  xnod2.reshape(2,nnod2,ndim);
 
   FastMat2 x2(1,ndim),L(1,ndim),
     dx(1,ndim),xcloser(1,ndim);
