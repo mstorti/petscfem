@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.6 2003/02/25 20:34:22 mstorti Exp $
+// $Id: dvector.h,v 1.7 2003/02/26 14:17:04 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -146,8 +146,6 @@ public:
       @param i,j,k (input) list of dimensions */ 
   void a_resize(int rank,...);
 
-  const T& e(int j,va_list ap) const;
-
   /** Gets a particular element of the array
       @param i,j,k,l (input) indices 
       @return a reference to the internal element */ 
@@ -158,7 +156,18 @@ public:
       @param j (input) first index
       @param ap (input) remaiing indices
       @return reference to the element */ 
-  T& e(int j,va_list ap);
+  T& ev(int j,va_list ap);
+
+  /** Same as #ev(i,j,k,...)# but returns a const reference. 
+      @param i,j,k,l (input) indices 
+      @return const reference to the internal element */ 
+  const T& e(int j,...) const;
+
+  /** Same as #ev(int,va_list)# but returns a const reference. 
+      @param j (input) first index
+      @param ap (input) remaiing indices
+      @return const reference to the element */ 
+  const T& ev(int j,va_list ap) const;
 
 };
 

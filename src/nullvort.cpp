@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.5 2003/02/26 02:32:22 mstorti Exp $
+// $Id: nullvort.cpp,v 1.6 2003/02/26 14:17:04 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -67,12 +67,15 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   // to store the set of nodes neighbor to a node on the surface
   LinkGraph graph;
   graph.init(dofmap->nnod);
+  // Nodes on the coupling surface (0-based)
+  set<int> coupling_nodes;
   for (int j=0; j<nelem; j++) {
     for (int k=0; k<nel_surf; k++) {
+      int nodek=icone.e(j,k)-1;
+      coupling_nodes.insert(nodek);
       for (int l=0; l<nel_surf; l++) {
-	if (k==l) continue;
 	// Store in graph (0 based)
-	int nodek=icone.e(j,k)-1, nodel=icone.e(j,l)-1;
+	int nodel=icone.e(j,l)-1;
 	// printf("adding to graph: %d, %d\n",nodek,nodel);
 	graph.add(nodek,nodel);
 	graph.add(nodel,nodek);
@@ -80,6 +83,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     }
   }
 
+#if 0
   GSet ngb;
   for (int j=0; j<dofmap->nnod; j++) {
     ngb.clear();
@@ -91,5 +95,60 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
       printf(")\n");
     }
   }
+#endif
+
+  // Numbe of nodes in th coupling surface
+  int n_coupling_nodes = coupling_nodes.size();
+
+  // coupling_nodes(surface_node,:) = nodes in the row of
+  // this surface node (global, 0-based)
+  dvector<int> coupling_nodes_table;
+  coupling_nodes_table.a_resize(2,n_coupling_nodes,layers+1);
+
+  // Maps a surface node to an index in coupling_nodes_table
+  map<int,int> coupling_nodes_map;
+
+  set<int>::iterator q,qe=coupling_nodes.end();
+  int cn_indx=0;
+
+  // Fill with -1 in order to know which are already filled
+  for (int j=0; j<n_coupling_nodes*(layers+1); j++)
+    coupling_nodes_table.ref(j) = -1;
+
+  // Fill first layer and index map
+  for (q=coupling_nodes.begin(); q!=qe; q++) {
+    coupling_nodes_table.e(cn_indx,0) = *q;
+    coupling_nodes_map[*q] = cn_indx;
+    cn_indx++;
+  }
+
+  // Fills the remaining layers ( 1 <= layer <= layers) of the table
+  icone.reshape(3,nelem,layers+1,nel_surf);
+  for (int e=0; e<nelem; e++) { //loop over surface elements
+    for (int sn=0; sn<nel_surf; sn++) { // loop over surface nodes
+      int sf_node = icone.e(e,0,sn)-1; // a surface node
+      // Check that the node is in the map
+      assert(coupling_nodes_map.find(sf_node)
+	     !=coupling_nodes_map.end());
+      // Index in the `coupling_nodes_table'
+      cn_indx = coupling_nodes_map[sf_node];
+      // For each node in the row: if already loaded
+      // then check that coincide, else load. 
+      for (int l=1; l<=layers; l++) {
+	int node = icone.e(e,l,sn)-1;
+	if (coupling_nodes_table.e(cn_indx,l)==-1) 
+	  coupling_nodes_table.e(cn_indx,l) = node; // not loaded
+	else assert(coupling_nodes_table.e(cn_indx,l)==node); // already loaded
+      }
+    }
+  }
+
+  for (cn_indx=0; cn_indx<n_coupling_nodes; cn_indx++) {
+    printf("row %d: ",cn_indx);
+    for (int l=0; l<=layers; l++) 
+      printf("%d ",coupling_nodes_table.e(cn_indx,l));
+    printf("\n");
+  }
+
   graph.clear();
 }
