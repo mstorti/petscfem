@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2001/01/08 12:11:10 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/01/08 12:26:12 mstorti Exp $ 
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -103,5 +103,21 @@ save:
 	fi ;\
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
 
-
-
+tag:
+	@echo Verify that current directory is OK...
+	echo n | cvs release .
+	@echo "Continue? (y/n) > " ; \
+	@read answer ; \
+	if [ ! $$answer = "y" ] ; then \
+		exit ; \
+	fi
+	@echo Last tags:
+	grep "^tag: " save.log | tail
+	@echo -n "new tag: >" ; \
+	@read newtag
+	echo "tag: $newtag" >> save.log
+	@echo "Proceed to tag files (y/n) > " ; \
+	@read answer ; \
+	if [ $$answer = "y" ] ; then \
+		cvs tag . ; \
+	fi
