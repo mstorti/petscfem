@@ -5,6 +5,7 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 
 $closed_tube = 1;		# simulate the tube closed (no inlet/outlet)
+$use_tetra = 0;
 
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = 0.520;			# [m] Length of tube
@@ -74,6 +75,10 @@ $weak_form  = 0;
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
+if ($use_tetra) {
+    system "../../tools/hexasplit.bin -i vtube.con.tmp -o vtube.con-tetra.tmp".
+    " > hexasplit.out.tmp";
+}
 :>//                            # ends ePerl block
 
 ##================================================================
@@ -125,7 +130,7 @@ ndim 3
 C_mu 0.
 <:pr('ga'):> 
 <:pr('cond'):> 
-
+report_consumed_time
 __END_HASH__
 
 ##================================================================
@@ -135,11 +140,11 @@ __INCLUDE__ vtube.nod.tmp
 __END_NODES__
 
 ##================================================================
-elemset gasflow 8 
-geometry cartesian3d
-npg 8
+elemset gasflow <:= ($use_tetra ? 4 : 8):>
+geometry <:=($use_tetra ? "tetra" : "cartesian3d"):>
+npg <:= ($use_tetra ? 4 : 8):>
 __END_HASH__
-__INCLUDE__ vtube.con.tmp
+__INCLUDE__ vtube.con<:=($use_tetra ? "-tetra" : ""):>.tmp
 __END_ELEMSET__
 
 end_elemsets
