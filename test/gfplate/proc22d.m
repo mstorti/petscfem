@@ -1,43 +1,40 @@
-## $Id: proc22d.m,v 1.4 2005/01/29 15:36:44 mstorti Exp $
+## $Id: proc22d.m,v 1.5 2005/01/29 16:51:34 mstorti Exp $
 
 source("data.m.tmp");
 
 field = 1;
 
-Uprimi = aload("gfabso2dn.some-rslt.tmp");
-Uprimi(:,1)=[];
-gasdata.gamma = gamma;
-gasdata.pref = pref;
-gasdata.uref = uref;
-gasdata.rhoref = rhoref;
-gasdata.cref = cref;
+U = aload("gfabso2dn.some-rslt.tmp");
+U(:,1)=[];
+# gasdata.gamma = gamma;
+# gasdata.pref = pref;
+# gasdata.uref = uref;
+# gasdata.rhoref = rhoref;
+# gasdata.cref = cref;
 
-primi = 1;
-if primi
-  U = Uprimi;
-  field = 4;
-  indx = [1 2 3 4];
-  scale = [rhoref cref cref pref];
-else
-  error("not more supported!!");
-  Uri = primi2ri(Uprimi,gasdata);
-  U = Uri;
-  field = 1;
-  indx = [1 2 3];
-  scale = [cref cref 10.0];
+scale = [rhoref cref cref pref];
+
+if 1
+  ## Add Mach
+  c = sqrt(gamma*U(:,1)./U(:,4));
+  Ma = U(:,2)./c;
+  U = [U,Ma];
+  scale = [scale,1];
 endif
+
+## Do not scale
+scale = ones(size(scale));
 
 ndof = columns(U);
 Uref = mean(U);
-## Uref = zeros(1,ndof);
+Uref = zeros(1,ndof);
 maxbound = max(U);
 minbound = min(U);
 
-m = length(indx);
+m = columns(U);
 Unorm = zeros(rows(U),m);
 for k=1:m
-  field = indx(k);
-  Unorm(:,k) = (U(:,field)-Uref(field))/scale(k);
+  Unorm(:,k) = (U(:,k)-Uref(k))/scale(k);
 endfor
 
 rem(rows(U),Nx+1)==0 || error("not correct size");

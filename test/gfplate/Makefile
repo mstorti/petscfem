@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.33 2005/01/29 15:36:44 mstorti Exp $ 
+# $Id: Makefile,v 1.34 2005/01/29 16:51:34 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
 default: run2dn
 
-# BOPT := O_c++
+BOPT := O_c++
 SRCS = 
 # PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.40
 PETSCFEM_DIR = ../..
@@ -21,16 +21,19 @@ NL :=
 NP := 1
 endif
 
+gbody.efn: gbody.cpp
+
 run2d:
 	$(MAKE) CASE_NAME=gfabso2d run
 
 runa:
 	$(MAKE) CASE_NAME=gfabso run
 
-run2dn:
+run2dn: gbody.efn
 	$(MAKE) CASE_NAME=gfabso2dn run
 
 runc: 
+	mkstepsdir.pl
 	$(MAKE) CASE_NAME=cylabso run
 
 runp: 
@@ -38,9 +41,8 @@ runp:
 
 run: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-# 	mkstepsdir.pl
-# 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
-# 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
 STEPS_DIR := ./STEPS
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS

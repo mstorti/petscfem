@@ -49,8 +49,8 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.1
-shocap 0.0
+Dt 0.025
+shocap 0.02
 weak_form 0
 temporal_stability_factor 0
 
@@ -91,7 +91,7 @@ props G_body[2]
 geometry cartesian2d
 dx 1
 npg 4
-G_body_scale 3
+temp_fun[G_body_scale] ./gbody.efn gbody_scale
 data ./gfabso2dn.con.tmp
 __END_HASH__
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gbody.cpp,v 1.1 2005/01/29 15:53:26 mstorti Exp $
+//$Id: gbody.cpp,v 1.2 2005/01/29 16:51:34 mstorti Exp $
 
 #include <math.h>
 
@@ -13,7 +13,7 @@ private:
 public:
   void init(TextHashTable *thash) {
     T = 4;
-    G0 = 0.1;
+    G0 = 3;
     omega = 2.0*M_PI/T;
   }
   double eval(double t,double val) { 

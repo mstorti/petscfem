@@ -3,10 +3,10 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 4;
-$Nx = 50;
+$Nx = 200;
 $rota = 0;
 
-$Machin = 0.5;
+$Machin = 0.;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;

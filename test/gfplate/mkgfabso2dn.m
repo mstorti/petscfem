@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.10 2005/01/29 15:36:44 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.11 2005/01/29 16:51:34 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -45,7 +45,9 @@ xnod = [xnod;
 
 xe = pfnd2ele(xnod,icone,xnod(:,1));
 Gb = zeros(Nx,2);
-Gb(:,1) = abs(abs(xe-Lx/2)<Lx/4);
+lgb = Lx/4; 			# Length where Gb is applied
+xi = (xe-Lx/2)/(lgb/2);
+Gb(:,1) = (1-xi.^2).*(abs(xi)<1);
 
 fid = fopen("gfabso2dn.con.tmp","w");
 for k=1:Nx
