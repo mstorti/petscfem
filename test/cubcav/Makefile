@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.50 2003/08/26 23:28:52 mstorti Exp $ 
+# $Id: Makefile,v 1.51 2003/08/27 21:58:45 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -28,14 +28,21 @@ CASE := $(CASE_NAME)
 ################################################################
 ifeq (1,1)
 # NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
-NP = $(shell procsel -n ./proctable)
-NL = -nolocal
-MCH = -machinefile ./machi.dat
+NP := $(shell procsel -n ./proctable)
+NL := -nolocal
+MCH := -machinefile ./machi.dat
 endif
 
 ifeq (1,0)
-NP = 1
-MCH =
+NP := 1
+MCH :=
+endif
+
+ifeq ($(HOSTNAME),minerva)
+NP := $(shell procsel ./proctable.minerva)
+NL :=
+MCH := -machinefile ./machi.dat
+NP :=1 
 endif
 
 export NP

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.69 2003/08/25 02:52:16 mstorti Exp $
+//$Id: elemset.cpp,v 1.70 2003/08/27 21:54:52 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -373,8 +373,11 @@ int assemble(Mesh *mesh,arg_list argl,
   HPChrono hpchrono,hpc2,hpc3,hpcassmbl;
   Stat out_of_loop, in_loop, wait;
 
+  // Time statistics
+  double total, busy, tot_s,tot_e,bus_s,bus_e;
   hpc2.start();
   hpchrono.start();
+
   //o Debug the process of building the matrix profile. 
   TGETOPTDEF(mesh->global_options,int,debug_compute_prof,0);
   //o Debug the process of building the matrix profile. 
@@ -490,6 +493,7 @@ int assemble(Mesh *mesh,arg_list argl,
 
   for (int ielset=0; ielset<da_length(elemsetlist); ielset++) {
     
+    tot_s = MPI_Wtime();
     Elemset *elemset  = *(Elemset **)da_ref(elemsetlist,ielset);
 
     // Skip this elemset if indicated.
@@ -646,9 +650,11 @@ int assemble(Mesh *mesh,arg_list argl,
       
       if (iele_here > -1) {
 	// if (1) {
+	bus_s = MPI_Wtime();
 	elemset->assemble(arg_data_v,nodedata,dofmap,
 			  jobinfo,myrank,el_start,el_last,iter_mode,
 			  time_data);
+	busy += MPI_Wtime() - bus_s;
       } else {
 	// printf("[%d] not processing because no elements...\n",myrank);
       }
@@ -797,14 +803,23 @@ int assemble(Mesh *mesh,arg_list argl,
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Performance report elemset \"%s\" task \"%s\"\n"
-		  "[proc] - total[sec] - rate[sec/Kelement]\n",
+		  "[proc] - busy[sec] - rate[sec/Kelement] - %%idle\n",
 		  elemset->type,jobinfo);
+#if 1
+      double rate=1000.0*busy/elemset->nelem_here;
+      total = MPI_Wtime() - tot_s;
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			      "[proc %d]   %10.3g   %10.3g   %5.1f\n",
+			      myrank,busy,rate,100.0*(1.0-busy/total));
+#else
       double elapsed;
       elapsed=hpc3.elapsed();
       double rate=1000.0*elapsed/elemset->nelem_here;
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "[proc %d]   %g   %g\n",myrank,elapsed,rate);
+#endif
       PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscPrintf(PETSC_COMM_WORLD,"total %10.3gsecs\n",total);
     }
 
     // To be done for each elemset
