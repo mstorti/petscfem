@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.3 2005/01/26 18:40:53 mstorti Exp $
+// $Id: advabso.h,v 1.4 2005/01/27 05:48:33 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -24,12 +24,15 @@
 */ 
 class AdvectiveAbso : public AdvdifLagrangeMult {
 private:
-  int ndim;
+  int ndim,nel,ndof;
   double Rgas;
-  // Poiter to adv-diff flux fun
+  // Pointer to adv-diff flux fun
   NewAdvDifFF *adv_diff_ff;
   FastMat2 dummy,flux,fluxd,A_grad_U,
-    grad_U,Ucpy;
+    grad_U,Ucpy,normal,A_jac,S,invS,c,
+    Pi_m,Pi_p,Uref,cp,cm,tmp1,Ulambda,Uo;
+  // Per node normal
+  Property normal_prop;
 public:
   AdvectiveAbso(NewAdvDifFF *ff) 
     : adv_diff_ff(ff) {} 
@@ -38,6 +41,9 @@ public:
   void lag_mul_dof(int jr,int &node,int &dof) {
     node = 2; dof=jr;
   }
+  //element init
+  virtual void 
+  element_hook(ElementIterator &element);
   void lm_initialize();
   void init();
   void res(int k,FastMat2 &U,FastMat2 &r,

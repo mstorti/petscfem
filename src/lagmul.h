@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.6 2005/01/27 00:48:12 mstorti Exp $
+// $Id: lagmul.h,v 1.7 2005/01/27 05:48:36 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -82,6 +82,8 @@ class LagrangeMult : public NewElemset {
   get_data(arg_data_list &arg_data_v,
 	   arg_data *&retvalmat)=0;
 
+  /// Initialize element
+  virtual void element_hook(ElementIterator &element) {}
 };
 
 #undef LagrangeMult

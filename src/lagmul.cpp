@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.5 2005/01/27 00:48:12 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.6 2005/01/27 05:48:36 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -105,6 +105,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     FastMat2::reset_cache();
     ielh++;
 
+    element_hook(element);
     if(comp_mat) {
       matloc_prof.export_vals(retvalmat->profile);
       continue;
