@@ -3,11 +3,11 @@
 
 OPT := -O2 -funroll-loops
 
-default: project.bin
+default: project2.bin
 
-SRCS := project.cpp
+SRCS := project.cpp project2.cpp
 
-BOPT := O_c++
+# BOPT := O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
@@ -20,6 +20,9 @@ CLEAN_DIRS =
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 project.bin: project.o
+	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
+
+project2.bin: project2.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 yuv_compress:
