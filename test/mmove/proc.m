@@ -1,5 +1,5 @@
-## x = aload("step.nod.tmp");
-x = aload("lastmesh.dat");
-## dx = aload("save.state.tmp");
+x = aload("step.nod.tmp");
+dx = aload("step.state.tmp");
 icone = aload("step.con.tmp");
-gplfem(x,icone,"malla.gpl");
+s=1;
+gplfem(x+s*dx,icone,"malla.gpl");

@@ -1,7 +1,7 @@
 
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.15 2002/12/11 21:50:04 mstorti Exp $
+//$Id: mmove.h,v 1.16 2002/12/12 00:04:48 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -90,7 +90,8 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class  mesh_move_old : public adaptor { 
 public: 
-  FastMat2 G, J, dNdxi, xlocp, xloc0, res_Dir;
+  FastMat2 G, J, dNdxi, xlocp, xloc0, res_Dir,
+    dstate;
   SymmetricMatrix  GG;
   DiagonalMatrix D;
   double c_volume, c_distor, distor_exp;
