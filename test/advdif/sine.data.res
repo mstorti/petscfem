@@ -1,0 +1,15 @@
+nx = 20;
+ny = 10;
+Lx = 1;
+Ly = 1;
+u = 1;
+D = 0.1;
+N_step_period = 16;
+N_period = 3.25;
+char_T_conv_i = 1;
+char_T_diff_i = 0.1;
+char_T = 1;
+T = 1;
+Dt = 0.0625;
+nstep = 52;
+omega = 6.28318530717959;

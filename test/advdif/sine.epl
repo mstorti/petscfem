@@ -1,0 +1,112 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+$case="sine";                   # case name
+require '../eperlini.pl';       # Initializes ePerl 
+@read_var = @{readm_all("$case.data")};# read all variables in octave file
+$char_T_conv_i = $u/$Lx;        # conv char. time
+$char_T_diff_i = $D/$Lx**2;     # diff char. time
+$char_T = 1/max($char_T_diff_i,
+                $char_T_conv_i);# char. time
+$T = $char_T;                   # period
+$Dt = $T/$N_step_period;        # time step
+$nstep = $N_step_period * $N_period;
+$omega = 2*$PI/$T;              # frequency
+$alpha=1.0 unless $alpha;       # can be given from the makefile
+#__END_TRANSCRIPT__
+transcript("sine.data.res",
+    @read_var,
+    qw(char_T_conv_i char_T_diff_i
+    char_T T Dt nstep omega));  # print variables on output
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+chunk_size 10
+save_file "save.state"
+nsave 20
+
+rtol 1e-2
+maxits 100
+
+save_file_pattern "outvector%d.sal"
+nsaverot 1000000
+nrec  100
+nfile 2
+
+nsome 1
+save_file_some "sine.some"
+print_some_file "sine.some.tmp"
+
+nstep <:=$nstep:>
+nnwt 1
+tol_newton 0
+preco_type "lu"
+#preco_type "jacobi"
+
+local_time_step 0
+consistent_supg_matrix 1
+auto_time_step 0
+
+Dt <:=$Dt:>
+alpha <:=$alpha:>
+#tau_fac 0.
+weak_form 1
+
+#solve_system 0
+#print_linear_system_and_stop
+
+advective_jacobians <:=$u:> 0. 
+diffusive_jacobians <:=$D:>
+
+#initial_state "<:=$case:>.ini"
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes   2  2  1
+__INCLUDE__ <:=$case:>.nod.tmp
+__END_NODES__
+
+#===========================================================
+elemset advdif_advecfm2 4
+#Datos del elemento
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ <:=$case:>.con.tmp
+__END_ELEMSET__
+
+#===========================================================
+elemset bcconv_adv_advecfm2 2
+npg 2
+geometry cartesian1d
+__END_HASH__
+__INCLUDE__ <:=$case:>.bcconv.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+# condicion variable en el tiempo
+#
+fixa_amplitude sin
+omega <:=$omega:>
+#if 1
+amplitude 1.
+#else
+mean_val 1.
+amplitude 0.
+#endif
+__END_HASH__
+__INCLUDE__ <:=$case:>.fixa.tmp
+__END_FIXA__
+
+
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
