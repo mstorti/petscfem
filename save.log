@@ -2418,3 +2418,6 @@ tag: beta-3.18.pl2 on Mon, 17 Feb 2003 19:36:47 -0300 by mstorti in spider
 tag: beta-3.18.pl3 on Tue, 18 Feb 2003 12:54:06 -0300 by mstorti in spider
      > Added polling loop for avoid ExtProgImport to abort if the server is not 
      > open. 
+----------
+tag: beta-3.18.pl4 on Tue, 18 Feb 2003 20:49:55 -0300 by mstorti in spider
+     > Runs DX tests for reading states from files. 
