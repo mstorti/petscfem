@@ -1,10 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.8 2003/11/25 02:10:22 mstorti Exp $
+//$Id: gasflow.cpp,v 1.2.12.1 2004/05/21 21:13:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
-#include <src/generror.h>
 
 #include "gasflow.h"
 
@@ -20,33 +19,23 @@ void gasflow_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,cond,0);
 
   // Turbulence parameters
-  //o Activates LES turbulence model
-  EGETOPTDEF_ND(elemset,int,LES,0);
-  //o C_smag
-  EGETOPTDEF_ND(elemset,double,C_smag,0.09);
-  //o Turbulent Prandtl number
-  EGETOPTDEF_ND(elemset,double,Pr_t,1.);
-  //o Mask for stabilization term
+  //o C_mu
+  EGETOPTDEF_ND(elemset,double,C_mu,0.09);
+  //o C_1
+  EGETOPTDEF_ND(elemset,double,C_1,1.44);
+  //o C_2
+  EGETOPTDEF_ND(elemset,double,C_2,1.92);
+  //o sigma_k
+  EGETOPTDEF_ND(elemset,double,sigma_k,1.);
+  //o sigma_e
+  EGETOPTDEF_ND(elemset,double,sigma_e,1.3);
+  //o sigma_e
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
-  //o Threshold value for density. If density goes belows this value
-  //  then a cutoff function is applied. This is a simple way to prevent
-  //  crashing of the code due to taking square root of negative values.
-  EGETOPTDEF_ND(elemset,double,rho_thrsh,0.);
-  //o Threshold value for pressure. See doc for rho_thrsh.
-  EGETOPTDEF_ND(elemset,double,p_thrsh,0.);
-  //o If this flag is activated the code stops when a negative 
-  //  value for density or pressure is found. Setting either
-  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# . 
-  EGETOPTDEF_ND(elemset,int,stop_on_neg_val,1);
-  PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");  
-  PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");  
-  if (rho_thrsh>0 || p_thrsh>0) stop_on_neg_val=0;
-
   //o Adjust the stability parameters, taking into account
-  // the time step. If the #steady# option is in effect,
+  // the time step. If the \verb+steady+ option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
-  // #temporal_stability_factor# is set to 0.
+  // \verb+temporal_stability_factor+ is set to 0.
   EGETOPTDEF_ND(elemset,double,temporal_stability_factor,1.);
 
   // gamma coeficient
@@ -73,7 +62,6 @@ void gasflow_ff::start_chunk(int &ret_options) {
   vel.resize(1,ndim);
   vel_supg.resize(1,ndim);
   Cp.resize(2,ndof,ndof);
-  Cpi.resize(2,ndof,ndof);
   Ajac.resize(3,ndim,ndof,ndof);
   Ajac_tmp.resize(3,ndim,ndof,ndof);
   Id_ndim.resize(2,ndim,ndim).eye();
@@ -124,18 +112,9 @@ gasflow_ff::~gasflow_ff() { }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::set_state(const FastMat2 &UU) {
   U.set(UU);
-  double dummy;
   // Scalar variables
   rho = U.get(1);
   p = U.get(ndof);
-
-  if (stop_on_neg_val && (p<0 || rho<0)) 
-    throw GenericError("negative pressure or density detected.");
-
-  // Cutoff values
-  rho = ctff(rho,dummy,rho_thrsh);
-  p = ctff(p,dummy,p_thrsh);
-
   // Velocities
   U.is(1,vl_indx,vl_indxe);
   vel.set(U);
@@ -179,7 +158,7 @@ void gasflow_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void gasflow_ff::compute_tau(int ijob,double &delta_sc) {
+void gasflow_ff::compute_tau(int ijob) {
 
   //    static FastMat2 svec,tmp9;
 
@@ -210,8 +189,7 @@ void gasflow_ff::compute_tau(int ijob,double &delta_sc) {
     tau_supg_a = h_supg/2./velmax;
 
     double fz = (Peclet < 3. ? Peclet/3. : 1.);
-//    delta_sc = 0.5*h_supg*velmod*fz;
-    delta_sc = 0.5*h_supg*velmax*fz;
+    delta_supg = 0.5*h_supg*velmod*fz;
 
 }
 
@@ -224,7 +202,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
-  double tmp00,tmp00_lam,tmp01,tmp02,tmp03,tmp04;
+  double strain_rate_scalar,tmp00,tmp01,tmp02,tmp03,tmp04;
 
   options &= ~SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a MATRIX tau
@@ -241,8 +219,8 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   Cp.is(1,vl_indx,vl_indxe).ir(2,1).set(vel).rs();
   Cp.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).eye(rho).rs();
   Cp.ir(1,ndof).is(2,vl_indx,vl_indxe).set(vel).scale(rho).rs();
-  Cp.setel(1.0/g1,ndof,ndof);
-  Cp.setel(0.5*square(velmod),ndof,1);
+  Cp.setel(1.0/g1,ndof,ndof);    
+  Cp.setel(0.5*square(velmod),ndof,1);    
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Advective fluxes
@@ -262,9 +240,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // Last column
   Ajac.ir(3,ndof).is(2,vl_indx,vl_indxe).set(Id_ndim).scale(g1).rs();
   Ajac.ir(2,ndof).ir(3,ndof).set(vel).scale(ga).rs();
-
+  
   // Momentum row and columns
-  for (int j=1; j<=ndim; j++) {
+  for (int j=1; j<=ndim; j++) {  
     //  vel.ir(1,j);
   Y.set(0.).eye(vel.get(j));
   //  vel.rs();
@@ -294,7 +272,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // A_i * Cp  transformed to the primitive state variables
   Ajac_tmp.set(Ajac);
-  Ajac.prod(Ajac_tmp,Cp,1,2,-1,-1,3);
+  Ajac.prod(Ajac_tmp,Cp,1,2,-1,-1,3);  
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 
@@ -309,49 +287,25 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   strain_rate.add(grad_vel).scale(0.5);
   grad_vel.rs();
 
-  grad_vel.d(1,2);
+  strain_rate_scalar = strain_rate.sum_square_all();
 
+  grad_vel.d(1,2);
+  
   // REVISAR ESTO
   tmp10.sum(grad_vel,-1);
   grad_vel.rs();
   double divu = double(tmp10);
+
   // effective viscosity
   visco_t = 0.;  // aqui agregar la expresion algebraica para la misma
-  cond_t = 0.;  // aqui agregar la expresion algebraica para la misma
-
-  if (LES) {
-    advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
-    assert(advdf_e);
-#define pi M_PI
-    double Volume = advdf_e->volume();
-    int axi = advdf_e->axi;
-    double h_grid;
-
-    if (ndim==2 | (ndim==3 && axi>0)) {
-      h_grid = sqrt(4.*Volume/pi);
-    } else if (ndim==3) {
-      h_grid = cbrt(6*Volume/pi);
-    } else {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Only dimensions 2 and 3 allowed for this element.\n");
-    }
-    double strain_rate_abs = strain_rate.sum_square_all();
-
-    strain_rate_abs = sqrt(strain_rate_abs);
-    double nu_t = C_smag*strain_rate_abs*h_grid*h_grid;
-    visco_t = rho*nu_t;
-    double Cp = ga*Cv;
-    cond_t = Cp*visco_t/Pr_t;
-  }
-
   // Sutherland law for thermal correction of laminar viscosity
   // visco_l = visco * ???
   double visco_eff = (visco + visco_t);
   // effective thermal conductivity
+  cond_t = 0.;  // aqui agregar la expresion algebraica para la misma
   double cond_eff = cond + cond_t;
 
-  // Aca ponemos visco (y no visco_eff). Por ahora es un guess...
-  double visco_bar = visco - cond_eff/Cv;
+  double visco_bar = visco_eff-cond_eff/Cv;
 
   // Stress tensor
   sigma.set(0.);
@@ -364,7 +318,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   grad_p.set(grad_U);
   grad_U.rs();
   grad_T.set(grad_p).axpy(grad_rho,-p/rho).scale(1./Rgas/rho).rs();
-
+  
   //  LIMITAR POR VALORES NEGATIVOS DE RHO Y P , VISCO, CONDUCTIVITY , ETC
 
   // Diffusive fluxes
@@ -377,8 +331,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // Diffusive jacobians
   Djac.set(0.);
   Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_eff).rs();
-  tmp00 = 1./3.*visco_eff;
-  tmp00_lam = 1./3.*visco;
+  tmp00 = 1./3.*visco_eff;  
   for (int j=1; j<=ndim; j++) {
      Djac.addel(tmp00,j,j+1,j,j+1);
   }
@@ -389,19 +342,19 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     Djac.ir(1,j).ir(3,j).ir(4,1).ir(2,j+1).add(tmp_vel.get(j)).rs();
   }
   // Momentum columns and last row of K_ii
-  tmp_vel.set(vel).scale(tmp00_lam);
+  tmp_vel.set(vel).scale(tmp00);
   for (int j=1; j<=ndim; j++) {
     Djac.ir(1,j).ir(3,j).is(4,vl_indx,vl_indxe).ir(2,ndof).set(vel).scale(visco_bar).rs();
     Djac.ir(1,j).ir(3,j).ir(2,ndof).ir(4,j+1).add(tmp_vel.get(j)).rs();
   }
-
+  
   // Last row and first and last column
   tmp02 = cond_eff/Cv;
-  tmp01 = (0.5*square(velmod)-int_ene)*tmp02-visco*square(velmod);
+  tmp01 = (0.5*square(velmod)-int_ene)*tmp02-visco_eff*square(velmod);
   for (int j=1; j<=ndim; j++) {
     vel_j2 = square(double(vel.get(j)));
     //    vel.rs();
-    tmp03 = tmp01 - tmp00_lam*vel_j2;
+    tmp03 = tmp01 - tmp00*vel_j2;
     Djac.setel(tmp02,j,ndof,j,ndof);
     Djac.setel(tmp03,j,ndof,j,1);
   }
@@ -409,7 +362,6 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Diffusive Jacobians K_ij with i .ne. j
   tmp00 = 2.*visco_eff/3.;
-  tmp00_lam = 2.*visco/3.;
 
   if(ndim==2) {
   int ip[] = {1,2,1};
@@ -419,7 +371,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
     Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
 
-    tmp04 = -visco/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
+    tmp04 = -visco_eff/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
 
     tmp04 = tmp00*double(vel.get(ip[j+1]));
@@ -427,22 +379,22 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     tmp04 = -visco_eff*double(vel.get(ip[j]));
     Djac.setel(tmp04,ip[j],ip[j+1]+1,ip[j+1],1);
 
-    tmp04 = -tmp00_lam*double(vel.get(ip[j]));
+    tmp04 = -tmp00*double(vel.get(ip[j]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
-    tmp04 = visco*double(vel.get(ip[j+1]));
+    tmp04 = visco_eff*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
   }
 
   } else {
 
-  int ip[] = {1,2,3,1};
+  int ip[] = {1,2,3,1};    
 
   for (int j=0; j<ndim; j++) {
 
     Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
     Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
 
-    tmp04 = -visco/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
+    tmp04 = -visco_eff/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
 
     tmp04 = tmp00*double(vel.get(ip[j+1]));
@@ -450,9 +402,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     tmp04 = -visco_eff*double(vel.get(ip[j]));
     Djac.setel(tmp04,ip[j],ip[j+1]+1,ip[j+1],1);
 
-    tmp04 = -tmp00_lam*double(vel.get(ip[j]));
+    tmp04 = -tmp00*double(vel.get(ip[j]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
-    tmp04 = visco*double(vel.get(ip[j+1]));
+    tmp04 = visco_eff*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
   }
 
@@ -460,7 +412,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // D_ij * Cp  transformed to the primitive state variables
   Djac_tmp.set(Djac);
-  Djac.prod(Djac_tmp,Cp,1,2,3,-1,-1,4);
+  Djac.prod(Djac_tmp,Cp,1,2,3,-1,-1,4);  
   //  Djac.scale(1./rho);
 
   // Reactive terms
@@ -498,25 +450,15 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
     visco_supg = visco_eff/rho;
     int ijob =0;
-    compute_tau(ijob,delta_sc);
+    compute_tau(ijob);
 
     if (tau_fac != 1.) {
       tau_supg_a *= tau_fac;
     }
-
+    //    tau_supg.eye(tau_supg_a).setel(delta_supg,1,1);
     tau_supg.eye(tau_supg_a);
 
-// postmultiply by inv(Cp)
-    Cpi.set(0.);
-    Cpi.setel(1.0,1,1);
-    Cpi.is(1,vl_indx,vl_indxe).ir(2,1).set(vel).scale(-1.0/rho).rs();
-    Cpi.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).eye(1.0/rho).rs();
-    Cpi.ir(1,ndof).is(2,vl_indx,vl_indxe).set(vel).scale(-g1).rs();
-    Cpi.setel(g1,ndof,ndof);
-    Cpi.setel(0.5*square(velmod)*g1,ndof,1);
-
-//    tau_supg_c.set(tau_supg);
-    tau_supg_c.prod(tau_supg,Cpi,1,-1,-1,2);
+    tau_supg_c.set(tau_supg);
 
   }
 
@@ -526,7 +468,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     G_source.is(1,vl_indx,vl_indxe).set(G_body).scale(rho).rs();
     tmp00 = double(tmp05.prod(G_body,vel,-1,-1).scale(rho));
     G_source.setel(tmp00,ndof);
-
+    
   }
 }
 
@@ -549,15 +491,17 @@ void gasflow_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
-  tmp2.prod(N,N,1,2).scale(w);
-  N_N_C.prod(tmp2,Cjac,1,3,2,4);
+  //  tmp2.prod(N,N,1,2).scale(w);
+  //  N_N_C.prod(tmp2,Cjac,1,3,2,4);
+  N_N_C.set(0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			   FastMat2 &N,double w) {
-  tmp3.prod(P_supg,Cjac,1,-1,-1,2).scale(w);
-  N_P_C.prod(tmp3,N,1,3,2);
+  //  tmp3.prod(P_supg,Cjac,1,-1,-1,2).scale(w);
+  //  N_P_C.prod(tmp3,N,1,3,2);
+  N_P_C.set(0.);
 }
 
 
