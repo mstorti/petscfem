@@ -3759,3 +3759,6 @@ tag: beta-3.39.55 on Sat, 22 Jan 2005 09:02:09 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.56 on Sat, 22 Jan 2005 19:10:28 -0300 by mstorti in spider
      > Working on `gasflow_abso'. 
+----------
+tag: beta-3.39.57 on Sun, 23 Jan 2005 15:25:20 -0300 by mstorti in spider
+     > Coded absorbing b.c. axis independent. Not tested. 
