@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.2 2001/08/21 02:10:04 mstorti Exp $
+// $Id: iisdmat.h,v 1.3 2001/08/25 16:08:35 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -50,6 +50,8 @@ public:
       of building the operator.
   */ 
   void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
+  /// Duplicate matrices 
+  int duplicate(MatDuplicateOption op,PFMat &A);
   int view(Viewer viewer);
 };
 

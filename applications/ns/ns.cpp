@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.36 2001/08/20 01:37:12 mstorti Exp $
+//$Id: ns.cpp,v 1.37 2001/08/25 16:08:32 mstorti Exp $
  
 #include <malloc.h>
 
@@ -54,7 +54,7 @@ int main(int argc,char **args) {
   Vec     x, dx, xold,
     dx_step, res;		// approx solution, RHS, residual
   Viewer matlab;
-  PFMat *A_tet;			// linear system matrix 
+  PFMat *A_tet, *A_tet_c;			// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, col[3], flg, size, node,
     jdof, k, kk, nfixa,
@@ -198,6 +198,7 @@ int main(int argc,char **args) {
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
   A_tet = PFMat_dispatch(solver.c_str());
+  A_tet_c = PFMat_dispatch(solver.c_str());
 
 #if 0
   const int NT=200;
@@ -335,7 +336,9 @@ int main(int argc,char **args) {
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
-      if (update_jacobian) A_tet->zero_entries();
+      if (update_jacobian) {
+	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
+      }
 
       VOID_IT(argl);
       argl.arg_add(&x,IN_VECTOR);
@@ -367,7 +370,7 @@ int main(int argc,char **args) {
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
 			     VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
-      A_tet->view(matlab);
+      ierr = A_tet->view(matlab); CHKERRA(ierr); 
 #endif
 
 #if 0 //debug:=
@@ -383,28 +386,25 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-#if 0 // fixme:= adaptando to PFMAT
+#if 1 // fixme:= adaptando to PFMAT
       Viewer matlab;
       if (verify_jacobian_with_numerical_one) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "output.m",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"ateta"); CHKERRA(ierr);
-	// ierr = MatView(A_tet,matlab);
-	A_tet->view(matlab); CHKERRQ(ierr); 
 
-	Mat A_tet_c;
-	ierr = MatDuplicate(A_tet,MAT_DO_NOT_COPY_VALUES,&A_tet_c); CHKERRA(ierr);
-	// ierr = MatCopy(A_tet,A_tet_c,SAME_NONZERO_PATTERN);
-
-	ierr = MatZeroEntries(A_tet); CHKERRA(ierr);
-	ierr = MatZeroEntries(A_tet_c); CHKERRA(ierr);
+	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
+	
+	ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
+	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
+	ierr = A_tet_c->zero_entries(); CHKERRA(ierr); 
 
 	VOID_IT(argl);
 	argl.arg_add(&x,PERT_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
-	argl.arg_add(&A_tet_c,OUT_MATRIX_FDJ);
-	if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
+	argl.arg_add(&A_tet_c,OUT_MATRIX_FDJ|PFMAT);
+	if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -417,10 +417,14 @@ int main(int argc,char **args) {
 
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"atetn"); CHKERRA(ierr);
-	ierr = MatView(A_tet_c,matlab);
+	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
+	ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
+
 	PetscFinalize();
 	exit(0);
       }
+#else
+      assert( ! verify_jacobian_with_numerical_one);
 #endif
 
       A_tet->build_sles(GLOBAL_OPTIONS);

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* put `const' in PFMat::duplicate
 * Use IISD `inside processors'. 
 * interface preconditioning for IISD
 * Put order in the headers. Now, a modification in some header launchs

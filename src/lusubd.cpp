@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.44 2001/08/21 23:16:57 mstorti Exp $
+//$Id: lusubd.cpp,v 1.45 2001/08/25 16:08:35 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -41,6 +41,16 @@ PFMat * PFMat_dispatch(const char *s) {
 
 PFMat::~PFMat() {};
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::duplicate"
+int PFMat::duplicate(MatDuplicateOption op,PFMat &A) {
+  PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
+		 "for \"%s\" PFMat derived type\n",
+		 typeid(*this).name());
+  return 0;
+}
+
 const int IISDMat::D=0;
 const int IISDMat::O=1;
 const int IISDMat::L=0;
@@ -51,6 +61,22 @@ const int IISDMat::I=1;
 #define __FUNC__ "petscfem_null_monitor"
 int petscfem_null_monitor(KSP ksp,int n,
 			  double rnorm,void *A_) {return 0;}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PETScMat::duplicate"
+int PETScMat::duplicate(MatDuplicateOption op,PFMat &B) {
+  PETScMat *BB = dynamic_cast<PETScMat *> (&B);
+  if (!BB) {
+    PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
+		   "for \"%s\" PFMat derived type\n",
+		   typeid(*this).name());
+    return 1;
+  }
+  ierr = MatDuplicate(BB->A,op,&A); CHKERRA(ierr);
+  P = A;
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
