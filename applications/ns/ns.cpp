@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.54 2001/12/04 20:28:05 mstorti Exp $
+//$Id: ns.cpp,v 1.55 2001/12/05 12:56:41 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -27,80 +27,6 @@ TextHashTable *GLOBAL_OPTIONS;
 
 //debug:=
 int TSTEP=0;
-
-#define XNOD(j,k) VEC2(xnod,j,k,dofmap->ndof)
-int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
-		double displ_factor) {
-
-  double *vseq_vals,*sstate,*xnod;
-  Vec vseq;
-  TimeData *time_data = NULL;
-
-  int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-
-  // fixme:= Now we can make this without a scatter. We can use
-  // the version of get_nodal_value() with ghost_values. 
-  int neql = (myrank==0 ? dofmap->neq : 0);
-  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
- 
-  xnod = mesh->nodedata->nodedata;
-
-  if (myrank==0) {
-    int ndof=dofmap->ndof;
-    double dval;
-    for (int k=1; k<=dofmap->nnod; k++) {
-      for (int kldof=1; kldof<=ndof; kldof++) {
-	dofmap->get_nodal_value(k,kldof,vseq_vals,time_data,dval);
-	XNOD(k-1,kldof-1) += displ_factor * dval;
-      }
-    }
-  }
-
-  ierr = MPI_Bcast(xnod,dofmap->nnod*dofmap->ndof,
-		   MPI_DOUBLE,0,PETSC_COMM_WORLD);
-
-  ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
-  ierr = VecDestroy(vseq);
-  return 0;
-}
-
-void write_mesh(const char *filename,const Dofmap *dofmap,Mesh *mesh,
-		 const int append=0) {
-
-  int myrank;
-  double *xnod;
-
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-  xnod = mesh->nodedata->nodedata;
-
-  if (myrank==0) {
-    printf("Writing vector to file \"%s\"\n",filename);
-    FILE *output;
-    output = fopen(filename,(append == 0 ? "w" : "a" ) );
-    if (output==NULL) {
-      printf("Couldn't open output file\n");
-      // fixme:= esto esta mal. Todos los procesadores
-      // tienen que llamar a PetscFinalize()
-      exit(1);
-    }
-
-    int ndof=dofmap->ndof;
-    double dval;
-    for (int k=1; k<=dofmap->nnod; k++) {
-      for (int kldof=1; kldof<=ndof; kldof++) {
-	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1));
-      }
-      fprintf(output,"\n");
-    }
-    fclose(output);
-  }
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -206,8 +132,6 @@ int main(int argc,char **args) {
   GETOPTDEF(int,nnwt,1);
   //o Tolerance to solve the non-linear system (global Newton).
   GETOPTDEF(double,tol_newton,1e-8);
-  //o Scales displacement for ALE-like mesh relocation. 
-  GETOPTDEF(double,displ_factor,0.1);
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
   GETOPTDEF(int,update_jacobian_iters,0);
@@ -583,13 +507,9 @@ int main(int argc,char **args) {
 		  "Newton subiter %d, norm_res  = %10.3e, update Jac. %d\n",
 		  inwt,normres,update_jacobian);
 
-#if 0
       // update del subpaso
       scal= newton_relaxation_factor/alpha;
       ierr = VecAXPY(&scal,dx,x);
-#endif
-      update_mesh(dx,dofmap,mesh,displ_factor);
-      write_mesh("remeshing.dat",dofmap,mesh,1);
 
 #if 0
       ierr = VecView(x,VIEWER_STDOUT_WORLD); CHKERRA(ierr);
