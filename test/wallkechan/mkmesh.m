@@ -34,7 +34,11 @@ else
   nonlr=[(1:Ny+1)',(N+1)*(Ny+1)+(1:Ny+1)',0*uwall,uwall];
   lagr = (N+1)*(Ny+1)+(1:Ny+1);
 endif
+## Don't include the first `nonlr' element, since all variables are
+## fixed there 
 #nonlr(rows(nonlr),:)=[]; 
+nonlr(1,:)=[];
+lagr(1)=[];
 wallke = [(1:Ny)' (2:Ny+1)' 0*ones(Ny,1) xcent(uwall)];
 
 fid = fopen("wallke.fixa_lag.tmp","w");

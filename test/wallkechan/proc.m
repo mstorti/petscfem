@@ -21,8 +21,11 @@ endif
 
 if nargs<2
   filename = "save.state";
-else
+else 
   filename = deblank(args(2,:));
+  if length(filename)==0
+    filename="outvector0.out";
+  endif
 endif
 
 if nargs<1;
@@ -38,15 +41,12 @@ cntr=(NN-1)*NNy+(1:NNy)';
 yc=xx(cntr,2);
 uc=u(cntr,2);
 
-plot(x,vout);
-pause
-plot(yc,uc);
-
 U=reshape(u(1:NNy*NN,1),NNy,NN)';
 V=reshape(u(1:NNy*NN,2),NNy,NN)';
 P=reshape(u(1:NNy*NN,3),NNy,NN)';
 K=reshape(u(1:NNy*NN,4),NNy,NN)';
 E=reshape(u(1:NNy*NN,5),NNy,NN)';
+la=u(NNy*NN+(1:NNy),[1 2]);
 
 min(min(K))
 min(min(E))
@@ -54,6 +54,7 @@ min(min(E))
 Q=sum(leftscal(diff(x),xcent(V)));
 
 if exist("ss") && length(ss)>0
+  eval([ss ".la = la;"]);
   eval([ss ".U = U;"]);
   eval([ss ".V = V;"]);
   eval([ss ".P = P;"]);
@@ -81,6 +82,9 @@ u_po=u_po/max(u_po);
 x_po = (1:10)'/10;
 
 return
+plot(x,vout);
+pause
+plot(yc,uc);
 
 #  C_mu=0.09;
 #  kappa=0.4;

@@ -1,4 +1,4 @@
-%usage: 
+## usage: u = read_state (filename,nnod,ndof,indx)
 function u = read_state (filename,nnod,ndof,indx)
 
   fid = fopen(filename,"r");

@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2001/06/25 03:01:53 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/07/10 00:53:43 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-all: run
+all: test_case_poiseuille
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
