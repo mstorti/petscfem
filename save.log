@@ -3261,3 +3261,7 @@ tag: beta-3.31.3 on Wed, 07 Jul 2004 14:54:50 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.31.4 on Wed, 07 Jul 2004 15:04:52 -0300 by mstorti in minerva.ceride.gov.ar
      > Will branch hydro3-branch
+----------
+tag: beta-3.31.5 on Wed, 28 Jul 2004 11:59:53 -0300 by mstorti in node1.beowulf.gtm
+     > Added MPE logging to `assemble'. 
+     > Changed MatAssemblybegin() and end()
