@@ -3,7 +3,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 * When not using __INCLUDE__ in the constraint section (for instance)
-      doesn't complain. 
+      doesn't complain. (see version `beta-3.43.21'). 
 > constraint
 > gfshock.peri.tmp
 > gfshock.v-peri.tmp
