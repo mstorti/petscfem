@@ -50,12 +50,18 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Use this macro to include elemset types in the function
     bless\_elemset. 
+    NOTE: This is somewhat incorrect. NewElemset in the future will
+    will replace Elemset. An in that case we will no need the explicit
+    caset \verb+(Elemset *)+. This is due to the fact that
+    \verb+Elemset+ has private members for NewElemset and derived
+    classes, so that we can not make polymorphism between these
+    classes. 
     @author M. Storti
     @param elem_set_type new elemset type to be included
 */ 
 #define SET_ELEMSET_TYPE(elem_set_type) \
       if ( ! strcmp(type,#elem_set_type)) { \
-  	elemset = new elem_set_type; \
+  	elemset = (Elemset *)new elem_set_type; \
       } else 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

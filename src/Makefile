@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2001/01/08 12:12:31 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/01/10 15:37:23 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -77,8 +77,11 @@ readlist.h: readlist.eperl
 	chmod -w readlist.h
 
 version.cpp: version.cppin $(TARFILE).tara,v
-	fversion -il ../save.log $(TARFILE).tara,v \
-			version.cppin version.cpp
+# 	fversion -il ../save.log $(TARFILE).tara,v \
+# 			version.cppin version.cpp
+	rm -f version.cpp
+	eperl version.cppin >version.cpp
+	-chmod -w version.cpp
 
 # File containing dependencies computed by makedepend
 #

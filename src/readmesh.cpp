@@ -202,7 +202,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	thash->register_name(name);
       } else {
 	PetscPrintf(PETSC_COMM_WORLD,
-		    "No name for this element!! setting as \"anonymous\"...\n");
+		    "No name for this elemset!! setting as \"anonymous\"...\n");
 	thash->register_name("anonymous");
       }
       if (myrank==0) thash->print("Table of properties:");
