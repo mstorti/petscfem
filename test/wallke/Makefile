@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/06/04 04:06:14 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/06/04 22:41:12 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -37,6 +37,7 @@ $(NAME).depl: force
 test_case_%: test_case_%_data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl #> output.case_$*.tmp
+	cp save.state save.state.tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

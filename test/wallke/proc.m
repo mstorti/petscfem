@@ -18,6 +18,7 @@ yp=nu*yplus/ustar;
 kp=ustar^2/sqrt(0.09);
 ep=ustar^3/Chi/yp;
 
-Q=sum(xcent(v).*diff(x))
-Uav=Q/L
+Q=2*sum(xcent(v).*diff(x))
+Uav=Q/(2*L)
 Re = Uav*2*L/nu
+plot([0;x;2-x(NN/2:-1:1);2],[0;v;v(NN/2:-1:1);0]/max(v))

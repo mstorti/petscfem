@@ -15,7 +15,7 @@ for k=1:N+1
 endfor
 fclose(fid);
 
-uini=[0. 0.666 0. 1. 1.];
+uini=[0. 0.666 0. 0.1 0.05];
 uini=[uini(ones(2*(N+1),1),:);
       zeros(2,5)];
 

@@ -19,25 +19,25 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-initial_state "wallke.ini.tmp"
-#initial_state "save.state"
+#initial_state "wallke.ini.tmp"
+initial_state "save.state"
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
 nstep 100
-nnwt 5
+nnwt 3
 tol_newton 0
 preco_type "lu"
-Dt 0.3
+Dt 0.1
 
 #print_linear_system_and_stop
 #solve_system 0
 
 #<:
 $L = 1;                         # Semi distance between plates
-$Re_l = 100000;                 # laminar Re
+$Re_l = 483000;                   # laminar Re
 $Umax = 1;                      # Max vel in the channel
 $Uav = 1.5*$Umax;               # Aver vel 
 $nu = $Uav*2*$L/$Re_l;          # kinematic visc.
@@ -47,7 +47,7 @@ $hratio = 5;                    # refinement near the wall
 octave_export_vars("data.m.tmp",qw(nu g N hratio L));
 :>//
 
-y_wall_plus 5
+y_wall_plus 50
 #turbulence_coef 0.
 viscosity <:=$nu:>
 G_body 0. <:=$g:>
