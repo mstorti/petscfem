@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.26 2001/10/15 01:31:02 mstorti Exp $
+//$Id: elemset.cpp,v 1.27 2001/10/16 02:23:56 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -291,7 +291,7 @@ int assemble(Mesh *mesh,arg_list argl,
   arg_data_list arg_data_v(narg);
 
   // pref:= Local values (reference state for finite difference jacobian).
-  double *pref;
+  double *pref,fdj;
 
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
@@ -537,6 +537,10 @@ int assemble(Mesh *mesh,arg_list argl,
 	for (kloc=0; kloc<nel; kloc++) {
 	  for (kdof=0; kdof<ndof; kdof++) {
 
+//#define DEBUG_ME
+#ifdef DEBUG_ME
+	    printf("kloc %d, kdof %d\n",kloc,kdof);
+#endif
 	    // copy reference state on perturbed  state
 	    memcpy (arg_data_v[j_pert].locst,pref,
 		    sizeof(double)*chunk_size*ndoft);
@@ -565,8 +569,14 @@ int assemble(Mesh *mesh,arg_list argl,
 		  if (!compute_this_elem(iele,elemset,myrank,iter_mode)) continue;
 		  iele_here++;
 		  for (kdoft=0; kdoft<ndoft; kdoft++) {
-		    RETVALT(iele_here,kdoft) =
-		      -(RETVALT(iele_here,kdoft)-REFREST(iele_here,kdoft))/epsilon_fdj;
+		    fdj = -(RETVALT(iele_here,kdoft)-
+			    REFREST(iele_here,kdoft))/epsilon_fdj;
+#ifdef DEBUG_ME
+		    printf("ref, new, jac: %g %g %g\n",
+			   REFREST(iele_here,kdoft),
+			   RETVALT(iele_here,kdoft),fdj);
+#endif
+		    RETVALT(iele_here,kdoft) = fdj;
 		  }
 		}
 
