@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.20 2002/07/21 04:53:13 mstorti Exp $
+// $Id: tryme4.cpp,v 1.21 2002/07/21 05:10:52 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -116,6 +116,19 @@ public:
       X(V(1),V(i));
       push_heap(first,1,i-1);
     }
+  }
+  int bsearch(const T &t,int first=0, int last=-1) {
+    if (last==-1) last=size();
+    if (ref(first)>=t) return first;
+    if (last<=first) return last;
+    int p=first, q=last, r;
+    while (1) {
+      if (q==p+1) return q;
+      r = (p+q)/2;
+      if (ref(r)<t) p=r;
+      else q=r;
+    }
+    assert(0);
   }
 };
 
@@ -283,6 +296,12 @@ int main(int argc, char **argv) {
   for (int j=0; j<M; j++) v.push(irand(1,M));
   v.sort();
   for (int j=1; j<M; j++) assert(v.ref(j)>=v.ref(j-1));
+
+  for (int j=1; j<M; j++) {
+    int p = v.bsearch(j);
+    if (p>0) assert(v.ref(p-1)<j);
+    if (p<v.size()) assert(v.ref(p)>=j);
+  }
 
 #if 0
   graph_da g;
