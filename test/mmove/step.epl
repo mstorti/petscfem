@@ -29,7 +29,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 1
+nnwt 5
 # newton_relaxation_factor 0.1 2 1.
 
 solver "iisd"

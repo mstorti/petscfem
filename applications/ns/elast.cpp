@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.13 2003/09/17 00:51:31 mstorti Exp $
+//$Id: elast.cpp,v 1.14 2003/09/17 17:02:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,6 +12,7 @@
 #include "adaptor.h"
 #include "elast.h"
 
+extern GlobParam *GLOB_PARAM;
 extern int SIZE, MY_RANK;
 
 class MyFun2 : public FastMat2_funm {
@@ -125,6 +126,8 @@ void elasticity::element_connector(const FastMat2 &xloc,
   if (!(elem % M)) printf("[%d] In element_connector, setting: "
 			  "element %d, cookie %d, dcookie %g\n",
 			  MY_RANK, elem, locker->cookie, locker->dcookie);
+  if (!GLOB_PARAM->inwt && !(elem % M)) 
+    printf("[%d] elem %d, Newton converged swap states\n",MY_RANK,elem);
 
   B.reshape(3,ntens,nel,ndof);
 
@@ -191,5 +194,6 @@ void elasticity::element_connector(const FastMat2 &xloc,
     mat.axpy(mat_pg2,wpgdet);
     
   }
+  mat.scale(2.);
     
 }
