@@ -167,13 +167,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-<:=$version:>.tar.gz> package,
-gunzip and untar it like this:
+Once you got the C<petscfem-xxx.tar.gz> package (C<xxx> stands for the
+version), gunzip and untar it like this:
 
-  $ gunzip petscfem-<:=$version:>.tar.gz
-  $ tar xvf petscfem-<:=$version:>.tar
+  $ gunzip petscfem-xxx.tar.gz
+  $ tar xvf petscfem-xxx.tar
 
-This will create a I<petscfem-<:=$version:>> directory with
+This will create a I<petscfem-xxx> directory with
 all the source files included.
 
 =head2 Makefile variables

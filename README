@@ -139,14 +139,14 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-3.03.tar.gz* package, gunzip and untar
-    it like this:
+    Once you got the `petscfem-xxx.tar.gz' package (`xxx' stands for the
+    version), gunzip and untar it like this:
 
-      $ gunzip petscfem-beta-3.03.tar.gz
-      $ tar xvf petscfem-beta-3.03.tar
+      $ gunzip petscfem-xxx.tar.gz
+      $ tar xvf petscfem-xxx.tar
 
-    This will create a *petscfem-beta-3.03* directory with all the source
-    files included.
+    This will create a *petscfem-xxx* directory with all the source files
+    included.
 
   Makefile variables
 
