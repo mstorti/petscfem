@@ -39,20 +39,20 @@ grad_u = aload("cube.grad-un.tmp");
 w = [+grad_u(:,10)-grad_u(:,7), \
      -grad_u(:,3)+grad_u(:,9), \
      +grad_u(:,5)-grad_u(:,2)];
-aw=l2(w);
+aw = l2(w);
 
 asave("cube.aw.tmp",aw);
 
-surf_con = aload("cube.surf-con.tmp")+1;
-return
+if 0
+  xe = pfnd2ele(xnod,surf_con,xnod);
 
-xe = pfnd2ele(xnod,surf_con,xnod);
+  rhoe=l2(xe(:,1:2));
+  awt = 2*dd^2./(dd^2+rhoe.^2).^2;
+  dudr = (dd^2-rhoe.^2)./(dd^2+rhoe.^2).^2;
 
-rhoe=l2(xe(:,1:2));
-awt = 2*dd^2./(dd^2+rhoe.^2).^2;
-dudr = (dd^2-rhoe.^2)./(dd^2+rhoe.^2).^2;
+  ## indx = find(xe(:,2)<h & xe(:,2)>0 & xe(:,3)>0 & abs(xe(:,1))<0.99);
+  indx = find(abs(xe(:,2))<1e-4 & xe(:,3)>0);
+  indx=sortby(xe(indx,1),indx);
+  plot(xe(indx,1),[w(indx,3),awt(indx)])
+endif
 
-## indx = find(xe(:,2)<h & xe(:,2)>0 & xe(:,3)>0 & abs(xe(:,1))<0.99);
-indx = find(abs(xe(:,2))<1e-4 & xe(:,3)>0);
-indx=sortby(xe(indx,1),indx);
-plot(xe(indx,1),[w(indx,3),awt(indx)])
