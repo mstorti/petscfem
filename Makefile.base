@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.164 2003/08/31 15:30:15 mstorti Exp $
+#$Id: Makefile.base,v 1.165 2003/08/31 16:29:15 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -21,6 +21,7 @@ PETSC_BOPT = g_c++
 # the directory _above_ the PETSC-FEM directory and configure the
 # variables inside.
 include $(PETSCFEM_DIR)/../Makefile.defs
+ANN_HOME = 
 ######  end of CONGIGURATION VARIABLES section  ####################
 
 ifeq ($(BOPT),)
