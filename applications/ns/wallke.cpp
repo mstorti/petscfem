@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.9 2001/06/26 03:46:10 mstorti Exp $
+//$Id: wallke.cpp,v 1.10 2001/06/29 13:12:12 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -20,8 +20,6 @@ extern int TSTEP; //debug:=
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 #define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
-#define ELEMPROPS_ADD(j,k) VEC2(elemprops_add,j,k,nelprops_add)
-#define SHEAR_VEL(j) ELEMPROPS_ADD(j,0)
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
 
@@ -78,6 +76,10 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nen = nel*ndof;
 
   int nu=nodedata->nu;
+
+  // Physical properties
+  int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
+  DEFPROP(u_wall);
 
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
