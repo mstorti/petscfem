@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2001/01/24 01:50:16 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/02/10 13:13:09 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -19,7 +19,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 SRCS = $(wildcard *.cpp)
 
-CLEAN_DIRS = circ fstack sector les turbchan advdif
+CLEAN_DIRS = circ fstack sector les turbchan turbchanw advdif
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 ctest: $(DATAFILE) force
