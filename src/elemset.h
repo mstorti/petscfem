@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.38 2003/11/15 21:38:45 mstorti Exp $
+//$Id: elemset.h,v 1.39 2004/05/28 16:51:13 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -720,6 +720,8 @@ public:
   virtual ~NewElemset() {}
 
   Elemset::initialize;
+  Elemset::ask;
+  Elemset::name;
   Elemset::elem_params;
   Elemset::local_store_address;
   Elemset::element_node_data;
