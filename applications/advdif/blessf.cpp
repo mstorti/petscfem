@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.15 2004/02/06 21:37:16 mstorti Exp $
+//$Id: blessf.cpp,v 1.16 2004/07/07 16:35:18 rodrigop Exp $
 
 #include <set>
 
@@ -27,6 +27,7 @@
 #include "nonlres.h"
 #include "id.h"
 #include "gaschem.h"
+#include "godunov.h"
 
 #include <time.h>
 
@@ -55,6 +56,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
       //    SET_ELEMSET_TYPE(advdif_swfm1t)
     SET_ELEMSET_TYPE(streamsw1d)
     SET_ELEMSET_TYPE(streamsw1d_abso)
+    SET_ELEMSET_TYPE(streamsw1d_abso_godunov)
 
     SET_ELEMSET_TYPE(wall_swfm2t)
 
