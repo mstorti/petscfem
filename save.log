@@ -3929,3 +3929,6 @@ tag: beta-3.41.25 on Sun, 30 Jan 2005 23:21:18 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.26 on Sun, 30 Jan 2005 23:36:07 -0300 by mstorti in spider
      > Working on nozzle example. 
+----------
+tag: beta-3.41.27 on Fri, 04 Feb 2005 09:22:39 -0300 by mstorti in spider
+     > Checking boundary heat flux computation with Lagrange multipliers. 
