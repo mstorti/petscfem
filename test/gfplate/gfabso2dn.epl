@@ -87,9 +87,11 @@ __END_HASH__
 
 ##================================================================
 elemset gasflow 4
+props G_body[2]
 geometry cartesian2d
 dx 1
 npg 4
+G_body_scale 3
 data ./gfabso2dn.con.tmp
 __END_HASH__
 
@@ -150,8 +152,9 @@ __INCLUDE__ ./gfabso2dn.fixa-ref.tmp
 __INCLUDE__ ./gfabso2dn.fixa-outlet.tmp
 __INCLUDE__ ./gfabso2dn.fixa-in.tmp
 #endif
-#if 1
-__INCLUDE__ ./gfabso2dn.fixa-slip.tmp
-#endif
 __END_FIXA__
 #endif
+
+constraint
+__INCLUDE__ ./gfabso2dn.fixa-slip.tmp
+__END_CONSTRAINT__

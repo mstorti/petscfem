@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.22 2005/01/27 15:34:59 mstorti Exp $
+//$Id: gasflow.cpp,v 1.23 2005/01/29 15:36:41 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -77,11 +77,18 @@ void gasflow_ff::start_chunk(int &ret_options) {
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
-  G_body.resize(1,ndim);
-  G_body.set(0.);
+#if 0
   if (elemset) {
     ierr = elemset->get_double("G_body",
 			       *G_body.storage_begin(),1,ndim);
+  }
+#endif
+  G_body.resize(1,ndim);
+  G_body.set(0.);
+  if (new_adv_dif_elemset) {
+    new_adv_dif_elemset->get_prop(G_body_prop,"G_body");
+    assert(G_body_prop.length == ndim);
+    new_adv_dif_elemset->get_prop(G_body_scale_prop,"G_body_scale");
   }
 
   //o _T: double[ndof] _N: Uref _D: <none>
@@ -161,6 +168,15 @@ void gasflow_ff::start_chunk(int &ret_options) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::element_hook(ElementIterator &element) {
+  if (new_adv_dif_elemset) {
+    const double *G_body_p 
+      = new_adv_dif_elemset
+      ->prop_array(element,G_body_prop);
+    G_body_scale = new_adv_dif_elemset
+      ->prop_val(element,G_body_scale_prop,
+		 new_adv_dif_elemset->time());
+    G_body.set(G_body_p).scale(G_body_scale);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

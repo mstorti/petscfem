@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.32 2005/01/29 00:39:30 mstorti Exp $ 
+# $Id: Makefile,v 1.33 2005/01/29 15:36:44 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runc
+default: run2dn
 
-BOPT := O_c++
+# BOPT := O_c++
 SRCS = 
 # PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.40
 PETSCFEM_DIR = ../..
@@ -38,9 +38,9 @@ runp:
 
 run: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	mkstepsdir.pl
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
-	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+# 	mkstepsdir.pl
+# 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+# 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
 STEPS_DIR := ./STEPS
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS

@@ -6,7 +6,7 @@ $Lx = 4;
 $Nx = 50;
 $rota = 0;
 
-$Machin = 2.0;
+$Machin = 0.5;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
@@ -22,6 +22,8 @@ $Uref = [$rhoref,$uref,0,$pref];
 $alpha = $PI/2*$rota;		# Rotation angle
 $norx = cos($alpha);
 $nory = sin($alpha);
+
+$longindx = $rota % 2 + 1;
 
 @vars = qw(sigma Rgas Nx Lx Machin gamma
 	   Rgas rhoref Tref dufac abso uref

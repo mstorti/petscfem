@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.9 2005/01/28 21:42:06 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.10 2005/01/29 15:36:44 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -43,8 +43,19 @@ xnod = [xnod;
 	xnod(Nx+2,:);
 	xnod(Nx+2,:)];
 
+xe = pfnd2ele(xnod,icone,xnod(:,1));
+Gb = zeros(Nx,2);
+Gb(:,1) = abs(abs(xe-Lx/2)<Lx/4);
+
+fid = fopen("gfabso2dn.con.tmp","w");
+for k=1:Nx
+  fprintf(fid,"%d %d %d %d    %g %g\n",
+	  icone(k,:),Gb(k,:));
+endfor
+fclose(fid);
+
 asave("gfabso2dn.nod.tmp",xnod);
-asave("gfabso2dn.con.tmp",icone);
+## asave("gfabso2dn.con.tmp",icone);
 
 ## Absorbing b.c.'s
 abso1 = [Nx+1:-1:Nx-1 nnod+[1,2];
@@ -66,17 +77,10 @@ asave("gfabso2dn.con-nabso0.tmp",abso0);
 
 nor = [1,0]*Orot;
 fid = fopen("gfabso2dn.con-nabso.tmp","w");
-if 0 ## antes
-  fprintf(fid,"%d %d %d     %g %g\n",Nx+1,nnod+[1,2],nor);
-  fprintf(fid,"%d %d %d     %g %g\n",2*Nx+2,nnod+[3,4],nor);
-  fprintf(fid,"%d %d %d     %g %g\n",1,nnod+[5,6],-nor);
-  fprintf(fid,"%d %d %d     %g %g\n",Nx+2,nnod+[7,8],-nor);
-else ## despues
-  fprintf(fid,"%d %d %d     %g %g\n",1,nnod+[5,6],-nor);
-  fprintf(fid,"%d %d %d     %g %g\n",Nx+2,nnod+[7,8],-nor);
-  fprintf(fid,"%d %d %d     %g %g\n",Nx+1,nnod+[1,2],nor);
-  fprintf(fid,"%d %d %d     %g %g\n",2*Nx+2,nnod+[3,4],nor);
-endif
+fprintf(fid,"%d %d %d     %g %g\n",1,nnod+[5,6],-nor);
+fprintf(fid,"%d %d %d     %g %g\n",Nx+2,nnod+[7,8],-nor);
+fprintf(fid,"%d %d %d     %g %g\n",Nx+1,nnod+[1,2],nor);
+fprintf(fid,"%d %d %d     %g %g\n",2*Nx+2,nnod+[3,4],nor);
 fclose(fid);
 
 ## Fixa on reference nodes
@@ -90,7 +94,7 @@ nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
 Uini(nnod+[1:2:7],:) = 0;	# lagrange multipliers to 0
 
-du=0.5;
+du=0.0;
 dw = du*[0 0 0 1]; ## perturbation for all waves
 ## dw = du*[1 0 0 0]; ## entropy wave
 ## dw = du*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave

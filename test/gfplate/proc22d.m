@@ -1,4 +1,4 @@
-## $Id: proc22d.m,v 1.3 2005/01/28 12:06:47 mstorti Exp $
+## $Id: proc22d.m,v 1.4 2005/01/29 15:36:44 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -52,5 +52,5 @@ for k=1:m:nt
   title(sprintf("step %d",k));
   plot(x,Unorm((k-1)*(Nx+1)+(1:Nx+1),:))
   pause(0.1);
-#  pause;
+  ## pause;
 endfor

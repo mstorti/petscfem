@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.19 2005/01/27 15:34:59 mstorti Exp $
+// $Id: gasflow.h,v 1.20 2005/01/29 15:36:41 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -39,6 +39,8 @@ private:
   MakeTangentSpace maktgsp;
   int linear_abso;
   const Elemset *old_elemset;
+  Property G_body_prop,G_body_scale_prop;
+  double G_body_scale;
 
   void compute_tau(int ijob,double &delta_sc);
 
