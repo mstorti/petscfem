@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: getarray.h,v 1.2 2001/04/01 01:35:06 mstorti Exp $
+//$Id: getarray.h,v 1.3 2001/04/14 13:20:06 mstorti Exp $
 #ifndef GETARRAY_H
 #define GETARRAY_H
 
@@ -9,14 +9,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void add_entry(char *s,int l);
-int yyparse(void);
-int yylex(void);
-int yyerror(char *s);
-#if 0
-void add_index(void **sl,char *s,int last);
-void opt_def_sl_action(char *s,void *sl);
-#endif
+  
+  void add_entry(char *s,int l);
+  int yyparse(void);
+  int yylex(void);
+  int yyerror(char *s);
+
+  int field_parse(void);
+  int field_lex(void);
+  int field_error(char *s);
+  void add_block(int,int);
+  int create_list(char *ident);
+  int create_ident_l(char *ident,int length);
+  int create_ident_list(char *ident,int list);
+
 #ifdef __cplusplus
 }
 #endif

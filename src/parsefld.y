@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "getarray.h"
+#define YYDEBUG 1
+
 %}
 
 /* BISON DECLARATIONS */
@@ -16,28 +18,23 @@
 
 %token <string> IDENT
 %token <num> LENGTH
-/* %type <gen_ptr> subscript_list */
+%type <num> field_block_list field_block input
      
 %%
 /* GRAMMAR RULES */
 
-input:  /* empty */
-      | input opt_def
+input:  /* empty */ { $$ = 0;}
+  | field_block_list { $$ = $1;}
 ;
 
-opt_def: IDENT '[' LENGTH ']' { add_entry($1,$3);
-                                /* printf("name %s, length %d\n",$1,$3); */
-                                /* prop_table_add($1,$3); */
-                              }
-        | IDENT               { add_entry($1,1);}
-/*| IDENT '[' subscript_list ']' { opt_def_sl_action($1,$3); } */
+field_block_list: field_block { printf("first field block in list\n");
+                                $$=$1;}
+| field_block_list field_block {add_block($1,$2);}
 ;
 
-/* 
-subscript_list: IDENT                   { add_index(&($$),$1,1);}
-                | subscript_list IDENT  { add_index(&($$),$2,0);} 
+field_block: IDENT {$$ = create_list($1);}
+         | IDENT '[' LENGTH ']' { $$ = create_ident_l($1,$3);}
+         | IDENT '[' field_block_list ']' {$$ = create_ident_list($1,$3);}
 ;
-*/
 
 %%
-/* ADDITIONAL C CODE */

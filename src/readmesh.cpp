@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.13 2001/04/01 01:35:06 mstorti Exp $
+//$Id: readmesh.cpp,v 1.14 2001/04/14 13:20:06 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -56,7 +56,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	fat_flag,iele,k,nfixa, *ident,rflag;
   double *dptr,dval; 
   TextHashTable *thash;
-  Nodedata *nodedata;
+  NodeData *nodedata;
   // este despues habria que borrarlo
   map<int,int> fixed_dofs;
 
@@ -66,7 +66,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   Elemset *elemset;
   int *icone,etype,*dof_here;
   mesh = new Mesh;
-  mesh->nodedata = new Nodedata;
+  mesh->nodedata = new NodeData;
   mesh->elemsetlist = da_create(sizeof(Elemset *));
 
   // Read data

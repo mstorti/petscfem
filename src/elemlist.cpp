@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemlist.cpp,v 1.7 2001/04/01 01:35:06 mstorti Exp $
+//$Id: elemlist.cpp,v 1.8 2001/04/14 13:20:06 mstorti Exp $
 
 #include "fem.h"
 #include <set>
@@ -90,7 +90,7 @@ int ElementIterator::operator!=(const ElementIterator &other) const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int 
-NewElemset::assemble(arg_data_list &arg_datav,Nodedata *nodedata,Dofmap *dofmap,
+NewElemset::assemble(arg_data_list &arg_datav,NodeData *nodedata,Dofmap *dofmap,
 		     const char *jobinfo,int myrank,
 		     int el_start,int el_last,int iter_mode,
 		     const TimeData *time_data) {
@@ -138,7 +138,7 @@ ElementIterator::props() {
 #define __FUNC__ "element_node_data"
 void 
 Elemset::element_node_data(const ElementIterator &element,
-			   const Nodedata *nodedata,
+			   const NodeData *nodedata,
 			   double *xloc,double *Hloc) const {
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nodedata->nu)
 #define XLOC(j,k) VEC2(xloc,j,k,nodedata->ndim)
@@ -157,7 +157,7 @@ Elemset::element_node_data(const ElementIterator &element,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "ElementIterator::node_data"
-void ElementIterator::node_data(const Nodedata *nodedata,
+void ElementIterator::node_data(const NodeData *nodedata,
 				double *xloc,double *Hloc) {
   elemlist->elemset->element_node_data(*this,nodedata,xloc,Hloc);
 }
