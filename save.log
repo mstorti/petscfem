@@ -212,3 +212,8 @@ tag: beta-1.26 on Tue Feb  6 22:06:26 ARST 2001, by mstorti in spider
 ----------
 tag: beta-1.27 on Fri Feb  9 20:54:56 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > Working on turbulent shallow water. Lumped mass.
+----------
+tag: beta-1.28 on Sat Mar  3 05:21:53 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added access count to TextHashTable class.
+     > Added a test for TextHashTable.
