@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.157 2004/12/21 12:20:40 mstorti Exp $
+//$Id: ns.cpp,v 1.158 2005/02/21 17:31:10 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -326,6 +326,27 @@ int main(int argc,char **args) {
       A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     } else {
 #if 1
+#if 0      
+      // IISD (Domain decomposition) iteration
+      A_mom = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+      A_mom->set_option("preco_type","jacobi");
+      A_mom->set_option("print_internal_loop_conv","1");
+      A_mom->set_option("iisdmat_print_statistics",1);
+      A_mom->set_option("use_interface_full_preco_nlay",1);
+      A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+      A_poi->set_option("preco_type","jacobi");
+      A_poi->set_option("print_internal_loop_conv","1");
+      A_poi->set_option("block_uploading","0");
+      A_poi->set_option("iisdmat_print_statistics",1);
+      A_poi->set_option("use_interface_full_preco_nlay",1);
+      A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"iisd");
+      A_prj->set_option("preco_type","jacobi");
+      A_prj->set_option("print_internal_loop_conv","1");
+      A_prj->set_option("block_uploading","0");
+      A_prj->set_option("iisdmat_print_statistics",1);
+      A_prj->set_option("use_interface_full_preco_nlay",1);
+#else
+      // Global PETSc iteration
       A_mom->set_option("KSP_method",KSPBCGS);
       A_mom->set_option("preco_side","left");
       
@@ -343,6 +364,7 @@ int main(int argc,char **args) {
       A_prj->set_option("preco_type","jacobi");
       A_prj->set_option("block_uploading","0");
       // A_prj->set_option("symmetric","1");
+#endif
 #else
 #define SET_SOLVER_OPTIONS(solv)				\
     solv = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");	\
