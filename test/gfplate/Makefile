@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.56 2005/02/26 18:23:08 mstorti Exp $ 
+# $Id: Makefile,v 1.57 2005/02/26 18:31:55 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -66,7 +66,7 @@ run_nozzle:
 	$(MAKE) CASE_NAME=gfnozzle run
 
 mesh: 
-	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
+	make-depl $(CASE_NAME).epl $(CASE_NAME).depl -D mkmesh=1
 
 run:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
