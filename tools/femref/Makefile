@@ -10,10 +10,14 @@ scripts = odoc.pl makewhat.pl
 #w Builds all doc in this directory
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
+SRCS := femref.cpp
+
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 
+CLEAN_DIRS = 
+DEPEND_DIRS = $(CLEAN_DIRS)
 
 #w 
 femref.bin: femref.o

@@ -1,22 +1,36 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.5 2004/11/17 23:53:47 mstorti Exp $
+// $Id: femref.h,v 1.6 2004/11/18 17:44:02 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
+#include <list>
+#include <src/dvector.h>
+#include <src/dvector2.h>
 #include <src/generror.h>
 
 typedef unsigned int Node;
 
-class GeomObject {
+class GeomObjectBasic {
 public:
-  virtual bool equal(GeomObject &)=0;
+  virtual bool equal(GeomObjectBasic &)=0;
   virtual int dim()=0;
-  static GeomObject *factory(int nnod,const int *nodes,
+  static GeomObjectBasic *factory(int nnod,const int *nodes,
 		      const char *type);
 };
 
-class OrientedEdge : public GeomObject {
+class GeomObject {
+private:
+  GeomObjectBasic *gobj;
+public:
+  GeomObject(GeomObjectBasic *go=NULL) : gobj(NULL) { }
+  bool equal(GeomObject &go) { return gobj->equal(*go.gobj); }
+  int dim() { return gobj->dim(); }
+  void clear() { if (gobj) delete gobj; gobj=NULL; }
+  ~GeomObject() { clear(); }
+};
+
+class OrientedEdge : public GeomObjectBasic {
 private:
   int n1,n2;
   OrientedEdge(int n,const int *nodes) {
@@ -26,14 +40,14 @@ private:
   };
 public:
   int dim() { return 1; }
-  bool equal(GeomObject &go) {
+  bool equal(GeomObjectBasic &go) {
     OrientedEdge *edge2 = dynamic_cast<OrientedEdge *>(&go);
     if (!edge2) return false;
     return (n1==edge2->n1 && n2==edge2->n2);
   };
 };
 
-class Edge : public GeomObject {
+class Edge : public GeomObjectBasic {
 private:
   int n1,n2;
   Edge(int n,const int *nodes) {
@@ -43,7 +57,7 @@ private:
   };
 public:
   int dim() { return 1; }
-  bool equal(GeomObject &go) {
+  bool equal(GeomObjectBasic &go) {
     Edge *edge2 = dynamic_cast<Edge *>(&go);
     if (!edge2) return false;
     return ((n1==edge2->n1 && n2==edge2->n2) ||
@@ -51,7 +65,7 @@ public:
   };
 };
 
-class OrientedTri : public GeomObject {
+class OrientedTri : public GeomObjectBasic {
 private:
   int nodes[3];
   OrientedTri(int n,const int *nodes_a) {
@@ -60,7 +74,7 @@ private:
   };
 public:
   int dim() { return 2; }
-  bool equal(GeomObject &go) {
+  bool equal(GeomObjectBasic &go) {
     OrientedTri *tri2 = dynamic_cast<OrientedTri *>(&go);
     if (!tri2) return false;
     int n0 = tri2->nodes[0];
@@ -73,7 +87,7 @@ public:
   };
 };
 
-class Tri : public GeomObject {
+class Tri : public GeomObjectBasic {
 private:
   int n1,n2,n3;
   int nodes[3];
@@ -83,7 +97,7 @@ private:
   };
 public:
   int dim() { return 2; }
-  bool equal(GeomObject &go) {
+  bool equal(GeomObjectBasic &go) {
     Tri *tri2 = dynamic_cast<Tri *>(&go);
     if (!tri2) return false;
     int n0 = tri2->nodes[0];
@@ -110,11 +124,32 @@ public:
 };
 
 class Mesh {
-public:
-  class iterator {
-    
+private:
+  class GeomObjectAdaptor : public GeomObject{ 
+    int dim() { }
+    bool equal(GeomObjectBasic &go) { }
   };
-  virtual void get_adacency(GeomObject &g1,list<GeomObject *>
+  dvector<double> coords;
+  dvector<int> tri;
+  int ndim;
+public:
+  class iterator { 
+  private:
+    GeomObjectAdaptor goa;
+  public:
+    GeomObject& operator*() { return goa; } 
+    GeomObject* operator->() { return &goa; }
+  };
+  void get_adacency(const GeomObject &g1,int dim,
+		    std::list<iterator> &li) { }
+  Mesh() { 
+    coords.reshape(2,ndim,0);
+    tri.reshape(2,3,0);
+  }
+  void read(const char *node_file,const char *conn_file) {
+    coords.cat(node_file);
+    tri.cat(conn_file);
+  }
 };
 
 #endif
