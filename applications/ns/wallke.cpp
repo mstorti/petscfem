@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.4 2001/05/31 13:56:08 mstorti Exp $
+//$Id: wallke.cpp,v 1.5 2001/06/03 23:37:03 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -24,7 +24,38 @@ extern int TSTEP; //debug:=
 #define SHEAR_VEL(j) ELEMPROPS_ADD(j,0)
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
-  
+
+// This is required!! See `Thinking in C++, 2nd ed. Volume 1', 
+// (http://www.MindView.net)
+// Chapter 15: `Polymorphism &  Virtual Functions', 
+// paragraph `Pure virtual destructors' 
+WallFun::~WallFun() {}; 
+
+void WallFun1::w(double yp,double &f,double &fprime) {
+  if (yp<0) {
+    PETSCFEM_ERROR0("y+<0. Invalid value for y+\n");
+  } if (yp<5) {
+    f = yp;
+    fprime = 1.;
+  } else if (yp<30) {
+    f = 5.0*log(yp)-3.05;
+    fprime = 5.0/yp;
+  } else {
+    f = 2.5*log(yp)+5.5;
+    fprime = 2.5/yp;
+//      f = 1./Chi * log(E_star*yp);
+//      fprime = 1./Chi/yp;
+  }
+}
+
+#undef __FUNC__
+#define __FUNC__ "int NonLinearRes::ask(const char *jobinfo,int &skip_elemset)"
+int wallke::ask(const char *jobinfo,int &skip_elemset) {
+  skip_elemset = 1;
+  DONT_SKIP_JOBINFO(comp_mat);
+  DONT_SKIP_JOBINFO(comp_mat_res);
+  return 0;
+}
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "wall::assemble"
@@ -33,12 +64,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {
 
-  // wait_from_console("entra a wall::assemble");  
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
-  GET_JOBINFO_FLAG(comp_res);
-  GET_JOBINFO_FLAG(build_nneighbor_tree);
-  GET_JOBINFO_FLAG(comp_shear_vel);
 
   int ierr=0;
 
@@ -54,21 +81,17 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
-  vector<double> *data_pts = new vector<double>;
-  vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
   Elemset *elemset;
-  if (build_nneighbor_tree) {
-    // convert pointers
-    data_pts = (vector<double> *)arg_data_v[0].user_data;
-    elemset_pointer = (vector<ElemToPtr> *)arg_data_v[1].user_data;
-    elemset = (Elemset *)arg_data_v[2].user_data;
-  }
 
   //o The $y^+$ coordinate of the computational boundary
-  TGETOPTDEF(thash,double,y_wall_plus,25.);
+  TGETOPTDEF(thash,double,y_wall_plus,30.);
+  WallFun1 wf1(this);
+  WallFun *wf = &wf1;
+  wf->init();
+
   double fwall,fprime;
-  if (comp_shear_vel || comp_mat_res) {
-    wall_fun(y_wall_plus,fwall,fprime);
+  if (comp_mat_res) {
+    wf->w(y_wall_plus,fwall,fprime);
 
     locst = arg_data_v[0].locst;
     locst2 = arg_data_v[1].locst;
@@ -129,9 +152,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
-    if (!(build_nneighbor_tree ||
-	  // comp_shear_vel ||
-	  compute_this_elem(k,this,myrank,iter_mode))) continue;
+    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
 
     ielh++;
@@ -142,9 +163,9 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     xloc.rs();
 
-    // tenemos el estado locstate2 <- u^n
-    //                   locstate  <- u^*
-    if (comp_mat_res || comp_shear_vel) {
+    // locstate2 <- u^n
+    // locstate  <- u^*
+    if (comp_mat_res ) {
       locstate.set(&(LOCST(ielh,0,0)));
       locstate2.set(&(LOCST2(ielh,0,0)));
     }
@@ -161,28 +182,10 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     ucols_star.set(ucols_new).scale(alpha).axpy(ucols,1-alpha);
 
-    if (comp_shear_vel) {
-      double vel = sqrt(uc.sum(ucols_star,-1,1).sum_square_all())*i_nel;
-      SHEAR_VEL(k) = vel/fwall;
-      continue;
-    }
-
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
     }      
-
-    if (build_nneighbor_tree) {
-      // This doesn't compile under RH 5.2
-#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
-      xc.sum(xloc,-1,1).scale(i_nel);
-      double *xc_ = xc.storage_begin();
-      data_pts->insert(data_pts->end(),xc_,xc_+ndim);
-      continue;
-#else
-      assert(0);
-#endif
-    }
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -228,13 +231,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
   }
-  if (elemset!=this) {
-    int s = data_pts->size();
-    int l = s/ndim;
-    assert(l*ndim == s);
-    elemset_pointer->push_back(ElemToPtr(l,this));
-  }
-      
+
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;

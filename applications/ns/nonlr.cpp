@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.9 2001/06/01 22:51:19 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.10 2001/06/03 23:37:03 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -13,11 +13,24 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 NonLinearRes::~NonLinearRes() {};
 
-double int_pow(double base,int exp) {
-  double r=1.;
-  for (int j=0; j<exp; j++)
-    r *= base;
-  return r;
+inline double int_pow(double base,int exp) {
+  if (exp>=2) {
+    double r=base;
+    for (int j=1; j<exp; j++)
+      r *= base;
+    return r;
+  } else if (exp<=-2) {
+    double ibase = 1./base;
+    double r=ibase;
+    for (int j=2; j<-exp; j++)
+      r *= ibase;
+  } else if (exp=1) {
+    return base;
+  } else if (exp=0) {
+    return 1.;
+  } else if (exp=-1) {
+    return 1./base;
+  } 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -76,6 +89,11 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retvalmat = arg_data_v[0].retval;
   }
 
+  //o Using Lagrange multipliers leads to diagonal null terms This can
+  // lead, to zero pitvots when using direct methods. With this option
+  // a small term is added to the diagonal in order to fix this. 
+  TGETOPTDEF(thash,double,lagrange_diagonal_factor,0.);
+
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,2,ndof),R(2,2,ndof);
   if (comp_mat) matloc_prof.set(1.);
@@ -114,6 +132,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda).scale(-1.).rs();
       matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).scale(-1.).rs();
+      matloc.ir(1,2).ir(3,2).d(2,4).is(2,1,nr).
+	set(lagrange_diagonal_factor).rs();
 
       R.export_vals(&(RETVAL(ielh,0,0)));
       // matloc.set(0.);
@@ -129,25 +149,57 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 void wall_law_res::init() {
   int ierr;
-  TGETOPTNDEF(thash,int,ndim,none); //nd
+  TGETOPTDEF_ND(thash,int,ndim,0); //nd
+  PETSCFEM_ASSERT0(ndim>0,"ndim should be >0\n");
   nk = ndim+2;
   ne = ndim+3;
+  wf->init();
+
+  //o The $y^+$ coordinate of the computational boundary
+  TGETOPTDEF_ND(thash,double,y_wall_plus,30.);
+  wf->w(y_wall_plus,fwall,fprime);
+  //o C_mu (turbulence constant)
+  TGETOPTDEF_ND(thash,double,C_mu,0.09);
+  //o viscosity of the fluid
+  TGETOPTDEF_ND(thash,double,viscosity,1.);
+  //o von Karman constant (law of the wall - turbulence model)
+  TGETOPTDEF_ND(thash,double,von_Karman_cnst,0.4);
+
+  coef_k = -2./(fwall*fwall*sqrt(C_mu));
+  coef_e = 1./(int_pow(fwall,3)*von_Karman_cnst*y_wall_plus*viscosity);
 };
 
 void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 		       FastMat2 & lambda,FastMat2 & jac) {
-  double k = U.get(1,nk);
-  double eps = U.get(1,ne);
-#if 0
-  double rr = 1.1*eps - k;
-  jac.setel(1.1,1,ne);
-#else
-  double rr = 2.*eps*eps - k;
-  jac.setel(4.*eps,1,ne);
-#endif
-  lambda.set(0.).setel(1.,ne,1);
-  r.setel(rr,1);
-  jac.setel(-1.,1,nk);
+  U.ir(1,1);
+  double u = sqrt(U.is(1,1,ndim).sum_square_all());
+  U.is(1);
+  double ustar = u/fwall;
+  double kw = int_pow(ustar,2)/sqrt(C_mu);
+  double epsw = coef_e * int_pow(ustar,4);
+    
+  double k = U.get(nk);
+  double eps = U.get(ne);
+
+  // Discard k and eps eqs.
+  lambda.set(0.).setel(1.,nk,1).setel(1.,ne,2);
+
+  // set U to the velocity part
+  U.is(2,1,ndim);
+
+  // k eq. on the wall: k = 
+  r.setel(k-kw,1);
+  jac.ir(1,1).is(2,1,ndim).set(U).scale(-coef_k)
+    .is(2).setel(1.,nk);
+
+  // eps eq. on the wall
+  r.setel(eps-epsw,2);
+  jac.rs().ir(1,2).is(2,1,ndim).set(U)
+    .scale(-4*coef_e*int_pow(ustar,2))
+    .is(2).setel(1.,ne);
+
+  jac.rs();
+  U.rs();
 }
 
 #undef SHAPE    

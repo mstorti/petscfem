@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.9 2001/06/01 03:30:50 mstorti Exp $
+//$Id: nsi_tet.h,v 1.10 2001/06/03 23:37:03 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -66,16 +66,11 @@ public:
   ASSEMBLE_FUNCTION;
 };
 
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-class wallke : public Elemset { 
-public: 
-  ASSEMBLE_FUNCTION;
-};
-
 typedef pair<int,Elemset *> ElemToPtr;
 
 typedef vector<ElemToPtr> ElemToPtrV;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class WallData {
 private:
   /// The octree
@@ -114,6 +109,7 @@ public:
 				   const double *& coords);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /// Global parameters used by NS
 struct GlobParam {
   /// Trapezoidal rule integration parameter
@@ -126,6 +122,29 @@ struct GlobParam {
 
 void wall_fun(double yp,double &f,double &fprime);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class WallFun {
+public:
+  virtual void init() {};
+  virtual void w(double yp,double &f,double &fp)=0;
+  virtual ~WallFun()=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class WallFun1 : public WallFun {
+  Elemset *elemset;
+public:
+  void w(double yp,double &f,double &fprime);
+  // assuming a wall law of the form f = 2.5*log(yplus) + 5.5
+  // then if it has to be compatible with f = 1/Chi * log(E*yplus)
+  // we find: Chi = 0.4; E = 9.025;
+  // WallFun1(double Chi_=0.4, double E_=9.025) : Chi(Chi_), E_star(E_) {};
+  // WallFun1() : Chi(Chi_), E_star(E_) {};
+  WallFun1(Elemset *e) : elemset(e) {};
+  ~WallFun1() {};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class NonLinearRes : public Elemset {
  public:
   ASK_FUNCTION;
@@ -137,13 +156,26 @@ class NonLinearRes : public Elemset {
   virtual ~NonLinearRes()=0;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class wall_law_res : public NonLinearRes {
-  int nk,ne;
-  int nres() {return 1;};
+  int nk,ne,ndim;
+  double y_wall_plus,fwall,fprime,C_mu,
+    viscosity,von_Karman_cnst,coef_k,coef_e;
+  WallFun *wf;
+public:
+  int nres() {return 2;};
   void init();
   void res(FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 	   FastMat2 & jac);
+  wall_law_res() {wf = new WallFun1(this);};
+  ~wall_law_res() {delete wf;};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class wallke : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
 };
 
 #endif
-

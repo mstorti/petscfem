@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.5 2001/06/01 03:30:50 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.6 2001/06/03 23:37:03 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -142,6 +142,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
 
+  //o Do not add turbulent viscosity for the momentum eq. (for
+  //   debugging). 
+  SGETOPTDEF(double,turbulence_coef,1.);
   //o Density
   SGETOPTDEF(double,rho,1.);
   //o C_mu
@@ -411,7 +414,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         grad_u_star.rs();
 
         double nu_t = C_mu*kap*kap/eps;
-	nu_eff = VISC + nu_t;
+	nu_eff = VISC + turbulence_coef*nu_t;
 
 	uintri.prod(iJaco,u,1,-1,-1);
 	Uh = uintri.sum_square_all();

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* write better error messages in FM2
 * while reading constraints complain if dofs out of range
 * escribir una funcion "double pow_int(double base,int exp)"
 * new scheduling algorithm for load balancing in `elemset.cpp'
