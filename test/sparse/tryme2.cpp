@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme2.cpp,v 1.3 2002/07/18 20:01:44 mstorti Exp $
+// $Id: tryme2.cpp,v 1.4 2002/07/21 14:50:08 mstorti Exp $
 
 #include <cmath>
 #include <map>
@@ -17,17 +17,19 @@ int irand(int imin,int imax) {
 int main() {
   int jjjj=1;
 #if 1
-  int M=1000000;
-  //  set<double,less<double>,malloc_alloc> s;
-  typedef set<double> S;
-  set<double> s;
-  for (int j=0; j<M; j++) { s.insert(drand()); }
-  s.clear();
-  S().swap(s);
+  int M=300000;
+  typedef set<double,less<double>,malloc_alloc> S;
+  // typedef set<double> S;
+  S s;
   double *a = new double[3*M];
-  for (int j=0; j<3*M; j++) a[j] = double(j);
+  int ia=0;
+  for (int j=0; j<M; j++) { 
+    s.insert(drand());
+    for (int jj=0; jj<3; jj++) a[ia++] = double(ia);
+  }
+  s.clear();
   delete[] a;
-#elif 1
+#elif 0
   int M=1000000;
   vector<double> s;
   s.resize(3*M);

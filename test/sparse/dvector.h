@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.3 2002/07/21 13:51:16 mstorti Exp $
+// $Id: dvector.h,v 1.4 2002/07/21 14:50:08 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 
@@ -35,7 +35,7 @@ private:
     u = v;
     v = t;
   }
-  /** The origial pascal code for the heap-sort was written in pascal
+  /** The original pascal code for the heap-sort was written in pascal
       with 1-based indices.. The macro #V# shifts to map index 1 to #first#
       @param j (input) base 1 index 
       @return 1 to #first# mapped index 
@@ -135,7 +135,7 @@ public:
   /** Resizes the vector.
       @param new_size (input) new size for the vector
   */
-  void resize(int new_size,T t) {
+  void resize(int new_size,T &t) {
     // If new_size is greater use #push# else use #shrink#
     if (new_size > size_m) {
       while (size_m<new_size) push(t);
@@ -156,10 +156,11 @@ public:
       searched element.
   */ 
   int bsearch(const T &t,int first=0, int last=-1) {
-    if (last==-1) last=size();
+    int lastt=last;
+    if (lastt==-1) lastt=size();
+    if (lastt<=first) return lastt; // vector is void
     if (ref(first)>=t) return first;
-    if (last<=first) return last;
-    int p=first, q=last, r;
+    int p=first, q=lastt, r;
     while (1) {
       if (q==p+1) return q;
       r = (p+q)/2;
@@ -188,7 +189,6 @@ public:
   void sort(int first=0, int last=-1) {
     if (last==-1) last=size();
     int i, j, n = last-first;
-    T t;
     j = n / 2 ;
     // make heap (from bottom to root)
     for (i = j; i>=1; i--) push_heap(first,i,n) ;

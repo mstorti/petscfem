@@ -1,0 +1,282 @@
+I'm having trouble with dynamic memory management under egcs (2-93-18
+under Intel Linux). Here is a gdb code run that shows my code seg
+faulting when trying to dereference a string that was allocated in my
+stl allocator I implemented. The additional text in the run is the
+result of my own new/delete operators that I've implemented using
+alloc/free. If I replace my testalloc allocator with the standard
+allocator everything runs fine. If I preallocate the strings (see
+main()) rather than add temporaries the code runs fine with either
+allocator. I've got two theories as to where the problem lies and would
+like someone experienced with the egcs' stdc++ internals to give me an
+idea on how to fix it. I've noticed that the placement new and new[]
+operators are inlined in egcs thus I cannot overload them. Its possible
+that string could be calling these and its just a coincidence that my
+code runs when they're preallocated. However, I don't think this is the
+main problem cause even when I drop my overloaded news/deletes the code
+still fails the same way. My other issue is that all the allocators
+within egcs seem to have defined a reallocate method which is not
+defined in the standard. Could an internal allocator's reallocate be
+being called by the string buffer that expects my allocator to get along
+with it? Sorry about the long post. This is as small as I could make it
+and still give a complete understanding of what's going on.
+
+	thanx & later,
+
+		Ben Scherrey
+
+GNU gdb 4.17.0.4 with Linux/x86 hardware watchpoint and FPU support
+Copyright 1998 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i386-redhat-linux"...(no debugging symbols
+found)...
+Starting new/delete allocation test code.
+ISMap::new( size_t = 16 ) being called.
+new( size_t = 16 ) being called.
+Result = 0x804f278.
+Result = 0x804f278.
+testalloc(void) ctor being called.
+~testalloc dtor being called.
+Allocated.
+Pushing string('five').
+testalloc<T>::allocate( size_type = 1, hint = (nil) ).
+new( size_t = 4 ) being called.
+Result = 0x804f798.
+Pushing string('ten').
+testalloc<T>::allocate( size_type = 2, hint = (nil) ).
+new[]( size_t = 12 ) being called.
+Result = 0x804f7a8.
+testalloc<T>::deallocate( pointer = 0x804f798, size_type = 1 ) being
+called.
+delete( void* v = 0x804f798 ) being called.
+Returning from ::delete.
+Iterating the iterator.
+Got the begin.
+Showing a value.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x400aafa8 in memcpy (dstpp=0x4010d00e, srcpp=0x804f2a0, len=4080)
+		at ../sysdeps/generic/memcpy.c:51
+#0  0x400aafa8 in memcpy (dstpp=0x4010d00e, srcpp=0x804f2a0, len=4080)
+		at ../sysdeps/generic/memcpy.c:51
+#1  0x400a2c05 in _IO_file_xsputn (f=0x4003ff80, data=0x804f2a0,
+n=134542032)
+		at fileops.c:668
+#2  0x4002ccaf in filebuf::xsputn (this=0x4003ff80, s=0x804f2a0
+"five", 				n=134542032)
+		at ../../../egcs-19990412/libio/filebuf.cc:205
+#3  0x400307ca in ostream::write (this=0x804f230, s=0x804f2a0
+"five", 				n=134542032)
+		at ../../../egcs-19990412/libio/iostream.cc:945
+#4  0x804bf36 in
+__ls__H3ZcZt18string_char_traits1ZcZt24__default_alloc_template2b1i0_R7ostreamRCt12basic_string3ZX01ZX11ZX21_R7ostream
+()
+#5  0x804aae4 in main ()
+
+--------------------- snip --------------------
+
+//
+//  allocator.cpp   -   Code to test allocators and dynamic memory.
+//
+
+
+#include <new>
+#include <stl.h>
+#include <iostream>
+#include <string>
+
+template < class T > class testalloc;
+
+template <> class testalloc< void >
+{
+public:
+    typedef void* pointer;
+    typedef const void* const_pointer;
+    typedef void value_type;
+    template < class U > struct rebind { typedef testalloc<U> other; };
+};
+
+template < class T > class testalloc
+{
+public:
+    typedef T value_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef T* pointer;
+    typedef const T* const_pointer;
+    typedef T& reference;
+    typedef const T& const_reference;
+    pointer address(reference r) const
+    {
+        cout << "testalloc<T>::address called with r = " << r << "." <<
+endl;
+        return &r;
+    }
+    const_pointer address( const_reference r ) const
+    {
+        cout << "testalloc<T>:address const called with r = " << r 
+	<< "." << endl;
+        return &r;
+    }
+
+    testalloc( void ) throw()
+    {
+        cout << "testalloc(void) ctor being called." << endl;
+    }
+
+    template < class U > testalloc( const testalloc<U>& ) throw()
+    {
+        cout << "testalloc() copy-ctor being called." << endl;
+    }
+
+    ~testalloc( void ) throw()
+    {
+        cout << "~testalloc dtor being called." << endl;
+    }
+
+    pointer allocate( size_type n, testalloc<void>::const_pointer hint =
+0 )
+    {
+        cout << "testalloc<T>::allocate( size_type = " << n << ", hint =
+"
+             << hint << " )." << endl;
+        if( n>1 )
+        {
+            return new T[n];
+        }
+        else
+        {
+            return new T();
+        }
+    }
+    void deallocate( pointer p, size_type n )
+    {
+        cout << "testalloc<T>::deallocate( pointer = " << p
+        	    << ", size_type = " << n << " ) being called." << endl;
+        if( p )
+        {
+            if( n>1 )
+            {
+                delete[](p);
+            }
+            else
+            {
+                delete(p);
+            }
+        }
+    }
+
+    void construct( pointer p, const T& val )
+    {
+        cout << "testalloc<T>::construct( pointer = " << p
+             << ", const T& = " << val << " ) being called." << endl;
+        new(p) T(val);
+    }
+
+    void destroy( pointer p )
+    {
+        cout << "testalloc<T>::destroy( pointer = " << p 
+	     << " ) being called." << endl;
+        p->~T();
+    }
+
+    size_type max_size( void ) const throw() 
+    { 
+	return ((size_t)-1)/sizeof( T ); 
+    }
+
+    template < class U > struct rebind { typedef testalloc<U> other; };
+
+};
+
+template < class T > bool operator==( const testalloc<T>&, const
+testalloc<T>& ) throw()
+	{ return true; }
+template < class T > bool operator <( const testalloc<T>&, const
+testalloc<T>& ) throw()
+	{ return false; }
+
+typedef testalloc< string > StringAlloc;	// my testalloc
+typedef vector< string, StringAlloc > ismap;	// my vector<testalloc>
+
+// typedef vector< string > ismap;   <-- rem out above typedef's and
+replace 
+//                                       with this.
+
+class ISMap : public ismap
+{
+public:
+void* operator new( size_t t ) throw( bad_alloc )
+{
+    cout << "ISMap::new( size_t = " << t << " ) being called." << endl;
+    void* Result = std::operator new( t );
+    cout << "Result = " << Result << "." << endl;
+    return Result;
+}
+
+void operator delete( void* v ) throw()
+{
+    cout << "ISMap::delete( void* v = " << v << " ) being called." <<
+endl;
+    std::operator delete( v );
+}
+
+void* operator new( size_t t, const nothrow_t& x ) throw()
+{
+    cout << "ISMap::new( size_t = " << t << " ) no throw being called." 
+         << endl;
+    void* Result =  std::operator new( t, x );
+    cout << "Result = " << Result << "." << endl;
+    return Result;
+}
+
+void operator delete( void* v, const nothrow_t& x ) throw()
+{
+    cout << "ISMap::delete( void* = " << v << " ) no throw being
+called." 
+         << endl;
+    std::operator delete( v, x );
+} 
+};
+
+int main( void )
+{
+    cout << "Starting new/delete allocation test code." << endl;
+    ISMap& t = *(new ISMap());
+    cout << "Allocated." << endl;
+
+    //string five="five";      <-- unremark these and it
+    //string ten="ten  ";          works in any case.
+
+    cout << "Pushing string('five')." << endl;
+    t.push_back("five");    // <- replace with above string.
+
+    cout << "Pushing string('ten')." << endl;
+    t.push_back("ten");     // <- replace with above string.
+
+    cout << "Iterating the iterator." << endl;
+    ISMap::iterator i = t.begin();
+
+    cout << "Got the begin." << endl;
+    while( i != t.end() )
+    {
+        cout << "Showing a value." << endl;
+        cout << "ISMap value = " << *i << "." << endl;
+        ++i;
+    }
+
+    cout << "Deleting." << endl;
+    delete &t;
+    cout << "Deleted." << endl;
+    return 0;
+}
+
+// eof( allocator.cpp )
+
+
+--------------------------------------------------------------------------------
