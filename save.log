@@ -1968,3 +1968,6 @@ tag: beta-3.11.pl3 on Sun, 22 Dec 2002 04:02:50 -0300 by mstorti in spider
 ----------
 tag: beta-3.11.pl4 on Sun, 22 Dec 2002 16:45:59 -0300 by mstorti in spider
      > Added test for cyclic constraints.
+----------
+tag: beta-3.11.pl5 on Sun, 22 Dec 2002 20:13:26 -0300 by mstorti in spider
+     > Now FastMat2::inv() uses lapack
