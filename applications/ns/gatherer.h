@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.10 2002/05/16 19:24:54 mstorti Exp $
+//$Id: gatherer.h,v 1.11 2002/05/17 00:37:59 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -63,8 +63,13 @@ public:
 */ 
 class force_integrator : public gatherer {
 private:
-  FastMat2 force,moment,x_center,dx,dm;
-  int compute_moment;
+  /** Auxiliary vectors to store force, moment, the point about
+      which to compute moments, the displacemente vector from the
+      moment center to the actual integration point .
+  */
+  FastMat2 force,moment,x_center,dx;
+  /// Flag to compute moments or not, number of dimensions
+  int compute_moment,ndim_m;
 public:
   /// perform several checks and initialization
   void init();

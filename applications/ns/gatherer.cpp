@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.9 2002/05/16 19:24:54 mstorti Exp $
+//$Id: gatherer.cpp,v 1.10 2002/05/17 00:37:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -147,6 +147,7 @@ void force_integrator::init() {
   int ierr;
   //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
+  ndim_m = ndim;
   //o Dimenson of the element
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
   assert(ndimel==ndim-1);
@@ -156,7 +157,6 @@ void force_integrator::init() {
   moment.resize(1,ndim);
   x_center.resize(1,ndim).set(0.);
   dx.resize(1,ndim);
-  dm.resize(1,ndim);
   //o _T: double[ndim] _N: moment_center _D: null vector 
   // _DOC: Center of moments. _END
   get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
@@ -170,16 +170,18 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   force.export_vals(pg_values.begin());
   if (compute_moment) {
     dx.set(xpg).rest(x_center);
-    dm.cross(force,dx);
-    moment.add(dm);
+    moment.cross(force,dx);
+    moment.export_vals(pg_values.begin()+ndim_m);
   }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::clean() {
+#if 0
   force.clear();
   x_center.clear();
   moment.clear();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
