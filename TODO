@@ -4,8 +4,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Make VERSION to have a newline at the end of line so as to be a
-           regular Unix text file.
 * Grows indefinitely in memory if a `fixa' section is not closed by
     the corresponding __END_FIXA__
 * Crashes with SEGV if input file is void (should complain and abort). 
@@ -120,6 +118,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Make VERSION to have a newline at the end of line so as to be a
+           regular Unix text file.
 * Generate a summary of `odoc' options in the doc with `odoc.pl'. 
 * Generate a test for exception handling in `advdif'. 
 * Convert negative jacobian errors in advdif to set_error. 
