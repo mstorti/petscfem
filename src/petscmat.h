@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.1.2.1 2001/12/27 19:55:47 mstorti Exp $
+// $Id: petscmat.h,v 1.1.2.2 2001/12/27 21:35:27 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -40,19 +40,8 @@ public:
     A_LL_other(NULL), A_LL(NULL), 
     local_solver(PETSc), pf_part(pp) {};
 
-
-  // returns the j-th dimension
-  int size(int j) { 
-    assert(j==1 || j==2);
-    return (j==1 ? M : N);
-  }
-
   /// Constructor 
   PETScMat() : PFMat() {};
-  /// Adds an element to the matrix profile
-  int set_profile(int j,int k) {
-    lgraph.add(j,k);
-  }
 
   /** Call the assembly begin function for the underlying PETSc matrices
       @param type (input) PETSc assembly type

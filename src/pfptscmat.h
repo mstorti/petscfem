@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.4 2001/12/27 19:55:47 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.5 2001/12/27 21:35:27 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -84,6 +84,11 @@ public:
   virtual int build_sles();
   int set_preco(const string & preco_type);
   int monitor(int n,double rnorm);
+
+  /// Adds an element to the matrix profile
+  int set_profile(int j,int k) {
+    lgraph.add(j,k);
+  }
 
   /// returns the number of iterations spent in the last solve
   int its() {return its_;};

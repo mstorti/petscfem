@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.8 2001/12/27 19:55:47 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.9 2001/12/27 21:35:27 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -173,11 +173,6 @@ public:
 
   /// Local solver type
   enum LocalSolver {PETSc, SuperLU} local_solver;
-
-  /// Adds an element to the matrix profile
-  int set_profile(int j,int k) {
-    lgraph.add(j,k);
-  }
 
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
