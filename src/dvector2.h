@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.13 2003/08/10 23:30:58 mstorti Exp $
+// $Id: dvector2.h,v 1.14 2003/08/12 21:20:54 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -236,7 +236,10 @@ dvector<T>& dvector<T>::read(FILE *fid) {
 template<class T>
 dvector<T>& dvector<T>::read(const char *name) {
   FILE *fid = fopen(name,"r");
-  assert(fid);
+  if (!fid) {
+    printf("dvector<T>::read(): can't open file \"%s\"\n",name);
+    abort();
+  }
   read(fid);
   fclose(fid);
   return *this;

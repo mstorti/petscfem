@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.13 2003/08/10 23:30:58 mstorti Exp $
+// $Id: dvector.h,v 1.14 2003/08/12 21:20:54 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -151,7 +151,7 @@ public:
   dvector<T>& cat(const char *name,int &nread);
 
   /// Write to a stream
-  dvector<T>& print(FILE *fid);
+  dvector<T>& print(FILE *fid=stdout);
 
   /// Write to a file by name
   dvector<T>& print(const char *name);
