@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.26 2001/04/12 00:43:25 mstorti Exp $
+//$Id: advective.h,v 1.27 2001/05/21 17:44:18 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -394,6 +394,20 @@ ADVDIF_ELEMSET(swfm2t);	        // shallow water turbulent
 
 class wall_swfm2t : NewElemset { 
 public: 
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
+};
+
+/// generic surface flux function element
+class HFilmFun {
+  virtual void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux)=0;
+  virtual void init()=0;
+}
+
+/// generic surface flux element
+class GenLoad : NewElemset { 
+public: 
+  HFilmFun &h_film_fun;
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
 };
