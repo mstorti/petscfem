@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2002/12/29 21:18:57 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/12/29 22:27:24 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full cylin
 
@@ -7,10 +7,10 @@ all: run
 
 tests: 
 
+SRCS = inviscid.cpp
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
-SRCS = 
 
 LOC_PROG := ns
 # CASE_NAME := plate

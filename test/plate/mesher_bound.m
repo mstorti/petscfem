@@ -22,8 +22,10 @@ function nodes = mesher_bound (mesh,edge,elem);
   if nargin<=2
     elems = find(mesh.edge2elem(:,1)==edge);
     elems = mesh.edge2elem(elems,2);
-    length(elems)==1 || length(elems)==2 || \
-	error("edge should be connected to 1 or 2 elements");
+    if !(length(elems)==1 || length(elems)==2)
+      mesher_edge2(mesh,edge)
+      error("edge should be connected to 1 or 2 elements");
+    endif
     elem = elems(1);
   endif
 

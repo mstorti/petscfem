@@ -1,4 +1,4 @@
-global Rint Rext L Rmean
+global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");
 rem(Ntheta,8)==0 || error("Ntheta must multiple of 8");
@@ -22,7 +22,13 @@ XNOD = [1 Rint*[cos(pi/4)  sin(pi/4)];
 	16 L                -Rext;
 	17 Rint*[-cos(pi/4) -sin(pi/4)];
 	18 Rmean*[-cos(pi/4) -sin(pi/4)];
-	19 Rext*[-cos(pi/4) -sin(pi/4)]	];
+	19 Rext*[-cos(pi/4) -sin(pi/4)]	
+	20 L  Rext2;
+	21 Rmean*cos(pi/4)  Rext2;
+	22 Rext2*[-cos(pi/4) sin(pi/4)];
+	23 Rext2*[-cos(pi/4) -sin(pi/4)];
+	24 Rmean*cos(pi/4)  -Rext2;
+	25 L                -Rext2];
 
 XNOD = XNOD(:,2:3);
 
@@ -37,8 +43,13 @@ ICONE = [1 2 7 6;
 	 13 15 11 10;
 	 14 16 15 13;
 	 6 7 18 17;
-	 7 8 19 18;
-	 ];
+	 7 8 19 18];
+
+ICONEE = [5 20 21 3;
+	 3 21 22 8;
+	 8 22 23 19;
+	 19 23 24 14;
+	 14 24 25 16];
 
 H = [1 2 Nr/2;
      2 3 Nr/2;
@@ -47,7 +58,13 @@ H = [1 2 Nr/2;
      17 12 Ntheta/4;
      9 1 Ntheta/8;
      9 12 Ntheta/8;
-     10 11 Nx];
+     10 11 Nx;
+     5 20 Next;
+     20 21 Nx;
+     21 22 Ntheta/4;
+     22 23 Ntheta/4;
+     23 24 Ntheta/4;
+     24 25 Nx];
 
 [xnod,icone,mesh] = mesher(XNOD,ICONE,H);
 external = mesher_bound(mesh,[5 3 8 19 14 16]);
@@ -113,3 +130,10 @@ for k=1:length(outlet)
   fprintf(fid,"%d %d    %f\n",node,3,0.);
 endfor  
 fclose(fid);
+
+[xnode,iconee,meshe] = mesher(XNOD,ICONEE,H);
+external2 = mesher_bound(meshe,[5 3 8 19 14 16]);
+external3 = mesher_bound(meshe,[20 21 22 23 24 25]);
+
+asave("ext.nod.tmp",xnode);
+asave("ext.con.tmp",iconee);

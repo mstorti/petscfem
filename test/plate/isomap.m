@@ -10,8 +10,8 @@ function [xnod,icone]= isomap(XNOD,ICONE,HH)
   n = HH(edgey);
 
   if m==0 || n==0; 
-    printf("Not defined refinement"); 
-    ICONE,m,n;
+    printf("Not defined refinement!!\n"); 
+    ICONE,m,n
     if m==0, m=10; endif
     if n==0, n=10; endif
   endif
@@ -37,13 +37,13 @@ function [xnod,icone]= isomap(XNOD,ICONE,HH)
   endfor
   
   tol = 1e-10;
-  merr(X12(1,  :) - X14(1,:))   < tol || error("Corner doesn't match");
+  mesher_check_corner(X12(1,  :),X14(1,:),tol);
   X1 = X12(1,  :);
-  merr(X12(m+1,:) - X23(1,:))   < tol || error("Corner doesn't match");
+  mesher_check_corner(X12(m+1,:),X23(1,:),tol);
   X2 = X12(m+1,  :);
-  merr(X23(n+1,:) - X43(m+1,:)) < tol || error("Corner doesn't match");
+  mesher_check_corner(X23(n+1,:),X43(m+1,:),tol);
   X3 = X23(n+1,  :);
-  merr(X14(n+1,:) - X43(1,:))   < tol || error("Corner doesn't match");
+  mesher_check_corner(X14(n+1,:),X43(1,:),tol);
   X4 = X14(n+1,  :);
 
   xnod = zeros(size(xinod));

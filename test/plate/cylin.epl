@@ -7,7 +7,7 @@ $case_name = 'default' unless defined $case_name;
 $Re = 100;
 $Co = 2;
 
-if (1) {   ## large mesh
+if (0) {   ## large mesh
     $Rint=1;
     $Rext=4;
     $L = 8;
@@ -24,10 +24,11 @@ if (1) {   ## large mesh
     $Nx=40;
     $du_ini_pert = 0.3;
 }
-
+$Rext2=2*$Rext;
+$Next = $Nr/2;
 $hmin = 2*$PI*$Rint/$Ntheta;
 #__END_TRANSCRIPT__
-@vars = qw(Rint Rext L Ntheta Nr Nx du_ini_pert);
+@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert Next);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH cylin.m";

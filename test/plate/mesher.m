@@ -1,7 +1,7 @@
 ## usage: [xnod,icone,mesh]= mesher (XNOD,ICONE,H)
 function [xnod,icone,mesh]= mesher (XNOD,ICONE,H)
 
-  maxnode = max(max(ICONE));
+  maxnode = rows(XNOD);
   
   NELEM = rows(ICONE);
   edge2elem = [(1:NELEM)';

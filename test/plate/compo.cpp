@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: compo.cpp,v 1.1 2002/12/29 21:18:57 mstorti Exp $
+//$Id: compo.cpp,v 1.2 2002/12/29 22:27:25 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -15,7 +15,6 @@ extern int MY_RANK,SIZE;
 #include <src/fstack.h>
 #include <src/texthash.h>
 #include <src/fem.h>
-#include "../ROSI/fifo.h"
 
 const int ND=3;
 

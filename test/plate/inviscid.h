@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.h,v 1.1 2002/12/29 21:18:57 mstorti Exp $
+//$Id: inviscid.h,v 1.2 2002/12/29 22:27:25 mstorti Exp $
 #ifndef ROSI_H
 #define ROSI_H
 
@@ -21,7 +21,7 @@
 #include <applications/ns/nssup.h>
 #include <applications/ns/dlhook.h>
 
-#include "./fifo.h"
+//#include "./fifo.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class coupling_visc_hook {
