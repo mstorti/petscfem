@@ -15,21 +15,20 @@ if ($case eq 'g_body') {
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
 $N = 20;
-$hratio = 0;			# refinement (h_center/h_wall)
-$Re =10;			# Reynolds number
+$hratio = 5;			# refinement (h_center/h_wall)
+$Re =200;			# Reynolds number
 $visco_l = $L/$Re;		# viscosity
-$Dt = 1e12;			# time step
+$Dt = 5;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 1;
+$nstep = 2;
 $alpha_l = 1.;
 $u_g=0;
 $v_g=0;
 $k = 0.1;
 $eps = 0.1;
 #
-$weak_form = 0;
 $cache_gdu = 0;
 # `scalar' avoids returning the first match, which can be zero
 # and then can be interpreted as `false' 
@@ -43,13 +42,14 @@ transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
 
+##================================================================
 global_options
 
 alpha 1.
 nsave 5
 <:pr('nstep'):> 
-initial_state "bubbly.ini.tmp"
-# initial_state "bubbly.state.tmp"
+# initial_state "bubbly.ini.tmp"
+initial_state "bubbly.state"
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -69,21 +69,22 @@ atol 0
 rtol 0
 dtol 1e3
 nnwt 10
-omega_newton 0.3
 
-# omega_newton 0.5
+# omega_newton 0.2
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv
 #if 0
 print_residual
 print_linear_system_and_stop
-solve_system 0
-# verify_jacobian_with_numerical_one 1
+# solve_system 0
+verify_jacobian_with_numerical_one 1
+inwt_stop 2
 #endif
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
 steady
+weak_form 1
 temporal_stability_factor 0
 # tau_fac 0.
 
@@ -96,36 +97,42 @@ cache_grad_div_u
 #if $g_body
 G_body 0 -1.
 #endif
+
+ndim 2
+<:pr('visco_l'):> 
+visco_g <:=$visco_l/1000;:>
+C_mu 0.
+rho_l 1.
+rho_g 1e-3
 __END_HASH__
 
+##================================================================
 # ndim nu ndof
 nodes  2  2  8
 __INCLUDE__ bubbly.nod.tmp
 _END_NODES__
 
+##================================================================
 elemset bubbly 4 
-
-name malla
-
-# report_consumed_time
 geometry cartesian2d
-ndim 2
 npg 4
-#
-# Datos fisicos
-#
-<:pr('visco_l'):> 
-visco_g <:=$visco_l/1000;:>
-C_mu 0.
-<:pr('weak_form'):>
-rho_l 1.
-rho_g 1e-3
 __END_HASH__
 __INCLUDE__ bubbly.con.tmp
 __END_ELEMSET__
 
+##================================================================
+#if 1
+elemset bubbly_bcconv 2
+geometry cartesian1d
+npg 2
+__END_HASH__
+__INCLUDE__ bubbly.bcconv.tmp
+__END_ELEMSET__
+#endif
+
 end_elemsets
 
+##================================================================
 fixa
 #if 1
 # fijacion en la presion
@@ -133,6 +140,5 @@ fixa
 # fijaciones de velocidad en las paredes
 __INCLUDE__ bubbly.fixa.tmp
 #endif
-
 __INCLUDE__ bubbly.fixa_all.tmp
 __END_FIXA__

@@ -6,7 +6,7 @@ w=zhomo([0 1.5 0 1],Nx+1,Ny+1);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
-usar_y=1;
+usar_y=0;
 if usar_y
   xnod=xnod(:,[2 1]);
   icone = icone(:,[1 4 3 2]);
@@ -17,7 +17,8 @@ asave("couette.con.tmp",icone);
 
 U=1;
 if !usar_y
-  f=[0. 1. U  0. 0. 0. 0.1 0.1];
+#  f=[1.1 1. 1.2  3.4 0. 0. 0.1 0.1];
+  f=[1.1 0.9 1.2  3.4 0.1 0.2 0.1 0.1];
 else
   f=[0. 1. 0. U  0. 0. 0.1 0.1];
 endif
@@ -25,7 +26,9 @@ endif
 nnod=rows(xnod);
 
 fixa = [];
-for k=[2 5 6 7 8]
+#for k=[2 5 6 7 8]
+## for k=[7 8]
+for k=[]
   fixa = [fixa;
 	  (1:nnod)' k*ones(nnod,1) f(k)*ones(nnod,1)];
 end

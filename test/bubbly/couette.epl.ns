@@ -55,7 +55,7 @@ npg 4
 #
 # Datos fisicos
 #
-weak_form 0
+weak_form 1
 viscosity 1
 __END_HASH__
 __INCLUDE__ couette.con.tmp

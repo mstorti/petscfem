@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.6 2002/02/19 18:08:59 mstorti Exp $
+// $Id: bubbly.h,v 1.7 2002/03/04 21:15:58 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
@@ -17,7 +17,7 @@ private:
   FastMat2 U,v_l,v_g,v_mix,Cp,Ajac,Id,Amoml,Amomg,Y,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
     grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
-    uintri,svec,tmp9;
+    uintri,svec,tmp9,W_N;
   FastMat2 Cpc,Ajacc,Djacc,Cjacc;
   double alpha_l,alpha_g,arho_l,arho_g,p,k,eps,
     visco_l,visco_g,visco_l_eff,visco_g_eff,
@@ -27,7 +27,7 @@ private:
   double rho_l,rho_g;
     
 public:
-  bubbly_ff(const NewAdvDif *e);
+  bubbly_ff(NewElemset *elemset_);
 
   ~bubbly_ff();
   
@@ -133,6 +133,12 @@ public:
       fixme:= should destroy the flux functin. 
   */
   bubbly() :  NewAdvDif(new bubbly_ff(this)) {};
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class bubbly_bcconv : public NewBcconv {
+public:
+  bubbly_bcconv() : NewBcconv(new bubbly_ff(this)) {};
 };
 
 #endif

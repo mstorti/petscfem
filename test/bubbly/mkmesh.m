@@ -53,6 +53,17 @@ uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
 uini=uini(ones(rows(x),1),:);
 asave("bubbly.ini.tmp",uini);
 
+bottom = (1:(N+1):(N+1)^2)';
+right = (N+1)*N+(1:N+1)';
+top = ((N+1)^2:-(N+1):(N+1))';
+left = ((N+1):-1:1)';
+
+bcconv = [bottom(1:N) bottom(2:N+1);
+	  right(1:N) right(2:N+1);
+	  top(1:N) top(2:N+1);
+	  left(1:N) left(2:N+1)];
+asave("bubbly.bcconv.tmp",bcconv);
+
 ## fix all quantities not liquid velocity and pressure
 
 

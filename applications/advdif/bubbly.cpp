@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.10 2002/03/01 21:03:48 mstorti Exp $
+//$Id: bubbly.cpp,v 1.11 2002/03/04 21:15:58 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -92,6 +92,7 @@ void bubbly_ff::start_chunk(int &ret_options) {
   uintri.resize(1,ndim);
   svec.resize(1,ndim);
   tmp9.resize(1,nel);
+  W_N.resize(2,nel,nel);
 
   Djacc.resize(4,ndim,ndof,ndim,ndof);
 }
@@ -101,8 +102,7 @@ void bubbly_ff::element_hook(ElementIterator &element) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bubbly_ff::bubbly_ff(const NewAdvDif *e) 
-  : AdvDifFFWEnth(e) {}
+bubbly_ff::bubbly_ff(NewElemset *e) : AdvDifFFWEnth(e) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bubbly_ff::~bubbly_ff() { }
@@ -151,10 +151,13 @@ void bubbly_ff::enthalpy(FastMat2 &H) {
 void bubbly_ff
 ::comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 	      double weight) {
+  W_N.prod(W,N,1,2).scale(weight);
+  W_Cp_N.prod(W_N,Cp,1,3,2,4);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void bubbly_ff::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
+  P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -269,12 +272,6 @@ void bubbly_ff
   // Ajac.set(0.); //debug:= 
   // Cambiamos signo de la ec. de cont. debug:=
   Ajac.is(2,1).scale(-1.).rs(); 
-
-#if 0
-  Ajac.ir(1,1).eye(1.); // debug:=
-  Ajac.ir(1,2).eye(0.);
-  Ajac.rs();
-#endif
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
@@ -447,8 +444,7 @@ void bubbly_ff
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void bubbly_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
-  assert(0); // fixme:= not defined yet (for use with
-	     // absorbing b.c's and bcconv)
+  A_jac_n.prod(Ajac,normal,-1,1,2,-1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

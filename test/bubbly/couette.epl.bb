@@ -30,7 +30,7 @@ Dt 1
 steady
 alpha 1.
 G_body 1. 0.
-tau_fac 0.
+tau_fac 1.
 print_linear_system_and_stop
 solve_system 0
 verify_jacobian_with_numerical_one
@@ -54,11 +54,11 @@ npg 4
 #
 # Datos fisicos
 #
-weak_form 0
+weak_form 1
 C_mu 0.
 rho_l 1.
 rho_g 1e-3
-visco_l 1.e-20
+visco_l 1.1e-3
 visco_g 1e-3
 __END_HASH__
 __INCLUDE__ couette.con.tmp
@@ -82,6 +82,7 @@ fixa
 <:=2*$N+2:> 3 0.
 <:=2*$N+2:> 4 0.
 #else
+#if 0
 1 1 0.
 1 3 0.
 1 4 0.
@@ -112,6 +113,7 @@ fixa
 12 1 0.
 12 3 0.
 12 4 0.
+#endif
 #endif
 __INCLUDE__ couette.fixa.tmp
 __END_FIXA__

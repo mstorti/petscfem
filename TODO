@@ -3,6 +3,14 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make advdif not to need the CHECK_JAC compilation flag, so that it
+     doesn't need recompilation to check the jacobian. 
+* Continuation lines behave extrangely when ending in a comment. For
+	instance: 
+  blah blah blah blah \
+    blah blah blah \
+	blah blah # comment
+   See ROCKET `slosh.epl' example Thu Feb 28 09:11:50 ART 2002
 * Fix `delete' and `new' not balanced in `NewAdvDifFF' derived
          classes. 
 * add tests  `cubcav' 
