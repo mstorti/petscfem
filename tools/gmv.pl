@@ -1,3 +1,7 @@
+#__INSERT_LICENSE__
+#$Id: gmv.pl,v 1.2 2002/07/27 15:32:50 mstorti Exp $
+
+if (! defined $fields) { $fields = 'ns'; }
 
 open NOD,"$nod";
 open GMV,">$gmv";
@@ -115,19 +119,31 @@ if ($rslt) {
 	push @rslt,@val;
     }
 
-    print GMV "velocity 1\n";
-    print_rslt(\@rslt,$nrslt,$nnod,0,$dim-1,0,GMV);
-    for (my $j=$dim; $j<3; $j++) {
-	for (my $i=0; $i<$nnod; $i++) {
-	    print GMV "0.\n";
+    if ($fields eq 'ns') {
+	print GMV "velocity 1\n";
+	print_rslt(\@rslt,$nrslt,$nnod,0,$dim-1,0,GMV);
+	for (my $j=$dim; $j<3; $j++) {
+	    for (my $i=0; $i<$nnod; $i++) {
+		print GMV "0.\n";
+	    }
 	}
-    }
 
-    print GMV "variables\n";
-    print GMV "pressure 1\n";
-    print_rslt(\@rslt,$nrslt,$nnod,$dim,$dim,0,GMV);
+	print GMV "variables\n";
+	print GMV "pressure 1\n";
+	print_rslt(\@rslt,$nrslt,$nnod,$dim,$dim,0,GMV);
 
-    print GMV "endvars\n";
+    } elsif ($fields eq 'scalar' || ! defined $fields) {
+	my $nfield = scalar @$rslt[0];
+	
+	print GMV "variables\n";
+	for (my $f=1; $f<=$nfield; $f++) {
+	    print GMV "phi$f $f\n";
+	    print_rslt(\@rslt,$nrslt,$nnod,$f-1,$f-1,0,GMV);
+	}
+	print GMV "endvars\n";
+
+    } else die "unknown fields: \"$fields\"\n";
+
 }
 
 if ($mat) {
