@@ -3126,3 +3126,30 @@ tag: beta-3.25.pl15 on Sun, 07 Dec 2003 18:25:12 -0300 by mstorti in spider
      > Found a SERIOUS BUG in `gpdata.cpp':
      > 	 Tetras had a volume of 1/3!!! (in place of 1/60). 
      > Gaschem 3D is working. 
+----------
+tag: beta-3.26 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added tests for `compute_fd_adv_jacobian' in `test/burgers'. 
+     > Added `__SWITCH_FILE__' and `field match' to `myexpect.pl'
+     > Verified `field match' in `myexpect.pl'
+     > Added doc for `block_uploading'. 
+     > Added Nb_source to `gaschem'
+     > Wrote `petscfem-mode' for Emacs support.
+     > Creates a texinfo file for browsing options and pasting
+     > 	into data file. 
+     > Now odoc.pl generates several instances of the same
+     >         option in only one page. 
+     > Fixed '-bubbly' initialization bug. 
+     > Now stops OK when there is no `ini' state vector file. 
+     > Now printing "For elemset ..." element partitioning should
+     > 	   give the elemset name and pointer. 
+     > Merged from `algebraic-slip-model-1' onto `beta-3.25.pl10'
+     > Written `GenericError(char *,...)'
+     > Uses `PETSCFEM_ASSERT_GE()' for not enough nodes in one line error. 
+     > Added two index FastMat2::trace()
+     > Found a SERIOUS BUG in `gpdata.cpp':
+     > 	 Tetras had a volume of 1/3!!! (in place of 1/60). 
+     > Gaschem 3D is working. 
+----------
+tag: beta-3.27.pl1 on Sun, 07 Dec 2003 21:21:15 -0300 by mstorti in spider
+     > Administrative tag.
