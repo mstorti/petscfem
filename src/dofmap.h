@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.8 2002/02/09 22:22:17 mstorti Exp $
+//$Id: dofmap.h,v 1.9 2002/02/10 00:20:09 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -46,8 +46,11 @@ public:
   static Amplitude *old_factory(char *& label,FileStack &fstack);
   /// Eval the amplitude of the function at this time. 
   virtual double eval(const TimeData *time_data)=0;
-  /// Initializes the object
-  virtual void init(TextHashTable *t) { delete t; };
+  /** Initializes the object. Table t should be deleted if not
+      incorporated in the created object. If it is deleted set it to
+      NULL. 
+  */
+  virtual void init(TextHashTable *t) { delete t; t=NULL; };
   /// prints the amplitude entry. 
   virtual void print(void) const=0; 
 };

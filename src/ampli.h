@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.1 2002/02/09 21:03:52 mstorti Exp $
+// $Id: ampli.h,v 1.2 2002/02/10 00:20:09 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -57,6 +57,20 @@ public:
   void read_hash_table(FileStack *fstack);
   /// prints the amplitude entry. 
   void print(void) const; 
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class DLGeneric : public Amplitude {
+private:
+  TextHashTable *thash;
+  typedef double EvalFun(double);
+  EvalFun *fun;
+  void *handle;
+public:
+  void print() const;
+  void init(TextHashTable *thash_);
+  double eval(const TimeData *time_data);
+  ~DLGeneric();
 };
 
 #endif

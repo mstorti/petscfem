@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.7 2002/02/09 22:22:17 mstorti Exp $
+//$Id: tempfun.cpp,v 1.8 2002/02/10 00:20:10 mstorti Exp $
 
 #include <math.h>
 
@@ -487,12 +487,15 @@ Amplitude *Amplitude::factory(char *& label,
   Amplitude *amp;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
+  } else if (!strcmp(label,"dl_generic")) {
+    amp = new DLGeneric;
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Not known fixa_amplitude \"%s\"\n",label);
     assert(0);
   }
   amp->init(t);
+  delete t; // If it wasn't deleted by `init'
   return amp;
 }
   

@@ -102,10 +102,7 @@ __END_ELEMSET__
 
 end_elemsets
 
-fixa_amplitude gaussian
-base 1.
-A 0.7
-t0 0.5
+fixa_amplitude dl_generic
 __END_HASH__
 1 1 1.
 __END_FIXA__
