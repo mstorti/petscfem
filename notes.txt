@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.161 2002/08/29 19:22:26 mstorti Exp $
+$Id: notes.txt,v 1.162 2002/08/30 00:33:09 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.161 2002/08/29 19:22:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.162 2002/08/30 00:33:09 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.161 2002/08/29 19:22:26 mstorti Exp $ 
+! # $Id: notes.txt,v 1.162 2002/08/30 00:33:09 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.161 2002/08/29 19:22:26 mstorti Exp $ 
+  # $Id: notes.txt,v 1.162 2002/08/30 00:33:09 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4938,6 +4938,18 @@ pierde. Basicamente la diferencia esta en el agregado del cache para
 mydetsur. Las modificaciones estan en src y
 applications/ns-advdif.. Voy a probar a volver applications/ns a su
 version original (con mydetsur). 
+
+%===Thu, 29 Aug 2002 21:02:25 -0300 mstorti@spider
+%
+En spider, con un problema no tan grande corriendo con dos procesos
+parece tambien perder memoria con la beta-3.03.pl6. Ahora voy a
+probar a usar en applications/ns la 3.03.pl5. 
+%
+21:23:57: El comando ahora es 
+$ perl -ne "print \$1' if m|cache:\s*(\S*)\s|;" < bwm.log > pp
+%
+21:28:18: Pareceria que decididamente la .pl6 pierde mientras que la
+.pl5 no. 
 
 
 %# Current line ===========  
