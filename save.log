@@ -289,3 +289,8 @@ tag: beta-1.47 on Sat Mar 24 13:20:39 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.48 on Mon Mar 26 00:12:15 ART 2001, by mstorti in spider
      > Writing tests for the new lnear AdvDif flux functions.
+----------
+tag: beta-1.49 on Tue Mar 27 20:49:43 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Fixed a bug in reactive jacobians for the linear advection diffusion
+     > case. The term is '-cu' in the rhs so that c_jac->comp_G_source
+     > must return the 'cu' and we scaled this by -1. 
