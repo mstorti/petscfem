@@ -21,9 +21,16 @@ private:
   FastMat2 dU;
 
   class H;
+  class HFull;
   class S;
+  class SFull;
+  class SNull;
+
   friend class H;
+  friend class HFull;
   friend class S;
+  friend class SFull;
+  friend class SNull;
 
   class H : public FASTMAT2SHELL {
   public:
