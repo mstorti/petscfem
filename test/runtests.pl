@@ -580,7 +580,7 @@ EOT
 expect("newff/newff.check_nodes.out",
        "Check node<nnod in constraints",<<'EOT');
 Assertion failed: "node<=nnod."
-read_mesh: Read node= 35 greater that nnod= 34
+read_mesh: Read node= 35 greater than nnod= 34
 newff.depl:.*: "1. 35 1 \-1. 33 1"
 ---------------
 PETSC-FEM error at file "readmesh.cpp", line 
