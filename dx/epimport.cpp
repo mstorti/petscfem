@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.16 2003/09/06 22:11:43 mstorti Exp $
+// $Id: epimport.cpp,v 1.17 2003/09/07 13:18:58 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -314,6 +314,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   Array array = NULL;
   Error ierr;
   char spc[] = " \t\n";
+  int cache_nodes=0;
+  Object ck;
 
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
@@ -332,6 +334,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   Object step_o           = in[in_index++];
   Object state_file_o     = in[in_index++];
   Object record_o         = in[in_index++];
+  Object gpositions=NULL;
 
   int steps, port, step, step_comp=INT_MAX, record;
   char *options, *hostname, *state_file;
@@ -421,6 +424,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[4],cookie)) goto error;
       ierr = build_dx_array(clnt,ndim,nnod,array);
       if(ierr!=OK) return ierr;
+      Object cached_nodes = DXGetCacheEntry("ExtProgImport",0,0);
+
       Nodes *nodes = new Nodes(ndim,nnod,array);
       ierr = dx_objects_table.load_new(name,nodes);
       if(ierr!=OK) return ierr;
@@ -428,6 +433,24 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
       Sprintf(clnt,"nodes_OK %d\n",cookie);
+
+      if (gpositions) { DXMessage("Multiple position objects"); }
+      else {
+	gpositions = nodes->dx_object();
+	if (!cached_nodes) {
+	  Error err = DXSetCacheEntry(gpositions,CACHE_PERMANENT,"ExtProgImport",0,0);
+	  if (err!=OK) {
+	    DXMessage("Couldn't create cache entry");
+	    goto error;
+	  } else 
+	    DXMessage("Putting cached_nodes in cache %p",gpositions);
+	}
+      }
+      if (cached_nodes) {
+	DXMessage("Found cached nodes %p",cached_nodes);
+	DXDelete(cached_nodes);
+      }
+
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
       DXMessage("Got state line %s",buf);
@@ -605,8 +628,24 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;
-  return OK;
 
+#if 0
+  ck = DXGetCacheEntry("ExtProgImport",0,0);
+  DXMessage("Cookie found ? %d",(ck ? 1 : 0));
+  if (ck) {
+    int c;
+    DXExtractInteger(ck,&c);
+    DXMessage("Found ck: %d",c);
+    DXDelete(ck);
+  } else {
+    int c = 42152346;
+    Array my_ck = DXMakeInteger(c);
+    // DXSetCacheEntry((Object)my_ck,CACHE_PERMANENT,"ExtProgImport",0,0);
+  }
+#endif
+
+  return OK;
+  
 error:
   Sclose(clnt);
   delete[] hostname;
