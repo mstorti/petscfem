@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.6 2001/06/20 02:14:53 mstorti Exp $
+//$Id: wallke.cpp,v 1.7 2001/06/25 14:38:22 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -88,8 +88,11 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o The $y$ (normal) coordinate of the computational boundary. 
   // Only for laminar computations.
   SGETOPTDEF(double,y_wall,1e-3);
-  //o Use laminar relation
+  //o Mask for using laminar relation (\verb+turbulence_coef=0+). 
   SGETOPTDEF(double,turbulence_coef,1.);
+  //o Use lumped mass matric for the wall element contribution. Avoids
+  // oscillations due to ``reactive type'' wall contributions. 
+  SGETOPTDEF(int,lumped_wallke,1);
 
   SGETOPTDEF(double,viscosity,0.); //o
   PETSCFEM_ASSERT0(viscosity>0.,
@@ -121,7 +124,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate2(nel,ndof),xpg; 
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof);
+  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(2,nel,nel);
   FMatrix matlocmom(nel,nel);
 
   double rho=1.;
@@ -144,7 +147,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix grad_p_star(ndim),u,u_star,ucols,ucols_new,ucols_star,
     pcol_star,pcol_new,pcol;
 
-  FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,tmp5,seed(ndof,ndof);
+  FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,
+    tmp5,seed(ndof,ndof),;
 
 //    if (comp_mat_res) {
 //      seed.eye().setel(0.,ndof,ndof);
@@ -185,7 +189,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     veccontr.set(0.);
 
     ucols.set(locstate2.is(2,1,ndim));
-    locstate2.rs();
 
     ucols_new.set(locstate.is(2,1,ndim));
     locstate.rs();
@@ -204,6 +207,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_mat_res) {
       veccontr.is(2,1,ndim);
       matloc.is(2,1,ndim).is(4,1,ndim);
+      lmass.set(0.).d(2,1);
 
       // loop over Gauss points
       // Guarda que hay que invertir la direccion de la traccion!!!!
@@ -211,6 +215,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 	detJaco = mydetsur(Jaco,normal);
+	double wpgdet = detJaco * WPG;
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
@@ -224,14 +229,16 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 
 	tmp1.prod(SHAPE,SHAPE,1,2);
-	matlocmom.axpy(tmp1,gfun*detJaco);
+	matlocmom.axpy(tmp1,gfun*wpgdet);
+	if (lumped_wallke) 
+	  lmass.axpy(SHAPE,wpgdet);
 
 	tmp2.prod(SHAPE,u_star,1,2);
-	tmp3.set(tmp2).scale(detJaco*gprime/Ustar);
+	tmp3.set(tmp2).scale(wpgdet*gprime/Ustar);
 	tmp4.prod(tmp2,tmp3,1,2,3,4);
 	matloc.add(tmp4);
 
-	veccontr.axpy(tmp2,-gfun*detJaco);
+	veccontr.axpy(tmp2,-gfun*wpgdet);
       }
 
       matlocmom.rs();
