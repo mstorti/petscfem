@@ -9,18 +9,10 @@
 
 using namespace std;
 
-int main() {
-  // BasicSumHasher hash;
-  // SumHasher hash;
-  // MD5SumHasher hash;
-  // FastSumHasher hash;
-#define SET_HASHER(name) 			\
-  name hash;					\
-  const char hasher[] = #name
-
-  SET_HASHER(FastHasher);
+void test_hasher(BaseHasher *hash,
+		 const char *name) {
   time_t start, end;
-  int N=20, M=10, NN=100, 
+  int N=20, M=1000, NN=100, 
     ntime=10000, NBUFF=N*NN;
   vector<int> buffer(NBUFF);
   for (int j=0; j<NBUFF; j++)
@@ -29,17 +21,43 @@ int main() {
   for (int l=0; l<ntime; l++) {
     for (int j=0; j<NN; j++) {
       int s=0;
-      hash.reset();
+      hash->reset();
       for (int k=0; k<N; k++) {
-	hash.hash(&buffer[k*N],N);
+	hash->hash(&buffer[k*N],N);
       }
-      int shv = hash.val();
+      int shv = hash->val();
     }
   }
   double elaps = difftime(time(NULL),start);
   printf("Stats for %s hash class:\n" 
 	 "%dx%dx%d evals, elapsed %f, "
 	 "rate %g secs/M-int-hash\n",
-	 hasher,N,NN,ntime,elaps,
+	 name,N,NN,ntime,elaps,
 	 elaps/double(NBUFF)/double(ntime)*1.0e6);
+}
+
+int main() {
+#define DEF_HASHER(type) \
+  type type##_h
+
+  DEF_HASHER(Hasher);
+  DEF_HASHER(SumHasher);
+  DEF_HASHER(MD5Hasher);
+  DEF_HASHER(MD5SumHasher);
+  DEF_HASHER(FastHasher);
+  DEF_HASHER(FastSumHasher);
+
+  const char *hasher;
+
+#define TEST_HASHER(name)				\
+  test_hasher(&name##_h,#name)
+
+  TEST_HASHER(Hasher);
+  TEST_HASHER(MD5Hasher);
+  TEST_HASHER(FastHasher);
+
+  TEST_HASHER(SumHasher);
+  // TEST_HASHER(MD5SumHasher);
+  TEST_HASHER(FastSumHasher);
+
 }
