@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.12 2001/11/26 20:10:22 mstorti Exp $
+// $Id: iisdmat.h,v 1.13 2001/12/08 00:42:22 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -29,6 +29,25 @@
 class PETScMat : public PFMat {
   /// PETSc error code 
   int ierr;
+#if 0
+  /** Performs all operations needed before permorming the solution of
+      the linear system (creating the PETSc SLES, etc...). Sets
+      oprtions from the #thash# table. 
+      @param name (input) a string to be prepended to all options that
+      apply to the operator. (not implemented yet)
+  */ 
+  int build_sles(TextHashTable *thash,char *name=NULL);
+#endif
+  /** Solve the linear system 
+      @param res (input) the rhs vector
+      @param dx (input) the solution vector
+  */ 
+  int factor_and_solve(Vec &res,Vec &dx);
+  /** Solve the linear system 
+      @param res (input) the rhs vector
+      @param dx (input) the solution vector
+  */ 
+  int solve_only(Vec &res,Vec &dx);
 public:
   /// Destructor (calls almost destructor)
   ~PETScMat() {clear();};
@@ -186,6 +205,23 @@ class IISDMat : public PFMat {
   double pc_lu_fill;
   /// Layers of nodes of the preconditioning
   vector< set<int> > int_layers;
+  /** Performs all operations needed before permorming the solution of
+      the linear system (creating the PETSc SLES, etc...). Sets
+      oprtions from the #thash# table. 
+      @param name (input) a string to be prepended to all options that
+      apply to the operator. (not implemented yet)
+  */ 
+  int build_sles(TextHashTable *thash,char *name=NULL);
+  /** Solve the linear system 
+      @param res (input) the rhs vector
+      @param dx (input) the solution vector
+  */ 
+  int factor_and_solve(Vec &res,Vec &dx);
+  /** Solve the linear system 
+      @param res (input) the rhs vector
+      @param dx (input) the solution vector
+  */ 
+  int solve_only(Vec &res,Vec &dx);
 
 public:
 
@@ -233,18 +269,6 @@ public:
   int assembly_end(MatAssemblyType type);
   /// Prints the matrix to a PETSc viewer
   int view(Viewer viewer);
-  /** Performs all operations needed before permorming the solution of
-      the linear system (creating the PETSc SLES, etc...). Sets
-      oprtions from the #thash# table. 
-      @param name (input) a string to be prepended to all options that
-      apply to the operator. (not implemented yet)
-  */ 
-  int build_sles(TextHashTable *thash,char *name=NULL);
-  /** Solve the linear system 
-      @param res (input) the rhs vector
-      @param dx (input) the solution vector
-  */ 
-  int solve(Vec res,Vec dx);
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
   /// Destroy the SLES associated with the operator. 
@@ -259,6 +283,8 @@ public:
 
 /// Direct solver. (May be PETSc or SuperLU)
 class SparseDirect : public PFMat {
+  // Does nothing
+  int build_sles(TextHashTable *thash,char *name=NULL) {return 0;};
 public:
   SparseDirect(char * opt = "PETSc") {
     A_p = Sparse::Mat::dispatch(opt,&thash);
@@ -281,11 +307,17 @@ public:
   /// Sets all values of the operator to zero.
   int zero_entries() {A_p->clear(); return 0;};
   // Does nothing
-  int build_sles(TextHashTable *thash,char *name=NULL) {return 0;};
-  // Does nothing
   int destroy_sles() {return 0;};
-  // solve system calling Sparse::Mat::solve()
-  int solve(Vec res,Vec dx);
+  /** Solve the linear system 
+      @param res (input) the rhs vector
+      @param dx (input) the solution vector
+  */ 
+  int factor_and_solve(Vec &res,Vec &dx);
+  /** Solve the linear system 
+      @param res (input) the rhs vector
+      @param dx (input) the solution vector
+  */ 
+  int solve_only(Vec &res,Vec &dx);
   /// returns the number of iterations spent in the last solve
   int its() {return 1;};
   /// Prints the matrix to a PETSc viewer

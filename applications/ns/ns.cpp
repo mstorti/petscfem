@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.57 2001/12/07 18:28:56 mstorti Exp $
+//$Id: ns.cpp,v 1.58 2001/12/08 00:42:22 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -482,7 +482,7 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      A_tet->build_sles(GLOBAL_OPTIONS);
+      // A_tet->build_sles(GLOBAL_OPTIONS);
 
       if (!print_linear_system_and_stop || solve_system) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 

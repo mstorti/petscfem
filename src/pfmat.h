@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.26 2001/12/07 18:28:56 mstorti Exp $
+// $Id: pfmat.h,v 1.27 2001/12/08 00:42:22 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -28,11 +28,11 @@ public:
   }
 };
 
+//#define PFFSM
+#ifdef PFFSM
 #undef FSM_ACTION
 #define FSM_ACTION(action) void pfmatFSMContext::action()	\
   {matrix_p->action();}
-
-#endif
 
 class pfmatFSMContext {
 public:
@@ -47,6 +47,7 @@ public:
 };
 
 #include "pfmatFSM.h"
+#endif
 
 /// This is the basic distributed matrix class. 
 //typedef DistMap<int,Row,IntPartitioner> DistMat;
@@ -56,9 +57,11 @@ public:
 */
 class PFMat {
 protected:
+#ifdef PFFSM
   /// The Finite State Machine Object
   friend class pfmatFSM;
   pfmatFSM fsm;
+#endif
   /// We will have always a PETSc matrix for the system and for the preconditioner
   Mat A,P;
   /// The PETSc linear solver
@@ -87,17 +90,27 @@ protected:
   string KSP_method;
   /// The options database
   TextHashTable thash;
+  /// These are the actions for the state machine
+  int factored;
+  virtual int factor_and_solve(Vec &res,Vec &dx)=0;
+  virtual int solve_only(Vec &res,Vec &dx)=0;
+  // void clean_factor();
 public:
   /// Constructor, initialize variables
   PFMat();
+
   /// Virtual destructor
   virtual ~PFMat();
+
   /// clear memory (almost destructor)
   virtual void clear();
+
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
   virtual int assembly_begin(MatAssemblyType type)=0;
+
   /// calls MatAssemblyEnd on internal matrices, see PETSc doc
   virtual int assembly_end(MatAssemblyType type)=0;
+
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
       of the operator
@@ -108,6 +121,7 @@ public:
   */ 
   virtual void create(Darray *da,const Dofmap *dofmap_,
 		      int debug_compute_prof=0)=0;
+
   /** Sets individual values on the operator #A(row,col) = value#
       @param row (input) first index
       @param col (input) second index
@@ -116,8 +130,10 @@ public:
   */ 
   virtual void set_value(int row,int col,Scalar value,
 			 InsertMode mode=ADD_VALUES)=0;
+
   /// Sets all values of the operator to zero.
   virtual int zero_entries()=0;
+
   /** Performs all operations needed before permorming the solution of
       the linear system (creating the PETSc SLES, etc...). Sets
       oprtions from the #thash# table. 
@@ -125,9 +141,10 @@ public:
       apply to the operator. (not implemented yet)
   */ 
   virtual int build_sles(TextHashTable *thash,char *name=NULL);
-  /** Destroy the SLES associated with the operator. 
-  */ 
+
+  /// Destroy the SLES associated with the operator. 
   virtual int destroy_sles();
+
   /** Defines how to report convergence in the internal loop. 
       Derive this function to obtain a different effect from the
       default one. 
@@ -142,7 +159,7 @@ public:
       @param res (input) the rhs vector
       @param dx (input) the solution vector
   */ 
-  virtual int solve(Vec res,Vec dx);
+  virtual int solve(Vec &res,Vec &dx);
   /// returns the number of iterations spent in the last solve
   virtual int its() {return its_;};
   /// Prints the matrix to a PETSc viewer

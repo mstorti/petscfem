@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2001/12/07 18:27:30 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/12/08 00:42:22 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -31,7 +31,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 #w Runs program
 run:  data
-	-${MPIRUN} -np 1 $(MCH) $(PROG) -case $(CASE).depl | tee  output.out
+	-${MPIRUN} -np 1 $(MCH) $(PROG) -case $(CASE).depl # | tee  output.out
 
 export CASE
 runs: CASE := sqcav

@@ -39,6 +39,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     if ($case=~/_uj/) {
 	$update_jacobian = 1;
 	$nstep = 20;
+	$maxits=3;
     }
     $preco_type = "jacobi";
 } elsif ($case eq 'big') {

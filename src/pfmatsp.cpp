@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.5 2001/11/14 01:52:27 mstorti Exp $
+//$Id: pfmatsp.cpp,v 1.6 2001/12/08 00:42:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -32,7 +32,7 @@ void SparseDirect::create(Darray *da,const Dofmap *dofmap,
 
 }
 
-int SparseDirect::solve(Vec res,Vec dx) {
+int SparseDirect::factor_and_solve(Vec &res,Vec &dx) {
   double *res_p, *dx_p;
   int m,j,ierr;
 
@@ -45,6 +45,10 @@ int SparseDirect::solve(Vec res,Vec dx) {
   ierr = VecRestoreArray(res,&res_p); CHKERRQ(ierr); 
   ierr = VecRestoreArray(dx,&dx_p); CHKERRQ(ierr); 
   return 0;
+}
+
+int SparseDirect::solve_only(Vec &res,Vec &dx) {
+  assert(0);
 }
 
 void SparseDirect::set_value(int row,int col,Scalar value,

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.61 2001/12/07 18:28:56 mstorti Exp $
+//$Id: lusubd.cpp,v 1.62 2001/12/08 00:42:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -62,8 +62,19 @@ PFMat * PFMat_dispatch(const char *s) {
   }
 }
 
+int PFMat::solve(Vec &res,Vec &dx) {
+  if (!factored) {
+    factored=1;
+    build_sles(&thash);
+    return factor_and_solve(res,dx);
+  } else {
+    return solve_only(res,dx);
+  }
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PFMat::PFMat() : sles_was_built(0), A(NULL), P(NULL) {
+PFMat::PFMat() : sles_was_built(0), 
+  A(NULL), P(NULL), factored(0) {
 #if 0
   char *s;
   int n = asprintf(&s,"PFMat matrix %p",this);
@@ -464,7 +475,14 @@ void IISDMat::set_value(int row,int col,Scalar value,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::solve"
-int IISDMat::solve(Vec res,Vec dx) {
+int IISDMat::solve_only(Vec &res,Vec &dx) {
+  assert(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::factor_and_solve"
+int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
       
   int ierr,kloc,itss,j,jj;
   Viewer matlab;
@@ -954,6 +972,7 @@ int PFMat::destroy_sles() {
     int ierr = SLESDestroy(sles); CHKERRQ(ierr);
     sles=NULL;
     sles_was_built = 0;
+    factored = 0;
   }
   return 0;
 }
@@ -999,10 +1018,17 @@ int PFMat::monitor(KSP ksp,int n,double rnorm) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::solve"
-int PFMat::solve(Vec res,Vec dx) {
+#define __FUNC__ "PETScMat::factor_and_solve"
+int PETScMat::factor_and_solve(Vec &res,Vec &dx) {
   int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PETScMat::solve_only"
+int PETScMat::solve_only(Vec &res,Vec &dx) {
+  return factor_and_solve(res,dx);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
