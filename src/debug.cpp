@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.9 2002/09/29 14:54:19 mstorti Exp $
+//$Id: debug.cpp,v 1.10 2002/09/29 18:28:08 mstorti Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
+#include <sys/vtimes.h>
 #include <cstdio>
 #include <time.h>
 
@@ -83,11 +84,12 @@ void Debug::trace(const char *s=NULL) {
       strftime(t,MXTM,"%H:%M:%S",localtime(&tt));
       printf("-- %s -- [%s %10.3f]\n",s,t,chrono.elapsed());
     }
-#if 0
     if (active("memory_usage")) {
+      int ierr;
+#if 0
       rusage rusage_v;
       long int rss_min, rss_max, rss_sum;
-      int ierr = getrusage(RUSAGE_CHILDREN,&rusage_v);
+      ierr = getrusage(RUSAGE_CHILDREN,&rusage_v);
       PETSCFEM_ASSERT0(!ierr,"Couldn't get memory size\n");  
       MPI_Allreduce(&(rusage_v.ru_maxrss),
 		    &rss_min,1,MPI_INT,MPI_MIN,comm);
@@ -98,8 +100,29 @@ void Debug::trace(const char *s=NULL) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Memory usage[kB]: min %d, max %d, avrg %f\n",
 		  rss_min,rss_max,rss_sum);
-    }
+#elsif 0
+      struct vtimes current,child;
+      ierr =  vtimes (current,child);
+#else
+      char *file,*line;
+      int mem,mem_min,mem_max,mem_sum,mem_avrg;
+      size_t n=0;
+      assert(asprintf(&file,"/proc/%d/status",getpid()));
+      FILE *fid = fopen(file,"r");
+      while(1) {
+	assert(getline(&line,&n,fid)!=-1);
+	if (sscanf(line,"VmRSS: %d kB",&mem)) break;
+      }
+      fclose(fid);
+      MPI_Allreduce(&mem,&mem_min,1,MPI_INT,MPI_MIN,comm);
+      MPI_Allreduce(&mem,&mem_max,1,MPI_INT,MPI_MAX,comm);
+      MPI_Allreduce(&mem,&mem_sum,1,MPI_INT,MPI_SUM,comm);
+      mem_avrg = int(ceil(double(mem_sum)/double(size)));
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "-- %s -- [Memory usage(kB): min %d, max %d, avrg %d]\n",
+		  s,mem_min,mem_max,mem_avrg);
 #endif
+    }
   }
   if (!active()) return;
   int ierr,nread,proc;

@@ -108,15 +108,31 @@ where $\eta$
 elevation, and $w$ is the velocity component normal to the free
 surface. We modify this as follows 
 %
-\begin{equation} 
-C_{\mathrm{eq}}\,\dtotd\eta t 
-   + C_{\mathrm{lf}} \eta + C_{\mathrm{damp}} \, \Delta \eta = w
+\begin{equation} \label{eq:fsmod}  
+\Cnst{eq}\,\dtotd\eta t 
+   + \Cnst{lf} \eta + \Cnst{damp} \, \Delta \eta = w
 \end{equation}
 %
 Where
-$damp=free_surface_damp# smoothes the free surface.
-#ceq=fs_eq_factor# (see #fs_eq_factor# doc) is a factor that makes the
-free surface more rigid.  #clf=free_surface_set_level_factor# (see doc
-for that option) tries to keep the free surface level constant.
+%
+\begin{itemize}
+\item $\Cnst{damp}=\alltt{free_surface_damp}$ smoothes the free
+surface adding a Laplacian filter. Note that if only the temporal
+derivative and the Laplace term are present in (\ref{eq:fsmod}) then
+the equation is a heat equation. A null value (which is the default)
+means no filtering. A high value means high filtering. (Warning: A
+high value may result in unstability).  $\Cnst{damp}$ has dimensions
+of $L^2/T$ (like a diffusivity). One possibility is to scale with mesh
+parameters like $h^2/\Delta t$, other is to scale with $h^1.5 \,
+g^0.5$. Currently, we are using $\Cnst{damp} = \Cnst{damp}' h^1.5 *
+g^0.5$ with $\Cnst{damp}'\approx 2$.
+
+\item $\Cnst{eq}=\alltt{fs_eq_factor}$ (see doc for this option) is a
+factor that scales the free surface 
+``rigidity''. $\Cnst{eq}=1$ (which is the default) means no scaling, a
+zero value means infinitely rigid (as for an inifinite gravity). 
+
+\item clf=free_surface_set_level_factor# (see doc for that option) tries to
+keep the free surface level constant.
 
 %end_section

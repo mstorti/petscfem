@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.7 2002/07/31 20:35:40 mstorti Exp $
+//$Id: nssupg.cpp,v 1.8 2002/09/29 18:28:04 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,6 +11,12 @@
 #include <applications/ns/nssup.h>
 
 extern TextHashTable *GLOBAL_OPTIONS;
+
+#ifdef ROSI_COUPLING_MODULE
+double AVERAGE_ELEVATION=0.;
+#else
+const double AVERAGE_ELEVATION=0.;
+#endif
 
 #define MAXPROP 100
 extern int fractional_step, reuse_mat;
@@ -39,8 +45,14 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // condition $w=0$. 
   TGETOPTDEF(thash,double,fs_eq_factor,1.);
   //o Scales a diffusion term on the surface that
-  // tends to smooth the free surface equation
+  // tends to smooth the free surface equation. 
   TGETOPTDEF(thash,double,free_surface_damp,0.);
+  //o This adds a $\Cnst{lf}\eta$ term in the free surface equation
+  // in order to have the total meniscus volume constant. 
+  TGETOPTDEF(thash,double,free_surface_set_level_factor,0.);
+#define C_FSL free_surface_set_level_factor
+#define C_EQ fs_eq_factor
+#define C_DAMP free_surface_damp
 
   assert(nel % 2==0); // one layer of nodes is for \eta the other for w
   int nel2 = nel/2;
@@ -175,7 +187,9 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // elevation at t^*
       eta_star.set(eta_new).scale(alpha).axpy(eta,1-alpha);
       // Residual of free surface equation at t^* (nodal values).
-      tmp.set(eta_new).rest(eta).scale(-rec_Dt*fs_eq_factor).add(w_star);
+      tmp.set(eta_new).rest(eta).scale(-rec_Dt*C_EQ)
+	.add(-AVERAGE_ELEVATION*C_FSL*C_EQ)
+	.add(w_star);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -201,7 +215,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #if 1
 	grad_eta.prod(dshapex,eta_star,1,-1,-1);
 	tmp2.prod(dshapex,grad_eta,-1,1,-1);
-	res_pgg.axpy(tmp2,-free_surface_damp*wpgdet);
+	res_pgg.axpy(tmp2,-C_DAMP*wpgdet);
 #endif
 	veccontr.add(res_pgg);
 
@@ -217,8 +231,9 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.rs().export_vals(&(RETVAL(ielh,0,0)));
 
       matlocf.is(1,nel2+1,nel).ir(2,1).is(3,nel2+1,nel).ir(4,1)
-	.set(mass_mat).scale(rec_Dt/alpha*fs_eq_factor) // temporal term
-	.axpy(lap_mat,free_surface_damp) // surface diffusion term
+	.set(mass_mat)
+	.scale(rec_Dt/alpha*C_EQ) // temporal term
+	.axpy(lap_mat,C_DAMP) // surface diffusion term
 	.rs();
       // fixme:= perhaps alpha doesn't go here... 
       matlocf.is(1,nel2+1,nel).ir(2,1).is(3,1,nel2).ir(4,normal_dir)

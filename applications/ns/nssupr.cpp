@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.8 2002/09/25 18:38:56 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.9 2002/09/29 18:28:04 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -46,7 +46,7 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
   
 #ifdef ROSI_COUPLING_MODULE
 //    printf("ns_sup_res: taking t=%f, ax=%f\n",
-//  	 GLOBAL_TIME,AXIAL_ACCELERATION);
+//    	 GLOBAL_TIME,AXIAL_ACCELERATION);
   double total_axial_acc;
   total_axial_acc = gravity + AXIAL_ACCELERATION;
   // We could have problems with the free surface if the axal acceleration is too low

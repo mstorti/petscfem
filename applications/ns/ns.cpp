@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.105 2002/09/26 00:01:22 mstorti Exp $
+//$Id: ns.cpp,v 1.106 2002/09/29 18:28:04 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -123,6 +123,9 @@ int main(int argc,char **args) {
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
   if (activate_debug_print) debug2.activate("print");
+  //o Activate report of memory usage
+  GETOPTDEF(int,activate_debug_memory_usage,0);
+  if (activate_debug_memory_usage) debug2.activate("memory_usage");
 
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
