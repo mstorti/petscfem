@@ -1786,3 +1786,6 @@ tag: beta-3.08.pl5 on Sun, 24 Nov 2002 21:45:17 -0300 by mstorti in spider
 tag: beta-3.08.pl6 on Wed, 27 Nov 2002 10:16:49 -0300 by mstorti in node1.beowulf.gtm
      > Made some experiments with DNS/LES.
      > Will start with mesh-move for Ahmed's body. 
+----------
+tag: beta-3.08.pl7 on Thu, 28 Nov 2002 12:55:15 -0300 by mstorti in node1.beowulf.gtm
+     > FastMat2::seig() computes eigenvectors 
