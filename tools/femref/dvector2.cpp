@@ -1,4 +1,4 @@
-// $Id: dvector2.cpp,v 1.4 2005/01/17 03:45:45 mstorti Exp $
+// $Id: dvector2.cpp,v 1.5 2005/01/17 23:50:54 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -6,6 +6,7 @@
 
 #include <src/dvector.h>
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void scmlist2vec(SCM s_list,vector<int> &v) {
   if (!scm_list_p(s_list))
     scm_misc_error ("scmlist2vec",
@@ -23,9 +24,12 @@ void scmlist2vec(SCM s_list,vector<int> &v) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 SCM vec2scmlist(vector<int> &v) {
   SCM s_list = SCM_EOL;
   for (int j=v.size()-1; j>=0; j--) 
     s_list = scm_cons(SCM_MAKINUM(v[j]),s_list);
   return s_list;
 }
+
+

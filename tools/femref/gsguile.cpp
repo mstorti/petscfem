@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gsguile.cpp,v 1.9 2005/01/17 18:37:04 mstorti Exp $
+// $Id: gsguile.cpp,v 1.10 2005/01/17 23:50:54 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -20,46 +20,7 @@ using namespace std;
 #include "./femref.h"
 #include "./gtemplates.h"
 #include "./dvector.h"
-
-typedef SCM(*scm_fun)();
-
-#define MY_SCM_GET_ARG(name,tag,ctype,pos)	\
-  SCM_ASSERT (SCM_SMOB_PREDICATE(tag,s_##name),	\
-              s_##name, pos, FUNC_NAME);	\
-  ctype name =					\
-          (ctype)SCM_SMOB_DATA (s_##name)
-
-#define DVDBLARG(name,pos)					\
-  SCM_ASSERT(SCM_SMOB_PREDICATE(dvdbl_tag,s_##name),		\
-              s_##name, pos, FUNC_NAME);			\
-  dvector<double> *name =					\
-          (dvector<double> *)SCM_SMOB_DATA (s_##name)
-
-#define DVINTARG(name,pos)				\
-   SCM_ASSERT (SCM_SMOB_PREDICATE(dvint_tag,s_##name),	\
-              s_##name, pos, FUNC_NAME);		\
-  dvector<int> *name =					\
-          (dvector<int> *)SCM_SMOB_DATA (s_##name); 
-
-#define MY_SCM_GET_INT_DEF(name,def,pos)			\
-  int name;							\
-  if (s_##name == SCM_UNDEFINED) name = def;			\
-  else {							\
-    SCM_ASSERT(SCM_INUMP(s_##name),s_##name,pos, __FUN__);	\
-    name = SCM_INUM(s_##name);					\
-  }
-
-#define MY_SCM_GET_INT(name,pos)		\
-  int name;					\
-  SCM_ASSERT(SCM_INUMP(s_##name),		\
-	     s_##name,pos, __FUN__);		\
-  name = SCM_INUM(s_##name)
-
-#define MY_SCM_GET_BOOL(name,pos)		\
-  int name;					\
-  SCM_ASSERT(scm_boolean_p(s_##name),		\
-	     s_##name,pos, __FUN__);		\
-  name = SCM_NFALSEP(s_##name)
+#include "./guilemac.h"
 
 scm_t_bits GetSurfCtxTag;
 

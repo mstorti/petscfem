@@ -18,11 +18,13 @@ all: $(scripts:pl=1) $(scripts:pl=txt)
 dvectori.cpp: dvector-epl.cpp dvector.cpp
 	make-depl $< $@ -d type=int -p '^\s*//PP>'
 
+dvectord.x: dvectord.cpp
+
 dvectord.cpp: dvector-epl.cpp dvector.cpp
 	make-depl $< $@ -d type=double -d sfx=dbl -p '^\s*//PP>'
 
-dvectori.o: dvectori.cpp
-dvectord.o: dvectord.cpp
+dvectori.o: dvectori.cpp dvectori.x
+dvectord.o: dvectord.cpp dvectord.x
 
 CPP_FILES := femref2 hasher md5r gtemplates visitor combiner \
 		dvectori dvectord dvector2 gsguile

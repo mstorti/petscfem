@@ -5,6 +5,7 @@
 
 #include <src/dvector.h>
 #include "./dvector2.h"
+#include "./guilemac.h"
 
 scm_t_bits TAG;
 
@@ -52,6 +53,21 @@ DVECTOR_CLONE_FUN(SCM s_v,SCM s_w) {
   v->clone(*w);
   return SCM_UNSPECIFIED;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if ! defined DV_INT
+SCM_DEFINE(DVECTOR_SCALE_FUN,DVECTOR_SCALE_FUN_S, 2, 0, 0,
+	   (SCM s_w,
+	    SCM s_alpha),
+	   "Scales w by alpha.")
+#define FUNC_NAME S(DVECTOR_SCALE_FUN)
+{
+  DVDBLARG(w,1);
+  MY_SCM_GET_DBL(alpha,2,(DVECTOR_SCALE_FUN_S ". Getting alpha. "));
+  w->scale(alpha);
+  return SCM_UNSPECIFIED;
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
@@ -366,4 +382,14 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
   scm_c_define_gsubr(DVTYPE "-cat!", 2, 0, 0, scm_fun(DVECTOR_CAT_FUN));
   scm_c_define_gsubr(DVTYPE "-dump", 1, 2, 0, scm_fun(DVECTOR_DUMP_FUN));
+#ifndef SCM_MAGIC_SNARFER
+#if defined DV_DBL
+#include "./dvectord.x"
+#elif defined DV_INT
+#include "./dvectori.x"
+#else
+#error "not defined dv-type"
+#endif
+#endif
+
 }

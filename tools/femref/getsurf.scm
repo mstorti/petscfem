@@ -1,4 +1,4 @@
-;;; $Id: getsurf.scm,v 1.12 2005/01/17 21:52:21 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.13 2005/01/17 23:50:54 mstorti Exp $
 (load "./dvector.scm")
 (load "./femref.scm")
 
@@ -23,6 +23,11 @@
 (format #t "icone: read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
 (dvdbl-reshape! x 0 ndim)
 (format #t "xnod: read ~A dbls\n" (dvdbl-cat! x "cube.nod.tmp"))
+
+(ddump "x antes: " x)
+(dvdbl-scale! x 4.)
+(ddump "x despues" x)
+(quit)
 
 (getsurf ctx icone surf-con surf-nodes 1 0)
 (define nfaces (car (dvint-shape surf-con)))
