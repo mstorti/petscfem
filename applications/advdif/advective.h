@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.36 2001/08/06 01:07:30 mstorti Exp $
+//$Id: advective.h,v 1.37 2002/01/15 19:40:59 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -201,7 +201,7 @@ public:
   /// The enthalpy function for this flux function
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
-  NewAdvDifFF(NewElemset *elemset_=NULL) 
+  NewAdvDifFF(const NewElemset *elemset_=NULL) 
     : elemset(elemset_), enthalpy_fun(NULL) {};
 
   /** Define the list of variables that are 

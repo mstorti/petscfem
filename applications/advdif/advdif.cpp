@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.30 2002/01/14 03:45:05 mstorti Exp $
+//$Id: advdif.cpp,v 1.31 2002/01/15 19:40:59 mstorti Exp $
 
 #include <set>
 
@@ -15,6 +15,7 @@
 #include "nwadvdifj.h"
 #include "burgers.h"
 #include "genload.h"
+#include "aquifer.h"
 
 #include <time.h>
 
@@ -49,6 +50,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(wall_swfm2t)
 
     SET_ELEMSET_TYPE(lin_gen_load)
+
+    SET_ELEMSET_TYPE(aquifer)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);
