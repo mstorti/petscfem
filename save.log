@@ -1918,3 +1918,6 @@ tag: beta-3.10.pl7 on Sun, 15 Dec 2002 18:40:53 -0300 by mstorti in spider
 ----------
 tag: beta-3.10.pl8 on Mon, 16 Dec 2002 01:12:01 -0300 by mstorti in spider
      > Adding genload element for NS
+----------
+tag: beta-3.10.pl9 on Mon, 16 Dec 2002 12:37:20 -0300 by mstorti in minerva.arcride.edu.ar
+     > NS genload compiles and runs. There is some error in the jacobian. 
