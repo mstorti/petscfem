@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.18 2001/08/11 22:13:25 mstorti Exp $
+// $Id: distmap.h,v 1.19 2001/08/12 22:44:16 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -10,43 +10,13 @@
 
 #include <vecmacros.h>
 
-/** This object class gives information to to which processor belongs
-    a dof, a node a processor or whatever. (Currently is only
-    implemented for dof's).  
-*/
-class Partitioner {
-public:
-  /// Make it pure virtual
-  virtual ~Partitioner()=0;
-  /* To which processor belongs an element.
-     NOT IMPLEMENTED YET
-     @param element (input) the element to ask
-     @return the processor to which #element# belongs
-  */ 
-  // virtual int epart(ElementIterator &element) {return 0;};
-
-  /* To which processor belongs a node.
-     NOT IMPLEMENTED YET
-     @param node (input) the node to ask
-     @return the processor to which #node# belongs
-  */ 
-  virtual int npart(int node) {return 0;};
-
-  /* To which processor belongs a dof.
-     NOT IMPLEMENTED YET
-     @param dof (input) the dof to ask
-     @return the processor to which #dof# belongs
-  */ 
-  virtual int dofpart(int dof) {return 0;};
-};
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard
     `map' and, after, a `scatter' operation allows items in the map to
     be passed from one processor to other. The #Partitioner# object
     determines to which processor belongs each dof. 
 */
-template <class Key,class Val>
+template <class Key,class Val,class Partitioner>
 class DistMap : public map<Key,Val> {
  protected:
   /// MPI communicator
@@ -62,7 +32,7 @@ class DistMap : public map<Key,Val> {
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
+  DistMap<Key,Val,Partitioner>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD);
   /** User defines this function that determine to which processor
       belongs each entry
       @param k (input) iterator to the considered entry. 
@@ -101,8 +71,8 @@ class DistMap : public map<Key,Val> {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<class Key,class Val> DistMap<Key,Val>::
-DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
+template<class Key,class Val,class Partitioner> DistMap<Key,Val,Partitioner>::
+DistMap<Key,Val,Partitioner>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
@@ -114,8 +84,8 @@ DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // shortcut to access `to_send' as a size x size matrix
 #define SEND(p,q) VEC2(to_send,p,q,size)
-template <class Key,class Val>
-void DistMap<Key,Val>::scatter() {
+template <class Key,class Val,class Partitioner>
+void DistMap<Key,Val,Partitioner>::scatter() {
   map<Key,Val>::iterator iter;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
