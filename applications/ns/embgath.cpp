@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.19 2002/08/13 22:14:48 mstorti Exp $
+//$Id: embgath.cpp,v 1.20 2002/08/13 23:51:26 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,7 +16,7 @@ double my_power(double x,void* p) {
   return pow(x,*(double *)p);
 }
 
-class cloud {
+class Cloud {
 private:
   int nderiv, npol, nx;
   double nderiv_fact;
@@ -40,44 +40,25 @@ public:
     xi.set(x).add(-x0);
     double h = xi.max_abs_all();
     xi.scale(1./h);
-    for (int k=2; k<=npol+1; k++) {
+    for (int k=1; k<=npol; k++) {
       double exp = double(k);
-      A.ir(2,k).set(xi).fun(&my_power,&exp);
+      A.ir(2,k+1).set(xi).fun(&my_power,&exp);
     }
+    A.rs();
     H.prod(A,A,-1,1,-1,2);
     iH.inv(H);
     AA.prod(A,iH,1,-1,2,-1);
     AA.ir(2,nderiv+1);
     w.set(AA).scale(nderiv_fact/pow(h,nderiv));
+    AA.rs();
   }
   void clear() { 
     A.clear(); 
     xi.clear(); 
-    C.clear();
+    H.clear();
+    iH.clear();
   }
-}
-#if 0
-// usage w=cloud(x,nderiv,npol)
-//
-// given a set of N points x(j) give a series of coefficients w(j),
-// j=1'..N such that \sum_{j=1}^N w(j) x(j) is a good approximation to
-// the nderiv derivative of x at x=0 fitting a polynomial of degree
-// npol by least squares.
-//
-void cloud(FastMat2 &w,
-	   FastMat2 &x,int nderiv,int npol) {
-
-  A.=ones(nx,1);
-  h=max(abs(x));
-  for k=1:npol
-    A(:,k+1)=(x/h).^k;
-  endfor 
-  C=(A'*A)\A';
-  
-  w=prod(1:nderiv)*C(nderiv+1,:)/h^nderiv;
-#  keyboard
-endfunction
-#endif
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Contains the three non-trivial face orientations. All
@@ -333,6 +314,13 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time) {
+
+  FastMat2 xx(1,3),w(1,3);
+  double xxx[] = {0.,1.,2.};
+  xx.set(xxx);
+  Cloud cloud;
+  cloud.init(3,1,2);
+  cloud.coef(xx,w);
   
   int ierr;
 
