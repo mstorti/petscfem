@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.14 2003/09/11 01:10:18 mstorti Exp $
+# $Id: odoc.pl,v 1.15 2003/09/11 01:12:40 mstorti Exp $
 
 @odoc=();
 
@@ -64,21 +64,6 @@ sub wiki {
 	wiki2(\$t,"_","\\emph{","}");
     }
 }
-
-/`/;
-@text = split "\n",<<EOM;
-  //o Read states from file instead of computing them . Normally
-  //  this is done to analyze a previous run. If 1 the file is
-  //  ASCII, if 2 then it is a binary file. In both cases the order
-  //  *of the* _elements must_ be: #u(1,1),# #u(1,2),# #u(1,3),#
-  //  #u(1,ndof),# #u(2,1),# ... #u(nnod,ndof)# where #u(i,j)# is
-  //  the value of field #j# at node #i.#
-EOM
-/`/;
-wiki(\@text,"#","\\verb+","+");
-print join("\n",@text);
-
-__END__
 
 $otargetf="";
 @doclist=();
