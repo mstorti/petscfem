@@ -1254,3 +1254,7 @@ tag: beta-3.00 on Tue, 16 Jul 2002 23:49:35 -0300, by mstorti in spider
 ----------
 tag: beta-3.00.pl1 on Tue, 16 Jul 2002 23:55:48 -0300 by mstorti in spider
      > Merged results from fractional-step
+----------
+tag: beta-3.00.pl2 on Wed, 17 Jul 2002 23:57:49 -0300 by mstorti in spider
+     > Changed allcator for `set<int>' in graph `classes' for solving 
+     > the STL allocation problem. 
