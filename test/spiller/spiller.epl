@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spiller.epl,v 1.14 2003/03/20 16:29:50 mstorti Exp $ 
+## $Id: spiller.epl,v 1.15 2003/03/20 18:27:48 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -25,8 +25,8 @@ $Nx = 50*$ref;
 
 $gravity = 9.8;
 $uin = sqrt($gravity*$h1);
-$fs_relax = 0.1;
-$Dt = 0.05;
+$fs_relax = 1.;
+$Dt = 0.2;
 
 #__END_TRANSCRIPT__
 @vars = qw(C E H1 L1 L2 h1 y2 Ny Nx uin fs_relax Dt);
@@ -49,8 +49,8 @@ nsaverot 10
 nrec 1
 nfile 100000000
 
-initial_state "spiller.ini.tmp"
-# initial_state "spiller.state.tmp"
+# initial_state "spiller.ini.tmp"
+initial_state "spiller.state.tmp"
 nstep 10000
 # steady
 solver "iisd"
@@ -83,7 +83,7 @@ dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
 dx_steps 0
-dx_read_state_from_file 1
+# dx_read_state_from_file 1
 __END_HASH__
 
 #===========================================================

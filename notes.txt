@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $
+$Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $ 
+  # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.263 2003/03/13 21:31:42 mstorti Exp $ 
+  # $Id: notes.txt,v 1.264 2003/03/20 18:27:48 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6380,6 +6380,13 @@ funcion de amortiguamiento de van Driest. No estaba bien construido el
 a extenderlo a varios elemsets de pared. 
 %
 18:26:20: Verifique que da lo mismo con 1 y dos procesadores. 
+
+%===Thu, 20 Mar 2003 13:26:59 -0300 mstorti@node1.beowulf.gtm
+%
+Corre ejemplo spiller 300*(Dt=0.05), malla de 30x160 con
+fs_alpha=0.1. Termina divirgiendo la superficie libre. Ahora vamos a
+tratar de salir de la solucion estacionaria para superficie fija. 
+salvo: spiller.2003-03-20.tar.gz
 
 
 # Current line ===========  %

@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spiller.m,v 1.9 2003/03/19 20:19:43 mstorti Exp $
+## $Id: spiller.m,v 1.10 2003/03/20 18:27:48 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spiller, mesh
@@ -58,11 +58,18 @@ if initia
   endfor
   xfs = [xfs spline(xfs1(:,1),xfs1(:,2),xfs)];
 else
-  fs = aload("spiller.nod_fs.tmp");
+  xnod = aload("spiller.nod.tmp");
   xfs_old = aload("spiller.xfs.tmp");
+
+  if fs_relax==0
+    asave("spiller.nod.tmp",xnod);
+    asave("spiller.xfs.tmp",xfs_old);
+    return;
+  endif
+
+  fs = aload("spiller.nod_fs.tmp");
   state = aload("spiller.state.tmp");
   vfs = state(fs,1:2);
-  xnod = aload("spiller.nod.tmp");
   xfs_fem = xnod(fs,:);
   clear xnod
   nfs = length(fs);
