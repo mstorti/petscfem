@@ -368,3 +368,6 @@ tag: beta-1.66 on Tue Apr 10 22:42:32 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.67 on Wed Apr 11 20:43:59 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Fixed some errors in doc
+----------
+tag: beta-1.68 on Sat Apr 14 09:22:03 ART 2001, by mstorti in spider
+     > Changed Nodedata to NodeData
