@@ -261,3 +261,7 @@ tag: beta-1.39 on Wed Mar 21 12:29:09 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.40 on Wed Mar 21 20:35:00 ART 2001, by mstorti in spider
      > Tested new flux functions with scalar dif per field
+----------
+tag: beta-1.41 on Wed Mar 21 22:50:20 ART 2001, by mstorti in spider
+     > Added a diffusion tensor per field and fixed some error in 
+     > full diff jacobian.
