@@ -1015,3 +1015,7 @@ tag: beta-2.84 on Tue Feb 12 17:02:33 ART 2002, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-2.84.pl1 on Wed Feb 13 09:06:30 ART 2002 by mstorti in minerva.arcride.edu.ar
      > Fixed case no `newton_relaxation_factor' line is entered.
+----------
+tag: beta-2.84.pl2 on Wed Feb 13 09:09:51 ART 2002 by mstorti in minerva.arcride.edu.ar
+     > Start making `libpetscfem_O.a' and `libpetscfem_g.a' libraries, and 
+     > also in applications directories.
