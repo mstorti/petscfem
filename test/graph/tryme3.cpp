@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.6 2002/07/24 02:14:30 mstorti Exp $
+// $Id: tryme3.cpp,v 1.7 2002/07/24 03:03:53 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -84,13 +84,10 @@ int main(int argc, char **args) {
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
-#if 0
-  Debug debug;
-  debug.activate();
-  Debug::init();
-  debug.trace("start? ");
-#endif
 
+#if 1
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // SEQUENTIAL DEBUG
   LinkGraphDis graph(&part,MPI_COMM_WORLD), graph2(&part,MPI_COMM_WORLD);
   
   graph.init(M);
@@ -115,7 +112,31 @@ int main(int argc, char **args) {
   graph_print(graph,"graph: ");
   graph_print(graph2,"graph2: ");
 
-#if 0
+#else
+
+  // ================================================================
+  // TRY SCATTER
+
+  Debug debug;
+  debug.activate();
+  Debug::init();
+  debug.trace("start? ");
+
+  LinkGraphDis graph(&part,MPI_COMM_WORLD), graph2(&part,MPI_COMM_WORLD);
+  
+  graph.init(M);
+  for (int j=0; j<M; j++) {
+    graph.add(j,modulo(j+1,M));
+    graph.add(j,modulo(j-1,M));
+  }
+
+  for (LinkGraph::iterator q=graph.begin();
+       q!=graph.end(); q++) {
+    LinkGraphRow row = *q;
+    graph2.combine(row);
+    graph.erase(q);
+  }
+
   graph.scatter();
   LinkGraphDis::iterator k;
   for (int p=0; p<SIZE; p++) {
@@ -128,4 +149,5 @@ int main(int argc, char **args) {
     }
   }
 #endif
+
 }
