@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.6 2005/02/09 12:49:44 mstorti Exp $ 
+% $Id: advabso.tex,v 1.7 2005/02/10 12:20:10 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -342,12 +342,12 @@ For linear systems, equation (\ref{eq:fem-eq}) is of the form
 \end{equation}
 %
 We have made a lot of simplifications here, no source or upwind terms,
-and a in fact a simple centered finite difference approximation to the
-equations is presented. Alternatively, it can be thought as a pure
-Galerkin FEM discretization with mass lumping. In the base of the
-characteristic variables $!V$ this could be written as
+and a simple discretization based on centered finite
+differences. Alternatively, it can be thought as a pure Galerkin FEM
+discretization with mass lumping. In the base of the characteristic
+variables $!V$ this could be written as
 %
-\begin{equation} 
+\begin{equation} \label{eq:abc-char}  
   \begin{aligned} 
     \frac{!V_0^{n+1}-!V_0^{n}}{\Dt} +
     \bzL\,\frac{!V_1^{n+1}-!V_{0}^{n}}{h} &= 0; \\
@@ -356,7 +356,28 @@ characteristic variables $!V$ this could be written as
   \end{aligned}
 \end{equation}
 %
-For the boundary 
+For the linear absorbing boundary conditions (\ref{eq:lin-abc}) we
+should impose
+%
+\begin{equation} 
+  \bzP_V^+(!V_\ref) \, (!V_0-!V_\ref) = 0. 
+\end{equation}
+%
+while discarding the equations corresponding to the incoming waves in
+the first rows of (\ref{eq:abc-char}). Here $!V_\ref$ is the state
+about which we make the linearization. This can be done, via Lagrange
+multipliers in the following way
+
+\begin{equation} \label{eq:abc-char}  
+  \begin{aligned} 
+    \bzP_V^+(!V_\ref) \, (!V_0-!V_\ref) &= 0,\\
+    \frac{!V_0^{n+1}-!V_0^{n}}{\Dt} +
+    \bzL\,\frac{!V_1^{n+1}-!V_{0}^{n}}{h}  
+    \bzP_V^+ \, !U_{lm}&= 0; \\
+    \frac{!V_k^{n+1}-!V_k^{n}}{\Dt} +
+    \bzL\,\frac{!V_{k+1}^{n+1}-!V_{k-1}^{n}}{h} &= 0. \\
+  \end{aligned}
+\end{equation}
 
 
 FIXME:= add CP modification
