@@ -694,3 +694,6 @@ tag: beta-2.54 on Sat Dec  8 09:31:21 ARST 2001, by mstorti in spider
      > IISD solver (for `n_int_tot>0') is working with `update_jacobian'. But
      > it must be rewritten more clearly and, if possible, with the Finite
      > State Machine code.
+----------
+tag: beta-2.55 on Sat Dec  8 17:35:05 ARST 2001, by mstorti in spider
+     > Modified the Graph class. Writing a test for PFMat matrices.
