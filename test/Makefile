@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.90 2003/03/20 18:27:48 mstorti Exp $ 
+# $Id: Makefile,v 1.91 2003/03/23 20:11:10 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -19,6 +19,10 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash		\
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
+
+SWDIRS:= 
+local_sw::
+	chmod 755 `find . -name 'gmv*.pl'`
 
 run: sqcav5
 

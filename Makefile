@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.48 2003/03/17 19:02:49 mstorti Exp $
+#$Id: Makefile,v 1.49 2003/03/23 20:11:10 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -34,12 +34,12 @@ local_sw:: sync_version depend tags
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C doc readme
 # make scripts executable
-	chmod 755 ./make/appatch ./make/mkpatch ./make/mkvers \
-		./src/insdeb.pl ./test/runtests.pl ./test/turbchan/verify.pl \
-		./tools/coall ./tools/checktag \
-		./tools/insert_license.pl ./tools/makeltag \
-		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl \
-		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp \
+	chmod 755 ./make/appatch ./make/mkpatch ./make/mkvers			\
+		./src/insdeb.pl ./test/runtests.pl ./test/turbchan/verify.pl	\
+		./tools/coall ./tools/checktag					\
+		./tools/insert_license.pl ./tools/makeltag			\
+		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl		\
+		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp		\
 		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
 
 local_clean::

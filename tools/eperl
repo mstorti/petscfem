@@ -1,0 +1,1386 @@
+#!/usr/bin/perl
+# Filename:	eperl
+# Author:	David Ljung Madison <DaveSource.com>
+# See License:	http://MarginalHacks.com/License
+  my $VERSION=	1.20;
+# Description:	Perl version of ePerl, embedded perl.
+
+my $PERL = "/usr/bin/perl";	# Should probably match #! on first line
+
+#        ____           _
+#    ___|  _ \ ___ _ __| |
+#   / _ \ |_) / _ \ '__| |
+#  |  __/  __/  __/ |  | |
+#   \___|_|   \___|_|  |_|
+#
+#  ePerl -- Embedded Perl 5 Language
+#
+# Rewrite of:	http://www.engelschall.com/sw/eperl/
+#
+# Differences:
+# 1)  Can't do shebang (#!eperl) with some shells (such as tcsh)
+#     To fix this you just need a wrapper to eperl in C:
+#       main(int argc, char **argv) { execv("/path/to/eperl.pl",argv); }
+# 2)  Also, no SETUID, though a wrapper could do this
+# 3)  exit codes ($?) in perl are 8 bits, real exit codes are 16 bits,
+#     so all exit codes are mod 255.  Worst of all, this means exit(256*int)
+#     will seem like no error returned, and exit(-1) looks like exit(255);
+# 4)  Doesn't have embedded gifs due to size/copyright
+#     (/url/to/nph-eperl/logo.gif and powered.gif)
+# 5)  No module support yet
+#
+# Slight differences when not using --strict flag
+# 1)  In the normal case (plain filtered mode) we don't read in all of
+#     STDERR and STDOUT because this is inefficient.  See --watch_stderr
+# 2)  Environment variables are only set in CGI mode
+#
+# Bugs fixed:
+# 1)  The original eperl ignores -o in CGI modes.  This eperl doesn't
+# 2)  #sinclude is truly safe
+# 3)  $SCRIPT_SRC_MODIFIED_ISOTIME is Y2K compliant
+#
+# Added features
+# 1)  You can specify multiple files to parse
+# 2)  New options (see usage)
+
+##################################################
+# Libraries
+##################################################
+use strict;		# Cause it's smart
+use IO::File;		# For filehandles
+use IPC::Open3;		# Only used for certain modes (start_perl_open3())
+use IO::Select;		# Also for start_perl_open3()
+use Cwd;
+
+# If you don't want or have Cwd, use this instead:
+#sub getcwd { my $c = `pwd`; chomp($c);  $c; }
+
+##################################################
+# Setup the variables
+##################################################
+my $PROGNAME = $0;
+$PROGNAME =~ s|.*/||;
+
+# You can support "#include <URL>" if you have a program that can fetch URLs:
+my $GET_URL	= "lynx -source";	# Lynx
+#my $GET_URL	= "GET";		# LWP GET script
+
+my $CGI_NEEDS_ALLOWED_FILE_EXT	= 1;
+my @LIST_OF_ALLOWED_FILE_EXT = qw(.html .phtml .eperl .ephtml .epl .pl .cgi);
+
+my $MAX_INCLUDES = 50;
+
+my $TMPDIR	= "/tmp";
+
+##################################################
+# Usage
+##################################################
+sub usage {
+  my ($opt_H,$msg,$html) = @_;
+
+  if ($html && $opt_H->{'mode'} ne "f") {
+    # This actually goes to --outputfile, this is a bug in the real eperl
+    redirect_output($opt_H);
+    html_error($msg);
+    exit(-1);
+  }
+
+  print STDERR "ERROR:  $msg\n";
+
+  print STDERR "\n";
+
+my $usage = <<ENDOFUSAGE;
+
+Usage: $PROGNAME [options] [scriptfile]
+
+Input Options:
+  -d, --define=NAME=VALUE   define global Perl variable (\$main::name)
+  -D, --setenv=NAME=VALUE   define environment variable (\$ENV{'name'})
+  -I, --includedir=PATH     add \@INC/#include directory
+  -B, --block-begin=STR     set begin block delimiter
+  -E, --block-end=STR       set end block delimiter
+  -n, --nocase              force block delimiters to be case insensitive
+  -k, --keepcwd             force keeping of current working directory
+  -P, --preprocess          enable ePerl Preprocessor
+  -C, --convert-entity      enable HTML entity conversion for ePerl blocks
+  -L, --line-continue       enable line continuation via backslashes
+
+Output Options:
+  -T, --tainting            enable Perl Tainting (note: ePerl is *not* suid)
+  -w, --warnings            enable Perl Warnings
+  -x, --debug               enable ePerl debugging output on console
+  -m, --mode=STR            force runtime mode to FILTER, CGI or NPH-CGI
+  -o, --outputfile=PATH     force the output to be send to this file (default=stdout)
+  -c, --check               run syntax check only and exit (no execution)
+
+Giving Feedback:
+  -r, --readme              display ePerl README file
+  -l, --license             display ePerl license files (COPYING and ARTISTIC)
+  -v, --version             display ePerl VERSION id
+  -V, --ingredients         display ePerl VERSION id & compilation parameters
+  -h, --help                display ePerl usage list (this one)
+
+New options:
+  -X, --heavy_debug         Heavy Debug mode:  Print perl code, don't execute
+  -e, --execute             Specify some code to put at the top of the script
+  -s, --strict              Strict conformance to orinal ePerl behavior
+                            (For features which are inefficient and unlikely
+                             to be needed - if you have problems, try this)
+  -t, --tmpfile             Use a tmpfile for the perl script
+                            (If script needs to read stdin, like a post .cgi)
+  --                        Following options are args to the ePerl script
+
+ENDOFUSAGE
+
+  print STDERR $usage;
+  exit -1;
+}
+
+sub set_var {
+  my ($opt_H,$str) = @_;
+  usage($opt_H,"--define must be of form [NAME=VALUE]")
+    unless ($str =~ /(.+)=(.+)/);
+  $opt_H->{'vars'}{$1} = $2;
+}
+
+sub set_env {
+  my ($opt_H,$str) = @_;
+  usage($opt_H,"--setenv must be of form [NAME=VALUE]")
+    unless ($str =~ /(.+)=(.+)/);
+  $ENV{$1} = $2;
+}
+
+# Kludgy way to check for "-option=blah" and "-option blah"  (=(.+))?
+sub arg { $2 ? $2 : shift(@ARGV); }
+
+sub parse_args {
+  my (%opt,@files);
+
+  # Defaults
+  $opt{'perl'} = $PERL;
+  $opt{'CaseDelimiters'} = 1;
+
+  while ($#ARGV>=0) {
+    my $arg=shift(@ARGV);
+    if ($arg =~ /^-(h|-help)$/) { usage(\%opt); }
+    if ($arg =~ /^-(x|-debug)$/) { $opt{'debug'} = 1; next; }
+    if ($arg =~ /^-(X|-heavy_debug)$/) { $opt{'debug'} = 2; next; }
+    if ($arg =~ /^-(d|-define=)(.+)?$/) { set_var(\%opt,arg()); next; }
+    if ($arg =~ /^-(D|-setenv=)(.+)?$/) { set_env(\%opt,arg()); next; }
+    if ($arg =~ /^-(I|-includedir=)(.+)?$/) { push(@{$opt{'INC'}},arg()); next; }
+    if ($arg =~ /^-(B|-block[-_]begin=)(.+)?$/) { $opt{'BeginDelimiter'}=arg(); next; }
+    if ($arg =~ /^-(E|-block[-_]end=)(.+)?$/) { $opt{'EndDelimiter'}=arg(); next; }
+    if ($arg =~ /^-(n|-nocase)$/) { $opt{'CaseDelimiters'}=0; next; }
+    if ($arg =~ /^-(k|-keepcwd)$/) { $opt{'keepcwd'}=1; next; }
+    if ($arg =~ /^-(L|-line-continue)$/) { $opt{'line-continue'}=1; next; }
+    if ($arg =~ /^-(T|-tainting)$/) { $opt{'perl_opts'} .= " -T"; next; }
+    if ($arg =~ /^-(w|-warnings)$/) { $opt{'perl_opts'} .= " -w"; next; }
+    if ($arg =~ /^-(c|-check)$/) { $opt{'syntax_check'}=1; $opt{'perl_opts'} .= " -c"; next; }
+    if ($arg =~ /^-(m|-mode=)(.+)?$/) { $opt{'mode'}=arg(); next; }
+    if ($arg =~ /^-(P|-preprocess)$/) { $opt{'preprocess'}=1; next; }
+    if ($arg =~ /^-(C|-convert-entity)$/) { $opt{'convert-entity'}=1; next; }
+    if ($arg =~ /^-(o|-outputfile=)(.+)?$/) { $opt{'outputfile'}=arg(); next; }
+
+    if ($arg =~ /^-(e|-execute=)(.+)?$/) { push(@{$opt{'init'}},arg()); next; }
+    if ($arg =~ /^-(s|-strict)$/) { $opt{'strict'}=1; next; }
+    if ($arg =~ /^-(t|-tmpfile)$/) { $opt{'tmpfile'}=1; next; }
+
+    if ($arg =~ /^-(r|-readme)$/) { readme(); exit(0); }
+    if ($arg =~ /^-(l|-license)$/) { license(); exit(0); }
+    if ($arg =~ /^-(v|-version)$/) { version(); exit(0); }
+    if ($arg =~ /^-(V|-ingredients)$/) { version(); exit(0); }
+    if ($arg =~ /^--$/) { last; }
+    if ($arg =~ /^-./) { usage(\%opt,"Unknown or improperly specified option: $arg"); }
+    push(@files,$arg);
+  }
+
+  # Mode if not specified
+  if (!@files && $ENV{'PATH_TRANSLATED'}) {
+    push(@files,$ENV{'PATH_TRANSLATED'});
+    unless ($opt{'mode'}) {
+      # Check for "nph-"
+      my $tmp1 = $ENV{'PATH_TRANSLATED'};
+      $tmp1 =~ s|.*/||;
+      my $tmp2 = $files[0];	# Base it on the first filename
+      $tmp2 =~ s|.*/||;
+      $opt{'mode'} = ($tmp1 =~ /^nph-/ || $tmp2 =~ /^nph-/) ? "n" : "c";
+    }
+  }
+  $opt{'mode'} = "f" unless ($opt{'mode'});
+  $opt{'mode'} = "f" if ($opt{'mode'} =~ /^filter$/i);
+  $opt{'mode'} = "c" if ($opt{'mode'} =~ /^cgi$/i);
+  $opt{'mode'} = "n" if ($opt{'mode'} =~ /^nph-cgi$/i);
+  # And check for it based on PROGNAME
+  $opt{'mode'} = "n" if ($PROGNAME =~ /^nph-/i);
+  usage(\%opt,"Unsupported mode: $opt{'mode'}") unless ($opt{'mode'} =~ /^[fcn]$/);
+  if ($opt{'mode'} ne "f") {
+    $opt{'convert-entity'} = 1;
+    $opt{'preprocess'} = 1;
+    if ($CGI_NEEDS_ALLOWED_FILE_EXT) {
+      foreach my $file (@files) {
+        usage(\%opt,"File `$file' is not allowed to be interpreted by ePerl (wrong extension!)",1)
+          unless(grep($file =~ /\Q$_\E$/, @LIST_OF_ALLOWED_FILE_EXT));
+      }
+    }
+  }
+
+  usage(\%opt,"--strict and --tmpfile are mutually exclusive")
+    if ($opt{'tmpfile'} && $opt{'strict'});
+
+  usage(\%opt,"No input files defined") unless (@files);
+
+  # Delimiters if not specified
+  $opt{'BeginDelimiter'} = $opt{'mode'} eq "f" ? "<:" : "<?"
+    unless ($opt{'BeginDelimiter'});
+  $opt{'EndDelimiter'} = $opt{'mode'} eq "f" ? ":>" : "!>"
+    unless ($opt{'EndDelimiter'});
+
+  (\%opt,@files);
+}
+
+##################################################
+# Get things ready and start perl
+##################################################
+sub isotime {
+  my ($t) = @_;
+  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($t);
+  sprintf("%2.2d-%2.2d-%4.4d %2.2d:%2.2d",$mday,$mon+1,$year+1900,$hour,$min);
+}
+sub setup_env_vars {
+  my ($opt_H,$path) = @_;
+
+  return unless ($opt_H->{'strict'} || $opt_H->{'mode'} ne "f");
+
+  # File path components
+  my ($dir,$file) = ($path =~ m|/([^/]+)$|) ? ($`,$1) : (".",$path);
+
+  # Get full path if possible
+  my $save = getcwd();
+  if (chdir($dir)) {
+    $dir = getcwd();
+    $path = "$dir/$file";
+    chdir($save) || print STDERR "[$PROGNAME] Warning: Couldn't return to cwd [$dir]\n";
+  }
+
+  # Setup the supplied environment variables
+  $ENV{'SCRIPT_SRC_PATH'} = $path;
+  $ENV{'SCRIPT_SRC_PATH_DIR'} = $dir;
+  $ENV{'SCRIPT_SRC_PATH_FILE'} = $file;
+  my @stat = stat($path);
+  if (@stat) {
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)
+      = @stat;
+    $ENV{'SCRIPT_SRC_SIZE'} = $size;
+    $ENV{'SCRIPT_SRC_MODIFIED'} = $mtime;
+    $ENV{'SCRIPT_SRC_MODIFIED_CTIME'} = localtime($mtime);
+    $ENV{'SCRIPT_SRC_MODIFIED_ISOTIME'} = isotime($mtime);
+    $ENV{'SCRIPT_SRC_OWNER'} = getpwuid($uid) || $uid;
+    $ENV{'VERSION_INTERPRETER'} = "ePerl/$VERSION";
+    $ENV{'VERSION_LANGUAGE'} = "Perl/$]";
+  }
+  if ($ENV{'PATH_INFO'}) {
+    my $host = $ENV{'SERVER_NAME'} || "localhost";
+    my $port = $ENV{'SERVER_PORT'} || 80;
+    my $url_path = $ENV{'PATH_INFO'};
+    my ($url_dir,$url_file) = ($url_path =~ m|/([^/]+)$|) ? ($`,$1) : ("/",$url_path);
+    $port = ($port == 80) ? "" : ":$port";
+    $ENV{'SCRIPT_SRC_URL'} = "http://$host$port$url_path";
+    $ENV{'SCRIPT_SRC_URL_DIR'} = "http://$host$port$url_dir";
+    $ENV{'SCRIPT_SRC_URL_FILE'} = $url_file;
+  } else {
+    $ENV{'SCRIPT_SRC_URL'} = "file://$path";
+    $ENV{'SCRIPT_SRC_URL_DIR'} = "file://$dir";
+    $ENV{'SCRIPT_SRC_URL_FILE'} = $file;
+  }
+
+}
+
+sub start {
+  my ($opt_H,$first_file) = @_;
+
+  # Handle -nocase
+  if (!$opt_H->{'CaseDelimiters'}) {	# Case insensitive
+    $opt_H->{'begin_regex'} = "(?i)\Q$opt_H->{'BeginDelimiter'}\E";
+    $opt_H->{'end_regex'} = "(?i)\Q$opt_H->{'BeginDelimiter'}\E";
+  } else {
+    $opt_H->{'begin_regex'} = "\Q$opt_H->{'BeginDelimiter'}\E";
+    $opt_H->{'end_regex'} = "\Q$opt_H->{'EndDelimiter'}\E";
+  }
+
+  
+  # Handle -I INC directories
+  if ($opt_H->{'INC'}) {
+    my $INC = join(":",@{$opt_H->{'INC'}});
+    $ENV{'PERL5LIB'} = $INC;
+    $ENV{'PERLLIB'} = $INC;
+  }
+
+  # Environment variables (base on first filename)
+  setup_env_vars($opt_H,$first_file);
+
+  # Start perl
+  start_perl($opt_H);
+}
+
+sub change_dir {
+  my ($opt_H) = @_;
+
+  return if $opt_H->{'keepcwd'};
+  return unless ($opt_H->{'Cwd'} || get_filename($opt_H) =~ m|/[^/]+$|);
+
+  my $dir = $opt_H->{'Cwd'} || $`;
+  my $k = getcwd();
+  push(@{$opt_H->{'save_dirs'}}, getcwd());
+  chdir($dir) || print STDERR "[$PROGNAME] Warning: Couldn't chdir [$dir]\n";
+}
+
+sub restore_dir {
+  my ($opt_H) = @_;
+  return if $opt_H->{'keepcwd'};
+  return unless ($opt_H->{'save_dirs'} && @{$opt_H->{'save_dirs'}});
+  my $dir = shift @{$opt_H->{'save_dirs'}};
+  chdir($dir) || print STDERR "[$PROGNAME] Warning: Couldn't restore directory [$dir]\n";
+}
+
+##################################################
+# ePerl filter
+##################################################
+sub send_perl {
+  my ($opt_H,$code) = @_;
+
+  my $line_info = "";
+  if ($opt_H->{'line_info'} && !$opt_H->{'tmpfile'}) {
+    my $file = get_filename($opt_H);
+    my $line = $opt_H->{'lines'}[0] + $opt_H->{'offset'}[0];
+    $line_info = "\n# $line \"$file\"\n";
+    $opt_H->{'line_info'} = 0;
+  }
+
+  # Debug
+  print STDERR $line_info.$code if ($opt_H->{'debug'});
+
+  # Pipe to perl
+  print {$opt_H->{'ph'}} $line_info.$code unless ($opt_H->{'debug'} == 2);
+}
+
+sub send_perl_code {
+  my ($opt_H,$code,$just_entered,$leaving) = @_;
+
+  # Handle -C option
+  $code =~ s/\&([^\&]+);/convert_entity($1)/eg if ($opt_H->{'convert-entity'});
+
+  # Add final ';' unless ending with _
+  $code = ($code =~ /_$/) ? $` : "$code;"
+    if ($leaving);
+
+  # <:=$var:>
+  $code = "print $'"
+    if ($just_entered && $code =~ /^=/);
+
+  send_perl($opt_H,$code);
+}
+
+sub quote {
+  my ($str) = @_;
+
+  # Fix quoting/slashes
+  $str =~ s/\\/\\\\/g;
+  $str =~ s/'/\\'/g;
+
+  "'$str'";
+}
+
+# Convert plaintext to perl code (print statement)
+sub send_perl_text {
+  my ($opt_H,$str,$entering,$just_left) = @_;
+
+  my $nl = 1 if (chomp($str));
+  my $line_continue = 0;
+
+  return $nl ? send_perl($opt_H,"\n") : 0 if ($opt_H->{'syntax_check'});
+
+  # <: perl :>//  Text here is ignored
+  return send_perl($opt_H,"\n") if ($just_left && $str =~ m|^//|);
+
+  if ($opt_H->{'line-continue'} && $str =~ /\\$/) {
+    $line_continue = 1;
+    $str = $`;
+  }
+
+  if ($str ne "") {
+    $str=quote($str);
+    $str.=',"\n"' if ($nl && !$line_continue);
+  } else {
+    return unless $nl;
+    $str = '"\n"';
+  }
+  
+  $str = "print $str;";
+  $str.="\n" if $nl;
+  send_perl($opt_H,$str);
+}
+
+sub eperl {
+  my ($opt_H) = (@_);
+
+  my $in_perl = 0;
+  my ($just_entered,$just_left) = (0,0);
+
+  get_line($opt_H);
+  $opt_H->{'line'}[0] = $.;
+  while (defined $_) {
+    if (!$in_perl && /$opt_H->{'begin_regex'}/) {
+      $in_perl = 1;
+      my ($out,$rest) = ($`,$');
+      send_perl_text($opt_H,$out,1,$just_left);
+      $just_entered = 1; $just_left = 0;
+      $_ = $rest;
+    } elsif ($in_perl && /$opt_H->{'end_regex'}/) {
+      $in_perl = 0;
+      my ($in,$rest) = ($`,$');
+      send_perl_code($opt_H,$in,$just_entered,1);
+      $just_entered = 0; $just_left = 1;
+      $_ = $rest;
+    } elsif ($in_perl) {
+      send_perl_code($opt_H,$_,$just_entered,0);
+      $just_entered = 0; $just_left = 0;
+      undef $_;
+    } else {
+      send_perl_text($opt_H,$_,1,$just_left);
+      $just_entered = 0; $just_left = 0;
+      undef $_;
+    }
+    get_line($opt_H) unless defined $_;
+    $opt_H->{'line'}[0] = $.;
+  }
+  print STDERR "[$PROGNAME] Warning: Never left perl code [",
+               get_filename($opt_H),", $.]\n"
+    if ($in_perl);
+}
+
+##################################################
+# Perl process
+##################################################
+sub init_perl {
+  my ($opt_H) = @_;
+
+  # Init perl
+  foreach my $k ( keys %{$opt_H->{'vars'}} ) {
+    my $val = quote($opt_H->{'vars'}{$k});
+    my $str = "\$main::$k = $val;";
+    set_filename($opt_H,"{INIT CODE}: $str");
+    send_perl($opt_H,"$str\n");
+  }
+
+  foreach my $i ( @{$opt_H->{'init'}} ) {
+    my $iq = quote($i);
+    set_filename($opt_H,"{INIT CODE}: $iq");
+    send_perl($opt_H,"$i\n");
+  }
+}
+
+# Write to a tmpfile, execute that
+my $TMPFILE;
+sub start_perl_tmpfile {
+  my ($opt_H) = @_;
+
+  my $file = "$TMPDIR/$PROGNAME.$$";
+  usage($opt_H,"Tmpfile already exists?? [$file]",1) if (-f $file);
+
+  my $save = umask 077;		# Some added safety
+  $opt_H->{'ph'} = new IO::File;
+  usage($opt_H,"Couldn't create tmpfile [$file]",1)
+    unless $opt_H->{'ph'}->open(">$file");
+  $TMPFILE = $file;
+  umask $save;
+  $SIG{'INT'}='interrupt';
+  $SIG{'TERM'}='interrupt';
+  $SIG{'HUP'}='interrupt';
+  $SIG{'SUSP'}='interrupt';
+  $SIG{'QUIT'}='interrupt';
+}
+sub clean_tmpfile { unlink $TMPFILE if $TMPFILE && -f $TMPFILE; }
+sub interrupt { print STDERR "[$PROGNAME] **INTERRUPT**"; clean_tmpfile(); exit; }
+
+# Just open a normal pipe to a perl process, redirect STDOUT
+sub start_perl_pipe {
+  my ($opt_H) = @_;
+
+  # Setup out/err
+  if ($opt_H->{'outputfile'} && $opt_H->{'outputfile'} ne "-") {
+    open(OLDOUT,">&STDOUT") || die("[$PROGNAME]  Couldn't dup STDOUT\n");
+    close(STDOUT);
+    die("Couldn't write [$opt_H->{'outputfile'}]\n")
+      unless open(STDOUT,">$opt_H->{'outputfile'}");
+  }
+
+  # Open the pipe to perl
+  $opt_H->{'ph'} = new IO::File;
+  unshift(@ARGV,"-") if @ARGV;
+  usage($opt_H,"Couldn't start perl: $opt_H->{'perl'}",1)
+    unless $opt_H->{'ph'}->open("|$opt_H->{'perl'} $opt_H->{'perl_opts'} @ARGV");
+
+  # Restore STDOUT
+  if ($opt_H->{'outputfile'} && $opt_H->{'outputfile'} ne "-") {
+    close(STDOUT);
+    open(STDOUT,">&OLDOUT");
+  }
+}
+
+# Actually, only used for open3 case
+sub redirect_output {
+  my ($opt_H) = @_;
+
+  if ($opt_H->{'outputfile'}) {
+    die("[$PROGNAME]  Cannot open output file [$opt_H->{'outputfile'}] for writing\n")
+      unless open(SEND_OUT,">$opt_H->{'outputfile'}");
+  } else {
+    open(SEND_OUT,">&STDOUT") || die("[$PROGNAME]  Couldn't dup STDOUT\n");
+  }
+}
+
+# Run open3 on a perl process
+sub start_perl_open3 {
+  my ($opt_H) = @_;
+
+  my ($ph,$phout,$pherr) = (new IO::File,new IO::File,new IO::File);
+  $opt_H->{'ph'} = $ph;
+
+  unshift(@ARGV,"-") if @ARGV;
+  $opt_H->{'perl_pid'} = open3($ph,$phout,$pherr,
+                               "$opt_H->{'perl'} $opt_H->{'perl_opts'} @ARGV");
+
+  # Start the output/error watching fork
+  my $outpid = fork;
+  usage($opt_H,"[$PROGNAME] Couldn't fork!\n",1) if ($outpid<0);
+  if (!$outpid) {
+    close $ph;	# Close input, we only read outputs
+
+    # Create a selector to watch the perl output/error
+    my $selector = IO::Select->new();
+    $selector->add($phout,$pherr);
+    my (@out,@err);
+
+    # Read the output from STDOUT/STDERR
+    my @ready;
+    while (@ready = $selector->can_read) {
+      foreach my $fh (@ready) {
+        if ($fh == $phout) { push(@out, scalar <$phout>); }
+        else { push(@err, scalar <$pherr>); }
+
+        if (eof($fh)) {
+          $selector->remove($fh);
+          $fh->close;
+        }
+      }
+    }
+
+    # End of -x perl output
+    print STDERR "----internally created Perl script-----------------------------------\n"
+      if ($opt_H->{'debug'});
+
+    # Did we get any messages on STDERR?
+    if ($#err!=0 || $err[0] ne "") {
+      # Unless syntax checking
+      unless ($opt_H->{'syntax_check'} && $#err==0 && $err[0] =~ /syntax OK/) {
+        if ($opt_H->{'mode'} eq "f") {
+          print STDERR "---- Contents of STDERR channel: ---------\n"
+            unless ($opt_H->{'syntax_check'});
+          print STDERR @err;
+          print STDERR "------------------------------------------\n"
+            unless ($opt_H->{'syntax_check'});
+        } else {
+          # Sadly we don't know the return value
+          redirect_output($opt_H);
+          html_error("Perl runtime error",@err);
+        }
+      }
+
+    } elsif ($#out!=0 || $out[0] ne "") {
+      # We can get empty output if something went wrong (like a open_file error)
+      # and we don't want to overwrite the output file.
+
+      # Setup output
+      redirect_output($opt_H);
+
+      # Check for user specified headers
+      my %headers;
+      for (my $i=0; $i<=$#out; $i++) {
+        last if ($out[$i] !~ /^(\S*):/);
+        $headers{$1} = 1;
+      }
+      if ($opt_H->{'mode'} eq "n") {
+        my $proto = $ENV{'SERVER_PROTOCOL'} || "HTTP/1.0";
+        print SEND_OUT "$proto 200 OK\n";
+        my $server = $ENV{'SERVER_SOFTWARE'} || "unknown-server/0.0";
+        print SEND_OUT "Server: $server ePerl/$VERSION Perl/$]\n" unless $headers{'server'};
+        print SEND_OUT "Date: ".localtime(time)."\n" unless $headers{'Date'};
+        print SEND_OUT "Connection: close\n" unless $headers{'Connection'};
+      }
+      if ($opt_H->{'mode'} ne "f") {
+        unless (%headers) {
+          my $len = 0;
+          map($len+=length($_), @out);
+          print SEND_OUT "Content-Type: text/html\n";
+          print SEND_OUT "Content-Length: $len\n";
+          print SEND_OUT "\n";
+        }
+      }
+      print SEND_OUT @out;
+    }
+
+    exit;
+  }
+
+  close $phout;
+  close $pherr;
+  $opt_H->{'outpid'} = $outpid;
+}
+
+sub start_perl {
+  my ($opt_H) = @_;
+
+  if ($opt_H->{'debug'} != 2) {
+    print STDERR "----internally created Perl script-----------------------------------\n"
+      if ($opt_H->{'debug'});
+
+    # Do we use open3 and buffer all the out/err, or do we use a tmpfile,
+    # or do we just pipe directly to perl?
+    if ($opt_H->{'tmpfile'}) {
+      start_perl_tmpfile($opt_H);
+    					# Reasons we need open3:
+    } elsif ($opt_H->{'debug'} ||	# 1) hold output till script printing
+        $opt_H->{'mode'} ne "f" ||	# 2) CGI mode (header processing)
+        $opt_H->{'syntax_check'} ||	# 3) Ignore "- syntax OK"
+        $opt_H->{'strict'}		# 4) User wants it
+       ) {
+      start_perl_open3($opt_H);
+    } else {
+      start_perl_pipe($opt_H);
+    }
+  }
+
+  init_perl($opt_H);
+}
+
+sub end_perl {
+  my ($opt_H) = @_;
+  return 0 unless $opt_H->{'ph'};
+
+  # Perl script done - close perl input
+  $opt_H->{'ph'}->close;
+  my $ret = $?;
+
+  if ($opt_H->{'tmpfile'}) {
+    # tmpfile method, now we actually run perl
+
+    # Dangerous race condition here!
+    usage($opt_H,"Tmpfile disappeared?? [$TMPFILE]",1)
+      unless $TMPFILE && -r $TMPFILE;
+    system("$opt_H->{'perl'} $opt_H->{'perl_opts'} $TMPFILE @ARGV");
+    $ret = $?;
+    clean_tmpfile();
+
+  } elsif ($opt_H->{'perl_pid'}) {
+    # open3 method
+
+    # First wait for perl to end to get the perl exit value
+    waitpid($opt_H->{'perl_pid'},0);
+    $ret = $?;
+    # Wait for the output fork to finish (should be damn quick)
+    waitpid($opt_H->{'outpid'},0);
+  }
+
+  my $exit = $ret >> 8;
+  my $int  = $ret & 127;
+  my $core = $ret & 128;
+  $exit|=0xffffff00 if $exit>>7;
+  $exit = sprintf("%d",$exit);
+  print STDERR "[$PROGNAME] Interpretor returned error [$exit]\n" if ($exit);
+#    if ($exit && $exit != 255);	# Exit 255 is perl's runtime error
+  print STDERR "[$PROGNAME] **INTERRUPT**\n" if $int;
+  print STDERR "[$PROGNAME] (Core dump)\n" if $core;
+  print STDERR "$opt_H->{'start_file'} syntax OK\n" if ($opt_H->{'syntax_check'} && !$ret);
+  $exit;
+}
+
+##################################################
+# Input files/preprocessor
+##################################################
+sub set_filename {
+  my ($opt_H,$file) = @_;
+
+  my $stdin = ($file eq "-") ? 1 : 0;
+
+  my $filename = $stdin ? "<STDIN>" : $file;
+
+  unshift(@{$opt_H->{'files'}}, $filename);
+  unshift(@{$opt_H->{'lines'}}, 1);
+  unshift(@{$opt_H->{'offset'}}, 0);	# For special case STDIN with line_info
+  unshift(@{$opt_H->{'stdin'}}, $stdin);
+
+  $opt_H->{'line_info'} = 1;
+}
+
+sub get_filename {
+  my ($opt_H) = @_;
+  return unless $opt_H->{'files'} && @{$opt_H->{'files'}};
+  $opt_H->{'files'}[0];
+}
+
+sub open_file {
+  my ($opt_H,$file,$sinclude) = @_;
+
+  set_filename($opt_H,$file);
+  unshift(@{$opt_H->{'sinclude'}}, $sinclude ? 1 : 0);
+
+  my $start=1 unless ($opt_H->{'fhs'} && @{$opt_H->{'fhs'}});
+
+  my $fh = new IO::File;
+
+  if ($file !~ m|http://|) {
+    usage($opt_H,"Couldn't open [$file]: $!",1)
+      unless $fh->open("<$file");
+  } else {
+    # URL - Kludge!  Is there a package that will give me a filehandle to a URL?
+    usage($opt_H,"[$PROGNAME] Error: URL includes only supported with $GET_URL",1)
+      unless $fh->open("$GET_URL $file|");
+  }
+  unshift(@{$opt_H->{'fhs'}}, $fh);
+
+  change_dir($opt_H) if ($start);
+  $opt_H->{'start_file'} = $file if ($start);
+}
+
+sub close_file {
+  my ($opt_H) = @_;
+
+  return unless $opt_H->{'fhs'} || @{$opt_H->{'fhs'}};
+  my $fh = shift @{$opt_H->{'fhs'}};
+  $fh->close;
+
+  # Restore file state
+  if (get_filename($opt_H)) {
+    shift @{$opt_H->{'files'}};
+    shift @{$opt_H->{'lines'}};
+    shift @{$opt_H->{'sinclude'}};
+    shift @{$opt_H->{'offset'}};
+    shift @{$opt_H->{'stdin'}};
+  }
+
+  $opt_H->{'line_info'} = 1;
+
+  my $last=1 unless ($opt_H->{'fhs'} && @{$opt_H->{'fhs'}});
+  restore_dir($opt_H) if ($last);
+}
+
+sub get_line {
+  my ($opt_H) = (@_);
+
+  return unless $opt_H->{'fhs'} && @{$opt_H->{'fhs'}};
+
+  undef $_;
+  while (!defined $_ && @{$opt_H->{'fhs'}}) {
+    my $fh = $opt_H->{'fhs'}[0];
+    close_file($opt_H) unless ($_ = <$fh>);
+  }
+
+  # For shebang support, eperl ignores the first line if it starts with #!
+  return get_line($opt_H) if ($. == 1 && /^#!/);
+
+  return unless ($opt_H->{'preprocess'});
+
+  #########################
+  # Preprocessor
+  #########################
+
+  # Line info can be specified in STDIN streams in non-strict mode
+  # Allow for optional "change file:" directive, which is happily
+  # ignored as a comment by the original eperl.
+  if (!$opt_H->{'strict'} && $opt_H->{'stdin'}[0] &&
+      /^#(change file:)? (\d+) "([^"]+)"$/) {
+    $opt_H->{'files'}[0] = $3;
+    $opt_H->{'offset'}[0] = $2-$.-1;
+    $opt_H->{'lines'}[0] = $.+1;
+    $opt_H->{'line_info'} = 1;
+    return get_line($opt_H);
+  }
+
+  # Comments
+  if (/^#c/) {
+    # Allow comments to disappear completely (no newlines) if they contain //
+    if (!$opt_H->{'strict'} && m|//|) {
+      send_perl($opt_H,"\n");
+      return get_line($opt_H);
+    }
+    $_ = "\n";
+  }
+
+  # if-elsif-else-endif
+  s/^\s*#(elsif|if)\s+(\S.*)$/$opt_H->{'BeginDelimiter'} $1 ($2) { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*#else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
+  s/^\s*#endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
+
+  # sinclude needs to replace delimiters
+  if ($opt_H->{'sinclude'} && $opt_H->{'sinclude'}[0]) {
+    s/$opt_H->{'BeginDelimiter'}//g;
+    s/$opt_H->{'EndDelimiter'}//g;
+  }
+
+  # include/sinclude
+  if (/^\s*#(s)?include\s+"([^"]+)"\s*$/ ||
+      /^\s*#(s)?include\s+'([^']+)'\s*$/ ||
+      /^\s*#(s)?include\s+<([^>]+)>\s*$/ ||
+      /^\s*#(s)?include\s+(\S+)\s*$/) {
+    my ($sinclude,$inc) = ($1,$2);
+
+    # SECURITY FIX!  This is broken in the real ePerl v2.2.14!
+    # Otherwise: We can do "#include" inside "#sinclude" to turn off security
+    $sinclude = 1 if ($opt_H->{'sinclude'} && $opt_H->{'sinclude'}[0]);
+
+    return print STDERR "[$PROGNAME] Error:  Too many includes [>$MAX_INCLUDES]\n"
+      if (@{$opt_H->{'fhs'}}+1 > $MAX_INCLUDES);
+
+    $opt_H->{'lines'}[0] = $.+1;	# Come back to next line
+
+    # Find include file
+    my $file = $inc;
+    if ($file =~ m|^/|) {		# Absolute path
+    } elsif ($file =~ m|^http://|) {	# URL
+    } else {				# Non-absolute path
+      my @path = @{$opt_H->{'INC'}} if $opt_H->{'INC'};
+      while (!-r $file && @path) {
+        $file = shift(@path)."/$inc";
+        $file = "$ENV{'DOCUMENT_ROOT'}/$file"
+          if ($opt_H->{'mode'} ne "f" && $ENV{'DOCUMENT_ROOT'});
+      }
+      unless (-r $file) {
+        my $msg = "[$PROGNAME] Error:  Couldn't find include [$inc]\n";
+        print STDERR $msg;		# Send to STDERR
+        send_perl_text($opt_H,$msg,0,0);	# And to the perl output
+        return get_line($opt_H);
+      }
+    }
+
+    # Open it
+    open_file($opt_H,$file,$sinclude);
+    # And return first line
+    return get_line($opt_H);
+  }
+}
+
+##################################################
+# Main
+##################################################
+sub main {
+  my ($opt_H,@files) = parse_args();
+
+  # Common module/main setup code
+  start($opt_H,$files[0]);
+
+  foreach my $file ( @files ) {
+    # Open eperl input
+    open_file($opt_H,$file);
+
+    # Run eperl
+    eperl($opt_H);
+  }
+
+  my $exit = end_perl($opt_H);
+  exit($exit);
+} main;
+
+##################################################
+# Conversion table
+##################################################
+my %CONVERT_ENTITIES	= (
+	"copy"		=> '©',	# Copyright
+	"die"		=> '¨',	# Diæresis / Umlaut
+	"laquo"		=> '«',	# Left angle quote, guillemot left
+	"not"		=> '¬',	# Not sign
+	"ordf"		=> 'ª',	# Feminine ordinal
+	"sect"		=> '§',	# Section sign
+	"um"		=> '¨',	# Diæresis / Umlaut
+	"AElig"		=> 'Æ',	# Capital AE ligature
+	"Aacute"	=> 'Á',	# Capital A, acute accent
+	"Acirc"		=> 'Â',	# Capital A, circumflex
+	"Agrave"	=> 'À',	# Capital A, grave accent
+	"Aring"		=> 'Å',	# Capital A, ring
+	"Atilde"	=> 'Ã',	# Capital A, tilde
+	"Auml"		=> 'Ä',	# Capital A, diæresis / umlaut
+	"Ccedil"	=> 'Ç',	# Capital C, cedilla
+	"ETH"		=> 'Ð',	# Capital Eth, Icelandic
+	"Eacute"	=> 'É',	# Capital E, acute accent
+	"Ecirc"		=> 'Ê',	# Capital E, circumflex
+	"Egrave"	=> 'È',	# Capital E, grave accent
+	"Euml"		=> 'Ë',	# Capital E, diæresis / umlaut
+	"Iacute"	=> 'Í',	# Capital I, acute accent
+	"Icirc"		=> 'Î',	# Capital I, circumflex
+	"Igrave"	=> 'Ì',	# Capital I, grave accent
+	"Iuml"		=> 'Ï',	# Capital I, diæresis / umlaut
+	"Ntilde"	=> 'Ñ',	# Capital N, tilde
+	"Oacute"	=> 'Ó',	# Capital O, acute accent
+	"Ocirc"		=> 'Ô',	# Capital O, circumflex
+	"Ograve"	=> 'Ò',	# Capital O, grave accent
+	"Oslash"	=> 'Ø',	# Capital O, slash
+	"Otilde"	=> 'Õ',	# Capital O, tilde
+	"Ouml"		=> 'Ö',	# Capital O, diæresis / umlaut
+	"THORN"		=> 'Þ',	# Capital Thorn, Icelandic
+	"Uacute"	=> 'Ú',	# Capital U, acute accent
+	"Ucirc"		=> 'Û',	# Capital U, circumflex
+	"Ugrave"	=> 'Ù',	# Capital U, grave accent
+	"Uuml"		=> 'Ü',	# Capital U, diæresis / umlaut
+	"Yacute"	=> 'Ý',	# Capital Y, acute accent
+	"aacute"	=> 'ß',	# Small a, acute accent
+	"acirc"		=> 'â',	# Small a, circumflex
+	"acute"		=> '´',	# Acute accent
+	"aelig"		=> 'æ',	# Small ae ligature
+	"agrave"	=> 'à',	# Small a, grave accent
+	"amp"		=> '&',	# Ampersand
+	"aring"		=> 'å',	# Small a, ring
+	"atilde"	=> 'ã',	# Small a, tilde
+	"auml"		=> 'ä',	# Small a, diæresis / umlaut
+	"brkbar"	=> '¦',	# Broken vertical bar
+	"brvbar"	=> '¦',	# Broken vertical bar
+	"ccedil"	=> 'ç',	# Small c, cedilla
+	"cedil"		=> '¸',	# Cedilla
+	"cent"		=> '¢',	# Cent sign
+	"curren"	=> '¤',	# General currency sign
+	"deg"		=> '°',	# Degree sign
+	"divide"	=> '÷',	# Division sign
+	"eacute"	=> 'é',	# Small e, acute accent
+	"ecirc"		=> 'ê',	# Small e, circumflex
+	"egrave"	=> 'è',	# Small e, grave accent
+	"eth"		=> 'ð',	# Small eth, Icelandic
+	"euml"		=> 'ë',	# Small e, diæresis / umlaut
+	"frac12"	=> '½',	# Fraction one-half
+	"frac14"	=> '¼',	# Fraction one-fourth
+	"frac34"	=> '¾',	# Fraction three-fourths
+	"gt"		=> '>',	# Greater than
+	"hibar"		=> '¯',	# Macron accent
+	"iacute"	=> 'í',	# Small i, acute accent
+	"icirc"		=> 'î',	# Small i, circumflex
+	"iexcl"		=> '¡',	# Inverted exclamation
+	"igrave"	=> 'ì',	# Small i, grave accent
+	"iquest"	=> '¿',	# Inverted question mark
+	"iuml"		=> 'ï',	# Small i, diæresis / umlaut
+	"lt"		=> '<',	# Less than
+	"macr"		=> '¯',	# Macron accent
+	"micro"		=> 'µ',	# Micro sign
+	"middot"	=> '·',	# Middle dot
+	"nbsp"		=> ' ',	# Non-breaking Space
+	"ntilde"	=> 'ñ',	# Small n, tilde
+	"oacute"	=> 'ó',	# Small o, acute accent
+	"ocirc"		=> 'ô',	# Small o, circumflex
+	"ograve"	=> 'ò',	# Small o, grave accent
+	"ordm"		=> 'º',	# Masculine ordinal
+	"oslash"	=> 'ø',	# Small o, slash
+	"otilde"	=> 'õ',	# Small o, tilde
+	"ouml"		=> 'ö',	# Small o, diæresis / umlaut
+	"para"		=> '¶',	# Paragraph sign
+	"plusmn"	=> '±',	# Plus or minus
+	"pound"		=> '£',	# Pound sterling
+	"quot"		=> '"',	# Quotation mark
+	"raquo"		=> '»',	# Right angle quote, guillemot right
+	"reg"		=> '®',	# Registered trademark
+	"shy"		=> '­',	# Soft hyphen
+	"sup1"		=> '¹',	# Superscript one
+	"sup2"		=> '²',	# Superscript two
+	"sup3"		=> '³',	# Superscript three
+	"szlig"		=> 'ß',	# Small sharp s, German sz
+	"thorn"		=> 'þ',	# Small thorn, Icelandic
+	"times"		=> '×',	# Multiply sign
+	"uacute"	=> 'ú',	# Small u, acute accent
+	"ucirc"		=> 'û',	# Small u, circumflex
+	"ugrave"	=> 'ù',	# Small u, grave accent
+	"uuml"		=> 'ü',	# Small u, diæresis / umlaut
+	"yacute"	=> 'ý',	# Small y, acute accent
+	"yen"		=> '¥',	# Yen sign
+	"yuml"		=>'\255',	# Small y, diæresis / umlaut
+	);
+sub convert_entity($) { $CONVERT_ENTITIES{$_[0]} || "&$_[0];"; }
+
+##################################################
+##################################################
+##################################################
+#
+# TEXT FILES - END OF CODE
+#
+##################################################
+##################################################
+##################################################
+sub html_error {
+  my ($error,@err) = @_;
+
+  my $proto = $ENV{'SERVER_PROTOCOL'} || "HTTP/1.0";
+  print SEND_OUT "$proto 200 OK\n";
+  my $server = $ENV{'SERVER_SOFTWARE'} || "unknown-server/0.0";
+  print SEND_OUT "Server: $server ePerl/$VERSION Perl/$]\n";
+  print SEND_OUT "Date: ".localtime(time)."\n";
+  print SEND_OUT "Connection: close\n";
+
+  print SEND_OUT <<HTML_START;
+Content-Type: text/html
+
+<html>
+<head>
+<title>ePerl: ERROR: $error</title>
+</head>
+<body bgcolor="#d0d0d0">
+<blockquote>
+<h1>
+<a href="http://MarginalHacks.com/Hacks/ePerl">ePerl</a>
+</h1>
+<b>Version $VERSION</b>
+<p>
+<table bgcolor="#d0d0f0" cellspacing=0 cellpadding=10 border=0>
+<tr><td bgcolor="#b0b0d0">
+<font face="Arial, Helvetica"><b>ERROR:</b></font>
+</td></tr>
+<tr><td>
+<h1><font color="#3333cc">$error</font></h1>
+</td></tr>
+</table>
+HTML_START
+
+print SEND_OUT <<HTML_STDERR if (@err);
+<p><table bgcolor="#e0e0e0" cellspacing=0 cellpadding=10 border=0>
+<tr><td bgcolor="#c0c0c0">
+<font face="Arial, Helvetica"><b>Contents of STDERR channel:</b></font>
+</td></tr>
+<tr><td>
+<pre>
+@err
+</pre></td></tr>
+</table>
+HTML_STDERR
+
+print SEND_OUT <<HTML_END;
+</blockquote>
+</body>
+</html>
+HTML_END
+}
+
+sub readme {
+print <<'README';
+
+This is the perl rewrite of the ePerl program.
+ePerl was originally written in C by Ralf S. Engelschall, here
+is the original Readme file:
+
+----------------------------------------------------------------------
+        ____           _ 
+    ___|  _ \ ___ _ __| |
+   / _ \ |_) / _ \ '__| |
+  |  __/  __/  __/ |  | |
+   \___|_|   \___|_|  |_|
+                         
+  ePerl -- Embedded Perl 5 Language
+
+  Version 2.2.14 (02-08-1998)
+
+  ePerl interprets an ASCII file bristled with Perl 5 program statements by
+  evaluating the Perl 5 code while passing through the plain ASCII data. It
+  can operate in various ways: As a stand-alone Unix filter or integrated Perl
+  5 module for general file generation tasks and as a powerful Webserver
+  scripting language for dynamic HTML page programming. 
+
+  The documentation and latest release can be found on
+  http://www.engelschall.com/sw/eperl/
+
+  Copyright (c) 1996,1997,1998 Ralf S. Engelschall <rse@engelschall.com>
+
+  This program is free software; it may be redistributed and/or modified only
+  under the terms of either the Artistic License or the GNU General Public
+  License, which may be found in the ePerl source distribution.  Look at the
+  files ARTISTIC and COPYING or run ``eperl -l'' to receive a built-in copy of
+  both license files.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See either the Artistic License or the
+  GNU General Public License for more details.
+
+                              Ralf S. Engelschall
+                              rse@engelschall.com
+                              www.engelschall.com
+
+README
+}
+
+sub license {
+  print "\n";
+  print "This software is licensed under the MarginalHacks license:\n";
+  print "\n";
+  print "  http://MarginalHacks.com/License\n";
+  print "\n";
+  print "The documentation in this code was taken from the original ePerl\n";
+  print "and lies under the Artistic License or GNU General Public License\n";
+  print "\n";
+}
+
+sub version {
+  print "\n";
+  printf "This is $PROGNAME Version %4.2f\n",$VERSION;
+  print "\n";
+  print "Copyright (c) 2000 David Ljung Madison <MarginalHacks.com>\n";
+  print "\n";
+  print "This is a perl copy of the original ePerl program:\n";
+  print "Copyright (c) 1996,1997,1998 Ralf S. Engelschall <rse\@engelschall.com>\n";
+  print "\n";
+}
+
+# Module POD follows, stolen from ePerl
+##EOF##
+__END__
+
+=head1 NAME
+
+Parse::ePerl - ePerl in a module
+
+=head1 SYNOPSIS
+
+  use Parse::ePerl;
+
+  $rc = Parse::ePerl::Preprocess($p);
+  $rc = Parse::ePerl::Translate($p);
+  $rc = Parse::ePerl::Precompile($p);
+  $rc = Parse::ePerl::Evaluate($p);
+  $rc = Parse::ePerl::Expand($p);
+
+=head1 DESCRIPTION
+
+This version of Parse::ePerl is a rewrite of the original ePerl package (see
+Authors below).  This documentation has been completely stolen from there.
+
+Parse::ePerl is the Perl 5 interface package to the functionality of the ePerl
+parser (see eperl(1) for more details about the stand-alone program). It
+directly uses the parser code from ePerl to translate a bristled script into a
+plain Perl script and additionally provides functions to precompile such
+scripts into P-code and evaluate those scripts to a buffer.
+
+All functions are parameterized via a hash reference C<$p> which provide the
+necessary parameters. The result is a return code C<$rc> which indicates
+success (1) or failure (0).
+
+=head2 B<PREPROCESSOR: $rc = Parse::ePerl::Preprocess($p)>
+
+This is the ePerl preprocessor which expands C<#include> directives.
+See eperl(1) for more details.
+
+Possible parameters for C<$p>:
+
+=over 4
+
+=item I<Script>
+
+Scalar holding the input script in source format.
+
+=item I<Result>
+
+Reference to scalar receiving the resulting script in bristled Perl format.
+
+=item I<INC>
+
+A reference to a list specifying include directories. Default is C<\@INC>.
+
+=back
+
+=head2 B<TRANSLATION: $rc = Parse::ePerl::Translate($p)>
+
+This is the actual ePerl parser, i.e. this function converts a bristled
+ePerl-style script (provided in C<$p->{Script}> as a scalar) to a plain Perl
+script. The resulting script is stored into a buffer provided via a scalar
+reference in C<$p->{Result}>. The translation is directly done by the original
+C function Bristled2Plain() from ePerl, so the resulting script is exactly the
+same as with the stand-alone program F<eperl>.
+
+Possible parameters for C<$p>:
+
+=over 4
+
+=item I<Script>
+
+Scalar holding the input script in bristled format.
+
+=item I<Result>
+
+Reference to scalar receiving the resulting script in plain Perl format.
+
+=item I<BeginDelimiter>
+
+Scalar specifying the begin delimiter.  Default is ``C<E<lt>:>''.
+
+=item I<EndDelimiter>
+
+Scalar specifying the end delimiter.  Default is ``C<:E<gt>>''.
+
+=item I<CaseDelimiters>
+
+Boolean flag indicating if the delimiters are case-sensitive (1=default) or
+case-insensitive (0).
+
+=back
+
+Example: The following code 
+
+  $script = <<'EOT';
+  foo
+  <: print "bar"; :>
+  quux
+  EOT
+  
+  Parse::ePerl::Translate({
+      Script => $script,
+      Result => \$script,
+  });
+
+translates the script in C<$script> to the following plain Perl format:
+
+  print "foo\n";
+  print "bar"; print "\n";
+  print "quux\n";
+
+=head2 B<COMPILATION: $rc = Parse::ePerl::Precompile($p);>
+
+This is an optional step between translation and evaluation where the plain
+Perl script is compiled from ASCII representation to P-code (the internal Perl
+bytecode). This step is used in rare cases only, for instance from within
+Apache::ePerl(3) for caching purposes.
+
+Possible parameters for C<$p>:
+
+=over 4
+
+=item I<Script>
+
+Scalar holding the input script in plain Perl format, usually the result from
+a previous Parse::ePerl::Translate(3) call.
+
+=item I<Result>
+
+Reference to scalar receiving the resulting code reference. This code can be
+later directly used via the C<&$var> construct or given to the
+Parse::ePerl::Evaluate(3) function.
+
+=item I<Error>
+
+Reference to scalar receiving possible error messages from the compilation
+(e.g.  syntax errors).
+
+=item I<Cwd>
+
+Directory to switch to while precompiling the script.
+
+=item I<Name>
+
+Name of the script for informal references inside error messages.
+
+=back
+
+Example: The following code 
+
+  Parse::ePerl::Precompile({
+      Script => $script,
+      Result => \$script,
+  });
+
+translates the plain Perl code (see above) in C<$script> to a code reference
+and stores the reference again in C<$script>. The code later can be either
+directly used via C<&$script> instead of C<eval($script)> or passed to the
+Parse::ePerl::Evaluate(3) function.
+
+=head2 B<EVALUATION: $rc = Parse::ePerl::Evaluate($p);>
+
+Beside Parse::ePerl::Translate(3) this is the second main function of this
+package. It is intended to evaluate the result of Parse::ePerl::Translate(3)
+in a ePerl-like environment, i.e. this function tries to emulate the runtime
+environment and behavior of the program F<eperl>. This actually means that it
+changes the current working directory and evaluates the script while capturing
+data generated on STDOUT/STDERR.
+
+Possible parameters for C<$p>:
+
+=over 4
+
+=item I<Script>
+
+Scalar (standard case) or reference to scalar (compiled case) holding the
+input script in plain Perl format or P-code, usually the result from a
+previous Parse::ePerl::Translate(3) or Parse::ePerl::Precompile(3) call.
+
+=item I<Result>
+
+Reference to scalar receiving the resulting code reference. 
+
+=item I<Error>
+
+Reference to scalar receiving possible error messages from the evaluation
+(e.g. runtime errors).
+
+=item I<ENV>
+
+Hash containing the environment for C<%ENV> which should be used while
+evaluating the script.
+
+=item I<Cwd>
+
+Directory to switch to while evaluating the script.
+
+=item I<Name>
+
+Name of the script for informal references inside error messages.
+
+=back
+
+Example: The following code 
+
+  $script = <<'EOT';
+  print "foo\n";
+  print "bar"; print "\n";
+  print "quux\n";
+  EOT
+
+  Parse::ePerl::Evaluate({
+      Script => $script,
+      Result => \$script,
+  });
+
+translates the script in C<$script> to the following plain data:
+
+  foo
+  bar
+  quux
+
+=head2 B<ONE-STEP EXPANSION: $rc = Parse::ePerl::Expand($p);>
+
+This function just combines, Parse::ePerl::Translate(3) and
+Parse::ePerl::Evaluate(3) into one step. The parameters in C<$p> are the union
+of the possible parameters for both functions. This is intended as a
+high-level interface for Parse::ePerl.
+
+=head1 AUTHOR
+
+ David Ljung Madison
+ eperl -at- MarginalHacks.com
+ http://MarginalHacks.com
+
+ Author of original ePerl:
+   Ralf S. Engelschall
+   rse@engelschall.com
+   www.engelschall.com
+
+=head1 SEE ALSO
+
+eperl(1)
+
+Web-References:
+
+  Perl:           perl(1),  http://www.perl.com/
+  ePerl:          eperl(1), http://MarginalHacks.com/Hacks/ePerl
+  original ePerl: eperl(1), http://www.engelschall.com/sw/eperl/
+
+=cut
+
+##EOF##

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.3 2003/03/23 17:29:31 mstorti Exp $
+//$Id: alehook.cpp,v 1.4 2003/03/23 20:11:10 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -104,7 +104,7 @@ public:
 void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
 	  TextHashTableFilter *options,const char *name) { 
   if (!MY_RANK) {
-    if (0) {
+    if (1) {
       printf("ALE_HOOK2_INIT: Starting ALE_HOOK...\n");
       pid_t pid = fork();
       if (pid==-1) {
@@ -144,6 +144,10 @@ void ale_hook2::time_step_post(double time,int step,
     int ierr;
     fprintf(ns2mmv,"step %d\n",step);
   }
+  // Here goes reading the data from  mesh_move and assigning
+  // to the new mesh
+  int mmv_step = int(read_doubles(mmv2ns,"mmv_step_ok"));
+  assert(step==mmv_step);
 }
 
 void ale_hook2::close() {}
@@ -183,52 +187,55 @@ public:
 void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
 	  TextHashTableFilter *options,const char *name) { 
 
+  if (!MY_RANK) {
     printf("MESH_MOVE: Opening fifos for communicating with ALE_HOOK2.\n");
-
+    
     ns2mmv = fopen("ns2mmv.fifo","r");
     assert(ns2mmv);
-
+    
     mmv2ns = fopen("mmv2ns.fifo","w");
     assert(mmv2ns);
     setvbuf(mmv2ns,NULL,_IOLBF,0);
-
+    
     printf("ALE_HOOK2: Done.\n");
+  }
+  int ierr = MPI_Barrier(PETSC_COMM_WORLD);
+  assert(!ierr);
 
-    nnod = mesh.nodedata->nnod;
-    ndim = 2;
-    // Read list of nodes on the FS ad spines (all of size nfs).
-    FILE *fid = fopen("spillway.nod_fs.tmp","r");
-    FILE *fid2 = fopen("spillway.spines.tmp","r");
-    int indx=0;
-    while(1) {
-      printf("indx %d\n",indx);
-      int node;
-      int nread = fscanf(fid,"%d",&node);
-      if (nread==EOF) break;
-      double n;
-      for (int j=0; j<ndim; j++) {
-	nread = fscanf(fid2,"%lf",&n);
-	printf("read %f\n",n);
+  nnod = mesh.nodedata->nnod;
+  ndim = 2;
+  // Read list of nodes on the FS ad spines (all of size nfs).
+  FILE *fid = fopen("spillway.nod_fs.tmp","r");
+  FILE *fid2 = fopen("spillway.spines.tmp","r");
+  int indx=0;
+  while(1) {
+    printf("indx %d\n",indx);
+    int node;
+    int nread = fscanf(fid,"%d",&node);
+    if (nread==EOF) break;
+    double n;
+    for (int j=0; j<ndim; j++) {
+      nread = fscanf(fid2,"%lf",&n);
+      printf("read %f\n",n);
 	assert(nread==1);
 	spines.push(n);
-      }
-      assert(fs2indx.find(node)==fs2indx.end());
-      // load map
-      fs2indx[node] = indx++;
     }
-    fclose(fid);
-    fclose(fid2);
-    // Number of nodes on the FS
-    nfs = fs2indx.size();
-    assert(spines.size()==ndim*nfs);
-    spines.reshape(2,nfs,ndim);
-
-    displ.set_chunk_size(ndim*nfs);
-    displ.a_resize(2,nfs,ndim);
-    
-    int ierr;
-    TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
-    assert(Dt>0.);
+    assert(fs2indx.find(node)==fs2indx.end());
+    // load map
+    fs2indx[node] = indx++;
+  }
+  fclose(fid);
+  fclose(fid2);
+  // Number of nodes on the FS
+  nfs = fs2indx.size();
+  assert(spines.size()==ndim*nfs);
+  spines.reshape(2,nfs,ndim);
+  
+  displ.set_chunk_size(ndim*nfs);
+  displ.a_resize(2,nfs,ndim);
+  
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
+  assert(Dt>0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -269,6 +276,7 @@ void ale_mmv_hook::time_step_post(double time,int step,
     for (int j=0; j<ndim; j++) displ.e(indx,j) += Dt*spines.e(indx,j);
   }
   fclose(fid);
+  fprintf(mmv2ns,"mmv_step_ok %d\n",step);
 }
 
 void ale_mmv_hook::close() {}

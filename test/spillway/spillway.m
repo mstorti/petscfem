@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.5 2003/03/23 17:29:31 mstorti Exp $
+## $Id: spillway.m,v 1.6 2003/03/23 20:11:10 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
@@ -179,11 +179,15 @@ fclose(fid);
 
 ## Inlet u=uin, v=0
 fid = fopen("spillway.fixa_in.tmp","w");
+fid2 = fopen("spillway.mmv_fixa_in.tmp","w");
 for k=inlet(1:length(inlet)-1)'
   fprintf(fid,"%d %d %f\n",k,1,uin);
   fprintf(fid,"%d %d %f\n",k,2,0.);
+  fprintf(fid2,"%d %d %f\n",k,1,0.);
+  fprintf(fid2,"%d %d %f\n",k,2,0.);
 endfor
 fclose(fid);
+fclose(fid2);
 
 ## Compute normals to FS
 nfs = length(fs);
@@ -206,13 +210,18 @@ if p_atm_var
   state = aload(steady_state_file);
 endif
 fid = fopen("spillway.patm.tmp","w");
+fid2 = fopen("spillway.mmv_fixa_fs.tmp","w");
 for j=2:length(fs)-1
   k= fs(j);
   p_atm_node = patm;
   if p_atm_var; p_atm_node = state(k,3); endif
   fprintf(fid,"%d %d %f\n",k,3,p_atm_node);
+
+  fprintf(fid2,"%d %d %f\n",k,1,1.);
+  fprintf(fid2,"%d %d %f\n",k,2,1.);
 endfor
 fclose(fid);
+fclose(fid2);
 
 ## Outlet p = hydrostatic
 p_corner_node = 0;		# Pressure at the intersection(FS,outlet)
@@ -221,11 +230,15 @@ if p_atm_var
   p_corner_node = state(nnod,3); # The last node is the node at the corner
 endif
 fid = fopen("spillway.fixa_out.tmp","w");
+fid2 = fopen("spillway.mmv_fixa_out.tmp","w");
 for k=outlet(2:length(outlet)-1)'
   fprintf(fid,"%d %d %f\n",k,3,-gravity*xnod(k,2));
+  fprintf(fid2,"%d %d %f\n",k,1,0.);
+  fprintf(fid2,"%d %d %f\n",k,2,0.);
 endfor
 fprintf(fid,"%d %d %f\n",outlet(length(outlet)),2,0.);
 fclose(fid);
+fclose(fid2);
 
 nnod = rows(xnod);
 uini = [uin 0 0];

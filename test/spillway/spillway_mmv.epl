@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spillway_mmv.epl,v 1.1 2003/03/23 17:29:31 mstorti Exp $ 
+## $Id: spillway_mmv.epl,v 1.2 2003/03/23 20:11:10 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -69,6 +69,21 @@ dx
 __END_HASH__
 
 end_elemsets
+
+#================================================================
+fixa
+__INCLUDE__ "spillway.fixa_bot.tmp"
+__INCLUDE__ "spillway.mmv_fixa_in.tmp"
+__INCLUDE__ "spillway.mmv_fixa_out.tmp"
+__END_FIXA__
+
+#================================================================
+fixa_amplitude dl_generic
+ext_filename "./alehook.efn"
+function_name "fs_coupling"
+__END_HASH__
+__INCLUDE__ "spillway.mmv_fixa_fs.tmp"
+__END_FIXA__
 
 # Local Variables: $
 # mode: shell-script $
