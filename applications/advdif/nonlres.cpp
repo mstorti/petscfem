@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.9 2005/01/23 13:59:01 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.10 2005/01/23 18:25:09 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -208,38 +208,21 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
   extr_cloud.clear();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvDiff_Abs_Nl_Res::init() {
   get_prop(normaln_prop,"normaln");
   //  get_prop(U_ref_prop,"U_ref");
   assert(nel > 3);
   int ret_options=0;
-  /*
-    NSGETOPTDEF(string,vol_elemset,"none");
-    assert(vol_elemset.length()>0);
-    if (vol_elemset != "streamsw1d" || vol_elemset != "stream" || \
-    vol_elemset != "advdif_swfm2t") {
-    PetscPrintf(PETSC_COMM_WORLD,
-    "Invalid value for \"volume_elemset\" option\n"
-    "vol_elemset=\"%s\"\n",vol_elemset.c_str());
-    PetscFinalize();
-    exit(0);
-    }
-    Elemset *dummy_vol_elemset;
-    dummy_vol_elemset = GLOBAL_MESH->find(vol_elemset);
-    //check if found
-    PETSCFEM_ASSERT(dummy_vol_elemset,"Can't find volume element name: %s\n",
-    vol_elemset.c_str());
-    // dynamic_cast from Elemset to streamsw1d (NewElemset)
-    elemset_vol = dynamic_cast<const streamsw1d *>(dummy_vol_elemset);
-    delete dummy_vol_elemset;
-  */
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvDiff_Abs_Nl_Res::lag_mul_dof(int jr,int &node,int &dof) {
   //esto es por ahora
   node = 4;dof = jr;//creo que falta declararlas en la clase!!
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvDiff_Abs_Nl_Res::element_hook(ElementIterator &element){
   element_m = element;
   /* 
@@ -327,4 +310,44 @@ res(ElementIterator &element, FastMat2 &U,
   }
   C_U_.rs();
   jac.rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void MakeTangentSpace::
+init(int ndim_a) {
+  ndim = ndim_a;
+  z.resize(1,ndim);
+  tangent.resize(2,ndim,ndim-1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void MakeTangentSpace::
+make_tangent(const FastMat2 &normal) {
+  assert(ndim<=3);
+  if (ndim==2) {
+    // t = e_z x n (i.e., n rotated
+    // 90degree counter-clockwise)
+    tangent.setel(-normal.get(2),1,1);
+    tangent.setel(+normal.get(1),2,1);
+  } else {
+    // We construct the two tangents `t1 = z x n', `t1 = t1/|t1|'
+    // `t2 = n x t1'. `z' must be non parallel to `n', so that
+    // we choose the versor along the 'j' axis, with `j' the direction
+    // such that `|n_j|' is minimum. 
+    int j;
+    double amin;
+    for (int k=1; k<=ndim; k++) {
+      double anj = fabs(normal.get(k));
+      if (k==1 || anj<amin) {
+	j = k; amin=anj;
+      }
+    }
+    FastMat2::deactivate_cache();
+    z.set(0.).setel(1.0,j);
+    FastMat2::activate_cache();
+    tangent.ir(2,1).cross(z,normal);
+    // Here we reuse `z' 
+    z.set(tangent);
+    tangent.ir(2,2).cross(normal,z).rs();
+  }
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.13 2005/01/22 22:10:17 mstorti Exp $
+// $Id: gasflow.h,v 1.14 2005/01/23 18:25:09 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -19,7 +19,8 @@ private:
     vl_indxe,vg_indxe,LES;
   FastMat2 U,vel,Cp,Cpi,Ajac,Id_ndim,Amom,Y,vel_old,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_vel,strain_rate,IdId,G_body,
-    uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,tmp6,tmp7,tmp05,tmp10,tmp_vel;
+    uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,
+    tmp6,tmp7,tmp05,tmp10,tmp_vel,tang;
   FastMat2 viscous_work,heat_flux,sigma;
   FastMat2 tau_supg_c,vel_supg;
   FastMat2 Ajac_tmp,Djac_tmp;
@@ -35,6 +36,7 @@ private:
   const NewAdvDif *advdf_e;
   FastMat2 jvec;
   FastMat2 tmp20,dUabso,Uref;
+  MakeTangentSpace maktgsp;
 
   void compute_tau(int ijob,double &delta_sc);
 

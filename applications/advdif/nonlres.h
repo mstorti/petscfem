@@ -83,6 +83,17 @@ class LagrangeMult : public NewElemset {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class MakeTangentSpace {
+private:
+  int ndim;
+  FastMat2 z;
+public:
+  void init(int ndim_a);
+  void make_tangent(const FastMat2 &normal);
+  FastMat2 tangent;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** This elemset provides the restriction (via Lagrange multipliers)
     of the nonlinear Dirichlet type b.c. at the wall of the form $k_w
     = u_*^2/C_\mu$ and similarly for $\epsilon_w$. 
@@ -118,7 +129,7 @@ public:
   ASK_FUNCTION;
   NewAssembleFunction new_assemble;
   /// Number of restrictions (=2)
-  int nres() {return ndof;}; 
+  int nres() { return ndof; }
   /// Initialize the elemset (maybe reads hash table)
   void init();
   // this returns the pair node/dof for lagrange multiplier for 
