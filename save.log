@@ -3565,3 +3565,7 @@ tag: beta-3.37.43 on Mon, 20 Dec 2004 00:16:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.44 on Mon, 20 Dec 2004 09:20:34 -0300 by mstorti in spider
      > Working on `NodeCombine' stuff. 
+----------
+tag: beta-3.37.45 on Wed, 22 Dec 2004 16:10:21 -0300 by mstorti in minerva.ceride.gov.ar
+     > Fixed a bug in `dvector2.h'.  The `recompute_shape()' function crashes
+     > when the vector is not `shaped' (shape.size()>
