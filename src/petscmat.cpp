@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.6 2002/07/18 20:01:40 mstorti Exp $
+//$Id: petscmat.cpp,v 1.7 2002/07/22 02:49:36 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
@@ -51,7 +51,7 @@ int PETScMat::create_a() {
   MPI_Comm_rank (comm, &myrank);
 
   // Scatter the profile graph
-  lgraph.scatter();
+  lgraph->scatter();
 
   const int &neq = M;
   
@@ -80,7 +80,7 @@ int PETScMat::create_a() {
     keq = dofs_proc_v[k];
     if (debug_compute_prof) printf("-------- keq = %d: ",keq);
     ngbrs_v.clear();
-    lgraph.set_ngbrs(keq,ngbrs_v);
+    lgraph->set_ngbrs(keq,ngbrs_v);
     // PETSc doc says that you have to add room for the diagonal entry
     // even if it doesn't exist. But apparently it isn't needed. 
     // diag_ok=0;
@@ -115,7 +115,7 @@ int PETScMat::create_a() {
     sumdcorr += d_nnz[k];
     sumo += o_nnz[k];
   }
-  lgraph.clear();
+  lgraph->clear();
 
   // Print statistics
   double avo,avd,avdcorr;

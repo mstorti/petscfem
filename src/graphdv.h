@@ -1,12 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.1 2002/07/21 22:38:30 mstorti Exp $
+// $Id: graphdv.h,v 1.2 2002/07/22 02:49:35 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
 extern int MY_RANK,SIZE;
 
-#include "dvector.h"
+#include <src/iisdgraph.h>
+#include <src/dvector.h>
 
 class int_pair { 
 public: 
@@ -21,7 +22,7 @@ public:
   }
 };
 
-class graphdv  {
+class graphdv : public StoreGraph {
 private:
   dvector<int_pair> da;
   int ordered;

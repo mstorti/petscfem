@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.9 2002/05/13 22:04:47 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.10 2002/07/22 02:49:35 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -36,34 +36,16 @@ enum PETScFEMErrors {
   iisdmat_set_value_out_of_range
 };
 
-#if 0
-int PFPETScMat::solve(Vec &res,Vec &dx) {
-  int retval;
-  if (!factored) {
-    build_sles();
-    retval = factor_and_solve(res,dx);
-    factored=1;
-    return retval;
-  } else {
-    return solve_only(res,dx);
-  }
-}
-#endif
-
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFPETScMat::clear"
-void PFPETScMat::clear() {
-  clean_factor();
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PFPETScMat::PFPETScMat(MPI_Comm comm_) : sles_was_built(0), 
-  A(NULL), P(NULL), factored(0), comm(comm_)  {}
-#endif
-
 PFPETScMat::~PFPETScMat() {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
+  : sles(NULL), comm(comm_), part(pp), 
+  pf_part(part), 
+  // lgraph(&lgraph1), 
+  lgraph(&lgraph_dv), 
+  A(NULL), P(NULL), factored(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -860,15 +842,6 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
   return 0;
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "IISDMat::jacobi_pc_apply"
-void IISDMat::print(void) {
-  lgraph.print();
-}
-#endif
 
 /*
   Local Variables: 

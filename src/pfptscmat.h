@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.5 2002/07/21 22:38:30 mstorti Exp $
+// $Id: pfptscmat.h,v 1.6 2002/07/22 02:49:36 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -10,6 +10,7 @@
 #include <sles.h>
 
 #include <src/iisdgraph.h>
+#include <src/graphdv.h>
 #include <src/pfmat.h>
 
 class PFPETScMat : public PFMat {
@@ -49,7 +50,9 @@ protected:
   const DofPartitioner &part;
 
   /// The graph storing the profile object
-  StoreGraph lgraph;
+  StoreGraph *lgraph;
+  StoreGraph1 lgraph1;
+  graphdv lgraph_dv;
 
   /// IntRowPartitioner based on a DofPartitioner
   class PFPETScPart : public IntRowPartitioner {
@@ -72,18 +75,14 @@ protected:
   // int clean_mat_a();
 
   /// Cleans profile related stuff
-  int clean_prof_a() { lgraph.clear(); return 0; }
+  int clean_prof_a() { lgraph->clear(); return 0; }
 
 public:
 
-  PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
-    : sles(NULL), comm(comm_), part(pp), 
-    pf_part(part), lgraph(MM,&part,comm_), 
-    // sles_was_built(0), // now included in `factored'
-    A(NULL), P(NULL), factored(0) {}
+  PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_);
 
   ~PFPETScMat();
-  // void clear();
+
   int duplicate_a(MatDuplicateOption op,const PFMat &A);
   virtual int build_sles();
   virtual int set_preco(const string & preco_type);
@@ -91,7 +90,7 @@ public:
 
   /// Adds an element to the matrix profile
   int set_profile_a(int j,int k) {
-    lgraph.add(j,k);
+    lgraph->add(j,k);
     return 0;
   }
 

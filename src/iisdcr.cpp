@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.20 2002/07/21 19:01:44 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.21 2002/07/22 02:49:35 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -125,7 +125,7 @@ int IISDMat::create_a() {
   TGETOPTDEF(&thash,int,iisdmat_print_statistics,0);
 
   // Scatter the profile graph
-  lgraph.scatter();
+  lgraph->scatter();
 
   MPI_Comm_rank (comm, &myrank);
   MPI_Comm_size (comm, &size);
@@ -164,7 +164,7 @@ int IISDMat::create_a() {
     // keq:= number of dof
     keq = dofs_proc_v[k];
     ngbrs_v.clear();
-    lgraph.set_ngbrs(keq,ngbrs_v);
+    lgraph->set_ngbrs(keq,ngbrs_v);
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
       // leq:= number of dof connected to `keq'
@@ -218,7 +218,7 @@ int IISDMat::create_a() {
 #undef INF
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
 
-  local_graph.lgraph = &lgraph;
+  local_graph.lgraph = lgraph;
   local_graph.init(n_loc_pre);
   local_graph.loc2dof = loc2dof.begin();
   local_graph.dof2loc = dof2loc.begin();
@@ -418,7 +418,7 @@ int IISDMat::create_a() {
     row -= (row < n_loc_tot ? n_locp : n_intp);
     // loop over the connected dof's
     ngbrs_v.clear();
-    lgraph.set_ngbrs(keq,ngbrs_v);
+    lgraph->set_ngbrs(keq,ngbrs_v);
 
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
@@ -443,7 +443,7 @@ int IISDMat::create_a() {
   }
 
   // deallocate profile (graph)
-  lgraph.clear();
+  lgraph->clear();
 
 #if 0
   // Prints d_nnz, o_nnz for block LL, IL, IL and II in turn

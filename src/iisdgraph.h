@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.6 2002/07/21 22:38:30 mstorti Exp $
+//$Id: iisdgraph.h,v 1.7 2002/07/22 02:49:35 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -16,7 +16,7 @@ extern int MY_RANK,SIZE;
 #include <src/part.h>
 #include <src/graph.h>
 #include <src/distcont.h>
-#include <src/graphdv.h>
+//#include <src/graphdv.h>
 
 /// The storage area type
 typedef map<int, GSet, less<int>, STL_ALLOCATOR > GMap;
@@ -26,11 +26,19 @@ typedef pair<int, GSet > GRow;
 typedef Partitioner< GSet > GPartitioner;
 /// The basic container for the distributed graph class.
 typedef DistCont<GMap,GRow,GPartitioner> DGMap;
+
+class StoreGraph : public Graph {
+public:
+  /// Adds an edge to the graph
+  virtual void add(int i, int j)=0;
+  virtual void scatter()=0;
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** This `Graph' class has internal storage, which you can fill with
     `set'. Furthermore, it is distributed.
 */
-class StoreGraph1 : public Graph {
+class StoreGraph1 : public StoreGraph {
  public:
  private:
   /// The MPI compunicator
@@ -71,7 +79,5 @@ public:
   void scatter() {}
   void print() {}
 };
-
-typedef graphdv_dis StoreGraph;
 
 #endif
