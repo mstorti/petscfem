@@ -4,18 +4,18 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Ly=1;
 $yratio = 10;
-$Rgas = 287;
-$Nx = 80;
-$Ny = 40;
+$ref = 1;
+$Ny = 15;
+$Nx = 2*$Ny;
 $Lx = 4;
 $Lplate=1;
 
 $Machin = 0.5;
 
 $gamma = 1.4;
-$Rgas = 287;
+$Rgas = 1;
 $rhoref = 1;
-$Tref = 300;
+$Tref = 1;
 
 @vars = qw(Rgas Nx Ny Lx Ly yratio Lplate Machin gamma Rgas rhoref Tref);
 octave_export_vars(">data.m.tmp",@vars);

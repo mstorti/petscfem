@@ -48,7 +48,7 @@ weak_form 0
 temporal_stability_factor 0
 
 ndim 2
-Rgas 287.0
+<:pr('Rgas'):>
 visco 0.1
 cond 0.1
 steady 0
@@ -82,9 +82,14 @@ data ./gfplate.con.tmp
 __END_HASH__
 
 #if !$dx
+#if 1
 elemset gasflow_twall 2
 dx 0
 lagrange_diagonal_factor 1.0e-5
+#else
+elemset id 2
+id_fac 0.
+#endif
 data ./gfplate.twall.tmp
 __END_HASH__
 #endif

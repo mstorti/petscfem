@@ -1,17 +1,17 @@
-# $Id: Makefile,v 1.17 2005/01/26 11:46:53 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2005/01/27 01:15:52 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runa2dn
+default: runp
 
 BOPT := g_c++
 SRCS = 
+# PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.40
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-# CASE_NAME := gfplate
 CASE_NAME := cylabso
 endif
 LOC_PROG := advdif
@@ -29,6 +29,9 @@ runa2dn:
 
 runc: 
 	$(MAKE) CASE_NAME=cylabso run
+
+runp: 
+	$(MAKE) CASE_NAME=gfplate run
 
 run: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
