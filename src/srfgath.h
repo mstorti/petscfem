@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: srfgath.h,v 1.4 2004/01/29 21:07:30 mstorti Exp $
+//$Id: srfgath.h,v 1.5 2004/01/30 02:23:59 mstorti Exp $
 #ifndef PETSCFEM_SRF_GATH_H
 #define PETSCFEM_SRF_GATH_H
 
@@ -62,7 +62,11 @@ public:
       
   */ 
   virtual void set_ip_values(vector<double> &pg_values,FastMat2 &u,
-		     FastMat2 &xpg,FastMat2 &n,double time)=0;
+			     FastMat2 &xpg,FastMat2 &n,double time)=0;
+  
+  /** How many gather values will be contributed by this elemset per
+      surface. */ 
+  virtual int vals_per_plane()=0;
 
   /** Called \textbf{after} the element loop. May be used for
       clean-up operations. 
@@ -78,6 +82,7 @@ class field_surf_integrator : public SurfGatherer {
 public:
   void set_ip_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &xpg,FastMat2 &n,double time);
+  int vals_per_plane();
 };
 
 #endif

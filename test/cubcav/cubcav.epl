@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.108 2004/01/29 21:07:30 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.109 2004/01/30 02:24:02 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -64,7 +64,6 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 rho 1
-viscosity <:=$nu:>
 >>if $case ne 'plain'
 nnwt 1
 steady 0
@@ -72,6 +71,7 @@ Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
 >>else
 nnwt <:=$nnwt:>
 steady 1
+Dt 1.
 >>endif
 temporal_stability_factor 0
 LES <:=($nu < 1e-4 ? 1 : 0):>
@@ -95,7 +95,7 @@ hook_list shell_hook cubcav
 >>endif
 >>endif
 
-ngather 3
+ngather 8
 __END_HASH__
 
 # ndim nu ndof
@@ -103,12 +103,19 @@ nodedata  3 3 4
 data <:=$data_dir:>/cubcav.nod.tmp
 __END_HASH__
 
-elemset nsi_tet_les_fm2 <:=$nel:>
+elemset <:=$elemset:> <:=$nel:>
 name fluid
 geometry <:=$geom:>
 npg <:=$npg:>
 data <:=$icone:>
 dx 1
+>>if $srfgath
+conductivity 1.
+C 0.
+Cp 0.
+>>else
+viscosity <:=$nu:>
+>>endif
 __END_HASH__
 
 elemset field_surf_integrator <:=$nel:>
@@ -116,13 +123,14 @@ name integrator
 geometry <:=$geom:>
 npg <:=$npg:>
 data <:=$icone:>
-surf_fun_type "cylinder"
+surf_fun_type "plane"
 gather_pos 0
-vals_per_plane 1
-f_vals 0.12
+f_vals 0.12 0.35
 __END_HASH__
 
 end_elemsets
+
+>>if !$srfgath
 
 fixa
 # fijaciones de velocidad en las paredes
@@ -130,3 +138,8 @@ __INCLUDE__ <:=$data_dir:>/cubcav.fixa.tmp
 # fijacion en la presion
 1 4 0.
 __END_FIXA__
+>>else
+fixa
+__INCLUDE__ <:=$data_dir:>/cubcav.fixa-srfgath.tmp
+__END_FIXA__
+>>endif

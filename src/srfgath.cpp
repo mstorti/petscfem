@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.10 2004/01/29 21:07:30 mstorti Exp $
+//$Id: srfgath.cpp,v 1.11 2004/01/30 02:23:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -146,14 +146,14 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   assert(ndim==3);
   //o Position in gather vector
   TGETOPTDEF(thash,int,gather_pos,0);
-  //o How many gather values will be contributed by this elemset per surface. 
-  TGETOPTDEF(thash,int,vals_per_plane,0);
-  assert(vals_per_plane>0);
   //o Number of Gauss points.
   TGETOPTNDEF(thash,int,npg,none);
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,geometry,<none>);
   assert(geometry!="<none>");
+
+  int vpp = vals_per_plane();
+  assert(vpp>=0);
 
   //o Values #c_j# where #f(x,y,z)=c_j# surfaces are defined. 
   // _T: double array
@@ -171,9 +171,9 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     assert(f_vals.size()>0);
   } else f_vals.resize(1,0);
   int nvals = f_vals.size();
-  int gather_length = vals_per_plane*nvals;
+  int gather_length = vpp*nvals;
   
-  vector<double> ip_values(vals_per_plane);
+  vector<double> ip_values(vpp);
 
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
@@ -202,12 +202,12 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nedges = gp_data.nedges();
   assert(nedges>0);
   FastMat2 Jaco(2,ndimel,ndim),staten(2,nel,ndof), 
-    stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
-    n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
+    u(1,ndof), n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
     ui(2,ndof,nedges), xc(1,ndim), xcp(1,ndim), uc(1,ndof),
     x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp, ut(1,ndof),
     a(1,ndim), b(1,ndim), c(1,ndim), tmp2;
   xi.set(0.);
+  ui.set(0.);
 
   Time * time_c = (Time *)time;
   double t = time_c->time();
@@ -241,6 +241,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     xloc.rs();
 
+    staten.set(&(LOCST(ielh,0,0)));
+
     for (int jval=0; jval<nvals; jval++) {
       // Compute surface `jval', given by `f=val'
       double val = f_vals[jval];
@@ -269,10 +271,12 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xi.axpy(xloc,beta);
 	// ui(:,j) := state at intersection j
 	ui.ir(2,jint+1);
+	staten.rs();
 	staten.ir(1,n1);
 	ui.set(staten).scale(1-beta);
 	staten.ir(1,n2);
 	ui.axpy(staten,beta);
+	staten.rs();
       }
       xi.rs();
       ui.rs();
@@ -392,8 +396,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  set_error(found_bad_intersection_polygon);
 	
 	set_ip_values(ip_values,ut,xpg,n,t);
-	int pos = gather_pos + vals_per_plane * jval;
-	for (int j=0; j<vals_per_plane; j++) 
+	int pos = gather_pos + vpp * jval;
+	for (int j=0; j<vpp; j++) 
 	  (*values)[pos+j] += ip_values[j]*area;
       }
     }
@@ -415,13 +419,15 @@ void SurfGatherer::handle_error(int error) {
   PETSCFEM_ERROR("%s",s.c_str());  
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int field_surf_integrator::vals_per_plane() { return ndof; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void field_surf_integrator
-::set_ip_values(vector<double> &pg_values,FastMat2 &u,
+::set_ip_values(vector<double> &ip_values,FastMat2 &u,
 		FastMat2 &xpg,FastMat2 &n,double time) {
-    pg_values[0] = 1.0;
-//     pg_values[1] = xpg.get(1);
-//     pg_values[2] = xpg.get(2);
-  }
+  for (int j=0; j<ndof; j++) ip_values[j] = u.get(j+1);
+}
 
 #undef SHAPE    
 #undef DSHAPEXI 

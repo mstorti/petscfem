@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.8 2003/01/08 15:49:03 mstorti Exp $
+## $Id: mkmesh.m,v 1.9 2004/01/30 02:24:02 mstorti Exp $
 source("data.m.tmp");
 #  N=5;
 #  hratio = 0;
@@ -60,3 +60,15 @@ for j=top'
   endif
 endfor
 fclose(fid);
+
+if strcmp(case_in,"srfgath")
+  fid = fopen("cubcav.fixa-srfgath.tmp","w");
+  for j=create_set([top' wall']);
+    for k=1:4
+      fprintf(fid,"%d 1 %.20f\n%d 2 %.20f\n%d 3 %.20f\n%d 4 %.20f\n",
+	      j,x3(j,1),j,x3(j,2),j,x3(j,3),j,x3(j,1));
+    endfor
+  endfor
+  fclose(fid);
+endif
+
