@@ -1,14 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.15 2001/08/11 02:45:15 mstorti Exp $
+// $Id: distmap.h,v 1.16 2001/08/11 16:13:36 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
 #include <map>
 #include <vector>
 #include <mpi.h>
-
-extern int SCHED_ALG;
 
 #include <vecmacros.h>
 
@@ -58,6 +56,8 @@ class DistMap : public map<Key,Val> {
   /// size and rank in the comunicator
   int size,myrank;
  public:
+  enum Scheduling {rotate_all, grouping};
+  Scheduling sched;
   /** Constructor from a communicator
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
@@ -108,6 +108,7 @@ DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_
   MPI_Comm_rank (comm, &myrank);
   // initialize the partitioner 
   part=p;
+  sched = grouping;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -209,7 +210,7 @@ void DistMap<Key,Val>::scatter() {
   }
 
 
-  if (SCHED_ALG==1) { // New scheduling algorithm
+  if (sched == grouping) { // New scheduling algorithm
 
     // recv_buff:= buffer for receiving 
     // recv_buff_pos:= positions in the receive buffer
@@ -298,6 +299,7 @@ void DistMap<Key,Val>::scatter() {
 	      // myrank,status.MPI_SOURCE,status.MPI_TAG);
 	      // assert(status.MPI_TAG == source);
 
+	      nsent = SEND(source,myrank);
 #if 0	    
 	      MPI_Get_count(&status,MPI_CHAR,&nsent);
 	      assert(nsent == SEND(source,myrank));
@@ -329,7 +331,7 @@ void DistMap<Key,Val>::scatter() {
     // free memory
     delete[] recv_buff;
 
-  } else if (SCHED_ALG==0) {
+  } else if (sched == rotate_all) {
 
     // recv_buff:= buffer for receiving 
     // recv_buff_pos:= positions in the receive buffer
@@ -369,6 +371,8 @@ void DistMap<Key,Val>::scatter() {
       }
       delete[] recv_buff;
     }
+  } else {
+    assert(0);
   }
 
   // Delete all sent and received buffers

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.6 2001/08/11 02:45:18 mstorti Exp $
+// $Id: distmap.cpp,v 1.7 2001/08/11 16:13:39 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -8,7 +8,7 @@
 #include "../../src/distmap.h"
 #include <petsc.h>
 
-int SIZE, MYRANK, M, SCHED_ALG=1;
+int SIZE, MYRANK, M;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Test for the distributed map class
@@ -72,9 +72,12 @@ DistMap<int,double>::processor(const map<int,double>::iterator k) const {
   return proc(k->first);
 };
 
+typedef DistMap<int,double> Map;
+
 int main(int argc,char **argv) {
   int j,N,row,root=0;
   double d,e,err,errb,tol;
+  DistMap<int,double>::Scheduling s;
   
   map<int,double>::iterator k;
   vector<double> vec,vecc;
@@ -99,20 +102,28 @@ int main(int argc,char **argv) {
   sscanf(argv[1],"%d",&M);
   sscanf(argv[2],"%d",&N);
   sscanf(argv[3],"%lf",&tol);
-  sscanf(argv[4],"%d",&SCHED_ALG);
+  
+  if (!strcmp(argv[4],"g")) {
+    s = Map::grouping;
+  } else if (!strcmp(argv[4],"s")) {
+    s = Map::rotate_all;
+  } else {
+    assert(0);
+  }
 
   PetscPrintf(PETSC_COMM_WORLD,"Args: M %d, N %d, tol %g, sched %d\n",
-	      M,N,tol,SCHED_ALG);
+	      M,N,tol,s);
 
   MPI_Bcast (&M, 1, MPI_INT, root,MPI_COMM_WORLD);
   MPI_Bcast (&N, 1, MPI_INT, root,MPI_COMM_WORLD);
   MPI_Bcast (&tol, 1, MPI_DOUBLE, root,MPI_COMM_WORLD);
-  MPI_Bcast (&SCHED_ALG, 1, MPI_INT, root,MPI_COMM_WORLD);
+  MPI_Bcast (&s, 1, MPI_INT, root,MPI_COMM_WORLD);
   
   vec.resize(M,0);
   vecc.resize(M,0);
 
   DistMap<int,double> S;
+  S.sched = s;
   for (int j=0; j<N; j++) {
     row = int(double(rand())/double(RAND_MAX)*double(M));
     e = double(rand())/double(RAND_MAX);
