@@ -15,8 +15,9 @@ scripts = odoc.pl makewhat.pl
 #w Builds all doc in this directory
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
-SRCS := femref.cpp femref2.cpp hasher.cpp myhash.cpp myhash2.cpp \
-	myhash3.cpp myhash4.cpp myhash5.cpp gtemplates.cpp
+SRCS := femref.cpp femref2.cpp hasher.cpp myhash.cpp myhash2.cpp	\
+	myhash3.cpp myhash4.cpp myhash5.cpp gtemplates.cpp 		\
+	visitor.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -27,7 +28,7 @@ CLEAN_DIRS =
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 #w 
-femref.bin: femref.o femref2.o hasher.o md5r.o gtemplates.o
+femref.bin: femref.o femref2.o hasher.o md5r.o gtemplates.o visitor.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 hasher.o: hasher.cpp

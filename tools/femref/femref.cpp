@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.21 2004/12/14 18:05:54 mstorti Exp $
+// $Id: femref.cpp,v 1.22 2004/12/19 14:28:49 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -77,6 +77,14 @@ int main() {
 
   UniformMesh mesh(OrientedTetraTemplate,3);
   mesh.read("tetra.nod","tetra.con");
-  mesh.refine(rf);
-
+  // mesh.refine(rf);
+  UniformMesh::visitor vis;
+  vis.init(mesh,0);
+  while (true) {
+    GeomObject &go = vis.ref_stack.front().go;
+    go.print();
+    if (vis.is_leave() && vis.ref_level()<=1)
+      vis.refine();
+    if (!vis.so_next()) break;
+  }
 }

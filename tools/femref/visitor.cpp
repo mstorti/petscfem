@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.2 2004/12/18 22:45:26 mstorti Exp $
+// $Id: visitor.cpp,v 1.3 2004/12/19 14:28:49 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -27,8 +27,8 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::so_next() {
-  list<RefPathNode>::iterator ws, w 
-    = ref_stack.begin();
+  list<RefPathNode>::iterator ws, 
+    w = ref_stack.begin();
   // here visit w...
   ElemRef::iterator q, qs, qrsib, qfather;
   q = w->splitter;
@@ -50,63 +50,89 @@ bool UniformMesh::visitor::so_next() {
     ws->go.make_canonical();
     ws->so_indx = 0;
   } else {
-#if 0
     // `q' is a leave for GO's (sure it isn't a
     // regular node for splitters). Try to find a
     // right sibling, or a father that has a right
     // sibling
     while (true) {
       // Check if we are at the root
-      if (split_stack.size()<=1) {
-	done = true; break;
-      }
-      list<ElemRef::iterator>::iterator 
-	qit = split_stack.begin();
-      qfather = *(++qit);
-      assert(qfather != etree.end());
-      s = qfather->splitter;
-      j = split_indx_stack.front();
+      if (ref_stack.size()<=1) 
+	return false;
+      
+      w = ref_stack.begin(); w++;
+      qfather = w->splitter;
+      assert(qfather != etree_p->end());
+      const Splitter *s = qfather->splitter;
 
-      go_stack.pop_front();
-      split_stack.pop_front();
-      split_indx_stack.pop_front();
+      ref_stack.pop_front();
+
       if (j<s->size()-1) {
 	int jsib = j+1;
-	go_stack.push_front(GeomObject());
-	ws = go_stack.begin();
+	ref_stack.push_front(RefPathNode());
+	ws = ref_stack.begin();
 	w = ws; w++;
 	// Build `ws' from GeomObject `w' (parent) and splitter `s'
 	// and subobject index `jsib'
-	set(*w,s,jsib,*ws);
-	ws->make_canonical();
+	mesh->set(w->go,s,jsib,ws->go);
+	ws->go.make_canonical();
 
 	// Find next node on the splitting tree or end()
-	qrsib = q;
-	while (qrsib != etree.end()) {
+	qrsib = ws->splitter;
+	while (qrsib != etree_p->end()) {
 	  if (qrsib->so_indx >= jsib) break;
 	  qrsib++;
 	}
 
 	// Push new state in the stacks
-	split_stack.push_front(qrsib);
-	split_indx_stack.push_front(jsib);
-	break;
+	ws->splitter = qrsib;
+	ws->so_indx = jsib;
+	return true;
       }
     }
-#endif
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::visitor::
+init() { assert(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void UniformMesh::visitor::init() { assert(0); }
+bool UniformMesh::visitor::
+next() { assert(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::next() { assert(0); }
+bool UniformMesh::visitor::
+so_end() { assert(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::so_end() {
+bool UniformMesh::visitor::
+end() { assert(0); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::visitor::
+refine() {
+  assert(is_leave());
+  list<RefPathNode>::iterator 
+    w = ref_stack.begin();
+  ElemRef::iterator 
+    q = w->splitter;
+  q = etree_p->insert(q,ElemRefNode());
+  w->splitter = q;
+  int j = w->so_indx;
+  // The splitter should be returned
+  // by the refinement function
+  q->splitter = &Tetra2TetraSplitter;
+  q->so_indx = j;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::end() { assert(0); }
+bool UniformMesh::visitor::
+is_leave() {
+  list<RefPathNode>::iterator 
+    w = ref_stack.begin();
+  return w->splitter == etree_p->end();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int UniformMesh::visitor::
+ref_level() { return ref_stack.size()-1; }

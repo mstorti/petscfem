@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.30 2004/12/12 23:20:43 mstorti Exp $
+// $Id: femref.h,v 1.31 2004/12/19 14:28:49 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -264,7 +264,38 @@ public:
     return it.obj<0 || it.t==GeomObject::NULL_TYPE 
       || it.subobj<0; 
   }
+  /** Refines mesh acording to #RefineFunction#
+      @param rf (input) function that indicates 
+      the desired mehs size (#h#) for this element. */ 
   void refine(RefineFunction rf);
+
+  struct RefPathNode {
+    GeomObject go;
+    ElemRef::iterator splitter;
+    int so_indx;
+  };
+
+  friend class visitor;
+  /** Refines mesh acording to #RefineFunction#
+      @param rf (input) function that indicates 
+      the desired mehs size (#h#) for this element. */ 
+  class visitor {
+  private:
+    UniformMesh *mesh;
+    ElemRef *etree_p;    
+  public: 
+    visitor() : mesh(NULL), etree_p(NULL) { }
+    list<RefPathNode> ref_stack;
+    void init(UniformMesh &mesh_a,int elem);
+    void init();
+    bool next();
+    bool so_next();
+    bool so_end();
+    bool end();
+    bool is_leave();
+    void refine();
+    int ref_level();
+  };
 };
 
 #endif

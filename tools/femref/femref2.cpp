@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.15 2004/12/14 23:47:09 mstorti Exp $
+// $Id: femref2.cpp,v 1.16 2004/12/19 14:28:49 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -492,13 +492,8 @@ read(const char *node_file,
   for (int j=0; j<nelem; j++) {
     elem_ref.e(j) = new ElemRef;
   }
+  last_ref_node = nnod;
 }
-
-// Simple macro-based STACK adaptor
-// #define TOP(list_stack) (list_stack.begin())
-// #define POP(list_stack) (list_stack.erase(list_stack.begin()))
-// #define PUSH(list_stack,x) (list_stack.insert(list_stack.begin(),x))
-// #define EMPTY(list_stack) (list_stack.size()==0)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define MAX_NODE 1000
@@ -511,13 +506,8 @@ refine(RefineFunction f) {
   list<ElemRef::iterator> split_stack;
   // The stack of indices on each splitting node
   list<int> split_indx_stack;
-  // The stack of node indices 
-  dvector<int> go_nodes;
-  // The stack of positions in go_nodes
-  list<int> go_nodes_pos;
-  // Initialize first `refined' node
-  last_ref_node = nnod;
 
+  last_ref_node = nnod;
   list<GeomObject>::iterator w,ws;
   // Loop over elements
   for (int k=0; k<nelem; k++) {
@@ -536,9 +526,6 @@ refine(RefineFunction f) {
     split_stack.push_front(etree.begin());
     split_indx_stack.push_front(0);
     const int *w_nodes = w->nodes();
-    for (int j=0; j<w->size(); j++)
-      go_nodes.push(w_nodes[j]);
-    go_nodes_pos.push_front(0);
     const Splitter *s = NULL;
 
     bool done = false;
@@ -554,18 +541,18 @@ refine(RefineFunction f) {
       if (q==etree.end()) {
 	// May be refine this element?
 #define REF_LEVEL 2
-	  // Here refine (eventually) by inserting a
-	  // child in the position `q'.
-	  // Refinement criterion.
-	  bool refine_this = go_stack.size()<=REF_LEVEL;
-	  if (refine_this) {
-	    q = etree.insert(q,ElemRefNode());
-	    // The splitter should be returned
-	    // by the refinement function
-	    q->splitter = &Tetra2TetraSplitter;
-	    q->so_indx = j;
-	    split_stack.front() = q;
-	  }
+	// Here refine (eventually) by inserting a
+	// child in the position `q'.
+	// Refinement criterion.
+	bool refine_this = go_stack.size()<=REF_LEVEL;
+	if (refine_this) {
+	  q = etree.insert(q,ElemRefNode());
+	  // The splitter should be returned
+	  // by the refinement function
+	  q->splitter = &Tetra2TetraSplitter;
+	  q->so_indx = j;
+	  split_stack.front() = q;
+	}
       }
 
       if (q != etree.end()) {
@@ -674,3 +661,5 @@ combine(int n1,int n2) const {
   if (n2<n1) return combine(n2,n1);
   else return n1*MAX_NODE+n2;
 }
+
+
