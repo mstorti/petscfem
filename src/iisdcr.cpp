@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.1 2001/11/26 01:26:58 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.2 2001/11/26 01:35:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -26,7 +26,10 @@ int SCHED_ALG=1;
 #include <src/iisdmat.h>
 #include <src/graph.h>
 
-class IISDGraph : class Graph {
+class IISDGraph : public Graph {
+private:
+  Node *nodep;
+  int pos,vrtxf;
 public:
   /// Auxiliary functions
   vector<int> &dof2loc;
@@ -38,18 +41,58 @@ public:
   double weight(int vrtx_f);
   /// Clean all memory related 
   ~IISDGraph() {clear();}
-}
+};
   
 void IISDGraph::set_ngbrs(int vrtx_f,vector<int> &ngbrs_v) {
+    while (1) {
+      nodep = (Node *)da_ref(da,pos);
+      if (nodep->next==-1) break;
+      // leq:= number of dof connected to `keq'
+      leq = nodep->val;
+      // if leq is in other processor, then either `keq' or `leq' are
+      // interface. This depends on `leq<keq' or `leq>keq'
+      if (leq<k1) {
+	// 	printf("[%d] marking node %d\n",keq);
+	flag0[keq]=1;
+      } else if (leq>k2) {
+	flag0[leq]=1;
+	// printf("[%d] marking node %d\n",myrank,leq);
+      }
+      pos = nodep->next;
+    }
 }
 
 double IISDGraph::weight(int elem) {
+  return 1.;
+}
+
+//---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISD_mult"
+int IISD_mult(Mat A,Vec x,Vec y) {
+  void *ctx;
+  IISDMat *pfA;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
+  pfA = (IISDMat *) ctx;
+  ierr = pfA->mult(x,y); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISD_mult_trans"
+int IISD_mult_trans(Mat A,Vec x,Vec y) {
+  void *ctx;
+  IISDMat *pfA;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
+  pfA = (IISDMat *) ctx;
+  ierr = pfA->mult_trans(x,y); CHKERRQ(ierr); 
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
-
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
   int myrank,size;
