@@ -537,3 +537,6 @@ tag: beta-2.10 on Sun Sep 30 13:18:46 ART 2001, by mstorti in spider
 tag: beta-2.11 on Sun Sep 30 15:06:16 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > IISD with SuperLU is working. Added a test. 
+----------
+tag: beta-2.12 on Sun Sep 30 18:53:30 ART 2001, by mstorti in spider
+     > Added SparseDirect class (with SuperLU solver)
