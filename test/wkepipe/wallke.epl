@@ -2,10 +2,11 @@
 require '../eperlini.pl';       # Initializes ePerl 
 :>//                            # ends ePerl block
 
+__ECHO_ON__
 #default definitions
 #===========================================================
 global_options
-ndim 2
+ndim 3
 
 save_file "save.state"
 nsave 20
@@ -18,88 +19,79 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#if 1
-initial_state "save.state"
-#elsif $case eq 'poiseuille'
+#initial_state "save.state"
 initial_state "wallke.ini.tmp"
-#elsif $case eq 'couette'
-initial_state "wallke.inic.tmp"
-#else
-<:= die "not known case $case\n":>
-#endif
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 1000
-nnwt 3
+nstep 1
+nnwt 10
 tol_newton 0
 preco_type "lu"
 Dt 0.3
 
 #print_linear_system_and_stop
 #solve_system 0
-
 #<:
-
+#__TRANSCRIPT__
 $L = 1;                         # Semi distance between plates
 $N = 32;                        # Number of elements 
+$Nlay = 2*$N+4;                 # Number of nodes in a 2D layer
 $hratio = 5;                    # refinement near the wall
-$Re_l = 638000;                   # laminar Re
-if ($case eq 'poiseuille') {
-    $Umax = 1;                      # Max vel in the channel
-    $Uav = 1.5*$Umax;               # Aver vel 
-    $nu = $Uav*2*$L/$Re_l;          # kinematic visc.
-    $g = $nu*2*$Umax/$L**2;         # body force
-    $Uwall=0;
-} elsif ($case eq 'couette') {
-    $Uwall = 1;
-    $nu = $Uwall * (2*$L) / $Re_l;
-    $g=0;
-}
-$ocase = $case;    
-octave_export_vars("data.m.tmp",qw(nu g N hratio L ocase));
-:>//
+$Re_d = 1;                      # Re deseado
+$lambda = ($Re_d<3000 ? 
+     64/$Re_d : 0.3164/$Re_d**0.25); # resistance coefficient
+$Umax = 1;                      # Max vel in the channel
+$Uav = 0.5*$Umax;               # Aver vel 
+$Q = $Uav * $PI*$L**2;          # Volumetric flow rate
+$nu = $Uav*2*$L/$Re_d;          # kinematic visc.
+$g = $lambda/(4*$L)*$Uav**2;    # body force
+#__END_TRANSCRIPT__
+transcript();
+doc_vals(qw(lambda Umax Uav Q nu g));
+octave_export_vars("data.m.tmp",qw(nu g N hratio L));
+:>
 
 y_wall_plus 20
 #turbulence_coef 1.
 viscosity <:=$nu:>
-G_body 0. <:=$g:>
+G_body 0. <:=$g:> 0
 
 weak_form 0 # todavia no tenemos el weak form para k-e (???)
+__ECHO_OFF__
 
 __END_HASH__
 
 # ndim nu ndof
-nodes   2  2  5
+nodes   3  3  6
 __INCLUDE__ wallke.nod.tmp
 __END_NODES__
 
 #===========================================================
-elemset nsi_tet_keps 4
+elemset nsi_tet_keps 8
 #Datos del elemento
-geometry cartesian2d
-npg 4
+geometry cartesian3d
+npg 8
 __END_HASH__
 __INCLUDE__ wallke.con.tmp
 __END_ELEMSET__
 
-#<:$wall_ke=1;:>
-#if $wall_ke
-elemset wallke 2
-geometry cartesian1d
-npg 2
+elemset wallke 4
+geometry cartesian2d
+npg 4
 __END_HASH__
-1 2 
+1 2 <:=$Nlay+2:> <:=$Nlay+1:> 
 __END_ELEMSET__
-#endif
 
 elemset wall_law_res 2
 lagrange_diagonal_factor 1e-5
 __END_HASH__
 1 <:=2*$N+3:> 
 2 <:=2*$N+4:> 
+<:=$Nlay+1:> <:=$Nlay+2*$N+3:> 
+<:=$Nlay+2:> <:=$Nlay+2*$N+4:> 
 __END_ELEMSET__
 
 end_elemsets
@@ -108,29 +100,20 @@ end_elemsets
 fixa
 
 # pressure fixed at some node
-<:=2*$N-1:> 3  0.
-
-# velocity fixed at the axis
-#if $case eq 'couette'
-<:=2*$N+1:> 1 0.
-<:=2*$N+1:> 2 <:=$Uwall:>
-<:=2*$N+2:> 1 0.
-<:=2*$N+2:> 2 <:=$Uwall:>
-#endif
-
-#if !$wall_ke
-1 2 0.
-#endif
-1 1 0.
-#1 4 1.
-#1 5 1.
-
-
+<:=2*$N-1:> 4  0.
 
 # Fictitious node (leave 2 dof's for the wall eqs.)
 <:=2*$N+3:> 3 0.
 <:=2*$N+3:> 4 0.
 <:=2*$N+3:> 5 0.
+<:=2*$N+3:> 6 0.
+
+<:=$Nlay+2*$N+3:> 3 0.
+<:=$Nlay+2*$N+3:> 4 0.
+<:=$Nlay+2*$N+3:> 5 0.
+<:=$Nlay+2*$N+3:> 6 0.
+
+#__INCLUDE__ wallke.fixa.tmp
 
 __END_FIXA__
 
@@ -138,12 +121,18 @@ constraint
 
 __INCLUDE__ wallke.peri.tmp
 
-# Fictitious node periodic 
--1. <:=2*$N+4:> 1 1. <:=2*$N+3:> 1
--1. <:=2*$N+4:> 2 1. <:=2*$N+3:> 2
--1. <:=2*$N+4:> 3 1. <:=2*$N+3:> 3
--1. <:=2*$N+4:> 4 1. <:=2*$N+3:> 4
--1. <:=2*$N+4:> 5 1. <:=2*$N+3:> 5
+#  # Fictitious node periodic 
+#  -1. <:=2*$N+4:> 1 1. <:=2*$N+3:> 1
+#  -1. <:=2*$N+4:> 2 1. <:=2*$N+3:> 2
+#  -1. <:=2*$N+4:> 3 1. <:=2*$N+3:> 3
+#  -1. <:=2*$N+4:> 4 1. <:=2*$N+3:> 4
+#  -1. <:=2*$N+4:> 5 1. <:=2*$N+3:> 5
+
+#  -1. <:=$Nlay+2*$N+4:> 1 1. <:=$Nlay+2*$N+3:> 1
+#  -1. <:=$Nlay+2*$N+4:> 2 1. <:=$Nlay+2*$N+3:> 2
+#  -1. <:=$Nlay+2*$N+4:> 3 1. <:=$Nlay+2*$N+3:> 3
+#  -1. <:=$Nlay+2*$N+4:> 4 1. <:=$Nlay+2*$N+3:> 4
+#  -1. <:=$Nlay+2*$N+4:> 5 1. <:=$Nlay+2*$N+3:> 5
 
 __END_CONSTRAINT__
 

@@ -10,7 +10,7 @@ icone=icone(:,[1 4 3 2]);
 fid = fopen("wallke.peri.tmp","w");
 for k=1:N+1
   for kd=1:5
-    fprintf(fid,"%f %d %d %f %d %d\n",-1,2*k,kd,+1,2*k-1,kd);
+    fprintf(fid,"%f %5d %5d %f %5d %5d\n",-1,2*k,kd,+1,2*k-1,kd);
   endfor
 endfor
 fclose(fid);
