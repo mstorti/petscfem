@@ -1,4 +1,4 @@
-## $Id: mkcyl.m,v 1.2 2005/01/24 16:06:09 mstorti Exp $
+## $Id: mkcyl.m,v 1.3 2005/01/24 18:36:10 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 pi],Nr+1,Nphi+1);
@@ -37,6 +37,7 @@ abso_con = [];
 lm_nodes = [];
 rs_nodes = [];
 fid = fopen("cylabso.abso-con.tmp","w");
+fid2 = fopen("cylabso.fixa-ext-std.tmp","w");
 for k=1:Nphi+1
   ## real nodes (exterior first)
   rnodes = nline*(Nr-(0:2))+k;
@@ -53,14 +54,25 @@ for k=1:Nphi+1
   nor = nor/l2(nor);
   fprintf(fid,"%d %d %d %d %d   %g %g\n",
 	  rnodes,lagmulnd,refstnode,nor);
+  if nor(1)<=0
+    ## Incoming flow. Impose rho,u,v
+    fprintf(fid2,"%d %d %g\n",node,1,rhoref);
+    fprintf(fid2,"%d %d %g\n",node,2,uref);
+    fprintf(fid2,"%d %d %g\n",node,3,0.);
+  else
+    fprintf(fid2,"%d %d %g\n",node,4,pref);
+  endif
 endfor
 fclose(fid);
+fclose(fid2);
 
 asave("cylabso.nod.tmp",xnod);
 asave("cylabso.con.tmp",icone);
 
 Uref = [rhoref,uref,0,pref];
 pffixa("cylabso.fixa-ref.tmp",rs_nodes,1:4,Uref);
+
+pffixa("cylabso.fixa-lm-nodes.tmp",lm_nodes,1:4);
 
 uini = Uref;
 nnod2 = rows(xnod);

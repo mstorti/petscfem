@@ -7,14 +7,17 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 1000
+nstep 1
 alpha 1.
 
+#if 0
 #if $restart
 initial_state "cylabso.state.tmp"
 #else
 initial_state "cylabso.ini.tmp"
 #endif
+#endif
+initial_state "cylabso.state-200.tmp"
 nsave 1
 save_file "cylabso.state.tmp"
 
@@ -47,7 +50,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 10
 
 print_internal_loop_conv
 # print_linear_system_and_stop
@@ -66,7 +69,7 @@ Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:>
 linear_abso 0
 
 lagrange_diagonal_factor 1e-5
-# lagrange_residual_factor 1.0
+lagrange_residual_factor 1.0
 
 #if $dx
 # Para DX
@@ -112,7 +115,14 @@ end_elemsets
 fixa
 __INCLUDE__ ./cylabso.fixa-ups.tmp
 __INCLUDE__ ./cylabso.fixa-down.tmp
+#if $abso
 __INCLUDE__ ./cylabso.fixa-ref.tmp
+#else
+__INCLUDE__ ./cylabso.fixa-ext-std.tmp
+#endif
+
+# __INCLUDE__ ./cylabso.fixa-lm-nodes.tmp
+
 __END_FIXA__
 
 constraint

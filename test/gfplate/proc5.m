@@ -1,4 +1,4 @@
-## $Id: proc5.m,v 1.1 2005/01/24 16:03:33 mstorti Exp $
+## $Id: proc5.m,v 1.2 2005/01/24 18:36:10 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -7,10 +7,10 @@ field = 1;
 U = aload("cylabso.some-rslt.tmp");
 nline = Nphi+1;
 nnod = nline*(Nr+1);
-upstream = 1+nline*(0:Nr)';
-downstream = nline*(1:Nr)';
+downstream = 1+nline*(0:Nr)';
+upstream = nline*(1:Nr+1)';
 
-plotindx= downstream;
+plotindx = upstream;
 
 U(:,1)=[];
 gasdata.gamma = gamma;
@@ -29,6 +29,10 @@ rem(rows(U),nsome)==0 || error("not correct size");
 nt = rows(U)/nsome;
 x = aload("cylabso.nod.tmp");
 x = x(plotindx,1);
+
+for k=1:columns(U)
+  U(:,k) = U(:,k)-mean(U(:,k));
+endfor
 
 axis([min(x) max(x) \
       min(min(U)) max(max(U))]);
