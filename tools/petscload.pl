@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
+#$Id: petscload.pl,v 1.6 2001/07/18 22:50:29 mstorti Exp $
 
 $in_data=0;
 $name="";

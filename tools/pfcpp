@@ -1,0 +1,17 @@
+#!/bin/bash
+#__INSERT_LICENSE__
+#$Id: pfcpp,v 1.1 2001/07/18 22:50:16 mstorti Exp $
+
+TMP=/tmp/pfcpp_temp.cpp
+if [ -f $TMP ] 
+	then exit 1
+fi
+cat > $TMP
+g++ -C -E -DRH60 -I/home/mstorti/PETSC/petsc-2.0.24/include \
+-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux \
+-I/usr/local/mpi/include -I/usr/lib/glib/include \
+-I/home/mstorti/SOFT/NEWMAT/src -I/home/mstorti/SOFT/metis-4.0/Lib \
+-I../src -I/home/mstorti/SOFT/meschach-1.2 -I/usr/local/include \
+-I/home/mstorti/PETSC/ann_0.2/include \
+$TMP
+rm $TMP
