@@ -1,7 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.47 2002/10/07 00:26:08 mstorti Exp $
+//$Id: advdif.cpp,v 1.40.4.1 2003/01/21 14:16:23 mstorti Exp $
 
-#include <src/debug.h>
 #include <set>
 
 #include <src/fem.h>
@@ -18,20 +17,18 @@
 static char help[] = "Basic finite element program.\n\n";
 
 extern int MY_RANK,SIZE;
+TextHashTable *GLOBAL_OPTIONS;
 int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
   comp_mat_each_time_step_g=0;
 
-#define VECVIEW(name,label) \
-ierr = PetscViewerSetFormat(matlab, \
-		       PETSC_VIEWER_ASCII_MATLAB,#label); \
-ierr = VecView(name,matlab); CHKERRA(ierr)
+const char * jobinfo_fields;
 
-// PETSc now doesn't have the string argument that represents the variable name
-// so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
-#define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
-          PetscViewerSetFormat(viewer,format)
+#define VECVIEW(name,label) \
+ierr = ViewerSetFormat(matlab, \
+		       VIEWER_FORMAT_ASCII_MATLAB,#label); \
+ierr = VecView(name,matlab); CHKERRA(ierr)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -39,16 +36,16 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 int main(int argc,char **args) {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  PFMat *A,*AA;			// linear system matrix 
+  Vec     dx_liq,res_liq; 
+  PFMat *A_liq,*A_gas,*AA_liq,*AA_gas;	   // linear system matrix 
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
-  int     ierr, i, n = 10, col[3], its, size, node,
+  int     ierr, i, n = 10, col[3], its, flg, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
-  PetscTruth flg;
   // nu:= dimension of the state vector per node
-  PetscScalar  neg_one = -1.0, one = 1.0, value[3];
-  PetscScalar *px;
+  Scalar  neg_one = -1.0, one = 1.0, value[3];
+  Scalar *px;
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
@@ -73,9 +70,7 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  Debug debug2(0,PETSC_COMM_WORLD);
-
-  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
@@ -84,21 +79,8 @@ int main(int argc,char **args) {
   }
 
   // Read data
-  ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
+  read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
   GLOBAL_OPTIONS = mesh->global_options;
-
-  //o Activate debugging
-  GETOPTDEF(int,activate_debug,0);
-  if (activate_debug) {
-    debug2.activate();
-    Debug::init();
-  }
-  //o Activate printing in debugging
-  GETOPTDEF(int,activate_debug_print,0);
-  if (activate_debug_print) debug2.activate("print");
-  //o Activate report of memory usage
-  GETOPTDEF(int,activate_debug_memory_usage,0);
-  if (activate_debug_memory_usage) debug2.activate("memory_usage");
 
   //o Absolute tolerance when solving a consistent matrix
   GETOPTDEF(double,atol,1e-6);
@@ -167,8 +149,10 @@ int main(int argc,char **args) {
 
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  A  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-  AA = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  A_liq  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  AA_liq = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  A_gas  = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  AA_gas = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -252,8 +236,8 @@ int main(int argc,char **args) {
   save_file_res = save_file + string(".res");
 
 #if 0
-  PetscViewer matlab;
-  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+  Viewer matlab;
+  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -264,6 +248,8 @@ int main(int argc,char **args) {
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&res_liq); CHKERRA(ierr);
+  ierr = VecDuplicate(x,&dx_liq); CHKERRA(ierr);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // initialize state vectors
@@ -272,17 +258,25 @@ int main(int argc,char **args) {
 
   arg_list argl;
 
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // Compute  profiles
-  debug2.trace("Computing profiles...");
   VOID_IT(argl);
-  argl.arg_add(A,PROFILE|PFMAT);
+  argl.arg_add(A_liq,PROFILE|PFMAT);
+  jobinfo_fields = "liq";
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-  debug2.trace("After computing profile.");
+
+  VOID_IT(argl);
+  jobinfo_fields = "gas";
+  argl.arg_add(A_gas,PROFILE|PFMAT);
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
-  argl.arg_add(AA,PROFILE|PFMAT);
+  jobinfo_fields = "liq";
+  argl.arg_add(AA_liq,PROFILE|PFMAT);
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+
+  VOID_IT(argl);
+  jobinfo_fields = "gas";
+  argl.arg_add(AA_gas,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 #endif
 
@@ -321,18 +315,19 @@ int main(int argc,char **args) {
 
     for (int inwt=0; inwt<nnwt; inwt++) {
 
+
+     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+     // Liquid phase
+
       // Initializes res
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
 
       if (comp_mat_each_time_step_g) {
 
-	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	// ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
-
-	ierr = A->clean_mat(); CHKERRA(ierr); 
+	ierr = A_liq->clean_mat(); CHKERRA(ierr); 
 #ifdef CHECK_JAC
-	ierr = AA->clean_mat(); CHKERRA(ierr);
+	ierr = AA_liq->clean_mat(); CHKERRA(ierr);
 #endif
 	VOID_IT(argl);
 	argl.arg_add(&xold,IN_VECTOR);
@@ -343,10 +338,10 @@ int main(int argc,char **args) {
 #endif
 	argl.arg_add(&res,OUT_VECTOR);
 	argl.arg_add(&dtmin,VECTOR_MIN);
-	argl.arg_add(A,OUT_MATRIX|PFMAT);
+	argl.arg_add(A_liq,OUT_MATRIX|PFMAT);
 	argl.arg_add(&glob_param,USER_DATA);
 #ifdef CHECK_JAC
-	argl.arg_add(AA,OUT_MATRIX_FDJ|PFMAT);
+	argl.arg_add(AA_liq,OUT_MATRIX_FDJ|PFMAT);
 #endif
 
 	if (measure_performance) {
@@ -355,14 +350,128 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	debug2.trace("Before residual computation...");
+	jobinfo_fields = "liq";
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	debug2.trace("After residual computation.");
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  debug2.trace("Before solving linear system...");
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  debug2.trace("After solving linear system.");
+	  ierr = A_liq->solve(res,dx); CHKERRA(ierr); 
+	}
+	// ierr = SLESDestroy(sles);
+	// ierr = A->destroy_sles(); CHKERRA(ierr); 
+
+      if (0) {
+      // DEBUG
+        Viewer matlab;
+	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			       "mat_liq.output",&matlab); CHKERRA(ierr);
+
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"res_liq");
+	ierr = VecView(res,matlab);
+
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+	ierr = A_liq->view(matlab);
+	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+	// END DEBUG
+      }
+      
+      } else {
+
+	VOID_IT(argl);
+	argl.arg_add(&x,IN_VECTOR);
+	argl.arg_add(&res,OUT_VECTOR);
+	argl.arg_add(&dtmin,VECTOR_MIN);
+
+	if (measure_performance) {
+	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					 &time_star); CHKERRA(ierr);
+	  PetscFinalize();
+	  exit(0);
+	}
+	jobinfo_fields = "liq";
+	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+
+	if (!print_linear_system_and_stop || solve_system) {
+	  ierr = A_liq->solve(res,dx); CHKERRA(ierr); 
+	  // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
+	}
+
+      }
+
+
+
+      if (print_linear_system_and_stop && 
+	  inwt==inwt_stop && tstep==time_step_stop) {
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "Printing residual and matrix for debugging and stopping..\n");
+	Viewer matlab;
+	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			       "mat.output",&matlab); CHKERRA(ierr);
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"res");
+	ierr = VecView(res,matlab);
+	if (solve_system) {
+	  ierr = ViewerSetFormat(matlab, 
+				 VIEWER_FORMAT_ASCII_MATLAB,"dx");
+	  ierr = VecView(dx,matlab);
+	}
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+	ierr = A_liq->view(matlab);
+	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+#ifdef CHECK_JAC
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"AA");
+	ierr = AA_liq->view(matlab);
+#endif
+	PetscFinalize();
+	exit(0);
+      }
+
+      ierr = VecCopy(res,res_liq);
+      ierr = VecCopy(dx,dx_liq);
+
+     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+     // Gas phase
+
+      // Initializes res
+      scal=0;
+      ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(&scal,dx); CHKERRA(ierr);
+
+      if (comp_mat_each_time_step_g) {
+
+	ierr = A_gas->clean_mat(); CHKERRA(ierr); 
+#ifdef CHECK_JAC
+	ierr = AA_gas->clean_mat(); CHKERRA(ierr);
+#endif
+	VOID_IT(argl);
+	argl.arg_add(&xold,IN_VECTOR);
+#ifndef CHECK_JAC
+	argl.arg_add(&x,IN_VECTOR);
+#else
+	argl.arg_add(&x,PERT_VECTOR);
+#endif
+	argl.arg_add(&res,OUT_VECTOR);
+	argl.arg_add(&dtmin,VECTOR_MIN);
+	argl.arg_add(A_gas,OUT_MATRIX|PFMAT);
+	argl.arg_add(&glob_param,USER_DATA);
+#ifdef CHECK_JAC
+	argl.arg_add(AA_gas,OUT_MATRIX_FDJ|PFMAT);
+#endif
+
+	if (measure_performance) {
+	  ierr = measure_performance_fun(mesh,argl,dofmap,"comp_res",
+					 &time_star); CHKERRA(ierr);
+	  PetscFinalize();
+	  exit(0);
+	}
+	jobinfo_fields = "gas";
+	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+
+	if (!print_linear_system_and_stop || solve_system) {
+	  ierr = A_gas->solve(res,dx); CHKERRA(ierr); 
 	}
 	// ierr = SLESDestroy(sles);
 	// ierr = A->destroy_sles(); CHKERRA(ierr); 
@@ -380,41 +489,63 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
+	jobinfo_fields = "gas";
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  ierr = A->solve(res,dx); CHKERRA(ierr); 
+	  ierr =A_gas->solve(res,dx); CHKERRA(ierr); 
 	  // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
 	}
+      }
+
+      if (0) {
+      // DEBUG
+        Viewer matlab;
+	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			       "mat_gas.output",&matlab); CHKERRA(ierr);
+
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"res_gas");
+	ierr = VecView(res,matlab);
+
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+	ierr = A_gas->view(matlab);
+	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+	// END DEBUG
       }
 
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
-	PetscViewer matlab;
-	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+	Viewer matlab;
+	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"res");
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"res");
 	ierr = VecView(res,matlab);
 	if (solve_system) {
-	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-				 PETSC_VIEWER_ASCII_MATLAB,"dx");
+	  ierr = ViewerSetFormat(matlab, 
+				 VIEWER_FORMAT_ASCII_MATLAB,"dx");
 	  ierr = VecView(dx,matlab);
 	}
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"A");
-	ierr = A->view(matlab);
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+	ierr = A_gas->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
-			       PETSC_VIEWER_ASCII_MATLAB,"AA");
-	ierr = AA->view(matlab);
+	ierr = ViewerSetFormat(matlab, 
+			       VIEWER_FORMAT_ASCII_MATLAB,"AA");
+	ierr = AA_gas->view(matlab);
 #endif
 	PetscFinalize();
 	exit(0);
       }
+
+      scal=1;
+      ierr = VecAXPY(&scal,res_liq,res);
+      ierr = VecAXPY(&scal,dx_liq,dx);
 
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
       if (inwt==0) normres_ext = normres;
@@ -486,12 +617,15 @@ int main(int argc,char **args) {
   ierr = VecDestroy(xold); CHKERRA(ierr); 
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
+  ierr = VecDestroy(res_liq); CHKERRA(ierr); 
+  ierr = VecDestroy(dx_liq); CHKERRA(ierr); 
 #ifdef DIAG_MAT_MATRIX
-  ierr = MatDestroy(A); CHKERRA(ierr); 
+  ierr = MatDestroy(A_liq); CHKERRA(ierr); 
+  ierr = MatDestroy(A_gas); CHKERRA(ierr); 
 #endif
   
-  delete A;
-  delete AA;
+  delete A_liq,A_gas;
+  delete AA_liq,AA_gas;
 
   PetscFinalize();
   exit(0);

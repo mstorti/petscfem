@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.15.8.1 2003/01/08 12:58:42 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.15.8.2 2003/01/21 14:16:23 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -97,10 +97,41 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
   }
 
+  FastMat2 prof_nodes(2,nel,nel),prof_fields(2,ndof,ndof),matlocf_fix(4,nel,ndof,nel,ndof);
+  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),prof_fields_diag_fixed(2,ndof,ndof);
+
+  adv_diff_ff->set_profile(prof_fields); // profile by equations
+  prof_nodes.set(1.);
+
+  Id_ndf.eye();
+  Id_nel.eye();
+  
+  prof_fields.d(1,2);
+  prof_fields_diag_fixed.set(0.);
+  prof_fields_diag_fixed.d(1,2);
+  prof_fields_diag_fixed.set(prof_fields);
+  prof_fields.rs();
+  prof_fields_diag_fixed.rs();
+  prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
+
+  matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
+
+  matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
+
+  matlocf_fix.add(matlocf);
+
+  if (comp_res) 
+    matlocf_fix.export_vals(Ajac->profile);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
-    matlocf.set(1.);
+    matlocf_fix.export_vals(jac_prof->profile);
   }
+
+  //  if (comp_prof) {
+  //   jac_prof = &arg_data_v[0];
+    //    matlocf.set(1.);
+  // }
+
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
 

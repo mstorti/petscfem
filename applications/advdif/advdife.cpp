@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.62.4.1 2003/01/08 12:58:42 mstorti Exp $
+//$Id: advdife.cpp,v 1.62.4.2 2003/01/21 14:16:23 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -167,10 +167,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
-  if (comp_prof) {
-    jac_prof = &arg_data_v[0];
-    matlocf.set(1.);
-  }
+  FastMat2 prof_nodes(2,nel,nel),prof_fields(2,ndof,ndof),matlocf_fix(4,nel,ndof,nel,ndof);
+  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),prof_fields_diag_fixed(2,ndof,ndof);
 
   //o Use the weak form for the Galerkin part of the advective term. 
   NSGETOPTDEF(int,weak_form,1);
@@ -205,6 +203,31 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int ndimel = adv_diff_ff->dim();
   if (ndimel<0) ndimel = ndim;
   FMatrix grad_H(ndimel,nH);
+
+  adv_diff_ff->set_profile(prof_fields); // profile by equations
+  prof_nodes.set(1.);
+
+  Id_ndf.eye();
+  Id_nel.eye();
+  
+  prof_fields.d(1,2);
+  prof_fields_diag_fixed.set(0.);
+  prof_fields_diag_fixed.d(1,2);
+  prof_fields_diag_fixed.set(prof_fields);
+  prof_fields.rs();
+  prof_fields_diag_fixed.rs();
+  prof_fields_diag_fixed.scale(-1.).add(Id_ndf);
+
+  matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
+  matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
+
+  matlocf.add(matlocf_fix);
+  if (comp_res) 
+     matlocf.export_vals(Ajac->profile);
+  if (comp_prof) {
+    jac_prof = &arg_data_v[0];
+    matlocf.export_vals(jac_prof->profile);
+  }
 
   int nlog_vars;
   const int *log_vars;
@@ -684,8 +707,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
-      if (comp_mat_each_time_step_g) 
+      if (comp_mat_each_time_step_g) { 
+        matlocf.add(matlocf_fix);
 	matlocf.export_vals(element.ret_mat_values(*Ajac));
+      }
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
@@ -726,6 +751,10 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   } else {
     P_supg.prod(e->Ao_grad_N,e->tau_supg,1,2,-1,-1,3);
   }
+}
+
+void NewAdvDifFF::set_profile(FastMat2 &seed) {
+  seed.set(1.);
 }
 
 #undef SHAPE    
