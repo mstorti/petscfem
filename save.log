@@ -2860,3 +2860,6 @@ tag: beta-3.19.pl55 on Sun, 31 Aug 2003 12:31:07 -0300 by mstorti in spider
 tag: beta-3.19.pl56 on Sun, 31 Aug 2003 18:22:50 -0300 by mstorti in spider
      > Implementing A_LL_other support for new efficient iisdmat loading
      > functions.
+----------
+tag: beta-3.19.pl57 on Sun, 31 Aug 2003 22:10:38 -0300 by mstorti in spider
+     > Fixed a bug in iisdmat::set_values_a()
