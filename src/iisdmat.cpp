@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.45 2003/07/08 22:35:52 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.46 2003/07/14 03:06:21 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -91,7 +91,7 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
     lgraph_lkg.init(MM);
   }
   DefaultMonitor *dm = new DefaultMonitor;
-  dm->A = this;
+  dm->init(comm,&thash);
   monitor = dm;
 }
 
@@ -1003,18 +1003,13 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   return 0;
 }
 
-void fun() {
-  if (qqq) {
-    aasasas;
-  } else
-}
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Monitor *Monitor::factory(TextHashTable *thash) {
-  // TGETOPTDEF_S(thash,string,monitor_type,default);
+Monitor *Monitor::factory(MPI_Comm comm,TextHashTable *thash) {
+  int ierr;
+  TGETOPTDEF_S(thash,string,monitor_type,default);
   Monitor * monitor=NULL;
-//    if (monitor_type=="default") {
-//      monitor = new DefaultMonitor;
-  //    } else
-  monitor->init(thash);
+  if (monitor_type=="default") {
+    monitor = new DefaultMonitor;
+  } else PETSCFEM_ERROR("Unknown monitor %s\n",monitor_type.c_str());  
+  monitor->init(comm,thash);
 }
