@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.24 2003/06/09 02:37:15 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.25 2003/12/04 12:21:04 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -31,7 +31,7 @@
 #include "./nullvort.h"
 #include "./interplns.h"
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
 void bless_elemset(char *type,Elemset *& elemset) {
@@ -50,6 +50,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
+    SET_ELEMSET_TYPE(nsi_tet_les_asm)
     SET_ELEMSET_TYPE(nsi_tet_keps)
     SET_ELEMSET_TYPE(nsi_tet_keps_rot)
     SET_ELEMSET_TYPE(fracstep)
@@ -57,6 +58,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
     SET_ELEMSET_TYPE(bcconv_nsther_fm2)
+    SET_ELEMSET_TYPE(bcconv_nsasm_fm2)
     SET_ELEMSET_TYPE(wall)
     SET_ELEMSET_TYPE(wallke)
     SET_ELEMSET_TYPE(wall_law_res)
@@ -79,7 +81,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
       }
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 BasicObject *BasicObject_ns_factory(string &type) {
   if (0) {} // tricky!!
   else if (type=="null_vort") return new null_vort_bo;

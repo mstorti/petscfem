@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.59 2003/03/06 20:49:03 mstorti Exp $ 
+ # $Id: Makefile,v 1.60 2003/12/04 12:21:04 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -13,7 +13,7 @@ LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o		\
               nsres.o adaptor.o elast.o adappg.o qharm.o qharmm.o		\
               nsirot.o blessf.o fracstep.o fstepfm2.o embgath.o compdate.o	\
               mmove.o fm2funm.o genload.o nsgath.o nshookf.o invcoupl.o 	\
-	      nullvort.o
+	      nullvort.o nsilesasm_2.o bccnsasmfm2.o
 
 MYOBJS = 
 

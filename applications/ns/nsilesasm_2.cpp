@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.30 2003/12/04 12:21:04 mstorti Exp $
+//$Id: nsilesasm_2.cpp,v 1.2 2003/12/04 12:21:04 mstorti Exp $
 
+//---<Archivos de Cabecera>---//
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -20,12 +21,14 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define MAXPROP 100
 
 //#define SQ(n) ((n)*(n))
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-// modif nsi_tet
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---//
+// 																 //
+//							modif nsi_tet						 //
+//																 //
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---//
 #undef __FUNC__
-#define __FUNC__ "nsi_tet_les_fm2::assemble"
-int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+#define __FUNC__ "nsi_tet_les_asm::assemble"
+int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			       Dofmap *dofmap,const char *jobinfo,int myrank,
 			       int el_start,int el_last,int iter_mode,
 			       const TimeData *time_) {
@@ -35,7 +38,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(get_nearest_wall_element);
 
-// added for thermal equation
+// added for transport equation
   GET_JOBINFO_FLAG(comp_mat_th);
   GET_JOBINFO_FLAG(comp_mat_res_th);
   GET_JOBINFO_FLAG(comp_res_th);
@@ -59,7 +62,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
   int ierr=0, axi;
-  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesther\n");
+  // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsilesasm\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
 #define ICONE(j,k) (icone[nel*(j)+(k)])
@@ -146,57 +149,33 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
 
-  //o Density
+  //o Liquid density
   SGETOPTDEF(double,rho,1.);
-
-  //o Thermal conductivity
-  //  SGETOPTDEF(double,kappa,1.);
-
-  //o Thermal conductivity tensor
-  FastMat2 kappa_tensor;
-  kappa_tensor.resize(2,ndim,ndim);
-  kappa_tensor.set(0.);
-
-  /*
-  for (int jj=1; jj<=ndim; jj++) {
-    kappa_tensor.setel(kappa,jj,jj);
-  }
-  */
-
-  read_cond_matrix(thash,"kappa_tensor",ndim,kappa_tensor);
-
+  //% Gas density
+  SGETOPTDEF(double,rho_g,1.);
+  //% Density scale factor
+  SGETOPTDEF(double,rho_scal,1.);
+  //% //o Thermal conductivity
+  //% SGETOPTDEF(double,kappa,1.);
+  //o Equivalente a una difusifivad molecular del gas en el liquido
+  SGETOPTDEF(double,kappa,0.);
   //o Specific heat - constant pressure
   SGETOPTDEF(double,Cp,1.);
-  //o buoyancy coefficient for Boussinesq term
-  SGETOPTDEF(double,betath,0.);
-  //o Reference temperature for thermal coupling Boussinesq term
-  SGETOPTDEF(double,Tinfty,0.);
+  //% Bubble radius
+  SGETOPTDEF(double,rb,0.001);
+  //% gravity direction
+  SGETOPTDEF(int,g_dir,3);
+  //% //o buoyancy coefficient for Boussinesq term
+  //% SGETOPTDEF(double,betath,0.);
+  //% //o Reference temperature for thermal coupling Boussinesq term
+  //% SGETOPTDEF(double,Tinfty,0.);
   //o Gravity acceleration for buoyancy terms
   gravity.set(0.);
   ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
-  //o Viscosity - temperature table
-  int use_visco_temp_table = 0;
-  vector<double> visco_temp_table;
-  const char *line;
-  thash->get_entry("visco_temp_table",line);
-  if(line) {
-    use_visco_temp_table = 1;
-    read_double_array(visco_temp_table,line);
-    PETSCFEM_ASSERT0(!(visco_temp_table.size() % 2),
-		     "Visco-temp table needs even number of elements\n");
-  // Check that abscissae are sorted
-    PETSCFEM_ASSERT0(visco_temp_table.size()>=4,
-		     "Visco-temp table needs at least two points "
-		     "(4 elements)\n");
-    int j = 2;
-    while(j<visco_temp_table.size()) {
-      PETSCFEM_ASSERT0(visco_temp_table[j] > visco_temp_table[j-2],
-		       "Abscissae in visco-temp table should be sorted\n");
-      j += 2;
-    }
-  }
 
-  ierr = get_double(GLOBAL_OPTIONS,"gravity",gravity.storage_begin(),1,ndim);
+  rho = rho/rho_scal;
+  rho_g = rho_g/rho_scal;
+  Cp = Cp/rho;
 
   //o Add axisymmetric version for this particular elemset.
   TGETOPTDEF_S(thash,string,axisymmetric,none);
@@ -215,7 +194,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
-  //o Cache  #grad_div_u#  matrix
+  //o Cache \verb+grad_div_u+ matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
@@ -266,6 +245,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // Definiciones para descargar el lazo interno
   double detJaco, UU, u2, Peclet, psi, tau_supg, tau_pspg, div_u_star,
     p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
+// modif A-C
+  double u2_gas, velmod_gas;
+// ==========================
   double tau_supg_th,T_star,dT,tmp1_th,tmp2_th;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw, W_supg_th,P_supg_th,
@@ -285,26 +267,29 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19,tmp20;
 
+// modif A-C
+  FMatrix u_gas,u_gas_star;
+// ==========================
+
   // FMatrix T,Tcol,Tcol_new,Tcol_star,grad_T_star(ndim),massm_th,
   double T;
   FMatrix Tcol,Tcol_new,Tcol_star,grad_T_star(ndim),massm_th,
     tmp3_th,tmp4_th,tmp5_th,tmp6_th,tmp7_th,tmp8_th,tmp9_th,
     tmp10_th,tmp11_th,tmp12_th,tmp13_th,tmp14_th,tmp15_th,tmp16_th,
     tmp17_th,tmp18_th,tmp19_th;
-  FMatrix tmp81_th,tmp91_th,tmp92_th, tmp20_th, tmp21_th;
   FMatrix resther(nel),matlocther(nel,nel);
   FastMat2 matlocmomther(3,nel,ndim,nel);
 
-  FastMat2 kappa_eff;
-
   double tmp12;
-//  double nu_eff, mu_eff, mu_l , kappa_eff;
-  double nu_eff, mu_eff, mu_l;
+  double nu_eff, mu_eff, mu_l , kappa_eff;
   double tsf = temporal_stability_factor;
 
   FMatrix eye(ndim,ndim),seed,one_nel,matloc_prof(nen,nen);
 
   FMatrix Jaco_axi(2,2),u_axi;
+// modif A-C
+  FMatrix u_gas_axi;
+// ==========================
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
 
@@ -436,7 +421,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 #define WPG_SUM  (gp_data.wpg_sum)
 
-    // loop over Gauss points
+
+    //----------------------------------------------------//
+	//---------------<loop over Gauss points>-------------//
+	//----------------------------------------------------//
+
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
@@ -501,14 +490,29 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 	}
 
-	// state variables and gradient
+	//----------------------------------------------------//
+	//------------<State variables and gradient>----------//
+	//----------------------------------------------------//
+
+
+
 	u.prod(SHAPE,ucols,-1,-1,1);
 	T = double(tmp8.prod(SHAPE,Tcol,-1,-1));
 	//T.prod(SHAPE,Tcol,-1,-1);
 
+// modif
+    double vslip = (rb<7e-4 ? 4474*pow(rb,1.357) :
+  		  rb<5.1e-3 ? 0.23 : 4.202*pow(rb,0.547));
+    u_gas.set(u).addel(vslip,g_dir);
+// ==========================
+
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	T_star = double(tmp8.prod(SHAPE,Tcol_star,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
+
+// modif
+    u_gas_star.set(u_star).addel(vslip,g_dir);
+// ==========================
 
 	// grad_u.prod(dshapex,ucols,1,-1,-1,2);
 
@@ -526,58 +530,52 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	velmod = sqrt(u2);
 
+// modif
+	u2_gas = u_gas.sum_square_all();
+
+        if(axi>0){
+          u_gas_axi.set(u_gas);
+          u_gas_axi.setel(0.,axi);
+          u2_gas = u_gas_axi.sum_square_all();
+        }
+
+	velmod_gas = sqrt(u2_gas);
+// ==========================
+
         if (comp_mat_res || comp_res) {
  	  strain_rate.set(grad_u_star);
 	  grad_u_star.t();
 	  strain_rate.add(grad_u_star).scale(0.5);
 	  grad_u_star.rs();
 	  mu_l = VISC;
-	  if (use_visco_temp_table) {
-	    double visco_corr;
-	    if (T_star<=visco_temp_table[0])
-	      visco_corr = visco_temp_table[1];
-	    else {
-	      int j;
-	      for (j=2; j<visco_temp_table.size(); j+= 2) {
-		if (T_star<= visco_temp_table[j]) break;
-	      }
-	      if (j>=visco_temp_table.size()) {
-		visco_corr = visco_temp_table[j-1];
-	      } else {
-		double slope = (visco_temp_table[j+1]-visco_temp_table[j-1])/
-		  (visco_temp_table[j]-visco_temp_table[j-2]);
-		visco_corr = visco_temp_table[j-1]
-		  +slope*(T_star-visco_temp_table[j-2]);
-	      }
-	    }
-	    mu_l *= visco_corr;
+	  mu_l = mu_l/rho_scal;
+
+      //% double kappa_l = kappa;
+      double kappa_l = kappa;
+
+	  // Smagorinsky turbulence model
+	  if (LES) {
+	    double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
+	    double van_D;
+	    if (A_van_Driest>0.) {
+	      dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
+	      double ywall = sqrt(dist_to_wall.sum_square_all());
+	      double y_plus = ywall*shear_vel/mu_l;
+	      double van_D = 1.-exp(-y_plus/A_van_Driest);
+        } else van_D = 1.;
+
+	    double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
+	    mu_eff = mu_l + rho*nu_t;
+        //% double kappa_t = rho*nu_t*Cp/Pr_t;
+        double kappa_t = nu_t/Pr_t/rho_scal;
+        kappa_eff = kappa_l+kappa_t;
+	  } else {
+	    mu_eff = mu_l;
+	    kappa_eff = kappa_l;
 	  }
-
-	      // Smagorinsky turbulence model
-	      if (LES) {
-		double tr = (double) tmp15.prod(strain_rate,strain_rate,-1,-2,-1,-2);
-		double van_D;
-		if (A_van_Driest>0.) {
-		  dist_to_wall.prod(SHAPE,xloc,-1,-1,1).rest(wall_coords);
-		  double ywall = sqrt(dist_to_wall.sum_square_all());
-		  double y_plus = ywall*shear_vel/mu_l;
-		  double van_D = 1.-exp(-y_plus/A_van_Driest);
-		} else van_D = 1.;
-
-		double nu_t = SQ(C_smag*Delta*van_D)*sqrt(2*tr);
-		mu_eff = mu_l + rho*nu_t;
-		double kappa_t = rho*nu_t*Cp/Pr_t;
-
-		kappa_eff.set(eye).scale(kappa_t);
-		kappa_eff.add(kappa_tensor);
-
-	      } else {
-		mu_eff = mu_l;
-
-		kappa_eff.set(kappa_tensor);
-	      }
-	      nu_eff = mu_eff/rho;
-	    }
+	  kappa_eff = kappa_eff/rho_scal;
+	  nu_eff = mu_eff/rho;
+        }
 
 	// u2 = u.sum_square_all();
 	uintri.prod(iJaco,u,1,-1,-1);
@@ -624,18 +622,17 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
         }
         if (comp_mat_res_th || comp_res_th) {
-	  if (velmod>tol) {
-
-	    double kappa_trace = double(tmp21_th.ctr(kappa_eff,-1,-1))/double(ndim);
-
-	    double diff_coe=kappa_trace/rho/Cp;
-	    Peclet = velmod * h_supg / (2. * diff_coe);
+// modif
+	  if (velmod_gas>tol) {
+	    double diff_coe=kappa_eff/rho/Cp;
+	    Peclet = velmod_gas * h_supg / (2. * diff_coe);
 	    psi = 1./tanh(Peclet)-1/Peclet;
-	    tau_supg_th = psi*h_supg/(2.*velmod);
+	    tau_supg_th = psi*h_supg/(2.*velmod_gas);
 	  } else {
 	    tau_supg_th = 0;
 	  }
         }
+// ==========================
 
         if (comp_mat_res || comp_res) {
 	  // P_supg es un vector fila
@@ -649,11 +646,11 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         }
 
         if (comp_mat_res_th || comp_res_th) {
-
+// modif
 	  // P_supg stabilizing term for thermal equation
-	  P_supg_th.prod(u,dshapex,-1,-1,1).scale(tau_supg_th);
+	  P_supg_th.prod(u_gas,dshapex,-1,-1,1).scale(tau_supg_th);
 	  W_supg_th.set(P_supg_th).add(SHAPE);
-
+// ==========================
         }
 
 	// implicit version - General Trapezoidal rule - parameter alpha
@@ -731,23 +728,22 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  //resther.axpy(P_supg_th,-wpgdet*tmp1_th);
 	  resther.axpy(W_supg_th,-wpgdet*tmp1_th);
 
+// modif
           if (weak_form) {
-            tmp3_th.set(u_star).scale(rho*Cp*T_star);
+            tmp3_th.set(u_gas_star).scale(rho*Cp*T_star);
             tmp4_th.prod(tmp3_th,dshapex,-1,-1,1);
 	    resther.axpy(tmp4_th,wpgdet);
-	    tmp20.prod(u_star,grad_T_star,-1,-1);
+	    tmp20.prod(u_gas_star,grad_T_star,-1,-1);
 	    tmp2_th = double(tmp20)*(rho*Cp);
 	    resther.axpy(P_supg_th,-wpgdet*tmp2_th);
           } else {
-	    tmp20.prod(u_star,grad_T_star,-1,-1);
+	    tmp20.prod(u_gas_star,grad_T_star,-1,-1);
 	    tmp2_th = double(tmp20)*(rho*Cp);
 	    resther.axpy(W_supg_th,-wpgdet*tmp2_th);
           }
+// ==========================
 
-//	  tmp8_th.prod(dshapex,grad_T_star,-1,1,-1).scale(kappa_eff);
-	  tmp81_th.prod(kappa_eff,grad_T_star,1,-1,-1);
-	  tmp8_th.prod(dshapex,tmp81_th,-1,1,-1);
-
+	  tmp8_th.prod(dshapex,grad_T_star,-1,1,-1).scale(kappa_eff);
 	  resther.axpy(tmp8_th,-wpgdet);
 
 	  // thermal matrix
@@ -755,44 +751,45 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  massm_th.set(SHAPE).scale(rho*Cp*rec_Dt/alpha);
 	  matlocther.prod(W_supg_th,massm_th,1,2);
 
-          if (weak_form) {
-            tmp3_th.set(u_star).scale(-rho*Cp);
+
+// modif A-C
+         if (weak_form) {
+            tmp3_th.set(u_gas_star).scale(-rho*Cp);
             tmp5_th.prod(tmp3_th,SHAPE,1,2);
             tmp6_th.prod(dshapex,tmp5_th,-1,1,-1,2);
             matlocther.add(tmp6_th);
-	    massm_th.prod(u_star,dshapex,-1,-1,1).scale(rho*Cp);
+	    massm_th.prod(u_gas_star,dshapex,-1,-1,1).scale(rho*Cp);
             tmp7_th.prod(P_supg_th,massm_th,1,2);
             matlocther.add(tmp7_th);
           } else {
-	    massm_th.prod(u_star,dshapex,-1,-1,1).scale(rho*Cp);
+	    massm_th.prod(u_gas_star,dshapex,-1,-1,1).scale(rho*Cp);
             tmp7_th.prod(W_supg_th,massm_th,1,2);
             matlocther.add(tmp7_th);
           }
+// ==========================
 
-//	  tmp9_th.prod(dshapex,dshapex,-1,1,-1,2);
-//	  matlocther.axpy(tmp9_th,kappa_eff);
-
-	  tmp91_th.prod(kappa_eff,dshapex,1,-1,-1,2);
-	  tmp92_th.prod(dshapex,tmp91_th,-1,1,-1,2);
-
-	  matlocther.add(tmp92_th);
+	  tmp9_th.prod(dshapex,dshapex,-1,1,-1,2);
+	  matlocther.axpy(tmp9_th,kappa_eff);
 
         }
 
         // adding flow and thermal coupling (Boussinesq)
         if (comp_mat_res && comp_mat_res_th) {
 
-	  tmp10_th.set(gravity).scale(rho*betath);
+	  //% tmp10_th.set(gravity).scale(rho*betath);
+	  tmp10_th.set(gravity).scale(1);
           // Fixme .... W_supg eld SHAPE
           tmp11_th.prod(W_supg,tmp10_th,1,2);
           //tmp11_th.prod(SHAPE,tmp10_th,1,2);
-          resmom.axpy(tmp11_th,-(T_star-Tinfty)*wpgdet);
+          //% resmom.axpy(tmp11_th,-(T_star-Tinfty)*wpgdet);
+          resmom.axpy(tmp11_th,-(rho - T_star*(rho-rho_g))*wpgdet);
 
 	  tmp12_th.prod(tmp11_th,SHAPE,1,2,3).scale(wpgdet);
 	  matlocf.is(2,1,ndim).ir(4,ndof).add(tmp12_th).rs();
 
 	  tmp13_th.prod(P_pspg,tmp10_th,-1,1,-1);
-          rescont.axpy(tmp13_th,(T_star-Tinfty)*wpgdet);
+          //% rescont.axpy(tmp13_th,(T_star-Tinfty)*wpgdet);
+          rescont.axpy(tmp13_th,(rho - T_star*(rho-rho_g))*wpgdet);
 
 	  tmp14_th.prod(tmp13_th,SHAPE,1,2).scale(-wpgdet);
 	  matlocf.ir(2,1+ndim).ir(4,ndof).add(tmp14_th).rs();
