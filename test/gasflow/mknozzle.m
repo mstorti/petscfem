@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mknozzle.m,v 1.5 2003/01/15 19:16:04 mstorti Exp $
+## $Id: mknozzle.m,v 1.6 2003/01/16 02:08:22 mstorti Exp $
 global Rin Rn nw L
 
 source("data.m.tmp");
@@ -41,7 +41,7 @@ fclose(fid);
 if slip 
   ## vector tangent to wall
   nwall = length(wall);
-  t = xnod(3:nwall,:)-xnod(1:nwall-2,:);
+  t = xnod(wall(3:nwall),:)-xnod(wall(1:nwall-2),:);
   normal = [+t(:,2) -t(:,1)];
   normal = leftscal(1./l2(normal),normal);
   normal = [0 1;
@@ -50,7 +50,7 @@ if slip
   fid = fopen("nozzle.slip.tmp","w");
   for k=1:length(wall)
     fprintf(fid,"%f %d %d     %f %d %d\n",
-	    normal(k,1),wall(k),1,normal(k,2),wall(k),2);
+	    normal(k,1),wall(k),2,normal(k,2),wall(k),3);
   endfor
   fclose(fid);
 else

@@ -11,7 +11,7 @@ $weak_form  = 0;
 @vars = qw(L Rin Rn Nr Nx nw visco Pr Pr Rgas ga 
     Cv Cp cond g_body gravity Mach_ref rho_ini p_ini
     p_ref rho_ref cc_ref u_ref u_ini v_ini v_ref x_ratio r_ratio
-    flat_plate);
+    flat_plate slip);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mknozzle.m > mknozzle.out.tmp";
@@ -22,13 +22,17 @@ global_options
 
 ####<: $fixa_fase = $ENV{'ip'}; :>
 
-alpha 1.
-nsave 1
 nstep 100
+alpha 1.
 
-initial_state "nozzle.ini.tmp"
-
+initial_state "nozzle.state.tmp"
 save_file "nozzle.state.tmp" 
+nsave 10
+
+save_file_pattern "nozzle.state_%d.tmp"
+nsaverot 10
+nrec 1
+nfile 100000000
 
 # type of solver (may be "iisd", "petsc"...)
 solver "iisd"
@@ -47,11 +51,11 @@ tol_newton 1e-10
 atol 0
 rtol 0
 dtol 1e3
-nnwt 5
+nnwt 2
 
 print_internal_loop_conv
 
-Dt 0.001
+Dt 0.01
 weak_form 0
 temporal_stability_factor 0
 #tau_fac 1.
@@ -104,7 +108,16 @@ end_elemsets
 ##================================================================
 fixa
 __INCLUDE__ nozzle.fixa_inlet.tmp
+#if !$slip
 __INCLUDE__ nozzle.fixa_wall.tmp
+#endif
 __INCLUDE__ nozzle.fixa_axis.tmp
 __INCLUDE__ nozzle.fixa_outlet.tmp
 __END_FIXA__
+
+
+#if $slip
+constraint
+__INCLUDE__ nozzle.slip.tmp
+__END_CONSTRAINT__
+#endif

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2003/01/15 19:16:04 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2003/01/16 02:08:22 mstorti Exp $ 
 
 .PHONY: force all run tests
 
@@ -24,7 +24,8 @@ PROG := ../../applications/advdif/advdif_O.bin
 
 # NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: $(CASE_NAME).depl
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) -case $< 
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) -case $< |  \
+		 tee $(CASE_NAME).output.tmp
 
 $(CASE_NAME).depl: force
 
