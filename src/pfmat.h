@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.27 2001/12/08 00:42:22 mstorti Exp $
+// $Id: pfmat.h,v 1.28 2001/12/08 12:29:56 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -94,7 +94,7 @@ protected:
   int factored;
   virtual int factor_and_solve(Vec &res,Vec &dx)=0;
   virtual int solve_only(Vec &res,Vec &dx)=0;
-  // void clean_factor();
+  virtual int clean_factor() {assert(0);}; // fixme:= make it pure virtual after
 public:
   /// Constructor, initialize variables
   PFMat();

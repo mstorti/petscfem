@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.62 2001/12/08 00:42:22 mstorti Exp $
+//$Id: lusubd.cpp,v 1.63 2001/12/08 12:29:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -63,10 +63,12 @@ PFMat * PFMat_dispatch(const char *s) {
 }
 
 int PFMat::solve(Vec &res,Vec &dx) {
+  int retval;
   if (!factored) {
-    factored=1;
     build_sles(&thash);
-    return factor_and_solve(res,dx);
+    retval = factor_and_solve(res,dx);
+    factored=1;
+    return retval;
   } else {
     return solve_only(res,dx);
   }
@@ -476,7 +478,7 @@ void IISDMat::set_value(int row,int col,Scalar value,
 #undef __FUNC__
 #define __FUNC__ "IISDMat::solve"
 int IISDMat::solve_only(Vec &res,Vec &dx) {
-  assert(0);
+  return factor_and_solve(res,dx);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -525,7 +527,7 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecDuplicate(res_i,&A_II_diag); CHKERRQ(ierr); 
     ierr = MatGetDiagonal(A_II,A_II_diag); CHKERRQ(ierr);
 
-    if (local_solver == PETSc) {
+    if (!factored && local_solver == PETSc) {
     
       ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); CHKERRQ(ierr); 
       ierr = SLESSetOperators(sles_ll,A_LL,
@@ -636,9 +638,6 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = ViewerDestroy(matlab);
 #endif
 
-    if (local_solver == PETSc) {
-      ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
-    }
     ierr = VecDestroy(res_i); CHKERRQ(ierr); 
     ierr = VecDestroy(x_i); CHKERRQ(ierr); 
     ierr = VecDestroy(A_II_diag); CHKERRQ(ierr); 
@@ -646,8 +645,9 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecDestroy(x_loc); CHKERRQ(ierr); 
     ierr = VecDestroy(res_loc_i); CHKERRQ(ierr); 
 
-  } else {  // if (n_int_tot <= 0 )
-
+  } else {  // if (n_int_tot == 0 )
+    
+    assert(!factored);
     ierr = VecGetArray(res,&res_a); CHKERRQ(ierr); 
 
     scal=0.;
@@ -711,6 +711,17 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
   }
   return 0;
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::clean_factor"
+int IISDMat::clean_factor() {
+  int ierr;
+  if (factored && local_solver == PETSc) {
+    ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -982,6 +993,7 @@ int PFMat::destroy_sles() {
 #define __FUNC__ "PFMat::destroy_sles"
 int IISDMat::destroy_sles() {
   int ierr;
+  clean_factor();
   if (sles_was_built) {
     PFMat::destroy_sles();
     if (local_solver == PETSc) {

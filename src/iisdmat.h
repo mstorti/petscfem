@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.13 2001/12/08 00:42:22 mstorti Exp $
+// $Id: iisdmat.h,v 1.14 2001/12/08 12:29:56 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -222,6 +222,8 @@ class IISDMat : public PFMat {
       @param dx (input) the solution vector
   */ 
   int solve_only(Vec &res,Vec &dx);
+
+  int clean_factor();
 
 public:
 
