@@ -1,4 +1,3 @@
-Args: M 
 [0] max error -> 0
 [1] max error -> 0
 max error over all processors -> 0

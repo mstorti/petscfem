@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.1 2001/12/09 14:00:20 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.2 2001/12/14 03:11:14 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -55,9 +55,6 @@ public:
 
 #include "pfmatFSM.h"
 #endif
-
-/// This is the basic distributed matrix class. 
-//typedef DistMap<int,Row,IntPartitioner> DistMat;
 
 /** This is a wrapper to the PETSc Matrix class and allows us to define
     new types

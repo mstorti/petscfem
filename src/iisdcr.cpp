@@ -1,11 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.1 2001/12/09 14:00:20 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.2 2001/12/14 03:11:14 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
-
-//  #define DEBUG_IISD
-//  #define DEBUG_IISD_DONT_SET_VALUES
 
 #include <src/debug.h>
 #include <typeinfo>
@@ -23,50 +20,6 @@ extern int MY_RANK,SIZE;
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class IISDGraph : public Graph {
-private:
-  Node *nodep;
-  int vrtxf;
-public:
-  const int *flag;
-  int k1,k2;
-  /// Auxiliary functions
-  const int *dof2loc,*loc2dof;
-  /// Libretto dynamic array that contains the graph adjacency matrix
-  Darray *da;
-  /// callback user function to return the neighbors for a 
-  void set_ngbrs(int vrtx_f,set<int> &ngbrs_v);
-  /// Callback user function for the user to set the weight of a given fine vertex. 
-  double weight(int vrtx_f);
-  /// Clean all memory related 
-  ~IISDGraph() {clear();}
-  /// Constructor
-  IISDGraph(int N=0) {init(N);}
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void IISDGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
-  int pos,loc2,dof2;
-  pos = loc2dof[loc1]+k1;
-  while (1) {
-    nodep = (Node *)da_ref(da,pos);
-    if (nodep->next==-1) break;
-    // loc2:= number of global dof connected to `'
-    dof2 = nodep->val;
-    if (k1<=dof2 && dof2<=k2 && !flag[dof2] ) {
-      loc2 = dof2loc[dof2-k1];
-      ngbrs_v.insert(loc2);
-    }
-    pos = nodep->next;
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double IISDGraph::weight(int elem) {
-  return 1.;
-}
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

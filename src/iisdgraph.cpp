@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.1.2.1 2001/12/13 21:44:55 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.1.2.2 2001/12/14 03:11:14 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -24,16 +24,20 @@ public:
 }
 #endif
 
-template <typename ImgValueType>
-class IntPartitioner {
+template <typename ImgValueType, typename IntPartitioner >
+class Partitioner : public IntPartitioner {
 private:
   typedef pair<int,ImgValueType> ValueType;
 public:
-  virtual int processor(int j) const =0;
   void processor(const ValueType &p,int &nproc,int *plist) const {
     nproc = 1;
     plist[0] = processor(p.first);
   }
+};
+
+class IntPartitioner {
+public:
+  virtual int processor(int k) const =0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -52,8 +56,8 @@ private:
       correspondence between an integer (one vertex) and a set of
       integers (those vertices that are connected to him).
   */
-  typedef IntPartitioner< set<int> > Partitioner;
-  DistCont <GMap,GRow,Partitioner> lgraph;
+  typedef Partitioner< set<int>, IntPartitioner > GPartitioner;
+  DistCont <GMap,GRow,GPartitioner> lgraph;
 public:
   /// Clean all memory related 
   ~StoreGraph() { map.clear(); };

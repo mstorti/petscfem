@@ -1,13 +1,14 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2001/08/22 02:25:27 mstorti Exp $ 
+# $Id: Makefile,v 1.16.6.1 2001/12/14 03:09:34 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
 tests: distmap distmat
 
+#w Tests the distributed container class
 dm: distcont.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distcont.bin \
-		10 100 1e-12  # > distcont.sal.tmp
+		10 100 1e-12   > distcont.sal.tmp
 
 dm2: distmat.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distmat.bin \
@@ -53,7 +54,8 @@ distcont.o: ../../src/distcont.h
 	$(MAKE) -C ../../src/ 'libpetscfem.a(%.o)'
 
 #w Builds binary 
-distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) ../../src/libpetscfem.a(distmat.o)
+distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) \
+			../../src/libpetscfem.a(distmat.o)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS) 
 
@@ -62,7 +64,10 @@ $(P).bin: $(P).o $(LIBPETSCFEM)
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(P).o $(OTHER_OBJS) $(LDFLAGS)
 
-#$(P).bin: $(P).cpp
-#	g++ -o $(P).bin $(P).cpp
+tryme5.bin: tryme5.cpp
+	g++ -g -o tryme5 tryme5.cpp
+
+tryme6.bin: tryme6.cpp
+	g++ -g -o tryme6 tryme6.cpp
 
 #s
