@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.42 2002/08/09 20:13:55 mstorti Exp $
+#$Id: Makefile,v 1.43 2002/11/03 03:50:22 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -122,6 +122,10 @@ include $(PETSCFEM_DIR)/Makefile.base
 LOCDIR           = $(PWD)
 
 DIRS = doc manual src ns advective tryme laplace 
+
+#w Makes tests
+tests:
+	$(MAKE) -C test tests
 
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>----
 # APPLICATIONS
