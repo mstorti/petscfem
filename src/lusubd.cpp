@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.38 2001/08/18 14:08:24 mstorti Exp $
+//$Id: lusubd.cpp,v 1.39 2001/08/19 15:51:38 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -14,16 +14,27 @@ int SCHED_ALG=1;
 #else
 #include <libretto/libretto.h>
 #endif
-#include "mat.h"
+#include <mat.h>
 
-#include "fem.h"
-#include "dofmap.h"
-#include "elemset.h"
-#include "pfmat.h"
+#include <fem.h>
+#include <utils.h>
+#include <dofmap.h>
+#include <elemset.h>
+#include <pfmat.h>
 
 enum PETScFEMErrors {
   iisdmat_set_value_out_of_range
 };
+
+PFMat * PFMat_dispatch(const char *s) {
+  if (!strcmp(s,"iisd")) {
+    return new IISDMat;
+  } else if (!strcmp(s,"petsc")) {
+    return new PETScMat;
+  } else {
+    PETSCFEM_ERROR("PFMat type not known: %s\n",s);
+  }
+}
 
 PFMat::~PFMat() {};
 
@@ -283,10 +294,10 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   PetscFinalize();
   exit(0);
 #endif
-  ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
-			 nnz[D][L][L].begin(),&A_LL); 
-  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix\n"); 
 
+//    ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
+//   			 nnz[D][L][L].begin(),&A_LL); 
+//    PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix\n"); 
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_loc,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][L][I].begin(),
@@ -329,6 +340,9 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   AA[L][I] = &A_LI;
   AA[I][L] = &A_IL;
   AA[I][I] = &A_II;
+
+  // Save copy of nnz_LL
+  d_nnz_LL = nnz[D][L][L];
 
 }
 
@@ -500,10 +514,18 @@ int IISDMat::assembly_end(MatAssemblyType type) {
 #define __FUNC__ "IISDMat::zero_entries"
 int IISDMat::zero_entries() {
   int ierr;
+  if (A_LL) {
+    ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
+    A_LL = NULL;
+  }    
+  ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
+			 d_nnz_LL.begin(),&A_LL); CHKERRQ(ierr); 
+  wait_from_console(" zero_entries::0");
   ierr=MatZeroEntries(A_LL); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_IL); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_LI); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_II); CHKERRQ(ierr);
+  wait_from_console("exit from zero_entries::");
   return 0;
 }
 
@@ -538,9 +560,15 @@ int IISDMat::view(Viewer viewer) {
 #define __FUNC__ "IISDMat::clear"
 void IISDMat::clear() {
   // P is not destroyed, since P points to A
+  int ierr;
+
   PFMat::clear();
-  int ierr = MatDestroy(A_LL); 
-  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LL (loc-loc)\n");
+  if (A_LL) {
+    int ierr = MatDestroy(A_LL); 
+    PETSCFEM_ASSERT0(ierr==0,
+		     "Error destroying PETSc matrix A_LL (loc-loc)\n");
+    A_LL=NULL;
+  }
   ierr = MatDestroy(A_LI); 
   PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LI (loc-int)\n");
   ierr = MatDestroy(A_IL); 
@@ -643,10 +671,9 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = SLESGetKSP(sles_ll,&ksp_ll); CHKERRQ(ierr); 
     ierr = SLESGetPC(sles_ll,&pc_ll); CHKERRQ(ierr); 
 
-    ierr = KSPSetType(ksp,KSPPREONLY); CHKERRQ(ierr);
-    
-    double pc_lu_fill=8.;
+    ierr = KSPSetType(ksp_ll,KSPPREONLY); CHKERRQ(ierr); 
     ierr = PCSetType(pc_ll,PCLU); CHKERRQ(ierr); 
+    double pc_lu_fill=8.;
     ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
     ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr);
 
@@ -798,7 +825,7 @@ int IISDMat::solve(Vec res,Vec dx) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::create"
+#define __FUNC__ "PFMatPETSc::create"
 void PETScMat::create(Darray *da,const Dofmap *dofmap,
 		     int debug_compute_prof=0) {
   int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
@@ -927,7 +954,6 @@ void PETScMat::clear() {
 #define __FUNC__ "PETScMat::build_sles"
 int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
-  static int warn_iisdmat=0;
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
@@ -1032,6 +1058,17 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
 #define __FUNC__ "PFMat::destroy_sles"
 int PFMat::destroy_sles() {
   int ierr = SLESDestroy(sles); CHKERRQ(ierr);
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::destroy_sles"
+int IISDMat::destroy_sles() {
+  int ierr;
+  PFMat::destroy_sles();
+  ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
+  A_LL = NULL;
   return 0;
 }
 
