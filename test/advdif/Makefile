@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.24 2002/07/11 02:10:54 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2002/07/25 17:44:12 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -67,7 +67,7 @@ $(octave_out_$(case)): $(octave_in_$(case))
 ifneq ($(octave_out_$(case)),)
 	-rm -f $(octave_out_$(case))
 endif
-	octave -q $(octave_script_$(case))
+	octave -q $(octave_script_$(case)) >/dev/null
 	-chmod -w $(octave_out_$(case))
 
 sine: sine_fine_mesh sine_crank_nic
@@ -95,7 +95,7 @@ sine_crank_nic_npp:
 # sine.depl: sine.epl sine.m
 
 plano.con plano.nod: plano.m
-	octave -q plano.m
+	octave -q plano.m >/dev/null
 
 advec: advec.depl
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
