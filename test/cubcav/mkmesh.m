@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.9 2004/01/30 02:24:02 mstorti Exp $
+## $Id: mkmesh.m,v 1.10 2004/11/08 02:39:10 mstorti Exp $
 source("data.m.tmp");
 #  N=5;
 #  hratio = 0;
@@ -37,9 +37,11 @@ if use_prismatic
 	       i3(:,[3 4 1 7 8 5])];
   asave("cubcav.con-prism.tmp",ico_prism);
 elseif use_tetra
-  system("../../tools/hexasplit.bin -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
+  cmd = [getenv("PETSCFEM_DIR") \
+	 "/tools/hexasplit.bin" \
+	 " -i cubcav.con.tmp -o cubcav.con-tetra.tmp"];
+  system(cmd);
 endif
-
 
 fid = fopen("cubcav.fixa.tmp","w");
 fid != -1 || error("Couldn't open cubcav.fixa.tmp");

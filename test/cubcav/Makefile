@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.102 2004/11/07 14:59:24 mstorti Exp $ 
+# $Id: Makefile,v 1.103 2004/11/08 02:39:10 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -13,15 +13,15 @@ export case
 tests: block_uploading
 
 BOPT := O_c++
-PETSCFEM_DIR = ../..
+# PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-# CASE_NAME := qharm
-CASE_NAME := cubcav
-# CASE_NAME := cubcav-fs
+#CASE_NAME := qharm
+# CASE_NAME := cubcav
+CASE_NAME := cubcav-fs
 PROG := $(NS)
 
 CASE := $(CASE_NAME)
@@ -52,7 +52,7 @@ run_subdir_test:							\
 
 #w Makes only the mesh
 mesh:
-	$(MAKE) -C ../../tools hexasplit.bin
+	$(MAKE) -C $(PETSCFEM_DIR)/tools hexasplit.bin
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl -d case=ns -p '>>'
 
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
@@ -66,9 +66,6 @@ local_sw::
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
-
-hexasplit.bin: hexasplit.o
-	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
 nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 
@@ -173,4 +170,4 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=64 run
+	$(MAKE) N=60 run

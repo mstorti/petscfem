@@ -1,4 +1,4 @@
-#$Id: cubcav-fs.epl,v 1.3 2004/10/25 02:09:35 mstorti Exp $ 
+#$Id: cubcav-fs.epl,v 1.4 2004/11/08 02:39:10 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -9,7 +9,7 @@ ndim 3
 nfile 2000000
 nrec 1
 nsave 1000000
-nstep 2
+nstep 1000
 nsaverot <:= ($endur_test  ? 50000000 : 20) :>
 save_file_pattern \
       <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>
@@ -45,7 +45,7 @@ tol_newton -1.
 atol 0
 rtol 1e-3
 dtol 1e3
-block_uploading 0
+block_uploading 1
 
 print_internal_loop_conv 1
 # print_linear_system_and_stop 1
@@ -99,6 +99,10 @@ solver petsc
 # partitioning_method natural
 iisd_subpart_auto 1000
 reuse_mat
+gamma_pressure 0.9
+dt_art_fac 0.0
+initial_state cubcav.state.tmp
+save_file cubcav.state.tmp
 
 __END_HASH__
 
@@ -108,6 +112,7 @@ data <:=$data_dir:>/cubcav.nod.tmp
 __END_HASH__
 
 elemset fracstep_fm2 <:=$nel:>
+report_consumed_time
 name fluid
 geometry <:=$geom:>
 npg <:=$npg:>
