@@ -2309,3 +2309,4 @@ tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300, by mstorti in spider
      > Implementing  cut-regulator. 
      > Working on `ExpProgImport' and `dxhook' (DX module)
      > Coded auto-naming of elemsets. 
+     > Passes all tests with BOPT=O_c++ and g_c++

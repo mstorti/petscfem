@@ -30,15 +30,10 @@ BIN = $(BASE)/bin
 epimport: $(FILES_epimport) 
 	$(SHARED_LINK) $(DXABI) $(LDFLAGS) -o epimport userepimport.$(OBJEXT)	\
 		epimport.$(OBJEXT) $(DX_RTL_LDFLAGS) $(SYSLIBS)			\
-		$(SSL)/simpleskts.a $(LIBPETSCFEM)xs -lstdc++
+		$(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++
 
-.PHONY: dx_force
-%.o: %.cpp dx_force
-	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $*.cpp
-
-dx_force: ;
-
-epimport.o: epimport.cpp dx_force
+epimport.o: epimport.cpp
+	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) epimport.cpp
 
 # a command to run the user module
 run: epimport 
@@ -47,3 +42,6 @@ run: epimport
 # make the user files
 userepimport.c: epimport.mdf
 	$(BIN)/mdf2c -m epimport.mdf > userepimport.c
+
+userepimport.o: userepimport.c
+	cc -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) userepimport.c 

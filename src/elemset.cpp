@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.56 2003/02/07 23:18:32 mstorti Exp $
+//$Id: elemset.cpp,v 1.57 2003/02/08 13:08:37 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -17,8 +17,8 @@
 #include <src/arglist.h>
 #include <src/readmesh.h>
 #include <src/pfmat.h>
-
 #include <src/timestat.h>
+#include <src/util3.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -1010,7 +1010,14 @@ Elemset::~Elemset() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   string dx_type;
-  int ierr;
+  int ierr, cookie, cookie2;
+
+#define BUFSIZE 512
+  static char *buf = (char *)malloc(BUFSIZE);
+  static size_t Nbuf = BUFSIZE;
+
+  vector<string> tokens;
+
   //o Flags whether the element should return some DX objects.
   TGETOPTDEF(thash,int,dx,0);
   if (!dx) return;
@@ -1020,8 +1027,9 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   dx_indices(dx_type,node_indices);
 
   if (!MY_RANK) {
-    Sprintf(sock,"elemset %s %s %d %d\n",name(),dx_type.c_str(),
-	    node_indices.size(),nelem);
+    cookie = rand();
+    Sprintf(sock,"elemset %s %s %d %d %d\n",name(),dx_type.c_str(),
+	    node_indices.size(),nelem,cookie);
     for (int j=0; j<nelem; j++) {
       int *row = icone+j*nel;
       for (int n=0; n<node_indices.size(); n++) {
@@ -1031,7 +1039,10 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
 	Swrite(sock,&node,sizeof(int));
       }
     }
-    Sprintf(sock,"field %s_field nodes %s state\n",name(),name());
+    CHECK_COOKIE(elemset);
+    cookie = rand();
+    Sprintf(sock,"field %s_field nodes %s state %d\n",name(),name(),cookie);
+    CHECK_COOKIE(field);
   }
 }
 
