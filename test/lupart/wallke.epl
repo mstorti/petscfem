@@ -56,6 +56,12 @@ $Ny = 60;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
+} elsif ($case_size eq 'large2') {
+$N = 32;                        # Number of elements in transversal 'x' direction
+$Ny = 120;                       # Number of elements in y dir
+$Ny_eq = 20;                    # last elements that are equal in size
+                                # in the y direction
+$Ly = 1;                        # longitudinal length 
 } elsif ($case_size eq 'very_large') {
 $N = 64;                        # Number of elements in transversal 'x' direction
 $Ny = 1000;                       # Number of elements in y dir
@@ -90,8 +96,8 @@ nsome 1
 partitioning_method "<:=$part_method:>"
 alpha 1.
 #if $eff 
-nstep 2
-nnwt 2
+nstep 200000
+nnwt 1
 #elsif $case_size eq 'small' 
 nstep 2
 nnwt 2
@@ -110,6 +116,8 @@ nnwt 3
 tol_newton 0
 #if $case eq 'iisd' 
 use_iisd
+solver "iisd"
+pc_lu_fill 8.
 preco_type "<:=$preco:>"
 rtol 1e-4
 atol 1e-10
@@ -124,11 +132,10 @@ maxits 1
 preco_type "jacobi"
 rtol 1e-4
 atol 1e-10
-maxits 200
-#if ! $part_case
-maxits 10
-#else 
+#if $part_case
 maxits 1
+#else 
+maxits 10
 #endif
 #endif
 Dt 1

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.35 2001/08/19 15:55:35 mstorti Exp $
+//$Id: ns.cpp,v 1.36 2001/08/20 01:37:12 mstorti Exp $
  
 #include <malloc.h>
 
@@ -164,7 +164,7 @@ int main(int argc,char **args) {
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
   //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,iisd);
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
 
   //o The pattern to generate the file name to save in for

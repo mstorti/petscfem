@@ -1,27 +1,21 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.23 2001/08/17 16:19:30 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2001/08/20 01:37:22 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-NSO := $(PETSCFEM_DIR)/../petscfem-beta-1.93/applications/ns/ns.bin
+NSO := $(PETSCFEM_DIR)/../petscfem-beta-1.98/applications/ns/ns.bin
 
-ifneq ($(NSO),)
-NS:=$(NSO)
-endif
+pp:
+	$(MAKE) NP=2  case=hitchhiking_part test_case
+	mv -f save.state save.state.hitchhiking.tmp
 
-run:
-	$(MAKE) NP=3 Re=1e4 preco=jacobi case=iisd case_size=large test_case
-
-run0:
-	$(MAKE) NP=2 Re=1e4 preco=jacobi part=random 
-				case_size=large test_case
-#	mv -f save.state save.state.iisd_vl.tmp
+test_eff: 
+#	$(MAKE) PROG=$(NSO) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
+	$(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large2 test_case
+#	time $(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large test_case
 
 #w All tests
 tests: test_iisd test_partitioning
-
-test_eff: 
-	time $(MAKE) NP=2 Re=1000 case=iisd_eff case_size=large test_case
 
 #w Tests IISD with periodic boundary conditions
 NS := $(NSO)
@@ -84,7 +78,10 @@ test_case: test_case_data
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
 
-PROG := $(NS)
 LOC_PROG := ns
 CASE_NAME := wallke
+ifeq ($(PROG),)
+PROG := $(NS)
+endif
+
 #s

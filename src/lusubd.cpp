@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.40 2001/08/19 15:55:38 mstorti Exp $
+//$Id: lusubd.cpp,v 1.41 2001/08/20 01:37:16 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -21,6 +21,7 @@ int SCHED_ALG=1;
 #include <dofmap.h>
 #include <elemset.h>
 #include <pfmat.h>
+#include <iisdmat.h>
 
 enum PETScFEMErrors {
   iisdmat_set_value_out_of_range
@@ -671,8 +672,8 @@ int IISDMat::solve(Vec res,Vec dx) {
 
     ierr = KSPSetType(ksp_ll,KSPPREONLY); CHKERRQ(ierr); 
     ierr = PCSetType(pc_ll,PCLU); CHKERRQ(ierr); 
-    double pc_lu_fill=8.;
-    ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
+    printf("setting pc_lu_fill = %f\n",pc_lu_fill);
+    // ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
     ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr);
 
 #if 0 // To print the Schur matrix by columns
@@ -932,7 +933,7 @@ void PETScMat::create(Darray *da,const Dofmap *dofmap,
 #define __FUNC__ "PFMat::clear"
 void PFMat::clear() {
   if (sles_was_built) {
-    int ierr = SLESDestroy(sles); CHKERRA(ierr);
+    int ierr = SLESDestroy(sles); 
     PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
   }
 }
@@ -999,13 +1000,24 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::build_sles"
+#define __FUNC__ "PETScMat::set_preco"
 int PFMat::set_preco(const string & preco_type) {
   // warning:= avoiding `const' restriction!!
   int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
 }
 
 int IISDMat::warn_iisdmat=0;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PETScMat::build_sles"
+int IISDMat::build_sles(TextHashTable *thash,char *name=NULL) {
+  int ierr;
+  ierr = PFMat::build_sles(thash,name); CHKERRQ(ierr);
+  //o Chooses the preconditioning operator. 
+  TGETOPTDEF_ND(thash,double,pc_lu_fill,5.);
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"
@@ -1056,6 +1068,8 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
 #define __FUNC__ "PFMat::destroy_sles"
 int PFMat::destroy_sles() {
   int ierr = SLESDestroy(sles); CHKERRQ(ierr);
+  sles=NULL;
+  sles_was_built = 0;
   return 0;
 }
 
