@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.9 2002/08/18 21:27:11 mstorti Exp $
+//$Id: aquifer.cpp,v 1.10 2002/08/26 21:19:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -19,7 +19,7 @@ void aquifer_ff::start_chunk() {
   elemset->elem_params(nel,ndof,nelprops);
   assert(ndof==1);
 
-  elemset->get_prop(eta_pr,"eta");
+  // elemset->get_prop(eta_pr,"eta");
   elemset->get_prop(K_pr,  "K");
   elemset->get_prop(S_pr,  "S");
 
