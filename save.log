@@ -688,3 +688,6 @@ tag: beta-2.52 on Tue Dec  4 17:28:46 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: mesh-move-1.00 on Wed Dec 19 23:33:57 ARST 2001, by mstorti in spider
      > Working on mesh distortion.
+----------
+tag: mesh-move-1.01 on Thu Dec 20 15:22:28 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Re-meshing works.
