@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.5 2003/01/01 16:16:36 mstorti Exp $
+//$Id: inviscid.cpp,v 1.6 2003/01/01 20:20:10 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -20,8 +20,9 @@ public:
   double x[NDIM], u[NDIM], phi;
 };
 
+double Uinf;
 typedef map<int,int> ext_map;
-ext_map coup_vals;
+ext_map inv_indx_map,visc_indx_map;
 vector<ext_node> ext_node_data;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -54,8 +55,13 @@ DL_GENERIC_HOOK(coupling_visc_hook);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
-		     TextHashTableFilter *options,const char *name) {
+		     TextHashTableFilter *options_f,const char *name) {
+
   assert(SIZE==1); // Not implemented in parallel yet
+
+  int ierr;
+  TextHashTable *options = (TextHashTable *)TextHashTable::find(name);
+
   if (!MY_RANK) {
     printf("INVISCID: Opening fifos for communicating with VISCOUS.\n");
 
@@ -77,23 +83,26 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
       ext_node_data.push_back(ext_node());
       ext_node_data[ext_node_indx].vn = vn;
       ext_node_data[ext_node_indx].pn = pn;
-      coup_vals[pn] = ext_node_indx;      
+      inv_indx_map[pn] = ext_node_indx;      
+      visc_indx_map[vn] = ext_node_indx;      
       ext_node_indx++;
     }
     assert(nread==EOF);
     fclose(fid);
 
-    fid = fopen("cylin.nod.tmp","r");
+    fid = fopen("ext.nod.tmp","r");
     double x[NDIM];
     int node=0;
-    ext_map::iterator q, qe=coup_vals.end();
+    ext_map::iterator q, qe=inv_indx_map.end();
     while (1) {
       nread = fscanf(fid,"%lf %lf",&x[0],&x[1]);
       if(nread!=NDIM) break;
       node++;
-      q = coup_vals.find(node);
+      q = inv_indx_map.find(node);
       if (q!=qe) {
 	ext_node_indx = q->second;
+	printf("node %d, ext_node_indx %d, x %f %f\n",
+	       node,ext_node_indx,x[0],x[1]);
 	ext_node_data[ext_node_indx].x[0] = x[0];
 	ext_node_data[ext_node_indx].x[1] = x[1];
       }
@@ -101,6 +110,8 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
     assert(nread==EOF);
     fclose(fid);
   }
+  TGETOPTDEF_ND(options,double,Uinf,0.);
+  assert(Uinf!=0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -111,7 +122,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   FILE *fid = fopen("cylin.state.tmp","r");
   double u[NDIM];
   int node=0;
-  ext_map::iterator q, qe=coup_vals.end();
+  ext_map::iterator q, qe=inv_indx_map.end();
   int nread;
   char *line = NULL; size_t N=0;
   while (1) {
@@ -119,7 +130,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
     nread = sscanf(line,"%lf %lf",&u[0],&u[1]);
     assert(nread==NDIM);
     node++;
-    q = coup_vals.find(node);
+    q = visc_indx_map.find(node);
     if (q!=qe) {
       int ext_node_indx = q->second;
       ext_node_data[ext_node_indx].u[0] = u[0];
@@ -127,6 +138,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
     }
   }
   fclose(fid);
+  free(line); line=NULL; N=0;
 
   // Computes potential on the external side, integrating
   // the tangential component of velocity
@@ -134,16 +146,18 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   FastMat2 uu(1,NDIM), u1(1,NDIM), x1(1,NDIM), dx(1,NDIM), dpot_fm;
   ext_node_data[0].phi = 0.;
   for (int k=1; k<nnod_ext; k++) {
-    u1.set(ext_node_data[k-1].x);
-    uu.set(ext_node_data[k].x).add(u1).scale(0.5);
+    u1.set(ext_node_data[k-1].u);
+    uu.set(ext_node_data[k].u).add(u1).scale(0.5);
+    uu.addel(-Uinf,1);
 
-    x1.set(ext_node_data[k-1].u);
+    x1.set(ext_node_data[k-1].x);
     dx.set(ext_node_data[k].x).rest(x1);
     
     double dpot = dpot_fm.prod(dx,uu,-1,-1).get();
     ext_node_data[k].phi = ext_node_data[k-1].phi + dpot;
   }
 
+#if 0
   for (int k=0; k<nnod_ext; k++) {
     ext_node &e = ext_node_data[k];
     printf("k=%d, vn %d, pn %d, x=%f %f, uu=%f %f, phi=%f\n",
@@ -151,6 +165,7 @@ void coupling_inv_hook::time_step_pre(double t,int step) {
   }
   PetscFinalize();
   exit(0);
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -5,18 +5,20 @@ save_file "ext.state.tmp"
 save_file_pattern "outvector.out.tmp"
 nsave 10
 nsaverot 10
-nstep 1000
+nstep 2
 steady
 solver "iisd"
 iisd_subpart_auto 2000
 print_internal_loop_conv 1
 Krylov_dim 200
-nnwt 2
-alpha 0.6
+nnwt 1
+Uinf 1.
+
 weak_form 0
 Dt <:=$Co*$hmin:>
 rtol 1e-4
 atol 1e-10
+
 iisdmat_print_statistics
 print_partitioning_statistics
 hook_list dl_generic_hook coupling_inv_hook 

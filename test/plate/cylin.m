@@ -81,7 +81,8 @@ asave("cylin.con.tmp",icone);
 nnod = rows(xnod);
 uini = [1 0 0];
 uini = uini(ones(nnod,1),:);
-uini(:,1) = uini(:,1) + du_ini_pert * sin(pi/2*xnod(:,2)/Rext);
+pert = sin(pi*xnod(:,2)/Rint).*(xnod(:,1)>0).*(abs(xnod(:,2))<Rint);
+uini(:,1) = uini(:,1) + du_ini_pert * pert;
 asave("cylin.ini.tmp",uini);
 
 next = length(external);
