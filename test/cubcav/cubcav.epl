@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 6;			# Number of elements per dimension
+$N = 10;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -31,7 +31,7 @@ $graph_chunk_size =
     ($graph_chunk_size < 20000 ? 20000 : 
     $graph_chunk_size > 200000 ? 200000 : $graph_chunk_size);
 $hratio = 5;			# refinement (h_center/h_wall)
-$Re = 500;			# Reynolds number
+$Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = ($case eq 'laplace' ? 1 : $fracstep? 0.1 : 1);# time step
 $solver = "petsc";
@@ -88,7 +88,6 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case \"$case\"\n";
 }
-$maxits=2;
 $CASE = $case;
 #
 #__END_TRANSCRIPT__
@@ -100,7 +99,7 @@ octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity
 global_options
 
 <:pr('ndim'):>
-nsave 0
+nsave 3
 nstep 100
 # initial_state cubcav.state
 <:pr('save_file'):> 
@@ -114,15 +113,15 @@ reuse_mat 0
 #if 1
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
 #endif
-solver     "petsc"
-# solver     "iisd"
+# solver     "petsc"
+solver     "iisd"
 preco_type "jacobi"
 # solver_mom "petsc"
 # rtol 1e-6
 chunk_size 1000
 # <:pr('iisd_subpart'):>
 iisd_subpart_auto 2000
-newton_relaxation_factor 0.
+# newton_relaxation_factor 0.
 <:pr('maxits'):>
 report_consumed_time
 #
@@ -154,7 +153,7 @@ rtol 1e-4
 rtol 1e-8
 #endif
 dtol 1e3
-nnwt 1
+nnwt 5
 
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv 1
@@ -164,7 +163,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady 0
+steady 1
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -181,9 +180,8 @@ data cubcav.nod.tmp
 __END_HASH__
 
 elemset \
- <:=($case eq 'laplace' ? 'qharm' : $fracstep? 'fracstep_fm2' : 'ns_id'); :> \
+ <:=($case eq 'laplace' ? 'qharm' : $fracstep? 'fracstep_fm2' : 'nsi_tet_les_fm2'); :> \
 	<:=($use_prismatic? 6 : $use_tetra? 4 : 8):>
-ns_id_fac 1.
 name malla
 # report_consumed_time
 geometry <:=($use_prismatic? 'prismatic' : $use_tetra ?  'tetra' : 'cartesian3d'):>

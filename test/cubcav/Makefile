@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.37 2002/11/02 11:41:34 mstorti Exp $ 
+# $Id: Makefile,v 1.38 2002/11/19 02:51:38 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -16,7 +16,7 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-NS = $(PETSCFEM_DIR)/applications/ns/ns_g.bin
+NS = $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 
 LOC_PROG := ns
 #CASE_NAME := qharm
@@ -38,8 +38,6 @@ MCH =
 endif
 
 export NP
-
-NP := 2
 
 PROG := $(NS)
 
