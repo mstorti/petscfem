@@ -25,13 +25,11 @@ rtol 1e-4
 atol 1e-10
 tol_newton 0
 maxits 100
-Dt 1
 steady
 c_volume 0.
 
-<:$nstep = 1;:>//
-nstep <:=$nstep:>
-displ_factor <:=1./$nstep:>
+Dt 0.25
+nstep 8
 # initial_state "mmove.ini.tmp"
 # print_linear_system_and_stop
 
@@ -61,7 +59,13 @@ end_elemsets
 
 #===========================================================
 #if 1
-fixa
+fixa_amplitude ramp
+
+
+start_time 0
+end_time 1
+slope 1
+__END_HASH__
 
 1 1 0.
 1 2 0.1

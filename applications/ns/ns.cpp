@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.116 2002/11/28 18:27:02 mstorti Exp $
+//$Id: ns.cpp,v 1.117 2002/11/28 20:48:00 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -29,6 +29,7 @@ int reuse_mat;
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define XNOD(j,k) VEC2(xnod,j,k,dofmap->ndof)
+#if 0
 int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
 		double displ_factor) {
 
@@ -69,14 +70,27 @@ int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
   ierr = VecDestroy(vseq);
   return 0;
 }
+#endif
 
-void write_mesh(const char *filename,const Dofmap *dofmap,Mesh *mesh,
+int write_mesh(const Vec x,TimeData &t,const char *filename,const Dofmap *dofmap,Mesh *mesh,
 		 const int append=0) {
 
   int myrank;
-  double *xnod;
+  double *vseq_vals,*sstate,*xnod;
+  Vec vseq;
 
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
+
+  // fixme:= Now we can make this without a scatter. We can use
+  // the version of get_nodal_value() with ghost_values. 
+  int neql = (myrank==0 ? dofmap->neq : 0);
+  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
+  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
+			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
+		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
+  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
+
   xnod = mesh->nodedata->nodedata;
 
   if (myrank==0) {
@@ -94,12 +108,14 @@ void write_mesh(const char *filename,const Dofmap *dofmap,Mesh *mesh,
     double dval;
     for (int k=1; k<=dofmap->nnod; k++) {
       for (int kldof=1; kldof<=ndof; kldof++) {
-	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1));
+	dofmap->get_nodal_value(k,kldof,vseq_vals,&t,dval);
+	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1)+dval);
       }
       fprintf(output,"\n");
     }
     fclose(output);
   }
+  return 0;
 }
 
 #define __FUNC__ "main"
@@ -828,9 +844,9 @@ int main(int argc,char **args) {
 
     }
 
-    update_mesh(x,dofmap,mesh,displ_factor);
-    write_mesh("remeshing.dat",dofmap,mesh,1);
-    write_mesh("lastmesh.dat",dofmap,mesh,0);
+    // update_mesh(x,dofmap,mesh,displ_factor);
+    ierr = write_mesh(x,time_star,"remeshing.dat",dofmap,mesh,1); CHKERRQ(ierr); 
+    ierr = write_mesh(x,time_star,"lastmesh.dat",dofmap,mesh,0); CHKERRQ(ierr); 
 
     // error difference
     scal = -1.0;
