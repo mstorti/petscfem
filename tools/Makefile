@@ -26,7 +26,6 @@ license.script: license.txt
 
 #w license for C and C++
 license.c: license.txt
-	echo $(VERSION)
 	echo "\/.__<L>__" > $@ 
 	echo "/*__<L>__*/" >> $@
 	echo '/*' >>$@

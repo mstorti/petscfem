@@ -1,12 +1,13 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.19 2001/05/27 22:39:43 mstorti Exp $
+#$Id: Makefile,v 1.20 2001/05/30 13:01:49 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
-all: latex index.html html ps pdf readme eps
-
 #p [in doc/Makefile]
 #s Main targets
+
+#w all the doc
+all: latex index.html html ps pdf readme eps
 
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -14,7 +15,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 ODOCFILES = odocadv.tex odocadvdif.tex odocadvdife.tex \
 	odocadve.tex odocadvfe.tex odocadvfm2.tex odocadvfs.tex \
 	odocburgers.tex odocgenl.tex \
-	odocns.tex odocnsb.tex odocnse.tex odocnsw.tex odocnswfm2t.tex 
+	odocns.tex odocnsb.tex odocnse.tex odocnsw.tex odocswfm2t.tex
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
@@ -22,9 +23,9 @@ TEXFILES = prev1 layout thash idmap compprof advec \
 uncomment:
 	perl -pi.bak -e 's/^%+\s*(.*%__UNCOMMENT_IN_FINAL_VERSION__)$$/$$1/;' \
 			-e 's/^([^%].*%__COMMENT_IN_FINAL_VERSION__)$$/%$$1/;' \
-			petscfem.tex
+			petscfem.in.tex
 
-#w make petscfem.ps.gz, manual.ps.gz
+#w makes petscfem.ps.gz, manual.ps.gz
 ps: petscfem.ps.gz manual.ps.gz
 
 #w make PDF
@@ -43,7 +44,8 @@ petscfem.ps: petscfem.dvi
 petscfem.dvi: *.tex
 	$(MAKE) latex
 
-petscfem.pdf: latex *.tex
+petscfem.pdf: latex
+	$(MAKE) -C OBJ pdf
 	pdflatex petscfem
 
 manual.ps.gz: force
@@ -67,6 +69,7 @@ manual_html:
 
 #w process LaTeX on reference
 latex: force eps odoc
+	$(MAKE) EPERLFLAGS="-d html=0" petscfem.tex
 	for j in 1 2 3 4 ; \
 	do echo "On run $$j -------------------------------" ; \
 		latex petscfem ; \
@@ -82,9 +85,16 @@ eps:
 		then mkdir petscfem ; cd petscfem ; ln -s ../OBJ . ; \
 	fi
 
+petscfem.tex: petscfem.in.tex force
+	if [ -f $@ ] ; then rm -f $@ ; fi
+	eperl $(EPERLFLAGS) $< > $@
+	chmod -w $@
+
 # Run  `$ make ltx2h_opt=-no_images' in order to not wait so much time...
-petscfem/petscfem.html: odoc eps petscfem.tex petscfem*.tex $(TEXFILES:=.tex)
-	latex2html $(ltx2h_opt) -prefix pfem -init_file latex2html.init \
+petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
+	$(MAKE) EPERLFLAGS="-d html=1" petscfem.tex
+#	latex2html $(ltx2h_opt) -prefix pfem -init_file latex2html.init 
+	latex2html $(ltx2h_opt) -init_file latex2html.init \
 		-split 2 -reuse 2 petscfem
 
 #w Make all documentation files for program options with 'odoc.pl'
@@ -100,7 +110,7 @@ index.html: index.tex
 #w Make the README in text and html format
 readme: ../README ../README.html
 
-README.pod: README.podin ../VERSION
+README.pod: README.podin
 # 	-chmod +w README.pod
 # 	fversion -is $(TARFILE).tara,v README.podin README.pod
 # 	-chmod -w README.pod
@@ -124,13 +134,14 @@ CLEAN_DIRS = manual OBJ
 
 local_clean:: local_dist_clean
 	-rm -rf *.ps.gz index petscfem icons index.html index.css \
-		version.tex *.pdf
+		version.tex *.pdf petscfem.tex \
+		contents.pl images.pl index.pl labels.pl sections.pl 
 
 #w Clean leaving PS and HTML
 local_dist_clean::
 	-putex
 	-rm -rf tz*.tex .*.db \
-              pod2html-{dir,item}cache petscfem.out
+              pod2html-{dir,item}cache petscfem.out *.bak
 
 fm2ex.cpp: ../test/testfm2c.cpp
 	eperl -B '//<' -E '//>' $< > $@
