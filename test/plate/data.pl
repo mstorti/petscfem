@@ -26,9 +26,9 @@ $omega=0.;			# filter param (time scale)
 @b = ($omega,0);
 $filter2 = print_filter(\@a,\@b);
 
-$filter = $filter2;
+$filter = $filter1;
 
-if (0) {   ## large mesh
+if (1) {   ## large mesh
     $Rint=1;
     $Rext=3;
     $L = 10;

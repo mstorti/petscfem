@@ -5,7 +5,7 @@ $case = 'cylin';
 $nod = "$case.nod.tmp";	# nodes
 $con = "$case.con.tmp";	# connectivities
 $gmv = "$case.gmv.tmp";	# MV input file
-if (0) {
+if (1) {
 # $rslt = "cylin.ini.tmp"; # petscfem result file
     $rslt = "cylin.state.tmp"; # petscfem result file
     $rec = 'last';

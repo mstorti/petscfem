@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: proc5.m,v 1.8 2003/01/11 15:24:08 mstorti Exp $
+## $Id: proc5.m,v 1.9 2003/01/16 15:31:54 mstorti Exp $
 source("data.m.tmp");
 tmp = aload("cylin.axis_nodes.tmp");
 nnod_axis = length(tmp);
@@ -16,7 +16,7 @@ p = reshape(V(:,4),nnod_axis,nsteps);
 clear V
 
 if 1
-  v(:,1:30)=[];
-  v = v(20:70,:);
+  v(:,1:300)=[];
+  v = v(50:70,:);
   proc6
 endif
