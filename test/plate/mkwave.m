@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.1 2003/02/24 21:06:12 mstorti Exp $
+## $Id: mkwave.m,v 1.2 2003/02/24 23:19:34 mstorti Exp $
 global H L 
 
 source("data.m.tmp");
@@ -26,20 +26,29 @@ top = mesher_bound(mesh,[4 3]);
 asave("wave.nod.tmp",xnod);
 asave("wave.con.tmp",icone);
 
-fid_pf = fopen("wave.press_filt.tmp","w");
 fid = fopen("wave.fixa_in.tmp","w");
 for k=inlet'
   uu = 1+du*cos(pi*xnod(k,2)/Hy);
-  p = -0.5*uu^2;
-  k1 = k  + (Ny+1);
-  k2 = k1 + (Ny+1);
   fprintf(fid,"%d %d  %f\n",k,1,uu);
-  fprintf(fid,"%d %d  %f\n",k,3,p);
-  fprintf(fid_pf,"%f  %d %d    %f  %d %d    %f  %d %d\n",
-	  -1.,k,3,2,k1,3,-1,k2,3);
 endfor
 fclose(fid);
-fclose(fid_pf);
+
+x = xnod((0:2)'*(Ny+1)+1,1);
+cx = cloud(x,1,2);
+hy = Hy/Ny;
+
+fid2 = fopen("wave.null_w.tmp","w");
+for k=2:Ny
+  k1 = k  + (Ny+1);
+  k2 = k1 + (Ny+1);
+  fprintf(fid2,"   %f   %d %d",1/(2*hy),k+1,1);
+  fprintf(fid2,"   %f   %d %d",-1/(2*hy),k-1,1);
+  fprintf(fid2,"   %f   %d %d",-cx(1),k,2);
+  fprintf(fid2,"   %f   %d %d",-cx(2),k1,2);
+  fprintf(fid2,"   %f   %d %d",-cx(3),k2,2);
+  fprintf(fid2,"\n");
+endfor
+fclose(fid2);
 
 fid = fopen("wave.fixa_out.tmp","w");
 for k=outlet'

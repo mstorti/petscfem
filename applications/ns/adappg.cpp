@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.7 2003/02/24 00:14:23 mstorti Exp $
+//$Id: adappg.cpp,v 1.8 2003/02/24 23:19:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -109,7 +109,7 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     g.prod(Jaco,Jaco,1,-1,2,-1);
     ig.inv(g);
     tmp.prod(ig,dshapexi,1,-1,-1,2);
-    dshapex.prod(Jaco,dshapexi,-1,1,-1,2);
+    dshapex.prod(Jaco,tmp,-1,1,-1,2);
 
     grad_state_new_pg.prod(dshapex,state_new,1,-1,-1,2);
     grad_state_old_pg.prod(dshapex,state_old,1,-1,-1,2);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: invcoupl.cpp,v 1.2 2003/02/24 00:14:23 mstorti Exp $
+//$Id: invcoupl.cpp,v 1.3 2003/02/24 23:19:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -49,17 +49,21 @@ void inviscid_coupling
 #define tmp2 (tmp(2))
 #define tmp3 (tmp(3))
 #define tmp4 (tmp(4))
-#define gsopg (tmp(5))
+#define gsnpg (tmp(5))
+  double fac=-1.;
   // Define residual
-  gsopg.set(grad_state_new_pg);
-  gsopg.is(2,1,ndim);
-  tmp1.prod(gsopg,normal(),1,-1,-1); // tmp1 is ndim
-  tmp2.prod(shape(),tmp1,1,2).scale(2.0*viscosity);	// tmp2 is nel x ndim
-  gsopg.rs();
+  gsnpg.set(grad_state_new_pg);
+  gsnpg.is(2,1,ndim);
+  // tmp1.prod(normal(),gsnpg,-1,-1,1); // this is wrong!!
+  tmp1.prod(gsnpg,normal(),1,-1,-1); // tmp1 is ndim
+  tmp2.prod(shape(),tmp1,1,2).scale(-2.0*viscosity*fac);	// tmp2 is nel x ndim
+  gsnpg.rs();
   res_pg.set(0.).is(2,1,ndim).set(tmp2).rs();
+  // res_pg.print("");
 
   // Define Jacobian
-  tmp3.prod(dshapex(),normal(),1,2,3).scale(2.0*viscosity); // is ndim*nel*ndim
+  tmp3.prod(dshapex(),normal(),1,2,3).scale(2.0*viscosity*fac); // is ndim*nel*ndim
   tmp4.prod(shape(),tmp3,1,2,3,4); // is nel*ndim*nel*ndim
-  mat_pg.is(2,1,ndim).is(4,1,ndim).set(tmp4).rs();
+  mat_pg.set(0.).is(2,1,ndim).is(4,1,ndim).set(tmp4).rs();
+  // mat_pg.print("");
 }

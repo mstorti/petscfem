@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.19 2003/02/24 00:14:23 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2003/02/24 23:19:34 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
-default: viscous
+default: wave
 
 tests: 
 
@@ -22,6 +22,9 @@ viscous: inviscid.efn
 	if [ -e inv2visc.fifo ] ; then rm inv2visc.fifo ; fi
 	mkfifo inv2visc.fifo
 	$(MAKE) CASE_NAME=cylin run
+
+wave:
+	$(MAKE) CASE_NAME=wave run
 
 inviscid.efn: EFN_LDFLAGS = ./fifo.o
 inviscid.efn: fifo.o

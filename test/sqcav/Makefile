@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.56 2003/02/24 00:14:24 mstorti Exp $ 
+# $Id: Makefile,v 1.57 2003/02/24 23:19:35 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -37,8 +37,10 @@ test_qharm_3d:
 	-cp outvector0.out qharm.state_g3d_90.tmp
 	octave -qH check_g3d.m > verif.g3d.tmp
 
-dx_tests_np1 := dx_hook_test_post_run_file_record dx_hook_test_post_run_files \
-		dx_hook_test_synchro dx_hook_test_allf
+dx_tests_np1 := dx_hook_test_post_run_file_record	\
+		dx_hook_test_post_run_files		\
+		dx_hook_test_synchro			\
+		dx_hook_test_allf
 dx_tests_np2 := $(patsubst dx_hook_test_%,dx_test_%_np2,$(dx_tests_np1))
 dx_tests_np1: $(dx_tests_np1) 
 dx_tests_np2: $(dx_tests_np2) 
