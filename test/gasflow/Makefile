@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2003/02/02 20:04:52 mstorti Exp $ 
+# $Id: Makefile,v 1.23 2003/02/03 15:51:57 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -68,5 +68,13 @@ epi:
 socket.o: socket.cpp
 socket.bin: socket.o
 	$(CXX) -o $@ $<
+
+SSL := $(HOME)/SOFT/SSL
+socket2.o: CPPFLAGS = -I$(SSL)
+socket2.o: socket2.cpp
+socket2.bin: LDFLAGS = $(SSL)/simpleskts.a
+socket2.bin: socket2.o
+	$(CXX) -o $@ $< $(LDFLAGS)
+
 
 #s
