@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstepfm2.cpp,v 1.2 2002/07/25 22:35:31 mstorti Exp $
+//$Id: fstepfm2.cpp,v 1.3 2002/07/26 00:57:31 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,15 +12,23 @@
 
 #define MAXPROP 100
 
-void nmprint(Matrix &A) { cout << A << endl; }
-
 const double FIX = 0.1;
-void fix_null_diagonal_entries(Matrix &A,Matrix &B,int n) {
-  B = 0;
+/** Fixes all diagonal terms in matrix #A# so that they are #>0#, i.e.,
+    makes #A(i,i)=FIX# if #A(i,i)=0# and leaves #A(i,i)# unaltered otherwise. 
+    At the same time makes #B# a diagonal matrix which is the mask added to #A#. 
+    In brief: B(i,i)=0; if (A(i,i)==0) A(i,i)=B(i,i)=FIX;
+    @param A (input) matrix to be fixed.
+    @param B (input) mask for A
+*/ 
+/ 
+//
+void fix_null_diagonal_entries(FastMat2 &A,Fastmat2 &B) {
+  int n = A.dim(1);
+  B.set(0.);
   for (int j=1; j<=n; j++) {
-    if (A(j,j)==0.) {
-      A(j,j) = FIX;
-      B(j,j) = FIX;
+    if (A.get(j,j)==0.) {
+      A.setel(FIX,j,j);
+      B.setel(FIX,j,j);
     }
   }
 }
@@ -132,9 +140,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     Dt = glob_param->Dt;
   } else assert(0); // Not implemented yet!!
 
-  Matrix veccontr(nel,ndof),xloc(nel,ndim),
-    locstate(nel,ndof),locstate2(nel,ndof),tmp(nel,ndof),
-    ustate2(nel,ndim);
+  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),
+    locstate(2,nel,ndof),locstate2(2,nel,ndof),tmp(2,nel,ndof),
+    ustate2(2,nel,ndim);
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -144,7 +152,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 matloc(4,nel,ndof,nel,ndof), matlocmom(2,nel,nel), masspg(2,nel,nel),
     matlocmom2(4,nel,ndof,nel,ndof), grad_u_ext(2,ndof,ndof),
     mom_profile(4,nel,ndof,nel,ndof), poi_profile(4,nel,ndof,nel,ndof),
-    mom_mat_fix(4,nel,ndof,nel,ndof), poi_mat_fix(4,nel,ndof,nel,ndof);
+    mom_mat_fix(2,nen,nen), poi_mat_fix(2,nen,nen);
 
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
@@ -192,44 +200,42 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // grad_u_ext was transposed in the Newmat version. Why? if it's symmetric
   mom_profile.prod(masspg,grad_u_ext,1,3,4,2);
 
-
+  mom_profile.reshape(2,nen,nen);
   fix_null_diagonal_entries(mom_profile,mom_mat_fix,nen);
   
   grad_u_ext=0;
   grad_u_ext(ndim+1,ndim+1) = 1;
   poi_profile = kron(masspg,grad_u_ext);
   fix_null_diagonal_entries(poi_profile,poi_mat_fix,nen);
+  poi_profile.reshape(4,nel,dof,nel,dof);
+  poi_mat_fix.reshape(4,nel,dof,nel,dof);
 
   if (comp_mat_prof) {
-    mom_profile >> arg_data_v[0].profile; // A_mom
-    poi_profile >> arg_data_v[1].profile; // A_poi
-    mom_profile >> arg_data_v[2].profile;	// A_prj
+    mom_profile.export_vals(arg_data_v[0].profile); // A_mom
+    poi_profile.export_vals(arg_data_v[1].profile); // A_poi
+    mom_profile.export_vals(arg_data_v[2].profile); // A_prj
   } else if (comp_res_mom) {
-    mom_profile >> A_mom_arg->profile;
+    mom_profile.export_vals(A_mom_arg->profile);
   } else if (comp_mat_poi) {
-    poi_profile >> A_poi_arg->profile;
+    poi_profile.export_vals(A_poi_arg->profile);
   } else if (comp_res_poi) {
   } else if (comp_mat_prj) {
-    mom_profile >> A_prj_arg->profile;
+    mom_profile.export_vals(A_prj_arg->profile);
   } else if (comp_res_prj) {
   } else assert(0);
 
   Matrix seed;
   if (comp_res_mom || comp_mat_prj) {
-    seed= Matrix(ndof,ndof);
-    seed=0;
-    for (int j=1; j<=ndim; j++) {
-      seed(j,j)=1;
-    }
+    seed.reshape(2,ndof,ndof).set(0.)
+      .is(1,1,ndim).is(2,1,ndim).eye().rs();
   } else if (comp_mat_poi) {
-    seed= Matrix(ndof,ndof);
-    seed=0;
-    seed(ndof,ndof)=1;
+    seed.reshape(2,ndof,ndof).set(0.).
+      setel(1.,ndof,ndof).rs();
   }
 
   int ielh=-1;
   int SHV_debug=0;
-#define SHV(pp) { if (SHV_debug) cout << #pp ": " << endl << pp << endl; }
+#define SHV(pp) { if (SHV_debug) pp.print(#pp); }
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     //if (epart[k] != myrank+1) continue;
@@ -239,9 +245,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // We export anything, because in fact `upload_vector'
       // doesn't even look at the `retvalmat' values. It looks at the
       // .profile member in the argument value
-      matlocmom >> &(RETVALMAT_MOM(ielh));
-      matlocmom >> &(RETVALMAT_PRJ(ielh));
-      matlocmom >> &(RETVALMAT_POI(ielh));
+      matlocmom.export_vals(&(RETVALMAT_MOM(ielh)));
+      matlocmom.export_vals(&(RETVALMAT_PRJ(ielh))();
+      matlocmom.export_vals(&(RETVALMAT_POI(ielh)));
       continue;
     } 
 
@@ -250,24 +256,22 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     // Load local node coordinates in local vector
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
-      for (jdim=0; jdim<ndim; jdim++) {
-	xloc(kloc+1,jdim+1) = NODEDATA(node-1,jdim);
-      }
+      xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
     }
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
     if (comp_res_mom || comp_res_poi || comp_res_prj) {
-      locstate << &(LOCST(ielh,0,0));
-      locstate2 << &(LOCST2(ielh,0,0));
+      locstate.set(&(LOCST(ielh,0,0)));
+      locstate2.set(&(LOCST2(ielh,0,0)));
     }
-    matlocmom = 0;
-    matlocmom2 = 0;
-    veccontr = 0;
-    resmom = 0;
-    rescont = 0;
+    matlocmom.set(0);
+    matlocmom2.set(0.);
+    veccontr.set(0.);
+    resmom.set(0.);
+    rescont.set(0.);
 
-#define DSHAPEXI (gp_data.dshapexi[ipg])
-#define SHAPE    (gp_data.shape[ipg])
+#define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
+#define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
@@ -275,34 +279,38 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (ipg=0; ipg<npg; ipg++) {
 
       //      Matrix xpg = SHAPE * xloc;
-      Jaco = DSHAPEXI * xloc;
+      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       elem = k;
 
-      detJaco = mydet(Jaco);
+      detJaco = Jaco.det();
       if (detJaco <= 0.) {
-	cout << "Jacobian of element " << elem << " is negative or null\n"
-	     << " Jacobian: " << detJaco << endl ;
-	exit(1);
+	printf("Jacobian of element %d is negative or null\n"
+	       " Jacobian: %f\n",k,detJaco);
+	PetscFinalize();
+	exit(0);
       }
       wpgdet = detJaco*WPG;
-      iJaco = Jaco.i();
-      dshapex = iJaco * DSHAPEXI;
-      // vector de estado componentes de velocidad
+      iJaco.inv(Jaco);
+      dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
       
       if (comp_res_mom) {
 	// state variables and gradient
-	ustate2 = locstate2.Columns(1,ndim);
+	locstate2.is(2,1,ndim);
+	u.prod(SHAPE,locstate2,-1,-1,1);
+	grad_u.prod(dshapex,locstate2,1,-1,-1,2);
+	locstate2.rs();
 
-	u = (SHAPE * ustate2).t();
-	u_star = (SHAPE * locstate.Columns(1,ndim)).t();
+	locstate.is(2,1,ndim);
+	u_star.prod(SHAPE,locstate,-1,-1,1);
+	grad_u_star.prod(dshapex,locstate,1,-1,-1,2);
+	locstate.rs();
 
-	grad_u = dshapex * ustate2;
-	grad_u_star = dshapex * locstate.Columns(1,ndim);
-	grad_p = dshapex * locstate2.Column(ndim+1);
-	SHV(grad_p);
+	locstate2.ir(2,ndof);
+	grad_p.prod(dshapex,locstate2,1,-1,-1);
+	locstate2.rs();
 
-	double u2 = u.SumSquare();
+	double u2 = u.sum_square_all();
 	uintri = iJaco * u;
 	double Uh = sqrt(uintri.SumSquare())/2.;
 
