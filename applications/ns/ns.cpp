@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.39 2001/09/08 01:20:37 mstorti Exp $
+//$Id: ns.cpp,v 1.40 2001/09/19 12:21:08 mstorti Exp $
  
 #include <malloc.h>
 
@@ -404,8 +404,8 @@ int main(int argc,char **args) {
 	VOID_IT(argl);
 	argl.arg_add(&x,PERT_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
-	argl.arg_add(&A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX|PFMAT);
+	argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
+	if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
 #else
