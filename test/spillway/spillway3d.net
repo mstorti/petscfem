@@ -1,5 +1,5 @@
 //
-// time: Fri May 16 19:23:34 2003
+// time: Tue May 20 10:19:33 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -12,10 +12,10 @@
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
 // page assignment: image	order=5, windowed=0, showing=0
-// page assignment: import	order=2, windowed=0, showing=1
+// page assignment: import	order=2, windowed=0, showing=0
 // page assignment: proc_u	order=3, windowed=0, showing=0
-// page assignment: scalar	order=4, windowed=0, showing=0
-// workspace: width = 373, height = 362
+// page assignment: scalar	order=4, windowed=0, showing=1
+// workspace: width = 640, height = 782
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
@@ -26,7 +26,7 @@ macro main(
     // input[1]: defaulting = 0, visible = 1, type = 1, value = 1
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "@geronimo"
     // input[3]: defaulting = 0, visible = 1, type = 1, value = 5315
-    // input[6]: defaulting = 0, visible = 1, type = 32, value = "STEPS_MAY16/spillway.step_0.tmp"
+    // input[6]: defaulting = 0, visible = 1, type = 32, value = "outvector.out"
     // page group: import
     //
 main_ExtProgImport_1_out_1,
@@ -133,9 +133,9 @@ main_AutoGlyph_1_out_1 =
 main_Receiver_38_out_1[cache: 0] = u;
     // 
     // node Compute[29]: x = 300, y = 140, inputs = 2, label = Compute
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "abs($0)"
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "mag($0)"
     // page group: scalar
-    // expression: value = abs(u)
+    // expression: value = mag(u)
     // name[2]: value = u
     //
 main_Compute_29_out_1 = 
@@ -191,9 +191,9 @@ w = main_DivCurl_1_out_2;
 main_Receiver_39_out_1[cache: 0] = w;
     // 
     // node Compute[10]: x = 40, y = 240, inputs = 2, label = Compute
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "log10(max(abs($0),0.01))"
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "log10(max(mag($0),0.01))"
     // page group: proc_u
-    // expression: value = log10(max(abs(w),0.01))
+    // expression: value = log10(max(mag(w),0.01))
     // name[2]: value = w
     //
 main_Compute_10_out_1 = 
@@ -225,12 +225,38 @@ main_Switch_5_out_1 =
     main_Receiver_40_out_1
     ) [instance: 5, cache: 1];
     // 
+    // node Scalar[3]: x = 440, y = 400, inputs = 11, label = Scalar
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_3"
+    // input[2]: defaulting = 1, visible = 1, type = 67108863, value = NULL
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 10.0
+    // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
+    // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
+    // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
+    // output[1]: visible = 1, type = 5, value = 10.0
+    // page group: scalar
+    //
+    // 
+    // node Compute[19]: x = 320, y = 380, inputs = 3, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "min($0,$1)"
+    // page group: scalar
+    // expression: value = min(w,w_max)
+    // name[2]: value = w
+    // name[3]: value = w_max
+    //
+main_Compute_19_out_1 = 
+    Compute(
+    main_Compute_19_in_1,
+    main_Switch_5_out_1,
+    main_Scalar_3_out_1
+    ) [instance: 19, cache: 1];
+    // 
     // node Gradient[3]: x = 500, y = 360, inputs = 2, label = Gradient
     // page group: scalar
     //
 main_Gradient_3_out_1 = 
     Gradient(
-    main_Switch_5_out_1,
+    main_Compute_19_out_1,
     main_Gradient_3_in_2
     ) [instance: 3, cache: 1];
     // 
@@ -333,7 +359,7 @@ main_ClipBox_1_out_1 =
     //
 main_ShowBoundary_1_out_1 = 
     ShowBoundary(
-    main_Switch_5_out_1,
+    main_Compute_19_out_1,
     main_ShowBoundary_1_in_2
     ) [instance: 1, cache: 1];
     // 
@@ -354,11 +380,11 @@ main_Collect_4_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_1"
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 16.709749
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 10.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 16.709749 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 10.0 }
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 16.709749
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 10.0
     // page group: scalar
     // window: position = (0.0771,0.2070), size = 0.6348x0.5859
     //
@@ -370,7 +396,7 @@ main_Colormap_1_out_2[cache: 2] =
     main_Colormap_1_in_3,
     main_Colormap_1_in_4,
     main_Colormap_1_in_5,
-    main_Switch_5_out_1,
+    main_Compute_19_out_1,
     main_Colormap_1_in_7,
     main_Colormap_1_in_8,
     main_Colormap_1_in_9,
@@ -387,7 +413,7 @@ main_Colormap_1_out_2[cache: 2] =
     ) [instance: 1, cache: 1];
     // 
     // node Color[1]: x = 120, y = 560, inputs = 5, label = Color
-    // input[3]: defaulting = 0, visible = 1, type = 5, value = 0.3
+    // input[3]: defaulting = 0, visible = 1, type = 5, value = 0.5
     // page group: scalar
     //
 main_Color_1_out_1 = 
@@ -673,32 +699,6 @@ main_Compute_8_out_1 =
     main_Receiver_35_out_1
     ) [instance: 8, cache: 1];
     // 
-    // node Scalar[3]: x = 440, y = 400, inputs = 11, label = Scalar
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_3"
-    // input[2]: defaulting = 1, visible = 1, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 480.0
-    // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
-    // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
-    // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 480.0
-    // page group: scalar
-    //
-    // 
-    // node Compute[19]: x = 340, y = 440, inputs = 3, label = Compute
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "min($0,$1)"
-    // page group: scalar
-    // expression: value = min(w,w_max)
-    // name[2]: value = w
-    // name[3]: value = w_max
-    //
-main_Compute_19_out_1 = 
-    Compute(
-    main_Compute_19_in_1,
-    main_Switch_5_out_1,
-    main_Scalar_3_out_1
-    ) [instance: 19, cache: 1];
-    // 
     // node Reset[3]: x = 600, y = 620, inputs = 6, label = Reset
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "main_Reset_3_out_1"
     // input[2]: defaulting = 0, visible = 0, type = 29, value = 0
@@ -713,13 +713,13 @@ main_Compute_19_out_1 =
     // node Image[4]: x = 160, y = 640, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [59.567 -0.039565 54.7558]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [59.567 -474.198 54.7558]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 89.7127
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [60.9924 -7.79091 56.7833]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [71.6159 461.443 -10.5294]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 87.1731
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 0 1]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 10.8084
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.0271638 0.142549 0.989415]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 10.5042
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -731,7 +731,7 @@ main_Compute_19_out_1 =
     // input[25]: defaulting = 0, visible = 0, type = 32, value = "/u/mstorti/PETSC/verte_new.tiff"
     // input[26]: defaulting = 0, visible = 0, type = 32, value = "tiff"
     // input[29]: defaulting = 0, visible = 0, type = 3, value = 0
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "panzoom"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "rotate"
     // output[1]: visible = 0
     // output[3]: visible = 0
     // page group: image
@@ -814,7 +814,7 @@ main_MapToPlane_1_out_1 =
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 1 1000 1 1 1000 1 }
     // page group: import
     // vcr[1]: min = 1, max = 1000, beg = 1, end = 1000, cur = 46, inc = 1, loop = off, step = off, pal = off
-    // window: position = (0.4287,0.0690), size = 0.3496x0.1328
+    // window: position = (0.4287,-0.9297), size = 0.3496x0.1328
     //
     main_Sequencer_1_in_3 = @frame;
 main_Sequencer_1_out_1[cache: 2] = 
@@ -850,7 +850,7 @@ main_ExtProgImport_1_in_2 = "@geronimo";
 main_ExtProgImport_1_in_3 = 5315;
 main_ExtProgImport_1_in_4 = NULL;
 main_ExtProgImport_1_in_5 = NULL;
-main_ExtProgImport_1_in_6 = "STEPS_MAY16/spillway.step_0.tmp";
+main_ExtProgImport_1_in_6 = "outvector.out";
 main_ExtProgImport_1_in_7 = NULL;
 main_ExtProgImport_1_out_2 = NULL;
 main_ExtProgImport_1_out_3 = NULL;
@@ -891,7 +891,7 @@ main_Selector_1_in_7 = NULL;
 main_Selector_1_out_1 = 1 ;
 main_Selector_1_out_2 = "abs(u)" ;
 main_Receiver_38_out_1 = NULL;
-main_Compute_29_in_1 = "abs($0)";
+main_Compute_29_in_1 = "mag($0)";
 main_Compute_29_out_1 = NULL;
 main_Select_9_in_2 = "fluid_p";
 main_Select_9_in_3 = NULL;
@@ -903,11 +903,25 @@ main_DivCurl_1_in_2 = NULL;
 main_DivCurl_1_out_2 = NULL;
 main_Transmitter_9_out_1 = NULL;
 main_Receiver_39_out_1 = NULL;
-main_Compute_10_in_1 = "log10(max(abs($0),0.01))";
+main_Compute_10_in_1 = "log10(max(mag($0),0.01))";
 main_Compute_10_out_1 = NULL;
 main_Transmitter_10_out_1 = NULL;
 main_Receiver_40_out_1 = NULL;
 main_Switch_5_out_1 = NULL;
+main_Scalar_3_in_1 = "Scalar_3";
+main_Scalar_3_in_2 = NULL;
+main_Scalar_3_in_3 = 10.0;
+main_Scalar_3_in_4 = NULL;
+main_Scalar_3_in_5 = NULL;
+main_Scalar_3_in_6 = NULL;
+main_Scalar_3_in_7 = NULL;
+main_Scalar_3_in_8 = NULL;
+main_Scalar_3_in_9 = NULL;
+main_Scalar_3_in_10 = NULL;
+main_Scalar_3_in_11 = NULL;
+main_Scalar_3_out_1 = 10.0;
+main_Compute_19_in_1 = "min($0,$1)";
+main_Compute_19_out_1 = NULL;
 main_Gradient_3_in_2 = NULL;
 main_Gradient_3_out_1 = NULL;
 main_AutoGlyph_3_in_2 = "rocket";
@@ -956,16 +970,16 @@ main_Colormap_1_in_8 = NULL;
 main_Colormap_1_in_9 = NULL;
 main_Colormap_1_in_10 = NULL;
 main_Colormap_1_in_11 = NULL;
-main_Colormap_1_in_12 = { 0.0 16.709749 };
+main_Colormap_1_in_12 = { 0.0 10.0 };
 main_Colormap_1_in_13 = NULL;
 main_Colormap_1_in_14 = NULL;
 main_Colormap_1_in_15 = NULL;
 main_Colormap_1_in_16 = NULL;
 main_Colormap_1_in_17 = 0.0;
-main_Colormap_1_in_18 = 16.709749;
+main_Colormap_1_in_18 = 10.0;
 main_Colormap_1_in_19 = NULL;
 main_Colormap_1_out_1 = NULL;
-main_Color_1_in_3 = 0.3;
+main_Color_1_in_3 = 0.5;
 main_Color_1_in_4 = NULL;
 main_Color_1_in_5 = NULL;
 main_Color_1_out_1 = NULL;
@@ -1067,19 +1081,6 @@ main_Collect_2_in_2 = NULL;
 main_Collect_2_out_1 = NULL;
 main_Compute_8_in_1 = "$0.y";
 main_Compute_8_out_1 = NULL;
-main_Scalar_3_in_1 = "Scalar_3";
-main_Scalar_3_in_2 = NULL;
-main_Scalar_3_in_3 = 480.0;
-main_Scalar_3_in_4 = NULL;
-main_Scalar_3_in_5 = NULL;
-main_Scalar_3_in_6 = NULL;
-main_Scalar_3_in_7 = NULL;
-main_Scalar_3_in_8 = NULL;
-main_Scalar_3_in_9 = NULL;
-main_Scalar_3_in_10 = NULL;
-main_Scalar_3_in_11 = NULL;
-main_Scalar_3_out_1 = 480.0;
-main_Compute_19_in_1 = "min($0,$1)";
 main_Reset_3_in_1 = "main_Reset_3_out_1";
 main_Reset_3_in_2 = 0;
 main_Reset_3_in_3 = 0;
@@ -1402,12 +1403,12 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [59.567 -0.039565 54.7558];
-main_Image_4_in_6 = [59.567 -474.198 54.7558];
-main_Image_4_in_7 = 89.7127;
+main_Image_4_in_5 = [60.9924 -7.79091 56.7833];
+main_Image_4_in_6 = [71.6159 461.443 -10.5294];
+main_Image_4_in_7 = 87.1731;
 main_Image_4_in_8 = 1000;
 main_Image_4_in_9 = 0.697;
-main_Image_4_in_10 = [0 0 1];
+main_Image_4_in_10 = [-0.0271638 0.142549 0.989415];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
 main_Image_4_in_13 = NULL;
@@ -1436,7 +1437,7 @@ main_Image_4_in_37 = NULL;
 main_Image_4_in_38 = NULL;
 main_Image_4_in_39 = NULL;
 main_Image_4_in_40 = NULL;
-main_Image_4_in_41 = "panzoom";
+main_Image_4_in_41 = "rotate";
 main_Image_4_in_42 = NULL;
 main_Image_4_in_43 = NULL;
 main_Image_4_in_44 = NULL;
