@@ -126,7 +126,7 @@ void chomp(char *s) { s[strlen(s)-1] = '\0'; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PORT 5555
-#define SERVERHOST "spider"
+#define SERVERHOST "minerva"
 #define BUFSIZE 100
 
 enum comm_mode { SEND, RECV };

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.10 2003/02/09 14:50:57 mstorti Exp $
+// $Id: socket2.cpp,v 1.11 2003/03/05 16:57:19 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -110,8 +110,10 @@ int main(int argc,char **args) {
   pthread_t thread;
   double inside=0., counter=0.;
   int ierr;
-  if(argc>1 && !strcmp(args[1],"-server")) {
-    SRVR = Sopen("","s5555");
+  if(!strcmp(args[1],"-server")) {
+    char skthost[20];
+    sprintf(skthost,"S%s",args[2]);
+    SRVR = Sopen("",skthost);
     assert(SRVR);
 
     while (1) {
@@ -146,7 +148,10 @@ int main(int argc,char **args) {
     
     Sclose(SRVR);
   } else {
-    clnt = Sopen("","c5555");
+    printf("connecting to host: %s\n",args[1]);
+    char skthost[20];
+    sprintf(skthost,"c%s",args[2]);
+    clnt = Sopen(args[1],skthost);
     assert(clnt);
     mode = RECV;
     while (!talk(clnt,mode));

@@ -1,13 +1,13 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.120 2003/03/04 18:24:47 mstorti Exp $
+#$Id: Makefile.base,v 1.121 2003/03/05 16:57:19 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
 
 ######  begin of CONGIGURATION VARIABLES section  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 
-PETSC_BOPT = g_c++
+PETSC_BOPT = O_c++
 
 # uncomment in order to use the `gprof' profiler
 # PROF_FLAGS = -pg

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $
+$Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.254 2003/03/01 23:26:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.255 2003/03/05 16:57:19 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6244,6 +6244,15 @@ ejemplo antes corria con nnwt=3.
 13:43:12: Corro dos periodos (unos 120 pasos) a partir del ultimo de
 la corrida plate-01-Mar-2003.tgz. Lo salvo en plate-01-Mar-2003a.tgz. 
 
+%===Wed,  5 Mar 2003 11:52:19 -0300 mstorti@minerva
+%
+Verifico que el programa no corre cuando uso la version vieja de SSL
+(creo que es la 2.09). Con la nueva version de SSL no anda el
+comunicarse a otra maquina (socket2.cpp). Si anda con la libreria de
+sockets de libc (socket.cpp). 
+%
+13:55:39: El problema era que el nombre del servidor en SSL es
+servername@hostname. O sea que habria que poner @minerva. 
 
 
 # Current line ===========  %
