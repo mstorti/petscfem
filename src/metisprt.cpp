@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.5 2001/11/12 13:12:28 mstorti Exp $
+//$Id: metisprt.cpp,v 1.6 2001/11/12 13:45:18 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -75,7 +75,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
 
   Elemset *elemset;
   int *icone,nel,node,nvrtx,adjcount,j,elem,elemk,vrtx,
-    visited,locel,k,jj,vrtxj,vrtxjj,p;
+    visited,locel,k,jj,vrtxj,vrtxjj,p,ierr;
   const int *elem_icone;
   double weight_scale=1.;
   
@@ -133,6 +133,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
       ngbrs.push(elem);
       if (vrtx==nvrtx) break;
     }
+    visited = nvrtx;
   } else {
     // Take a group for each element
     for (elem=0; elem<nelemfat; elem++) el2vrtx[elem] = elem;
@@ -257,59 +258,60 @@ void  metis_part(int nelemfat,Mesh *mesh,
 #endif
 
   int options=0,edgecut,numflag=0,wgtflag=2;
-#if 1
+#if 0
   size = 2; // debug:=
   float *tpwgts_d = new float[size];
   for (j=0; j<size; j++) tpwgts_d[j] = 1./float(size);
 #endif
   if (size>1) {
-    if (partflag==0) {
-      if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
-      wait_from_console("Antes de metis");  
-      METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
-			   NULL,&wgtflag,&numflag,&size, 
-			   tpwgts_d,&options,&edgecut,vpart);
-      wait_from_console("Despues de metis");  
+    if (myrank==0) {
+      if (partflag==0) {
+	if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
+	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
+			     NULL,&wgtflag,&numflag,&size, 
+			     tpwgts,&options,&edgecut,vpart);
       
-    } else { // partflag=2
-      assert(0);
+      } else { // partflag=2
+	assert(0);
 #if 0
-      if (myrank==0) printf("Neighbor Partition - partflag = %d\n",partflag);
-      int *mnnel = new int [size+1];
-      for (int nnod=0; nnod<size; nnod++) {
-	mnnel[0]=0;
-	mnnel[nnod+1] = mnnel[nnod]+int(nelemfat*tpwgts[nnod]);
-	if (mnnel[size] < nelemfat) mnnel[size] = nelemfat;
-      }
-      // hago una busqueda de ngbrs por capas en adjncy y marco los
-      // elementos (nodos del grafo) a los que le asigne una particion
-      for (int imar=0; imar < nelemfat; imar++) {
-	vpart[imar]=0;
-      }
-      ngbrs.push(0);
-      int counter=0;
-      int inod=1;
-      while (ngbrs.size()>0) {
-	int nods=ngbrs.front();
-	ngbrs.pop();
-	for (int vecnod_c=xadj[nods]; vecnod_c<xadj[nods+1];
-	     vecnod_c++) {
-	  int vecnod = adjncy[vecnod_c];
-	  if (vecnod==nods) continue;
-	  if (vpart[vecnod]!=0) continue;
-	  ngbrs.push(vecnod);
-	  vpart[vecnod]=inod; 
+	if (myrank==0) printf("Neighbor Partition - partflag = %d\n",partflag);
+	int *mnnel = new int [size+1];
+	for (int nnod=0; nnod<size; nnod++) {
+	  mnnel[0]=0;
+	  mnnel[nnod+1] = mnnel[nnod]+int(nelemfat*tpwgts[nnod]);
+	  if (mnnel[size] < nelemfat) mnnel[size] = nelemfat;
 	}
-	++counter;
-	if (counter>mnnel[inod]) inod++;
-	vpart[nods]=inod;
-      }
-      for (int cnod=0; cnod<nelemfat; cnod++) {
-	vpart[cnod]=vpart[cnod]-1;
-      }
+	// hago una busqueda de ngbrs por capas en adjncy y marco los
+	// elementos (nodos del grafo) a los que le asigne una particion
+	for (int imar=0; imar < nelemfat; imar++) {
+	  vpart[imar]=0;
+	}
+	ngbrs.push(0);
+	int counter=0;
+	int inod=1;
+	while (ngbrs.size()>0) {
+	  int nods=ngbrs.front();
+	  ngbrs.pop();
+	  for (int vecnod_c=xadj[nods]; vecnod_c<xadj[nods+1];
+	       vecnod_c++) {
+	    int vecnod = adjncy[vecnod_c];
+	    if (vecnod==nods) continue;
+	    if (vpart[vecnod]!=0) continue;
+	    ngbrs.push(vecnod);
+	    vpart[vecnod]=inod; 
+	  }
+	  ++counter;
+	  if (counter>mnnel[inod]) inod++;
+	  vpart[nods]=inod;
+	}
+	for (int cnod=0; cnod<nelemfat; cnod++) {
+	  vpart[cnod]=vpart[cnod]-1;
+	}
 #endif
-    }
-    // length(vpart) = number of nelemfat in the graph
+      } // partflag==2
+    } // if myrank==0
+    // Broadcast partitioning to other nodes
+    ierr = MPI_Bcast(vpart,nvrtx,MPI_INT,0,PETSC_COMM_WORLD);
   } else {
     for (int jj=0; jj<nvrtx; jj++) 
       vpart[jj]=0;
