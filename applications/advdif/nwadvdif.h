@@ -26,7 +26,8 @@ public:
 
 class DJac {
 public:
-  virtual void comp_D_grad_N(FastMat2 & A,FastMat2 & B) =0 ;
+  virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+				    FastMat2 & dshapex,double w) =0 ;
   virtual void comp_fluxd(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_dif_per_field(FastMat2 &dif_per_field)=0;
   virtual void update(const double *difjac) {};
@@ -38,7 +39,7 @@ private:
   FastMat2 C_jac_l, tmp0;
   double tau_fac;
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
-    tmp2,D_jac,dif_per_field,tmp3;
+    tmp2,D_jac,dif_per_field,tmp3,eye_ndof;
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
@@ -92,11 +93,14 @@ public:
   friend class FullDifJac;
   class FullDifJac : public DJac {
     newadvecfm2_ff_t &ff;
+    FastMat2 D_grad_N;
   public:
     FullDifJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
-    FastMat2Shell comp_fluxd,comp_D_grad_N;
+    FastMat2Shell comp_fluxd;
     void comp_dif_per_field(FastMat2 &dif_per_field);
     void update(const double *difjac) {ff.D_jac.set(difjac);}
+    void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			      FastMat2 & dshapex,double w);
   };
   FullDifJac full_dif_jac;
 
@@ -105,12 +109,30 @@ public:
   friend class GlobalScalar;
   class GlobalScalar : public DJac {
     newadvecfm2_ff_t &ff;
+    FastMat2 tmp;
   public:
     GlobalScalar(newadvecfm2_ff_t &ff_) : ff(ff_) {};
-    FastMat2Shell comp_fluxd,comp_D_grad_N;
+    FastMat2Shell comp_fluxd;
     void comp_dif_per_field(FastMat2 &dif_per_field);
+    void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			      FastMat2 & dshapex,double w);
   };
   GlobalScalar global_scalar_djac;
+
+  /// Full diffusive jacobian
+  class ScalarDifPerField;
+  friend class ScalarDifPerField;
+  class ScalarDifPerField : public DJac {
+    newadvecfm2_ff_t &ff;
+  public:
+    ScalarDifPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_fluxd;
+    void update(const double *difjac) {ff.D_jac.set(difjac);}
+    void comp_dif_per_field(FastMat2 &dif_per_field);
+    void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			      FastMat2 & dshapex,double w);
+  };
+  ScalarDifPerField scalar_dif_per_field;
 
   newadvecfm2_ff_t(NewAdvDif *elemset);
   void start_chunk(int ret_options);
@@ -119,8 +141,9 @@ public:
   void comp_A_grad_N(FastMat2 & A,FastMat2 & B) {
     a_jac->comp_A_grad_N(A,B);
   }
-  void comp_D_grad_N(FastMat2 & A,FastMat2 & B) {
-    d_jac->comp_D_grad_N(A,B);
+  void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			    FastMat2 &dshapex,double w) {
+    d_jac->comp_grad_N_D_grad_N(grad_N_D_grad_N,dshapex,w);
   }
 };
 

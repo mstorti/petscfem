@@ -37,7 +37,7 @@
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_) 
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
   full_adv_jac(*this), full_dif_jac(*this),
-  global_scalar_djac(*this)
+  scalar_dif_per_field(*this), global_scalar_djac(*this)
 {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -47,12 +47,39 @@ void newadvecfm2_ff_t::GlobalScalar
 }
 
 void newadvecfm2_ff_t::GlobalScalar
-::comp_D_grad_N(FastMat2 &D_grad_N,FastMat2 & dshapex) {
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		       FastMat2 & dshapex,double w) {
+  tmp.prod(dshapex,dshapex,-1,1,-1,2).scale(w*(*(ff.difjac)));
+  grad_N_D_grad_N.prod(tmp,ff.eye_ndof,1,3,2,4);
+#if 0
   ff.tmp3.set(*(ff.difjac));
   D_grad_N.d(3,2).prod(dshapex,ff.tmp3,1,3,2).rs();
+#endif
 }
 
 void newadvecfm2_ff_t::GlobalScalar
+::comp_dif_per_field(FastMat2 &dif_per_field) {
+  dif_per_field.set(*(ff.difjac));
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::ScalarDifPerField
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
+  fluxd.set(grad_U);
+  for (int j=0; j<ff.elemset->ndof; j++) 
+    fluxd.ir(1,j).scale(ff.D_jac.get(j));
+  fluxd.rs();
+}
+
+void newadvecfm2_ff_t::ScalarDifPerField
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		       FastMat2 & dshapex,double w) {
+#if 0
+  D_grad_N.prod(ff.D_jac,dshapex,1,-1,2,3,-1,4);
+#endif
+}
+
+void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   dif_per_field.set(*(ff.difjac));
 }  
@@ -64,8 +91,11 @@ void newadvecfm2_ff_t::FullDifJac
 }
 
 void newadvecfm2_ff_t::FullDifJac
-::comp_D_grad_N(FastMat2 &D_grad_N,FastMat2 & dshapex) {
-  D_grad_N.prod(ff.D_jac,dshapex,1,-1,2,3,-1,4);
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		       FastMat2 & dshapex,double w) {
+  D_grad_N.prod(ff.D_jac,dshapex,1,-1,2,3,-1,4)
+    .scale(w);
+  grad_N_D_grad_N.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 }
 
 void newadvecfm2_ff_t::FullDifJac
@@ -212,6 +242,10 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
 
   if (diffusive_jacobians_prop.length == 1) {
     d_jac =  &global_scalar_djac;
+    eye_ndof.resize(2,ndof,ndof).eye(1.);
+  } else if (diffusive_jacobians_prop.length == ndof) {
+    D_jac.resize(1,ndof);
+    d_jac =  &scalar_dif_per_field;
   } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
     D_jac.resize(4,ndim,ndim,ndof,ndof);
     d_jac =  &full_dif_jac;

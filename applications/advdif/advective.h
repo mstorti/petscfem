@@ -151,7 +151,8 @@ public:
   virtual void start_chunk(int ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
-  virtual void comp_D_grad_N(FastMat2 & A,FastMat2 & B) =0 ;
+  virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+				    FastMat2 & dshapex,double w) =0 ;
   virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
   virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
 };
