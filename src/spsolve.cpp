@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.8 2001/11/08 03:28:12 mstorti Exp $
+//$Id: spsolve.cpp,v 1.9 2001/11/08 17:57:30 mstorti Exp $
 
 #include "sparse.h"
 
@@ -124,12 +124,15 @@ namespace Sparse {
   }
     
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void SuperLUMat::fact_and_solve() {
+  void PETScMat::fact_and_solve() {
 
     vector<int> d_nnz;
-    int* d_nnz_p;
+    int *d_nnz_p,its,m,j,ierr,k;
     RowCIt row,e;
     VecCIt l,el;
+    double *xx,*bb,w;
+
+    ::Vec b_vec,x_vec;
 
     m = rows();
     assert(m == cols());
@@ -152,12 +155,77 @@ namespace Sparse {
       const Vec & v = row->second;
       el = v.end();
       for (l=v.begin(); l!=el; l++) {
-	ierr = MatSetValues(A,1,&j,1,&l->first,
-			    &l->second,INSERT_VALUES); assert(!ierr);
+	k = l->first;
+	w = l->second;
+	ierr = MatSetValues(A,1,&j,1,&k,&w,INSERT_VALUES); assert(!ierr);
       }
     }
-    ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); assert(ierr);
-    ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); assert(ierr);
+    ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); assert(!ierr);
+    ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); assert(!ierr);
+
+#if 0
+
+    RowCIt row,e;
+    VecCIt l,el;
+
+    m = rows();
+    assert(m == cols());
+    nnz = size();
+#endif
+
+    // Create SLES and PETSc stuff
+    ierr = SLESCreate(PETSC_COMM_SELF,&sles); assert(!ierr); 
+    ierr = SLESSetOperators(sles,A,
+			    A,SAME_NONZERO_PATTERN); assert(!ierr); 
+    ierr = SLESGetKSP(sles,&ksp); assert(!ierr); 
+    ierr = SLESGetPC(sles,&pc); assert(!ierr); 
+    
+    ierr = KSPSetType(ksp,KSPPREONLY); assert(!ierr); 
+    ierr = PCSetType(pc,PCLU); assert(!ierr); 
+    ierr = PCLUSetUseInPlace(pc); assert(!ierr);
+
+    ierr = VecCreateSeq(PETSC_COMM_SELF,m,&b_vec); assert(!ierr);
+    ierr = VecDuplicate(b_vec,&x_vec); assert(!ierr);
+    
+    ierr = VecGetArray(b_vec,&bb); assert(!ierr); 
+    memcpy(bb,b,m*sizeof(double));
+    ierr = VecRestoreArray(b_vec,&bb); assert(!ierr); 
+    
+    ierr = SLESSolve(sles,b_vec,x_vec,&its); assert(!ierr); 
+
+    ierr = VecGetArray(x_vec,&xx); assert(!ierr); 
+    memcpy(b,xx,m*sizeof(double));
+    ierr = VecRestoreArray(x_vec,&xx); assert(!ierr); 
+
+    ierr = VecDestroy(x_vec); assert(!ierr); 
+    ierr = VecDestroy(b_vec); assert(!ierr); 
+
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void SuperLUMat::solve_only() {
+
+    ::Vec b_vec,x_vec;
+
+    m = rows();
+    assert(m == cols());
+    nnz = size();
+
+    ierr = VecCreateSeq(PETSC_COMM_SELF,m,&b_vec); assert(!ierr);
+    ierr = VecDuplicate(b_vec,&x_vec); assert(!ierr);
+    
+    ierr = VecGetArray(b_vec,&bb); assert(!ierr); 
+    memcpy(bb,b,m*sizeof(double));
+    ierr = VecRestoreArray(b_vec,&bb); assert(!ierr); 
+    
+    ierr = SLESSolve(sles,b_vec,x_vec,&its); assert(!ierr); 
+
+    ierr = VecGetArray(x_vec,&xx); assert(!ierr); 
+    memcpy(b,xx,m*sizeof(double));
+    ierr = VecRestoreArray(x_vec,&xx); assert(!ierr); 
+
+    ierr = VecDestroy(x_vec); assert(!ierr); 
+    ierr = VecDestroy(b_vec); assert(!ierr); 
 
   }
 
