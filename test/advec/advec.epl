@@ -4,10 +4,10 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'skew' unless $case_name;
-$N = 40;
-$M = 40;
+$N = 80;
+$M = 80;
 $Lx = $Ly = 1;
-$ydisc = 0.4;
+$ydisc = 0.25;
 $delta = 0.01;
 $ux = 2;
 $uy = 1;
@@ -33,9 +33,9 @@ if ($case_name =~ /cone/) {
 
 if ($case_name eq 'parallel_cone') {
     print "# using \"parallel_cone\" options\n";
-    $N = 100;
+    $N = 50;
     $M = 20;
-    $Lx = 5;
+    $Lx = 2.5;
     $Ly = 1;
     $ux = 1;
     $uy = 0;
@@ -43,12 +43,12 @@ if ($case_name eq 'parallel_cone') {
     $Courant = 0.5;
     $hx = $Lx/$N;
     $Dt = $Courant*$hx/$ux;
-    $Tend = 3.5;
+    $Tend = 1.5;
     $nstep = ceil($Tend/$Dt);
     $case_name = 'cone';
 } 
 #
-if ($case_name =~ /skew_cone/) {
+if ($case_name eq 'skew_cone') {
     $N = 100;
     $M = 100;
     $Lx = 5;
@@ -62,7 +62,14 @@ if ($case_name =~ /skew_cone/) {
     $Tend = 3.5;
     $nstep = ceil($Tend/$Dt);
 }
-if ($case_name =~ /rotating_cone/) {
+if ($case_name =~ /cone/) {
+    $traversed_length = sqrt($ux**2+$uy**2)*$Tend;
+}    
+if ($case_name eq 'rotating_cone') {
+    my $R = sqrt(($Lx/2-$xini)**2 + ($Ly/2-$yini)**2);
+    $traversed_length = $Omega*$R*$Tend;
+}
+if ($case_name eq 'rotating_cone') {
     $N = $M = 160;
     $Lx = $Ly = 3;
     $Omega = 1.2/($Lx/2);
@@ -77,7 +84,7 @@ if ($case_name =~ /rotating_cone/) {
     $yini = 0.5;
 }
 #__END_TRANSCRIPT__
-@vars = qw(N M Lx Ly delta ydisc 
+@vars = qw(N M Lx Ly delta ydisc traversed_length Tend
         ux uy case_name Courant xini yini cone Omega);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
@@ -123,7 +130,7 @@ advective_jacobians <:=$ux:> <:=$uy:>
 #endif
 geometry triangle
 npg 3
-diffusive_jacobians 1e-4
+diffusive_jacobians 0.
 # data advec.con.tmp
 __END_HASH__
 __INCLUDE__ advec.con.tmp

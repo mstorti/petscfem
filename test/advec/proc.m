@@ -9,5 +9,3 @@ phi=aload("save.state.tmp");
 [xc,sx,sy]=bellpar(x,phi);
 printf("x: %f %f, sx %f, sy %f\n",xc(1),xc(2),sx,sy);
 
-xrate = (sx/sx0-1)/(xc(1)-xc0(1))
-yrate = (sy/sy0-1)/(xc(1)-xc0(1))

@@ -894,6 +894,35 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
+begin_section('Linear advection (advdif) tests.');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("advec/skew.verif.tmp",
+       "Steady advection skew to the mesh",<<'EOT');
+Over shoot < tol OK \? 1
+Under shoot < tol OK \? 1
+Number of nodes with error > tol OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("advec/parallel_cone.verif.tmp",
+       "Unsteady advection of cone parallel to mesh",<<'EOT');
+Error in x position < tol OK \? 1
+Error in y position < tol OK \? 1
+Max grouth in x second moment OK \? 1
+Max grouth in y second moment OK \? 1
+EOT
+
+end_section();
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+
 begin_section('Generic Load element');
 
 $genl_check = <<'EOT';
