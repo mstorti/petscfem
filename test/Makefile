@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.33 2001/07/31 14:25:01 mstorti Exp $ 
+# $Id: Makefile,v 1.34 2001/08/08 12:28:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
-	newff burgers bug100 nonlr
+	newff burgers bug100 nonlr genload lupart distmap
 
 SRCS = $(wildcard *.cpp)
 
@@ -55,7 +55,7 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers bug100
+	advdif texthash log_vars newff burgers bug100 genload lupart distmap
 runtests_p: idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100
 
@@ -355,6 +355,21 @@ testfm2c.bin: testfm2c.o libpetscfem
 #w New flux functions
 newff:
 	$(MAKE) -C newff tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Generic load element for advdif
+genload:
+	$(MAKE) -C genload tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w IISD solver and alternative partitionings
+lupart:
+	$(MAKE) -C lupart tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Specific tests for the DistMap class/template
+distmap:
+	$(MAKE) -C distmap tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Burgers with new flux functions
