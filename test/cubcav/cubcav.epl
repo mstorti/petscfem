@@ -91,6 +91,7 @@ save_file_pattern "outvector%d.out.tmp"
 
 # type of solver (may be "iisd", "petsc"...)
 fractional_step
+use_compact_profile
 solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
