@@ -107,13 +107,6 @@ and can be found at <CODE>http://www.mcs.anl.gov/petsc/</CODE>.
 This is, in fact, a prerequisiste to install PETSc and can be found at 
 <CODE>http://www.netlib.org/lapack/</CODE>.
 <P></P>
-<DT><STRONG><A NAME="item_SuperLU">SuperLU (optional)</A></STRONG><BR>
-<DD>
-A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at <CODE>http://www.nersc.gov/~xiaoye/SuperLU/</CODE>. 
-This package is optional, install it if you think that SuperLU is faster
-than PETSc for direct factorization of sparse matrices.
-<P></P>
 <DT><STRONG><A NAME="item_Libretto">Libretto</A></STRONG><BR>
 <DD>
 This is a C library of generic containers and can be found at
@@ -145,14 +138,6 @@ element calculations since it supports overloading of algebraic
 operations. See the documentation on <EM>FastMat2</EM> in the <EM>PETSc-FEM</EM>
 documentation for reasons why to use FastMat2 instead of Newmat.
 <P></P>
-<DT><STRONG><A NAME="item_ANN">ANN (optional)</A></STRONG><BR>
-<DD>
-This is the <EM>Approximate Nearest Neighbor Library</EM> and can be found
-at <CODE>http://www.cs.umd.edu/~mount/ANN</CODE>. Currently it is only used in
-the Navier-Stokes module for calculating the damping functions in the
-Smagorinsky model. However, in a future it may be used more widely for
-some mesh manipulations. Currently it is optional.
-<P></P>
 <DT><STRONG><A NAME="item_METIS">METIS</A></STRONG><BR>
 <DD>
 METIS is a software package for partitioning unstructured graphs,
@@ -181,6 +166,38 @@ package: <CODE>eperl</CODE>].
 <DD>
 If you want to use <STRONG>ePerl</STRONG> then you need to have <STRONG>Perl</STRONG>
 installed. [RedHat RPM package: <CODE>perl</CODE>].
+<P></P>
+<DT><STRONG><A NAME="item_SuperLU">SuperLU (optional)</A></STRONG><BR>
+<DD>
+A collection of ANSI C routines to solve sparse linear systems of
+equations. Can be found at <CODE>http://www.nersc.gov/~xiaoye/SuperLU/</CODE>. 
+This package is optional, install it if you think that SuperLU is faster
+than PETSc for direct factorization of sparse matrices.
+<P></P>
+<DT><STRONG><A NAME="item_ANN">ANN (optional)</A></STRONG><BR>
+<DD>
+This is the <EM>Approximate Nearest Neighbor Library</EM> and can be found
+at <CODE>http://www.cs.umd.edu/~mount/ANN</CODE>. Currently it is only used in
+the Navier-Stokes module for calculating the damping functions in the
+Smagorinsky model. However, in a future it may be used more widely for
+some mesh manipulations. Currently it is optional.
+<P></P>
+<DT><STRONG><A NAME="item_library">pthreads library (optional)</A></STRONG><BR>
+<DD>
+This is a POSIX compliant library for threads, currently used for
+asynchronous communication with the IBM Data Explorer visualization
+tool, but it might be used for other things in a near future. 
+It comes with gcc, so that if you use gcc, you probably have it
+already installed.
+<P></P>
+<DT><STRONG><A NAME="item_Library">Simple Sockets Library (SSL) (optional)</A></STRONG><BR>
+<DD>
+The Simple Sockets Library (SSL) allows C programmers to use
+interprocess communications via Berkeley sockets simply and quickly.
+Most of the SSL's functions resemble C's file i/o functions, so C
+programmers will find the SSL easy to learn. Currently used for
+communication with the IBM Data Explorer visualization tool, but 
+but it might be used for other things in a near future.
 <P></P></DL>
 <P>
 <H2><A NAME="unpacking">Unpacking</A></H2>

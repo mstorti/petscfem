@@ -96,13 +96,6 @@ and can be found at C<http://www.mcs.anl.gov/petsc/>.
 This is, in fact, a prerequisiste to install PETSc and can be found at 
 C<http://www.netlib.org/lapack/>. 
 
-=item SuperLU (optional)
-
-A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>. 
-This package is optional, install it if you think that SuperLU is faster
-than PETSc for direct factorization of sparse matrices. 
-
 =item Libretto
 
 This is a C library of generic containers and can be found at
@@ -134,14 +127,6 @@ element calculations since it supports overloading of algebraic
 operations. See the documentation on I<FastMat2> in the I<PETSc-FEM>
 documentation for reasons why to use FastMat2 instead of Newmat.
 
-=item ANN (optional)
-
-This is the I<Approximate Nearest Neighbor Library> and can be found
-at C<http://www.cs.umd.edu/~mount/ANN>. Currently it is only used in
-the Navier-Stokes module for calculating the damping functions in the
-Smagorinsky model. However, in a future it may be used more widely for
-some mesh manipulations. Currently it is optional. 
-
 =item METIS
 
 METIS is a software package for partitioning unstructured graphs,
@@ -170,6 +155,38 @@ package: C<eperl>].
 
 If you want to use B<ePerl> then you need to have B<Perl>
 installed. [RedHat RPM package: C<perl>].
+
+=item SuperLU (optional)
+
+A collection of ANSI C routines to solve sparse linear systems of
+equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>. 
+This package is optional, install it if you think that SuperLU is faster
+than PETSc for direct factorization of sparse matrices. 
+
+=item ANN (optional)
+
+This is the I<Approximate Nearest Neighbor Library> and can be found
+at C<http://www.cs.umd.edu/~mount/ANN>. Currently it is only used in
+the Navier-Stokes module for calculating the damping functions in the
+Smagorinsky model. However, in a future it may be used more widely for
+some mesh manipulations. Currently it is optional. 
+
+=item pthreads library (optional)
+
+This is a POSIX compliant library for threads, currently used for
+asynchronous communication with the IBM Data Explorer visualization
+tool, but it might be used for other things in a near future. 
+It comes with gcc, so that if you use gcc, you probably have it
+already installed. 
+
+=item Simple Sockets Library (SSL) (optional)
+
+The Simple Sockets Library (SSL) allows C programmers to use
+interprocess communications via Berkeley sockets simply and quickly.
+Most of the SSL's functions resemble C's file i/o functions, so C
+programmers will find the SSL easy to learn. Currently used for
+communication with the IBM Data Explorer visualization tool, but 
+but it might be used for other things in a near future. 
 
 =back
 
