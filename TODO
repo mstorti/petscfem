@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* gnerate tests for gatherer
 * generate a test for Levi-Civita (eps_LC())
 * Make dof map to a `fixation_entry_list', that contains many entries
     of the form (double,Amplitude) so that we can have an Amplitude
