@@ -264,3 +264,22 @@ void read_double_array(vector<double> & ajac,const char * advje) {
   delete[] buf;
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void read_int_array(vector<int> ,char *)" 
+void read_int_array(vector<int> & vect,const char * advje) {
+  char *buf= new char[strlen(advje)+1];
+  strcpy(buf,advje);
+  char *token;
+  int val;
+  for (int k=0; ; k++) {
+    token = strtok(k==0 ? buf : NULL ," ");
+    if (token==NULL) break;
+    int nread = sscanf(token,"%d",&val);
+    if (nread!=1) break;
+    vect.push_back(val);
+  }
+  delete[] buf;
+}
+

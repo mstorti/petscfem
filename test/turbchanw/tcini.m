@@ -1,3 +1,5 @@
+use_log_vars=1;                 # use logarithmic variables in order to
+                                # enforce positivity
 #__ENDS_READING_VARS__
 
 hratio=10;			# ratio of hmax/hmin
@@ -16,7 +18,13 @@ epsilon=Pk/h;
 Pe=C_2*sqrt(C_mu)*gravity^(5/4)*q^4/(h*sqrt(D)*Chezy^2.5);
 k=C_2*epsilon^2*h/Pe;
 
-asave("tc.ini",kron([q*h 0 h h*k h*epsilon],ones(2*(N+1),1)));
+if use_log_vars
+  state=[q*h 0 h log([h*k h*epsilon])];
+else
+  state=[q*h 0 h h*k h*epsilon];
+endif
+
+asave("tc.ini",kron(state,ones(2*(N+1),1)));
 tmpf="tc.data.tmp";
 fid = fopen(tmpf,"w");
 if !fid

@@ -4,18 +4,23 @@
 global_options
 
 <:require '../eperlini.pl'; # Initializes ePerl 
-$heat=1;
+$heat=0;
+%vars=();
 if (!$heat) {
-    import_vals('../shallowt.m');
-    import_vals('./tcini.m');
+    import_vals('../shallowt.m',\%vars);
     $slope = readm('slope','./tcini.m');
     $h     = readm('h'    ,'./tcini.m');
 }
+import_vals('./tcini.m',\%vars);
 require './tc.data.tmp';
 $Q=$q*$h;
 $N     = readm('N'    ,'./tcini.m');
-$use_log_vars=1;
-$heat_ini_val = ($use_log_vars? log(1.1) : 1.1);
+if ($heat) {
+    $heat_bulk=10;
+    $heat_wall=11;
+    @state=($vars{'use_log_vars'} ? log($heat_bulk) : $heat_bulk);
+    makeini(\@state,2*($N+1),'heat.ini.tmp');
+}
 _:>// 
 
 #if !$heat
@@ -31,14 +36,13 @@ local_time_step 0
 auto_time_step 0
 consistent_supg_matrix 1
 #if $heat
-Dt 0.0001
-nstep 10
-#else
-Dt 4
+Dt 0.01
 nstep 1
+#else
+Dt 2
+nstep 100
 #endif
 alpha 1
-use_log_vars <:=$use_log_vars:>
 
 # para correr con mass lumping
 #if 1
@@ -55,14 +59,12 @@ nsave 10
 #initial_state "state.out.tmp"
 initial_state "tc.ini"
 #else
-#if !$use_log_vars
-initial_state "heat.ini"
-#endif
+initial_state "heat.ini.tmp"
 #endif
 
 # "rotary saving" 
 save_file_pattern "outvector%d.out"
-nsaverot 100
+nsaverot 1
 nrec  100
 nfile 2
 
@@ -72,7 +74,7 @@ print_some_file "nodes.some"
 save_file_some "some.tmp"
 
 # Newton loop
-nnwt 1
+nnwt <:=($heat? 1 : 5):>
 #omega_newton 0.3
 tol_newton 1e-10
 preco_type "lu"
@@ -89,21 +91,17 @@ print_internal_loop_conv 0
 advective_jacobians 0. 0.
 diffusive_jacobians 0.01
 #endif
-
 __END_HASH__
 
-# ndim nu ndof
-nodes   2  3  <:=($heat? 1 : 5):>
-
-__INCLUDE__ turbchanw.nod.tmp
-
-__END_NODES__
 #===========================================================
-#if $heat
-elemset advdif_advecfm2 4
-#else
-elemset advdif_swfm2t 4
-#endif
+#      ndim nu       ndof
+nodes   2   3  <:=($heat? 1 : 5):>
+__INCLUDE__ turbchanw.nod.tmp
+__END_NODES__
+
+#===========================================================
+elemset advdif_<:=($heat? "advecfm2" : "swfm2t"):> 4
+log_vars_list <:=($heat? "1 " :"4 5  # use log vars for k and epsilon"):> 
 
 #Datos del elemento
 geometry cartesian2d
@@ -135,10 +133,10 @@ end_elemsets
 #================================================================
 fixa
 #if $heat
-1 1 <:=$heat_ini_val:>
-2 1 <:=$heat_ini_val:>
+1 1 <:=($vars{'use_log_vars'} ? log($heat_wall) : $heat_wall):>
+2 1 <:=($vars{'use_log_vars'} ? log($heat_wall) : $heat_wall):>
 #else
-1 1 <:=.9*$q*$h:>		# u = some value
+1 1 <:=.5*$q*$h:>		# u = some value
 1 2 0				# v = 0              at the wall
 
 <:=2*$N+1:> 2 0.		# v=0 at the outer region

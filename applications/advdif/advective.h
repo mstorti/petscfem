@@ -103,11 +103,16 @@ typedef int AdvDifFluxFunction (AD_FLUX_FUN_ARGS);
 
 // This is the flux function for a given physical problem. 
 class AdvDifFF {
+private:
+  // The list of variables to be logarithmically transformed
+  vector<int> log_vars_v;
 public:
   virtual int operator() (ADVDIFFF_ARGS) {
     PetscPrintf(PETSC_COMM_WORLD,"Undefined flux function\n");
     return 0;
   }
+  virtual void get_log_vars(const NewElemset *elemset,int &nlog_vars, 
+			    const int *& log_vars);
 };
 
 /** The class AdvDif is a NewElemset class plus a

@@ -64,4 +64,15 @@ double pw4(double x);
 */ 
 void read_double_array(vector<double> &v,const char * s);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Reads a series of ints from a string into a
+    vector<int>. 
+    Useful when reading hash-tables with a number of int
+    arguments. 
+    @author M. Storti
+    @param v (output) the array of ints returned
+    @return s (input) the string where the ints are read. 
+*/ 
+void read_int_array(vector<int> &v,const char * s);
+
 #endif

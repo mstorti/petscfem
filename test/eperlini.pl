@@ -11,6 +11,7 @@ sub heredoc {
     print $name;
 }
 
+# usage: makeini(\@STATE,$nnod,$filename,$noise);
 sub makeini {
     @U = @{shift()};
     $ndof = $#U;
@@ -88,8 +89,7 @@ sub readm {
 }
 
 sub import_vals {
-    my %vars=();
-    my ($file)=@_;
+    my ($file,$vars)=@_;
     die "Couldn't open file $file\n" unless open MFILE,"$file";
     my $read=1;
     print "# --- START READ FROM \"$file\" ----\n";
@@ -104,12 +104,11 @@ sub import_vals {
 	}
 	next if !$read;
 	if (/^\s*(\w*)\s*=(\S*);/) {
-	    $vars{$1} = $2;
+	    $vars->{$1} = $2;
 	    print "$1 $2\n"
 	}
     }
     print "# --- END READ FROM \"$file\" ----\n";
-    return \%vars;
 }
     
 

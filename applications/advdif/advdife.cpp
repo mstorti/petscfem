@@ -25,6 +25,7 @@ extern int comp_mat_each_time_step_g,
 extern int MY_RANK,SIZE;
   
 #include <vector>
+#include <string>
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -47,6 +48,53 @@ int AdvDif::ask(const char *jobinfo,int &skip_elemset) {
    DONT_SKIP_JOBINFO(comp_prof);
    return 0;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Returns the list of variables that are 
+    logarithmic transformed.
+    @param nlog_vars (input) the number of logarithmic variables
+    @param log_vars (input) the list of logarithmic variables
+    @author M. Storti
+*/ 
+#undef __FUNC__
+#define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
+void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars, 
+			    const int *& log_vars) {
+  const char *log_vars_entry;
+  elemset->get_entry("log_vars_list",log_vars_entry); 
+  VOID_IT(log_vars_v);
+  string s;
+  if (log_vars_entry) {
+    s=string(log_vars_entry);	// Save local copy
+    read_int_array(log_vars_v,log_vars_entry); 
+  }
+  int nel,ndof,nelprops;
+  elemset->elem_params(nel,ndof,nelprops);
+  nlog_vars=log_vars_v.size();
+  log_vars = log_vars_v.begin();
+  int ierr=0;
+  for (int j=0; j<nlog_vars; j++) {
+    if (log_vars_v[j]<=0) {
+      PetscPrintf(PETSC_COMM_WORLD,"Non positive dof in "
+		  "\"log_vars_list\" entry: dof %d\n",
+		  log_vars_v[j]);
+      ierr=1;
+    } else if (log_vars_v[j]>ndof) {
+      PetscPrintf(PETSC_COMM_WORLD,"Dof grater that ndof in "
+		  "\"log_vars_list\" entry: dof %d, ndof %d\n",
+		  log_vars_v[j]);
+      ierr=1;
+    }
+    if (ierr) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Errors while reading \"log_vars_list\"\n");
+      if (log_vars_entry)
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "In line \"%s\"\n",s.c_str());
+      exit(1);
+    }
+  }
+}  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Transforma state vector from logarithmic. The indices of fields
@@ -162,9 +210,14 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,beta_supg,1.);
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
-  //o Use log_vars for k and epsilon
+  int nlog_vars;
+  const int *log_vars;
+  adv_diff_ff->get_log_vars(this,nlog_vars,log_vars);
+  //o Use log-vars for $k$ and $\epsilon$
   NSGETOPTDEF(int,use_log_vars,0);
-  int *log_vars, log_vars_swt[2]={4,5}, log_vars_sc=1, nlog_vars;
+  if (!use_log_vars) nlog_vars=0;
+
+#if 0
   if (use_log_vars) {
     // Bes sure that we are in shallow water.
     // This would be returned by the flux function
@@ -179,6 +232,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     nlog_vars=0;
     log_vars=NULL;
   }
+#endif
 
   assert(lumped_mass); // Not implemented yet:= not lumped_mass + log-vars
   // lumped_mass:= If this options is activated then all the inertia
@@ -189,8 +243,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Allocate local vecs
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
     xloc(nel,ndim),lstate(nel,ndof), 
-    lstateo(nel,ndof),lstaten(nel,ndof),dUlocdt(nel,ndof),
-    matloc,eye_ndof(ndof,ndof);
+    lstateo(nel,ndof),lstaten(nel,ndof),dUloc_c(nel,ndof),
+    dUloc(nel,ndof),matloc,eye_ndof(ndof,ndof);
   FastMat2 true_lstate(2,nel,ndof), 
     true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
 
@@ -210,7 +264,8 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     grad_U(ndim,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Uo(ndof),Un(ndof), tau_supg(ndof,ndof);
   // These are edclared but not used
-  FMatrix nor,lambda,Vr,Vr_inv,U(ndof),lmass(nel),Id_ndof(ndof,ndof),
+  FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
+    lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndim),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
     tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23,
@@ -292,18 +347,19 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       if (comp_res) {
 	// state variables and gradient
-
 	Un.prod(SHAPE,lstaten,-1,-1,1);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
-	U.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
+	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	dUdt.set(Un).rest(Uo).scale(1./DT);
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
-	  double UU=exp(U.get(jdof));
+	  double UU=exp(Ualpha.get(jdof));
 	  dUdt.ir(1,jdof).scale(UU);
 	}
 	dUdt.rs();
 
+	// Pass to the flux function the true positive values
+	U.prod(SHAPE,true_lstate,-1,-1,1);
 	grad_U.prod(dshapex,true_lstate,1,-1,-1,2) ;
 
 	delta_sc=0;
@@ -486,17 +542,21 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
 	// Compute derivative of local element state
 	// The Dt is already included in the mass matrix
-	dUlocdt.set(lstaten).rest(lstateo);
+	dUloc.set(lstaten).rest(lstateo);
+	dUloc_c.set(dUloc);
 	// correct the logarithmic variables for a factor $U^{n+\alpha}$
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
-	  true_lstate.ir(2,jdof);
-	  dUlocdt.ir(2,jdof).mult(true_lstate);
+	  for (int j=1; j<nel; j++) {
+	    true_lstate.ir(2,jdof);
+	    dUloc_c.ir(2,jdof).mult(true_lstate);
+	  }
 	}
-	dUlocdt.rs();
+	dUloc_c.rs();
 	true_lstate.rs();
+
 	// Compute inertia term with lumped mass
-	veccontr_mass.prod(matlocf_mass,dUlocdt,1,2,-1,-2,-1,-2);
+	veccontr_mass.prod(matlocf_mass,dUloc_c,1,2,-1,-2,-1,-2);
 	// Add (rest) to vector contribution to be returned
 	veccontr.rest(veccontr_mass);
 	// Scale mass matrix by $U^{n+\alpha}/Dt*(1+alpha\DU)$
@@ -508,12 +568,15 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    // True (positive variable) value
 	    double UU = true_lstate.get(j,jdof);
 	    // Difference of log variable
-	    double DU = dUlocdt.get(j,jdof);
+	    double DU = dUloc.get(j,jdof);
 	    // Correction factor
 	    double f=UU*(1+ALPHA*DU);
 	    matlocf_mass.setel(m*f,j,jdof,j,jdof);
+	    // Correct the spatial jacobian
+	    matlocf.ir(3,j).ir(4,jdof).scale(UU);
 	  }
 	}
+	matlocf.rs();
 	// Add to matrix contribution to be returned
 	matlocf.add(matlocf_mass);
       }

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/02/10 15:16:31 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/02/12 00:28:45 mstorti Exp $ 
 
 CASE = turbchanw
 run: $(CASE)
@@ -22,5 +22,6 @@ data:
 	octave -q tcini.m
 	$(MAKE) $(CASE).depl
 
+$(CASE).depl: force
 $(CASE): data
 	-$(MPIRUN) -np 1 $(ADVDIF) -case $(CASE).depl

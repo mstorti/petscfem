@@ -288,7 +288,7 @@ public:
       @param nel_ (output) the number of nodes connected to an element
       @param ndof_ (output) the number of dofs for each node
   */
-  void elem_params(int &nel_,int &ndof_,int &nelprops_) {
+  void elem_params(int &nel_,int &ndof_,int &nelprops_) const {
     nel_=nel; ndof_=ndof; nelprops_ = nelprops;
   }
 
