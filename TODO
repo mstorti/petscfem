@@ -2,6 +2,18 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Error in fixations is not parallel safe. Tue Sep 14 21:22:17 2004
+> Fixation 3169, imposed on an invalid node/field combination.
+> Hi user!          Today is Tue Sep 14 21:21:24 2004
+> Have fun and a nice run! :-)   [The PETSc-FEM team]
+> -------------------------------------------------
+> Hi user!          Today is Tue Sep 14 21:21:23 2004
+> Have fun and a nice run! :-)   [The PETSc-FEM team]
+> -------------------------------------------------
+> Hi user!          Today is Tue Sep 14 21:21:17 2004
+> Have fun and a nice run! :-)   [The PETSc-FEM team]
+> -------------------------------------------------
+> Hi user!          Today is Tue Sep 14 21:21:33 2004
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
