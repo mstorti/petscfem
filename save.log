@@ -1305,3 +1305,6 @@ tag: beta-3.00.pl16 on Tue, 23 Jul 2002 22:20:07 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl17 on Wed, 24 Jul 2002 12:46:22 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs OK the distributed LinkGraph test with scatter()
+----------
+tag: beta-3.00.pl18 on Wed, 24 Jul 2002 13:43:12 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs OK the distributed LinkGraph test with scatter(), several processors. 
