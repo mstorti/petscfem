@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.34 2002/02/19 01:38:19 mstorti Exp $
+#$Id: Makefile,v 1.35 2002/02/20 03:00:57 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -103,6 +103,7 @@ finaldoc:
 
 #w Builds the doc
 doc:
+	$(MAKE) sync_version
 	$(MAKE) -C doc all distclean
 
 #w Builds the library
