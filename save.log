@@ -1490,3 +1490,7 @@ tag: beta-3.03.pl3 on Mon, 19 Aug 2002 13:49:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.03.pl4 on Mon, 19 Aug 2002 17:24:29 -0300 by mstorti in spider
      > Updated README
+----------
+tag: beta-3.03.pl5 on Mon, 26 Aug 2002 21:33:53 -0300 by mstorti in spider
+     > Now a line like ' __INCLUDE__ ... ' gives error (note the space at the
+     > beginning of the line).
