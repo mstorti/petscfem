@@ -56,7 +56,7 @@ $u_rad_in = $mass_flow_in/
     ($A_in*$rho_in);		# [m/s] radial velocity
 
 $rho_in = 1;
-$u_rad_in = 1;
+$u_rad_in = 10;
 $u_circunf_in = 40;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
