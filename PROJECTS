@@ -1,12 +1,11 @@
-PROJECTS: 
+-*- mode: text -*-
+
+PROJECTS: [These are new improvements to be done in a future...]
 =========
 
-* Fix error while opening data file, when no case gives
-           "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!
 * Adaptive refinement
 * Filter functions for getting averages in LES
 * Absorbing b.c.'s for NS and in general
-* Document the element locker function
 * For boundary dependent temporal conditions we should have arguments
     that are a vector and a time.
 * Code a log option for the *GETOPT* functions so that they write a
@@ -14,9 +13,6 @@ PROJECTS:
 * overload () operator on FM2 so that we can write expressions as 
       A(j,k).prod(B(j,mu),C(k,mu))
 * write a change_sign() function for FM2
-* Fix Makefile in ./doc (it repeats many times the rules)
-* Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
-* Add targets to the Makefile like `distrib' `almost_clean' etc...
 * Create an Hyper-Fast version of FM2 for linear addressing.. 
 * Code not to have to call to FastMat2::branch/leave when there is no
 	 'else' block. 
@@ -25,17 +21,17 @@ PROJECTS:
 * include a 'check of the caches' feature 
 * include count operations in kron and others.
 * write better doc for FM2
-* Find a better hash function for the text hashes. 
-* Put `const' keyword in `get_entry' and friends.
 * add a section `conventions' to documentation
 * write documentation for arglist class
 * symbol section in the documentation
 * arg_lists as list of objects of class "arg"
 * Code automatic load balancing. 
 
+
 DONE:
 =====
 
+* Fix Makefile in ./doc (it repeats many times the rules)
 * Access connectivities and properties for elements as methods of the
       elemset. 
 * Add a list of required software to README
