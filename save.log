@@ -707,3 +707,7 @@ tag: pfmat-rewrite-1.00 on Fri Dec 14 00:12:26 ARST 2001, by mstorti in spider
 tag: pfmat-rewrite-1.01 on Sun Dec 16 21:05:09 ARST 2001, by mstorti in spider
      > Writing distributed graph class `StoreGraph'. Compiles and runs on 1
      > processor. SIGSEGV on several processors.
+----------
+tag: pfmat-rewrite-1.02 on Mon Dec 17 23:02:32 ARST 2001, by mstorti in spider
+     > Fixed a bug in `distcont.h' and in `debug.h'. 
+     > Working on the distributed graph class.
