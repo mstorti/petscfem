@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.13 2002/07/21 02:47:59 mstorti Exp $
+// $Id: tryme4.cpp,v 1.14 2002/07/21 03:09:43 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -19,6 +19,40 @@ double drand() {
 int irand(int imin,int imax) {
   return int(rint(drand()*double(imax-imin+1)-0.5))+imin;
 }
+
+template<class T>
+class dvector {
+private:
+  // size of each chunk
+  int chunk_size;
+  // total number of elements 
+  int size;
+  // Number of chunks position of first free in element
+  int nchunks, k;
+  // pointers to chunks
+  vector<T *> chunk_vector;
+  // pointer to STL storage array in chunk_vector
+  T **chunks;
+public:
+  dvector() { 
+    chunk_size = 100;
+    chunks = NULL;
+    k=nchunks=0;
+    size = 0;
+  }
+  T &ref(int j) {
+    int chunk = j/chunk_size;
+    int kk = j % chunk_size;
+    return chunks[chunk][kk];
+  }
+  void push(const T &t) {
+    if (k==0) {
+      chunk_vector.push_back(new T[chunk_size]);
+      chunks = chunk_vector.begin();
+    }
+    ref(size++) = t;
+  }
+};
 
 class graph {
 public:
@@ -154,6 +188,9 @@ public:
 };
 
 int main(int argc, char **argv) {
+  dvector<int> v;
+  for (int j=0; j<1000; j++) v.push(j);
+#if 0
   graph_da g;
   graph_stl gg;
   int kk;
@@ -176,4 +213,5 @@ int main(int argc, char **argv) {
   g.clear();
   gg.clear();
   printf("g.size(): %d, gg.size() %d\n",g.size(),gg.size());
+#endif
 }
