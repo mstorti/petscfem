@@ -6,6 +6,7 @@ TODO: [Mainly fixes go here...]
 
 ### Current line ===========
 * if it can't open the connectivity file, it hangs with a SIGSEGV
+  write test
 * DX: make `dxhook' to be launched through a flag of type `dx' not
           through the standard `hook-list' option line. 
 * DX: check for memory leaks, both in `epimport.cpp' and in  petscfem

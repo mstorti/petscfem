@@ -7,6 +7,10 @@ if ($case_name eq 'constraint') {
     $constraint = 1;
     $case_name = 'full';
 }
+if ($case_name =~ /^fstack/) {
+    ${$case_name} = 1;
+    $case_name = 'scalar';
+}
 @vars = qw(case_name);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
@@ -34,6 +38,11 @@ preco_type "lu"
 steady
 nstep 1
 print_dofmap_id
+
+#if $fstack_global
+__INCLUDE__ dummy_archive
+#endif
+
 __END_HASH__
 
 #===========================================================

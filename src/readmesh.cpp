@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.75 2003/02/13 14:11:46 mstorti Exp $
+//$Id: readmesh.cpp,v 1.76 2003/02/13 21:57:52 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -402,7 +402,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    if (!token) fstack->print();
 	    PETSCFEM_ASSERT(token,
 			    "Error reading element connectivities at\n"
-			    "%s:%d: \"%s\"",fstack->file_name(),
+			    "%s:%d: at (or after) line: \"%s\"",fstack->file_name(),
 			    fstack->line_number(),
 			    fstack->line_read());
 	    if (jel==0 && !strcmp(token,"__END_ELEMSET__"))
