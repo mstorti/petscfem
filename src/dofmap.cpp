@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.18 2003/08/31 12:14:55 mstorti Exp $
+//$Id: dofmap.cpp,v 1.19 2003/08/31 13:10:38 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -174,7 +174,9 @@ int Dofmap::get_nodal_value(int const & node,int const & kdof,double
 			    const * sstate,double const *ghost_vals,
 			    const TimeData *time_data,double & value) const {
 
-  value=0.;
+  double w=0.;
+#if 0
+  // Old slow version
   IdMapRow row;
   IdMapEntry *entry;
   // row_t row;
@@ -184,8 +186,19 @@ int Dofmap::get_nodal_value(int const & node,int const & kdof,double
     //for (k=row.begin(); k!=row.end(); k++) {
     int keq= entry->j;
     double coef= entry->coef;
-    value += coef*get_dofval(keq,sstate,ghost_vals,time_data);
+    w += coef*get_dofval(keq,sstate,ghost_vals,time_data);
   }
+#else
+  // New fast version
+  int n;
+  const int *dofp, *dofp_end;
+  const double *coefp;
+  get_row(node,kdof,n,&dofp,&coefp);
+  dofp_end = dofp+n;
+  while (dofp<dofp_end) 
+    w += (*coefp++)*get_dofval((*dofp++),sstate,ghost_vals,time_data);
+#endif
+  value = w;
   return 0;
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.19 2003/08/31 12:14:55 mstorti Exp $
+//$Id: dofmap.h,v 1.20 2003/08/31 13:10:38 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -274,7 +274,7 @@ public:
 
   /** Fast version. Uses an internal array. ADD ARG DOC ... */ 
   void get_row(int node,int kdof,int &ndof,const int **dof,
-	       const double**coef);
+	       const double**coef) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets a row of the maping matrix.
