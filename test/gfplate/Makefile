@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.11 2005/01/24 16:06:09 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2005/01/24 17:34:36 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
 default: runc
 
-# BOPT := O_c++
+BOPT := O_c++
 SRCS = 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -34,7 +34,6 @@ runa:
 
 runc: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	echo -n > $(CASE_NAME).some-rslt.tmp
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 

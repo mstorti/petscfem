@@ -10,8 +10,11 @@ global_options
 nstep 1000
 alpha 1.
 
+#if $restart
+initial_state "cylabso.state.tmp"
+#else
 initial_state "cylabso.ini.tmp"
-## initial_state "cylabso.state.tmp"
+#endif
 nsave 1
 save_file "cylabso.state.tmp"
 
@@ -20,7 +23,7 @@ save_file_some "cylabso.some-rslt.tmp"
 nsome 1
 
 save_file_pattern "STEPS/cylabso.state_%d.tmp"
-nsaverot 10
+nsaverot 1
 nrec 1
 nfile 100000000
 
@@ -44,12 +47,12 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 2
+nnwt 3
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.01
+Dt 0.05
 shocap 0.0
 weak_form 0
 temporal_stability_factor 0
@@ -60,9 +63,9 @@ visco 0.001
 cond 0.001
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
-linear_abso 1
+linear_abso 0
 
-lagrange_diagonal_factor 1e-3
+lagrange_diagonal_factor 1e-5
 # lagrange_residual_factor 1.0
 
 #if $dx
@@ -74,7 +77,7 @@ dx_read_state_from_file 1
 dx_do_make_command
 dx_cache_coords 0
 dx_cache_connectivities 0
-dx_port 5315
+dx_port 5320
 partitioning_method natural
 #endif
 

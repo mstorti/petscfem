@@ -15,6 +15,7 @@ $Rgas = 1;
 $rhoref = 1;
 $Tref = 1;
 $abso = 1;
+$restart = 0;
 
 $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);
@@ -26,5 +27,6 @@ $uref = $Machin*$cref;
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mkcyl.m";
+if (!$dx && !$restart) { system "echo -n > cylabso.some-rslt.tmp"; }
 
 1;
