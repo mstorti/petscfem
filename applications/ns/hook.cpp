@@ -1,57 +1,77 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.3 2002/09/23 21:18:16 mstorti Exp $
+//$Id: hook.cpp,v 1.4 2002/09/24 02:50:48 mstorti Exp $
+
+#ifdef USE_DLEF
+#include <dlfcn.h>
+#endif
 
 #include <src/fem.h>
 #include <src/readmesh.h>
 #include <src/util2.h>
+#include <src/texthf.h>
+
 #include "./nsi_tet.h"
 
 extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class rosi_hook : public Hook {
+class dl_generic_hook : public Hook {
+public:
+  typedef void InitFun(Mesh &mesh,Dofmap &dofmap,
+		      const char *name,void *&fun_data);
+  typedef void TimeStepPostFun(double time,int step,
+			       const vector<double> &gather_values,
+			       void *fun_data);
+  typedef void TimeStepPreFun(double time,int step,
+			      void *fun_data);
 private:
-  int petscfem2pfm_verbose_m;
-  FILE *petscfem2pfm;
+  void *handle;
+  void *fun_data;
+  InitFun *init_fun;
+  TimeStepPostFun *time_step_post_fun;
+  TimeStepPreFun *time_step_pre_fun;
+protected:
+  string name;
 public:
   void init(Mesh &mesh,Dofmap &dofmap,const char *name);
+  void time_step_pre(double time,int step) {
+    (*time_step_pre_fun)(time,step,fun_data);
+  }
   void time_step_post(double time,int step,
-		      const vector<double> &gather_values);
+		      const vector<double> &gather_values) {
+    (*time_step_post_fun)(time,step,gather_values,fun_data);
+  }
 };
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void rosi_hook::init(Mesh &mesh,Dofmap &dofmap,const char *name) {
-  // File to send forces and moments to "PFM"
-  int ierr;
-  TextHashTable *t = mesh.global_options;
-  TGETOPTDEF_S(t,string,petscfem2pfm_file,);
-  TGETOPTDEF(t,int,petscfem2pfm_verbose,0);
-  petscfem2pfm=NULL;
-  if (petscfem2pfm_file != "" && !MY_RANK) {
-    petscfem2pfm = fopen(petscfem2pfm_file.c_str(),"w");
-    assert(petscfem2pfm);
-    setvbuf(petscfem2pfm,NULL,_IOLBF,0);
-  }    
-}
+void dl_generic_hook::init(Mesh &mesh,Dofmap &dofmap,
+			   const char *name_a) {
+  name = string(name_a);
+  TextHashTableFilter tf(mesh.global_options);
+  tf.push(name.c_str());
+  const char *filename;
+  tf.get_entry("filename",filename);
+  PETSCFEM_ASSERT(filename,"Couldn't find filename entry for "
+		   "dl_generic_hook \"%s\"\n",name_a);  
+  // Get `dlopen()' handle to the extension function
+  void *handle = dlopen (filename,RTLD_LAZY);
+  PETSCFEM_ASSERT(handle,"Can't dl-open file \"%s\"",
+		  filename);  
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void rosi_hook::time_step_post(double time,int step,
-			       const vector<double> &gather_values) {
-  if (petscfem2pfm && !MY_RANK) {
-    assert(gather_values.size() >= 6);
-    if (petscfem2pfm_verbose_m) {
-      printf("rosi_hook: sending to PFM: time %f, forces %f %f %f\n",
-	     time,gather_values[0],gather_values[1],gather_values[2]);
-      printf("    moments %f %f %f\n",
-	     gather_values[3],gather_values[4],gather_values[5]);
-    }
-    fprintf(petscfem2pfm,"time %e\n",time);
-    fprintf(petscfem2pfm,"forces %e %e %e\n",
-	    gather_values[0],gather_values[1],gather_values[2]);
-    fprintf(petscfem2pfm,"moments %e %e %e\n",
-	    gather_values[3],gather_values[4],gather_values[5]);
-    fflush(petscfem2pfm);
-  }
+  string s;
+  const char *error;
+
+#define GET_FUN(FunType,fun)					\
+  s = string(name) + string("_" #fun);				\
+  fun = (FunType *) dlsym(handle,s.c_str());			\
+  error = dlerror();						\
+  PETSCFEM_ASSERT(!error,"can't dlsym() \"%s\" in file \"%s\""	\
+		  "error \"%s\"\n",s.c_str(),filename,error);  
+
+  GET_FUN(InitFun,init_fun);
+  GET_FUN(TimeStepPostFun,time_step_post_fun);
+  GET_FUN(TimeStepPreFun,time_step_pre_fun);
+
+  (*init_fun)(mesh,dofmap,name_a,fun_data);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
