@@ -714,3 +714,8 @@ tag: beta-2.58 on Sun Dec  9 23:11:09 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.59 on Wed Dec 12 22:27:38 ARST 2001, by mstorti in spider
      > Added `test_iisd', basically the same as `test_isid' but for 2 processors.
+----------
+tag: beta-2.60 on Wed Dec 12 23:11:37 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added `test_iisd', basically the same as `test_isid' but for 2 processors.
+     > Tests run.
