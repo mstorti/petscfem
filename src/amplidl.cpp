@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.2 2002/02/10 02:33:32 mstorti Exp $
+//$Id: amplidl.cpp,v 1.3 2002/02/10 03:17:24 mstorti Exp $
 
 #include <math.h>
 
@@ -29,17 +29,32 @@ void DLGeneric::init(TextHashTable *thash) {
     printf("\n");
     exit(1);
   }
-  InitFun *init_fun = (InitFun *) dlsym(handle,"init_fun");
+
+  init_fun = (InitFun *) dlsym(handle,"init_fun");
+#if 0
   if ((error = dlerror()) != NULL)  {
     fputs(error, stderr);
     printf("\n");
     exit(1);
   }
-#ifdef USE_ADVANCED_DL_EFN
-  (*init_fun)(thash);
-#else
-  (*init_fun)();
 #endif
+
+  clear_fun = (ClearFun *) dlsym(handle,"clear_fun");
+#if 0
+  if ((error = dlerror()) != NULL)  {
+    fputs(error, stderr);
+    printf("\n");
+    exit(1);
+  }
+#endif
+
+  if (init_fun) (*init_fun)(thash);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+DLGeneric::~DLGeneric() {
+  delete thash;
+  if (clear_fun) (*clear_fun)();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -48,6 +63,4 @@ double DLGeneric::eval(const TimeData *time_data) {
   return (*fun)(t);
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-DLGeneric::~DLGeneric() { delete thash; }
 

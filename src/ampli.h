@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.3 2002/02/10 02:33:32 mstorti Exp $
+// $Id: ampli.h,v 1.4 2002/02/10 03:17:24 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -64,17 +64,18 @@ class DLGeneric : public Amplitude {
 private:
   TextHashTable *thash;
   typedef double EvalFun(double);
-#define USE_ADVANCED_DL_EFN
-#ifdef USE_ADVANCED_DL_EFN
   typedef void InitFun(TextHashTable *);
-#else
-  typedef void InitFun();
-#endif
+  typedef void ClearFun(void);
   EvalFun *fun;
+  InitFun *init_fun;
+  ClearFun *clear_fun;
   void *handle;
+  void *d; // store data
 public:
+  DLGeneric() : d(NULL) {}
   void print() const;
   void init(TextHashTable *thash_);
+  virtual void clear() {};
   double eval(const TimeData *time_data);
   ~DLGeneric();
 };
