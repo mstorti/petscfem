@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.4 2003/10/03 21:06:51 mstorti Exp $
+// $Id: gasflow.h,v 1.5 2003/10/08 11:51:37 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -10,13 +10,13 @@
 #include "nwadvdifj.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-/** Flux function for compressible viscous flow 
+/** Flux function for compressible viscous flow
  */
 class gasflow_ff : public AdvDifFFWEnth {
 private:
   int nelprops,nel,ndof,ndim,k_indx,e_indx,vg_indx,vl_indx,
     vl_indxe,vg_indxe,LES;
-  FastMat2 U,vel,Cp,Ajac,Id_ndim,Amom,Y,vel_old,
+  FastMat2 U,vel,Cp,Cpi,Ajac,Id_ndim,Amom,Y,vel_old,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_vel,strain_rate,IdId,G_body,
     uintri,svec,tmp9,W_N,grad_p,grad_T,grad_rho,tmp6,tmp7,tmp05,tmp10,tmp_vel;
   FastMat2 viscous_work,heat_flux,sigma;
@@ -25,14 +25,14 @@ private:
   double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff;
   double tau_fac,temporal_stability_factor;
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
-  double tau_supg_a,delta_supg,visco_supg,velmod, h_supg, h_pspg;
+  double tau_supg_a,visco_supg,velmod, h_supg, h_pspg;
   double Pr_t, C_smag;
 
   const NewAdvDif *advdf_e;
 
   //  int axi;
 
-  void compute_tau(int ijob);
+  void compute_tau(int ijob,double &delta_sc);
 
 public:
   gasflow_ff(NewElemset *elemset_);
