@@ -2310,3 +2310,6 @@ tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300, by mstorti in spider
      > Working on `ExpProgImport' and `dxhook' (DX module)
      > Coded auto-naming of elemsets. 
      > Passes all tests with BOPT=O_c++ and g_c++
+----------
+tag: beta-3.16.pl1 on Sat,  8 Feb 2003 10:08:51 -0300 by mstorti in spider
+     > Coded better protocol for DX.
