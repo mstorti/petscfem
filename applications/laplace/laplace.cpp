@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.12 2002/09/05 20:10:17 mstorti Exp $
+//$Id: laplace.cpp,v 1.13 2002/09/05 20:25:50 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -47,7 +47,8 @@ int main(int argc,char **args) {
   PC      pc;           /* preconditioner context */
   KSP     ksp;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
-  int     flg, ierr,  size,  ndim, nel, nen, neq, myrank, its;
+  int     ierr,  size,  ndim, nel, nen, neq, myrank, its;
+  PetscTruth flg;
   double tol=2e-6;
   char fcase[FLEN+1];
   Dofmap *dofmap;
@@ -103,7 +104,7 @@ int main(int argc,char **args) {
   ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);
   ierr = KSPSetTolerances(ksp,tol,PETSC_DEFAULT,PETSC_DEFAULT,
          PETSC_DEFAULT); CHKERRA(ierr);
-  ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL);
+  ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL,NULL);
 
 #if 0
   // Computes matrix by finite differences

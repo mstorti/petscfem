@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.12 2002/09/05 20:10:17 mstorti Exp $
+//$Id: adv.cpp,v 1.13 2002/09/05 20:25:47 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -16,6 +16,11 @@ int print_internal_loop_conv_g=0,
   consistent_supg_matrix_g=0,
   local_time_step_g=0,
   comp_mat_each_time_step_g=0;
+
+// PETSc now doesn't have the string argument that represents the variable name
+// so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
+#define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
+          PetscViewerSetFormat(viewer,format)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -66,10 +71,11 @@ int main(int argc,char **args) {
   PC      pc_mass;           /* preconditioner context */
   KSP     ksp_mass;        /* Krylov subspace method context */
   double  norm, *sol, scal; /* norm of solution error */
-  int     ierr, i, n = 10, col[3], its, flg, size, node,
+  int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
+  PetscTruth flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
@@ -247,7 +253,7 @@ int main(int argc,char **args) {
     ierr = PCSetType(pc_mass,PCJACOBI); CHKERRA(ierr);
     ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
 			    PETSC_DEFAULT); CHKERRA(ierr);
-    ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL);
+    ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     VOID_IT(argl);
@@ -305,7 +311,7 @@ int main(int argc,char **args) {
       // ierr = KSPSetTolerances(ksp_mass,tol_mass,PETSC_DEFAULT,PETSC_DEFAULT,
       // PETSC_DEFAULT); CHKERRA(ierr);
       ierr = KSPSetTolerances(ksp_mass,rtol,atol,dtol,maxits); CHKERRA(ierr);
-      ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL); CHKERRA(ierr);
+      ierr = KSPSetMonitor(ksp_mass,MyKSPMonitor,PETSC_NULL,NULL); CHKERRA(ierr);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
       ierr = MatZeroEntries(A_mass); CHKERRA(ierr);
@@ -369,12 +375,12 @@ int main(int argc,char **args) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Printing residual and matrix for debugging and stopping..\n");
       PetscViewer matlab;
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+      ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab, 
+      ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			     PETSC_VIEWER_ASCII_MATLAB,"res");
       ierr = VecView(res,matlab);
-      ierr = ViewerSetFormat(matlab, 
+      ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			     PETSC_VIEWER_ASCII_MATLAB,"amass");
       ierr = MatView(A_mass,matlab);
       PetscFinalize();
