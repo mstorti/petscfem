@@ -4,9 +4,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Write test for `compute_fd_adv_jacobian'. 
 * Put `COMPUTE_FD_ADV_JACOBIAN' in `advdife' as a elemset flag. 
 * Make a test for block_uploading
-* Fix tests in /burgers (they started to fail).
 * Add `sw_abso' to tests
 * Doesn't report correctly acesses to the last thash table, probably 
 	  related to the weights flag. (Reported by
@@ -120,6 +120,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Fix tests in /burgers (they started to fail).
+* Put version policy in a separate file. 
 * in `./Makefile' local_sw: should FIRST do `chmod 755'
 * a dynamically loaded Gauss Point adaptor elemset. 
 * revert changes for locker in adaptor, etc...
