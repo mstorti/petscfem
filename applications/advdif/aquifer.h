@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.6 2002/04/12 14:44:17 mstorti Exp $
+// $Id: aquifer.h,v 1.7 2002/04/25 02:52:51 mstorti Exp $
 #ifndef AQUIFER_H
 #define AQUIFER_H
 
@@ -50,7 +50,8 @@ public:
       fixme:= more doc here ...
   */ 
   void compute_flux(const FastMat2 &U,const FastMat2 &grad_U,
-		    FastMat2 &fluxd,FastMat2 &G);
+		    FastMat2 &fluxd,FastMat2 &G,
+		    FastMat2 &H, FastMat2 &grad_H);
 
   /** Computes the product #(grad_N_D_grad_N)_(p,mu,q,nu) 
       = D_(i,j,mu,nu) (grad_N)_(i,p) (grad_N)_(j,q)#

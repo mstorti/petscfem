@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.39 2002/03/06 01:02:44 mstorti Exp $
+//$Id: advdif.cpp,v 1.40 2002/04/25 02:52:51 mstorti Exp $
 
 #include <set>
 
@@ -132,6 +132,9 @@ int main(int argc,char **args) {
   //o Name of file where to save node values for the ``print some'' 
   // feature. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
+  //o Access mode to the ``some'' file. If 0 rewind file. If 1 
+  //  append to previous  results.
+  TGETOPTDEF(GLOBAL_OPTIONS,int,save_file_some_append,1);
   //o Print, after execution, a report of the times a given option
   // was accessed. Useful for detecting if an option was used or not.
   GETOPTDEF(int,report_option_access,1);
@@ -149,7 +152,8 @@ int main(int argc,char **args) {
   set<int> node_list;
   print_some_file_init(mesh->global_options,
 		       print_some_file.c_str(),
-		       save_file_some.c_str(),node_list);
+		       save_file_some.c_str(),node_list,
+		       save_file_some_append);
 
   // warning: passed to advective.cpp via a global variable
   //o Uses consistent SUPG matrix for the temporal term or not. 

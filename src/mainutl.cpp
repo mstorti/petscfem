@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.9 2002/04/02 02:51:56 mstorti Exp $
+//$Id: mainutl.cpp,v 1.10 2002/04/25 02:52:51 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -261,7 +261,8 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 "const char *,const char *,set<int> &)"
 int print_some_file_init(TextHashTable *thash,
 			 const char *print_some_file,
-			 const char *save_file_some,set<int> &node_list) {
+			 const char *save_file_some,set<int> &node_list,
+			 int save_file_some_append) {
   if (MY_RANK==0 && strlen(print_some_file)>0) {
     int nodo;
     PetscPrintf(PETSC_COMM_WORLD,"Reading print_some_file...\n");
@@ -279,6 +280,11 @@ int print_some_file_init(TextHashTable *thash,
     }
     fclose(fid);
     PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
+    if (!save_file_some_append) {
+      // Rewind file, discard old content
+      FILE *fid = fopen(save_file_some,"w");
+      fclose(fid);
+    }
   }
   return 0;
 }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: readmesh.h,v 1.10 2001/05/30 03:58:50 mstorti Exp $
+//$Id: readmesh.h,v 1.11 2002/04/25 02:52:51 mstorti Exp $
  
 #ifndef READ_MESH_H
 #define READ_MESH_H
@@ -88,10 +88,13 @@ int print_some(const char *filename,const State &s,Dofmap *dofmap,
     @param save_file_some (input) the file where to write the values
     at those nodes (this is not used currently)
     @param node_list (output) the list of nodes 
-*/ 
+    @param save_file_some_append (input) Access mode to the ``some''
+    file. If 0 rewind file. If 1 append to previous results.  
+*/
 int print_some_file_init(TextHashTable *thash,
 			 const char *print_some_file,
-			 const char *save_file_some,set<int> &node_list);
+			 const char *save_file_some,set<int> &node_list,
+			 int save_file_some_append);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Prints a vector to a file
