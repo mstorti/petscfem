@@ -123,7 +123,7 @@ int write_data(int s,const char *buf,int n) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PORT 5555
 #define SERVERHOST "spider"
-#define BUFSIZE 15
+#define BUFSIZE 100
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **args) {
@@ -147,9 +147,10 @@ int main(int argc,char **args) {
       perror ("accept");
       exit (EXIT_FAILURE);
     }
-    printf("Sending: %s",buf);
-    int nw = write_data(s,buf,strlen(buf)+1);
-    assert(nw == strlen(buf)+1);
+    strcpy(buf2,buf);
+    printf("Sending: %s",buf2);
+    int nw = write_data(s,buf,BUFSIZE);
+    assert(nw == BUFSIZE);
   } else {
     sock = socket (PF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -164,9 +165,7 @@ int main(int argc,char **args) {
     }
     printf("client: trace 0\n");
 
-    int nr = read_data(sock,buf2,strlen(buf)+1);
-    printf("Read %d bytes\n",nr);
-    assert(nr==strlen(buf)+1);
+    int nr = read_data(sock,buf2,BUFSIZE);
     printf("Got from server: %s",buf2);
 
     close(sock);
