@@ -3001,3 +3001,7 @@ tag: beta-3.23.pl5 on Wed, 17 Sep 2003 14:02:02 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.23.pl6 on Wed, 24 Sep 2003 23:19:54 -0300 by mstorti in spider
      > Runs all tests except two in test/newff. 
+----------
+tag: beta-3.23.pl7 on Mon, 06 Oct 2003 00:03:14 -0300 by mstorti in spider
+     > Undone some changes in Elasticity. 
+     > These changes where made temporarily for testing the new locker functions. 
