@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tfstack.cpp,v 1.2 2001/04/01 01:35:08 mstorti Exp $
+//$Id: tfstack.cpp,v 1.3 2001/05/26 19:58:17 mstorti Exp $
 
 #include <fstack.h>
 #include <petsc.h>
@@ -31,4 +31,13 @@ int main () {
     j=0;
     while (!file1.get_line(line1)) 
       printf("line %d : <%s>\n",++j,line1);
+    
+    j=0;
+    file1.close();
+    file1.open("filen1.dat");
+    FILE * fout = fopen("fstack2.out.tmp","w");
+    while (!file1.get_line(line1)) 
+      fprintf(fout,"%d>   %s:%d   <%s>\n",
+	      ++j,file1.file_name(),file1.line_number(),line1);
+    fclose(fout);
 }

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2001/04/01 03:11:38 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/05/26 19:58:17 mstorti Exp $ 
 
 .PHONY: fstack force
 
@@ -11,19 +11,23 @@ PETSCFEM_LIB = $(SRC_DIR)/libpetscfem.a
 SRCS = tfstack.cpp
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-# Checks 
+#w test for fstack class
 fstack: tfstack.bin
-	tfstack.bin >tfstack.sal
+	tfstack.bin >tfstack.out
+	perl fscheck.pl < fstack2.out.tmp > fstack2.verif.tmp
 
 $(SRC_DIR)/%.o: force
 	$(MAKE) -C $(SRC_DIR) $@
 
-$(PETSCFEM_LIB): force
-	$(MAKE) -C $(SRC_DIR) compile
+../../src/libpetscfem.a(fstack.o): force
+	$(MAKE) -C ../../src/ 'libpetscfem.a(fstack.o)'
 
-tfstack.bin: tfstack.o libpetscfem
+tfstack.bin: tfstack.o ../../src/libpetscfem.a(fstack.o)
 	${CXX_CLINKER} -o $@ tfstack.o $(LIBPETSCFEM) \
 		-lc ${PETSC_SLES_LIB} \
 		-L$(LIBRETTO_LIB) -libretto
 
+#w Prints all main targets for 'make' along with a brief description
+what:
+	@$(PETSCFEM_DIR)/tools/makewhat.pl -s Makefile $(OMKFLS)
 #

@@ -1,0 +1,10 @@
+line1 in filen2
+line2 in filen2
+line3 in filen2
+__INCLUDE__ filen3.dat line4 in filen2
+line5 in filen2
+line6 in filen2
+line7 in filen2
+__INCLUDE__ filen3.dat line8 in filen2
+line9 in filen2
+line10 in filen2

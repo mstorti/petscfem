@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.5 2001/05/12 22:33:21 mstorti Exp $
+//$Id: fstack.cpp,v 1.6 2001/05/26 19:58:48 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -13,12 +13,15 @@ FileStack::~FileStack(void) {
   close();
   astr_destroy(buf);
   astr_destroy(bufr);
+  astr_destroy(linecopy);
   abuf_destroy(abuf);
   abuf_destroy(abufr);
   da_destroy(read_buffer);
   da_destroy(file_stack);
   regfree(&blank_line);
   regfree(&include);
+  file_names.clear();
+  file_pos.clear();
 }
 
 // Temporally. I write close() equal to the destructor, but in the
@@ -59,9 +62,11 @@ FileStack::FileStack(const char *filename) : echo_stream (NULL), echo(0) {
   read_buffer = da_create(sizeof(Autobuf *));
   buf = astr_create();
   bufr = astr_create();
+  linecopy = astr_create();
   abuf = abuf_create();
   abufr = abuf_create();
-
+  file_names.clear();
+  
   int ierr = regcomp(&blank_line,"^[ \t\n]*$",REG_NOSUB);
   assert(ierr==0);
   ierr = regcomp(&include,"^__INCLUDE__",REG_NOSUB);
@@ -77,6 +82,9 @@ void FileStack::open(const char *filename) {
   if (!file_at_top) {
     printf("Couldn't open file \"%s\"!!\n",filename);
   }
+  file_names.push_back(string(filename));
+  file_pos.push_back(pos);
+  pos=0;
 }
 
 #undef __FUNC__
@@ -101,12 +109,16 @@ int FileStack::get_line(char * & line) {
   int nread;
   while(1) {
     nread = astr_getline(bufr,file_at_top);
+    pos++;
 
     if (nread<0) {
       // If couldn't read then pop the following file in the stack
       if (da_length(file_stack)>0) {
 	fclose(file_at_top);
 	da_pop(file_stack,&file_at_top);
+	file_names.pop_back();
+	pos = file_pos.back();
+	file_pos.pop_back();
 	continue;
       } else {
 	return 1;
@@ -160,6 +172,9 @@ int FileStack::get_line(char * & line) {
 	printf("Couldn't open file \"%s\"!!\n",token);
 	exit(0);
       }
+      file_names.push_back(token);
+      file_pos.push_back(pos);
+      pos=0;
       
       continue;
     }
@@ -186,9 +201,19 @@ int FileStack::get_line(char * & line) {
   //  abuf_data(abuf)[len+1]='\0';
   abuf_cat_c (abuf,'\0');
   line = (char *)(abuf_data(abuf));
+  astr_copy_s(linecopy, line);
+  
   ///  printf("read: ->\"%s\"\n",line);
   return 0;
 } 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int FileStack::line_read(const char *& line )"
+const char * FileStack::line_read(void) const {
+  return astr_chars(linecopy);
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

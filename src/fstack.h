@@ -1,11 +1,13 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-//$Id: fstack.h,v 1.5 2001/05/12 22:33:21 mstorti Exp $
+//$Id: fstack.h,v 1.6 2001/05/26 19:58:48 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
 
 #include <cassert>
+#include <vector>
+#include <string>
 #include <stddef.h>
 #include <regex.h>
 #include <string.h>
@@ -39,9 +41,12 @@ private:
   /// the pile of unread lines
   Darray *read_buffer;
   /// The current line buffers
-  Autostr *buf, *bufr;
+  Autostr *buf, *bufr,*linecopy;
   Autobuf *abufr,*abuf;
   regex_t blank_line,include;
+  vector<string> file_names;
+  vector<int> file_pos;
+  int pos;
 
 public:
   /** Reads a line from the file stack. 
@@ -49,6 +54,15 @@ public:
       @param line the line that has been read
   */ 
   int get_line(char *& line );
+
+  /** Gives a pointer to the last line read.
+      @author M. Storti
+      @param line the line that has been read
+  */ 
+  const char * line_read(void) const;
+
+  int line_number() const {return pos;};
+  const char * file_name() const {return file_names.back().c_str();};
 
   /** Unreads a line
       @author M. Storti

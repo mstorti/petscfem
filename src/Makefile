@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.18 2001/05/05 01:20:42 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2001/05/26 19:58:48 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -39,7 +39,7 @@ libpetscfem.a: libpetscfem.a($(LIBOBJS))
 	ranlib $@
 
 libpetscfem.a(%.o): %.o
-	ar -ru $@ $<
+	ar ru $@ $<
 
 #libpetscfem($(LIBOBJS)): $(LIBOBJS)
 #libpetscfem.a: $(LIBOBJS)
