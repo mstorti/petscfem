@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.9 2005/01/10 20:13:35 mstorti Exp $
+// $Id: getsurf.cpp,v 1.10 2005/01/11 02:39:18 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -35,7 +35,7 @@ int main(int argc,char **argv) {
   while ((c = getopt (argc, argv, "b:c:x:u:s:g:")) != -1) {
     switch (c) {
     case 'b':
-      scanf(optarg,"%d",&base);
+      nread = sscanf(optarg,"%d",&base);
       assert(nread==1);
       break;
     case 'c':
@@ -66,7 +66,7 @@ int main(int argc,char **argv) {
   const GeomObject::Template *mesh_tmpl = &OrientedTetraTemplate;
   UniformMesh mesh(*mesh_tmpl,3);
   int mesh_nel = mesh.tmplt()->size_m;
-  mesh.read(xnodf,iconef,1);
+  mesh.read(xnodf,iconef,base);
   u.reshape(2,0,ndof);
   u.cat(statef);
   u.defrag();
