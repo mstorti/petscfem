@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.59 2003/03/30 15:38:16 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.60 2003/03/30 20:45:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -18,11 +18,6 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define STOP {PetscFinalize(); exit(0);}
    
 #define MAXPROP 100
-
-double sqrt_fix(double a) {
-  if (a==0.) return 0.;
-  else return sqrt(a);
-}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -172,9 +167,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // (which is equivalent to $\Dt=\infty$) then
   // \verb+temporal_stability_factor+ is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
-  if (comp_mat_res) { // Fixed by Beto August 23 2001
-    if (glob_param->steady) temporal_stability_factor=0;
-  }
+  if (comp_mat_res && glob_param->steady) temporal_stability_factor=0;
+
   //o Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
   //  independently of $h$. (Mainly for debugging purposes). 
   SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
@@ -475,8 +469,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 #ifdef STANDARD_UPWIND
 
-	// The standard sqrt gives problems here if `u2=0.' is passed 
-	velmod = sqrt_fix(u2);
+	velmod = sqrt(u2);
         tol=1.0e-16;
         h_supg=0;
 	FastMat2::branch();
@@ -496,9 +489,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	FastMat2::leave();
 
 	Peclet = velmod * h_supg / (2. * nu_eff);
-	// printf("u2 %f, velmod %f, Peclet %f\n",u2,velmod,Peclet);
-	// psi = 1./tanh(Peclet)-1/Peclet;
-	// tau_supg = psi*h_supg/(2.*velmod);
+//	psi = 1./tanh(Peclet)-1/Peclet;
+//	tau_supg = psi*h_supg/(2.*velmod);
 
         tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
 	  +9.*SQ(4.*nu_eff/SQ(h_supg));

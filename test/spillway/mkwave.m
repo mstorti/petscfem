@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.1 2003/03/30 15:55:08 mstorti Exp $
+## $Id: mkwave.m,v 1.2 2003/03/30 20:45:14 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
@@ -14,26 +14,45 @@ icone = icone(:,[1 4 3 2]);
 asave("wave.nod.tmp",xnod);
 asave("wave.con.tmp",icone);
 
-## No-slip at bottom + slip at top
+## No-slip at bottom + slip at top 
 fid = fopen("wave.fixa_bot.tmp","w");
 fid2 = fopen("wave.fixa_top.tmp","w");
+fid3 = fopen("wave.patm.tmp","w");
+fid4 = fopen("wave.mmv_top.tmp","w");
 for k=1:Nx
   node = (k-1)*(Ny+1)+1;
   fprintf(fid,"%d %d %f\n",node,1,0.);
   fprintf(fid,"%d %d %f\n",node,2,0.);
   node = k*(Ny+1);
   fprintf(fid2,"%d %d %f\n",node,2,0.);
+  fprintf(fid3,"%d %d %f\n",node,3,0.);
+  fprintf(fid4,"%d %d %f\n",node,1,1.);
+  fprintf(fid4,"%d %d %f\n",node,2,1.);
 endfor
 fclose(fid);
 fclose(fid2);
+fclose(fid3);
+fclose(fid4);
 
 ## Periodic
 fid = fopen("wave.peri.tmp","w");
+fid2 = fopen("wave.mmv_peri.tmp","w");
 for k=1:Ny+1
   node_right = k;
   node_left = node_right + Nx*(Ny+1);
   for j=1:3
     fprintf(fid,"%f %d %d   %f %d %d\n",-1.0,node_left,j,1.0,node_right,j);
   endfor
+  for j=1:2
+    fprintf(fid2,"%f %d %d   %f %d %d\n",-1.0,node_left,j,1.0,node_right,j);
+  endfor
 endfor
 fclose(fid);
+fclose(fid2);
+
+fs = (Nx:-1:1)'*(Ny+1);
+asave("wave.nod_fs.tmp",fs);
+nfs = Nx;
+normal = [0 1];
+normal = normal(ones(Nx,1),:);
+asave("wave.spines.tmp",normal);

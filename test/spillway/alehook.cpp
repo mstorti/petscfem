@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.8 2003/03/30 15:55:08 mstorti Exp $
+//$Id: alehook.cpp,v 1.9 2003/03/30 20:45:14 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -21,6 +21,7 @@
 #include "../plate/fifo.h"
 
 extern int MY_RANK,SIZE;
+#define CASE_NAME "wave"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ale_hook {
@@ -54,17 +55,15 @@ void ale_hook::time_step_post(double time,int step,
   int nnod = mesh->nodedata->nnod;
   int nu = mesh->nodedata->nu;
   AutoString command;
-  command.sprintf("/usr/bin/make petscfem_step=%d spillway_mesh",step);
+  command.sprintf("/usr/bin/make petscfem_step=%d " CASE_NAME "_mesh",step);
   int stat = system(command.str());
   command.clear();
   if (!MY_RANK) {
-    // char * const argv[] = {"/usr/bin/make","spillway_mesh",NULL};
-    // int stat = execv(argv[0],argv);
     if (stat==-1) {
       printf("ALEHOOK: Couldn't launch octave process...\n");
       abort();
     }
-    FILE *fid = fopen("spillway.nod.tmp","r");
+    FILE *fid = fopen(CASE_NAME ".nod.tmp","r");
     // double *nodedata = mesh->nodedata->nodedata;
 #define NODEDATA(j,k) VEC2(mesh->nodedata->nodedata,j,k,nu)
     for (int j=0; j<nnod; j++) {
@@ -120,7 +119,7 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
 	abort();
       }
       if (pid==0) {
-	char * const argv[] = {"/usr/bin/make","mesh_move",NULL};
+	char * const argv[] = {"/usr/bin/make",CASE_NAME "_mmv",NULL};
 	int stat = execv(argv[0],argv);
 	if (stat==-1) {
 	  printf("ALE_HOOK2_INIT: Couldn't \"execv\" MESH_MOVE  process...\n");
@@ -169,7 +168,7 @@ void ale_hook2::time_step_post(double time,int step,
     assert(step==mmv_step);
     
     // Reads displacements computed by `mesh_move' and add to nodedata
-    FILE *fid = fopen("spillway_mmv.state.tmp","r");
+    FILE *fid = fopen(CASE_NAME "_mmv.state.tmp","r");
     int nnod = mesh->nodedata->nnod;
     int ndim = mesh->nodedata->ndim;
     int nu = mesh->nodedata->nu;
@@ -254,8 +253,8 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
   nnod = mesh.nodedata->nnod;
   ndim = 2;
   // Read list of nodes on the FS ad spines (all of size nfs).
-  FILE *fid = fopen("spillway.nod_fs.tmp","r");
-  FILE *fid2 = fopen("spillway.spines.tmp","r");
+  FILE *fid = fopen(CASE_NAME ".nod_fs.tmp","r");
+  FILE *fid2 = fopen(CASE_NAME ".spines.tmp","r");
   int indx=0;
   while(1) {
     // printf("indx %d\n",indx);
@@ -306,7 +305,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
   assert(step=step_sent);
   // Open state file. Will read velocities on the FS
   // and update displ += v * Dt
-  FILE *fid = fopen("spillway.state.tmp","r");
+  FILE *fid = fopen(CASE_NAME ".state.tmp","r");
   // string buffer 
   AutoString line;
   vector<string> tokens;

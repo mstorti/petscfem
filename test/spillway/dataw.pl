@@ -10,6 +10,7 @@ $Nx = 50*$ref;                  # Number of elements along horiz. direction
 
 $gravity = 9.8;                 # Gravity acceleration (magnitude)
 $u_av = $Froude*sqrt($gravity*$h);
+$u_max = 1.5*$u_av;
 				# Mean velocity
 $viscosity = $u_av*$h/$Re;	# Fluid viscosity
 
@@ -21,5 +22,7 @@ $patm = 0;                      # Pressure at FS
 $p_const_bc = !$initia;		# Impose = patm on the free surface
 $fs_relax = 1;                  # relaxation factor for the 
                                 # free surface evolution eq. 
+
+$Dt = 0.1;
 
 1;
