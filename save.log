@@ -2691,3 +2691,6 @@ tag: beta-3.19.pl14 on Fri, 23 May 2003 18:50:54 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.19.pl15 on Mon, 26 May 2003 00:08:19 -0300 by mstorti in spider
      > Writing `smoke' 
+----------
+tag: beta-3.19.pl16 on Sun,  1 Jun 2003 12:55:46 -0300 by mstorti in spider
+     > Smoke gives good visualization in a simple cavity flow. 
