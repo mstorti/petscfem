@@ -42,3 +42,5 @@ for k=1:N+1
 
 endfor
 fclose(fid);
+
+piecewtanh(slope,"piecewise.dat.tmp");

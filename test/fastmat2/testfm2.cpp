@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.6 2002/11/29 12:56:29 mstorti Exp $
+//$Id: testfm2.cpp,v 1.7 2002/12/01 16:07:26 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -64,7 +64,7 @@ int main() {
   FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
     Z69;
   FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
-    Z69b;
+    Z69b,Z70,Z71,Z72;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -382,6 +382,13 @@ int main() {
       // Compute eigenvals, and left/right eigenvectors
       Z68b.eig(Z60b,Z65b,Z66b);
 
+      // Makes Z70 = 2./ Z60
+      Z70.set(Z60).rcp(2.);
+      // with default c=1.
+      Z71.set(Z60).rcp();
+      // In one op
+      Z72.rcp(Z60,3.);
+
     }
     FastMat2::void_cache();
   }
@@ -492,6 +499,10 @@ int main() {
   SH(Z67b);
   SH(Z68b);
   SH(Z69b);
+
+  SH(Z70);
+  SH(Z71);
+  SH(Z72);
 
 #undef SH
 

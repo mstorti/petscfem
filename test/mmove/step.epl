@@ -1,10 +1,13 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $N=10;
-$disp = 0.6;
-# $shape = 'quad';
+$disp = 0.4;
+# $df = 'rcond';
+$df = 'eig';
+$slope = 5;
+# $shape =ns 'quad';
 #
-octave_export_vars(">data.m.tmp",qw(N disp shape));
+octave_export_vars(">data.m.tmp",qw(N disp shape slope));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -23,7 +26,7 @@ solver "petsc"
 iisd_subpart 1
 #endif
 
-nnwt 5
+nnwt 1
 # newton_relaxation_factor 0.1 10 1.
 pc_lu_fill 8.
 rtol 1e-4
@@ -34,7 +37,7 @@ steady
 c_volume 0.1
 # distor_exp 1.
 
-<:$nstep=60; pr('nstep');:>
+<:$nstep=40; pr('nstep');:>
 Dt <:= 1./$nstep;:>
 __END_HASH__
 
@@ -45,11 +48,11 @@ __END_NODES__
 
 #===========================================================
 #if $shape eq 'quad'
-elemset mesh_move 4
+elemset mesh_move_<:=$df:> 4
 geometry cartesian2d
 npg 4
 #else
-elemset mesh_move 3
+elemset mesh_move_<:=$df:> 3
 geometry triangle
 npg 1
 #endif

@@ -29,9 +29,9 @@ for k=fixed
   if r<rmin
     dd = 0;
   elseif r>rmax
-    dd = disp;
+    dd = -disp;
   else
-    dd = disp*(r-rmin)/(rmax-rmin);
+    dd = -disp*(r-rmin)/(rmax-rmin);
   endif
   fprintf(fid,"%d %d %f\n",k,1,0.);
   fprintf(fid,"%d %d %f\n",k,2,0.);

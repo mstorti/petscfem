@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.8 2002/11/30 23:42:06 mstorti Exp $
+//$Id: mmove.cpp,v 1.9 2002/12/01 16:07:21 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -107,6 +107,10 @@ double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   la2=D.get(2);
   if (ndim==3) la3=D.get(3);
 #endif
+#if 0
+#warning Using diff-eig version
+  static int flag=0;
+  if(!flag) { printf("diff-eig\n"); flag=1; }
   double diffla;
   if (ndim==2) {
     vol = la1*la2;
@@ -119,6 +123,17 @@ double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   } else assert(0);
   df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
   return df;
+#elif 1
+#warning Using norm/norm(-1) eig version
+  static int flag=0;
+  if(!flag) { printf("norm/norm(-1)\n"); flag=1; }
+  double p = 1.;
+  double norm_D = D.norm_p_all(p);
+  double norm_iD = D.norm_p_all(-p);
+  return pow(norm_D * norm_iD, 1./p);
+#else
+  return D.max_all()/D.min_all();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -126,7 +141,7 @@ double mesh_move_rcond::distor_fun_G(FastMat2 & G) {
   iG.inv(G);
   double norm_G = G.max_abs_all();
   double norm_iG = iG.max_abs_all();
-  return norm_G*norm_iG;
+  return norm_G*norm_iG + 0.001*norm_G;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

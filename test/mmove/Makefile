@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2002/11/30 22:29:06 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/12/01 16:07:26 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -23,6 +23,9 @@ ifeq ($(NAME),)
 NAME = step3d
 endif
 
+# ifeq ($(NAME),step)
+# PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin
+# endif
 step3d:
 	$(MAKE) NAME=step3d OCT_SCRIPT=mkstep3d.m test_case
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.21 2002/11/29 12:56:29 mstorti Exp $
+//$Id: fastmat2.h,v 1.22 2002/12/01 16:07:25 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -529,13 +529,21 @@ public:
   FastMat2 & div(const FastMat2 & A);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** @memo Reciprocal, #B.rcp(A,c)# is equivalent to Matlab (#B = c ./ A#). 
+      @author M. Storti
+      @param A (input) matrix to take the reciprocal.
+      @return a reference to the matrix.
+  */ 
+  FastMat2 & rcp(const FastMat2 & A,double c=1.);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Axpy operation (element by element): {\tt (*this) += alpha * A}
       @author M. Storti
       @param A (input) matrix to add. 
       @param alpha (input) 
       @return a reference to the matrix.
   */ 
-  FastMat2 & axpy(const FastMat2 & A,const double alpha);
+  FastMat2 & axpy(const FastMat2 & A,double alpha);
   //@}
 
   /** @name In-place operations. 
@@ -567,6 +575,15 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & add(const double val);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Computes reciprocal of elements. In Matlab notation #A.rcp(c)# is
+      equivalent to #A = c./A#.
+      @author M. Storti
+      @param c (input) scales the reciprocal
+      @return a reference to the matrix.
+  */ 
+  FastMat2 & rcp(const double c=1.);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Apply a function to all elements

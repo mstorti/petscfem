@@ -2,12 +2,12 @@
 #__INSERT_LICENSE__
 
 sub template_subst {
-    $text = shift();
-    %arg_list = %{shift()};
-    @new=();
+    my $text = shift();
+    my %arg_list = %{shift()};
+    my @new=();
     while ($text =~ /__(.*?)__/) {
-	$ident = $1;
-	$subst = $arg_list{$ident};
+	my $ident = $1;
+	my $subst = $arg_list{$ident};
 	if (! $subst) {
 	    $subst = $ {$ident};
 	}
@@ -19,8 +19,8 @@ sub template_subst {
 }
 
 sub count_oper {
-    $ret="";
-    while ($oper = shift()) {
+    my $ret="";
+    while (my $oper = shift()) {
 	$ret .= "op_count.$oper += cache->nelems;\n";
     }
     return $ret;
@@ -28,11 +28,12 @@ sub count_oper {
 
 sub genone {
     $count_oper_size = 'cache->nelems';
-    print template_subst($genone,{'NAME' => shift(), 
-			    'OTHER_ARGS' => shift(), 
-			    'ELEM_OPERATIONS' => shift(),
-			    'COUNT_OPER' => copg(@_),
-			    'CACHE_OPERATIONS' => $cache_op});
+    my %args = ('NAME' => shift(), 
+		'OTHER_ARGS' => shift(), 
+		'ELEM_OPERATIONS' => shift(),
+		'COUNT_OPER' => copg(@_),
+		'CACHE_OPERATIONS' => $cache_op);
+    print template_subst($genone,\%args);
 }
 
 sub genone_all {
@@ -41,7 +42,9 @@ sub genone_all {
     genone('rest','','**pto++ -= **pfrom++','sum') ;
     genone('mult','','**pto++ *= **pfrom++','mult') ;
     genone('div','','**pto++ /= **pfrom++','div') ;
-    genone('axpy',',const double alpha',
+    genone('rcp',',double c=1.',
+	   '**pto++ = c/(**pfrom++)','div') ;
+    genone('axpy',',double alpha',
 	   '**pto++ += alpha * **pfrom++','mult','sum');
 }
 
@@ -54,8 +57,8 @@ sub gen_setel {
 }
 
 sub copg {
-    $ret="";
-    while ($oper = shift()) {
+    my $ret="";
+    while (my $oper = shift()) {
 	$ret .= "op_count.$oper += $count_oper_size;\n";
     }
     return $ret;
@@ -64,28 +67,31 @@ sub copg {
 sub gen_setel_all {
     $count_oper_size = '1';
     gen_setel('setel','','*cache->to = val');
-    $COUNT_OPER=copg('sum');
+    $COUNT_OPER = copg('sum');
     gen_setel('addel','','*cache->to += val','sum');
-    $COUNT_OPER=copg('mult');
+    $COUNT_OPER = copg('mult');
     gen_setel('multel','','*cache->to *= val','mult');
 }
 
 sub in_place {
-    print template_subst($in_place,{'NAME' => shift(), 
-				    'ELEM_OPERATIONS' => shift(),
-				    'CACHE_OPERATIONS' => $cache_op,
-				    'FUN_ARGS' => shift()});
+    my %args = ('NAME' => shift(), 
+		'ELEM_OPERATIONS' => shift(),
+		'CACHE_OPERATIONS' => $cache_op,
+		'FUN_ARGS' => 'const double val');
+    my $other_args = shift();
+    for my $oopt (keys %$other_args) { $args{$oopt} = $other_args->{$oopt}; }
+    print template_subst($in_place,\%args);
 }
 
 sub in_place_all {
-    $FUN_ARGS = 'const double val=0.';
-    in_place('set','**to++ = val');
+    in_place('set','**to++ = val',{'FUN_ARGS' => 'const double val=0.'});
     in_place('scale','**to++ *= val');
     in_place('add','**to++ += val');
+    in_place('rcp','**to = val/(**to++)',{'FUN_ARGS' => 'const double val=1.'});
     in_place('fun','**to = (*fun_)(**to); **to++',
-	     'scalar_fun_t *fun_');
+	     {'FUN_ARGS' => 'scalar_fun_t *fun_'});
     in_place('fun','**to = (*fun_)(**to,user_args); **to++',
-  	     'scalar_fun_with_args_t *fun_,void *user_args');
+  	     {'FUN_ARGS' => 'scalar_fun_with_args_t *fun_,void *user_args'});
 }
 
 sub gen_sum {

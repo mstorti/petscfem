@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.19 2002/11/28 15:13:25 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.20 2002/12/01 16:07:26 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -396,7 +396,80 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::axpy(const FastMat2 & A ,const double alpha) {
+FastMat2 & FastMat2::rcp(const FastMat2 & A ,double c=1.) {
+
+  FastMatCache *cache;
+
+if (was_cached) {
+  cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+  printf ("reusing cache: ");
+#endif
+} else if (!use_cache) {
+  cache = new FastMatCache;
+} else {
+  cache = new FastMatCache;
+  cache_list->push_back(cache);
+  cache_list_begin = cache_list->begin();
+  cache_list->list_size =
+    cache_list_size = cache_list->size();
+  position_in_cache++;
+#ifdef FM2_CACHE_DBG
+  printf ("defining cache: ");
+#endif
+}
+#ifdef FM2_CACHE_DBG
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
+       cache_list,cache,position_in_cache-1);
+#endif
+;
+
+  if (!was_cached  ) {
+    assert(A.defined);
+    Indx Afdims,fdims;
+    A.get_dims(Afdims);
+    // int Afd = Afdims.size();
+  
+    if (!defined) {
+      create_from_indx(Afdims);
+    }
+    get_dims(fdims);
+    if (Afdims != fdims) {
+      Afdims.print("Dims of in matrix:");
+      fdims.print("Dims of out matrix: ");
+      assert(0);
+    }
+
+    int ndims = dims.size();
+    Indx indx(ndims,1);
+    int flag=1;
+    while (flag) {
+      cache->to_elems.push_back(location(indx));
+      cache->from_elems.push_back(A.location(indx));
+      flag=inc(indx,fdims);
+    } 
+    cache->nelems = cache->to_elems.size();
+    cache->pto = cache->to_elems.begin();
+    cache->pfrom = cache->from_elems.begin();
+
+    op_count.put += cache->nelems;
+    op_count.get += cache->nelems;
+    op_count.div += cache->nelems;
+;
+  }
+
+  double **pto,**pfrom,**pto_end;
+  pto = cache->pto;
+  pto_end = pto + cache->nelems;
+  pfrom = cache->pfrom;
+  while (pto < pto_end) {
+    **pto++ = c/(**pfrom++);
+  }
+  if (!use_cache) delete cache;
+  return *this;
+}  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::axpy(const FastMat2 & A ,double alpha) {
 
   FastMatCache *cache;
 
@@ -2411,7 +2484,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::scale(const double val=0.) {
+FastMat2 & FastMat2::scale(const double val) {
 
   FastMatCache *cache;
 
@@ -2468,7 +2541,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   return *this;
 }  
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::add(const double val=0.) {
+FastMat2 & FastMat2::add(const double val) {
 
   FastMatCache *cache;
 
@@ -2519,6 +2592,63 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   double **to_end = to + cache->nelems;
   while (to<to_end) {
     **to++ += val;
+  }
+
+  if (!use_cache) delete cache;
+  return *this;
+}  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::rcp(const double val=1.) {
+
+  FastMatCache *cache;
+
+if (was_cached) {
+  cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+  printf ("reusing cache: ");
+#endif
+} else if (!use_cache) {
+  cache = new FastMatCache;
+} else {
+  cache = new FastMatCache;
+  cache_list->push_back(cache);
+  cache_list_begin = cache_list->begin();
+  cache_list->list_size =
+    cache_list_size = cache_list->size();
+  position_in_cache++;
+#ifdef FM2_CACHE_DBG
+  printf ("defining cache: ");
+#endif
+}
+#ifdef FM2_CACHE_DBG
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
+       cache_list,cache,position_in_cache-1);
+#endif
+;
+
+  if (!was_cached  ) {
+    assert(defined);
+
+    Indx fdims;
+    get_dims(fdims);
+
+    int ndims = dims.size();
+    Indx indx(ndims,1);
+    int flag=1;
+    cache->nelems = mem_size(fdims);
+    cache->to_elems.resize(cache->nelems);
+    int j=0;
+    while (flag) {
+      cache->to_elems[j++] = location(indx);
+      flag=inc(indx,fdims);
+    } 
+    cache->pto = cache->to_elems.begin();
+  }
+
+  double **to = cache->pto;
+  double **to_end = to + cache->nelems;
+  while (to<to_end) {
+    **to = val/(**to++);
   }
 
   if (!use_cache) delete cache;
