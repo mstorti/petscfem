@@ -455,24 +455,21 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     if (comp_res_mom) {
       veccontr.is(2,1,ndim).set(resmom);
-      veccontr.export_vals(&(RETVAL(ielh)));
-      veccontr.rs();
+      veccontr.export_vals(&(RETVAL(ielh))).rs();
       matloc.prod(seed,matlocmom,1,3,2,4).add(mom_mat_fix);
       matloc.export_vals(&(RETVALMAT(ielh)));
     } else if (comp_mat_poi) {
       matloc.prod(seed,matlocmom,1,3,2,4).add(poi_mat_fix);
       matloc.export_vals(&(RETVALMAT_POI(ielh)));
     } else if (comp_res_poi) {
-#if 0 // not coded yet
-      veccontr.Column(ndim+1) = rescont;
-      veccontr >> &(RETVAL(ielh));
+      veccontr.ir(2,ndof).set(rescont);
+      veccontr.export_vals(&(RETVAL(ielh))).rs();
     } else if (comp_mat_prj) {
-      matloc = kron(matlocmom,seed) + mom_mat_fix;
-      matloc >> &(RETVALMAT_PRJ(ielh));
+      matloc.prod(seed,matlocmom,1,3,2,4).add(mom_mat_fix);
+      matloc.export_vals(&(RETVALMAT_PRJ(ielh)));
     } else if (comp_res_prj) {
-      veccontr.Columns(1,ndim) = resmom;
-      veccontr >> &(RETVAL(ielh));
-#endif
+      veccontr.is(2,1,ndim).set(resmom);
+      veccontr.export_vals(&(RETVAL(ielh))).rs();
     } else assert(0);
   }
   return 0;
