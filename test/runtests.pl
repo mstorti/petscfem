@@ -682,6 +682,15 @@ end_section();
 
 begin_section('Misc tests.');
 
+expect("sqcav/check.re1000.verif.tmp",
+       "Square cavity, Re1000, N=20",<<'EOT');
+error < tol OK \? 1 
+EOT
+
+
+expect("graph/output.graph.tmp","Graph partitioning",
+               read_file("graph/answer.txt"));
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("tfastvec.sal",
        "FastVector library",<<'EOT');
@@ -1219,8 +1228,6 @@ end_section();
 
 begin_section('Graph Partitioning');
 
-expect("graph/output.graph.tmp","Graph partitioning",
-               read_file("graph/answer.txt"));
 
 end_section();
 

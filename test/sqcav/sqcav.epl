@@ -1,0 +1,97 @@
+# -*- mode: shell-script -*-
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+$case="sqcav";			# case name
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+$U = 1;				# typical velocity scale
+$L = 1;				# Side of the cavity
+$N = 20;			# Number of elements per side
+$hratio = 10;			# refinement (h_center/h_wall)
+$Re = 1000;			# Reynolds number
+$visco = $L/$Re;		# viscosity
+$Dt = 0.01;			# time step
+$solver = "lu";
+$iisd_subpart = 4;
+#__END_TRANSCRIPT__
+transcript("", qw(visco Dt));	# print variables on output
+octave_export_vars(">data.m.tmp",qw(U L N Re visco h Co Dt hratio));
+:>//                            # ends ePerl block
+
+global_options
+
+nsave 5
+nstep 10000
+# initial_state sqcav.state
+save_file sqcav.state.tmp
+#if 1
+# type of solver (may be "lu", "iisd", "petsc"...)
+solver "petsc"
+preco_type "lu"
+maxits 1
+#elsif 0
+solver "iisd"
+maxits 100
+# Number of subdomains
+iisd_subpart <:=$iisd_subpart:>
+#endif
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-4
+dtol 1e3
+nnwt 1
+
+Krylov_dim 1
+print_internal_loop_conv 1
+#print_linear_system_and_stop 1
+#verify_jacobian_with_numerical_one 1
+
+#print_nodal_partitioning 1
+Dt <:=$Dt:>
+steady
+temporal_stability_factor 0
+
+shock_capturing_factor 0
+#if 0
+local_store
+cache_grad_div_u
+#endif
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ sqcav.nod.tmp
+_END_NODES__
+
+elemset nsi_tet_les_fm2 4 
+
+name malla
+
+#report_consumed_time
+geometry cartesian2d
+ndim 2
+npg 4
+#
+# Datos fisicos
+#
+viscosity  <:=$visco:>
+weak_form 0
+LES 0
+__END_HASH__
+__INCLUDE__ sqcav.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+# fijacion en la presion
+1 3 0.
+# fijaciones de velocidad en las paredes
+__INCLUDE__ sqcav.fixa.tmp
+__END_FIXA__
