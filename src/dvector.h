@@ -1,8 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.1 2002/07/21 22:38:30 mstorti Exp $
+// $Id: dvector.h,v 1.2 2002/07/22 15:45:12 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
+
+#define CHUNK_SIZE_INIT 10000
 
 template<class T>
 class dvector {
@@ -25,6 +27,10 @@ private:
   inline void reff(int j,int &chunk,int &k) {
     chunk = j/chunk_size;
     k = j % chunk_size;
+    if (k<0) {
+      chunk -=1;
+      k += chunk_size;
+    }
   }
   /** Exchange objescts `u' and `v'
       @param u (input/output) first element to be exchanged
@@ -77,10 +83,17 @@ public:
       @param cs (input) chunk size for this vector
       @return a reference to the matrix.
   */  
-  dvector(int cs=10000) { 
+  dvector(int cs = CHUNK_SIZE_INIT) { 
     chunk_size = cs;
     chunks = NULL;
     size_m = nchunks = 0;
+  }
+  /** Set new chunk size (container must be empty).
+      @param new_chunk_size (input) new chunk size for the vector.
+  */
+  void set_chunk_size(int new_chunk_size) {
+    assert(size()==0);
+    chunk_size = new_chunk_size;
   }
   /** reference to the object in some position
       @param j (input) position in the vector
@@ -123,7 +136,7 @@ public:
     assert(new_size<=size_m);
     int chunk,k;
     // demangle new size
-    reff(new_size,chunk,k);
+    reff(new_size-1,chunk,k);
     // free all chunks above the last needed
     while (nchunks > chunk+1) {
       delete[] chunk_vector[nchunks-1];
@@ -144,7 +157,7 @@ public:
   /** Resizes the vector with default constructor.
       @param new_size (input) new size for the vector
   */ 
-  void resize(int new_size) { resize(new_size,T()); }
+  void resize(int new_size) { T t; resize(new_size,t); }
   /// Resizes to null size.
   void clear(void) { shrink(0); }
   /** Binary search algorithm. Finds #t# in the range #first# to

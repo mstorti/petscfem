@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.11 2002/07/22 03:16:40 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.12 2002/07/22 15:45:12 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -41,13 +41,21 @@ PFPETScMat::~PFPETScMat() {}
 PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
   : sles(NULL), comm(comm_), part(pp), pf_part(part), 
   lgraph1(MM,&part,comm_), 
+  lgraph_dv(MM,&part,comm_), 
   lgraph(&lgraph1), 
   // lgraph(&lgraph_dv), 
   A(NULL), P(NULL), factored(0) { 
   //o Use a representation of the profile graph that is
   // muh slower but more efficient in memory management. 
   TGETOPTDEF(GLOBAL_OPTIONS,int,use_compact_profile,0);
-  if (use_compact_profile) lgraph = &lgraph_dv;
+  if (use_compact_profile) {
+    lgraph = &lgraph_dv;
+    //o Use a representation of the profile graph that is
+    // muh slower but more efficient in memory management. 
+    TGETOPTDEF(GLOBAL_OPTIONS,int,compact_profile_graph_chunk_size,0);
+    if (compact_profile_graph_chunk_size>0)
+      lgraph_dv.set_chunk_size(compact_profile_graph_chunk_size);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
