@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.9 2002/12/01 16:07:21 mstorti Exp $
+//$Id: mmove.cpp,v 1.10 2002/12/01 21:49:37 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -107,7 +107,7 @@ double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   la2=D.get(2);
   if (ndim==3) la3=D.get(3);
 #endif
-#if 0
+#if 1
 #warning Using diff-eig version
   static int flag=0;
   if(!flag) { printf("diff-eig\n"); flag=1; }
@@ -123,7 +123,7 @@ double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   } else assert(0);
   df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
   return df;
-#elif 1
+#elif 0
 #warning Using norm/norm(-1) eig version
   static int flag=0;
   if(!flag) { printf("norm/norm(-1)\n"); flag=1; }
