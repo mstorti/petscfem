@@ -2330,3 +2330,6 @@ tag: beta-3.16.pl5 on Sun,  9 Feb 2003 11:51:07 -0300 by mstorti in spider
 tag: beta-3.16.pl6 on Sun,  9 Feb 2003 19:40:12 -0300 by mstorti in spider
      > Runs `dx_hook' for steps=0 (asynchronously) and steps>0 (synchronously). 
      > But for the moment cant switch between modes. 
+----------
+tag: beta-3.16.pl7 on Sun,  9 Feb 2003 20:16:02 -0300 by mstorti in spider
+     > Switchs OK between asynchronous and synchronous modes in dx_hook. 
