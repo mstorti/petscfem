@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.5 2005/01/21 17:10:46 mstorti Exp $
+## $Id: mkgfabso.m,v 1.6 2005/01/21 18:23:08 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -43,7 +43,7 @@ Uref = [rhoref,uini,0,pref];
 ref = [Nx+1;2*Nx+2];
 pffixa("gfabso.fixa-ref.tmp",ref,1:4,Uref)
 
-asave("gfabso.some-nodes.tmp",(1:Nx-1)');
+asave("gfabso.some-nodes.tmp",[1:Nx-1,Nx+1]');
 
 nnod = size(xnod,1);
 Uini = Uref(ones(nnod,1),:);
