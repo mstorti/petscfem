@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: version.cppin,v 1.23 2003/09/11 16:02:07 mstorti Exp $
+//$Id: version.cppin,v 1.24 2003/09/11 17:49:04 mstorti Exp $
 #include <petsc.h>
 #include <src/fem.h>
 
@@ -22,8 +22,7 @@ void print_copyright() {
 "   Rodrigo R. Paz. CIMEC-CONICET-UNL\n"
 "PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,\n"
 "and you are welcome to redistribute it under certain conditions.\n"
-"-----------------------------------------------------------------------\n"
-"\n\n");
+"-----------------------------------------------------------------------\n\n");
 
   petscfem_print_link_date();
   petscfem_print_date();
