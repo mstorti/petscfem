@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.7 2002/07/22 02:49:35 mstorti Exp $
+//$Id: iisdgraph.h,v 1.8 2002/07/24 19:59:15 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -57,9 +57,9 @@ class StoreGraph1 : public StoreGraph {
   /// Clean all memory related 
   ~StoreGraph1() { lgraph.clear(); };
   /// Constructor
-  StoreGraph1(int N=0,const DofPartitioner *pp=NULL,
+  StoreGraph1(int N=0,const DofPartitioner *dp=NULL,
 	     MPI_Comm comm_=MPI_COMM_WORLD) :
-    g_part(pp),
+    g_part(dp),
     lgraph(&g_part,comm_), comm(comm_) { init(N); }
   // void print() { lgraph.print(); }
   /// perform the scatter of elements to its corresponding processor. 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.10 2002/07/24 03:51:34 mstorti Exp $
+// $Id: linkgraph.h,v 1.11 2002/07/24 19:59:15 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -106,16 +106,25 @@ public:
 };
 
 typedef LinkGraph::Row LinkGraphRow; 
-// typedef Partitioner<LinkGraphRow> LinkGraphRowPart;
 
-//  typedef  
-//  DistCont<LinkGraph,LinkGraphRow,LinkGraphRowPart>  LinkGraphDis;
+//typedef Partitioner<LinkGraphRow> LinkGraphRowPart;
+class LinkGraphRowPart {
+private:
+  const DofPartitioner *part;
+public:
+  LinkGraphRowPart(const DofPartitioner *dp) : part(dp) { assert(dp); }
+  void processor(const LinkGraphRow &p,int &nproc,int *plist) const {
+    nproc = 1;
+    plist[0] = part->processor(p.row);
+  }
+};
 
-#if 0
+typedef  
+DistCont<LinkGraph,LinkGraphRow,LinkGraphRowPart>  LinkGraphDis;
 class LinkGraphWrapper : public StoreGraph {
  private:
   LinkGraphDis lgd;
-  GPartitioner g_part;
+  LinkGraphRowPart lg_part;
  public:
   /// Adds an edge to the graph
   void add(int i, int j) { lgd.add(i,j); }
@@ -124,16 +133,18 @@ class LinkGraphWrapper : public StoreGraph {
   /// Clean all memory related 
   ~LinkGraphWrapper() { lgd.clear(); };
   /// Constructor
-  LinkGraphWrapper(int N=0,const DofPartitioner *pp=NULL,
-		     MPI_Comm comm_=MPI_COMM_WORLD) :
-    g_part(pp),
-    lgd(&g_part,comm_) { init(N); }
+  LinkGraphWrapper(int N=0,const DofPartitioner *dp=NULL,
+		   MPI_Comm comm_a=MPI_COMM_WORLD) :
+    lg_part(dp),
+    lgd(&lg_part,comm_a,LinkGraphDis::random_iter_mode) { init(N); }
   /// perform the scatter of elements to its corresponding processor. 
   void scatter() { lgd.scatter(); }
-  void print() const { lgd.print(); }
   /// Clean all memory related 
   void clear() { lgd.clear(); }
+  /** Set new chunk size.
+      @param new_chunk_size (input) new chunk size for the vector.
+  */
+  void set_chunk_size(int new_chunk_size) { lgd.set_chunk_size(new_chunk_size); }
 };
-#endif
 
 #endif

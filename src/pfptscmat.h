@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.10 2002/07/23 12:27:50 mstorti Exp $
+// $Id: pfptscmat.h,v 1.11 2002/07/24 19:59:15 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -11,7 +11,7 @@
 
 #include <src/iisdgraph.h>
 #include <src/graphdv.h>
-//#include <src/linkgraph.h>
+#include <src/linkgraph.h>
 #include <src/pfmat.h>
 
 class PFPETScMat : public PFMat {
@@ -54,7 +54,7 @@ protected:
   StoreGraph *lgraph;
   StoreGraph1 lgraph1;
   graphdv_dis lgraph_dv;
-  // link_graph_wrapper lgraph_lkg;
+  LinkGraphWrapper lgraph_lkg;
 
   /// IntRowPartitioner based on a DofPartitioner
   class PFPETScPart : public IntRowPartitioner {
