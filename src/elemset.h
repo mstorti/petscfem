@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: elemset.h,v 1.11 2001/04/01 01:35:06 mstorti Exp $
+//$Id: elemset.h,v 1.12 2001/04/09 04:03:45 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -586,9 +586,9 @@ public:
       @param name (input) the name of the property
       @param retval (input) the returned vector
       @param defval (input) Controls the action if no entry is found
-      in the hash table. If \verb+defval==0+, let retval unchanged, so that
+       in the hash table. If #defval==0#, let retval unchanged, so that
       you have to set it to its default value. Give an error if
-      \verb+defval!=0+ 
+      #defval!=0# 
    */ 
   int get_vec_double(const char *name,
 		     vector<double> &retval,int defval=0) const;

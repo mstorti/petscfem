@@ -7,6 +7,10 @@
 
 #include "nwadvdif.h"
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void GlobalScalarEF::init(\
+int ndof,int ndim,int nel,double Cp_=1.)"
 void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_=1.) {
   Cp=Cp_;
   eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
@@ -14,10 +18,19 @@ void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_=1.) {
   htmp2.resize(2,nel,nel);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void GlobalScalarEF::enthalpy(FastMat2 &H, FastMat2 &U)"
 void GlobalScalarEF::enthalpy(FastMat2 &H, FastMat2 &U) {
   H.set(U).scale(Cp);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
+FastMat2 &W,FastMat2 &N,double w)"
 void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
 				  FastMat2 &W,FastMat2 &N,double w) {
   htmp1.set(N).scale(w*Cp);
@@ -25,11 +38,20 @@ void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
   W_Cp_N.prod(htmp2,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ 
+"void GlobalScalarEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)"
 void GlobalScalarEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
   P_Cp.set(P_supg).scale(Cp);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \ 
+'void ScalarPerFieldEF::init(int ndof_,int ndim,int nel)"
 void ScalarPerFieldEF::init(int ndof_,int ndim,int nel) {
   ndof=ndof_;
   Cp.resize(1,ndof);

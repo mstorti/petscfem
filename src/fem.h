@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.13 2001/04/07 21:43:48 mstorti Exp $
+//$Id: fem.h,v 1.14 2001/04/09 04:03:45 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -33,8 +33,8 @@
     bless\_elemset. 
     NOTE: This is somewhat incorrect. NewElemset in the future will
     will replace Elemset. An in that case we will no need the explicit
-    caset \verb+(Elemset *)+. This is due to the fact that
-    \verb+Elemset+ has private members for NewElemset and derived
+    caset #(Elemset *)#. This is due to the fact that
+    #Elemset# has private members for NewElemset and derived
     classes, so that we can not make polymorphism between these
     classes. 
     @author M. Storti
@@ -274,9 +274,9 @@
 #define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(0);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** If \verb+bool_cond+ evaluates to true issues 
-    an error (with \verb+PetscPrintf(...))+ and
-    calls \verb+abort()+
+/** If #bool_cond# evaluates to true issues 
+    an error (with #PetscPrintf(...))# and
+    calls #abort()#
     @author M. Storti
 */ 
 #define PETSCFEM_ERROR(...)				\
@@ -288,9 +288,9 @@
   abort();
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** If \verb+bool_cond+ evaluates to false issues 
-    an error (with \verb+PetscPrintf(...))+ and
-    calls \verb+abort()+
+/** If #bool_cond# evaluates to false issues 
+    an error (with #PetscPrintf(...))# and
+    calls #abort()#
     @author M. Storti
 */ 
 #define PETSCFEM_ASSERT(bool_cond, ...)			\

@@ -30,12 +30,6 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Returns the list of variables that are 
-    logarithmic transformed.
-    @param nlog_vars (input) the number of logarithmic variables
-    @param log_vars (input) the list of logarithmic variables
-    @author M. Storti
-*/ 
 #undef __FUNC__
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
 void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
@@ -75,19 +69,6 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Transforms state vector from logarithmic. The indices of fields
-    logarithmically tranformed are listed in \verb+log_vars+. 
-    @author M. Storti
-    CORREGIR:=
-    @param true_lstate (output) Transformed from logarithm
-    to positive variable. 
-    @param lstate (ouput) input state logarithmically transformed
-    (only those fields in \verb+log_vars+).
-    @param nlog_vars (input) number of fields logarithmically
-    transformed
-    @param log_vars (input) list of fields logarithmically
-    transformed.
-*/ 
 #undef __FUNC__
 #define __FUNC__ "void log_transf()"
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,

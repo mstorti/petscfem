@@ -80,13 +80,13 @@ void AdvDifFF::get_log_vars(const NewElemset *elemset,int &nlog_vars,
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Transforms state vector from logarithmic. The indices of fields
-    logarithmically tranformed are listed in \verb+log_vars+. 
+    logarithmically tranformed are listed in #log_vars#. 
     @author M. Storti
     CORREGIR:=
     @param true_lstate (output) Transformed from logarithm
     to positive variable. 
     @param lstate (ouput) input state logarithmically transformed
-    (only those fields in \verb+log_vars+).
+    (only those fields in #log_vars#).
     @param nlog_vars (input) number of fields logarithmically
     transformed
     @param log_vars (input) list of fields logarithmically

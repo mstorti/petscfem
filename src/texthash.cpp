@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.5 2001/04/01 01:35:06 mstorti Exp $
+//$Id: texthash.cpp,v 1.6 2001/04/09 04:03:45 mstorti Exp $
  
 //  #include <stdio.h>
 //  #include <string.h>
@@ -57,7 +57,7 @@ void delete_hash_entry(void *p, void *q, void *u) {
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Adaptor for the Glib provided string hash function.
-    (\verb+g\_str\_hash+).
+    (#g_str_hash#).
     @author M. Storti
     @param v (input) the value 
     @return the hash value provided for Glib

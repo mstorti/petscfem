@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.6 2001/04/01 01:34:59 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.7 2001/04/09 04:03:40 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -131,7 +131,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
-  //o Cache \verb+grad_div_u+ matrix
+  //o Cache #grad_div_u# matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto

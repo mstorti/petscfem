@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.13 2001/04/01 01:34:59 mstorti Exp $
+//$Id: ns.cpp,v 1.14 2001/04/09 04:03:40 mstorti Exp $
  
 #include <malloc.h>
 
@@ -190,9 +190,9 @@ int main(int argc,char **args) {
   //o The time step.
   GETOPTDEF(double,Dt,0.);
   glob_param.Dt=Dt;
-  //o Trapezoidal method parameter. \verb+alpha=1+:
-  // Backward Euler. \verb+alpha=0+: Forward Euler.
-  // \verb+alpha=0.5+: Crank-Nicholson. 
+  //o Trapezoidal method parameter. #alpha=1#:
+  // Backward Euler. #alpha=0#: Forward Euler.
+  // #alpha=0.5#: Crank-Nicholson. 
   GETOPTDEF(double,alpha,1.); 
   glob_param.alpha=alpha;
   //o Use the LES/Smagorinsky turbulence model. 

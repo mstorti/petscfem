@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.23 2001/04/08 13:39:01 mstorti Exp $
+//$Id: advective.h,v 1.24 2001/04/09 04:03:38 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -114,89 +114,201 @@ public:
     PetscPrintf(PETSC_COMM_WORLD,"Undefined flux function\n");
     return 0;
   }
+  /** Returns the list of variables that are 
+      logarithmic transformed.
+      @param nlog_vars (input) the number of logarithmic variables
+      @param log_vars (input) the list of logarithmic variables
+      @author M. Storti
+  */ 
   virtual void get_log_vars(const NewElemset *elemset,int &nlog_vars, 
 			    const int *& log_vars);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Virtual class thet defines the relation between vector
+    state and enthalpy content. 
+*/ 
 class EnthalpyFun {
 public:
-  virtual void update(const double *) {};
+  /** Allows updating the data for the object. 
+      @param e (input) cofficients for updating the object
+  */ 
+  virtual void update(const double *e) {};
+  /** Computes the enthalpy vector from the state vector
+      @param H (output) the enthalpy content vector
+      @param U (input) the state vector
+  */ 
   virtual void enthalpy(FastMat2 &H, FastMat2 &U)=0;
+  /** Computes the product #(W_Cp_N)_(p,mu,q,nu) = W_p N_q Cp_(mu,nu)#
+      @param W_Cp_N (output) size #nel# x #ndof# x #nel# x #ndof#
+      @param W (input) weight function, size #nel#
+      @param N (input) interpolation function, size #nel#
+      @param w (input) scalar weight
+  */ 
   virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
 			   double w)=0;
+  /** Computes the product #(P_Cp)_(mu,nu) = (P_supg)_(mu,lambda) 
+      Cp_(lambda,nu)#
+      @param P_Cp (output) size #ndof# x #ndof#
+      @param P_supg (input) matricial weight function, size #ndof# x #ndof#
+  */ 
   virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
 };
 
-// Constant Cp for all the fields
+/// Constant Cp for all fields
 class GlobalScalarEF : public EnthalpyFun {
+  /// Aux var. identity of size ndof
   FastMat2 eye_ndof,htmp1,htmp2;
+  /// The actual Cp
   double Cp;
 public:
+  /// initializes dimensions and sets Cp
   void init(int ndim,int ndof,int nel,double Cp=1.);
+  /// Sets Cp from elemset data
   void update(const double *Cp_) {Cp=*Cp_;};
+  /// Multiplies U by Cp with 'scale'
   void enthalpy(FastMat2 &H, FastMat2 &U);
+  /// Scales at the same time by w*Cp
   void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
-			   double w);
+		   double w);
+  /// Scales #P_supg# by #Cp#
   void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
 };
 
-// Constant Cp=1 for all the fields. Identity relation between H and T
+/** Constant Cp=1 for all the fields. 
+    Identity relation between H and T
+*/
 class IdentityEF : public GlobalScalarEF {
 public:
+  /// Does nothing
   void update(const double *Cp_) {};
+  /// Copies #U# in #H#
   void enthalpy(FastMat2 &H, FastMat2 &U) {H.set(U);};
+  /// Copies #P_supg# in #P_Cp#
   void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {P_Cp.set(P_supg);};
 };
 
 class NewAdvDif;
 
-// This is the flux function for a given physical problem. 
+/// This is the flux function for a given physical problem. 
 class NewAdvDifFF {
 private:
-  // The list of variables to be logarithmically transformed
+  /// The list of variables to be logarithmically transformed
   vector<int> log_vars_v;
 public:
+  /// The elemset associated with the flux function
   const NewElemset *elemset;
+  /// The enthalpy function for this flux function
   EnthalpyFun *enthalpy_fun;
+  /// Constructor from the elemset
   NewAdvDifFF(NewElemset *elemset_=NULL) 
     : elemset(elemset_), enthalpy_fun(NULL) {};
+
+  /** Define the list of variables that are 
+      treated logarithmically. Reads from the options 
+      #nlog_vars" and #log_vars#. 
+  */
+  virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
+  /** This is called before any other in a loop and may help in
+      optimization 
+      @param ret_options (input/output) this is used by the flux
+      function writer for returning some options. Currently the only
+      option used is #SCALAR_TAU#. This options tells the elemset
+      whether the flux function returns a scalar or matrix
+      #tau_supg#. 
+  */ 
   virtual void start_chunk(int &ret_options) =0;
+  /** This is called before entering the Gauss points loop and may
+      help in optimization. 
+      @param element (input) an iterator on the elemlist. 
+  */ 
   virtual void element_hook(ElementIterator &element) =0;
-  virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
+
+  /** @name Advective jacobians related */
+  //@{
+  /** Computes the product #(A_grad_N)_(p,mu,nu) = A_(i,mu,nu) (grad_N)_(i,p)#
+      @param A_grad_N (output, size #nel# x #nd# x #nd#) 
+      @param grad_N (input, size #nel# x #ndof#)
+  */ 
+  virtual void comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N)=0;
+  /** Computes the product #(A_jac_n)_(mu,nu) = A_(i,mu,nu) normal_i#
+      @param A_jac_n (output, size #ndof# x #ndof#) 
+      @param normal (input, size #ndim#)
+  */ 
   virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
+  /** Computes fluxes, upwind parameters etc...
+      fixme:= more doc here ...
+  */ 
+  virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
+  //@}
+
+  /** @name Diffusive jacobians related */
+  //@{
+  /** Computes the product #(grad_N_D_grad_N)_(p,mu,q,nu) 
+      = D_(i,j,mu,nu) (grad_N)_(i,p) (grad_N)_(j,q)#
+      @param grad_N_D_grad_N (output, size #nel# x #ndof# x #nel# x #ndof# 
+      @param grad_N (input, size #nel# x #ndof#)
+  */ 
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				    FastMat2 & dshapex,double w) =0 ;
-  virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
-  virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
-  virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  //@}
+
+  /** @name Reactive jacobians related */
+  //@{
+  /** Computes the product #(N_N_C)_(p,mu,q,nu) 
+      = w C_(mu,nu) N_p N_q#
+      @param N_N_C (output, size #nel# x #ndof# x #nel# x #ndof# 
+      @param N (input) FEM interpolation function size #nel#
+      @param w (input) a scalar coefficient
+  */ 
+  virtual void comp_N_P_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  /** Computes the product #(N_P_C)_(mu,q,nu) 
+      = w (P_supg)_(mu,lambda) C_(lambda,nu) N_q #
+      @param N_P_C (output) size  #ndof# x #nel# x #ndof# 
+      @param P_supg (input) SUPG perturbation function size #ndof# x #ndof#
+      @param N (input) FEM interpolation function size #nel#
+      @param w (input) a scalar coefficient
+  */ 
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
-  // ~NewAdvDifFF()
+  //@}
 };
 
-/** The class NewAdvDif is a NewElemset class plus a
-    new advdif flux function object.
+/** Generic elemset for advective diffusive problems. 
+    Several physical problems may be solved by defining the
+    corresponding flux function object. 
 */
 class NewAdvDif : public NewElemset { 
+  /** A pointer to the flux function. Different
+      physics are obtained by redefining the flux function
+  */
   NewAdvDifFF *adv_diff_ff;
 public:
-  // int ndim,ndof,nel;
+  /// Contructor from the poitner to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
+  /// Destructor. Destroys the flux function object. 
   ~NewAdvDif() {delete adv_diff_ff;}
+  /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
+  /// The ask function for the elemset. 
   ASK_FUNCTION;
 };
 
-/** The class NewBcconv is a NewElemset class plus a
-    new advdif flux function object.
+/** This is the companion elemset to advdif that computes the boundary
+    term when using the weak-form option. 
 */
 class NewBcconv : public NewElemset { 
+  /** A pointer to the flux function. Different
+      physics are obtained by redefining the flux function
+  */
   NewAdvDifFF *adv_diff_ff;
 public:
-  // int ndim,ndof,nel;
+  /// Contructor from the poitner to the fux function
   NewBcconv(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
+  /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
+  /// The ask function for the elemset. 
   ASK_FUNCTION;
 };
 
@@ -286,11 +398,28 @@ public:
   ASK_FUNCTION;
 };
 
-// Global parameters
+/// Global parameters passed to the elemsets
 struct GlobParam {
-  double alpha,Dt;
+  /// trapezoidal temporal integarion rule parameter
+  double alpha;
+  /// time step
+  double Dt;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Transforms state vector from logarithmic. The indices of fields
+    logarithmically tranformed are listed in #log_vars#. 
+    @author M. Storti
+    CORREGIR:=
+    @param true_lstate (output) Transformed from logarithm
+    to positive variable. 
+    @param lstate (ouput) input state logarithmically transformed
+    (only those fields in #log_vars#).
+    @param nlog_vars (input) number of fields logarithmically
+    transformed
+    @param log_vars (input) list of fields logarithmically
+    transformed.
+*/ 
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 		const int nlog_vars,const int *log_vars);
 

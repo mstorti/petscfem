@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sttfilter.cpp,v 1.5 2001/04/01 01:35:06 mstorti Exp $
+//$Id: sttfilter.cpp,v 1.6 2001/04/09 04:03:45 mstorti Exp $
 
 #include "sttfilter.h"
 
@@ -49,8 +49,8 @@ LPFilterGroup::LPFilterGroup(TextHashTable *thash,
 
   //o _T: double[2*nalpha]
   //  _N: low_pass_filter _D: no filter (nalpha=0)  _DOC: 
-  //  Enter pair of values \verb+gamma_1 n_1 gamma_2 n_2+ ...
-  //  so that the relaxation time are \verb+tau_j = 1./gamma_j$ and $n_j$
+  //  Enter pair of values #gamma_1 n_1 gamma_2 n_2# ...
+  //  so that the relaxation time are $\tau_j = 1./gamma_j$ and $n_j$
   //  is the corresponding order. 
   //  FIXME:= TO BE DOCUMENTED LATER
   //  _END

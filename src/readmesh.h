@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: readmesh.h,v 1.8 2001/04/01 01:35:06 mstorti Exp $
+//$Id: readmesh.h,v 1.9 2001/04/09 04:03:45 mstorti Exp $
  
 #ifndef READ_MESH_H
 #define READ_MESH_H
@@ -150,7 +150,7 @@ int read_hash_table(FileStack *& fstack,TextHashTable *& thash);
 /** Prints a vector with ``rotary save'' mechanism. 
     @author M. Storti
     @param filenamepat (input) The pattern that generates the
-    filenames to which the vectors are written. Must contain \verb+%d+
+    filenames to which the vectors are written. Must contain #%d#
     @param x (input) The vector to be written
     @param dofmap (input) The dofmap of the problem. (Gives values for
     fixed node/field combinations - Dirichlet boundary conditions.)

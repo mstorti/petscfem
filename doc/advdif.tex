@@ -7,11 +7,146 @@
 Advective system of equations are of the form
 %
 \begin{equation} 
- \dep{U_\mu}t + \dep{\F^\conv_{i\mu}(U)}{x_i} = 
-             \dep{\F^\diff_{i\mu}(U,\nabla U)}{x_i} + G_\mu
+ \dep{!H(!U)_\mu}t + \dep{}{x_i}\F^\conv_{i\mu}(!U) +
+             \dep{}{x_i}\F^\diff_{i\mu}(!U,\nabla !U) = G_\mu(!U)
 \end{equation}
 %
-and its numerical treatment is similar to the advective elemset. 
+and its numerical treatment is similar to the advective elemset.  The
+$!H(!U)$ is a one to one relationship between tha \emph{``state
+variables''} $!U$ and the \emph{``conservation variables''}
+$!H$. $\F^{\diff,\conv}$ are the convective and diffusive fluxes
+respectively. We use the SUPG variational formulation
+%
+\begin{equation} 
+\begin{split}
+ \int_\Omega N_p (\dep{!H_\mu}t & - G_\mu
+        +\cswf \, \dep{}{x_i}\F^\conv_{i\mu} ) \di\Omega + \\
+   &   -\int_\Omega  \dep{N_p}{x_i} \, (\swf \F^\conv_{i\mu} 
+        + \F^\diff_{i\mu})  \di\Omega  \\
+     & + \int_\Gamma (\swf \F^\conv_{i\mu} 
+        + \F^\diff_{i\mu}) n_i \di\Gamma \\
+     & + \sum_e \int_{\Omega_e} 
+     \taufac \, !P_{ep} \, \LL\{\bsupg \dep{!H_\mu}t + 
+        \dep{}{x_i}\F_{i\mu}
+              - G_\mu \RR\} \di\Omega =0
+\end{split}
+\end{equation}
+%
+where
+%
+\begin{itemize}
+\item $N_p$ is the interpolation function for the $p$-th node. 
+\item The variational formulation represents an equation for each node
+$p$ and equation $\mu$. 
+\index{weak_form@\verb+weak_form+}
+\item $\swf$ is the \emph{``weak form selector''} (option
+\verb+weak_form+).  It may take the values $0,1$ and $!\swf = 1-\swf$
+is its complement. It controls the integration by parts (or not) of
+the advective term.
+\index{beta_supg@\verb+beta_supg+}
+\item $0\le\bsupg\le 1$ (option \verb+beta_supg+) controls whether the
+temporal term is treated consistently or not.
+\item $P_{ep}(!x)$ is the SUPG \emph{``perturbation function''} for node
+$p$ on element $e$. For systems, as it is here, it may be a matrix of
+size $\ndof\times\ndof$. 
+\item The integral on the boundary is computed in elemsets of type
+\verb+bcconv+, whereas the rest are computed in elemset of type
+\verb+advdif+. 
+\end{itemize}
+
+\SSection{Flux jacobians}
+
+The \emph{``flux jacobians''} are the derivatives of the fluxes to the
+different components:
+
+\begin{itemize}
+\item The \emph{``advective jacobians''} are
+%
+\begin{equation}
+A_{i\mu\nu} = \dep{}{U_\nu} {\F^\conv_{i\mu}}
+\end{equation}
+%
+The projection of the jacobian on a given direction $!n$ is 
+%
+\[
+  (!A\cdot!n)_{\mu\nu} = A_{i\mu\nu} n_i
+\]
+%
+By the theory of advective systems of equations it is assumed that the
+projection of the jacobians on any direction $!n$ must be a
+diagonalizable matrix with real eigenvalues.
+
+\item The \emph{``diffusive jacobians''} are 
+%
+\begin{equation}
+D_{ij\mu\nu} = -\dep{}{(\prt_j U_\nu)} {\F^\diff_{i\mu}}
+\end{equation}
+%
+It is assumed that the diffusive jacobians are symmetric possitive definite if
+seen as a square matrix of row/column dimension of \(\ndim\ndof\). 
+
+\item The \emph{``reactive jacobians''} are
+%
+\[ R_{\mu\nu} = -\dep{U_\nu}{G_\mu} \]
+%
+Normally, it is assumed that the eigenvalues have positive real part,
+otherwise an exponential grow may happen. 
+
+\item The \emph{``enthalpy jacobians''} or \emph{``capacitance
+matrix''} is
+%
+\[   C_{\mu\nu} = \dep{U_\nu}{H_\mu}  \]
+
+\end{itemize}
+
+\SSection{The flux function class} 
+
+The particular relations for each physical problem are passed through
+a \emph{``flux function''} (class \verb+AdvDifFF+) object whose
+abstract interface is the following
+
+\begin{verbatim}
+class EnthalpyFun {
+public:
+  virtual void update(const double *) {};
+  virtual void enthalpy(FastMat2 &H, FastMat2 &U)=0;
+  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+			   double w)=0;
+  virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
+};
+
+class AdvDifFF {
+private:
+  // ...
+public:
+  const Elemset *elemset;
+  EnthalpyFun *enthalpy_fun;
+  AdvDifFF(Elemset *elemset_=NULL) 
+    : elemset(elemset_), enthalpy_fun(NULL) {};
+  virtual void start_chunk(int &ret_options) =0;
+  virtual void element_hook(ElementIterator &element) =0;
+  virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
+  virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+				    FastMat2 & dshapex,double w) =0 ;
+  virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
+  virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
+  virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+			  FastMat2 &N,double w)=0;
+};
+\end{verbatim}
+
+The class contains a number of members that define the different
+fluxes and jacobians. Instead of returning explicitly the full
+jacobian, the interface allows to only define the action of the
+jacobian on other matrices. This may improve efficiency when the
+jacobians are sparse or null. For instance the function
+\verb+comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N)+ should
+return the product (\verb+A_grad_N+)$_{p\mu\nu}$ = $A_{i\mu\nu}\,
+\deps{N_p}{x_i}$ of size $\nel\times\ndof\times\ndof$ on output when
+passed a matrix (\verb+grad_N+)$_{ip} = \deps{N_p}{x_i}$ of size
+$\ndim\times\nel$.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{Options}
@@ -40,8 +175,8 @@ All fluxes and \(G_\mu\) are linear in \(!U\) and its gradients
 \begin{equation}
 \begin{split}
   \F^\conv_{i\mu} &= A_{j\mu\nu} U_\nu \\
-  \F^{\diff}_{i\mu} &= \D_{ij\mu\nu}\, \prt_j U^\nu\\
-   G_\mu &= R_{\mu\nu} U_\nu + S_\nu
+  \F^{\diff}_{i\mu} &= -\D_{ij\mu\nu}\, \prt_j U^\nu\\
+   G_\mu &= -R_{\mu\nu} U_\nu + S_\nu
 \end{split}
 \end{equation}
 

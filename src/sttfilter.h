@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: sttfilter.h,v 1.6 2001/04/01 01:35:06 mstorti Exp $
+//$Id: sttfilter.h,v 1.7 2001/04/09 04:03:45 mstorti Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -48,7 +48,7 @@ public:
 
   /**@name Operations on the state vector part */
   //@{ 
-  /// axpy operation on the state vector part: \verb+ *this += gamma * v+
+  /// axpy operation on the state vector part: # *this += gamma * v#
   State & axpy(double gamma,const State &v);
   /// scales state vector
   State & scale(double gamma);
