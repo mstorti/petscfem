@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.55 2002/09/07 15:33:50 mstorti Exp $
+//$Id: readmesh.cpp,v 1.56 2002/09/21 13:53:47 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -619,9 +619,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     for (int proc=0; proc<size; proc++) {
       weights_file->get_line(line);
       sscanf(line,"%f",&tpwgts[proc]);
+      PETSCFEM_ASSERT0(tpwgts[proc]>=0.,
+		       "Processor weight must be >= 0.");  
       sumw += tpwgts[proc];
     }
     PetscPrintf(PETSC_COMM_WORLD,"total weight: %f\n",sumw);
+    PETSCFEM_ASSERT0(sumw>0.,"Total processor weight must be > 0.");  
     for (int proc=0; proc<size; proc++) {
       tpwgts[proc] /= sumw;
       PetscPrintf(PETSC_COMM_WORLD," proc: %d, w: %f\n",proc,tpwgts[proc]);

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.35 2002/09/21 02:18:15 mstorti Exp $ 
+# $Id: Makefile,v 1.36 2002/09/21 13:53:51 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -81,26 +81,50 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp16 runs
 	octave -q < check_iisd2.m > check.iisd.verif.np2.tmp
 
+REDIR := >
+# REDIR := | tee
+
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc: CASE := sqcav
 test_zero_w_proc:
+# 	Runs with one and two process and compares
+#
+#	One process:
+	$(MAKE) case=zwproc_ref np=1 data
+	echo $(HOSTNAME) > machi.dat
+	echo 1. > weights.dat
+	-${MPIRUN} -np 1 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	$(REDIR) output.zwproc_ref.out.tmp
+#	Two process:
 	$(MAKE) case=zwproc np=2 data
 	echo $(HOSTNAME) > machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
 	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
-	> output.zwproc.out.tmp
+	$(REDIR) output.zwproc.out.tmp
+#
 	octave -q check_zwproc.m > check.zwproc.tmp
 
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc2: CASE := sqcav
 test_zero_w_proc2:
+# 	Runs with one and two process and compares
+#
+#	One process:
+	$(MAKE) case=zwproc2_ref np=1 data
+	echo $(HOSTNAME) > machi.dat
+	echo 1. >> weights.dat
+	-${MPIRUN} -np 1 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
+	$(REDIR) output.zwproc2_ref.out.tmp
+#
+#	Two process:
 	$(MAKE) case=zwproc2 np=2 data
 	echo $(HOSTNAME) > machi.dat
 	echo 0. > weights.dat
 	echo 1. >> weights.dat
 	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
-	> output.zwproc2.out.tmp
+	$(REDIR) output.zwproc2.out.tmp
+#
 	octave -q check_zwproc2.m > check.zwproc2.tmp
 
 test_meas_perf:

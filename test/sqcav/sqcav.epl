@@ -16,10 +16,14 @@ if ($case eq 'other') {
     $N = 40;
 }
 
+if ($case eq 'zwproc2_ref') { $case = 'zwproc2'; }
+
 if ($case eq 'zwproc2') {
     $case = 'zwproc';
     $iisd_subpart = 2;
 }
+
+if ($case eq 'zwproc_ref') { $case = 'zwproc'; }
 
 if ($case eq 'zwproc') {
     $case = 'weak_form_1';
@@ -30,6 +34,7 @@ if ($case eq 'zwproc') {
     $solver = "iisd";
     $iisd_subpart = 1 unless $iisd_subpart;
     $steady = 0;
+    $maxits = 100;
 }
 
 $steady = 1 unless defined $steady;
@@ -49,7 +54,7 @@ $viscosity = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
 $solver = "petsc" unless $solver;
 $preco_type = "lu" unless $preco_type;
-$maxits = 1;
+$maxits = 1 unless $maxits;
 $nstep = 100 unless $nstep;
 #
 $weak_form = 0;
