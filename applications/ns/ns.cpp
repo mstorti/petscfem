@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.66 2002/03/13 02:04:56 mstorti Exp $
+//$Id: ns.cpp,v 1.67 2002/03/17 03:53:40 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -18,6 +18,7 @@
 #include "adaptor.h"
 #include "elast.h"
 #include "qharm.h"
+#include "gatherer.h"
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
@@ -53,6 +54,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(wall)
     SET_ELEMSET_TYPE(wallke)
     SET_ELEMSET_TYPE(wall_law_res)
+    SET_ELEMSET_TYPE(force_integrator)
 	{
 	printf("not known elemset \"type\": %s\n",type);
 	exit(1);
@@ -84,7 +86,8 @@ int main(int argc,char **args) {
   char fcase[FLEN+1];
   Dofmap *dofmap = new Dofmap;
   Mesh *mesh;
-  arg_list argl;
+  // arglf:= argument list for computing gathered quantities as forces
+  arg_list argl, arglf;
   vector<double> hmin;
 #ifdef RH60   // fixme:= STL vector compiler bug??? see notes.txt
   hmin.resize(1);
@@ -589,6 +592,14 @@ int main(int argc,char **args) {
 		  normres_external,tol_newton);
       break;
     }
+
+    // Compute gathered quantities, for instance total force on walls
+    vector<double> force(3);
+    arglf.clear();
+    arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
+    arglf.arg_add(&force,VECTOR_ADD);
+    ierr = assemble(mesh,argl,dofmap,"gather",&time_star); CHKERRA(ierr);
 
     filter.update(time);
     if (print_some_file!="" && tstep % nsome == 0) {
