@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.110 2004/11/11 18:23:25 mstorti Exp $ 
+# $Id: Makefile,v 1.111 2005/02/21 00:35:15 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -134,7 +134,9 @@ block_uploading:
 #w Checks the surf-gatherer class
 srfgath:
 	$(MAKE) case=srfgath mesh
-	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) \
+		-case $(CASE).depl > $(CASE).srfgath-output.tmp
+	octave -qH check_srfgath.m > verif-srfgath.tmp
 
 #================================================================
 #w For the shell-hook

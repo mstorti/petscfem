@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.125 2004/11/11 21:52:23 mstorti Exp $
+#$Id: runtests.pl,v 1.126 2005/02/21 00:36:16 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -405,6 +405,11 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
 begin_section('Misc tests.');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("cubcav/verif-srfgath.tmp",
+       "Surface gatherers",
+       "Srfgath values OK. > 1");
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("cubcav/cubcav.plain-bupl.verif.tmp",

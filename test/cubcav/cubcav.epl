@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.118 2004/10/22 10:30:11 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.119 2005/02/21 00:35:15 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -96,6 +96,7 @@ hook_list shell_hook cubcav
 >>endif
 
 ngather 10
+gather_file cubcav-srfgath.gather.tmp
 
 >>if 0
 compact_profile_graph_chunk_size 40000
