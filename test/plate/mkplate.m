@@ -30,7 +30,12 @@ for k=1:Nx+1
   endif
 endfor
 
-V = aload("v.tmp");
+[info, err] = lstat ("v.tmp");
+if err!=-1
+  V = aload("v.tmp");
+else
+  V = zeros(Nx+1,1);
+endif
 for k=2:Nx+1
   ## On the external boundary
   fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+k,2,V(k));

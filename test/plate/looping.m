@@ -1,8 +1,8 @@
 source("data.m.tmp");
-omega = 0.1;
+omega = 1;
 
 ## Initialization
-if 1
+if 0
   V = zeros(Nx+1,1);
   Vold = V;
   Vh = [];
