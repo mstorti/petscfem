@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.1.2.1 2001/12/17 00:03:57 mstorti Exp $
+//$Id: iisdgraph.h,v 1.1.2.2 2001/12/18 01:58:41 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -32,6 +32,8 @@ public:
 typedef map<int, set<int> > GMap;
 /// An individual set of the storage map. 
 typedef pair<int, set<int> > GRow;
+/// A set of neighbors. 
+typedef set<int> GSet;
 /// Partitioner for the scatter operation. 
 typedef Partitioner< set<int> > GPartitioner;
 /// The basic container for the distributed graph class.
@@ -60,10 +62,11 @@ class StoreGraph : public Graph {
   /// Constructor
   StoreGraph(int N=0,GPartitioner *pp=NULL,
 	     MPI_Comm comm_=MPI_COMM_WORLD) :
-    lgraph(pp,comm_) { init(N); }
+    lgraph(pp,comm_), comm(comm_) { init(N); }
   // void print() { lgraph.print(); }
   /// perform the scatter of elements to its corresponding processor. 
   void scatter() { lgraph.scatter(); }
+  void print() const;
 #if 0
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry

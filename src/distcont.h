@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.2.4.2 2001/12/17 00:03:57 mstorti Exp $
+// $Id: distcont.h,v 1.2.4.3 2001/12/18 01:58:41 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
@@ -117,7 +117,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
   typename Container::iterator iter,next;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
-  ValueType p;
+
   char **send_buff,**send_buff_pos,*recv_buff;
   const char *recv_buff_pos,*recv_buff_pos_end;
   MPI_Request send_rq,recv_rq;
@@ -338,6 +338,8 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	    // recv_buff_pos_end
 	    recv_buff_pos_end = recv_buff + nsent;
 	    while (recv_buff_pos < recv_buff_pos_end ) {
+	      ValueType p;	// This is to assure that we have a clean
+				// `p' each time
 	      unpack(p,recv_buff_pos);
 	      combine(p);
 	    }

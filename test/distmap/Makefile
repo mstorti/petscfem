@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16.6.2 2001/12/17 00:04:01 mstorti Exp $ 
+# $Id: Makefile,v 1.16.6.3 2001/12/18 01:58:49 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -72,7 +72,7 @@ tryme6.bin: tryme6.cpp
 
 SRC_DIR = $(PETSCFEM_DIR)/src
 LIB := $(SRC_DIR)/libpetscfem.a
-LIB_OBJS := iisdgraph graph
+LIB_OBJS := iisdgraph graph debug
 LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
 
 $(LIB)(%.o):

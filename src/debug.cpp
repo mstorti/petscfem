@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.5 2001/11/25 22:44:21 mstorti Exp $
+//$Id: debug.cpp,v 1.5.4.1 2001/12/18 01:58:40 mstorti Exp $
  
 #include <src/debug.h>
 #include <cstdio>
@@ -47,7 +47,7 @@ void Debug::trace(const char *s=NULL) {
   char t[MXTM];
   MPI_Comm_rank(comm,&myrank);
   MPI_Allreduce(&stop_f,&stopp,1,MPI_INT,
-		MPI_MAX,PETSC_COMM_WORLD);
+		MPI_MAX,comm);
   stop_f = stopp;
   if (stop_f) { activate(); stop_f=0;}
   if (myrank==0) {
@@ -78,17 +78,17 @@ void Debug::trace(const char *s=NULL) {
     ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,comm);
     assert(ierr==0); 
     if (ans=='q') {
-      PetscPrintf(PETSC_COMM_WORLD,"Quitting by user request...\n");
+      PetscPrintf(comm,"Quitting by user request...\n");
       PetscFinalize();
       exit(0);
       break;
     } else if (ans=='p') {
-      PetscPrintf(PETSC_COMM_WORLD,"Printing Pid list:\n");
-      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+      PetscPrintf(comm,"Printing Pid list:\n");
+      PetscSynchronizedPrintf(comm,
 			      "[%d] Pid: %d\n",myrank,getpid());
-      PetscSynchronizedFlush(PETSC_COMM_WORLD);
+      PetscSynchronizedFlush(comm);
     } else if (ans=='d') {
-      PetscPrintf(PETSC_COMM_WORLD,"Deactivate debugging mode...\n");
+      PetscPrintf(comm,"Deactivate debugging mode...\n");
       deactivate();
       break;
     } else if (ans=='c' || ans=='\n') {
@@ -108,6 +108,10 @@ void Debug::init() {
 
 Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
   comm(comm_) {
-  if (active_) activate();
+  if (active_) {
+    activate();
+  } else {
+    deactivate();
+  }
   chrono.start();
 }
