@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.19 2001/05/07 01:54:26 mstorti Exp $
+//$Id: ns.cpp,v 1.20 2001/05/21 15:28:41 mstorti Exp $
  
 #include <malloc.h>
 
@@ -47,8 +47,11 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(nsi_tet_les)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
+    SET_ELEMSET_TYPE(nsi_tet_keps)
     SET_ELEMSET_TYPE(bcconv_ns_fm2)
+    SET_ELEMSET_TYPE(bcconv_nsther_fm2)
     SET_ELEMSET_TYPE(wall)
+    SET_ELEMSET_TYPE(wallke)
 	{
 	printf("not known elemset \"type\": %s\n",type);
 	exit(1);

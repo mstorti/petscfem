@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.9 2001/05/05 01:20:40 mstorti Exp $
+//$Id: wall.cpp,v 1.10 2001/05/21 15:28:41 mstorti Exp $
   
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -170,9 +170,12 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix matloc_prof(nen,nen),uc(ndim),tmp1,tmp2,tmp3,tmp4,tmp5,seed(ndof,ndof);
 
-  if (comp_mat_res) {
-    seed.eye().setel(0.,ndof,ndof);
-  }
+//    if (comp_mat_res) {
+//      seed.eye().setel(0.,ndof,ndof);
+//    }
+  seed.set(0.);
+  for (int j=1; j<=ndim; j++) 
+    seed.setel(1.,j,j);
 
   if (comp_mat) {
     matloc_prof.set(1.);

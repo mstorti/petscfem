@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsi_tet.h,v 1.5 2001/05/01 21:45:34 mstorti Exp $
+//$Id: nsi_tet.h,v 1.6 2001/05/21 15:28:41 mstorti Exp $
 #ifndef NSI_TET_H  // -*- mode: C++ -*-
 #define NSI_TET_H
 
@@ -39,7 +39,20 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class nsi_tet_keps : public ns_volume_element { 
+public: 
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class bcconv_ns_fm2 : public Elemset { 
+public: 
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class bcconv_nsther_fm2 : public Elemset { 
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
@@ -49,6 +62,12 @@ public:
 class wall : public Elemset { 
 public: 
   ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+};
+
+//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+class wallke : public Elemset { 
+public: 
   ASSEMBLE_FUNCTION;
 };
 
@@ -103,6 +122,8 @@ struct GlobParam {
   /// do not include temporal term (steady solutions)
   int steady;
 };
+
+void wall_fun(double yp,double &f,double &fprime);
 
 #endif
 
