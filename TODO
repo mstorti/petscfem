@@ -2,6 +2,13 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* When not using __INCLUDE__ in the constraint section (for instance)
+      doesn't complain. 
+> constraint
+> gfshock.peri.tmp
+> gfshock.v-peri.tmp
+> gfshock.slip.tmp
+> __END_CONSTRAINT__
 * Add to FastMat2 documentation that maskes `ir()', `is()' should not
     traverse `branch()', `choose()' boundaries. 
 * Check that absorbing b.c.'a options are included in the doc. 
