@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.27 2003/03/04 23:27:05 mstorti Exp $ 
+# $Id: Makefile,v 1.28 2003/03/05 21:00:40 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
@@ -11,7 +11,7 @@ sphere:
 	$(MAKE) CASE_NAME=sphere run
 
 inviscid:
-	$(MAKE) CASE_NAME=ext run > inviscid.output.tmp 2>&1 
+	$(MAKE) CASE_NAME=ext NP=1 run > inviscid.output.tmp 2>&1 
 
 plate:
 	$(MAKE) CASE_NAME=plate run
@@ -42,9 +42,11 @@ LOC_PROG := ns
 PROG := $(NS)
 
 .PHONY: force
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+ifeq ($(NP),)
+NP := $(shell procsel ./proctable)
+endif
 run: $(CASE_NAME).depl
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) -case $< 
+	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 
 
 $(CASE_NAME).depl: force
 
