@@ -25,7 +25,7 @@ sub get_var_env {
 
 sub pr {
     $name = shift();
-    print "$name ",quote_string(${$name}),"\n";
+    print "$name ",quote_string(${$name});
 }
 
 # usage: "doc_vals(VARS)", for instance "doc_vals(qw(Re,Ra,N,alpha))"
