@@ -877,3 +877,6 @@ tag: pfmat-rewrite-1.29 on Sun Jan 13 23:46:34 ARST 2002, by mstorti in spider
 tag: beta-2.64 on Mon Jan 14 05:07:18 ARST 2002, by mstorti in spider
      > -- STABLE VERSION -- 
      > Merged all files from the `pfmat-rewrite-branch'.
+----------
+tag: beta-2.64 on Tue Jan 15 18:40:16 ARST 2002, by mstorti in spider
+     > `aquifer' elemset is working.
