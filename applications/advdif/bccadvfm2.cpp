@@ -49,10 +49,10 @@ int BcconvAdv::ask(char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "BcconvAdv::assemble"
-int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			   Dofmap *dofmap,char *jobinfo,int myrank,
-			   int el_start,int el_last,int iter_mode,
-			   const TimeData *time_data) {
+void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+			     const Dofmap *dofmap,const char *jobinfo,
+			     const ElementList &elemlist,
+			 const TimeData *time_data) {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -167,10 +167,12 @@ int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   int start_chunk=1;
-  for (int k=el_start; k<=el_last; k++) {
-    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+  for (ElementIterator element = elemlist.begin(); 
+       element!=elemlist.end(); element++) {
     FastMat2::reset_cache();
-    ielh++;
+
+    int k,ielh;
+    element.position(k,ielh);
     // Load local node coordinates in local vector
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
@@ -183,7 +185,7 @@ int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     }
     if (comp_prof) {
-      matlocf.export(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
       continue;
     }
 
@@ -251,19 +253,18 @@ int BcconvAdv::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 #endif
     if (comp_res) {
-      veccontr.export(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
 #ifdef CHECK_JAC
-      veccontr.export(&(RETVAL_FDJ(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL_FDJ(ielh,0,0)));
 #endif
       if (comp_mat_each_time_step_g) 
-	matlocf.export(&(RETVALMATT(ielh,0,0,0,0)));
+	matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
     } else if (comp_prof) {
-      matlocf.export(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
     }
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-
 }
 
 #undef SHAPE    

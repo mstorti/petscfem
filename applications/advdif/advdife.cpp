@@ -22,6 +22,7 @@
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
+extern int MY_RANK,SIZE;
   
 #include <vector>
 
@@ -44,16 +45,16 @@ int AdvDif::ask(char *jobinfo,int &skip_elemset) {
    skip_elemset = 1;
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
-
+   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
-int AdvDif::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			Dofmap *dofmap,char *jobinfo,int myrank,
-			int el_start,int el_last,int iter_mode,
-			const TimeData *time_data) {
+void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+			 const Dofmap *dofmap,const char *jobinfo,
+			 const ElementList &elemlist,
+			 const TimeData *time_data) {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -192,12 +193,13 @@ int AdvDif::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   int start_chunk=1;
-  ElementList elemlist(this,el_start,el_last+1,DO_NOT_INCLUDE_GHOST);
+  // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
     // if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     int k,ielh;
     element.position(k,ielh);
+    // printf("[%d] glob: %d loc: %d\n",MY_RANK,k,ielh);
 
 #ifdef USE_FASTMAT2_CACHE
     FastMat2::reset_cache();
@@ -214,7 +216,7 @@ int AdvDif::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if (comp_prof) {
-      matlocf.export(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
       continue;
     }
 
@@ -300,10 +302,14 @@ int AdvDif::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 
 	  tmp23.set(SHAPE).scale(-wpgdet*ALPHA);
-	  // tmp14.prod(A_grad_N,tmp23,1,2,4,3); // debug:=
-	  // matlocf.add(tmp14);
+#if 1     // La verdad es que no se cual de estos dos es!!!
+	  // Parece que este es el correcto
+	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
+	  matlocf.add(tmp14);
+#else
 	  tmp14.prod(A_grad_N,tmp23,3,2,4,1);
 	  matlocf.rest(tmp14);
+#endif
 	} else {
 	  // tmp2.prod(SHAPE,tmp1,1,2); // tmp2= SHAPE' * (G - dUdt - A_grad_U)
 	  tmp2.prod(SHAPE,A_grad_U,1,2); // tmp2= SHAPE' * A_grad_U
@@ -311,10 +317,14 @@ int AdvDif::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
 
 	  tmp23.set(SHAPE).scale(wpgdet*ALPHA);
-	  // tmp14.prod(A_grad_N,tmp23,3,2,4,1);  // debug:= 
-	  // matlocf.add(tmp14);
+#if 1     // La verdad es que no se cual de estos dos es!!!
+	  // Parece que este es el correcto
+	  tmp14.prod(A_grad_N,tmp23,3,2,4,1); 
+	  matlocf.add(tmp14);
+#else
 	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
 	  matlocf.rest(tmp14);
+#endif
 
 	}
 	// tmp8= DSHAPEX * (w*flux_c - flux_d)
@@ -403,20 +413,19 @@ int AdvDif::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 #endif
 
-      veccontr.export(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
 #ifdef CHECK_JAC
-      veccontr.export(&(RETVAL_FDJ(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL_FDJ(ielh,0,0)));
 #endif
       if (comp_mat_each_time_step_g) 
-	matlocf.export(&(RETVALMATT(ielh,0,0,0,0)));
+	matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
     } else if (comp_prof) {
-      matlocf.export(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
     }
 
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-
 }
 
 #undef SHAPE    

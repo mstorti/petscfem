@@ -19,6 +19,8 @@
 
 */
 
+#include <set>
+
 #include "../../src/fem.h"
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
@@ -146,7 +148,7 @@ int main(int argc,char **args) {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the 'comp_mat_res' jobinfo. 
+  //o Measure performance of the \verb+comp_mat_res+ jobinfo. 
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)
@@ -168,8 +170,24 @@ int main(int argc,char **args) {
   //o After computing the linear system prints Jacobian and
   // right hand side and stops.. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Solve system before `print_linear_system_and_stop'
+  //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
+
+  //o Sets the save frequency in iterations for the ``print some''
+  // mechanism. (see doc in the Navier-Stokes module)
+  GETOPTDEF(int,nsome,10000);
+  //o Name of file where to read the nodes for the ``print some'' 
+  // feature. 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,print_some_file,);
+  //o Name of file where to save node values for the ``print some'' 
+  // feature. 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_some,outvsome.out);
+
+  set<int> node_list;
+  print_some_file_init(mesh->global_options,
+		       print_some_file.c_str(),
+		       save_file_some.c_str(),node_list);
+
 
   // warning: passed to advective.cpp via a global variable
   //o Uses consistent SUPG matrix for the temporal term or not. 
@@ -217,8 +235,12 @@ int main(int argc,char **args) {
   //o Tolerance when solving the non-linear problem
   // for the implicit case.
   GETOPTDEF(double,tol_newton,1e-3);
+
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,Jacobi);
+  // I had to do this since `c_str()' returns `const char *'
+  char *preco_type_ = new char[preco_type.size()+1];
+  strcpy(preco_type_,preco_type.c_str());
 
   Time time,time_star;
   time.set(start_time);
@@ -310,11 +332,12 @@ int main(int argc,char **args) {
 	ierr = SLESGetPC(sles,&pc); CHKERRA(ierr);
 	
 	ierr = KSPSetType(ksp,KSPGMRES); CHKERRA(ierr);
-	ierr = PCSetType(pc,
-			 (preco_type=="Jacobi" ? PCJACOBI :
-			  preco_type=="none" ? PCNONE : 
-			  preco_type=="LU" ? PCLU : 
-			  PCJACOBI)); CHKERRA(ierr);
+//  	ierr = PCSetType(pc,
+//  			 (preco_type=="Jacobi" ? PCJACOBI :
+//  			  preco_type=="none" ? PCNONE : 
+//  			  preco_type=="LU" ? PCLU : 
+//  			  PCJACOBI)); CHKERRA(ierr);
+	ierr = PCSetType(pc,preco_type_); CHKERRA(ierr);
 	// ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);
 	ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRA(ierr);
 	ierr = KSPSetMonitor(ksp,MyKSPMonitor,PETSC_NULL); CHKERRA(ierr);
@@ -451,6 +474,9 @@ int main(int argc,char **args) {
 
       print_vector(save_file.c_str(),x,dofmap,&time);
     }
+    if (print_some_file!="" && tstep % nsome == 0)
+      print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
+
   }
   print_vector(save_file.c_str(),x,dofmap,&time);
 

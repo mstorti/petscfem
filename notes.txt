@@ -2204,6 +2204,96 @@ vamos a probar si todas estas cosas dan bien con Burgers ahora.
 Pude construir la documentacion para `glib' y entonces ahora pude
 poner funciones de hash y de comparacion apropiadas para texthash. 
 
+%===Thu Dec 28 13:08:39 ARST 2000 mstorti@minerva
+%
+Porting to gcc 2.96-54. There were several syntax errors. 
+%
+* `export' is a keyword
+* Templates for functions can't have default values
+* Pointers to functions can't be declared as `const'
+* No te deja poner `template<class T> class T random_pop(set<...'
+     tiene que ser `template<class T> T random_pop(set<' 
+* Para declarar que el puntero es constante:  int get_line(char * const& line );
+* Ahora PETSc PCSetType() no anda asi nomas ya que el segundo
+       arugumento es char * y si le pasamos un string.c_str() el valor
+       de retorno es const char *. Lo tuve qu copiar a una string de C
+       clasico. 
+* En la compilacion de mpi tuve que cambiar lo siguiente en
+mpe/slog_api/src/slog_irec_write.c, linea 1171
+
+/* Antes */
+/*          dest_node_id      = va_arg( ap, SLOG_nodeID_t ); */ 
+/*          dest_cpu_id       = va_arg( ap, SLOG_cpuID_t ); */
+/*          dest_thread_id    = va_arg( ap, SLOG_threadID_t ); */
+/* despues */
+        dest_node_id      = va_arg( ap, int );
+        dest_cpu_id       = va_arg( ap, int );
+        dest_thread_id    = va_arg( ap, int );
+
+El mensaje de error lo sugeria.
+
+%===Fri Dec 29 11:46:08 ARST 2000 mstorti@minerva
+%
+En ElementIterator::begin() tuve que avanzar el iterator hasta el
+primer elemento valido. Sino, te daba un error ya que incluia al
+primer elemento qu podia no estar en el chunk. Ahora hay que modificar
+el iterator para los otros modos de iteracion (jacobianos numericos). 
+
+%===Fri Dec 29 11:59:30 ARST 2000 mstorti@minerva
+%
+Esta complicado convertir todo elemset con iterators ya que
+`compute_this_elem' es usado muchas veces. 
+
+%===Fri Dec 29 12:20:38 ARST 2000 mstorti@minerva
+%
+Lo que voy a hacer es que en el elemento se llama al iterator y
+'is_valid()' llama en realidad a `compute_this_elem' de manera que se
+asegura una cierta compatibilidad. 
+
+%===Fri Dec 29 13:21:33 ARST 2000 mstorti@minerva
+%
+Guarda, sigue habiendo un quilombo con el ElementIterator con ghost
+elems. 
+
+%===Fri Dec 29 19:40:56 ARST 2000 mstorti@localhost.localdomain
+%
+No puedo hacer que recicle imagenes el latex2html. 
+
+%===Sun Dec 31 10:05:58 ARST 2000 mstorti@spider
+%
+Retomo sine.epl. Adveccion difusion en un medio semiinfinito periodico
+en la direccion `y'. La condicion en $x=0$ es $\phi = \cos (2\pi x)
+\sin(\omega t)$
+%
+Da resultados mas o menos buenos, pero curiosamente no da convergencia
+en una iteracion del problema no-lineal con LU. 
+%
+La convergencia inicial esta bien (baja el residuo a 1e-14 en una
+iteracion) pero poco a poco se empieza a deteriorar. 
+
+%===Sun Dec 31 10:22:24 ARST 2000 mstorti@spider
+%
+No parece estar relacionado con las condiciones variables en el
+tiempo. Poniendo un escalon en el tiempo tampoco converge bien. 
+
+%===Sun Dec 31 12:56:05 ARST 2000 mstorti@spider
+%
+El problema no esta en el elemento bcconv. Esta directamente en el
+'advdife' y aparece para u\neq 0. 
+%
+con tau_fax=0 da mal tambien. 
+
+%===Sun Dec 31 13:02:53 ARST 2000 mstorti@spider
+%
+Parece que era la famosa historia de como contraer el A_jac. 
+
+%===Mon Jan  1 21:33:37 ARST 2001 mstorti@spider
+%
+Ahora da la convergencia todo bien. Crank-Nicholson converge
+cuadraticamente y implicito puro converge lineal. Voy a hacer un caso
+test. 
+
+
 %# Current line ===========  
 # Local Variables: $
 # eval: (local-set-key "\C-cD" (quote notas-insert-date)) $

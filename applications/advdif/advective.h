@@ -91,12 +91,12 @@ typedef int FluxFunction (FLUX_FUN_ARGS);
 typedef int FluxFunctionFM2 (FLUX_FUN_ARGS_FM2);
 #endif
 
-/** The class Advective is an Elemset class plus a
+/** The class AdvDif is a NewElemset class plus a
     pointer to a flux function. 
 */
-class AdvDif : public Elemset { 
+class AdvDif : public NewElemset { 
 public:
-  ASSEMBLE_FUNCTION;
+  NewAssembleFunction new_assemble;
   ASK_FUNCTION;
   AdvDifFluxFunction *flux_fun;
 };
@@ -134,9 +134,9 @@ public:
 };
 #endif
 
-class BcconvAdv : public Elemset { 
+class BcconvAdv : public NewElemset { 
 public:
-  ASSEMBLE_FUNCTION;
+  NewAssembleFunction new_assemble;
   ASK_FUNCTION;
   AdvDifFluxFunction *flux_fun;
 };

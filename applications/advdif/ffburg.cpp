@@ -62,14 +62,14 @@ int flux_fun_burgers(AD_FLUX_FUN_ARGS) {
 
     //o Diffusivity (viscosity)
     SGETOPTDEF_ND(double,diffusivity,0.);
-    //o Flux law is $f= 0.5\,c\. \phi^2\,!u_0$, where $c$
+    //o Flux law is $f= 0.5\,c\, \phi^2\,!u_0$, where $c$
     // is this coefficient. 
     SGETOPTDEF_ND(double,flux_law_coefficient,1.);
     //o Scale the SUPG upwind term. 
     SGETOPTDEF_ND(double,tau_fac,1.);
 
-    //o _T: double[ndim] _N: u0 _D: unit vector along $x$ axis
-    // _DOC: Vector defining direction for flux.
+    //o _T: double[ndim] _N: u0 _D: unit vector along $x$ axis 
+    // _DOC: Vector defining direction for flux. 
     // _END
     u0.set(0.); u0.setel(1.,1);
     ierr = get_double(thash,"u0",u0.storage_begin(),1,ndim); CHKERRQ(ierr);

@@ -88,7 +88,23 @@ int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
 
     na = ajacv.size();
     nd = djacv.size();
-    if (na==ndim && (nd==1 || nd==ndof)) {
+
+    if (na==ndim*ndof && nd==ndof) {
+      // An advection velocity and a diffusivity for each field 
+      u.set(ajacv.begin());
+      ret_options &= !SCALAR_TAU; // tell the advective element routine
+				// that we are returning a non-scalar tau
+      A_jac_l.set(0.);
+      D_jac_l.set(0.);
+      for (int k=1; k<=ndof; k++) {
+	double alpha=djacv[k-1];
+	for (int j=1; j<=ndim; j++) {
+	  A_jac_l.setel(u.get(k,j),j,k,k);
+	  D_jac_l.setel(alpha,j,j,k,k);
+	}
+      }
+
+    } else if (na==ndim && (nd==1 || nd==ndof)) {
       // An advection velocity for all fields is entered
       assert(0);
 #if 0 // Por ahora nos concentramos en el caso na==ndim*ndof
@@ -120,21 +136,6 @@ int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
 
       h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
 #endif
-
-    } else if (na==ndim*ndof && nd==ndof) {
-      // An advection velocity and a diffusivity for each field 
-      u.set(ajacv.begin());
-      ret_options &= !SCALAR_TAU; // tell the advective element routine
-				// that we are returning a non-scalar tau
-      A_jac_l.set(0.);
-      D_jac_l.set(0.);
-      for (int k=1; k<=ndof; k++) {
-	double alpha=djacv[k-1];
-	for (int j=1; j<=ndim; j++) {
-	  A_jac_l.setel(u.get(k,j),j,k,k);
-	  D_jac_l.setel(alpha,j,j,k,k);
-	}
-      }
 
     } else if (na==ndim*ndof*ndof) {
       assert(0);
