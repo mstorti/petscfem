@@ -510,3 +510,7 @@ tag: beta-2.03 on Tue Aug 21 22:10:55 ART 2001, by mstorti in spider
 ----------
 tag: beta-2.04 on Tue Aug 21 22:20:07 ART 2001, by mstorti in spider
      > Changed `DistMap' to `DistCont'
+----------
+tag: beta-2.05 on Tue Aug 21 23:10:29 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Working on distributed maps for interface preconditioning in IISD. 
