@@ -3723,3 +3723,6 @@ tag: beta-3.39.44 on Mon, 17 Jan 2005 17:08:49 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.39.45 on Mon, 17 Jan 2005 18:52:35 -0300 by mstorti in spider
      > Working `nod->elem-proj' and `elem->nod-proj'. 
+----------
+tag: beta-3.39.46 on Mon, 17 Jan 2005 20:51:34 -0300 by mstorti in spider
+     > Implemented `dvector<>::scale(alpha)' and `dv*-scale!'. 
