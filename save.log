@@ -720,3 +720,6 @@ tag: pfmat-rewrite-1.04 on Thu Dec 20 21:13:58 ARST 2001, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.05 on Mon Dec 24 01:01:10 ARST 2001, by mstorti in spider
      > Adding `release-by-proc' feature for `Debug' class.
+----------
+tag: pfmat-rewrite-1.06 on Mon Dec 24 09:54:17 ARST 2001, by mstorti in spider
+     > IISDMat::create() starts working. (Not well test so far, though).
