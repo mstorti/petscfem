@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project2.cpp,v 1.2 2005/02/28 00:58:53 mstorti Exp $
+// $Id: project2.cpp,v 1.3 2005/02/28 01:30:53 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -26,11 +26,16 @@ int main() {
 #define ICONE1 DATA_DIR "blade.con"
 #define XNOD2 DATA_DIR "patran.nod"
   // #define XNOD2 "./patran.nod"
-#else
+#elif 0
 #define XNOD1 "mesh1.nod"
 #define ICONE1 "mesh1.con"
 #define STATE1 XNOD1
 #define XNOD2 "mesh2.nod"
+#else
+#define XNOD1 "square1.nod"
+#define ICONE1 "square1.con"
+#define STATE1 "square1.dat"
+#define XNOD2 "square2.nod"
 #endif
 
   // Reads mesh1
