@@ -1,0 +1,295 @@
+% $Id: advdif2.tex,v 1.1 2003/10/17 18:31:53 mstorti Exp $
+\SSection{The Hydrological Model (cont.).} \label{sec:hydro2}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+
+The implemented code solves the problem of subsurface flow in a free
+aquifer, coupled with a surface net of 2D or 1D streams (\emph{``2D
+Saint-Venant Model''}, 2DSVM, \emph{``1D Saint-Venant Model''}, 1DSVM,
+and \emph{``Kinematic Wave model''}, KWM).  To model such system three
+element sets must be used: an {\sl{aquifer}} system representing the
+subsurface aquifer, a 2D or 1D (depending on the chosen model)
+{\sl{stream}} element set representing the stream and a 2D or 1D
+{\sl{stream loss}} element set representing the losses from the stream
+to the aquifer (or vice versa).
+
+\subsection{Subsurface Flow.}
+The {\sl{aquifer}} element set is 2D linear triangle or quadrangle
+elements. A per-node property $\eta$ represents
+the height of the aquifer bottom to a given datum. The corresponding
+unknown for each node is the piezometric height or the level of the
+freatic surface at that point $\phi$.\\ The equation for the
+aquifer integrated in the vertical direction is
+%
+\begin{equation} \label{aquifereq}
+  \dep{}{t} \LL(S(\phi-\eta)\phi\RR) =
+  \nabla\cdot(K(\phi-\eta)\nabla\phi) + \sum G_a, ~~~ \hbox{on $\Omega_{aq} \times
+  (0,t]$},
+\end{equation}
+%
+where $\Omega_{aq}$ is the aquifer domain, $S$ is the storativity, $K$
+is the hydraulic conductivity and $G_a$ is a source term, due to rain,
+losses from streams or other aquifers.
+
+\subsection{Surface Flow.}
+\subsubsection{2D Saint-Venant Model.}
+The {\sl{stream}} element set represents a 2D or 1D stream of
+water. It has its own nodes, separated from the aquifer nodes, whose
+coordinates must coincide with some corresponding node in the
+aquifer. A constant per node field represents the stream bottom height
+$h_b$, with reference to the datum. That is why, normally, we have two
+coordinates and the stream bottom height for each node.\\  The equations
+for the 2D Saint-Venant open channel flow are the well known mass and
+momentum conservation equations integrated in the vertical
+direction. If we write this equations in the conservation matrix form,
+we have
+\begin{equation} \label{advsys}
+\dep{\mbf{U}}{t}+\dep{\mbf{F}_i(\mbf{U})}{x_i}=\mbf{G}_i(\mbf{U}),
+~~~~~ i=1,..,3, ~~~~ \hbox{on $\Omega_{st} \times (0,t]$},
+\end{equation}
+where $\Omega_{st}$ is the stream domain, $\mbf{U}=(h,hw,hv)^T$ is the
+state vector and the advective flux functions in \refecu{advsys} are
+\begin{equation} \label{fluxfun}
+\begin{split}
+\mbf{F}_1(\mbf{U}) &= (hw, hw^2+g \frac{h^2}{2}, hwv)^T,\\
+\mbf{F}_2(\mbf{U}) &= (hv, hwv, hv^2+g \frac{h^2}{2})^T,
+\end{split}
+\end{equation}
+where $h$ is the height of the water in the channel with respect to
+the channel bottom, $\mbf{u}=(w,v)^T$ is the velocity vector and $g$
+is the acceleration due to gravity. As in \refecu{aquifereq}, $G_s$
+represents the gain (or loss) of the river, the source term is
+\begin{equation} \label{sourcet}
+\mbf{G}(\mbf{U}) =(G_s,~
+gh(S_{0x}-S_{fx})+f_chv+C_f{\varpi}_x|\varpi|,~
+gh(S_{0y}-S_{fy})-f_chw+C_f{\varpi}_y|\varpi|)^T
+\end{equation}
+where $S_0$ is the bottom slope and $S_f$ is the slope friction.
+\begin{equation} \label{frict}
+\begin{split}
+S_{fx}=\frac{1}{C_hh}w|\bar{u}|, ~~~ S_{fy}=\frac{1}{C_hh}v|\bar{u}| ~~~ & \hbox{Ch\`ezy model.}\\
+S_{fx}=\frac{n^2}{h^{\sfr43}}w|\bar{u}|, ~~~
+S_{fy}=\frac{n^2}{h^{\sfr43}}v|\bar{u}|, ~~~ & \hbox{Manning
+model.}
+\end{split}
+\end{equation}
+where $C_h$ and $n$ (the Manning roughness) are model constants.
+Generally, the effect of coriolis force, related to the coriolis
+factor $f_c$, must be taken in account in the case of great lakes,
+wide rivers and estuaries. The coriolis factor is given by
+$f_c=2\omega \sin \psi$, where $\omega$ is the rotational rate of the
+earth and $\psi$ is the latitude of the area under study.  The free
+surface stresses in \refecu{sourcet} are expressed as the product
+between a friction coefficient and a quadratic form of the wind
+velocity, $\varpi({\varpi }_x,{\varpi }_y)$, and
+\begin{equation}
+C_f = c_{\varpi}\frac{\rho_{air}}{\rho},
+\end{equation}
+where,
+\begin{equation}
+\begin{split}
+&c_{\varpi} = \nexp{1.25}{-3}\varpi ^{-1/5} ~~~\hbox{if $| \varpi |<
+1$ m/s},\\ &c_{\varpi} = \nexp{0.5}{-3}\varpi ^{1/2} ~~~\hbox{if $1$
+m/s $\le | \varpi |< 15$ m/s},\\ &c_{\varpi} = \nexp{2.6}{-3}
+~~~\hbox{if $| \varpi |\geq 15$ m/s},
+\end{split}
+\end{equation}
+
+\subsubsection{1D Saint-Venant Model.}
+When velocity variations on the channel cross section are neglected,
+the flow can be treated as one dimensional. The equations of mass and
+momentum conservation on a variable cross sectional stream (in
+conservation form) are,
+\begin{align} \label{cons}
+\begin{split}
+\dep{\mbf{A}(s,t)}{t}+\dep{\mbf{Q}(\mbf{A}(s,t))}{s} &= G_s(s,t),\\
+\frac{1}{\mbf{A}(s,t)}\dep{\mbf{Q}}{t}+\frac{1}{\mbf{A}(s,t)}\dep{}{s}(\beta
+\frac{\mbf{Q}^2}{\mbf{A}(s,t)})+g(S_0-S_f)&+\\+g\dep{h}{s}-\frac{c_{\varpi}}{\mbf{A}(s,t)}\varpi
+^2 cos\alpha &= \frac{q_t}{\mbf{A}(s,t)}(v-v_t),~~~\hbox{on
+$\Omega_{st} \times (0,t]$},
+\end{split}
+\end{align}
+where $\mbf{A}$ is the cross sectional area, $\mbf{Q}$ is the discharge,
+$G_s(s,t)$ represents the gain or loss of the stream (i.e. the lateral
+inflow per unit length of channel), $s$ is the arc-length along the
+channel, $v=\mbf{Q/A}$ the average velocity in $s$-direction, $v_t$ the
+velocity component in $s$-direction of lateral flow from tributaries,
+the Boussinesq coefficient $\beta=\frac{1}{v^2\mbf{A}}\int u^2 dA$
+($u$ the flow velocity at a point) and $\alpha$ the wind direction
+measured from a positive line tangent to $s$ in flow direction. The
+bottom shear stresses are approximated by using the Ch\`ezy or Manning
+equations,
+\begin{align} \label{frict1d}
+\begin{split}
+S_{f}=\frac{v^2}{C_h^2}\frac{P(h)}{\mbf{A}(h)}, ~~~ & \hbox{Ch\`ezy model}.\\
+S_{f}=\biggl( \frac{n}{a} \biggr) ^2 v^2
+\frac{P^{\sfr43}(h)}{\mbf{A}^\sfr43 (h)}, ~~~ & \hbox{Manning model}.
+\end{split}
+\end{align}
+where $P$ is the wetted perimeter of the channel and $a$ is a
+conversion factor ($a=1$ for metric units).
+\subsubsection{Kinematic Wave Model.}
+When friction and gravity effects dominate over inertia and pressure
+forces, and, if we neglect the stress due to wind blowing and the
+coriolis term, the momentum equation becomes
+\begin{equation}\label{mom}
+S=S_f,
+\end{equation}
+and \refecu{cons}
+\begin{equation}\label{mass}
+   \dep {\mbf{A}(h)}{t} + \dep {\mbf{Q}(\mbf{A}(h))}{s} = G_s,~~~~ \hbox{on
+$\Omega_{st} \times (0,t]$},
+\end{equation}
+%
+where $\mbf{A}$ depends, through the geometry of the channel, on the channel water
+height $h$. The flow rate $\mbf{Q}$ under the KWM model is only a
+function of $\mbf{A}$ through the friction law.
+\begin{equation} \label{qkwm}
+   \mbf{Q} = \gamma \mbf{A}^m,
+\end{equation}
+where $\gamma=C_h\,S^{1/2}\,P\muno$ and $m=\sfr32$ for the Ch\`ezy
+friction model, and $\gamma=\bar a\,n\muno\,S^{1/2}\,P^{-2/3}$ and
+$m=\sfr53$ for the Manning model; $S = \dtots{h_b}{s}$ is the slope of
+the stream bottom.
+
+\subsection{Boundary Conditions.}
+\subsubsection{Boundary Conditions to simulate River-Aquifer Interactions/Coupling Term.}
+The stream/aquifer interaction process occurs between a stream and its
+adjacent flood-plain aquifer. The coupling term is not explicitly
+included in \refecu{aquifereq} but it is treated as a boundary flux
+integral. At a nodal point we can write the coupling,
+\begin{equation}
+  G_s = P/R_f (\phi-h_b-h),
+\end{equation}
+where $G_s$ represents the gain or loss of the stream, and the main
+component is the loss to the aquifer and $R_f$ is the resistivity
+factor per unit arc length of the perimeter. The corresponding gain to
+the aquifer is
+\begin{equation}
+  G_a = -G_s \, \delta_{\Gs},
+\end{equation}
+where $\Gs$ represents the planar curve of the stream and $\delta_\Gs$
+is a Dirac's delta distribution with a unit intensity per unit length,
+i.e.
+%
+\begin{equation}
+  \int f(\bar{x}) \, \delta_\Gs \dS = \int_0^L f(\bar{x}(s)) \di{s}.
+\end{equation}
+%
+The {\sl{stream loss}} element set represents this loss, and a typical
+discretization is shown in \reffig{aquist}. The stream loss element is
+connected to two nodes on the stream and two on the aquifer.  If the
+stream level is over the freatic aquifer level ($h_b+h > \phi$) then
+the stream losses water to the aquifer and vice versa. Contrary to
+standard approaches, the coupling term is incorporated through a
+boundary flux integral that arises naturally in the weak form of the
+governing equations rather than through a source term.
+
+\subsubsection{Initial Conditions. First, Second and Third Kind Boundary Conditions/Absorbent Boundary Condition.}
+\textbf{Groundwater flow.} In the previous section, the equation that
+governs subsurface flow was established. In order to obtain a well
+posed PDE problem, initial and boundary conditions must be
+superimposed on the flow domain and on its limits.  The initial condition
+for the groundwater problem is a constant hydraulic head in the whole
+region that obeys levels observed in the basin history.\\ Now, consider
+a simply connected region $\Omega$ bounded by a closed curve
+$\partial \Omega$ such that $\partial \Omega_{\phi}
+\cup \partial \Omega_{\sigma} \cup \partial \Omega_{\phi
+\sigma} = \partial \Omega$. If the stream is partially penetrating and connected, in a
+Hydraulic sense, to the aquifer, we set
+\begin{equation}
+\begin{split}
+\phi&=\phi_0, ~~~\hbox{on $\partial \Omega_{\phi} \times (0,t]$}\\
+K(\phi - \eta)\dep{\phi}{n}&=\sigma_0, ~~~\hbox{on $\partial
+\Omega_{\sigma} \times (0,t]$}\\
+K(\phi - \eta)\dep{\phi}{n}&=C(\phi - h), ~~~\hbox{on $\partial
+\Omega_{\phi \sigma} \times (0,t]$}
+\end{split}
+\end{equation}
+where $\phi_0$ is a given water head, $\sigma_0$ is a given flux
+normal to the flux boundary $\partial \Omega_{\sigma}$ and $C$ the
+conductance at the river/stream interface. If a fully penetrating
+stream is considered,
+\begin{equation}
+K(\phi - \eta)\dep{\phi}{n}=C(\phi - h), ~~~\hbox{on $\partial
+\Omega_{\phi \sigma} \times (0,t]$}
+\end{equation}
+Finally, for a perched stream,
+\begin{equation}
+K(\phi - \eta)\dep{\phi}{n}=C(h_b - h), ~~~\hbox{on $\partial
+\Omega_{\phi \sigma} \times (0,t]$}
+\end{equation}
+
+\textbf{Surface Flow - Fluid Boundary.} We recall that the type of a
+flow in a stream or in an open channel depends on the value of the
+Froud number $F_r=|\mbf{u}|/c$ (where $c=\sqrt{gh}$ is the wave
+celerity ), a flow is said
+\begin{itemize}
+\item fluvial, for $|\mbf{u}| < c$. \item torrential, for $|\mbf{u}| >
+c$
+\end{itemize}
+\paragraph{Saint-Venant equations.} Considering a {\sl{Cauchy}}
+problem for the time-like variable $x^{dim+1}=t$ where the solution is
+given in the subspace $x^{dim+1}=t=0$ as
+$\mbf{U}=\mbf{U}(\mbf{x},t=0)$ and is determined at subsequent values
+of $t$. If the subspace $t=0$ is bounded by a surface $\partial \Gamma
+(\mbf{x})$ then additional conditions have to be imposed on that
+surface at all values of $t$. This defines an {\sl{initial boundary
+value problem}}. A solution for the system of the first-order PDE's
+can be written as a superposition of wave-like solutions of the type
+corresponding to the {\sl{n}}-eigenvalues of the matrix $\mbf{A}^k
+\cdot \mbf{n}= \dep{\mbf{F}_i(\mbf{U})}{\mbf{U}}^k \cdot \mbf{n},
+~~~~k=1,..,dim$, being $\mbf{n}$ the outward unit normal to the
+boundary edge:
+\begin{equation}
+\mbf{U} = \sum_{\alpha =1}^{n}
+\bar{\mbf{U}}_{\alpha}e^{\mbf{I}(\mbf{x} \cdot
+\mbf{n}-\omega_{\alpha}t)} ,~~~\hbox{on $\Omega_{st} \times
+\Gamma_{st} \times (0,t]$}
+\end{equation}
+where summation extends over all eigenvalues $\lambda_{\alpha}$.  \\
+As the problem is hyperbolic, {\sl{n}} initial conditions for the
+{\sl{Cauchy}} problem have to be given to determine the solution.
+That is, equal number of conditions as unknowns must be imposed at
+$t=0$. For initial boundary value problem the {\sl{n}} boundary
+conditions have to be distributed along the limits at all values of
+$t$, according to the direction of the propagation of the
+corresponding waves. If the wave phase velocity, the
+$\alpha$-eigenvalue of $\mbf{A}^k \cdot \mbf{n}_k$ (i.e. k-wave
+projected in the interior normal direction $\mbf{n}$), is positive,
+the information is propagated inside the domain. Hence, the number of
+conditions to be imposed for the initial boundary value problem at a
+given point of $\partial \Gamma$ is equal to the number of positive
+eigenvalues of $\mbf{A}^k \cdot \mbf{n}_k$ at that point. The total
+number of conditions remains equal to the total number of eigenvalues
+(i.e. the order of the system). For the treatment of the boundary
+conditions we will use the one dimensional projected system and
+consider the sign of the eigenvalues of $\mbf{A}^k$ ($u_n + c$ and
+$u_n - c$). We remark that if $\mbf{n}$ is the outward unit normal to
+the boundary edge, an inflow boundary corresponds to $\mbf{u \cdot n}
+< 0$ and an outflow one to $\mbf{u \cdot n} >
+0$. \subparagraph{Fluvial Boundary.}
+\begin{itemize}
+\item inflow boundary: $\mbf{u}$ specified and the depth $h$ is
+extrapolated from interior points, or vice versa.
+\item outflow boundary: depth $h$ specified and velocity field
+extrapolated from interior points, or vice versa.
+\end{itemize}
+\subparagraph{Torrential Boundary.}
+\begin{itemize}
+\item inflow boundary: $\mbf{u}$ and the depth $h$ are specified.
+\item outflow boundary: all variables are extrapolated from interior
+points.
+\end{itemize}
+\paragraph{Solid Wall Condition.}
+We prescribe the simple slip condition over $\Gamma_{slip} ~(\subset
+\Gamma_{st})$
+\begin{equation}
+\mbf{u \cdot n}=0
+\end{equation}
+\paragraph{Kinematic Wave Model.} The applicability of the
+kinematic wave as an approximation to dynamic wave was discussed in
+{\sl{Rodr\'\i{}guez}}(1995) and, according to
+Lighthill and Whitham, subcritical flow conditions favor the kinematic
+approach.\\ Since one characteristic is propagated inside the domain,
+only we can specify the water head, the channel section or the
+discharge at inflow boundaries (see \refecu{qkwm}).\\ \\
