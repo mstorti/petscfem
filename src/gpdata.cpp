@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.8 2002/07/27 18:31:07 mstorti Exp $
+//$Id: gpdata.cpp,v 1.9 2002/07/27 22:26:05 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -9,10 +9,6 @@
 #include <src/util2.h>
 #include <src/utils.h>
 #include <src/gpdata.h>
-
-void nmprint(Matrix &A);
-#define SHV(pp) { if (SHV_debug) cout << #pp << endl << pp << endl ; }
-int SHV_debug = 1;
 
 #define GPERROR \
     {PFEM_TRACE(""); \
@@ -110,10 +106,6 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	// x,y gradients of shape functions are the poduct of the
 	// gradients of the triangle and the shape function of the segment
 
-	SHV_debug=0;
-	SHV(gp_seg.shape[ipg_seg]);
-	SHV(gp_tri.dshapexi[ipg_tri]);
-	SHV(dshapexi[ipg].Rows(1,2));
 	dshapexi[ipg]= Matrix(ndimel,nel);
 	dshapexi[ipg].Rows(1,2) = kron(gp_seg.shape[ipg_seg],gp_tri.dshapexi[ipg_tri]);
 	// `z' gradients of shape functions are the poduct of the

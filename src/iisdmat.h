@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.21 2002/07/27 02:52:27 mstorti Exp $
+// $Id: iisdmat.h,v 1.22 2002/07/27 22:26:05 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -81,6 +81,11 @@ class IISDMat : public PFPETScMat {
       preconditioning for the interface problem when using
       #use_interface_full_preco#. */
   int print_interface_full_preco_conv;
+  /** The problem on the interface is solved with Richardson method
+      with few iterations (normally 5). Richardon iteration may not
+      converge in some cases and then we can help convergence using a
+      relaxation factor <1.  */
+  double interface_full_preco_relax_factor;
   /// Maps old numbering in new numbering 
   vector<int> map_dof;
   /** Local dof's in this processor are in the range

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.18 2002/07/27 02:52:27 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.19 2002/07/27 22:26:05 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -652,7 +652,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 				A_II,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
 	ierr = SLESGetKSP(sles_ii,&ksp_ii); PF_CHKERRQ(ierr); 
 	ierr = SLESGetPC(sles_ii,&pc_ii); PF_CHKERRQ(ierr); 
-	ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
+	// ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
+	ierr = KSPSetType(ksp_ii,KSPRICHARDSON); PF_CHKERRQ(ierr); 
+	ierr = KSPRichardsonSetScale(ksp_ii,interface_full_preco_relax_factor);
 	if(print_interface_full_preco_conv) {
 	  ierr = KSPSetMonitor(ksp_ii,KSPDefaultMonitor,NULL);
 	  PF_CHKERRQ(ierr); 
@@ -902,10 +904,10 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   int ierr;
   if (use_interface_full_preco) {
     int its;
-    // PetscPrintf(PETSC_COMM_WORLD,"Printing interface prec. convergence\n");
+    // Solves `w = A_II \ x' iteratively. 
     ierr = SLESSolve(sles_ii,x,w,&its);
-    // PetscPrintf(PETSC_COMM_WORLD,"Ends printing interface prec. convergence\n");
     CHKERRQ(ierr);  
+    
   } else {
     // Computes the componentwise division w = x/y. 
     ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  

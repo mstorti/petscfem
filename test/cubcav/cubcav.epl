@@ -16,7 +16,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;			# Number of elements per dimension
+$N = 30;			# Number of elements per dimension
 $graph_chunk_size  = $N**3;
 $graph_chunk_size = 
     ($graph_chunk_size < 20000 ? 20000 : 
@@ -91,7 +91,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 1
+nstep 3
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
@@ -115,6 +115,7 @@ activate_debug_print
 use_interface_full_preco 0
 print_interface_full_preco_conv 0
 interface_full_preco_maxits 3
+interface_full_preco_relax_factor 1.
 # activate_debug
 
 iisdmat_print_statistics
@@ -129,7 +130,7 @@ max_partgraph_vertices_proc 10000
 tol_tet 1e-5
 tol_newton 1e-10
 atol 0
-rtol 1e-3
+rtol 1e-8
 dtol 1e3
 nnwt 1
 
