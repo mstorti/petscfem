@@ -3978,5 +3978,6 @@ tag: beta-3.41.39 on Tue, 08 Feb 2005 15:51:44 -0300 by mstorti in minerva.cerid
      > of the form `\div( C_p \delta \grad U)'. In previous versions the
      > `C_p' matrix was not used.
 ----------
-tag: beta-3.41.40 on Tue, 08 Feb 2005 22:55:15 -0300 by mstorti in spider
-     > Writing doc for absorbing boundary conditions. 
+tag: bubbly-branch-1.0.0 on Sat, 12 Feb 2005 11:24:25 -0300 by mstorti in spider
+     > Anistropic shock capturing starts to work. 
+     > Not fully testes, though. 
