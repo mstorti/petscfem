@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.4 2001/11/12 12:47:57 mstorti Exp $
+//$Id: metisprt.cpp,v 1.5 2001/11/12 13:12:28 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -265,9 +265,11 @@ void  metis_part(int nelemfat,Mesh *mesh,
   if (size>1) {
     if (partflag==0) {
       if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
+      wait_from_console("Antes de metis");  
       METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
 			   NULL,&wgtflag,&numflag,&size, 
 			   tpwgts_d,&options,&edgecut,vpart);
+      wait_from_console("Despues de metis");  
       
     } else { // partflag=2
       assert(0);
