@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2002/07/25 01:38:29 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2002/07/25 14:53:59 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -26,9 +26,8 @@ NP = 1
 PROG := $(NS)
 MCH = -machinefile ./machi.dat
 
-# NP := $(shell procsel -n ./proctable)
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-NP := 1
+NP := $(shell procsel -n ./proctable)
+# NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 
 #w Runs program
 case := iisd_sbp1_uj
@@ -36,8 +35,8 @@ export case
 $(CASE).depl: force
 run: $(CASE).depl
 #	$(MAKE) mesh
-#	-${MPIRUN} -nolocal -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
-	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} -nolocal -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+#	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 mesh: cubcav.depl
 	octave -q mkmesh.m

@@ -15,7 +15,11 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 75;			# Number of elements per dimension
+$N = 50;			# Number of elements per dimension
+$graph_chunk_size  = $N**3;
+$graph_chunk_size = 
+    ($graph_chunk_size < 20000 ? 20000 : 
+    $graph_chunk_size > 200000 ? 200000 : $graph_chunk_size);
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 100;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -73,6 +77,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     die "don't know case \"$case\"\n";
 }
 $CASE = $case;
+$fracstep = 0;
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
@@ -90,18 +95,18 @@ nstep 3
 save_file_pattern "outvector%d.out.tmp"
 
 # type of solver (may be "iisd", "petsc"...)
-#if $case ne 'laplace'
+#if $case ne 'laplace' && $fracstep
 fractional_step
 #endif
 #if 1
 use_compact_profile 2
-compact_profile_graph_chunk_size 100000
+compact_profile_graph_chunk_size <:=$graph_chunk_size:>
 #endif
 solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 300
+iisd_subpart 60
 maxits 100
 report_consumed_time
 activate_debug_print
@@ -147,7 +152,7 @@ __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
 #if $case ne 'laplace'
-elemset fracstep <:=($use_tetra ? 4 : 8):>
+elemset <:=($fracstep ? "fracstep" : "nsi_tet_les_fm2"); :> <:=($use_tetra ? 4 : 8):>
 name malla
 # report_consumed_time
 geometry <:=($use_tetra ?  "tetra" : "cartesian3d"):>

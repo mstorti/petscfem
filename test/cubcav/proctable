@@ -1,0 +1,20 @@
+# -*- mode: shell-script -*- 
+# Processor -  weight   table 
+#
+# Script `procsel' generates weigths.dat
+# (for Petscfem) and `machi.dat' for MPI
+#
+# Script `bw <command>' reads it for issuing a
+#            command in each processor, for instance
+#            `$ bw uptime'
+# Script `killfem <string>' kills processes
+#            at each node, for instance
+#            `$ killfem ns.bin'
+#
+# If you modify this, please do a `$ make sync' in order to 
+#   sunchronize `machi.dat'
+node9 4.
+node3 4.
+node7 4.
+node10 4.
+node12 4.
