@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.51 2005/01/07 15:43:08 mstorti Exp $
+// $Id: femref.h,v 1.52 2005/01/09 21:32:29 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -407,8 +407,6 @@ public:
   };
 
   friend class visitor;
-  friend class nat_visitor;
-  friend class breadth_visitor;
 
   enum VisitMode { Natural=0, BreadthFirst };
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -483,6 +481,8 @@ public:
     void refine(const Splitter* s);
     /** The refinement level for this node. */ 
     int ref_level();
+    /** Return the currently visited element. */
+    int elem_indx() const { return elem; }
   };
   friend class LinearCombiner;
 };
