@@ -957,3 +957,6 @@ tag: beta-2.76.pl1 on Sat Feb  9 23:33:51 ARST 2002 by mstorti in spider
 tag: beta-2.77 on Sat Feb  9 23:50:43 ARST 2002, by mstorti in spider
      > `dlopen()' of extension functions work with hash tables for passing
      > options. 
+----------
+tag: beta-2.77.pl1 on Sun Feb 10 09:47:46 ARST 2002 by mstorti in spider
+     > Amplitude with internal store `void * fun_data' is working.
