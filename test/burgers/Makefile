@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2003/11/16 15:32:50 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2003/11/16 15:37:36 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -26,7 +26,7 @@ test__d001: test__d001_wf test__d001_nwf
 	CASE=_d001 $(OCTAVE) verif.m > $@.out.tmp
 
 #w All tests for the  `compute_fd_adv_jacobian' feature
-fd_jac: fd_jac_1 fd_jac_2
+fd_jac: fd_jac_1 fd_jac_2 fd_jac_3
 
 #w Test `compute_fd_adv_jacobian' feature with
 #w verbose printing and threshold
