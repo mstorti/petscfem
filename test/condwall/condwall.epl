@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.6 2005/03/29 21:05:26 mstorti Exp $
+#$Id: condwall.epl,v 1.7 2005/03/30 01:17:56 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -18,7 +18,6 @@ nfile 100000000
 solver "iisd"
 # solver "petsc"
 preco_type "jacobi"
-maxits 300
 iisd_subpart_auto 2000
 
 proc_weights weights.dat
@@ -34,7 +33,8 @@ tol 1e3
 nnwt 2
 lagrange_diagonal_factor 1e-6
 
-Krylov_dim 100
+Krylov_dim 300
+maxits 300
 print_internal_loop_conv
 
 Dt 0.05
