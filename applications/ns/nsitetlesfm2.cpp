@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.18 2001/06/23 16:42:35 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.19 2001/07/11 21:48:25 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -143,9 +143,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,26); 
-  // o Parameter for the trapezoidal rule time integration method. 
-  // GGETOPTDEF(double,alpha,1.);
-  double &alpha = glob_param->alpha;
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
@@ -153,7 +150,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // (which is equivalent to $\Dt=\infty$) then
   // \verb+temporal_stability_factor+ is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
-  if (glob_param->steady) temporal_stability_factor=0;
+  if (comp_mat_res && glob_param->steady) temporal_stability_factor=0;
+  double &alpha = glob_param->alpha;
 
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
