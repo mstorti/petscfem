@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.h,v 1.4 2001/08/22 02:10:26 mstorti Exp $
+// $Id: distmap2.h,v 1.5 2001/08/22 02:19:43 mstorti Exp $
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
 
@@ -18,7 +18,7 @@
     determines to which processor belongs each dof. 
 */
 template <typename Container,typename ValueType,typename Partitioner>
-class DistMap : public Container {
+class DistCont : public Container {
 private:
   int belongs(typename Container::const_iterator k,int *plist) const;
 protected:
@@ -33,7 +33,7 @@ public:
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
   */ 
-  DistMap<Container,
+  DistCont<Container,
     ValueType,Partitioner>(Partitioner *pp=NULL,
 			   MPI_Comm comm_=MPI_COMM_WORLD);
   /** User defines this function that determine to which processor
@@ -73,7 +73,7 @@ public:
   void combine(const ValueType &p);
 #if 0
   class Belongs {
-    DistMap *dm;
+    DistCont *dm;
     int *plist,size,myrank;
   public:
     bool operator() (const ValueType &p) const {
@@ -84,7 +84,7 @@ public:
 	if (plist[j]==myrank) return false;
       return true;
     }
-    void init(DistMap *dm_c,int size_c) {
+    void init(DistCont *dm_c,int size_c) {
       dm = dm_c;
       size = size_c;
       plist = new int[size];
@@ -96,8 +96,8 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Container,typename ValueType,class Partitioner>
-DistMap<Container,ValueType,Partitioner>::
-DistMap<Container,
+DistCont<Container,ValueType,Partitioner>::
+DistCont<Container,
   ValueType,
   Partitioner>(Partitioner *pp=NULL, MPI_Comm comm_= MPI_COMM_WORLD) 
     : comm(comm_) {
@@ -109,14 +109,14 @@ DistMap<Container,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
-void DistMap<Container,ValueType,Partitioner>::
+void DistCont<Container,ValueType,Partitioner>::
 processor(const ValueType &p,int &nproc,int *plist) const {
   return part->processor(p,nproc,plist);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<typename Container,typename ValueType,class Partitioner> 
-int DistMap<Container,ValueType,Partitioner>::
+int DistCont<Container,ValueType,Partitioner>::
 belongs(typename Container::const_iterator k,int *plist) const {
   int nproc,j;
   processor(*k,nproc,plist);
@@ -129,7 +129,7 @@ belongs(typename Container::const_iterator k,int *plist) const {
 // shortcut to access `to_send' as a size x size matrix
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Container,typename ValueType,class Partitioner>
-void DistMap<Container,ValueType,Partitioner>::scatter() {
+void DistCont<Container,ValueType,Partitioner>::scatter() {
   typename Container::iterator iter,next;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
@@ -173,7 +173,7 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
   // recopy `to_send_buff' to `to_send'
   memcpy(to_send,to_send_buff,size*size*sizeof(int));
 
-#if 1
+#if 0
   // debug: print the `to_send' table
   if (myrank==0) {
     for (j=0; j<size; j++) {
@@ -371,7 +371,7 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
     }
   }
   delete[] plist;
-#if 0
+
   // free memory
   delete[] recv_buff;
 
@@ -386,7 +386,6 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
 
   delete[] to_send;
   delete[] to_send_buff;
-#endif
 }
 
 #endif

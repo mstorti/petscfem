@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.cpp,v 1.2 2001/08/22 02:10:29 mstorti Exp $
+// $Id: distmap2.cpp,v 1.3 2001/08/22 02:19:46 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -60,14 +60,14 @@ TrivialPartitioner::processor(const VT &k,int &nproc,int *plist) {
 
 // Simply returns the size of the int+ double
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int DistMap<Map,VT,TrivialPartitioner>
+int DistCont<Map,VT,TrivialPartitioner>
 ::size_of_pack(const VT &p) const {
   return sizeof(int)+sizeof(double);
 }
 
 // Copy the int and double to the buffer. Update pointer *buff
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMap<Map,VT,TrivialPartitioner>::
+void DistCont<Map,VT,TrivialPartitioner>::
 pack(const VT &p,char *&buff) const {
   memcpy(buff,&p.first,sizeof(int));
   buff += sizeof(int);
@@ -76,7 +76,7 @@ pack(const VT &p,char *&buff) const {
 }
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMap<Map,VT,TrivialPartitioner>::
+void DistCont<Map,VT,TrivialPartitioner>::
 unpack(VT &p,const char *& buff) {
   memcpy(&p.first,buff,sizeof(int)); // debug:=
   buff += sizeof(int);
@@ -85,7 +85,7 @@ unpack(VT &p,const char *& buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistMap<Map,VT,TrivialPartitioner>::
+void DistCont<Map,VT,TrivialPartitioner>::
 combine(const VT &p) {
   Map::iterator iter = find(p.first);
   if (iter != end()) {
@@ -108,7 +108,7 @@ double maxd(int n,...) {
   return max;
 }
 
-typedef DistMap<Map,VT,TrivialPartitioner> Mapp;
+typedef DistCont<Map,VT,TrivialPartitioner> Mapp;
 
 int main(int argc,char **argv) {
   int j,N,row,root=0;
@@ -121,7 +121,7 @@ int main(int argc,char **argv) {
   /// Initializes MPI
   PetscInitialize(&argc,&argv,0,0);
 
-  wait_from_console("starting..."); 
+  // wait_from_console("starting..."); 
 
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
@@ -157,7 +157,7 @@ int main(int argc,char **argv) {
     e = double(rand())/double(RAND_MAX);
     S[row] += e;
     vec[row] += e;
-    printf("[%d] loading S[%d] += %f\n",MYRANK,row,e);
+    // printf("[%d] loading S[%d] += %f\n",MYRANK,row,e);
   }
 
   S.scatter();
@@ -168,9 +168,12 @@ int main(int argc,char **argv) {
     if (part.processor(j)==MYRANK) {
       k = S.find(j);
       d = (k!=S.end() ? k->second : 0);
-      err = maxd(2,err,fabs(d-vecc[j]));
-      if (d!=0 || e!=0) printf("[%d]  S[%d] = %f, (expected %f)\n",
-			       MYRANK,j,d,vecc[j]);
+      e = vecc[j];
+      err = maxd(2,err,fabs(d-e));
+//        if (d!=0 || e!=0) printf("[%d]  S[%d] = %f, (expected %f)\n",
+//  			       MYRANK,j,d,vecc[j]);
+      if (fabs(d-e)>tol ) printf("[%d]  S[%d] = %f, (expected %f, err %f)\n",
+			       MYRANK,j,d,e,fabs(d-e));
     }
   }
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
