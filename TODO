@@ -5,18 +5,6 @@ TODO: [Mainly fixes go here...]
 * Disable ROSI_COUPLING_MODULE
 * Fix warnings that are currently disabled with '-Wno-deprecated'
 * Eliminate the DRH60 flag. 
-* Error in fixations is not parallel safe. Tue Sep 14 21:22:17 2004
-> Fixation 3169, imposed on an invalid node/field combination.
-> Hi user!          Today is Tue Sep 14 21:21:24 2004
-> Have fun and a nice run! :-)   [The PETSc-FEM team]
-> -------------------------------------------------
-> Hi user!          Today is Tue Sep 14 21:21:23 2004
-> Have fun and a nice run! :-)   [The PETSc-FEM team]
-> -------------------------------------------------
-> Hi user!          Today is Tue Sep 14 21:21:17 2004
-> Have fun and a nice run! :-)   [The PETSc-FEM team]
-> -------------------------------------------------
-> Hi user!          Today is Tue Sep 14 21:21:33 2004
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
@@ -174,6 +162,20 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Error in fixations is not parallel safe. Tue Sep 14 21:22:17 2004
+    > Fixation 3169, imposed on an invalid node/field combination.
+    > Hi user!          Today is Tue Sep 14 21:21:24 2004
+    > Have fun and a nice run! :-)   [The PETSc-FEM team]
+    > -------------------------------------------------
+    > Hi user!          Today is Tue Sep 14 21:21:23 2004
+    > Have fun and a nice run! :-)   [The PETSc-FEM team]
+    > -------------------------------------------------
+    > Hi user!          Today is Tue Sep 14 21:21:17 2004
+    > Have fun and a nice run! :-)   [The PETSc-FEM team]
+    > -------------------------------------------------
+    > Hi user!          Today is Tue Sep 14 21:21:33 2004
+    NO, OK: The error was in printing the `salute'. This as already
+    fixed. 
 * in dir `test/newff' eperl complains with 
    `not implemented test case 'dont_use_fastmat2_cache' at - line
    450.'
