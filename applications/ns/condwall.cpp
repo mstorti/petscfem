@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.8 2005/04/01 02:39:16 mstorti Exp $
+// $Id: condwall.cpp,v 1.9 2005/04/01 06:25:18 mstorti Exp $
 
 #include "./condwall.h"
 
@@ -35,6 +35,8 @@ init() {
   NSGETOPTDEF_ND(int,ndim,0);
   assert(ndof==ndim+1); // Only NS incompressible so far
   R = resistance;
+  u1.resize(1,ndim);
+  u2.resize(1,ndim);
 
   string ename = name();
   if(cond_wall_data_map.find(ename)
@@ -56,15 +58,27 @@ res(int k,FastMat2 &U,FastMat2 &r,
   if (data_p && data_p->Rv.size()>0) {
     if (k==0) assert(data_p->Rv.size()==size());
     R = data_p->Rv.ref(k);
-    // printf("k %d, R %f\n",k,R);
+    printf("k %d, R %f\n",k,R);
   }
   if (R>0) {
+    u1.set(0.0);
+    u2.set(0.0);
+    if (data_p && data_p->u1.size()>0) {
+      if (k==0) {
+	assert(data_p->u1.size()==ndim*size());
+	assert(data_p->u2.size()==ndim*size());
+      }
+      u1.set(&data_p->u1.e(k,0));
+      u2.set(&data_p->u2.e(k,0));
+      printf("k %d, v1 %f, v2 %f\n",k,u1.get(2),u2.get(2));
+    }
     // Closed
     U1.is(1,1,ndim);
-    r.is(1,1,ndim).set(U1).rs();
+    r.is(1,1,ndim).set(U1).rest(u1).rs();
     U1.rs();
     U2.is(1,1,ndim);
-    r.rs().is(1,ndof+1,ndof+ndim).set(U2).rs();
+    r.rs().is(1,ndof+1,ndof+ndim)
+      .set(U2).rest(u2).rs();
     U2.rs();
 
     w.set(0.);

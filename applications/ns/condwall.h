@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwall.h,v 1.5 2005/03/31 23:48:51 mstorti Exp $
+// $Id: condwall.h,v 1.6 2005/04/01 06:25:18 mstorti Exp $
 #ifndef PETSCFEM_CONDWALL_H
 #define PETSCFEM_CONDWALL_H
 
@@ -37,7 +37,7 @@ private:
   int use_vector_resistance;
   double R;			// Resistance of the membrane
   // Property normal_prop;
-  FastMat2 U1,U2;
+  FastMat2 U1,U2,u1,u2;
   cond_wall_data_t *data_p;
 public:
   // First two nodes are real nodes at both sides of the membrane. 

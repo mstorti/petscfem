@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: movwall.cpp,v 1.6 2005/04/01 02:39:38 mstorti Exp $
+// $Id: movwall.cpp,v 1.7 2005/04/01 06:24:54 mstorti Exp $
 
 #include <cstdio>
 #include <cassert>
@@ -47,30 +47,40 @@ void mov_wall::init(Mesh &mesh_a,Dofmap &dofmap,
   cond_wall_data_map[elemset_name] = cond_wall_data_t();
   data_p = &cond_wall_data_map[elemset_name];
   data_p->Rv.resize(nelem);
-  data_p->u1.a_resize(2,nelem,ndim).set(.0);
-  data_p->u2.a_resize(2,nelem,ndim).set(.0);
+  data_p->u1.a_resize(2,nelem,ndim);
+  data_p->u2.a_resize(2,nelem,ndim);
   Uwall = 1;			// Velocity in `y' direction
-  for (int j=0; j<nelem; j++)
-    data_p->u2.e(j,1) = Uwall;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mov_wall::time_step_pre(double time,int step) { 
   double 
-    T = 5,
     Ly = 1,
+    T = Ly/Uwall,
     Lslit = 0.5*Ly;
   for (int j=0; j<nelem; j++) {
     double y = xwall.e(j,1);
-    double R;
-    if (y>Lslit) R=1;
-    else {
-      double y1 = fmod(time,T)/T*Ly;
-      double y0 = y1 - Lslit;
-      R = (y>y0 && y<y1? 1.0 : 0.0);
-    }
+    double R = 0;
+    int in_plate1=y>Lslit;
+    // Extremes of slit 2
+    double y2_1 = fmod(time,T)/T*Ly;
+    double y2_0 = y2_1 - Lslit;
+    int in_plate2 = y>y2_0 && y<y2_1;
+    if (in_plate1 || in_plate2) R=1;
     data_p->Rv.ref(j) = R;
-    // printf("sliding wall node j %d, y %f, R %f\n",j,y,R);
+
+    // Velocity on outlet side
+    double v=0;
+    if (in_plate1) v=0.;
+    if (in_plate2) v=Uwall;
+    data_p->u2.e(j,1) = v;
+
+    // Velocity on inlet side
+    v=0;
+    if (in_plate2) v=Uwall;
+    if (in_plate1) v=0.;
+    data_p->u1.e(j,1) = v;
+
   }
 }
 
