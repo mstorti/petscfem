@@ -1,0 +1,20 @@
+-*- outline -*-
+
+* 1)
+En el before_assemble de Advdif escribir en los fifos los nodos (fontera y nodos absorbentes) con sus estados (jac's too??) y se los paso a la corrida Godunov.
+
+* 2)
+ La corrida Godunov en su before_assemble lee las cosas que le pasa Advdif y crea los elemsets necesarios (1 p/cada elemento absorbente) para correr el problema de Riemann.
+
+* 3)
+ Corre Godunov, cacula u* y jac(u*) (puede ser por FD).
+
+* 4)
+ Godunov en after_assemble le envia en un fifo u* y jac(u*).
+
+* 5)
+ Advdif en su before_assemble lee las cosas que le pasa Godunov.
+
+
+ADVDIF_RUN == Elemset de Vol + Elemset Godunov (sup)
+GODUNOV_RUN == Elemenset de Vol ADVDIF_RUN - 1
