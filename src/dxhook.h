@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.3 2003/02/04 23:28:47 mstorti Exp $
+//$Id: dxhook.h,v 1.4 2003/02/07 23:18:32 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -21,8 +21,10 @@ private:
   Socket *srvr_root,*srvr;
   Mesh *mesh;
   Dofmap *dofmap;
+  int step_cntr, steps;
 public:
-  dx_hook() : options(NULL), srvr_root(NULL) {}
+  dx_hook() : options(NULL), srvr_root(NULL), 
+    step_cntr(0), steps(0) {}
   ~dx_hook() { delete options; }
   void init(Mesh &mesh,Dofmap &dofmap,const char *name);
   void time_step_pre(double time,int step);

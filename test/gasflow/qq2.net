@@ -1,0 +1,46 @@
+//
+// time: Fri Feb  7 19:44:14 2003
+//
+// version: 3.1.2 (format), 4.2.0 (DX)
+//
+//
+// MODULE main
+// workspace: width = 268, height = 201
+// layout: snap = 0, width = 50, height = 50, align = NN
+//
+macro main(
+) -> (
+) {
+    // 
+    // node ExtProgImport[1]: x = 162, y = 27, inputs = 4, label = ExtProgImport
+    // input[1]: defaulting = 0, visible = 1, type = 1, value = 1
+    // input[2]: defaulting = 1, visible = 1, type = 32, value = NULL
+    // input[4]: defaulting = 0, visible = 1, type = 32, value = "qqq"
+    //
+main_ExtProgImport_1_out_1 = 
+    ExtProgImport(
+    main_ExtProgImport_1_in_1,
+    main_ExtProgImport_1_in_2,
+    main_ExtProgImport_1_in_3,
+    main_ExtProgImport_1_in_4
+    ) [instance: 1, cache: 1];
+    // 
+    // node Print[1]: x = 190, y = 139, inputs = 3, label = Print
+    //
+    Print(
+    main_ExtProgImport_1_out_1,
+    main_Print_1_in_2,
+    main_Print_1_in_3
+    ) [instance: 1, cache: 1];
+// network: end of macro body
+}
+main_ExtProgImport_1_in_1 = 1;
+main_ExtProgImport_1_in_2 = NULL;
+main_ExtProgImport_1_in_3 = NULL;
+main_ExtProgImport_1_in_4 = "qqq";
+main_ExtProgImport_1_out_1 = NULL;
+main_Print_1_in_2 = NULL;
+main_Print_1_in_3 = NULL;
+Executive("product version 4 2 0");
+$sync
+main();

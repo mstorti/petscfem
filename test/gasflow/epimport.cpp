@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.12 2003/02/07 19:27:26 mstorti Exp $
+// $Id: epimport.cpp,v 1.13 2003/02/07 23:18:32 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -331,15 +331,46 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
-  static size_t Nbuf = 0;
+  static size_t Nbuf = BUFSIZE;
 
   out[0] = NULL;
 
-  char *hostname = DXGetString((String)in[0]); 
-  DXMessage("Got hostname: %s",hostname);
-  int port;
-  if (!in[1]) port = 5314;
-  else if (!DXExtractInteger(in[1],&port)) {
+  // Inputs
+  int in_index = 0;
+  Object steps_o = in[in_index++];
+  Object hostname_o = in[in_index++];
+  Object port_o = in[in_index++];
+  Object options_o = in[in_index++];
+
+  int steps, port;
+  char *options, *hostname;
+  if (!steps_o) steps = 0;
+  else if (!DXExtractInteger(steps_o,&steps)) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Couldn't find an integer on \"port\" entry");
+    goto error;
+  }
+#if 0
+  if (steps<0) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "\"steps\" should be >=0");
+    goto error;
+  }
+#endif
+  if (!steps) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Not implemented yet steps==0 (asynchronous)");
+    goto error;
+  }
+
+  options = DXGetString((String)options_o); 
+  if (!options) options = "";
+
+  hostname = DXGetString((String)hostname_o); 
+  if (!hostname) hostname = "localhost";
+
+  if (!port_o) port = 5314;
+  else if (!DXExtractInteger(port_o,&port)) {
     DXSetError(ERROR_DATA_INVALID,
 	       "Couldn't find an integer on \"port\" entry");
     goto error;
@@ -350,7 +381,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	       "Invalid port %d, should be in range 5000 < port < 65536",port);
     goto error;
   }
-  DXMessage("Got port: %d",port);
+
+  DXMessage("Got steps %d, hostname \"%s\", port %d, options \"%s\", ",
+	    steps,hostname,port,options);
   char sktport[20];
   sprintf(sktport,"c%d",port);
 
@@ -360,12 +393,14 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     return ERROR;
   }
 
+  DXMessage("Sending steps %d options %s",steps,options);
+  Sprintf(clnt,"steps %d options %s\n",steps,options);
+
+#if 1
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
-    DXMessage("Got buf %s",buf);
     tokenize(buf,tokens);
-    DXMessage("After tokenize");
-    
+
     if (tokens[0]=="end") break;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     else if (tokens[0]=="nodes") {
@@ -454,6 +489,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   }
 
   out[0] = (Object)g;
+#else
+  out[0] = NULL;
+#endif
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.55 2003/02/07 18:51:47 mstorti Exp $
+//$Id: elemset.cpp,v 1.56 2003/02/07 23:18:32 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -1019,18 +1019,20 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   vector<int> node_indices;
   dx_indices(dx_type,node_indices);
 
-  Sprintf(sock,"elemset %s %s %d %d\n",name(),dx_type.c_str(),
-	  node_indices.size(),nelem);
-  for (int j=0; j<nelem; j++) {
-    int *row = icone+j*nel;
-    for (int n=0; n<node_indices.size(); n++) {
-      int k = node_indices[n];
-      // Convert to 0 based (DX) node numbering
-      int node = *(row+k-1)-1;
-      Swrite(sock,&node,sizeof(int));
+  if (!MY_RANK) {
+    Sprintf(sock,"elemset %s %s %d %d\n",name(),dx_type.c_str(),
+	    node_indices.size(),nelem);
+    for (int j=0; j<nelem; j++) {
+      int *row = icone+j*nel;
+      for (int n=0; n<node_indices.size(); n++) {
+	int k = node_indices[n];
+	// Convert to 0 based (DX) node numbering
+	int node = *(row+k-1)-1;
+	Swrite(sock,&node,sizeof(int));
+      }
     }
+    Sprintf(sock,"field %s_field nodes %s state\n",name(),name());
   }
-  Sprintf(sock,"field %s_field nodes %s state\n",name(),name());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

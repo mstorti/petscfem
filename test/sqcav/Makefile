@@ -1,7 +1,10 @@
-# $Id: Makefile,v 1.41 2003/02/07 18:51:47 mstorti Exp $ 
+# $Id: Makefile,v 1.42 2003/02/07 23:18:32 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
-        ctest gprof
+        ctest gprof dxhook
+
+dxhook:
+	$(MAKE) case=weak_form_0 runs
 
 runn: 
 	$(MAKE) case=weak_form_1 runs

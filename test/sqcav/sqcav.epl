@@ -141,8 +141,10 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
-Dt <:=$Dt:>
-<:pr('steady'):>
+# Dt <:=$Dt:>
+#<:pr('steady'):>
+steady 0
+Dt 0.1
 temporal_stability_factor 0
 
 shock_capturing_factor 0
