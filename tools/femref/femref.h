@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.13 2004/11/21 20:21:53 mstorti Exp $
+// $Id: femref.h,v 1.14 2004/11/21 21:06:09 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -13,6 +13,7 @@
 typedef unsigned int Node;
 
 class GeomObjectBasic;
+class GeomObjectId;
 
 class GeomObject {
 private:
@@ -50,6 +51,8 @@ public:
   void get_adjacency(const GeomObjectId &id1,
 		     GeomObject::Type t,
 		     std::list<GeomObjectId> &adjacent) { }
+  /// Bring the node sequence to canonical order
+  void make_canonical();
   /// Clears the object and set to the empty object. 
   void clear();
   /// Dtor. 
@@ -88,9 +91,8 @@ public:
   *factory(int sz,const int *nodes, GeomObject::Type t);
 };
 
-class GeomObjectSeq {
-private:
-  dvector<int> nodes;
+class GeomObjectSeq : public GeomObjectBasic {
+protected:
   class Template {
     friend class GeomObjectSeq;
     static int NULL_NODE;
@@ -101,19 +103,21 @@ private:
 	       int dim_a,int nperms_a,const int *perms);
   };
   static Template EdgeTemplate;
-  virtual Template *go_template()=0;
+  Template *go_template;
+private:
+  int cs, canonical;
   dvector<int> nodes;
-  int cs;
 public:
-  int size() { return go_template()->size_m; }
-  int csum() { return go_template()->cs; }
-  int dim() { return go_template()->dim_m; }
-  int nperms() { return go_template()->perms_m; }
+  int size() { return go_template->size_m; }
+  int csum() { return cs; }
+  int dim() { return go_template->dim_m; }
+  int nperms() { return go_template->nperms_m; }
   const int* perm(int perm_indx) {
-    return &(go_template()->perms_v.e(perm_indx,0)); 
+    return &(go_template->perms_v.e(perm_indx,0)); 
   }
-  GeomObject::Type type() { return go_template()->type; }
-  GeomObjectSeq(const int *nodes_a) {
+  GeomObject::Type type() { return go_template->type; }
+  GeomObjectSeq(Template *tmpl,const int *nodes_a) 
+  : go_template(tmpl), canonical(0) {
     int sz = size();
     nodes.set_chunk_size(sz);
     cs = 0;
@@ -123,8 +127,19 @@ public:
       nodes.ref(j) = node;
     }
   }
+  void make_canonical();
+  /// Compare two objects
+  bool equal(GeomObject &go);
 };
 
-class Edge : public GeomObjectSeq {
-  Template *go_template() { return &GeomObjectSeq::EdgeTemplate; }
-};
+#define GO_CLASS(TYPE)					\
+class TYPE : public GeomObjectSeq {			\
+public:							\
+  TYPE(const int *nodes_a)				\
+    : GeomObjectSeq(&GeomObjectSeq::TYPE##Template,	\
+		    nodes_a) { }			\
+}
+
+GO_CLASS(Edge);
+
+#endif
