@@ -1058,3 +1058,6 @@ tag: beta-2.88.pl3 on Mon Feb 18 20:17:44 -0300 2002 by mstorti in spider
      > Latex2html doesn't like the `algorithm' (it is like a figure
      > environment) environment, but DO support the `algorithmic'
      > environment. Eliminated the `algorithm' environment in `doc/nsdoc.tex'. 
+----------
+tag: beta-2.89 on Mon Feb 18 22:38:48 -0300 2002, by mstorti in spider
+     > Improving doc
