@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.109 2003/01/08 15:54:13 mstorti Exp $
+#$Id: Makefile.base,v 1.110 2003/02/04 13:31:58 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -123,6 +123,11 @@ ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes)
 CPPFLAGS += -DUSE_DLEF
 endif
 
+ifneq ($(SSL),)
+CPPFLAGS += -DUSE_SSL -I$(SSL)
+SSL_LDFLAGS := $(SSL)/simpleskts.a
+endif
+
 FPPFLAGS         =
 
 LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
@@ -230,7 +235,7 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(ANN_LDFLAGS)			\
           -lc ${PETSC_SLES_LIB}			\
           $(MESCHACH)/libmes.a			\
-          $(SUPERLULIB)
+          $(SUPERLULIB) $(SSL_LDFLAGS)
 
 LDFLAGS_NO_PROG_LIB = -Wl,-rpath,$(LD_LIBRARY_PATH)	\
 	  -L$(PETSCFEM_DIR)/src				\

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.1 2003/01/25 17:14:54 mstorti Exp $
+//$Id: hook.cpp,v 1.2 2003/02/04 13:32:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -7,6 +7,7 @@
 #include <src/texthf.h>
 #include <src/hook.h>
 #include <src/dlhook.h>
+#include <src/dxhook.h>
 
 extern int MY_RANK,SIZE;
 
@@ -29,7 +30,7 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap) {
   (!strcmp(token,#hook_name)) hook = new hook_name 
 
     if CHECK_HOOK(dl_generic_hook);
-    // else if CHECK_HOOK(dl_generic_hook);
+    else if CHECK_HOOK(dx_hook);
     else PETSCFEM_ERROR("Unknown hook \"%s\nLine: \"%s\"\n",
 			token,line);
     PETSCFEM_ASSERT(hook,"Couldn't create hook \"%s\"\n",token);

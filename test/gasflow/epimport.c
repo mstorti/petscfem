@@ -11,7 +11,7 @@
 #ifdef POST_DX_H
 #include "ExtProgImport_postdx.h"
 #endif
-/* #include <math.h> */
+#include <HDR/sockets.h>
 
 static Error traverse(Object *, Object *);
 static Error doLeaf(Object *, Object *);
@@ -30,13 +30,17 @@ extern "C"
 Error
 m_ExtProgImport(Object *in, Object *out)
 {
-  int i,N, *icone_p, j,k,base, elem=0, node,nread;
+  int i,N, *icone_p, j,k,base, elem=0, node,nread,
+    nnod,ndim;
   float *xnod_p,x,y,*data_p,r2,c;
   Array icone=NULL,xnod=NULL,data=NULL; 
   char *socket_name_p;
   Field f=NULL; 
   String s;
   Type t;
+  Socket *clnt;
+#define BUFSIZE 512
+  char buf[BUFSIZE];
 
   /*
    * Initialize all outputs to NULL
@@ -53,71 +57,16 @@ m_ExtProgImport(Object *in, Object *out)
     return ERROR;
   }
 
-  socket_name_p = DXGetString((String)in[0]); 
-  if (!socket_name_p) goto error;
-  /* DXMessage("ExtProgImport: got %s from input",socket_name_p); */
-  nread = sscanf(socket_name_p,"param = %f N = %d",&c,&N);
-  if (nread!=2) goto error;
-  N = (N<4 ? 4 : N>100 ? 100 : N);
-  DXMessage("ExtProgImport: got params -> c %f, N %d",c,N);
-
-  f = DXNewField();
-  if (!f) goto error;
-
-  /* ====================================================== */
-  icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1,4);
-  if (!icone) goto error;
-  icone = DXAddArrayData(icone, 0, N*N, NULL);
-  if (!icone) goto error;
-  icone_p = (int *)DXGetArrayData(icone);
-  /* Define connectivities    */
-  for (j=0; j<N; j++) {
-    for (k=0; k<N; k++) {
-      base = j*(N+1)+k;
-      *icone_p++ = base;
-      *icone_p++ = base+1;
-      *icone_p++ = base+N+1;
-      *icone_p++ = base+N+2;
-    }
-  }
-  icone = (Array)DXSetStringAttribute((Object)icone,
-				      "element type","quads"); if (!icone) goto error;
-  /* Set `connections' component */
-  f = DXSetComponentValue(f,"connections",(Object)icone); if (!f) goto error;
-  /* attribute "element type" string "quads" */
-
-  /* ====================================================== */
-  xnod = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 1,2);
-  if (!xnod) goto error;
-  xnod = DXAddArrayData(xnod, 0, (N+1)*(N+1), NULL);
-  if (!xnod) goto error;
-  xnod_p = (float *)DXGetArrayData(xnod);
-
-  data = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 0);
-  if (!data) goto error;
-  data = DXAddArrayData(data, 0, (N+1)*(N+1), NULL);
-  if (!data) goto error;
-  data_p = (float *)DXGetArrayData(data);
-
-  /* Define positions and results */
-  for (j=0; j<=N; j++) {
-    x = ((float) j)/((float) N);
-    for (k=0; k<=N; k++) {
-      y = ((float) k)/((float) N);
-      *xnod_p++ = x;
-      *xnod_p++ = y;
-#define SQ(a) ((a)*(a))
-      r2 = SQ(x-0.5) + SQ(y-0.5);
-      *data_p++ = 1./(1.+c*r2);
-    }
-  }
-  /* Set `connections' component */
-  f = DXSetComponentValue(f,"positions",(Object)xnod); if (!f) goto error;
-  f = DXSetComponentValue(f,"data",(Object)data); if (!f) goto error;
-
-  /* ====================================================== */
-  f = DXEndField(f); if (!f) goto error;
-  out[0] = (Object)f;
+  DXMessage("trace 0");
+  clnt = Sopen("","c5555");
+  DXMessage("trace 1");
+  Sgets(buf,BUFSIZE,clnt);
+  DXMessage("got %s",buf);
+  DXMessage("trace 2");
+  sscanf(buf,"nodes %d %d",&ndim,&nnod);
+  DXMessage("Got nnod %d, ndim %d",nnod,ndim);
+  Sclose(clnt);
+  DXMessage("trace 3");
 
   return OK;
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2003/02/03 15:51:57 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2003/02/04 13:32:01 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -36,7 +36,7 @@ CASE_NAME := strip
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
-PROG := $(ADVDIF_O)
+PROG := $(ADVDIF)
 endif
 
 nolocal := yes

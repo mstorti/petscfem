@@ -1,5 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.1 2003/02/03 15:52:56 mstorti Exp $
+//$Id: dxhook.cpp,v 1.2 2003/02/04 13:32:01 mstorti Exp $
+#ifdef USE_SSL
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -8,60 +9,46 @@
 #include <src/hook.h>
 #include <src/dxhook.h>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+#include <HDR/sockets.h>
 
-#define PF_DX_PORT 5555
+#define PF_DX_PORT "5555"
 
-int make_socket (uint16_t port) {
-  int sock;
-  struct sockaddr_in name;
-
-  /* Create the socket. */
-  sock = socket (PF_INET, SOCK_STREAM, 0);
-  if (sock < 0)
-    {
-      perror ("socket");
-      exit (EXIT_FAILURE);
-    }
-
-  /* Give the socket a name. */
-  name.sin_family = AF_INET;
-  name.sin_port = htons (port);
-  name.sin_addr.s_addr = htonl (INADDR_ANY);
-  if (bind (sock, (struct sockaddr *) &name, sizeof (name)) < 0) {
-      perror ("bind");
-      exit (EXIT_FAILURE);
-    }
-  return sock;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap,
+			   const char *name_a) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "dx_hook: starting socket at port: %s\n",PF_DX_PORT);
+  srvr_root = Sopen("","s" PF_DX_PORT);
+  assert(srvr_root);
+  PetscPrintf(PETSC_COMM_WORLD,"Done.\n");
+  mesh = &mesh_a;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void dx_hook::init(Mesh &mesh,Dofmap &dofmap,
-			   const char *name_a) {
-  int s, sock;
-  sockaddr_in servername, clientname;
-  const char *buf = "Hello socket!\n\0";
+void dx_hook::time_step_pre(double time,int step) {}
 
-  options = new TextHashTableFilter(mesh.global_options);
-  options->push("dx");
-
-  sock = make_socket (PF_DX_PORT);
-  if (listen (sock, 1) < 0) {
-    perror ("listen");
-    exit (EXIT_FAILURE);
-  }
-  // printf("server: trace 0.1\n");
-  size_t size = sizeof(clientname);
-  s = accept(sock,(struct sockaddr *)&clientname,&size);
-  if (s < 0) {
-    perror ("accept");
-    exit (EXIT_FAILURE);
-  }
-  mode = SEND;
-  while (!talk(s,mode));
-  close(s);
-  exit(EXIT_SUCCESS);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::
+time_step_post(double time,int step,
+	       const vector<double> &gather_values) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "dx_hook: accepting connections\n");
+  srvr = Saccept(srvr_root);
+  assert(srvr);
+  Nodedata *nodedata = mesh->nodedata;
+  double *xnod = nodedata->nodedata;
+  int ndim = nodedata->ndim;
+  int nnod = nodedata->nnod;
+  int nu = nodedata->nu;
+  Sprintf(srvr,"nodes %d %d\n",ndim,nnod);
+  for (int node=0; node<nnod; node++)
+    Swrite(srvr,xnod+node*nu,ndim*sizeof(double));
+  Sclose(srvr);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::close() {
+  Sclose(srvr_root);
+}
+
+#endif
