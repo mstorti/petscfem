@@ -1,5 +1,4 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.24 2002/09/07 20:41:23 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -7,6 +6,11 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
+if ($case eq 'other') {
+    $case = 'weak_form_1';
+    $Re = 1000;
+    $hratio = 4;
+}
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 ## Test the 'G_body' feature. 
 $g_body= 0;
@@ -14,16 +18,11 @@ if ($case eq 'g_body') {
     $case='lu';
     $g_body=1;
 }
-$fractional_step = 0;
-if ($case eq 'fractional_step') {
-    $case='lu';
-    $fractional_step=1;
-}
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
 $N = 20;
-$hratio = 10;			# refinement (h_center/h_wall)
-$Re = 1000;			# Reynolds number
+$hratio = 10 unless $hratio;			# refinement (h_center/h_wall)
+$Re = 1000 unless $Re;		# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
 $solver = "petsc";
@@ -70,11 +69,6 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case $case\n";
 }
-
-if ($fractional_step) {
-    $nstep = 100;
-}
-
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re viscosity h Co Dt hratio g_body);
@@ -84,45 +78,27 @@ octave_export_vars(">data.m.tmp",@vars);
 
 global_options
 
-<:pr('fractional_step'):> 
-# mat_new_nonzero_allocation_err 0
-# debug_compute_prof
 nsave 5
-<:pr('nstep'):>
+<:pr('nstep'):> 
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
 <:pr('solver'):>
 <:pr('preco_type'):> 
-#if 0
-#if 1
-#<:$maxits=1;:>
-solver "petsc"
-solver_mom "petsc"
-preco_type "lu"
-#else
-solver "iisd"
-solver_mom "petsc"
-preco_type "jacobi"
-#endif
-#endif
 <:pr('maxits'):> 
-
 # Number of subdomains
 <:pr('iisd_subpart'):>
 #if $update_jacobian
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
 update_jacobian_steps 3
-#endif
 report_consumed_time
 activate_debug_print
+#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
-max_partgraph_vertices 2000
-max_partgraph_vertices_proc 2000
 
 #    Iterative parameters
 tol_tet 1e-5
@@ -139,7 +115,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady <:= ($fractional_step? 0 : 1):>
+steady
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -163,7 +139,8 @@ nodes  2  2  3
 __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
-elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep_fm2):> 4 
+elemset nsi_tet_les_fm2 4 
+
 name malla
 
 # report_consumed_time

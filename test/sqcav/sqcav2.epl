@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav2.epl,v 1.1 2002/08/18 21:27:14 mstorti Exp $
+#$Id: sqcav2.epl,v 1.2 2002/09/16 16:05:34 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -16,11 +16,11 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;
+$N = 40;
 $hratio = 4;			# refinement (h_center/h_wall)
-$Re = 100;			# Reynolds number
+$Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = 0.05;			# time step
+$Dt = 0.2;			# time step
 $solver = "petsc";
 $preco_type = "jacobi";
 $maxits = 20;
@@ -80,7 +80,7 @@ global_options
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
-nstep 20
+nstep 20000
 # initial_state sqcav.state
 <:pr('save_file'):> 
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.31 2002/09/07 21:54:58 mstorti Exp $ 
+# $Id: Makefile,v 1.32 2002/09/16 16:05:34 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,8 +6,10 @@
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
-tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body \
-		test_fs
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body
+
+test_fs:
+	make case=weak_form_1 runs2
 
 PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 include $(PETSCFEM_DIR)/Makefile.base
@@ -37,6 +39,10 @@ run:  data
 export CASE
 runs: CASE := sqcav
 runs:
+	$(MAKE) run
+
+runs2: CASE := sqcav2
+runs2:
 	$(MAKE) run
 
 runq: CASE := qharm
@@ -85,21 +91,20 @@ test_iisd:
 	$(MAKE) case=iisd_sbp16 runs
 	octave -q < check_iisd.m > check.iisd.verif.np1.tmp
 
-#w Tests Fractional step solver
-test_fs:
-	$(MAKE) case=fractional_step runs
-	octave -q < check_re1000_fs.m > check.re_1000_fs.verif.tmp
-
 #w Makes local link for running with debugger
 link:
 	ln -sf $(PROG) ns
 
 data: force
+	echo in target data: CASE = $(CASE)
 	$(MAKE) $(CASE).depl
+	echo "in target data : CASE $(CASE)"
 	octave -q mk$(CASE).m
 
+# EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
+#	echo in target \$(CASE).depl : CASE $(CASE)
 
 local_clean::
 	-chmod +w *.depl
-	-rm -f *.depl *.sal tmp_file*.tmp &> /dev/null
+	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
