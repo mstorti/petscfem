@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.38 2003/05/25 13:52:05 mstorti Exp $ 
+ # $Id: Makefile,v 1.39 2003/06/06 20:43:41 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -24,6 +24,8 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 # ffeuler.o: ffeuler.cpp
 # 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O0 $<
+
+advdif_bubbly.o : CCPPFLAGS += -O0
 
 dd := ../../doc
 

@@ -1,5 +1,5 @@
 //
-// time: Thu May 29 18:03:44 2003
+// time: Mon Jun  2 18:31:09 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -15,12 +15,12 @@ include "systemdi.net"
 // comment: The control panels allow you to choose which variable to visualize as a deformed surface, which variable to visualize as colors on the surface, and which variable to visualize as contour lines (for scalar data) or glyphs (for vector or connection-dependent data). You can also set the contour line values.
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
-// page assignment: image	order=6, windowed=0, showing=1
-// page assignment: import	order=2, windowed=0, showing=0
+// page assignment: image	order=6, windowed=0, showing=0
+// page assignment: import	order=2, windowed=0, showing=1
 // page assignment: plot	order=4, windowed=0, showing=0
 // page assignment: proc_u	order=3, windowed=0, showing=0
 // page assignment: scalar	order=5, windowed=0, showing=0
-// workspace: width = 1128, height = 922
+// workspace: width = 373, height = 642
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
@@ -43,9 +43,9 @@ macro main(
     // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 4
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 4 0 270 1 }
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 4 0 391 1 }
     // page group: import
-    // vcr[4]: min = 0, max = 1000, beg = 0, end = 270, cur = 0, inc = 4, loop = off, step = off, pal = off
+    // vcr[4]: min = 0, max = 1000, beg = 0, end = 391, cur = 0, inc = 4, loop = off, step = off, pal = off
     // window: position = (0.5781,0.0091), size = 0.2734x0.1042
     //
     main_Sequencer_4_in_3 = @frame;
@@ -252,12 +252,12 @@ main_Switch_5_out_1 =
     // node Scalar[3]: x = 640, y = 320, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_3"
     // input[2]: defaulting = 1, visible = 1, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 7.0
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 4.0
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 7.0
+    // output[1]: visible = 1, type = 5, value = 4.0
     // page group: scalar
     //
     // 
@@ -303,11 +303,11 @@ main_Collect_4_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_1"
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 7.0
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 4.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 7.0 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 4.0 }
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 7.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 4.0
     // page group: scalar
     // window: position = (0.0771,0.2070), size = 0.6348x0.5859
     //
@@ -374,7 +374,7 @@ main_ColorBar_2_out_1 =
     ) [instance: 2, cache: 1];
     // 
     // node MapToPlane[2]: x = 100, y = 320, inputs = 3, label = MapToPlane
-    // input[2]: defaulting = 0, visible = 1, type = 8, value = [0. 0. 53.]
+    // input[2]: defaulting = 0, visible = 1, type = 8, value = [0. 0. 64.]
     // input[3]: defaulting = 0, visible = 1, type = 8, value = [0 0 1]
     // page group: scalar
     //
@@ -419,7 +419,7 @@ main_Collect_5_out_1 =
     ) [instance: 5, cache: 1];
     // 
     // node ClipBox[6]: x = 180, y = 740, inputs = 2, label = ClipBox
-    // input[2]: defaulting = 0, visible = 1, type = 16777224, value = {[0 -50 0] [400 100 55.5]}
+    // input[2]: defaulting = 0, visible = 1, type = 16777224, value = {[0 -50 0] [400 100 65]}
     // page group: scalar
     //
 main_ClipBox_6_out_1 = 
@@ -771,7 +771,7 @@ main_Switch_7_out_1 =
     ) [instance: 7, cache: 1];
     // 
     // node ClipBox[1]: x = 320, y = 600, inputs = 2, label = ClipBox
-    // input[2]: defaulting = 0, visible = 1, type = 16777224, value = {[0 -50 0] [400 50 55.5]}
+    // input[2]: defaulting = 0, visible = 1, type = 16777224, value = {[0 -50 64] [400 50 66]}
     // page group: image
     //
 main_ClipBox_1_out_1 = 
@@ -808,13 +808,13 @@ main_Collect_2_out_1 =
     // node Image[4]: x = 280, y = 720, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [74.3414 7.54866 54.2983]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [431.221 -331.726 181.464]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 79.4101
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [85.6434 0.834288 58.7621]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [156.128 -68.077 557.686]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 120.684
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.193867 0.170987 0.966012]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 8.92831
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.614783 0.764845 0.192493]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 13.5331
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -826,7 +826,7 @@ main_Collect_2_out_1 =
     // input[25]: defaulting = 0, visible = 0, type = 32, value = "/u/mstorti/PETSC/verte_new.tiff"
     // input[26]: defaulting = 0, visible = 0, type = 32, value = "tiff"
     // input[29]: defaulting = 0, visible = 0, type = 3, value = 1
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "none"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "rotate"
     // output[1]: visible = 0
     // output[3]: visible = 0
     // page group: image
@@ -1159,12 +1159,12 @@ main_Sequencer_4_in_3 = NULL;
 main_Sequencer_4_in_4 = 0;
 main_Sequencer_4_in_5 = 1000;
 main_Sequencer_4_in_6 = NULL;
-main_Sequencer_4_in_7 = { 0 1000 4 0 270 1 };
+main_Sequencer_4_in_7 = { 0 1000 4 0 391 1 };
 main_Sequencer_4_out_1 = NULL;
 
 @startframe = 0;
 @nextframe  = @startframe;
-@endframe   = 270;
+@endframe   = 391;
 @deltaframe = 4;
 main_Integer_1_in_1 = "Integer_1";
 main_Integer_1_in_2 = NULL;
@@ -1228,7 +1228,7 @@ main_Scalar_6_in_11 = NULL;
 main_Scalar_6_out_1 = -1000.0;
 main_Scalar_3_in_1 = "Scalar_3";
 main_Scalar_3_in_2 = NULL;
-main_Scalar_3_in_3 = 7.0;
+main_Scalar_3_in_3 = 4.0;
 main_Scalar_3_in_4 = NULL;
 main_Scalar_3_in_5 = NULL;
 main_Scalar_3_in_6 = NULL;
@@ -1237,7 +1237,7 @@ main_Scalar_3_in_8 = NULL;
 main_Scalar_3_in_9 = NULL;
 main_Scalar_3_in_10 = NULL;
 main_Scalar_3_in_11 = NULL;
-main_Scalar_3_out_1 = 7.0;
+main_Scalar_3_out_1 = 4.0;
 main_Compute_19_in_1 = "max(min($0,$2),$1)";
 main_Compute_19_out_1 = NULL;
 main_ShowBoundary_1_in_2 = NULL;
@@ -1255,13 +1255,13 @@ main_Colormap_1_in_8 = NULL;
 main_Colormap_1_in_9 = NULL;
 main_Colormap_1_in_10 = NULL;
 main_Colormap_1_in_11 = NULL;
-main_Colormap_1_in_12 = { 0.0 7.0 };
+main_Colormap_1_in_12 = { 0.0 4.0 };
 main_Colormap_1_in_13 = NULL;
 main_Colormap_1_in_14 = NULL;
 main_Colormap_1_in_15 = NULL;
 main_Colormap_1_in_16 = NULL;
 main_Colormap_1_in_17 = 0.0;
-main_Colormap_1_in_18 = 7.0;
+main_Colormap_1_in_18 = 4.0;
 main_Colormap_1_in_19 = NULL;
 main_Colormap_1_out_1 = NULL;
 main_Color_1_in_3 = 0.9;
@@ -1284,7 +1284,7 @@ main_ColorBar_2_in_14 = NULL;
 main_ColorBar_2_in_15 = NULL;
 main_ColorBar_2_in_16 = NULL;
 main_ColorBar_2_out_1 = NULL;
-main_MapToPlane_2_in_2 = [0. 0. 53.];
+main_MapToPlane_2_in_2 = [0. 0. 64.];
 main_MapToPlane_2_in_3 = [0 0 1];
 main_MapToPlane_2_out_1 = NULL;
 main_Collect_6_in_2 = NULL;
@@ -1295,7 +1295,7 @@ main_Color_2_in_4 = NULL;
 main_Color_2_in_5 = NULL;
 main_Color_2_out_1 = NULL;
 main_Collect_5_out_1 = NULL;
-main_ClipBox_6_in_2 = {[0 -50 0] [400 100 55.5]};
+main_ClipBox_6_in_2 = {[0 -50 0] [400 100 65]};
 main_ClipBox_6_out_1 = NULL;
 main_Transmitter_5_out_1 = NULL;
 main_Receiver_6_out_1 = NULL;
@@ -1422,7 +1422,7 @@ main_AutoGlyph_1_in_6 = NULL;
 main_AutoGlyph_1_in_7 = NULL;
 main_AutoGlyph_1_out_1 = NULL;
 main_Switch_7_out_1 = NULL;
-main_ClipBox_1_in_2 = {[0 -50 0] [400 50 55.5]};
+main_ClipBox_1_in_2 = {[0 -50 64] [400 50 66]};
 main_ClipBox_1_out_1 = NULL;
 main_Collect_2_in_2 = NULL;
 main_Collect_2_in_7 = NULL;
@@ -1749,12 +1749,12 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [74.3414 7.54866 54.2983];
-main_Image_4_in_6 = [431.221 -331.726 181.464];
-main_Image_4_in_7 = 79.4101;
+main_Image_4_in_5 = [85.6434 0.834288 58.7621];
+main_Image_4_in_6 = [156.128 -68.077 557.686];
+main_Image_4_in_7 = 120.684;
 main_Image_4_in_8 = 1000;
 main_Image_4_in_9 = 0.697;
-main_Image_4_in_10 = [-0.193867 0.170987 0.966012];
+main_Image_4_in_10 = [-0.614783 0.764845 0.192493];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
 main_Image_4_in_13 = NULL;
@@ -1783,7 +1783,7 @@ main_Image_4_in_37 = NULL;
 main_Image_4_in_38 = NULL;
 main_Image_4_in_39 = NULL;
 main_Image_4_in_40 = NULL;
-main_Image_4_in_41 = "none";
+main_Image_4_in_41 = "rotate";
 main_Image_4_in_42 = NULL;
 main_Image_4_in_43 = NULL;
 main_Image_4_in_44 = NULL;

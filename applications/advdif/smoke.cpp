@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: smoke.cpp,v 1.4 2003/06/02 00:09:08 mstorti Exp $
+// $Id: smoke.cpp,v 1.5 2003/06/06 20:43:41 mstorti Exp $
 
 #include "./smoke.h"
 
@@ -85,10 +85,10 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   double r1 = -Cr*phi;
   double alpha = (1+cos(omega*t))/2.;
   alpha = 1.;
-  r = alpha*r2+(1.0-alpha)*r1;
+  double r = alpha*r2+(1.0-alpha)*r1;
   // scalar jacobian of reaction term 
-  drdphi2 = -Cr*(2.*phi*phi-phieq*phieq);
-  drdphi1 = -Cr;
+  double drdphi2 = -Cr*(2.*phi*phi-phieq*phieq);
+  double drdphi1 = -Cr;
   drdphi = alpha*drdphi2+(1.0-alpha)*drdphi1;
   // G_source.set(G).axpy(U,Cjac);
   G_source.set(G+r);

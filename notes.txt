@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $
+$Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
+! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
+! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
+! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
+! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
+  # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.286 2003/05/19 15:53:32 mstorti Exp $ 
+  # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6587,7 +6587,10 @@ Con vector<int> tarda 18secs.
 %
 12:45:17: verifico que en spillway da el mismo resultado. 
 
-
+%===Thu,  5 Jun 2003 13:41:07 -0300 mstorti@minerva
+%
+En minerva no puede llegar a compilar el `advdif_bubbly', se queda
+laburando indefinidamente. Le pongo -O0 y compila OK. 
 
 # Current line ===========  %
 # Local Variables: $
