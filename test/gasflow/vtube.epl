@@ -18,7 +18,7 @@ $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 8;			# refinement in `z' (axial) direction
 $r_ratio = 4;			# refinement in radial direction
 
-$Dz_h = 0.01;		# [m] Axial span of hot outlet
+$Dz_h = 0.0104;			# [m] Axial span of hot outlet (0.02*L0)
 if (0) {
     $A_in = 3.63e-4;		# [m2] inlet area
     $Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
@@ -56,7 +56,7 @@ $u_rad_in = $mass_flow_in/
 
 $rho_in = 1;
 $u_rad_in = 0;
-$u_circunf_in = 20;		# [m/s] tangential velocity
+$u_circunf_in = 40;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
 $Re = 1e4;			# [1] Reynolds based on diameter
