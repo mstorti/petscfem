@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*- 
-# $Id: proctable,v 1.16 2003/09/24 21:23:58 mstorti Exp $
+# $Id: proctable,v 1.17 2003/09/25 22:39:28 mstorti Exp $
 # Processor -  weight   table 
 #
 # Script `procsel' generates weigths.dat
@@ -29,7 +29,7 @@ node14    9.09
 node15    9.09
 # Agregados el 2003/SEP/22
 # Tiene dramas? Las corridas se cuelgan en este...
-# node18    9.09
+node18    9.09
 node19    9.09
 node20    9.09
 node21    9.09

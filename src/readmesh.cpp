@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.93 2003/09/17 00:51:35 mstorti Exp $
+//$Id: readmesh.cpp,v 1.94 2003/09/25 22:39:28 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -953,6 +953,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // cumulated sum 
   for (node=0; node<nnod; node++) 
     n2eptr[node+1] += n2eptr[node];
+  PetscPrintf(PETSC_COMM_WORLD,"n2eptr[nnod]: %d\n",n2eptr[nnod]);
 
   // n2esize:= total number of entries in the node2elem table
   int n2esize = n2eptr[nnod];
@@ -980,7 +981,15 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	int jpos;
 	for (jpos=n2eptr[node-1]; jpos<n2eptr[node]; jpos++) 
 	  if (node2elem[jpos]==-1) break;
-	assert(jpos!=n2eptr[node]);
+	if (jpos==n2eptr[node]) {
+	  printf("node %d, elems %d, range in node2elem %d - %d\n",
+		 node,n2eptr[node]-n2eptr[node-1],n2eptr[node-1],
+		 n2eptr[node]-1);
+	  for (jpos=n2eptr[node-1]; jpos < n2eptr[node]; jpos++)
+	    printf("%d ",node2elem[jpos]);
+	  printf("\n");
+	  assert(0);
+	}
 	node2elem[jpos]=ielg;
       }
     }
