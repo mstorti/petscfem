@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.34 2004/12/25 02:10:51 mstorti Exp $
+// $Id: femref.cpp,v 1.35 2004/12/25 03:45:38 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -72,93 +72,18 @@ rf(GeomObject &go,const double *xnod) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class NodeInfoSum : public NodeInfo {
-public:
-  int sum;
-  ~NodeInfoSum() { }
-  void print() { 
-    printf("NodeInfo %p sum %d\n",
-	   this,sum); 
-  }
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-NodeInfo*
-node_sum(const NodeInfo &ni1,
-	 const NodeInfo &ni2) {
-  const NodeInfoSum *ni1_p 
-    = dynamic_cast<const NodeInfoSum *>(&ni1);
-  const NodeInfoSum *ni2_p 
-    = dynamic_cast<const NodeInfoSum *>(&ni2);
-
-  NodeInfoSum *ni12_p = new NodeInfoSum;
-  ni12_p->sum = ni1_p->sum + ni2_p->sum;
-  return ni12_p;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class LinearCombiner : public NodeCombiner {
-public:
-  ~LinearCombiner() { } 
-  void 
-  combine(int tag,
-	  int n,const int *nodes,
-	  int new_node,
-	  NodeInfoMapT &node_info_map) {
-    if (n==0 ) {
-      printf("node-comb (%d)\n",new_node);
-      if (node_info_map.find(new_node)==node_info_map.end()) {
-	NodeInfoSum *ni_p = new NodeInfoSum;
-	ni_p->sum = new_node;
-	node_info_map[new_node] = ni_p;
-      }
-    } else if (n==2) {
-      printf("node-comb (%d,%d) -> %d\n",
-	     nodes[0],nodes[1],new_node);
-      NodeInfoMapT::iterator 
-	q = node_info_map.find(nodes[0]);
-      if(q == node_info_map.end()) {
-	printf("slot for node %d in node_info_map is empty\n",
-	       nodes[0]);
-	assert(0);
-      }
-      const NodeInfoSum *ni1_p 
-	= dynamic_cast<const NodeInfoSum *>(q->second);
-
-      q = node_info_map.find(nodes[1]);
-      if(q == node_info_map.end()) {
-	printf("slot for node %d in node_info_map is empty\n",
-	       nodes[1]);
-	assert(0);
-      }
-      const NodeInfoSum *ni2_p 
-	= dynamic_cast<const NodeInfoSum *>(q->second);
-
-      q = node_info_map.find(new_node);
-      if(q != node_info_map.end()) {
-	printf("slot for node %d in node_info_map is already filled\n",
-	       new_node);
-	assert(0);
-      }
-      NodeInfoSum *ni_p = new NodeInfoSum;
-      ni_p->sum = ni1_p->sum + ni2_p->sum;
-      node_info_map[new_node] = ni_p;
-    } else assert(0);
-  }
-} linear_combiner;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main() { 
 
   UniformMesh mesh(OrientedTetraTemplate,3);
   mesh.read("tetra.nod","tetra.con");
   // mesh.refine(rf);
   UniformMesh::visitor vis;
+  linear_combiner.mesh = &mesh;
 
   // Refine
   vis.init(mesh);
   while (!vis.end()) {
-    if (vis.is_leave() && vis.ref_level()<=0)
+    if (vis.is_leave() && vis.ref_level()<=4)
       vis.refine(&Tetra2TetraSplitter);
     vis.next();
   }
@@ -183,6 +108,8 @@ int main() {
   // Print mesh down to level 0
   vis.trace = 1;
   vis.node_comb = &linear_combiner;
-  vis.init(mesh);
-  while (vis.next(1)) {  }
+  while (1) {
+    vis.init(mesh);
+    while (vis.next(3)) {  }
+  }
 }

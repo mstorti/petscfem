@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.41 2004/12/24 21:18:41 mstorti Exp $
+// $Id: femref.h,v 1.42 2004/12/25 03:45:38 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -412,6 +412,29 @@ public:
     /** The refinement level for this node. */ 
     int ref_level();
   };
+  friend class LinearCombiner;
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class NodeInfoRef : public NodeInfo {
+public:
+  vector<double> coords;
+  ~NodeInfoRef() {  }
+  void print();
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class LinearCombiner : public NodeCombiner {
+public:
+  UniformMesh *mesh;
+  ~LinearCombiner() { } 
+  void 
+  combine(int tag,
+	  int n,const int *nodes,
+	  int new_node,
+	  NodeInfoMapT &node_info_map);
+};
+
+extern LinearCombiner linear_combiner;
 
 #endif
