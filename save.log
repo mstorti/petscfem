@@ -2937,3 +2937,6 @@ tag: beta-3.20.pl6 on Tue,  9 Sep 2003 08:45:20 -0300 by mstorti in minerva.ceri
 ----------
 tag: beta-3.20.pl7 on Wed, 10 Sep 2003 20:18:55 -0300 by mstorti in minerva.ceride.gov.ar
      > Running tests.
+----------
+tag: beta-3.20.pl8 on Thu, 11 Sep 2003 13:02:16 -0300 by mstorti in minerva.ceride.gov.ar
+     > Now PETSc-FEM prints the day of the run. 
