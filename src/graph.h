@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.5 2001/11/24 00:04:57 mstorti Exp $
+// $Id: graph.h,v 1.6 2001/11/24 01:12:07 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -19,7 +19,7 @@ class Graph {
   // vpart:= partitioning of vertices
   int *vpart;
   /// The number of vertices in the fine `graph'
-  int nelemfat;
+  int nvrtx_f;
   /// The number of vertices in the coarse `graph'
   int nvrtx;
   /// max number of vertices in the allowed in the coarse `graph'
@@ -36,7 +36,7 @@ class Graph {
   */
   virtual ~Graph()=0;
   /// partitioning routine (calls Metis)
-  void part(int nelemfat,int max_partgraph_vertices,
+  void part(int nvrtx_f,int max_partgraph_vertices,
 	    int npart,float *tpwgts=NULL);
   /// return an array with the domain indices of all fine vertices 
   const int *vrtx_part();

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.5 2001/11/24 00:04:57 mstorti Exp $
+//$Id: graph.cpp,v 1.6 2001/11/24 01:12:07 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -14,13 +14,13 @@ Graph::~Graph() {}
 Graph::Graph() : weight_scale(1.), vpartf(NULL) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double Graph::weight(int elem) {return weight_scale;}
+double Graph::weight(int vrtx_f) {return weight_scale;}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Graph::part(int nelemfat,int max_partgraph_vertices,
+void Graph::part(int nvrtx_f,int max_partgraph_vertices,
   int npart,float *tpwgts=NULL) {
 
-  int visited,elem,elemk,vrtx,vrtxj,vrtxjj,p,j,k,
+  int visited,vrtx_f,vrtx_fk,vrtx,vrtxj,vrtxjj,p,j,k,
     edgecut,options=0,numflag=0,wgtflag=2;
   vector<int>::iterator n,ne;
   set<int>::iterator q,qe;
@@ -31,7 +31,7 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
 
   weight_scale = 1.;
 
-  assert(nelemfat>0);
+  assert(nvrtx_f>0);
   assert(max_partgraph_vertices>0);
   
   // nvrtx:= number of vertices used in graph partitioning
@@ -39,8 +39,8 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
   // coalesced. In this case, for the last elements the computational
   // effort may be high, since the probability of getting a hole is
   // very low. 
-  nvrtx = (nelemfat/2 > max_partgraph_vertices ?
-	   max_partgraph_vertices : nelemfat);
+  nvrtx = (nvrtx_f/2 > max_partgraph_vertices ?
+	   max_partgraph_vertices : nvrtx_f);
   
   // Create adjacency table for partitioning with Metis. In the
   // adjacency graph the nodes are elements or group of elements of the
@@ -53,37 +53,37 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
   // vwgt:= weights for the vertices (elements) of the graph
   int *vwgt = new int[nvrtx];
   // el2vrtx:= maps elements to vertices when coalescing
-  el2vrtx = new int[nelemfat];
+  el2vrtx = new int[nvrtx_f];
   // vpart:= partitioning of vertices
   vpart = new int[nvrtx];
   vector<int> ngbrs_v;
 
   // Initialize 
-  for (j=0; j<nelemfat; j++) el2vrtx[j] = -1;
+  for (j=0; j<nvrtx_f; j++) el2vrtx[j] = -1;
   for (j=0; j<nvrtx; j++) vwgt[j] = 0;
   // Take `nvrtx' elements to coalesce the neighbor elements
 
   vrtx=0;
   while (!ngbrs.empty()) ngbrs.pop();
 
-  if (nelemfat!=nvrtx) {
+  if (nvrtx_f!=nvrtx) {
     // Take nvrtx `seeds' for growing the groups 
     while(1) {
-      elem = irand(nelemfat);
-      if (el2vrtx[elem]!=-1) continue;
-      el2vrtx[elem]=vrtx++;
-      vwgt[vrtx] += int(weight(elem)/weight_scale);
-      ngbrs.push(elem);
+      vrtx_f = irand(nvrtx_f);
+      if (el2vrtx[vrtx_f]!=-1) continue;
+      el2vrtx[vrtx_f]=vrtx++;
+      vwgt[vrtx] += int(weight(vrtx_f)/weight_scale);
+      ngbrs.push(vrtx_f);
       if (vrtx==nvrtx) break;
     }
     visited = nvrtx;
   } else {
     // Take a group for each element
-    for (elem=0; elem<nelemfat; elem++) {
-      el2vrtx[elem] = elem;
-      vwgt[elem] += int(weight(elem)/weight_scale);
+    for (vrtx_f=0; vrtx_f<nvrtx_f; vrtx_f++) {
+      el2vrtx[vrtx_f] = vrtx_f;
+      vwgt[vrtx_f] += int(weight(vrtx_f)/weight_scale);
     }      
-    visited=nelemfat;
+    visited=nvrtx_f;
   }
   
   // Start coalescing neighbor elements until all elements are
@@ -94,73 +94,67 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
       // disconnected parts of the domain.
 
       // All elements have been visited
-      if (visited==nelemfat) break;
+      if (visited==nvrtx_f) break;
       
       // Disconnected parts. Find next element not visited.
-      for (k=0; k<nelemfat; k++) {
+      for (k=0; k<nvrtx_f; k++) {
 	if (el2vrtx[k]<0) {
 	  ngbrs.push(k);
 	  // Put it in a random vertex
 	  vrtx = irand(0,nvrtx)-1;
 	  el2vrtx[k] = vrtx;
-	  vwgt[vrtx] += int(weight(elem)/weight_scale);
+	  vwgt[vrtx] += int(weight(vrtx_f)/weight_scale);
 	  break;
 	}
       }
     }
 
     // Take the first element
-    elem = ngbrs.front();
+    vrtx_f = ngbrs.front();
     ngbrs.pop();
-    vrtx = el2vrtx[elem];
+    vrtx = el2vrtx[vrtx_f];
     assert(vrtx>=0);
     // Get its connectivities
     ngbrs_v.clear();
-    set_ngbrs(elem,ngbrs_v);
+    set_ngbrs(vrtx_f,ngbrs_v);
     // Loop over all ngbrs of the fine vertex
     ne = ngbrs_v.end();
     for (n=ngbrs_v.begin(); n!=ne; n++) {
-      int &elemk = *n;
+      int &vrtx_fk = *n;
       // Already visited
-      if (el2vrtx[elemk]>=0) continue;
+      if (el2vrtx[vrtx_fk]>=0) continue;
       // Assign to group
-      el2vrtx[elemk]=vrtx;
+      el2vrtx[vrtx_fk]=vrtx;
       visited++;
       // Find elemset and add weight to vertex weight (for load
       // balancing) 
-      vwgt[vrtx] += int(weight(elem)/weight_scale);
+      vwgt[vrtx] += int(weight(vrtx_f)/weight_scale);
       // Put in queue
-      ngbrs.push(elemk);
+      ngbrs.push(vrtx_fk);
     }
   }
 
 #if 0
   if (myrank==0) {
-    for (elem=0; elem < nelemfat; elem++) {
-      printf("el2vrtx[%d] = %d\n",elem,el2vrtx[elem]);
+    for (vrtx_f=0; vrtx_f < nvrtx_f; vrtx_f++) {
+      printf("el2vrtx[%d] = %d\n",vrtx_f,el2vrtx[vrtx_f]);
     }
   }
 #endif
 
-  // mark:= auxiliary vector that flags if an element has been marked
-  // already as a linked node in the graph
-#if 0
-  int *mark = new int[nelemfat];
-  for (int ielgj=0; ielgj<nelemfat; ielgj++) mark[ielgj]=-1;
-#endif
-        
+  // Resize the `vector of sets'
   adjncy_v.resize(nvrtx);
 
   // Define graph descriptors 
   // Initializa graph ptrs
-  for (elem=0; elem<nelemfat; elem++) {
-    vrtxj = el2vrtx[elem];
+  for (vrtx_f=0; vrtx_f<nvrtx_f; vrtx_f++) {
+    vrtxj = el2vrtx[vrtx_f];
     ngbrs_v.clear();
-    set_ngbrs(elem,ngbrs_v);
+    set_ngbrs(vrtx_f,ngbrs_v);
     ne = ngbrs_v.end();
     for (n=ngbrs_v.begin(); n!=ne; n++) {
-      int &elemk = *n;
-      vrtxjj = el2vrtx[elemk];
+      int &vrtx_fk = *n;
+      vrtxjj = el2vrtx[vrtx_fk];
       // Add edges to graph
       adjncy_v[vrtxj].insert(vrtxjj);
       // Just in case the user doesn't return a symmetric graph
@@ -182,7 +176,7 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
   }
 
   adjncy_v.clear();
-#if 1
+#if 0
   // print the graph
   for (int ielgj=0; ielgj<nvrtx; ielgj++) {
     printf("%d: ",ielgj);
@@ -208,18 +202,18 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int Graph::vrtx_part(int elem) {
+int Graph::vrtx_part(int vrtx_f) {
   // Map fine graph vertex to coarse graph vertex and return partition
   // index for the last one
-  return vpart[el2vrtx[elem]];
+  return vpart[el2vrtx[vrtx_f]];
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const int *Graph::vrtx_part() {
   // Create auxiliary vector `vpartf', fill with values using
   // elemental `vrtx_part' and return pointer to it
-  vpartf = new int[nelemfat];
-  for (int j=0; j<nelemfat; j++) 
+  vpartf = new int[nvrtx_f];
+  for (int j=0; j<nvrtx_f; j++) 
     vpartf[j] = vpart[el2vrtx[j]];
   return vpartf;
 }
