@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: memtest2.cpp,v 1.6 2004/02/25 19:27:53 mstorti Exp $
+// $Id: memtest2.cpp,v 1.7 2004/07/19 11:47:42 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstdio>
@@ -47,19 +47,18 @@ int main(int argc,char **argv) {
   int len;
   double block_size_m = 1.0;
   int block_size;
+  double ramp;
 
-  while ((c = getopt(argc, argv, "l:m:b:p:g:h")) != -1) {
+  while ((c = getopt(argc, argv, "s:l:m:p:g:h")) != -1) {
     switch (c) {
     case 'h':
-      printf(" usage: $ memtst -m <RAM-in-Mb> "
-	     "-b <number-of-blocks> -l <log-file> \n"
-	     "-p <report-freq>");
+      printf(" usage: $ memtest2 -m <%RAM> -l <log-file> -p <report-freq>\n");
       exit(0);
-    case 'b':
-      sscanf(optarg,"%d",&nblocks);
-      break;
     case 's':
       sscanf(optarg,"%lf",&block_size_m);
+      break;
+    case 'm':
+      sscanf(optarg,"%lf",&ramp);
       break;
     case 'p':
       sscanf(optarg,"%d",&report);
@@ -93,12 +92,15 @@ int main(int argc,char **argv) {
     assert(getline(&line,&N,fid)!=-1);
     if (sscanf(line,"MemFree: %d kB",&mem)) break;
   }
+  fprintf(output,"free: %d\n",mem);
+  mem = size_t(mem*ramp);
+  fprintf(output,"will use: %d\n",mem);
   fclose(fid);
-  printf("free: %d\n",mem);
   assert(block_size_m>0.);
   block_size = int(block_size_m*pow(2.,18.));
-  nblocks = int(double(mem)/pow(2.,10.)/block_size_m);
-  printf("nblocks: %d\n",nblocks);
+  fprintf(output,"block_size: %d x sizeof(int)\n",block_size);
+  nblocks = int(mem/pow(2.,10.)/block_size_m);
+  fprintf(output,"nblocks: %d\n",nblocks);
 
   MAX = int(double(RAND_MAX)/3.0);
   vector<int *> buffers;
@@ -108,7 +110,7 @@ int main(int argc,char **argv) {
     if(!p) break;
     rand_fill(p,block_size);
     buffers.push_back(p);
-    printf("%.2f MB alloc\n",
+    fprintf(output,"%.2f MB alloc\n",
 	   double(buffers.size())
 	   *double(block_size)*double(sizeof(int))
 	   /pow(2.,20.));
@@ -129,7 +131,7 @@ int main(int argc,char **argv) {
 	  if (j<4) break; // may be error in reference
 	  else {
 	    int w = buffers[j][k];
-	    printf("error at %p, old %d, new %d, diff %d\n",
+	    fprintf(output,"error at %p, old %d, new %d, diff %d\n",
 		   &buffers[j][k],v,w,v-w);
 	    failed++;
 	  }
@@ -137,7 +139,7 @@ int main(int argc,char **argv) {
       }
     }
     checked++;
-    if (checked % 100) printf("checked %d, failed %d\n",checked,failed);
+    if (checked % 100) fprintf(output,"checked %d, failed %d\n",checked,failed);
   }
   for (int j=0; j<nblocks; j++) {
     free(buffers[j]);
