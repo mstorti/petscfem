@@ -502,7 +502,7 @@ Direct/PETSc  OK \? > 1,
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sqcav/output.CASE_sqcav.np_1.case_lu.out.tmp",
+expect("sqcav/output.CASE_sqcav.np_1.case_lu1.out.tmp",
        "Measure performance test.",read_file("sqcav/test_meas_perf.ans.txt"));
 
 

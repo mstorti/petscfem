@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.88 2003/02/18 23:49:44 mstorti Exp $ 
+# $Id: Makefile,v 1.89 2003/02/19 22:20:40 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -49,7 +49,7 @@ local_clean::
 #w and make a tar with the results
 torture_1:
 	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
-	-runtests.pl | tee make-tests-$(BOPT).log
+	-runtests.pl | tee -a make-tests-$(BOPT).log
 	tar czvf ../make-tests-$(BOPT).tar.gz .
 
 #w torture for BOPT=g_c++
@@ -64,9 +64,9 @@ torture_O:
 #w store results in tars and logs.
 torture:
 	$(MAKE) lclean
-	$(MAKE) BOPT=O_c++ torture_1
-	$(MAKE) lclean
 	$(MAKE) BOPT=g_c++ torture_1
+	$(MAKE) lclean
+	$(MAKE) BOPT=O_c++ torture_1
 	$(MAKE) lclean
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
