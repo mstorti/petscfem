@@ -1514,3 +1514,7 @@ tag: beta-3.03.pl10 on Thu, 29 Aug 2002 22:43:44 -0300 by mstorti in spider
 ----------
 tag: beta-3.03.pl11 on Thu, 29 Aug 2002 23:19:49 -0300 by mstorti in spider
      > All elemsets now use FastMat2 cache. 
+----------
+tag: beta-3.03.pl12 on Sat, 31 Aug 2002 16:39:38 -0300 by mstorti in spider
+     > Save before the modificiation for efficiently return matrices (only
+     > masked values).
