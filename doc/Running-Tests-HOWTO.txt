@@ -1,1 +1,13 @@
-$Id: Running-Tests-HOWTO.txt,v 1.1 2005/02/18 09:08:28 mstorti Exp $
+$Id: Running-Tests-HOWTO.txt,v 1.2 2005/02/18 09:13:19 mstorti Exp $
+
+* Be sure that the `BOPT' variable is not hardwired set in a
+  tests/.../Makefile, since that way the test will not be done in the
+  two optimization levels. 
+
+* Run `make torture' in the `tests' directory. There remains two files 
+  `make-tests-O_c++.log' and `make-tests-g_c++.log' that have the
+  report for each mode. All the result of the rans remains tar-gzipped
+  in `make-tests-O_c++.tar.gz' and `make-tests-g_c++.tar.gz' in the
+  top directory. 
+
+* If some test is not passed check what happened and run again. 
