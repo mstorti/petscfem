@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.9 2002/01/14 03:45:06 mstorti Exp $
+//$Id: fem.cpp,v 1.10 2002/11/05 19:59:36 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -11,8 +11,6 @@
 #include "pfmat.h"
 
 int MY_RANK, SIZE;
-
-static char help[] = "Basic finite element program.\n\n";
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

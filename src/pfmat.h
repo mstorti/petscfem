@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.35 2002/09/05 19:24:01 mstorti Exp $
+// $Id: pfmat.h,v 1.36 2002/11/05 19:59:36 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -89,7 +89,7 @@ public:
   PFMat();
 
   /// Virtual destructor
-  ~PFMat();
+  virtual ~PFMat();
 
   /// Adds an element to the matrix profile
   int set_profile(int row,int col);

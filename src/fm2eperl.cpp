@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.17 2002/08/30 02:19:35 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.18 2002/11/05 19:59:36 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -35,7 +35,6 @@ int mem_size(const Indx & indx) {
 FastMat2 & FastMat2::set(const FastMat2 & A ) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -65,7 +64,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -108,7 +107,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::add(const FastMat2 & A ) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -138,7 +136,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -182,7 +180,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::rest(const FastMat2 & A ) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -212,7 +209,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -256,7 +253,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::mult(const FastMat2 & A ) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -286,7 +282,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -330,7 +326,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::div(const FastMat2 & A ) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -360,7 +355,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -404,7 +399,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::axpy(const FastMat2 & A ,const double alpha) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -434,7 +428,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -484,7 +478,6 @@ op_count.sum += cache->nelems;
 FastMat2 & FastMat2::setel(const double val, INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -538,7 +531,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::addel(const double val, INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -593,7 +585,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::multel(const double val, INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -654,7 +645,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::set(const double *a) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -722,7 +712,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::set(const Matrix & A) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -818,7 +807,6 @@ FastMat2 & FastMat2::sum(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -915,6 +903,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -947,7 +936,9 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  ;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -988,7 +979,6 @@ FastMat2 & FastMat2::sum_square(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -1085,6 +1075,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -1118,7 +1109,9 @@ op_count.mult += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  double aux;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1159,7 +1152,6 @@ FastMat2 & FastMat2::sum_abs(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -1256,6 +1248,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -1289,7 +1282,9 @@ op_count.abs += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  ;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1330,7 +1325,6 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const double p ,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -1427,6 +1421,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -1460,7 +1455,9 @@ op_count.abs += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  ;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1501,7 +1498,6 @@ FastMat2 & FastMat2::norm_p(const FastMat2 & A, const int p ,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -1598,6 +1594,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -1631,7 +1628,9 @@ op_count.abs += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  ;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1672,7 +1671,6 @@ FastMat2 & FastMat2::max(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -1769,6 +1767,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -1802,7 +1801,9 @@ op_count.fun += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  double aux;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -1843,7 +1844,6 @@ FastMat2 & FastMat2::min(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -1940,6 +1940,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -1973,7 +1974,9 @@ op_count.fun += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  double aux;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2015,7 +2018,6 @@ FastMat2 & FastMat2::max_abs(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2112,6 +2114,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -2146,7 +2149,9 @@ op_count.abs += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  double aux;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2188,7 +2193,6 @@ FastMat2 & FastMat2::min_abs(const FastMat2 & A,
 			      const int m=0,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2285,6 +2289,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -2319,7 +2324,9 @@ op_count.abs += ntot;
 ;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  double aux;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -2350,7 +2357,6 @@ double FastMat2::min_abs_all() const {
 FastMat2 & FastMat2::set(const double val=0.) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2408,7 +2414,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::scale(const double val=0.) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2466,7 +2471,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::add(const double val=0.) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2524,7 +2528,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::fun(scalar_fun_t *fun_) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2582,7 +2585,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::fun(scalar_fun_with_args_t *fun_,void *user_args) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2644,7 +2646,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2672,14 +2673,12 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
   if (!was_cached  ) {
     Indx ia,ib,ii;
-    va_list ap;
 
     Indx Afdims,Bfdims,fdims;
     A.get_dims(Afdims);
     B.get_dims(Bfdims);
 
     // maxc:= maximum contracted index
-    int nd=0,cd=0,maxc=0;
     ii.push_back(m);
     int niA = Afdims.size();
     int niB = Bfdims.size();
@@ -2781,6 +2780,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     int line_size = cache->line_size;
 
     int jlc=0,inca,incb;
+    LineCache *lc;
     while (1) {
       lc = cache->line_cache_start + jlc++;
       lc->linea.resize(line_size);
@@ -2842,7 +2842,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   int nlines = cache->nlines;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
   for (int j=0; j<nlines; j++) {
-    lc = cache->line_cache_start+j;
+    LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pb = lc->startb;
     if (lc->linear) {
@@ -2880,7 +2880,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 const FastMat2 & FastMat2::export_vals(Matrix & A) const {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -2950,7 +2949,6 @@ if (A.Nrows()==0) {
  FastMat2 & FastMat2::export_vals(Matrix & A)  {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3020,7 +3018,6 @@ if (A.Nrows()==0) {
 const FastMat2 & FastMat2::export_vals(double *a) const {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3084,7 +3081,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
  FastMat2 & FastMat2::export_vals(double *a)  {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3151,7 +3147,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3262,7 +3257,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
     int jlc=0;
     while (1) {
-      lc = cache->line_cache_start + jlc++;
+      LineCache *lc = cache->line_cache_start + jlc++;
       lc->linea.resize(line_size);
       lc->starta = lc->linea.begin();
       lc->target = location(findx);
@@ -3297,7 +3292,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   int nlines = cache->nlines;
   double **pa,**pa_end,sum;
   for (int j=0; j<nlines; j++) {
-    lc = cache->line_cache_start+j;
+    LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pa_end = pa + cache->line_size;
     sum=0.;
@@ -3317,7 +3312,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::diag(FastMat2 & A,const int m,INT_VAR_ARGS) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3440,7 +3434,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 double FastMat2::get(INT_VAR_ARGS) const {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3498,7 +3491,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2::operator double() const { 
   
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3541,7 +3533,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::det(void) const{
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3624,7 +3615,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 FastMat2 & FastMat2::inv(const FastMat2 & A) {
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3750,7 +3740,6 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::kron(const FastMat2 & A,const FastMat2 & B) {
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3851,7 +3840,6 @@ FastMat2 & FastMat2::eye(const double a=1.) {
   set(0.);
 
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -3927,7 +3915,6 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double FastMat2::detsur(FastMat2 *nor=NULL) {
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -4045,7 +4032,6 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::cross(const FastMat2 & a,const FastMat2 & b) {
   FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -4125,6 +4111,4 @@ cross_cache::~cross_cache() {
 // DON'T EDIT MANUALLY THIS FILE !!!!!!
 // This files automatically generated by ePerl from 
 // the corresponding file (omitting the _eperl) name.
-
-
 

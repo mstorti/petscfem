@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.24 2002/09/30 02:30:52 mstorti Exp $
+//$Id: elemset.h,v 1.25 2002/11/05 19:59:35 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -29,7 +29,7 @@ public:
   /// ctor
   Elemset();
   /// dtor
-  ~Elemset();
+  virtual ~Elemset();
   /// type of element
   char *type;
   /// table of connectivities
@@ -358,7 +358,7 @@ public:
   ElementIterator() {};
   /// Constructor
   ElementIterator(const ElementList *el, const int rie,const int ric) 
-    : elemlist(el), rank_in_elemset(rie), rank_in_chunk(ric) {};
+    : elemlist(el), rank_in_chunk(ric), rank_in_elemset(rie) {};
   /// Prefix increment operator
   ElementIterator & operator++(void);
   /// Postfix Increment operator
@@ -541,8 +541,8 @@ public:
   EvalFun *eval_fun;
   ClearFun *clear_fun;
 
-  Property() : indx(-1), length(0), ptr(NULL),
-  init_fun(NULL), eval_fun(NULL), clear_fun(NULL), fun_data(NULL) { val.clear(); };
+  Property() : indx(-1), ptr(NULL), length(0), 
+  init_fun(NULL), eval_fun(NULL), fun_data(NULL), clear_fun(NULL) { val.clear(); };
 
   ~Property() { if(clear_fun) (*clear_fun)(fun_data); }
 };
@@ -600,6 +600,8 @@ public:
 	       const TimeData *time_data) {
     printf("assemble: not known New Elemset\n"); exit(1);
   };
+
+  virtual ~NewElemset() {}
 
   Elemset::initialize;
   Elemset::elem_params;

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.13 2002/08/28 00:48:18 mstorti Exp $
+// $Id: distmat.cpp,v 1.14 2002/11/05 19:59:33 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -123,7 +123,6 @@ void Row::print() const {
 void DistMat::
 combine(const pair<int,Row> &p) {
   // Insert the pair (int,row) in the matrix
-  int n,j;
   map<int,Row>::iterator iter = find(p.first);
 
 #if 0

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.52 2002/09/30 02:30:51 mstorti Exp $
+//$Id: elemset.cpp,v 1.53 2002/11/05 19:59:33 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -96,7 +96,7 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 			     int myrank,int el_start,int el_last,
 			     int iter_mode,const TimeData *time_data=NULL) {
 
-  int iele,iele_here,kloc,node,kdof,locdof;
+  int iele,iele_here,kloc,node,kdof;
   
   // If the vector passed has a time_data value, then
   // use it as time
@@ -135,17 +135,17 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int klocc=0,int kdofc=0) {
 
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
-    load_vec,load_mat,load_mat_col,comp_prof,comp_mat,iele_here,
+    load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
 
   double *retval = argd.retval;
 
   int neq;
   //  sp_entry *spe, *spel;
-  double q,ql,val,vall;
+  double val,vall;
   //  ierr = VecGetSize(vec,&neq); CHKERRQ(ierr); 
   neq = dofmap->neq;
-  row_t::iterator entry,entryc;
+  row_t::iterator entryc;
   
   // static Darray *row, *rowc;
   row_t row,rowc;
@@ -235,7 +235,6 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		val = (entry_v->coef) * (entryc_v->coef) * vall;
 		if (MASK(kloc,kdof,lloc,ldof)) {
 		  if (comp_prof) {
-		    int kd=locdof-1,kdl=locdofl-1;
 		    // be sure that profile is symmetric
 		    if (pfmat) {
 		      argd.pfA->set_profile(locdof-1,locdofl-1);
@@ -274,7 +273,7 @@ int vector_assoc_gather(vector<double> *vector_assoc,
   if (size==1) return 0;
   Vec one_elem_per_proc;
   int ierr = VecCreateMPI(PETSC_COMM_WORLD,1,size,&one_elem_per_proc);
-  double global_val;int jj;
+  double global_val;
   for (int j=0; j<vector_assoc->size(); j++) {
     // set local value
     // printf("On proc [%d] j=%d local val %f\n",myrank,j,(*vector_assoc)[j]);
@@ -363,16 +362,14 @@ int assemble(Mesh *mesh,arg_list argl,
 
 #define ARGVJ (arg_data_v[j])
 
-  int iele,nelem,nel,ndof,*icone,ndoft,kloc,node,kdof,locdof,
-    lloc,ldof,nodel,locdofl,kk,myrank,ierr,kdoft,iele_here,k;
-  int rvsize;
+  int iele,nelem,nel,ndof,*icone,ndoft,kloc,kdof,
+    myrank,ierr,kdoft,iele_here,k;
 
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
   Nodedata *nodedata = mesh->nodedata;
   HPChrono hpchrono,hpc2,hpc3,hpcassmbl;
-  Chrono chrono;
-  Stat out_of_loop, in_loop, assemble, wait;
+  Stat out_of_loop, in_loop, wait;
 
   hpc2.start();
   hpchrono.start();
@@ -397,8 +394,6 @@ int assemble(Mesh *mesh,arg_list argl,
   float w_max=dofmap->tpwgts[0]; 
   for (int jproc=1; jproc<dofmap->size; jproc++)
     if (dofmap->tpwgts[jproc] > w_max) w_max = dofmap->tpwgts[jproc];
-
-  int nghost_dofs = dofmap->ghost_dofs->size();
 
   int j;
   int iter_mode = NOT_INCLUDE_GHOST_ELEMS;

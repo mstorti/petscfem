@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.33 2002/11/02 16:09:16 mstorti Exp $
+// $Id: sparse.h,v 1.34 2002/11/05 19:59:36 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -432,7 +432,7 @@ void MatFSMContext::action() {			\
     Mat(int m=0,int n=0,TextHashTable *t=NULL);
 
     /// Destructor (invokes clear() FSM)
-    ~Mat() {clear();}
+    virtual ~Mat() { clear(); }
 
     /// Return row dimension
     int rows() const {return nrows;};

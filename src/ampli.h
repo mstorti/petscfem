@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.14 2002/02/20 01:47:33 mstorti Exp $
+// $Id: ampli.h,v 1.15 2002/11/05 19:59:33 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -138,7 +138,7 @@ public:
   /// Computes the value of the Dirichlet b.c. at the specified time
   double eval(const TimeData *time_data);
   /// Destructor
-  ~DLGeneric();
+  virtual ~DLGeneric();
 };
 
 /** @name Useful macros for defining extended functions for amplitude 

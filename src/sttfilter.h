@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: sttfilter.h,v 1.9 2002/09/05 18:23:52 mstorti Exp $
+//$Id: sttfilter.h,v 1.10 2002/11/05 19:59:36 mstorti Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -104,7 +104,7 @@ public:
   /// Instantiation of the state function
   const State & state() const {return *state_;}
   /// Destructor
-  ~Inlet() {};
+  virtual ~Inlet() {};
 };
 
 /** This is a recursive filter of the form 
@@ -122,9 +122,9 @@ class LowPass : public Filter {
 public:
   /// Constructor 
   LowPass(double gamma_,Filter &input_,State &state_) 
-    : gamma(gamma_), input(&input_), i_state(state_) {};
+    : input(&input_), gamma(gamma_), i_state(state_) {};
   /// Destructor
-  ~LowPass() {};
+  virtual ~LowPass() {};
   /// Updates the filter (and its input)
   void update(Time time);
   /// Allows access to the internal state
@@ -150,7 +150,7 @@ public:
   /// Constructor from a typical state
   Mixer(State &st) : i_state(st) {};
   /// Destructor
-  ~Mixer() {};
+  virtual ~Mixer() {};
   /// Adds an input to the list of inputs
   Mixer & add_input(Filter &input,double g);
   /// Updates the state and all its inputs. 

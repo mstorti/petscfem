@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.16 2002/08/30 02:19:35 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.17 2002/11/05 19:59:36 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -23,7 +23,6 @@ int mem_size(const Indx & indx) {
 
 //<$cache_op=<<'//EOF';
 FastMatCache *cache;
-LineCache *lc;
 
 if (was_cached) {
   cache = cache_list_begin[position_in_cache++];
@@ -61,7 +60,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A __OTHER_ARGS__) {
     assert(A.defined);
     Indx Afdims,fdims;
     A.get_dims(Afdims);
-    int Afd = Afdims.size();
+    // int Afd = Afdims.size();
   
     if (!defined) {
       create_from_indx(Afdims);
@@ -383,6 +382,7 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
     cache->line_cache_start = cache->prod_cache.begin();
     cache->nlines = nlines;
     cache->line_size = line_size;
+    LineCache *lc;
     for (int jlc=0; jlc<nlines; jlc++) {
       lc = cache->line_cache_start + jlc;
       lc->linea.resize(line_size);
@@ -414,7 +414,9 @@ FastMat2 & FastMat2::__NAME__(const FastMat2 & A, __OTHER_ARGS__ __C__
     __COUNT_OPER__;
   }
 
-  double **pa,**pe,val,aux;
+  LineCache *lc;
+  double **pa,**pe,val;
+  __PRE_LOOP_OPS__;
   for (int j=0; j<cache->nlines; j++) {
     lc = cache->line_cache_start+j;
     pa = lc->starta;
@@ -488,14 +490,12 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
 
   if (!was_cached  ) {
     Indx ia,ib,ii;
-    va_list ap;
 
     Indx Afdims,Bfdims,fdims;
     A.get_dims(Afdims);
     B.get_dims(Bfdims);
 
     // maxc:= maximum contracted index
-    int nd=0,cd=0,maxc=0;
     ii.push_back(m);
     int niA = Afdims.size();
     int niB = Bfdims.size();
@@ -597,6 +597,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
     int line_size = cache->line_size;
 
     int jlc=0,inca,incb;
+    LineCache *lc;
     while (1) {
       lc = cache->line_cache_start + jlc++;
       lc->linea.resize(line_size);
@@ -658,7 +659,7 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
   int nlines = cache->nlines;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
   for (int j=0; j<nlines; j++) {
-    lc = cache->line_cache_start+j;
+    LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pb = lc->startb;
     if (lc->linear) {
@@ -837,7 +838,7 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
 
     int jlc=0;
     while (1) {
-      lc = cache->line_cache_start + jlc++;
+      LineCache *lc = cache->line_cache_start + jlc++;
       lc->linea.resize(line_size);
       lc->starta = lc->linea.begin();
       lc->target = location(findx);
@@ -872,7 +873,7 @@ FastMat2 & FastMat2::ctr(const FastMat2 & A,const int m,INT_VAR_ARGS) {
   int nlines = cache->nlines;
   double **pa,**pa_end,sum;
   for (int j=0; j<nlines; j++) {
-    lc = cache->line_cache_start+j;
+    LineCache *lc = cache->line_cache_start+j;
     pa = lc->starta;
     pa_end = pa + cache->line_size;
     sum=0.;
@@ -1503,5 +1504,3 @@ cross_cache::~cross_cache() {
 
 
 //<=$warn_dont_modify //>
-
-

@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.11 2002/05/16 19:24:57 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.12 2002/11/05 19:59:35 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -17,7 +17,6 @@ void FastMat2::branch(void) {
 
   if (!use_cache) return;
   FastMatCache *cache;
-  LineCache *lc;
 
   if (was_cached) {
     cache = cache_list_begin[position_in_cache];
@@ -32,7 +31,6 @@ void FastMat2::branch(void) {
     cache_list_begin = cache_list->begin();
     cache_list->list_size =
       cache_list_size = cache_list->size();
-    position_in_cache;
 #ifdef FM2_CACHE_DBG
     printf ("defining cache: ");
 #endif
@@ -232,7 +230,7 @@ void purge_cache_list(FastMatCacheList *cache_list) {
 #ifdef FM2_CACHE_DBG
     printf(" -> purging cache %p, position %d\n",cache,j);
 #endif
-    for (int k=0; k< cache->branch.size(); k++) {
+    for (unsigned int k=0; k< cache->branch.size(); k++) {
       purge_cache_list(cache->branch[k]);
       delete cache->branch[k];
     }
@@ -271,8 +269,8 @@ Perm::Perm(const int m) : vector<int>(m) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Perm::print(const char *s=NULL) const {
-  if (s!=NULL) printf(" %s \n");
-  for (int j=0; j<this->size(); j++) {
+  if (s!=NULL) printf(" %s \n",s);
+  for (unsigned int j=0; j<this->size(); j++) {
     printf("%d -> %d, ",j+1,(*this)[j]+1);
   }
   printf("\n");

@@ -97,7 +97,9 @@ sub gen_sum {
 	'CACHE_OPERATIONS' => $cache_op,
 	'OTHER_ARGS' => '',
 	'OTHER_ARGS_P' => '',
-	'POST_LOOP_OPS' => ''};
+	'POST_LOOP_OPS' => '',
+	'PRE_LOOP_OPS' => '',
+    };
     my $new_args = shift();
 #    print "new gen_sum call:\n";
     while (my ($k,$v) = each %{$new_args}) {
@@ -110,18 +112,24 @@ sub gen_sum {
 }
 
 sub gen_max {
-    print template_subst($gen_sum,{
+    my $args = {
 	'NAME' => shift(), 
 	'INI_LOOP' => shift(), 
 	'ELEM_OPERATIONS' => shift(),
 	'COUNT_OPER' => shift(),
-	'CACHE_OPERATIONS' => $cache_op});
+	'CACHE_OPERATIONS' => $cache_op,
+	'PRE_LOOP_OPS'=>'double aux'
+	};
+    my $new_args = shift();
+    while (my ($k,$v) = each %$new_args) { $args->{$k} = $v; }
+    print template_subst($gen_sum,$args);
 }
 
 sub gen_sum_all {
     $count_oper_size = 'ntot';
     gen_sum('sum','val += **pa++',copg('sum'));
-    gen_sum('sum_square','aux= **pa++; val += aux*aux',copg(qw(sum mult)));
+    gen_sum('sum_square','aux= **pa++; val += aux*aux',copg(qw(sum mult)),
+	    { 'PRE_LOOP_OPS'=>'double aux'});
     gen_sum('sum_abs','val += fabs(**pa++)',copg(qw(sum abs)));
     gen_sum('norm_p','val += pow(fabs(**pa++),p)',copg(qw(sum abs)),
 	    {'OTHER_ARGS'=>'const double p',
