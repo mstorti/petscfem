@@ -723,3 +723,6 @@ tag: pfmat-rewrite-1.05 on Mon Dec 24 01:01:10 ARST 2001, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.06 on Mon Dec 24 09:54:17 ARST 2001, by mstorti in spider
      > IISDMat::create() starts working. (Not well test so far, though).
+----------
+tag: pfmat-rewrite-1.07 on Tue Dec 25 12:05:44 ARST 2001, by mstorti in spider
+     > Solves several rhs's with the same factored matrix.
