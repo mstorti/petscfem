@@ -2,6 +2,7 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};                   # case name
+print "# case_name $case_name\n";
 $case_name = 'skew' unless $case_name;
 $N = 40;
 $M = 40;
@@ -12,7 +13,10 @@ $ux = 2;
 $uy = 1;
 $alpha = 1;
 $xini = $yini = 0.5;
+$Omega = 0;
+$cone = 0;
 if ($case_name =~ /cone/) {
+    $cone = 1;
     $N = 100;
     $M = 100;
     $Lx = 5;
@@ -25,12 +29,12 @@ if ($case_name =~ /cone/) {
     $Dt = $Courant*$hx/$ux;
     $Tend = 3.5;
     $nstep = ceil($Tend/$Dt);
-    $case_name = 'cone';
 } 
-#
-if ($case_name =~ /rotating_cone/) {
-    $N = 150;
-    $M = 30;
+
+if ($case_name eq 'parallel_cone') {
+    print "# using \"parallel_cone\" options\n";
+    $N = 100;
+    $M = 20;
     $Lx = 5;
     $Ly = 1;
     $ux = 1;
@@ -41,10 +45,44 @@ if ($case_name =~ /rotating_cone/) {
     $Dt = $Courant*$hx/$ux;
     $Tend = 3.5;
     $nstep = ceil($Tend/$Dt);
+    $case_name = 'cone';
+} 
+#
+if ($case_name =~ /skew_cone/) {
+    $N = 100;
+    $M = 100;
+    $Lx = 5;
+    $Ly = 5;
+    $ux = 1;
+    $uy = 1;
+    $alpha = 0.5;
+    $Courant = 0.5;
+    $hx = $Lx/$N;
+    $Dt = $Courant*$hx/$ux;
+    $Tend = 3.5;
+    $nstep = ceil($Tend/$Dt);
+}
+if ($case_name =~ /rotating_cone/) {
+    $N = 50;
+    $M = 50;
+    $Lx = 3;
+    $Ly = 3;
+    $Omega = 1.2/($Lx/2);
+    $uy = 1;
+    $alpha = 0.5;
+    $Courant = 0.5;
+    $hx = $Lx/$N;
+    $Dt = $Courant*$hx/$ux;
+    $Tend = 2*$PI/$Omega;
+    $nstep = ceil($Tend/$Dt);
+    $xini = $Lx/2;
+    $yini = 0.5;
 }
 #__END_TRANSCRIPT__
-octave_export_vars(">data.m.tmp",qw(N M Lx Ly delta ydisc 
-    ux uy case_name Courant xini yini));
+@vars = qw(N M Lx Ly delta ydisc 
+        ux uy case_name Courant xini yini cone Omega);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH advec.m";
 :>//                            # ends ePerl block
 
@@ -79,13 +117,19 @@ data advec.nod.tmp
 __END_HASH__
 
 #===========================================================
-elemset advec 3
+elemset newadvdif_advecfm2 3
+#if $case_name eq 'rotating_cone'
+props advective_jacobians[2]
+#else
+advective_jacobians <:=$ux:> <:=$uy:> 
+#endif
 geometry triangle
 npg 3
-u <:=$ux:> <:=$uy:> 
-diff 1e-4
-data advec.con.tmp
+diffusive_jacobians 1e-4
+# data advec.con.tmp
 __END_HASH__
+__INCLUDE__ advec.con.tmp
+__END_ELEMSET__
 
 end_elemsets
 
@@ -93,7 +137,7 @@ end_elemsets
 fixa
 
 __INCLUDE__ "advec.fixa.tmp"
-#if $uy > 0.
+#if !$case_name ne 'rotating_cone' && $uy > 0.
 __INCLUDE__ "advec.fixa-y0.tmp"
 #endif
 __END_FIXA__

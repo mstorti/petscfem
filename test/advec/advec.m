@@ -5,17 +5,42 @@ w=zhomo([0 Lx 0 Ly],N+1,M+1);
 
 icone=[icone(:,[1 4 3]);
        icone(:,[3 2 1])];
-	     
+	
 asave("advec.nod.tmp",xnod);
-asave("advec.con.tmp",icone);
 
-if strcmp(case_name,"cone") || strcmp(case_name,"rotating_cone")
+if strcmp(case_name,"rotating_cone")
+  xele = pfnd2ele(xnod,icone,xnod);
+  uele = [-Omega*(xele(:,2)-Ly/2) +Omega*(xele(:,1)-Lx/2)];
+  fid = fopen("advec.con.tmp","w");
+  for k=1:rows(icone)
+    fprintf(fid,"%d %d %d    %f %f\n",icone(k,:),uele(k,:));
+  endfor
+  fclose(fid);
+else 
+  asave("advec.con.tmp",icone);
+endif
+
+if cone
 
   fid = fopen("advec.fixa.tmp","w");
-  for k=1:M+1
-    node = k;
-    fprintf(fid,"%d %d %f\n",node,1,0);
-  endfor
+  if !strcmp(case_name,"rotating_cone")
+    for k=1:M+1
+      node = k;
+      fprintf(fid,"%d %d %f\n",node,1,0);
+    endfor
+  else
+    for k=1:M+1
+      node = k;
+      fprintf(fid,"%d %d %f\n",node,1,0);
+      fprintf(fid,"%d %d %f\n",node+N,1,0);
+    endfor
+    for k=2:M
+      node = (k-1)*(M+1)+1;
+      fprintf(fid,"%d %d %f\n",node,1,0);
+      node = (k-1)*(M+1)+M+1;
+      fprintf(fid,"%d %d %f\n",node+M,1,0);
+    endfor
+  endif
   fclose(fid);
   
   rcone = 0.4; sigma=0.2; 
