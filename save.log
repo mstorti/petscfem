@@ -2065,3 +2065,8 @@ tag: beta-3.14.pl5 on Sat,  4 Jan 2003 13:21:55 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl6 on Sat,  4 Jan 2003 17:19:59 -0300 by mstorti in spider
      > Cylinder example oscillates. 
+----------
+tag: beta-3.14.pl7 on Sun,  5 Jan 2003 09:56:22 -0300 by mstorti in spider
+     > Runs cylinder example with and without coupling. Coupled solution
+     > oscillates with lower amplitude and lower frequency (??) but gives
+     > less perturbation at outer boundary (seems good)
