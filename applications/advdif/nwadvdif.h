@@ -4,6 +4,11 @@
 
 #include "advective.h"
 
+class SourceTerm {
+public:
+  virtual void add_source_term(FastMat2 &G_source)=0;
+};
+
 class CJac {
 public:
   virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
@@ -18,7 +23,7 @@ public:
   virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
-  // virtual void update(const double *advjac) {ff.A_jac.set(advjac);}
+  virtual void comp_vel_per_field(FastMat2 &vel_per_field)=0;
 };
 
 class DJac {
@@ -36,32 +41,54 @@ private:
   FastMat2 tmp0;
   double tau_fac;
   FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
-    tmp2,D_jac,dif_per_field,tmp3,eye_ndof,
-    C_jac,N_C;
+    tmp2,D_jac,dif_per_field,vel_per_field,
+    tmp3,eye_ndof,C_jac,N_C,S_body;
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
   Property advective_jacobians_prop, 
-    diffusive_jacobians_prop, reactive_jacobians_prop;
-  const double *advjac,*difjac,*reacjac;
+    diffusive_jacobians_prop, reactive_jacobians_prop,
+    source_term_prop;
+  const double *advjac,*difjac,*reacjac,*s_body;
   int ndim,ndof,nel;
   AJac *a_jac;
   DJac *d_jac;
   CJac *c_jac;
+  SourceTerm *source_term;
 public:
 
-  /// One velocity for all the fields
-  class UGlobal;
-  friend class UGlobal;
-  class UGlobal : public AJac {
-    FastMat2 tmp,tmp3;
+  /// Null source term
+  class NullSourceTerm;
+  friend class NullSourceTerm;
+  class NullSourceTerm : public SourceTerm {
     newadvecfm2_ff_t &ff;
   public:
-    UGlobal(newadvecfm2_ff_t &ff_) : ff(ff_) {};
-    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
-      comp_Uintri;
+    NullSourceTerm(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void add_source_term(FastMat2 &G_source);
   };
-  UGlobal u_global;
+  NullSourceTerm null_source_term;
+
+  /// Global scalar source term
+  class GScalarSourceTerm;
+  friend class GScalarSourceTerm;
+  class GScalarSourceTerm : public SourceTerm {
+    newadvecfm2_ff_t &ff;
+  public:
+    GScalarSourceTerm(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void add_source_term(FastMat2 &G_source);
+  };
+  GScalarSourceTerm gscalar_source_term;
+
+  /// Full source term
+  class FullSourceTerm;
+  friend class FullSourceTerm;
+  class FullSourceTerm : public SourceTerm {
+    newadvecfm2_ff_t &ff;
+  public:
+    FullSourceTerm(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void add_source_term(FastMat2 &G_source);
+  };
+  FullSourceTerm full_source_term;
 
   /// Full reactive Jacobian
   class FullCJac;
@@ -122,6 +149,33 @@ public:
   };
   ScalarPerFieldCjac scalar_per_field_c_jac;
 
+  /// Null velocity
+  class NullAJac;
+  friend class NullAJac;
+  class NullAJac : public AJac {
+    newadvecfm2_ff_t &ff;
+  public:
+    NullAJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
+      comp_Uintri;
+    void comp_vel_per_field(FastMat2 &vel_per_field);
+  };
+  NullAJac null_a_jac;
+
+  /// One velocity for all the fields
+  class UGlobal;
+  friend class UGlobal;
+  class UGlobal : public AJac {
+    FastMat2 tmp,tmp3;
+    newadvecfm2_ff_t &ff;
+  public:
+    UGlobal(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
+      comp_Uintri;
+    void comp_vel_per_field(FastMat2 &vel_per_field);
+  };
+  UGlobal u_global;
+
   /// One velocity per field
   class UPerField;
   friend class UPerField;
@@ -132,6 +186,7 @@ public:
     UPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
       comp_Uintri;
+    void comp_vel_per_field(FastMat2 &vel_per_field);
   };
   UPerField u_per_field;
 
@@ -144,6 +199,7 @@ public:
     FullAdvJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
       comp_Uintri;
+    void comp_vel_per_field(FastMat2 &vel_per_field);
   };
   FullAdvJac full_adv_jac;
 

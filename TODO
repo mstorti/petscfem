@@ -3,9 +3,14 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add a "mass" tot he advective dffusive eq.??
+* Add weak_form support to the new flux functions
+* Write a test for linear advection diffusion
 * Include an S_body for ffadvfm2
 * Add doc for new flux functions
+* make __INCLUDE__ can accept "" enclosed strings
 * Throw an error if nothing is read (a void file).
+* Write a norm_p function (like sum_square_all...)
 * Check headers for functions (the __FUNC__ macro). 
 * A faster (cached version) of mydet and mydetsur
 * Fix makefile: runs bison and compiles getarray.cpp even it's not

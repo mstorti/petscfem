@@ -1,0 +1,38 @@
+# -*- mode: octave -*- 
+nx=16;
+ny=1;
+Lx=1;
+Ly=1/32;
+R=1;
+u=0;
+s=1;
+D=0.1;
+Dt=0.02;
+nstep=25;
+dif_type="global_scalar";
+adv_type="null";
+reac_type="null";
+source_type="global_scalar";
+per_elem_prop=1;
+kx=1;
+ky=0;
+tol=0.01;
+
+#if $ENV{'CASE'} eq 'dif_temp'
+Dt=0.05;
+nstep=10;
+tol=0.04;
+#elsif $ENV{'CASE'} eq 'adv_dif_temp'
+nx=32;
+u=1;
+adv_type="global_vector";
+tol=0.04;
+#elsif $ENV{'CASE'} eq 'reac_dif_temp'
+nstep=1;
+Dt=1e5;
+nx=4;
+R=1;
+kx=0;
+reac_type="global_scalar";
+tol=0.04;
+#endif

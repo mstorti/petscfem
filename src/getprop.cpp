@@ -34,8 +34,21 @@ void print_prop_hash_entry(void *p, void *q, void *u) {
   printf("%s -> %d, %d\n",pp,qq->width,qq->position);
 }
 #endif
+
+// The special pasting ##VA_ARGS doesn't work
+#define PETSCFEM_ERROR(bool_cond, ...)			\
+if (bool_cond) {					\
+  PetscPrintf(PETSC_COMM_WORLD,				\
+              "---------------"				\
+	      "PETSC-FEM error at file %s, line %d\n",	\
+	      __FILE__,__LINE__);			\
+  PetscPrintf(PETSC_COMM_WORLD, __VA_ARGS__);		\
+  abort();						\
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void load_props(double *propel,int *elprpsindx,int nprops,double *elemprops) {
+void load_props(double *propel,int *elprpsindx,int nprops,double
+		*elemprops) {
   for (int iprop=0; iprop<nprops; iprop++) {
     int indx=elprpsindx[iprop];
     if(indx!=-1) propel[iprop] = elemprops[indx];
@@ -51,7 +64,7 @@ int get_double(TextHashTable *thash,const char *name,
   if (n==0) return 0;
   const char *value;
   char *token;
-  int k;
+  int k,ierr;
 
   thash->get_entry(name,value);
   if (value==NULL) {
@@ -69,7 +82,13 @@ int get_double(TextHashTable *thash,const char *name,
   strcpy(buf,value);
   for (k=0; k<n; k++) {
     token = strtok(k==0 ? buf : NULL ," ");
+    PETSCFEM_ERROR(!token,
+		   "Table entry does not contain enough data\n"
+		   "key: %s, value: %s\n",name,value);
     sscanf(token,"%lf",&(retval[k]));
+    PETSCFEM_ERROR(!token,
+		   "Table entry does not contain a double\n"
+		   "key: %s, value: %s\n",name,value);
   }
   delete[] buf;
   return 0;

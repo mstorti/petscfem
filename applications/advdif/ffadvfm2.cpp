@@ -42,8 +42,27 @@ newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_)
   global_dif_tensor(*this), per_field_dif_tensor(*this),
   full_c_jac(*this), scalar_c_jac(*this),
   scalar_per_field_c_jac(*this),
-  null_c_jac(*this)
+  null_c_jac(*this), null_a_jac(*this),
+  null_source_term(*this), gscalar_source_term(*this),
+  full_source_term(*this)
 {};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::NullSourceTerm::
+add_source_term(FastMat2 &G_source) {
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::GScalarSourceTerm::
+add_source_term(FastMat2 &G_source) {
+  G_source.add(*ff.s_body);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::FullSourceTerm::
+add_source_term(FastMat2 &G_source) {
+  G_source.add(ff.S_body);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::NullCJac
@@ -270,6 +289,41 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   ff.u.rs();
 }
 
+void newadvecfm2_ff_t::FullAdvJac::
+comp_vel_per_field(FastMat2 &vel_per_field) {
+  // This is approximate. We tak as velocity for a field
+  // the sum over spatial dimensions of the digonal
+  // elements of the jacobians:
+  ff.u.d(3,2);
+  vel_per_field.sum_square(ff.u,1,-1).fun(sqrt);
+  ff.u.rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::NullAJac::comp_flux(FastMat2 &flux,FastMat2 &U) {
+  flux.set(0.);
+}
+
+void newadvecfm2_ff_t::NullAJac::
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
+  A_grad_U.set(0.);
+}
+  
+void newadvecfm2_ff_t::NullAJac::
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
+  A_grad_N.set(0.);
+}
+
+void newadvecfm2_ff_t::NullAJac::
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
+  Uintri.set(0.);
+}
+
+void newadvecfm2_ff_t::NullAJac::
+comp_vel_per_field(FastMat2 &vel_per_field) {
+  vel_per_field.set(0.);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.set(ff.u);
@@ -302,6 +356,11 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   Uintri.prod(iJaco,ff.u,2,-1,1,-1);
 }
 
+void newadvecfm2_ff_t::UPerField::
+comp_vel_per_field(FastMat2 &vel_per_field) {
+  vel_per_field.sum_square(ff.u,1,-1).fun(sqrt);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
 void newadvecfm2_ff_t::UGlobal::comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.prod(U,ff.u,1,2);
@@ -327,6 +386,12 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   Uintri.prod(ff.tmp2,tmp3,1,2);
 }
 
+void newadvecfm2_ff_t::UGlobal::
+comp_vel_per_field(FastMat2 &vel_per_field) {
+  double vv= ff.u.sum_square_all();
+  vel_per_field.set(sqrt(vv));
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
@@ -342,6 +407,9 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
 
   reacjac = elemset->prop_array(element,reactive_jacobians_prop);
   C_jac.set(reacjac);
+
+  s_body = elemset->prop_array(element,source_term_prop);
+  S_body.set(s_body);
 }  
 
 //  enum advective_jacobian_type {
@@ -363,6 +431,7 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   tmp2.resize(1,ndof).set(1.);
   tmp3.set(tmp2);
   dif_per_field.resize(1,ndof);
+  vel_per_field.resize(1,ndof);
   eye_ndof.resize(2,ndof,ndof).eye();
 
   ret_options &= !SCALAR_TAU; // tell the advective element routine
@@ -379,7 +448,9 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   string advective_jacobians_type_s = advective_jacobians_type;
 
   if (advective_jacobians_type==string("undefined")) {
-    if (advective_jacobians_prop.length == ndim) {
+    if (advective_jacobians_prop.length == 0) {
+      advective_jacobians_type=string("global_vector");
+    } else if (advective_jacobians_prop.length == ndim) {
       advective_jacobians_type=string("global_vector");
     } else if (advective_jacobians_prop.length == ndim*ndof) {
       advective_jacobians_type=string("vector_per_field");
@@ -388,7 +459,10 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
     } 
   }
 
-  if (advective_jacobians_type==string("global_vector") &&
+  if (advective_jacobians_type==string("null") &&
+      advective_jacobians_prop.length == 0) {
+    a_jac =  &null_a_jac;
+  } else if (advective_jacobians_type==string("global_vector") &&
       advective_jacobians_prop.length == ndim) {
     u.resize(1,ndim);
     a_jac =  &u_global;
@@ -478,14 +552,14 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   string reactive_jacobians_type_s=reactive_jacobians_type;
 
   if (reactive_jacobians_type==string("undefined")) {
-    if (reactive_jacobians_prop.length == 1) {
+    if (reactive_jacobians_prop.length == 0) {
+      reactive_jacobians_type=string("null");
+    } else if (reactive_jacobians_prop.length == 1) {
       reactive_jacobians_type=string("global_scalar");
     } else if (reactive_jacobians_prop.length == ndof) {
       reactive_jacobians_type=string("scalar_per_field");
     } else if (reactive_jacobians_prop.length == ndof*ndof) {
       reactive_jacobians_type=string("full");
-    } else if (reactive_jacobians_prop.length == 0) {
-      reactive_jacobians_type=string("null");
     }
   }
   if (reactive_jacobians_type==string("null") &&
@@ -514,6 +588,46 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
     assert(0);
   }
 
+  // Source term
+  //o _T: double[var_len] 
+  //  _N: source term  _D: all zero  _DOC: 
+  //  FIXME:= TO BE DOCUMENTED LATER
+  //  _END
+  elemset->get_prop(source_term_prop,"source_term");
+
+  //o Set source term to the desired type
+  EGETOPTDEF(elemset,string,source_term_type,string("undefined"));
+  string source_term_type_s=source_term_type;
+
+  if (source_term_type==string("undefined")) {
+    if (source_term_prop.length == 0) {
+      source_term_type=string("null");
+    } else if (source_term_prop.length == 1) {
+      source_term_type=string("global_scalar");
+    } else if (source_term_prop.length == ndof) {
+      source_term_type=string("full");
+    }
+  }
+  if (source_term_type==string("null") &&
+      source_term_prop.length == 0) {
+    source_term= &null_source_term;
+  } else if (source_term_type==string("global_scalar") &&
+      source_term_prop.length == 1) {
+    source_term= &gscalar_source_term;
+  } else if (source_term_type==string("full") &&
+	     source_term_prop.length == ndof) {
+    S_body.resize(1,ndof);
+    source_term =  &full_source_term;
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Source term does not fit in \n"
+		"a predefined name/length combination\n"
+		"name entered: \"%s\"\n"
+		"length entered: %d\n",
+		source_term_type_s.c_str(),
+		source_term_prop.length);
+    assert(0);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -540,13 +654,15 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     tau_supg.set(0.);
 
     a_jac->comp_Uintri(Uintri,iJaco_cpy);
+    a_jac->comp_vel_per_field(vel_per_field);
+
     d_jac->comp_dif_per_field(dif_per_field);
 
     for (int k=1; k<=ndof; k++) {
       
       Uintri.ir(1,k);
       double alpha=dif_per_field.get(k);
-      double vel = sqrt(u.sum_square_all());
+      double vel= vel_per_field.get(k);
 
       // double h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
       double Uh = sqrt(Uintri.sum_square_all()); // this is
@@ -574,13 +690,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   }
   
   if (options & COMP_SOURCE) {
-#if 0
-    G_source.set(0.);		// Only null source term allowed
-				// right now!!
-
-    C_jac.set(C_jac_l);
-    G_source.prod(C_jac,U,1,-1,-1).scale(-1.);
-#endif
     c_jac->comp_G_source(G_source,Ucpy);
+    source_term->add_source_term(G_source);
   }
 }

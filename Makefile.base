@@ -139,6 +139,11 @@ EPERLFLAGS =
 	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
+%: %.epl
+	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+	eperl -P $(EPERLFLAGS) $< > $@
+	chmod -w $@
+
 # This line _should_ be here but I don't know why if
 # I put it, then the targets don't work!!
 #.PHONY: ns.link advdif.link adv.link laplace.link all.link

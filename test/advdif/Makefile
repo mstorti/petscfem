@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.19 2001/03/24 01:41:16 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2001/03/26 04:11:50 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -103,6 +103,17 @@ pdata: $(DF) $(OF)
 
 sine.data: sine.data.epl
 	eperl -P -d per_elem_prop=1 $< > $@
+
+################################################################
+# TESTS FOR THE NEW FLUX FUNCTIONS...
+# 1./ DRS: Diffusion reaction with source term. All
+#         combinations of possibilities in the representation. 
+# 2./ AD: Advection-diffusion. All
+#         combinations of possibilities in the representation. 
+# 3./ The same, with mesh rotated 45 deg. (non-isotropic diffusion). 
+# 4./ The same with full jacobians obtained rotating
+#        the components. 
+
 
 #w Test for per-element properties 
 $(DF): sine_new.epl sine.data

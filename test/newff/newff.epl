@@ -1,28 +1,10 @@
 <:                              # starts ePerl block
-
 #__TRANSCRIPT__
-$case="sine";                   # case name
 require '../eperlini.pl';       # Initializes ePerl 
-@read_var = @{readm_all("$case.data")};# read all variables in octave file
-$char_T_conv_i = $u/$Lx;        # conv char. time
-$char_T_diff_i = $D/$Lx**2;     # diff char. time
-$char_T = 1/max($char_T_diff_i,
-                $char_T_conv_i);# char. time
-$T = $char_T;                   # period
-$Dt = $T/$N_step_period;        # time step
-$nstep = $N_step_period * $N_period;
-$omega = 2*$PI/$T;              # frequency
-$alpha=1.0 unless $alpha;       # can be given from the makefile
-if ($per_elem_prop) {
-    $nstep=5;
-}
-$R=1;
-$u=0;
+@read_var = readm_all_v("data.m");# read all variables in octave file
+octave_string(qw(dif_type adv_type reac_type source_type));
+$case=newff;
 #__END_TRANSCRIPT__
-transcript("sine.data.res",
-    @read_var,
-    qw(char_T_conv_i char_T_diff_i
-    char_T T Dt nstep omega));  # print variables on output
 :>//                            # ends ePerl block
 
 #default definitions
@@ -31,7 +13,7 @@ global_options
 ndim 2
 
 chunk_size 4
-save_file "save.state"
+save_file "save.state.tmp"
 nsave 20
 
 rtol 1e-2
@@ -39,18 +21,11 @@ maxits 100
 
 save_file_pattern "outvector%d.sal"
 nsaverot 1000000
-nrec  100
-nfile 2
 
-nsome 1
-save_file_some "sine.some"
-print_some_file "sine.some.tmp"
-
-nstep 1
+nstep <:=$nstep:>
 nnwt 1
 tol_newton 0
 preco_type "lu"
-#preco_type "jacobi"
 
 local_time_step 0
 consistent_supg_matrix 1
@@ -65,10 +40,22 @@ alpha 1.
 
 weak_form 0
 
-advective_jacobians_type "global_vector"
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
+#---<*>---//-- ADVECTIVE JACOBIANS --<*>---//---<*>---//
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+advective_jacobians_type "<:=$adv_type:>"
+#if $adv_type eq 'null'
+# no line here
+#elsif $adv_type eq 'global_vector'
 advective_jacobians <:=$u:> 0.
+#else
+<:die "not known adv_type: $adv_type\n":>
+#endif
 
-diffusive_jacobians_type "<:=$dif_type="full":>"
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
+#---<*>---// DIFFUSIVE JACOBIANS  ---<*>---//---<*>---//
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+diffusive_jacobians_type "<:=$dif_type:>"
 #if $dif_type eq 'global_scalar'
 diffusive_jacobians <:=$D:>
 #elsif $dif_type eq 'scalar_per_field'
@@ -94,10 +81,10 @@ diffusive_jacobians \
 <:die "not known dif_type: $dif_type\n":>
 #endif
 
-#reactive_jacobians_type "<:=$reac_type="full":>"
-#reactive_jacobians_type "<:=$reac_type="global_scalar":>"
-#reactive_jacobians_type "<:=$reac_type="scalar_per_field":>"
-reactive_jacobians_type "<:=$reac_type="null":>"
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
+#---<*>---// REACTIVE JACOBIANS  /---<*>---//---<*>---//
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+reactive_jacobians_type "<:=$reac_type:>"
 
 #if $reac_type eq 'full'
 reactive_jacobians <:=$R:>  0. 0. 0. <:=$R:>  0. 0. 0. <:=$R:>
@@ -112,6 +99,21 @@ reactive_jacobians <:=$R:> <:=3*$R:> <:=10*$R:>
 <:die "not known reac_type: $reac_type\n":>
 #endif
 
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+#---<*>--      SOURCE TERM     -//---<*>---//---<*>---// 
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+source_term_type "<:=$source_type:>"
+
+#if $source_type eq 'null'
+# no line here
+#elsif $source_type eq 'global_scalar'
+source_term <:=$s:>
+#elsif $source_type eq 'full'
+source_term <:=$s:> <:=2*$s:> <:=3*$s:>
+#else
+<:die "not known source_type: $source_type\n":>
+#endif
+
 __END_HASH__
 
 #===========================================================
@@ -122,7 +124,7 @@ __END_NODES__
 
 #===========================================================
 elemset newadvdif_advecfm2 4
-
+props source_term
 #Datos del elemento
 geometry cartesian2d
 npg 4
@@ -135,9 +137,14 @@ end_elemsets
 #===========================================================
 # condicion variable en el tiempo
 #
-fixa
-__INCLUDE__ sine_new.fixa.tmp
-__END_FIXA__
+#  fixa
+#  __INCLUDE__ sine_new.fixa.tmp
+#  __END_FIXA__
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+constraint
+__INCLUDE__ newff.peri.tmp
+__END_CONSTRAINT__
 
 # Local Variables: $
 # mode: shell-script $
