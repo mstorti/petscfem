@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.25 2003/02/16 15:36:07 mstorti Exp $
+//$Id: dxhook.cpp,v 1.26 2003/02/16 17:03:10 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -228,10 +228,17 @@ void dx_hook::re_launch_connection() {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::build_state_from_state(double *state_p) {
+  int ierr = state2fields(state_p,state(),dofmap,time_data()); 
+  assert(!ierr);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::
 time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
   // this is for CHECK_COOKIE
+  build_state = &dx_hook::build_state_from_state;
 #define sock srvr
   int cookie, cookie2, dx_step;
   string state_file;
@@ -341,10 +348,12 @@ time_step_post(double time,int step,
 
   // Send results
   int ndof = dofmap->ndof;
-  
+
   double *state_p = NULL;
   if (!MY_RANK) state_p = new double[ndof*nnod];
-  ierr = state2fields(state_p,state(),dofmap,time_data()); assert(!ierr);
+  if (!MY_RANK) state_p = new double[ndof*nnod];
+  (this->*build_state)(state_p);
+  
   if (!MY_RANK) {
     cookie = rand();
     FieldGenList::iterator qp, qe = field_gen_list.end();
@@ -369,7 +378,7 @@ time_step_post(double time,int step,
 	
 	// Send number of nodes and cookie
 	buff.cat_sprintf(" %d %d",nnod,cookie);
-	printf("sending state line \"%s\"\n",buff.str());
+	// printf("sending state line \"%s\"\n",buff.str());
 	Sprintf(srvr,"%s\n",buff.str());
 
 	// Send values 

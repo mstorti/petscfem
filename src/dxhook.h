@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.8 2003/02/15 16:52:51 mstorti Exp $
+//$Id: dxhook.h,v 1.9 2003/02/16 17:03:10 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -59,6 +59,8 @@ public:
   void *wait_connection();
   virtual Vec state()=0;
   virtual TimeData *time_data()=0;
+  void (dx_hook::*build_state)(double *);
+  void build_state_from_state(double *);
 #else
 public:
   void init(Mesh &mesh,Dofmap &dofmap,const char *name) {
