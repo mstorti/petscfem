@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.21 2001/06/23 16:43:14 mstorti Exp $
+//$Id: fem.h,v 1.22 2001/07/24 01:20:01 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -92,6 +92,20 @@
 */ 
 #define TGETOPTDEF_S(thash,type,name,default)			\
         type name=type(#default);				\
+        ierr = get_##type(thash,#name,name,1);			\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Gets a value of type string (doesn't declare the variable). 
+    Example: {\tt TGETOPTDEF\_S\_ND(thash,string,preco\_type,"Jacobi")}
+    @author M. Storti
+    @param thash the TextHashTable from where to get the value
+    @param type should be string
+    @param name name of the variable (should be declared previously)
+    @param default default value (not in parentheses)
+*/ 
+#define TGETOPTDEF_S_ND(thash,type,name,default)		\
+        name=type(#default);					\
         ierr = get_##type(thash,#name,name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 

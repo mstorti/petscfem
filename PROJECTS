@@ -3,6 +3,9 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* write the transpose matrix product for IISD so that methods like
+    CGS, BiCG, etc... may be used.
+* adapt `advdif' to IISD
 * Add doc for IISD
 * Interface preconditioning for IISD
 * Allow several subdomains in one processor in IISD

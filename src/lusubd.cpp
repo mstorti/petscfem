@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.19 2001/07/23 18:45:17 mstorti Exp $
+//$Id: lusubd.cpp,v 1.20 2001/07/24 01:20:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -40,7 +40,19 @@ int IISD_mult(Mat A,Vec x,Vec y) {
   IISDMat *pfA;
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
   pfA = (IISDMat *) ctx;
-  pfA->mult(x,y);
+  ierr = pfA->mult(x,y); CHKERRQ(ierr); 
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISD_mult_trans(Mat A,Vec x,Vec y)"
+int IISD_mult_trans(Mat A,Vec x,Vec y) {
+  void *ctx;
+  IISDMat *pfA;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
+  pfA = (IISDMat *) ctx;
+  ierr = pfA->mult_trans(x,y); CHKERRQ(ierr); 
   return 0;
 }
 
@@ -300,7 +312,10 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
   PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
   P=A;
+
   MatShellSetOperation(A,MATOP_MULT,(void *)(&IISD_mult));
+  MatShellSetOperation(A,MATOP_MULT_TRANS,(void *)(&IISD_mult_trans));
+
   ierr = VecCreateMPI(PETSC_COMM_WORLD,n_loc,PETSC_DETERMINE,&x_loc);
   PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc' vector\n"); 
   ierr = VecCreateSeq(PETSC_COMM_SELF,n_loc,&y_loc_seq);
@@ -318,8 +333,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::local_solve(Vec x_loc,Vec y_loc)"
-int IISDMat::local_solve(Vec x_loc,Vec y_loc,double c=1.) {
+#define __FUNC__ "void IISDMat::local_solve(Vec,Vec,int,double)"
+int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
   int ierr,j;
   double *a,*aa;
   // For an MPI vector on the local part, solves the
@@ -337,7 +352,13 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,double c=1.) {
   ierr = VecRestoreArray(y_loc_seq,&aa);
 
   // Solve local system: x_loc_seq <- XL
-  ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_); CHKERRQ(ierr); 
+  if (trans) {
+    ierr = SLESSolveTrans(sles_ll,y_loc_seq,x_loc_seq,&its_);
+    CHKERRQ(ierr); 
+  } else {
+    ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_);
+    CHKERRQ(ierr); 
+  }
   
   // Pass to global vector: x_loc <- XL
   ierr = VecGetArray(x_loc_seq,&aa); CHKERRQ(ierr); 
@@ -353,8 +374,8 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,double c=1.) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::mult(Vec x,Vec y)"
-void IISDMat::mult(Vec x,Vec y) {
+#define __FUNC__ "int IISDMat::mult(Vec x,Vec y)"
+int IISDMat::mult(Vec x,Vec y) {
 
   int myrank;
   MPI_Comm_rank(PETSC_COMM_WORLD, &myrank);
@@ -370,15 +391,37 @@ void IISDMat::mult(Vec x,Vec y) {
   double *a,*aa;;
 
   // x_loc <- A_LI * XI
-  ierr = MatMult(A_LI,x,x_loc);
-  PETSCFEM_ASSERT0(ierr==0,"Error performing `A_LI*x' product.\n"); 
+  ierr = MatMult(A_LI,x,x_loc); CHKERRQ(ierr); 
+  ierr = local_solve(x_loc,x_loc,0,-1.); CHKERRQ(ierr); 
+  ierr = MatMult(A_II,x,y); CHKERRQ(ierr); 
+  ierr = MatMultAdd(A_IL,x_loc,y,y); CHKERRQ(ierr); 
+  return 0;
+}
 
-  local_solve(x_loc,x_loc,-1.);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat::mult_trans(Vec x,Vec y)"
+int IISDMat::mult_trans(Vec x,Vec y) {
 
-  ierr = MatMult(A_II,x,y);
-  PETSCFEM_ASSERT0(ierr==0,"Error performing `A_II*x' product.\n"); 
+  int myrank;
+  MPI_Comm_rank(PETSC_COMM_WORLD, &myrank);
+  const int &neqp = dofmap->neqproc[myrank];
+  // We are solving the kernel of the linear system
+  //
+  // ALL' XL + ALI' XI = 0
+  // AIL' XL + AII' XI = RI
+  //
+  // XI comes in x (interface nodes) and we have to compute y = RI 
+  
+  int j,ierr,its_;
+  double *a,*aa;;
 
-  ierr = MatMultAdd(A_IL,x_loc,y,y);
+  // x_loc <- A_IL' * XI
+  ierr = MatMultTrans(A_IL,x,x_loc); CHKERRQ(ierr); 
+  ierr = local_solve(x_loc,x_loc,1,-1.); CHKERRQ(ierr); 
+  ierr = MatMultTrans(A_II,x,y); CHKERRQ(ierr); 
+  ierr = MatMultTransAdd(A_LI,x_loc,y,y); CHKERRQ(ierr); 
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -600,7 +643,7 @@ int IISDMat::solve(Vec res,Vec dx) {
 
     // Solves system for `x_loc':
     // `x_loc   <-   - A_LL \ res_loc'
-    local_solve(x_loc,res_loc,-1.);
+    local_solve(x_loc,res_loc,0,-1.);
     ierr = MatMultAdd(A_IL,x_loc,res_i,res_i);
 
     // Solves the interface problem (iteratively)
@@ -850,9 +893,8 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   TGETOPTDEF_ND(thash,int,maxits,Krylov_dim);
   //o Prints convergence in the solution of the GMRES iteration. 
   TGETOPTDEF_ND(thash,int,print_internal_loop_conv,0);
-  //o After computing the analytic Jacobian, Computes the
-  // Jacobian in order to verify the analytic one. 
-
+  //o Defines the KSP method
+  TGETOPTDEF_S_ND(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
 
@@ -866,17 +908,14 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
     preco_type = "none";
   }
 
-  // I had to do this since `c_str()' returns `const char *'
-  char *preco_type_ = new char[preco_type.size()+1];
-  strcpy(preco_type_,preco_type.c_str());
-
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
 			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
   ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
   ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
 
-  ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
+  // warning:= avoiding `const' restriction!!
+  ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
 
   ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -884,8 +923,8 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
 
-  ierr = PCSetType(pc,preco_type_); CHKERRQ(ierr);
-  delete[] preco_type_;
+  // warning:= avoiding `const' restriction!!
+  ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
   ierr = KSPSetMonitor(ksp,PFMat_default_monitor,this);
   sles_was_built = 1;
   return 0;
