@@ -38,7 +38,7 @@
   '(("^\\s-*\\(global_options\\|elemset\\|nodes\\|nodedata\\|fixa\\|fixa_amplitude\\|constraint\\|end_elemsets\\)\\>" . font-lock-type-face)
     ("^\\w+\\>" . font-lock-variable-name-face)
     ("^__\w*__\\>" . font-lock-keyword-face)
-    ("<:.*:>" . font-lock-warning-face)
+    ("<:.*?:>" . font-lock-warning-face)
     font-lock-keyword-face
     )
   "Basic colorization scheme for PETSc-FEM. ")
