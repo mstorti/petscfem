@@ -1,35 +1,43 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.2 2004/11/27 19:05:19 mstorti Exp $
+// $Id: hasher.h,v 1.3 2004/11/27 19:26:40 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
 #include <cstdlib>
 
-class GenHasher {
+class BaseHasher {
+public:
+  virtual void reset()=0;
+  virtual void hash(int w)=0;
+  virtual void hash(int *w,int n)=0;
+  virtual long int val()=0;
+};
+
+class Hasher : public BaseHasher {
 private:
   drand48_data buffer;
   unsigned short int xsubi[3];
   long int result;
 public:
-  GenHasher();
+  Hasher();
   void reset();
-  virtual void hash(int w)=0;
-  void hashv(int *w,int n);
-  long int hash_val();
-};
-
-class Hasher : public GenHasher {
-public:
   void hash(int w);
+  void hash(int *w,int n);
+  long int val();
 };
 
-#if 0
-class HasherSum {
+class SumHasher : public BaseHasher {
+private:
+  drand48_data buffer;
+  unsigned short int xsubi[3];
   long int result;
 public:
+  SumHasher();
+  void reset();
   void hash(int w);
+  void hash(int *w,int n);
+  long int val();
 };
-#endif
 
 #endif

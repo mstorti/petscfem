@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 #include "./hasher.h"
 
 Hasher::Hasher() {
@@ -27,5 +28,37 @@ void Hasher::hash(int *w,int n) {
 }
 
 long int Hasher::val() {
+  return result;
+}
+
+SumHasher::SumHasher() {
+  result = 0 ;
+  memset(&buffer,'\0',
+	 sizeof(struct drand48_data));
+}
+
+void SumHasher::reset() {
+  result = 0 ;
+}
+
+void SumHasher::hash(int w) {
+  long int val;
+  memset(&xsubi,'\0',
+	 3*sizeof(unsigned short int));
+  memcpy(&xsubi,&w,sizeof(int));
+  nrand48_r(xsubi,&buffer,&val);
+  result += val;
+}
+
+void SumHasher::hash(int *w,int n) {
+  printf("Sum-hashing\n",result);
+  for (int j=0; j<n; j++) {
+    printf("before w[%d] %d, result %d\n",j,w[j],result);
+    hash(w[j]);
+  }
+  printf("result: %d\n",result);
+}
+
+long int SumHasher::val() {
   return result;
 }

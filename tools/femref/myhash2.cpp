@@ -9,6 +9,7 @@ using namespace std;
 
 int main() {
   Hasher hash;
+  SumHasher shash;
   for (int N=3; N<4; N++) {
     vector<int> vec(N);
     int NN = int(pow(2.0,N));
@@ -20,19 +21,18 @@ int main() {
       int print=0;
       while (1) {
 #if 1
+	shash.reset();
 	hash.reset();
-	hash.hash(&vec[0],vec.size());
-	int h = hash.hash_val();
-	if (print) {
-	  printf("vec: ");
-	  for (int j=0; j<N; j++) 
-	    printf("%d ",vec[j]);
-	  printf(", hash: %x\n",h);
-	}
+	// hash.hash(&vec[0],vec.size());
+	hash.hash(&vec[0],N);
+	shash.hash(&vec[0],N);
+	int h = hash.val();
+	int sh = shash.val();
+	printf("hash-sum  %d\n",sh);
 	if (step==0)
 	  hashset[count] = h;
 	else printf("hash before %d, now %d\n",
-		    hashset[count],hash.hash_val());
+		    hashset[count],hash.val());
 #else
 	hashset[count] = rand();
 #endif
