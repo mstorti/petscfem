@@ -1,0 +1,77 @@
+# -*- mode: shell-script -*-
+## Derived quantities:
+## ==================
+global_options
+
+nstep 1
+alpha 1.
+
+initial_state "adre.ini"
+
+nsave 1
+save_file "adre.state.tmp"
+
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart_auto 4000
+maxits 100
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-7
+dtol 1e3
+nnwt 3
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+Dt 0.05
+weak_form 0
+temporal_stability_factor 0
+
+ndim 2
+steady 0
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodes 2 2 1
+0 0
+0.25 0
+0.5 0
+0.75 0
+1 0
+0 0.5
+0.25 0.5
+0.5 0.5
+0.75 0.5
+1 0.5
+0 1
+0.5 1
+1 1 
+__END_NODES__
+
+##================================================================
+elemset id 4
+geometry cartesian2d
+dx 1
+npg 4
+__END_HASH__
+1 2 7 6
+2 3 8 7
+3 4 9 8
+4 5 10 9
+6 8 12 11
+8 10 13 12
+__END_ELEMSET__
+
+constraint
+1 7 1   -0.5 6 1   -0.5 8 1
+1 9 1   -0.5 8 1   -0.5 10 1
+__END_CONSTRAINT__

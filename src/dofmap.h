@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.20 2003/08/31 13:10:38 mstorti Exp $
+//$Id: dofmap.h,v 1.21 2005/02/20 15:25:07 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -410,5 +410,23 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void freeze();
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solves an equation of the form Q x = y for x. 
+      Assumes that rank(Q) = n = dim(x). 
+      @author M. Storti 
+  */
+  void solve(double *y,double *x);
+
+  /** Makes #y=y+alpha*Q*x#. 
+      @param y (input/output) the vector to add #Q*x# (size #nnod*ndof#). 
+      @param x (input) the vector to multiply by #Q# (size #neq#).
+      @param alpha (input) the scalar to scale the term #Q*x#. */ 
+  void qxpy(double *x,double *y,double alpha);
+
+  /** Makes #y=y+alpha*Q*x#. 
+      @param y (input/output) the vector to add #Q'*x# (size #neq#). 
+      @param x (input) the vector to multiply by #Q'# (size #nnod*ndof#).
+      @param alpha (input) the scalar to scale the term #Q*x#. */ 
+  void qtxpy(double *x,double *y,double alpha);
 };
 #endif

@@ -1,4 +1,0 @@
-  -rw-r--r--    1 mstorti  users        6434 Jan 11 18:54 ffadvfm2.cpp
-  -rw-r--r--    1 mstorti  users        3897 Jan 10 12:36 ffburg.cpp
-  -rw-r--r--    1 mstorti  users        3133 Dec 28 09:54 ffburg.cpp.bck
-  -rw-r--r--    1 mstorti  users        7120 Jan  5 14:09 ffswfm2t.cpp

@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.49 2005/02/16 20:07:45 mstorti Exp $ 
+# $Id: Makefile,v 1.50 2005/02/20 15:25:10 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_cyl
+default: run_adre
 
 # BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := cylabso
+CASE_NAME := adre
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -22,6 +22,10 @@ NP := 1
 endif
 
 gbody.efn: gbody.cpp
+
+run_adre:
+	$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+	machi.dat $(PROG) -case adre.epl
 
 run2d:
 	$(MAKE) CASE_NAME=gfabso2d run

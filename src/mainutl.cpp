@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.20 2004/05/13 02:58:18 mstorti Exp $
+//$Id: mainutl.cpp,v 1.21 2005/02/20 15:25:07 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -278,7 +278,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "PETScFEM warning: not enough values"
 		  " read while reading vector. Filling with 0's.\n");
-    dofmap->id->solve(xdof.buff(),xext.buff());
+    dofmap->solve(xdof.buff(),xext.buff());
     xext.clear();
   } 
   CHECK_PAR_ERR(ierro,"Error reading nodes");

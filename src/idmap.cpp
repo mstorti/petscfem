@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.11 2004/09/25 23:11:39 mstorti Exp $
+//$Id: idmap.cpp,v 1.12 2005/02/20 15:25:07 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -154,6 +154,9 @@ void idmap::solve(double *x,double *y) {
       get_block_matrix(j,iindx,jindx,qq);
       mm = iindx.size();
       nn = jindx.size();
+      if (mm>1 || nn>1) {
+	printf("mm %d, nn%d\n",mm,nn);
+      }
       assert(mm>0 && nn>0);
       yr.ReSize(mm);
       xr.ReSize(nn);
