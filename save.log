@@ -4159,3 +4159,7 @@ tag: beta-3.43.40 on Tue, 01 Mar 2005 00:19:54 -0300 by mstorti in spider
 tag: beta-3.43.41 on Tue, 01 Mar 2005 23:33:14 -0300 by mstorti in spider
      > Fixed some weird problems in `FemInterp', but 
      > 	stills leaks some memory. 
+----------
+tag: beta-3.43.42 on Wed, 02 Mar 2005 08:19:00 -0300 by mstorti in minerva.ceride.gov.ar
+     > `project3.cpp' uses ANN, and ANN vectors are allocated
+     > `safe' (with vector<> if possible). 
