@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.8 2005/02/21 23:32:13 mstorti Exp $ 
+% $Id: advabso.tex,v 1.9 2005/02/23 00:46:39 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -370,20 +370,129 @@ multipliers in the following way
 %
 \begin{equation} \label{eq:abc-char}  
   \begin{aligned} 
-    \bzP_V^+(!V_\reff) \, (!V_0-!V_\reff) &= 0,\\
+    \bzP_V^+(!V_\reff) \, (!V_0-!V_\reff) 
+    + \bzP_V^-(!V_\reff) \, !V_{lm}&= 0,\\
     \frac{!V_0^{n+1}-!V_0^{n}}{\Dt} +
     \bzL\,\frac{!V_1^{n+1}-!V_{0}^{n}}{h}  
-    +\bzP_V^+ \, !U_{lm}&= 0; \\
+    +\bzP_V^+ \, !V_{lm}&= 0; \\
     \frac{!V_k^{n+1}-!V_k^{n}}{\Dt} +
-    \bzL\,\frac{!V_{k+1}^{n+1}-!V_{k-1}^{n}}{h} &= 0,\ \ \ k\ge 1. \\
+    \bzL\,\frac{!V_{k+1}^{n+1}-!V_{k-1}^{n}}{2h} &= 0,\ \ \ k\ge 1. \\
   \end{aligned}
 \end{equation}
 %
-where $!U_{lm}$ are the Lagrange multipliers for imposing the new
-conditions. Note that, for 
+where $!V_{lm}$ are the Lagrange multipliers for imposing the new
+conditions. Note that, if $j$ is an incoming wave ($\lambda_j>=0$),
+then the equation is of the form
+%
+\begin{equation} 
+  \begin{aligned} 
+    v_{j0}-v_{\reff0} &= 0\\
+    \frac{v_{j0}^{n+1}-v_{j0}^{n}}{\Dt} 
+    + \lambda_j \frac{v_{j1}^{n+1}-v_{j0}^{n}}{h} + 
+    v_{j,lm} &= 0\\
+    \frac{v_{jk}^{n+1}-v_{jk}^{n}}{\Dt} 
+    + \lambda_j \frac{v_{j,k+1}^{n+1}-v_{jk}^{n}}{2h} &= 0 ,\ \ \
+    k\ge 1
+  \end{aligned}
+\end{equation}
+%
+Note that, due to the $v_{j,lm}$ Lagrange multiplier, we can solve for
+the $v_{jk}$ values from the first last rows, the value of the
+multiplier $v_{j,lm}$ \emph{``adjusts''} itself in order to relax the
+equations in the second row. 
 
-FIXME:= add CP modification
+On the other hand, for the outgoing waves ($\lambda_j<0$), we have 
+%
+\begin{equation} 
+  \begin{aligned} 
+    v_{j,lm} &= 0\\
+    \frac{v_{j0}^{n+1}-v_{j0}^{n}}{\Dt} 
+    + \lambda_j \frac{v_{j1}^{n+1}-v_{j0}^{n}}{h} &= 0\\
+    \frac{v_{jk}^{n+1}-v_{jk}^{n}}{\Dt} 
+    + \lambda_j \frac{v_{j,k+1}^{n+1}-v_{jk}^{n}}{2h} &= 0 ,\ \ \
+    k\ge 1
+  \end{aligned}
+\end{equation}
+%
+So that the solution coincides with the unmodified orginal FEM
+equation, and $v_{j,lm}=0$. 
 
+Coming back to the $!U$ basis, we have
+%
+\begin{equation} \label{eq:abc-char-u}  
+  \begin{aligned} 
+    \bzP_U^+(!U_\reff) \, (!U_0-!U_\reff) 
+    + \bzP_U^-(!U_\reff) \, !U_{lm}&= 0,\\
+    \frac{!U_0^{n+1}-!U_0^{n}}{\Dt} +
+    !A\,\frac{!U_1^{n+1}-!U_{0}^{n}}{h}  
+    +\bzP_U^+ \, !U_{lm}&= 0; \\
+    \frac{!U_k^{n+1}-!U_k^{n}}{\Dt} +
+    !A\,\frac{!U_{k+1}^{n+1}-!U_{k-1}^{n}}{2h} &= 0,\ \ \ k\ge 1. \\
+  \end{aligned}
+\end{equation}
+%
+And finally, coming back to the FEM equations (\ref{eq:fem-eq}),
+%
+\begin{equation} \label{eq:fem-eq-abso}  
+  \begin{aligned} 
+    \bzP_U^+(!U_\reff) \, (!U_0-!U_\reff) 
+    + \bzP_U^-(!U_\reff) \, !U_{lm}&= 0,\\
+    !F_0(!U_0^{n+1},!U_1^{n+1}) +\bzP_U^+ \, !U_{lm}
+    &= !R_0^{n+1}\\
+    !F_1(!U_0^{n+1},!U_1^{n+1},!U_2^{n+1}) &= !R_1^{n+1}\\
+    \vdots \ \ \ \ &= \ \ \ \ \vdots\\
+    !F_k(!U_{k-1}^{n+1},!U_k^{n+1},!U_{k+1}^{n+1}) &= !R_k^{n+1}\\
+    \vdots \ \ \ \ &= \ \ \ \ \vdots\\
+  \end{aligned}
+\end{equation}
+
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Flux functions with enthalpy. } 
+
+When the flux function has an enthalpy term that is not the identity,
+then the expressions for the change of basis are somewhat modified,
+and also the projectors. An advective diffusive-system with a
+\emph{``generalized enthalpy function''} $\Hent(!U)$ is an extension
+of the form (\ref{eq:advec-eq}) and can be written as
+%
+\begin{equation} \label{eq:advec-eq}  
+ \dep{}t \, \Hent(!U)+\dep{\F_i(U)}{x_i} = 0
+\end{equation}
+%
+The heat equation can be naturally put in this way. Also, the gas
+dynamics equations for compressible flow can be put in this form if we
+put the equations in \emph{``conservative form''} but use the
+\emph{``primitive variables''} $!U=[\rho,!u,p]^T$ as the main main
+variables for the code. This has the advantage of using a conservative
+form of the equations and, at the same time, allows an easy imposition
+of Dirichlet boundary conditions that are normally set in terms of the
+primitive variables. In this case $!U$ are the primitive variables,
+and the generalized enthalpy $\Hent(!U)$ is the vector of conservative
+variables. We call the generalized \emph{``heat content matrix''}
+$!C_p$ as 
+%
+\begin{equation} 
+  !C_p = \dep{\Hent(!U)}{!U}
+\end{equation}
+%
+and (\ref{eq:advec-eq}) can be put in quasi-linear form as
+%
+\begin{equation} \label{eq:advec-eq}  
+ !C_p \, \dep{!U}t+!A_i \, \dep{U}{x_i} = 0
+\end{equation}
+%
+Note that this can be brought to the quasi-linear form
+(\ref{eq:advec-lin}) (i.e., without the $!C_p$) if we multiply the
+equation at left by $!C_p\muno$ and define new flux Jacobians as 
+%
+\begin{equation} \label{eq:abc-modif-jaco}  
+  \tilde{!A_i}= !C_p\muno!A_i,
+\end{equation}
+%
+So that, basically, the extension to systems with generalized enthalpy
+is to replace the Jacobians, by the modified Jacobians
+(\ref{eq:abc-modif-jaco}). 
 
 
 % Local Variables: *
