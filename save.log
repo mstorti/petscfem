@@ -1801,3 +1801,6 @@ tag: beta-3.08.pl10 on Fri, 29 Nov 2002 09:56:28 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.08.pl11 on Sat, 30 Nov 2002 11:55:01 -0300 by mstorti in spider
      > Runs test with large distortions in 10x10 2D mesh. 
+----------
+tag: beta-3.08.pl12 on Sat, 30 Nov 2002 19:31:58 -0300 by mstorti in spider
+     > Runs 3D cube example. 
