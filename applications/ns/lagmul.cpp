@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.7 2002/05/15 18:46:33 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.8 2002/09/16 00:16:25 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -90,6 +90,11 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // that correspond to the lagrange multipliers and can help in
   // better conditioning the system. 
   TGETOPTDEF(thash,double,lagrange_scale_factor,1.);
+  //o Using Lagrange multipliers can lead to bad conditioning, which
+  // causes poor convergence with iterative methods or amplification
+  // of rounding errors. This factor scales the row in the matrix
+  // that correspond to the new equation. 
+  TGETOPTDEF(thash,double,lagrange_row_scale_factor,1.);
 
   init();
   nr = nres(); // Get dimensions of problem
@@ -131,14 +136,16 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	R.axpy(w,lambda*lagrange_scale_factor);
 	rr = r.get(jr) - lagrange_diagonal_factor
 	  *lagrange_residual_factor*U.get(jfic,dofic);
-	R.addel(rr,jfic,dofic);
+	R.addel(rr*lagrange_row_scale_factor,jfic,dofic);
 
 	matloc.rs().ir(3,jfic).
 	  ir(4,dofic).axpy(w,-lagrange_scale_factor);
-	matloc.rs().addel(lagrange_diagonal_factor,
+	matloc.rs().addel(lagrange_diagonal_factor
+			  *lagrange_row_scale_factor,
 			  jfic,dofic,jfic,dofic);
 	jac.rs().ir(1,jr);
-	matloc.ir(1,jfic).ir(2,dofic).rest(jac);
+	matloc.ir(1,jfic).ir(2,dofic)
+	  .axpy(jac,-lagrange_row_scale_factor);
       }
       
       R.rs().export_vals(&(RETVAL(ielh,0,0)));

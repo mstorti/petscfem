@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.32 2002/09/12 13:20:23 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.33 2002/09/16 00:16:29 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -747,8 +747,6 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     ierr = VecRestoreArray(res_loc,&res_loc_a); PF_CHKERRQ(ierr); 
     ierr = VecRestoreArray(res_i,&res_i_a); PF_CHKERRQ(ierr); 
 
-    // NO PIERDE AQUI
-
     // Solves system for `x_loc':
     // `x_loc   <-   - A_LL \ res_loc'
     if (local_solver == PETSc) {
@@ -756,7 +754,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     } else {
       local_solve_SLU(x_loc,res_loc,0,-1.);
     }
-    // SI PIERDE AQUI
+
     ierr = MatMultAdd(A_IL,x_loc,res_i,res_i);
 
 
