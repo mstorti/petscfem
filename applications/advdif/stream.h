@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.15 2002/03/15 12:53:32 mstorti Exp $
+// $Id: stream.h,v 1.16 2002/04/12 14:44:17 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -103,7 +103,7 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// Circular shaped channel
+/// Rectangular shaped channel
 class circular_channel : public ChannelShape {
   Property radius_prop;
   double radius;

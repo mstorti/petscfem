@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: diff.h,v 1.3 2002/03/15 12:53:32 mstorti Exp $
+// $Id: diff.h,v 1.4 2002/04/12 14:44:17 mstorti Exp $
 #ifndef DIFF_H
 #define DIFF_H
 
@@ -37,8 +37,7 @@ class DiffFF {
       fixme:= more doc here ...
   */ 
   virtual void compute_flux(const FastMat2 &U,const FastMat2 &grad_U,
-			    FastMat2 &fluxd,FastMat2 &G,FastMat2 &H,
-			    FastMat2 &grad_H)=0;
+			    FastMat2 &fluxd,FastMat2 &G)=0;
 
   /** Computes the product #(grad_N_D_grad_N)_(p,mu,q,nu) 
       = D_(i,j,mu,nu) (grad_N)_(i,p) (grad_N)_(j,q)#

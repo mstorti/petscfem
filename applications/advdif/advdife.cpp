@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.56 2002/03/05 14:05:23 mstorti Exp $
+//$Id: advdife.cpp,v 1.57 2002/04/12 14:44:16 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -328,7 +328,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (detJaco <= 0.) {
 	int k,ielh;
 	element.position(k,ielh);
-	printf("Jacobian of element %d is negative or null\n"
+	printf("advdife: Jacobian of element %d is negative or null\n"
 	       " Jacobian: %f\n",k,detJaco);
 	PetscFinalize();
 	exit(0);
