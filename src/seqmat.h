@@ -1,25 +1,48 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: seqmat.h,v 1.1 2001/09/19 21:39:04 mstorti Exp $
+// $Id: seqmat.h,v 1.2 2001/09/20 04:08:21 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
 #include <map>
 
+#include <fem.h>
+#include <utils.h>
+#include <dofmap.h>
+#include <elemset.h>
 #include <pfmat.h>
 
-// Simple sparse matrix class. 
-class SeqMat : public PFMat {
-  typedef map<int,double> Row;
+namespace Sparse {
+
+  typedef vector<int> Indx;
+      
+  class SeqVec : public map<int,double> {
+    int len;
+  public:
+    int length();
+//      double & operator[](int j);
+//      const double & operator[](int j) const;
+    double get(int j) const;
+    void get(Indx &I,SeqVec &V) const; 
+    Seqvec & set(int j,double v);
   
+;
+
+// Simple sparse matrix class. 
+class SeqMat : public PFMat, public map< int, Row >  {
+  typedef map<int,Row>::iterator RowIt;
+  typedef map<int,double>::iterator ColIt;
+  typedef pair<int,Row> row_p;
+  typedef pair<int,double> col_p;
+
+  int nrows,ncols;
   /// PETSc error code 
   int ierr;
-  map< int, map<int,double> > store;
 public:
   /// Destructor (calls almost destructor)
   ~SeqMat() {clear();};
   /// clear memory (almost destructor)
-  void clear() {store.clear();};
+  // void clear() {clear();};
   /// Constructor 
   SeqMat() : PFMat() {};
   /** Call the assembly begin function for the underlying PETSc matrices
@@ -40,7 +63,7 @@ public:
   */ 
   void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES);
   /// Sets all values of the operator to zero.
-  int zero_entries() {store.clear();};
+  int zero_entries() {clear();};
   /** Does nothing for this class.
       Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
