@@ -19,7 +19,7 @@ sub-domain interiors.
 \index{d_nnz@\verb+d_nnz+}
 \index{o_nnz@\verb+o_nnz+}
 The \verb+create(...)+ member should create the matrix from the matrix
-profile \verb+da+ and the \verb+dofmap'. For the \verb+PETScMat+
+profile \verb+da+ and the \verb+dofmap'+. For the \verb+PETScMat+
 matrix class it calls the old \verb+compute_prof+ routine calculating
 the \verb+d_nnz+ and \verb+o_nnz+ arrays, and calling the
 \verb+MatCreate+ routine. For the \verb+IISD+ matrix it has to
@@ -83,17 +83,17 @@ L_1$ and $j\in L_2$ are null. The matrix is split in blocks as follows
   \end{sqmat}\\
 %
 !A_{LL} &= \begin{sqmat}{cc}
-        !A_{11} & 0\\
+        !A_{00} & 0\\
         0 & !A_{11} 
        \end{sqmat}\\
 %
 !A_{LI} &= \begin{sqmat}{cc}
-        !A_{1I} & !A_{2I}
+        !A_{0I} & !A_{1I}
         \end{sqmat}\\
 %
 !A_{IL} &= \begin{sqmat}{c}
-        !A_{I1} \\ 
-        !A_{I2}
+        !A_{I0} \\ 
+        !A_{I1}
         \end{sqmat}
 \end{split}
 \end{equation}
