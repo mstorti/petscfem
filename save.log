@@ -3009,3 +3009,6 @@ tag: beta-3.23.pl7 on Mon, 06 Oct 2003 00:03:14 -0300 by mstorti in spider
 tag: beta-3.23.pl8 on Sat, 11 Oct 2003 11:08:52 -0300 by mstorti in spider
      > Fixed bug in adaptor/element locker init when multiple chunks.
      > Added Elemset::before_assemble(jobinfo ...) and Elemset::after_assemble(jobinfo).
+----------
+tag: beta-3.23.pl9 on Sat, 11 Oct 2003 20:57:33 -0300 by mstorti in spider
+     > Cutoff parameters to gasflow now passed via options. 
