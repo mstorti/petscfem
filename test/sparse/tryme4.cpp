@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.12 2002/07/21 00:11:43 mstorti Exp $
+// $Id: tryme4.cpp,v 1.13 2002/07/21 02:47:59 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
   graph_da g;
   graph_stl gg;
   int kk;
-  int N = 100, M = int(N/10), NN = int(sqrt(N/2));
+  int N = 100000, M = int(N/10), NN = int(sqrt(N/2));
   for (kk=1; kk<=N; kk++) { 
     int k = irand(1,NN);
     int l = irand(1,NN);
