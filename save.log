@@ -1525,3 +1525,6 @@ tag: beta-3.03.pl13 on Sat, 31 Aug 2002 16:40:36 -0300 by mstorti in spider
 ----------
 tag: beta-3.03.pl14 on Sat, 31 Aug 2002 17:15:12 -0300 by mstorti in spider
      > `fstack' now accepts quotes in names in includes (e.g. __INCLUDE__ "name")
+----------
+tag: beta-3.03.pl15 on Sun,  1 Sep 2002 22:48:27 -0300 by mstorti in spider
+     > `read_mesh' returns a PETSc error code. 
