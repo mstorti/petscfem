@@ -1,14 +1,14 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.1 2001/10/06 23:39:59 mstorti Exp $
+//$Id: nssup.cpp,v 1.2 2001/10/07 00:53:32 mstorti Exp $
 
-#include <fem.h>
-#include <utils.h>
-#include <readmesh.h>
-#include <getprop.h>
-#include <fastmat2.h>
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/fastmat2.h>
 
 #include <applications/ns/nsi_tet.h>
-#include "rockns.h"
+#include <applications/ns/nssup.h>
 
 extern TextHashTable *GLOBAL_OPTIONS;
 

@@ -1,10 +1,10 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.16 2001/09/29 00:57:41 mstorti Exp $
+// $Id: sp.cpp,v 1.17 2001/10/07 00:53:42 mstorti Exp $
 
 #include <cmath>
 #include <vector>
 
-#include <sparse.h>
+#include <src/sparse.h>
 
 using namespace Sparse;
 

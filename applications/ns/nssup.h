@@ -31,9 +31,8 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-class ns_sup : public Elemset { 
+class ns_sup : public ns_volume_element { 
 public: 
-  ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
 };
 

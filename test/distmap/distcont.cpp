@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distcont.cpp,v 1.2 2001/08/22 02:25:27 mstorti Exp $
+// $Id: distcont.cpp,v 1.3 2001/10/07 00:53:39 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -7,7 +7,7 @@
 
 #include <map>
 
-#include <distcont.h>
+#include <src/distcont.h>
 #include <petsc.h>
 
 int SIZE, MYRANK, M;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.1 2001/10/06 23:39:59 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.2 2001/10/07 00:53:32 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,7 +9,7 @@
 #include <src/fastmat2.h>
 
 #include <applications/ns/nsi_tet.h>
-#include "rockns.h"
+#include <applications/ns/nssup.h>
 
 extern TextHashTable *GLOBAL_OPTIONS;
 

@@ -1,11 +1,11 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.9 2001/08/16 18:01:33 mstorti Exp $
+// $Id: distmap.cpp,v 1.10 2001/10/07 00:53:39 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
 
-#include "../../src/distmap.h"
+#include <src/distmap.h>
 #include <petsc.h>
 
 int SIZE, MYRANK, M;
