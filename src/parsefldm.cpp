@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: parsefldm.cpp,v 1.2 2001/04/14 13:20:06 mstorti Exp $
+//$Id: parsefldm.cpp,v 1.3 2001/04/14 21:00:48 mstorti Exp $
 
 #include <cstdio>
 #include <ctype.h>
@@ -19,25 +19,12 @@ vector<SList> work_area;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void parse_fields_line(const char *line)"
-void parse_fields_line(SList &fields,const char *line) {
-  work_area.clear();
-  line_to_parse = line;
-  field_parse();
-  fields.clear();
-  fields.splice(fields.end(),work_area[0]);
-}
-
-void add_block(int slist_,int block_) {
-  SList &slist = work_area[slist_];
-  SList &block = work_area[block_];
-  slist.splice(slist.end(),block);
-}
-
-void dumpwa(void) {
+#define __FUNC__ "void dumpwa(int debug=0)"
+void dumpwa(int debug=0) {
   for (int j=0; j<work_area.size(); j++) {
-    printf("work_area[%d]: ",j);
     SList &w = work_area[j];
+    if (w.size()==0 && !debug) continue;
+    printf("work_area[%d]: ",j);
     for (SList::iterator k=w.begin(); k!=w.end(); k++) {
       printf("\"%s\" ",k->c_str());
     }
@@ -45,6 +32,30 @@ void dumpwa(void) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void parse_fields_line(const char *line)"
+void parse_fields_line(SList &fields,const char *line) {
+  work_area.clear();
+  line_to_parse = line;
+  field_parse();
+  fields.clear();
+  fields.splice(fields.end(),work_area[0]);
+  dumpwa(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void add_block(int slist_,int block_)"
+void add_block(int slist_,int block_) {
+  SList &slist = work_area[slist_];
+  SList &block = work_area[block_];
+  slist.splice(slist.end(),block);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int create_list(char *ident)"
 int create_list(char *ident) {
   int n = work_area.size();
   work_area.resize(n+1);
@@ -53,23 +64,88 @@ int create_list(char *ident) {
   return n;
 }
 
-int create_ident_l(char *ident,int length) {
+int f_id_subs_l(char *ident,int slist_) {
+  SList &slist = work_area[slist_];
+  string s,b = string(ident);
+  for (SList::iterator j=slist.begin(); j!=slist.end(); j++) {
+    s=b;
+    s.append(*j);
+    *j = s;
+  }
+  return slist_;
+}
+  
+int list_product(int sl1_,int sl2_) {
+  SList &sl1 = work_area[sl1_];
+  SList &sl2 = work_area[sl2_];
+  SList result;
+  result.clear();
+  string s;
+  for (SList::iterator j1=sl1.begin(); j1!=sl1.end(); j1++) {
+    for (SList::iterator j2=sl2.begin(); j2!=sl2.end(); j2++) {
+      s=(*j1);
+      s.append(*j2);
+      result.push_back(s);
+    }
+  }
+  sl1.clear();
+  sl1.splice(sl1.end(),result);
+  sl2.clear();
+  return sl1_;
+}
+      
+int dotify(int sl_) {
+  SList &sl = work_area[sl_];
+  string s;
+  for (SList::iterator j=sl.begin(); j!=sl.end(); j++) {
+    s= string(".");
+    s.append(*j);
+    *j = s;
+  }
+  return sl_;
+}
+    
+int create_list_from_length(int length) {
+  int n = work_area.size();
+  work_area.resize(n+1);
+  SList &sl = work_area[n];
+  
+  string s;
+#define ML 20
+  char nmbr[ML]; // This is ugly!!
+
+  for (int j=0; j<length; j++) {
+    snprintf(nmbr,ML,"[%d]",j+1);
+    s = string(nmbr);
+    sl.push_back(s);
+  }
+  return n;
+}
+#undef ML
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
+#undef __FUNC__
+#define __FUNC__ "int create_ident_l(char *ident,int length)"
+int make_length_list(int length,int list_=-1) {
 #define ML 20
   char nmbr[ML]; // This is ugly!!
   string s;
   int n = work_area.size();
   work_area.resize(n+1);
   for (int j=0; j<length; j++) {
-    s = string(ident);
     snprintf(nmbr,ML,"[%d]",j+1);
-    s.append(nmbr);
+    s = string(nmbr);
     work_area[n].push_back(s);
   }
-  delete[] ident;
-  return n;
+  return list_;
 }
 #undef ML
+#endif
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int create_ident_list(char *ident,int slist_)"
 int create_ident_list(char *ident,int slist_) {
   string s,b;
   SList &slist = work_area[slist_];
@@ -80,24 +156,6 @@ int create_ident_list(char *ident,int slist_) {
   }
   return slist_;
 }
-
-#if 0
-void add_block(void *slist_,void *block_) {
-  SList &slist = *(SList *)slist_;
-  SList &block = *(SList *)block_;
-  for (int j=0; j<block.size(); j++) {
-    slist.splice(slist.end(),block);
-  }
-  delete &block;
-}
-
-void *create_list(char *ident) {
-  SList *slist = new SList;
-  slist->push_back(string(ident));
-  delete[] ident;
-  return slist;
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -169,7 +227,6 @@ int main() {
     for (SList::iterator j=fields.begin(); j!=fields.end(); j++) {
       printf("%d -> %s\n",jj++,j->c_str());
     }
-    dumpwa();
   }
 }
 #endif

@@ -18,7 +18,7 @@
 
 %token <string> IDENT
 %token <num> LENGTH
-%type <num> field_block_list field_block input
+%type <num> field_block_list field_block input subs_l subs
      
 %%
 /* GRAMMAR RULES */
@@ -27,14 +27,21 @@ input:  /* empty */ { $$ = 0;}
   | field_block_list { $$ = $1;}
 ;
 
-field_block_list: field_block { printf("first field block in list\n");
-                                $$=$1;}
-| field_block_list field_block {add_block($1,$2);}
+field_block_list: field_block { $$=$1;}
+       | field_block_list field_block {add_block($1,$2);}
 ;
 
 field_block: IDENT {$$ = create_list($1);}
-         | IDENT '[' LENGTH ']' { $$ = create_ident_l($1,$3);}
-         | IDENT '[' field_block_list ']' {$$ = create_ident_list($1,$3);}
+           | IDENT subs_l {$$ = f_id_subs_l($1,$2);}
 ;
+
+subs_l: subs               { $$ = $1;}
+	   | subs_l subs { $$ = list_product($1,$2);}
+;
+
+subs: '[' LENGTH ']'             {$$ = create_list_from_length($2);}
+   |  '[' field_block_list ']' {$$ = dotify($2);}
+;
+  
 
 %%

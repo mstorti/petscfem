@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: getarray.h,v 1.3 2001/04/14 13:20:06 mstorti Exp $
+//$Id: getarray.h,v 1.4 2001/04/14 21:00:48 mstorti Exp $
 #ifndef GETARRAY_H
 #define GETARRAY_H
 
@@ -20,6 +20,10 @@ extern "C" {
   int field_error(char *s);
   void add_block(int,int);
   int create_list(char *ident);
+  int f_id_subs_l(char *ident,int subsl);
+  int list_product(int sl1,int sl2);
+  int create_list_from_length(int length);
+  int dotify(int sl);
   int create_ident_l(char *ident,int length);
   int create_ident_list(char *ident,int list);
 
