@@ -76,9 +76,40 @@ function [xnod,icone,mesh]= mesher (XNOD,ICONE,H)
     length(elems)==2 || error("edge connected to more than two elements");
     nodes1 = mesher_bound(mesh,edge,elems(1));
     nodes2 = mesher_bound(mesh,edge,elems(2));
-    if merr(xnod(nodes1,:)-xnod(nodes2,:)) > 1e-10
-      keyboard 
-    endif
+    merr(xnod(nodes1,:)-xnod(nodes2,:)) < 1e-10 || \
+	error("Not mactching edges");
+    nodes = [nodes1 nodes2]';
+    from = max(nodes)';
+    to = min(nodes)';
+    nodemap(from) = to;
   endfor
+
+  while 1
+    nodemap2 = nodemap(nodemap);
+    elim = sum(nodemap!=nodemap2);
+    if elim==0; break; endif
+    ## printf("eliminated %d\n",elim);
+    nodemap = nodemap2;
+  endwhile
   
+  ## printf("mapped %d\n",sum(nodemap!=(1:nnod)'));
+  nnod2 = sum(nodemap==(1:nnod)');
+  mask = (nodemap==(1:nnod)');
+  map2 = cumsum(mask).*mask;
+
+  nodemap = map2(nodemap);
+  for k=1:columns(icone)
+    icone(:,k) = nodemap(icone(:,k));
+  endfor
+  xnod = xnod(find(mask),:);
+
+  mesh.maxnode = maxnode;
+  mesh.xnod = xnod;
+  mesh.icone = icone;
+  mesh.XNOD = XNOD;
+  mesh.ICONE = ICONE;
+  mesh.edge2elem = edge2elem;
+  mesh.HH = HH;
+  mesh.nodemap = nodemap;
+
 endfunction

@@ -3,10 +3,11 @@ Rint=1;
 Rext=2;
 L = 5;
 
-Ntheta = 80;
-Nr=20;
-Nx=80;
+Ntheta = 40;
+Nr=10;
+Nx=20;
 
+rem(Ntheta,8)==0 || error("Ntheta must multiple of 8");
 Rmean = (Rint+Rext)/2;
 
 XNOD = [1 Rint*[cos(pi/4)  sin(pi/4)];
@@ -55,3 +56,6 @@ H = [1 2 Nr/2;
      10 11 Nx];
 
 [xnod,icone,mesh] = mesher(XNOD,ICONE,H);
+external = mesher_bound(mesh,[5 3 8 19 14 16]);
+outlet = mesher_bound(mesh,[16 15 11 4 5]);
+skin = mesher_bound(mesh,[9 1 6 17 12 9]);

@@ -1,6 +1,17 @@
 #usage: 
 function nodes = mesher_bound (mesh,edge,elem);
 
+  if size(edge,2)>2 & size(edge,1)==1
+    nodes = [];
+    for k=1:size(edge,2)-1
+      nodess = mesher_bound (mesh,edge([k k+1]));
+      k==1 || nodes(length(nodes)) == nodess(1) || \
+	  error("couldn't concatenate set od edges");
+      nodes = [nodes; nodess];
+    endfor
+    return;
+  endif
+
   invert_flag = 0;
   if size(edge,2) == 2
     invert_flag = edge(1)>edge(2);
