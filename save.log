@@ -1258,3 +1258,6 @@ tag: beta-3.00.pl1 on Tue, 16 Jul 2002 23:55:48 -0300 by mstorti in spider
 tag: beta-3.00.pl2 on Wed, 17 Jul 2002 23:57:49 -0300 by mstorti in spider
      > Changed allcator for `set<int>' in graph `classes' for solving 
      > the STL allocation problem. 
+----------
+tag: beta-3.00.pl3 on Thu, 18 Jul 2002 17:01:59 -0300 by mstorti in minerva.arcride.edu.ar
+     > Debugging captive memory bug for STL maps
