@@ -51,6 +51,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* FIx in documentation, can't call environment `algorightm'. 
 * Write a script that retrieves date corresponding to a light tag
           Sol: Use date in tag replacing `ART' or `ARST' by `-0300'
 * What happens to the `G_body' item in `nsi_tet_les_fm2' ??

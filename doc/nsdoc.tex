@@ -24,19 +24,19 @@ continues in file '0'.
 More precisely, the saving mechanism is described by the following
 pseudo-code:
 
-\begin{algorithmic}
-\STATE read state vector from \verb+initial_state+ file into $x^0$, $n\gets 0$.
-\FOR{$i$=0 to {\tt nstep}}
-  \STATE advance $x^n$ to $x^{n+1}$.
-  \IF{$n$ \% {\tt nsaverot} == 0}
-    \STATE $j \gets n$/{\tt nsaverot}
-    \STATE $k \gets j$ \% {\tt nrec}
-    \STATE $l \gets j$/{\tt nrec}
-    \IF{$k=0$}\STATE rewind file $l$ \ENDIF
-    \STATE append state vector to file $l$
-  \ENDIF
-\ENDFOR
-\end{algorithmic}
+% \begin{algorithmic}
+% \STATE read state vector from \verb+initial_state+ file into $x^0$, $n\gets 0$.
+% \FOR{$i$=0 to {\tt nstep}}
+%   \STATE advance $x^n$ to $x^{n+1}$.
+%   \IF{$n$ \% {\tt nsaverot} == 0}
+%     \STATE $j \gets n$/{\tt nsaverot}
+%     \STATE $k \gets j$ \% {\tt nrec}
+%     \STATE $l \gets j$/{\tt nrec}
+%     \IF{$k=0$}\STATE rewind file $l$ \ENDIF
+%     \STATE append state vector to file $l$
+%   \ENDIF
+% \ENDFOR
+% \end{algorithmic}
 %end_section
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 

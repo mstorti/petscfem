@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.40 2002/02/09 22:22:17 mstorti Exp $
+//$Id: readmesh.cpp,v 1.41 2002/02/18 03:36:13 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -741,19 +741,20 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   //o Set partitioning method. May be set to \verb+metis+,
   // \verb+hitchhiking+, \verb+nearest_neighbor+ or \verb+random+.
   TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);
+#define INF INT_MAX
   //o Maximum number of vertices admissible while computing the
   // partitioning graph.
-#define INF INT_MAX
   TGETOPTDEF(mesh->global_options,int,max_partgraph_vertices,INF);
 #undef INF
+  //o Number of subpartitions inside each processor. 
   TGETOPTDEF(mesh->global_options,int,iisd_subpart,1);
   iisd_subpart = 1; // In order to deactivate subpartitioning at the hifg level
   
 //    // o Do not coalesce elements if the number of elements if below this
 //    // limit. 
-//    TGETOPTDEF(mesh->global_options,int,min_partgraph_vertices,0);
+//    TGE TOPTDEF(mesh->global_options,int,min_partgraph_vertices,0);
 //    // o Coalesce elements by this ratio if number of elements 
-//    TGETOPTDEF(mesh->global_options,int,partgraph_vert_to_nodes_ratio,INF);
+//    TGE TOPTDEF(mesh->global_options,int,partgraph_vert_to_nodes_ratio,INF);
 
   if (partitioning_method == string("metis")) {
     partflag = 0;

@@ -22,6 +22,19 @@ Set partitioning method. May be set to \verb+metis+,
 \verb+hitchhiking+, \verb+nearest_neighbor+ or \verb+random+.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{max\_partgraph\_vertices@\verb+max_partgraph_vertices+}
+\item\verb+int max_partgraph_vertices+ {\rm(default=\verb|INF|)}:
+
+Maximum number of vertices admissible while computing the
+partitioning graph.
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{iisd\_subpart@\verb+iisd_subpart+}
+\item\verb+int iisd_subpart+ {\rm(default=\verb|1|)}:
+
+Number of subpartitions inside each processor. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{debug\_element\_partitioning@\verb+debug_element_partitioning+}
 \item\verb+int debug_element_partitioning+ {\rm(default=\verb|0|)}:
 
