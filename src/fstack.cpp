@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.13 2003/08/06 20:21:33 mstorti Exp $
+//$Id: fstack.cpp,v 1.14 2003/08/06 21:28:04 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -115,8 +115,8 @@ int FileStack::get_line(char * & line) {
     nread = astr_getline(bufr,file_at_top);
     // This is for DOS files :-(
     if (nread>0 && astr_chars(bufr)[nread-1]=='\r') {
+      astr_delete(bufr,nread-1,1);
       nread--;
-      astr_chars(bufr)[nread-1]=='\0';
     }
     pos++;
 
