@@ -229,7 +229,8 @@ EOM
 EOM
 /`/;
     foreach $v (@_) {
-	print "# \$$v: ${$v}\n";
+#	print "# \$$v: ${$v}\n";
+	printf("# %10s: %s\n","\$$v",${$v});
 	print OCT "$v = ${$v};\n" if $octtmpfile;
     }
     close OCT if $octtmpfile;
