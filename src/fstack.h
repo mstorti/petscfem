@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fstack.h,v 1.8 2001/05/30 03:58:50 mstorti Exp $
+//$Id: fstack.h,v 1.9 2001/11/02 02:33:13 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -13,7 +13,7 @@
 #include <string.h>
 
 #ifdef RH60
-#include "libretto.h"
+#include <src/libretto.h>
 #endif
 
 #include <libretto/darray.h>
