@@ -2,6 +2,7 @@
 
 use English;
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
+require "$ENV{'PETSCFEM_DIR'}/tools/utils.pl";
 $NP = $ENV{'NP'};
 
 # In `eperlini.pl' we have to check strings/number with `is_numeric()'
@@ -270,6 +271,28 @@ EOM
     close OCT if $octtmpfile;
 }
 
+## Converts a string to an array of numbers (if posible),
+## otherwise it leaves a string
+## usage: $v = conv("1.2 2.3 3.5") -> returns [1.2,2.3,3.5]
+##        $v = conv("A string") -> returns "A string"
+sub conv {
+    my $a0 = shift();
+    chomp $a0;
+    my $a = $a0; 
+    my @values = ();
+    while ($a =~ /\s*(\S*)/) {
+	my $v = $1;
+	my $rest = $POSTMATCH;
+##	if ($v != 0 || $v =~ /^0(|.0*)(|e(|\+|\-)\d+)$/) {
+	my $vv = getnum($v);
+	if (defined $vv) { push @values,$vv; } 
+	else { last; }
+	$a = $rest;
+    }
+    if ($a =~ /^\s*$/) { return [@values]; }
+    else { return $a; }
+}
+
 sub octave_export_vars {
     my ($file,@vars) = @_;
     my $exist =  -f $file;
@@ -281,11 +304,14 @@ sub octave_export_vars {
 EOM
     for $name (@vars) {
 	my $value = $ {$name};
+	$value = conv($value);
 	# This is how to know if a variable is a number or a string. 
-	if ($value == 0 && $value !~ /^0$/) {
-	    print O "$name = \"$value\";\n"; # string
-	} else {
+	if (!ref($value)) {
 	    print O "$name = $value;\n"; # number
+	} elsif (@$value == 1) {
+	    print O "$name = $value->[0];\n"; # number
+	} else {
+	    print O "$name = [",join(",",@$value),"];\n";
 	}
     }
     close O;
