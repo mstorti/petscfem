@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.14 2003/02/17 02:40:14 mstorti Exp $
+//$Id: dxhook.h,v 1.14.2.1 2003/07/23 00:30:05 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -11,6 +11,7 @@
 #ifdef USE_SSL
 #include <HDR/sockets.h>
 #endif
+#include <src/dvector.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class FieldGen {
@@ -28,19 +29,36 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** This hooks is in charge of sending node coordinates, element
+    conectivities and results to the DX client. */ 
 class dx_hook : public Hook {
 #ifdef USE_SSL
 private:
+  /// Table of options
   TextHashTableFilter *options;
+  /// The srvr_root is created first and then a srvr is established. 
   Socket *srvr_root,*srvr;
+  /// The FEM mesh
   Mesh *mesh;
+  /// The dofmap
   Dofmap *dofmap;
+  /// Auxiliary variables
   int step_cntr, steps, ierr, dx_auto_combine;
+  /// A list of fields
   FieldGenList field_gen_list;
+  /// The name of the state file to be read
   string state_file;
+  /** the record in the file (many states may be stored
+      in the same file */
   int record;
-  int ndim,nnod,ndof;
-
+  /// Integer parameters
+  int ndim,nnod,ndof,nu;
+  /** Flags whether the mesh changes and 
+      in which file it is read */
+  string dx_node_coordinates;
+  double coef0, coef;
+  int read_coords;
+  dvector<double> x0;
 #ifdef USE_PTHREADS
   enum connection_state_t {
     not_launched, not_connected, connected} connection_state_m,
