@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.116 2002/05/12 15:10:24 mstorti Exp $
+$Id: notes.txt,v 1.117 2002/05/12 23:29:58 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.116 2002/05/12 15:10:24 mstorti Exp $ 
+! # $Id: notes.txt,v 1.117 2002/05/12 23:29:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.116 2002/05/12 15:10:24 mstorti Exp $ 
+! # $Id: notes.txt,v 1.117 2002/05/12 23:29:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.116 2002/05/12 15:10:24 mstorti Exp $ 
+  # $Id: notes.txt,v 1.117 2002/05/12 23:29:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4386,6 +4386,37 @@ mal los nodos. Ahora voy a probar a sacar los elemset `no-fat'.
 %
 10:53:17: Con un solo `no-fat' tambien da mal. Ahora voy a probar a
 dejar un solo dof por nodo. 
+
+%===Sun, 12 May 2002 12:01:37 -0300 mstorti@spider
+%
+Creo que encontre el problema. No era un error en el programa sino con
+el quilombo de elementos ficticios, `is_fat', nodos ficticios,
+etc... Al marcar los elementos de supeficie como `is_fat=0', entonces
+los nodos de superficie quedaban desconectados y entonces los asignaba
+arbitrariamente a un procesador, por lo tanto quedaba todo un monton
+de nodos marcados como interfase. 
+%
+18:51:14: Con una malla de 20/1 (1200 elementos) en un procesador da
+todo bien. Porque los tiempos de calculo de elementos son 28secs para
+`nsi_tet_keps_rot' y 28 secs para `bcconv_ns_fm2' y despues reporta un
+tiempo de ensamblaje total de 58secs. Despues tarda unos 20secs en
+resolver. Ahora voy a probar con una malla con mas `nz' y menos `n'. 
+%
+19:31:43: Con una malla 12/6 (2592 elementos) da 65'' para evaluar
+`nsi_tet_keps_rot' y 15'' para evaluar `bcconv'. No puedo correr con
+optimizacion (no se porque). Ahora voy a probar en paralelo. 
+%
+19:38:19: Corriendo con dos procesadores da 95secs total,
+`bcconv_ns_fm2' 17secs y `nsi_tet_keps_rot' 73secs. Lo cual quiere
+decir que el ensamblaje y otros elementos se comen solo 5secs, lo cual
+esta muy bien. La resolucion se come 100secs. En un solo proc. parece
+converger mejor, probablemente porque al mantener el `iisd_subpart' al
+pasar a dos procs. se reduce el tamanio de los subdominios y aumenta
+el numero de nodos de interfase. 
+%
+20:15:07: Con optimizacion da total=50, `nsi_tet_keps_rot=45',
+`bcconv_ns_fm2=5'. Con lo cual esta muy bien. La resolucion tarda unos
+130secs. 
 
 %# Current line ===========  
 # Local Variables: $

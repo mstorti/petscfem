@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.47 2002/05/12 15:10:28 mstorti Exp $
+//$Id: readmesh.cpp,v 1.48 2002/05/12 23:30:03 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -874,10 +874,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
     }
   }
-  if (myrank==0) {
+  if (myrank == 0 && size > 1) {
+    PetscPrintf(PETSC_COMM_WORLD,"---\nInter-processor node connections\n");
     for (P1=0; P1<size; P1++) 
       for (P2=0; P2<size; P2++) 
-	printf("[%d]-[%d] %d nodes\n",P1,P2,II_STAT(P1,P2));
+	printf("[%d]-[%d] %d\n",P1,P2,II_STAT(P1,P2));
+    PetscPrintf(PETSC_COMM_WORLD,"\n");
   }
   for (node=0; node<nnod; node++) {
     if (n2eptr[node]==n2eptr[node+1]) {

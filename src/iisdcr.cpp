@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.15 2002/05/12 15:10:28 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.16 2002/05/12 23:30:03 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -310,8 +310,14 @@ int IISDMat::create_a() {
 
 #ifdef PRINT_LOCAL_INT_PARTITION_TABLE
   if (myrank==0) {
-    Dofmap *dofmap = (Dofmap *)(&part); // very dangerours
+    // **VERY DANGEROURS**
+    // We use here the fact that the partitioner is a dofmap,
+    // but may not be so if in fact it'is not
+    const Dofmap *dofmap = dynamic_cast<const Dofmap *>(&part);
+    assert(dofmap);
 #if 0
+    // printing by columns (equations)
+    // Not very satisfactory printing
     PetscPrintf(PETSC_COMM_WORLD,
 		"--- Local/interface partitioning\n"
 		"Prints: global-dof (node/field) proc type(local/interface)\n");
@@ -333,7 +339,8 @@ int IISDMat::create_a() {
 	       (block==0 ? "L" : "I"));
       }
     }
-#else
+#elsif 0
+    // printing by rows (node/field)
     PetscPrintf(PETSC_COMM_WORLD,
 		"--- Local/interface partitioning\n"
 		"Prints:  node field global-dof proc type(local/interface)\n");

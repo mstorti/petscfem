@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.40 2002/05/12 15:10:28 mstorti Exp $
+//$Id: elemset.cpp,v 1.41 2002/05/12 23:30:03 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -366,7 +366,7 @@ int assemble(Mesh *mesh,arg_list argl,
   Darray *ghostel;
   Darray *elemsetlist = mesh->elemsetlist;
   Nodedata *nodedata = mesh->nodedata;
-  HPChrono hpchrono,hpc2,hpcassmbl;
+  HPChrono hpchrono,hpc2,hpc3,hpcassmbl;
   Chrono chrono;
   Stat out_of_loop, in_loop, assemble, wait;
 
@@ -376,6 +376,9 @@ int assemble(Mesh *mesh,arg_list argl,
   TGETOPTDEF(mesh->global_options,int,debug_compute_prof,0);
   //o Debug the process of building the matrix profile. 
   TGETOPTDEF(mesh->global_options,int,report_assembly_time,0);
+  //o Print the local chunk size used for each elemset in each
+  // processor for each chunk. 
+  TGETOPTDEF(mesh->global_options,int,print_local_chunk_size,0);
 
   // This is the argument list to be passed to the element routine
   int narg = argl.size();
@@ -496,7 +499,7 @@ int assemble(Mesh *mesh,arg_list argl,
     int nel_here=elemset->nelem_here;
     
     // Initialize chronometer, in order to perform load balance 
-    chrono.start();
+    hpc3.start();
  
     // Put the state in a locst per element and pass
     // to the elemset routine. 
@@ -527,10 +530,12 @@ int assemble(Mesh *mesh,arg_list argl,
     // scaled chunk_size in order to balance processors 
     local_chunk_size = 
       (int)(chunk_size*dofmap->tpwgts[myrank]/w_max) +1;
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			    "[%d] type %s, chunk_size %d, local_chunk_size %d\n",
-			    MY_RANK,elemset->type,chunk_size,local_chunk_size);
-    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+    if (print_local_chunk_size) {
+      PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			      "[%d] type %s, chunk_size %d, local_chunk_size %d\n",
+			      MY_RANK,elemset->type,chunk_size,local_chunk_size);
+      PetscSynchronizedFlush(PETSC_COMM_WORLD); 
+    }
 
     CHKERRQ(ierr);
     // This fixes the 'bug100' bug: If the number of ghost_elements is
@@ -749,8 +754,8 @@ int assemble(Mesh *mesh,arg_list argl,
 	  }
 	  if (report_assembly_time) {
 	    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-				    "[%d] Assembly time %f secs.\n",
-				    MY_RANK,hpcassmbl.elapsed());
+				    "[%d] Assembly time \"%s\"/\"%s\" %f secs.\n",
+				    MY_RANK,elemset->type,jobinfo,hpcassmbl.elapsed());
 	    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 	  }
 	}
@@ -788,11 +793,11 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
-		  "Performance report for elemset \"%s\" task \"%s\"\n"
+		  "Performance report \"%s\" task \"%s\"\n"
 		  "[proc] - total[sec] - rate[sec/Kelement]\n",
 		  elemset->type,jobinfo);
       double elapsed;
-      elapsed=chrono. elapsed();
+      elapsed=hpc3.elapsed();
       double rate=1000.0*elapsed/elemset->nelem_here;
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "[proc %d]   %g   %g\n",myrank,elapsed,rate);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.16 2002/05/07 02:46:32 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.17 2002/05/12 23:30:03 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,8 +10,6 @@
 
 #include "nsi_tet.h"
 #include "nsikepsrot.h"
-
-extern int MY_RANK,SIZE;
 
 //#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -46,7 +44,6 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			       Dofmap *dofmap,const char *jobinfo,int myrank,
 			       int el_start,int el_last,int iter_mode,
 			       const TimeData *time_) {
-  HPChrono chrono;
 
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);
@@ -325,12 +322,8 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
                  10.*C_1*C_2+9.*pow(C_2,2.)));
 
   int ielh=-1;
-  int computed_elems=0;
-  chrono.start();
-  PetscPrintf(PETSC_COMM_WORLD,"Start chrono...\n");
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
-    computed_elems++;
     FastMat2::reset_cache();
     ielh++;
     load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
@@ -1064,11 +1057,6 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     }
   }
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
-			  "[%d] computed_elems %d, elapsed %f, rate %f[secs/Kelem]\n",
-			  MY_RANK,computed_elems,chrono.elapsed(),
-			  chrono.elapsed()/double(computed_elems)*1e3);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 }
