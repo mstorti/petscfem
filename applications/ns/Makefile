@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.38 2002/09/10 23:50:35 mstorti Exp $ 
+ # $Id: Makefile,v 1.39 2002/09/11 00:27:49 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -46,6 +46,9 @@ odocns: ../../doc/odocns.tex ../../doc/odocnse.tex \
 	$(run_odoc)
 
 ns.o : CCPPFLAGS += -O0
+
+#compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a | sed s/\#//g)\""
+compdate.o: CPPFLAGS += "-DPETSCFEM_HOSTNAME=\"$(shell uname -a)\""
 
 noafs:
 	@echo "making symbolic links to NO Algebraic FS formulation... "
