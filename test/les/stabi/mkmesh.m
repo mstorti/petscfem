@@ -1,7 +1,4 @@
-Ly=2;				# Lengh of mesh in y
-N=20;				# number of elements in y direction
-hratio=1;                       # refinement ratio center/wall
-nlay=3;                         # element layers in 'x' direction
+source("ini.data");
 
 hav=Ly/N;
 w=zhomo([0 3*hav 0 Ly],nlay+1,N+1,[1 0 1 1 hratio 1]);

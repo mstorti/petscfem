@@ -1,0 +1,6 @@
+# -*- mode: octave -*-
+Ly=2;				# Lengh of mesh in y
+N=20;				# number of elements in y direction
+hratio=1;                       # refinement ratio center/wall
+nlay=3;                         # element layers in 'x' direction
+Rel=0.00001;                    # Reynolds number

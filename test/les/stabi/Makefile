@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/05/02 00:09:08 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/05/02 01:42:16 mstorti Exp $ 
 
 .PHONY: force tangent stabi data
 
@@ -26,5 +26,5 @@ stabi:
 	-$(MPIRUN) -np 1 $(NS) -case stabi.depl 
 
 local_clean::
-	-rm les.flag 
+	-rm system.dat
 
