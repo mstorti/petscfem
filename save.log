@@ -2165,3 +2165,6 @@ tag: beta-3.14.pl36 on Mon, 20 Jan 2003 21:03:21 -0300 by mstorti in spider
 tag: beta-3.14.pl37 on Mon, 20 Jan 2003 22:40:40 -0300 by mstorti in spider
      > Runs vtube example in incompressible with cold and hot outlets. 
      > Very good separation of hot and cold streams are obtained. 
+----------
+tag: beta-3.14.pl38 on Tue, 21 Jan 2003 07:43:57 -0300 by mstorti in spider
+     > Very good results with finer mesh. 
