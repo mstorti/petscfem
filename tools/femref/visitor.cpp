@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.3 2004/12/19 14:28:49 mstorti Exp $
+// $Id: visitor.cpp,v 1.4 2004/12/19 15:34:28 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -9,6 +9,11 @@ using namespace std;
 
 #include "./femref.h"
 #include "./gtemplates.h"
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+UniformMesh::visitor::visitor() 
+  : at_end(true), mesh(NULL), 
+    etree_p(NULL) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem) {
@@ -23,6 +28,7 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem) {
   top.go.make_canonical();
   top.splitter = etree_p->begin();
   top.so_indx = 0;
+  at_end = false;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -56,8 +62,10 @@ bool UniformMesh::visitor::so_next() {
     // sibling
     while (true) {
       // Check if we are at the root
-      if (ref_stack.size()<=1) 
+      if (ref_stack.size()<=1) {
+	at_end = true;
 	return false;
+      }
       
       w = ref_stack.begin(); w++;
       qfather = w->splitter;
@@ -102,7 +110,7 @@ next() { assert(0); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
-so_end() { assert(0); }
+so_end() { return at_end; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.22 2004/12/19 14:28:49 mstorti Exp $
+// $Id: femref.cpp,v 1.23 2004/12/19 15:34:28 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -80,11 +80,11 @@ int main() {
   // mesh.refine(rf);
   UniformMesh::visitor vis;
   vis.init(mesh,0);
-  while (true) {
+  while (!vis.so_end()) {
     GeomObject &go = vis.ref_stack.front().go;
     go.print();
     if (vis.is_leave() && vis.ref_level()<=1)
       vis.refine();
-    if (!vis.so_next()) break;
+    vis.so_next();
   }
 }
