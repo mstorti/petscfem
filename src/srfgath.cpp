@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.2 2004/01/26 23:45:09 mstorti Exp $
+//$Id: srfgath.cpp,v 1.3 2004/01/27 19:16:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -148,7 +148,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 Jaco(2,ndimel,ndim),staten(2,nel,ndof), 
     stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
     n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
-    ui(2,ndof,nedges), xc(1,ndim);
+    ui(2,ndof,nedges), xc(1,ndim), xcp(1,ndim), uc(1,ndof),
+    x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp;
   xi.set(0.);
 
   Time * time_c = (Time *)time;
@@ -159,7 +160,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   // FastMat2::activate_cache(&cache_list);
-  vector<double> f(nel);
+  vector<double> f(nel), alpha(nedges);
+  vector<int> indx(nedges);
 
   int ielh=-1,kloc;
   for (int k=el_start; k<=el_last; k++) {
@@ -187,7 +189,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       double val = f_vals[jval];
       // Check if surface intersects element
       if (max_f<val || min_f>val) continue;
-      // Nbr of intersections
+      // Nbr of intersections (and number of sides
+      // of the polygon)
       int nint = 0;
       for (GPdata::edge q = gp_data.edges_begin(); 
 	   q!=gp_data.edges_end(); q++) {
@@ -231,11 +234,71 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // polygon in triangles from the center of the polygon to
       // each side. 
 
-      // Compute center of polygon
+      // Compute center of polygon xc
       xi.is(2,1,nint).print("intersections: ");
       xc.sum(xi,1,-1).scale(1./double(nint));
-      for (int j=0; j<nint; j++) {
+      // Computes normal as gradient of f in the center
+      double epsil = 1e-3,fp,fm;
+      for (int j=1; j<=ndim; j++) {
+	xcp.set(xc).addel(epsil,j);
+	fp = sf->f(xcp);
+	xcp.addel(-2*epsil,j);
+	fm = sf->f(xcp);
+	n.setel((fp-fm)/(2*epsil),j);
       }
+      double an = n.norm_p_all(2.0);
+      n.scale(1./an);
+
+      // uc:= value of u interpolated at center of polygon
+      ui.is(2,1,nint);
+      uc.sum(ui,1,-1).scale(1./double(nint));
+      // x1,x2 perpendicular to normal n
+      // are two vectors that define the axis on the
+      // plane normal to the polygon
+      xi.rs().ir(2,1);
+      x1.cross(n,xi);
+      double l1 = x1.norm_p_all(2.0);
+      x1.scale(1./l1);
+      x2.cross(n,x1);
+      // For each vertex of the polygon, we compute an angle
+      // of rotation around it, in order to project. 
+      for (int j=0; j<nint; j++) {
+	xi.ir(2,j+1);
+	dx.set(xi).rest(xc);
+	tmp.prod(x1,dx,-1,-1);
+	double X1 = tmp.get();
+	tmp.prod(x2,dx,-1,-1);
+	double X2 = tmp.get();
+	alpha[j] = atan2(X2,X1);
+      }
+      xi.rs();
+
+      for (int j=0; j<nint; j++) indx[j] = j;
+#if 1
+      printf("sorting angles\n");
+      for (int j=0; j<nint; j++) printf("(%d,%g) ",j,alpha[j]);
+      printf("\n");
+#endif
+      // Sort angles and determine permutation
+      for (int j=0; j<nint-1; j++) {
+	// Look for the minimum in range j,nint and exchange with pos. j
+	double amin = alpha[j];
+	int kmin = j;
+	for (int k=j+1; k<nint; k++) {
+	  if (alpha[k]<amin) {
+	    amin = alpha[k];
+	    kmin = k;
+	  }
+	}
+	alpha[kmin] = alpha[j];
+	alpha[j] = amin;
+	indx[kmin] = j;
+	indx[j] = kmin;
+      }
+#if 1
+      for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
+      printf("\n");
+#endif
     }
  
 #if 0
