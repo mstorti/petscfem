@@ -1,10 +1,11 @@
-## $Id: proc22d.m,v 1.9 2005/02/07 21:16:21 mstorti Exp $
+## $Id: proc22d.m,v 1.10 2005/02/14 04:31:31 mstorti Exp $
 
 source("data.m.tmp");
 nsome = Nx+1;
 
 if !exist("do_load") || do_load || !exist("U0");
-  U0 = aload("gfabso2dn.some-rslt.tmp");
+##  U0 = aload("gfabso2dn.some-rslt.tmp");
+  U0 = aload("gfperi.some-rslt.tmp");
   rem(rows(U0),nsome)==0 \
       || error("U0 not correct size.");
   nt = rows(U0)/nsome;
@@ -47,7 +48,7 @@ for k=1:m
   Unorm(:,k) = (U(:,k)-Uref(k))/scale(k);
 endfor
 
-x = aload("gfabso2dn.nod.tmp");
+x = aload("gfperi.nod.tmp");
 x = x(1:nsome,longindx);
 
 Ue1 = U(nsome*(1:nt),:);

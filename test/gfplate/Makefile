@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.47 2005/02/13 21:25:03 mstorti Exp $ 
+# $Id: Makefile,v 1.48 2005/02/14 04:31:31 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_movshock
+default: run_peri
 
 BOPT := O_c++
 SRCS = 
@@ -36,6 +36,10 @@ run_movshock:
 run_abso2dn: gbody.efn
 #	mkstepsdir.pl
 	$(MAKE) CASE_NAME=gfabso2dn run
+
+run_peri:
+	mkstepsdir.pl
+	$(MAKE) CASE_NAME=gfperi run
 
 run_cyl: 
 	mkstepsdir.pl

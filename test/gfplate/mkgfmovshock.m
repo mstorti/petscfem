@@ -1,4 +1,4 @@
-## $Id: mkgfmovshock.m,v 1.8 2005/02/08 03:45:11 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.9 2005/02/14 04:31:31 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
@@ -111,7 +111,6 @@ asave("gfmovshock.abso-con-in.tmp", \
 
 ## Coordinate normal to shock
 xx = xnod*nor;
-
 
 if 0
   sigma = 0.3;
