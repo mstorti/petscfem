@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.5 2004/12/12 14:42:27 mstorti Exp $
+// $Id: femref2.cpp,v 1.6 2004/12/12 16:09:09 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -494,6 +494,12 @@ read(const char *node_file,
   }
 }
 
+// Simple macro-based STACK adaptor
+// #define TOP(list_stack) (list_stack.begin())
+// #define POP(list_stack) (list_stack.erase(list_stack.begin()))
+// #define PUSH(list_stack,x) (list_stack.insert(list_stack.begin(),x))
+// #define EMPTY(list_stack) (list_stack.size()==0)
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define MAX_NODE 1000
 void UniformMesh::
@@ -522,42 +528,35 @@ refine(RefineFunction f) {
     ElemRef &etree = *elem_ref.e(k);
     ElemRef::iterator q = etree.begin();
 
-    go_stack.insert(go_stack.begin(),GeomObject());
+    go_stack.push_front(GeomObject());
     w = go_stack.begin();
     w->init(tmpl->type,&connec.e(k,0));
     w->print();
-    split_stack
-      .insert(split_stack.begin(),
-	      etree.begin());
-    split_indx_stack
-      .insert(split_indx_stack.begin(),q);
+    split_stack.push_front(etree.begin());
+    split_indx_stack.push_front(0);
     const int *w_nodes = w->nodes();
     for (int j=0; j<w->size(); j++)
       go_nodes.push(w_nodes[j]);
-    go_nodes_pos.push(0);
+    go_nodes_pos.push_front(0);
     Splitter *s = NULL;
 
+#if 0
     while(1) {
       w = go_stack.begin();
       // here visit w...
-      ElemRef::iterator q 
-	= *(split_stack.begin()), qfather;
+      ElemRef::iterator q, qs, qs2,qfather;
+      q = *(split_stack.begin()), 
       int j = *split_indx_stack.begin();
       if (q != etree.end()) {
-	// `q' is an internal node for GO's (but may be
-	// not for splitters!!)
-	qs = q->lchild();
-	split_stack.insert(split_stack.begin(),qs);
-
-	// Build `ws' from GeomObject `w' (parent) and splitter `s'
-	// and subobject index `so_indx'
 	s = q->splitter;
-	int indx = q->so_indx;
-
-	go_stack.insert(go_stack,begin(),GeomObject());
-	w = go_stack.begin();
-	// ws.init(...)
-
+	qs = q->lchild();
+	if (qs!=etree.end() && qs->so_indx==0) 
+	  qs2 = qs;
+	else qs2 = etree.end();
+	split_stack.insert(split_stack.begin(),qs2);
+	// Build `ws' from GeomObject `w' (parent) and splitter `s'
+	// and subobject index `j'
+	ws = go_stack.insert(go_stack.begin(),GeomObject());
 	split_indx_stack.insert(split_indx_stack.begin(),0);
       } else {
 	// `q' is a leave for GO's (sure it isn't
@@ -565,28 +564,23 @@ refine(RefineFunction f) {
 	// Try to find a right sibling, or a father
 	// that has a right sibling
 	while (true) {
-	  // `qfather' is a node in the splitting
-	  // tree that is the father of `q'
+	  // Check if we are at the root
+	  if (split_stack.size()<=1) return;
 	  qfather = q;
 	  qfather++;
-	  
+	  s = qfather->splitter;
+	  if (j<s->size()) {
+	    int jsib = j+1;
+	    go_stack.erase(go_stack.begin());
+	    split_stack.erase(split_stack.begin());
+	    split_indx_stack.erase(split_indx_stack.begin());
+	    // Build `ws' from GeomObject `w' (parent) and splitter `s'
+	    // and subobject index `j'
+	    
+	  }
 	}
       }
 
-#if 0
-      qs = q->lchild();
-      if (qs != etree.end()) {
-	split_stack.insert(split_stack.begin(),qs);
-	Splitter *s = *qs;
-	go_stack.insert(go_stack,begin(),GeomObject());
-	w = go_stack.begin();
-	// Build `ws' from GeomObject `w' (parent) and splitter `s'
-	// ws.init(...)
-      } else {
-      }
-#endif
-      
-#if 0
       while (q!=etree.end()) {
       // Each node of the `etree' is a splitter!!
       // create the nodes needed by this splitting
