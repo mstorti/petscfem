@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.4 2001/11/24 00:04:18 mstorti Exp $
+// $Id: tryme.cpp,v 1.5 2001/11/24 01:01:52 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -27,11 +27,16 @@ void TGraph::set_ngbrs(int elem,vector<int> &ngbrs_v) {
 }
 
 int main(int argc, char **args) {
-  const int N=20;
-  TGraph GG; 
-  Graph &G = GG;
-  GG.N = N;
-  G.part(N,N,2);
-  for (int j=0; j<N; j++) 
-    printf("vrtx %d in proc %d\n",j,G.vrtx_part(j));
+  const int N=200;
+  int k=0;
+  while (1) {
+    printf("partitioning graph %d\n",k++);
+    TGraph *GG = new TGraph;
+    Graph &G = *GG;
+    GG->N = N;
+    G.part(N,N,2);
+    delete GG;
+//      for (int j=0; j<N; j++) 
+//        printf("vrtx %d in proc %d\n",j,G.vrtx_part(j));
+  }
 }
