@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.10 2004/11/19 22:01:00 mstorti Exp $
+// $Id: femref.h,v 1.11 2004/11/20 21:15:27 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -12,35 +12,62 @@
 
 typedef unsigned int Node;
 
-class GeomObjectBasic {
-public:
-  virtual bool equal(GeomObjectBasic &)=0;
-  virtual int dim()=0;
-  static GeomObjectBasic *factory(int nnod,const int *nodes,
-		      const char *type);
-};
+class GeomObjectBasic;
 
 class GeomObject {
 private:
   GeomObjectBasic *gobj;
 public:
-  GeomObject(GeomObjectBasic *go=NULL) : gobj(NULL) { }
-  bool equal(GeomObject &go) { return gobj->equal(*go.gobj); }
-  int dim() { return gobj->dim(); }
-  void clear() { if (gobj) delete gobj; gobj=NULL; }
-  ~GeomObject() { clear(); }
+  enum Type { NULL_TYPE=0, OrientedEdgeT, EdgeT, OrientedTriT, TriT };
+  GeomObject();
+  void init(int sz,const int *nodes,Type t);
+  GeomObject(int sz,const int *nodes,
+	     Type t) { init(sz,nodes,t); }
+  bool equal(GeomObject &go);
+  int dim();
+  int csum();
+  static int size(Type t);
+  static int size();
+  int GeomObject::Type type();
+  void clear();
+  ~GeomObject();
+};
+
+class GeomObjectBasic {
+public:
+  virtual bool equal(GeomObjectBasic &)=0;
+  virtual int dim()=0;
+  virtual int csum()=0;
+  virtual static int size();
+  virtual static int size(GeomObject::Type t) {return 0; }
+  virtual GeomObject::Type type() { 
+    return GeomObject::NULL_TYPE; 
+  }
+  virtual int nperms() { return 0; }
+  virtual const int perm(int perm_indx);
+  virtual const int *
+  static GeomObjectBasic 
+  *factory(int sz,const int *nodes, GeomObject::Type t);
 };
 
 class OrientedEdge : public GeomObjectBasic {
 private:
-  int n1,n2;
+  int n1,n2,cs;
+public:
+  friend class Edge;
   OrientedEdge(int n,const int *nodes) {
     if (n!=2) throw GenericError("OrientedEdge must have 2 nodes");
     n1 = nodes[0];
     n2 = nodes[1];
+    cs = n1 + n2;
   };
-public:
   int dim() { return 1; }
+  int csum() { return cs; }
+  static int size(GeomObject::Type t) { assert(0); }
+  static int size() { return 2; }
+  GeomObject::Type type() { 
+    return GeomObject::OrientedEdgeT; 
+  }
   bool equal(GeomObjectBasic &go) {
     OrientedEdge *edge2 = dynamic_cast<OrientedEdge *>(&go);
     if (!edge2) return false;
@@ -48,33 +75,43 @@ public:
   };
 };
 
-class Edge : public GeomObjectBasic {
-private:
-  int n1,n2;
-  Edge(int n,const int *nodes) {
-    if (n!=2) throw GenericError("Edge must have 2 nodes");
-    n1 = nodes[0];
-    n2 = nodes[1];
-  };
+class Edge : public OrientedEdge {
 public:
-  int dim() { return 1; }
+  Edge(int n,const int *nodes) : OrientedEdge(n,nodes) { }
   bool equal(GeomObjectBasic &go) {
     Edge *edge2 = dynamic_cast<Edge *>(&go);
     if (!edge2) return false;
     return ((n1==edge2->n1 && n2==edge2->n2) ||
 	    (n1==edge2->n2 && n2==edge2->n1));
   };
+  GeomObject::Type type() { 
+    return GeomObject::EdgeT; 
+  }
 };
 
 class OrientedTri : public GeomObjectBasic {
 private:
-  int nodes[3];
+  int nodes[3],cs;
+public:
+  friend class Tri;
   OrientedTri(int n,const int *nodes_a) {
     if (n!=3) throw GenericError("OrientedTri must have 3 nodes");
-    for (int j=0; j<3; j++) nodes[j] = nodes_a[j];
+    cs = 0;
+    for (int j=0; j<3; j++) {
+      nodes[j] = nodes_a[j];
+      cs += nodes[j];
+    }
   };
-public:
   int dim() { return 2; }
+  int csum() { return cs; }
+  static int size() { return 3; }
+  static int size(GeomObject::Type t) { 
+    if (t==EdgeT) return 3; 
+    else assert(0);
+  }
+  GeomObject::Type type() { 
+    return GeomObject::OrientedTriT; 
+  }
   bool equal(GeomObjectBasic &go) {
     OrientedTri *tri2 = dynamic_cast<OrientedTri *>(&go);
     if (!tri2) return false;
@@ -88,16 +125,13 @@ public:
   };
 };
 
-class Tri : public GeomObjectBasic {
-private:
-  int n1,n2,n3;
-  int nodes[3];
-  Tri(int n,const int *nodes_a) {
-    if (n!=3) throw GenericError("Tri must have 3 nodes");
-    for (int j=0; j<3; j++) nodes[j] = nodes_a[j];
-  };
+class Tri : public OrientedTri {
 public:
-  int dim() { return 2; }
+  Tri(int n,const int *nodes) : OrientedTri(n,nodes) { }
+  static int size(GeomObject::Type t) { assert(0); }
+  GeomObject::Type type() { 
+    return GeomObject::TriT; 
+  }
   bool equal(GeomObjectBasic &go) {
     Tri *tri2 = dynamic_cast<Tri *>(&go);
     if (!tri2) return false;
@@ -126,9 +160,17 @@ public:
 
 class Mesh {
 private:
-  class GeomObjectAdaptor : public GeomObject{ 
-    int dim() { }
-    bool equal(GeomObjectBasic &go) { }
+  class GeomObjectId {
+  private:
+    int elem, local_number;
+    GeomObject::Type t;
+    GeomObjectId(int elem_a,int lna,
+		 GeomObject::Type ta) 
+      : elem(elem_a), local_number(lna), t(ta) {};
+  public:
+    friend class Mesh;
+    int csum() { };
+    GeomObject operator*();
   };
   dvector<double> coords;
   dvector<int> tri;
@@ -138,6 +180,7 @@ private:
   LinkGraph lgraph;
   int nnod, nelem, nel;
 public:
+#if 0
   class iterator { 
   private:
     GeomObjectAdaptor goa;
@@ -145,18 +188,17 @@ public:
     GeomObject& operator*() { return goa; } 
     GeomObject* operator->() { return &goa; }
   };
+#endif
   void get_adjacency(const GeomObject &g1,int dim,
-		     std::list<iterator> &li) { 
-    
-  }
+		     std::list<GeomObjectId> &li) { }
   Mesh(int ndim_a,int nel_a) 
     : ndim(ndim_a), nel(nel_a) { 
     coords.reshape(2,0,ndim);
-    tri.reshape(2,0,nel);
+    tri..reshape(2,0,nel);
   }
   void read(const char *node_file,const char *conn_file) {
-    coords.cat(node_file);
-    tri.cat(conn_file);
+    coords.cat(node_file).defrag();
+    tri.cat(conn_file).defrag();
     nnod = coords.size(0);
     nel = tri.size(1);
     lgraph.init(nnod);
@@ -183,10 +225,10 @@ public:
     n2e_ptr.resize(nnod+1);
     for (int j=0; j<nnod; j++) n2e.ref(j) = 0;
     int nadj = 0;
-    for (int nod=0; nod<nnod; nod=+) {
+    for (int nod=0; nod<nnod; nod++) {
       n2e_ptr.e(nod) = nadj;
       ngbrs.clear();
-      lgraph.set_ngbrs(node,ngbrs);
+      lgraph.set_ngbrs(nod,ngbrs);
       nadj += ngbrs.size();
       GSet::iterator p = ngbrs.begin();
       while (p!=ngbrs.end()) n2e.push(*p);
@@ -196,11 +238,17 @@ public:
   }
 
   void list_faces() {
-    for (int ele=0; ele<nelem; ele++) {
-      for (int ledge=0; ledge<3; ledge++) {
+    GeomObject elem;
+    for (int e=0; e<nelem; e++) {
+      elem.init(e,tri.e(e,0),OrientedTriT);
+      int nedge = elem.size(Edge);
+      for (int le=0; le<nedge; le++) {
+	GeomObjectId lid(e,le,EdgeT);
 	int nodes[2];
-	nodes[0]= tri(ele,0);
-	nodes[1]= tri(ele,1);
+	nodes[0] = tri.e(ele,0);
+	nodes[1] = tri.e(ele,1);
+	Edge edge(2,nodes);
+	int csum = nodes[1] + nodes[1];
 	int p0 = n2e_ptr.ref(nodes[0]);
 	int p0e = n2e_ptr.ref(nodes[0]+1);
 	int p1 = n2e_ptr.ref(nodes[1]);
@@ -209,9 +257,8 @@ public:
 	  int ele0 = n2e.ref(p0);
 	  int ele1 = n2e.ref(p1);
 	  if (ele0 && ele1) {
-	    
 	  } else if (ele0<ele1) ele0++;
-	  } else ele1++;
+	  else ele1++;
 	}
       }
     }
