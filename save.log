@@ -3115,3 +3115,6 @@ tag: beta-3.25.pl11 on Thu, 04 Dec 2003 09:24:29 -0300 by mstorti in minerva.cer
 tag: beta-3.25.pl12 on Sat, 06 Dec 2003 12:11:30 -0300 by mstorti in spider
      > Written `GenericError(char *,...)'
      > Uses `PETSCFEM_ASSERT_GE()' for not enough nodes in one line error. 
+----------
+tag: beta-3.25.pl13 on Sat, 06 Dec 2003 13:00:39 -0300 by mstorti in spider
+     > Improved `GenericError' 
