@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-$Id: bccadvfm2.cpp,v 1.14 2002/02/03 23:39:17 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.15 2002/02/03 23:48:12 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-$Id: stream.cpp,v 1.7 2002/02/03 23:39:17 mstorti Exp $
+//$Id: stream.cpp,v 1.8 2002/02/03 23:48:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -229,7 +229,7 @@ void Chezy::flow(double area,double perimeter,double S,
   double Ch = 1., m=1.5;
   double gamma = Ch*sqrt(S/perimeter);
 
-#define LINEAR_VERSION_DEBUG
+  // #define LINEAR_VERSION_DEBUG
 #ifdef LINEAR_VERSION_DEBUG
   // assume area near 1
   double area_ref=1.;
