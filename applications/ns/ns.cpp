@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.127 2003/03/13 19:52:12 mstorti Exp $
+//$Id: ns.cpp,v 1.128 2003/03/13 20:14:24 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -352,6 +352,7 @@ int main(int argc,char **args) {
     ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
     PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] data_pts.size()= %d\n",
 			    MY_RANK,data_pts.size());
+    PetscSynchronizedFlush(PETSC_COMM_WORLD);
     double *buff = new double[data_pts.size()];
     ierr = MPI_Allreduce(data_pts.begin(),buff,
 			 data_pts.size(),MPI_DOUBLE,
