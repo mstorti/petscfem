@@ -1409,3 +1409,6 @@ tag: beta-3.02.pl6 on Mon,  5 Aug 2002 00:06:19 -0300 by mstorti in spider
 ----------
 tag: beta-3.02.pl7 on Tue,  6 Aug 2002 17:49:39 -0300 by mstorti in minerva.arcride.edu.ar
      > Writing `embedded_gatherer'
+----------
+tag: beta-3.02.pl8 on Wed,  7 Aug 2002 08:47:39 -0300 by mstorti in spider
+     > Working on `embedded_gatherer' class.
