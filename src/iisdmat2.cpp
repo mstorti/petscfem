@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat2.cpp,v 1.4 2003/09/01 10:45:50 mstorti Exp $
+//$Id: iisdmat2.cpp,v 1.5 2003/09/11 16:02:07 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -20,7 +20,7 @@ int any_A_LL_other_stop = 0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::set_value_a"
+#define __FUNC__ "IISDMat::set_values_a"
 int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 			  PetscScalar *values, InsertMode mode) {
   int row_indx,col_indx,row_t,col_t;

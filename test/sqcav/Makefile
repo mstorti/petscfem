@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.73 2003/09/11 03:03:15 mstorti Exp $ 
+# $Id: Makefile,v 1.74 2003/09/11 16:02:07 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
 	dx_hook_test_post_run_file_record test_read_ini
 
-default: isp_test
+default: dx_hook_test_post_run_files 
 
 isp_test:
 	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
@@ -62,8 +62,7 @@ dx_test_%_np2:
 dx:
 	$(MAKE) -C ../../dx
 
-PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.20
-# PETSCFEM_DIR = ../..
+PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 

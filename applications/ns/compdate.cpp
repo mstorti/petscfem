@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.2 2002/09/11 00:27:49 mstorti Exp $
+//$Id: compdate.cpp,v 1.3 2003/09/11 16:02:07 mstorti Exp $
 #include <cstdio>
 #include <petsc.h>
 
@@ -7,7 +7,7 @@
 #define PETSCFEM_HOSTNAME "<unknown host>"
 #endif
 
-void print_petscfem_link_date() {
+void petscfem_print_link_date() {
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-----------------------------------------------------------------\n"
 	      "Navier-Stokes module built on " __DATE__ ", " __TIME__ ", with "

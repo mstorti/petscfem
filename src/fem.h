@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.33 2003/07/03 04:32:11 mstorti Exp $
+//$Id: fem.h,v 1.34 2003/09/11 16:02:07 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -546,6 +546,9 @@ inline double cube(double x) { return x*x*x;};
 // time at which it was compiled, compiler version, etc... 
 // Normally contained in a file named `compadte.cpp'. 
 void print_petscfem_link_date(void);
+
+// Prints the day of the run. 
+void print_date(void);
 
 // CHKERRA is now obsolete in PETSc (see changes for PETSc 2.1)
 #define CHKERRA CHKERRQ
