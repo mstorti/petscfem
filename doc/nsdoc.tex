@@ -49,3 +49,26 @@ the general options, one node per line. The entry \verb+nsome+
 indicates the frequency (in steps) at which the data is saved and
 \verb+save_file_some+ the name of the file to save in. 
 %end_section
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+%section newton_relaxation_factor
+Relaxation parameter for Newton iteration. Several
+values may be entered in the form
+%
+\begin{verbatim} 
+newton_relaxation_factor w1 n1 w2 n2 .... wn
+\end{verbatim}
+%
+that means: Take relaxation factor \verb+w1+
+for the first \verb+n1+ steps, \verb+w2+ for the following \verb+n2+ steps
+and so on until \verb+w_{n-1}+. \verb+wn+ is taken for all subsequent 
+steps. Normally one takes a conservative (said 0.5) relaxation
+factor for the first steps and then let full Newton (i.e. \verb+w=1+)
+for the rest. For instance, the line  
+%
+\begin{verbatim} 
+newton_relaxation_factor 0.5 3 1.
+\end{verbatim}
+%
+means: take $w=0.5$ for the first 3 steps, and then use $w=1$. 
+%end_section

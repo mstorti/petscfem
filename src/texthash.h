@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.8 2002/01/14 03:45:06 mstorti Exp $
+//$Id: texthash.h,v 1.9 2002/02/12 19:44:20 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -118,6 +118,15 @@ public:
       @param value (output) value of the entry
   */ 
   void get_entry(const char *,const char *&);
+
+  /** Searches an entry in the hash and reads doubles from it
+      @author M. Storti
+      @param key (input) key of the entry
+      @param v (output) A vector of doubles. Read values
+      are appended to the vector so you perhaps have to clear() 
+      it before calling this method. 
+  */ 
+  void get_entry(const char *,vector<double> &v);
 
   /** Returns the number of times a particular key was accessed.
       @author M. Storti

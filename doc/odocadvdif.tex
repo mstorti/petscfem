@@ -163,6 +163,15 @@ The Courant number.
 Time step. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{steady@\verb+steady+}
+\item\verb+int steady+ {\rm(default=\verb|0|)}:
+
+Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+is set to 1, then the computations are as if $\Dt=\infty$. 
+The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
+is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{alpha@\verb+alpha+}
 \item\verb+double alpha+ {\rm(default=\verb|0.|)}:
 

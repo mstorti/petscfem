@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.60 2002/02/09 22:22:43 mstorti Exp $
+//$Id: ns.cpp,v 1.61 2002/02/12 19:44:16 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -146,9 +146,22 @@ int main(int argc,char **args) {
   assert(update_jacobian_start_steps>=0);
 #undef INF
 
-  //o Relaxation parameter for Newton iteration. 
-  GETOPTDEF(double,newton_relaxation_factor,1.);
-
+  //o _T: vector<int>
+  // _N: newton_relaxation_factor
+  // _D: (none)
+  // _DOC:
+  //i_tex ../../doc/nsdoc.tex newton_relaxation_factor
+  // _END
+  vector<double> newton_relaxation_factor;
+  mesh->global_options->get_entry("newton_relaxation_factor",newton_relaxation_factor);
+  // Check number of elements is odd
+  assert(newton_relaxation_factor.size() % 2 ==1);
+  // Check even entries are integer
+  for (int j=1; j<newton_relaxation_factor.size(); j += 2) {
+    double v = double(int(newton_relaxation_factor[j]));
+    assert(v == newton_relaxation_factor[j]);
+  }
+  
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
@@ -521,7 +534,17 @@ int main(int argc,char **args) {
 		  inwt,normres,update_jacobian_this_iter);
 
       // update del subpaso
-      scal= newton_relaxation_factor/alpha;
+      double relfac;
+      int inwt_cum=0,nrf_indx=1;
+      while (1) {
+	if (nrf_indx >= newton_relaxation_factor.size()) break;
+	inwt_cum += int(newton_relaxation_factor[nrf_indx]);
+	if (inwt_cum > inwt) break;
+	nrf_indx += 2;
+      }
+      relfac = newton_relaxation_factor[nrf_indx-1];
+      
+      scal= relfac/alpha;
       ierr = VecAXPY(&scal,dx,x);
 
 #if 0

@@ -1,12 +1,13 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.12 2002/01/14 03:45:06 mstorti Exp $
+//$Id: texthash.cpp,v 1.13 2002/02/12 19:44:20 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
 #include <string>
 //  #include <string.h>
 //  #include "util2.h"
-#include "texthash.h"
+#include <src/fem.h>
+#include <src/texthash.h>
 
 // The static member(s)
 THashTable TextHashTable::thash_table;
@@ -283,3 +284,27 @@ void TextHashTable::print_stat(void) {
   print_statistics=0;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void TextHashTable::get_entry(const char *name,vector<double> &v) {
+  const char *value;
+  static const char *bsp=" \t";
+  char *token;
+  int k,ierr;
+  double val;
+
+  get_entry(name,value);
+  if (value==NULL) return;
+
+  char *buf= new char[strlen(value)+1];
+  strcpy(buf,value);
+  while(1) {
+    token = strtok(k==0 ? buf : NULL ,bsp);
+    if (!token) return;
+    k = sscanf(token,"%lf",&val);
+    PETSCFEM_ASSERT(k==1,
+		    "Table entry does not contain a double\n"
+		    "key: \"%s\", value: \"%s\", token \"%s\"\n",name,value,token);
+    v.push_back(val);
+  }
+  delete[] buf;
+}
