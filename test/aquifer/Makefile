@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.21 2002/08/18 22:42:09 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2002/09/08 19:41:53 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -92,6 +92,11 @@ test_dl_fun2: funs
 test_dl_fun3: funs 
 	$(MAKE) fric=chezy shape=rect casen=fun3 runs
 	octave -q checkdlf.m > output.dl_fun3.verif.tmp
+
+#w case with constant aquifer depth
+test_var_rain:
+	$(MAKE) casen=var_rain run
+#	octave -q check_var_rain.m > plain.verif.tmp
 
 #w Make data
 data: force

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: propef.cpp,v 1.1 2002/09/08 16:28:11 mstorti Exp $
+//$Id: propef.cpp,v 1.2 2002/09/08 19:41:46 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -58,15 +58,14 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
 		     token);  
     assert(handle);
 
+    token = strtok(NULL,"[ \t\n]");
+    PETSCFEM_ASSERT(token,"NewElemset::get_prop(): can't parse function name"
+		     "in entry \"%s\"\n",entry);
     string s;
     const char *error;
-#define GET_DL_FUN2(FunType,fun)					\
-    s = string(prop_name) + string("_" #fun);			\
-    prop.fun = (Property::FunType *) dlsym(handle,s.c_str()); 
-
 
 #define GET_DL_FUN(FunType,fun)					\
-    s = string(prop_name) + string("_" #fun);			\
+    s = string(token) + string("_" #fun);			\
     prop.fun = (Property::FunType *) dlsym(handle,s.c_str());	\
     error = dlerror();						\
     PETSCFEM_ASSERT(!error,"NewElemset::get_prop():"		\

@@ -4,6 +4,11 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('casen',undef);
+$var_rain=0;
+if ($casen eq 'var_rain') {
+    $casen = 'transient';
+    $var_rain=1;
+}
 $casename = $casen;
 $steady = 1;
 if ($casen eq 'transient') {
@@ -63,6 +68,14 @@ nsave 5
 # Number of subdomains
 # <:pr('iisd_subpart'):>
 
+#if $var_rain
+print_some_file 
+<: asave("aqui.some.tmp",[[1]]) :>
+print_some_file "aqui.some.tmp"
+save_file_some "var_rain.some_out.tmp"
+nsome 1
+#endif
+
 # file containing the weight (speed) of processors
 proc_weights weights.dat
 
@@ -108,13 +121,17 @@ npg 4
 #
 <:pr('K'):> 
 <:pr('S'):>
+#if $var_rain
 temp_fun[rain] ./rain.efn rain
+#endif
 __END_HASH__
 __INCLUDE__ aqui.con.tmp
 __END_ELEMSET__
 
 end_elemsets
 
+#if !$var_rain
 fixa
 __INCLUDE__ aqui.fixa.tmp
 __END_FIXA__
+#endif

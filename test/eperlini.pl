@@ -269,7 +269,7 @@ sub octave_string {
 
 # usage: $array2 = aload("myfile")
 #   returns an array ref to a 2D array 
-#  after, gts elements with $array->[$i][$j]
+#   after, gets elements with $array->[$i][$j]
 sub aload {
     my $file = shift();
     die "can't open $file\n" unless open F,$file;
@@ -280,6 +280,22 @@ sub aload {
 	push @data,[@v]; 
     }
     return \@data;
+}
+
+# usage: asave("myfile",$array2)
+#   saves an array ref to a 2D array in file $file. 
+#   Example: asave("myfile.dat",[[1,2,3],[4,5,6]]);
+#   creates a file "myfile.dat" with rows "1 2 3" and "4 5 6". 
+sub asave {
+    my ($file,$array) = @_;
+    die "can't open \"$file\"\n" unless open OUT,">$file";
+    for my $r (@$array) {
+	for my $e (@$r) {
+	    print OUT $e;
+	}
+	print OUT "\n";
+    }
+    close OUT;
 }
 
 print <<'EOM';
