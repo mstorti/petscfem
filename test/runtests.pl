@@ -431,7 +431,7 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
-begin_section('Generic load tests');
+begin_section('Generic load for NS elemset');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("nsgenload/verif.scalar.tmp",
@@ -632,6 +632,13 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/output.CASE_sqcav.np_1.case_lu.out.tmp",
        "Measure performance test.",read_file("test_meas_perf.ans.txt"));
+
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nsgenload/verif.constraint.tmp",
+       "Cyclic reference constraints ",<<'EOT');
+Error < tol OK \? 1
+EOT
 
 end_section();
 

@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2002/12/22 06:20:44 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/12/22 19:45:45 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full
 
-default: scalar
+all: run
 
-tests: scalar diag full
+tests: scalar diag full constraint
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -20,10 +20,13 @@ PROG := $(NS_G)
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: $(CASE_NAME).depl
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
-			-case $< #  > output.$(CASE_NAME).tmp
-#	octave -qH check.m  # > verif.$(case_name).tmp
+			-case $<  > output.$(CASE_NAME).tmp
+	octave -qH check.m > verif.$(case_name).tmp
 
 genload.depl: force
+
+constraint:
+	$(MAKE) case_name=$@ run
 
 scalar:
 	$(MAKE) case_name=$@ run

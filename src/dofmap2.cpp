@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.2 2002/12/22 07:02:33 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.3 2002/12/22 19:45:42 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -117,10 +117,13 @@ void Dofmap::set_constraint(const Constraint &constraint) {
       }
     }
   }
+
+#if 0
   printf("to_elim:");
   for (set<int>::iterator q=to_elim.begin(); 
        q!=to_elim.end(); q++) printf(" %d",*q);
   printf("\n");
+#endif
 
 #if 0
   for (int k=0; k<length; k++) {
@@ -190,12 +193,14 @@ void Dofmap::set_constraint(const Constraint &constraint) {
     assert(fabs(Q.get(r,r))>tol);
   }
 
+#if 0
   Q.print("Q:");
   for (int k=0; k<nelim; k++) {
     printf("%d:",k+1);
     print(*B[k]);
     printf("\n");
   }
+#endif
 
   iQ.inv(Q);
 

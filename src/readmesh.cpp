@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.66 2002/12/22 07:02:33 mstorti Exp $
+//$Id: readmesh.cpp,v 1.67 2002/12/22 19:45:42 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -755,10 +755,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	}
 	dofmap->set_constraint(constraint);
       }
-      dofmap->id->print("id: ");
       PetscPrintf(PETSC_COMM_WORLD,"Total constraints: %d\n",nconstr);
-      PetscFinalize();
-      exit(0);
 #undef ERRLINE
 
     } else {
