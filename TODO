@@ -4,6 +4,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* revert changes for locker in adaptor, etc...
+* replace epart2 -> epart in readmesh.cpp and other parts of elemset,
+     etc... 
 * Pass fix to `ns.cpp' (define MPI_RANK *before* `print_copyright') to
       stable 3.22
 * Make user can call PETSc-FEM assert call abort() or exit(). 
