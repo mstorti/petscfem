@@ -489,7 +489,7 @@ tag: beta-3.32 on Sat Sep 25 13:22:40 GMT+3 2004, by mstorti in spider
      >    instead of www.cimec.org.ar.
      > Fixed `delayed_flush' problem. 
 ----------
-tag: beta-3.35 on Mon Oct 25 01:23:22 GMT+3 2004, by mstorti in spider
+tag: beta-3.34 on Mon Oct 25 01:23:22 GMT+3 2004, by mstorti in spider
      > Changed Version Policy. 
      > Removed `DRH60' compilation flag.
      > Added `quiet' flag to `FileStack' class. 
