@@ -1245,6 +1245,17 @@ end_section();
 
 begin_section('Graph Partitioning');
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/dist_graph.np1.out.tmp","Distributed graph 1proc.",
+               read_file("distmap/dist_graph.np1.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/dist_graph.np2.out.tmp","Distributed graph 2proc.",
+               read_file("distmap/dist_graph.np2.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/dist_graph.np3.out.tmp","Distributed graph 3proc.",
+               read_file("distmap/dist_graph.np3.ans.txt"));
 
 end_section();
 
