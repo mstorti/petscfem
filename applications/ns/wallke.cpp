@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.8 2001/06/25 17:40:40 mstorti Exp $
+//$Id: wallke.cpp,v 1.9 2001/06/26 03:46:10 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -216,7 +216,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 	detJaco = mydetsur(Jaco,normal);
-	double wpgdet = detJaco * WPG;
+	wpgdet = detJaco * WPG;
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
@@ -244,6 +244,12 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       if (lumped_wallke) {
 	matloc.reshape(2,nel*ndof,nel*ndof);
+	matloc.reshape(4,nel,ndof,nel,ndof);
+
+	matlocmom.set(0.);
+	matloc.rs().set(0.).is(2,1,ndim).is(4,1,ndim);
+	veccontr.rs().set(0.).is(2,1,ndim);
+
 	for (int j=1; j<=nel; j++) {
 	  ucols_star.ir(1,j);
 	  double Ustar = sqrt(ucols_star.sum_square_all());
@@ -262,8 +268,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    .prod(u_star,u_star,1,2)
 	    .scale(wpgdet*gprime/Ustar);
 
-	  veccontr.ir(1,j).is(2,1,ndim)
-	    .set(ucols_star).scale(-gfun*Omega_j);
+	  veccontr.ir(1,j).set(ucols_star).scale(-gfun*Omega_j);
 	}
       }
 
@@ -272,6 +277,9 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       veccontr.rs();
       matloc.rs().add(tmp5);
+
+      matloc.reshape(2,nel*ndof,nel*ndof);
+      matloc.reshape(4,nel,ndof,nel,ndof);
 
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));

@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.9 2001/06/08 14:25:56 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.10 2001/06/26 03:46:13 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -559,8 +559,8 @@ FastMat2 & FastMat2::prod(const FastMat2 & A,const FastMat2 & B,const int m,INT_
       ndimsf.print("Combined free dims: ");
       fdims.print("Free dims on result matrix: ");
       printf("Combined free dims doesn't match free"
-	     " dimes of  result.\n");
-      exit(1);
+	     " dims of  result.\n");
+      abort();
     }
     for (int j=0; j<nc; j++) {
       int k1 = icontr[2*j];

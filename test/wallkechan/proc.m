@@ -4,7 +4,33 @@ NNy = Ny+1;
 nnod = NN*NNy;
 xx=aload("wallke.nod.tmp");
 x=xx(1:NNy:nnod,1);
-u=aload("save.state");
+if !exist("state") 
+  args=[];
+else
+  args=split(state,"/");
+  eval(["clear " state]);
+endif
+
+nargs = rows(args);
+if nargs<3
+  indx=1;
+else
+  indx = str2num (args[3]);
+endif
+
+if nargs<2
+  filename = "save.state";
+else
+  filename = deblank(args[2]);
+endif
+
+if nargs<1;
+  ss="";
+else
+  ss=deblank(args[1]);
+endif
+
+u=read_state(filename,);
 out=NNy:NNy:nnod;
 vout=u(out,2);
 cntr=(NN-1)*NNy+(1:NNy)';
@@ -22,6 +48,16 @@ K=reshape(u(1:NNy*NN,4),NNy,NN)';
 E=reshape(u(1:NNy*NN,5),NNy,NN)';
 
 Q=sum(leftscal(diff(x),xcent(V)));
+
+if exist("state") 
+  eval([state ".U = U;"]);
+  eval([state ".V = V;"]);
+  eval([state ".P = P;"]);
+  eval([state ".K = K;"]);
+  eval([state ".E = E;"]);
+  eval([state ".Q = Q;"]);
+  eval(["clear " state]);
+endif
 
 return
 

@@ -24,14 +24,14 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-#    $Re = 4e5;                  # laminar Re
-    $Re = 0.1;                  # laminar Re
+    $Re = 4e5;                  # laminar Re
+#    $Re = 0.1;                  # laminar Re
     $Uav = 1;
     $nu = $Uav*2*$L/$Re;        # kinematic visc.
     $g = 0;                     # body force
     $y_wall_plus = 50 ;         # non-dim. distance to the wall
     $y_wall = .3;
-    $turbulence_coef=0;         # mask turbulence
+    $turbulence_coef=1;         # mask turbulence
     $turb_prod_coef=0;          # mask turbulence production terms
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
@@ -61,7 +61,7 @@ atol 0
 maxits 100
 
 save_file_pattern "outvector%d.out"
-#nsaverot 1000000
+nsaverot 1
 
 #if 0
 initial_state "save.state"
@@ -77,12 +77,12 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 1
-nnwt 3
+nstep 10
+nnwt 4
 tol_newton 0
 preco_type "lu"
 Dt 0.1
-steady
+#steady
 #pspg_advection_factor 0.
 #pspg_factor 2.
 
@@ -169,7 +169,7 @@ __INCLUDE__ wallke.fixa_in.tmp
 __END_FIXA__
 #endif
 
-#if 0
+#if 1
 constraint
 # ultimo nodo en la pared periodico en k y epsilon con respecto al anterior
 -1. <:=$Ny+1:> 4 +1. <:=$Ny:> 4 

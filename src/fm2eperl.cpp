@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.9 2001/06/08 14:25:56 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.10 2001/06/26 03:46:13 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -2743,8 +2743,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       ndimsf.print("Combined free dims: ");
       fdims.print("Free dims on result matrix: ");
       printf("Combined free dims doesn't match free"
-	     " dimes of  result.\n");
-      exit(1);
+	     " dims of  result.\n");
+      abort();
     }
     for (int j=0; j<nc; j++) {
       int k1 = icontr[2*j];
