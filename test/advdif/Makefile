@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.26 2002/12/02 19:09:45 mstorti Exp $ 
+# $Id: Makefile,v 1.24.4.1 2003/01/08 12:58:42 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -67,7 +67,7 @@ $(octave_out_$(case)): $(octave_in_$(case))
 ifneq ($(octave_out_$(case)),)
 	-rm -f $(octave_out_$(case))
 endif
-	octave -qH $(octave_script_$(case)) >/dev/null
+	octave -q $(octave_script_$(case))
 	-chmod -w $(octave_out_$(case))
 
 sine: sine_fine_mesh sine_crank_nic
@@ -75,13 +75,13 @@ sine: sine_fine_mesh sine_crank_nic
 sine_fine_mesh:
 	eperl -d nx=20 -d ny=10 -d N_step_period=32 sine.data.epl >sine.data
 	$(MAKE) case=sine run
-	octave -qH sine_fine_test.m > sine_fine_mesh.out
+	octave -q sine_fine_test.m > sine_fine_mesh.out
 
 sine_crank_nic: 
 	$(MAKE) N_step_period=16 sine_crank_nic_npp
 	$(MAKE) N_step_period=32 sine_crank_nic_npp
 	$(MAKE) N_step_period=128 sine_crank_nic_npp
-	octave -qH sine_crank_nic.m >  sine_crank_nic.out
+	octave -q sine_crank_nic.m >  sine_crank_nic.out
 
 sine_crank_nic_npp:
 	eperl -d nx=10 -d ny=5 -d N_step_period=$(N_step_period) -d tol_error=0 \
@@ -95,7 +95,7 @@ sine_crank_nic_npp:
 # sine.depl: sine.epl sine.m
 
 plano.con plano.nod: plano.m
-	octave -qH plano.m >/dev/null
+	octave -q plano.m
 
 advec: advec.depl
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
@@ -130,7 +130,7 @@ sine.data: sine.data.epl
 # 	chmod -w $(DF)
 
 # $(OF): sine_new.m sine.data
-# 	octave -qH sine_new.m
+# 	octave -q sine_new.m
 
 # per_elem_prop: .gdbinit advdif.link $(DF) $(OF)
 # 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
@@ -142,7 +142,7 @@ sine.data: sine.data.epl
 
 #include makefile.d
 
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+#NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
@@ -164,7 +164,7 @@ run: data
 # 		 -case $(case).depl >/dev/null
 # 	cp save.state save.state.anal.tmp
 # 	cp sine.some sine.some.anal.tmp
-# 	octave -qH < sine_anal_test.m > sine_anal_test.out
+# 	octave -q < sine_anal_test.m > sine_anal_test.out
 
 local_clean::
 	-chmod +w sine.data.res

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.63 2002/07/25 22:35:31 mstorti Exp $
+//$Id: advdife.cpp,v 1.62.4.1 2003/01/08 12:58:42 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -181,6 +181,24 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
 
+  //o Add axisymmetric version for this particular elemset.
+
+  // int axi;
+
+  NSGETOPTDEF(string,axisymmetric,"none");
+  assert(axisymmetric.length()>0);
+  if (axisymmetric=="none") axi=0;
+  else if (axisymmetric=="x") axi=1;
+  else if (axisymmetric=="y") axi=2;
+  else if (axisymmetric=="z") axi=3;
+  else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Invalid value for \"axisymmetric\" option\n"
+		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
+    PetscFinalize();
+    exit(0);
+  }
+
   // Initialize flux functions
   ff_options=0;
   adv_diff_ff->start_chunk(ff_options); 
@@ -258,6 +276,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
 
+  FMatrix Jaco_axi(2,2);
+  int ind_axi_1, ind_axi_2;
+  double detJaco_axi;
+
+  if (axi) assert(ndim==3);
+
   //#define COMPUTE_FD_ADV_JACOBIAN
 #ifdef COMPUTE_FD_ADV_JACOBIAN
   FastMat2 A_fd_jac(3,ndim,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
@@ -312,6 +336,15 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
 
+    if (0){
+    // DEBUG
+	int kk,ielhh;
+	element.position(kk,ielhh);
+	printf("Element %d \n",kk);
+        lstate.print("Estado :");
+    // END DEBUG
+    }
+
     // loop over Gauss points
 
     Jaco_av.set(0.);
@@ -343,11 +376,26 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	exit(0);
       }
       wpgdet = detJaco*WPG;
+
       // Set volume of element. This is somewhat incorrect
       // because we should loop over Gauss points.
       // Correct for simplices (tris and tetras) and not
       // deformed quads and hexas. 
-      Volume = double(npg)*wpgdet;
+      if (axi >0){
+        ind_axi_1 = (  axi   % 3)+1;
+        ind_axi_2 = ((axi+1) % 3)+1;
+        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_1),1,1);
+        Jaco_axi.setel(Jaco.get(ind_axi_1,ind_axi_2),1,2);
+        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_1),2,1);
+        Jaco_axi.setel(Jaco.get(ind_axi_2,ind_axi_2),2,2);
+        detJaco_axi = Jaco_axi.det();
+        double wpgdet_axi = detJaco_axi*WPG;
+        Volume = 0.5*double(npg)*fabs(wpgdet_axi);
+
+      } else {
+        Volume = double(npg)*wpgdet;
+      }
+
       volume_flag = 1;
 
       // This is incorrect. Master elment volume is included in the
@@ -394,9 +442,16 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
 	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
+#define USE_OLD_STATE_FOR_P_SUPG
+#ifdef USE_OLD_STATE_FOR_P_SUPG
+	// This computes either the standard `P_supg' perturbation
+	// function or other written by the user in the
+	// flux-function. 
+	adv_diff_ff->comp_P_supg(P_supg);
+#endif
 
 	// Set the state of the fluid so that it can be used to
-	// compute matrix products
+ 	// compute matrix products
 	adv_diff_ff->set_state(U,grad_U);
 	adv_diff_ff->enthalpy_fun->set_state(U);
 	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
@@ -489,18 +544,22 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
 	matlocf.add(N_N_C);
 
+#ifndef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
 	// function or other written by the user in the
 	// flux-function. 
 	adv_diff_ff->comp_P_supg(P_supg);
+#endif
 	  
 	for (int jel=1; jel<=nel; jel++) {
-	  P_supg.ir(1,jel);
+      	  P_supg.ir(1,jel);
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
-	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
+	  //	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
+	  veccontr.ir(1,jel).axpy(tmp4,wpgdet);
 
 	  matlocf.ir(1,jel);
-	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
+
+          tmp19.set(P_supg).scale(ALPHA*wpgdet);
 	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 
@@ -520,6 +579,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    matlocf.add(tmp22);
 	  }
 	  matlocf.rs();
+          veccontr.rs();
 	}
 	P_supg.rs();
 
@@ -659,7 +719,6 @@ void NewAdvDif::comp_P_supg(int is_tau_scalar) {
 #endif
 
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
-  assert(new_adv_dif_elemset);
   const NewAdvDif *e = new_adv_dif_elemset;
   if (e->ff_options & SCALAR_TAU) {
     double tau_supg_d = e->tau_supg.get(1,1);

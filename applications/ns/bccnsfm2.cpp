@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.15 2002/10/08 20:00:07 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.12.4.1 2003/01/08 12:58:42 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -136,8 +136,10 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   if (comp_mat) matloc_prof.set(1.);
     
+#ifdef USE_FASTMAT2_CACHE
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+#endif
 
   int ielh=-1;
   int start_chunk=1; // BETO : esto parece que no se usa
@@ -189,7 +191,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-      detJaco = Jaco.detsur(&normal);
+      detJaco = mydetsur(Jaco,normal);
       normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"

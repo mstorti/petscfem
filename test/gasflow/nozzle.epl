@@ -1,0 +1,109 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+require './data.pl';
+
+$weak_form  = 0;
+
+#__END_TRANSCRIPT__
+@vars = qw(L Rin Rn Nr Nx nw visco Pr Pr Rgas ga 
+    Cv Cp cond g_body gravity Mach_ref rho_ini p_ini
+    p_ref rho_ref cc_ref u_ref u_ini v_ini v_ref x_ratio r_ratio);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH mknozzle.m > mknozzle.out.tmp";
+:>//                            # ends ePerl block
+
+##================================================================
+global_options
+
+####<: $fixa_fase = $ENV{'ip'}; :>
+
+alpha 1.
+nsave 1
+nstep 100
+
+initial_state "nozzle.ini.tmp"
+
+save_file "nozzle.state.tmp" 
+
+# type of solver (may be "iisd", "petsc"...)
+solver "iisd"
+preco_type "jacobi"
+
+maxits 100
+Krylov_dim 100
+iisd_subpart_auto 2000
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 0
+dtol 1e3
+nnwt 5
+
+print_internal_loop_conv
+
+Dt 0.001
+weak_form 0
+temporal_stability_factor 0
+#tau_fac 1.
+
+shock_capturing_factor 0
+#if $cache_gdu
+local_store
+cache_grad_div_u
+#endif
+
+#if $g_body
+G_body 0 <:=$gravity:>
+#endif
+
+ndim 2
+<:pr('visco'):> 
+<:pr('Rgas'):> 
+C_mu 0.
+<:pr('ga'):> 
+<:pr('cond'):> 
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodes  2  2  4
+__INCLUDE__ nozzle.nod.tmp
+__END_NODES__
+
+##================================================================
+elemset gasflow 4 
+geometry cartesian2d
+npg 4
+__END_HASH__
+__INCLUDE__ nozzle.con.tmp
+__END_ELEMSET__
+
+##================================================================
+#if 0
+elemset gasflow_bcconv 2
+geometry cartesian1d
+npg 2
+__END_HASH__
+__INCLUDE__ nozzle.bcconv.tmp
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+##================================================================
+fixa
+__INCLUDE__ nozzle.fixa_inlet.tmp
+__INCLUDE__ nozzle.fixa_wall.tmp
+__INCLUDE__ nozzle.fixa_axis.tmp
+__INCLUDE__ nozzle.fixa_outlet.tmp
+__END_FIXA__

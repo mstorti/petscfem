@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2002/12/02 19:09:45 mstorti Exp $ 
+# $Id: Makefile,v 1.7.4.1 2003/01/08 12:58:42 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -12,11 +12,18 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
+ADVDIF  = $(PETSCFEM_DIR)/../petscfem/applications/advdif/advdif_g.bin
+## ultima version mas o menos estable al momento de hacer la implementacion original  
+ADVOLD  = $(PETSCFEM_DIR)/../petscfem.2-94.pl20/applications/advdif/advdif_g.bin
+
 LOC_PROG := advdif_g
-CASE_NAME := bubbly
+#CASE_NAME := bubbly
+CASE_NAME := poise2fases
 # CASE_NAME := couette
 # PROG := $(NS)
+PROG := $(ADVOLD)
 PROG := $(ADVDIF)
+
 
 CASE := $(CASE_NAME)
 
@@ -37,8 +44,9 @@ run:  data
 
 data: force
 	$(MAKE) $(CASE).depl
-#	octave -qH mkcouette.m
-	octave -qH mkmesh.m
+#	octave -q mkcouette.m
+#	octave -q mkmesh.m
+	octave -q mkpoise2fases.m
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
@@ -57,4 +65,8 @@ usebb:
 	ln -sf mkcouette.m.bb mkcouette.m
 	ln -sf couette.epl.bb couette.epl
 	ln -sf $(ADVDIF) prog
+
+cycle:
+	for ip in 1 2 1 2 1 2 1 2 1 2 ; do export ip ; \
+	make run ; done
 

@@ -1,23 +1,22 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.78 2002/12/29 22:27:21 mstorti Exp $ 
+# $Id: Makefile,v 1.54.4.1 2003/01/08 12:58:42 mstorti Exp $ 
 
-.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
-        ctest runtests clean fastmat2_obj plano idmap fastvec			\
-	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
-	constraint_bug fstack sector triangle advdif texthash log_vars		\
-	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
-	pfmat  aquifer nutatcyl mmove advec nsgenload plate
+.PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
+        ctest runtests clean fastmat2_obj plano idmap fastvec \
+	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
+	constraint_bug fstack sector triangle advdif texthash log_vars \
+	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav \
+	pfmat  aquifer gasflow
 
 SRCS = $(wildcard *.cpp)
 
-DIRS = circ fstack sector les turbchan turbchanw advdif texthash		\
-		newff burgers les/stabi genload bug100 nonlr wallke		\
-		wkepipe wallkechan lupart distmap sparse graph sqcav		\
-		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2 mmove advec \
-		nsgenload plate
+DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
+		newff burgers les/stabi genload bug100 nonlr wallke \
+		wkepipe wallkechan lupart distmap sparse graph sqcav \
+		pfmat cubcav aquifer bubbly gasflow
 
 CLEAN_DIRS = $(DIRS)
-DEPEND_DIRS = texthash distmap sparse aquifer plate
+DEPEND_DIRS = texthash distmap sparse
 
 run: sqcav5
 
@@ -41,7 +40,7 @@ ctest: $(DATAFILE) force
 
 #w Builds all applications
 compile:
-	-rm -f *.sal
+	-rm *.sal
 	@echo "Running tests..."
 	$(MAKE) -C ../ ns laplace adv advdif
 
@@ -64,12 +63,9 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl mmove advec nsgenload
+	sparse graph sqcav pfmat aquifer
 
-runtests_p:  fastmat2 plano \
-	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl mmove advec nsgenload
+runtests_p: sqcav
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -97,15 +93,15 @@ oscplate_all: oscplate3 oscplate2 oscplate2b oscplate4 \
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
 oscplate2: ns
-	-rm -f tmp_file*.tmp oscsome2.sal
+	-rm tmp_file*.tmp oscsome2.sal
 	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
-	octave -qH oscplate2.m &> oscplate2o.sal
+	octave oscplate2.m &> oscplate2o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
 oscplate: ns
-	-rm -f tmp_file*.tmp oscplate1.sal
+	-rm tmp_file*.tmp oscplate1.sal
 	eperl -P -d Nperiods=20 oscplate.epl >oscplate.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl >/dev/null
 	mv oscplate.sal oscplate1.sal
@@ -118,7 +114,7 @@ oscplate: ns
 #w considered the exact, and it is checked in Octave that
 #w norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
 oscplate3: ns
-	-rm -f tmp_file*.tmp oscsome3.sal oscsome.sal
+	-rm tmp_file*.tmp oscsome3.sal oscsome.sal
 	-chmod +w oscplate3.depl
 #
 	eperl -P -d alpha=0.5 -d N=16 oscplate.epl >oscplate3.depl
@@ -133,12 +129,12 @@ oscplate3: ns
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_128.sal
 #
-	octave -qH oscplate3.m &> oscplate3o.sal
+	octave oscplate3.m &> oscplate3o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
 oscplate2b: ns
-	-rm -f tmp_file*.tmp oscsome2b.sal oscsome.sal
+	-rm tmp_file*.tmp oscsome2b.sal oscsome.sal
 	eperl -P -d spline_fun=1  oscplate.epl >oscplate2b.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2b.depl >/dev/null
 
@@ -146,16 +142,16 @@ oscplate2b: ns
 #w Oscillating plate with piecewise constant periodic function
 #w `sin(t/T)' case
 oscplate4: ns
-	-rm -f tmp_file*.tmp oscsome4.sal oscsome.sal
+	-rm tmp_file*.tmp oscsome4.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
 	mv oscsome.sal oscsome4.sal
-	octave -qH oscplate4.m &> oscplate4o.sal
+	octave oscplate4.m &> oscplate4o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `cos(2*pi*t/T)' case
 oscplate4cos: ns
-	-rm -f tmp_file*.tmp oscsome4c.sal oscsome.sal
+	-rm tmp_file*.tmp oscsome4c.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1  -d cos_case=1 \
 			oscplate.epl >oscplate4c.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4c.depl >/dev/null
@@ -165,12 +161,22 @@ oscplate4cos: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `sin(2*pi*t/T-pi/6)' case
 oscplate4_30deg: ns
-	-rm -f tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
+	-rm tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
 			oscplate.epl >oscplate4_30deg.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4_30deg.depl >/dev/null
 	mv oscsome.sal oscsome4_30deg.sal
 	octave oscplate4_30deg.m &> oscplate4_30dego.sal
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w FAST Library
+fastvec: tfastvec.bin
+	tfastvec.bin > tfastvec.sal
+
+tfastvec.bin: tfastvec.o
+	g++ -o tfastvec.bin tfastvec.o 
+
+tfastvec.o: tfastvec.cpp ../src/fastlib.h
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: $(plano_list)
@@ -266,7 +272,7 @@ sqcav5: ns sqcav5_dat
 	-$(MPIRUN) -np 3 $(NSO) -case sqcav5.dat | tee sqcav5.out
 
 sqcav5_dat: mksqcav5.m
-	octave -qH  mksqcav5.m >/dev/null
+	octave -q  mksqcav5.m
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Tests processing of chunks
@@ -286,7 +292,7 @@ fstack:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Texthash class check
 texthash:
-	$(MAKE) -C texthash tests
+	$(MAKE) -C texthash texthash
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Tests the new iterator class
@@ -308,8 +314,51 @@ log_vars:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #s FastMat2 tests
 #w All FastMat2 tests
-fastmat2: 
-	$(MAKE) -C fastmat2 tests
+fastmat2: fastmat2a fastmat2b fastmat2c
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
+#w FastMat2 test a 
+fastmat2a: testfm2a.bin
+	echo $(LD_LIBRARY_PATH)
+	testfm2a.bin > fastmat2a.sal
+
+testfm2a.bin: testfm2a.o libpetscfem
+	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LIBPETSCFEM) \
+		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB} $(MESCHACH)/libmes.a
+
+# testfm2a.bin: testfm2a.o
+# 	-rm $@
+# 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ testfm2a.o $(LDFLAGS)
+
+daxpy.o: daxpy.f
+	g77 -O3 -c daxpy.f
+
+testfm2d: #testfm2d.bin
+	./testfm2d.bin
+
+
+testfm2d.bin: testfm2d.o daxpy.o libpetscfem
+	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o daxpy.o $(LIBPETSCFEM) \
+		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB} $(MESCHACH)/libmes.a
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w FastMat2 test b
+fastmat2b: testfm2.bin
+	testfm2.bin > fastmat2.sal
+
+testfm2.bin: testfm2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o util2.o) 
+	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin testfm2.o \
+		$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat \
+		$(MESCHACH)/libmes.a
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w FastMat2 test c 
+fastmat2c: testfm2c.bin
+	testfm2c.bin > fastmat2c.sal
+
+testfm2c.bin: testfm2c.o libpetscfem
+	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPETSCFEM) \
+		 -L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}  $(MESCHACH)/libmes.a
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w New flux functions
@@ -360,25 +409,5 @@ pfmat:
 #w Tests for the Hydrology related elemsets
 aquifer:
 	$(MAKE) -C aquifer tests
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
-#w Navier Stokes test for the nutating cylinder
-nutatcyl:
-	$(MAKE) -C nutatcyl tests
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
-#w Mesh momement tests
-mmove:
-	$(MAKE) -C mmove tests
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
-#w Linear advection 
-advec:
-	$(MAKE) -C $@ tests
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
-#w Gneric load elemeset for NS
-nsgenload:
-	$(MAKE) -C $@ tests
 
 #s
