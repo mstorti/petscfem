@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.19 2001/09/28 17:13:25 mstorti Exp $
+// $Id: sparse.h,v 1.20 2001/09/29 00:34:55 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -329,14 +329,22 @@ namespace Sparse {
   typedef pair<int,Vec> RowP;
   typedef pair<const int,Vec> RowCP;
 
+#define FSM_ACTION_DECL(action) void action()
+#define FSM_ACTION_DEF(action) void MatFSMContext::action() {matrix_p->action();}
+
+#define FSM_ACTIONS				\
+  FSM_OP(clear);				\
+  FSM_OP(clean_mat);				\
+  FSM_OP(clean_factor);				\
+  FSM_OP(fact_and_solve);			\
+  FSM_OP(solve_only)
+
   class MatFSMContext {
   public:
     Mat * matrix_p;
     MatFSMContext() {};
-    void clear(matrix_p->clear(););
-    void clean_factor() {matrix_p->clean_factor()}; 
-    void clean_mat() {matrix_p->clean_mat()};
-    void solve()
+#define FSM_OP(action) FSM_ACTION_DECL(action)
+    FSM_ACTIONS;
     void FSMError(const char *e,const char *s) { 
       printf("Not valid \"%s\" event in state \"%s\"",e,s);
     }
@@ -359,6 +367,7 @@ namespace Sparse {
     int *perm_r, *perm_c;
     
     void init_fsm(Mat *) {fsm.matrix_p = this;};
+    FullVec *b;
   public:
 
     friend class MatFSM;
@@ -460,8 +469,11 @@ namespace Sparse {
     /// Solve the linear system 
     void solve(FullVec &b);
 
-    /// Clean the factored part
+    /// FSM actions
     void clean_factor();
+    void clean_mat();
+    void solve_only();
+    void fact_and_solve();
 
   };
 

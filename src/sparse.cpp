@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.19 2001/09/28 17:13:25 mstorti Exp $
+//$Id: sparse.cpp,v 1.20 2001/09/29 00:34:55 mstorti Exp $
 
 #include "sparse.h"
 
@@ -873,6 +873,8 @@ namespace Sparse {
 #include "matFSM.h"
 #include "matFSM.cpp"
 
+#define FSM_OP(action) FSM_ACTION_DEF(action)
+    FSM_ACTIONS;
 }
 
 /*

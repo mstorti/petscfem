@@ -5,11 +5,15 @@ Initial clean
 Header  sparse.h      // the name of the header file of the context class
 
 {
+
 clean fill filled { }
-filled solve factored { }
-factored solve factored { }
-// filled factor factored factor
+filled fill filled { }
 factored fill filled clean_factor
-factored clear clean { clean_factor clean_mat }
-filled clear clean { clean_mat }
+
+filled solve factored fact_and_solve
+factored solve factored solve_only
+
+factored clear filled { clean_factor clear }
+filled clear clean clean_mat 
+clean clear clean {}
 }
