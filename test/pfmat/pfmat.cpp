@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.14 2002/01/04 23:29:43 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.15 2002/01/05 14:48:19 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -219,6 +219,7 @@ int main(int argc,char **args) {
 
       // A.view(VIEWER_STDOUT_WORLD);
       ierr = A.solve(b,x); CHKERRA(ierr); 
+#if 1
 
       if (debug_print) {
 	PetscPrintf(PETSC_COMM_WORLD,"b: \n");
@@ -241,7 +242,9 @@ int main(int argc,char **args) {
 		  "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
 		  norm,norm/normex,tol);
       if (!this_ok) tests_ok = 0;
+#endif
     }
+
     A.clean_factor(); 
   }
   PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);

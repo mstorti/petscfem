@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.63.2.3 2001/12/24 18:18:22 mstorti Exp $
+//$Id: lusubd.cpp,v 1.63.2.4 2002/01/05 14:48:19 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -183,13 +183,12 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
   // solve. 
 
   ierr = VecGetArray(y_loc,&a); CHKERRQ(ierr); 
-
   ierr = VecGetArray(y_loc_seq,&aa); CHKERRQ(ierr); 
 
   for (j = 0; j < n_loc; j++) aa[j] = c*a[j];
 
-  ierr = VecRestoreArray(y_loc,&a);
-  ierr = VecRestoreArray(y_loc_seq,&aa);
+  ierr = VecRestoreArray(y_loc,&a); CHKERRQ(ierr); 
+  ierr = VecRestoreArray(y_loc_seq,&aa); CHKERRQ(ierr); 
 
   // Solve local system: x_loc_seq <- XL
   if (trans) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.10 2002/01/04 23:29:42 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.11 2002/01/05 14:48:19 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -105,6 +105,8 @@ void IISDMat::create() {
   if (local_solver_s == string("PETSc")) local_solver = PETSc;
   else if (local_solver_s == string("SuperLU")) local_solver = SuperLU;
   else assert(0);
+
+  TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
 
   // Scatter the profile graph
   lgraph.scatter();

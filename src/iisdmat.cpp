@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.11 2002/01/04 23:29:42 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.12 2002/01/05 14:48:19 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -126,27 +126,6 @@ int PFPETScMat::build_sles() {
   return 0;
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "IISDMat::build_sles"
-int IISDMat::build_sles() {
-
-  PFPETScMat::build_sles();
-  // this is a trick to avoid the collision of `local_solver' both
-  // as member and as string-option here
-  string local_solver_s;
-  { string &local_solver = local_solver_s;
-  //o Chooses the local solver (may be "PETSc" or "SuperLU")
-  TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
-  }
-  if (local_solver_s == string("PETSc")) local_solver = PETSc;
-  else if (local_solver_s == string("SuperLU")) local_solver = SuperLU;
-  else assert(0);
-  return 0;
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFMat::set_preco"
@@ -263,21 +242,22 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
   // solve. 
 
   ierr = VecGetArray(y_loc,&a); CHKERRQ(ierr); 
-
   ierr = VecGetArray(y_loc_seq,&aa); CHKERRQ(ierr); 
 
   for (j = 0; j < n_loc; j++) aa[j] = c*a[j];
 
-  ierr = VecRestoreArray(y_loc,&a);
-  ierr = VecRestoreArray(y_loc_seq,&aa);
+  ierr = VecRestoreArray(y_loc,&a); CHKERRQ(ierr); 
+  ierr = VecRestoreArray(y_loc_seq,&aa); CHKERRQ(ierr); 
 
   // Solve local system: x_loc_seq <- XL
   if (trans) {
     ierr = SLESSolveTrans(sles_ll,y_loc_seq,x_loc_seq,&its_);
     CHKERRQ(ierr); 
   } else {
+#if 1
     ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_);
     CHKERRQ(ierr); 
+#endif
   }
   
   // Pass to global vector: x_loc <- XL
@@ -288,7 +268,6 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
 
   ierr = VecRestoreArray(x_loc_seq,&aa); CHKERRQ(ierr); 
   ierr = VecRestoreArray(x_loc,&a); CHKERRQ(ierr); 
-
   return 0;
 }
 
@@ -308,7 +287,6 @@ int IISDMat::mult(Vec x,Vec y) {
   // XI comes in x (interface nodes) and we have to compute y <- RI 
   
   int j,ierr,its_;
-  double *a,*aa;;
 
   // x_loc <- A_LI * XI
   ierr = MatMult(A_LI,x,x_loc); CHKERRQ(ierr); 
@@ -339,7 +317,6 @@ int IISDMat::mult_trans(Vec x,Vec y) {
   // XI comes in x (interface nodes) and we have to compute y = RI 
   
   int j,ierr,its_;
-  double *a,*aa;;
 
   // x_loc <- A_IL' * XI
   ierr = MatMultTrans(A_IL,x,x_loc); CHKERRQ(ierr); 
@@ -575,7 +552,15 @@ int type##Destroy_maybe(type &v) {		\
 
 PETSC_OBJECT_DESTROY_MAYBE(Vec);
 PETSC_OBJECT_DESTROY_MAYBE(Mat);
-PETSC_OBJECT_DESTROY_MAYBE(SLES);
+//PETSC_OBJECT_DESTROY_MAYBE(SLES);
+
+int SLESDestroy_maybe(SLES &v) {
+  if (v) {
+    int ierr = SLESDestroy(v); CHKERRQ(ierr);
+    v = NULL;
+  }
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -586,9 +571,7 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
   Viewer matlab;
   double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
-  Vec res_i,x_i,res_loc,x_loc,res_loc_i;
-
-  TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
+  Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;
 
   if (n_int_tot > 0 ) {
     
@@ -611,10 +594,11 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
       ierr = KSPSetType(ksp_ll,KSPPREONLY); CHKERRQ(ierr); 
       ierr = PCSetType(pc_ll,PCLU); CHKERRQ(ierr); 
       // printf("setting pc_lu_fill = %f\n",pc_lu_fill);
-      // ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
-      ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr);
+      ierr = PCLUSetFill(pc_ll,pc_lu_fill); CHKERRQ(ierr); 
+      // ierr = PCLUSetUseInPlace(pc_ll); CHKERRQ(ierr); // debug:=
 
     }
+
 #if 0 // To print the Schur matrix by columns
     for (int kk=1; kk<=2; kk++) {
       for (j = 0; j < n_int_tot; j++) {
@@ -660,6 +644,8 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecRestoreArray(res_loc,&res_loc_a); CHKERRQ(ierr); 
     ierr = VecRestoreArray(res_i,&res_i_a); CHKERRQ(ierr); 
 
+    // NO PIERDE AQUI
+
     // Solves system for `x_loc':
     // `x_loc   <-   - A_LL \ res_loc'
     if (local_solver == PETSc) {
@@ -667,7 +653,9 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     } else {
       local_solve_SLU(x_loc,res_loc,0,-1.);
     }
+    // SI PIERDE AQUI
     ierr = MatMultAdd(A_IL,x_loc,res_i,res_i);
+
 
     // Solves the interface problem (iteratively)
     ierr = SLESSolve(sles,res_i,x_i,&itss); CHKERRQ(ierr); 
@@ -712,13 +700,12 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecView(dx,matlab);
     ierr = ViewerDestroy(matlab);
 #endif
-
-    ierr = VecDestroy(res_i); CHKERRQ(ierr); 
-    ierr = VecDestroy(x_i); CHKERRQ(ierr); 
-    ierr = VecDestroy(A_II_diag); CHKERRQ(ierr); 
-    ierr = VecDestroy(res_loc); CHKERRQ(ierr); 
-    ierr = VecDestroy(x_loc); CHKERRQ(ierr); 
-    ierr = VecDestroy(res_loc_i); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(res_i); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(x_i); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(A_II_diag); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(res_loc); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(x_loc); CHKERRQ(ierr); 
+    ierr = VecDestroy_maybe(res_loc_i); CHKERRQ(ierr); 
 
   } else {  // if (n_int_tot == 0 )
     
