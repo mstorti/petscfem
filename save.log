@@ -2586,3 +2586,6 @@ tag: beta-3.18.pl53 on Mon, 31 Mar 2003 19:37:57 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl54 on Mon, 31 Mar 2003 20:47:47 -0300 by mstorti in spider
      > Runs bump example. 
+----------
+tag: beta-3.18.pl55 on Mon, 31 Mar 2003 23:04:17 -0300 by mstorti in spider
+     > Runs `wave/bump' example with `t=0.4'. 
