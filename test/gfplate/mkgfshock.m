@@ -1,4 +1,4 @@
-## $Id: mkgfshock.m,v 1.6 2005/02/26 14:50:02 mstorti Exp $
+## $Id: mkgfshock.m,v 1.7 2005/02/26 15:59:56 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -59,7 +59,7 @@ pfconstr("gfshock.v-peri.tmp", \
 ## Slip on the low border
 pfconstr("gfshock.slip.tmp", \
 	 [(1:Nx+1)',(1:Nx+1)'],[2 3], \
-	 [ones(Nx+1,1),dydx]);
+	 [dydx,ones(Nx+1,1)]);
 
 ## Fixa on reference nodes
 Uini = [rhoout0,0,0,pout0];

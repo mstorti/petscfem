@@ -19,7 +19,7 @@ print_some_file "gfshock.some-nodes.tmp"
 save_file_some "gfshock.some-rslt.tmp"
 nsome 1
 
-save_file_pattern "gfshock.state_%d.tmp"
+save_file_pattern "STEPS/gfshock.state_%d.tmp"
 nsaverot 20
 nrec 1
 nfile 100000000
@@ -50,8 +50,8 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-shocap 1
-shocap_aniso 1
+shocap 0.1
+shocap_aniso 0.1
 weak_form 0
 temporal_stability_factor 0
 

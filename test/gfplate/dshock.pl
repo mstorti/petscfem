@@ -35,7 +35,7 @@ if (0) {
 $pout0 = $pout/$pref;
 $rhoout0 = $rhoout/$rhoref;
 
-$Co = 0.5;
+$Co = 2;
 $h = 1/$Nx;
 $Dt = $Co*$h/($uin0+1);
 $tramp = 10*$Dt;
