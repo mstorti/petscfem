@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.3 2002/07/22 19:08:37 mstorti Exp $
+// $Id: linkgraph.h,v 1.4 2002/07/22 20:22:29 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -55,7 +55,7 @@ public:
   /// Return number of edges
   int size() { return da.size(); } // not implemented yet
   /// Clear all edges
-  void clear() { }
+  void clear() { M=0; da.clear(); }
   /// Scatter among processors
   void scatter() { assert(SIZE==1); }
 };

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.3 2002/07/22 19:08:37 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.4 2002/07/22 20:22:29 mstorti Exp $
 
 #include <src/linkgraph.h>
 
@@ -45,7 +45,7 @@ void link_graph::list_insert(int header, int val) {
   p->j = q;
   p->i = val;
   int_pair &Q = da.ref(q);
-  Q.i = null;			// not needed
+  Q.i = null;			// not needed?
   Q.j = null;
 }
 
