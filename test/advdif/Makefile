@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001/01/11 15:12:11 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/01/11 15:36:30 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -109,17 +109,17 @@ run: data
 # * Invariance with respect of number of processors. 
 # * Invariane with respect of weak_form
 
-tests: testanal
+# tests: testanal
 
-testanal:
-# For Dt
-	-rm $(case).some sine_anal_test.sal sine.depl
-	$(MAKE) data
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-		 -case $(case).depl >/dev/null
-	cp save.state save.state.anal.tmp
-	cp sine.some sine.some.anal.tmp
-	octave -q < sine_anal_test.m > sine_anal_test.out
+# testanal:
+# # For Dt
+# 	-rm $(case).some sine_anal_test.sal sine.depl
+# 	$(MAKE) data
+# 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+# 		 -case $(case).depl >/dev/null
+# 	cp save.state save.state.anal.tmp
+# 	cp sine.some sine.some.anal.tmp
+# 	octave -q < sine_anal_test.m > sine_anal_test.out
 
 local_clean::
 	-chmod +w sine.data.res
