@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.4 2001/12/27 10:12:37 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.5 2001/12/27 19:55:47 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -60,18 +60,11 @@ void PFPETScMat::clear() {
   }
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 PFPETScMat::PFPETScMat(MPI_Comm comm_) : sles_was_built(0), 
-  A(NULL), P(NULL), factored(0), comm(comm_)  {
-#if 0
-  char *s;
-  int n = asprintf(&s,"PFMat matrix %p",this);
-  assert(n>=0);
-  string name = string(s);
-  thash.register_name(name);
-  free(s);
+  A(NULL), P(NULL), factored(0), comm(comm_)  {}
 #endif
-};
 
 PFPETScMat::~PFPETScMat() {clear();};
 

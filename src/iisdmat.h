@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.7 2001/12/27 10:12:37 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.8 2001/12/27 19:55:47 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -153,23 +153,6 @@ g      representation of the local problem.
   /// Clean all data related to factorization
   int clean_factor();
 
-  /// The partitioner object
-  const DofPartitioner &part;
-
-  /// The graph storing the profile object
-  StoreGraph lgraph;
-
-  /// IntRowPartitioner based on a DofPartitioner
-  class IISDPart : public IntRowPartitioner {
-  public:
-    const DofPartitioner &part;
-    int processor(map<int,Row>::iterator k) {
-      return part.processor(k->first);
-    }
-    IISDPart(const DofPartitioner & p) : part(p) {};
-    ~IISDPart() {}
-  } iisd_part;
-
   /// Maps dofs in this processors to global dofs
   vector<int> dofs_proc;
   /// Poitner to the storage area in `dofs_proc'
@@ -244,11 +227,10 @@ public:
   /// Constructor
   IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
 	  PETSC_COMM_WORLD) : 
-    PFPETScMat(comm_), 
+    PFPETScMat(MM,pp,comm_), 
     M(MM), N(NN), 
-    part(pp), lgraph(M,&part,comm), 
     A_LL_other(NULL), A_LL(NULL), 
-    local_solver(PETSc), iisd_part(pp) {};
+    local_solver(PETSc) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor

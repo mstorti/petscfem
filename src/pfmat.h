@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.7 2001/12/27 10:12:37 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.8 2001/12/27 19:55:47 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -70,8 +70,7 @@ public:
   /// Adds an element to the matrix profile
   virtual int set_profile(int j,int k)=0;
 
-  /** Creates the matrix from the profile graph computed in #g#
-  */ 
+  /// Creates the matrix from the profile graph entered with `profile'
   virtual void create()=0;
 
   /** Sets individual values on the operator #A(row,col) = value#
@@ -86,7 +85,7 @@ public:
   /// Sets all values of the operator to zero.
   virtual int zero_entries()=0;
 
-  /// Destroy the SLES associated with the operator. 
+  /// Cleans the factored part
   virtual int clean_factor()=0;
 
   /** Defines how to report convergence in the internal loop. 

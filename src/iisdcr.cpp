@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.7 2001/12/24 18:18:22 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.8 2001/12/27 19:55:47 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -101,7 +101,7 @@ void IISDMat::create() {
   MPI_Comm_rank (comm, &myrank);
   MPI_Comm_size (comm, &size);
 
-  A_LL_other = new DistMatrix(&iisd_part,comm);
+  A_LL_other = new DistMatrix(&pf_part,comm);
   const int &neq = M;
   
   // number of dofs in this processor

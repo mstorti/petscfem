@@ -1,11 +1,15 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.3 2001/12/27 10:12:37 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.4 2001/12/27 19:55:47 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
 #include <vector>
 
+#include <petsc.h>
+#include <sles.h>
+
+#include <src/iisdgraph.h>
 #include <src/pfmat.h>
 
 class PFPETScMat : public PFMat {
@@ -41,6 +45,23 @@ protected:
   /// These are the actions for the state machine
   int factored;
 
+  /// The partitioner object
+  const DofPartitioner &part;
+
+  /// The graph storing the profile object
+  StoreGraph lgraph;
+
+  /// IntRowPartitioner based on a DofPartitioner
+  class PFPETScPart : public IntRowPartitioner {
+  public:
+    const DofPartitioner &part;
+    int processor(map<int,Row>::iterator k) {
+      return part.processor(k->first);
+    }
+    PFPETScPart(const DofPartitioner & p) : part(p) {};
+    ~PFPETScPart() {}
+  } pf_part;
+
   /// The communicator
   MPI_Comm comm;
 
@@ -51,7 +72,12 @@ protected:
 public:
 
   int solve(Vec &res,Vec &dx);
-  PFPETScMat(MPI_Comm comm);
+
+  PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
+    : comm(comm_), part(pp), pf_part(part), lgraph(MM,&part,comm_), 
+    sles_was_built(0), 
+    A(NULL), P(NULL), factored(0) {}
+
   ~PFPETScMat();
   void clear();
   int duplicate(MatDuplicateOption op,const PFMat &A);
