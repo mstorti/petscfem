@@ -723,3 +723,6 @@ tag: beta-2.60 on Wed Dec 12 23:11:37 ARST 2001, by mstorti in spider
 tag: beta-2.61 on Tue Dec 18 18:12:38 ART 2001, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Removed `iisd_superlu' test.
+----------
+tag: beta-2.62 on Wed Dec 19 21:34:02 ARST 2001, by mstorti in spider
+     > Added test for the `G_body' options in NS. 
