@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.7 2002/04/12 14:44:17 mstorti Exp $
+//$Id: aquifer.cpp,v 1.8 2002/04/26 19:15:27 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -12,6 +12,8 @@ void aquifer_ff::start_chunk() {
   int ierr;
   
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd
+  //o Constant rain
+  EGETOPTDEF_ND(elemset,double,rain,0.); 
   assert(ndim==2);
 
   elemset->elem_params(nel,ndof,nelprops);
@@ -60,7 +62,7 @@ void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
   phi = U.get(1);
   assert(phi>=eta);
   fluxd.set(grad_U).scale(K*(phi-eta));
-  G.set(0.);
+  G.set(rain);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

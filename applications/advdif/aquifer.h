@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.7 2002/04/25 02:52:51 mstorti Exp $
+// $Id: aquifer.h,v 1.8 2002/04/26 19:15:28 mstorti Exp $
 #ifndef AQUIFER_H
 #define AQUIFER_H
 
@@ -19,7 +19,7 @@ class aquifer_ff : public DiffFF {
   */
   Property eta_pr,K_pr,S_pr;
   /// Values of properties at an element
-  double phi,eta,K,S;
+  double phi,eta,K,S,rain;
   /// Dimension of the problem (should be always 2)
   int ndim;
   /** Number of nodes per element, number of dof's per node, number of
