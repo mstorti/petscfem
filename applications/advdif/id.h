@@ -1,7 +1,7 @@
 // -*- mode: C++ -*- 
-// $Id: id.h,v 1.3 2003/12/08 23:24:45 mstorti Exp $
-#ifndef ID_H
-#define ID_H
+// $Id: id.h,v 1.4 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_ID_H
+#define PETSCFEM_ID_H
 
 #include "advective.h"
 

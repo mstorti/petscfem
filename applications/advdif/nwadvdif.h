@@ -1,7 +1,7 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-#ifndef NWADVDIF_H
-#define NWADVDIF_H
+#ifndef PETSCFEM_NWADVDIF_H
+#define PETSCFEM_NWADVDIF_H
 
 #include "advective.h"
 #include "enthalpy.h"

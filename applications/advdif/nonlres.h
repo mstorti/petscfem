@@ -1,7 +1,8 @@
-// -*- mode: C++ -*-
-
-#ifndef NONLRES_H  
-#define NONLRES_H
+// -*- mode: c++ -*-
+//__INSERT_LICENSE__
+// $Id: nonlres.h,v 1.7 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_NONLRES_H  
+#define PETSCFEM_NONLRES_H
 
 #include "../../src/fem.h"
 #include "advective.h"

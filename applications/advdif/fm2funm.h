@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: fm2funm.h,v 1.2 2004/05/22 12:52:23 mstorti Exp $
-#ifndef FM2FUNM_H
-#define FM2FUNM_H
+//$Id: fm2funm.h,v 1.3 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_FM2FUNM_H
+#define PETSCFEM_FM2FUNM_H
 
 class FastMat2_fund {
 private:

@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: advec.h,v 1.9 2002/12/14 21:19:01 mstorti Exp $
-#ifndef ADVEC_H
-#define ADVEC_H
+//$Id: advec.h,v 1.10 2005/02/23 01:40:33 mstorti Exp $
+#ifndef PETSCFEM_ADVEC_H
+#define PETSCFEM_ADVEC_H
 
 #include "advective.h"
 

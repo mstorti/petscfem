@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: nwadvdifj.h,v 1.7 2002/02/19 01:38:22 mstorti Exp $
-#ifndef NWADVDIFJ_H
-#define NWADVDIFJ_H
+//$Id: nwadvdifj.h,v 1.8 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_NWADVDIFJ_H
+#define PETSCFEM_NWADVDIFJ_H
 
 #include "nwadvdif.h"
 

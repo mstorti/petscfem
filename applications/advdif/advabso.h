@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.7 2005/01/28 18:16:44 mstorti Exp $
+// $Id: advabso.h,v 1.8 2005/02/23 01:40:33 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -12,10 +12,8 @@
 #include <src/fastmat2.h>
 
 #include <src/lagmul.h>
+#include "./advective.h"
 #include "./lagmul.h"
-#include "./gasflow.h"
-
-#define gasflow_abso gasflow_abso2
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic nonlinear restriction element. 
@@ -53,14 +51,5 @@ public:
 	   FastMat2 &w,FastMat2 &jac);
   void close() {}
 };
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class gasflow_abso : public AdvectiveAbso {
-public:
-  gasflow_abso() 
-    :  AdvectiveAbso(new gasflow_ff(this)) { } 
-};
-
-#undef gasflow_abso
 
 #endif

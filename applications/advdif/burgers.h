@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: burgers.h,v 1.7 2002/02/17 03:59:51 mstorti Exp $
-#ifndef BURGERS_H
-#define BURGERS_H
+//$Id: burgers.h,v 1.8 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_BURGERS_H
+#define PETSCFEM_BURGERS_H
 
 #include "nwadvdifj.h"
 

@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: diff.h,v 1.6 2002/09/08 16:28:07 mstorti Exp $
-#ifndef DIFF_H
-#define DIFF_H
+// $Id: diff.h,v 1.7 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_DIFF_H
+#define PETSCFEM_DIFF_H
 
 class Diff;
 

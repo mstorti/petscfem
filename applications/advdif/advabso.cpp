@@ -1,13 +1,6 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.8 2005/01/28 18:16:44 mstorti Exp $
+// $Id: advabso.cpp,v 1.9 2005/02/23 01:40:33 mstorti Exp $
 #include "./advabso.h"
-
-#define gasflow_abso gasflow_abso2
-
-// static
-// double p(double x) {
-//   return (x>=0.? x : 0.);
-// }
 
 static
 double msign(double x) {

@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.11 2003/11/14 00:16:39 mstorti Exp $
-#ifndef AQUIFER_H
-#define AQUIFER_H
+// $Id: aquifer.h,v 1.12 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_AQUIFER_H
+#define PETSCFEM_AQUIFER_H
 
 #include "advective.h"
 #include "diff.h"

@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advdfgth.h,v 1.1 2003/01/25 15:28:55 mstorti Exp $
-#ifndef ADVDIF_GATHERER_H
-#define ADVDIF_GATHERER_H
+//$Id: advdfgth.h,v 1.2 2005/02/23 01:40:33 mstorti Exp $
+#ifndef PETSCFEM_ADVDIF_GATHERER_H
+#define PETSCFEM_ADVDIF_GATHERER_H
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Computes the flow rate at wall. 

@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.9 2005/02/23 00:46:39 mstorti Exp $ 
+% $Id: advabso.tex,v 1.10 2005/02/23 01:40:37 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -96,7 +96,13 @@ Coming back to the $!U$ basis, we obtain the following first-order,
 linear absorbing boundary condition
 %
 \begin{equation} \label{eq:lin-abc}  
-  \bzP_U^+(!U_0) \, (!U(0)-!U_0) = 0. 
+  \bzP_U^+(!U_0) \, (!U(0)-!U_0) = 0,
+\end{equation}
+%
+where
+%
+\begin{equation} \label{eq:proj-p}  
+  \bzP_U^\pm  = !S \, \bzP_V^\pm !S\muno
 \end{equation}
 %
 This condition is perfectly absorbing for small amplitude waves around
@@ -368,7 +374,7 @@ the first rows of (\ref{eq:abc-char}). Here $!U_\reff/!V_\reff$ is the state
 about which we make the linearization. This can be done, via Lagrange
 multipliers in the following way
 %
-\begin{equation} \label{eq:abc-char}  
+\begin{equation} \label{eq:abc-char-v}  
   \begin{aligned} 
     \bzP_V^+(!V_\reff) \, (!V_0-!V_\reff) 
     + \bzP_V^-(!V_\reff) \, !V_{lm}&= 0,\\
@@ -446,6 +452,13 @@ And finally, coming back to the FEM equations (\ref{eq:fem-eq}),
   \end{aligned}
 \end{equation}
 
+In conclusion, in this setup we do not need to make extrapolations to
+the variables, and then there is no need to have a structured line of
+nodes near the boundary. It's only required to have an additional
+fictitious node at the boundary in order to hold the Lagrange
+multiplier unknowns $U_{lm}$, and to add the absorbing boundary
+equation (first row of (\ref{eq:fem-eq-abso}) for these nodes.  
+
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{Flux functions with enthalpy. } 
@@ -456,7 +469,7 @@ and also the projectors. An advective diffusive-system with a
 \emph{``generalized enthalpy function''} $\Hent(!U)$ is an extension
 of the form (\ref{eq:advec-eq}) and can be written as
 %
-\begin{equation} \label{eq:advec-eq}  
+\begin{equation} \label{eq:advec-eq-h}  
  \dep{}t \, \Hent(!U)+\dep{\F_i(U)}{x_i} = 0
 \end{equation}
 %
@@ -478,7 +491,7 @@ $!C_p$ as
 %
 and (\ref{eq:advec-eq}) can be put in quasi-linear form as
 %
-\begin{equation} \label{eq:advec-eq}  
+\begin{equation} \label{eq:advec-eq-cp}  
  !C_p \, \dep{!U}t+!A_i \, \dep{U}{x_i} = 0
 \end{equation}
 %
@@ -492,8 +505,25 @@ equation at left by $!C_p\muno$ and define new flux Jacobians as
 %
 So that, basically, the extension to systems with generalized enthalpy
 is to replace the Jacobians, by the modified Jacobians
-(\ref{eq:abc-modif-jaco}). 
+(\ref{eq:abc-modif-jaco}). The modified expression for the projectors
+is 
+%
+\begin{equation} \label{eq:proj-p-cp}  
+  \bzP_U^\pm  = !C_p \, !S \, \bzP_V^\pm !S\muno
+\end{equation}
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSSection{Absorbing boundary conditions available} 
+
+At the moment of writing this, we have three possible combinations of
+boundary conditions. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSSection{Using extrapolation from the interior. }
+%
+These is the elemset \ttsl{<system>}{\tt \_abso}. The number of nodes
+per element $\nel$ must be not lower than 4. The first $\nel-2$ 
+ 
 
 % Local Variables: *
 % mode: latex *

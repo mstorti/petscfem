@@ -1,10 +1,11 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.24 2005/02/22 21:28:45 mstorti Exp $
+// $Id: gasflow.h,v 1.25 2005/02/23 01:40:34 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
 #include "./advective.h"
+#include "./advabso.h"
 #include "./stream.h"
 #include "./nonlres.h"
 
@@ -204,5 +205,11 @@ public:
   gasflow_abso() :  AdvDiff_Abs_Nl_Res(new gasflow_ff(this)) { } 
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class gasflow_abso2 : public AdvectiveAbso {
+public:
+  gasflow_abso2() 
+    :  AdvectiveAbso(new gasflow_ff(this)) { } 
+};
 
 #endif

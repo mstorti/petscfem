@@ -1,11 +1,11 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.72 2005/02/21 18:49:05 mstorti Exp $
+//$Id: advective.h,v 1.73 2005/02/23 01:40:34 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
-#ifndef ADVECTIVE_H
-#define ADVECTIVE_H
+#ifndef PETSCFEM_ADVECTIVE_H
+#define PETSCFEM_ADVECTIVE_H
 
 /** The jacobians of the flux functions. This is an array
     of ndim matrices of ndof x ndof entries each. 

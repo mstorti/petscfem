@@ -1,7 +1,7 @@
 // -*- mode: C++ -*-
 
-#ifndef GODUNOV_H  
-#define GODUNOV_H
+#ifndef PETSCFEM_GODUNOV_H  
+#define PETSCFEM_GODUNOV_H
 
 #include "../../src/fem.h"
 #include "advective.h"

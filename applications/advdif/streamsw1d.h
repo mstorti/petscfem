@@ -1,7 +1,7 @@
 // -*- mode: C++ -*- 
-// $Id: streamsw1d.h,v 1.4 2005/01/27 14:43:35 mstorti Exp $
-#ifndef STREAMSW1D_H
-#define STREAMSW1D_H
+// $Id: streamsw1d.h,v 1.5 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_STREAMSW1D_H
+#define PETSCFEM_STREAMSW1D_H
 
 #include "advective.h"
 #include "stream.h"

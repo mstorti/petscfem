@@ -1,8 +1,8 @@
 // -*-mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: genload.h,v 1.6 2003/01/08 15:54:25 mstorti Exp $
-#ifndef GENLOAD_H
-#define GENLOAD_H
+//$Id: genload.h,v 1.7 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_GENLOAD_H
+#define PETSCFEM_GENLOAD_H
 
 #define FASTMAT2SHELL FastMat2Shell_t
 class FASTMAT2SHELL {

@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.21 2003/10/16 19:13:42 mstorti Exp $
-#ifndef STREAM_H
-#define STREAM_H
+// $Id: stream.h,v 1.22 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_STREAM_H
+#define PETSCFEM_STREAM_H
 
 #include "advective.h"
 

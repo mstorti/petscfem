@@ -1,8 +1,8 @@
 // -*-mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: enthalpy.h,v 1.6 2003/01/08 15:54:25 mstorti Exp $
-#ifndef ENTHALPY_H
-#define ENTHALPY_H
+//$Id: enthalpy.h,v 1.7 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_ENTHALPY_H
+#define PETSCFEM_ENTHALPY_H
 
 /// Linear Constant Cp, the same for all fields
 class ScalarPerFieldEF : public EnthalpyFun {

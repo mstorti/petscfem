@@ -31,7 +31,7 @@
 \usepackage[dvips]{graphicx}
 \newcommand{\EPSPDF}{eps}
 %<: } :>
-%\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
+\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[colorlinks,linkcolor=blue,
             urlcolor=red2,citecolor=green2]{hyperref}
@@ -95,6 +95,7 @@
 \newcommand{\bswf}{\bar {s_{\mathrm{wf}}}}
 \newcommand{\bsupg}{\beta_{\mathrm{SUPG}}}
 \newcommand{\taufac}{\tau_{\mathrm{sel}}}
+\newcommand{\Hent}{{\cal H}}
 % For LES
 \newcommand{\Se}{{\Sigma_e}}
 \newcommand{\dS}{{\di\Sigma}}
@@ -111,6 +112,13 @@
 \newcommand{\mbf}[1]{{\mathbf{#1}}}
 \newcommand{\refecu}[1]{{eq. (\ref{#1})}}
 \newcommand{\reffig}[1]{{fig.~\ref{#1}}}
+%
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+%  FEM nomenclature
+\def\nel{{n_{\mathrm{el}}}}
+\def\ndof{{n_{\mathrm{dof}}}}
+\def\ndim{{n_{\mathrm{dim}}}}
+\def\nen{{n_{\mathrm{en}}}}
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 % Hydrology module
 \newcommand{\Gs}{{\Gamma_s}}
@@ -167,7 +175,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.org.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.41 2005/02/22 11:52:15 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.42 2005/02/23 01:40:37 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -331,8 +339,8 @@ T_s
 "DONE
 ====
 %# Current line ===========  
-# Local Variables: $
-# mode: outline-minor $
-# eval:   (set (make-local-variable 'outline-regexp) "\\(\\\\\\|%\\)S*ection{") $
-# eval: (setq latex-run-command "make_latex") $
-# End: $
+% Local Variables: *
+% mode: latex *
+% latex-occur-section-regexp: "^\\\\S*ection" *
+% tex-main-file: "petscfem.tex" *
+% End: *

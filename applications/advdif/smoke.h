@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: smoke.h,v 1.6 2003/12/22 02:11:37 mstorti Exp $
-#ifndef SMOKE_H
-#define SMOKE_H
+// $Id: smoke.h,v 1.7 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_SMOKE_H
+#define PETSCFEM_SMOKE_H
 
 #include <src/fem.h>
 #include <src/texthash.h>

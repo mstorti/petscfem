@@ -1,8 +1,8 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly_asm.h,v 1.1 2004/09/30 16:52:35 mstorti Exp $
-#ifndef BUBBLY_ASM_H
-#define BUBBLY_ASM_H
+// $Id: bubbly_asm.h,v 1.2 2005/02/23 01:40:34 mstorti Exp $
+#ifndef PETSCFEM_BUBBLY_ASM_H
+#define PETSCFEM_BUBBLY_ASM_H
 
 
 #define bubbly_ff bubbly_asm_ff 
