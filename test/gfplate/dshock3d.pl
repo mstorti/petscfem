@@ -42,7 +42,7 @@ $rhoout0 = $rhoout/$rhoref;
 $Co = 0.5;
 $h = 1/$Nx;
 $Dt = $Co*$h/($uin0+1);
-$tramp = 100000*$Dt;
+$tramp = 10*$Dt;
 
 @vars = qw(Nr Dt ga Lx Nx Rgas pin0 rhoin0 uin0
 	   pout0 rhoout0 tramp dtheta);
