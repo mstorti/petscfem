@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: verif_parallel_cone.m,v 1.3 2003/01/08 15:49:03 mstorti Exp $
+## $Id: verif_parallel_cone.m,v 1.4 2004/09/24 20:44:35 mstorti Exp $
 ###key verif.parallel_cone.m
 
 proc
@@ -19,7 +19,7 @@ max_rate = 4e-3;
 xrate = (sx/sx0-1)/traversed_length;
 yrate = (sy/sy0-1)/traversed_length;
 printf("Max grouth in x second moment OK ? %d (rate %f, max_rate %f)\n",
-       xrate<max_rate,xrate,max_rate);
+       abs(xrate)<max_rate,xrate,max_rate);
 printf("Max grouth in y second moment OK ? %d (rate %f, max_rate %f)\n",
-       yrate<max_rate,yrate,max_rate);
+       abs(yrate)<max_rate,yrate,max_rate);
 

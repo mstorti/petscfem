@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.77 2003/09/14 13:20:24 mstorti Exp $ 
+# $Id: Makefile,v 1.78 2004/09/24 20:44:39 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
 	dx_hook_test_post_run_file_record test_read_ini 		\
 	test_disconnected_graph
 
-default: test_disconnected_graph
+default: test_re1000
 
 isp_test:
 	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
@@ -64,6 +64,7 @@ dx:
 	$(MAKE) -C ../../dx
 
 PETSCFEM_DIR = ../..
+# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.30
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
@@ -122,9 +123,9 @@ test_g_body:
 # verified with Ghia results
 #w IISD for square cavity test in 20x20 mesh on one processor
 test_re1000:
-	$(MAKE) case=weak_form_0 runs
-	$(MAKE) case=weak_form_1 runs
-	$(OCTAVE) < check_re1000.m > check.re1000.verif.tmp
+	$(MAKE) np=2 case=weak_form_0 runs
+# 	$(MAKE) case=weak_form_1 runs
+# 	$(OCTAVE) < check_re1000.m > check.re1000.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w IISD for square cavity test in 20x20 mesh on two processors

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.121 2004/05/22 12:52:27 mstorti Exp $
+#$Id: runtests.pl,v 1.122 2004/09/24 20:44:31 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -26,8 +26,9 @@ $COMPLAIN_ON_CANT_OPEN = $opt_o;
 if (0) {
     ## This here (sw_abso) is already in the mainstream tests.
     ## I leave it here in irder to show how to prove new tests. 
-    expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
-	   read_file("sw_abso/test_abso.verif.ans"));
+    expect("sqcav/output.CASE_qharm.np_1.case_shell_hook.out.tmp",
+	   "Shell hook with make.",
+	   read_file('sqcav/case_shell_hook.ans'));
     final_check();
     exit 0;
 }

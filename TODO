@@ -2,6 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Disable ROSI_COUPLING_MODULE
+* Fix warnings that are currently disabled with '-Wno-deprecated'
+* Eliminate the DRH60 flag. 
 * Error in fixations is not parallel safe. Tue Sep 14 21:22:17 2004
 > Fixation 3169, imposed on an invalid node/field combination.
 > Hi user!          Today is Tue Sep 14 21:21:24 2004

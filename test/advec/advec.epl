@@ -57,6 +57,7 @@ if ($case_name eq 'parallel_cone') {
     $Dt = $Courant*$hx/$ux;
     $nstep = ceil($Tend/$Dt);
     $case_name = 'cone';
+    $nstep = 5;
 } 
 #
 if ($case_name eq 'skew_cone') {
@@ -128,10 +129,13 @@ initial_state "advec.ini.tmp"
 <:pr('nstep'):>
 #endif
 solver "iisd"
-iisd_subpart 1
+iisd_subpart 2
 nnwt 1
 <:pr('alpha'):>
 weak_form 0
+maxits 100
+Krylov_dim 100
+print_internal_loop_conv 1
 
 #if $video
 hook_list advdif_dx_hook my_hook

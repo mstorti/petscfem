@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.59 2004/07/20 11:39:53 mstorti Exp $
+#$Id: Makefile,v 1.60 2004/09/24 20:44:20 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -8,8 +8,8 @@ SHELL = /bin/bash
 		sw startwork fm2new sync_version applications apps 		\
 		ns_O ns_g
 
-APPS = adv advdif ns laplace
-APPDIRS = advective advdif ns laplace
+APPS = ns advdif adv laplace
+APPDIRS = ns advdif advective laplace
 APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
 CLEAN_DIRS := src $(APPDIRS) doc test tools dx

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.90 2004/09/24 12:00:56 mstorti Exp $
+//$Id: elemset.cpp,v 1.91 2004/09/24 20:44:27 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -317,7 +317,7 @@ int assemble(Mesh *mesh,arg_list argl,
   // any_include_ghost_elems:= any_not_include_ghost_elems=0:=
   // Flag whether any argument corresponds to that iteration mode. 
   // Iteration modes are mutually exclusive, so that we must check
-  // that `!any_not_include_ghost_elems || !any_not_include_ghost_elems'
+  // that `!any_include_ghost_elems || !any_not_include_ghost_elems'
   int any_include_ghost_elems=0, any_not_include_ghost_elems=0; 
   for (j=0; j<narg; j++) {
     /// Copy the options to the arg_data_v structure. 
