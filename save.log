@@ -730,3 +730,7 @@ tag: pfmat-rewrite-1.07 on Tue Dec 25 12:05:44 ARST 2001, by mstorti in spider
 tag: pfmat-rewrite-1.08 on Tue Dec 25 19:15:21 ARST 2001, by mstorti in spider
      > Several matrices with the same profile working. 
      > Not checked memory losses.
+----------
+tag: pfmat-rewrite-1.09 on Thu Dec 27 16:58:48 ARST 2001, by mstorti in spider
+     > The graph and other things passed from `IISDMat' to
+     > `PETScMat'.
