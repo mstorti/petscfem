@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.18 2001/05/05 01:20:40 mstorti Exp $
+//$Id: ns.cpp,v 1.19 2001/05/07 01:54:26 mstorti Exp $
  
 #include <malloc.h>
 
@@ -192,12 +192,15 @@ int main(int argc,char **args) {
   GETOPTDEF(int,nstep,10000);
   //o The time step.
   GETOPTDEF(double,Dt,0.);
-  glob_param.Dt=Dt;
   //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
   // is set to 1, then the computations are as if $\Dt=\infty$. 
-  // The value of $Dt$ is used for printing etc...
+  // The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
+  // is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
   GETOPTDEF(int,steady,0);
+  if (steady && Dt==0.) Dt=1.;
+  // Set values to be passed through global options
   glob_param.steady=steady;
+  glob_param.Dt=Dt;
   //o Trapezoidal method parameter. \verb+alpha=1+:
   // Backward Euler. \verb+alpha=0+: Forward Euler.
   // \verb+alpha=0.5+: Crank-Nicholson. 

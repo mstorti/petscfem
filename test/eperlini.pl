@@ -98,7 +98,7 @@ sub readm {
 	}
     }
     close MFILE;
-    die "Couldn't find line \"$ident = <value>\"";
+    die "Couldn't find line \"$ident = <value>\"" unless $READM_RETURN_UNDEF;
     
 }
 

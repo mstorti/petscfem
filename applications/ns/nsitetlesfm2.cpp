@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.13 2001/05/05 14:24:56 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.14 2001/05/07 01:54:26 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -22,7 +22,6 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #define SQ(n) ((n)*(n))
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// modif nsi_tet
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_fm2::assemble"
 int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
@@ -90,9 +89,10 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     wall_data = (WallData *)arg_data_v[0].user_data;
   }
 
-  // iDt is the reciprocal of Dt (i.e. 1/Dt)
+  // rec_Dt is the reciprocal of Dt (i.e. 1/Dt)
+  // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param;
-  double *hmin,Dt,iDt;
+  double *hmin,Dt,rec_Dt;
   int ja_hmin;
 #define WAS_SET arg_data_v[ja_hmin].was_set
   if (comp_mat_res) {
@@ -108,8 +108,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
-    iDt = 1./glob_param->Dt;
-    if (glob_param->steady) iDt=0.;
+    rec_Dt = 1./glob_param->Dt;
+    if (glob_param->steady) rec_Dt=0.;
     wall_data = (WallData *)arg_data_v[ja++].user_data;
   } 
 
@@ -151,8 +151,11 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
-  // the time step. 
+  // the time step. If the \verb+steady+ option is in effect,
+  // (which is equivalent to $\Dt=\infty$) then
+  // \verb+temporal_stability_factor+ is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
+  if (glob_param->steady) temporal_stability_factor=0;
 
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -417,16 +420,16 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //	psi = 1./tanh(Peclet)-1/Peclet;
 //	tau_supg = psi*h_supg/(2.*velmod);
 
-        tau_supg = tsf*SQ(2*iDt)+SQ(2.*velmod/h_supg)
+        tau_supg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_supg)
 	  +9.*SQ(4.*nu_eff/SQ(h_supg));
         tau_supg = 1./sqrt(tau_supg);
 
-        tau_pspg = tsf*SQ(2*iDt)+SQ(2.*velmod/h_pspg)
+        tau_pspg = tsf*SQ(2.*rec_Dt)+SQ(2.*velmod/h_pspg)
 	  +9.*SQ(4.*nu_eff/SQ(h_pspg));
 
         tau_pspg = 1./sqrt(tau_pspg);
 
-        fz = (Peclet < 3 ? Peclet/3 : 1);
+        fz = (Peclet < 3. ? Peclet/3. : 1.);
         delta_supg = 0.5*h_supg*velmod*fz;
 	
 	if (tau_fac != 1.) {
@@ -448,7 +451,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// PSPG parameter for the stabilization of the
 	// incompressibility conditions
-	tau_pspg = h_pspg*h_pspg/ 2 / ( 6*nu_eff + sqrt(u2)*h_pspg ) ;
+	tau_pspg = h_pspg*h_pspg/ 2. / ( 6.*nu_eff + sqrt(u2)*h_pspg ) ;
 	PFEMERRQ("Not implemented yet shock capturing with standard upwind\n");
 	double delta_supg=1e-8;
 #endif
@@ -473,7 +476,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #endif
 
 	du.set(u_star).rest(u);
-	dmatu.axpy(du,iDt/alpha).rest(G_body);
+	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
 	div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
 
@@ -510,7 +513,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	// Parte temporal + convectiva (Galerkin)
 	massm.prod(u_star,dshapex,-1,-1,1);
-	massm.axpy(SHAPE,iDt/alpha);
+	massm.axpy(SHAPE,rec_Dt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

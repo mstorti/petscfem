@@ -1,9 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2001/05/02 01:42:16 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/05/07 01:54:43 mstorti Exp $ 
 
-.PHONY: force tangent stabi data
+.PHONY: force tangent stabi data auxi
 
-run: tangent stabi
+run: 
+	$(MAKE) base_flow flux_jaco 	
+	mv system.dat flux_jaco.dat
+	$(MAKE) mass_jaco
 
 PETSCFEM_DIR = ../../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -17,14 +20,19 @@ DATA_FILES = stabi.peri.tmp stabi.nod.tmp stabi.con.tmp
 data:
 	octave -q < mkmesh.m 
 
-tangent: 
-	$(MAKE) -W stabi.epl stabi.depl
-	-$(MPIRUN) -np 1 $(NS) -case stabi.depl 
+.PHONY: base_flow flux_jaco mass_jaco
+base_flow flux_jaco mass_jaco: 
+	$(MAKE) -W stabi.epl EPERLFLAGS="-d case=$@" stabi.depl
+	-$(MPIRUN) -np 1 $(NS) -case stabi.depl >$@.out.tmp
 
 stabi: 
 	$(MAKE) EPERLFLAGS='-d stabi=1' -W stabi.epl stabi.depl
-	-$(MPIRUN) -np 1 $(NS) -case stabi.depl 
+	-$(MPIRUN) -np 1 $(NS) -case stabi.depl >stabi.out.tmp
 
 local_clean::
-	-rm system.dat
+	-rm system.dat flux_jaco.dat
 
+auxi:
+	ln -sf $(PETSCFEM_DIR)/applications/ns/ns.bin ns
+	echo set args -case stabi.depl >.gdbinit
+	echo file ns >>.gdbinit
