@@ -1,0 +1,111 @@
+@\input texinfo
+@c %**start of header
+@setfilename options.info
+@settitle PETSc-FEM Options
+@c %**end of header
+
+@copying
+This file belongs to the PETSc - FEM package a library and application
+suite oriented to the Finite Element Method based on PETSc. Copyright
+(C) 1999-2003, Mario Alberto Storti, Norberto Marcelo Nigro and Rodrigo
+Rafael Paz, Centro Internacional de Metodos Numericos en Ingenieria
+(CIMEC-Argentina), Universidad Nacional del Litoral (UNL-Argentina),
+Consejo Nacional de Investigaciones Cientificas y Tecnicas
+(CONICET-Argentina).
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+@end copying
+
+@titlepage
+@title PETSc-FEM Options Reference 
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, Copying, (dir), (dir)
+@top PETSc-FEM Options Reference
+@end ifnottex
+
+PETSc-FEM ia a general purpose, parallel, multi-physics FEM
+program for CFD applications based on PETSc. PETSc-FEM comprises both a
+library that allows the user to develop FEM (or FEM-like, i.e.
+non-structured mesh oriented) programs, and a suite of application
+programs. It is written in the C++ language with an OOP (Object Oriented
+Programming) philosophy, keeping in mind the scope of efficiency.
+PETSc-FEM may run in parallel using the MPI standard on a variety of
+architectures, but currently it has been tested in Beowulf clusters
+only. The home page for PETSc-FEM is @url{http://www.cimec.org.ar/petscfem}
+
+PETSc-FEM is GPL, for further details read the file COPYING in the
+root directory of the distribution.  Many elements in PETSc-FEM can be
+configured in the data file via an ``options table''. In this manual we
+only include the documentation for the options. Documentation
+for PETSc-FEM can be downloaded at the home page. 
+
+@menu
+* Copying::                     
+* NS Options::                  
+* Index::                       
+@end menu
+
+@node Copying, NS Options, Top, Top
+@chapter PETSc-FEM license
+@insertcopying
+
+@node NS Options, Index, Copying, Top
+@chapter Navier Stokes options
+
+@itemize @bullet
+@item
+@cindex debug_compute_prof
+int <debug_compute_prof> (Default: 0)
+
+Debug the process of building the matrix profile. 
+[Found in file: "../src/elemset.cpp"]
+
+@item
+@cindex debug_element_partitioning
+int <debug_element_partitioning> (Default: 0)
+
+Prints element partitioning. 
+[Found in file: "../src/readmesh.cpp"]
+
+@item
+@cindex density
+double <density> (Default: 0.)
+
+Density
+[Found in file: "../applications/ns/elast.cpp"]
+
+@item
+@cindex dev_comp_mask
+double <dev_comp_mask> (Default: 1.)
+
+Mask for deviatoric component of stress tensor 
+[Found in file: "../applications/ns/embgath.cpp"]
+
+@end itemize
+
+@node  Index,  , NS Options, Top
+@chapter Innnn askjas aksjas kas 
+
+@printindex cp
+
+@bye
