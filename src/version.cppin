@@ -1,5 +1,6 @@
 // -*- mode: c++ -*-
 #include <petsc.h>
+#include <src/fem.h>
 
 #define STR(pp) #pp
 
@@ -20,4 +21,6 @@ and you are welcome to redistribute it under certain conditions.
 -----------------------------------------------------------------------
 
 ");
+
+  print_petscfem_link_date();
 }

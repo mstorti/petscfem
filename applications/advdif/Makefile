@@ -1,9 +1,10 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.32 2002/09/17 15:25:02 mstorti Exp $ 
+ # $Id: Makefile,v 1.33 2002/09/17 17:15:13 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = advdif
+PETSCFEM_MODULE = Advective-Diffusive
 PETSCFEM_DIR   = ../..
 MYOBJS = 
 

@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.40 2002/09/17 15:25:02 mstorti Exp $ 
+ # $Id: Makefile,v 1.41 2002/09/17 17:15:13 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PROG = ns
 PETSCFEM_DIR   = ../..
-#MYOBJS = ns.o fracstep.o nsi_tet.o
+PETSCFEM_MODULE = Navier-Stokes
 
 LIBOBJS = ns.o nsitetlesfm2.o bccnsfm2.o wall.o nsvol.o walldata.o		\
               nsilesther.o bccnstherfm2.o nsikeps.o nsikepsrot.o		\
