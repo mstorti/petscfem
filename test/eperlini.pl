@@ -32,6 +32,11 @@ sub pr {
     print "$name ",quote_string(${$name});
 }
 
+sub flag {
+    $name = shift();
+    print "$name ",(${$name} ? 1 : 0);
+}
+
 # usage: "doc_vals(VARS)", for instance "doc_vals(qw(Re,Ra,N,alpha))"
 #
 # includes legends of the form "# VAR VALUE" in the

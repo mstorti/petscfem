@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.7 2002/07/30 20:05:09 mstorti Exp $
+//$Id: nssup.h,v 1.8 2002/10/13 13:59:46 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -27,6 +27,9 @@ private:
   double gravity;
   // Density
   double rho;
+#ifdef ROSI_COUPLING_MODULE
+  int called_from_rosi;
+#endif
 public:
   /// Number of restrictions
   int nres() {return 1;};

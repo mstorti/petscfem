@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.9 2002/09/29 18:28:04 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.10 2002/10/13 13:59:46 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 #ifdef ROSI_COUPLING_MODULE
 #warning Compiling with ROSI_COUPLING_MODULE enabled
-double AXIAL_ACCELERATION, GLOBAL_TIME;
+double AXIAL_ACCELERATION=DBL_MAX, GLOBAL_TIME;
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -29,6 +29,10 @@ void ns_sup_res::init() {
   TGETOPTDEF_ND(thash,int,ndim,0);
   assert(ndim>0);
 
+#ifdef ROSI_COUPLING_MODULE
+  //o Is being PETSc-FEM called from ROSI?
+  TGETOPTDEF_ND(thash,int,called_from_rosi,0);
+#endif
   p_indx = ndim+1;
 }
 
@@ -45,12 +49,14 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
   w.set(0.).setel(1.,1,ndim+1,1);
   
 #ifdef ROSI_COUPLING_MODULE
-//    printf("ns_sup_res: taking t=%f, ax=%f\n",
-//    	 GLOBAL_TIME,AXIAL_ACCELERATION);
-  double total_axial_acc;
-  total_axial_acc = gravity + AXIAL_ACCELERATION;
-  // We could have problems with the free surface if the axal acceleration is too low
-  if (total_axial_acc < 0.3 * gravity) total_axial_acc = 0.3 * gravity;
+  double total_axial_acc = gravity;
+  // Verify that AXIAL_ACCELERATION has been set (probably in `rosi_hook')
+  if (called_from_rosi) {
+    assert(AXIAL_ACCELERATION!=DBL_MAX);
+    total_axial_acc += AXIAL_ACCELERATION;
+    // We could have problems with the free surface if the axal acceleration is too low
+    if (total_axial_acc < 0.3 * gravity) total_axial_acc = 0.3 * gravity;
+  }
 #define gravity total_axial_acc
 #endif
 

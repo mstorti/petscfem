@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.110 2002/10/07 00:26:08 mstorti Exp $
+//$Id: ns.cpp,v 1.111 2002/10/13 13:59:46 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -766,6 +766,11 @@ int main(int argc,char **args) {
       arglf.arg_add(&gather_values,VECTOR_ADD);
       ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
       CHKERRA(ierr);
+    }
+
+    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+
+    if (ngather>0) {
       // Print gathered values
       if (MY_RANK==0) {
 	if (gather_file == "") {
@@ -787,8 +792,6 @@ int main(int argc,char **args) {
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
       filter.print_some("filter.some.tmp",dofmap,node_list);
     }
-
-    hook_list.time_step_post(time_star.time(),tstep,gather_values);
 
   }
 
