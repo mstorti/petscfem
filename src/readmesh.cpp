@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.33 2001/08/09 17:11:20 mstorti Exp $
+//$Id: readmesh.cpp,v 1.34 2001/10/11 20:44:48 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -449,7 +449,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	int nr=sscanf(line,"%d %d %lf",&node,&kdof,&dval);
 	if (nr !=3) {
 	  PetscPrintf(PETSC_COMM_WORLD,
-		      "Error reading fixations, for fixation %d\n",nfixa);
+		      "Error reading fixations, for fixation %d\nline: %s\n",
+		      nfixa,astr_chars(linecopy));
 	  CHKERRQ(1);
 	}
 
@@ -531,10 +532,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     } else if (!strcmp(token,"constraint")) {
 
       PetscPrintf(PETSC_COMM_WORLD," -- Reading constraint section\n"); 
-#define ERRLINE \
-      if (ierr) { \
-         PetscPrintf(PETSC_COMM_WORLD,"Error reading line \"%s\"",linecopy); \
-         CHKERRQ(1); \
+#define ERRLINE								\
+      if (ierr) {							\
+         PetscPrintf(PETSC_COMM_WORLD,"Error reading line \"%s\"",	\
+		     astr_chars(linecopy));				\
+         CHKERRQ(1);							\
       }
 
       // Read constraints
