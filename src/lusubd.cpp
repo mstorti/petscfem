@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.56 2001/11/20 02:58:34 mstorti Exp $
+//$Id: lusubd.cpp,v 1.57 2001/11/22 18:05:50 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -184,7 +184,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       if (nodep->next==-1) break;
       // leq:= number of dof connected to `keq'
       leq = nodep->val;
-      // if leq is in other processor, then either `keq' of `leq' are
+      // if leq is in other processor, then either `keq' or `leq' are
       // interface. This depends on `leq<keq' or `leq>keq'
       if (leq<k1) {
 	// 	printf("[%d] marking node %d\n",keq);
