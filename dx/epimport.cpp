@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.8 2003/02/16 15:36:03 mstorti Exp $
+// $Id: epimport.cpp,v 1.9 2003/02/17 02:40:10 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -278,8 +278,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   Object options_o        = in[in_index++];
   Object step_o           = in[in_index++];
   Object state_file_o     = in[in_index++];
+  Object record_o         = in[in_index++];
 
-  int steps, port, step, step_comp;
+  int steps, port, step, step_comp, record;
   char *options, *hostname, *state_file;
   DXMessage("before processing steps");
   if (!steps_o) steps = -1;
@@ -316,13 +317,22 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     goto error;
   }
 
+  if (!state_file_o && !record) 
+    DXMessage("\"state_file\" not set and \"record\" set: Ignoring \"record\" value");
+
   state_file = DXGetString((String)state_file_o); 
   if (!state_file) state_file="<no-state>";
 
-  DXMessage("Got steps %d, hostname \"%s\", port %d, "
-	    "step %d, state_file \"%s\", other options \"%s\"",
-	    steps,hostname,port,step,state_file,options);
+  if (!record_o) record = 0;
+  else if (!DXExtractInteger(record_o,&record)) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Couldn't find an integer on \"record\" entry");
+    goto error;
+  }
 
+  DXMessage("Got steps %d, hostname \"%s\", port %d, "
+	    "step %d, state_file \"%s\", record %d, other options \"%s\"",
+	    steps,hostname,port,step,state_file,record,options);
 
   char sktport[20];
   sprintf(sktport,"c%d",port);
@@ -334,8 +344,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   }
 
   DXMessage("Sending steps %d %s",steps,options);
-  Sprintf(clnt,"steps %d step %d state_file %s %s\n",
-	  steps,step,state_file,options);
+  Sprintf(clnt,"steps %d step %d state_file %s record %d %s\n",
+	  steps,step,state_file,record,options);
 
   Sgetline(&buf,&Nbuf,clnt);
   tokenize(buf,tokens);

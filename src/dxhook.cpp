@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.30 2003/02/17 02:09:34 mstorti Exp $
+//$Id: dxhook.cpp,v 1.31 2003/02/17 02:40:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -254,14 +254,20 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int dx_hook::build_state_from_file(double *state_p) {
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "dx_hook: reading state from file %s, record %s\n",
+	      state_file.c_str(),record);
   FILE *fid = fopen(state_file.c_str(),"r");
   if(!fid) throw GenericError("Can't open file.");
-  for (int j=0; j<nnod*ndof; j++) {
-    int nread = fscanf(fid,"%lf",&state_p[j]);
+  int base = record*nnod*ndof;
+  for (int j=0; j<(record+1)*nnod*ndof; j++) {
+    double val;
+    int nread = fscanf(fid,"%lf",&val);
     if(nread!=1) {
       fclose(fid);
       throw GenericError("Can't read line.");
     }
+    if (j>base) state_p[j-base] = val;
   }
   fclose(fid);
   return 0;
@@ -333,13 +339,15 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	assert(!string2int(tokens[++j],dx_step));
       } else if (tokens[j]=="state_file") {
 	state_file = tokens[++j];
+      } else if (tokens[j]=="record") {
+	assert(!string2int(tokens[++j],record));
       } else {
 	printf("Unknown option \"%s\"\n",tokens[j].c_str());
       }
       j++;
     }
-    printf("dx_hook: Got steps %d, dx_step %d, state_file %s\n",
-	   steps,dx_step,state_file.c_str());
+    printf("dx_hook: Got steps %d, dx_step %d, state_file %s, record %d\n",
+	   steps,dx_step,state_file.c_str(),record);
   }
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
