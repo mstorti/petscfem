@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2000/12/28 12:54:43 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/01/02 22:28:14 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest gprof
@@ -66,5 +66,5 @@ naca.tmp.ini:
 	perl -e 'require "../test/eperlini.pl"; \
 		makeini([1.,1.,0.,180.5],2429,"$@");'
 
-lclean:
-	-rm *.depl *.sal tmp_file*.tmp
+local_clean::
+	-rm *.depl *.sal tmp_file*.tmp &> /dev/null

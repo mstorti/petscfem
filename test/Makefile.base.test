@@ -19,9 +19,7 @@ $(ADV): force
 $(LAPLACE): force
 	$(MAKE) -C $(PETSCFEM_DIR) laplace
 
-clean: lclean
-
-lclean:
+local_clean::
 	-rm  *.o *.sal tmp_file_*.tmp *.bin *~ *.tmp
 	-chmod +w *.depl ; rm *.depl
 	for dir in $(CLEAN_DIRS) ; \

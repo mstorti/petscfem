@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.2 2001/01/02 16:50:26 mstorti Exp $ 
+ # $Id: Makefile,v 1.3 2001/01/02 22:27:55 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -50,7 +50,7 @@ odocadv: ../../doc/odocadv.tex  ../../doc/odocadve.tex \
 # 		-lc ${PETSC_SLES_LIB} \
 # 		$(MESCHACH)/libmes.a
 
-lclean: general_clean
+#lclean: general_clean
 #	$(MAKE) -C $(PETSCFEM_DIR) lclean
 #	-rm *.o $(OBJS) $(PROG).bin octave-core *.cppi makefile.d *~
 #	$(MAKE) clean

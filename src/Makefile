@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 16:51:36 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/02 22:28:22 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -53,7 +53,7 @@ measperf.o: measperf.cpp
 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 
-lclean: general_clean
+local_clean::
 	-rm *.o libpetscfem.a &> /dev/null
 #
 # Esto deberia ir en realclean o algo por el estilo

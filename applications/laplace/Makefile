@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.2 2001/01/02 16:50:30 mstorti Exp $ 
+ # $Id: Makefile,v 1.3 2001/01/02 22:27:59 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -14,7 +14,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 compile: $(PROG).bin
 
-lclean: general_clean
+#lclean: general_clean
 
 # File containing dependencies computed by makedepend
 #

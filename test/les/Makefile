@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 16:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/02 22:28:33 mstorti Exp $ 
 
 .PHONY: fstack force les_data
 
@@ -35,9 +35,6 @@ $(LES_DATA_FILES): les.m
 	octave -q <les.m 
 #	touch les.flag
 
-lclean: add_clean
-
-add_clean: 
+local_clean::
 	-rm les.flag 
 
-#

@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.2 2001/01/02 16:50:45 mstorti Exp $ 
+ # $Id: Makefile,v 1.3 2001/01/02 22:28:05 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -61,7 +61,7 @@ afs:
 	fi ; 
 	-@rm ns.o nsitetlesfm2.o
 
-lclean: general_clean
+#lclean: general_clean
 #	cat /dev/null >makefile.d
 #	-rm *.o $(OBJS) $(PROG).bin octave-core *.cppi outvector.sal makefile.d
 #	$(MAKE) clean
