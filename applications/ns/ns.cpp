@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.104 2002/09/24 18:18:16 mstorti Exp $
+//$Id: ns.cpp,v 1.105 2002/09/26 00:01:22 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -758,7 +758,8 @@ int main(int argc,char **args) {
 
     // Compute gathered quantities, for instance total force on walls
     if (ngather>0) {
-      gather_values.resize(ngather);
+      gather_values.resize(ngather,0.);
+      for (int j=0; j<ngather; j++) gather_values[j] = 0.;
       arglf.clear();
       arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
