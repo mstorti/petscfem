@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.22 2003/02/15 16:52:51 mstorti Exp $
+//$Id: dxhook.cpp,v 1.23 2003/02/15 22:29:29 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -352,12 +352,22 @@ time_step_post(double time,int step,
       for (int jf=0; jf<nf; jf++) {
 	vector<int> rank;
 	string name;
-	q->field(jf,name,rank);
-	assert(rank.size()==1);
 	int size=1;
-	for (int jd=0; jd<rank.size(); jd++) size *= rank[jd];
+	q->field(jf,name,rank);
 	vector<double> in(ndof),out(size);
-	Sprintf(srvr,"state %s %d %d %d\n",name.c_str(),size,nnod,cookie);
+	// Sends name and rank of entity
+	Sprintf(srvr,"state %s %d",name.c_str(),rank.size());
+
+	// Sends the list of dimensions and total size
+	for (int jd=0; jd<rank.size(); jd++) {
+	  Sprintf(srvr," %d",rank[jd]);
+	  size *= rank[jd];
+	}
+	
+	// Send number of nodes and cookie
+	Sprintf(srvr," %d %d\n",nnod,cookie);
+
+	// Send values 
 	for (int j=0; j<nnod; j++) {
 	  double *base_node = state_p+j*ndof;
 	  for (int l=0; l<ndof; l++) in[l] = *(base_node+l);
