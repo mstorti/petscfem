@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.40 2003/08/25 02:52:16 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.41 2003/08/29 02:33:27 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -774,6 +774,36 @@ int IISDMat::create_a() {
 
   // Save copy of d_nnz_LL for use later when recreating A_LL
   d_nnz_LL = nnz[D][L][L];
+
+  // Initialize PETSc fast loading stuff
+#define INIT_CS 100
+  indxr_L.set_chunk_size(INIT_CS);
+  indxr_I.set_chunk_size(INIT_CS);
+  indxc_L.set_chunk_size(INIT_CS);
+  indxc_I.set_chunk_size(INIT_CS);
+  indxr[L] = &indxr_L;
+  indxr[I] = &indxr_I;
+  indxc[L] = &indxc_L;
+  indxc[I] = &indxc_I;
+
+  jndxr_L.set_chunk_size(INIT_CS);
+  jndxr_I.set_chunk_size(INIT_CS);
+  jndxc_L.set_chunk_size(INIT_CS);
+  jndxc_I.set_chunk_size(INIT_CS);
+  jndxr[L] = &jndxr_L;
+  jndxr[I] = &jndxr_I;
+  jndxc[L] = &jndxc_L;
+  jndxc[I] = &jndxc_I;
+
+#define INIT_CS2 2000
+  v_LL.set_chunk_size(INIT_CS2);
+  v_LI.set_chunk_size(INIT_CS2);
+  v_IL.set_chunk_size(INIT_CS2);
+  v_II.set_chunk_size(INIT_CS2);
+  v[L][L] = &v_LL;
+  v[I][L] = &v_IL;
+  v[L][I] = &v_LI;
+  v[I][I] = &v_II;
 
   ierr = clean_mat_a(); CHKERRQ(ierr);
   return 0;

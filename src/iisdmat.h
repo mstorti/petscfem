@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.28 2003/08/19 01:16:52 mstorti Exp $
+// $Id: iisdmat.h,v 1.29 2003/08/29 02:33:27 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -11,6 +11,7 @@
 #include <src/sparse2.h>
 #include <src/iisdgraph.h>
 #include <src/pfptscmat.h>
+#include <src/dvector.h>
 
 #define TGETOPTDEF_ND_PFMAT(thash,type,name,default)		\
         name = default;						\
@@ -233,6 +234,21 @@ class IISDMat : public PFPETScMat {
   Vec xb;
   //@}
 
+  /** @name For fast loading of PETSc matrices */
+  //@{
+  /// Indices of submatrix in LL, LI, ... blocks
+  dvector<int> indxr_L, indxr_I, indxc_L, indxc_I;
+  /** Indices of submatrices in submatrix to be loaded
+      in LL, LI, ... blocks */
+  dvector<int> jndxr_L, jndxr_I, jndxc_L, jndxc_I;
+  /// Values of submatrix in LL, LI, ... blocks
+  dvector<double> v_LL, v_LI, v_IL, v_II;
+  /// Pointers to v_LL, v_LI, ...
+  dvector<double> *v[2][2];
+  /// Pointers to indxr_L, indxr_I ...
+  dvector<int> *indxr[2], *indxc[2], *jndxr[2], *jndxc[2];
+  //@}
+
 public:
 
   // returns the j-th dimension
@@ -275,6 +291,11 @@ public:
   */ 
   int set_value_a(int row,int col,PetscScalar value,
 		  InsertMode mode=ADD_VALUES);
+
+  /// The action corresponding to `set_values'
+  int set_values_a(int nrows,int *idxr,int ncols,int *idxc,
+		   PetscScalar *values, InsertMode mode=ADD_VALUES);
+
   /// Clear the object (almost destructor)
   void clear();
   /// Sets the underlying matrices to zero

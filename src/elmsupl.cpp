@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.7 2003/08/28 22:43:16 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.8 2003/08/29 02:33:27 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,7 +37,8 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 0
+#if 1
+// New Fast PETSc matrix loading version (uses MatSetValues)
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
@@ -296,6 +297,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   }
 }
 #else
+// Old slow PETSc matrix loading version (uses MatSetValue)
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.53 2003/08/28 18:39:40 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.54 2003/08/29 02:33:27 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -709,6 +709,79 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
   CHKERRQ(ierr);
   return 0;
 #endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+void grow_mono(dvector<T> &v,int new_size) {
+  if (new_size>v.size()) {
+    v.resize(new_size);
+    v.defrag();
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::set_value_a"
+int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
+			  PetscScalar *values, InsertMode mode) {
+  int row_indx,col_indx,row_t,col_t;
+  int nr[2], nc[2];
+
+  assert(nlay==0);
+  insert_mode = mode;  
+
+  // Mapping of rows
+  nr[L]=0;
+  nr[I]=0;
+  for (int jr=0; jr<nrows; jr++) {
+    map_dof_fun(idxr[jr],row_t,row_indx);
+    row_indx -= n_locp;
+    int jrl = nr[row_t]++;
+    dvector<int> *indx = indxr[row_t];
+    grow_mono<int>(*indx,nr[row_t]);
+    indx->e(jrl) = row_indx;
+    dvector<int> *jndx = jndxr[row_t];
+    grow_mono<int>(*jndx,nr[row_t]);
+    jndx->e(jrl) = jr;
+  }
+
+  // Mapping of columns
+  nc[L]=0;
+  nc[I]=0;
+  for (int jc=0; jc<ncols; jc++) {
+    map_dof_fun(idxc[jc],col_t,col_indx);
+    int jcl = nc[col_t]++;
+    dvector<int> *indx = indxc[col_t];
+    grow_mono<int>(*indx,nc[col_t]);
+    indx->e(jcl) = col_indx;
+    dvector<int> *jndx = jndxc[col_t];
+    grow_mono(*jndx,nc[col_t]);
+    jndx->e(jcl) = jc;
+  }
+
+#if 0
+  printf("nr[L] %d, nr[I] %d\n",nr[L],nr[I]);
+  printf("indxr[L], jndxr[L]\n");
+  for (int jr=0; jr<nr[L]; jr++) 
+    printf("%d %d\n",indxr[L]->e(jr),jndxr[L]->e(jr));
+  for (int jr=0; jr<nr[I]; jr++) 
+    printf("%d %d\n",indxr[I]->e(jr),jndxr[I]->e(jr));
+
+  printf("nc[L] %d, nc[I] %d\n",nc[L],nc[I]);
+  printf("indxc[L], jndxc[L]\n");
+  for (int jc=0; jc<nc[L]; jc++) 
+    printf("%d %d\n",indxc[L]->e(jc),jndxc[L]->e(jc));
+  for (int jc=0; jc<nc[I]; jc++) 
+    printf("%d %d\n",indxc[I]->e(jc),jndxc[I]->e(jc));
+  PetscFinalize();
+  exit(0);
+#endif
+
+  for (row_t=0; row_t<2; row_t++) {
+    for (col_t=0; col_t<2; col_t++) {
+      
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
