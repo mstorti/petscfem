@@ -883,3 +883,6 @@ tag: beta-2.65 on Tue Jan 15 18:44:42 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.66 on Tue Jan 15 22:19:28 ARST 2002, by mstorti in spider
      > Written several tests for the `aquifer' elemeset.
+----------
+tag: beta-2.67 on Wed Jan 16 16:27:48 ARST 2002, by mstorti in spider
+     > Added test for unsteady aquifer. 
