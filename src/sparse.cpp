@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.5 2001/09/21 00:07:57 mstorti Exp $
+//$Id: sparse.cpp,v 1.6 2001/09/21 02:23:35 mstorti Exp $
 
 #include "sparse.h"
 
@@ -56,12 +56,38 @@ namespace Sparse {
 #undef __FUNC__
 #define __FUNC__ "Vec::get"
   double Vec::get(int j) const {
+    assert(j<len);
     const VecCIt J = find(j);
     if (J == end()) {
       return 0.;
     } else {
       return J->second;
     }
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::print"
+  void Vec::print(char * s = NULL) {
+    VecCIt J;
+    if (s) printf("%s\n",s);
+    printf("length: %d\n",len);
+    for (J=begin(); J!=end(); J++) {
+      printf("%d -> %f\n", J->first, J->second);
+    }
+    printf("--\n");
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::resize"
+  Vec & Vec::resize(int n) {
+    VecIt i;
+    assert(n>=0);
+    for (i=begin(); i!= end(); i++) 
+      if (i->first >= n) erase(i);
+    len = n;
+    return *this;
   }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -90,30 +116,6 @@ namespace Sparse {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "Vec::print"
-  void Vec::print(char * s = NULL) {
-    VecCIt J;
-    if (s) printf("%s",s);
-    printf("length: %d\n",len);
-    for (J=begin(); J!=end(); J++) {
-      printf("%d -> %f\n", J->first, J->second);
-    }
-  }
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "Vec::resize"
-  Vec & Vec::resize(int n) {
-    VecIt i;
-    assert(n>=0);
-    for (i=begin(); i!= end(); i++) 
-      if (i->first >= n) erase(i);
-    len = n;
-    return *this;
-  }
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
 #define __FUNC__ "Vec::set"
   Vec & Vec::set(const Indx &I,const Vec & v) {
     int j;
@@ -122,6 +124,95 @@ namespace Sparse {
     }
     return *this;
   }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::set"
+  Vec & Vec::set(const Vec &v,const Indx &I)  {
+    int j,m;
+    clear();
+    m = I.size();
+    resize(m);
+    for (j=0; j<m; j++) {
+      set(j,v.get(I[j]));
+    }
+    return *this;
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+  Vec & Vec::set(const Indx & I,const Vec & v,const Indx & K) {
+    Vec tmp;
+    tmp.set(v,K);
+    set(I,tmp);
+    return *this;
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+  Vec & Vec::scale(double c) {
+    VecIt i,e;
+    if (c==0.) {
+      clear();
+    } else {
+      e = end();
+      for (i=begin(); i!=e; i++) 
+	i->second *= c;
+    }
+    return *this;
+  }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "Vec::set"
+  Vec & Vec::axpy(double c,const Indx & I,double a,const Vec & v) {
+    int j,m,k;
+    m = I.size();
+    for (j=0; j<m; j++) {
+      k = I[j];
+      set(k,c*get(k)+a*v.get(j));
+    }
+    return *this;
+  }
+
+  Vec & Vec::axpy(double a,const Vec & v) {
+    VecCIt j,e;
+    int k;
+    assert(len == v.len);
+    e = v.end();
+    for (j=v.begin(); j!=e; j++) {
+      k = j->first;
+      set(k,get(k)+a*j->second);
+    }
+    return *this;
+  }
+
+#if 0
+  Vec & Vec::axpy(int j,double a,double v) {
+    double o;
+    set(j,get(j)+a*
+    VecIt J = find(j);
+    if (j >= len ) {
+      if (!grow_m) {
+	printf("sparse: index %d out of range, length %d\n",j,len);
+	abort();
+      }
+      len = j+1;
+    }
+    if (J == end()) {
+      if (v!=0) insert(VecP(j,v));
+    } else {
+      if (v==0) {
+	erase(J);
+      } else {
+	J->second = v;
+      }
+    }
+    return *this;
+  }
+#endif
 }
 
 /*
