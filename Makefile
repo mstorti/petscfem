@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2001/01/02 22:27:47 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/01/04 20:06:02 mstorti Exp $ 
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -66,7 +66,7 @@ SRCDIRS = src applications/ns applications/advective applications/advdif \
 
 DEPEND_DIRS = $(SRCDIRS)
 
-newdepend:
+depend:
 #	for dir in $(SRCDIRS) ; do touch $$dir/makefile.d ; done ; \
 #		for dir in $(SRCDIRS) ; do $(MAKE) -C $$dir depend ; done
 	for dir in $(SRCDIRS) ; do $(MAKE) -C $$dir depend ; done 

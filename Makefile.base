@@ -57,17 +57,9 @@ depend:
 	done
 
 makefile.d: $(SRCS)
-# empties or creates the makefile.d file
-#	cat /dev/null > makefile.d  
-#	makedepend -f $@ -- $(CPPFLAGS) -- $(SRCS) &>/dev/null
-#	$(CC) -- $(CPPFLAGS) -- $(SRCS) > makefile.d
-#
-# Apparently makedepend is buggy in RedHat 7.0 and generates files
-# with dependencies of the form `pp.c.o: ....' instead of `pp.o: ...'
-#	-perl -pi.bak -e 's/^(\S*)\.(c|cpp|f)\.o:/$1.o:/g' makefile.d
-#ifneq ($(SRCS),)
+ifneq ($(SRCS),)
 	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > $@
-#endif
+endif
 
 TAGS: $(SRCS)
 #TAGS: *.cpp *.h
