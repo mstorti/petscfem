@@ -323,3 +323,6 @@ tag: beta-1.56 on Sat Mar 31 19:53:03 ART 2001, by mstorti in spider
      > Added doc for the new flux functions.
      > Adapted bcconv to the new flux functions. 
      > QUASI STABLE (Passes all newff tests)
+----------
+tag: beta-1.56 on Sat Mar 31 21:35:42 ART 2001, by mstorti in spider
+     > Modified the license file
