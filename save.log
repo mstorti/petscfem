@@ -636,3 +636,6 @@ tag: beta-2.37 on Tue Nov 27 12:34:25 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-2.38 on Tue Nov 27 17:00:01 ARST 2001, by mstorti in spider
      > Changed 'vector<int> ngbrs_v' to "set<int> ...'
+----------
+tag: beta-2.39 on Tue Nov 27 20:22:56 ARST 2001, by mstorti in spider
+     > Added test for `Graph' class
