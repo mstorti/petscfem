@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.1 2004/01/11 15:58:46 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.2 2004/01/11 16:22:04 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -73,18 +73,29 @@ KeyedLine::KeyedLine(const KeyedLine &kl) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-KeyedLine::KeyedLine(int k,const AutoString &as) {
+void KeyedLine::build(int k,const char *s) {
   key = k;
-  const char *l = as.str();
-  int len = strlen(l);
+  int len = strlen(s);
   line = new char[len+1];
-  memcpy(line,l,len+1);
+  memcpy(line,s,len+1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+KeyedLine::KeyedLine(int k,const char *s) { build(k,s); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+KeyedLine::KeyedLine(int k,const AutoString &as) { 
+  build(k,as.str()); 
 }
 
 SYNC_BUFFER_FUNCTIONS(KeyedLine);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void KeyedOutputBuffer::push(int k,const AutoString &s) {
-  push_back(KeyedLine(k,s));
+void KeyedOutputBuffer::push(int k,const AutoString &as) {
+  push_back(KeyedLine(k,as.str()));
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::push(int k,const char *s) {
+  push_back(KeyedLine(k,s));
+}

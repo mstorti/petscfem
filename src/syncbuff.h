@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.1 2004/01/11 15:58:46 mstorti Exp $
+// $Id: syncbuff.h,v 1.2 2004/01/11 16:22:04 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -97,12 +97,14 @@ class KeyedLine {
 private:
   int key;
   char *line;
+  void build(int key,const char *s);
 public:
   static int print_line_numbers;
   static FILE *output;
   KeyedLine() : key(0), line(NULL) {}
   KeyedLine(const KeyedLine &kl);
   KeyedLine(int key,const AutoString &as);
+  KeyedLine(int key,const char *s);
   ~KeyedLine() { if (line) delete[] line; }
   friend int operator<(const KeyedLine& left, const KeyedLine& right);
   int size_of_pack() const;
