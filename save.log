@@ -1367,3 +1367,6 @@ tag: beta-3.01.pl7 on Fri, 26 Jul 2002 23:52:44 -0300 by mstorti in spider
 ----------
 tag: beta-3.01.pl8 on Sat, 27 Jul 2002 00:37:15 -0300 by mstorti in spider
      > Runs NS 26^3*5  test with/without `use_interface_full_preco'. 
+----------
+tag: beta-3.01.pl9 on Sat, 27 Jul 2002 10:36:45 -0300 by mstorti in spider
+     > Runs 30^3 test with fractional step in spider.
