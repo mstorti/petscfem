@@ -73,6 +73,6 @@ __END_HASH__
 elemset gasflow 4
 geometry cartesian2d
 dx 1
-npg 4
+npg 4 
 data ./comp_corner_Ma_10_Euler-ref<:=$ref:>.con.tmp
 __END_HASH__
