@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make `report_consumed_time' to report the time spent in computing
+        residues, and assembly. 
 * Document new options for IISDMat
 * FastMat2 doesn't detect errors like this
   `tmp5.prod(dshapex,tmp4,-1,2,-1,2);' (see fstepfm.cpp, Fri Jul 26
