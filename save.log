@@ -3075,3 +3075,6 @@ tag: beta-3.24 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
 ----------
 tag: beta-3.24.pl1 on Mon, 24 Nov 2003 21:31:19 -0300 by mstorti in spider
      > Fixed '-bubbly' initialization bug. 
+----------
+tag: beta-3.24.pl2 on Sun, 07 Dec 2003 22:04:35 -0300 by mstorti in spider
+     > Added `tetra-gpdata' patch.
