@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fem.cpp,v 1.12 2003/12/06 16:00:25 mstorti Exp $
+//$Id: fem.cpp,v 1.13 2005/02/21 18:50:28 mstorti Exp $
 
 #include <time.h>
 #include <stdarg.h>
@@ -178,3 +178,12 @@ void petscfem_check_par_err(int ierro,GenericError &ge,int myrank) {
   int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
   PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void detj_error(double &detJaco,int elem) {
+  printf("Jacobian of element %d is negative or null\n"
+	 " Jacobian: %f\n",elem,detJaco);
+  detJaco = -detJaco;
+  if (detJaco==0.) detJaco = 1.0;
+}
+

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.37 2004/09/25 23:11:39 mstorti Exp $
+//$Id: fem.h,v 1.38 2005/02/21 18:50:28 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -544,6 +544,9 @@ void print_petscfem_link_date(void);
 
 // Prints the day of the run. 
 void print_date(void);
+
+// Signals an error with computation of Jacobian
+void detj_error(double &detJaco,int elem);
 
 // CHKERRA is now obsolete in PETSc (see changes for PETSc 2.1)
 #define CHKERRA CHKERRQ

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.3 2003/01/25 15:28:58 mstorti Exp $
+//$Id: gatherer.cpp,v 1.4 2005/02/21 18:50:28 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -118,10 +118,8 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
       }
       if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+	detj_error(detJaco,k);
+	set_error(1);
       }
       double wpgdet = detJaco*WPG;
 
