@@ -3980,3 +3980,6 @@ tag: beta-3.41.39 on Tue, 08 Feb 2005 15:51:44 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.40 on Tue, 08 Feb 2005 22:55:15 -0300 by mstorti in spider
      > Writing doc for absorbing boundary conditions. 
+----------
+tag: beta-3.41.41 on Sun, 13 Feb 2005 18:25:27 -0300 by mstorti in spider
+     > Starts working on checking `advdif/gasflow' convergence. 
