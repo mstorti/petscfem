@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.24 2004/12/27 03:37:33 mstorti Exp $
+// $Id: dvector2.h,v 1.25 2005/01/15 12:57:51 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -130,7 +130,7 @@ int dvector<T>::size(void) const { return size_m; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::push(const T &t) {
+dvector<T>& dvector<T>::push(const T &t) {
   int chunk,k;
   // find chunk and position
   reff(size_m,chunk,k);
@@ -145,11 +145,13 @@ void dvector<T>::push(const T &t) {
   }
   // copy object
   ref(size_m++) = t;
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::shrink(int new_size) {
+dvector<T>& dvector<T>::
+shrink(int new_size) {
   assert(new_size<=size_m);
   int chunk,k;
   // demangle new size
@@ -161,24 +163,36 @@ void dvector<T>::shrink(int new_size) {
     nchunks--;
   }
   size_m = new_size;
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::resize(int new_size,T &t) {
+dvector<T>&  dvector<T>::
+resize(int new_size,T &t) {
   // If new_size is greater use #push# else use #shrink#
   if (new_size > size_m) {
     while (size_m<new_size) push(t);
   } else shrink(new_size);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::resize(int new_size) { T t; resize(new_size,t); }
+dvector<T>& dvector<T>::
+resize(int new_size) { 
+  T t; 
+  resize(new_size,t); 
+  return *this;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::clear(void) { shrink(0); }
+dvector<T>& dvector<T>::
+clear(void) { 
+  shrink(0); 
+  return *this; 
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>

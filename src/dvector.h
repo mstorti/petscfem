@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.20 2004/12/27 03:37:33 mstorti Exp $
+// $Id: dvector.h,v 1.21 2005/01/15 12:57:51 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -111,24 +111,24 @@ public:
 
   /** Insert an element at the last position
       @param t (input) element to be appended */ 
-  void push(const T &t);
+  dvector<T>& push(const T &t);
 
   /** Resizes but only for a new dimension 
       lower than the original. This can be used even if there is not a
       default constructor for the base class. 
       @param new_size (input) new size for the vector */
-  void shrink(int new_size);
+  dvector<T>& shrink(int new_size);
 
   /** Resizes the vector.
       @param new_size (input) new size for the vector */
-  void resize(int new_size,T &t);
+  dvector<T>&  resize(int new_size,T &t);
 
   /** Resizes the vector with default constructor.
       @param new_size (input) new size for the vector */ 
-  void resize(int new_size);
+  dvector<T>& resize(int new_size);
 
   /// Resizes to null size.
-  void clear(void);
+  dvector<T>& clear(void);
 
   /// Resizes monolithically
   dvector<T>& mono(int size);
