@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.142 2003/06/26 22:27:19 mstorti Exp $
+#$Id: Makefile.base,v 1.143 2003/07/02 02:32:44 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -108,7 +108,10 @@ endif
 
 # here goes -frepo if needed
 # CPPFLAGS         := -frepo $(PROF_FLAGS) $(RH60)
-CPPFLAGS         := $(PROF_FLAGS) $(RH60)		\
+
+CPPFLAGS         := 					\
+		 $(PROF_FLAGS) $(RH60)			\
+		 -Wno-deprecated			\
                  -I$(PETSC_DIR)/include			\
                  -I$(PETSC_DIR)/bmake/$(PETSC_ARCH)	\
                  -I$(MPI_HOME)/include			\

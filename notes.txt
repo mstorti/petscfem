@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $
+$Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
+! # $Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
+  # $Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.287 2003/06/06 20:43:36 mstorti Exp $ 
+  # $Id: notes.txt,v 1.288 2003/07/02 02:32:44 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6591,6 +6591,18 @@ Con vector<int> tarda 18secs.
 %
 En minerva no puede llegar a compilar el `advdif_bubbly', se queda
 laburando indefinidamente. Le pongo -O0 y compila OK. 
+
+%===Tue, 01 Jul 2003 23:25:01 -0300 mstorti@spider
+%
+Adaptando a RH 8.0: Hubo varias diferencias sobre todo con el cambio
+del compilador. 
+1./ No acepta mas valores por defeecto en las definiciones. 
+2./ Hay que agregar "using namespace std;" en varios lados
+3./ hay que agregar unos "typedef typename" en 
+      varios templates, si no tira un error tipo "implicit
+      typename..." 
+4./ No acepta convertir `vector<T>::iterator' a 'T*'. Pero si se puede
+       hacer `vector<T>::iterator q; T* d = &*q;
 
 # Current line ===========  %
 # Local Variables: $
