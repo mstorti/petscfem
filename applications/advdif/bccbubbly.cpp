@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccbubbly.cpp,v 1.2 2003/01/08 13:09:38 mstorti Exp $
+//$Id: bccbubbly.cpp,v 1.3 2003/09/14 00:23:19 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -174,10 +174,10 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // normal:= normal vector times the surface of the element
       detJaco = mydetsur(Jaco,normal);
       normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
-      if (detJaco <= 0.) {
-	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
-	     << " Jacobian: " << detJaco << endl ;
-	assert(0);
+
+      if (detJaco<=0.) {
+	detj_error(detJaco,k);
+	set_error(1);
       }
 
       // This is because I don't know how to use 0

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advdifeo.cpp,v 1.12 2003/07/03 04:32:11 mstorti Exp $
+// $Id: advdifeo.cpp,v 1.13 2003/09/14 00:23:19 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -313,13 +313,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Jaco_av.add(Jaco);
 
       detJaco = Jaco.det();
-      if (detJaco <= 0.) {
+
+      if (detJaco<=0.) {
 	int k,ielh;
 	element.position(k,ielh);
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+	detj_error(detJaco,k);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);

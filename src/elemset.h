@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.33 2003/09/10 23:18:43 mstorti Exp $
+//$Id: elemset.h,v 1.34 2003/09/14 00:23:22 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -676,6 +676,10 @@ public:
   Elemset::element_ret_fdj_values;
   Elemset::element_ret_mat_values;
   Elemset::read;
+  Elemset::clear_error;
+  Elemset::set_error;
+  Elemset::check_error;
+  Elemset::handle_error;
 
   // Elemset::thash;
   void get_entry(const char *k,const char *&v) const {

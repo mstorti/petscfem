@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.54 2003/09/12 21:31:14 mstorti Exp $
+//$Id: dxhook.cpp,v 1.55 2003/09/14 00:23:22 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -13,6 +13,7 @@
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/sockbuff.h>
+#include <src/generror.h>
 
 #ifdef USE_SSL
 
@@ -297,12 +298,6 @@ void dx_hook::re_launch_connection() {
 int dx_hook::build_state_from_state(double *state_p) {
   return state2fields(state_p,state(),dofmap,time_data()); 
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class GenericError : public string { 
-public:
-  GenericError(char *s) : string(s) { }
-};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int dx_hook::build_state_from_file(double *state_p) {

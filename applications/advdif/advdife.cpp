@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.70 2003/07/03 04:32:11 mstorti Exp $
+//$Id: advdife.cpp,v 1.71 2003/09/14 00:23:19 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -14,10 +14,19 @@ extern int MY_RANK,SIZE;
 #include <src/getprop.h>
 #include <src/util2.h>
 #include <src/fastmat2.h>
+#include <src/generror.h>
 
 #include "nwadvdif.h"
 
 #define MAXPROP 100
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void detj_error(double &detJaco,int elem) {
+  printf("Jacobian of element %d is negative or null\n"
+	 " Jacobian: %f\n",elem,detJaco);
+  detJaco = -detJaco;
+  if (detJaco==0.) detJaco = 1.0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -320,7 +329,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin(); 
-       element!=elemlist.end(); element++) {
+       element!=elemlist.end(); element++) try {
 
     FastMat2::reset_cache();
 
@@ -388,13 +397,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	iJaco.setel(1./detJaco,1,1);
       }
 
-      if (detJaco <= 0.) {
+      if (detJaco<=0.) {
 	int k,ielh;
 	element.position(k,ielh);
-	printf("advdife: Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+	detj_error(detJaco,k);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
 
@@ -713,7 +720,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
 
+  } catch (GenericError e) {
+    set_error(1);
+    return;
   }
+
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 }

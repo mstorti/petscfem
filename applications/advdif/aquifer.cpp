@@ -1,9 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.13 2002/10/12 15:49:37 mstorti Exp $
+//$Id: aquifer.cpp,v 1.14 2003/09/14 00:23:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
+#include <src/generror.h>
 
 #include "aquifer.h"
 
@@ -68,7 +69,8 @@ void aquifer_ff::compute_flux(const FastMat2 &U,const FastMat2
   eta = H.get(1);
   phi = U.get(1);
   double wet_aquifer_width = phi-eta;
-  assert(!dry_aquifer_stop || phi-eta>0.);
+  if(dry_aquifer_stop && phi-eta<=0.) 
+    throw GenericError("Aquifers got dried.");
   if (wet_aquifer_width<wet_aquifer_width_min) 
     wet_aquifer_width = wet_aquifer_width_min;
   fluxd.set(grad_U).scale(K*wet_aquifer_width);

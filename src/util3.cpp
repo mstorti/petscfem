@@ -1,11 +1,13 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.11 2003/09/13 17:32:09 mstorti Exp $
+// $Id: util3.cpp,v 1.12 2003/09/14 00:23:22 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <mpi.h>
 #include <src/util3.h>
+
+extern int MY_RANK;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int string2int(string &s,int &n) {
@@ -157,8 +159,11 @@ void DXSplit::dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void petscfem_print_date(void) {
-  time_t t = time(NULL);
-  printf("Hi user!       Today is %s"
-	 "Have fun and a nice run!    [The PETSc-FEM team]"
-	 "\n---------------------------------------------\n",ctime(&t));
+  if (!MY_RANK) {
+    time_t t = time(NULL);
+    printf("Hi user!          Today is %s"
+	   "Have fun and a nice run! :-)   [The PETSc-FEM team]"
+	   "\n-------------------------------------------------\n",
+	   ctime(&t));
+  }
 }

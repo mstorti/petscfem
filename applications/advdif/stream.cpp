@@ -1,9 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.16 2002/08/18 21:27:11 mstorti Exp $
+//$Id: stream.cpp,v 1.17 2003/09/14 00:23:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
+#include <src/generror.h>
 
 #include "stream.h"
 
@@ -127,8 +128,10 @@ void stream_ff
   // slope is computed from the gradient of the bottom height (entered
   // as third component in the `nodes' section
   S = -grad_H.get(1,1);
-  assert(S>=0.); // slope should be negative in the direction
+  // slope should be negative in the direction
 		 // of the stream
+  if (S<0.) throw GenericError("stream: Slope must be non negative."); 
+
   // computes `Q' and `C'
   friction_law->flow(area,perimeter,S,Q,C);
   a = C * wl_width;

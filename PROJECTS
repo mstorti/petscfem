@@ -3,6 +3,8 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* A web/text interface to allow changing options
+* A DX module for better and smoother FEM visualization. 
 * Modify 'elemset.cpp' so that processing of several elemsets 
   is non blocking, for instance using a self-scheduling algorithm. 
 * Scripting interface with Perl
@@ -78,7 +80,7 @@ DONE:
   What was done: with a self-written `myexpext.pl' Perl code.
 * debug de idmap::set_elem() function. Create a test for. 
 * define an ir() operation that restricts an index to a single value
-and reduces the dimensions by one
+	 and reduces the dimensions by one
 * define the double() operator
 * code caches
 * code `diag' feature to FM2

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.60 2003/06/01 15:55:35 mstorti Exp $
+//$Id: advective.h,v 1.61 2003/09/14 00:23:19 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -569,5 +569,11 @@ struct GlobParam {
 */ 
 void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 		const int nlog_vars,const int *log_vars);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Sets an error for the negative jacobian error case. 
+    @param detjaco (input) the determinant of the jacobian
+    @param elem (input) the element number */ 
+void detj_error(double &detJaco,int elem);
 
 #endif

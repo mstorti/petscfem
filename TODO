@@ -4,18 +4,13 @@
 TODO: [Mainly fixes go here...]
 =====
 
-### Current line ===========
-* Can't read element lines with only one node with one digit
-* put dependency of `compdate.cpp' on `compdate.cppin' in the Makefiles
-* Generate a test for the disconnected graph bug. 
+* Convert negative jacobian errors in advdif to set_error. 
+* Generate a summary of `odoc' options in the doc with `odoc.pl'. 
 * Check caching DX objects for multiple elemsets
 * Code and test changing coords and elemset conectivities 
   caching by the user/ appl. writer. 
-* A web/text interface to allow changing options
-* A DX module for better and smoother FEM visualization. 
 * in `./Makefile' local_sw: should FIRST do `chmod 755'
 * `src/secant.cpp' is compiled differently. why?
-* Seems that can't correctly read elements with 1 node 
 * Make a test for Newton convergence with ns_id and lag_mul mixed. 
 * Correct DOC++ doc in `lagmul.h'
 * why `make finaldoc' in ./ doesn't launch latex2html?
@@ -26,7 +21,6 @@ TODO: [Mainly fixes go here...]
   neither this: tmp11.prod(dshapex,tmp12,-1,1,-1);
 * default values for npg
 * a dynamically loaded Gauss Point adaptor elemset. 
-* DX: make epimport.cpp to print shapes in one line. 
 * DX: lets to call field generators from dynamically load C/C++
          modules. 
 * DX: make `dxhook' to be launched through a flag of type `dx' not
@@ -110,10 +104,17 @@ TODO: [Mainly fixes go here...]
            time consuming.
 
 ################################################################
+
 DONE:
 =====
 
-### Current line =========== 
+* DX: make epimport.cpp to print shapes in one line. 
+* Seems that can't correctly read elements with 1 node. STATUS:
+	 fixed. 
+* put dependency of `compdate.cpp' on `compdate.cppin' in the
+      Makefiles. STATUS: discarded. 
+* Can't read element lines with only one node with one digit
+* Generate a test for the disconnected graph bug. 
 * Add `wiki' syntax to //o options (#tt#, *bf*, _em_ ...)
 * Make PETSCFEM_ASSERT not to print a dot in the message i.e. "condition." 
 * document wiki syntax for `odoc.pl'
