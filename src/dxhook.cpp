@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.9 2003/02/07 23:18:32 mstorti Exp $
+//$Id: dxhook.cpp,v 1.10 2003/02/08 04:15:36 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/fem.h>
@@ -139,10 +139,18 @@ int string2int(string s,int &n) {
 } 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define CHECK_COOKIE(keyword)							\
+    { Sgetline(&buf,&Nbuf,srvr);						\
+    tokenize(buf,tokens);							\
+    ierr = string2int(tokens[1],cookie2);					\
+    PETSCFEM_ASSERT0((tokens[0]==#keyword "_OK" && !ierr && cookie==cookie2),	\
+		     "Bad response from DX client sending " #keyword "\n"); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::
 time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
-  int ierr;
+  int ierr, cookie, cookie2;
   PetscPrintf(PETSC_COMM_WORLD,
 	      "On step %d, step_cntr %d, steps %d\n",
 	      step,step_cntr,steps);
@@ -164,7 +172,7 @@ time_step_post(double time,int step,
     srvr = Saccept(srvr_root);
     assert(srvr);
 
-#if 0
+#if 1
     Sgetline(&buf,&Nbuf,srvr);
 #else // DEBUG -----
     Sgets(buf,Nbuf,srvr);
@@ -200,7 +208,9 @@ time_step_post(double time,int step,
 #if 1
   if (!MY_RANK) {
     // Send node coordinates
-    Sprintf(srvr,"nodes nodes %d %d\n",ndim,nnod);
+    cookie = rand();
+    Sprintf(srvr,"nodes nodes %d %d %d\n",ndim,nnod,cookie);
+    printf("sending nodes nodes %d %d %d\n",ndim,nnod,cookie);
     for (int node=0; node<nnod; node++) {
 #ifndef DX_USE_FLOATS
       Swrite(srvr,xnod+node*nu,ndim*sizeof(double));
@@ -211,7 +221,9 @@ time_step_post(double time,int step,
       }
 #endif
     }
+    CHECK_COOKIE(nodes);
   }
+
   // Send results
   int ndof = dofmap->ndof;
   
@@ -219,7 +231,8 @@ time_step_post(double time,int step,
   if (!MY_RANK) state_p = new double[ndof*nnod];
   ierr = state2fields(state_p,state(),dofmap,time_data()); assert(!ierr);
   if (!MY_RANK) {
-    Sprintf(srvr,"state state %d %d\n",ndof,nnod);
+    cookie = rand();
+    Sprintf(srvr,"state state %d %d %d\n",ndof,nnod,cookie);
 #ifndef DX_USE_FLOATS
     Swrite(srvr,state_p,ndof*nnod*sizeof(double));
 #else
@@ -228,6 +241,7 @@ time_step_post(double time,int step,
       Swrite(srvr,&val,sizeof(float));
     }
 #endif
+    CHECK_COOKIE(state);
   }
   delete[] state_p;
 

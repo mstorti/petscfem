@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.14 2003/02/08 01:08:35 mstorti Exp $
+// $Id: epimport.cpp,v 1.15 2003/02/08 04:15:40 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -313,7 +313,7 @@ Error build_dx_array_int(Socket *clnt,int shape,int size, Array &array) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
-    nelem,nel;
+    nelem,nel,cookie;
   double *xnod_p,*data_p;
   Array icone=NULL,xnod=NULL,data=NULL; 
   Group g=NULL,flist=NULL;
@@ -399,7 +399,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
     tokenize(buf,tokens);
-    int cookie;
 
     if (tokens[0]=="end") break;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -407,24 +406,27 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       string &name = tokens[1];
       if (string2int(tokens[2],ndim)) goto error;
       if (string2int(tokens[3],nnod)) goto error;
+      if (string2int(tokens[4],cookie)) goto error;
       ierr = build_dx_array(clnt,ndim,nnod,array);
       if(ierr!=OK) return ierr;
       ierr = dx_objects_table.load_new(name,new Nodes(ndim,nnod,array));
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
-      Sprintf(clnt,"nodes OK\n");
+      Sprintf(clnt,"nodes_OK %d\n",cookie);
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
       name = tokens[1];
       if (string2int(tokens[2],ndof)) goto error;
       if (string2int(tokens[3],nnod)) goto error;
+      if (string2int(tokens[4],cookie)) goto error;
       ierr = build_dx_array(clnt,ndof,nnod,array);
       if(ierr!=OK) return ierr;
       ierr = dx_objects_table.load_new(name,new State(ndim,nnod,array));
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"State\" name %s, ptr %p, ndof %d, nnod %d",
 		name.c_str(),array,ndof,nnod);
+      Sprintf(clnt,"state_OK %d\n",cookie);
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
       string &name = tokens[1];
