@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: smoke.cpp,v 1.1 2003/05/25 13:52:05 mstorti Exp $
+// $Id: smoke.cpp,v 1.2 2003/05/26 03:08:06 mstorti Exp $
 
 #include "./smoke.h"
+
+smoke_ff::~smoke_ff() {}
 
 void smoke_ff::start_chunk(int &ret_options) {
   new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);     
@@ -26,8 +28,8 @@ void smoke_ff::element_hook(ElementIterator &element) {
 }
 
 void smoke_ff::set_state(const FastMat2 &UU) { 
-  phi = U.get(1); 
   U.set(UU);
+  phi = U.get(1); 
 }
 
 void smoke_ff::comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
@@ -70,8 +72,8 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   tau_supg.setel(tau_fac/Uh*magic,1,1);
 }
 
-void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
-			  FastMat2 & dshapex,double w) {
+void smoke_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+				    FastMat2 & dshapex,double w) {
   grad_N_D_grad_N.set(0.);
 }
 

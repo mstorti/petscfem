@@ -4,14 +4,16 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'smoke' unless $case_name;
-$N = $M = 20;
+$N = $M = 50;
 $Lx = $Ly = 1;
 $alpha = 1;
 $Courant = 0.5;
 $hx = $Lx/$N;
-$Dt = 1/$N;
+$Dt = 4/$N;
+$omega_smooth = 0.5;
+$n_smoth_steps  = 5;
 #__END_TRANSCRIPT__
-@vars = qw(N M Lx Ly case_name);
+@vars = qw(N M Lx Ly case_name omega_smooth n_smoth_steps);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH smoke.m";
@@ -26,18 +28,24 @@ save_file "save.state.tmp"
 <:pr('Dt'):>
 nsave 10
 
-nsaverot 1
+nsaverot 100000
 nrec 1
 nfile 1000000
 save_file_pattern "smoke.state.%d.tmp"
 
 initial_state "smoke.ini.tmp"
-nstep 20
+nstep 2000
 solver "iisd"
 iisd_subpart 1
 nnwt 1
 <:pr('alpha'):>
 weak_form 0
+
+hook_list advdif_dx_hook my_dx_hook
+dx_auto_combine
+dx_state_all_fields
+dx_steps 1
+
 __END_HASH__
 
 #===========================================================
@@ -47,6 +55,7 @@ data smoke.nod.tmp
 __END_HASH__
 
 #===========================================================
+#if 0
 elemset newadvdif_advecfm2 3
 props advective_jacobians[2]
 geometry triangle
@@ -55,8 +64,18 @@ diffusive_jacobians 1e-3
 __END_HASH__
 __INCLUDE__ smoke.con.tmp
 __END_ELEMSET__
-
 end_elemsets
+#else
+elemset smoke 3
+props u[2]
+geometry triangle
+npg 3
+dx
+__END_HASH__
+__INCLUDE__ smoke.con.tmp
+__END_ELEMSET__
+end_elemsets
+#endif
 
 #===========================================================
 fixa

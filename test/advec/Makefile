@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2003/04/17 22:50:39 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2003/05/26 03:08:09 mstorti Exp $ 
 
 .PHONY: force all run default skew parallel_cone skew_cone rotating_cone	\
 	skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise	\
 	runs
 
-default: rotating_cone
+default: runs
 tests: tests_noise0 tests_noise1
 
 tests_noise0:  skew parallel_cone skew_cone rotating_cone
@@ -19,8 +19,8 @@ SRCS =
 
 #s Linear Advection tests
 LOC_PROG := advdif
-CASE_NAME := advec
-PROG := $(ADVDIF)
+CASE_NAME := smoke
+PROG := $(ADVDIF_G)
 
 skew:
 	$(MAKE) case_name=$@ run

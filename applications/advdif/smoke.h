@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: smoke.h,v 1.2 2003/05/25 13:52:05 mstorti Exp $
+// $Id: smoke.h,v 1.3 2003/05/26 03:08:06 mstorti Exp $
 #ifndef SMOKE_H
 #define SMOKE_H
 
@@ -20,7 +20,6 @@ class smoke_ff : public AdvDifFFWEnth {
 private:
   const int ndim;
   Property u_prop;
-  const NewAdvDif *new_adv_dif_elemset;
   double phi;
   FastMat2 u, U, Cp, W_N, A, Uintri;
   int nel,ndof,nelprops;
@@ -54,7 +53,7 @@ public:
 		   double w);
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
-  int dim() const { return 1; }
+  // int dim() const { return 1; }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
