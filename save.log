@@ -1469,3 +1469,6 @@ tag: beta-3.02.pl24 on Sun, 18 Aug 2002 16:21:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.02.pl25 on Sun, 18 Aug 2002 18:27:30 -0300 by mstorti in spider
      > Runs all tests.
+----------
+tag: beta-3.02.pl26 on Sun, 18 Aug 2002 19:42:19 -0300 by mstorti in spider
+     > Runs all tests, some fixes.
