@@ -1,8 +1,10 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsgath.h,v 1.2 2003/04/01 22:47:19 mstorti Exp $
+//$Id: nsgath.h,v 1.3 2004/08/22 23:00:50 mstorti Exp $
 #ifndef NS_GATHERER_H
 #define NS_GATHERER_H
+
+extern int MY_RANK;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Computes the force that the container is
@@ -61,14 +63,21 @@ public:
 */ 
 class free_surface_level_integrator : public gatherer {
 private:
+  int normal_dim;
 public:
   /// perform several checks and initialization
-  void init() { assert(gather_length==1); }
+  void init() { 
+    assert(gather_length==1); 
+    //o Position in gather vector
+    int ierr;
+    TGETOPTDEF_ND(thash,int,normal_dim,1);
+    // if (!MY_RANK) printf("dim: %d\n",normal_dim);
+  }
   /// set forces 
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
 		     double wpgdet,double time) {
-    pg_values[0] = wpgdet * u.get(1);
+    pg_values[0] = wpgdet * xpg.get(normal_dim);
   }
 };
 
