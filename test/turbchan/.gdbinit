@@ -1,4 +1,4 @@
 # -*- mode: shell-script -*-
 
-file adv
+file advdif
 set args -case turbchan.depl

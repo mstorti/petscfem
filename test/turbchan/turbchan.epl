@@ -4,7 +4,7 @@
 #================================================================
 global_options
 
-save_file state_save.sal
+save_file state.out.tmp
 nsave 100
 
 rtol 0
@@ -17,13 +17,13 @@ nsaverot 100
 nrec  100
 nfile 2
 
-nstep 100
+nstep 10
 
 local_time_step 0
 auto_time_step 0
 consistent_supg_matrix 1
 Courant 0.6
-Dt 0.002
+Dt 0.2
 alpha 1
 
 nnwt 3
@@ -35,8 +35,8 @@ print_internal_loop_conv 0
 gravity 1
 weak_form 0
 addvisc 0.
-#initial_state "turbchan.ini"
-initial_state "state_save.sal_0"
+initial_state "turbchan.ini"
+#initial_state "state_save.sal_0"
 
 __END_HASH__
 

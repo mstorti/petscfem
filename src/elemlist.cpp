@@ -167,8 +167,8 @@ Elemset::element_node_data(const ElementIterator &element,
     int node = elem_conne[kloc];
     for (int jdim=0; jdim<nodedata->ndim; jdim++)
       XLOC(kloc,jdim) = NODEDATA(node-1,jdim);
-    for (int ih=1; ih<=nH; ih++) 
-      XLOC(kloc,ih) = NODEDATA(node-1,ih);
+    for (int ih=0; ih<nH; ih++) 
+      HLOC(kloc,ih) = NODEDATA(node-1,nodedata->ndim+ih);
   }
 }
 

@@ -89,6 +89,7 @@ general_clean:
 local_clean:: 
 	-@rm -f *~ *.o $(OBJS) $(PROG).bin octave-core *.cppi \
 		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
+	for link in * ; do if [ -L $$link ] ; then rm $$link ; fi ; done
 
 local_dist_clean::
 
@@ -134,7 +135,26 @@ EPERLFLAGS =
 	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
-#Rule for generating compressed ps
+# This line _should_ be here but I don't know why if
+# I put it, then the targets don't work!!
+#.PHONY: ns.link advdif.link adv.link laplace.link all.link
+
+#w makes local links to all binaries 
+all_link: ns.link advdif.link adv.link laplace.link
+
+BIN = $(LNK)/$(LNK).bin
+ns.link:		LNK=ns
+advdif.link:		LNK=advdif
+adv.link:		LNK=adv
+adv.link:		BIN:=advective/adv.bin
+laplace.link:		LNK=laplace
+
+#w makes local link to binary, for instance adv.bin
+#e <file>.link
+%.link: 
+	if [ ! -L $(LNK) ] ; then ln -s $(APPDIR)/$(BIN) $(LNK) ; fi
+
+#w Generates compressed ps
 %.ps.gz: %.ps
 	gzip -qf $<
 

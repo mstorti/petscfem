@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2001/01/20 12:24:16 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2001/01/24 01:50:16 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -31,12 +31,6 @@ compile:
 	-rm *.sal
 	@echo "Running tests..."
 	$(MAKE) -C ../ ns laplace adv advdif
-
-local_sw::
-	ln -sf $(APPDIR)/ns/ns.bin ns
-	ln -sf $(APPDIR)/advdif/advdif.bin advdif
-	ln -sf $(APPDIR)/advective/adv.bin adv
-	ln -sf $(APPDIR)/laplace/laplace.bin laplace
 
 #w clean local files
 local_clean::
@@ -251,6 +245,7 @@ iterator: iterator.cpp
 #w Tests for the advdif module
 advdif:
 	$(MAKE) -C advdif tests
+	$(MAKE) -C turbchan turbchan
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----

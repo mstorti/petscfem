@@ -771,6 +771,15 @@ expect("advdif/sine_crank_nic.out","Advdif // quad. conv. for Crank Nic.",<<EOT)
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("turbchan/turbchan.ver.tmp","Advdif/Shallw Water Turb. // flow in a channel",<<EOT);
+Residual at iteration 10 =.*OK : 1
+symmetry OK : 1
+transversal velocity small OK : 1
+k at output .* Correct value OK : 1
+e at output .* Correct value OK : 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
 
 

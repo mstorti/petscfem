@@ -86,14 +86,18 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
     // Read reactive jacobians (reactive  matrix)
     //o _T: double[var_len] 
-    //  _N: reactive_jacobians _D: no default  _DOC: 
+    //  _N: reactive_jacobians _D: all zero  _DOC: 
     //  FIXME:= TO BE DOCUMENTED LATER
     //  _END
     C_jac_l.resize(2,ndof,ndof);
     const char *reaje;
     VOID_IT(cjacv);
-    elemset->get_entry("reactive_jacobians",reaje); CHKERRQ(reaje==0);
-    read_double_array(cjacv,reaje); 
+    elemset->get_entry("reactive_jacobians",reaje); 
+    if (reaje==0) {
+      for (int k=0; k<ndof; k++) cjacv.push_back(0.);
+    } else {
+      read_double_array(cjacv,reaje); 
+    }
     cjacvp=cjacv.begin();
     C_jac_l.set(0.);
 
