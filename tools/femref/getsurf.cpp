@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.6 2005/01/09 23:49:18 mstorti Exp $
+// $Id: getsurf.cpp,v 1.7 2005/01/09 23:53:58 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -75,6 +75,7 @@ int main() {
       face_table_t::iterator q, qq,
 	q1 = face_table.lower_bound(hash_val),
 	q2 = face_table.upper_bound(hash_val);
+      bool add_face = true;
       if (q1!=q2) {
 	if (VERBOSE) {
 	  printf("possible collision with ");
@@ -101,10 +102,14 @@ int main() {
 		   q->second.elem,q->second.face);
 	  printf("\n");
 	}
-	assert(nfaces==1);
-	face_table.erase(qq);
-	nint_faces++;
-      } else {
+	assert(nfaces==1 || nfaces==0);
+	if (nfaces==1) {
+	  face_table.erase(qq);
+	  nint_faces++;
+	  add_face = false;
+	} 
+      }
+      if (add_face) {
 	FaceIterator fi;
 	fi.elem = vis.elem_indx();
 	fi.face = j;
