@@ -91,6 +91,24 @@ diffusive_jacobians \
 #endif
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
+#---<*>---// ENTHALPY JACOBIANS  /---<*>---//---<*>---//
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+enthalpy_jacobians_type "<:=$reac_type:>"
+
+#if $reac_type eq 'full'
+enthalpy_jacobians <:=$Cp:>  0. 0. 0. <:=$Cp:>  0. 0. 0. <:=$Cp:>
+#enthalpy_jacobians <:=$Cp:>  0. 0. 0. <:=3*$Cp:>  0. 0. 0. <:=10*$Cp:>
+#elsif $reac_type eq 'global_scalar'
+enthalpy_jacobians <:=$Cp:>
+#elsif $reac_type eq 'scalar_per_field'
+enthalpy_jacobians <:=$Cp:> <:=3*$Cp:> <:=10*$Cp:>
+#elsif $reac_type eq 'ident'
+# no line for null enthalpy jacobian
+#else
+<:die "not known reac_type: $reac_type\n":>
+#endif
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
 #---<*>---// REACTIVE JACOBIANS  /---<*>---//---<*>---//
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 reactive_jacobians_type "<:=$reac_type:>"

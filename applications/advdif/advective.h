@@ -1,11 +1,13 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.21 2001/04/03 01:21:33 mstorti Exp $
+//$Id: advective.h,v 1.22 2001/04/04 22:55:30 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
+
+#include "enthalpy.h"
 
 /** The jacobians of the flux functions. This is an array
     of ndim matrices of ndof x ndof entries each. 
@@ -120,13 +122,6 @@ public:
 
 class NewAdvDif;
 
-class EntalphyFun {
-public:
-  virtual void entalphy(FastMat2 &H, FastMat2 &U)=0;
-  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
-			   double w)=0;
-};
-
 // This is the flux function for a given physical problem. 
 class NewAdvDifFF {
 private:
@@ -134,9 +129,9 @@ private:
   vector<int> log_vars_v;
 public:
   const NewElemset *elemset;
-  EntalphyFun *entalphy_fun;
+  EnthalpyFun *enthalpy_fun;
   NewAdvDifFF(NewElemset *elemset_=NULL) 
-    : elemset(elemset_), entalphy_fun(NULL) {};
+    : elemset(elemset_), enthalpy_fun(NULL) {};
   virtual void start_chunk(int &ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
@@ -148,18 +143,7 @@ public:
   virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
-  ~NewAdvDifFF() {delete entalphy_fun;}
-};
-
-// This flux function assumes an identity relationship for
-// the entalphy
-class ConsEntalphyFun : public EntalphyFun {
-  FastMat2 eye_ndof,htmp1,htmp2;
-public:
-  ConsEntalphyFun(int ndim,int ndof,int nel);
-  void entalphy(FastMat2 &H, FastMat2 &U);
-  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
-			   double w);
+  // ~NewAdvDifFF()
 };
 
 /** The class NewAdvDif is a NewElemset class plus a

@@ -29,23 +29,26 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-ConsEntalphyFun::ConsEntalphyFun(int ndof,int ndim,int nel) {
-  eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
+void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_=1.) {
+  Cp=Cp_;
+  eye_ndof.resize(2,ndof,ndof).set(0.).eye(Cp);
   htmp1.resize(1,nel);
   htmp2.resize(2,nel,nel);
 }
 
-void ConsEntalphyFun::entalphy(FastMat2 &H, FastMat2 &U) {
-  H.set(U);
+void GlobalScalarEF::enthalpy(FastMat2 &H, FastMat2 &U) {
+  H.set(U).scale(Cp);
 }
 
-void ConsEntalphyFun::comp_W_Cp_N(FastMat2 &W_Cp_N,
+void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
 				  FastMat2 &W,FastMat2 &N,double w) {
   htmp1.set(N).scale(w);
   htmp2.prod(W,htmp1,1,2); // tmp12 = SHAPE' * SHAPE
   W_Cp_N.prod(htmp2,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Returns the list of variables that are 
@@ -353,9 +356,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (comp_res) {
 	// state variables and gradient
 	Un.prod(SHAPE,lstaten,-1,-1,1);
-	adv_diff_ff->entalphy_fun->entalphy(Hn,Un);
+	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
-	adv_diff_ff->entalphy_fun->entalphy(Ho,Uo);
+	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	dUdt.set(Hn).rest(Ho).scale(1./DT);
 	for (int k=0; k<nlog_vars; k++) {
@@ -391,7 +394,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// tmp15.set(SHAPE).scale(wpgdet/DT);
 	// tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
 	// tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
-	adv_diff_ff->entalphy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet/DT);
+	adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet/DT);
 	if (lumped_mass) {
 	  matlocf_mass.add(N_Cp_N);
 	} else {

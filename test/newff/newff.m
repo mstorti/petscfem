@@ -10,6 +10,7 @@ Dxy=DD(1,2)*eye(ndof);
 Dyy=DD(2,2)*eye(ndof);
 S=[s s s]';
 RR=R*eye(ndof);
+CP = Cp*eye(ndof);
 
 if full_jacs==0
   ## this means no full_jacs
@@ -234,7 +235,7 @@ fclose(fid);
 ##--<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 kwu=kwave(1)*Ax+kwave(2)*Ay;
 kDk = kwave(1)*kwave(1)*Dxx+2*kwave(1)*kwave(2)*Dxy+kwave(2)*kwave(2)*Dyy;
-beta = RR + i*kwu + kDk;
+beta = CP \ (RR + i*kwu + kDk);
 phase=kwave(1)*xnod(:,1)+kwave(2)*xnod(:,2);
 phase=exp(i*phase);
 if !steady

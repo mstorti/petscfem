@@ -31,6 +31,7 @@ fix_some_node=0;
 tau_fac=1;
 use_bcconv=0;
 rval=0;
+Cp=1;
 
 #<:$CASE=$ENV{'CASE'}:>//
 CASE=<:=$CASE:>;
@@ -43,6 +44,17 @@ tol=0.04;
 nx=16;
 R=1;
 reac_type="global_scalar";
+#elsif $CASE eq 'homo_heat'
+## Test for homogeneous heating (no diff/adv/reac)
+kx=0;
+Dt=0.05;
+nstep=10;
+tol=0.04;
+nx=1;
+s=1;
+R=0.01;
+reac_type="global_scalar";
+Cp=2;
 #elsif $CASE eq 'adv_dif_temp'
 ## Advection diffusion
 nx=32;

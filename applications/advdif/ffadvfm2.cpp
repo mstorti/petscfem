@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.31 2001/04/03 01:21:33 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.32 2001/04/04 22:55:30 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -432,6 +432,9 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
 
   s_body = elemset->prop_array(element,source_term_prop);
   S_body.set(s_body);
+
+  e_jac = elemset->prop_array(element,enthalpy_jacobians_prop);
+  enthalpy_fun->update(e_jac);
 }  
 
 //  enum advective_jacobian_type {
@@ -459,9 +462,59 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   dif_per_field.resize(1,ndof);
   vel_per_field.resize(1,ndof);
   eye_ndof.resize(2,ndof,ndof).eye();
-  entalphy_fun = new ConsEntalphyFun(ndof,ndim,nel);
 
   ret_options &= !SCALAR_TAU; // tell the advective element routine
+
+  // Read enthalpy jacobians
+  //o _T: double[var_len]
+  //  _N: enthalpy_jacobians _D: no default  _DOC: 
+  //i_tex ../../doc/advdifop.tex enthalpy_jacobians
+  //  _END
+  elemset->get_prop(enthalpy_jacobians_prop,"enthalpy_jacobians");
+
+  //o Set enthalpy jacobian to the desired type. May be one of 
+  // ``\verb+ident+'', ``\verb+global_scalar+'',
+  // ``\verb+scalar_per_field+'' or ``\verb+full+''. 
+  // See documentation for the \verb+enthalpy_jacobians+ option. 
+  EGETOPTDEF(elemset,string,enthalpy_jacobians_type,string("undefined"));
+  string enthalpy_jacobians_type_s = enthalpy_jacobians_type;
+
+  if (enthalpy_jacobians_type==string("undefined")) {
+    if (enthalpy_jacobians_prop.length == 0) {
+      enthalpy_jacobians_type=string("ident");
+    } else if (enthalpy_jacobians_prop.length == 1) {
+      enthalpy_jacobians_type=string("global_scalar");
+    } else if (enthalpy_jacobians_prop.length == ndof) {
+      enthalpy_jacobians_type=string("scalar_per_field");
+    } else if (enthalpy_jacobians_prop.length == ndof*ndof) {
+      enthalpy_jacobians_type=string("full");
+    }
+  }
+  if (enthalpy_jacobians_type==string("ident") &&
+      enthalpy_jacobians_prop.length == 0) {
+    enthalpy_fun = &identity_ef;
+    identity_ef.init(ndof,ndim,nel);
+  } else if (enthalpy_jacobians_type==string("global_scalar") &&
+      enthalpy_jacobians_prop.length == 1) {
+    enthalpy_fun = &global_scalar_ef;
+    global_scalar_ef.init(ndof,ndim,nel);
+  } else if (enthalpy_jacobians_type==string("scalar_per_field") &&
+	     enthalpy_jacobians_prop.length == ndof) {
+    enthalpy_fun = &scalar_per_field_ef;
+    scalar_per_field_ef.init(ndof,ndim,nel);
+  } else if (enthalpy_jacobians_type==string("full") &&
+	     enthalpy_jacobians_prop.length == ndof*ndof) {
+    PETSCFEM_ERROR(0,"Not implemented yet\n");
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Enthalpy Jacobian does not fit in \n"
+		"a predefined name/length combination\n"
+		"name entered: \"%s\"\n"
+		"length entered: %d\n",
+		enthalpy_jacobians_type_s.c_str(),
+		enthalpy_jacobians_prop.length);
+    PETSCFEM_ERROR(0,"Not implemented yet\n");
+  }
 
   // Read advective jacobians
   //o _T: double[var_len]

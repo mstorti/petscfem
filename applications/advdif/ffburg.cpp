@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.8 2001/04/03 01:21:33 mstorti Exp $
+//$Id: ffburg.cpp,v 1.9 2001/04/04 22:55:30 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -113,7 +113,9 @@ void burgers_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
   elemset->elem_params(nel,ndof,nelprops);
-  entalphy_fun = new ConsEntalphyFun(ndof,ndim,nel);
+
+  enthalpy_fun = &identity_ef;
+  identity_ef.init(ndof,ndim,nel);
 
   u_a_jac.init(ndim,ndof,nel);
   g_d_jac.init(ndim,ndof,nel);

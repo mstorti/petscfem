@@ -50,13 +50,17 @@ private:
   ElementIterator element;
   Property advective_jacobians_prop, 
     diffusive_jacobians_prop, reactive_jacobians_prop,
-    source_term_prop;
-  const double *advjac,*difjac,*reacjac,*s_body;
+    source_term_prop,enthalpy_jacobians_prop;
+  const double *advjac,*difjac,*reacjac,*s_body,*e_jac;
   int ndim,ndof,nel,nelprops;
   AJac *a_jac;
   DJac *d_jac;
   CJac *c_jac;
   SourceTerm *source_term;
+
+  GlobalScalarEF global_scalar_ef;
+  IdentityEF identity_ef;
+  ScalarPerFieldEF scalar_per_field_ef;
 public:
 
   /// Null source term

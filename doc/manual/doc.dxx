@@ -17,3 +17,12 @@
 //@Include: ../../src/vecmacros.h
 //@Include: ../../src/texthash.h
 //@Include: ../../src/utils.h
+
+/** @name AdvDif module */
+//@{
+//@Include: ../../applications/advdif/advective.h
+//@Include: ../../applications/advdif/burgers.h
+//@Include: ../../applications/advdif/enthalpy.h
+//@Include: ../../applications/advdif/nwadvdif.h
+//@Include: ../../applications/advdif/nwadvdifj.h
+//@}

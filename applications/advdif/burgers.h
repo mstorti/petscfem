@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: burgers.h,v 1.2 2001/04/02 21:21:54 mstorti Exp $
+//$Id: burgers.h,v 1.3 2001/04/04 22:55:30 mstorti Exp $
 #ifndef BURGERS_H
 #define BURGERS_H
 
@@ -14,6 +14,7 @@ class burgers_ff : public advdif_wjac_ff {
   NullSourceTerm st;
   NullCJac n_c_jac;
   GlobalScalarDJac g_d_jac;
+  IdentityEF identity_ef;
  public:
   burgers_ff(NewElemset *elemset_) 
     : advdif_wjac_ff(elemset_,&g_d_jac,&u_a_jac,&n_c_jac,&st) {};

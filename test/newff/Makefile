@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2001/04/01 03:11:41 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/04/04 22:55:37 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -50,8 +50,8 @@ advdif: advdif.link
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl > newff.out
-	octave -q verif.m >$(CASE).vrf.tmp
+			-case newff.depl #> newff.out
+	octave -q verif.m #>$(CASE).vrf.tmp
 
 local_clean::
 	-chmod +w newff.data.res
