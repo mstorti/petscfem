@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.44 2002/05/05 22:01:59 mstorti Exp $
+//$Id: readmesh.cpp,v 1.45 2002/05/06 20:21:55 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -1083,10 +1083,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       for (iele=0; iele<nelem; iele++) {
 	if(elemset->epart[iele]!=myrank+1) continue;
 	elemset->nelem_here++;
-	const int *conn; int nell;
-	nell = elemset->real_nodes(iele,conn);
-	for (jel=0; jel<nell; jel++) {
-	  node = conn[jel];
+ 	for (jel=0; jel<nel; jel++) {
+ 	  node = ICONE(iele,jel);
 	  for (kdof=1; kdof<=ndof; kdof++) {
 	    dofmap->get_row(node,kdof,row);
 	    for (kndx=row.begin(); kndx!=row.end(); kndx++) {
