@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.15 2003/01/05 22:32:17 mstorti Exp $
+//$Id: inviscid.cpp,v 1.16 2003/01/06 01:03:20 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -410,15 +410,15 @@ void coupling_inv_hook::time_step_post(double time,int step,
     rhs(1,NDIM),tmp2, dpot_dx_k(1,NDIM);
   double dphidn;
   // filter coefficients 
-  double omega=0.9, xif=0.1;
-#if 0
+#if 1
+  double omega=0.9, xif=1;
   double a_coef[] = {1./square(omega)+xif/omega+0.5, 
 		     -2/square(omega),
 		     1./square(omega)-xif/omega+0.5};
   double b_coef[] = {0.5,0.,0.5};
 #else
-  double a_coef[] = {1., 0., 0.};
-  double *b_coef = a_coef;
+  double a_coef[] = {1., -(1.-omega), 0.};
+  double b_coef[] = {omega, 0., 0.};
 #endif
 
   assert(fid = fopen("ext.coupling_normal_vel.tmp","w"));
