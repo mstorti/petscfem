@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.61 2003/05/25 13:52:05 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.62 2003/06/08 21:42:00 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -22,10 +22,11 @@ extern TextHashTable *GLOBAL_OPTIONS;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_fm2::assemble"
-int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-		      Dofmap *dofmap,const char *jobinfo,int myrank,
-		      int el_start,int el_last,int iter_mode,
-		      const TimeData *time_) {
+int nsi_tet_les_fm2::
+assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+	 Dofmap *dofmap,const char *jobinfo,int myrank,
+	 int el_start,int el_last,int iter_mode,
+	 const TimeData *time_) {
 
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_res);

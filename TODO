@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
+* A DX module for better and smoother FEM visualization. 
 * in `./Makefile' local_sw: should FIRST do `chmod 755'
 * `src/secant.cpp' is compiled differently. why?
 * Seems that can't correctly read elements with 1 node 

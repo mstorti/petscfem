@@ -211,6 +211,11 @@ __INCLUDE__ cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''
 __END_ELEMSET__
 #endif
 
+interpolation 
+__END_HASH__
+0.5 0.5 0.5
+__END_DATA__
+
 end_elemsets
 
 #if 1
