@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.82 2003/11/16 15:32:43 mstorti Exp $
+//$Id: advdife.cpp,v 1.83 2003/11/23 16:42:53 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -229,7 +229,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //o Use the weak form for the Galerkin part of the advective term.
   NSGETOPTDEF(int,weak_form,1);
   //o Weights the temporal term with $N+\beta P$, i.e.
-  // $\beta=0$ is equivalent to waight the temporal term a la
+  // $\beta=0$ is equivalent to weight the temporal term a la
   // Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
   NSGETOPTDEF(double,beta_supg,1.);
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
