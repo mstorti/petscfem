@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.41 2001/08/20 01:37:16 mstorti Exp $
+//$Id: lusubd.cpp,v 1.42 2001/08/20 14:12:34 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -28,10 +28,12 @@ enum PETScFEMErrors {
 };
 
 PFMat * PFMat_dispatch(const char *s) {
+  PETScMat *A;
   if (!strcmp(s,"iisd")) {
     return new IISDMat;
   } else if (!strcmp(s,"petsc")) {
-    return new PETScMat;
+    A = new PETScMat;
+    return A;
   } else {
     PETSCFEM_ERROR("PFMat type not known: %s\n",s);
   }
@@ -944,8 +946,16 @@ void PFMat::clear() {
 void PETScMat::clear() {
   PFMat::clear();
   // P is not destroyed, since P points to A
-  int ierr = MatDestroy(A); 
-  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix\n");
+  if (A) {
+    int ierr = MatDestroy(A); 
+    PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix \"A\"\n");
+  }
+#if 0    // Should us destroy P ?
+  if (P) {
+    int ierr = MatDestroy(P); 
+    PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix \"P\"\n");
+  }
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

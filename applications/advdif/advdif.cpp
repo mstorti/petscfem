@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.26 2001/07/26 03:43:14 mstorti Exp $
+//$Id: advdif.cpp,v 1.27 2001/08/20 14:12:31 mstorti Exp $
 
 #include <set>
 
@@ -66,8 +66,6 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 int main(int argc,char **args) {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
-  PETScMat PETSc_A,PETSc_AA;		// linear system matrix 
-  IISDMat IISD_A,IISD_AA;		// linear system matrix 
   PFMat *A,*AA;			// linear system matrix 
   double  *sol, scal;	/* norm of solution error */
   int     ierr, i, n = 10, col[3], its, flg, size, node,
@@ -167,15 +165,14 @@ int main(int argc,char **args) {
   GETOPTDEF(int,report_option_access,1);
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
+  //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
+  if (use_iisd) solver = string("iisd");
 
   // Use IISD (Interface Iterative Subdomain Direct) or not.
-  if (use_iisd) {
-    A = &IISD_A;
-    AA = &IISD_AA;
-  } else {
-    A= &PETSc_A;
-    AA= &PETSc_AA;
-  }
+  // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
+  A  = PFMat_dispatch(solver.c_str());
+  AA = PFMat_dispatch(solver.c_str());
 
   set<int> node_list;
   print_some_file_init(mesh->global_options,
@@ -470,6 +467,9 @@ int main(int argc,char **args) {
   ierr = MatDestroy(A); CHKERRA(ierr); 
 #endif
   
+  delete A;
+  delete AA;
+
   PetscFinalize();
   exit(0);
 }
