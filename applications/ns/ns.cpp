@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.41 2001/09/19 13:17:27 mstorti Exp $
+//$Id: ns.cpp,v 1.42 2001/10/03 21:22:23 mstorti Exp $
  
 #include <malloc.h>
 
@@ -63,6 +63,7 @@ int main(int argc,char **args) {
   // Initialize time
   Time time,time_star; time.set(0.);
   GlobParam glob_param;
+  string save_file_res;
 
   // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1];
@@ -119,6 +120,8 @@ int main(int argc,char **args) {
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
+  //o Print the residual eac \verb+nsave+ steps. 
+  GETOPTDEF(int,print_residual,0);
   //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
@@ -173,6 +176,7 @@ int main(int argc,char **args) {
 
   //o The name of the file to save the state vector. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file,outvector.out);
+  save_file_res = save_file + string(".res");
 
   //o Name of file where to read the nodes for the ``print some'' 
   // feature. 
@@ -364,10 +368,10 @@ int main(int argc,char **args) {
       }
 
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
- 
+
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-			     "system.dat",&matlab); CHKERRA(ierr);
+ 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
 			     VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
       ierr = A_tet->view(matlab); CHKERRA(ierr); 
@@ -473,6 +477,9 @@ int main(int argc,char **args) {
 #endif
 
       ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
+
+      // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
+
     } // end of loop over Newton subiteration (inwt)
 
     // error difference
@@ -480,6 +487,15 @@ int main(int argc,char **args) {
     ierr = VecAXPY(&scal,x,dx_step);
     ierr  = VecNorm(dx_step,NORM_2,&norm); CHKERRA(ierr);
     PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
+    print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
+		      tstep-1,nsaverot,nrec,nfile);
+  
+    if (tstep % nsave == 0) {
+      print_vector(save_file.c_str(),x,dofmap,&time);
+      if (print_residual) 
+	print_vector(save_file_res.c_str(),res,dofmap,&time);
+    }
+
     if (normres_external < tol_newton) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Tolerance on newton loop reached:  "
@@ -487,12 +503,6 @@ int main(int argc,char **args) {
 		  normres_external,tol_newton);
       break;
     }
-
-    print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
-		      tstep-1,nsaverot,nrec,nfile);
-  
-    if (tstep % nsave == 0)
-      print_vector(save_file.c_str(),x,dofmap,&time);
 
     filter.update(time);
     if (print_some_file!="" && tstep % nsome == 0) {

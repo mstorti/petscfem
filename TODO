@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In `ns.cpp' it seems that there is no convergence check on the
+  internal Newton loop. 
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
 * put `const A' in the argument to PFMat::duplicate
 * Use IISD `inside processors'. 
