@@ -42,7 +42,17 @@
     font-lock-keyword-face
     )
   "Basic colorization scheme for PETSc-FEM. ")
-;
+;;
+(defvar petscfem-dir
+  (let ((dir (getenv "PETSCFEM_DIR")))
+    (when dir (setq petscfem-dir dir)))
+  "The root directory of the PETSc-FEM installation.")
+;;
+(defvar petscfem-info-file
+  (when (boundp 'petscfem-dir)
+    (concat petscfem-dir "/doc/options.info"))
+  "The PETSc-FEM options info file for using with info-lookup.")
+;;
 (define-derived-mode petscfem-mode
   text-mode "PETSc-FEM"
   "Major mode for editing PETSc-FEM data files
@@ -51,33 +61,11 @@
 	`((petscfem-font-lock-keywords)
 	  nil nil		  
 	  ((?/ . "w") (?~ . "w") (?. . "w") (?- . "w") (?_ . "w")) nil))
-;
-;;   (setq font-lock-defaults 
-;; 	`('(global_options elemset nodedata nodes)
-;; 	  t nil		  
-;; 	  ((?/ . "w") (?~ . "w") (?. . "w") (?- . "w") (?_ . "w")) nil))
-;
-;;   (setq font-lock-defaults
-;; 	`((sh-font-lock-keywords
-;; 	   sh-font-lock-keywords-1 sh-font-lock-keywords-2)
-;; 	  nil nil
-;; 	  ((?/ . "w") (?~ . "w") (?. . "w") (?- . "w") (?_ . "w")) nil
-;; 	  (font-lock-syntactic-keywords
-;; 	   ;; Copy so we can use destructive update in `sh-font-lock-heredoc'.
-;; 	   . ,(copy-sequence sh-font-lock-syntactic-keywords))
-;; 	  (font-lock-syntactic-face-function
-;; 	   . sh-font-lock-syntactic-face-function)))  
-  )
-(setq petscfem-mode-hook nil)
-;
-(load-library "info-look")
-(info-lookup-maybe-add-help
- :mode 'petscfem-mode 
- :regexp "[_a-zA-Z0-9./+-]+"
- :doc-spec (list (list 
-		  (concat "(" (getenv "PETSCFEM_DIR") 
-			  "/doc/options.info)Options Index"))))
-;
+ )
+;;
+(defvar petscfem-mode-hook nil 
+  "Normal hook run when entering PETSc-FEM.")
+;;
 (defun my-Info-lookup-copy-keyword()
   (interactive)
   (save-excursion
@@ -97,8 +85,5 @@
   (Info-exit)
   (delete-window))
 ;
-(define-key Info-mode-map (kbd "c") 'my-Info-lookup-copy-keyword)
-(define-key Info-mode-map (kbd "x") 'my-Info-bury-and-kill)
-
 (provide 'petscfem)
 ;;; petscfem.el ends here
