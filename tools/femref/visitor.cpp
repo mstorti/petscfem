@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.22 2005/01/07 01:42:24 mstorti Exp $
+// $Id: visitor.cpp,v 1.23 2005/01/07 02:39:08 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -18,16 +18,22 @@ UniformMesh::visitor::visitor()
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
+  mesh  = &mesh_a;
   if (visit_mode==UniformMesh::Natural) {
     elem = elem_a;
   } else if (visit_mode==UniformMesh::BreadthFirst) {
     char stat=0;
     visited.resize(mesh->nelem,stat);
-    element_stack.push_front(elem_a);
+    element_stack.push_back(elem_a);
     pop_elem();
+    nvisited=0;
   }
+  if (!end_elem()) init(elem);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::visitor::init(int elem_a) {
   while(!ref_stack.empty()) pop();
-  mesh  = &mesh_a;
   etree_p = mesh->elem_ref.e(elem);
   ElemRef::iterator q = etree_p->begin();
   
@@ -138,7 +144,7 @@ next() {
   if (so_next()) return true;
   next_elem();
   if(end_elem()) return false;
-  init(*mesh,elem);
+  init(elem);
   return true;
 }
 
@@ -148,7 +154,7 @@ so_end() { return at_end; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
-end() { return at_end && elem>= mesh->nelem; }
+end() { return at_end && end_elem(); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 
@@ -299,7 +305,7 @@ level_next() {
   if (level_so_next()) return true;
   elem++;
   if (elem >= mesh->nelem) return false;
-  init(*mesh,elem);
+  init(elem);
   return true;
 }
 
@@ -358,17 +364,24 @@ bool UniformMesh::visitor::end_elem() {
 void 
 UniformMesh::visitor::
 pop_elem() { 
-  if (element_stack.empty())
+  if (element_stack.empty()) {
     assert(nvisited==mesh->nelem);
+    return;
+  }
   elem = element_stack.front();
+  nvisited++;
   element_stack.pop_front();
-  int 
-    e0 = mesh->n2e_ptr.ref(elem),
-    e1 = mesh->n2e_ptr.ref(elem+1);
-  for (int k=e0; k<e1; k++) {
-    int ngbr_elem = mesh->n2e.ref(k);
-    if (visited.ref(ngbr_elem)) continue;
-    element_stack.push_back(ngbr_elem);
-    visited.ref(ngbr_elem) = 1;
+  for (int j=0; j<mesh->nel; j++) {
+    int node = mesh->connec.e(elem,j);
+    int 
+      e0 = mesh->n2e_ptr.ref(node),
+      e1 = mesh->n2e_ptr.ref(node+1);
+    for (int k=e0; k<e1; k++) {
+      int ngbr_elem = mesh->n2e.ref(k);
+      if (visited.ref(ngbr_elem)) continue;
+      element_stack.push_back(ngbr_elem);
+      visited.ref(ngbr_elem) = 1;
+      printf("node %d, adding ngbr elem %d\n",node,ngbr_elem);
+    }
   }
 }

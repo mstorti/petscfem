@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.49 2005/01/07 01:42:24 mstorti Exp $
+// $Id: femref.h,v 1.50 2005/01/07 02:39:08 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -450,8 +450,10 @@ public:
     visitor();
     /// Stack containing the elements in the refinement tree
     RefStackT ref_stack;
-    /// Inits the visitor to the base element of index #elem#
+    /// Inits the visitor to the first element of #mesh#
     void init(UniformMesh &mesh_a,int elem=0);
+    /// Inits the visitor to the base element of index #elem#
+    void init(int elem);
 #if 0
     /** Inits the visitor to the base element of the
 	first element. */
@@ -477,7 +479,7 @@ public:
     /** Pass to the following subobject of the 
 	element, at this level or higher. */
     bool level_so_next();
-    /** Is this node a leave in the refienement tree? */ 
+    /** Is this node a leave in the refinement tree? */ 
     bool is_leave();
     /** Refine this element according to #s# */ 
     void refine(const Splitter* s);
