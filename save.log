@@ -1160,3 +1160,6 @@ tag: beta-2.94.pl12 on Mon,  6 May 2002 23:46:45 -0300 by mstorti in spider
 tag: beta-2.94.pl13 on Sun, 12 May 2002 12:10:50 -0300 by mstorti in spider
      > I was looking for a bug in partitioning but I found that it seems
      > OK. It was a bad assignation of `is_fat' flags.
+----------
+     > Some performance issues solved.
+     > Added some printing options for performanece tuning.
