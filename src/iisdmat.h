@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.16 2001/12/09 14:04:01 mstorti Exp $
+// $Id: iisdmat.h,v 1.17 2001/12/12 20:37:12 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -171,11 +171,11 @@ class IISDMat : public PFMat {
       processor
   */
   Vec y_loc_seq;
-  /// SLES for local solution (en each processor)
+  /// SLES for local solution (in each processor)
   SLES sles_ll;
-  /// PC for local solution (en each processor)
+  /// PC for local solution (in each processor)
   PC pc_ll;
-  /// KSP for local solution (en each processor)
+  /// KSP for local solution (in each processor)
   KSP ksp_ll;
   /// Warn if not appropriate setting for preconditioning type
   static int warn_iisdmat;
@@ -275,7 +275,7 @@ public:
   int set_preco(const string & preco_type);
   /// Destroy the SLES associated with the operator. 
   virtual int destroy_sles();
-  IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL),
+  IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL), sles_ll(NULL), 
   local_solver(PETSc) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.6 2001/12/08 00:42:22 mstorti Exp $
+//$Id: pfmatsp.cpp,v 1.7 2001/12/12 20:37:12 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -48,7 +48,9 @@ int SparseDirect::factor_and_solve(Vec &res,Vec &dx) {
 }
 
 int SparseDirect::solve_only(Vec &res,Vec &dx) {
-  assert(0);
+  // SparseDirect solver already takes into
+  // account refactorization
+  return factor_and_solve(res,dx);
 }
 
 void SparseDirect::set_value(int row,int col,Scalar value,
