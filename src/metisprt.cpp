@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.10 2001/11/20 23:01:23 mstorti Exp $
+//$Id: metisprt.cpp,v 1.11 2001/11/23 00:34:07 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -234,7 +234,8 @@ void  metis_part(int nelemfat,Mesh *mesh,
 	  if (ielgjj==ielgj) continue;
 	  vrtxjj = el2vrtx[ielgjj];
 	  adjncy_v[vrtxj].insert(vrtxjj);
-	  // adjncy_v[vrtxjj].insert(vrtxj); // is this needed?
+	  // Just in case the user doesn't return a symmetric graph
+	  adjncy_v[vrtxjj].insert(vrtxj);
 	}
       }
     }

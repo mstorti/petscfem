@@ -1,11 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.1 2001/11/23 00:19:53 mstorti Exp $
+//$Id: graph.cpp,v 1.2 2001/11/23 00:34:07 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Graph::~Graph() {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Graph::part(int npart) {
-  int visited,elem,elemk,vrtx,vrtxj,vrtxjj,p;
+  int visited,elem,elemk,vrtx,vrtxj,vrtxjj,p,j,k;
   vector<int>::iterator n,ne;
   set<int>::iterator q,qe;
 
@@ -61,7 +65,6 @@ void Graph::part(int npart) {
     // Take a group for each element
     for (elem=0; elem<nelemfat; elem++) {
       el2vrtx[elem] = elem;
-      find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
       vwgt[elem] += int(weight(elem)/weight_scale);
     }      
     visited=nelemfat;
@@ -78,14 +81,13 @@ void Graph::part(int npart) {
       if (visited==nelemfat) break;
       
       // Disconnected parts. Find next element not visited.
-      for (k=0; k<nel; k++) {
+      for (k=0; k<nelemfat; k++) {
 	if (el2vrtx[k]<0) {
 	  ngbrs.push(k);
 	  // Put it in a random vertex
 	  vrtx = irand(0,nvrtx)-1;
 	  el2vrtx[k] = vrtx;
-	  find_elem(k,nelemsetptr,nelemsets,mesh,elemset,locel);
-	  vwgt[vrtx] += int(elemset->weight()/weight_scale);
+	  vwgt[vrtx] += int(weight(elem)/weight_scale);
 	  break;
 	}
       }
@@ -116,7 +118,7 @@ void Graph::part(int npart) {
     }
   }
 
-#if 1
+#if 0
   if (myrank==0) {
     for (elem=0; elem < nelemfat; elem++) {
       printf("el2vrtx[%d] = %d\n",elem,el2vrtx[elem]);
@@ -141,7 +143,8 @@ void Graph::part(int npart) {
     set_ngbrs(elem,ngbrs_v);
     for (n=ngbrs_v.begin(); n!=ne; n++) {
       int &elemk = *n;
-      vrtxjj = el2vrtx[ielgjj];
+      vrtxjj = el2vrtx[elemk];
+      // Add edges to graph
       adjncy_v[vrtxj].insert(vrtxjj);
       // Just in case the user doesn't return a symmetric graph
       adjncy_v[vrtxjj].insert(vrtxj);
@@ -191,5 +194,22 @@ void Graph::part(int npart) {
     }
   }  
 #endif
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Graph::vrtx_part(int elem) {
+  // Map fine graph vertex to coarse graph vertex and return partition
+  // index for the last one
+  return vpart[el2vrtx[elem]];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+const int *Graph::vrtx_part() {
+  // Create auxiliary vector `vpartf', fill with values using
+  // elemental `vrtx_part' and return pointer to it
+  int *vpartf = new int[nelemfat];
+  for (int j=0; j<nelemfat; j++) 
+    vpartf[j] = vpart[el2vrtx[j]];
+  return vpartf;
 }
 
