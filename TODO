@@ -5,11 +5,12 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
-* why `make finaldoc' in ./ doesn't launch latex2html?
-* Correct DOC++ doc in `lagmul.h'
 * Make a test for Newton convergence with ns_id and lag_mul mixed. 
+* Correct DOC++ doc in `lagmul.h'
+* why `make finaldoc' in ./ doesn't launch latex2html?
 * FastMat2 doesn't detect errors like this
-  `tmp5.prod(dshapex,tmp4,-1,2,-1,2);' (see fstepfm.cpp, Fri Jul 26
+  `tmp5.prod(dshapex,tmp4,-1,2,-1,2);' i.e. the free indices are not
+  in a sequence starting at 1. (see fstepfm.cpp, Fri Jul 26
   12:51:27 ART 2002). non contracted indices should be 1,2,.... 
   neither this: tmp11.prod(dshapex,tmp12,-1,1,-1);
 * default values for npg
