@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.19 2003/08/31 13:10:38 mstorti Exp $
+//$Id: dofmap.cpp,v 1.20 2003/08/31 15:30:19 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -113,19 +113,6 @@ void Dofmap::get_row(int const & node,
   
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "Dofmap::get_column"
-int Dofmap::get_column(int const & node,int const & kdof,Darray *da) {
-  sp_entry spe;
-  da_resize(da,0);
-  int locdof = IDENT(node-1,kdof-1);
-  spe = sp_entry(node,kdof,locdof,1.);
-  if (locdof>0) da_append(da,&spe);
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int Dofmap::edof(const int node,const int field) const"
@@ -186,19 +173,30 @@ int Dofmap::get_nodal_value(int const & node,int const & kdof,double
     //for (k=row.begin(); k!=row.end(); k++) {
     int keq= entry->j;
     double coef= entry->coef;
+    if (row.size()>1) {
+      // printf("eq/coef: %d %g\n",keq,coef);
+    }
     w += coef*get_dofval(keq,sstate,ghost_vals,time_data);
   }
+  value = w;
 #else
   // New fast version
   int n;
   const int *dofp, *dofp_end;
   const double *coefp;
   get_row(node,kdof,n,&dofp,&coefp);
-  dofp_end = dofp+n;
-  while (dofp<dofp_end) 
-    w += (*coefp++)*get_dofval((*dofp++),sstate,ghost_vals,time_data);
+  if (n==1) {
+    value = (*coefp) * get_dofval((*dofp),sstate,ghost_vals,time_data);
+  } else {
+    dofp_end = dofp+n;
+    while (dofp<dofp_end) {
+      // printf("eq/coef: %d %g\n",*dofp,*coefp);
+      w += (*coefp++)
+	*get_dofval((*dofp++),sstate,ghost_vals,time_data);
+    }
+    value = w;
+  }
 #endif
-  value = w;
   return 0;
 }
 
@@ -228,39 +226,6 @@ void fixa_entry::print(void) {
   printf("node: %d, kdof %d, val: %f\n",node,kdof,val);
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "Dofmap::add_q_entry"
-void Dofmap::add_q_entry(const int node,const int kdof,const int keq,
-			 const double coef) {
-  q_entry qe(node,kdof,keq,coef);
-  da_append(q,&qe);
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-#undef __FUNC__
-#define __FUNC__ "dofmap::synchronize"
-void Dofmap::synchronize() {
-  // Resync fixa and q darray's
-  da_sort (fixa,fixa_entry_cmp,NULL);
-  da_sort (q,q_entry_cmp,NULL);
-
-#if 0  
-  int nq = da_length(q);
-  for (int kk=0; kk<nq; kk++) {
-    q_entry *qe = (q_entry *) da_ref(q,kk);
-    printf("kk %d, node %d, kdof %d, keq %d, coef %f\n",kk,
-	   qe->node,qe->kdof,qe->keq,qe->coef);
-  }
-#endif
-
-  synchro=1;
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "q_entry_cmp" 
@@ -277,47 +242,12 @@ int q_entry_cmp (const void *left,const void *right, void *args) {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-#undef __FUNC__
-#define __FUNC__ "Dofmap::print"
-void Dofmap::print (char * s=NULL) {
-  darray *row = da_create(sizeof(sp_entry));
-  sp_entry *spe;
-  PetscPrintf(PETSC_COMM_WORLD,
-	      (s == NULL ? "Dofmap dump: \n" : s));
-  for (int node=1; node<=nnod; node++) {
-    for (int kdof=1; kdof<=ndof; kdof++) {
-      get_row(node,kdof,row);
-      int len=da_length(row);
-      printf("row for node %d, dof %d has %d entries\n",node,kdof,len);
-      for (int kk=0; kk<len; kk++) {
-	spe = (sp_entry *) da_ref(row,kk);
-	printf("dof %d -> coef %f\n",spe->gdof,spe->coef);
-      }
-    }
-  }
-  PetscPrintf(PETSC_COMM_WORLD,
-	      "--------- end of dofmap dump. ---------\n");
-  da_destroy(row);
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int Dofmap::col_is_null(int j) {
   static row_t *col;
   if (col==NULL) col= new row_t;
   id->get_col(j,*col);
   return col->size()==0;
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Dofmap::set_fixation(int node,int kdof,double val) {
-  int edoff = edof(ndof,kdof);
-  id->set_elem(edof,edof,0);
-  fixed[edoff] = pair(val,1);
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -346,22 +276,6 @@ void Dofmap::dof_range(int myrank,int &dof1,int &dof2) {
   dof2=dof1+neqproc[myrank]-1;
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void create_ghosted_vector(Vec *v)"
-int Dofmap::create_ghosted_vector (Vec *v) {
-
-  int myrank;
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-
-  int ierr = VecCreateGhost(PETSC_COMM_WORLD,neqproc[myrank],
-		      neq,ghost_dofs->size(),ghost_dofs->begin(),
-		      v); CHKERRQ(ierr);
-
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "Dofmap::create_MPI_vector(Vec &)"
@@ -380,9 +294,6 @@ int Dofmap::create_MPI_ghost_vector(Vec &v) {
   
   int myrank, ierr;
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-//    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-//  	      "[%d] Dofmap::create_MPI_ghost_vector ghost_dofs->size(): %d\n",
-//  	      myrank, ghost_dofs->size());
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
   ierr = VecCreateSeq(PETSC_COMM_SELF,
 		      ghost_dofs->size(),&v); CHKERRQ(ierr);

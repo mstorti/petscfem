@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.319 2003/08/31 13:53:55 mstorti Exp $
+$Id: notes.txt,v 1.320 2003/08/31 15:30:15 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.319 2003/08/31 13:53:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.320 2003/08/31 15:30:15 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.319 2003/08/31 13:53:55 mstorti Exp $ 
+! # $Id: notes.txt,v 1.320 2003/08/31 15:30:15 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.319 2003/08/31 13:53:55 mstorti Exp $ 
+  # $Id: notes.txt,v 1.320 2003/08/31 15:30:15 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7009,6 +7009,18 @@ deberia hacer nada.
 upload       5.19secs, (    0.0385 secs/Ke)
 download      0.332secs, (   0.00246 secs/Ke)
 upl/dwl: 5.5secs
+%
+11:52:59: Ahora voy a ver el tema de que ande cuando hay constraints,
+condiciones periodicas etc... Despues voy a ver el funcionamiento en
+paralelo (todavia hay algunas cosas por implementar). 
+%
+12:17:22: Corro el sector (que usa solver PETSc) y corre pero da
+mal. Asi que debe haber algun error. 
+%
+12:21:43: Aparentemente el error esta en dofmap.cpp
+Dofmap::get_nodal_value. 
+%
+12:29:13: Encontre el error. salvo. 
 
 # Current line ===========  %
 # Local Variables: $

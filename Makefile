@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.53 2003/07/26 01:58:12 mstorti Exp $
+#$Id: Makefile,v 1.54 2003/08/31 15:30:15 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -221,5 +221,12 @@ ltag:
 
 torture:
 	$(MAKE) -C test torture
+
+#w Cleans all optimized libraries and binaries
+clean_O:
+	-rm -f `find . -name '*_O.a'` `find . -name '*_O.bin'` 
+
+clean_g:
+	-rm -f `find . -name '*_g.a'` `find . -name '*_g.bin'` 
 
 #s

@@ -1,9 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2003/08/31 15:30:26 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
+default: sector
+
 PETSCFEM_DIR = ../..
+# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.19.pl32
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
@@ -11,8 +14,9 @@ SRCS =
 tests: sector chunk_size_process triangle lap_per
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Test on an angular sector, uses constraints. 
 sector: sector.depl $(LAPLACE)
-	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
+	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  # >/dev/null
 	-mv sector.sal sector0.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
