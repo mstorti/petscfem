@@ -1,5 +1,5 @@
 //
-// time: Fri Mar 28 17:16:21 2003
+// time: Thu May 22 21:00:46 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -9,9 +9,9 @@
 // CATEGORY Macros
 // INPUT n; value list or string; (no default);  
 // INPUT input_2; string; (no default);  
-// OUTPUT output_1; value list or string;  
+// OUTPUT output_1; string;  
 // End MDF
-// workspace: width = 352, height = 291
+// workspace: width = 311, height = 381
 // layout: snap = 0, width = 50, height = 50, align = NN
 //
 macro SystemDrivesImport2(
@@ -21,12 +21,12 @@ macro SystemDrivesImport2(
  output_1
 ) {
     // 
-    // node Input[2]: x = 177, y = 65, inputs = 0, label = Input
+    // node Input[2]: x = 269, y = 45, inputs = 0, label = Input
     // parameter: position = 2, name = 'input_2', value = '(no default)', descriptive = 1, description = ' ', required = 0, visible = 1
     //
 SystemDrivesImport2_Input_2_out_1 = input_2;
     // 
-    // node Input[1]: x = 277, y = 62, inputs = 0, label = Input
+    // node Input[1]: x = 197, y = 48, inputs = 0, label = Input
     // parameter: position = 1, name = 'n', value = '(no default)', descriptive = 1, description = ' ', required = 0, visible = 1
     //
 SystemDrivesImport2_Input_1_out_1 = n;
@@ -41,12 +41,21 @@ SystemDrivesImport2_Format_1_out_1 =
     NULL
     ) [instance: 1, cache: 1];
     // 
-    // node Output[1]: x = 297, y = 229, inputs = 1, label = Output
+    // node Format[2]: x = 90, y = 154, inputs = 2, label = Format
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "%d"
+    //
+SystemDrivesImport2_Format_2_out_1 = 
+    Format(
+    "%d",
+    SystemDrivesImport2_Input_1_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node Output[4]: x = 96, y = 319, inputs = 1, label = Output
     // parameter: position = 1, name = 'output_1', value = ' ', descriptive = 0, description = ' ', required = 0, visible = 1
     //
-output_1 = SystemDrivesImport2_Input_1_out_1;
+output_1 = SystemDrivesImport2_Format_2_out_1;
     // 
-    // node System[1]: x = 225, y = 229, inputs = 1, label = System
+    // node System[1]: x = 170, y = 249, inputs = 1, label = System
     //
     System(
     SystemDrivesImport2_Format_1_out_1
@@ -56,3 +65,4 @@ output_1 = SystemDrivesImport2_Input_1_out_1;
 SystemDrivesImport2_Input_2_out_1 = NULL;
 SystemDrivesImport2_Input_1_out_1 = NULL;
 SystemDrivesImport2_Format_1_out_1 = NULL;
+SystemDrivesImport2_Format_2_out_1 = NULL;
