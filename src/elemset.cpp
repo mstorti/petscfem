@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.24 2001/08/21 02:10:04 mstorti Exp $
+//$Id: elemset.cpp,v 1.25 2001/10/12 16:03:33 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -518,12 +518,11 @@ int assemble(Mesh *mesh,arg_list argl,
       if (any_fdj) {
 
 	// copy to reference state
-	memcpy (pref,(void *)arg_data_v[j_pert].locst,
+	memcpy (pref,arg_data_v[j_pert].locst,
 		sizeof(double)*chunk_size*ndoft);
 	for (j=0; j<narg; j++) 
 	  if (argl[j].options & IS_FDJ) 
-	    memcpy ((void *)ARGVJ.refres,
-		    (void *)ARGVJ.retval,
+	    memcpy (ARGVJ.refres,ARGVJ.retval,
 		    sizeof(double)*chunk_size*ndoft);
 
 	// epsilon:= the increment in the variables in order to
@@ -537,7 +536,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	  for (kdof=0; kdof<ndof; kdof++) {
 
 	    // copy reference state on perturbed  state
-	    memcpy ((void *)arg_data_v[j_pert].locst,pref,
+	    memcpy (arg_data_v[j_pert].locst,pref,
 		    sizeof(double)*chunk_size*ndoft);
 	  
 #define PSTAT(iele,j,k) VEC3(arg_data_v[j_pert].locst,iele,j,nel,k,ndof)
