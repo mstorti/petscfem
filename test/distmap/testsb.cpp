@@ -1,6 +1,8 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.3 2004/01/12 01:42:59 mstorti Exp $
+// $Id: testsb.cpp,v 1.4 2004/01/18 20:18:35 mstorti Exp $
+
+#include <unistd.h>
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -82,17 +84,38 @@ void PO::print() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **argv) {
 
+  int c,m=7,N=10,k=0,ierr=0;
+  PetscTruth flg;
   PetscInitialize(&argc,&argv,NULL,NULL);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
-  Debug debug;
-  debug.init();
-  //  debug.activate();
+  ierr = PetscOptionsGetInt(PETSC_NULL,"m",&m,&flg);
+  CHKERRA(ierr); 
+
+  while ((c = getopt (argc, argv, "m:N:k:")) != -1) {
+    switch (c) {
+    case 'm':
+      sscanf(optarg,"%d",&m);
+      break;
+    case 'N':
+      sscanf(optarg,"%d",&N);
+      break;
+    case 'k':
+      sscanf(optarg,"%d",&k);
+      break;
+    default:
+      PetscPrintf(PETSC_COMM_WORLD,"bad option: \"%c\"\n",c);
+      abort();
+    }
+  }
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] m %d, N %d, k %d\n",MY_RANK,m,N,k);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+  PetscFinalize();
+  exit(0);
+			  
 #if 0
   SyncBuffer<PO> sb;
-  int N=10;
-  int m=7;
 
   for (int j=0; j<N; j++) {
     sb.push_back();
@@ -107,7 +130,6 @@ int main(int argc,char **argv) {
     sb.back().print();
   }
 
-  debug.trace("antes de sb.print()");
   sb.print();
 
   // sb.check_pack();
@@ -115,8 +137,6 @@ int main(int argc,char **argv) {
   KeyedOutputBuffer kbuff;
   AutoString s;
   
-  int N=10;
-  int m=7;
   for (int j=0; j<N; j++) {
     int k = SIZE*j+MY_RANK;
 
