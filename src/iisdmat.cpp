@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.64 2003/11/25 01:13:36 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.65 2004/07/30 22:12:10 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -26,6 +26,8 @@ extern int MY_RANK,SIZE;
 #include <src/distmap2.h>
 #include <src/distcont2.h>
 #include <src/debug.h>
+#include <mpe.h>
+#include <src/mpelog.h>
 
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
@@ -428,6 +430,8 @@ int IISDMat::mult_trans(Vec x,Vec y) {
 int IISDMat::assembly_begin_a(MatAssemblyType type) {
   int ierr;
 
+  MPE_START(passmb);
+  MPE_START(aux);
   DistMat::const_iterator I,I1,I2;
   Row::const_iterator J,J1,J2;
   int row_indx,col_indx,row_t,col_t;
@@ -435,9 +439,11 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
 
   A_LL_other->scatter();
 
+  MPE_END(aux);
   I1 = A_LL_other->begin();
   I2 = A_LL_other->end();
 
+  int counter=0;
   for (I = I1; I != I2; I++) {
     map_dof_fun(I->first,row_t,row_indx);
     row_indx -= n_locp;
@@ -445,6 +451,7 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
     J1 = row.begin();
     J2 = row.end();
     for (J = J1; J != J2; J++) {
+      counter++;
       map_dof_fun(J->first,col_t,col_indx);
       assert (row_t == L && col_t == L);
       col_indx -= n_locp;
@@ -476,17 +483,26 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
 #endif
     }
   }
+  //    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+  //  			  "[%d] counter %d\n",MY_RANK,counter);
+  //    PetscSynchronizedFlush(PETSC_COMM_WORLD);
   A_LL_other->clear();
 
+  MPE_START(aux1);
   ierr = MatAssemblyBegin(A_LI,type); PF_CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_II,type); PF_CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_IL,type); PF_CHKERRQ(ierr);
+  MPE_END(aux1);
   if (local_solver == PETSc) {
     ierr = MatAssemblyBegin(A_LL,type); PF_CHKERRQ(ierr);
   }
-  A_LL_other->scatter();
+//    MPE_START(aux2);
+//    A_LL_other->scatter();
+//    MPE_END(aux2);
 
+  MPE_START(aux2);
   if (nlay>1) { ierr = MatAssemblyBegin(A_II_isp,type); PF_CHKERRQ(ierr); }
+  MPE_END(aux2);
 
 #if 0
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
@@ -494,6 +510,7 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
 			  MY_RANK,t1,t2,t3,scattered,sr);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
+  MPE_END(passmb);
   return 0;
 };
 
@@ -528,6 +545,7 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
 			  MY_RANK,beg,li,ii,il,ll,beg+li+ii+il+ll);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #else
+  MPE_START(passm);
   ierr = MatAssemblyEnd(A_LI,type); PF_CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_II,type); PF_CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_IL,type); PF_CHKERRQ(ierr);
@@ -535,6 +553,23 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
     ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
   if (nlay>1) { ierr = MatAssemblyEnd(A_II_isp,type); PF_CHKERRQ(ierr); }
+  MPE_END(passm);
+  static int nonzero_flag_set = 0;
+  if (type==MAT_FINAL_ASSEMBLY && !nonzero_flag_set) {
+
+#define SET_NONZERO_FLAG(mat) { 					\
+      ierr =  MatSetOption(mat, MAT_NO_NEW_NONZERO_LOCATIONS);		\
+    CHKERRQ(ierr);							\
+    ierr =  MatSetOption(mat, MAT_NEW_NONZERO_ALLOCATION_ERR);		\
+    CHKERRQ(ierr); }
+
+    SET_NONZERO_FLAG(A_LI);
+    SET_NONZERO_FLAG(A_II);
+    SET_NONZERO_FLAG(A_IL);
+    nonzero_flag_set = 1;
+    if (!MY_RANK) printf("nonzero flag set\n");
+  }
+
 #endif
   return 0;
 };
