@@ -90,7 +90,7 @@ name malla
 geometry cartesian2d
 ndim 2
 npg 4
-# Physucal data
+# Physical data
 #
 __END_HASH__
 __INCLUDE__ qharm.con.tmp
