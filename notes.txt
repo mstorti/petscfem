@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $
+$Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
+! # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
+  # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.233 2003/01/22 14:44:29 mstorti Exp $ 
+  # $Id: notes.txt,v 1.234 2003/01/22 19:09:15 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -5994,6 +5994,16 @@ fria, asi que en realidad se deberia usar una p_c todavia mayor.
 Lo largo en el cluster bastante refinado (refine=12) tarda unos
 12secs/iter o sea 1'/Dt (nnwt=5). Son 4608 elementow=quads. Con
 Dt=5e-4 revento y ahora estoy usando Dt=5e-5 y anda bien. 
+%
+12:18:25: Anduvo bien la corrida con solo la salida caliente en el
+cluster (gasflow.hot_only_run.tgz). Ahora voy a probar a poner la
+salida fria con p_c = 1.315e5.
+%
+12:31:35: Por ahora parece que va bien. El corte parece dar demasiado
+hacia la salida fria. Pero hay que ver por el factor 'r'. 
+%
+15:43:24: Termina bien la corrida con salida fria. Ahora hay que
+empezar a bajar la temperatura de entrada y presion de salida. 
 
 # Current line ===========  %
 # Local Variables: $

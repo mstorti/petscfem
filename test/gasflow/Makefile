@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2003/01/22 14:44:29 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2003/01/22 19:09:16 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -44,5 +44,5 @@ local_clean::
 	-rm -rf mat.output visc2inv inv2visc
 
 dx:
-	eperl -P viewer.dx > viewero.dx
+	eperl -P viewer.dx > viewer_tmp.dx
 #s

@@ -1,0 +1,39 @@
+#-*- shell-script -*-
+<: require './viewer.pl'; :>//
+object "nodes" class array type float rank 1 shape 2 
+         items <:=$nnod:> data file <:=$xnod:>
+
+object "icone" class array type int rank 1 shape 4 
+        items <:=$nelem:> data file <:=$icone:>
+attribute "element type" string "quads"
+attribute "ref" string "positions"
+
+object "pdat" class array type float rank 0 
+     items <:=$nnod:> data file p.dat.tmp
+attribute "dep" string "positions"
+
+object "udat" class array type float rank 1 shape 3
+     items  <:=$nnod:>  data file u.dat.tmp
+attribute "dep" string "positions"
+
+object "rhodat" class array type float rank 0
+     items  <:=$nnod:>  data file rho.dat.tmp
+attribute "dep" string "positions"
+
+object "p_field" class field
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "pdat"
+
+object "u_field" class field
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "udat"
+
+object "results" class group
+member "u" value "u_field"
+member "p" value "p_field"
+member "rho" value "rhodat"
+
+end
+

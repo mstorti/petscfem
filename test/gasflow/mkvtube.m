@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.11 2003/01/22 14:44:29 mstorti Exp $
+## $Id: mkvtube.m,v 1.12 2003/01/22 19:09:16 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -46,6 +46,9 @@ endif
 asave("vtube.nod.tmp",x3d);
 asave("vtube.con.tmp",ic3d);
 
+asave("vtube.nod-2d.tmp",xnod);
+asave("vtube.con0-2d.tmp",icone(:,[1 2 4 3])-1);
+
 fid = fopen("vtube.fixa.tmp","w");
 tol = 1e-7;
 #wall = find((abs(rho-R0)<tol || z<tol || abs(z-L0)<tol)
@@ -90,7 +93,7 @@ for k=1:nn
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
     fprintf(fid,"%d %d   %f\n",k,u_dof+2,0);
     n_h = n_h+1;
-  elseif 0 && inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
+  elseif inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
     fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;
