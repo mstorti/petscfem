@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.19 2002/01/14 03:45:05 mstorti Exp $
+//$Id: wallke.cpp,v 1.20 2002/02/04 18:39:40 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -343,6 +343,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
       if (lumped_wallke) {
+	assert(y_wall==0); // `lumped_wallke' and `y_wall' not
+			   // implemented yet check that no
 	matloc.reshape(2,nel*ndof,nel*ndof);
 	matloc.reshape(4,nel,ndof,nel,ndof);
 
@@ -367,7 +369,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  matloc.ir(1,j).ir(3,j)
 	    .prod(u_star,u_star,1,2)
-	    .scale(wpgdet*gprime/Ustar);
+	    .scale(Omega_j*gprime/Ustar);
 
 	  veccontr.ir(1,j).set(ucols_star).scale(-gfun*Omega_j);
 	}
