@@ -13,7 +13,7 @@ nsave 20
 
 #rtol 1e-2
 rtol 0
-#atol 0
+atol 0
 maxits 100
 
 save_file_pattern "outvector%d.out"
@@ -29,7 +29,7 @@ nnwt 1
 tol_newton 0
 preco_type "lu"
 
-print_linear_system_and_stop
+#print_linear_system_and_stop
 #solve_system 0
 
 Dt 0.1
@@ -98,7 +98,7 @@ fixa
 3 5  1.
 #endif
 
-__INCLUDE__ pp.fix
+#__INCLUDE__ pp.fix
 
 # porque hay que poner este?
 #35 1  1.
