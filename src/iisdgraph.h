@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.1.2.2 2001/12/18 01:58:41 mstorti Exp $
+//$Id: iisdgraph.h,v 1.1.2.3 2001/12/19 03:10:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -67,29 +67,5 @@ class StoreGraph : public Graph {
   /// perform the scatter of elements to its corresponding processor. 
   void scatter() { lgraph.scatter(); }
   void print() const;
-#if 0
-  /** Computes the size of data needed to pack this entry 
-      @param k (input) iterator to the entry
-      @return the size in bytes of the packed object
-  */ 
-  int size_of_pack(const GRow &p) const;
-  /** Packs the entry #(k,v)# in buffer #buff#. This function should
-      be defined by the user. 
-      @param k (input) key of the entry
-      @param v (input) value of the entry
-      @param buff (input/output) the position in the buffer where the
-      packing is performed
-  */ 
-  void pack(const GRow &p,char *&buff) const;
-  /** Does the reverse of #pack#. Given a buffer #buff# recovers the
-      corresponding key and val. This function should
-      be defined by the user. 
-      @param k (output) key of the entry
-      @param v (output) value of the entry
-      @param buff (input/output) the position in the buffer from where the
-      unpacking is performed
-  */ 
-  void unpack(GRow &p,const char *& buff);
-#endif
 };
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.2 2001/12/14 03:11:14 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.3 2001/12/19 03:10:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -19,7 +19,7 @@ extern int MY_RANK,SIZE;
 #include <src/elemset.h>
 #include <src/pfmat.h>
 #include <src/iisdmat.h>
-#include <src/graph.h>
+#include <src/iisdgraph.h>
 
 //---:---<*>---:---<*>---:a---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -419,8 +419,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
-void IISDMat::create(Graph &g,DofPartitioner &dofpart,
-		     int debug_compute_prof=0) {
+void IISDMat::create(int debug_compute_prof=0) {
 
   int myrank,size,max_partgraph_vertices_proc;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
