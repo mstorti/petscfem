@@ -295,15 +295,16 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     
 
   }
-  // wait_from_console("wall::assemble sale del lazo de elementos");  
-  if (elemset!=this) 
-    elemset_pointer->push_back(ElemToPtr((data_pts->size())/double(ndim),this));
-  // wait_from_console("wall::assemble trace 1");  
+  if (elemset!=this) {
+    int s = data_pts->size();
+    int l = s/ndim;
+    assert(l*ndim == s);
+    elemset_pointer->push_back(ElemToPtr(l,this));
+  }
       
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-  // wait_from_console("sale de wall::assemble");  
-
+  return 0;
 }
 #undef SHAPE    
 #undef DSHAPEXI 
