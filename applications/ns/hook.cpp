@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.5 2002/09/24 17:59:56 mstorti Exp $
+//$Id: hook.cpp,v 1.6 2002/09/25 17:03:20 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -19,9 +19,12 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap) {
   if (!line) return;
   char *lcpy = local_copy(line);
   int n=0; 
+  const char *token;
+  char *save_ptr;
   while (1) { 
-    char *token = strtok((n++ == 0 ? lcpy : NULL),"[ \t\n]");
+    token = strtok_r((n++ == 0 ? lcpy : NULL),"[ \t\n]",&save_ptr);
     if (!token) break;
+#if 1
 
 #define CHECK_HOOK(hook_name) 				\
   (!strcmp(token,#hook_name)) hook = new hook_name 
@@ -32,9 +35,12 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap) {
 			token,line);
     PETSCFEM_ASSERT(hook,"Couldn't create hook \"%s\"\n",token);
 
-    token = strtok((n++ == 0 ? lcpy : NULL),"[ \t\n]");
+    token = strtok_r((n++ == 0 ? lcpy : NULL),"[ \t\n]",&save_ptr);
+    PETSCFEM_ASSERT(token,"Couldn't find name for hook type \"%s\"\n"
+		    "  Line: \"%s\"\n",token,line);
     hook->init(mesh,dofmap,token);
     push_back(hook);
+#endif
   }
   delete[] lcpy;
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dlhook.h,v 1.2 2002/09/24 17:59:56 mstorti Exp $
+//$Id: dlhook.h,v 1.3 2002/09/25 17:03:20 mstorti Exp $
 
 #ifndef DLHOOK_H
 #define DLHOOK_H
@@ -37,5 +37,26 @@ public:
     (*time_step_post_fun)(time,step,gather_values,fun_data);
   }
 };
+
+#define DL_GENERIC_HOOK(prefix)						\
+extern "C"								\
+void prefix##_init_fun(Mesh &mesh,Dofmap &dofmap,			\
+		       const char *name,void *&fun_data) {		\
+  fun_data = new prefix;						\
+  ((prefix *)fun_data)->init(mesh,dofmap,name);				\
+}									\
+									\
+extern "C" void								\
+prefix##_time_step_pre_fun(double time,int step,void *fun_data) {	\
+  ((prefix *)fun_data)->time_step_pre(time,step);			\
+}									\
+									\
+extern "C" void								\
+prefix##_time_step_post_fun(double time,int step,			\
+			    const vector<double> &gather_values,	\
+			    void *fun_data) {				\
+  ((prefix *)fun_data)							\
+    ->time_step_post(time,step,gather_values);				\
+}
 
 #endif

@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.95 2002/09/17 17:15:10 mstorti Exp $
+#$Id: Makefile.base,v 1.96 2002/09/25 17:03:17 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -14,7 +14,7 @@ export BOPT
 
 # This allows to specify whether optimized version (compiler -O2
 # flag) or the debugger version (compiler -g flag) should be generated
-# in separate llibraries
+# in separate libraries
 ifeq ($(USE_SEPARATE_COMPILATION),)
 USE_SEPARATE_COMPILATION = yes
 endif
