@@ -132,7 +132,7 @@ void chomp(char *s) { s[strlen(s)-1] = '\0'; }
 enum comm_mode { SEND, RECV };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void talk(int sock,comm_mode &mode) { 
+int talk(int sock,comm_mode &mode) { 
   static char *line = NULL;
   static size_t N=0;
   char buf2[100];
@@ -142,14 +142,15 @@ void talk(int sock,comm_mode &mode) {
     assert(strlen(line)<BUFSIZE);
     chomp(line);
     strcpy(buf2,line);
-    printf("sending \"%s\"",buf2);
+    // printf("sending \"%s\"",buf2);
     write_data(sock,buf2,BUFSIZE);
     if (!strcmp(line,"OVER")) mode = RECV;
   } else if (mode==RECV) {
     read_data(sock,buf2,BUFSIZE);
     if (!strcmp(buf2,"OVER")) mode = SEND;
-    printf("%s\n",buf2);
+    printf("-- %s\n",buf2);
   } else assert(0);
+  return !strcmp(buf2,"STOP");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -157,6 +158,7 @@ int main(int argc,char **args) {
   int s, sock;
   // fd_set active_fd_set, read_fd_set;
   sockaddr_in servername, clientname;
+  comm_mode mode;
   // char buf[BUFSIZE];
   const char *buf = "Hello socket!\n\0";
   if(argc>1 && !strcmp(args[1],"-server")) {
@@ -173,8 +175,11 @@ int main(int argc,char **args) {
       perror ("accept");
       exit (EXIT_FAILURE);
     }
-    comm_mode mode = SEND;
-    while (1) talk(s,mode);
+    mode = SEND;
+    while (!talk(s,mode));
+    close(s);
+    exit(EXIT_SUCCESS);
+
   } else {
     sock = socket (PF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -188,11 +193,10 @@ int main(int argc,char **args) {
       exit (EXIT_FAILURE);
     }
     printf("client: trace 0\n");
-    
-    comm_mode mode = RECV;
-    while (1) talk(sock,mode);
-
+    mode = RECV;
+    while (!talk(sock,mode));
     close(sock);
     exit(EXIT_SUCCESS);
   }
+
 }
