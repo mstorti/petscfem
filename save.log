@@ -3098,3 +3098,6 @@ tag: beta-3.25.pl6 on Mon, 24 Nov 2003 00:41:46 -0300 by mstorti in spider
 tag: beta-3.25.pl7 on Mon, 24 Nov 2003 21:17:21 -0300 by mstorti in spider
      > Now odoc.pl generates several instances of the same
      > option in onyly one page. 
+----------
+tag: beta-3.25.pl8 on Mon, 24 Nov 2003 21:32:54 -0300 by mstorti in spider
+     > Fixed '-bubbly' initialization bug. 
