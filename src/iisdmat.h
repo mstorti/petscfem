@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.4 2001/09/30 17:17:51 mstorti Exp $
+// $Id: iisdmat.h,v 1.5 2001/09/30 22:52:22 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -52,7 +52,7 @@ public:
   */ 
   void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
   /// Duplicate matrices 
-  int duplicate(MatDuplicateOption op,PFMat &A);
+  int duplicate(MatDuplicateOption op,const PFMat &A);
   int view(Viewer viewer);
 };
 
@@ -235,6 +235,41 @@ public:
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor
   ~IISDMat();
+};
+
+/// Direct SuperLU solver. 
+class SparseDirect : public PFMat {
+public:
+  Sparse::Mat A;
+  /// destructor
+  ~SparseDirect() {A.clear();};
+  /// clear memory (almost destructor)
+  void clear() {A.clear();};
+  /// does nothing here (only sequential use...)
+  int assembly_begin(MatAssemblyType type) { return 0;};
+  /// does nothing here (only sequential use...)
+  int assembly_end(MatAssemblyType type) { return 0;};
+  /// Resizes the underlying #A# matrix. 
+  void create(Darray *da,const Dofmap *dofmap_,
+		      int debug_compute_prof=0);
+  void set_value(int row,int col,Scalar value,
+		 InsertMode mode=ADD_VALUES);
+  /// Sets all values of the operator to zero.
+  int zero_entries() {A.clear(); return 0;};
+  // Does nothing
+  int build_sles(TextHashTable *thash,char *name=NULL) {return 0;};
+  // Does nothing
+  int destroy_sles() {return 0;};
+  // solve system calling Sparse::Mat::solve()
+  int solve(Vec res,Vec dx);
+  /// returns the number of iterations spent in the last solve
+  int its() {return 1;};
+  /// Prints the matrix to a PETSc viewer
+  int view(Viewer viewer) {A.print(); return 0;};
+  /// Derive this if you want to manage directly the preconditioning. 
+  int set_preco(const string & preco_type) {return 0;};
+  /// Duplicate matrices (currently not implemented for IISDMat)
+  int duplicate(MatDuplicateOption op,const PFMat &B);
 };
 
 #endif

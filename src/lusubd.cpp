@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.47 2001/09/30 17:17:51 mstorti Exp $
+//$Id: lusubd.cpp,v 1.48 2001/09/30 22:52:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -47,6 +47,9 @@ PFMat * PFMat_dispatch(const char *s) {
     // PETSc (iterative) solver 
     A = new PETScMat;
     return A;
+  } else if (!strcmp(s,"direct_superlu")) {
+    A = new SparseDirect;
+    return A;
   } else {
     PETSCFEM_ERROR("PFMat type not known: %s\n",s);
   }
@@ -57,7 +60,7 @@ PFMat::~PFMat() {};
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFMat::duplicate"
-int PFMat::duplicate(MatDuplicateOption op,PFMat &A) {
+int PFMat::duplicate(MatDuplicateOption op,const PFMat &A) {
   PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
 		 "for \"%s\" PFMat derived type\n",
 		 typeid(*this).name());
@@ -78,8 +81,8 @@ int petscfem_null_monitor(KSP ksp,int n,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::duplicate"
-int PETScMat::duplicate(MatDuplicateOption op,PFMat &B) {
-  PETScMat *BB = dynamic_cast<PETScMat *> (&B);
+int PETScMat::duplicate(MatDuplicateOption op,const PFMat &B) {
+  const PETScMat *BB = dynamic_cast<const PETScMat *> (&B);
   if (!BB) {
     PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
 		   "for \"%s\" PFMat derived type\n",

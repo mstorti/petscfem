@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.21 2001/08/25 16:08:35 mstorti Exp $
+// $Id: pfmat.h,v 1.22 2001/09/30 22:52:23 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -124,7 +124,7 @@ public:
   /// Derive this if you want to manage directly the preconditioning. 
   virtual int set_preco(const string & preco_type);
   /// Duplicate matrices (currently not implemented for IISDMat)
-  virtual int duplicate(MatDuplicateOption op,PFMat &A);
+  virtual int duplicate(MatDuplicateOption op,const PFMat &A);
 };
 
 PFMat * PFMat_dispatch(const char *s);
@@ -133,5 +133,6 @@ PFMat * PFMat_dispatch(const char *s);
     #monitor# function member. 
 */
 int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *);
+
 
 #endif
