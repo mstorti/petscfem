@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2003/03/05 23:57:50 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: force all run default skew parallel_cone skew_cone rotating_cone	\
 	skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise	\
@@ -73,7 +73,7 @@ runs: smoke.depl
 
 dx: viewero.dx
 viewero.dx: viewer.dx
-	eperl -P $< > $@
+	$(EPERL) -P $< > $@
 
 local_clean::
 

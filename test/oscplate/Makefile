@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2003/02/17 12:39:28 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -11,7 +11,7 @@ tests: oscplate3 oscplate2 oscplate2b oscplate4 \
 #w Oscillating plate with piecewise constant function
 oscplate2: ns
 	-rm -f tmp_file*.tmp oscsome2.sal
-	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
+	$(EPERL) -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
 	$(OCTAVE) oscplate2.m &> oscplate2o.sal
 
@@ -19,7 +19,7 @@ oscplate2: ns
 #w Oscillating plate with sinusoidal oscillation
 oscplate: ns
 	-rm -f tmp_file*.tmp oscplate1.sal
-	eperl -P -d Nperiods=20 oscplate.epl >oscplate.depl
+	$(EPERL) -P -d Nperiods=20 oscplate.epl >oscplate.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl >/dev/null
 	mv oscplate.sal oscplate1.sal
 
@@ -34,15 +34,15 @@ oscplate3: ns
 	-rm -f tmp_file*.tmp oscsome3.sal oscsome.sal
 	-chmod +w oscplate3.depl
 #
-	eperl -P -d alpha=0.5 -d N=16 oscplate.epl >oscplate3.depl
+	$(EPERL) -P -d alpha=0.5 -d N=16 oscplate.epl >oscplate3.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_16.sal
 #
-	eperl -P -d alpha=0.5 -d N=32 oscplate.epl >oscplate3.depl
+	$(EPERL) -P -d alpha=0.5 -d N=32 oscplate.epl >oscplate3.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_32.sal
 #
-	eperl -P -d alpha=0.5 -d N=128 oscplate.epl >oscplate3.depl
+	$(EPERL) -P -d alpha=0.5 -d N=128 oscplate.epl >oscplate3.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_128.sal
 #
@@ -52,7 +52,7 @@ oscplate3: ns
 #w Oscillating plate with piecewise constant function
 oscplate2b: ns
 	-rm -f tmp_file*.tmp oscsome2b.sal oscsome.sal
-	eperl -P -d spline_fun=1  oscplate.epl >oscplate2b.depl
+	$(EPERL) -P -d spline_fun=1  oscplate.epl >oscplate2b.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2b.depl >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -60,7 +60,7 @@ oscplate2b: ns
 #w `sin(t/T)' case
 oscplate4: ns
 	-rm -f tmp_file*.tmp oscsome4.sal oscsome.sal
-	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
+	$(EPERL) -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
 	mv oscsome.sal oscsome4.sal
 	$(OCTAVE) oscplate4.m &> oscplate4o.sal
@@ -69,7 +69,7 @@ oscplate4: ns
 #w `cos(2*pi*t/T)' case
 oscplate4cos: ns
 	-rm -f tmp_file*.tmp oscsome4c.sal oscsome.sal
-	eperl -P -d spline_periodic_fun=1  -d cos_case=1 \
+	$(EPERL) -P -d spline_periodic_fun=1  -d cos_case=1 \
 			oscplate.epl >oscplate4c.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4c.depl >/dev/null
 	mv oscsome.sal oscsome4c.sal
@@ -79,7 +79,7 @@ oscplate4cos: ns
 #w `sin(2*pi*t/T-pi/6)' case
 oscplate4_30deg: ns
 	-rm -f tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
-	eperl -P -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
+	$(EPERL) -P -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
 			oscplate.epl >oscplate4_30deg.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4_30deg.depl >/dev/null
 	mv oscsome.sal oscsome4_30deg.sal

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -26,7 +26,7 @@ stabi.con-tet.tmp: stabi.con.tmp
 dx: viewer_tmp.dx stabi.con-tet.tmp dxdata.tmp
 
 viewer_tmp.dx dxdata.tmp: viewer.dx stabi.state.tmp
-	eperl -P viewer.dx > viewer_tmp.dx
+	$(EPERL) -P viewer.dx > viewer_tmp.dx
 
 LOC_PROG := ns
 CASE_NAME := stabi

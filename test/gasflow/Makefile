@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.31 2003/02/11 11:34:00 mstorti Exp $ 
+# $Id: Makefile,v 1.32 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -53,7 +53,7 @@ local_clean::
 
 #w generate DX files
 dx:
-	eperl -P viewer.dx > viewer_tmp.dx
+	$(EPERL) -P viewer.dx > viewer_tmp.dx
 
 #w Make extension function (hook and dynamic temporal function)
 gasflow.efn: gasflow.cpp

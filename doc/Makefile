@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.31 2003/02/12 18:10:24 mstorti Exp $
+#$Id: Makefile,v 1.32 2003/03/23 20:52:43 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -90,7 +90,7 @@ eps:
 
 petscfem.tex: petscfem.in.tex force
 	if [ -f $@ ] ; then rm -f $@ ; fi
-	eperl $(EPERLFLAGS) $< > $@
+	$(EPERL) $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 # Run  `$ make ltx2h_opt=-no_images' in order to not wait so much time...
@@ -116,7 +116,7 @@ readme: ../README ../README.html
 
 README.pod: README.podin ../VERSION
 	-chmod +w README.pod
-	eperl -P README.podin > README.pod
+	$(EPERL) -P README.podin > README.pod
 	-chmod -w README.pod
 
 ../README: README.pod ../VERSION
@@ -145,6 +145,6 @@ local_dist_clean::
               pod2html-{dir,item}cache petscfem.out *.bak
 
 fm2ex.cpp: ../test/testfm2c.cpp
-	eperl -B '//<' -E '//>' $< > $@
+	$(EPERL) -B '//<' -E '//>' $< > $@
 
 #s

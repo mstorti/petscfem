@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.25 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.26 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -55,7 +55,7 @@ data_%:
 
 #w Test for per-element properties 
 $(OF): newff.m data.m.tmp
-	touch fulljacdef.tmp	# because it is needed by eperl!!
+	touch fulljacdef.tmp	# because it is needed by ePerl!!
 	$(OCTAVE) newff.m >/dev/null
 
 #w makes auxiliary files .gdbinit and link advdif

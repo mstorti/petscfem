@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.28 2003/01/08 15:54:25 mstorti Exp $ 
+# $Id: Makefile,v 1.29 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: plano data run sine 
 
@@ -60,7 +60,7 @@ $(eperl_out_$(case)): $(eperl_in_$(case))
 ifneq ($(eperl_out_$(case)),)
 	-rm -f $(eperl_out_$(case))
 endif
-	eperl -P $(case).epl > $(case).depl
+	$(EPERL) -P $(case).epl > $(case).depl
 	-chmod -w $(eperl_out_$(case))
 
 $(octave_out_$(case)): $(octave_in_$(case))
@@ -73,7 +73,7 @@ endif
 sine: sine_fine_mesh sine_crank_nic
 
 sine_fine_mesh:
-	eperl -d nx=20 -d ny=10 -d N_step_period=32 sine.data.epl >sine.data
+	$(EPERL) -d nx=20 -d ny=10 -d N_step_period=32 sine.data.epl >sine.data
 	$(MAKE) case=sine run
 	$(OCTAVE) sine_fine_test.m > sine_fine_mesh.out
 
@@ -84,7 +84,7 @@ sine_crank_nic:
 	$(OCTAVE) sine_crank_nic.m >  sine_crank_nic.out
 
 sine_crank_nic_npp:
-	eperl -d nx=10 -d ny=5 -d N_step_period=$(N_step_period) -d tol_error=0 \
+	$(EPERL) -d nx=10 -d ny=5 -d N_step_period=$(N_step_period) -d tol_error=0 \
 			sine.data.epl >sine.data
 	-rm -f save.state
 	$(MAKE) case=sine run
@@ -110,7 +110,7 @@ advec: advec.depl
 # pdata: $(DF) $(OF)
 
 sine.data: sine.data.epl
-	eperl -P -d per_elem_prop=1 $< > $@
+	$(EPERL) -P -d per_elem_prop=1 $< > $@
 
 # ################################################################
 # # TESTS FOR THE NEW FLUX FUNCTIONS...
@@ -126,7 +126,7 @@ sine.data: sine.data.epl
 # #w Test for per-element properties 
 # $(DF): sine_new.epl sine.data
 # 	if [ -e $(DF) ] ; then chmod +w $(DF) ; fi
-# 	eperl -P -d perl_elem_prop=1 sine_new.epl > $(DF)
+# 	$(EPERL) -P -d perl_elem_prop=1 sine_new.epl > $(DF)
 # 	chmod -w $(DF)
 
 # $(OF): sine_new.m sine.data

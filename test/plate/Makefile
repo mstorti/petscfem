@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.32 2003/03/11 22:03:31 mstorti Exp $ 
+# $Id: Makefile,v 1.33 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
@@ -62,5 +62,5 @@ local_clean::
 	-rm -rf mat.output *.fifo
 
 dx:
-	eperl -P viewer.dx > viewer.dx.tmp
+	$(EPERL) -P viewer.dx > viewer.dx.tmp
 #s

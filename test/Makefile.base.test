@@ -48,7 +48,7 @@ $(LIB)(%.o):
 
 %.tmp: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -P $(EPERLFLAGS) $< > $@
+	$(EPERL) -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 #	-chmod +w *.depl ; 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.43 2003/02/12 00:36:27 mstorti Exp $ 
+# $Id: Makefile,v 1.44 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -64,4 +64,4 @@ nettest:
 	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
 
 dx:
-	eperl -P viewer.dx > viewer.dx.tmp
+	$(EPERL) -P viewer.dx > viewer.dx.tmp

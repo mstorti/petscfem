@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.74 2003/03/06 20:49:04 mstorti Exp $ 
+# $Id: Makefile,v 1.75 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -53,12 +53,12 @@ $(LIBPETSCFEM)(%.o): %.o
 fm2eperl$(osfx).o: fm2eperl.cpp
 fm2eperl.cpp: fmat2ep.cpp prep.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
+	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 fm2eperl2$(osfx).o: fm2eperl2.cpp
 fm2eperl2.cpp: fmat2ep2.cpp prep.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
+	$(EPERL) -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 FSM = matFSM
 $(FSM).cpp $(FSM).h: sparse.sm
@@ -67,7 +67,7 @@ $(FSM).cpp $(FSM).h: sparse.sm
 
 pfmat.sm: pfmat.sm.in
 	if [ -f $@ ] ; then chmod +w $@; fi ;	\
-	eperl -P $< > $@ ;			\
+	$(EPERL) -P $< > $@ ;			\
 	chmod -w $@
 
 pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
@@ -90,14 +90,14 @@ local_clean:: local_dist_clean
 	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
-	eperl readlist.eperl > readlist.h
+	$(EPERL) readlist.eperl > readlist.h
 	chmod -w readlist.h
 pfmat.o dofmap2.o: CCPPFLAGS += -O0
 
 
 version.cpp: version.cppin ../VERSION
 	rm -f version.cpp
-	eperl version.cppin >version.cpp
+	$(EPERL) version.cppin >version.cpp
 	-chmod -w version.cpp
 version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
 

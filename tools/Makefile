@@ -13,7 +13,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 
 local_sw:: 
-	chmod 755 ./eperl_min ./eperl
+	chmod 755 ./$(EPERL)_min ./$(EPERL)
 
 #w all license files
 licenses: license.script license.c license.tex license.cpp

@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.127 2003/03/13 20:14:24 mstorti Exp $
+#$Id: Makefile.base,v 1.128 2003/03/23 20:52:36 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -161,6 +161,7 @@ DOC_DIR = $(PETSCFEM_DIR)/doc
 INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 
 OCTAVE = octave -qH
+EPERL = $(PETSCFEM_DIR)/tools/eperl
 
 PETSCFEM_VERSION := $(shell cat $(PETSCFEM_DIR)/VERSION)
 
@@ -313,19 +314,19 @@ EPERLFLAGS =
 #e <file>.depl
 %.depl: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -P $(EPERLFLAGS) $< > $@
+	$(EPERL) -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 #w make ePerl script
 #e <file>.epls
 %.epls: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -xP -$(EPERLFLAGS) $< > $@
+	$(EPERL) -xP -$(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 %: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	eperl -P $(EPERLFLAGS) $< > $@
+	$(EPERL) -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 # This line _should_ be here but I don't know why if

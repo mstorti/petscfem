@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2003/02/17 20:29:41 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2003/03/23 20:52:43 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -26,17 +26,17 @@ chunk_size_process: $(LAPLACE)
 # 	Try with different chunk sizes and number of processors
 #
 	-chmod +w sector.depl 
-	eperl -P -d chunk_size=1 sector.epl >sector.depl
+	$(EPERL) -P -d chunk_size=1 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
 	mv sector.sal sector_chunk1.sal
 #
 	-chmod +w sector.depl 
-	eperl -P -d chunk_size=10 sector.epl >sector.depl
+	$(EPERL) -P -d chunk_size=10 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
 	mv sector.sal sector_chunk10.sal
 #
 	-chmod +w sector.depl 
-	eperl -P -d chunk_size=100 sector.epl >sector.depl
+	$(EPERL) -P -d chunk_size=100 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np $(NP) $(LAPLACE) -case sector.depl >/dev/null
 	mv sector.sal sector_chunk100.sal
 	-rm machi.dat
@@ -49,19 +49,19 @@ triangle: triangle_npg3 triangle_npg4 triangle_npg7
 
 triangle_npg3:
 	-chmod +w sector.depl 
-	eperl -P -d triangle=1 -d npg=3 sector.epl >sector.depl
+	$(EPERL) -P -d triangle=1 -d npg=3 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
 	mv sector.sal sector_triangle_npg3.sal
 
 triangle_npg4:
 	-chmod +w sector.depl 
-	eperl -P -d triangle=1 -d npg=4 sector.epl >sector.depl
+	$(EPERL) -P -d triangle=1 -d npg=4 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
 	mv sector.sal sector_triangle_npg4.sal
 
 triangle_npg7:
 	-chmod +w sector.depl 
-	eperl -P -d triangle=1 -d npg=7 sector.epl >sector.depl
+	$(EPERL) -P -d triangle=1 -d npg=7 sector.epl >sector.depl
 	-$(MPIRUN) $(MCH) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
 	mv sector.sal sector_triangle_npg7.sal
 
@@ -69,7 +69,7 @@ triangle_npg7:
 # checks integer properties
 iprops:
 	chmod +w sector.depl
-	eperl -P -d chunk_size=10 -d iprops=1 sector.epl >sector.depl
+	$(EPERL) -P -d chunk_size=10 -d iprops=1 sector.epl >sector.depl
 	chmod -w sector.depl
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
