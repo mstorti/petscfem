@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.14 2002/01/14 03:45:06 mstorti Exp $
+//$Id: util2.cpp,v 1.15 2002/08/18 21:24:48 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -289,11 +289,11 @@ double int_pow(double base,int exp) {
     double r=ibase;
     for (int j=2; j<-exp; j++)
       r *= ibase;
-  } else if (exp=1) {
+  } else if (exp==1) {
     return base;
-  } else if (exp=0) {
+  } else if (exp==0) {
     return 1.;
-  } else if (exp=-1) {
+  } else if (exp==-1) {
     return 1./base;
   } 
 }
