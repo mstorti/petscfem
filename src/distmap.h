@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.20 2001/08/13 00:12:38 mstorti Exp $
+// $Id: distmap.h,v 1.21 2001/08/15 20:04:25 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -43,7 +43,7 @@ class DistMap : public map<Key,Val> {
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
    */ 
-  int size_of_pack(const map<Key,Val>::iterator k) const;
+  int size_of_pack(map<Key,Val>::const_iterator k) const;
   /** Packs the entry #(k,v)# in buffer #buff#. This function should
       be defined by the user. 
       @param k (input) key of the entry

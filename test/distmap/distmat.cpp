@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.7 2001/08/13 01:33:28 mstorti Exp $
+// $Id: distmat.cpp,v 1.8 2001/08/15 20:04:29 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -36,7 +36,7 @@ int main(int argc,char **argv) {
   /// Initializes MPI
   PetscInitialize(&argc,&argv,0,0);
 
-  DistMatrix<TrivialPartitioner> S(&part);
+  DistMap<int,Row,TrivialPartitioner> S(&part);
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
