@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2001/09/22 04:29:44 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/09/24 03:42:17 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -20,9 +20,10 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 	$(MAKE) -C ../../src/ libpetscfem.a($*.o)
 
 sp.bin: sp.o ../../src/libpetscfem.a(sparse.o) \
-		../../src/libpetscfem.a(randomg.o)
+		../../src/libpetscfem.a(randomg.o) \
+		../../src/libpetscfem.a(spsolve.o)
 	-rm -f $@
-	${CXX_CLINKER} -o $@ sp.o   $(LDFLAGS)
+	${CXX_CLINKER} -o $@ sp.o  $(LDFLAGS) # $(SUPERLU)/SRC/util.o
 
 tryme.bin: tryme.o
 	g++ -g -o $@ $<

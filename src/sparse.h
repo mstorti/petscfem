@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.14 2001/09/23 15:58:17 mstorti Exp $
+// $Id: sparse.h,v 1.15 2001/09/24 03:42:14 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -10,6 +10,9 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+
+#include <SRC/util.h>
+#include <SRC/dsp_defs.h>
 
 #include <randomg.h>
 
@@ -81,30 +84,6 @@ namespace Sparse {
   };
 
   extern SumAbs sum_abs_bin_assoc;
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-  class SumSq : public BinAssoc {
-  public:
-    ~SumSq() {}
-    double op(double v,double w) const {return v + w*w;};
-    SumSq() {null=0;};
-  };
-
-  extern SumSq sum_sq_bin_assoc;
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-  class SumPow : public BinAssoc {
-  public:
-    double n;
-    ~SumPow() {}
-    double op(double v,double w) const {return v + pow(fabs(w),n);};
-    SumPow() {null=0;};
-  };
-
-  extern SumPow sum_pow_bin_assoc;
-#endif 
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
@@ -186,6 +165,9 @@ namespace Sparse {
     virtual void print(const char *s = NULL)=0;
     /// print elements
     virtual void print_f(const char *s = NULL);
+    /// export to array
+    virtual void get(double *s) const;
+    
   };
 
   class Indx : public vector<int> {
@@ -328,12 +310,17 @@ namespace Sparse {
     /// Value of those elements that are not represented
     static double not_represented_val;
 
+    SuperMatrix A,L,U,B;
+
   public:
+
+    enum Status {clean, filled, factored} status;
+
     friend class GenVec;
     friend class Vec;
 
     /// Constructor from the length
-    Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n) {};
+    Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n), status(clean) {};
 
     /// Return row dimension
     int rows() const {return nrows;};
@@ -375,6 +362,9 @@ namespace Sparse {
     /// Apply a scalar function with no args to all elements
     Mat & apply(ScalarFun *fun);
 
+    /// Sets w += a * v
+    Mat & axpy(double c,const Mat & a);
+
     /// Scale elements 
     Mat & scale(double c) {scale_fun_obj.c = c; return apply(scale_fun_obj);};
 
@@ -386,13 +376,6 @@ namespace Sparse {
     double sum() const {return assoc(sum_bin_assoc);} ;
     /// Sum of absolute value of all elements
     double sum_abs() const {return assoc(sum_abs_bin_assoc);} ;
-#if 0
-    /// Sum of squares of all elements
-    double sum_sq() const {return assoc(sum_sq_bin_assoc);} ;
-    /// Sum of power of all absolute value of all elements
-    double sum_pow(double n) const {sum_pow_bin_assoc.n = n;
-    return assoc(sum_pow_bin_assoc);} ;
-#endif
     /// Max of all elements
     double max() const {return assoc(max_bin_assoc);} ;
     /// Max of absolute value of all elements
@@ -425,6 +408,8 @@ namespace Sparse {
     int empty() const;
     /// Number of non null elements
     int size() const;
+    /// Solve the linear system 
+    void solve(GenVec &b);
 
   };
 

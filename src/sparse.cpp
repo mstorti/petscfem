@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.15 2001/09/23 15:58:17 mstorti Exp $
+//$Id: sparse.cpp,v 1.16 2001/09/24 03:42:14 mstorti Exp $
 
 #include "sparse.h"
 
@@ -77,6 +77,13 @@ namespace Sparse {
     }
 
     return *this;
+  }
+
+  void GenVec::get(double *s) const {
+    int j,m;
+    m = length();
+    for (j=0; j<m; j++) 
+      s[j] = get(j);
   }
 
   Indx::Indx(int m,int n,int k=1) {
@@ -801,6 +808,35 @@ namespace Sparse {
     }
 
   }
+
+  /// Sets w += a * v
+  Mat & Mat::axpy(double c,const Mat & a) {
+    RowCIt j,e,k;
+    Vec row,rowa;
+    int n,jj;
+
+    n=cols();
+    assert(a.cols()==n);
+    assert(rows()==a.rows());
+
+    e = a.end();
+    for (j=a.begin(); j!=e; j++) {
+      jj = j->first;
+      rowa = j->second;
+      rowa.resize(n);
+      k = find(jj);
+      if (k!=end()) {
+	row = k->second;
+	row.resize(n).axpy(c,rowa);
+	setr(jj,row);
+      } else {
+	if (c!=1.) rowa.scale(c);
+	setr(jj,rowa);
+      }
+    }
+    return *this;
+  }
+
 }
 
 /*

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.11 2001/09/23 15:58:20 mstorti Exp $
+// $Id: sp.cpp,v 1.12 2001/09/24 03:42:17 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -28,7 +28,7 @@ double power_nth(double v,void *u) {
 
 #define M 1000
 int main() {
-  int j,k,m;
+  int j,k,m,N;
 
   Vec v(5),w(4),u;
   Mat a,b,c;
@@ -165,4 +165,13 @@ int main() {
   printf("sum_pow(a,3.): %f\n",a.sum_pow(3.));
   printf("sum_pow(a,5.): %f\n",a.sum_pow(5.));
   printf("max_abs(a): %f\n",a.max_abs());
+
+  N=5;
+  b.clear().resize(N,N).id(1.3);
+  a.clear().random_fill(.6).scale(.1).print("0.1*rand(5) (fill .6):");
+  a.axpy(1.,b).print("Id + 0.1 * rand: ");
+
+  u.resize(N).random_fill().print("u:");
+  a.solve(u);
+
 }
