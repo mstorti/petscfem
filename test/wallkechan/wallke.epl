@@ -1,6 +1,45 @@
 <:
-require '../eperlini.pl';       # Initializes ePerl 
-doc_vals(qw(case));
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+#
+$L = 1;                         # Semi distance between plates
+$N = 16;                        # Number of elements 
+$hratio = 5;                    # refinement near the wall
+$hratioy = 20;                   # refinement to the exit
+$Ny = 20;                       # Number of elements in y dir
+$Ly = 5;                        # longitudinal length 
+$wall_ke=1;                     # set non-slip condition or
+                                # mixed type (wall_ke) boundary condition
+$peri = 0;                      # Set periodic in the `y' direction or not
+if ($case eq 'poi_lam') {
+#    $wall_ke=1;
+    $Re_l = 10;                  # laminar Re
+    $Umax = 1;                  # Max vel in the channel
+    $Uav = 1.5*$Umax;           # Aver vel 
+    $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
+#    $g = $nu*2*$Umax/$L**2;     # body force
+    $g = 0;
+    $y_wall_plus = 1;           # not used here
+    $case = 'poiseuille';       # redirect case
+    $turbulence_coef=0;         # no turbulence
+} elsif ($case eq 'poiseuille') {
+    $Re_l = 4.7719e+05;         # laminar Re
+    $Umax = 1;                  # Max vel in the channel
+    $Uav = 1.5*$Umax;           # Aver vel 
+    $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
+    $g = $nu*2*$Umax/$L**2;     # body force
+    $y_wall_plus = 50;          # non-dim. distance to the wall
+    $turbulence_coef=1;               # activate turbulence
+} elsif ($case eq 'couette') {
+    $Re_l = 34000;              # laminar Re
+    $Uwall = 1;                 # half relative velocity of the plates
+    $nu = $Uwall * 
+        (2*$L) / $Re_l;         # viscosity
+    $g=0;                       # body force
+    $y_wall_plus = 10;          # distance to the wall
+    $turbulence_coef=1;               # activates turbulence
+}
+$ocase = $case;    
+octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy L Ly peri));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -19,40 +58,34 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
+#if 0
+initial_state "save.state"
+#elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"
-#initial_state "save.state"
-#print_some_file "wallke.some"
-#save_file_some "wallke.some.tmp"
-#nsome 1
+#elsif $case eq 'couette'
+initial_state "wallke.inic.tmp"
+#else
+<:= die "not known case $case\n":>
+#endif
+print_some_file "wallke.some"
+save_file_some "wallke.some.tmp"
+nsome 1
 
 alpha 1.
 nstep 1
-nnwt 3
+nnwt 4
 tol_newton 0
 preco_type "lu"
 Dt 1
+steady
 
+#verify_jacobian_with_numerical_one
 #print_linear_system_and_stop
 #solve_system 0
 
-#<:
-$peri = 0;                      # periodic or full channel case
-$L = 1;                         # Semi distance between plates
-$Re_l = 4.7719e+05;             # laminar Re
-$Umax = 1;                      # Max vel in the channel
-$Uav = 1.5*$Umax;               # Aver vel 
-$nu = $Uav*2*$L/$Re_l;          # kinematic visc.
-$g = $nu*2*$Umax/$L**2;         # body force
-$N = 16;                        # Number of elements in x dir
-$Ny = 2;                        # Number of elements in y dir
-$Ly = $L/$N*$Ny;                # longitudinal length 
-$hratio = 5;                    # refinement near the wall
-$hratioy = 1;                   # refinement to the exit
-octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy L Ly));
-:>//
-
-y_wall_plus 50
-#turbulence_coef 0.
+y_wall_plus <:=$y_wall_plus:>
+y_wall 1e-3
+turbulence_coef <:=$turbulence_coef:>
 viscosity <:=$nu:>
 G_body 0. <:=$g:>
 
@@ -74,15 +107,20 @@ __END_HASH__
 __INCLUDE__ wallke.con.tmp
 __END_ELEMSET__
 
+#if 0
+#if $wall_ke
 elemset wallke 2
 geometry cartesian1d
 npg 2
 __END_HASH__
 __INCLUDE__ wallke.wallke.tmp
 __END_ELEMSET__
+#endif
+#endif
 
 elemset wall_law_res 2
 lagrange_diagonal_factor 1e-5
+lagrange_residual_factor 1. # be non consistent, but truly Newton
 __END_HASH__
 __INCLUDE__ wallke.nonlr.tmp
 __END_ELEMSET__
@@ -90,22 +128,44 @@ __END_ELEMSET__
 end_elemsets
 
 #===========================================================
+#if 1
 fixa
 
 # pressure fixed at some node
-<:print (($Ny+1)*($N-1)+1):> 3  0.
+#<:print (($Ny+1)*($N-1)+2):> 3  0.
 
-# u velocity imposed to 0 in all the left wall
+# u velocity imposed to 0 in all the center line (left)
 __INCLUDE__ wallke.u0.tmp
+
+# u velocity imposed to 0 in all the right wall
+__INCLUDE__ wallke.u_0_right_wall.tmp
+
+# v velocity imposed to 0 in all the left wall
+# in turbulent case this should be done via wall functions
+__INCLUDE__ wallke.v_0_left_wall.tmp
 
 # fix other fields than the two lagrange multipliers
 __INCLUDE__ wallke.fixa_lag.tmp
+
+# fix lateral (u) velocity to 0 at the outlet
+__INCLUDE__ wallke.u_out_0.tmp
+
+# fix pressure to 0 at the outlet
+__INCLUDE__ wallke.p_out_0.tmp
 
 # quantities at inlet 
 #if !$peri
 __INCLUDE__ wallke.fixa_in.tmp
 #endif
 __END_FIXA__
+#endif
+
+#if 0
+constraint
+# fix p to 0 at the outlet (weighted version) 
+__INCLUDE__ wallke.wp_out_0.tmp
+__END_CONSTRAINT__
+#endif
 
 #if $peri
 constraint
