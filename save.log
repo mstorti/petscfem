@@ -2794,3 +2794,6 @@ tag: beta-3.19.pl40 on Sat, 09 Aug 2003 11:28:17 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl41 on Sat, 09 Aug 2003 22:32:13 -0300 by mstorti in spider
      > Fixed some bugs in dvector<>
+----------
+tag: beta-3.19.pl42 on Sun, 10 Aug 2003 20:31:07 -0300 by mstorti in spider
+     > Fixed bugs in new dvector<> methods. 
