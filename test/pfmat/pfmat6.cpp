@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat6.cpp,v 1.2 2004/07/07 16:56:25 rodrigop Exp $
+// $Id: pfmat6.cpp,v 1.2.4.1 2004/07/16 17:51:07 rodrigop Exp $
 
 // Tests for the `PFMat' class
 
@@ -37,7 +37,7 @@ int main(int argc,char **args) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
   MY_RANK = myrank;
   SIZE = size;
-  FILE *fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/lap_A.dat","r");
+  FILE *fid = fopen("/u/rodrigop/PETSC/TEST_BETO_BUSCAGLIA/stokes_A.dat","r");
   int ierr;
   int N;
   int nread = fscanf(fid,"%d",&N);
@@ -48,18 +48,19 @@ int main(int argc,char **args) {
   SIZE = size;
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
   PFMat &A = AA;
-  A.set_option("iisd_subpart",1);
-  A.set_option("use_interface_full_preco",1);
-  A.set_option("use_interface_full_preco_nlay",5);
-  A.set_option("print_interface_full_preco_conv",0);
+  //  A.set_option("iisd_subpart",1);
+  //  A.set_option("use_interface_full_preco",1);
+  //  A.set_option("use_interface_full_preco_nlay",5);
+  //  A.set_option("print_interface_full_preco_conv",0);
   A.set_option("rtol",1e-9);
   A.set_option("atol",1.e-14);
   A.set_option("dtol",1.e5);
-  A.set_option("maxits",200);
-  A.set_option("print_fsm_transition_info",0);
+  A.set_option("maxits",400);
+  //  A.set_option("print_fsm_transition_info",0);
   A.set_option("use_compact_profile",0);
   A.set_option("print_internal_loop_conv",1);
-  //  A.set_option("preco_type","jacobi");
+  A.set_option("solver","petsc");
+  A.set_option("preco_type","none");
   int nonzeros=0;
   while (1) {
     int j,k;
@@ -70,7 +71,7 @@ int main(int argc,char **args) {
     nonzeros++;
   }
   fclose(fid);
-  fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/lap_A.dat","r");
+  fid = fopen("/u/rodrigop/PETSC/TEST_BETO_BUSCAGLIA/stokes_A.dat","r");
   nread = fscanf(fid,"%d",&N);
   assert(nread==1);
   for (int i=0;i<nonzeros;i++){
@@ -83,7 +84,7 @@ int main(int argc,char **args) {
   }
   fclose(fid);
   A.create();
-  fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/lap_A.dat","r");
+  fid = fopen("/u/rodrigop/PETSC/TEST_BETO_BUSCAGLIA/stokes_A.dat","r");
   nread = fscanf(fid,"%d",&N);
   assert(nread==1);
   if (!myrank)  {ierr = PetscPrintf(PETSC_COMM_WORLD,"now-->Setting matrix\n");CHKERRA(ierr);}
@@ -105,7 +106,7 @@ int main(int argc,char **args) {
   ierr = VecCreateMPI(PETSC_COMM_WORLD,
 		      nhere,PETSC_DETERMINE,&b); CHKERRA(ierr); 
   ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
-  fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/lap_b.dat","r");
+  fid = fopen("/u/rodrigop/PETSC/petsc-2.1.6/src/contrib/oberman/laplacian_q1/stokes_b.dat","r");
   for (int j=0; j<N; j++) {
     double v;
     nread = fscanf(fid,"%lf",&v);
