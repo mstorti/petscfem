@@ -2301,3 +2301,11 @@ tag: beta-3.15.pl21 on Fri,  7 Feb 2003 20:18:56 -0300 by mstorti in spider
 ----------
 tag: beta-3.15.pl22 on Fri,  7 Feb 2003 22:08:51 -0300 by mstorti in spider
      > Coding auto-naming of elemsets. 
+----------
+tag: beta-3.16 on Sat,  8 Feb 2003 01:18:53 -0300, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Running vortex tube example. 
+     > Runs vtube with `flow_rate_controller' (hook plus boundary condition). 
+     > Implementing  cut-regulator. 
+     > Working on `ExpProgImport' and `dxhook' (DX module)
+     > Coded auto-naming of elemsets. 
