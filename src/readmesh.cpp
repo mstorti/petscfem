@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.95 2003/10/12 00:35:33 mstorti Exp $
+//$Id: readmesh.cpp,v 1.96 2003/10/12 00:49:37 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -85,7 +85,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   const char *cline;
   Autostr *linecopy = astr_create();
   char *key,*val;
-  int ndim,nu,ndof,nnod,ierr,ierro,numfat,node,jdof,kdof,edof;
+  int ndim,nu,ndof,nnod=0,ierr,ierro,numfat,node,jdof,kdof,edof;
   int pos, nelem, nel, nelprops, neliprops, nread, elemsetnum=0,
 	fat_flag,iele,k,nfixa, *ident,rflag;
   double *dptr,dval; 
@@ -848,6 +848,9 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   PETSCFEM_ASSERT(fstack->last_error()==FileStack::eof,
 		  "Couldn't process correctly main data file\"%s\"\n",
 		  fstack->file_name());  
+  PETSCFEM_ASSERT0(nnod>0,"No nodes read");  
+  PETSCFEM_ASSERT0(da_length(mesh->elemsetlist)>0,
+		   "No elemsets read");  
     
   fstack->close();
   delete fstack;
