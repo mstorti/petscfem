@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.11 2005/01/20 22:50:54 mstorti Exp $
+//$Id: gasflow.cpp,v 1.12 2005/01/22 12:01:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -624,6 +624,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   // Right now, verify that `normaln' is aligned with `x'
   for (int k=2; k<=ndim; k++)
     assert(normaln.get(k)==0.0);
+  double nx = normaln.get(1);
   double a2g = 2*a/g1;
 
   // Riemman Invariants
@@ -640,11 +641,11 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   double agp = a/(g1*p);
 
   drdU.setel(+agrho,1,1);
-  drdU.setel(1.0,1,2);
+  drdU.setel(nx,1,2);
   drdU.setel(-agp,1,ndof);
 
   drdU.setel(-agrho,2,1);
-  drdU.setel(1.0,2,2);
+  drdU.setel(nx,2,2);
   drdU.setel(+agp,2,ndof);
 
   drdU.setel(-ga/rho,3,1);

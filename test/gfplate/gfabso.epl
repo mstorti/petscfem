@@ -49,7 +49,7 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 2e-4
+Dt 1e-4
 shocap 0.0
 weak_form 0
 temporal_stability_factor 0
@@ -59,6 +59,8 @@ ndim 2
 visco 0.001
 cond 0.001
 steady 0
+
+lagrange_diagonal_factor 1e-4
 
 #if $dx
 # Para DX
@@ -90,7 +92,13 @@ __END_HASH__
 
 #if $abso
 elemset gasflow_abso 5
-lagrange_diagonal_factor 1e-4
+dx 0
+normaln -1. 0.
+__END_HASH__
+__INCLUDE__ gfabso.con-abso0.tmp
+__END_ELEMSET__
+
+elemset gasflow_abso 5
 dx 0
 normaln 1. 0.
 __END_HASH__
@@ -102,11 +110,11 @@ end_elemsets
 
 #if !$dx
 fixa
-__INCLUDE__ ./gfabso.fixa-in.tmp
 #if $abso
 __INCLUDE__ ./gfabso.fixa-ref.tmp
 #else
 __INCLUDE__ ./gfabso.fixa-outlet.tmp
+__INCLUDE__ ./gfabso.fixa-in.tmp
 #endif
 __INCLUDE__ ./gfabso.fixa-slip.tmp
 __END_FIXA__
