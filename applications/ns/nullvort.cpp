@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.4 2003/03/07 21:23:52 mstorti Exp $
+// $Id: nullvort.cpp,v 1.5 2003/03/10 00:17:32 mstorti Exp $
 
-#include "./nullvort.h"
+#include <applications/ns/nullvort.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/surf2vol.h>
@@ -342,23 +342,28 @@ void null_vort::res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 		"null_vort: object %d, bad conditioned cloud, cond %g\n",
 		k,cond);
   }
-  ww.is(1,1,nx).set(w).rs();
+  ww.set(0.).is(1,1,nx).set(w).rs();
 
   // Vorticity is w = dv/dx - du/dy
   // Coefs for dv/dx
   ww.ir(2,1);
-  Jac.ir(1,1).ir(3,2).set(ww);
+  Jac.set(0.).ir(1,1).ir(3,2).set(ww);
   // Coefs for dv/dx
   ww.ir(2,2);
   Jac.ir(3,1).set(ww).scale(-1);
   ww.rs();
   Jac.rs();
+#if 0
+  xloc().print("");
+  Jac.print("Jac:");
+#endif
 
   // We compute the residual as Jac*U
-  r.prod(Jac,U,1,-1,-2,-1,-2).scale(-1);
+  // r.prod(Jac,U,1,-1,-2,-1,-2).scale(-1); // should we scale by -1?
+  r.prod(Jac,U,1,-1,-2,-1,-2);
   // We consider the Lag. Multiplier as symmetric, i.e. the
   // reaction is in the same direction as the restriction
   // so that we are `discarding' a linear combination of the
   // momentum equations for the nodes in the stencil
-  lambda.ctr(Jac,3,1,2);
+  lambda.set(0.).ctr(Jac,3,1,2);
 }

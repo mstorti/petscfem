@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.24 2003/03/08 02:15:54 mstorti Exp $
+## $Id: cylin.m,v 1.25 2003/03/10 00:17:32 mstorti Exp $
 global Rint Rext Rext2 L Rmean parab_param
 source("data.m.tmp");
 
@@ -7,8 +7,8 @@ rem(Ntheta,8)==0 || error("Ntheta must multiple of 8");
 Rmean = (Rint+Rext)/2;
 
 ## Choose mesh:
-## circular_mesh
-parabolic_mesh
+circular_mesh
+## parabolic_mesh
 
 XNOD = XNOD(:,2:3);
 
@@ -103,8 +103,14 @@ fid = fopen("cylin.nod_ext_fix.tmp","w");
 for k=1:length(normal)
   nod_fic = nod_fic_ext(k);
   fprintf(fid,"%d %d   %f\n",nod_fic,1,1.);
-  fprintf(fid,"%d %d   %f\n",nod_fic,2,1.);
-  fprintf(fid,"%d %d   %f\n",nod_fic,3,1.);
+
+  ## Now dof=2 is used as lag. mult for the null. vort. equation
+  ## fprintf(fid,"%d %d   %f\n",nod_fic,2,1.);
+
+  ## dof=3 is currently unused and should be set to 0.
+  ## previously we set amplitude = 1. here and then set yo 0. in
+  ## `inviscid.cpp' but now we prefer to set to 0. here too. 
+  fprintf(fid,"%d %d   %f\n",nod_fic,3,0.);
 endfor
 fclose(fid);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.3 2002/10/07 00:26:08 mstorti Exp $
+//$Id: nsid.cpp,v 1.4 2003/03/10 00:17:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -116,7 +116,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       veccontr.set(locstate2).scale(-ns_id_cn).axpy(locstate,-ns_id_cn1)
 	.add(lumped_vc).scale(ns_id_fac).export_vals(&(RETVAL(ielh,0,0)));
-      matlocf.eye(ns_id_cn1);
+      matlocf.eye(ns_id_fac*ns_id_cn1);
       if (update_jacobian) 
 	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }

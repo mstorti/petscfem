@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.epl,v 1.22 2003/03/06 18:58:42 mstorti Exp $ 
+## $Id: cylin.epl,v 1.23 2003/03/10 00:17:32 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -40,11 +40,17 @@ nfile 100000000
 initial_state <:= ($re_start ? "cylin.state.tmp" : "cylin.ini.tmp") :>
 nstep 10000
 # steady
+#if 0
+solver "petsc"
+preco_type "jacobi"
+#else
 solver "iisd"
 iisd_subpart_auto 2000
+preco_type "jacobi"
+#endif
 print_internal_loop_conv 1
 Krylov_dim 200
-nnwt 1
+nnwt 3
 alpha 0.6
 weak_form 0
 <:pr('Dt'):>
@@ -53,6 +59,8 @@ atol 1e-10
 iisdmat_print_statistics
 print_partitioning_statistics
 # print_linear_system_and_stop
+# verify_jacobian_with_numerical_one 1
+# solve_system 0
 
 #if 1
 hook_list dl_generic_hook coupling_visc_hook \
@@ -84,7 +92,12 @@ data cylin.nod.tmp
 __END_HASH__
 
 #===========================================================
+#if 0
+elemset ns_id 4
+ns_id_fac 0.
+#else
 elemset nsi_tet_les_fm2 4
+#endif
 name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
@@ -112,7 +125,10 @@ __END_ELEMSET__
 #===========================================================
 # This is needed for the fictitious nodes
 elemset ns_id 1
-ns_id_fac 0.
+# May be we need this for thos fictitious nodes for
+# which the stencil is not created. They shouldn't have
+# residual, though. 
+ns_id_fac 1e-10
 __END_HASH__
 __INCLUDE__ "cylin.nod_fic_ext.tmp"
 __END_ELEMSET__
@@ -137,6 +153,11 @@ npg 2
 nel_surf 2
 volume_elemset viscous_fluid_elemset
 fic_dof 2
+
+# lagrange_scale_factor 1e-3
+lagrange_diagonal_factor 1e-2
+lagrange_residual_factor 1 # if =1 be non consistent, but truly Newton
+                           # if =0 be consistent, but not truly Newton
 __END_HASH__
 __INCLUDE__ "cylin.coupler.tmp"
 __END_DATA__
