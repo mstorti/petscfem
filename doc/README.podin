@@ -340,11 +340,15 @@ PETSc-FEM kernel, NS and AdvDif modules.
 
 =item  Norberto M. Nigro* C<< <nnigro@intec.unl.edu.ar" >>
 
-PETSc-FEM kernel, NS and AdvDif modules. 
+NS and AdvDif modules. 
 
 =item Rodrigo R. Paz* C<< <rodrigop@intec.unl.edu.ar> >>
 
 AdvDif module, specially the hydrology module. 
+
+=item Lisandro Dalcin* C<< <dalcinl@intec.unl.edu.ar> >>
+
+PETSc-FEM kernel, Python extension language project. 
 
 =back 
 
