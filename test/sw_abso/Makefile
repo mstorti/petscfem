@@ -9,7 +9,7 @@ CASE=canal1d
 PETSCFEM_DIR := ../..
 
 #NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-NP := 3
+NP := 1
 
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -49,8 +49,10 @@ igrec:
 	$(OCTAVE) igrec.m
 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case igrec.depl
 
-
 local_clean::
 	-chmod +w *.depl
+	-rm *.depl *.tmp &> /dev/null
+
+swclean:
 	-rm *.depl *.tmp &> /dev/null
 
