@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.63 2002/10/25 12:17:50 mstorti Exp $
+//$Id: readmesh.cpp,v 1.64 2002/10/25 14:44:02 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -26,9 +26,13 @@ extern "C" {
 #include <src/getprop.h>
 
 #undef TRACE
+#if 0
 #define TRACE(n)				\
   ierr = MPI_Barrier(PETSC_COMM_WORLD);		\
   PetscPrintf(PETSC_COMM_WORLD,"trace " #n "\n")
+#else
+#define TRACE(n)
+#endif
 
 using namespace std;
 Mesh *GLOBAL_MESH;
