@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.19 2002/07/05 19:14:45 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.20 2002/07/08 02:20:19 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -150,7 +150,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // allocate local vecs
   int kdof;
   FMatrix veccontr(nelr,ndof),xloc(nelr,ndim),locstate(nelr,ndof), 
-         locstate2(nelr,ndof),xpg(ndim),G_body(ndim),gravity(ndim);
+         locstate2(nelr,ndof),xpg(ndim),G_body(ndim);
 
   // These are the full state (including fictitious nodes)
   FastMat2 flocstate(2,nel,ndof), flocstate2(2,nel,ndof), 
@@ -243,11 +243,11 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
   G_body.set(0.);
-  ierr = get_double(GLOBAL_OPTIONS,"G_body",G_body.storage_begin(),1,ndim);
+  ierr = get_double(thash,"G_body",G_body.storage_begin(),1,ndim);
 
   // Non-inertial frame origin 
   xop.set(0.);
-  ierr = get_double(GLOBAL_OPTIONS,"Non_inertial_origin",xop.storage_begin(),1,ndim);
+  ierr = get_double(thash,"Non_inertial_origin",xop.storage_begin(),1,ndim);
 
   double Ampl,Freq,vaux,time_alpha,time_np;
 
