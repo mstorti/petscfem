@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.17 2003/07/02 20:00:42 mstorti Exp $
+// $Id: graph.h,v 1.17.42.1 2005/02/18 09:02:47 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -42,7 +42,8 @@ using namespace std;
 #endif
 
 /// A set of neighbors. 
-typedef set<int,less<int>,STL_ALLOCATOR> GSet;
+//typedef set<int,less<int>,STL_ALLOCATOR> GSet;
+typedef set<int> GSet;
 
 class Graph {
   /*** ngbrs:= Auxiliary queue that stores those nodes that are waiting
