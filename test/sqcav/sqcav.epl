@@ -15,7 +15,7 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;
+$N = 4;
 $hratio = 10;			# refinement (h_center/h_wall)
 $Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -64,6 +64,8 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case $case\n";
 }
+$fractional_step = 1;
+# if ($fractional_step) { $solver = "iisd"; }
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re viscosity h Co Dt hratio g_body);
@@ -73,6 +75,8 @@ octave_export_vars(">data.m.tmp",@vars);
 
 global_options
 
+<:pr('fractional_step'):> 
+# debug_compute_prof
 nsave 5
 <:pr('nstep'):> 
 # initial_state sqcav.state
@@ -134,8 +138,7 @@ nodes  2  2  3
 __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
-elemset nsi_tet_les_fm2 4 
-
+elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep):> 4 
 name malla
 
 # report_consumed_time
@@ -154,9 +157,11 @@ __END_ELEMSET__
 
 end_elemsets
 
+#if 0
 fixa
 # fijacion en la presion
 1 3 0.
 # fijaciones de velocidad en las paredes
 __INCLUDE__ sqcav.fixa.tmp
 __END_FIXA__
+#endif

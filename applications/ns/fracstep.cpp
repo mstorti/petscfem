@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.1 2002/07/14 16:18:09 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.2 2002/07/14 23:30:21 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,6 +11,20 @@
 #include "fracstep.h"
 
 #define MAXPROP 100
+
+void nmprint(Matrix &A) { cout << A << endl; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int fracstep::ask(const char *jobinfo,int &skip_elemset) {
+  skip_elemset = 1;
+  DONT_SKIP_JOBINFO(comp_mat_prof);
+  DONT_SKIP_JOBINFO(comp_res_mom);
+  DONT_SKIP_JOBINFO(comp_mat_poi);
+  DONT_SKIP_JOBINFO(comp_res_poi);
+  DONT_SKIP_JOBINFO(comp_mat_prj);
+  DONT_SKIP_JOBINFO(comp_res_prj);
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -137,6 +151,21 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   ColumnVector grad_p(ndim);
   ColumnVector u(ndim),u_star(ndim),uintri(ndim),rescont(nel);
   
+  if (comp_mat_prof) {
+    masspg=1;
+    grad_u_ext=0;
+    if (couple_velocity) grad_u_ext.SubMatrix(1,ndim,1,ndim) = 1;
+    else for (jdim=1; jdim<=ndim; jdim++) grad_u_ext(jdim,jdim) = 1;
+    matlocmom = kron(masspg,grad_u_ext.t());
+    matlocmom >> arg_data_v[0].profile; // A_mom
+    matlocmom >> arg_data_v[2].profile;	// A_prj
+
+    grad_u_ext=0;
+    grad_u_ext(ndim+1,ndim+1) = 1;
+    matlocmom = kron(masspg,grad_u_ext);
+    matlocmom >> arg_data_v[1].profile; // A_poi
+  } 
+
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
@@ -150,12 +179,12 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       else for (jdim=1; jdim<=ndim; jdim++) grad_u_ext(jdim,jdim) = 1;
       matlocmom = kron(masspg,grad_u_ext.t());
       matlocmom >> &(RETVALMAT_MOM(ielh,0,0,0,0));
+      matlocmom >> &(RETVALMAT_PRJ(ielh,0,0,0,0));
 
       grad_u_ext=0;
       grad_u_ext(ndim+1,ndim+1) = 1;
       matlocmom = kron(masspg,grad_u_ext);
       matlocmom >> &(RETVALMAT_POI(ielh,0,0,0,0));
-      matlocmom >> &(RETVALMAT_PRJ(ielh,0,0,0,0));
       continue;
     } 
 

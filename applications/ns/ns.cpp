@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.1 2002/07/14 16:18:09 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.2 2002/07/14 23:30:21 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -290,15 +290,16 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
   debug.trace("Computing profiles...");
-  if (fractional_step) {
+  if (!fractional_step) {
+    argl.clear();
+    argl.arg_add(A_tet,PROFILE|PFMAT);
+    ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
+
+  } else {
     argl.clear();
     argl.arg_add(A_mom,PROFILE|PFMAT);
     argl.arg_add(A_poi,PROFILE|PFMAT);
     argl.arg_add(A_prj,PROFILE|PFMAT);
-    ierr = assemble(mesh,argl,dofmap,"comp_mat_prof",&time); CHKERRA(ierr); 
-  } else {
-    argl.clear();
-    argl.arg_add(A_tet,PROFILE|PFMAT);
     ierr = assemble(mesh,argl,dofmap,"comp_mat_prof",&time); CHKERRA(ierr); 
   }
   debug.trace("After computing profile.");
