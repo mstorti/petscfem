@@ -2333,3 +2333,7 @@ tag: beta-3.16.pl6 on Sun,  9 Feb 2003 19:40:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.16.pl7 on Sun,  9 Feb 2003 20:16:02 -0300 by mstorti in spider
      > Switchs OK between asynchronous and synchronous modes in dx_hook. 
+----------
+tag: beta-3.16.pl8 on Sun,  9 Feb 2003 20:24:50 -0300 by mstorti in spider
+     > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
+     > from asynchronous to synchronous mode. 
