@@ -1,11 +1,12 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.4 2003/02/26 01:46:33 mstorti Exp $
+// $Id: nullvort.cpp,v 1.5 2003/02/26 02:32:22 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/surf2vol.h>
 #include <src/util2.h>
+#include <src/linkgraph.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 null_vort::null_vort() { }
@@ -60,5 +61,35 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
 			       nelem, icone.buff(), nel, vol_elem->nel,
 			       vol_elem, sv_gp_data);
   delete sv_gp_data;
+  sv_gp_data = NULL;
 
+  // We use here the graph as a basic map<int, set<int> > object
+  // to store the set of nodes neighbor to a node on the surface
+  LinkGraph graph;
+  graph.init(dofmap->nnod);
+  for (int j=0; j<nelem; j++) {
+    for (int k=0; k<nel_surf; k++) {
+      for (int l=0; l<nel_surf; l++) {
+	if (k==l) continue;
+	// Store in graph (0 based)
+	int nodek=icone.e(j,k)-1, nodel=icone.e(j,l)-1;
+	// printf("adding to graph: %d, %d\n",nodek,nodel);
+	graph.add(nodek,nodel);
+	graph.add(nodel,nodek);
+      }
+    }
+  }
+
+  GSet ngb;
+  for (int j=0; j<dofmap->nnod; j++) {
+    ngb.clear();
+    graph.set_ngbrs(j,ngb);
+    if (ngb.size()>0) {
+      printf("%d -> (",j+1);
+      GSet::iterator q, qe=ngb.end();
+      for (q=ngb.begin(); q!=qe; q++) printf("%d ",*q+1);
+      printf(")\n");
+    }
+  }
+  graph.clear();
 }
