@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.14 2001/06/23 16:42:35 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.15 2001/06/24 18:48:14 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -167,8 +167,8 @@ void wall_law_res::init() {
 void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 		       FastMat2 & lambda,FastMat2 & jac) {
   U.ir(1,1);
-  double u = sqrt(U.is(1,1,ndim).sum_square_all());
-  U.is(1);
+  double u = sqrt(U.is(2,1,ndim).sum_square_all());
+  U.is(2);
   if (turbulence_coef != 0.) {
     // turbulent case
     double ustar = u/fwall;
