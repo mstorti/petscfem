@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.34 2004/12/19 19:43:27 mstorti Exp $
+// $Id: femref.h,v 1.35 2004/12/19 19:53:46 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -321,7 +321,7 @@ public:
     bool end();
     /** Pass to the following subobject of the 
 	mesh, at this level or higher. */
-    bool next_lev();
+    bool level_next();
     /** Is this node a leave in the refienement tree? */ 
     bool is_leave();
     /** Refine this element */ 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.26 2004/12/19 19:43:27 mstorti Exp $
+// $Id: femref.cpp,v 1.27 2004/12/19 19:53:46 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -77,6 +77,7 @@ int main() {
   // mesh.refine(rf);
   UniformMesh::visitor vis;
 
+  // Refine
   vis.init(mesh);
   while (!vis.end()) {
     if (vis.is_leave() && vis.ref_level()<=1)
@@ -84,7 +85,18 @@ int main() {
     vis.next();
   }
 
+  // Print mesh
   vis.trace = 1;
   vis.init(mesh);
   while (!vis.end()) vis.next();
+
+  // Print mesh down to level 0
+  vis.trace = 1;
+  vis.init(mesh);
+  bool done;
+  while (true) {
+    if (vis.ref_level()<1) done = !vis.next();
+    else done = !vis.level_next();
+    if (done) break;
+  }
 }

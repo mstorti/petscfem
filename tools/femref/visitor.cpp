@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.8 2004/12/19 19:43:27 mstorti Exp $
+// $Id: visitor.cpp,v 1.9 2004/12/19 19:53:46 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -166,3 +166,70 @@ is_leave() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int UniformMesh::visitor::
 ref_level() { return ref_stack.size()-1; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool UniformMesh::visitor::level_next() {
+  list<RefPathNode>::iterator ws, 
+    w = ref_stack.begin();
+  // here visit w...
+  ElemRef::iterator q, qs, qrsib, qfather;
+  q = w->splitter;
+  int j = w->so_indx;
+  if (trace) {
+    printf("elem %d, (siblings ",elem);
+    list<RefPathNode>::iterator 
+      r = ref_stack.begin(), t; 
+    t = r; t++;
+    while (t!=ref_stack.end()) {
+      printf("%d ",r->so_indx);
+      r = t; t++;
+    }
+    printf("), ");
+    w->go.print("go");
+  }
+
+  // Doesn't try to follow the childs. Go
+  // same level or higher. Try to find a
+  // right sibling, or a father that has a right
+  // sibling
+  while (true) {
+    // Check if we are at the root
+    if (ref_stack.size()<=1) {
+      at_end = true;
+      return false;
+    }
+    
+    ws = ref_stack.begin(); 
+    j = ws->so_indx;
+    w=ws; w++;
+    qfather = w->splitter;
+    assert(qfather != etree_p->end());
+    const Splitter *s = qfather->splitter;
+    
+    ref_stack.pop_front();
+    
+    if (j<s->size()-1) {
+      int jsib = j+1;
+      qrsib = ws->splitter;
+      ref_stack.push_front(RefPathNode());
+      ws = ref_stack.begin();
+      w = ws; w++;
+      // Build `ws' from GeomObject `w' (parent) and splitter `s'
+      // and subobject index `jsib'
+      mesh->set(w->go,s,jsib,ws->go);
+      ws->go.make_canonical();
+      
+      // Find next node on the splitting tree or end()
+      while (qrsib != etree_p->end()) {
+	if (qrsib->so_indx >= jsib) break;
+	qrsib++;
+      }
+      
+      // Push new state in the stacks
+      ws->splitter = qrsib;
+      ws->so_indx = jsib;
+      return true;
+    }
+  }
+}
+
