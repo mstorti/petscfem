@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.6 2001/11/12 13:45:18 mstorti Exp $
+//$Id: metisprt.cpp,v 1.7 2001/11/12 16:02:39 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -71,11 +71,12 @@ void  metis_part(int nelemfat,Mesh *mesh,
 		 int *nelemsetptr,int *n2eptr,
 		 int *node2elem,int size,const int myrank,
 		 const int partflag,float *tpwgts,
-		 int max_partgraph_vertices) {
+		 int max_partgraph_vertices,
+		 int iisd_subpart) {
 
   Elemset *elemset;
   int *icone,nel,node,nvrtx,adjcount,j,elem,elemk,vrtx,
-    visited,locel,k,jj,vrtxj,vrtxjj,p,ierr;
+    visited,locel,k,jj,vrtxj,vrtxjj,p,ierr,nvsubdo;
   const int *elem_icone;
   double weight_scale=1.;
   
@@ -86,6 +87,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
   // Stores the graph `adjncy' in STL format
   vector< set<int> > adjncy_v;
   set<int>::iterator q,qe;
+  set<int> subd_remap_aux;
 
   // nvrtx:= number of vertices used in graph partitioning
   // The factor 2 here avoids the case that only few elements are not
@@ -258,18 +260,29 @@ void  metis_part(int nelemfat,Mesh *mesh,
 #endif
 
   int options=0,edgecut,numflag=0,wgtflag=2;
-#if 0
-  size = 2; // debug:=
-  float *tpwgts_d = new float[size];
-  for (j=0; j<size; j++) tpwgts_d[j] = 1./float(size);
-#endif
-  if (size>1) {
+  // nvsubdo:= Nmber of `virtual' subdomains
+  nvsubdo = size * iisd_subpart;
+  float *tpwgts_d = new float[nvsubdo];
+  // subd2proc:= this maps each subdomain to one processor. Initially
+  // we put them random to avoid neighbor subdomains. The correct
+  // solution should be to apply a colouring technique. Or better, to
+  // repartition each subdomain.
+  int *subd2proc = new int[nvsubdo];
+  // subd_remap_aux:= An auxiliary STL set to obtain a random
+  // permutation. First fill the set with `1,2,...,nvsubdo' and then
+  // make a `random_pop' until it is void.
+  for (j=0; j<nvsubdo; j++) subd_remap_aux.insert(j);
+  for (j=0; j<nvsubdo; j++) subd2proc[j] = random_pop(subd_remap_aux);
+
+  for (j=0; j<nvsubdo; j++) 
+    tpwgts_d[j] = tpwgts[subd2proc[j]/iisd_subpart]/float(iisd_subpart);
+  if (size*iisd_subpart > 1) {
     if (myrank==0) {
       if (partflag==0) {
 	if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
 	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
-			     NULL,&wgtflag,&numflag,&size, 
-			     tpwgts,&options,&edgecut,vpart);
+			     NULL,&wgtflag,&numflag,&nvsubdo, 
+			     tpwgts_d,&options,&edgecut,vpart);
       
       } else { // partflag=2
 	assert(0);
@@ -309,7 +322,11 @@ void  metis_part(int nelemfat,Mesh *mesh,
 	}
 #endif
       } // partflag==2
+      
     } // if myrank==0
+    // Remap subdomains to domains
+    
+
     // Broadcast partitioning to other nodes
     ierr = MPI_Bcast(vpart,nvrtx,MPI_INT,0,PETSC_COMM_WORLD);
   } else {
@@ -317,12 +334,15 @@ void  metis_part(int nelemfat,Mesh *mesh,
       vpart[jj]=0;
   }
   for (elem=0; elem<nelemfat; elem++) 
-    epart[elem] = vpart[el2vrtx[elem]];
+    epart[elem] = subd2proc[vpart[el2vrtx[elem]]]/iisd_subpart;
+  wait_from_console("despues de metis");
   delete[] adjncy;
   delete[] xadj;
   delete[] el2vrtx;
   delete[] vwgt;
   delete[] vpart;
+  delete[] tpwgts_d ;
+  delete[] subd2proc;
 
 #if 0
   for (vrtxj=0; vrtxj<nvrtx; vrtxj++)

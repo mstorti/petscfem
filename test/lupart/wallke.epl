@@ -97,6 +97,7 @@ nsome 1
 
 partitioning_method "<:=$part_method:>"
 max_partgraph_vertices 30
+iisd_subpart 2
 alpha 1.
 #if $eff 
 nstep 200000

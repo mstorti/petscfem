@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.36 2001/11/12 01:50:29 mstorti Exp $
+//$Id: readmesh.cpp,v 1.37 2001/11/12 16:02:39 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -34,7 +34,8 @@ void  metis_part(int nelemfat,Mesh *mesh,
 		 int *nelemsetptr,int *n2eptr,
 		 int *node2elem,int size,const int myrank,
 		 const int partflag,float *tpwgts,
-		 int max_partgraph_vertices);
+		 int max_partgraph_vertices,
+		 int iisd_subpart);
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef ICONE
@@ -739,6 +740,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 #define INF INT_MAX
   TGETOPTDEF(mesh->global_options,int,max_partgraph_vertices,INF);
 #undef INF
+  TGETOPTDEF(mesh->global_options,int,iisd_subpart,1);
+  
 //    // o Do not coalesce elements if the number of elements if below this
 //    // limit. 
 //    TGETOPTDEF(mesh->global_options,int,min_partgraph_vertices,0);
@@ -765,7 +768,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     metis_part(nelemfat,mesh,nelemsets,vpart,
 	       nelemsetptr,n2eptr,node2elem,size,myrank,
-	       partflag,tpwgts,max_partgraph_vertices);
+	       partflag,tpwgts,max_partgraph_vertices,
+	       iisd_subpart);
 
   } else if (partflag==1) {
 
