@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: smoke.h,v 1.4 2003/06/01 15:55:35 mstorti Exp $
+// $Id: smoke.h,v 1.5 2003/06/02 00:09:08 mstorti Exp $
 #ifndef SMOKE_H
 #define SMOKE_H
 
@@ -21,7 +21,7 @@ class smoke_ff : public AdvDifFFWEnth {
 private:
   const int ndim;
   Property u_prop, G_prop;
-  double phi, omega;
+  double phi, omega, drdphi, Cr, phieq;
   FastMat2 u, U, Cp, W_N, A, Uintri;
   int nel,ndof,nelprops;
   ElementIterator element_m;

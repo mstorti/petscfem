@@ -4,17 +4,21 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'smoke' unless $case_name;
-$N = $M = 40;
+$N = $M = 80;
 $Lx = $Ly = 1;
 $alpha = 1;
 $Courant = 0.5;
 $hx = $Lx/$N;
-$Dt = 32/$N;
 $omega_smooth = 0.5;
-$n_smoth_steps  = 3;
+$n_smoth_steps  = 1;
 $ratio = 4;                     # refinement parameter (h_center/h_wall)
+$smoke_run = 1;
+$Dt = ($smoke_run ? 16/$N : 4/$N);
+$Re = 1000;
+$sqcav_field = 1;
 #__END_TRANSCRIPT__
-@vars = qw(N M Lx Ly case_name omega_smooth n_smoth_steps ratio);
+@vars = qw(N M Lx Ly case_name omega_smooth n_smoth_steps ratio smoke_run
+    sqcav_field);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH smoke.m";
@@ -34,54 +38,59 @@ nrec 1
 nfile 1000000
 save_file_pattern "smoke.state.%d.tmp"
 
-# initial_state "smoke.ini.tmp"
+#if !$smoke_run
+initial_state "smoke.ini.tmp"
+#endif
 nstep 2000
 solver "iisd"
-iisd_subpart 1
+iisd_subpart 4
 nnwt 1
 <:pr('alpha'):>
 weak_form 0
-
+steady <:=($smoke_run ? 0 : 1):>
+#if $smoke_run
 hook_list advdif_dx_hook my_dx_hook
 dx_auto_combine
 dx_state_all_fields
 dx_steps 1
+#endif
 
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
-nodedata   2  2  1
+nodedata   2  2  <:=($smoke_run ? 1 : 3):>
 data smoke.nod.tmp
 __END_HASH__
 
 #===========================================================
-#if 0
-elemset newadvdif_advecfm2 3
-props advective_jacobians[2]
-geometry triangle
-npg 3
-diffusive_jacobians 1e-3
-__END_HASH__
-__INCLUDE__ smoke.con.tmp
-__END_ELEMSET__
-end_elemsets
-#else
+#if $smoke_run
 elemset smoke 3
 props u[2] G[2]
 omega <:=2*$PI/(16*$Dt):>
 geometry triangle
 npg 3
 dx
+phieq 1
+Cr 0.1
+#else
+elemset nsi_tet_les_fm2 3
+geometry triangle
+npg 3
+viscosity <:=1/$Re:>
+#endif
 __END_HASH__
 __INCLUDE__ smoke.con.tmp
 __END_ELEMSET__
-end_elemsets
-#endif
 
+end_elemsets
 #===========================================================
 fixa
 __INCLUDE__ "smoke.fixa.tmp"
+#if !$smoke_run
+# Pressure at some point
+1 3 0.
+#endif
 __END_FIXA__
 
 # Local Variables: $

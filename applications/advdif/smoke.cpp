@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: smoke.cpp,v 1.3 2003/06/01 15:55:35 mstorti Exp $
+// $Id: smoke.cpp,v 1.4 2003/06/02 00:09:08 mstorti Exp $
 
 #include "./smoke.h"
 
@@ -12,7 +12,13 @@ void smoke_ff::start_chunk(int &ret_options) {
   // Get element integer props
   elemset->elem_params(nel,ndof,nelprops);
 
-  EGETOPTDEF_ND(new_adv_dif_elemset,double,omega,0.); //nd
+  //o Frequency of oscillating local source. 
+  EGETOPTDEF_ND(new_adv_dif_elemset,double,omega,0.);
+  //o Coefficient scaling the reaction 
+  EGETOPTDEF_ND(new_adv_dif_elemset,double,Cr,0.);
+  //o Equilibrium value (#+phieq#, and #-phieq#). 
+  EGETOPTDEF_ND(new_adv_dif_elemset,double,phieq,0.);
+
   assert(omega>0.);
 
   elemset->get_prop(u_prop,"u");
@@ -65,7 +71,6 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   double t = new_adv_dif_elemset->time();
   double T = 2*M_PI/omega;
   double G = GG[0] * sin(omega*t) + GG[1] * cos(omega*t);
-  double Cjac=1;
   // Convective flux
   // flux(j,mu) = A(j,mu,nu) * U(nu)
   flux.prod(A,U,2,1,-1,-1);
@@ -74,9 +79,19 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   fluxd.set(0.);
   // A_grad_U(mu) = A(j,mu,nu) * grad_U(j,nu)
   A_grad_U.prod(A,grad_U,-1,1,-2,-1,-2);
-  // source term
+  // Reaction term
+  double phi = U.get(1);
+  double r2 = -Cr*(phi*phi-phieq*phieq)*phi;
+  double r1 = -Cr*phi;
+  double alpha = (1+cos(omega*t))/2.;
+  alpha = 1.;
+  r = alpha*r2+(1.0-alpha)*r1;
+  // scalar jacobian of reaction term 
+  drdphi2 = -Cr*(2.*phi*phi-phieq*phieq);
+  drdphi1 = -Cr;
+  drdphi = alpha*drdphi2+(1.0-alpha)*drdphi1;
   // G_source.set(G).axpy(U,Cjac);
-  G_source.set(G);
+  G_source.set(G+r);
   // Set to zero
   tau_supg.set(0.);
   // No shock capturing
@@ -101,13 +116,15 @@ void smoke_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 }
 
 void smoke_ff::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
-  N_N_C.set(0.);
+  N_N_C.ir(2,1).ir(4,1).prod(N,N,1,2).scale(-w*drdphi).rs();
 }
 
 void smoke_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w) {
-  //   tmp(0).prod(N,N,1,2);
-  N_P_C.set(0.);
+  N_P_C.prod(P_supg,N,1,3,2).scale(-w*drdphi);
+#if 0
+  N_P_C.ir(3,1).ir(4,1).prod(N,P_supg,1,2).scale(-w*drdphi).rs();
+#endif
 }
 
 void smoke_ff::enthalpy(FastMat2 &H) {  H.set(U); }

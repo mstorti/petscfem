@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2003/06/01 15:55:35 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2003/06/02 00:09:14 mstorti Exp $ 
 
 .PHONY: force all run default skew parallel_cone skew_cone rotating_cone	\
 	skew_noise parallel_cone_noise skew_cone_noise rotating_cone_noise	\
@@ -21,6 +21,7 @@ SRCS =
 LOC_PROG := advdif
 CASE_NAME := smoke
 PROG := $(ADVDIF)
+# PROG := $(NS)
 
 skew:
 	$(MAKE) case_name=$@ run
@@ -70,6 +71,8 @@ runs: CASE_NAME := smoke
 runs: smoke.depl
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
 		-case $(CASE_NAME).depl
+
+smoke.depl: force
 
 dx: viewero.dx
 viewero.dx: viewer.dx
