@@ -2070,3 +2070,6 @@ tag: beta-3.14.pl7 on Sun,  5 Jan 2003 09:56:22 -0300 by mstorti in spider
      > Runs cylinder example with and without coupling. Coupled solution
      > oscillates with lower amplitude and lower frequency (??) but gives
      > less perturbation at outer boundary (seems good)
+----------
+tag: beta-3.14.pl8 on Sun,  5 Jan 2003 18:28:58 -0300 by mstorti in spider
+     > Will implement a better recursive filter. 
