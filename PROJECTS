@@ -11,7 +11,7 @@ PROJECTS: [These are new improvements to be done in a future...]
 * Modify 'elemset.cpp' so that processing of several elemsets 
 	   is non blocking, for instance using a self-scheduling 
 	   algorithm. 
-* Scripting interface with Perl
+* Scripting interface with Python (other candidates are Scheme/Guile or Perl) 
 * Make Makefile not that verbose. 
 * Use a more consistent system for reporting errors and
        aborting. Maybe using more advanced C++ exception handling.
