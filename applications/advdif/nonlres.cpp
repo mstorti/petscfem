@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.14 2005/01/25 22:24:57 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.15 2005/01/27 14:43:35 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -149,7 +149,7 @@ new_assemble(arg_data_list &arg_data_v,
   //un rango menor que las primitivas
   C_U_tmp.resize(1,nr).set(0.); 
   int pp=adv_diff_ff->dim();
-  normaln.resize(1,pp);
+  normal.resize(1,pp);
   adv_diff_ff->start_chunk(ret_options); //ff ini
   extr_cloud.init(nel-3,0,nel-4);
   double xne=0.;
@@ -237,7 +237,7 @@ new_assemble(arg_data_list &arg_data_v,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void AdvDiff_Abs_Nl_Res::init() {
-  get_prop(normaln_prop,"normaln");
+  get_prop(normal_prop,"normal");
   //  get_prop(U_ref_prop,"U_ref");
   assert(nel > 3);
   int ret_options=0;
@@ -255,8 +255,8 @@ void AdvDiff_Abs_Nl_Res::
 element_hook(ElementIterator &element){
   element_m = element;
   int pp=adv_diff_ff->dim();
-  assert(normaln_prop.length == pp);
-  normaln.set(prop_array(element_m,normaln_prop));
+  assert(normal_prop.length == pp);
+  normal.set(prop_array(element_m,normal_prop));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -275,7 +275,7 @@ res(ElementIterator &element, FastMat2 &U,
     U.ir(1,j);
     Ulocal.set(U);
     adv_diff_ff->set_state(Ulocal);
-    adv_diff_ff->Riemann_Inv(U,normaln,RI_tmp,
+    adv_diff_ff->Riemann_Inv(U,normal,RI_tmp,
 			     drdU_tmp,C_U_tmp);
     if (j == nel) {
       U_ref.set(U);

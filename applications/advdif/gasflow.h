@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.17 2005/01/26 18:40:53 mstorti Exp $
+// $Id: gasflow.h,v 1.18 2005/01/27 14:43:35 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -158,13 +158,13 @@ public:
       reserved for the lagrange multipliers, and node #nel# is the
       nodes from where to take the reference state. 
       @param U (input) (size #ndof#) state vector
-      @param normaln (input) (size #ndim#) normal to output surface. 
+      @param normal (input) (size #ndim#) normal to output surface. 
       @param Rie (output) (size #ndof#) Riemman invariants for state #U#
       @param dRdU (output) (size #ndof x ndof#) Jacobian of Riemman invariants
       w.r.t. #U#
       @param (input) C (output) (size #ndof#) speeds for
       each Riemman characteristic variable. */ 
-  void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+  void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
 };

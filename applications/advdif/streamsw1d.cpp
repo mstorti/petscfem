@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.5 2004/07/07 16:45:37 rodrigop Exp $
+//$Id: streamsw1d.cpp,v 1.6 2005/01/27 14:43:35 mstorti Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -288,7 +288,7 @@ void streamsw1d_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
   grad_N_D_grad_N.set(0.);
 }
 
-void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 				FastMat2 &Rie, FastMat2 &drdU,
 				FastMat2 &C_U){
   int ierr;
@@ -296,7 +296,7 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   double tmpd,tmpd1,tmpd2,tmpd3,tt,tt2,pp,
     ppg1,ppg,h_eps=1.e-10,signudn=0.0,u_eps=1.e-10;
   // riemann invariants, jacobians and characteristics for sw1d
-  tmpd1=U.get(1); tmpd3=normaln.get(1); tmpd2=U.get(ndof);
+  tmpd1=U.get(1); tmpd3=normal.get(1); tmpd2=U.get(ndof);
   pp=tmpd1*tmpd3;
   signudn=(tmpd3>0.0 ? 1.0 : -1.0);
   //  if (fabs(pp)<u_eps) signudn=0.0;

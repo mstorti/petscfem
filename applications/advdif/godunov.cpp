@@ -1,4 +1,4 @@
-//$Id: godunov.cpp,v 1.2 2004/07/07 16:45:49 rodrigop Exp $
+//$Id: godunov.cpp,v 1.3 2005/01/27 14:43:35 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/util2.h>
@@ -545,7 +545,7 @@ void AdvDiff_Godunov::new_assemble(arg_data_list &arg_data_v,const Nodedata *nod
 }
 
 void AdvDiff_Godunov::init() {
-  get_prop(normaln_prop,"normaln");
+  get_prop(normal_prop,"normal");
   int ret_options=0;
   NSGETOPTDEF(int,ncells,0);
   assert(ncells);
@@ -555,6 +555,6 @@ void AdvDiff_Godunov::init() {
 void AdvDiff_Godunov::element_hook(ElementIterator &element){
   element_m = element;
   int pp=adv_diff_ff->dim();
-  assert(normaln_prop.length == pp);
-  normaln.set(prop_array(element_m,normaln_prop));
+  assert(normal_prop.length == pp);
+  normal.set(prop_array(element_m,normal_prop));
 }

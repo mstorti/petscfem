@@ -1,5 +1,5 @@
 // -*- mode: C++ -*- 
-// $Id: streamsw1d.h,v 1.3 2004/07/07 16:45:37 rodrigop Exp $
+// $Id: streamsw1d.h,v 1.4 2005/01/27 14:43:35 mstorti Exp $
 #ifndef STREAMSW1D_H
 #define STREAMSW1D_H
 
@@ -167,7 +167,7 @@ public:
     Riemann Invariants calculus for Absorbent boundary conditions
     Rie, drdU  matrix declaration in boundary element routine rank=1 x ndof
   */
-  void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+  void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_U);
 
 #ifdef USE_COMP_P_SUPG

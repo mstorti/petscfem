@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.20 2005/01/27 01:49:21 mstorti Exp $
+//$Id: gasflow.cpp,v 1.21 2005/01/27 14:43:35 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -658,15 +658,15 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void gasflow_ff::
-Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
-  maktgsp.make_tangent(normaln);
+  maktgsp.make_tangent(normal);
 
   if (!linear_abso) {
     // Speed of sound
     double a = sqrt(ga*p/rho);
   
-    tmp20.prod(vel,normaln,-1,-1);
+    tmp20.prod(vel,normal,-1,-1);
     double un = tmp20.get();
     // Riemman based b.c.'s
     double a2g = 2*a/g1;
@@ -687,12 +687,12 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 
     drdU.setel(+agrho,1,1);
     drdU.ir(1,1).is(2,2,ndim+1)
-      .set(normaln).rs();
+      .set(normal).rs();
     drdU.setel(-agp,1,ndof);
 
     drdU.setel(-agrho,2,1);
     drdU.ir(1,2).is(2,2,ndim+1)
-      .set(normaln).rs();
+      .set(normal).rs();
     drdU.setel(+agp,2,ndof);
 
     drdU.setel(-ga/rho,3,1);
@@ -709,14 +709,14 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
       C.setel(un,k);
   } else {
 
-    tmp20.prod(vel,normaln,-1,-1);
+    tmp20.prod(vel,normal,-1,-1);
     double un = tmp20.get();
 
     // Standard (linear) absorbing b.c.'s
     double rhoref = Uref.get(1);
 
     Uref.is(1,2,ndim+1);
-    tmp20.prod(Uref,normaln,-1,-1);
+    tmp20.prod(Uref,normal,-1,-1);
     Uref.rs();
     double uref = tmp20.get();
     double pref = Uref.get(ndof);
@@ -737,11 +737,11 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
     drdU.set(0.);
 
     drdU.ir(1,1).is(2,2,ndim+1)
-      .set(normaln).rs();
+      .set(normal).rs();
     drdU.setel(-1.0/rhoaref,1,ndof);
 
     drdU.ir(1,2).is(2,2,ndim+1)
-      .set(normaln).rs();
+      .set(normal).rs();
     drdU.setel(+1.0/rhoaref,2,ndof);
 
     drdU.setel(1.0,3,1);

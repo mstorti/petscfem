@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.90 2005/01/25 23:27:53 mstorti Exp $
+//$Id: advdife.cpp,v 1.91 2005/01/27 14:43:35 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -1103,7 +1103,7 @@ void NewAdvDifFF::set_profile(FastMat2 &seed) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 			      FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_){
   int ppp=0;
   assert(ppp==0);

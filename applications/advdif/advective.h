@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.69 2004/09/30 16:52:35 mstorti Exp $
+//$Id: advective.h,v 1.70 2005/01/27 14:43:35 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -357,7 +357,7 @@ public:
   /** Returns the Riemann Invariants and jacobians 
       for Adv-Diff absorbent condition
   */
-  virtual void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+  virtual void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 			   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
 
 

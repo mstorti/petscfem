@@ -23,8 +23,8 @@ class AdvDiff_Godunov : public NewElemset {
   //o Flux_Star tolerance
   double fs_tol;
   //o node normal 
-  Property normaln_prop;
-  FastMat2 normaln;
+  Property normal_prop;
+  FastMat2 normal;
   //o Elementset iterator 
   ElementIterator element_m;
   //o Pointer to adv-diff flux function
