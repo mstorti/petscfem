@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.4 2002/07/19 02:00:43 mstorti Exp $
+// $Id: tryme4.cpp,v 1.5 2002/07/19 13:02:44 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -25,8 +25,10 @@ private:
   cont_it end_ord;
   // will resort if size passes max
   int max;
-  void sort_m() { 
-    // print2();
+  // flag whether new elements have been inserted or not
+  int modif;
+  void resync() { 
+    if (modif);
     sort(d.begin(),d.end());
     cont_it p=d.begin(), e=d.end(), q;
     if (p==e) {
@@ -37,24 +39,28 @@ private:
     while (++q!=e) if (*q!=*p) *++p = *q;
     d.erase(++p,e);
     end_ord = p;
-    // print2();
+    modif = 0;
+    printf("resyncing, size %d\n",d.size());
   }
 public:
-  SET() { end_ord = d.end(); max=10; }
+  SET() { end_ord = d.end(); max=10; modif=0; }
   ~SET() { d.clear(); }
   void insert(T t) {
     if (!binary_search(d.begin(),end_ord,t)) {
       d.push_back(t);
       if (d.size()>max) {
-	sort_m();
-	max = 2*max;
-	printf("resorting, max= %d\n",max);
+	resync();
+	int new_max = 2*d.size();
+	if (new_max>max) {
+	  max = new_max;
+	  printf("new size %d\n",max);
+	}
       }
     }
   }
-  void print() { sort_m(); print2(); }
+  void print() { resync(); print2(); }
   void print2();
-  int size() { return d.size(); }
+  int size() { resync(); return d.size(); }
 };
 
 void SET<int>::print2() {
@@ -69,12 +75,18 @@ int main(int argc, char **argv) {
   set<int> gg;
   int k;
   //  printf("insertando: ");
-  int M=800;
-  for (int j=0; j<M; j++) { 
-    k = irand(1,M);
-    // printf("%d ",k);
-    g.insert(k); 
-    gg.insert(k); 
+  int M=1000;
+  for (int j=0; j<M/500; j++) { 
+    for (int kk=0; kk<500; kk++) { 
+      k = irand(1,M);
+      // printf("%d ",k);
+      g.insert(k); 
+      gg.insert(k); 
+    }
+    if (g.size()!=gg.size()) {
+      printf("on j=%d bad: g.size()!: %d, gg.size() %d\n",j, g.size(),gg.size());
+      exit(0);
+    }
   }
   // printf("\n");
   g.print();
@@ -83,7 +95,7 @@ int main(int argc, char **argv) {
   for (set<int>::iterator q=gg.begin(); q!=gg.end(); q++) printf("%d ",*q);
   printf("\n");
 
-  printf("g.size()!: %d, gg.size() %d\n",g.size(),gg.size());
+  printf("g.size(): %d, gg.size() %d\n",g.size(),gg.size());
 #if 0  
   set<int>::iterator q=gg.begin();
   if (g.size()!=gg.size()) {
