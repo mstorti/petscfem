@@ -1,9 +1,9 @@
-## $Id: proc5.m,v 1.5 2005/01/25 12:38:12 mstorti Exp $
+## $Id: proc5.m,v 1.6 2005/01/27 17:33:10 mstorti Exp $
 
 source("data.m.tmp");
 
-line = "upstream";
-## line = "downstream";
+## line = "upstream";
+line = "downstream";
 
 U = aload("cylabso.some-rslt.tmp");
 nline = Nphi+1;

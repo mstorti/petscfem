@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.4 2005/01/27 15:34:58 mstorti Exp $
+// $Id: advabso.cpp,v 1.5 2005/01/27 17:33:06 mstorti Exp $
 #include "./advabso.h"
 
 #define gasflow_abso gasflow_abso2
@@ -77,7 +77,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
   c.eig(tmp1,S);
   invS.inv(S);
   double aimag = c.ir(1,2).sum_square_all();
-  assert(aimag==0.0);
+  assert(aimag<1e-10);
   c.ir(1,1);
   // Pi_m = projector on negative eigenvalues space
   // Pi_p = projector on positive eigenvalues space

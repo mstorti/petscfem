@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.23 2005/01/27 16:14:33 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2005/01/27 17:33:09 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runc
+default: runa2dn
 
 BOPT := O_c++
 SRCS = 

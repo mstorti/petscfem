@@ -1,4 +1,4 @@
-## $Id: mkcyl.m,v 1.4 2005/01/24 22:01:13 mstorti Exp $
+## $Id: mkcyl.m,v 1.5 2005/01/27 17:33:09 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 pi],Nr+1,Nphi+1);
@@ -38,6 +38,7 @@ abso_con = [];
 lm_nodes = [];
 rs_nodes = [];
 fid = fopen("cylabso.abso-con.tmp","w");
+fid3 = fopen("cylabso.nabso-con.tmp","w");
 fid2 = fopen("cylabso.fixa-ext-std.tmp","w");
 for k=1:Nphi+1
   ## real nodes (exterior first)
@@ -63,6 +64,8 @@ for k=1:Nphi+1
   nor = nor/l2(nor);
   fprintf(fid,"%d %d %d %d %d   %g %g\n",
 	  rnodes,lagmulnd,refstnode,nor);
+  fprintf(fid3,"%d %d %d    %g %g\n",
+	  n1,lagmulnd,refstnode,nor);
   if nor(1)<=0
     ## Incoming flow. Impose rho,u,v
     fprintf(fid2,"%d %d %g\n",node,1,rhoref);
@@ -74,8 +77,10 @@ for k=1:Nphi+1
 endfor
 fclose(fid);
 fclose(fid2);
+fclose(fid3);
 
 asave("cylabso.nod.tmp",xnod);
+asave("cylabso.nod-dx.tmp",xnod(1:nnod,:));
 asave("cylabso.con.tmp",icone);
 
 Uref = [rhoref,uref,0,pref];
