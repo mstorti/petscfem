@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.9 2003/08/29 22:33:47 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.10 2003/08/30 17:11:14 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -44,6 +44,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
+  double start = MPI_Wtime();
   printf("Elemset::upload_vector: new block version\n");
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
@@ -138,6 +139,10 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
 
+    const int *dofv;
+    const double *coefv;
+    double coef;
+    int n;
     if (load_mat) {
       // Build row map
       int jr=0,nr,jc=0,nc;
@@ -147,10 +152,21 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	  int rm = row_mask.e(kloc,kdof);
 	  int cm = col_mask.e(kloc,kdof);
 	  if (!rm && !cm) continue;
+#if 0
+          // Slow
 	  dofmap->get_row(node,kdof+1,row_v);
 	  for (int ientry=0; ientry<row_v.size(); ientry++) {
 	    entry_v = &row_v[ientry];
 	    locdof = entry_v->j;
+	    coef = entry_v->coef;
+	  }
+#else
+	  // Fast 
+	  dofmap->get_row(node,kdof+1,n,&dofv,&coefv);
+	  for (int j=0; j<n; j++) {
+	    locdof = dofv[j];
+	    coef = coefv[j];
+#endif
 	    if (locdof>neq) continue; // ony load free nodes
 	    if (rm) {
 	      if (jr==rsize) {
@@ -164,7 +180,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      indxr.e(jr) = locdof-1;
 	      lnodr.e(jr) = kloc;
 	      dofr.e(jr) = kdof;
-	      coefr.e(jr) = entry_v->coef;
+	      coefr.e(jr) = coef;
 	      jr++;
 	    }
 	    if (cm) {
@@ -179,7 +195,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      indxc.e(jc) = locdof-1;
 	      lnodc.e(jc) = kloc;
 	      dofc.e(jc) = kdof;
-	      coefc.e(jc) = entry_v->coef;
+	      coefc.e(jc) = coef;
 	      jc++;
 	    }
 	  }
@@ -187,6 +203,24 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
       nr = jr;
       nc = jc;
+
+      indxr.defrag();
+      lnodr.defrag();
+      dofr.defrag();
+      coefr.defrag();
+      int *indxrp = indxr.buff();
+      int *lnodrp = llnodr.buff();
+      int *dofrp = dofr.buff();
+      double *coefrp = coefr.buff();
+
+      indxc.defrag();
+      lnodc.defrag();
+      dofc.defrag();
+      coefc.defrag();
+      int *indxcp = indxc.buff();
+      int *lnodcp = llnodc.buff();
+      int *dofcp = dofc.buff();
+      double *coefcp = coefc.buff();
 
 #if 0
       printf("iele %d\n",iele);
@@ -231,9 +265,9 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	}
 	// values.print();
 	if (pfmat) {
-//  	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
-//  				      values.buff(),ADD_VALUES); 
-//  	  CHKERRQ(ierr); 
+  	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
+  				      values.buff(),ADD_VALUES); 
+  	  CHKERRQ(ierr); 
 	} else {
 	  ierr = MatSetValues(*argd.A,nr,indxr.buff(),nc,indxc.buff(),
 			      values.buff(),ADD_VALUES);
@@ -296,6 +330,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
+  printf("Inside upload_vector(): %g\n",MPI_Wtime()-start);
 }
 #else
 // Old slow PETSc matrix loading version (uses MatSetValue)
