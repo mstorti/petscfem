@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.5 2001/09/29 00:34:55 mstorti Exp $
+//$Id: spsolve.cpp,v 1.6 2001/09/29 00:57:38 mstorti Exp $
 
 #include "sparse.h"
 
@@ -18,24 +18,19 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void Mat::fact_and_solve() {
 
-    FullVec &b = *bb;
     int j,m,nnz,curs,info;
     RowCIt row,e;
     VecCIt l,el;
     double *a;
     int *asub, *xa;
     int permc_spec;
-    double *bp;
 
     m = rows();
     assert(m == cols());
-    assert(m == b.length());
+    assert(m == b->length());
     nnz = size();
-    bp = b.begin();
 
-    dCreate_Dense_Matrix(&B,m,1,bp,m,DN,_D,GE);
-
-    status = factored;
+    dCreate_Dense_Matrix(&B,m,1,b->begin(),m,DN,_D,GE);
 
     a = new double[nnz];
     asub = new int[nnz];
@@ -64,8 +59,6 @@ namespace Sparse {
     permc_spec = 2;
     get_perm_c(permc_spec, &A, perm_c);
 
-
-
     dgssv(&A, perm_c, perm_r, &L, &U, &B, &info);
     assert(info==0);
 
@@ -79,10 +72,10 @@ namespace Sparse {
 
     m = rows();
     assert(m == cols());
-    assert(m == b.length());
+    assert(m == b->length());
     nnz = size();
 
-    dCreate_Dense_Matrix(&B,m,1,bb->begin(),m,DN,_D,GE);
+    dCreate_Dense_Matrix(&B,m,1,b->begin(),m,DN,_D,GE);
 
     dgstrs ("T",&L,&U,perm_r,perm_c,&B,&info);
       
@@ -91,8 +84,8 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   Mat & Mat::clear() {
 
-    fsm.clean_factor();
-    fsm.clean_mat();
+    fsm.clear();
+    return *this;
 
   }
 
@@ -123,13 +116,7 @@ namespace Sparse {
     
     delete[] perm_r;
     delete[] perm_c;
-    return *this;
   }
     
 }
 
-/*
-  Local Variables: 
-  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem/tools/pfcpp")
-  End: 
-*/

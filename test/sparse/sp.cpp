@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.15 2001/09/27 03:44:39 mstorti Exp $
+// $Id: sp.cpp,v 1.16 2001/09/29 00:57:41 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -197,7 +197,7 @@ int main() {
   err = res_v.sum_abs();
   printf("err < tol ? %d, error: %g \n",err<tol,err);
 
-#if 0
+#if 1
   N = 500;
   while (1) {
     printf("New matrix...\n");

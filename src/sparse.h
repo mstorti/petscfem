@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.20 2001/09/29 00:34:55 mstorti Exp $
+// $Id: sparse.h,v 1.21 2001/09/29 00:57:38 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -330,7 +330,22 @@ namespace Sparse {
   typedef pair<const int,Vec> RowCP;
 
 #define FSM_ACTION_DECL(action) void action()
-#define FSM_ACTION_DEF(action) void MatFSMContext::action() {matrix_p->action();}
+
+#if 0
+
+#define FSM_ACTION_DEF(action) void MatFSMContext::action()	\
+  {matrix_p->action();}
+
+#else
+
+#define FSM_ACTION_DEF(action) 			\
+void MatFSMContext::action() {			\
+    matrix_p->action();				\
+    printf("IN ACTION: " #action "\n");		\
+}
+
+#endif
+
 
 #define FSM_ACTIONS				\
   FSM_OP(clear);				\
@@ -379,6 +394,9 @@ namespace Sparse {
     /// Constructor from the length
     Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n)
 			   { init_fsm(this);};
+
+    /// Destructor (invokes clear() FSM)
+    ~Mat() {clear();}
 
     /// Return row dimension
     int rows() const {return nrows;};

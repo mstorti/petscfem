@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.20 2001/09/29 00:34:55 mstorti Exp $
+//$Id: sparse.cpp,v 1.21 2001/09/29 00:57:38 mstorti Exp $
 
 #include "sparse.h"
 
@@ -876,9 +876,3 @@ namespace Sparse {
 #define FSM_OP(action) FSM_ACTION_DEF(action)
     FSM_ACTIONS;
 }
-
-/*
-  Local Variables: 
-  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem/tools/pfcpp")
-  End: 
-*/
