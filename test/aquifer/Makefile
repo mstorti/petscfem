@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.20 2002/08/18 21:27:14 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2002/08/18 22:42:09 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
 #w All tests
-tests: test_plain test_var_eta test_transient test_stream test_as
+tests: test_plain test_var_eta test_transient test_stream test_as test_dl_fun
 
 #w Runs program for the `aquifer' tests
 run: CASE=aqui

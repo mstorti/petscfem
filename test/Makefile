@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.56 2002/08/17 22:39:00 mstorti Exp $ 
+# $Id: Makefile,v 1.57 2002/08/18 22:42:04 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -13,7 +13,7 @@ SRCS = $(wildcard *.cpp)
 DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
 		newff burgers les/stabi genload bug100 nonlr wallke \
 		wkepipe wallkechan lupart distmap sparse graph sqcav \
-		pfmat cubcav aquifer bubbly
+		pfmat cubcav aquifer bubbly nutatcyl
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse
@@ -40,7 +40,7 @@ ctest: $(DATAFILE) force
 
 #w Builds all applications
 compile:
-	-rm *.sal
+	-rm -f *.sal
 	@echo "Running tests..."
 	$(MAKE) -C ../ ns laplace adv advdif
 
@@ -65,7 +65,8 @@ runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
 	sparse graph sqcav pfmat aquifer nutatcyl
 
-runtests_p: graph sqcav pfmat aquifer
+runtests_p: newff burgers bug100 genload lupart distmap \
+	sparse graph sqcav pfmat aquifer nutatcyl
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -93,7 +94,7 @@ oscplate_all: oscplate3 oscplate2 oscplate2b oscplate4 \
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
 oscplate2: ns
-	-rm tmp_file*.tmp oscsome2.sal
+	-rm -f tmp_file*.tmp oscsome2.sal
 	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
 	octave -q oscplate2.m &> oscplate2o.sal
@@ -101,7 +102,7 @@ oscplate2: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
 oscplate: ns
-	-rm tmp_file*.tmp oscplate1.sal
+	-rm -f tmp_file*.tmp oscplate1.sal
 	eperl -P -d Nperiods=20 oscplate.epl >oscplate.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl >/dev/null
 	mv oscplate.sal oscplate1.sal
@@ -114,7 +115,7 @@ oscplate: ns
 #w considered the exact, and it is checked in Octave that
 #w norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
 oscplate3: ns
-	-rm tmp_file*.tmp oscsome3.sal oscsome.sal
+	-rm -f tmp_file*.tmp oscsome3.sal oscsome.sal
 	-chmod +w oscplate3.depl
 #
 	eperl -P -d alpha=0.5 -d N=16 oscplate.epl >oscplate3.depl
@@ -134,7 +135,7 @@ oscplate3: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
 oscplate2b: ns
-	-rm tmp_file*.tmp oscsome2b.sal oscsome.sal
+	-rm -f tmp_file*.tmp oscsome2b.sal oscsome.sal
 	eperl -P -d spline_fun=1  oscplate.epl >oscplate2b.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2b.depl >/dev/null
 
@@ -142,7 +143,7 @@ oscplate2b: ns
 #w Oscillating plate with piecewise constant periodic function
 #w `sin(t/T)' case
 oscplate4: ns
-	-rm tmp_file*.tmp oscsome4.sal oscsome.sal
+	-rm -f tmp_file*.tmp oscsome4.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
 	mv oscsome.sal oscsome4.sal
@@ -151,7 +152,7 @@ oscplate4: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `cos(2*pi*t/T)' case
 oscplate4cos: ns
-	-rm tmp_file*.tmp oscsome4c.sal oscsome.sal
+	-rm -f tmp_file*.tmp oscsome4c.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1  -d cos_case=1 \
 			oscplate.epl >oscplate4c.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4c.depl >/dev/null
@@ -161,7 +162,7 @@ oscplate4cos: ns
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `sin(2*pi*t/T-pi/6)' case
 oscplate4_30deg: ns
-	-rm tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
+	-rm -f tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
 	eperl -P -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
 			oscplate.epl >oscplate4_30deg.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4_30deg.depl >/dev/null

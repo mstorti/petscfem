@@ -36,6 +36,11 @@ LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
 $(LIB)(%.o):
 	$(MAKE) -C $(SRC_DIR) 'libpetscfem.a($*.o)'
 
+%.tmp: %.epl
+	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+	eperl -P $(EPERLFLAGS) $< > $@
+	chmod -w $@
+
 #	-chmod +w *.depl ; 
 #	for dir in $(CLEAN_DIRS) ; \
 #		do $(MAKE) -C $$dir lclean ;\

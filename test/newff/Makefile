@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.18 2002/07/25 22:35:10 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2002/08/18 22:42:09 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -18,8 +18,8 @@ DF = newff.depl
 OF = newff.nod.tmp newff.con.tmp 
 data:  $(OF) $(DF) #auxi_dat # para que genere .gdbinit y el link
 
-data.m: data.m.epl force
-newff.depl: data.m force
+data.m.tmp: data.m.epl force
+newff.depl: data.m.tmp force
 
 ################################################################
 # TESTS FOR THE NEW FLUX FUNCTIONS...
@@ -54,7 +54,7 @@ data_%:
 	$(MAKE) CASE=$* data
 
 #w Test for per-element properties 
-$(OF): newff.m data.m
+$(OF): newff.m data.m.tmp
 	touch fulljacdef.tmp	# because it is needed by eperl!!
 	octave -q newff.m >/dev/null
 

@@ -1,4 +1,4 @@
-data
+source("data.m.tmp");
 
 u=aload("save.state.tmp");
 if use_bcconv
