@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.2 2002/07/21 13:26:53 mstorti Exp $
+// $Id: dvector.h,v 1.3 2002/07/21 13:51:16 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 
@@ -199,6 +199,23 @@ public:
       push_heap(first,1,i-1);
     }
   }
+  /** Sorts elements in a vector range and eliminates repeated values. 
+      @param first (input) first position in range to be sorted
+      @param last (input) past to the end position in range to be sorted
+      @return past the end position to the ordered region
+  */ 
+  int remove_unique(int first=0, int last=-1) {
+    if (last==-1) last=size();
+    sort(first,last);
+    int p=first, e = last, q;
+    if (p==e) return first;	// vector is void
+    q=p;
+    // move pointer `q' and when finding a differnt element copy to a
+    // new position at `p'
+    while (++q!=e) 
+      if (ref(q)!=ref(p)) ref(++p) = ref(q);
+    return p+1;
+  }  
 };
 
 #endif
