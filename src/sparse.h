@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.10 2001/09/22 04:29:36 mstorti Exp $
+// $Id: sparse.h,v 1.11 2001/09/22 14:02:04 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -44,7 +44,7 @@ namespace Sparse {
     /// Constructor from the length
     Vec(int l=0) : grow_m(1) {len=l;};
     /// Return length of the vector 
-    int length() {return len;};
+    int length() const {return len;};
     /// Constructor from another vector
     Vec(const Vec &v) {*this = v;};
     /* Insert contents of vector v at position I.
@@ -80,6 +80,9 @@ namespace Sparse {
     /// Sets w[I] = c * w[I] + a * v
     Vec & axpy(double c,const Indx & I,double a,const Vec & v);
 
+    /// Dot product
+    double dot(const Vec & w) const;
+
     /// print elements (generic version)
     void print_g(int l,const char * s,const char * psep, const char * isep,
 		 const char * lsep) const;
@@ -95,8 +98,7 @@ namespace Sparse {
     int empty() const;
     /// Purge elements below a given tolerance value
     Vec & purge(double tol = 1e-10);
-//      /// Equal operator
-//      Vec operator=(Vec v) { *this = v; return *this;}
+    /// Fill with random values
     Vec & random_fill(double fill=0.1,Generator & g = uniform);
 
   };
@@ -141,6 +143,11 @@ namespace Sparse {
     Mat & setc(int j,const Vec &v);
     /// set to J cols of a: w = a(:,J)
     Mat & setc(const Mat & a,Indx &J);
+
+    /// Set to multiple of Identity matrix 
+    Mat & id(double a=1.);
+    /// Diagonal from a vector
+    Mat & diag(const Vec & v);
 
     /// print elements (sparse version)
     void print(const char *s = NULL);

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.7 2001/09/22 04:29:44 mstorti Exp $
+// $Id: sp.cpp,v 1.8 2001/09/22 14:02:06 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -28,6 +28,7 @@ int main() {
   Vec v(5),w(4),u;
   Mat a,b;
   Indx I(14,17),J(8,14,2),K(0,4,2);
+  double d1,d2,tol=1e-10;
 
   v.set(2,1.).set(3,2.).print("set values ...  ");
   v.set(10,10.).set(11,11.).print("set at 10 11 ...  ");
@@ -83,4 +84,17 @@ int main() {
     .print("random fill 100 elements 10\% fill");
   u.purge(1e-2).print("purged to 1e-2");
 
+  a.resize(4,4).id(2.3).print("a set to 2.3*Id(4,4): ");
+  a.resize(3,3).id().print("a set to Id(3,3): ");
+
+  u.clear().resize(10).random_fill(.5)
+    .print("----\nu set to random_fill(10): ");
+  a.diag(u).print("a = diag(u): ");
+
+  u.resize(100).random_fill(.3);
+  w.resize(100).random_fill(.2);
+  d1 = w.dot(u);
+  d2 = u.dot(w);
+  printf("u.w: %f, u2.w: %f, err = %g, err<tol ? %d\n",
+	 d1,d2,fabs(d1-d2),fabs(d1-d2)<tol);
 }

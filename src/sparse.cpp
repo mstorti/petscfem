@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.11 2001/09/22 04:29:36 mstorti Exp $
+//$Id: sparse.cpp,v 1.12 2001/09/22 14:02:04 mstorti Exp $
 
 #include "sparse.h"
 
@@ -307,6 +307,29 @@ namespace Sparse {
     return *this;
   }
 
+  double Vec::dot(const Vec & w) const {
+    VecCIt i,e;
+    const Vec *w1,*w2;
+    double sum;
+
+    assert(len == w.len);
+
+    // For efficiency we loop over the elements
+    // of the vector that has less elements (w1)
+    sum = 0.;
+    if (size()>w.size()) {
+      w1 = &w;
+      w2 = this;
+    } else {
+      w1 = this;
+      w2 = &w;
+    }
+    e = w1->end();
+    for (i = w1->begin(); i!=e; i++) 
+      sum += (i->second) * w2->get(i->first);
+    return sum;
+  }
+  
   double Mat::get(int j,int k) const {
     assert(j<nrows);
     assert(k<ncols);
@@ -480,6 +503,28 @@ namespace Sparse {
     for (r=a.begin(); r!=e; r++) {
       row.set(r->second,J);
       insert(RowP(r->first,row));
+    }
+    return *this;
+  }
+
+  Mat & Mat::id(double a=1.) {
+    assert(nrows==ncols);
+    clear();
+    for (int j=0; j<nrows; j++) set(j,j,a);
+    return *this;
+  }
+
+  Mat & Mat::diag(const Vec & v) {
+    int m,j;
+    VecCIt i,e;
+
+    clear();
+    m = v.length();
+    resize(m,m);
+    e = v.end();
+    for (i=v.begin(); i!=e; i++) {
+      j = i->first;
+      set(j,j,i->second);
     }
     return *this;
   }
