@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <strstream>
 
 // `or' and `string' are used in DX so that one possibility is to
 // use a namespace for DX or to remap this colliding names with
@@ -126,7 +127,155 @@ int string2int(string s,int &n) {
 } 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-typedef map<string,Array> positions_table_t;
+class DXObject {
+public:
+  virtual Object dx_object() { return NULL; }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class Nodes : public DXObject {
+public:
+  int ndim,nnod;
+  Array array;
+  Object dx_object() { return (Object)array; }
+  Nodes(int m,int d,Array a) : ndim(m), nnod(d), array(a) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class State : public DXObject {
+public:
+  int ndof,nnod;
+  Array array;
+  Object dx_object() { return (Object)array; }
+  State(int f,int d,Array a) : ndof(f), nnod(d), array(a) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class Elemset : public DXObject {
+public:
+  int nel,nelem;
+  string dx_type;
+  Array array;
+  Object dx_object() { return (Object)array; }
+  Elemset(int l,int m,string &dxt,Array a) : nel(l), nelem(m), 
+    dx_type(dxt), array(a) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class DXField : public DXObject {
+public:
+  string positions,connections,data;
+  Field field;
+  Object dx_object() { return (Object)field; }
+  DXField(string &p, string &c, string &d,Field f) : positions(p),
+  connections(c), data(d), field(f) {}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class DXObjectsTable : public map<string,DXObject *> {
+private:
+  static int field_sfx_max;
+public:
+  ~DXObjectsTable() {
+    map<string,DXObject *>::iterator q,qe;
+    for (q=begin(); q!=end(); q++) {
+      delete q->second;
+      q->second = NULL;
+    }
+  }
+  int get_positions(string &name,Object &object);
+  int get_connections(string &name,Object &object);
+  int get_state(string &name,Object &object);
+  int load_new(string &name,DXObject *dx_object);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int DXObjectsTable::field_sfx_max = 1000;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int DXObjectsTable::load_new(string &name,DXObject *dx_object) {
+  static char *buf = NULL;
+  static int Nbuf=0;
+  if (!dx_object) {
+    DXSetError(ERROR_INTERNAL,
+	       "Attempts to load null object");
+    return ERROR;
+  }
+  iterator q,qe;
+  string new_name;
+  if (find(name)!=end()) {
+    int j;
+    for (j=0; j < field_sfx_max; j++) {
+      Nbuf = asprintf(&buf,"%s_%d",name.c_str(),j);
+      assert(Nbuf>=0);
+      new_name = string(buf);
+      if (find(new_name)!=end()) break;
+    }
+    if (j<field_sfx_max) 
+      DXMessage("renaming field \"%s\" -> \"%s\" to avoid collision",
+		name.c_str(), new_name.c_str());
+    else {
+      DXSetError(ERROR_INTERNAL, "Can't rename field \"%s\"");
+      return ERROR;
+    }
+  } else new_name = name;
+  (*this)[new_name] = dx_object;
+  return OK;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+int DXObjectsTable::get_positions(string &name,Object &object) {
+  iterator q = find(name);
+  if (q==end()) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Can't find object \"%s\"",name.c_str());
+    return ERROR;
+  }
+  Nodes *nodes = dynamic_cast<Nodes *>(q->second);
+  if (!nodes) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Can't convert object \"%s\" to type Nodes",name.c_str());
+    return ERROR;
+  }
+  object = nodes->dx_object();
+  return OK;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+int DXObjectsTable::get_connections(string &name,Object &object) {
+  iterator q = find(name);
+  if (q==end()) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Can't find object \"%s\"",name.c_str());
+    return ERROR;
+  }
+  Elemset *elemset = dynamic_cast<Elemset *>(q->second);
+  if (!elemset) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Can't convert object \"%s\" to type Elemset",name.c_str());
+    return ERROR;
+  }
+  object = elemset->dx_object();
+  return OK;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+int DXObjectsTable::get_state(string &name,Object &object) {
+  iterator q = find(name);
+  if (q==end()) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Can't find object \"%s\"",name.c_str());
+    return ERROR;
+  }
+  State *state = dynamic_cast<State *>(q->second);
+  if (!state) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Can't convert object \"%s\" to type State",name.c_str());
+    return ERROR;
+  }
+  object = state->dx_object();
+  return OK;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
@@ -138,6 +287,20 @@ Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
   double *array_p = (double *)DXGetArrayData(array);
 
   int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(double));
+  if (nread==EOF) return ERROR;
+  return OK;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Error build_dx_array_int(Socket *clnt,int shape,int size, Array &array) {
+  array = NULL;
+  array = DXNewArray(TYPE_INT, CATEGORY_REAL, 1,shape);
+  if (!array) return ERROR;
+  array = DXAddArrayData(array, 0, size, NULL);
+  if (!array) return ERROR;
+  int *array_p = (int *)DXGetArrayData(array);
+
+  int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(int));
   if (nread==EOF) return ERROR;
   return OK;
 }
@@ -155,10 +318,10 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   Socket *clnt = NULL;
   vector<string> tokens;
   string name; 
-  positions_table_t positions_table;
-  positions_table_t::iterator q, qe=positions_table.end();
+  DXObjectsTable dx_objects_table;
+  DXObjectsTable::iterator q, qe=dx_objects_table.end();
   Array array = NULL;
-  Error err;
+  Error ierr;
   char spc[] = " \t\n";
 
 #define BUFSIZE 512
@@ -202,28 +365,98 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     DXMessage("After tokenize");
     
     if (tokens[0]=="end") break;
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     else if (tokens[0]=="nodes") {
-      name = tokens[1];
+      string &name = tokens[1];
       if (string2int(tokens[2],ndim)) goto error;
       if (string2int(tokens[3],nnod)) goto error;
-      DXMessage("Got nnod %d, ndim %d",nnod,ndim);
-      err = build_dx_array(clnt,ndim,nnod,array);
-      if(err!=OK) return err;
-      positions_table[name] = array;
-    };
+      ierr = build_dx_array(clnt,ndim,nnod,array);
+      if(ierr!=OK) return ierr;
+      ierr = dx_objects_table.load_new(name,new Nodes(ndim,nnod,array));
+      if(ierr!=OK) return ierr;
+      DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
+		name.c_str(),array,ndim,nnod);
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    } else if (tokens[0]=="state") {
+      name = tokens[1];
+      if (string2int(tokens[2],ndof)) goto error;
+      if (string2int(tokens[3],nnod)) goto error;
+      ierr = build_dx_array(clnt,ndof,nnod,array);
+      if(ierr!=OK) return ierr;
+      ierr = dx_objects_table.load_new(name,new State(ndim,nnod,array));
+      if(ierr!=OK) return ierr;
+      DXMessage("Got new \"State\" name %s, ptr %p, ndof %d, nnod %d",
+		name.c_str(),array,ndof,nnod);
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    } else if (tokens[0]=="elemset") {
+      string &name = tokens[1];
+      string &dx_type = tokens[2];
+      if (string2int(tokens[3],nel)) goto error;
+      if (string2int(tokens[4],nelem)) goto error;
+      ierr = build_dx_array_int(clnt,nel,nelem,array);
+      if(ierr!=OK) return ierr;
+      array = (Array)
+	DXSetStringAttribute((Object)array,
+			     "element type",(char *)dx_type.c_str()); 
+      if (!array) goto error;
+      ierr = dx_objects_table
+	.load_new(name,new Elemset(nel,nelem,dx_type,array));
+      if(ierr!=OK) return ierr;
+      DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
+		name.c_str(),array,nel,nelem);
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    } else if (tokens[0]=="field") {
+      // Get components 
+      Object positions,connections,data;
+      string &name = tokens[1];
+      string &pname = tokens[2];	// name of "positions" component
+      ierr = dx_objects_table.get_positions(pname,positions);
+      if(ierr!=OK) return ierr;
+      DXMessage("trace 0");
+      string &cname = tokens[3];
+      ierr = dx_objects_table.get_connections(cname,connections);
+      DXMessage("trace 1");
+      if(ierr!=OK) return ierr;
+      string &fname = tokens[4];
+      ierr = dx_objects_table.get_state(fname,data);
+      DXMessage("trace 2");
+      if(ierr!=OK) return ierr;
+
+      // Build new field
+      Field field = DXNewField();
+      if (!field) goto error;
+      field = DXSetComponentValue(field,"positions",(Object)positions); 
+      DXMessage("trace 3, positions %p",positions);
+      if (!field) goto error;
+      field = DXSetComponentValue(field,"connections",(Object)connections); 
+      if (!field) goto error;
+      DXMessage("trace 4, connections %p",connections);
+      field = DXSetComponentValue(field,"data",(Object)data); 
+      if (!field) goto error;
+      DXMessage("trace 5, data %p",data);
+      field = DXEndField(field); if (!field) goto error;
+      DXMessage("trace 6");
+
+      // Load new field in table
+      ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));
+      if(ierr!=OK) return ierr;
+      DXMessage("trace 7");
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    } else {
+      DXSetError(ERROR_INTERNAL,
+		 "Received bad line %s",tokens[0].c_str());
+      goto error;
+    }
   }
 
-  for (q=positions_table.begin(); q!=qe; q++) {
+  for (q=dx_objects_table.begin(); q!=qe; q++) {
     g = DXSetMember(g,(char *)(q->first.c_str()),
-		    (Object)q->second);
+		    (Object)q->second->dx_object());
   }
 
 #if 0
-  g = DXSetMember(g,"nodes",(Object)xnod);
-  if (!g) goto error;
-
   Sgets(buf,BUFSIZE,clnt);
-  sscanf(buf,"fields %d %d",&ndof,&nnod2);
+  sscanf(buf,"state %d %d",&ndof,&nnod2);
   if (nnod!=nnod2) goto error;
   DXMessage("Got ndof %d",ndof);
 
