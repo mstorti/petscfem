@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.3 2002/07/15 01:10:41 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.4 2002/07/15 23:56:27 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -58,7 +58,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j) VEC2(retvalmat,iele,j,nen*nen)
 #define RETVALMAT_MOM(iele,j,k,p,q) VEC5(retvalmat_mom,iele,j,nel,k,ndof,p,nel,q,ndof)
-#define RETVALMAT_POI(iele,j,k,p,q) VEC5(retvalmat_poi,iele,j,nel,k,ndof,p,nel,q,ndof)
+#define RETVALMAT_POI(iele) VEC2(retvalmat_poi,iele,0,nen*nen)
 #define RETVALMAT_PRJ(iele,j,k,p,q) VEC5(retvalmat_prj,iele,j,nel,k,ndof,p,nel,q,ndof)
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
@@ -92,7 +92,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
   double Dt;
-  arg_data *A_mom_arg;
+  arg_data *A_mom_arg,*A_poi_arg;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;
@@ -107,6 +107,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retvalmat = arg_data_v[ja++].retval;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     Dt = glob_param->Dt;
+  } else if (comp_mat_poi) {
+    int ja=0;
+    A_poi_arg = &arg_data_v[ja];
+    retvalmat_poi = arg_data_v[ja].retval;
   } else assert(0); // Not implemented yet!!
 
   Matrix veccontr(nel,ndof),xloc(nel,ndim),
@@ -180,7 +184,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     mom_profile >> arg_data_v[2].profile;	// A_prj
   } else if (comp_res_mom) {
     mom_profile >> A_mom_arg->profile;
-  }
+  } else if (comp_res_mom) {
+    poi_profile >> A_poi_arg->profile;
+  } else assert(0);
 
   Matrix seed;
   if (comp_res_mom) {
@@ -207,7 +213,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // .profile member in the argument value
       matlocmom >> &(RETVALMAT_MOM(ielh,0,0,0,0));
       matlocmom >> &(RETVALMAT_PRJ(ielh,0,0,0,0));
-      matlocmom >> &(RETVALMAT_POI(ielh,0,0,0,0));
+      matlocmom >> &(RETVALMAT_POI(ielh));
       continue;
     } 
 
@@ -376,6 +382,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       matloc = kron(matlocmom,seed) + mom_mat_fix;
       veccontr >> &(RETVAL(ielh,0,0));
       matloc >> &(RETVALMAT(ielh,0));
+    } else if (comp_mat_poi) {
+      matloc = kron(matlocmom,seed) + poi_mat_fix;
+      matloc >> &(RETVALMAT_POI(ielh));
     } else assert(0);
 
   }
