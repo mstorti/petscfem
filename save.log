@@ -3075,3 +3075,7 @@ tag: beta-3.24 on Sat, 15 Nov 2003 13:12:06 -0300 by mstorti in spider
 ----------
 tag: beta-3.25.pl1 on Sat, 15 Nov 2003 13:18:08 -0300 by mstorti in spider
      > Administrative light version
+----------
+tag: beta-3.25.pl2 on Sun, 16 Nov 2003 10:20:05 -0300 by mstorti in spider
+     > Added tests for `compute_fd_adv_jacobian' in `test/burgers'. 
+     > Added `__SWITCH_FILE__' and `field match' to `myexpect.pl'
