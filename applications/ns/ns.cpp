@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.71 2002/03/28 18:11:33 mstorti Exp $
+//$Id: ns.cpp,v 1.72 2002/03/29 15:41:06 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -221,10 +221,10 @@ int main(int argc,char **args) {
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
   //o Print values in this file 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,"");
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,"gather.out");
   // Initialize gather_file
   FILE *gather_file_f;
-  if (MY_RANK==0 && strcmp(gather_file.c_str(),"")) {
+  if (MY_RANK==0 && ngather>0) {
     gather_file_f = fopen(gather_file.c_str(),"w");
     fprintf(gather_file_f,"");
     fclose(gather_file_f);
