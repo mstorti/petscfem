@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.368 2003/12/08 00:15:40 mstorti Exp $
+$Id: notes.txt,v 1.369 2003/12/08 01:02:25 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.368 2003/12/08 00:15:40 mstorti Exp $ 
+! # $Id: notes.txt,v 1.369 2003/12/08 01:02:25 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.368 2003/12/08 00:15:40 mstorti Exp $ 
+! # $Id: notes.txt,v 1.369 2003/12/08 01:02:25 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.368 2003/12/08 00:15:40 mstorti Exp $ 
+  # $Id: notes.txt,v 1.369 2003/12/08 01:02:25 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7774,6 +7774,15 @@ bien menos 4 sobre 169.
 >         --->  Couldn't find "rel. max error  <tol\(.*\) OK\? 1"
 tanto con `g_c++' como con `O_c++'. Por la premura lo marco como
 estable. 
+%
+21:41:20: Tests `mmove/step.verif.tmp' OK. 
+%
+21:45:06: Tests `sqcat/*shell_hook' OK. 
+%
+21:48:14: Ahora `newff/test_adv_dif_temp_iisd' da bien. 
+%
+21:59:51: Pero da mal `test_reac_dif_temp'. Lo corro aparte y da bien,
+asi que debe ser un problema de incompatibilidad de las corridas. 
 
 # Current line ===========  %
 # Local Variables: $
