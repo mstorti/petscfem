@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.5 2001/09/30 22:52:22 mstorti Exp $
+// $Id: iisdmat.h,v 1.6 2001/10/02 19:31:24 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -265,7 +265,7 @@ public:
   /// returns the number of iterations spent in the last solve
   int its() {return 1;};
   /// Prints the matrix to a PETSc viewer
-  int view(Viewer viewer) {A.print(); return 0;};
+  int view(Viewer viewer=NULL) {A.print(); return 0;};
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type) {return 0;};
   /// Duplicate matrices (currently not implemented for IISDMat)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.9 2001/08/09 17:11:20 mstorti Exp $
+//$Id: texthash.cpp,v 1.10 2001/10/02 19:31:24 mstorti Exp $
  
 //  #include <stdio.h>
 //  #include <string.h>
@@ -276,3 +276,4 @@ void TextHashTable::print_stat(void) {
     }
   print_statistics=0;
 }
+

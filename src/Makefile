@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.32 2001/09/30 22:52:22 mstorti Exp $ 
+# $Id: Makefile,v 1.33 2001/10/02 19:31:23 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -11,7 +11,7 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
 	  measperf mainutl sttfilter state secant getarray lusubd \
-	distmat sparse randomg spsolve pfmatsp
+	distmat sparse randomg spsolve pfmatsp texthf
 
 # C files
 CLIBOBJS_ =  getarrgr.tab

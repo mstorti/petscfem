@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.23 2001/08/16 18:24:46 mstorti Exp $
+//$Id: fem.h,v 1.24 2001/10/02 19:31:23 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -55,7 +55,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from any hash table. 
-    Example: GETOPTDEF(thash,int,n,10) 
+    Example: TGETOPTDEF(thash,int,n,10) 
     @author M. Storti
     @param thash the TextHashTable from where to get the value
     @param type may be `int' or `double'
@@ -178,7 +178,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from an elemset
     hash table. 
-    Example: EGETOPTDEF_ND(elemset,int,n,10)
+    Example: EGETOPTDEF(elemset,int,n,10)
     @author M. Storti
     @param type may be `int', `double' or 'string'
     @param name name of the variable
