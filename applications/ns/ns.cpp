@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.38 2001/09/08 01:07:36 mstorti Exp $
+//$Id: ns.cpp,v 1.39 2001/09/08 01:20:37 mstorti Exp $
  
 #include <malloc.h>
 
@@ -393,7 +393,7 @@ int main(int argc,char **args) {
 			       "system.dat.tmp",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,
-			       "ateta"); CHKERRA(ierr);
+			       "atet"); CHKERRA(ierr);
 
 	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
 	
@@ -411,13 +411,13 @@ int main(int argc,char **args) {
 #else
 	argl.arg_add(&hmin,USER_DATA);
 #endif
-	argl.arg_add(&Dt,USER_DATA);
+	argl.arg_add(&glob_param,USER_DATA);
 	argl.arg_add(wall_data,USER_DATA);
 	ierr = assemble(mesh,argl,dofmap,jobinfo,
 			&time_star); CHKERRA(ierr);
 
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"atetn"); CHKERRA(ierr);
+			       VIEWER_FORMAT_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
 	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
 	ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
 
