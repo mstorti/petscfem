@@ -12,8 +12,6 @@ FILES_epimport = userepimport.$(OBJEXT) epimport.$(OBJEXT)
 
 BIN = $(BASE)/bin
 
-#windows BIN = $(BASE)\bin
-
 CFLAGS = -I./ -I$(BASE)/include $(DX_CFLAGS)
 
 LDFLAGS = -L$(BASE)/lib_$(DXARCH)
@@ -39,7 +37,3 @@ run: epimport
 # make the user files
 userepimport.c: epimport.mdf
 	$(BIN)/mdf2c -m epimport.mdf > userepimport.c
-# kluge for when DXARCH isn't set
-$(BASE)/lib_/arch.mak:
-	(export DXARCH=`dx -whicharch` ; $(MAKE) -f epimport.make )
-	echo YOU NEED TO SET DXARCH via dx -whicharch

@@ -31,10 +31,15 @@ Error
 m_ExtProgImport(Object *in, Object *out)
 {
   int i;
-  int N=40, *icone_p, j,k,base, elem=0, node;
-  float *xnod_p,x,y,*data_p,r2;
+  int N=40, *icone_p, j,k,base, elem=0, node,nread,
+    *rank,*shape;
+  float *xnod_p,x,y,*data_p,r2,c;
   Array icone=NULL,xnod=NULL,data=NULL; 
+  char *socket_name_p;
   Field f=NULL; 
+  String s;
+  Type *t;
+  Category *cat;
 
   /*
    * Initialize all outputs to NULL
@@ -46,11 +51,23 @@ m_ExtProgImport(Object *in, Object *out)
    */
 
   /* Parameter "socket_name" is required. */
-  if (in[0] == NULL)
-  {
+  if (in[0] == NULL) {
     DXSetError(ERROR_MISSING_DATA, "\"socket_name\" must be specified");
     return ERROR;
   }
+
+#if 0
+  DXGetType(in[0],t,cat,rank,shape);
+  if(!t || *t!=TYPE_STRING) goto error;
+  s = (String)in[0];
+#endif
+  socket_name_p = DXGetString((String)in[0]); 
+  if (!socket_name_p) goto error;
+  DXMessage("ExtProgImport: got %s from input",socket_name_p);
+  nread = sscanf(socket_name_p,"param = %f",&c);
+  if (nread!=1) goto error;
+  DXMessage("ExtProgImport: read param -> %f",c);
+  /* c = 10.; */
 
   f = DXNewField();
   if (!f) goto error;
@@ -99,7 +116,7 @@ m_ExtProgImport(Object *in, Object *out)
       *xnod_p++ = y;
 #define SQ(a) ((a)*(a))
       r2 = SQ(x-0.5) + SQ(y-0.5);
-      *data_p++ = 0.1/(0.1+r2);
+      *data_p++ = 1./(1.+c*r2);
     }
   }
   /* Set `connections' component */
