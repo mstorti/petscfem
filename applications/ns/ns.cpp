@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.53 2001/12/04 20:10:23 mstorti Exp $
+//$Id: ns.cpp,v 1.54 2001/12/04 20:28:05 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -50,6 +50,7 @@ int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
   ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
  
   xnod = mesh->nodedata->nodedata;
+
   if (myrank==0) {
     int ndof=dofmap->ndof;
     double dval;
@@ -60,6 +61,10 @@ int update_mesh(const Vec x,const Dofmap *dofmap,Mesh *mesh,
       }
     }
   }
+
+  ierr = MPI_Bcast(xnod,dofmap->nnod*dofmap->ndof,
+		   MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
   ierr = VecRestoreArray(vseq,&vseq_vals); CHKERRQ(ierr); 
   ierr = VecDestroy(vseq);
   return 0;
