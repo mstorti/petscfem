@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.17 2004/12/19 22:57:50 mstorti Exp $
+// $Id: femref2.cpp,v 1.18 2004/12/19 23:16:04 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -653,16 +653,20 @@ set(const GeomObject &go,
 	NodeInfoMapT::iterator 
 	  q1 = node_info_map.find(n1);
 	assert(q1!=node_info_map.end());
+	printf("in 'set', combines: \nn1: ");
+	q1->second->print();
 
 	NodeInfoMapT::iterator 
 	  q2 = node_info_map.find(n2);
 	assert(q2!=node_info_map.end());
+	printf("n2: ");	q2->second->print();
 
 	NodeInfo *ni12_p = 
 	  node_comb_fun(*q1->second,*q2->second);
 	node_info_map[node_hash] = ni12_p;
 	ref_nodes.insert(ref_nodes.begin(),
 			 node_hash);
+	printf("n12: "); ni12_p->print();
       }
 
       map<int,int>::const_iterator it 

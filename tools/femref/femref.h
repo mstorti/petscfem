@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.37 2004/12/19 22:57:50 mstorti Exp $
+// $Id: femref.h,v 1.38 2004/12/19 23:16:04 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -125,6 +125,7 @@ typedef double
 class NodeInfo {
 public:
   virtual ~NodeInfo()=0;
+  virtual void print() { };
 };
 
 typedef NodeInfo*

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.29 2004/12/19 22:57:50 mstorti Exp $
+// $Id: femref.cpp,v 1.30 2004/12/19 23:16:04 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -76,6 +76,10 @@ class NodeInfoSum : public NodeInfo {
 public:
   int sum;
   ~NodeInfoSum() { }
+  void print() { 
+    printf("NodeInfo %p sum %d\n",
+	   this,sum); 
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -103,11 +107,12 @@ int main() {
   // Refine
   vis.init(mesh);
   while (!vis.end()) {
-    if (vis.is_leave() && vis.ref_level()<=1)
+    if (vis.is_leave() && vis.ref_level()<=0)
       vis.refine(&Tetra2TetraSplitter);
     vis.next();
   }
 
+#if 0
   // Print mesh
   vis.trace = 1;
   vis.init(mesh);
@@ -122,6 +127,7 @@ int main() {
     else done = !vis.level_next();
     if (done) break;
   }
+#endif
 
   // Print mesh down to level 0
   vis.trace = 1;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.11 2004/12/19 22:57:50 mstorti Exp $
+// $Id: visitor.cpp,v 1.12 2004/12/19 23:16:04 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -273,6 +273,9 @@ pop() {
       NodeInfoMapT::iterator 
 	r = node_info_map.find(*q);
       assert(r!=node_info_map.end());
+      printf("in visitor::pop: deleting ");	
+      (r->second)->print();
+      delete (r->second);
       node_info_map.erase(r);
     }
     ref_stack.pop_front();
