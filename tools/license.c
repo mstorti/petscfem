@@ -1,7 +1,9 @@
 \/.__<L>__
 /*__<L>__*/
 /*
-  [-begin-license-]
+  [-begin-license-]-----------------------------------------------------
+  CURRENT VERSION FOR PETSC-FEM: beta-1.84
+  
   This  file  belongs  to  the  PETSc  -  FEM  package,  a  library  and
   application  suite oriented  to  the Finite  Element  Method based  on
   PETSc.   Copyright  (C)  1999-2001,  Mario  Alberto  Storti,  Norberto
@@ -24,7 +26,5 @@
   along  with  this  program;  if   not,  write  to  the  Free  Software
   Foundation, Inc.,  59 Temple Place, Suite 330,  Boston, MA 02111-1307,
   USA.
-  [-end-license-]
+  [-end-license-]-------------------------------------------------------
 */
-
-

@@ -13,36 +13,33 @@ include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 
 #w all license files
-licenses: license.script license.c license.tex
+licenses: license.script license.c license.tex license.cpp
 
 #w license for makefiles and scripts
 license.script: license.txt
 	echo "#__<L>__" > $@
 	echo "#__<L>__" >> $@
 	perl -p -e 's/^/\#  /; s/<VERSION>/$(PETSCFEM_VERSION)/;' license.txt >> $@
-	echo >>$@
-	echo >>$@
-#	echo "#--------------------------------" >>$@
 
-#w license for C and C++
+#w license for C 
 license.c: license.txt
 	echo "\/.__<L>__" > $@ 
 	echo "/*__<L>__*/" >> $@
 	echo '/*' >>$@
 	perl -p -e "s/^/  /; s/<VERSION>/$(PETSCFEM_VERSION)/;" license.txt >> $@
 	echo '*/' >>$@
-	echo >>$@
-	echo >>$@
-#	echo "/*------------------------------*/" >>$@
 
-#w license for C and C++
+#w license for C++
+license.cpp: license.txt
+	echo "\/.__<L>__" > $@ 
+	echo "//__<L>__" >> $@
+	perl -p -e "s|^|//  |; s/<VERSION>/$(PETSCFEM_VERSION)/;" license.txt >> $@
+
+#w license for C and C++ essence
 license.tex: license.txt
 	echo "%__<L>__" > $@
 	echo "%__<L>__" >> $@
 	perl -p -e 's/^/%  /; s/<VERSION>/$(PETSCFEM_VERSION)/;' license.txt >> $@
-	echo >>$@
-	echo >>$@
-#	echo "%--------------------------------" >>$@
 
 #w Builds man page from POD documentation in <script>.pl
 #e <script>.1
