@@ -28,7 +28,7 @@ int NewBcconv::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "BcconvAdv::assemble"
-void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+void NewBcconv::new_assemble(arg_data_list &arg_data_v,const NodeData *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) {

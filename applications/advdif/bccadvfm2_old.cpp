@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2_old.cpp,v 1.2 2001/04/01 01:34:35 mstorti Exp $
+//$Id: bccadvfm2_old.cpp,v 1.3 2001/04/14 13:20:57 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -31,7 +31,7 @@ int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "BcconvAdv::assemble"
-void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const NodeData *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) {

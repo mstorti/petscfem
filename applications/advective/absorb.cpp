@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: absorb.cpp,v 1.3 2001/04/01 01:34:41 mstorti Exp $
+//$Id: absorb.cpp,v 1.4 2001/04/14 13:21:00 mstorti Exp $
 
 #include <cassert>  
 #include <vector>
@@ -35,7 +35,7 @@ int Absorb::ask(const char *jobinfo,int &skip_elemset) {
 
 #undef __FUNC__
 #define __FUNC__ "Absorb::assemble"
-int Absorb::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+int Absorb::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
 		     Dofmap *dofmap,const char *jobinfo,int myrank,
 		     int el_start,int el_last,int iter_mode,
 		     const TimeData *time_data) {

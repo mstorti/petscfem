@@ -86,8 +86,8 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "advective::assemble"
-void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+#define __FUNC__ "void NewAdvDif::new_assemble()"
+void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const NodeData *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) {

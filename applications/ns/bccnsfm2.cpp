@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.4 2001/04/01 01:34:59 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.5 2001/04/14 13:21:07 mstorti Exp $
   
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -30,7 +30,7 @@ int bcconv_ns_fm2::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "bcconv_ns_fm2::assemble"
-int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
+int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,NodeData *nodedata,
 			  Dofmap *dofmap,const char *jobinfo,int myrank,
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {

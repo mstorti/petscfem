@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lapla.cpp,v 1.3 2001/04/01 01:34:47 mstorti Exp $
+//$Id: lapla.cpp,v 1.4 2001/04/14 13:21:03 mstorti Exp $
   
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -15,7 +15,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "lapla::assemble"
-int lapla::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,Dofmap *dofmap,
+int lapla::assemble(arg_data_list &arg_data_v,NodeData *nodedata,Dofmap *dofmap,
 		    const char *jobinfo,int myrank,
 		    int el_start,int el_last,int iter_mode,
 		    const TimeData *time_data) {

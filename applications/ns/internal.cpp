@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: internal.cpp,v 1.2 2001/04/01 01:34:59 mstorti Exp $
+//$Id: internal.cpp,v 1.3 2001/04/14 13:21:07 mstorti Exp $
  
 #include "fem.h"
 #include "readmesh.h"
@@ -13,7 +13,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "internal::assemble"
-int internal::assemble(double *retval,Nodedata *nodedata,double *locst,
+int internal::assemble(double *retval,NodeData *nodedata,double *locst,
 		       Dofmap *dofmap,int ijob,int myrank,
 		       int el_start,int el_last,int iter_mode) {
 

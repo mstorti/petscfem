@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallswt.cpp,v 1.5 2001/04/01 01:34:35 mstorti Exp $
+//$Id: wallswt.cpp,v 1.6 2001/04/14 13:20:57 mstorti Exp $
   
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -56,7 +56,7 @@ double SwtWallFun::residual(double g,void *u=NULL) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "wall::assemble"
-void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const NodeData *nodedata,
 			      const Dofmap *dofmap,const char *jobinfo,
 			      const ElementList &elemlist,
 			      const TimeData *time_data) {
