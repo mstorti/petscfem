@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.30 2003/12/04 12:21:04 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.30.2.1 2003/12/11 17:03:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -149,21 +149,18 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Density
   SGETOPTDEF(double,rho,1.);
 
-  //o Thermal conductivity
-  //  SGETOPTDEF(double,kappa,1.);
-
   //o Thermal conductivity tensor
-  FastMat2 kappa_tensor;
-  kappa_tensor.resize(2,ndim,ndim);
-  kappa_tensor.set(0.);
+  FastMat2 kappa;
+  kappa.resize(2,ndim,ndim);
+  kappa.set(0.);
 
   /*
   for (int jj=1; jj<=ndim; jj++) {
-    kappa_tensor.setel(kappa,jj,jj);
+    kappa.setel(kappa,jj,jj);
   }
   */
 
-  read_cond_matrix(thash,"kappa_tensor",ndim,kappa_tensor);
+  read_cond_matrix(thash,"kappa",ndim,kappa);
 
   //o Specific heat - constant pressure
   SGETOPTDEF(double,Cp,1.);
@@ -569,12 +566,12 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		double kappa_t = rho*nu_t*Cp/Pr_t;
 
 		kappa_eff.set(eye).scale(kappa_t);
-		kappa_eff.add(kappa_tensor);
+		kappa_eff.add(kappa);
 
 	      } else {
 		mu_eff = mu_l;
 
-		kappa_eff.set(kappa_tensor);
+		kappa_eff.set(kappa);
 	      }
 	      nu_eff = mu_eff/rho;
 	    }
@@ -624,7 +621,9 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
         }
         if (comp_mat_res_th || comp_res_th) {
+	  FastMat2::branch();
 	  if (velmod>tol) {
+	    FastMat2::choose(0);
 
 	    double kappa_trace = double(tmp21_th.ctr(kappa_eff,-1,-1))/double(ndim);
 
@@ -635,6 +634,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  } else {
 	    tau_supg_th = 0;
 	  }
+	  FastMat2::leave();
         }
 
         if (comp_mat_res || comp_res) {
