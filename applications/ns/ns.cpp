@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.37 2001/08/25 16:08:32 mstorti Exp $
+//$Id: ns.cpp,v 1.38 2001/09/08 01:07:36 mstorti Exp $
  
 #include <malloc.h>
 
@@ -390,9 +390,10 @@ int main(int argc,char **args) {
       Viewer matlab;
       if (verify_jacobian_with_numerical_one) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-			       "output.m",&matlab); CHKERRA(ierr);
+			       "system.dat.tmp",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"ateta"); CHKERRA(ierr);
+			       VIEWER_FORMAT_ASCII_MATLAB,
+			       "ateta"); CHKERRA(ierr);
 
 	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
 	
