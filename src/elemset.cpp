@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.33 2001/12/03 16:39:19 mstorti Exp $
+//$Id: elemset.cpp,v 1.34 2001/12/03 19:48:41 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -799,6 +799,7 @@ int assemble(Mesh *mesh,arg_list argl,
     }
   }
 
+#if 0
   out_of_loop.add(hpchrono.elapsed());
   out_of_loop.print_stat("Out of loop");
   in_loop.print_stat("In loop");
@@ -806,6 +807,7 @@ int assemble(Mesh *mesh,arg_list argl,
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] Total in assemble: %g\n",
 	      MY_RANK,hpc2.elapsed());
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#endif
   return 0;
 }
 

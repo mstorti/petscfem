@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.59 2001/11/26 20:10:22 mstorti Exp $
+//$Id: lusubd.cpp,v 1.60 2001/12/03 19:48:41 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -950,9 +950,11 @@ int PFMat::set_preco(const string & preco_type) {
 #undef __FUNC__
 #define __FUNC__ "PFMat::destroy_sles"
 int PFMat::destroy_sles() {
-  int ierr = SLESDestroy(sles); CHKERRQ(ierr);
-  sles=NULL;
-  sles_was_built = 0;
+  if (sles_was_built) {
+    int ierr = SLESDestroy(sles); CHKERRQ(ierr);
+    sles=NULL;
+    sles_was_built = 0;
+  }
   return 0;
 }
 
@@ -961,10 +963,12 @@ int PFMat::destroy_sles() {
 #define __FUNC__ "PFMat::destroy_sles"
 int IISDMat::destroy_sles() {
   int ierr;
-  PFMat::destroy_sles();
-  if (local_solver == PETSc) {
-    ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
-    A_LL = NULL;
+  if (sles_was_built) {
+    PFMat::destroy_sles();
+    if (local_solver == PETSc) {
+      ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
+      A_LL = NULL;
+    }
   }
   return 0;
 }

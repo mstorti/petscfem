@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.92 2001/11/30 13:21:24 mstorti Exp $
+$Id: notes.txt,v 1.93 2001/12/03 19:49:05 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.92 2001/11/30 13:21:24 mstorti Exp $ 
+! # $Id: notes.txt,v 1.93 2001/12/03 19:49:05 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.92 2001/11/30 13:21:24 mstorti Exp $ 
+! # $Id: notes.txt,v 1.93 2001/12/03 19:49:05 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.92 2001/11/30 13:21:24 mstorti Exp $ 
+  # $Id: notes.txt,v 1.93 2001/12/03 19:49:05 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4018,6 +4018,67 @@ Voy a trabajar en el subparticionamiento dentro de cada subdominio.
 Subparticionamiento OK. 
 Pasando en limpio los `adaptors' y escribiendo un nuevo adaptor donde
 solo se calculan contribuciones a nivel del punto de Gauss. 
+
+%===Mon Dec  3 13:57:59 ART 2001 mstorti@minerva
+%
+Volvemos a reflotar el tema del `cache_grad_div_u'. Activado da (en
+una malla de 1600 elementos (sqcav con 40x40)) con debugger 
+%
+########## CON CACHE_GRAD_DIV_U = 0, 2D
+[proc 0]   1.65   1.03125
+[proc 0]   1.74   1.0875
+[proc 0]   1.73   1.08125
+[proc 0]   1.72   1.075
+[proc 0]   1.69   1.05625
+%
+total: 16.54user 0.47system 0:20.04elapsed 84%CPU
+%
+########## CON CACHE_GRAD_DIV_U = 1, EN 2D
+[proc] - total[sec] - rate[sec/Kelement]  
+[proc 0]   1.47   0.91875
+[proc 0]   1.48   0.925
+[proc 0]   1.51   0.94375
+[proc 0]   1.45   0.90625
+%
+total: 15.71user 0.45system 0:27.11elapsed 59%CPU
+%
+EN 3D -------------------------------
+%
+Sin debugger. En el cluster. 
+%
+%%% 
+########## CON CACHE_GRAD_DIV_U = 0, 3D
+Performance report for elemset "nsi_tet_les_fm2" task "comp_mat_res"
+[proc] - total[sec] - rate[sec/Kelement]
+[proc 0]   31.09   0.829509
+[proc 1]   52.15   1.44813
+[proc 2]   56.21   1.59082
+[proc 3]   64.54   1.7229
+[proc 4]   61.47   1.6542
+[proc 5]   62.98   1.68041
+[proc 6]   63.31   1.75282
+[proc 7]   56.86   2.09229
+[proc 8]   60.37   2.18558
+[proc 9]   59.11   2.13656
+[proc 10]   60.51   2.22602
+%
+########## CON CACHE_GRAD_DIV_U = 1, 2D
+[proc] - total[sec] - rate[sec/Kelement]
+[proc 0]   22.81   0.608591
+[proc 1]   43.36   1.20404
+[proc 2]   47.4   1.34148
+[proc 3]   48.49   1.29445
+[proc 4]   51.99   1.39909
+[proc 5]   48.33   1.28952
+[proc 6]   53.3   1.47568
+[proc 7]   65.02   2.39255
+[proc 8]   64.57   2.33763
+[proc 9]   62.01   2.24138
+[proc 10]   64.44   2.3706
+%
+Al activar el `cache_grad_div_u' los tiempos disminuyen para los
+procesadores 1-7 en promedio en un 20%. Mientras que para los
+procesadores 8-11 aumenta de un 5% a un 15%. 
 
 %# Current line ===========  
 # Local Variables: $

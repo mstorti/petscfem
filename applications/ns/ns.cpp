@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.51 2001/12/02 20:54:08 mstorti Exp $
+//$Id: ns.cpp,v 1.52 2001/12/03 19:49:09 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -135,6 +135,12 @@ int main(int argc,char **args) {
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
   GETOPTDEF(int,update_jacobian_iters,0);
+  //o Update jacobian each $n$-th time step. 
+  GETOPTDEF(int,update_jacobian_steps,0);
+#define INF INT_MAX
+  //o Update jacobian each $n$-th time step. 
+  GETOPTDEF(int,update_jacobian_start_steps,INF);
+#undef INF
   //o Relaxation parameter for Newton iteration. 
   GETOPTDEF(double,newton_relaxation_factor,1.);
 
@@ -320,7 +326,7 @@ int main(int argc,char **args) {
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
   // Filter *filter(x,*mesh);
-
+  int update_jacobian_step=0;
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
@@ -339,7 +345,15 @@ int main(int argc,char **args) {
 
       glob_param.inwt = inwt;
       // Initialize step
-      int update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
+      int update_jacobian;
+      update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
+      // 
+      if (update_jacobian_steps) 
+	update_jacobian = (tstep < update_jacobian_start_steps) 
+	  || (update_jacobian_step==0);
+      if (update_jacobian) {
+	ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
+      }
 
       // Compute wall stresses
       VOID_IT(argl);
@@ -503,11 +517,13 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-      ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
-
       // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
 
     } // end of loop over Newton subiteration (inwt)
+
+    update_jacobian_step++;
+    if (update_jacobian_step >= update_jacobian_steps) 
+      update_jacobian_step =0;
 
     // error difference
     scal = -1.0;
