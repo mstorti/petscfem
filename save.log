@@ -993,3 +993,10 @@ tag: beta-2.80.pl1 on Sun Feb 10 20:31:20 ARST 2002 by mstorti in spider
      > Added `USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS' 
      > configuration variable in `Makefile.defs' that enables 
      > 'USE_DLEF' compilation flag. 
+----------
+tag: beta-2.81 on Mon Feb 11 10:25:21 ART 2002, by mstorti in minerva.arcride.edu.ar
+     > Added test for stream elemset
+     > Added test for aquifer+stream to test suite
+     > Implemented aquifer+stream
+     > Merged changes from branch when adding aquifer tests. 
+     > Added `stable.log'
