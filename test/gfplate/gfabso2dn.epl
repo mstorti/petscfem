@@ -94,6 +94,7 @@ data ./gfabso2dn.con.tmp
 __END_HASH__
 
 #if $abso
+## ================================================================
 #if 1
 ## New absorbing b.c.'s 
 elemset gasflow_abso2 3
@@ -102,7 +103,25 @@ dx 0
 __END_HASH__
 __INCLUDE__ gfabso2dn.con-nabso.tmp
 __END_ELEMSET__
+#elsif 0
+## ================================================================
+## New absorbing b.c.'s
+## One elemset per end
+elemset gasflow_abso2 3
+normal <:=-$norx:> <:=-$nory:>
+dx 0
+__END_HASH__
+__INCLUDE__ gfabso2dn.con-nabso0.tmp
+__END_ELEMSET__
+
+elemset gasflow_abso2 3
+normal <:=+$norx:> <:=+$nory:>
+dx 0
+__END_HASH__
+__INCLUDE__ gfabso2dn.con-nabso1.tmp
+__END_ELEMSET__
 #else
+## ================================================================
 ## Old absorbing b.c.'s 
 elemset gasflow_abso 5
 dx 0
