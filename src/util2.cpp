@@ -1,5 +1,5 @@
-/*__INSERT_LICENSE__*/
-//$Id: util2.cpp,v 1.7 2001/05/30 03:58:50 mstorti Exp $
+//__INSERT_LICENSE__
+//$Id: util2.cpp,v 1.8 2001/05/30 18:21:53 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>

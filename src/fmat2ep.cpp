@@ -1,8 +1,8 @@
 //<require "prep.pl"//>//
 //<=$warn_dont_modify //>
 
-/*__INSERT_LICENSE__*/
-//$Id: fmat2ep.cpp,v 1.6 2001/05/30 03:58:50 mstorti Exp $
+//__INSERT_LICENSE__
+//$Id: fmat2ep.cpp,v 1.7 2001/05/30 18:21:53 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 

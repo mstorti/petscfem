@@ -1,5 +1,5 @@
-/*__INSERT_LICENSE__*/
-//$Id: readmesh.cpp,v 1.21 2001/05/30 03:58:50 mstorti Exp $
+//__INSERT_LICENSE__
+//$Id: readmesh.cpp,v 1.22 2001/05/30 18:21:53 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"

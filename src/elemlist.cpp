@@ -1,5 +1,5 @@
-/*__INSERT_LICENSE__*/
-//$Id: elemlist.cpp,v 1.10 2001/05/30 03:58:50 mstorti Exp $
+//__INSERT_LICENSE__
+//$Id: elemlist.cpp,v 1.11 2001/05/30 18:21:53 mstorti Exp $
 
 #include "fem.h"
 #include <set>

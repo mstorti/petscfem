@@ -1,5 +1,5 @@
-/*__INSERT_LICENSE__*/
-//$Id: walldata.cpp,v 1.4 2001/05/30 03:58:44 mstorti Exp $
+//__INSERT_LICENSE__
+//$Id: walldata.cpp,v 1.5 2001/05/30 18:21:50 mstorti Exp $
  
 #include "../../src/fem.h"
 //  #include "../../src/readmesh.h"

@@ -1,5 +1,5 @@
-/*__INSERT_LICENSE__*/
-//$Id: ffadvec.cpp,v 1.3 2001/05/30 03:58:35 mstorti Exp $
+//__INSERT_LICENSE__
+//$Id: ffadvec.cpp,v 1.4 2001/05/30 18:21:43 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>

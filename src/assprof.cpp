@@ -1,4 +1,4 @@
-/*__INSERT_LICENSE__*/
+//__INSERT_LICENSE__
 //$Id$
 
 #include "fem.h"

@@ -1,5 +1,5 @@
-/*__INSERT_LICENSE__*/
-/* $Id: nsikeps.cpp,v 1.2 2001/05/30 03:58:44 mstorti Exp $ */
+//__INSERT_LICENSE__
+/* $Id: nsikeps.cpp,v 1.3 2001/05/30 18:21:50 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
