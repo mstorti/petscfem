@@ -1,11 +1,19 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.32 2001/07/30 03:42:30 mstorti Exp $ 
+# $Id: Makefile,v 1.33 2001/07/31 14:25:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
 	newff burgers bug100 nonlr
+
+SRCS = $(wildcard *.cpp)
+
+DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
+		newff burgers les/stabi genload bug100 nonlr wallke \
+		wkepipe wallkechan lupart distmap
+CLEAN_DIRS = $(DIRS)
+DEPEND_DIRS = texthash distmap
 
 run: sqcav5
 
@@ -18,14 +26,6 @@ all: tests
 PETSCFEM_DIR = ..
 #PFEMUP = ../..
 include $(PETSCFEM_DIR)/Makefile.base
-
-SRCS = $(wildcard *.cpp)
-
-DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
-		newff burgers les/stabi genload bug100 nonlr wallke \
-		wkepipe wallkechan lupart distmap
-CLEAN_DIRS = $(DIRS)
-DEPEND_DIRS = $(DIRS)
 
 ctest: $(DATAFILE) force
 	$(MAKE) $(NS)
