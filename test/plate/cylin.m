@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.22 2003/03/03 04:37:05 mstorti Exp $
+## $Id: cylin.m,v 1.23 2003/03/06 02:38:30 mstorti Exp $
 global Rint Rext Rext2 L Rmean parab_param
 source("data.m.tmp");
 
@@ -124,6 +124,8 @@ for k=2:length(normal)-1
 	  normal(k,1),node,1, normal(k,2),node,2,-1.,nod_fic,1);
 endfor
 fclose(fid);
+
+asave("cylin.coupl2fic.tmp",[external nod_fic_ext]);
 
 fid = fopen("cylin.coupler.tmp","w");
 for k=1:length(external)-1
