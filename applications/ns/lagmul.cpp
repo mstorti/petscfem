@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.4 2001/10/05 17:52:10 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.5 2001/10/06 23:39:59 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -34,8 +34,6 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			   int el_start,int el_last,int iter_mode,
 			   const TimeData *time_) {
 
-  int nelr,nfic,nr; // number of real/fictitious nodes, number of restrictions
-
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_ke);
   GET_JOBINFO_FLAG(comp_mat_res);
@@ -47,10 +45,11 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 
-  int ierr=0,nr,jr,jfic,dofic;
+  // nr:= number of restrictions
+  int nr,ierr=0,jr,jfic,kfic,dofic;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst,*locst2,*retval,*retvalmat,lambda;
+  double *locst,*locst2,*retval,*retvalmat,lambda,rr;
   GlobParam *glob_param;
   double *hmin,Dt,rec_Dt;
   int ja_hmin;
@@ -93,14 +92,13 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF(thash,double,lagrange_scale_factor,1.);
 
   init();
-  dims(nr,nfic); // Get dimensions of problem
-  nelr = nel-nfic;
+  nr = nres(); // Get dimensions of problem
 
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
   if (comp_mat) matloc_prof.set(1.);
 
-  FastMat2 r(1,nr),w(3,nelr,ndof,nr),jac(3,nr,nelr,ndof);
+  FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
   jac.set(0.);
 
   FastMatCacheList cache_list;
@@ -127,19 +125,21 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       for (jr=0; jr<nr; jr++) {
 	// get node/field of the Lag.mul.
 	lag_mul_dof(jr,jfic,dofic);
-	
-	lambda = U.get(nelr+jfic,dofic);
-	R.is(1,1,nelr).prod(w,U,1,2,-1,-2,-1,-2).scale(lagrange_scale_factor);
-      
-      R.rs().is(1,nelr+1,nel).is(2,1,nr).set(r)
-	.axpy(U,-lagrange_diagonal_factor*lagrange_residual_factor).rs();
-      
-      matloc.is(1,1,nelr).is(3,nelr+1,nel).is(4,1,nr).set(w)
-	.scale(-lagrange_scale_factor).rs();
-      matloc.is(1,nelr+1,nel).is(3,1,nelr).is(2,1,nr).set(jac).scale(-1.).rs();
-      matloc.is(1,nelr+1,nel).is(3,nelr+1,nel).d(2,4).is(2,1,nr)
-	.set(lagrange_diagonal_factor).rs();
 
+	lambda = U.get(jfic,dofic);
+	w.rs().ir(3,jr);
+	R.axpy(w,lambda*lagrange_scale_factor);
+	rr = r.get(jr) + lagrange_scale_factor*U.get(jfic,dofic);
+	R.addel(rr,jfic,dofic);
+
+	matloc.rs().ir(3,jfic).
+	  ir(4,dofic).axpy(w,lagrange_scale_factor);
+	matloc.rs().addel(lagrange_diagonal_factor*lagrange_residual_factor,
+			  jfic,dofic,jfic,dofic);
+	jac.rs().ir(1,jr);
+	matloc.ir(1,jfic).ir(2,dofic).add(jac);
+      }
+      
       R.export_vals(&(RETVAL(ielh,0,0)));
       // matloc.set(0.);
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));

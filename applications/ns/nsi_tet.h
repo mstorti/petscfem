@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.19 2001/10/05 17:52:10 mstorti Exp $
+//$Id: nsi_tet.h,v 1.20 2001/10/06 23:39:59 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -312,7 +312,7 @@ class LagrangeMult : public Elemset {
       @param nr (output) number of restrictions
       @param nfic (output) number of fictitious nodes
    */
-  virtual void dims(int &nr,int &nfic)=0;
+  virtual int nres()=0;
   /** Return the node/dof pair to be used as lagrange multiplier for
       the #jr#-th restriction. 
       @param jr (input) Number of restriction

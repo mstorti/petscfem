@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.11 2001/10/04 20:43:37 mstorti Exp $ 
+ # $Id: Makefile,v 1.12 2001/10/06 23:39:59 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -9,7 +9,7 @@ PETSCFEM_DIR   = ../..
 MYOBJS = ns.o nsitetlesfm2.o \
 		bccnsfm2.o wall.o nsvol.o walldata.o \
 		nsilesther.o bccnstherfm2.o nsikeps.o \
-		wallke.o nonlr.o lagmult.o
+		wallke.o nonlr.o lagmul.o
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"

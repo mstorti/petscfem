@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.36 2001/09/19 14:25:15 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.37 2001/10/06 23:39:59 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -553,7 +553,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	  if (!cache_grad_div_u) {
 	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
-	    tmp18.prod(dshapex,tmp19,2,1,4,3);
+	    tmp18.prod(dshapex,tmp19,2,3,4,1);
 	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
 	  } else {
 	    grad_div_u_coef += (delta_supg*rho+nu_eff)*wpgdet;

@@ -1,20 +1,20 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.42 2001/10/03 21:22:23 mstorti Exp $
+//$Id: ns.cpp,v 1.43 2001/10/06 23:39:59 mstorti Exp $
  
 #include <malloc.h>
 
-#include "../../src/fem.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/utils.h"
-#include "../../src/util2.h"
-#include "../../src/sttfilter.h"
-#include "../../src/pfmat.h"
+#include <src/fem.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/utils.h>
+#include <src/util2.h>
+#include <src/sttfilter.h>
+#include <src/pfmat.h>
 
-//#include "fracstep.h"
-#include "nsi_tet.h"
+#include <applications/ns/nsi_tet.h>
+#include <applications/ns/nssup.h>
 
-static char help[] = "Basic finite element program.\n\n";
+static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 int MY_RANK,SIZE;
 TextHashTable *GLOBAL_OPTIONS;
@@ -31,6 +31,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
+    SET_ELEMSET_TYPE(ns_sup)
+    SET_ELEMSET_TYPE(ns_sup_res)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_keps)
