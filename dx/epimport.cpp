@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.19 2003/09/07 15:39:55 mstorti Exp $
+// $Id: epimport.cpp,v 1.20 2003/09/07 16:55:31 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -7,11 +7,12 @@
 #include <float.h>
 #include <math.h>
 
-// `or' and `string' are used in DX so that one possibility is to
-// use a namespace for DX or to remap this colliding names with
+// `or', `string' and `copy' are used in DX so that one possibility is
+// to use a namespace for DX or to remap this colliding names with
 // `#defines'
 //#define or __or__
 #define string __string__
+#define copy __copy__
 /* define your pre-dx.h include file for inclusion here*/ 
 #ifdef PRE_DX_H
 #include "ExtProgImport_predx.h"
@@ -24,6 +25,7 @@
 #include <HDR/sockets.h>
 //#undef or
 #undef string
+#undef copy
 //#define USE_SSL
 #include <src/util3.h>
 #include <src/autostr.h>
@@ -296,6 +298,15 @@ Error build_dx_array_int(Socket *clnt,int shape,int length, Array &array) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void clean_tempo_list(vector<Object> &tempo_list) {
+  while (tempo_list.size()) {
+    Object o = tempo_list.back();
+    DXDelete(o);
+    tempo_list.pop_back();
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
     nelem, nel, cookie, fields_n, arrays_n, poll;
@@ -316,6 +327,11 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   char spc[] = " \t\n";
   int cache_nodes=0;
   Object ck;
+  // This are objects that are put in the cache
+  // and then we create a reference to them in order
+  // to manipulate them temporarily. However we must
+  // clean the reference at the end. 
+  vector<Object> tempo_list;
 
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
@@ -423,25 +439,29 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[3],nnod)) goto error;
       if (string2int(tokens[4],cookie)) goto error;
 
-      // After this block we end up with an unreferenced array
+      // After this block we end up with a referenced array
+      // put in `tempo_list'
       if (tokens.size()==6 && tokens[5]=="use_cache") {
 
-	AutoString dx_func;
-	dx_func.set("ExtProgImport_").cat(name.c_str());
-	
-	Object cached_nodes = DXGetCacheEntry(dx_func.str(),0,0);
-	if (cached_nodes) {
-	  DXMessage("Found cached nodes %p",cached_nodes);
-	  DXSetCacheEntry(NULL,dx_func.str(),0,0);
-	  DxDelete(cached_nodes);
-	  Nodes *nodes = new Nodes(ndim,nnod,array);
+#define NODES_KEY "ExtProgImport_nodes"
+	array = (Array)DXGetCacheEntry(NODES_KEY,0,0);
+	if (array) {
+	  DXMessage("Found cached nodes %p",array);
+	  Sprintf(clnt,"do_not_send_nodes\n");
 	} else {
 	  DXMessage("Requesting nodes.. ");
 	  Sprintf(clnt,"send_nodes\n");
 	  ierr = build_dx_array(clnt,ndim,nnod,array);
 	  if(ierr!=OK) return ierr;
-	  DXMessage("Requesting nodes.. OK");
+	  DXMessage("Ends requesting nodes.. OK");
+	  Error err = DXSetCacheEntry((Object)array,
+				      CACHE_PERMANENT,NODES_KEY,0,0);
 	}
+	if (err!=OK) {
+	  DXMessage("Couldn't create cache entry");
+	  goto error;
+	} else DXMessage("Putting cached_nodes in cache %p",array);
+	tempo_list.push_back((Object)array);
       } else {
 	  ierr = build_dx_array(clnt,ndim,nnod,array);
 	  if(ierr!=OK) return ierr;
@@ -454,21 +474,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
       Sprintf(clnt,"nodes_OK %d\n",cookie);
-
-      if (gpositions) DXMessage("Multiple position objects");
-      else {
-	gpositions = nodes->dx_object();
-	Object cached_nodes = DXGetCacheEntry("ExtProgImport",0,0);
-	if (!cached_nodes) {
-	  Error err = DXSetCacheEntry(gpositions,CACHE_PERMANENT,"ExtProgImport",0,0);
-	  if (err!=OK) {
-	    DXMessage("Couldn't create cache entry");
-	    goto error;
-	  } else 
-	    DXMessage("Putting cached_nodes in cache %p",gpositions);
-	} else {
-	}
-      }
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
@@ -648,10 +653,14 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   if (!clnt) Sclose(clnt);
   clnt = NULL;
 
+  clean_tempo_list(tempo_list);
   return OK;
   
 error:
+  clean_tempo_list(tempo_list);
   Sclose(clnt);
+  // Here we should delete all created but
+  // yet not referenced objects 
   delete[] hostname;
   hostname = NULL;
   return ERROR;
