@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.5 2003/08/18 14:38:46 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.6 2003/08/18 14:58:58 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -439,6 +439,7 @@ int IISDMat::create_a() {
   // Now build the pointers (cumsum)
   n_lay1_p[0]=0;
   for (int p=0; p<size; p++) {
+    n_isp[p] = n_lay1[p] + n_band[p];
     n_band_p[p] = n_lay1_p[p] + n_lay1[p];
     n_lay1_p[p+1] = n_band_p[p] + n_band[p];
   }
@@ -469,23 +470,36 @@ int IISDMat::create_a() {
   }
 #endif
 
-#if 0
   // Now compute the PETSc d_nnz, o_nnz stuff
   // n_isp_here:= number of dofs in (int+band) in this processor
   int n_isp_here = n_isp[myrank];
-  vector<int> d_nnz[n_isp_here], o_nnz[n_isp_here];
+  vector<int> isp_d_nnz(n_isp_here,0), isp_o_nnz(n_isp_here,0);
   for (int j=0; j<neq; j++) {
     // Only process dof's in the int+band, here
     if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
     // PETSc index (relative to processor range)
-    int ispj = isp_map[j]-n_lay1_p[proc];
+    int ispj = isp_map[j]-n_lay1_p[myrank];
     ngbrs_v.clear();
     lgraph->set_ngbrs(j,ngbrs_v);
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
       int k = *q;
+      if (!isp_lay_map[k]) continue;
+      if (part.processor(k)==myrank) isp_d_nnz[ispj]++;
+      else isp_o_nnz[ispj]++;
     }
   }
+
+#if 1
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"In [%d]:\n",myrank);
+  for (int j=0; j<neq; j++) {
+    if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
+    int ispj = isp_map[j]-n_lay1_p[myrank];
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "j %d, isp_indx %d, d_nnz %d o_nnz %d\n",
+			    j,isp_map[j],isp_d_nnz[ispj],isp_o_nnz[ispj]);
+  }
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
   //# Current line =========== 
