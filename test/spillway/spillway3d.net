@@ -1,5 +1,5 @@
 //
-// time: Wed Jul  2 12:57:42 2003
+// time: Fri Jul  4 10:13:06 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -20,7 +20,7 @@ include "systemdi.net"
 // page assignment: plot	order=4, windowed=0, showing=0
 // page assignment: proc_u	order=3, windowed=0, showing=0
 // page assignment: scalar	order=5, windowed=0, showing=0
-// workspace: width = 500, height = 642
+// workspace: width = 373, height = 642
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
@@ -45,7 +45,7 @@ macro main(
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 10
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 10 0 743 1 }
     // page group: import
-    // vcr[4]: min = 0, max = 1000, beg = 0, end = 743, cur = 0, inc = 10, loop = off, step = off, pal = off
+    // vcr[4]: min = 0, max = 1000, beg = 0, end = 743, cur = 10, inc = 10, loop = off, step = off, pal = off
     // window: position = (0.3770,0.1510), size = 0.2734x0.1042
     //
     main_Sequencer_4_in_3 = @frame;
@@ -812,7 +812,7 @@ main_Collect_2_out_1 =
     // input[6]: defaulting = 0, visible = 0, type = 8, value = [546.339 -237.484 204.666]
     // input[7]: defaulting = 0, visible = 0, type = 5, value = 69.076
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
-    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
+    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.6975
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.257841 0.156071 0.953499]
     // input[11]: defaulting = 1, visible = 0, type = 5, value = 7.77022
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
@@ -1753,7 +1753,7 @@ main_Image_4_in_5 = [121.751 -3.1621 51.4966];
 main_Image_4_in_6 = [546.339 -237.484 204.666];
 main_Image_4_in_7 = 69.076;
 main_Image_4_in_8 = 1000;
-main_Image_4_in_9 = 0.697;
+main_Image_4_in_9 = 0.6975;
 main_Image_4_in_10 = [-0.257841 0.156071 0.953499];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
