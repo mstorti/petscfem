@@ -643,3 +643,6 @@ tag: beta-2.39 on Tue Nov 27 20:22:56 ARST 2001, by mstorti in spider
 tag: beta-2.40 on Tue Nov 27 23:21:28 ARST 2001, by mstorti in spider
      > Added `test/thread' directory.
      > Removed 'run' directory.
+----------
+tag: beta-2.41 on Wed Nov 28 10:26:59 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Removed `run' directory after problems with CVS/RCS
