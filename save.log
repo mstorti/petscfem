@@ -3618,3 +3618,6 @@ tag: beta-3.38.11 on Fri, 07 Jan 2005 13:52:48 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.38.12 on Fri, 07 Jan 2005 20:39:20 -0300 by mstorti in spider
      > Runs with wall temperature imposed via Lagrange Multiplier. 
+----------
+tag: beta-3.38.13 on Sat, 08 Jan 2005 11:34:49 -0300 by mstorti in spider
+     > Runs flat plate problem with adiabtic wall conditions. 
