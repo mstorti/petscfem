@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spiller.m,v 1.6 2003/03/17 20:44:44 mstorti Exp $
+## $Id: spiller.m,v 1.7 2003/03/17 21:54:37 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spiller, mesh
@@ -115,11 +115,20 @@ normal = xnod(fs(3:nfs),:) - xnod(fs(1:nfs-2),:);
 normal = leftscal(1./l2(normal),normal);
 normal = [-normal(:,2) normal(:,1)];
 
-## SF  v.n=0
+## SF  v.n=0  !!NO
 fid = fopen("spiller.slip.tmp","w");
 for j=2:length(fs)-1
   k= fs(j);
   fprintf(fid,"%f    %d %d   %f  %d %d\n",normal(j-1,1),k,1,normal(j-1,2),k,2);
+endfor
+fclose(fid);
+
+## SF  p = p_atm = 0.
+patm = 0.;
+fid = fopen("spiller.patm.tmp","w");
+for j=2:length(fs)-1
+  k= fs(j);
+  fprintf(fid,"%d %d %f\n",k,3,patm);
 endfor
 fclose(fid);
 
