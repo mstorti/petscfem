@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add test for axisymmetric option in nsi_tet_les_fm2
 * A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
   SIGSEGV. Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
 * generate tests for gatherer
