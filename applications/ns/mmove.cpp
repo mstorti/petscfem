@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.1.2.3 2001/12/20 18:49:10 mstorti Exp $
+//$Id: mmove.cpp,v 1.1.2.4 2001/12/20 20:32:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,14 @@
 void mesh_move::init() {
 
   int ierr;
-
+  FastMat2 C;
+  double c1 = sqrt(1./3.), c2 = sqrt(1./6.);
+  // These are the gradient of shape functions for a master
+  // tetra, with unit edge length with nodes at 
+  // [+-1/2 0 0], [0,sqrt(3)/2,0], [0,1/sqrt(6),sqrt(2/3)]
+  double c[12] = {-1., -c1, -c2, +1., -c1, -c2, 
+		  0., 2*c1, -c2, 0., 0., 3*c2};
+  
   //o Distortion coefficient
   TGETOPTDEF_ND(thash,double,c_distor,1.);
 
@@ -45,11 +52,16 @@ void mesh_move::init() {
     dNdxi.setel(0                       ,1,3);
     dNdxi.setel(+sin(M_PI/3)            ,2,3);
   } else {
+#if 0
     dNdxi.set(0.);
     for (int k=1; k<=3; k++) dNdxi.setel(1.,k,k);
     dNdxi.setel(-1.,1,4);
     dNdxi.setel(-1.,2,4);
     dNdxi.setel(-1.,3,4);
+#endif
+    
+    C.resize(2,nel,ndim).set(c).t();
+    dNdxi.set(C);
   }
   res_Dir.resize(2,nel,ndim);
   

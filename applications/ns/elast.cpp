@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.2 2001/11/30 12:41:08 mstorti Exp $
+//$Id: elast.cpp,v 1.2.2.1 2001/12/20 20:32:07 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,6 +14,7 @@
 void elasticity::init() {
 
   int ierr;
+
   //o Young modulus
   TGETOPTDEF(thash,double,Young_modulus,0.);
   E=Young_modulus;
@@ -24,6 +25,9 @@ void elasticity::init() {
   nu=Poisson_ratio;
   assert(nu>=0. && nu<0.5);
 
+  //o 2D plane stress / 2D plane strain
+  TGETOPTDEF_S(thash,string,elas2dcase,plane_strain);
+
   //o Density
   TGETOPTDEF(thash,double,density,0.);
   rho=density;
@@ -33,22 +37,48 @@ void elasticity::init() {
   assert(!(rec_Dt>0. && rho==0.));
   assert(ndof==ndim);
 
-  // 2D
-  ntens=3;
+  if (ndim==2) {
+    // 2D
+    ntens=3;
+    } else {
+    ntens=6;
+    }
   nen=nel*ndof;
-  
+
   // tal vez el resize blanquea
   B.resize(2,ntens,nen).set(0.);
   C.resize(2,ntens,ntens).set(0.);
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
 
+   if (ndim==2) {
+     if (elas2dcase=="plane_strain") {
   // Plane strain
-  double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
-         c3=nu/(1.-nu);
+     double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
+       c3=nu/(1.-nu);
   C.setel(c1,1,1).setel(c1*c3,1,2)
     .setel(c1*c3,2,1).setel(c1,2,2)
     .setel(c2,3,3);
+  }  else if (elas2dcase=="plane_stress") {
+  // Plane stress
+  double c1=E/(1.-nu)/(1.+nu), c2=E/(2.*(1.+nu)),
+         c3=nu;
+  C.setel(c1,1,1).setel(c1*c3,1,2)
+    .setel(c1*c3,2,1).setel(c1,2,2)
+    .setel(c2,3,3);
+  } else { 
+      printf("2D only plane_stress or plane_strain is allowed. \n");
+      exit(1);
+  }
+    } else {
+  // 3D
+       double c1=E*(1.-nu)/(1.+nu)/(1.-2.*nu), c2=nu/(1.-nu),
+          c3=(1.-2.*nu)/2./(1.-nu);
+       C.setel(c1,1,1).setel(c1*c2,1,2).setel(c1*c2,1,3)
+       .setel(c1*c2,2,1).setel(c1,2,2).setel(c1*c2,2,3)
+       .setel(c1*c2,3,1).setel(c1*c2,3,2).setel(c1,3,3)
+       .setel(c1*c3,4,4).setel(c1*c3,5,5).setel(c1*c3,6,6);
+    }
 
 }
 
@@ -76,11 +106,22 @@ void elasticity::element_connector(const FastMat2 &xloc,
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
     
     // construccion de matriz B
+    if (ndim==2) {
     B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
     B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
     B.ir(1,3).ir(3,1).set(dshapex.ir(1,2));
     B.ir(1,3).ir(3,2).set(dshapex.ir(1,1));
-
+    } else {
+    B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
+    B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
+    B.ir(1,3).ir(3,3).set(dshapex.ir(1,3));
+    B.ir(1,4).ir(3,1).set(dshapex.ir(1,2));
+    B.ir(1,4).ir(3,2).set(dshapex.ir(1,1));
+    B.ir(1,5).ir(3,1).set(dshapex.ir(1,3));
+    B.ir(1,5).ir(3,3).set(dshapex.ir(1,1));
+    B.ir(1,6).ir(3,2).set(dshapex.ir(1,3));
+    B.ir(1,6).ir(3,3).set(dshapex.ir(1,2));
+    }    
     dshapex.rs();
     
     // B.rs().reshape(2,ntens,nen);
