@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.10 2001/06/29 13:12:12 mstorti Exp $
+//$Id: wallke.cpp,v 1.11 2001/06/29 16:34:24 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -79,7 +79,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
-  DEFPROP(u_wall);
+  DEFPROPN(u_wall,ndim);
+  int nprops=iprop;
 
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
@@ -126,7 +127,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locstate2(nel,ndof),xpg; 
 
   nen = nel*ndof;
-  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel );
+  FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel ),u_wall(1,ndim);
   FMatrix matlocmom(nel,nel);
 
   double rho=1.;
@@ -172,6 +173,9 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     FastMat2::reset_cache();
 
     ielh++;
+    load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
+    u_wall.set(propel+u_wall_indx);
+
     // Load local node coordinates in local vector
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(k,kloc);
@@ -221,7 +225,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	wpgdet = detJaco * WPG;
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
-	u_star.prod(SHAPE,ucols_star,-1,-1,1);
+	u_star.prod(SHAPE,ucols_star,-1,-1,1).rest(u_wall);
 	double Ustar = sqrt(u_star.sum_square_all());
 	double gfun,gprime;
 	gprime = rho / (fwall*fwall);
