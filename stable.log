@@ -329,3 +329,6 @@ tag: beta-3.18 on Mon Feb 17 11:57:38 GMT+3 2003, by mstorti in spider
      > the `set_state' step in `dxhook'. 
      > Reads states from records in state files.
      > Moved all tests (oscplate, plano, idmap) to subdirs in test/
+----------
+tag: beta-3.18.pl7 on Wed, 19 Feb 2003 19:20:57 -0300 by mstorti in spider
+     > Fixed few errors. Runs all tests with g_c++ and O_c++
