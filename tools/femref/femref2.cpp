@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.13 2004/12/14 22:32:42 mstorti Exp $
+// $Id: femref2.cpp,v 1.14 2004/12/14 23:29:35 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -532,7 +532,7 @@ refine(RefineFunction f) {
     w = go_stack.begin();
     w->init(tmpl->type,&connec.e(k,0));
     w->make_canonical();
-    w->print();
+    // w->print();
     split_stack.push_front(etree.begin());
     split_indx_stack.push_front(0);
     const int *w_nodes = w->nodes();
@@ -545,14 +545,15 @@ refine(RefineFunction f) {
     while(!done) {
       w = go_stack.begin();
       // here visit w...
-      w->print("");
-      ElemRef::iterator q, qs, qs2, qfather;
+      ElemRef::iterator q, qs, qfather;
       q = split_stack.front();
       int j = split_indx_stack.front();
+      printf("level %d, sibling %d,",go_stack.size()-1,j);
+      w->print("");
 
       if (q==etree.end()) {
 	// May be refine this element?
-#define REF_LEVEL 1
+#define REF_LEVEL 2
 	  // Here refine (eventually) by inserting a
 	  // child in the position `q'.
 	  // Refinement criterion.
@@ -573,10 +574,7 @@ refine(RefineFunction f) {
 	// left child (int the GO tree). 
 	s = q->splitter;
 	qs = q.lchild();
-	if (qs!=etree.end() && qs->so_indx==0) 
-	  qs2 = qs;
-	else qs2 = etree.end();
-	split_stack.push_front(qs2);
+	split_stack.push_front(qs);
 	go_stack.push_front(GeomObject());
 	ws = go_stack.begin();
 	// Build `ws' from GeomObject `w' (parent) and
@@ -599,6 +597,7 @@ refine(RefineFunction f) {
 	  qfather = *(++qit);
 	  assert(qfather != etree.end());
 	  s = qfather->splitter;
+	  j = split_indx_stack.front();
 
 	  go_stack.pop_front();
 	  split_stack.pop_front();
@@ -619,21 +618,6 @@ refine(RefineFunction f) {
 	      if (qs->so_indx >= jsib) break;
 	      qs++;
 	    }
-#if 0
-	    // The sibling `jsib' is not refined at this level
-	    if (qs->so_indx > jsib) {
-	      // FIXME:= The code here is duplicated
-	      // and should be put in a refinement function. 
-	      bool refine_this = go_stack.size()<=REF_LEVEL;
-	      if (refine_this) {
-		qs = etree.insert(qs,ElemRefNode());
-		// The splitter should be returned
-		// by the refinement function
-		qs->splitter = &Tetra2TetraSplitter;
-		qs->so_indx = jsib;
-	      } else qs = etree.end(); // Not refined
-	    }
-#endif
 
 	    // Push new state in the stacks
 	    split_stack.push_front(qs);
@@ -645,42 +629,6 @@ refine(RefineFunction f) {
     }
   }
 }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-  while (q!=etree.end()) {
-    // Each node of the `etree' is a splitter!!
-    // create the nodes needed by this splitting
-    const Splitter *split = *q;
-    int sz = split->size();
-    for (int k=0; k<sz; k++) {
-      GeomObject::Type t;
-      const int *so_local_nodes = split->nodes(k,t);
-      GeomObject sgo(t);
-      int sgo_sz = sgo.size();
-      sgo_nodes.resize(sgo_sz);
-      for (int k=0; k<sgo_sz; k++) {
-	int n1 = so_local_nodes[2*k];
-	if (n1<w->size()) 
-	  sgo_nodes.e(k) = w_nodes[k];
-	else {
-	  n2 = so_local_nodes[2*k];
-	  n = n1*MAX_NODE+n2;
-	  map<int,int>::iterator q = hash2node.find(n);
-	  int ref_node;
-	  if (q==hash2node.end()) {
-	    ref_node = last_ref_node++;
-	    hash2node[n] = ref_node;
-	  } else {
-	    ref_node = q->second;
-	  }
-	  sgo_nodes.e(k) = ref_node;
-	}
-      }
-    }
-    q = q.lchild();
-  }
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::
@@ -711,8 +659,8 @@ set(const GeomObject &go,const Splitter *s,
 	int on1=n1;
 	n1 = last_ref_node++;
 	hash2node[node_hash] = n1;
-	printf("adding new ref node %d, (fathers %d %d)\n",
-	       n1,on1,n2);
+	// printf("adding new ref node %d,
+	// (fathers %d %d)\n", n1,on1,n2);
       }
     }
     sgo_nodes.e(k) = n1;
