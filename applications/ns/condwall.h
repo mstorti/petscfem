@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: condwall.h,v 1.3 2005/03/29 04:01:50 mstorti Exp $
+// $Id: condwall.h,v 1.4 2005/03/30 03:01:03 mstorti Exp $
 #ifndef PETSCFEM_CONDWALL_H
 #define PETSCFEM_CONDWALL_H
 
@@ -15,8 +15,15 @@
 #include "./nslagmul.h"
 #include "./nsi_tet.h"
 
-extern dvector<double> 
-cond_wall_resistance;
+struct cond_wall_data {
+  dvector<double> 
+  cond_wall_resistance,u1,u2;
+};
+
+typedef map<string,cond_wall_data> 
+cond_wall_data_map_t;
+
+extern cond_wall_data_map_t cond_wall_data_map;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic nonlinear restriction element. 

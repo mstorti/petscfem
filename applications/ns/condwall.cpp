@@ -1,9 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.5 2005/03/29 04:01:50 mstorti Exp $
+// $Id: condwall.cpp,v 1.6 2005/03/30 03:00:49 mstorti Exp $
 
 #include "./condwall.h"
 
-dvector<double> cond_wall_resistance;
+cond_wall_data_map_t cond_wall_data_map;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int cond_wall::nres() { return ndof*2; }
@@ -41,6 +41,7 @@ init() {
   double r = 0.;
   if (use_vector_resistance)
     cond_wall_resistance.resize(size(),r);
+  cond_wall_data_map[name()] = cond_wall_data();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
