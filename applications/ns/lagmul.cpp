@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.2 2001/10/04 20:43:37 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.3 2001/10/05 12:29:13 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -34,7 +34,7 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			   int el_start,int el_last,int iter_mode,
 			   const TimeData *time_) {
 
-  int nel2;
+  int nelr,nfic; // number of real/fictitious nodes
 
   // Verify that the number of nodes is even
   // (a fictitious node for each real node)
