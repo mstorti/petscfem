@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.23 2002/12/04 03:14:12 mstorti Exp $
+//$Id: fastmat2.h,v 1.24 2002/12/07 20:45:41 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -760,8 +760,38 @@ public:
       @return a reference to the matrix.
    */ 
   FastMat2 & max_abs(const FastMat2 & A,const int m=0,INT_VAR_ARGS);
-  //@}
 
+  /// Generic associative two arg function. 
+  class Fun2 {
+  private:
+    /// Cumulated value
+    double val;
+  public: 
+    Fun2() : val(0.) {}
+    void set(double v) { val=v; }
+    /// Called prior tu loop
+    virtual void init() {}
+    /** called after iteration #val = fun2(a_ij, val)# for
+	all elements in a stride 
+    */
+    virtual double fun2(double x,double v)=0;
+    /// May be run after each stride is processed
+    virtual void post() {};
+    /// Returns the cumulated value
+    double v() { return val; }
+  };
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Associated value over all selected indices.
+      @author M. Storti
+      @param A (input) matrix to contract
+      @param i,j,k,l... (input) indices that define indices to be contracted
+      @return a reference to the result matrix.
+   */ 
+  FastMat2 & assoc(const FastMat2 & A,Fun2 &f,const int m=0,INT_VAR_ARGS);
+
+  double FastMat2::assoc_all(FastMat2::Fun2 &) const ;
+  //@}
 
   /** @name Sum operations over all indices, max, sum\_, ...
       These operations give a scalar by applying some reduced
