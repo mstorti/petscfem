@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.109 2005/02/21 19:11:05 mstorti Exp $
+//$Id: readmesh.cpp,v 1.110 2005/04/03 01:33:30 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -198,9 +198,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     } else if (!strcmp(token,"nodedata")) {
 
       PetscPrintf(PETSC_COMM_WORLD," -- Reading nodes:\n");
-      token = strtok(NULL,bsp); sscanf(token,"%d",&ndim);
-      token = strtok(NULL,bsp); sscanf(token,"%d",&nu);
-      token = strtok(NULL,bsp); sscanf(token,"%d",&ndof);
+      token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndim);
+      token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&nu);
+      token = strtok(NULL,bsp); assert(token); sscanf(token,"%d",&ndof);
       PetscPrintf(PETSC_COMM_WORLD, 
 		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
       read_hash_table(fstack,mesh->nodedata->options);
