@@ -26,6 +26,7 @@ xeh=[];
 xprojh=[];
 for j=1:100
   xe = 3*rand(1,2)-1;			# point to project
+  ##  xe = [1 1];
   for k=1:nelem1
     nodes = ico1(k,:);
     C = [x1(nodes,:)';
@@ -39,11 +40,12 @@ for j=1:100
       xproj = xe;
     else
       C2 = C;
-      C(:,indx) = invC(:,indx);
+      C2(:,indx) = invC(:,indx);
       L2 = C2\b;
       L2(indx) = 0;
       xproj = (C(1:2,:)*L2)';
     endif
+    keyboard 
     xprojh=[xprojh;
 	    xproj];
     xeh=[xeh;
