@@ -3159,3 +3159,6 @@ tag: beta-3.27.pl2 on Mon, 08 Dec 2003 08:40:19 -0300 by mstorti in spider
 ----------
 tag: beta-3.27.pl3 on Mon, 08 Dec 2003 10:34:29 -0300 by mstorti in spider
      > Added test with reference solution for cubic cavity at Re=100. 
+----------
+tag: beta-3.27.pl4 on Mon, 08 Dec 2003 13:38:41 -0300 by mstorti in spider
+     > Modified the Makefile structure for the `newff' tests directory. 
