@@ -1,7 +1,7 @@
 $Re = 100;
 $Co = 2;
 
-if (0) {   ## large mesh
+if (1) {   ## large mesh
     $Rint=1;
     $Rext=4;
     $L = 8;

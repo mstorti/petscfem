@@ -1,6 +1,15 @@
+if 0
+  x = aload("cylin.nod.tmp");
+  nod_ext = aload("ext.coupling_nodes.tmp");
+  nod_ext = nod_ext(:,1);
+  x = x(nod_ext,1);
+endif
+  
+if !exist("U");
+  U = [];
+endif
+
 step=columns(U);
-nod_ext = aload("ext.coupling_nodes.tmp");
-nod_ext = nod_ext(:,1);
 while 1
   file = ["cylin.state_" int2str(step) ".tmp"];
   [info, err, msg] = stat (file);
