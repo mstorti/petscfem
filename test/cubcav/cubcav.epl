@@ -1,8 +1,9 @@
-#$Id: cubcav.epl,v 1.104 2004/01/26 23:45:12 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.105 2004/01/28 01:19:58 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
-# <:prc('dx case subpart_entered NP N subpart nlay'):>
+# <:prc('dx case subpart_entered NP N subpart nlay surfgath 
+	    use_tetra'):>
 ndim 3
 
 >>if $case ne 'plain'

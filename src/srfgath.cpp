@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.4 2004/01/27 19:54:12 mstorti Exp $
+//$Id: srfgath.cpp,v 1.5 2004/01/28 01:19:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -152,7 +152,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
     ui(2,ndof,nedges), xc(1,ndim), xcp(1,ndim), uc(1,ndof),
     x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp, ut(1,ndof),
-    a(1,ndim), b(1,ndim);
+    a(1,ndim), b(1,ndim), c(1,ndim);
   xi.set(0.);
 
   Time * time_c = (Time *)time;
@@ -240,6 +240,9 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // Compute center of polygon xc
       xi.is(2,1,nint).print("intersections: ");
       xc.sum(xi,1,-1).scale(1./double(nint));
+      // Rest `xc' from all `xi'
+      for (int j=1; j<=nint; j++) xi.ir(2,j).rest(xc);
+      xi.rs();
       // Computes normal as gradient of f in the center
       double epsil = 1e-3,fp,fm;
       for (int j=1; j<=ndim; j++) {
@@ -263,14 +266,14 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       double l1 = x1.norm_p_all(2.0);
       x1.scale(1./l1);
       x2.cross(n,x1);
+      xi.rs();
       // For each vertex of the polygon, we compute an angle
       // of rotation around it, in order to project. 
       for (int j=0; j<nint; j++) {
 	xi.ir(2,j+1);
-	dx.set(xi).rest(xc);
-	tmp.prod(x1,dx,-1,-1);
+	tmp.prod(x1,xi,-1,-1);
 	double X1 = tmp.get();
-	tmp.prod(x2,dx,-1,-1);
+	tmp.prod(x2,xi,-1,-1);
 	double X2 = tmp.get();
 	alpha[j] = atan2(X2,X1);
       }
@@ -295,13 +298,15 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	}
 	alpha[kmin] = alpha[j];
 	alpha[j] = amin;
-	indx[kmin] = j;
-	indx[j] = kmin;
+	int tmp = indx[kmin];
+	indx[kmin] = indx[j];
+	indx[j] = tmp;
       }
 #if 1
       for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
       printf("\n");
 #endif
+      double AA = 0.;
       // Loop over subtriangles
       for (int j=0; j<nint; j++) {
 	// Value of u at the center of the triangle
@@ -315,26 +320,27 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	ut.scale(1./3.);
 	ui.rs();
 
-	xpg.set(0.).set(xc);
+	xpg.set(0.);
 	xi.ir(2,n1+1);
 	xpg.add(xi);
-	a.set(xi).rest(xc);
+	a.set(xi);
 	xi.ir(2,n2+1);
 	xpg.add(xi);
-	b.set(xi).rest(xc);
-	xpg.scale(1./3.);
+	b.set(xi);
+	xpg.scale(1./3.).add(xc);
 	xi.rs();
-	double area = b.norm_p_all(2.0)/2.0;
+	c.cross(a,b);
+	double area = c.norm_p_all(2.0)/2.0;
+	AA += area;
 
 	set_ip_values(ip_values,ut,xpg,n,t);
 	int pos = gather_pos + vals_per_plane * jval;
 	for (int j=0; j<vals_per_plane; j++) 
 	  (*values)[pos+j] += ip_values[j]*area;
       }
+      printf("area: %f\n",AA);
     }
   }  
-  PetscFinalize();
-  exit(0);
  
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
@@ -345,8 +351,7 @@ void SurfGatherer::handle_error(int error) {
   string s = "Unknown error";
   if (error==not_correct_number_of_intersections) 
     s = "Not correct number of intersection";
-  PETSCFEM_ERROR("Elemset name \"%s\", ptr %p, set error %d\n",
-		 name(),this,error);  
+  else if (error) Elemset::handle_error(error);
 }
 
 #undef SHAPE    

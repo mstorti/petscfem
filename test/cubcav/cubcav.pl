@@ -1,8 +1,13 @@
-# $Id: cubcav.pl,v 1.7 2004/01/26 20:22:38 mstorti Exp $
+# $Id: cubcav.pl,v 1.8 2004/01/28 01:19:58 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
 get_var_env2('case','laplace');
+$srfgath = 0;
+if ($case eq 'srfgath') {
+    $srfgath = 1;
+    $case = 'plain';
+}
 $case_in = $case;
 $bupl = 1;
 if ($case =~ /plain_bupl(\d)/) {
@@ -34,12 +39,15 @@ $iisd_subpart = $subpart;
 get_var_env2('nlay',1);
 get_var_env2('isp_maxits',12);
 get_var_env2('nu',1/100.);
-$N = 4;
+
+if ($srfgath) {
+    $N = 4;
+    $use_tetra = 0;
+}
 
 @vars= qw(CASE U L N Re viscosity 
     h Co Dt hratio leaky tol use_prismatic use_tetra case_in case_oct);
 octave_export_vars(">data.m.tmp",@vars);
 if ($mkmesh) { system "octave -qH mkmesh.m > mkmesh.output.tmp"; }
-
 
 1;

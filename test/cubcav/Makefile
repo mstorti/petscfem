@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.84 2004/01/19 21:50:06 mstorti Exp $ 
+# $Id: Makefile,v 1.85 2004/01/28 01:19:58 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
-        ctest gprof
+        ctest gprof srfgath
 
-default: block_uploading
+default: srfgath
 
 #default case
 # case := laplace
@@ -130,6 +130,13 @@ block_uploading:
 	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bupl0.tmp
 	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bupl1.tmp
 	$(OCTAVE) check_plain.m > cubcav.plain-bupl.verif.tmp
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+#w Checks the surf-gatherer class
+srfgath:
+	$(MAKE) case=srfgath mesh
+#	make-depl cubcav.epl cubcav.depl -d case=srfgath -p '>>'
+	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 #================================================================
 #w For the shell-hook

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.35 2004/01/26 23:45:09 mstorti Exp $
+//$Id: gpdata.cpp,v 1.36 2004/01/28 01:19:54 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -522,6 +522,13 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 #ifdef USE_DX
     splitting.parse("1 2 4 3  5 6 8 7 cubes");
 #endif
+    // edges
+    nedges_m = 12;
+    int edges_v[] = {1,2, 2,3, 3,4, 4,1, // Bottom
+		     5,6, 6,7, 7,8, 8,5, //Top
+		     1,5, 2,6, 3,7, 4,8 }; // Lateral
+    edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
+
     } else GPERROR;
       
   } else if (!strcmp(geom,"line2quad")) {
