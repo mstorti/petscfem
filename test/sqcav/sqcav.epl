@@ -34,7 +34,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     $solver = "iisd";
     $iisd_subpart = 2;
     $maxits = 200;
-    $nstep = 1;
+    $nstep = 2;
     $iisd_subpart = $1 if $case=~/_sbp(\d*)/;
     if ($case=~/_uj/) {
 	$update_jacobian = 1;

@@ -690,14 +690,12 @@ Weak form 1. error < tol OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sqcav/check.iisd.verif.tmp",
-       "Square cavity, IISD part.",<<'EOT');
-IISD iisd_subpart=1. error < tol OK \? 1 
-IISD iisd_subpart=2. error < tol OK \? 1 
-IISD iisd_subpart=4. error < tol OK \? 1 
-IISD iisd_subpart=8. error < tol OK \? 1 
-IISD iisd_subpart=16. error < tol OK \? 1
-EOT
+expect("sqcav/check.iisd.verif.np1.tmp",
+       "Square cavity, IISD part. in 1 proc.",read_file("sqcav/sqcav.ans.txt"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.iisd.verif.np2.tmp",
+       "Square cavity, IISD part. in 2 proc.",read_file("sqcav/sqcav.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("graph/output.graph.tmp","Graph partitioning",
