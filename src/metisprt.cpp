@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.1 2001/11/11 01:36:10 mstorti Exp $
+//$Id: metisprt.cpp,v 1.2 2001/11/11 12:53:42 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -24,22 +24,33 @@ extern "C" {
 #include <queue>
 #include "getprop.h"
 
+#define ICONE(j,k) (icone[nel*(j)+(k)]) 
+
 using namespace std;
 
-// Create adjacency table for partitioning with Metis. In the adjacency
-// graph the nodes are the elements of the FEM mesh. Two nodes of
-// the graph (elements of the mesh) have are linked if they share a
-// node. 
-
-void  metis_part(int nelemfat,Mesh *mesh,int *vpart,
+void  metis_part(int nelemfat,Mesh *mesh,
+		 const int nelemsets,int *vpart,
 		 int *nelemsetptr,int *n2eptr,
-		 int *node2elem) {
+		 int *node2elem,int size,const int myrank,
+		 const int partflag,float *tpwgts,
+		 int max_partgraph_vertices) {
 
   Elemset *elemset;
-  int *icone,nel;
-// adjncy:= xadj:= graph desdcribed in CSR format (as defined in
-// Metis documentation)
-  int *xadj = new int[nelemfat+1];
+  int *icone,nel,node,nvertx;
+  queue<int> vecinos; 
+
+  // nvertx:= number of vertices used in graph partitioning
+  nvertx = (nelemfat>max_partgraph_vertices ?
+	    max_partgraph_vertices : nelemfat);
+
+  // Create adjacency table for partitioning with Metis. In the adjacency
+  // graph the nodes are the elements of the FEM mesh. Two nodes of
+  // the graph (elements of the mesh) have are linked if they share a
+  // node. 
+
+  // adjncy:= xadj:= graph desdcribed in CSR format (as defined in
+  // Metis documentation)
+  int *xadj = new int[nvertx+1];
 
   // mark:= auxiliary vector that flags if an element has been marked
   // already as a linked node in the graph
@@ -173,5 +184,6 @@ void  metis_part(int nelemfat,Mesh *mesh,int *vpart,
   }
   delete[] adjncy;
   delete[] xadj;
+  assert(vecinos.empty());
 
 }
