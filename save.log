@@ -2657,3 +2657,6 @@ tag: beta-3.19 on Fri, 18 Apr 2003 01:17:03 -0300 by mstorti in spider
      > Implemented volume integrator. 
      > Works filter (heat eq.) with `qharmm'. 
      > Working on spillway example. 
+----------
+tag: beta-3.19.pl2 on Sun,  4 May 2003 13:29:16 -0300 by mstorti in spider
+     > Runs test for `AutoString'. 
