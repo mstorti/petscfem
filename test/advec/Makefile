@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2002/12/13 21:36:17 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2002/12/14 14:04:38 mstorti Exp $ 
 
-.PHONY: force all run 
+.PHONY: force all run default
 
-all: run
+default: cone
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base

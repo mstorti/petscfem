@@ -1,5 +1,6 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};                   # case name
 $case_name = 'skew' unless $case_name;
 $N = 40;
@@ -11,18 +12,19 @@ $ux = 2;
 $uy = 1;
 $alpha = 1;
 if ($case_name eq 'cone') {
-    $N = 100;
-    $M = 20;
+    $N = 150;
+    $M = 30;
     $Lx = 5;
     $Ly = 1;
     $ux = 1;
     $uy = 0;
-    $alpha = 0.55;
-    $Courant = 0.7;
+    $alpha = 0.5;
+    $Courant = 0.5;
     $hx = $Lx/$N;
-    $nstep = 100;
+    $Dt = $Courant*$hx/$ux;
+    $Tend = 3.5;
+    $nstep = ceil($Tend/$Dt);
 }
-require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #__END_TRANSCRIPT__
 octave_export_vars(">data.m.tmp",qw(N M Lx Ly delta ydisc 
     ux uy case_name Courant));
@@ -39,15 +41,15 @@ save_file_pattern "outvector.out.tmp"
 #if $case_name eq 'skew'
 steady
 #elsif $case_name eq 'cone'
-Dt <:=$Courant*$hx/$ux:>
+<:pr('Dt'):>
 nsave 10
 nsaverot 10
 initial_state "advec.ini.tmp"
 #endif
-nstep 100
 solver "iisd"
 iisd_subpart 1
 nnwt 1
+<:pr('nstep'):>
 <:pr('alpha'):>
 weak_form 0
 __END_HASH__
