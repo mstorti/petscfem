@@ -1339,3 +1339,7 @@ tag: beta-3.00.pl27 on Thu, 25 Jul 2002 00:32:43 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl28 on Thu, 25 Jul 2002 11:54:33 -0300 by mstorti in node1.beowulf.gtm
      > Runs 50^3 mesh with nsi_tet_les_fm2 in geronimo with the 5xP4 subcluster. 
+----------
+tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Runs all tests but those in the `aquifer' directory. 

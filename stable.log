@@ -181,3 +181,6 @@ tag: beta-2.84.pl1-fixed-1 on Sat Feb 16 14:30:47 -0300 2002, by mstorti in spid
 tag: beta-2.96 on Sun May  5 19:03:31 GMT+3 2002, by mstorti in spider
      > Added `print_partitioning_statistics' option.
      > Added `free_surface_level_integrator' gatherer elemset.
+----------
+tag: beta-3.01 on Thu Jul 25 19:36:18 -0300 2002, by mstorti in minerva.arcride.edu.ar
+     > Runs all tests but those in the `aquifer' directory. 
