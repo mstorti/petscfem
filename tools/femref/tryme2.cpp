@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: tryme2.cpp,v 1.4 2004/12/29 00:34:09 mstorti Exp $
+// $Id: tryme2.cpp,v 1.5 2004/12/29 00:40:24 mstorti Exp $
 
 #include <ctime>
 #include <cstdio>
@@ -11,6 +11,7 @@
 using namespace std;
 
 int its;
+bool linear_ok;
 
 int ilog2(int x) {
   return int(ceil(log(double(x))/log(2.0)));
@@ -81,12 +82,13 @@ int lower_boundbl(vector<int> &v, int x) {
   j = j1 + int((double(x-v1)*double(j2-j1))/double(v2-v1));
   int dj = int(pow(double(j),0.5));
   int jj1 = j-dj;
+  linear_ok = true;
   if (jj1>=0) {
     int vjj1 = v[jj1];
     if (vjj1 < x) {
       v1=vjj1;
       j1=jj1;
-    }
+    } else linear_ok = false;
   }
   int jj2 = j + dj;
   if (jj2<v.size()) {
@@ -94,7 +96,7 @@ int lower_boundbl(vector<int> &v, int x) {
     if (vjj2 >= x) {
       v2 = vjj2;
       j2=jj2;
-    }
+    } else linear_ok = false;
   }
   return lower_boundb(v,x,j1,j2);
 }
@@ -118,9 +120,17 @@ int main() {
   for (int j=0; j<1000; j++) 
     printf("v[%d]=%d\n",j,v[j]);
 #endif
+
+  char *method = NULL;
+#if 1
+    method = "binary search";
+#define FUN lower_boundb
+#else
+    method = "linear pred. + binary search";
+#define FUN lower_boundbl
+#endif
   
   start = time(NULL);
-  char *method = NULL;
   int iters = 0;
   for (int k=0; k<ntries; k++) {
     int j = rand() % N;
@@ -130,13 +140,7 @@ int main() {
     }
 #endif
 
-#if 1
-    method = "binary search";
-    int jj = lower_boundb(v,v[j]);
-#else
-    method = "linear+binary search";
-    int jj = lower_boundbl(v,v[j]);
-#endif
+    int jj = FUN(v,v[j]);
     iters += its;
     if (v[jj]!=v[j]) {
       printf("v[j=%d]=%d, v[jj=%d]=%d, k %d\n",
