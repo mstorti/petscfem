@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.45 2002/09/05 20:10:14 mstorti Exp $
+//$Id: advdif.cpp,v 1.46 2002/09/05 20:18:13 mstorti Exp $
 
 #include <set>
 
@@ -23,9 +23,14 @@ int print_internal_loop_conv_g=0,
   comp_mat_each_time_step_g=0;
 
 #define VECVIEW(name,label) \
-ierr = ViewerSetFormat(matlab, \
+ierr = PetscViewerSetFormat(matlab, \
 		       PETSC_VIEWER_ASCII_MATLAB,#label); \
 ierr = VecView(name,matlab); CHKERRA(ierr)
+
+// PETSc now doesn't have the string argument that represents the variable name
+// so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
+#define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
+          PetscViewerSetFormat(viewer,format)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -35,10 +40,11 @@ int main(int argc,char **args) {
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
-  int     ierr, i, n = 10, col[3], its, flg, size, node,
+  int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
+  PetscTruth flg;
   // nu:= dimension of the state vector per node
   PetscScalar  neg_one = -1.0, one = 1.0, value[3];
   PetscScalar *px;
@@ -231,7 +237,7 @@ int main(int argc,char **args) {
 
 #if 0
   PetscViewer matlab;
-  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -363,22 +369,22 @@ int main(int argc,char **args) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
 	PetscViewer matlab;
-	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = ViewerSetFormat(matlab, 
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			       PETSC_VIEWER_ASCII_MATLAB,"res");
 	ierr = VecView(res,matlab);
 	if (solve_system) {
-	  ierr = ViewerSetFormat(matlab, 
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 				 PETSC_VIEWER_ASCII_MATLAB,"dx");
 	  ierr = VecView(dx,matlab);
 	}
-	ierr = ViewerSetFormat(matlab, 
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			       PETSC_VIEWER_ASCII_MATLAB,"A");
 	ierr = A->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	ierr = ViewerSetFormat(matlab, 
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
 			       PETSC_VIEWER_ASCII_MATLAB,"AA");
 	ierr = AA->view(matlab);
 #endif
