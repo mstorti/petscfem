@@ -1123,3 +1123,6 @@ tag: beta-2.94.pl3 on Wed,  3 Apr 2002 22:42:54 -0300 by mstorti in spider
 tag: beta-2.94.pl4 on Fri,  5 Apr 2002 17:13:26 -0300 by mstorti in minerva.arcride.edu.ar
      > Added rotation to `nsikepsrot', taking rotation and
      > translation infomation from fictitious nodes.
+----------
+tag: beta-2.94.pl5 on Fri, 12 Apr 2002 11:05:50 -0300 by mstorti in minerva.arcride.edu.ar
+     > Fixed bug in cross-product matrix definition for rotation.
