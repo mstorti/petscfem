@@ -1105,3 +1105,6 @@ tag: beta-2.93.pl3 on Sun Mar 17 11:11:27 -0300 2002 by mstorti in spider
 ----------
 tag: beta-2.94 on Sun Mar 17 20:35:26 -0300 2002, by mstorti in spider
      > Now gatherer can print on a file.
+----------
+     > Gather file now works only if `ngather>0' and in that case the default
+     > filename is `gather.out'.
