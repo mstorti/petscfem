@@ -1189,7 +1189,7 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_subpart.verif.tmp",
        "IISD/SubPartitioning solver",<<'EOT');
-IISD/Subpartitioning  OK \? > 1,
+IISD/Subpartitioning  OK \? > 1
 EOT
 
 

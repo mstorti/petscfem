@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.24 2001/11/09 19:45:09 mstorti Exp $
+//$Id: sparse.cpp,v 1.25 2001/11/13 17:34:25 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -930,4 +930,27 @@ namespace Sparse {
     } else assert(0);
   }  
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void Mat::duplicate(const Mat &B) {
+#if 0
+    fsm.fill();
+    clear();
+    *this = B;
+#endif
+
+    int m,j;
+    RowCIt row,e;
+
+    fsm.fill();
+    clear();
+
+    nrows = B.nrows;
+    ncols = B.ncols;
+    grow_m = B.grow_m;
+
+    m = B.rows();
+    e = B.end();
+    for (row = B.begin(); row!=e; row++) insert(*row);
+
+  }
 }

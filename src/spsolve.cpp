@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.12 2001/11/09 19:45:09 mstorti Exp $
+//$Id: spsolve.cpp,v 1.13 2001/11/13 17:34:25 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -224,5 +224,6 @@ namespace Sparse {
     ierr = SLESDestroy(sles); assert(!ierr);
 
   }
+  
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.27 2001/11/09 19:45:09 mstorti Exp $
+// $Id: sparse.h,v 1.28 2001/11/13 17:34:25 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -513,7 +513,8 @@ void MatFSMContext::action() {			\
     void solve(FullVec &b);
     /// Solve the linear system 
     void solve(double *b);
-
+    /// Duplicate content (not factored state)
+    void duplicate(const Mat &B);
     /// FSM actions
 //  #undef FSM_OP
 //  #define FSM_OP(action) FSM_ACTION_DECL(action)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.3 2001/11/09 03:05:42 mstorti Exp $
+//$Id: pfmatsp.cpp,v 1.4 2001/11/13 17:34:25 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -58,6 +58,11 @@ void SparseDirect::set_value(int row,int col,Scalar value,
 int SparseDirect::duplicate(MatDuplicateOption op,const PFMat &B) {
   const SparseDirect * BB = dynamic_cast<const SparseDirect *>(&B);
   assert(BB);
+#if 0
   *A_p = *(BB->A_p);
+#else
+  A_p->duplicate(*BB->A_p);
+  // Duplicate non-factored data only
   return 0;
+#endif
 }
