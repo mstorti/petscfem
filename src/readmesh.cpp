@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.50 2002/08/06 15:31:23 mstorti Exp $
+//$Id: readmesh.cpp,v 1.51 2002/08/27 00:16:15 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -23,7 +23,7 @@ extern "C" {
 #include <algorithm>
 #include <cassert>
 #include <queue>
-#include "getprop.h"
+#include <src/getprop.h>
 
 using namespace std;
 Mesh *GLOBAL_MESH;
@@ -187,15 +187,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       // Reads hash table for the elemeset
       read_hash_table(fstack,thash);
-      const char *name;
-      thash->get_entry("name",name);
-      if (name) {
-	thash->register_name(name);
-      } else {
+      const string anon("__ANONYMOUS__");
+      string name = anon;
+      ::get_string(thash,"name",name,1);
+      if (name == anon) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "No name for this elemset!! setting as \"__ANONYMOUS__\"...\n");
-	thash->register_name("__ANONYMOUS__");
       }
+      thash->register_name(name.c_str());
       if (myrank==0) thash->print("Table of properties:");
 
       // Read props line

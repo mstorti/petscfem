@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/08/20 20:11:37 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/08/27 00:16:15 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -18,7 +18,7 @@ endif
 
 export NAME NP
 
-LOC_PROG = ns_O
+LOC_PROG = ns$(osfx)
 PROG = $(PETSCFEM_DIR)/applications/ns/$(LOC_PROG).bin
 CASE_NAME = closcyl
 
@@ -35,7 +35,7 @@ run: data
 	if [ -e $(NAME).force.tmp ] ; then rm $(NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) $(NL) $(MACHI) $(PROG) \
-		 -case $(NAME).depl > petscfem.output.tmp
+		 -case $(NAME).depl # > petscfem.output.tmp
 
 local_clean::
 	-putex

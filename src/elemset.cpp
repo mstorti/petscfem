@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.44 2002/08/22 21:56:13 mstorti Exp $
+//$Id: elemset.cpp,v 1.45 2002/08/27 00:16:15 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -908,13 +908,9 @@ double Elemset::weight() {
 #undef __FUNC__
 #define __FUNC__ ""
 const char * Elemset::name() {
-  const char *name_r,*name_d="__ANONYMOUS__";
-  thash->get_entry("name",name_r);
-  if (name_r) {
-    return name_r;
-  } else {
-    return name_d;
-  }
+  static string name_r("__ANONYMOUS__");
+  ::get_string(thash,"name",name_r,1);
+  return name_r.c_str();
 }
 
 void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
