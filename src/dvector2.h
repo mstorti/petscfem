@@ -1,12 +1,18 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.8 2003/07/02 23:22:19 mstorti Exp $
+// $Id: dvector2.h,v 1.9 2003/08/08 16:10:45 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
 #include <cstdarg>
 #include <vector>
 #define CHUNK_SIZE_INIT 10000
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>::~dvector() {
+  clear();
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
