@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.43 2002/08/07 23:11:35 mstorti Exp $
+//$Id: elemset.cpp,v 1.44 2002/08/22 21:56:13 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -875,7 +875,7 @@ int assemble(Mesh *mesh,arg_list argl,
     }
   }
 
-#if 0
+#if 1
   out_of_loop.add(hpchrono.elapsed());
   out_of_loop.print_stat("Out of loop");
   in_loop.print_stat("In loop");
