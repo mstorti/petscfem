@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.16 2002/08/27 02:53:49 mstorti Exp $
+//$Id: fastmat2.h,v 1.17 2002/10/21 21:51:43 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -599,7 +599,7 @@ public:
       order tensor $\epsilon_{ijk}$ ($3\times3\times3$) 
       such that $\epsilon_{ijk}$ is 1 if $ijk$ is 
       an even permutation of 123, -1 if it is an odd permutation 
-      and 0 otherwise. The vector cross-product and determinant 
+      and 0 otherwise. The vector cross-product and determinant p
       can be computed in terms of this tensor. 
       @author M. Storti
       @param a (input) the value to be set in the diagonal
@@ -648,9 +648,10 @@ public:
       @return a reference to the matrix.
    */ 
   FastMat2 & kron(const FastMat2 & A,const FastMat2 & B);
+  //@}
 
-  /** @name Sum operations (sum over indices), max, sum\_, ...
-      These operations give a reduced matrix by applying some reduced
+  /** @name Sum operations (sum over indices), #max#, #sum_#, ...
+      These operations give a reduced matrix by applying some reduce
       operation (sum, max, min etc...) over all the contracted
       indices. For instance if A has 4 indices then {\tt B.sum(A,2,-1,-1,1)}
       is equivalent to $B_{ij} = \sum_{kl} A_{jkli}$
