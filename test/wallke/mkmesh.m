@@ -1,3 +1,4 @@
+startup
 source("data.m.tmp");
 
 hav=L/N;

@@ -9,12 +9,14 @@ plot(x,v)
 Chi=0.4;
 C_mu=0.09;
 
-dudy=(v(2)-v(1))/(x(2)-x(1));
+#dudy=(v(2)-v(1))/(x(2)-x(1));	# first order
+dudy = cloud(x(1:3)-x(1),1,2)*v(1:3);  # 2nd order precision
 nu_eff = nu + C_mu * u(1,4)^2/u(1,5);
 tau_w = nu_eff*dudy;
 ustar = sqrt(tau_w);
-yplus = v(1)/ustar;
-yp=nu*yplus/ustar;
+f = v(1)/ustar;
+yplus = iwallf(f);
+yp=yplus*nu/ustar;
 kp=ustar^2/sqrt(0.09);
 ep=ustar^3/Chi/yp;
 
@@ -59,8 +61,8 @@ x_co=[.2;
       4.02]/4.02;
 
 if strcmp(ocase,"poiseuille")
-  plot([0;x],[[0;v/max(v)], [0;v_140]/max(v_140)],x_po,u_po,"o")
+  plot([0;x],[[0;v/max(v)], [0;v]/max(v)],x_po,u_po,"o")
 elseif strcmp(ocase,"couette")
-  plot([0;x],[[0;v/max(v)], [0;v_140]/max(v_140)],x_co,u_co,"o")
+  plot([0;x],[[0;v/max(v)], [0;v]/max(v)],x_co,u_co,"o")
 endif
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.6 2001/06/03 23:37:03 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.7 2001/06/15 17:42:15 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -16,7 +16,7 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 
 #define STOP {PetscFinalize(); exit(0);}
-   
+  
 #define MAXPROP 100
 
 #define SQ(n) ((n)*(n))
@@ -219,10 +219,11 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FMatrix tmp3_ke,tmp4_ke,tmp5_ke,tmp6_ke,tmp7_ke,
     tmp8_ke,tmp9_ke;
 
-  FMatrix reskap(nel),matlockap(nel,nel);
-  FMatrix reseps(nel),matloceps(nel,nel);
+  FMatrix reskap(nel),reseps(nel);
 
-  double diff_coe_kap,diff_coe_eps,Pkap,Peps,Peps_2,eps_over_kap;
+  double diff_coe_kap,diff_coe_eps,Pkap,Peps,Peps_2,eps_over_kap,kap_over_eps;
+  double strain_rate_scalar,Jaco_kk,Jaco_ke,Jaco_ek,Jaco_ee;
+  FMatrix Jaco_k(2),Jaco_e(2);
 
   double tmp12;
   double nu_eff;
@@ -303,8 +304,6 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     matlocf.set(0.);
     matlocmom.set(0.);
-    matlockap.set(0.);
-    matloceps.set(0.);
     veccontr.set(0.);
     resmom.set(0.);
     rescont.set(0.);
@@ -575,39 +574,61 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  tmp3_ke.prod(dshapex,grad_eps_star,-1,1,-1).scale(diff_coe_eps);
 	  reseps.axpy(tmp3_ke,-wpgdet);
 
-	  // kappa-epsilon matrix
-	  massm_ke.set(SHAPE).scale(rec_Dt/alpha);
-	  matlockap.prod(W_supg_k,massm_ke,1,2);
-	  matloceps.prod(W_supg_e,massm_ke,1,2);
-
-	  massm_ke.prod(u_star,dshapex,-1,-1,1);
-          tmp4_ke.prod(W_supg_k,massm_ke,1,2);
-          matlockap.add(tmp4_ke);
-          tmp4_ke.prod(W_supg_e,massm_ke,1,2);
-          matloceps.add(tmp4_ke);
-
-	  tmp5_ke.prod(dshapex,dshapex,-1,1,-1,2);
-	  matlockap.axpy(tmp5_ke,diff_coe_kap);
-	  matloceps.axpy(tmp5_ke,diff_coe_eps);
-
-        }
-
         // adding production terms to the turbulent transport equations
-        if (comp_mat_res_ke) {
 
-          eps_over_kap = (abs(kap) < tol ? eps/tol : eps/kap);
-          Pkap = strain_rate.sum_square_all();
-          Pkap = 2.*Pkap*nu_t;
-          Peps = C_1*Pkap*eps_over_kap;
-          Peps_2 = C_2*eps_over_kap*eps;
+          eps_over_kap = (abs(kap_star) < tol ? eps_star/tol : eps_star/kap_star);
+          kap_over_eps = (abs(eps_star) < tol ? kap_star/tol : kap_star/eps_star);
 
-          tmp6_ke.set(W_supg_k).scale(Pkap-eps);
+          strain_rate_scalar = strain_rate.sum_square_all();
+          Pkap = 2.*strain_rate_scalar*C_mu*kap_star*kap_over_eps;
+          Peps = 2.*C_1*C_mu*kap_star*strain_rate_scalar;
+          Peps_2 = C_2*eps_over_kap*eps_star;
+
+          tmp6_ke.set(W_supg_k).scale(Pkap-eps_star);
           reskap.axpy(tmp6_ke,wpgdet);
 
           tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
           reseps.axpy(tmp6_ke,wpgdet);
+
+	  // kappa-epsilon matrix
+
+          tmp7_ke.prod(W_supg_k,SHAPE,1,2);
+          tmp8_ke.prod(W_supg_e,SHAPE,1,2);
+
+          Jaco_kk = rec_Dt/alpha;
+          Jaco_kk = Jaco_kk-4.0*C_mu*kap_over_eps*strain_rate_scalar;
+          Jaco_ke =  2.0*C_mu*kap_over_eps*kap_over_eps*strain_rate_scalar+1.0;
+          Jaco_ek = -2.0*C_1*C_mu*strain_rate_scalar - 
+                     C_2*eps_over_kap*eps_over_kap;
+          Jaco_ee = rec_Dt/alpha;
+          Jaco_ee = Jaco_ee+2.0*C_2*eps_over_kap;
+
+          Jaco_k.ir(1,1).set(Jaco_kk).rs();
+          Jaco_k.ir(1,2).set(Jaco_ke).rs();
+          Jaco_e.ir(1,1).set(Jaco_ek).rs();
+          Jaco_e.ir(1,2).set(Jaco_ee).rs();
+
+          tmp9_ke.prod(tmp7_ke,Jaco_k,1,2,3);
+          matlocf.ir(2,ndof-1).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();
+          
+          tmp9_ke.prod(tmp8_ke,Jaco_e,1,2,3);
+          matlocf.ir(2,ndof).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();
+
+	  massm_ke.prod(u_star,dshapex,-1,-1,1);
+          tmp4_ke.prod(W_supg_k,massm_ke,1,2);
+          matlocf.ir(2,ndof-1).ir(4,ndof-1).axpy(tmp4_ke,wpgdet).rs();
+
+          tmp4_ke.prod(W_supg_e,massm_ke,1,2);
+          matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp4_ke,wpgdet).rs();
+
+	  tmp5_ke.prod(dshapex,dshapex,-1,1,-1,2);
+          matlocf.ir(2,ndof-1).ir(4,ndof-1).axpy(tmp5_ke,wpgdet*diff_coe_kap).rs();
+          matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp5_ke,wpgdet*diff_coe_eps).rs();
+
 #if 0
        // acoplamiento de las ecs de transporte turbulento con las de momento
+       // por ahora es solo una idea preliminar
+
           tmp7_ke.set(grad_kap_star);
 	  tmp8_ke.prod(tmp7_ke,SHAPE,1,2);
 	  tmp9_ke.prod(W_supg_k,tmp8_ke,1,3,2).scale(wpgdet);
@@ -672,17 +693,6 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  }
 	} 
         } 
-        if (comp_mat_res_ke || comp_res_ke) {
-	  for (int iloc=1; iloc<=nel; iloc++) {
-	    for (int jloc=1; jloc<=nel; jloc++) {
-	      double c = wpgdet*matlockap.get(iloc,jloc);
-	      matlocf.addel(c,iloc,ndof-1,jloc,ndof-1);
-
-	      c = wpgdet*matloceps.get(iloc,jloc);
-	      matlocf.addel(c,iloc,ndof,jloc,ndof);
-	    }
-	  }
-        }
 
       } else if (comp_mat) {
 	// don't make anything here !!
