@@ -1,4 +1,4 @@
-/* $Id: laplace.cpp,v 1.2 2001/01/10 22:40:27 mstorti Exp $ */
+/* $Id: laplace.cpp,v 1.3 2001/01/20 13:22:55 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -80,6 +80,12 @@ int main(int argc,char **args) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
   ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  if (!flg) {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
+    PetscFinalize();
+    exit(0);
+  }
 
   // Read the mesh
   read_mesh(mesh,fcase,dofmap,neq,size,myrank);

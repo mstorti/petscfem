@@ -120,6 +120,12 @@ int main(int argc,char **args) {
 
       //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
   ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  if (!flg) {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
+    PetscFinalize();
+    exit(0);
+  }
 
   // Read data
   read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);

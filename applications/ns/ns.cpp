@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.7 2001/01/19 21:45:47 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.8 2001/01/20 13:22:58 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -183,7 +183,14 @@ int main(int argc,char **args) {
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
   //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
+  CHKERRA(ierr);
+  if (!flg) {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
+    PetscFinalize();
+    exit(0);
+  }
 
   // Read the mesh
   read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
