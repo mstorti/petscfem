@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.11 2001/06/29 16:34:24 mstorti Exp $
+//$Id: wallke.cpp,v 1.12 2001/06/29 20:19:22 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -11,7 +11,7 @@
 extern TextHashTable *GLOBAL_OPTIONS;
 extern int MY_RANK,SIZE;
 extern int TSTEP; //debug:=
-#define MAXPROP 100
+#define MAXPROP 10
 
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
@@ -258,7 +258,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	for (int j=1; j<=nel; j++) {
 	  ucols_star.ir(1,j);
-	  double Ustar = sqrt(ucols_star.sum_square_all());
+	  u_star.set(ucols_star).rest(u_wall);
+	  double Ustar = sqrt(u_star.sum_square_all());
 	  double gfun,gprime, Omega_j;
 	  Omega_j = lmass.get(j);
 	  gprime = rho / (fwall*fwall);

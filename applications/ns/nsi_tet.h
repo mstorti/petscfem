@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.11 2001/06/20 02:14:53 mstorti Exp $
+//$Id: nsi_tet.h,v 1.12 2001/06/29 20:19:22 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -151,11 +151,12 @@ class NonLinearRes : public Elemset {
   ASSEMBLE_FUNCTION;
   virtual int nres()=0;
   virtual void init()=0;
-  virtual void res(FastMat2 &U,FastMat2 & r,
+  virtual void res(int k,FastMat2 &U,FastMat2 & r,
 		   FastMat2 & lambda,FastMat2 & jac)=0;
   virtual ~NonLinearRes()=0;
 };
 
+#define MAXPROP_WLR 10
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class wall_law_res : public NonLinearRes {
   int nk,ne,ndim;
@@ -163,10 +164,14 @@ class wall_law_res : public NonLinearRes {
     viscosity,von_Karman_cnst,coef_k,coef_e,
     turbulence_coef;
   WallFun *wf;
+  int u_wall_indx,nprops;
+  FastMat2 u_wall,du_wall;
+  int elprpsindx[MAXPROP_WLR]; 
+  double propel[MAXPROP_WLR];
 public:
   int nres() {return 2;};
   void init();
-  void res(FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
+  void res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 	   FastMat2 & jac);
   wall_law_res() {wf = new WallFun1(this);};
   ~wall_law_res() {delete wf;};

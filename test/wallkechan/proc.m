@@ -31,7 +31,7 @@ else
   ss=deblank(args(1,:));
 endif
 
-u=read_state(filename,nnod,ndof,indx);
+u=read_state(filename,(nnod+NNy),ndof,indx);
 out=NNy:NNy:nnod;
 vout=u(out,2);
 cntr=(NN-1)*NNy+(1:NNy)';
@@ -50,14 +50,18 @@ E=reshape(u(1:NNy*NN,5),NNy,NN)';
 
 Q=sum(leftscal(diff(x),xcent(V)));
 
-if exist("state") 
-  eval([state ".U = U;"]);
-  eval([state ".V = V;"]);
-  eval([state ".P = P;"]);
-  eval([state ".K = K;"]);
-  eval([state ".E = E;"]);
-  eval([state ".Q = Q;"]);
-  eval(["clear " state]);
+if exist("ss") && length(ss)>0
+  eval([ss ".U = U;"]);
+  eval([ss ".V = V;"]);
+  eval([ss ".P = P;"]);
+  eval([ss ".K = K;"]);
+  eval([ss ".E = E;"]);
+  eval([ss ".Q = Q;"]);
+  clear ss
+endif
+
+if exist(state)
+  clear state
 endif
 
 return

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.15 2001/06/24 18:48:14 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.16 2001/06/29 20:19:22 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -116,7 +116,7 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     R.set(0.);
 
     if (comp_mat_res) {
-      res(U,r,lambda,jac);
+      res(k,U,r,lambda,jac);
       U.ir(1,2).is(2,1,nr);
       R.ir(1,1).prod(lambda,U,1,-1,-1);
       
@@ -147,6 +147,15 @@ void wall_law_res::init() {
   nk = ndim+2;
   ne = ndim+3;
   wf->init();
+  u_wall.resize(1,ndim);
+  du_wall.resize(1,ndim);
+
+  // Physical properties
+  int iprop=0; 
+  //  DEFPROPN(u_wall,ndim);
+  u_wall_indx = iprop; 
+  ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, "u_wall",(ndim));
+  nprops=iprop;
 
   //o The $y^+$ coordinate of the computational boundary
   TGETOPTDEF_ND(thash,double,y_wall_plus,30.);
@@ -164,10 +173,16 @@ void wall_law_res::init() {
   coef_e = 1./(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
 };
 
-void wall_law_res::res(FastMat2 & U,FastMat2 & r,
+#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
+
+void wall_law_res::res(int k,FastMat2 & U,FastMat2 & r,
 		       FastMat2 & lambda,FastMat2 & jac) {
-  U.ir(1,1);
-  double u = sqrt(U.is(2,1,ndim).sum_square_all());
+
+  load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
+  u_wall.set(propel+u_wall_indx);
+  U.ir(1,1).is(2,1,ndim);
+  du_wall.set(U).rest(u_wall);
+  double u = sqrt(du_wall.sum_square_all());
   U.is(2);
   if (turbulence_coef != 0.) {
     // turbulent case
@@ -186,13 +201,13 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 
     // k eq. on the wall: k = 
     r.setel(k-kw,1);
-    jac.ir(1,1).is(2,1,ndim).set(U).scale(-coef_k)
+    jac.ir(1,1).is(2,1,ndim).set(du_wall).scale(-coef_k)
       .is(2).setel(1.,nk);
 
     // eps eq. on the wall
     r.setel(eps-epsw,2);
     double cc = -4*u*u/(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
-    jac.rs().ir(1,2).is(2,1,ndim).set(U).scale(cc).is(2).setel(1.,ne);
+    jac.rs().ir(1,2).is(2,1,ndim).set(du_wall).scale(cc).is(2).setel(1.,ne);
 
     jac.rs();
     U.rs();

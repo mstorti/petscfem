@@ -7,11 +7,13 @@ $hratio = 5;                    # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
 $Ny = 40;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size in the y direction
-$Ly = 10;                        # longitudinal length 
+$Ly = 10;                       # longitudinal length 
 $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
 $turb_prod_coef=1;              # activate/deactivate turbulence production terms
+$uwall_match_len = 1;           # u at the wall is matched to 0 (from the inlet) at
+                                # this distance 
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
     $Re_l = 5;                 # laminar Re
@@ -30,7 +32,7 @@ if ($case eq 'poi_lam') {
     $nu = $Uav*2*$L/$Re;        # kinematic visc.
     $g = 0;                     # body force
     $y_wall_plus = 50 ;         # non-dim. distance to the wall
-    $y_wall = .3;
+    $y_wall = .01;
     $turbulence_coef=1;         # mask turbulence
     $turb_prod_coef=0;          # mask turbulence production terms
 } elsif ($case eq 'couette') {
@@ -44,7 +46,7 @@ if ($case eq 'poi_lam') {
 }
 $ocase = $case;    
 octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy 
-    L Ly peri Ny_eq Uav));
+    L Ly peri Ny_eq Uav uwall_match_len));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -77,8 +79,8 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 10
-nnwt 10
+nstep 20
+nnwt 4
 tol_newton 0
 preco_type "lu"
 Dt 0.1
@@ -91,7 +93,7 @@ steady
 #solve_system 0
 #print_dofmap_id
 
-lumped_wallke 0
+lumped_wallke 1
 y_wall_plus <:=$y_wall_plus:>
 y_wall <:=$y_wall:>
 turbulence_coef <:=$turbulence_coef:>
@@ -119,6 +121,7 @@ __END_ELEMSET__
 
 #if $wall_ke
 elemset wallke 2
+props u_wall[2]
 geometry cartesian1d
 npg 2
 __END_HASH__
@@ -127,6 +130,7 @@ __END_ELEMSET__
 #endif
 
 elemset wall_law_res 2
+props u_wall[2]
 lagrange_diagonal_factor 1e-5
 lagrange_residual_factor 1. # be non consistent, but truly Newton
 __END_HASH__
