@@ -36,7 +36,7 @@ temporal_stability_factor 0
 
 ndim 2
 steady 0
-
+block_uploading 2
 __END_HASH__
 
 ##================================================================
