@@ -49,7 +49,7 @@ nfile 2000000
 nrec 1
 # initial_state "cubcav-steady-Re1000"
 # initial_state "cubcav.state.Re1e5"
-# initial_state "cubcav.state"
+initial_state "cubcav.state"
 # initial_state "outvector.out"
 save_file_pattern "STEPS/cubcav.state_%d.tmp"
 
