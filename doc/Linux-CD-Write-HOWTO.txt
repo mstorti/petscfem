@@ -1,4 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.5 2004/07/12 13:18:38 mstorti Exp $
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.6 2004/07/19 18:16:11 mstorti Exp $
 
  COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
 		 INSTALADA EN UNA MAQUINA CON WINDOWS
@@ -227,6 +227,24 @@ ejemplo previo.
 Con `cdrecord-proDVD' no existe ese problema. La huella del archivo y
 la del DVD son exactamente iguales. 
 
+En geronimo no se pueden generar archivos >2GB
+========================================================
+
+El RH7.1 de geronimo se rehusa a crear archivos de mas de
+2GB. Entonces para poder llevar los archivos a minerva hago lo
+siguiente. Mando la salida del tar por stdout a un split
+
+   $ tar cvf - -C /u/mstorti/PETSC/RUN_2/  | split -b 1000M - run2
+
+Esto genera "on de fly" archivos `run2aa', `run2ab', etc... de
+1GB. Los archivos se llevan a minerva, y ahi se recupera toda la
+estructura de directorios.
+
+   $ cat run2* | tar xvf -a
+
+Entonces como ahora en minerva se pueden generar archivos de >2GB se
+generan las imagenes ISO ahi y se graban. 
+
 Para que las grabaciones sean `compatibles' con Windows
 =======================================================
 
@@ -239,6 +257,7 @@ que usar la extension Joliet que se obtiene con la bandera `-J' para
 `mkisofs':
 
    $ mkisofs -r -J -o mstorti.iso mstorti
+
 
 <mstorti@intec.unl.edu.ar>
 Mon Sep 25 18:37:15 ART 2000
