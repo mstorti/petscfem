@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.75 2001/09/08 01:20:15 mstorti Exp $
+$Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.75 2001/09/08 01:20:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.75 2001/09/08 01:20:15 mstorti Exp $ 
+! # $Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.75 2001/09/08 01:20:15 mstorti Exp $ 
+  # $Id: notes.txt,v 1.76 2001/09/10 17:07:54 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3798,8 +3798,31 @@ bien.
 %
 Se jode cuando agrego el termino de viscosidad $\Delta!u$. 
 %
+V
+
+=======
+%===Fri Sep  7 15:12:01 ART 2001 mstorti@minerva
+%
+Me daban mal los jacobianos, habia un bug en la version beta-1.82 para
+el calculo de jacobianos. Se pasaba mal el `glob_param' eso se
+arreglaria con `dynamic_cast' etc... 
+
+%===Fri Sep  7 16:04:47 ART 2001 mstorti@minerva
+%
+Con jacobiano numerico anda bien si en las contribuciones a la
+ecuacion de momento `resmom' agrego solo el termino du/dt. Voy
+agregando otros terminos y veo. Si agrego el convectivo sigue andando
+bien. 
+%
+Se jode cuando agrego el termino de viscosidad $\Delta!u$. 
+%
 La viscosidad hay que ponerla muy pequenha porque si la pones a 0 te
 da una singularidad en el Peclet, etc... 
+
+%===Mon Sep 10 12:10:44 ART 2001 mstorti@minerva
+%
+Voy a probar a tomar la matriz sin imponer p=0 en un nodo y ver sobre
+esa matriz que pasa al imponer p=0 en un nodo o el otro. 
 
 %# Current line ===========  
 # Local Variables: $
