@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-# case: <:=$case:>
+# case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
@@ -15,7 +15,6 @@ $Dt = 0.01;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$iisd_subpart = 2;
 $nstep = 100;
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 #
@@ -24,11 +23,18 @@ $weak_form = 0;
 # and then can be interpreted as `false' 
 if (scalar $case =~ /weak_form_(\d)/) {
     $weak_form = $1;
+} elsif ($case eq 'lu') {
+    $solver = "petsc";
+    $preco_type = "lu";
+    $maxits = 1;
+    $nstep = 2;
 } elsif ($case =~ /^iisd/) {
     $solver = "iisd";
     $iisd_subpart = 2;
-    $maxits = 20;
+    $maxits = 200;
     $nstep = 2;
+    $iisd_subpart = $1 if $case=~/sbp(\d*)/;
+    $preco_type = "jacobi";
 } else {
     die "don't know case $case\n";
 }
@@ -45,7 +51,7 @@ nsave 5
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
-# type of solver (may be "lu", "iisd", "petsc"...)
+# type of solver (may be "iisd", "petsc"...)
 <:pr('solver'):>
 <:pr('preco_type'):> 
 <:pr('maxits'):> 
@@ -59,11 +65,12 @@ proc_weights weights.dat
 tol_tet 1e-5
 tol_newton 1e-10
 atol 0
-rtol 1e-4
+rtol 1e-6
 dtol 1e3
 nnwt 1
 
-Krylov_dim 1
+<:pr(''):> 
+Krylov_dim <:=$maxits:>
 print_internal_loop_conv 1
 #print_linear_system_and_stop 1
 #verify_jacobian_with_numerical_one 1

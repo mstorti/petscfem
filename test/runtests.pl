@@ -682,13 +682,24 @@ end_section();
 
 begin_section('Misc tests.');
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.re1000.verif.tmp",
        "Square cavity, Re1000, N=20",<<'EOT');
 Weak form 0. error < tol OK \? 1
 Weak form 1. error < tol OK \? 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/check.iisd.verif.tmp",
+       "Square cavity, IISD part.",<<'EOT');
+IISD iisd_subpart=1. error < tol OK \? 1 
+IISD iisd_subpart=2. error < tol OK \? 1 
+IISD iisd_subpart=4. error < tol OK \? 1 
+IISD iisd_subpart=8. error < tol OK \? 1 
+IISD iisd_subpart=16. error < tol OK \? 1
+EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("graph/output.graph.tmp","Graph partitioning",
                read_file("graph/answer.txt"));
 
