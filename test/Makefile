@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.49 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.50 2002/02/09 22:22:43 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -21,6 +21,10 @@ DEPEND_DIRS = texthash distmap sparse
 run: sqcav5
 
 include Makefile.base.test
+
+LOC_PROG := ns
+CASE_NAME := oscplate3
+PROG := $(NS)
 
 #s Main targets
 #w Makes all tests and report succes

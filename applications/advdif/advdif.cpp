@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.33 2002/01/17 12:58:19 mstorti Exp $
+//$Id: advdif.cpp,v 1.34 2002/02/09 22:22:39 mstorti Exp $
 
 #include <set>
 
@@ -61,7 +61,7 @@ int main(int argc,char **args) {
   print_copyright();
 
   // Start registering functions
-  Amplitude::initialize_function_table();
+  // Amplitude::initialize_function_table();
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.59 2002/01/14 03:45:05 mstorti Exp $
+//$Id: ns.cpp,v 1.60 2002/02/09 22:22:43 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -89,9 +89,6 @@ int main(int argc,char **args) {
 
   PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
-
-  // Start registering functions
-  Amplitude::initialize_function_table();
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);

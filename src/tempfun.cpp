@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.6 2002/02/09 21:03:52 mstorti Exp $
+//$Id: tempfun.cpp,v 1.7 2002/02/09 22:22:17 mstorti Exp $
 
 #include <math.h>
 
@@ -432,8 +432,67 @@ Amplitude * Amplitude::old_factory(char *& label,FileStack &fstack) {
 } 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class gaussian : public Amplitude {
+private:
+  double base, A, sigma, t0;
+  TextHashTable *thash;
+public:
+  void print() const {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"\"gaussian\" fixa amplitude, options table: \n");
+    thash->print();
+  }
+  void init(TextHashTable *thash_) {
+    thash = thash_;
+    int ierr;
+    double peak, half_width;
+
+    //o The base value for the Gaussian
+    TGETOPTDEF_ND(thash,double,base,0.);
+    assert(ierr==0);
+    
+    //o The absolute peak value of the Gaussian
+    TGETOPTDEF_ND(thash,double,peak,base+1.);
+    assert(ierr==0);
+
+    //o The height (with reference to the base) of the Gaussian
+    TGETOPTDEF_ND(thash,double,A,peak-base);
+    assert(ierr==0);
+
+    //o The width of the Gaussian, i.e. the time value such that the
+    // relative amplitude falls from the peak value to one half
+    // (#half_width = 0.83255 * sigma#)
+    TGETOPTDEF_ND(thash,double,half_width,0.5);
+    assert(ierr==0);
+
+    //o The standard deviation of the Gaussian
+    TGETOPTDEF_ND(thash,double,sigma,half_width/0.83255);
+    assert(ierr==0);
+
+    //o The time instant at which the peak of the Gaussian occurs 
+    TGETOPTDEF_ND(thash,double,t0,0.);
+    assert(ierr==0);
+  }
+  double eval(const TimeData *time_data) {
+    double t = double(* (const Time *) time_data);
+    double f = base + A * exp(-square((t-t0)/sigma));
+    return f;
+  }
+  ~gaussian() { delete thash; }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
-			      TextHashTable *tht_=NULL) {
-  assert(0);
+			      TextHashTable *t=NULL) {
+  Amplitude *amp;
+  if (!strcmp(label,"gaussian")) {
+    amp = new gaussian;
+  } else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Not known fixa_amplitude \"%s\"\n",label);
+    assert(0);
+  }
+  amp->init(t);
+  return amp;
 }
   

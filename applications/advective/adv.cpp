@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.7 2002/01/14 03:45:05 mstorti Exp $
+//$Id: adv.cpp,v 1.8 2002/02/09 22:22:43 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -91,7 +91,7 @@ int main(int argc,char **args) {
   print_copyright();
 
   // Start registering functions
-  Amplitude::initialize_function_table();
+  // Amplitude::initialize_function_table();
 
   // Get MPI info
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);

@@ -9,7 +9,7 @@ $casename = $casen;
 die "incorrect case name: casen=$casen\n" unless $#subcases==1;
 $fric = $subcases[0];
 $shape = $subcases[1];
-$Nx = 20;
+$Nx = 50;
 $Lx = 1;			# Side of the cavity
 $Dt = 0.1;			# time step
 $nstep = 50;
@@ -102,6 +102,10 @@ __END_ELEMSET__
 
 end_elemsets
 
-fixa
-1 1 1.5
+fixa_amplitude gaussian
+base 1.
+A 0.7
+t0 0.5
+__END_HASH__
+1 1 1.
 __END_FIXA__
