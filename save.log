@@ -3376,3 +3376,21 @@ tag: beta-3.33.18 on Sun, 24 Oct 2004 23:43:42 -0300 by mstorti in spider
      > Added option `fractional_step_use_petsc_symm'
      > Passes FS test with LU. 
      > Solution coincides with previous one with CG. 
+----------
+tag: beta-3.34 on Mon, 25 Oct 2004 01:23:21 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Changed Version Policy. 
+     > Removed `DRH60' compilation flag.
+     > Added `quiet' flag to `FileStack' class. 
+     > Set FileStack::quiet to 1 in slaves. 
+     > Merged from `bubbly'
+     > Added `source' option to qharmm'
+     > Runs cubcav with 900Ktetra in spider (512<B RAM). 
+     > Writing PFSymmPETScMat class. 
+     > Runs cubcav 64^3 (1.3Mtetra) in spider. 
+     > Added option `fractional_step_use_petsc_symm'
+     > Passes FS test with LU. 
+     > Solution coincides with previous one with CG. 
+----------
+tag: beta-3.35.1 on Mon, 25 Oct 2004 01:26:53 -0300 by mstorti in spider
+     > Administrative tag

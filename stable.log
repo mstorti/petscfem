@@ -488,3 +488,17 @@ tag: beta-3.32 on Sat Sep 25 13:22:40 GMT+3 2004, by mstorti in spider
      > Fixed in some docs the CIMEC URL was erroneously www.cimec.com.ar, 
      >    instead of www.cimec.org.ar.
      > Fixed `delayed_flush' problem. 
+----------
+tag: beta-3.35 on Mon Oct 25 01:23:22 GMT+3 2004, by mstorti in spider
+     > Changed Version Policy. 
+     > Removed `DRH60' compilation flag.
+     > Added `quiet' flag to `FileStack' class. 
+     > Set FileStack::quiet to 1 in slaves. 
+     > Merged from `bubbly'
+     > Added `source' option to qharmm'
+     > Runs cubcav with 900Ktetra in spider (512<B RAM). 
+     > Writing PFSymmPETScMat class. 
+     > Runs cubcav 64^3 (1.3Mtetra) in spider. 
+     > Added option `fractional_step_use_petsc_symm'
+     > Passes FS test with LU. 
+     > Solution coincides with previous one with CG. 
