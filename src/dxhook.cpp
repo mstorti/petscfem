@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.40 2003/05/12 02:06:59 mstorti Exp $
+//$Id: dxhook.cpp,v 1.41 2003/06/08 13:10:43 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -11,6 +11,8 @@
 #include <src/dxhook.h>
 #include <src/autostr.h>
 #include <src/dvector.h>
+#include <src/dvector2.h>
+#include <src/sockbuff.h>
 
 #ifdef USE_SSL
 
@@ -380,22 +382,16 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   
   step_cntr = steps-1;
   
+  SocketBuffer<float> sbuff(srvr);
   if (!MY_RANK) {
     // Send node coordinates
     cookie = rand();
     Sprintf(srvr,"step %d\n",step);
     Sprintf(srvr,"nodes nodes %d %d %d\n",ndim,nnod,cookie);
     // printf("sending nodes nodes %d %d %d\n",ndim,nnod,cookie);
-    for (int node=0; node<nnod; node++) {
-#ifndef DX_USE_FLOATS
-      Swrite(srvr,xnod+node*nu,ndim*sizeof(double));
-#else
-      for (int j=0; j<ndim; j++) {
-	float val = (float)*(xnod+node*nu+j);
-	Swrite(srvr,&val,sizeof(float));
-      }
-#endif
-    }
+    for (int node=0; node<nnod; node++)
+      for (int j=0; j<ndim; j++) sbuff.put((float)*(xnod+node*nu+j));
+    sbuff.flush();
     CHECK_COOKIE(nodes);
   }
 
@@ -441,15 +437,9 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	  double *base_node = state_p+j*ndof;
 	  for (int l=0; l<ndof; l++) in[l] = *(base_node+l);
 	  q->values(jf,in,out);
-#ifdef DX_USE_FLOATS
-	  for (int l=0; l<size; l++) {
-	    float val = (float)out[l];
-	    Swrite(srvr,&val,sizeof(float));
-	  }
-#else
-	  Swrite(srvr,out.begin(),sizeof(double));
-#endif
+	  for (int l=0; l<size; l++) sbuff.put((float)out[l]);
 	}
+	sbuff.flush();
 	CHECK_COOKIE(state);
       }
     }

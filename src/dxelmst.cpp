@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxelmst.cpp,v 1.4 2003/02/18 23:49:44 mstorti Exp $
+//$Id: dxelmst.cpp,v 1.5 2003/06/08 13:10:43 mstorti Exp $
 
 #ifdef USE_DX
 #include <vector>
@@ -7,6 +7,7 @@
 #include <src/fem.h>
 #include <src/elemset.h>
 #include <src/util3.h>
+#include <src/sockbuff.h>
 
 extern int MY_RANK,SIZE;
 
@@ -35,6 +36,7 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   nsubelem = node_indices.size()/subnel;
 
   if (!MY_RANK) {
+    SocketBuffer<int> sbuff(sock);
     cookie = rand();
     Sprintf(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
 	    subnel,nelem*nsubelem,cookie);
@@ -44,11 +46,11 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
 	for (int n=0; n<subnel; n++) {
 	  int k = node_indices[jj*subnel+n];
 	  // Convert to 0 based (DX) node numbering
-	  int node = *(row+k)-1;
-	  Swrite(sock,&node,sizeof(int));
+	  sbuff.put(*(row+k)-1);
 	}
       }
     }
+    sbuff.flush();
     CHECK_COOKIE(elemset);
     cookie = rand();
 //      Sprintf(sock,"field %s_field nodes %s state %d\n",name(),name(),cookie);

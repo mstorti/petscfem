@@ -4,8 +4,10 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'smoke' unless $case_name;
-$ref = 4;                       # results for vieweing in DX are refined by this 
-$N = $M = 80*$ref;
+$smoke_run = 1;
+$ref = ($smoke_run ? 2 : 1);    # results for vieweing in DX are refined by this 
+$N = $M = 160*$ref;
+$sqcav_field_file = 'sqcav.state.N'.$N;
 $Lx = $Ly = 1;
 $alpha = 1;
 $Courant = 0.5;
@@ -13,13 +15,12 @@ $hx = $Lx/$N;
 $omega_smooth = 0.5;
 $n_smoth_steps  = 0;
 $ratio = 4;                     # refinement parameter (h_center/h_wall)
-$smoke_run = 1;
-$Dt = ($smoke_run ? 8/$N : 4/$N);
+$Dt = ($smoke_run ? 4/$N : 4/$N);
 $Re = 1000;
-$sqcav_field = 1;
+$sqcav_field = ($sqcav_field_file ? 1 : 0);
 #__END_TRANSCRIPT__
 @vars = qw(N M Lx Ly case_name omega_smooth n_smoth_steps ratio smoke_run
-    sqcav_field ref);
+    sqcav_field ref sqcav_field_file);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH smoke.m";
@@ -34,15 +35,17 @@ save_file "save.state.tmp"
 <:pr('Dt'):>
 nsave 10
 
-nsaverot 1
+nsaverot <:=($smoke_run ? 1 : 10000000):>
 nrec 1
 nfile 1000000
-save_file_pattern "smoke.state.%d.tmp"
+save_file_pattern "STEPS/smoke.state.%d.tmp"
 
 #if !$smoke_run
 initial_state "smoke.ini.tmp"
+#else
+# Restart
+initial_state "smoke.state.tmp"
 #endif
-initial_state "save.state.tmp"
 nstep 32
 solver "iisd"
 iisd_subpart 4

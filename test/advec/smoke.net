@@ -1,11 +1,11 @@
 //
-// time: Fri Jun  6 17:39:11 2003
+// time: Sat Jun  7 20:34:46 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
 //
 // MODULE main
-// workspace: width = 528, height = 957
+// workspace: width = 619, height = 779
 // layout: snap = 0, width = 50, height = 50, align = NN
 //
 macro main(
@@ -25,8 +25,8 @@ main_AmbientLight_3_out_1 =
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 1 0 31 1 }
-    // vcr[1]: min = 0, max = 1000, beg = 0, end = 31, cur = 0, inc = 1, loop = off, step = off, pal = off
-    // window: position = (0.5527,0.5352), size = 0.3496x0.1328
+    // vcr[1]: min = 0, max = 1000, beg = 0, end = 31, cur = 3, inc = 1, loop = on, step = on, pal = off
+    // window: position = (0.6262,0.0850), size = 0.3500x0.1333
     //
     main_Sequencer_1_in_3 = @frame;
 main_Sequencer_1_out_1[cache: 2] = 
@@ -77,41 +77,30 @@ main_Select_1_out_1 =
     main_Select_1_in_3
     ) [instance: 1, cache: 1];
     // 
-    // node Scalar[1]: x = 478, y = 159, inputs = 11, label = Scalar
+    // node Scalar[1]: x = 487, y = 253, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_1"
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1.0 
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.2 
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 1.0 
+    // output[1]: visible = 1, type = 5, value = 0.2 
     //
     // 
-    // node Compute[3]: x = 146, y = 302, inputs = 3, label = Compute
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "max(-$1,min($1,$0))"
-    // expression: value = max(-cota,min(cota,u))
+    // node Compute[5]: x = 82, y = 345, inputs = 3, label = Comp
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "tanh($0/$1)"
+    // expression: value = tanh(u/scale)
     // name[2]: value = u
-    // name[3]: value = cota
-    //
-main_Compute_3_out_1 = 
-    Compute(
-    main_Compute_3_in_1,
-    main_Select_1_out_1,
-    main_Scalar_1_out_1
-    ) [instance: 3, cache: 1];
-    // 
-    // node Compute[5]: x = 134, y = 370, inputs = 2, label = Comp
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "tanh(4*$0)"
-    // expression: value = tanh(4*u)
-    // name[2]: value = u
+    // name[3]: value = scale
     //
 main_Compute_5_out_1 = 
     Compute(
     main_Compute_5_in_1,
-    main_Compute_3_out_1
+    main_Select_1_out_1,
+    main_Scalar_1_out_1
     ) [instance: 5, cache: 1];
     // 
-    // node Compute[6]: x = 93, y = 456, inputs = 2, label = Comp
+    // node Compute[6]: x = 51, y = 428, inputs = 2, label = Comp
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "4*$0**3-3*$0"
     // expression: value = 4*u**3-3*u
     // name[2]: value = u
@@ -122,31 +111,20 @@ main_Compute_6_out_1 =
     main_Compute_5_out_1
     ) [instance: 6, cache: 1];
     // 
-    // node Compute[4]: x = 419, y = 248, inputs = 2, label = Compute
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "-$0"
-    // expression: value = -c
-    // name[2]: value = c
-    //
-main_Compute_4_out_1 = 
-    Compute(
-    main_Compute_4_in_1,
-    main_Scalar_1_out_1
-    ) [instance: 4, cache: 1];
-    // 
-    // node Colormap[3]: x = 286, y = 339, inputs = 19, label = Colormap
+    // node Colormap[3]: x = 254, y = 358, inputs = 19, label = myColormap
     // input[1]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 0.53225806] }
     // input[2]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 0.70967742] }
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 0.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_3"
-    // input[7]: defaulting = 1, visible = 1, type = 5, value = -1.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 1.0
+    // input[7]: defaulting = 0, visible = 1, type = 5, value = -1.0
+    // input[8]: defaulting = 0, visible = 1, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 1, type = 1, value = 20
     // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -1.0 1.0 }
     // input[17]: defaulting = 0, visible = 0, type = 5, value = -1.0
     // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.0
     // input[19]: visible = 1
-    // window: position = (0.1084,0.1146), size = 0.8125x0.7500
+    // window: position = (0.1087,0.1150), size = 0.8125x0.7500
     //
 main_Colormap_3_out_1[cache: 2],
 main_Colormap_3_out_2[cache: 2] = 
@@ -156,9 +134,9 @@ main_Colormap_3_out_2[cache: 2] =
     main_Colormap_3_in_3,
     main_Colormap_3_in_4,
     main_Colormap_3_in_5,
-    main_Colormap_3_in_6,
-    main_Compute_4_out_1,
-    main_Scalar_1_out_1,
+    main_Select_1_out_1,
+    main_Colormap_3_in_7,
+    main_Colormap_3_in_8,
     main_Colormap_3_in_9,
     main_Colormap_3_in_10,
     main_Colormap_3_in_11,
@@ -172,7 +150,7 @@ main_Colormap_3_out_2[cache: 2] =
     main_Colormap_3_in_19
     ) [instance: 3, cache: 1];
     // 
-    // node Color[2]: x = 182, y = 516, inputs = 5, label = Color
+    // node Color[2]: x = 151, y = 516, inputs = 5, label = Color
     //
 main_Color_2_out_1 = 
     Color(
@@ -225,16 +203,55 @@ main_Collect_1_out_1 =
     main_ColorBar_1_out_1
     ) [instance: 1, cache: 1];
     // 
+    // node Colormap[4]: x = 451, y = 416, inputs = 19, label = Colormap
+    // input[1]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 0.666667] [1.0 0.0] }
+    // input[2]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
+    // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
+    // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
+    // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_4"
+    // input[7]: defaulting = 0, visible = 1, type = 5, value = -1.0
+    // input[8]: defaulting = 0, visible = 1, type = 5, value = 1.0
+    // input[9]: defaulting = 1, visible = 1, type = 1, value = 20
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -1.0 1.0 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = -1.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.0
+    // input[19]: visible = 1
+    // window: position = (0.0587,0.1583), size = 0.8125x0.7500
+    //
+main_Colormap_4_out_1[cache: 2],
+main_Colormap_4_out_2[cache: 2] = 
+    Colormap(
+    main_Colormap_4_in_1,
+    main_Colormap_4_in_2,
+    main_Colormap_4_in_3,
+    main_Colormap_4_in_4,
+    main_Colormap_4_in_5,
+    main_Colormap_4_in_6,
+    main_Colormap_4_in_7,
+    main_Colormap_4_in_8,
+    main_Colormap_4_in_9,
+    main_Colormap_4_in_10,
+    main_Colormap_4_in_11,
+    main_Colormap_4_in_12,
+    main_Colormap_4_in_13,
+    main_Colormap_4_in_14,
+    main_Colormap_4_in_15,
+    main_Colormap_4_in_16,
+    main_Colormap_4_in_17,
+    main_Colormap_4_in_18,
+    main_Colormap_4_in_19
+    ) [instance: 4, cache: 1];
+    // 
     // node Image[2]: x = 149, y = 717, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_2"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.757174 0.486745 -2e-05]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.757174 0.486745 3.9276]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.51894
-    // input[8]: defaulting = 0, visible = 0, type = 1, value = 997
-    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.692
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.7257 0.499186 -1.59375e-05]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.7257 0.499186 3.9081]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.4844
+    // input[8]: defaulting = 0, visible = 0, type = 1, value = 776
+    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.682
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 21.888
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 21.5063
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -243,9 +260,9 @@ main_Collect_1_out_1 =
     // input[18]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[19]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[29]: defaulting = 1, visible = 0, type = 3, value = 0
-    // input[41]: defaulting = 0, visible = 0, type = 32, value = "none"
+    // input[41]: defaulting = 0, visible = 0, type = 32, value = "roam"
     // depth: value = 16
-    // window: position = (0.0000,0.0000), size = 0.9873x0.9544
+    // window: position = (0.0000,0.0000), size = 0.9875x0.9550
     // internal caching: 1
     //
 main_Image_2_out_1,
@@ -303,44 +320,9 @@ main_Image_2_out_3 =
     main_Image_2_in_49
     ) [instance: 2, cache: 1];
     // 
-    // node Print[1]: x = 310, y = 177, inputs = 3, label = Print
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "od"
-    //
-    Print(
-    main_Format_1_out_1,
-    main_Print_1_in_2,
-    main_Print_1_in_3
-    ) [instance: 1, cache: 1];
-    // 
     // node Transmitter[1]: x = 313, y = 20, inputs = 1, label = t
     //
 t = main_Sequencer_1_out_1;
-    // 
-    // node Receiver[1]: x = 280, y = 782, inputs = 1, label = t
-    //
-main_Receiver_1_out_1[cache: 0] = t;
-    // 
-    // node Render[1]: x = 157, y = 812, inputs = 3, label = Render
-    // input[1]: defaulting = 1, visible = 1, type = 67108863, value = NULL
-    //
-main_Render_1_out_1 = 
-    Render(
-    main_Image_2_out_1,
-    main_Image_2_out_2,
-    main_Render_1_in_3
-    ) [instance: 1, cache: 1];
-    // 
-    // node WriteImage[1]: x = 169, y = 895, inputs = 4, label = WriteImage
-    // input[1]: defaulting = 1, visible = 1, type = 133120, value = NULL
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "sqcav"
-    // input[3]: defaulting = 0, visible = 1, type = 32, value = "tiff"
-    //
-    WriteImage(
-    main_Render_1_out_1,
-    main_WriteImage_1_in_2,
-    main_WriteImage_1_in_3,
-    main_Receiver_1_out_1
-    ) [instance: 1, cache: 1];
 // network: end of macro body
 CacheScene(main_Image_2_in_1, main_Image_2_out_1, main_Image_2_out_2);
 }
@@ -372,7 +354,7 @@ main_Select_1_in_3 = NULL;
 main_Select_1_out_1 = NULL;
 main_Scalar_1_in_1 = "Scalar_1";
 main_Scalar_1_in_2 = NULL;
-main_Scalar_1_in_3 = 1.0 ;
+main_Scalar_1_in_3 = 0.2 ;
 main_Scalar_1_in_4 = NULL;
 main_Scalar_1_in_5 = NULL;
 main_Scalar_1_in_6 = NULL;
@@ -381,21 +363,18 @@ main_Scalar_1_in_8 = NULL;
 main_Scalar_1_in_9 = NULL;
 main_Scalar_1_in_10 = NULL;
 main_Scalar_1_in_11 = NULL;
-main_Scalar_1_out_1 = 1.0 ;
-main_Compute_3_in_1 = "max(-$1,min($1,$0))";
-main_Compute_3_out_1 = NULL;
-main_Compute_5_in_1 = "tanh(4*$0)";
+main_Scalar_1_out_1 = 0.2 ;
+main_Compute_5_in_1 = "tanh($0/$1)";
 main_Compute_5_out_1 = NULL;
 main_Compute_6_in_1 = "4*$0**3-3*$0";
 main_Compute_6_out_1 = NULL;
-main_Compute_4_in_1 = "-$0";
-main_Compute_4_out_1 = NULL;
 main_Colormap_3_in_1 = { [0.0 0.53225806] };
 main_Colormap_3_in_2 = { [0.0 0.70967742] };
 main_Colormap_3_in_3 = { [0.0 1.0] [1.0 0.0] };
 main_Colormap_3_in_4 = { [0.0 1.0] [1.0 1.0] };
 main_Colormap_3_in_5 = "Colormap_3";
-main_Colormap_3_in_6 = NULL;
+main_Colormap_3_in_7 = -1.0;
+main_Colormap_3_in_8 = 1.0;
 main_Colormap_3_in_9 = NULL;
 main_Colormap_3_in_10 = NULL;
 main_Colormap_3_in_11 = NULL;
@@ -433,6 +412,25 @@ main_ColorBar_1_in_15 = NULL;
 main_ColorBar_1_in_16 = NULL;
 main_ColorBar_1_out_1 = NULL;
 main_Collect_1_out_1 = NULL;
+main_Colormap_4_in_1 = { [0.0 0.666667] [1.0 0.0] };
+main_Colormap_4_in_2 = { [0.0 1.0] [1.0 1.0] };
+main_Colormap_4_in_3 = { [0.0 1.0] [1.0 1.0] };
+main_Colormap_4_in_4 = { [0.0 1.0] [1.0 1.0] };
+main_Colormap_4_in_5 = "Colormap_4";
+main_Colormap_4_in_6 = NULL;
+main_Colormap_4_in_7 = -1.0;
+main_Colormap_4_in_8 = 1.0;
+main_Colormap_4_in_9 = NULL;
+main_Colormap_4_in_10 = NULL;
+main_Colormap_4_in_11 = NULL;
+main_Colormap_4_in_12 = { -1.0 1.0 };
+main_Colormap_4_in_13 = NULL;
+main_Colormap_4_in_14 = NULL;
+main_Colormap_4_in_15 = NULL;
+main_Colormap_4_in_16 = NULL;
+main_Colormap_4_in_17 = -1.0;
+main_Colormap_4_in_18 = 1.0;
+main_Colormap_4_in_19 = NULL;
 macro Image(
         id,
         object,
@@ -748,11 +746,11 @@ macro Image(
 main_Image_2_in_1 = "Image_2";
 main_Image_2_in_3 = "X16,,";
 main_Image_2_in_4 = 1;
-main_Image_2_in_5 = [0.757174 0.486745 -2e-05];
-main_Image_2_in_6 = [0.757174 0.486745 3.9276];
-main_Image_2_in_7 = 1.51894;
-main_Image_2_in_8 = 997;
-main_Image_2_in_9 = 0.692;
+main_Image_2_in_5 = [0.7257 0.499186 -1.59375e-05];
+main_Image_2_in_6 = [0.7257 0.499186 3.9081];
+main_Image_2_in_7 = 1.4844;
+main_Image_2_in_8 = 776;
+main_Image_2_in_9 = 0.682;
 main_Image_2_in_10 = [0 1 0];
 main_Image_2_in_11 = NULL;
 main_Image_2_in_12 = 0;
@@ -783,7 +781,7 @@ main_Image_2_in_37 = NULL;
 main_Image_2_in_38 = NULL;
 main_Image_2_in_39 = NULL;
 main_Image_2_in_40 = NULL;
-main_Image_2_in_41 = "none";
+main_Image_2_in_41 = "roam";
 main_Image_2_in_42 = NULL;
 main_Image_2_in_43 = NULL;
 main_Image_2_in_44 = NULL;
@@ -792,16 +790,6 @@ main_Image_2_in_46 = NULL;
 main_Image_2_in_47 = NULL;
 main_Image_2_in_48 = NULL;
 main_Image_2_in_49 = NULL;
-main_Image_2_out_1 = NULL;
-main_Image_2_out_2 = NULL;
-main_Print_1_in_2 = "od";
-main_Print_1_in_3 = NULL;
-main_Transmitter_1_out_1 = NULL;
-main_Receiver_1_out_1 = NULL;
-main_Render_1_in_3 = NULL;
-main_Render_1_out_1 = NULL;
-main_WriteImage_1_in_2 = "sqcav";
-main_WriteImage_1_in_3 = "tiff";
 Executive("product version 4 2 0");
 $sync
 

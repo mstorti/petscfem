@@ -20,7 +20,7 @@ function uu = refin (u,ref)
     uu(:,k) = (1-alpha)*uu(:,kk) + alpha * uu(:,kk+ref);
   endfor
 
-  uu = smsmooth(uu,4,0.5);
+  uu = smsmooth(uu,1,0.5);
   uu = vec(uu);
 
 endfunction
