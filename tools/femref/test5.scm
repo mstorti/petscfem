@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.14 2005/02/18 01:12:27 mstorti Exp $
+;;; $Id: test5.scm,v 1.15 2005/02/18 10:11:14 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -81,42 +81,39 @@
 ;; In this form the algorithm is `n^3' (I think). 
 (define (nparts3 n)
   (letrec (
-	 ;; This is the table that stores the previous values.
-	 (table (make-array 0 n n))
-	 ;; Auxiliary function that retrieves the value stored in the table
-	 ;; for the pair `(n p)'
-	 (np-ref (lambda (n p) 
-		   (cond ((<= n 1) 1)
-			 ((= p 1) 1)
-			 ((> p n) (np-ref n n))
-			 (#t (array-ref table (- n 1) (- p 1))))))
-	 ;; Auxiliary function that sets the entry in the table
-	 ;; for the pair `(n p)'
-	 (np-set! (lambda (val n p) 
-		    (array-set! table val 
-				(- n 1) (- p 1))))
-	 ;; Computes one value in the table from previous values
-	 (compute-1 (lambda (m p)
-		      (let loop ((sub-parts 0)
-				 (k 1))
-			(cond ((> k (min p m)) sub-parts)
-			      (#t (loop (+ sub-parts (np-ref (- m k) k)) (+ k 1))))))))
-    ;; Loops over pairs `(m p)' increasing `p' first, until `(n n)' is
-    ;; reached.
+	   ;; This is the table that stores the previous values.
+	   (table (make-array 0 n n))
+	   ;; Auxiliary function that retrieves the value stored in the table
+	   ;; for the pair `(n p)'
+	   (np-ref (lambda (n p) 
+		     (cond ((<= n 1) 1)
+			   ((= p 1) 1)
+			   ((> p n) (np-ref n n))
+			   (#t (array-ref table (- n 1) (- p 1))))))
+	   ;; Auxiliary function that sets the entry in the table
+	   ;; for the pair `(n p)'
+	   (np-set! (lambda (val n p) 
+		      (array-set! table val 
+				  (- n 1) (- p 1))))
+	   ;; Computes one value in the table from previous values
+	   (compute-1 (lambda (m p)
+			(let loop ((sub-parts 0)
+				   (k 1))
+			  (cond ((> k (min p m)) sub-parts)
+				(#t (loop (+ sub-parts (np-ref (- m k) k)) (+ k 1))))))))
+    ;; Loops over pairs `(m p)' increasing `p' first,
+    ;; `m' second, until `(n n)' is reached.
     (let loop ((m 1)
 	       (p 1))
-      ;; (format #t "m ~A, p ~A, table ~A\n" m p table)
       (cond ((> p m) 
 	     (format #t "~A ~A\n" m (np-ref m m))
 	     (loop (+ m 1) 1))
 	    ((> m n) (np-ref n n))
 	    (#t 
-	     (let ((val (compute-1 m p)))
-;	       (format #t "(m ~A, p ~A) -> val ~A\n" m p val)
-	       (np-set! val m p)
-	       (loop m (+ p 1))))))))
+	     (np-set! (compute-1 m p) m p)
+	     (loop m (+ p 1)))))))
 
-(nparts3 1000)
+(nparts3 10)
 
 #!
 (let ((n 7))
