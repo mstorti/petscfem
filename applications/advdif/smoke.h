@@ -1,12 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: smoke.h,v 1.3 2003/05/26 03:08:06 mstorti Exp $
+// $Id: smoke.h,v 1.4 2003/06/01 15:55:35 mstorti Exp $
 #ifndef SMOKE_H
 #define SMOKE_H
 
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
+#include <src/fm2temp.h>
 #include "advective.h"
 #include "stream.h"
 
@@ -19,11 +20,12 @@
 class smoke_ff : public AdvDifFFWEnth {
 private:
   const int ndim;
-  Property u_prop;
-  double phi;
+  Property u_prop, G_prop;
+  double phi, omega;
   FastMat2 u, U, Cp, W_N, A, Uintri;
   int nel,ndof,nelprops;
   ElementIterator element_m;
+  FastMat2Tmp tmp;
 public:
   smoke_ff(const NewAdvDif *e) : AdvDifFFWEnth(e), ndim(2) {}
   ~smoke_ff();

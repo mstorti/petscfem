@@ -1,18 +1,24 @@
 //__INSERT_LICENSE__
-// $Id: smoke.cpp,v 1.2 2003/05/26 03:08:06 mstorti Exp $
+// $Id: smoke.cpp,v 1.3 2003/06/01 15:55:35 mstorti Exp $
 
 #include "./smoke.h"
 
-smoke_ff::~smoke_ff() {}
+smoke_ff::~smoke_ff() { tmp.clear(); }
 
 void smoke_ff::start_chunk(int &ret_options) {
+  int ierr;
   new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);     
 
   // Get element integer props
   elemset->elem_params(nel,ndof,nelprops);
 
+  EGETOPTDEF_ND(new_adv_dif_elemset,double,omega,0.); //nd
+  assert(omega>0.);
+
   elemset->get_prop(u_prop,"u");
+  elemset->get_prop(G_prop,"G");
   assert(u_prop.length==ndim);
+  assert(G_prop.length==2);
   u.resize(1,ndim);
   // Tell `advdife' that we will use a scalar `tau'
   ret_options |= SCALAR_TAU;
@@ -22,9 +28,9 @@ void smoke_ff::start_chunk(int &ret_options) {
 }
 
 void smoke_ff::element_hook(ElementIterator &element) {
+  element_m = element;
   u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
   A.ir(2,1).ir(3,1).set(u).rs();
-  element_m = element;
 }
 
 void smoke_ff::set_state(const FastMat2 &UU) { 
@@ -41,9 +47,25 @@ void smoke_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
   A_grad_N.prod(A,grad_N,-1,2,3,-1,1);
 }
 
+inline double modulo(double k, double n, int *div=NULL) {
+  double m = fmod(k,n);
+  int d = int((k-m)/n);
+  if (m < 0.) {
+    m += n;
+    d -= 1;
+  }
+  if (div) *div = d;
+  return m;
+}
+
 void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   u.set(new_adv_dif_elemset->prop_array(element_m,u_prop));
   double uu = sqrt(u.sum_square_all());
+  const double *GG = new_adv_dif_elemset->prop_array(element_m,G_prop);
+  double t = new_adv_dif_elemset->time();
+  double T = 2*M_PI/omega;
+  double G = GG[0] * sin(omega*t) + GG[1] * cos(omega*t);
+  double Cjac=1;
   // Convective flux
   // flux(j,mu) = A(j,mu,nu) * U(nu)
   flux.prod(A,U,2,1,-1,-1);
@@ -52,8 +74,9 @@ void smoke_ff::compute_flux(COMPUTE_FLUX_ARGS) {
   fluxd.set(0.);
   // A_grad_U(mu) = A(j,mu,nu) * grad_U(j,nu)
   A_grad_U.prod(A,grad_U,-1,1,-2,-1,-2);
-  // Null source term (right now);
-  G_source.set(0.);
+  // source term
+  // G_source.set(G).axpy(U,Cjac);
+  G_source.set(G);
   // Set to zero
   tau_supg.set(0.);
   // No shock capturing
@@ -83,6 +106,7 @@ void smoke_ff::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
 
 void smoke_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w) {
+  //   tmp(0).prod(N,N,1,2);
   N_P_C.set(0.);
 }
 

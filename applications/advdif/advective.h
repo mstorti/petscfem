@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.59 2003/02/04 23:28:44 mstorti Exp $
+//$Id: advective.h,v 1.60 2003/06/01 15:55:35 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -364,6 +364,8 @@ protected:
   double Volume,rec_Dt_m;
   /// Options returned by the flux function
   int ff_options;
+  /// The actual time
+  double time_m;
 public:
   FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg;
   friend class NewAdvDifFF;
@@ -389,6 +391,11 @@ public:
 
   /// axisymmetric key
   int axi;
+
+  /** Returns the actual time. 
+      @return actual time
+  */ 
+  double time() const { return time_m; };
 
 };
 

@@ -4,16 +4,17 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'smoke' unless $case_name;
-$N = $M = 50;
+$N = $M = 40;
 $Lx = $Ly = 1;
 $alpha = 1;
 $Courant = 0.5;
 $hx = $Lx/$N;
-$Dt = 4/$N;
+$Dt = 32/$N;
 $omega_smooth = 0.5;
-$n_smoth_steps  = 5;
+$n_smoth_steps  = 3;
+$ratio = 4;                     # refinement parameter (h_center/h_wall)
 #__END_TRANSCRIPT__
-@vars = qw(N M Lx Ly case_name omega_smooth n_smoth_steps);
+@vars = qw(N M Lx Ly case_name omega_smooth n_smoth_steps ratio);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH smoke.m";
@@ -33,7 +34,7 @@ nrec 1
 nfile 1000000
 save_file_pattern "smoke.state.%d.tmp"
 
-initial_state "smoke.ini.tmp"
+# initial_state "smoke.ini.tmp"
 nstep 2000
 solver "iisd"
 iisd_subpart 1
@@ -67,7 +68,8 @@ __END_ELEMSET__
 end_elemsets
 #else
 elemset smoke 3
-props u[2]
+props u[2] G[2]
+omega <:=2*$PI/(16*$Dt):>
 geometry triangle
 npg 3
 dx

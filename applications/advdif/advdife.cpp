@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.67 2003/05/26 03:08:06 mstorti Exp $
+//$Id: advdife.cpp,v 1.68 2003/06/01 15:55:35 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -138,6 +138,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   }
 
   double *retvalt;
+  time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step. 
