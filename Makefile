@@ -1,4 +1,5 @@
-# $Id: Makefile,v 1.8 2001/01/08 13:00:08 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2001/01/08 13:08:37 mstorti Exp $ 
+SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -104,23 +105,24 @@ save:
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
 
 tag:
+	echo shell: $(SHELL)
 	@echo Verify that current directory is OK...
 	echo n | cvs release .
 	@echo "Continue? (y/n) > " ; \
-	@read answer ; \
+	read answer ; \
 	if [ ! $$answer = "y" ] ; then \
 		exit ; \
 	fi
 	@echo Last tags:
-	grep "^tag: " save.log | tail
+	@grep "^tag: " save.log | tail
 	@echo -n "Enter new tag: >" ; \
-	@read newtag
-	newtag_=`echo $nwtag | perl -pe 's/-/--/g; s/./-/g;'`
-	@echo "encoded tag: $newtag_"
-	echo "tag: $newtag on `date`, `hostname -f`" >> save.log
-	echo $newtag_ > VERSION 
-	@echo "Proceed to tag files (y/n) > " ; \
-	@read answer ; \
+	read newtag ; \
+	newtag_=`echo $$nwtag | perl -pe 's/-/--/g; s/./-/g;'` ; \
+	echo "encoded tag: $$newtag_" ; \
+	echo "tag: $$newtag on `date`, `hostname -f`" >> save.log ; \
+	echo $$newtag_ > VERSION ; \
+	echo "Proceed to tag files (y/n) > " ; \
+	read answer ; \
 	if [ $$answer = "y" ] ; then \
 		cvs tag . ; \
 	fi
