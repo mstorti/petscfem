@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.11 2001/11/30 13:18:43 mstorti Exp $
+//$Id: fastmat2.h,v 1.12 2001/12/02 19:23:30 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -812,6 +812,11 @@ public:
       @return a reference to the matrix.
    */ 
   FastMat2 & resize(const int m,INT_VAR_ARGS);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Resizes to one dimension ans zero elements.
+   */ 
+  FastMat2 & clear() { resize(1,0);};
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets vector to diagonal part 
