@@ -65,7 +65,7 @@ visco 0.001
 cond 0.001
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
-linear_abso 0
+linear_abso 1
 
 lagrange_diagonal_factor 1e-5
 lagrange_residual_factor 1.0
