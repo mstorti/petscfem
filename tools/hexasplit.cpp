@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hexasplit.cpp,v 1.3 2002/07/13 23:19:21 mstorti Exp $
+//$Id: hexasplit.cpp,v 1.3.2.1 2002/07/16 14:21:38 mstorti Exp $
 #include <stdio.h>
 #include <unistd.h>
 #include <vector>
@@ -293,6 +293,6 @@ int main (int argc, char **argv) {
     }
   }
   fclose(tetras);
-  printf("Done\n",
+  printf("Done.\n");
 }      
 
