@@ -1368,12 +1368,10 @@ expect("aquifer/transient.verif.tmp","Transient - Constant aquifer bottom",
        'test OK \? 1');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("aquifer/stream.verif.tmp","Stream elemset",
-        read_file("aquifer/stream.verif.ans"));
+expect("aquifer/stream.verif.tmp","Stream elemset",'Test OK. > 1');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("aquifer/aquist.verif.tmp","aquifer+stream coupling",
-        read_file("aquifer/aquist.verif.ans"));
+expect("aquifer/aquist.verif.tmp","aquifer+stream coupling",'Test OK. > 1');
 
 end_section();
 

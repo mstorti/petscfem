@@ -59,7 +59,7 @@ print_internal_loop_conv 1
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady <:=$steady:>
+# steady <:=$steady:>
 alpha 1.
 weak_form 0
 tau_fac 0.1

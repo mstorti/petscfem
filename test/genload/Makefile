@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2001/07/28 20:04:07 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/08/18 21:27:14 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -29,10 +29,16 @@ genload.depl: force
 local_clean::
 	-rm -rf mat.output 
 
+LOC_PROG := advdif
+#CASE_NAME := qharm
+CASE_NAME := genload
+PROG := $(ADVDIF)
+
+
 auxi_o:
 	if [ ! -L advdif ] ; \
-	 then ln -sf $(PETSCFEM_DIR)/applications/advdif/advdif.bin advdif ; \
+	 then ln -sf $(PETSCFEM_DIR)/applications/advdif/advdif_g.bin advdif ; \
 	fi
-	echo file advdif >.gdbinit
+	echo file advdif_g >.gdbinit
 	echo set args -case genload.depl >>.gdbinit
 #s

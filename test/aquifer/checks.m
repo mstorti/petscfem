@@ -7,8 +7,8 @@ ref = aload("chezy_rect.state.ref");
 erro = merr(u-ref);
 printf("Test OK? > %d, [error=%g, tol=%g]\n",erro<tol,erro,tol);
 
-u = aload("mann_circ.state.tmp");
-ref = aload("mann_circ.state.ref");
-erro = merr(u-ref);
+u2 = aload("mann_circ.state.tmp");
+ref2 = aload("mann_circ.state.ref");
+erro = merr(u2-ref2);
 printf("Test OK? > %d, [error=%g, tol=%g]\n",erro<tol,erro,tol);
 

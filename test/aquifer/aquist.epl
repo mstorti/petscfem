@@ -91,12 +91,6 @@ _END_NODES__
 
 #----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
 elemset aquifer 4 
-#if $var_eta
-props eta
-#else 
-<:pr('eta'):>
-#endif
-
 # report_consumed_time
 geometry cartesian2d
 npg 4

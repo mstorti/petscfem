@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.15 2002/02/19 18:08:59 mstorti Exp $
+//$Id: stream.cpp,v 1.16 2002/08/18 21:27:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -34,7 +34,8 @@ void DummyEnthalpyFun
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
-  // Initialize function objects
+  // fixme:= this is tricky!!
+  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset);
   if (!channel) channel = ChannelShape::factory(elemset);
   channel->init();
 

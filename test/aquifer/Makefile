@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.19 2002/02/25 18:51:53 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2002/08/18 21:27:14 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -21,7 +21,8 @@ runs: mkm=mkmeshs
 runs: rung
 
 LOC_PROG := advdif
-CASE_NAME := stream
+# CASE_NAME := stream
+CASE_NAME := aqui
 PROG := advdif
 
 PETSCFEM_DIR = ../..
@@ -100,7 +101,7 @@ data: force
 #w Runs program
 rung: data force
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
-			-case $(CASE).depl  # > output.$(casen).out
+			-case $(CASE).depl > output.$(casen).out
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force

@@ -87,13 +87,13 @@ steady <:=$steady:>
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  1
+nodes  2 3 1
 __INCLUDE__ aqui.nod.tmp
 _END_NODES__
 
 elemset aquifer 4 
 #if $var_eta
-props eta
+# props eta
 #else 
 <:pr('eta'):>
 #endif

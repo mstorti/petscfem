@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: aquifer.cpp,v 1.8 2002/04/26 19:15:27 mstorti Exp $
+//$Id: aquifer.cpp,v 1.9 2002/08/18 21:27:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -42,8 +42,8 @@ void aquifer_ff::end_chunk() {
 void aquifer_ff::element_hook(ElementIterator &element) {
   S = elemset->prop_val(element,S_pr);
   K = elemset->prop_val(element,K_pr);
-  eta = elemset->prop_val(element,eta_pr);
 #if 0
+  eta = elemset->prop_val(element,eta_pr);
   int p,q;
   element.position(p,q);
   printf("element: %d, eta %f\n",p,eta);
@@ -87,4 +87,3 @@ void aquifer_ff::comp_N_Cp_N(FastMat2 &N_Cp_N,FastMat2 &N, double w) {
   N_Cp_N.ir(2,1).ir(4,1).set(tmp3);
   N_Cp_N.rs();
 }
-

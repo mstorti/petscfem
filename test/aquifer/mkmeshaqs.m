@@ -35,7 +35,7 @@ y=xnod(:,2);
 s = xnod(:,2);
 
 ## Set bottom height for the channel
-h_b = zeros(rows(xnod),1);
+h_b = eta0+(etaL-eta0)/Lx*xnod(:,2);
 h_b(nst) = -slope * s(nst);
 xnod = [xnod h_b];
 
