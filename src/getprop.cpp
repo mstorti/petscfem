@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.9 2001/05/30 18:21:53 mstorti Exp $
+//$Id: getprop.cpp,v 1.10 2002/02/06 02:37:15 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -34,6 +34,7 @@ int get_double(TextHashTable *thash,const char *name,
 	       double *retval,int defval=0,int n=1) {
   if (n==0) return 0;
   const char *value;
+  static const char *bsp=" \t";
   char *token;
   int k,ierr;
 
@@ -52,7 +53,7 @@ int get_double(TextHashTable *thash,const char *name,
   char *buf= new char[strlen(value)+1];
   strcpy(buf,value);
   for (k=0; k<n; k++) {
-    token = strtok(k==0 ? buf : NULL ," ");
+    token = strtok(k==0 ? buf : NULL ,bsp);
     PETSCFEM_ASSERT(token!=NULL,
 		   "Table entry does not contain enough data\n"
 		   "key: %s, value: %s\n",name,value);
@@ -72,6 +73,7 @@ int get_int(TextHashTable *thash,const char *name,
 	       int *retval,int defval=0,int n=1) {
   if (n==0) return 0;
   const char *value; 
+  static const char *bsp=" \t";
   char *token;
   int k;
 
@@ -90,7 +92,7 @@ int get_int(TextHashTable *thash,const char *name,
   char *buf= new char[strlen(value)+1];
   strcpy(buf,value);
   for (k=0; k<n; k++) {
-    token = strtok(k==0 ? buf : NULL ," ");
+    token = strtok(k==0 ? buf : NULL ,bsp);
     if (token==NULL && n==1) {
       // Act as get_flag, returns 1 if no value is assigned
       retval[k]=1;

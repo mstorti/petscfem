@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.47 2002/02/05 00:58:24 mstorti Exp $
+//$Id: advdife.cpp,v 1.48 2002/02/06 02:37:10 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -124,7 +124,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // the area section of the tube. Its gradient is needed for the
   // source term in the momentum eqs. 
   int nH = nu-ndim;
-  FMatrix  Hloc(nel,nH),H(nH),grad_H;
+  FMatrix  Hloc(nel,nH),H(nH);
 
   if(nnod!=nodedata->nnod) {
     printf("nnod from dofmap and nodedata don't coincide\n");
@@ -178,7 +178,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   adv_diff_ff->start_chunk(ret_options); 
   int ndimel = adv_diff_ff->dim();
   if (ndimel<0) ndimel = ndim;
-  grad_H.resize(2,ndimel,nH);
+  FMatrix grad_H(ndimel,nH);
 
   int nlog_vars;
   const int *log_vars;

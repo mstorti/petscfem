@@ -35,13 +35,19 @@ y=xnod(:,2);
 s = xnod(:,2);
 
 ## Set bottom height for the channel
-zeros(rows(xnod),1)
-xnod = [xnod ];
+h_b = zeros(rows(xnod),1);
+h_b(nst) = -slope * s(nst);
+xnod = [xnod h_b];
+
+## Initial state
+uini=zeros(rows(xnod),1);
+uini(nst,1) = 0.3*ones(nelst+1,1);
 
 asave("aquist.nod.tmp",xnod);
 asave("aquist.con.tmp",icone);
 asave("aquist.con.stream.tmp",icost);
 asave("aquist.con.stream_loss.tmp",icostl);
+asave("aquist.ini.tmp",uini);
 
 tol=1e-5;
 

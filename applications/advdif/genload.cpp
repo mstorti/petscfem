@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.17 2002/02/05 20:28:28 mstorti Exp $
+//$Id: genload.cpp,v 1.18 2002/02/06 02:37:10 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -61,8 +61,8 @@ double detsur(FastMat2 &Jaco, FastMat2 &S) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 HFilmFun::HFilmFun(GenLoad *e) 
-  : elemset(e), H_in(elemset->H_in), 
-  H(elemset->H), H_out(elemset->H_out) {};
+  : elemset(e), H_in(e->H_in), 
+  H(e->H), H_out(e->H_out) {};
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -97,8 +97,8 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int nu=nodedata->nu;
   int nH = nu-ndim;
   if (nH>0) {
-    H_m.resize(nH);
-    H_out_m.resize(nH);
+    H_m.resize(1,nH);
+    H_out_m.resize(1,nH);
   }
 
   int locdof,kldof,lldof;
@@ -175,7 +175,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Gauss Point data
   //o Type of element geometry to define Gauss Point data
   NGETOPTDEF_S(string,geometry,cartesian1d);
-  GPdata gp_data(geometry.c_str(),ndim,nel2,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndimel,nel2,npg,GP_FASTMAT2);
   
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])

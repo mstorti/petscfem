@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2002/02/05 20:27:58 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/02/06 02:35:40 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -21,7 +21,7 @@ runs: mkm=mkmeshs
 runs: rung
 
 LOC_PROG := advdif
-CASE_NAME := $(CASE)
+CASE_NAME := aquist
 PROG := $(ADVDIF)
 
 PETSCFEM_DIR = ../..

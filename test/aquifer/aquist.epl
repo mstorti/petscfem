@@ -52,10 +52,11 @@ octave_export_vars(">data.m.tmp",@vars);
 # <:pr('casen'):> 
 
 global_options
+ndim 2
 
 nsave 5
 <:pr('nstep'):> 
-# initial_state aquist.state
+initial_state aquist.ini.tmp
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -89,7 +90,7 @@ steady <:=$steady:>
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  1
+nodes  2  3  1
 __INCLUDE__ aquist.nod.tmp
 _END_NODES__
 
@@ -103,7 +104,6 @@ props eta
 
 # report_consumed_time
 geometry cartesian2d
-ndim 2
 npg 4
 #
 # Datos fisicos
