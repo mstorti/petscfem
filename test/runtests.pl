@@ -681,8 +681,8 @@ Global counting OK
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-#expect("texthash/thash2.output.tmp","TextHashTable::find",
-#                     read_file('texthash/thash2.output.ans'));
+expect("texthash/thash2.output.tmp","TextHashTable::find",
+                     read_file('texthash/thash2.ans'));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("genload/output.case_fstack.tmp","Report error for bad number of nodes in conn. line",<<'EOT');

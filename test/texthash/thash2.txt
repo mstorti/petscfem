@@ -1,5 +1,11 @@
 table t1
-k1 o1
-k2 o2
-k3 o3
+t1_k1 t1_o1
+t1_k2 t1_o2
+t1_k3 t1_o3
+__END_HASH__
+
+table t2
+t2_k1 t2_o1
+t2_k2 t2_o2
+t2_k3 t2_o3
 __END_HASH__

@@ -1,0 +1,6 @@
+should be t2:
+ *t2_k2.*t2_o2
+ *t2_k3.*t2_o3
+should be t1:
+ *t1_k2.*t1_o2
+ *t1_k3.*t1_o3

@@ -1,8 +1,7 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/11/03 01:31:22 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/11/03 09:36:53 mstorti Exp $ 
 
-# I have lost `thash2.cpp'!!
-tests: texthash # texthash_find
+tests: texthash texthash_find
 
 #s Local Targets
 #w Runs the test

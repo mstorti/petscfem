@@ -3,7 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* recuperar test `thash2.cpp'
+* recover test `thash2.cpp'
 * Use lapack lib for `daxpy' in `test/Makefile:testfm2d'
 * Generate test for LES and SuperLU implementation. 
 * `html' target in `doc' is duplicated and `make' complains. 
