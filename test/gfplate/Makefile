@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.53 2005/02/26 16:32:36 mstorti Exp $ 
+# $Id: Makefile,v 1.54 2005/02/26 16:50:50 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := adre
+CASE_NAME := gfshock
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -69,14 +69,12 @@ mesh:
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
 
 run:
-	if ! $$mkmesh ; then mkmesh=0 ; fi ;				\
-	if [ $$mkmesh -gt 0 ] ; then $(MAKE) mesh ; fi			\
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile				\
+	@if [ ! $$mkmesh ] ; then mkmesh=0 ; fi ;			\
+	if [ $$mkmesh -gt 0 ] ; then $(MAKE) mesh ; fi ;		\
+	$(MPIRUN) $(NL) -np $(NP) -machinefile				\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
 qqq:
-	@if [ ! $$mkmesh ] ; then mkmesh=1 ; fi ;				\
-	if [ $$mkmesh -gt 0 ] ; then echo "do mesh" ; fi
 
 
 STEPS_DIR := ./STEPS
