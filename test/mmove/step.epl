@@ -1,9 +1,10 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $N=10;
-$disp = 0.2;
+$disp = 0.6;
+# $shape = 'quad';
 #
-octave_export_vars(">data.m.tmp",qw(N disp));
+octave_export_vars(">data.m.tmp",qw(N disp shape));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -30,11 +31,11 @@ atol 1e-10
 tol_newton 0
 maxits 100
 steady
-c_volume 0.
+c_volume 0.1
 # distor_exp 1.
 
-<:$nstep=10; pr('nstep');:>
-Dt <:= 1./$nstep:>
+<:$nstep=60; pr('nstep');:>
+Dt <:= 1./$nstep;:>
 __END_HASH__
 
 # ndim nu ndof
@@ -43,7 +44,7 @@ __INCLUDE__ "step.nod.tmp"
 __END_NODES__
 
 #===========================================================
-#if 0
+#if $shape eq 'quad'
 elemset mesh_move 4
 geometry cartesian2d
 npg 4
@@ -59,13 +60,20 @@ __END_ELEMSET__
 end_elemsets
 
 #===========================================================
-fixa_amplitude ramp
-start_time 0
-end_time 1
-slope 1
+#  fixa_amplitude ramp
+#  start_time 0
+#  end_time 1
+#  slope 1
+#  __END_HASH__
+#  __INCLUDE__ "step.fixa.tmp"
+#  __END_FIXA__
+
+fixa_amplitude piecewise_linear
+filename "piecewise.dat"
 __END_HASH__
 __INCLUDE__ "step.fixa.tmp"
 __END_FIXA__
+
 
 # Local Variables: $
 # mode: shell-script $
