@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.61 2004/01/29 21:07:30 mstorti Exp $
+//$Id: dxhook.cpp,v 1.61.4.1 2004/08/22 23:01:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -423,6 +423,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     if (read_coords) {
       AutoString coord_file;
       coord_file.sprintf(dx_node_coordinates.c_str(),dx_step);
+      printf("dx_hook: Reading coordinates from file %s.\n",coord_file.str());
       FILE *fid = fopen(coord_file.str(),"r");
       assert(fid);
       double d;
@@ -434,6 +435,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	}
       }
       fclose(fid);
+      printf("dx_hook: Done.\n",coord_file.str());
     }
   }
 
