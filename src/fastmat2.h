@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.18 2002/11/28 15:13:25 mstorti Exp $
+//$Id: fastmat2.h,v 1.19 2002/11/29 02:12:48 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -936,28 +936,26 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for non-symmetric matrix #A#.
-      #A# has to be square. 
+      #A# has to be square. If #A# is of size #m x m# then it returns
+      the eigenvalues in a matrix of size #2 x m# containing the real and
+      imaginary part of the eigenvalues. Both right and left eigenvectors
+      can be computed independently. Based on the #DGEEV# #LAPACK# routine. 
       @author M. Storti
       @param A (input) the matrix to take the eigenvalues
+      @param VL (output) the matrix with the left eigenvectors
+      @param VR (output) the matrix with the right eigenvectors
+      @param clev (input) compute the left eigenvectors flag
+      @param crev (input) compute the right eigenvectors flag
       @returns a reference to a vector containing the eigenvalues. 
   */ 
-  FastMat2 & eig(const FastMat2 & A);
-
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Solve the eigenvalue problem for non-symmetric matrix #A#.
-      #A# has to be square. 
-      @author M. Storti
-      @param A (input) the matrix to take the eigenvalues
-      @param V (otuput) the matrix with the eigenvectors
-      @param compute_eigen_vectors (input) flags whether
-      to compute the eigenvectors or not
-      @returns a reference to a vector containing the eigenvalues. 
-  */ 
-  FastMat2 & eig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors=1);
+  FastMat2 & eig(const FastMat2 & A, FastMat2 *VL=NULL, FastMat2 *VR=NULL, 
+		 int clev=0, int crev=0);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for symmetric matrix #A#.
       Note: #A# is NOT checked for symmetry. #A# has to be square. 
+      This routine may be more faster and accurate tha the 
+      non-symmetric version. Based on the #DSYEV# #LAPACK# routine. 
       @author M. Storti
       @param A (input) the matrix to take the eigenvalues
       @returns a reference to a vector containing the eigenvalues. 
@@ -967,9 +965,10 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for symmetric matrix #A#.
       Note: #A# is NOT checked for symmetry. #A# has to be square. 
+      Based on the #DSYEV# #LAPACK# routine. 
       @author M. Storti
       @param A (input) the matrix to take the eigenvalues
-      @param V (otuput) the matrix with the eigenvectors
+      @param V (output) the matrix with the eigenvectors
       @param compute_eigen_vectors (input) flags whether
       to compute the eigenvectors or not
       @returns a reference to a vector containing the eigenvalues. 
