@@ -1,5 +1,5 @@
-x = aload("step.nod.tmp");
+x0 = aload("step.nod.tmp");
 dx = aload("step.state.tmp");
 icone = aload("step.con.tmp");
-s=1;
-gplfem(x+s*dx,icone,"malla.gpl");
+x = x0+dx;
+gplfem(x,icone,"malla.gpl");

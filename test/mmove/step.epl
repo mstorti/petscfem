@@ -3,8 +3,8 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.85;
-$slope = 5;
+$disp = 0.95;
+$slope = 4;
 # $shape = 'quad';
 $old_mmove = $ENV{'OLD_MMOVE'};
 #
@@ -70,11 +70,8 @@ __END_ELEMSET__
 end_elemsets
 
 #if !$old_mmove
-fixa_amplitude ramp
-start_time 0.
-end_time 1.
-start_value 0.
-end_value 1.
+fixa_amplitude piecewise_linear
+filename "piecewise.dat.tmp"
 __END_HASH__
 __INCLUDE__ step.fixa.tmp
 __END_FIXA__
