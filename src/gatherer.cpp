@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.2 2003/01/25 12:40:06 mstorti Exp $
+//$Id: gatherer.cpp,v 1.3 2003/01/25 15:28:58 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,7 +11,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int ns_volume_element::ask(char *,int &)"
+#define __FUNC__ "int gatherer::ask"
 int gatherer::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   DONT_SKIP_JOBINFO(gather);
@@ -20,7 +20,7 @@ int gatherer::ask(const char *jobinfo,int &skip_elemset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "nsi_tet_les_fm2::assemble"
+#define __FUNC__ "gatherer::assemble"
 int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
@@ -140,83 +140,6 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void force_integrator::init() {
-  int ierr;
-  //o Dimension of the embedding space
-  TGETOPTNDEF(thash,int,ndim,none);
-  ndim_m = ndim;
-  //o Dimenson of the element
-  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
-  assert(ndimel==ndim-1);
-  assert(gather_length==ndim || gather_length==2*ndim);
-  compute_moment = (gather_length==2*ndim);
-  force.resize(1,ndim);
-  moment.resize(1,ndim);
-  x_center.resize(1,ndim).set(0.);
-  dx.resize(1,ndim);
-  //o _T: double[ndim] _N: moment_center _D: null vector 
-  // _DOC: Center of moments. _END
-  get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
-				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
-				     double wpgdet,double time) {
-  // Force contribution = normal * pressure * weight of Gauss point
-  force.set(n).scale(-wpgdet*u.get(4));
-  // export forces to return vector
-  force.export_vals(pg_values.begin());
-  if (compute_moment) {
-    // Position offset of local point to center of moments
-    dx.set(xpg).rest(x_center);
-    // Moment contribution = force X dx
-    moment.cross(force,dx);
-    // export forces to return vector
-    moment.export_vals(pg_values.begin()+ndim_m);
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void force_integrator::clean() {
-  force.clear();
-  x_center.clear();
-  dx.clear();
-  moment.clear();
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void flow_rate_integrator::init() {
-  int ierr;
-  //o Dimension of the embedding space
-  TGETOPTNDEF(thash,int,ndim,none);
-  //o Dimension of the embedding space
-  TGETOPTDEF_S(thash,string,module,<none>);
-  if (module=="<none>") { PETSCFEM_ERROR0("Not defined module\n"); }
-  else if (module=="incompressible_NS") module_m = NSI;
-  else if (module=="compressible_NS") module_m = NSC;
-  else { PETSCFEM_ERROR("Not known module %s\n",module.c_str()); }
-  ndim_m=ndim;
-  //o Dimenson of the element
-  TGETOPTDEF(thash,int,ndimel,ndim-1); 
-  assert(ndimel==ndim-1);
-  assert(gather_length==1);
-  Q.resize(0);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
-				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
-				     double wpgdet,double time) {
-  double rho=1.;
-  if (module_m==NSI) u.is(1,1,ndim_m);
-  else if (module_m==NSC) { rho = u.get(1); u.is(1,2,ndim_m+1); }
-  Q.prod(n,u,-1,-1).scale(rho*wpgdet);
-  u.rs();
-  Q.export_vals(pg_values.begin());
 }
 
 #undef SHAPE    

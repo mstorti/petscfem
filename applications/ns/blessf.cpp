@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.17 2002/12/17 02:13:57 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.18 2003/01/25 15:28:58 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -17,6 +17,7 @@
 #include "elast.h"
 #include "qharm.h"
 #include "qharmm.h"
+#include <src/gatherer.h>
 #include "gatherer.h"
 #include "embgath.h"
 #include "nssup.h"

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.9 2003/01/25 12:40:06 mstorti Exp $
+//$Id: blessf.cpp,v 1.10 2003/01/25 15:28:55 mstorti Exp $
 
 #include <set>
 
@@ -9,7 +9,6 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/pfmat.h>
-
 #include <src/gatherer.h>
 
 #include "advective.h"
@@ -22,6 +21,7 @@
 #include "bubbly.h"
 #include "advec.h"
 #include "gasflow.h"
+#include "advdfgth.h"
 
 #include <time.h>
 

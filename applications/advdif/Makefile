@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.35 2003/01/21 16:09:16 mstorti Exp $ 
+ # $Id: Makefile,v 1.36 2003/01/25 15:28:55 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -8,10 +8,11 @@ PETSCFEM_MODULE = Advective-Diffusive
 PETSCFEM_DIR   = ../..
 MYOBJS = 
 
-LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o \
-		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o ffburg_old.o \
-		enthalpy.o genload.o linhff.o diff.o aquifer.o stream.o \
-		blessf.o bubbly.o advec.o compdate.o gasflow.o advdif_bubbly.o
+LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o	\
+		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o ffburg_old.o	\
+		enthalpy.o genload.o linhff.o diff.o aquifer.o stream.o		\
+		blessf.o bubbly.o advec.o compdate.o gasflow.o advdfgth.o	\
+		advdif_bubbly.o
 
 .INTERMEDIATE: $(LIBOBJS) 
 
