@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.18 2002/03/30 12:08:03 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.19 2002/05/30 19:59:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -650,13 +650,13 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
          
             tmp17_th.set(grad_T_star).scale(rho*Cp);
 	    tmp18_th.prod(tmp17_th,SHAPE,1,2);
-	    tmp19_th.prod(P_supg,tmp18_th,1,3,2).scale(wpgdet);
+	    tmp19_th.prod(P_supg_th,tmp18_th,1,3,2).scale(wpgdet);
 	    matlocf.is(4,1,ndim).ir(2,ndof).add(tmp19_th).rs();
             
           } else {
             tmp17_th.set(grad_T_star).scale(rho*Cp);
 	    tmp18_th.prod(tmp17_th,SHAPE,1,2);
-	    tmp19_th.prod(W_supg,tmp18_th,1,3,2).scale(wpgdet);
+	    tmp19_th.prod(W_supg_th,tmp18_th,1,3,2).scale(wpgdet);
 	    matlocf.is(4,1,ndim).ir(2,ndof).add(tmp19_th).rs();
           }
           
