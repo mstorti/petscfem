@@ -3640,3 +3640,6 @@ tag: beta-3.38.18 on Sun, 09 Jan 2005 20:54:06 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.19 on Mon, 10 Jan 2005 13:12:36 -0300 by mstorti in minerva.ceride.gov.ar
      > Femref computes external faces and opposing node for tetras.  
+----------
+tag: beta-3.38.20 on Wed, 12 Jan 2005 13:07:30 -0300 by mstorti in minerva.ceride.gov.ar
+     > Merge point for `bubbly4-branch'. 
