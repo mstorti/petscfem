@@ -907,3 +907,6 @@ tag: beta-2.69.pl3 on Sat Feb  2 12:19:29 ARST 2002 by mstorti in spider
 tag: beta-2.69.pl4 on Sun Feb  3 09:40:09 ARST 2002 by mstorti in spider
      > `stream' class with `channel_shape' and `friction_law' compiles.
      > (but doesn't link).
+----------
+tag: beta-2.70 on Sun Feb  3 20:25:21 ARST 2002, by mstorti in spider
+     > `stream' class is working. Runs OK for simple problems. 
