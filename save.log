@@ -1927,3 +1927,6 @@ tag: beta-3.10.pl10 on Mon, 16 Dec 2002 13:21:44 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.10.pl11 on Mon, 16 Dec 2002 17:47:31 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs OK test for `genload' in NS 
+----------
+tag: beta-3.10.pl12 on Mon, 16 Dec 2002 23:14:17 -0300 by mstorti in spider
+     > Added quasi-harmonic operator for NS
