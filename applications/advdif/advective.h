@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.62 2003/10/16 19:13:42 mstorti Exp $
+//$Id: advective.h,v 1.62.2.1 2004/03/19 18:59:34 mstorti Exp $
  
 #define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -351,7 +351,6 @@ public:
   */
   virtual void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 			   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
-
 
   virtual ~NewAdvDifFF()=0;
   //@}

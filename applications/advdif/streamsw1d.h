@@ -1,11 +1,12 @@
 // -*- mode: C++ -*- 
-// $Id: streamsw1d.h,v 1.2.2.1 2003/11/21 20:00:02 mstorti Exp $
+// $Id: streamsw1d.h,v 1.2.2.2 2004/03/19 19:00:23 mstorti Exp $
 #ifndef STREAMSW1D_H
 #define STREAMSW1D_H
 
 #include "advective.h"
 #include "stream.h"
 #include "nonlres.h"
+#include "godunov.h"
 
 #define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name)
 
@@ -193,5 +194,11 @@ public:
     // printf("En streamsw1d_abso(): adv_diff_ff: %p\n",adv_diff_ff);
   } //constructor
 };
+class streamsw1d_abso_godunov : public AdvDiff_Godunov {
+public:
+  streamsw1d_abso_godunov() :  AdvDiff_Godunov(new streamsw1d_ff(this)) {
+  } //constructor
+};
+
 
 #endif
