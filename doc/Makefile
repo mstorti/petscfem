@@ -1,13 +1,13 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.29 2003/02/10 14:50:39 mstorti Exp $
+#$Id: Makefile,v 1.30 2003/02/10 15:11:47 mstorti Exp $
 
-.PHONY: html clean lclean all icons latex force ps readme
+.PHONY: all_html clean lclean all icons latex force ps readme
 
 #p [in doc/Makefile]
 #s Main targets
 
 #w all the doc
-all: latex index.html html ps pdf readme eps
+all: latex index.html all_html ps pdf readme eps
 
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -97,6 +97,7 @@ petscfem.tex: petscfem.in.tex force
 petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 	$(MAKE) EPERLFLAGS="-d html=1" petscfem.tex
 	$(LATEX2HTML) $(ltx2h_opt) -init_file latex2html.init petscfem
+# balance tags due to a bug in latex2html. 
 	cd petscfem ; for f in *.html ; do  ../fixul.pl $$f ; done
 
 #w Make all documentation files for program options with 'odoc.pl'
