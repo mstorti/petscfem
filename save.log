@@ -3572,3 +3572,12 @@ tag: beta-3.37.45 on Wed, 22 Dec 2004 16:10:21 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.37.46 on Thu, 23 Dec 2004 01:49:14 -0300 by mstorti in spider
      > Runs all tests in g_c++. 
+----------
+tag: beta-3.39 on Thu, 23 Dec 2004 12:00:02 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Starts working on femref. 
+     > Fixed a bug in `dvector<>' (`ev() const' and 'ev()' functions)
+     > Fixed a bug in `dvector2.h'.  The `recompute_shape()' function crashes
+     >    when the vector is not `shaped' (shape.size()>
+     > Merged a fix to the Fractional Step solver (Beto).
+     > Added the bcconv for FS (Beto).

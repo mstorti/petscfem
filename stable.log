@@ -510,3 +510,11 @@ tag: beta-3.36 on Thu Nov 11 22:16:43 GMT+3 2004, by mstorti in spider
      > Rus big cubcav example (11.5Mtet). 
      > Added test for Fractional Step sqcav at Re=1000. 
      > Fixed error in `elmsupl.cpp' 
+----------
+tag: beta-3.39 on Thu Dec 23 12:00:02 GMT+3 2004, by mstorti in spider
+     > Starts working on femref. 
+     > Fixed a bug in `dvector<>' (`ev() const' and 'ev()' functions)
+     > Fixed a bug in `dvector2.h'.  The `recompute_shape()' function crashes
+     >    when the vector is not `shaped' (shape.size()>
+     > Merged a fix to the Fractional Step solver (Beto).
+     > Added the bcconv for FS (Beto).
