@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2001/03/05 04:13:59 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2001/03/16 21:21:41 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -94,8 +94,10 @@ plano.con plano.nod: plano.m
 
 #w Test for per-element properties 
 per_elem_prop:
+	$(MAKE) advdif.link
 	eperl -d per_elem_prop=1 sine.data.epl >sine.data
 	eperl -P -d perl_elem_prop=1 sine.epl > per_elem_prop.depl
+	octave -q sine.m
 #	$(MAKE) case=$@ run
 #	mv -fv save.state save.state.$(N_step_period)
 

@@ -73,10 +73,11 @@ __INCLUDE__ <:=$case:>.nod.tmp
 __END_NODES__
 
 #===========================================================
-elemset advdif_advecfm2 4
+#elemset advdif_advecfm2 4
+elemset newadvdif_advecfm2 4
 #if $per_elem_prop
 #props conduct[2]
-conduct .5 .6
+advective_jacobians .5 .6
 #endif
 #Datos del elemento
 geometry cartesian2d

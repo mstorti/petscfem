@@ -1,4 +1,5 @@
-<:# -*- mode: octave -*- 
+# -*- mode: octave -*- 
+<:
 $nx=10 unless $nx;
 $ny=10 unless $ny;
 $Lx=1 unless $Lx;
