@@ -11,13 +11,14 @@ $axisymm = 1;			# do an axisymmetric calculation with
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 
 $R0 = 0.047;			# [m] Radius of tube
-$L0 = 0.520;			# [m] Length of tube
+# $L0 = 0.520;			# [m] Length of tube
+$L0 = 2*$R0;			# [m] Length of tube
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 8;			# refinement in `z' (axial) direction
 $r_ratio = 4;			# refinement in radial direction
 
-$Dz_h = 0.02*$L0;		# [m] Axial span of hot outlet
+$Dz_h = 0.01;		# [m] Axial span of hot outlet
 if (0) {
     $A_in = 3.63e-4;		# [m2] inlet area
     $Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
@@ -55,7 +56,7 @@ $u_rad_in = $mass_flow_in/
 
 $rho_in = 1;
 $u_rad_in = 0;
-$u_circunf_in = 200;		# [m/s] tangential velocity
+$u_circunf_in = 20;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
 $Re = 1e4;			# [1] Reynolds based on diameter
@@ -118,7 +119,7 @@ tol_newton 1e-10
 atol 0
 rtol 0
 dtol 1e3
-nnwt 2
+nnwt 5
 # omega_newton 0.01
 
 print_internal_loop_conv
