@@ -6,7 +6,7 @@ $Lx = 4;
 $Nx = 100;
 $rota = 0;
 
-$Machin = 0.7;
+$Machin = 3;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;

@@ -1,4 +1,4 @@
-## $Id: proc22d.m,v 1.8 2005/02/07 16:04:34 mstorti Exp $
+## $Id: proc22d.m,v 1.9 2005/02/07 21:16:21 mstorti Exp $
 
 source("data.m.tmp");
 nsome = Nx+1;
@@ -37,7 +37,7 @@ scale = ones(size(scale));
 
 ndof = columns(U);
 Uref = mean(U);
-## Uref = zeros(1,ndof);
+Uref = zeros(1,ndof);
 maxbound = max(U);
 minbound = min(U);
 
@@ -55,12 +55,12 @@ Ue0 = U(1+nsome*(0:nt-1),:);
 rho = reshape(U(:,1),nsome,nt);
 
 axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);
-m=5;
+m=1;
 
 for k=1:m:nt
   title(sprintf("step %d",k));
   plot(x,Unorm((k-1)*(nsome)+(1:nsome),:))
   pause(0.1);
-  ## pause;
+##  pause;
 endfor
-axis
+axis;

@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.14 2005/02/07 16:04:34 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.15 2005/02/07 21:16:21 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -109,15 +109,46 @@ nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
 Uini(nnod+[1:2:7],:) = 0;	# lagrange multipliers to 0
 
-du=0.02;
-## dw = du*[0 0 0 1]; ## perturbation for all waves
-dw = du*[1 0 0 0]; ## entropy wave
-## dw = du*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
-## dw = du*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
-dw(2:3) = dw(2:3)*Orot;
+if 0
+  du=0.2;
+  dw = du*[0 0 0 1]; ## perturbation for all waves
+  ## dw = du*[1 0 0 0]; ## entropy wave
+  ## dw = du*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
+  ## dw = du*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
+  dw(2:3) = dw(2:3)*Orot;
+endif
+
+M1 = 6;
+p1 = 1;
+rho1 = 1;
+du = 0.2;
+
+c1 = sqrt(gamma*p1/rho1);
+u1 = M1*c1;
+
+gamma1 = gamma-1;
+C  = (M1+1/(gamma*M1))^2/(0.5*M1^2+1/gamma1);
+
+coef = [C/2-1,C/gamma1-2/gamma,-1/gamma^2];
+M2 = sqrt(roots(coef));
+
+[bid,indx] = min(abs(M2-M1));
+abs(M2(indx)-M1)<1e-10 || error("inconsistent result");
+
+M2(indx) = [];
+
+u2 = u1*sqrt((0.5+1/M1^2/gamma1)/(0.5+1/M2^2/gamma1));
+c2 = u2/M2;
+rho2 = u1*rho1/u2;
+p2 = c2^2*rho2/gamma;
+
+U1 = [rho1,u1+du,0,p1];
+U2 = [rho2,u2+du,0,p2];
 
 ## dfx = exp(-((x-Lx/2)/sigma).^2);
-dfx = (1-sign(x-Lx/2))/2;
+dfx = (1+sign(x-Lx/5))/2;
+Uini(1:nnod,:) = U1(ones(nnod,1),:);
+dw = U2-U1;
 Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
 
 asave("gfabso2dn.ini.tmp",Uini);

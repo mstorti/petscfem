@@ -20,10 +20,12 @@ print_some_file "gfabso2dn.some-nodes.tmp"
 save_file_some "gfabso2dn.some-rslt.tmp"
 nsome 1
 
-save_file_pattern "gfabso2dn.state_%d.tmp"
+#if 0
+save_file_pattern "STEPS/gfabso2dn.state_%d.tmp"
 nsaverot 20
 nrec 1
 nfile 100000000
+#endif
 
 #if 0
 solver "iisd"
@@ -50,8 +52,8 @@ nnwt 2
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.005
-shocap 0.
+Dt 0.004
+shocap 0.5
 weak_form 0
 temporal_stability_factor 0
 
@@ -91,6 +93,7 @@ elemset gasflow 4
 geometry cartesian2d
 dx 1
 npg 4
+lumped_mass
 #if 0
 props G_body[2]
 temp_fun[G_body_scale] ./gbody.efn gbody_scale

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.43 2005/02/07 16:04:33 mstorti Exp $ 
+# $Id: Makefile,v 1.44 2005/02/07 21:16:21 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -30,6 +30,7 @@ runa:
 	$(MAKE) CASE_NAME=gfabso run
 
 run_abso2dn: gbody.efn
+#	mkstepsdir.pl
 	$(MAKE) CASE_NAME=gfabso2dn run
 
 run_cyl: 
