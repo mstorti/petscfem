@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.2 2005/03/28 16:42:59 mstorti Exp $
+#$Id: condwall.epl,v 1.3 2005/03/28 18:19:24 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -7,13 +7,19 @@ global_options
 ndim 2
 
 nsave 5
-nstep 1
+nstep 100
 save_file condwall.state.tmp
+
+nsaverot 1
+save_file_pattern "STEPS/condwall.state_%d.tmp"
+nrec 1
+nfile 100000000
 
 solver "iisd"
 # solver "petsc"
 preco_type "jacobi"
 maxits 100
+iisd_subpart_auto 2000
 
 proc_weights weights.dat
 max_partgraph_vertices 2000
@@ -25,17 +31,30 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 tol 1e3
-nnwt 10
+nnwt 2
+lagrange_diagonal_factor 1e-6
 
 Krylov_dim 100
 print_internal_loop_conv 1
 
-Dt 1.0
-steady
+Dt 0.1
+# steady
 
 #if 0
 print_linear_system_and_stop
 solver_system 0
+#endif
+
+#if $dx
+# Para DX
+hook_list ns_dx_hook my_dx_hook
+dx_auto_combine
+dx_steps 1
+dx_read_state_from_file 1
+dx_do_make_command
+dx_cache_coords 0
+dx_cache_connectivities 0
+partitioning_method natural
 #endif
 
 __END_HASH__
@@ -43,9 +62,12 @@ __END_HASH__
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 # ndim nu ndof
 nodes  2  2  3
+#if !$dx
 __INCLUDE__ condwall.nod.tmp
+#else
+__INCLUDE__ condwall.nod-dx.tmp
+#endif
 _END_NODES__
-
 
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 elemset nsi_tet_les_fm2 4 
@@ -56,14 +78,16 @@ npg 4
 #
 # Datos fisicos
 #
-viscosity 10
+viscosity 0.001
 weak_form 0
 LES 0
+dx 1
 __END_HASH__
 __INCLUDE__ condwall.con.tmp
 __END_ELEMSET__
 
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 elemset qharmm 4 
 geometry cartesian2d
 npg 4
@@ -73,21 +97,28 @@ Cp 0.
 __END_HASH__
 __INCLUDE__ condwall.con.tmp
 __END_ELEMSET__
+#endif
 
-#if !$use_peri
+#if !$dx && !$use_peri
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 elemset cond_wall 4
-lagrange_diagonal_factor 1e-6
 resistance 0.
 __END_HASH__
-__INCLUDE__ condwall.condwall-con.tmp
+__INCLUDE__ condwall.condwall-slit-con.tmp
+__END_ELEMSET__
+
+##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+elemset cond_wall 4
+resistance 1.
+__END_HASH__
+__INCLUDE__ condwall.condwall-wall-con.tmp
 __END_ELEMSET__
 #endif
 
 end_elemsets
 
-#if 1
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if !$dx
 fixa
 __INCLUDE__ ./condwall.fixa-in.tmp
 __INCLUDE__ ./condwall.fixa-out.tmp

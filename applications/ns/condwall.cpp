@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.3 2005/03/28 16:42:53 mstorti Exp $
+// $Id: condwall.cpp,v 1.4 2005/03/28 18:19:22 mstorti Exp $
 
 #include "./condwall.h"
 
@@ -47,7 +47,21 @@ res(int k,FastMat2 &U,FastMat2 &r,
   U.rs();
   if (R>0) {
     // Closed
-    assert(0); // not implemented yet
+    U1.is(1,1,ndim);
+    r.is(1,1,ndim).set(U1).rs();
+    U1.rs();
+    U2.is(1,1,ndim);
+    r.rs().is(1,ndof+1,ndof+ndim).set(U2).rs();
+    U2.rs();
+
+    w.set(0.);
+    w.is(2,1,ndim).ir(1,1).is(3,1,ndim).eye().rs();
+    w.is(2,1,ndim).ir(1,2).is(3,ndof+1,ndof+ndim).eye();
+
+    jac.set(0.).is(1,1,ndim).ir(2,1)
+      .is(3,1,ndim).eye().rs();
+    jac.is(1,ndof+1,ndof+ndim).ir(2,2)
+      .is(3,1,ndim).eye().rs();
   } else {
     // Open
     r.set(0.).is(1,1,ndof).set(U1).rest(U2).rs();
