@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.4 2002/08/03 00:48:12 mstorti Exp $
+#$Id: gmv.pl,v 1.5 2002/08/11 17:25:23 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -52,13 +52,15 @@ for (my $j=0; $j<$dim; $j++) {
 	print GMV $nodos[$dim*$i+$j],"\n";
     }
 }
+
+# GMV requires always three dimensions
 for (my $j=$dim; $j<3; $j++) {
     for (my $i=0; $i<$nnod; $i++) {
 	print GMV "0.\n";
     }
 }
 
-undef $nodos;
+#undef $nodos;
 
 open CON,"$con";
 @cone=();
@@ -111,13 +113,19 @@ if ($rslt) {
 	<RSLT> || die "not enough records in file\n"; 
     }				# skip previous records
 
-    for (my $j=0; $j<$nnod; $j++) { 
+    for ($j=0; $j<$nnod; $j++) { 
 	my $line = <RSLT>; 
 	$line || die "end of archive detected\n";
 	my @val = split " ",$line;
 	splice @val,$#val-$nficdof+1,$nficcon;
 	$nfield = scalar @val;
 	if ($j==0) { $nrslt = $#val+1; }
+	if (defined $field_transf) { 
+	    my ($i1,$i2) = ($dim*$j,$dim*($j+1)-1);
+	    my @xnod = @nodos[$i1..$i2];
+	    @val = &$field_transf(\@val,\@xnod); 
+	}
+#	print "val: ",join(" ",@val),"\n";
 	push @rslt,@val;
     }
 
