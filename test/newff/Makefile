@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2001/03/26 04:11:53 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2001/03/28 00:49:18 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -35,6 +35,7 @@ newff.depl: data.m force
 $(OF): newff.m data.m
 	octave -q newff.m
 
+#w makes auxiliary files .gdbinit and link advdif
 auxi_dat: advdif .gdbinit
 
 .gdbinit:
@@ -46,7 +47,7 @@ advdif: advdif.link
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl > newff.out
+			-case newff.depl #> newff.out
 	octave -q verif.m #>$(CASE).vrf.tmp
 
 local_clean::

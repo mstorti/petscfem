@@ -49,7 +49,7 @@ endif
 kwave=[kx*2*pi/Lx ky*2*pi/Ly];
 phase=kwave(1)*xe(:,1)+kwave(2)*xe(:,2);
 phase=exp(i*phase);
-sour=real(phase);
+sour=s*real(phase);
 
 asave("newff.nod.tmp",xnod);
 #asave("newff.con.tmp",icone);

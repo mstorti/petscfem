@@ -23,7 +23,7 @@ save_file_pattern "outvector%d.sal"
 nsaverot 1000000
 
 nstep <:=$nstep:>
-nnwt 1
+nnwt <:=$nnwt:>
 tol_newton 0
 preco_type "lu"
 

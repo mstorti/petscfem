@@ -17,6 +17,7 @@ per_elem_prop=1;
 kx=1;
 ky=0;
 tol=0.01;
+nnwt=1;
 
 #if $ENV{'CASE'} eq 'dif_temp'
 Dt=0.05;
@@ -27,11 +28,25 @@ nx=32;
 u=1;
 adv_type="global_vector";
 tol=0.04;
-#elsif $ENV{'CASE'} eq 'reac_dif_temp'
+#elsif $ENV{'CASE'} eq 'reac_steady'
 nstep=1;
 Dt=1e5;
-nx=4;
-R=1;
+nx=1;
+Ly=1;
+D=1e-5;
+R=1.3;
+s=2.6;
+kx=0;
+reac_type="global_scalar";
+tol=0.04;
+#elsif $ENV{'CASE'} eq 'reac_dif_temp'
+nstep=10;
+Dt=0.05;
+nx=1;
+Ly=1;
+D=1.2;
+R=1.3;
+s=2.6;
 kx=0;
 reac_type="global_scalar";
 tol=0.04;

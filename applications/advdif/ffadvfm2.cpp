@@ -691,6 +691,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   
   if (options & COMP_SOURCE) {
     c_jac->comp_G_source(G_source,Ucpy);
+    G_source.scale(-1.);
     source_term->add_source_term(G_source);
   }
 }
