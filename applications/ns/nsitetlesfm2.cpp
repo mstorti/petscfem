@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.37 2001/10/06 23:39:59 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.38 2001/10/07 20:59:41 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -195,7 +195,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
     massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,xc,
-    wall_coords(ndim),dist_to_wall,tmp16,tmp17,tmp18,tmp19;
+    wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
 
   double tmp12;
   double tsf = temporal_stability_factor;
@@ -512,14 +512,14 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
 	rescont.axpy(tmp5,wpgdet);
 
-	// Parte temporal + convectiva (Galerkin)
+	// temporal part + convecive (Galerkin)
 	massm.prod(u_star,dshapex,-1,-1,1);
 	massm.axpy(SHAPE,rec_Dt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
-	// Parte difusiva
+	// diffusive part
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
 
@@ -540,8 +540,16 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      }
 	    }
 	  }
-	  tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-	  matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
+
+	  if (weak_form) {
+	    tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
+	    tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
+	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16)
+	      .add(tmp162).rs();
+	  } else {
+	    tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
+	  }
 
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
