@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.23 2005/02/21 21:27:32 mstorti Exp $
+// $Id: gasflow.h,v 1.23.2.1 2005/02/22 21:13:23 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -32,7 +32,7 @@ private:
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
   int shocap_scheme,sutherland_law;
-  double shocap_beta,shocap_factor,Tem_infty,Tem_ref,
+  double shocap_beta,Tem_infty,Tem_ref,
     delta_sc_aniso;
   FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;

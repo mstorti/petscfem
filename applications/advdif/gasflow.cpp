@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.32 2005/02/21 21:29:54 mstorti Exp $
+//$Id: gasflow.cpp,v 1.32.2.1 2005/02/22 21:13:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -72,8 +72,6 @@ void gasflow_ff::start_chunk(int &ret_options) {
   GF_GETOPTDEF_ND(int,shocap_scheme,0);
   // beta parameter for shock capturing, see Tezduyar & Senga WCCM VI (2004)
   GF_GETOPTDEF_ND(double,shocap_beta,1.0);
-  // factor used to add some standard shocap to Tezduyar & Senga shocap
-  GF_GETOPTDEF_ND(double,shocap_factor,0.0);
 
   // Sutherland law key
   GF_GETOPTDEF_ND(int,sutherland_law,0);
@@ -341,7 +339,7 @@ compute_tau(int ijob,double &delta_sc) {
     delta_sc_aniso = 0.5*h_shoc*velmax*fz;
     
     double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
-    delta_sc = shocap_factor*0.5*h_supg*velmax*fz2;
+    delta_sc = 0.5*h_supg*velmax*fz2;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -534,7 +532,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Last row and first and last column
   tmp02 = cond_eff/Cv;
-  tmp01 = (0.5*square(velmod)-int_ene)*tmp02-visco*square(velmod);
+  tmp01 = (0.5*square(velmod)-int_ene)*tmp02-visco_l*square(velmod);
   for (int j=1; j<=ndim; j++) {
     vel_j2 = square(double(vel.get(j)));
     //    vel.rs();
@@ -556,7 +554,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
     Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
 
-    tmp04 = -visco/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
+    tmp04 = -visco_l/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
 
     tmp04 = tmp00*double(vel.get(ip[j+1]));
@@ -566,7 +564,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
     tmp04 = -tmp00_lam*double(vel.get(ip[j]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
-    tmp04 = visco*double(vel.get(ip[j+1]));
+    tmp04 = visco_l*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
   }
 
@@ -579,7 +577,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
     Djac.setel(-tmp00,ip[j],ip[j]+1,ip[j+1],ip[j+1]+1);
     Djac.setel(visco_eff,ip[j],ip[j+1]+1,ip[j+1],ip[j]+1);
 
-    tmp04 = -visco/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
+    tmp04 = -visco_l/3*double(vel.get(ip[j]))*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],1);
 
     tmp04 = tmp00*double(vel.get(ip[j+1]));
@@ -589,7 +587,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
     tmp04 = -tmp00_lam*double(vel.get(ip[j]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j+1]+1);
-    tmp04 = visco*double(vel.get(ip[j+1]));
+    tmp04 = visco_l*double(vel.get(ip[j+1]));
     Djac.setel(tmp04,ip[j],ndof,ip[j+1],ip[j]+1);
   }
 
