@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.61 2002/07/12 14:32:33 mstorti Exp $
+//$Id: advdife.cpp,v 1.62 2002/07/13 12:01:25 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -489,11 +489,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
 	matlocf.add(N_N_C);
 
-	// If you want to define a formulation for the SUPG
-	// perturbation function that can't be cast in the standard
-	// form (i.e. it is not of the form #tau * A * grad_N# then
-	// you should define #tau# as scalar (may be 0) and then
-	// compute your own expression for #P_supg# in #comp_P_supg#
+	// This computes either the standard `P_supg' perturbation
+	// function or other written by the user in the
+	// flux-function. 
 	adv_diff_ff->comp_P_supg(P_supg);
 	  
 	for (int jel=1; jel<=nel; jel++) {

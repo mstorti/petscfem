@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.55 2002/07/12 14:32:33 mstorti Exp $
+//$Id: advective.h,v 1.56 2002/07/13 12:01:14 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -313,6 +313,7 @@ public:
       @param w (input) a scalar coefficient
   */ 
   virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+
   /** Computes the product #(N_P_C)_(mu,q,nu) 
       = w (P_supg)_(mu,lambda) C_(lambda,nu) N_q #
       @param N_P_C (output) size  #ndof# x #nel# x #ndof# 
@@ -322,10 +323,17 @@ public:
   */ 
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
+
   /** Computes the SUPG perturbation function from the gradient of the
-      shape function.
-      @param P_supg (output) the SUPG perturbation function
-  */ 
+      shape function.  If you want to define a formulation for the
+      SUPG perturbation function that can't be cast in the standard
+      form (i.e. it is not of the form #tau * A * grad_N# then you
+      should define #tau# as scalar (may be 0) and then compute your
+      own expression for #P_supg#. 
+      @param P_supg (output) the SUPG perturbation function for all
+      nodes at this Gauss point, has dimensions #nel# x #ndof# x
+      #ndof# 
+*/
   virtual void comp_P_supg(FastMat2 &P_supg);
 
   /** Returns the dimension of the element (May be different from the
