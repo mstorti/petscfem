@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.49 2005/02/09 01:52:13 mstorti Exp $
+#$Id: Makefile,v 1.50 2005/02/22 23:53:32 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -160,7 +160,7 @@ local_clean:: local_dist_clean
 		version.tex *.pdf petscfem.tex					\
 		contents.pl images.pl index.pl labels.pl sections.pl WARNINGS	\
 		README.html options2.texi options3.texi options.info		\
-		make-info.log
+		make-info.log pod2htm?.tmp
 
 SWDIRS := 
 local_sw:: readme 
