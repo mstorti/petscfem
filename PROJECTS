@@ -3,6 +3,7 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* Use Bugzilla (http://www.bugzilla.org ) for bug tracking.
 * Implement Interface Strip Preconditioner block LU with several
 	     layers. 
 * A web/text interface to allow changing options
