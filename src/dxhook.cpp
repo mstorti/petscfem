@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.48 2003/09/07 16:49:26 mstorti Exp $
+//$Id: dxhook.cpp,v 1.49 2003/09/07 17:16:39 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -449,12 +449,12 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     tokenize(buf,tokens2);
     assert(tokens2.size()==1);
     if (tokens2[0]=="send_nodes") {
-      PetscPrintf(PETSC_COMM_WORLD,"Sending nodes...\n");
+      printf("Sending nodes...\n");
       for (int node=0; node<nnod; node++)
 	for (int j=0; j<ndim; j++) sbuff.put((float)*(xnod+node*nu+j));
       sbuff.flush();
     } else if (tokens2[0]=="do_not_send_nodes") {
-       PetscPrintf(PETSC_COMM_WORLD,"Does not send nodes.\n");
+       printf("Does not send nodes.\n");
     } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
 			  tokens2[0].c_str());
     CHECK_COOKIE(nodes);

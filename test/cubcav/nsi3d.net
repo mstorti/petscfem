@@ -1,12 +1,8 @@
 //
-// time: Sat Sep  6 14:24:12 2003
+// time: Sun Sep  7 14:13:40 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
-//
-//
-// macro reference (direct): MyWriteImage2 /home/mstorti/PETSC/petscfem/test/cubcav/mwtimage2.net
-include "mwtimage2.net"
 //
 // MODULE main
 //
@@ -15,16 +11,16 @@ include "mwtimage2.net"
 // comment: The control panels allow you to choose which variable to visualize as a deformed surface, which variable to visualize as colors on the surface, and which variable to visualize as contour lines (for scalar data) or glyphs (for vector or connection-dependent data). You can also set the contour line values.
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
-// page assignment: ProcScalar	order=5, windowed=0, showing=0
+// page assignment: ProcScalar	order=5, windowed=0, showing=1
 // page assignment: ProcVelocity	order=6, windowed=0, showing=0
 // page assignment: RotBalls	order=9, windowed=0, showing=0
 // page assignment: ScalarGrad	order=4, windowed=0, showing=0
 // page assignment: Selectscalar	order=3, windowed=0, showing=0
 // page assignment: Streamlines	order=8, windowed=0, showing=0
 // page assignment: Vectors	order=7, windowed=0, showing=0
-// page assignment: image	order=10, windowed=0, showing=1
+// page assignment: image	order=10, windowed=0, showing=0
 // page assignment: import	order=2, windowed=0, showing=0
-// workspace: width = 455, height = 724
+// workspace: width = 1008, height = 662
 // layout: snap = 0, width = 20, height = 20, align = NN
 //
 macro main(
@@ -62,12 +58,12 @@ main_Toggle_4_out_1[cache: 2] =
     // 
     // node Selector[1]: x = 20, y = 80, inputs = 7, label = Selector
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Selector_1"
-    // input[2]: defaulting = 0, visible = 0, type = 32, value = "log(abs(vort))" 
-    // input[3]: defaulting = 0, visible = 0, type = 29, value = 4 
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "abs(u)" 
+    // input[3]: defaulting = 0, visible = 0, type = 29, value = 1 
     // input[4]: defaulting = 1, visible = 1, type = 16777248, value = { "none" "abs(u)" "pressure" "vorticity" "log(abs(vort))" }
     // input[5]: defaulting = 1, visible = 0, type = 16777245, value = { 0 1 2 3 4 }
-    // output[1]: visible = 1, type = 29, value = 4 
-    // output[2]: visible = 1, type = 32, value = "log(abs(vort))" 
+    // output[1]: visible = 1, type = 29, value = 1 
+    // output[2]: visible = 1, type = 32, value = "abs(u)" 
     // page group: Selectscalar
     //
     // 
@@ -76,10 +72,10 @@ main_Toggle_4_out_1[cache: 2] =
     // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 3100
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 3100 1 0 3 1 }
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 3100 1 0 180 1 }
     // page group: import
-    // vcr[1]: min = 0, max = 3100, beg = 0, end = 3, cur = 1, inc = 1, loop = off, step = on, pal = off
-    // window: position = (0.5430,0.0560), size = 0.3496x0.1055
+    // vcr[1]: min = 0, max = 3100, beg = 0, end = 180, cur = 6, inc = 1, loop = off, step = on, pal = off
+    // window: position = (0.6074,0.0872), size = 0.3496x0.1055
     //
     main_Sequencer_1_in_3 = @frame;
 main_Sequencer_1_out_1[cache: 2] = 
@@ -114,7 +110,7 @@ main_ExtProgImport_1_out_3 =
     main_ExtProgImport_1_in_7
     ) [instance: 1, cache: 1];
     // 
-    // node Select[7]: x = 120, y = 260, inputs = 3, label = Select
+    // node Select[7]: x = 116, y = 230, inputs = 3, label = Select
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "fluid_u"
     // page group: import
     //
@@ -125,7 +121,7 @@ main_Select_7_out_1 =
     main_Select_7_in_3
     ) [instance: 7, cache: 1];
     // 
-    // node Transmitter[27]: x = 140, y = 380, inputs = 1, label = u
+    // node Transmitter[27]: x = 133, y = 314, inputs = 1, label = u
     // page group: import
     //
 u = main_Select_7_out_1;
@@ -147,7 +143,7 @@ main_Compute_29_out_1 =
     main_Receiver_38_out_1
     ) [instance: 29, cache: 1];
     // 
-    // node Select[9]: x = 180, y = 260, inputs = 3, label = Select
+    // node Select[9]: x = 186, y = 225, inputs = 3, label = Select
     // input[2]: defaulting = 0, visible = 1, type = 32, value = "fluid_p"
     // page group: import
     //
@@ -438,12 +434,12 @@ main_Receiver_44_out_1[cache: 0] = scalar_field;
     // node Scalar[3]: x = 460, y = 80, inputs = 11, label = Scalar
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Scalar_3"
     // input[2]: defaulting = 1, visible = 1, type = 67108863, value = NULL
-    // input[3]: defaulting = 0, visible = 0, type = 5, value = 1.5
+    // input[3]: defaulting = 0, visible = 0, type = 5, value = 0.01
     // input[5]: defaulting = 1, visible = 0, type = 5, value = -1000000.0
     // input[6]: defaulting = 1, visible = 0, type = 5, value = 1000000.0
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 1.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 5
-    // output[1]: visible = 1, type = 5, value = 1.5
+    // output[1]: visible = 1, type = 5, value = 0.01
     // page group: ProcScalar
     //
     // 
@@ -492,8 +488,8 @@ main_Switch_13_out_1 =
     ) [instance: 13, cache: 1];
     // 
     // node MapToPlane[3]: x = 440, y = 260, inputs = 3, label = MapToPlane
-    // input[2]: defaulting = 0, visible = 1, type = 8, value = [0  0 0.01]
-    // input[3]: defaulting = 0, visible = 1, type = 8, value = [0,0,1]
+    // input[2]: defaulting = 0, visible = 1, type = 8, value = [0  0.5 0]
+    // input[3]: defaulting = 0, visible = 1, type = 8, value = [0,1,0]
     // page group: ProcScalar
     //
 main_MapToPlane_3_out_1 = 
@@ -503,7 +499,7 @@ main_MapToPlane_3_out_1 =
     main_MapToPlane_3_in_3
     ) [instance: 3, cache: 1];
     // 
-    // node RubberSheet[1]: x = 700, y = 340, inputs = 4, label = RubberSheet
+    // node RubberSheet[1]: x = 615, y = 317, inputs = 4, label = RubberSheet
     // input[2]: defaulting = 0, visible = 1, type = 5, value = 0.01
     // page group: ProcScalar
     //
@@ -533,15 +529,15 @@ main_Collect_4_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_1"
     // input[7]: defaulting = 1, visible = 1, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 1, type = 5, value = 1.5
+    // input[8]: defaulting = 1, visible = 1, type = 5, value = 0.0099999998
     // input[9]: defaulting = 1, visible = 1, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 1.5 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 0.0099999998 }
     // input[13]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[14]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[15]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[16]: defaulting = 0, visible = 0, type = 16777224, value = NULL
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.5
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.0099999998
     // input[19]: visible = 1
     // page group: ProcScalar
     // window: position = (0.0771,0.2070), size = 0.6348x0.5859
@@ -1076,21 +1072,21 @@ main_Compute_37_out_1 =
     main_Receiver_51_out_1
     ) [instance: 37, cache: 1];
     // 
-    // node Receiver[52]: x = 80, y = 500, inputs = 1, label = seq_step
+    // node Receiver[52]: x = 69, y = 438, inputs = 1, label = seq_step
     // page group: image
     //
 main_Receiver_52_out_1[cache: 0] = seq_step;
     // 
-    // node Image[6]: x = 305, y = 413, inputs = 49, label = Image
+    // node Image[6]: x = 206, y = 427, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_6"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.533502 0.554582 0.478783]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.533502 0.554582 5.44783]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.77811
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.540158 0.5 0.525099]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.540158 5.18344 0.525099]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.63141
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.6975
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 20.2879
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 0 -1]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 19.76
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -1101,7 +1097,7 @@ main_Receiver_52_out_1[cache: 0] = seq_step;
     // input[20]: defaulting = 0, visible = 1, type = 64, value = NULL
     // input[21]: defaulting = 1, visible = 0, type = 3, value = 1
     // input[25]: defaulting = 0, visible = 0, type = 32, value = "cubcav"
-    // input[26]: defaulting = 0, visible = 0, type = 32, value = "yuv"
+    // input[26]: defaulting = 0, visible = 0, type = 32, value = "tiff"
     // input[27]: defaulting = 0, visible = 0, type = 1, value = 640
     // input[28]: defaulting = 0, visible = 0, type = 5, value = 0.75
     // input[29]: defaulting = 1, visible = 0, type = 3, value = 0
@@ -1166,31 +1162,7 @@ main_Image_6_out_3 =
     main_Image_6_in_49
     ) [instance: 6, cache: 1];
     // 
-    // node Render[1]: x = 159, y = 415, inputs = 3, label = Render
-    // input[3]: defaulting = 1, visible = 0, type = 32, value = NULL
-    // page group: image
-    //
-main_Render_1_out_1 = 
-    Render(
-    main_Collect_2_out_1,
-    main_Image_6_out_2,
-    main_Render_1_in_3
-    ) [instance: 1, cache: 1];
-    // 
-    // node MyWriteImage2[1]: x = 176, y = 500, inputs = 4, label = MyWriteImage2
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "cubcav"
-    // input[3]: defaulting = 0, visible = 1, type = 32, value = "yuv"
-    // page group: image
-    //
-main_MyWriteImage2_1_out_1 = 
-    MyWriteImage2(
-    main_Render_1_out_1,
-    main_MyWriteImage2_1_in_2,
-    main_MyWriteImage2_1_in_3,
-    main_MyWriteImage2_1_in_4
-    ) [instance: 1, cache: 1];
-    // 
-    // node Format[2]: x = 140, y = 586, inputs = 3, label = Format
+    // node Format[2]: x = 129, y = 526, inputs = 3, label = Format
     // input[1]: defaulting = 0, visible = 1, type = 32, value = "make yuv_compress dx_step=%d"
     // page group: image
     //
@@ -1198,7 +1170,7 @@ main_Format_2_out_1 =
     Format(
     main_Format_2_in_1,
     main_Receiver_52_out_1,
-    main_MyWriteImage2_1_out_1
+    main_Image_6_out_1
     ) [instance: 2, cache: 1];
     // 
     // node Replace[1]: x = 40, y = 640, inputs = 4, label = Replace
@@ -1277,7 +1249,7 @@ main_Receiver_32_out_1[cache: 0] = scalar_grad;
     //
 ball = main_Glyph_2_out_1;
     // 
-    // node Receiver[42]: x = 40, y = 240, inputs = 1, label = ball
+    // node Receiver[42]: x = 44, y = 247, inputs = 1, label = ball
     // page group: image
     //
 main_Receiver_42_out_1[cache: 0] = ball;
@@ -1360,7 +1332,7 @@ streamlines = main_Switch_6_out_1;
     //
 main_Receiver_46_out_1[cache: 0] = streamlines;
     // 
-    // node System[1]: x = 152, y = 662, inputs = 1, label = System
+    // node System[1]: x = 185, y = 597, inputs = 1, label = System
     // page group: image
     //
     System(
@@ -1381,16 +1353,6 @@ pf_step = main_ExtProgImport_1_out_3;
     // page group: Selectscalar
     //
 abs_u = main_Compute_29_out_1;
-    // 
-    // node WriteImage[2]: x = 359, y = 597, inputs = 4, label = WriteImage
-    // page group: image
-    //
-    WriteImage(
-    main_WriteImage_2_in_1,
-    main_WriteImage_2_in_2,
-    main_WriteImage_2_in_3,
-    main_WriteImage_2_in_4
-    ) [instance: 2, cache: 1];
 // network: end of macro body
 CacheScene(main_Image_6_in_1, main_Image_6_out_1, main_Image_6_out_2);
 }
@@ -1404,26 +1366,26 @@ main_Toggle_4_in_5 =  2  ;
 main_Toggle_4_in_6 = NULL;
 main_Toggle_4_out_1 =  2  ;
 main_Selector_1_in_1 = "Selector_1";
-main_Selector_1_in_2 = "log(abs(vort))" ;
-main_Selector_1_in_3 = 4 ;
+main_Selector_1_in_2 = "abs(u)" ;
+main_Selector_1_in_3 = 1 ;
 main_Selector_1_in_4 = NULL;
 main_Selector_1_in_5 = NULL;
 main_Selector_1_in_6 = NULL;
 main_Selector_1_in_7 = NULL;
-main_Selector_1_out_1 = 4 ;
-main_Selector_1_out_2 = "log(abs(vort))" ;
+main_Selector_1_out_1 = 1 ;
+main_Selector_1_out_2 = "abs(u)" ;
 main_Sequencer_1_in_1 = "Sequencer_1";
 main_Sequencer_1_in_2 = NULL;
 main_Sequencer_1_in_3 = NULL;
 main_Sequencer_1_in_4 = 0;
 main_Sequencer_1_in_5 = 3100;
 main_Sequencer_1_in_6 = NULL;
-main_Sequencer_1_in_7 = { 0 3100 1 0 3 1 };
+main_Sequencer_1_in_7 = { 0 3100 1 0 180 1 };
 main_Sequencer_1_out_1 = NULL;
 
 @startframe = 0;
 @nextframe  = @startframe;
-@endframe   = 3;
+@endframe   = 180;
 @deltaframe = 1;
 main_ExtProgImport_1_in_1 = 1;
 main_ExtProgImport_1_in_2 = "@localhost";
@@ -1530,7 +1492,7 @@ main_Toggle_6_out_1 =  0  ;
 main_Receiver_44_out_1 = NULL;
 main_Scalar_3_in_1 = "Scalar_3";
 main_Scalar_3_in_2 = NULL;
-main_Scalar_3_in_3 = 1.5;
+main_Scalar_3_in_3 = 0.01;
 main_Scalar_3_in_4 = NULL;
 main_Scalar_3_in_5 = NULL;
 main_Scalar_3_in_6 = NULL;
@@ -1539,7 +1501,7 @@ main_Scalar_3_in_8 = NULL;
 main_Scalar_3_in_9 = NULL;
 main_Scalar_3_in_10 = NULL;
 main_Scalar_3_in_11 = NULL;
-main_Scalar_3_out_1 = 1.5;
+main_Scalar_3_out_1 = 0.01;
 main_Scalar_6_in_1 = "Scalar_6";
 main_Scalar_6_in_2 = NULL;
 main_Scalar_6_in_3 = 0.0;
@@ -1556,8 +1518,8 @@ main_Compute_19_in_1 = "max(min($0,$1),$2)";
 main_Compute_19_out_1 = NULL;
 main_ShowConnections_1_out_1 = NULL;
 main_Switch_13_out_1 = NULL;
-main_MapToPlane_3_in_2 = [0  0 0.01];
-main_MapToPlane_3_in_3 = [0,0,1];
+main_MapToPlane_3_in_2 = [0  0.5 0];
+main_MapToPlane_3_in_3 = [0,1,0];
 main_MapToPlane_3_out_1 = NULL;
 main_RubberSheet_1_in_2 = 0.01;
 main_RubberSheet_1_in_3 = NULL;
@@ -1576,13 +1538,13 @@ main_Colormap_1_in_6 = NULL;
 main_Colormap_1_in_9 = NULL;
 main_Colormap_1_in_10 = NULL;
 main_Colormap_1_in_11 = NULL;
-main_Colormap_1_in_12 = { 0.0 1.5 };
+main_Colormap_1_in_12 = { 0.0 0.0099999998 };
 main_Colormap_1_in_13 = NULL;
 main_Colormap_1_in_14 = NULL;
 main_Colormap_1_in_15 = NULL;
 main_Colormap_1_in_16 = NULL;
 main_Colormap_1_in_17 = 0.0;
-main_Colormap_1_in_18 = 1.5;
+main_Colormap_1_in_18 = 0.0099999998;
 main_Colormap_1_in_19 = NULL;
 main_Colormap_1_out_1 = NULL;
 main_Color_2_in_3 = 0.7;
@@ -2088,12 +2050,12 @@ macro Image(
 main_Image_6_in_1 = "Image_6";
 main_Image_6_in_3 = "X16,,";
 main_Image_6_in_4 = 1;
-main_Image_6_in_5 = [0.533502 0.554582 0.478783];
-main_Image_6_in_6 = [0.533502 0.554582 5.44783];
-main_Image_6_in_7 = 1.77811;
+main_Image_6_in_5 = [0.540158 0.5 0.525099];
+main_Image_6_in_6 = [0.540158 5.18344 0.525099];
+main_Image_6_in_7 = 1.63141;
 main_Image_6_in_8 = 1000;
 main_Image_6_in_9 = 0.6975;
-main_Image_6_in_10 = [0 1 0];
+main_Image_6_in_10 = [0 0 -1];
 main_Image_6_in_11 = NULL;
 main_Image_6_in_12 = 0;
 main_Image_6_in_13 = NULL;
@@ -2108,7 +2070,7 @@ main_Image_6_in_21 = NULL;
 main_Image_6_in_22 = NULL;
 main_Image_6_in_23 = NULL;
 main_Image_6_in_25 = "cubcav";
-main_Image_6_in_26 = "yuv";
+main_Image_6_in_26 = "tiff";
 main_Image_6_in_27 = 640;
 main_Image_6_in_28 = 0.75;
 main_Image_6_in_29 = NULL;
@@ -2132,13 +2094,7 @@ main_Image_6_in_46 = NULL;
 main_Image_6_in_47 = NULL;
 main_Image_6_in_48 = NULL;
 main_Image_6_in_49 = NULL;
-main_Image_6_out_2 = NULL;
-main_Render_1_in_3 = NULL;
-main_Render_1_out_1 = NULL;
-main_MyWriteImage2_1_in_2 = "cubcav";
-main_MyWriteImage2_1_in_3 = "yuv";
-main_MyWriteImage2_1_in_4 = NULL;
-main_MyWriteImage2_1_out_1 = NULL;
+main_Image_6_out_1 = NULL;
 main_Format_2_in_1 = "make yuv_compress dx_step=%d";
 main_Format_2_out_1 = NULL;
 main_Replace_1_in_3 = NULL;
@@ -2182,10 +2138,6 @@ main_Tube_1_in_4 = NULL;
 main_Tube_1_out_1 = NULL;
 main_Switch_6_out_1 = NULL;
 main_Transmitter_33_out_1 = NULL;
-main_WriteImage_2_in_1 = NULL;
-main_WriteImage_2_in_2 = NULL;
-main_WriteImage_2_in_3 = NULL;
-main_WriteImage_2_in_4 = NULL;
 Executive("product version 4 2 0");
 $sync
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxelmst.cpp,v 1.5 2003/06/08 13:10:43 mstorti Exp $
+//$Id: dxelmst.cpp,v 1.6 2003/09/07 17:16:39 mstorti Exp $
 
 #ifdef USE_DX
 #include <vector>
@@ -38,23 +38,31 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   if (!MY_RANK) {
     SocketBuffer<int> sbuff(sock);
     cookie = rand();
-    Sprintf(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
+    Sprintf(sock,"elemset %s %s %d %d %d use_cache\n",name(),type.c_str(),
 	    subnel,nelem*nsubelem,cookie);
-    for (int j=0; j<nelem; j++) {
-      int *row = icone+j*nel;
-      for (int jj=0; jj<nsubelem; jj++) {
-	for (int n=0; n<subnel; n++) {
-	  int k = node_indices[jj*subnel+n];
-	  // Convert to 0 based (DX) node numbering
-	  sbuff.put(*(row+k)-1);
+
+    Sgetline(&buf,&Nbuf,sock);
+    tokenize(buf,tokens);
+
+    if (tokens[0]=="send_elemset") {
+      printf("Sending elemset...\n");
+      for (int j=0; j<nelem; j++) {
+	int *row = icone+j*nel;
+	for (int jj=0; jj<nsubelem; jj++) {
+	  for (int n=0; n<subnel; n++) {
+	    int k = node_indices[jj*subnel+n];
+	    // Convert to 0 based (DX) node numbering
+	    sbuff.put(*(row+k)-1);
+	  }
 	}
-      }
-    }
-    sbuff.flush();
+      } 
+      sbuff.flush();
+    } else if (tokens[0]=="do_not_send_elemset") {
+       printf("Does not send elemset.\n");
+    } else PETSCFEM_ERROR("Error in DXHOOK protocol. DX sent \"%s\"\n",
+			  tokens[0].c_str());
+
     CHECK_COOKIE(elemset);
-    cookie = rand();
-//      Sprintf(sock,"field %s_field nodes %s state %d\n",name(),name(),cookie);
-//      CHECK_COOKIE(field);
   }
 }
 

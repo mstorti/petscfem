@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.20 2003/09/07 16:55:31 mstorti Exp $
+// $Id: epimport.cpp,v 1.21 2003/09/07 17:16:34 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -327,6 +327,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   char spc[] = " \t\n";
   int cache_nodes=0;
   Object ck;
+  int elemset_num=0;
+
   // This are objects that are put in the cache
   // and then we create a reference to them in order
   // to manipulate them temporarily. However we must
@@ -454,10 +456,10 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  ierr = build_dx_array(clnt,ndim,nnod,array);
 	  if(ierr!=OK) return ierr;
 	  DXMessage("Ends requesting nodes.. OK");
-	  Error err = DXSetCacheEntry((Object)array,
-				      CACHE_PERMANENT,NODES_KEY,0,0);
+	  ierr = DXSetCacheEntry((Object)array,
+				 CACHE_PERMANENT,NODES_KEY,0,0);
 	}
-	if (err!=OK) {
+	if (ierr!=OK) {
 	  DXMessage("Couldn't create cache entry");
 	  goto error;
 	} else DXMessage("Putting cached_nodes in cache %p",array);
@@ -510,7 +512,36 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[3],nel)) goto error;
       if (string2int(tokens[4],nelem)) goto error;
       if (string2int(tokens[5],cookie)) goto error;
-      ierr = build_dx_array_int(clnt,nel,nelem,array);
+
+      // After this block we end up with a referenced array
+      // put in `tempo_list'
+      if (tokens.size()==7 && tokens[6]=="use_cache") {
+
+#define ELEM_KEY "ExtProgImport_elemset"
+	array = (Array)DXGetCacheEntry(ELEM_KEY,0,0);
+	if (array) {
+	  DXMessage("Found cached elems for elemset %d, %p",
+		    elemset_num,array);
+	  Sprintf(clnt,"do_not_send_elemset\n");
+	} else {
+	  DXMessage("Requesting elemset.. ");
+	  Sprintf(clnt,"send_elemset\n");
+	  ierr = build_dx_array_int(clnt,nel,nelem,array);
+	  if(ierr!=OK) return ierr;
+	  DXMessage("Ends requesting elemset.. OK");
+	  ierr = DXSetCacheEntry((Object)array,
+				 CACHE_PERMANENT,ELEM_KEY,0,0);
+	}
+	if (ierr!=OK) {
+	  DXMessage("Couldn't create cache entry");
+	  goto error;
+	} else DXMessage("Putting elemset in cache %p",array);
+	tempo_list.push_back((Object)array);
+      } else {
+	  ierr = build_dx_array_int(clnt,nel,nelem,array);
+	  if(ierr!=OK) return ierr;
+      }
+
       if(ierr!=OK) return ierr;
       array = (Array)
  	DXSetStringAttribute((Object)array,
@@ -524,6 +555,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       Sprintf(clnt,"elemset_OK %d\n",cookie);
       // elemset->stat();
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+      elemset_num++;
+
     } else if (tokens[0]=="field") {
       // Get components 
       Object positions,connections,data;

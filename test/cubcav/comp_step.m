@@ -1,9 +1,14 @@
 source("./data.m.tmp");
 ## steps_dir = "./STEPS-2003-SEP-01";
-steps_dir = "/cdrom/STEPS-2003-SEP-01";
+if 0
+  steps_dir = "/cdrom/STEPS-2003-SEP-01";
+  pf_start_step = 101;
+else
+  steps_dir = "./STEPS";
+  pf_start_step = 0;
+endif
 refine = 5;
 case_name = "cubcav";
-pf_start_step = 101;
 
 dx_step = sscanf(getenv("dx_step"),"%d");
 dx_step = dx_step 
