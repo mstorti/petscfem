@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.19 2002/10/12 15:49:37 mstorti Exp $
+// $Id: stream.h,v 1.20 2002/10/21 15:43:01 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -96,7 +96,6 @@ public:
   void geometry(double u,double &area,
 		double &wl_width,double &perimeter) {
     assert(u>=0.);
-    assert(u>=0.);
     area = u*width;
     wl_width = width;
     perimeter = width+2*u;
@@ -134,7 +133,6 @@ public:
 		double &wl_width,double &perimeter) {
     assert(u>=0.);
     assert(u<radius);
-    assert(u>=0.);
     double cos_phi = (radius-u)/radius;
     double phi = acos(cos_phi);
     double sin_phi = sin(phi);
