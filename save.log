@@ -2161,3 +2161,7 @@ tag: beta-3.14.pl35 on Mon, 20 Jan 2003 15:51:26 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.14.pl36 on Mon, 20 Jan 2003 21:03:21 -0300 by mstorti in spider
      > Obtains a steady solution for the vortex tube with one outlet. 
+----------
+tag: beta-3.14.pl37 on Mon, 20 Jan 2003 22:40:40 -0300 by mstorti in spider
+     > Runs vtube example in incompressible with cold and hot outlets. 
+     > Very good separation of hot and cold streams are obtained. 
