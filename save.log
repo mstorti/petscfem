@@ -1851,3 +1851,7 @@ tag: beta-3.09.pl1 on Tue,  3 Dec 2002 20:35:14 -0300 by mstorti in spider
 ----------
 tag: beta-3.09.pl2 on Wed,  4 Dec 2002 00:14:25 -0300 by mstorti in spider
      > Debugging `mesh_move_eig_anal'
+----------
+tag: beta-3.09.pl3 on Wed,  4 Dec 2002 21:25:14 -0300 by mstorti in spider
+     > Runs large example (10^3 mesh with 50% defo in 40 steps) 
+     > with new analytical formulation.
