@@ -298,3 +298,7 @@ tag: beta-1.49 on Tue Mar 27 20:49:43 ART 2001, by mstorti in minerva.arcride.ed
 tag: beta-1.50 on Wed Mar 28 12:34:47 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added tests for the new flux functions
+----------
+tag: beta-1.51 on Wed Mar 28 21:42:10 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added new tests for the new flux functions
