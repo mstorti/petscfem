@@ -108,7 +108,7 @@ surface. We modify this as follows
 %
 \begin{equation} \label{eq:fsmod}  
 \Cnst{eq}\,\dtot\eta t 
-   + \Cnst{lf} \bar{\eta} + \Cnst{damp} \, \Delta \eta = w
+   + \Cnst{lf} \bar{\eta} - \Cnst{damp} \, \Delta \eta = w
 \end{equation}
 %
 Where $\bar\eta$ is the average value of eta on the free surface, and:
@@ -119,7 +119,7 @@ is a heat equation. A null value (which is the default) means no
 filtering. A high value means high filtering. (Warning: A high value
 may result in unstability).  $\Cnst{damp}$ has dimensions of $L^2/T$
 (like a diffusivity). One possibility is to scale with mesh parameters
-like $h^2/\Delta t$, other is to scale with $h^1.5 \,
-g^0.5$. Currently, we are using $\Cnst{damp} = \Cnst{damp}' h^1.5 *
-g^0.5$ with $\Cnst{damp}'\approx 2$.
+like $h^2/\Delta t$, other is to scale with $h^{1.5} \,
+g^{0.5}$. Currently, we are using $\Cnst{damp} = \Cnst{damp}' h^{1.5}
+g^{0.5}$ with $\Cnst{damp}'\approx 2$.
 %end_section
