@@ -2834,3 +2834,6 @@ tag: beta-3.19.pl47 on Sun, 24 Aug 2003 23:52:30 -0300 by mstorti in spider
 tag: beta-3.19.pl48 on Thu, 28 Aug 2003 19:43:30 -0300 by mstorti in spider
      > Written `upload_vector' in block matrix mode, i.e. using MatSetValues
      > instead of MatSetValue. 
+----------
+tag: beta-3.19.pl49 on Fri, 29 Aug 2003 12:29:16 -0300 by mstorti in minerva.ceride.gov.ar
+     > Almost implemented the PETSc Fast loading function.
