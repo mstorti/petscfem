@@ -46,7 +46,7 @@ elemset qharmm 4
 #Datos del elemento
 geometry cartesian2d
 npg 4
-conductivity 1. 2.
+conductivity 2. 2.
 rho_Cp 1.
 __END_HASH__
 1 3 4 2 
@@ -76,7 +76,7 @@ elemset lin_gen_load 4
 geometry cartesian1d
 npg 2
 double_layer
-h_film 10000.
+h_film   2.
 __END_HASH__
 17 18 19 20 
 __END_ELEMSET__
@@ -85,14 +85,14 @@ end_elemsets
 
 #===========================================================
 fixa
-1 1  0.
-2 1  0.
-35 1  1.
-36 1  1.
-1 2  1.
-2 2  1.
-35 2  0.
-36 2  0.
+1 1  1.
+2 1  1.
+35 1  0.
+36 1  0.
+1 2  0.
+2 2  0.
+35 2  1.
+36 2  1.
 __END_FIXA__
 
 # Local Variables: $
