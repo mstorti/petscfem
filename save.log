@@ -1284,3 +1284,6 @@ tag: beta-3.00.pl9 on Mon, 22 Jul 2002 12:45:28 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.00.pl10 on Mon, 22 Jul 2002 17:22:44 -0300 by mstorti in minerva.arcride.edu.ar
      > Dynamic vector 'da' in lgraph_lkg was not cleared in clear(). 
+----------
+tag: beta-3.00.pl11 on Mon, 22 Jul 2002 19:07:59 -0300 by mstorti in spider
+     > Will start to write the `scatter' routine for `link_graph' 
