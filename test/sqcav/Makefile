@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.29 2002/09/07 20:46:40 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2002/09/07 20:50:42 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -100,6 +100,6 @@ data: force
 
 $(CASE).depl: force
 
-local_clean::
+llocal_clean::
 	-chmod +w *.depl
 	-rm -f *.depl *.sal tmp_file*.tmp &> /dev/null
