@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.340 2003/09/22 22:46:13 mstorti Exp $
+$Id: notes.txt,v 1.341 2003/09/24 21:23:58 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.340 2003/09/22 22:46:13 mstorti Exp $ 
+! # $Id: notes.txt,v 1.341 2003/09/24 21:23:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.340 2003/09/22 22:46:13 mstorti Exp $ 
+! # $Id: notes.txt,v 1.341 2003/09/24 21:23:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.340 2003/09/22 22:46:13 mstorti Exp $ 
+  # $Id: notes.txt,v 1.341 2003/09/24 21:23:58 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7316,6 +7316,39 @@ Despues deberia hacer un corte a y=0.1, x=0.9 e isosuperficies.
 %
 %
 20:01:38:  Aparentemente corre todos los tests en g_c++ y O_c++. 
+
+%===Wed, 24 Sep 2003 08:52:02 -0300 mstorti@node1.beowulf.gtm
+%
+Probando los nuevos nodos. Se me cuelga cuando quiero correr la
+cavidad con N=80 (2.5Mtet). Creo que da un error en `dvector.h', esto
+tal vez se deba a alguna limitacion en el tamanho de los enteros en
+algun punto.  Cuando corro con menos va mejor. Corro con 76 (2.2Mtet)
+y me da un SEGV en el proc4 (node18). Despues vuelvo a correr con 76 y
+como que no quiere arrancar (esto es medio difuso). Vuelvo a lanzarlo
+(sacando el node18) y arranca bien. 
+%
+12:18:10: Sacando el node18 da error en el 20:
+> -------------------------------------------------
+> --------------------------------------------------------------------------
+> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
+>        The PETSc Team
+>     petsc-maint@mcs.anl.gov
+>  http://www.mcs.anl.gov/petsc/
+> 
+> See docs/changes/index.html for recent updates.
+> See docs/troubleshooting.html for hints about trouble shooting.
+> See docs/index.html for manual pages.
+> -----------------------------------------------------------------------
+> /u/mstorti/PETSC/petscfem-stable/applications/ns/ns_O.bin on a linux named node20.beowulf.gtm by mstorti Wed Sep 24 12:14:23 2003
+> Libraries linked from /u/mstorti/PETSC/petsc-2.1.6/lib/libO_c++/linux
+> -----------------------------------------------------------------------
+> [5] Aborting program!
+> [5]PETSC ERROR: User provided function() line 0 in Unknown directoryUnknown file
+> [5]PETSC ERROR:   Signal received!
+> [5]PETSC ERROR:   Caught signal number 11 SEGV:
+%
+12:20:06: Habia trabajos sin matar (con killfem o killpar). Asi que
+pruebo  matar bien todo y relanzar. 
 
 # Current line ===========  %
 # Local Variables: $

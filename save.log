@@ -2996,5 +2996,5 @@ tag: beta-3.23.pl4 on Tue, 16 Sep 2003 18:17:14 -0300 by mstorti in node1.beowul
      > Adding locker support to adaptor. 
 ----------
 tag: beta-3.23.pl5 on Wed, 17 Sep 2003 14:02:02 -0300 by mstorti in node1.beowulf.gtm
-     > Example m,odifying elast.cpp and using locker and simulating 
+     > Example modifying elast.cpp and using locker and simulating 
      > swapping on inwt==0

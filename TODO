@@ -4,6 +4,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Let PETSc-FEM have knowledge of the name of the nodes 
 * verify `nsid.cpp' (ns_id_fac*ns_id_cn1) and `lumped_vc'
 * Print a banner saying if a version is stable/unstable. 
 * revert changes for locker in adaptor, etc...
