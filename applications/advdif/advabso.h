@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.6 2005/01/27 15:34:59 mstorti Exp $
+// $Id: advabso.h,v 1.7 2005/01/28 18:16:44 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -29,14 +29,16 @@ private:
   // Pointer to adv-diff flux fun
   NewAdvDifFF *adv_diff_ff;
   FastMat2 dummy,flux,fluxd,A_grad_U,
-    grad_U,Ucpy,normal,A_jac,S,invS,c,
+    grad_U,Uold,normal,A_jac,S,invS,c,
     Pi_m,Pi_p,Uref,tmp1,Ulambda,Uo,
     dU,Cp,invCp;
+  int use_old_state_as_ref;
   // Per node normal
   Property normal_prop;
 public:
   AdvectiveAbso(NewAdvDifFF *ff) 
-    : adv_diff_ff(ff) {} 
+    : adv_diff_ff(ff),
+      use_old_state_as_ref(0) {} 
   ~AdvectiveAbso() { delete adv_diff_ff; } 
   int nres() { return ndof; }
   void lag_mul_dof(int jr,int &node,int &dof) {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.7 2005/01/28 12:06:43 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.8 2005/01/28 18:16:48 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -39,7 +39,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
   double lambda,rr;
-  arg_data *stateo,*staten, *retval, *retvalmat;
 
   if (comp_mat_res) 
     get_data(arg_data_v,stateo,staten,retval,retvalmat);
@@ -111,7 +110,7 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   nu=nodedata->nu;
 
   int k_chunk;
-  for (ElementIterator element = elemlist.begin();
+  for (element = elemlist.begin();
        element!=elemlist.end(); element++) try {
 
     element.position(elem,k_chunk);
@@ -190,14 +189,19 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Load local node coordinates in local vector
 void LagrangeMult::
-get_xloc(ElementIterator element,
-	 FastMat2 &xloc,FastMat2 &Hloc) {
+get_xloc(FastMat2 &xloc,FastMat2 &Hloc) {
   element.node_data(nodedata_m,xloc.storage_begin(),
 		    Hloc.storage_begin());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LagrangeMult::initialize() {
+void LagrangeMult::
+initialize() {
   lm_initialize();
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LagrangeMult::
+get_old_state(FastMat2 &Uold) {
+  Uold.set(element.vector_values(*stateo));
+}

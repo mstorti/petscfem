@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.7 2005/01/27 05:48:36 mstorti Exp $
+// $Id: lagmul.h,v 1.8 2005/01/28 18:16:48 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -18,9 +18,12 @@ class LagrangeMult : public NewElemset {
   int nu;
   /// The element actually visited
   int elem;
+  ElementIterator element;
   /// Number of nodes per element
   int nel; 
   const Nodedata *nodedata_m;
+  arg_data *stateo,*staten, 
+    *retval, *retvalmat;
  public:
   NewAssembleFunction new_assemble;
   /** Returns data (to be derived)
@@ -61,8 +64,11 @@ class LagrangeMult : public NewElemset {
 		   FastMat2 & w,FastMat2 & jac)=0;
   /** Returns the coordinate of the nodes of the element. 
       @return a matrix with the coordinates of the nodes (size #nel*ndim#) */ 
-  void get_xloc(ElementIterator element,
-		FastMat2 &xloc,FastMat2 &H);
+  void get_xloc(FastMat2 &xloc,FastMat2 &H);
+  /** Returns the old state at nodes. 
+      @param Uold (output) the state of the nodes at the
+      previous step. (size #nel*ndof#). */ 
+  void get_old_state(FastMat2 &Uold);
   /// Called after the loop over all elements
   virtual void close() {}
   /// Make it pure virtual. 

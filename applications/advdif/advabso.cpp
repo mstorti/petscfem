@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advabso.cpp,v 1.7 2005/01/28 16:09:15 mstorti Exp $
+// $Id: advabso.cpp,v 1.8 2005/01/28 18:16:44 mstorti Exp $
 #include "./advabso.h"
 
 #define gasflow_abso gasflow_abso2
@@ -29,6 +29,10 @@ init() {
   assert(nel==3);
   int ierr;
   NSGETOPTDEF_ND(int,ndim,0);
+  //o Flags whether to use the old state ad the
+  // boundary as reference for the linear absorbing
+  // boundary condition.
+  NSGETOPTDEF_ND(int,use_old_state_as_ref,0);
   flux.resize(2,ndof,ndim);
   fluxd.resize(2,ndof,ndim);
   A_grad_U.resize(1,ndof);
@@ -42,6 +46,7 @@ init() {
   Pi_m.resize(2,ndof,ndof);
   Pi_p.resize(2,ndof,ndof);
   Cp.resize(2,ndof,ndof);
+  Uold.resize(2,nel,ndof);
   invCp.resize(2,ndof,ndof);
   get_prop(normal_prop,"normal");
   assert(normal_prop.length == ndim);
@@ -62,7 +67,14 @@ res(int k,FastMat2 &U,FastMat2 &r,
       lambda_max_pg=0.0;
   U.ir(1,1); Uo.set(U);
   U.ir(1,2); Ulambda.set(U);
-  U.ir(1,3); Uref.set(U);
+  if (use_old_state_as_ref) {
+    get_old_state(Uold);
+    Uold.ir(1,1);
+    Uref.set(Uold);
+    Uold.rs();
+  } else {
+    U.ir(1,3); Uref.set(U);
+  }
   U.rs();
   adv_diff_ff->set_state(Uref,grad_U);
   adv_diff_ff
@@ -101,8 +113,10 @@ res(int k,FastMat2 &U,FastMat2 &r,
   // to the incoming wave space: w = Cp * Pi_m
   tmp1.prod(Cp,Pi_m,1,-1,-1,2);
   w.set(0.).ir(1,1).set(tmp1).rs();
-  jac.ir(2,1).set(Pi_m)
-    .ir(2,3).set(Pi_m).scale(-1.0).rs();
+  jac.ir(2,1).set(Pi_m);
+  if (!use_old_state_as_ref) 
+    jac.ir(2,3).set(Pi_m).scale(-1.0);
+  jac.rs();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
