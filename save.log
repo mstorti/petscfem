@@ -3627,3 +3627,6 @@ tag: beta-3.38.14 on Sat, 08 Jan 2005 12:26:26 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.15 on Sat, 08 Jan 2005 21:10:15 -0300 by mstorti in spider
      > Runs plate with refined mesh and temperature imposed condition. 
+----------
+tag: beta-3.38.16 on Sun, 09 Jan 2005 18:32:48 -0300 by mstorti in spider
+     > Starts eliminating internal faces. 
