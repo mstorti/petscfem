@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.31 2005/02/21 21:27:32 mstorti Exp $
+//$Id: gasflow.cpp,v 1.32 2005/02/21 21:29:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -478,7 +478,8 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   double sutherland_factor = 1.0;
   if (sutherland_law !=0) {
-	  sutherland_factor = pow(Tem/Tem_infty,1.5)*((Tem_infty+Tem_ref)/(Tem_ref+Tem));
+    sutherland_factor = pow(Tem/Tem_infty,1.5)
+      *((Tem_infty+Tem_ref)/(Tem_ref+Tem));
   }
   double visco_l = sutherland_factor * visco;
   double visco_eff = (visco_l + visco_t);
@@ -489,7 +490,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Stress tensor
   sigma.set(0.);
-//  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
+  //  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
   sigma.eye(divu).scale(-2./3.).add(strain_rate).scale(2.).rs();
 
   // Temperature gradient
