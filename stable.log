@@ -306,3 +306,12 @@ tag: beta-3.16 on Sat Feb  8 01:18:53 GMT+3 2003, by mstorti in spider
      > Implementing  cut-regulator. 
      > Working on `ExpProgImport' and `dxhook' (DX module)
      > Coded auto-naming of elemsets. 
+----------
+tag: beta-3.17 on Wed Feb 12 09:06:21 GMT+3 2003, by mstorti in spider
+     > Coded better protocol for DX.
+     > Checked that runs in parallel. 
+     > Runs dxhook with sequencer
+     > Runs `dx_hook' for steps=0 (asynchronously) and steps>0 (synchronously). 
+     > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
+     > Written doc for DX
+     > Automatically detects quads, cubes, triangles, tetras and prisms. 

@@ -2346,3 +2346,13 @@ tag: beta-3.16.pl10 on Tue, 11 Feb 2003 10:25:14 -0300 by mstorti in spider
 ----------
 tag: beta-3.16.pl11 on Tue, 11 Feb 2003 21:36:43 -0300 by mstorti in spider
      > Automatically detects quads, cubes, triangles, tetras and prisms. 
+----------
+tag: beta-3.17 on Wed, 12 Feb 2003 09:06:21 -0300, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Coded better protocol for DX.
+     > Checked that runs in parallel. 
+     > Runs dxhook with sequencer
+     > Runs `dx_hook' for steps=0 (asynchronously) and steps>0 (synchronously). 
+     > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
+     > Written doc for DX
+     > Automatically detects quads, cubes, triangles, tetras and prisms. 
