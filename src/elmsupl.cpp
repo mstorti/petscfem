@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.19 2003/09/02 02:27:34 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.20 2003/09/02 09:56:40 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -37,7 +37,7 @@ extern int MY_RANK,SIZE;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 0
+#if 1
 // New Fast PETSc matrix loading version (uses MatSetValues)
 
 extern int any_A_LL_other_stop;
