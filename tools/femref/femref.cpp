@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.8 2004/11/22 12:50:21 mstorti Exp $
+// $Id: femref.cpp,v 1.9 2004/11/22 19:35:22 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -7,6 +7,42 @@
 using namespace std;
 
 #include "./femref.h"
+#include "./gtemplates.h"
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int OrientedTetraTemplateClass
+::perm_v[] = {1,2,0,3,
+	      2,0,1,3,
+	      0,3,1,2,
+	      1,0,3,2,
+	      3,1,0,2,
+	      1,3,2,0,
+	      3,2,1,0,
+	      2,1,3,0,
+	      0,2,3,1,
+	      2,3,0,1,
+	      3,0,2,1,GeomObject::NULL_NODE};
+
+int 
+OrientedTetraTemplateClass 
+::faces[] = {0,1,3,
+	     1,2,3,
+	     2,0,3,
+	     0,2,1,GeomObject::NULL_NODE};
+
+OrientedTetraTemplateClass
+OrientedTetraTemplate;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int OrientedTriTemplateClass
+::perm_v[] = {1,2,0,
+	      2,0,1,
+	      0,2,1,
+	      2,1,0,
+	      1,0,2,GeomObject::NULL_NODE};
+
+OrientedTriTemplateClass
+OrientedTriTemplate;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GeomObject::GeomObject(Type t,const int *nodes_a) 
@@ -22,21 +58,22 @@ else if(t==CLASS##T) go_template = &CLASS##Template
 
   if (t==NULL_TYPE) assert(0);
   // SET_TEMPL(OrientedEdge);
-  SET_TEMPL(Edge);
-  // SET_TEMPL(OrientedTri);
-  SET_TEMPL(Tri);
+  // SET_TEMPL(Edge);
+  SET_TEMPL(OrientedTri);
+  // SET_TEMPL(Tri);
   SET_TEMPL(OrientedTetra);
   else assert(0);
 
   int sz = size();
-  nodes.mono(sz);
-  cs = 0;
-  for (int j=0; j<sz; j++) {
-    int node = nodes_a[j];
-    cs += node;
-    nodes.ref(j) = node;
+  nodes_m.mono(sz);
+  if (nodes_a) {
+    cs = 0;
+    for (int j=0; j<sz; j++) {
+      int node = nodes_a[j];
+      cs += node;
+      nodes_m.ref(j) = node;
+    }
   }
-
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -49,7 +86,7 @@ void GeomObject::make_canonical() {
   dvector<int> aux;
   aux.mono(sz);
   int *cmin = &aux.ref(0);
-  int *nodesp = &nodes.ref(0);
+  int *nodesp = &nodes_m.ref(0);
 #define DBG
 #ifdef DBG
   printf("entered: ");
@@ -101,8 +138,8 @@ bool GeomObject::equal(GeomObject &go) {
   if (csum() != go.csum()) return false;
   make_canonical();
   go.make_canonical();
-  int *np = nodes.buff();
-  int *gonp = go.nodes.buff();
+  int *np = nodes_m.buff();
+  int *gonp = go.nodes_m.buff();
   for (int j=0; j<go_template->size_m; j++)
     if (*np++ != *gonp++) return false;
   return true;
@@ -134,11 +171,12 @@ void GeomObject::print(const char*s) {
   }
   if(s) printf("%s: ",s);
   printf("<%s> ",go_template->label);
-  for (int j=0; j<4; j++) 
-    printf("%d ",nodes.ref(j));
+  for (int j=0; j<go_template->size_m; j++) 
+    printf("%d ",nodes_m.ref(j));
   printf("\n");
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define TEMPLATE(TYPE,size,dim,nperms)				\
 GeomObject::Template						\
@@ -149,27 +187,33 @@ static int EdgeTemplatePerm_v[] = {1,0,GeomObject::NULL_NODE};
 TEMPLATE(Edge,2,1,1);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-static int TriTemplatePerm_v[] = {1,2,0,
-				  2,0,1,
-				  0,2,1,
-				  2,1,0,
-				  1,0,2,GeomObject::NULL_NODE};
+static int 
+TriTemplatePerm_v[] = {1,2,0,
+		       2,0,1,
+		       0,2,1,
+		       2,1,0,
+		       1,0,2,GeomObject::NULL_NODE};
 TEMPLATE(Tri,3,2,5);
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-static int OrientedTetraTemplatePerm_v[] = {1,2,0,3,
-					    2,0,1,3,
-					    0,3,1,2,
-					    1,0,3,2,
-					    3,1,0,2,
-					    1,3,2,0,
-					    3,2,1,0,
-					    2,1,3,0,
-					    0,2,3,1,
-					    2,3,0,1,
-					    3,0,2,1,GeomObject::NULL_NODE};
-TEMPLATE(OrientedTetra,4,3,11);
+void UniformMesh::set(iterator it,GeomObject &go) {
+  // assert(it.t == tmpl->type);
+  assert(0 <= it.obj && it.obj<nelem);
+  int sz = tmpl->size(it.t);
+  assert(it.subobj < sz);
+  go.init(it.t);
+  const int *local_nodes = tmpl->nodes(it.t,it.subobj);
+  // Nodes of the subobject
+  dvector<int> so_nodes;
+  int so_sz = go.size();
+  so_nodes.mono(so_sz);
+  for (int j=0; j<so_sz; j++)
+    so_nodes.e(j) = connec.e(it.obj,local_nodes[j]);
+  go.init(it.t,so_nodes.buff());
+}
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void rand_perm(vector<int> &perm,int N,int M=-1) {
   if (M<0) M=N;
   vector<int> aux;
@@ -186,6 +230,7 @@ void rand_perm(vector<int> &perm,int N,int M=-1) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main() { 
+#if 0
   int v1[] = {0,1};
   GeomObject edge(GeomObject::EdgeT,v1);
   int v2[] = {23,35,2};
@@ -203,5 +248,16 @@ int main() {
     tetra2.print("tetra2");
 
     printf("tetra1==tetra2? %s\n",(tetra1.equal(tetra2) ? "yes" : "no"));
+  }
+#endif
+  UniformMesh mesh(OrientedTetraTemplate,3);
+  mesh.read("tetra.nod","tetra.con");
+  GeomObject go;
+  for (int j=0; j<5; j++) {
+    for (int k=0; k<4; k++) {
+      Mesh::iterator it(j,GeomObject::OrientedTriT,k);
+      mesh.set(it,go);
+      go.print();
+    }
   }
 }
