@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.6 2003/02/24 00:14:23 mstorti Exp $
+//$Id: adaptor.cpp,v 1.7 2003/09/16 21:17:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,6 +13,9 @@
 extern TextHashTable *GLOBAL_OPTIONS;
    
 #define MAXPROP 100
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+adaptor::adaptor() : elem_init_flag(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // modif nsi_tet
@@ -113,6 +116,15 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   dshapexi.rs();
 
   matloc_prof.set(1.);
+
+  if (comp_mat_res && !elem_init_flag) {
+    elem_init_flag = 1;
+    for (elem=el_start; elem<=el_last; elem++) {
+      if (!compute_this_elem(elem,this,myrank,iter_mode)) continue;
+      element_init();
+    }
+  }
+  if (error_code) return error_code;
 
   // Users may use `init()' in order to perform calculations
   // *outside* the element loop

@@ -4,6 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Pass fix to `ns.cpp' (define MPI_RANK *before* `print_copyright') to
+      stable 3.22
 * Make user can call PETSc-FEM assert call abort() or exit(). 
 * Generate a summary of `odoc' options in the doc with `odoc.pl'. 
 * Check caching DX objects for multiple elemsets

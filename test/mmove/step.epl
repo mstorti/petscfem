@@ -3,7 +3,7 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.9;
+$disp = 0.1;
 $slope = 2;
 # $shape = 'quad';
 #
@@ -16,7 +16,7 @@ ndim 2
 nsave 5
 nsaverot 0
 steady
-<:$nstep=40;:>
+<:$nstep=2;:>
 nstep <:=$nstep+4:>
 Dt <:=1./$nstep:>
 
@@ -52,12 +52,15 @@ nodes  2 2 2
 __INCLUDE__ step.nod.tmp
 _END_NODES__
 
-elemset mesh_move 3
+elemset elasticity 3
 name malla
+Young_modulus 1.
+Poisson_ratio 0.3
 # report_consumed_time
 geometry triangle
 npg 1
 distor_exp 1.
+local_store
 __END_HASH__
 __INCLUDE__ step.con.tmp
 __END_ELEMSET__

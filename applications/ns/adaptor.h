@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.10 2003/02/24 00:14:23 mstorti Exp $
+//$Id: adaptor.h,v 1.11 2003/09/16 21:17:29 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -10,7 +10,11 @@
     that computes the residual vector and jacobian of the element. 
 */
 class adaptor : public ns_volume_element { 
+private:
+  /// Flags whether the elements have been initialized or not
+  int elem_init_flag;
 public: 
+  adaptor();
   /// This should not be defined by the user...
   ASSEMBLE_FUNCTION;
   /// the reciprocal of the time step. (May be null for steady problems)
@@ -58,6 +62,9 @@ public:
 				 const FastMat2 &state_old,
 				 const FastMat2 &state_new,
 				 FastMat2 &res,FastMat2 &mat)=0;
+  /** This is called only once for each element after calling 
+      initialize().  */ 
+  virtual void element_init() { } 
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 

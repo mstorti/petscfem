@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2003/09/16 21:17:29 mstorti Exp $ 
 
 .PHONY: force all run tests data
+
+default: step
 
 tests: step step3d
 
@@ -24,15 +26,18 @@ LOC_PROG := ns
 CASE_NAME := $(NAME)
 PROG := $(NS)
 
+#w Run step 3d problem 
 step3d:
 	@$(MAKE) -C ../../tools hexasplit.bin >/dev/null
 	$(MAKE) NAME=step3d OCT_SCRIPT=mkstep3d.m test_case > step3d.out.tmp
 	$(OCTAVE) proc2.m > step3d.verif.tmp
 
+#w Run step 2d problem 
 step:
-	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case > step.out.tmp
-	$(OCTAVE) proc.m > step.verif.tmp
+	$(MAKE) NAME=step OCT_SCRIPT=mkstep.m test_case # > step.out.tmp
+#	$(OCTAVE) proc.m  > step.verif.tmp
 
+#w Run mesh move problem 
 mmove:
 	$(MAKE) NAME=mmove test_case
 
@@ -40,7 +45,7 @@ data: $(NAME).depl force
 $(NAME).depl: force
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
-NP := 1 
+NP := 2
 test_case: test_case_data
 	if [ ! "$(OCT_SCRIPT)" = "" ] ; then $(OCTAVE) $(OCT_SCRIPT) ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
