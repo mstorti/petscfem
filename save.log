@@ -4096,3 +4096,6 @@ tag: beta-3.43.20 on Sat, 26 Feb 2005 09:39:27 -0300 by mstorti in spider
 ----------
 tag: beta-3.43.21 on Sat, 26 Feb 2005 10:55:14 -0300 by mstorti in spider
      > Runs tuyere shock example with pout=0.01*pin
+----------
+tag: beta-3.43.22 on Sat, 26 Feb 2005 11:41:11 -0300 by mstorti in spider
+     > Added variable are to tuyere problem. 
