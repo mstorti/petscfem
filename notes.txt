@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.179 2002/09/16 16:54:05 mstorti Exp $
+r$Id: notes.txt,v 1.180 2002/09/16 19:34:22 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.179 2002/09/16 16:54:05 mstorti Exp $ 
+! # $Id: notes.txt,v 1.180 2002/09/16 19:34:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.179 2002/09/16 16:54:05 mstorti Exp $ 
+! # $Id: notes.txt,v 1.180 2002/09/16 19:34:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.179 2002/09/16 16:54:05 mstorti Exp $ 
+  # $Id: notes.txt,v 1.180 2002/09/16 19:34:22 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5274,7 +5274,7 @@ Resolviendo Poisson con CG en la malla de 2.2Melem tarda
 > PROJECTION-  matrix computation.    =  41.31 (sigma    0.01)           
 > PROJECTION-  residual computation.  =  43.91 (sigma    0.03)           
 > PROJECTION-  solving linear system. =   1.04 (sigma    0.00)           
-> Total                               =total  207.45 (number of steps: 4)
+> Total                               = 207.45 (number of steps: 4)
 %
 Lo cual es bastante menos que los 400 y pico que teniamos antes. Ahora
 voy a probar a bajar el rtol ya que como estamos usando CG no deberia
@@ -5284,6 +5284,48 @@ haber problema con la memoria.
 poner la menor tolerancia solamente en el paso de poisson ya que en el
 predictor y proyeccion ahi es gmres y entonces si que con sume
 memoria. 
+
+%===Mon Sep 16 11:00:59 ART 2002 mstorti@node1.beowulf.gtm
+%
+Con 2.37 Melem
+> PREDICTOR-  residual computation.   =  84.67 (sigma    3.08)
+> PREDICTOR-  solving linear system.  =   7.32 (sigma    0.06)
+> POISSON-  residual computation.     =  13.12 (sigma    0.00)
+> POISSON-  solving linear system.    =  54.98 (sigma   66.53)
+> PROJECTION-  matrix computation.    =  44.50 (sigma    0.05)
+> PROJECTION-  residual computation.  =  47.46 (sigma    0.07)
+> PROJECTION-  solving linear system. =   1.32 (sigma    0.00)
+> Total                               = 253.38 (number of steps: 6)
+%
+11:01:36: La reoslucion de Poisson tarda unos 50 secs (130 iters.), siempre pero
+curiosamente en el paso 7 hace 250 iters y tarda 100 secs. 
+%
+11:32:51: Con la malla de 80^3*5 (2.56 Melem) revienta por memoria
+en el segundo paso de tiempo. Pruebo a desbalancearlo todavia un poco
+mas, es decir poner los que tienen 256MB a w=1.1. 
+%
+11:54:53: No hay caso, no llego a los 2.56 Mb. 
+%
+12:10:39: Ahora voy a probar a cuanto llego con el monolitico (TET). 
+%
+13:16:19: Con 60^3 anda al pelo, con 66^3 revienta por memoria. Voy a
+probar con 66^3 pero rebalanceando un poco mejor los pesos. 
+%
+13:34:48: Poniendo 
+%
+node2         4.2
+node4         4.2
+node8         4.2
+node6         4.2
+node9         4.2
+node3         1.7
+node7         1.7
+node10        1.7 
+node12        1.7 
+%
+puedo correr 66^3*5  = 1.44 Melem.
+ %
+13:50:26: No, finalmente revienta en el paso 3. Pruebo con 64^3. 
 
 %===Mon, 16 Sep 2002 12:58:29 -0300 mstorti@minerva
 %

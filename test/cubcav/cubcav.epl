@@ -11,7 +11,7 @@ $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
 $use_tetra = 1;
 $use_prismatic = 0;
-$fracstep = 1;
+$fracstep = 0;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 30;			# Number of elements per dimension
+$N = 64;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -31,7 +31,7 @@ $graph_chunk_size =
     ($graph_chunk_size < 20000 ? 20000 : 
     $graph_chunk_size > 200000 ? 200000 : $graph_chunk_size);
 $hratio = 5;			# refinement (h_center/h_wall)
-$Re = 200;			# Reynolds number
+$Re = 500;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = ($case eq 'laplace' ? 1 : $fracstep? 0.1 : 1);# time step
 $solver = "petsc";
@@ -101,7 +101,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 3
+nstep 10
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
