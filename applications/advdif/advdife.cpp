@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.93 2005/02/04 19:57:54 mstorti Exp $
+//$Id: advdife.cpp,v 1.94 2005/02/08 18:51:23 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -378,7 +378,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
-    tmp24,tmp_sc,tmp_sc_v;
+    tmp24,tmp_sc,tmp_sc_v,tmp_shc_grad_U;
   FMatrix tmp_ALE_01,tmp_ALE_02,
     tmp_ALE_03,tmp_ALE_04,tmp_ALE_05,
     tmp_ALE_06,tmp_ALE_07;
@@ -784,19 +784,26 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	delta_sc_v.set(0.0);
 	if (shocap>0. ) {
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
+	  adv_diff_ff->get_Cp(Cp_bis);	  
+	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    delta_sc_v.addel(delta_sc,jdf);
 	  }
 	  
 	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*ALPHA*wpgdet);
-	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
+	  //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
+	  tmp_sc_v.prod(dshapex,tmp_shc_grad_U,-1,1,-1,2);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    double delta = (double)delta_sc_v.get(jdf);
-	    matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
-            tmp_sc_v.ir(2,jdf).scale(-shocap*delta*ALPHA*wpgdet).rs();
+	    for (int kdf=1; kdf<=ndof; kdf++) {	 
+	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
+	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
+	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
+	    }
+	    tmp_sc_v.ir(2,jdf).scale(-shocap*delta*ALPHA*wpgdet).rs();
 	    delta_sc_v.rs();
 	  }
-
+	  
 	  veccontr.add(tmp_sc_v);
 	}
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.25 2005/02/07 16:05:12 mstorti Exp $
+//$Id: gasflow.cpp,v 1.26 2005/02/08 18:51:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -789,6 +789,12 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 
     C.is(1,3,ndof).set(uref).rs();
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void gasflow_ff::
+get_C(FastMat2 &C) {
+  C.set(0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
