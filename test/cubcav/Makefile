@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.33 2002/10/01 02:47:03 mstorti Exp $ 
+# $Id: Makefile,v 1.34 2002/10/02 20:30:02 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -25,13 +25,14 @@ PROG := $(NS)
 
 CASE := $(CASE_NAME)
 ################################################################
-ifeq (1,0)
-NP = $(shell procsel -n ./proctable.geronimo)
+ifeq (1,1)
+NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
+# NP = $(shell procsel -n ./proctable.geronimo)
 NL = -nolocal
 MCH = -machinefile ./machi.dat
 endif
 
-ifeq (1,1)
+ifeq (1,0)
 NP = 1
 MCH =
 endif
