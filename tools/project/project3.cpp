@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.5 2005/03/02 11:18:49 mstorti Exp $
+// $Id: project3.cpp,v 1.6 2005/03/02 12:10:04 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -301,33 +301,12 @@ void FemInterp::interp(const dvector<double> &xnod2,
   printf("Averg. nbr of tries %f\n",tryav/nnod2);
 }
 
-int main() {
-#define DATA_DIR "./"
-#if 0
-#define XNOD1 DATA_DIR "static_p_blade.nod"
-#define STATE1 DATA_DIR "static_p_blade.p"
-#define ICONE1 DATA_DIR "blade.con"
-#define XNOD2 DATA_DIR "patran.nod"
-  // #define XNOD2 "./patran.nod"
-#elif 0
-#define XNOD1 "mesh1.nod"
-#define ICONE1 "mesh1.con"
-#define STATE1 XNOD1
-#define XNOD2 "mesh2.nod"
-#else
-#define XNOD1 "square1.nod.tmp"
-#define ICONE1 "square1.con.tmp"
-#define STATE1 "square1.dat.tmp"
-#define XNOD2 "square2.nod.tmp"
-#endif
-
-  int ndim = 2;
-  int ndimel = 2;
-  int nel = 3;
-  int ndof = 2;
-
-  dvector<double> xnod1,xnod2,u1,u2;
-  dvector<int> ico1;
+void read_mesh(dvector<double> &xnod1,const char *XNOD1,
+	       dvector<double> &xnod2,const char *XNOD2,
+	       dvector<double> &u1,const char *STATE1,
+	       dvector<double> &u2,
+	       dvector<int> &ico1,const char *ICONE1,
+	       int ndim,int ndimel,int nel,int ndof) {
 
   // Reads mesh1
   xnod1.cat(XNOD1).defrag();
@@ -350,11 +329,47 @@ int main() {
   xnod2.reshape(2,nnod2,ndim);
 
   printf("mesh2: %d nodes read\n",nnod2);
+}
+
+int main() {
+
+#define XNOD1 "square1.nod.tmp"
+#define ICONE1 "square1.con.tmp"
+#define STATE1 "square1.dat.tmp"
+#define XNOD2 "square2.nod.tmp"
+
+  int ndim = 2;
+  int ndimel = 2;
+  int nel = 3;
+  int ndof = 2;
+
+  dvector<double> xnod1, xnod2, u1, u2;
+  dvector<int> ico1;
+
+  read_mesh(xnod1,"square1.nod.tmp",
+	    xnod2,"square2.nod.tmp",
+	    u1,"square1.dat.tmp",
+	    u2,ico1,"square1.con.tmp",
+	    ndim,ndimel,nel,ndof);
+  
+  dvector<double> xnod1b, xnod2b, u1b, u2b;
+  dvector<int> ico1b;
+
+  read_mesh(xnod1b,"squareb1.nod.tmp",
+	    xnod2b,"squareb2.nod.tmp",
+	    u1b,"squareb1.dat.tmp",
+	    u2b,ico1b,"squareb1.con.tmp",
+	    ndim,ndimel,nel,ndof);
 
   while (1) {
     FemInterp fem_interp;
     fem_interp.init(KNBR,2,2,xnod1,ico1);
     u2.clear();
     fem_interp.interp(xnod2,u1,u2);
+
+    FemInterp fem_interpb;
+    fem_interpb.init(KNBR,2,2,xnod1b,ico1b);
+    u2b.clear();
+    fem_interpb.interp(xnod2b,u1b,u2b);
   }
 }
