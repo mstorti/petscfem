@@ -16,15 +16,22 @@
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 %Section{
 %<: if (!$html) { :>
-\newif\ifpdf \ifx\pdfoutput\undefined \pdffalse % Not running PDFLaTeX
-\usepackage[dvips]{graphicx} \def\EPSPDF{eps} \else \pdfoutput=1 %
-Running PDFLaTeX \pdftrue \usepackage[pdftex]{graphicx}
-\pdfcompresslevel=9 \def\EPSPDF{pdf} \fi
+\newif\ifpdf 
+\ifx\pdfoutput\undefined
+  \pdffalse % Not running PDFLaTeX 
+  \usepackage[dvips]{graphicx}
+  \def\EPSPDF{eps}
+\else
+  \pdfoutput=1 % Running PDFLaTeX 
+  \pdftrue 
+  \usepackage[pdftex]{graphicx} \pdfcompresslevel=9
+  \def\EPSPDF{pdf}
+\fi
 %<: } else { :>
 \usepackage[dvips]{graphicx}
 \newcommand{\EPSPDF}{eps}
 %<: } :>
-\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
+%\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 %\usepackage[dvips]{graphicx}
 %\usepackage[dvips]{changebar}
@@ -114,7 +121,7 @@ Running PDFLaTeX \pdftrue \usepackage[pdftex]{graphicx}
 \newcommand{\SSSection}[1]{\subsubsection{#1}}
 \newcommand{\SSSSection}[1]{\paragraph{#1}}
 %\def\defang#1{$\langle${\slshape #1}$\rangle$}
-\latex{\newcommand{\funhead}[2]{\boxedb{{\tt #1}\textbf{: #2}}}}
+\latex{\newcommand{\funhead}[2]{\boxed{{\tt #1}\textbf{: #2}}}}
 \html{\newcommand{\funhead}[2]{{\Large{\tt #1}\textbf{: #2}}}}
 %
 \latex{\newcommand{\filehead}[1]{\boxed{\hbox{\sl File: {\tt #1}}}}}
@@ -145,7 +152,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.15 2002/07/28 16:45:42 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.16 2002/07/28 20:22:53 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -169,19 +176,19 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
 
-% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
