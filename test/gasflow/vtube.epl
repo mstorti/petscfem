@@ -151,6 +151,12 @@ axisymmetric "z"
 #endif
 gather_file "vtube.mass_flow_rate.tmp"
 ngather 3
+
+hook_list dl_generic_hook gasflow_hook 
+gasflow_hook.filename ./gasflow.efn
+gasflow_hook.prefix   gasflow_hook
+
+
 __END_HASH__
 
 ##================================================================

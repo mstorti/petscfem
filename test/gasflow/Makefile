@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2003/01/25 12:40:06 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2003/01/25 21:25:49 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -31,7 +31,7 @@ CASE_NAME := strip
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
-PROG := $(ADVDIF_O)
+PROG := $(ADVDIF)
 endif
 
 # NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
@@ -46,4 +46,6 @@ local_clean::
 
 dx:
 	eperl -P viewer.dx > viewer_tmp.dx
+
+gasflow.efn: gasflow.cpp
 #s
