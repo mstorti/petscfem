@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.14 2003/01/07 00:18:11 mstorti Exp $
+//$Id: embgath.h,v 1.15 2003/01/07 10:33:42 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -16,8 +16,6 @@ class Surf2Vol : public GPdata {
 private:
   /// Flags whether to use the exterior normal or the interior normal
   int use_exterior_normal_m;
-  /// 
-  int *face_1_c,*face_2_c;
 public:
   /** Constructor as for the `GPdata' class plus the flag
       `use_exterior_normal'. 
@@ -32,7 +30,6 @@ public:
   Surf2Vol(const char *geom,int ndim,int nel,int npg,
 	   int mat_version=GP_NEWMAT,int use_exterior_normal=0);
 
-  virtual ~Surf2Vol();
   /** @name Call back functions. 
   */ 
   //@{
@@ -53,7 +50,6 @@ public:
       element in order to rotate it to a standard position. 
   */ 
   virtual void face(int j,const int *&fc,const int *&vol)=0;
-  virtual void layer_nodes(const int *&face_1,const int *&face_2);
   //@}
   /** Rotates the connectivity in #vol_map# according to
       the surface rotation #surf_map#.
@@ -91,7 +87,9 @@ public:
 	   int npg,int mat_version=GP_NEWMAT,
 	    int use_exterior_normal_m=0) 
     : Surf2Vol(geom,ndim,nel,npg,mat_version,
-	       use_exterior_normal_m) { }
+	       use_exterior_normal_m) { 
+    assert(!use_exterior_normal_m);
+  }
   /** @name Callback routines for the quad/hexa combination. */
   //@{
   /** Callback routine that defines the possible
@@ -112,12 +110,12 @@ public:
 class Line2Quad : public Surf2Vol {
 public:
   /// Constructor. Sets #use_exterior_normal_m#
-  Quad2Hexa(const char *geom,int ndim,int nel,
+  Line2Quad(const char *geom,int ndim,int nel,
 	   int npg,int mat_version=GP_NEWMAT,
 	    int use_exterior_normal_m=0) 
     : Surf2Vol(geom,ndim,nel,npg,mat_version,
 	       use_exterior_normal_m) { }
-  /** @name Callback routines for the quad/hexa combination. */
+  /** @name Callback routines for the line/quad combination. */
   //@{
   /** Callback routine that defines the possible
       orientations of a face. 

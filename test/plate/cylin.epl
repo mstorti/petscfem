@@ -75,6 +75,7 @@ viscosity <:=2*$Rint/$Re:>
 data cylin.con.tmp
 __END_HASH__
 
+#if 0
 #===========================================================
 ## Because we have no more surface integrators
 elemset visc_force_integrator <:=2**($ndim-1)*($layers+1):>
@@ -89,9 +90,9 @@ volume_elemset viscous_fluid_elemset
 <:pr('layers'):>
 identify_volume_elements 1
 __END_HASH__
-__INCLUDE__ cylinder.wall_panel_con.tmp
-__INCLUDE__ cylinder.bottom_con.tmp
+__INCLUDE__ "cylin.skin_int.tmp"
 __END_ELEMSET__
+#endif
 
 elemset ns_id 1
 ns_id_fac 0.

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.18 2003/01/07 01:12:53 mstorti Exp $
+//$Id: gpdata.cpp,v 1.19 2003/01/07 10:33:42 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -62,6 +62,7 @@ double xipgf(int ipg,int npg1d) {
   }
 }
 
+#if 0
 void cart_prod(int npg,int nel,int nel_lay,
 	       int ndim,RowVector *shape,Matrix *dshapexi,double *wpg,
 	       GPdata &base_gp) {
@@ -93,6 +94,7 @@ void cart_prod(int npg,int nel,int nel_lay,
     dshapex[ipg]= Matrix(ndimel,nel);
   }
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
@@ -462,6 +464,8 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       
   } else if (!strcmp("quad2hexa",geom)) {
     
+    assert(0);
+#if 0
     assert(ndimel==3);
     assert(nel % 4 == 0 && 2<=(nel/4) && (nel/4)<=4 );
     assert(npg==4); // other cases may be considered
@@ -469,6 +473,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
 
     cart_prod(npg,nel,nel_lay,ndim,shape,dshapexi,wpg,quad);
+#endif
 
   } else GPERROR;
   

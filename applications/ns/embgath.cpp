@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.25 2003/01/07 00:16:30 mstorti Exp $
+//$Id: embgath.cpp,v 1.26 2003/01/07 10:33:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -69,27 +69,6 @@ const int Quad2Hexa::faces[][8] = {
   0,4,5,1,3,7,6,2};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Surf2Vol::layer_nodes(const int *&face_1,
-			   const int *&face_2) {
-  if (!face_1_c) {
-    int nel_surf, nel_vol, nf = nfaces(nel_surf,nel_vol);
-    assert(nel_vol==2*nel_surf);
-    face_1_c = new int[nel_surf];
-    face_2_c = new int[nel_surf];
-    for (int j=0; j<nel_surf; j++) {
-      face_1_c[j] = j;
-      face_2_c[j] = nel_surf + j;
-    }
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-virtual ~Surf2Vol() {
-  delete[] face_1_c;
-  delete[] face_2_c;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Remaps the volume connectivity #vol_conn# so that the face
     is in a standard position. 
     @param surf_map (input) the nodes of the volume element
@@ -157,9 +136,12 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {
-  int fc_c[2], vol_c[4];
-  for (int k=0; k<2; k++) {
-  }
+  static int fc_c[2], vol_c[4];
+  static const int vol_cc[4] = {0, 1, 3, 2};
+  for (int k=0; k<2; k++) fc_c[k] = (j+k) % 4;
+  for (int k=0; k<4; k++) vol_c[k] = vol_cc[k]+j % 4;
+  fc = fc_c;
+  vol = vol_c;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -167,8 +149,8 @@ Surf2Vol::Surf2Vol(const char *geom,int ndim,int nel,
 		   int npg,int mat_version=GP_NEWMAT,
 		   int use_exterior_normal_a=0) 
   : GPdata(geom,ndim,nel,npg,mat_version),
-    use_exterior_normal_m(use_exterior_normal_a),
-    face_1_c(NULL), face_2_c(NULL) { }
+    use_exterior_normal_m(use_exterior_normal_a) {}
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int embedded_gatherer::ask(const char *jobinfo,int &skip_elemset) {
@@ -234,11 +216,8 @@ void embedded_gatherer::initialize() {
   assert(nel_vol <= nel); //
   assert(nel_vol <= vol_elem->nel);
   assert(nel == nel_surf*(layers+1));
-
-  const int *face_1,*face_2;
-  layer_nodes(face_1,face_2);
   if (identify_volume_elements) {
-    // assert(2*nel_surf==nel_vol);
+    assert(2*nel_surf==nel_vol);
     for (layer=0; layer<layers; layer++) {
       // Mark nodes on the surface
       int nnod = GLOBAL_MESH->nodedata->nnod;
@@ -249,7 +228,7 @@ void embedded_gatherer::initialize() {
       vector<int> srf2glb;
       for (int e=0; e<nelem; e++) {
 	int *icorow = icone + nel*e + layer* nel_surf;
-	for (int j=0; j<nel_surf; j++) surface[icorow[face_1[j]]-1]=1;
+	for (int j=0; j<nel_surf; j++) surface[icorow[j]-1]=1;
       }
       // Count surface nodes
       int surf_nodes = 0;
@@ -283,7 +262,7 @@ void embedded_gatherer::initialize() {
 	LinkGraphRow row;
 	assert(nel_surf>0);
 	// Take list for first node
-	int node = icorow[face_1[0]]-1;
+	int node = icorow[0]-1;
 	int sf_node = surface[node]-1;
 	graph.set_ngbrs(sf_node,row);
 	LinkGraphRow::iterator q;
@@ -296,7 +275,7 @@ void embedded_gatherer::initialize() {
 	  for (int j=0; j<nel_vol; j++) mask[j]=-1;
 	  found=0;
 	  for (int j=0; j<nel_surf; j++) {
-	    int sf_node = icorow[face_1[j]];
+	    int sf_node = icorow[j];
 	    for (int k=0; k<nel_vol; k++) {
 	      if (vicorow[k]==sf_node) {
 		mask[j] = k;

@@ -142,7 +142,7 @@ endfor
 fclose(fid);
 
 fid = fopen("cylin.skin_int.tmp","w");
-for k=1:length(skin-1)
+for k=1:length(skin)-1
   n1 = skin(k);
   n2 = skin(k+1);
   fprintf(fid,"%d %d  ",n1,n2);
