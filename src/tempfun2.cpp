@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun2.cpp,v 1.2.2.1 2003/07/24 15:44:49 mstorti Exp $
+//$Id: tempfun2.cpp,v 1.2.2.2 2003/07/24 17:33:08 mstorti Exp $
 
 #include <math.h>
 
@@ -112,17 +112,20 @@ public:
       int nread = fscanf(fid,"%lf %lf",&tt,&ff);
       if (nread==EOF) break;
       assert(nread==2);
-      // increment counter
-      ntime++;
       // Apply linear transformation to  time and amplitude
-      tt = t_0 + t_scale*(tt-t_0);
-      ff = A_0 + A_scale*(ff-A_0);
+      double ttt = t_0 + t_scale * tt;
+      double fff = A_0 + A_scale * ff;
       // Check that time vector is ordered. Compare with the last
       // entered value
-      if (ntime>=2) assert(tt > t_v[ntime-1]);
+      if (ntime && ttt <= t_v[ntime-1]) {
+	PETSCFEM_ERROR("piecewise_linear: times must be a strictly increasing sequence\n"
+		       "line: t=%f f=%f, previous time %f\n",tt,ff,(t_v[ntime-1]-t_0)/t_scale);
+      }  
       // Load on vector
-      t_v.push_back(tt);
-      f_v.push_back(ff);
+      t_v.push_back(ttt);
+      f_v.push_back(fff);
+      // increment counter
+      ntime++;
     }
     fclose(fid);
     assert (ntime == t_v.size());
