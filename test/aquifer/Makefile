@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2002/02/05 00:57:29 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/02/05 20:27:58 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -9,6 +9,11 @@ tests: test_plain test_var_eta test_transient
 run: CASE=aqui
 run: mkm=mkmesh
 run: rung
+
+#w Runs program for the `aquifer_stream' tests
+runas: CASE=aquist
+runas: mkm=mkmeshaqs
+runas: rung
 
 #w Runs program for the `stream' tests
 runs: CASE=stream
@@ -51,6 +56,10 @@ test_var_eta:
 test_transient:
 	$(MAKE) casen=transient run
 	octave -q checku.m > transient.verif.tmp
+
+#w Test the coupled aquifer+stream test
+test_as:
+	$(MAKE) runas
 
 #w Make data
 data: force

@@ -1,0 +1,149 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+get_var_env('casen',undef);
+$casename = $casen;
+$steady = 1;
+if ($casen eq 'transient') {
+    $casen = 'plain';
+    $steady = 0;
+    $eta0=-100;
+    $alpha=0.6;
+    $nstep = 20;
+} else {
+    $eta0=-0.5;
+    $alpha=1;
+    $nstep=1;
+}
+$var_eta=0;
+$etaL = $eta0;
+if ($casen eq 'var_eta0') {
+    $var_eta = 1;
+} elsif ($casen eq 'var_eta1') {
+    $var_eta = 1;
+    $etaL = -1.;
+}
+$save_file = ($casen ? "aquist.$casen.tmp" : "aquist.state.tmp");
+## Test the 'G_body' feature. 
+$Nx = 20;
+$Ny = 20;
+$Lx = 1;			# Side of the cavity
+$Ly = $Lx;			# Side of the cavity
+$hratio = 1;			# refinement (h_center/h_wall)
+$K = 1.5;
+$S = 2.3;
+$eta = $eta0;
+$Dt = 0.001;			# time step
+$solver = "petsc";
+$preco_type = "lu";
+$maxits = 1;
+$t = $nstep*$Dt;
+$slope = 0.01;
+#
+#__END_TRANSCRIPT__
+@vars = qw(t Nx Ny Lx Ly hratio K S casen var_eta 
+    eta0 etaL Dt steady slope);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+:>//                            # ends ePerl block
+
+# <:pr('casen'):> 
+
+global_options
+
+nsave 5
+<:pr('nstep'):> 
+# initial_state aquist.state
+<:pr('save_file'):> 
+
+# type of solver (may be "iisd", "petsc"...)
+<:pr('solver'):>
+<:pr('preco_type'):> 
+<:pr('maxits'):> 
+# Number of subdomains
+# <:pr('iisd_subpart'):>
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-6
+dtol 1e3
+nnwt 5
+
+Krylov_dim <:=$maxits:>
+print_internal_loop_conv 1
+# print_linear_system_and_stop 1
+# verify_jacobian_with_numerical_one 1
+
+# print_nodal_partitioning 1
+Dt <:=$Dt:>
+steady <:=$steady:>
+<:pr('alpha'):>
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  1
+__INCLUDE__ aquist.nod.tmp
+_END_NODES__
+
+#----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
+elemset aquifer 4 
+#if $var_eta
+props eta
+#else 
+<:pr('eta'):>
+#endif
+
+# report_consumed_time
+geometry cartesian2d
+ndim 2
+npg 4
+#
+# Datos fisicos
+#
+<:pr('K'):> 
+<:pr('S'):>
+__END_HASH__
+__INCLUDE__ aquist.con.tmp
+__END_ELEMSET__
+
+#----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
+elemset stream 2
+geometry cartesian1d
+npg 2
+friction_law "Chezy"
+# friction_law "Manning"
+Ch 1.
+roughness 1.345
+width 1.
+# slope 0.01
+shape "circular"
+radius 5
+__END_HASH__
+__INCLUDE__ aquist.con.stream.tmp
+__END_ELEMSET__
+
+#----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
+elemset stream_loss 4
+geometry cartesian1d
+npg 2
+double_layer			# This is required!!
+__END_HASH__
+__INCLUDE__ aquist.con.stream_loss.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+__INCLUDE__ aquist.fixa.tmp
+
+## set water depth at the inlet
+<:=($Nx+1)*($Ny+1)+1:> 1 1.
+__END_FIXA__
