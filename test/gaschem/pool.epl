@@ -6,14 +6,15 @@ $Nx = 1;
 $Ny = 40;
 $Ly = 20;
 $Lx = $Ly/$Ny*$Nx;
-$rho_liq = 1000;
+$rho_liq = 1;
 $gravity = 9.8;
 $xO_in = 0.2;
 $KO = 1.3516e-5;
 $KN = 0.6788e-5;
 $Rgas = 8.314;
 $Tgas = 293.0;
-$nu_t = 1e-1;
+$nu_t = 1e-3;
+$hm_fac = 1.0;
 
 ## At inlet ===============================================
 $rb = 0.01;			# radius of bubble at inlet
@@ -42,7 +43,7 @@ global_options
 
 ndim 2
 nsave 5
-nstep 100
+nstep 10
 initial_state "pool.ini.tmp"
 
 #if 1
@@ -65,10 +66,7 @@ print_internal_loop_conv 0
 steady 0
 Dt 10.0
 
-<:pr('nu_t'):>
-<:pr('KO'):>
-<:pr('KN'):>
-<:pr('gravity'):>
+<:pr('nu_t KO KN gravity hm_fac'):>
 # print_linear_system_and_stop
 
 __END_HASH__
