@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.53 2002/07/11 18:31:47 mstorti Exp $
+//$Id: advective.h,v 1.54 2002/07/12 02:54:38 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -218,6 +218,7 @@ public:
 };
 
 extern IdentityEF identity_ef;
+class NewAdvDif;
 
 /// This is the flux function for a given physical problem. 
 class NewAdvDifFF {
@@ -230,12 +231,11 @@ public:
   /** Pointer to NewAdvDif elemset (FIXME:= `elemset' doesn't serve because
       it is a pointer to `NewElemset')
   */
-  const NewAdvDif* new_adv_dif_elemset;
+  const NewAdvDif *new_adv_dif_elemset;
   /// The enthalpy function for this flux function
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
-  NewAdvDifFF(const NewElemset *elemset_=NULL) 
-    : elemset(elemset_), enthalpy_fun(NULL) {};
+  NewAdvDifFF(const NewElemset *elemset_=NULL);
 
   /** Define the list of variables that are 
       treated logarithmically. Reads from the options 
@@ -351,7 +351,7 @@ class NewAdvDif : public NewElemset {
   NewAdvDifFF *adv_diff_ff;
   int volume_flag;
   double Volume,rec_Dt_m;
-  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg;
+  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg,P_supg;
 public:
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
@@ -371,7 +371,7 @@ public:
   const FastMat2 *grad_N() const ;
   double rec_Dt() const { return rec_Dt_m; }
   const FastMat2 &Uold() const { return Uo; }
-  void comp_P_supg();
+  void comp_P_supg(int is_tau_scalar);
 };
 
 /** This is the companion elemset to advdif that computes the boundary

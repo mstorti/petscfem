@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.59 2002/07/11 18:31:47 mstorti Exp $
+//$Id: advdife.cpp,v 1.60 2002/07/12 02:54:38 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -87,6 +87,12 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
   true_lstate.ir(2);
 }
 
+NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_=NULL) 
+    : elemset(elemset_), enthalpy_fun(NULL) {
+  // This is ugly!!
+  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
@@ -94,9 +100,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) {
-
-  // This is ugly!!
-  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -179,7 +182,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,lumped_mass,0);
 
   // Initialize flux functions
-  int ret_options=0;
+  ret_options=0;
   adv_diff_ff->start_chunk(ret_options); 
   int ndimel = adv_diff_ff->dim();
   if (ndimel<0) ndimel = ndim;
@@ -247,12 +250,13 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24;
-  FastMat2 P_supg(3,nel,ndof,ndof),A_grad_N(3,nel,ndof,ndof), 
+  FastMat2 A_grad_N(3,nel,ndof,ndof), 
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof);
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(ndof,ndof);
+  P_supg.resize(3,nel,ndof,ndof);
 
   //#define COMPUTE_FD_ADV_JACOBIAN
 #ifdef COMPUTE_FD_ADV_JACOBIAN
@@ -645,6 +649,7 @@ const FastMat2 *NewAdvDif::grad_N() const {
   return &dshapex;
 }
 
+#if 0
 void NewAdvDif::comp_P_supg(int is_tau_scalar) {
   if (is_tau_scalar) {
     double tau_supg_d = tau_supg.get(1,1);
@@ -653,9 +658,16 @@ void NewAdvDif::comp_P_supg(int is_tau_scalar) {
     P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
   }
 }
+#endif
 
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
-  new_adv_dif_elemset->comp_P_supg();
+  if (is_tau_scalar) {
+    double tau_supg_d = tau_supg.get(1,1);
+    P_supg.set(Ao_grad_N).scale(tau_supg_d);
+  } else {
+    P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
+  }
+  // new_adv_dif_elemset->comp_P_supg();
 }
 
 #undef SHAPE    
