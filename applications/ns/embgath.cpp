@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.17 2002/08/13 01:38:14 mstorti Exp $
+//$Id: embgath.cpp,v 1.18 2002/08/13 18:42:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -11,6 +11,31 @@
 #include "embgath.h"
 extern Mesh *GLOBAL_MESH;
 extern int MY_RANK,SIZE;
+
+#if 0
+// usage w=cloud(x,nderiv,npol)
+//
+// given a set of N points x(j) give a series of coefficients w(j),
+// j=1'..N such that \sum_{j=1}^N w(j) x(j) is a good approximation to
+// the nderiv derivative of x at x=0 fitting a polynomial of degree
+// npol by least squares.
+//
+void cloud(FastMat2 &w,FastMat2 &A,
+	   FastMat2 &x,int nderiv,int npol) {
+
+  nx=x.dim(1);
+  A=zeros(nx,npol+1);
+  A(:,1)=ones(nx,1);
+  h=max(abs(x));
+  for k=1:npol
+    A(:,k+1)=(x/h).^k;
+  endfor 
+  C=(A'*A)\A';
+  
+  w=prod(1:nderiv)*C(nderiv+1,:)/h^nderiv;
+#  keyboard
+endfunction
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Contains the three non-trivial face orientations. All
@@ -140,7 +165,7 @@ void embedded_gatherer::initialize() {
   TGETOPTDEF_ND(thash,int,layers,1);
   PETSCFEM_ASSERT0(layers>=1,
 		   "embedded_gatherer: Number of layers must be integer >=1\n");
-  PETSCFEM_ASSERT(layers<=2,"embedded_gatherer: not supported yet layers>2,"
+  PETSCFEM_ASSERT(layers<=3,"embedded_gatherer: not supported yet layers>2,"
 		  " entered layers: %d\n",layers);
 
   int ndimel=ndim-1;
@@ -340,10 +365,12 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     element_hook(k);
 
     for (int ipg=0; ipg<npg; ipg++) {
+      FastMat2 &shape = SHAPE;
+      FastMat2 &dshapexi = DSHAPEXI;
       // Gauss point coordinates
-      xpg.prod(SHAPE,xloc,-1,-1,1);
+      xpg.prod(shape,xloc,-1,-1,1);
       // Jacobian master coordinates -> real coordinates
-      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+      Jaco.prod(dshapexi,xloc,1,-1,-1,2);
       iJaco.inv(Jaco);
       
       double detJaco;
@@ -354,7 +381,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       n.scale(1./detJaco);
       // n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
 
-      dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+      dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
 
       if (detJaco <= 0.) {
 	printf("Jacobian of element %d is negative or null\n"
@@ -365,8 +392,8 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       double wpgdet = detJaco*WPG;
 
       // Values of variables at Gauss point
-      u.prod(SHAPE,staten,-1,-1,1);
-      u_old.prod(SHAPE,stateo,-1,-1,1);
+      u.prod(shape,staten,-1,-1,1);
+      u_old.prod(shape,stateo,-1,-1,1);
 
       // Gradients of variables at Gauss point
       grad_u.prod(dshapex,staten,1,-1,-1,2);
