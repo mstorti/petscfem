@@ -6,7 +6,6 @@ TODO: [Mainly fixes go here...]
 
 * Let `upload_vector_fast' to have several masks with integer values,
   e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
-* Add doc for block_uploading
 * Finish completing_read with petscfem_options
 * Make use FastMat2 cache optional in advdife via an option
 * There is a conflict between the computation of residual jacobians 
@@ -129,6 +128,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Add doc for block_uploading
 * Add doc for new features in `myexpect.pl' (__SWITCH_FILE__, 
       variable match, working directory)
 * Fix tests in /burgers (they started to fail).

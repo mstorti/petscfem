@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.18 2003/11/15 16:05:18 mstorti Exp $
+# $Id: odoc.pl,v 1.19 2003/11/17 02:49:37 mstorti Exp $
 
 @odoc=();
 
@@ -135,7 +135,7 @@ while (<>) {
 			 "{\\rm(default=\\verb|$default|)}:\n",
 			 $doc," (found in file: \\verb+$ARGV+)\n",$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$default,$text,$ARGV];
+	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc];
 	} elsif (/$tgetopt_pat/o || /$getopt_pat/o) {
 	    $type=$1;
 	    $name=$2;
@@ -148,10 +148,11 @@ while (<>) {
 \\item\\verb+$type $name+ {\\rm(default=\\verb|$default|)}:\n
 EOT
 /`/;
-	    $text = join("",$header,join("",@doc),
+	    $doc = join("",@doc);
+	    $text = join("",$header,$doc,
 			 " (found in file: \\verb+$ARGV+)\n",$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$default,$text,$ARGV];
+	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc];
 #  	    print "doc: ",join("\n",@doc),"\n";
 #  	    print "type: $type, name: $name, def: $default\n\n";
 #  	} elsif (m|^\s*//e .*$|) {
@@ -186,12 +187,29 @@ foreach $doc (@doclist) {
 print TEXOUT $warn;
 close TEXOUT;
 
-if ($opt_e) {
+## No more used now a tags table is generated below
+if (0 && $opt_e) {
+    my %h = ();
+    foreach $doc (@doclist) { $h{$doc->[0]} = 1; }
+    my @u_docs = keys(%h);
+    undef %h;
+    @u_docs = sort @u_docs;
     die "couldn't open $opt_e\n" unless open EOUT,">$opt_e";
     print EOUT "(setq petscfem-option-list '(\n";
-    foreach $doc (@doclist) { print EOUT "(\"$doc->[0]\")\n"; }
+    foreach $doc (@u_docs) { print EOUT "(\"$doc\")\n"; }
     print EOUT "))\n";
     close EOUT;
+}
+
+if ($opt_e) {
+    open TAGS,">petscfem-opt-tags";
+    foreach $doc (@doclist) { 
+	print TAGS "Option: $doc->[1] <$doc->[0]> ",
+	"(Default: $doc->[2])\n",
+	"Description: ",$doc->[5],"\n",
+	"[Found in file: \"$doc->[4]\"]\n","-" x 80,"\n";
+    }
+    close TAGS;
 }
 
 __END__

@@ -188,12 +188,6 @@ C_smag
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
-\item\verb+double C_smag+ {\rm(default=\verb|0.09|)}:
-
-C_smag
- (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
@@ -374,12 +368,6 @@ Activates LES turbulence model
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
-Activates LES turbulence model
- (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{LES@\verb+LES+}
-\item\verb+int LES+ {\rm(default=\verb|0|)}:
-
 Use the LES/Smagorinsky turbulence model. 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -448,12 +436,6 @@ Poisson ratio
 
 Turbulent Prandtl number
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{Pr\_t@\verb+Pr_t+}
-\item\verb+double Pr_t+ {\rm(default=\verb|1.|)}:
-
-Turbulent Prandtl number
- (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Pr\_t@\verb+Pr_t+}
 \item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
@@ -929,7 +911,7 @@ Add axisymmetric version for this particular elemset.
 \item\verb+string axisymmetric+ {\rm(default=\verb|"none"|)}:
 
 Add axisymmetric version for this particular elemset.
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{axisymmetric@\verb+axisymmetric+}
 \item\verb+string axisymmetric+ {\rm(default=\verb|none|)}:
@@ -995,7 +977,7 @@ Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
 Weights the temporal term with $N+\beta P$, i.e.
 $\beta=0$ is equivalent to waight the temporal term a la
 Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{beta\_supg@\verb+beta_supg+}
 \item\verb+double beta_supg+ {\rm(default=\verb|0.8|)}:
@@ -1119,15 +1101,69 @@ mstrix profile.
 Compute finite difference jacobian of fluxes for checking the
  analytical one. For each element the following norms are printed:
  analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and te
- difference \verb+|A_a-A_n|+ .
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ difference \verb+|A_a-A_n|+ . Incrementing \verb+compute_fd_adv_jacobian==1+
+ increases the verbosity. If \verb+=1+ the maximum values over all the
+ elemset are printed. If \verb+=2+ the errors for all elements are
+ reported. Finally, if \verb+=3+ also the jacobians themselves are
+ printed. For 2 and 3, if \verb+compute_fd_adv_jacobian_elem_list+ is
+ set, then only those elements are printed. If
+ \verb+compute_fd_adv_jacobian_rel_err_threshold+ is set then only those
+ elements for which the error is greater than the given threshold
+ are reported.  Also, be warned that when run in parallel, printing
+ for a lot of elements in different processors may be messy.
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian@\verb+compute_fd_adv_jacobian+}
+\item\verb+int compute_fd_adv_jacobian+ {\rm(default=\verb|0|)}:
+
+Compute finite difference jacobian of fluxes for checking the
+ analytical one. For each element the following norms are printed:
+ analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and te
+ difference \verb+|A_a-A_n|+ . Incrementing \verb+compute_fd_adv_jacobian==1+
+ increases the verbosity. If \verb+=1+ the maximum values over all the
+ elemset are printed. If \verb+=2+ only those whose relative errors are
+ greater than \verb+compute_fd_adv_jacobian_rel_err_threshold+ are
+ reported. If \verb+=3+ the errors for all elements are
+ reported. Finally, if \verb+=4+ also the jacobians themselves are
+ printed. For 3 and 4, if \verb+compute_fd_adv_jacobian_elem_list+ is
+ set, then only those elements are printed. Also, be warned that when
+ run in parallel, printing for a lot of elements in different
+ processors may be messy.
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{compute\_fd\_adv\_jacobian\_eps@\verb+compute_fd_adv_jacobian_eps+}
 \item\verb+double compute_fd_adv_jacobian_eps+ {\rm(default=\verb|1e-4|)}:
 
 The perturbation scale for computing the numerical jacobian
  (see \verb+compute_fd_adv_jacobian+ ).
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_eps@\verb+compute_fd_adv_jacobian_eps+}
+\item\verb+double compute_fd_adv_jacobian_eps+ {\rm(default=\verb|1e-4|)}:
+
+The perturbation scale for computing the numerical jacobian
+ (see \verb+compute_fd_adv_jacobian+ ).
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_random@\verb+compute_fd_adv_jacobian_random+}
+\item\verb+double compute_fd_adv_jacobian_random+ {\rm(default=\verb|1.0|)}:
+
+Report jacobians on random elements (should be in range 0-1).
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_rel\_err\_threshold@\verb+compute_fd_adv_jacobian_rel_err_threshold+}
+\item\verb+double compute_fd_adv_jacobian_rel_err_threshold+ {\rm(default=\verb|0.|)}:
+
+Report elements whose relative error in computing
+ flux jacobians exceed these value. 
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_rel\_err\_threshold@\verb+compute_fd_adv_jacobian_rel_err_threshold+}
+\item\verb+double compute_fd_adv_jacobian_rel_err_threshold+ {\rm(default=\verb|1e-4|)}:
+
+Report elements whose relative error in computing
+ flux jacobians exceed these value. 
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{conductivity@\verb+conductivity+}
 \item\verb+double conductivity+ {\rm(default=\verb|1.|)}:
@@ -1801,7 +1837,7 @@ Type of element geometry to define Gauss Point data
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
@@ -2359,7 +2395,7 @@ Use lumped mass (used mainly to avoid oscillations for small time steps).
 \item\verb+int lumped_mass+ {\rm(default=\verb|0|)}:
 
 Use lumped mass (used mainly to avoid oscillations for small time steps).
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lumped\_mass@\verb+lumped_mass+}
 \item\verb+int lumped_mass+ {\rm(default=\verb|1|)}:
@@ -3031,12 +3067,6 @@ Relaxation factor for the Newton iteration
 Threshold value for pressure. See doc for rho_thrsh.
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{p\_thrsh@\verb+p_thrsh+}
-\item\verb+double p_thrsh+ {\rm(default=\verb|0.|)}:
-
-Threshold value for pressure. See doc for rho_thrsh.
- (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{part\_include\_fic@\verb+part_include_fic+}
 \item\verb+int part_include_fic+ {\rm(default=\verb|1|)}:
 
@@ -3497,14 +3527,6 @@ Threshold value for density. If density goes belows this value
  crashing of the code due to taking square root of negative values.
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{rho\_thrsh@\verb+rho_thrsh+}
-\item\verb+double rho_thrsh+ {\rm(default=\verb|0.|)}:
-
-Threshold value for density. If density goes belows this value
- then a cutoff function is applied. This is a simple way to prevent
- crashing of the code due to taking square root of negative values.
- (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{roughness@\verb+roughness+}
 \item\verb+double roughness+ {\rm(default=\verb|1.|)}:
 
@@ -3653,7 +3675,7 @@ Add a shock capturing term
 \item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
 
 Add a shock capturing term
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing@\verb+shock_capturing+}
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
@@ -4041,12 +4063,6 @@ Mask for stabilization term
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-Mask for stabilization term
- (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{tau\_fac@\verb+tau_fac+}
-\item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
-
 Scale the SUPG upwind term. 
  (found in file: \verb+../applications/advective/ffeulerfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -4398,7 +4414,7 @@ Use log-vars for $k$ and $\epsilon$
 \item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
 
 Use log-vars for $k$ and $\epsilon$
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{vel\_min@\verb+vel_min+}
 \item\verb+double vel_min+ {\rm(default=\verb|1e-6|)}:
@@ -4490,7 +4506,7 @@ Use the weak form for the Galerkin part of the advective term.
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use the weak form for the Galerkin part of the advective term.
- (found in file: \verb+../applications/advdif/advdife-new.cpp+)
+ (found in file: \verb+../applications/advdif/pfcpp_temp.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
