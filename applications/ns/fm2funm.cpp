@@ -1,0 +1,34 @@
+//__INSERT_LICENSE__
+//$Id: fm2funm.cpp,v 1.1 2002/12/11 18:48:02 mstorti Exp $
+
+#include <src/fastmat2.h>
+#include "./fm2funm.h"
+
+void FastMat2_fund::init(FastMat2 &A) {
+  assert(A.n()==2);
+  assert(A.dim(1)==A.dim(2));
+  m = A.dim(1);
+  V.resize(2,m,m);
+  D.resize(2,m,m).set(0.);
+  lambda.resize(1,m);
+  flambda.resize(1,m);
+  tmp.resize(2,m,m);
+}
+
+void FastMat2_fund::apply(const FastMat2 &A,FastMat2 &fA) {
+  lambda.seig(A,V);
+  f(lambda,flambda);
+  D.d(1,2).set(flambda).rs();
+  tmp.prod(D,V,1,-1,2,-1);
+  fA.prod(V,tmp,1,-1,-1,2);
+}
+
+double FastMat2_funm_ff(double x,void *a) {
+  FastMat2_funm *fff = (FastMat2_funm *)a;
+  return fff->f(x);
+}
+
+void FastMat2_funm::f(const FastMat2 &D,FastMat2 &fD) {
+  fD.set(D).fun(FastMat2_funm_ff,this); 
+}
+
