@@ -3221,3 +3221,6 @@ tag: beta-3.29.pl5 on Tue, 27 Jan 2004 22:23:24 -0300 by mstorti in spider
 tag: beta-3.29.pl6 on Wed, 28 Jan 2004 22:05:34 -0300 by mstorti in spider
      > Added `sphere' and `cylinder' surfaces. 
      > Checked on cubcav. 
+----------
+tag: beta-3.29.pl7 on Thu, 29 Jan 2004 23:24:11 -0300 by mstorti in spider
+     > Improved `SrfGatherer'
