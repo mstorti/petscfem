@@ -3,7 +3,7 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.3;
+$disp = 0.9;
 $slope = 4;
 # $shape = 'quad';
 $old_mmove = $ENV{'OLD_MMOVE'};
@@ -17,7 +17,7 @@ global_options
 ndim 2
 nsave 5
 steady
-<:$nstep=1;:>
+<:$nstep=20;:>
 nstep <:=$nstep+4:>
 #if $old_mmove
 displ_factor <:=1./$nstep:>

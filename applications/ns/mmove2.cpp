@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.10 2002/12/12 03:10:07 mstorti Exp $
+//$Id: mmove2.cpp,v 1.11 2002/12/12 12:59:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -182,7 +182,7 @@ element_connector(const FastMat2 &xloc,
   x0.reshape(2,nel,ndim);
   mat.rs().reshape(4,nel,ndim,nel,ndim);
 
-  if (!glob_param->inwt) {
+  if (0 && !glob_param->inwt) {
     x0.set(xloc).axpy(state_new,c_relax)
       .axpy(state_old,1.-c_relax);
     df_grad(x0,res);
