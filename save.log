@@ -810,3 +810,6 @@ tag: pfmat-rewrite-1.23.pl1 on Wed Jan  9 17:34:57 ARST 2002 by mstorti in spide
 ----------
 tag: pfmat-rewrite-1.23.pl2 on Wed Jan  9 18:10:00 ARST 2002 by mstorti in spider
      > Runs all `pfmat/pfmat' tests.
+----------
+tag: pfmat-rewrite-1.24 on Wed Jan  9 18:33:15 ARST 2002, by mstorti in spider
+     > Runs all 'pfmat/pfmat' and 'pfmat/pfmat2' tests.
