@@ -6,6 +6,7 @@ $fd_jac = $1 if $CASE =~ /fd_jac_(\d*)/;
 $ref = ($CASE =~ /fd_jac_(\d*)_ref/ ? 1 : 0);
 $N=50;
 $N = 10 if $fd_jac;
+$N = 50 if $fd_jac==3;
 $T=.05;
 $omega=2*$PI/$T;
 $N_dt_per=128; # number of time steps per period
@@ -66,6 +67,9 @@ compute_fd_adv_jacobian_rel_err_threshold 1e-3
 #elsif $fd_jac==2
 compute_fd_adv_jacobian 3
 compute_fd_adv_jacobian_rel_err_threshold 1e-3
+#elsif $fd_jac==3
+compute_fd_adv_jacobian 2
+compute_fd_adv_jacobian_random 0.2
 #endif 
 #solve_system 0
 #print_linear_system_and_stop

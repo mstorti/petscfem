@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2003/11/16 13:18:50 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2003/11/16 15:32:50 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
-default: fd_jac_2
+default: fd_jac_3
 
 all: run
 
@@ -11,7 +11,7 @@ test_%:
 	$(MAKE) CASE=$* run
 
 #w tests: test__d05 test__d01 test__d001
-tests: test__d01 test__d001 fd_jac_1 fd_jac_2
+tests: test__d01 test__d001 fd_jac
 
 #w Burger test with viscosity 0.1
 test__d01: test__d01_wf test__d01_nwf 
@@ -25,6 +25,9 @@ test__d05: test__d05_wf test__d05_nwf
 test__d001: test__d001_wf test__d001_nwf 
 	CASE=_d001 $(OCTAVE) verif.m > $@.out.tmp
 
+#w All tests for the  `compute_fd_adv_jacobian' feature
+fd_jac: fd_jac_1 fd_jac_2
+
 #w Test `compute_fd_adv_jacobian' feature with
 #w verbose printing and threshold
 fd_jac_1:
@@ -36,6 +39,11 @@ fd_jac_1:
 #w printing of jacobians and higher threshold
 fd_jac_2:
 	$(MAKE) CASE=fd_jac_2 fd_jac=2 run
+
+#w Test `compute_fd_adv_jacobian' feature with
+#w random elements
+fd_jac_3:
+	$(MAKE) CASE=fd_jac_3 fd_jac=3 run
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 

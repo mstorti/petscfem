@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.81 2003/11/16 13:19:50 mstorti Exp $
+//$Id: advdife.cpp,v 1.82 2003/11/16 15:32:43 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -236,6 +236,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,lumped_mass,0);
   //o Add a shock capturing term
   NSGETOPTDEF(double,shocap,0.0);
+  //o Report jacobians on random elements (should be in range 0-1).
+  NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
+  assert(compute_fd_adv_jacobian_random>0. 
+	 && compute_fd_adv_jacobian_random <=1.);
 
   //o Add axisymmetric version for this particular elemset.
   NSGETOPTDEF(string,axisymmetric,"none");
@@ -537,65 +541,70 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
 
-	int check_this = 1;
-	comp_total++;
-	if (compute_fd_adv_jacobian && check_this) {
-	  comp_checked++;
-	  double &eps_fd = compute_fd_adv_jacobian_eps;
-	  for (int jdof=1; jdof<=ndof; jdof++) {
-	    U_pert.set(U).is(1,jdof).add(eps_fd).rs();
-	    adv_diff_ff->set_state(U_pert,grad_U);
-	    adv_diff_ff->compute_flux(U_pert,iJaco,H,grad_H,flux_pert,fluxd,
-				      A_grad_U,grad_U,G_source,
-				      tau_supg,delta_sc,
-				      lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-	    flux_pert.rest(flux).scale(1./eps_fd);
-	    flux_pert.t();
-	    A_fd_jac.ir(3,jdof).set(flux_pert).rs();
-	    flux_pert.rs();
-	  }
-	  for (int j=1; j<=ndim; j++) {
-	    Id_ndim.ir(2,j);
-	    A_jac.ir(1,j);
-	    adv_diff_ff->comp_A_jac_n(A_jac,Id_ndim);
-	  }
-	  Id_ndim.rs();
-	  A_jac.rs();
-	  A_jac_err.set(A_jac).rest(A_fd_jac);
+	if (compute_fd_adv_jacobian) {
+	  int check_this = drand()<compute_fd_adv_jacobian_random;
+	  comp_total++;
+	  FastMat2::branch();
+	  if (check_this) {
+	    FastMat2::choose(0);
+	    comp_checked++;
+	    double &eps_fd = compute_fd_adv_jacobian_eps;
+	    for (int jdof=1; jdof<=ndof; jdof++) {
+	      U_pert.set(U).is(1,jdof).add(eps_fd).rs();
+	      adv_diff_ff->set_state(U_pert,grad_U);
+	      adv_diff_ff->compute_flux(U_pert,iJaco,H,grad_H,flux_pert,fluxd,
+					A_grad_U,grad_U,G_source,
+					tau_supg,delta_sc,
+					lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
+	      flux_pert.rest(flux).scale(1./eps_fd);
+	      flux_pert.t();
+	      A_fd_jac.ir(3,jdof).set(flux_pert).rs();
+	      flux_pert.rs();
+	    }
+	    for (int j=1; j<=ndim; j++) {
+	      Id_ndim.ir(2,j);
+	      A_jac.ir(1,j);
+	      adv_diff_ff->comp_A_jac_n(A_jac,Id_ndim);
+	    }
+	    Id_ndim.rs();
+	    A_jac.rs();
+	    A_jac_err.set(A_jac).rest(A_fd_jac);
 #define FM2_NORM sum_abs_all
-	  double A_jac_norm = A_jac.FM2_NORM();
-	  double A_jac_err_norm = A_jac_err.FM2_NORM();
-	  double A_fd_jac_norm = A_fd_jac.FM2_NORM();
-	  double A_rel_err = A_jac_err_norm/A_fd_jac_norm;
+	    double A_jac_norm = A_jac.FM2_NORM();
+	    double A_jac_err_norm = A_jac_err.FM2_NORM();
+	    double A_fd_jac_norm = A_fd_jac.FM2_NORM();
+	    double A_rel_err = A_jac_err_norm/A_fd_jac_norm;
 
 #define CHK_MAX(v) if(v>v##_max) v##_max=v
 #define CHK_MIN(v) if(v<v##_min) v##_min=v
 #define CHK(v) CHK_MAX(v); CHK_MIN(v)
-	  CHK(A_jac_norm);
-	  CHK(A_jac_err_norm);
-	  CHK(A_fd_jac_norm);
-	  CHK(A_rel_err);
+	    CHK(A_jac_norm);
+	    CHK(A_jac_err_norm);
+	    CHK(A_fd_jac_norm);
+	    CHK(A_rel_err);
 #undef CHK_MAX
 #undef CHK_MIN
 #undef CHK
 
-	  int print_this = 
-	    A_rel_err >= compute_fd_adv_jacobian_rel_err_threshold;
-	  if (compute_fd_adv_jacobian>=2 && print_this) {
-	    printf("elem %d, |A_a|=%g, |A_n|=%g, |A_a-A_n|=%g, (rel.err %g)\n",
-		   k_elem,A_jac_norm,A_fd_jac_norm,A_jac_err_norm,
-		   A_rel_err);
+	    int print_this = 
+	      A_rel_err >= compute_fd_adv_jacobian_rel_err_threshold;
+	    if (compute_fd_adv_jacobian>=2 && print_this) {
+	      printf("elem %d, |A_a|=%g, |A_n|=%g, |A_a-A_n|=%g, (rel.err %g)\n",
+		     k_elem,A_jac_norm,A_fd_jac_norm,A_jac_err_norm,
+		     A_rel_err);
+	    }
+	    if (compute_fd_adv_jacobian>=3  && print_this) {
+	      A_jac.print("A_a: ");
+	      A_fd_jac.print("A_n: ");
+	    }
+	    // Reset state in flux function to state U
+	    adv_diff_ff->set_state(U,grad_U);
+	    adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
+				      A_grad_U,grad_U,G_source,
+				      tau_supg,delta_sc,
+				      lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
 	  }
-	  if (compute_fd_adv_jacobian>=3  && print_this) {
-	    A_jac.print("A_a: ");
-	    A_fd_jac.print("A_n: ");
-	  }
-	  // Reset state in flux function to state U
-	  adv_diff_ff->set_state(U,grad_U);
-	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
-				    A_grad_U,grad_U,G_source,
-				    tau_supg,delta_sc,
-				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
+	  FastMat2::leave();
 	}
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;

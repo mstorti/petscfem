@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.16 2003/11/16 15:06:45 mstorti Exp $
+#$Id: myexpect.pl,v 1.17 2003/11/16 15:32:54 mstorti Exp $
 
 use English;
 ## position in count record
@@ -64,6 +64,7 @@ sub match_exactly {
 
 sub match_regexp {
     my ($line,$patt) = @_;
+    ## Parse pattern
     my $orig_patt = $patt;
     my $new_patt = "";
     my @conds = ();
@@ -146,6 +147,24 @@ sub expect {
 	}
 	if ($pattern =~ /^__NO_SKIP__$/) {
 	    $skip=0;
+	    next;
+	}
+	if ($pattern =~ /^__CONFIG__/) {
+	    $rest = $POSTMATCH;
+	    while ($rest =~ /^\s*(\S*)\s*(\S)/) {
+		my $var = $1;
+		my $delim = $2;
+		$rest = $POSTMATCH;
+		die "not valid var in config line var \"$var\", line: \"$pattern\"\n"
+		    unless $var =~ /^(PRE|SEP|POST|WD|COMMENT)$/;
+		die "unbalanced delimiters at config line: \"$pattern\"\n"
+		    unless $rest =~ /^(.*?)$delim/;
+		my $value = $1;
+		$rest = $POSTMATCH;
+		${$var} = $value;
+		## print "setting \$${var} = $value\n";
+	    }
+	    die "can't parse config line: \"$pattern\"\n" unless $rest =~ /^\s*$/;
 	    next;
 	}
 	if ($pattern =~ /^__SWITCH_FILE__\s*(\S*)\s*$/) {
