@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.107 2003/05/12 01:33:58 mstorti Exp $
+#$Id: runtests.pl,v 1.108 2003/08/09 14:26:13 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -598,6 +598,10 @@ expect("sparse/output.sparse.superlu.tmp","Sparse Mat/Vec classes, SuperLU versi
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sparse/output.sparse.petsc.tmp","Sparse Mat/Vec classes, PETSc version",
                         read_file("sparse/sparse.test"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sparse/test10_verif.tmp","Read dvectors from files.",
+                        read_file("sparse/test10.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sparse/tryme8.output.tmp","Resize of non-empty dvectors.",

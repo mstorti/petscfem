@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2003/04/17 22:50:39 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2003/08/09 14:26:13 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -7,7 +7,7 @@ tests: sparse dvector test_cloud
 
 sp: sp.bin
 
-SRCS = sp.cpp tryme7.cpp tryme8.cpp
+SRCS = sp.cpp tryme7.cpp tryme8.cpp test10.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -60,7 +60,9 @@ tryme6.bin: tryme6.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
-dvector: tryme8.bin
+dvector: tryme8 
+
+tryme8: tryme8.bin
 	$< > $(basename $<).output.tmp
 
 #w Basic check for dvector class
@@ -91,5 +93,17 @@ link9:
 test_cloud: link9
 	tryme9.bin > tryme9.output.tmp
 	octave -qH check_cloud.m > verif.cloud.tmp
+
+#w Checks for reading and writing dvectors from files
+test10.o: test10.cpp 
+	g++ -c $(CXXOPTFLAGS) $(CPPFLAGS) -o $@ $<
+
+test10.bin: test10.o $(LIB_P)
+	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
+
+test10: test10.bin
+	octave -qH test10_ini.m
+	test10.bin > test10_output.tmp
+	octave -qH test10_verif.m > test10_verif.tmp
 
 #s
