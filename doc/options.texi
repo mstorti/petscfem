@@ -62,7 +62,6 @@ for PETSc-FEM can be downloaded at the home page.
 @menu
 * Copying::                     
 * NS Options::                  
-* Index::                       
 * Options Index::               
 @end menu
 
@@ -70,42 +69,15 @@ for PETSc-FEM can be downloaded at the home page.
 @chapter PETSc-FEM license
 @insertcopying
 
-@node NS Options, Index, Copying, Top
+@node NS Options, Options Index, Copying, Top
 @chapter Navier Stokes options
 
 @vtable @code
-@item debug_compute_prof
-int <debug_compute_prof> (Default: 0)
-
-Debug the process of building the matrix profile. 
-[Found in file: "../src/elemset.cpp"]
-
-@item debug_element_partitioning
-int <debug_element_partitioning> (Default: 0)
-
-Prints element partitioning. 
-[Found in file: "../src/readmesh.cpp"]
-
-@item density
-double <density> (Default: 0.)
-
-Density
-[Found in file: "../applications/ns/elast.cpp"]
-
-@item dev_comp_mask
-double <dev_comp_mask> (Default: 1.)
-
-Mask for deviatoric component of stress tensor 
-[Found in file: "../applications/ns/embgath.cpp"]
+@include options2.texi
 
 @end vtable
 
-@node  Index, Options Index, NS Options, Top
-@chapter Index
-
-@printindex cp
-
-@node Options Index,  , Index, Top
+@node Options Index,  , NS Options, Top
 @unnumbered Options Index
      
 @printindex vr
