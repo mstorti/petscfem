@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.62 2002/10/25 11:45:54 mstorti Exp $
+//$Id: readmesh.cpp,v 1.63 2002/10/25 12:17:50 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -423,18 +423,20 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	TRACE(-5.3.2.1);
       DONE:;
       } else {
+	Autobuf *tempo = abuf_create();
 	if (!myrank) {
 	  FileStack file_connect(data);
-	  while (!file_connect->get_line(line)) {
+	  nelem=0;
+	  while (!file_connect.get_line(line)) {
 	    // reading element connectivities
 	    for (int jel=0; jel<nel; jel++) {
 	      token =  strtok(( jel==0 ? line : NULL),bsp);
-	      if (!token) file_connect->print();
+	      if (!token) file_connect.print();
 	      PETSCFEM_ASSERT(token,
 			      "Error reading element connectivities at\n"
-			      "%s:%d: \"%s\"",file_connect->file_name(),
-			      file_connect->line_number(),
-			      file_connect->line_read());
+			      "%s:%d: \"%s\"",file_connect.file_name(),
+			      file_connect.line_number(),
+			      file_connect.line_read());
 	      sscanf(token ,"%d",&node);
 	      icorow[jel]= node;
 	    }
@@ -465,37 +467,27 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    }
 	
 	    // Copying to buffer
-	    abuf_zero (buff);
-	    abuf_cat_buf (buff,(unsigned char *)icorow,nel*sizeof(int));
-	    abuf_cat_buf (buff,(unsigned char *)proprow,nelprops*sizeof(double));
-	    abuf_cat_buf (buff,(unsigned char *)iproprow,neliprops*sizeof(int));
-	    unsigned char *pp = abuf_data(buff);
-	    
-	    int indxi = da_append(da_icone,abuf_data(buff));
-	    if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
+	    ierr = abuf_cat_buf (tempo,(unsigned char *)icorow,nel*sizeof(int));
+	    CHKERRQ(ierr);
+	    ierr = abuf_cat_buf (tempo,(unsigned char *)proprow,nelprops*sizeof(double));
+	    CHKERRQ(ierr);
+	    ierr = abuf_cat_buf (tempo,(unsigned char *)iproprow,neliprops*sizeof(int));
+	    CHKERRQ(ierr);
+	    nelem++;
 	  }
 	  file_connect.close();
-	  nelem = da_length(da_icone);
 	}
 	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSC_COMM_WORLD);
 	// Resize `da_icone' in other processors
-	if (myrank) 
-	  abuf_zero (buff);
-	  abuf_cat_buf (buff,(unsigned char *)icorow,nel*sizeof(int));
-	  abuf_cat_buf (buff,(unsigned char *)proprow,nelprops*sizeof(double));
-	  abuf_cat_buf (buff,(unsigned char *)iproprow,neliprops*sizeof(int));
-	  for (int jel=0; jel<nelem; jel++) {
-	    int indxi = da_append(da_icone,abuf_data(buff));
-	    if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
-	  }
-	} 
+	if (myrank) ierr =  abuf_set (tempo,nelem*rowsize,0);
 	  
 	// Broadcast all `icone' data using MPI
-	ierr = MPI_Bcast (abuf_data(da_icone),nelem*rowsize,MPI_CHAR,0,PETSC_COMM_WORLD);
+	ierr = MPI_Bcast (abuf_data(tempo),nelem*rowsize,MPI_CHAR,0,PETSC_COMM_WORLD);
 
 	// This should be done AFTER reading the nodes 
 	// Set all nodes that are connected to an element as degrees of freedom
 	for (int e=0; e<nelem; e++) {
+	  memcpy (icorow,abuf_data(tempo)+e*rowsize,nel*sizeof(int));
 	  for (int jel=0; jel<nel; jel++) {
 	    node = icorow[jel];
 	    for (int kdof=1; kdof<=ndof; kdof++) {
@@ -503,7 +495,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      dofmap->id->set_elem(edof,edof,1.);
 	    }
 	  }
+	  // Copying data from tempo tu `da_icone'
+	  int indxi = da_append(da_icone,abuf_data(tempo)+e*rowsize);
+	  if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
 	}
+	abuf_destroy(tempo);
       }	
     
       TRACE(-5.3.3);
