@@ -6,6 +6,8 @@
 global_options
 
 # dx <:=$dx:>
+# <:pr('use_twall'):>
+# <:pr('use_non_slip'):>
 
 nstep 1000
 alpha 1.
@@ -53,15 +55,15 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.05
+Dt 0.4
 shocap 0.
 weak_form 0
 temporal_stability_factor 0
 
 ndim 2
 Rgas <:=$Rgas:>
-visco 0.001
-cond 0.001
+visco 1
+cond 0.1
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
 linear_abso 1
@@ -104,6 +106,7 @@ __END_HASH__
 
 #if !$dx && $abso
 #if 0
+##================================================================
 elemset gasflow_abso 5
 props normal[2]
 dx 0
@@ -111,6 +114,7 @@ __END_HASH__
 __INCLUDE__ cylabso.abso-con.tmp
 __END_ELEMSET__
 #else
+##================================================================
 elemset gasflow_abso2 3
 props normal[2]
 dx 0
@@ -121,26 +125,47 @@ __END_ELEMSET__
 #endif
 #endif
 
+#if $use_twall
+##================================================================
+elemset gasflow_twall 2
+dx 0
+data ./cylabso.twall-con.tmp
+__END_HASH__
+#endif
+
 end_elemsets
 
 #if !$dx
+##================================================================
 fixa
 #if $use_symm
 __INCLUDE__ ./cylabso.fixa-ups.tmp
 __INCLUDE__ ./cylabso.fixa-down.tmp
+#else
+# __INCLUDE__ ./cylabso.fixa-down.tmp
 #endif
 #if $abso
 __INCLUDE__ ./cylabso.fixa-ref.tmp
 #else
 __INCLUDE__ ./cylabso.fixa-ext-std.tmp
 #endif
-
 # __INCLUDE__ ./cylabso.fixa-lm-nodes.tmp
+
+__INCLUDE__ ./cylabso.fixa-twall.tmp
+#if !$use_twall
+__INCLUDE__ ./cylabso.fixa-twall-lm.tmp
+#endif
+
+#if $use_non_slip
+__INCLUDE__ ./cylabso.fixa-non-slip.tmp
+#endif
 
 __END_FIXA__
 
+#if !$use_non_slip
 constraint
 __INCLUDE__ ./cylabso.fixa-skin.tmp
 __END_CONSTRAINT__
+#endif
 
 #endif

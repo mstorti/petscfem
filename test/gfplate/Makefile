@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.39 2005/01/31 02:35:52 mstorti Exp $ 
+# $Id: Makefile,v 1.40 2005/02/02 22:56:03 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_nozzle
+default: run_cyl
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := gfplate
+CASE_NAME := cylabso
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -32,7 +32,7 @@ runa:
 run2dn: gbody.efn
 	$(MAKE) CASE_NAME=gfabso2dn run
 
-runc: 
+run_cyl: 
 	mkstepsdir.pl
 	$(MAKE) CASE_NAME=cylabso run
 
@@ -60,7 +60,9 @@ dx_make_command:
 		echo "state file: $$state.gz " ;		\
 		gunzip -c $$state.gz >				\
 		./$(CASE_NAME).dx-state.tmp ;			\
-	else echo "ERROR NOT STATE FILE FOUND!!" ; fi ;		\
+	else echo "ERROR: NO STATE FILE FOUND!!" ;		\
+		echo "tried  $$state and  $$state.gz" ; fi ;	\
+	octave -qH fixstate.m ;					\
 	echo in target dx_make_command: dx_step: $$dx_step
 
 dx: 

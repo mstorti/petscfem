@@ -1,4 +1,4 @@
-## $Id: mkcyl2.m,v 1.1 2005/01/29 00:38:41 mstorti Exp $
+## $Id: mkcyl2.m,v 1.2 2005/02/02 22:56:04 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 2*pi],Nr+1,Nphi+1);
@@ -17,6 +17,10 @@ map(down) = up;
 for k=1:4
   icone(:,k) = map(icone(:,k));
 endfor
+
+## Fix all fields in nodes eliminated at seam line. 
+pffixa("cylabso.fixa-down.tmp",down,1:4);
+
 nnod = max(max(icone));
 # nnod == Nphi*(Nr+1) \
 #     || error(["not expected number of nodes\n"
@@ -31,6 +35,10 @@ for k=1:Nphi
 endfor
 fclose(fid);
 
+## Non-slip on skin
+pffixa("cylabso.fixa-non-slip.tmp", \
+       (1:Nphi+1)',[2,3]);
+
 ## Absorbing elements on exterior boundary
 
 ## Add two layers more of nodes (fictitious)
@@ -38,6 +46,15 @@ xfic = xnod(nline*Nr+(1:nline),:);
 xnod = [xnod;
 	xfic;
 	xfic];
+
+## Fictitious nodes for twall condition
+nnod2 = rows(xnod);
+xfictw = xnod(1:Nphi+1,:);
+xnod = [xnod;
+	xfictw];
+realtw = (1:Nphi+1)';
+fictw = nnod2+(1:Nphi+1)';
+nnod2 = rows(xnod);
 
 abso_con = [];
 lm_nodes = [];
@@ -98,9 +115,25 @@ nnod2 = rows(xnod);
 uini = uini(ones(nnod2,1),:);
 x = xnod(1:nnod,1);
 r = l2(xnod(1:nnod,:));
-dv = 0.3;
-v = dv*4*x.*(Rext-r)/Rext^2;
+v = dv_pert_symm*4*x.*(Rext-r)/Rext^2;
 uini(1:nnod,3) = v;
+
+uini(fictw,:) = 0;
+
+## Twall condition at cylinder skin.
+## Impose second dof to Twall, first
+## is free (lagrange multiplier).
+## dofs 3 and 4 are unused and fixed. 
+pffixa("cylabso.fixa-twall.tmp", \
+       fictw,[2,3,4],[Twall,0,0]);
+
+## Used in order to impose Lagrange multipliers
+## if Twall is not used. 
+pffixa("cylabso.fixa-twall-lm.tmp", \
+       fictw,1);
+
+## Twall elements (restrictions)
+asave("cylabso.twall-con.tmp",[realtw,fictw]);
 
 uini(lm_nodes,:) = 0;
 real_nodes = complement(lm_nodes,(1:nnod2));
