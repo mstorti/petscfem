@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat2.cpp,v 1.1 2003/08/31 21:21:09 mstorti Exp $
+//$Id: iisdmat2.cpp,v 1.2 2003/09/01 00:17:19 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -96,7 +96,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	while (jc<jc_end) *vvv++ = *(values_jrow + (*jc++));
       }
       // This is for debugging
-      //#define LOAD_VALUES
+#define LOAD_VALUES
 #ifdef LOAD_VALUES
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
@@ -109,9 +109,11 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   // Not implemented yet
   assert (local_solver != SuperLU);
 
+  // Controls debugging 
+  //#define DBG
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // A_LL block
-
   // This will flag if we will consider the special case of having
   // LL elements to be sent to other processors via the A_LL_other
   // container
@@ -126,6 +128,10 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   while (p<pe) {
     *p -= n_locp;
     if (*p < 0 || *p >= n_loc) any_A_LL_other = 1;
+#ifdef DBG
+    printf("row %d, eq. %d, exported? %d\n",p-indxr[L]->buff(),*p,
+	   !(*p < 0 || *p >= n_loc));
+#endif
     p++;
   }
 
@@ -135,53 +141,116 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   while (p<pe) {
     *p -= n_locp;
     if (*p < 0 || *p >= n_loc) any_A_LL_other = 1;
+#ifdef DBG
+    printf("column %d, eq. %d, exported? %d\n",p-indxc[L]->buff(),*p,
+	   !(*p < 0 || *p >= n_loc));
+#endif
     p++;
   }
 
-  // Fix the matrices and send to A_LL_other if special case
+  dvector<double> *vv = v[L][L];
+  grow_mono(*vv,nrr*ncc);
+  double *vvp = vv->buff();
+  int nrf, ncf;
+  int *indxrp = indxr[L]->buff();
+  int *indxcp = indxc[L]->buff();
+
   if (any_A_LL_other) {
-    // send to A_LL_other
+    // Fix the matrices and send to A_LL_other if special case
     any_A_LL_other_stop = 1;
     
     int *jrp = jndxr[L]->buff();
-    int *indxrp = indxr[L]->buff();
     int *jcp = jndxc[L]->buff();
-    int *indxcp = indxc[L]->buff();
+
+    //#ifdef DBG
+#if 1
+    // Print the original LL matrix
+    printf("LL Matrix\n");
+    for (int jrl=0; jrl<nrr; jrl++) { 
+      int indxr = indxrp[jrl];
+      for (int jcl=0; jcl<ncc; jcl++) { 
+	int jr = jrp[jrl];
+	int jc = jcp[jcl];
+	printf("%10g ",values[jr*ncols+jc]);
+      }
+      printf("\n");
+    }
+#endif
+
+    // Filtered dimensions (eliminated those sent to A_LL_other) 
+    int nrf=0, ncf=0;
+    double *to = vvp;
     for (int jrl=0; jrl<nrr; jrl++) { 
       int jr = jrp[jrl];
+      int indxr = indxrp[jrl];
       for (int jcl=0; jcl<ncc; jcl++) { 
 	int jc = jcp[jcl];
-	int indxr = indxrp[jrl];
 	int indxc = indxcp[jcl];
+	double *w = values + jr*ncols + jc;
 	if (indxr <0 || indxr >=n_loc || indxc <0 || indxc >=n_loc) {
-	  double w = values[jr*ncols+jc];
-	  // A_LL_other->insert_val(indxr+n_locp,indxc+n_locp,w);
+	  // send to A_LL_other
+	  A_LL_other->insert_val(idxr[jr],idxc[jc],*w);
 	  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 				  "[%d] NEW, sending to A_LL_other %d,%d,%g\n",
-				  MY_RANK,idxr[jr],idxc[jc],w);
+				  MY_RANK,idxr[jr],idxc[jc],*w);
+	} else {
+	  // Load matrix to pass to PETSc A_LL matrix
+	  // (eliminate rows and columns sent to A_LL_other)
+	  *to++ = *w;
 	}
       }
     }
+
+    // Fix row indices (purge those sent to A_LL_other)
+    nrf = 0;
+    for (int jrl=0; jrl<nrr; jrl++) { 
+      int indxr = indxrp[jrl];
+      if (!(indxr <0 || indxr >=n_loc)) indxrp[nrf++] = indxr;
+    }
+
+    // Fix column indices (purge those sent to A_LL_other)
+    ncf = 0;
+    for (int jcl=0; jcl<ncc; jcl++) { 
+      int indxc = indxcp[jcl];
+      if (!(indxc <0 || indxc >=n_loc)) indxcp[ncf++] = indxc;
+    }
+
+  } else {
+    
+    double *vvv = vvp;
+    for (int jrl=0; jrl<nrr; jrl++) { 
+      int jr = jndxr[L]->e(jrl);
+      int *jndx = jndxc[L]->buff();
+      double *values_jrow = values + jr*ncols;
+      int *jc = jndx;
+      int *jc_end = jc + ncc;
+      while (jc<jc_end) *vvv++ = *(values_jrow + (*jc++));
+    }
+    nrf = nrr;
+    ncf = ncc;
   }
 
-  dvector<double> *vv = v[L][L];
-  // Load values in matrix
-  grow_mono(*vv,nr[L]*nc[L]);
-  double *vvv = vv->buff();
-  for (int jrl=0; jrl<nrr; jrl++) { 
-    int jr = jndxr[L]->e(jrl);
-    int *jndx = jndxc[L]->buff();
-    double *values_jrow = values + jr*ncols;
-    int *jc = jndx;
-    int *jc_end = jc + ncc;
-    while (jc<jc_end) *vvv++ = *(values_jrow + (*jc++));
+#if 1
+  // Print for debugging
+  printf("LL Matrix to be exported\n");
+  for (int j=0; j<nrf; j++) { 
+    for (int k=0; k<ncf; k++) { 
+      printf("%d,%d %g ",indxrp[j],indxcp[j],vvp[j*ncf+k]);
+    }
+    printf("\n");
   }
+  printf("Exported row indices\n");
+  for (int j=0; j<ncf; j++) printf("%d %d\n",j,indxrp[j]);
+  printf("Exported column indices\n");
+  for (int j=0; j<ncf; j++) printf("%d %d\n",j,indxcp[j]);
+#endif
 
 #ifdef LOAD_VALUES
-  ierr = MatSetValues(*(AA[L][L]),
-		      nrr,indxr[L]->buff(),ncc,
-		      indxc[L]->buff(),vv->buff(),mode);
-  if (ierr) return ierr;
+  if (nrf>0 && ncf>0) {
+    ierr = MatSetValues(*(AA[L][L]),nrf,indxrp,ncf,
+			indxcp,vv->buff(),mode);
+    if (ierr) return ierr;
+  }
 #endif
 
   return 0;
