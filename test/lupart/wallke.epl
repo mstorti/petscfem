@@ -1,8 +1,5 @@
 <:
-#require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-# because when running the beta-1.82 version
-# `octave-export_vars()' is not available. 
-require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #
 $case = $ENV{'case'};
 $L = 1;                         # Semi distance between plates
