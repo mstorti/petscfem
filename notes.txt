@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.120 2002/05/24 19:16:58 mstorti Exp $
+$Id: notes.txt,v 1.121 2002/06/02 23:35:45 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.120 2002/05/24 19:16:58 mstorti Exp $ 
+! # $Id: notes.txt,v 1.121 2002/06/02 23:35:45 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.120 2002/05/24 19:16:58 mstorti Exp $ 
+! # $Id: notes.txt,v 1.121 2002/06/02 23:35:45 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.120 2002/05/24 19:16:58 mstorti Exp $ 
+  # $Id: notes.txt,v 1.121 2002/06/02 23:35:45 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -4444,6 +4444,10 @@ node3:     12.56       4.18
 node9:      9.43       3.14
 node12:    10.61       3.53
 
+%===Sun,  2 Jun 2002 20:34:59 -0300 mstorti@spider
+%
+Atencion: no se porque no esta salvando bien las versiones y las esta
+poniendo como 2.94 cuando en realidad son 2.96 o mas. 
 
 %# Current line ===========  
 # Local Variables: $
