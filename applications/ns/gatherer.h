@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.6 2002/03/21 19:43:25 mstorti Exp $
+//$Id: gatherer.h,v 1.7 2002/04/10 17:57:44 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -52,6 +52,7 @@ public:
   //@}
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Computes the force that the container is
     performing on the wall. 
     # force = \int_\surf - p * normal \dS #, where
@@ -63,6 +64,23 @@ public:
 class force_integrator : public gatherer {
 private:
   FastMat2 force;
+public:
+  /// perform several checks and initialization
+  void init();
+  /// set forces 
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+		     double wpgdet,double time);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Computes the flow rate at wall. 
+    fixme:= agregar doc.
+*/ 
+class flow_rate_integrator : public gatherer {
+private:
+  FastMat2 Q;
+  int ndim_m;
 public:
   /// perform several checks and initialization
   void init();

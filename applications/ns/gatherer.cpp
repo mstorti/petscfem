@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.6 2002/03/21 19:43:25 mstorti Exp $
+//$Id: gatherer.cpp,v 1.7 2002/04/10 17:57:44 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -145,9 +145,9 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::init() {
   int ierr;
-  //o Dimension od the embedding space
+  //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
-  //o Dimenson od the element
+  //o Dimenson of the element
   TGETOPTNDEF(thash,int,ndimel,ndim-1); 
   assert(ndimel==ndim-1);
   assert(gather_length==ndim);
@@ -162,6 +162,29 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   force.set(n).scale(-wpgdet*u.get(4));
   force.export_vals(pg_values.begin());
   // pg_values[0] = wpgdet;	// compute total area
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void flow_rate_integrator::init() {
+  int ierr;
+  //o Dimension of the embedding space
+  TGETOPTNDEF(thash,int,ndim,none);
+  ndim_m=ndim;
+  //o Dimenson of the element
+  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+  assert(ndimel==ndim-1);
+  assert(gather_length==1);
+  Q.resize(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
+				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
+				     double wpgdet,double time) {
+  u.is(1,1,ndim_m);
+  Q.prod(n,u,-1,-1).scale(wpgdet);;
+  u.rs();
+  Q.export_vals(pg_values.begin());
 }
 
 #undef SHAPE    
