@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.10 2001/06/26 03:46:13 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.11 2001/07/23 22:22:56 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -3960,7 +3960,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
     dsc = new detsur_cache();
     dsc->n = dim(2);
     dsc->m = dim(1);
-    dsc->g.resize(2,dsc->m,dsc->m);
+    if (dsc->m>0) dsc->g.resize(2,dsc->m,dsc->m);
     cache->sc = dsc;
   }
 

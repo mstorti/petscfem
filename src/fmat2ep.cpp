@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.10 2001/06/26 03:46:13 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.11 2001/07/23 22:22:56 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1358,7 +1358,7 @@ double FastMat2::detsur() {
     dsc = new detsur_cache();
     dsc->n = dim(2);
     dsc->m = dim(1);
-    dsc->g.resize(2,dsc->m,dsc->m);
+    if (dsc->m>0) dsc->g.resize(2,dsc->m,dsc->m);
     cache->sc = dsc;
   }
 
