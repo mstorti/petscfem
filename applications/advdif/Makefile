@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.7 2001/01/15 11:10:53 mstorti Exp $ 
+ # $Id: Makefile,v 1.8 2001/01/23 13:25:16 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -40,5 +40,5 @@ $(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
 ../../doc/odocburgers.tex: ffburg.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
-local_dist_clean:
+local_dist_clean::
 	-rm -f *.o
