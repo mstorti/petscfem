@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2002/08/26 02:39:28 mstorti Exp $ 
+# $Id: Makefile,v 1.27 2002/09/12 11:40:05 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -25,8 +25,18 @@ PROG := $(NS)
 
 CASE := $(CASE_NAME)
 ################################################################
+ifeq (1,0)
+NP = $(shell procsel -n ./proctable.geronimo)
+NL = -nolocal
+endif
+
+ifeq (1,1)
 NP = $(shell procsel ./proctable)
 NP = 2
+endif
+
+
+# NP = 2
 export NP
 
 PROG := $(NS)
@@ -36,8 +46,8 @@ MCH = -machinefile ./machi.dat
 $(CASE).depl: force
 run: $(CASE).depl
 #	$(MAKE) mesh
-#	-${MPIRUN} -nolocal -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
-	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+#	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 mesh: cubcav.depl
 	octave -q mkmesh.m
@@ -48,3 +58,4 @@ local_clean::
 
 hexasplit.bin: hexasplit.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
+

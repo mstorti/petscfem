@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.7 2002/01/14 03:45:06 mstorti Exp $
+//$Id: debug.cpp,v 1.8 2002/09/12 11:40:05 mstorti Exp $
  
 #include <src/debug.h>
 #include <cstdio>
@@ -162,7 +162,7 @@ void Debug::init() {
   orig_handler = signal(SIGINT,&Debug::set_signal);
 }
 
-Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
+Debug::Debug(int active_=0,MPI_Comm comm_=PETSC_COMM_WORLD) : 
   comm(comm_), was_initialized(0) {
   N = 100;
   line = (char *)malloc(sizeof(char)*N);

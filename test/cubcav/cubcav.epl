@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;			# Number of elements per dimension
+$N = 4;				# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -124,6 +124,7 @@ chunk_size 3000
 <:pr('maxits'):>
 report_consumed_time
 activate_debug_print
+activate_debug
 use_interface_full_preco 1
 print_interface_full_preco_conv 0
 interface_full_preco_maxits 10
