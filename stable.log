@@ -332,3 +332,22 @@ tag: beta-3.18 on Mon Feb 17 11:57:38 GMT+3 2003, by mstorti in spider
 ----------
 tag: beta-3.18.pl7 on Wed, 19 Feb 2003 19:20:57 -0300 by mstorti in spider
      > Fixed few errors. Runs all tests with g_c++ and O_c++
+----------
+tag: beta-3.19 on Fri Apr 18 01:17:03 GMT+3 2003, by mstorti in spider
+     > Runs dxhook with a DX script for debugging. 
+     > Added polling loop for avoid ExtProgImport to abort if the server is not open. 
+     > Runs DX tests for reading states from files. 
+     > Added tests for DX. 
+     > Fixed a bug in tools/myexpect.pl
+     > Runs DX tests with NP=2
+     > Fixed a bug in `inviscid.cpp'. 
+     > Fixed bugs in `dvector'
+     > `Cloud2' computes approximations for first derivatives in a regular mesh. 
+     > Fixed bug in `ns_id'. 
+     > Fixed some bugs in LES. 
+     > Changed ePerl to the Perl based ePerl by David Ljung Madison. 
+     > Added LES corrections to nsilesther
+     > Added fix for `nsilesther.cpp' and `wall.cpp'
+     > Implemented volume integrator. 
+     > Works filter (heat eq.) with `qharmm'. 
+     > Working on spillway example. 
