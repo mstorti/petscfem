@@ -132,13 +132,13 @@ INSTALLATION
 
   Unpacking
 
-    Once you got the *petscfem-beta-1.66.tar.gz* package, gunzip and untar
+    Once you got the *petscfem-beta-1.83.tar.gz* package, gunzip and untar
     it like this:
 
-      $ gunzip petscfem-beta-1.66.tar.gz
-      $ tar xvf petscfem-beta-1.66.tar
+      $ gunzip petscfem-beta-1.83.tar.gz
+      $ tar xvf petscfem-beta-1.83.tar
 
-    This will create a *petscfem-beta-1.66* directory with all the source
+    This will create a *petscfem-beta-1.83* directory with all the source
     files included.
 
   Makefile variables
