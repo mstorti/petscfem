@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.41 2002/07/29 20:17:39 mstorti Exp $
+//$Id: advdif.cpp,v 1.42 2002/09/02 01:48:13 mstorti Exp $
 
 #include <set>
 
@@ -75,7 +75,7 @@ int main(int argc,char **args) {
   }
 
   // Read data
-  read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
+  ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
 
   //o Absolute tolerance when solving a consistent matrix

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.91 2002/07/29 20:17:39 mstorti Exp $
+//$Id: ns.cpp,v 1.92 2002/09/02 01:48:16 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -85,7 +85,7 @@ int main(int argc,char **args) {
   }
 
   // Read the mesh
-  read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
+  ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr); 
 
   GLOBAL_OPTIONS = mesh->global_options;
 
