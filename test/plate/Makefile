@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2003/01/08 19:42:37 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2003/01/09 13:39:57 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid
 
@@ -10,7 +10,7 @@ tests:
 inviscid:
 	$(MAKE) CASE_NAME=ext run > inviscid.output.tmp
 
-viscous:
+viscous: inviscid.efn
 	if [ -e visc2inv.fifo ] ; then rm visc2inv.fifo ; fi
 	mkfifo visc2inv.fifo
 	if [ -e inv2visc.fifo ] ; then rm inv2visc.fifo ; fi

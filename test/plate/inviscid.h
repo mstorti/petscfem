@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: inviscid.h,v 1.5 2003/01/04 16:21:45 mstorti Exp $
+//$Id: inviscid.h,v 1.6 2003/01/09 13:39:57 mstorti Exp $
 #ifndef ROSI_H
 #define ROSI_H
 
@@ -44,14 +44,15 @@ class coupling_inv_hook {
 private:
   int nnod;
   FILE *visc2inv, *inv2visc;
-  double omega;
+  int ncoef;
+  vector<double> a_coef,b_coef;
 public:
   void init(Mesh &mesh,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
-  void close() {}
+  void close();
 };
 
 #endif

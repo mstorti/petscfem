@@ -28,8 +28,12 @@ hook_list dl_generic_hook coupling_inv_hook
 
 coupling_inv_hook.filename ./inviscid.efn
 coupling_inv_hook.prefix   coupling_inv_hook
-omega_coupling 0.25
 
+# Filter
+<: $omega=0.9; $xif=0.1; :>
+n_coef 3
+a_coef <:=1./$omega**2+$xif/$omega+0.5:> <:=-2/$omega**2:> <:=1./$omega**2-$xif/$omega+0.5:> 
+b_coef 0.5 0. 0.5
 __END_HASH__
 
 #===========================================================

@@ -2091,7 +2091,7 @@ tag: beta-3.14.pl13 on Wed,  8 Jan 2003 12:54:42 -0300 by mstorti in minerva.arc
      > Changed 'octave -qH' by `$(OCTAVE)' in all headers. 
 ----------
 tag: beta-3.14.pl14 on Wed,  8 Jan 2003 14:22:56 -0300 by mstorti in minerva.arcride.edu.ar
-     > Runs alltest, except those in nutatcyl (requires embedded gatherer
+     > Runs all tests, except those in nutatcyl (requires embedded gatherer
      > integrator, which is currently unavailable). 
 ----------
 tag: beta-3.14.pl15 on Wed,  8 Jan 2003 21:24:26 -0300 by mstorti in spider
