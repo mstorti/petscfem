@@ -53,6 +53,7 @@ nstep 1000
 # Compute time step from Courant number
 Dt <:=$havx/$u_max*$Courant:>
 LES 0
+C_smag 0.1
 G_body <:=$dpdx:> 0. 0.
 alpha 0.65
 solver "iisd"

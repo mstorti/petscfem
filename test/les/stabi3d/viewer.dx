@@ -18,9 +18,10 @@ close OUT;
 object 1 class array type float rank 1 shape 3 items <:=$nnod:> data file stabi.nod.tmp
 
 # The irregular connections, which are tetrahedra
-object 2 class array type int rank 1 shape 8 items <:=$Nx*$Ny*$Nz:> data file stabi.con0.tmp
+object 2 class array type int rank 1 shape 4
+	items <:=5*$Nx*$Ny*$Nz:> data file stabi.con-tet.tmp
 
-attribute "element type" string "cubes"
+attribute "element type" string "tetrahedra"
 attribute "ref" string "positions"
 # The data, which is in a one-to-one correspondence with the positions
 object 3 class array type float rank 0 items <:=$nnod:> data file dxdata.tmp
