@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.5 2002/05/16 20:31:24 mstorti Exp $
+//$Id: nssup.cpp,v 1.6 2002/07/30 20:05:09 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -125,7 +125,7 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.setel(res,2,1);
       // alpha's here are not clear. 
       matlocf.setel(rec_Dt/alpha*fs_eq_factor,2,1,2,1)
-	.setel(-alpha,2,1,1,ndim);
+	.setel(-alpha,2,1,1,normal_dir);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 
