@@ -14,14 +14,14 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 1;
+$N = 20;
 $hratio = 0;			# refinement (h_center/h_wall)
-$Re = 100;			# Reynolds number
+$Re = 1;			# Reynolds number
 $visco_l = $L/$Re;		# viscosity
 $Dt = 1e12;			# time step
 $solver = "petsc";
 $preco_type = "lu";
-$maxits = 1;
+$maxits = 5;
 $nstep = 1;
 $alpha_l = 1.;
 $u_g=0;
@@ -35,7 +35,6 @@ $cache_gdu = 0;
 # and then can be interpreted as `false' 
 $solver = "petsc";
 $preco_type = "lu";
-$maxits = 1;
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re visco_l h Co Dt hratio 
@@ -50,15 +49,15 @@ alpha 1.
 nsave 5
 <:pr('nstep'):> 
 initial_state "bubbly.ini.tmp"
-# initial_state "bubbly.state1"
+# initial_state "bubbly.state"
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
-<:pr('solver'):>
-<:pr('preco_type'):> 
+solver "petsc"
+preco_type "lu"
 <:pr('maxits'):> 
 # Number of subdomains
-<:pr('iisd_subpart'):>
+# <:pr('iisd_subpart'):>
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -67,7 +66,7 @@ proc_weights weights.dat
 tol_tet 1e-5
 tol_newton 1e-10
 atol 0
-rtol 1e-6
+rtol 0
 dtol 1e3
 nnwt 10
 
@@ -75,17 +74,17 @@ nnwt 10
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv
 print_residual
-#if 1
+#if 0
 print_linear_system_and_stop
-solve_system 0
-verify_jacobian_with_numerical_one 1
+# solve_system 0
+# verify_jacobian_with_numerical_one 1
 #endif
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
 # steady
 temporal_stability_factor 0
-# tau_fac 100
+tau_fac 100
 
 shock_capturing_factor 0
 #if $cache_gdu
@@ -127,7 +126,7 @@ __END_ELEMSET__
 end_elemsets
 
 fixa
-#if 0
+#if 1
 # fijacion en la presion
 1 1 0.
 # fijaciones de velocidad en las paredes
