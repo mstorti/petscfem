@@ -224,32 +224,17 @@ The C<PROF_FLAGS> variables allows you to turn on profiling. By default, profili
 
 =item *
 
-The remaining are Makefile variables that point to directories
-containing headers or libaries of required software. The lines come
-commented out and a line like this
-
-   include $(PETSCFEM_DIR)/../Makefile.defs
-
-includes a file containing the definitions. You have to either
-
-=over 
-
-=item *
-
-Comment the C<include> file out, uncomment the variable
-definition lines and set the appropriate values, or 
-
-=item *
-
-Edit a file F<$(PETSCFEM_DIR)/../Makefiles.defs> (i.e., in the
-directory inmediately above the C<$(PETSCFEM_DIR)> directory)
-containing the appropriate definitions.
-
-=back
-
-This last strategy allows you to configure several versions of
-B<PETSc-FEM> at the same directory, or changing the B<PETSc-FEM>
-version without having to reenter the variables. 
+Other configuration variables are defined in a file C<Makefile.defs>,
+but normally they are set only when you first install PETSc-FEM, so
+the best is to put C<Makefile.defs> in the directory inmediately above
+PETSc-FEM directory (i.e. C<$(PETSCFEM_DIR)/..>).  So that, if you
+install another version of PETSc-FEM, the settings will be seen
+immediately by the new version. A version of C<Makefile.defs> is
+included in the PETSc-FEM directory.  Copy it to the directory _above_
+the PETSC-FEM directory and configure the variables inside. If you
+install another version of PETSc-FEM then probably you have not to
+configure again these variables, unless a new package has been added
+or you have moved it. 
 
 =back
 
