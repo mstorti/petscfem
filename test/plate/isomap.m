@@ -18,6 +18,7 @@ function [xnod,icone]= isomap(XNOD,ICONE,HH)
 
   w = zhomo([0 1 0 1],m+1,n+1);
   [xinod,icone] = pfcm2fem(w);
+  icone = icone(:,[1 4 3 2]);
 
   xi = (0:m)'/m;
   eta = (0:n)'/n;

@@ -1,12 +1,6 @@
 global Rint Rext L Rmean
-Rint=1;
-Rext=2;
-L = 5;
 
-Ntheta = 40;
-Nr=10;
-Nx=20;
-
+source("data.m.tmp");
 rem(Ntheta,8)==0 || error("Ntheta must multiple of 8");
 Rmean = (Rint+Rext)/2;
 
@@ -59,3 +53,62 @@ H = [1 2 Nr/2;
 external = mesher_bound(mesh,[5 3 8 19 14 16]);
 outlet = mesher_bound(mesh,[16 15 11 4 5]);
 skin = mesher_bound(mesh,[9 1 6 17 12 9]);
+
+## Add a fictitious node for the constraints
+xnod = [xnod;
+	0 0];
+
+asave("cylin.nod.tmp",xnod);
+asave("cylin.con.tmp",icone);
+
+nnod = rows(xnod);
+uini = [1 0 0];
+uini = uini(ones(nnod,1),:);
+asave("cylin.ini.tmp",uini);
+
+next = length(external);
+normal = xnod(external(3:next),:) - xnod(external(1:next-2),:);
+normal = [-normal(:,2) normal(:,1)];
+normal = [0 1;
+	  normal;
+	  0 -1];
+normal = leftscal(1./l2(normal),normal);
+
+next = length(external);
+normal = xnod(external(3:next),:) - xnod(external(1:next-2),:);
+normal = [normal(:,2) -normal(:,1)];
+normal = leftscal(1./l2(normal),normal);
+normal = [0 1;
+	  normal;
+	  0 -1];
+
+fid = fopen("cylin.normal.tmp","w");
+
+for k=2:length(normal)-1
+  node = external(k);
+  fprintf(fid,"%f   %d %d      %f   %d %d    %f   %d %d\n",
+	  normal(k,1),node,1, normal(k,2),node,2,
+	  -normal(k,1),nnod,1);
+endfor
+fclose(fid);
+
+fid = fopen("cylin.skin.tmp","w");
+## Fix all values in the fictitious node
+fprintf(fid,"%d %d    %f\n",nnod,1,1.);
+fprintf(fid,"%d %d    %f\n",nnod,2,0.);
+fprintf(fid,"%d %d    %f\n",nnod,3,0.);
+
+for k=1:length(skin)
+  node = skin(k);
+  fprintf(fid,"%d %d    %f\n",node,1,0.);
+  fprintf(fid,"%d %d    %f\n",node,2,0.);
+endfor  
+fclose(fid);
+
+fid = fopen("cylin.outlet.tmp","w");
+for k=1:length(outlet)
+  node = outlet(k);
+  fprintf(fid,"%d %d    %f\n",node,2,0.);
+  fprintf(fid,"%d %d    %f\n",node,3,0.);
+endfor  
+fclose(fid);

@@ -1,7 +1,7 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2002/12/20 22:29:14 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/12/28 22:54:06 mstorti Exp $ 
 
-.PHONY: force all run tests data scalar diag full
+.PHONY: force all run tests data scalar diag full cylin
 
 all: run
 
@@ -13,7 +13,8 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
 LOC_PROG := ns
-CASE_NAME := plate
+# CASE_NAME := plate
+CASE_NAME := cylin
 PROG := $(NS_O)
 
 .PHONY: force

@@ -1,0 +1,73 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};
+$case_name = 'default' unless defined $case_name;
+$Rint=1;
+$Rext=2;
+$L = 5;
+$Ntheta = 40;
+$Nr=10;
+$Nx=20;
+#__END_TRANSCRIPT__
+@vars = qw(Rint Rext L Ntheta Nr Nx);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH cylin.m";
+$nnod = count_lines("./cylin.nod.tmp");
+:>//                            # ends ePerl block
+
+# <:pr('case_name'):>
+#===========================================================
+global_options
+ndim 2
+save_file "save.state.tmp"
+save_file_pattern "outvector.out.tmp"
+nsave 10
+nsaverot 10
+initial_state "cylin.ini.tmp"
+nstep 1
+steady
+solver "iisd"
+iisd_subpart 1
+nnwt 10
+alpha 1
+weak_form 0
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  3
+data cylin.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset nsi_tet_les_fm2 4
+geometry cartesian2d
+npg 4
+viscosity <:=1.:>
+data cylin.con.tmp
+__END_HASH__
+
+elemset ns_id 1
+__END_HASH__
+<:=$nnod:>
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+__INCLUDE__ "cylin.outlet.tmp"
+__INCLUDE__ "cylin.skin.tmp"
+__END_FIXA__
+
+constraint
+__INCLUDE__ "cylin.normal.tmp"
+__END_CONSTRAINT__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
