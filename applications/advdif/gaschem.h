@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gaschem.h,v 1.6 2003/11/19 17:56:34 mstorti Exp $
+// $Id: gaschem.h,v 1.7 2003/12/10 23:05:21 mstorti Exp $
 #ifndef PETSCFEM_GASCHEM_H
 #define PETSCFEM_GASCHEM_H
 
@@ -21,7 +21,7 @@ private:
   int nelprops,nel,ndof,ndim,g_dir;
   double Rgas,Tgas,nu_t,Sc,KO, KN, hm_fac,
     Nb_ctff,CO_ctff,CN_ctff,CdO_ctff,CdN_ctff,Nb_scale,
-    Nb_source;
+    Nb_source, bubble_radius;
 public:
   gaschem_ff(NewElemset *elemset_);
 
