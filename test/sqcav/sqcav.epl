@@ -1,5 +1,4 @@
 # -*- mode: shell-script -*-
-# case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
@@ -7,8 +6,12 @@ get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
 get_var_env('use_triangles',0);
-get_var_env('dx',0);
 
+$dx = 0;
+if ($case =~ /_dx$/) {
+    $dx = 1;
+    $case = $`; /`/; 
+}
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 
 if ($case eq 'other') {

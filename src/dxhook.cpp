@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.33 2003/02/17 22:36:35 mstorti Exp $
+//$Id: dxhook.cpp,v 1.34 2003/02/18 15:53:56 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -366,7 +366,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   ierr = string_bcast(state_file,0,PETSC_COMM_WORLD);
   ierr = MPI_Bcast (&record, 1, MPI_INT, 0,PETSC_COMM_WORLD);
 
-  // if (record==-1) throw GenericError("Received record=-1, stop.");
+  if (record==-1) throw GenericError("Received record=-1, stop.");
 
   if (stepso>=0 && stepso!=steps) {
     PetscPrintf(PETSC_COMM_WORLD,

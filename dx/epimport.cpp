@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.9 2003/02/17 02:40:10 mstorti Exp $
+// $Id: epimport.cpp,v 1.10 2003/02/18 15:53:53 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -245,7 +245,7 @@ Error build_dx_array_int(Socket *clnt,int shape,int length, Array &array) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
-    nelem, nel, cookie, fields_n, arrays_n;
+    nelem, nel, cookie, fields_n, arrays_n, poll;
 
   double *xnod_p,*data_p;
   Array icone=NULL,xnod=NULL,data=NULL,step_comp_o=NULL; 
@@ -280,7 +280,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   Object state_file_o     = in[in_index++];
   Object record_o         = in[in_index++];
 
-  int steps, port, step, step_comp, record;
+  int steps, port, step, step_comp=INT_MAX, record;
   char *options, *hostname, *state_file;
   DXMessage("before processing steps");
   if (!steps_o) steps = -1;
@@ -337,24 +337,18 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   char sktport[20];
   sprintf(sktport,"c%d",port);
 
-  clnt = Sopen(hostname,sktport);
-  if (!clnt) {
-    DXSetError(ERROR_INTERNAL, "Couldn't open socket");
-    return ERROR;
+  // Entering polling sequence 
+  while (1) {
+    clnt = Sopen(hostname,sktport);
+    if (clnt) break;
+    DXMessage("Couldn't open socket [try %d]",poll++);
+    sleep(2);
   }
+  if (poll) DXMessage("Socket opened at try %d",poll);
 
   DXMessage("Sending steps %d %s",steps,options);
   Sprintf(clnt,"steps %d step %d state_file %s record %d %s\n",
 	  steps,step,state_file,record,options);
-
-  Sgetline(&buf,&Nbuf,clnt);
-  tokenize(buf,tokens);
-  if (tokens[0]!="step") {
-    DXMessage("Not \"step\" found in first line, got %s",buf);
-    goto error;
-  }
-  if (string2int(tokens[1],step_comp)) goto error;
-  DXMessage("Got computation step %d",step_comp);
 
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
@@ -363,7 +357,11 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
     if (tokens[0]=="end") break;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-    else if (tokens[0]=="nodes") {
+    else if (tokens[0]=="step") {
+      if (string2int(tokens[1],step_comp)) goto error;
+      DXMessage("Got computation step %d",step_comp);
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    } else if (tokens[0]=="nodes") {
       string &name = tokens[1];
       if (string2int(tokens[2],ndim)) goto error;
       if (string2int(tokens[3],nnod)) goto error;
@@ -533,7 +531,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     }
   }
 
-  step_comp_o = DXMakeInteger(step_comp);
+  if (step_comp!=INT_MAX) step_comp_o = DXMakeInteger(step_comp);
 
   if(alist) out[0] = (Object)alist;
   if(flist) out[1] = (Object)flist;

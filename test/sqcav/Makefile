@@ -1,17 +1,24 @@
-# $Id: Makefile,v 1.50 2003/02/17 22:36:35 mstorti Exp $ 
+# $Id: Makefile,v 1.51 2003/02/18 15:53:56 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
-        ctest gprof dxhook
+        ctest gprof dxhook dx_tests dx_hook_test_post_run dx
 
-dxhook:
-	$(MAKE) case=weak_form_0 dx=1 runs
+dx_hook_test_post_run: dx
+	cd ../../dx; dx -mdf ./epimport.mdf -cache off -memory 100 \
+			-script qq3.net > ../test/sqcav/qq3.out.tmp &
+	$(MAKE) case=weak_form_0_dx runs
 
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
-	test_zero_w_proc test_zero_w_proc2 test_triangle
+	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests
 
+
+dx_tests: dx dx_hook_test_post_run
+
+dx:
+	$(MAKE) -C ../../dx
 
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 PETSCFEM_DIR = ../..
@@ -36,7 +43,7 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	#  > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+	 	 #  > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav
