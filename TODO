@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* In class Graph `ngbrs_v' should be a `set<int>' not `vector<int>'
 * add in  `Elemset::weight()' to get weight from an option
 * In `ns.cpp' it seems that there is no convergence check on the
   internal Newton loop. 

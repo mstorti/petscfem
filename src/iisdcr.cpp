@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.3 2001/11/26 20:10:22 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.4 2001/11/26 22:33:37 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -101,8 +101,9 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   int myrank,size,max_partgraph_vertices;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
-    n_loc_pre,loc,dof;
+    n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
   vector<int> dof2loc,loc2dof,ngbrs_v;
+  vector<int>::iterator q,qe;
   IISDGraph graph;
 
   MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
@@ -206,8 +207,17 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // Mark those local dofs that are connected to a local dof in a
   // subdomain with lower index in the subpartitioning as interface.
   for (k=0; k<n_loc_pre; k++) {
+    subdoj = graph.vrtx_part(k);
+    ngbrs_v.clear();
     graph.set_ngbrs(k,ngbrs_v);
-    if 
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
+      if (graph.vrtx_part(*q)<subdoj) {
+	flag[k] = 1;
+	break;
+      }
+    }
+  }
 
   graph.clear();
   dof2loc.clear();
