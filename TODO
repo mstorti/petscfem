@@ -3,6 +3,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Make dof map to a `fixation_entry_list', that contains many entries
+    of the form (double,Amplitude) so that we can have an Amplitude
+    function that is a sum of several Amplitude functions. 
 * Make advdif not to need the CHECK_JAC compilation flag, so that it
      doesn't need recompilation to check the jacobian. 
 * Continuation lines behave extrangely when ending in a comment. For

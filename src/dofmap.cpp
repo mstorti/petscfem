@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.7 2002/01/14 03:45:06 mstorti Exp $
+//$Id: dofmap.cpp,v 1.8 2002/03/11 02:28:22 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -156,26 +156,6 @@ double  Dofmap::get_dofval(const int & jeq,
     return fixed[jeq-neq-1].value(time_data);
   }
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "Dofmap::get_nodal_value" 
-int Dofmap::get_nodal_value(int const & node,int const & kdof,double
-			    const * sstate,double const *ghost_vals,
-			    const TimeData *time_data,double & value) const {
-
-  value=0.;
-  row_t row;
-  get_row(node,kdof,row);
-  row_t::iterator k;
-  for (k=row.begin(); k!=row.end(); k++) {
-    int keq= k->first;
-    double coef=k->second;
-    value += coef*get_dofval(keq,sstate,ghost_vals,time_data);
-  }
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.4 2002/03/11 02:28:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -801,7 +801,7 @@ int IISDMat::set_preco(const string & preco_type) {
     if ( !warn_iisdmat ) {
       warn_iisdmat=1;
       PetscPrintf(comm,
-		  "PETScFEM warning: IISD operator does not support any\n"
+		  "PETScFEM warning: IISD solver only support any\n"
 		  "preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
 		  preco_type.c_str());
     }
