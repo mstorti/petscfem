@@ -14,7 +14,7 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 
 #w generate HTML
-html:
+man_html:
 	$(DOCXX) -p -a -ep mstorti -d html $(DOCF)
 
 #w Generate PS

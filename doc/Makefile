@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.30 2003/02/10 15:11:47 mstorti Exp $
+#$Id: Makefile,v 1.31 2003/02/12 18:10:24 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -66,7 +66,7 @@ petscfem_html: latex icons petscfem/petscfem.html
 
 #w make html for manual only
 manual_html: 
-	$(MAKE) -C manual html
+	$(MAKE) -C manual man_html
 
 #s Other options
 
