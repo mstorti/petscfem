@@ -1,0 +1,57 @@
+
+\Section{The general advective-diffusive elemset} 
+
+\SSection{Introduction to advective systems of equations} 
+
+Advective system of equations are of the form
+%
+\begin{equation} 
+ \dep{U}t + \dep{\F^\conv_i(U)}{x_i} = \dep{\F^\diff_i(U,\nabla U)}{x_i} + G
+\end{equation}
+%
+and its treatment is similar to the advective elemset. 
+
+FIXME:= TO BE DOCUMENTED LATER
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Options}
+
+\begin{description}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[General options:] ~
+
+\begin{itemize}
+\input odocadvdif
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Generic elemset ``{\tt advdife}'':] ~
+
+\begin{itemize}
+\input odocadvdife
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Flux function``{\tt advec}'':] Generic linear
+advective-diffusive system 
+
+\begin{itemize}
+\input odocadvfm2
+\end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\item[Flux function``{\tt burgers}'':] Burgers eqs.
+
+\begin{itemize}
+\input odocburgers
+\end{itemize}
+
+
+\end{description}
+
+
+%
+% Local Variables: *
+% mode: latex *
+% tex-main-file: "petscfem.tex" *
+% End: *
