@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.18 2003/02/25 20:34:25 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2003/02/27 03:32:41 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -76,4 +76,12 @@ tryme8.o: tryme8.cpp
 
 tryme8.bin: tryme8.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
+
+#w Checks for dvector class
+tryme9.o: tryme9.cpp 
+	g++ -c $(CXXOPTFLAGS) $(CPPFLAGS) -o $@ $<
+
+tryme9.bin: tryme9.o
+	$(MAKE) -C $(PETSCFEM_DIR)/src compile
+	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
 #s

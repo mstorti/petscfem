@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.6 2003/02/26 14:17:04 mstorti Exp $
+// $Id: nullvort.cpp,v 1.7 2003/02/27 03:32:41 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -150,5 +150,8 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     printf("\n");
   }
 
+  icone.clear();
+  coupling_nodes_table.clear();
+  coupling_nodes_map.clear();
   graph.clear();
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.5 2003/02/26 14:17:04 mstorti Exp $
+// $Id: dvector2.h,v 1.6 2003/02/27 03:32:41 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -10,7 +10,7 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::reff(int j,int &chunk,int &k) {
+void dvector<T>::reff(int j,int &chunk,int &k) const {
   chunk = j/chunk_size;
   k = j % chunk_size;
   if (k<0) {
@@ -80,13 +80,13 @@ void dvector<T>::set_chunk_size(int new_chunk_size) {
   T *tempo=NULL;
   if (old_size!=0) {
     tempo = new T[old_size];
-    for (int j=0; j<old_size; j++) tempo[j] = ref(j);
+    export_vals(tempo);
   }
   clear();
   chunk_size = new_chunk_size;
   resize(old_size);
   if (old_size!=0) {
-    for (int j=0; j<old_size; j++) ref(j) = tempo[j];
+    set(tempo);
     delete[] tempo;
   }
 }
@@ -109,7 +109,16 @@ inline T &dvector<T>::ref(int j) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-int dvector<T>::size(void) { return size_m; }
+inline const T &dvector<T>::ref(int j) const {
+  assert(j>=0 && j<size_m);
+  int chunk,k;
+  reff(j,chunk,k);
+  return chunks[chunk][k];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+int dvector<T>::size(void) const { return size_m; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
@@ -190,7 +199,8 @@ int dvector<T>::find(const T &t,int first=0, int last=-1) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::sort(int first=0, int last=-1) {
+dvector<T> &
+dvector<T>::sort(int first=0, int last=-1) {
   if (last==-1) last=size();
   int i, j, n = last-first;
   j = n / 2 ;
@@ -202,6 +212,7 @@ void dvector<T>::sort(int first=0, int last=-1) {
     X(V(1),V(i));
     push_heap(first,1,i-1);
   }
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -221,7 +232,8 @@ int dvector<T>::remove_unique(int first=0, int last=-1) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::reshape(int rank_a,va_list ap) {
+dvector<T> &
+dvector<T>::reshapev(int rank_a,va_list ap) {
   rank = rank_a;
   assert(rank>0);
   int new_size=1;
@@ -234,19 +246,23 @@ void dvector<T>::reshape(int rank_a,va_list ap) {
   }
   shape_p = shape.begin();
   assert(new_size<0 || new_size==size());
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::reshape(int rank_a,...) {
+dvector<T> &
+dvector<T>::reshape(int rank_a,...) {
   va_list ap;
   va_start(ap,rank_a);
-  reshape(rank_a,ap);
+  reshapev(rank_a,ap);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
-void dvector<T>::a_resize(int rank_a,...) {
+dvector<T> &
+dvector<T>::a_resize(int rank_a,...) {
   rank = rank_a;
   va_list ap;
   va_start(ap,rank_a);
@@ -260,7 +276,8 @@ void dvector<T>::a_resize(int rank_a,...) {
   resize(new_size);
 
   va_start(ap,rank_a);
-  reshape(rank,ap);
+  reshapev(rank,ap);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -302,5 +319,32 @@ const T *dvector<T>::buff() const { return &ref(0); }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 T *dvector<T>::buff() { return &ref(0); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T> &
+dvector<T>::set(T t) {
+  int s = size();
+  for (int j=0; j<s; j++) ref(j) = t;
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T> &
+dvector<T>::set(const T* array) {
+  int s = size();
+  for (int j=0; j<s; j++) ref(j) = array[j];
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+const dvector<T> &
+dvector<T>::export_vals(T* array) const {
+  int s = size();
+  for (int j=0; j<s; j++) array[j] = ref(j);
+  return *this;
+}
 
 #endif

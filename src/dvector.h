@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.7 2003/02/26 14:17:04 mstorti Exp $
+// $Id: dvector.h,v 1.8 2003/02/27 03:32:41 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -30,7 +30,7 @@ private:
       @param j (input) the position in the vector
       @param chunk (output) number of chunk
       @param k (output) the position in chunk */ 
-  inline void reff(int j,int &chunk,int &k);
+  inline void reff(int j,int &chunk,int &k) const;
 
   /** Exchange objects `u' and `v'
       @param u (input/output) first element to be exchanged
@@ -61,9 +61,14 @@ public:
       @return a reference to the object inside the vector */ 
   inline T &ref(int j);
 
+  /** reference to the object in some position (const version)
+      @param j (input) position in the vector
+      @return a reference to the object inside the vector */ 
+  inline const T &ref(int j) const;
+
   /** number of elements in the vector
       @return size of vector */ 
-  int size(void);
+  int size(void) const;
 
   /** Gives number of chunks, in which internally is fragmented 
       the data. May be used in order to check whether the
@@ -120,7 +125,7 @@ public:
        Uses ``heap-sort'' algorithm. 
        @param first (input) first position in range to be sorted
        @param last (input) past to the end position in range to be sorted */  
-  void sort(int first=0, int last=-1);
+  dvector<T> &sort(int first=0, int last=-1);
 
   /** Sorts elements in a vector range and eliminates repeated values. 
       @param first (input) first position in range to be sorted
@@ -132,19 +137,19 @@ public:
       are the size of each dimension.
       @param rank (input) number of dimensions
       @param j,k,l (input) the sizes of each argument */
-  void reshape(int rank,...);
+  dvector<T> & reshape(int rank,...);
 
   /** Same as #reshape(i,j,k,l)# but the variable argument list 
       is pased as a variadic macro. 
       @param rank (input) number of dimensions. 
       @param ap (input) the list of dimensions, as a variadic macro */ 
-  void reshape(int rank_a,va_list ap);
+  dvector<T> &reshapev(int rank_a,va_list ap);
 
   /** Array resize the dynamic vector. Resizes and reshapes the vector
       by defining its rank and list of dimensions. 
       @param rank (input) number of dimensions 
       @param i,j,k (input) list of dimensions */ 
-  void a_resize(int rank,...);
+  dvector<T> &a_resize(int rank,...);
 
   /** Gets a particular element of the array
       @param i,j,k,l (input) indices 
@@ -168,6 +173,18 @@ public:
       @param ap (input) remaiing indices
       @return const reference to the element */ 
   const T& ev(int j,va_list ap) const;
+
+  /** Sets all values from an array.
+      @param array (input) the values to be set. */ 
+  dvector<T> &set(const T* array);
+
+  /** Sets all elements to a constant value. 
+      @param t (input) the value to be set. */ 
+  dvector<T> & set(T t);
+
+  /** Exports all values to an external array.
+      @param array (input) the buffer where to put the values. */ 
+  const dvector<T> & export_vals (T* array) const;
 
 };
 

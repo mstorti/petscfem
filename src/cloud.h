@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: cloud.h,v 1.2 2003/02/25 03:14:04 mstorti Exp $
+// $Id: cloud.h,v 1.3 2003/02/27 03:32:41 mstorti Exp $
 #ifndef PETSCFEM_CLOUD_H
 #define PETSCFEM_CLOUD_H
 
@@ -28,7 +28,7 @@ public:
   /** Initialize the chain. Execute first to all calls to #coef()#
       @param nx (input) Number of points 
       @param nderiv (input) order of derivative
-      @param mpol (input) order of polynomial to be used. */ 
+      @param npol (input) order of polynomial to be used. */ 
   void init(int nx, int nderiv,int npol);
   /** Compute the coefficients for a certain set of coordinates. 
       @param x (input) coordinates of points

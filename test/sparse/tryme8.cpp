@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme8.cpp,v 1.1 2003/02/25 20:34:25 mstorti Exp $
+// $Id: tryme8.cpp,v 1.2 2003/02/27 03:32:41 mstorti Exp $
 
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -21,10 +21,20 @@ int main(int argc, char **argv) {
   dvprint(v,M,N);
   printf("number f chunks: %d\n",v.chunks_n());
 
+  // export values to a C array, scale by 10 and
+  // then get back to the dvector
+  int *array = new int[M*N];
+  v.export_vals(array);
+  for (int j=0; j<M*N; j++) array[j] *= 10;
+  v.set(array);
+  printf("After mult by 10\n");
+  dvprint(v,M,N);
+
   // v.set_chunk_size(v.size());//defrag
   v.defrag();
   printf("After defrag\n");
   dvprint(v,M,N);
   printf("number f chunks: %d\n",v.chunks_n());
-  
+
+  delete[] array;
 }

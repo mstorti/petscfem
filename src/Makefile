@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.72 2003/02/26 00:54:50 mstorti Exp $ 
+# $Id: Makefile,v 1.73 2003/02/27 03:32:41 mstorti Exp $ 
 
 .PHONY: all run lclean save compile default
 
@@ -14,7 +14,7 @@ graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl			\
 measperf metisprt petscmat pfmat propef randomg readmesh secant sparse		\
 spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf		\
 timestat util2 util3 utils version gatherer hook dlhook dxhook dxelmst autostr	\
-cloud surf2vol pfobject nullvort
+cloud cloud2 surf2vol pfobject nullvort fm2temp
 
 # C files
 CLIBOBJS_ =  getarrgr.tab

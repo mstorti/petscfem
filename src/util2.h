@@ -1,8 +1,13 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.13 2002/09/30 02:30:52 mstorti Exp $
+//$Id: util2.h,v 1.14 2003/02/27 03:32:41 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
+
+#include <vector>
+#include <newmat.h>
+#include <petscsles.h>
+#include <src/fstack.h>
 
 typedef double scalarfun(double,void *);
 

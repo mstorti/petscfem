@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $
+$Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
+! # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
+  # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.252 2003/02/25 00:06:08 mstorti Exp $ 
+  # $Id: notes.txt,v 1.253 2003/02/27 03:32:37 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6182,6 +6182,14 @@ periodico segun y, lo resuelvo bien imponiendo vorticidad nula a la
 entrada. Esto lo hago tomando dos capas de elementos estructuradas y
 usando una aproximacion de segundo orden para la vorticidad. Ahora lo
 quiero aplicar al `cylin'. 
+
+%===Wed, 26 Feb 2003 11:17:31 -0300 mstorti@spider
+%
+Para funciones de `dvector' con muchos indices voy a tener que volver
+a la estrategia de usar dos nombres distintos (por ejemplo `reshape' y
+`reshapev') ya que sino hay ambiguedad cuando hay un solo argumento
+variable y es la constante 0, ya que en ese caso el compilador lo
+puede interpretar como NULL. 
 
 # Current line ===========  %
 # Local Variables: $

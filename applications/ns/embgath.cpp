@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.36 2003/02/25 03:14:01 mstorti Exp $
+//$Id: embgath.cpp,v 1.37 2003/02/27 03:32:41 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -217,7 +217,8 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       double wpgdet = detJaco*WPG;
 
-      // `w' is the coefficients to compute the derivative of a function with coordinates `xn' 
+      // `w' is the coefficients to compute the derivative of 
+      //  a function with coordinates `xn' 
       xn.prod(n,xpgl,-1,1,-1);
       xn.add(-xn.get(1));
       cloud.coef(xn,w);
