@@ -1789,3 +1789,6 @@ tag: beta-3.08.pl6 on Wed, 27 Nov 2002 10:16:49 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.08.pl7 on Thu, 28 Nov 2002 12:55:15 -0300 by mstorti in node1.beowulf.gtm
      > FastMat2::seig() computes eigenvectors 
+----------
+tag: beta-3.08.pl8 on Thu, 28 Nov 2002 14:52:59 -0300 by mstorti in node1.beowulf.gtm
+     > Working on mesh-move
