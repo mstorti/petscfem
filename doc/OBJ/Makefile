@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.2 2001/01/15 11:11:05 mstorti Exp $
+#$Id: Makefile,v 1.3 2001/01/23 13:26:12 mstorti Exp $
 
 EPS = $(patsubst %.obj, %.eps, $(wildcard *.obj))
 EPS_F = $(patsubst %.fig, %.eps, $(wildcard *.fig))
@@ -17,7 +17,7 @@ $(EPS): %.eps : %.obj
 $(EPS_F): %.eps : %.fig
 	fig2dev -L ps $< $@
 
-local_dist_clean:
+local_dist_clean::
 	rm -f *.eps *~ *.bak
 
 local_clean:: local_dist_clean

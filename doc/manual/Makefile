@@ -34,7 +34,7 @@ manual.tex:
 		-e "s/classTrandom_popsetT/class T random\\\\_pop(set\\\\<T\\\\> \\\\&)/" \
 				manual.tex
 
-local_dist_clean:
+local_dist_clean::
 	-putex
 	-rm -f manual.tex.bak
 
