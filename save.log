@@ -2707,3 +2707,6 @@ tag: beta-3.19.pl19 on Sun,  8 Jun 2003 10:10:56 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl20 on Sun,  8 Jun 2003 18:42:15 -0300 by mstorti in spider
      > Adding `interpolation' object/elemset and pfinterp (Octave script). 
+----------
+tag: beta-3.19.pl21 on Sun,  8 Jun 2003 23:37:31 -0300 by mstorti in spider
+     > Writing the `interpolation' elemset. 
