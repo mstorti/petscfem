@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: condwall.cpp,v 1.11 2005/04/05 23:16:34 mstorti Exp $
+// $Id: condwall.cpp,v 1.12 2005/04/06 14:47:20 mstorti Exp $
 
 #include "./condwall.h"
 extern int MY_RANK,SIZE;
@@ -76,6 +76,7 @@ res(int k,FastMat2 &U,FastMat2 &r,
       // printf("k %d, v1 %f, v2 %f\n",k,u1.get(2),u2.get(2));
     }
     // Closed
+    r.set(0.0);
     U1.is(1,1,ndim);
     r.is(1,1,ndim).set(U1).rest(u1).rs();
     U1.rs();
