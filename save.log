@@ -4210,3 +4210,6 @@ tag: beta-3.45.6 on Mon, 28 Mar 2005 18:06:42 -0300 by mstorti in minerva.ceride
 ----------
 tag: beta-3.45.7 on Mon, 28 Mar 2005 18:34:39 -0300 by mstorti in minerva.ceride.gov.ar
      > Merging from (bubbly9--0-0-1)-(bubbly9-branch). 
+----------
+tag: beta-3.45.8 on Mon, 28 Mar 2005 22:48:10 -0300 by mstorti in spider
+     > Fixing a bug in the implementation of `comp_grad_N_dDdU_N'. 
