@@ -615,3 +615,6 @@ tag: beta-2.31 on Fri Nov 23 21:05:19 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.32 on Sun Nov 25 19:45:13 ARST 2001, by mstorti in spider
      > Debug now intercepts signals,so that you can activate debugging with `C-c'
+----------
+tag: beta-2.33 on Sun Nov 25 22:36:06 ARST 2001, by mstorti in spider
+     > Working on new sub-partitioning algorithm.
