@@ -1,4 +1,4 @@
-# $Id: Linux-CD-Write-HOWTO.txt,v 1.6 2004/07/19 18:16:11 mstorti Exp $
+# $Id: Linux-CD-Write-HOWTO.txt,v 1.7 2004/09/13 17:48:29 mstorti Exp $
 
  COMO GUARDAR DATOS GENERADOS EN LINUX EN UN CD USANDO UNA GRABADORA
 		 INSTALADA EN UNA MAQUINA CON WINDOWS
@@ -118,6 +118,38 @@ y despues se graba (ojo, como root):
 
 Hay que usar la opcion '-sao'. 
 
+Warning!!! En versiones viejas de Linux (al menos en RH 7.1 que hoy
+esta instalado en Geronimo, no se pueden generar archivos de mas de
+2GB.) La solucion en ese caso es llevar los datos por pedazos a una
+maquina con una version mas nueva (como minerva) y crear la imagen ISO
+ahi. Ver mas abajo... 
+
+Warning 2!!! Ojo que el DVD se va a poder leer solo en una maquina con
+lectora de DVD. 
+
+Warning 3!!! Si despues de la cuenta regresiva expira por 
+"Alarm clock" entonces probablemente expiro la clave. `dvdrecord' esta
+protegido pero el autor da claves publicas para Linux sin
+restricciones. Las claves se pueden bajar de ftp://ftp.berlios.de/pub/cdrecord/ProDVD/README
+donde hay una linea 
+
+CDR_SECURITY=8:dvd,clone:sparc-sun-solaris2,i386-pc-solaris2,....
+
+Hay que copiar esa linea en el script `dvdrecord' de manera que quede
+algo asi como
+
+    #!/bin/bash
+
+    declare -x CDR_SECURITY=8:dvd,clone:sparc-sun-solaris2,\
+    i386-pc-solaris2,i586-pc-linux,powerpc-apple,hppa,powerpc-ibm-aix,\
+    i386-unknown-freebsd,i386-unknown-openbsd,i386-unknown-netbsd,\
+    powerpc-apple-netbsd,i386-pc-bsdi,mips-sgi-irix,i386-pc-sco:\
+    1.11::1110000000:::private/research/educational_non-commercial_use:\
+    1p8anqnRQ3jtiMgniHZLFfWSyfs2L.m4ab/OAUHU95PYL.SF7W2NAIDkJ/A
+    
+    exec /u/mstorti/bin_exe/cdrecord-ProDVD "$@"
+
+
 Detalles de instalacion de cdrecord-ProDVD
 ==========================================
 
@@ -226,6 +258,10 @@ ejemplo previo.
 
 Con `cdrecord-proDVD' no existe ese problema. La huella del archivo y
 la del DVD son exactamente iguales. 
+
+Para mas informacion sobre `md5sum' leer el manual info que viene con
+el programa o el RFC original: 
+ftp://ftp.rfc-editor.org/in-notes/rfc1321.txt
 
 En geronimo no se pueden generar archivos >2GB
 ========================================================
