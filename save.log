@@ -3630,3 +3630,7 @@ tag: beta-3.38.15 on Sat, 08 Jan 2005 21:10:15 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.16 on Sun, 09 Jan 2005 18:32:48 -0300 by mstorti in spider
      > Starts eliminating internal faces. 
+----------
+tag: beta-3.38.17 on Sun, 09 Jan 2005 20:49:43 -0300 by mstorti in spider
+     > Runs OK large problems. There remains a problem when a
+     > false collision is reported. 
