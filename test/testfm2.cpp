@@ -1,15 +1,15 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.7 2001/06/08 14:26:01 mstorti Exp $
+//$Id: testfm2.cpp,v 1.8 2001/12/21 00:13:01 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
 
 #include <sles.h>
 
-#include "../src/fastmat2.h"
-#include "../src/fem.h"
-#include "../src/utils.h"
-#include "../src/util2.h"
+#include <src/fastmat2.h>
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/util2.h>
 #include <newmatio.h>
 
 void init123(FastMat2 & A) {

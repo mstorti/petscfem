@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2d.cpp,v 1.3 2001/05/30 03:58:53 mstorti Exp $
+//$Id: testfm2d.cpp,v 1.4 2001/12/21 00:13:01 mstorti Exp $
 
 #include <stdio.h>
 #include <unistd.h>
@@ -8,11 +8,11 @@
 
 #include <sles.h>
 
-#include "../src/fastmat2.h"
-#include "../src/fastmat.h"
-#include "../src/fem.h"
-#include "../src/utils.h"
-#include "../src/util2.h"
+#include <src/fastmat2.h>
+#include <src/fastmat.h>
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/util2.h>
 #include <newmatio.h>
 
 double gettod() 
