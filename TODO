@@ -2,14 +2,28 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Can't open `weights.dat' gives a SIGSEGV and not in parallel. 
+> Couldn't open file "weights.dat"!!
+> --------------------------------------------------------------------------
+> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
+>        The PETSc Team
+> ...
+> --------------- Stack Frames ---------------
+> Couldn't open file "weights.dat"!!
+> --------------------------------------------------------------------------
+> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
+>        The PETSc Team
+>     petsc-maint@mcs.anl.gov
+> ...
+* When can't open a file (included with __INCLUDE__) it reports 
+> Assertion failed: "ierr==0"
+> Can't find __END_FIXA__ tag
+> ---------------
+  which is confuse. 
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
-* Fix warnings that are currently disabled with '-Wno-deprecated'
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
-* Not reporting error in 
-  parallel "Couldn't open file "../proy.skin.tmp"!!" while reading
-  fixations. 
 * make `epsilon' relative in `srfgath' 
 * `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
 * `advdif/id' elemset does some `proj' task or something. We should write
@@ -23,19 +37,6 @@ TODO: [Mainly fixes go here...]
 * There is a conflict between the computation of residual jacobians 
 	  in advdif and the use of masks/profiles for element
 	  uploading. 
-* Bad parallel error reporting when not known elemset type 
-      in NS (and advdif??)
-   > not known elemset type: "ns_id"
-   > rm_l_8_1498:  p4_error: net_recv read:  probable EOF on socket: 1
-   > not known elemset type: "ns_id"
-   > not known elemset type: "ns_id"
-   > not known elemset type: "ns_id"
-   > not known elemset type: "ns_id"
-   > rm_l_2_1523:  p4_error: net_recv read:  probable EOF on socket: 1
-   > rm_l_4_1450:  p4_error: net_recv read:  probable EOF on socket: 1
-   > not known elemset type: "ns_id"
-   > not known elemset type: "ns_id"
-  Sat, 06 Dec 2003 13:07:34 -0300: Hey!! can't reproduce
 * Sends multiple messages (from all processors) when can't open file
     in 
     > Couldn't open file "spillwgc.bcconv-all.tmp"!!
@@ -161,6 +162,25 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Not reporting error in 
+  parallel "Couldn't open file "../proy.skin.tmp"!!" while reading
+  fixations. 
+* Bad parallel error reporting when not known elemset type 
+      in NS (and advdif??)
+   > not known elemset type: "ns_id"
+   > rm_l_8_1498:  p4_error: net_recv read:  probable EOF on socket: 1
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+   > rm_l_2_1523:  p4_error: net_recv read:  probable EOF on socket: 1
+   > rm_l_4_1450:  p4_error: net_recv read:  probable EOF on socket: 1
+   > not known elemset type: "ns_id"
+   > not known elemset type: "ns_id"
+  Sat, 06 Dec 2003 13:07:34 -0300: Hey!! can't reproduce
+* Fix warnings that are currently disabled with '-Wno-deprecated'
+       Mon Feb 21 15:00:28 2005: Fixed, compiles OK without
+       '-Wno-deprecated'. 
 * Add test for `surf_gatherer' in test/cubcav. Apparently it is
        almost already done. 
        Sun Feb 20 21:37:22 2005: Added test
