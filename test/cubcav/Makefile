@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.101 2004/10/25 04:46:39 mstorti Exp $ 
+# $Id: Makefile,v 1.102 2004/11/07 14:59:24 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -19,7 +19,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-#CASE_NAME := qharm
+# CASE_NAME := qharm
 CASE_NAME := cubcav
 # CASE_NAME := cubcav-fs
 PROG := $(NS)
@@ -39,14 +39,14 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
-run_subdir_test:
+run_subdir_test:							\
 	if [ -e $(sub_dir) ] ; then rrm -rf $(sub_dir) ; fi ;		\
 	mkdir $(sub_dir) ;						\
 	echo "node1 1.3 server" > $(sub_dir)/proctable ;		\
 	for n in $(node_list) ;						\
 		do grep $$n ./proctable >> $(sub_dir)/proctable ;	\
 	done ;								\
-	cp $(CASE_NAME).epl $(sub_dir) ;					\
+	cp $(CASE_NAME).epl $(sub_dir) ;				\
 	cp Makefile.sub-dir  $(sub_dir)/Makefile ;			\
 	echo $(MAKE) -C $(sub_dir) data_dir=.. mkmesh=0
 
@@ -96,19 +96,23 @@ dx_make_command1:
 
 dx_make_command2:
 #	echo $$dx_step >> comp_server.fifo 
-	if [ -f $(CASE_NAME).tiff ] ; then rm $(CASE_NAME).tiff ; fi ;	\
-	sendstep.pl $$dx_step					\
+	if [ -f $(CASE_NAME).tiff ] ; 			\
+		then rm $(CASE_NAME).tiff ; fi ;	\
+	sendstep.pl $$dx_step				\
 		comp_server.fifo comp_server2.fifo
 
 #================================================================
 yuv_compress2:
 
 yuv_compress:
-	yuv=YUV/$(CASE_NAME).$$dx_step.yuv ;			\
-	tiff=$(CASE_NAME).tiff ;				\
-	if [ -f $$tiff ] ;					\
-		then if [ -f $$yuv ] ; then rm -f $$yuv ; fi ;	\
-		convert $$tiff $$yuv ; gzip -f $$yuv ;		\
+	yuv=YUV/$(CASE_NAME).$$dx_step.yuv ;	\
+	tiff=$(CASE_NAME).tiff ;		\
+	if [ -f $$tiff ] ; then			\
+		if [ -f $$yuv ] ;		\
+			then rm -f $$yuv ;	\
+		fi ;				\
+		convert $$tiff $$yuv ;		\
+		gzip -f $$yuv ;			\
 	fi
 
 #================================================================
@@ -123,7 +127,8 @@ block_uploading:
 		> $(CASE_NAME).out.plain_bupl0.tmp
 	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run \
 		> $(CASE_NAME).out.plain_bupl1.tmp
-	$(OCTAVE) check_plain.m > $(CASE_NAME).plain-bupl.verif.tmp
+	$(OCTAVE) check_plain.m				\
+		> $(CASE_NAME).plain-bupl.verif.tmp
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 #w Checks the surf-gatherer class
