@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.17 2001/07/10 00:54:33 mstorti Exp $
+//$Id: nsi_tet.h,v 1.18 2001/10/04 20:43:37 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -225,7 +225,6 @@ class NonLinearRes : public Elemset {
       @param lambda (input) the state of the Lagrange multipliers 
       @param jac (output) the jacobian of the residuals with respect
       of the node state. (size #nres x ndof#)
-      @return a reference to the matrix.
   */ 
   virtual void res(int k,FastMat2 &U,FastMat2 & r,
 		   FastMat2 & lambda,FastMat2 & jac)=0;
@@ -298,6 +297,36 @@ class wallke : public Elemset {
 public: 
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Generic nonlinear restriction element. 
+    It may not work for restrictions that involve
+    fields in more that one node. 
+*/ 
+class LagrangeMult : public Elemset {
+ public:
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+  /// Returns number of restrictions
+  virtual int nres()=0;
+  /// Initialize the elemset (maybe reads hash table)
+  virtual void init()=0;
+  /** Computes the residual and jacobian of the function to be
+      imposed. Usually you derive #NonLinearRes# and instantiate this
+      function that defines the restriction to be imposed. 
+      @param k (input) element number in elemset
+      @param U (input) state vector at all nodes
+      @param r (output) a vector of length #nres*nel/2# containing the
+      residuals for each restriction at each node.
+      @param lambda (input) the state of the Lagrange multipliers 
+      @param jac (output) the jacobian of the residuals with respect
+      to the node state. (size #nel/2 * nres* nel/2 x ndof#)
+  */ 
+  virtual void res(int k,FastMat2 &U,FastMat2 & r,
+		   FastMat2 & lambda,FastMat2 & jac)=0;
+  /// Make it pure virtual. 
+  virtual ~LagrangeMult()=0;
 };
 
 #endif

@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.46 2001/09/27 03:44:27 mstorti Exp $
+#$Id: Makefile.base,v 1.47 2001/10/04 20:43:35 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -42,7 +42,7 @@ CPPFLAGS         := $(PROF_FLAGS) $(RH60) \
 		-I$(MPI_HOME)/include \
 		${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \
                      -I$(METIS)/Lib \
-                    -I$(PETSCFEM_DIR)/src -I$(MESCHACH) \
+                    -I$(PETSCFEM_DIR)/src -I$(PETSCFEM_DIR) -I$(MESCHACH) \
                     -I$(LIBRETTO_I) -I$(ANN_HOME)/include $(CPPFLAGS) \
 		-I$(SUPERLU)
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.1 2001/10/04 17:18:06 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.2 2001/10/04 20:43:37 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -103,7 +103,7 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   init();
   int nr = nres();
-  FastMat2 r(1,nr),lambda(4,nel2,ndof,nel2,nr),jac(4,nel2,nr,nel2,ndof);
+  FastMat2 r(1,nr),lambda(3,nel2,ndof,nr),jac(3,nr,nel2,ndof);
   jac.set(0.);
 
   FastMatCacheList cache_list;
