@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.15 2005/02/18 10:11:14 mstorti Exp $
+;;; $Id: test5.scm,v 1.16 2005/02/18 10:11:40 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -105,27 +105,8 @@
     ;; `m' second, until `(n n)' is reached.
     (let loop ((m 1)
 	       (p 1))
-      (cond ((> p m) 
-	     (format #t "~A ~A\n" m (np-ref m m))
-	     (loop (+ m 1) 1))
+      (cond ((> p m) (loop (+ m 1) 1))
 	    ((> m n) (np-ref n n))
 	    (#t 
 	     (np-set! (compute-1 m p) m p)
 	     (loop m (+ p 1)))))))
-
-(nparts3 10)
-
-#!
-(let ((n 7))
-      (format #t "(nparts3 ~A) ~A\n" n (nparts3 n)))
-
-(let ((n 8))
-      (format #t "(partition ~A) ~A\n" n (partition n)))
-
-(let loop ((n 1))
-  (cond ((> n 15))
-	(#t (format #t "(~A -> ~A ~A ~A)\n" 
-		    n (nparts n) (nparts2 n) (nparts3 n))
-	    (loop (+ n 1)))))
-!#
-
