@@ -2214,3 +2214,21 @@ tag: beta-3.14.pl51 on Sat, 25 Jan 2003 12:29:10 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl52 on Sat, 25 Jan 2003 14:26:34 -0300 by mstorti in spider
      > Added hook to advdif. Compiles OK
+----------
+tag: beta-3.15 on Sat, 25 Jan 2003 18:31:49 -0300, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Modified strategy for choosing node to be eliminated in constraints. 
+     > Runs cylinder example with viscous/potential coupling. 
+     > Merged from Navier-Stokes compressible code (advdif/gasflow) written
+     > by Beto.
+     > Changed 'octave -qH' by `$(OCTAVE)' in all headers. 
+     > Implemented `line2quad' and `tri2pism' integrators. 
+     > Added FastMat2 cross product for length 2 vectors. 
+     > Written tests for embedded gatherer integrators (in nutatcyl).  
+     > Written test for line2quad with inverted normal. 
+     > Working on sphere problem mesh. 
+     > Working on smoke vizualization technique. 
+     > Running vtube example with NS incompressible and compressible
+     > (gasflow).
+     > Merged bubbly from Beto. 
+     > Gatherer is now in src/ (works for both `advdif' and `ns'). 
