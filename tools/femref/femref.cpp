@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.11 2004/11/22 23:13:06 mstorti Exp $
+// $Id: femref.cpp,v 1.12 2004/11/23 01:45:34 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -196,6 +196,33 @@ void GeomObject::print(const char*s) const {
   printf("\n");
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void GeomObject
+::set(Type t,int j,GeomObject &go) const {
+  go.init(t,nodes(t,j));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int GeomObject::find(GeomObject &go) const {
+  Type typ = go.type();
+  // Template *templ = get_template(t);
+  int n_so = size(typ);
+  GeomObject subobj;
+  dvector<int> so_nodes;
+  int so_sz = go.size();
+  so_nodes.mono(so_sz);
+  for (int j=0; j<n_so; j++) {
+    for (int k=0; k<so_sz; k++) {
+      so_nodes.e(k) = 
+    }
+    subobj.init(typ,);
+    if (go.equal(subobj)) {
+      return j;
+    }
+  }
+  return -1;
+}
+
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define TEMPLATE(TYPE,size,dim,nperms)				\
@@ -287,6 +314,9 @@ UniformMesh::find(const GeomObject &go) {
     // If all elems are equal 
     if (emin==emax) {
       printf("candidate elem %d\n",emin);
+      // GeomObject(Type t,const int *nodes_a=NULL);
+      GeomObject super(tmpl->type(),connec.e(emin,0));
+      super.find(go);
       found = true;
     } 
     for (int j=0; j<sz; j++) {
