@@ -43,7 +43,8 @@ TODO: [Mainly fixes go here...]
 	  psanchez@intec.unl.edu.ar) Wed, 15 Oct 2003 09:12:34 -0300
     Mon, 08 Dec 2003 09:51:12 -0300: Can't reproduce
 * Document the element locker feature
-* dx/epimport.cpp deletes too many objects and DX complains
+* Using DX cache. dx/epimport.cpp deletes too many objects and DX
+    complains. Also is hangs frequently. 
 * Print a banner saying if a version is stable/unstable. 
 * Let PETSc-FEM have knowledge of the name of the nodes 
 * verify `nsid.cpp' (ns_id_fac*ns_id_cn1) and `lumped_vc'
