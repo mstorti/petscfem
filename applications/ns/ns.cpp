@@ -1,25 +1,19 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.50 2001/11/30 12:41:08 mstorti Exp $
+//$Id: ns.cpp,v 1.27.2.1 2001/12/01 14:06:02 mstorti Exp $
  
-#include <src/debug.h>
 #include <malloc.h>
 
-#include <src/fem.h>
-#include <src/readmesh.h>
-#include <src/getprop.h>
-#include <src/utils.h>
-#include <src/util2.h>
-#include <src/sttfilter.h>
-#include <src/pfmat.h>
+#include "../../src/fem.h"
+#include "../../src/readmesh.h"
+#include "../../src/getprop.h"
+#include "../../src/utils.h"
+#include "../../src/util2.h"
+#include "../../src/sttfilter.h"
 
+//#include "fracstep.h"
 #include "nsi_tet.h"
-#include "adaptor.h"
-#include "elast.h"
 
-#include <applications/ns/nsi_tet.h>
-#include <applications/ns/nssup.h>
-
-static char help[] = "PETSc-FEM Navier Stokes module\n\n";
+static char help[] = "Basic finite element program.\n\n";
 
 int MY_RANK,SIZE;
 TextHashTable *GLOBAL_OPTIONS;
@@ -27,6 +21,21 @@ TextHashTable *GLOBAL_OPTIONS;
 //debug:=
 int TSTEP=0;
 
+int print_internal_loop_conv_g=0;
+
+     
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy)
+{
+  int      ierr;
+
+  if (print_internal_loop_conv_g) 
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+  return 0;
+}
+
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
@@ -36,11 +45,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
-    SET_ELEMSET_TYPE(ns_id)
-    SET_ELEMSET_TYPE(ns_sup)
-    SET_ELEMSET_TYPE(ns_sup_res)
-      // SET_ELEMSET_TYPE(elasticity_f)
-    SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_keps)
@@ -55,6 +59,20 @@ void bless_elemset(char *type,Elemset *& elemset) {
 	}
 }
 
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** For a given state vector, prints the state for some nodes.
+    @author M. Storti
+    @param (input) filename file where to write the vector. May contain
+    relative directories. 
+    @param s (input) State vector
+    @param dofmap (input) corresponding dofmap 
+    @param node_list (input) set of nodes to print. 
+*/ 
+int print_some(const char *filename,const State &s,Dofmap *dofmap,
+	       set<int> & node_list);
+#endif
+
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
@@ -63,10 +81,12 @@ int main(int argc,char **args) {
 
   Vec     x, dx, xold,
     dx_step, res;		// approx solution, RHS, residual
-  Viewer matlab;
-  PFMat *A_tet, *A_tet_c;			// linear system matrix 
+  Mat     A_tet;		// linear system matrix 
+  SLES    sles_tet;		// linear solver context
+  PC      pc_tet;		// preconditioner context 
+  KSP     ksp_tet;		// Krylov subspace method context
   double  norm, *sol, scal;	// norm of solution error
-  int     ierr, i, n = 10, col[3], flg, size, node,
+  int     ierr, i, n = 10, col[3], its, flg, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
     myrank;
@@ -75,7 +95,6 @@ int main(int argc,char **args) {
   GlobParam glob_param;
   string save_file_res;
 
-  // ierr = MatCreateShell(PETSC_COMM_WORLD,int m,int n,int M,int N,void *ctx,Mat *A)
   char fcase[FLEN+1];
   Dofmap *dofmap = new Dofmap;
   Mesh *mesh;
@@ -110,16 +129,6 @@ int main(int argc,char **args) {
 
   GLOBAL_OPTIONS = mesh->global_options;
 
-  //o Activate debugging
-  GETOPTDEF(int,activate_debug,0);
-  if (activate_debug) {
-    debug.activate();
-    Debug::init();
-  }
-  //o Activate printing in debugging
-  GETOPTDEF(int,activate_debug_print,0);
-  if (activate_debug_print) debug.activate("print");
-
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
 
@@ -136,6 +145,25 @@ int main(int argc,char **args) {
   //o Relaxation parameter for Newton iteration. 
   GETOPTDEF(double,newton_relaxation_factor,1.);
 
+  //o Absolute tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  GETOPTDEF(double,atol,1e-6);
+  //o Relative tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  GETOPTDEF(double,rtol,1e-3);
+  //o Divergence tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  GETOPTDEF(double,dtol,1e+3);
+  //o Krylov space dimension in solving the monolithic linear
+  // system (Newton linear subiteration) by GMRES.
+  GETOPTDEF(int,Krylov_dim,50);
+  //o Maximum iteration number in solving the monolithic linear
+  // system (Newton linear subiteration).
+  GETOPTDEF(int,maxits,Krylov_dim);
+  //o Prints convergence in the solution of the GMRES iteration. 
+  GETOPTDEF(int,print_internal_loop_conv,0);
+  //o After computing the analytic Jacobian, Computes the
+  // Jacobian in order to verify the analytic one. 
   GETOPTDEF(int,verify_jacobian_with_numerical_one,0);
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
@@ -146,6 +174,14 @@ int main(int argc,char **args) {
   GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
   GETOPTDEF(int,measure_performance,0);
+
+  print_internal_loop_conv_g=print_internal_loop_conv;
+
+  //o Chooses the preconditioning operator. 
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
+  // I had to do this since `c_str()' returns `const char *'
+  char *preco_type_ = new char[preco_type.size()+1];
+  strcpy(preco_type_,preco_type.c_str());
 
   //o Sets the save frequency in iterations 
   GETOPTDEF(int,nsave,10);
@@ -184,12 +220,6 @@ int main(int argc,char **args) {
   //o Use the LES/Smagorinsky turbulence model. 
   GETOPTDEF(int,LES,0);
 
-  //o Use IISD (Interface Iterative Subdomain Direct) or not.
-  GETOPTDEF(int,use_iisd,0);
-  //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
-  if (use_iisd) solver = string("iisd");
-
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file_pattern,outvector%d.out);
@@ -218,11 +248,6 @@ int main(int argc,char **args) {
   State sx(x,time);		// convert to State
 
   LPFilterGroup filter(GLOBAL_OPTIONS,sx,Dt);
-  
-  // Use IISD (Interface Iterative Subdomain Direct) or not.
-  // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  A_tet = PFMat_dispatch(solver.c_str());
-  A_tet_c = PFMat_dispatch(solver.c_str());
 
 #if 0
   const int NT=200;
@@ -254,14 +279,14 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // COMPUTE ACTIVE PROFILE
   VOID_IT(argl);
-  argl.arg_add(A_tet,PROFILE|PFMAT);
-  debug.trace("Computing profile...");
+  argl.arg_add(&A_tet,PROFILE);
+  PetscPrintf(PETSC_COMM_WORLD,"Computing profile...\n");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
-  debug.trace("After computing profile.");
+  PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
 
 #if 0 //dbg
   VOID_IT(argl);
-  argl.arg_add(A_tet,OUT_MATRIX);
+  argl.arg_add(&A_tet,OUT_MATRIX);
   for (int jjj=0; jjj<10; jjj++) {
     printf("[loop iter %d]\n",jjj);
     ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
@@ -323,6 +348,9 @@ int main(int argc,char **args) {
     TSTEP=tstep; //debug:=
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
+    if (print_internal_loop_conv_g) 
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " --------------------------------------\n");
     PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g %s\n",
 		tstep,time.time(),(steady ? " (steady) " : ""));
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -335,7 +363,6 @@ int main(int argc,char **args) {
     double normres_external;
     for (int inwt=0; inwt<nnwt; inwt++) {
 
-      glob_param.inwt = inwt;
       // Initialize step
       int update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
 
@@ -343,8 +370,10 @@ int main(int argc,char **args) {
       VOID_IT(argl);
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
+      // wait_from_console("antes de comp_shear_vel"); 
       ierr = assemble(mesh,argl,dofmap,"comp_shear_vel",
 		      &time_star); CHKERRA(ierr);
+      // wait_from_console("despues de comp_shear_vel"); 
 
       // Communicate wall stresses amoung different processors
       // This is obsolete. Now we control this from the loop
@@ -358,18 +387,19 @@ int main(int argc,char **args) {
 	ierr = assemble(mesh,argl,dofmap,"communicate_shear_vel",
 			&time_star); CHKERRA(ierr);
       }
+      // wait_from_console("despues de communicate_shear_vel"); 
 
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
       if (update_jacobian) {
-	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
+	ierr = MatZeroEntries(A_tet); CHKERRA(ierr);
       }
 
       VOID_IT(argl);
       argl.arg_add(&x,IN_VECTOR);
       argl.arg_add(&xold,IN_VECTOR);
       argl.arg_add(&res,OUT_VECTOR);
-      if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+      if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
 #ifdef RH60 // fixme:= STL vector compiler bug??? see notes.txt
       argl.arg_add(&hmin,VECTOR_MIN);
 #else
@@ -388,86 +418,80 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      debug.trace("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
-      debug.trace("After residual computation.");
-
-#if 0
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
- 			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"a_tet"); CHKERRA(ierr);
-      ierr = A_tet->view(matlab); CHKERRA(ierr); 
-#endif
-
-#if 0 //debug:=
-      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-			     "system.dat",&matlab); CHKERRA(ierr);
-      ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"x"); CHKERRA(ierr);
-      ierr = VecView(x,matlab);
-      ierr = ViewerSetFormat(matlab,
-			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
-      ierr = VecView(res,matlab);
-      PetscFinalize();
-      exit(0);
-#endif
 
       Viewer matlab;
       if (verify_jacobian_with_numerical_one) {
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
-			       "system.dat.tmp",&matlab); CHKERRA(ierr);
+			       "output.m",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,
-			       "atet"); CHKERRA(ierr);
+			       VIEWER_FORMAT_ASCII_MATLAB,"ateta"); CHKERRA(ierr);
+	ierr = MatView(A_tet,matlab);
 
-	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
-	
-	ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
-	ierr = A_tet_c->zero_entries(); CHKERRA(ierr); 
+	Mat A_tet_c;
+	ierr = MatDuplicate(A_tet,MAT_DO_NOT_COPY_VALUES,&A_tet_c); CHKERRA(ierr);
+	// ierr = MatCopy(A_tet,A_tet_c,SAME_NONZERO_PATTERN);
+
+	ierr = MatZeroEntries(A_tet); CHKERRA(ierr);
+	ierr = MatZeroEntries(A_tet_c); CHKERRA(ierr);
 
 	VOID_IT(argl);
 	argl.arg_add(&x,PERT_VECTOR);
 	argl.arg_add(&xold,IN_VECTOR);
-	argl.arg_add(A_tet_c,OUT_MATRIX_FDJ|PFMAT);
-	if (update_jacobian) argl.arg_add(A_tet,OUT_MATRIX|PFMAT);
+	argl.arg_add(&A_tet_c,OUT_MATRIX_FDJ);
+	if (update_jacobian) argl.arg_add(&A_tet,OUT_MATRIX);
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	argl.arg_add(&hmin,VECTOR_MIN);
 #else
 	argl.arg_add(&hmin,USER_DATA);
 #endif
-	argl.arg_add(&glob_param,USER_DATA);
+	argl.arg_add(&Dt,USER_DATA);
 	argl.arg_add(wall_data,USER_DATA);
 	ierr = assemble(mesh,argl,dofmap,jobinfo,
 			&time_star); CHKERRA(ierr);
 
 	ierr = ViewerSetFormat(matlab,
-			       VIEWER_FORMAT_ASCII_MATLAB,"atet_fdj"); CHKERRA(ierr);
-	ierr = A_tet_c->view(matlab); CHKERRQ(ierr); 
-
+			       VIEWER_FORMAT_ASCII_MATLAB,"atetn"); CHKERRA(ierr);
+	ierr = MatView(A_tet_c,matlab);
 	PetscFinalize();
 	exit(0);
       }
 
-      A_tet->build_sles(GLOBAL_OPTIONS);
+      // SLES para el esquema global
+//  	if (inwt>0) {
+//  	  ierr = SLESDestroy(sles_tet); CHKERRA(ierr);  
+//  	}
+      ierr = SLESCreate(PETSC_COMM_WORLD,&sles_tet); CHKERRA(ierr);
+      ierr = SLESSetOperators(sles_tet,A_tet,
+			      A_tet,SAME_NONZERO_PATTERN); CHKERRA(ierr);
+      ierr = SLESGetKSP(sles_tet,&ksp_tet); CHKERRA(ierr);
+      ierr = SLESGetPC(sles_tet,&pc_tet); CHKERRA(ierr);
 
-      if (!print_linear_system_and_stop || solve_system) {
-	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
-	debug.trace("Before solving linear system...");
-	ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
-	debug.trace("After solving linear system.");
-      }
+      ierr = KSPSetType(ksp_tet,KSPGMRES); CHKERRA(ierr);
+
+	// NEW!!!!!!!! ====================================
+      ierr = KSPSetPreconditionerSide(ksp_tet,PC_RIGHT);
+      //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+	//ierr = KSPSetType(ksp_tet,KSPBICG); CHKERRA(ierr);
+      ierr = KSPGMRESSetRestart(ksp_tet,Krylov_dim); CHKERRA(ierr);
+      ierr = KSPSetTolerances(ksp_tet,rtol,atol,dtol,maxits);
+
+      ierr = PCSetType(pc_tet,preco_type_); CHKERRA(ierr);
+      ierr = KSPSetMonitor(ksp_tet,MyKSPMonitor,PETSC_NULL);
+
+      if (!print_linear_system_and_stop || solve_system)
+	ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
 
       if (print_linear_system_and_stop) {
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "Printing residual and matrix for"
-		    " debugging and stopping.\n");
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
-	ierr = A_tet->view(matlab);
+	ierr =  SLESView(sles_tet,VIEWER_STDOUT_SELF);
+
+	ierr = MatView(A_tet,matlab);
+
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	ierr = VecView(res,matlab);
@@ -501,10 +525,7 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-      ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
-
-      // fixme:= SHOULD WE CHECK HERE FOR NEWTON CONVERGENCE?
-
+      ierr = SLESDestroy(sles_tet); CHKERRA(ierr);
     } // end of loop over Newton subiteration (inwt)
 
     // error difference
@@ -523,8 +544,7 @@ int main(int argc,char **args) {
 
     if (normres_external < tol_newton) {
       PetscPrintf(PETSC_COMM_WORLD,
-		  "Tolerance on newton loop reached:  "
-		  "|| R ||_0,  norm_res =%g < tol = %g\n",
+		  "Tolerance on newton loop reached:  || R ||_0,  norm_res =%g < tol = %g\n",
 		  normres_external,tol_newton);
       break;
     }
@@ -544,8 +564,7 @@ int main(int argc,char **args) {
   ierr = VecDestroy(dx); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 
-  delete A_tet;
-  delete A_tet_c;
+  ierr = MatDestroy(A_tet); CHKERRA(ierr); 
 
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);

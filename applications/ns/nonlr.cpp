@@ -1,12 +1,12 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.20 2001/10/04 20:43:37 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.18.4.1 2001/12/01 14:06:01 mstorti Exp $ */
 
-#include <src/fem.h>
-#include <src/utils.h>
-#include <src/util2.h>
-#include <src/readmesh.h>
-#include <src/getprop.h>
-#include <src/fastmat2.h>
+#include "../../src/fem.h"
+#include "../../src/utils.h"
+#include "../../src/util2.h"
+#include "../../src/readmesh.h"
+#include "../../src/getprop.h"
+#include "../../src/fastmat2.h"
 
 #include "nsi_tet.h"
 

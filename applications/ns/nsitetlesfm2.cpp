@@ -1,15 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.46 2001/11/30 00:51:31 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.18.2.1 2001/12/01 14:06:02 mstorti Exp $
 
-#include <src/fem.h>
-#include <src/utils.h>
-#include <src/readmesh.h>
-#include <src/getprop.h>
-#include <src/fastmat2.h>
+#include "../../src/fem.h"
+#include "../../src/utils.h"
+#include "../../src/readmesh.h"
+#include "../../src/getprop.h"
+#include "../../src/fastmat2.h"
 
 #include "nsi_tet.h"
 
-#define ADD_GRAD_DIV_U_TERM
+//#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
 #define USE_FASTMAT
 
@@ -54,6 +54,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define ELEMIPROPS_ADD(j,k) VEC2(elemiprops_add,j,k,neliprops_add)
 #define NN_IDX(j) ELEMIPROPS_ADD(j,0)
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
+#define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
+
 
   int locdof,kldof,lldof;
   char *value;
@@ -116,8 +118,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // allocate local vecs
   int kdof;
-  FastMat2 veccontr(2,nel,ndof),xloc(2,nel,ndim),locstate(2,nel,ndof), 
-         locstate2(2,nel,ndof),xpg,G_body(1,ndim);
+  FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
+         locstate2(nel,ndof),xpg,G_body(ndim);
 
   if (ndof != ndim+1) {
     PetscPrintf(PETSC_COMM_WORLD,"ndof != ndim+1\n"); CHKERRA(1);
@@ -141,24 +143,22 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
   //o van Driest constant for the damping law.
   SGETOPTDEF(double,A_van_Driest,26); 
+  // o Parameter for the trapezoidal rule time integration method. 
+  // GGETOPTDEF(double,alpha,1.);
+  double &alpha = glob_param->alpha;
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
-  //o Scale the residual term. 
-  SGETOPTDEF(double,residual_factor,1.);
-  //o Scale the jacobian term. 
-  SGETOPTDEF(double,jacobian_factor,1.);
   //o Adjust the stability parameters, taking into account
   // the time step. If the \verb+steady+ option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
   // \verb+temporal_stability_factor+ is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
-  if (comp_mat_res) { // Fixed by Beto August 23 2001
+
+  // Corregido por Beto Agosto 23
+  if (comp_mat_res) {
     if (glob_param->steady) temporal_stability_factor=0;
   }
-  //o Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
-  //  independently of $h$. (Mainly for debugging purposes). 
-  SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
-  double &alpha = glob_param->alpha;
+  // Fin correccion
 
   //o _T: double[ndim] _N: G_body _D: null vector 
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -172,10 +172,11 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int nprops=iprop;
   
-  //o Density
-  TGETOPTDEF(thash,double,rho,1.);
+  double rho=1.;
+
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  
   //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
@@ -184,20 +185,20 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
-    grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel),dshapex(2,ndim,nel);
+    grad_div_u(4,nel,ndim,nel,ndim);
   double *grad_div_u_cache;
   int grad_div_u_was_cached;
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix Jaco(ndim,ndim),iJaco(ndim,ndim),
+  FMatrix dshapex,dshapext,Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
-    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec;
+    dresmom(nel,ndim),matij(ndof,ndof),Uintri,P_pspg,svec;
 
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
     ucols_star,pcol_star,pcol_new,pcol,fm_p_star,tmp1,tmp2,tmp3,tmp4,tmp5,tmp6,
-    massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,xc,
+    massm,tmp7,tmp8,tmp9,tmp10,tmp11,tmp13,tmp14,tmp15,dshapex_c,xc,
     wall_coords(ndim),dist_to_wall,tmp16,tmp162,tmp17,tmp18,tmp19;
 
   double tmp12;
@@ -343,6 +344,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
+      dshapex_c.set(dshapex);
 
       double Area   = npg*wpgdet;
       double h_pspg,Delta;
@@ -372,7 +374,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
-
 
 	grad_u.prod(dshapex,ucols,1,-1,-1,2);
 	grad_u_star.prod(dshapex,ucols_star,1,-1,-1,2);
@@ -459,8 +460,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	PFEMERRQ("Not implemented yet shock capturing with standard upwind\n");
 	double delta_supg=1e-8;
 #endif
-	tau_pspg += additional_tau_pspg;
-	
+
 	delta_supg *= shock_capturing_factor;
 	
 	// P_supg es un vector fila
@@ -470,15 +470,16 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	W_supg.set(P_supg).add(SHAPE);
 
 	// Pressure stabilizing term
-	P_pspg.set(dshapex).scale(tau_pspg/rho);  //debug:=
+	P_pspg.set(dshapex).scale(tau_pspg/rho);
 
 	// implicit version - General Trapezoidal rule - parameter alpha
-#ifdef ADD_GRAD_DIV_U_TERM
+
+#if ADD_GRAD_DIV_U_TERM
 	dmatu.prod(u_star,grad_u_star,-1,-1,1);
 #else
 	dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
-	
+
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
@@ -515,14 +516,18 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp5.prod(P_pspg,tmp3,-1,1,-1);
 	rescont.axpy(tmp5,wpgdet);
 
-	// temporal part + convecive (Galerkin)
-	massm.prod(u_star,dshapex,-1,-1,1);
+	// Parte temporal + convectiva (Galerkin)
+#ifdef ADD_GRAD_DIV_U_TERM
+        massm.prod(u_star,dshapex,-1,-1,1);
+#else
+        massm.prod(u,dshapex,-1,-1,1);
+#endif
 	massm.axpy(SHAPE,rec_Dt/alpha);
 	matlocmom.prod(W_supg,massm,1,2).scale(rho);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
-	// diffusive part
+	// Parte difusiva
 	tmp7.prod(dshapex,dshapex,-1,1,-1,2);
 	matlocmom.axpy(tmp7,nu_eff);
 
@@ -543,17 +548,21 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	      }
 	    }
 	  }
-
-	  if (weak_form) {
-	    tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
-	    tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
-	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16)
-	      .add(tmp162).rs();
-	  } else {
-	    tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-	    matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
-	  }
-
+// old version but wrong
+	 //  tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+	 //  matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
+// new version (Mario) I hope it is ok
+          if (weak_form) {
+             tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
+             tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
+             matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16)
+                                            .add(tmp162).rs();
+         } else {
+             tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+             matlocf.is(2,1,ndim).ir(4,ndof).add(tmp16).rs();
+         }
+ 
+    
 	  matlocf.ir(2,ndof).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
 	  matlocf.rest(tmp17);
@@ -563,9 +572,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  matlocf.ir(2,ndof).ir(4,ndof).axpy(tmp13,-wpgdet).rs();
 
 	  if (!cache_grad_div_u) {
-//  	    tmp19.set(dshapex).scale((delta_supg*rho+nu_eff)*wpgdet);
-//  	    tmp18.prod(dshapex,tmp19,2,3,4,1);
-//  	    matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
             tmp19.set(dshapex).scale(nu_eff*wpgdet);
             tmp18.prod(dshapex,tmp19,2,3,4,1);
             matlocf.is(2,1,ndim).is(4,1,ndim).add(tmp18).rs();
@@ -615,15 +621,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.is(2,1,ndim).set(resmom)
 	.rs().ir(2,ndof).set(rescont).rs();
 
-      if (residual_factor!=1.)
-	veccontr.scale(residual_factor);
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
-
-      if (update_jacobian) {
-	if (jacobian_factor!=1.)
-	  matlocf.scale(jacobian_factor);
-	matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-      }
+      if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
   FastMat2::void_cache();

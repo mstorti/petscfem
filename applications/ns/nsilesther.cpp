@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.15 2001/11/30 12:41:08 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.13.4.1 2001/12/01 14:06:02 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -295,8 +295,6 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       NN_IDX(k) = nn;
       continue;
     }
-
-
 
     double grad_div_u_coef=0.;	// multiplies grad_div_u term
     // tenemos el estado locstate2 <- u^n
