@@ -4223,3 +4223,6 @@ tag: beta-3.45.10 on Tue, 29 Mar 2005 01:02:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.11 on Tue, 29 Mar 2005 09:47:24 -0300 by mstorti in minerva.ceride.gov.ar
      > Runs example with sliding blade. 
+----------
+tag: beta-3.45.12 on Tue, 29 Mar 2005 22:18:04 -0300 by mstorti in spider
+     > Runs example `condwall/movwall' with `T=10'. 
