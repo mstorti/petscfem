@@ -1218,6 +1218,11 @@ expect("lupart/check_subpart.verif.tmp",
 IISD/Subpartitioning  OK \? > 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=8; $case++) {
+   expect("pfmat/output.case$case.tmp","PFMat abstract class/Case $case",
+      "All tests OK.*1");
+}
 
 end_section();
 
