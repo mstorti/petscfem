@@ -358,6 +358,21 @@ tolerance 1e-2
 ...
 \end{verbatim}
 
+Also, lines starting with \verb+#c+ are dicarded as
+comments. Conditional preprocessing and comments are enabled with the
+``\verb+-P+'' flag, so that make sure you have this flag enabled when
+preprocessing the \verb+.epl+ file (probably in the \verb+Makefile+
+file). Note that \pfem{} comments (those starting with numeral
+``\verb+#+'') may collide with the ePerl preprocessing directives, so
+that when commenting out lines in \pfem{} input files it is safer to
+leave a space between the ``\verb+#+'' character and the commented
+text
+
+\begin{verbatim}
+# commented text          (OK)
+#commented tex            (but dangerous!!)
+\end{verbatim}
+
 \SSSection{File inclusion}
 
 \index{File inclusion}
