@@ -10,7 +10,7 @@ $alpha = 1;
 $Courant = 0.5;
 $hx = $Lx/$N;
 $omega_smooth = 0.5;
-$n_smoth_steps  = 1;
+$n_smoth_steps  = 0;
 $ratio = 4;                     # refinement parameter (h_center/h_wall)
 $smoke_run = 1;
 $Dt = ($smoke_run ? 16/$N : 4/$N);
@@ -71,8 +71,8 @@ omega <:=2*$PI/(16*$Dt):>
 geometry triangle
 npg 3
 dx
-phieq 1
-Cr 0.1
+phieq 0.3
+Cr 0.3
 #else
 elemset nsi_tet_les_fm2 3
 geometry triangle
