@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.112 2003/09/14 21:48:53 mstorti Exp $
+#$Id: runtests.pl,v 1.113 2003/09/25 02:19:10 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -396,7 +396,7 @@ begin_section('Misc tests.');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("aquifer/output.stream2.out.tmp",
-       "Exception handling in `advdif'",read_file("aquifer/output.stream2.ans"));
+       "Exception handling in `advdif'",read_file("aquifer/stream2.output.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("aquifer/output.stream2-np2.out.tmp",
