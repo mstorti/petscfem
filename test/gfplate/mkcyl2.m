@@ -1,4 +1,4 @@
-## $Id: mkcyl2.m,v 1.2 2005/02/02 22:56:04 mstorti Exp $
+## $Id: mkcyl2.m,v 1.3 2005/02/03 12:54:54 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 2*pi],Nr+1,Nphi+1);
@@ -37,7 +37,7 @@ fclose(fid);
 
 ## Non-slip on skin
 pffixa("cylabso.fixa-non-slip.tmp", \
-       (1:Nphi+1)',[2,3]);
+       (1:Nphi)',[2,3]);
 
 ## Absorbing elements on exterior boundary
 
@@ -49,11 +49,11 @@ xnod = [xnod;
 
 ## Fictitious nodes for twall condition
 nnod2 = rows(xnod);
-xfictw = xnod(1:Nphi+1,:);
+xfictw = xnod(1:Nphi,:);
 xnod = [xnod;
 	xfictw];
-realtw = (1:Nphi+1)';
-fictw = nnod2+(1:Nphi+1)';
+realtw = (1:Nphi)';
+fictw = nnod2+(1:Nphi)';
 nnod2 = rows(xnod);
 
 abso_con = [];
