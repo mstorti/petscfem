@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $
+$Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $ 
+! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $ 
+  # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.283 2003/04/11 23:08:28 mstorti Exp $ 
+  # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6564,9 +6564,10 @@ converge casi en el limite y despues al correr el no estacionario con
 (Dt=0.05, nfilt=20, fs_smoothing_coef=0.1) diverge en un modo suave,
 para en el paso 18. 
 
-%===Tue,  8 Apr 2003 09:01:29 -0300 mstorti@minerva
+%===Sun, 11 May 2003 14:11:42 -0300 mstorti@spider
 %
-Con Dt=0.02 
+Retomando el tema del spillway. No lo logro hacer andar sin
+`cyclic_fs'. Vuelvo a como estaba antes. 
 
 # Current line ===========  %
 # Local Variables: $

@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spillway.epl,v 1.12 2003/03/31 17:07:10 mstorti Exp $ 
+## $Id: spillway.epl,v 1.13 2003/05/11 17:13:51 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -128,6 +128,14 @@ __END_FIXA__
 constraint
 __INCLUDE__ "spillway.slip.tmp"
 __END_CONSTRAINT__
+#endif
+
+# Emacs macro for setting buffers.
+#if 0
+(progn 
+    (defalias 'set-spillway-buffers (read-kbd-macro
+       "C-x 1 C-x b *shell*<2> RET C-x 2 C-c C-e C-x o C-x b *sh TAB < 3> RET C-c C-e C-x o"))
+    (global-set-key [?\H-s] 'set-spillway-buffers))
 #endif
 
 # Local Variables: $

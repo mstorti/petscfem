@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.22 2003/04/11 23:08:29 mstorti Exp $
+//$Id: alehook.cpp,v 1.23 2003/05/11 17:13:51 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -315,7 +315,7 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
 	  TextHashTableFilter *options,const char *name) { 
 
   if (!MY_RANK) {
-    printf("MESH_MOVE: Opening fifos for communicating with ALE_HOOK2.\n");
+    printf("ALE_MMV_HOOK: Opening fifos for communicating with ALE_HOOK2.\n");
     
     ns2mmv = fopen("ns2mmv.fifo","r");
     assert(ns2mmv);
@@ -324,10 +324,11 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     assert(mmv2ns);
     setvbuf(mmv2ns,NULL,_IOLBF,0);
     
-    printf("ALE_HOOK2: Done.\n");
+    printf("ALE_MMV_HOOK: Done.\n");
   }
   int ierr = MPI_Barrier(PETSC_COMM_WORLD);
   assert(!ierr);
+  printf("ALE_MMV_HOOK: trace -2\n");
 
   mesh = &mesh_a;
   // fixme:= some things here will not run in parallel
@@ -337,6 +338,7 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   FILE *fid = fopen(CASE_NAME ".nod_fs.tmp","r");
   FILE *fid2 = fopen(CASE_NAME ".spines.tmp","r");
   int indx=0;
+  printf("ALE_MMV_HOOK: trace -1\n");
   while(1) {
     // printf("indx %d\n",indx);
     int node;
@@ -363,6 +365,8 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     // load map
     fs2indx[node] = indx++;
   }
+  printf("ALE_MMV_HOOK: trace 0\n");
+
   fclose(fid);
   fclose(fid2);
   // Number of nodes on the FS
@@ -413,12 +417,14 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   //o Number of times the filter is applied
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,nfilt,1);
 
+  printf("ALE_MMV_HOOK: trace 1\n");
   if (!MY_RANK && !restart) {
     // This is to rewind the file
     FILE *fid = fopen(CASE_NAME ".fsh.tmp","w");
     fclose(fid);
   } 
 
+  printf("ALE_MMV_HOOK: trace 2\n");
   // Read the last computed mesh
   if (!MY_RANK && restart) {
     fid = fopen(CASE_NAME "_mmv.state.tmp","r");
@@ -440,6 +446,8 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
     }
     fclose(fid);
   }
+
+  if (!MY_RANK) printf("ALE_MMV_HOOK: ending init().\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -450,7 +458,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
   int step_sent = int(read_doubles(ns2mmv,"step"));
   if (step_sent==-1) {
     PetscPrintf(PETSC_COMM_WORLD, 
-		"MESH_MOVE: step==-1 received, stopping myself.\n");
+		"ALE_MMV_HOOK: step==-1 received, stopping myself.\n");
     PetscFinalize();
     exit(0);
   }
@@ -479,6 +487,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     if (q==qe) continue;
     // index in the containers
     int indx = q->second;
+    if (!cyclic_fs && (indx==0 || indx==nfs)) continue;
     // Compute normal component of velocity
     int fs_debug = 0;
     tokens.clear();
@@ -487,6 +496,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     // -- Compute normal --
     // FS nodes at the end of the FS must be treated specially.
     // Currently assumes cyclic FS
+    // assert(cyclic_fs);
     // Compute coordinates of three nodes on the free surface
     // Node at the center
     dx1.set(&displ_old.e(indx,0));
@@ -494,18 +504,33 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
 
     // Previous node
     int div0=0,div2=0;
-    int indx0 = indx-1;
-    if (indx0<0) indx0 = (cyclic_fs ? modulo(indx0,nfs,&div2) : 0);
-
-    int node0 = fs.e(indx0);
-    x0.set(&nodedata[nu*(node0-1)]);
-    dx0.set(&displ_old.e(indx0,0));
-    x0.addel(div0*cyclic_length,1).add(dx0);
+    int indx0, node0;
+    if (cyclic_fs) {
+      indx0 = modulo(indx-1,nfs,&div0);
+      if (indx0<0) indx0 = (cyclic_fs ? modulo(indx0,nfs,&div2) : 0);
+      node0 = fs.e(indx0);
+      x0.set(&nodedata[nu*(node0-1)]);
+      dx0.set(&displ_old.e(indx0,0));
+      x0.addel(div0*cyclic_length,1).add(dx0);
+    } else {
+      indx0 = indx-1;
+      assert(indx0>=0);
+    }
 
     // Next node
-    int indx2 = indx+1;
-    if (indx2>=nfs) indx2 = (cyclic_fs ? modulo(indx2,nfs,&div2) :nfs-1);
-    x2.set(&nodedata[nu*(node2-1)]);
+    int indx2,node2;
+    if (cyclic_fs) {
+      indx2 = indx+1;
+      if (indx2 >= nfs) indx2 = (cyclic_fs ? modulo(indx2,nfs,&div2) : nfs-1);
+      node2 = fs.e(indx2);
+      x2.set(&nodedata[nu*(node2-1)]);
+      dx2.set(&displ_old.e(indx2,0));
+      x2.addel(div2*cyclic_length,1).add(dx2);
+    } else {
+      indx2 = indx+1;
+      assert(indx2 >= 0);
+    }
+
 #if 0
     printf("indx0 %d, indx %d, indx2 %d\n",indx0,indx,indx2);
     printf("displ(indx2,*): %f %f\n",displ.e(indx2,0),displ.e(indx2,1));
@@ -513,8 +538,6 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     printf("&displ(indx ,*): %p %p\n",&displ.e(indx ,0),&displ.e(indx ,1));
     printf("&displ(indx2,*): %p %p\n",&displ.e(indx2,0),&displ.e(indx2,1));
 #endif
-    dx2.set(&displ_old.e(indx2,0));
-    x2.addel(div2*cyclic_length,1).add(dx2);
 
 #if 0
     printf("indx %d, div0 %d, div2 %d\n",indx,div0,div2);
@@ -526,7 +549,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     dx2.print("dx2:");
 #endif
 
-    // Segements 0-1 1-2
+    // Segments 0-1 1-2
     x01.set(x1).rest(x0);
     x12.set(x2).rest(x1);
     double l01 = x01.norm_p_all(2);
@@ -573,6 +596,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
 
   // Compute displacements along the spines
   for (int indx=0; indx<nfs; indx++) {
+    if (!cyclic_fs && indx==0) continue;
     double d=0.;
     for (int j=0; j<ndim; j++) 
       d += spines.e(indx,j)*displ.e(indx,j);
@@ -582,15 +606,18 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
   }
 
   // Smoothing and updating
-  assert(cyclic_fs);		// Not implemented yet: FS not cyclic
-  for (int k=0; k<nfilt; k++) {
-    for (int indx1=0; indx1<nfs; indx1++) {
-      int indx0 = modulo(indx1-1,nfs);
-      int indx2 = modulo(indx1+1,nfs);
-      ds2.e(indx1) = ds.e(indx1) 
-	+ fs_smoothing_coef*(ds.e(indx2)-2*ds.e(indx1)+ds.e(indx0));
+  if (cyclic_fs) {
+    for (int k=0; k<nfilt; k++) {
+      for (int indx1=0; indx1<nfs; indx1++) {
+	int indx0 = modulo(indx1-1,nfs);
+	int indx2 = modulo(indx1+1,nfs);
+	ds2.e(indx1) = ds.e(indx1) 
+	  + fs_smoothing_coef*(ds.e(indx2)-2*ds.e(indx1)+ds.e(indx0));
+      }
+      for (int indx=0; indx<nfs; indx++) ds.e(indx) = ds2.e(indx);
     }
-    for (int indx=0; indx<nfs; indx++) ds.e(indx) = ds2.e(indx);
+  } else {
+    // Not implemented yet, do nothing
   }
   
   // Compute vector displacements from amplitude
@@ -727,8 +754,10 @@ double press_out::eval(double t) {
   double z_fs = nodedata[(node_fs-1)*nu+ndim-1];
   double z = nodedata[(n-1)*nu+ndim-1];
   double phydr = rho*gravity*(z_fs-z);
-  printf("node %, node_fs %d, z %f, z_fs %f, phydr %f\n",
+#if 0
+  printf("node %d, node_fs %d, z %f, z_fs %f, phydr %f\n",
 	 n,node_fs,z,z_fs,phydr);
+#endif
   return phydr;
 }
 

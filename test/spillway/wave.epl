@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.16 2003/04/11 23:08:29 mstorti Exp $ 
+## $Id: wave.epl,v 1.17 2003/05/11 17:13:51 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 use File::Copy;
@@ -19,9 +19,11 @@ $dx = 0;
     yratio initia eta0 L_bump t uini cyclic_fs);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
-system "initia=1 octave -qH mkwave.m";
+my $octave_script = ($cyclic_fs ? "mkwave.m" : "mkwave2.m");
+system "initia=1 octave -qH $octave_script";
 :>//                            # ends ePerl block
 
+# <:pr('octave_script'):>
 # <:pr('volume_ref'):>
 # <:pr('initia'):>
 # <:pr('slope'):>
@@ -44,7 +46,7 @@ nfile 100000000
 initial_state "wave.steady_state"
 #else
 initial_state "wave.ini.tmp"
-initial_state "wave.state.tmp"
+# initial_state "wave.state.tmp"
 #endif
 nstep 2000
 steady <:=$initia:>
@@ -88,6 +90,7 @@ node_fs <:=($Ny+1)*($Nx+1):>
 volume_gather_pos 0
 volume_ref <:=$Lx*$h-$L_bump*$h*$t*2/3.:>
 bottom_length <:=$Lx:>
+rho 1.
 
 # For DX
 dx_split_state "1 2 0 1 u 1 1 2 p"
@@ -109,7 +112,6 @@ name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
 data wave.con.tmp
-rho 1.
 dx 
 __END_HASH__
 

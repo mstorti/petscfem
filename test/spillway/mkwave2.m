@@ -2,10 +2,11 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave2.m,v 1.1 2003/04/11 23:08:29 mstorti Exp $
+## $Id: mkwave2.m,v 1.2 2003/05/11 17:13:51 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
+
 source("data.m.tmp");
 w = zhomo([0 Lx 0 h],Nx+1,Ny+1,[1 0 1 1 yratio 1]);
 [xnod,icone] = pfcm2fem(w);
@@ -86,9 +87,9 @@ fclose(fid2);
 fclose(fid3);
 fclose(fid4);
 
-fs = (Nx:-1:1)'*(Ny+1);
+fs = (Nx+1:-1:1)'*(Ny+1);
 asave("wave.nod_fs.tmp",fs);
 nfs = Nx;
 normal = [0 1];
-normal = normal(ones(Nx,1),:);
+normal = normal(ones(Nx+1,1),:);
 asave("wave.spines.tmp",normal);
