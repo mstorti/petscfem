@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.6 2005/02/16 23:41:07 mstorti Exp $
+;;; $Id: test5.scm,v 1.7 2005/02/17 00:20:51 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -29,18 +29,32 @@
 			     completed-parts 
 			     (complete-1 (cons k part) k (- remain k))))))))))))
 
-(define (nparts n)
+(define (nparts n p)
+;  (format #t "n ~A, p ~A\n" n p)
   (cond ((= n 1) 1)
-	(#t (let loop ((m 0)
-		       (k 1))
-	      (cond ((> k n) m)
-		    (#t (loop (+ m (* k (nparts (- n k)))) (+ k 1))))))))
+	((= n 0) 1)
+	((= p 1) 1)
+	(#t 
+	 (let ((k-max (min p n)))
+	   (let loop ((m 0)
+		      (k 1))
+;	     (format #t "m ~A, k ~A\n" m k)
+	     (cond ((> k k-max) m)
+		   (#t (loop (+ m (nparts (- n k) k)) (+ k 1)))))))))
 
+(define (nparts2 n p)
 
-	
-
-(let* ((n 4)
+(let* ((n 7)
        (parts (partition n)))
   (format #t "part ~A: total ~A partitions.\n" n (length parts))
-  (format #t "partitions: ~A\n" parts)
-  (format #t "(nparts n) -> ~A\n" (nparts n)))
+;  (format #t "partitions: ~A\n" parts)
+  (format #t "(nparts n) -> ~A\n" (nparts n n)))
+
+(if #f
+    (let loop ((n 1)
+	       (p 1))
+      (cond ((> p n) (format #t "\n") (loop (+ n 1) 1))
+	    ((> n 5))
+	    (#t (format #t "(~A ~A ~A) " n p (nparts n p))  
+		(loop n (+ p 1)))))
+    )
