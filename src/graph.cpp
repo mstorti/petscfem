@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.12 2002/01/14 03:45:06 mstorti Exp $
+//$Id: graph.cpp,v 1.13 2002/05/06 15:51:13 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -47,7 +47,7 @@ void Graph::part(int max_partgraph_vertices,
 
   weight_scale = 1.;
 
-  assert(nvrtx_f>0);
+  // assert(nvrtx_f>0);
   assert(max_partgraph_vertices>0);
   
   // nvrtx:= number of vertices used in graph partitioning
@@ -104,6 +104,7 @@ void Graph::part(int max_partgraph_vertices,
   
   // Start coalescing neighbor elements until all elements are
   // assigned a vertex
+  int disconnected_was_found;
   while (1) {
     if (ngbrs.empty()) {
       // either we have visited all the elements or there are
@@ -113,19 +114,26 @@ void Graph::part(int max_partgraph_vertices,
       if (visited==nvrtx_f) break;
       
       // Disconnected parts. Find next element not visited.
+      disconnected_was_found=0;
       for (k=0; k<nvrtx_f; k++) {
 	if (el2vrtx[k]<0) {
 	  ngbrs.push(k);
+	  // printf("1./ ngbrs.empty: %d\n",ngbrs.empty());
 	  // Put it in a random vertex
 	  vrtx = irand(0,nvrtx)-1;
 	  el2vrtx[k] = vrtx;
 	  vwgt[vrtx] += int(weight(vrtx_f)/weight_scale);
+	  disconnected_was_found=1;
+	  // printf("2./ ngbrs.empty: %d\n",ngbrs.empty());
 	  break;
 	}
       }
+      // printf("3./ ngbrs.empty: %d\n",ngbrs.empty());
+      assert(disconnected_was_found);
     }
 
     // Take the first element
+    assert(!ngbrs.empty());
     vrtx_f = ngbrs.front();
     ngbrs.pop();
     vrtx = el2vrtx[vrtx_f];
