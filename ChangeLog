@@ -1,3 +1,30 @@
+2001-01-11  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* advdif/sine.data, advdif/sine.data.epl, advdif/sine.epl,
+	advdif/sine_anal_test.m, advdif/sine_crank_nic.m,
+	advdif/sine_fine_test.m, advdif/Makefile, advdif/advdif: Added two
+	examples for advdif
+
+2001-01-10  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* Makefile: Making the tests running
+
+	* Makefile, sine.epl: Improved makefile
+
+2001-01-09  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* Makefile: minor modifs.
+
+	* Makefile, sine.epl: `math.pl' is now in the distrib
+
+2001-01-08  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* .gdbinit, sine.epl: *** empty log message ***
+
+2001-01-04  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* Makefile: Fixing some problems with `make depend' and `make lclean'
+
 2001-01-04  Mario Storti  <mstorti@minerva.arcride.edu.ar>
 
 	* run/sqcav/Makefile, run/sqcav/machi.dat, run/sqcav/sqcav.con,
