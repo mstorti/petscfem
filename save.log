@@ -206,3 +206,6 @@ tag: beta-1.24 on Mon Feb  5 10:25:21 ARST 2001, by mstorti in minerva.arcride.e
 ----------
 tag: beta-1.25 on Tue Feb  6 14:17:37 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > Adding wall function to turbulent shallow water.
+----------
+tag: beta-1.26 on Tue Feb  6 22:06:26 ARST 2001, by mstorti in spider
+     > Adding wall fuction to turbulent shallow water
