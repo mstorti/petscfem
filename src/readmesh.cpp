@@ -1,14 +1,19 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.71 2003/01/04 07:35:50 mstorti Exp $
- 
+//$Id: readmesh.cpp,v 1.72 2003/02/08 00:49:57 mstorti Exp $
+#define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
 #include "util2.h"
 #include "readmesh.h"
 #include "idmap.h"
+
+// Apaprently __log2 from Metis collides with some name in the GNU package.
+// This is a workaround. 
+#define __log2 ____log2
 extern "C" {
 #include <metis.h>
 }
+#undef __log2
 
 #include "elemset.h"
 //#include "libretto.h"
@@ -61,6 +66,8 @@ void metis_part(int nelemfat,Mesh *mesh,
 int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      int & neq,int size,int myrank) {
   vector<Amplitude *> amplitude_list;
+  map<string,Elemset *> elemset_table;
+  static char *ename=NULL;
 
   char *p1,*p2, *token, *type, *bsp=" \t";
   char *line;
@@ -257,14 +264,24 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       sscanf(strtok(NULL,bsp),"%d",&nel);
       token = strtok(NULL,bsp);
 
-      // Reads hash table for the elemeset
+      // Reads hash table for the elemset
       read_hash_table(fstack,thash);
       const string anon("__ANONYMOUS__");
       string name = anon;
       ::get_string(thash,"name",name,1);
       if (name == anon) {
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "No name for this elemset!! setting as \"__ANONYMOUS__\"...\n");
+#define MAX_ELEMSET_SFX 1000
+	int j;
+	for (j=0; j<MAX_ELEMSET_SFX; j++) {
+	  int Nbuf = asprintf(&ename,"%s_%d",type,j);
+	  printf("trying %s\n",ename);
+	  assert(Nbuf>=0);
+	  if (elemset_table.find(ename)
+	      ==elemset_table.end()) break;
+	}
+	name = string(ename);
+	PETSCFEM_ASSERT0(j!=MAX_ELEMSET_SFX,
+			 "Couldn't generate automatic name for this  elemset!!\n");
       }
       thash->register_name(name.c_str());
       if (myrank==0) thash->print("Table of properties:");
@@ -603,6 +620,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       da_append(mesh->elemsetlist,&elemset);
       PetscPrintf(PETSC_COMM_WORLD,"Ends reading  elemset\n");
 
+      printf("adding \"%s\" -> %p to elemset_table\n",
+	     name.c_str(),elemset);
+      elemset_table[name] = elemset;
       TRACE(-5.4);
     } else if (!strcmp(token,"end_elemsets")) {
 
@@ -828,7 +848,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     
   }
     
-  // nelemsets:= total number of elemesets in the mesh
+  // nelemsets:= total number of elemsets in the mesh
   int nelemsets=da_length(mesh->elemsetlist);
 
   // Mesh partitioning
