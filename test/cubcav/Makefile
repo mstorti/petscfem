@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.67 2003/09/20 23:07:06 mstorti Exp $ 
+# $Id: Makefile,v 1.68 2003/09/24 15:35:50 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -48,14 +48,20 @@ endif
 
 export NP
 
+#w Makes the mesh:
+mesh:
+	$(MAKE) -C ../../tools hexasplit.bin
+	make-depl cubcav.epl cubcav.depl -d case=ns
+
+.PHONY: mesh run
 #w Runs program
 run: 
 	$(MAKE) -C ../../tools hexasplit.bin
 	make-depl cubcav.epl cubcav.depl -d case=ns
 	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
-mesh: cubcav.depl
-	$(OCTAVE) mkmesh.m
+#mesh: cubcav.depl
+#	$(OCTAVE) mkmesh.m
 
 local_sw::
 	chmod 755 mkmpeg*.sh
