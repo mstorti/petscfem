@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.4 2002/07/15 23:56:27 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.5 2002/07/16 00:08:42 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -184,7 +184,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     mom_profile >> arg_data_v[2].profile;	// A_prj
   } else if (comp_res_mom) {
     mom_profile >> A_mom_arg->profile;
-  } else if (comp_res_mom) {
+  } else if (comp_mat_poi) {
     poi_profile >> A_poi_arg->profile;
   } else assert(0);
 

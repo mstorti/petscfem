@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.3 2002/07/15 01:10:41 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.4 2002/07/16 00:08:42 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -275,6 +275,7 @@ int main(int argc,char **args) {
     A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
     A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
     A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+    ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }
 
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
@@ -603,7 +604,7 @@ int main(int argc,char **args) {
       ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
       debug.trace("After solving -mom- linear system.");
 
-#if 1
+#if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
@@ -630,13 +631,22 @@ int main(int argc,char **args) {
 
       if (tstep==1) {
 	VOID_IT(argl);
-	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
 	debug.trace("Before poisson matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
 	CHKERRA(ierr);
 	debug.trace("After poisson matrix computation.");
       }
+
+#if 1
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"apoi"); CHKERRA(ierr);
+      ierr = A_poi->view(matlab);
+      PetscFinalize();
+      exit(0);
+#endif
 
       VOID_IT(argl);
       statep.set_time(time);	// fixme:= what time?
