@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.3 2001/05/22 21:20:40 mstorti Exp $
+//$Id: genload.cpp,v 1.4 2001/05/23 16:37:30 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -14,11 +14,64 @@ extern int MY_RANK,SIZE;
 
 #include "advective.h"
 
+#define FASTMAT2SHELL FastMat2Shell_t
+class FASTMAT2SHELL {
+public:
+  virtual void prod(FastMat2 &Ax, FastMat2 &x) {
+    PETSCFEM_ERROR0("Not overloaded prod for this FastMat2Shell.");
+  }
+  void add(FastMat2 &S) {
+    PETSCFEM_ERROR0("Not overloaded 'add' for this FastMat2Shell.");
+  }
+  virtual void init() {};
+  virtual ~FASTMAT2SHELL()=0;
+};
+
 /// Generic surface flux function (film function) element
 class LinearHFilmFun : public HFilmFun {
 private:
+  FastMat2 dU;
+
+  class H;
+  class S;
+  friend class H;
+  friend class S;
+
+  class H : public FASTMAT2SHELL {
+  public:
+    LinearHFilmFun* l;
+    virtual void prod(FastMat2 &Ax, FastMat2 &x)=0;
+    virtual void init()=0;
+    H(LinearHFilmFun *l_) : l(l_) {};
+  };
+  
+  class Hfull : public H {
+  private:
+    FastMat2 HH;
+  public:
+    void prod(FastMat2 &Ax, FastMat2 &x);
+    void init();
+    Hfull(LinearHFilmFun *l) : H(l) {};
+  };
+
+  class S : public FASTMAT2SHELL {
+  public:
+    LinearHFilmFun* l;
+    virtual void add(FastMat2 &S)=0;
+    virtual void init()=0;
+    S(LinearHFilmFun *l_) : l(l_) {};
+  };
+
+  class Snull : public S {
+  public:
+    void add(FastMat2 &S) {};
+    void init();
+    Snull(LinearHFilmFun *l) : S(l) {};
+  };
+  
   int nel, ndof, nelprops;
-  FastMat2 H,S; // The relation is: F_{2->1} = S+H*(U2-U1)
+  H *h;
+  S *s;
   Property hfilm_coeff_prop, 
     source_term_prop;
 public:
@@ -27,6 +80,17 @@ public:
   void init();
   LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
 };
+
+void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+		       FastMat2 &jacin,FastMat2 &jacout) {
+
+  flux.set(0.);
+  
+}
+
+void LinearHFilmFun::Hfull::init() {
+  HH.resize(2,l->ndof,l->ndof);
+}
 
 /// Linear surface flux element
 class LinGenLoad : public GenLoad { 
@@ -49,6 +113,8 @@ void LinearHFilmFun::init() {
   if (hfilm_coeff_prop.length == 0) {
   }
 
+  h->init();
+  s->init();
 }  
 
 
