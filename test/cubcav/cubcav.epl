@@ -9,8 +9,8 @@ get_var_env('NP',undef);
 $NP = 1 unless $NP;
 $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
-$use_tetra = 1;
-$use_prismatic = 0;
+$use_tetra = 0;
+$use_prismatic = 1;
 $fracstep = 0;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
@@ -31,7 +31,7 @@ $graph_chunk_size =
     ($graph_chunk_size < 20000 ? 20000 : 
     $graph_chunk_size > 200000 ? 200000 : $graph_chunk_size);
 $hratio = 5;			# refinement (h_center/h_wall)
-$Re = 100;			# Reynolds number
+$Re = 500;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = ($case eq 'laplace' ? 1 : $fracstep? 0.1 : 1);# time step
 $solver = "petsc";
@@ -153,7 +153,7 @@ rtol 1e-4
 rtol 1e-8
 #endif
 dtol 1e3
-nnwt 5
+nnwt 1
 
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv 1
@@ -171,7 +171,7 @@ shock_capturing_factor 0
 local_store
 cache_grad_div_u
 #endif
-
+hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof
@@ -196,6 +196,15 @@ LES 0
 #if $use_mpi
 data cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp
 #endif
+dx
+# triangle
+# dx_indices 1 2 3 triangles
+# cartesian3d
+# dx_indices 1 2 4 3 5 6 8 7 cubes
+# tetra
+# dx_indices 1 2 3 4 tetrahedra
+# prism  (not conforming though)
+# dx_indices 1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra
 __END_HASH__
 #if !$use_mpi
 __INCLUDE__ cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''):>.tmp

@@ -108,7 +108,6 @@ global_options
 nsave 5
 <:pr('nstep'):> 
 # initial_state sqcav.state
-initial_state sqcav.weak_form_0.tmp
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -142,10 +141,8 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
-# Dt <:=$Dt:>
-#<:pr('steady'):>
-steady 0
-Dt 0.1
+Dt <:=$Dt:>
+<:pr('steady'):>
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -162,8 +159,6 @@ measure_performance_loop_length 10
 #if $g_body
 G_body 0 -1.
 #endif
-
-hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof
@@ -172,11 +167,8 @@ __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
 elemset nsi_tet_les_fm2 4 
-name visc_fluid
 
-dx 1
-# dx_indices 1 2 4 3 quads
-dx_indices 1 2 3 3 4 1 triangles
+name malla
 
 # report_consumed_time
 geometry cartesian2d
