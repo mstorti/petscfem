@@ -1343,3 +1343,6 @@ tag: beta-3.00.pl28 on Thu, 25 Jul 2002 11:54:33 -0300 by mstorti in node1.beowu
 tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Runs all tests but those in the `aquifer' directory. 
+----------
+tag: beta-3.01.pl1 on Thu, 25 Jul 2002 21:57:44 -0300 by mstorti in spider
+     > Some more fixes in compiling programs for test.
