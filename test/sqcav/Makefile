@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.80 2004/10/25 02:43:27 mstorti Exp $ 
+# $Id: Makefile,v 1.81 2004/11/06 13:22:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -202,7 +202,7 @@ test_iisd:
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests square cavity at Re=400 with fractional step solver. 
 test_fs:
-	make case=fractional_step_re400 runs2
+	$(MAKE) case=fractional_step_re400 runs2
 	$(OCTAVE) < check_fs.m > check.fs.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
