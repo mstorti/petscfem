@@ -3838,3 +3838,6 @@ tag: beta-3.40 on Wed, 26 Jan 2005 08:05:22 -0300 by mstorti in spider
      > Wrapped `dvector<>' in scheme. 
      > Implemented general absorbing boundary condition,
      > 	    and implemented for gasflow. 
+----------
+tag: beta-3.40.1 on Wed, 26 Jan 2005 22:38:01 -0300 by mstorti in spider
+     > Fixed a bug that prevents use of `gasflow_abso' elemset. 
