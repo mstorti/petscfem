@@ -2492,3 +2492,6 @@ tag: beta-3.18.pl23 on Wed,  5 Mar 2003 23:38:46 -0300 by mstorti in spider
 tag: beta-3.18.pl24 on Thu,  6 Mar 2003 15:58:59 -0300 by mstorti in minerva.arcride.edu.ar
      > Builds correctly the connectivity table for the lagrange multipliers 
      > elemset of null_vort. 
+----------
+tag: beta-3.18.pl25 on Thu,  6 Mar 2003 19:46:10 -0300 by mstorti in spider
+     > `null_vort' moved to `applications/ns'. 
