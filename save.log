@@ -1939,3 +1939,6 @@ tag: beta-3.10.pl14 on Tue, 17 Dec 2002 11:16:20 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.10.pl15 on Wed, 18 Dec 2002 17:59:47 -0300 by mstorti in minerva.arcride.edu.ar
      > Added doc for NS genload
+----------
+tag: beta-3.10.pl16 on Wed, 18 Dec 2002 18:32:31 -0300 by mstorti in minerva.arcride.edu.ar
+     > Added tests for NS genload
