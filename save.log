@@ -1670,3 +1670,6 @@ tag: beta-3.05.pl9 on Wed, 25 Sep 2002 14:03:32 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.05.pl10 on Wed, 25 Sep 2002 15:39:10 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs OK with accelerations read in `rosi_hook'
+----------
+tag: beta-3.05.pl11 on Wed, 25 Sep 2002 21:01:34 -0300 by mstorti in spider
+     > Runs small examples wuth new hook interface. 
