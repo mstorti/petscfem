@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.15 2002/07/29 20:17:39 mstorti Exp $
+//$Id: texthash.cpp,v 1.16 2002/10/17 19:07:57 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -231,7 +231,7 @@ void TextHashTable
     tt = t;
   }
   string *sc= new string(s);
-  included_tables.push_back(t);
+  included_tables.push_back(tt);
   included_tables_names.push_back(sc);
 }
 
