@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.3 2001/11/23 02:13:28 mstorti Exp $
+//$Id: graph.cpp,v 1.4 2001/11/23 20:53:04 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -8,10 +8,22 @@
 Graph::~Graph() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Graph::part(int npart) {
+Graph::Graph() : weight_scale(1.), vpartf(NULL) {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Graph::weight(int elem) {return weight_scale;}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Graph::part(int nelemfat,int max_partgraph_vertices,
+  int npart,float *tpwgts=NULL) {
+
   int visited,elem,elemk,vrtx,vrtxj,vrtxjj,p,j,k;
   vector<int>::iterator n,ne;
   set<int>::iterator q,qe;
+  // if tpwgts is not passed then define a local one
+  vector<float> tpwgts_v;
+  // Stores the graph `adjncy' in STL format
+  vector< set<int> > adjncy_v;
 
   weight_scale = 1.;
 
@@ -27,7 +39,7 @@ void Graph::part(int npart) {
 	   max_partgraph_vertices : nelemfat);
   
   // Create adjacency table for partitioning with Metis. In the
-  // adjacency graph the nodes are elements or group of elments of the
+  // adjacency graph the nodes are elements or group of elements of the
   // FEM mesh. Two nodes of the graph (elements of the mesh) have are
   // linked if they share a node.
 
@@ -37,9 +49,9 @@ void Graph::part(int npart) {
   // vwgt:= weights for the vertices (elements) of the graph
   int *vwgt = new int[nvrtx];
   // el2vrtx:= maps elements to vertices when coalescing
-  int *el2vrtx = new int[nelemfat];
+  el2vrtx = new int[nelemfat];
   // vpart:= partitioning of vertices
-  int *vpart = new int[nvrtx];
+  vpart = new int[nvrtx];
   vector<int> ngbrs_v;
 
   // Initialize 
@@ -174,8 +186,11 @@ void Graph::part(int npart) {
   }
 #endif
 
-  int options=0,edgecut,numflag=0,wgtflag=2;
-  float *tpwgts_d = new float[npart];
+  if (tpwgts==NULL) {
+    tpwgts_v.resize(npart);
+    for (k=0; k<npart; k++) tpwgts_v[k] = 1./float(npart);
+    tpwgts = tpwgts_v.begin();
+  }
 
 #if 0
   for (j=0; j<nvsubdo; j++) 
@@ -194,6 +209,9 @@ void Graph::part(int npart) {
     }
   }  
 #endif
+  delete[] adjncy;
+  delete[] xadj;
+  delete[] vwgt;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -207,7 +225,7 @@ int Graph::vrtx_part(int elem) {
 const int *Graph::vrtx_part() {
   // Create auxiliary vector `vpartf', fill with values using
   // elemental `vrtx_part' and return pointer to it
-  int *vpartf = new int[nelemfat];
+  vpartf = new int[nelemfat];
   for (int j=0; j<nelemfat; j++) 
     vpartf[j] = vpart[el2vrtx[j]];
   return vpartf;
@@ -215,10 +233,7 @@ const int *Graph::vrtx_part() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void Graph::clear() {
-  delete[] adjncy;
-  delete[] xadj;
   delete[] el2vrtx;
-  delete[] vwgt;
   delete[] vpart;
-  delete[] subd2proc;
+  delete[] vpartf;
 }
