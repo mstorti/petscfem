@@ -271,3 +271,6 @@ tag: beta-1.42 on Thu Mar 22 18:18:43 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-1.43 on Thu Mar 22 22:11:27 ART 2001, by mstorti in spider
      > Works the global scalar reactive Jacobian
+----------
+tag: beta-1.44 on Thu Mar 22 22:40:18 ART 2001, by mstorti in spider
+     > Works scalar per field reactive jacobian.
