@@ -2259,3 +2259,6 @@ tag: beta-3.15.pl8 on Wed, 29 Jan 2003 17:42:07 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.15.pl9 on Thu, 30 Jan 2003 13:57:27 -0300 by mstorti in node1.beowulf.gtm
      > Good results with cut-regulator. 
+----------
+tag: beta-3.15.pl10 on Thu, 30 Jan 2003 14:58:19 -0300 by mstorti in node1.beowulf.gtm
+     > Will run with a resitution coefficient for each outlet stream. 
