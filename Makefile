@@ -1,11 +1,11 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.55 2003/09/03 03:09:59 mstorti Exp $
+#$Id: Makefile,v 1.56 2003/09/09 18:51:26 mstorti Exp $
 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags	\
-		sw startwork fm2new sync_version applications app		\
+		sw startwork fm2new sync_version applications apps 		\
 		ns_O ns_g
 
 APPS = adv advdif ns laplace
@@ -48,13 +48,15 @@ local_sw::
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident
 
-#w Builds existng applications
-app: applications
-
-#w Builds existng applications
-applications: 
+#w Builds existing applications
+apps applications: 
 	$(MAKE) $(APPS)
 	for dir in $(APPDIRS) ; do $(MAKE) -C $$dir distclean ; done
+
+#w Builds existing applications with both opt. levels (g_c++ and O_c++)
+apps_all: 
+	$(MAKE) BOPT=g_c++ apps
+	$(MAKE) BOPT=O_c++ apps
 
 #w Builds a package + doc + applications 
 bin_distrib: license sw finaldoc pflib applications
