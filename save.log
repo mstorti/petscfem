@@ -1330,3 +1330,6 @@ tag: beta-3.00.pl24 on Wed, 24 Jul 2002 22:38:43 -0300 by mstorti in spider
 tag: beta-3.00.pl25 on Wed, 24 Jul 2002 22:52:29 -0300 by mstorti in spider
      > Runs laplace in 50^3 mesh in spider with 100subdo, requires 128MB and 30secs eval, 
      > 80secs resolution. 
+----------
+tag: beta-3.00.pl26 on Wed, 24 Jul 2002 23:30:23 -0300 by mstorti in spider
+     > Runs 70^3 mesh in spider (355MB RAM, 100 secs eva, 160secs sol). 
