@@ -17,7 +17,7 @@ $L0 = 2*$R0;			# [m] Length of tube
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 8;			# refinement in `z' (axial) direction
-$r_ratio = 4;			# refinement in radial direction
+$r_ratio = 2;			# refinement in radial direction
 
 $Dz_h = 0.0104;			# [m] Axial span of hot outlet (0.02*L0)
 if (0) {
@@ -29,7 +29,7 @@ if (0) {
 }
 
 ## Mesh parameters
-$refine = 3;			# scale all N's by this
+$refine = 8;			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -94,9 +94,9 @@ global_options
 nstep 1000
 alpha 1.
 
-# initial_state "vtube.ini.tmp"
+initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
-initial_state "vtube.steady_hot_outlet.tmp"
+# initial_state "vtube.steady_hot_outlet.tmp"
 save_file "vtube.state.tmp" 
 nsave 1
 

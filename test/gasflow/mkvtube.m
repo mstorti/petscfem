@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.7 2003/01/21 01:40:25 mstorti Exp $
+## $Id: mkvtube.m,v 1.8 2003/01/21 10:42:17 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -62,7 +62,7 @@ if axisymm; nn=nn/2; endif	# number of nodes in the first layer
 
 if !compressible
   p_h = 0;
-  p_c = -160;
+  p_c = -200;
 endif
 
 n_in=n_h=n_c=n_wall=0;
