@@ -1400,3 +1400,6 @@ tag: beta-3.02.pl3 on Tue, 30 Jul 2002 23:19:16 -0300 by mstorti in spider
 ----------
 tag: beta-3.02.pl4 on Tue, 30 Jul 2002 23:52:56 -0300 by mstorti in spider
      > Now seems to work `nssupg'
+----------
+tag: beta-3.02.pl5 on Wed, 31 Jul 2002 17:35:54 -0300 by mstorti in minerva.arcride.edu.ar
+     > Fixing surface diffusion term. 
