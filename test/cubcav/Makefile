@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.27 2002/09/12 11:40:05 mstorti Exp $ 
+# $Id: Makefile,v 1.28 2002/09/12 13:20:23 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -31,10 +31,9 @@ NL = -nolocal
 endif
 
 ifeq (1,1)
-NP = $(shell procsel ./proctable)
+NP = $(shell procsel ./proctable.minerva)
 NP = 2
 endif
-
 
 # NP = 2
 export NP

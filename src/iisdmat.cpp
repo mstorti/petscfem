@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.31 2002/09/07 15:33:50 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.32 2002/09/12 13:20:23 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -685,7 +685,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
       if (use_interface_full_preco) {
 	ierr = SLESDestroy_maybe(sles_ii); PF_CHKERRQ(ierr); 
-	ierr = SLESCreate(PETSC_COMM_SELF,&sles_ii); PF_CHKERRQ(ierr); 
+	ierr = SLESCreate(comm,&sles_ii); PF_CHKERRQ(ierr); 
 	ierr = SLESSetOperators(sles_ii,A_II,
 				A_II,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
 	ierr = SLESGetKSP(sles_ii,&ksp_ii); PF_CHKERRQ(ierr); 
