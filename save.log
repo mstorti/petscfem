@@ -2501,3 +2501,6 @@ tag: beta-3.18.pl26 on Fri,  7 Mar 2003 00:13:20 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl27 on Fri,  7 Mar 2003 18:24:04 -0300 by mstorti in minerva.arcride.edu.ar
      > `null_vort' works. 
+----------
+tag: beta-3.18.pl28 on Fri,  7 Mar 2003 23:16:06 -0300 by mstorti in spider
+     > Now we can run parabolic or circular mesh. 
