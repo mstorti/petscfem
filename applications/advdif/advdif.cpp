@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.27 2001/08/20 14:12:31 mstorti Exp $
+//$Id: advdif.cpp,v 1.28 2001/12/10 02:09:54 mstorti Exp $
 
 #include <set>
 
@@ -317,7 +317,7 @@ int main(int argc,char **args) {
       if (comp_mat_each_time_step_g) {
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-	ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
+	// ierr = A->build_sles(GLOBAL_OPTIONS); CHKERRA(ierr); 
 
 	ierr = A->zero_entries(); CHKERRA(ierr); 
 #ifdef CHECK_JAC

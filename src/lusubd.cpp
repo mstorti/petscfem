@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.65 2001/12/09 14:04:01 mstorti Exp $
+//$Id: lusubd.cpp,v 1.66 2001/12/10 02:10:00 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -893,10 +893,13 @@ void PETScMat::create(Darray *da,const Dofmap *dofmap,
 #undef __FUNC__
 #define __FUNC__ "PFMat::clear"
 void PFMat::clear() {
+  destroy_sles();
+#if 0
   if (sles_was_built) {
     int ierr = SLESDestroy(sles); 
     PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
   }
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
