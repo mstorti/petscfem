@@ -727,6 +727,15 @@ expect("nutatcyl/rigid.verif.tmp",
 Mz\(rigid\) OK \? 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nutatcyl/strip.verif.tmp",
+       "Viscous force intgrator on linear 3D strip",<<'EOT');
+Fx \[constant acceleration\] OK \? 1
+EOT
+
+
+nutatcyl/
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

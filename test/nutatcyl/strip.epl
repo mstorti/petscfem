@@ -1,0 +1,172 @@
+__ECHO_ON__
+<:
+#$Id: strip.epl,v 1.1 2002/08/19 16:49:11 mstorti Exp $
+# Initializes ePerl 
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
+#
+#__TRANSCRIPT__
+$casename = $ENV{'NAME'};       # This is used in the `proc?.m' scripts
+$ini = $ENV{'ini'};             # Run the initialization step
+die "bad NAME=\"$casename\" name\n" 
+    if $casename ne 'strip';
+$L = 1;
+$N=10;
+$h=$L/$N;
+$ndim = 3;
+$Dt=0.1;          # Time step
+$maxits = 100;
+$xratio = 5;
+$layers = 2;
+#__END_TRANSCRIPT__
+@vars = qw(L N h xratio);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -q mkstrip.m >mkstrip.out.tmp";
+
+# Read `nodf_u' value 
+open FIC,"strip.fic.tmp";
+$l = <FIC>;
+die "Couldn't find nodf_u in strip.fic.tmp" unless $l =~ /^\s*(\S*)\s*$/;
+$nodf_u = $1;
+$l = <FIC>;
+die "Couldn't find nodf_r in strip.fic.tmp" unless $l =~ /^\s*(\S*)\s*$/;
+$nodf_r = $1;
+close FIC;
+:>
+
+#default definitions
+#===========================================================
+global_options
+
+ndim <:=$ndim:>
+
+# initial_state "strip.ini.tmp"
+# kill turbulence
+turbulence_coef 0.
+non_inertial_frame
+# non_inertial_frame_reverse_sign
+steady 1
+nstep 1
+# nnwt <:= ($ini ? 5 : 1); :>
+nnwt 3
+tol_newton <:= ($ini ? 1e-15 : 0); :>
+<:pr('Dt'):>
+<:pr('maxits'):>
+Krylov_dim <:=$maxits:>
+weak_form
+LES 0
+save_file <:= ($ini ? "strip.state.tmp" : "outvector.out.tmp");:>
+G_body 1 0 0 
+
+alpha 1.
+atol 0
+dtol 1e+3
+
+# SOLVER
+#if 1
+# Direct solver from PETSc
+solver "petsc"
+preco_type "lu"
+#else
+# IISD solver 
+solver "iisd_petsc"
+preco_type "jacobi"
+#if 0 || $flat
+# LU on one processor
+rtol 0
+iisd_subpart 1
+print_internal_loop_conv 0
+#else
+# IISD
+iisd_subpart 4
+rtol 1e-6
+print_internal_loop_conv
+#endif
+#endif
+
+nsave 1
+save_file_pattern "state%d.all.tmp"
+nsaverot 5
+# print_some_file "strip.some.tmp"
+# save_file_some "strip.some_rslt.tmp"
+# nsome 1
+
+#if 0
+# print_residual
+# print_dofmap_id
+print_linear_system_and_stop
+solve_system 0
+# verify_jacobian_with_numerical_one 1
+# inwt_stop 2
+#endif
+
+viscosity 1.
+ngather <:=2*$ndim:>
+gather_file "strip.force.tmp"
+__ECHO_OFF__
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes  <:=$ndim:> <:=$ndim:> <:=$ndim+3:>
+__INCLUDE__ strip.nod.tmp
+__END_NODES__
+
+#===========================================================
+elemset nsi_tet_keps_rot <:=($ndim==2 ? 6 : 10):>
+name viscous_fluid_elemset
+geometry cartesian<:=$ndim:>d
+npg <:=($ndim==2 ? 4 : 8):>
+__END_HASH__
+__INCLUDE__ strip.con.tmp
+__END_ELEMSET__
+
+#===========================================================
+elemset visc_force_integrator <:=((1+$layers)*4):>
+geometry "quad2hexa"
+npg <:=2**($ndim-1):>
+ndimel <:=$ndim-1:>
+gather_length <:=2*$ndim:>
+moment_center 0. 0. 0.5
+volume_elemset "viscous_fluid_elemset"
+use_exterior_normal 0
+identify_volume_elements 1
+<:pr('layers'):>
+__END_HASH__
+<: 
+$ficti = "";
+for ($j=0; $j<4*$layers; $j++) { $ficti .= " 1"; }
+print join(" ",1,2*$N+3,3*$N+4,$N+2),$ficti,"\n";
+print join(" ",$N+1,2*$N+2,4*$N+4,3*$N+3),$ficti,"\n";
+:>
+__END_ELEMSET__
+
+end_elemsets
+
+# Impose b.c.'s on the walls 
+fixa
+__INCLUDE__ strip.bc.tmp
+
+<:=$nodf_u:> 1 0.
+<:=$nodf_u:> 2 0.
+<:=$nodf_u:> 3 0.
+<:=$nodf_u:> 4 0.
+<:=$nodf_u:> 5 0.
+<:=$nodf_u:> 6 0.
+
+<:=$nodf_r:> 1 0.
+<:=$nodf_r:> 2 0.
+<:=$nodf_r:> 3 0.
+<:=$nodf_r:> 4 0.
+<:=$nodf_r:> 5 0.
+<:=$nodf_r:> 6 0.
+
+__END_FIXA__
+
+constraint
+__INCLUDE__ strip.cnstr.tmp
+__END_CONSTRAINT__
+
+# Local Variables: $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
