@@ -820,6 +820,7 @@ sub check_newff {
 	   'rel. max error  <tol\(.*\) OK\? 1');
 }
 
+check_newff('stdy_dif');
 check_newff('dif_temp');
 check_newff('adv_dif_temp');
 check_newff('pure_adv');
@@ -833,6 +834,7 @@ check_newff('full_full_jacs_wf');
 check_newff('full_full_jacs_t');
 check_newff('full_full_jacs_tr');
 check_newff('adv_dif_stdy_bcconv');
+
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("burgers/save.state._d01_wf.tmp",
        "Advdif/Burgers with weak form+bcconv, d=0.1",<<'EOT');

@@ -11,6 +11,7 @@ s=1;
 D=0.1;
 Dt=0.02;
 nstep=25;
+enthalpy_type="ident";
 dif_type="global_scalar";
 adv_type="null";
 reac_type="null";
@@ -25,6 +26,7 @@ Rfluc=0;
 Dfluc=0;
 ufluc=0;
 sfluc=0;
+efluc=0;
 steady=0;
 weak_form=0;
 fix_some_node=0;
@@ -36,14 +38,37 @@ Cp=1;
 #<:$CASE=$ENV{'CASE'}:>//
 CASE=<:=$CASE:>;
 
-#if $CASE eq 'dif_temp'
-## Heat eq. with source term and reaction
+#if $CASE eq 'stdy_dif'
+## Steady heat eq. with source term
+Dt=1e6;
+steady=1;
+nstep=1;
+tol=0.04;
+nx=16;
+R=0;
+reac_type="global_scalar";
+fix_some_node=1;
+#elsif $CASE eq 'dif_temp'
+## Heat eq. with source term
 Dt=0.05;
 nstep=10;
 tol=0.04;
 nx=16;
-R=1;
+R=0;
 reac_type="global_scalar";
+D=0.05;
+#elsif $CASE eq 'dif_temp_cp'
+## Heat eq. with source term
+## Cp variable per dof
+Dt=0.05;
+nstep=10;
+tol=0.04;
+nx=16;
+R=0;
+reac_type="global_scalar";
+enthalpy_type="scalar_per_field";
+D=0.05;
+Cp=3;
 #elsif $CASE eq 'homo_heat'
 ## Test for homogeneous heating (no diff/adv/reac)
 kx=0;
@@ -53,6 +78,7 @@ tol=0.04;
 nx=1;
 s=1;
 R=0.01;
+enthalpy_type="global_scalar";
 reac_type="global_scalar";
 Cp=2;
 #elsif $CASE eq 'adv_dif_temp'
@@ -138,6 +164,7 @@ tol=0.03;
 #elsif $CASE eq 'std_ard_x_y'
 ## Steady Advection reaction diffusion
 ## (all terms) allong 'x' and 'y' coords.
+## with enthalpy
 Dt=1e5;
 nstep=1;
 nx=16;
@@ -158,6 +185,7 @@ tol=0.005;
 ky=1;
 full_jacs=1;
 Dt=1e5;
+steady=1;
 nstep=1;
 tol=0.04;
 nx=16;
@@ -203,7 +231,7 @@ adv_type="vector_per_field";
 s=1;
 sfluc=1;
 source_type="full";
-#elsif $CASE eq 'full_full_jacs_wf'
+#elsif $CASE eq 'full_full_jacs'
 steady=1;
 ky=1;
 full_jacs=2;
@@ -227,6 +255,30 @@ adv_type="vector_per_field";
 s=1;
 sfluc=1;
 source_type="full";
+#elsif $CASE eq 'full_full_jacs_cp'
+ky=1;
+full_jacs=2;
+Dt=0.01;
+nstep=10;
+tol=0.01;
+nx=16;
+ny=16;
+kx=1;
+ky=1;
+Lx=1;
+Ly=1;
+R=5;
+Rfluc=.1;
+D=1;
+Dfluc=.3;
+u=1;
+v=1;
+ufluc=1;
+s=1;
+sfluc=1;
+source_type="full";
+Cp=3.1;
+Cpfluc=1.;
 weak_form=1;
 #elsif $CASE eq 'full_full_jacs_t'
 steady=1;

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2001/04/04 22:55:37 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2001/04/06 21:39:31 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -28,7 +28,8 @@ tests: test_dif_temp test_adv_dif_temp test_pure_adv test_reac_adv_dif_temp_y \
 	test_reac_steady test_reac_dif_temp test_std_ard_x_y \
 	test_full_jacs test_full_full_jacs \
 	test_full_full_jacs_wf test_full_full_jacs_t \
-	test_full_full_jacs_tr test_adv_dif_stdy_bcconv
+	test_full_full_jacs_tr test_adv_dif_stdy_bcconv \
+	test_stdy_dif
 
 test_%: 
 	$(MAKE) CASE=$* run
@@ -50,8 +51,8 @@ advdif: advdif.link
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case newff.depl #> newff.out
-	octave -q verif.m #>$(CASE).vrf.tmp
+			-case newff.depl > newff.out
+	octave -q verif.m | tee $(CASE).vrf.tmp
 
 local_clean::
 	-chmod +w newff.data.res

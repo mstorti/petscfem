@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.32 2001/04/04 22:55:30 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.33 2001/04/06 21:39:26 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -504,7 +504,6 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     scalar_per_field_ef.init(ndof,ndim,nel);
   } else if (enthalpy_jacobians_type==string("full") &&
 	     enthalpy_jacobians_prop.length == ndof*ndof) {
-    PETSCFEM_ERROR(0,"Not implemented yet\n");
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Enthalpy Jacobian does not fit in \n"

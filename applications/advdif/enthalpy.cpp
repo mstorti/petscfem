@@ -8,6 +8,7 @@
 #include "nwadvdif.h"
 
 void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_=1.) {
+  Cp=Cp_;
   eye_ndof.resize(2,ndof,ndof).set(0.).eye(1.);
   htmp1.resize(1,nel);
   htmp2.resize(2,nel,nel);

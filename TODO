@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Review impact of '-funroll-loops' in FastMat2 efficiency. 
 * add doc for enthalpy jacobians
 * replcae all  VOID_IT by clear()
 * Make ElementIterator a nested class of Elemset

@@ -2,7 +2,7 @@
 #__TRANSCRIPT__
 require '../eperlini.pl';       # Initializes ePerl 
 @read_var = readm_all_v("data.m");# read all variables in octave file
-octave_string(qw(dif_type adv_type reac_type source_type));
+octave_string(qw(dif_type adv_type reac_type source_type enthalpy_type));
 $case=newff;
 #__END_TRANSCRIPT__
 :>//                            # ends ePerl block
@@ -93,19 +93,19 @@ diffusive_jacobians \
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
 #---<*>---// ENTHALPY JACOBIANS  /---<*>---//---<*>---//
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
-enthalpy_jacobians_type "<:=$reac_type:>"
+enthalpy_jacobians_type "<:=$enthalpy_type:>"
 
-#if $reac_type eq 'full'
+#if $enthalpy_type eq 'full'
 enthalpy_jacobians <:=$Cp:>  0. 0. 0. <:=$Cp:>  0. 0. 0. <:=$Cp:>
 #enthalpy_jacobians <:=$Cp:>  0. 0. 0. <:=3*$Cp:>  0. 0. 0. <:=10*$Cp:>
-#elsif $reac_type eq 'global_scalar'
+#elsif $enthalpy_type eq 'global_scalar'
 enthalpy_jacobians <:=$Cp:>
-#elsif $reac_type eq 'scalar_per_field'
+#elsif $enthalpy_type eq 'scalar_per_field'
 enthalpy_jacobians <:=$Cp:> <:=3*$Cp:> <:=10*$Cp:>
-#elsif $reac_type eq 'ident'
+#elsif $enthalpy_type eq 'ident'
 # no line for null enthalpy jacobian
 #else
-<:die "not known reac_type: $reac_type\n":>
+<:die "not known enthalpy_type: $enthalpy_type\n":>
 #endif
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//

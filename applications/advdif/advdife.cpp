@@ -29,27 +29,6 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void GlobalScalarEF::init(int ndof,int ndim,int nel,double Cp_=1.) {
-  Cp=Cp_;
-  eye_ndof.resize(2,ndof,ndof).set(0.).eye(Cp);
-  htmp1.resize(1,nel);
-  htmp2.resize(2,nel,nel);
-}
-
-void GlobalScalarEF::enthalpy(FastMat2 &H, FastMat2 &U) {
-  H.set(U).scale(Cp);
-}
-
-void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
-				  FastMat2 &W,FastMat2 &N,double w) {
-  htmp1.set(N).scale(w);
-  htmp2.prod(W,htmp1,1,2); // tmp12 = SHAPE' * SHAPE
-  W_Cp_N.prod(htmp2,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Returns the list of variables that are 
     logarithmic transformed.

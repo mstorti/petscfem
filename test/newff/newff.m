@@ -56,6 +56,16 @@ elseif full_jacs==1
     Dyy=Dxx;
   endif
   
+  if strcmp(enthalpy_type,"scalar_per_field")
+    fprintf(fid,"enthalpy_jacobians_type \"scalar_per_field\"\n");
+    fprintf(fid,"enthalpy_jacobians_type");
+    CP=diag(Cp+Cpfluc*(2*rand(3,1)-1));
+    for k=1:ndof
+      fprintf(fid," %f ",CP(k,k));
+    endfor
+    fprintf(fid,"\n\n");
+  endif
+  
   if strcmp(source_type,"full")
                                 #    fprintf(fid,"source_term_type \"full\"\n");
                                 #    fprintf(fid,"source_term");
@@ -78,6 +88,19 @@ elseif full_jacs==2
   for j=1:ndof
     for k=1:ndof
       fprintf(fid," %f ",RR(j,k));
+    endfor
+  endfor
+  fprintf(fid,"\n\n");
+
+  CP=log(Cp)*(eye(ndof)+log((Cp-Cpfluc)/Cp)*(2*rand(size(CP))-1));
+  CP=(CP+CP')/2;
+  CP=expm(CP);
+	      
+  fprintf(fid,"enthalpy_jacobians_type \"full\"\n");
+  fprintf(fid,"enthalpy_jacobians");
+  for j=1:ndof
+    for k=1:ndof
+      fprintf(fid," %f ",CP(j,k));
     endfor
   endfor
   fprintf(fid,"\n\n");
@@ -239,9 +262,9 @@ beta = CP \ (RR + i*kwu + kDk);
 phase=kwave(1)*xnod(:,1)+kwave(2)*xnod(:,2);
 phase=exp(i*phase);
 if !steady
-  uana = (beta \ (1-exp(-beta*nstep*Dt)))*S;
+  uana = (beta \ (eye(ndof)-expm(-beta*nstep*Dt)))*(CP\S);
 else
-  uana = beta\S;
+  uana = beta\(CP\S);
 endif
 
 Uana = real(phase*uana.');
