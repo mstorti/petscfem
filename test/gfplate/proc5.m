@@ -1,4 +1,4 @@
-## $Id: proc5.m,v 1.8 2005/01/28 19:08:40 mstorti Exp $
+## $Id: proc5.m,v 1.9 2005/01/29 23:54:35 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -57,7 +57,7 @@ if 0
 endif
 
 axis([min(x) max(x) \
-      min(min(U)) max(max(U))]);
+      min(min(U(plotindx,:))) max(max(U(plotindx,:)))]);
 m = 5;
 
 indx = [];

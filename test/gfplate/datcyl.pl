@@ -5,7 +5,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $R = 1;
 $Rext = 5;
 
-$Nr = 20;
+$Nr = 30;
 $Nphi = 2*$Nr;
 $rratio = 5;
 
