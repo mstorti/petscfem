@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.14 2002/01/09 01:30:56 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.15 2002/01/09 02:00:25 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -151,9 +151,9 @@ int PFPETScMat::clean_factor_a() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::clean_factor"
+#define __FUNC__ "IISDMat::clean_factor_a"
 int IISDMat::clean_factor_a() {
-  ierr = PFPETScMat::clean_factor(); CHKERRQ(ierr); 
+  ierr = PFPETScMat::clean_factor_a(); CHKERRQ(ierr); 
   ierr = SLESDestroy_maybe(sles_ll); CHKERRQ(ierr); 
   ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   return 0;

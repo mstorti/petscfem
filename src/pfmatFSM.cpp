@@ -39,6 +39,7 @@ void pfmatFSMfactoredState::clear(pfmatFSM& s) {
 void pfmatFSMfactoredState::clean_factor(pfmatFSM& s) {
   s.SetState(pfmatFSM::profiledState);
   s.clean_factor_a();
+  s.clean_mat_a();
 }
 void pfmatFSMfactoredState::solve(pfmatFSM& s) {
   s.SetState(pfmatFSM::factoredState);
