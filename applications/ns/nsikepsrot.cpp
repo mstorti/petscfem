@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.8 2002/04/08 20:04:35 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.9 2002/04/12 14:05:19 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -405,7 +405,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  omega_v.rs();
 #endif
 	  assert(ndim==3); // Some things below are specific for 3D
-	  Omega_M.set(0.).prod(elc,omega_v,1,2,-1,-1);
+	  Omega_M.set(0.).prod(elc,omega_v,1,-1,2,-1);
 
 	  // Definition of rotation acceleration matrix corresponding
 	  // to the polar vector Alfa
@@ -419,7 +419,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  Alfa_M.rs().add(tmp_rot);
 	  alfa_v.rs();
 #endif
-	  Alfa_M.set(0.).prod(elc,alfa_v,1,2,-1,-1);
+	  Alfa_M.set(0.).prod(elc,alfa_v,1,-1,2,-1);
 
 	  G_body.axpy(acel_lin,-rho);
 
