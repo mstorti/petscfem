@@ -3599,3 +3599,6 @@ tag: beta-3.38.5 on Sat, 25 Dec 2004 21:41:09 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.6 on Sat, 25 Dec 2004 23:31:08 -0300 by mstorti in spider
      > `father()' is working in `tree.h'. 
+----------
+tag: beta-3.38.7 on Sun, 26 Dec 2004 00:09:40 -0300 by mstorti in spider
+     > `father()' is working in `tree.h'. 
