@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.48 2003/08/06 20:36:47 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.49 2003/08/19 01:16:52 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -22,6 +22,9 @@ extern int MY_RANK,SIZE;
 #include <src/graph.h>
 #include <src/distmap2.h>
 #include <src/distcont2.h>
+
+//#define PF_CHKERRQ(ierr) assert(ierr)
+#define PF_CHKERRQ(ierr) CHKERRQ(ierr)
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -259,11 +262,23 @@ const int IISDMat::I=1;
 int petscfem_null_monitor(KSP ksp,int n,
 			  double rnorm,void *A_) {return 0;}
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+IISDMat::IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_a) : 
+  PFPETScMat(MM,pp,comm_a), 
+  M(MM), N(NN), 
+  A_LL_other(NULL), A_LL(NULL), 
+  local_solver(PETSc), sles_ll(NULL), sles_ii(NULL),
+  use_interface_full_preco(0), nlay(0) {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 IISDMat::~IISDMat() {
   delete A_LL_other;
   A_LL_other = NULL;
+  int ierr;
+  if (nlay>1) {
+    ierr = VecDestroy_maybe(wb); assert(!ierr); 
+    ierr = VecDestroy_maybe(xb); assert(!ierr); 
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -403,9 +418,6 @@ int IISDMat::mult_trans(Vec x,Vec y) {
   return 0;
 }
 
-//#define PF_CHKERRQ(ierr) assert(ierr)
-#define PF_CHKERRQ(ierr) CHKERRQ(ierr)
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::assembly_begin_a"
@@ -469,6 +481,9 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
     ierr = MatAssemblyBegin(A_LL,type); PF_CHKERRQ(ierr);
   }
   A_LL_other->scatter();
+
+  if (nlay>1) { ierr = MatAssemblyBegin(A_II_isp,type); PF_CHKERRQ(ierr); }
+
 #if 0
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			  "[%d] t1 %f, t2 %f, t3 %f, scattered %d, sr %d\n",
@@ -515,6 +530,7 @@ int IISDMat::assembly_end_a(MatAssemblyType type) {
   if (local_solver == PETSc) {
     ierr = MatAssemblyEnd(A_LL,type); PF_CHKERRQ(ierr);
   }
+  if (nlay>1) { ierr = MatAssemblyEnd(A_II_isp,type); PF_CHKERRQ(ierr); }
 #endif
   return 0;
 };
@@ -542,6 +558,7 @@ int IISDMat::clean_mat_a() {
   ierr=MatZeroEntries(A_IL); PF_CHKERRQ(ierr);
   ierr=MatZeroEntries(A_LI); PF_CHKERRQ(ierr);
   ierr=MatZeroEntries(A_II); PF_CHKERRQ(ierr);
+  if (nlay>1) { ierr=MatZeroEntries(A_II_isp); PF_CHKERRQ(ierr); }
   return 0;
 }
 
@@ -603,6 +620,9 @@ int IISDMat::clean_prof_a() {
   ierr = MatDestroy_maybe(A_II); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
 
+  if (nlay>1) { ierr = MatDestroy_maybe(A_II_isp); CHKERRQ(ierr); }
+  // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
+
   ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
 
@@ -623,6 +643,23 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
     ldof -= n_loc_tot;
   }
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "IISDMat::isp_set_value"
+int IISDMat::isp_set_value(int row,int col,PetscScalar value,
+			   InsertMode mode) {
+  int rindx = isp_map[row];
+  if (rindx<0) return 0;
+  int cindx = isp_map[col];
+  if (cindx<0) return 0;
+
+  // printf("setting: (%d,%d) -> (%d,%d) -> %f\n",row,col,rindx,cindx,value);
+  ierr = MatSetValues(A_II_isp,
+			1,&rindx,1,&cindx,&value,mode);
+  CHKERRQ(ierr);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_value_a"
@@ -630,6 +667,8 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 			InsertMode mode) {
   int row_indx,col_indx,row_t,col_t;
   double val;
+
+  if (nlay>1) isp_set_value(row,col,value,mode);
 
   map_dof_fun(row,row_t,row_indx);
   map_dof_fun(col,col_t,col_indx);
@@ -668,15 +707,25 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PETSC_OBJECT_DESTROY_MAYBE(type)	\
 int type##Destroy_maybe(type &v) {		\
+  int ierr=0;					\
   if (v) {					\
-    int ierr = type##Destroy(v); CHKERRQ(ierr);	\
+    ierr = type##Destroy(v); CHKERRQ(ierr);	\
     v = NULL;					\
   }						\
-  return 0;					\
+  return ierr;					\
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "VecDestroy_maybe"
 PETSC_OBJECT_DESTROY_MAYBE(Vec);
+
+#undef __FUNC__
+#define __FUNC__ "MatDestroy_maybe"
 PETSC_OBJECT_DESTROY_MAYBE(Mat);
+
+#undef __FUNC__
+#define __FUNC__ "SLESDestroy_maybe"
 PETSC_OBJECT_DESTROY_MAYBE(SLES);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -689,6 +738,16 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
   double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
   Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;
+
+#if 0
+    ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
+				"aiiisp.dat",&matlab); PF_CHKERRQ(ierr);
+    ierr = PetscViewerSetFormat(matlab,
+				PETSC_VIEWER_ASCII_MATLAB); PF_CHKERRQ(ierr);
+    ierr = MatView(A_II_isp,matlab); PF_CHKERRQ(ierr);
+    PetscFinalize();
+    exit(0);
+#endif
 
   if (!factored) build_sles();
 
@@ -726,8 +785,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       if (use_interface_full_preco) {
 	ierr = SLESDestroy_maybe(sles_ii); PF_CHKERRQ(ierr); 
 	ierr = SLESCreate(comm,&sles_ii); PF_CHKERRQ(ierr); 
-	ierr = SLESSetOperators(sles_ii,A_II,
-				A_II,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
+	Mat A_II_g = (nlay>1 ? A_II_isp : A_II);
+	ierr = SLESSetOperators(sles_ii,A_II_g,
+				A_II_g,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
 	ierr = SLESGetKSP(sles_ii,&ksp_ii); PF_CHKERRQ(ierr); 
 	ierr = SLESGetPC(sles_ii,&pc_ii); PF_CHKERRQ(ierr); 
 	// ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
@@ -947,8 +1007,8 @@ int IISDMat::set_preco(const string & preco_type) {
   int ierr;
   if (preco_type=="jacobi" || preco_type=="") {
     ierr = PCSetType(pc,PCSHELL); CHKERRQ(ierr);
-    ierr = PCShellSetApply(pc,&iisd_jacobi_pc_apply,this); 
-    // printf("[%d] setting apply to %p\n",MY_RANK,&iisd_jacobi_pc_apply);
+    ierr = PCShellSetApply(pc,&iisd_pc_apply,this); 
+    // printf("[%d] setting apply to %p\n",MY_RANK,&iisd_pc_apply);
   } else if (preco_type=="none" ) {
     ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
   } else {
@@ -966,27 +1026,86 @@ int IISDMat::set_preco(const string & preco_type) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "iisd_jacobi_pc_apply"
-int iisd_jacobi_pc_apply(void *ctx,Vec x ,Vec y) {
+#define __FUNC__ "iisd_pc_apply"
+int iisd_pc_apply(void *ctx,Vec x ,Vec y) {
   int ierr;
   PFMat *A = (PFMat *) ctx;
   IISDMat *AA;
   AA = dynamic_cast<IISDMat *> (A);
   ierr = (AA==NULL); CHKERRQ(ierr);
-  AA->jacobi_pc_apply(x,y);
+  AA->pc_apply(x,y);
   return 0;
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::jacobi_pc_apply"
-int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
+#define __FUNC__ "IISDMat::pc_apply"
+int IISDMat::pc_apply(Vec x,Vec w) {
   int ierr;
   if (use_interface_full_preco) {
     int its;
-    // Solves `w = A_II \ x' iteratively. 
-    ierr = SLESSolve(sles_ii,x,w,&its);
-    CHKERRQ(ierr);  
+    if (nlay==1) {
+      // Solves `w = A_II \ x' iteratively. 
+      ierr = SLESSolve(sles_ii,x,w,&its);
+      CHKERRQ(ierr);
+    } else {
+      const int &neq = M;
+      // Injects `x' in `xb'. Solves `A_II_isp wb = xb'
+      // and then takes `w' from `wb'
+
+      int myrank;
+      MPI_Comm_rank(comm, &myrank);
+
+      double scal = 0.;
+      ierr = VecSet(&scal,xb); 
+      PF_CHKERRQ(ierr); 
+      
+      // Injects `x' in `xb'.
+      double *xbp, *wbp, *xp, *wp;
+      ierr = VecGetArray(xb,&xbp); PF_CHKERRQ(ierr); 
+      ierr = VecGetArray(x,&xp); PF_CHKERRQ(ierr); 
+      int n_int = n_int_v[myrank+1]-n_int_v[myrank];
+      int n_int_p = n_int_v[myrank];
+      int n_lay1_here = n_band_p[myrank] - n_lay1_p[myrank];
+      int n_lay1_ph = n_lay1_p[myrank];
+      int mapped=0;
+      for (int keq=0; keq<neq; keq++) {
+	int iisd_indx = map_dof[keq];
+	if (!(iisd_indx>=n_int_p && iisd_indx<n_int_v[myrank+1])) continue;
+	int j = iisd_indx-n_int_p;
+	// indx in local part of `xb' array
+	int xb_ndx = isp_map[keq] - n_lay1_ph;
+	assert(xb_ndx>=0 && xb_ndx<n_lay1_here);
+	mapped++;
+	xbp[xb_ndx] = xp[j];
+      }
+      assert(mapped==n_lay1_here);
+      ierr = VecRestoreArray(xb,&xbp); PF_CHKERRQ(ierr); 
+      ierr = VecRestoreArray(x,&xp); PF_CHKERRQ(ierr); 
+
+      //Solves `A_II_isp wb = xb'
+      ierr = SLESSolve(sles_ii,xb,wb,&its);
+      CHKERRQ(ierr);
+
+      // Takes `w' from `wb'
+      ierr = VecGetArray(wb,&wbp); PF_CHKERRQ(ierr); 
+      ierr = VecGetArray(w,&wp); PF_CHKERRQ(ierr); 
+      mapped=0;
+      for (int keq=0; keq<neq; keq++) {
+	int iisd_indx = map_dof[keq];
+	// indx in local part of `xb' array
+	if (!(iisd_indx>=n_int_p && iisd_indx<n_int_v[myrank+1])) continue;
+	int j = iisd_indx-n_int_p;
+	int xb_ndx = isp_map[keq] - n_lay1_ph;
+	assert(xb_ndx>=0 && xb_ndx<n_lay1_here);
+	mapped++;
+	wp[j] = wbp[xb_ndx];
+      }
+      assert(mapped==n_lay1_here);
+      ierr = VecRestoreArray(wb,&wbp); PF_CHKERRQ(ierr); 
+      ierr = VecRestoreArray(w,&wp); PF_CHKERRQ(ierr); 
+      //# Current line ===========       
+    }  
     
   } else {
     // Computes the componentwise division w = x/y. 

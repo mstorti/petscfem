@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.27 2003/07/07 10:58:50 mstorti Exp $
+// $Id: iisdmat.h,v 1.28 2003/08/19 01:16:52 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -39,7 +39,7 @@
         string name;					\
         TGETOPTDEF_S_ND_PF(thash,type,name,default)
   
-int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
+int iisd_pc_apply(void *ctx,Vec,Vec);
 
 /** Solves iteratively on the `interface' (between subdomain) nodes
     and solving by a direct method in the internal nodes.
@@ -74,6 +74,9 @@ class IISDMat : public PFPETScMat {
   /** Flags whether we precodition with #A_ii#
   (#use_interface_full_preco=1#) or with #diag(A_ii)# (#=0#). */ 
   int use_interface_full_preco;
+  /** Number of iters in solving the preconditioning for the 
+      interface problem when using #use_interface_full_preco#.*/ 
+  int nlay;
   /** Number of iters in solving the preconditioning for the 
       interface problem when using #use_interface_full_preco#.*/ 
   int interface_full_preco_maxits;
@@ -114,6 +117,7 @@ class IISDMat : public PFPETScMat {
   Mat A_IL;
   /// Interface-Interface matrix (MPI matrix).
   Mat A_II;
+
   /// Shortcuts to the #A_LL#, #A_IL#, #A_LI# and #A_II# matrices. 
   Mat *AA[2][2];
   /** Here we put all non-local things that are in the loca-local
@@ -204,6 +208,31 @@ class IISDMat : public PFPETScMat {
   */
   map<int,int> proc2glob;
 
+  /** @name ISP preconditioning */
+  //@{
+  /// Band-Band matrix (MPI matrix for ISP preco).
+  Mat A_II_isp;
+  /// Dofs in band region
+  int n_isp_tot;
+  /// #isp_map[j]# is the position in the PETSc #A_isp# matrix
+  vector<int>  isp_map;
+  /// Set value in the A_II_isp matrix (for ISP preconditioning).
+  int isp_set_value(int row,int col,PetscScalar value, 
+		    InsertMode mode);
+  /** Dof's in interface/processor #p#: are in range 
+      #n_lay1_p[p] <= keq < n_band_p[p]# */
+  vector<int> n_lay1_p;
+  /** Dof's in band/processor #p#: are in range 
+      #n_band_p[p] <= keq < n_lay1_p[p+1]# */
+  vector<int> n_band_p;
+  /** Auxiliay vectors for solving the interface
+      ISP preconditioning problem */
+  Vec wb;
+  /** Auxiliay vectors for solving the interface
+      ISP preconditioning problem */
+  Vec xb;
+  //@}
+
 public:
 
   // returns the j-th dimension
@@ -259,17 +288,12 @@ public:
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
 
-  // void print(void);
-  /// Constructor
+  /// Ctor
   IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
-	  PETSC_COMM_WORLD) : 
-    PFPETScMat(MM,pp,comm_), 
-    M(MM), N(NN), 
-    A_LL_other(NULL), A_LL(NULL), 
-    local_solver(PETSc), sles_ll(NULL), sles_ii(NULL),
-    use_interface_full_preco(0) {};
+	  PETSC_COMM_WORLD);
+
   /// The PETSc wrapper function calls this
-  int jacobi_pc_apply(Vec x,Vec y); 
+  int pc_apply(Vec x,Vec y); 
   /// Destructor
   ~IISDMat();
 };

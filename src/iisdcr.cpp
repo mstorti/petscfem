@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37 2003/07/07 10:58:50 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.38 2003/08/19 01:16:51 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -225,6 +225,12 @@ int IISDMat::create_a() {
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart_auto,0);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco,0);
+  int use_interface_full_preco_nlay;
+  //o Number of layers in the preconditioning band (should
+  //  be \verb+nlay>=1+.) 
+  TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco_nlay,3);
+  nlay = use_interface_full_preco_nlay;
+  PETSCFEM_ASSERT0(nlay>0,"Number of ISP layers must be positive.");  
   //o Number of iters in solving the preconditioning for the 
   // interface problem when using \verb+use_interface_full_preco+. 
   TGETOPTDEF_ND_PF(thash,int,interface_full_preco_maxits,5);
@@ -328,6 +334,182 @@ int IISDMat::create_a() {
   n_loc = n_loc_v[myrank+1]-n_loc_v[myrank];
   n_locp = n_loc_v[myrank];
   n_intp = n_int_v[myrank];
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  //// ISP BAND PRECONDTIONING
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // isp_lay_map:= contains the layer number for dof k
+  // isp_lay_map2:= auxiliary for reduce operations
+  vector<int> isp_lay_map(neq,0), isp_lay_map2(neq,0);
+  if (nlay<1) nlay=1;
+  // mark layer 1
+  for (int j=0; j<neq; j++) isp_lay_map[j] = map_dof[j]>=n_loc_tot;
+
+  // mark layers `2 <= lay <= nlay'
+  // This algorithm is somewhat no scalable for large number
+  // of processors. First we mark all dofs in the interface as layer 1.
+  // Then, to mark layer `n', we traverse *all* dofs and mark the
+  // neighbors of the nodes in layer `n-1' as belonging to layer `n' (if
+  // not already previously as a layer <n. Then we `allreduce' the marked
+  // layers (the graph is distributed). 
+  // This is O(nlay*neq) but the work done on the nodes not in the
+  // current layer is very small.
+  for (int lay=2; lay<=nlay; lay++) {
+    for (int j=0; j<neq; j++) {
+      if (isp_lay_map[j]==lay-1 && part.processor(j)==myrank) {
+	ngbrs_v.clear();
+	lgraph->set_ngbrs(j,ngbrs_v);
+	qe = ngbrs_v.end();
+	for (q=ngbrs_v.begin(); q!=qe; q++) {
+	  int jj = *q;
+	  if (isp_lay_map[jj]==0) isp_lay_map[jj]=lay;
+	}
+      }
+    }
+    MPI_Allreduce(&*isp_lay_map.begin(), &*isp_lay_map2.begin(), 
+		  neq, MPI_INT, MPI_MAX, comm);
+    memcpy(&*isp_lay_map.begin(),&*isp_lay_map2.begin(),neq*sizeof(int));
+  }
+#if 0
+  if (!myrank) {
+    // Print the numbering
+    printf("j, map_dof, isp_lay_map\n");
+    for (int j=0; j<neq; j++)
+      printf("%d %d %d\n",j,map_dof[j],isp_lay_map[j]);
+  }
+#endif
+#if 1
+  if (!myrank && use_interface_full_preco) {
+    // Print some statistics.
+    // Number of dofs in the interface, band and rest of dofs
+    int ni=0,nb=0,nr=0;
+    for (int j=0; j<neq; j++) {
+      int l = isp_lay_map[j];
+      if (l==1) ni++;
+      else if (l>1 && l<=nlay) nb++;
+      else if (l==0) nr++;
+      else PETSCFEM_ERROR("Internal error: Bad layer number: eq %d, lay %d\n",j,l);
+    }
+    PETSCFEM_ASSERT(neq==(ni+nb+nr),"Internal error: Bad balance of dofs: "
+		    "neq %d, ni %d, nb %d, nr %d\n",neq,ni,nb,nr);  
+    float aneq = float(neq);
+    float ni_pc = 100.0*float(ni)/aneq;
+    float nb_pc = 100.0*float(nb)/aneq;
+    float nr_pc = 100.0*float(nr)/aneq;
+    printf("IISDMat - full preco statistics: "
+	   "int %d (%.2f%%), band %d (%.2f%%), rest %d (%2f%%)\n",
+	   ni,ni_pc,nb,nb_pc,nr,nr_pc);
+  }
+#endif
+  isp_lay_map2.clear();
+
+  // In the following we will divide the dof's in 
+  // * `interface' (as before, i.e. lay=1)
+  // * `band' (2 <= lay <= nlay) 
+  // * `rest' (lay > nlay)
+  // Now number the dof's. First we number all dofs in the following
+  // order: int/proc0, band/proc0, int/proc1, band/proc1, etc... This
+  // is the order they will have in the PETSc matrix. 
+
+  // n_lay1:= n_lay1[p] is the number of dof's in interface/processor `p'
+  // n_band:= n_band[p] is the number of dof's in band/processor `p'
+  // n_rest := n_rest[p] is the number of dof's in rest/processor `p'
+  // n_isp := n_isp[p] = n_lay1[p]+n_band[ip] is the number of dof's
+  //                                            in (int+band)/processor `p'
+  vector<int> n_lay1(size,0), n_band(size,0), n_rest(size,0), n_isp(size,0);
+
+  // n_lay1_p:= Dof's in interface/processor `p': are in 
+  //                                  range n_lay1_p[p] <= keq < n_band_p[p] 
+  // n_band_p:= Dof's in band/processor `p': are in 
+  //                                  range n_band_p[p] <= keq < n_lay1_p[p+1] 
+  n_lay1_p.resize(size+1,0);
+  n_band_p.resize(size+1,0);
+
+  // isp_map:= isp_map[j] is the position in the PETSc `A_isp' matrix
+  // vector<int>  isp_map(neq,0);
+  isp_map.resize(neq,0);
+  for (int j=0; j<neq; j++) {
+    int lay = isp_lay_map[j];
+    int proc = part.processor(j);
+    if (lay==1) isp_map[j] = n_lay1[proc]++;
+    else if (lay>1) isp_map[j] = n_band[proc]++;
+    // Rest dof's are *not* numbered
+    else if (lay==0) {
+      isp_map[j]=-1;
+      n_rest[proc]++;
+    }
+  }
+
+  // We ended with n_lay1[proc+1] = number of dof's in
+  // interface, proc=p, etc...
+  // Now build the pointers (cumsum)
+  n_lay1_p[0]=0;
+  n_isp_tot = 0;
+  for (int p=0; p<size; p++) {
+    n_isp[p] = n_lay1[p] + n_band[p];
+    n_isp_tot += n_isp[p];
+    n_band_p[p] = n_lay1_p[p] + n_lay1[p];
+    n_lay1_p[p+1] = n_band_p[p] + n_band[p];
+  }
+#if 0
+  if (!myrank) {
+    printf("proc, lay1, band, rest, n_lay1_p, n_band_p\n");
+    for (int p=0; p<size; p++)
+      printf("%7d %7d %7d %7d %7d %7d\n",p,n_lay1[p],n_band[p],n_rest[p],
+	     n_lay1_p[p], n_band_p[p]);
+    printf("%7d %7d %7d %7d %7d %7d\n",size,0,0,0,n_lay1_p[size],0);
+  }
+#endif
+
+  // At this stage `isp_map' has only relative indices to their
+  // subblocks. Fix.
+  for (int j=0; j<neq; j++) {
+    int lay = isp_lay_map[j];
+    int proc = part.processor(j);
+    if (lay==1) isp_map[j] += n_lay1_p[proc];
+    else if (lay>1) isp_map[j] += n_band_p[proc];
+  }
+#if 0
+  if (!myrank) {
+    printf("j, map_dof[j], isp_lay_map[j], isp_map[j]\n");
+    for (int j=0; j<neq; j++) {
+      printf("%5d %5d %5d %5d\n",j, 
+	     map_dof[j], isp_lay_map[j], isp_map[j]);
+    }
+  }
+#endif
+
+  // Now compute the PETSc d_nnz, o_nnz stuff
+  // n_isp_here:= number of dofs in (int+band) in this processor
+  int n_isp_here = n_isp[myrank];
+  vector<int> isp_d_nnz(n_isp_here,0), isp_o_nnz(n_isp_here,0);
+  for (int j=0; j<neq; j++) {
+    // Only process dof's in the int+band, here
+    if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
+    // PETSc index (relative to processor range)
+    int ispj = isp_map[j]-n_lay1_p[myrank];
+    ngbrs_v.clear();
+    lgraph->set_ngbrs(j,ngbrs_v);
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
+      int k = *q;
+      if (!isp_lay_map[k]) continue;
+      if (part.processor(k)==myrank) isp_d_nnz[ispj]++;
+      else isp_o_nnz[ispj]++;
+    }
+  }
+
+#if 0
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"In [%d]:\n",myrank);
+  for (int j=0; j<neq; j++) {
+    if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
+    int ispj = isp_map[j]-n_lay1_p[myrank];
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,
+			    "j %d, isp_indx %d, d_nnz %d o_nnz %d\n",
+			    j,isp_map[j],isp_d_nnz[ispj],isp_o_nnz[ispj]);
+  }
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#endif
 
   if (iisdmat_print_statistics) {
     PetscPrintf(comm,"IISDMat -- dof statistics:\n");
@@ -530,7 +712,7 @@ int IISDMat::create_a() {
 			 &A_IL); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_IL, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
-    
+  
   ierr = MatCreateMPIAIJ(comm,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,&*nnz[D][I][I].begin(),
@@ -538,8 +720,26 @@ int IISDMat::create_a() {
 			 &A_II); CHKERRQ(ierr); 
   ierr =  MatSetOption(A_II, MAT_NEW_NONZERO_ALLOCATION_ERR);
   CHKERRQ(ierr); 
+  
   ierr = MatSetStashInitialSize(A_II,300000,0);
   CHKERRQ(ierr); 
+
+  if (nlay>1) {
+    // Creating the A_II_isp matrix for ISP preconditioning
+    ierr = MatCreateMPIAIJ(comm,n_isp_here,n_isp_here,
+			   PETSC_DETERMINE,PETSC_DETERMINE,
+			   PETSC_NULL,&*isp_d_nnz.begin(),
+			   PETSC_NULL,&*isp_o_nnz.begin(),
+			   &A_II_isp); CHKERRQ(ierr); 
+    ierr =  MatSetOption(A_II_isp, MAT_NEW_NONZERO_ALLOCATION_ERR);
+    CHKERRQ(ierr); 
+    // ierr = MatSetStashInitialSize(A_II,300000,0);
+    // CHKERRQ(ierr); 
+    // Create aux vectors for solving the band problem
+    ierr = VecCreateMPI(comm,n_isp_here,PETSC_DETERMINE,&wb);
+    CHKERRQ(ierr); 
+    ierr = VecDuplicate(wb,&xb); CHKERRQ(ierr); 
+  }
   
   ierr = MatCreateShell(comm,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
