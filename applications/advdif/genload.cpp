@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.8 2001/05/25 04:12:29 mstorti Exp $
+//$Id: genload.cpp,v 1.9 2001/05/25 21:29:09 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -18,67 +18,20 @@ extern int MY_RANK,SIZE;
 GenLoad::~GenLoad() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void HFilmFun::q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin) {
+  PETSCFEM_ERROR0("Not defined one layer flux function!\n");
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void HFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+		 FastMat2 &jacin,FastMat2 &jacout) {
+  PETSCFEM_ERROR0("Not defined two layers flux function!\n");
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::element_hook(ElementIterator &element) {
   h->element_hook(element);
   s->element_hook(element);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LinearHFilmFun::HFull::element_hook(ElementIterator &element) {
-  const double * hf = l->elemset->prop_array(element,l->hfilm_coeff_prop);
-  HH.set(hf);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
-		       FastMat2 &jacin,FastMat2 &jacout) {
-
-  dU.set(uout).rest(uin);
-  h->prod(flux,dU);
-  h->jac(jacin);
-  jacout.set(jacin);
-  jacout.scale(-1.);
-  s->add(flux);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LinearHFilmFun::HFull::init() {
-  HH.resize(2,l->ndof,l->ndof);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void LinearHFilmFun::HFull::jac(FastMat2 &A) {
-  A.set(HH);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void LinearHFilmFun::init()" 
-void LinearHFilmFun::init() {
-  elemset->elem_params(nel,ndof,nelprops);
-  // Read hfilm coefficients. 
-  //o _T: double[var_len]
-  //  _N: film coefficients _D: no default  _DOC: 
-  // Defines coeffcients for the flim flux function. 
-  //  _END
-  elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
-  if (hfilm_coeff_prop.length == ndof*ndof) {
-    h= new HFull(this);
-  } else {
-    PETSCFEM_ERROR("Not valid size of hfilm_coeff: %d, ndof: %d\n",
-		   hfilm_coeff_prop.length,ndof);
-  }
-  s= new SNull(this);
-
-  dU.resize(1,ndof);
-  h->init();
-  s->init();
-}  
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-LinearHFilmFun::~LinearHFilmFun() {
-  if (h) delete h;
-  if (s) delete s;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -89,6 +42,15 @@ int GenLoad::ask(const char *jobinfo,int &skip_elemset) {
    DONT_SKIP_JOBINFO(comp_res);
    DONT_SKIP_JOBINFO(comp_prof);
    return 0;
+}
+
+double detsur(FastMat2 &Jaco, FastMat2 &S) {
+  int n=Jaco.dim(2);
+  int m=Jaco.dim(1);
+  FastMat2::deactivate_cache();
+  FastMat2 g(2,m,m);
+  g.prod(Jaco,Jaco,1,-1,-1,2);
+  return sqrt(g.det());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -165,17 +127,16 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 		    "double_layer mode");
     nel2=nel/2;
     // state vector in both sides of the layer
-    u_in.resize(2,nel2,ndof);
     u_out.resize(2,nel2,ndof);
-    jac_in.resize(2,ndof,ndof);
     jac_out.resize(2,ndof,ndof);
-    U_in.resize(1,ndof);
     U_out.resize(1,ndof);
-    vecc2.resize(2,nel2,ndof);
   } else {
-    PETSCFEM_ERROR0("Only considered \"double_layer=1\"\n");
     nel2=nel;
   }
+  u_in.resize(2,nel2,ndof);
+  jac_in.resize(2,ndof,ndof);
+  U_in.resize(1,ndof);
+  vecc2.resize(2,nel2,ndof);
   
   // Gauss Point data
   //o Type of element geometry to define Gauss Point data
@@ -209,10 +170,11 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     un.set(element.vector_values(*staten));
     ustar.set(un).scale(ALPHA).axpy(uo,(1-ALPHA));
     
+    ustar.is(1,1,nel2);
+    u_in.set(ustar);
+    ustar.rs();
     if (double_layer) {
-      ustar.is(1,1,nel2);
-      u_in.set(ustar);
-      ustar.rs().is(1,nel2+1,nel);
+      ustar.is(1,nel2+1,nel);
       u_out.set(ustar);
       ustar.rs();
     }
@@ -225,35 +187,35 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       xloc.rs();
       detJ = mydetsur(Jaco,S);
 
-      if (!double_layer) {
-	// h_film_fun->q(flux);
-      } else {
-	U_in.prod(SHAPE,u_in,-1,-1,1);
+      U_in.prod(SHAPE,u_in,-1,-1,1);
+      if (double_layer) {
 	U_out.prod(SHAPE,u_out,-1,-1,1);
 	h_film_fun->q(U_in,U_out,flux,jac_in,jac_out);
+      } else {
+	h_film_fun->q(U_in,flux,jac_in);
       }
       
       double wpgdet = detJ*WPG;
       tmp1.set(SHAPE).scale(wpgdet);
       vecc2.prod(tmp1,flux,1,2);
+
+      veccontr.is(1,1,nel2).add(vecc2);
+      veccontr.rs();
+      // Contribution to jacobian from interior side
+      tmp2.set(SHAPE).scale(wpgdet);
+      tmp3.prod(SHAPE,tmp2,1,2);
+      tmp4.prod(tmp3,jac_in,1,3,2,4);
+      matloc.is(1,1,nel2).is(3,1,nel2).add(tmp4);
       if (double_layer) {
-	veccontr.is(1,1,nel2).add(vecc2);
-	veccontr.rs().is(1,nel2+1,nel).rest(vecc2);
-	veccontr.rs();
-	// Contribution to jacobian from interior side
-	tmp2.set(SHAPE).scale(wpgdet);
-	tmp3.prod(SHAPE,tmp2,1,2);
-	tmp4.prod(tmp3,jac_in,1,3,2,4);
-	matloc.is(1,1,nel2).is(3,1,nel2).add(tmp4);
 	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
+	veccontr.is(1,nel2+1,nel).rest(vecc2);
+	veccontr.rs();
 	// Contribution to jacobian from exterior side
 	tmp4.prod(tmp3,jac_out,1,3,2,4);
 	matloc.rs().is(1,1,nel2).is(3,nel2+1,nel).add(tmp4);
 	matloc.is(1).is(1,nel2+1,nel).rest(tmp4);
-	matloc.rs();
-      } else {
-	veccontr.add(vecc2);
       }
+      matloc.rs();
     }
 
     veccontr.export_vals(element.ret_vector_values(*retval));

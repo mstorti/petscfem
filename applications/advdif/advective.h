@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.32 2001/05/24 01:51:20 mstorti Exp $
+//$Id: advective.h,v 1.33 2001/05/25 21:29:09 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -404,8 +404,11 @@ class GenLoad;
 class HFilmFun {
 public:
   GenLoad * elemset;
+  // for one layer
+  virtual void q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin);
+  // for two layers
   virtual void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
-		 FastMat2 &jacin,FastMat2 &jacout)=0;
+		 FastMat2 &jacin,FastMat2 &jacout);
   virtual void init()=0;
   virtual void element_hook(ElementIterator &element)=0;
   HFilmFun(GenLoad *e) : elemset(e) {};
