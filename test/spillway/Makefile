@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2003/03/23 20:52:43 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/03/25 21:23:22 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -31,7 +31,7 @@ mesh_move:
 	$(MAKE) CASE_NAME=spillway_mmv run > mesh_move.output.tmp
 
 alehook.efn:  ../plate/fifo.o
-alehook.efn: EFN_LDFLAGS = ../plate/fifo.o
+alehook.efn: EFN_LDFLAGS = ../plate/fifo.o $(LIBPETSCFEM)
 
 ../plate/fifo.o: force
 	$(MAKE) -C ../plate fifo.o

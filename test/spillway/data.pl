@@ -17,7 +17,7 @@ $Dt = 0.1;
 $patm = -$gravity*$y2;          # atmosferix pressure (taken at the
                                 # restitution height). Should take into
                                 # account the velocity of the fluid at the outlet. 
-$p_const_bc = 1;                # Impose = patm on the free surface
+$p_const_bc = 0;                # Impose = patm on the free surface
 $fs_relax = 1;                  # relaxation factor for the 
                                 # free surface evolution eq. 
 $x_damp = $L1+0.5*$L2;          # a wave damper term is added for `x > x_damp'

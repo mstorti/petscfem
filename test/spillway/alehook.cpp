@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.5 2003/03/24 02:35:08 mstorti Exp $
+//$Id: alehook.cpp,v 1.6 2003/03/25 21:23:22 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -93,6 +93,10 @@ DL_GENERIC_HOOK(ale_hook);
 class ale_hook2 {
 private:
   FILE *ns2mmv,*mmv2ns;
+  Mesh *mesh;
+  // The reference coordinates
+  dvector<double> xnod0;
+  int nnod,ndim,nu;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -135,24 +139,56 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
     printf("ALE_HOOK2: Done.\n");
     
   }
+  mesh = &mesh_a;
+  nnod = mesh->nodedata->nnod;
+  ndim = mesh->nodedata->ndim;
+  nu = mesh->nodedata->nu;
+  if (!MY_RANK) {
+    xnod0.a_resize(2,nnod,ndim);
+    
+    for (int k=0; k<nnod; k++) 
+      for (int j=0; j<ndim; j++) 
+	xnod0.e(k,j) = mesh->nodedata->nodedata[k*nu+j];
+  }
 }
 
 void ale_hook2::time_step_pre(double time,int step) {}
 
 void ale_hook2::time_step_post(double time,int step,
 			      const vector<double> &gather_values) {
+  // Displacements are read in server and sent to slaves
   if (!MY_RANK) {
     int ierr;
     fprintf(ns2mmv,"step %d\n",step);
+    // Here goes reading the data from  mesh_move and assigning
+    // to the new mesh
+    int mmv_step = int(read_doubles(mmv2ns,"mmv_step_ok"));
+    assert(step==mmv_step);
+    
+    // Reads displacements computed by `mesh_move' and add to nodedata
+    FILE *fid = fopen("spillway_mmv.state.tmp","r");
+    int nnod = mesh->nodedata->nnod;
+    int ndim = mesh->nodedata->ndim;
+    int nu = mesh->nodedata->nu;
+    double d;
+    double *nodedata = mesh->nodedata->nodedata;
+    for (int k=0; k<nnod; k++) {
+      for (int j=0; j<ndim; j++) {
+	fscanf(fid,"%lf",&d);
+	*nodedata++ = xnod0.e(k,j) + d;
+      }
+      for (int j=ndim; j<nu; j++) fscanf(fid,"%lf",&d);
+    }
   }
-  // Here goes reading the data from  mesh_move and assigning
-  // to the new mesh
-  int mmv_step = int(read_doubles(mmv2ns,"mmv_step_ok"));
-  assert(step==mmv_step);
+  int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSC_COMM_WORLD);
+  assert(!ierr);
 }
 
 void ale_hook2::close() {
-  if (!MY_RANK) fprintf(ns2mmv,"step %d\n",-1);
+  if (!MY_RANK) {
+    xnod0.clear();
+    fprintf(ns2mmv,"step %d\n",-1);
+  }
 }
 
 DL_GENERIC_HOOK(ale_hook2);
@@ -175,8 +211,8 @@ private:
   FILE *ns2mmv,*mmv2ns;
   /// Number of nodes, dimension, number of nodes on the FS
   int nnod, ndim, nfs;
-  // time step
-  double Dt;
+  // time step, relaxation coefficient
+  double Dt, fs_relax;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -212,16 +248,16 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
   FILE *fid2 = fopen("spillway.spines.tmp","r");
   int indx=0;
   while(1) {
-    printf("indx %d\n",indx);
+    // printf("indx %d\n",indx);
     int node;
     int nread = fscanf(fid,"%d",&node);
     if (nread==EOF) break;
     double n;
     for (int j=0; j<ndim; j++) {
       nread = fscanf(fid2,"%lf",&n);
-      printf("read %f\n",n);
-	assert(nread==1);
-	spines.push(n);
+      // printf("read %f\n",n);
+      assert(nread==1);
+      spines.push(n);
     }
     assert(fs2indx.find(node)==fs2indx.end());
     // load map
@@ -238,8 +274,11 @@ void ale_mmv_hook::init(Mesh &mesh,Dofmap &dofmap,
   displ.a_resize(2,nfs,ndim);
   displ.set(0.);
   
+  //o Time step.
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
   assert(Dt>0.);
+  //o Relaxation factor for the update of the free surface position. 
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,fs_relax,1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -272,29 +311,29 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     int indx = q->second;
     double v, vn_tmp=0., n2=0.;
     // Compute normal component of velocity
-    printf("node %d, vel, nor ",node);
+    // printf("node %d, vel, nor ",node);
     tokens.clear();
     tokenize(line.str(),tokens);
     assert(tokens.size()==ndim+1);
     for (int j=0; j<ndim; j++) {
       string2dbl(tokens[j],v);
       double n = spines.e(indx,j);
-      printf(" %f %f",v,n);
+      // printf(" %f %f",v,n);
       vn_tmp += v*n;
       n2 += n*n;
     }
-    printf("\n");
+    // printf("\n");
     double tol = 1e-5;
     assert(fabs(n2-1.0)<tol);
-    for (int j=0; j<ndim; j++) displ.e(indx,j) += Dt*vn_tmp*spines.e(indx,j);
+    for (int j=0; j<ndim; j++) displ.e(indx,j) += fs_relax*Dt*vn_tmp*spines.e(indx,j);
   }
   fclose(fid);
-  fprintf(mmv2ns,"mmv_step_ok %d\n",step);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void ale_mmv_hook::time_step_post(double time,int step,
 			      const vector<double> &gather_values) {
+  fprintf(mmv2ns,"mmv_step_ok %d\n",step);
 }
 
 void ale_mmv_hook::close() {}
@@ -322,7 +361,7 @@ double fs_coupling::eval(double) {
 		  "node %d\n",node_c);
   int indx = q->second;
   double val = displ.e(indx,f-1);
-  printf("fs_coupling: node %d, field %d, indx %d -> %f\n",node_c,f,indx,val);
+  // printf("fs_coupling: node %d, field %d, indx %d -> %f\n",node_c,f,indx,val);
   return val;
 }
 

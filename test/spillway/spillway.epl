@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spillway.epl,v 1.8 2003/03/24 02:35:08 mstorti Exp $ 
+## $Id: spillway.epl,v 1.9 2003/03/25 21:23:22 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -30,7 +30,7 @@ nfile 100000000
 # initial_state "./RUN1/spillway.state_21.tmp"
 # initial_state "spillway.state.tmp"
 initial_state "spillway.ini.tmp"
-nstep 1
+nstep 10000
 # steady
 solver "iisd"
 iisd_subpart_auto 2000
@@ -39,7 +39,7 @@ preco_type "jacobi"
 Krylov_dim 200
 nnwt 3
 alpha 1.0
-weak_form 0
+weak_form 1
 <:pr('Dt'):>
 rtol 1e-4
 atol 1e-10
@@ -63,7 +63,7 @@ G_body 0. <:=-$gravity:>
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
-dx_steps 0
+dx_steps 1
 # dx_read_state_from_file 1
 __END_HASH__
 
@@ -84,6 +84,7 @@ dx
 __END_HASH__
 
 #===========================================================
+#if 0
 elemset qharmm 4
 name qharmm
 geometry cartesian2d
@@ -93,6 +94,14 @@ conductivity 0.
 C 0. 1. 0.
 # state_ref <:=$uin:> 0. 0.
 dx 0
+__END_HASH__
+#endif
+
+elemset bcconv_ns_fm2 2
+name bcconv
+geometry cartesian1d
+npg 2
+data spillway.bcconv_out.tmp
 __END_HASH__
 
 end_elemsets
