@@ -2119,3 +2119,6 @@ tag: beta-3.14.pl21 on Fri, 10 Jan 2003 12:30:05 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.14.pl22 on Fri, 10 Jan 2003 13:29:05 -0300 by mstorti in minerva.arcride.edu.ar
      > Written test for line2quad with inverted normal. 
+----------
+tag: beta-3.14.pl23 on Fri, 10 Jan 2003 16:17:20 -0300 by mstorti in minerva.arcride.edu.ar
+     > Adding Tri2Prism to embedded gatherer. 
