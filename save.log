@@ -3367,3 +3367,7 @@ tag: beta-3.33.16 on Sun, 24 Oct 2004 19:47:31 -0300 by mstorti in spider
      > PFSymmPETScMat class works with laplace 1d.
      > Added general splitting. 
      > Fixed makeltag/checktag. 
+----------
+tag: beta-3.33.17 on Sun, 24 Oct 2004 23:09:47 -0300 by mstorti in spider
+     > PFSymmPETScMat class works cubcav. 
+     > Runs cubcav 64^3 (1.3Mtetra) in spider. 
