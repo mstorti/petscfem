@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.12 2002/02/05 20:28:28 mstorti Exp $
+//$Id: stream.cpp,v 1.13 2002/02/06 02:54:27 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -214,7 +214,6 @@ void Manning::init() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void StreamLossFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 			  FastMat2 &jacin,FastMat2 &jacout) {
-  double k = 1./Rf;
   flux.set(uin).rest(H_in).rest(uout).scale(k);
   jacin.set(k);
   jacout.set(-k);

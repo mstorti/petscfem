@@ -135,6 +135,7 @@ elemset stream_loss 4
 geometry cartesian1d
 npg 2
 double_layer			# This is required!!
+impermeable
 __END_HASH__
 __INCLUDE__ aquist.con.stream_loss.tmp
 __END_ELEMSET__

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.9 2002/02/05 20:28:28 mstorti Exp $
+// $Id: stream.h,v 1.10 2002/02/06 02:54:27 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -369,14 +369,31 @@ public:
     the `out' side the aquifer. 
 */ 
 class StreamLossFilmFun : public HFilmFun {
-  double Rf;
+  /** The property corresponding to the resistance of the stream
+      bottom surface
+  */
+  Property Rf_prop;
+  /// The inverse of resistance of the stream bottom surface `k=1/Rf'
+  double k;
+  /// If set to 1 then Rf = infty
+  int impermeable;
 public:
-  StreamLossFilmFun(GenLoad *e) : HFilmFun(e), Rf(100.) {}
+  StreamLossFilmFun(GenLoad *e) : HFilmFun(e) {}
   // Only defines the double layer source term
   void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 	 FastMat2 &jacin,FastMat2 &jacout);
-  void init() {}
-  void element_hook(ElementIterator &e) {}
+
+  void init() { 
+    elemset->get_prop(Rf_prop,"Rf"); 
+    int ierr;
+    EGETOPTDEF(elemset,int,impermeable,0);
+    assert(ierr==0);
+    if (impermeable) k=0.;
+  }
+
+  void element_hook(ElementIterator &element) {
+    if (!impermeable) k = 1./elemset->prop_val(element,Rf_prop);
+  }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
