@@ -1759,3 +1759,6 @@ tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300, by mstorti in spider
 ----------
 tag: beta-3.07.pl1 on Sun,  3 Nov 2002 06:37:39 -0300 by mstorti in spider
      > Rewritten example `text/texthash/thash2.cpp' for TextHashTable::find()
+----------
+tag: beta-3.07.pl2 on Sun,  3 Nov 2002 08:04:30 -0300 by mstorti in spider
+     > Passed `fastmat2' tests to `test/fastmat2'
