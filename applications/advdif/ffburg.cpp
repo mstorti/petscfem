@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.5 2001/04/01 01:34:35 mstorti Exp $
+//$Id: ffburg.cpp,v 1.6 2001/04/01 21:32:20 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -13,53 +13,53 @@
 #include "../../src/util2.h"
 #include "../../src/fastmat2.h"
 
-#include "advective.h"
+#include "burgers.h"
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
+burgers_ff::burgers_ff(NewElemset *elemset_) 
+  : NewAdvDifFF(elemset_) {};
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void burgers_ff::start_chunk(int &ret_options) {
+
+#if 0
+  // this must be done here. Because this matrices may have
+  // differente sizes for different elemsets. 
+  u0.resize(1,ndim);
+  u.resize(1,ndim);
+  Uintri.resize(1,ndim);
+  tmp0.resize(1,ndim);
+
+  ndof = U.dim(1);
+  assert(ndof==1); // Only 1D Burgers considered
+  // assert(ndim==1);
+
+  //o Diffusivity (viscosity)
+  EGETOPTDEF_ND(elemset,double,diffusivity,0.);
+  //o Flux law is $f= 0.5\,c\, \phi^2\,!u_0$, where $c$
+  // is this coefficient. 
+  EGETOPTDEF_ND(elemset,double,flux_law_coefficient,1.);
+  //o Scale the SUPG upwind term. 
+  EGETOPTDEF_ND(elemset,double,tau_fac,1.);
+
+  //o _T: double[ndim] _N: u0 _D: unit vector along $x$ axis 
+  // _DOC: Vector defining direction for flux. 
+  // _END
+  u0.set(0.); u0.setel(1.,1);
+  ierr = elemset->get_double("u0",*u0.storage_begin(),1,ndim); CHKERRQ(ierr);
+  FastMat2::activate_cache();
+  ret_options |= SCALAR_TAU;	// tell the advective element routine
+				// that we are returning a scalar tau
+#endif
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "burgers_ff_t::operator()" 
-int burgers_ff_t::operator()(ADVDIFFF_ARGS) {
-
-  int ierr;
-
-  static double diffusivity, tau_fac, flux_law_coefficient;
-  static int ndof;
-  static FastMat2 u0,u,Uintri,tmp0;
-
-  // Load properties only once.
-  if (start_chunk) {
-    FastMat2::deactivate_cache();
-    start_chunk = 0;
-
-    // this must be done here. Because this matrices may have
-    // differente sizes for different elemsets. 
-    u0.resize(1,ndim);
-    u.resize(1,ndim);
-    Uintri.resize(1,ndim);
-    tmp0.resize(1,ndim);
-
-    ndof = U.dim(1);
-    assert(ndof==1); // Only 1D Burgers considered
-    // assert(ndim==1);
-
-    //o Diffusivity (viscosity)
-    EGETOPTDEF_ND(elemset,double,diffusivity,0.);
-    //o Flux law is $f= 0.5\,c\, \phi^2\,!u_0$, where $c$
-    // is this coefficient. 
-    EGETOPTDEF_ND(elemset,double,flux_law_coefficient,1.);
-    //o Scale the SUPG upwind term. 
-    EGETOPTDEF_ND(elemset,double,tau_fac,1.);
-
-    //o _T: double[ndim] _N: u0 _D: unit vector along $x$ axis 
-    // _DOC: Vector defining direction for flux. 
-    // _END
-    u0.set(0.); u0.setel(1.,1);
-    ierr = elemset->get_double("u0",*u0.storage_begin(),1,ndim); CHKERRQ(ierr);
-    FastMat2::activate_cache();
-  }
-
-  ret_options |= SCALAR_TAU;	// tell the advective element routine
-				// that we are returning a scalar tau
+#define __FUNC__ "void burgers_ff::compute_flux(...)"
+void burgers_ff::compute_flux(COMPUTE_FLUX_ARGS) {
+#if 0
   double coef = flux_law_coefficient;
   double phi = U.get(1);
   u.set(u0).scale(coef*phi);
@@ -109,5 +109,5 @@ int burgers_ff_t::operator()(ADVDIFFF_ARGS) {
     G_source.set(0.);		// Only null source term allowed
 				// right now!!
   }
-
+#endif
 }
