@@ -152,7 +152,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.21 2003/08/30 21:45:57 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.22 2003/09/15 01:15:31 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -176,25 +176,55 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-
-\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
-\input dx               %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+%% \input dx               %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
-%\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
+\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\Section{Authors}
+%
+\begin{description}
+\item[Mario A. Storti (CIMEC)]
+PETSc-FEM kernel, NS and AdvDif modules. 
+\item[Norberto M. Nigro (CIMEC)]
+PETSc-FEM kernel, NS and AdvDif modules. 
+\item[Rodrigo P. Paz (CIMEC)]
+AdvDif module, specially the hydrology module. 
+\end{description}
+%
+Also many people from the following institutions has contributed
+directly or indirectly to the generation of this code:
+%
+\begin{description
+\item[CIMEC] \emph{International Center for
+Computational Methods in Engineering, Santa Fe, Argentina} 
+\url{http://www.cimec.org.ar}
+\item[INTEC] \emp{Instituto de Desarrollo Tecnol\'ogico para la
+  Industria Qu\'\i{}mica}
+\url{http://www.intec.unl.edu.ar}
+\item[CONICET] \emph{Consejo Nacional de Investigaciones
+  Cient\'\i{}ficas y T\'ecnicas}
+\url{http://www.conicet.gov.ar}
+\item[UNL] \emph{Universidad Nacional del Litoral}
+\url{http://www.unl.edu.ar}
+\end{description}
+%
+The code has been developed under financement from the following
+grants (list grants here...)
 
 \Section{Symbols and Acronyms}
 

@@ -330,8 +330,22 @@ C<.bin>).
 
 =head1 AUTHORS
 
-Mario A. Storti, Norberto M. Nigro, Rodrigo P. Paz and others. CIMEC, Internacional
-Center for Computational Methods in Engineering, Santa Fe, Argentina. 
+=item Mario A. Storti*
+
+PETSc-FEM kernel, NS and AdvDif modules. 
+
+=item  Norberto M. Nigro*
+
+PETSc-FEM kernel, NS and AdvDif modules. 
+
+=item Rodrigo P. Paz*
+
+AdvDif module, specially the hydrology module. 
+
+=back 
+
+* CIMEC, Internacional Center for Computational Methods in Engineering,
+Santa Fe, Argentina.
 
 =head1 CONTACTS
 
