@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.9 2002/08/07 19:31:22 mstorti Exp $
+//$Id: embgath.cpp,v 1.10 2002/08/07 19:43:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -263,7 +263,8 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 xloc(2,nel,ndim);
 
-  FastMat2 Jaco(2,ndim,ndim),iJaco(2,ndim,ndim),staten(2,nel,ndof), 
+  FastMat2 Jaco(2,ndim,ndim),Jacosur(2,ndimel,ndim),
+    iJaco(2,ndim,ndim),staten(2,nel,ndof), 
     stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
     n(1,ndim),xpg(1,ndim),grad_u(2,ndim,ndof),
     grad_uold(2,ndim,ndof),dshapex(2,ndim,nel);
@@ -304,7 +305,8 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       
       double detJaco;
       Jaco.is(1,1,ndimel);
-      detJaco = mydetsur(Jaco,n);
+      Jacosur.set(Jaco);
+      detJaco = mydetsur(Jacosur,n);
       Jaco.rs();
       n.scale(1./detJaco);
       n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
