@@ -1308,3 +1308,6 @@ tag: beta-3.00.pl17 on Wed, 24 Jul 2002 12:46:22 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.00.pl18 on Wed, 24 Jul 2002 13:43:12 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs OK the distributed LinkGraph test with scatter(), several processors. 
+----------
+tag: beta-3.00.pl19 on Wed, 24 Jul 2002 14:25:03 -0300 by mstorti in minerva.arcride.edu.ar
+     > DistCont template seems to work with argument 'iter_mode'
