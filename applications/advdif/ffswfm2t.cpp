@@ -100,7 +100,7 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
       ajacx[jj]=0.;
       ajacy[jj]=0.;
     }
-    AJACX(2,3) = 1.;
+    AJACX(3,1) = 1.;
     AJACY(3,2) = 1.;
 
     //o Correcting factor for diffusion in the $k$ transport equation
