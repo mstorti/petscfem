@@ -2,10 +2,11 @@
 \Section{Hooks}
 
 Hooks are functions that you pass to the program and, then, are
-executed at particular points in the execution of the program. The
-particular hooks may depend on the application but, in order to fix
-ideas, for the Navier-Stokes module and the Advective-Diffusive
-module the standard hooks are: 
+executed at particular points, called \emph{``hook-launching
+points''}, in the execution of the program. The particular
+hook-launching points may depend on the application but, in order to
+fix ideas, for the Navier-Stokes module and the Advective-Diffusive
+module the standard hooks are:
 %
 \begin{itemize}
 \item{\tt init:} To be executed once, at the start of the program. 
@@ -28,16 +29,59 @@ for communicating between different instances of PETSc-FEM. For
 instance, if you want to couple a inviscid external flow with an
 internal viscous flow, then you can run a PETSc-FEM instance for each
 region and perform the communication between the different regions
-with hooks. 
+with hooks. The DX hook is explained in the DX section
+(see~\S\ref{sec:dx}) and we will explain here how to write and use
+dynamically loaded hooks and the shell hook. 
 
+The hook concept has been borrowed from GNU Emacs.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{Launching hooks. The hook list} 
+
+In order to activate a hook you first have to add a for each hook a
+pair of strings to the \verb+hook_list+, namely the type pf hook and
+the name of the hook. This last one is a unique identifier that makes
+that hook unique. 
+%
+\begin{alltt} 
+hook_list \Arg{hook-type-1} \Arg{hook-name-1} \Arg{hook-type-2} \Arg{hook-name-2} ...
+\end{alltt}
+%
+For isntance:
+%
+\begin{verbatim}
+hook_list shell_hook compress     \
+          dx_hook    my_dx_hook   \
+          dl_hook    coupling_hook
+\end{verbatim}
+%
+Here we added a shell hook that probably will compress some files
+during execution, the DX hook in order to visualize, and a dynamically
+linked hook that will couple the run with another program. Each hook
+will after take their own options from special options in the table. 
+
+The \verb+hook_list+ entry must be unique, so that you have to group
+all your hooks in a \emph{single} \verb+hook_list+ entry. 
+This is not limiting, because you can add as much hooks as you want,
+but it is rather syntactically cumbersome, because you end up with a
+long string. Also difficults to comment out some hooks while keeping
+others. 
+
+The hooks are executed in the order as you entered them in the hook
+list, so that in the previous case you will have, at init time, the
+\verb+init+ part of the \verb+compress+ hook to be executed
+\emph{before} the init part of the \verb+my_dx_hook+ and finally the
+init part of the \verb+coupling_hook+.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Dynamically loaded hooks} 
 
-The most easy way to define a dynamically loadable hook is through a
+The easiest way to code a dynamically loadable hook is with a
 class. You need to include the corresponding headers {\tt hook.h} and
-{\tt dlhook.h}, and the class may have all, some or none of the
-previous four hook functions defined. Consider for instance the
+{\tt dlhook.h}, and the class may define the hook functions for all,
+some or none of the hook-launching points.  Consider for instance the
 following ``Hello world!'' hook, that prints the message at the
-corresponding points in the program. 
+corresponding points in the program.
 
 \begin{verbatim}
 #include <src/hook.h>
@@ -65,8 +109,132 @@ DL_GENERIC_HOOK(hello_world_hook);
 \end{verbatim}
 
 You can use almost any conceivable C/C++ library within your hooks. Take
-into acount that the program may be called in a parallel environment,
-for instance, if you will compress a certain file, then you should 
+into acount that the program may be called in a parallel environment so,
+for instance, if you will compress a certain file, then you should
+take care of doing that \emph{only} at the master process by, e.g.,
+enclosing te code with a \verb+if (!!MY_RANK) { ... }+ construct. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{Shell hook} 
+
+\index{shell-hook} The \emph{shell-hook} allows the user to execute a
+certain action at the hook-launching points by simply writing shell
+commands.
+%
+\begin{alltt}
+hook_list shell_hook \Arg{name}
+\Arg{name} \Arg{shell-command} 
+\end{alltt}
+%
+For instance
+%
+\begin{verbatim}
+hook_list shell_hook hello
+hello "echo Hello world"
+\end{verbatim}
+%
+In this case, PETSc-FEM will issue the echo command at each of the
+launching points. If you want to issue more complex commands, then
+perhaps it's a better idea to bundle them in a script and then execute
+the script from the hook:
+%
+\begin{verbatim}
+hook_list shell_hook hello
+hello "my_script_hook"
+\end{verbatim}
+%
+where you have previously written a \verb+my_script_hook+ script with
+something like
+%
+\begin{verbatim}
+#!/bin/bash
+## This is `my_script_hook' file
+
+echo Hello world
+\end{verbatim}
+%
+inside. 
+
+Probably you want to perform some actions depending on which stage you
+are, so that you can pass the stage name to the command by including a
+\verb+%s+ 
+output conversion token in the command. For instance
+%
+\begin{verbatim}
+hello "echo Hello world, stage %s"
+\end{verbatim}
+%
+Moreover, you can have also the time step currently executing and the
+current simulation time by including a \verb+%d+
+and a \verb+%f+ 
+output conversions, for instance
+%
+\begin{verbatim}
+hello "echo Hello world, stage %s, step %d, time %f"
+\end{verbatim}
+%
+The order is important!! That is, the first argument is the step (a
+C string), the second teh time step (an integer) and the last the
+simulation time (a double). 
+
+In fact, basically, what PETSc-FEM does is to build string with
+\verb+sprintf()+ and then execute it with \verb+system()+ like
+%
+\begin{alltt}
+sprintf(command,your_command,stage,step,time);
+system(command);
+\end{alltt}
+%
+(see the Glibc manual for more info about sprintf and system). If
+you need, for some reason to switch the order then use a parameter
+number like
+%
+\begin{verbatim}
+hello "echo Hello world, time %3$f, step %2$d, stage %1$s"
+\end{verbatim}
+
+If you want to do some things depending on the stage then perhaps you
+can write something like this
+%
+\begin{verbatim}
+hook_list shell_hook hello
+hello "my_script_hook"
+\end{verbatim}
+%
+and
+%
+\begin{verbatim}
+#!/bin/bash
+## File `my_script_hook'
+
+if [ "$1" == "init" ]
+then 
+    echo "in init"
+    ## Do emore things in `init' stage
+    ## ....
+elif [ "$1" == "pre" ] 
+then 
+    echo "in pre"
+    ## Do more things in `pre' stage
+    ## ....
+elif [ "$1" == "post" ]
+then 
+    echo "in post"
+    ## Do more things in `post' stage
+    ## ....
+elif [ "$1" == "close" ]
+then 
+    echo "in close"
+    ## Do more things in `close' stage
+    ## ....
+else 
+    ## Catch all. Should not enter here. 
+    echo "Don't know how to handle stage: $1"
+fi
+\end{verbatim}
+%
+\let\qq$  % Stop Emacs believe we are in math mode
+%
 
 
 
