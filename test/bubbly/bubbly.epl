@@ -16,12 +16,12 @@ $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
 $N = 20;
 $hratio = 0;			# refinement (h_center/h_wall)
-$Re = 1;			# Reynolds number
+$Re =10;			# Reynolds number
 $visco_l = $L/$Re;		# viscosity
 $Dt = 1e12;			# time step
 $solver = "petsc";
 $preco_type = "lu";
-$maxits = 5;
+$maxits = 1;
 $nstep = 1;
 $alpha_l = 1.;
 $u_g=0;
@@ -49,7 +49,7 @@ alpha 1.
 nsave 5
 <:pr('nstep'):> 
 initial_state "bubbly.ini.tmp"
-# initial_state "bubbly.state"
+# initial_state "bubbly.state.tmp"
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -69,22 +69,23 @@ atol 0
 rtol 0
 dtol 1e3
 nnwt 10
+omega_newton 0.3
 
 # omega_newton 0.5
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv
-print_residual
 #if 0
+print_residual
 print_linear_system_and_stop
-# solve_system 0
+solve_system 0
 # verify_jacobian_with_numerical_one 1
 #endif
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
-# steady
+steady
 temporal_stability_factor 0
-tau_fac 100
+# tau_fac 0.
 
 shock_capturing_factor 0
 #if $cache_gdu

@@ -49,7 +49,7 @@ fclose(fid);
 
 nnod = length(x);
 ## uini = [rand(nnod,1) alpha_l rand(nnod,2) 0. 0. 0.1 0.1];
-uini = [0. alpha_l 0.1 0. 0. 0. 0.1 0.1];
+uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
 uini=uini(ones(rows(x),1),:);
 asave("bubbly.ini.tmp",uini);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.52 2002/02/22 21:15:15 mstorti Exp $
+//$Id: advdife.cpp,v 1.53 2002/03/01 21:03:48 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -244,10 +244,18 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24;
-  FastMat2 A_grad_N(3,nel,ndof,ndof),
+  FastMat2 A_grad_N(3,nel,ndof,ndof), Ao_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof);
+
+  //#define COMPUTE_FD_ADV_JACOBIAN
+#ifdef COMPUTE_FD_ADV_JACOBIAN
+  FastMat2 A_fd_jac(3,ndim,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
+#endif
+  FastMat2 U0(1,ndof);
+  double u0[] = {1.,1.,1.,2.,0.,0.,0.1,0.1};
+  U0.set(u0);
 
   Uo.resize(1,ndof);
   Id_ndof.set(0.);
@@ -345,6 +353,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       }
 
       if (comp_res) {
+
 	// state variables and gradient
 	Un.prod(SHAPE,lstaten,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
@@ -362,19 +371,46 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	// Pass to the flux function the true positive values
 	U.prod(SHAPE,true_lstate,-1,-1,1);
 	grad_U.prod(dshapex,true_lstate,1,-1,-1,2);
-	// Set the state of the fluid so that it can be used to
-	// compute matrix products
-	adv_diff_ff->set_state(U,grad_U);
-	adv_diff_ff->enthalpy_fun->set_state(U);
 
 	delta_sc=0;
 	double lambda_max_pg;
 
+	// Compute A_grad_U in the `old' state 
+	adv_diff_ff->set_state(Uo,grad_U); // fixme:= ojo que le pasamos
+					   // grad_U (y no grad_Uold) ya que
+					   // no nos interesa la parte difusiva
+	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
+				  A_grad_U,grad_U,G_source,
+				  tau_supg,delta_sc,
+				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
+				  COMP_SOURCE | COMP_UPWIND);
+	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
+
+	// Set the state of the fluid so that it can be used to
+	// compute matrix products
+	adv_diff_ff->set_state(U,grad_U);
+	adv_diff_ff->enthalpy_fun->set_state(U);
 	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_U,G_source,
 				  tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
+
+#ifdef COMPUTE_FD_ADV_JACOBIAN
+	double eps_fd=1e-8;
+	for (int jdof=1; jdof<=ndof; jdof++) {
+	  U_pert.set(U).is(1,jdof).add(eps_fd).rs();
+	  adv_diff_ff->set_state(U_pert,grad_U);
+	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
+				    A_grad_U,grad_U,G_source,
+				    tau_supg,delta_sc,
+				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
+	  flux_pert.rest(flux).scale(1./eps_fd);
+	  flux_pert.t();
+	  A_fd_jac.ir(3,jdof).set(flux_pert).rs();
+	  flux_pert.rs();
+	}
+#endif	
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
@@ -463,14 +499,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // the same path...
 	  if (ret_options & SCALAR_TAU) {
 	    double tau_supg_d = tau_supg.get(1,1);
-	    P_supg.set(A_grad_N.ir(1,jel)).scale(tau_supg_d);
-	    A_grad_N.rs();
+	    P_supg.set(Ao_grad_N.ir(1,jel)).scale(tau_supg_d);
+	    Ao_grad_N.rs();
 	  } else {
-	    P_supg.prod(A_grad_N.ir(1,jel),tau_supg,1,-1,-1,2);
-	    A_grad_N.rs();
-	    // P_supg = A_grad_N * tau_supg;
+	    P_supg.prod(Ao_grad_N.ir(1,jel),tau_supg,1,-1,-1,2);
+	    Ao_grad_N.rs();
 	  }
-	  //	  P_supg.eye(0.025); // debug:=
 	  
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);

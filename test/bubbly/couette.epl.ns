@@ -4,8 +4,9 @@
 
 # Synchronize the time step with external frequency
 <:
-$N = 100;
-@vars = qw(N);
+$Nx = 3;
+$Ny = 2;
+@vars = qw(Nx Ny);
 octave_export_vars(">data.m.tmp",@vars);
 :>//
 
@@ -29,17 +30,20 @@ Dt 1
 steady
 alpha 1.
 G_body 1. 0.
-# tau_fac 0.
-# print_linear_system_and_stop
-# inwt_stop 2
+tau_fac 0.
+#if 1
+print_linear_system_and_stop
+solve_system 0
+#endif
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  8
+nodes  2  2  3
 __INCLUDE__ couette.nod.tmp
 _END_NODES__
 
-elemset bubbly 4
+elemset nsi_tet_les_fm2 4
+# elemset bubbly 4
 props 
 #
 #Datos del elemento
@@ -52,11 +56,7 @@ npg 4
 # Datos fisicos
 #
 weak_form 0
-C_mu 0.
-rho_l 1.
-rho_g 1e-3
-visco_l 0.00001
-visco_g 0.0001
+viscosity 1
 __END_HASH__
 __INCLUDE__ couette.con.tmp
 __END_ELEMSET__
@@ -64,27 +64,34 @@ __END_ELEMSET__
 end_elemsets
 
 fixa
-#if 1
-# Pressure at some node
 1 1 0.
-
-# velocity set to zero at the bottom
+1 2 0.
 1 3 0.
-1 4 1.
+2 1 0.
+2 2 0.
 2 3 0.
-2 4 1.
-<:=2*$N+1:> 3 0.
-<:=2*$N+1:> 4 0.
-<:=2*$N+2:> 3 0.
-<:=2*$N+2:> 4 0.
-#endif
-__INCLUDE__ couette.fixa.tmp
+3 1 0.
+3 2 0.
+3 3 0.
+4 1 0.
+4 2 0.
+4 3 0.
+6 1 0.
+6 2 0.
+6 3 0.
+7 1 0.
+7 2 0.
+7 3 0.
+9 1 0.
+9 2 0.
+9 3 0.
+10 1 0.
+10 2 0.
+10 3 0.
+11 1 0.
+11 2 0.
+11 3 0.
+12 1 0.
+12 2 0.
+12 3 0.
 __END_FIXA__
-
-#
-# Periodic boundary conditions from y=0.1 to y=0.
-#
-constraint
-
-__INCLUDE__ couette.peri.tmp
-__END_CONSTRAINT__

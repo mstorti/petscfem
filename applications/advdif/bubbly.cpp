@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.9 2002/02/28 22:29:21 mstorti Exp $
+//$Id: bubbly.cpp,v 1.10 2002/03/01 21:03:48 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -241,10 +241,10 @@ void bubbly_ff
   Ajac.rs().ir(2,2).is(3,vg_indx,vg_indxe).axpy(Id,arho_g);
   
   /// fixme:= Verify this!!!
-  Y.prod(v_l,Id,2,1,3).scale(arho_l);
+  Y.rs().prod(v_l,Id,2,1,3).scale(arho_l);
   Ajac.rs().is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe)
     .add(Y);
-  Y.prod(v_l,Id,1,2,3).scale(arho_l);
+  Y.prod(v_l,Id,1,2,3).scale(arho_l).rs();
   Ajac.add(Y);
 
   Y.rs().prod(v_g,Id,1,2,3).scale(arho_g);
@@ -269,6 +269,12 @@ void bubbly_ff
   // Ajac.set(0.); //debug:= 
   // Cambiamos signo de la ec. de cont. debug:=
   Ajac.is(2,1).scale(-1.).rs(); 
+
+#if 0
+  Ajac.ir(1,1).eye(1.); // debug:=
+  Ajac.ir(1,2).eye(0.);
+  Ajac.rs();
+#endif
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
@@ -407,6 +413,8 @@ void bubbly_ff
     double rec_Dt = advdf_e->rec_Dt();
     double tsf = temporal_stability_factor;
     if (rec_Dt==0.) tsf = 0.;
+    // velmod=1.; // debug:=
+    // h_supg = h_pspg;
     double tau_supg_a =  tsf * square(2.*rec_Dt)+square(2.*velmod/h_supg)
       +9.*square(4.*visco_l_eff/square(h_supg));
     tau_supg_a = 1./sqrt(tau_supg_a);

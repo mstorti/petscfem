@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.37 2002/02/27 15:07:50 mstorti Exp $
+//$Id: advdif.cpp,v 1.38 2002/03/01 21:03:48 mstorti Exp $
 
 #include <set>
 
@@ -378,6 +378,7 @@ int main(int argc,char **args) {
 	ierr = ViewerSetFormat(matlab, 
 			       VIEWER_FORMAT_ASCII_MATLAB,"A");
 	ierr = A->view(matlab);
+	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
 	ierr = ViewerSetFormat(matlab, 
 			       VIEWER_FORMAT_ASCII_MATLAB,"AA");

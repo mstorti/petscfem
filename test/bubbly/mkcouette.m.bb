@@ -2,14 +2,25 @@ source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
 
-w=zhomo([0 1 0 1],N+1,2);
+w=zhomo([0 1.5 0 1],Nx+1,Ny+1);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
+
+usar_y=1;
+if usar_y
+  xnod=xnod(:,[2 1]);
+  icone = icone(:,[1 4 3 2]);
+endif
 
 asave("couette.nod.tmp",xnod);
 asave("couette.con.tmp",icone);
 
-f=[0. 1. 0. 0. 0. 0. 0.1 0.1];
+U=1;
+if !usar_y
+  f=[0. 1. U  0. 0. 0. 0.1 0.1];
+else
+  f=[0. 1. 0. U  0. 0. 0.1 0.1];
+endif
 
 nnod=rows(xnod);
 
@@ -27,7 +38,7 @@ fclose(fid);
 
 uini = kron(ones(nnod,1),f);
 x = xnod(:,1);
-uini(:,3) = x.*(1-x)*0.1;
+## uini(:,3) = x.*(1-x)*0.1;
 asave("couette.ini.tmp",uini);
 
 fid = fopen("couette.peri.tmp","w");

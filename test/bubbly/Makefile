@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2002/02/27 15:05:13 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/03/01 21:02:58 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -15,6 +15,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 LOC_PROG := advdif_g
 # CASE_NAME := bubbly
 CASE_NAME := couette
+# PROG := $(NS)
 PROG := $(ADVDIF)
 
 CASE := $(CASE_NAME)
@@ -31,12 +32,13 @@ endif
 
 #w Runs program
 run:  data
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
+	-${MPIRUN} -np $(np) $(MCH) prog \
 			-case $(CASE).depl # > output.out
 
 data: force
 	$(MAKE) $(CASE).depl
 	octave -q mkcouette.m
+#	octave -q mkmesh.m
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
@@ -45,3 +47,14 @@ $(CASE).depl: force
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
+
+usens:
+	ln -sf mkcouette.m.ns mkcouette.m
+	ln -sf couette.epl.ns couette.epl
+	ln -sf $(NS) prog
+
+usebb:
+	ln -sf mkcouette.m.bb mkcouette.m
+	ln -sf couette.epl.bb couette.epl
+	ln -sf $(ADVDIF) prog
+
