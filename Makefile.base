@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.59 2002/01/14 03:45:01 mstorti Exp $
+#$Id: Makefile.base,v 1.60 2002/01/15 20:15:31 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -226,9 +226,7 @@ what:
 	@$(PETSCFEM_DIR)/tools/makewhat.pl -s Makefile $(OMKFLS)
 
 auxi:
-	if [ ! -L $(LOC_PROG) ] ; \
-	 then ln -sf $(PROG) $(LOC_PROG) ; \
-	fi
+	ln -sf $(PROG) $(LOC_PROG)
 	echo file $(LOC_PROG) >.gdbinit
 	echo set args -case $(CASE_NAME).depl >>.gdbinit
 
