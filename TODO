@@ -4,11 +4,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Crashes with SEGV if input file is void (should complain and abort). 
+* dx/epimport.cpp deletes too many objects and DX complains
+* Print a banner saying if a version is stable/unstable. 
 * Let PETSc-FEM have knowledge of the name of the nodes 
 * verify `nsid.cpp' (ns_id_fac*ns_id_cn1) and `lumped_vc'
-* Print a banner saying if a version is stable/unstable. 
-* revert changes for locker in adaptor, etc...
 * replace epart2 -> epart in readmesh.cpp and other parts of elemset,
      etc... 
 * Pass fix to `ns.cpp' (define MPI_RANK *before* `print_copyright') to
@@ -17,7 +16,6 @@ TODO: [Mainly fixes go here...]
 * Check caching DX objects for multiple elemsets
 * Code and test changing coords and elemset conectivities 
   caching by the user/ appl. writer. 
-* in `./Makefile' local_sw: should FIRST do `chmod 755'
 * `src/secant.cpp' is compiled differently. why?
 * Make a test for Newton convergence with ns_id and lag_mul mixed. 
 * Correct DOC++ doc in `lagmul.h'
@@ -28,7 +26,6 @@ TODO: [Mainly fixes go here...]
   12:51:27 ART 2002). non contracted indices should be 1,2,.... 
   neither this: tmp11.prod(dshapex,tmp12,-1,1,-1);
 * default values for npg
-* a dynamically loaded Gauss Point adaptor elemset. 
 * DX: lets to call field generators from dynamically load C/C++
          modules. 
 * DX: make `dxhook' to be launched through a flag of type `dx' not
@@ -116,6 +113,10 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* in `./Makefile' local_sw: should FIRST do `chmod 755'
+* a dynamically loaded Gauss Point adaptor elemset. 
+* revert changes for locker in adaptor, etc...
+* Crashes with SEGV if input file is void (should complain and abort). 
 * FIXED: Grows indefinitely in memory if a `fixa' section is not closed by
     the corresponding __END_FIXA__
 * Make VERSION to have a newline at the end of line so as to be a
