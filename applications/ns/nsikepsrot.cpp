@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.9 2002/04/12 14:05:19 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.10 2002/04/13 20:50:19 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -353,13 +353,22 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	if (!non_inertial_force_was_added) {
 	  FastMat2::deactivate_cache();
 	  non_inertial_force_was_added=1;
-	  // Linear aceleration is compute by finite differences
+#if 0
+	  // Linear aceleration is computed by finite differences
 	  // between $n$ and $n+1$
 	  flocstate.ir(1,nelr+1).is(2,1,ndim);
 	  acel_lin.set(flocstate);
 	  flocstate2.ir(1,nelr+1).is(2,1,ndim);
 	  acel_lin.rest(flocstate2);
-	  
+#else     // We pass directly the instantaneous acceleration of the
+	  //  container with repect to the container coordinates
+	  flocstate.ir(1,nelr+1).is(2,1,ndim);
+	  acel_lin.set(flocstate).scale(alpha);
+	  flocstate2.ir(1,nelr+1).is(2,1,ndim);
+	  acel_lin.axpy(flocstate2,1-alpha);
+#endif
+
+	  //fixme:= This must be rewritten a new.
 	  // Computation of angular velocity and acceleration
 	  flocstate.ir(1,nelr+2);
 	  omega_v.set(flocstate).scale(alpha);
@@ -372,15 +381,16 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // and non-inertial frame with `omega' or linear acceleration
 	  // varying with time at the same time, so that if `steady'
 	  // is in effect we verify that linear and rotational
-	  // velocities are constant. It would make sense to have a
+	  // velocities are constant.
+	  // NOW THIS IS FIXED: It would make sense to have a
 	  // constant linear acceleration but that case could be included in
 	  // `G_body'
 	  if (!glob_param->steady) {
 	    alfa_v.scale(rec_Dt);
-	    acel_lin.scale(rec_Dt);
+	    // acel_lin.scale(rec_Dt);
 	  } else {
 	    assert(alfa_v.sum_square_all()==0.);
-	    assert(acel_lin.sum_square_all()==0.);
+	    // assert(acel_lin.sum_square_all()==0.);
 	  }
 
 	  if (non_inertial_frame_reverse_sign) {
