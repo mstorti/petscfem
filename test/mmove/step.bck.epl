@@ -1,0 +1,90 @@
+<:
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$N=10;
+$disp = 0.3;
+# $df = 'rcond';
+$df = 'eig';
+$slope = 5;
+# $shape =ns 'quad';
+#
+octave_export_vars(">data.m.tmp",qw(N disp shape slope));
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+save_file "save.state.tmp"
+nsave 1
+nsaverot 0
+
+#if 1
+solver "petsc"
+#else
+# solver "iisd"
+iisd_subpart 1
+#endif
+
+nnwt 5
+newton_relaxation_factor 0.2 2 1.
+pc_lu_fill 8.
+rtol 1e-4
+atol 1e-10
+tol_newton 0
+maxits 100
+steady
+
+<:$nstep=30:>
+Dt <:= 1./$nstep;:>
+nstep <:=$nstep+10:>
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  2  2
+__INCLUDE__ "step.nod.tmp"
+__END_NODES__
+
+#===========================================================
+#if 0
+elemset mesh_move_eig_anal 3
+c_volume 0.1
+distor_exp 3.
+epsilon_x 1e-6
+c_relax 0.01
+c_distor 1000
+geometry triangle
+npg 1
+__END_HASH__
+__INCLUDE__ "step.con.tmp"
+__END_ELEMSET__
+#endif
+
+#===========================================================
+elemset elasticity 3
+geometry triangle
+npg 1
+Young_modulus 1.
+Poisson_ratio 0.3
+__END_HASH__
+__INCLUDE__ "step.con.tmp"
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa_amplitude piecewise_linear
+filename "piecewise.dat"
+__END_HASH__
+__INCLUDE__ "step.fixa.tmp"
+__END_FIXA__
+
+#===========================================================
+constraint
+__INCLUDE__ "step.constrs.tmp"
+__END_CONSTRAINT__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
