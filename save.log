@@ -4234,3 +4234,6 @@ tag: beta-3.45.13 on Thu, 31 Mar 2005 20:49:30 -0300 by mstorti in spider
 tag: beta-3.45.14 on Fri, 01 Apr 2005 13:09:09 -0300 by mstorti in minerva.ceride.gov.ar
      > Runs example with sliding blade with velocities 
      > for the moving blade. 
+----------
+tag: beta-3.45.15 on Fri, 01 Apr 2005 16:55:08 -0300 by mstorti in minerva.ceride.gov.ar
+     > Adding `flow_rate_integrator'
