@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.98 2004/10/23 18:34:08 mstorti Exp $ 
+# $Id: Makefile,v 1.99 2004/10/24 16:24:43 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -165,4 +165,4 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=56 run
+	$(MAKE) N=40 run
