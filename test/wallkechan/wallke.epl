@@ -5,9 +5,9 @@ $L = 1;                         # Semi distance between plates
 $N = 16;                        # Number of elements 
 $hratio = 5;                    # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
-$Ny = 80;                       # Number of elements in y dir
+$Ny = 40;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size in the y direction
-$Ly = 20;                        # longitudinal length 
+$Ly = 10;                        # longitudinal length 
 $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
@@ -78,11 +78,13 @@ nsome 1
 
 alpha 1.
 nstep 1
-nnwt 5
+nnwt 4
 tol_newton 0
 preco_type "lu"
 Dt 1
-#steady
+steady
+#pspg_advection_factor 0.
+#pspg_factor 2.
 
 #verify_jacobian_with_numerical_one
 #print_linear_system_and_stop
