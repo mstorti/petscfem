@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.21 2005/01/15 12:57:51 mstorti Exp $
+// $Id: dvector.h,v 1.22 2005/01/15 23:41:32 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -51,7 +51,7 @@ private:
   int read(FILE *fid,T &t);
 
   /// Prints an element to a stream
-  int print(FILE *fid,T t);
+  int printe(FILE *fid,T t);
 
   /// Number of elements read with cat, read and friends
   int nread;
@@ -168,10 +168,10 @@ public:
   dvector<T>& cat(const T* in,T term);
 
   /// Write to a stream
-  dvector<T>& print(FILE *fid=stdout);
+  dvector<T>& print(FILE *fid=stdout,int rowsz=0);
 
   /// Write to a file by name
-  dvector<T>& print(const char *name);
+  dvector<T>& print(const char *name,int rowsz=0);
 
   /** Binary search algorithm. Finds #t# in the range #first# to
       #last-1#.  

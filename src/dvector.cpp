@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dvector.cpp,v 1.4 2003/08/28 22:43:16 mstorti Exp $
+//$Id: dvector.cpp,v 1.5 2005/01/15 23:41:32 mstorti Exp $
  
 #include <src/dvector.h>
 #include <src/dvector2.h>
@@ -27,20 +27,20 @@ int dvector<float>::read(FILE *fid,float &t) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<double>::print(FILE *fid,double t) {
-  int ierr = fprintf(fid,"%.12g\n",t);
+int dvector<double>::printe(FILE *fid,double t) {
+  int ierr = fprintf(fid,"%.12g",t);
   return ierr<0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<int>::print(FILE *fid,int t) {
-  int ierr = fprintf(fid,"%d\n",t);
-  return ierr>=0;
+int dvector<int>::printe(FILE *fid,int t) {
+  int ierr = fprintf(fid,"%d",t);
+  return ierr<0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dvector<float>::print(FILE *fid,float t) {
-  int ierr = fprintf(fid,"%.6g\n",t);
-  return ierr>=0;
+int dvector<float>::printe(FILE *fid,float t) {
+  int ierr = fprintf(fid,"%.6g",t);
+  return ierr<0;
 }
 
