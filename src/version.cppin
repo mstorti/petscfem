@@ -11,7 +11,7 @@ void print_copyright() {
          /_/   /_____/ /_/  /____/\\___/     /_/   /_____/_/  /_/   
 -----------------------------------------------------------------------
 This is PETSc-FEM, version <:=`cat ../VERSION`:>
-Copyright (C) 1999,2001 Mario A. Storti, Norberto M. Nigro, CIMEC-CONICET-UNL
+Copyright (C) 1999-2001 Mario A. Storti, Norberto M. Nigro, CIMEC-CONICET-UNL
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,
 and you are welcome to redistribute it under certain conditions.
 -----------------------------------------------------------------------
