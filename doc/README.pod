@@ -83,14 +83,15 @@ packages correctly installed in your system.
 
 =item MPI  
 
-This is the Message Passing Interface. We are currently using MPICH
+This is the Message Passing Interface. We are currently using MPICH 1.2.1
 (C<http://www.mcs.anl.gov/mpich>) but I think there will be not problem
 with LAM MPI.
 
 =item PETSC
 
 This is the 'Portable, Extensible Toolkit for Scientific Computation'
-and can be found at C<http://www.mcs.anl.gov/petsc/>.
+and can be found at C<http://www.mcs.anl.gov/petsc/>. Current version
+of PETSc-FEM compiles with PETSc 2.1.6. 
 
 =item LAPACK
 
@@ -355,6 +356,6 @@ AdvDif module, specially the hydrology module.
 * CIMEC, Internacional Center for Computational Methods in Engineering,
 Santa Fe, Argentina. 
 L<http://www.cimec.org.ar/petscfem|http://www.cimec.org.ar/petscfem> 
-Ordinary mail: CIMEC-INTEC, Guemes 3450, 3000 Santa Fe, Argentina.
+Ordinary mail: Mario Storti, CIMEC-INTEC, Guemes 3450, 3000 Santa Fe, Argentina.
 
 =cut
