@@ -66,8 +66,8 @@ print_partitioning_statistics
 max_partgraph_vertices 4000
 max_partgraph_vertices_proc 4000
 save_file_pattern "outvector%d.out.tmp"
-initial_state "stabi.state.tmp"
-# initial_state "stabi.ini.tmp"
+# initial_state "stabi.state.tmp"
+initial_state "stabi.ini.tmp"
 
 # print_linear_system_and_stop
 # solve_system 0

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2002/11/24 09:52:58 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2002/11/25 20:32:34 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -10,6 +10,7 @@ PETSCFEM_DIR := ../../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
+nolocal := yes
 include ./Makefile.parproc
 
 stabi: 	

@@ -47,7 +47,7 @@ endfor
 fclose(fid);
 
 umax=1.;
-cpert=0.3;
+cpert=0.5;
 nmode=4;
 urand=1;
 uini = zeros(nnod,4);
@@ -55,7 +55,7 @@ uini(:,1) = umax*4*xnod(:,2).*(Ly-xnod(:,2))/Ly^2;
 for ikx=1:nmode
   for iky=1:nmode
     for ikz=1:nmode
-      coef = 1./(ikx^2+iky^2+ikz^2);
+      coef = 3. / (ikx^2+iky^2+ikz^2);
       upertx = (2*rand-1)*cos(2*pi*ikx*xnod(:,1)/Lx) \
 	  + (2*rand-1)*sin(2*pi*ikx*xnod(:,1)/Lx);
       uperty = (2*rand-1)*sin(iky*pi*xnod(:,2)/Ly);
