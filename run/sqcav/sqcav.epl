@@ -11,7 +11,7 @@ $visco = $L/$Re;		# viscosity
 $h = 1/20;			# typical mesh length
 $Co = 10;			# Courant number
 #$Dt = $Co*$h/$U;		# time step
-$Dt = 100;			# time step
+$Dt = 0.1;			# time step
 #__END_TRANSCRIPT__
 transcript("", qw(visco Dt));	# print variables on output
 :>//                            # ends ePerl block

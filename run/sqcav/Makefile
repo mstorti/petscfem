@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001/01/22 00:51:43 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/01/23 13:26:28 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -23,7 +23,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 #w Runs program
 #run: $(CASE).depl force
 run: data
-	-rm -f filter.some
+	-rm -f filter.some.tmp outvsome.out
 	-${MPIRUN} -np 1 $(MCH) $(PROG) -case $(CASE).depl
 
 #w Makes local link for running with debugger
