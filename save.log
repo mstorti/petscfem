@@ -387,3 +387,8 @@ tag: beta-1.71 on Fri May  4 21:16:54 ART 2001, by mstorti in minerva.arcride.ed
 tag: beta-1.72 on Fri May  4 21:21:26 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Added fixes to incompatibilities with older versions 
      > of RedHat (namely RH 5.2. installed in geronimo)
+----------
+tag: beta-1.73 on Sat May  5 07:49:42 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Tests ran on spider.
+     > Redefined 'VOID_IT' to 'clear()'. 
