@@ -1652,3 +1652,6 @@ tag: beta-3.05.pl3 on Sun, 22 Sep 2002 06:07:33 -0300 by mstorti in spider
 ----------
 tag: beta-3.05.pl4 on Sun, 22 Sep 2002 10:18:36 -0300 by mstorti in spider
      > Added ROSI_COUPLING_MODULE flag. 
+----------
+tag: beta-3.05.pl5 on Mon, 23 Sep 2002 14:11:37 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs OK interaction with PFM via `rosi_hook'
