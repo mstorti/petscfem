@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.15 2003/01/26 21:12:43 mstorti Exp $
+## $Id: mkvtube.m,v 1.16 2003/01/27 00:37:11 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -119,6 +119,7 @@ printf(["Nodes at boundary %d, at inlet %d, at hot outlet %d," \
        nn,n_in,n_h,n_c,n_wall);
 
 ###<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+inlet_nodes
 fid = fopen("vtube.inlet_flow_rate.tmp","w");
 for k=1:length(inlet_nodes)-1
   n1 = inlet_nodes(k);

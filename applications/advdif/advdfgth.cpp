@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdfgth.cpp,v 1.1 2003/01/25 15:28:55 mstorti Exp $
+//$Id: advdfgth.cpp,v 1.2 2003/01/27 00:37:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -32,4 +32,9 @@ void flow_rate_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   Q.prod(n,u,-1,-1).scale(rho*wpgdet);
   u.rs();
   Q.export_vals(pg_values.begin());
+#if 0
+#define SHM(m) m.print(#m ": ")
+  SHM(u);
+  SHM(Q);
+#endif
 }

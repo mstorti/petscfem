@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.3 2003/01/26 21:12:43 mstorti Exp $
+//$Id: gasflow.cpp,v 1.4 2003/01/27 00:37:11 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -20,6 +20,7 @@ extern int MY_RANK,SIZE;
 #include <src/hook.h>
 #include <src/dlhook.h>
 
+#if 0
 class gasflow_hook;
 typedef map<string,gasflow_hook *> gasflow_hook_table_t;
 gasflow_hook_table_t  gasflow_hook_table;
@@ -59,7 +60,7 @@ public:
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values) { 
     double flow_rate_now = gather_values[gather_pos];
-    double new_pressure = pressure - flow_coef*(flow_rate_now-flow_rate);
+    double new_pressure = pressure + flow_coef*(flow_rate_now-flow_rate);
     PetscPrintf(PETSC_COMM_WORLD,
 		"flow %g, desired f. %g, p %g, new_p %g\n",
 		flow_rate_now,flow_rate,pressure,new_pressure);
@@ -100,6 +101,128 @@ public:
     return my_gasflow_hook->pressure;  
   }
 };
-
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(flow_controller);
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class cut_regulator_hook;
+class flow_controller2;
+
+typedef map<string,cut_regulator_hook *> cut_regulator_hook_table_t;
+cut_regulator_hook_table_t  cut_regulator_hook_table;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class cut_regulator_hook {
+private:
+  int nstream;
+  double *flow_rate,flow_coef;
+  int *gather_pos;
+public:
+  friend class flow_controller2;
+  double *pressure;
+  cut_regulator_hook() :
+    flow_rate(NULL), gather_pos(NULL), pressure(NULL) {}
+  ~cut_regulator_hook() {
+    delete[] flow_rate;
+    delete[] pressure;
+    delete[] gather_pos;
+  }
+  void init(Mesh &mesh,Dofmap &dofmap,
+	    TextHashTableFilter *o,const char *name) { 
+    TextHashTable *options = (TextHashTable *)TextHashTable::find(name);
+    assert(options);
+    PetscPrintf(PETSC_COMM_WORLD,
+		"-- cut_regulator_hook::init() name: %s \n",name);
+    options->print("options table: ");
+    int ierr;
+    TGETOPTDEF_ND(options,int,nstream,0);
+    assert(nstream>0);
+
+    flow_rate = new double[nstream];
+    pressure = new double[nstream];
+    gather_pos = new int[nstream];
+
+    TGETOPTDEF_ND(options,double,flow_coef,0.);
+    ierr = get_double(options,"initial_pressure",pressure,nstream); 
+    assert(!ierr);
+    ierr = get_int(options,"gather_pos",gather_pos,nstream); 
+    assert(!ierr);
+    ierr = get_double(options,"flow_rate",flow_rate,nstream); 
+    assert(!ierr);
+    PetscPrintf(PETSC_COMM_WORLD,
+		"registering cut_regulator_hook: %p\n",this);
+    string my_name(name);
+    assert(cut_regulator_hook_table.find(my_name)
+	   ==cut_regulator_hook_table.end());
+    cut_regulator_hook_table[my_name] = this;
+    // Normalize flow_rate
+    double flow_rate_sum=0.;
+    for (int j=0; j<nstream; j++) 
+      flow_rate_sum += flow_rate[j];
+    assert(flow_rate_sum!=0.);
+    for (int j=0; j<nstream; j++) 
+      flow_rate[j] /= flow_rate_sum;
+  }
+  void time_step_pre(double time,int step) { }
+  void time_step_post(double time,int step,
+		      const vector<double> &gather_values) { 
+    double flow_rate_now[nstream];
+    double sum_flow_rate_now=0., sum_flow_rate=0., p_avrg=0.;
+    for (int j=0; j<nstream; j++) {
+      flow_rate_now[j] = gather_values[gather_pos[j]];
+      sum_flow_rate_now += flow_rate_now[j];
+      p_avrg += pressure[j];
+    }
+    PetscPrintf(PETSC_COMM_WORLD,
+		"total flow rate: %g, avrg. press: %g\n",
+		sum_flow_rate_now,p_avrg);
+    p_avrg /= double(nstream);
+    for (int j=0; j<nstream; j++) {
+      double new_pressure = pressure[j] + 
+	flow_coef*(flow_rate_now[j]/sum_flow_rate_now-flow_rate[j]);
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "stream %d, flow %g, desired f. %g, p %g, new_p %g\n",
+		  j,flow_rate_now[j],flow_rate,pressure,new_pressure);
+      pressure[j] = new_pressure;
+    }
+  }
+  void close() { }
+};
+
+DL_GENERIC_HOOK(cut_regulator_hook);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class flow_controller2 : public DLGenericTmpl {
+private:
+  string cut_regulator_m;
+  cut_regulator_hook *my_cut_regulator_hook;
+  int index;
+public:
+  flow_controller2() : my_cut_regulator_hook(NULL) {}
+  void init(TextHashTable *thash) { 
+      int ierr;
+      TGETOPTDEF_S(thash,string,cut_regulator,<none>);
+      cut_regulator_m = cut_regulator;
+      TGETOPTDEF(thash,int,index,-1);
+      assert(index>-1);
+  }
+  double eval(double) { 
+    if (!my_cut_regulator_hook) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " -- flow_controller2::init() -- name %s\n",
+		  cut_regulator_m.c_str());
+      cut_regulator_hook_table_t::iterator q = 
+	cut_regulator_hook_table.find(cut_regulator_m);
+      assert(q!=cut_regulator_hook_table.end());
+      my_cut_regulator_hook = q->second;
+      assert(my_cut_regulator_hook);
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Looking for hook, gets pointer %p\n",my_cut_regulator_hook);
+      assert(index < my_cut_regulator_hook->nstream);
+    }
+    return my_cut_regulator_hook->pressure[index];
+  }
+};
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(flow_controller2);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

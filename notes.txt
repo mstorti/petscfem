@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $
+$Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
+! # $Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
+  # $Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
+  # $Id: notes.txt,v 1.239 2003/01/27 00:37:08 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6028,7 +6028,9 @@ automaticamente.
 17:53:19: Anda informaticamente el acoplamiento caudal/presion via
 hooks, pero ahora realizo que conviene hacerlo mas a pata, ya que por
 ejemplo hay que tener en cuenta la axisimetria. 
-
+%
+20:17:30: Cuesta sintonizar el `flow_controller'. Ahora voy a tratar
+de regular solo el corte (no el caudal para cada corriente). 
 
 # Current line ===========  %
 # Local Variables: $

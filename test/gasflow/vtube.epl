@@ -161,8 +161,13 @@ axisymmetric "z"
 gather_file "vtube.mass_flow_rate.tmp"
 ngather 3
 
-hook_list dl_generic_hook hot_outlet \
-          dl_generic_hook cold_outlet
+hook_list dl_generic_hook cut_regulator
+
+cut_regulator.filename ./gasflow.efn
+cut_regulator.prefix   gasflow_hook
+
+#hook_list dl_generic_hook hot_outlet \
+#          dl_generic_hook cold_outlet
 
 hot_outlet.filename ./gasflow.efn
 hot_outlet.prefix   gasflow_hook
@@ -174,17 +179,17 @@ __END_HASH__
 ##================================================================
 table hot_outlet
 initial_pressure <:=$p_h:>
-flow_rate <:=((1.-$cut)*$Q):>
+flow_rate <:=-((1.-$cut)*$Q):>
 gather_pos 1
-flow_coef -1e3
+flow_coef -1e4
 __END_HASH__
 
 ##================================================================
 table cold_outlet
 initial_pressure <:=$p_c:>
-flow_rate <:=$cut*$Q:>
+flow_rate <:=-$cut*$Q:>
 gather_pos 2
-flow_coef -1e3
+flow_coef -1e4
 __END_HASH__
 
 ##================================================================
@@ -236,7 +241,7 @@ module "compressible_NS"
 npg 4
 gather_pos 2
 __END_HASH__
-__INCLUDE__ "vtube.inlet_flow_rate.tmp"
+__INCLUDE__ "vtube.cold_outlet_flow_rate.tmp"
 __END_ELEMSET__
 #endif
 
@@ -260,14 +265,14 @@ __END_HASH__
 __INCLUDE__ vtube.fixa_cold_outlet.tmp
 __END_FIXA__
 
-#if !$compressible
 ##================================================================
 fixa
 __INCLUDE__ vtube.fixa.tmp
+#if !$compressible
 ## Fix pressure at some node
 <:=($Nr+2):> 4 0.
-__END_FIXA__
 #endif
+__END_FIXA__
 
 ##================================================================
 constraint
