@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.3 2002/02/10 03:17:24 mstorti Exp $
+//$Id: amplidl.cpp,v 1.4 2002/02/10 12:47:00 mstorti Exp $
 
 #include <math.h>
 
@@ -48,19 +48,17 @@ void DLGeneric::init(TextHashTable *thash) {
   }
 #endif
 
-  if (init_fun) (*init_fun)(thash);
+  if (init_fun) (*init_fun)(thash,fun_data);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 DLGeneric::~DLGeneric() {
   delete thash;
-  if (clear_fun) (*clear_fun)();
+  if (clear_fun) (*clear_fun)(fun_data);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double DLGeneric::eval(const TimeData *time_data) {
   double t = double(* (const Time *) time_data);
-  return (*fun)(t);
+  return (*fun)(t,fun_data);
 }
-
-
