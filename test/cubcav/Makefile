@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.56 2003/09/06 22:11:22 mstorti Exp $ 
+# $Id: Makefile,v 1.57 2003/09/08 10:20:39 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -80,7 +80,9 @@ dx:
 	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl
 
 dx_make_command:
-	octave -qH comp_step.m
+#	octave -qH comp_step.m
+#	echo $$dx_step >> comp_server.fifo 
+	sendstep.pl $$dx_step comp_server.fifo comp_server.fifo2
 
 yuv_compress:
 	yuv=YUV/$(CASE_NAME).$$dx_step.yuv ;			\
@@ -108,3 +110,17 @@ cubcav_close:
 link:
 	$(MAKE) -C $(PETSCFEM_DIR) ns
 	ln -f $(PROG) ns
+
+fifo:
+	fifo="comp_server.fifo" ;			\
+	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
+	mkfifo $$fifo
+	fifo="comp_server.fifo2" ;			\
+	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
+	mkfifo $$fifo
+
+clean_fifo:
+	fifo="comp_server.fifo" ;			\
+	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
+	fifo="comp_server.fifo2" ;			\
+	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\

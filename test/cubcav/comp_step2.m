@@ -1,5 +1,5 @@
 source("./data.m.tmp");
-if 0
+if 1
   ## steps_dir = "/cdrom/STEPS-2003-SEP-01";
   steps_dir = "./STEPS-2003-SEP-01";
   pf_start_step = 101;
@@ -10,10 +10,11 @@ endif
 refine = 5;
 case_name = "cubcav";
 
-cache.file_pattern = "STEPS/cubcav.state_%d.tmp";
+cache.file_pattern = [steps_dir "/cubcav.state_%d.tmp"];
 cache.size = 5;
 system("make fifo");
 fifo = "comp_server.fifo";
+fifo2 = "comp_server.fifo2";
 
 while 1
 
@@ -45,8 +46,19 @@ while 1
     printf("Using u(%d)\n",sss);
   endif
 
-  u = pf_smooth(u,1,5);
+  u = pf_smooth(u,1,4);
 
   asave(["./" case_name ".dx-state.tmp"],u);
 
+  
+  fid = fopen(fifo2,"w");
+  if fid==-1
+    printf("couldn't open fifo2");
+    return;
+  endif
+  fprintf(fid,"OK\n");
+  fclose(fid);
+
 endwhile
+
+system("make clean_fifo");
