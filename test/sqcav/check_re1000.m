@@ -2,8 +2,8 @@ source("data.m.tmp");
 ghia;
 
 load -force sqcav.ny.tmp
-u=aload("u.Re1000.wf0.tmp");
-uwf1=aload("u.Re1000.wf1.tmp");
+u=aload("sqcav.weak_form_0.tmp");
+uwf1=aload("sqcav.weak_form_1.tmp");
 uref = aload("u_re1000.dat");
 
 tol=1e-8;

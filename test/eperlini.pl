@@ -3,6 +3,31 @@
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
 $NP = $ENV{'NP'};
 
+sub quote_string {
+    my $value = shift();
+    # This is how to know if a variable is a number or a string. 
+    if ($value == 0 && $value !~ /^0$/) {
+	return "\"$value\"";
+    } else {
+	return $value;
+    }
+}
+
+## Gets a variable from the environment. If it was
+## not set, set it to de default value
+##
+## usage: get_var_env(name,default)
+sub get_var_env {
+    my ($name,$def) = @_;
+    ${$name} = $ENV{"$name"};
+    ${$name} = $def unless ${$name};
+}
+
+sub pr {
+    $name = shift();
+    print "$name ",quote_string(${$name}),"\n";
+}
+
 # usage: "doc_vals(VARS)", for instance "doc_vals(qw(Re,Ra,N,alpha))"
 #
 # includes legends of the form "# VAR VALUE" in the
@@ -59,7 +84,7 @@ sub makeini {
 # OPTION_NAME VALUE
 #
 # where VALUE can be set through a `-d OPTION_NAME=VALUE' in the
-# carl to eperl, or well it is the DEFAULT_VALUE. Pass the
+# carll to eperl, or well it is the DEFAULT_VALUE. Pass the
 # magic string __NULL__ if you want to pass a null string value. 
 sub option {
     $option_name = shift();

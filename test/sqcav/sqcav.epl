@@ -1,41 +1,56 @@
 # -*- mode: shell-script -*-
+# case: <:=$case:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
-$case="sqcav";			# case name
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$weak_form = $ENV{'weak_form'};
-$weak_form = 1 unless $weak_form;
+get_var_env('weak_form',0);
+get_var_env('case',undef);
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;			# Number of elements per side
+$N = 20;
 $hratio = 10;			# refinement (h_center/h_wall)
 $Re = 1000;			# Reynolds number
-$visco = $L/$Re;		# viscosity
+$viscosity = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
-$solver = "lu";
-$iisd_subpart = 4;
+$solver = "petsc";
+$preco_type = "lu";
+$maxits = 1;
+$iisd_subpart = 2;
+$nstep = 100;
+$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
+#
+$weak_form = 0;
+# `scalar' avoids returning the first match, which can be zero
+# and then can be interpreted as `false' 
+if (scalar $case =~ /weak_form_(\d)/) {
+    $weak_form = $1;
+} elsif ($case =~ /^iisd/) {
+    $solver = "iisd";
+    $iisd_subpart = 2;
+    $maxits = 20;
+    $nstep = 2;
+} else {
+    die "don't know case $case\n";
+}
+#
 #__END_TRANSCRIPT__
-transcript("", qw(visco Dt));	# print variables on output
-octave_export_vars(">data.m.tmp",qw(U L N Re visco h Co Dt hratio));
+transcript("", qw(viscosity Dt));	# print variables on output
+octave_export_vars(">data.m.tmp",qw(U L N Re viscosity h Co Dt hratio));
 :>//                            # ends ePerl block
 
 global_options
 
 nsave 5
-nstep 100
+<:pr('nstep'):> 
 # initial_state sqcav.state
-save_file sqcav.state.tmp
-#if 1
+<:pr('save_file'):> 
+
 # type of solver (may be "lu", "iisd", "petsc"...)
-solver "petsc"
-preco_type "lu"
-maxits 1
-#elsif 0
-solver "iisd"
-maxits 100
+<:pr('solver'):>
+<:pr('preco_type'):> 
+<:pr('maxits'):> 
 # Number of subdomains
-iisd_subpart <:=$iisd_subpart:>
-#endif
+<:pr('iisd_subpart'):>
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -82,8 +97,8 @@ npg 4
 #
 # Datos fisicos
 #
-viscosity  <:=$visco:>
-weak_form <:=$weak_form:>
+<:pr('viscosity'):> 
+<:pr('weak_form'):>
 LES 0
 __END_HASH__
 __INCLUDE__ sqcav.con.tmp
