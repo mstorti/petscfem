@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: memtest.cpp,v 1.2 2004/02/19 22:11:10 mstorti Exp $
+// $Id: memtest.cpp,v 1.3 2004/02/19 22:44:22 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
@@ -25,7 +25,7 @@ int sum(int *buff,int size) {
 }
 
 int main(int argc,char **argv) {
-  const double RAM_SIZE = 50;
+  const double RAM_SIZE = 500;
   const int NBLOCKS = 100;
   MAX = int(sqrt(double(RAND_MAX)));
   int block_size = int(RAM_SIZE*1.0e6/4.0/double(NBLOCKS));
@@ -47,7 +47,7 @@ int main(int argc,char **argv) {
       }
       int ncheck = sum(buff,size);
       printf("ncheck: %d\n",check);
-      if (++it>10) break;
+      if (++it>4000) break;
     }
     bi++;
     if (bi>=NBLOCKS) { bi=0; bj++; }
