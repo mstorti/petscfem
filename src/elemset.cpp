@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.83 2003/11/15 21:38:29 mstorti Exp $
+//$Id: elemset.cpp,v 1.84 2004/07/28 01:38:32 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -322,6 +322,7 @@ int assemble(Mesh *mesh,arg_list argl,
   for (j=0; j<narg; j++) {
     /// Copy the options to the arg_data_v structure. 
     ARGVJ.options = argl[j].options; 
+    ARGVJ.must_flush = 0;
     // PetscPrintf(PETSC_COMM_WORLD,"Argument %d\n",j);
     if (argl[j].options & DOWNLOAD_VECTOR) {
       Vec *x;
@@ -678,10 +679,12 @@ int assemble(Mesh *mesh,arg_list argl,
 	if (argl[j].options & ASSEMBLY_MATRIX) {
 	  if (report_assembly_time) hpcassmbl.start();
 	  if (argl[j].options & PFMAT) {
+	    if (ARGVJ.must_flush)
+	      ierr = (ARGVJ.pfA)
+		->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
 	    ierr = (ARGVJ.pfA)
 	      ->assembly_begin(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
-	    ierr = (ARGVJ.pfA)
-	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	    ARGVJ.must_flush = 1;
 	  } else {
 	    ierr = MatAssemblyBegin(*(ARGVJ.A),
 				    MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
@@ -765,6 +768,13 @@ int assemble(Mesh *mesh,arg_list argl,
     // To be done for each elemset
     if (any_fdj) delete[] pref;
     for (j=0; j<narg; j++) {
+      if (argl[j].options & ASSEMBLY_MATRIX
+	  && (argl[j].options & PFMAT)
+	  && ARGVJ.must_flush) {
+	    ierr = (ARGVJ.pfA)
+	      ->assembly_end(MAT_FLUSH_ASSEMBLY); CHKERRQ(ierr);
+	    ARGVJ.must_flush = 0;
+      }
       if (argl[j].options & DOWNLOAD_VECTOR) {
 	delete[] ARGVJ.locst;
       }
