@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
+* Generate a test for the disconnected graph bug. 
 * Check caching DX objects for multiple elemsets
 * Code and test changing coords and elemset conectivities 
   caching by the user/ appl. writer. 
