@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.15 2002/07/21 03:23:44 mstorti Exp $
+// $Id: tryme4.cpp,v 1.16 2002/07/21 03:42:59 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -26,7 +26,7 @@ private:
   // size of each chunk
   int chunk_size;
   // total number of elements 
-  int size;
+  int size_m;
   // Number of chunks position of first free element
   int nchunks;
   // pointers to chunks
@@ -41,25 +41,41 @@ public:
   dvector() { 
     chunk_size = 100;
     chunks = NULL;
-    size = nchunks = 0;
+    size_m = nchunks = 0;
   }
   T &ref(int j) {
-    assert(j>=0 && j<size);
+    assert(j>=0 && j<size_m);
     int chunk,k;
     reff(j,chunk,k);
     return chunks[chunk][k];
   }
+  int size(void) { return size_m; }
   void push(const T &t) {
     int chunk,k;
-    reff(size,chunk,k);
+    reff(size_m,chunk,k);
     if (k==0) {
       assert(nchunks == chunk_vector.size());
       chunk_vector.push_back(new T[chunk_size]);
       chunks = chunk_vector.begin();
       nchunks++;
     }
-    ref(size++) = t;
+    ref(size_m++) = t;
   }
+  void resize(int new_size,T t) {
+    if (new_size > size_m) {
+      while (size_m<new_size) push(t);
+    } else {
+      int chunk,k;
+      reff(new_size,chunk,k);
+      while (nchunks > chunk+1) {
+	delete[] chunk_vector[nchunks-1];
+	chunk_vector.pop_back();
+	nchunks--;
+      }
+      size_m = new_size;
+    }
+  }
+  void resize(int new_size) { resize(new_size,T()); }
 };
 
 class graph {
@@ -204,6 +220,13 @@ int main(int argc, char **argv) {
       printf("j %d, j^2 %d, v(j) %d\n",j,j*j,v.ref(j));
     assert(j*j==v.ref(j));
   }
+  v.resize(M/3);
+  for (int j=0; j<v.size(); j++) {
+    if (j % (M/10) ==0 ) 
+      printf("j %d, j^2 %d, v(j) %d\n",j,j*j,v.ref(j));
+    assert(j*j==v.ref(j));
+  }
+  
 
 #if 0
   graph_da g;
