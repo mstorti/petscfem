@@ -1152,3 +1152,8 @@ tag: beta-2.94.pl10 on Sat,  4 May 2002 20:56:46 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Added `print_partitioning_statistics' option.
      > Added `free_surface_level_integrator' gatherer elemset.
+----------
+tag: beta-2.94.pl11 on Mon,  6 May 2002 17:24:28 -0300 by mstorti in node1.beowulf.gtm
+     > Fixed a bug in graph.cpp for disconnected graphs. 
+     > Fixed a bug in readmesh.cpp for not including non-fat 
+     > elemsets in partitioning. 
