@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.36 2004/01/28 01:19:54 mstorti Exp $
+//$Id: gpdata.cpp,v 1.37 2004/01/28 01:53:47 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -206,6 +206,13 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 #ifdef USE_DX
     splitting.parse("1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra");
 #endif
+    // edges
+    nedges_m = 9;
+    // edges.resize(2*nedges_m);
+    int edges_v[] = {1,2, 2,3, 3,1, // top
+		     4,5, 5,6, 6,1,
+		     1,4, 2,5, 3,6};
+    edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
 
   } else if ( !(strcmp(geom,"triangle")) ) {
     assert(nel==3);

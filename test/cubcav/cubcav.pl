@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.8 2004/01/28 01:19:58 mstorti Exp $
+# $Id: cubcav.pl,v 1.9 2004/01/28 01:53:47 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -42,7 +42,8 @@ get_var_env2('nu',1/100.);
 
 if ($srfgath) {
     $N = 4;
-    $use_tetra = 0;
+    $use_tetra = 1;
+    $hratio = 1;
 }
 
 @vars= qw(CASE U L N Re viscosity 

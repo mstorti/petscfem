@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.6 2004/01/28 01:23:12 mstorti Exp $
+//$Id: srfgath.cpp,v 1.7 2004/01/28 01:53:47 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -238,7 +238,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // each side. 
 
       // Compute center of polygon xc
-      xi.is(2,1,nint).print("intersections: ");
+      // xi.is(2,1,nint).print("intersections: ");
       xc.sum(xi,1,-1).scale(1./double(nint));
       // Rest `xc' from all `xi'
       for (int j=1; j<=nint; j++) xi.ir(2,j).rest(xc);
@@ -306,6 +306,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
       printf("\n");
 #endif
+      double Area = 0.;
       // Loop over subtriangles
       for (int j=0; j<nint; j++) {
 	// Value of u at the center of the triangle
@@ -330,12 +331,14 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xi.rs();
 	c.cross(a,b);
 	double area = c.norm_p_all(2.0)/2.0;
+	Area += area;
 
 	set_ip_values(ip_values,ut,xpg,n,t);
 	int pos = gather_pos + vals_per_plane * jval;
 	for (int j=0; j<vals_per_plane; j++) 
 	  (*values)[pos+j] += ip_values[j]*area;
       }
+      printf("area: %f\n",Area);
     }
   }  
  
