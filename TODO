@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* the name for the elemsets doesn't accept the quotes "name" feature
+   (see readmesh.cpp:191). 
 * int FastMat2: `mydetsur' with masks can't be cached (loses cached
       dims and claims dimensioning errors. See version "tag:
       beta-3.02.pl11 on Wed, 7 Aug 2002 16:31:37 -0300 by mstorti in
