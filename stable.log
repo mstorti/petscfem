@@ -476,3 +476,15 @@ tag: beta-3.30 on Sat May 22 10:04:44 GMT+3 2004, by mstorti in spider
      > Added `sphere' and `cylinder' surfaces. 
      > Fixing `read_vector' with no file bug. 
      > Merged from bubbly-branch (Beto contrib to bubbly)
+----------
+tag: beta-3.33 on Sat Sep 25 13:22:40 GMT+3 2004, by mstorti in spider
+     > Merged from hydro2-branch
+     > Changed MatAssemblybegin() and end()
+     > Fixed a problem with PetscPrintf in NS main (`ns.cpp'). 
+     > Improved `octave_export_vars'. 
+     > Now it can export vectors to octave. 
+     > Starts writing examples. 
+     > Written sqcav example. 
+     > Fixed in some docs the CIMEC URL was erroneously www.cimec.com.ar, 
+     >    instead of www.cimec.org.ar.
+     > Fixed `delayed_flush' problem. 
