@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.2 2001/10/15 19:44:43 mstorti Exp $
+//$Id: nsid.cpp,v 1.3 2002/10/07 00:26:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -8,8 +8,26 @@
 #include <src/fastmat2.h>
 
 #include "nsi_tet.h"
+#include "nsid.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define ICONE(j,k) VEC2(icone,j,k,nel)
+int ns_id::real_nodes(int iele,const int *&node) {
+  node = &ICONE(iele,0);
+  return (part_include_fic ? nel : real_nodes_m);
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void ns_id::initialize() {
+  int ierr;
+  //o Do partitioning including fictitious nodes
+  TGETOPTDEF_ND(thash,int,part_include_fic,1);
+  //o Pass here the number of real nodes to be reported. 
+  TGETOPTDEF(thash,int,real_nodes,0);
+  real_nodes_m = real_nodes;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

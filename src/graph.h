@@ -1,13 +1,37 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.14 2002/07/19 02:00:43 mstorti Exp $
+// $Id: graph.h,v 1.15 2002/10/07 00:26:08 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include <queue>
 #include <set>
 
-#define STL_ALLOCATOR malloc_alloc
+
+// Allocators, from http://www.sgi.com
+
+// alloc: The default allocator. It is thread-safe, and usually has
+// the best performance characteristics.
+
+// pthread_alloc: A thread-safe allocator that uses a different memory
+// pool for each thread; you can only use pthread_alloc if your
+// operating system provides pthreads. Pthread_alloc is usually faster
+// than alloc, especially on multiprocessor systems. It can, however,
+// cause resource fragmentation: memory deallocated in one thread is
+// not available for use by other threads.
+
+// single_client_alloc: A fast but thread-unsafe allocator. In
+// programs that only have one thread, this allocator might be faster
+// than alloc.
+
+//  malloc_alloc: An allocator that simply uses the standard library
+//  function malloc. It is thread-safe but slow; the main reason why
+//  you might sometimes want to use it is to get more useful
+//  information from bounds-checking or leak-detection tools while you
+//  are debugging.
+
+#define STL_ALLOCATOR alloc
+//#define STL_ALLOCATOR malloc_alloc
 //#define STL_ALLOCATOR single_client_alloc 
 
 /// A set of neighbors. 

@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.46 2002/09/05 20:18:13 mstorti Exp $
+//$Id: advdif.cpp,v 1.47 2002/10/07 00:26:08 mstorti Exp $
 
+#include <src/debug.h>
 #include <set>
 
 #include <src/fem.h>
@@ -72,6 +73,8 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
+  Debug debug2(0,PETSC_COMM_WORLD);
+
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
@@ -83,6 +86,19 @@ int main(int argc,char **args) {
   // Read data
   ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
+
+  //o Activate debugging
+  GETOPTDEF(int,activate_debug,0);
+  if (activate_debug) {
+    debug2.activate();
+    Debug::init();
+  }
+  //o Activate printing in debugging
+  GETOPTDEF(int,activate_debug_print,0);
+  if (activate_debug_print) debug2.activate("print");
+  //o Activate report of memory usage
+  GETOPTDEF(int,activate_debug_memory_usage,0);
+  if (activate_debug_memory_usage) debug2.activate("memory_usage");
 
   //o Absolute tolerance when solving a consistent matrix
   GETOPTDEF(double,atol,1e-6);
@@ -256,9 +272,13 @@ int main(int argc,char **args) {
 
   arg_list argl;
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Compute  profiles
+  debug2.trace("Computing profiles...");
   VOID_IT(argl);
   argl.arg_add(A,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
+  debug2.trace("After computing profile.");
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
@@ -335,10 +355,14 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
+	debug2.trace("Before residual computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	debug2.trace("After residual computation.");
 
 	if (!print_linear_system_and_stop || solve_system) {
+	  debug2.trace("Before solving linear system...");
 	  ierr = A->solve(res,dx); CHKERRA(ierr); 
+	  debug2.trace("After solving linear system.");
 	}
 	// ierr = SLESDestroy(sles);
 	// ierr = A->destroy_sles(); CHKERRA(ierr); 

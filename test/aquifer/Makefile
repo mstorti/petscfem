@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2002/09/08 23:29:16 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2002/10/07 00:26:08 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -35,7 +35,8 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 ################################################################
 NP = 1
 
-PROG := $(ADVDIF)
+# PROG := $(ADVDIF)
+PROG := $(PETSCFEM_DIR)/applications/advdif/advdif_O.bin
 MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
@@ -110,7 +111,7 @@ data: force
 #w Runs program
 rung: data force
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) \
-			-case $(CASE).depl > output.$(casen).out
+			-case $(CASE).depl # > output.$(casen).out
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force

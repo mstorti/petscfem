@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.33 2002/09/30 02:30:48 mstorti Exp $
+//$Id: nsi_tet.h,v 1.34 2002/10/07 00:26:08 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -52,13 +52,6 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class nsi_rot : public ns_volume_element { 
-public: 
-  ASSEMBLE_FUNCTION;
-};
-
-//-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-/// This is the Identity operator, useful for debugging 
-class ns_id : public ns_volume_element { 
 public: 
   ASSEMBLE_FUNCTION;
 };

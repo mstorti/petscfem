@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;			# Number of elements per dimension
+$N = 10;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -88,7 +88,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case \"$case\"\n";
 }
-$maxits=10;
+$maxits=2;
 $CASE = $case;
 #
 #__END_TRANSCRIPT__
@@ -100,7 +100,7 @@ octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity
 global_options
 
 <:pr('ndim'):>
-nsave 5
+nsave 0
 nstep 100
 # initial_state cubcav.state
 <:pr('save_file'):> 
@@ -114,11 +114,10 @@ reuse_mat 0
 #if 1
 compact_profile_graph_chunk_size <:=$graph_chunk_size:>
 #endif
-# solver     "petsc"
-# preco_type "jacobi"
-solver     "iisd"
-# solver_mom "petsc"
+solver     "petsc"
+# solver     "iisd"
 preco_type "jacobi"
+# solver_mom "petsc"
 # rtol 1e-6
 chunk_size 1000
 # <:pr('iisd_subpart'):>
@@ -145,7 +144,7 @@ max_partgraph_vertices_proc 4000
 
 #    Iterative parameters
 tol_tet 1e-5
-tol_newton 1e-10
+tol_newton -1.
 atol 0
 #if $fracstep
 # KSP_method "cg"
@@ -159,7 +158,8 @@ nnwt 1
 
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv 1
-#print_linear_system_and_stop 1
+# print_linear_system_and_stop 1
+# solve_system 0
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
@@ -181,7 +181,7 @@ __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
 elemset \
- <:=($case eq 'laplace'? 'qharm' : $fracstep? 'fracstep_fm2' : 'ns_id'); :> \
+ <:=($case eq 'laplace' ? 'qharm' : $fracstep? 'fracstep_fm2' : 'ns_id'); :> \
 	<:=($use_prismatic? 6 : $use_tetra? 4 : 8):>
 ns_id_fac 1.
 name malla

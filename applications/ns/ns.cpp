@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.109 2002/10/03 02:45:45 mstorti Exp $
+//$Id: ns.cpp,v 1.110 2002/10/07 00:26:08 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -522,12 +522,9 @@ int main(int argc,char **args) {
 	  exit(0);
 	}
 
-	// A_tet->build_sles(GLOBAL_OPTIONS);
-
 	if (!print_linear_system_and_stop || solve_system) {
-	  // ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
 	  debug2.trace("Before solving linear system...");
-	  // ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
+	  ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
 	  debug2.trace("After solving linear system.");
 	}
 
@@ -752,7 +749,7 @@ int main(int argc,char **args) {
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,&time,
 		      tstep-1,nsaverot,nrec,nfile);
   
-    if (tstep % nsave == 0) {
+    if (nsave && tstep % nsave == 0) {
       print_vector(save_file.c_str(),x,dofmap,&time);
       if (print_residual) 
 	print_vector(save_file_res.c_str(),res,dofmap,&time);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.6 2002/08/06 15:31:20 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.7 2002/10/07 00:26:08 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -21,6 +21,7 @@
 #include "nssup.h"
 #include "nsikepsrot.h"
 #include "fracstep.h"
+#include "nsid.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
