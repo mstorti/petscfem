@@ -337,6 +337,7 @@ int main(int argc,char **args) {
 //  			  preco_type=="none" ? PCNONE : 
 //  			  preco_type=="LU" ? PCLU : 
 //  			  PCJACOBI)); CHKERRA(ierr);
+	ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
 	ierr = PCSetType(pc,preco_type_); CHKERRA(ierr);
 	// ierr = PCSetType(pc,PCJACOBI); CHKERRA(ierr);
 	ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRA(ierr);

@@ -1,4 +1,4 @@
-/* $Id: nsi_tet.cpp,v 1.2 2001/01/04 20:06:18 mstorti Exp $ */
+/* $Id: nsi_tet.cpp,v 1.3 2001/01/04 22:46:02 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -64,7 +64,7 @@ void newmat_print(const Matrix & A) {
 #undef __FUNC__
 #define __FUNC__ "nsi_tet::assemble"
 int nsi_tet::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-		      Dofmap *dofmap,char *jobinfo,int myrank,
+		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time_) {
 

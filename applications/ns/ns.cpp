@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.3 2001/01/04 20:06:18 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.4 2001/01/04 22:46:02 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -230,7 +230,7 @@ int main(int argc,char **args) {
   print_internal_loop_conv_g=print_internal_loop_conv;
 
   //o Chooses the preconditioning operator. 
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,Jacobi);
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,jacobi);
   // I had to do this since `c_str()' returns `const char *'
   char *preco_type_ = new char[preco_type.size()+1];
   strcpy(preco_type_,preco_type.c_str());
@@ -497,6 +497,8 @@ int main(int argc,char **args) {
 			       "system.dat",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
+	ierr =  SLESView(sles_tet,VIEWER_STDOUT_SELF);
+
 	ierr = MatView(A_tet,matlab);
 
 	ierr = ViewerSetFormat(matlab,

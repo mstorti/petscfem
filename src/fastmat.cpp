@@ -265,6 +265,7 @@ int FMaxpy_t(FastMat & Y,double a,const FastMat & X) {
       from += X.n;
     }
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -395,6 +396,7 @@ int kron(FastMat & C, FastMat const & A, FastMat const & B) {
       }
     }
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -512,6 +514,7 @@ void FastMat::row(const FastMat & B,int i) {
 int NM2FM(FastMat & A,const Matrix & B) {
   if (!A.is_defined()) A.set_size(B.Nrows(),B.Ncols());
   A.set(B.Store());
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -534,6 +537,7 @@ int FastMat::sum_square(double & val) const {
     sum += c*c;
   }
   val = sum;
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -566,6 +570,7 @@ int FastMat::transpose(const FastMat & B) {
       from += inc;
     }
   }
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -574,6 +579,7 @@ int FastMat::scale(const double c) {
   double * from = store;
   int ii=m*n;
   for (int i=1; i<=ii; i++) *(from++) *= c;
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -592,6 +598,7 @@ int FastMat::trace_of_product(const FastMat & B,double & trace) const {
     }
   }
   trace = s;
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
