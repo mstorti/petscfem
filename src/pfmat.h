@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.11 2001/08/08 20:04:26 mstorti Exp $
+// $Id: pfmat.h,v 1.12 2001/08/09 15:15:12 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -100,6 +100,8 @@ public:
   virtual int its() {return its_;};
   /// Prints the matrix to a PETSc viewer
   virtual int view(Viewer viewer)=0;
+  /// Derive this if you want to manage directly the preconditioning. 
+  virtual int set_preco(const string & preco_type);
 };
 
 /** Wrapper monitor. You customize the monitor by deriving the
@@ -248,7 +250,6 @@ class IISDMat : public PFMat {
   int local_solve(Vec x_loc,Vec y_loc,int trans,double s);
 
   Vec A_II_diag;
-  int jacobi_pc_apply(Vec x,Vec y); 
   
 public:
 
@@ -298,7 +299,11 @@ public:
       @param dx (input) the solution vector
   */ 
   int solve(Vec res,Vec dx);
+  /// Derive this if you want to manage directly the preconditioning. 
+  int set_preco(const string & preco_type);
   IISDMat() : A_LL_other(NULL) {};
+  /// The PETSc wrapper function calls this
+  int jacobi_pc_apply(Vec x,Vec y); 
 };
 
 #endif

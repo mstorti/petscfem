@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.19 2001/08/08 12:28:20 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2001/08/09 15:15:15 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -10,12 +10,9 @@ NS:=$(NSO)
 endif
 
 run:
-#	$(MAKE) NP=$(NPP) Re=500 case=iisd case_size=very_large test_case
-#	$(MAKE) NS=$(NSO) NP=2 Re=1 peri=1 part=random case=iisd \
-#				case_size=small test_case
-	$(MAKE) NP=2 Re=1 peri=1 part=random case=iisd \
+	$(MAKE) NP=2 Re=1 preco=jacobi peri=1 part=random case=iisd \
 				case_size=small test_case
-	mv -f save.state save.state.iisd_vl
+#	mv -f save.state save.state.iisd_vl.tmp
 
 #w All tests
 tests: test_iisd test_partitioning

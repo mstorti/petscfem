@@ -14,12 +14,19 @@ $Ly = 1;                        # longitudinal length
 $Re = 10000 unless $Re;         # laminar Re
 $Uav = 1;                       # 
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
+#
 $part_case = ($case =~ /^(.*)_part$/);
 $part_method = $1;
+$preco = $ENV{'preco'} if $ENV{'preco'};
+$preco = 'none' unless $preco;
+#
 $part_method = $ENV{'part'} if $ENV{'part'};
 $part_method = 'metis' unless $part_method;
+#
 $case_size = "medium" if $part_case;
 $case_size = $ENV{'case_size'} unless $case_size;
+#
+
 $peri = $ENV{'peri'};
 if ($case_size eq 'small') {
 $N = 4;                         # Number of elements in transversal 'x' direction
@@ -96,7 +103,7 @@ nnwt 3
 tol_newton 0
 #if $case eq 'iisd' 
 use_iisd
-preco_type "none"
+preco_type "<:=$preco:>"
 rtol 1e-4
 atol 1e-10
 maxits 100

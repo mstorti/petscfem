@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.30 2001/08/08 20:04:26 mstorti Exp $
+//$Id: lusubd.cpp,v 1.31 2001/08/09 15:15:12 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -32,12 +32,14 @@ const int IISDMat::L=0;
 const int IISDMat::I=1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "petscfem_null_monitor"
 int petscfem_null_monitor(KSP ksp,int n,
 			  double rnorm,void *A_) {return 0;}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISD_mult(Mat A,Vec x,Vec y)"
+#define __FUNC__ "IISD_mult"
 int IISD_mult(Mat A,Vec x,Vec y) {
   void *ctx;
   IISDMat *pfA;
@@ -49,7 +51,7 @@ int IISD_mult(Mat A,Vec x,Vec y) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISD_mult_trans(Mat A,Vec x,Vec y)"
+#define __FUNC__ "IISD_mult_trans"
 int IISD_mult_trans(Mat A,Vec x,Vec y) {
   void *ctx;
   IISDMat *pfA;
@@ -59,22 +61,9 @@ int IISD_mult_trans(Mat A,Vec x,Vec y) {
   return 0;
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat_monitor(KSP,int,double,void *)"
-int IISDMat_monitor(KSP ksp,int n,double rnorm,void *dummy) {
-  int      ierr;
-  // if (print_internal_loop_conv_g) 
-  PetscPrintf(PETSC_COMM_WORLD,
-	      "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
-  return 0;
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "void IISDMat::create(Darray *,const Dofmap *,int)"
+#define __FUNC__ "IISDMat::create"
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
   int myrank,size;
@@ -343,7 +332,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::local_solve(Vec,Vec,int,double)"
+#define __FUNC__ "IISDMat::local_solve"
 int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
   int ierr,j;
   double *a,*aa;
@@ -384,7 +373,7 @@ int IISDMat::local_solve(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::mult(Vec x,Vec y)"
+#define __FUNC__ "IISDMat::mult"
 int IISDMat::mult(Vec x,Vec y) {
 
   int myrank;
@@ -410,7 +399,7 @@ int IISDMat::mult(Vec x,Vec y) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::mult_trans(Vec x,Vec y)"
+#define __FUNC__ "IISDMat::mult_trans"
 int IISDMat::mult_trans(Vec x,Vec y) {
 
   int myrank;
@@ -436,7 +425,7 @@ int IISDMat::mult_trans(Vec x,Vec y) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::assembly_begin(MatAssemblyType type)"
+#define __FUNC__ "IISDMat::assembly_begin"
 int IISDMat::assembly_begin(MatAssemblyType type) {
   int ierr;
 
@@ -486,7 +475,7 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::assembly_end(MatAssemblyType type)"
+#define __FUNC__ "IISDMat::assembly_end"
 int IISDMat::assembly_end(MatAssemblyType type) {
   int ierr;
   ierr = MatAssemblyEnd(A_LI,type); CHKERRQ(ierr);
@@ -494,14 +483,12 @@ int IISDMat::assembly_end(MatAssemblyType type) {
   ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
 
-  int MatGetDiagonal(Mat mat,Vec v)
-
   return 0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::zero_entries()"
+#define __FUNC__ "IISDMat::zero_entries"
 int IISDMat::zero_entries() {
   int ierr;
   ierr=MatZeroEntries(A_LL); CHKERRQ(ierr);
@@ -513,7 +500,7 @@ int IISDMat::zero_entries() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::view()"
+#define __FUNC__ "IISDMat::view"
 int IISDMat::view(Viewer viewer) {
   int ierr;
   Viewer matlab;
@@ -539,7 +526,7 @@ int IISDMat::view(Viewer viewer) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::clear()"
+#define __FUNC__ "IISDMat::clear"
 void IISDMat::clear() {
   // P is not destroyed, since P points to A
   PFMat::clear();
@@ -560,7 +547,7 @@ void IISDMat::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::map_dof(int gdof,int &block,int &ldof)"
+#define __FUNC__ "IISDMat::map_dof"
 void IISDMat::map_dof(int gdof,int &block,int &ldof) {
   ldof = map[gdof];
   if (ldof < n_loc_tot) {
@@ -572,7 +559,7 @@ void IISDMat::map_dof(int gdof,int &block,int &ldof) {
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::set_value(int,int,Scalar,InsertMode)"
+#define __FUNC__ "IISDMat::set_value"
 void IISDMat::set_value(int row,int col,Scalar value,
 			InsertMode mode=ADD_VALUES) {
   int row_indx,col_indx,row_t,col_t;
@@ -597,7 +584,7 @@ void IISDMat::set_value(int row,int col,Scalar value,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
+#define __FUNC__ "IISDMat::solve"
 int IISDMat::solve(Vec res,Vec dx) {
       
   int ierr,kloc,itss,j,jj;
@@ -802,7 +789,7 @@ int IISDMat::solve(Vec res,Vec dx) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int PFMatPETSc::create(Darray *,Dofmap *,int =0)"
+#define __FUNC__ "PFMatPETSc::create"
 void PETScMat::create(Darray *da,const Dofmap *dofmap,
 		     int debug_compute_prof=0) {
   int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
@@ -908,7 +895,7 @@ void PETScMat::create(Darray *da,const Dofmap *dofmap,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void PFMat::clear()"
+#define __FUNC__ "PFMat::clear"
 void PFMat::clear() {
   if (sles_was_built) {
     int ierr = SLESDestroy(sles); CHKERRA(ierr);
@@ -918,7 +905,7 @@ void PFMat::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void PETScMat::clear()"
+#define __FUNC__ "PETScMat::clear"
 void PETScMat::clear() {
   PFMat::clear();
   // P is not destroyed, since P points to A
@@ -928,7 +915,7 @@ void PETScMat::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
+#define __FUNC__ "PETScMat::build_sles"
 int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
   static int warn_iisdmat=0;
@@ -955,13 +942,13 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
 
-  set_preco(preco_type);
-
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
 			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
   ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
   ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
+
+  set_preco(preco_type);
 
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
@@ -979,23 +966,24 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
-int PETScMat::set_preco(const string & preco_type) {
+#define __FUNC__ "PETScMat::build_sles"
+int PFMat::set_preco(const string & preco_type) {
   // warning:= avoiding `const' restriction!!
-  ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+  int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
 }
-
-
 
 int IISDMat::warn_iisdmat=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"
 #undef __FUNC__
-#define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
+#define __FUNC__ "PETScMat::build_sles"
 int IISDMat::set_preco(const string & preco_type) {
+  int ierr;
   if (preco_type=="jacobi" || preco_type=="") {
-    ierr = PCShellSetApply(pc,int (*apply)(void *ctx,Vec,Vec),NULL); 
+    ierr = PCSetType(pc,PCSHELL); CHKERRQ(ierr);
+    ierr = PCShellSetApply(pc,&iisd_jacobi_pc_apply,this); 
+    // printf("[%d] setting apply to %p\n",MY_RANK,&iisd_jacobi_pc_apply);
   } else if (preco_type=="none" ) {
     ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
   } else {
@@ -1007,36 +995,40 @@ int IISDMat::set_preco(const string & preco_type) {
 		  preco_type.c_str());
     }
   }
-  // warning:= avoiding `const' restriction!!
-  ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ ""
+#define __FUNC__ "iisd_jacobi_pc_apply"
 int iisd_jacobi_pc_apply(void *ctx,Vec x ,Vec y) {
-  PFMat *A = (PFMat *A) ctx;
-  ierr = (typeid(*A)!=typeid(IISDMat)); CHKERRQ(ierr);  
-  A->jacobi_pc_apply(x,y);
+  int ierr;
+  PFMat *A = (PFMat *) ctx;
+  IISDMat *AA;
+  AA = dynamic_cast<IISDMat *> (A);
+  ierr = (AA==NULL); CHKERRQ(ierr);
+  AA->jacobi_pc_apply(x,y);
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int IISDMat::jacobi_pc_apply(Vec,Vec)"
+#define __FUNC__ "IISDMat::jacobi_pc_apply"
 int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
+  int ierr;
   // Computes the componentwise division w = x/y. 
   ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int PFMat::destroy_sles()"
+#define __FUNC__ "PFMat::destroy_sles"
 int PFMat::destroy_sles() {
   int ierr = SLESDestroy(sles); CHKERRQ(ierr);
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat_default_monitor"
 int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
   PFMat *A = (PFMat *)A_;
   return A->monitor(ksp,n,rnorm);
@@ -1045,7 +1037,7 @@ int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ ""
+#define __FUNC__ "PFMat::monitor"
 int PFMat::monitor(KSP ksp,int n,double rnorm) {
   int ierr;
   if (print_internal_loop_conv) {
@@ -1060,7 +1052,7 @@ int PFMat::monitor(KSP ksp,int n,double rnorm) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void PETScMat::solve(Vec res,Vec dx)"
+#define __FUNC__ "PETScMat::solve"
 int PFMat::solve(Vec res,Vec dx) {
   int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
   return 0;
@@ -1068,7 +1060,7 @@ int PFMat::solve(Vec res,Vec dx) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "int view(Viewer viewer)"
+#define __FUNC__ "PETScMat::view"
 int PETScMat::view(Viewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
 //    ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
@@ -1077,7 +1069,7 @@ int PETScMat::view(Viewer viewer) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ ""
+#define __FUNC__ "PETScMat::zero_entries"
 int PETScMat::zero_entries() {
   ierr=MatZeroEntries(A); CHKERRQ(ierr);
   return 0;
