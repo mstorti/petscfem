@@ -4045,3 +4045,7 @@ tag: beta-3.43.6 on Sun, 20 Feb 2005 20:20:23 -0300 by mstorti in spider
 tag: beta-3.43.7 on Sun, 20 Feb 2005 20:21:21 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs all tests (stable version). 
+----------
+tag: beta-3.43.8 on Sun, 20 Feb 2005 21:07:24 -0300 by mstorti in spider
+     > Some manipulation inf `readmesh.cpp' migrated to new compact 
+     > representation of `idmap' (based on vectors). 
