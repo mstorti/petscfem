@@ -1,9 +1,9 @@
 source("./data.m.tmp");
-if 0
+if 1
   ## steps_dir = "/cdrom/STEPS-2003-SEP-01";
-  steps_dir = "./STEPS-2003-SEP-01";
-  pf_start_step = 101;
-  refine = 5;
+  steps_dir = "/cdrom/STEPS-2003-SEP-15b";
+  pf_start_step = 116;
+  refine = 1;
 else
   steps_dir = "./STEPS";
   pf_start_step = 0;

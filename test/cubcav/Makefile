@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.63 2003/09/16 21:19:52 mstorti Exp $ 
+# $Id: Makefile,v 1.64 2003/09/16 21:25:24 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -81,7 +81,7 @@ dx:
 	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl
 
 #================================================================
-dx_make_command: dx_make_command1
+dx_make_command: dx_make_command2
 
 dx_make_command1:
 	octave -qH comp_step.m

@@ -77,14 +77,15 @@ packages correctly installed in your system.
 
 =item MPI  
 
-This is the Message Passing Interface. We are currently using MPICH
+This is the Message Passing Interface. We are currently using MPICH 1.2.1
 (C<http://www.mcs.anl.gov/mpich>) but I think there will be not problem
 with LAM MPI.
 
 =item PETSC
 
 This is the 'Portable, Extensible Toolkit for Scientific Computation'
-and can be found at C<http://www.mcs.anl.gov/petsc/>.
+and can be found at C<http://www.mcs.anl.gov/petsc/>. Current version
+of PETSc-FEM compiles with PETSc 2.1.6. 
 
 =item LAPACK
 

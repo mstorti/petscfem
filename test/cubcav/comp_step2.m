@@ -1,13 +1,12 @@
 source("./data.m.tmp");
 if 1
-  ## steps_dir = "/cdrom/STEPS-2003-SEP-01";
-  steps_dir = "./STEPS-2003-SEP-01";
-  pf_start_step = 101;
+  steps_dir = "/cdrom/STEPS-2003-SEP-15b";
+  pf_start_step = 116;
+  refine = 10;
 else
   steps_dir = "./STEPS";
   pf_start_step = 0;
 endif
-refine = 15;
 case_name = "cubcav";
 
 cache.file_pattern = [steps_dir "/cubcav.state_%d.tmp"];
@@ -39,18 +38,23 @@ while 1
   sss = pf_start_step + floor(dx_step/refine);
   alpha = rest/refine;
 
+  if alpha>0
+    printf("Using %f*u(%d)+%f*u(%d)\n",(1-alpha),sss,alpha,sss+1);
+  else
+    printf("Using u(%d)\n",sss);
+  endif
+
   [u1,cache] = comp_step_server(cache,sss);
   if alpha>0
     [u2,cache] = comp_step_server(cache,sss+1);
     u = (1-alpha) * u1 + alpha * u2;
-    printf("Using %f*u(%d)+%f*u(%d)\n",(1-alpha),sss,alpha,sss+1);
   else
     u = u1;
-    printf("Using u(%d)\n",sss);
   endif
+  printf("loaded states\n");
 
   tic;
-  u = pf_smooth(u,1,1);
+  u = pf_smooth(u,1,4);
   printf("Smoothing %g\n",toc);
 
   tic;
