@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.5 2002/07/19 02:00:43 mstorti Exp $
+//$Id: iisdgraph.h,v 1.6 2002/07/21 22:38:30 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -16,6 +16,7 @@ extern int MY_RANK,SIZE;
 #include <src/part.h>
 #include <src/graph.h>
 #include <src/distcont.h>
+#include <src/graphdv.h>
 
 /// The storage area type
 typedef map<int, GSet, less<int>, STL_ALLOCATOR > GMap;
@@ -29,7 +30,7 @@ typedef DistCont<GMap,GRow,GPartitioner> DGMap;
 /** This `Graph' class has internal storage, which you can fill with
     `set'. Furthermore, it is distributed.
 */
-class StoreGraph : public Graph {
+class StoreGraph1 : public Graph {
  public:
  private:
   /// The MPI compunicator
@@ -46,9 +47,9 @@ class StoreGraph : public Graph {
   /// callback function, returns the set of neighbors to #j# vertex. 
   void set_ngbrs(int j,GSet &ngbrs_v);
   /// Clean all memory related 
-  ~StoreGraph() { lgraph.clear(); };
+  ~StoreGraph1() { lgraph.clear(); };
   /// Constructor
-  StoreGraph(int N=0,const DofPartitioner *pp=NULL,
+  StoreGraph1(int N=0,const DofPartitioner *pp=NULL,
 	     MPI_Comm comm_=MPI_COMM_WORLD) :
     g_part(pp),
     lgraph(&g_part,comm_), comm(comm_) { init(N); }
@@ -70,5 +71,7 @@ public:
   void scatter() {}
   void print() {}
 };
+
+typedef graphdv_dis StoreGraph;
 
 #endif

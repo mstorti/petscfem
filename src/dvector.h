@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.5 2002/07/21 16:00:36 mstorti Exp $
+// $Id: dvector.h,v 1.1 2002/07/21 22:38:30 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 
@@ -77,7 +77,7 @@ public:
       @param cs (input) chunk size for this vector
       @return a reference to the matrix.
   */  
-  dvector(int cs=100) { 
+  dvector(int cs=10000) { 
     chunk_size = cs;
     chunks = NULL;
     size_m = nchunks = 0;

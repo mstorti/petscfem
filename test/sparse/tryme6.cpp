@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme6.cpp,v 1.4 2002/07/21 19:01:48 mstorti Exp $
+// $Id: tryme6.cpp,v 1.5 2002/07/21 22:38:34 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -8,8 +8,8 @@
 #include <vector>
 #include <set>
 
-#include "graphdv.h"
-#include "graphs.h"
+#include "./graphs.h"
+#include <src/graphdv.h>
 
 double drand() {  
   return ((double)(rand()))/((double)(RAND_MAX));

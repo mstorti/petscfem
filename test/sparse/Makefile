@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2002/07/21 19:01:48 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2002/07/21 22:38:34 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -12,6 +12,8 @@ SRCS = sp.cpp
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
+
+SRCS = sp.cpp
 
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
@@ -48,10 +50,9 @@ tryme5.bin: tryme5.o
 	g++ -g -o $@ $<
 
 CXXOPTFLAGS = -g
-tryme6.o: tryme6.cpp dvector.h graphdv.h graphs.h
+tryme6.o: tryme6.cpp graphs.h
 	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
 
 tryme6.bin: tryme6.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
-
 #s

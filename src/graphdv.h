@@ -1,10 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.3 2002/07/21 19:01:48 mstorti Exp $
+// $Id: graphdv.h,v 1.1 2002/07/21 22:38:30 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
-#include "graphs.h"
+extern int MY_RANK,SIZE;
+
 #include "dvector.h"
 
 class int_pair { 
@@ -20,7 +21,7 @@ public:
   }
 };
 
-class graphdv : public graph {
+class graphdv  {
 private:
   dvector<int_pair> da;
   int ordered;
@@ -71,6 +72,13 @@ private:
       printf("(%d,%d) ",q.i,q.j);
     }
   }
+  void set_ngbrs(int v,GSet &ngbrs) {
+    resync();
+    int f,e,q;
+    f = da.bsearch(int_pair(v,0));
+    e = da.bsearch(int_pair(v+1,0));
+    for (q=f; q<e; q++) ngbrs.insert(da.ref(q).j);
+  }
   void set_ngbrs(int v,vector<int> &ngbrs) {
     resync();
     int f,e,q;
@@ -80,5 +88,12 @@ private:
   }
   int size() { resync(); return da.size(); }
   void clear() { da.clear(); modif=0; ordered=0; max = MAX_INIT; }
+  void scatter() { assert(SIZE==1); }
 };
+
+class graphdv_dis : public graphdv  {
+public:
+  graphdv_dis(int M, const DofPartitioner *part, MPI_Comm comm) {}
+};
+
 #endif

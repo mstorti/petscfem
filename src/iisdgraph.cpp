@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.4 2002/07/18 20:01:40 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.5 2002/07/21 22:38:30 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -19,7 +19,7 @@ extern int MY_RANK,SIZE;
 #include <src/buffpack.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void StoreGraph::set_ngbrs(int j,GSet &ngbrs_v) {
+void StoreGraph1::set_ngbrs(int j,GSet &ngbrs_v) {
   GMap::iterator q;
   q = lgraph.find(j);
   if (q != lgraph.end()) ngbrs_v = q->second;
@@ -111,7 +111,7 @@ void DGMap::combine(const GRow &p) {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void StoreGraph::print() const {
+void StoreGraph1::print() const {
   // print the map using `PetscSynchronizedPrintf'
   int p;
   DGMap::const_iterator q,qe;
@@ -134,7 +134,7 @@ void StoreGraph::print() const {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void StoreGraph::clear() {
+void StoreGraph1::clear() {
   Graph::clear();
   lgraph.clear();
 }
