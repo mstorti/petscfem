@@ -572,3 +572,7 @@ tag: beta-2.19 on Sun Nov 11 22:51:07 ARST 2001, by mstorti in spider
 tag: beta-2.20 on Mon Nov 12 15:03:28 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Added partitioning with coalescence (`max_partgraph_vertices' option)
      > Added subdomain sub-division (`iisd_subpart' option). 
+----------
+tag: beta-2.21 on Tue Nov 13 09:30:10 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Added test for IISD with sub_partitioning
