@@ -3789,3 +3789,8 @@ tag: beta-3.39.64 on Sun, 23 Jan 2005 20:02:06 -0300 by mstorti in spider
      > Tested `gasflow_abso' in a 3D strip with
      > lateral velocity in the mean flow. perturbation in
      > the longitudinal direction. 
+----------
+tag: beta-3.39.65 on Sun, 23 Jan 2005 20:08:39 -0300 by mstorti in spider
+     > Tested `gasflow_abso' in a 3D strip with
+     > lateral velocity in the mean flow. Perturbation in
+     > lateral velocity. 
