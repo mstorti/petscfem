@@ -1416,3 +1416,6 @@ tag: beta-3.02.pl8 on Wed,  7 Aug 2002 08:47:39 -0300 by mstorti in spider
 tag: beta-3.02.pl9 on Wed,  7 Aug 2002 12:26:45 -0300 by mstorti in minerva.arcride.edu.ar
      > Surface elemset `embedded_gatherer' finds volume elements for
      > quad/hexa combination.
+----------
+tag: beta-3.02.pl10 on Wed,  7 Aug 2002 15:17:32 -0300 by mstorti in minerva.arcride.edu.ar
+     > Compiles and runs `embedded_gatherer'.
