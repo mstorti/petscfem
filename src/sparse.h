@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.13 2001/09/23 14:59:24 mstorti Exp $
+// $Id: sparse.h,v 1.14 2001/09/23 15:58:17 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -143,17 +143,27 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
   class Accumulator {
-    double s;
+  public:
     virtual ~Accumulator() =0;
-    virtual void init() {s = 0.;};
-    virtual void accum(double v)=0;
-    virtual double val() {return s;};
-  }
+    virtual void accum(double &v,double w)=0;
+  };
 
   class SumSq : public Accumulator {
+  public:
     ~SumSq() {};
-    double accum(double v) {return s += v*v;};
-  }
+    void accum(double &v,double w) {v += w*w;};
+  };
+
+  extern SumSq sum_sq_accum;
+
+  class SumPow : public Accumulator {
+  public:
+    double n;
+    ~SumPow() {};
+    void accum(double &v,double w) {v += pow(fabs(w),n);};
+  };
+
+  extern SumPow sum_pow_accum;
 
   class Mat;
       
@@ -276,15 +286,15 @@ namespace Sparse {
 
     /// Sum of all elements
     double sum() const {return assoc(sum_bin_assoc);} ;
-#if 0
     /// Sum of absolute value of all elements
     double sum_abs() const {return assoc(sum_abs_bin_assoc);} ;
+#if 0
     /// Sum of squares of all elements
     double sum_sq() const {return assoc(sum_sq_bin_assoc);} ;
-#endif
     /// Sum of power of all absolute value of all elements
     double sum_pow(double n) const {sum_pow_bin_assoc.n = n;
     return assoc(sum_pow_bin_assoc);} ;
+#endif
     /// Max of all elements
     double max() const {return assoc(max_bin_assoc);} ;
     /// Max of absolute value of all elements
@@ -292,6 +302,15 @@ namespace Sparse {
     /// Min of all elements
     double min() const {return assoc(min_bin_assoc);} ;
 
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    /// perform an asscociative function on all non-null elements
+    void accum(double &v,Accumulator & acc) const;
+
+    /// Sum of squares of all elements
+    double sum_sq() const {double v=0; accum(v,sum_sq_accum); return v;} ;
+    /// Sum of power of all absolute value of all elements
+    double sum_pow(double n) const {sum_pow_accum.n = n;
+    double v; accum(v,sum_pow_accum); return v;};
   };
   
   typedef map<int,Vec>::iterator RowIt;
@@ -357,7 +376,7 @@ namespace Sparse {
     Mat & apply(ScalarFun *fun);
 
     /// Scale elements 
-    Vec & scale(double c) {scale_fun_obj.c = c; apply(scale_fun_obj);};
+    Mat & scale(double c) {scale_fun_obj.c = c; return apply(scale_fun_obj);};
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     /// perform an asscociative function on all non-null elements
@@ -367,17 +386,29 @@ namespace Sparse {
     double sum() const {return assoc(sum_bin_assoc);} ;
     /// Sum of absolute value of all elements
     double sum_abs() const {return assoc(sum_abs_bin_assoc);} ;
+#if 0
     /// Sum of squares of all elements
     double sum_sq() const {return assoc(sum_sq_bin_assoc);} ;
     /// Sum of power of all absolute value of all elements
     double sum_pow(double n) const {sum_pow_bin_assoc.n = n;
     return assoc(sum_pow_bin_assoc);} ;
+#endif
     /// Max of all elements
     double max() const {return assoc(max_bin_assoc);} ;
     /// Max of absolute value of all elements
     double max_abs() const {return assoc(max_abs_bin_assoc);} ;
     /// Min of all elements
     double min() const {return assoc(min_bin_assoc);} ;
+
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    /// perform an asscociative function on all non-null elements
+    void accum(double &v,Accumulator & acc) const;
+
+    /// Sum of squares of all elements
+    double sum_sq() const {double v=0.; accum(v,sum_sq_accum); return v;} ;
+    /// Sum of power of all absolute value of all elements
+    double sum_pow(double n) const {double v=0.; sum_pow_accum.n = n;
+    accum(v,sum_pow_accum); return v;};
 
     /// print elements (sparse version)
     void print(const char *s = NULL);

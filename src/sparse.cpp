@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.14 2001/09/23 15:00:12 mstorti Exp $
+//$Id: sparse.cpp,v 1.15 2001/09/23 15:58:17 mstorti Exp $
 
 #include "sparse.h"
 
@@ -22,11 +22,15 @@ namespace Sparse {
 
   Sum sum_bin_assoc;
   SumAbs sum_abs_bin_assoc;
-  SumSq sum_sq_bin_assoc;
-  SumPow sum_pow_bin_assoc;
+//    SumSq sum_sq_bin_assoc;
+//    SumPow sum_pow_bin_assoc;
   Max max_bin_assoc;
   MaxAbs max_abs_bin_assoc;
   Min min_bin_assoc;
+
+  Accumulator::~Accumulator() {};
+  SumSq sum_sq_accum;
+  SumPow sum_pow_accum;
 
   double ScalarFunWrapper::fun(double v) const {
     if (sfd) {
@@ -699,6 +703,26 @@ namespace Sparse {
     return val;
   }
 
+  void Vec::accum(double &v,Accumulator & acc) const {
+    VecCIt i,e;
+    int j,m;
+
+    e = end();
+    for (i=begin(); i!=e; i++) 
+      acc.accum(v,i->second);
+
+    // If some value is not in the map, then it represents
+    // `not_represented_val' (probably 0).
+    m = length();
+    for (j=0; j<length(); j++) {
+      if (find(j)!=e) {
+	acc.accum(v,not_represented_val);
+	break;
+      }
+    }
+
+  }
+
   Mat & Mat::apply(const ScalarFunObj & fun) {
     RowIt i;
     for (i=begin(); i!=end(); i++) 
@@ -752,6 +776,31 @@ namespace Sparse {
     return val;
   }
 
+  void Mat::accum(double &v,Accumulator & acc) const {
+    RowCIt i,e;
+    Vec row;
+    int j,m,n;
+    double w;
+
+    n = cols();
+    e = end();
+    for (i=begin(); i!=e; i++) {
+      row = i->second;
+      row.resize(n);
+      row.accum(v,acc);
+    }
+
+    // If some value is not in the map, then it represents
+    // `not_represented_val' (probably 0).
+    m = rows();
+    for (j=0; j<m; j++) {
+      if (find(j)!=e) {
+	acc.accum(v,not_represented_val);
+	break;
+      }
+    }
+
+  }
 }
 
 /*

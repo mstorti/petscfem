@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.10 2001/09/23 15:00:14 mstorti Exp $
+// $Id: sp.cpp,v 1.11 2001/09/23 15:58:20 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -140,13 +140,13 @@ int main() {
   printf("max_abs(u): %f\n",u.max_abs());
   
   a.print_f("\n\n----------\na: ");
-  a.apply(poly).print("a.^2 + 2*a + 3: ");
-  a.apply(sqrt).print("sqrt(a): ");
+  a.apply(poly).print_f("a.^2 + 2*a + 3: ");
+  a.apply(sqrt).print_f("sqrt(a): ");
 
   p = 1.5;
-  a.apply(power_nth,&p).print("a = a^(3/2): ");
+  a.apply(power_nth,&p).print_f("a = a^(3/2): ");
   p = 1./1.5;
-  a.apply(power_nth,&p).print("a = a^(2/3): ");
+  a.apply(power_nth,&p).print_f("a = a^(2/3): ");
 
   printf("sum(a): %f\n",a.sum());
   printf("max(a): %f\n",a.max());
@@ -157,14 +157,12 @@ int main() {
   printf("sum_pow(a,5.): %f\n",a.sum_pow(5.));
   printf("max_abs(a): %f\n",a.max_abs());
 
-  a.scale(-1.).print("a = -a: ");
-  printf("\n\n---u = -u\n"
-	 "max(a): %f\n",a.max()); // should return 0.
+  a.scale(-1.).print_f("\n\n------------\na = -a: ");
+  printf("max(a): %f\n",a.max()); // should return 0.
   printf("min(a): %f\n",a.min());
   printf("sum_abs(a): %f\n",a.sum_abs());
   printf("sum_sq(a): %f\n",a.sum_sq());
   printf("sum_pow(a,3.): %f\n",a.sum_pow(3.));
   printf("sum_pow(a,5.): %f\n",a.sum_pow(5.));
   printf("max_abs(a): %f\n",a.max_abs());
-
 }
