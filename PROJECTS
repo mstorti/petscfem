@@ -3,6 +3,8 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* Modify 'elemset.cpp' so that processing of several elemsets 
+  is non blocking, for instance using a self-scheduling algorllithm. 
 * Scripting interface with SWIG or GUILE.
 * Make Makefile not that verbose. 
 * Read data with a 'bison' generated parser

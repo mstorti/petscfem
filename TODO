@@ -15,9 +15,6 @@ TODO: [Mainly fixes go here...]
 * In the advective elemsets we don't destroy the flux function objects
      created for instance in 
         `newadvdif_burgers() : NewAdvDif(new burgers_ff(this)) {};'
-* Add weak_form support to the new flux functions
-* Write a test for linear advection diffusion
-* Include an S_body for ffadvfm2
 * make __INCLUDE__ can accept "" enclosed strings
 * Throw an error if nothing is read (a void file).
 * Write a norm_p function (like sum_square_all...)
@@ -45,6 +42,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Add weak_form support to the new flux functions
+* Write a test for linear advection diffusion
+* Include an S_body for ffadvfm2
 * write diag-like fastmat2 functions. 
 * add doc for enthalpy jacobians
 * fix the __VA_ARG__ incompatibility with older cpp (???)
