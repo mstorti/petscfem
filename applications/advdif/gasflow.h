@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.2 2003/01/08 13:09:38 mstorti Exp $
+// $Id: gasflow.h,v 1.3 2003/01/21 16:09:16 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -38,7 +38,7 @@ public:
 
   ~gasflow_ff();
 
-  void set_profile(FastMat2 &seed);
+  // void set_profile(FastMat2 &seed);
 
   /** This is called before any other in a loopnike and may help in
       optimization

@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.2 2003/01/08 13:09:38 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.3 2003/01/21 16:09:16 mstorti Exp $
 
+#include <src/debug.h>
 #include <set>
 
 #include <src/fem.h>
@@ -17,33 +18,40 @@
 static char help[] = "Basic finite element program.\n\n";
 
 extern int MY_RANK,SIZE;
-TextHashTable *GLOBAL_OPTIONS;
-int print_internal_loop_conv_g=0,
-  consistent_supg_matrix_g=0,
-  local_time_step_g=0,
-  comp_mat_each_time_step_g=0;
+extern int print_internal_loop_conv_g,
+  consistent_supg_matrix_g,
+  local_time_step_g,
+  comp_mat_each_time_step_g;
+
+const char * jobinfo_fields;
 
 #define VECVIEW(name,label) \
-ierr = ViewerSetFormat(matlab, \
-		       VIEWER_FORMAT_ASCII_MATLAB,#label); \
+ierr = PetscViewerSetFormat(matlab, \
+		       PETSC_VIEWER_ASCII_MATLAB,#label); \
 ierr = VecView(name,matlab); CHKERRA(ierr)
+
+// PETSc now doesn't have the string argument that represents the variable name
+// so that I will use this wrapper until I find how to set names in Ascii matlab viewers.
+#define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
+          PetscViewerSetFormat(viewer,format)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "main"
-int main(int argc,char **args) {
+int bubbly_main(int argc,char **args) {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   Vec     dx_liq,res_liq; 
   PFMat *A_liq,*A_gas,*AA_liq,*AA_gas;	   // linear system matrix 
   double  *sol, scal, normres, normres_ext;    /* norm of solution error */
-  int     ierr, i, n = 10, col[3], its, flg, size, node,
+  int     ierr, i, n = 10, col[3], its, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
+  PetscTruth flg;
   // nu:= dimension of the state vector per node
-  Scalar  neg_one = -1.0, one = 1.0, value[3];
-  Scalar *px;
+  PetscScalar  neg_one = -1.0, one = 1.0, value[3];
+  PetscScalar *px;
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
@@ -68,7 +76,9 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  ierr = OptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
+  Debug debug2(0,PETSC_COMM_WORLD);
+
+  ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Option \"-case <filename>\" not passed to PETSc-FEM!!\n");
@@ -77,8 +87,21 @@ int main(int argc,char **args) {
   }
 
   // Read data
-  read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK);
+  ierr = read_mesh(mesh,fcase,dofmap,neq,SIZE,MY_RANK); CHKERRA(ierr);
   GLOBAL_OPTIONS = mesh->global_options;
+
+  //o Activate debugging
+  GETOPTDEF(int,activate_debug,0);
+  if (activate_debug) {
+    debug2.activate();
+    Debug::init();
+  }
+  //o Activate printing in debugging
+  GETOPTDEF(int,activate_debug_print,0);
+  if (activate_debug_print) debug2.activate("print");
+  //o Activate report of memory usage
+  GETOPTDEF(int,activate_debug_memory_usage,0);
+  if (activate_debug_memory_usage) debug2.activate("memory_usage");
 
   //o Absolute tolerance when solving a consistent matrix
   GETOPTDEF(double,atol,1e-6);
@@ -234,8 +257,8 @@ int main(int argc,char **args) {
   save_file_res = save_file + string(".res");
 
 #if 0
-  Viewer matlab;
-  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+  PetscViewer matlab;
+  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -258,20 +281,24 @@ int main(int argc,char **args) {
 
   VOID_IT(argl);
   argl.arg_add(A_liq,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_liq_prof",&time); CHKERRA(ierr);
+  jobinfo_fields = "liq";
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
   VOID_IT(argl);
+  jobinfo_fields = "gas";
   argl.arg_add(A_gas,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_gas_prof",&time); CHKERRA(ierr);
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
+  jobinfo_fields = "liq";
   argl.arg_add(AA_liq,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_liq_prof",&time); CHKERRA(ierr);
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 
   VOID_IT(argl);
+  jobinfo_fields = "gas";
   argl.arg_add(AA_gas,PROFILE|PFMAT);
-  ierr = assemble(mesh,argl,dofmap,"comp_gas_prof",&time); CHKERRA(ierr);
+  ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
 #endif
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -344,13 +371,31 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	ierr = assemble(mesh,argl,dofmap,"comp_liq_res",&time_star); CHKERRA(ierr);
+	jobinfo_fields = "liq";
+	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  ierr = A_liq->solve(res,dx); CHKERRA(ierr); 
 	}
 	// ierr = SLESDestroy(sles);
 	// ierr = A->destroy_sles(); CHKERRA(ierr); 
+
+      if (0) {
+      // DEBUG
+        PetscViewer matlab;
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
+			       "mat_liq.output",&matlab); CHKERRA(ierr);
+
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"res_liq");
+	ierr = VecView(res,matlab);
+
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"A");
+	ierr = A_liq->view(matlab);
+	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+	// END DEBUG
+      }
       
       } else {
 
@@ -365,36 +410,40 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	ierr = assemble(mesh,argl,dofmap,"comp_liq_res",&time_star); CHKERRA(ierr);
+	jobinfo_fields = "liq";
+	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  ierr = A_liq->solve(res,dx); CHKERRA(ierr); 
 	  // ierr = SLESSolve(sles,res,dx,&its); CHKERRA(ierr); 
 	}
+
       }
+
+
 
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
-	Viewer matlab;
-	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	PetscViewer matlab;
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"res");
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"res");
 	ierr = VecView(res,matlab);
 	if (solve_system) {
-	  ierr = ViewerSetFormat(matlab, 
-				 VIEWER_FORMAT_ASCII_MATLAB,"dx");
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+				 PETSC_VIEWER_ASCII_MATLAB,"dx");
 	  ierr = VecView(dx,matlab);
 	}
-	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"A");
 	ierr = A_liq->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
-	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"AA");
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"AA");
 	ierr = AA_liq->view(matlab);
 #endif
 	PetscFinalize();
@@ -410,6 +459,7 @@ int main(int argc,char **args) {
       // Initializes res
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
+      ierr = VecSet(&scal,dx); CHKERRA(ierr);
 
       if (comp_mat_each_time_step_g) {
 
@@ -438,7 +488,9 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	ierr = assemble(mesh,argl,dofmap,"comp_gas_res",&time_star); CHKERRA(ierr);
+	jobinfo_fields = "gas";
+	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
+	debug2.trace("After residual computation.");
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  ierr = A_gas->solve(res,dx); CHKERRA(ierr); 
@@ -459,7 +511,8 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	ierr = assemble(mesh,argl,dofmap,"comp_gas_res",&time_star); CHKERRA(ierr);
+	jobinfo_fields = "gas";
+	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
 
 	if (!print_linear_system_and_stop || solve_system) {
 	  ierr =A_gas->solve(res,dx); CHKERRA(ierr); 
@@ -467,36 +520,52 @@ int main(int argc,char **args) {
 	}
       }
 
+#if 0
+      if (0) {
+      // DEBUG
+        PetscViewer matlab;
+	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			       "mat_gas.output",&matlab); CHKERRA(ierr);
+
+	ierr = ViewerSetFormat(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"res_gas");
+	ierr = VecView(res,matlab);
+
+	ierr = ViewerSetFormat(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"A");
+	ierr = A_gas->view(matlab);
+	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
+	// END DEBUG
+      }
+#endif
+
       if (print_linear_system_and_stop && 
 	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
-	Viewer matlab;
-	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+	PetscViewer matlab;
+	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "mat.output",&matlab); CHKERRA(ierr);
-	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"res");
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"res");
 	ierr = VecView(res,matlab);
 	if (solve_system) {
-	  ierr = ViewerSetFormat(matlab, 
-				 VIEWER_FORMAT_ASCII_MATLAB,"dx");
+	  ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+					      PETSC_VIEWER_ASCII_MATLAB,"dx");
 	  ierr = VecView(dx,matlab);
 	}
-	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"A");
+	ierr = PetscViewerSetFormat_WRAPPER(matlab, 
+			       PETSC_VIEWER_ASCII_MATLAB,"A");
 	ierr = A_gas->view(matlab);
 	print_vector(save_file_res.c_str(),res,dofmap,&time); // debug:=
 #ifdef CHECK_JAC
 	ierr = ViewerSetFormat(matlab, 
-			       VIEWER_FORMAT_ASCII_MATLAB,"AA");
+			       PETSC_VIEWER_ASCII_MATLAB,"AA");
 	ierr = AA_gas->view(matlab);
 #endif
 	PetscFinalize();
 	exit(0);
       }
-
-      // res = res (gas) + res_liq
-      //  dx =  dx (gas) +  dx_liq
 
       scal=1;
       ierr = VecAXPY(&scal,res_liq,res);

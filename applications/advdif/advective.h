@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.57 2003/01/08 13:09:38 mstorti Exp $
+//$Id: advective.h,v 1.58 2003/01/21 16:09:16 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -242,6 +242,8 @@ public:
       #nlog_vars# and #log_vars#. 
   */
   virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
+
+  virtual void set_profile(FastMat2 &seed);
 
   /** This is called before any other in a loop and may help in
       optimization 

@@ -1,13 +1,13 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.9 2003/01/08 13:09:38 mstorti Exp $
+// $Id: bubbly.h,v 1.10 2003/01/21 16:09:16 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
 #include "./advective.h"
 #include "./stream.h"
 
-// #include "nwadvdifj.h"
+#include "nwadvdifj.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 /** Flux function for multi-phase flow
@@ -46,6 +46,8 @@ public:
   bubbly_ff(NewElemset *elemset_);
 
   ~bubbly_ff();
+
+  void set_profile(FastMat2 &seed);
 
   /** This is called before any other in a loopnike and may help in
       optimization

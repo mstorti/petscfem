@@ -1,11 +1,13 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.15 2003/01/08 13:09:38 mstorti Exp $
+//$Id: bubbly.cpp,v 1.16 2003/01/21 16:09:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
 #include <src/getprop.h>
 
 #include "bubbly.h"
+
+extern const char * jobinfo_fields;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void bubbly_ff::start_chunk(int &ret_options) {
@@ -161,16 +163,30 @@ void bubbly_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void bubbly_ff::enthalpy(FastMat2 &H) {
-  // PetscScalar values
+
+  int comp_liq_prof  = !strcmp(jobinfo_fields,"liq");
+  int comp_gas_prof  = !strcmp(jobinfo_fields,"gas");
+  int comp_kep_prof  = !strcmp(jobinfo_fields,"kep");
+
+  H.set(0.);
+  if (comp_liq_prof) {
+  // Liquid phase
   H.setel(arho_l,1);
-  H.setel(arho_g,2);
-  H.setel(arho_l*k,k_indx);
-  H.setel(arho_l*eps,e_indx);
-  // Vector values
   H.is(1,vl_indx,vl_indxe).set(v_l).scale(arho_l);
   H.rs();
+  }
+  if (comp_kep_prof) {
+  // k-eps turbulence
+  H.setel(arho_l*k,k_indx);
+  H.setel(arho_l*eps,e_indx);
+  }
+  if (comp_gas_prof) {
+  // Gas phase
+  H.setel(arho_g,2);
   H.is(1,vg_indx,vg_indxe).set(v_g).scale(arho_g);
   H.rs();
+  }
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -238,6 +254,47 @@ void bubbly_ff::compute_tau(int ijob) {
 	}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+// compute the profile for each specific subproblem according to jobinfo value
+void bubbly_ff::set_profile(FastMat2 &seed) {
+
+  int comp_liq_prof  = !strcmp(jobinfo_fields,"liq");
+  int comp_gas_prof  = !strcmp(jobinfo_fields,"gas");
+  int comp_kep_prof  = !strcmp(jobinfo_fields,"kep");
+
+  //  Matrix seed;
+  //  seed= Matrix(ndof,ndof);
+  //  seed=0;
+  seed.set(0.);
+
+  if (comp_liq_prof) {
+    int ip[] = {1,3,4,5};    
+    for (int j=0; j<=ndim; j++) {
+      for (int k=0; k<=ndim; k++) {
+	//        seed(ip[j],ip[k])=1;
+        seed.setel(1.,ip[j],ip[k]);
+      }
+    }
+  } else if (comp_gas_prof) {
+    int ip[] = {2,2+ndim+1,2+ndim+2,2+ndim+3};
+    for (int j=0; j<=ndim; j++) {
+      for (int k=0; k<=ndim; k++) {
+	//        seed(ip[j],ip[k])=1;
+        seed.setel(1.,ip[j],ip[k]);
+      }
+    }
+  } else if (comp_kep_prof) {
+    int ip[] = {2+2*ndim+1,2+2*ndim+2};
+    for (int j=0; j<=1; j++) {
+      for (int k=0; k<=1; k++) {
+	//        seed(ip[j],ip[k])=1;
+        seed.setel(1.,ip[j],ip[k]);
+      }
+    }
+  }
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void bubbly_ff::compute_flux(const FastMat2 &U,
 	       const FastMat2 &iJaco, FastMat2 &H,
 	       FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,
@@ -250,36 +307,38 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 
   options &= ~SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a MATRIX tau
+
+  int comp_liq_prof  = !strcmp(jobinfo_fields,"liq");
+  int comp_gas_prof  = !strcmp(jobinfo_fields,"gas");
+  int comp_kep_prof  = !strcmp(jobinfo_fields,"kep");
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Enthalpy Jacobian Cp
-  // First column
+
   Cp.set(0.);
-
-  // modif Sept 2002
-  //Cp.setel(rho_l,1,1);
+  if (comp_liq_prof) {
+  // Liquid phase
   Cp.setel(-rho_l,1,1);
-  //Cp.setel(-rho_g,2,1);
-  Cp.setel(rho_g,2,1);
-  //Cp.is(1,vl_indx,vl_indxe).ir(2,1).set(v_l).scale(rho_l);
-  Cp.is(1,vl_indx,vl_indxe).ir(2,1).set(v_l).scale(-rho_l);
-  //Cp.is(1).is(1,vg_indx,vg_indxe).set(v_g).scale(-rho_g);
-  Cp.is(1).is(1,vg_indx,vg_indxe).set(v_g).scale(rho_g);
-  Cp.rs();
-  //Cp.setel(rho_l*k,k_indx,1);
-  Cp.setel(-rho_l*k,k_indx,1);
-  //Cp.setel(rho_l*eps,e_indx,1);
-  Cp.setel(-rho_l*eps,e_indx,1);
-
-  // V_l column block
+  Cp.is(1,vl_indx,vl_indxe).ir(2,1).set(v_l).scale(-rho_l).rs();
   Cp.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe)
-    .eye(arho_l);
-  // V_g column block
-  Cp.rs().is(1,vg_indx,vg_indxe).is(2,vg_indx,vg_indxe)
-    .eye(arho_g);
-  // Turbulence
-  Cp.rs();
+    .eye(arho_l).rs();
+  }
+
+  if (comp_kep_prof) {
+  // k-eps turbulence
+  Cp.setel(-rho_l*k,k_indx,1);
+  Cp.setel(-rho_l*eps,e_indx,1);
   Cp.setel(arho_l,k_indx,k_indx);
   Cp.setel(arho_l,e_indx,e_indx);
+  }
+
+  if (comp_gas_prof) {
+  // Gas phase
+  Cp.setel(rho_g,2,1);
+  Cp.is(1,vg_indx,vg_indxe).ir(2,1).set(v_g).scale(rho_g).rs();
+  Cp.rs().is(1,vg_indx,vg_indxe).is(2,vg_indx,vg_indxe)
+    .eye(arho_g).rs();
+  }
 
   Cpc.set(Cp).is(2,2).is(2,1).is(2,3,ndof);
   Cp.set(Cpc);
@@ -288,89 +347,78 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Advective fluxes
   flux.set(0.);
-  flux.ir(1,1).set(v_l).scale(arho_l);
-  flux.ir(1,2).set(v_g).scale(arho_g);
-  flux.rs();
-
+  if (comp_liq_prof) {
+  // Liquid phase
+  flux.ir(1,1).set(v_l).scale(arho_l).rs();
   Amoml.prod(v_l,v_l,1,2).scale(rho_l)
     .axpy(Id,p);
-  flux.is(1,vl_indx,vl_indxe).axpy(Amoml,alpha_l);
+  flux.is(1,vl_indx,vl_indxe).axpy(Amoml,alpha_l).rs();
+  }
 
-  flux.rs();
-  //  Amomg.prod(v_g,v_g,1,2).scale(rho_g)
-  //    .axpy(Id,p);
-  Amomg.prod(v_g,v_g,1,2).scale(rho_g);
-
-  flux.is(1,vg_indx,vg_indxe).axpy(Amomg,alpha_g);
-
-  // Turb
-  flux.rs();
+  if (comp_kep_prof) {
+  // k-eps turbulence
   flux.ir(1,k_indx).set(v_l).scale(arho_l*k);
-  flux.ir(1,e_indx).set(v_l).scale(arho_l*eps);
-  flux.rs();
-  // flux.set(0.);  //debug:=
-  // Cambiamos signo de la ec. de cont. debug:=
-  // flux.is(1,1).scale(-1.).rs();
+  flux.ir(1,e_indx).set(v_l).scale(arho_l*eps).rs();
+  }
+
+  if (comp_gas_prof) {
+  // Gas phase
+  flux.ir(1,2).set(v_g).scale(arho_g).rs();
+  Amomg.prod(v_g,v_g,1,2).scale(rho_g);
+  flux.is(1,vg_indx,vg_indxe).axpy(Amomg,alpha_g).rs();
+  }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // Adjective Jacobians
-  // First column
   Ajac.set(0.);
-  // modif Sept 2002
-  //Ajac.ir(2,1).ir(3,1).set(v_l).scale(rho_l);
+  if (comp_liq_prof) {
+  // Liquid phase
   Ajac.ir(2,1).ir(3,1).set(v_l).scale(-rho_l);
-  //Ajac.ir(2,2).set(v_g).scale(-rho_g);
-  Ajac.rs().ir(2,2).ir(3,1).set(v_g).scale(rho_g);
-
-  //Ajac.rs().is(2,vl_indx,vl_indxe).ir(3,1).set(Amoml);
   Ajac.rs().is(2,vl_indx,vl_indxe).ir(3,1).axpy(Amoml,-1);
-  //Ajac.rs().is(2,vg_indx,vg_indxe).ir(3,1).axpy(Amomg,-1.);
-  Ajac.rs().is(2,vg_indx,vg_indxe).ir(3,1).set(Amomg);
-
-  //Ajac.rs().ir(2,k_indx).ir(3,1).set(v_l).scale(rho_l*k);
-  Ajac.rs().ir(2,k_indx).ir(3,1).set(v_l).scale(-rho_l*k);
-  //Ajac.rs().ir(2,e_indx).ir(3,1).set(v_l).scale(rho_l*eps);
-  Ajac.rs().ir(2,e_indx).ir(3,1).set(v_l).scale(-rho_l*eps);
-
-  // Second column
   Ajac.rs().is(2,vl_indx,vl_indxe).ir(3,2).axpy(Id,alpha_l);
-//  Ajac.rs().is(2,vg_indx,vg_indxe).ir(3,2).axpy(Id,alpha_g);
-
   Ajac.rs().ir(2,1).is(3,vl_indx,vl_indxe).axpy(Id,arho_l);
-  Ajac.rs().ir(2,2).is(3,vg_indx,vg_indxe).axpy(Id,arho_g);
 
-  /// fixme:= Verify this!!!
   Y.rs().prod(v_l,Id,2,1,3).scale(arho_l);
   Ajac.rs().is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe)
     .add(Y);
   Y.prod(v_l,Id,1,2,3).scale(arho_l).rs();
   Ajac.add(Y);
+  Y.rs();
+  Ajac.rs();
+  }
 
-  Y.rs().prod(v_g,Id,1,2,3).scale(arho_g);
+  if (comp_kep_prof) {
+  // k-eps turbulence
+  Ajac.rs().ir(2,k_indx).ir(3,1).set(v_l).scale(-rho_l*k);
+  Ajac.rs().ir(2,e_indx).ir(3,1).set(v_l).scale(-rho_l*eps);
+  Ajac.rs().ir(2,k_indx).is(3,vl_indx,vl_indxe)
+    .axpy(Id,arho_l*k);
+  Ajac.rs().ir(2,e_indx).is(3,vl_indx,vl_indxe)
+    .axpy(Id,arho_l*eps);
+  Ajac.rs().ir(2,k_indx).ir(3,k_indx).set(v_l).scale(arho_l);
+  Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(arho_l);
+  Ajac.rs();
+  }
+
+  if (comp_gas_prof) {
+  // Gas phase
+  Ajac.rs().ir(2,2).ir(3,1).set(v_g).scale(rho_g);
+  Ajac.rs().is(2,vg_indx,vg_indxe).ir(3,1).set(Amomg);
+  Ajac.rs().ir(2,2).is(3,vg_indx,vg_indxe).axpy(Id,arho_g);
+
+  Y.prod(v_g,Id,1,2,3).scale(arho_g);
   Ajac.rs().is(2,vg_indx,vg_indxe).is(3,vg_indx,vg_indxe)
     .add(Y);
   Y.exc(2,3);
   Ajac.add(Y);
   Y.rs();
-
-  Ajac.rs().ir(2,k_indx).is(3,vl_indx,vl_indxe)
-    .axpy(Id,arho_l*k);
-  Ajac.rs().ir(2,e_indx).is(3,vl_indx,vl_indxe)
-    .axpy(Id,arho_l*eps);
-
-  Ajac.rs().ir(2,k_indx).ir(3,k_indx).set(v_l).scale(arho_l);
-  Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(arho_l);
   Ajac.rs();
+
+  }
 
   Ajacc.set(Ajac).is(3,2).is(3,1).is(3,3,ndof);
   Ajac.set(Ajacc);
   Ajacc.rs();
-  // Ajac.set(0.); //debug:=
-  // Cambiamos signo de la ec. de cont. debug:=
-  // Ajac.is(2,1).scale(-1.).rs();
-
-  //  Ajac.ir(1,1);Ajac.print("Ajac_x :");Ajac.rs();
-  //  Ajac.ir(1,2);Ajac.print("Ajac_y :");Ajac.rs();
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
@@ -392,9 +440,6 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   visco_t = C_mu*rho_l * square(k)/eps;
   P_k = 2*visco_t*strain_rate_scalar;
 
-  //  visco_l_eff = visco_l + visco_t;
-  //  visco_g_eff = alpha_g * visco_g + alpha_l * visco_l_eff;
-
   // limito la viscosidad por debajo para evitar valores negativos
   double tol=1e-5;
   double alpha_g_ctf = (alpha_g < tol ? tol : alpha_g);
@@ -402,9 +447,7 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   double alpha_l_ctf = 1.0-alpha_g_ctf;
 
   visco_l_eff = alpha_l_ctf * (visco_l + visco_t);
-  //  visco_l_eff = (visco_l_eff < tol ? tol : visco_l_eff);
   visco_g_eff = alpha_g_ctf * visco_g +  visco_l_eff;
-  //  visco_g_eff = (visco_g_eff < tol ? tol : visco_g_eff);
 
   // Strain rate for the gas
   grad_U.is(2,vg_indx,vg_indxe);
@@ -416,52 +459,63 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
   grad_v_g.rs();
 
   fluxd.set(0.);
-  //  fluxd.is(1,vl_indx,vl_indxe).set(strain_rate_l).scale(2.*alpha_l*visco_l_eff);
-  fluxd.is(1,vl_indx,vl_indxe).set(strain_rate_l).scale(2.*visco_l_eff);
-  fluxd.rs().is(1,vg_indx,vg_indxe).set(strain_rate_g).scale(2.*visco_g_eff);
-  fluxd.rs();
+  if (comp_liq_prof) {
+  // Liquid phase
+  fluxd.is(1,vl_indx,vl_indxe).set(strain_rate_l).scale(2.*visco_l_eff).rs();
+  }
 
-  // Turbulent diffusion for k-e
+  if (comp_kep_prof) {
+  // k-eps turbulence
   grad_U.ir(2,k_indx);
   grad_k.set(grad_U);
-  //  fluxd.ir(1,k_indx).set(grad_k).scale(alpha_l*visco_l_eff/sigma_k);
   fluxd.ir(1,k_indx).set(grad_k).scale(visco_l_eff/sigma_k);
-
   grad_U.ir(2,e_indx);
   grad_e.set(grad_U);
-  //  fluxd.ir(1,e_indx).set(grad_e).scale(alpha_l*visco_l_eff/sigma_e);
   fluxd.ir(1,e_indx).set(grad_e).scale(visco_l_eff/sigma_e);
   fluxd.rs();
   grad_U.rs();
+  }
 
-  // Diffusive jacobians
+  if (comp_gas_prof) {
+  // Gas phase
+  fluxd.is(1,vg_indx,vg_indxe).set(strain_rate_g).scale(2.*visco_g_eff).rs();
+  }
+
+
   Djac.set(0.);
-  //  Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,alpha_l*visco_l_eff);
-  Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_l_eff);
-  Djac.rs().is(2,vg_indx,vg_indxe).is(4,vg_indx,vg_indxe).axpy(IdId,visco_g_eff);
-  //  Djac.rs().ir(2,k_indx).ir(4,k_indx).set(Id).scale(alpha_l*visco_l_eff/sigma_k);
-  //  Djac.rs().ir(2,e_indx).ir(4,e_indx).set(Id).scale(alpha_l*visco_l_eff/sigma_e);
-  Djac.rs().ir(2,k_indx).ir(4,k_indx).set(Id).scale(visco_l_eff/sigma_k);
-  Djac.rs().ir(2,e_indx).ir(4,e_indx).set(Id).scale(visco_l_eff/sigma_e);
-  Djac.rs();
+  if (comp_liq_prof) {
+  // Liquid phase
+  Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_l_eff).rs();
+  }
+
+  if (comp_kep_prof) {
+  // k-eps turbulence
+  Djac.rs().ir(2,k_indx).ir(4,k_indx).set(Id).scale(visco_l_eff/sigma_k).rs();
+  Djac.rs().ir(2,e_indx).ir(4,e_indx).set(Id).scale(visco_l_eff/sigma_e).rs();
+  }
+
+  if (comp_gas_prof) {
+  // Gas phase
+  Djac.is(2,vg_indx,vg_indxe).is(4,vg_indx,vg_indxe).axpy(IdId,visco_g_eff).rs();
+  }
 
   Djacc.set(Djac).is(4,2).is(4,1).is(4,3,ndof);
   Djac.set(Djacc);
   Djacc.rs();
-  // Cambiamos signo de la ec. de cont. debug:=
-  // Djac.is(2,1).scale(-1.).rs(); // lo sacamos porque no tiene difusion!!!
 
   // Reactive terms
+  //   [1] bouyancy terms
+  //   [2] Phase interaction forces
   Cjac.set(0.);
+  if (comp_liq_prof) {
+  // Liquid phase
+  Cjac.is(1,vl_indx,vl_indxe).ir(2,1).set(G_body).scale(-rho_l).rs();
+  }
+  if (comp_gas_prof) {
+  // Gas phase
+  Cjac.is(1,vg_indx,vg_indxe).ir(2,1).set(G_body).scale(rho_g).rs();
+  }
 
-  // bouyancy terms
-  //Cjac.is(1,vl_indx,vl_indxe).ir(2,1).set(G_body).scale(rho_l);
-  Cjac.is(1,vl_indx,vl_indxe).ir(2,1).set(G_body).scale(-rho_l);
-  //Cjac.rs().is(1,vg_indx,vg_indxe).ir(2,1).set(G_body).scale(-rho_g);
-  Cjac.rs().is(1,vg_indx,vg_indxe).ir(2,1).set(G_body).scale(rho_g);
-  Cjac.rs();
-
-  // Phase interaction forces
 
   if (comp_interphase_terms==1) {
   assert(d_bubble>0);
@@ -484,12 +538,16 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
 
 	  tmp1_drag = C1_drag*Rey_bubble*C_drag_ff;
 
-          // modif Sept 2002
-	  //tmp2_drag = tmp1_drag*(1.-2.*alpha_l);
           tmp2_drag = tmp1_drag*(1.-2.*alpha_g);
 
+          if (comp_liq_prof) {
+          // Liquid phase
 	  Cjac.is(1,vl_indx,vl_indxe).ir(2,1).axpy(v_g_l,id_liq*tmp2_drag).rs();
+          }
+          if (comp_gas_prof) {
+          // Gas phase
 	  Cjac.is(1,vg_indx,vg_indxe).ir(2,1).axpy(v_g_l,id_gas*tmp2_drag).rs();
+          }
 
           tmp4_drag = C_drag_ff+Rey_bubble*dCDdRe_ff;
 
@@ -497,24 +555,32 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
           Phi_2.set(Id).scale(Rey_bubble*C_drag_ff);
           Phi_1.rest(Phi_2);
           Phi_1.scale(C1_drag*alpha_l*alpha_g);
+
+          if (comp_liq_prof) {
+          // Liquid phase
 	  Cjac.is(1,vl_indx,vl_indxe).is(2,vl_indx,vl_indxe).axpy(Phi_1,id_liq*id_liq).rs();
-	  Cjac.is(1,vg_indx,vg_indxe).is(2,vg_indx,vg_indxe).axpy(Phi_1,id_gas*id_gas).rs();
 	  Cjac.is(1,vl_indx,vl_indxe).is(2,vg_indx,vg_indxe).axpy(Phi_1,id_liq*id_gas).rs();
+          }
+          if (comp_gas_prof) {
+          // Gas phase
+	  Cjac.is(1,vg_indx,vg_indxe).is(2,vg_indx,vg_indxe).axpy(Phi_1,id_gas*id_gas).rs();
 	  Cjac.is(1,vg_indx,vg_indxe).is(2,vl_indx,vl_indxe).axpy(Phi_1,id_gas*id_liq).rs();
-	}
+	  }
+    }
     FastMat2::leave();
   }
-  // turbulent production terms
+
+  if (comp_kep_prof) {
+  // k-eps turbulence
   Cjac.setel(4.*rho_l*C_mu*strain_rate_scalar*k/eps,k_indx,k_indx);
   double Cke = (-2.*rho_l*C_mu*strain_rate_scalar*square(k)+rho_l*square(eps))/square(eps);
   Cjac.setel(-Cke,k_indx,e_indx);
   double Cek = (-2.*rho_l*C_1*strain_rate_scalar*square(k)+C_2*rho_l*square(eps))/square(k);
   Cjac.setel(-Cek,e_indx,k_indx);
   Cjac.setel(-2*eps*C_2*rho_l/k,e_indx,e_indx);
+  }
 
-  // fixme:= No sabemos esto bien con que signo va...
   Cjac.scale(-1.);
-
   Cjacc.set(Cjac).is(2,2).is(2,1).is(2,3,ndof);
   Cjac.set(Cjacc);
   Cjacc.rs();
@@ -593,6 +659,9 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
     grad_alpha_g.set(grad_U);
     grad_U.rs();
 
+    if (comp_gas_prof) {
+    // Gas phase
+
     if (1) {
     // Fixme:> agregamos flujo difusivo numerico a la ecuacion de masa de gas
     //         para ver si es el motivo de la falta de convergencia del esquema
@@ -626,29 +695,45 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
     // end debug
     Djac.rs();
     }
+    }
   }
 
   if (options & COMP_SOURCE) {
     G_source.set(0.);
     // Bouyancy forces
+    if (comp_liq_prof) {
+    // Liquid phase
     G_source.is(1,vl_indx,vl_indxe).set(G_body).scale(arho_l).rs();
+    }
+    if (comp_gas_prof) {
+    // Gas phase
     G_source.is(1,vg_indx,vg_indxe).set(G_body).scale(arho_g).rs();
+    }
 
   if (comp_interphase_terms==1) {
     FastMat2::branch();
     // Phase interaction forces
     if (Rey_bubble>0){
       FastMat2::choose(0);
-		// user defined C_drag function (a pata por ahora)
-		tmp3_drag = tmp1_drag*alpha_l*alpha_g;
-	    G_source.is(1,vl_indx,vl_indxe).axpy(v_g_l,id_liq*tmp3_drag).rs();
-	    G_source.is(1,vg_indx,vg_indxe).axpy(v_g_l,id_gas*tmp3_drag).rs();
-		}
+	// user defined C_drag function (a pata por ahora)
+	tmp3_drag = tmp1_drag*alpha_l*alpha_g;
+        if (comp_liq_prof) {
+        // Liquid phase
+	G_source.is(1,vl_indx,vl_indxe).axpy(v_g_l,id_liq*tmp3_drag).rs();
+	}
+        if (comp_gas_prof) {
+        // Gas phase
+	G_source.is(1,vg_indx,vg_indxe).axpy(v_g_l,id_gas*tmp3_drag).rs();
+	}
+    }
     FastMat2::leave();
   }
-    // turbulent production terms
+
+    if (comp_kep_prof) {
+    // k-eps turbulence
     G_source.setel(P_k-rho_l*eps,k_indx)
             .setel(eps/k*(C_1*P_k-C_2*rho_l*eps),e_indx);
+    }
 
     // DEBUG fixme after try this change
     if (0) {
@@ -662,15 +747,21 @@ void bubbly_ff::compute_flux(const FastMat2 &U,
     } else {
 
     // pressure term to do the system pressure invariant
+    if (comp_liq_prof) {
+    // Liquid phase
     grad_U.ir(2,2);
     grad_alpha_g.set(grad_U);
     grad_U.rs();
     G_source.is(1,vl_indx,vl_indxe).axpy(grad_alpha_g,-p).rs();
+    }
+    if (comp_gas_prof) {
+    // Gas phase
     grad_U.ir(2,1);
     grad_p.set(grad_U);
     grad_U.rs();
     G_source.is(1,vg_indx,vg_indxe).axpy(grad_p,-alpha_g).rs();
-	}
+    }
+    }
     // end of DEBUG
   }
 }
@@ -709,6 +800,13 @@ void bubbly_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 #ifdef USE_COMP_P_SUPG
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void bubbly_ff::comp_P_supg(FastMat2 &P_supg) {
+
+  int comp_liq_prof  = !strcmp(jobinfo_fields,"liq");
+  int comp_gas_prof  = !strcmp(jobinfo_fields,"gas");
+  int comp_kep_prof  = !strcmp(jobinfo_fields,"kep");
+
+  double rho_m,tau;
+
     const FastMat2 &grad_N = *new_adv_dif_elemset->grad_N();
     // esto es equivalente a lo viejo
     if (0) {
@@ -719,16 +817,20 @@ void bubbly_ff::comp_P_supg(FastMat2 &P_supg) {
     // P_supg es de (nel,ndof,ndof)
     else {
     P_supg.set(0.);
+    if (comp_liq_prof) {
     // delta perturbation function for the liquid phase
     U.is(1,vl_indx,vl_indxe);
     v_l.set(U);
     U.rs();
-    double tau=double(tau_supg_c.get(vl_indx,vl_indx));
+    tau=double(tau_supg_c.get(vl_indx,vl_indx));
     tmp9.prod(v_l,grad_N,-1,-1,1).scale(tau);
     tmp6.prod(tmp9,Id,1,2,3);
     P_supg.is(2,vl_indx,vl_indxe).is(3,vl_indx,vl_indxe);
     P_supg.add(tmp6);
     P_supg.rs();
+    }
+
+    if (comp_gas_prof) {
     // delta perturbation function for the gas phase
     U.is(1,vg_indx,vg_indxe);
     v_g.set(U);
@@ -739,15 +841,22 @@ void bubbly_ff::comp_P_supg(FastMat2 &P_supg) {
     P_supg.is(2,vg_indx,vg_indxe).is(3,vg_indx,vg_indxe);
     P_supg.add(tmp6);
     P_supg.rs();
+    }
+
+    if (comp_liq_prof) {
     // epsilon perturbation function for the liquid phase
     tau=double(tau_supg_c.get(vl_indx,vl_indx));
-    double rho_m=arho_l+arho_g;
+    rho_m=arho_l+arho_g;
     rho_m=rho_l;
     tau=tau/rho_m;
     tmp7.set(grad_N).scale(tau);
     tmp7.t();
     P_supg.ir(2,1).is(3,vl_indx,vl_indxe).add(tmp7);
     P_supg.rs();
+    }
+
+    if (comp_gas_prof) {
+
     if (0) {
     // epsilon perturbation function for the gas phase
     tau=double(tau_supg_c.get(2,2));
@@ -776,6 +885,8 @@ void bubbly_ff::comp_P_supg(FastMat2 &P_supg) {
     //    P_supg.ir(2,2).ir(3,2).set(tmp9).rs();
 
     }
+    }
+
     // added stabilization for continuity equation
     if (0) {
     // stabilization enhancement of continuity equation

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.34 2003/01/08 13:07:21 mstorti Exp $ 
+ # $Id: Makefile,v 1.35 2003/01/21 16:09:16 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -11,7 +11,7 @@ MYOBJS =
 LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o \
 		wallswt.o bccadvfm2.o bccadvfm2_old.o  ffadvfm2.o ffburg_old.o \
 		enthalpy.o genload.o linhff.o diff.o aquifer.o stream.o \
-		blessf.o bubbly.o advec.o compdate.o gasflow.o
+		blessf.o bubbly.o advec.o compdate.o gasflow.o advdif_bubbly.o
 
 .INTERMEDIATE: $(LIBOBJS) 
 

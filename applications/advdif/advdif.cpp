@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.47 2002/10/07 00:26:08 mstorti Exp $
+//$Id: advdif.cpp,v 1.48 2003/01/21 16:09:16 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -33,10 +33,14 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
+int bubbly_main(int argc,char **args);
+
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
+
+  if(argc>=1 && !strcmp(args[0],"-bubbly")) bubbly_main(argc-1,args+1);
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
