@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.7 2001/11/26 22:33:37 mstorti Exp $
+//$Id: graph.cpp,v 1.8 2001/11/26 22:41:43 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -192,9 +192,13 @@ void Graph::part(int nvrtx_f,int max_partgraph_vertices,
     tpwgts = tpwgts_v.begin();
   }
 
-  METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
-		       NULL,&wgtflag,&numflag,&npart, 
-		       tpwgts,&options,&edgecut,vpart);
+  if (npart>1) {
+    METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
+			 NULL,&wgtflag,&numflag,&npart, 
+			 tpwgts,&options,&edgecut,vpart);
+  } else {
+    for (j=0; j<nvrtx; j++) vpart[j] = 0;
+  }
 
   delete[] adjncy;
   delete[] xadj;
