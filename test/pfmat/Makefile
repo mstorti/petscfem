@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.6 2001/12/30 23:05:06 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.7 2002/01/03 21:47:44 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
-tests: pfmat
+tests: pfmat pfmat2
 
-SRCS = pfmat.cpp
+SRCS = pfmat.cpp pfmat2.cpp 
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -48,5 +48,12 @@ pfmat:  #pfmat.bin
 	$(call pfmat,2,ne 100 deb 0 nsl 2 sbdp 10 nmat 2 rrhs 1 mtyp 1 q 1,case6)
 	$(call pfmat,1,ne 100 deb 0 nsl 2 sbdp 1  nmat 2 rrhs 1 mtyp 1 q 1,case7)
 	$(call pfmat,2,ne 100 deb 0 nsl 2 sbdp 1  nmat 2 rrhs 1 mtyp 1 q 1,case8)
+
+#w Build executable
+pfmat2.bin: $(LIB_OBJS_LIB) pfmat2.o
+	-rm -f $@
+	${CXX_CLINKER} -o $@ pfmat2.o  $(LDFLAGS)
+
+
 
 #s

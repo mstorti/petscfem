@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.1.2.3 2002/01/03 21:09:52 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.1.2.4 2002/01/03 21:47:44 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -46,6 +46,7 @@ int main(int argc,char **args) {
   Vec x,b,xex;
   int ierr,iisd_subpart,nsolve,rand_flag,mat_type,q_type,
     tests_ok=1,nprof=1,chkkey,chkkey_c;
+  unsigned int SEED;
   // is_diag:= `is_diag[k]' flags whether the element `k' is Laplace
   // (element matrix propto. [1 -1; -1 1]) or Identity ([1 0; 0 1]);
   vector<int> is_diag;
@@ -164,8 +165,8 @@ int main(int argc,char **args) {
     is_diag.resize(Nelem,0);
     if (myrank==0) {
       for (int je=0; je<Nelem; je++) {
-	double v = ::drand();
-	printf("%d %f\n",je,v);
+	double v = drand_r(&SEED);
+	// printf("%d %f\n",je,v);
 	is_diag[je] = v > fill;
       }
     }
