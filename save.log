@@ -440,3 +440,7 @@ tag: beta-1.84 on Wed May 30 14:46:50 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-1.85 on Wed May 30 15:22:53 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Fixed some errors in doc
+----------
+tag: beta-1.86 on Mon Jun  4 23:30:45 ART 2001, by mstorti in spider
+     > 1D k-e example OK.
+     > Writing k-e example 2D
