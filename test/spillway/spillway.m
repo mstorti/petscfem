@@ -2,14 +2,17 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.4 2003/03/22 22:20:32 mstorti Exp $
+## $Id: spillway.m,v 1.5 2003/03/23 17:29:31 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
 global spillway_data
 
 source("data.m.tmp");
-initia = str2num(getenv("initia"));
+initia = 1;
+if !exist("initia");
+  initia = str2num(getenv("initia"));
+endif
 ## printf("# initia: %d\n",initia);
 
 ## H = bottom height
@@ -150,6 +153,21 @@ bottom = mesher_bound(mesh,[1 2 3]);
 inlet = mesher_bound(mesh,[4 1]);
 outlet = mesher_bound(mesh,[3 6]);
 
+## Spines
+nfs = length(fs);
+xfs_fem = xnod(fs,:);
+normal_e = xfs_fem(2:nfs,:)-xfs_fem(1:nfs-1,:);
+le = l2(normal_e);
+normal_e = leftscal(1./le,normal_e);
+normal_e = [normal_e(:,2) -normal_e(:,1)];
+normal = leftscal(le(1:nfs-2),normal_e(1:nfs-2,:)) \
+    +leftscal(le(2:nfs-1),normal_e(2:nfs-1,:));
+normal = leftscal(1./l2(normal),normal);
+normal = [0 1;
+	  normal;
+	  0 1];
+asave("spillway.spines.tmp",normal);
+
 ## Bottom u=v=0 
 fid = fopen("spillway.fixa_bot.tmp","w");
 nbot = length(bottom);
@@ -183,7 +201,7 @@ endfor
 fclose(fid);
 
 ## SF  p = p_atm = 0.
-p_atm_var = exist("steady_state_file");
+p_atm_var = length(steady_state_file)>0;
 if p_atm_var
   state = aload(steady_state_file);
 endif
