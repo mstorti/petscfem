@@ -1894,3 +1894,6 @@ tag: beta-3.10 on Fri, 13 Dec 2002 09:21:27 -0300, by mstorti in minerva.arcride
      > the analytically computed element. 
      > Added `mmove' 2D/3D tests. 
      > Added doc for `mesh_move'
+----------
+tag: beta-3.10.pl1 on Fri, 13 Dec 2002 12:32:34 -0300 by mstorti in minerva.arcride.edu.ar
+     > Fixed some errors in doc 
