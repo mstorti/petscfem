@@ -25,3 +25,7 @@ test_abso:
 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl
 	$(octave) -qH check_test_abso.m
 
+
+local_clean::
+	-chmod +w *.depl
+	-rm *.depl *.sal tmp_file*.tmp &> /dev/null

@@ -7,7 +7,7 @@
   This  file  belongs  to  the  PETSc  -  FEM  package,  a  library  and
   application  suite oriented  to  the Finite  Element  Method based  on
   PETSc.   Copyright  (C)  1999-2003,  Mario  Alberto  Storti,  Norberto
-  Marcelo  Nigro,  Rodrigo  P.  Paz.  Centro  Internacional  de  Metodos
+  Marcelo  Nigro,  Rodrigo  R.  Paz.  Centro  Internacional  de  Metodos
   Numericos  en Ingenieria  (CIMEC-Argentina), Universidad  Nacional del
   Litoral   (UNL-Argentina),   Consejo   Nacional   de   Investigaciones
   Cientificas y Tecnicas (UNL-Argentina).
