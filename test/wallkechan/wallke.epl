@@ -26,7 +26,7 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-    $Re = 1.92e5;                  # laminar Re
+    $Re = 5e4;                  # laminar Re
     $Uav = 1;
     $nu = $Uav*2*$L/$Re;        # kinematic visc.
     $g = 0;                     # body force
@@ -64,7 +64,7 @@ maxits 100
 save_file_pattern "outvector%d.out"
 nsaverot 1
 
-#if 0
+#if 1
 initial_state "save.state"
 #elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"
@@ -78,12 +78,13 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 100
+nstep 10
 nnwt 4
 tol_newton 0
 preco_type "lu"
-Dt 5
+Dt 10
 #steady
+newton_relaxation_factor 1
 kap_ctff_val 1e-5
 eps_ctff_val 1e-5
 #pspg_advection_factor 0.

@@ -1,11 +1,13 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.13 2001/07/04 02:57:42 mstorti Exp $
+//$Id: nsi_tet.h,v 1.14 2001/07/04 18:37:55 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
 #include <ANN/ANN.h>			// ANN declarations
 #include <vector>			// ANN declarations
+
+#include "../../src/secant.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // This is the typical element for volume computations. The `ask'
@@ -147,6 +149,19 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class WallFunSecant : public Secant {
+public:
+  double nu, y_wall, u, rho;
+  WallFun *wf;
+  double residual(double ustar,void *user_data=NULL);
+  WallFunSecant(WallFun *wf_) : wf(wf_) {};
+  void solve(double u_,double &ustar,double &tau_w,double &yplus,
+	     double &fwall, double &fprime,
+	     double &dustar_du);
+  // virtual ~WallFunSecant()=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class NonLinearRes : public Elemset {
  public:
   ASK_FUNCTION;
@@ -162,10 +177,10 @@ class NonLinearRes : public Elemset {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class wall_law_res : public NonLinearRes {
   int nk,ne,ndim;
-  double y_wall_plus,fwall,fprime,C_mu,
-    viscosity,von_Karman_cnst,coef_k,coef_e,
-    turbulence_coef;
+  double y_wall_plus,y_wall,fwall,fprime,C_mu,
+    viscosity,von_Karman_cnst,turbulence_coef;
   WallFun *wf;
+  WallFunSecant *wfs;
   int u_wall_indx,nprops;
   FastMat2 u_wall,du_wall;
   int elprpsindx[MAXPROP_WLR]; 
@@ -175,8 +190,8 @@ public:
   void init();
   void res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 	   FastMat2 & jac);
-  wall_law_res() {wf = new WallFunStd(this);};
-  ~wall_law_res() {delete wf;};
+  wall_law_res() {wf = new WallFunStd(this); wfs = new WallFunSecant(wf);};
+  ~wall_law_res() {delete wf; delete wfs;};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

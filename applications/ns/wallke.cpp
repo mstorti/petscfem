@@ -1,12 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.14 2001/07/04 02:57:42 mstorti Exp $
+//$Id: wallke.cpp,v 1.15 2001/07/04 18:37:55 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
 
 #include "../../src/fastmat2.h"
-#include "../../src/secant.h"
 #include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
@@ -50,22 +49,18 @@ void WallFunStd::w(double yp,double &f,double &fprime) {
   }
 }
 
-class WallFunSecant : public Secant {
-public:
-  double nu, y_wall, u;
-  WallFun *wf;
-  double residual(double ustar,void *user_data=NULL);
-  WallFunSecant(WallFun *wf_) : wf(wf_) {};
-  // virtual ~WallFunSecant()=0;
-};
-
-#if 0
-class WallFunSecantStd : public WallFunSecant {
-public:
-  WallFunSecantStd(Wallfun *wf_) : wf(wf_) {};
-  ~WallFunSecantStd() {};
+void WallFunSecant::solve(double u_,double &ustar,double &tau_w,double &yplus,
+			  double &fwall, double &fprime,
+			  double &dustar_du) {
+  u = u_;
+  x0 = sqrt(nu*u/y_wall);
+  // *This* is the friction velocity at the wall
+  ustar = sol();
+  yplus = y_wall*ustar/nu;
+  wf->w(yplus,fwall,fprime);
+  tau_w = rho * square(ustar);
+  dustar_du = 1./(fwall+yplus*fprime);
 }
-#endif
 
 double WallFunSecant::residual(double ustar,void *user_data=NULL) {
   double yp = y_wall*ustar/nu;
@@ -124,6 +119,8 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Use lumped mass matric for the wall element contribution. Avoids
   // oscillations due to ``reactive type'' wall contributions. 
   SGETOPTDEF(int,lumped_wallke,0);
+  //o Density
+  SGETOPTDEF(double,rho,1.);
 
   SGETOPTDEF(double,viscosity,0.); //o
   PETSCFEM_ASSERT0(viscosity>0.,
@@ -139,6 +136,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (y_wall>0.) {
       wfs.nu = viscosity;
       wfs.y_wall = y_wall;
+      wfs.rho = rho;
     } else {
       wf->w(y_wall_plus,fwall,fprime);
     }      
@@ -164,7 +162,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2 matloc(4,nel,ndof,nel,ndof),lmass(1,nel ),u_wall(1,ndim);
   FMatrix matlocmom(nel,nel);
 
-  double rho=1.;
   // Trapezoidal method parameter. 
   TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.);    //nd
 

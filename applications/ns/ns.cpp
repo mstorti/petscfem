@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.26 2001/06/21 16:30:55 mstorti Exp $
+//$Id: ns.cpp,v 1.27 2001/07/04 18:37:55 mstorti Exp $
  
 #include <malloc.h>
 
@@ -141,6 +141,8 @@ int main(int argc,char **args) {
   //o Update jacobian only until n-th Newton subiteration. 
   // Don't update if null. 
   GETOPTDEF(int,update_jacobian_iters,0);
+  //o Relaxation parameter for Newton iteration. 
+  GETOPTDEF(double,newton_relaxation_factor,1.);
 
   //o Absolute tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
@@ -510,7 +512,7 @@ int main(int argc,char **args) {
 		  inwt,normres,update_jacobian);
 
       // update del subpaso
-      scal= 1./alpha;
+      scal= newton_relaxation_factor/alpha;
       ierr = VecAXPY(&scal,dx,x);
 
 #if 0
