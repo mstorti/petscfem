@@ -345,3 +345,7 @@ tag: beta-1.60 on Mon Apr  2 17:22:55 ART 2001, by mstorti in spider
 tag: beta-1.61 on Mon Apr  2 21:22:23 ART 2001, by mstorti in spider
      > QUASI-STABLE. Passes all test/newff and test/burgers tests.
      > Added entalphy function. Works for identity T/H relationship. 
+----------
+tag: beta-1.62 on Tue Apr  3 11:33:10 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Added burgers target to test/Makefile
