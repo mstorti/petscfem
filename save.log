@@ -1865,3 +1865,7 @@ tag: beta-3.09.pl5 on Wed, 11 Dec 2002 15:48:12 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.09.pl6 on Wed, 11 Dec 2002 18:50:13 -0300 by mstorti in spider
      > Runs OK the `step.epl' problem with the old `mesh_move' version. 
+----------
+tag: beta-3.09.pl7 on Wed, 11 Dec 2002 21:05:03 -0300 by mstorti in spider
+     > Runs large defrmation (70%) example on `step.epl' with old
+     > element but new main (standard ns main). 
