@@ -1,0 +1,11 @@
+# -*- mode: octave -*-
+nx=<:=$nx:>;
+ny=<:=$ny:>;
+Lx=1;
+Ly=1;
+u=1;
+D=0.1;
+N_step_period=<:=$N_step_period:>;
+N_period=3.25;
+tol_error=<:=$tol_error:>;
+alpha=0.5;

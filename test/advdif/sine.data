@@ -1,8 +1,0 @@
-nx=20;
-ny=10;
-Lx=1;
-Ly=1;
-u=1;
-D=0.1;
-N_step_period=16;
-N_period=3.25;

@@ -40,9 +40,9 @@ nsome 1
 save_file_some "sine.some"
 print_some_file "sine.some.tmp"
 
-#nstep <:=$nstep:>
-nstep 2
-nnwt 3
+nstep <:=$nstep:>
+#nstep 2
+nnwt 1
 tol_newton 0
 preco_type "lu"
 #preco_type "jacobi"

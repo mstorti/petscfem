@@ -1,8 +1,10 @@
-# $Id: Makefile,v 1.9 2001/01/10 22:40:50 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2001/01/11 15:12:11 mstorti Exp $ 
 
 .PHONY: plano data run
 
 all: run
+
+tests: sine
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -13,7 +15,7 @@ SRCS =
 ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
 #case := sine
-case := burgers
+#case := burgers
 
 #octave_files = sine.con.tmp sine.nod.tmp sine.fixa.tmp sine.bcconv.tmp
 #octave_script = $(case).m
@@ -64,6 +66,25 @@ endif
 	octave -q $(octave_script_$(case))
 	-chmod -w $(octave_out_$(case))
 
+sine: sine_fine_mesh sine_crank_nic
+
+sine_fine_mesh:
+	eperl -d nx=20 -d ny=10 -d N_step_period=32 sine.data.epl >sine.data
+	$(MAKE) case=sine run
+	octave -q sine_fine_test.m > sine_fine_mesh.out
+
+sine_crank_nic: 
+	$(MAKE) N_step_period=16 sine_crank_nic_npp
+	$(MAKE) N_step_period=32 sine_crank_nic_npp
+	$(MAKE) N_step_period=128 sine_crank_nic_npp
+	octave -q sine_crank_nic.m >  sine_crank_nic.out
+
+sine_crank_nic_npp:
+	eperl -d nx=10 -d ny=5 -d N_step_period=$(N_step_period) -d tol_error=0 \
+			sine.data.epl >sine.data
+	$(MAKE) case=sine run
+	mv -fv save.state save.state.$(N_step_period)
+
 # plano.depl: plano.epl plano.m
 # burgers.depl: burgers.epl plano.m
 # sine.depl: sine.epl sine.m
@@ -80,7 +101,7 @@ plano.con plano.nod: plano.m
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-rm -f dummy $(output_files_$(case))
-	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) -case $(case).depl
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) -case $(case).depl > $(case).out
 
 # Tests to be done:
 # * Convergence to analityc solution
@@ -98,8 +119,9 @@ testanal:
 		 -case $(case).depl >/dev/null
 	cp save.state save.state.anal.tmp
 	cp sine.some sine.some.anal.tmp
-	octave -q < sine_anal_test.m > sine_anal_test.sal
+	octave -q < sine_anal_test.m > sine_anal_test.out
 
 local_clean::
 	-chmod +w sine.data.res
-	-rm -f $(eperl_out_$(case)) $(octave_out_$(case)) $(output_files_$(case))
+	-rm -f $(eperl_out_$(case)) $(octave_out_$(case)) $(output_files_$(case)) \
+		sine.some sine.data sine.data.res save.state*

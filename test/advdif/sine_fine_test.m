@@ -1,4 +1,4 @@
-sine
+#sine
 
 x=[1 1];
 source("sine.data");
@@ -22,6 +22,8 @@ ab = A\[1;0];
 
 Nx=nx+1;
 Ny=ny+1;
+
+xnod=aload("sine.nod.tmp");
 
 N=Nx*Ny;
 Ix=(1:ny+1:N)';
@@ -48,7 +50,11 @@ du=uh-uana;
 ## Error over last period
 n1=nstep-N_step_period+1;
 
-fid=fopen("sine_anal_test.sal","a");
+[fid,msg]=fopen("sine_anal_test.sal","a");
+disp(msg)
 fprintf(fid,"Dt= %e   error= %e\n",Dt,norm(du(n1:nstep))*Dt);
+l2error=norm(du(n1:nstep))*Dt;
+tol_error=8e-3;
+printf("Dt= %e   error= %e < tol_error=%f OK? %d\n",Dt,l2error,tol_error,l2error<tol_error);
 fclose(fid);
 
