@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.38 2003/01/04 00:49:53 mstorti Exp $
+//$Id: nsi_tet.h,v 1.39 2003/01/25 16:57:27 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -367,25 +367,6 @@ class LagrangeMult : public Elemset {
     @return the cutoff'ed value
 */ 
 double ctff(double x, double & diff_ctff, double tol=1e-5);
-
-class Hook {
-public:
-  virtual void init(Mesh &mesh,Dofmap &dofmap,const char *name) {}
-  virtual void time_step_pre(double time,int step) {}
-  virtual void time_step_post(double time,int step,
-			      const vector<double> &gather_values) {}
-  virtual void close() {}
-};
-
-class HookList : public vector<Hook *> {
-public:
-  void init(Mesh &mesh,Dofmap &dofmap);
-  void time_step_pre(double time,int step);
-  void time_step_post(double time,int step,
-		      const vector<double> &gather_values);
-  virtual void close();
-  ~HookList();
-};
 
 void read_cond_matrix(TextHashTable *thash, const char *s,
 		      int ndof,FastMat2 &cond);
