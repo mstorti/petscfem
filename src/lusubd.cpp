@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.7 2001/07/17 02:29:03 mstorti Exp $
+//$Id: lusubd.cpp,v 1.8 2001/07/18 13:59:32 mstorti Exp $
 
+#include <typeinfo>
 #ifdef RH60
 #include "libretto.h"
 #else
@@ -14,6 +15,11 @@
 #include "pfmat.h"
 
 PFMat::~PFMat() {};
+
+const int IISDMat::D=0;
+const int IISDMat::O=1;
+const int IISDMat::L=0;
+const int IISDMat::I=1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -30,13 +36,13 @@ int IISD_mult(Mat A,Vec x,Vec y) {
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
   int myrank,size;
-  int k,k1,k2,neqp,pos,keq,leq,jj,row,row_t,col_t,od,
+  int k,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank;
-  const int &neq = dofmap->neq;
   MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
   dofmap = dofmap_;
+  const int &neq = dofmap->neq;
   
   Node *nodep;
   // neqp:= k2:= k1:= unknowns in this processor are thos in the range
@@ -52,7 +58,6 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // dimensioning PETSc matrices
   // nnz[diagonal/off-diagonal][row-block-type][column-block-type]
   // For instance nnz[D][L][L] = d_nn_z for the 'local-local' block. 
-  const int D=0,O=1,L=0,I=1;
   vector<int> nnz[2][2][2],flag0(dofmap->neq,0),flag(dofmap->neq,0),
     *d_nnz,*o_nnz;
 
@@ -87,34 +92,76 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   MPI_Allreduce(flag0.begin(), flag.begin(), neq, MPI_INT, 
 		MPI_MAX, PETSC_COMM_WORLD);
   flag0.clear();
-//    if (myrank==0) {
-//      for (k=0; k<neq; k++) 
-//        printf("dof %d: flag %d\n",k1+k,flag[k]);
-//    }
-//    PetscFinalize();
-//    exit(0);
+
   // map:= map[k] is the location of dof `k1+k' in reordering such
   // that the `local' dofs are the first `n_loc' and the `interface'
   // dofs are the last n_int.
   // n_int := number of nodes in this processor that are `interface'
   // n_loc := number of nodes in this processor that are `local'
   map.resize(neq,0);
-  n_int_v.resize(size,0);
-  n_loc_v.resize(size,0);
+  n_int_v.resize(size+1,0);
+  n_loc_v.resize(size+1,0);
 
-  for (rank=0; rank<size; rank++) {
-    n_loc_h=0;
+  // number all `loc' dof's
+  n_loc_tot = 0;
+  n_loc_v[0] = 0;
+  for (rank = 0; rank < size; rank++) {
+    // PetscPrintf(PETSC_COMM_WORLD,"startproc %d, neqproc %d\n",
+    // dofmap->startproc[rank],dofmap->neqproc[rank]);
     k1h = dofmap->startproc[rank];
-    for (k = 0; k < dofmap->neqproc[myrank]; k++) 
-      if(flag[k1h+k] == 0) map[k1h+k] = n_loc_h++;
-    jj=n_loc_h;
-    for (k = 0; k < dofmap->neqproc[myrank]; k++) 
-      if(flag[k1h+k] == 1) map[k1h+k] = jj++;
-    n_loc_v[rank]=n_loc_h;
-    n_int_v[rank] = dofmap->neqproc[myrank] - n_loc_h;
+    for (k = 0; k < dofmap->neqproc[rank]; k++) {
+      // PetscPrintf(PETSC_COMM_WORLD,"dof %d, flag %d\n",k1h+k,flag[k1h+k]);
+      if(flag[k1h+k] == 0) map[k1h+k] = n_loc_tot++;
+    }
+    n_loc_v[rank+1] = n_loc_tot;
   }
-  n_loc = n_loc_v[myrank];
-  n_int = n_int_v[myrank];
+
+  // number all `int' dof's
+  n_int_tot = n_loc_tot;
+  n_int_v[0] = n_loc_tot;
+  for (rank = 0; rank < size; rank++) {
+    k1h = dofmap->startproc[rank];
+    for (k = 0; k < dofmap->neqproc[rank]; k++) 
+      if(flag[k1h+k] == 1) map[k1h+k] = n_int_tot++;
+    n_int_v[rank+1] = n_int_tot;
+  }
+  PETSCFEM_ASSERT0(n_int_tot == neq,"Failed to count all dof's in "
+		   "int-loc partitioning");   
+  // Correct number of total `int' dof's
+  n_int_tot = n_int_tot - n_loc_tot;
+  n_int = n_int_v[myrank+1]-n_int_v[myrank];
+  n_loc = n_loc_v[myrank+1]-n_loc_v[myrank];
+  n_locp = n_loc_v[myrank];
+
+#if 0 // Debug
+  int ldof,type;
+  if (myrank==0) {
+    for (rank=0; rank<size; rank++) 
+      printf("[%d] loc: %d-%d, int: %d-%d\n",
+	     rank,n_loc_v[rank],n_loc_v[rank+1],
+	     n_int_v[rank],n_int_v[rank+1]);
+    for (rank=0; rank<size; rank++) {
+      printf("In processor [%d]: loc %d, int %d\n",rank,
+	     n_loc_v[rank+1]-n_loc_v[rank],
+	     n_int_v[rank+1]-n_int_v[rank]);
+      for (k=0; k<dofmap->neqproc[rank]; k++) {
+	keq = dofmap->startproc[rank]+k;
+	ldof = map[keq];
+	if (ldof < n_loc_tot) {
+	  type = L;
+	  ldof = ldof - n_loc_v[rank];
+	} else {
+	  type = I;
+	  ldof = ldof - n_int_v[rank];
+	}
+	printf("keq: %d, type: %s, local: %d\n",
+	       keq,(type==L ? "L" : "I"),ldof);
+      }
+    }
+  }
+  PetscFinalize();
+  exit(0);
+#endif
 
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
@@ -140,11 +187,14 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     // keq:= number of dof
     keq = k1 + k;
     // type of dof (local or interface)
-    row_t = (flag[keq] ? I : L);
-    // Index in the PETSc matrices (maped index)
-    row = map[k];
-    // Correct for interface dof's
-    if (row > n_loc) row = row - n_loc;
+    // row_t = (flag[keq] ? I : L);
+    // Index in the local PETSc matrices (maped index)
+    row = map[keq];
+    row_t = (row < n_loc_tot ? L : I);
+    
+    // Correct dof's
+    if (row >= n_loc_tot) row = row - n_int_v[myrank];
+    row = row - n_loc_v[myrank];
     // loop over the connected dof's
     pos = keq;
     while (1) {
@@ -153,7 +203,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       // leq:= number of dof connected to `keq' i.e. `A(keq,leq) != 0' 
       leq = nodep->val;
       // type of dof
-      col_t = (flag[leq] ? I : L);
+      // col_t = (flag[leq] ? I : L);
+      col_t = (map[leq] < n_loc_tot ? L : I);
       // diagonal or off-diagonal (in PETSc sense)
       od = ((leq < k1 || leq > k2) ? O : D);
       // By construction, the local-local block should be in the
@@ -190,6 +241,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       PetscSynchronizedFlush(PETSC_COMM_WORLD); 
     }
   }
+  PetscFinalize();
+  exit(0);
 #endif
   ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			 nnz[D][L][L].begin(),&A_LL); 
@@ -245,9 +298,15 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   ierr = KSPSetTolerances(ksp_ll,0,0,1e10,1);
   PETSCFEM_ASSERT0(ierr==0,"Error setting tolerances.\n"); 
 
-  ierr = PCSetType(pc,PCLU);
+  ierr = PCSetType(pc_ll,PCLU);
   PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
-  ierr = KSPSetMonitor(ksp,PETSC_NULL,PETSC_NULL);
+  ierr = KSPSetMonitor(ksp_ll,PETSC_NULL,PETSC_NULL);
+
+  // Shortcuts
+  AA[L][L] = &A_LL;
+  AA[L][I] = &A_LI;
+  AA[I][L] = &A_IL;
+  AA[I][I] = &A_II;
 
 }
 
@@ -304,10 +363,60 @@ void IISDMat::mult(Vec x,Vec y) {
   ierr = MatMultAdd(A_IL,x_loc,y,y);
 }
 
-#if 0
-void IISDMat::set_value(int row,int col,double value,
-			InsertMode mode=ADD_VALUES) {
-#endif
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat::assembly_begin(MatAssemblyType type)"
+int IISDMat::assembly_begin(MatAssemblyType type) {
+  int ierr;
+  ierr = MatAssemblyBegin(A_LL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_IL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_LI,type); CHKERRQ(ierr);
+  ierr = MatAssemblyBegin(A_II,type); CHKERRQ(ierr);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat::assembly_end(MatAssemblyType type)"
+int IISDMat::assembly_end(MatAssemblyType type) {
+  int ierr;
+  ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_LI,type); CHKERRQ(ierr);
+  ierr = MatAssemblyEnd(A_II,type); CHKERRQ(ierr);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat::zero_entries()"
+int IISDMat::zero_entries() {
+  int ierr;
+  ierr=MatZeroEntries(A_LL); CHKERRQ(ierr);
+  ierr=MatZeroEntries(A_IL); CHKERRQ(ierr);
+  ierr=MatZeroEntries(A_LI); CHKERRQ(ierr);
+  ierr=MatZeroEntries(A_II); CHKERRQ(ierr);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat::view()"
+int IISDMat::view(Viewer viewer) {
+  int ierr;
+  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [LOC][LOC] block\n");
+  ierr = MatView(A_LL,viewer); CHKERRQ(ierr);
+
+  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [LOC][INT] block\n");
+  ierr = MatView(A_LI,viewer); CHKERRQ(ierr);
+
+  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [INT][LOC] block\n");
+  ierr = MatView(A_IL,viewer); CHKERRQ(ierr);
+
+  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [INT][INT] block\n");
+  ierr = MatView(A_II,viewer); CHKERRQ(ierr);
+
+  PetscPrintf(PETSC_COMM_WORLD," IISD matrix - printing [INT][INT] block\n");
+
+  ierr =  SLESView(sles,VIEWER_STDOUT_SELF);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -326,6 +435,87 @@ void IISDMat::clear() {
 
   ierr = MatDestroy(A); 
   PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void IISDMat::map_dof(int gdof,int &block,int &ldof)"
+void IISDMat::map_dof(int gdof,int &block,int &ldof) {
+  ldof = map[gdof];
+  if (ldof < n_loc_tot) {
+    block = L;
+  } else {
+    block = I;
+    ldof -= n_loc_tot;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+void IISDMat::set_value(int row,int col,Scalar value,
+			InsertMode mode=ADD_VALUES) {
+  int row_indx,col_indx,row_t,col_t;
+  map_dof(row,row_t,row_indx);
+  map_dof(col,col_t,col_indx);
+  MatSetValues(*(AA[row_t][col_t]),1,&row_indx,1,&col_indx,&value,mode);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
+void IISDMat::solve(Vec res,Vec dx) {
+  int ierr,kloc;
+  double *res_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a;
+  if (n_int_tot > 0 ) {
+    ierr = SLESSolve(sles,res,dx,&its_); 
+    PETSCFEM_ASSERT0(ierr==0,"Error solving linear system"); 
+  } else {
+    ierr = VecGetArray(res,&res_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `res'.\n"); 
+#if 0
+    ierr = VecGetArray(y_loc_seq,&y_loc_seq_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `y_loc_seq'.\n"); 
+#endif
+
+    for (int j = 0; j < neqp; j++) {
+      kloc = map[k1+j] - n_locp;
+      y_loc_seq_a[kloc] = res_a[k1+j];
+    }
+    
+    ierr = VecRestoreArray(res,&res_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `res'.\n"); 
+    ierr = VecRestoreArray(y_loc_seq,&y_loc_seq_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `y_loc_seq'.\n"); 
+    
+    if (n_loc > 0) {
+      ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_); 
+      PETSCFEM_ASSERT0(ierr==0,"Error solving local system"); 
+    }
+#if 1
+    ierr = VecView(y_loc_seq,VIEWER_STDOUT_SELF);
+    ierr = VecView(x_loc_seq,VIEWER_STDOUT_SELF);
+    ierr = MatView(A_LL,VIEWER_STDOUT_SELF);
+
+    PetscFinalize();
+    exit(0);
+#endif
+
+    ierr = VecGetArray(dx,&dx_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `dx'.\n"); 
+    ierr = VecGetArray(x_loc_seq,&x_loc_seq_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `x_loc_seq'.\n"); 
+
+    for (int j = 0; j < neqp; j++) {
+      kloc = map[k1+j] - n_locp;
+      dx_a[k1+j] = x_loc_seq_a[kloc];
+    }
+
+    ierr = VecRestoreArray(dx,&dx_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `dx'.\n"); 
+    ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `x_loc_seq'.\n"); 
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -459,6 +649,7 @@ void PETScMat::clear() {
 #define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
 void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
+  static int warn_iisdmat=0;
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
@@ -482,6 +673,16 @@ void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
+
+  if (!warn_iisdmat && typeid(*this)==typeid(IISDMat) 
+      && preco_type != "none") {
+    warn_iisdmat=1;
+    PetscPrintf(PETSC_COMM_WORLD,
+		"PETScFEM warning: IISD operator does not support any\n"
+		"preconditioning. Switching to \"none\"\n");
+    preco_type = "none";
+  }
+
   // I had to do this since `c_str()' returns `const char *'
   char *preco_type_ = new char[preco_type.size()+1];
   strcpy(preco_type_,preco_type.c_str());
@@ -534,6 +735,14 @@ void PFMat::solve(Vec res,Vec dx) {
   int ierr = SLESSolve(sles,res,dx,&its_); 
   PETSCFEM_ASSERT0(ierr==0,"Error solving linear system"); 
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int view(Viewer viewer)"
+int PETScMat::view(Viewer viewer) {
+  ierr = MatView(A,viewer); CHKERRQ(ierr); 
+  ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
+};
 
 /*
   Local Variables: 
