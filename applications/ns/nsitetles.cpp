@@ -1,4 +1,4 @@
-/* $Id: nsitetles.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: nsitetles.cpp,v 1.2 2001/01/04 20:06:18 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -17,10 +17,6 @@
 #endif
 
 extern TextHashTable *GLOBAL_OPTIONS;
-//  #define GGETOPTDEF(type,name,default) \
-//          type name=default; \
-//          ierr = get_##type(GLOBAL_OPTIONS,#name,&name,1); \
-//          PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 #define STOP {PetscFinalize(); exit(0);}
    
@@ -51,7 +47,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les::assemble"
 int nsi_tet_les::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-		      Dofmap *dofmap,char *jobinfo,int myrank,
+		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time_) {
 

@@ -1,4 +1,4 @@
-/* $Id: nsitetlesfm2.cpp,v 1.1 2001/01/02 21:54:08 mstorti Exp $ */
+/* $Id: nsitetlesfm2.cpp,v 1.2 2001/01/04 20:06:18 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -25,7 +25,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 #undef __FUNC__
 #define __FUNC__ "nsi_tet_les_fm2::assemble"
 int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-		      Dofmap *dofmap,char *jobinfo,int myrank,
+		      Dofmap *dofmap,const char *jobinfo,int myrank,
 		      int el_start,int el_last,int iter_mode,
 		      const TimeData *time_) {
 
@@ -290,7 +290,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     int wall_elem;
     if (LES && comp_mat_res) {
       Elemset *wall_elemset;
-      double *wall_coords_;
+      const double *wall_coords_;
       wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
       wall_coords.set(wall_coords_);
       shear_vel = wall_elemset->elemprops_add[wall_elem];
@@ -604,7 +604,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if(comp_mat) {
-      matloc_prof.export(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }      
 
     if (comp_mat_res) {
@@ -613,17 +613,17 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	matlocf.is(2,1,ndim).is(4,1,ndim)
 	  .axpy(grad_div_u,grad_div_u_coef).rs();
 	if (!grad_div_u_was_cached) {
-	  grad_div_u.export(grad_div_u_cache);
+	  grad_div_u.export_vals(grad_div_u_cache);
 	}
       }
       veccontr.is(2,1,ndim).set(resmom)
 	.rs().ir(2,ndof).set(rescont).rs();
 
-      veccontr.export(&(RETVAL(ielh,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
 #ifndef EFFICIENT_FM2_VERSION
-      matloc.export(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 #else
-      if (update_jacobian) matlocf.export(&(RETVALMAT(ielh,0,0,0,0)));
+      if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
 #endif
     }
   }

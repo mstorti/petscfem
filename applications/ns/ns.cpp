@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.2 2001/01/02 16:50:45 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.3 2001/01/04 20:06:18 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -231,6 +231,9 @@ int main(int argc,char **args) {
 
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,preco_type,Jacobi);
+  // I had to do this since `c_str()' returns `const char *'
+  char *preco_type_ = new char[preco_type.size()+1];
+  strcpy(preco_type_,preco_type.c_str());
 
   //o Sets the save frequency in iterations 
   GETOPTDEF(int,nsave,10);
@@ -419,7 +422,7 @@ int main(int argc,char **args) {
       argl.arg_add(&Dt,USER_DATA);
       argl.arg_add(wall_data,USER_DATA);
 
-      char *jobinfo = (update_jacobian ? "comp_mat_res" : "comp_res");
+      const char *jobinfo = (update_jacobian ? "comp_mat_res" : "comp_res");
 
       // In order to measure performance
       if (measure_performance) {
@@ -484,11 +487,7 @@ int main(int argc,char **args) {
       ierr = KSPGMRESSetRestart(ksp_tet,Krylov_dim); CHKERRA(ierr);
       ierr = KSPSetTolerances(ksp_tet,rtol,atol,dtol,maxits);
 
-      ierr = PCSetType(pc_tet,
-		       (preco_type=="Jacobi" ? PCJACOBI :
-			preco_type=="none" ? PCNONE : 
-			preco_type=="LU" ? PCLU : 
-			PCJACOBI)); CHKERRA(ierr);
+      ierr = PCSetType(pc_tet,preco_type_); CHKERRA(ierr);
       ierr = KSPSetMonitor(ksp_tet,MyKSPMonitor,PETSC_NULL);
 
       ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 

@@ -37,18 +37,19 @@ extern TextHashTable *GLOBAL_OPTIONS;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int bcconv_ns_fm2::ask(char *,int &)"
-int bcconv_ns_fm2::ask(char *jobinfo,int &skip_elemset) {
+int bcconv_ns_fm2::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   DONT_SKIP_JOBINFO(comp_mat);
   DONT_SKIP_JOBINFO(comp_res);
   DONT_SKIP_JOBINFO(comp_mat_res);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "bcconv_ns_fm2::assemble"
 int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			  Dofmap *dofmap,char *jobinfo,int myrank,
+			  Dofmap *dofmap,const char *jobinfo,int myrank,
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {
 
@@ -267,7 +268,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     // BETO : matloc_prof habria que inicializarlo a cero ???????
     if(comp_mat) {
-      matloc_prof.export(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }      
 
     if (comp_mat_res) {
@@ -278,8 +279,8 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
         veccontr.is(2,1,ndim).set(resmom).rs();
       }
 	
-      veccontr.export(&(RETVAL(ielh,0,0)));
-      matloc.export(&(RETVALMAT(ielh,0,0,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
       

@@ -48,7 +48,7 @@ extern int TSTEP; //debug:=
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int wall::ask(char *,int &)"
-int wall::ask(char *jobinfo,int &skip_elemset) {
+int wall::ask(const char *jobinfo,int &skip_elemset) {
   skip_elemset = 1;
   int ierr;
 
@@ -104,7 +104,7 @@ void wall_fun(double yp,double &f,double &fprime) {
 #undef __FUNC__
 #define __FUNC__ "wall::assemble"
 int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
-			  Dofmap *dofmap,char *jobinfo,int myrank,
+			  Dofmap *dofmap,const char *jobinfo,int myrank,
 			  int el_start,int el_last,int iter_mode,
 			  const TimeData *time_data) {
 
@@ -240,7 +240,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
 
     if(comp_mat) {
-      matloc_prof.export(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
     }      
 
@@ -289,8 +289,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.rs();
       matloc.rs().add(tmp5);
 
-      veccontr.export(&(RETVAL(ielh,0,0)));
-      matloc.export(&(RETVALMAT(ielh,0,0,0,0)));
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
     
 

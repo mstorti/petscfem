@@ -1,4 +1,4 @@
-/* $Id: nsi_tet.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: nsi_tet.cpp,v 1.2 2001/01/04 20:06:18 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -17,10 +17,6 @@
 #endif
 
 extern TextHashTable *GLOBAL_OPTIONS;
-//  #define GGETOPTDEF(type,name,default) \
-//          type name=default; \
-//          ierr = get_##type(GLOBAL_OPTIONS,#name,&name,1); \
-//          PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newmat_print(const Matrix & A) {
