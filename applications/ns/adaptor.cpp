@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.7 2003/09/16 21:17:29 mstorti Exp $
+//$Id: adaptor.cpp,v 1.8 2003/09/17 00:51:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -124,7 +124,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       element_init();
     }
   }
-  if (error_code) return error_code;
+  if (error_code()) return error_code();
 
   // Users may use `init()' in order to perform calculations
   // *outside* the element loop

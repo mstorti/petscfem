@@ -55,3 +55,9 @@ $(LIB)(%.o):
 #	for dir in $(CLEAN_DIRS) ; \
 #		do $(MAKE) -C $$dir lclean ;\
 #	done
+
+#w Make a hard link of the to this directory
+lk:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
+	ln -f $(PROG) $(LOC_PROG)
+

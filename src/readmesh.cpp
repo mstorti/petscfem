@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.92 2003/09/13 18:01:23 mstorti Exp $
+//$Id: readmesh.cpp,v 1.93 2003/09/17 00:51:35 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1449,6 +1449,50 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	  }
 	}
       }
+    }
+    TRACE(3.1);
+    { // Make a local scope.
+      // Compute the epart2 and epart_p vectors. 
+      // Later epart2 could be avoided and only using epart.
+      // Right now we leave both, but it is coded so that
+      // later we could simply assign epart2=epart and it should work. 
+      vector<int> &epart_p = elemset->epart_p;
+      epart_p.resize(size+1);
+      int *epart2 = new int[elemset->nelem];
+      elemset->epart2 = epart2;
+      int *epart = elemset->epart;
+      for (int p=0; p<size+1; p++) epart_p[p]=0;
+      // First we assign epart2[k] = proc*nelem + <indx-of-k-in-proc>
+      // so that we can have the number of processor as epart2[k]/nelem
+      for (int k=0; k<nelem; k++) {
+	int proc = epart[k]-1;
+	assert(proc<size);
+	epart2[k] = proc*nelem+epart_p[proc]++;
+      }
+      int nelem2 = 0;
+      for (int p=0; p<size; p++) {
+	int tmp = epart_p[p];
+	epart_p[p] = nelem2;
+	nelem2 += tmp;
+      }
+      assert(nelem2==nelem);
+      epart_p[size] = nelem;
+      // Now convert to the true numbering
+      for (int k=0; k<nelem; k++) {
+	int proc = epart2[k]/nelem;
+	epart2[k] += -proc*nelem + epart_p[proc];
+      }
+      elemset->e1 = epart_p[myrank];
+      elemset->e2 = epart_p[myrank+1];
+#if 0
+      if (!myrank) {
+	for (int k=0; k<elemset->nelem; k++) {
+	  printf("elem %d, epart %d, epart2 %d\n",k,epart[k],epart2[k]);
+	}
+      }
+      PetscFinalize();
+      exit(0);
+#endif    
     }
     TRACE(3);
     // ghost_elems:= These are elements that have related dof's on the

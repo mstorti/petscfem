@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.12 2003/09/16 21:17:29 mstorti Exp $
+//$Id: elast.cpp,v 1.13 2003/09/17 00:51:31 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -30,6 +30,7 @@ public:
 } my_fun;
 #endif
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class my_locker {
 public:
   int cookie;
@@ -37,6 +38,7 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define M 20
 void elasticity::element_init() {
   my_locker *locker = new my_locker;
   if (!locker) {
@@ -46,7 +48,7 @@ void elasticity::element_init() {
   locker->cookie = rand();
   locker->dcookie = drand();
   local_store_address(elem) = locker;
-  if (!(elem % 100)) printf("[%d] element %d, cookie %d, dcookie %g\n",
+  if (!(elem % M)) printf("[%d] element %d, cookie %d, dcookie %g\n",
 			  MY_RANK, elem, locker->cookie, locker->dcookie);
 }
 
@@ -115,12 +117,12 @@ void elasticity::element_connector(const FastMat2 &xloc,
 				   FastMat2 &res,FastMat2 &mat){
 
   my_locker *locker = (my_locker *)local_store_address(elem);
-  if (!(elem%100)) printf("[%d] At element_connector:start: "
+  if (!(elem % M)) printf("[%d] At element_connector:start: "
 			  "element %d, cookie %d, dcookie %g\n",
 			  MY_RANK, elem, locker->cookie, locker->dcookie);
   locker->cookie = int(10000*rand());
   locker->dcookie = drand();
-  if (!(elem%100)) printf("[%d] In element_connector, setting: "
+  if (!(elem % M)) printf("[%d] In element_connector, setting: "
 			  "element %d, cookie %d, dcookie %g\n",
 			  MY_RANK, elem, locker->cookie, locker->dcookie);
 

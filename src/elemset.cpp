@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.80 2003/09/08 15:19:44 mstorti Exp $
+//$Id: elemset.cpp,v 1.81 2003/09/17 00:51:35 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -238,23 +238,27 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Elemset::clear_error() { error_code=0; }
+void Elemset::clear_error() { error_code_m=0; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Elemset::set_error(int error_code_a) { error_code = error_code_a; }
+void Elemset::set_error(int error_code_a) { error_code_m = error_code_a; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::check_error() {
   int error;
-  int ierr = MPI_Allreduce(&error_code,&error,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
-  handle_error(error);
+  int ierr = MPI_Allreduce(&error_code_m,&error,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
+  error_code_m = error;
+  handle_error(error_code_m);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Elemset::handle_error(int error_code) {
-  if (error_code) PETSCFEM_ERROR("Elemset name \"%s\", ptr %p, set error %d\n",
-			    name(),this,error_code);  
+void Elemset::handle_error(int error) {
+  if (error) PETSCFEM_ERROR("Elemset name \"%s\", ptr %p, set error %d\n",
+			    name(),this,error);  
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Elemset::error_code() { return error_code_m; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -862,6 +866,13 @@ const char * Elemset::name() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void *& Elemset::local_store_address(int k) {
+  int kk = epart2[k];
+  assert(e1 <= kk < e2);
+  return local_store[kk-e1];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double NewElemset::prop_val(ElementIterator &element,
 			    Property &prop,double t) const {
   const double *val_p = prop_array(element,prop);
@@ -975,7 +986,7 @@ void Elemset::read(FileStack *fstack) {}
 Elemset::Elemset() : type(NULL), icone(NULL), elemprops(NULL),
 		     elemiprops(NULL), elemprops_add(NULL),
 		     elemiprops_add(NULL), thash(NULL),
-                     elem_conne(NULL), error_code(0) { }
+                     elem_conne(NULL), error_code_m(0) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Elemset::~Elemset() {

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2003/09/16 21:17:29 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2003/09/17 00:51:06 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -55,5 +55,7 @@ local_clean::
 	-rm -rf mat.output system.dat save.state data.m \
 		lastmesh.dat remeshing.dat
 
+link:
+	$(MAKE) -C ../
 
 #s

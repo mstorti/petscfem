@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.34 2003/09/14 00:23:22 mstorti Exp $
+//$Id: elemset.h,v 1.35 2003/09/17 00:51:35 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -46,6 +46,17 @@ public:
   int ndof;
   /// mesh partitioning as computed by Metis 
   int *epart;
+  /** Contains the position of element in this processor. It is obtained
+      by first numbering all the elements in processor 0, then on 1, 
+      and so on. Old `epart' vector could be replaced by this 
+      in a future. */
+  int *epart2;
+  /** Element `k' is in processor `p' if `epart2[k]' is in 
+      range epart2_p[p] and epart2_p[p+1] */
+  vector<int> epart_p;
+  /** Particularly elements e1 = epart2_p[MY_RANK], 
+      e2 = epart2_p[MY_RANK+1] */
+  int e1,e2;
   /// flag indicating whether this  is the fat elemset or not
   int isfat;
   /// number of elements in this processor
@@ -198,9 +209,7 @@ public:
       @param global_elem (input) the index of the element in the elemset
       @return the address (void *) of the locker
   */
-  void *& local_store_address(int global_elem) {
-    return local_store[global_elem];
-  }
+  void *& local_store_address(int global_elem);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns coordinates and node data for the element
@@ -315,17 +324,19 @@ public:
 
 private:
   /// The actual error code
-  int error_code;
+  int error_code_m;
 
 public:
   /// Clear the error code in the elemset
   void clear_error();
   /// Set an error at the element level
-  void set_error(int error_code);
+  void set_error(int error);
   /// Check the actual error code (collective)
   void check_error();
   /// This can be modified by the user in order to handle different errors
-  virtual void handle_error(int error_code);
+  virtual void handle_error(int error);
+  /// Return the actual error code
+  int error_code();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // The following will be declared `private' in the future
