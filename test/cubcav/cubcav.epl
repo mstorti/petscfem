@@ -1,17 +1,5 @@
-<:                              # starts ePerl block
-#__TRANSCRIPT__
-require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-require "math.pl";
-require "./cubcav.pl";
-#
-#__END_TRANSCRIPT__
-transcript("", qw(viscosity Dt));	# print variables on output
-@vars= qw(CASE U L N Re viscosity 
-    h Co Dt hratio leaky tol use_prismatic use_tetra);
-octave_export_vars(">data.m.tmp",@vars);
-if ($mkmesh) { system "octave -qH mkmesh.m > mkmesh.output.tmp"; }
-:>//                            # ends ePerl block
-
+#$Id: cubcav.epl,v 1.96 2003/11/27 00:07:26 mstorti Exp $ 
+<:require "./cubcav.pl";:>//
 global_options
 
 # <:pr('dx'):>

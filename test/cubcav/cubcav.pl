@@ -1,4 +1,7 @@
-# $Id: cubcav.pl,v 1.3 2003/11/25 23:54:51 mstorti Exp $
+# $Id: cubcav.pl,v 1.4 2003/11/27 00:07:32 mstorti Exp $
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+require "math.pl";
+
 $case = 'laplace' unless $case;
 get_var_env2('data_dir','.');
 $endur_test = $data_dir ne '.';
@@ -23,5 +26,11 @@ $iisd_subpart = $subpart;
 $nu = 1e-2;
 get_var_env2('nlay',1);
 get_var_env2('isp_maxits',12);
+
+transcript("", qw(viscosity Dt));	# print variables on output
+@vars= qw(CASE U L N Re viscosity 
+    h Co Dt hratio leaky tol use_prismatic use_tetra);
+octave_export_vars(">data.m.tmp",@vars);
+if ($mkmesh) { system "octave -qH mkmesh.m > mkmesh.output.tmp"; }
 
 1;
