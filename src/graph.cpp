@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.13 2002/05/06 15:51:13 mstorti Exp $
+//$Id: graph.cpp,v 1.14 2002/05/06 19:59:51 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -118,17 +118,15 @@ void Graph::part(int max_partgraph_vertices,
       for (k=0; k<nvrtx_f; k++) {
 	if (el2vrtx[k]<0) {
 	  ngbrs.push(k);
-	  // printf("1./ ngbrs.empty: %d\n",ngbrs.empty());
+	  visited++;
 	  // Put it in a random vertex
 	  vrtx = irand(0,nvrtx)-1;
 	  el2vrtx[k] = vrtx;
 	  vwgt[vrtx] += int(weight(vrtx_f)/weight_scale);
 	  disconnected_was_found=1;
-	  // printf("2./ ngbrs.empty: %d\n",ngbrs.empty());
 	  break;
 	}
       }
-      // printf("3./ ngbrs.empty: %d\n",ngbrs.empty());
       assert(disconnected_was_found);
     }
 
