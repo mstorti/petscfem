@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.12 2001/05/05 01:20:40 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.13 2001/05/05 14:24:56 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -526,61 +526,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	tmp13.prod(P_pspg,dshapex,-1,1,-1,2);
 	// W_pspg.set(SHAPE).add(P_pspg);
 
-#define EFFICIENT_FM2_VERSION
-#ifndef EFFICIENT_FM2_VERSION	// Old version with too much looping
-	for (int iloc=1; iloc<=nel; iloc++) {
-	  double SHAPE_iloc = SHAPE.get(iloc);
-	  double P_supg_iloc = P_supg.get(iloc);
-	  double W_iloc = SHAPE_iloc + P_supg_iloc;
-	  for (int jloc=1; jloc<=nel; jloc++) {
-	    double SHAPE_jloc = SHAPE.get(jloc);
-	    double dmatw_jloc = dmatw.get(jloc);
-	    double c = matlocmom.get(iloc,jloc);
-	    matij.eye(c).setel(0.,ndof,ndof);
-	    if (!weak_form) {
-	      dshapex.ir(2,jloc);
-	      matij.ir(2,ndof).is(1,1,ndim).axpy(dshapex,W_iloc);
-	    } else {
-	      matij.ir(2,ndof).is(1,1,ndim);
-	      dshapex.ir(2,iloc);
-	      matij.axpy(dshapex,-SHAPE_jloc);
-	      dshapex.ir(2,jloc);
-	      matij.axpy(dshapex,P_supg_iloc);
-	      matij.rs();
-	      dshapex.rs();
-	    }
-	    matij.rs();
-	    dshapex.rs();
-
-	    P_pspg.ir(2,iloc);
-	    matij.ir(1,ndof).is(2,1,ndim).axpy(P_pspg, -dmatw_jloc);
-	    dshapex.ir(2,jloc);
-	    matij.axpy(dshapex,-SHAPE_iloc);
-	    matij.rs();
-	    P_pspg.rs();
-	    dshapex.rs();
-
-	    matij.addel(-tmp13.get(iloc,jloc),ndof,ndof);
-
-	    dshapex.ir(2,iloc);
-	    dshapex_c.ir(2,jloc);
-            // version original
-	    tmp14.prod(dshapex,dshapex_c,1,2);  
-
-	    dshapex.rs();
-	    dshapex_c.rs();
-	    matij.is(1,1,ndim).is(2,1,ndim)
-	      .axpy(tmp14,(delta_supg*rho+nu_eff)).rs();
-
-	    int il1=(iloc-1)*ndof+1;
-	    int il2=il1+ndof-1;
-	    int jl1=(jloc-1)*ndof+1;
-	    int jl2=jl1+ndof-1;
-	    matloc.is(1,il1,il2).is(2,jl1,jl2).axpy(matij,wpgdet).rs();
-	    
-	  }
-	}
-#else  // More efficient (???) version
 	if (update_jacobian) {
 	  for (int iloc=1; iloc<=nel; iloc++) {
 	    for (int jloc=1; jloc<=nel; jloc++) {
@@ -614,7 +559,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    }
 	  }
 	}
-#endif
 
       } else if (comp_mat) {
 	// don't make anything here !!
@@ -651,11 +595,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	.rs().ir(2,ndof).set(rescont).rs();
 
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
-#ifndef EFFICIENT_FM2_VERSION
-      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-#else
       if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-#endif
     }
   }
   FastMat2::void_cache();
