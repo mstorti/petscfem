@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.9 2002/07/24 17:24:46 mstorti Exp $
+// $Id: distcont.h,v 1.10 2002/07/24 18:12:47 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
@@ -19,6 +19,14 @@ template <typename Container,typename ValueType,typename Partitioner>
 class DistCont : public Container {
 private:
   int belongs(typename Container::const_iterator k,int *plist) const;
+public:
+  /** Iteration is different for non-associative containers (`erase()'
+      doesn't remove the object, i.e. random-access containers like
+      vectors-deques.) than for associative containers (`erase()' does
+      remove the object, for instance lists and maps). (fixme:= this
+      should be done better).
+  */
+  enum iter_mode_t { associative_iter_mode, random_iter_mode };
 protected:
   /// MPI communicator
   MPI_Comm comm;
@@ -26,16 +34,9 @@ protected:
   Partitioner *part;
   /// size and rank in the comunicator
   int size,myrank;
+  /// Type of iteration mode
+  iter_mode_t iter_mode;
 public:
-  /** Set to true(1, default) for non-associative containers
-      (`erase()' doesn't remove the object, i.e. random-access
-      containers like vectors-deques.)  Set to false(0) For
-      associative containers (`erase()' does remove the object, for
-      instance lists and maps), Advance until find the first element
-      that remains here For This is ugly. I not decided yet how to do
-      better...  
-  */
-  int random_iter_mode;
   /** Constructor.
       @param part (input) partitioner, defines to which processor belongs each iterator
       @param comm_ (input) MPI communicator
@@ -45,7 +46,7 @@ public:
   DistCont<Container,
     ValueType,Partitioner>(Partitioner *part=NULL,
 			   MPI_Comm comm_=MPI_COMM_WORLD,
-			   int random_iter_mode=0);
+			   iter_mode_t iter_mode = associative_iter_mode);
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
@@ -83,8 +84,8 @@ DistCont<Container,ValueType,Partitioner>::
 DistCont<Container,
   ValueType,
   Partitioner>(Partitioner *pp=NULL, MPI_Comm comm_= MPI_COMM_WORLD, 
-	       int random_iter_mode_a) 
-    : comm(comm_), random_iter_mode(random_iter_mode_a) {
+	       iter_mode_t iter_mode_a) 
+    : comm(comm_), iter_mode(iter_mode_a) {
   // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
@@ -186,13 +187,13 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     }
   }
 
-  if (random_iter_mode) {
+  if (iter_mode == random_iter_mode) {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // FOR NON-ASSOCIATIVE CONTAINERS (`erase()' doesn't remove the object,
     // i.e. random-access containers like vectors-deques.)
     for (iter=begin(); iter!=end(); iter++) 
       if (!belongs(iter,plist)) erase(iter);
-  } else {
+  } else if (iter_mode == associative_iter_mode) {
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
     //FOR ASSOCIATIVE CONTAINERS (`erase()' does remove the object,
     //for instance lists and maps), Advance until find the first
@@ -220,7 +221,7 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
 	}
       }
     }
-  }
+  } else assert(0); // bad iter_mode!!
 
   // Check that all buffers must remain at the end
   for (k=0; k<size; k++) {

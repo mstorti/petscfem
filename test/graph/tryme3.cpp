@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.14 2002/07/24 17:24:52 mstorti Exp $
+// $Id: tryme3.cpp,v 1.15 2002/07/24 18:12:50 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
@@ -82,9 +82,11 @@ void graph_print_dis(LinkGraphDis &graph, char *s=NULL) {
   if (MY_RANK==0) printf("%s",s);
   for (int p=0; p<SIZE; p++) {
     MPI_Barrier(MPI_COMM_WORLD);
-    if (MY_RANK==0) printf("On [%d]\n",p);
-    if (p==MY_RANK) graph_print(graph);
-    fflush(stdout);
+    if (MY_RANK==p) {
+      printf("On [%d]\n",p);
+      graph_print(graph);
+      fflush(stdout);
+    }
   }
 }
 
@@ -143,7 +145,7 @@ int main(int argc, char **args) {
 
   // ================================================================
   // TRY SCATTER
-  LinkGraphDis graph(&part,MPI_COMM_WORLD,1);
+  LinkGraphDis graph(&part,MPI_COMM_WORLD,LinkGraphDis::random_iter_mode);
   
   graph.init(M);
   for (int j=0; j<M; j++) {
