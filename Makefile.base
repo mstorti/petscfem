@@ -56,7 +56,7 @@ depend:
 		do $(MAKE) -C $$dir depend ;\
 	done
 
-makefile.d: $(SRCS)
+makefile.d:
 ifneq ($(SRCS),)
 	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > $@
 endif
