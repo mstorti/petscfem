@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2003/11/13 02:48:26 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2003/11/13 13:46:30 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -12,20 +12,32 @@ LOC_PROG := advdif
 CASE := pool
 PROG := $(ADVDIF)
 
-###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>-----
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 MCH = -machinefile ./machi.dat
 
 NPMAX := 10
 PETSCFEM_PROCTABLE := ./proctable
 
-ifeq (1,1)
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+ifeq (1,0)
+## Sequential run
 NP := $(shell procsel -l $(PETSCFEM_PROCTABLE))
 NOLOCAL := 
 NPMAX := 1
-else
+endif
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+ifeq (1,1)
+## Parallell run `no-local'
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 NOLOCAL := -nolocal
 endif
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+## Parallell run `local'
+ifeq (1,0)
+NP := $(shell procsel -l $(PETSCFEM_PROCTABLE))
+NOLOCAL := 
+endif
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 
 NP := $(shell perl -e "print $(NP)> $(NPMAX) ? $(NPMAX) : $(NP);")
 
@@ -34,8 +46,8 @@ run:
 	-rrm -f pool.state_*.tmp
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m
-	echo in Makefile  mpirun
 	-${MPIRUN} $(NOLOCAL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+# 	@echo SIMULATED RUNNING
 
 #w Makes local link for running with debugger
 link:
