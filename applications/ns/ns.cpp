@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.10 2001/01/22 12:58:17 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.11 2001/01/23 13:25:24 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -73,104 +73,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
 	exit(1);
 	}
 }
-
-// Family of LowPass filters
-class LPFilterGroup {
-  Inlet input;
-  vector <vector < Filter *> > lp_filters;
-  vector<double> gamma_v;
-  vector<int> n_v;
-  int nalpha;
-public:
-  LPFilterGroup(TextHashTable *thash,State &x,double Dt);
-  ~LPFilterGroup();
-  void update();
-  Filter & filter(int j, int k=1);
-  void print_some(const char *filename,Dofmap *dofmap,
-		  set<int> & node_list);
-};
-
-LPFilterGroup::LPFilterGroup(TextHashTable *thash,
-			     State &x,double Dt) : input(x), nalpha(0) {
-
-  //o _T: double[2*nalpha]
-  //  _N: low_pass_filter _D: no filter (nalpha=0)  _DOC: 
-  //  Enter pair of values \verb+gamma_1 n_1 gamma_2 n_2+ ...
-  //  so that the relaxation time are \verb+tau_j = 1./gamma_j$ and $n_j$
-  //  is the corresponding order. 
-  //  FIXME:= TO BE DOCUMENTED LATER
-  //  _END
-  const char *entry;
-  vector<double> array;
-  VOID_IT(array);
-  thash->get_entry("low_pass_filter",entry);
-  if (entry) read_double_array(array,entry);
-  nalpha = array.size();
-  if (int(nalpha/2)*2 != nalpha) {
-    PetscPrintf(PETSC_COMM_WORLD,
-		"Number of entries in \"low_pass_filter\" should be even\n"
-		"Entered %d values\n",nalpha);
-    exit(1);
-  }
-  nalpha /= 2;
-  gamma_v.resize(nalpha);
-  n_v.resize(nalpha);
-  for (int j=0; j<nalpha; j++) {
-    double aa = array[2*j];
-    double a = array[2*j+1];
-    printf("aa %f, a %f\n",aa,a);
-    if (aa <= 0.) {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Odd entries in \"low_pass_filter\" should be "
-		  "positive reals. Entered %f\n",aa);
-      exit(1);
-    }
-    gamma_v[j] = exp(-aa*Dt);
-    int n = int(a);
-    if (a != double(n) || n<=0) {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Even entries in \"low_pass_filter\" should be "
-		  "positive integers\n"
-		  "gamma_1 n_1 gamma_2 n_2 ... Entered %f\n",
-		  "Entered %d values\n",a);
-      exit(1);
-    }
-    n_v[j] = n;
-  }
-  
-  lp_filters.resize(nalpha);
-  // Create filters1
-  for (int j=0; j<nalpha; j++) {
-    lp_filters[j].resize(n_v[j]);
-    lp_filters[j][0] = new LowPass (gamma_v[j],input,x);
-    for (int k=1; k<n_v[j]; k++) {
-      lp_filters[j][k] = new LowPass (gamma_v[j],*lp_filters[j][k-1],x);
-    }
-  }
-}
-
-LPFilterGroup::~LPFilterGroup() {
-  for (int j=0; j<nalpha; j++) {
-    for (int k=0; k<n_v[j]; k++) {
-      delete lp_filters[j][k];
-    }
-  }
-}
-
-void LPFilterGroup::print_some(const char *filename,Dofmap *dofmap,
-			       set<int> & node_list) {
-  for (int j=0; j<nalpha; j++) {
-    for (int k=1; k<n_v[j]; k++) {
-      lp_filters[j][k]->state().print_some(filename,dofmap,node_list);
-    }
-  }
-}
-
-void LPFilterGroup::update() {
-  for (int j=0; j<nalpha; j++) {
-    lp_filters[j][n_v[j]-1]->update();
-  }
-}  
 
 #if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -628,7 +530,7 @@ int main(int argc,char **args) {
     if (tstep % nsave == 0)
       print_vector(save_file.c_str(),x,dofmap,&time);
 
-    filter.update();
+    filter.update(time);
     if (print_some_file!="" && tstep % nsome == 0) {
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
       filter.print_some("filter.some.tmp",dofmap,node_list);

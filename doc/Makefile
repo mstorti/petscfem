@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.9 2001/01/22 00:51:40 mstorti Exp $
+#$Id: Makefile,v 1.10 2001/01/23 13:25:31 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -110,7 +110,7 @@ local_clean:: local_dist_clean
 		version.tex
 
 #w Clean leaving PS and HTML
-local_dist_clean:
+local_dist_clean::
 	-putex
 	-rm -rf tz*.tex .*.db \
               pod2html-{dir,item}cache

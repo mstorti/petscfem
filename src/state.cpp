@@ -29,17 +29,19 @@ State & State::axpy(double alpha,const State &v) {
   return *this;
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "State::State(const State &v)"
 State::State(const State &v) : time(v.time) {
   vec = new Vec;
   int ierr = VecDuplicate(*v.vec,vec);
 }
 
-#if 0  
-State::~State() {
-  int ierr = VecDestroy(*vec); 
-}
-#endif
-  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "State::~State()" 
 State::~State() {
   if (vec) {
     int ierr = VecDestroy(*vec);
@@ -48,24 +50,40 @@ State::~State() {
   }
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "const State & State::print_some(const char *,Dofmap *,set<int> &) const"
 const State & State::print_some(const char *filename,Dofmap *dofmap,
 	       set<int> & node_list) const {
   ::print_some(filename,v(),dofmap,node_list,&t());
   return *this;
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "State & State::scale(double alpha)"
 State & State::scale(double alpha) {
   double alpha_ = alpha;
   int ierr = VecScale(&alpha_,*vec);
   return *this;
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "State & State::set_cnst(double a)"
 State & State::set_cnst(double a) {
   double a_ = a;
   int ierr = VecSet(&a,*vec);
   return *this;
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "const State & State::print() const"
 const State & State::print() const {
 
   printf("time: %f\n",double(t()));
@@ -73,6 +91,10 @@ const State & State::print() const {
   return *this;
 }
 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "const State & State::print(int n) const"
 const State & State::print(int n) const {
 
   printf("time: %f\n",double(t()));
