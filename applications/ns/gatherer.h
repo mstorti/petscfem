@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.5 2002/03/18 00:34:59 mstorti Exp $
+//$Id: gatherer.h,v 1.6 2002/03/21 19:43:25 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -52,7 +52,13 @@ public:
   //@}
 };
 
-/** Integrates forces on walls
+/** Computes the force that the container is
+    performing on the wall. 
+    # force = \int_\surf - p * normal \dS #, where
+    #force# is the computed force, #surf# is the
+    surface of the elemset, #p# is pressure #normal#
+    is the unit vector \emph{exterior} to the fluid.
+    #\dS# is the diferential os surface. 
 */ 
 class force_integrator : public gatherer {
 private:

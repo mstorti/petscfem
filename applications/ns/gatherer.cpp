@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.5 2002/03/18 00:34:59 mstorti Exp $
+//$Id: gatherer.cpp,v 1.6 2002/03/21 19:43:25 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -159,7 +159,7 @@ void force_integrator::init() {
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
 				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
-  force.set(n).scale(wpgdet*u.get(4));
+  force.set(n).scale(-wpgdet*u.get(4));
   force.export_vals(pg_values.begin());
   // pg_values[0] = wpgdet;	// compute total area
 }
