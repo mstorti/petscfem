@@ -4229,6 +4229,12 @@ shocap
 shocap
  (found in file: \verb+../applications/advdif/bubbly_full.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap\_aniso@\verb+shocap_aniso+}
+\item\verb+double shocap_aniso+ {\rm(default=\verb|0.0|)}:
+
+Add an anisotropic shock capturing term
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing@\verb+shock_capturing+}
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
 
@@ -5016,6 +5022,14 @@ Update jacobian each $n$-th time step.
 
 Update jacobian each $n$-th time step. 
  (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_Ajac\_old@\verb+use_Ajac_old+}
+\item\verb+int use_Ajac_old+ {\rm(default=\verb|0|)}:
+
+Use the advective Jacobian in the previous time step
+ for the SUPG stabilization term. This accelerates
+ convergence of the Newton iteration. 
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_compact\_profile@\verb+use_compact_profile+}
 \item\verb+int use_compact_profile+ {\rm(default=\verb|LINK_GRAPH|)}:

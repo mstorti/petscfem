@@ -77,6 +77,20 @@ Use lumped mass (used mainly to avoid oscillations for small time steps).
 Add a shock capturing term
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap\_aniso@\verb+shocap_aniso+}
+\item\verb+double shocap_aniso+ {\rm(default=\verb|0.0|)}:
+
+Add an anisotropic shock capturing term
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_Ajac\_old@\verb+use_Ajac_old+}
+\item\verb+int use_Ajac_old+ {\rm(default=\verb|0|)}:
+
+Use the advective Jacobian in the previous time step
+ for the SUPG stabilization term. This accelerates
+ convergence of the Newton iteration. 
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_fastmat2\_cache@\verb+use_fastmat2_cache+}
 \item\verb+int use_fastmat2_cache+ {\rm(default=\verb|1|)}:
 
