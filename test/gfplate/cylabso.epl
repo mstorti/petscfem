@@ -102,7 +102,7 @@ elemset gasflow 4
 geometry cartesian2d
 dx 1
 npg 4
-lumped_mass
+# lumped_mass
 data ./cylabso.con.tmp
 __END_HASH__
 
