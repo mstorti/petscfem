@@ -14,6 +14,7 @@ yy=yy(1)+eta.*(1+0.*(1-eta)).*(yy(Ny_eq+1)-yy(1));
 yy=yy(:,ones(1,size(xx,2)));
 wl=xx+i*yy;
 w(Ny+1+(-Ny_eq:0)',:)=wl;
+xx=xx(1,:)';
 
 [xnod,icone]=pfcm2fem(w);
 
@@ -21,8 +22,12 @@ xnod = [xnod;
         xnod(1:Ny+1,:)];
 ywall = xnod(1:Ny+1,2);
 #ywall = (ywall(1:Ny)+ywall(2:Ny+1))/2;
-xi = ywall/uwall_match_len;
-uwall = (3/4*((2*xi-1)-(2*xi-1).^3/3)+.5).*(xi<1) + (xi>=1);
+if uwall_match_len>0 && piston
+  xi = ywall/uwall_match_len;
+  uwall = (3/4*((2*xi-1)-(2*xi-1).^3/3)+.5).*(xi<1) + (xi>=1);
+else
+  uwall = ones(size(ywall));
+endif
 epsuw = .1;
 uwall=(1-epsuw)*(1-uwall);
 
@@ -49,12 +54,19 @@ for k = lagr
 endfor
 fclose(fid);
 
+epsp=0.;
 uin=[0. Uav 0. 1e-3 1e-5];  
 fid = fopen("wallke.fixa_in.tmp","w");
-for k=1:(Ny+1):(N+1)*(Ny+1)
-  for j=[1 2 4 5]
+for jj=1:N+1
+  k=1+(jj-1)*(Ny+1);
+  for j=[1 4 5]
     fprintf(fid,"%d %d %f\n",k,j,uin(j));
   endfor
+  if piston
+    fprintf(fid,"%d %d %f\n",k,2,Uav);
+  else
+    fprintf(fid,"%d %d %f\n",k,2,Uav*(epsp+xx(jj))*(2*L+epsp-xx(jj))/L^2*1.5);
+  endif
 endfor
 fclose(fid);
 

@@ -5,18 +5,19 @@ $L = 1;                         # Semi distance between plates
 $N = 16;                        # Number of elements in transversal 'x' direction
 $hratio = 20;                   # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
-$Ny = 100;                       # Number of elements in y dir
+$Ny = 40;                       # Number of elements in y dir
 $Ny_eq = 20;                    # last elements that are equal in size
                                 # in the y direction
-$Ly = 60;                       # longitudinal length 
+$Ly = 10;                       # longitudinal length 
 $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
 $turb_prod_coef=1;              # activate/deactivate turbulence production terms
-$uwall_match_len = 0.5;         # u at the wall is matched to 0 (from the inlet) at
+$uwall_match_len = 0.1;         # u at the wall is matched to 0 (from the inlet) at
                                 # this distance 
 $iterative = 0;                 # use iterative or direct solver 'lu'
 $restart = 0;
+$piston = 1;
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
     $Re_l = 5;                  # laminar Re
@@ -37,8 +38,9 @@ if ($case eq 'poi_lam') {
     $y_wall = .01;
     $turbulence_coef=1;         # mask turbulence
     $turb_prod_coef=1;          # mask turbulence production terms
-    $iterative =1;              # use iterative method or not
-    $restart = 1;
+    $iterative =0;              # use iterative method or not
+    $restart = 0;
+    $piston = 1;
 #    $restart = 1 if $iterative;
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
@@ -51,7 +53,7 @@ if ($case eq 'poi_lam') {
 }
 $ocase = $case;    
 octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy 
-    L Ly peri Ny_eq Uav uwall_match_len));
+    L Ly peri Ny_eq Uav uwall_match_len piston));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -66,7 +68,7 @@ nsave 5
 #rtol 1e-2
 rtol 0
 atol 0
-maxits <:= ( $iterative ? 100 : 1 ) :>
+maxits <:= ( $iterative ? 200 : 1 ) :>
 #print_internal_loop_conv <:= $iterative:>
 
 save_file_pattern "outvector%d.out"
@@ -86,13 +88,13 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 1000
+nstep 10
 nnwt 4
 tol_newton 0
 preco_type <:= ($iterative ? "\"jacobi\"" : "\"lu\""); :>
 Dt 1
 #steady
-newton_relaxation_factor 1
+newton_relaxation_factor 0.1
 kap_ctff_val 1e-5
 eps_ctff_val 1e-5
 #pspg_advection_factor 0.
