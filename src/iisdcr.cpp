@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.5 2001/11/27 02:46:59 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.6 2001/11/27 14:34:45 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -164,7 +164,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   MPI_Allreduce(flag0.begin(), flag.begin(), neq, MPI_INT, 
 		MPI_MAX, PETSC_COMM_WORLD);
 
-#if 0
+#if 1
   // SUBPARTITIONING. //---:---<*>---:---<*>---:---<*>---:---<*>---:
   // We partition the graph of those vertices (dof's) that are local
   // to this processor. Those that result in internal interfaces are
@@ -185,7 +185,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   loc2dof.resize(n_loc_pre);
   for (dof = 0; dof < neqp; dof++) {
     loc = dof2loc[dof];
-    if (loc>=0) loc2dof[dof] = loc;
+    if (loc>=0) loc2dof[loc] = dof;
   }
   
   // Fill Graph class members 
@@ -214,6 +214,10 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     for (q=ngbrs_v.begin(); q!=qe; q++) {
       if (graph.vrtx_part(*q)<subdoj) {
 	printf("[%d] marking %d as interface\n",myrank,k1+loc2dof[k]);
+#if 0 // debug:=
+	int kkk = k1+loc2dof[k];
+	assert(0<= kkk &&kkk<neq);
+#endif
 	flag[k1+loc2dof[k]] = 1;
 	break;
       }
