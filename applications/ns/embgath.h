@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.13 2003/01/06 03:07:43 mstorti Exp $
+//$Id: embgath.h,v 1.14 2003/01/07 00:18:11 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -16,6 +16,8 @@ class Surf2Vol : public GPdata {
 private:
   /// Flags whether to use the exterior normal or the interior normal
   int use_exterior_normal_m;
+  /// 
+  int *face_1_c,*face_2_c;
 public:
   /** Constructor as for the `GPdata' class plus the flag
       `use_exterior_normal'. 
@@ -30,6 +32,7 @@ public:
   Surf2Vol(const char *geom,int ndim,int nel,int npg,
 	   int mat_version=GP_NEWMAT,int use_exterior_normal=0);
 
+  virtual ~Surf2Vol();
   /** @name Call back functions. 
   */ 
   //@{
@@ -50,6 +53,7 @@ public:
       element in order to rotate it to a standard position. 
   */ 
   virtual void face(int j,const int *&fc,const int *&vol)=0;
+  virtual void layer_nodes(const int *&face_1,const int *&face_2);
   //@}
   /** Rotates the connectivity in #vol_map# according to
       the surface rotation #surf_map#.
@@ -102,7 +106,6 @@ public:
   //@}
 };
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Instantiation of the #Surf2Vol# class for
     quads with line surface elements. */
@@ -127,7 +130,6 @@ public:
   int nfaces(int &nel_surf,int &nel_vol) { nel_surf=2; nel_vol=4; return 4; }
   //@}
 };
-#endif
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /** Allows to compute integrals, or any kind of function
