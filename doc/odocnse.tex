@@ -7,59 +7,70 @@
 \item\verb+int npg+ {\rm(default=\verb|none|)}:
 
 Number of Gauss points.
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
 Use a weak form for the gradient of pressure term.
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing\_factor@\verb+shock_capturing_factor+}
 \item\verb+double shock_capturing_factor+ {\rm(default=\verb|1|)}:
 
 Add shock-capturing term.
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
 Add LES for this particular elemset.
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
 Cache \verb+grad_div_u+ matrix
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
 
 Smagorinsky constant.
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{A\_van\_Driest@\verb+A_van_Driest+}
 \item\verb+double A_van_Driest+ {\rm(default=\verb|26|)}:
 
 van Driest constant for the damping law.
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{alpha@\verb+alpha+}
 \item\verb+double alpha+ {\rm(default=\verb|1.|)}:
 
 Parameter for the trapezoidal rule time integration method. 
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
 Scale the SUPG upwind term. 
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
 
 Adjust the stability parameters, taking into account
 the time step. 
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\item\verb+ double[ndim]  G_body+ {\rm(default=\verb| null vector|)}:
+\item\verb+ double[ndim]+ \verb+ G_body+ {\rm(default=\verb| null vector s|)}:
  Vector of gravity acceleration (must be constant). %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
 Type of element geometry to define Gauss Point data
+
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>
 % DON'T EDIT MANUALLY THIS FILE !!!!!!

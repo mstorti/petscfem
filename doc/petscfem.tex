@@ -41,6 +41,8 @@
 \newcommand{\btau}{\boldsymbol{\tau}}
 \newcommand{\pfem}{PETSc-FEM}
 \newcommand{\F}{\mathcal{F}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\bD}{\bar{\D}}
 \newcommand{\Psupg}{{P_\mathrm{SUPG}}}
 \newcommand{\deltasc}{{\delta_\mathrm{sc}}}
 % For LES
@@ -95,7 +97,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-{\tiny\verb+$Id: petscfem.tex,v 1.4 2001/01/09 16:58:51 mstorti Exp $+}
+{\tiny\verb+$Id: petscfem.tex,v 1.5 2001/01/11 21:52:39 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -112,17 +114,25 @@ keeping in mind the scope of efficiency.
 \newpage
 \tableofcontents
 %
-% \input gpl
-% \input prev1
-% \input layout
-% \input thash
+\input gpl
+\input prev1
+\input layout
+\input thash
 \input idmap
-% \input compprof
-% \input advec
-% \input advdif
-% \input ns
-% \input tests
-% \input fastmat2
+\input compprof
+\input advec
+\input advdif
+\input ns
+\input tests
+\input fastmat2
+
+%%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
+% \subsection{contents of nsdoc.tex}
+% \input nsdoc.tex
+
+% \subsection{contents of advdif.tex}
+% \input advdifop.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \Section{Symbols and Acronyms}
 
