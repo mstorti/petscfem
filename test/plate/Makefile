@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2002/12/19 18:51:25 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2002/12/20 22:29:14 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full
 
@@ -14,7 +14,7 @@ SRCS =
 
 LOC_PROG := ns
 CASE_NAME := plate
-PROG := $(NS_G)
+PROG := $(NS_O)
 
 .PHONY: force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
