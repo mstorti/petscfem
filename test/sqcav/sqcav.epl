@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.23 2002/09/07 15:33:50 mstorti Exp $
+#$Id: sqcav.epl,v 1.24 2002/09/07 20:41:23 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -70,6 +70,11 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case $case\n";
 }
+
+if ($fractional_step) {
+    $nstep = 100;
+}
+
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re viscosity h Co Dt hratio g_body);

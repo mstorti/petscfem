@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.27 2002/09/07 15:33:50 mstorti Exp $ 
+# $Id: Makefile,v 1.28 2002/09/07 20:41:23 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,7 +6,8 @@
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
-tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body \
+		test_fs
 
 PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 include $(PETSCFEM_DIR)/Makefile.base
@@ -87,6 +88,7 @@ test_iisd:
 #w Tests Fractional step solver
 test_fs:
 	$(MAKE) case=fractional_step runs
+	octave -q < check_re1000_fs.m > check.re_1000_fs.verif.tmp
 
 #w Makes local link for running with debugger
 link:
