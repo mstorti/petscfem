@@ -3768,3 +3768,9 @@ tag: beta-3.39.58 on Sun, 23 Jan 2005 15:45:05 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.59 on Sun, 23 Jan 2005 16:17:59 -0300 by mstorti in spider
      > Absorbing b.c. tested with rotations. 
+----------
+tag: beta-3.39.60 on Sun, 23 Jan 2005 17:19:48 -0300 by mstorti in spider
+     > Tested standard (linear) a.b.c. rotation independent 
+     > for flow along all directions in 2D. 
+     > Riemmand and linear a.b.c.'s can be selected through 
+     > a `linear_abso' switch now. 
