@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.41 2002/09/17 17:15:13 mstorti Exp $ 
+ # $Id: Makefile,v 1.42 2002/09/22 13:18:20 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -23,6 +23,8 @@ TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
+
+CPPFLAGS += -DROSI_COUPLING_MODULE
 
 %.cppi: %.cpp
 	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \

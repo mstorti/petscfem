@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.5 2002/04/27 15:36:32 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.6 2002/09/22 13:18:21 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,6 +12,11 @@
 #include <applications/ns/nssup.h>
 
 extern TextHashTable *GLOBAL_OPTIONS;
+
+#ifdef ROSI_COUPLING_MODULE
+#warning Compiling with ROSI_COUPLING_MODULE enabled
+extern double AXIAL_ACCELERATION, GLOBAL_TIME;
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void ns_sup_res::init() {
@@ -39,6 +44,14 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
   // Discard k and eps eqs.
   w.set(0.).setel(1.,1,ndim+1,1);
   
+#ifdef ROSI_COUPLING_MODULE
+//    printf("ns_sup_res: taking t=%f, ax=%f\n",
+//  	 GLOBAL_TIME,AXIAL_ACCELERATION);
+  double total_axial_acc;
+  total_axial_acc = gravity + AXIAL_ACCELERATION;
+#define gravity total_axial_acc
+#endif
+
   p = U.get(1,p_indx);
   eta = U.get(2,1);
   r.setel(p-rho*gravity*eta,1);
