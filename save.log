@@ -2031,3 +2031,7 @@ tag: beta-3.13.pl9 on Wed,  1 Jan 2003 20:49:37 -0300 by mstorti in spider
 tag: beta-3.13.pl10 on Wed,  1 Jan 2003 22:22:26 -0300 by mstorti in spider
      > Working on inviscid/potential coupling. 
      > Identifies second layer of nodes in the inviscid region. 
+----------
+tag: beta-3.13.pl11 on Wed,  1 Jan 2003 22:44:53 -0300 by mstorti in spider
+     > Working on inviscid/potential coupling. 
+     > Iterates ok one step. 
