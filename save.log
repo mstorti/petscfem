@@ -1198,3 +1198,7 @@ tag: beta-2.94.pl22 on Wed, 26 Jun 2002 17:59:26 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-2.94.pl23 on Sat, 29 Jun 2002 11:20:25 -0300 by mstorti in spider
      > Added fixes for the `alpha' bug to other elements (nsikeps.cpp, nsirot.cpp)
+----------
+tag: beta-2.94.pl24 on Sun, 30 Jun 2002 21:15:14 -0300 by mstorti in spider
+     > Outputs forces and moments to a fifo so that it can be read by rosi.
+     > Later this can be put in a `hook' to be defined by each user.
