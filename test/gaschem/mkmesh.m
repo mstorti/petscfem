@@ -1,10 +1,8 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.6 2003/11/12 14:04:09 mstorti Exp $
+## $Id: mkmesh.m,v 1.7 2003/11/12 19:44:46 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
-Nb_fac=1e-4;
-
 w=zhomo([0 Ly 0 Lx],Ny+1,Nx+1);
 [xnod,icone] = pfcm2fem(w);
 xnod = xnod(:,[2 1]);
@@ -63,6 +61,6 @@ for k=1:Ny
 endfor
 fclose(fidr);
 
-ini = [Nb*Nb_fac CO CN CdO CdN];
+ini = [Nb_fac*[Nb CO CN] CdO CdN];
 ini = ini(ones(nnod,1),:);
 asave("pool.ini.tmp",ini);

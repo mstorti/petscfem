@@ -2,8 +2,8 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 30;			# nbr of elements in x-y dir
-$Ny = 30;
+$Nx = 80;			# nbr of elements in x-y dir
+$Ny = $Nx;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
 $rho_liq = 1000;		# density of liquid
@@ -15,18 +15,21 @@ $Rgas = 8.314;			# Gas const
 $Tgas = 293.0;			# Temperature
 $nu_t = 0.001;			# turbulent viscosity
 $hm_fac = 1.0;			# factor controlling gas-liquid exchange
-$L_inject = 2;			# Length of injection
-$x_inject = 4;			# Position of center of injection
+$L_inject = 4;			# Length of injection
+$x_inject = 6;			# Position of center of injection
 $u = 0.2;			# lateral velocity
 $rb = 0.01;			# radius of bubble at inlet
 $alpha = 0.1;			# gas fraction at inlet
 $patm = 1e5;			# Atmosferic pressure
 $ctff_fac = 1e-3;		# Cutoff threshold for $XX is $ctff_fac*$XX
+$Nb_fac = 1e-3;			# Non perturbed flow has Nb scaled bu this
 
 ## At inlet ===============================================
 #
 $vb = 4/3*$PI*$rb**3.0;		# bubble volume
 $Nb = $alpha/$vb;		# Nbr of bubbles 
+$Nb_scale = $Nb;
+$Nb /= $Nb_scale;
 
 $pgas = $patm + 
      $rho_liq*$gravity*$Ly;	# hydrostatic pressure at bottom
@@ -45,7 +48,8 @@ $CdN_ctff = $ctff_fac*$CdN;
 #
 #__END_TRANSCRIPT__
 @vars = qw(Nx Ny Lx Ly rho_liq gravity KO KN Nb alpha rb vb 
-    CN CO CdO CdN nu_t patm L_inject x_inject u xO_in);
+    CN CO CdO CdN nu_t patm L_inject x_inject u xO_in 
+    Nb_fac Nb_scale);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -61,7 +65,8 @@ save_file_pattern pool.state_%d.tmp
 nrec 1
 nfile 100000
 
-initial_state "pool.ini.tmp"
+# initial_state "pool.ini.tmp"
+initial_state "pool.state.tmp"
 
 #if 1
 solver "iisd"
@@ -78,7 +83,7 @@ rtol 1e-6
 dtol 1e3
 weak_form 1
 
-Krylov_dim 100
+Krylov_dim 600
 print_internal_loop_conv 1
 
 steady 0
@@ -86,11 +91,11 @@ Dt 10.0
 
 <:pr('nu_t KO KN gravity hm_fac'):>
 <:pr('Nb_ctff CN_ctff CO_ctff CdO_ctff CdN_ctff'):>
+<:pr('Nb_scale'):>
 # print_linear_system_and_stop
 
 activate_debug_print
 activate_debug_memory_usage
-report_consumed_time
 iisdmat_print_statistics
 print_partitioning_statistics
 proc_weights weights.dat
@@ -104,6 +109,7 @@ __INCLUDE__ pool.nod.tmp
 _END_NODES__
 
 elemset gaschem 4
+report_consumed_time
 name fluid
 dx
 geometry cartesian2d
@@ -113,8 +119,10 @@ __INCLUDE__ pool.con.tmp
 __END_ELEMSET__
 
 elemset gaschem_bcconv 2
+name bcconv
 geometry cartesian1d
 npg 2
+dx 0
 __END_HASH__
 __INCLUDE__ pool.bcc-up.tmp
 __INCLUDE__ pool.bcc-right.tmp

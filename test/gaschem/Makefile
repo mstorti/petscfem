@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2003/11/12 14:04:09 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2003/11/12 19:44:46 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -12,22 +12,29 @@ LOC_PROG := advdif
 CASE := pool
 PROG := $(ADVDIF)
 
-###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
-NP = 1
-
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>-----
 MCH = -machinefile ./machi.dat
 
-NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-ifeq ($(np),)
-np := 1
+NPMAX := 10
+PETSCFEM_PROCTABLE := ./proctable
+
+ifeq (1,0)
+NP := $(shell procsel -l $(PETSCFEM_PROCTABLE))
+NOLOCAL := 
+NPMAX := 1
+else
+NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
+NOLOCAL := -nolocal
 endif
+
+NP := $(shell perl -e "print $(NP)> $(NPMAX) ? $(NPMAX) : $(NP);")
 
 #w Runs program
 run:
-	rrm -f pool.state_*.tmp
+	-rrm -f pool.state_*.tmp
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} $(NOLOCAL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 #w Makes local link for running with debugger
 link:

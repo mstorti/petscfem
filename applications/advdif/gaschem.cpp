@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.5 2003/11/11 15:41:09 mstorti Exp $
+//$Id: gaschem.cpp,v 1.6 2003/11/12 19:44:46 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -39,6 +39,8 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,CdO_ctff,0.0);
   //o Cutoff value for CdN
   EGETOPTDEF_ND(elemset,double,CdN_ctff,0.0);
+  //o Scale Nb eq. with this
+  EGETOPTDEF_ND(elemset,double,Nb_scale,1.0);
 
   // Values for KO and KN from [Buscaglia et.al. 2002]
   //are in mol/m3/bar
@@ -135,6 +137,7 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   GC_VAR(CN,3);
   GC_VAR(CdO,4);
   GC_VAR(CdN,5);
+  Nb = Nb*Nb_scale;
   
   double pgas = H.get(ndim+1);
   double vb = (CO+CN)*Rgas*Tgas/(pgas*Nb);
@@ -280,4 +283,3 @@ void gaschem_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
   tmp3.prod(P_supg,Cjac,1,-1,-1,2).scale(w);
   N_P_C.prod(tmp3,N,1,3,2);
 }
-
