@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 14;			# Number of elements per dimension
+$N = 30;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -101,7 +101,7 @@ global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 2
+nstep 3
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
