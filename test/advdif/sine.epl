@@ -75,7 +75,7 @@ __END_NODES__
 #===========================================================
 elemset advdif_advecfm2 4
 #if $per_elem_prop
-props conduct
+props conduct[2]
 #endif
 #Datos del elemento
 geometry cartesian2d

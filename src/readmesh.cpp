@@ -220,6 +220,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	int posit=0;
 	while (1) {
 	  token = strtok((nelprops==0? buf : NULL),bsp);
+	  char *ctoken=local_copy(token);
 	  if (token==NULL) break;
 	  nelprops++;
 	  phe = new props_hash_entry;

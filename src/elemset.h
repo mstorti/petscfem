@@ -529,10 +529,21 @@ NewAssembleFunction(arg_data_list &arg_datav,const Nodedata *nodedata,
 class Property {
 public:
   int indx;
+  vector<double> val;
+  double *ptr;
+  int length;
+  Property() : indx(-1), length(0), ptr(NULL) {val.clear();};
+};
+
+#if 0
+class Property {
+public:
+  int indx;
   double *val;
   Property() : indx(-1), val(NULL) {};
   ~Property() {if (val) delete[] val;};
 };
+#endif
 
 /** This is an adaptor to the old Elemset class
     @author M. Storti
@@ -585,6 +596,19 @@ public:
 		 double &retval,int defval=0,int n=1) const {
     return ::get_double(thash,name,&retval,defval,n);
   };
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Gets a vector of double properties whose length is unknown. 
+      @author M. Storti
+      @param name (input) the name of the property
+      @param retval (input) the returned vector
+      @param defval (input) Controls the action if no entry is found
+      in the hash table. If \verb+defval==0+, let retval unchanged, so that
+      you have to set it to its default value. Give an error if
+      \verb+defval!=0+ 
+   */ 
+  int get_vec_double(const char *name,
+		     vector<double> &retval,int defval=0) const;
 
   int get_string(const char *name,
 		 string &ret,int defval=0,int n=1) const {

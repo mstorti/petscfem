@@ -683,14 +683,14 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) {
   // (the line props in the text_hash_table) then we store the
   // position in the table and the value will be loaded with
   // 'load_props' for each element
-    int w = phe->width;
-    assert(n==w);
     prop.indx = phe->position;
+    prop.length = phe->width;
   } else {
     // If it was not found in the per element properties table then it
     // should be found as a general property in the text_hash_table. 
-    prop.val = new double[n];
-    get_double(prop_name,*prop.val,1,n);
+    get_vec_double(prop_name,prop.val,0);
+    prop.ptr = prop.val.begin();
+    prop.length = prop.val.size();
   }
 }
 
@@ -700,16 +700,29 @@ double NewElemset::prop_val(ElementIterator &element,Property &prop) {
 
 const double *NewElemset::prop_array(ElementIterator &element,
 				     Property &prop) {
-  if (prop.val) {
-    return prop.val;
+  if (prop.indx<0) {
+    return prop.ptr;
   } else {
     return (element_props(element)+prop.indx);
   }
 }
-  
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+   "int NewElemset::get_vec_double(const char *,vector<double> &,int=0) const"
+int NewElemset::get_vec_double(const char *name,
+		   vector<double> &retval,int defval=0) const {
 
-  
+  const char *value;
+  if (!defval) retval.clear();
+  get_entry(name,value);
+  assert(defval || value);	// Either we have a default value or
+				// the user enters an entry
+  if (!value ) return 0;
+  read_double_array(retval,value);
+}
+
 #if 0
 void NewElemset::prop_init(void) {
   VOID_IT(propel);

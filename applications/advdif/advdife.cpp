@@ -289,7 +289,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   for (ElementIterator element = elemlist.begin(); 
        element!=elemlist.end(); element++) {
     // if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
-    double conduct = prop_val(element,conduct_prop);
+    const double *conduct = prop_array(element,conduct_prop);
 
     FastMat2::reset_cache();
 
