@@ -1219,9 +1219,9 @@ IISD/Subpartitioning  OK \? > 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for ($case=1; $case<=4; $case++) {
-  for $mtyp ((0,1)) {
-    for $s (("","s")) {
+for $mtyp ((0,1)) {
+  for $s (("","s")) {
+    for ($case=1; $case<=4; $case++) {
         $solver = ($s eq "s" ? "SuperLU" : "PETSc");
         expect("pfmat/output.case$case$s.m$mtyp.tmp",
             "PFMat/case$case/(local_solver=$solver)",
@@ -1231,17 +1231,13 @@ for ($case=1; $case<=4; $case++) {
 }
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for ($case=1; $case<=4; $case++) {
-   expect("pfmat/output2.case${case}.tmp",
-       "PFMat(2)/case$case/(local_solver=PETSc)",
+for $s (("","s")) {
+ for ($case=1; $case<=4; $case++) {
+   $solver = ($s eq "s" ? "SuperLU" : "PETSc");
+   expect("pfmat/output2.case${case}$s.tmp",
+       "PFMat(2)/case$case/(local_solver=$solver)",
        "All tests OK.*1");
-}
-
-#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for ($case=1; $case<=4; $case++) {
-   expect("pfmat/output2.case${case}s.tmp",
-       "PFMat(2)/case$case/(local_solver=SuperLU)",
-       "All tests OK.*1");
+ }
 }
 
 end_section();
