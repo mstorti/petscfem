@@ -2,7 +2,7 @@ tests: test_abso
 
 CASE=canal1d
 
-PETSCFEM_DIR := /u/mstorti/PETSC/petscfem-hydro
+PETSCFEM_DIR := /u/rodrigop/PETSC/petscfem-hydro
 
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 NP := 1
@@ -16,12 +16,17 @@ CLEAN_DIRS =
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 ADVDIF = $(APPDIR)/advdif/advdif_g.bin
+
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for abso shallow water 1d
 
 test_abso:
 	$(MAKE) $(CASE).depl
-	octave -q $(CASE).m
+	$(OCTAVE) $(CASE).m
 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl
-	$(octave) -qH check_test_abso.m
+	$(OCTAVE)  check_test_abso.m
 
+local_clean::
+	-chmod +w *.depl
+	-rm *.depl *.tmp &> /dev/null
+###end
