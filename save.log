@@ -3938,3 +3938,7 @@ tag: beta-3.41.28 on Fri, 04 Feb 2005 16:58:06 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.29 on Mon, 07 Feb 2005 10:13:36 -0300 by mstorti in minerva.ceride.gov.ar
      > Working on Guile extension and gasflow compression corner example. 
+----------
+tag: beta-3.41.30 on Mon, 07 Feb 2005 13:05:43 -0300 by mstorti in minerva.ceride.gov.ar
+     > Checking `lumped_mass' in advdif. 
+     > Added `get_C()' to `gasflow' for use with `lumped_mass'. 
