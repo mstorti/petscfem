@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.21 2003/01/31 14:10:07 mstorti Exp $
+## $Id: mkvtube.m,v 1.22 2003/01/31 16:18:37 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -106,8 +106,8 @@ for k=1:nn
     n_h = n_h+1;
   elseif cold_outlet && z(k)<tol && rho(k)<=Rc
     cold_outlet_nodes=[cold_outlet_nodes; k];
+    fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;
-    if rho(k)<Rin+tol; fprintf(fid,"%d %d   %f\n",k,u_dof,0); endif
   elseif (abs(rho(k)-Rin)<tol && z(k)<L0-tol)
     n_internal_axis = n_internal_axis + 1;
     fprintf(fid,"%d %d   %f\n",k,u_dof,0.);

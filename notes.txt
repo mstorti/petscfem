@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $
+$Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
+! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
+! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
+! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
+! # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
+  # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.245 2003/01/30 20:18:44 mstorti Exp $ 
+  # $Id: notes.txt,v 1.246 2003/01/31 16:18:37 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6111,8 +6111,35 @@ p_h = 133599, p_c=131901.
 16:01:03: Parece regular bien, pero por un error en el mkvtube.m, no
 estaba imponiendo la presion regulada en la salida fria. 
 %
-17:16:07: AHora esta controlando bien. Tal vez le puede costar llegar
+17:16:07: Ahora esta controlando bien. Tal vez le puede costar llegar
 al estacionario, pero no diverge. 
+
+%===Fri, 31 Jan 2003 09:50:59 -0300 mstorti@node1.beowulf.gtm
+%
+A los 240 pasos mas o menos la velocidad se inviert en la salida fria
+r=Rin y enseguida diverge. Me pregunto si tiene que ver con imponer la
+velocidad radial a cero. Voy a probar a sacar u_r=0 en sobre la salida
+fria. Arranco a partir del step=180. 
+%
+11:09:41: Tambien diverge y mas rapido. Se invierten la salida
+fria. Vuelvo a poner u_r=0 en la salida fria y bajo el Courant un
+factor 4 y lo lanzo a partir de RUN8/210.
+ %
+11:55:59: Incluso con el D=2.5e-6 diverge la presion. Estoy pensando
+en un poblema de estabilizacion. Le voy a aumentar el tau_fac. 
+%
+12:21:50: Con tau_fac=10 primero el ruido decrece fuertemente pero
+despues se vuelve a amplificar y pareceria haber ruido tambien en la
+entrada. Voy a probar con un tau_fac=3. 
+%
+12:37:18: Tambien al primero decrece y despues aumenta. Voy a probar
+con tau_fac=0.3.
+%
+13:10:50: Empieza a diverger de entrada. Pruebo con tau_fac=3 y
+Dt=2.5e-6, empieza convirgiendo y despues diverge. Mas lentamente,
+pero eso se puede deber a que el paso de tiempo es mas chico. Pienso
+en ver de agregarle un shock-capturing. Tambien hay que tener en
+cuenta que el Mach en esa zona puede ser muy bajo. 
 
 
 # Current line ===========  %
