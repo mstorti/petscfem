@@ -1,4 +1,4 @@
-source("data.m.tmp");
+source("canal1d.data.m.tmp");
 
 U=aload("save.state.tmp");
 

@@ -1,3 +1,6 @@
+default: igrec
+#default: test_abso
+
 tests: test_abso
 
 CASE=canal1d
@@ -26,6 +29,26 @@ test_abso:
 	$(OCTAVE) $(CASE).m
 	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case $(CASE).depl
 	$(OCTAVE)  check_test_abso.m
+
+chiquito:
+	$(MAKE) chiquito.depl
+	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case chiquito.depl
+
+spiral:
+	$(MAKE) spiral.depl
+	$(OCTAVE) spiral.m
+	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case spiral.depl
+
+corner:
+	$(MAKE) corner.depl
+	$(OCTAVE) corner.m
+	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case corner.depl
+
+igrec:
+	$(MAKE) igrec.depl
+	$(OCTAVE) igrec.m
+	-$(MPIRUN) -np $(NP)  $(ADVDIF) -case igrec.depl
+
 
 local_clean::
 	-chmod +w *.depl
