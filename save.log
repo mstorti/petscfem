@@ -3118,3 +3118,6 @@ tag: beta-3.25.pl12 on Sat, 06 Dec 2003 12:11:30 -0300 by mstorti in spider
 ----------
 tag: beta-3.25.pl13 on Sat, 06 Dec 2003 13:00:39 -0300 by mstorti in spider
      > Improved `GenericError' 
+----------
+tag: beta-3.25.pl14 on Sat, 06 Dec 2003 14:14:02 -0300 by mstorti in spider
+     > Added two index FastMat2::trace()
