@@ -711,3 +711,6 @@ tag: beta-2.58 on Sun Dec  9 23:11:09 ARST 2001, by mstorti in spider
      > Deleted call to `PFMat::build_sles' since now this is inside either
      > the destructor or the `clear()' method. Now working for `PETScMat' and
      > `IISDMat' matrices. Runs all `oscplate_all' tests. 
+----------
+tag: beta-2.59 on Wed Dec 12 22:27:38 ARST 2001, by mstorti in spider
+     > Added `test_iisd', basically the same as `test_isid' but for 2 processors.
