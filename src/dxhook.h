@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.11 2003/02/16 22:03:18 mstorti Exp $
+//$Id: dxhook.h,v 1.12 2003/02/17 01:27:58 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -60,7 +60,7 @@ public:
   void *wait_connection();
   virtual Vec state()=0;
   virtual TimeData *time_data()=0;
-  typedef void (dx_hook::*build_state_fun_t)(double *);
+  typedef int (dx_hook::*build_state_fun_t)(double *);
   int build_state_from_state(double *);
   int build_state_from_file(double *);
   void send_state(int step,build_state_fun_t bf);

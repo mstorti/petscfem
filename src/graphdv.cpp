@@ -1,7 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: graphdv.cpp,v 1.2 2002/07/22 15:45:12 mstorti Exp $
+//$Id: graphdv.cpp,v 1.3 2003/02/17 01:27:58 mstorti Exp $
 
 #include <src/graphdv.h>
+#include <src/dvector2.h>
 
 int graphdv::CHUNK_SIZE_DEF = 10000;
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.28 2003/02/16 22:03:18 mstorti Exp $
+//$Id: dxhook.cpp,v 1.29 2003/02/17 01:27:58 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -10,6 +10,8 @@
 #include <src/hook.h>
 #include <src/dxhook.h>
 #include <src/autostr.h>
+#include <src/dvector.h>
+#include <src/dvector2.h>
 
 #ifdef USE_SSL
 
@@ -249,8 +251,13 @@ int dx_hook::build_state_from_file(double *state_p) {
   return 1;
 }
 
+class GenericError : public string { 
+public:
+  GenericError(char *s) : string(s) { }
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
+void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 #define sock srvr
   int cookie, cookie2, dx_step;
   if (steps && step_cntr--) return;
@@ -360,11 +367,14 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
   // Send results
   int ndof = dofmap->ndof;
 
-  double *state_p = NULL;
-  if (!MY_RANK) state_p = new double[ndof*nnod];
-  if ((this->*build_state_fun)(state_p)) {
-    delete[] state_p;
+  double *state_p=NULL;
+  dvector<double> state_v(ndof*nnod);
+  if (!MY_RANK) {
+    state_v.resize(ndof*nnod);
+    assert(state_v.chunks_n()==1);
+    state_p = state_v.buff();
   }
+  if ((this->*build_state_fun)(state_p)) throw GenericError("Can't build state");
   
   if (!MY_RANK) {
     cookie = rand();
@@ -411,7 +421,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
       }
     }
   }
-  delete[] state_p;
 
   // Send connectivities for each elemset
   Darray *elist = mesh->elemsetlist;
@@ -433,10 +442,19 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) {
   if (!MY_RANK) {
     Sprintf(srvr,"end\n");
     Sclose(srvr);
+    srvr = NULL;
   }
 #ifdef USE_PTHREADS
   if(!steps && connection_state() == not_launched) re_launch_connection();
 #endif
+} catch(GenericError e) {
+  if (!MY_RANK && srvr) {
+    Sprintf(srvr,"end\n");
+    Sclose(srvr);
+    printf("%s\n",e.c_str());
+  }
+  PetscFinalize();
+  exit(0);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
