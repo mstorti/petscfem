@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.13 2001/09/22 20:40:43 mstorti Exp $
+//$Id: sparse.cpp,v 1.14 2001/09/23 15:00:12 mstorti Exp $
 
 #include "sparse.h"
 
@@ -8,6 +8,33 @@ using namespace Random;
 namespace Sparse {
 
   GenVec::~GenVec() {};
+
+  double GenVec::not_represented_val = 0.;
+  double Mat::not_represented_val = 0.;
+  
+  ScalarFunObj::~ScalarFunObj() {};
+
+  Scale scale_fun_obj;
+
+  ScalarFunWrapper scalar_fun_wrapper;
+
+  BinAssoc::~BinAssoc() {};
+
+  Sum sum_bin_assoc;
+  SumAbs sum_abs_bin_assoc;
+  SumSq sum_sq_bin_assoc;
+  SumPow sum_pow_bin_assoc;
+  Max max_bin_assoc;
+  MaxAbs max_abs_bin_assoc;
+  Min min_bin_assoc;
+
+  double ScalarFunWrapper::fun(double v) const {
+    if (sfd) {
+      return (*sfd)(v,user_data);
+    } else {
+      return (*sf)(v);
+    }
+  } 
 
   void GenVec::print_f(const char *s = NULL) {
     if (s) printf("%s\n",s);
@@ -625,6 +652,106 @@ namespace Sparse {
     }
     return *this;
   }
+
+  Vec & Vec::apply(const ScalarFunObj & fun) {
+    VecIt i;
+    for (i=begin(); i!=end(); i++) 
+      i->second = fun.fun(i->second);
+    return *this;
+  }
+
+  /// Apply a scalar function with args to all elements
+  Vec & Vec::apply(ScalarFunD *fun,void * user_data = NULL) {
+    scalar_fun_wrapper.user_data = user_data;
+    scalar_fun_wrapper.sf = NULL;
+    scalar_fun_wrapper.sfd = fun;
+    return apply(scalar_fun_wrapper);
+  }
+
+  /// Apply a scalar function with no args to all elements
+  Vec & Vec::apply(ScalarFun *fun) {
+    scalar_fun_wrapper.user_data = NULL;
+    scalar_fun_wrapper.sf = fun;
+    scalar_fun_wrapper.sfd = NULL;
+    return apply(scalar_fun_wrapper);
+  }
+
+  double Vec::assoc(BinAssoc & op) const {
+    double val;
+    VecCIt i,e;
+    int j,m;
+
+    val = op.null;
+    e = end();
+    for (i=begin(); i!=e; i++) 
+      val = op.op(val,i->second);
+
+    // If some value is not in the map, then it represents
+    // `not_represented_val' (probably 0).
+    m = length();
+    for (j=0; j<length(); j++) {
+      if (find(j)!=e) {
+	val = op.op(val,not_represented_val);
+	break;
+      }
+    }
+
+    return val;
+  }
+
+  Mat & Mat::apply(const ScalarFunObj & fun) {
+    RowIt i;
+    for (i=begin(); i!=end(); i++) 
+      i->second.apply(fun);
+    return *this;
+  }
+
+  /// Apply a scalar function with args to all elements
+  Mat & Mat::apply(ScalarFunD *fun,void * user_data = NULL) {
+    scalar_fun_wrapper.user_data = user_data;
+    scalar_fun_wrapper.sf = NULL;
+    scalar_fun_wrapper.sfd = fun;
+    return apply(scalar_fun_wrapper);
+  }
+
+  /// Apply a scalar function with no args to all elements
+  Mat & Mat::apply(ScalarFun *fun) {
+    scalar_fun_wrapper.user_data = NULL;
+    scalar_fun_wrapper.sf = fun;
+    scalar_fun_wrapper.sfd = NULL;
+    return apply(scalar_fun_wrapper);
+  }
+
+  double Mat::assoc(BinAssoc & op) const {
+    double val;
+    RowCIt i,e;
+    Vec row;
+    int j,m,n;
+    double w;
+
+    n = cols();
+    e = end();
+    val = op.null;
+    for (i=begin(); i!=e; i++) {
+      row = i->second;
+      row.resize(n);
+      w = row.assoc(op);
+      val = op.op(val,w);
+    }
+
+    // If some value is not in the map, then it represents
+    // `not_represented_val' (probably 0).
+    m = rows();
+    for (j=0; j<m; j++) {
+      if (find(j)!=e) {
+	val = op.op(val,not_represented_val);
+	break;
+      }
+    }
+
+    return val;
+  }
+
 }
 
 /*

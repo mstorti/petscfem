@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.9 2001/09/22 20:40:47 mstorti Exp $
+// $Id: sp.cpp,v 1.10 2001/09/23 15:00:14 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -8,14 +8,22 @@
 
 using namespace Sparse;
 
-namespace Random {
-}
+class Poly : public ScalarFunObj {
+public:
+  ~Poly() {};
+  double a,b,c;
+  double fun(double v) const {return (a*v+b)*v+c;}
+} poly;
 
 void my_set(Vec &v,int k=1) {
   v.clear();
   int l = v.length();
   for (int j=0; j<l; j+= k) 
     v.set(j,double(j));
+}
+
+double power_nth(double v,void *u) {
+  return pow(v,*(double *)u);
 }
 
 #define M 1000
@@ -25,7 +33,7 @@ int main() {
   Vec v(5),w(4),u;
   Mat a,b,c;
   Indx I(14,17),J(8,14,2),K(0,4,2);
-  double d1,d2,tol=1e-10;
+  double d1,d2,tol=1e-10,p;
 
   v.set(2,1.).set(3,2.).print("set values ...  ");
   v.set(10,10.).set(11,11.).print("set at 10 11 ...  ");
@@ -101,5 +109,62 @@ int main() {
 
   b.resize(5,5).random_fill(.3,int_gen).print_f("b with random entries: ");
   c.resize(5,5).prod(a,b).print_f("c = a * b :");
+
+  poly.a=1.; poly.b=2.; poly.c=3.;
+  u.print("u: ");
+  u.apply(poly).print("u.^2+2*u+3: ");
+  u.apply(sqrt).print("sqrt(u): ");
+
+  p = 1.5;
+  u.apply(power_nth,&p).print("u = u^(3/2): ");
+  p = 1./1.5;
+  u.apply(power_nth,&p).print("u = u^(2/3): ");
+
+  printf("sum(u): %f\n",u.sum());
+  printf("max(u): %f\n",u.max());
+  printf("min(u): %f\n",u.min()); // should return 0.
+  printf("sum_abs(u): %f\n",u.sum_abs());
+  printf("sum_sq(u): %f\n",u.sum_sq());
+  printf("sum_pow(u,3.): %f\n",u.sum_pow(3.));
+  printf("sum_pow(u,5.): %f\n",u.sum_pow(5.));
+  printf("max_abs(u): %f\n",u.max_abs());
+
+  u.scale(-1.);
+  printf("\n\n---u = -u\n"
+	 "max(u): %f\n",u.max()); // should return 0.
+  printf("min(u): %f\n",u.min());
+  printf("sum_abs(u): %f\n",u.sum_abs());
+  printf("sum_sq(u): %f\n",u.sum_sq());
+  printf("sum_pow(u,3.): %f\n",u.sum_pow(3.));
+  printf("sum_pow(u,5.): %f\n",u.sum_pow(5.));
+  printf("max_abs(u): %f\n",u.max_abs());
+  
+  a.print_f("\n\n----------\na: ");
+  a.apply(poly).print("a.^2 + 2*a + 3: ");
+  a.apply(sqrt).print("sqrt(a): ");
+
+  p = 1.5;
+  a.apply(power_nth,&p).print("a = a^(3/2): ");
+  p = 1./1.5;
+  a.apply(power_nth,&p).print("a = a^(2/3): ");
+
+  printf("sum(a): %f\n",a.sum());
+  printf("max(a): %f\n",a.max());
+  printf("min(a): %f\n",a.min()); // should return 0.
+  printf("sum_abs(a): %f\n",a.sum_abs());
+  printf("sum_sq(a): %f\n",a.sum_sq());
+  printf("sum_pow(a,3.): %f\n",a.sum_pow(3.));
+  printf("sum_pow(a,5.): %f\n",a.sum_pow(5.));
+  printf("max_abs(a): %f\n",a.max_abs());
+
+  a.scale(-1.).print("a = -a: ");
+  printf("\n\n---u = -u\n"
+	 "max(a): %f\n",a.max()); // should return 0.
+  printf("min(a): %f\n",a.min());
+  printf("sum_abs(a): %f\n",a.sum_abs());
+  printf("sum_sq(a): %f\n",a.sum_sq());
+  printf("sum_pow(a,3.): %f\n",a.sum_pow(3.));
+  printf("sum_pow(a,5.): %f\n",a.sum_pow(5.));
+  printf("max_abs(a): %f\n",a.max_abs());
 
 }
