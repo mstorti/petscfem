@@ -37,15 +37,31 @@ int hash_fun(int w) {
   return val % 10000;
 }
 
+int pow_hash(int x) {
+  const unsigned int 
+    c = 24253464,
+    n = 4;
+  unsigned long int y, tmp;
+  y = x;
+  for (int j=0; j<n; j++) {
+    tmp = y + c;
+    y = tmp*tmp;
+  }
+  return y;
+}
+
 int main() {
 
 #if 1
   MD5SumHasher hash;
-  int N=30, M=10, NN=1000000;
+  int N=20, M=10, NN=1000000;
   vector<int>  stat(M);
   set<int> shash, sum;
+  //#define EXACT_CHECK
+#ifdef EXACT_CHECK
   set< vector<int> > val_set;
   map<int, set< vector<int> > > hash_collisions;
+#endif
   for (int j=0; j<NN; j++) {
     int s=0;
     hash.reset();
@@ -54,7 +70,7 @@ int main() {
       int w = rand() % M;
       stat[w] += 1;
       hash.hash(w);
-      s += w;
+      s += pow_hash(w);
     }
     int shv = hash.val();
 #if 0
@@ -65,16 +81,28 @@ int main() {
       printf(" sum %d, hash-sum %d\n",s,shv);
     }
 #endif
+#ifdef EXACT_CHECK
     hash_collisions[shv].insert(stat);
+    val_set.insert(stat);
+#endif
     shash.insert(shv);
     sum.insert(s);
-    val_set.insert(stat);
   }
+#ifdef EXACT_CHECK
   int total = val_set.size();
   printf("tries %d, different %d\n",NN,total);
-  printf("# of collisions: for sum %d, hash-sum %d\n",
+  printf("nbr of collisions: for sum %d, hash-sum %d\n",
 	 total - sum.size(), total - shash.size());
+#else
+  printf("tries %d\n",NN);
+  double perf_coll = double(NN)*double(NN)/pow(2.0,32.0);
+  printf("nbr of collisions: perfect %f.\n"
+	 "For sum %d, hash-sum %d, diff\n",
+	 perf_coll,NN-sum.size(), NN-shash.size(),
+	 sum.size()-shash.size());
+#endif
 
+#ifdef EXACT_CHECK
   map<int, set< vector<int> > >::iterator 
     r = hash_collisions.begin();
   while (r != hash_collisions.end()) {
@@ -86,6 +114,8 @@ int main() {
     }
     r++;
   }
+#endif
+#endif
   
 #if 0
   set< vector<int> >::iterator 
@@ -93,7 +123,6 @@ int main() {
   printf("differemt combos: \n");
   while (q != val_set.end()) 
     print_vec(*q++);
-#endif
 #endif
 
 #if 0
