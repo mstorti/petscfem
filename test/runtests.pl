@@ -796,6 +796,7 @@ expect("lupart/check_iisd.verif.tmp",
        "IISD solver",<<'EOT');
 IISD on 1 processors OK \? > 1, 
 IISD on 2 processors OK \? > 1, 
+IISD on 2 processors with rand part. OK \? > 1
 IISD on 2 processors with CGS OK \? > 1, 
 EOT
 

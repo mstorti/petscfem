@@ -1,3 +1,531 @@
+2001-08-07  mstorti@spider  <mstorti@spider>
+
+	* test/lupart/Makefile, test/lupart/check_part.m,
+	test/lupart/wallke.epl, test/runtests.pl, src/readmesh.cpp: Adding
+	tests for IISD bug
+
+	* test/lupart/Makefile, test/lupart/wallke.epl, src/distmat.cpp,
+	src/lusubd.cpp, applications/ns/ns.cpp: Fixed bug for IISD
+
+	* test/lupart/Makefile, src/buffpack.h, src/readmesh.cpp,
+	doc/Makefile: Backup prior to incorporate a fix to a bug in IISD.
+
+2001-08-06  mstorti@spider  <mstorti@spider>
+
+	* src/buffpack.h, src/distmat.cpp, src/readmesh.cpp:
+	Make workaround for `namespace' not enabled on old gcc
+	version in geronimo. (RH 5.2)
+
+	* doc/OBJ/sched2.fig, doc/myexmapl.tex, doc/petscfem.in.tex, doc/pfmat.tex:
+	Fixed some bugs in doc
+
+	* tools/coall, test/lupart/Makefile, test/lupart/wallke.epl,
+	test/runtests.pl, src/Makefile, src/distmap.h, src/distmat.cpp,
+	src/distmat.h, src/elemset.cpp, src/fastmat2.h, src/lusubd.cpp,
+	src/pfmat.h, src/readmesh.cpp, applications/ns/wallke.cpp,
+	applications/advdif/advective.h, Makefile.base, TODO,
+	doc/manual/Makefile, doc/manual/doc.dxx, doc/OBJ/iisd.fig,
+	doc/OBJ/iisd2.fig, doc/OBJ/iisd3.fig, doc/OBJ/sched.fig,
+	doc/OBJ/sched2.fig, doc/Makefile, doc/idmap.tex, doc/layout.tex,
+	doc/odocadvdif.tex, doc/odocelems.tex, doc/odociisd.tex,
+	doc/odocns.tex, doc/odocrmsh.tex, doc/petscfem.in.tex,
+	doc/pfmat.tex: Added doc for PFMat, IISDMat, DistMap, DistMat and
+	DistMatrix.
+
+2001-08-05  mstorti@spider  <mstorti@spider>
+
+	* doc/pfmat.tex:
+	Doc for the PFMat abtract interface and in particular de IISD
+	implementation.
+
+2001-08-04  mstorti@spider  <mstorti@spider>
+
+	* test/lupart/check_peri.m: Checks the periodic test
+
+	* src/distmat.cpp: *** empty log message ***
+
+2001-08-03  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* src/readmesh.cpp.particion:
+	Hitch-hiking partitioning was incorporated to `read_mesh'
+
+	* test/lupart/Makefile, test/lupart/mkmesh.m,
+	test/lupart/wallke.epl, src/distmap.h, src/distmat.cpp,
+	src/distmat.h, src/lusubd.cpp: Fixed a bug in
+	DistMap<int,Row>::unpack().  `row' has to be cleared before
+	entering values.
+
+	* TODO: order headers
+
+2001-08-02  mstorti@spider  <mstorti@spider>
+
+	* test/distmap/Makefile, test/distmap/distmat.cpp, src/distmap.h,
+	src/distmat.cpp, src/distmat.h, src/lusubd.cpp, src/pfmat.h:
+	Including the distributed matrix to IISD
+
+	* test/runtests.pl, src/Makefile, src/distmap.h, src/distmat.cpp,
+	src/distmat.h, src/lusubd.cpp, src/pfmat.h, src/utils.cpp,
+	src/utils.h: Adding distributed matrix class DistMatrix to IISDMat
+
+	* test/distmap/distmat.cpp: Moved code to src/distmat.cpp
+
+	* test/distmap/Makefile: Adding DistMatrix to the IISDMat class.
+
+2001-08-01  mstorti@spider  <mstorti@spider>
+
+	* src/distmat.h: The distributed matrix class
+
+	* src/distmat.cpp: The Distributed Matrix class
+
+	* src/buffpack.h: The BufferPack class allows to pack standard and
+	builtins types in a buffer.
+
+	* src/maximizr.h: The maximizer class is a template that remembers
+	the maximum of a set of values.
+
+	* src/elemset.cpp, src/lusubd.cpp, src/readmesh.cpp, README,
+	README.html: Working on `distmat'.  Backup after incorporating
+	changes from some work in geronimo.
+
+	* test/lupart/Makefile, test/distmap/distmat.cpp, src/Makefile, src/readmesh.cpp:
+	Working on `distmat'.
+	Backup before proceeding to install `distmat' on the IISDMat/PFMat'rices.
+
+	* test/lupart/wallke.epl:
+	removed old banner referring to `octave_export_vars'
+
+	* test/distmap/Makefile, test/distmap/distmat.cpp, test/runtests.pl:
+	Working on distributed matrix DistMap< int, map<int,double> >
+
+2001-07-31  mstorti@spider  <mstorti@spider>
+
+	* test/distmap/distmat.cpp:
+	Distrubuted map<int,map<int,double>> i.e. a sparse matrix
+
+	* test/distmap/distmap.cpp: Fixed a bug
+
+	* tools/myexpect.pl:
+	Modified so that without the -o option now sections are not print
+	unless at least one test was found.
+
+	* test/distmap/distmap.cpp: Distributed map is working.
+
+	* src/distmap.h:
+	Converted `char **buff' for unpacking to `const char *&buff'
+
+	* src/distmap.h:
+	Members that do not belong to this process are deleted now.
+
+	* test/Makefile:
+	Definition of variables has to be placed before the `includes'
+	otherwise the conditional processing ('ifeq' and friend) don't work.
+
+	* src/distmap.h: Distributed map is working basically.
+
+	* src/Makefile: *** empty log message ***
+
+	* test/distmap/Makefile, test/distmap/distmap.cpp, src/distmap.h:
+	Debugging the distributed map class.
+	Coded the send-receive paired communication.
+
+	* src/distmap.h: Works, paired send-receive.
+
+2001-07-30  mstorti@spider  <mstorti@spider>
+
+	* test/distmap/Makefile, test/distmap/makefile.d, test/Makefile,
+	src/distmap.h: Working on distributed map
+
+	* src/Makefile, src/distmap.h, notes.txt, save.log:
+	Working on distributed map class.
+
+	* test/distmap/distmap.cpp, test/distmap/makefile.d:
+	Workinf on distributed map class. Compiles.
+
+2001-07-28  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/wkepipe/Makefile, test/wallkechan/Makefile,
+	test/wallke/Makefile, test/nonlr/Makefile, test/newff/Makefile,
+	test/newff/data.m.epl, test/newff/newff.epl, test/lupart/Makefile,
+	test/les/stabi3d/Makefile, test/les/stabi/Makefile,
+	test/genload/Makefile, test/bug100/Makefile, test/runtests.pl,
+	src/lusubd.cpp, src/pfmat.h, Makefile.base, notes.txt: Found a bug
+	in IISD.  Added tests for advdif and ns with IISD.
+
+	* src/lusubd.cpp:
+	Fixed bug in lusubd.cpp. Will code it more efficiently.
+
+2001-07-26  mstorti@spider  <mstorti@spider>
+
+	* test/lupart/Makefile, applications/advdif/advdif.cpp, PROJECTS,
+	TODO, notes.txt: Porting advdif to PFMat / IISD
+
+2001-07-25  mstorti@spider  <mstorti@spider>
+
+	* src/lusubd.cpp: In geronimo (RH 5.2.) doesn't support
+	declarations of the form vector<int> flag0(dofmap->neq,0);
+
+	* test/lupart/Makefile, test/lupart/wallke.epl, applications/ns/nsitetlesfm2.cpp, notes.txt:
+	IISD works in multi-processor in RH 7.1 at least.
+
+	* src/elemset.cpp, src/elemset.h, src/readmesh.cpp, notes.txt:
+	Added test for new partitioning methods.
+	Added 'name()' member to Elemset class
+
+	* test/runtests.pl: Added test for new partitioning methods.
+
+	* test/lupart/Makefile, test/lupart/check_part.m:
+	Added test for new partitioning methods
+
+	* Makefile.base: Now TAGINCL is modified from Makefile.defs
+
+	* test/lupart/wallke.epl, test/lupart/Makefile, src/readmesh.cpp,
+	src/readmesh.cpp.particion: Including hitchhuking partitioning in
+	`readmesh.cpp'
+
+2001-07-24  mstorti@spider  <mstorti@spider>
+
+	* applications/advdif/advdif.cpp: Adapting advdif to new PFMat
+
+	* VERSION, save.log: Administrative files
+
+	* src/fem.h, src/lusubd.cpp, src/pfmat.h, PROJECTS, TODO,
+	notes.txt: Coded IISD solver.  Added a test for IISD solver.
+
+	* test/lupart/Makefile, test/lupart/check_iisd.m,
+	test/lupart/checkiisd.m, test/lupart/checkiisd.orig.m,
+	test/lupart/wallke.epl, test/runtests.pl: Added a test for IISD
+	solver
+
+2001-07-23  mstorti@spider  <mstorti@spider>
+
+	* src/fm2eperl.cpp, src/fmat2ep.cpp: Fixed a bug in `detsur()'
+
+	* PROJECTS, notes.txt, test/Makefile, test/runtests.pl,
+	test/lupart/Makefile, test/lupart/checkiisd.m,
+	test/lupart/loadiisd.m, test/lupart/loadpetsc.m,
+	test/lupart/wallke.epl: Debugging the IISD solver.
+
+	* src/pfmat.h, src/lusubd.cpp, applications/ns/ns.cpp: Fixed the
+	memory leak. The global SLES must be destroyed after each
+	time/step iteration.
+
+	* src/lusubd.cpp: Verified that works well for solution of several
+	systems (several iterations and time steps).
+
+	* src/lusubd.cpp: Fixed an error in IISDMat::solve()
+
+	* PROJECTS, TODO: *** empty log message ***
+
+	* applications/ns/ns.cpp, applications/ns/nsitetlesfm2.cpp,
+	src/pfmat.h, src/lusubd.cpp: Verified that the matrices A_LL,
+	etc.. are OK. There is however, apparently a bug in the
+	computation of res_i or something like that, because the error in
+	the first iteration of the interface problem is near machine
+	precision.
+
+	* src/lusubd.cpp: Will change al PETSCFEM_ASSERT0 calls to CHKERRQ.
+
+2001-07-22  mstorti@spider  <mstorti@spider>
+
+	* src/lusubd.cpp:
+	IISDMat::solve is working reasonably, I have to verify that it gives
+	the correct answer.
+
+	* src/lusubd.cpp:
+	Put the solution on the local nodes stuff in a `local_solve()'
+	member.
+
+	* src/lusubd.cpp: Will change somewhat
+
+2001-07-21  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/ns.cpp, applications/ns/nsitetlesfm2.cpp,
+	src/elemset.cpp, src/elemsetn.cpp, src/utils.cpp,
+	src/readmesh.cpp, src/lusubd.cpp: Modified node numbering so that
+	now a node belongs to the highest number processor that has an
+	element connected to the node.
+
+2001-07-19  mstorti@spider  <mstorti@spider>
+
+	* src/elemset.cpp: Added fix for treatment of (UPLOAD_MATRIX |
+	IS_FDJ_MATRIX) in the PETScMat case.
+
+	* src/elemset.cpp: Was deleted by mistake.
+
+	* src/elemset.cpp: Fixed a "bug" related to void lists of elements.
+
+	* test/newff/Makefile, test/newff/newff.epl: Modified in order to
+	be able to run on several processors.  For instance `$ make NP=2
+	test...'
+
+	* src/lusubd.cpp: Fixed a bug, the SLES has to be redefined each
+	time, otherwise the matrix is note factored.
+
+2001-07-18  mstorti@spider  <mstorti@spider>
+
+	* tools/petscload.pl, tools/pfcpp: *** empty log message ***
+
+	* src/lusubd.cpp, src/mainutl.cpp, src/pfmat.h,
+	applications/ns/ns.cpp, Makefile.base, TODO, notes.txt,
+	test/lupart/Makefile, test/lupart/mkmesh.m,
+	test/lupart/wallke.epl: Fixed a bug in `read_vector'.  Added a
+	`use_iisd' flag.
+
+	* src/lusubd.cpp: Will try to set values with VecSetValues
+
+	* tools/petscload.pl:
+	Now can load repeated names (results in x, x_0, x_1, ....)
+
+2001-07-17  mstorti@spider  <mstorti@spider>
+
+	* src/lusubd.cpp:
+	Coded so that map now contains the mapping for all processors.
+
+2001-07-16  mstorti@spider  <mstorti@spider>
+
+	* test/lupart/Makefile, test/lupart/wallke.epl, src/lusubd.cpp,
+	applications/ns/ns.cpp, Makefile.base, notes.txt: Working on IISD
+	method (lusubd-PFMat matrix).
+
+	* applications/ns/ns.cpp, src/arglist.cpp, src/arglist.h,
+	src/elemset.cpp, src/fem.cpp, src/lusubd.cpp, src/pfmat.h:
+	Implementing IDSI method (Interface Direct - Subdomain Iterative)
+	solver.  Created a OO interface (class PFMat) that is a wrapper to
+	the PETSc class.
+
+2001-07-14  mstorti@spider  <mstorti@spider>
+
+	* Makefile.base:
+	Added dirs in CPPFLAGS such that now `$ make <file>.cppi' (g++ -E)
+	access all headers.
+
+	* src/lusubd.h, src/pfmat.h: renamed `lusubd.h' to `pfmat.h'
+
+	* src/lusubd.h: Builds PETSc matrices OK.
+
+	* src/lusubd.cpp: Build PETSc matrices OK.
+
+2001-07-13  mstorti@spider  <mstorti@spider>
+
+	* test/lupart/Makefile: Adding LU solving by subdomain
+
+	* src/Makefile, src/elemset.cpp, src/lusubd.cpp, src/lusubd.h:
+	Adding PFMatLU (iterative on interface)
+
+	* src/lusubd.h: *** empty log message ***
+
+	* src/lusubd.h: Class of matrices with LU solution for internal
+	dof's in subdomains.
+
+2001-07-12  mstorti@spider  <mstorti@spider>
+
+	* src/lusubd.cpp: Wricting a class for distributed matrices with
+	preconditioning LU at each domain and iterative methods on the
+	interface.
+
+	* src/lusubd.cpp: *** empty log message ***
+
+2001-07-11  mstorti@spider  <mstorti@spider>
+
+	* test/lupart/Makefile, test/lupart/mkmesh.m, test/lupart/proc.m,
+	test/lupart/startup.m, test/lupart/wallke.epl,
+	test/lupart/wallke.some: Test for iteration on interaface
+	unknowns.
+
+	* applications/ns/nsitetlesfm2.cpp: Fixed a bug with glob_param
+
+	* test/eperlini.pl:
+	Added warning and `mode: octave' to `octave_export_vars'
+
+	* VERSION, save.log: Administrative files
+
+	* test/wallkechan/mkmesh.m, test/wallkechan/wallke.epl: Working on k-e
+
+2001-07-10  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nonlr.cpp, applications/ns/nsi_tet.h,
+	Makefile.base, notes.txt: Working on k-e iterative
+
+	* test/wallkechan/Makefile, test/wallkechan/latv.m,
+	test/wallkechan/mkmesh.m, test/wallkechan/proc.m,
+	test/wallkechan/read_state.m, test/wallkechan/try1.m,
+	test/wallkechan/wallke.epl: Working on k-e iterative.
+
+2001-07-06  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/wallke.epl, test/wallke/wallke.epl,
+	applications/ns/nsi_tet.h, notes.txt: Working on k-e iterative
+
+2001-07-05  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/wallke.epl: working on k-e
+
+	* test/wallkechan/wallke.epl:
+	Working on wall k-e, version at constant y.
+
+	* applications/ns/nsikeps.cpp, applications/ns/wallke.cpp,
+	applications/ns/nsi_tet.h: Added comments.
+
+2001-07-04  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nonlr.cpp, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.h, applications/ns/wallke.cpp,
+	test/wallkechan/wallke.epl: Working on wall k-e with fixed `y'
+	(not `y+')
+
+	* applications/ns/ctff.m, applications/ns/pp.m,
+	applications/ns/try1.m, applications/ns/try2.m, src/secant.h,
+	applications/ns/nsi_tet.h, applications/ns/wallf.m,
+	applications/ns/wallke.cpp, test/wallkechan/wallke.epl: Writing
+	y_wall fixed wall k-e law.
+
+2001-07-03  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/ctff2.m, test/wallkechan/mkmesh.m,
+	test/wallkechan/proc.m, test/wallkechan/wallke.epl: Working on
+	k-e.
+
+2001-07-02  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/proc.m, test/wallkechan/wallke.epl,
+	test/wallkechan/mkmesh.m: Working on k-e
+
+	* tools/Makefile, test/wallkechan/ctff2.m,
+	test/wallkechan/mkmesh.m, test/wallkechan/wallke.epl,
+	applications/ns/nsikeps.cpp, applications/ns/wallke.cpp,
+	notes.txt: Working on k-e. Added cutoff functions
+
+2001-07-01  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/ctff2.m: *** empty log message ***
+
+	* test/wallkechan/cutoff.m: Added license
+
+	* test/wallkechan/cutoff.m: Started 'cutoff.m'
+
+	* Makefile: *** empty log message ***
+
+2001-06-29  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/mkmesh.m, test/wallkechan/proc.m,
+	test/wallkechan/wallke.epl, applications/ns/nonlr.cpp,
+	applications/ns/nsi_tet.h, applications/ns/wallke.cpp: Working on
+	k-e with smoothed wall velocity profiles.
+
+	* src/getprop.h: Added DEFPROPN that allows definition of
+	properties with more than one element
+
+	* applications/ns/wallke.cpp: Added `u_wall' property
+
+	* applications/ns/wallke.cpp: Adding u_wall property
+
+2001-06-26  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/proc.m, test/wallkechan/wallke.epl,
+	make/mypatch: Working on k-e
+
+	* test/wallkechan/proc.m, test/wallkechan/read_state.m,
+	test/wallkechan/wallke.epl, src/fm2eperl.cpp, src/fmat2ep.cpp,
+	applications/ns/wallke.cpp, notes.txt: Working on wall k-e
+
+2001-06-25  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/wallke.epl, applications/ns/wallke.cpp:
+	Adding lumped mass to wallke
+
+	* applications/ns/wallke.cpp: Adding lumped mass option.
+
+	* test/wallkechan/Makefile, test/wallkechan/mkmesh.m,
+	test/wallkechan/wallke.epl, notes.txt: Working on k-e test.
+
+2001-06-24  mstorti@spider  <mstorti@spider>
+
+	* applications/ns/nonlr.cpp:
+	Detected an error in the computation of 'u' at the wall.
+
+2001-06-23  mstorti@spider  <mstorti@spider>
+
+	* src/fem.h, src/util2.cpp, src/util2.h, notes.txt,
+	applications/ns/nonlr.cpp, applications/ns/nsikeps.cpp,
+	applications/ns/nsilesther.cpp, applications/ns/nsitetlesfm2.cpp:
+	Debugging the lack of continuity.  Added 'square' and 'cube'
+	functions (for doubles).
+
+	* test/wallkechan/wallke.epl: Debugging the lack of continuity
+
+	* applications/ns/nsikeps.cpp, test/wallkechan/wallke.epl:
+	Error detected in turbulence production terms jacobian when
+	deactivating turbulence .
+
+2001-06-22  mstorti@spider  <mstorti@spider>
+
+	* make/appatch: New version of appatch
+
+	* test/wallkechan/mkmesh.m, test/wallkechan/readperm.pl,
+	test/wallkechan/wallke.epl: Working on k-e test.
+
+2001-06-21  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/mkmesh.m, test/wallkechan/wallke.epl,
+	applications/ns/ns.cpp, applications/ns/nsikeps.cpp: Working on
+	k-e
+
+	* notes.txt: *** empty log message ***
+
+	* test/wallkechan/Makefile, test/wallkechan/mkmesh.m,
+	test/wallkechan/proc.m, test/wallkechan/wallke.epl,
+	applications/ns/nsikeps.cpp: Writing test for k-e
+
+2001-06-20  mstorti@spider  <mstorti@spider>
+
+	* test/wallkechan/proc.m, test/wallkechan/wallke.epl, test/Makefile:
+	Working on channel k-e test
+
+	* VERSION, save.log: Administrative files
+
+	* test/wallkechan/Makefile, test/wallkechan/mkmesh.m, test/wallkechan/proc.m, test/wallkechan/startup.m, test/wallkechan/wallke.epl, test/wallkechan/wallke.some, applications/ns/nonlr.cpp, applications/ns/nsi_tet.h, applications/ns/nsikeps.cpp, applications/ns/wallke.cpp, TODO, notes.txt:
+	Working on wallkechan test case.
+	Will replace all the files in test/wallkechan dir
+
+2001-06-16  mstorti@spider  <mstorti@spider>
+
+	* test/eperlini.pl: *** empty log message ***
+
+2001-06-15  mstorti@spider  <mstorti@spider>
+
+	* test/wallke/Makefile, test/wallke/mkmesh.m, test/wallke/proc.m, test/wallke/startup.m, test/wallke/wallke.epl, applications/ns/nsikeps.cpp, notes.txt:
+	Added jacobian of production terms in k-e bu Beto.
+
+	* VERSION, save.log: Administrative files
+
+	* test/newff/Makefile, test/newff/data.m.epl, test/newff/newff.epl, test/runtests.pl, src/readmesh.cpp, TODO:
+	Added tests for dofs/fields
+
+2001-06-08  mstorti@spider  <mstorti@spider>
+
+	* VERSION, save.log: Administrative files
+
+	* test/Makefile, test/testfm2.cpp, src/fastmat2.h, src/fm2eperl.cpp, src/fmat2ep.cpp, src/prep.pl, src/util2.cpp, src/util2.h, src/utils.h, applications/ns/nonlr.cpp, Makefile.base, TODO:
+	Added `norm_p' to FM2
+
+2001-06-07  mstorti@spider  <mstorti@spider>
+
+	* test/wkepipe/iwallf.m, test/wkepipe/proc.m, test/wkepipe/wallf.m, test/wkepipe/wallke.epl, test/Makefile:
+	Writing test for k-e in pipes
+
+2001-06-06  mstorti@spider  <mstorti@spider>
+
+	* ChangeLog: admin file
+
+	* test/wkepipe/Makefile, test/wkepipe/extrude.m, test/wkepipe/mkmesh.m, test/wkepipe/proc.m, test/wkepipe/wallke.epl, test/wkepipe/wallke.some, test/wallke/proc.m, test/wallke/wallke.epl, test/wallke/mkmesh.m:
+	Working on k-e pipe.
+
+	* test/eperlini.pl: Added support to strings in `octave_export_vars'
+
 2001-06-06  mstorti@spider  <mstorti@spider>
 
 	* test/wallke/proc.m, test/wallke/wallke.epl, test/wallke/mkmesh.m:

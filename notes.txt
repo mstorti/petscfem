@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.63 2001/07/30 00:16:53 mstorti Exp $
+$Id: notes.txt,v 1.64 2001/08/08 00:47:40 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.63 2001/07/30 00:16:53 mstorti Exp $ 
+! # $Id: notes.txt,v 1.64 2001/08/08 00:47:40 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.63 2001/07/30 00:16:53 mstorti Exp $ 
+! # $Id: notes.txt,v 1.64 2001/08/08 00:47:40 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.63 2001/07/30 00:16:53 mstorti Exp $ 
+  # $Id: notes.txt,v 1.64 2001/08/08 00:47:40 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -3522,6 +3522,16 @@ estaba mal el calculo de `row' y escribia en partes no habilitadas de
 %
 Ahora voy a escribir una clase 'DistMap' (distributed map) o
 `distributed container'. 
+
+%===Tue Aug  7 20:46:00 ART 2001 mstorti@spider
+%
+Escrita la clase DistMap y funciona bien. Habia un bug, escribi un
+test para ello.
+%
+Cree un nuevo particionamiento llamado `random' que asigna un
+procesador aleatorio para cada elemento. Esto sirve para debuggear
+cosas. Por ejemplo asi se detecta mas facil el bug mencionado
+anteriormente. 
 
 %# Current line ===========  
 # Local Variables: $

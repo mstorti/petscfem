@@ -17,6 +17,7 @@ $nu = $Uav*2*$L/$Re;            # kinematic visc.
 $part_case = ($case =~ /^(.*)_part$/);
 $part_method = $1;
 $part_method = $ENV{'part'} if $ENV{'part'};
+$part_method = 'metis' unless $part_method;
 $case_size = "medium" if $part_case;
 $case_size = $ENV{'case_size'} unless $case_size;
 $peri = $ENV{'peri'};
@@ -75,6 +76,7 @@ print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
+partitioning_method "<:=$part_method:>"
 alpha 1.
 #if $case_size eq 'small' 
 nstep 2
@@ -82,7 +84,6 @@ nnwt 2
 #elsif $part_case
 nstep 1
 nnwt 1
-partitioning_method "<:=$part_method:>"
 #debug_element_partitioning
 #elsif $peri
 nstep 1

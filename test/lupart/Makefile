@@ -1,11 +1,20 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2001/08/07 19:54:12 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2001/08/08 00:43:49 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
+NSO := $(PETSCFEM_DIR)/../petscfem-beta-1.93/applications/ns/ns.bin
+
+ifneq ($(NSO),)
+NS:=$(NSO)
+endif
+
 run:
 #	$(MAKE) NP=$(NPP) Re=500 case=iisd case_size=very_large test_case
-	$(MAKE) NP=2 Re=1 part=random case=iisd case_size=small test_case
+#	$(MAKE) NS=$(NSO) NP=2 Re=1 peri=1 part=random case=iisd \
+#				case_size=small test_case
+	$(MAKE) NP=2 Re=1 peri=1 part=random case=iisd \
+				case_size=small test_case
 	mv -f save.state save.state.iisd_vl
 
 #w All tests
@@ -16,6 +25,7 @@ test_eff:
 	mv -f save.state save.state.iisd_peri.np2.tmp
 
 #w Tests IISD with periodic boundary conditions
+NS := $(NSO)
 test_distmap: 
 	$(MAKE) NP=2 Re=100 peri=1 case=iisd case_size=small2 test_case
 	mv -f save.state save.state.iisd_peri.np2.tmp
@@ -25,6 +35,8 @@ test_distmap:
 
 #w Tests IISD 
 test_iisd:
+	$(MAKE) NP=2 case=iisd case_size=small part=random test_case
+	mv -f save.state save.state.iisd.np2.rand.tmp
 	$(MAKE) NP=2 case=iisd case_size=small test_case
 	mv -f save.state save.state.iisd.np2.tmp
 	$(MAKE) NP=2 case=iisd ksp=cgs case_size=small test_case
@@ -54,9 +66,6 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 NAME = wallke
 
-PROG = $(NS)
-LOC_PROG = ns
-
 .PHONY: data force
 test_case_data: 
 #	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
@@ -71,12 +80,12 @@ NP := 1
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl  > output.case_$(case).tmp
+			-case $(NAME).depl  #> output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
 
-PROG = $(NS)
-LOC_PROG = ns
-CASE_NAME = wallke
+PROG := $(NS)
+LOC_PROG := ns
+CASE_NAME := wallke
 #s
