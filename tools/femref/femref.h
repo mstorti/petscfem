@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.14 2004/11/21 21:06:09 mstorti Exp $
+// $Id: femref.h,v 1.15 2004/11/21 21:22:42 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -10,6 +10,7 @@
 #include <src/linkgraph.h>
 #include <src/generror.h>
 
+#if 0
 typedef unsigned int Node;
 
 class GeomObjectBasic;
@@ -90,6 +91,7 @@ public:
   static GeomObjectBasic 
   *factory(int sz,const int *nodes, GeomObject::Type t);
 };
+#endif
 
 class GeomObjectSeq : public GeomObjectBasic {
 protected:
@@ -116,22 +118,13 @@ public:
     return &(go_template->perms_v.e(perm_indx,0)); 
   }
   GeomObject::Type type() { return go_template->type; }
-  GeomObjectSeq(Template *tmpl,const int *nodes_a) 
-  : go_template(tmpl), canonical(0) {
-    int sz = size();
-    nodes.set_chunk_size(sz);
-    cs = 0;
-    for (int j=0; j<sz; j++) {
-      int node = nodes_a[j];
-      cs += node;
-      nodes.ref(j) = node;
-    }
-  }
+  GeomObjectSeq(GeomObject::Type t,const int *nodes_a);
   void make_canonical();
   /// Compare two objects
   bool equal(GeomObject &go);
 };
 
+#if 0
 #define GO_CLASS(TYPE)					\
 class TYPE : public GeomObjectSeq {			\
 public:							\
@@ -141,5 +134,6 @@ public:							\
 }
 
 GO_CLASS(Edge);
+#endif
 
 #endif
