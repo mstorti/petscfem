@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.13 2005/02/25 01:59:47 mstorti Exp $
+// $Id: project.cpp,v 1.14 2005/02/25 02:20:03 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -55,25 +55,19 @@ int main() {
   FastMat2 C(2,nd1,nd1),C2(2,nd1,nd1),
     invC(2,nd1,nd1), invC2(2,nd1,nd1),
     invCt(2,nd1,nd1),
-    x2(1,ndim),x2prj(1,ndim),
-    x12(1,ndim),
+    x2(1,ndim),dx2(1,ndim),
+    x2prj(1,ndim), x12(1,ndim),
     x13(1,ndim),x1(1,ndim),
-    nor(1,ndim),L(1,ndim+1),
+    nor(1,ndim),L(1,nd1),
     b(1,ndim+1);
-#define NOD2_RAND
   vector<int> restricted(ndim);
-#ifdef NOD2_RAND
-  nnod2=1000;
-  FILE *fid = fopen("qq.dat","w");
-#endif
   double tol = 1e-6;
+  double d2min;			// Minimum distance to elements in mesh1
+  int k1min;			// Element in mesh1 with minimum distance
+  FastMat2 Lmin(1,nd1);
   for (int n2=0; n2<nnod2; n2++) {
-#ifndef NOD2_RAND
     x2.set(&xnod2.e(n2,0));
-#else
-    for (int j=0; j<ndim; j++)
-      x2.setel(1.5*drand()-0.25,j+1);
-#endif
+    x2.print("x2");
     for (int k=0; k<nelem1; k++) {
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
@@ -139,17 +133,16 @@ int main() {
       C.is(1,1,ndim);
       x2prj.prod(C,L,1,-1,-1);
       C.rs();
-#ifndef NOD2_RAND
-      x2.print("");
-      x2prj.print("");
-#else
-      for (int j=0; j<ndim; j++)
-	fprintf(fid,"%f ",x2.get(j+1));
-      for (int j=0; j<ndim; j++)
-	fprintf(fid,"%f ",x2prj.get(j+1));
-      fprintf(fid,"\n");
-#endif
+      // Form distance vector
+      dx2.set(x2).rest(x2prj);
+      double d2 = dx2.norm_p_all(2.0);
+      if (k==0 || d2<d2min) {
+	d2min = d2;
+	k1min = k;
+	Lmin.set(L);
+	x2prj.print("x2prj");
+      }
     }
+    printf("node2 %d, dist min %f\n",n2,d2min);
   }
-  fclose(fid);
 }
