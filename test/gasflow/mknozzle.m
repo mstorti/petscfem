@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mknozzle.m,v 1.3 2003/01/08 15:49:04 mstorti Exp $
+## $Id: mknozzle.m,v 1.4 2003/01/08 18:04:25 mstorti Exp $
 global Rin Rn nw L
 
 source("data.m.tmp");
@@ -13,8 +13,11 @@ XNOD = XNOD(:,2:3);
 
 ICONE = [1 2 3 4];
 
-H = [1 2 Nx r_ratio 1 r_ratio;
-     4 1 Nr 1       0 x_ratio];
+H = [1 2 Nx x_ratio 1 x_ratio;
+     4 1 Nr 1       0 r_ratio];
+if flat_plate
+  H(1,:) = [1 2 Nx 1 0 x_ratio];
+endif
 
 [xnod,icone,mesh] = mesher(XNOD,ICONE,H);
 asave("nozzle.nod.tmp",xnod);

@@ -1,14 +1,16 @@
+$flat_plate = 1;
+
 ## GEOMETRY
 $L = 4;				# semi-length of nozzle
-$Rin = 1;			# radius at nozzle inlet/outle
-$Rn = 0.6;			# radius at throttle (minimum radius)
+$Rin = 2;			# radius at nozzle inlet/outle
+$Rn = $Rin;			# radius at throttle (minimum radius)
 $nw = 3;			# throttle half-width. The shape is a `cosh' and
 				# at this distance from the center it recovers 90% of the
 				# inlet width.
-$Nr = 16;			# number of elements in radius direction
+$Nr = 20;			# number of elements in radius direction
 $Nx = 40;			# number of elements in x direction
 $r_ratio = 8;			# hr(axis)/hr(wall)
-$x_ratio = 8;			# hx(inlet) / hx(throttle)
+$x_ratio = 16;			# hx(inlet) / hx(throttle)
 
 ## PHYSICAL DATA
 $visco   =  1e-02;		# viscosity

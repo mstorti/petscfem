@@ -10,7 +10,8 @@ $weak_form  = 0;
 #__END_TRANSCRIPT__
 @vars = qw(L Rin Rn Nr Nx nw visco Pr Pr Rgas ga 
     Cv Cp cond g_body gravity Mach_ref rho_ini p_ini
-    p_ref rho_ref cc_ref u_ref u_ini v_ini v_ref x_ratio r_ratio);
+    p_ref rho_ref cc_ref u_ref u_ini v_ini v_ref x_ratio r_ratio
+    flat_plate);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mknozzle.m > mknozzle.out.tmp";
