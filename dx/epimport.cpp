@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.13 2003/07/03 04:32:11 mstorti Exp $
+// $Id: epimport.cpp,v 1.14 2003/09/03 15:58:24 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -495,6 +495,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	}
       }      
 
+      DXMessage("Ends processing fields_auto directive, cookie %d",cookie);
       Sprintf(clnt,"fields_auto_OK %d\n",cookie);
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
