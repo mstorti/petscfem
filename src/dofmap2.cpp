@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.6 2002/12/25 14:44:11 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.7 2002/12/25 17:56:08 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -38,7 +38,63 @@ void edofi(int edof, int ndof, int &node,int &field) {
 #define __FUNC__ "Dofmap::set_constraint(const Constraint &constraint)"
 void Dofmap::set_constraint(const Constraint &constraint) {
 #define DEBUG_ELIM
+  double tol = 1e-10;
+  int length=constraint.size();
+  row_t row,row0;
+  
+  // Create row from constraint and eliminate all already eliminated
+  // variables, except those that refer to this edof 
+  for (int k=0; k<length; k++) {
+    const constraint_entry *it = &(constraint[k]);
+    int edoff = edof(it->node,it->field);
+    // Look if row is regular (it doesn't point to other edof's)
+    row.clear();
+#ifdef DEBUG_ELIM
+    printf("row item: node %d, dof %d, edof %d, coef %f\n",
+	   it->node,it->field,edof(it->node,it->field),
+	   it->coef);
+#endif    
+    get_row(it->node,it->field,row); 
+    axpy(row0,it->coef,row);
+  }
 
+  int set_flag=0;
+  double cc, cmax; 
+  row_t::iterator q, qmax, qe = row0.end();
+  for (q=row0.begin(); q!=qe; q++) {
+    cc = fabs(q->second);
+    if (!set_flag || cc>cmax) {
+      qmax = q;
+      cmax = cc;
+      set_flag = 1;
+    }
+  }
+  if (cmax<tol) {
+    PetscPrintf(PETSC_COMM_WORLD,"Linearly dependend constraint. Discarded.\n");
+    return;
+  }
+  
+  double coef0 = qmax->second;
+  int edof0 = qmax->first;
+  row0.erase(qmax);
+  
+  row_t col;
+  id->get_col(edof0,col);
+  
+  qe = col.end();
+  for (q=col.begin(); q!=qe; q++) {
+    int node,field;
+    edofi(q->first,ndof,node,field);
+    row.clear();
+    get_row(node,field,row);
+    row_t::iterator r = row.find(edof0);
+    double coef = r->second;
+    row.erase(r);
+    axpy(row,-coef/coef0,row0);
+    row_set(node,field,row);
+  }
+
+#if 0
   // This implementation takes into account cyclic references. 
   // Cyclic reference means that edof `i' is constrained to
   // edof `j' but edof `j' has been already constrained to edof `i'.
@@ -270,4 +326,5 @@ void Dofmap::set_constraint(const Constraint &constraint) {
   iQ.clear();
   // Free memory in B
   for (int k=0; k<nelim; k++) delete B[k];
+#endif
 }
