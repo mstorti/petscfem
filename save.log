@@ -1302,3 +1302,6 @@ tag: beta-3.00.pl15 on Tue, 23 Jul 2002 14:07:14 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.00.pl16 on Tue, 23 Jul 2002 22:20:07 -0300 by mstorti in spider
      > Written the pack/unpack routines.
+----------
+tag: beta-3.00.pl17 on Wed, 24 Jul 2002 12:46:22 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs OK the distributed LinkGraph test with scatter()
