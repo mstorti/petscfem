@@ -556,3 +556,16 @@ tag: beta-3.43.7 on Sun Feb 20 20:21:21 GMT+3 2005, by mstorti in spider
 ----------
 tag: beta-3.43.10 on Mon Feb 21 01:23:57 GMT+3 2005, by mstorti in spider
      > Now compiles cleanly with GCC 3.3.3 without `-Wno-deprecated'. 
+----------
+tag: 3.45 on Wed Mar  9 07:50:18 GMT+3 2005, by mstorti in spider
+     > Implemented `dofmap->solve' with iterative solution 
+     > of the least squares eqs.
+     > Some manipulation in `readmesh.cpp' migrated to new compact 
+     > representation of `idmap' (based on vectors). 
+     > Now compiles cleanly with GCC 3.3.3 without `-Wno-deprecated'. 
+     > Now correctly hands case where `weights.dat' can't be opened. 
+     > Merged from minor changes in `gasflow' by Beto. 
+     > Written doc on absorbing boundary conditions. 
+     > Added `PETSCFEM_' prefix on all magic `#ifndef PETSCFEM_..._H' headers. 
+     > Implemmented `project.cpp' for interpolating one mesh in another. 
+     > Runs SC-Hyper tests. 
