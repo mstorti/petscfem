@@ -657,3 +657,8 @@ tag: beta-2.43 on Fri Nov 30 09:42:13 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.44 on Fri Nov 30 10:23:09 ARST 2001, by mstorti in spider
      > Writing adaptors.
+----------
+tag: beta-2.45 on Sat Dec  1 13:15:44 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Incorporated changes in turbulence from Beto.
+     > Merged sources (tests not run yet).
