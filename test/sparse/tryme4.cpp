@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.18 2002/07/21 03:48:43 mstorti Exp $
+// $Id: tryme4.cpp,v 1.19 2002/07/21 04:51:17 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -36,6 +36,33 @@ private:
   void reff(int j,int &chunk,int &k) {
     chunk = j/chunk_size;
     k = j % chunk_size;
+  }
+  void X(T &u,T &v) {
+    T t = u;
+    u = v;
+    v = t;
+  }
+#define V(j) ref(first+(j)-1)
+  void push_heap (int first, int p, int u) {
+    int i1, i2, q, r;
+    r = p ; // {indica posicion actual de V [primero] }
+    q = u / 2;
+    while (r <= q ) {
+      i1 = 2 * r ;
+      i2 = 2 * r + 1 ;
+      if (u == i1) {
+	if (V(r) < V(i1)) X( V(r), V(i1));
+	r = u ;
+      } else if ( V(r) < V(i1) && V(i1) >= V(i2)) {
+	X( V(r), V(i1)) ;
+	r = i1 ;
+      } else if ( V(r) < V(i2) && V(i2) >  V(i1)) {
+	X( V(r), V(i2)) ;
+	r = i2 ;
+      } else { // {r NO viola propiedad parcialmente ordenado}
+	r = u ; // {para forzar la terminacion del lazo}
+      }
+    }
   }
 public:
   dvector() { 
@@ -79,6 +106,17 @@ public:
   }
   void resize(int new_size) { resize(new_size,T()); }
   void clear(void) { shrink(0); }
+  void sort(int first=0, int last=-1) {
+    if (last==-1) last=size();
+    int i, j, n = last-first;
+    T t;
+    j = n / 2 ;
+    for (i = j; i>=1; i--) push_heap(first,i,n) ;
+    for (i = n; i>=2;  i--) {
+      X(V(1),V(i));
+      push_heap(first,1,i-1);
+    }
+  }
 };
 
 class graph {
@@ -214,9 +252,14 @@ public:
   }
 };
 
+void v_print(dvector<int> v) {
+  for (int j=0; j<v.size(); j++) 
+    printf("%d\n",v.ref(j));
+}
+
 int main(int argc, char **argv) {
   dvector<int> v;
-  int M=1000;
+  int M=10;
   for (int j=0; j<M; j++) v.push(j*j);
   for (int j=0; j<M; j++) {
     if (j % (M/10) ==0 ) 
@@ -236,7 +279,12 @@ int main(int argc, char **argv) {
       printf("j %d, j^3 %d, v(j) %d\n",j,j*j*j,v.ref(j));
     assert(j*j*j==v.ref(j));
   }
-  
+  v.clear();
+  for (int j=0; j<M; j++) v.push(irand(1,M));
+  v_print(v);
+  v.sort();
+  printf("=======================\n");
+  v_print(v);
 
 #if 0
   graph_da g;
