@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.4 2001/11/13 17:34:25 mstorti Exp $
+//$Id: pfmatsp.cpp,v 1.5 2001/11/14 01:52:27 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -62,6 +62,8 @@ int SparseDirect::duplicate(MatDuplicateOption op,const PFMat &B) {
   *A_p = *(BB->A_p);
 #else
   A_p->duplicate(*BB->A_p);
+  if (op==MAT_DO_NOT_COPY_VALUES)
+    A_p->clear();
   // Duplicate non-factored data only
   return 0;
 #endif

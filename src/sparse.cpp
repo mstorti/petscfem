@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.25 2001/11/13 17:34:25 mstorti Exp $
+//$Id: sparse.cpp,v 1.26 2001/11/14 01:52:27 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -941,7 +941,6 @@ namespace Sparse {
     int m,j;
     RowCIt row,e;
 
-    fsm.fill();
     clear();
 
     nrows = B.nrows;
@@ -951,6 +950,7 @@ namespace Sparse {
     m = B.rows();
     e = B.end();
     for (row = B.begin(); row!=e; row++) insert(*row);
+    fsm.fill();
 
   }
 }
