@@ -2356,3 +2356,6 @@ tag: beta-3.17 on Wed, 12 Feb 2003 09:06:21 -0300, by mstorti in spider
      > Runs OK dx_hook in parallel (2 procs. in spider) and switchs OK
      > Written doc for DX
      > Automatically detects quads, cubes, triangles, tetras and prisms. 
+----------
+tag: beta-3.17.pl1 on Wed, 12 Feb 2003 11:26:43 -0300 by mstorti in spider
+     > Changed 2002 -> 2003 in copyright files, etc...
