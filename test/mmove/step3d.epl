@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
-$N=8;
-$disp = 0.3;
+$N=2;
+$disp = 0.1;
 $slope = 2;
 # $shape = 'quad';
 #
@@ -25,7 +25,7 @@ iisd_subpart_auto 2000
 #endif
 report_consumed_time
 
-nnwt 1
+nnwt 10
 # newton_relaxation_factor 0.1 10 1.
 pc_lu_fill 8.
 rtol 1e-7
@@ -39,7 +39,7 @@ print_internal_loop_conv
 debug_activate_print
 debug_activate_memory_usage
 
-<:$nstep=20; pr('nstep');:>
+<:$nstep=1; pr('nstep');:>
 Dt <:= 1./$nstep;:>
 __END_HASH__
 
@@ -50,6 +50,7 @@ __END_NODES__
 
 #===========================================================
 elemset mesh_move_eig_anal 4
+epsilon_x 1e-6
 geometry tetra
 npg 1
 __END_HASH__

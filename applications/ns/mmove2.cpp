@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.4 2002/12/03 23:35:02 mstorti Exp $
+//$Id: mmove2.cpp,v 1.5 2002/12/04 03:14:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -57,7 +57,11 @@ void mesh_move_eig_anal::init() {
   glambda.resize(3,ndim,nel,ndim);
   dFdl.resize(1,ndim);
   d2Fdl2.resize(2,ndim,ndim);
-  eps = 1e-5;
+
+  //o Perturbation scale length for increment in computing
+  // the Jacobian with finite differences. 
+  TGETOPTDEF(thash,double,epsilon_x,1.e-4);
+  eps = epsilon_x;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -66,6 +70,15 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
   J.prod(x,dNdxi,-1,1,2,-1);
   G.prod(J,J,-1,1,-1,2);
   lambda.seig(G,V);
+#define SHF(n) n.print(#n ": ")
+#define DEBUG_ANAL
+#ifdef DEBUG_ANAL
+  SHF(J);
+  SHF(G);
+  SHF(lambda);
+  SHF(V);
+#endif
+  lambda.print("lambda:");
   tmp1.prod(J,V,1,-1,-1,2);
   tmp2.prod(dNdxi,V,-1,1,-1,2);
   for (int q=1; q<=ndim; q++) {
@@ -83,11 +96,9 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
 double mesh_move_eig_anal::dfun(const FastMat2 &D) {
   double F=0;
   double vol=1.;
-  for (int k=1; k<=ndim; k++) {
-    vol *= D.get(k);
-    for (int l=1; l<=ndim; l++) 
-      F += square(D.get(k)-D.get(l));
-  }
+  for (int k=1; k<=ndim; k++) vol *= D.get(k);
+  for (int k=2; k<=ndim; k++)
+    for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
   F /= pow(vol,2./double(ndim));
   return F;
 }
@@ -102,6 +113,13 @@ void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &dFdx) {
     dFdl.setel((F-F0)/eps,k);
   }
   dFdx.prod(dFdl,glambda,-1,-1,1,2);
+#ifdef DEBUG_ANAL
+    x.print("x:");
+    lambda.print("lambda:");
+    glambda.print("glambda:");
+    dFdl.print("dFdl:");
+    dFdx.print("dFdx:");
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -110,8 +128,8 @@ void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
 					   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
 
-  const FastMat2 *state = (glob_param->inwt ? &state_new : &state_old);
-  x0.set(xloc).add(*state);
+#define eps 1e-10
+  x0.set(xloc).add(glob_param->inwt ? state_new : state_old);
   df_grad(x0,res);
   x0.reshape(1,nel*ndim);
   mat.reshape(3,nel,ndim,nel*ndim);
@@ -119,16 +137,31 @@ void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
     xp.set(x0).addel(eps,k).reshape(2,nel,ndim);
     df_grad(xp,resp);
     xp.reshape(1,nel*ndim);
-    mat.ir(3,k).set(resp).rest(res).scale(1/eps);
+#ifdef DEBUG_ANAL
+    printf("k %d\n",k);
+    x0.print("x0:");
+    xp.print("xp:");
+    resp.print("resp:");
+    res.print("res:");
+#endif
+    mat.ir(3,k).set(resp).rest(res).rs();
   }
+  mat.scale(1/eps);
   x0.reshape(2,nel,ndim);
   mat.rs().reshape(4,nel,ndim,nel,ndim);
 
   if (!glob_param->inwt) {
     x0.set(xloc).add(state_new);
     df_grad(x0,res);
-  } else {
-    double q=1;
-  }
+  } 
   res.scale(-1.);
+#ifdef DEBUG_ANAL
+  xloc.print("eig_anal: xloc");
+  xloc.print("state_new");
+  res.print("res:");
+  mat.reshape(2,nel*ndim,nel*ndim).print("mat: ");
+  printf("eps: %f\n",eps);
+  PetscFinalize();
+  exit(0);
+#endif
 }

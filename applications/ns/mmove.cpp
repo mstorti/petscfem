@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.13 2002/12/03 23:35:02 mstorti Exp $
+//$Id: mmove.cpp,v 1.14 2002/12/04 03:14:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -208,6 +208,15 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   }
 
   mat.reshape(4,nel,ndim,nel,ndim);
+#if 1
+  xloc.print("eig: xloc");
+  xloc.print("state_new");
+  res.print("res:");
+  mat.reshape(2,nel*ndim,nel*ndim).print("mat: ");
+  printf("eps: %f\n",eps);
+  PetscFinalize();
+  exit(0);
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

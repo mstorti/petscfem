@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.22 2002/12/01 16:07:25 mstorti Exp $
+//$Id: fastmat2.h,v 1.23 2002/12/04 03:14:12 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -305,7 +305,7 @@ public:
       @param s (input) An optional string to print.
       @return a reference to the matrix.
    */ 
-  void print(char *s=NULL) ;
+  void print(const char *s=NULL) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Prints dimensions of the matrix.
@@ -1168,9 +1168,9 @@ private:
   /// used in constructors
   void create_from_indx(const Indx & dims_);
   /// auxiliary.  prints matrices with 2 indices.
-  void print2(const Indx & indxp,const Indx & fdims) ;
+  void print2(const Indx & indxp,const Indx & fdims) const;
   /// auxiliary.  prints matrices with 1 indices.
-  void print1(const Indx & indxp,const Indx & fdims) ;
+  void print1(const Indx & indxp,const Indx & fdims) const;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

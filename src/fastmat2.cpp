@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.12 2002/11/05 19:59:35 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.13 2002/12/04 03:14:12 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -495,7 +495,7 @@ void FastMat2::define_matrix(void) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void FastMat2::print(char *s=NULL) {
+void FastMat2::print(const char *s=NULL) const {
   if (s!=NULL) printf("--- %s ----\n",s);
   Indx fdims;
   get_dims(fdims);
@@ -534,7 +534,7 @@ void FastMat2::printd(char *s=NULL) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:       
-void FastMat2::print2(const Indx & indxp,const Indx & fdims) {
+void FastMat2::print2(const Indx & indxp,const Indx & fdims) const {
   int nd=fdims.size();
   Indx indx = indxp;
   indx.push_back(0);
@@ -551,7 +551,7 @@ void FastMat2::print2(const Indx & indxp,const Indx & fdims) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:     
-void FastMat2::print1(const Indx & indxp,const Indx & fdims) {
+void FastMat2::print1(const Indx & indxp,const Indx & fdims) const {
   Indx indx;
   indx = indxp;
   indx.push_back(0);
