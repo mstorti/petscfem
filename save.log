@@ -2484,6 +2484,11 @@ tag: beta-3.18.pl21 on Mon,  3 Mar 2003 01:37:17 -0300 by mstorti in spider
      > Runnig cylinder with parabolic mesh. 
 ----------
 tag: beta-3.18.pl22 on Wed,  5 Mar 2003 20:58:12 -0300 by mstorti in spider
-     > Added visuaization to rotating cone example. 
+     > Added visualization to rotating cone example. 
 ----------
 tag: beta-3.18.pl23 on Wed,  5 Mar 2003 23:38:46 -0300 by mstorti in spider
+     > Writing lagrange multiplier version of `null_vort'. 
+----------
+tag: beta-3.18.pl24 on Thu,  6 Mar 2003 15:58:59 -0300 by mstorti in minerva.arcride.edu.ar
+     > Builds correctly the connectivity table for the lagrange multipliers 
+     > elemset of null_vort. 
