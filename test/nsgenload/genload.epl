@@ -1,0 +1,95 @@
+<:
+require '../eperlini.pl';       # Initializes ePerl 
+$hy=0.0625;
+doc_vals(qw(case));
+# case fstack is to check if report errors when number or nodes in
+# connect. lines i not equal to those reported
+# in the header
+if ($case eq 'fstack') {
+    $case = '2a'; 
+    $ne = 6;
+}
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+chunk_size 10
+save_file "save.state.tmp"
+nsave 20
+
+rtol 1e-2
+maxits 100
+
+save_file_pattern "outvector%d.sal"
+#nsaverot 1000000
+
+nnwt 1
+tol_newton 0
+preco_type "lu"
+
+steady
+nstep 1
+
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodes   2  2  1
+__INCLUDE__ genload.nod
+__END_NODES__
+
+#===========================================================
+elemset qharm 4
+#Datos del elemento
+geometry cartesian2d
+npg 4
+__END_HASH__
+1 3 4 2 
+3 5 6 4 
+5 7 8 6 
+7 9 10 8 
+9 11 12 10 
+11 13 14 12 
+13 15 16 14 
+#<:$lin_gen_load_e=1:>
+#if $lin_gen_load_e
+15 17 18 16 
+#else
+15 19 20 16 
+#endif
+19 21 22 20 
+21 23 24 22 
+23 25 26 24 
+25 27 28 26 
+27 29 30 28 
+29 31 32 30 
+31 33 34 32 
+33 35 36 34 
+__END_ELEMSET__
+
+elemset lin_gen_load 4
+geometry cartesian1d
+npg 2
+double_layer
+# hfilm_coeff 3. 0. 0. 1.
+__END_HASH__
+17 18 19 20 
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+1 1  0.
+2 1  0.
+35 1  1.
+36 1  1.
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

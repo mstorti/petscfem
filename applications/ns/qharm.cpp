@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharm.cpp,v 1.3 2001/12/03 02:59:49 mstorti Exp $
+//$Id: qharm.cpp,v 1.4 2002/12/16 04:11:35 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,8 +14,11 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void qharm::elemset_init() {
   assert(ndof==1);
-  conductivity=1.;
-  rho_Cp=1.;
+  int ierr;
+  //o Thermal conductivity
+  TGETOPTDEF_ND(thash,double,conductivity,1.);
+  //o Specific heat
+  TGETOPTDEF_ND(thash,double,rho_Cp,1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

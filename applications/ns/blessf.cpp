@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.15 2002/12/12 19:35:19 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.16 2002/12/16 04:11:35 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -23,6 +23,7 @@
 #include "fracstep.h"
 #include "nsid.h"
 #include "./mmove.h"
+#include "./genload.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -59,8 +60,9 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE_ALIAS(mesh_move,mesh_move_eig_anal)
     SET_ELEMSET_TYPE(mesh_move_eig_anal)
-	{
-	printf("not known elemset type: \"%s\"\n",type);
-	exit(1);
-	}
+
+    SET_ELEMSET_TYPE(lin_gen_load)
+      {
+	PETSCFEM_ERROR("not known elemset type: \"%s\"\n",type);
+      }
 }
