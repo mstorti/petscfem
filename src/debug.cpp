@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.5.4.2 2001/12/24 03:59:56 mstorti Exp $
+//$Id: debug.cpp,v 1.5.4.3 2001/12/25 14:57:20 mstorti Exp $
  
 #include <src/debug.h>
 #include <cstdio>
@@ -137,7 +137,7 @@ void Debug::trace(const char *s=NULL) {
 	  // If all processors have been released then
 	  // release root processor
 	  if (done) break;
-	  // Expexct for more processors to release
+	  // Expect for more processors to release
 	  printf("release procs > ");
 	  fflush(stdout);
 	  getline (&line,&N,stdin);
