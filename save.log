@@ -778,3 +778,7 @@ tag: pfmat-rewrite-1.15 on Fri Jan  4 20:42:02 ARST 2002, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.16 on Fri Jan  4 20:43:57 ARST 2002, by mstorti in spider
      > Added a `local_solver' option for `IISDMat'.
+----------
+tag: pfmat-rewrite-1.17 on Sat Jan  5 11:50:51 ARST 2002, by mstorti in spider
+     > Found the leak. Apparently is in the PETSc routines when using
+     > `PCLUSetUseInPlace(pc_ll)'.
