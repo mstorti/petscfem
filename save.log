@@ -3546,3 +3546,6 @@ tag: beta-3.37.37 on Sun, 19 Dec 2004 15:54:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.38 on Sun, 19 Dec 2004 16:43:51 -0300 by mstorti in spider
      > Fixed a bug with `so_next()' (missed return value). 
+----------
+tag: beta-3.37.39 on Sun, 19 Dec 2004 16:53:56 -0300 by mstorti in spider
+     > Written `level_next()' and tested. 
