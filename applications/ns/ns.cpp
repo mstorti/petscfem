@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.137 2003/09/16 17:53:35 mstorti Exp $
+//$Id: ns.cpp,v 1.138 2003/11/25 01:13:36 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -206,9 +206,9 @@ int main(int argc,char **args) {
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Print the residual each \verb+nsave+ steps. 
+  //o Print the residual each  #nsave#  steps. 
   GETOPTDEF(int,print_residual,0);
-  //o Solve system before \verb+print\_linear_system_and_stop+
+  //o Solve system before  #print\_linear_system_and_stop# 
   GETOPTDEF(int,solve_system,1);
   //o Measure performance of the 'comp\_mat\_res' jobinfo. 
   GETOPTDEF(int,measure_performance,0);
@@ -233,10 +233,10 @@ int main(int argc,char **args) {
   GETOPTDEF(int,nstep,10000);
   //o The time step.
   GETOPTDEF(double,Dt,0.);
-  //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+  //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
   // is set to 1, then the computations are as if $\Dt=\infty$. 
-  // The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
-  // is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+  // The value of  #Dt#  is used for printing etc... If  #Dt# 
+  // is not set and  #steady#  is set then  #Dt#  is set to one.
   GETOPTDEF(int,steady,0);
   if (steady && Dt==0.) Dt=1.;
   // Set values to be passed through global options
@@ -244,9 +244,9 @@ int main(int argc,char **args) {
   glob_param.Dt=Dt;
   glob_param.state = &state;
   glob_param.state_old = &state_old;
-  //o Trapezoidal method parameter. \verb+alpha=1+:
-  // Backward Euler. \verb+alpha=0+: Forward Euler.
-  // \verb+alpha=0.5+: Crank-Nicholson. 
+  //o Trapezoidal method parameter.  #alpha=1# :
+  // Backward Euler.  #alpha=0# : Forward Euler.
+  //  #alpha=0.5# : Crank-Nicholson. 
   GETOPTDEF(double,alpha,1.); 
   glob_param.alpha=alpha;
 
@@ -271,11 +271,11 @@ int main(int argc,char **args) {
 
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
-  //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+  //o Type of solver. May be  #iisd#  or  #petsc# . 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
   //o Type of solver for the projection and momentum steps
-  // (fractional-step). May be \verb+iisd+ or \verb+petsc+.
+  // (fractional-step). May be  #iisd#  or  #petsc# .
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver_mom,petsc);
   if (use_iisd) solver_mom = string("iisd");
 

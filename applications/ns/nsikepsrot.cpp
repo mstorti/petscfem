@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.33 2003/09/11 17:47:14 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.34 2003/11/25 01:13:36 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -205,7 +205,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(double,turbulence_coef,1.);
   //o Mask to the production terms in the k and epsilon
   // equations. This terms are then scaled by
-  // \verb+turbulence_coef*turb_prod_coef+. 
+  //  #turbulence_coef*turb_prod_coef# . 
   SGETOPTDEF(double,turb_prod_coef,1.);
   //o Scales the term proportional to $h/u$ in the pspg stabilization term
   SGETOPTDEF(double,pspg_advection_factor,1.);
@@ -245,7 +245,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
-  //o Cache \verb+grad_div_u+ matrix
+  //o Cache  #grad_div_u#  matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   // alpha is taken from the global parameters
   double &alpha = glob_param->alpha;

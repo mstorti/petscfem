@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.13 2002/09/05 20:25:47 mstorti Exp $
+//$Id: adv.cpp,v 1.14 2003/11/25 01:13:36 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -129,7 +129,7 @@ int main(int argc,char **args) {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the \verb+comp_mat_res+ jobinfo. 
+  //o Measure performance of the  #comp_mat_res#  jobinfo. 
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)

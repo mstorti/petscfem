@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linhff.cpp,v 1.8 2002/02/05 20:28:28 mstorti Exp $
+//$Id: linhff.cpp,v 1.9 2003/11/25 01:13:36 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -59,8 +59,8 @@ void LinearHFilmFun::init() {
   //o _T: double[var_len]
   //  _N: hfilm_coeff _D: no default  _DOC: 
   // Defines coeffcients for the film flux function. May be 
-  // \verb+var_len=0+ (no $\Delta T$ driven load) or
-  // \verb+var_len=ndof*ndof+ a full matrix of relating the flux with
+  //  #var_len=0#  (no $\Delta T$ driven load) or
+  //  #var_len=ndof*ndof#  a full matrix of relating the flux with
   // $\Delta !U$. 
   //  _END
   elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
@@ -77,7 +77,7 @@ void LinearHFilmFun::init() {
   //o _T: double[var_len]
   //  _N: hfilm_source _D: no default  _DOC: 
   // Defines constant source term for the generic load on
-  // surfaces. May be of length 0 (null load) or \verb+ndof+
+  // surfaces. May be of length 0 (null load) or  #ndof# 
   // which represents a geven load per field. 
   //  _END
   elemset->get_prop(hfilm_source_prop,"hfilm_source");

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.63 2003/09/01 10:45:50 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.64 2003/11/25 01:13:36 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -139,7 +139,7 @@ int PFPETScMat::build_sles() {
   TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
-  //o Uses right or left preconditioning. Default is \verb+right+ for
+  //o Uses right or left preconditioning. Default is  #right#  for
   // GMRES. 
   TGETOPTDEF_S_PF(thash,string,preco_side,<ksp-dependent>);
   if (preco_side=="<ksp-dependent>") {
@@ -168,7 +168,7 @@ int PFPETScMat::build_sles() {
     int (*fcn )(KSP,int);
     //o Orthogonalization method used in conjunction with GMRES. 
     // May be  {\tt unmodified\_gram\_schmidt},
-    // \verb+modified_gram_schmidt+ or {\tt ir\_orthog} (default). (Iterative refinement).
+    //  #modified_gram_schmidt#  or {\tt ir\_orthog} (default). (Iterative refinement).
     // See PETSc documentation. 
     TGETOPTDEF_S_PF(thash,string,gmres_orthogonalization,ir_orthog);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.28 2003/09/11 17:47:14 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.29 2003/11/25 01:13:36 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -177,7 +177,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
-  //o Cache \verb+grad_div_u+ matrix
+  //o Cache  #grad_div_u#  matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto

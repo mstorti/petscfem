@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.22 2003/07/02 23:22:19 mstorti Exp $
+//$Id: wallke.cpp,v 1.23 2003/11/25 01:13:36 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -152,7 +152,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o The $y$ (normal) coordinate of the computational boundary. 
   // Only for laminar computations.
   SGETOPTDEF(double,y_wall,0.);
-  //o Mask for using laminar relation (\verb+turbulence_coef=0+). 
+  //o Mask for using laminar relation ( #turbulence_coef=0# ). 
   SGETOPTDEF(double,turbulence_coef,1.);
   //o Use lumped mass matric for the wall element contribution. Avoids
   // oscillations due to ``reactive type'' wall contributions. 

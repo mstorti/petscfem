@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.21 2003/07/02 23:22:19 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.22 2003/11/25 01:13:36 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -75,14 +75,14 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // a small term is added to the diagonal in order to fix this. The
   // term is added only in the Jacobian or also in the residual (which
   // results would be non-consistent). See option
-  // \verb+lagrange_residual_factor+. 
+  //  #lagrange_residual_factor# . 
   TGETOPTDEF(thash,double,lagrange_diagonal_factor,0.);
-  //o The diagonal term proportional to  \verb+lagrange_diagonal_factor+ 
+  //o The diagonal term proportional to   #lagrange_diagonal_factor#  
   // may be also entered in the residual. If this is so
-  // (\verb+lagrange_residual_factor=1+, then the
+  // ( #lagrange_residual_factor=1# , then the
   // method is ``non-consistent'', i.e. the restriction is not exactly
   // satisfied by the non-linear scheme is exactly Newton-Raphson. If
-  // not (\verb+lagrange_residual_factor=0+) then the restriction is
+  // not ( #lagrange_residual_factor=0# ) then the restriction is
   // consistently satisfied but with a non exact Newton-Raphson. 
   TGETOPTDEF(thash,double,lagrange_residual_factor,0.);
   //o Using Lagrange multipliers can lead to bad conditioning, which

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.47 2003/11/10 21:30:10 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.48 2003/11/25 01:13:36 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -226,7 +226,7 @@ int IISDMat::create_a() {
   TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco,0);
   int use_interface_full_preco_nlay;
   //o Number of layers in the preconditioning band (should
-  //  be \verb+nlay>=1+.) 
+  //  be  #nlay>=1# .) 
   TGETOPTDEF_ND_PF(thash,int,use_interface_full_preco_nlay,1);
   nlay = use_interface_full_preco_nlay;
   PETSCFEM_ASSERT(nlay>=0,"Number of ISP layers must be non-negative. "
@@ -238,14 +238,14 @@ int IISDMat::create_a() {
   }
   if (!use_interface_full_preco) nlay=0;
   //o Number of iters in solving the preconditioning for the 
-  // interface problem when using \verb+use_interface_full_preco+. 
+  // interface problem when using  #use_interface_full_preco# . 
   TGETOPTDEF_ND_PF(thash,int,interface_full_preco_maxits,5);
   //o Defines the preconditioning to be used for the solution
   // of the diagonal interface problem (not the Schur problem)
   TGETOPTDEF_S_ND_PF(thash,string,interface_full_preco_pc,jacobi);
   //o Flags whether or not print the convergence when solving the
   // preconditioning for the interface problem when using
-  // \verb+use_interface_full_preco+.
+  //  #use_interface_full_preco# .
   TGETOPTDEF_ND_PF(thash,int,print_interface_full_preco_conv,0);
   //o The ILU fill to be used for the #A_II# problem if the
   // ILU preconditioning is used

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.22 2003/11/25 00:17:12 mstorti Exp $
+# $Id: odoc.pl,v 1.23 2003/11/25 01:13:37 mstorti Exp $
 
 @odoc=();
 
@@ -59,12 +59,19 @@ sub wiki2 {
 }
 
 sub wiki {
-    my $ref = shift();
-    foreach my $t (@$ref) {
-	wiki2(\$t,"#","\\verb+","+");
-	wiki2(\$t,"\\*","\\textbf{","}");
-	wiki2(\$t,"_","\\emph{","}");
-    }
+    my $t = shift();
+    wiki2(\$t,"#","\\verb+","+");
+    wiki2(\$t,"\\*","\\textbf{","}");
+    wiki2(\$t,"_","\\emph{","}");
+    return $t;
+}
+
+sub wiki_texi {
+    my $t = shift();
+    wiki2(\$t,"#","\@samp{","}");
+    wiki2(\$t,"\\*","\@strong{","}");
+    wiki2(\$t,"_","\@emph{","}");
+    return $t;
 }
 
 $otargetf="";
@@ -103,8 +110,6 @@ while (<>) {
 	    }
 	}
 
-	wiki(\@doc) if $wiki_syntax;
-
 	if ($doc[0] =~ /\s*_T:(.*)/s) {
 	    @docf=@doc;
 	    $doc=join("",@doc);
@@ -135,7 +140,8 @@ while (<>) {
 			 "{\\rm(default=\\verb|$default|)}:\n",
 			 $doc," (found in file: \\verb+$ARGV+)\n",$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc];
+	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc,
+			   $wiki_syntax];
 	} elsif (/$tgetopt_pat/o || /$getopt_pat/o) {
 	    $type=$1;
 	    $name=$2;
@@ -152,7 +158,8 @@ EOT
 	    $text = join("",$header,$doc,
 			 " (found in file: \\verb+$ARGV+)\n",$sep);
 	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
-	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc];
+	    push @doclist,[$name,$type,$default,$text,$ARGV,$doc,
+			   $wiki_syntax];
 #  	    print "doc: ",join("\n",@doc),"\n";
 #  	    print "type: $type, name: $name, def: $default\n\n";
 #  	} elsif (m|^\s*//e .*$|) {
@@ -183,7 +190,10 @@ EOT
 
     print TEXOUT $warn;
     foreach $doc (@doclist) {
-	print TEXOUT "$doc->[3]";
+	my $wiki = $doc->[6];
+	my $t = $doc->[3];
+	$t = wiki($t) if $wiki;
+	print TEXOUT "$t";
     }
     print TEXOUT $warn;
     close TEXOUT;
@@ -213,10 +223,12 @@ if ($opt_e) {
 			"\@vindex $k\n\n");
 	while (@doclist && $doclist[0]->[0] eq $k) {
 	    my $doc = shift @doclist;
+	    my $wiki = $doc->[6];
 	    my $d = $doc->[5];
 	    $d =~ s/@/@@/g;
 	    $d =~ s/\}/@\}/g;
 	    $d =~ s/\{/@\{/g;
+	    $d = wiki_texi($d) if $wiki;
 	    my $node = $k;
 	    push @doc_text, 
 	    "$d\n",

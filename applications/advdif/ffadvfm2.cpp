@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.47 2003/07/03 04:32:11 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.48 2003/11/25 01:13:36 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -720,9 +720,9 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   elemset->get_prop(enthalpy_jacobians_prop,"enthalpy_jacobians");
 
   //o Set enthalpy jacobian to the desired type. May be one of 
-  // ``\verb+ident+'', ``\verb+global_scalar+'',
-  // ``\verb+scalar_per_field+'' or ``\verb+full+''. 
-  // See documentation for the \verb+enthalpy_jacobians+ option. 
+  // `` #ident# '', `` #global_scalar# '',
+  // `` #scalar_per_field# '' or `` #full# ''. 
+  // See documentation for the  #enthalpy_jacobians#  option. 
   EGETOPTDEF(elemset,string,enthalpy_jacobians_type,string("undefined"));
   string enthalpy_jacobians_type_s = enthalpy_jacobians_type;
 
@@ -770,9 +770,9 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
 
   //o Set advective jacobian to the desired type. May be one of 
-  // ``\verb+null+'', ``\verb+global_vector+'',
-  // ``\verb+vector_per_field+'' or ``\verb+full+''. 
-  // See documentation for the \verb+advective_jacobians+ option. 
+  // `` #null# '', `` #global_vector# '',
+  // `` #vector_per_field# '' or `` #full# ''. 
+  // See documentation for the  #advective_jacobians#  option. 
   EGETOPTDEF(elemset,string,advective_jacobians_type,string("undefined"));
   string advective_jacobians_type_s = advective_jacobians_type;
 
@@ -824,11 +824,11 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 
   //o Set diffusive jacobian to the desired type
   //  May be one of 
-  // ``\verb+null+'', 
-  // ``\verb+global_scalar+'', ``\verb+global_tensor+'', 
-  // ``\verb+tensor_per_field+'', ``\verb+scalar_per_field+''
-  //   or ``\verb+null+''
-  // See documentation for the \verb+diffusive_jacobians+ option. 
+  // `` #null# '', 
+  // `` #global_scalar# '', `` #global_tensor# '', 
+  // `` #tensor_per_field# '', `` #scalar_per_field# ''
+  //   or `` #null# ''
+  // See documentation for the  #diffusive_jacobians#  option. 
   EGETOPTDEF(elemset,string,diffusive_jacobians_type,string("undefined"));
   string diffusive_jacobians_type_s=diffusive_jacobians_type;
 
@@ -890,11 +890,11 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 
   //o Set reactive jacobian to the desired type. 
   //  May be one of 
-  // ``\verb+null+'', 
-  // ``\verb+global_scalar+'', 
-  // ``\verb+scalar_per_field+''
-  // or ``\verb+null+''
-  // See documentation for the \verb+reactive_jacobians+ option. 
+  // `` #null# '', 
+  // `` #global_scalar# '', 
+  // `` #scalar_per_field# ''
+  // or `` #null# ''
+  // See documentation for the  #reactive_jacobians#  option. 
   EGETOPTDEF(elemset,string,reactive_jacobians_type,string("undefined"));
   string reactive_jacobians_type_s=reactive_jacobians_type;
 
@@ -944,10 +944,10 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 
   //o Set source term to the desired type
   //  May be one of 
-  // ``\verb+null+'', 
-  // ``\verb+global_scalar+'', 
-  // or ``\verb+null+''
-  // See documentation for the ``\verb+source_term+'' option. 
+  // `` #null# '', 
+  // `` #global_scalar# '', 
+  // or `` #null# ''
+  // See documentation for the `` #source_term# '' option. 
   EGETOPTDEF(elemset,string,source_term_type,string("undefined"));
   string source_term_type_s=source_term_type;
 

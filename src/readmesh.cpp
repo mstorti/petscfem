@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.98 2003/11/13 13:36:39 mstorti Exp $
+//$Id: readmesh.cpp,v 1.99 2003/11/25 01:13:36 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1018,8 +1018,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // partflag = 3 -> random partition. 
   // partflag = 4 -> natural partition. 
   int partflag;
-  //o Set partitioning method. May be set to \verb+metis+,
-  // \verb+hitchhiking+, \verb+nearest_neighbor+ or \verb+random+.
+  //o Set partitioning method. May be set to  #metis# ,
+  //  #hitchhiking# ,  #nearest_neighbor#  or  #random# .
   TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);
   //o Print graph statistics
   TGETOPTDEF(mesh->global_options,int,print_partitioning_statistics,0);
@@ -1322,7 +1322,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
  
   TRACE(-1.1);
 
-  //o Checks that the \verb+idmap+ has been correctly generated. 
+  //o Checks that the  #idmap#  has been correctly generated. 
   TGETOPTDEF(mesh->global_options,int,check_dofmap_id,0);
   if (check_dofmap_id && myrank==0) {
     dofmap->id->check();
@@ -1331,7 +1331,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 
   TRACE(-1.2);
 
-  //o Prints the dofmap \verb+idmap+ object. 
+  //o Prints the dofmap  #idmap#  object. 
   TGETOPTDEF(mesh->global_options,int,print_dofmap_id,0);
   if (print_dofmap_id && myrank==0) {
     dofmap->id->print("dofmap->id: \n");

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.59 2003/11/25 00:32:41 mstorti Exp $
+//$Id: advdif.cpp,v 1.60 2003/11/25 01:13:36 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -125,7 +125,7 @@ int main(int argc,char **args) {
   //o Prints the convergence history when solving a consistent matrix
   GETOPTDEF(int,print_internal_loop_conv,0);
   print_internal_loop_conv_g=print_internal_loop_conv;
-  //o Measure performance of the \verb+comp_mat_res+ jobinfo. 
+  //o Measure performance of the  #comp_mat_res#  jobinfo. 
   GETOPTDEF(int,measure_performance,0);
 
   //o Save state vector frequency (in steps)
@@ -147,7 +147,7 @@ int main(int argc,char **args) {
   //o After computing the linear system prints Jacobian and
   // right hand side and stops.. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Solve system before \verb+print\_linear_system_and_stop+
+  //o Solve system before  #print\_linear_system_and_stop# 
   GETOPTDEF(int,solve_system,1);
   //o If #print_linear_system_and_stop# is active,
   // then print system in this Newton iteration 
@@ -155,7 +155,7 @@ int main(int argc,char **args) {
   //o If #print_linear_system_and_stop# is active,
   // then print system in this time step
   GETOPTDEF(int,time_step_stop,1);
-  //o Print the residual each \verb+nsave+ steps. 
+  //o Print the residual each  #nsave#  steps. 
   GETOPTDEF(int,print_residual,0);
 
   //o Sets the save frequency in iterations for the ``print some''
@@ -177,7 +177,7 @@ int main(int argc,char **args) {
   GETOPTDEF(int,update_jacobian_steps,0);
   //o Use IISD (Interface Iterative Subdomain Direct) or not.
   GETOPTDEF(int,use_iisd,0);
-  //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+  //o Type of solver. May be  #iisd#  or  #petsc# . 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
 
@@ -208,10 +208,10 @@ int main(int argc,char **args) {
   GETOPTDEF(double,Courant,0.6);
   //o Time step. 
   GETOPTDEF(double,Dt,0.);
-  //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+  //o Flag if steady solution or not (uses Dt=inf). If  #steady# 
   // is set to 1, then the computations are as if $\Dt=\infty$. 
-  // The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
-  // is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+  // The value of  #Dt#  is used for printing etc... If  #Dt# 
+  // is not set and  #steady#  is set then  #Dt#  is set to one.
   GETOPTDEF(int,steady,0);
   if (steady && Dt==0.) Dt=1.;
   glob_param.Dt = Dt;

@@ -566,7 +566,7 @@ Additional properties (used by the element routine)
 \index{additional\_tau\_pspg@\verb+additional_tau_pspg+}
 \item\verb+double additional_tau_pspg+ {\rm(default=\verb|0.|)}:
 
-Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
+Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
  independently of $h$. (Mainly for debugging purposes). 
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -820,9 +820,9 @@ error condition is generated.
 \item\verb+string advective_jacobians_type+ {\rm(default=\verb|string("undefined")|)}:
 
 Set advective jacobian to the desired type. May be one of 
-``\verb+null+'', ``\verb+global_vector+'',
-``\verb+vector_per_field+'' or ``\verb+full+''. 
-See documentation for the \verb+advective_jacobians+ option. 
+`` \verb+null+ '', `` \verb+global_vector+ '',
+`` \verb+vector_per_field+ '' or `` \verb+full+ ''. 
+See documentation for the  \verb+advective_jacobians+  option. 
  (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{alpha@\verb+alpha+}
@@ -842,9 +842,9 @@ for temporal integration.
 \index{alpha@\verb+alpha+}
 \item\verb+double alpha+ {\rm(default=\verb|1.|)}:
 
-Trapezoidal method parameter. \verb+alpha=1+:
-Backward Euler. \verb+alpha=0+: Forward Euler.
-\verb+alpha=0.5+: Crank-Nicholson. 
+Trapezoidal method parameter.  \verb+alpha=1+ :
+Backward Euler.  \verb+alpha=0+ : Forward Euler.
+ \verb+alpha=0.5+ : Crank-Nicholson. 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{alpha@\verb+alpha+}
@@ -965,7 +965,7 @@ base value
 \item\verb+double beta_supg+ {\rm(default=\verb|1.|)}:
 
 Weights the temporal term with $N+\beta P$, i.e.
-$\beta=0$ is equivalent to waight the temporal term a la
+$\beta=0$ is equivalent to weight the temporal term a la
 Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -973,7 +973,7 @@ Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
 \item\verb+double beta_supg+ {\rm(default=\verb|1.|)}:
 
 Weights the temporal term with $N+\beta P$, i.e.
-$\beta=0$ is equivalent to waight the temporal term a la 
+$\beta=0$ is equivalent to weight the temporal term a la 
 Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
  (found in file: \verb+../applications/advdif/advdifeo.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -990,8 +990,8 @@ Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
 
 Parameter to control the amount of SUPG perturbation 
     added to the mass matrix to be consistent SUPG
-    \verb+beta_supg+=0 implies consistent Galerkin and
-    \verb+beta_supg+=1 implies full consistent SUPG. 
+     \verb+beta_supg+ =0 implies consistent Galerkin and
+     \verb+beta_supg+ =1 implies full consistent SUPG. 
  (found in file: \verb+../applications/advective/advecfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{beta\_supg@\verb+beta_supg+}
@@ -999,8 +999,8 @@ Parameter to control the amount of SUPG perturbation
 
 Parameter to control the amount of SUPG perturbation 
     added to the mass matrix to be consistent SUPG
-    \verb+beta_supg+=0 implies consistent Galerkin and
-    \verb+beta_supg+=1 implies full consistent SUPG. 
+     \verb+beta_supg+ =0 implies consistent Galerkin and
+     \verb+beta_supg+ =1 implies full consistent SUPG. 
  (found in file: \verb+../applications/advective/advective.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{betath@\verb+betath+}
@@ -1043,31 +1043,31 @@ Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala.
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
+Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
+Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
+Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsilesther.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
+Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsirot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
+Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{called\_from\_rosi@\verb+called_from_rosi+}
@@ -1079,7 +1079,7 @@ Is being PETSc-FEM called from ROSI?
 \index{check\_dofmap\_id@\verb+check_dofmap_id+}
 \item\verb+int check_dofmap_id+ {\rm(default=\verb|0|)}:
 
-Checks that the \verb+idmap+ has been correctly generated. 
+Checks that the  \verb+idmap+  has been correctly generated. 
  (found in file: \verb+../src/readmesh.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{chunk\_size@\verb+chunk_size+}
@@ -1332,11 +1332,11 @@ the \verb+advective_jacobians+ option documentation.
 
 Set diffusive jacobian to the desired type
  May be one of 
-``\verb+null+'', 
-``\verb+global_scalar+'', ``\verb+global_tensor+'', 
-``\verb+tensor_per_field+'', ``\verb+scalar_per_field+''
-  or ``\verb+null+''
-See documentation for the \verb+diffusive_jacobians+ option. 
+`` \verb+null+ '', 
+`` \verb+global_scalar+ '', `` \verb+global_tensor+ '', 
+`` \verb+tensor_per_field+ '', `` \verb+scalar_per_field+ ''
+  or `` \verb+null+ ''
+See documentation for the  \verb+diffusive_jacobians+  option. 
  (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{diffusivity@\verb+diffusivity+}
@@ -1448,8 +1448,8 @@ Uses DX cache if possible in order to avoid sending the coordinates
 
 Coefficient affecting the new displacements read. 
  New coordinates are \verb|c0*x0+c*u| where
- \verb+c0=dx_coords_scale_factor0+, \verb+c1=dx_coords_scale_factor+,
- \verb+x0+ are the initial coordinates and \verb+u+ are the coordinates read
+  #c0=dx_coords_scale_factor0# ,  #c1=dx_coords_scale_factor# ,
+  #x0#  are the initial coordinates and  \verb+u+  are the coordinates read
  from the given file. 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -1457,7 +1457,7 @@ Coefficient affecting the new displacements read.
 \item\verb+double dx_coords_scale_factor0+ {\rm(default=\verb|1.|)}:
 
 Coefficient affecting the original coordinates. See doc for
- \verb+dx_coords_scale_factor+
+  \verb+dx_coords_scale_factor+ 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{dx\_do\_make\_command@\verb+dx_do_make_command+}
@@ -1520,8 +1520,8 @@ TCP/IP port for communicating with DX ({\tt 5000 < dx\_port < 65536}).
 Read states from file instead of computing them . Normally
  this is done to analyze a previous run. If 1 the file is
  ASCII, if 2 then it is a binary file. In both cases the order
- \textbf{of the} \emph{elements must} be: \verb+u(1,1),+ \verb+u(1,2),+ \verb+u(1,3),+
- \verb+u(1,ndof),+ \verb+u(2,1),+ ... \verb+u(nnod,ndof)+ where \verb+u(i,j)+ is
+ \textbf{of the} \emph{elements must} be: #u(1,1),# #u(1,2),# #u(1,3),#
+ #u(1,ndof),# #u(2,1),# ... #u(nnod,ndof)# where #u(i,j)# is
  the value of field \verb+j+ at node \verb+i.+ 
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -1558,9 +1558,9 @@ FIXME:= to be documented later
 \item\verb+string enthalpy_jacobians_type+ {\rm(default=\verb|string("undefined")|)}:
 
 Set enthalpy jacobian to the desired type. May be one of 
-``\verb+ident+'', ``\verb+global_scalar+'',
-``\verb+scalar_per_field+'' or ``\verb+full+''. 
-See documentation for the \verb+enthalpy_jacobians+ option. 
+`` \verb+ident+ '', `` \verb+global_scalar+ '',
+`` \verb+scalar_per_field+ '' or `` \verb+full+ ''. 
+See documentation for the  \verb+enthalpy_jacobians+  option. 
  (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{eps\_ctff\_val@\verb+eps_ctff_val+}
@@ -2000,7 +2000,7 @@ Type of element geometry to define Gauss Point data
 
 Orthogonalization method used in conjunction with GMRES. 
 May be  {\tt unmodified\_gram\_schmidt},
-\verb+modified_gram_schmidt+ or {\tt ir\_orthog} (default). (Iterative refinement).
+ \verb+modified_gram_schmidt+  or {\tt ir\_orthog} (default). (Iterative refinement).
 See PETSc documentation. 
  (found in file: \verb+../src/iisdmat.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -2063,15 +2063,15 @@ relative amplitude falls from the peak value to one half
 \item\verb+ double[var_len]+ \verb+ hfilm_coeff+ {\rm(default=\verb| no default|)}:
  
 Defines coeffcients for the film flux function. May be 
-\verb+var_len=0+ (no $\Delta T$ driven load) or
-\verb+var_len=ndof*ndof+ a full matrix of relating the flux with
+ \verb+var_len=0+  (no $\Delta T$ driven load) or
+ \verb+var_len=ndof*ndof+  a full matrix of relating the flux with
 $\Delta !U$. 
   (found in file: \verb+../applications/advdif/linhff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ hfilm_source+ {\rm(default=\verb| no default|)}:
  
 Defines constant source term for the generic load on
-surfaces. May be of length 0 (null load) or \verb+ndof+
+surfaces. May be of length 0 (null load) or  \verb+ndof+ 
 which represents a geven load per field. 
   (found in file: \verb+../applications/advdif/linhff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -2143,7 +2143,7 @@ ILU preconditioning is used
 \item\verb+int interface_full_preco_maxits+ {\rm(default=\verb|5|)}:
 
 Number of iters in solving the preconditioning for the 
-interface problem when using \verb+use_interface_full_preco+. 
+interface problem when using  \verb+use_interface_full_preco+ . 
  (found in file: \verb+../src/iisdcr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{interface\_full\_preco\_pc@\verb+interface_full_preco_pc+}
@@ -2220,7 +2220,7 @@ cause zero pivots when using direct methods. With this option
 a small term is added to the diagonal in order to fix this. The
 term is added only in the Jacobian or also in the residual (which
 results would be non-consistent). See option
-\verb+lagrange_residual_factor+. 
+ \verb+lagrange_residual_factor+ . 
  (found in file: \verb+../applications/advdif/nonlres.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_diagonal\_factor@\verb+lagrange_diagonal_factor+}
@@ -2231,7 +2231,7 @@ cause zero pivots when using direct methods. With this option
 a small term is added to the diagonal in order to fix this. The
 term is added only in the Jacobian or also in the residual (which
 results would be non-consistent). See option
-\verb+lagrange_residual_factor+. 
+ \verb+lagrange_residual_factor+ . 
  (found in file: \verb+../applications/ns/lagmul.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_diagonal\_factor@\verb+lagrange_diagonal_factor+}
@@ -2242,42 +2242,42 @@ cause zero pivots when using direct methods. With this option
 a small term is added to the diagonal in order to fix this. The
 term is added only in the Jacobian or also in the residual (which
 results would be non-consistent). See option
-\verb+lagrange_residual_factor+. 
+ \verb+lagrange_residual_factor+ . 
  (found in file: \verb+../applications/ns/nonlr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_residual\_factor@\verb+lagrange_residual_factor+}
 \item\verb+double lagrange_residual_factor+ {\rm(default=\verb|0.0|)}:
 
-The diagonal term proportional to  \verb+lagrange_diagonal_factor+ 
+The diagonal term proportional to   \verb+lagrange_diagonal_factor+  
 may be also entered in the residual. If this is so
-(\verb+lagrange_residual_factor=1+, then the
+( \verb+lagrange_residual_factor=1+ , then the
 method is ``non-consistent'', i.e. the restriction is not exactly
 satisfied by the non-linear scheme is exactly Newton-Raphson. If
-not (\verb+lagrange_residual_factor=0+) then the restriction is
+not ( \verb+lagrange_residual_factor=0+ ) then the restriction is
 consistently satisfied but with a non exact Newton-Raphson. 
  (found in file: \verb+../applications/advdif/nonlres.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_residual\_factor@\verb+lagrange_residual_factor+}
 \item\verb+double lagrange_residual_factor+ {\rm(default=\verb|0.|)}:
 
-The diagonal term proportional to  \verb+lagrange_diagonal_factor+ 
+The diagonal term proportional to   \verb+lagrange_diagonal_factor+  
 may be also entered in the residual. If this is so
-(\verb+lagrange_residual_factor=1+, then the
+( \verb+lagrange_residual_factor=1+ , then the
 method is ``non-consistent'', i.e. the restriction is not exactly
 satisfied by the non-linear scheme is exactly Newton-Raphson. If
-not (\verb+lagrange_residual_factor=0+) then the restriction is
+not ( \verb+lagrange_residual_factor=0+ ) then the restriction is
 consistently satisfied but with a non exact Newton-Raphson. 
  (found in file: \verb+../applications/ns/lagmul.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_residual\_factor@\verb+lagrange_residual_factor+}
 \item\verb+double lagrange_residual_factor+ {\rm(default=\verb|0.|)}:
 
-The diagonal term proportional to  \verb+lagrange_diagonal_factor+ 
+The diagonal term proportional to   \verb+lagrange_diagonal_factor+  
 may be also entered in the residual. If this is so
-(\verb+lagrange_residual_factor=1+, then the
+( \verb+lagrange_residual_factor=1+ , then the
 method is ``non-consistent'', i.e. the restriction is not exactly
 satisfied by the non-linear scheme is exactly Newton-Raphson. If
-not (\verb+lagrange_residual_factor=0+) then the restriction is
+not ( \verb+lagrange_residual_factor=0+ ) then the restriction is
 consistently satisfied but with a non exact Newton-Raphson. 
  (found in file: \verb+../applications/ns/nonlr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -2471,19 +2471,19 @@ system (Newton linear subiteration).
 \index{measure\_performance@\verb+measure_performance+}
 \item\verb+int measure_performance+ {\rm(default=\verb|0|)}:
 
-Measure performance of the \verb+comp_mat_res+ jobinfo. 
+Measure performance of the  \verb+comp_mat_res+  jobinfo. 
  (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{measure\_performance@\verb+measure_performance+}
 \item\verb+int measure_performance+ {\rm(default=\verb|0|)}:
 
-Measure performance of the \verb+comp_mat_res+ jobinfo. 
+Measure performance of the  \verb+comp_mat_res+  jobinfo. 
  (found in file: \verb+../applications/advdif/advdif_bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{measure\_performance@\verb+measure_performance+}
 \item\verb+int measure_performance+ {\rm(default=\verb|0|)}:
 
-Measure performance of the \verb+comp_mat_res+ jobinfo. 
+Measure performance of the  \verb+comp_mat_res+  jobinfo. 
  (found in file: \verb+../applications/advective/adv.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{measure\_performance@\verb+measure_performance+}
@@ -2711,7 +2711,7 @@ Newton  problem.
 \index{nnwt\_liq@\verb+nnwt_liq+}
 \item\verb+int nnwt_liq+ {\rm(default=\verb|3|)}:
 
-Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+Flag if steady solution or not (uses Dt=inf). If  \verb+steady+ 
  (found in file: \verb+../applications/advdif/advdif_bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{non\_inertial\_frame@\verb+non_inertial_frame+}
@@ -2845,7 +2845,7 @@ see doc for \verb+ns_id_fac+
 \item\verb+double ns_id_fac+ {\rm(default=\verb|1.|)}:
 
 Residual value is
-#ns_id_fac*(ns_id_cn *(x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))#
+\verb+ns_id_fac*(ns_id_cn *(x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))+
  (found in file: \verb+../applications/ns/nsid.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ns\_id\_lumped\_cn@\verb+ns_id_lumped_cn+}
@@ -3088,8 +3088,8 @@ Do partitioning including fictitious nodes
 \index{partitioning\_method@\verb+partitioning_method+}
 \item\verb+string partitioning_method+ {\rm(default=\verb|metis|)}:
 
-Set partitioning method. May be set to \verb+metis+,
-\verb+hitchhiking+, \verb+nearest_neighbor+ or \verb+random+.
+Set partitioning method. May be set to  \verb+metis+ ,
+ \verb+hitchhiking+ ,  \verb+nearest_neighbor+  or  \verb+random+ .
  (found in file: \verb+../src/readmesh.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{pc\_lu\_fill@\verb+pc_lu_fill+}
@@ -3114,7 +3114,7 @@ Equilibrium value (#+phieq#, and #-phieq#).
 \index{preco\_side@\verb+preco_side+}
 \item\verb+string preco_side+ {\rm(default=\verb|<ksp-dependent>|)}:
 
-Uses right or left preconditioning. Default is \verb+right+ for
+Uses right or left preconditioning. Default is  \verb+right+  for
 GMRES. 
  (found in file: \verb+../src/iisdmat.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -3157,7 +3157,7 @@ Print the Schur matrix (don't try this for big problems).
 \index{print\_dofmap\_id@\verb+print_dofmap_id+}
 \item\verb+int print_dofmap_id+ {\rm(default=\verb|0|)}:
 
-Prints the dofmap \verb+idmap+ object. 
+Prints the dofmap  \verb+idmap+  object. 
  (found in file: \verb+../src/readmesh.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_fsm\_transition\_info@\verb+print_fsm_transition_info+}
@@ -3172,7 +3172,7 @@ Print Finite State Machine transitions for PFPETScMat matrices.
 
 Flags whether or not print the convergence when solving the
 preconditioning for the interface problem when using
-\verb+use_interface_full_preco+.
+ \verb+use_interface_full_preco+ .
  (found in file: \verb+../src/iisdcr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_internal\_loop\_conv@\verb+print_internal_loop_conv+}
@@ -3243,19 +3243,19 @@ Print graph statistics
 \index{print\_residual@\verb+print_residual+}
 \item\verb+int print_residual+ {\rm(default=\verb|0|)}:
 
-Print the residual each \verb+nsave+ steps. 
+Print the residual each  \verb+nsave+  steps. 
  (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_residual@\verb+print_residual+}
 \item\verb+int print_residual+ {\rm(default=\verb|0|)}:
 
-Print the residual each \verb+nsave+ steps. 
+Print the residual each  \verb+nsave+  steps. 
  (found in file: \verb+../applications/advdif/advdif_bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_residual@\verb+print_residual+}
 \item\verb+int print_residual+ {\rm(default=\verb|0|)}:
 
-Print the residual each \verb+nsave+ steps. 
+Print the residual each  \verb+nsave+  steps. 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_some\_file@\verb+print_some_file+}
@@ -3370,11 +3370,11 @@ the \verb+advective_jacobians+ option documentation.
 
 Set reactive jacobian to the desired type. 
  May be one of 
-``\verb+null+'', 
-``\verb+global_scalar+'', 
-``\verb+scalar_per_field+''
-or ``\verb+null+''
-See documentation for the \verb+reactive_jacobians+ option. 
+`` \verb+null+ '', 
+`` \verb+global_scalar+ '', 
+`` \verb+scalar_per_field+ ''
+or `` \verb+null+ ''
+See documentation for the  \verb+reactive_jacobians+  option. 
  (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{real\_nodes@\verb+real_nodes+}
@@ -3833,44 +3833,44 @@ sigma_k
 \index{solve\_system@\verb+solve_system+}
 \item\verb+int solve_system+ {\rm(default=\verb|1|)}:
 
-Solve system before \verb+print\_linear_system_and_stop+
+Solve system before  \verb+print\_linear_system_and_stop+ 
  (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solve\_system@\verb+solve_system+}
 \item\verb+int solve_system+ {\rm(default=\verb|1|)}:
 
-Solve system before \verb+print\_linear_system_and_stop+
+Solve system before  \verb+print\_linear_system_and_stop+ 
  (found in file: \verb+../applications/advdif/advdif_bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solve\_system@\verb+solve_system+}
 \item\verb+int solve_system+ {\rm(default=\verb|1|)}:
 
-Solve system before \verb+print\_linear_system_and_stop+
+Solve system before  \verb+print\_linear_system_and_stop+ 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solver@\verb+solver+}
 \item\verb+string solver+ {\rm(default=\verb|petsc|)}:
 
-Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+Type of solver. May be  \verb+iisd+  or  \verb+petsc+ . 
  (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solver@\verb+solver+}
 \item\verb+string solver+ {\rm(default=\verb|petsc|)}:
 
-Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+Type of solver. May be  \verb+iisd+  or  \verb+petsc+ . 
  (found in file: \verb+../applications/advdif/advdif_bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solver@\verb+solver+}
 \item\verb+string solver+ {\rm(default=\verb|petsc|)}:
 
-Type of solver. May be \verb+iisd+ or \verb+petsc+. 
+Type of solver. May be  \verb+iisd+  or  \verb+petsc+ . 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solver\_mom@\verb+solver_mom+}
 \item\verb+string solver_mom+ {\rm(default=\verb|petsc|)}:
 
 Type of solver for the projection and momentum steps
-(fractional-step). May be \verb+iisd+ or \verb+petsc+.
+(fractional-step). May be  \verb+iisd+  or  \verb+petsc+ .
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ source term+ {\rm(default=\verb| all zero|)}:
@@ -3915,10 +3915,10 @@ the \verb+advective_jacobians+ option documentation.
 
 Set source term to the desired type
  May be one of 
-``\verb+null+'', 
-``\verb+global_scalar+'', 
-or ``\verb+null+''
-See documentation for the ``\verb+source_term+'' option. 
+`` \verb+null+ '', 
+`` \verb+global_scalar+ '', 
+or `` \verb+null+ ''
+See documentation for the `` \verb+source_term+ '' option. 
  (found in file: \verb+../applications/advdif/ffadvfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{start\_comp\_time@\verb+start_comp_time+}
@@ -3960,19 +3960,19 @@ If set, redirect output to this file.
 \index{steady@\verb+steady+}
 \item\verb+int steady+ {\rm(default=\verb|0|)}:
 
-Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+Flag if steady solution or not (uses Dt=inf). If  \verb+steady+ 
 is set to 1, then the computations are as if $\Dt=\infty$. 
-The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
-is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+The value of  \verb+Dt+  is used for printing etc... If  \verb+Dt+ 
+is not set and  \verb+steady+  is set then  \verb+Dt+  is set to one.
  (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{steady@\verb+steady+}
 \item\verb+int steady+ {\rm(default=\verb|0|)}:
 
-Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+Flag if steady solution or not (uses Dt=inf). If  \verb+steady+ 
 is set to 1, then the computations are as if $\Dt=\infty$. 
-The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
-is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+The value of  \verb+Dt+  is used for printing etc... If  \verb+Dt+ 
+is not set and  \verb+steady+  is set then  \verb+Dt+  is set to one.
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{steady@\verb+steady+}
@@ -4118,9 +4118,9 @@ Scale the SUPG upwind term.
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|1.|)}:
 
 Adjust the stability parameters, taking into account
-the time step. If the \verb+steady+ option is in effect,
+the time step. If the  \verb+steady+  option is in effect,
 (which is equivalent to $\Dt=\infty$) then
-\verb+temporal_stability_factor+ is set to 0.
+ \verb+temporal_stability_factor+  is set to 0.
  (found in file: \verb+../applications/advdif/bubbly.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
@@ -4129,7 +4129,7 @@ the time step. If the \verb+steady+ option is in effect,
 Adjust the stability parameters, taking into account
 the time step. If the \verb+steady+ option is in effect,
 (which is equivalent to $\Dt=\infty$) then
-#temporal_stability_factor# is set to 0.
+\verb+temporal_stability_factor+ is set to 0.
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
@@ -4164,9 +4164,9 @@ the time step.
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
 
 Adjust the stability parameters, taking into account
-the time step. If the \verb+steady+ option is in effect,
+the time step. If the  \verb+steady+  option is in effect,
 (which is equivalent to $\Dt=\infty$) then
-\verb+temporal_stability_factor+ is set to 0.
+ \verb+temporal_stability_factor+  is set to 0.
  (found in file: \verb+../applications/ns/nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{time\_step\_stop@\verb+time_step_stop+}
@@ -4252,7 +4252,7 @@ Tolerance when solving for a steady state
 
 Mask to the production terms in the k and epsilon
 equations. This terms are then scaled by
-\verb+turbulence_coef*turb_prod_coef+. 
+ \verb+turbulence_coef*turb_prod_coef+ . 
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{turb\_prod\_coef@\verb+turb_prod_coef+}
@@ -4260,7 +4260,7 @@ equations. This terms are then scaled by
 
 Mask to the production terms in the k and epsilon
 equations. This terms are then scaled by
-\verb+turbulence_coef*turb_prod_coef+. 
+ \verb+turbulence_coef*turb_prod_coef+ . 
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{turbulence\_coef@\verb+turbulence_coef+}
@@ -4286,7 +4286,7 @@ Do not add turbulent viscosity for the momentum eq. (for
 \index{turbulence\_coef@\verb+turbulence_coef+}
 \item\verb+double turbulence_coef+ {\rm(default=\verb|1.|)}:
 
-Mask for using laminar relation (\verb+turbulence_coef=0+). 
+Mask for using laminar relation ( \verb+turbulence_coef=0+ ). 
  (found in file: \verb+../applications/ns/wallke.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[ndim]+ \verb+ u0+ {\rm(default=\verb| [1,0]|)}:
@@ -4401,7 +4401,7 @@ Chooses the preconditioning operator.
 \item\verb+int use_interface_full_preco_nlay+ {\rm(default=\verb|1|)}:
 
 Number of layers in the preconditioning band (should
- be \verb+nlay>=1+.) 
+ be  \verb+nlay>=1+ .) 
  (found in file: \verb+../src/iisdcr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_log\_vars@\verb+use_log_vars+}

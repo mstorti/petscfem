@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advecfm2.cpp,v 1.9 2002/01/14 03:45:05 mstorti Exp $
+//$Id: advecfm2.cpp,v 1.10 2003/11/25 01:13:36 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -106,8 +106,8 @@ int AdvectiveFM2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   SGETOPTDEF(int,lumped_mass,1);
   //o Parameter to control the amount of SUPG perturbation 
   //     added to the mass matrix to be consistent SUPG
-  //     \verb+beta_supg+=0 implies consistent Galerkin and
-  //     \verb+beta_supg+=1 implies full consistent SUPG. 
+  //      #beta_supg# =0 implies consistent Galerkin and
+  //      #beta_supg# =1 implies full consistent SUPG. 
   SGETOPTDEF(double,beta_supg,0.8);
   
   // allocate local vecs

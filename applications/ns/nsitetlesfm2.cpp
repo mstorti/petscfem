@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.65 2003/09/11 17:47:14 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.66 2003/11/25 01:13:36 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -158,7 +158,7 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   //o Add LES for this particular elemset.
   SGETOPTDEF(int,LES,0);
-  //o Cache \verb+grad_div_u+ matrix
+  //o Cache  #grad_div_u#  matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
   SGETOPTDEF(double,C_smag,0.18); // Dijo Beto
@@ -172,13 +172,13 @@ assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Scale the jacobian term. 
   SGETOPTDEF(double,jacobian_factor,1.);
   //o Adjust the stability parameters, taking into account
-  // the time step. If the \verb+steady+ option is in effect,
+  // the time step. If the  #steady#  option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
-  // \verb+temporal_stability_factor+ is set to 0.
+  //  #temporal_stability_factor#  is set to 0.
   SGETOPTDEF(double,temporal_stability_factor,0.);  // Scale upwind
   if (comp_mat_res && glob_param->steady) temporal_stability_factor=0;
 
-  //o Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
+  //o Add to the  #tau_pspg#  term, so that you can stabilize with a term
   //  independently of $h$. (Mainly for debugging purposes). 
   SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
   double &alpha = glob_param->alpha;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.17 2003/09/15 01:17:59 mstorti Exp $
+//$Id: bubbly.cpp,v 1.18 2003/11/25 01:13:36 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -37,9 +37,9 @@ void bubbly_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
   //o Adjust the stability parameters, taking into account
-  // the time step. If the \verb+steady+ option is in effect,
+  // the time step. If the  #steady#  option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
-  // \verb+temporal_stability_factor+ is set to 0.
+  //  #temporal_stability_factor#  is set to 0.
   EGETOPTDEF_ND(elemset,double,temporal_stability_factor,1.);
 
   // bubble diameter
