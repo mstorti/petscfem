@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.5 2002/07/11 02:10:50 mstorti Exp $
+//$Id: blessf.cpp,v 1.6 2002/12/16 00:49:14 mstorti Exp $
 
 #include <set>
 
@@ -54,7 +54,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
 
     SET_ELEMSET_TYPE(advec)
     {
-      printf("not known elemset \"type\": %s\n",type);
+      printf("not known elemset type: \"%s\"\n",type);
       exit(1);
     }
 }
