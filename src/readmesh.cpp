@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.108 2005/02/21 00:07:14 mstorti Exp $
+//$Id: readmesh.cpp,v 1.109 2005/02/21 19:11:05 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -877,24 +877,29 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   } else {
 
     weights_file = new FileStack(proc_weights);
-    weights_file->quiet = !myrank;
-    float sumw=0.;
-    for (int proc=0; proc<size; proc++) {
-      ierr = weights_file->get_line(line);
-      PETSCFEM_ASSERT(ierr==0,"Can't find line for proc %d in file %s",
-		      proc,proc_weights);  
-      sscanf(line,"%f",&tpwgts[proc]);
-      PETSCFEM_ASSERT0(tpwgts[proc]>=0.,
-		       "Processor weight must be >= 0.");  
-      sumw += tpwgts[proc];
+    ierro = !weights_file->ok();
+    if (!ierro) {
+      weights_file->quiet = !myrank;
+      float sumw=0.;
+      for (int proc=0; proc<size; proc++) {
+	ierr = weights_file->get_line(line);
+	PETSCFEM_ASSERT(ierr==0,"Can't find line for proc %d in file %s",
+			proc,proc_weights);  
+	sscanf(line,"%f",&tpwgts[proc]);
+	PETSCFEM_ASSERT0(tpwgts[proc]>=0.,
+			 "Processor weight must be >= 0.");  
+	sumw += tpwgts[proc];
+      }
+      PetscPrintf(PETSC_COMM_WORLD,"total weight: %f\n",sumw);
+      PETSCFEM_ASSERT0(sumw>0.,"Total processor weight must be > 0.");  
+      for (int proc=0; proc<size; proc++) {
+	tpwgts[proc] /= sumw;
+	PetscPrintf(PETSC_COMM_WORLD," proc: %d, w: %f\n",proc,tpwgts[proc]);
+      }
+      weights_file->close();
+      delete weights_file;
     }
-    PetscPrintf(PETSC_COMM_WORLD,"total weight: %f\n",sumw);
-    PETSCFEM_ASSERT0(sumw>0.,"Total processor weight must be > 0.");  
-    for (int proc=0; proc<size; proc++) {
-      tpwgts[proc] /= sumw;
-      PetscPrintf(PETSC_COMM_WORLD," proc: %d, w: %f\n",proc,tpwgts[proc]);
-    }
-    weights_file->close();
+    CHECK_PAR_ERR(ierro,"Error reading weights file. ");
     
   }
     
