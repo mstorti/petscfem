@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.46 2001/11/20 16:27:43 mstorti Exp $
+//$Id: ns.cpp,v 1.47 2001/11/20 16:30:02 mstorti Exp $
  
 #include <malloc.h>
 
@@ -243,9 +243,9 @@ int main(int argc,char **args) {
   // COMPUTE ACTIVE PROFILE
   VOID_IT(argl);
   argl.arg_add(A_tet,PROFILE|PFMAT);
-  debug.wait("Computing profile...\n");
+  debug.wait("Computing profile...");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
+  debug.wait("After computing profile.");
 
 #if 0 //dbg
   VOID_IT(argl);
@@ -375,7 +375,9 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
+      debug.wait("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
+      debug.wait("After residual computation.");
 
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -439,7 +441,9 @@ int main(int argc,char **args) {
 
       if (!print_linear_system_and_stop || solve_system) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
+	debug.wait("Before solving linear system...");
 	ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
+	debug.wait("After solving linear system.");
       }
 
       if (print_linear_system_and_stop) {
