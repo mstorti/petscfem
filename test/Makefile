@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.30 2001/06/20 20:25:31 mstorti Exp $ 
+# $Id: Makefile,v 1.31 2001/07/23 22:22:01 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -23,7 +23,7 @@ SRCS = $(wildcard *.cpp)
 
 DIRS = circ fstack sector les turbchan turbchanw advdif texthash \
 		newff burgers les/stabi genload bug100 nonlr wallke \
-		wkepipe wallkechan
+		wkepipe wallkechan lupart
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = $(DIRS)
 
@@ -56,8 +56,8 @@ tests: runtests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
 	advdif texthash log_vars newff burgers bug100
-runtests_p: 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers
+runtests_p: idmap fastvec chunk_size_process constraint_bug fstack triangle \
+	advdif texthash log_vars newff burgers bug100
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -247,7 +247,7 @@ idmap: tidmap.bin
 tidmap.bin: tidmap.o $(LIBPETSCFEM)
 #	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
 	${CXX_CLINKER} -o $@ tidmap.o $(LIBPETSCFEM) \
-		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
+		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat  $(MESCHACH)/libmes.a
 
 
 
@@ -315,7 +315,8 @@ fastmat2a: testfm2a.bin
 
 testfm2a.bin: testfm2a.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LIBPETSCFEM) \
-		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}
+		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB} $(MESCHACH)/libmes.a
+
 # testfm2a.bin: testfm2a.o
 # 	-rm $@
 # 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ testfm2a.o $(LDFLAGS)
@@ -329,7 +330,7 @@ testfm2d: #testfm2d.bin
 
 testfm2d.bin: testfm2d.o daxpy.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o daxpy.o $(LIBPETSCFEM) \
-		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}
+		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB} $(MESCHACH)/libmes.a
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test b
@@ -348,7 +349,7 @@ fastmat2c: testfm2c.bin
 
 testfm2c.bin: testfm2c.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPETSCFEM) \
-		 -L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}
+		 -L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}  $(MESCHACH)/libmes.a
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w New flux functions

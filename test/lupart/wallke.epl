@@ -5,18 +5,19 @@
 require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
 #
 $L = 1;                         # Semi distance between plates
-$N = 8;                         # Number of elements in transversal 'x' direction
+$N = 16;                        # Number of elements in transversal 'x' direction
 $hratio = 1;                    # refinement near the wall
 $hratioy = 1;                   # refinement to the exit
-$Ny = 4;                        # Number of elements in y dir
+$Ny = 40;                       # Number of elements in y dir
 $Ny_eq = 1;                     # last elements that are equal in size
                                 # in the y direction
-$Ly = 2;                        # longitudinal length 
-$Re = 1;                        # laminar Re
+$Ly = 20;                        # longitudinal length 
+$Re = 10000;                        # laminar Re
 $Uav = 1;                       # 
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
 octave_export_vars("data.m.tmp",qw(nu N Ny hratio hratioy 
     L Ly Ny_eq Uav ));
+$case = $ENV{'case'};
 :>//                            # ends ePerl block
 
 #default definitions
@@ -27,30 +28,39 @@ ndim 2
 save_file "save.state"
 nsave 5
 
-rtol 0
-atol 0
-maxits 1
-
 save_file_pattern "outvector%d.out"
 nsaverot 1
 
 initial_state "wallke.ini.tmp"
+#initial_state "save.state"
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 3
+nstep 200
 nnwt 3
 tol_newton 0
-#use_iisd
-#preco_type "jacobi"
+#if $case eq 'iisd' 
+use_iisd
+preco_type "none"
+rtol 1e-4
+atol 1e-10
+maxits 100
+#elsif $case eq "lu"
 preco_type "lu"
+maxits 1
+#else
+preco_type "jacobi"
+rtol 1e-4
+atol 1e-10
+maxits 10
+#endif
 Dt 1
 steady
 newton_relaxation_factor 1
 
-#print_internal_loop_conv
+print_internal_loop_conv
 #verify_jacobian_with_numerical_one
 #print_linear_system_and_stop
 #solve_system 0

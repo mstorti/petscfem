@@ -3,7 +3,20 @@
 
 require '../tools/myexpect.pl';
 
-$COMPLAIN_ON_CANT_OPEN=0;
+use Getopt::Std;
+getopts("ho");
+
+if ($opt_h) {
+    print <<'EOM';
+usage: ` $ runtests.pl [OPTIONS]'
+
+OPTIONS: -h print help
+         -o complain when can't open files
+EOM
+    exit;
+}
+
+$COMPLAIN_ON_CANT_OPEN = $opt_o;
 
 begin_section('All tests');
 
