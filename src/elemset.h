@@ -1,16 +1,23 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.26 2003/02/05 19:28:42 mstorti Exp $
+//$Id: elemset.h,v 1.27 2003/02/10 22:42:34 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
 
+#ifdef USE_SSL
+#define USE_DX
+#endif
+
 #include "libretto.h"
+#ifdef USE_DX
 #include <HDR/sockets.h>
+#endif
 #include <glib.h>
 
-#include "arglist.h"
-#include "getprop.h"
+#include <src/arglist.h>
+#include <src/getprop.h>
+#include <src/util3.h>
 
 enum ElemsetIteratorMode {
   ALL                  = 0x00001,
@@ -300,6 +307,11 @@ public:
   /// Stores temporarily element connectivities
   int *elem_conne;
 
+#ifdef USE_DX
+private:
+  DXSplit splitting;
+
+public:  
   /** Generates fields for processing with DX. 
       @param sock (input) socket where to send data following protocol
       understand by DX #ExtProgImport# module
@@ -307,12 +319,18 @@ public:
       @param field_state (input) array of values (node/field) representation */
   virtual void dx(Socket *sock,Nodedata *nd,double *field_state);
 
-  /** Returns the order of indices (remapping to DX convetion). So,
-      for instance, for quads it should be [1 2 4 3]. Also it can be used for 
-      eliminating fictitious nodes. 
-      @param dx_type (input) the dx_type interpolation, (may be #triangles#, #quads#, 
-      #tetrahedra# or #cubes#). */ 
-  virtual void dx_indices(string &dx_type,vector<int>& node_indices);
+  /** Number of sub-types in the splitting. 
+      @return number of subelements */ 
+  virtual int dx_types_n();
+
+  /** Returns the description of the #j#-th type. 
+      @param j (input) 0-based type index
+      @param dx_type (output) the DX type
+      @param subnel (input) the number of nodes for this type
+      @param nodes (input) the nodes connected to this subelement. Length
+      must be multiple of subnel */ 
+  virtual void dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes);
+#endif
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
