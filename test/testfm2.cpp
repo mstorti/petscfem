@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.9 2002/01/14 03:45:06 mstorti Exp $
+//$Id: testfm2.cpp,v 1.10 2002/05/16 18:43:23 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -55,7 +55,8 @@ int main() {
     W,X,XX(2,n,n),Y,Z,Z1,Z2(1,3),Z3,Z4(2,3,3),Z121,Z20(2,3,5),Z21(3,3,5,5);
   FastMat2 Z5(2,20,20),Z6;
   FMatrix Z7(3,3),Z8,Z9,Z10(2,2),Z11,Z12,Z15(4,4),Z16,Z17,Z18,
-    Z116,Z117,Z118,Z19(3,3),Z30(3,3),Z31,Z32;
+    Z116,Z117,Z118,Z19(3,3),Z30(3,3),Z31,Z32, Z40(3,3), Z41(3,3), Z42(3,3),
+    Z43(3,3);
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -74,6 +75,9 @@ int main() {
   init123(Z21);
   init123(Z30);
   
+  init123(Z40);
+  Z41.set(Z40).add(1);
+
   double d[4];
   
   mydata_t mydata;
@@ -298,11 +302,27 @@ int main() {
       d[1]=Z30.detsur();
       Z30.rs();
 
+      // checks L_p norm functions
       Z31.norm_p(Z30,2.3,-1,1);
       Z32.norm_p(Z30,5,-1,1);
       z31 = Z30.norm_p_all(2.3);
       z32 = Z30.norm_p_all(5);
-      
+
+      // Test cross product
+      // rows of Z42 are the cross product of rows of
+      // Z40 and Z41 and columns of Z43 are the cross product
+      // of columns of Z40 and Z41
+      for (int l=1; l<=3; l++) {
+	Z40.rs().ir(1,l);
+	Z41.rs().ir(1,l);
+	Z42.rs().ir(1,l);
+	Z42.cross(Z40,Z41);
+
+	Z40.rs().ir(2,l);
+	Z41.rs().ir(2,l);
+	Z43.rs().ir(2,l);
+	Z43.cross(Z40,Z41);
+      }
     }
     FastMat2::void_cache();
   }
@@ -311,7 +331,11 @@ int main() {
   printf("copy (with set): n=%d, Nin,Nout=%d,%d, elapsed: %f, "
 	 "speed: %f Mflops \n",
 	 n,Nin,Nout,cpu,FastMat2::operation_count()*double(Nin*Nout)/1e6/cpu);
-  
+
+  Z40.rs();
+  Z41.rs();
+  Z42.rs();
+  Z43.rs();
 #define SH(n) n.print(#n ": ")
 
   SH(A);
@@ -369,6 +393,16 @@ int main() {
   SH(Z32);
   SHV(z31);
   SHV(z32);
+
+  Z40.rs();
+  Z41.rs();
+  Z42.rs();
+  Z43.rs();
+
+  SH(Z40);
+  SH(Z41);
+  SH(Z42);
+  SH(Z43);
 
 #undef SH
 
