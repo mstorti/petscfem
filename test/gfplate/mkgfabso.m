@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.14 2005/01/23 22:03:28 mstorti Exp $
+## $Id: mkgfabso.m,v 1.15 2005/01/23 22:39:43 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -12,14 +12,14 @@ nnod = size(x2,1);
 [xnod,icone] = extrude(x2,ico2,1,dx);
 x = xnod(:,1);
 
-Ox = eye(3);
-Ox(2:3,2:3) = [cos(theta),-sin(theta);
-	       sin(theta),cos(theta)];
+Oy = eye(3);
+Oy([3,1],[3,1]) = [cos(theta),sin(theta);
+		   -sin(theta),cos(theta)];
 Oz = eye(3);
 Oz(1:2,1:2) = [cos(phi),-sin(phi);
 	       sin(phi),cos(phi)];
 
-Orot = Oz*Ox*inv(Oz); # Rotation matrix
+Orot = Oz*Oy; # Rotation matrix
 xnod = xnod*Orot';
 
 ndim=3;

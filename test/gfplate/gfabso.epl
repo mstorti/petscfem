@@ -44,7 +44,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 1
+nnwt 2
 
 print_internal_loop_conv
 # print_linear_system_and_stop

@@ -2,8 +2,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Test gasflow_abso in supersonic flow. 
-     Test gasflow_abso in 3D. 
+* OK Test gasflow_abso in supersonic flow. 
+     OK Test gasflow_abso in 3D. 
+     Test gasflow_abso with transverse component. 
      Test on a 2D geometry (bump, nozzle, flat plate?).
 * Breaks uncleanly when include directive is pasted to filename, e.g. 
             __INCLUDE__xxxxxx.file ???

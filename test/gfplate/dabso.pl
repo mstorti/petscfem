@@ -4,10 +4,11 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 4;
 $Nx = 50;
-$phi = 0;
-$theta = 0;
 
-$Machin = 1.5;
+$phi = $PI/4;
+$theta = $PI/4;
+
+$Machin = 0.5;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
@@ -20,8 +21,8 @@ $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);
 $uref = $Machin*$cref;
 $Uref = [$rhoref,$uref,0,0,$pref];
-$norx = cos($theta)*cos($alpha);
-$nory = cos($theta)*sin($alpha);
+$norx = cos($theta)*cos($phi);
+$nory = cos($theta)*sin($phi);
 $norz = sin($theta);
 $nor = [$norx,$nory,$norz];
 
