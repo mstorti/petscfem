@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 16:52:23 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/02 21:54:46 mstorti Exp $ 
 
 .PHONY: plano data 
 
@@ -65,3 +65,5 @@ testanal:
 	cp sine.some sine.some.anal.tmp
 	octave -q < sine_anal_test.m > sine_anal_test.sal
 
+lclean: general_clean
+	-rm sine.data.res sine.ini 
