@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2004/01/09 03:08:51 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2004/01/09 17:03:16 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -94,8 +94,15 @@ dist_graph: tryme7.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat tryme7.bin 20 > dist_graph.np3.out.tmp
 
 #w
-syncbuff.bin: syncbuff.cpp
+syncbuff.bin: syncbuff.o
 	-rm -f $@ ; \
 	${CXX_CLINKER} -o $@ syncbuff.o $(LDFLAGS_NO_PROG_LIB)
+
+machi:
+	echo minerva > machi.dat
+	echo minerva >> machi.dat
+	echo minerva >> machi.dat
+	echo minerva >> machi.dat
+	echo minerva >> machi.dat
 
 #s
