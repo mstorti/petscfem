@@ -1,13 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.100 2003/11/26 00:18:06 mstorti Exp $
+//$Id: readmesh.cpp,v 1.101 2003/12/03 11:52:20 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
-#include "fem.h"
-#include "utils.h"
-#include "util2.h"
-#include "readmesh.h"
-#include "idmap.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/util2.h>
+#include <src/readmesh.h>
+#include <src/idmap.h>
+#include <src/idmap.h>
+#include <src/generror.h>
 
 // Apparently __log2 from Metis collides with some name in the GNU package.
 // This is a workaround. 
@@ -66,10 +68,21 @@ void metis_part(int nelemfat,Mesh *mesh,
       ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
       PETSCFEM_ASSERT0(!ierro,text);  
 
+#define CHECK_PAR_ERR_GE 				\
+catch(GenericError e) { ierro = 1; ge=e; }		\
+ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
+printf("[%d] %s\n",myrank,ge.c_str());\
+PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
+
 #define RM_ASSERT(cond,mess)					\
 PETSCFEM_ASSERT(cond,mess "%s:%d: at (or after) line: \"%s\"",	\
 fstack->file_name(),fstack->line_number(),fstack->line_read());
 
+#define PETSCFEM_ASSERT_GE(cond,templ,...)		\
+if (!(cond)) { throw GenericError(templ,__VA_ARGS__); }
+
+#define PETSCFEM_ASSERT_GE0(cond,templ)		\
+if (!(cond)) { throw GenericError(templ); }
       
 // fixme:= aca no se porque tuve que pasar neq por referenciar
 // porque sino no pasaba correctamente el valor. 
@@ -89,6 +102,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   int pos, nelem, nel, nelprops, neliprops, nread, elemsetnum=0,
 	fat_flag,iele,k,nfixa, *ident,rflag;
   double *dptr,dval; 
+  GenericError ge;
   TextHashTable *thash;
   Nodedata *nodedata;
 
@@ -221,31 +235,33 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	ierro = !fstack_nodes_data->ok();
       }
       CHECK_PAR_ERR(ierro,"Error reading nodes");
-      if (!myrank) {
+      ierro = 0;
+      if (!myrank) try {
 	xnod = da_create(nu*sizeof(double));
 	while (!fstack_nodes_data->get_line(line)) {
 	  astr_copy_s(linecopy, line);
 	  node++;
 	  for (int kk=0; kk<nu; kk++) {
 	    token = strtok((kk==0 ? line : NULL),bsp);
-	    PETSCFEM_ASSERT(token!=NULL,
-			    "Error reading coordinates in line:\n\"%s\"\n"
-			    "Not enough values in line!!\n",astr_chars(linecopy));
+	    PETSCFEM_ASSERT_GE(token!=NULL,
+			       "Error reading coordinates in line:\n\"%s\"\n"
+			       "Not enough values in line!!\n",astr_chars(linecopy));
 	    int nread = sscanf(token,"%lf",row+kk);
-	    PETSCFEM_ASSERT(nread == 1,
+	    PETSCFEM_ASSERT_GE(nread == 1,
 			    "Error reading coordinates in line:\n\"%s\"",line);
 	  }
 	  int indx = da_append (xnod,row);
-	  if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
-	}
+	  PETSCFEM_ASSERT_GE0(indx>=0,"Insufficient memory reading nodes");
+	} 
 	ierro = fstack_nodes_data->last_error()!=FileStack::eof;
-	if (ierro) printf("Couldn't process correctly node data file %s\n",
-			 fstack_nodes_data->file_name());
+	PETSCFEM_ASSERT_GE(!ierro,"Couldn't process correctly node data file %s\n",
+			   fstack_nodes_data->file_name());
 	nnod=node;
 	fstack_nodes_data->close();
 	delete fstack_nodes_data;
-      }
-      CHECK_PAR_ERR(ierro,"Error reading nodes");
+      } 
+      CHECK_PAR_ERR_GE;
+
       ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;
