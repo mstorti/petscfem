@@ -768,3 +768,7 @@ tag: pfmat-rewrite-1.13 on Mon Dec 31 01:02:12 ARST 2001, by mstorti in spider
 tag: pfmat-rewrite-1.14 on Thu Jan  3 18:49:54 ARST 2002, by mstorti in spider
      > Added test for pfmat with redefinition of profiling. Works well with `IISDMat' 
      > but loses memory.
+----------
+tag: pfmat-rewrite-1.15 on Thu Jan  3 23:45:21 ARST 2002, by mstorti in spider
+     > Controlling a memory leak. Going back to pfmat-rewrite-1.10 or
+     > pfmat-rewrite-1.11.
