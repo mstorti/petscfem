@@ -455,3 +455,6 @@ tag: beta-1.88 on Thu Jun 14 20:27:36 ART 2001, by mstorti in spider
 tag: beta-1.89 on Tue Jun 19 22:17:17 ART 2001, by mstorti in spider
      > Working on wallkechan test case.
      > Will replace all the files in test/wallkechan dir
+----------
+tag: beta-1.90 on Wed Jul 11 13:16:56 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Working on k-e iterative. Passed to Beto. 
