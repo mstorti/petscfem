@@ -158,3 +158,9 @@ tag: beta-1.11 on Thu Jan 11 12:56:03 ARST 2001, by mstorti in minerva.arcride.e
 ----------
 tag: beta-1.12 on Thu Jan 11 18:59:14 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > Improved options doc, mainly fixd bugs in odoc.pl
+----------
+tag: beta-1.13 on Mon Jan 15 08:51:15 ARST 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Written `make what' targets. Written a tool for this.
+     > Added two tests for advdif.
+     > Made some changes in order to compile older versions with egcs++.

@@ -32,7 +32,7 @@ read answer
 if [ -e $tmp ] ; then rm $tmp ; fi 
 cat <<EOM > $tmp
 # Insert here the comment for this release (version: $newtag) :
-# [ lines starting whit '\#' are discarded ]
+# [ lines starting whit '#' are discarded ]
 EOM
 
 $EDITOR $tmp
