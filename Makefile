@@ -1,28 +1,42 @@
-# $Id: Makefile,v 1.13 2001/01/11 12:49:19 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2001/01/15 11:10:49 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
-		sw startwork fm2new sync_version
+		sw startwork fm2new sync_version applications 
 
-all: sync_version depend tags adv advdif ns laplace 
+APPS = adv advdif ns laplace
+APPDIRS = advective advdif ns laplace
+APPDIRS := $(patsubst %,applications/%,$(APPDIRS))
 
-#sw: newdepend tags ns
+#p [in Makefile]
+
+#s Main targets
+#w Makes doc, library and applications. No cleaning 
+all: sw doc pflib $(APPS)
+
+#w Builds all necessary things after checking out a version
+#w from the CVS repository
 sw: sync_version depend tags
 
-fm2new:
-	cd src ; ln -sf fmat2ep.cpp.new fmat2ep.cpp
-	$(MAKE) fm2
+#w Builds existng applications
+applications: 
+	$(MAKE) $(APPS)
+	for dir in $(APPDIRS) ; do $(MAKE) -C $$dir distclean ; done
 
-fm2bck:
-	cd src ; ln -sf fmat2ep.cpp.bck fmat2ep.cpp
-	$(MAKE) fm2
+#w Builds a package + doc + applications 
+distrib: sw doc pflib applications
 
-fm2:
-	$(MAKE) -C src -W fmat2ep.cpp compile
-	$(MAKE) ns
+#w Builds the doc
+doc:
+	$(MAKE) -C doc all distclean
 
-TAGDIRS = src applications/advective applications/ns applications/laplace \
-		applications/advdif
+#w Builds the library
+pflib:
+	$(MAKE) -C src compile distclean
+
+TAGDIRS = src $(APPDIRS)
+#s other targets
+#w Builds/refresh Emacs tags tables
 tags: 
 	for dir in $(TAGDIRS) ; do $(MAKE) -C $$dir TAGS ; done
 
@@ -36,44 +50,46 @@ DIRS = doc manual src ns advective tryme laplace
 libpetscfem:
 	$(MAKE) -C src compile
 
-# applications
+#----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>----
+# APPLICATIONS
 
-# Navier Stokes
+#w Builds the Navier Stokes module
 ns: libpetscfem
 	$(MAKE) -C applications/ns compile
 
-# Advective systems Euler/Shallow water
+#w Builds th advective systems module (Euler, shallow water)
 adv: libpetscfem
 	$(MAKE) -C applications/advective compile
 
-# Advective/diffusive systems (NS-compresible)/
-# 		(Shallow water+diffusive and turbulent terms)
+#w Builds the Advective/diffusive systems module (NS-compresible,
+#w 		(shallow water+diffusive and turbulent terms, 
+#w               linear advection diffusion, burgers
 advdif: libpetscfem
 	$(MAKE) -C applications/advdif compile
 
-# Laplace equation
+#w Builds the Laplace module
 laplace: libpetscfem
 	$(MAKE) -C applications/laplace compile
 
+#----<*>----<*>----<*>----<*>----<*>----<*>----<*>----<*>---- 
 %.cppi: %.cpp
 	g++ -E $(CCPPFLAGS) $< > $@ ; chmod u-w $@
 
-CLEAN_DIRS = src applications/laplace applications/advective \
-			applications/ns applications/advdif \
-			doc test run run/LES run/algebfs run/sqcav
+CLEAN_DIRS = src $(APPDIRS) doc test run run/LES run/algebfs run/sqcav tools
 
-SRCDIRS = src applications/ns applications/advective applications/advdif \
-		applications/laplace test 
+SRCDIRS = src $(APPDIRS) test 
 
 SRCS = 
 
 DEPEND_DIRS = $(SRCDIRS)
 
+#w Resyncs some administrative files with the current version number.
 sync_version: 	
 	@version=`cat VERSION` ;					\
 	echo "Creating doc/version.tex" ;				\
 	echo "\\def\\petscfemversion{$$version}" > doc/version.tex
 
+#w This is somewhat obsolett. Now uses CVS
 save:
 	$(MAKE) sync_version
 	if [ -f $(TARFILE).tara,v ]  ;				\
@@ -100,5 +116,8 @@ save:
 	fi ;									\
 	if [ -e $(TARFILE).tara.old ] ; then rm $(TARFILE).tara.old ; fi
 
+#w Makes a new release
 tag:
 	tools/maketag
+
+#s

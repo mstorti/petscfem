@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2001/01/10 15:37:23 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/01/15 11:11:17 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -16,6 +16,8 @@ FLIBOBJS_ =  spline seval
 spline.o: spline.f
 ssval.o: seval.f
 
+.INTERMEDIATE: spline.o seval.o
+
 LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o)
 
 SRCS := $(LIBOBJS_:=.cpp)
@@ -28,16 +30,16 @@ all: libpetscfem.a
 
 compile:  libpetscfem.a
 
-# NEWSRCS = elemset.cpp elemset.h
-
-# elemset.cpp: elemset.cpp.new 
-# 	-ln -s $< $@
-# elemset.h: elemset.h.new
-# 	-ln -s $< $@
-
-libpetscfem.a: $(LIBOBJS)
-	ar -ru $@ $(LIBOBJS)
+libpetscfem.a: libpetscfem.a($(LIBOBJS))
 	ranlib $@
+
+libpetscfem.a(%.o): %.o
+	ar -ru $@ $<
+
+#libpetscfem($(LIBOBJS)): $(LIBOBJS)
+#libpetscfem.a: $(LIBOBJS)
+#	ar -ru $@ $(LIBOBJS)
+#	ranlib $@
 
 #spline.o: spline.f
 #	g77 -c $(FFLAGS) -O0 $<
@@ -53,8 +55,12 @@ fm2eperl.cpp: fmat2ep.cpp prep.pl
 measperf.o: measperf.cpp
 	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
-local_clean::
-	-rm *.o libpetscfem.a &> /dev/null
+local_dist_clean:
+	-rm -f *.o &> /dev/null
+
+local_clean:: local_dist_clean
+	-rm libpetscfem.a &> /dev/null
+
 #
 # Esto deberia ir en realclean o algo por el estilo
 #	if [ -e fm2eperl.cpp ] ; then chmod +w fm2eperl.cpp ; \

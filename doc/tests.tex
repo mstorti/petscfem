@@ -104,6 +104,54 @@ analytical one in figure~\ref{fg:oscplsol}.4s
 \label{fg:oscplsol}
 \end{figure*}
 
+\SSection{Linear advection-diffusion in a rectangle}
+
+\filehead{sine.epl}
+This is an example for testing the \verb+advdif+ module. The governing
+equations are
+%
+\begin{equation}
+\begin{aligned}
+     &\dep\phi t + u\dep\phi x = 0, \text{ in } 0\le x\le L_x, |y|<\infty,t>0\\
+     &\phi = A \, \cos(\omega t)\, \cos(k y), \text{ at } x=0,t>0\\
+     &\dep\phi n = 0, \text{ at } x=L_x, t>0\\
+     &\phi = 0, \text{ at } 0\le x\le L_x, |y|<\infty,t=0
+\end{aligned}
+\end{equation}
+%
+As the problem is perdiodic in the \(y\) direction we can restrict the
+analysis to one quart wave-length, i.e. if \(\lambda_y=2\pi/k\),
+\(L_y=\lambda/4\) then the above problem is equivalent to
+%
+\begin{equation}\label{eq:advdif-1}  
+\begin{aligned}
+     \dep\phi t + u\dep\phi x = D \Delta\phi,& \text{ in } 0\le x\le L_x,\, 0<y<L_y,t>0\\
+     \phi = A \, \cos(\omega t)\, \cos (k y),& \text{ at } x=0,t>0\\
+     \dep\phi n= 0,& \text{ at } x=L_x, t>0\\
+     \phi = 0,& \text{ in } 0\le x\le L_x,\, 0<y<L_y,t>0\\
+     \phi = 0,&  \text{ at } y=L_y\\
+     \dep\phi n = 0,&  \text{ at } y=0
+\end{aligned}
+\end{equation}
+%
+We can find the solution proposing a solution of the form
+%
+\[ \phi \propto \expe{\beta x +\zi \omega t)} \]
+%
+Replacing in (\ref{eq:advdif-1}) we arrive to a characteristic
+equation in \(k_x\) of the form
+%
+\begin{equation} 
+   \zi \, \omega +\beta u = -k_y^2 +\beta^2
+\end{equation}
+%
+This is a quadratic equation in $\beta$ and has two roots, say
+$\beta-{12}$. The general solution is
+%
+\[ \phi(x,y,t) = \Real{\LL(c_1 \expe{\beta_1 x} 
+         +c_2 \expe{\beta_2 x}\RR)   \expe{\zi \omega t}} \]
+  
+
 % Local Variables: *
 % mode: latex *
 % tex-main-file: "petscfem.tex" *

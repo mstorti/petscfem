@@ -2423,6 +2423,214 @@ Ahora voy a correr burgers.
 %
 Anda burgers. Ahora voy a ver si puedo transformar a NS. 
 
+%===Sat Jan 13 21:45:30 ARST 2001 mstorti@spider
+%
+Para correr las viejas versiones de PETSc-FEM. Usar el compilador
+egcs. Reemplazar en petsc/bmake/linux/base_variables `g++' por
+$(GNUCC). Despues en Makefile.base se define `GNUCC = egcs++'. Des
+esta forma compila pero despues hay errores de linkedicion. 
+%
+
+%===Sun Jan 14 15:13:06 ARST 2001 mstorti@spider
+%
+Puedo compilar versiones viejas con egcs!! 
+%
+Instrucciones:
+%
+* Cambiar el compilador C++ en petsc/bmake/linux/base_variables de g++
+  a egcs++ (hay que tener los paquetes compat-egcs y compat-egcs++
+  instalados). 
+* Agregar '-static' a las banderas de linkedicion
+* Agregar '-L/usr/lib/gcc-lib/i386-redhat-linux/2.96/' a las librerias
+%
+Para poder seguir compilando con gcc tambien, conviene agregar
+las siguientes variables en Makefile.base 
+%-------- para compilar con egcs++
+GNUCXX = egcs++
+OCXX_COPTFLAGS_USR = -static
+CXX_SYS_LIB_USR = -L/usr/lib/gcc-lib/i386-redhat-linux/2.96/ 
+%--------pra compilar con g++
+GNUCXX = g++
+OCXX_COPTFLAGS_USR = 
+CXX_SYS_LIB_USR = 
+%-------------
+%
+y modificar un poco el base_variables con el siguiente parche:
+%-----------ESTE PARCHE ES CON RESPECTO AL BASE_VARIABLES ORIGINAL
+%---------- CUT HERE
+cd ~/PETSC/petsc-2.0.24/bmake/linux/
+diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables
+*** /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck	Wed Mar 31 15:38:47 1999
+--- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
+***************
+*** 1,4 ****
+! # $Id: notes.txt,v 1.7 2001/01/15 11:10:49 mstorti Exp $ 
+  #
+  #     See the file bmake/base_variables.defs for a complete explanation of all these fields
+  #
+--- 1,5 ----
+! # -*- mode: makefile -*-
+! # $Id: notes.txt,v 1.7 2001/01/15 11:10:49 mstorti Exp $ 
+  #
+  #     See the file bmake/base_variables.defs for a complete explanation of all these fields
+  #
+***************
+*** 7,41 ****
+  OMAKE            = make  --no-print-directory
+  RANLIB           = ranlib
+  SHELL            = /bin/sh
+! SH_LD            = gcc
+  # ######################### C and Fortran compiler ########################
+  #
+! C_CC             = gcc -fPIC
+  C_FC             = g77 -Wno-globals
+! C_CLINKER        = gcc ${COPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_FLINKER        = g77 ${FOPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_CCV            = ${C_CC} --version
+  C_SYS_LIB        = -ldl -lc -lg2c -lm
+  # ---------------------------- BOPT=g options ----------------------------
+! G_COPTFLAGS      = -g 
+  G_FOPTFLAGS      = -g
+  # ----------------------------- BOPT=O options -----------------------------
+  O_COPTFLAGS      = -O -Wall -Wshadow  -fomit-frame-pointer
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = g++ -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = -ldl -lc -lg2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+! GCXX_COPTFLAGS   = -g 
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O 
+! OCXX_FOPTFLAGS   = -O
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+  GCOMP_FOPTFLAGS  = -g
+--- 8,43 ----
+  OMAKE            = make  --no-print-directory
+  RANLIB           = ranlib
+  SHELL            = /bin/sh
+! SH_LD            = egcs
+  # ######################### C and Fortran compiler ########################
+  #
+! C_CC             = egcs -fPIC
+  C_FC             = g77 -Wno-globals
+! C_CLINKER        = egcs ${COPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_FLINKER        = g77 ${FOPTFLAGS} -rdynamic -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  C_CCV            = ${C_CC} --version
+  C_SYS_LIB        = -ldl -lc -lg2c -lm
++ #C_SYS_LIB        = -ldl -lc -lf2c -lm
+  # ---------------------------- BOPT=g options ----------------------------
+! G_COPTFLAGS      = -g
+  G_FOPTFLAGS      = -g
+  # ----------------------------- BOPT=O options -----------------------------
+  O_COPTFLAGS      = -O -Wall -Wshadow  -fomit-frame-pointer
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = $(GNUCXX) -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = $(CXX_SYS_LIB_USR) -ldl -lc -lg2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+! GCXX_COPTFLAGS   = -gstabs+
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O2 $(OCXX_COPTFLAGS_USR)
+! OCXX_FOPTFLAGS   = -O2
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+  GCOMP_FOPTFLAGS  = -g
+
+Diff finished at Sun Jan 14 15:14:01
+%---------- CUT HERE
+%
+%---------- ESTE ES CON RESPECTO AL ULTIMO (YA CONFIGURADO)
+%---------- CUT HERE
+diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables
+*** /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2	Fri Dec  8 15:19:17 2000
+--- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
+***************
+*** 1,3 ****
+--- 1,4 ----
++ # -*- mode: makefile -*-
+  # $Id: notes.txt,v 1.7 2001/01/15 11:10:49 mstorti Exp $ 
+  #
+  #     See the file bmake/base_variables.defs for a complete explanation of all these fields
+***************
+*** 25,42 ****
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = g++ -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = -ldl -lc -lg2c -lm
+! #CXX_SYS_LIB      = -ldl -lc -lf2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+  GCXX_COPTFLAGS   = -gstabs+
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O2 
+  OCXX_FOPTFLAGS   = -O2
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+--- 26,42 ----
+  O_FOPTFLAGS      = -O
+  # ########################## C++ compiler ##################################
+  #
+! CXX_CC           = $(GNUCXX) -fPIC
+  CXX_FC           = g77 -Wno-globals
+! CXX_CLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+! CXX_FLINKER      = $(GNUCXX) ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+  CXX_CCV          = ${CXX_CC} --version
+! CXX_SYS_LIB      = $(CXX_SYS_LIB_USR) -ldl -lc -lg2c -lm
+  # ------------------------- BOPT=g_c++ options ------------------------------
+  GCXX_COPTFLAGS   = -gstabs+
+  GCXX_FOPTFLAGS   = -g
+  # ------------------------- BOPT=O_c++ options ------------------------------
+! OCXX_COPTFLAGS   = -O2 $(OCXX_COPTFLAGS_USR)
+  OCXX_FOPTFLAGS   = -O2
+  # -------------------------- BOPT=g_complex options ------------------------
+  GCOMP_COPTFLAGS  = -g
+
+Diff finished at Sun Jan 14 15:22:21
+%---------- CUT HERE
+%
+
+%===Sun Jan 14 18:15:34 ARST 2001 mstorti@spider
+%
+Todo esto tiene el problema que despues no corre el programa. Entonces
+la solucion es compilar con egcs++ pero linkeditar con g++. Para esto
+%
+* Tocar base_variables de manera de volver a que el linkeditor sea
+   g++:
+%
+CXX_CLINKER      = g++ ${COPTFLAGS} -Wl,-rpath,${LDIR}:${DYLIBPATH}
+%
+* En tiempo de corrida no encuentra libpetscles.so, entonces hay que
+agregar los directorios:
+%
+10	/home/mstorti/PETSC/petsc-2.0.24/lib/libO_c++/linux/
+11	/home/mstorti/PETSC/petsc-2.0.24/lib/libg_c++/linux/
+12	/home/mstorti/PETSC/petsc-2.0.24/lib/libg/linux/
+%
+a /etc/ld.so.conf y correr `ldconfig -v'.
+
+%===Sun Jan 14 18:59:54 ARST 2001 mstorti@spider
+%
+Corro el sqcav5 en spider con las versiones beta-1.12 y 2.8s. Dan
+igual a precision de la maquina a Re=400. 
+
 %# Current line ===========  
 # Local Variables: $
 # eval: (local-set-key "\C-cD" (quote notas-insert-date)) $

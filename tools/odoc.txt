@@ -5,10 +5,11 @@ SYNOPSIS
         $ odoc.pl [OPTIONS] FILES ...
 
 DESCRIPTION
-    Options to programs, elemsets and other parts of `PETSc-FEM' are passed via
-    text-hashes, which are then queried by the code via calles to functions in the
-    `getopt' package. This is normally done via calls to the *GETOPT* macros. You
-    can document the options so defined introducing special comments, for instance
+    Options to programs, elemsets and other parts of `PETSc-FEM' are passed
+    via text-hashes, which are then queried by the code via calles to
+    functions in the `getopt' package. This is normally done via calls to
+    the *GETOPT* macros. You can document the options so defined introducing
+    special comments, for instance
 
       //o Use the weak form for the Galerkin part of the advective term. 
       SGETOPTDEF(int,weak_form,1);
@@ -18,8 +19,9 @@ DESCRIPTION
         * int weak_form (default: 1) : Use the weak form for the Galerkin 
                            part of the advective term. 
 
-    You can put almost any kind of LaTeX material in the embedded documentation.
-    You must add a doc section for each *GETOPT* call and then execute
+    You can put almost any kind of LaTeX material in the embedded
+    documentation. You must add a doc section for each *GETOPT* call and
+    then execute
 
       $ odoc.pl -o doc.tex file1 file2 ...
 
@@ -28,25 +30,25 @@ DESCRIPTION
 SYNTAX
     The syntaxis of the embedded documentation is as follows:
 
-        The embedded documentation must be in a block preceding the `*GETOPT*'
-        call.
+        The embedded documentation must be in a block preceding the
+        `*GETOPT*' call.
 
-    *   Spanning doc blocks over more than one line: All lines following the the `//o'
-        directive must start with `// ' (i.e. the `//' comment directive must be
-        followed by a space. Lines starting by `//' followed by a non space
-        character are 'special directives'.
+    *   Spanning doc blocks over more than one line: All lines following the
+        the `//o' directive must start with `// ' (i.e. the `//' comment
+        directive must be followed by a space. Lines starting by `//'
+        followed by a non space character are 'special directives'.
 
-    *   The `//i_tex' directive - Including large amount of LaTeX material: If you have
-        a too large section then you can introduce a special line with a directive
-        of the form `//i_tex' as, for instance
+    *   The `//i_tex' directive - Including large amount of LaTeX material:
+        If you have a too large section then you can introduce a special
+        line with a directive of the form `//i_tex' as, for instance
 
           //o Sets the frequency save for the ``rotary save'' mechanism. 
           //i_tex nsdoc.tex rotary_save
           GETOPTDEF(int,nsaverot,100);
 
-        This will read the section `rotary_save' entry in the nsdoc.tex file. The
-        section in the nsdoc.tex file are the lines between a line containing
-        `%section rotary_save' and `%end_section'
+        This will read the section `rotary_save' entry in the nsdoc.tex
+        file. The section in the nsdoc.tex file are the lines between a line
+        containing `%section rotary_save' and `%end_section'
 
            .... % other sections 
 
@@ -57,11 +59,12 @@ SYNTAX
 
            .... % other sections 
 
-    *   Including explicit doc sections: If the `*GETOPT*' call is too complicated or
-        the `getopt' functions (as `get_int', `get_double', etc...) have been
-        called explicitly, then you can include explicit doc sections where you
-        explicitly give the different fields of the entries (`type', `name',
-        `default', `doc'). You enter them in the following way
+    *   Including explicit doc sections: If the `*GETOPT*' call is too
+        complicated or the `getopt' functions (as `get_int', `get_double',
+        etc...) have been called explicitly, then you can include explicit
+        doc sections where you explicitly give the different fields of the
+        entries (`type', `name', `default', `doc'). You enter them in the
+        following way
 
             //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
             //  _N: advective_jacobians _D: no default  _DOC: 
@@ -69,21 +72,21 @@ SYNTAX
             //  _END
 
         i.e., they are delimited by the *magic strings* `_T:', `_N:', `_D:',
-        `_DOC:', `_END', in that order. You can put several fields in the same
-        line. You can use the `//i_tex' inside the `_DOC:' block.
+        `_DOC:', `_END', in that order. You can put several fields in the
+        same line. You can use the `//i_tex' inside the `_DOC:' block.
 
-    *   Not documented `*GETOPT*' calls: If `odoc.pl' finds a `*GETOPT*' call that
-        doesn't have a previous `//o' block, a warnng is issued. If you want to
-        suppress this warning add a `//nd' after the `*GETOPT*' call as, for
-        instance
+    *   Not documented `*GETOPT*' calls: If `odoc.pl' finds a `*GETOPT*'
+        call that doesn't have a previous `//o' block, a warnng is issued.
+        If you want to suppress this warning add a `//nd' after the
+        `*GETOPT*' call as, for instance
 
            TGETOPTDEF(GLOBAL_OPTIONS,double,alpha,1.); //nd
 
 OPTIONS
     -s section_name
-        Process the specified section name in the `*.cpp' source file. Sections are
-        delimited by `//target section_name' and `//end_target' lines. For
-        instance:
+        Process the specified section name in the `*.cpp' source file.
+        Sections are delimited by `//target section_name' and `//end_target'
+        lines. For instance:
 
           // Contents of file `myprg.cpp'
           //target common_options

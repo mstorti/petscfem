@@ -19,9 +19,16 @@ transcript("", qw(visco Dt));	# print variables on output
 global_options
 
 nsave 1
-nstep 1
+nstep 10
 #initial_state sqcav.ini
+#if $prog eq "NS"
 preco_type "lu"
+#elsif $prog eq "NSO"
+preco_type "LU"
+#else
+<:die "\$prog variable not defined\n" :>//
+#endif
+
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat

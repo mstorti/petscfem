@@ -1,5 +1,8 @@
 # -*- mode: makefile -*-
 
+#p [in Makefile.base]
+#s General
+
 ######  begin of CONGIGURATION VARIABLES sectio  ####################
 #  Configure this variable!! (either g_c++ or O_c++) 
 BOPT = g_c++
@@ -20,6 +23,9 @@ include $(PETSCFEM_DIR)/../Makefile.defs
 ######  end of CONGIGURATION VARIABLES sectio  ####################
 
 export PETSCFEM_DIR
+
+GNUCXX = g++  # it can be also egcs++. You need to have compat-egcs and
+	      # compat-egcs++ installed
 
 CFLAGS	         =
 FFLAGS	         = 
@@ -50,6 +56,7 @@ G_COPTFLAGS      = -ggdb
 
 .PHONY: tags lclean general_clean force
 
+#w Creates the dependency file makefile.d
 depend: 
 #	-rm makefile.d
 	$(MAKE) makefile.d
@@ -81,9 +88,15 @@ local_clean::
 	-@rm -f *~ *.o $(OBJS) $(PROG).bin octave-core *.cppi \
 		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
 
+#w cleans directory
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
+
+#w cleans directory for distribution (leaves some files)
+distclean: 
+	$(MAKE) clean local_dist_clean &> /dev/null
+	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
 # general program 
 $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
@@ -102,11 +115,16 @@ $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
 # files previous to preprocessing and .depl for the preprocessed files 
 #
 EPERLFLAGS = 
+#w Builds <file>.depl from <file>.epl using ePerl
+#e <file>.depl
 %.depl: %.epl 
-	echo en rule depl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
+
+#Rule for generating compressed ps
+%.ps.gz: %.ps
+	gzip -qf $<
 
 #
 # For running odoc.pl (documenting PETSc-FEM options)
@@ -120,3 +138,11 @@ endef
 ifeq (makefile.d,$(wildcard makefile.d))
 include makefile.d
 endif
+
+# Append Makefile's to this variable if you want to be
+# scanned for targets with 'makewhat'
+OMKFLS = $(PETSCFEM_DIR)/Makefile.base
+
+#w Prints all main targets for 'make' along with a brief description
+what:
+	@$(PETSCFEM_DIR)/tools/makewhat.pl -s Makefile $(OMKFLS)

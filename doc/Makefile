@@ -1,8 +1,11 @@
-#$Id: Makefile,v 1.7 2001/01/12 11:28:08 mstorti Exp $
+#$Id: Makefile,v 1.8 2001/01/15 11:10:59 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
 all: latex index.html html ps readme eps
+
+#p [in doc/Makefile]
+#s Main targets
 
 PETSCFEM_DIR     = ..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -13,10 +16,14 @@ ODOCFILES = odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex \
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
 
+#w make petscfem.ps.gz, manual.ps.gz
 ps: petscfem.ps.gz manual.ps.gz
 
-%.ps.gz: %.ps
-	gzip $<
+#w Makes PS version of the guide
+#e petscfem.ps.gz
+
+#w Makes PS version of the reference
+#e manual.ps.gz
 
 .INTERMEDIATE: manual.ps petscfem.ps
 petscfem.ps: petscfem.dvi
@@ -25,20 +32,26 @@ petscfem.ps: petscfem.dvi
 petscfem.dvi: *.tex
 	$(MAKE) latex
 
-manual.ps: force
+manual.ps.gz: force
 	$(MAKE) -C manual ps
 
 icons:
 	if [ ! -d icons ] ; then uudecode < icons.tgz.uue ; \
 		tar -xzvf icons.tgz ; rm icons.tgz ; fi
 
+#w make html for reference and manual
 html: index.html petscfem_html manual_html
 
+#w make html for reference only
 petscfem_html: latex icons petscfem/petscfem.html 
 
+#w make html for manual only
 manual_html: 
 	$(MAKE) -C manual html
 
+#s Other options
+
+#w process LaTeX onr reference
 latex: force eps odoc
 	latex petscfem
 	-bibtex petscfem
@@ -46,28 +59,29 @@ latex: force eps odoc
 	latex petscfem
 	latex petscfem
 
+#w make .eps version of the figures
 eps:
 	$(MAKE) -C OBJ all
 	if [ ! -d petscfem/OBJ ] ; \
 		then mkdir petscfem ; cd petscfem ; ln -s ../OBJ . ; \
 	fi
 
-
+# Run  `$ make ltx2h_opt=-no_images' in order to not wait so much time...
 petscfem/petscfem.html: odoc eps petscfem.tex petscfem*.tex $(TEXFILES:=.tex)
 	latex2html $(ltx2h_opt) -prefix pfem -init_file latex2html.init \
 		-split 2 -reuse 2 petscfem
 
+#w Make all documentation files for program options with 'odoc.pl'
 odoc:
 	$(MAKE) -C ../applications/ns odocns
 	$(MAKE) -C ../applications/advective odocadv
 	$(MAKE) -C ../applications/advdif odocadvdif
 
-#odocns.tex odocnse.tex odocnsb.tex odocnsw.tex: 
-#odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex: 
-
+#w Make html home-page
 index.html: index.tex
 	latex2html -init_file latex2html.init -no_subdir -split 0 index
 
+#w Make the README in text and html format
 readme: ../README ../README.html
 
 README.pod: README.podin $(TARFILE).tara,v
@@ -89,14 +103,18 @@ README.pod: README.podin $(TARFILE).tara,v
 	-chmod -w $@
 	-@rm pod2html-{dir,item}cache &> /dev/null
 
-local_clean::
-	$(MAKE) -C manual clean
-	$(MAKE) -C OBJ clean
+CLEAN_DIRS = manual OBJ
+
+local_clean:: local_dist_clean
+	-rm -f *.ps.gz index petscfem icons index.html index.css 
+
+#w Clean leaving PS and HTML
+local_dist_clean:
 	-putex
-	-rm tz*.tex index.html index.css .*.db
-	-rm -rf index
-	-rm -rf petscfem
-	-rm -rf icons pod2html-{dir,item}cache
+	-rm -rf tz*.tex .*.db \
+              pod2html-{dir,item}cache
 
 fm2ex.cpp: ../test/testfm2c.cpp
 	eperl -B '//<' -E '//>' $< > $@
+
+#s

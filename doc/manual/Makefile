@@ -1,23 +1,27 @@
 # doc/manual/Makefile for DOC++
 # Copyright (c) 1999 Dragos Acostachioaie
 
-.PHONY: html tex
+.PHONY: html ps
 
 #DOCFILES = ../src/{idmap,fem,utils}.h
 DOCF = doc.dxx
 DOCXX = doc++
 
-all:	html
+all: html ps
+
+PETSCFEM_DIR = ../..
+include $(PETSCFEM_DIR)/Makefile.base
 
 html:
 	$(DOCXX) -p -d html $(DOCF)
 
-tex:
+ps: ../manual.ps.gz
 
-ps: ../manual.ps
+.INTERMEDIATE: ../manual.ps 
+../manual.ps.gz: ../manual.ps
 
 ../manual.ps: manual.dvi
-	dvips -o ../manual.ps manual.dvi
+	dvips -o $@ $<
 
 manual.dvi: manual.tex
 	-latex \\nonstopmode\\input manual
@@ -30,10 +34,13 @@ manual.tex:
 		-e "s/classTrandom_popsetT/class T random\\\\_pop(set\\\\<T\\\\> \\\\&)/" \
 				manual.tex
 
-clean:
-	$(MAKE) -C html -f ../Makefile html_clean 
-	-rm manual.tex manual.tex.bak
+local_dist_clean:
 	-putex
+	-rm -f manual.tex.bak
+
+local_clean:: local_dist_clean
+	-rm manual.tex 
+	if [ -d html ] ; then rm -rf html ; fi
 
 html_clean:
 	rm -rf *.html *.tex *.ps *.dvi *.gif *.class \
