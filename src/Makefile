@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/01/18 11:32:56 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/01/19 12:46:32 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -9,16 +9,16 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
           fastmat utils getprop \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
-	  measperf mainutl
+	  measperf mainutl sttfilter state
 
 # Fortran files
 FLIBOBJS_ =  spline seval
 spline.o: spline.f
 ssval.o: seval.f
 
-.INTERMEDIATE: spline.o seval.o
-
 LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o)
+
+.INTERMEDIATE: $(LIBOBJS)
 
 SRCS := $(LIBOBJS_:=.cpp)
 
@@ -61,19 +61,6 @@ local_dist_clean:
 local_clean:: local_dist_clean
 	-rm libpetscfem.a &> /dev/null
 
-#
-# Esto deberia ir en realclean o algo por el estilo
-#	if [ -e fm2eperl.cpp ] ; then chmod +w fm2eperl.cpp ; \
-#		rm fm2eperl.cpp ; fi
-
-tag:
-	@cd $(HOME)/PETSC/petscfem ; cvs history -T ; \
-	echo -n "enter tag: " ; read TAG ; \
-	echo -n "enter comment: " ; read COMMENT ; \
-	echo "setting tag $$TAG ..." ; \
-	cvs rtag $$TAG -m "$$COMMENT" petscfem ; \
-	echo " ...  done."
-
 tryme: tryme.o seval.o spline.o
 	g++ -o tryme tryme.o seval.o spline.o
 
@@ -82,9 +69,7 @@ readlist.h: readlist.eperl
 	eperl readlist.eperl > readlist.h
 	chmod -w readlist.h
 
-version.cpp: version.cppin $(TARFILE).tara,v
-# 	fversion -il ../save.log $(TARFILE).tara,v \
-# 			version.cppin version.cpp
+version.cpp: version.cppin ../VERSION
 	rm -f version.cpp
 	eperl version.cppin >version.cpp
 	-chmod -w version.cpp

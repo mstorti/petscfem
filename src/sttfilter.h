@@ -1,5 +1,5 @@
 // -*-mode: c++ -*-
-/* $Id: sttfilter.h,v 1.1 2001/01/18 11:32:56 mstorti Exp $ */
+/* $Id: sttfilter.h,v 1.2 2001/01/19 12:46:32 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -29,7 +29,32 @@
 #include <cmath>
 #include <vector>
 
-typedef double FilterState;
+#include <vec.h>
+
+#include "fem.h"
+#include "dofmap.h"
+
+#if 0
+
+typedef double State;
+
+#else
+
+class State {
+  Vec *vec;
+  Time time;
+public:
+  State(Vec &vec,Time t) : vec(&vec), time(t) {};
+  State(const State &v);
+  ~State();
+  State & set_time(const Time t) {time = t;}
+  State & axpy(double alpha,const State &v);
+  State & scale(double alpha);
+  State & set_cnst(double a);
+  State & inc(double dt) {time.inc(dt);}
+};
+
+#endif
 
 class Filter {
   int time_step;
@@ -37,28 +62,28 @@ class Filter {
   int step() {return time_step;}
   Filter(int ts=0) {time_step=ts;}
   virtual void update() {time_step++;};
-  virtual const FilterState & state()=0;
+  virtual const State & state()=0;
 };
 
 class Inlet : public Filter {
-  const FilterState *state_;
+  const State *state_;
 public:
-  Inlet(FilterState &st) { state_ = &st;}
-  const FilterState & state();
+  Inlet(State &st) { state_ = &st;}
+  const State & state();
 };
 
 class LowPass : public Filter {
   // Input to the filter
   Filter *input;
   // Internal state
-  FilterState i_state; 
+  State i_state; 
   // Relaxation factor;
   double alpha;
 public:
-  LowPass(double alpha_,Filter &input_,FilterState &state_) : alpha(alpha_), input(&input_), 
+  LowPass(double alpha_,Filter &input_,State &state_) : alpha(alpha_), input(&input_), 
     i_state(state_) {};
   void update();
-  const FilterState & state();
+  const State & state();
 };
 
 class Mixer : public Filter {
@@ -66,12 +91,12 @@ class Mixer : public Filter {
   vector<Filter *> filter_l;
   vector<double> gain_l;
   // Internal state
-  FilterState i_state; 
+  State i_state; 
 public:
-  Mixer(FilterState &st) {i_state = st;}
+  Mixer(State &st) : i_state(st) {};
   Mixer & add_input(Filter &input,double g);
   void update();
-  const FilterState & state();
+  const State & state();
   ~Mixer() {};
 };
 

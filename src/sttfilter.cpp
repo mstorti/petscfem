@@ -1,4 +1,4 @@
-/* $Id: sttfilter.cpp,v 1.1 2001/01/18 11:32:56 mstorti Exp $ */
+/* $Id: sttfilter.cpp,v 1.2 2001/01/19 12:46:32 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -41,20 +41,19 @@ Filter::Filter(Vec &x,Mesh &mesh) {
 
 void LowPass::update() {
   if (input->step() < step()) input->update(); 
-  i_state = (1-alpha) * i_state + alpha * input->state();
+  i_state.scale(1-alpha).axpy(alpha,input->state());
   Filter::update();
-  //  time_step++;
 }
 
-const FilterState & Inlet::state() { 
+const State & Inlet::state() { 
   return *state_;
 }
 
-const FilterState & LowPass::state() {
+const State & LowPass::state() {
   return i_state;
 }
 
-const FilterState & Mixer::state() {
+const State & Mixer::state() {
   return i_state;
 }
 
@@ -74,32 +73,14 @@ void Mixer::update() {
 #endif
 
 void Mixer::update() {
-  i_state=0;
+  i_state.set_cnst(0.);
   for (int j=0; j<filter_l.size(); j++) {
     Filter *f = filter_l[j];
     if (f->step() < step()) f->update(); 
     f->update();
-    i_state += gain_l[j] * f->state();
+    i_state.axpy(gain_l[j],f->state());
   }
   Filter::update();
   // time_step++;
 }
 
-int main() {
-  FilterState x=0;
-  Inlet i(x);
-  LowPass f(.1,i,x),ff(.1,f,x);
-  Mixer m(x);
-  m.add_input(f,1.).add_input(ff,2.);
-  
-  double Dt=0.1,t=0,omega=1.;
-
-  FILE *fid = fopen("filter.out","w");
-  for (int j=0; j<100; j++) {
-    t += Dt;
-    x = sin(omega*t);
-    fprintf(fid,"%f %f %f \n",f.state(),ff.state(),m.state());
-    m.update();
-  }
-  fclose(fid);
-}
