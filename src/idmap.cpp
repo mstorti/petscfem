@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.5 2002/09/05 18:23:52 mstorti Exp $
+//$Id: idmap.cpp,v 1.6 2002/09/30 02:30:52 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -658,8 +658,10 @@ idmap::~idmap(void) {
   for (itt=col_map->begin(); itt!=col_map->end(); itt++) 
     delete itt->second;
 
-  delete[] ident;
-  delete[] iident;
+  DELETE_VCTR(ident);
+  DELETE_VCTR(iident);
+  DELETE_SCLR(row_map);
+  DELETE_SCLR(col_map);
   
 }
 

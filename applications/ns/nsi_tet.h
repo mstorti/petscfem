@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.32 2002/09/23 21:18:16 mstorti Exp $
+//$Id: nsi_tet.h,v 1.33 2002/09/30 02:30:48 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -381,6 +381,7 @@ public:
   void time_step_pre(double time,int step);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
+  ~HookList();
 };
 
 #endif

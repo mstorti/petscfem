@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.23 2002/09/08 21:58:58 mstorti Exp $
+//$Id: elemset.h,v 1.24 2002/09/30 02:30:52 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -26,7 +26,11 @@ class ElementIterator;
 */ 
 class Elemset {
 public:
-  // type of element
+  /// ctor
+  Elemset();
+  /// dtor
+  ~Elemset();
+  /// type of element
   char *type;
   /// table of connectivities
   int *icone;

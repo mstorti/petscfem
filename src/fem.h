@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.28 2002/09/17 17:15:14 mstorti Exp $
+//$Id: fem.h,v 1.29 2002/09/30 02:30:52 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -344,6 +344,8 @@ class Nodedata {
 public:
   double *nodedata;
   int nnod,ndim,nu;
+  Nodedata();
+  ~Nodedata();
 };
 
 class Elemset;
@@ -365,6 +367,10 @@ public:
   TextHashTable *global_options;
   /// Finds an elemset give its name
   Elemset *find(const string &name);
+  /// Default ctor
+  Mesh();
+  // dtor
+  ~Mesh();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

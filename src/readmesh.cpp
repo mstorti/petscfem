@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.56 2002/09/21 13:53:47 mstorti Exp $
+//$Id: readmesh.cpp,v 1.57 2002/09/30 02:30:52 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -520,7 +520,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	dofmap->get_row(node,kdof,row);
 	if (row.size()!=1) {
 	  PetscPrintf(PETSC_COMM_WORLD,
-		      "In line: %s\nFixation %d, imposed on an invalid node/field combination.\n",
+		      "In line: %s\nFixation %d, imposed on an"
+		      " invalid node/field combination.\n",
 		      astr_chars(linecopy),nfixa);
 	}
 	  
@@ -592,6 +593,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     }
 
   }
+  fstack->close();
+  delete fstack;
 
   // Read processor info
   const char *proc_weights;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.10 2002/02/06 02:37:15 mstorti Exp $
+//$Id: getprop.cpp,v 1.11 2002/09/30 02:30:52 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -96,8 +96,10 @@ int get_int(TextHashTable *thash,const char *name,
     if (token==NULL && n==1) {
       // Act as get_flag, returns 1 if no value is assigned
       retval[k]=1;
+      delete[] buf;
       return 0;
     } else if (token==NULL) {
+      delete[] buf;
       return 1;
     }
     sscanf(token,"%d",&(retval[k]));

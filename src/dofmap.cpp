@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.8 2002/03/11 02:28:22 mstorti Exp $
+//$Id: dofmap.cpp,v 1.9 2002/09/30 02:30:51 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -423,4 +423,13 @@ int Dofmap::processor(int j) const {
   for (rank=0; rank<size; rank++)
     if (j>=startproc[rank] && j<startproc[rank+1]) break;
   return rank;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Dofmap::Dofmap() : id(NULL), tpwgts(NULL) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Dofmap::~Dofmap() { 
+  DELETE_VCTR(id);
+  DELETE_VCTR(tpwgts);
 }

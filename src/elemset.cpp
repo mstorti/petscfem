@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.51 2002/09/08 23:29:16 mstorti Exp $
+//$Id: elemset.cpp,v 1.52 2002/09/30 02:30:51 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -965,6 +965,10 @@ int NewElemset::get_vec_double(const char *name,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Mesh::Mesh() : elemsetlist(NULL), nodedata(NULL), 
+  global_options(NULL) {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Elemset *Mesh::find(const string &name) {
   int nelemsets = da_length(elemsetlist);
   Elemset *vol_elem = NULL;
@@ -977,3 +981,39 @@ Elemset *Mesh::find(const string &name) {
   }
   return vol_elem;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Mesh::~Mesh() {
+  if (nodedata) delete nodedata;
+  nodedata=NULL;
+  for (int j=0; j<da_length(elemsetlist); j++) {
+    Elemset *elemset  = *(Elemset **)da_ref(elemsetlist,j);
+    delete elemset;
+  }
+  da_destroy(elemsetlist);
+  elemsetlist=NULL;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Elemset::Elemset() : type(NULL), icone(NULL), elemprops(NULL),
+		     elemiprops(NULL), elemprops_add(NULL),
+		     elemiprops_add(NULL), thash(NULL),
+                     elem_conne(NULL) {}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Elemset::~Elemset() {
+  DELETE_VCTR(type);
+  DELETE_VCTR(icone);
+  DELETE_VCTR(elemprops);
+  DELETE_VCTR(elemiprops);
+  DELETE_VCTR(elemprops_add);
+  DELETE_VCTR(elemiprops_add);
+  DELETE_SCLR(thash);
+  DELETE_VCTR(elem_conne);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Nodedata::Nodedata() : nodedata(NULL) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Nodedata::~Nodedata() { DELETE_VCTR(nodedata); }

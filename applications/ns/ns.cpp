@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.106 2002/09/29 18:28:04 mstorti Exp $
+//$Id: ns.cpp,v 1.107 2002/09/30 02:30:48 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -322,19 +322,19 @@ int main(int argc,char **args) {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Build octree for nearest neighbor calculation
-  vector<double> *data_pts_ = new vector<double>;
-  vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
-  WallData *wall_data;
+  vector<double> data_pts;
+  vector<ElemToPtr> elemset_pointer;
+  WallData *wall_data=NULL;
   if (LES) {
     argl.clear();
-    argl.arg_add(data_pts_,USER_DATA);
-    argl.arg_add(elemset_pointer,USER_DATA);
+    argl.arg_add(&data_pts,USER_DATA);
+    argl.arg_add(&elemset_pointer,USER_DATA);
     Elemset *elemset=NULL;
     argl.arg_add(elemset,USER_DATA);
     ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRA(ierr); 
     PetscPrintf(PETSC_COMM_WORLD,"After nearest neighbor tree.\n");
 
-    wall_data = new WallData(data_pts_,elemset_pointer,ndim);
+    wall_data = new WallData(&data_pts,&elemset_pointer,ndim);
 
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // Find nearest neighbor for each volume element
@@ -815,6 +815,9 @@ int main(int argc,char **args) {
     ierr = VecDestroy(xp); CHKERRA(ierr); 
   }
 
+  delete dofmap;
+  delete mesh;
+  delete wall_data;
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
 #endif

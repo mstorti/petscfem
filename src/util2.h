@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.12 2002/01/14 03:45:06 mstorti Exp $
+//$Id: util2.h,v 1.13 2002/09/30 02:30:52 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -125,5 +125,12 @@ int MatDestroy_maybe(Mat &v);
 /// SLESDestroy wrapper
 int SLESDestroy_maybe(SLES &v);
 //@}
+
+#define DELETE_SCLR(name)			\
+  if (name) { delete name; name=NULL; }
+
+#define DELETE_VCTR(name)			\
+  if (name) { delete[] name; name=NULL; }
+
 
 #endif

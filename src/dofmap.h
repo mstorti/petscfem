@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.12 2002/09/05 18:23:52 mstorti Exp $
+//$Id: dofmap.h,v 1.13 2002/09/30 02:30:51 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -379,8 +379,13 @@ public:
   */ 
   int create_MPI_ghost_vector(Vec &v);
 
-  ~Dofmap() {}
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  Dofmap();
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  ~Dofmap();
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   int processor(int j) const;
 
 };
