@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.53 2003/09/11 03:03:15 mstorti Exp $
+//$Id: dxhook.cpp,v 1.54 2003/09/12 21:31:14 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -319,6 +319,7 @@ int dx_hook::build_state_from_file(double *state_p) {
     } else {
       int base = recl*nnod*ndof;
       if (dx_read_state_from_file==1) {
+	printf("dx_hook: Reading from formatted file.\n");
 	// Formatted read
 	for (int j=0; j<(recl+1)*nnod*ndof; j++) {
 	  double val=0.;
@@ -331,6 +332,7 @@ int dx_hook::build_state_from_file(double *state_p) {
 	  if (j>base) state_p[j-base] = val;
 	}
       } else if (dx_read_state_from_file==2) {
+	printf("dx_hook: Reading from binary file.\n");
 	int count = fread (state_p,sizeof(double),nnod*ndof,fid);
 	assert(count==nnod*ndof);
       } else { 

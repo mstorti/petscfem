@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.61 2003/09/11 21:43:37 mstorti Exp $ 
+# $Id: Makefile,v 1.62 2003/09/12 21:31:14 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -80,13 +80,19 @@ dx:
 	$(EPERL) -P -d dx=1 cubcav.epl > cubcav_dx.depl
 	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl
 
-dx_make_command:
-#	octave -qH comp_step.m
+#================================================================
+dx_make_command: dx_make_command1
+
+dx_make_command1:
+	octave -qH comp_step.m
+
+dx_make_command2:
 #	echo $$dx_step >> comp_server.fifo 
 	if [ -f cubcav.tiff ] ; then rm cubcav.tiff ; fi ;	\
 	sendstep.pl $$dx_step					\
 		comp_server.fifo comp_server.fifo2
 
+#================================================================
 yuv_compress:
 	yuv=YUV/$(CASE_NAME).$$dx_step.yuv ;			\
 	tiff=$(CASE_NAME).tiff ;				\
@@ -95,6 +101,7 @@ yuv_compress:
 		convert $$tiff $$yuv ; gzip -f $$yuv ;		\
 	fi
 
+#================================================================
 k:
 	-killall ns_O.bin job.pl
 
