@@ -3127,7 +3127,7 @@ tag: beta-3.25.pl15 on Sun, 07 Dec 2003 18:25:12 -0300 by mstorti in spider
      > 	 Tetras had a volume of 1/3!!! (in place of 1/60). 
      > Gaschem 3D is working. 
 ----------
-tag: beta-3.26 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
+tag: beta-3.27 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Added tests for `compute_fd_adv_jacobian' in `test/burgers'. 
      > Added `__SWITCH_FILE__' and `field match' to `myexpect.pl'
@@ -3150,6 +3150,3 @@ tag: beta-3.26 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
      > Found a SERIOUS BUG in `gpdata.cpp':
      > 	 Tetras had a volume of 1/3!!! (in place of 1/60). 
      > Gaschem 3D is working. 
-----------
-tag: beta-3.27.pl1 on Sun, 07 Dec 2003 21:21:15 -0300 by mstorti in spider
-     > Administrative tag.
