@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.4 2002/12/07 21:10:51 mstorti Exp $
+//$Id: elast.cpp,v 1.5 2002/12/09 02:12:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,6 +10,41 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "elast.h"
+
+class FastMat2_funm {
+private:
+  int m;
+  FastMat2 V,D,tmp;
+public:
+  void init(FastMat2 &A);
+  void funm(const FastMat2 &A,FastMat2 &fA);
+  virtual double f(double)=0;
+};
+
+void FastMat2_funm::init(FastMat2 &A) {
+  assert(A.n()==2);
+  assert(A.dim(1)==A.dim(2));
+  m = A.dim(1);
+  V.resize(2,m,m);
+  D.resize(2,m,m).set(0.);
+  tmp.resize(2,m,m);
+}
+
+double ff(double x,void *a) {
+  FastMat2_funm *fff = (FastMat2_funm *)a;
+  return fff->f(x);
+}
+
+void FastMat2_funm::funm(const FastMat2 &A,FastMat2 &fA) {
+  D.d(1,2).seig(A,V).fun(ff,this).rs();
+  tmp.prod(D,V,1,-1,2,-1);
+  fA.prod(V,tmp,1,-1,-1,2);
+}
+
+class MyFun : public FastMat2_funm {
+  // double f(double l) { 1./sqrt(l); }
+  double f(double l) { return l; }
+} my_fun;
 
 void elasticity::init() {
 
@@ -40,8 +75,10 @@ void elasticity::init() {
   B.resize(2,ntens,nen).set(0.);
   C.resize(2,ntens,ntens).set(0.);
   Jaco.resize(2,ndim,ndim);
+  G.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
 
+  my_fun.init(G);
   // Plane strain
   if (ndim==2) {
     double c1=E*(1.-nu)/((1.+nu)*(1.-2.*nu)), c2=E/(2.*(1.+nu)),
@@ -66,6 +103,18 @@ void elasticity::init() {
 
 }
 
+#if 0
+class Fun1 {
+public:
+  virtual double f(double)=0;
+};
+
+class f : public Fun1 {
+  double f(double l) { 1./sqrt(l); }
+}
+#endif
+
+
 void elasticity::element_connector(const FastMat2 &xloc,
 				   const FastMat2 &state_old,
 				   const FastMat2 &state_new,
@@ -75,8 +124,12 @@ void elasticity::element_connector(const FastMat2 &xloc,
   // loop over Gauss points
   for (int ipg=0; ipg<npg; ipg++) {
     
+    x_new.set(xloc).add(state_new);
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
-    Jaco.prod(dshapexi,xloc,1,-1,-1,2);
+    // Jaco.prod(dshapexi,xloc,1,-1,-1,2);
+    Jaco.prod(dshapexi,x_new,1,-1,-1,2);
+    G.prod(Jaco,Jaco,-1,1,-1,2);
+    my_fun.funm(G,fG);
     
     double detJaco = Jaco.det();
     if (detJaco <= 0.) {
@@ -89,9 +142,12 @@ void elasticity::element_connector(const FastMat2 &xloc,
     iJaco.inv(Jaco);
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
     
-    // construccion de matriz B
+    // Recall: \epsilon = B dudx
+    // where \epsilon = [e_xx e_yy e_xy] (2D)
+    //                  [e_xx e_yy e_zz e_xy e_xz e_yz] (3D)
+    // dudx is de gradient of displacements. 
     if (ndim==2) {
-      B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
+      B.ir(1,1).ir(3,1).set(dshapex. ir(1,1));
       B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
       B.ir(1,3).ir(3,1).set(dshapex.ir(1,2));
       B.ir(1,3).ir(3,2).set(dshapex.ir(1,1));
@@ -108,15 +164,13 @@ void elasticity::element_connector(const FastMat2 &xloc,
 
       B.ir(1,6).ir(3,3).set(dshapex.ir(1,2));
       B.ir(1,6).ir(3,2).set(dshapex.ir(1,3));
-    }
+    } else assert(0);
 
     dshapex.rs();
     
     // B.rs().reshape(2,ntens,nen);
     B.rs();
-    
     strain.prod(B,state_new,1,-1,-2,-1,-2);
-    
     stress.prod(C,strain,1,-1,-1);
     
     // Residual computation
