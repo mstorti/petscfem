@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.10 2005/01/11 02:39:18 mstorti Exp $
+// $Id: getsurf.cpp,v 1.11 2005/01/12 21:32:33 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -201,6 +201,7 @@ int main(int argc,char **argv) {
 	nopp++; opp_node = elem_nodes[l];
       }
     }
+    assert(nopp=1);
     if (VERBOSE) {
       printf("elem %d, ");
       go.print();

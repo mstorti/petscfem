@@ -5,17 +5,17 @@
 #
 # The irregular positions, which are ... three-dimensional points.
 object "nodes" class array type float rank 1 shape 3
-         items 1331 data file "../../DATA/proyectil.alpha15deg-nod.tmp"
+         items 29791 data file "./cube.nod.tmp"
 
 # The irregular connections, which are tetrahedra
-object "icone_t" class array type int rank 1 shape 4
-        items 5000 data file "../../DATA/proy.con0.tmp"
-attribute "element type" string "tetrahedra"
+object "icone_t" class array type int rank 1 shape 3
+        items 10800 data file "./cube.surf-con.tmp"
+attribute "element type" string "triangles"
 attribute "ref" string "positions"
 
-object "u" class array type float rank 1 shape 4
-     items 1331 data file "./proy.state.tmp"
-attribute "dep" string "positions"
+object "u" class array type float rank 0
+     items 10800 data file "./cube.aw.tmp"
+attribute "dep" string "connections"
 
 object "ns_field_t" class field
 component "positions" value "nodes"

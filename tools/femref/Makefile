@@ -20,7 +20,7 @@ CPP_FILES := femref2 hasher md5r gtemplates visitor combiner
 SRCS := $(CPP_FILES=.cpp) getsurf.cpp femref.cpp  myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
 
-BOPT := O_c++
+BOPT := g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
@@ -68,9 +68,13 @@ trymd5.bin: trymd5.c md5r.c
 cdepend:
 	gcc -MM *.c > makefilec.d
 
+GETSURF := ./getsurf.bin
 getsurf:
-	$(GETSURF) -b 1 -x $(DATA)/cube.nod.tmp	\
-	-c $(DATA)/proy.con.tmp -u ./cube.state.tmp
-	-s proy.surf-con.tmp -g proy.grad-u.tmp
+	$(GETSURF) -b 1 -x ./cube.nod.tmp	\
+	-c ./cube.con.tmp -u ./cube.state.tmp	\
+	-s cube.surf-con.tmp -g cube.grad-u.tmp
+
+yuv_compress:
+	@echo nothing
 
 #s
