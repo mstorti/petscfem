@@ -40,4 +40,4 @@ endfor
 fclose(fid);
 
 system("../../tools/hexasplit.bin -i step3d.con.tmp -o step3d.con-tet.tmp");
-piecewtanh(2,"piecewise.dat.tmp");
+piecewtanh(slope,"piecewise.dat.tmp");

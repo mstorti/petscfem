@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.5 2002/12/04 03:14:02 mstorti Exp $
+//$Id: mmove2.cpp,v 1.6 2002/12/05 00:24:57 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -70,15 +70,16 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
   J.prod(x,dNdxi,-1,1,2,-1);
   G.prod(J,J,-1,1,-1,2);
   lambda.seig(G,V);
+  tmp3.prod(G,V,1,-1,-1,2);
+  tmp4.prod(V,tmp3,-1,1,-1,2);
 #define SHF(n) n.print(#n ": ")
-#define DEBUG_ANAL
 #ifdef DEBUG_ANAL
+  tmp4.print("V' G V (D?): ");
   SHF(J);
   SHF(G);
   SHF(lambda);
   SHF(V);
 #endif
-  lambda.print("lambda:");
   tmp1.prod(J,V,1,-1,-1,2);
   tmp2.prod(dNdxi,V,-1,1,-1,2);
   for (int q=1; q<=ndim; q++) {
@@ -123,13 +124,15 @@ void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &dFdx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
-					   const FastMat2 &state_old,
-					   const FastMat2 &state_new,
-				   FastMat2 &res,FastMat2 &mat){
+void mesh_move_eig_anal::
+element_connector(const FastMat2 &xloc,
+		  const FastMat2 &state_old,
+		  const FastMat2 &state_new,
+		  FastMat2 &res,FastMat2 &mat) {
 
 #define eps 1e-10
-  x0.set(xloc).add(glob_param->inwt ? state_new : state_old);
+  x0.set(xloc).add(glob_param->inwt ? 
+		   state_new : state_old);
   df_grad(x0,res);
   x0.reshape(1,nel*ndim);
   mat.reshape(3,nel,ndim,nel*ndim);

@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.6 2002/12/01 16:07:26 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.7 2002/12/05 00:25:02 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -286,8 +286,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       Windx[0] = j;
       ecache->W[j-1] = location(Windx);
       for (int k=1; k<=m; k++) {
-	Aindx[0]=j;
-	Aindx[1]=k;
+	Aindx[1]=j;
+	Aindx[0]=k;
 	ecache->A[jj] = A.location(Aindx);
 	if (cev) ecache->V[jj] = V.location(Aindx);
 	jj++;
