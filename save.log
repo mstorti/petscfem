@@ -4018,28 +4018,28 @@ tag: beta-3.42 on Fri, 18 Feb 2005 06:43:40 -0300 by mstorti in spider
      > Merged from `bubbly7-branch'. 
      > Now with `use_Ajac_old=0' doesn't use `Ao_grad_U'. 
 ----------
-tag: 3.43.1 on Fri, 18 Feb 2005 06:51:48 -0300 by mstorti in spider
+tag: beta-3.43.1 on Fri, 18 Feb 2005 06:51:48 -0300 by mstorti in spider
      > Administrative tag
 ----------
-tag: 3.43.2 on Sat, 19 Feb 2005 13:37:02 -0300 by mstorti in spider
+tag: beta-3.43.2 on Sat, 19 Feb 2005 13:37:02 -0300 by mstorti in spider
      > Written `compshock.m' for computig normal shocks. 
      > Now `gasflow' doesn't computes LES terms only
      > for volume elements. 
 ----------
-tag: 3.43.3 on Sun, 20 Feb 2005 12:25:23 -0300 by mstorti in spider
+tag: beta-3.43.3 on Sun, 20 Feb 2005 12:25:23 -0300 by mstorti in spider
      > Partially implemented `dofmap->solve' with 
      >   iterative solution of the least squares eqs.
 ----------
-tag: 3.43.4 on Sun, 20 Feb 2005 12:39:04 -0300 by mstorti in spider
+tag: beta-3.43.4 on Sun, 20 Feb 2005 12:39:04 -0300 by mstorti in spider
      > `dofmap->solve' with iterative solution of the least squares eqs.
      > 	works OK (solutions converges) in large gasflow problem.
      > Later fails with "free(): invalid pointer 0xea316008!"
 ----------
-tag: 3.43.5 on Sun, 20 Feb 2005 13:55:47 -0300 by mstorti in spider
+tag: beta-3.43.5 on Sun, 20 Feb 2005 13:55:47 -0300 by mstorti in spider
      > Runs OK ADRE problem (gasflow on compression corner) with the 
      > new `dofmap->solve' with iterative solution of the least squares eqs.
 ----------
-tag: 3.43.6 on Sun, 20 Feb 2005 20:20:23 -0300 by mstorti in spider
+tag: beta-3.43.6 on Sun, 20 Feb 2005 20:20:23 -0300 by mstorti in spider
      > Runs all tests (stable version). 
 ----------
 tag: beta-3.43.7 on Sun, 20 Feb 2005 20:21:21 -0300 by mstorti in spider
