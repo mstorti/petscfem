@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.124 2004/11/11 18:32:27 mstorti Exp $
+#$Id: runtests.pl,v 1.125 2004/11/11 21:52:23 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -299,9 +299,8 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.fs.verif.tmp",
-       "Square cavity with fract. step, Re400, N=20",<<'EOT');
-Square cavity at Re=400. Error < tol OK \? 1
-EOT
+       "Square cavity with fract. step, Re1000, N=20",
+       read_file("sqcav/check.fs.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.zwproc.tmp",

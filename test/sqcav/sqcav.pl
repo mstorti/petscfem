@@ -20,11 +20,11 @@ $N = 20;
 $hratio = 4;			# refinement (h_center/h_wall)
 $Re = 400 unless defined $Re;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = 0.2;			# time step
+$Dt = 0.05;			# time step
 $solver = "petsc";
 $preco_type = "jacobi";
 $maxits = 20;
-$nstep = 100;
+$nstep = 500;
 #
 $weak_form = 0;
 $cache_gdu = 0;

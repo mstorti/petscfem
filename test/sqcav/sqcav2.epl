@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav2.epl,v 1.9 2004/11/11 18:31:52 mstorti Exp $
+#$Id: sqcav2.epl,v 1.10 2004/11/11 21:52:26 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './sqcav.pl'; :>
 global_options
@@ -7,12 +7,19 @@ global_options
 #if $fractional_step
 fractional_step 1
 fractional_step_use_petsc_symm 1
+gamma_pressure 0.9
+dt_art_fac 0.
+
+nsome 20
+print_some_file "sqcav.some-nodes.tmp"
+save_file_some "sqcav.some-state.tmp"
+
 #endif
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
 <:pr('nstep'):>
-# initial_state sqcav.state
+# initial_state <:=$save_file:> 
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -29,13 +36,6 @@ preco_type "jacobi"
 #endif
 <:pr('maxits'):> 
 
-# Number of subdomains
-iisd_subpart 1
-#if $update_jacobian
-# update_jacobian_iters 3
-update_jacobian_start_steps 3
-update_jacobian_steps 3
-#endif
 report_consumed_time
 activate_debug_print
 

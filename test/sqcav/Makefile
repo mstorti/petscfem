@@ -1,12 +1,12 @@
-# $Id: Makefile,v 1.83 2004/11/11 18:31:52 mstorti Exp $ 
+# $Id: Makefile,v 1.84 2004/11/11 21:52:26 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
 	dx_hook_test_post_run_file_record test_read_ini 		\
 	test_disconnected_graph
 
-default: 
-	$(MAKE) case=iisd_sbp1 np=2 runs
+default: test_fs
+#	$(MAKE) case=iisd_sbp1 np=2 runs
 
 isp_test:
 	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
@@ -87,7 +87,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	      	  > $(output_file)
+	 	      	   > $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -202,7 +202,7 @@ test_iisd:
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests square cavity at Re=400 with fractional step solver. 
 test_fs:
-	$(MAKE) case=fractional_step_re400 runs2
+	$(MAKE) case=fractional_step_re1000 runs2
 	$(OCTAVE) < check_fs.m > check.fs.verif.tmp
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>

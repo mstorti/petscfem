@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mksqcav.m,v 1.7 2003/07/03 04:32:11 mstorti Exp $
+## $Id: mksqcav.m,v 1.8 2004/11/11 21:52:26 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -52,3 +52,5 @@ ny = (N/2)*(N+1)+(1:N+1)';
 yh = xnod(ny,2);
 
 save sqcav.ny.tmp  ny yh
+asave("sqcav.some-nodes.tmp",ny);
+
