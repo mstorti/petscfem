@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.21 2003/11/11 02:15:43 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.22 2003/11/16 01:15:38 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -28,7 +28,7 @@ int NewBcconv::ask(const char *jobinfo,int &skip_elemset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "BcconvAdv::assemble"
+#define __FUNC__ "NewBcconv::new_assemble"
 void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
