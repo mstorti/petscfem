@@ -4,7 +4,7 @@ $ndim=2;
 $N=20;
 $nnod = ($N+1)**2;
 $in = "sqcav.con.tmp";
-$view_v = 0;
+$view_v = 1;
 
 open IN,$in;
 open OUT,">sqcav.con0.tmp";
@@ -16,7 +16,7 @@ while (<IN>) {
 close IN;
 close OUT;
 
-open IN,"outvector0.out";
+open IN,"sqcav.weak_form_0.tmp";
 open OUT,">results.tmp";
 while (<IN>) {
     my @l = split " ";
@@ -42,8 +42,8 @@ object "icone" class array type int rank 1 shape 4
 attribute "element type" string "quads"
 attribute "ref" string "positions"
 # The data, which is in a one-to-one correspondence with the positions
-object "result" class array type float rank 1 
-        shape <:=($view_v ? $ndim : 1):> items <:=$nnod:> data file results.tmp
+object "result" class array type float rank <:=($view_v ? "1 shape $ndim" : 0):>
+	    items <:=$nnod:> data file results.tmp
 
 attribute "dep" string "positions"
 # the field, with three components: "positions", "connections", and
