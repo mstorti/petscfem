@@ -30,15 +30,27 @@ endif
 
 asave("cubcav.nod.tmp",x3);
 asave("cubcav.con.tmp",i3);
+if use_tetra
+  system("../../tools/hexasplit -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
+endif
+
 
 fid = fopen("cubcav.fixa.tmp","w");
 fid != -1 || error("Couldn't open cubcav.fixa.tmp");
 
 for j=wall'
-  fprintf(fid,"%d 1 0.\n%d 2 0.\n%d 3 0.\n",j,j,j);
+  if strcmp(CASE,"laplace")
+    fprintf(fid,"%d 1 0.\n",j);
+  else
+    fprintf(fid,"%d 1 0.\n%d 2 0.\n%d 3 0.\n",j,j,j);
+  endif
 endfor
 
 for j=top'
-  fprintf(fid,"%d 1 1.\n%d 2 0.\n%d 3 0.\n",j,j,j);
+  if strcmp(CASE,"laplace")
+    fprintf(fid,"%d 1 1.\n",j);
+  else
+    fprintf(fid,"%d 1 1.\n%d 2 0.\n%d 3 0.\n",j,j,j);
+  endif
 endfor
 fclose(fid);
