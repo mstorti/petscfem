@@ -582,3 +582,6 @@ tag: beta-2.22 on Tue Nov 13 14:35:07 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-2.23 on Tue Nov 13 22:53:02 ARST 2001, by mstorti in spider
      > Fixed bugs in SparseDirect
+----------
+tag: beta-2.24 on Wed Nov 14 23:50:10 ARST 2001, by mstorti in spider
+     > Adding options to PFMat and Sparse::Mat
