@@ -1,6 +1,7 @@
 #__INSERT_LICENSE__
 
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
+$NP = $ENV{'NP'};
 
 # usage: "doc_vals(VARS)", for instance "doc_vals(qw(Re,Ra,N,alpha))"
 #
