@@ -13,3 +13,6 @@ tag: beta-3.20.pl4 on Mon,  8 Sep 2003 12:18:15 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.20.pl5 on Mon,  8 Sep 2003 16:59:54 -0300 by mstorti in node1.beowulf.gtm
      > Fixed disconnected graph bug.
+----------
+tag: beta-3.20.pl6 on Tue,  9 Sep 2003 08:45:20 -0300 by mstorti in minerva.ceride.gov.ar
+     > Reads state file in dx_hook from binary file improving speed. 
