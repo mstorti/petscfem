@@ -4,7 +4,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 4;
 $Nx = 50;
-$rota = 0;
+$rota = 2;
 
 $Machin = 0.5;
 $gamma = 1.4;

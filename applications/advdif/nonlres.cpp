@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.10 2005/01/23 18:25:09 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.11 2005/01/23 20:19:33 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -268,9 +268,9 @@ res(ElementIterator &element, FastMat2 &U,
   C_U_.ir(2,1);
   for (int j=1;j<=nr;j++) {
     c = C_U_.get(j);
-    assert(c != 0.0);
+    // assert(c != 0.0); // Why??
     FastMat2::branch();
-    if (c > 0.0){
+    if (c >= 0.0){
       // Outgoing wave. Value extrapolated
       // from nodes #2...(nel-2)# must be equal to
       // value at node 1.

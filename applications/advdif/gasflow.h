@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.14 2005/01/23 18:25:09 mstorti Exp $
+// $Id: gasflow.h,v 1.15 2005/01/23 20:19:33 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -37,6 +37,7 @@ private:
   FastMat2 jvec;
   FastMat2 tmp20,dUabso,Uref;
   MakeTangentSpace maktgsp;
+  int linear_abso;
 
   void compute_tau(int ijob,double &delta_sc);
 

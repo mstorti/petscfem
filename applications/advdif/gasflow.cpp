@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.16 2005/01/23 20:02:09 mstorti Exp $
+//$Id: gasflow.cpp,v 1.17 2005/01/23 20:19:33 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -76,6 +76,12 @@ void gasflow_ff::start_chunk(int &ret_options) {
   ierr = elemset->
     get_double("Uref",*Uref.storage_begin(),1,ndof);
   dUabso.resize(1,ndof);
+
+  //o Use linear approximation for the absorbing
+  //  boundary condition. Gives fully absorbing b.c. in the
+  //  linear range, but not truly Riemman Invariant in the
+  //  nonlinear range. 
+  EGETOPTDEF_ND(elemset,int,linear_abso,0);
 
   assert(ndim>0);
   assert(ndof==2+ndim);
@@ -625,102 +631,100 @@ void gasflow_ff::
 Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
   maktgsp.make_tangent(normaln);
-#if 0
-  // Speed of sound
-  double a = sqrt(ga*p/rho);
+
+  if (!linear_abso) {
+    // Speed of sound
+    double a = sqrt(ga*p/rho);
   
-  tmp20.prod(vel,normaln,-1,-1);
-  double un = tmp20.get();
-  // Riemman based b.c.'s
-  double a2g = 2*a/g1;
+    tmp20.prod(vel,normaln,-1,-1);
+    double un = tmp20.get();
+    // Riemman based b.c.'s
+    double a2g = 2*a/g1;
 
-  // Riemman Invariants
-  Rie.setel(un-a2g,1);
-  Rie.setel(un+a2g,2);
-  double s = log(p)-ga*log(rho);
-  Rie.setel(s,3);
-  Rie.is(1,4,ndof)
-    .prod(vel,maktgsp.tangent,-1,-1,1)
-    .rs();
+    // Riemman Invariants
+    Rie.setel(un-a2g,1);
+    Rie.setel(un+a2g,2);
+    double s = log(p)-ga*log(rho);
+    Rie.setel(s,3);
+    Rie.is(1,4,ndof)
+      .prod(vel,maktgsp.tangent,-1,-1,1)
+      .rs();
 
-  // Jacobians
-  drdU.set(0.);
-  double agrho = a/(g1*rho);
-  double agp = a/(g1*p);
+    // Jacobians
+    drdU.set(0.);
+    double agrho = a/(g1*rho);
+    double agp = a/(g1*p);
 
-  drdU.setel(+agrho,1,1);
-  drdU.ir(1,1).is(2,2,ndim+1)
-    .set(normaln).rs();
-  drdU.setel(-agp,1,ndof);
+    drdU.setel(+agrho,1,1);
+    drdU.ir(1,1).is(2,2,ndim+1)
+      .set(normaln).rs();
+    drdU.setel(-agp,1,ndof);
 
-  drdU.setel(-agrho,2,1);
-  drdU.ir(1,2).is(2,2,ndim+1)
-    .set(normaln).rs();
-  drdU.setel(+agp,2,ndof);
+    drdU.setel(-agrho,2,1);
+    drdU.ir(1,2).is(2,2,ndim+1)
+      .set(normaln).rs();
+    drdU.setel(+agp,2,ndof);
 
-  drdU.setel(-ga/rho,3,1);
-  drdU.setel(1.0/p,3,ndof);
+    drdU.setel(-ga/rho,3,1);
+    drdU.setel(1.0/p,3,ndof);
 
-  drdU.is(1,4,ndof).is(2,2,ndim+1)
-    .ctr(maktgsp.tangent,2,1).rs();
+    drdU.is(1,4,ndof).is(2,2,ndim+1)
+      .ctr(maktgsp.tangent,2,1).rs();
 
-  // Characteristic speeds
-  C.setel(un-a,1);
-  C.setel(un+a,2);
+    // Characteristic speeds
+    C.setel(un-a,1);
+    C.setel(un+a,2);
 
-  for (int k=3; k<=ndof; k++) 
-    C.setel(un,k);
-#else
-  // Right now, verify that `normaln' is aligned with `x'
-//   for (int k=2; k<=ndim; k++)
-//     assert(normaln.get(k)==0.0);
-//   double nx = normaln.get(1);
-  Uref.is(1,2,ndim+1);
-  tmp20.prod(Uref,normaln,-1,-1);
-  Uref.rs();
+    for (int k=3; k<=ndof; k++) 
+      C.setel(un,k);
+  } else {
 
-  tmp20.prod(vel,normaln,-1,-1);
-  double un = tmp20.get();
+    Uref.is(1,2,ndim+1);
+    tmp20.prod(Uref,normaln,-1,-1);
+    Uref.rs();
 
-  // Standard (linear) absorbing b.c.'s
-  double rhoref = Uref.get(1);
-  double uref = tmp20.get();
-  double pref = Uref.get(ndof);
-  double aref = sqrt(ga*pref/rhoref);
-  double rhoaref = rhoref*aref;
-  double aref2 = aref*aref;
+    tmp20.prod(vel,normaln,-1,-1);
+    double un = tmp20.get();
 
-  // These are the `equivalent' to
-  // Riemman Invariants (not truly)
-  Rie.setel(un-U.get(ndof)/rhoaref,1);
-  Rie.setel(un+U.get(ndof)/rhoaref,2);
-  Rie.setel(U.get(1)-U.get(ndof)/aref2,3);
-  Rie.is(1,4,ndof)
-    .prod(vel,maktgsp.tangent,-1,-1,1)
-    .rs();
+    // Standard (linear) absorbing b.c.'s
+    double rhoref = Uref.get(1);
+    double uref = tmp20.get();
+    double pref = Uref.get(ndof);
+    double aref = sqrt(ga*pref/rhoref);
+    double rhoaref = rhoref*aref;
+    double aref2 = aref*aref;
 
-  // Jacobians
-  drdU.set(0.);
+    // These are the `equivalent' to
+    // Riemman Invariants (not truly)
+    Rie.setel(un-U.get(ndof)/rhoaref,1);
+    Rie.setel(un+U.get(ndof)/rhoaref,2);
+    Rie.setel(U.get(1)-U.get(ndof)/aref2,3);
+    Rie.is(1,4,ndof)
+      .prod(vel,maktgsp.tangent,-1,-1,1)
+      .rs();
 
-  drdU.ir(1,1).is(2,2,ndim+1)
-    .set(normaln).rs();
-  drdU.setel(-1.0/rhoaref,1,ndof);
+    // Jacobians
+    drdU.set(0.);
 
-  drdU.ir(1,2).is(2,2,ndim+1)
-    .set(normaln).rs();
-  drdU.setel(+1.0/rhoaref,2,ndof);
+    drdU.ir(1,1).is(2,2,ndim+1)
+      .set(normaln).rs();
+    drdU.setel(-1.0/rhoaref,1,ndof);
 
-  drdU.setel(1.0,3,1);
-  drdU.setel(-1.0/aref2,3,ndof);
+    drdU.ir(1,2).is(2,2,ndim+1)
+      .set(normaln).rs();
+    drdU.setel(+1.0/rhoaref,2,ndof);
 
-  drdU.is(1,4,ndof).is(2,2,ndim+1)
-    .ctr(maktgsp.tangent,2,1).rs();
+    drdU.setel(1.0,3,1);
+    drdU.setel(-1.0/aref2,3,ndof);
 
-  // Characteristic speeds
+    drdU.is(1,4,ndof).is(2,2,ndim+1)
+      .ctr(maktgsp.tangent,2,1).rs();
+
+    // Characteristic speeds
   
-  C.setel(uref-aref,1);
-  C.setel(uref+aref,2);
+    C.setel(uref-aref,1);
+    C.setel(uref+aref,2);
 
-  C.is(1,3,ndof).set(uref).rs();
-#endif
+    C.is(1,3,ndof).set(uref).rs();
+  }
 }
