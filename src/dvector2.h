@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.14 2003/08/12 21:20:54 mstorti Exp $
+// $Id: dvector2.h,v 1.15 2003/08/13 04:00:45 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -264,7 +264,10 @@ dvector<T>& dvector<T>::cat(FILE *fid) {
 template<class T>
 dvector<T>& dvector<T>::cat(const char *name) {
   FILE *fid = fopen(name,"r");
-  assert(fid);
+  if (!fid) {
+    printf("dvector<T>::read(): can't open file \"%s\"\n",name);
+    abort();
+  }
   cat(fid);
   fclose(fid);
   return *this;
@@ -273,10 +276,7 @@ dvector<T>& dvector<T>::cat(const char *name) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
 dvector<T>& dvector<T>::cat(const char *name, int &nread_a) {
-  FILE *fid = fopen(name,"r");
-  assert(fid);
-  cat(fid);
-  fclose(fid);
+  cat(name);
   nread_a = nread;
   return *this;
 }
@@ -293,7 +293,10 @@ dvector<T>& dvector<T>::print(FILE *fid) {
 template<class T>
 dvector<T>& dvector<T>::print(const char *name) {
   FILE *fid = fopen(name,"w");
-  assert(fid);
+  if (!fid) {
+    printf("dvector<T>::read(): can't open file \"%s\"\n",name);
+    abort();
+  }
   print(fid);
   fclose(fid);
   return *this;
