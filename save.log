@@ -1643,3 +1643,6 @@ tag: beta-3.05 on Fri, 20 Sep 2002 23:21:29 -0300, by mstorti in spider
 ----------
 tag: beta-3.05.pl1 on Sat, 21 Sep 2002 01:23:51 -0300 by mstorti in spider
      > Runs all tests with -O2 flag. 
+----------
+tag: beta-3.05.pl2 on Sat, 21 Sep 2002 10:54:02 -0300 by mstorti in spider
+     > Modified test for 0-weight proc.
