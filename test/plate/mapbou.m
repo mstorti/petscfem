@@ -3,6 +3,13 @@ function x = mapbou (nodi,nodj,xi,XNOD)
 
   global Rint Rext L Rmean Rext2 
 
+  x8 = XNOD(8,:)';
+  x3 = XNOD(3,:)';
+  x5 = XNOD(5,:)';
+  x19 = XNOD(19,:)';
+  x14 = XNOD(14,:)';
+  x16 = XNOD(16,:)';
+
   if nodi>nodj
     x = mapbou (nodj,nodi,1-xi,XNOD);
     return;
@@ -20,17 +27,15 @@ function x = mapbou (nodi,nodj,xi,XNOD)
     theta = (1+2*xi)*pi/4;
     x = Rmean*[cos(theta) sin(theta)];
   elseif nodi==3 && nodj==8
-    if xi<.5
-      XX = [0 Rext];
-      x = XNOD(3,:)+2*xi*(XX-XNOD(3,:));
-    else
-      theta = (1+2*xi)*pi/4;
-      x = Rext*[cos(theta) sin(theta)];
-    endif
+    x = project(xi,x3,x8,"parab")';
+  elseif nodi==3 && nodj==5
+    x = project(xi,x3,x5,"parab")';
   elseif nodi==9 && nodj==12
     x = mapbou_circle(9,12,xi,XNOD);
   elseif nodi==14 && nodj==19
-    x = mapbou(3,8,xi,XNOD) .* reflex;
+    x = project(xi,x14,x19,"parab")';
+  elseif nodi==14 && nodj==16
+    x = project(xi,x14,x16,"parab")';
   elseif nodi==12 && nodj==17
     x = mapbou_circle(12,17,xi,XNOD);
   elseif nodi==13 && nodj==18
@@ -40,7 +45,7 @@ function x = mapbou (nodi,nodj,xi,XNOD)
   elseif nodi==7 && nodj==18
     x = mapbou_circle(7,18,xi,XNOD);
   elseif nodi==8 && nodj==19
-    x = mapbou_circle(8,19,xi,XNOD);
+    x = project(xi,x8,x19,"parab")';
   elseif nodi==21 && nodj==22
     if xi<0.5
       XX = [0 Rext2];
