@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.4 2002/02/10 21:36:37 mstorti Exp $
+#$Id: makeltag,v 1.5 2002/02/10 21:45:06 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -28,9 +28,8 @@ $newtag =~ s/\-/--/g;
 $newtag =~ s/\./-/g;
 
 print "Encoded tag \"$newtag\"\n";
+system "./tools/checktag -l $newtag_ ./save.log";
 ask "\nContinue ? ";
-
-./tools/checktag -l $tag ./save.log
 
 print "Now I will launch the editor in order\n",
     "    to enter a log message for this release...\n",
