@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.57 2003/09/08 10:20:39 mstorti Exp $ 
+# $Id: Makefile,v 1.58 2003/09/09 11:45:11 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -82,7 +82,9 @@ dx:
 dx_make_command:
 #	octave -qH comp_step.m
 #	echo $$dx_step >> comp_server.fifo 
-	sendstep.pl $$dx_step comp_server.fifo comp_server.fifo2
+	if [ -f cubcav.tiff ] ; then rm cubcav.tiff ; fi ;	\
+	sendstep.pl $$dx_step					\
+		comp_server.fifo comp_server.fifo2
 
 yuv_compress:
 	yuv=YUV/$(CASE_NAME).$$dx_step.yuv ;			\

@@ -7,7 +7,7 @@ else
   steps_dir = "./STEPS";
   pf_start_step = 0;
 endif
-refine = 5;
+refine = 15;
 case_name = "cubcav";
 
 cache.file_pattern = [steps_dir "/cubcav.state_%d.tmp"];
@@ -18,12 +18,15 @@ fifo2 = "comp_server.fifo2";
 
 while 1
 
+  start=time;
+  printf("Waiting for step number at %s\n",fifo);
+  tic;
   fid = fopen(fifo,"r");
   if fid==-1
     printf("couldn't open fifo");
     return;
   endif
-  printf("Waiting for step number at %s\n",fifo);
+  printf("Waiting %g\n",toc);
   [dx_step,count] = fscanf(fid,"%d");
   fclose(fid);
   if count!=1; 
@@ -46,10 +49,23 @@ while 1
     printf("Using u(%d)\n",sss);
   endif
 
-  u = pf_smooth(u,1,4);
+  tic;
+  u = pf_smooth(u,1,1);
+  printf("Smoothing %g\n",toc);
 
-  asave(["./" case_name ".dx-state.tmp"],u);
+  tic;
 
+  state_file = ["./" case_name ".dx-state.tmp"];
+  if 0
+    asave(state.tmp,u);
+  else
+    fid = fopen(state_file,"w");
+    uu = u';
+    [m,n] = size(uu);
+    count = fwrite (fid,uu,"double");
+    fclose(fid);
+  endif;  
+  printf("Saving %g\n",toc);
   
   fid = fopen(fifo2,"w");
   if fid==-1
@@ -58,6 +74,7 @@ while 1
   endif
   fprintf(fid,"OK\n");
   fclose(fid);
+  printf("Total %g\n",time-start);
 
 endwhile
 

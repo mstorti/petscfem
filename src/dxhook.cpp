@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.49 2003/09/07 17:16:39 mstorti Exp $
+//$Id: dxhook.cpp,v 1.50 2003/09/09 11:45:08 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -307,15 +307,21 @@ int dx_hook::build_state_from_file(double *state_p) {
       for (int j=0; j<(record+1)*nnod*ndof; j++) state_p[j] = 0.;
     } else {
       int base = record*nnod*ndof;
-      for (int j=0; j<(record+1)*nnod*ndof; j++) {
-	double val=0.;
-	int nread;
-	nread = fscanf(fid,"%lf",&val);
-	if(nread!=1) {
-	  fclose(fid);
-	  throw GenericError("Can't read line.");
+      if (0) {
+	// Formatted read
+	for (int j=0; j<(record+1)*nnod*ndof; j++) {
+	  double val=0.;
+	  int nread;
+	  nread = fscanf(fid,"%lf",&val);
+	  if(nread!=1) {
+	    fclose(fid);
+	    throw GenericError("Can't read line.");
+	  }
+	  if (j>base) state_p[j-base] = val;
 	}
-	if (j>base) state_p[j-base] = val;
+      } else {
+	int count = fread (state_p,sizeof(double),nnod*ndof,fid);
+	assert(count==nnod*ndof);
       }
       fclose(fid);
     }
