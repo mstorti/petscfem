@@ -2203,3 +2203,6 @@ tag: beta-3.14.pl48 on Fri, 24 Jan 2003 16:48:58 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.14.pl49 on Fri, 24 Jan 2003 17:04:22 -0300 by mstorti in minerva.arcride.edu.ar
      > Trying to move gatherer to all modules.
+----------
+tag: beta-3.14.pl50 on Sat, 25 Jan 2003 09:41:18 -0300 by mstorti in spider
+     > Gatherer is now in src/ (works for both `advdif' and `ns'). 
