@@ -3,7 +3,9 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Why not to do a 
+* Should State have a TimeData instead of a Time
+* Why not to do a single loop over node_list in the print_some()
+       routines?  
 * Check no memory leaks in constructing and destruting filters.
 * sqcav and burgers test
 * ffswfm2t test

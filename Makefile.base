@@ -90,6 +90,8 @@ local_clean::
 	-@rm -f *~ *.o $(OBJS) $(PROG).bin octave-core *.cppi \
 		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
 
+local_dist_clean::
+
 #w cleans directory
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null

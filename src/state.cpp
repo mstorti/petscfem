@@ -65,3 +65,25 @@ State & State::set_cnst(double a) {
   int ierr = VecSet(&a,*vec);
   return *this;
 }
+
+const State & State::print() const {
+
+  printf("time: %f\n",double(t()));
+  int ierr = VecView(v(),VIEWER_STDOUT_SELF);
+  return *this;
+}
+
+const State & State::print(int n) const {
+
+  printf("time: %f\n",double(t()));
+  double *a;
+  int lsize;
+  int ierr = VecGetLocalSize(v(),&lsize);
+  int nn = (n<=0 ||  n>lsize ? lsize : n);
+  ierr = VecGetArray(v(),&a);
+  assert(ierr==0);
+  for (int j=0; j<nn; j++) {
+    printf("%d %f\n",j,a[j]);
+  }
+  return *this;
+}

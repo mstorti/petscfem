@@ -1,5 +1,5 @@
 // -*-mode: c++ -*-
-/* $Id: sttfilter.h,v 1.3 2001/01/22 00:51:47 mstorti Exp $ */
+/* $Id: sttfilter.h,v 1.4 2001/01/22 12:58:24 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -52,6 +52,8 @@ public:
   const Time & t() const {return time;}
   const State & print_some(const char *filename,Dofmap *dofmap,
 		     set<int> & node_list) const;
+  const State & print() const;
+  const State & print(int n) const;
 };
 
 class Filter {

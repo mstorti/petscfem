@@ -3,6 +3,8 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* Use a more consistent system for reporting errors and
+       aborting. Maybe using more advanced C++ exception handling.
 * Adaptive refinement
 * Filter functions for getting averages in LES
 * Absorbing b.c.'s for NS and in general

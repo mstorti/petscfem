@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.9 2001/01/22 00:51:36 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.10 2001/01/22 12:58:17 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -350,8 +350,8 @@ int main(int argc,char **args) {
     ff.update();
     PetscPrintf(PETSC_COMM_WORLD,"t = %f,  a = %f\n",t,a);
     //print_some("filter.some",ff.state(),dofmap,node_list);
-    print_some("filter.some",sx,dofmap,node_list);
-    print_some("filter.some",ff.state(),dofmap,node_list);
+    print_some("filter.some.tmp",sx,dofmap,node_list);
+    print_some("filter.some.tmp",ff.state(),dofmap,node_list);
   }
   PetscFinalize();
   exit(0);
@@ -631,7 +631,7 @@ int main(int argc,char **args) {
     filter.update();
     if (print_some_file!="" && tstep % nsome == 0) {
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
-      filter.print_some("filter.some",dofmap,node_list);
+      filter.print_some("filter.some.tmp",dofmap,node_list);
     }
 
   }

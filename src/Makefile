@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2001/01/19 12:46:32 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2001/01/22 12:58:24 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -52,14 +52,12 @@ fm2eperl.cpp: fmat2ep.cpp prep.pl
 	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
 
 # This doesn't compile with -O2
-measperf.o: measperf.cpp
-	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
-
-local_dist_clean:
-	-rm -f *.o &> /dev/null
+measperf.o: CCPPFLAGS += -O1
+#measperf.o: measperf.cpp
+#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 local_clean:: local_dist_clean
-	-rm libpetscfem.a &> /dev/null
+	-rm -f version.cpp libpetscfem.a # &> /dev/null
 
 tryme: tryme.o seval.o spline.o
 	g++ -o tryme tryme.o seval.o spline.o
