@@ -1862,3 +1862,6 @@ tag: beta-3.09.pl4 on Sat,  7 Dec 2002 19:00:51 -0300 by mstorti in spider
 ----------
 tag: beta-3.09.pl5 on Wed, 11 Dec 2002 15:48:12 -0300 by mstorti in minerva.arcride.edu.ar
      > Working on `mesh_move'
+----------
+tag: beta-3.09.pl6 on Wed, 11 Dec 2002 18:50:13 -0300 by mstorti in spider
+     > Runs OK the `step.epl' problem with the old `mesh_move' version. 
