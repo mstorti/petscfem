@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.126 2003/03/13 18:37:27 mstorti Exp $
+//$Id: ns.cpp,v 1.127 2003/03/13 19:52:12 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -27,6 +27,9 @@ extern int MY_RANK,SIZE;
     @param name (input) the name of the hook. 
     @return a pointer to eh created hook. */ 
 Hook *ns_hook_factory(const char *name);
+
+vector<double> data_pts;
+vector<ElemToPtr> elemset_pointer;
 
 //debug:=
 int TSTEP=0;
@@ -340,16 +343,12 @@ int main(int argc,char **args) {
   int update_jacobian_step=0;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Build octree for nearest neighbor calculation
-  vector<double> data_pts;
-  vector<ElemToPtr> elemset_pointer;
   WallData *wall_data=NULL;
   if (LES && A_van_Driest>0.) {
 #ifdef USE_ANN
     argl.clear();
     argl.arg_add(&data_pts,USER_DATA);
     argl.arg_add(&elemset_pointer,USER_DATA);
-    Elemset *elemset=NULL;
-    argl.arg_add(elemset,USER_DATA);
     ierr = assemble(mesh,argl,dofmap,"build_nneighbor_tree",&time); CHKERRQ(ierr); 
     PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] data_pts.size()= %d\n",
 			    MY_RANK,data_pts.size());

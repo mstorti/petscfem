@@ -10,8 +10,13 @@ $Re_laminar=100;		# Reynolds number
 $u_max=1;			# Average velocity
 $Co=1;				# Courant number to compute Dt
 
+if (0) {
 $nz=20;				# Number of elements in z
 $nx=30;				# Number of elements in x
+} else {
+$nz=5;				# Number of elements in z
+$nx=10;				# Number of elements in x
+}
 
 $u_av = (2/3)*$u_max;		# Average velocity
 $nu=$u_av * $L / $Re_laminar;	# Kinematic viscosity 

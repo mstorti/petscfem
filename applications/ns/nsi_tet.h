@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.45 2003/03/07 21:23:52 mstorti Exp $
+//$Id: nsi_tet.h,v 1.46 2003/03/13 19:52:12 mstorti Exp $
 #ifndef PETSCFEM_NSI_TET_H  
 #define PETSCFEM_NSI_TET_H
 
@@ -75,7 +75,10 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class wall : public Elemset { 
+private:
+  int ndim;
 public: 
+  void initialize();
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
 };

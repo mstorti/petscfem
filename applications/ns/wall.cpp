@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.17 2003/03/13 18:37:27 mstorti Exp $
+//$Id: wall.cpp,v 1.18 2003/03/13 19:52:12 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -26,6 +26,10 @@ extern int TSTEP; //debug:=
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
   
+
+extern vector<double> data_pts;
+extern vector<ElemToPtr> elemset_pointer;
+
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -60,7 +64,20 @@ int wall::ask(const char *jobinfo,int &skip_elemset) {
   }
 }
 
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void wall::initialize() {
+  int ierr;
+  ierr = get_int(thash,"ndim",&ndim); 
+  assert(!ierr);
+  // convert pointers
+  data_pts.resize(ndim*nelem); // Not implemented yet
+				// Number of wall elemsets >1
+  elemset_pointer.push_back(ElemToPtr(nelem,this));
+  assert(elemset_pointer.size()==1); // Not implemented yet
+				// Number of wall elemsets >1
+				// see above!!
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "" 
@@ -99,9 +116,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ierr=0;
 
-  int npg,ndim;
+  int npg;
   ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
-  ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
   double i_nel = 1./double(nel);
 
   int ndimel = ndim-1;
@@ -111,24 +127,6 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   // Get arguments from arg_list
   double *locst,*locst2,*retval,*retvalmat;
-#if 0
-  // This is wrong!! Memory leak!!
-  vector<double> *data_pts = new vector<double>;
-  vector<ElemToPtr> *elemset_pointer = new vector<ElemToPtr>;
-#else
-  vector<double> *data_pts=NULL;
-  vector<ElemToPtr> *elemset_pointer=NULL;
-#endif
-
-  Elemset *elemset;
-  if (build_nneighbor_tree) {
-    // convert pointers
-    data_pts = (vector<double> *)arg_data_v[0].user_data;
-    data_pts->resize(ndim*nelem); // Not implemented yet
-				// Number of wall elemsets >1
-    elemset_pointer = (vector<ElemToPtr> *)arg_data_v[1].user_data;
-    elemset = (Elemset *)arg_data_v[2].user_data;
-  }
 
   //o The $y^+$ coordinate of the computational boundary
   TGETOPTDEF(thash,double,y_wall_plus,25.);
@@ -241,7 +239,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
       xc.sum(xloc,-1,1).scale(i_nel);
       double *xc_ = xc.storage_begin();
-      for (int j=0; j<ndim; j++) (*data_pts)[k*ndim+j] = xc_[j];
+      for (int j=0; j<ndim; j++) data_pts[k*ndim+j] = xc_[j];
       continue;
 #else
       assert(0);
@@ -291,13 +289,6 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
 
-  }
-  if (build_nneighbor_tree && elemset!=this) {
-    elemset_pointer->push_back(ElemToPtr(nelem,this));
-    assert(elemset_pointer->size()==1); // Not implemented yet
-				       // Number of wall elemsets >1
-				       // see above!!
-    elemset = this;
   }
       
   FastMat2::void_cache();
