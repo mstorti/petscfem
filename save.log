@@ -2110,3 +2110,6 @@ tag: beta-3.14.pl18 on Fri, 10 Jan 2003 09:28:08 -0300 by mstorti in minerva.arc
 tag: beta-3.14.pl19 on Fri, 10 Jan 2003 09:39:06 -0300 by mstorti in minerva.arcride.edu.ar
      > Working on adding `line2quad' to embedded gatherer. 
      > Working on viscous/inviscid coupling.
+----------
+tag: beta-3.14.pl20 on Fri, 10 Jan 2003 10:39:33 -0300 by mstorti in minerva.arcride.edu.ar
+     > Added FastNat2 cross product for length 2 vectors. 
