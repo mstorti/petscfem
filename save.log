@@ -896,3 +896,6 @@ tag: beta-2.69 on Thu Jan 17 12:25:17 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.69.pl1 on Thu Jan 17 21:34:15 ARST 2002 by mstorti in spider
      > Added Enthalpy to the flux function but it is still a identity relationship.
+----------
+tag: beta-2.69.pl2 on Sat Feb  2 12:02:40 ARST 2002 by mstorti in spider
+     > Adding channel-shape objects. Resuming work after vacation.
