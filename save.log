@@ -294,3 +294,7 @@ tag: beta-1.49 on Tue Mar 27 20:49:43 ART 2001, by mstorti in minerva.arcride.ed
      > Fixed a bug in reactive jacobians for the linear advection diffusion
      > case. The term is '-cu' in the rhs so that c_jac->comp_G_source
      > must return the 'cu' and we scaled this by -1. 
+----------
+tag: beta-1.50 on Wed Mar 28 12:34:47 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added tests for the new flux functions
