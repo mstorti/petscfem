@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.102 2002/09/20 22:51:30 mstorti Exp $
+//$Id: ns.cpp,v 1.103 2002/09/23 17:11:27 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -98,15 +98,8 @@ int main(int argc,char **args) {
 
   GLOBAL_OPTIONS = mesh->global_options;
 
-  // File to send forces and moments to "PFM"
-  TGETOPTDEF_S(GLOBAL_OPTIONS,string,petscfem2pfm_file,);
-  TGETOPTDEF(GLOBAL_OPTIONS,int,petscfem2pfm_verbose,0);
-  FILE *petscfem2pfm=NULL;
-  if (petscfem2pfm_file != "" && !MY_RANK) {
-    petscfem2pfm = fopen(petscfem2pfm_file.c_str(),"w");
-    assert(petscfem2pfm);
-    setvbuf(petscfem2pfm,NULL,_IOLBF,0);
-  }    
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap);
 
 #if 0
   //o If set, redirect output to this file.
@@ -223,6 +216,8 @@ int main(int argc,char **args) {
   // \verb+alpha=0.5+: Crank-Nicholson. 
   GETOPTDEF(double,alpha,1.); 
   glob_param.alpha=alpha;
+
+  vector<double> gather_values;
   //o Number of ``gathered'' quantities.
   GETOPTDEF(int,ngather,0);
   //o Print values in this file 
@@ -378,6 +373,7 @@ int main(int argc,char **args) {
     time_old.set(time.time());
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
+    hook_list.time_step_pre(time_star.time(),tstep);
     PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g %s\n",
 		tstep,time.time(),(steady ? " (steady) " : ""));
     // Jacobian update logic
@@ -762,7 +758,7 @@ int main(int argc,char **args) {
 
     // Compute gathered quantities, for instance total force on walls
     if (ngather>0) {
-      vector<double> gather_values(ngather);
+      gather_values.resize(ngather);
       arglf.clear();
       arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
@@ -782,21 +778,6 @@ int main(int argc,char **args) {
 	  fprintf(gather_file_f,"\n");
 	  fclose(gather_file_f);
 	}
-	if (petscfem2pfm && !MY_RANK) {
-	  assert(ngather>=6);
-	  if (petscfem2pfm_verbose) {
-	    printf("sending to PFM: time %f, forces %f %f %f\n",
-		   time.time(),gather_values[0],gather_values[1],gather_values[2]);
-	    printf("sending to PFM: moments %f %f %f\n",
-		   gather_values[3],gather_values[4],gather_values[5]);
-	  }
-	  fprintf(petscfem2pfm,"time %e\n",time.time());
-	  fprintf(petscfem2pfm,"forces %e %e %e\n",
-		  gather_values[0],gather_values[1],gather_values[2]);
-	  fprintf(petscfem2pfm,"moments %e %e %e\n",
-		  gather_values[3],gather_values[4],gather_values[5]);
-	  fflush(petscfem2pfm);
-	}
       }
     }
 
@@ -806,6 +787,7 @@ int main(int argc,char **args) {
       filter.print_some("filter.some.tmp",dofmap,node_list);
     }
 
+    hook_list.time_step_post(time_star.time(),tstep,gather_values);
 
   }
 
