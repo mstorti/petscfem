@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.28 2003/07/03 18:34:30 mstorti Exp $
+//$Id: gpdata.cpp,v 1.29 2003/07/03 19:09:13 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -132,7 +132,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     master_volume = 1;		// that is 0.5(tri)*2(1d-segment)
     assert(ndimel==3);
     assert(nel==6);
-    assert(npg==1 || npg==6); // other cases may be considered
+    assert(npg==1 || npg==6 || npg==8); // other cases may be considered
     int npg_seg, npg_tri;
     if (npg==1) { npg_seg=1; npg_tri=1; }
     else if (npg==6) { npg_seg=2; npg_tri=3; }
