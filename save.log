@@ -1823,6 +1823,15 @@ tag: beta-3.08.pl17 on Mon,  2 Dec 2002 16:05:57 -0300 by mstorti in node1.beowu
 tag: beta-3.08.pl18 on Mon,  2 Dec 2002 16:09:42 -0300 by mstorti in node1.beowulf.gtm
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
 ----------
+tag: beta-3.08-branch.pl1 on Fri, 13 Jun 2003 13:14:13 -0300 by mstorti in node1.beowulf.gtm
+     > Fixed a bug in passing AXIAL_ACCELERATION from `nsi_tet_keps_rot' to
+     > `ns_sup_res'.
+----------
+tag: beta-3.08-branch.pl2 on Mon, 16 Jun 2003 23:40:48 -0300 by mstorti in spider
+     > Added lm_initialize to the `LagrangeMult' class. This fixes a bug in
+     > the ROCKET/ident problem, that AXIAL_ACCELERATION is not initizalized
+     > when the ns_sup_res elemenet doesn't contain elements in some processor.
+----------
 tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300 by mstorti in node1.beowulf.gtm
      > -- STABLE VERSION -- 
      > Visualization with DX
