@@ -1,0 +1,58 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+$case="advec";                   # case name
+$N = 10;
+$M = 10;
+$delta = 0.01;
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+#__END_TRANSCRIPT__
+octave_export_vars(">data.m.tmp",qw(N M delta));
+system "octave -qH advec.m";
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+chunk_size 4
+save_file "save.state.tmp"
+save_file_pattern "outvector.out.tmp"
+steady
+nstep 1
+solver "iisd"
+iisd_subpart 1
+nnwt 1
+local_time_step 0
+consistent_supg_matrix 1
+auto_time_step 0
+alpha 1.
+weak_form 0
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  1
+data advec.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset advec 3
+geometry triangle
+npg 3
+u 1 0
+diff 1.e-5
+data advec.con.tmp
+__END_HASH__
+
+end_elemsets
+
+#===========================================================
+fixa
+__INCLUDE__ "advec.fixa.tmp"
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
