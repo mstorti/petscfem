@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2001/04/03 01:21:36 mstorti Exp $ 
+# $Id: Makefile,v 1.18 2001/04/03 15:32:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
 	constraint_bug fstack sector triangle advdif texthash log_vars \
-	newff
+	newff burgers
 
 run: sqcav5
 
@@ -53,7 +53,7 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff
+	advdif texthash log_vars newff burgers
 runtests_p: texthash log_vars newff
 
 #s Specific tests
@@ -307,4 +307,11 @@ testfm2c.bin: testfm2c.o libpetscfem
 #w New flux functions
 newff:
 	$(MAKE) -C newff tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Burgers with new flux functions
+burgers:
+	$(MAKE) -C burgers tests
+
+
 #s
