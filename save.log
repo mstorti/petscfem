@@ -3951,3 +3951,7 @@ tag: beta-3.41.32 on Mon, 07 Feb 2005 21:36:02 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.33 on Mon, 07 Feb 2005 22:03:28 -0300 by mstorti in spider
      > Working moving oblique shock example. 
+----------
+tag: beta-3.41.34 on Mon, 07 Feb 2005 22:49:28 -0300 by mstorti in spider
+     > Working moving oblique shock example.
+     > Will add absorbing b.c.'s. 
