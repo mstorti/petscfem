@@ -72,4 +72,9 @@ NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
 run_nettest: nettest.bin
 	$(MPIRUN) -np $(NP) -nolocal -machinefile ./machi.dat $<
 
+#w Conversion form Abekas YUV format (used by DX) to standard  YUV
+dxyuv: CFLAGS = -O3 -funroll-loops
+dxyuv: dxyuv.cpp
+	$(CXX) $(CFLAGS) $< -o $@
+
 #s
