@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.18 2001/11/08 21:30:56 mstorti Exp $
+// $Id: sp.cpp,v 1.19 2001/11/09 00:11:04 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -35,7 +35,21 @@ int main(int argc, char **args) {
   GenVec &res = res_v;
   FullVec uu_f;
   GenVec &uu = uu_f;
-  PETScMat a,b,c;
+
+#ifdef MAT_TYPE
+#define MAT_TYPE_T MAT_TYPE
+#else
+#define MAT_TYPE_T "PETSc"
+#endif
+  Sparse::Mat *a_p,*b_p,*c_p;
+  a_p = Sparse::Mat::dispatch(MAT_TYPE_T);
+  b_p = Sparse::Mat::dispatch(MAT_TYPE_T);
+  c_p = Sparse::Mat::dispatch(MAT_TYPE_T);
+
+  Sparse::Mat &a = *a_p;
+  Sparse::Mat &b = *b_p;
+  Sparse::Mat &c = *c_p;
+
   Indx I(14,17),J(8,14,2),K(0,4,2);
   double d1,d2,tol=1e-11,p,err;
 
@@ -198,7 +212,7 @@ int main(int argc, char **args) {
   err = res_v.sum_abs();
   printf("err < tol ? %d, error: %g \n",err<tol,err);
 
-#if 1
+#ifdef CONTINUED_TEST
   N = 500;
   while (1) {
     printf("New matrix...\n");
