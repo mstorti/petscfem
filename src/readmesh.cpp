@@ -139,6 +139,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	node++;
 	for (int kk=0; kk<nu; kk++) {
 	  token = strtok((kk==0 ? line : NULL),bsp);
+	  if (token==NULL) {
+	    PetscPrintf(PETSC_COMM_WORLD,
+			"Error reading coordinates in line:\n\"%s\"\n"
+			"Not enough values in line!!\n",line);
+	    CHKERRQ(1);
+	  }
 	  int nread = sscanf(token,"%lf",row+kk);
 	  if (nread != 1) {
 	    PetscPrintf(PETSC_COMM_WORLD,
