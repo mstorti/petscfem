@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: compdate.cpp,v 1.1 2002/09/17 15:25:02 mstorti Exp $
+//$Id: compdate.cpp,v 1.2 2003/01/18 14:40:28 mstorti Exp $
 #include <cstdio>
 #include <petsc.h>
 
@@ -10,7 +10,7 @@
 void print_petscfem_link_date() {
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-----------------------------------------------------------------\n"
-	      "Navier-Stokes module built on " __DATE__ ", " __TIME__ ", with "
+	      "Advective-Diffusive module built on " __DATE__ ", " __TIME__ ", with "
 #ifdef __GNUC__
 	      "GCC %d.%d.%d\n"
 #else
