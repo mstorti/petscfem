@@ -43,7 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 @top PETSc-FEM Options Reference
 @end ifnottex
 
-PETSc-FEM ia a general purpose, parallel, multi-physics FEM
+PETSc-FEM is a general purpose, parallel, multi-physics FEM
 program for CFD applications based on PETSc. PETSc-FEM comprises both a
 library that allows the user to develop FEM (or FEM-like, i.e.
 non-structured mesh oriented) programs, and a suite of application
@@ -63,6 +63,7 @@ for PETSc-FEM can be downloaded at the home page.
 * Copying::                     
 * NS Options::                  
 * Index::                       
+* Options Index::               
 @end menu
 
 @node Copying, NS Options, Top, Top
@@ -72,40 +73,41 @@ for PETSc-FEM can be downloaded at the home page.
 @node NS Options, Index, Copying, Top
 @chapter Navier Stokes options
 
-@itemize @bullet
-@item
-@cindex debug_compute_prof
+@vtable @code
+@item debug_compute_prof
 int <debug_compute_prof> (Default: 0)
 
 Debug the process of building the matrix profile. 
 [Found in file: "../src/elemset.cpp"]
 
-@item
-@cindex debug_element_partitioning
+@item debug_element_partitioning
 int <debug_element_partitioning> (Default: 0)
 
 Prints element partitioning. 
 [Found in file: "../src/readmesh.cpp"]
 
-@item
-@cindex density
+@item density
 double <density> (Default: 0.)
 
 Density
 [Found in file: "../applications/ns/elast.cpp"]
 
-@item
-@cindex dev_comp_mask
+@item dev_comp_mask
 double <dev_comp_mask> (Default: 1.)
 
 Mask for deviatoric component of stress tensor 
 [Found in file: "../applications/ns/embgath.cpp"]
 
-@end itemize
+@end vtable
 
-@node  Index,  , NS Options, Top
-@chapter Innnn askjas aksjas kas 
+@node  Index, Options Index, NS Options, Top
+@chapter Index
 
 @printindex cp
+
+@node Options Index,  , Index, Top
+@unnumbered Options Index
+     
+@printindex vr
 
 @bye
