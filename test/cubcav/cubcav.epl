@@ -1,9 +1,9 @@
-#$Id: cubcav.epl,v 1.105 2004/01/28 01:19:58 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.106 2004/01/29 00:12:48 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
 # <:prc('dx case subpart_entered NP N subpart nlay surfgath 
-	    use_tetra'):>
+	    use_tetra use_prismatic'):>
 ndim 3
 
 >>if $case ne 'plain'
@@ -103,19 +103,19 @@ nodedata  3 3 4
 data <:=$data_dir:>/cubcav.nod.tmp
 __END_HASH__
 
-elemset nsi_tet_les_fm2 <:=($use_tetra ? 4 : 8):>
+elemset nsi_tet_les_fm2 <:=$nel:>
 name fluid
-geometry <:=($use_tetra ? 'tetra' : 'cartesian3d'):>
-npg <:=($use_tetra ? 4 : 8):>
-data <:=$data_dir:>/cubcav.con<:=($use_tetra ? '-tetra' : ''):>.tmp
+geometry <:=$geom:>
+npg <:=$npg:>
+data <:=$icone:>
 dx 1
 __END_HASH__
 
-elemset field_surf_integrator <:=($use_tetra ? 4 : 8):>
+elemset field_surf_integrator <:=$nel:>
 name integrator
-geometry <:=($use_tetra ? 'tetra' : 'cartesian3d'):>
-npg <:=($use_tetra ? 4 : 8):>
-data <:=$data_dir:>/cubcav.con<:=($use_tetra ? '-tetra' : ''):>.tmp
+geometry <:=$geom:>
+npg <:=$npg:>
+data <:=$icone:>
 surf_fun_type "plane"
 gather_pos 0
 vals_per_plane 1

@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.9 2004/01/28 01:53:47 mstorti Exp $
+# $Id: cubcav.pl,v 1.10 2004/01/29 00:12:48 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -27,8 +27,8 @@ $N = 14 if $case eq 'plain';
 $cs = 0.2*$nelem;		# desired chunk_size
 $chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
 $hratio = 3;
-$use_tetra = 1;
-$use_tetra = 0 if $case eq 'plain';
+$geom = 'tetra';
+$geom = 'cartesian3d' if $case eq 'plain';
 $maxits = 300;
 $tol = 1e-7;
 get_var_env2('subpart',350);
@@ -42,13 +42,25 @@ get_var_env2('nu',1/100.);
 
 if ($srfgath) {
     $N = 4;
-    $use_tetra = 1;
     $hratio = 1;
+    $geom = 'prismatic';
 }
 
+$use_tetra = $use_prismatic = 0;
+$use_prismatic = 1 if $geom eq 'prismatic';
+$use_tetra = 1 if $geom eq 'tetra';
+$npg = ($use_tetra ? 4 : $use_prismatic ? 6 : 8);
+$nel = $npg;
+
+$icone = $data_dir.'/cubcav.con'.
+    ($use_tetra ? '-tetra' 
+     : $use_prismatic ? '-prism' : '').'.tmp';
+
 @vars= qw(CASE U L N Re viscosity 
-    h Co Dt hratio leaky tol use_prismatic use_tetra case_in case_oct);
+    h Co Dt hratio leaky tol use_prismatic use_tetra 
+	  case_in case_oct npg nel icone);
 octave_export_vars(">data.m.tmp",@vars);
 if ($mkmesh) { system "octave -qH mkmesh.m > mkmesh.output.tmp"; }
+
 
 1;

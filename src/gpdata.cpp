@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.37 2004/01/28 01:53:47 mstorti Exp $
+//$Id: gpdata.cpp,v 1.38 2004/01/29 00:12:44 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -210,7 +210,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     nedges_m = 9;
     // edges.resize(2*nedges_m);
     int edges_v[] = {1,2, 2,3, 3,1, // top
-		     4,5, 5,6, 6,1,
+		     4,5, 5,6, 6,4,
 		     1,4, 2,5, 3,6};
     edges.insert(edges.end(),edges_v,edges_v+2*nedges_m);
 

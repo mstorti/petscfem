@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.85 2004/01/28 01:19:58 mstorti Exp $ 
+# $Id: Makefile,v 1.86 2004/01/29 00:12:48 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -135,7 +135,6 @@ block_uploading:
 #w Checks the surf-gatherer class
 srfgath:
 	$(MAKE) case=srfgath mesh
-#	make-depl cubcav.epl cubcav.depl -d case=srfgath -p '>>'
 	-${MPIRUN} $(NL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 #================================================================
