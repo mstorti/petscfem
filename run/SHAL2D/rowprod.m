@@ -7,7 +7,7 @@
 %% columns(A)=columns(B)*columns(C), and rows(A)=rows(x)=rows(y)
 function C= rowprod (A,B,m,n,p)
 
-%%$Id: rowprod.m,v 1.1 2000/12/28 12:54:43 mstorti Exp $
+%%$Id: rowprod.m,v 1.1.1.1 2000/12/28 12:54:43 mstorti Exp $
   
   [nA,mp]=size(A);
   [nB,pn]=size(B);

@@ -2,7 +2,7 @@
 /* Any machine specific stuff goes here */
 /* Add details necessary for your own installation here! */
 
-/* RCS id: $Id: machine.h,v 1.1 2000/12/28 12:54:42 mstorti Exp $ */
+/* RCS id: $Id: machine.h,v 1.1.1.1 2000/12/28 12:54:42 mstorti Exp $ */
 
 /* This is for use with "configure" -- if you are not using configure
 	then use machine.van for the "vanilla" version of machine.h */

@@ -1,4 +1,4 @@
-/* $Id: internal.cpp,v 1.1 2000/12/28 12:54:43 mstorti Exp $ */
+/* $Id: internal.cpp,v 1.1.1.1 2000/12/28 12:54:43 mstorti Exp $ */
  
 #include "fem.h"
 #include "readmesh.h"
