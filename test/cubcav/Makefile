@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.52 2003/08/28 03:06:03 mstorti Exp $ 
+# $Id: Makefile,v 1.53 2003/08/28 15:37:25 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -38,7 +38,7 @@ NP := 1
 MCH :=
 endif
 
-ifneq ($(HOSTNAME),geronimo)
+ifneq ($(HOSTNAME),node1.beowulf.gtm)
 NP := $(shell procsel ./proctable.mono)
 NL :=
 MCH := -machinefile ./machi.dat

@@ -7,6 +7,9 @@ $case = 'laplace' unless $case;
 get_var_env2('job',undef);
 $CASE = $case;
 get_var_env2('N',60);
+$nelem = $N**3.0;
+$cs = 0.1*$nelem;		# desired chunk_size
+$chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
 $hratio = 10;
 $use_tetra = 1;
 $maxits = 150;
@@ -43,9 +46,11 @@ nrec 1
 initial_state "outvector.out"
 save_file_pattern "STEPS/cubcav.state_%d.tmp"
 
-compact_profile_graph_chunk_size <:=$graph_chunk_size:>
-preco_type "jacobi"
-chunk_size 1000
+#  compact_profile_graph_chunk_size 40000
+#  max_partgraph_vertices 5000
+#  max_partgraph_vertices_proc 5000
+chunk_size 40000
+
 #if $iisd_subpart
 solver "iisd"
 # <:pr('iisd_subpart'):>
@@ -89,7 +94,7 @@ print_internal_loop_conv 1
 
 rho 1
 viscosity 1e-4
-Dt 0.01
+Dt 0.1
 steady 0
 temporal_stability_factor 0
 

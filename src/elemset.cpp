@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.71 2003/08/28 03:05:46 mstorti Exp $
+//$Id: elemset.cpp,v 1.72 2003/08/28 15:37:25 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -239,7 +239,8 @@ int assemble(Mesh *mesh,arg_list argl,
   Stat out_of_loop, in_loop, wait;
 
   // Time statistics
-  double total, busy, upload, tot_s,tot_e,bus_s,bus_e,upl,upl_s;
+  double total, compt, upload, tot_s,tot_e,compt_s,bus_e,upl,upl_s,
+    assmbly, assmbly_s;
   hpc2.start();
   hpchrono.start();
 
@@ -358,9 +359,12 @@ int assemble(Mesh *mesh,arg_list argl,
 
   for (int ielset=0; ielset<da_length(elemsetlist); ielset++) {
     
-    busy = 0;
-    upload = 0;
+    // Initialize time accumulators
+    compt = 0.0;
+    upload = 0.0;
+    assmbly = 0.0;
     tot_s = MPI_Wtime();
+
     Elemset *elemset  = *(Elemset **)da_ref(elemsetlist,ielset);
 
     // Skip this elemset if indicated.
@@ -520,11 +524,11 @@ int assemble(Mesh *mesh,arg_list argl,
       
       if (iele_here > -1) {
 	// if (1) {
-	bus_s = MPI_Wtime();
+	compt_s = MPI_Wtime();
 	elemset->assemble(arg_data_v,nodedata,dofmap,
 			  jobinfo,myrank,el_start,el_last,iter_mode,
 			  time_data);
-	busy += MPI_Wtime() - bus_s;
+	compt += MPI_Wtime() - compt_s;
       } else {
 	// printf("[%d] not processing because no elements...\n",myrank);
       }
@@ -621,6 +625,7 @@ int assemble(Mesh *mesh,arg_list argl,
   
       for (j=0; j<narg; j++) {
 	
+	assmbly_s = MPI_Wtime();
 	if (argl[j].options & ASSEMBLY_MATRIX) {
 	  if (report_assembly_time) hpcassmbl.start();
 	  if (argl[j].options & PFMAT) {
@@ -641,6 +646,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	    PetscSynchronizedFlush(PETSC_COMM_WORLD); 
 	  }
 	}
+	assmbly += MPI_Wtime() - assmbly_s;
       }
 
       wait.add(hpchrono.elapsed());
@@ -676,14 +682,21 @@ int assemble(Mesh *mesh,arg_list argl,
     if (report_consumed_time) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Performance report elemset \"%s\" task \"%s\"\n"
-		  "[proc] - busy[sec] - rate[sec/Ke] - upl/dwl[sec] - %%idle\n",
+		  "[proc] - elems - compt[sec](rate[sec/Ke]) - upl/dwl[sec]"
+		  " - assmbly[sec]  - other[sec]\n",
 		  elemset->type,jobinfo);
 #if 1
-      double rate=1000.0*busy/elemset->nelem_here;
+      double rate=1000.0*compt/elemset->nelem_here;
       total = MPI_Wtime() - tot_s;
+      double other = total-(compt+upload+assmbly);
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			      "[proc %d]   %10.3g   %10.3g   %10.3g   %5.1f\n",
-			      myrank,busy,rate,upload,100.0*(1.0-busy/total));
+			      "[proc %d]  %7d  %7.2g/%3.0f%%(%7.2g)  "
+			      "%7.2g/%3.0f%%  %7.2g/%3.0f%%  %7.2g/%3.0f%%\n",
+			      myrank,elemset->nelem_here,
+			      compt,100.0*compt/total,rate,
+			      upload,100.0*upload/total,
+			      assmbly,100.0*assmbly/total,
+			      other,100.0*other/total);
 #else
       double elapsed;
       elapsed=hpc3.elapsed();
