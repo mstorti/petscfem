@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.8 2003/03/25 21:23:19 mstorti Exp $
+// $Id: util3.cpp,v 1.9 2003/09/11 13:39:09 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
@@ -153,4 +153,11 @@ void DXSplit::dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes) {
   dx_type = se.type;
   subnel = se.subnel;
   nodes = se.indices;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void petscfem_print_date(void) {
+  time_t t = time(NULL);
+  printf("Hi there. Today is %sHave a nice run...      The PETSc-FEm team."
+	 "\n---------------\n",ctime(&t));
 }
