@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.12 2002/07/02 00:31:49 mstorti Exp $
+//$Id: tempfun.cpp,v 1.13 2002/07/02 02:33:21 mstorti Exp $
 
 #include <math.h>
 
@@ -607,19 +607,20 @@ public:
     thash->print();
   }
   void init(TextHashTable *thash_) {
+    thash = thash_;
     int ierr;
     //o The starting time
-    TGETOPTDEF(thash,double,T0,0.);
+    TGETOPTDEF_ND(thash,double,T0,0.);
     //o The duration of the impulse
-    TGETOPTDEF(thash,double,T,1.);
+    TGETOPTDEF_ND(thash,double,T,1.);
     assert(T>0.);
     //o amplitud of impulse
-    TGETOPTDEF(thash,double,A,1.);
+    TGETOPTDEF_ND(thash,double,A,1.);
     //o exponent of function
-    TGETOPTDEF(thash,double,expo,2.);
+    TGETOPTDEF_ND(thash,double,expo,2.);
     assert(expo>=0.);
     //o base value
-    TGETOPTDEF(thash,double,base,0.);
+    TGETOPTDEF_ND(thash,double,base,0.);
   }
   double eval(const TimeData *time_data) {
     double tt = double(* (const Time *) time_data);
