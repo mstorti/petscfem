@@ -10,7 +10,7 @@ $axisymm = 1;			# do an axisymmetric calculation with
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 $hot_outlet = 1;
 $cold_outlet = 1;
-$small_test = 1;
+$small_test = 0;
 
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = ($small_test ? 
@@ -70,7 +70,7 @@ $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 ## $p_c = 1.2e5;			# [N/m2] outlet cold pressure
 ## $p_c = 1.33e5;			# [N/m2] outlet cold pressure
 ## $p_c = 1.3e5;			# [N/m2] outlet cold pressure
-$p_c = 1.1e5;			# [N/m2] outlet cold pressure
+$p_c = 1.15e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
 $p_h = 1.38e5;			# [N/m2] outlet cold pressure
@@ -108,8 +108,8 @@ global_options
 nstep 1000
 alpha 1.
 
-initial_state "vtube.ini.tmp"
-# initial_state "vtube.state.tmp"
+# initial_state "vtube.ini.tmp"
+initial_state "vtube.state.tmp"
 # initial_state "vtube.hot_only.tmp"
 nsave 1
 save_file "vtube.state.tmp"
@@ -123,7 +123,7 @@ nfile 100000000
 solver "iisd"
 preco_type "jacobi"
 
-maxits 200
+maxits 100
 iisd_subpart_auto 2000
 
 # file containing the weight (speed) of processors
