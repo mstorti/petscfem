@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2004/02/19 22:44:22 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2004/02/24 22:27:26 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -40,3 +40,4 @@ memtest: memtest.cpp
 	g++ -O2 -o $@ $<
 #	echo node2 > machi.dat
 #	-$(MPIRUN) -machinefile ./machi.dat -np 1 -nolocal memtest
+
