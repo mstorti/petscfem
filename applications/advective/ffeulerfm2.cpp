@@ -211,6 +211,7 @@ int flux_fun_eulerfm2(FLUX_FUN_ARGS_FM2) {
   if (options & COMP_SOURCE) {
     G_source.set(0.);
   }
+  return 0;
  
 #if 0 // fixme:= falta convertir
   if (options & COMP_EIGENV) {
