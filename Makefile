@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.51 2003/04/17 10:48:48 mstorti Exp $
+#$Id: Makefile,v 1.52 2003/07/08 20:30:19 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -31,6 +31,7 @@ all: sw doc pflib $(APPS)
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
 local_sw:: sync_version depend tags 
+	chmod 755 tools/eperl tools/eperl_min
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C doc readme
 # make scripts executable
