@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.9 2003/02/07 14:32:08 mstorti Exp $
+// $Id: epimport.cpp,v 1.10 2003/02/07 14:41:31 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -386,9 +386,16 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[4],nelem)) goto error;
       ierr = build_dx_array_int(clnt,nel,nelem,array);
       if(ierr!=OK) return ierr;
+#if 1
+      char * dx_type_s = strdup(dx_type.c_str());
+      if(!dx_type_s) return ierr;
       array = (Array)
-	DXSetStringAttribute((Object)array,
-			     "element type",(char *)dx_type.c_str()); 
+	DXSetStringAttribute((Object)array,"element type",dx_type_s); 
+#else
+      array = (Array)
+ 	DXSetStringAttribute((Object)array,
+ 			     "element type",(char *)dx_type.c_str()); 
+#endif
       if (!array) goto error;
       ierr = dx_objects_table
 	.load_new(name,new Elemset(nel,nelem,dx_type,array));
@@ -425,10 +432,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       field = DXSetComponentValue(field,"data",(Object)data); 
       if (!field) goto error;
       DXMessage("trace 5, data %p",data);
-#if 0
       field = DXEndField(field); if (!field) goto error;
       DXMessage("trace 6");
-#endif
 
       // Load new field in table
       ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));
