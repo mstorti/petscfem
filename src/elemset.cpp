@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.74 2003/08/31 02:19:20 mstorti Exp $
+//$Id: elemset.cpp,v 1.75 2003/08/31 12:14:55 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -108,15 +108,12 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
   }
 
   double *locst = argd.locst;
-  int nen = nel*ndof;
   iele_here=-1;
   for (iele=el_start; iele<=el_last; iele++) {
 
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
 
-#if 0
-    // Old slow version
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(iele,kloc);
       for (kdof=1; kdof<=ndof; kdof++) {
@@ -126,16 +123,6 @@ int Elemset::download_vector(int nel,int ndof,Dofmap *dofmap,
 	// kdof,LOCST(iele,kloc,kdof-1));
       }
     }
-#else
-    // Fast new version
-    int *nodep = icone+iele*nel;
-    int *nodep_end = nodep + nel;
-    double *w = locst + iele_here * nen;
-    while (nodep < nodep_end) 
-      for (kdof=1; kdof<=ndof; kdof++) 
-	dofmap->get_nodal_value(*nodep++,kdof,argd.sstate,
-				argd.ghost_vals,time_d,*w++);
-#endif
   }
   return 0;
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.2 2003/08/31 02:19:20 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.3 2003/08/31 12:14:55 mstorti Exp $
 
 #include <cassert>
 
@@ -87,7 +87,7 @@ void Dofmap::freeze() {
 	
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 	       
 void Dofmap::get_row(int node,int kdof,int &ndof,
-		     const int **dof, const double**coef) const {
+		     const int **dof, const double**coef) {
   int *jndx = idmap2 + edof(node,kdof)-1;
   int indx = *jndx;
   if (indx<=neqtot) {
