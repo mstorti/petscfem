@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.18.6.1 2004/05/21 23:06:41 mstorti Exp $
+//$Id: bubbly.cpp,v 1.18.6.2 2004/05/22 02:48:24 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -354,7 +354,7 @@ void bubbly_ff::compute_tau_beta() {
 
   //    static FastMat2 svec,tmp9;
 
-#define SHV(pp) pp.print(#pp ": ")
+#define SHV2(pp) pp.print(#pp ": ")
 
   int comp_kep_prof  = !strcmp(jobinfo_fields,"kep");
 
@@ -385,7 +385,7 @@ void bubbly_ff::compute_tau_beta() {
 
 //  compute_beta_pmm();
 
-  SHV(U);
+  SHV2(U);
 
   tmp_beta_40.set(Cp);
   tmp_beta_40.setel(alpha_l/square(cc),1,1);
@@ -394,14 +394,14 @@ void bubbly_ff::compute_tau_beta() {
   tmp_beta_40.setel(1.,k_indx,k_indx);
   tmp_beta_40.setel(1.,e_indx,e_indx);
   }
-  SHV(tmp_beta_40);
+  SHV2(tmp_beta_40);
   Cpi.inv(tmp_beta_40);
-  SHV(Cpi);
+  SHV2(Cpi);
 
   Tau_beta.set(0.);
   for (int k=1; k<=ndim; k++) {
     Ajac.ir(1,k);
-    SHV(Ajac);
+    SHV2(Ajac);
     tmp_beta_41.prod(Cpi,Ajac,1,-1,-1,2);
     tmp_beta_42.prod(tmp_beta_41,tmp_beta_41,1,-1,-1,2);
     Tau_beta.add(tmp_beta_42);
@@ -413,18 +413,18 @@ void bubbly_ff::compute_tau_beta() {
     Tau_beta.setel(1.,e_indx,e_indx);
   }
 
-  SHV(Tau_beta);
+  SHV2(Tau_beta);
 
   my_fun.apply_ns(Tau_beta,fTau_beta);
 
-  SHV(fTau_beta);
+  SHV2(fTau_beta);
 
   tmp_beta_4.inv(fTau_beta).scale(0.5*h_supg);
 
 
   Tau_beta.prod(tmp_beta_4,Cpi,1,-1,-1,2);
 
-  SHV(Tau_beta);
+  SHV2(Tau_beta);
 
   /*
   PetscPrintf(PETSC_COMM_WORLD," ENDING \n");
@@ -432,7 +432,7 @@ void bubbly_ff::compute_tau_beta() {
   exit(0);
   */
 
-#undef SHV
+#undef SHV2
 
 }
 
@@ -579,9 +579,9 @@ void bubbly_ff::compute_tau(int ijob) {
     }
 
 
-    //SHV(h_pspg);
-    //SHV(h_supg);
-    //SHV(velmod);
+    //SHV2(h_pspg);
+    //SHV2(h_supg);
+    //SHV2(velmod);
 
     double Peclet = velmod * h_supg / (2. * visco_supg);
     //    double rec_Dt = advdf_e->rec_Dt();

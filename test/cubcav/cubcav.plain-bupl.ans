@@ -1,6 +1,6 @@
 Cubcav/Block uploading error OK\? > 1 
 Cubcav/error wrt.reference solution OK\? > 1
-__SWITCH_FILE__ cubcav.out.plain_bpl0.tmp
+__SWITCH_FILE__ cubcav.out.plain_bupl0.tmp
 ^\s*block_uploading.*0\s*$
-__SWITCH_FILE__ cubcav.out.plain_bpl1.tmp
+__SWITCH_FILE__ cubcav.out.plain_bupl1.tmp
 ^\s*block_uploading.*1\s*$

@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* seems that '__SWITCH_FILE__' directives in `myexpect.pl' doesn't
+	 give an error if the file doesn't exist. 
 * make `epsilon' relative in `srfgath' 
 * `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
 * `advdif/id' elemset does some `proj' task or something. We should write

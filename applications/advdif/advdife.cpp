@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.85.4.1 2004/05/21 23:46:28 mstorti Exp $
+//$Id: advdife.cpp,v 1.85.4.2 2004/05/22 02:48:24 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -14,6 +14,7 @@ extern int MY_RANK,SIZE;
 #include <src/getprop.h>
 #include <src/util2.h>
 #include <src/fastmat2.h>
+#include <src/generror.h>
 
 #include "nwadvdif.h"
 
@@ -96,7 +97,7 @@ void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
 }
 
 NewAdvDifFF::NewAdvDifFF(const NewElemset *elemset_)
-    : elemset(elemset_), enthalpy_fun(NULL) {
+    : elemset(elemset_), enthalpy_fun(NULL), new_adv_dif_elemset(NULL) {
   // This is ugly!!
   // assert(new_adv_dif_elemset);
 }
@@ -108,7 +109,41 @@ void NewAdvDif::
 before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
 		Dofmap *dofmap, const char *jobinfo,int myrank,
 		int el_start,int el_last,int iter_mode,
-		const TimeData *time_data) { }
+		const TimeData *time_data) {
+  int ierr;
+  //o Compute finite difference jacobian of fluxes for checking the
+  //  analytical one. For each element the following norms are printed:
+  //  analytical jacobian #|A_a|# , numerical jacobian #|A_n|# and the
+  //  difference #|A_a-A_n|# . Incrementing #compute_fd_adv_jacobian==1#
+  //  increases the verbosity. If #=1# the maximum values over all the
+  //  elemset are printed. If #=2# the errors for all elements are
+  //  reported. Finally, if #=3# also the jacobians themselves are
+  //  printed. For 2 and 3, if #compute_fd_adv_jacobian_elem_list# is
+  //  set, then only those elements are printed. If
+  //  #compute_fd_adv_jacobian_rel_err_threshold# is set then only those
+  //  elements for which the error is greater than the given threshold
+  //  are reported.  Also, be warned that when run in parallel, printing
+  //  for a lot of elements in different processors may be messy.
+  NSGETOPTDEF_ND(int,compute_fd_adv_jacobian,0);
+  //o The perturbation scale for computing the numerical jacobian
+  //  (see #compute_fd_adv_jacobian# ).
+  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_eps,1e-4);
+  assert(compute_fd_adv_jacobian_eps > 0.);
+  //o Report elements whose relative error in computing
+  //  flux jacobians exceed these value. 
+  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,0.);
+
+  A_fd_jac_norm_max = 0.;
+  A_fd_jac_norm_min = DBL_MAX;
+  A_jac_norm_max = 0.;
+  A_jac_norm_min = DBL_MAX;
+  A_jac_err_norm_max = 0.;
+  A_jac_err_norm_min = DBL_MAX;
+  A_rel_err_max = 0.;
+  A_rel_err_min = DBL_MAX;
+  comp_checked=0;
+  comp_total=0;
+}
 
 void NewAdvDifFF::get_C(FastMat2 &C) {
   PetscPrintf(PETSC_COMM_WORLD,
@@ -124,16 +159,13 @@ void NewAdvDifFF::get_Cp(FastMat2 &Cp) {
   assert(0);
 }
 
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #undef __FUNC__
-#define __FUNC__ "advective::assemble"
+#define __FUNC__ "NewAdvDif::assemble"
 void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
-			     const TimeData *time_data) {
-
-extern const char * jobinfo_fields;
+			     const TimeData *time_data) try {
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -172,6 +204,7 @@ extern const char * jobinfo_fields;
   }
 
   double *retvalt;
+  time_m = double(* (const Time *) time_data);
 
   // lambda_max:= the maximum eigenvalue of the jacobians.
   // used to compute the critical time step.
@@ -185,13 +218,13 @@ extern const char * jobinfo_fields;
   arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   if (comp_res) {
     int j=-1;
-    stateo = &arg_data_v[++j];
-    staten = &arg_data_v[++j];
-    retval  = &arg_data_v[++j];
-    jdtmin = ++j;
+    stateo = &arg_data_v[++j]; //[0]
+    staten = &arg_data_v[++j]; //[1]
+    retval  = &arg_data_v[++j];//[2]
+    jdtmin = ++j;//[3]
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
-    Ajac = &arg_data_v[++j];
+    Ajac = &arg_data_v[++j];//[4]
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
     rec_Dt_m = 1./DT;
     if (glob_param->steady) rec_Dt_m = 0.;
@@ -200,24 +233,27 @@ extern const char * jobinfo_fields;
 #endif
   }
 
-  FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
-  FastMat2 prof_nodes(2,nel,nel),prof_fields(2,ndof,ndof),matlocf_fix(4,nel,ndof,nel,ndof);
-  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),prof_fields_diag_fixed(2,ndof,ndof);
+  FastMat2 matlocf(4,nel,ndof,nel,ndof),
+    matlocf_mass(4,nel,ndof,nel,ndof);
+  FastMat2 prof_nodes(2,nel,nel), prof_fields(2,ndof,ndof), 
+    matlocf_fix(4,nel,ndof,nel,ndof);
+  FastMat2 Id_ndf(2,ndof,ndof),Id_nel(2,nel,nel),
+    prof_fields_diag_fixed(2,ndof,ndof);
 
   //o Use the weak form for the Galerkin part of the advective term.
   NSGETOPTDEF(int,weak_form,1);
+  //o Weights the temporal term with $N+\beta P$, i.e.
+  // $\beta=0$ is equivalent to weight the temporal term a la
+  // Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
+  NSGETOPTDEF(double,beta_supg,1.);
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
-  //o Factor to weight the influence of the temporal term in the continuous phase
-  NSGETOPTDEF(int,factor_dalpha_dt,0);
-  //o Key for Using lumping only for gas phase
-  NSGETOPTDEF(int,use_lumping_only_for_gas,0);
-
-  int lumped_mass_phase = 0;
-  int comp_liq  = !strcmp(jobinfo_fields,"liq");
-  int comp_gas  = !strcmp(jobinfo_fields,"gas");
-//  if (comp_gas && lumped_mass) lumped_mass_phase = 1;
-  if (lumped_mass) lumped_mass_phase = 1;
+  //o Add a shock capturing term
+  NSGETOPTDEF(double,shocap,0.0);
+  //o Report jacobians on random elements (should be in range 0-1).
+  NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
+  assert(compute_fd_adv_jacobian_random>0. 
+	 && compute_fd_adv_jacobian_random <=1.);
 
   //o Add axisymmetric version for this particular elemset.
   NSGETOPTDEF(string,axisymmetric,"none");
@@ -233,6 +269,11 @@ extern const char * jobinfo_fields;
     PetscFinalize();
     exit(0);
   }
+
+  //o Uses operations caches for computations with the FastMat2
+  //  library for internal computations. Note that this affects also the
+  //  use of caches in routines like fluxes, etc... 
+  NSGETOPTDEF(int,use_fastmat2_cache,1);
 
   // Initialize flux functions
   ff_options=0;
@@ -290,9 +331,9 @@ extern const char * jobinfo_fields;
   }
 #endif
 
-  // Not implemented yet:= not lumped_mass_phase + log-vars
-  assert(!use_log_vars || lumped_mass_phase);
-  // lumped_mass_phase:= If this options is activated then all the inertia
+  // Not implemented yet:= not lumped_mass + log-vars
+  assert(!use_log_vars || lumped_mass);
+  // lumped_mass:= If this options is activated then all the inertia
   // term matrix comtributions are added to 'matlocf_mass' and the
   // vector contribution terms are discarded. Then at the last moment
   // matlocf_mass*(Un-Uo)/Dt is added.
@@ -313,24 +354,21 @@ extern const char * jobinfo_fields;
 
   double detJaco, wpgdet, delta_sc;
   int elem, ipg,node, jdim, kloc,lloc,ldof;
-  double lambda_max_pg;
 
   dshapex.resize(2,ndimel,nel);
   FMatrix Jaco(ndimel,ndim),Jaco_av(ndimel,ndim),
     iJaco(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
-    grad_U(ndimel,ndof),A_grad_U(ndof),
+    grad_U(ndimel,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Un(ndof),
     Ho(ndof),Hn(ndof);
-  // These are edclared but not used
+  // These are declared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
-    tmp24;
-  FMatrix tmp30;
-
+    tmp24,tmp_sc,tmp_sc_v;
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
@@ -343,55 +381,37 @@ extern const char * jobinfo_fields;
   int ind_axi_1, ind_axi_2;
   double detJaco_axi;
 
-  //  FastMat2 Cp(2,ndof,ndof),Cr(2,ndof,ndof);
-  FastMat2 Cr(2,ndof,ndof);
-  FastMat2 Cp_bis(2,ndof,ndof);
-
   if (axi) assert(ndim==3);
 
-  //#define COMPUTE_FD_ADV_JACOBIAN
-#ifdef COMPUTE_FD_ADV_JACOBIAN
-  FastMat2 A_fd_jac(3,ndim,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
-#endif
-  FastMat2 U0(1,ndof);
-  double u0[] = {1.,1.,1.,2.,0.,0.,0.1,0.1};
-  U0.set(u0);
+  // For the computation of the jacobian with 
+  // finite differences
+  FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),
+    flux_pert(2,ndof,ndimel),A_jac_err, A_jac(3,ndimel,ndof,ndof), 
+    Id_ndim(2,ndim,ndim);
+  Id_ndim.eye();
+
+  // Position of current element in elemset and in chunk
+  int k_elem, k_chunk;
 
   Uo.resize(1,ndof);
-  FastMat2 Uo_mod;
-  Uo_mod.resize(1,ndof);
-
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
 
   FastMatCacheList cache_list;
-  FastMat2::activate_cache(&cache_list);
-
-  int indx_l1[] = {1,3,4,5};
-  int indx_g1[] = {2,6,7,8};
-  int indx_l2[] = {1,3,4};
-  int indx_g2[] = {2,5,6};
-  int *indx_l, *indx_g;
-
-  if(ndim==3) {
-	indx_l=indx_l1;
-	indx_g=indx_g1;
-  } else{
-	indx_l=indx_l2;
-	indx_g=indx_g2;
-	  }
+  if (use_fastmat2_cache) FastMat2::activate_cache(&cache_list);
 
   // printf("[%d] %s start: %d last: %d\n",MY_RANK,jobinfo,el_start,el_last);
   for (ElementIterator element = elemlist.begin();
-       element!=elemlist.end(); element++) {
+       element!=elemlist.end(); element++) try {
 
+    element.position(k_elem,k_chunk);
     FastMat2::reset_cache();
 
     // Initialize element
     adv_diff_ff->element_hook(element);
     // Get nodedata info (coords. etc...)
     element.node_data(nodedata,xloc.storage_begin(),
-		       Hloc.storage_begin());
+		      Hloc.storage_begin());
 
     if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
@@ -402,20 +422,17 @@ extern const char * jobinfo_fields;
       lambda_max=0;
       lstateo.set(element.vector_values(*stateo));
       lstaten.set(element.vector_values(*staten));
-      // log_transf(true_lstaten,lstaten,nlog_vars,log_vars);
-      // log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
     }
 
     // State at time t_{n+\alpha}
     lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
     log_transf(true_lstate ,lstate ,nlog_vars,log_vars);
-    log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
 
     veccontr.set(0.);
     mass.set(0.);
     lmass.set(0.);
     matlocf.set(0.);
-    //    if (lumped_mass_phase) matlocf_mass.set(0.);
+    if (lumped_mass) matlocf_mass.set(0.);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -452,13 +469,11 @@ extern const char * jobinfo_fields;
 	iJaco.setel(1./detJaco,1,1);
       }
 
-      if (detJaco <= 0.) {
+      if (detJaco<=0.) {
 	int k,ielh;
 	element.position(k,ielh);
-	printf("advdife: Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
+	detj_error(detJaco,k);
+	set_error(1);
       }
       wpgdet = detJaco*WPG;
 
@@ -500,22 +515,7 @@ extern const char * jobinfo_fields;
 	Un.prod(SHAPE,lstaten,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
-
-	Uo_mod.set(Uo);
-	if(comp_liq){
-		Uo_mod.ir(1,2);
-		Uo.ir(1,2);
-		Un.ir(1,2);
-		Uo_mod.set(0.).axpy(Uo,1.0-factor_dalpha_dt).axpy(Un,factor_dalpha_dt);
-		Uo.rs();
-		Un.rs();
-		Uo_mod.rs();
-		}
-
-
-	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo_mod);
-
-/*
+	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 	for (int k=0; k<nlog_vars; k++) {
@@ -524,21 +524,20 @@ extern const char * jobinfo_fields;
 	  dUdt.ir(1,jdof).scale(UU);
 	}
 	dUdt.rs();
-*/
 
 	// Pass to the flux function the true positive values
 	U.prod(SHAPE,true_lstate,-1,-1,1);
 	grad_U.prod(dshapex,true_lstate,1,-1,-1,2);
-	grad_Uo.prod(dshapex,true_lstateo,1,-1,-1,2);
 
 	delta_sc=0;
-	//	double lambda_max_pg;
+	double lambda_max_pg;
 
 	// Compute A_grad_U in the `old' state
-	//	adv_diff_ff->set_state(Uo,grad_Uold);
-	adv_diff_ff->set_state(Uo,grad_Uo);
+	adv_diff_ff->set_state(Uo,grad_U); // fixme:= ojo que le pasamos
+					   // grad_U (y no grad_Uold) ya que
+					   // no nos interesa la parte difusiva
 	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_Uo,G_source,
+				  A_grad_U,grad_U,G_source,
 				  tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
@@ -551,99 +550,100 @@ extern const char * jobinfo_fields;
 	adv_diff_ff->comp_P_supg(P_supg);
 #endif
 
-    if (weak_form==1 || weak_form==-1) {
-	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
-	for (int k=0; k<nlog_vars; k++) {
-	  int jdof=log_vars[k];
-	  double UU=exp(Ualpha.get(jdof));
-	  dUdt.ir(1,jdof).scale(UU);
-	}
-	dUdt.rs();
-} else {
-	adv_diff_ff->get_Cp(Cp_bis);
-	// usamos Ualpha como Delta U aqui
-	Ualpha.set(Un).rest(Uo);
-	dUdt.prod(Cp_bis,Ualpha,1,-1,-1).scale(rec_Dt_m);
-}
-
 	// Set the state of the fluid so that it can be used to
  	// compute matrix products
 	adv_diff_ff->set_state(U,grad_U);
 	adv_diff_ff->enthalpy_fun->set_state(U);
-	if (!lumped_mass_phase) {
 	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
 				  A_grad_U,grad_U,G_source,
 				  tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
-			  } else {
-	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE_NOLUMPED | COMP_UPWIND);
-			  }
 
-#ifdef COMPUTE_FD_ADV_JACOBIAN
-	double eps_fd=1e-8;
-	for (int jdof=1; jdof<=ndof; jdof++) {
-	  U_pert.set(U).is(1,jdof).add(eps_fd).rs();
-	  adv_diff_ff->set_state(U_pert,grad_U);
-	  adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
-				    A_grad_U,grad_U,G_source,
-				    tau_supg,delta_sc,
-				    lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
-	  flux_pert.rest(flux).scale(1./eps_fd);
-	  flux_pert.t();
-	  A_fd_jac.ir(3,jdof).set(flux_pert).rs();
-	  flux_pert.rs();
+	if (compute_fd_adv_jacobian) {
+	  int check_this = drand()<compute_fd_adv_jacobian_random;
+	  comp_total++;
+	  FastMat2::branch();
+	  if (check_this) {
+	    FastMat2::choose(0);
+	    comp_checked++;
+	    double &eps_fd = compute_fd_adv_jacobian_eps;
+	    for (int jdof=1; jdof<=ndof; jdof++) {
+	      U_pert.set(U).is(1,jdof).add(eps_fd).rs();
+	      adv_diff_ff->set_state(U_pert,grad_U);
+	      adv_diff_ff->compute_flux(U_pert,iJaco,H,grad_H,flux_pert,fluxd,
+					A_grad_U,grad_U,G_source,
+					tau_supg,delta_sc,
+					lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
+	      flux_pert.rest(flux).scale(1./eps_fd);
+	      flux_pert.t();
+	      A_fd_jac.ir(3,jdof).set(flux_pert).rs();
+	      flux_pert.rs();
+	    }
+	    for (int j=1; j<=ndim; j++) {
+	      Id_ndim.ir(2,j);
+	      A_jac.ir(1,j);
+	      adv_diff_ff->comp_A_jac_n(A_jac,Id_ndim);
+	    }
+	    Id_ndim.rs();
+	    A_jac.rs();
+	    A_jac_err.set(A_jac).rest(A_fd_jac);
+#define FM2_NORM sum_abs_all
+	    double A_jac_norm = A_jac.FM2_NORM();
+	    double A_jac_err_norm = A_jac_err.FM2_NORM();
+	    double A_fd_jac_norm = A_fd_jac.FM2_NORM();
+	    double A_rel_err = A_jac_err_norm/A_fd_jac_norm;
+
+#define CHK_MAX(v) if(v>v##_max) v##_max=v
+#define CHK_MIN(v) if(v<v##_min) v##_min=v
+#define CHK(v) CHK_MAX(v); CHK_MIN(v)
+	    CHK(A_jac_norm);
+	    CHK(A_jac_err_norm);
+	    CHK(A_fd_jac_norm);
+	    CHK(A_rel_err);
+#undef CHK_MAX
+#undef CHK_MIN
+#undef CHK
+
+	    int print_this = 
+	      A_rel_err >= compute_fd_adv_jacobian_rel_err_threshold;
+	    if (compute_fd_adv_jacobian>=2 && print_this) {
+	      printf("elem %d, |A_a|=%g, |A_n|=%g, |A_a-A_n|=%g, (rel.err %g)\n",
+		     k_elem,A_jac_norm,A_fd_jac_norm,A_jac_err_norm,
+		     A_rel_err);
+	    }
+	    if (compute_fd_adv_jacobian>=3  && print_this) {
+	      A_jac.print("A_a: ");
+	      A_fd_jac.print("A_n: ");
+	    }
+	    // Reset state in flux function to state U
+	    adv_diff_ff->set_state(U,grad_U);
+	    adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux_pert,fluxd,
+				      A_grad_U,grad_U,G_source,
+				      tau_supg,delta_sc,
+				      lambda_max_pg, nor,lambda,Vr,Vr_inv,0);
+	  }
+	  FastMat2::leave();
 	}
-#endif
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
-	if (!lumped_mass_phase) {
-	  tmp10.set(G_source);	// tmp10 = G - dUdt
-	  tmp10.rest(dUdt);
+	tmp10.set(G_source);	// tmp10 = G - dUdt
+	if (!lumped_mass) tmp10.rest(dUdt);
+	if (beta_supg==1.) {
+	  tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	} else {
-	  tmp10.set(G_source);	// tmp10 = G (only the non lumped part of source)
-
-	  if (use_lumping_only_for_gas) {
-	    // anulo la parte temporal de la fase gas que la introduzco con lumping
-	    for (int i=0; i<=ndim; i++) {
-	      dUdt.is(1,indx_g[i]);
-	    }
-	    dUdt.set(0.).rs();
-	    tmp10.rest(dUdt);
-	  }
+	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
 	}
 
-	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
-
-	if (!lumped_mass_phase) {
-	  adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
-	  matlocf.add(N_Cp_N);
+	// tmp15.set(SHAPE).scale(wpgdet*rec_Dt_m);
+	// tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
+	// tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
+	adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
+	if (lumped_mass) {
+	  matlocf_mass.add(N_Cp_N);
 	} else {
-
-	  if (use_lumping_only_for_gas) {
-	    // anulo la parte temporal de la fase gas que la introduzco sin lumping
-
-	    adv_diff_ff->get_Cp(Cp_bis);
-
-	    for (int ii=0; ii<=ndim; ii++) Cp_bis.is(1,indx_g[ii]);
-	    for (int jj=0; jj<ndof; jj++) Cp_bis.is(2,jj+1);
-	    Cp_bis.set(0.).rs();
-
-	    for (int ii=0; ii<=ndim; ii++) Cp_bis.is(1,indx_l[ii]);
-	    for (int ii=0; ii<=ndim; ii++) Cp_bis.is(2,indx_g[ii]);
-	    Cp_bis.set(0.).rs();
-	    //	adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
-	    tmp30.prod(SHAPE,Cp_bis,1,2,3);
-	    N_Cp_N.prod(tmp30,SHAPE,1,2,4,3).scale(wpgdet*rec_Dt_m);;
-	    matlocf.add(N_Cp_N);
-
-	  }
+	  matlocf.add(N_Cp_N);
 	}
 
 	// A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
@@ -651,6 +651,7 @@ extern const char * jobinfo_fields;
 
 	// Termino Galerkin
 	if (weak_form) {
+	  assert(!lumped_mass && beta_supg==1.); // Not implemented yet!!
 	  // weak version
 	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 
@@ -674,22 +675,15 @@ extern const char * jobinfo_fields;
 	tmp8.add(tmp9);		// tmp8 = DSHAPEX * tmp11
 	veccontr.axpy(tmp8,wpgdet);
 
-	// Debug and fixme later
-#define COMPUTE_C_D_TERMS
-
-#ifdef COMPUTE_C_D_TERMS
-
 	// Diffusive term in matrix
 #if 0
 	tmp17.set(dshapex).scale(wpgdet*ALPHA);
 	adv_diff_ff->comp_D_grad_N(D_grad_N,tmp17);
 	tmp18.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 #endif
-
 	adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
 					  dshapex,wpgdet*ALPHA);
 	matlocf.add(grad_N_D_grad_N);
-#endif
 
         // Reactive term in matrix (Galerkin part)
 #if 0
@@ -697,14 +691,8 @@ extern const char * jobinfo_fields;
 	tmp24.prod(SHAPE,tmp23,1,2); // tmp24 = SHAPE' * SHAPE
 	tmp25.prod(tmp24,C_jac,1,3,2,4); // tmp25 = SHAPE' * SHAPE * C_jac
 #endif
-
-
-#ifdef COMPUTE_C_D_TERMS
-	if (!lumped_mass_phase) {
 	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
 	matlocf.add(N_N_C);
-	}
-#endif
 
 #ifndef USE_OLD_STATE_FOR_P_SUPG
 	// This computes either the standard `P_supg' perturbation
@@ -713,24 +701,19 @@ extern const char * jobinfo_fields;
 	adv_diff_ff->comp_P_supg(P_supg);
 #endif
 
-	    if (0){
-	      // DEBUG
-	      int kk,ielhh;
-	      element.position(kk,ielhh);
-	      printf("Element %d \n",kk);
-	      dUdt.print("dUdt :");
-	      G_source.print("G_source :");
-	      // END DEBUG
-	    }
 
-// DEBUG
-//	tmp1.rs().set(tmp10); //tmp1= G - dUdt - A_grad_U
-// END DEBUG
+	// adding shock-capturing term
+	if (shocap>0.) {
+	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*delta_sc*ALPHA*wpgdet);
+	  for (int jdf=1; jdf<=ndof; jdf++) {
+	    matlocf.ir(2,jdf).ir(4,jdf).add(tmp_sc).rs();
+	  }
+	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2).scale(-shocap*delta_sc*wpgdet);
+	  veccontr.add(tmp_sc_v);
+	}
 
 	for (int jel=1; jel<=nel; jel++) {
-
-   	  P_supg.ir(1,jel);
-
+	  P_supg.ir(1,jel);
 	  tmp4.prod(tmp1,P_supg,-1,1,-1);
 	  //	  veccontr.ir(1,jel).axpy(tmp4,wpgdet).ir(1);
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet);
@@ -741,47 +724,23 @@ extern const char * jobinfo_fields;
 	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 
-#ifdef COMPUTE_C_D_TERMS
-	  if(!lumped_mass_phase) {
-	    // Reactive term in matrix (SUPG term)
-	    adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
-	    matlocf.add(N_P_C);
+      // Reactive term in matrix (SUPG term)
+	  adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
+	  matlocf.add(N_P_C);
 
-	    tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
-	    adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
-	    tmp22.prod(P_Cp,tmp21,1,3,2);
-	    matlocf.add(tmp22);
-
-	  }
-#endif
-
-	  if(lumped_mass_phase && use_lumping_only_for_gas) {
-	    tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
-	    P_Cp.prod(P_supg,Cp_bis,1,-1,-1,2);
-	    tmp22.prod(P_Cp,tmp21,1,3,2);
+	  tmp21.set(SHAPE).scale(beta_supg*wpgdet*rec_Dt_m);
+	  adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
+	  tmp22.prod(P_Cp,tmp21,1,3,2);
+	  if (lumped_mass) {
+	    // I think that if 'lumped_mass' is used then the
+	    // contribution to the mass matrix from the SUPG
+	    // perturbation term is null, but I include it.
+	    matlocf_mass.ir(1,jel).add(tmp22).rs();
+	  } else {
 	    matlocf.add(tmp22);
 	  }
-
-	  /*
-		    if(lumped_mass_phase) {
-		    if (use_lumping_only_for_gas) {
-		    // anulo la parte temporal de la fase gas que la introduzco sin lumping
-		    tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
-		    P_Cp.prod(P_supg,Cp_bis,1,-1,-1,2);
-		    tmp22.prod(P_Cp,tmp21,1,3,2);
-		    matlocf.add(tmp22);
-		    } else {
-
-		    tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
-		    adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
-		    tmp22.prod(P_Cp,tmp21,1,3,2);
-		    matlocf.add(tmp22);
-		    }
-		    }
-	  */
-
 	  matlocf.rs();
-	  veccontr.rs();
+          veccontr.rs();
 	}
 	P_supg.rs();
 
@@ -793,112 +752,13 @@ extern const char * jobinfo_fields;
       }
       volume_flag=0;
 
-      // modif March 26
-      // lumped mass
-      lmass.axpy(SHAPE,wpgdet);
-
-    }  // ipg loop
-
-    if (lumped_mass_phase) {
-      // lumped terms treatment
-      // temporal and source terms are lumped out of the gauss points loop
-      for (int j=1; j<=nel; j++) {
-
-
-	lstaten.ir(1,j);
-	Un.set(lstaten);
-	lstaten.rs();
-
-	lstateo.ir(1,j);
-	Uo.set(lstateo);
-	lstateo.rs();
-	//      adv_diff_ff->set_state(Uo,grad_U);
-	adv_diff_ff->set_state(Uo);
-
-	Uo_mod.set(Uo);
-	if(comp_liq){
-	  Uo_mod.ir(1,2);
-	  Uo.ir(1,2);
-	  Un.ir(1,2);
-	  Uo_mod.set(0.).axpy(Uo,1.0-factor_dalpha_dt).axpy(Un,factor_dalpha_dt);
-	  Uo.rs();
-	  Un.rs();
-	  Uo_mod.rs();
-	}
-
-	// adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
-	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo_mod);
-
-	adv_diff_ff->set_state(Un,grad_U);
-	adv_diff_ff->compute_flux(Un,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,
-				  tau_supg,delta_sc,
-				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
-				  COMP_SOURCE_LUMPED);
-	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
-
-	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-
-	//      adv_diff_ff->enthalpy_fun->comp_P_Cp(Cp,Id_ndf);
-	adv_diff_ff->get_Cp(Cp_bis);
-	Cp_bis.scale(rec_Dt_m);
-
-	if (weak_form==1 || weak_form==-1) {
-	  dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
-	}
-	else {
-	  dUdt.prod(Cp_bis,Un,1,-1,-1);
-	  Ho.prod(Cp_bis,Uo,1,-1,-1);
-          dUdt.rest(Ho);
-	}
-
-	for (int k=0; k<nlog_vars; k++) {
-	  int jdof=log_vars[k];
-	  double UU=exp(Ualpha.get(jdof));
-	  dUdt.ir(1,jdof).scale(UU);
-	}
-	dUdt.rs();
-
-	if (use_lumping_only_for_gas){
-	  // anulo la parte temporal de la fase liquida que la introduzco sin lumping
-	  for (int ii=0; ii<=ndim; ii++) {
-	    dUdt.is(1,indx_l[ii]);
-	  }
-	  dUdt.set(0.).rs();
-	}
-
-	tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
-
-	adv_diff_ff->get_C(Cr);
-
-	if (use_lumping_only_for_gas){
-
-	for (int ii=0; ii<=ndim; ii++) Cp_bis.is(1,indx_l[ii]);
-	for (int jj=0; jj<ndof; jj++) Cp_bis.is(2,jj+1);
-	Cp_bis.set(0.).rs();
-
-	//	for (int ii=0; ii<=ndim; ii++) Cp_bis.is(1,indx_g[ii]);
-	Cp_bis.is(1,1,ndof);
-	for (int ii=0; ii<=ndim; ii++) Cp_bis.is(2,indx_l[ii]);
-	Cp_bis.set(0.).rs();
-
-	}
-
-      tmp12.set(Cr).add(Cp_bis);
-
-      double mass_node;
-      mass_node = double(lmass.get(j));
-      veccontr.ir(1,j).axpy(tmp10,mass_node).rs();
-      matlocf.ir(1,j).ir(3,j).axpy(tmp12,mass_node).rs();
-
-      }
     }
 
-  if (comp_res) {
+    if (comp_res) {
 
 #if 0
-    // Compute the local critical time step. This is something
-    // like min (h/la_max) where h is the local mesh size, and
+      // Compute the local critical time step. This is something
+      // like min (h/la_max) where h is the local mesh size, and
       // la_max the local maximum eigenvalue. We do this for each
       // Gauss point, and then take the minimum. The local h is
       // estimated as twice the minimum length of the columns of
@@ -930,8 +790,7 @@ extern const char * jobinfo_fields;
       }
 #endif
 
-#if 0 // Lumping + log var to be implemented in the future ... ???
-      if (lumped_mass_phase) {
+      if (lumped_mass) {
 	// lump mass matrix
 #if 1   // With this commented should be equivalent to no mass lumping
 	matlocf_mass.reshape(2,nen,nen);
@@ -981,7 +840,6 @@ extern const char * jobinfo_fields;
 	// Add to matrix contribution to be returned
 	matlocf.add(matlocf_mass);
       }
-#endif
 
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
@@ -995,27 +853,40 @@ extern const char * jobinfo_fields;
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
 
-// DEBUG matrix
-    if (0){
-	int kk,ielhh;
-	element.position(kk,ielhh);
-	printf("Element %d \n",kk);
-        lstate.print("Estado :");
-        matlocf.print("System Matrix :");
-    }
-// END DEBUG
-
+  } catch (GenericError e) {
+    set_error(1);
+    return;
   }
+
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+} catch (GenericError e) {
+  set_error(1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "NewAdvDif::after_assemble"
 void NewAdvDif::
-after_assemble(const char *jobinfo) { }
+after_assemble(const char *jobinfo) {
+  if (compute_fd_adv_jacobian && !MY_RANK 
+      && !strcmp(jobinfo,"comp_res")) {
+    assert(SIZE==1); // should code after the MPI_Reduce's
+    printf("Flux jacobian comps: total %d, checked %d (%5.2f%%)\n",
+	   comp_total,comp_checked,double(comp_checked)/
+	   double(comp_total)*100.0);
+#undef PRINT
+#define PRINT(label,val) \
+printf(label ": min %g, max %g\n",val##_min,val##_max)
+    PRINT("|A_a|",A_jac_norm);
+    PRINT("|A_n|",A_fd_jac_norm);
+    PRINT("|A_a - A_n|",A_jac_err_norm);
+    PRINT("|A_a - A_n|/|A_n|",A_rel_err);
+#undef PRINT
+  }
+}
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double NewAdvDif::volume() const {
   if (volume_flag) {
     return Volume;
@@ -1024,6 +895,7 @@ double NewAdvDif::volume() const {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const FastMat2 *NewAdvDif::grad_N() const {
   return &dshapex;
 }
@@ -1039,6 +911,7 @@ void NewAdvDif::comp_P_supg(int is_tau_scalar) {
 }
 #endif
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   assert(new_adv_dif_elemset);
   const NewAdvDif *e = new_adv_dif_elemset;
@@ -1050,13 +923,17 @@ void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void NewAdvDifFF::set_profile(FastMat2 &seed) {
   seed.set(1.);
 }
 
-void NewAdvDifFF::
-Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
-	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_) { }
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void NewAdvDifFF::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+			      FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_){
+  int ppp=0;
+  assert(ppp==0);
+}
 
 #undef SHAPE
 #undef DSHAPEXI

@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.14 2004/03/04 21:52:44 mstorti Exp $
+# $Id: cubcav.pl,v 1.14.2.1 2004/05/22 02:48:27 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -14,7 +14,6 @@ if ($case =~ /plain_bupl(\d)/) {
     $bupl = $1;
     $case = 'plain';
 }
-$bupl = 0;
 get_var_env2('data_dir','.');
 $endur_test = $data_dir ne '.';
 get_var_env2('job',undef);
