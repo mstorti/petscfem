@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.51 2002/05/15 19:18:44 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.52 2002/05/15 23:55:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -45,7 +45,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 
-  int ierr=0;
+  int ierr=0, axi;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsi_tet\n");
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
@@ -134,10 +134,21 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
 
   //o Add axisymmetric version for this particular elemset.
-  GGETOPTDEF(int,axi,0);
-
+  TGETOPTDEF_S(thash,string,axisymmetric,none);
+  assert(axisymmetric.length()>0);
+  if (axisymmetric=="none") axi=0;
+  else if (axisymmetric=="x") axi=1;
+  else if (axisymmetric=="y") axi=2;
+  else if (axisymmetric=="z") axi=3;
+  else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Invalid value for \"axisymmetric\" option\n"
+		"axisymmetric=\"%s\"\n",axisymmetric.c_str());
+    PetscFinalize();
+    exit(0);
+  }
   //o Add LES for this particular elemset.
-  GGETOPTDEF(int,LES,0);
+  SGETOPTDEF(int,LES,0);
   //o Cache \verb+grad_div_u+ matrix
   SGETOPTDEF(int,cache_grad_div_u,0);
   //o Smagorinsky constant.
