@@ -16,12 +16,12 @@ sub pushf {
 }
 
 # do {{ $N=200; $nlay=0;
-foreach  $N (30) {
-    foreach  $subpart (16,64,128) {
-	@nlay = (0,1,2,4);
+foreach  $N (10) {
+    foreach  $subpart (64,128,256,512,1024) {
+	@nlay = (1);
 	@nlay = (0) if $subpart==0;
 	foreach  $nlay (@nlay) {
-	    @isp_maxits = (4,8,16,32,64);
+	    @isp_maxits = (8);
 	    @isp_maxits = (0) if $nlay==0;
 	    foreach  $isp_maxits (@isp_maxits) {
 		my @mess = ("nlay",$nlay,"subpart",$subpart,"N",$N,"isp_maxits",$isp_maxits);
