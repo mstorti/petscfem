@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.4 2001/12/02 18:46:52 mstorti Exp $
+//$Id: adaptor.h,v 1.5 2001/12/02 20:17:16 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -61,8 +61,18 @@ public:
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /// 
 class adaptor_pg : public adaptor { 
+  /** User defined callback function for the `adaptor' class. 
+      Implemented in this class.
+  */
+  void init();
+  /** User defined callback function for the `adaptor' class. 
+      Implemented in this class.
+  */
+  void clean();
 public: 
-  FastMat2 Jaco,iJaco;
+  FastMat2 Jaco,iJaco,grad_state_new_pg,grad_state_old_pg,
+    state_old_pg,state_new_pg,dshapex_pg,res_pg,mat_pg,
+    xpg;
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,
 			 const FastMat2 &state_new,
@@ -72,12 +82,12 @@ public:
   virtual void elemset_end() {};
   virtual void elem_end() {};
   /// Warning: this function should *accumulate* on `mat' and `res'
-  virtual void pg_connector(const FastMat2 &xloc,
-			    const FastMat2 &state_old,
-			    const FastMat2 &grad_state_old,
-			    const FastMat2 &state_new,
-			    const FastMat2 &grad_state_new,
-			    FastMat2 &res,FastMat2 &mat)=0;
+  virtual void pg_connector(const FastMat2 &xpg,
+			    const FastMat2 &state_old_pg,
+			    const FastMat2 &grad_state_old_pg,
+			    const FastMat2 &state_new_pg,
+			    const FastMat2 &grad_state_new_pg,
+			    FastMat2 &res_pg,FastMat2 &mat_pg)=0;
 };
 
 #endif

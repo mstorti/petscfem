@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.2 2001/12/02 18:46:52 mstorti Exp $
+//$Id: adappg.cpp,v 1.3 2001/12/02 20:17:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,19 +12,33 @@
 #include "elast.h"
 
 void adaptor_pg::init() {
+  xpg.resize(1,ndim);
   Jaco.resize(2,ndim,ndim);
   dshapex.resize(2,ndim,nel);  
-  grad_state_new.resize(2,ndim,ndof);
-  grad_state_old.resize(2,ndim,ndof);
+  dshapex_pg.resize(1,ndim);  
+  grad_state_new_pg.resize(2,ndim,ndof);
+  grad_state_old_pg.resize(2,ndim,ndof);
+  state_new_pg.resize(1,ndof);
+  state_old_pg.resize(1,ndof);
+  res_pg.resize(2,nel,ndof);
+  mat_pg.resize(4,nel,ndof,nel,ndof);
+
+  elemset_init();
 }
 
 void adaptor_pg::clean() {
-  nen=nel*ndof;
-  Jaco.resize();
-  dshapex.resize();  
-  grad_state_new.resize();
-  grad_state_old.resize();
+  xpg.clear();
+  Jaco.clear();
+  dshapex.clear();  
+  dshapex_pg.clear();  
+  grad_state_new_pg.clear();
+  grad_state_old_pg.clear();
+  state_new_pg.clear();
+  state_old_pg.clear();
+  res_pg.clear();
+  mat_pg.clear();
 
+  elemset_end();
 }
 
 void adaptor_pg::element_connector(const FastMat2 &xloc,
@@ -33,6 +47,7 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
 				   FastMat2 &res,FastMat2 &mat){
 
   // loop over Gauss points
+  elem_init();
   for (int ipg=0; ipg<npg; ipg++) {
     
     dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
@@ -48,13 +63,20 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
     double wpgdet = detJaco*wpg.get(ipg+1);
     iJaco.inv(Jaco);
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
-    
-    // construccion de matriz B
-    
-    dshapex.rs();
 
-    
+    grad_state_new_pg.prod(dshapex,state_new,1,-1,-1,2);
+    grad_state_old_pg.prod(dshapex,state_old,1,-1,-1,2);
+
+    shape.ir(2,ipg+1);
+    xpg.prod(shape,xloc,-1,-1,1);
+    state_new_pg.prod(shape,state_new,-1,-1,1);
+    state_old_pg.prod(shape,state_old,-1,-1,1);
+    shape.rs();
+
+    pg_connector(xpg,state_old_pg,grad_state_old_pg,
+		 state_new_pg,grad_state_new_pg,res_pg,mat_pg);
+    mat.axpy(mat_pg,wpgdet);
     
   }
-    
+  elem_end();
 }
