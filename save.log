@@ -3967,3 +3967,7 @@ tag: beta-3.41.36 on Tue, 08 Feb 2005 00:01:14 -0300 by mstorti in spider
 tag: beta-3.41.37 on Tue, 08 Feb 2005 00:38:28 -0300 by mstorti in spider
      > Working moving oblique shock example.
      > Testing direction (1,1).
+----------
+tag: beta-3.41.38 on Tue, 08 Feb 2005 00:45:20 -0300 by mstorti in spider
+     > Working moving oblique shock example.
+     > Direction (1,1) runs ok with a shock at Mach=2. 
