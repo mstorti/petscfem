@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.16 2003/01/21 16:09:16 mstorti Exp $
+//$Id: bubbly.cpp,v 1.17 2003/09/15 01:17:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -46,8 +46,8 @@ void bubbly_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,d_bubble,0);
   EGETOPTDEF_ND(elemset,int,comp_interphase_terms,0);
 
-  //o _T: double[ndim] _N: G_body _D: null vector
-  // _DOC: Vector of gravity acceleration (must be constant). _END
+  //o _T: double[ndim] _N: G_body  _D: <null-vector>
+  //   _DOC: Vector of gravity acceleration (must be constant). _END
   G_body.resize(1,ndim);
   G_body.set(0.);
   ierr = elemset->get_double("G_body",

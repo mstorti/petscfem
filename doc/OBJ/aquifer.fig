@@ -43,13 +43,13 @@ Single
 	1 1 1.00 37.59 75.18
 	 3274 4893 3890 3591
 2 5 0 1 0 -1 48 0 -1 0.000 0 0 -1 0 0 5
-	0 /__HOME_DIR__/phi.epsi
+	0 /home/mstorti/PETSC/petscfem/doc/EPSI/phi.epsi
 	 4408 4251 4491 4251 4491 4401 4408 4401 4408 4251
 2 5 0 1 0 -1 48 0 -1 0.000 0 0 -1 0 0 5
-	0 /__HOME_DIR__/eta.epsi
+	0 /home/mstorti/PETSC/petscfem/doc/EPSI/eta.epsi
 	 4763 4422 4840 4422 4840 4538 4763 4538 4763 4422
 2 5 0 1 0 -1 48 0 -1 0.000 0 0 -1 0 0 5
-	0 /__HOME_DIR__/hb.epsi
+	0 /home/mstorti/PETSC/petscfem/doc/EPSI/hb.epsi
 	 6449 4255 6599 4255 6599 4388 6449 4388 6449 4255
 2 1 0 1 0 7 48 0 41 0.000 0 0 -1 1 0 2
 	1 1 1.00 37.59 75.18

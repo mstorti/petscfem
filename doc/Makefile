@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.33 2003/06/12 21:04:38 mstorti Exp $
+#$Id: Makefile,v 1.34 2003/09/15 01:18:06 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -109,6 +109,13 @@ odoc:
 	$(MAKE) -C ../applications/ns odocns 
 	$(MAKE) -C ../applications/advective odocadv
 	$(MAKE) -C ../applications/advdif odocadvdif
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+odoc_all: odocall.tex
+
+allcpp = $(shell find .. -name '*.cpp')
+odocall.tex: $(allcpp)
+	$(ODOC) -o $@ $(allcpp)
 
 #w Make html home-page
 index.html: index.tex

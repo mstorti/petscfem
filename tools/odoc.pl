@@ -1,10 +1,12 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.16 2003/09/13 00:25:35 mstorti Exp $
+# $Id: odoc.pl,v 1.17 2003/09/15 01:18:16 mstorti Exp $
 
 @odoc=();
 
 use Getopt::Std;
+use English;
+
 getopts("wWs:o:h");
 
 my $wiki_syntax = 1;
@@ -76,7 +78,7 @@ while (<>) {
     if ((/$tgetopt_pat/o || /$getopt_pat/o)
 	&& ! m|//nd|) {
 	chomp;
-	print "line \"$_\" has no previous doc section\n"; 
+	print "in $ARGV line $.: line \"$_\" has no previous doc section\n"; 
     }
     if (m|^\s*//o (.*)|) {
 	@doc=();
@@ -86,9 +88,14 @@ while (<>) {
 		push @doc,"$1\n";
 		last if /_END\s*$/;
 	    } elsif (m|^\s*//i_tex\s*(\S*)\s*(\w*)|) {
-		$texfile=$1;
-		$section=$2;
-		$tex = get_section($texfile,$section);
+		my $texfile=$1;
+		my $section=$2;
+		# If not an absolute path then prepend the current
+		# file directory
+		if ($texfile !~ m|^/| && $ARGV =~ m|^(.*/)[^/]*|) {
+		    $texfile = "$1$texfile";
+		}
+		my $tex = get_section($texfile,$section);
 		my $l;
 		push @doc,@{$tex};
 	    } else {
@@ -101,29 +108,34 @@ while (<>) {
 	if ($doc[0] =~ /\s*_T:(.*)/s) {
 	    @docf=@doc;
 	    $doc=join("",@doc);
-	    die "no \"_T:\" tag in explicit doc: \n",
+	    die "in $ARGV. near line $.: no \"_T:\" tag in explicit doc: \n",
 	    @docf unless $doc=~/_T:(.*\s)_N:/s;
 	    $type=$1;
 	    $doc=$POSTMATCH; 
 	    $type =~s/\n/ /g;
 	    $type =~ s/\s*$//;
-	    die "no \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/_D:/s;
+	    die "in $ARGV near line $.: ",
+	    "no \"_D:\" tag in explicit doc: \n",@docf,"\n-- doc here: >>  $doc",
+	    @docf unless $doc=~/_D:/s;
 	    $name=$`;
 	    $doc=$POSTMATCH;
 	    $name =~s/\n/ /g;
 	    $name =~ s/\s*$//;
-	    die "no \"_DOC:\" tag in explicit doc: ",@docf unless $doc=~/_DOC:/s;
+	    die "in $ARGV near line $.: ",
+	    "no \"_DOC:\" tag in explicit doc: \n",@docf unless $doc=~/_DOC:/s;
 	    $default=$`;
 	    $doc=$POSTMATCH; 
 	    $default =~s/\n/ /g;
 	    $default =~ s/\s*$//;
-	    die "no \"_END\" tag in explicit doc: ",
+	    die "in $ARGV near line $.: ",
+	    "no \"_END\" tag in explicit doc: ",
 	    @docf unless $doc=~/_END\s*$/s;
 	    $doc=$`;
 	    $text = join("","\\item\\verb+$type+ \\verb+$name+ ",
 			 "{\\rm(default=\\verb|$default|)}:\n",
-			 $doc,$sep);
-	    push @doclist,[$name,$type,$default,$text];
+			 $doc," (found in file: \\verb+$ARGV+)\n",$sep);
+	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
+	    push @doclist,[$name,$type,$default,$text,$ARGV];
 	} elsif (/$tgetopt_pat/o || /$getopt_pat/o) {
 	    $type=$1;
 	    $name=$2;
@@ -131,12 +143,15 @@ while (<>) {
 	    $tname=$name;
 	    $tname =~ s/_/\\_/g;
 	    /`/;
-	    $text = join("",<<EOT,join("",@doc),"\n",$sep);
+     my $header = <<EOT;
 \\index{$tname@\\verb+$name+}
 \\item\\verb+$type $name+ {\\rm(default=\\verb|$default|)}:\n
 EOT
 /`/;
-	    push @doclist,[$name,$type,$default,$text];
+	    $text = join("",$header,join("",@doc),
+			 " (found in file: \\verb+$ARGV+)\n",$sep);
+	    $name = $1 if $name =~ /^\s*(.*)\s*$/;
+	    push @doclist,[$name,$type,$default,$text,$ARGV];
 #  	    print "doc: ",join("\n",@doc),"\n";
 #  	    print "type: $type, name: $name, def: $default\n\n";
 #  	} elsif (m|^\s*//e .*$|) {
@@ -149,7 +164,9 @@ EOT
     }
 }
 
-@doclist = sort {$a[0] cmp $b[0]} @doclist;
+@doclist = sort { $a->[0] cmp $b->[0] } @doclist;
+
+#foreach my $r (@doclist) { print "$r->[0]\n"; }
 
 die "couldn't open $opt_o\n" unless open TEXOUT,">$opt_o";
 /`/;
@@ -164,7 +181,7 @@ EOT
 
 print TEXOUT $warn;
 foreach $doc (@doclist) {
-    print TEXOUT $doc->[3];
+    print TEXOUT "$doc->[3]";
 }
 print TEXOUT $warn;
 close TEXOUT;
