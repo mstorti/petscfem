@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.28 2001/07/20 12:06:05 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.29 2001/07/20 12:09:34 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -252,7 +252,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       continue;
     }
 
-    FastMat2::deactivate_cache(); // Aqui no da SIGSEGV
     double grad_div_u_coef=0.;	// multiplies grad_div_u term
     // tenemos el estado locstate2 <- u^n
     //                   locstate  <- u^*
@@ -296,7 +295,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
-    FastMat2::activate_cache();
+    FastMat2::deactivate_cache();
     if (comp_res || comp_mat_res) {
       ucols.set(locstate2.is(2,1,ndim));
       pcol.set(locstate2.rs().ir(2,ndof));
@@ -319,6 +318,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wall_coords.set(wall_coords_);
       shear_vel = wall_elemset->elemprops_add[wall_elem];
     }
+    FastMat2::activate_cache();
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
