@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.27 2005/02/08 19:11:14 mstorti Exp $
+//$Id: gasflow.cpp,v 1.26.2.1 2005/02/11 23:21:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -47,12 +47,12 @@ void gasflow_ff::start_chunk(int &ret_options) {
   GF_GETOPTDEF_ND(double,rho_thrsh,0.);
   //o Threshold value for pressure. See doc for rho_thrsh.
   GF_GETOPTDEF_ND(double,p_thrsh,0.);
-  //o If this flag is activated the code stops when a negative 
+  //o If this flag is activated the code stops when a negative
   //  value for density or pressure is found. Setting either
-  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# . 
+  //  #p_thrsh# or #rho_thrsh# deactivates #stop_on_neg_val# .
   GF_GETOPTDEF_ND(int,stop_on_neg_val,1);
-  PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");  
-  PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");  
+  PETSCFEM_ASSERT0(rho_thrsh>=0,"Density threshold should be non-negative");
+  PETSCFEM_ASSERT0(p_thrsh>=0,"Pressure threshold should be non-negative");
   if (rho_thrsh>0 || p_thrsh>0) stop_on_neg_val=0;
 
   //o Adjust the stability parameters, taking into account
@@ -66,14 +66,19 @@ void gasflow_ff::start_chunk(int &ret_options) {
   // constant of a particular gas for ideal gas law (state equation for the gas)
   GF_GETOPTDEF_ND(double,Rgas,287.);
 
-  // shock capturing scheme 
+  // shock capturing scheme
   // [0] standard [default]
-  // [1] see Tezduyar & Senga WCCM VI (2004) 
+  // [1] see Tezduyar & Senga WCCM VI (2004)
   GF_GETOPTDEF_ND(int,shocap_scheme,0);
   // beta parameter for shock capturing, see Tezduyar & Senga WCCM VI (2004)
   GF_GETOPTDEF_ND(double,shocap_beta,1.0);
   // factor used to add some standard shocap to Tezduyar & Senga shocap
   GF_GETOPTDEF_ND(double,shocap_factor,0.0);
+
+  // Sutherland law key
+  GF_GETOPTDEF_ND(int,sutherland_law,0);
+  // Sutherland law infinity Temperature
+  GF_GETOPTDEF_ND(double,Tem_infty,0.0);
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -114,7 +119,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   //o Use linear approximation for the absorbing
   //  boundary condition. Gives fully absorbing b.c. in the
   //  linear range, but not truly Riemman Invariant in the
-  //  nonlinear range. 
+  //  nonlinear range.
   GF_GETOPTDEF_ND(int,linear_abso,0);
 
   assert(ndim>0);
@@ -161,34 +166,39 @@ void gasflow_ff::start_chunk(int &ret_options) {
   svec.resize(1,ndim);
   tmp9.resize(1,nel);
   W_N.resize(2,nel,nel);
+  jvec.resize(1,ndim);
 
   vel_old.resize(1,ndim);
 
   tmp_vel.resize(1,ndim);
+
+  if (sutherland_law>0) {
+     assert(Tem_infty>0.0);
+  }
 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::element_hook(ElementIterator &element) {
   if (new_adv_dif_elemset) {
-    const double *G_body_p 
+    const double *G_body_p
       = new_adv_dif_elemset
       ->prop_array(element,G_body_prop);
     G_body_scale = new_adv_dif_elemset
       ->prop_val(element,G_body_scale_prop,
 		 new_adv_dif_elemset->time());
-    if (G_body_prop.length>0) 
+    if (G_body_prop.length>0)
       G_body.set(G_body_p).scale(G_body_scale);
     else G_body.set(0.);
   }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-gasflow_ff::gasflow_ff(NewElemset *e) 
+gasflow_ff::gasflow_ff(NewElemset *e)
   : AdvDifFFWEnth(e), old_elemset(NULL) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-gasflow_ff::gasflow_ff(Elemset *e) 
+gasflow_ff::gasflow_ff(Elemset *e)
   : old_elemset(e) {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -202,12 +212,15 @@ void gasflow_ff::set_state(const FastMat2 &UU) {
   rho = U.get(1);
   p = U.get(ndof);
 
-  if (stop_on_neg_val && (p<0 || rho<0)) 
+  if (stop_on_neg_val && (p<0 || rho<0))
     throw GenericError("negative pressure or density detected.");
 
   // Cutoff values
   rho = ctff(rho,dummy,rho_thrsh);
   p = ctff(p,dummy,p_thrsh);
+
+  // Temperature
+  Tem = p/rho/Rgas; 
 
   // Velocities
   U.is(1,vl_indx,vl_indxe);
@@ -290,42 +303,38 @@ compute_tau(int ijob,double &delta_sc) {
     double Peclet = velmod * h_supg / (2. * visco_supg);
     double sonic_speed = sqrt(ga*p/rho);
     double velmax = velmod+sonic_speed;
-    
+
     tau_supg_a = h_supg/2./velmax;
-    
+
+#if 0
     if (shocap_scheme==0) {
       double fz = (Peclet < 3. ? Peclet/3. : 1.);
       delta_sc = 0.5*h_supg*velmax*fz;
+    } 
+#endif
+    // antes era shocap_scheme==1
+    double tol_shoc = 1e-010;
+    // compute j direction , along density gradient
+    double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
+    FastMat2::branch();
+    if(grad_rho_mod>tol_shoc) {
+      FastMat2::choose(0);
+      //      grad_rho_mod = (grad_rho_mod <= 0 ? tol_shoc : grad_rho_mod);
+      jvec.set(grad_rho).scale(1.0/grad_rho_mod);
+      h_shoc = tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all();
+      h_shoc = (h_shoc < tol ? tol : h_shoc);
+      h_shoc = 2./h_shoc;
     } else {
-      double tol_shoc = 1e-010;
-      // compute j direction , along density gradient 
-      double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
-      FastMat2::branch();
-      if(grad_rho_mod>tol_shoc) {
-	FastMat2::choose(0);	
-	//      grad_rho_mod = (grad_rho_mod <= 0 ? tol_shoc : grad_rho_mod);
-	jvec.set(grad_rho).scale(1.0/grad_rho_mod);      
-	h_shoc = tmp9.prod(grad_N,jvec,-1,1,-1).sum_abs_all();
-	h_shoc = (h_shoc < tol ? tol : h_shoc);
-	h_shoc = 2./h_shoc;
-      } else {
-	h_shoc = h_supg;
-      }
-      FastMat2::leave();
-      double fz = grad_rho_mod*h_shoc/rho;
-      fz = pow(fz,shocap_beta);
-      delta_sc = 0.5*h_shoc*velmax*fz;
-
-      //      printf("en shocap [1], fz %g, delta_sc %g\n",
-      //       fz,delta_sc);
-
-      double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
-      delta_sc += shocap_factor*0.5*h_supg*velmax*fz2;
-
-      //      printf("en shocap [2], fz2 %g, delta_sc %g\n",
-      //       fz2,delta_sc);
-      
-    }    
+      jvec.set(0.);
+      h_shoc = h_supg;
+    }
+    FastMat2::leave();
+    double fz = grad_rho_mod*h_shoc/rho;
+    fz = pow(fz,shocap_beta);
+    delta_sc_aniso = 0.5*h_shoc*velmax*fz;
+    
+    double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+    delta_sc = shocap_factor*0.5*h_supg*velmax*fz2;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -458,17 +467,22 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   }
 
   // Sutherland law for thermal correction of laminar viscosity
-  // visco_l = visco * ???
-  double visco_eff = (visco + visco_t);
-  // effective thermal conductivity
-  double cond_eff = cond + cond_t;
 
-  // Aca ponemos visco (y no visco_eff). Por ahora es un guess...
-  double visco_bar = visco - cond_eff/Cv;
+  double sutherland_factor = 1.0;
+  if (sutherland_law !=0) {
+	  sutherland_factor = pow(Tem/Tem_infty,1.5)*((Tem_infty+110.0)/(110.0+Tem));
+  }
+  double visco_l = sutherland_factor * visco;
+  double visco_eff = (visco_l + visco_t);
+  // effective thermal conductivity
+  double cond_eff = sutherland_factor * cond + cond_t;
+  // Aca ponemos visco (y no visco_eff). Ver paper de LESIEUR Y COMTE ...
+  double visco_bar = visco_l - cond_eff/Cv;
 
   // Stress tensor
   sigma.set(0.);
-  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
+//  sigma.eye(divu).scale(-2./3.*visco_eff).add(strain_rate).scale(2.*visco_eff).rs();
+  sigma.eye(divu).scale(-2./3.).add(strain_rate).scale(2.).rs();
 
   // Temperature gradient
   grad_U.ir(2,1);
@@ -482,8 +496,9 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Diffusive fluxes
   fluxd.set(0.);
-  fluxd.is(1,vl_indx,vl_indxe).set(sigma).rs();
-  viscous_work.prod(sigma,vel,1,-1,-1);
+  fluxd.is(1,vl_indx,vl_indxe).set(sigma).scale(visco_eff).rs();
+  // En el paper de LESIEUR Y COMTE usan viscosidad laminar en la ecuacion de energia
+  viscous_work.prod(sigma,vel,1,-1,-1).scale(visco_l);
   heat_flux.set(grad_T).scale(-cond_eff);
   fluxd.ir(1,ndof).set(viscous_work).rest(heat_flux).rs();
 
@@ -491,7 +506,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   Djac.set(0.);
   Djac.is(2,vl_indx,vl_indxe).is(4,vl_indx,vl_indxe).axpy(IdId,visco_eff).rs();
   tmp00 = 1./3.*visco_eff;
-  tmp00_lam = 1./3.*visco;
+  tmp00_lam = 1./3.*visco_l;
   for (int j=1; j<=ndim; j++) {
      Djac.addel(tmp00,j,j+1,j,j+1);
   }
@@ -522,7 +537,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   // Diffusive Jacobians K_ij with i .ne. j
   tmp00 = 2.*visco_eff/3.;
-  tmp00_lam = 2.*visco/3.;
+  tmp00_lam = 2.*visco_l/3.;
 
   if(ndim==2) {
   int ip[] = {1,2,1};
@@ -688,7 +703,7 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
 }
 #endif
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::
 Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
@@ -697,7 +712,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
   if (!linear_abso) {
     // Speed of sound
     double a = sqrt(ga*p/rho);
-  
+
     tmp20.prod(vel,normal,-1,-1);
     double un = tmp20.get();
     // Riemman based b.c.'s
@@ -737,7 +752,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
     C.setel(un-a,1);
     C.setel(un+a,2);
 
-    for (int k=3; k<=ndof; k++) 
+    for (int k=3; k<=ndof; k++)
       C.setel(un,k);
   } else {
 
@@ -783,7 +798,7 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
       .ctr(maktgsp.tangent,2,1).rs();
 
     // Characteristic speeds
-  
+
     C.setel(uref-aref,1);
     C.setel(uref+aref,2);
 
@@ -791,8 +806,24 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
   }
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::
+compute_shock_cap_aniso(double &delta_aniso,
+			FastMat2 &jvec_a) {
+  delta_aniso = delta_sc_aniso;
+  double vj = double(tmp_vj.prod(jvec,vel,-1,-1));
+  jvec_a.set(jvec);
+  FastMat2::branch();
+  if (velmod>1e-10) {
+    FastMat2::choose(0);
+    jvec_a.axpy(vel,-vj/square(velmod));
+  }
+  FastMat2::leave();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::
 get_C(FastMat2 &C) {
   C.set(0.);
 }
+

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.70 2005/01/27 14:43:35 mstorti Exp $
+//$Id: advective.h,v 1.70.2.1 2005/02/11 23:21:32 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -352,6 +352,10 @@ public:
 
   virtual void compute_delta_sc_v(FastMat2 &delta_sc_v);
 
+  virtual void 
+  compute_shock_cap_aniso(double &delta_aniso,
+			  FastMat2 &jvec) { }
+  
   virtual void get_bcconv_factor(FastMat2 &bcconv_factor);
 
   /** Returns the Riemann Invariants and jacobians 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.94 2005/02/08 18:51:23 mstorti Exp $
+//$Id: advdife.cpp,v 1.94.2.1 2005/02/11 23:21:32 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -254,6 +254,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,lumped_mass,0);
   //o Add a shock capturing term
   NSGETOPTDEF(double,shocap,0.0);
+  //o Add an anisotropic shock capturing term
+  NSGETOPTDEF(double,shocap_aniso,0.0);
   //o Report jacobians on random elements (should be in range 0-1).
   NSGETOPTDEF(double,compute_fd_adv_jacobian_random,1.0);
   //o ALE_flag : flag to ON ALE computation
@@ -378,7 +380,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp1,tmp2,tmp3,tmp4,tmp5,hvec(ndimel),tmp6,tmp7,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
-    tmp24,tmp_sc,tmp_sc_v,tmp_shc_grad_U;
+    tmp24,tmp_sc,tmp_sc_aniso,tmp_sc_v,tmp_matloc_aniso,
+    tmp_sc_v_aniso,tmp_shc_grad_U,
+    tmp_j_grad_U(1,ndof),tmp_j_gradN;
   FMatrix tmp_ALE_01,tmp_ALE_02,
     tmp_ALE_03,tmp_ALE_04,tmp_ALE_05,
     tmp_ALE_06,tmp_ALE_07;
@@ -404,7 +408,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // finite differences
   FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),
     flux_pert(2,ndof,ndimel),A_jac_err, A_jac(3,ndimel,ndof,ndof),
-    Id_ndim(2,ndim,ndim);
+    Id_ndim(2,ndim,ndim),jvec(1,ndim);
   Id_ndim.eye();
 
   // Position of current element in elemset and in chunk
@@ -780,7 +784,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	matlocf.add(N_N_C);
 	*/
 
-	// adding shock-capturing term
+	// adding ISOTROPIC shock-capturing term
 	delta_sc_v.set(0.0);
 	if (shocap>0. ) {
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
@@ -800,11 +804,52 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
 	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
 	    }
-	    tmp_sc_v.ir(2,jdf).scale(-shocap*delta*ALPHA*wpgdet).rs();
+	    tmp_sc_v.ir(2,jdf)
+	      .scale(-shocap*delta*ALPHA*wpgdet).rs();
 	    delta_sc_v.rs();
 	  }
 	  
 	  veccontr.add(tmp_sc_v);
+	}
+
+	// adding ANISOTROPIC shock-capturing term
+	if (shocap_aniso>0.) {
+	  double delta_aniso = 0.0;
+	  adv_diff_ff
+	    ->compute_shock_cap_aniso(delta_aniso,jvec);
+#if 0
+	  double jvec_norm = sqrt(jvec.sum_square_all());
+	  assert(jvec_norm>0.);// fixme:= lanzar execpcion
+	  jvec.scale(1./jvec_norm);
+#endif
+
+	  adv_diff_ff->get_Cp(Cp_bis);	  
+	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
+	  tmp_j_grad_U.prod(jvec,tmp_shc_grad_U,-1,-1,1);
+	  tmp_j_gradN.prod(jvec,dshapex,-1,-1,1);
+	  
+	  tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
+	    .scale(shocap_aniso*ALPHA*wpgdet);
+
+	  tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
+#if 0
+      	  for (int jdf=1; jdf<=ndof; jdf++) {
+	    double delta = (double)delta_sc_v.get(jdf);
+	    for (int kdf=1; kdf<=ndof; kdf++) {	 
+	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
+	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
+	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
+	    }
+	    tmp_sc_v.ir(2,jdf).scale(-shocap*delta*ALPHA*wpgdet).rs();
+	    delta_sc_v.rs();
+	  }
+	  veccontr.add(tmp_sc_v);
+#else
+	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis,1,3,2,4);
+	  matlocf.axpy(tmp_matloc_aniso,delta_aniso);
+	  veccontr.axpy(tmp_sc_v_aniso,
+			-shocap_aniso*delta_aniso*ALPHA*wpgdet);
+#endif	  
 	}
 
 #ifndef USE_OLD_STATE_FOR_P_SUPG

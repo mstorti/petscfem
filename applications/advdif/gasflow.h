@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.21 2005/02/07 16:05:12 mstorti Exp $
+// $Id: gasflow.h,v 1.21.2.1 2005/02/11 23:21:32 mstorti Exp $
 #ifndef PETSCFEM_GASFLOW_H
 #define PETSCFEM_GASFLOW_H
 
@@ -24,15 +24,17 @@ private:
   FastMat2 viscous_work,heat_flux,sigma;
   FastMat2 tau_supg_c,vel_supg;
   FastMat2 Ajac_tmp,Djac_tmp;
-  double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff;
+  double rho,p,visco,visco_t,visco_eff,cond,cond_t,cond_eff,Tem;
   double tau_fac,temporal_stability_factor;
   double ga,Rgas,rho_ene,entalpy,g1,ene,int_ene,vel_j2,Cv;
   double tau_supg_a,visco_supg,velmod, h_supg, h_pspg;
   double Pr_t, C_smag;
   double rho_thrsh, p_thrsh;
   int stop_on_neg_val;
-  int shocap_scheme;
-  double shocap_beta,shocap_factor;
+  int shocap_scheme,sutherland_law;
+  double shocap_beta,shocap_factor,Tem_infty,
+    delta_sc_aniso;
+  FastMat2 tmp_vj;
   const NewAdvDif *advdf_e;
   FastMat2 jvec;
   FastMat2 tmp20,dUabso,Uref;
@@ -172,6 +174,10 @@ public:
       each Riemman characteristic variable. */ 
   void Riemann_Inv(const FastMat2 &U, const FastMat2 &normal,
 		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
+
+  void 
+  compute_shock_cap_aniso(double &delta_aniso,
+			  FastMat2 &jvec);
 
 };
 
