@@ -47,8 +47,6 @@
 
 ;; (format #t "~A" (compose (vector 1 2 0) (vector 1 2 0)))
 
-(define g (vector 1 2 3 4 5 0))
-(define G (list g))
 ; (let ((n 10)
 ;       (j 0))
 ;   (while (< j n)
@@ -67,14 +65,38 @@
 		    (cond ((= wa wb) (loop (+ 1 j)))
 			  (else (< wa wb)))))))))
 
+(define (unique list less)
+  (let ((sorted-list (sort list less)))
+    (let loop ((q sorted-list)
+	       (uniq-list '()))
+      (cond ((null? q) (reverse uniq-list))
+	    ((null? uniq-list) (loop (cdr q) (cons (car q) uniq-list)))
+	    (else (cond ((or (less (car q) (car uniq-list))
+			     (less (car uniq-list) (car q)))
+			 (loop (cdr q) (cons (car q) uniq-list)))
+			(else (loop (cdr q) uniq-list))))))))
+
 (define (prod g G)
   (let ((gGg (append G 
 		     (map (lambda (x) (compose g x)) G) 
 		     (map (lambda (x) (compose x g)) G))))
-    (sort gGg lex-compare)))
+    (unique gGg lex-compare)))
 
-;(format #t "(prod g G): ~A\n" (prod g G))
+; (let ((a (vector 0 1 2 3 4))
+;       (b (vector 0 1 1 3 4)))
+;   (format #t "a: ~A, b: ~A, a<b: ~A\n" a b (lex-compare a b)))
 
-(let ((a (vector 0 1 2 3 4))
-      (b (vector 0 1 1 3 4)))
-  (format #t "a: ~A, b: ~A, a<b: ~A\n" a b (lex-compare a b)))
+; (let ((l '(1 2 3 1 2 3 4 5 6 4 5 6)))
+;   (format #t "~A\n" (unique (reverse l) <)))
+
+(define g (vector 1 2 3 4 5 0))
+(define G (list g))
+
+(define (generate g G)
+  (let loop ((p1 G)
+	     (p2 (prod g G)))
+	(cond ((= (length p1) (length p2)) p1)
+	      (else (loop p2 (prod g p2))))))
+
+(format #t "(generate g G): ~A\n" (generate g G))
+
