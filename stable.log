@@ -351,3 +351,51 @@ tag: beta-3.19 on Fri Apr 18 01:17:03 GMT+3 2003, by mstorti in spider
      > Implemented volume integrator. 
      > Works filter (heat eq.) with `qharmm'. 
      > Working on spillway example. 
+----------
+tag: beta-3.20 on Wed Sep  3 00:08:54 GMT+3 2003, by mstorti in spider
+     > Runs test for new `read_vector' function. 
+     > Now, `read_vector' uses `dvector<double>'s' as buffers. 
+     > Almost eliminated all redundant inclusions of `dvector2.h'
+     > Fixed read_vector:bug (set<int> -> vector<int> in idmap::solve())
+     > A `smoke' elemset gives good visualization in the square cavity problem. 
+     > Now communication through sockets with DX is buffered improving very
+     > much the speed.
+     > Adding `interpolation' object/elemset and pfinterp (Octave script).
+     > (Not implemented fully yet, though). 
+     > Dx hook now prints all rank in one line with `AutoString'
+     > Added constant flux to `lin_gen_load'
+     > Upgraded to RH 8.0 - GCC 3.x
+     > Added `start_time' to ns main options.
+     > Added `interface_full_preco_pc' option, allows
+     > user to change the preconditioner for the A_II
+     > diagonal block matrix (not the Schur matrix).
+     > Allows visualization of deforming meshes by reading the displacements
+     > from a file.
+     > Allows visualization of deforming meshes by reading the displacements
+     > from a file.
+     > Fixed bug in Makefile.base, LIBRETTO_I variable. 
+     > Fix `chmod 755 scripts' in sw target
+     > Fix `LIBRETTO_I' makefile variable
+     > Written a patch for Octave plot functions
+     > Add `interface_full_preco_fill' option
+     > Fixed bug in  `src/tempfun.cpp' `ramp' function
+     > Added `elasticity' fields to gmv.pl 
+     > Adds some `axi' fixes 
+     > Adds wpg_sum for gpdata
+     > Adds mesh update for dx_hook
+     > Fixes tempfun2.cpp `piecewise_linear' function. 
+     > Added a shell command to the `dx_hook'
+     > Now dx-hook doesn't stop if it doesn't find the state file. 
+     > Found a serious bug in dvector<>. The clear() functions was not called
+     > on destruction.
+     > Added cat, read and print functions to `dvector'.
+     > Fixed some bugs in dvector<>
+     > Fixed bugs in new dvector<> methods. 
+     > Some small modifications to dvector<>
+     > Fixed some inconsistencies in dvector<>::print
+     > Fixed a bug in dxhook when reading mesh. 
+     > ISP preconditioning is working with nlay>1. 
+     > Runs cubcab example for statistics. 
+     > Written `upload_vector' in block matrix mode, i.e. using MatSetValues
+     > instead of MatSetValue. 
+     > More efficient verison of `upload_vector()'

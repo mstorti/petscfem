@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.46 2003/09/02 02:27:34 mstorti Exp $
+//$Id: dxhook.cpp,v 1.47 2003/09/06 00:25:16 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -302,21 +302,23 @@ int dx_hook::build_state_from_file(double *state_p) {
 	      state_file.c_str(),record);
   if (!MY_RANK) {
     FILE *fid = fopen(state_file.c_str(),"r");
-    if(!fid) 
+    if(!fid) {
       printf("Can't open file \"%s\". Sending null state file. \n",state_file.c_str());
-      
-    int base = record*nnod*ndof;
-    for (int j=0; j<(record+1)*nnod*ndof; j++) {
-      double val=0.;
-      int nread;
-      if (fid) nread = fscanf(fid,"%lf",&val);
-      if(fid && nread!=1) {
-	fclose(fid);
-	throw GenericError("Can't read line.");
+      for (int j=0; j<(record+1)*nnod*ndof; j++) state_p[j] = 0.;
+    } else {
+      int base = record*nnod*ndof;
+      for (int j=0; j<(record+1)*nnod*ndof; j++) {
+	double val=0.;
+	int nread;
+	nread = fscanf(fid,"%lf",&val);
+	if(nread!=1) {
+	  fclose(fid);
+	  throw GenericError("Can't read line.");
+	}
+	if (j>base) state_p[j-base] = val;
       }
-      if (j>base) state_p[j-base] = val;
+      fclose(fid);
     }
-    fclose(fid);
   }
   return 0;
 #undef record
