@@ -34,7 +34,7 @@ extern int MY_RANK,SIZE;
 #include "../../src/util2.h"
 #include "../../src/fastmat2.h"
 
-#include "advective.h"
+#include "nwadvdif.h"
 
 #define MAXPROP 100
 
@@ -144,7 +144,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   assert(npg>0);
   assert(ndim>0);
   
-  int nel,ndof,nelprops;
+  int nel,nelprops;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 

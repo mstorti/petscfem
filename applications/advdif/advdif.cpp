@@ -26,7 +26,9 @@
 #include "../../src/getprop.h"
 #include "../../src/utils.h"
 #include "../../src/util2.h"
+
 #include "advective.h"
+#include "nwadvdif.h"
 #include <time.h>
 
 static char help[] = "Basic finite element program.\n\n";

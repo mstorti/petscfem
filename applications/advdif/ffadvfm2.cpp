@@ -31,7 +31,7 @@
 #include "../../src/util2.h"
 #include "../../src/fastmat2.h"
 
-#include "advective.h"
+#include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -51,23 +51,53 @@ void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux_,FastMat2 &U) {
 }
 
 void newadvecfm2_ff_t::UPerField::
-comp_A_grad_U(FastMat2 &A_grad_U_,FastMat2 &grad_U) {
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   for (int j=1; j<=ff.elemset->ndof; j++) {
     grad_U.ir(2,j);
     ff.u.ir(1,j);
     tmp.prod(grad_U,ff.u,-1,-1);
-    A_grad_U_.setel(tmp.get(),j);
+    A_grad_U.setel(tmp.get(),j);
   }
   grad_U.rs();
   ff.u.rs();
-  A_grad_U_.rs();
+  A_grad_U.rs();
 }
   
 void newadvecfm2_ff_t::UPerField::
-comp_A_grad_N(FastMat2 &A_grad_N_,FastMat2 &dshapex) {
-  A_grad_N_.set(0.).d(3,2).prod(ff.u,dshapex,1,-1,-1,2).rs();
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
+  A_grad_N.set(0.).d(3,2).prod(dshapex,ff.u,-1,1,2,-1).rs();
+}
+
+void newadvecfm2_ff_t::UPerField::
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
+  Uintri.prod(iJaco,ff.u,2,-1,1,-1);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
+void newadvecfm2_ff_t::UGlobal::comp_flux(FastMat2 &flux_,FastMat2 &U) {
+  flux_.prod(U,ff.u,1,2);
+}
+
+void newadvecfm2_ff_t::UGlobal::
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
+  A_grad_U.prod(ff.u,grad_U,-1,-1,1);
 }
   
+void newadvecfm2_ff_t::UGlobal::
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
+  tmp.prod(ff.u,dshapex,-1,-1,1);
+  for (int j=1; j<=ff.ndim; j++) {
+    A_grad_N.ir(1,j).eye(tmp.get(j));
+  }
+  A_grad_N.rs();
+}
+  
+void newadvecfm2_ff_t::UGlobal::
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
+  tmp3.prod(iJaco,ff.u,1,-1,-1);
+  Uintri.prod(ff.tmp2,tmp3,1,2);
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::start_chunk(int ret_options)"
@@ -75,19 +105,26 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   // FastMat2Shell *A_jac_l = elemset->A_jac;
   ndim = elemset->ndim;
   ndof = elemset->ndof;
-  Uintri.resize(1,ndim);
+  Uintri.resize(2,ndof,ndim);
+  tmp2.resize(1,ndof).set(1.);
+
   // Read advective jacobians
   //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
   //  _N: advective_jacobians _D: no default  _DOC: 
   //i_tex ../../doc/advdifop.tex advective_jacobians
   //  _END
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
-  assert(advective_jacobians_prop.length == ndim*ndof);
 
-  a_jac =  new UPerField(*this);
-  u.resize(2,ndof,ndim);
+  if ( advective_jacobians_prop.length == ndim) {
+    u.resize(1,ndim);
+    a_jac =  &u_global;
+  } else if (advective_jacobians_prop.length == ndim*ndof) {
+    u.resize(2,ndof,ndim);
+    a_jac =  &u_per_field;
+  } else {
+    assert(0);
+  }
   ret_options &= !SCALAR_TAU; // tell the advective element routine
-				// that we are returning a non-scalar tau
 
 #if 0
   const char *advje;
@@ -215,10 +252,12 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   int ierr;
   double tau_a, tau_delta, gU, A01v[9];
 
+  // Unfortunately we have to use copies of U and
+  // iJaco due to const'ness restrictions.
   Ucpy.set(U);
+  iJaco_cpy.set(iJaco);
   u.set(advjac);
   a_jac->comp_flux(flux,Ucpy);
-  //a_jac->comp_flux(flux,U);
 
   if (options & COMP_UPWIND) {
 
@@ -231,14 +270,17 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 
     lam_max = 0.;
     tau_supg.set(0.);
+
+    a_jac->comp_Uintri(Uintri,iJaco_cpy);
+    // Uintri.prod(iJaco,u,2,-1,1,-1);
+
     for (int k=1; k<=ndof; k++) {
       
       assert(nd==ndof);
-      u.ir(1,k);
+      Uintri.ir(1,k);
       double alpha=djacvp[k-1];
-      Uintri.prod(iJaco,u,1,-1,-1);
       double vel = sqrt(u.sum_square_all());
-      u.rs();
+
       // double h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
       double Uh = sqrt(Uintri.sum_square_all()); // this is
 				// approx. 2*U/h
@@ -260,6 +302,7 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 				// matrix
       if (vel>lam_max) lam_max = vel;
     }
+    Uintri.rs();
     delta_sc = 0.;
   }
   

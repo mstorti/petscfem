@@ -21,7 +21,8 @@ private:
   int shock_capturing,na,nd,nc;
   FastMat2 D_jac_l, C_jac_l, tmp0;
   double tau_fac;
-  FastMat2 u,u2,Uintri,AA,Ucpy;
+  FastMat2 u,u2,Uintri,AA,Ucpy,iJaco_cpy,
+    tmp2;
   vector<double> djacv,cjacv;
   double *djacvp,*cjacvp;
   ElementIterator element;
@@ -29,6 +30,21 @@ private:
   const double *advjac;
   int ndim,ndof;
 public:
+
+  /// One velocity for all the fields
+  class UGlobal;
+  friend class UGlobal;
+  class UGlobal : public AJac {
+    FastMat2 tmp,tmp3;
+    newadvecfm2_ff_t &ff;
+  public:
+    UGlobal(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
+      comp_Uintri;
+  };
+  UGlobal u_global;
+
+  /// One velocity per field
   class UPerField;
   friend class UPerField;
   class UPerField : public AJac {
@@ -36,9 +52,13 @@ public:
     FastMat2 tmp;
   public:
     UPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
-    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N;
+    FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
+      comp_Uintri;
   };
-  newadvecfm2_ff_t(NewAdvDif *elemset_) : NewAdvDifFF(elemset_) {};
+  UPerField u_per_field;
+
+  newadvecfm2_ff_t(NewAdvDif *elemset_) : NewAdvDifFF(elemset_),
+    u_per_field(*this), u_global(*this) {};
   void start_chunk(int ret_options);
   void element_hook(ElementIterator &element);
   void compute_flux(COMPUTE_FLUX_ARGS);

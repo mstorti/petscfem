@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2001/03/18 16:48:21 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2001/03/19 01:20:32 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -101,8 +101,8 @@ per_elem_prop: .gdbinit advdif.link
 	eperl -d per_elem_prop=1 sine.data.epl >sine.data
 	eperl -P -d perl_elem_prop=1 sine.epl > per_elem_prop.depl
 	octave -q sine.m
-#	$(MAKE) case=$@ run
-#	mv -fv save.state save.state.$(N_step_period)
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
+			-case per_elem_prop.depl > per_elem_prop.out.tmp
 
 # lclean:
 # 	-chmod +w sine.depl
