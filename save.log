@@ -960,3 +960,6 @@ tag: beta-2.77 on Sat Feb  9 23:50:43 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.77.pl1 on Sun Feb 10 09:47:46 ARST 2002 by mstorti in spider
      > Amplitude with internal store `void * fun_data' is working.
+----------
+tag: beta-2.78 on Sun Feb 10 12:29:36 ARST 2002, by mstorti in spider
+     > Dynamically linked extension functions are working.
