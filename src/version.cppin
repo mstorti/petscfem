@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: version.cppin,v 1.21 2003/08/27 20:13:48 mstorti Exp $
+//$Id: version.cppin,v 1.22 2003/08/31 14:33:12 mstorti Exp $
 #include <petsc.h>
 #include <src/fem.h>
 
@@ -17,7 +17,8 @@ void print_copyright() {
 "-----------------------------<http://www.cimec.org.ar/petscfem>--\n"
 "This is PETSc-FEM, version <:$t=`cat ../VERSION`; chomp $t; print $t:>"
 "   (compiled with BOPT=\"" PETSC_BOPT_FLAG "\")\n"
-"Copyright (C) 1999-2003 Mario A. Storti, Norberto M. Nigro, Rodrigo R. Paz, CIMEC-CONICET-UNL\n"
+"Copyright (C) 1999-2003 Mario A. Storti, Norberto M. Nigro and\n"
+"   Rodrigo R. Paz. CIMEC-CONICET-UNL\n"
 "PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,\n"
 "and you are welcome to redistribute it under certain conditions.\n"
 "-----------------------------------------------------------------------\n"
