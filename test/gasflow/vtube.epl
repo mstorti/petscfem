@@ -6,11 +6,12 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 
 $closed_tube = 1;		# simulate the tube closed (no inlet/outlet)
 $use_tetra = 0;
+$axisymm = 1;			# do an axisymmetric calculation with
+				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = 0.520;			# [m] Length of tube
-$L0 = 2*$R0;			# debug...
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 4;			# refinement in `z' (axial) direction
@@ -21,7 +22,7 @@ $A_in = 3.63e-4;		# [m2] inlet area
 $Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
 
 ## Mesh parameters
-$refine = 1;			# scale all N's by this
+$refine = 4;			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -48,14 +49,8 @@ $u_rad_in = $mass_flow_in/
     ($A_in*$rho_in);		# [m/s] radial velocity
 $u_circunf_in = 10*$u_rad_in;	# [m/s] tangential velocity
 
-if ($closed_tube) {
-    ##INLET
-    $u_rad_in = 0.;		# [m/s] radial velocity
-    $u_circunf_in = 1;		# [m/s] tangential velocity
-}
-
 # viscosity (set by Re number)
-$u_circunf_in = 1;		# [m/s] tangential velocity
+$u_circunf_in = 200;		# [m/s] tangential velocity
 $Re = 1e4;			# [1] Reynolds based on diameter
 $visco   =  $rho_in
     *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
@@ -72,7 +67,7 @@ $weak_form  = 0;
 #__END_TRANSCRIPT__
 @vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
 		rho_in u_rad_in u_circunf_in p_in p_h p_c 
-		closed_tube compressible);
+		closed_tube compressible axisymm);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
@@ -82,6 +77,8 @@ if ($use_tetra) {
 }
 :>//                            # ends ePerl block
 
+# <:pr('incomp'):>
+# <:pr('compressible'):>
 ##================================================================
 global_options
 
@@ -114,12 +111,12 @@ tol_newton 1e-10
 atol 0
 rtol 0
 dtol 1e3
-nnwt 2
+nnwt 3
 # omega_newton 0.01
 
 print_internal_loop_conv
 
-Dt 0.01
+Dt 0.002
 weak_form 0
 temporal_stability_factor 0
 
@@ -136,6 +133,9 @@ C_mu 0.
 viscosity <:=$visco:>
 #endif
 report_consumed_time
+#if $axisymm
+axisymmetric "z"
+#endif
 __END_HASH__
 
 ##================================================================
@@ -162,3 +162,8 @@ __INCLUDE__ vtube.fixa.tmp
 1 4 0.
 #endif
 __END_FIXA__
+
+##================================================================
+constraint
+__INCLUDE__ vtube.peri.tmp
+__END_CONSTRAINT__

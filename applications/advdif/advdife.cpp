@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.64 2003/01/08 13:09:38 mstorti Exp $
+//$Id: advdife.cpp,v 1.65 2003/01/19 20:02:49 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -182,9 +182,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(int,lumped_mass,0);
 
   //o Add axisymmetric version for this particular elemset.
-
-  // int axi;
-
   NSGETOPTDEF(string,axisymmetric,"none");
   assert(axisymmetric.length()>0);
   if (axisymmetric=="none") axi=0;
