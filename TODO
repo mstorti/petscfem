@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Exception: number of nodes in connec. table doesnt match
+	     that entered in elemset header
 * new scheduling algorithm for load balancing in `elemset.cpp'
 * cambiar 'ceride.gov' por 'arcride.edu'
 * write a generic non-linear restriction element
