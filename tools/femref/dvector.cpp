@@ -189,22 +189,37 @@ DVECTOR_CAT_FUN(SCM s_w,SCM s_file) {
 #undef __FUN__
 #define __FUN__ DVTYPE "-dump"
 static SCM
-DVECTOR_DUMP_FUN(SCM s_w,SCM s_file) {
+DVECTOR_DUMP_FUN(SCM s_w,SCM s_file,SCM s_rowsz) {
   dvector_t *w;
 
   SCM_ASSERT(SCM_SMOB_PREDICATE(TAG, s_w),
 	     s_w, SCM_ARG1, __FUN__);
   w = (dvector_t *) SCM_SMOB_DATA (s_w);
-  
-  FILE *stream=NULL;
-  if (s_file == SCM_UNDEFINED) {
-    w->print();
-  } else {
+
+  int rowsz;
+  if (s_rowsz == SCM_UNDEFINED) 
+    rowsz = 0;
+  else {
+    SCM_ASSERT(SCM_INUMP(s_rowsz),
+	       s_rowsz, SCM_ARG3, __FUN__);
+    rowsz = SCM_INUM(s_rowsz);
+  }
+
+  bool tostdout = false;
+  if (s_file == SCM_UNDEFINED) 
+    tostdout = true;
+  else {
     SCM_ASSERT(scm_string_p(s_file),
 	       s_file, SCM_ARG2, __FUN__);
-    const char *file = SCM_STRING_CHARS(s_file);
-    w->print(file);
+    if (scm_string_null_p(s_file))
+      tostdout = true;
+    else {
+      const char *file = SCM_STRING_CHARS(s_file);
+      w->print(file,rowsz);
+    }
   }
+  if (tostdout) w->print(stdout,rowsz);
+
   return SCM_UNSPECIFIED;
 }
 
@@ -259,5 +274,5 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
   scm_c_define_gsubr(DVTYPE "-cat!", 2, 0, 0, scm_fun(DVECTOR_CAT_FUN));
-  scm_c_define_gsubr(DVTYPE "-dump", 1, 1, 0, scm_fun(DVECTOR_DUMP_FUN));
+  scm_c_define_gsubr(DVTYPE "-dump", 1, 2, 0, scm_fun(DVECTOR_DUMP_FUN));
 }
