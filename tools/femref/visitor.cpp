@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.16 2004/12/27 03:37:33 mstorti Exp $
+// $Id: visitor.cpp,v 1.17 2004/12/29 21:37:24 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -167,7 +167,8 @@ refine(const Splitter* s) {
     rfnd.init(t,local_nodes,w->go.nodes());
     rfnd.make_canonical();
     int node_hash = rfnd.hash_val();
-    hash2it_t::iterator start = hash2it.lower_bound(node_hash);
+    hash2it_t::iterator 
+      start = hash2it.lower_bound(node_hash);
     if (start == hash2it.end()) {
       RefNodeIterator q;
       q.c = q.cell_ptr();
@@ -175,8 +176,10 @@ refine(const Splitter* s) {
       hash2it[node_hash] = q;
     } else {
     }
-    hash2it_t::iterator end = hash2it.upper_bound(node_hash);
+    hash2it_t::iterator 
+      end = hash2it.upper_bound(node_hash);
     if (start==end) {
+      while 
     }
   }
   int j = w->so_indx;
