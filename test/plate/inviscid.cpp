@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.2 2002/12/30 03:06:31 mstorti Exp $
+//$Id: inviscid.cpp,v 1.3 2003/01/01 15:11:15 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -8,7 +8,18 @@ extern int MY_RANK,SIZE;
 #include "./fifo.h"
 
 extern int MY_RANK,SIZE;
+#define NDIM 2    
+#define NDOF (NDIM+1)    
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class ext_node {
+public:
+  double x[NDIM], u[NDIM];
+};
+
+vector<int> visc_nodes,ext_nodes;
+typedef map<int,ext_node> ext_map;
+ext_map coup_vals;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void coupling_visc_hook::init(Mesh &mesh,Dofmap &dofmap,
@@ -54,20 +65,33 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
 
     printf("INV2VISC: Done.\n");
     
-#define NDIM 2    
-    FILE *fid = fopen("cylin.nod.tmp","r");
-    double x[NDIM];
+    FILE *fid = fopen("ext.coupling_nodes.tmp","r");
     int nread;
+    while (1) {
+      int vn,en;
+      nread = fscanf(fid,"%d %d",&vn,&en);
+      if (nread!=2) break;
+      visc_nodes.push_back(vn);
+      ext_nodes.push_back(en);
+      coup_vals[en] = ext_node();      
+    }
+    assert(nread==EOF);
+
+    fid = fopen("cylin.nod.tmp","r");
+    double x[NDIM];
+    int node=0;
+    ext_map::iterator q, qe=coup_vals.end();
     while (1) {
       nread = fscanf(fid,"%lf %lf",&x[0],&x[1]);
       if(nread!=NDIM) break;
+      node++;
+      q = coup_vals.find(node);
+      if (q!=qe) {
+	q->second.x[0] = x[0];
+	q->second.x[1] = x[1];
+      }
     }
     assert(nread==EOF);
-    fclose(fid);
-    nnod = xnod.size()/NDIM;
-
-#define NDOF (NDIM+1)    
-    u.resize(nnod*NDOF);
   }
 }
 
@@ -95,17 +119,11 @@ DL_GENERIC_HOOK(coupling_inv_hook);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class coupling {
-private:
-  int *nodes;
-  double *vals;
 public:
-  coupling() : nodes(NULL), vals(NULL) {}
+  coupling() { }
   void init(TextHashTable *thash);
   double eval(double);
-  ~coupling() {
-    delete[] nodes; nodes=NULL;
-    delete[] vals; vals=NULL;
-  }
+  ~coupling() { }
 };
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION(coupling);
