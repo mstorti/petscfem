@@ -2571,3 +2571,6 @@ tag: beta-3.18.pl48 on Sun, 30 Mar 2003 17:45:24 -0300 by mstorti in spider
 tag: beta-3.18.pl49 on Sun, 30 Mar 2003 21:01:21 -0300 by mstorti in spider
      > Runs correctly wave problem at Re=100, Fr=0.5, with deformations
      > eta0 up to 0.3. 
+----------
+tag: beta-3.18.pl50 on Mon, 31 Mar 2003 14:08:30 -0300 by mstorti in spider
+     > Fixed error in updating FS. 
