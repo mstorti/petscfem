@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.20 2001/07/21 16:51:35 mstorti Exp $
+//$Id: elemset.cpp,v 1.21 2001/07/25 17:29:45 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -706,6 +706,20 @@ void Elemset::print() {
   SHVS(nel,d);
   SHVS(ndof,d);
   thash->print();
+}
+
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+const char * Elemset::name() {
+  const char *name_r,*name_d="__ANONYMOUS__";
+  thash->get_entry("name",name_r);
+  if (name_r) {
+    return name_r;
+  } else {
+    return name_d;
+  }
 }
 
 void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.25 2001/07/25 03:28:22 mstorti Exp $
+//$Id: readmesh.cpp,v 1.26 2001/07/25 17:29:45 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -1015,7 +1015,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     if (debug_element_partitioning) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Elemset \"%s\", type \"%s\", nelem %d\n."
-		  "Partitioning table: \n",elemset->name,elemset->type,nelem);
+		  "Partitioning table: \n",elemset->name(),elemset->type,nelem);
       for (int kk=0; kk<nelem; kk++) 
 	PetscPrintf(PETSC_COMM_WORLD,"%d -> %d\n",kk,epart[kk]);
     }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.15 2001/05/30 03:58:50 mstorti Exp $
+//$Id: elemset.h,v 1.16 2001/07/25 17:29:45 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -272,6 +272,8 @@ public:
   void elem_params(int &nel_,int &ndof_,int &nelprops_) const {
     nel_=nel; ndof_=ndof; nelprops_ = nelprops;
   }
+
+  const char *name();
 
   friend class ElementList;
 
