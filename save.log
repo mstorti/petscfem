@@ -2265,3 +2265,6 @@ tag: beta-3.15.pl10 on Thu, 30 Jan 2003 14:58:19 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.15.pl11 on Thu, 30 Jan 2003 17:17:35 -0300 by mstorti in node1.beowulf.gtm
      > Runs vtube example with cut_regulator
+----------
+tag: beta-3.15.pl12 on Thu, 30 Jan 2003 23:56:48 -0300 by mstorti in spider
+     > Working on ExpProgImport DX module. 
