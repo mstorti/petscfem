@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.31 2002/01/15 19:40:59 mstorti Exp $
+//$Id: advdif.cpp,v 1.32 2002/01/15 21:38:29 mstorti Exp $
 
 #include <set>
 
@@ -198,7 +198,14 @@ int main(int argc,char **args) {
   GETOPTDEF(double,Courant,0.6);
   //o Time step. 
   GETOPTDEF(double,Dt,0.);
+  //o Flag if steady solution or not (uses Dt=inf). If \verb+steady+
+  // is set to 1, then the computations are as if $\Dt=\infty$. 
+  // The value of \verb+Dt+ is used for printing etc... If \verb+Dt+
+  // is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
+  GETOPTDEF(int,steady,0);
+  if (steady && Dt==0.) Dt=1.;
   glob_param.Dt = Dt;
+  glob_param.steady = steady;
   //o The parameter of the trapezoidal rule
   // for temporal integration. 
   GETOPTDEF(double,alpha,0.);

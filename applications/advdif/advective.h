@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.37 2002/01/15 19:40:59 mstorti Exp $
+//$Id: advective.h,v 1.38 2002/01/15 21:38:29 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -431,6 +431,10 @@ struct GlobParam {
   double alpha;
   /// time step
   double Dt;
+  /// if set to one then Dt=infty
+  int steady;
+  /// Constructor
+  GlobParam() : alpha(0), Dt(1.), steady(0) {}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
