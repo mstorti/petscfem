@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.55 2002/03/04 21:15:58 mstorti Exp $
+//$Id: advdife.cpp,v 1.56 2002/03/05 14:05:23 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -235,7 +235,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     iJaco(ndimel,ndimel),
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), P_supg(ndof,ndof), A_grad_U(ndof),
-    Ao_grad_U(ndof), G_source(ndof), dUdt(ndof), Un(ndof), 
+    G_source(ndof), dUdt(ndof), Un(ndof), 
     Ho(ndof),Hn(ndof), tau_supg(ndof,ndof);
   // These are edclared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
@@ -253,11 +253,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #ifdef COMPUTE_FD_ADV_JACOBIAN
   FastMat2 A_fd_jac(3,ndim,ndof,ndof),U_pert(1,ndof),flux_pert(2,ndof,ndimel);
 #endif
-#if 0
   FastMat2 U0(1,ndof);
   double u0[] = {1.,1.,1.,2.,0.,0.,0.1,0.1};
   U0.set(u0);
-#endif
 
   Uo.resize(1,ndof);
   Id_ndof.set(0.);
@@ -382,7 +380,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 					   // grad_U (y no grad_Uold) ya que
 					   // no nos interesa la parte difusiva
 	adv_diff_ff->compute_flux(Uo,iJaco,H,grad_H,flux,fluxd,
-				  Ao_grad_U,grad_U,G_source,
+				  A_grad_U,grad_U,G_source,
 				  tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
@@ -419,8 +417,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	tmp10.set(G_source);	// tmp10 = G - dUdt
 	if (!lumped_mass) tmp10.rest(dUdt);
 	if (beta_supg==1.) {
-	  // fixme:= WARNING!! Para que sea lineal ponemos A(old) * grad_U
-	  tmp1.rs().set(tmp10).rest(Ao_grad_U); //tmp1= G - dUdt - A_grad_U
+	  tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
 	} else {
 	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
 	}
@@ -501,7 +498,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	  matlocf.ir(1,jel);
 	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
-	  tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);// debug:=
+	  tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 
           // Reactive term in matrix (SUPG term)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.11 2002/03/04 21:15:58 mstorti Exp $
+//$Id: bubbly.cpp,v 1.12 2002/03/05 14:05:23 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -223,7 +223,7 @@ void bubbly_ff
   flux.rs();
   // flux.set(0.);  //debug:= 
   // Cambiamos signo de la ec. de cont. debug:=
-  flux.is(1,1).scale(-1.).rs(); 
+  // flux.is(1,1).scale(-1.).rs(); 
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Adjective Jacobians
@@ -271,7 +271,7 @@ void bubbly_ff
   Ajacc.rs();
   // Ajac.set(0.); //debug:= 
   // Cambiamos signo de la ec. de cont. debug:=
-  Ajac.is(2,1).scale(-1.).rs(); 
+  // Ajac.is(2,1).scale(-1.).rs(); 
 
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
@@ -411,6 +411,7 @@ void bubbly_ff
     double tsf = temporal_stability_factor;
     if (rec_Dt==0.) tsf = 0.;
     // velmod=1.; // debug:=
+    // h_pspg = 1/20.;
     // h_supg = h_pspg;
     double tau_supg_a =  tsf * square(2.*rec_Dt)+square(2.*velmod/h_supg)
       +9.*square(4.*visco_l_eff/square(h_supg));
@@ -430,7 +431,6 @@ void bubbly_ff
       tau_supg_a *= tau_fac;
     }
     tau_supg.eye(tau_supg_a).setel(tau_pspg,1,1).setel(tau_pspg,2,2);
-    // tau_supg.eye(0.025); // debug:= 
   }
   if (options & COMP_SOURCE) {
     G_source.set(0.);
