@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.11 2002/08/31 19:38:29 mstorti Exp $
+//$Id: fstack.cpp,v 1.12 2003/02/12 19:32:09 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -47,11 +47,17 @@ void FileStack::close(void) {
 #undef __FUNC__
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FileStack::FileStack(const char *filename) 
-  : echo_stream (NULL), echo(0), file_at_top(NULL) {
+FileStack::FileStack(const char *filename) : 
+  echo_stream (NULL), 
+  echo(0), 
+  file_at_top(NULL),
+  last_error_m(read_ok) {
 
   open(filename);
-  if (!ok()) return;
+  if (!ok()) {
+    last_error_m = cant_open;
+    return;
+  }
   file_stack = da_create(sizeof(FILE *));
   read_buffer = da_create(sizeof(Autobuf *));
   buf = astr_create();
@@ -69,15 +75,19 @@ FileStack::FileStack(const char *filename)
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void FileStack::open(const char *)"
-void FileStack::open(const char *filename) {
+int FileStack::open(const char *filename) {
   // char line[LINESIZE];
   file_at_top = fopen(filename,"r");
   if (!file_at_top) {
     printf("Couldn't open file \"%s\"!!\n",filename);
+    last_error_m = cant_open;
+    return 1;
   }
   file_names.push_back(string(filename));
   file_pos.push_back(pos);
   pos=0;
+  last_error_m = read_ok;
+  return 0;
 }
 
 #undef __FUNC__
@@ -96,6 +106,7 @@ int FileStack::get_line(char * & line) {
     abuf_destroy(abuf);
     da_pop(read_buffer,&abuf);
     line = (char *)(abuf_data(abuf));
+    last_error_m = read_ok;
     return 0;
   }
 
@@ -114,6 +125,7 @@ int FileStack::get_line(char * & line) {
 	file_pos.pop_back();
 	continue;
       } else {
+	last_error_m = eof;
 	return 1;
       }
     }
@@ -167,22 +179,10 @@ int FileStack::get_line(char * & line) {
       }
       file_at_top = fopen(token_cpy.c_str(),"r");
 	
-#if 0
-      if (token[0]=='"') {
-	int m = strlen(token);
-	assert(m>=2);
-	char *token_cpy = new char[m-1];
-	memcpy(token_cpy,token[1],m-2);
-	token_cpy[m] = '\n';
-	file_at_top = fopen(token_cpy,"r");
-	delete[] token_cpy;
-      } else {
-	file_at_top = fopen(token,"r");
-      }
-#endif
       if (!file_at_top) {
 	printf("Couldn't open file \"%s\"!!\n",token);
-	exit(0);
+	last_error_m = cant_open;
+	return 1;
       }
       file_names.push_back(token_cpy);
       file_pos.push_back(pos);
@@ -200,22 +200,18 @@ int FileStack::get_line(char * & line) {
 	bufrp[readlen-1] = '\0';
       }
       lenn = len+ readlen-1;
-//        if (lenn > MAX_LINE) {
-//  	printf("exceeded size of line: %d\n",MAX_LINE);
-//  	exit(1);
-//        }
 
       abuf_cat_s (abuf,bufrp);
       len=lenn;
     }
     if ( ! contnd ) break;
   }
-  //  abuf_data(abuf)[len+1]='\0';
   abuf_cat_c (abuf,'\0');
   line = (char *)(abuf_data(abuf));
   astr_copy_s(linecopy, line);
   
-  ///  printf("read: ->\"%s\"\n",line);
+  last_error_m = read_ok;
+
   return 0;
 } 
 
@@ -247,4 +243,14 @@ int FileStack::unread_line(const char * line) {
   da_push(read_buffer,&linebuf);
   return 0;
 }
-  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
+int FileStack::line_number() const {return pos;};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+const char * FileStack::file_name() const {
+  return file_names.back().c_str();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FileStack::error FileStack::last_error() { return last_error_m; }

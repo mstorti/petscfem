@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/02/13 12:09:23 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/02/12 19:32:13 mstorti Exp $ 
 
-.PHONY: fstack force
+.PHONY: fstack force tests
+
+tests: fstack
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -19,12 +21,10 @@ fstack: tfstack.bin
 $(SRC_DIR)/%.o: force
 	$(MAKE) -C $(SRC_DIR) $@
 
-../../src/libpetscfem.a(fstack.o): force
-	$(MAKE) -C ../../src/ 'libpetscfem.a(fstack.o)'
-
-tfstack.bin: tfstack.o ../../src/libpetscfem.a(fstack.o)
-	${CXX_CLINKER} -o $@ tfstack.o $(LIBPETSCFEM) \
-		-lc ${PETSC_SLES_LIB} \
+tfstack.bin: tfstack.o $(LIB)(fstack.o)
+#	${CXX_CLINKER} -shared -Wl,-rpath,$(LD_LIBRARY_PATH) 
+	${CXX_CLINKER}	-g -Wl,-rpath,$(LD_LIBRARY_PATH) -o $@ tfstack.o	\
+		$(LIBPETSCFEM) -lc ${PETSC_SLES_LIB}			\
 		-L$(LIBRETTO_LIB) -libretto
 
 #

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fstack.h,v 1.9 2001/11/02 02:33:13 mstorti Exp $
+//$Id: fstack.h,v 1.10 2003/02/12 19:32:09 mstorti Exp $
 
 #ifndef FSTACK_H
 #define FSTACK_H
@@ -20,15 +20,11 @@
 #include <libretto/autostr.h>
 #include <libretto/autobuf.h>
 
-//#include <petsc.h>
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Allows reading from a set of files with preprocessing
     capabilities. Supports file inclusion, comments and continuation
     lines. 
-
-    @author M. Storti
-*/ 
+    @author M. Storti */ 
 class FileStack {
 
 private: 
@@ -49,57 +45,58 @@ private:
   int pos;
 
 public:
+
+  enum error { read_ok, cant_open, eof} last_error_m;
+  error last_error();
   /** Reads a line from the file stack. 
       @author M. Storti
       @param line the line that has been read
-  */ 
+      @return error code  */ 
   int get_line(char *& line );
 
   /** Gives a pointer to the last line read.
       @author M. Storti
-      @param line the line that has been read
-  */ 
+      @param line the line that has been read  */ 
   const char * line_read(void) const;
 
-  int line_number() const {return pos;};
-  const char * file_name() const {return file_names.back().c_str();};
+  /** Position in file at top. 
+      @return line number */ 
+  int line_number() const;
+
+  /** Name of current file at top.
+      @return name of file at top */ 
+  const char * file_name() const;
+
+  /** Prints the current file stack. */ 
   void print(void) const;
 
   /** Unreads a line
-      @author M. Storti
-  */ 
+      @author M. Storti */ 
   int unread_line(const char * line);
 
   /** Closes the file-stack. 
-      @author M. Storti
-  */ 
+      @author M. Storti */ 
   void close();
 
   /** Opens a file. 
-      @author M. Storti
-  */ 
-  void open(const char *filename);
+      @author M. Storti */ 
+  int open(const char *filename);
 
   /** Constructor from the name of the main file. 
   @author M. Storti
-  @param filename the name of the main file. 
-  */ 
+  @param filename the name of the main file. */ 
   FileStack(const char *filename);
 
   /** Destructor.  
-      @author M. Storti
-  */ 
+      @author M. Storti */ 
   ~FileStack(void);
 
   /** Check if the file has been opened correctly
-      @param (input)
-      @return a reference to the matrix.
-  */ 
+      @return error code */ 
   int ok(void) {return file_at_top!=NULL;};
 
   /** Set stream where to write echo lines
-      @param echo_s (input) the output stream
-  */ 
+      @param echo_s (input) the output stream */ 
   void set_echo_stream(FILE *echo_s) {echo_stream = echo_s;};
 };
 

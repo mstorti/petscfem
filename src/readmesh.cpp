@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.73 2003/02/08 01:08:35 mstorti Exp $
+//$Id: readmesh.cpp,v 1.74 2003/02/12 19:32:09 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -74,7 +74,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   const char *cline;
   Autostr *linecopy = astr_create();
   char *key,*val;
-  int ndim,nu,ndof,nnod,ierr,numfat,node,jdof,kdof,edof;
+  int ndim,nu,ndof,nnod,ierr,ierro,numfat,node,jdof,kdof,edof;
   int pos, nelem, nel, nelprops, neliprops, nread, elemsetnum=0,
 	fat_flag,iele,k,nfixa, *ident,rflag;
   double *dptr,dval; 
@@ -102,8 +102,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   neq=0;
   dofmap = new Dofmap;
 
-  while (1) {
-    if(fstack->get_line(line)) break;
+  while (!fstack->get_line(line)) {
       
     token = strtok(line,bsp);
 
@@ -214,8 +213,16 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  int indx = da_append (xnod,row);
 	  if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
 	}
+	ierro = fstack_nodes_data.last_error()!=FileStack::eof;
+	if (ierro) printf("Couldn't process correctly node data file %s\n",
+			 fstack_nodes_data.file_name());
 	nnod=node;
       }
+#define CHECK_PAR_ERR(ierro)					\
+      ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
+      PETSCFEM_ASSERT0(!ierro,"");  
+      CHECK_PAR_ERR(ierro);
+      
       ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;
@@ -493,8 +500,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    CHKERRQ(ierr);
 	    nelem++;
 	  }
+	  ierro = file_connect.last_error()!=FileStack::eof;
+	  if (ierro) printf("Couldn't process correctly connectivity file%s\n",
+			    file_connect.file_name());
 	  file_connect.close();
 	}
+	CHECK_PAR_ERR(ierro);
 	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSC_COMM_WORLD);
 	// Resize `da_icone' in other processors
 	if (myrank) ierr =  abuf_set (tempo,nelem*rowsize,0);
@@ -802,6 +813,10 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
     }
 
   }
+  PETSCFEM_ASSERT(fstack->last_error()==FileStack::eof,
+		  "Couldn't process correctly main data file\"%s\"\n",
+		  fstack->file_name());  
+    
   fstack->close();
   delete fstack;
 
