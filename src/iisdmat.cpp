@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.6 2001/12/28 21:13:17 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.7 2001/12/30 00:00:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -740,7 +740,6 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
 
   } else {  // if (n_int_tot == 0 )
     
-    assert(!factored);
     ierr = VecGetArray(res,&res_a); CHKERRQ(ierr); 
 
     scal=0.;
