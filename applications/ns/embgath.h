@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.16 2003/01/09 02:37:42 mstorti Exp $
+//$Id: embgath.h,v 1.17 2003/01/10 19:17:06 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -50,9 +50,11 @@ public:
       element in order to rotate it to a standard position. 
   */ 
   virtual void face(int j,const int *&fc,const int *&vol)=0;
+#if 0
   /** Number of surface nodes, desired number of
       nodes in the volume element. */
   virtual void surface_nodes(int &nel_surf,int &nel_vol)=0;
+#endif
   //@}
   /** Rotates the connectivity in #vol_map# according to
       the surface rotation #surf_map#.
@@ -104,7 +106,40 @@ public:
   void face(int j,const int *&fc,const int *&vol);
   /** Returns number of elements, surface nodes and volume nodes. */
   int nfaces(int &nel_surf,int &nel_vol) { nel_surf=4; nel_vol=8; return 24; }
-  void surface_nodes(int &nel_surf,int &nel_vol);
+  // void surface_nodes(int &nel_surf,int &nel_vol);
+  //@}
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Instantiation of the #Surf2Vol# class for
+    prisms with tri surface elements. */
+class Tri2Prism : public Surf2Vol {
+private:
+  int vol_c[6],vol[6];
+  void rotate(int *fc,int nrot);
+  void reflect(int *fc);
+  void invert(int *fc);
+public:
+  /// Constructor. Sets #use_exterior_normal_m#
+  Tri2Prism(const char *geom,int ndim,int nel,
+	   int npg,int mat_version=GP_NEWMAT,
+	    int use_exterior_normal_m=0) 
+    : Surf2Vol(geom,ndim,nel,npg,mat_version,
+	       use_exterior_normal_m) { 
+    assert(!use_exterior_normal_m);
+  }
+  /** @name Callback routines for the quad/hexa combination. */
+  //@{
+  /** Callback routine that defines the possible
+      orientations of a face. 
+      @param j (input) number of face
+      @param fc (output) connectivity of the #j#-th surface face. 
+      @param vol (input) rotation map corresponding to the
+      #j#-th volume */
+  void face(int j,const int *&fc,const int *&vol);
+  /** Returns number of elements, surface nodes and volume nodes. */
+  int nfaces(int &nel_surf,int &nel_vol) { nel_surf=3; nel_vol=6; return 6; }
+  // void surface_nodes(int &nel_surf,int &nel_vol);
   //@}
 };
 
@@ -130,7 +165,7 @@ public:
   void face(int j,const int *&fc,const int *&vol);
   /** Returns number of elements, surface nodes and volume nodes. */
   int nfaces(int &nel_surf,int &nel_vol) { nel_surf=2; nel_vol=4; return 4; }
-  void surface_nodes(int &nel_surf,int &nel_vol);
+  // void surface_nodes(int &nel_surf,int &nel_vol);
   //@}
 };
 
@@ -222,7 +257,7 @@ public:
 		     FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		     FastMat2 &xpg,FastMat2 &n, double wpgdet,double time);
   /// Return parameters number of nodes on face, and on volume elements. 
-  void surface_nodes(int &nel_surf,int &nel_vol);
+  // void surface_nodes(int &nel_surf,int &nel_vol);
 };
 
 #endif

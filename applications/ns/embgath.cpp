@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.32 2003/01/10 16:28:52 mstorti Exp $
+//$Id: embgath.cpp,v 1.33 2003/01/10 19:17:06 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -104,10 +104,12 @@ int Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 void Quad2Hexa::surface_nodes(int &nel_surf,int &nel_vol) { 
   nel_surf=4; 
   nel_vol=8; 
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) { 
@@ -141,10 +143,12 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 void Line2Quad::surface_nodes(int &nel_surf,int &nel_vol) { 
   nel_surf=2; 
   nel_vol=4; 
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {
@@ -167,6 +171,47 @@ void Line2Quad::face(int j,const int *&fc,const int *&vol) {
     fc = fc_cr;
     vol = vol_cr;
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Tri2Prism::rotate(int *vol,int nrot) {
+  for (int j=0; j<3; j++) {
+    int jj = (j+nrot) % 3;
+    vol_c[j] = vol[jj];
+    vol_c[3+j] = vol[3+jj];
+  }
+  for (int j=0; j<6; j++) vol[j] = vol_c[j];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Tri2Prism::reflect(int *vol) {
+  for (int j=0; j<3; j++) {
+    int x = vol[3+j];
+    vol[3+j] = vol[j];
+    vol[j] = x;
+  }
+  invert(vol);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Tri2Prism::invert(int *vol) {
+  int x = vol[0];
+  vol[0] = vol[1];
+  vol[1] = x;
+  x = vol[3];
+  vol[3] = vol[4];
+  vol[4] = x;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Tri2Prism::face(int j,const int *&fc,const int *&vol_a) {
+  int rota, face;
+  rota = modulo(j,3,&face);
+  for (int j=0; j<6; j++) vol[j] = j;
+  rotate(vol,rota);
+  if (face) reflect(vol);
+  if (use_exterior_normal()) invert(vol);
+  fc = vol_a = vol;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -231,12 +276,15 @@ void embedded_gatherer::initialize() {
   if (geometry=="quad2hexa") {
     sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,
 			       GP_FASTMAT2,use_exterior_normal);
+  } else if (geometry=="tri2prism") {
+    sv_gp_data = new Tri2Prism(geometry.c_str(),ndim,nel,npg,
+			       GP_FASTMAT2,use_exterior_normal);
   } else if (geometry=="line2quad") {
     sv_gp_data = new Line2Quad(geometry.c_str(),ndim,nel,npg,
 			       GP_FASTMAT2,use_exterior_normal);
-  } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry %s\n",geometry.c_str());
+  } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry \"%s\"\n",geometry.c_str());
 
-  sv_gp_data->surface_nodes(nel_surf,nel_vol);
+  sv_gp_data->nfaces(nel_surf,nel_vol);
   assert(nel_surf>0 && nel_surf<=nel);
   assert(nel_vol <= nel); //
   assert(nel_vol <= vol_elem->nel);
@@ -422,9 +470,11 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_S(thash,string,geometry,quad2hexa);
   GPdata *gp_data_p;
   if (geometry=="quad2hexa") 
-    gp_data_p = new GPdata("cartesian2d",ndim,4,npg,GP_FASTMAT2);
+    gp_data_p = new GPdata("cartesian2d",ndimel,4,npg,GP_FASTMAT2);
+  else if (geometry=="tri2prism") 
+    gp_data_p = new GPdata("triangle",ndimel,3,npg,GP_FASTMAT2);
   else if (geometry=="line2quad") 
-    gp_data_p = new GPdata("cartesian1d",ndim,2,npg,GP_FASTMAT2);
+    gp_data_p = new GPdata("cartesian1d",ndimel,2,npg,GP_FASTMAT2);
   else PETSCFEM_ERROR("Not known geometry %s for embgath",geometry.c_str());
   GPdata &gp_data = *gp_data_p;
 

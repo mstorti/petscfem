@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.21 2003/01/09 02:37:45 mstorti Exp $
+//$Id: gpdata.cpp,v 1.22 2003/01/10 19:17:09 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -479,6 +479,14 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     assert(npg==4); // other cases may be considered
     GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
     cart_prod(npg,nel,4,ndimel,shape,dshapexi,dshapex,wpg,quad);
+
+  } else if (!strcmp(geom,"tri2prism")) {
+    
+    assert(ndimel==3);
+    assert(nel % 3 == 0 && 2<=(nel/3) && (nel/3)<=4 );
+    assert(npg==3); // other cases may be considered
+    GPdata tri("triangle",ndimel-1,3,npg,GP_NEWMAT);
+    cart_prod(npg,nel,3,ndimel,shape,dshapexi,dshapex,wpg,tri);
 
   } else GPERROR;
   

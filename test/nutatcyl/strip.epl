@@ -1,12 +1,14 @@
 __ECHO_ON__
 <:
-#$Id: strip.epl,v 1.5 2003/01/09 02:37:45 mstorti Exp $
+#$Id: strip.epl,v 1.6 2003/01/10 19:17:09 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
 #__TRANSCRIPT__
 $casename = $ENV{'CASE_NAME'};       # This is used in the `proc?.m' scripts
 $ini = $ENV{'ini'};             # Run the initialization step
+$use_prisms = $ENV{'use_prisms'};             # Run the initialization step
+$use_prisms = 0 unless $use_prisms;
 die "bad CASE_NAME=\"$casename\" name\n" 
     if $casename ne 'strip';
 $L = 1;
@@ -18,7 +20,7 @@ $maxits = 100;
 $xratio = 5;
 $layers = 2;
 #__END_TRANSCRIPT__
-@vars = qw(L N h xratio);
+@vars = qw(L N h xratio use_prisms);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkstrip.m >mkstrip.out.tmp";
@@ -34,6 +36,7 @@ $nodf_r = $1;
 close FIC;
 :>
 
+# <:pr('use_prisms'):>
 #default definitions
 #===========================================================
 global_options
@@ -102,7 +105,7 @@ solve_system 0
 
 viscosity 1.
 ngather <:=2*$ndim:>
-gather_file "strip.force.tmp"
+gather_file <:= ($use_prisms ? "stripp.force.tmp" : "strip.force.tmp"):>
 __ECHO_OFF__
 __END_HASH__
 
@@ -113,21 +116,25 @@ __INCLUDE__ strip.nod.tmp
 __END_NODES__
 
 #===========================================================
-elemset nsi_tet_keps_rot <:=($ndim==2 ? 6 : 10):>
+elemset nsi_tet_keps_rot <:=($ndim==2 ? 6 : $use_prisms ? 8 : 10):>
 name "viscous_fluid_elemset"
-geometry cartesian<:=$ndim:>d
-npg <:=($ndim==2 ? 4 : 8):>
+geometry <:= ($use_prisms ? prismatic : cartesian3d ):>
+npg <:=($ndim==2 ? 4 : $use_prisms ? 6 : 8):>
 __END_HASH__
+#if $use_prisms
+__INCLUDE__ strip.con-prism.tmp
+#else
 __INCLUDE__ strip.con.tmp
+#endif
 __END_ELEMSET__
 
 #===========================================================
-elemset visc_force_integrator <:=((1+$layers)*4):>
-geometry "quad2hexa"
-npg <:=2**($ndim-1):>
-ndimel <:=$ndim-1:>
-gather_length <:=2*$ndim:>
-moment_center 0. 0. 0.5
+elemset visc_force_integrator <:=((1+$layers)*($use_prisms ? 3 : 4)):>
+geometry <:= ($use_prisms ? "\"tri2prism\"" : "\"quad2hexa\"") :>
+npg <:= ($use_prisms ? 3 : 4) :>
+ndimel 2
+gather_length 6
+moment_center 0. <:=$L:> 0.
 volume_elemset "viscous_fluid_elemset"
 use_exterior_normal 0
 identify_volume_elements 1
@@ -135,9 +142,17 @@ identify_volume_elements 1
 __END_HASH__
 <: 
 $ficti = "";
-for ($j=0; $j<4*$layers; $j++) { $ficti .= " 1"; }
-print join(" ",1,2*$N+3,3*$N+4,$N+2),$ficti,"\n";
-print join(" ",$N+1,2*$N+2,4*$N+4,3*$N+3),$ficti,"\n";
+if ($use_prisms) {
+    for ($j=0; $j<3*$layers; $j++) { $ficti .= " 1"; }
+    print join(" ",1,2*$N+3,3*$N+4),$ficti,"\n";
+    print join(" ",3*$N+4,$N+2,1),$ficti,"\n";
+    print join(" ",$N+1,2*$N+2,4*$N+4),$ficti,"\n";
+    print join(" ",4*$N+4,3*$N+3,$N+1),$ficti,"\n";
+} else {
+    for ($j=0; $j<4*$layers; $j++) { $ficti .= " 1"; }
+    print join(" ",1,2*$N+3,3*$N+4,$N+2),$ficti,"\n";
+    print join(" ",$N+1,2*$N+2,4*$N+4,3*$N+3),$ficti,"\n";
+}
 :>
 __END_ELEMSET__
 

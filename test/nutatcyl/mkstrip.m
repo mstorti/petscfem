@@ -1,5 +1,5 @@
 ## __INSERT_LICENSE__
-## $Id: mkstrip.m,v 1.1 2002/08/19 16:49:11 mstorti Exp $
+## $Id: mkstrip.m,v 1.2 2003/01/10 19:17:09 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -58,3 +58,7 @@ fclose(fid);
 
 asave("strip.nod.tmp",x3);
 asave("strip.con.tmp",i3);
+i3p = [i3(:,[1 5 6 4 8 7]);
+       i3(:,[6 2 1 7 3 4])];
+i3p = [i3p ones(rows(i3p),2)*diag([nodf_u nodf_r])];
+asave("strip.con-prism.tmp",i3p);
