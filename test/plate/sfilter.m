@@ -1,14 +1,22 @@
 ##__INSERT_LICENSE__
-## $Id: sfilter.m,v 1.6 2003/01/10 12:38:54 mstorti Exp $
-omega=0.9;
-xi=1;
+## $Id: sfilter.m,v 1.7 2003/01/10 13:39:22 mstorti Exp $
 N=128;
+
+if 0
+  omega=0.9;
+  xi=1;
+  a = [1/omega^2+xi/omega+1/2;
+       -2/omega^2;
+       1/omega^2-xi/omega+1/2];
+  
+  b = [1 0 1]'/2;
+endif
 
 w2=0.25;
 a2=[1 -(1-w2) 0]';
 b2=[w2 0 0]';
 
-x=ones(32,1);
+x=ones(128,1);
 x(1:5)=0;
 
 y = filter(b,a,x);

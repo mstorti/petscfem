@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.28 2003/01/10 12:38:54 mstorti Exp $
+//$Id: embgath.cpp,v 1.29 2003/01/10 13:39:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -445,7 +445,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xpgl.prod(shape,xloc,-1,1,-1,2);
 
       // Jacobian master coordinates -> real coordinates (on surface)
-      Jaco.is(1,1,2);
+      Jaco.is(1,1,ndimel);
       xloc.ir(1,1);
       Jaco.prod(dshapexi,xloc,1,-1,-1,2);
       xloc.rs();
@@ -469,7 +469,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       cloud.coef(xn,w);
       
       // 3D Jacobian
-      Jaco.ir(1,3).prod(xpgl,w,-1,1,-1).rs();
+      Jaco.ir(1,ndim).prod(xpgl,w,-1,1,-1).rs();
       iJaco.inv(Jaco);
       
       // Values and Gradients of variables at Gauss point
@@ -516,7 +516,14 @@ void visc_force_integrator::init() {
   TGETOPTNDEF(thash,int,ndim,none);
   ndim_m = ndim;
 
-  compute_moment = (gather_length==2*ndim);
+  assert(ndim==2 || ndim==3);
+  if (ndim==3) {
+    assert(gather_length==3 || gather_length==6);
+    compute_moment = (gather_length==6);
+  } if (ndim==2) {
+    assert(gather_length==2 || gather_length==3);
+    compute_moment = (gather_length==3);
+  }
   force.resize(1,ndim);
   moment.resize(1,ndim);
   x_center.resize(1,ndim).set(0.);
@@ -539,6 +546,8 @@ void visc_force_integrator::init() {
   } else {
     rigid_grad_u.resize(2,ndim,ndim).set(0.);
   }    
+//    if (compute_moment) 
+//      assert(pg_values.size() == (ndim==3? 6 ndim=2? 6 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -547,7 +556,6 @@ void visc_force_integrator
 		FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		FastMat2 &xpg,FastMat2 &n,
 		double wpgdet,double time) {
-
   //#define SHV(pp) pp.print(#pp ": ")
 #define SHV(pp) {}
   SHV(grad_u);

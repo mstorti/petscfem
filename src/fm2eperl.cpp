@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.24 2002/12/22 23:09:21 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.25 2003/01/10 13:39:22 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -4206,6 +4206,7 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class cross_cache : public FastMatSubCache {
 public:
+  int ndim;
   const double **a,**b;
   double **c;
   cross_cache() { a=b=NULL; c=NULL; }
@@ -4247,26 +4248,36 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   if (!was_cached) {
     assert(a.defined);
     assert(a.n()==1);
-    assert(a.dim(1)==3);
     assert(b.defined);
     assert(b.n()==1);
-    assert(b.dim(1)==3);
+    assert(a.dim(1)==b.dim(1));
+    assert(a.dim(1)==3 || a.dim(1)==2);
+    // Number of space dimensions
+    int ndim = a.dim(1);
+    // Length of out vector (Cross Product Size)
+    // In 2D it is a scalar
+    int cps = (ndim==3 ? 3 : 1);
     if (defined) {
       assert(n()==1);
-      assert(dim(1)==3);
-    } else resize(1,3);
+      assert(dim(1)==cps);
+    } else resize(1,cps);
     
     ccache = new cross_cache();
     assert(ccache);
-    ccache->a = new (const double *)[3];
-    ccache->b = new (const double *)[3];
-    ccache->c = new (double *)[3];
+    ccache->ndim = ndim;
+    ccache->a = new (const double *)[ndim];
+    ccache->b = new (const double *)[ndim];
+    ccache->c = new (double *)[cps];
 
     Indx indx(1,0);
-    for (int j=1; j<=3; j++) {
+    for (int j=1; j<=ndim; j++) {
       indx[0]=j;
       ccache->a[j-1] = a.location(indx);
       ccache->b[j-1] = b.location(indx);
+    }
+    indx = Indx(1,0);
+    for (int j=1; j<=cps; j++) {
+      indx[0]=j;
       ccache->c[j-1] = location(indx);
     }
     assert(!cache->sc);
@@ -4278,9 +4289,13 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
   const double **&bb = ccache->b;
   double **&c = ccache->c;
 
-  *c[0] = *aa[1] * *bb[2] - *aa[2] * *bb[1];
-  *c[1] = *aa[2] * *bb[0] - *aa[0] * *bb[2];
-  *c[2] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
+  if (ccache->ndim==3) {
+    *c[0] = *aa[1] * *bb[2] - *aa[2] * *bb[1];
+    *c[1] = *aa[2] * *bb[0] - *aa[0] * *bb[2];
+    *c[2] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
+  } else {
+    *c[0] = *aa[0] * *bb[1] - *aa[1] * *bb[0];
+  }    
 
   if (!use_cache) delete cache;
   return *this;

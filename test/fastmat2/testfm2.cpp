@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.10 2002/12/22 23:09:25 mstorti Exp $
+//$Id: testfm2.cpp,v 1.11 2003/01/10 13:39:22 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -95,7 +95,7 @@ int main() {
   FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
     Z69;
   FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
-    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80,Z81(2,5,5),Z82;
+    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75,Z77,Z78,Z80,Z81(2,5,5),Z82,Z83(1,2),Z84(1,2),Z85;
   double z76,z79;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
@@ -119,6 +119,8 @@ int main() {
   Z41.set(Z40).add(1);
   init123(Z50);
   init123(Z73);
+  init123(Z83);
+  Z84.set(Z83).add(1.);
 
   double d[4];
   
@@ -380,6 +382,8 @@ int main() {
 	Z43.rs().ir(2,l);
 	Z43.cross(Z40,Z41);
       }
+      // Cross product of 2D vectors (returns a scalar, i.e. vector of length 1)
+      Z85.cross(Z83,Z84);
 
       // Define symmetric matrix 3 x 3
       Z55.set(0.1).d(1,2).set(1.).rs();
@@ -570,6 +574,10 @@ int main() {
 
   SH(Z81);
   SH(Z82);
+
+  SH(Z83);
+  SH(Z84);
+  SH(Z85);
 
 #undef SH
 
