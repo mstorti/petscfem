@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fstack.cpp,v 1.9 2001/05/30 18:21:53 mstorti Exp $
+//$Id: fstack.cpp,v 1.10 2002/06/16 15:24:51 mstorti Exp $
 #include <stdlib.h>
 #include "fstack.h"
 
@@ -36,7 +36,8 @@ void FileStack::close(void) {
 	   "%d lines in the buffer\n",
 	   da_length(file_stack),da_length(read_buffer));
   }
-  fclose(file_at_top);
+  if (file_at_top) fclose(file_at_top);
+  file_at_top = NULL;
   while (da_length(file_stack)>0) {
     da_pop(file_stack,&file_at_top);
     fclose(file_at_top);
@@ -46,16 +47,9 @@ void FileStack::close(void) {
 #undef __FUNC__
 #define __FUNC__ "FileStack::FileStack" 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FileStack::FileStack(const char *filename) : echo_stream (NULL), echo(0) {
+FileStack::FileStack(const char *filename) 
+  : echo_stream (NULL), echo(0), file_at_top(NULL) {
 
-  // char line[LINESIZE];
-#if 0
-  file_at_top = fopen(filename,"r");
-  if (!file_at_top) {
-    printf("Couldn't open file \"%s\"!!\n",filename);
-    exit(0);
-  }
-#endif
   open(filename);
   if (!ok()) return;
   file_stack = da_create(sizeof(FILE *));
