@@ -85,7 +85,11 @@ __END_HASH__
 ##================================================================
 # ndim nu ndof
 nodedata 2 2 4
+#if $dx
+data ./gfmovshock.dx-nod.tmp
+#else
 data ./gfmovshock.nod.tmp
+#endif
 __END_HASH__
 
 ##================================================================
@@ -97,6 +101,7 @@ npg 4
 data ./gfmovshock.con.tmp
 __END_HASH__
 
+#if !$dx
 ##================================================================
 elemset gasflow_abso2 3
 normal <:=+$norx:> <:=+$nory:>
@@ -112,6 +117,7 @@ dx 0
 __END_HASH__
 __INCLUDE__ ./gfmovshock.abso-con-in.tmp
 __END_ELEMSET__
+#endif
 
 end_elemsets
 
