@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
+# $Id: odoc.pl,v 1.11 2003/02/10 14:52:24 mstorti Exp $
 
 @odoc=();
 

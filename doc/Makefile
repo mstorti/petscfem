@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.28 2003/02/10 03:45:56 mstorti Exp $
+#$Id: Makefile,v 1.29 2003/02/10 14:50:39 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -59,7 +59,7 @@ icons:
 		tar -xzvf icons.tgz ; rm icons.tgz ; fi
 
 #w make html for reference and manual
-html: index.html petscfem_html manual_html
+doc_html: index.html petscfem_html manual_html
 
 #w make html for reference only
 petscfem_html: latex icons petscfem/petscfem.html 
@@ -97,6 +97,7 @@ petscfem.tex: petscfem.in.tex force
 petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 	$(MAKE) EPERLFLAGS="-d html=1" petscfem.tex
 	$(LATEX2HTML) $(ltx2h_opt) -init_file latex2html.init petscfem
+	cd petscfem ; for f in *.html ; do  ../fixul.pl $$f ; done
 
 #w Make all documentation files for program options with 'odoc.pl'
 odoc:
