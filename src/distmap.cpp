@@ -1,5 +1,6 @@
 //__INSERT_LICENSE__
-//$Id: distmap.cpp,v 1.1 2002/08/27 13:50:19 mstorti Exp $
+//$Id: distmap.cpp,v 1.2 2002/08/27 16:17:42 mstorti Exp $
+#pragma implementation
 #include <src/distmap.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
