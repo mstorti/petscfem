@@ -7,6 +7,8 @@ get_var_env('casen',undef);
 $var_rain=0;
 if ($casen eq 'var_rain') {
     $casen = 'transient';
+    $T0=0.01;
+    $rain0=2.;
     $var_rain=1;
 }
 $casename = $casen;
@@ -47,7 +49,8 @@ $maxits = 1;
 $t = $nstep*$Dt;
 #
 #__END_TRANSCRIPT__
-@vars = qw(t Nx Ny Lx Ly hratio K S casen var_eta eta0 etaL Dt steady);
+@vars = qw(t Nx Ny Lx Ly hratio K S casen var_eta eta0 
+    etaL Dt steady T0 rain0);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -122,8 +125,11 @@ npg 4
 <:pr('K'):> 
 <:pr('S'):>
 #if $var_rain
-rain0 2.
+<:pr('T0'):>
+<:pr('rain0'):>
 temp_fun[rain] ./rain2.efn rain
+#else
+rain 0.
 #endif
 __END_HASH__
 __INCLUDE__ aqui.con.tmp

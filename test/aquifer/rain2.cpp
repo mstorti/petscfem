@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: rain2.cpp,v 1.2 2002/09/08 21:59:01 mstorti Exp $
+//$Id: rain2.cpp,v 1.3 2002/09/08 23:29:16 mstorti Exp $
 
 #include <math.h>
 
@@ -9,14 +9,15 @@
 
 class rain {
 private:
-  double rain0;
+  double rain0,T0;
 public:
   void init(TextHashTable *thash) {
     int ierr;
     TGETOPTDEF_ND(thash,double,rain0,0.);
+    TGETOPTDEF_ND(thash,double,T0,0.);
   }
   double eval(double t,double val) { 
-    return (t<0.01? rain0 : 0.);
+    return (t<T0? rain0 : 0.);
   }
 };
 

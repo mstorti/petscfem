@@ -1073,6 +1073,10 @@ expect("aquifer/output.dl_fun2.verif.tmp","Smooth ramp Dirichlet b.c.",
 expect("aquifer/output.dl_fun3.verif.tmp","Tanh ramp Dirichlet b.c.",
        'Test OK \? 1');
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("aquifer/var_rain.verif.tmp","Variable test rain.",
+       'Variable rain test OK \? 1');
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

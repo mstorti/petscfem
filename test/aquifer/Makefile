@@ -1,11 +1,12 @@
-# $Id: Makefile,v 1.23 2002/09/08 21:59:01 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2002/09/08 23:29:16 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
 SRCS = rain.cpp rain2.cpp fun.cpp fun2.cpp fun3.cpp
 
 #w All tests
-tests: test_plain test_var_eta test_transient test_stream test_as test_dl_fun
+tests: test_plain test_var_eta test_transient test_stream \
+		test_as test_dl_fun test_var_rain
 
 #w Runs program for the `aquifer' tests
 run: CASE=aqui
@@ -118,4 +119,3 @@ $(CASE).depl: force
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
-

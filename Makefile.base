@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.91 2002/09/07 21:54:54 mstorti Exp $
+#$Id: Makefile.base,v 1.92 2002/09/08 23:29:12 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -161,7 +161,7 @@ general_clean:
 #	cat /dev/null >makefile.d
 	$(MAKE) clean
 
-local_clean:: 							\
+local_clean::
 	-@rm -f *~ *.o $(OBJS) $(PROG_BIN)			\
 		octave-core *.cppi				\
 		outvector.sal *.sal *.out TAGS makefile.d	\
@@ -173,7 +173,7 @@ local_dist_clean::
 
 #w cleans directory
 lclean: 
-	$(MAKE) local_clean &> /dev/null
+	$(MAKE) clean local_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
 
 #w Builds all necessary things after checking out a version

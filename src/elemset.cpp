@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.50 2002/09/08 19:41:46 mstorti Exp $
+//$Id: elemset.cpp,v 1.51 2002/09/08 23:29:16 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -925,7 +925,10 @@ const char * Elemset::name() {
 double NewElemset::prop_val(ElementIterator &element,
 			    Property &prop,double t) const {
   const double *val_p = prop_array(element,prop);
-  return prop.eval_fun(t,(val_p ? *val_p : 0.),prop.fun_data);
+  if (prop.eval_fun) 
+    return prop.eval_fun(t,(val_p ? *val_p : 0.),prop.fun_data);
+  else if (val_p) return *val_p;
+  else return 0.;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

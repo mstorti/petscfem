@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: propef.cpp,v 1.3 2002/09/08 21:58:58 mstorti Exp $
+//$Id: propef.cpp,v 1.4 2002/09/08 23:29:16 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -84,6 +84,6 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
 #endif
   }
 
-  PETSCFEM_ERROR("NewElemset::get_prop(): Not found property %s\n",
-		 prop_name);  
+//    PETSCFEM_ERROR("NewElemset::get_prop(): Not found property %s\n",
+//  		 prop_name);  
 }
