@@ -1,34 +1,43 @@
 ##__INSERT_LICENSE__
-## $Id: sfilter.m,v 1.7 2003/01/10 13:39:22 mstorti Exp $
-N=128;
+## $Id: sfilter.m,v 1.4.2.1 2003/01/11 13:56:26 mstorti Exp $
+omega=0.25;
+xi=1;
 
-if 0
-  omega=0.9;
-  xi=1;
-  a = [1/omega^2+xi/omega+1/2;
-       -2/omega^2;
-       1/omega^2-xi/omega+1/2];
-  
-  b = [1 0 1]'/2;
-endif
+a = [1/omega^2+xi/omega+1/2;
+     -2/omega^2;
+     1/omega^2-xi/omega+1/2];
+
+b = [0.5+xi/omega 0 0.5-xi/omega]';
+
+a4 = [a;0];
+b4 = [2*b;0]-[0;b];
 
 w2=0.25;
 a2=[1 -(1-w2) 0]';
 b2=[w2 0 0]';
 
-x=ones(128,1);
-x(1:5)=0;
+a3=[1 0 0];
+b3=[0 2 -1];
 
-y = filter(b,a,x);
+N=128;
+f1 = filana(a,b,N);
+f2 = filana(a2,b2,N);
+f4 = filana(a4,b4,N);
+
+x=ones(N,1);
+x(1:3)=0;
+
+yy = filter(b,a,x);
+y = filter(b3,a3,yy);
+
 y2 = filter(b2,a2,x);
+y3 = filter(b3,a3,y2);
 
-t=[1 -1 1];
-printf("filter 1 at pi*h: %f\n",(t*b)/(t*a));
-printf("filter 2 at pi*h: %f\n",(t*b2)/(t*a2));
+y4 = filter(b4,a4,x);
 
-f1 = filana(a,b);
-f2 = filana(a2,b2);
-
-semilogy(abs([f1(1:N/2) f2(1:N/2)]))
+semilogy(abs([f1 f2 f4]));
 pause
-loglog((2:N/2)',abs([f1(2:N/2) f2(2:N/2)]-1))
+indx = (2:N/2)';
+loglog(indx,abs([f1(indx) f2(indx) f4(indx)]-1))
+pause
+plot([y y2])

@@ -1,14 +1,14 @@
-$Re = 100;
+$Re = 1000;
 $Co = 2;
-$re_start = 0;
+$re_start = 1;
 
 if (1) {   ## large mesh
     $Rint=1;
     $Rext=2;
-    $L = 10;
+    $L = 12;
     $Ntheta = 80;
     $Nr=20;
-    $Nx=100;
+    $Nx=120;
     $du_ini_pert = 0.3;
 } else {  ## small mesh, small domain
     $Rint=1;
@@ -19,7 +19,7 @@ if (1) {   ## large mesh
     $Nx=40;
     $du_ini_pert = 0.3;
 }
-$Rext2=10;
+$Rext2 = 8;
 $Next = 3*$Nr/2;
 $hmin = 2*$PI*$Rint/$Ntheta;
 $Dt=$Co*$hmin;

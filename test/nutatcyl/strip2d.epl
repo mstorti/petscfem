@@ -1,13 +1,12 @@
 __ECHO_ON__
 <:
-#$Id: strip2d.epl,v 1.4 2003/01/10 16:28:52 mstorti Exp $
+#$Id: strip2d.epl,v 1.1.2.1 2003/01/11 13:56:26 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
 #__TRANSCRIPT__
 $casename = $ENV{'CASE_NAME'};       # This is used in the `proc?.m' scripts
 $ini = $ENV{'ini'};             # Run the initialization step
-$use_exterior_normal = $ENV{'use_en'};
 die "bad CASE_NAME=\"$casename\" name\n" 
     if $casename ne 'strip2d';
 $L = 1;
@@ -19,7 +18,7 @@ $maxits = 100;
 $xratio = 5;
 $layers = 2;
 #__END_TRANSCRIPT__
-@vars = qw(L N h xratio use_exterior_normal);
+@vars = qw(L N h xratio);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkstrip2d.m >mkstrip2d.out.tmp";
@@ -87,8 +86,8 @@ solve_system 0
 #endif
 
 viscosity 1.
-ngather 3
-gather_file <:= ($use_exterior_normal ? "strip2d.force.tmp" : "strip2di.force.tmp") :>
+ngather <:=2*$ndim:>
+gather_file "strip2d.force.tmp"
 __ECHO_OFF__
 __END_HASH__
 
@@ -112,20 +111,14 @@ elemset visc_force_integrator 6
 geometry "line2quad"
 npg 2
 ndimel 1
-gather_length 3
+gather_length <:=2*$ndim:>
 moment_center 0. 0.5
 volume_elemset "viscous_fluid_elemset"
 identify_volume_elements 1
-<:pr('use_exterior_normal'):>
 <:pr('layers'):>
 __END_HASH__
-#if $use_exterior_normal
 1           <:=$N+2:>   1 1 1 1
-<:=2*$N+2:> <:=$N+1:>   1 1 1 1
-#else
-<:=$N+2:> 1             1 1 1 1
-<:=$N+1:> <:=2*$N+2:>   1 1 1 1
-#endif
+<:=2*$N+2:> <:=$N+1:> 1 1 1 1
 __END_ELEMSET__
 
 end_elemsets

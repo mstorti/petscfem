@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.34 2003/01/11 00:18:22 mstorti Exp $
+//$Id: embgath.cpp,v 1.27.2.1 2003/01/11 13:56:26 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -104,6 +104,12 @@ int Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Quad2Hexa::surface_nodes(int &nel_surf,int &nel_vol) { 
+  nel_surf=4; 
+  nel_vol=8; 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) { 
   // Changes quad numbering orientation. 
   int spin_map[] = {0,3,2,1};
@@ -135,67 +141,19 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Line2Quad::surface_nodes(int &nel_surf,int &nel_vol) { 
+  nel_surf=2; 
+  nel_vol=4; 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {
-  static int fc_c[2], vol_c[4], fc_cr[2], vol_cr[4];
+  static int fc_c[2], vol_c[4];
   static const int vol_cc[4] = {0, 1, 3, 2};
-  int fc_rot[] = {1,0};
   for (int k=0; k<2; k++) fc_c[k] = (j+k) % 4;
   for (int k=0; k<4; k++) vol_c[k] = (vol_cc[k]+j) % 4;
-  if (use_exterior_normal()) {
-    fc = fc_c;
-    vol = vol_c;
-  } else {
-    fc_cr[1] = fc_c[0];
-    fc_cr[0] = fc_c[1];
-
-    vol_cr[1] = vol_c[0];
-    vol_cr[0] = vol_c[1];
-    vol_cr[2] = vol_c[3];
-    vol_cr[3] = vol_c[2];
-    fc = fc_cr;
-    vol = vol_cr;
-  }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Tri2Prism::rotate(int *vol,int nrot) {
-  for (int j=0; j<3; j++) {
-    int jj = (j+nrot) % 3;
-    vol_c[j] = vol[jj];
-    vol_c[3+j] = vol[3+jj];
-  }
-  for (int j=0; j<6; j++) vol[j] = vol_c[j];
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Tri2Prism::reflect(int *vol) {
-  for (int j=0; j<3; j++) {
-    int x = vol[3+j];
-    vol[3+j] = vol[j];
-    vol[j] = x;
-  }
-  invert(vol);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Tri2Prism::invert(int *vol) {
-  int x = vol[0];
-  vol[0] = vol[1];
-  vol[1] = x;
-  x = vol[3];
-  vol[3] = vol[4];
-  vol[4] = x;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Tri2Prism::face(int j,const int *&fc,const int *&vol_a) {
-  int rota, face;
-  rota = modulo(j,3,&face);
-  for (int j=0; j<6; j++) vol[j] = j;
-  rotate(vol,rota);
-  if (face) reflect(vol);
-  if (use_exterior_normal()) invert(vol);
-  fc = vol_a = vol;
+  fc = fc_c;
+  vol = vol_c;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -260,15 +218,12 @@ void embedded_gatherer::initialize() {
   if (geometry=="quad2hexa") {
     sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,
 			       GP_FASTMAT2,use_exterior_normal);
-  } else if (geometry=="tri2prism") {
-    sv_gp_data = new Tri2Prism(geometry.c_str(),ndim,nel,npg,
-			       GP_FASTMAT2,use_exterior_normal);
   } else if (geometry=="line2quad") {
     sv_gp_data = new Line2Quad(geometry.c_str(),ndim,nel,npg,
 			       GP_FASTMAT2,use_exterior_normal);
-  } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry \"%s\"\n",geometry.c_str());
+  } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry %s\n",geometry.c_str());
 
-  sv_gp_data->nfaces(nel_surf,nel_vol);
+  sv_gp_data->surface_nodes(nel_surf,nel_vol);
   assert(nel_surf>0 && nel_surf<=nel);
   assert(nel_vol <= nel); //
   assert(nel_vol <= vol_elem->nel);
@@ -454,11 +409,9 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_S(thash,string,geometry,quad2hexa);
   GPdata *gp_data_p;
   if (geometry=="quad2hexa") 
-    gp_data_p = new GPdata("cartesian2d",ndimel,4,npg,GP_FASTMAT2);
-  else if (geometry=="tri2prism") 
-    gp_data_p = new GPdata("triangle",ndimel,3,npg,GP_FASTMAT2);
+    gp_data_p = new GPdata("cartesian2d",ndim,4,npg,GP_FASTMAT2);
   else if (geometry=="line2quad") 
-    gp_data_p = new GPdata("cartesian1d",ndimel,2,npg,GP_FASTMAT2);
+    gp_data_p = new GPdata("cartesian1d",ndim,2,npg,GP_FASTMAT2);
   else PETSCFEM_ERROR("Not known geometry %s for embgath",geometry.c_str());
   GPdata &gp_data = *gp_data_p;
 
@@ -492,7 +445,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xpgl.prod(shape,xloc,-1,1,-1,2);
 
       // Jacobian master coordinates -> real coordinates (on surface)
-      Jaco.is(1,1,ndimel);
+      Jaco.is(1,1,2);
       xloc.ir(1,1);
       Jaco.prod(dshapexi,xloc,1,-1,-1,2);
       xloc.rs();
@@ -516,7 +469,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       cloud.coef(xn,w);
       
       // 3D Jacobian
-      Jaco.ir(1,ndim).prod(xpgl,w,-1,1,-1).rs();
+      Jaco.ir(1,3).prod(xpgl,w,-1,1,-1).rs();
       iJaco.inv(Jaco);
       
       // Values and Gradients of variables at Gauss point
@@ -563,17 +516,9 @@ void visc_force_integrator::init() {
   TGETOPTNDEF(thash,int,ndim,none);
   ndim_m = ndim;
 
-  assert(ndim==2 || ndim==3);
-  if (ndim==3) {
-    assert(gather_length==3 || gather_length==6);
-    compute_moment = (gather_length==6);
-  } if (ndim==2) {
-    assert(gather_length==2 || gather_length==3);
-    compute_moment = (gather_length==3);
-  }
+  compute_moment = (gather_length==2*ndim);
   force.resize(1,ndim);
-  if (ndim==3) moment.resize(1,ndim);
-  else moment.resize(1,1);
+  moment.resize(1,ndim);
   x_center.resize(1,ndim).set(0.);
   dx.resize(1,ndim);
   strain_rate.resize(2,ndim,ndim);
@@ -594,8 +539,6 @@ void visc_force_integrator::init() {
   } else {
     rigid_grad_u.resize(2,ndim,ndim).set(0.);
   }    
-//    if (compute_moment) 
-//      assert(pg_values.size() == (ndim==3? 6 ndim=2? 6 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -604,6 +547,7 @@ void visc_force_integrator
 		FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		FastMat2 &xpg,FastMat2 &n,
 		double wpgdet,double time) {
+
   //#define SHV(pp) pp.print(#pp ": ")
 #define SHV(pp) {}
   SHV(grad_u);

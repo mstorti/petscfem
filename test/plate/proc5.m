@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: proc5.m,v 1.7 2003/01/10 12:38:54 mstorti Exp $
+## $Id: proc5.m,v 1.4.2.1 2003/01/11 13:56:26 mstorti Exp $
 source("data.m.tmp");
 tmp = aload("cylin.axis_nodes.tmp");
 nnod_axis = length(tmp);
