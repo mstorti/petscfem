@@ -4149,3 +4149,6 @@ tag: beta-3.43.37 on Mon, 28 Feb 2005 12:09:28 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.43.38 on Mon, 28 Feb 2005 23:53:52 -0300 by mstorti in spider
      > Now written `FemInterp' class. 
+----------
+tag: beta-3.43.39 on Mon, 28 Feb 2005 23:57:17 -0300 by mstorti in spider
+     > `FemInterp' class runs in a loop, but seems to leak memory. 
