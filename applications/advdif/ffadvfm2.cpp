@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.38 2001/05/12 22:33:18 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.39 2001/05/25 15:14:50 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -291,6 +291,7 @@ void newadvecfm2_ff_t::GlobalDifTensor
 void newadvecfm2_ff_t::GlobalDifTensor
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   double dd = ff.D_jac.d(2,1).sum_all()/double(ff.ndim);
+  ff.D_jac.rs();
   dif_per_field.set(dd);
 }  
 
