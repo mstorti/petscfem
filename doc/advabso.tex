@@ -1,5 +1,5 @@
 %__INSERT_LICENSE__
-% $Id: advabso.tex,v 1.11 2005/02/23 03:14:42 mstorti Exp $ 
+% $Id: advabso.tex,v 1.12 2005/02/23 03:23:28 mstorti Exp $ 
 
 \SSection{Absorbing boundary conditions} 
 
@@ -527,7 +527,7 @@ are used for a second order extrapolation of the outgoing wave. The
 $\nel-1$-th node is the node with Lagrange multipliers, and the
 $\nel$-th node is used to set the reference value. For instance, for
 an absorbing elment of $\nel=5$ nodes, we would have 3 internal nodes,
-and the data would loke like this
+and the data would loke like this (see figure~\ref{fg:abso}) 
 %
  
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
@@ -563,9 +563,9 @@ __END_FIXA__
   is reserved for Lagrange multipliers, and the fifth node is set to
   the reference value. 
 \item The \verb+normal+ option is used to define the normal to the
-  boundary. It can be set as a constant vector per elemset (as in the
-  example above), or as a per element value. In this last case we
-  would have something like this
+  boundary. It can be set as a constant vector per elemset (usually
+  for plane boundaries, as in the example above), or as a per element
+  value. In this last case we would have something like this
 
 \begin{alltt} 
 elemset gasflow_abso 5
@@ -576,6 +576,11 @@ __END_HASH__
 ...
 __END_ELEMSET__
 \end{alltt}
+
+The normal need not be entered with a high precision. If the vector
+entered is not exactly normal to the boundary, then the condition will
+be absorbing for waves whose \emph{``group velocity vector''} is
+parallel with this vector. 
 
 \item Note the the {\tt fixa} section for the values of the reference
   node. In this case (gas dynamics, elemset \verb+gasflow+) we set the
@@ -600,19 +605,49 @@ __END_ELEMSET__
 These is the elemset \ttsl{<system>}{\tt \_abso2}. The number of nodes
 per element $\nel$ is 3. The first node is the node at the boundary. The
 second node is the node with Lagrange multipliers, and the
-third node is used to set the reference value. 
-%
+third node is used to set the reference value. The data would look
+like this (see figure~\ref{fg:abso2}) 
  
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/abso.\EPSPDF}}
+\centerline{\includegraphics{./OBJ/abso2.\EPSPDF}}
 \caption{Absorbing element. }
-\label{fg:abso}
+\label{fg:abso2}
 \end{figure*}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 
+\begin{alltt} 
+elemset gasflow_abso2 3
+normal \Arg{nx} \Arg{ny}
+__END_HASH__
+\Arg{n1} \Arg{n2} \Arg{n3}
+...
+__END_ELEMSET__
 
+end_elemsets
 
+fixa
+\Arg{n4} 1 \Arg{rho\_ref}
+\Arg{n4} 2 \Arg{u\_ref}
+\Arg{n4} 3 \Arg{v\_ref}
+\Arg{n4} 4 \Arg{p\_ref}
+__END_FIXA__
+\end{alltt}
+
+\begin{itemize}
+\compactlist 
+\item As before, the \verb+normal+ property is used for computing the
+  direction normal to the boundary. 
+\item If the \verb+use_old_state_as_ref+ flag is set to true (1), then
+  the reference state is taken as the state o the state of the
+  boundary node at the previous time step. In this case the state of
+  the third node is ignored. On the other hand if it is set to false
+  (0), then the state of the third node is used as the reference
+  state. 
+\item This type of boundary condition doesn't need the implementation
+  of the Riemman invariants methd, but it needs the methods
+  \verb+get_Cp()+ and \verb+get_Ajac()+. 
+\end{itemize}
 
 % Local Variables: *
 % mode: latex *
