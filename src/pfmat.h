@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.24 2001/11/15 02:49:01 mstorti Exp $
+// $Id: pfmat.h,v 1.25 2001/11/19 03:35:06 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -67,7 +67,7 @@ protected:
   TextHashTable thash;
 public:
   /// Constructor, initialize variables
-  PFMat() : sles_was_built(0), A(NULL), P(NULL) {};
+  PFMat();
   /// Virtual destructor
   virtual ~PFMat();
   /// clear memory (almost destructor)
@@ -130,7 +130,7 @@ public:
   /// Duplicate matrices (currently not implemented for IISDMat)
   virtual int duplicate(MatDuplicateOption op,const PFMat &A);
   void set_option(const char *key,const char *value) {
-    thash.get_entry(key,value);
+    thash.add_entry(key,value);
   }
   void get_option(const char *key,const char *&value) const {
     // Remove constness asuming this is OK.

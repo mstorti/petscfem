@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.27 2001/11/15 02:49:01 mstorti Exp $
+//$Id: sparse.cpp,v 1.28 2001/11/19 03:35:06 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -430,6 +430,14 @@ namespace Sparse {
     return sum;
   }
   
+  /// Constructor from the length
+  Mat::Mat(int m=0,int n=0,TextHashTable *t=NULL) 
+    : grow_m(1), nrows(m), ncols(n) {
+    init_fsm(this); 
+    // thash = (t!=NULL ? t : new TextHashTable);
+    if (t!=NULL) thash.include_table(string("father"),t);
+  }
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   double Mat::get(int j,int k) const {
     assert(j<nrows);
@@ -496,18 +504,30 @@ namespace Sparse {
     VecCIt q,qe;
     int j;
     
-    if (s) printf("%s = [\n",s);
+    printf("%s = [\n",(s ? s : "A"));
 
     e = end();
     for (i=begin(); i!=e; i++) {
       j = i->first;
       const Vec &row = i->second;
-      qe = row->end();
-      for (q=row->begin(); row!=qe; row++) {
-	printf("%d %d %g;\n",j,qe->first,qe->second);
+      qe = row.end();
+      for (q=row.begin(); q!=qe; q++) {
+	printf("%d %d %g;\n",j,q->first,q->second);
       }
     }
     printf("];\n");
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void Mat::print(const char *s = NULL) const {
+    const char *print_method;
+    get_option("print_method",print_method);
+    if (print_method==NULL || 
+	!strcmp(print_method,"compact")) {
+      print_compact(s);
+    } else if (!strcmp(print_method,"matlab")) {
+      print_matlab(s);
+    } else assert(0);
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -942,12 +962,15 @@ namespace Sparse {
 #define FSM_OP(action) FSM_ACTION_DEF(action)
     FSM_ACTIONS;
 
-  Mat *Mat::dispatch(char *opt) {
+  Mat *Mat::dispatch(char *opt,const TextHashTable *t=NULL) {
+    Mat *m; 
     if (!strcmp(opt,"PETSc")) {
-      return new PETScMat;
+      m = new PETScMat;
     } else if (!strcmp(opt,"SuperLU")) {
-      return new SuperLUMat;
+      m = new SuperLUMat;
     } else assert(0);
+    m->thash.include_table(string("father"),t);
+    return m;
   }  
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

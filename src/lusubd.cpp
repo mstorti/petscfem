@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.53 2001/11/15 02:49:01 mstorti Exp $
+//$Id: lusubd.cpp,v 1.54 2001/11/19 03:35:06 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -8,6 +8,8 @@ int SCHED_ALG=1;
 //  #define DEBUG_IISD
 //  #define DEBUG_IISD_DONT_SET_VALUES
 
+// for inclusion of asprintf
+// #define _GNU_SOURCE
 #include <typeinfo>
 #ifdef RH60
 #include "libretto.h"
@@ -58,6 +60,18 @@ PFMat * PFMat_dispatch(const char *s) {
     PETSCFEM_ERROR("PFMat type not known: %s\n",s);
   }
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+PFMat::PFMat() : sles_was_built(0), A(NULL), P(NULL) {
+#if 0
+  char *s;
+  int n = asprintf(&s,"PFMat matrix %p",this);
+  assert(n>=0);
+  string name = string(s);
+  thash.register_name(name);
+  free(s);
+#endif
+};
 
 PFMat::~PFMat() {};
 

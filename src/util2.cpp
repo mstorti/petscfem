@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.10 2001/06/23 16:43:14 mstorti Exp $
+//$Id: util2.cpp,v 1.11 2001/11/19 03:35:06 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -269,6 +269,7 @@ void read_int_array(vector<int> & vect,const char * advje) {
 #undef __FUNC__
 #define __FUNC__ "char *local_copy(const char *)"
 char *local_copy(const char *s) {
+  if (s==NULL) return NULL;
   char *buf= new char[strlen(s)+1];
   strcpy(buf,s);
   return buf;

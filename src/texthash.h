@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.6 2001/05/30 03:58:50 mstorti Exp $
+//$Id: texthash.h,v 1.7 2001/11/19 03:35:06 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -42,7 +42,7 @@ class TextHashTable;
 // This is a typical object in the table of thash's
 typedef pair<string,TextHashTable *> THashTableEntry;
 // This is the global table of thash's
-typedef multimap<string,TextHashTable *> THashTable;
+typedef multimap<string,const TextHashTable *> THashTable;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** TextHashTable's are a map string -> TextHashTableVal objects
@@ -54,7 +54,7 @@ public:
   // Number of times this option was accessed for statistic purposes
   int called_times;
   // Constructor from the string
-  TextHashTableVal(char *s_=NULL);
+  TextHashTableVal(const char *s_=NULL);
   // Destructor
   ~TextHashTableVal() {delete s;};
 };
@@ -77,14 +77,16 @@ public:
       @param key (input) key of the entry
       @param value (input) value of the entry
   */ 
-  void add_entry(char *key,char *value);
+  void add_entry(const char *key,const char *value);
 
   /** Adds an included table. 
       @author M. Storti
-      @param ithash (input) the table to be included
       @param s (input) its name
+      @param t (input) a pointer to the TextHashTable to be included
+      (optional). If not given, look for `s' in the
+      `included_tables_names' table
   */ 
-  void include_table(const string &s);
+  void include_table(const string &s,const TextHashTable *t = NULL);
 
   /** Registers the table by its name.
       @author M. Storti
@@ -146,10 +148,10 @@ private:
   GHashTable *hash;  
 
   /// A list of pointers to other (included) hashes
-  vector<TextHashTable *> included_tables;
+  vector<const TextHashTable *> included_tables;
 
   /// A list of the names of the included hashes
-  vector<string *> included_tables_names;
+  vector<const string *> included_tables_names;
 
   /// The global register table
   static THashTable thash_table;
@@ -164,7 +166,7 @@ private:
       @param value (output) value of the entry
   */ 
   void get_entry_recursive(const char *,TextHashTableVal *&,
-			   int &glob_was_visited);
+			   int &glob_was_visited) const;
 
   /** Searches an entry in the hash. 
       This returns the whole entry (a struct) instead 

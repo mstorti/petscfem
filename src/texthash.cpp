@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.10 2001/10/02 19:31:24 mstorti Exp $
+//$Id: texthash.cpp,v 1.11 2001/11/19 03:35:06 mstorti Exp $
  
 //  #include <stdio.h>
 //  #include <string.h>
@@ -16,13 +16,8 @@ int TextHashTable::print_statistics=0;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTableVal::TextHashTableVal(char *)"
-TextHashTableVal::TextHashTableVal(char *s_=NULL) : called_times(0) {
-  if (!s_) {
-    s=s_;
-  } else {
-    s=local_copy(s_);
-  }
-};
+TextHashTableVal::TextHashTableVal(const char *s_=NULL) :
+  called_times(0), s(local_copy(s_)) {}
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -79,8 +74,8 @@ TextHashTable::TextHashTable () {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "void TextHashTable::add_entry(char * key,char * value)"
-void TextHashTable::add_entry(char * key,char * value) {
+#define __FUNC__ "void TextHashTable::add_entry"
+void TextHashTable::add_entry(const char * key,const char * value) {
   TextHashTableVal *vold,*vnew;
   int keylen;
   keylen=strlen(key);
@@ -99,45 +94,21 @@ void TextHashTable::add_entry(char * key,char * value) {
   g_hash_table_insert (hash,keycp,vnew);
 }
 
-#if 0
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "TextHashTable::get_entry_recursive(char * ,char *&, int&)"
-void TextHashTable::get_entry_recursive(const char * key,const char *& svalue,
-					int &glob_was_visited) {
-
-  svalue = NULL;
-  if (this==global_options) glob_was_visited=1;
-  TextHashTableVal *value = (TextHashTableVal *) g_hash_table_lookup(hash,key);
-  if (value) {
-    if (value->called_times<INT_MAX) value->called_times++;
-    svalue = value->s;
-    return;
-  }
-  if (included_tables.size()==0) return;
-  vector<TextHashTable *>::iterator k;
-  for (k=included_tables.begin(); k!=included_tables.end(); k++) {
-    (*k)->get_entry_recursive(key,svalue,glob_was_visited);
-    if (svalue!=NULL) return;
-  }
-}
-#endif
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "TextHashTable::get_entry_recursive(const char *, const TextHashTableVal *&,int&)"
+#define __FUNC__ "TextHashTable::get_entry_recursive"
 void TextHashTable::get_entry_recursive(const char * key,
 					TextHashTableVal *& value,
-					int &glob_was_visited) {
+					int &glob_was_visited) const {
   if (this==global_options) glob_was_visited=1;
   // fixme:= cast to `(char *)' is for avoiding a warning with
   // old compiler versions
   value = (TextHashTableVal *)g_hash_table_lookup(hash,(char *)key);
   if (value!=NULL) return;
   if (included_tables.size()==0) return;
-  vector<TextHashTable *>::iterator k;
+  vector<const TextHashTable *>::const_iterator k;
   for (k=included_tables.begin(); k!=included_tables.end(); k++) {
     (*k)->get_entry_recursive(key,value,glob_was_visited);
     if (value!=NULL) return;
@@ -216,14 +187,22 @@ TextHashTable::~TextHashTable() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "TextHashTable::include_table(const string &s)"
-void TextHashTable::include_table(const string &s) {
-  THashTable::iterator k = thash_table.find(s);
-  if (k==thash_table.end()) {
-    printf("table not registered: %s\n",s.c_str());
-    exit(1);
+void TextHashTable
+::include_table(const string &s,const TextHashTable *t=NULL) {
+  const TextHashTable *tt;
+  THashTable::iterator k;
+  if (t==NULL) {
+    k = thash_table.find(s);
+    if (k==thash_table.end()) {
+      printf("table not registered: %s\n",s.c_str());
+      exit(1);
+    }
+    tt = k->second;
+  } else {
+    tt = t;
   }
-  included_tables.push_back(k->second);
   string *sc= new string(s);
+  included_tables.push_back(t);
   included_tables_names.push_back(sc);
 }
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.39 2001/11/13 12:29:46 mstorti Exp $ 
+# $Id: Makefile,v 1.40 2001/11/19 03:35:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -381,6 +381,5 @@ burgers:
 #w Sparse matrices
 sparse:
 	$(MAKE) -C sparse sparse
-
 
 #s

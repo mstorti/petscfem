@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.35 2001/11/13 12:29:46 mstorti Exp $ 
+# $Id: Makefile,v 1.36 2001/11/19 03:35:06 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -125,5 +125,12 @@ CASE_NAME := wallke
 ifeq ($(PROG),)
 PROG := $(NS)
 endif
+
+PROG = tryme
+tryme.bin: tryme.o
+$(PROG).bin: $(PROG).o $(LIBPETSCFEM)
+#	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
+	${CXX_CLINKER} -o $@ $(PROG).o $(LDFLAGS)
+tryme.o: tryme.cpp
 
 #s

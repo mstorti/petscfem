@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.10 2001/11/09 03:05:41 mstorti Exp $
+// $Id: iisdmat.h,v 1.11 2001/11/19 03:35:06 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -242,7 +242,7 @@ public:
 class SparseDirect : public PFMat {
 public:
   SparseDirect(char * opt = "PETSc") {
-    A_p = Sparse::Mat::dispatch(opt);
+    A_p = Sparse::Mat::dispatch(opt,&thash);
   }
   // Sparse::SuperLUMat A;
   Sparse::Mat *A_p;

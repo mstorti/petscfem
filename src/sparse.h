@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.29 2001/11/15 02:49:01 mstorti Exp $
+// $Id: sparse.h,v 1.30 2001/11/19 03:35:06 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -404,16 +404,19 @@ void MatFSMContext::action() {			\
     int grow_m; 
     /// Value of those elements that are not represented
     static double not_represented_val;
-    /// The options hash table
-    TextHashTable thash;
+    /// The internal options hash table. If no external hash table is
     void init_fsm(Mat *) {fsm.matrix_p = this;};
     /// print elements (compact sparse version)
     void print_compact(const char *s = NULL) const;
     /// print elements (matlab sparse version)
     void print_matlab(const char *s = NULL) const;
+  protected:
+    /// The options hash table
+    TextHashTable thash;
   public:
 
-    static Mat *dispatch(char *opt = "PETSc");
+    static Mat *dispatch(char *opt = "PETSc",
+			 const TextHashTable *t=NULL);
 
     double *b;
 
@@ -424,8 +427,7 @@ void MatFSMContext::action() {			\
     friend class Vec;
 
     /// Constructor from the length
-    Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n)
-			   { init_fsm(this);};
+    Mat(int m=0,int n=0,TextHashTable *t=NULL);
 
     /// Destructor (invokes clear() FSM)
     ~Mat() {clear();}
