@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001/02/07 01:05:58 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/03/12 02:10:16 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -9,18 +9,22 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
           fastmat utils getprop \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
-	  measperf mainutl sttfilter state secant
+	  measperf mainutl sttfilter state secant getarray
+
+# C files
+CLIBOBJS_ =  getarrgr.tab
 
 # Fortran files
 FLIBOBJS_ =  spline seval
+
 spline.o: spline.f
 ssval.o: seval.f
 
-LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o)
+LIBOBJS := $(LIBOBJS_:=.o) $(FLIBOBJS_:=.o) $(CLIBOBJS_:=.o) 
 
-.INTERMEDIATE: $(LIBOBJS)
+.INTERMEDIATE: $(LIBOBJS) 
 
-SRCS := $(LIBOBJS_:=.cpp)
+SRCS := $(LIBOBJS_:=.cpp) $(CLIBOBJS_:=.c) 
 
 TAGFLAGS = 
 
@@ -83,4 +87,16 @@ tryme.o: tryme.cpp
 	g++ -c $<
 
 local_clean::
-	-rm -rf tryme 
+	-rm -rf tryme *.tab.*
+
+local_depend: getarrgr.tab.c getarrgr.tab.h
+
+.INTERMEDIATE: *.tab.*
+%.tab.c %.tab.h: %.y
+	$(BISON) $<
+
+getarrgr.tab.o: getarrgr.tab.c
+
+%.o: %.c
+	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
+

@@ -209,37 +209,37 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       // Read props line
       char *buf;
-      vector<string> prop_names;
-      vector<int> prop_lens;
       thash->get_entry("props",cline);
       GHashTable *props =
 	g_hash_table_new(&g_str_hash,&g_str_equal);
       nelprops=0;
-      int posit=0;
-      const char *prop_name;
       if (cline!=NULL) {
-	parse_props_line(cline,prop_names,prop_lens);
+	//astr_copy_s(linecopy,line);
+	buf = local_copy(cline);
 	props_hash_entry *phe, *pheold;
-	for (int j=0; j<prop_names.size(); j++) {
+	int posit=0;
+	while (1) {
+	  token = strtok((nelprops==0? buf : NULL),bsp);
+	  char *ctoken=local_copy(token);
+	  if (token==NULL) break;
 	  nelprops++;
-	  prop_name = prop_names[j].c_str();
 	  phe = new props_hash_entry;
 	  // fixme:= despues hay que poner width a la cantidad de
 	  // escalares que contiene esta propiedad
-	  phe->width=prop_lens[j];
+	  phe->width=1;
 	  phe->position = posit;
 	  posit += phe->width;
 
 	  // verificar que la propiedad no este duplicada
-	  pheold = (props_hash_entry *)g_hash_table_lookup(props,prop_name);
+	  pheold = (props_hash_entry *)g_hash_table_lookup(props,token);
 	  if (pheold) {
 	    PetscPrintf(PETSC_COMM_WORLD,
-			"duplicated elem properties label \"%s\"\n",prop_name);
+			"duplicated elem properties label \"%s\"\n",token);
 	    PetscFinalize();
 	    exit(1);
 	  }
-	  key = new char[strlen(prop_name)+1];
-	  strcpy(key,prop_name);
+	  key = new char[strlen(token)+1];
+	  strcpy(key,token);
 	  g_hash_table_insert (props,(void *)key,phe);
 	}
 	g_hash_table_freeze(props);

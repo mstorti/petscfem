@@ -3,6 +3,7 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* Read data with a 'bison' generated parser
 * Add a 'mass' to 'advdife' (non conservative?)
 * In TextHashTable: Print a warning if some option is not used and a
   doc when an option was got the first time. 

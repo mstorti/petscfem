@@ -7,6 +7,8 @@
 #  Configure this variable!! (either g_c++ or O_c++) 
 BOPT = g_c++
 
+GNU_C_COMPILER = gcc  # gcc or egcs
+
 # uncomment in order to use the `gprof' profiler
 #PROF_FLAGS = -pg
 
@@ -34,6 +36,7 @@ ifdef RH60
    RH60 = -DRH60
 endif
 
+BISON = bison -d
 TAGINCL = --etags-include
 
 CPPFLAGS         = $(PROF_FLAGS) $(RH60) ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \

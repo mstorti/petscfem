@@ -185,4 +185,17 @@ void print_vector_rota(const char *filenamepat,const Vec x,const
 		       const int j,const int nsave,const int nrec,
 		       const int nfile);
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Parses a line of props of the form 'prop1[len1] prop2[len2] ...'
+    Some properties may not have a length in which case we asume 1.
+    @author M. Storti
+    @param line (input) the props line
+    @param prop_name (output) a vector of strings containing the
+    property names
+    @param prop_len (output) a vector of ints containing the length of
+    the property 
+*/ 
+void parse_props_line(const char *line,vector<string> &prop_name,vector<int>
+		      prop_len);
+
 #endif
