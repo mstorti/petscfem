@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: check_fs.m,v 1.3 2004/11/11 21:52:26 mstorti Exp $
+## $Id: check_fs.m,v 1.4 2005/02/18 09:18:21 mstorti Exp $
 source("data.m.tmp");
 
 load -force sqcav.ny.tmp
@@ -9,7 +9,7 @@ rem(N,2)==0 || error("N should be even!!");
 ny=N/2*(N+1)+(1:N+1)';
 u=u(ny,:);
 erro = merr(u-uref);
-tol=1e-10;
+tol=1e-5;
 
 printf("Square cavity at Re=1000. Error < tol OK ? %d (error = %g, tol = %g)\n", \
        erro<tol,erro,tol);

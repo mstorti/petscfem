@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.85 2004/11/12 01:09:11 mstorti Exp $ 
+# $Id: Makefile,v 1.86 2005/02/18 09:18:21 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -64,6 +64,7 @@ dx_test_%_np2:
 dx:
 	$(MAKE) -C ../../dx
 
+# BOPT = g_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
