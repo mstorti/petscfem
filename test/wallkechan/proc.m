@@ -48,6 +48,9 @@ P=reshape(u(1:NNy*NN,3),NNy,NN)';
 K=reshape(u(1:NNy*NN,4),NNy,NN)';
 E=reshape(u(1:NNy*NN,5),NNy,NN)';
 
+min(min(K))
+min(min(E))
+
 Q=sum(leftscal(diff(x),xcent(V)));
 
 if exist("ss") && length(ss)>0

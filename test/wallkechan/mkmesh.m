@@ -9,7 +9,8 @@ wl=w(Ny+1+(-Ny_eq:0)',:);
 xx=real(wl);
 yy=imag(wl);
 yy=yy(:,1);
-yy=yy(1)+(yy(Ny_eq+1)-yy(1))/Ny_eq*(0:Ny_eq)';
+eta=(0:Ny_eq)'/Ny_eq;
+yy=yy(1)+eta.*(1+0.4*(1-eta)).*(yy(Ny_eq+1)-yy(1));
 yy=yy(:,ones(1,size(xx,2)));
 wl=xx+i*yy;
 w(Ny+1+(-Ny_eq:0)',:)=wl;
@@ -44,7 +45,7 @@ for k = lagr
 endfor
 fclose(fid);
 
-uin=[0. Uav 0. 2e-3 1e-5];  
+uin=[0. Uav 0. 1e-3 1e-5];  
 fid = fopen("wallke.fixa_in.tmp","w");
 for k=1:(Ny+1):(N+1)*(Ny+1)
   for j=[1 2 4 5]
@@ -60,6 +61,7 @@ fid = fopen("wallke.peri.tmp","w");
 fiduout = fopen("wallke.u_out_0.tmp","w");
 fidpout = fopen("wallke.p_out_0.tmp","w");
 fidp2out = fopen("wallke.wp_out_0.tmp","w");
+fidfop = fopen("wallke.fixa_out_peri.tmp","w");
 r=.5;
 for k=1:N+2
   in = (k-1)*(Ny+1)+1;
@@ -70,14 +72,17 @@ for k=1:N+2
           1,out,3,
           r,out-1,3,
           r^2,out-2,3);
-  for j=1:5
+  for j=[1 2 4 5]
     fprintf(fid,"%f %d %d    %f %d %d \n",-1.,out,j,+1.,in,j);
+##    fprintf(fidfop,"%f %d %d    %f %d %d \n",-1.,out,j,+1.,out-1,j);
+    fprintf(fidfop,"%f %d %d    %f %d %d    %f %d %d \n",-1.,out,j,+2.,out-1,j,-1.,out-2,j);
   endfor
 endfor
 fclose(fid);
 fclose(fiduout);
 fclose(fidpout);
 fclose(fidp2out);
+fclose(fidfop);
 
 fid = fopen("wallke.wallke.tmp","w");
 for k=1:rows(wallke)
