@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.56 2003/08/29 15:29:04 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.57 2003/08/29 22:33:47 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -433,10 +433,7 @@ int IISDMat::assembly_begin_a(MatAssemblyType type) {
   int row_indx,col_indx,row_t,col_t;
   double v,val;
 
-  double t = MPI_Wtime();
   A_LL_other->scatter();
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			  "[%d] A_ll_other->scatter() %g\n",MY_RANK,MPI_Wtime()-t);
 
   I1 = A_LL_other->begin();
   I2 = A_LL_other->end();
@@ -736,7 +733,6 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   nr[I]=0;
   for (int jr=0; jr<nrows; jr++) {
     map_dof_fun(idxr[jr],row_t,row_indx);
-    row_indx -= n_locp;
     int jrl = nr[row_t]++;
     dvector<int> *indx = indxr[row_t];
     grow_mono<int>(*indx,nr[row_t]);
@@ -803,17 +799,11 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	}
       }
 #if 0
-      for (int jj=0; jj<nrr; jj++) {
-	for (int kk=0; kk<ncc; kk++) {
-	  printf("(%d,%d) -> %f\n",indxr[row_t]->e(jj),indxc[col_t]->e(kk),
-		 vvv[jj*
-	}
-      }
-#endif
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
 			  indxc[col_t]->buff(),vvv,mode);
       if (ierr) return ierr;
+#endif
     }
   }    
 
@@ -836,20 +826,24 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
   // Fix matrix indices (block LL is shifted)
   int *p = indxr[L]->buff();
   for (int jrl=0; jrl<nrr; jrl++) {
-    *p++ -= n_locp;
+    *p -= n_locp;
     assert(*p >= 0 && *p < n_loc);
+    p++;
   }
 
   p = indxc[L]->buff();
   for (int jcl=0; jcl<ncc; jcl++) {
-    *p++ -= n_locp;
+    *p -= n_locp;
     assert(*p >= 0 && *p < n_loc);
+    p++;
   }
 
+#if 0
   ierr = MatSetValues(*(AA[L][L]),
 		      nrr,indxr[L]->buff(),ncc,
 		      indxc[L]->buff(),vvv,mode);
   if (ierr) return ierr;
+#endif
 
   return 0;
 }

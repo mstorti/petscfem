@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.8 2003/08/29 02:33:27 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.9 2003/08/29 22:33:47 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -44,6 +44,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
+  printf("Elemset::upload_vector: new block version\n");
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
@@ -230,9 +231,9 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	}
 	// values.print();
 	if (pfmat) {
-	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
-				      values.buff(),ADD_VALUES); 
-	  CHKERRQ(ierr); 
+//  	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
+//  				      values.buff(),ADD_VALUES); 
+//  	  CHKERRQ(ierr); 
 	} else {
 	  ierr = MatSetValues(*argd.A,nr,indxr.buff(),nc,indxc.buff(),
 			      values.buff(),ADD_VALUES);
@@ -303,6 +304,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
 
+  printf("Elemset::upload_vector: old single element version\n");
   int iele,kloc,node,kdof,locdof,lloc,nodel,ldof,locdofl,ierr,
     load_vec,load_mat,load_mat_col,comp_prof,iele_here,
     pfmat;
