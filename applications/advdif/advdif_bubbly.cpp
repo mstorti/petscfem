@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.12 2004/12/21 12:20:36 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.13 2005/03/28 21:06:34 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -546,7 +546,7 @@ int bubbly_main() {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Newton subiter (inner) %d, stage  %d, norm_res  = %10.3e\n",
 		    inwt_in,kstage,normres);
-	scal=omega_newton_in;
+	scal=omega_newton_in/alpha;
 	ierr = VecAXPY(&scal,dx,x);
 	if (normres < tol_newton) break;
 

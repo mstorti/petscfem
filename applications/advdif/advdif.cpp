@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.61 2004/05/22 11:24:18 mstorti Exp $
+//$Id: advdif.cpp,v 1.62 2005/03/28 21:06:34 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -520,7 +520,7 @@ int main(int argc,char **args) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
-      scal=omega_newton;
+      scal=omega_newton/alpha;
       ierr = VecAXPY(&scal,dx,x);
       if (normres < tol_newton) break;
     }
@@ -553,6 +553,18 @@ int main(int argc,char **args) {
     scal=-1.;
     ierr = VecAXPY(&scal,xold,dx);
     ierr  = VecNorm(dx,NORM_2,&delta_u); CHKERRA(ierr);
+
+    if (tstep % nsave == 0){
+      PetscPrintf(PETSC_COMM_WORLD,
+		  " --------------------------------------\n"
+		  "Time step: %d\n"
+		  " --------------------------------------\n",
+		  tstep);
+
+      print_vector(save_file.c_str(),x,dofmap,&time);
+      if (print_residual)
+	print_vector(save_file_res.c_str(),res,dofmap,&time);
+    }
 
     if (ngather>0) {
       gather_values.resize(ngather,0.);
@@ -587,20 +599,10 @@ int main(int argc,char **args) {
     PetscPrintf(PETSC_COMM_WORLD,
 		"time_step %d, time: %g, delta_u = %10.3e\n",
 		tstep,time_,delta_u);
+
     print_vector_rota(save_file_pattern.c_str(),x,dofmap,
 		      &time,tstep-1,nsaverot,nrec,nfile);
 
-    if (tstep % nsave == 0){
-      PetscPrintf(PETSC_COMM_WORLD,
-		  " --------------------------------------\n"
-		  "Time step: %d\n"
-		  " --------------------------------------\n",
-		  tstep);
-
-      print_vector(save_file.c_str(),x,dofmap,&time);
-      if (print_residual) 
-	print_vector(save_file_res.c_str(),res,dofmap,&time);
-    }
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
     

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.101 2005/02/23 03:35:16 mstorti Exp $
+//$Id: advdife.cpp,v 1.102 2005/03/28 21:06:34 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -241,6 +241,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
     rec_Dt_m = 1./DT;
     if (glob_param->steady) rec_Dt_m = 0.;
+
+// apply ALPHA to time step in order to take into account higher order temporal integration
+    rec_Dt_m = rec_Dt_m/ALPHA;
+
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
@@ -403,7 +407,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 A_grad_N(3,nel,ndof,ndof),
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
-    P_Cp(2,ndof,ndof);
+    P_Cp(2,ndof,ndof),grad_N_dDdU_N(4,nel,ndof,nel,ndof);
   Ao_grad_N.resize(3,nel,ndof,ndof);
   tau_supg.resize(2,ndof,ndof);
   P_supg.resize(3,nel,ndof,ndof);
@@ -423,8 +427,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // finite differences
   FastMat2 A_fd_jac(3,ndimel,ndof,ndof),U_pert(1,ndof),
     flux_pert(2,ndof,ndimel),A_jac_err, A_jac(3,ndimel,ndof,ndof),
-    Id_ndim(2,ndim,ndim),jvec(1,ndim);
+    Id_ndim(2,ndim,ndim),jvec(1,ndim),jvec_old(1,ndim);
   Id_ndim.eye();
+
+  double delta_aniso,delta_aniso_old;
 
   // Position of current element in elemset and in chunk
   int k_elem, k_chunk;
@@ -555,11 +561,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	H.prod(SHAPE,Hloc,-1,-1,1);
 	grad_H.prod(dshapex,Hloc,1,-1,-1,2);
       }
-            
+
       if (comp_res) {
-	
+
 	// state variables and gradient
-	Un.prod(SHAPE,lstaten,-1,-1,1);
+	//	Un.prod(SHAPE,lstaten,-1,-1,1);
+	Un.prod(SHAPE,lstate,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Hn,Un);
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
@@ -601,6 +608,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	if (shocap>0. || shocap_aniso>0.) 
 	  adv_diff_ff->get_Cp(Cp_bis_old);
 	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
+	  adv_diff_ff
+	    ->compute_shock_cap_aniso(delta_aniso_old,jvec_old);
+
 
 #define USE_OLD_STATE_FOR_P_SUPG
 #ifdef USE_OLD_STATE_FOR_P_SUPG
@@ -736,7 +746,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  veccontr.axpy(tmp_ALE_04,wpgdet);          
 
 	  tmp_ALE_05.prod(tmp_ALE_03,tmp_ALE_01,1,2,4,3);
-	  matlocf.axpy(tmp_ALE_05,-wpgdet*ALPHA);          
+	  matlocf.axpy(tmp_ALE_05,-wpgdet);
 
 	}
 
@@ -746,7 +756,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  // weak version
 	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 
-	  tmp23.set(SHAPE).scale(-wpgdet*ALPHA);
+	  tmp23.set(SHAPE).scale(-wpgdet);
 	  tmp14.prod(A_grad_N,tmp23,1,2,4,3);
 	  matlocf.add(tmp14);
 	} else {
@@ -755,7 +765,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  veccontr.axpy(tmp2,-wpgdet);
 	  tmp11.set(0.).rest(fluxd); // tmp11 = - flux_d
 
-	  tmp23.set(SHAPE).scale(wpgdet*ALPHA);
+	  tmp23.set(SHAPE).scale(wpgdet);
 	  tmp14.prod(A_grad_N,tmp23,3,2,4,1);
 	  matlocf.add(tmp14);
 	}
@@ -768,28 +778,33 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// Diffusive term in matrix
 #if 0
-	tmp17.set(dshapex).scale(wpgdet*ALPHA);
+	tmp17.set(dshapex).scale(wpgdet);
 	adv_diff_ff->comp_D_grad_N(D_grad_N,tmp17);
 	tmp18.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 #endif
 	adv_diff_ff->comp_grad_N_D_grad_N(grad_N_D_grad_N,
-					  dshapex,wpgdet*ALPHA);
+					  dshapex,wpgdet);
 	matlocf.add(grad_N_D_grad_N);
+
+	// add non linear contributions of diffusive matrix, Djac(U) ==> d Djac /dU
+	adv_diff_ff->comp_grad_N_dDdU_N(grad_N_dDdU_N,grad_U,
+					  dshapex,SHAPE,wpgdet);
+	matlocf.add(grad_N_dDdU_N);
 
         // Reactive term in matrix (Galerkin part)
 #if 0
-        tmp23.set(SHAPE).scale(wpgdet*ALPHA);
+        tmp23.set(SHAPE).scale(wpgdet);
 	tmp24.prod(SHAPE,tmp23,1,2); // tmp24 = SHAPE' * SHAPE
 	tmp25.prod(tmp24,C_jac,1,3,2,4); // tmp25 = SHAPE' * SHAPE * C_jac
 #endif
 
 	// MODIF BETO 8/6
 	if (!lumped_mass) {
-	  adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
+	  adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
 	  matlocf.add(N_N_C);
 	}
 	/*
-	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
+	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet);
 	matlocf.add(N_N_C);
 	*/
 
@@ -797,44 +812,47 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	delta_sc_v.set(0.0);
 	if (shocap>0. ) {
 	  adv_diff_ff->compute_delta_sc_v(delta_sc_v);
-	  adv_diff_ff->get_Cp(Cp_bis);	  
+
+/*
+	  adv_diff_ff->get_Cp(Cp_bis);
 	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    delta_sc_v.addel(delta_sc,jdf);
-	  }
-	  
-	  // DEBUG
-	  Cp_bis.set(Cp_bis_old);
-	  // END DEBUG
+*/
 
- 	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
+//	  Cp_bis.set(Cp_bis_old);
+ 	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
        	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    //	    delta_sc_v.addel(delta_sc,jdf);
 	    delta_sc_v.addel(delta_sc_old,jdf);
  	  }
 
-	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*ALPHA*wpgdet);
+// 	  	  }
+
+	  tmp_sc.prod(dshapex,dshapex,-1,1,-1,2).scale(shocap*wpgdet);
 	  //	  tmp_sc_v.prod(dshapex,grad_U,-1,1,-1,2);
 	  tmp_sc_v.prod(dshapex,tmp_shc_grad_U,-1,1,-1,2);
       	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    double delta = (double)delta_sc_v.get(jdf);
-	    for (int kdf=1; kdf<=ndof; kdf++) {	 
-	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
+	    for (int kdf=1; kdf<=ndof; kdf++) {
+//	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
+	      double tmp_shc_1=Cp_bis_old.get(jdf,kdf);
 	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
 	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
 	    }
 	    tmp_sc_v.ir(2,jdf)
-	      .scale(-shocap*delta*ALPHA*wpgdet).rs();
+	      .scale(-shocap*delta*wpgdet).rs();
 	    delta_sc_v.rs();
 	  }
-	  
+
 	  veccontr.add(tmp_sc_v);
 	}
 
 	// adding ANISOTROPIC shock-capturing term
 	// Falta usar el Cp_bis_old aca tambien
 	if (shocap_aniso>0.) {
-	  double delta_aniso = 0.0;
+//	  double delta_aniso = 0.0;
+	  delta_aniso = 0.0;
 	  adv_diff_ff
 	    ->compute_shock_cap_aniso(delta_aniso,jvec);
 #if 0
@@ -843,34 +861,54 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  jvec.scale(1./jvec_norm);
 #endif
 
-	  adv_diff_ff->get_Cp(Cp_bis);	  
+#if 0
+	  adv_diff_ff->get_Cp(Cp_bis);
 	  tmp_shc_grad_U.prod(Cp_bis,grad_U,2,-1,1,-1);
 	  tmp_j_grad_U.prod(jvec,tmp_shc_grad_U,-1,-1,1);
 	  tmp_j_gradN.prod(jvec,dshapex,-1,-1,1);
-	  
+
 	  tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
-	    .scale(shocap_aniso*ALPHA*wpgdet);
+	    .scale(shocap_aniso*wpgdet);
 
 	  tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
+#else
+	  tmp_shc_grad_U.prod(Cp_bis_old,grad_U,2,-1,1,-1);
+	  tmp_j_grad_U.prod(jvec_old,tmp_shc_grad_U,-1,-1,1);
+	  tmp_j_gradN.prod(jvec_old,dshapex,-1,-1,1);
+
+	  tmp_sc_aniso.prod(tmp_j_gradN,tmp_j_gradN,1,2)
+	    .scale(shocap_aniso*wpgdet);
+
+	  tmp_sc_v_aniso.prod(tmp_j_gradN,tmp_j_grad_U,1,2);
+
+#endif
+
 #if 0
       	  for (int jdf=1; jdf<=ndof; jdf++) {
 	    double delta = (double)delta_sc_v.get(jdf);
-	    for (int kdf=1; kdf<=ndof; kdf++) {	 
+	    for (int kdf=1; kdf<=ndof; kdf++) {
 	      double tmp_shc_1=Cp_bis.get(jdf,kdf);
 	      matlocf.ir(2,jdf).ir(4,kdf).axpy(tmp_sc,delta*tmp_shc_1).rs();
 	      //       matlocf.ir(2,jdf).ir(4,jdf).axpy(tmp_sc,delta).rs();
 	    }
-	    tmp_sc_v.ir(2,jdf).scale(-shocap*delta*ALPHA*wpgdet).rs();
+	    tmp_sc_v.ir(2,jdf).scale(-shocap*delta*wpgdet).rs();
 	    delta_sc_v.rs();
 	  }
-	  
+
 	  veccontr.add(tmp_sc_v);
 #else
+#if 0
 	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis,1,3,2,4);
 	  matlocf.axpy(tmp_matloc_aniso,delta_aniso);
 	  veccontr.axpy(tmp_sc_v_aniso,
-			-shocap_aniso*delta_aniso*ALPHA*wpgdet);
-#endif	  
+			-shocap_aniso*delta_aniso*wpgdet);
+#else
+	  tmp_matloc_aniso.prod(tmp_sc_aniso,Cp_bis_old,1,3,2,4);
+	  matlocf.axpy(tmp_matloc_aniso,delta_aniso_old);
+	  veccontr.axpy(tmp_sc_v_aniso,
+			-shocap_aniso*delta_aniso_old*wpgdet);
+#endif
+#endif
 	}
 
 #ifndef USE_OLD_STATE_FOR_P_SUPG
@@ -890,34 +928,34 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  veccontr.ir(1,jel).axpy(tmp4,wpgdet);
 	  matlocf.ir(1,jel);
 
-	  tmp19.set(P_supg).scale(ALPHA*wpgdet);
-	  if (use_Ajac_old) 
+	  tmp19.set(P_supg).scale(wpgdet);
+	  if (use_Ajac_old)
 	    tmp20.prod(tmp19,Ao_grad_N,1,-1,2,-1,3);
 	  else tmp20.prod(tmp19,A_grad_N,1,-1,2,-1,3);
 	  matlocf.add(tmp20);
 
 	  if(!lumped_mass) {
 	    // Reactive term in matrix (SUPG term)
-	    adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
+	    adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet);
 	    matlocf.add(N_P_C);
 
 	    tmp21.set(SHAPE).scale(wpgdet*rec_Dt_m);
 	    adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
 	    tmp22.prod(P_Cp,tmp21,1,3,2);
 	    matlocf.add(tmp22);
-	    
+
 	    if (ALE_flag) {
 	      tmp_ALE_07.prod(P_Cp,tmp_ALE_01,1,3,2);
-	      matlocf.axpy(tmp_ALE_07,-wpgdet*ALPHA);
+	      matlocf.axpy(tmp_ALE_07,-wpgdet);
 	      tmp_ALE_06.prod(P_Cp,tmp_ALE_02,1,-1,-1);
-	      veccontr.axpy(tmp_ALE_06,wpgdet);	      
-	    }	    
-	  }	  
+	      veccontr.axpy(tmp_ALE_06,wpgdet);
+	    }
+	  }
 	  matlocf.rs();
           veccontr.rs();
 	}
 	P_supg.rs();
-	
+
       } else {
 
 	printf("Don't know how to compute jobinfo: %s\n",jobinfo);
@@ -939,10 +977,16 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // temporal and source terms are lumped out of the gauss points loop
       for (int j=1; j<=nel; j++) {
 
-	lstaten.ir(1,j);
-	Un.set(lstaten);
-	lstaten.rs();
+	/*
+	  lstaten.ir(1,j);
+	  Un.set(lstaten);
+	  lstaten.rs();
+	*/
 
+	lstate.ir(1,j);
+	Un.set(lstate);
+	lstate.rs();
+	
 	lstateo.ir(1,j);
 	Uo.set(lstateo);
 	lstateo.rs();
@@ -1041,6 +1085,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	matlocf.add(matlocf_mass);
       }
       */
+
 
 
       veccontr.export_vals(element.ret_vector_values(*retval));

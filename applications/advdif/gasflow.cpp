@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.35 2005/03/23 01:47:43 mstorti Exp $
+//$Id: gasflow.cpp,v 1.36 2005/03/28 21:06:34 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -79,6 +79,8 @@ void gasflow_ff::start_chunk(int &ret_options) {
   GF_GETOPTDEF_ND(double,Tem_infty,0.0);
   // Sutherland law reference Temperature
   GF_GETOPTDEF_ND(double,Tem_ref,0.0);
+  // Sutherland law implicitly
+  GF_GETOPTDEF_ND(int,sutherland_law_implicit,0);
 
   //o _T: double[ndim] _N: G_body _D: null vector
   // _DOC: Vector of gravity acceleration (must be constant). _END
@@ -149,7 +151,11 @@ void gasflow_ff::start_chunk(int &ret_options) {
   tmp3.resize(2,ndof,ndof);
   tmp20.resize(0);
   maktgsp.init(ndim);
+  tmp40.resize(2,ndim,ndof);
+  tmp41.resize(3,ndim,ndof,ndof);
+  tmp42.resize(3,nel,ndof,ndof);
 
+  dviscodU.resize(1,ndof);
   grad_vel.resize(2,ndim,ndim);
   strain_rate.resize(2,ndim,ndim);
   sigma.resize(2,ndim,ndim);
@@ -475,16 +481,17 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // Sutherland law for thermal correction of laminar viscosity
 
   double sutherland_factor = 1.0;
-  if (sutherland_law !=0) {
-    sutherland_factor = pow(Tem/Tem_infty,1.5)
-      *((Tem_infty+Tem_ref)/(Tem_ref+Tem));
-  }
-  double visco_l = sutherland_factor * visco;
-  double visco_eff = (visco_l + visco_t);
+  Tem = p/Rgas/rho;
+
+  if (sutherland_law !=0 )
+    sutherland_factor = pow(Tem/Tem_infty,1.5)*((Tem_infty+Tem_ref)/(Tem_ref+Tem));
+
+  visco_l = sutherland_factor * visco;
+  visco_eff = (visco_l + visco_t);
   // effective thermal conductivity
-  double cond_eff = sutherland_factor * cond + cond_t;
+  cond_eff = sutherland_factor * cond + cond_t;
   // Aca ponemos visco (y no visco_eff). Ver paper de LESIEUR Y COMTE ...
-  double visco_bar = visco_l - cond_eff/Cv;
+  visco_bar = visco_l - cond_eff/Cv;
 
   // Stress tensor
   sigma.set(0.);
@@ -498,6 +505,16 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   grad_p.set(grad_U);
   grad_U.rs();
   grad_T.set(grad_p).axpy(grad_rho,-p/rho).scale(1./Rgas/rho).rs();
+  double dTdp   =  1./Rgas/rho;
+  double dTdrho = -p/Rgas/rho/rho;
+  
+  double dvisco_l_dT = 0.;
+  if (sutherland_law !=0 && sutherland_law_implicit !=0) 
+    dvisco_l_dT = visco*(3./2.*sutherland_factor/Tem-pow(Tem/Tem_infty,1.5)/pow((Tem_ref+Tem),2.0));
+
+  dviscodU.set(0.);
+  dviscodU.setel(dvisco_l_dT*dTdrho,1);
+  dviscodU.setel(dvisco_l_dT*dTdp,ndof);
 
   //  LIMITAR POR VALORES NEGATIVOS DE RHO Y P , VISCO, CONDUCTIVITY , ETC
 
@@ -596,7 +613,7 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
   // D_ij * Cp  transformed to the primitive state variables
   Djac_tmp.set(Djac);
   Djac.prod(Djac_tmp,Cp,1,2,3,-1,-1,4);
-  //  Djac.scale(1./rho);
+  Djac.scale(1./rho);
 
   // Reactive terms
   //  there is no reactive terms in this formulation
@@ -680,6 +697,15 @@ void gasflow_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				     FastMat2 &dshapex,double w) {
   tmp1.prod(Djac,dshapex,-1,2,3,4,-1,1).scale(w);
   grad_N_D_grad_N.prod(tmp1,dshapex,1,2,-1,4,-1,3);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void gasflow_ff::comp_grad_N_dDdU_N(FastMat2 &grad_N_dDdU_N, FastMat2 &grad_U, 
+				     FastMat2 &dshapex,FastMat2 &N,double w) {
+  tmp40.prod(Djac,grad_U,1,2,-1,-2,-1,-2).scale(1. /visco_eff);
+  tmp41.prod(tmp40,dviscodU,1,2,3);
+  tmp42.prod(tmp41,dshapex,-1,2,3,-1,1);
+  grad_N_dDdU_N.prod(tmp42,N,1,2,4,3).scale(w);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
