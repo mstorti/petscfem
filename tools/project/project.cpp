@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.16 2005/02/25 16:09:52 mstorti Exp $
+// $Id: project.cpp,v 1.17 2005/02/25 17:07:43 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -107,8 +107,10 @@ int main() {
       // invCt.print("invCt");
       int iter=0;
       FastMat2::get_cache_position(cp);
+      // FastMat2::branch();
       while(true) {
 	FastMat2::jump_to(cp);
+	// FastMat2::choose(iter);
 	iter++;
 	invC2.inv(C2);
 	L.prod(invC2,b,1,-1,-1);
@@ -123,27 +125,28 @@ int main() {
 	    neg=1;
 	    int &flag = restricted[j-1];
 	    flag = !flag;
-	    C2.ir(2,j);
 	    FastMat2::branch();
 	    if (flag) {
 	      FastMat2::choose(0);
+	      C2.ir(2,j);
 	      invCt.ir(2,j);
-	      C2.set(invCt);
+	      C2.set(invCt).rs();
+	      invCt.rs();
 	    } else {
 	      FastMat2::choose(1);
+	      C2.ir(2,j);
 	      C.ir(2,j);
-	      C2.set(C);
+	      C2.set(C).rs();
+	      C.rs();
 	    }
 	    FastMat2::leave();
-	    C2.rs();
-	    invCt.rs();
-	    C.rs();
 	  }
 	  FastMat2::leave();
 	}
 	if (!neg) break;
 	assert(iter<=ndim);
       }
+      // FastMat2::leave();
       FastMat2::resync_was_cached();
       // printf("converged on iters %d\n",iter);
       for (int j=0; j<ndim; j++) {
