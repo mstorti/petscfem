@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.19 2003/11/16 19:56:30 mstorti Exp $
+#$Id: myexpect.pl,v 1.20 2003/12/08 12:34:08 mstorti Exp $
 
 use English;
 ## position in count record
@@ -17,7 +17,7 @@ $PRE = "{{";
 $POST = "}}";
 $SEP = "}{";
 $COMMENT = "#>>";
-$WD = "";
+$WD = ".";
 
 sub P { print @_; }
 
@@ -116,7 +116,7 @@ sub expect {
     ($file,$descr,$pattern_list) = @_;
     @sal = ();
     return if $file && $file!~ m|/$| && read_output(\@sal,$file);
-    $WD = $1 if $file =~ m|^(.*/)[^/]*$|;
+    $WD = $1 if $file =~ m|^(.*)/[^/]*$|;
     printo_push();
     printo "Testing: \"$descr\" on file \"$file\"...";
     printo "\n" if $opt_d;
