@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.30 2001/12/09 14:04:01 mstorti Exp $
+// $Id: pfmat.h,v 1.31 2001/12/13 16:06:39 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -48,9 +48,6 @@ public:
 
 #include "pfmatFSM.h"
 #endif
-
-/// This is the basic distributed matrix class. 
-//typedef DistMap<int,Row,IntPartitioner> DistMat;
 
 /** This is a wrapper to the PETSc Matrix class and allows us to define
     new types
@@ -134,7 +131,7 @@ public:
   /// Sets all values of the operator to zero.
   virtual int zero_entries()=0;
 
-  /** Performs all operations needed before permorming the solution of
+  /** Performs all operations needed before performing the solution of
       the linear system (creating the PETSc SLES, etc...). Sets
       oprtions from the #thash# table. 
       @param name (input) a string to be prepended to all options that

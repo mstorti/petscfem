@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.17 2001/12/12 20:37:12 mstorti Exp $
+// $Id: iisdmat.h,v 1.18 2001/12/13 16:06:39 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -204,7 +204,7 @@ class IISDMat : public PFMat {
   /// PETSc LU fill parameter 
   double pc_lu_fill;
   /// Layers of nodes of the preconditioning
-  vector< set<int> > int_layers;
+  // vector< set<int> > int_layers;
   /** Performs all operations needed before permorming the solution of
       the linear system (creating the PETSc SLES, etc...). Sets
       oprtions from the #thash# table. 

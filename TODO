@@ -3,9 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Check if the `-O1 measperf.cpp' problem is fixed.
+* add tests  `cubcav' 
 * Fix documentation. New version of latex2html screwed all up. 
-* Write tests for IISD with subpartitioning.
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
 * put `const A' in the argument to PFMat::duplicate
 * interface preconditioning for IISD
@@ -50,6 +49,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Write tests for IISD with subpartitioning.
+* Check if the `-O1 measperf.cpp' problem is fixed.
 * add tests with `sqcav' and several processors
 * merge turbulence enhancements.
 * merge adaptors developed in Chile
