@@ -22,3 +22,7 @@ uini=[uini(ones(2*(N+1),1),:);
 asave("wallke.nod.tmp",xnod);
 asave("wallke.con.tmp",icone);
 asave("wallke.ini.tmp",uini);
+
+yp=0.05;
+uini(:,2)=(yp+xnod(:,1))/(1+yp);;
+asave("wallke.inic.tmp",uini);

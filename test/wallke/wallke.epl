@@ -19,36 +19,52 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#initial_state "wallke.ini.tmp"
+#if 1
 initial_state "save.state"
+#elsif $case eq 'poiseuille'
+initial_state "wallke.ini.tmp"
+#elsif $case eq 'couette'
+initial_state "wallke.inic.tmp"
+#else
+<:= die "not known case $case\n":>
+#endif
 print_some_file "wallke.some"
 save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 100
+nstep 1000
 nnwt 3
 tol_newton 0
 preco_type "lu"
-Dt 0.1
+Dt 0.3
 
 #print_linear_system_and_stop
 #solve_system 0
 
 #<:
+
 $L = 1;                         # Semi distance between plates
-$Re_l = 483000;                   # laminar Re
-$Umax = 1;                      # Max vel in the channel
-$Uav = 1.5*$Umax;               # Aver vel 
-$nu = $Uav*2*$L/$Re_l;          # kinematic visc.
-$g = $nu*2*$Umax/$L**2;         # body force
 $N = 32;                        # Number of elements 
 $hratio = 5;                    # refinement near the wall
+$Re_l = 500000;                   # laminar Re
+if ($case eq 'poiseuille') {
+    $Umax = 1;                      # Max vel in the channel
+    $Uav = 1.5*$Umax;               # Aver vel 
+    $nu = $Uav*2*$L/$Re_l;          # kinematic visc.
+    $g = $nu*2*$Umax/$L**2;         # body force
+    $Uwall=0;
+} elsif ($case eq 'couette') {
+    $Uwall = 1;
+    $nu = $Uwall * (2*$L) / $Re_l;
+    $g=0;
+}
+    
 octave_export_vars("data.m.tmp",qw(nu g N hratio L));
 :>//
 
-y_wall_plus 50
-#turbulence_coef 0.
+y_wall_plus 20
+#turbulence_coef 1.
 viscosity <:=$nu:>
 G_body 0. <:=$g:>
 
@@ -93,7 +109,15 @@ end_elemsets
 fixa
 
 # pressure fixed at some node
-<:=2*$N+1:> 3  0.
+<:=2*$N-1:> 3  0.
+
+# velocity fixed at the axis
+#if $case eq 'couette'
+<:=2*$N+1:> 1 0.
+<:=2*$N+1:> 2 <:=$Uwall:>
+<:=2*$N+2:> 1 0.
+<:=2*$N+2:> 2 <:=$Uwall:>
+#endif
 
 #if !$wall_ke
 1 2 0.
@@ -101,6 +125,8 @@ fixa
 1 1 0.
 #1 4 1.
 #1 5 1.
+
+
 
 # Fictitious node (leave 2 dof's for the wall eqs.)
 <:=2*$N+3:> 3 0.
