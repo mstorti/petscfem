@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.53 2002/11/05 19:59:33 mstorti Exp $
+//$Id: elemset.cpp,v 1.54 2003/02/05 19:28:42 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -1005,6 +1005,61 @@ Elemset::~Elemset() {
   DELETE_VCTR(elemiprops_add);
   DELETE_SCLR(thash);
   DELETE_VCTR(elem_conne);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
+  string dx_type;
+  int ierr;
+  //o Flags whether the element should return some DX objects.
+  TGETOPTDEF(thash,int,dx,0);
+  if (!dx) return;
+  // Get list of indices of the nodes to be passed to DX
+  // as connectivity table
+  vector<int> node_indices;
+  dx_indices(dx_type,node_indices);
+
+  Sprintf(sock,"icone %d %d %s %s\n",nelem,node_indices.size(),name());
+  for (int j=0; j<nelem; j++) {
+    int *row = icone+j*nel;
+    for (int n=0; n<node_indices.size(); n++) {
+      int k = node_indices[n];
+      // Convert to 0 based (DX) node numbering
+      int node = *(row+k-1)-1;
+      Swrite(sock,&node,sizeof(int));
+    }
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Elemset::dx_indices(string &dx_type,vector<int>& node_indices) {
+  int ierr;
+  const char *line;
+  //o Nodes returned in the connectivity table
+  thash->get_entry("dx_indices",line);
+  // Reads list of indices from `dx_indices' option line
+  // othewise, use standard numeration from geometry
+  if (!line) {
+    assert(0);// not fully implemented yet
+    for (int k=0; k<nel; k++) node_indices.push_back(k);
+  } else {
+    read_int_array(node_indices,line);
+    for (int k=0; k<node_indices.size(); k++) {
+      PETSCFEM_ASSERT(node_indices[k]>=1,
+		      "Node indices should be entered 1 based (1<=indx<=nel)."
+		      "Entered %d\n",node_indices[k]);
+      PETSCFEM_ASSERT(node_indices[k]<=nel,
+		      "Node indices should be entered 1 based (1<=indx<=nel)."
+		      "Entered %d\n",node_indices[k]);
+    }
+    TGETOPTDEF_S_ND(thash,string,dx_type,none);
+  }
+  int dx_nel = node_indices.size();
+  if (! ( (dx_type=="quads" && dx_nel==4) 
+	  || (dx_type=="cubes" && dx_nel==8) 
+	  || (dx_type=="triangles" && dx_nel==3) 
+	  || (dx_type=="tetrahedra" && dx_nel==4) ))
+    PETSCFEM_ERROR("Not known dx_type: \"%s\"",dx_type.c_str());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

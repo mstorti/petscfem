@@ -1,11 +1,12 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.25 2002/11/05 19:59:35 mstorti Exp $
+//$Id: elemset.h,v 1.26 2003/02/05 19:28:42 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
 
 #include "libretto.h"
+#include <HDR/sockets.h>
 #include <glib.h>
 
 #include "arglist.h"
@@ -298,6 +299,20 @@ public:
 
   /// Stores temporarily element connectivities
   int *elem_conne;
+
+  /** Generates fields for processing with DX. 
+      @param sock (input) socket where to send data following protocol
+      understand by DX #ExtProgImport# module
+      @param nd (input) coordinates object
+      @param field_state (input) array of values (node/field) representation */
+  virtual void dx(Socket *sock,Nodedata *nd,double *field_state);
+
+  /** Returns the order of indices (remapping to DX convetion). So,
+      for instance, for quads it should be [1 2 4 3]. Also it can be used for 
+      eliminating fictitious nodes. 
+      @param dx_type (input) the dx_type interpolation, (may be #triangles#, #quads#, 
+      #tetrahedra# or #cubes#). */ 
+  virtual void dx_indices(string &dx_type,vector<int>& node_indices);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.4 2003/02/05 02:38:11 mstorti Exp $
+//$Id: dxhook.cpp,v 1.5 2003/02/05 19:28:42 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/fem.h>
@@ -11,16 +11,28 @@
 
 #include <HDR/sockets.h>
 
-#define PF_DX_PORT "5555"
-
 extern int MY_RANK, SIZE;
 
+// I didn't found a definition for this
+#ifndef IPPORT_MAX
+#define IPPORT_MAX 65536
+#endif
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
 			   const char *name_a) {
+  int ierr;
+  char skthost[10];
   if (!MY_RANK) {
-    printf("dx_hook: starting socket at port: %s\n",PF_DX_PORT);
-    srvr_root = Sopen("","s" PF_DX_PORT);
+    //o TCP/IP port for communicating with DX (5000 < dx_port < 65536). 
+    TGETOPTDEF(mesh_a.global_options,int,dx_port,5314);
+    PETSCFEM_ASSERT(dx_port>IPPORT_USERRESERVED && 
+		    dx_port<IPPORT_MAX,"\"dx_port\" number must be in the range\n"
+		    "IPPORT_USERRESERVED < dx_port < IPPORT_MAX, dx_port = %d\n"
+		    "[current values are: IPPORT_USERRESERVED = %d\n, IPPORT_MAX  = %d]\n",
+		    dx_port, IPPORT_USERRESERVED, IPPORT_MAX);
+    printf("dx_hook: starting socket at port: %d\n",dx_port);
+    sprintf(skthost,"S%d",dx_port);
+    srvr_root = Sopen("",skthost);
     assert(srvr_root);
     PetscPrintf(PETSC_COMM_WORLD,"Done.\n");
   }
@@ -67,13 +79,10 @@ time_step_post(double time,int step,
   Darray *elist = mesh->elemsetlist;
   for (int j=0; j<da_length(elist); j++) {
     Elemset *e = *(Elemset **)da_ref(elist,j);
-    if (!MY_RANK) {
-      Sprintf(srvr,"icone %d %d %s %s\n",e->nelem,e->nel,e->name(),
-	      e->type);
-      printf("type %s\n",e->type);
-      Swrite(srvr,e->icone,e->nelem*e->nel*sizeof(int));
-    }
+    e->dx(srvr,nodedata,fields);
   }
+
+  // Send termination signal
   Sprintf(srvr,"end\n");
 
   Sclose(srvr);

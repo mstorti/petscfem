@@ -61,8 +61,34 @@ m_ExtProgImport(Object *in, Object *out) {
     DXSetError(ERROR_MISSING_DATA, "\"socket_name\" must be specified");
     return ERROR;
   }
+  socket_name_p = DXGetString((String)in[0]); 
+  char *hostname = new char[strlen(socket_name_p)+1];
+  if (!socket_name_p) goto error;
+  DXMessage("got socket_name_p: %s",socket_name_p);
+  int port;
+  nread = sscanf(socket_name_p,"%s:%d",hostname,port);
+  DXMessage("got nread: %d",nread);
+  if (nread!=2) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Couldn't parse hostname:port");
+    goto error;
+  }
+  if (!hostname) goto error;
+  if (port<=5000 || port>=65536) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Invalid port %d, should be in range 5000 < port < 65536",port);
+    goto error;
+  }
+  DXMessage("Got hostname: %s, port: %d",hostname,port);
+  char sktport[20];
+  sprintf(sktport,"c%d",port);
 
-  clnt = Sopen("","c5555");
+  clnt = Sopen(hostname,sktport);
+  if (!clnt) {
+    DXSetError(ERROR_INTERNAL, "Couldn't open socket");
+    return ERROR;
+  }
+    
   Sgets(buf,BUFSIZE,clnt);
   sscanf(buf,"nodes %d %d",&ndim,&nnod);
   DXMessage("Got nnod %d, ndim %d",nnod,ndim);
@@ -98,31 +124,25 @@ m_ExtProgImport(Object *in, Object *out) {
   while(1) {
     char spc[] = " \t\n";
     Sgets(buf,BUFSIZE,clnt);
-    DXMessage("Got line: %s\n",buf);
 
     token = strtok(buf,spc);
-    DXMessage("Got token[0]: %s\n",token);
     if(!strcmp(token,"end")) break;
     DXassert(!strcmp(token,"icone"));
 
     token = strtok(NULL,spc);
-    DXMessage("Got token[1]: %s\n",token);
     nread = sscanf(token,"%d",&nelem);
     DXassert(nread==1);
 
     token = strtok(NULL,spc);
-    DXMessage("Got token[2]: %s\n",token);
     nread = sscanf(token,"%d",&nel);
     DXassert(nread==1);
 
     token = strtok(NULL,spc);
-    DXMessage("Got token[3]: %s\n",token);
     DXassert(token);
     DXassert(strlen(token)>0);
     string ename(token);
 
     token = strtok(NULL,spc);
-    DXMessage("Got token[4]: %s\n",token);
     DXassert(token);
     DXassert(strlen(token)>0);
     string etype(token);
@@ -136,7 +156,7 @@ m_ExtProgImport(Object *in, Object *out) {
     if (!icone) goto error;
     icone_p = (int *)DXGetArrayData(icone);
     nread = Sreadbytes(clnt,icone_p,nelem*nel*sizeof(int));
-    g = DXSetMember(g,token,(Object)icone);
+    g = DXSetMember(g,(char *)ename.c_str(),(Object)icone);
     if (!g) goto error;
   }
 
@@ -146,6 +166,8 @@ m_ExtProgImport(Object *in, Object *out) {
   return OK;
 
 error:
-  return ERROR;
+  delete[] hostname;
+hostname = NULL;
+return ERROR;
 }
 
