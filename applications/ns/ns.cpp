@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.49 2001/11/25 22:44:17 mstorti Exp $
+//$Id: ns.cpp,v 1.50 2001/11/30 12:41:08 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -11,6 +11,10 @@
 #include <src/util2.h>
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
+
+#include "nsi_tet.h"
+#include "adaptor.h"
+#include "elast.h"
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
@@ -35,6 +39,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(ns_id)
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_res)
+      // SET_ELEMSET_TYPE(elasticity_f)
+    SET_ELEMSET_TYPE(elasticity)
     SET_ELEMSET_TYPE(nsi_tet_les_fm2)
     SET_ELEMSET_TYPE(nsi_tet_les_ther)
     SET_ELEMSET_TYPE(nsi_tet_keps)
@@ -329,6 +335,7 @@ int main(int argc,char **args) {
     double normres_external;
     for (int inwt=0; inwt<nnwt; inwt++) {
 
+      glob_param.inwt = inwt;
       // Initialize step
       int update_jacobian = !update_jacobian_iters || inwt<update_jacobian_iters;
 
