@@ -3,8 +3,6 @@ TODO: [Mainly fixes go here...]
 =====
 
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
-* Add test for `surf_gatherer' in test/cubcav. Apparently it is
-       almost already done. 
 * Fix warnings that are currently disabled with '-Wno-deprecated'
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
@@ -163,6 +161,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Add test for `surf_gatherer' in test/cubcav. Apparently it is
+       almost already done. 
+       Sun Feb 20 21:37:22 2005: Added test
 * Breaks uncleanly when include directive is pasted to filename, e.g. 
             __INCLUDE__xxxxxx.file ???
 * OK Test gasflow_abso in supersonic flow. 
