@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 22:28:18 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/03 13:51:11 mstorti Exp $ 
 
 .PHONY: homof sqcav21 force
 run: sqcav
@@ -19,7 +19,7 @@ $(TMP_FILES): mkmesh.m
 .PHONY: lclean add_clean
 
 local_clean::
-	chmod +w *.depl
+	-chmod +w *.depl
 	-@rm output.m a.dat *.sal *.depl &>/dev/null
 
 CASE = back_step

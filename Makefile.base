@@ -89,7 +89,7 @@ general_clean:
 local_clean:: 
 
 lclean: 
-	$(MAKE) clean &> /dev/null
+	$(MAKE) clean local_clean &> /dev/null
 	-@rm *~ -f *.o $(OBJS) $(PROG).bin octave-core *.cppi \
 		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
 	for dir in $(CLEANDIRS) ; do $(MAKE) -C $$dir lclean  ; done
