@@ -812,6 +812,12 @@ expect("distmap/distmap.sal.tmp",
 error < tol OK \? > 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("distmap/distmat.sal.tmp",
+       "Distributed matrix<int,int,double>",<<'EOT');
+error < tol OK \? > 1
+EOT
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

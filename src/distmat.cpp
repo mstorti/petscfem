@@ -1,28 +1,18 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.1 2001/08/01 22:48:28 mstorti Exp $
+// $Id: distmat.cpp,v 1.2 2001/08/02 01:54:01 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
 #include <petsc.h>
 
-#include "utils.h"
-#include "distmap.h"
-#include "buffpack.h"
-#include "maximizr.h"
+#include <utils.h>
+#include <distmap.h>
+#include <buffpack.h>
+#include <maximizr.h>
+#include <distmat.h>
 
 int SIZE, MYRANK, M;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// Test for the distributed map class
-// A distributed map<int,int,double> class
-class Row : public  map<int,double> {
-  int size_of_pack() const;
-  void pack(char *&buff) const;
-};
-
-typedef DistMap<int,Row> DistMat;
-typedef map<int,Row> BasMap;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DistMat::
@@ -83,19 +73,6 @@ combine(const pair<int,Row> &p) {
     }
   }
 }
-
-int proc(int l) { return int((l*SIZE)/M);}
-
-int
-DistMat::processor(const DistMat::iterator k) const {
-  return proc(k->first);
-};
-
-class DistMatrix : public DistMat {
-public:
-  void insert_val(int i,int j,double v);
-  double val(int i,int j);
-};
 
 void DistMatrix::insert_val(int i,int j,double v) {
   DistMat::iterator I = find(i);

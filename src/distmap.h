@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.7 2001/07/31 15:31:21 mstorti Exp $
+// $Id: distmap.h,v 1.8 2001/08/02 01:54:01 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -17,7 +17,7 @@
 */
 template <class Key,class Val>
 class DistMap : public map<Key,Val> {
- private:
+ protected:
   /// MPI communicator
   MPI_Comm comm;
   /// size and rank in the comunicator
@@ -58,6 +58,10 @@ class DistMap : public map<Key,Val> {
   void unpack(Key &k,Val &v,const char *& buff);
   /// perform the scatter of elements to its corresponding processor. 
   void scatter();
+  /** This function should be defined by the user. Merges a pair key,
+      value in the container. 
+      @param p (input) the pair to be inserted.
+  */ 
   void combine(const pair<Key,Val> &p);
 };
 

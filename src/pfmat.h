@@ -1,10 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.7 2001/07/28 20:03:59 mstorti Exp $
+// $Id: pfmat.h,v 1.8 2001/08/02 01:54:01 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
 #include <vector>
+
+#include <distmap.h>
+#include <distmat.h>
 
 // This is a wrapper to the PETSc Matrix class and allows us to define
 // new types
@@ -200,6 +203,12 @@ class IISDMat : public PFMat {
   Mat A_II;
   /// Shortcuts to the #A_LL#, #A_IL#, #A_LI# and #A_II# matrices. 
   Mat *AA[2][2];
+  /** Here we put all non-local things that are in the loca-local
+      block on other processors
+  */
+  DistMatrix A_LL_other;
+  /// The mode we are inserting values
+  InsertMode insert_mode;
   /// Auxiliar MPI vector that contains all local dof's
   Vec x_loc;
   /** Auxiliar sequential vector that contains local dof's in this

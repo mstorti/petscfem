@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmat.h,v 1.1 2001/08/01 22:55:33 mstorti Exp $
+// $Id: distmat.h,v 1.2 2001/08/02 01:54:01 mstorti Exp $
 #ifndef DISTMAT_H
 #define DISTMAT_H
 
@@ -16,9 +16,11 @@ typedef DistMap<int,Row> DistMat;
 typedef map<int,Row> BasMap;
 
 class DistMatrix : public DistMat {
+  Dofmap *dofmap;
 public:
   void insert_val(int i,int j,double v);
   double val(int i,int j);
+  int processor(const DistMatrix::iterator k) const;
 };
 
 #endif

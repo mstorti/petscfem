@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.8 2001/06/08 14:25:56 mstorti Exp $
+//$Id: utils.h,v 1.9 2001/08/02 01:54:01 mstorti Exp $
  
 
 #ifndef UTILS_H
@@ -86,9 +86,17 @@ int mini(int n,...);
   @author M. Storti
   @param n number of integer values
   @param ... set of integers
-  @return the minimum of these integers
+  @return the maximum of these integers
 */ 
 int maxi(int n,...);
+
+/** Maximum value of a set of doubles.
+  @author M. Storti
+  @param n number of double values
+  @param ... set of doubles
+  @return the maximum of these integers
+*/ 
+double maxd(int n,...);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Reshapes a matrix to be m x n. (Clon of matlab reshape()).
