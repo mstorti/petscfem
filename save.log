@@ -4217,3 +4217,6 @@ tag: beta-3.45.8 on Mon, 28 Mar 2005 22:48:10 -0300 by mstorti in spider
 tag: beta-3.45.9 on Mon, 28 Mar 2005 22:50:19 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Final merge from `bubbly10-branch'
+----------
+tag: beta-3.45.10 on Tue, 29 Mar 2005 01:02:01 -0300 by mstorti in spider
+     > Running `cond_wall' with moving surfaces. 
