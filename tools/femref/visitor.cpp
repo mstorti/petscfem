@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.23 2005/01/07 02:39:08 mstorti Exp $
+// $Id: visitor.cpp,v 1.24 2005/01/07 15:43:08 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -12,7 +12,7 @@ using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 UniformMesh::visitor::visitor() 
-  : at_end(true), mesh(NULL), 
+  : mesh(NULL), 
     etree_p(NULL), trace(0),
     node_comb(NULL), visit_mode(UniformMesh::Natural) { }
 
@@ -24,9 +24,12 @@ void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
   } else if (visit_mode==UniformMesh::BreadthFirst) {
     char stat=0;
     visited.resize(mesh->nelem,stat);
-    element_stack.push_back(elem_a);
-    pop_elem();
-    nvisited=0;
+    if (elem_a<mesh->nelem) {
+      element_stack.push_back(elem_a);
+      visited.ref(elem_a) = 1;
+      pop_elem();
+      nvisited=1;
+    } else nvisited=0;
   }
   if (!end_elem()) init(elem);
 }
@@ -47,11 +50,12 @@ void UniformMesh::visitor::init(int elem_a) {
   top.go.make_canonical();
   top.splitter = etree_p->begin();
   top.so_indx = 0;
-  at_end = false;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::so_next() {
+void 
+UniformMesh::visitor::
+so_next() {
   RefStackT::iterator ws, 
     w = ref_stack.begin();
   // here visit w...
@@ -87,30 +91,27 @@ bool UniformMesh::visitor::so_next() {
     ws->splitter = qs;
     ws->go.make_canonical();
     ws->so_indx = 0;
-    return true;
   } else {
     // `q' is a leave for GO's (sure it isn't a
     // regular node for splitters). Try to find a
     // right sibling, or a father that has a right
     // sibling
     while (true) {
-      // Check if we are at the root
-      if (ref_stack.size()<=1) {
-	at_end = true;
-	return false;
+
+      if (ref_stack.size()==1) {
+	ref_stack.clear();
+	return;
       }
-      
       ws = ref_stack.begin(); 
       j = ws->so_indx;
-      w=ws; w++;
+      w = ws; w++;
       qfather = w->splitter;
       assert(qfather != etree_p->end());
       const Splitter *s = qfather->splitter;
 
       pop();
-      // ref_stack.pop_front();
 
-      if (j<s->size()-1) {
+      if (j < s->size() - 1) {
 	int jsib = j+1;
 	qrsib = ws->splitter;
 	ref_stack.push_front(RefPathNode());
@@ -132,7 +133,7 @@ bool UniformMesh::visitor::so_next() {
 	// Push new state in the stacks
 	ws->splitter = qrsib;
 	ws->so_indx = jsib;
-	return true;
+	return;
       }
     }
   }
@@ -140,21 +141,20 @@ bool UniformMesh::visitor::so_next() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
+so_end() { return ref_stack.empty(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::visitor::
 next() { 
-  if (so_next()) return true;
+  so_next();
+  if (!so_end()) return;
   next_elem();
-  if(end_elem()) return false;
-  init(elem);
-  return true;
+  if (!end_elem()) init(elem);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
-so_end() { return at_end; }
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool UniformMesh::visitor::
-end() { return at_end && end_elem(); }
+end() { return so_end() && end_elem(); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void 
@@ -256,9 +256,10 @@ bool UniformMesh::visitor::level_so_next() {
   while (true) {
     // Check if we are at the root
     if (ref_stack.size()<=1) {
-      at_end = true;
+      // at_end = true;
       return false;
     }
+
     
     ws = ref_stack.begin(); 
     j = ws->so_indx;
@@ -310,11 +311,11 @@ level_next() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-bool 
+void
 UniformMesh::visitor::
 next(int level) {
-  if (ref_level()<level) return next();
-  else return level_next();
+  if (ref_level()<level) next();
+  else level_next();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -356,7 +357,7 @@ bool UniformMesh::visitor::end_elem() {
   if (visit_mode==UniformMesh::Natural) {
     return elem >= mesh->nelem;
   } else if (visit_mode==UniformMesh::BreadthFirst) {
-    return nvisited == mesh->nelem;
+    return nvisited > mesh->nelem;
   }
 }
 
@@ -366,6 +367,8 @@ UniformMesh::visitor::
 pop_elem() { 
   if (element_stack.empty()) {
     assert(nvisited==mesh->nelem);
+    nvisited++;
+    elem = mesh->nelem;
     return;
   }
   elem = element_stack.front();

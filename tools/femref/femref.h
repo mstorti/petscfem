@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.50 2005/01/07 02:39:08 mstorti Exp $
+// $Id: femref.h,v 1.51 2005/01/07 15:43:08 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -421,8 +421,6 @@ public:
     UniformMesh *mesh;
     /// The internal tree for each base element
     ElemRef *etree_p;    
-    /// Flags whether we reached the end of the mehs or not
-    bool at_end;
     /// The element we are currently visiting
     int elem;
     /// Pop the deepest level object in the refinement stack
@@ -461,16 +459,16 @@ public:
 #endif
     /** Pass to the following subobject of the 
 	same element. Return false if reached the end. */
-    bool so_next();
+    void so_next();
     /// Have we passed the last subobject of this element?
     bool so_end();
     /** Pass to the following subobject of the 
 	mesh. Return false if reached the end of the mesh. */
-    bool next();
+    void next();
     /** Pass to the following subobject of the 
 	mesh, down to level #level#. 
 	Return false if reached the end of the mesh. */
-    bool next(int level);
+    void next(int level);
     /// Have we passed the last subobject of the mesh?
     bool end();
     /** Pass to the following subobject of the 
