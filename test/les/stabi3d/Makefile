@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2002/11/11 22:50:41 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2002/11/11 22:54:31 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -28,3 +28,6 @@ viewer_tmp.dx: stabi.con-tet.tmp stabi.state.tmp viewer.dx
 LOC_PROG := ns
 CASE_NAME := stabi
 PROG := $(PETSCFEM_DIR)/applications/ns/ns_O.bin
+
+local_clean::
+	-rm -rf viewer_tmp.dx
