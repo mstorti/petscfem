@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: srfgath.h,v 1.2 2004/01/26 23:45:09 mstorti Exp $
+//$Id: srfgath.h,v 1.3 2004/01/27 19:54:12 mstorti Exp $
 #ifndef PETSCFEM_SRF_GATH_H
 #define PETSCFEM_SRF_GATH_H
 
@@ -61,9 +61,8 @@ public:
       @param time (input) time value ($t^\alpha$)
       
   */ 
-  virtual void set_pg_values(vector<double> &pg_values,FastMat2 &u,
-		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
-		     double time)=0;
+  virtual void set_ip_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &xpg,FastMat2 &n,double time)=0;
 
   /** Called \textbf{after} the element loop. May be used for
       clean-up operations. 
@@ -76,10 +75,9 @@ public:
 
 class field_surf_integrator : public SurfGatherer {
 public:
-  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
-		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
-		     double time) {
-    pg_values[0] = u.get(1);
+  void set_ip_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &xpg,FastMat2 &n,double time) {
+    pg_values[0] = 1.0;
   }
 };
 

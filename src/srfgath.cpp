@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.3 2004/01/27 19:16:42 mstorti Exp $
+//$Id: srfgath.cpp,v 1.4 2004/01/27 19:54:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -119,6 +119,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int nvals = f_vals.size();
   int gather_length = vals_per_plane*nvals;
   
+  vector<double> ip_values(vals_per_plane);
+
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
 #define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
@@ -149,7 +151,8 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
     n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
     ui(2,ndof,nedges), xc(1,ndim), xcp(1,ndim), uc(1,ndof),
-    x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp;
+    x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp, ut(1,ndof),
+    a(1,ndim), b(1,ndim);
   xi.set(0.);
 
   Time * time_c = (Time *)time;
@@ -299,58 +302,36 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
       printf("\n");
 #endif
-    }
- 
-#if 0
-    staten.set(&(LOCST(ielh,0,0)));
-    stateo.set(&(LOCST2(ielh,0,0)));
+      // Loop over subtriangles
+      for (int j=0; j<nint; j++) {
+	// Value of u at the center of the triangle
+	int n1 = indx[j];
+	int n2 = indx[(j==nint-1? 0 : j+1)];
+	ut.set(0.).set(uc);
+	ui.ir(2,n1+1);
+	ut.add(ui);
+	ui.ir(2,n2+1);
+	ut.add(ui);
+	ut.scale(1./3.);
+	ui.rs();
 
-    GPdata::edge q;
-    int e=0;
-    
-    for (q = gp_data.edges_begin(); q!=gp_data.edges_end(); q++) {
-      int n1=q.first();
-      int n2=q.second();
-      double f1 
-    }
- 
-    // Let user do some things when starting with an element
-    element_hook(k);
+	xpg.set(0.).set(xc);
+	xi.ir(2,n1+1);
+	xpg.add(xi);
+	a.set(xi).rest(xc);
+	xi.ir(2,n2+1);
+	xpg.add(xi);
+	b.set(xi).rest(xc);
+	xpg.scale(1./3.);
+	xi.rs();
+	double area = b.norm_p_all(2.0)/2.0;
 
-    for (int ipg=0; ipg<npg; ipg++) {
-      // Gauss point coordinates
-      xpg.prod(SHAPE,xloc,-1,-1,1);
-      // Jacobian master coordinates -> real coordinates
-      Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-
-      double detJaco;
-      if (ndimel==ndim) {
-	detJaco = Jaco.det();
-      } else if (ndimel==ndim-1) {
-	detJaco = Jaco.detsur(&n);
-	n.scale(1./detJaco);
-	n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
+	set_ip_values(ip_values,ut,xpg,n,t);
+	int pos = gather_pos + vals_per_plane * jval;
+	for (int j=0; j<vals_per_plane; j++) 
+	  (*values)[pos+j] += ip_values[j]*area;
       }
-      if (detJaco <= 0.) {
-	printf("Jacobian of element %d is negative or null\n"
-	       " Jacobian: %f\n",k,detJaco);
-	PetscFinalize();
-	exit(0);
-      }
-      double wpgdet = detJaco*WPG;
-
-      // Values of variables at Gauss point
-      u.prod(SHAPE,staten,-1,-1,1);
-      u_old.prod(SHAPE,stateo,-1,-1,1);
-
-      set_pg_values(pg_values,u,u_old,xpg,n,wpgdet,t);
-      if (options & VECTOR_ADD) {
-	for (int j=0; j<gather_length; j++) {
-	  (*values)[gather_pos+j] += pg_values[j];
-	}
-      } else assert(0);
     }
-#endif
   }  
   PetscFinalize();
   exit(0);
