@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.7 2004/12/12 17:14:52 mstorti Exp $
+// $Id: femref2.cpp,v 1.8 2004/12/12 17:43:39 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -599,6 +599,7 @@ refine(RefineFunction f) {
   }
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #if 0
   while (q!=etree.end()) {
     // Each node of the `etree' is a splitter!!
@@ -634,8 +635,43 @@ refine(RefineFunction f) {
   }
 #endif
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::
 set(const GeomObject &go,const Splitter *s,
     int indx,GeomObject &sgo) const {
-  
+  const int *go_nodes = go.nodes();
+  GeomObject::Type t;
+  const int *local_nodes = s->nodes(indx,t);
+  GeomObject::Template *tmpl 
+    = GeomObject::get_template(t);
+  int 
+    so_sz = tmpl->size_m,
+    sz = go.size();
+  dvector<int> sgo_nodes;
+  sgo_nodes.mono(so_sz);
+  for (int k=0; k<so_sz; k++) {
+    int ln1 = local_nodes[2*k];
+    int n1 = go_nodes[ln1];
+    if (ln1>=sz) {
+      int ln2 = local_nodes[2*k+1];
+      int n2 = go_nodes[ln2];
+      int node_hash = combine(n1,n2);
+      map<int,int>::iterator it 
+	= hash2node.find(node_hash);
+      if (it != hash2node.end()) {
+	n1 = it->second;
+      } else {
+	n1 = last_ref_node++;
+	hash2node[node_hash] = n1;
+      }
+    }
+    sgo_nodes.e(k) = n1;
+  }
+  sgo.init(t,sgo_nodes.buff());
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int combine(int n1,int n2) {
+  if (n2<n1) return combine(n2,n1);
+  else return n1*MAX_NODE+n2;
 }
