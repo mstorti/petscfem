@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.12 2004/07/28 15:02:07 mstorti Exp $
+//$Id: arglist.h,v 1.13 2004/09/24 12:00:56 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -143,11 +143,8 @@ public:
   /** This is passed to the element routines and nothing specific is
       done. It is assumed that is managed by the user. */
   void *user_data;
-  /** Indicates if assembly state must be flushed with
-      assembly_end() */
-  int must_flush;
   /// Default constructor. 
-  arg_data();
+  arg_data(void);
   /// Destructor
   ~arg_data();
 };

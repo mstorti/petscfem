@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.114 2004/08/02 00:02:48 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.115 2004/09/24 12:00:59 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -9,7 +9,7 @@ ndim 3
 nfile 2000000
 nrec 1
 nsave 1000000
-# nstep 10000
+nstep 10000
 nsaverot <:= ($endur_test  ? 50000000 : 20) :>
 save_file_pattern \
       <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>
@@ -19,13 +19,14 @@ save_file cubcav.state.<:=$case_in:>.tmp
 nsave 1
 >>endif
 
-# chunk_size 40000
+nstep 1
+chunk_size 40000
 
 >>if $iisd_subpart
 solver "iisd"
 # <:pr('iisd_subpart'):>
 iisd_subpart_auto 1000
-use_interface_full_preco 0
+use_interface_full_preco 1
 use_interface_full_preco_nlay <:=$nlay:>
 print_interface_full_preco_conv 0
 interface_full_preco_maxits <:=$isp_maxits:>
@@ -34,7 +35,7 @@ interface_full_preco_relax_factor 0.5
 solver "petsc"
 >>endif
 Krylov_dim <:=$maxits:>
-# <:pr('maxits'):>
+<:pr('maxits'):>
 report_consumed_time
 #
 activate_debug_print
@@ -46,8 +47,8 @@ print_partitioning_statistics
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
-# max_partgraph_vertices 4000
-# max_partgraph_vertices_proc 4000
+max_partgraph_vertices 4000
+max_partgraph_vertices_proc 4000
 
 #    Iterative parameters
 tol_tet 1e-5
@@ -60,7 +61,7 @@ block_uploading <:=$bupl:>
 print_internal_loop_conv 1
 # print_linear_system_and_stop 1
 # solve_system 0
-# verify_jacobian_with_numerical_one 1
+#verify_jacobian_with_numerical_one 1
 
 rho 1
 >>if $case ne 'plain'
@@ -99,9 +100,7 @@ ngather 10
 compact_profile_graph_chunk_size 40000
 max_partgraph_vertices 5000
 max_partgraph_vertices_proc 5000
-chunk_size 5000
-maxits 1
-nstep 1
+chunk_size 500
 
 __END_HASH__
 
@@ -125,7 +124,6 @@ viscosity <:=$nu:>
 >>endif
 __END_HASH__
 
->>if 0
 elemset field_surf_integrator <:=$nel:>
 name integrator
 geometry <:=$geom:>
@@ -137,11 +135,9 @@ x0 0. 0. 0.
 gather_pos 0
 f_vals 0.12 0.35
 __END_HASH__
->>endif
 
 end_elemsets
 
->>if 0
 >>if !$srfgath
 
 fixa
@@ -154,5 +150,4 @@ __END_FIXA__
 fixa
 __INCLUDE__ <:=$data_dir:>/cubcav.fixa-srfgath.tmp
 __END_FIXA__
->>endif
 >>endif
