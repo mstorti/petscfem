@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.33 2002/02/20 22:13:06 mstorti Exp $
+// $Id: pfmat.h,v 1.34 2002/09/05 18:34:18 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -38,7 +38,7 @@ protected:
   virtual int create_a()=0;
 
   /// The action corresponding to `set_value'
-  virtual int set_value_a(int row,int col,Scalar value,
+  virtual int set_value_a(int row,int col,PetscScalar value,
 			   InsertMode mode=ADD_VALUES)=0;
 
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
@@ -103,7 +103,7 @@ public:
       @param value (input) the value to be set
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
-  int set_value(int row,int col,Scalar value,
+  int set_value(int row,int col,PetscScalar value,
 		InsertMode mode=ADD_VALUES);
 
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
@@ -153,7 +153,7 @@ public:
   virtual int its() {return 0;};
 
   /// Prints the matrix to a PETSc viewer
-  virtual int view(Viewer viewer=VIEWER_STDOUT_WORLD)=0;
+  virtual int view(PetscViewer viewer=VIEWER_STDOUT_WORLD)=0;
 
   /// Duplicate matrices (currently not implemented for IISDMat)
   int duplicate(MatDuplicateOption op,const PFMat &A);

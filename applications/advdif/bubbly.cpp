@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.13 2002/06/26 20:59:01 mstorti Exp $
+//$Id: bubbly.cpp,v 1.14 2002/09/05 18:34:15 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -112,7 +112,7 @@ bubbly_ff::~bubbly_ff() { }
 void bubbly_ff::set_state(const FastMat2 &UU) {
   U.set(UU);
 
-  // Scalar variables
+  // PetscScalar variables
   p = U.get(1);
   alpha_l = U.get(2);
   alpha_g = 1.-alpha_l;
@@ -136,7 +136,7 @@ void bubbly_ff::set_state(const FastMat2 &U,const FastMat2 &grad_U) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void bubbly_ff::enthalpy(FastMat2 &H) {
-  // Scalar values
+  // PetscScalar values
   H.setel(arho_l,1);
   H.setel(arho_g,2);
   H.setel(arho_l*k,k_indx);

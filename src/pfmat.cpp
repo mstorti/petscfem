@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.4 2002/09/05 18:23:52 mstorti Exp $
+//$Id: pfmat.cpp,v 1.5 2002/09/05 18:34:18 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -84,7 +84,7 @@ int PFMat::create() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFMat::set_value"
-int PFMat::set_value(int row,int col,Scalar value,
+int PFMat::set_value(int row,int col,PetscScalar value,
 		     InsertMode mode=ADD_VALUES) {
   fsm->set_value();
   CHKERRQ(ierr); 

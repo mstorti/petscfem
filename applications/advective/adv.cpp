@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adv.cpp,v 1.9 2002/07/29 20:17:39 mstorti Exp $
+//$Id: adv.cpp,v 1.10 2002/09/05 18:34:18 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -71,8 +71,8 @@ int main(int argc,char **args) {
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
   // nu:= dimension of the state vector per node
-  Scalar  neg_one = -1.0, one = 1.0, value[3];
-  Scalar *px;
+  PetscScalar  neg_one = -1.0, one = 1.0, value[3];
+  PetscScalar *px;
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
@@ -188,7 +188,7 @@ int main(int argc,char **args) {
   // if (save_file == NULL) save_file = "outvector.sal";
 
 #if 0
-  Viewer matlab;
+  PetscViewer matlab;
   ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
@@ -368,7 +368,7 @@ int main(int argc,char **args) {
     if (print_linear_system_and_stop) {
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Printing residual and matrix for debugging and stopping..\n");
-      Viewer matlab;
+      PetscViewer matlab;
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab, 

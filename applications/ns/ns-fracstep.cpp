@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns-fracstep.cpp,v 1.6 2002/07/05 21:12:51 mstorti Exp $
+//$Id: ns-fracstep.cpp,v 1.7 2002/09/05 18:34:18 mstorti Exp $
  
 #include <time.h>
 #include <malloc.h>
@@ -62,8 +62,8 @@ int main(int argc,char **args) {
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
   // nu:= dimension of the state vector per node
-  Scalar  neg_one = -1.0, one = 1.0, value[3];
-  Scalar *px;
+  PetscScalar  neg_one = -1.0, one = 1.0, value[3];
+  PetscScalar *px;
   char fcase[FLEN+1];
   Darray *da;
   //Elemset *elemset;
@@ -193,7 +193,7 @@ int main(int argc,char **args) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #if 1
-      Viewer matlab;
+      PetscViewer matlab;
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "matns.m",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
@@ -375,8 +375,8 @@ int main(int argc,char **args) {
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
   // nu:= dimension of the state vector per node
-  Scalar  neg_one = -1.0, one = 1.0, value[3];
-  Scalar *px;
+  PetscScalar  neg_one = -1.0, one = 1.0, value[3];
+  PetscScalar *px;
   int jaco_num=0;
   char fcase[FLEN+1];
   Darray *da;
@@ -490,7 +490,7 @@ int main(int argc,char **args) {
 #endif
 
 #if 0   // debug:=
-  Viewer matlab;
+  PetscViewer matlab;
   ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
   ierr = ViewerSetFormat(matlab,
@@ -559,7 +559,7 @@ int main(int argc,char **args) {
 
     if (tstep % nsave == 0){
 #if 0
-      Viewer matlab;
+      PetscViewer matlab;
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "mat.output",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,

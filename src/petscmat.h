@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+// $Id: petscmat.h,v 1.4 2002/09/05 18:34:18 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -67,7 +67,7 @@ public:
       @param value (input) the value to be set
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
-  int set_value_a(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
+  int set_value_a(int row,int col,PetscScalar value,InsertMode mode=ADD_VALUES) {
     ierr = MatSetValues(A,1,&row,1,&col,&value,mode); CHKERRQ(ierr); 
     return 0;
   };
@@ -84,7 +84,7 @@ public:
   int create_a();
   /// Duplicate matrices 
   int duplicate_a(MatDuplicateOption op,const PFMat &A);
-  int view(Viewer viewer=VIEWER_STDOUT_WORLD);
+  int view(PetscViewer viewer=VIEWER_STDOUT_WORLD);
 };
 
 #endif

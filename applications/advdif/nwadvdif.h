@@ -292,7 +292,7 @@ public:
   };
   GlobalScalar global_scalar_djac;
 
-  /// Scalar diffusion per field
+  /// PetscScalar diffusion per field
   class ScalarDifPerField;
   friend class ScalarDifPerField;
   class ScalarDifPerField : public DJac {

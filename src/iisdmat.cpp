@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.26 2002/09/05 18:23:52 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.27 2002/09/05 18:34:18 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -510,9 +510,9 @@ int IISDMat::clean_mat_a() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::view"
-int IISDMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
+int IISDMat::view(PetscViewer viewer=VIEWER_STDOUT_WORLD) {
   int ierr;
-  Viewer matlab;
+  PetscViewer matlab;
   if (local_solver == PETSc) {
     for (int rank=0; rank<SIZE; rank++) {
       char f[10];
@@ -580,7 +580,7 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::set_value_a"
-int IISDMat::set_value_a(int row,int col,Scalar value,
+int IISDMat::set_value_a(int row,int col,PetscScalar value,
 			InsertMode mode=ADD_VALUES) {
   int row_indx,col_indx,row_t,col_t;
   double val;
@@ -635,7 +635,7 @@ PETSC_OBJECT_DESTROY_MAYBE(SLES);
 int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 
   int ierr,kloc,itss,j,jj;
-  Viewer matlab;
+  PetscViewer matlab;
   double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
   Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;

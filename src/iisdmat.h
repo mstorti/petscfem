@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.22 2002/07/27 22:26:05 mstorti Exp $
+// $Id: iisdmat.h,v 1.23 2002/09/05 18:34:18 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -237,7 +237,7 @@ public:
       @param value (input) the value to be set
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
-  int set_value_a(int row,int col,Scalar value,
+  int set_value_a(int row,int col,PetscScalar value,
 		  InsertMode mode=ADD_VALUES);
   /// Clear the object (almost destructor)
   void clear();
@@ -248,7 +248,7 @@ public:
   /// calls MatAssemblyEnd on internal matrices, see PETSc doc
   int assembly_end_a(MatAssemblyType type);
   /// Prints the matrix to a PETSc viewer
-  int view(Viewer viewer=VIEWER_STDOUT_WORLD);
+  int view(PetscViewer viewer=VIEWER_STDOUT_WORLD);
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.42 2002/09/02 01:48:13 mstorti Exp $
+//$Id: advdif.cpp,v 1.43 2002/09/05 18:34:15 mstorti Exp $
 
 #include <set>
 
@@ -40,8 +40,8 @@ int main(int argc,char **args) {
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
     myrank;
   // nu:= dimension of the state vector per node
-  Scalar  neg_one = -1.0, one = 1.0, value[3];
-  Scalar *px;
+  PetscScalar  neg_one = -1.0, one = 1.0, value[3];
+  PetscScalar *px;
   char fcase[FLEN+1];
   Darray *da; // este me parece que se puede sacar!!
   //Elemset *elemset;
@@ -230,7 +230,7 @@ int main(int argc,char **args) {
   save_file_res = save_file + string(".res");
 
 #if 0
-  Viewer matlab;
+  PetscViewer matlab;
   ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			 "matns.m",&matlab); CHKERRA(ierr);
 #endif
@@ -362,7 +362,7 @@ int main(int argc,char **args) {
 	  inwt==inwt_stop && tstep==time_step_stop) {
 	PetscPrintf(PETSC_COMM_WORLD,
 		    "Printing residual and matrix for debugging and stopping..\n");
-	Viewer matlab;
+	PetscViewer matlab;
 	ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			       "mat.output",&matlab); CHKERRA(ierr);
 	ierr = ViewerSetFormat(matlab, 

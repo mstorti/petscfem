@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: lusolver.h,v 1.1 2001/08/21 02:10:04 mstorti Exp $
+// $Id: lusolver.h,v 1.2 2002/09/05 18:34:18 mstorti Exp $
 #ifndef LUSOLVER_H
 #define LUSOLVER_H
 
@@ -17,7 +17,7 @@ public:
       @param type (input) PETSc assembly type
       @return A PETSc error code 
   */ 
-  void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
+  void set_value(int row,int col,PetscScalar value,InsertMode mode=ADD_VALUES) {
     MatSetValues(A,1,&row,1,&col,&value,mode);};
   /// Sets all values of the operator to zero.
   int zero_entries();
@@ -30,7 +30,7 @@ public:
       of building the operator.
   */ 
   void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
-  int view(Viewer viewer);
+  int view(PetscViewer viewer);
 };
 
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spdirect.h,v 1.4 2002/09/05 18:23:52 mstorti Exp $
+// $Id: spdirect.h,v 1.5 2002/09/05 18:34:18 mstorti Exp $
 #ifndef SPDIRECT_H
 #define SPDIRECT_H
 
@@ -63,7 +63,7 @@ public:
   int assembly_end_a(MatAssemblyType type) { return 0;};
   /// Resizes the underlying #A# matrix. ????
   int create_a();
-  int set_value_a(int row,int col,Scalar value,
+  int set_value_a(int row,int col,PetscScalar value,
 		  InsertMode mode=ADD_VALUES);
   /// Sets all values of the operator to zero.
   int clean_mat_a() {A_p->clear(); return 0;};
@@ -85,7 +85,7 @@ public:
   /// returns the number of iterations spent in the last solve
   int its() {return 1;};
   /// Prints the matrix to a PETSc viewer
-  int view(Viewer viewer=NULL) {A_p->print(); return 0;};
+  int view(PetscViewer viewer=NULL) {A_p->print(); return 0;};
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type) {return 0;};
   /// Duplicate matrices (currently not implemented for IISDMat)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.92 2002/09/02 01:48:16 mstorti Exp $
+//$Id: ns.cpp,v 1.93 2002/09/05 18:34:18 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -27,7 +27,7 @@ int reuse_mat;
 int main(int argc,char **args) {
 
   Vec x, xp, dx, xold, dx_step, res; // approx solution, RHS, residual
-  Viewer matlab;
+  PetscViewer matlab;
   PFMat *A_tet, *A_tet_c, *A_mom, *A_poi, *A_prj;;	// linear system matrix 
   double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, flg, size, node,
@@ -474,7 +474,7 @@ int main(int argc,char **args) {
 	exit(0);
 #endif
 
-	Viewer matlab;
+	PetscViewer matlab;
 	if (verify_jacobian_with_numerical_one) {
 	  ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 				 "system.dat.tmp",&matlab); CHKERRA(ierr);
