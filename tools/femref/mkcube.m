@@ -4,6 +4,12 @@ dd = 0.5;
 
 w=zhomo([-1 1 -1 1],N+1,N+1);
 [x2,i2] = pfcm2fem(w);
+if 0
+  alpha = pi/4;
+  R = [cos(alpha), -sin(alpha);
+       sin(alpha), cos(alpha)];
+  x2 = x2*R';
+endif
 
 [xnod,icone] = extrude(x2,i2,N,1/N);
 xnod(:,3) = 2*xnod(:,3)-1;
@@ -17,11 +23,15 @@ icone = aload("cube.con.tmp");
 asave("cube.con0.tmp",icone-1);
 
 nnod = rows(xnod);
-v = pvec(xnod,[0,0,1]);
-rho = l2(v);
-v = leftscal(1./(dd^2+rho.^2),v);
-
+if 0
+  v = pvec(xnod,[0,0,1]);
+  rho = l2(v);
+  v = leftscal(1./(dd^2+rho.^2),v);
+else
+  v = xnod;
+endif
 asave("cube.state.tmp",[v,zeros(nnod,1)]);
+return
 
 system("make getsurf");
 
@@ -39,8 +49,9 @@ xe = pfnd2ele(xnod,surf_con,xnod);
 
 rhoe=l2(xe(:,1:2));
 awt = 2*dd^2./(dd^2+rhoe.^2).^2;
+dudr = (dd^2-rhoe.^2)./(dd^2+rhoe.^2).^2;
 
 ## indx = find(xe(:,2)<h & xe(:,2)>0 & xe(:,3)>0 & abs(xe(:,1))<0.99);
-indx = find(abs(xe(:,1)-xe(:,2))<1e-4 & xe(:,3)>0);
+indx = find(abs(xe(:,2))<1e-4 & xe(:,3)>0);
 indx=sortby(xe(indx,1),indx);
 plot(xe(indx,1),[w(indx,3),awt(indx)])

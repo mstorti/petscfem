@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.11 2005/01/12 21:32:33 mstorti Exp $
+// $Id: getsurf.cpp,v 1.12 2005/01/13 19:28:33 mstorti Exp $
 
 #include <string>
 #include <list>
+#include <set>
 #include <ctime>
 #include <unistd.h>
 #include <multimap.h>
@@ -177,10 +178,23 @@ int main(int argc,char **argv) {
   node_mark.resize(mesh_nel);
   FastMat2 U(2,mesh_nel,ndof), 
     A(2,ndim+1,ndof), grad_U(2,ndim,ndof),
-    X(2,ndim+1,mesh_nel), invX;
+    X(2,mesh_nel,ndim+1), invX,
+    edgea(1,ndim), edgeb(1,ndim), surf(1,ndim);
   X.ir(2,ndim+1).set(1.0).rs();
   FILE *fid = fopen(sconf,"w");
   FILE *fidgu = fopen(graduf,"w");
+  map<int,int> surf_nodes_map;
+  int nfaces = face_table.size(),
+    nsurf_nodes = 0;
+  dvector<double> 
+    grad_Ue;
+  grad_Ue.a_resize(2,nfaces,ndim*ndof);
+  dvector<int> surf_con;
+  dvector<double> surf_mass, node_mass;
+  surf_con.a_resize(2,nfaces,face_nel);
+  surf_mass.a_resize(1,nfaces);
+  int surf_elem=0;
+  double Area = 0.;
   for (q=q1; q!=q2; q++) {
     vis.init(q->second.elem);
     GeomObject &go = vis.ref_stack.front().go;
@@ -189,8 +203,14 @@ int main(int argc,char **argv) {
     const int *face_nodes = face.nodes();
     const int *elem_nodes = go.nodes();
     for (int j=0; j<face_nel; j++) {
+      int node = face_nodes[j];
+      if (surf_nodes_map.find(node)
+	  == surf_nodes_map.end())
+	surf_nodes_map[node] = nsurf_nodes++;
+      surf_con.e(surf_elem,j) 
+	= surf_nodes_map[node];
       for (int l=0; l<mesh_nel; l++) {
-	if (elem_nodes[l] == face_nodes[j]) {
+	if (elem_nodes[l] == node) {
 	  node_mark[l]=1; break;
 	}
       }
@@ -222,6 +242,7 @@ int main(int argc,char **argv) {
     A.prod(invX,U,1,-1,-1,2);
     A.is(1,1,ndim);
     grad_U.set(A);
+    grad_U.export_vals(&grad_Ue.e(surf_elem,0));
     A.rs();
     // grad_U.print("");
     for (int j=0; j<face_nel; j++) {
@@ -233,7 +254,63 @@ int main(int argc,char **argv) {
     for (int j=0; j<ndim*ndof; j++) 
       fprintf(fidgu,"%lg ",buff[j]);
     fprintf(fidgu,"\n");
+
+    // Compute surface area for surface mass matrix
+    X.is(2,1,ndim).ir(1,2);
+    edgea.set(X);
+
+    X.ir(1,3);
+    edgeb.set(X);
+
+    X.ir(1,1);
+    edgea.rest(X);
+    edgeb.rest(X);
+    X.rs();
+
+    surf.cross(edgea,edgeb);
+    double area = sqrt(surf.sum_square_all())/2.0;
+    surf_mass.ref(surf_elem) = area;
+    Area += area;
+    surf_elem++;
   }
   fclose(fid);
   fclose(fidgu);
+  printf("total area %f\n",Area);
+  node_mass.resize(nsurf_nodes);
+  dvector<double> grad_Un;
+  grad_Un.a_resize(2,nsurf_nodes,ndim*ndof);
+  grad_Un.defrag();
+
+  // Loop over smoothing steps
+  int niter=10;
+  node_mass.set(0.);
+  for (int jiter=0; jiter<niter; jiter++) {
+    grad_Un.set(0.);
+    for (int jface=0; jface<nfaces; jface++) {
+      double nod_area = surf_mass.ref(jface)/double(face_nel);
+      for (int j=0; j<face_nel; j++) {
+	int node = surf_con.e(jface,j);
+	if (jiter==0) node_mass.ref(node) += nod_area;
+	double 
+	  *to = &grad_Un.e(node,0),
+	  *from = &grad_Ue.e(jface,0);
+	for (int k=0; k<ndim*ndof; k++) 
+	  to[k] += from[k]*nod_area;
+      }
+    }
+    for (int node=0; node<nsurf_nodes; node++) {
+      double nod_area = node_mass.ref(node);
+      for (int k=0; k<ndim*ndof; k++) 
+	grad_Un.e(node,k) /= nod_area;
+    }
+  }
+
+  fid = fopen("cube.grad-un.tmp","w");
+  for (int node=0; node<nsurf_nodes; node++) {
+    // printf("%d ",node);
+    for (int k=0; k<ndim*ndof; k++) 
+      fprintf(fid,"%g ",grad_Un.e(node,k));
+    fprintf(fid,"\n");
+  }
+  fclose(fid);
 }
