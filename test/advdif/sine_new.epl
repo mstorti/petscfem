@@ -44,8 +44,7 @@ nsome 1
 save_file_some "sine.some"
 print_some_file "sine.some.tmp"
 
-nstep <:=$nstep:>
-#nstep 2
+nstep 1
 nnwt 1
 tol_newton 0
 preco_type "lu"
@@ -56,22 +55,30 @@ consistent_supg_matrix 1
 auto_time_step 0
 
 Dt <:=$Dt:>
-alpha <:=$alpha:>
+alpha 1.
 #tau_fac 0.
 
 #solve_system 0
 #print_linear_system_and_stop
 
 weak_form 0
-diffusive_jacobians <:=$D:> <:=$D:> <:=$D:>
-advective_jacobians .5 0.
 
-#initial_state "<:=$case:>.ini"
+advective_jacobians_type "global_vector"
+advective_jacobians 0.1 0.
+
+#if 0
+diffusive_jacobians_type "global_scalar"
+diffusive_jacobians <:=$D:>
+#else
+diffusive_jacobians_type "scalar_per_field"
+diffusive_jacobians <:=$D:> <:=$D*2:> <:=$D*3:>
+#endif
+
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
-nodes   2  2  1
+nodes   2  2  3
 __INCLUDE__ <:=$case:>.nod.tmp
 __END_NODES__
 
@@ -91,10 +98,8 @@ end_elemsets
 # condicion variable en el tiempo
 #
 fixa
-__INCLUDE__ <:=$case:>.fixa.tmp
+__INCLUDE__ sine_new.fixa.tmp
 __END_FIXA__
-
-
 
 # Local Variables: $
 # mode: shell-script $

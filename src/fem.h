@@ -59,9 +59,9 @@
     @author M. Storti
     @param elem_set_type new elemset type to be included
 */ 
-#define SET_ELEMSET_TYPE(elem_set_type) \
-      if ( ! strcmp(type,#elem_set_type)) { \
-  	elemset = (Elemset *)new elem_set_type; \
+#define SET_ELEMSET_TYPE(elem_set_type)		\
+      if ( ! strcmp(type,#elem_set_type)) {	\
+  	elemset = (Elemset *)new elem_set_type;	\
       } else 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -80,9 +80,9 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define TGETOPTDEF(thash,type,name,default) \
-        type name=default; \
-        ierr = get_##type(thash,#name,&name,1); \
+#define TGETOPTDEF(thash,type,name,default)			\
+        type name=default;					\
+        ierr = get_##type(thash,#name,&name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -95,9 +95,9 @@
     @param name name of the variable
     @param default (none) for use with `odoc.pl' default value. 
 */ 
-#define TGETOPTNDEF(thash,type,name,default) \
-        type name; \
-        ierr = get_##type(thash,#name,&name); \
+#define TGETOPTNDEF(thash,type,name,default)			\
+        type name;						\
+        ierr = get_##type(thash,#name,&name);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -109,9 +109,9 @@
     @param name name of the variable
     @param default default value (not in parentheses)
 */ 
-#define TGETOPTDEF_S(thash,type,name,default) \
-        type name=type(#default); \
-        ierr = get_##type(thash,#name,name,1); \
+#define TGETOPTDEF_S(thash,type,name,default)			\
+        type name=type(#default);				\
+        ierr = get_##type(thash,#name,name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -135,9 +135,9 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define GETOPTDEF(type,name,default) \
-        type name=default; \
-        ierr = get_##type(mesh->global_options,#name,&name,1); \
+#define GETOPTDEF(type,name,default)				\
+        type name=default;					\
+        ierr = get_##type(mesh->global_options,#name,&name,1);	\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -148,7 +148,7 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define GGETOPTDEF(type,name,default) \
+#define GGETOPTDEF(type,name,default)				\
              TGETOPTDEF(GLOBAL_OPTIONS,type,name,default)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -160,9 +160,9 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define SGETOPTDEF(type,name,default) \
-        type name=default; \
-        ierr = get_##type(thash,#name,&name,1); \
+#define SGETOPTDEF(type,name,default)				\
+        type name=default;					\
+        ierr = get_##type(thash,#name,&name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -174,23 +174,38 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define SGETOPTDEF_ND(type,name,default) \
-        (GETOPTDEF_HOOK(name)) = default; \
-        ierr = get_##type(thash,#name,&(GETOPTDEF_HOOK(name)),1); \
+#define SGETOPTDEF_ND(type,name,default)				\
+        (GETOPTDEF_HOOK(name)) = default;				\
+        ierr = get_##type(thash,#name,&(GETOPTDEF_HOOK(name)),1);	\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Gets a value of type int or double from an elemset
+    hash table. 
+    Example: EGETOPTDEF_ND(elemset,int,n,10)
+    @author M. Storti
+    @param type may be `int', `double' or 'string'
+    @param name name of the variable
+    @param default default value. 
+*/ 
+#define EGETOPTDEF(elemset,type,name,default)			\
+        type name;						\
+        name = default;						\
+        ierr = elemset->get_##type(#name,name,1);		\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Gets a value of type int or double from an elemset
     hash table. Doesn't define the variable.
-    Example: EGETOPTDEF(int,n,10)
+    Example: EGETOPTDEF_ND(elemset,int,n,10)
     @author M. Storti
-    @param type may be `int' or `double'
+    @param type may be `int', `double' or 'string'
     @param name name of the variable
     @param default default value. 
 */ 
-#define EGETOPTDEF_ND(elemset,type,name,default) \
-        name = default; \
-        ierr = elemset->get_##type(#name,name,1); \
+#define EGETOPTDEF_ND(elemset,type,name,default)		\
+        name = default;						\
+        ierr = elemset->get_##type(#name,name,1);		\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -217,9 +232,9 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define NSGETOPTDEF(type,name,default) \
-        type name=default; \
-        ierr = get_##type(#name,name,1); \
+#define NSGETOPTDEF(type,name,default)				\
+        type name=default;					\
+        ierr = get_##type(#name,name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -231,9 +246,9 @@
     @param name name of the variable
     @param default default value. 
 */ 
-#define NSGETOPTDEF_ND(type,name,default) \
-        GETOPTDEF_HOOK(name)=default; \
-        ierr = get_##type(#name,GETOPTDEF_HOOK(name),1); \
+#define NSGETOPTDEF_ND(type,name,default)			\
+        GETOPTDEF_HOOK(name)=default;				\
+        ierr = get_##type(#name,GETOPTDEF_HOOK(name),1);	\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -263,7 +278,8 @@
     @author M. Storti
     @param ierr error code (input)
     @param s string of error message */
-#define PFEMERRCQ(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); CHKERRQ(ierr);}
+#define PFEMERRCQ(ierr,s) if (ierr)				\
+         {PetscPrintf(PETSC_COMM_WORLD,s); CHKERRQ(ierr);}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Sets an error condition depending on error code and back-traces
@@ -274,10 +290,10 @@
     @author M. Storti
     @param ierr error code (input)
     @param s string of error message */
-#define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(1);}
+#define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(0);}
 
-#define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD, \
-			       "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)
+#define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD,		\
+     "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /** Contains (constant) data relative to nodes (may be coordinates and

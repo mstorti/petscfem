@@ -23,6 +23,7 @@
 #include <string.h>
 #include <vector>
 #include <cassert>
+//#include <string>
 
 #include "../../src/fem.h"
 #include "../../src/texthash.h"
@@ -70,6 +71,7 @@ void newadvecfm2_ff_t::ScalarDifPerField
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
+  grad_N_D_grad_N.set(0.);
   tmp.set(ff.D_jac).scale(w);
   grad_N_grad_N.prod(dshapex,dshapex,-1,1,-1,2);
   grad_N_D_grad_N.d(2,4).prod(grad_N_grad_N,tmp,1,3,2).rs();
@@ -195,10 +197,18 @@ void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   d_jac->update(difjac);
 }  
 
+//  enum advective_jacobian_type {
+//    undefined, global_vector, vector_per_field, full};
+
+//  enum diffusive_jacobians_type {
+//    undefined, global_scalar, scalar_per_field, full};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::start_chunk(int ret_options)"
 void newadvecfm2_ff_t::start_chunk(int ret_options) {
+  int ierr;
+
   // FastMat2Shell *A_jac_l = elemset->A_jac;
   ndim = elemset->ndim;
   ndof = elemset->ndof;
@@ -216,17 +226,41 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   //  _END
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
 
-  if (advective_jacobians_prop.length == ndim) {
+  //o Set diffusive jacobian to the desired type
+  EGETOPTDEF(elemset,string,advective_jacobians_type,string("undefined"));
+  string advective_jacobians_type_s = advective_jacobians_type;
+
+  if (advective_jacobians_type==string("undefined")) {
+    if (advective_jacobians_prop.length == ndim) {
+      advective_jacobians_type=string("global_vector");
+    } else if (advective_jacobians_prop.length == ndim*ndof) {
+      advective_jacobians_type=string("vector_per_field");
+    } else if (advective_jacobians_prop.length == ndim*ndof*ndof) {
+      advective_jacobians_type=string("full");
+    } 
+  }
+
+  if (advective_jacobians_type==string("global_vector") &&
+      advective_jacobians_prop.length == ndim) {
     u.resize(1,ndim);
     a_jac =  &u_global;
-  } else if (advective_jacobians_prop.length == ndim*ndof) {
+  } else if (advective_jacobians_type==string("vector_per_field") &&
+	     advective_jacobians_prop.length == ndim*ndof) {
     u.resize(2,ndof,ndim);
     a_jac =  &u_per_field;
-  } else if (advective_jacobians_prop.length == ndim*ndof*ndof) {
+  } else if (advective_jacobians_type==string("full") &&
+	     advective_jacobians_prop.length == ndim*ndof*ndof) {
     u.resize(3,ndim,ndof,ndof);
     a_jac =  &full_adv_jac;
   } else {
-    assert(0);
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Advective Jacobian does not fit in \n"
+		"a predefined name/length combination\n"
+		"name entered: \"%s\"\n"
+		"length entered: %d\n",
+		advective_jacobians_type_s.c_str(),
+		advective_jacobians_prop.length);
+    abort(); // Not defined type of Jacobian
   }
 
   // Read diffusive jacobians (diffusivity matrices)
@@ -236,16 +270,39 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   //  _END
   elemset->get_prop(diffusive_jacobians_prop,"diffusive_jacobians");
 
-  if (diffusive_jacobians_prop.length == 1) {
+  //o Set diffusive jacobian to the desired type
+  EGETOPTDEF(elemset,string,diffusive_jacobians_type,string("undefined"));
+  string diffusive_jacobians_type_s=diffusive_jacobians_type;
+
+  if (diffusive_jacobians_type==string("undefined")) {
+    if (diffusive_jacobians_prop.length == 1) {
+      diffusive_jacobians_type=string("global_scalar");
+    } else if (diffusive_jacobians_prop.length == ndof) {
+      diffusive_jacobians_type=string("scalar_per_field");
+    } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
+      diffusive_jacobians_type=string("full");
+    }
+  }
+  if (diffusive_jacobians_type==string("global_scalar") &&
+      diffusive_jacobians_prop.length == 1) {
     d_jac =  &global_scalar_djac;
     eye_ndof.resize(2,ndof,ndof).eye(1.);
-  } else if (diffusive_jacobians_prop.length == ndof) {
+  } else if (diffusive_jacobians_type==string("scalar_per_field") &&
+	     diffusive_jacobians_prop.length == ndof) {
     D_jac.resize(1,ndof);
     d_jac =  &scalar_dif_per_field;
-  } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
+  } else if (diffusive_jacobians_type==string("full") &&
+	     diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
     D_jac.resize(4,ndim,ndim,ndof,ndof);
     d_jac =  &full_dif_jac;
   } else {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"Diffusive Jacobian does not fit in \n"
+		"a predefined name/length combination\n"
+		"name entered: \"%s\"\n"
+		"length entered: %d\n",
+		diffusive_jacobians_type_s.c_str(),
+		diffusive_jacobians_prop.length);
     assert(0);
   }
 
@@ -267,7 +324,6 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   C_jac_l.set(0.);
 
   //o Scale the SUPG upwind term. 
-  int ierr;
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
   nc = cjacv.size();
