@@ -16,6 +16,7 @@ $ADDRESS = <<EOM;
 <a href=\"mailto:mstorti\@intec.unl.edu.ar\">Mario Storti</a>, 
 <a href=\"mailto:nnigro\@intec.unl.edu.ar\">Norberto Nigro</a>, 
 <a href=\"mailto:rodrigop\@intec.unl.edu.ar\">Rodrigo R.Paz</a>, 
+<a href=\"mailto:dalcinl\@intec.unl.edu.ar\">Lisandro Dalcin</a>, 
 CIMEC-CONICET-UNL.<br>
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY. 
 For details see the GNU General Public License. <br>
