@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.11 2002/04/10 19:25:26 mstorti Exp $
+//$Id: tempfun.cpp,v 1.12 2002/07/02 00:31:49 mstorti Exp $
 
 #include <math.h>
 
@@ -592,6 +592,46 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** This time function represents
+    #phi(t) = base + A * (4*(t-T0)*(T0+T-t)/T^2)^expo# if
+    #T0<= t <= T0+T#, and #phi=0# otherwise.
+ */
+class smooth_impulse : public Amplitude {
+private:
+  double T0,T,A,expo,base;
+  TextHashTable *thash;
+public:
+  void print() const {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"\"smooth_impulse\" fixa amplitude, options table: \n");
+    thash->print();
+  }
+  void init(TextHashTable *thash_) {
+    int ierr;
+    //o The starting time
+    TGETOPTDEF(thash,double,T0,0.);
+    //o The duration of the impulse
+    TGETOPTDEF(thash,double,T,1.);
+    assert(T>0.);
+    //o amplitud of impulse
+    TGETOPTDEF(thash,double,A,1.);
+    //o exponent of function
+    TGETOPTDEF(thash,double,expo,2.);
+    assert(expo>=0.);
+    //o base value
+    TGETOPTDEF(thash,double,base,0.);
+  }
+  double eval(const TimeData *time_data) {
+    double tt = double(* (const Time *) time_data);
+    double xi;
+    if (tt>=T0+T || tt<=T0) xi=0.;
+    else xi = 4.*(tt-T0)*(T0+T-tt)/square(T);
+    return base + A * pow(xi,expo);
+  }
+  ~smooth_impulse() { delete thash; }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
 			      TextHashTable *t=NULL) {
   Amplitude *amp;
@@ -599,6 +639,8 @@ Amplitude *Amplitude::factory(char *& label,
     amp = new gaussian;
   } else if (!strcmp(label,"piecewise_linear")) {
     amp = new piecewise_linear;
+  } else if (!strcmp(label,"smooth_impulse")) {
+    amp = new smooth_impulse;
   } else if (!strcmp(label,"dl_generic")) {
 #ifdef USE_DLEF
     amp = new DLGeneric;
