@@ -4,7 +4,6 @@ $ndim=2;
 $N=20;
 $nnod = ($N+1)**2;
 $in = "sqcav.con.tmp";
-$view_v = 1;
 
 open IN,$in;
 open OUT,">sqcav.con0.tmp";
@@ -18,13 +17,15 @@ close OUT;
 
 open IN,"sqcav.weak_form_0.tmp";
 open OUT,">results.tmp";
+open OUTP,">resultsp.tmp";
 while (<IN>) {
     my @l = split " ";
-    if ($view_v) { print OUT "$l[0] $l[1]\n" ; } 
-    else { print OUT "$l[2]\n" ; } 
+    print OUT "$l[0] $l[1]\n" ;
+    print OUTP "$l[2]\n" ;
 }
 close IN;
 close OUT;
+close OUTP;
 
 :>//
 # The following example describes an irregular grid. Note that the values
@@ -42,14 +43,26 @@ object "icone" class array type int rank 1 shape 4
 attribute "element type" string "quads"
 attribute "ref" string "positions"
 # The data, which is in a one-to-one correspondence with the positions
-object "result" class array type float rank <:=($view_v ? "1 shape $ndim" : 0):>
+object "result" class array type float rank 1 shape <:=$ndim:>
 	    items <:=$nnod:> data file results.tmp
 
+# pressure
+object "resultp" class array type float rank 0 items <:=$nnod:> data file resultsp.tmp
+
 attribute "dep" string "positions"
+
 # the field, with three components: "positions", "connections", and
 # "data"
-object "irregular positions irregular connections" class field
+object "my_v_field" class field
 component "positions" value "nodes"
 component "connections" value "icone"
 component "data" value "result"
+
+# the field, with three components: "positions", "connections", and
+# "data"
+object "my_p_field" class field
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "resultp"
 end
+
