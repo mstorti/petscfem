@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.13 2004/01/22 21:34:00 mstorti Exp $
+//$Id: gaschem.cpp,v 1.14 2004/01/27 19:58:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -280,6 +280,32 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     G_source.addel(SN_source,3);
     G_source.setel(-SO,4);
     G_source.setel(-SN,5);
+
+    double coef1 = 3.0*Rgas*Tgas*hm/(pgas*rb);
+
+    double T1,T2,T3;
+    T1 = coef1*(CO+CN);
+    Cjac.setel(T1,2,4);
+    Cjac.setel(T1,3,5);
+    Cjac.setel(-T1,4,4);
+    Cjac.setel(-T1,5,5);
+
+    // Para O
+    T2 = coef1*(CdO-KO*pgas);
+    T3 = coef1*CdO;
+    Cjac.setel(T2,2,2);
+    Cjac.setel(T3,2,3);
+    Cjac.setel(-T2,4,2);
+    Cjac.setel(-T3,4,3);
+
+    // Para N
+    T2 = coef1*CdN;
+    T3 = coef1*(CdN-KN*pgas);
+    Cjac.setel(T2,3,2);
+    Cjac.setel(T3,3,3);
+    Cjac.setel(-T2,5,2);
+    Cjac.setel(-T3,5,3);
+
   }
 }
 
