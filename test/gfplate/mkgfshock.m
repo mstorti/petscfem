@@ -1,4 +1,4 @@
-## $Id: mkgfshock.m,v 1.5 2005/02/26 13:29:56 mstorti Exp $
+## $Id: mkgfshock.m,v 1.6 2005/02/26 14:50:02 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -45,17 +45,21 @@ pffixa("gfshock.fixa-in.tmp", \
 
 ## p at outlet
 outlet = [Nx+1];
-pffixa("gfshock.fixa-outlet.tmp",outlet,4,pout0)
+pffixa("gfshock.fixa-outlet.tmp", \
+       outlet,4,pout0)
 
 ## Symmetry in y for rho, u, p
-pfperi("gfshock.peri.tmp",Nx+1+(1:Nx+1)',(1:Nx+1)',[1 2 4]);
+pfperi("gfshock.peri.tmp", \
+       Nx+1+(1:Nx+1)',(1:Nx+1)',[1 2 4]);
 
 ## Antisymmetry for v
-pfconstr("gfshock.v-peri.tmp",[Nx+1+(1:Nx+1)',(1:Nx+1)'],3,[1 1]);
+pfconstr("gfshock.v-peri.tmp", \
+	 [Nx+1+(1:Nx+1)',(1:Nx+1)'],3,[1 1]);
 
 ## Slip on the low border
 pfconstr("gfshock.slip.tmp", \
-	 [(1:Nx+1)',(1:Nx+1)'],[2 3], [ones(Nx+1,1),dydx]);
+	 [(1:Nx+1)',(1:Nx+1)'],[2 3], \
+	 [ones(Nx+1,1),dydx]);
 
 ## Fixa on reference nodes
 Uini = [rhoout0,0,0,pout0];
