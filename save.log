@@ -2022,3 +2022,8 @@ tag: beta-3.13.pl7 on Wed,  1 Jan 2003 13:17:24 -0300 by mstorti in spider
 ----------
 tag: beta-3.13.pl8 on Wed,  1 Jan 2003 17:20:39 -0300 by mstorti in spider
      > Working on inviscid/potential coupling. 
+----------
+tag: beta-3.13.pl9 on Wed,  1 Jan 2003 20:49:37 -0300 by mstorti in spider
+     > Now can define dynamically loaded amplitude functions 
+     > that depend on nodes. 
+     > Working on inviscid/potential coupling. 
