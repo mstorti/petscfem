@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.74 2002/03/13 19:41:06 mstorti Exp $
+#$Id: Makefile.base,v 1.75 2002/03/17 14:19:54 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -68,8 +68,7 @@ CPPFLAGS         := $(PROF_FLAGS) $(RH60)		\
                  -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
                  -I$(LIBRETTO_I)			\
                  -I$(ANN_HOME)/include $(CPPFLAGS)	\
-                 -I$(SUPERLU)				\
-		 -DPETSC_BOPT_FLAG="\"$(BOPT)\""
+                 -I$(SUPERLU) 
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF

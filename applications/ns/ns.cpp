@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.67 2002/03/17 03:53:40 mstorti Exp $
+//$Id: ns.cpp,v 1.68 2002/03/17 14:19:58 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -599,7 +599,14 @@ int main(int argc,char **args) {
     arglf.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
     arglf.arg_add(&state_old,IN_VECTOR|USE_TIME_DATA);
     arglf.arg_add(&force,VECTOR_ADD);
-    ierr = assemble(mesh,argl,dofmap,"gather",&time_star); CHKERRA(ierr);
+    ierr = assemble(mesh,arglf,dofmap,"gather",&time_star);
+    CHKERRA(ierr);
+    if (force.size()>0) {
+      // Print gathered values
+      PetscPrintf(PETSC_COMM_WORLD,"Gather results: \n");
+      for (int j=0; j<force.size(); j++) 
+	PetscPrintf(PETSC_COMM_WORLD,"v_component_%d = %f\n",j,force[j]);
+    }
 
     filter.update(time);
     if (print_some_file!="" && tstep % nsome == 0) {

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.10 2001/11/12 01:50:29 mstorti Exp $
+//$Id: utils.h,v 1.11 2002/03/17 14:19:58 mstorti Exp $
  
 
 #ifndef UTILS_H
@@ -27,22 +27,25 @@ double mydet(Matrix A);
 
 /** Computes the absolute value of the normal vector (differential of
     surface).  When integrating over a surface (or a line in 2D) we
-    need the the differential of surface, which plays the role of the
+    need the differential of surface, which plays the role of the
     differential of volume in 3D which is related with the determinant
     of the Jacobian from master to spatial coordinates. In this case
-    we have `ndim' spatial dimensions and `ndim-1' coordinates in the
-    master element. The jacobian has dimensions ndim x (ndim-1) and
+    we have #ndim# spatial dimensions and #ndim-1# coordinates in the
+    master element. The jacobian has dimensions #ndim x (ndim-1)# and
     computing the minors of this matrix we obtain a vector of
     dimension ndim. The norm of this vector is the differential of
-    surface. 
+    surface. If you need the unit vector normal to the surface, then
+    simply normalize this vector. 
     @author M. Storti 
     @param A matrix to compute the determinant 
-    @param S vector normal to the surface
+    @param S vector normal to the surface (with absolute value equal
+    to the relative area)
     @return norm of vector formed with the minors of A (norm of normal
     vector in 3D)
 */
 double mydetsur(Matrix &A, ColumnVector & S);
 
+/// Overloaded for Newmat matrices.
 double mydetsur(FastMat2 &A, FastMat2 &S);
 
 /** Clon of Matlab's kron.

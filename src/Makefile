@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.50 2002/03/13 19:27:45 mstorti Exp $ 
+# $Id: Makefile,v 1.51 2002/03/17 14:19:58 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -92,6 +92,8 @@ version.cpp: version.cppin ../VERSION
 	rm -f version.cpp
 	eperl version.cppin >version.cpp
 	-chmod -w version.cpp
+version.o: CPPFLAGS += -DPETSC_BOPT_FLAG="\"$(BOPT)\""
+
 
 .SECONDARY: tryme$(osfx).o 
 tryme: CPPFLAGS = 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.2 2002/03/17 03:53:40 mstorti Exp $
+//$Id: gatherer.cpp,v 1.3 2002/03/17 14:19:58 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -65,8 +65,9 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMat2 xloc(2,nel,ndim);
 
-  FastMat2 Jaco(ndimel,ndim),staten(2,nel,ndof), 
-    stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof);
+  FastMat2 Jaco(2,ndimel,ndim),staten(2,nel,ndof), 
+    stateo(2,nel,ndof),u_old(1,ndof),u(1,ndof),
+    n(1,ndim),xpg(1,ndim);
 
   Time * time_c = (Time *)time;
   double t = time_c->time();
@@ -77,13 +78,17 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 
-  int ielh=-1,kloc,nel,ndof;
+  int ielh=-1,kloc;
   for (int k=el_start; k<=el_last; k++) {
+    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+    FastMat2::reset_cache();
+    ielh++;
 
     for (kloc=0; kloc<nel; kloc++) {
       int node = ICONE(k,kloc);
       xloc.ir(1,kloc+1).set(&NODEDATA(node-1,0));
     }
+    xloc.rs();
 
     staten.set(&(LOCST(ielh,0,0)));
     stateo.set(&(LOCST2(ielh,0,0)));
@@ -96,8 +101,15 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xpg.prod(SHAPE,xloc,-1,-1,1);
       // Jacobian master coordinates -> real coordinates
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-     
-      double detJaco = Jaco.det();
+
+      double detJaco;
+      if (ndimel==ndim) {
+	detJaco = Jaco.detsur();
+      } else if (ndimel==ndim-1) {
+	detJaco = mydetsur(Jaco,n);
+	n.scale(1./detJaco);
+	n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
+      }
       if (detJaco <= 0.) {
 	printf("Jacobian of element %d is negative or null\n"
 	       " Jacobian: %f\n",k,detJaco);
@@ -106,6 +118,7 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       double wpgdet = detJaco*WPG;
 
+#if 0
       if (ndim==ndimel) {
 	detJaco = Jaco.det();
       } else if (ndimel==1) {
@@ -116,15 +129,16 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// don't know how to do that yet. (tensorial calculus...)
 	detJaco = Jaco.norm_p_all(2);
       }
+#endif
       
       // Values of variables at Gauss point
-      u.prod(SHAPE,u,-1,-1,1);
+      u.prod(SHAPE,staten,-1,-1,1);
       u_old.prod(SHAPE,stateo,-1,-1,1);
 
-      set_pg_values(pg_values,u,u_old,xpg,Jaco,wpgdet,t);
+      set_pg_values(pg_values,u,u_old,xpg,n,wpgdet,t);
       if (options & VECTOR_ADD) {
 	for (int j=0; j<nvalues; j++) {
-	  (*values)[j] += wpgdet*pg_values[j];
+	  (*values)[j] += pg_values[j];
 	}
       } else assert(0);
     }
@@ -136,23 +150,10 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
-				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
+				     FastMat2 &uold,FastMat2 &xpg,FastMat2 &n,
 				     double wpgdet,double time) {
-  assert(Jaco.dim(1)==3);
-  assert(Jaco.dim(2)==2);
-  
-  double v;
-  v = Jaco.get(1,2)*Jaco.get(2,3) - Jaco.get(2,2)*Jaco.get(1,3);
-  normal.setel(v,1);
-  v = Jaco.get(1,3)*Jaco.get(2,1) - Jaco.get(2,3)*Jaco.get(1,1);
-  normal.setel(v,2 );
-  v = Jaco.get(1,1)*Jaco.get(2,2) - Jaco.get(2,1)*Jaco.get(1,2);
-  normal.setel(v,3);
-
-  v = sqrt(normal.sum_square_all());
-  normal.scale(1./v);
-
-  pg_values[0] += wpgdet*u.get(4)*normal.get(1);
+  // pg_values[0] = wpgdet*u.get(4)*n.get(1);
+  pg_values[0] = wpgdet;	// compute total area
 }
 
 #undef SHAPE    
