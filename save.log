@@ -764,3 +764,7 @@ tag: pfmat-rewrite-1.12 on Sun Dec 30 20:07:31 ARST 2001, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.13 on Mon Dec 31 01:02:12 ARST 2001, by mstorti in spider
      > `sles_was_built' now included in `factored'
+----------
+tag: pfmat-rewrite-1.14 on Thu Jan  3 18:49:54 ARST 2002, by mstorti in spider
+     > Added test for pfmat with redefinition of profiling. Works well with `IISDMat' 
+     > but loses memory.
