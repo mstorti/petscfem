@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2003/02/17 16:05:49 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2003/02/17 20:29:41 mstorti Exp $ 
 
 .PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
@@ -14,17 +14,6 @@ tests: sector chunk_size_process triangle lap_per
 sector: sector.depl $(LAPLACE)
 	-$(MPIRUN) -np 1 $(LAPLACE) -case sector.depl  >/dev/null
 	-mv sector.sal sector0.sal
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Tests processing of chunks
-chunk_size_process:
-	$(MAKE) -C sector chunk_size_process
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-triangle:
-	$(MAKE) -C sector triangle
-
-
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 NP := 2
