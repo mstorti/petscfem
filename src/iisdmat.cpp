@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.29 2002/09/05 20:10:17 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.30 2002/09/07 13:57:05 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -152,7 +152,28 @@ int PFPETScMat::build_sles() {
 
   // warning:= avoiding `const' restriction!!
   ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
+  if (KSP_method=="gmres") {
+    int (*fcn )(KSP,int);
+    //o Orthogonalization method used in conjunction with GMRES. 
+    // May be  #unmodified_gram_schmidt#,
+    // #modified_gram_schmidt# or #ir_orthog# (default). (Iterative refinement).
+    // See PETSc documentation. 
+    TGETOPTDEF_S_PF(thash,string,gmres_orthogonalization,ir_orthog);
 
+#define SETORTH(key,fun) if (gmres_orthogonalization==key) fcn = &fun
+    SETORTH
+    if (gmres_orthogonalization=="ir_orthog") 
+      fcn = &KSPGMRESIROrthogonalization;
+    else if (gmres_orthogonalization=="unmodified_gram_schmidt") 
+      fcn = &KSPGMRESUnmodifiedGramSchmidtOrthogonalization;
+    else if (gmres_orthogonalization=="modified_gram_schmidt") 
+      fcn = &KSPGMRESModifiedGramSchmidtOrthogonalization;
+    else PETSCFEM_ERROR("PFPETScMat::build_sles():: "
+			"Bad \"gmres_orthogonalization\": %s\n",
+			gmres_orthogonalization.c_str());  
+    ierr = KSPGMRESSetOrthogonalization(ksp,fcn);
+    CHKERRQ(ierr);
+  }
   if (preco_side == "right")
     ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
   else if (preco_side == "left") {}
@@ -820,8 +841,6 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = SLESGetKSP(sles_lll,&ksp_lll); PF_CHKERRQ(ierr); 
 	ierr = SLESGetPC(sles_lll,&pc_lll); PF_CHKERRQ(ierr); 
 
-	ierr = KSPSetType(ksp_lll,KSPGMRES); PF_CHKERRQ(ierr); 
-
 	ierr = KSPSetTolerances(ksp_lll,0,0,1e10,1); PF_CHKERRQ(ierr); 
 
 	ierr = PCSetType(pc_lll,PCLU); PF_CHKERRQ(ierr); 
@@ -933,4 +952,3 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   }
   return 0;
 }
-
