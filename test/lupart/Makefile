@@ -1,9 +1,7 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.29 2001/10/06 15:52:54 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2001/10/06 19:59:28 mstorti Exp $ 
 
 .PHONY: force all run tests data
-
-NSO := $(PETSCFEM_DIR)/../petscfem-beta-1.98/applications/ns/ns.bin
 
 pp:
 	$(MAKE) NP=2  case=hitchhiking_part test_case
@@ -18,7 +16,6 @@ test_eff:
 tests: test_iisd test_iisd_superlu test_partitioning test_distmap
 
 #w Tests IISD with periodic boundary conditions
-NS := $(NSO)
 test_distmap: 
 	$(MAKE) NP=2 Re=100 peri=1 case=iisd case_size=small2 test_case
 	mv -f save.state save.state.iisd_peri.np2.tmp

@@ -3,6 +3,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl
 #
 $case = $ENV{'case'};
 $local_solver = $ENV{'local_solver'};
+$local_solver = "iisd_petsc" unless $local_solver;
 $Re = $ENV{'Re'};
 if ($case eq 'iisd_eff') {
     $eff = 1;
