@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.30 2003/07/26 00:57:56 mstorti Exp $
+//$Id: gpdata.cpp,v 1.30.4.1 2003/12/08 01:05:38 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -256,7 +256,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 #endif
   } else if ( !(strcmp(geom,"tetra")) ) {
     assert(nel==4);
-    master_volume = 1./3.;
+    master_volume = 1./6.;
     double xipg,etapg,zetapg;
     for (ipg=0; ipg<npg; ipg++) {
       if (npg==4) {
@@ -270,14 +270,14 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	} else {
 	  zetapg=1-2*a;
 	}
-	wpg[ipg] =  1/12.;
+	wpg[ipg] =  master_volume/4.0;
 
       } else if (npg==1) {
 	// One point in the center of the element
 	xipg=1./3.;
 	etapg=1./3.;
 	zetapg=1./3.;
-	wpg[ipg] =  1./3.;
+	wpg[ipg] =  master_volume;
 
       } else {
 	PetscPrintf(PETSC_COMM_WORLD,
