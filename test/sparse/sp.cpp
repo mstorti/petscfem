@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.13 2001/09/24 20:14:58 mstorti Exp $
+// $Id: sp.cpp,v 1.14 2001/09/25 03:02:50 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -36,15 +36,18 @@ int main() {
   GenVec &uu = uu_f;
   Mat a,b,c;
   Indx I(14,17),J(8,14,2),K(0,4,2);
-  double d1,d2,tol=1e-13,p,err;
+  double d1,d2,tol=1e-11,p,err;
 
+  // Setting individual values
   v.set(2,1.).set(3,2.).print("set values ...  ");
   v.set(10,10.).set(11,11.).print("set at 10 11 ...  ");
   v.grow(0).set(5,5.).print("set at 5 ...  ");
-  // v.set(20,20.).print(); should give an error
+  // v.set(20,20.).print(); // this should give an error
   v.resize(10).print("resized to 10... ");
   v.clear().print("cleared ...  ");
+  // Setting values in w
   w.set(0,14.).set(1,15.).set(2,16.).set(3,17.).print("w: ");
+  // Inject values of w in v
   v.resize(20).set(I,w).print("setting v[I] = w  ");
 
   u.resize(20).set(J,v,I).print("u[I] = v[J]");
@@ -183,7 +186,7 @@ int main() {
   res_v.prod(a,uu);
   res_v.axpy(-1.,u);
   err = res_v.sum_abs();
-  printf("error: %g, < tol ? %d \n",err, err<tol);
+  printf("err < tol ? %d, error: %g \n",err<tol,err);
 
   u.clear().random_fill(.5).print("b:");
   uu.set(u);
@@ -192,6 +195,23 @@ int main() {
   res_v.prod(a,uu);
   res_v.axpy(-1.,u);
   err = res_v.sum_abs();
-  printf("error: %g, < tol ? %d \n",err, err<tol);
+  printf("err < tol ? %d, error: %g \n",err<tol,err);
 
+  N = 500;
+  while (1) {
+    printf("New matrix...\n");
+    b.clear().resize(N,N).id(1.3);
+    a.clear().resize(N,N).random_fill(.1).scale(.1).axpy(1.,b);
+    b.clear();
+    for (int l=0; l<10; l++) {
+      u.clear().resize(N).random_fill(.5);
+      uu.set(u);
+      a.solve(uu_f);
+      res_v.resize(N).clear().prod(a,uu);
+      res_v.axpy(-1.,u);
+      err = res_v.sum_abs();
+      printf("size %d\n",N);
+      printf("err < tol ? %d, error: %g \n",err<tol,err);
+    }
+  }
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.16 2001/09/24 20:14:51 mstorti Exp $
+// $Id: sparse.h,v 1.17 2001/09/25 03:02:43 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -431,7 +431,7 @@ namespace Sparse {
     /// Resize vectors, truncates elements if greater than this value
     Mat & resize(int m,int n);
     /// Clears all elements
-    Mat & clear() {map<int,Vec>::clear(); return *this;}
+    Mat & clear();
     /// Set mode if can grow automatically or not
     Mat & grow(int g) { grow_m=g; return *this;};
     /// Flags if the vector is empty or not
