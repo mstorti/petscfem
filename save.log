@@ -4056,3 +4056,6 @@ tag: beta-3.43.9 on Mon, 21 Feb 2005 00:57:26 -0300 by mstorti in spider
 tag: beta-3.43.10 on Mon, 21 Feb 2005 01:23:57 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Now compiles cleanly with GCC 3.3.3 without `-Wno-deprecated'. 
+----------
+tag: beta-3.43.11 on Mon, 21 Feb 2005 15:50:41 -0300 by mstorti in minerva.ceride.gov.ar
+     > Now `gatherer.cpp' uses `detj_error()'. 
