@@ -140,6 +140,7 @@ icone=icone(:,[1 4 3 2]);
 
 yy=xnod(1:ny+1,2);
 
+
 ## left to right peri
 peri=[(ny+1)*nx+(1:ny+1)' (1:ny+1)'];
 ## upper to lower
@@ -154,6 +155,31 @@ for j=1:ndof
   endfor
 endfor
 fclose(fid);
+
+if use_bcconv
+  ## bcconv
+  nodes_right=(ny+1)*nx+(1:ny+1)';
+  nodes_left=(ny+1:-1:1)';
+  nodes_top=flipud(ny+(1:(ny+1):nnod)');
+  nodes_bot=(1:(ny+1):nnod)';
+#    bcc_elems=[nodl2elem(nodes_left);
+#               nodl2elem(nodes_bot);
+#               nodl2elem(nodes_right);
+#               nodl2elem(nodes_top)];
+  bcc_elems=nodl2elem(nodes_right);
+  asave("newff.bcconv.tmp",bcc_elems);
+
+  fid=fopen("newff.rfixa.tmp","w");
+  for j=1:rows(nodes_left);
+    for k=1:ndof;
+      fprintf(fid,"   %d  %d  %f  \n", \
+              nodes_left(j),k,rval);
+    endfor
+  endfor
+  fclose(fid);
+
+endif                           # { use_bcconv }
+
 
 fixa=[];
 for j=1:3
@@ -185,7 +211,7 @@ asave("newff.nod.tmp",xnod);
 fid=fopen("newff.con.tmp","w");
 for k=1:nele
   fprintf(fid,"%d %d %d %d",icone(k,1),icone(k,2),icone(k,3),icone(k,4));
-  if per_elem_prop
+  if per_elem_prop && !use_bcconv
     fprintf(fid," %f %f %f ",sour(k,1:3));
   endif
   fprintf(fid,"\n");
@@ -193,15 +219,15 @@ endfor
 fclose(fid);
 
 ## bcconv en todo el fondo y la tapa
-bcconv = [nx*Ny+(1:Ny)';
-          (nx*Ny:-Ny:Ny)'];
+#  bcconv = [nx*Ny+(1:Ny)';
+#            (nx*Ny:-Ny:Ny)'];
 
-some = Nx*Ny;
-asave("newff.some.tmp",some);
+#  some = Nx*Ny;
+#  asave("newff.some.tmp",some);
 
-nbc=rows(bcconv);
-bcconv = [bcconv(1:nbc-1) bcconv(2:nbc)];
-asave("newff.bcconv.tmp",bcconv);
+#  nbc=rows(bcconv);
+#  bcconv = [bcconv(1:nbc-1) bcconv(2:nbc)];
+#  asave("newff.bcconv.tmp",bcconv);
 
 ##--<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
 ##--<*>---//--- ANALYTICAL SOLUTION -<*>---//---<*>---//

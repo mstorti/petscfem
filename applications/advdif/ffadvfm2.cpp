@@ -35,7 +35,7 @@
 #include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_) 
+newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_) 
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
   full_adv_jac(*this), full_dif_jac(*this),
   null_d_jac(*this),
@@ -289,6 +289,11 @@ void newadvecfm2_ff_t::FullAdvJac::comp_flux(FastMat2 &flux,FastMat2 &U) {
 }
 
 void newadvecfm2_ff_t::FullAdvJac::
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
+  A_jac_n.prod(ff.u,normal,-1,1,2,-1);
+}
+
+void newadvecfm2_ff_t::FullAdvJac::
 comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   A_grad_U.prod(ff.u,grad_U,-1,1,-2,-1,-2);
 }
@@ -323,6 +328,11 @@ void newadvecfm2_ff_t::NullAJac::comp_flux(FastMat2 &flux,FastMat2 &U) {
 }
 
 void newadvecfm2_ff_t::NullAJac::
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
+  A_jac_n.set(0.);
+}
+
+void newadvecfm2_ff_t::NullAJac::
 comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   A_grad_U.set(0.);
 }
@@ -349,6 +359,11 @@ void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux,FastMat2 &U) {
     flux.ir(1,j).scale(U.get(j));
   }
   flux.rs();
+}
+
+void newadvecfm2_ff_t::UPerField::
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
+  A_jac_n.set(0.).d(2,1).prod(ff.u,normal,1,-1,-1);
 }
 
 void newadvecfm2_ff_t::UPerField::
@@ -382,6 +397,13 @@ comp_vel_per_field(FastMat2 &vel_per_field) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
 void newadvecfm2_ff_t::UGlobal::comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.prod(U,ff.u,1,2);
+}
+
+void newadvecfm2_ff_t::UGlobal::
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
+  tmp5.prod(ff.u,normal,-1,-1);
+  double un = tmp5.get();
+  A_jac_n.eye(un);
 }
 
 void newadvecfm2_ff_t::UGlobal::
@@ -444,7 +466,8 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
 
   EGETOPTDEF_ND(elemset,int,ndim,0); //nd
 
-  //o Scale the SUPG upwind term. 
+  //o Scale the SUPG upwind term. Set to 0 in order to
+  //  not to include the upwind term. 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
   elemset->elem_params(nel,ndof,nelprops);
@@ -465,7 +488,8 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
 
   //o Set advective jacobian to the desired type. May be one of 
-  // ``\verb+null+'', ``\verb+global_vector+'', ``\verb+vector_per_field+'' or ``\verb+full+''. 
+  // ``\verb+null+'', ``\verb+global_vector+'',
+  // ``\verb+vector_per_field+'' or ``\verb+full+''. 
   // See documentation for the \verb+advective_jacobians+ option. 
   EGETOPTDEF(elemset,string,advective_jacobians_type,string("undefined"));
   string advective_jacobians_type_s = advective_jacobians_type;
@@ -517,10 +541,12 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   elemset->get_prop(diffusive_jacobians_prop,"diffusive_jacobians");
 
   //o Set diffusive jacobian to the desired type
-  //o May be one of 
-  // ``\verb+null+'', ``\verb+global_vector+'',
-  // ``\verb+vector_per_field+'' or ``\verb+full+''. 
-  // See documentation for the \verb+advective_jacobians+ option. 
+  //  May be one of 
+  // ``\verb+null+'', 
+  // ``\verb+global_scalar+'', ``\verb+global_tensor+'', 
+  // ``\verb+tensor_per_field+'', ``\verb+scalar_per_field+''
+  //   or ``\verb+null+''
+  // See documentation for the \verb+diffusive_jacobians+ option. 
   EGETOPTDEF(elemset,string,diffusive_jacobians_type,string("undefined"));
   string diffusive_jacobians_type_s=diffusive_jacobians_type;
 
@@ -572,14 +598,21 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
     assert(0);
   }
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Read reactive jacobians (reactive  matrix)
   //o _T: double[var_len] 
   //  _N: reactive_jacobians _D: all zero  _DOC: 
-  //  FIXME:= TO BE DOCUMENTED LATER
+  //i_tex ../../doc/advdifop.tex reactive_jacobians
   //  _END
   elemset->get_prop(reactive_jacobians_prop,"reactive_jacobians");
 
-  //o Set reactive jacobian to the desired type
+  //o Set reactive jacobian to the desired type. 
+  //  May be one of 
+  // ``\verb+null+'', 
+  // ``\verb+global_scalar+'', 
+  // ``\verb+scalar_per_field+''
+  // or ``\verb+null+''
+  // See documentation for the \verb+reactive_jacobians+ option. 
   EGETOPTDEF(elemset,string,reactive_jacobians_type,string("undefined"));
   string reactive_jacobians_type_s=reactive_jacobians_type;
 
@@ -623,11 +656,16 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   // Source term
   //o _T: double[var_len] 
   //  _N: source term  _D: all zero  _DOC: 
-  //  FIXME:= TO BE DOCUMENTED LATER
+  //i_tex ../../doc/advdifop.tex source_term
   //  _END
   elemset->get_prop(source_term_prop,"source_term");
 
   //o Set source term to the desired type
+  //  May be one of 
+  // ``\verb+null+'', 
+  // ``\verb+global_scalar+'', 
+  // or ``\verb+null+''
+  // See documentation for the \verb+source_term+ option. 
   EGETOPTDEF(elemset,string,source_term_type,string("undefined"));
   string source_term_type_s=source_term_type;
 
@@ -671,11 +709,11 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
   // iJaco due to const'ness restrictions.
 
   Ucpy.set(U);
-  iJaco_cpy.set(iJaco);
   a_jac->comp_flux(flux,Ucpy);
 
   if (options & COMP_UPWIND) {
 
+    iJaco_cpy.set(iJaco);
     d_jac->comp_fluxd(fluxd,grad_U);
 
     // A_grad_U es ndof x 1

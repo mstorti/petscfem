@@ -38,7 +38,7 @@ tau_fac <:=$tau_fac:>
 #solve_system 0
 #print_linear_system_and_stop
 
-weak_form 0
+weak_form <:=$weak_form:>
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---//
 #---<*>---/  JACOBIANS DEFINITION ---<*>---//---<*>---//
@@ -113,7 +113,7 @@ reactive_jacobians <:=$R:> <:=3*$R:> <:=10*$R:>
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 source_term_type "<:=$source_type:>"
 
-#if 0
+#if $use_bcconv
 #if $source_type eq 'null'
 # no line here
 #elsif $source_type eq 'global_scalar'
@@ -144,7 +144,7 @@ __END_NODES__
 elemset newadvdif_advecfm2 4
 #if $full_jacs
 props source_term[3]
-#else
+#elsif !$use_bcconv
 props source_term
 #endif
 #Datos del elemento
@@ -153,6 +153,16 @@ npg 4
 __END_HASH__
 __INCLUDE__ <:=$case:>.con.tmp
 __END_ELEMSET__
+
+#if $use_bcconv
+#===========================================================
+elemset newbcconv_advecfm2 2
+geometry cartesian1d
+npg 2
+__END_HASH__
+__INCLUDE__ <:=$case:>.bcconv.tmp
+__END_ELEMSET__
+#endif
 
 end_elemsets
 
@@ -165,10 +175,19 @@ fixa
 __END_FIXA__
 #endif
 
+#===========================================================
+#if $use_bcconv
+fixa
+__INCLUDE__ <:=$case:>.rfixa.tmp
+__END_FIXA__
+#endif
+
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+#if !$use_bcconv
 constraint
 __INCLUDE__ newff.peri.tmp
 __END_CONSTRAINT__
+#endif
 
 # Local Variables: $
 # mode: shell-script $

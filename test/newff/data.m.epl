@@ -29,6 +29,8 @@ steady=0;
 weak_form=0;
 fix_some_node=0;
 tau_fac=1;
+use_bcconv=0;
+rval=0;
 
 #<:$CASE=$ENV{'CASE'}:>//
 CASE=<:=$CASE:>;
@@ -47,6 +49,20 @@ nx=32;
 u=1;
 adv_type="global_vector";
 tol=0.04;
+#elsif $CASE eq 'adv_dif_stdy_bcconv'
+## Advection diffusion with bcconv
+nx=32;
+u=1;
+v=0;
+adv_type="global_vector";
+tol=0.04;
+weak_form=1;
+use_bcconv=1;
+rval=1;
+s=0;
+Dt=1e5;
+nstep=2;
+tol=1e-4;
 #elsif $CASE eq 'pure_adv'
 ## Pure advection
 steady=1;

@@ -139,11 +139,11 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   int locdof,kldof,lldof;
 
   NSGETOPTDEF(int,npg,0); //nd
-  NSGETOPTDEF_ND(int,ndim,0); //nd
+  NSGETOPTDEF(int,ndim,0); //nd
   assert(npg>0);
   assert(ndim>0);
   
-  int nelprops;
+  int nelprops,nel,ndof;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 

@@ -28,14 +28,12 @@ extern int comp_mat_each_time_step_g,
 #include "../../src/readmesh.h"
 #include "../../src/getprop.h"
 #include "../../src/util2.h"
-#include "advective.h"
-
-#define MAXPROP 100
+#include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int BcconvAdv::ask(char *,int &)"
-int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
+int NewBcconv::ask(const char *jobinfo,int &skip_elemset) {
 
    skip_elemset = 1;
    int ierr;
@@ -49,7 +47,7 @@ int BcconvAdv::ask(const char *jobinfo,int &skip_elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "BcconvAdv::assemble"
-void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
+void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) {
@@ -68,6 +66,10 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   assert(npg>0);
   assert(ndim>0);
   NSGETOPTDEF(int,weak_form,1);
+
+  // Initialize flux functions
+  int ret_options=0;
+  adv_diff_ff->start_chunk(ret_options); 
 
   int ndimel = ndim-1;
   int nel,ndof,nelprops;
@@ -136,7 +138,7 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // Definiciones para descargar el lazo interno
   double detJaco, delta_sc;
 
-  int elem, ipg,node, jdim, kloc,lloc,ldof,ret_options=0;
+  int elem, ipg,node, jdim, kloc,lloc,ldof;
 
   FMatrix Jaco(ndimel,ndim),flux(ndof,ndim),fluxd(ndof,ndim),grad_U(ndim,ndof),
     A_grad_U(ndof),G_source(ndof),tau_supg(ndof,ndof),    
@@ -157,6 +159,8 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     int k,ielh;
     element.position(k,ielh);
+    // Initialize element
+    adv_diff_ff->element_hook(element); 
     // Load local node coordinates in local vector
     element.node_data(nodedata,xloc.storage_begin(),
 		       Hloc.storage_begin());
@@ -205,11 +209,19 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       delta_sc=0;
       double lambda_max_pg;
+#if 1
+      adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
+				A_grad_U,grad_U,G_source,
+				tau_supg,delta_sc,
+				lambda_max_pg, nor,lambda,Vr,Vr_inv,
+				DEFAULT);
+#else
       ierr =  (*adv_diff_ff)(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
 			     A_grad_U,grad_U,G_source,D_jac,C_jac,tau_supg,delta_sc,
 			     lambda_max_pg,nor,lambda,Vr,Vr_inv,
 			     element.props(),NULL,DEFAULT,
 			     start_chunk,ret_options);
+#endif
 
       // normal = pvec(Jaco.SubMatrix(1,1,1,ndim).t(),
       // Jaco.SubMatrix(2,2,1,ndim).t());
@@ -217,7 +229,8 @@ void BcconvAdv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       tmp1.prod(SHAPE,fluxn,1,2);
       veccontr.axpy(tmp1,WPG);
 
-      A_jac_n.prod(A_jac,normal,-1,1,2,-1); // A_jac_n = (A_jac)_j n_j
+      adv_diff_ff->comp_A_jac_n(A_jac_n,normal);
+      // A_jac_n.prod(A_jac,normal,-1,1,2,-1); // A_jac_n = (A_jac)_j n_j
       tmp2.prod(SHAPE,A_jac_n,1,2,3); //
       tmp3.prod(tmp2,SHAPE,1,2,4,3);
       matlocf.axpy(tmp3,-ALPHA*WPG);

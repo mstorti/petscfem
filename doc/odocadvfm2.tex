@@ -6,7 +6,8 @@
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-Scale the SUPG upwind term. 
+Scale the SUPG upwind term. Set to 0 in order to
+ not to include the upwind term. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ advective_jacobians+ {\rm(default=\verb| no default|)}:
@@ -135,7 +136,8 @@ error condition is generated.
 \item\verb+string advective_jacobians_type+ {\rm(default=\verb|string("undefined")|)}:
 
 Set advective jacobian to the desired type. May be one of 
-``\verb+null+'', ``\verb+global_vector+'', ``\verb+vector_per_field+'' or ``\verb+full+''. 
+``\verb+null+'', ``\verb+global_vector+'',
+``\verb+vector_per_field+'' or ``\verb+full+''. 
 See documentation for the \verb+advective_jacobians+ option. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -143,11 +145,10 @@ See documentation for the \verb+advective_jacobians+ option.
  
 Jacobian of diffusive fluxes, i.e. 
 \(\F^{\diff\mu}_i = \D_{ij\mu\nu}\, \prt_j U^\nu\). 
-\verb+var_len+ may be one of:
 %
 The full jacobian has \verb+ndim*ndim*ndof*ndof+ components, but in many
 cases the Jacobian is not full. The following cases are
-considered. (See the description for the \verb+advetive_jacobians+
+considered. (See the description for the \verb+advective_jacobians+
 entry). 
 %
 \begin{itemize}
@@ -177,31 +178,120 @@ Diffusivity tensor per field (\(\D_{ij}^{\mu\nu} = {\bD_{ij}^\mu} \,
 stored in order
 \(\{\{\{\{\D_{ij}^{\mu\nu},j=1,\ndim\},i=1,\ndim\},\nu=1,\ndof\},\mu=1,\ndof\}\).
 \end{itemize}
+
+Which of the several possibilities is chosen depends on the size of
+the vector entered and on the string value of the option
+\verb+diffusive_jacobians_type+, according to the rules described in
+the \verb+advective_jacobians+ option documentation. 
+
  %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{diffusive\_jacobians\_type@\verb+diffusive_jacobians_type+}
 \item\verb+string diffusive_jacobians_type+ {\rm(default=\verb|string("undefined")|)}:
 
 Set diffusive jacobian to the desired type
+ May be one of 
+``\verb+null+'', 
+``\verb+global_scalar+'', ``\verb+global_tensor+'', 
+``\verb+tensor_per_field+'', ``\verb+scalar_per_field+''
+  or ``\verb+null+''
+See documentation for the \verb+diffusive_jacobians+ option. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ reactive_jacobians+ {\rm(default=\verb| all zero|)}:
  
- FIXME:= TO BE DOCUMENTED LATER
+Jacobian of reactive fluxes, i.e. 
+\[ 
+   R_{\mu\nu} = \dep {G_\mu}{U_\nu}
+\]
+%
+(see documentation for the \verb+source_term+ option). 
+The full jacobian has \verb+ndof*ndof+ components, but in many
+cases the Jacobian is not full. The following cases are
+considered. (See the description for the \verb+advective_jacobians+
+entry). 
+%
+\begin{itemize}
+%
+\item{\tt null}: (\verb+var_len=0+) This means $R\equiv 0$. No
+lienar reaction term is present. 
+%
+\item {\tt global\_scalar} {\tt [var\_len==1]} (A scalar) 
+The same source in all fields \(R_{\mu\nu} = {\bar R} \,
+\delta_{\mu\nu}\). 
+%
+\item{\tt scalar\_per\_field} {\tt [var\_len==ndof*ndof]}] 
+A scalar for each field: 
+\[  R_{\mu\nu} = {\bar R_\mu} \, \delta_{\mu\nu}\ \ \ 
+                  \textrm{No sum over \(\mu\)} \]
+%
+\item{\tt full} {\tt [var\_len==ndof*ndof]}] General case,
+stored per row
+\(\{\{R_{\mu\nu},\nu=1,\ndof\},\mu=1,\ndof\}\)
+\end{itemize}
+
+Which of the several possibilities is chosen depends on the size of
+the vector entered and on the string value of the option
+\verb+reactive_jacobians_type+, according to the rules described in
+the \verb+advective_jacobians+ option documentation. 
+
  %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{reactive\_jacobians\_type@\verb+reactive_jacobians_type+}
 \item\verb+string reactive_jacobians_type+ {\rm(default=\verb|string("undefined")|)}:
 
-Set reactive jacobian to the desired type
+Set reactive jacobian to the desired type. 
+ May be one of 
+``\verb+null+'', 
+``\verb+global_scalar+'', 
+``\verb+scalar_per_field+''
+or ``\verb+null+''
+See documentation for the \verb+reactive_jacobians+ option. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ double[var_len]+ \verb+ source term+ {\rm(default=\verb| all zero|)}:
  
- FIXME:= TO BE DOCUMENTED LATER
+Constant source term. 
+
+The most general linear source term not can be put in the form
+\[ G_\mu = R_{\mu\nu} U_\nu + S_\nu
+\]
+%
+The second term represents a constant source term, whereas the first
+term is linear in \(!U\) and sometimes is called a \emph{``reaction
+term''}.  The constant part \(S_\mu\) is entered in the
+\verb+source_term+ option whereas the \(R_{\mu\nu}\) coefficients are
+entered in the \verb+reactive_jacobians+ option.
+
+The more general source term has \verb+ndof+ components. But in many
+cases it may be the same for all the fields or null.  The following
+cases are considered. (See the general description for the
+\verb+advective_jacobians+ entry).
+%
+\begin{itemize}
+%
+\item{\tt null}: (\verb+var_len=0+) This means $S\equiv 0$. No
+constant source term is present. 
+%
+\item {\tt global\_scalar} {\tt [var\_len==1]} (A scalar) 
+The same source in all fields \(S_{\mu} = {\bar S}\). 
+%
+\item{\tt full} {\tt [var\_len==ndof]}] General case. One source term
+value per field. 
+\end{itemize}
+
+Which of the several possibilities is chosen depends on the size of
+the vector entered and on the string value of the option
+\verb+source_term_type+, according to the rules described in
+the \verb+advective_jacobians+ option documentation. 
  %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{source\_term\_type@\verb+source_term_type+}
 \item\verb+string source_term_type+ {\rm(default=\verb|string("undefined")|)}:
 
 Set source term to the desired type
+ May be one of 
+``\verb+null+'', 
+``\verb+global_scalar+'', 
+or ``\verb+null+''
+See documentation for the \verb+source_term+ option. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>

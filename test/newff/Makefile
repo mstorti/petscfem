@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2001/03/31 01:24:37 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2001/03/31 23:52:37 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -27,7 +27,7 @@ tests: test_dif_temp test_adv_dif_temp test_pure_adv test_reac_adv_dif_temp_y \
 	test_reac_steady test_reac_dif_temp test_std_ard_x_y \
 	test_full_jacs test_full_full_jacs \
 	test_full_full_jacs_wf test_full_full_jacs_t \
-	test_full_full_jacs_tr
+	test_full_full_jacs_tr test_adv_dif_stdy_bcconv
 
 test_%: 
 	$(MAKE) CASE=$* run

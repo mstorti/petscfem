@@ -1,7 +1,7 @@
 \documentclass[dvips,a4paper,11pt]{article} 
 %
 %Section{
-\usepackage{showkeys}
+\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 \usepackage[dvips]{graphicx}
 \usepackage[dvips]{changebar}
@@ -42,13 +42,16 @@
 \newcommand{\pfem}{PETSc-FEM}
 \newcommand{\F}{\mathcal{F}}
 \newcommand{\D}{\mathcal{D}}
+\newcommand{\cU}{{\mathcal{U}}}
 \newcommand{\bD}{\bar{\D}}
+\newcommand{\bA}{{\bar A}}
 \newcommand{\Psupg}{{P_\mathrm{SUPG}}}
 \newcommand{\deltasc}{{\delta_\mathrm{sc}}}
 % For LES
 \newcommand{\Se}{{\Sigma_e}}
 \newcommand{\dS}{{\di\Sigma}}
 \newcommand{\ustar}{{u^*}}
+\newcommand{\Dt}{{\Delta t}}
 %
 \newcommand{\AFS}{{Algebraic Fractional Step}}
 %
@@ -75,6 +78,7 @@
 %
 \latex{\newcommand{\filehead}[1]{\boxed{\hbox{\sl File: {\tt #1}}}}}
 \html{\newcommand{\filehead}[1]{\Large{File: \emph{#1}}}}
+\renewcommand{\labelitemii}{$\triangleright$}
 %\def\lforce#1{#1}
 %\DeclareTextSymbol{\textless}{MY1}{`\<}
 %
@@ -128,17 +132,14 @@ keeping in mind the scope of efficiency.
 % \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
 % \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 % \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-\input tests            %__UNCOMMENT_IN_FINAL_VERSION__
+% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
-% \subsection{contents of nsdoc.tex}    %__COMMENT_IN_FINAL_VERSION__
-% \input nsdoc.tex                      %__COMMENT_IN_FINAL_VERSION__
-% \subsection{contents of advdif.tex}   %__COMMENT_IN_FINAL_VERSION__
-% \input advdifop.tex                   %__COMMENT_IN_FINAL_VERSION__
+\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \Section{Symbols and Acronyms}

@@ -150,6 +150,7 @@ public:
   virtual void start_chunk(int &ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
   virtual void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				    FastMat2 & dshapex,double w) =0 ;
   virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
@@ -159,14 +160,26 @@ public:
 			  FastMat2 &N,double w)=0;
 };
 
-/** The class AdvDif is a NewElemset class plus a
-    advdif flux function object.
+/** The class NewAdvDif is a NewElemset class plus a
+    new advdif flux function object.
 */
 class NewAdvDif : public NewElemset { 
   NewAdvDifFF *adv_diff_ff;
 public:
-  int ndim,ndof,nel;
+  // int ndim,ndof,nel;
   NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
+};
+
+/** The class NewBcconv is a NewElemset class plus a
+    new advdif flux function object.
+*/
+class NewBcconv : public NewElemset { 
+  NewAdvDifFF *adv_diff_ff;
+public:
+  // int ndim,ndof,nel;
+  NewBcconv(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
 };

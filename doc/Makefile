@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.13 2001/03/18 16:48:06 mstorti Exp $
+#$Id: Makefile,v 1.14 2001/03/31 23:52:31 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -17,7 +17,7 @@ TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
 
 uncomment:
-	perl -p -e 's/^%+\s*(.*%__UNCOMMENT_IN_FINAL_VERSION__)$$/$$1/;' \
+	perl -pi.bak -e 's/^%+\s*(.*%__UNCOMMENT_IN_FINAL_VERSION__)$$/$$1/;' \
 			-e 's/^([^%].*%__COMMENT_IN_FINAL_VERSION__)$$/%$$1/;' \
 			petscfem.tex
 
@@ -56,11 +56,11 @@ manual_html:
 
 #s Other options
 
-#w process LaTeX onr reference
+#w process LaTeX on reference
 latex: force eps odoc
 	latex petscfem
 	-bibtex petscfem
-	-makeindex petscfem
+	-makeindex petscfem.idx
 	latex petscfem
 	latex petscfem
 

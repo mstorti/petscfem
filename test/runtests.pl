@@ -831,6 +831,7 @@ check_newff('full_full_jacs');
 check_newff('full_full_jacs_wf');
 check_newff('full_full_jacs_t');
 check_newff('full_full_jacs_tr');
+check_newff('adv_dif_stdy_bcconv');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs

@@ -21,6 +21,7 @@ class AJac {
 public:
   virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_A_grad_U(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)=0;
   virtual void comp_Uintri(FastMat2 & A,FastMat2 & B)=0;
   virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void comp_vel_per_field(FastMat2 &vel_per_field)=0;
@@ -157,7 +158,7 @@ public:
   public:
     NullAJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
-      comp_Uintri;
+      comp_Uintri,comp_A_jac_n;
     void comp_vel_per_field(FastMat2 &vel_per_field);
   };
   NullAJac null_a_jac;
@@ -166,12 +167,12 @@ public:
   class UGlobal;
   friend class UGlobal;
   class UGlobal : public AJac {
-    FastMat2 tmp,tmp3;
+    FastMat2 tmp,tmp3,tmp5;
     newadvecfm2_ff_t &ff;
   public:
     UGlobal(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
-      comp_Uintri;
+      comp_Uintri,comp_A_jac_n;
     void comp_vel_per_field(FastMat2 &vel_per_field);
   };
   UGlobal u_global;
@@ -185,7 +186,7 @@ public:
   public:
     UPerField(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
-      comp_Uintri;
+      comp_Uintri,comp_A_jac_n;
     void comp_vel_per_field(FastMat2 &vel_per_field);
   };
   UPerField u_per_field;
@@ -198,7 +199,7 @@ public:
   public:
     FullAdvJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
     FastMat2Shell comp_flux,comp_A_grad_U,comp_A_grad_N,
-      comp_Uintri;
+      comp_Uintri,comp_A_jac_n;
     void comp_vel_per_field(FastMat2 &vel_per_field);
   };
   FullAdvJac full_adv_jac;
@@ -300,10 +301,13 @@ public:
   };
   ScalarDifPerField scalar_dif_per_field;
 
-  newadvecfm2_ff_t(NewAdvDif *elemset);
+  newadvecfm2_ff_t(NewElemset *elemset);
   void start_chunk(int &ret_options);
   void element_hook(ElementIterator &element);
   void compute_flux(COMPUTE_FLUX_ARGS);
+  void comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
+    a_jac->comp_A_jac_n(A_jac_n,normal);
+  }
   void comp_A_grad_N(FastMat2 & A,FastMat2 & B) {
     a_jac->comp_A_grad_N(A,B);
   }
@@ -326,4 +330,8 @@ public:
   // newadvdif_advecfm2() {adv_diff_ff = new newadvecfm2_ff_t(this);};
 };
 
+class newbcconv_advecfm2 : public NewBcconv {
+public:
+  newbcconv_advecfm2() : NewBcconv(new newadvecfm2_ff_t(this)) {};
+};
 #endif

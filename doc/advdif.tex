@@ -6,10 +6,11 @@
 Advective system of equations are of the form
 %
 \begin{equation} 
- \dep{U_\mu}t + \dep{\F^\conv_{i\mu}(U)}{x_i} = \dep{\F^\diff_{i\mu}(U,\nabla U)}{x_i} + G_\mu
+ \dep{U_\mu}t + \dep{\F^\conv_{i\mu}(U)}{x_i} = 
+             \dep{\F^\diff_{i\mu}(U,\nabla U)}{x_i} + G_\mu
 \end{equation}
 %
-and its treatment is similar to the advective elemset. 
+and its numerical treatment is similar to the advective elemset. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{Options}
@@ -31,7 +32,17 @@ and its treatment is similar to the advective elemset.
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \item[Flux function``{\tt advec}'':] Generic linear
-advective-diffusive system 
+advective-diffusive system
+
+All fluxes and \(G_\mu\) are linear in \(!U\) and its gradients
+
+\begin{equation}
+\begin{split}
+  \F^\conv_{i\mu} &= A_{j\mu\nu} U_\nu \\
+  \F^{\diff}_{i\mu} &= \D_{ij\mu\nu}\, \prt_j U^\nu\\
+   G_\mu &= R_{\mu\nu} U_\nu + S_\nu
+\end{split}
+\end{equation}
 
 \begin{itemize}
 \input odocadvfm2
