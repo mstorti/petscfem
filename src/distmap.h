@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.14 2001/08/10 17:22:38 mstorti Exp $
+// $Id: distmap.h,v 1.15 2001/08/11 02:45:15 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -214,12 +214,8 @@ void DistMap<Key,Val>::scatter() {
     // recv_buff:= buffer for receiving 
     // recv_buff_pos:= positions in the receive buffer
     // recv_buff_pos_end:= end of receive buffer
-
-  // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
-  // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
-  // eproc
-
-  // Maximu recv buffer size
+    
+    // Maximu recv buffer size
     max_recv_buff_size=0;
     for (rank=0; rank < size; rank++) {
       if (SEND(rank,myrank) > max_recv_buff_size)
@@ -232,52 +228,84 @@ void DistMap<Key,Val>::scatter() {
     // initially...
     sproc=0;
     eproc=size;
+    // now loop until all groups of processor are of size 1
     while (1) {
+      // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
+      // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
+      // eproc
+
+      // number of processors in this group
       size_here = eproc-sproc;
-      printf("[%d] size here %d\n",myrank,size_here);
+      // printf("[%d] size here %d\n",myrank,size_here);
       MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
 		    comm);
+      // exit loop if all groups of processor are of size 1
       if (max_local_size<=1) break;
 
+      // Process only if this group has 2 processors at least
       if ( size_here> 1) {
+	// Compute middle processor
 	mproc = (sproc+eproc)/2;
+	// band:= 
+	// band = 0 -> I am in the lower band (sproc<= myrank < mproc)
+	// band = 1 -> I am in the upper band (mproc<= myrank < eproc)
 	band = (myrank >= mproc);
-	printf("[%d] sproc %d, mproc %d, eproc %d\n",
-	       myrank,sproc,mproc,eproc);
+	// printf("[%d] sproc %d, mproc %d, eproc %d\n",
+	// myrank,sproc,mproc,eproc);
+
+	// Communication is performed in two stages. In the stage 0
+	// the lower band sends to the upper band and the upper band
+	// receives. In stage 1 the reverse is performed. 
 	for (stage=0; stage<2; stage++) {
 	  // Range and number of procs in the other band
 	  if (band==0) {
+	    // s1:= s2:= [s1,s2) is the range of processors in the
+	    // other band and my_band_start
+	    // my_band_start:= where my band starts 
 	    s1=mproc; s2=eproc; my_band_start=sproc;
 	  } else {
 	    s1=sproc; s2=mproc; my_band_start=mproc;
 	  }
+	  // nrecv:= number of processors in the other band
 	  nrecv=s2-s1;
 
 	  if (stage == band) {
 	    // Send stage. Send to s1 <= rank < s2
 	    for (jd = 0; jd < nrecv; jd++) {
-	      // Shift `dest' to avoid collisions
+	      // Shift `dest' to avoid collisions.  In the first
+	      // substage my_band_start sends to s1, my_band_start+1
+	      // to s1+1 and so on. In the second substage
+	      // my_band_start sends to s1+1 and so on...
 	      dest = s1 + ((myrank-my_band_start) + jd) % nrecv;
-	      printf("[%d] Sending to %d\n",myrank,dest);
+	      // printf("[%d] Sending to %d\n",myrank,dest);
 	      MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
 		       dest,myrank,comm);
 	    }
 	  } else {
 	    // Receive stage
-	    printf("[%d] Receive from %d procs.\n",myrank,nrecv);
+	    // printf("[%d] Receive from %d procs.\n",myrank,nrecv);
 	    for (rank = 0; rank < nrecv; rank++) {
+	      // We receive packets in any order as there is not
+	      // possibility of error since they are tagged with the
+	      // source. But we wait for receiving all the packets in
+	      // this stage. 
 	      MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
 		       MPI_ANY_SOURCE,MPI_ANY_TAG,
 		       comm,&status);
+	      // Get rank of source 
 	      source = status.MPI_SOURCE;
-	      printf("[%d] received source %d, tag %d\n",
-		     myrank,status.MPI_SOURCE,status.MPI_TAG);
-	      assert(status.MPI_TAG == source);
-	    
+	      // printf("[%d] received source %d, tag %d\n",
+	      // myrank,status.MPI_SOURCE,status.MPI_TAG);
+	      // assert(status.MPI_TAG == source);
+
+#if 0	    
 	      MPI_Get_count(&status,MPI_CHAR,&nsent);
 	      assert(nsent == SEND(source,myrank));
-
+#endif
+	      // unpack received buffer
+	      // recv_buff:= position in buffer
 	      recv_buff_pos = recv_buff;
+	      // recv_buff_pos_end
 	      recv_buff_pos_end = recv_buff + nsent;
 	      while (recv_buff_pos < recv_buff_pos_end ) {
 		unpack(p.first,p.second,recv_buff_pos);
@@ -285,19 +313,20 @@ void DistMap<Key,Val>::scatter() {
 		//  		     myrank,p.first,p.second);
 		combine(p);
 	      }
+	      // assert(recv_buff_pos == recv_buff_pos_end);
 	    }
 	  }
 	}
 
+	// update the group bounds
 	if (band==0) {
 	  eproc = mproc;
 	} else {
 	  sproc = mproc;
 	}
       }
-      // MPI_Barrier(PETSC_COMM_WORLD);
     }
-
+    // free memory
     delete[] recv_buff;
 
   } else if (SCHED_ALG==0) {

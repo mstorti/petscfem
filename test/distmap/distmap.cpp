@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmap.cpp,v 1.5 2001/08/10 17:22:38 mstorti Exp $
+// $Id: distmap.cpp,v 1.6 2001/08/11 02:45:18 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -8,7 +8,7 @@
 #include "../../src/distmap.h"
 #include <petsc.h>
 
-int SIZE, MYRANK, M, SCHED_ALG;
+int SIZE, MYRANK, M, SCHED_ALG=1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Test for the distributed map class

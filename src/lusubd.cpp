@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.31 2001/08/09 15:15:12 mstorti Exp $
+//$Id: lusubd.cpp,v 1.32 2001/08/11 02:45:15 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
+int SCHED_ALG=1;
 
 //  #define DEBUG_IISD
 //  #define DEBUG_IISD_DONT_SET_VALUES

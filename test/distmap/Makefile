@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2001/08/10 17:22:38 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/08/11 02:45:18 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -9,11 +9,14 @@ dm: distmap.bin
 	time $(MPIRUN) -np 6 -machinefile machi.dat distmap.bin \
 		1000 10000000 1e-12 1 # > distmap.sal.tmp
 
+# check basic template (map<int,double>)
 distmap: distmap.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
-		100 10000 1e-12 > distmap.sal.tmp
+		100 10000 1e-12 1 > distmap1.sal.tmp
+	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
+		100 10000 1e-12 0 > distmap0.sal.tmp
 
-#w Runs test
+#w check DistMatrix class
 distmat: distmat.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat distmat.bin \
 		100 10000 1e-12 0 > distmat.sal.tmp
