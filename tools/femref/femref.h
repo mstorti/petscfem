@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.20 2004/11/22 23:13:06 mstorti Exp $
+// $Id: femref.h,v 1.21 2004/11/23 01:50:43 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -54,8 +54,10 @@ public:
   void make_canonical();
   /// Compare two objects
   bool equal(GeomObject &go);
+  int find(GeomObject &go) const;
   void print(const char*s = NULL) const;
   const int* nodes() const { return nodes_m.buff(); }
+  void set(Type t,int j,GeomObject &go) const;
 };
 
 class Mesh {

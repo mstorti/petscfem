@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.12 2004/11/23 01:45:34 mstorti Exp $
+// $Id: femref.cpp,v 1.13 2004/11/23 01:51:14 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -208,19 +208,10 @@ int GeomObject::find(GeomObject &go) const {
   // Template *templ = get_template(t);
   int n_so = size(typ);
   GeomObject subobj;
-  dvector<int> so_nodes;
-  int so_sz = go.size();
-  so_nodes.mono(so_sz);
   for (int j=0; j<n_so; j++) {
-    for (int k=0; k<so_sz; k++) {
-      so_nodes.e(k) = 
-    }
-    subobj.init(typ,);
-    if (go.equal(subobj)) {
-      return j;
-    }
+    set(typ,j,subobj);
+    if (go.equal(subobj)) return j;
   }
-  return -1;
 }
 
 #if 0
