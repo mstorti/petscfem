@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.16 2003/03/13 16:26:58 mstorti Exp $
+//$Id: wall.cpp,v 1.17 2003/03/13 18:37:27 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -124,6 +124,8 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   if (build_nneighbor_tree) {
     // convert pointers
     data_pts = (vector<double> *)arg_data_v[0].user_data;
+    data_pts->resize(ndim*nelem); // Not implemented yet
+				// Number of wall elemsets >1
     elemset_pointer = (vector<ElemToPtr> *)arg_data_v[1].user_data;
     elemset = (Elemset *)arg_data_v[2].user_data;
   }
@@ -193,9 +195,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
-    if (!(build_nneighbor_tree ||
-	  // comp_shear_vel ||
-	  compute_this_elem(k,this,myrank,iter_mode))) continue;
+    if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
 
     ielh++;
@@ -241,7 +241,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
       xc.sum(xloc,-1,1).scale(i_nel);
       double *xc_ = xc.storage_begin();
-      data_pts->insert(data_pts->end(),xc_,xc_+ndim);
+      for (int j=0; j<ndim; j++) (*data_pts)[k*ndim+j] = xc_[j];
       continue;
 #else
       assert(0);
@@ -293,10 +293,11 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   }
   if (build_nneighbor_tree && elemset!=this) {
-    int s = data_pts->size();
-    int l = s/ndim;
-    assert(l*ndim == s);
-    elemset_pointer->push_back(ElemToPtr(l,this));
+    elemset_pointer->push_back(ElemToPtr(nelem,this));
+    assert(elemset_pointer->size()==1); // Not implemented yet
+				       // Number of wall elemsets >1
+				       // see above!!
+    elemset = this;
   }
       
   FastMat2::void_cache();
