@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.42 2001/10/15 19:44:43 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.43 2001/11/05 18:38:18 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -172,11 +172,10 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   int nprops=iprop;
   
-  double rho=1.;
-
+  //o Density
+  TGETOPTDEF(thash,double,rho,1.);
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  
   //GPdata gp_data(geom,ndim,nel,npg);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
 
