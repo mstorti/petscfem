@@ -9,7 +9,7 @@ $case =~ s/^\s*(.*)\s*$/$1/;
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;			# Number of elements per dimension
+$N = 10;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
@@ -141,7 +141,7 @@ end_elemsets
 
 fixa
 # fijacion en la presion
-1 <:=ndim+1> 0.
+1 <:=$ndim+1:> 0.
 # fijaciones de velocidad en las paredes
 __INCLUDE__ cubcav.fixa.tmp
 __END_FIXA__
