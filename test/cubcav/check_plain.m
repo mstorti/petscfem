@@ -1,4 +1,4 @@
-#$Id: check_plain.m,v 1.2 2003/12/08 13:19:00 mstorti Exp $
+#$Id: check_plain.m,v 1.3 2003/12/08 13:34:05 mstorti Exp $
 
 u0 = aload("cubcav.state.plain_bupl0.tmp");
 u1 = aload("cubcav.state.plain_bupl1.tmp");
@@ -10,9 +10,10 @@ printf("Cubcav/Block uploading error OK? > %d (error %g, tol %g)\n",
 
 if 0
   ## Creates reference state file
+  ## Run and save inf `cubcav.sol'
   indx=sort(ceil(rand(30,1)*rows(u)));
   for k=indx'; 
-    printf("%5d %20.12e %20.12e %20.12e %20.12e\n",k,u(k,:));
+    printf("%5d %20.12e %20.12e %20.12e %20.12e\n",k,u0(k,:));
   endfor
   return
 endif
