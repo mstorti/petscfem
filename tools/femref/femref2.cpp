@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.10 2004/12/14 14:38:44 mstorti Exp $
+// $Id: femref2.cpp,v 1.11 2004/12/14 15:32:24 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -540,8 +540,8 @@ refine(RefineFunction f) {
       go_nodes.push(w_nodes[j]);
     go_nodes_pos.push_front(0);
     const Splitter *s = NULL;
-    bool done = false;
 
+    bool done = false;
     while(!done) {
       w = go_stack.begin();
       // here visit w...
@@ -549,24 +549,43 @@ refine(RefineFunction f) {
       q = split_stack.front();
       int j = split_indx_stack.front();
       if (q != etree.end()) {
+	// `q' is a regular node for splitters (sure
+	// it isn't a leave for GO's). Follow to the
+	// left child (int the GO tree). 
 	s = q->splitter;
 	qs = q.lchild();
+	if (qs == etree.end()) {
+#define REF_LEVEL 1
+	  // FIXME:= The code here is duplicated
+	  // and should be put in a refinement function. 
+	  // Here refine (eventually) by inserting a
+	  // child in the position `qs'.
+	  // Refinement criterion.
+	  bool refine_this = go_stack.size()<=REF_LEVEL;
+	  if (refine_this) {
+	    qs = etree.insert(qs,ElemRefNode());
+	    // The splitter should be returned
+	    // by the refinement function
+	    qs->splitter = &Tetra2TetraSplitter;
+	    qs->so_indx = 0;
+	  }
+	}
 	if (qs!=etree.end() && qs->so_indx==0) 
 	  qs2 = qs;
 	else qs2 = etree.end();
 	split_stack.push_front(qs2);
 	go_stack.push_front(GeomObject());
 	ws = go_stack.begin();
-	// Build `ws' from GeomObject `w' (parent) and splitter `s'
-	// and subobject index `j'
+	// Build `ws' from GeomObject `w' (parent) and
+	// splitter `s' and subobject index `j'
 	set(*w,s,j,*ws);
 	ws->make_canonical();
 	split_indx_stack.push_front(0);
       } else {
-	// `q' is a leave for GO's (sure it isn't
-	// a regular node for splitters)
-	// Try to find a right sibling, or a father
-	// that has a right sibling
+	// `q' is a leave for GO's (sure it isn't a
+	// regular node for splitters). Try to find a
+	// right sibling, or a father that has a right
+	// sibling
 	while (true) {
 	  // Check if we are at the root
 	  if (split_stack.size()<=1) {
@@ -592,8 +611,21 @@ refine(RefineFunction f) {
 	    // Find next node on the splitting tree or end()
 	    qs = qfather.lchild();
 	    while (qs != etree.end()) {
-	      if (qs->so_indx == jsib) break;
+	      if (qs->so_indx >= jsib) break;
 	      qs++;
+	    }
+	    // The sibling `jsib' is not refined at this level
+	    if (qs->so_indx > jsib) {
+	      // FIXME:= The code here is duplicated
+	      // and should be put in a refinement function. 
+	      bool refine_this = go_stack.size()<=REF_LEVEL;
+	      if (refine_this) {
+		qs = etree.insert(qs,ElemRefNode());
+		// The splitter should be returned
+		// by the refinement function
+		qs->splitter = &Tetra2TetraSplitter;
+		qs->so_indx = jsib;
+	      } else qs = etree.end(); // Not refined
 	    }
 
 	    // Push new state in the stacks
