@@ -60,7 +60,7 @@ makewhat.1: makewhat.pl
 makewhat.txt: makewhat.pl
 
 #w Hexasplit program splits a mesh of hexas in tetras
-hexasplit.bin: hexasplit.cpp
-	g++ -o $@ -O2 $<
+hexasplit.bin: hexasplit.o
+	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
 #s

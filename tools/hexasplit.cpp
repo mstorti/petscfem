@@ -1,83 +1,33 @@
-//__INSERT_LICENSE__
-//$Id: hexasplit.cpp,v 1.4 2002/07/17 02:55:01 mstorti Exp $
-#include <stdio.h>
-#include <unistd.h>
+/*__INSERT_LICENSE__*/
+// $Id: hexasplit.cpp,v 1.5 2002/07/28 23:31:38 mstorti Exp $
+#define _GNU_SOURCE
+
 #include <vector>
-#include <set>
 #include <deque>
-#include <string>
 
-#define NEL (8) // number of nodes per element
-#define NFACES (6) // number of faces per element
-#define NELFACE (4) // number of nodes per faces 
-#define NSUBEL (5) // number of tetras in an hexa
-#define NODSUBEL (4) // number of nodes in each subel
+#include <src/utils.h>
+#include <src/linkgraph.h>
+#include <src/dvector.h>
 
-struct row {
-  int row_[NEL];
-};
+int MY_RANK,SIZE;
 
-enum ElemState {NOT_SET = 0x00000, 
-		SPLIT_P = 0x00001, 
-		SPLIT_M = 0x00002, 
-		SPLIT   = SPLIT_M | SPLIT_P,
-		MULTI_SPLIT = 0x00004,
-		ENQUEUED = 0x00008};
-
-void e2faces(int k,int *icone_row, set<int> *faces, int nfaces[][NELFACE]) {
-
-  for (int j=0; j<NFACES; j++) faces[j].erase(faces[j].begin(),faces[j].end());
-
-#define INSERT_NODE(face,node) \
- {faces[face].insert(icone_row[node]); \
-  nfaces[face][kk++] = icone_row[node];}
-
-  int kk=0;
-  INSERT_NODE(0,0);
-  INSERT_NODE(0,3);
-  INSERT_NODE(0,2);
-  INSERT_NODE(0,1);
-
-  kk=0;
-  INSERT_NODE(1,0);
-  INSERT_NODE(1,1);
-  INSERT_NODE(1,5);
-  INSERT_NODE(1,4);
-
-  kk=0;
-  INSERT_NODE(2,2);
-  INSERT_NODE(2,6);
-  INSERT_NODE(2,5);
-  INSERT_NODE(2,1);
-
-  kk=0;
-  INSERT_NODE(3,2);
-  INSERT_NODE(3,3);
-  INSERT_NODE(3,7);
-  INSERT_NODE(3,6);
-
-  kk=0;
-  INSERT_NODE(4,0);
-  INSERT_NODE(4,4);
-  INSERT_NODE(4,7);
-  INSERT_NODE(4,3);
-
-  kk=0;
-  INSERT_NODE(5,5);
-  INSERT_NODE(5,6);
-  INSERT_NODE(5,7);
-  INSERT_NODE(5,4);
-
-}
-
-void print_face(set<int> face) {
-  set<int>::iterator j;
-  for (j=face.begin(); j!=face.end(); j++) {
-    printf("%d ",*j);
-  }
+void row_print(LinkGraphRow row) {
+  LinkGraphRow::iterator q;
+  printf("row %d: ",row.row);
+  for (q=row.begin(); q!=row.end(); q++) printf("%d ",*q);
   printf("\n");
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void graph_print(LinkGraphDis &graph, char *s=NULL) {
+  if (s) printf("%s\n",s);
+  for (LinkGraph::iterator k=graph.begin(); k!=graph.end(); k++) {
+    row_print(*k);
+    // printf("size of row: %d\n",k.size());
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main (int argc, char **argv) {
   char c;
   string icone_file = "icone";
@@ -94,205 +44,143 @@ int main (int argc, char **argv) {
       abort ();
     }
   }
-  vector<row> icone;
-  // int row[NEL]={0,0,0,0,0,0,0,0};
-  // vector<double[3]> xnod;
-  
-  FILE *ico_file;
-  ico_file = fopen(icone_file.c_str(),"r");
 
-  int val;
-  int iele=0;
-  int nnod=0;
-  while (1) {
-    int nread = fscanf(ico_file,"%d",&val);
-    if (val>nnod) nnod=val;
-    if (nread==EOF) break;
-    icone.resize(icone.size()+1);
-    icone[iele].row_[0]=val;
-    for (int k=1; k<=NEL-1; k++) {
-      nread = fscanf(ico_file,"%d",&val);
-      icone[iele].row_[k] = val;
-      if (val>nnod) nnod=val;
+  LinkGraph graph;
+  // graph.init(M);
+  char *line=NULL;
+  size_t ll=0;
+#define NEL 8
+  int nodes[NEL],node,nnod=0;
+  dvector<int> icone;
+  deque<int> front;
+
+#define MIN_CHUNK_SIZE 40000
+  icone.set_chunk_size(MIN_CHUNK_SIZE);
+  // Incompatible nodes in a hexa. Two nodes have the same entry
+  // (0/1) if they are not linked by an edge. 
+  int incompat[] = {0,1,0,1,1,0,1,0};
+
+  // Reads connectivities
+  FILE *fid = fopen(icone_file.c_str(),"r");
+  assert(fid);
+  int nelem=0;
+  while(1) {
+    char *token;
+    int linelen = getline(&line,&ll,fid);
+    if (linelen<0) break;
+    nelem++;
+    for (int k=0; k<NEL; k++) {
+      token = strtok((k==0? line : NULL)," ");
+      int nread = sscanf(token,"%d",&node);
+      assert(nread==1);
+      icone.push(node);
+      if (node>nnod) nnod=node;
     }
-    iele++;
   }
-  fclose(ico_file);
-  int nelem=iele;
+  fclose(fid);
+  printf("read %d elems, %d nodes\n",nelem,nnod);
+  // split[j] may be -1/+1 depending on whether the
+  // node is marked up or down. split[j]==0 implies
+  // that the node is not split yet. 
+  vector<int> split(nnod);
+  for (int j=0; j<nelem; j++) split[j]=0;
 
-  // formar la lista de elementos conectados a un nodo
-  vector<set<int> > nod2ele(nnod);
-  for (int k=1; k<=nelem; k++) {
-    for (int j=0; j<NEL; j++) {
-      nod2ele[icone[k-1].row_[j]-1].insert(k);
-    }
+  // Build the graph of incompatibilities. Two nodes are connected
+  // by an edge if they are connected by an edge of an hexa. 
+  graph.set_chunk_size(nnod/2 < MIN_CHUNK_SIZE ? MIN_CHUNK_SIZE : nnod/2);
+  graph.init(nnod);
+  for (int e=0; e<nelem; e++) {
+    int *row = &icone.ref(e*NEL);
+    for (int j=0; j<NEL; j++) 
+      for (int k=0; k<NEL; k++) 
+	// Nodes are incompatible if they have not the same entry in
+	// the incompatibility table
+	if (incompat[j]!=incompat[k]) graph.add(row[j]-1,row[k]-1);
   }
 
 #if 0
-  for (int j=0; j<nnod; j++) {
-    printf("nodo: %d -> elems: ",j+1);
-    set<int>::iterator jj;
-    for (jj=nod2ele[j].begin(); jj!=nod2ele[j].end(); jj++) {
-      printf("%d ",*jj);
-    }
+  // Print the graph
+  for (int q=0; q<nnod; q++) {
+    GSet row;
+    graph.set_ngbrs(q,row);
+    printf("row %d: ",q);
+    for (GSet::iterator r=row.begin(); r!=row.end(); r++) 
+      printf("%d ",*r);
     printf("\n");
   }
 #endif
 
-  // cola de elementos a procesar
-  deque<int> eque;
-  set<int> *faces = new set<int>[NFACES];
-  set<int> *faces_n = new set<int>[NFACES];
-  int nfaces[NFACES][NELFACE];
-  int nfaces_n[NFACES][NELFACE];
-  int *pflag = new int[nelem]; // flags whether the element has been partitioned
-  for (int j=0; j<nelem; j++) {
-    pflag[j]=NOT_SET;
+  // GREEDY COLORING ALGORITHM
+  // Starting from an arbitrary node we put it in a queue. Then at a
+  // turn we take a node from the queue, put all their not-yet-marked
+  // neighbors in the queue and mark it as up or down depending on the
+  // color of their neighbors. 
+
+  // Arbitrarily start from node `0'.
+  // Split start node as `up'
+#define QUEUED (-2)
+  front.push_back(0);
+  split[0]=1;
+  while (front.size()) {
+    // printf("front.size %d\n",front.size());
+    // Take same node from the queue
+    int node = front.front();
+    front.pop_front();
+    // `s' is the set of neighbors of `node'. 
+    GSet s;
+    graph.set_ngbrs(node,s);
+    // iterate on the neighbors of `node'
+    for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
+      if (split[*r]==0) {
+	// If not already split put it in the queue
+	front.push_back(*r);
+	split[*r]=QUEUED;
+      } else if (split[*r]==QUEUED) {
+	// do nothing
+      } else if (split[node]==0 || split[node]==QUEUED) {
+	// if not already marked, mark as the opposite of the neighbor
+	split[node] = -split[*r];
+      } else if (split[*r] == split[node]) {
+	// if already marked and find an incompatible neighbor complain
+	printf("Can't split the mesh!!\n");
+	exit(1);
+      }
+    }
   }
-
-  int split_p=0,split_m=0,multi=0;
-  eque.push_back(1);
-  for (int elem_count=0; 1; elem_count++) {
-    if (eque.size()==0) {
-      // Search if there is an element not partitioned
-      for (int j=0; j<nelem; j++) {
-	if (pflag[j] == NOT_SET) {
-	  printf("Warning: disconnected mesh?? Coninuing with element %d\n",j+1);
-	  eque.push_back(j+1);
-	  break;
-	}
-      }
-    }
-
-    // There are no more elements to partition
-    if (eque.size()==0) goto EXIT;
-
-    // Get next element to partition
-    int ele = eque.front();
-    eque.pop_front();
-    set<int> eneighbors;
-    eneighbors.insert(ele);
-
-    int indsplit[NFACES]; // split inducido por loe elementos adyacentes
-    for (int j=0; j<NFACES; j++) indsplit[j]=NOT_SET;
-    
-    e2faces(ele,icone[ele-1].row_,faces,nfaces);
-    for (int kk=0; kk<NEL; kk++) {
-      int node = icone[ele-1].row_[kk];
-      set<int>::iterator jj;
-      for (jj=nod2ele[node-1].begin(); jj!=nod2ele[node-1].end(); jj++) {
-	int ele_n = *jj; // neighbor element
-
-	if (eneighbors.find(ele_n) != eneighbors.end()) continue; // el elemento ya fue chequeado
-	eneighbors.insert(ele_n);
-	e2faces(ele_n,icone[ele_n-1].row_,faces_n,nfaces_n);
-	
-	for (int jface=0; jface<NFACES; jface++) {
-	  // printf("Element %d, face %d, nodes ",ele,jface);
-	  // print_face(faces[jface]);
-	  for (int kface=0; kface<NFACES; kface++) {
-	    // printf("       ->   Element %d, face %d, nodes ",ele_n,kface);
-	    // print_face(faces_n[kface]);
-	    if (faces[jface] == faces_n[kface]) {
-	      // printf("matching faces found!\n");
-	      if (pflag[ele_n-1] == NOT_SET) {
-		// pone en cola
-		eque.push_back(ele_n);
-		pflag[ele_n-1] = ENQUEUED;
-	      } else if ( pflag[ele_n-1] & SPLIT) {
-		// Induce splitting en este
-		int jjj;
-		for (jjj=0; jjj<NELFACE; jjj++) {
-		  if (nfaces_n[kface][jjj]==nfaces[jface][0]) break;
-		}
-		indsplit[jface] = (jjj % 2==0? pflag[ele_n-1] : pflag[ele_n-1] ^ SPLIT);
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
-    int split=NOT_SET;
-    // printf("Elemento %d, \n",ele);
-    for (int jface=0; jface<NFACES; jface++) {
-#if 0
-      printf("face %d,  nodes ",jface+1);
-      for (int kk=0; kk<NELFACE; kk++) {
-	printf("%d ",nfaces[jface][kk]);
-      }
-      printf(",  split %d\n",indsplit[jface]);
-#endif
-      if (split!=0 && indsplit[jface]!=0 && split!=indsplit[jface]) {
-	printf("Incompatible split! element %d",ele);
-	split=MULTI_SPLIT;
-      } else if (indsplit[jface] & SPLIT) {
-	split = indsplit[jface];
-      }
-    }
-
-    // If split not induced, set to SPLIT_P
-    if (split==NOT_SET) split=SPLIT_P;
-    pflag[ele-1]=split;
-
-    switch(split) {
-    case SPLIT_P:
-      split_p++;
-      break;
-    case SPLIT_M:
-      split_m++;
-      break;
-    case MULTI_SPLIT:
-      multi++;
-      break;
-    default:
-      printf("warning: unknown element splitting %d\n",split);
-    }
 
 #if 0
-    printf("Elements in queue: ");
-    deque<int>::iterator jj;
-    for (jj=eque.begin(); jj!=eque.end(); jj++) {
-      printf("%d ",*jj);
-    }
-    printf("\n");
+  for (int k=0; k<nnod; k++) printf("split[%d] = %d\n",k,split[k]);
 #endif
-  }
- EXIT:;
-  printf("Statistics: %d split_p, %d split_m, %d multi\nWriting tetra mesh...\n",
-	 split_p,split_m,multi);
-  fflush(stdout);
-  assert(multi==0);
 
-  int tet_split_p[5][4] = { 
-  1, 6, 8, 5,
-  1, 3, 6, 2,
-  3, 8, 6, 7,
-  1, 8, 3, 4,
-  1, 3, 8, 6
-  };
-
-  int tet_split_m[5][4] = {
-  2, 7, 5, 6,
-  2, 4, 7, 3,
-  4, 5, 7, 8,
-  2, 5, 4, 1,
-  2, 4, 5, 7
-  };
-
-  int (*tet_split)[5][4] ;
-
-  FILE *tetras = fopen(icone_tetra.c_str(),"w");
-  for (int j=0; j<nelem; j++) {
-    tet_split = (pflag[j]==SPLIT_P ? &tet_split_p : &tet_split_m);
-    for (int jj=0; jj<NSUBEL; jj++) {
-      for (int jjj=0; jjj<NODSUBEL; jjj++) {
-	fprintf(tetras,"%d ",icone[j].row_[(*tet_split)[jj][jjj]-1]);
-      }
-      fprintf(tetras,"\n");
+  // Print results. We simply look at the value of split[]
+  // at some node of the element (say node `0') and depending of
+  // this value we take the standard split on a remapped element
+  // connectivity. `map_up' is the identity map, and `map_down' is
+  // a map rotated 90 degrees. 
+  int map_up[] = {0,1,2,3,4,5,6,7};
+  int map_down[] = {1,2,3,0,5,6,7,4};
+  // This will point to `map_up' or `map_down'
+  int *map;
+  // Standard split of an hexa in tetras. 
+  int tetra[][4]={{0,2,5,1},
+		  {0,7,2,3},
+		  {2,7,5,6},
+		  {0,5,7,4},
+		  {0,5,2,7}};
+  fid = fopen(icone_tetra.c_str(),"w");
+  for (int k=0; k<nelem; k++) {
+    // Connectivity row
+    int *row = &icone.ref(k*NEL);
+    // Choose map depending on split value
+    map = (split[row[0]]==1 ? map_up : map_down);
+    // loop over local tetras
+    for (int t=0; t<5; t++) {
+      // loop over nodes in the tetra
+      for (int q=0; q<4; q++) 
+	// node of local tetra, eventually remapped
+	fprintf(fid,"%d ",row[map[tetra[t][q]]]);
+      fprintf(fid,"\n");
     }
   }
-  fclose(tetras);
-  printf("Done.\n");
-}      
-
+  fclose(fid);
+}
