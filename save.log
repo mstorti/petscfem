@@ -3710,3 +3710,6 @@ tag: beta-3.39.40 on Mon, 17 Jan 2005 12:43:52 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.39.41 on Mon, 17 Jan 2005 13:02:25 -0300 by mstorti in minerva.ceride.gov.ar
      > Added `dvector<>::clone()',  `dv*-clone!'. 
+----------
+tag: beta-3.39.42 on Mon, 17 Jan 2005 15:37:34 -0300 by mstorti in minerva.ceride.gov.ar
+     > Added `dvector<>::set(vector<int> &indx)',  `dv*-set! v indx v'. 
