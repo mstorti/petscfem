@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.18 2003/09/07 15:01:07 mstorti Exp $
+// $Id: epimport.cpp,v 1.19 2003/09/07 15:39:55 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -422,8 +422,30 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[2],ndim)) goto error;
       if (string2int(tokens[3],nnod)) goto error;
       if (string2int(tokens[4],cookie)) goto error;
-      ierr = build_dx_array(clnt,ndim,nnod,array);
-      if(ierr!=OK) return ierr;
+
+      // After this block we end up with an unreferenced array
+      if (tokens.size()==6 && tokens[5]=="use_cache") {
+
+	AutoString dx_func;
+	dx_func.set("ExtProgImport_").cat(name.c_str());
+	
+	Object cached_nodes = DXGetCacheEntry(dx_func.str(),0,0);
+	if (cached_nodes) {
+	  DXMessage("Found cached nodes %p",cached_nodes);
+	  DXSetCacheEntry(NULL,dx_func.str(),0,0);
+	  DxDelete(cached_nodes);
+	  Nodes *nodes = new Nodes(ndim,nnod,array);
+	} else {
+	  DXMessage("Requesting nodes.. ");
+	  Sprintf(clnt,"send_nodes\n");
+	  ierr = build_dx_array(clnt,ndim,nnod,array);
+	  if(ierr!=OK) return ierr;
+	  DXMessage("Requesting nodes.. OK");
+	}
+      } else {
+	  ierr = build_dx_array(clnt,ndim,nnod,array);
+	  if(ierr!=OK) return ierr;
+      }
 
       Nodes *nodes = new Nodes(ndim,nnod,array);
       ierr = dx_objects_table.load_new(name,nodes);
@@ -445,10 +467,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  } else 
 	    DXMessage("Putting cached_nodes in cache %p",gpositions);
 	} else {
-	  DXMessage("Found cached nodes %p",cached_nodes);
-	  DXDelete(nodes->dx_object());
-	  DXReference(cached_nodes);
-	  nodes->array = (Array)cached_nodes;
 	}
       }
 
