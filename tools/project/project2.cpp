@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project2.cpp,v 1.4 2005/02/28 02:56:58 mstorti Exp $
+// $Id: project2.cpp,v 1.5 2005/02/28 15:08:38 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -106,16 +106,21 @@ int main() {
   ANNdist nn_dist[KNBR];
   ANNpoint nn = annAllocPt(ndim);
 
+  double tryav=0.0;
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
     if(use_cache) FastMat2::activate_cache(&cache_list);
     for (int j=0; j<ndim; j++) 
       nn[j] = xnod2.e(n2,j);
     kdtree.annkSearch(nn,KNBR,nn_idx,nn_dist,0.0);
+#if 0
     for (int k=0; k<KNBR; k++)
       printf("(%d %f) ",nn_idx[k],nn_dist[k]);
     printf("\n");
-    for (int k=0; k<nelem1; k++) {
+#endif
+    int q;
+    for (q=0; q<nelem1+KNBR; q++) {
+      int k = (q<KNBR ? nn_idx[q] : q-KNBR);
       FastMat2::reset_cache();
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
@@ -205,12 +210,13 @@ int main() {
       // Form distance vector
       dx2.set(x2).rest(x2prj);
       double d2 = dx2.norm_p_all(2.0);
-      if (k==0 || d2<d2min) {
+      if (q==0 || d2<d2min) {
 	d2min = d2;
 	k1min = k;
 	Lmin.set(L);
 	x2prjmin.set(x2prj);
       }
+      if (d2min<tol) break;
     }
     FastMat2::deactivate_cache();
     // x2.print("x2");
@@ -226,13 +232,15 @@ int main() {
     Lmin.is(1,1,nel);
     u2.prod(u1_loc,Lmin,1,-1,-1);
     Lmin.rs();
-    printf("node2 %d, dist min %f, nearest elem %d\n",n2,
-	   d2min,k1min);
+    tryav += q+1;
+//     printf("try %d, node2 %d, dist min %f, nearest elem %d\n",
+// 	   q,n2, d2min,k1min);
     for (int j=1; j<=ndof; j++)
       fprintf(fid,"%f ",u2.get(j));
     fprintf(fid,"\n");
-    u2.print("u2");
+    // u2.print("u2");
   }
+  printf("Averg. nbr of tries %f\n",tryav/nnod2);
   FastMat2::void_cache();
   fclose(fid);
 }
