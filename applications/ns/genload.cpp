@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.5 2002/12/16 20:02:21 mstorti Exp $
+//$Id: genload.cpp,v 1.6 2002/12/16 22:28:24 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -258,12 +258,21 @@ void ConsGenLoad::q(FastMat2 &uin,FastMat2 &uout,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void ConsGenLoad::start_chunk() {
   jac_aux.resize(3,2,ndof,ndof);
+  start_chunk_c();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void lin_gen_load::start_chunk_c() {
+  int ierr;
+  //o The film coefficient constant
+  TGETOPTDEF_ND(thash,double,h_film,0);
+  assert(h_film>0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
 		     FastMat2 &flux_in,FastMat2 &jac) {
-  double h=1.;
-  flux_in.set(U_out).rest(U_in).scale(h);
-  jac.ir(1,1).eye(h).rs().ir(1,2).eye(-h).rs();
+  flux_in.set(U_out).rest(U_in).scale(h_film);
+  jac.ir(1,1).eye(h_film).rs().ir(1,2).eye(-h_film).rs();
 }
+

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: genload.h,v 1.2 2002/12/16 17:26:03 mstorti Exp $
+//$Id: genload.h,v 1.3 2002/12/16 22:28:25 mstorti Exp $
 #ifndef GENLOAD_H
 #define GENLOAD_H
 
@@ -46,8 +46,11 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class lin_gen_load : public ConsGenLoad {
+private:
+  double h_film;
 public:
   void q(FastMat2 &uin,FastMat2 &uout, FastMat2 &fluxin, FastMat2 &jac);
+  void start_chunk_c();
 };
 
 #endif

@@ -26,7 +26,7 @@ maxits 100
 save_file_pattern "outvector%d.tmp"
 #nsaverot 1000000
 
-nnwt 5
+nnwt 1
 tol_newton 0
 preco_type "lu"
 
@@ -74,7 +74,7 @@ elemset lin_gen_load 4
 geometry cartesian1d
 npg 2
 double_layer
-hfilm_coeff 3.
+h_film 3.
 __END_HASH__
 17 18 19 20 
 __END_ELEMSET__
