@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.116 2004/09/25 11:32:29 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.117 2004/10/22 10:28:55 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -67,7 +67,8 @@ rho 1
 >>if $case ne 'plain'
 nnwt 1
 steady 0
-Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
+# Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
+Dt 0.1
 >>else
 nnwt <:=$nnwt:>
 steady 1
@@ -122,7 +123,8 @@ conductivity 1.
 C 0.
 Cp 0.
 >>else
-viscosity <:=$nu:>
+# viscosity <:=$nu:>
+viscosity 0.01
 >>endif
 __END_HASH__
 
