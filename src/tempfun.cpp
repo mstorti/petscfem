@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.9 2002/02/10 23:30:55 mstorti Exp $
+//$Id: tempfun.cpp,v 1.10 2002/02/25 02:15:45 mstorti Exp $
 
 #include <math.h>
 
@@ -482,11 +482,122 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class piecewise_linear : public Amplitude {
+private:
+  int ntime, periodic;
+  vector<double> t_v,f_v;
+  vector<double>::iterator first,end;
+  double *t,*f, tini,tend;
+  TextHashTable *thash;
+public:
+  void print() const {
+    PetscPrintf(PETSC_COMM_WORLD,
+		"\"piecewise_linear\" fixa amplitude, options table: \n");
+    thash->print();
+    PetscPrintf(PETSC_COMM_WORLD,"number of intervals: %f\n",ntime);
+  }
+  void init(TextHashTable *thash_) {
+    double tt,ff;
+    thash = thash_;
+    int ierr;
+
+    //o The name of the file
+    TGETOPTDEF_S(thash,string,filename,piecewise_linear_data.dat);
+    assert(ierr==0);
+
+    //o Shift in the time linear transformation.
+    // $t = t_0 + t_scale * tau$. $t$ is time and $\tau$
+    // is the pseudo-time entered in the second column of
+    // the file. 
+    TGETOPTDEF(thash,double,t_0,0.);
+
+    //o Temporal scale in the time linear transformation.
+    TGETOPTDEF(thash,double,t_scale,1.);
+
+    //o Shift in the amplitud value linear transformation.
+    // $A = A_0 + A_scale * \alpha$, where $A$ is the amplitude to
+    // apply to the diplacements and $\alpha$ are the values entered
+    // in the file. 
+    TGETOPTDEF(thash,double,A_0,0.);
+
+    //o Temporal scale in the time linear transformation.
+    TGETOPTDEF(thash,double,A_scale,1.);
+
+    // Read a table of t/f from file
+    // fixme:= read filename from thash
+    // string filename = "pcwzlin.dat.tmp";
+    FILE *fid = fopen(filename.c_str(),"r");
+    assert(fid);
+    ntime=0;
+    while (1) {
+      int nread = fscanf(fid,"%lf %lf",&tt,&ff);
+      if (nread==EOF) break;
+      assert(nread==2);
+      // increment counter
+      ntime++;
+      // Apply linear transformation to  time and amplitude
+      tt = t_0 + t_scale*(tt-t_0);
+      ff = A_0 + A_scale*(ff-A_0);
+      // Check that time vector is ordered. Compare with the last
+      // entered value
+      if (ntime>=2) assert(tt > t_v[ntime-2]);
+      // Load on vector
+      t_v.push_back(tt);
+      f_v.push_back(ff);
+    }
+    fclose(fid);
+    assert (ntime == t_v.size());
+    // Store pointers
+    first = t_v.begin();
+    end = t_v.end();
+    t = t_v.begin();
+    f = f_v.begin();
+    tini = t_v[0];
+    tend = t_v[ntime-1];
+  }
+  double eval(const TimeData *time_data) {
+    vector<double>::iterator k;
+    double tt = double(* (const Time *) time_data);
+    assert(tt>=tini);
+    assert(tt<=tend);
+    int j1=0, j2=ntime-2, j;
+    while (1) {
+      if (j1==j2) {
+	break;
+      } else if (j2==j1+1) {
+	if (tt>t[j2]) j1=j2;
+	break;
+      }
+      // printf("j1 %d, t: %f,  j2: %d, t=%f\n",
+      // j1,t[j1],j2,t[j2]);
+      j=(j1+j2+1)/2;
+      if (tt>t[j]) {
+	j1=j;
+      } else {
+	j2=j;
+      }
+      // printf("j, %d, t: %f\n",j,t[j]);
+    }
+    double slope = (f[j1+1]-f[j1])/(t[j1+1]-t[j1]);
+    return f[j1]+slope*(tt-t[j1]);
+      
+  }
+  ~piecewise_linear() { 
+    delete thash; 
+    // THis is not needed, but anyway...
+    t_v.clear();
+    f_v.clear();
+  }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Amplitude *Amplitude::factory(char *& label,
 			      TextHashTable *t=NULL) {
   Amplitude *amp;
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
+  } else if (!strcmp(label,"piecewise_linear")) {
+    amp = new piecewise_linear;
   } else if (!strcmp(label,"dl_generic")) {
 #ifdef USE_DLEF
     amp = new DLGeneric;
