@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.12 2003/12/06 17:11:30 mstorti Exp $
+//$Id: testfm2.cpp,v 1.13 2005/02/17 11:50:24 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -403,7 +403,7 @@ int main() {
       // Define non-symmetric 3x3 matrix
       Z60.set(z60);
       // Compute eigenvals, and left/right eigenvectors
-      Z61.eig(Z60,&Z62,&Z63,1,1);
+      Z61.eig(Z60,&Z62,&Z63);
       // Compute eigenvals only
       Z69.eig(Z60);
       // Compute eigenvals, and right eigenvectors
@@ -415,7 +415,7 @@ int main() {
       // Define non-symmetric 3x3 matrix
       Z60b.set(z60b);
       // Compute eigenvals, and right/left eigenvectors
-      Z61b.eig(Z60b,&Z62b,&Z63b,1,1);
+      Z61b.eig(Z60b,&Z62b,&Z63b);
       // Compute eigenvals only
       Z69b.eig(Z60b);
       // Compute eigenvals, and right eigenvectors

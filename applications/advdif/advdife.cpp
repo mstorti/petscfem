@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.97 2005/02/16 20:23:34 mstorti Exp $
+//$Id: advdife.cpp,v 1.98 2005/02/17 11:52:00 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -595,7 +595,8 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  COMP_SOURCE | COMP_UPWIND);
 	adv_diff_ff->comp_A_grad_N(Ao_grad_N,dshapex);
 	Ao_grad_U.set(A_grad_U);
-	adv_diff_ff->get_Cp(Cp_bis_old);
+	if (shocap>0. || shocap_aniso>0.) 
+	  adv_diff_ff->get_Cp(Cp_bis_old);
 	if (use_Ajac_old) adv_diff_ff->get_Ajac(Ao);
 
 #define USE_OLD_STATE_FOR_P_SUPG

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2003/09/20 23:07:19 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2005/02/17 11:50:44 mstorti Exp $ 
 
 tests = nutcyl test_rigid test_strip \
 	test_strip_prism test_strip_prism_inv test_strip2d test_strip2d_inv
@@ -87,5 +87,8 @@ test_strip2d_inv:
 
 figure:
 	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run
+
+link:
+	ln -f $(PROG) $(LOC_PROG)
 
 #s

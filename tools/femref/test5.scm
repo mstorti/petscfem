@@ -1,4 +1,4 @@
-;;; $Id: test5.scm,v 1.8 2005/02/17 00:39:09 mstorti Exp $
+;;; $Id: test5.scm,v 1.9 2005/02/17 11:52:00 mstorti Exp $
 
 (use-modules (srfi srfi-1))
 
@@ -64,25 +64,37 @@
 !#
 
 (define (nparts3 n)
-  (let ((table (make-array 0 n n)))
+  (let* ((table (make-array 0 n n))
+	 (np-ref (lambda (n p) 
+		   (cond ((<= n 1) 1)
+			 ((= p 1) 1)
+			 (#t (array-ref table (- n 1) (- p 1))))))
+	 (np-set! (lambda (val n p) 
+		    (array-set! table val 
+				(- n 1) (- p 1)))))
     (let loop ((m 1)
 	       (p 1))
-      (cond ((> p n) (loop (+ n 1) 1))
-	    ((> m n) (array-ref table n n))
+      (format #t "m ~A, p ~A, table ~A\n" m p table)
+      (cond ((> p m) (loop (+ m 1) 1))
+	    ((> m n) 
+	     (format #t "m ~A, n~A\n" m n)
+	     (np-ref n n))
 	    (#t 
-	     (array-set! table
+	     (np-set!
 	      (let loop2 ((sub-parts 0)
 			  (k 1))
-		(cond ((> k (min p n)) sub-parts)
-		      (#t (loop2 (+ sub-parts (array-ref table (- m k) k))))))
-			  m p))))))
+		(cond ((> k (min p m)) sub-parts)
+		      (#t (loop2 (+ sub-parts (np-ref (- m k) k)) (+ k 1)))))
+			  m p)
+	     (loop m (+ p 1)))))))
 
 #!
 (let loop ((n 1))
   (cond ((> n 15))
-	(#t (format #t "(~A -> ~A ~A)\n" n (nparts n) (nparts2 n))
+	(#t (format #t "(~A -> ~A ~A ~A)\n" 
+		    n (nparts n) (nparts2 n) (nparts3 n))
 	    (loop (+ n 1)))))
 !#
 
-(let ((n 8))
-      (format #t "(nparts3 ~A) ~A\n" n (nparts2 n)))
+(let ((n 5))
+      (format #t "(nparts3 ~A) ~A\n" n (nparts3 n)))
