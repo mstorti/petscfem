@@ -5,8 +5,13 @@ require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
 require './data.pl';
+if (!$re_start && -f 'cylin.axis_nodes.rslt.tmp') {
+    unlink 'cylin.axis_nodes.rslt.tmp';
+}
+$layers = 2;
 #__END_TRANSCRIPT__
-@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert Next re_start);
+@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert 
+    Next re_start layers);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH cylin.m";
@@ -50,6 +55,9 @@ hook_list dl_generic_hook coupling_visc_hook
 coupling_visc_hook.filename ./inviscid.efn
 coupling_visc_hook.prefix   coupling_visc_hook
 
+ngather <:=$ndim:>
+gather_file "cylinder.force.tmp"
+
 __END_HASH__
 
 #===========================================================
@@ -60,15 +68,29 @@ __END_HASH__
 
 #===========================================================
 elemset nsi_tet_les_fm2 4
+name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
 viscosity <:=2*$Rint/$Re:>
 data cylin.con.tmp
 __END_HASH__
 
-elemset ns_id 1
+#===========================================================
+## Because we have no more surface integrators
+elemset visc_force_integrator <:=2**($ndim-1)*($layers+1):>
+gather_pos 0
+is_fat 0
+geometry "line2quad"
+npg <:=2**($ndim-1):>
+ndimel <:=$ndim-1:>
+gather_length <:=2*$ndim:>
+volume_elemset viscous_fluid_elemset
+# use_exterior_normal 0
+<:pr('layers'):>
+identify_volume_elements 1
 __END_HASH__
-<:=$nnod:>
+__INCLUDE__ cylinder.wall_panel_con.tmp
+__INCLUDE__ cylinder.bottom_con.tmp
 __END_ELEMSET__
 
 elemset ns_id 1

@@ -141,6 +141,18 @@ for k=1:length(skin)
 endfor  
 fclose(fid);
 
+fid = fopen("cylin.skin_int.tmp","w");
+for k=1:length(skin-1)
+  n1 = skin(k);
+  n2 = skin(k+1);
+  fprintf(fid,"%d %d  ",n1,n2);
+  for k=1:layers
+    fprintf(fid,"1 1 ");
+  endfor
+  fprintf(fid,"\n");
+endfor  
+fclose(fid);
+
 fid = fopen("cylin.outlet.tmp","w");
 for k=1:length(outlet)
   node = outlet(k);

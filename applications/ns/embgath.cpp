@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.23 2002/08/27 02:53:49 mstorti Exp $
+//$Id: embgath.cpp,v 1.24 2003/01/06 03:07:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -134,6 +134,15 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
   fc = this_face;
 }
 
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Line2Quad::face(int j,const int *&fc,const int *&vol) {
+  int fc_c[2], vol_c[4];
+  for (int k=0; k<2; k++) {
+  }
+}
+#endif
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Surf2Vol::Surf2Vol(const char *geom,int ndim,int nel,
 		   int npg,int mat_version=GP_NEWMAT,
@@ -195,6 +204,11 @@ void embedded_gatherer::initialize() {
   if (geometry=="quad2hexa") {
     sv_gp_data = new Quad2Hexa(geometry.c_str(),ndim,nel,npg,
 			       GP_FASTMAT2,use_exterior_normal);
+#if 0
+  } else if (geometry=="line2quad") {
+    sv_gp_data = new Line2Quad(geometry.c_str(),ndim,nel,npg,
+			       GP_FASTMAT2,use_exterior_normal);
+#endif
   } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry %s\n",geometry.c_str());
 
   surface_nodes(nel_surf,nel_vol);

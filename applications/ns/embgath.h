@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.12 2002/08/14 14:23:03 mstorti Exp $
+//$Id: embgath.h,v 1.13 2003/01/06 03:07:43 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -45,7 +45,7 @@ public:
       @param j (input) the of face number (0 based)
       @param fc (output) an array of #nel_surf# nodes (0 based)
       that represent the connectivity of the $j$-th face
-      @param vol (input) an array of #nel_vol# elements that
+      @param vol (input) an array of #nel_vol# integers that
       represent the mapping of the connectivity of the volume
       element in order to rotate it to a standard position. 
   */ 
@@ -101,6 +101,33 @@ public:
   int nfaces(int &nel_surf,int &nel_vol) { nel_surf=4; nel_vol=8; return 24; }
   //@}
 };
+
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Instantiation of the #Surf2Vol# class for
+    quads with line surface elements. */
+class Line2Quad : public Surf2Vol {
+public:
+  /// Constructor. Sets #use_exterior_normal_m#
+  Quad2Hexa(const char *geom,int ndim,int nel,
+	   int npg,int mat_version=GP_NEWMAT,
+	    int use_exterior_normal_m=0) 
+    : Surf2Vol(geom,ndim,nel,npg,mat_version,
+	       use_exterior_normal_m) { }
+  /** @name Callback routines for the quad/hexa combination. */
+  //@{
+  /** Callback routine that defines the possible
+      orientations of a face. 
+      @param j (input) number of face
+      @param fc (output) connectivity of the #j#-th surface face. 
+      @param vol (input) rotation map corresponding to the
+      #j#-th volume */
+  void face(int j,const int *&fc,const int *&vol);
+  /** Returns number of elements, surface nodes and volume nodes. */
+  int nfaces(int &nel_surf,int &nel_vol) { nel_surf=2; nel_vol=4; return 4; }
+  //@}
+};
+#endif
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 /** Allows to compute integrals, or any kind of function

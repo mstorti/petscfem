@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.16 2003/01/06 01:03:20 mstorti Exp $
+//$Id: inviscid.cpp,v 1.17 2003/01/06 03:07:43 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -411,7 +411,7 @@ void coupling_inv_hook::time_step_post(double time,int step,
   double dphidn;
   // filter coefficients 
 #if 1
-  double omega=0.9, xif=1;
+  double omega=0.5, xif=1;
   double a_coef[] = {1./square(omega)+xif/omega+0.5, 
 		     -2/square(omega),
 		     1./square(omega)-xif/omega+0.5};
@@ -495,7 +495,7 @@ void coupling_inv_hook::time_step_post(double time,int step,
     dpot_dx_k.set(dpot_dx_filt);
     dpot_dx_filt.rs();
 
-#if 1
+#if 0
     if (k==10) {
       printf("on step %d\n",step);
       dpot_dx.print("dpot_dx: ");
