@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.7 2004/01/28 01:53:47 mstorti Exp $
+//$Id: srfgath.cpp,v 1.8 2004/01/28 20:26:38 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,7 +9,8 @@
 
 #include "./srfgath.h"
 
-enum sf_error { not_correct_number_of_intersections };
+enum sf_error { not_correct_number_of_intersections,
+		found_bad_intersection_polygon };
 SurfGatherer::SurfFunction::~SurfFunction() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -152,7 +153,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     n(1,ndim),xpg(1,ndim),x(1,ndim),xi(2,ndim,nedges),
     ui(2,ndof,nedges), xc(1,ndim), xcp(1,ndim), uc(1,ndof),
     x1(1,ndim), x2(1,ndim), dx(1,ndim), tmp, ut(1,ndof),
-    a(1,ndim), b(1,ndim), c(1,ndim);
+    a(1,ndim), b(1,ndim), c(1,ndim), tmp2;
   xi.set(0.);
 
   Time * time_c = (Time *)time;
@@ -238,8 +239,9 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       // each side. 
 
       // Compute center of polygon xc
-      // xi.is(2,1,nint).print("intersections: ");
+      xi.is(2,1,nint);
       xc.sum(xi,1,-1).scale(1./double(nint));
+      xi.rs();
       // Rest `xc' from all `xi'
       for (int j=1; j<=nint; j++) xi.ir(2,j).rest(xc);
       xi.rs();
@@ -332,13 +334,15 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	c.cross(a,b);
 	double area = c.norm_p_all(2.0)/2.0;
 	Area += area;
-
+	tmp2.prod(n,c,-1,-1);
+	if (tmp2.get() < 0.) 
+	  set_error(found_bad_intersection_polygon);
+	
 	set_ip_values(ip_values,ut,xpg,n,t);
 	int pos = gather_pos + vals_per_plane * jval;
 	for (int j=0; j<vals_per_plane; j++) 
 	  (*values)[pos+j] += ip_values[j]*area;
       }
-      printf("area: %f\n",Area);
     }
   }  
  
@@ -348,10 +352,14 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 }
 
 void SurfGatherer::handle_error(int error) {
+  if (!error) return;
   string s = "Unknown error";
   if (error==not_correct_number_of_intersections) 
-    s = "Not correct number of intersection";
+    s = "Not correct number of intersection.";
+  else if (error==found_bad_intersection_polygon) 
+    s = "Found an intersection polygon too complex.";
   else if (error) Elemset::handle_error(error);
+  PETSCFEM_ERROR("%s",s.c_str());  
 }
 
 #undef SHAPE    
