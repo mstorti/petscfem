@@ -1,3 +1,133 @@
+2001-01-04  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* run/sqcav/Makefile, run/sqcav/machi.dat, run/sqcav/sqcav.con,
+	run/sqcav/sqcav.epl, run/sqcav/sqcav.fixa, run/sqcav/sqcav.ini,
+	run/sqcav/sqcav.nod, run/sqcav/sqcav.tmpfixa,
+	run/sqcav/weights.dat:
+	Added a new example for NS `sqcav'
+
+	* test/advdif/Makefile, test/Makefile, test/Makefile.base.test:
+	Fixing some problems with `make depend' and `make lclean'
+
+	* src/elemlist.cpp, src/elemset.cpp, src/elemset.h, src/measperf.cpp:
+	Fixing some compilation problems. Most important: `jobinfo' is now
+	`const char *'
+
+	* run/sqcav.ini, run/sqcav21ref.dat:
+	Creating a test `sqcav' with 21x21 elems.
+
+	* applications/ns/bccnsfm2.cpp, applications/ns/ns.cpp,
+	applications/ns/nsi_tet.cpp, applications/ns/nsitetles.cpp,
+	applications/ns/nsitetlesfm2.cpp, applications/ns/nsvol.cpp,
+	applications/ns/wall.cpp:
+	Fixed some compilation problems in NS module
+
+	* Makefile, Makefile.base: Fixed some problems with make depend, lclean
+
+2001-01-03  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* test/advdif/.gdbinit, test/advdif/sine.epl, test/advdif/sine.m:
+	Made some changes to run debugger
+
+	* test/advdif/Makefile~, test/advdif/sine.data.res, test/advdif/sine.ini:
+	Deleted unneeded files.
+
+	* run/algebfs/Makefile, doc/Makefile, Makefile.base:
+	Modified the lclean target
+
+	* doc/Makefile, doc/idmap.tex, doc/latex2html.init, doc/petscfem.tex:
+	Made some modifications in order to process correctly inlined equations.
+
+	* doc/OBJ/idmap.obj, doc/OBJ/mesh.obj, doc/OBJ/nonsym.obj,
+	doc/OBJ/petscfem.obj, doc/OBJ/profil.obj, doc/OBJ/ramp.obj,
+	doc/OBJ/slip.obj, doc/OBJ/smramp.obj, doc/OBJ/symme.obj,
+	doc/OBJ/tempbc.obj:
+	All the obj files were missing in previous releases!!
+
+2001-01-02  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+	* test/les/Makefile, test/advdif/Makefile, test/advdif/Makefile~,
+	test/Makefile.base.test, src/Makefile, run/algebfs/Makefile,
+	run/Makefile, doc/Makefile, applications/ns/Makefile,
+	applications/laplace/Makefile, applications/advective/Makefile,
+	applications/advdif/Makefile:
+	Improved `clean' target.
+
+	* Makefile, Makefile.base, petscfem_hist.txt: Removed history.
+	Improved `clean' target.
+
+	* test/advdif/Makefile~, test/advdif/sine.data,
+	test/advdif/sine.data.res, test/advdif/sine.epl,
+	test/advdif/sine.ini, test/advdif/sine.m,
+	test/advdif/sine_anal_test.m, test/advdif/sineload.m,
+	test/advdif/solana.m:
+	Added an example of linear advection diffusion.
+
+	* tools/math.pl: Added max() and min() functions
+
+	* test/advdif/Makefile: modified
+
+	* src/elemset.cpp, src/elemset.cpp.old, src/elemset.h, src/elemset.h.old, src/mainutl.cpp:
+	La nueva version del elemset.
+
+	* doc/advdif.tex, doc/gpl.tex, doc/odocadvdif.tex,
+	doc/odocadvdife.tex, doc/odocadvfm2.tex, doc/odocburgers.tex,
+	doc/petscfem.ilg:
+	Written some doc.
+
+	* applications/ns/nsitetlesfm2.cpp:
+	El elemento NS Tezduyar, etc... con LES y en FastMat2
+
+	* applications/advdif/trigreg.m: Regresion trigonometrica
+
+	* tools/odoc.pl: Improved odoc.pl
+
+	* test/turbchan/makefile.d, test/sector/Makefile,
+	test/sector/makefile.d, test/les/Makefile, test/les/makefile.d,
+	test/fstack/Makefile, test/fstack/makefile.d,
+	test/circ/makefile.d, test/circ/Makefile:
+	removed makefile.d
+
+	* test/advdif/.gdbinit, test/advdif/Makefile,
+	test/advdif/burgers.epl, test/advdif/makefile.d:
+	Written an example.
+
+	* test/Makefile, test/eperlini.pl, test/makefile.d:
+	Improved the eperlini utility. Added `transcript'.
+
+	* src/utils.cpp, src/utils.h, src/Makefile, src/dofmap.cpp,
+	src/dofmap.h, src/elemlist.cpp, src/elemset.cpp.new,
+	src/elemset.h.new, src/fastlib.h, src/fastmat2.h, src/fem.cpp,
+	src/fem.h, src/fm2eperl.cpp, src/fmat2ep.cpp, src/fstack.cpp,
+	src/fstack.h, src/gpdata.cpp, src/makefile.d, src/readmesh.cpp,
+	src/readmesh.h, src/tempfun.cpp, src/util2.cpp:
+	Written an ElementIterator class
+
+	* run/algebfs/makefile.d, doc/Makefile, doc/adv.tex,
+	doc/advec.tex, doc/contents.pl, doc/index.tex,
+	doc/latex2html.init, doc/layout.tex, doc/ns.tex, doc/petscfem.tex,
+	doc/sections.pl, applications/ns/Makefile,
+	applications/ns/makefile.d, applications/ns/ns.cpp,
+	applications/ns/nsitetlesfm2.cpp.nuevo,
+	applications/laplace/Makefile, applications/laplace/makefile.d,
+	applications/advective/Makefile,
+	applications/advective/makefile.d:
+	removed makefile.d from CVS
+
+	* applications/advdif/Makefile, applications/advdif/advdif.cpp,
+	applications/advdif/advdife.cpp, applications/advdif/advective.h,
+	applications/advdif/bccadvfm2.cpp,
+	applications/advdif/ffadvfm2.cpp, applications/advdif/ffburg.cpp,
+	applications/advdif/makefile.d, Makefile, Makefile.base, emacs,
+	notes.txt: Worked on the advdif element.
+
+2000-12-28  Mario Storti  <mstorti@minerva.arcride.edu.ar>
+
+================================================================
+	NEW START
+================================================================
+	
+	
 dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 
 	* OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp,
@@ -318,11 +448,33 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	.
 	VS: Enter Log.  Lines beginning with `CVS:' are removed automatically
 
-	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
-	New file.
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
+	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
+	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
+	OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp,
+	OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp,
+	OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp,
+	OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp,
+	OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat,
+	datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp,
+	elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
+	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
+	texthash.h: New file.
 
-	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
-	Start sources
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
+	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
+	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
+	OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp,
+	OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp,
+	OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp,
+	OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp,
+	OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat,
+	datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp,
+	elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
+	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
+	texthash.h: Start sources
 
 
 1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
@@ -359,11 +511,33 @@ dvec	1999-10-17  Mario Storti  <mstorti@spider.unl.edu.ar>
 	.
 	VS: Enter Log.  Lines beginning with `CVS:' are removed automatically
 
-	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
-	New file.
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
+	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
+	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
+	OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp,
+	OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp,
+	OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp,
+	OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp,
+	OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat,
+	datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp,
+	elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
+	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
+	texthash.h: New file.
 
-	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp, MERGED/internal_merge2.cpp, MERGED/internal_new.cpp, MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp, OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp, OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp, OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp, OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp, OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat, datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp, elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h, internal.cpp, internal.h, malla.m, malla3.m, notas.txt, outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp, texthash.h:
-	Start sources
+	* MERGED/internal_bueno.cpp, MERGED/internal_merge.cpp,
+	MERGED/internal_merge2.cpp, MERGED/internal_new.cpp,
+	MERGED/internal_old.cpp, Makefile, OLD/Makefile, OLD/ex1.cpp,
+	OLD/fem.cpp, OLD/fem_1.cpp, OLD/fem_2.cpp, OLD/fem_3.cpp,
+	OLD/fem_4.cpp, OLD/fem_5.cpp, OLD/try3.cpp, OLD/try4.cpp,
+	OLD/try4_old.cpp, OLD/try5.cpp, OLD/try6.cpp, OLD/try7.cpp,
+	OLD/try8.cpp, OLD/try9.cpp, OLD/trynm.cpp, OLD/trynm2.cpp,
+	OLD/trynm3.cpp, OLD/trynm4.cpp, PROJECTS, convdoc.pl, data.dat,
+	datos.dat, datos.dat.uncampo, datos2.dat, datos3.dat, elemset.cpp,
+	elemset.h, ex1.c, ex1.cpp,v, fem.cpp, fem.h, gpdata.cpp, gpdata.h,
+	internal.cpp, internal.h, malla.m, malla3.m, notas.txt,
+	outvector.sal.ref, petscdoc, proc.m, read_mesh.cpp, texthash.cpp,
+	texthash.h: Start sources
 
 1999-10-02  Mario Storti  <mstorti@spider.unl.edu.ar>
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2001/01/04 20:06:02 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/01/04 22:45:44 mstorti Exp $ 
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -59,7 +59,7 @@ laplace: libpetscfem
 
 CLEANDIRS = src applications/laplace applications/advective \
 			applications/ns applications/advdif \
-			doc test run run/LES run/algebfs
+			doc test run run/LES run/algebfs run/sqcav
 
 SRCDIRS = src applications/ns applications/advective applications/advdif \
 		applications/laplace test 

@@ -2293,6 +2293,9 @@ Ahora da la convergencia todo bien. Crank-Nicholson converge
 cuadraticamente y implicito puro converge lineal. Voy a hacer un caso
 test. 
 
+%===Thu Jan  4 17:49:26 ARST 2001 mstorti@minerva
+%
+TAG: beta-1.3
 
 %# Current line ===========  
 # Local Variables: $
