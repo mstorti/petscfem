@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.43 2001/08/21 02:10:04 mstorti Exp $
+//$Id: lusubd.cpp,v 1.44 2001/08/21 23:16:57 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -347,15 +347,15 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // Save copy of d_nnz_LL for use later when recreating A_LL
   d_nnz_LL = nnz[D][L][L];
 
+#if 0
   // Build the interface preco stuff
   int_layers.clear();
   set<int> queue;
   for (k=k1; k<k2; k++) {
     row_t = map_dof(I->first,row_t,row_indx);
-    if (row_t == L) 
-    
-
-	 //# Current line =========== 
+    if (row_t == L) ;
+  }
+#endif
 }
 
 IISDMat::~IISDMat() {

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.h,v 1.2 2001/08/21 02:10:04 mstorti Exp $
+// $Id: distmap2.h,v 1.3 2001/08/21 23:16:57 mstorti Exp $
 #ifndef DISTMAP2_H
 #define DISTMAP2_H
 
@@ -19,14 +19,16 @@
 */
 template <typename Container,typename ValueType,typename Partitioner>
 class DistMap : public Container {
- protected:
+private:
+  int belongs(typename Container::const_iterator k,int *plist) const;
+protected:
   /// MPI communicator
   MPI_Comm comm;
   /// This returns the number of processor for a given dof
   Partitioner *part;
   /// size and rank in the comunicator
   int size,myrank;
- public:
+public:
   /** Constructor from a communicator
       @param comm_ (input) MPI communicator
       @return a reference to the matrix.
@@ -43,7 +45,7 @@ class DistMap : public Container {
   /** Computes the size of data needed to pack this entry 
       @param k (input) iterator to the entry
       @return the size in bytes of the packed object
-   */ 
+  */ 
   int size_of_pack(const ValueType &p) const;
   /** Packs the entry #(k,v)# in buffer #buff#. This function should
       be defined by the user. 
@@ -69,6 +71,7 @@ class DistMap : public Container {
       @param p (input) the pair to be inserted.
   */ 
   void combine(const ValueType &p);
+#if 0
   class Belongs {
     DistMap *dm;
     int *plist,size,myrank;
@@ -88,6 +91,7 @@ class DistMap : public Container {
     };
     ~Belongs() {delete[] plist;};
   };
+#endif
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -101,7 +105,6 @@ DistMap<Container,
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
   part=pp;
-  // belongs.init(this,size);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -111,12 +114,22 @@ processor(const ValueType &p,int &nproc,int *plist) const {
   return part->processor(p,nproc,plist);
 };
 
+template<typename Container,typename ValueType,class Partitioner> 
+int DistMap<Container,ValueType,Partitioner>::
+belongs(typename Container::const_iterator k,int *plist) const {
+  int nproc,j;
+  processor(*k,nproc,plist);
+  for (j=0; j<nproc; j++) 
+    if (plist[j] == myrank) return 1;
+  return 0;
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // shortcut to access `to_send' as a size x size matrix
 #define SEND(p,q) VEC2(to_send,p,q,size)
 template <class Container,typename ValueType,class Partitioner>
 void DistMap<Container,ValueType,Partitioner>::scatter() {
-  typename Container::iterator iter;
+  typename Container::iterator iter,next;
   int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok,
     dest,source,my_band_start;
   ValueType p;
@@ -196,22 +209,26 @@ void DistMap<Container,ValueType,Partitioner>::scatter() {
   }
 
   // Erase members that do not belong to this processor.
-#if 0
-  for (iter = begin(); iter != end(); ) {
-    processor(iter,nproc,plist);
-    eras = 1;
-    for (j=0; j<nproc; j++) {
-      if (plist[j] == myrank) {
-	eras =0;
-	break;
+#if 1
+  // Advance until find the first element that remains here
+  while (1) {
+    iter = begin();
+    if (belongs(iter,plist) || iter == end()) break;
+    erase(iter);
+  }
+  if (iter != end()) {
+    while (1) {
+      next = iter;
+      next++;
+      if (next == end()) break;
+      if (belongs(next,plist)) {
+	iter = next;
+      } else {
+	erase(next);
       }
     }
-    if (eras) {
-      erase(iter);
-    } else {
-      iter++;
-    }
   }
+
 #else
   iter = remove_if(begin(),end(),Belongs());
   erase(iter,end());
