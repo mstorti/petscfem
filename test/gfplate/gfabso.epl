@@ -16,6 +16,10 @@ initial_state "gfabso.ini.tmp"
 nsave 1
 save_file "gfabso.state.tmp"
 
+print_some_file "gfabso.some-nodes.tmp"
+save_file_some "gfabso.some-rslt.tmp"
+nsome 1
+
 save_file_pattern "gfabso.state_%d.tmp"
 nsaverot 20
 nrec 1
@@ -42,7 +46,7 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 5e-4
+Dt 2e-4
 shocap 0.0
 weak_form 0
 temporal_stability_factor 0
@@ -81,11 +85,18 @@ npg 4
 data ./gfabso.con.tmp
 __END_HASH__
 
+elemset gasflow_abso 2
+dx 0
+normaln 1. 0.
+__END_HASH__
+__END_ELEMSET__
+
+end_elemsets
 
 #if !$dx
 fixa
 __INCLUDE__ ./gfabso.fixa-in.tmp
-__INCLUDE__ ./gfabso.fixa-outlet.tmp
+# __INCLUDE__ ./gfabso.fixa-outlet.tmp
 __INCLUDE__ ./gfabso.fixa-slip.tmp
 __END_FIXA__
 #endif

@@ -1,11 +1,12 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.10 2005/01/12 16:15:29 mstorti Exp $
+// $Id: gasflow.h,v 1.11 2005/01/20 17:42:14 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
 #include "./advective.h"
 #include "./stream.h"
+#include "./nonlres.h"
 
 #include "nwadvdifj.h"
 
@@ -33,8 +34,7 @@ private:
   double shocap_beta,shocap_factor;
   const NewAdvDif *advdf_e;
   FastMat2 jvec;
-
-  //  int axi;
+  FastMat2 tmp20;
 
   void compute_tau(int ijob,double &delta_sc);
 
@@ -141,6 +141,19 @@ public:
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg);
 #endif
+
+  /** Returns the Riemann Invariants and jacobians 
+      for Adv-Diff absorbent condition. 
+      @param U (input) (size #ndof#) state vector
+      @param normaln (input) (size #ndim#) normal to output surface. 
+      @param Rie (output) (size #ndof#) Riemman invariants for state #U#
+      @param dRdU (output) (size #ndof x ndof#) Jacobian of Riemman invariants
+      w.r.t. #U#
+      @param (input) C (output) (size #ndof#) speeds for
+      each Riemman characteristic variable. */ 
+  void Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+		   FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C_);
+
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -158,5 +171,12 @@ class gasflow_bcconv : public NewBcconv {
 public:
   gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class gasflow_abso : public AdvDiff_Abs_Nl_Res {
+public:
+  gasflow_abso() :  AdvDiff_Abs_Nl_Res(new gasflow_ff(this)) { } 
+};
+
 
 #endif

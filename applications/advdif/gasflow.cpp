@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.9 2005/01/12 16:15:29 mstorti Exp $
+//$Id: gasflow.cpp,v 1.10 2005/01/20 17:42:14 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -95,7 +95,7 @@ void gasflow_ff::start_chunk(int &ret_options) {
   Cjac.resize(2,ndof,ndof);
   tmp2.resize(2,nel,nel);
   tmp3.resize(2,ndof,ndof);
-
+  tmp20.resize(1,ndim);
 
   grad_vel.resize(2,ndim,ndim);
   strain_rate.resize(2,ndim,ndim);
@@ -611,3 +611,53 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
 
 }
 #endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void gasflow_ff::
+Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
+	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
+  // Speed of sound
+  double a = sqrt(ga*p/rho);
+  
+  tmp20.prod(vel,normaln,-1,-1);
+  double un = tmp20.get();
+  // Right now, verify that `normaln' is aligned with `x'
+  assert(normaln.get(1)==1.0);
+  assert(normaln.get(2)==0.0);
+  assert(normaln.get(3)==0.0);
+  double a2g = 2*a/g1;
+
+  // Riemman Invariants
+  Rie.setel(un-a2g,1);
+  Rie.setel(un+a2g,2);
+  double s = log(p)-ga*log(rho);
+  Rie.setel(s,3);
+  for (int k=2; k<=ndim; k++)
+    Rie.setel(vel.get(k),3+k);
+
+  // Jacobians
+  drdU.set(0.);
+  double agrho = a/(g1*rho);
+  double agp = a/(g1*p);
+
+  drdU.setel(+agrho,1,1);
+  drdU.setel(1.0,1,2);
+  drdU.setel(-agp,1,ndof);
+
+  drdU.setel(-agrho,2,1);
+  drdU.setel(1.0,2,2);
+  drdU.setel(+agp,2,ndof);
+
+  drdU.setel(-ga/rho,3,1);
+  drdU.setel(1.0/p,3,ndof);
+
+  for (int k=2; k<=ndim; k++) 
+    drdU.setel(1.0,k+2,k+1);
+
+  // Characteristic speeds
+  C.setel(un-a,1);
+  C.setel(un+a,2);
+
+  for (int k=2; k<=ndof; k++) 
+    C.setel(un,k);
+}

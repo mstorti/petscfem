@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.1 2005/01/20 15:52:16 mstorti Exp $
+## $Id: mkgfabso.m,v 1.2 2005/01/20 17:42:18 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -28,7 +28,14 @@ pffixa("gfabso.fixa-slip.tmp",outlet,3)
 asave("gfabso.nod.tmp",xnod);
 asave("gfabso.con.tmp",icone);
 
+asave("gfabso.some-nodes.tmp",(1:Nx+1)');
+
 Uini = [rhoref,uini,0,pref];
 nnod = size(xnod,1);
 Uini = Uini(ones(nnod,1),:);
+
+x = xnod(:,1);
+Uini(:,2) = Uini(:,2) + du*exp(-((x-Lx/2)/sigma).^2);
+
 asave("gfabso.ini.tmp",Uini);
+
