@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.26 2005/01/15 23:41:32 mstorti Exp $
+// $Id: dvector2.h,v 1.27 2005/01/16 00:13:04 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -316,7 +316,8 @@ template<class T>
 dvector<T>& dvector<T>::
 print(FILE *fid,int rowsz) {
   int M=size();
-  if (!rowsz && rank()>1) size(rank()-1);
+  if (!rowsz && rank()>1) 
+    rowsz = size(rank()-1);
   if (!rowsz) {
     for (int j=0; j<M; j++) {
       ierr = printe(fid,ref(j));
