@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: monitor.cpp,v 1.1 2003/07/08 12:24:34 mstorti Exp $
+// $Id: monitor.cpp,v 1.2 2003/07/08 12:34:31 mstorti Exp $
 
 #include <cstdio>
 #include <petsc.h>
@@ -22,17 +22,18 @@ void DefaultMonitor::step(int n,double rnorm) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DefaultMonitor::close() { 
+void DefaultMonitor::stop() { 
   PetscPrintf(A->comm, "Hi, monitor close()...\n"); }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Monitor *
-Monitor::factory(TextHashTable *thash) {
-int ssdsd;
-for () {
-
-double qq;
+Monitor *Monitor::factory(TextHashTable *thash) {
+TGETOPTDEF_S(thash,string,monitor_type,default);
+Monitor * monitor=NULL;
+if (monitor_type=="default") {
+monitor = new DefaultMonitor;
+} else {
+monitor->init(thash);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
