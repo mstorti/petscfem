@@ -22,7 +22,7 @@ Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
 
 Compute finite difference jacobian of fluxes for checking the
  analytical one. For each element the following norms are printed:
- analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and te
+ analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and the
  difference \verb+|A_a-A_n|+ . Incrementing \verb+compute_fd_adv_jacobian==1+
  increases the verbosity. If \verb+=1+ the maximum values over all the
  elemset are printed. If \verb+=2+ the errors for all elements are
@@ -71,6 +71,14 @@ Use lumped mass (used mainly to avoid oscillations for small time steps).
 \item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
 
 Add a shock capturing term
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_fastmat2\_cache@\verb+use_fastmat2_cache+}
+\item\verb+int use_fastmat2_cache+ {\rm(default=\verb|1|)}:
+
+Uses operations caches for computations with the FastMat2
+ library for internal computations. Note that this affects also the
+ use of caches in routines like fluxes, etc... 
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_log\_vars@\verb+use_log_vars+}

@@ -340,7 +340,7 @@ time in computing factorizations (IISD solver) and matrix/vector
 products (PETSc solver). (In a future, such a combination of terms will
 be loaded more efficiently with two calls to \verb+MatSetValues+.)
 
-\index{report_consumed_time}
+\index{report\_consumed\_time@\verb+report_consumed_time+}
 The conclusion is that, if the terms to be loaded have a very sparse
 structure but a dense envelope, then may be block uploading is
 slower. (The worst case is a diagonal-like mask.) Note that also, it's

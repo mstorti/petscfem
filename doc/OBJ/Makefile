@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.6 2002/07/28 14:43:35 mstorti Exp $
+#$Id: Makefile,v 1.7 2004/01/18 23:25:30 mstorti Exp $
 
 EPS = $(patsubst %.obj, %.eps, $(wildcard *.obj))
 EPS_F = $(patsubst %.fig, %.eps, $(wildcard *.fig))
@@ -14,7 +14,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 
 $(EPS): %.eps : %.obj
 	rm -f $@
-	fixobj
+#	fixobj
 	objdir=`pwd` ; cd ; tgif -print -color -eps $$objdir/$<
 
 $(EPS_F): %.eps : %.fig
@@ -25,7 +25,7 @@ $(EPS_F): %.eps : %.fig
 	epstopdf $< -o $@
 
 local_dist_clean::
-	fixobj -c
+#	fixobj -c
 	rm -f *.eps *~ *.bak *.pdf
 
 local_clean:: local_dist_clean
