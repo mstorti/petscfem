@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.83 2002/05/13 23:03:58 mstorti Exp $
+//$Id: ns.cpp,v 1.84 2002/05/19 19:49:39 mstorti Exp $
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
 #include <src/debug.h>
@@ -13,15 +13,7 @@
 #include <src/sttfilter.h>
 #include <src/pfmat.h>
 
-#include "nsi_tet.h"
-#include "adaptor.h"
-#include "elast.h"
-#include "qharm.h"
-#include "gatherer.h"
-
 #include <applications/ns/nsi_tet.h>
-#include <applications/ns/nssup.h>
-
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
