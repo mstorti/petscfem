@@ -210,7 +210,7 @@ and
 if [ "$1" == "init" ]
 then 
     echo "in init"
-    ## Do emore things in `init' stage
+    ## Do more things in `init' stage
     ## ....
 elif [ "$1" == "pre" ] 
 then 
@@ -236,6 +236,92 @@ fi
 \let\qq$  % Stop Emacs believe we are in math mode
 %
 
+At the \verb+init+ and \verb+close+ hook-launching points the step
+number passed is -1 and -2 respectively, so that you can detect
+whether you are in a pre/post stage or init/close by checking this
+too. The time passed is in both cases 0.
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{Shell hooks with ``make''} 
+
+If no command is given, i.e. if you write
+%
+\begin{verbatim}
+hook_list shell_hook hello
+\end{verbatim}
+%
+but don't add the
+%
+\begin{alltt}
+hello \Arg{command}  
+\end{alltt}
+%
+line, then PETSc-FEM uses a standard command line like this
+%
+\begin{verbatim}
+make petscfem_step=%2$d petscfem_time=%3$f hello_%1$s 
+\end{verbatim}
+%
+so that it will execute make commands with targets 
+\verb+hello_init+, \verb+hello_pre+, \verb+hello_post
+and \verb+hello_close like
+%
+\begin{verbatim}
+$ make petscfem_step=-1 petscfem_time=0. hello_init
+$ make petscfem_step=1 petscfem_time=0.1 hello_pre
+$ make petscfem_step=1 petscfem_time=0.1 hello_post
+$ make petscfem_step=2 petscfem_time=0.2 hello_pre
+$ make petscfem_step=2 petscfem_time=0.2 hello_post
+$ make petscfem_step=3 petscfem_time=0.3 hello_pre
+$ make petscfem_step=3 petscfem_time=0.3 hello_post
+...
+$ make petscfem_step=100 petscfem_time=10. hello_pre
+$ make petscfem_step=100 petscfem_time=10. hello_post
+$ make petscfem_step=-2 petscfem_time=0. hello_close
+\end{verbatim}
+%
+Inside the \verb+Makefile+ you can use the \verb+make+ variables
+\verb+$(petscfem_step)+ and \verb+$(petscfem_time)+. For instance you
+can do the \emph{``Hello world''} trick by adding the targets
+%
+%
+\begin{equation} 
+# In Makefile
+hello_init:
+        echo "In init"
+        ## Do more things in `init' stage
+        ## ....
+
+hello_pre:  
+        echo "In pre"
+        ## Do more things in `pre' stage
+        ## ....
+
+hello_post:  
+        echo "In post"
+        ## Do more things in `post' stage
+        ## ....
+
+hello_close:  
+        echo "In close"
+        ## Do more things in `close' stage
+        ## ....
+
+\end{equation} 
+%
+For instance, I love to gzip my state files whith a command like this
+%
+\begin{verbatim}
+## In the PETSc-FEM data file
+hook_list shell_hook compress
+
+## In the Makefile
+compress_init:
+compress_pre:
+compress_post:
+        for f in *.state.tmp ; do echo "gzipping $f" ; gzip -f $f ; done
+compress_close:
+\end{verbatim}
 
 
 % Local Variables: *
