@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 4;				# Number of elements per dimension
+$N = 30;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -171,7 +171,9 @@ shock_capturing_factor 0
 local_store
 cache_grad_div_u
 #endif
-hook_list ns_dx_hook my_dx_hook
+
+#hook_list ns_dx_hook my_dx_hook
+
 __END_HASH__
 
 # ndim nu ndof
@@ -211,10 +213,12 @@ __INCLUDE__ cubcav.con<:=($use_prismatic ? '-prism' : $use_tetra ? '-tetra' : ''
 __END_ELEMSET__
 #endif
 
+#if 0
 interpolation 
 __END_HASH__
 0.5 0.5 0.5
 __END_DATA__
+#endif
 
 end_elemsets
 
