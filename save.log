@@ -1848,3 +1848,6 @@ tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.g
 tag: beta-3.09.pl1 on Tue,  3 Dec 2002 20:35:14 -0300 by mstorti in spider
      > Runs `mesh_move_eig_anal' elemset (10 times faster than the
      > full finite difference version). 
+----------
+tag: beta-3.09.pl2 on Wed,  4 Dec 2002 00:14:25 -0300 by mstorti in spider
+     > Debugging `mesh_move_eig_anal'
