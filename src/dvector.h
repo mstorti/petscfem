@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.15 2003/08/13 20:19:48 mstorti Exp $
+// $Id: dvector.h,v 1.16 2003/08/14 11:37:07 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -51,10 +51,12 @@ private:
   int read(FILE *fid,T &t);
 
   /// Prints an element to a stream
-  void print(FILE *fid,T t);
+  int print(FILE *fid,T t);
 
   /// Number of elements read with cat, read and friends
   int nread;
+  /// Internal error code
+  int ierr;
 public:
   /** Constructor 
       @param cs (input) chunk size for this vector
