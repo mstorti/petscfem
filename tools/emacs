@@ -1,4 +1,8 @@
 ; -*- mode: lisp -*-
+
+(defalias 'create-fun-hdr
+      (read-kbd-macro "C-x C-x M-w Y DEL C-y <left> 2*DEL \" C-x C-x \" <left> RET <up> $fun SPC DEL C-x C-s"))
+;;
 (setq next-line-add-newlines nil) ; para que no apendice lineas
 (defun fastmat2-print()
   (interactive)
@@ -12,8 +16,8 @@
     (comint-send-input)
     )
   )
-
-
+;;
+;;
 (add-hook 'c++-mode-hook '(lambda () 
       (abbrev-mode 1)
       (auto-fill-mode)
@@ -22,7 +26,6 @@
       (local-set-key [f10] 'fastmat2-print)
       (setq current-pos-regexp "^ *// Current line ===========")
        ))
-
 ;;
 ;; Reemplazar identificadores
 ;;

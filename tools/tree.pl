@@ -1,83 +1,32 @@
-# node = father - list of sons - user data
-package tree;
+#!/usr/bin/perl
 
-$Lambda = undef;
+use tree;
 
-sub left_son {
-    $node = shift();
-    return $node->[0];
-}
+$tree = new tree('Root');
+$node = $tree->add_son('a');
+$node = $node->add_brother('b');
+$node = $node->add_brother('c');
+$node = $node->add_son('c1');
+$node = $node->add_brother('c2');
+$node = $node->add_brother('c3');
+$node = $node->add_brother('c4');
+$node = $node->add_brother('c5');
+$node = $node->father();
+$node = $node->add_brother('d');
+$node = $node->add_brother('e');
+$node = $node->add_brother('f');
 
-sub right_brother {
-    my $node = shift();
-    return $node->[1];
-}    
+print "Pre order:\n";
+$tree->pre_print();
+print "Post order:\n";
+$tree->post_print();
 
-sub father {
-    my $node = shift();
-    return $node->[2];
-}
+$p = sub { 
+    my ($v,$r) = @_;
+    $r .= " - $v";
+    return $r;
+};
 
-sub data {
-    my $node = shift();
-    return $node->[3];
-}
+$r = $tree->pre_order($p,"");
+print "$r\n";
 
-sub node_label {
-    my $node = shift();
-    return $node->[3];
-}
-
-sub add_son {
-    my $node = shift();
-    my $newson_data = shift();
-    my $son = $node->[0];
-    my $new_node = [$Lambda,$son,$node,$newson_data];
-    $node->[0] = $new_node;
-}
-
-sub add_brother {
-    my $node = shift();
-    my $data = shift();
-    my $brother = $node->[1];
-    my $new_node = [$Lambda,$brother,$node->[2],$data];
-    $node->[1] = $new_node;
-}
-
-sub post_print {
-    my $node = shift();
-    return unless defined $node;
-    print data($node),"\n";
-    post_print(left_son($node));
-    post_print(right_brother($node));
-}
-
-sub pre_print {
-    my $node = shift();
-    return unless defined $node;
-    pre_print(left_son($node));
-    print data($node),"\n";
-    pre_print(right_brother($node));
-}
-
-sub printn {
-    my $node = shift();
-    print "<",join("><",@{$node}),">";
-}
-
-$tree=[$Lambda,$Lambda,$Lambda,$Lambda];
-
-$node = add_son($tree,'a');
-$node = add_brother($node,'b');
-$node = add_brother($node,'c');
-$node = add_son($node,'c1');
-$node = add_brother($node,'c2');
-$node = add_brother($node,'c3');
-$node = add_brother($node,'c4');
-$node = add_brother($node,'c5');
-$node = father($node);
-$node = add_brother($node,'d');
-$node = add_brother($node,'e');
-$node = add_brother($node,'f');
-
-pre_print($tree);

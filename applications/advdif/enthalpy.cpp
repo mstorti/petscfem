@@ -40,7 +40,7 @@ void GlobalScalarEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ 
+#define __FUNC__ \
 "void GlobalScalarEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)"
 void GlobalScalarEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
   P_Cp.set(P_supg).scale(Cp);
@@ -50,8 +50,8 @@ void GlobalScalarEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ \ 
-'void ScalarPerFieldEF::init(int ndof_,int ndim,int nel)"
+#define __FUNC__ \
+"void ScalarPerFieldEF::init(int ndof_,int ndim,int nel)"
 void ScalarPerFieldEF::init(int ndof_,int ndim,int nel) {
   ndof=ndof_;
   Cp.resize(1,ndof);
@@ -59,14 +59,24 @@ void ScalarPerFieldEF::init(int ndof_,int ndim,int nel) {
   htmp2.resize(2,nel,nel);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void ScalarPerFieldEF::update(const double *ejac)"
 void ScalarPerFieldEF::update(const double *ejac) {
   Cp.set(ejac);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void ScalarPerFieldEF::enthalpy(FastMat2 &H, FastMat2 &U)"
 void ScalarPerFieldEF::enthalpy(FastMat2 &H, FastMat2 &U) {
   H.set(U).mult(Cp);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void ScalarPerFieldEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
+				  FastMat2 &W,FastMat2 &N,double w)"
 void ScalarPerFieldEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
 				  FastMat2 &W,FastMat2 &N,double w) {
   htmp1.set(N).scale(w);
@@ -75,6 +85,9 @@ void ScalarPerFieldEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
   W_Cp_N.prod(htmp2,Cp,1,3,2).rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void ScalarPerFieldEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)"
 void ScalarPerFieldEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
   P_Cp.set(P_supg);
   for (int k=1; k<=ndof; k++) {
@@ -84,20 +97,33 @@ void ScalarPerFieldEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void FullEF::init(int ndof,int ndim,int nel)"
 void FullEF::init(int ndof,int ndim,int nel) {
   Cp.resize(2,ndof,ndof);
   htmp1.resize(1,nel);
   htmp2.resize(2,nel,nel);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void FullEF::enthalpy(FastMat2 &H, FastMat2 &U)"
 void FullEF::enthalpy(FastMat2 &H, FastMat2 &U) {
   H.prod(Cp,U,1,-1,-1);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void FullEF::update(const double *ejac)"
 void FullEF::update(const double *ejac) {
   Cp.set(ejac);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void FullEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
+ FastMat2 &W,FastMat2 &N,double w)"
 void FullEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
 			 FastMat2 &W,FastMat2 &N,double w) {
   htmp1.set(N).scale(w);
@@ -105,6 +131,9 @@ void FullEF::comp_W_Cp_N(FastMat2 &W_Cp_N,
   W_Cp_N.prod(htmp2,Cp,1,3,2,4);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void FullEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)"
 void FullEF::comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg) {
   P_Cp.prod(P_supg,Cp,1,-1,-1,2);
 }

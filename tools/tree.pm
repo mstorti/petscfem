@@ -1,4 +1,4 @@
-# node = father - list of sons - user data
+# node = [ left_son , right_brother , father, label ]
 package tree;
 
 $Lambda = [];
@@ -6,7 +6,8 @@ bless $Lambda,"tree";
 
 sub new {
     my $class = shift();
-    my $node = ($#_ == 3 ? [@_] : [$Lambda,$Lambda,$Lambda,undef]);
+#    my $node = ($#_ == 3 ? [@_] : [$Lambda,$Lambda,$Lambda,undef]);
+    my $node = ($#_ == 3 ? [@_] : $#_==0 ? [$Lambda,$Lambda,$Lambda,$_[0]] : $Lambda);
     bless $node, $class;
     return $node;
 }
@@ -55,18 +56,38 @@ sub add_brother {
 sub post_print {
     my $node = shift();
     return if $node==$Lambda;
+    my $son = $node->left_son();
+    while ($son!=$Lambda) { 
+	$son->post_print();
+	$son = $son->right_brother();
+    }
     print $node->data(),"\n";
-    left_son($node)->post_print();
-    right_brother($node)->post_print();
 }
 
 sub pre_print {
     my $node = shift();
     return if $node==$Lambda;
-    $node->left_son()->pre_print();
-#    $node->print_data(),"\n";
     print $node->data(),"\n";
-    $node->right_brother()->pre_print->();
+    my $son = $node->left_son();
+    while ($son!=$Lambda) { 
+	$son->pre_print();
+	$son = $son->right_brother();
+    }
+}
+
+sub pre_order {
+    my $node = shift();
+    my $sub = shift();
+    my $retval = shift();
+    return if $node==$Lambda;
+    $retval = &{$sub}($node->data(),$retval);
+#    print $node->data(),"\n";
+    my $son = $node->left_son();
+    while ($son!=$Lambda) { 
+       $retval = $son->pre_order($sub,$retval);
+	$son = $son->right_brother();
+    }
+    return $retval;
 }
 
 sub printn {

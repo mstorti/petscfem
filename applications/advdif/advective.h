@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.24 2001/04/09 04:03:38 mstorti Exp $
+//$Id: advective.h,v 1.25 2001/04/10 21:46:04 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -261,7 +261,7 @@ public:
       @param N (input) FEM interpolation function size #nel#
       @param w (input) a scalar coefficient
   */ 
-  virtual void comp_N_P_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
+  virtual void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)=0;
   /** Computes the product #(N_P_C)_(mu,q,nu) 
       = w (P_supg)_(mu,lambda) C_(lambda,nu) N_q #
       @param N_P_C (output) size  #ndof# x #nel# x #ndof# 

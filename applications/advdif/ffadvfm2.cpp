@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.35 2001/04/09 04:03:38 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.36 2001/04/10 21:46:05 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +17,9 @@
 #include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_)"
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_) 
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
   full_adv_jac(*this), full_dif_jac(*this),
@@ -31,34 +34,59 @@ newadvecfm2_ff_t::newadvecfm2_ff_t(NewElemset *elemset_)
 {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__				\
+"void newadvecfm2_ff_t::NullSourceTerm::	\
+add_source_term(FastMat2 &G_source)"
 void newadvecfm2_ff_t::NullSourceTerm::
 add_source_term(FastMat2 &G_source) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__				\
+"void newadvecfm2_ff_t::GScalarSourceTerm::	\
+add_source_term(FastMat2 &G_source)"
 void newadvecfm2_ff_t::GScalarSourceTerm::
 add_source_term(FastMat2 &G_source) {
   G_source.add(*ff.s_body);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullSourceTerm::\
+add_source_term(FastMat2 &G_source)"
 void newadvecfm2_ff_t::FullSourceTerm::
 add_source_term(FastMat2 &G_source) {
   G_source.add(ff.S_body);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullCJac\
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)"
 void newadvecfm2_ff_t::NullCJac
 ::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   N_N_C.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullCJac::\
+comp_G_source(FastMat2 &G_source, FastMat2 &U)"
 void newadvecfm2_ff_t::NullCJac::
 comp_G_source(FastMat2 &G_source, FastMat2 &U) {
   G_source.set(0.);
 }
 
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullCJac::\
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+	   FastMat2 &N,double w)"
 void newadvecfm2_ff_t::NullCJac::
 comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {
@@ -66,6 +94,10 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullCJac\
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)"
 void newadvecfm2_ff_t::FullCJac
 ::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   tmp2.set(N).scale(w);
@@ -73,12 +105,21 @@ void newadvecfm2_ff_t::FullCJac
   N_N_C.prod(tmp,ff.C_jac,1,3,2,4);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullCJac::\
+comp_G_source(FastMat2 &G_source, FastMat2 &U)"
 void newadvecfm2_ff_t::FullCJac::
 comp_G_source(FastMat2 &G_source, FastMat2 &U) {
   G_source.prod(ff.C_jac,U,1,-1,-1);
 }
 
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullCJac::\
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+	   FastMat2 &N,double w)"
 void newadvecfm2_ff_t::FullCJac::
 comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {
@@ -88,6 +129,10 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarCJac\
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)"
 void newadvecfm2_ff_t::ScalarCJac
 ::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   tmp2.set(N).scale(w*(*ff.reacjac));
@@ -95,11 +140,20 @@ void newadvecfm2_ff_t::ScalarCJac
   N_N_C.prod(tmp,ff.eye_ndof,1,3,2,4);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarCJac::\
+comp_G_source(FastMat2 &G_source, FastMat2 &U)"
 void newadvecfm2_ff_t::ScalarCJac::
 comp_G_source(FastMat2 &G_source, FastMat2 &U) {
   G_source.set(U).scale(*ff.reacjac);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarCJac::\
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,\
+	   FastMat2 &N,double w)"
 void newadvecfm2_ff_t::ScalarCJac::
 comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {
@@ -111,6 +165,10 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarPerFieldCjac\
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w)"
 void newadvecfm2_ff_t::ScalarPerFieldCjac
 ::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
   tmp2.set(N).scale(w);
@@ -120,11 +178,20 @@ void newadvecfm2_ff_t::ScalarPerFieldCjac
   N_N_C.rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarPerFieldCjac::\
+comp_G_source(FastMat2 &G_source, FastMat2 &U)"
 void newadvecfm2_ff_t::ScalarPerFieldCjac::
 comp_G_source(FastMat2 &G_source, FastMat2 &U) {
   G_source.set(U).mult(ff.C_jac);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarPerFieldCjac::\
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,\
+	   FastMat2 &N,double w)"
 void newadvecfm2_ff_t::ScalarPerFieldCjac::
 comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 	   FastMat2 &N,double w) {
@@ -134,28 +201,50 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullDjac\
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::NullDjac
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
   fluxd.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullDjac\
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,\
+		       FastMat2 & dshapex,double w)"
 void newadvecfm2_ff_t::NullDjac
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
   grad_N_D_grad_N.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullDjac\
+::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::NullDjac
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   dif_per_field.set(0.);
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::GlobalScalar\
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::GlobalScalar
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
   fluxd.t().set(grad_U).scale(*(ff.difjac)).rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::GlobalScalar\
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,\
+		       FastMat2 & dshapex,double w)"
 void newadvecfm2_ff_t::GlobalScalar
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
@@ -163,17 +252,30 @@ void newadvecfm2_ff_t::GlobalScalar
   grad_N_D_grad_N.prod(tmp,ff.eye_ndof,1,3,2,4);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::GlobalScalar\
+::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::GlobalScalar
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   dif_per_field.set(*(ff.difjac));
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::GlobalDifTensor\
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::GlobalDifTensor
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
   fluxd.prod(ff.D_jac,grad_U,2,-1,-1,1);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::GlobalDifTensor\
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,\
+		       FastMat2 & dshapex,double w)"
 void newadvecfm2_ff_t::GlobalDifTensor
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
@@ -182,6 +284,10 @@ void newadvecfm2_ff_t::GlobalDifTensor
   grad_N_D_grad_N.prod(tmp2,ff.eye_ndof,1,3,2,4);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::GlobalDifTensor\
+::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::GlobalDifTensor
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   double dd = ff.D_jac.d(2,1).sum_all()/double(ff.ndim);
@@ -189,6 +295,10 @@ void newadvecfm2_ff_t::GlobalDifTensor
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::PerFieldDifTensor\
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::PerFieldDifTensor
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
   for (int k=1; k<=ff.ndof; k++) {
@@ -201,6 +311,11 @@ void newadvecfm2_ff_t::PerFieldDifTensor
   ff.D_jac.rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::PerFieldDifTensor\
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,\
+		       FastMat2 & dshapex,double w)"
 void newadvecfm2_ff_t::PerFieldDifTensor
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
@@ -214,6 +329,10 @@ void newadvecfm2_ff_t::PerFieldDifTensor
   grad_N_D_grad_N.rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::PerFieldDifTensor\
+::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::PerFieldDifTensor
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   ff.D_jac.d(3,2);
@@ -222,6 +341,10 @@ void newadvecfm2_ff_t::PerFieldDifTensor
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarDifPerField\
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
   fluxd.t().set(grad_U).rs();
@@ -230,6 +353,11 @@ void newadvecfm2_ff_t::ScalarDifPerField
   fluxd.rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarDifPerField\
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,\
+		       FastMat2 & dshapex,double w)"
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
@@ -239,17 +367,30 @@ void newadvecfm2_ff_t::ScalarDifPerField
   grad_N_D_grad_N.d(2,4).prod(grad_N_grad_N,tmp,1,3,2).rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::ScalarDifPerField\
+::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::ScalarDifPerField
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   dif_per_field.set(*(ff.difjac));
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullDifJac\
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::FullDifJac
 ::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
   fluxd.prod(ff.D_jac,grad_U,1,-2,2,-1,-1,-2);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullDifJac\
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,\
+		       FastMat2 & dshapex,double w)"
 void newadvecfm2_ff_t::FullDifJac
 ::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 		       FastMat2 & dshapex,double w) {
@@ -258,6 +399,10 @@ void newadvecfm2_ff_t::FullDifJac
   grad_N_D_grad_N.prod(D_grad_N,dshapex,-1,2,4,1,-1,3);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullDifJac\
+::comp_dif_per_field(FastMat2 &dif_per_field)"
 void newadvecfm2_ff_t::FullDifJac
 ::comp_dif_per_field(FastMat2 &dif_per_field) {
   ff.D_jac.d(2,1).d(4,3);
@@ -266,25 +411,46 @@ void newadvecfm2_ff_t::FullDifJac
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void newadvecfm2_ff_t::FullAdvJac::comp_flux(FastMat2 &flux,FastMat2 &U) {
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullAdvJac::\
+comp_flux(FastMat2 &flux,FastMat2 &U)"
+void newadvecfm2_ff_t::FullAdvJac::
+comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.prod(ff.u,U,2,1,-1,-1);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullAdvJac::\
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)"
 void newadvecfm2_ff_t::FullAdvJac::
 comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.prod(ff.u,normal,-1,1,2,-1);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullAdvJac::\
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::FullAdvJac::
 comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   A_grad_U.prod(ff.u,grad_U,-1,1,-2,-1,-2);
 }
   
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullAdvJac::\
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex)"
 void newadvecfm2_ff_t::FullAdvJac::
 comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
   A_grad_N.prod(dshapex,ff.u,-1,1,-1,2,3);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullAdvJac::\
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco)"
 void newadvecfm2_ff_t::FullAdvJac::
 comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   // Here we take the diagonal of each Jacobian as the component
@@ -294,6 +460,10 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   ff.u.rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::FullAdvJac::\
+comp_vel_per_field(FastMat2 &vel_per_field)"
 void newadvecfm2_ff_t::FullAdvJac::
 comp_vel_per_field(FastMat2 &vel_per_field) {
   // This is approximate. We tak as velocity for a field
@@ -305,37 +475,65 @@ comp_vel_per_field(FastMat2 &vel_per_field) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullAJac::comp_flux(FastMat2 &flux,FastMat2 &U)"
 void newadvecfm2_ff_t::NullAJac::comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullAJac::\
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)"
 void newadvecfm2_ff_t::NullAJac::
 comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullAJac::\
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::NullAJac::
 comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   A_grad_U.set(0.);
 }
   
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullAJac::\
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex)"
 void newadvecfm2_ff_t::NullAJac::
 comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
   A_grad_N.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullAJac::\
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco)"
 void newadvecfm2_ff_t::NullAJac::
 comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   Uintri.set(0.);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::NullAJac::\
+comp_vel_per_field(FastMat2 &vel_per_field)"
 void newadvecfm2_ff_t::NullAJac::
 comp_vel_per_field(FastMat2 &vel_per_field) {
   vel_per_field.set(0.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux,FastMat2 &U) {
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UPerField::\
+comp_flux(FastMat2 &flux,FastMat2 &U)"
+void newadvecfm2_ff_t::UPerField::
+comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.set(ff.u);
   for (int j=1; j<=ff.ndof; j++) {
     flux.ir(1,j).scale(U.get(j));
@@ -343,11 +541,19 @@ void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UPerField::\
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)"
 void newadvecfm2_ff_t::UPerField::
 comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.set(0.).d(2,1).prod(ff.u,normal,1,-1,-1);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UPerField::\
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::UPerField::
 comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   for (int j=1; j<=ff.ndof; j++) {
@@ -361,26 +567,47 @@ comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   A_grad_U.rs();
 }
   
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UPerField::\
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex)"
 void newadvecfm2_ff_t::UPerField::
 comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
   A_grad_N.set(0.).d(3,2).prod(dshapex,ff.u,-1,1,2,-1).rs();
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UPerField::\
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco)"
 void newadvecfm2_ff_t::UPerField::
 comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   Uintri.prod(iJaco,ff.u,2,-1,1,-1);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UPerField::\
+comp_vel_per_field(FastMat2 &vel_per_field)"
 void newadvecfm2_ff_t::UPerField::
 comp_vel_per_field(FastMat2 &vel_per_field) {
   vel_per_field.sum_square(ff.u,1,-1).fun(sqrt);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void newadvecfm2_ff_t::UGlobal::comp_flux(FastMat2 &flux,FastMat2 &U) {
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UGlobal::\
+comp_flux(FastMat2 &flux,FastMat2 &U)"
+void newadvecfm2_ff_t::UGlobal::
+comp_flux(FastMat2 &flux,FastMat2 &U) {
   flux.prod(U,ff.u,1,2);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UGlobal::\
+comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal)"
 void newadvecfm2_ff_t::UGlobal::
 comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   tmp5.prod(ff.u,normal,-1,-1);
@@ -388,11 +615,19 @@ comp_A_jac_n(FastMat2 &A_jac_n, FastMat2 &normal) {
   A_jac_n.eye(un);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UGlobal::\
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U)"
 void newadvecfm2_ff_t::UGlobal::
 comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
   A_grad_U.prod(ff.u,grad_U,-1,-1,1);
 }
   
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UGlobal::\
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex)"
 void newadvecfm2_ff_t::UGlobal::
 comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
   tmp.prod(ff.u,dshapex,-1,-1,1);
@@ -402,12 +637,20 @@ comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
   A_grad_N.rs();
 }
   
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UGlobal::\
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco)"
 void newadvecfm2_ff_t::UGlobal::
 comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
   tmp3.prod(iJaco,ff.u,1,-1,-1);
   Uintri.prod(ff.tmp2,tmp3,1,2);
 }
 
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::UGlobal::\
+comp_vel_per_field(FastMat2 &vel_per_field)"
 void newadvecfm2_ff_t::UGlobal::
 comp_vel_per_field(FastMat2 &vel_per_field) {
   double vv= ff.u.sum_square_all();
@@ -418,6 +661,9 @@ comp_vel_per_field(FastMat2 &vel_per_field) {
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
 // This is to pass to the advective function the element
+#undef __FUNC__
+#define __FUNC__ \
+"void newadvecfm2_ff_t::element_hook(ElementIterator &element_)"
 void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
   element = element_;
 
