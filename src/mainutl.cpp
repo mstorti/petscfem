@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.21 2005/02/20 15:25:07 mstorti Exp $
+//$Id: mainutl.cpp,v 1.22 2005/02/20 16:55:37 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -281,9 +281,10 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     dofmap->solve(xdof.buff(),xext.buff());
     xext.clear();
   } 
-  CHECK_PAR_ERR(ierro,"Error reading nodes");
+  CHECK_PAR_ERR(ierro,"Error reading vector from file.");
 
-  ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+  ierr = MPI_Bcast (xdof.buff(),dofmap->neqtot,
+		    MPI_DOUBLE,0,PETSC_COMM_WORLD);
 
   for (int k=0; k<dofmap->neq; k++) {
     if (dofmap->dof1 <= k+1 <= dofmap->dof2) {

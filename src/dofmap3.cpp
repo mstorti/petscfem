@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap3.cpp,v 1.7 2005/02/20 15:37:31 mstorti Exp $
+//$Id: dofmap3.cpp,v 1.8 2005/02/20 16:55:37 mstorti Exp $
 
 #include <cassert>
 
@@ -112,7 +112,7 @@ get_row(int node,int kdof,int &neqs,
 void Dofmap::
 qxpy(double *y,double *x, double alpha) {
   int nrow = nnod*ndof;
-  int ncol = neq;
+  int ncol = neqtot;
   int m;
   for (int j=0; j<nrow; j++) {
     int kdof = j % ndof + 1;
@@ -131,7 +131,7 @@ qxpy(double *y,double *x, double alpha) {
 void Dofmap::
 qtxpy(double *y,double *x, double alpha) {
   int nrow = nnod*ndof;
-  int ncol = neq;
+  int ncol = neqtot;
   int m;
   for (int j=0; j<nrow; j++) {
     int kdof = j % ndof + 1;
@@ -163,7 +163,7 @@ diff(double *v, double *w,int m) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Dofmap::solve(double *x,double *y) {
   int nrow = nnod*ndof;
-  int ncol = neq;
+  int ncol = neqtot;
   int m;
   vector<double> zv(nrow,0.0), 
     vv(nrow,0.0), wv(ncol,0.0),
@@ -187,6 +187,7 @@ void Dofmap::solve(double *x,double *y) {
     get_row(node,kdof,m,&dofs,&coef);
     for (int k=0; k<m; k++) {
       int dof = dofs[k]-1;
+      // assert(dof<ncol);
       d[dof] += square(coef[k]);
     }
 #if 0
@@ -196,7 +197,8 @@ void Dofmap::solve(double *x,double *y) {
 #endif
   }
   // printv(d,nrow,"d");
-  for (int iter=0; iter<niter; iter++) { 
+  int iter;
+  for (iter=0; iter<niter; iter++) { 
     // v = 0.0;
     for (int j=0; j<nrow; j++) v[j]=0.0;
     // v = Q*x
@@ -218,6 +220,9 @@ void Dofmap::solve(double *x,double *y) {
     res = sqrt(res);
     if (iter==0) r0 = res;
     if (res<atol || res<rtol*r0) break;
-    printf("iter %d, res %f\n",iter,res);
+    // printf("iter %d, res %f\n",iter,res);
   }
+  if (iter>=niter) 
+    printf("in Dofmap::solve: projection doesn't converge in %d iters.\n"
+	   "rtol %g, res_0 %g, atol %g\n",niter,rtol,r0,atol);
 }
