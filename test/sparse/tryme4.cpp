@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.16 2002/07/21 03:42:59 mstorti Exp $
+// $Id: tryme4.cpp,v 1.17 2002/07/21 03:45:38 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -225,6 +225,13 @@ int main(int argc, char **argv) {
     if (j % (M/10) ==0 ) 
       printf("j %d, j^2 %d, v(j) %d\n",j,j*j,v.ref(j));
     assert(j*j==v.ref(j));
+  }
+  v.resize(M);
+  for (int j=0; j<v.size(); j++) v.ref(j) = j*j*j;
+  for (int j=0; j<M; j++) {
+    if (j % (M/10) ==0 ) 
+      printf("j %d, j^3 %d, v(j) %d\n",j,j*j*j,v.ref(j));
+    assert(j*j*j==v.ref(j));
   }
   
 
