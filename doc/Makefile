@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.40 2003/11/19 17:06:10 mstorti Exp $
+#$Id: Makefile,v 1.41 2003/11/24 03:18:36 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -148,10 +148,11 @@ README.pod: README.podin ../VERSION
 CLEAN_DIRS = manual OBJ
 
 local_clean:: local_dist_clean
-	-rm -rf *.ps.gz index petscfem icons index.html index.css \
-		version.tex *.pdf petscfem.tex \
-		contents.pl images.pl index.pl labels.pl sections.pl WARNINGS \
-		README.html
+	-rm -rf *.ps.gz index petscfem icons index.html index.css		\
+		version.tex *.pdf petscfem.tex					\
+		contents.pl images.pl index.pl labels.pl sections.pl WARNINGS	\
+		README.html options2.texi options3.texi options.info		\
+		make-info.log
 
 #w Clean leaving PS and HTML
 local_dist_clean::

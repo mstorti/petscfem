@@ -511,6 +511,7 @@ This options are used in the \verb+Elemset+ class
 \input odocelems
 \end{itemize}
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSSection{PFMat/IISDMat class options}\label{sec:iisdopt}
 
 This options are used in the \verb+PFMat+ class
@@ -519,6 +520,81 @@ This options are used in the \verb+PFMat+ class
 \input odociisd
 \input odociisdm
 \end{itemize}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSection{Emacs tools and tips for editing data files} 
+
+GNU Emacs (\url{http://www.gnu.org/software/emacs/}) is a powerful
+text editor, that can colorize and indent text files according to the
+syntax of the language you are editing. Emacs has \emph{``modes''} for
+most languages (C/C++, Pascal, Fortran, Lisp, Perl, ...). We have
+written a basic mode for PETSc-FEM data files that is distributed with
+PETSc-FEM in the \verb+tools/petscfem.el+ Emacs Lisp file. In order to
+use the mode, you have to copy the file  \verb+tools/petscfem.el+ to
+somewhere accessible for Emacs (\verb+/usr/share/emacs/site-lisp+  is
+a good candidate). There is also a file \verb+tools/petscfem-init.el+
+that contains some basic configuration, you can also copy it, or
+insert directly its contents into your \verb+.emacs+. 
+%
+\begin{verbatim}
+;; Load basic PETSc-FEM mode
+(load-file "/path/to/tools/petscfem.el")
+
+;; Load `petscfem-init' or insert directly its contents
+;; below and configure
+(load-file "/path/to/tools/petscfem-init.el")
+\end{verbatim}
+%
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\SSSection{Copying and pasting PETSc-FEM options} 
+
+PETSc-FEM modules have a lot of options, and is mandatory to have
+fast access to all of them and to their documentation. The HTML
+documentation has a list of all of them at the end of the user's
+guide. For easier access there is also an info file
+(\verb+tools/options.info+) that has a page for each of the
+options. You can browse it with the standalone \emph{GNU Info} program
+or within Emacs with the info commands. In the last case you have the
+additional advantage that you can very easily find the
+documentation for a given option with a couple of keystrokes and paste
+options from the manual into your PETSc-FEM data file.
+
+For jumping to the documentation for an option, put the cursor on the
+option and press \verb+C-h C-i+ (that is \verb+<Ctrl-h><Ctrl-i>+, this
+is the key-binding for \verb+info-lookup-symbol+). You will get in the
+minibuffer something like
+%
+\begin{verbatim}
+Describe symbol (default print_internal_loop_conv): 
+\end{verbatim}
+%
+If you press \verb+RET+ then you jump to the corresponding page in the
+info file. From there you can browse the whole manual. Pressing
+\verb+s+ (\verb+Info-search+) allows to search for text in the whole
+manual. When done, you can press \verb+q+ (\verb+Info-exit+) or
+\verb+x+ (\verb+my-Info-bury-and-kill+ defined in
+\verb+tools/petscfem.el+).
+
+If you don't know exactly what option you are looking for, then you
+can search in the manual or launch \verb+info-lookup-symbol+ with the
+start of the command and then use \emph{``completion''} to finish
+writing the option. 
+
+If you want to copy some option from the info manual to the data file,
+then you can use the usual keyboard or mouse \emph{copy-and-paste}
+methods of Emacs. Also pressing \verb+c+
+(\verb+my-Info-lookup-copy-keyword)+) in the info manual copies the
+name of the currently visited option to the
+\emph{``kill-ring''}. Then, in the data file buffer press as usual,
+\verb+C-y+ (\verb+yank+) to paste the last killed option. If you paste
+several options from the manual, then you can navigate between them by
+pasting the last with \verb+C-y+ and then going back and forth in the
+kill ring with \verb+M-y+ (\verb+yank-forw+, usually \verb+M-+ stands
+for pressing the \verb+<Alt>+ or \verb+<Escape>+ key). 
+
+For more information, see the Emacs manual, specially the
+documentation for the \verb+info+ and  \verb+info-lookup+ modes. 
 
 % Local Variables: *
 % mode: latex *
