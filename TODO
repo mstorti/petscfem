@@ -4,7 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Write a FastMat2::trace() (tensorial sense)
+* Check the `advdif/bcconv' elemset in 3D. Seems that there is a sign
+     problem. 
 * Bad parallel error reporting when not known elemset type 
       in NS (and advdif??)
    > not known elemset type: "ns_id"
@@ -149,6 +150,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Write a FastMat2::trace() (tensorial sense)
+	DONE: Sun, 07 Dec 2003 18:22:35 -0300
 * Finish with the GenericError and CHECK_PARR_ macros in readmesh... 
   Doesn't crash correctly when	
   > 	  Error reading coordinates in line:

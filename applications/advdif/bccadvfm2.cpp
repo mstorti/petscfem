@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.23 2003/11/27 21:22:50 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.24 2003/12/07 21:24:06 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -226,11 +226,8 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	detJaco = Jaco.detsur(&normal);
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 	if (detJaco<=0.) {
-	  cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
-	       << " Jacobian: " << detJaco << endl ;
-	  assert(0);
-	  //	  detj_error(detJaco,k);
-	  //set_error(1);
+	  detj_error(detJaco,k);
+	  set_error(1);
 	}
       } else normal.resize(1,ndimel).set(normal_1d);
       if (reverse_normal) normal.scale(-1.);
