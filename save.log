@@ -2532,3 +2532,6 @@ tag: beta-3.18.pl36 on Wed, 19 Mar 2003 16:07:08 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.18.pl37 on Wed, 19 Mar 2003 18:23:21 -0300 by mstorti in node1.beowulf.gtm
      > Running dam problem wth `ale_hook'
+----------
+tag: beta-3.18.pl38 on Thu, 20 Mar 2003 13:25:44 -0300 by mstorti in node1.beowulf.gtm
+     > Runs example with fs_relax=0.1 and 30x150 mesh. 
