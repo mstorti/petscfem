@@ -34,6 +34,7 @@ for j=1:100
     invC = inv(C)';
     invC(ndim,:)=0;
     b = [xe';1];
+
     L = C\b;
     indx = find(L<0);
     if length(indx) < 0;
@@ -45,7 +46,6 @@ for j=1:100
       L2(indx) = 0;
       xproj = (C(1:2,:)*L2)';
     endif
-    keyboard 
     xprojh=[xprojh;
 	    xproj];
     xeh=[xeh;
