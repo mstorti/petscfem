@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.12 2001/12/30 23:05:06 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.13 2002/01/02 23:44:42 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -13,7 +13,11 @@
 #include <src/graph.h>
 
 // Runs a simple example for testing the PFMat matrix classes.
-// 
+// The 1D Poisson: $k \phi'' = -Q(x), 0\le x\le L, 
+// \phi(0)=\phi(L)=0$ with finite differences on a
+// regular mesh $h = L/ Nelem$. $Q(x)$ may be:
+//     $Q(x) = Q_0 = cnst \implies \phi = x*(L-x)*Q_0/cond/2$
+//     $Q(x) = Q_0*(x-L/2) Q_0/cond*x*(L-x)*(x-L/2.)/6.);
 
 extern int MY_RANK,SIZE;
 
@@ -40,7 +44,7 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&size);
   MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
 
-  double cond,L,Q,rand_coef=1.;
+  double cond,L,Q0,rand_coef=1.;
   int Nelem=10, debug_print=0, nmat;
   int arg=0;
 
@@ -98,7 +102,7 @@ int main(int argc,char **args) {
   ierr = MPI_Bcast (&rand_flag, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"rand_flag %d  (use a randomly "
-	      "perturbated Q, k and L\n",rand_flag);
+	      "perturbated Q0, k and L\n",rand_flag);
 
   CHKOPT(mtyp);
   mat_type=0; // 0 -> IISDMat, 1 -> PETScMat
@@ -113,7 +117,7 @@ int main(int argc,char **args) {
   q_type=0; // 0 -> cnst, 1 -> propto x
   if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&q_type);
   ierr = MPI_Bcast (&q_type,1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"q_type %d  (Q/x dependency, "
+  PetscPrintf(PETSC_COMM_WORLD,"q_type %d  (Q0/x dependency, "
 	      "0 -> cnst, 1 -> propto x)\n",q_type);
 
 //    PetscPrintf(PETSC_COMM_WORLD,
@@ -180,18 +184,18 @@ int main(int argc,char **args) {
     for (int ksolve=0; ksolve<nsolve; ksolve++) {
 
       if (myrank==0) {
-	Q = 1. + rand_coef * ::drand();
-	printf("cond %f, Q %f, L %f\n",cond,Q,L);
+	Q0 = 1. + rand_coef * ::drand();
+	printf("cond %f, Q0 %f, L %f\n",cond,Q0,L);
       }
-      ierr = MPI_Bcast (&Q, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
+      ierr = MPI_Bcast (&Q0, 1, MPI_DOUBLE, 0,MPI_COMM_WORLD);
 
       if (myrank==0) {
 	for (int j=0; j<N; j++) {
 	  double x = double(j+1)/double(Nelem)*L;
-	  double Qx = (q_type==0 ? Q : Q*(x-L/2));
+	  double Qx = (q_type==0 ? Q0 : Q0*(x-L/2));
 	  ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES); CHKERRA(ierr);
-	  double val = (q_type==0 ? x*(L-x)*Q/cond/2.
-			: Q/cond*x*(L-x)*(x-L/2.)/6.);
+	  double val = (q_type==0 ? x*(L-x)*Q0/cond/2.
+			: Q0/cond*x*(L-x)*(x-L/2.)/6.);
 	  ierr = VecSetValues(xex,1,&j,&val,INSERT_VALUES); CHKERRA(ierr);
 	}
       }
