@@ -981,3 +981,6 @@ tag: beta-2.78.pl4 on Sun Feb 10 18:20:35 ARST 2002 by mstorti in spider
 ----------
 tag: beta-2.79 on Sun Feb 10 18:45:44 ARST 2002, by mstorti in spider
      > Added scripts for checking tags
+----------
+tag: beta-2.79.pl1 on Sun Feb 10 19:33:57 ARST 2002 by mstorti in spider
+     > Extended amplitude functions work as classes. Much better!!
