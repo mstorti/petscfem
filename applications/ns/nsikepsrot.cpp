@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.28 2002/11/02 20:51:57 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.28.6.1 2003/06/12 20:53:06 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,6 +15,11 @@
 #define STANDARD_UPWIND
 
 extern TextHashTable *GLOBAL_OPTIONS;
+
+#ifdef ROSI_COUPLING_MODULE
+#warning Compiling with ROSI_COUPLING_MODULE enabled
+extern double AXIAL_ACCELERATION;
+#endif
 
 #define MAXPROP 100
 
@@ -465,7 +470,9 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  // fixme:= Must scale by rho? 
 	  // G_body.axpy(acel_lin,-rho);
 	  G_body.axpy(acel_lin,-1.);
-
+#ifdef ROSI_COUPLING_MODULE
+	  AXIAL_ACCELERATION = G_body.get(ndim);
+#endif
 	  FastMat2::activate_cache();
 	}
 

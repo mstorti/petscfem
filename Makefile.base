@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.141 2003/06/09 21:14:08 mstorti Exp $
+#$Id: Makefile.base,v 1.105.2.1 2003/06/12 20:53:06 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -116,38 +116,14 @@ CPPFLAGS         := $(PROF_FLAGS) $(RH60)		\
                  -I$(METIS)/Lib				\
                  -I$(PETSCFEM_DIR) -I$(MESCHACH)	\
                  -I$(LIBRETTO_I)			\
-		 $(ANN_CPPFLAGS)			\
-                 $(SUPERLU_CPPFLAGS)
+		 $(ANN_CPPFLAGS) \
+                 $(SUPERLU_CPPFLAGS) 
 
 ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
 CPPFLAGS += -DUSE_DLEF
 endif
 
-ifneq ($(SSL),)
-CPPFLAGS += -DUSE_SSL -I$(SSL)
-SSL_LDFLAGS := $(SSL)/simpleskts.a
-ifeq ($(USE_DX),)
-USE_DX := yes
-endif
-else
-USE_DX := no
-endif
-
-ifeq ($(USE_DX),yes)
-CPPFLAGS += -DUSE_DX
-endif
-
-ifeq ($(USE_PTHREADS),yes)
-PTHREADS_I_STRIPPED := $(strip $(PTHREADS_I))
-CPPFLAGS += -DUSE_PTHREADS 
-ifneq ($(PTHREADS_I_STRIPPED),)
-CPPFLAGS += -I$(PTHREADS_I_STRIPPED)
-endif
-else
-PTHREADS_LIB :=
-endif
-
-FPPFLAGS =
+FPPFLAGS         =
 
 LIBPETSCFEM = $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
 #SHARFILE = $(HOME_GERONIMO)/PETSC/source.shar
@@ -160,8 +136,7 @@ DOC_DIR = $(PETSCFEM_DIR)/doc
 
 INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 
-OCTAVE = octave -qH
-EPERL = $(PETSCFEM_DIR)/tools/eperl
+OCTAVE = octave
 
 PETSCFEM_VERSION := $(shell cat $(PETSCFEM_DIR)/VERSION)
 
@@ -171,8 +146,8 @@ PETSCFEM_VERSION := $(shell cat $(PETSCFEM_DIR)/VERSION)
 libpetscfem: force 
 	$(MAKE) -C $(PETSCFEM_DIR)/src compile
 
-local_depend: force 	
-ifneq ($(SRCS),)	
+local_depend: force 
+ifneq ($(SRCS),)
 	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > makefile.d
 endif
 
@@ -228,9 +203,7 @@ local_dist_clean::
 #w cleans directory
 lclean: 
 	$(MAKE) clean local_clean &> /dev/null
-ifneq ($(CLEAN_DIRS),)
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir lclean  ; done
-endif
 
 #w Builds all necessary things after checking out a version
 #w from the CVS repository
@@ -259,8 +232,7 @@ LDFLAGS = -Wl,-E,-rpath,$(LD_LIBRARY_PATH)	\
           $(ANN_LDFLAGS)			\
           -lc ${PETSC_SLES_LIB}			\
           $(MESCHACH)/libmes.a			\
-          $(SUPERLULIB) $(SSL_LDFLAGS)		\
-	  $(PTHREADS_LIB)
+          $(SUPERLULIB)
 
 LDFLAGS_NO_PROG_LIB = -Wl,-rpath,$(LD_LIBRARY_PATH)	\
 	  -L$(PETSCFEM_DIR)/src				\
@@ -296,7 +268,7 @@ $(PROG): $(PROG_bin)
 
 $(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(LIBPETSCFEM)
 	$(MAKE) -W compdate.cpp "$(PROG_LIB)(compdate.o)"
-	if [ -e $@ ] ; then rm $@ ; fi
+	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 
 $(LIBPETSCFEM)(%.o): force
@@ -314,19 +286,19 @@ EPERLFLAGS =
 #e <file>.depl
 %.depl: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	$(EPERL) -P $(EPERLFLAGS) $< > $@
+	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 #w make ePerl script
 #e <file>.epls
 %.epls: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	$(EPERL) -xP -$(EPERLFLAGS) $< > $@
+	eperl -xP -$(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 %: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
-	$(EPERL) -P $(EPERLFLAGS) $< > $@
+	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@
 
 # This line _should_ be here but I don't know why if
