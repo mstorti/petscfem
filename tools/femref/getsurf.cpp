@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.31 2005/01/17 20:08:34 mstorti Exp $
+// $Id: getsurf.cpp,v 1.32 2005/01/17 21:52:21 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -279,15 +279,16 @@ elem2nod_proj(GetSurfCtx &ctx,
   assert(un.rank()==2);
   assert(un.size(1)==ndof);
   int nnod = un.size(0);
+  un.set(0.);
   
   for (int jelem=0; jelem<nelem; jelem++) {
     double nod_area = elem_mass.ref(jelem)/double(nel);
     for (int j=0; j<nel; j++) {
       int node = icone.e(jelem,j);
-      double *to = &un.e(node,0);
-      const double *from = &ue.e(jelem,0);
+      // double *to = &un.e(node,0);
+      // const double *from = &ue.e(jelem,0);
       for (int k=0; k<ndof; k++) 
-	to[k] += from[k]*nod_area;
+	un.e(node,k) += ue.e(jelem,k)*nod_area;
     }
   }
   for (int node=0; node<nnod; node++) {
@@ -323,59 +324,3 @@ nod2elem_proj(GetSurfCtx &ctx,
       ue.e(jelem,k) /= dnel;
   }
 }
-
-#if 0
-void 
-fem_smooth(GetSurfCtx &ctx,
-	   const dvector<int> &surf_cono,
-	   const dvector<double> &u,
-	   dvector<double> &us,
-	   int niter,
-	   int verbose) {
-
-  int jiter=0;
-  int nnod=ctx.nnod;
-  int nfaces = surf_con.size(0);
-  int face_nel = surf_con.size(1);
-  int nelem = surf_con.size(0);
-  dvector<double> ue,ues;
-  ue.resize(nelem,ndof);
-  ues.resize(nelem,ndof);
-
-  while (true) {
-    us.set(0.);
-    for (int jface=0; jface<nfaces; jface++) {
-      double nod_area = elem_mass.ref(jface)/double(face_nel);
-      for (int j=0; j<face_nel; j++) {
-	int node = surf_con.e(jface,j);
-	if (jiter==0) node_mass.ref(node) += nod_area;
-	double 
-	  *to = &us.e(node,0),
-	  *from = &ue.e(jface,0);
-	for (int k=0; k<ndim*ndof; k++) 
-	  to[k] += from[k]*nod_area;
-      }
-    }
-    for (int node=0; node<nsurf_nodes; node++) {
-      double nod_area = node_mass.ref(node);
-      for (int k=0; k<ndim*ndof; k++) 
-	us.e(node,k) /= nod_area;
-    }
-    jiter++;
-    if (jiter==niter) break;
-
-    ue.set(0.);
-    for (int jface=0; jface<nfaces; jface++) {
-      double *to = &ue.e(jface,0);
-      for (int j=0; j<face_nel; j++) {
-	int node = surf_con.e(jface,j);
-	double *from = &us.e(node,0);
-	for (int k=0; k<ndim*ndof; k++) 
-	  to[k] += from[k];
-      }
-      for (int k=0; k<ndim*ndof; k++) 
-	to[k] /= double(face_nel);
-    }
-  }
-}
-#endif

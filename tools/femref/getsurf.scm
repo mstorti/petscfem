@@ -1,4 +1,4 @@
-;;; $Id: getsurf.scm,v 1.11 2005/01/17 20:08:34 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.12 2005/01/17 21:52:21 mstorti Exp $
 (load "./dvector.scm")
 (load "./femref.scm")
 
@@ -34,8 +34,6 @@
 
 (define un (make-dvdbl))
 (dvdbl-resize! un nsurf-nodes ndof)
-;(define unn (make-dvdbl))
-;(dvdbl-clone! unn un)
 
 (do ((j 0 (+ j 1))) ((= j nsurf-nodes)) 
   (let ((node (dvint-ref surf-nodes j)))
