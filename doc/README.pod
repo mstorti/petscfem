@@ -64,13 +64,13 @@ USA.
 
 Currently, PETSc-FEM is known to run only on Beowulf class clusters
 based on Intel processors, running the GNU/Linux OS.  Off course, you
-can also install PETSc-FEM in a single Linux box, for use in
+can also install PETSc-FEM in a single GNU/Linux box, for use in
 sequential (i.e. non-parallel) mode or either for simulating parallel
 runs, by launching several processes in the same processor. (This is a
 feature of MPI).
 
 I guess it may be easy to install in other processor architectures
-(SPARC or Alpha) running Linux and also (maybe) on other Unix
+(SPARC or Alpha) running GNU/Linux and also (maybe) on other Unix
 flavours.
 
 =head2 Required Software
@@ -173,13 +173,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-2.20.tar.gz> package,
+Once you got the I<petscfem-beta-2.41.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-2.20.tar.gz
-  $ tar xvf petscfem-beta-2.20.tar
+  $ gunzip petscfem-beta-2.41.tar.gz
+  $ tar xvf petscfem-beta-2.41.tar
 
-This will create a I<petscfem-beta-2.20> directory with
+This will create a I<petscfem-beta-2.41> directory with
 all the source files included.
 
 =head2 Makefile variables

@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Fix documentation. New version of latex2html screwed all up. 
 * Write tests for IISD with subpartitioning.
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
 * put `const A' in the argument to PFMat::duplicate
@@ -30,7 +31,7 @@ TODO: [Mainly fixes go here...]
 * Throw an error if nothing is read (a void file).
 * Check headers for functions (the __FUNC__ macro). 
 * A faster (cached version) of mydet and mydetsur
-* Fix makefile: runs bison and compiles getarray.cpp even it's not
+* Fix makefile: runs bison and compiles getarray.cpp even if it's not
   necessary
 * document coding of fastmat2. Document the eperl utilities.
 * Should State have a TimeData instead of a Time
