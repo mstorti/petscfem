@@ -25,8 +25,8 @@ C2 = C;
 xeh=[];
 xprojh=[];
 for j=1:100
-  xe = 3*rand(1,2)-1;			# point to project
-  ##  xe = [1 1];
+  xe = 1.5*rand(1,2)-0.25;			# point to project
+  ## xe = [1 1];
   for k=1:nelem1
     nodes = ico1(k,:);
     C = [x1(nodes,:)';
@@ -34,18 +34,24 @@ for j=1:100
     invC = inv(C)';
     invC(ndim,:)=0;
     b = [xe';1];
-
-    L = C\b;
-    indx = find(L<0);
-    if length(indx) < 0;
-      xproj = xe;
-    else
+    flag = zeros(3,1);			# indices for which restrictions are active
+    while 1
+      indx = find(flag);
       C2 = C;
-      C2(:,indx) = invC(:,indx);
-      L2 = C2\b;
-      L2(indx) = 0;
-      xproj = (C(1:2,:)*L2)';
-    endif
+      if length(indx)>0;
+	C2(:,indx) = -invC(:,indx);
+      endif
+      L = C2\b;
+      bad = find(L<0);
+      if length(bad)==0; 
+	break; 
+      else
+	flag(bad) = !flag(bad);
+      endif
+    endwhile
+    indx = find(flag);
+    L(indx)=0;
+    xproj = (C(1:2,:)*L)';
     xprojh=[xprojh;
 	    xproj];
     xeh=[xeh;
