@@ -1477,3 +1477,6 @@ tag: beta-3.03 on Sun, 18 Aug 2002 20:40:26 -0300, by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs all tests.
      > Runs all tests with BOPT=O_c++
+----------
+tag: beta-3.03.pl1 on Mon, 19 Aug 2002 00:36:26 -0300 by mstorti in spider
+     > Runs 'make finaldoc'. Stable for doc.
