@@ -1,4 +1,4 @@
-//$Id: streamsw1d.cpp,v 1.3.2.1 2003/11/21 19:59:53 mstorti Exp $
+//$Id: streamsw1d.cpp,v 1.3.2.2 2004/02/25 14:27:34 mstorti Exp $
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 #include <stdio.h>
 #include <string.h>
@@ -135,6 +135,7 @@ void streamsw1d_ff::compute_flux(const FastMat2 &U,
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
+  delta_sc = 1.;		// For smoothing 
   adv_mask = 1.;
   tmp_mask = 1.;
 
@@ -307,7 +308,7 @@ void streamsw1d_ff::Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   ppg=0.;
   drdU.setel(signudn,1,1).setel(signudn,2,1)
     .setel(ppg+ppg1,1,2).setel(ppg-ppg1,2,2);
-/* 
+  /* 
      if ((area<1.e-6) || (wl_width<1.e-7)) {
      tt=0.0;
      ppg=0.0;
