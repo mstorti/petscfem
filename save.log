@@ -3735,3 +3735,6 @@ tag: beta-3.39.48 on Mon, 17 Jan 2005 23:48:06 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.49 on Tue, 18 Jan 2005 12:23:36 -0300 by mstorti in minerva.ceride.gov.ar
      > Added `dvdbl-set-with-filler'. 
+----------
+tag: beta-3.39.50 on Wed, 19 Jan 2005 00:03:58 -0300 by mstorti in spider
+     > Some small fixes for porting to Fedora Core 2 (gcc 3.3.3)
