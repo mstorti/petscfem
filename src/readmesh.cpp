@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.80 2003/02/25 04:18:10 mstorti Exp $
+//$Id: readmesh.cpp,v 1.81 2003/02/25 13:31:41 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -814,7 +814,8 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 			  fstack->line_read());
 	  constraint.add_entry(node,field,coef);
 	}
-	if (dofmap->set_constraint(constraint)==1) {
+	int return_status = dofmap->set_constraint(constraint);
+	if (return_status==1) {
 	  PetscPrintf(PETSC_COMM_WORLD,
 		      "Linearly dependent fixation discarded. \n"
 		      "%s:%d: \"%s\"\n",
@@ -822,7 +823,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 		      fstack->line_number(),
 		      fstack->line_read());
 	  nlindep++;
-	} else if (dofmap->set_constraint(constraint)==2) {
+	} else if (return_status==2) {
 	  PETSCFEM_ERROR("Couldn't find a free dof in constraint list.\n"
 			 "%s:%d: \"%s\"\n",
 			 fstack->file_name(),
@@ -840,7 +841,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
       string basic_object_type(token);
       BasicObject *obj = BasicObject::factory(basic_object_type);
       if (obj) {
-	obj->read(fstack);
+	obj->read(fstack,mesh,dofmap);
       } else {
 	PetscPrintf(PETSC_COMM_WORLD,"Bad section name in data file.\n"
 		    "line: \"%s\"\n",line);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: pfobject.cpp,v 1.1 2003/02/25 04:18:10 mstorti Exp $
+// $Id: pfobject.cpp,v 1.2 2003/02/25 13:31:41 mstorti Exp $
 
 #include <src/pfobject.h>
 #include <src/texthash.h>
@@ -14,7 +14,7 @@ private:
   TextHashTable thash;
 public:
   ~dummy_obj() {}
-  void read(FileStack *fstack) { 
+  void read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) { 
     thash.read(fstack);
     thash.print("Read dummy obj:");
     PetscFinalize();
