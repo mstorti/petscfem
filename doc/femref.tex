@@ -1,4 +1,4 @@
-% $Id: femref.tex,v 1.2 2004/11/26 21:44:57 mstorti Exp $
+% $Id: femref.tex,v 1.3 2004/11/26 23:43:58 mstorti Exp $
 \SSection{Mesh refinement} \label{sec:femref}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 
@@ -9,26 +9,91 @@ dimension entities based on these nodes. Consider for example five
 nodes (labeled from 0 to 40 and an edge connecting two of these nodes
 as in figure~\ref{fg:meshgraph2}. In total, there are 6
 \emph{``geometrical objects''} (5 nodes and the edge) in the
-figure. In order to identify these higher order objects, we could add
-a new index for it, say index 5, but instead we can associate the edge
-with the connected pair of node indices, \verb+(edge 2 3)+. Note that,
-if we consider that the edge has no orientation, then the sequence
-must be considered as a \emph{``set''},
-i.e. \verb+(edge 2 3) = (edge 3 2)+, (Lisp-like \emph{``S-exp''}
-expressions will be used throughout in order to describe objects)
-whereas if oritentation matters, then
-\verb+(edge 2 3) != (edge 3 2)+. We could, then define geometrical
-objects of type \verb+edge+ as unordered sequences of two node
-indices, while the type \verb+ordered-edge+ is associated with ordered
-sequences of two nodes. We say that the set of permutations that leave
-invariant \verb+edge+ objects is \verb+((0 1) (1 0))+, whereas for the
-oriented edge is only the identity permutation \verb+((0 1))+. For
-larger objects, the set of permutations that leave invariant the node
-sequence that defines the object is more complex than that, it doesn't
-reduce to the special case of ordered and unordered sequences as for
-edges. Consider for instance the case of triangles. For an oriented
-triangle, the set of nodes that leave invariant the triangle is
-\verb+((0 1 2) (1 2 0) (2 0 1))+, i.e. shifts clockwise and
-counter-clockwise of the node sequence, whereas for unordered objects
-the sequences are the same 
-\verb+((0 1 2) (1 2 0) (2 0 1) (0 2 1) (1 0 2) (2 1 0))+. 
+figure. In order to identify higher order objects like the edge, we
+could add a new index for it, say index 5, but instead we can
+associate the edge with the connected pair of node indices,
+\verb+(edge 2 3)+. Note that, if we consider that the edge has no
+orientation, then the sequence must be considered as a \emph{``set''},
+i.e. \verb+(edge 2 3)+ $=$ \verb+(edge 3 2)+, (Lisp-like
+\emph{``S-exp''} expressions will be used throughout in order to
+describe objects) whereas if oritentation matters, then
+\verb+(edge 2 3)+ $\neq$ \verb+(edge 3 2)+. We could, then define
+geometrical objects of type \verb+edge+ as unordered sequences of two
+node indices, while the type \verb+ordered-edge+ is associated with
+ordered sequences of two nodes. We say that the set of permutations
+that leave invariant \verb+edge+ objects is \verb+((0 1) (1 0))+,
+whereas for the oriented edge is only the identity permutation
+\verb+((0 1))+. For larger objects, the set of permutations that leave
+invariant the node sequence that defines the object is more complex
+than that, it doesn't reduce to the special case of ordered and
+unordered sequences as for edges. Consider for instance the case of
+triangles. For an oriented triangle, the set of nodes that leave
+invariant the triangle is \verb+((0 1 2) (1 2 0) (2 0 1))+,
+i.e. shifts clockwise and counter-clockwise of the node sequence,
+whereas for unordered objects the sequences are the same
+\verb+((0 1 2) (1 2 0) (2 0 1) (0 2 1) (1 0 2) (2 1 0))+. In the last
+case, the permutations that leave invariant the object are the whole
+set of 6 permutations for 3 objects, so that in this case we can say
+that unordered triangles can be represented as unordered sets of three
+nodes. But for the unordered triangle edge \verb+(a b c)+ is the same
+that \verb+(b c a)+, so that associating unordered triangles with
+unordered sequences does not take into account the rotational
+symmetry. 
+
+\SSSection{Symmetry group generator} 
+
+The set of permutations \verb+(perm SHAPE)+ that leave the geometrical
+object \verb+SHAPE+ invariant are a \emph{``group''}, that means that
+if two permutations $p$, $q$ belong to \verb+(perm SHAPE)+,
+then the composition \verb+pq+, i.e. the permutation resulting of
+applying first $q$ and then $p$, also belong to the group,
+as well as the product \verb+qp+. In general, this is a finite group.
+
+As a consequence, if we have two elements $p$ and $q$ of a group $G$,
+then $pq$, $qp$, $p^2q$, $pqp$, $pq^2$... all belong to $G$. Given a
+set of permutations $S\subset G$, the set $pS$ formed by the
+\emph{left} product of all the elements of $S$ with $p$ belongs to
+$G$. The same applies to $Sp$, $qS$ and $Sq$. So that, starting with
+the set $S_0=\{1\}$, where $1$ is the identity permutation, we can
+generate recursively a larger set of symmetries by forming
+$S_1=\{S_0,pS_0,S_0p,qS_0,S_0q\}$. As the total number of permutations
+in the group is finite (at most $n!$, where $n$ is the number of nodes
+in the object), applying recursively the relation above will end with
+a set of permutations $H$ that is itself a group included in $G$. We
+will call it the group \emph{``generated''} by $p$ an $q$. This can be
+applied to any number of generators $p$, $q$, $r$, $s$, .... 
+
+For instance, the symmetries for the oriented triangle can be
+generated with the permutation $p=$\verb+(1 2 0)+, since \verb+(2 0 1)+
+can be generated as $p^2$. The symmetries for the unoriented triangle
+can be derived from generators \verb+(1 2 0)+ (rotation) and
+\verb+(0 2 1)+ (inversion). For other geometries we have the following
+generators 
+
+\begin{itemize}
+\compactlist 
+\item Unoriented quadrangles are described by numbering its nodes in
+  clockwise or counterclockwise rotation. Symmetry generators: are
+  \verb+(1 2 3 0)+ (rotation) and \verb+(0 3 2 1)+ (inversion).
+
+\item Oriented quadrangles are identical to unoriented quadrangles but
+  do not include the inversion. 
+
+\item Tetrahedra are described by numbering the one of the faces, and
+  then the oposite node. Symmetries are generated by permutation of
+  any two of the faces, for instance \verb+(1 2 0 3)+ and
+  \verb+(3 0 2 1)+. 
+
+\end{itemize}
+ 
+
+\begin{verbatim}
+  
+\end{verbatim}
+\medskip
+%
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSSection{Canonical ordering} 
+
+When comparing two 
