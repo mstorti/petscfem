@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.5 2003/10/08 11:51:37 mstorti Exp $
+//$Id: gasflow.cpp,v 1.6 2003/10/10 23:13:55 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -109,9 +109,15 @@ gasflow_ff::~gasflow_ff() { }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
 void gasflow_ff::set_state(const FastMat2 &UU) {
   U.set(UU);
+  double p_thrsh = 1.0e2,  rho_thrsh = 0.01, dummy;
   // Scalar variables
   rho = U.get(1);
   p = U.get(ndof);
+
+  // Cutoff values
+  rho = ctff(rho,dummy,rho_thrsh);
+  p = ctff(p,dummy,p_thrsh);
+
   // Velocities
   U.is(1,vl_indx,vl_indxe);
   vel.set(U);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.5 2003/10/08 11:51:37 mstorti Exp $
+// $Id: gasflow.h,v 1.6 2003/10/10 23:13:55 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -154,5 +154,10 @@ class gasflow_bcconv : public NewBcconv {
 public:
   gasflow_bcconv() : NewBcconv(new gasflow_ff(this)) {};
 };
+
+/** Cutoff function. It is very near to ${\rm ctff(x)}\approx \rm tol$ for
+    $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
+*/ 
+double ctff(double x, double & diff_ctff, double tol);
 
 #endif

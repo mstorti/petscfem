@@ -1,5 +1,7 @@
 //__INSERT_LICENSE__
-// $Id: ctff.cpp,v 1.1 2003/10/09 12:40:09 mstorti Exp $
+// $Id: ctff.cpp,v 1.2 2003/10/10 23:13:55 mstorti Exp $
+#include <cmath>
+
 /** Cutoff function. It is very near to ${\rm ctff(x)}\approx \rm tol$ for
     $x<0$ and ${\rm ctff}(x)=x$ for $x\gg \rm tol$. 
 */ 
