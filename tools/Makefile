@@ -1,6 +1,8 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
+default: run_nettest
+
 scripts = odoc.pl makewhat.pl
 
 #v $hdrmxlen += 3;
@@ -68,7 +70,8 @@ hexasplit.bin: hexasplit.o
 nettest.bin: nettest.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
-NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
+# NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
+NP = $(shell procsel -n ./proctable)
 #w Runs test of bandwith between all processors
 run_nettest: nettest.bin
 	$(MPIRUN) -np $(NP) -nolocal -machinefile ./machi.dat $<
