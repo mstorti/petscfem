@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.18 2003/04/03 21:37:37 mstorti Exp $
+//$Id: alehook.cpp,v 1.19 2003/04/04 10:22:06 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -602,9 +602,12 @@ DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_coupling);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class fs_bottom : public DLGenericTmpl {
 private:
+  /// Position in `gather_values', `steady' flag
   int volume_gather_pos, steady;
+  /// Desired reference volume 
   double volume_ref;
-  double bottom_length, Dt;
+  /// Length of the bottom, time step, velocity at bottom
+  double bottom_length, Dt, bottom_vel;
 public:
   fs_bottom() { }
   void init(TextHashTable *thash);
@@ -631,14 +634,20 @@ void fs_bottom::init(TextHashTable *thash) {
   assert(Dt>0.);
   //o Steady flag
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,steady,0);
+  //o Steady flag
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,volume_relax_coef,1.);
+  bottom_vel = 0.;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double fs_bottom::eval(double) { 
-  double bottom_vel = 0.;
+  double val = 0.;
   if (!steady && gather_values) {
     double volume = (*gather_values)[volume_gather_pos];
-    bottom_vel = -(volume-volume_ref)/bottom_length/Dt;
+    double bottom_vel_now = -(volume-volume_ref)/bottom_length/Dt;
+    double w = volume_relax_coef;
+    // We apply a sub-relaxation in order to filter high frequencies. 
+    bottom_vel = w*bottom_vel_now+(1.-w)*bottom_vel;
   }
   double val=0.;
   int f = field();
