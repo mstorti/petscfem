@@ -3,8 +3,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* make better scheduling algorithm for distmap (as described in the
-   doc). 
 * Use IISD `inside processors'. 
 * interface preconditioning for IISD
 * Put order in the headers. Now, a modification in some header launchs
@@ -48,6 +46,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* make better scheduling algorithm for distmap (as described in the
+   doc). 
 * document distributed map
 * IISD: Code for element contributions to `local-local' matrices in other
    processors. 
