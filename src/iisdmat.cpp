@@ -1,6 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.50 2003/08/25 02:52:16 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.51 2003/08/25 22:20:21 mstorti Exp $
 // fixme:= this may not work in all applications
+#define _GNU_SOURCE
 extern int MY_RANK,SIZE;
 
 #include <typeinfo>
@@ -22,6 +23,7 @@ extern int MY_RANK,SIZE;
 #include <src/graph.h>
 #include <src/distmap2.h>
 #include <src/distcont2.h>
+#include <src/debug.h>
 
 //#define PF_CHKERRQ(ierr) assert(ierr)
 #define PF_CHKERRQ(ierr) CHKERRQ(ierr)
@@ -946,6 +948,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
 	ierr = KSPSetMonitor(ksp_lll,petscfem_null_monitor,PETSC_NULL,NULL);
 
 	ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); PF_CHKERRQ(ierr); 
+	GLOBAL_DEBUG->trace("After solving in iisdmat.cpp...");
 
 	ierr = SLESDestroy(sles_lll); CHKERRA(ierr); PF_CHKERRQ(ierr); 
 

@@ -1,0 +1,31 @@
+nlay 0 subpart 16 N 30 isp_maxits 0 t 19.457 iter 188 maxmem 121080 t 25.011 iter 247 maxmem 125260 t 24.76 iter 240 maxmem 124644 t 24.646 iter 240 maxmem 124796 tav 23.4685 total 167.042
+nlay 1 subpart 16 N 30 isp_maxits 4 t 16.197 iter 129 maxmem 118236 t 18.414 iter 154 maxmem 120868 t 18.275 iter 151 maxmem 120276 t 18.324 iter 153 maxmem 120952 tav 17.8025 total 144.647
+nlay 1 subpart 16 N 30 isp_maxits 8 t 16.599 iter 111 maxmem 117228 t 18.568 iter 134 maxmem 119968 t 18.928 iter 133 maxmem 120048 t 18.793 iter 133 maxmem 120208 tav 18.222 total 145.477
+nlay 1 subpart 16 N 30 isp_maxits 16 t 18.657 iter 103 maxmem 117240 t 21.185 iter 123 maxmem 119336 t 21.117 iter 121 maxmem 118956 t 21.511 iter 122 maxmem 119092 tav 20.6175 total 154.737
+nlay 1 subpart 16 N 30 isp_maxits 32 t 24.681 iter 102 maxmem 116720 t 27.979 iter 120 maxmem 118832 t 27.733 iter 118 maxmem 118740 t 27.587 iter 118 maxmem 119032 tav 26.995 total 181.661
+nlay 1 subpart 16 N 30 isp_maxits 64 t 36.951 iter 102 maxmem 116736 t 42.404 iter 120 maxmem 118844 t 41.743 iter 118 maxmem 118852 t 41.78 iter 118 maxmem 119156 tav 40.7195 total 235.434
+nlay 2 subpart 16 N 30 isp_maxits 4 t 26.643 iter 124 maxmem 128880 t 30.555 iter 148 maxmem 131320 t 30.156 iter 144 maxmem 131320 t 30.037 iter 146 maxmem 131444 tav 29.34775 total 213.027
+nlay 2 subpart 16 N 30 isp_maxits 8 t 28.915 iter 96 maxmem 127356 t 33.256 iter 115 maxmem 129808 t 32.73 iter 111 maxmem 129444 t 32.496 iter 112 maxmem 129596 tav 31.84925 total 223.018
+nlay 2 subpart 16 N 30 isp_maxits 16 t 35.726 iter 74 maxmem 126352 t 40.058 iter 85 maxmem 128300 t 38.352 iter 81 maxmem 127920 t 38.771 iter 83 maxmem 128436 tav 38.22675 total 248.811
+nlay 2 subpart 16 N 30 isp_maxits 32 t 49.429 iter 59 maxmem 125356 t 53.967 iter 64 maxmem 127292 t 51.202 iter 61 maxmem 126944 t 52.126 iter 62 maxmem 126956 tav 51.681 total 302.89
+nlay 2 subpart 16 N 30 isp_maxits 64 t 76.951 iter 51 maxmem 124840 t 85.492 iter 56 maxmem 126792 t 81.383 iter 53 maxmem 127068 t 83.704 iter 54 maxmem 127068 tav 81.8825 total 423.028
+nlay 4 subpart 16 N 30 isp_maxits 4 t 28.246 iter 124 maxmem 133812 t 32.958 iter 148 maxmem 136372 t 31.836 iter 144 maxmem 136496 t 32.519 iter 146 maxmem 136508 tav 31.38975 total 223.907
+nlay 4 subpart 16 N 30 isp_maxits 8 t 32.276 iter 96 maxmem 132304 t 36.773 iter 114 maxmem 134920 t 36.133 iter 111 maxmem 134624 t 36.528 iter 112 maxmem 134572 tav 35.4275 total 239.687
+nlay 4 subpart 16 N 30 isp_maxits 16 t 39.748 iter 72 maxmem 130796 t 44.302 iter 81 maxmem 132580 t 42.606 iter 78 maxmem 132712 t 43.677 iter 79 maxmem 132976 tav 42.58325 total 269.095
+nlay 4 subpart 16 N 30 isp_maxits 32 t 49.373 iter 50 maxmem 129816 t 50.269 iter 52 maxmem 131368 t 49.557 iter 50 maxmem 131656 t 51.24 iter 52 maxmem 131656 tav 50.10975 total 299.378
+nlay 4 subpart 16 N 30 isp_maxits 64 t 59.607 iter 32 maxmem 128780 t 61.22 iter 33 maxmem 130796 t 57.325 iter 31 maxmem 130348 t 58.178 iter 31 maxmem 130460 tav 59.0825 total 336.006
+nlay 0 subpart 64 N 30 isp_maxits 0 t 21.479 iter 273 maxmem 93924 t 31.994 iter 352 maxmem 99952 t 31.544 iter 349 maxmem 99996 t 31.529 iter 349 maxmem 99996 tav 29.1365 total 190.61
+nlay 1 subpart 64 N 30 isp_maxits 4 t 15.987 iter 183 maxmem 87108 t 19.442 iter 212 maxmem 89572 t 18.874 iter 208 maxmem 89560 t 19.138 iter 210 maxmem 89560 tav 18.36025 total 146.389
+nlay 1 subpart 64 N 30 isp_maxits 8 t 16.157 iter 155 maxmem 84896 t 19.125 iter 178 maxmem 87408 t 18.797 iter 175 maxmem 87380 t 18.837 iter 176 maxmem 87400 tav 18.229 total 144.94
+nlay 1 subpart 64 N 30 isp_maxits 16 t 19.786 iter 138 maxmem 83500 t 23.187 iter 159 maxmem 85788 t 22.727 iter 156 maxmem 85816 t 23.067 iter 158 maxmem 85816 tav 22.19175 total 161.73
+nlay 1 subpart 64 N 30 isp_maxits 32 t 30.287 iter 135 maxmem 83476 t 34.716 iter 153 maxmem 85728 t 34.017 iter 150 maxmem 85016 t 34.467 iter 152 maxmem 85036 tav 33.37175 total 205.11
+nlay 1 subpart 64 N 30 isp_maxits 64 t 51.889 iter 134 maxmem 83844 t 59.797 iter 153 maxmem 86200 t 58.008 iter 149 maxmem 85468 t 59.207 iter 152 maxmem 85664 tav 57.22525 total 301.14
+nlay 2 subpart 64 N 30 isp_maxits 4 t 30.083 iter 176 maxmem 99800 t 35.35 iter 203 maxmem 103640 t 35.015 iter 199 maxmem 103192 t 35.12 iter 202 maxmem 103216 tav 33.892 total 232.483
+nlay 2 subpart 64 N 30 isp_maxits 8 t 34.139 iter 131 maxmem 96020 t 38.551 iter 150 maxmem 98628 t 37.347 iter 147 maxmem 98656 t 37.565 iter 147 maxmem 98700 tav 36.9005 total 244.859
+nlay 2 subpart 64 N 30 isp_maxits 16 t 39.498 iter 90 maxmem 93108 t 44.425 iter 103 maxmem 95604 t 43.636 iter 99 maxmem 95244 t 44.324 iter 102 maxmem 95288 tav 42.97075 total 268.639
+nlay 2 subpart 64 N 30 isp_maxits 32 t 48.572 iter 61 maxmem 90728 t 54.446 iter 68 maxmem 92692 t 52.148 iter 65 maxmem 92704 t 53.066 iter 66 maxmem 92740 tav 52.058 total 305.508
+nlay 2 subpart 64 N 30 isp_maxits 64 t 69.795 iter 44 maxmem 89972 t 77.415 iter 49 maxmem 91068 t 69.558 iter 46 maxmem 91376 t 72.788 iter 47 maxmem 91388 tav 72.389 total 386.75
+nlay 1 subpart 128 N 30 isp_maxits 4 t 22.609 iter 228 maxmem 83232 t 27.867 iter 262 maxmem 86788 tav 25.238 total 86.971
+nlay 1 subpart 128 N 30 isp_maxits 8 t 20.94 iter 181 maxmem 78628 t 25.917 iter 212 maxmem 82108 tav 23.4285 total 83.586
+nlay 2 subpart 128 N 30 isp_maxits 4 t 41.544 iter 219 maxmem 97504 t 48.83 iter 251 maxmem 101336 tav 45.187 total 139.822
+nlay 2 subpart 128 N 30 isp_maxits 8 t 41.969 iter 154 maxmem 91980 t 47.485 iter 175 maxmem 95076 tav 44.727 total 138.701
