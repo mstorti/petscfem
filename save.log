@@ -1962,3 +1962,6 @@ tag: beta-3.11.pl1 on Thu, 19 Dec 2002 00:18:03 -0300 by mstorti in spider
 ----------
 tag: beta-3.11.pl2 on Sun, 22 Dec 2002 03:20:56 -0300 by mstorti in spider
      > Fixing problems with circular constraints. 
+----------
+tag: beta-3.11.pl3 on Sun, 22 Dec 2002 04:02:50 -0300 by mstorti in spider
+     > Now constraints seem to work OK. 
