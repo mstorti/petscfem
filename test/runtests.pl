@@ -397,6 +397,7 @@ begin_section('Misc tests.');
 expect("sparse/verif.cloud.tmp",
        "Least squares coeff. for derivs. in 3x3 grid",<<'EOF');
 2D 3x3 cloud  OK\? 1,
+2D 3x3 cloud.*x0.* OK\? 1,
 EOF
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/check.iisd.verif.np1.tmp",

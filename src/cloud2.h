@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: cloud2.h,v 1.2 2003/02/27 03:32:41 mstorti Exp $
+// $Id: cloud2.h,v 1.3 2003/02/28 16:17:53 mstorti Exp $
 #ifndef PETSCFEM_CLOUD2_H
 #define PETSCFEM_CLOUD2_H
 
@@ -39,7 +39,7 @@ public:
       #coef(x,w,x0)# but assumes #x0=0#. 
       @param x (input) coordinates of points (size #nx*ndim#)
       @param w (output) coefficients of approximation (size #nx*nderiv#) */
-  void coef(FastMat2 &x, FastMat2 &w) { /* fixme:= code */ }
+  virtual void coef(FastMat2 &x, FastMat2 &w)=0;
   /** Clean-up function. */ 
   virtual void clear()=0;
 };
@@ -55,6 +55,7 @@ public:
   ~Cloud2();
   void init(int ndim, int nx, int nderiv,const int *derivs, const int *npol);
   void coef(FastMat2 &x, FastMat2 &w, FastMat2 &x0);
+  void coef(FastMat2 &x, FastMat2 &w);
   void clear();
 };
 

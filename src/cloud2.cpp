@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: cloud2.cpp,v 1.2 2003/02/28 15:37:37 mstorti Exp $
+// $Id: cloud2.cpp,v 1.3 2003/02/28 16:17:53 mstorti Exp $
 #include <cmath>
 #include <src/util2.h>
 #include <src/dvector.h>
@@ -36,10 +36,11 @@ private:
   /// To store temporaries
   FastMat2Tmp tmp;
   /// Aux matrices
-  FastMat2 A,AA,xi,H,iH;
+  FastMat2 A,AA,xi,H,iH,x00;
 public:
   void init(int ndim, int nx, int nderiv,const int *derivs, const int *npol);
   void coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0);
+  void coef(FastMat2 &x, FastMat2 &w);
   void clear();
 };
 
@@ -49,6 +50,7 @@ BasicCloud::~BasicCloud() {}
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Cloud2::Cloud2() : ptr(NULL) { ptr = new Cloud2FastMat2; }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Cloud2::~Cloud2() { delete ptr; }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -58,6 +60,9 @@ void Cloud2::init(int ndim, int nx, int nderiv,const int *derivs, const int *npo
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Cloud2::coef(FastMat2 &x, FastMat2 &w,FastMat2 &x0) { ptr->coef(x,w,x0); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Cloud2::coef(FastMat2 &x, FastMat2 &w) { ptr->coef(x,w); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Cloud2::clear() { ptr->clear(); }
@@ -121,6 +126,12 @@ void Cloud2FastMat2::init(int ndim_a, int nx_a,
   iH.resize(2,n_pol_term,n_pol_term);
   tmp(0).resize(1,nx).set(1.);
   tmp(3).resize(1,nx);
+  x00.resize(1,ndim).set(0.);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Cloud2FastMat2::coef(FastMat2 &x, FastMat2 &w) {
+  coef(x,w,x00);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -173,4 +184,5 @@ void Cloud2FastMat2::clear() {
   derivs.clear();
   npol.clear();
   tmp.clear();
+  x00.clear();
 }
