@@ -3704,3 +3704,6 @@ tag: beta-3.39.38 on Mon, 17 Jan 2005 00:46:02 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.39 on Mon, 17 Jan 2005 11:23:40 -0300 by mstorti in minerva.ceride.gov.ar
      > Now `dvector::resize()' fills with zeros, by default. 
+----------
+tag: beta-3.39.40 on Mon, 17 Jan 2005 12:43:52 -0300 by mstorti in minerva.ceride.gov.ar
+     > elem->nod-proj, OK. 
