@@ -1,0 +1,68 @@
+This is PETSc-FEM, version 
+dx_hook: starting socket at port: 
+============= delta_u 
+dx_hook: accepting connections, step 1
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 2
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 3
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 4
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 5
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 6
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 7
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 8
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 9
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 10
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 11
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: accepting connections, step 12
+dx_hook: Got steps 1, dx_step 0, state_file <no-state>, record 0
+dx_hook: changed "steps" 1 -> 0 from DX
+dx_hook: step 13, detached mode, no connection found
+dx_hook: step 14, detached mode, no connection found
+dx_hook: step 15, detached mode, no connection found
+dx_hook: step 16, detached mode, no connection found
+dx_hook: step 17, detached mode, no connection found
+dx_hook: step 18, detached mode, no connection found
+dx_hook: step 19, detached mode, no connection found
+dx_hook: step 20, detached mode, no connection found
+------<snip>-----------
+Starting DX executive
+ 0:  Socket opened at try
+ 0:  \(1\). Array ptr. .*, member name "nodes"
+ 0:  \(2\). Array ptr. .*, member name "p"
+ 0:  \(3\). Array ptr. .*, member name "u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(1\). Field ptr. .*, member name "visc_fluid_p"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+ 0:  \(4\). Array ptr. .*, member name "visc_fluid"
+ 0:  \(2\). Field ptr. .*, member name "visc_fluid_u"
+data values:
+       12 
+ 0:  cleaning up and exiting 

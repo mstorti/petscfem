@@ -1,36 +1,37 @@
-# $Id: Makefile,v 1.52 2003/02/18 23:49:44 mstorti Exp $ 
+# $Id: Makefile,v 1.53 2003/02/19 12:45:58 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
-	dx_hook_test_post_run_file_record 
-
+	dx_hook_test_post_run_file_record
 DX := ../../dx
 DXMODULES := $(DX)
 
 export DX DXMODULES
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
 	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests
 
-dx_tests: dx_hook_test_post_run_file_record dx_hook_test_post_run_files
+dx_tests := dx_hook_test_post_run_file_record dx_hook_test_post_run_files \
+		dx_hook_test_synchro dx_hook_test_allf
+
+.PHONY dx_tests: $(dx_tests)
 
 dx:
 	$(MAKE) -C ../../dx
 
-# PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-#CASE_NAME := qharm
 CASE_NAME := sqcav
 PROG := $(NS)
 
-################################################################
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 NP = 1
 
 MCH = -machinefile ./machi.dat
@@ -75,6 +76,7 @@ test_g_body:
 	$(MAKE) case=g_body runs
 	$(OCTAVE) < check.g_body.m > check.g_body.verif.tmp
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 # tests the square cavity in a 20x20 mesh at Re=1000
 # with respect with a reference solution obtained also with Petscfem and
 # verified with Ghia results
@@ -84,6 +86,7 @@ test_re1000:
 	$(MAKE) case=weak_form_1 runs
 	$(OCTAVE) < check_re1000.m > check.re1000.verif.tmp
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w IISD for square cavity test in 20x20 mesh on two processors
 test_iisd2: 
 	$(MAKE) case=lu np=1 runs
@@ -95,6 +98,7 @@ test_iisd2:
 REDIR := >
 # REDIR := | tee
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc: CASE := sqcav
 test_zero_w_proc:
@@ -116,6 +120,7 @@ test_zero_w_proc:
 #
 	$(OCTAVE) check_zwproc.m > check.zwproc.tmp
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc2: CASE := sqcav
 test_zero_w_proc2:
@@ -141,6 +146,7 @@ test_zero_w_proc2:
 test_meas_perf:
 	$(MAKE) case=lu np=1 meas_perf=1 runs
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests IISD solver on the square cavity problem
 test_iisd:
 	$(MAKE) case=lu np=1 runs
@@ -151,11 +157,13 @@ test_iisd:
 	$(MAKE) case=iisd_sbp16 runs
 	$(OCTAVE) < check_iisd.m > check.iisd.verif.np1.tmp
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests square cavity at Re=400 with fractional step solver. 
 test_fs:
 	make case=fractional_step_re400 runs2
 	$(OCTAVE) < check_fs.m > check.fs.verif.tmp
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Tests triangles
 test_triangle:
 	$(MAKE) case=weak_form_1 use_triangles=1 runs
@@ -164,8 +172,8 @@ test_triangle:
 link:
 	ln -sf $(PROG) ns
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_file1 := output.CASE_sqcav.np_1.case_dx_file1.out.tmp
-
 #w Checks reading states from file in severa records. 
 dx_hook_test_post_run_file_record: dx
 #
@@ -184,8 +192,8 @@ dx_hook_test_post_run_file_record: dx
 	echo "------<snip>-----------" >> $(output_file1)
 	cat dx_ouput.file1.tmp >> $(output_file1)
 
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
 output_file3 := output.CASE_sqcav.np_1.case_dx_file3.out.tmp
-
 #w Checks reading states from several files
 dx_hook_test_post_run_files: dx
 #
@@ -203,6 +211,40 @@ dx_hook_test_post_run_files: dx
 	$(MAKE) case=dx_file3 runs
 	echo "------<snip>-----------" >> $(output_file3)
 	cat dx_ouput.file3.tmp >> $(output_file3)
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
+output_synchro := output.CASE_sqcav.np_1.case_dx_synchro.out.tmp
+dx_output := dx_ouput.synchro.tmp
+#w Checks reading states in synchronous form
+dx_hook_test_synchro: dx
+#
+# DX and PETSc-FEM run at the same time, exchanging information
+#
+# Clean files
+	-rm -f $(dx_output) $(output_synchro)
+# Runs DX in background and PETSc-FEM 
+	dx -mdf ./epimport.mdf -cache off -memory 100 \
+			-script qq_synchro.net > $(dx_output) &
+	$(MAKE) case=dx_synchro runs
+	echo "------<snip>-----------" >> $(output_synchro)
+	cat $(dx_output) >> $(output_synchro)
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
+output_allf := output.CASE_sqcav.np_1.case_dx_allf.out.tmp
+dx_output := dx_ouput.allf.tmp
+#w Checks reading states in synchronous form
+dx_hook_test_allf: dx
+#
+# DX and PETSc-FEM run at the same time, exchanging information
+#
+# Clean files
+	-rm -f $(dx_output) $(output_allf)
+# Runs DX in background and PETSc-FEM 
+	dx -mdf ./epimport.mdf -cache off -memory 100 \
+			-script qq_synchro.net > $(dx_output) &
+	$(MAKE) case=dx_allf runs
+	echo "------<snip>-----------" >> $(output_allf)
+	cat $(dx_output) >> $(output_allf)
 
 data: force
 	$(MAKE) $(CASE).depl

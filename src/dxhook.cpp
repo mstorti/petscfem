@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.34 2003/02/18 15:53:56 mstorti Exp $
+//$Id: dxhook.cpp,v 1.35 2003/02/19 12:45:46 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -48,10 +48,10 @@ public:
     name = string(name_a);
   }
   int n() { return 1; }
-  void field(int j,string &name,vector<int> &rank) {
+  void field(int j,string &name,vector<int> &shape) {
     name = "state";
-    rank.clear();
-    rank.push_back(ndof);
+    shape.clear();
+    shape.push_back(ndof);
   }
   void values(int j,vector<double> &in,vector<double> &out) {
     for (int k=0; k<ndof; k++) out[k] = in[k];
@@ -414,19 +414,18 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
       FieldGen *q = *qp;
       int nf = q->n();
       for (int jf=0; jf<nf; jf++) {
-	vector<int> rank;
+	vector<int> shape;
 	string name;
-	int size=1;
-	q->field(jf,name,rank);
-	vector<double> in(ndof),out(size);
+	q->field(jf,name,shape);
+	int rank=shape.size(), size=1;
 	AutoString buff;
-	// Sends name and rank of entity
-	buff.sprintf("state %s %d",name.c_str(),rank.size());
+	// Sends name and rank/shape of entity
+	buff.sprintf("state %s %d",name.c_str(),rank);
 
 	// Sends the list of dimensions and total size
-	for (int jd=0; jd<rank.size(); jd++) {
-	  buff.cat_sprintf(" %d",rank[jd]);
-	  size *= rank[jd];
+	for (int jd=0; jd<rank; jd++) {
+	  buff.cat_sprintf(" %d",shape[jd]);
+	  size *= shape[jd];
 	}
 	
 	// Send number of nodes and cookie
@@ -435,6 +434,7 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 	Sprintf(srvr,"%s\n",buff.str());
 
 	// Send values 
+	vector<double> in(ndof),out(size);
 	for (int j=0; j<nnod; j++) {
 	  double *base_node = state_p+j*ndof;
 	  for (int l=0; l<ndof; l++) in[l] = *(base_node+l);

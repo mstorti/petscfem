@@ -1,9 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.11 2002/08/18 19:20:48 mstorti Exp $
-
-# usage: expect($file,$pattern);
-#Advances $file until finds a little of "\n" delimited $pattern's. 
-$opt_d = 0;
+#$Id: myexpect.pl,v 1.12 2003/02/19 12:45:58 mstorti Exp $
 
 ## position in count record
 $OK= 1;
@@ -18,7 +14,7 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 
 sub read_file {
     my $file = shift();
-    open FILE,$file;
+    die "can't open file \"$file\"\n" unless  open FILE,$file;
     my $file = join "",(<FILE>);
     return $file;
 }

@@ -13,6 +13,8 @@ if ($case =~ /^dx_(.*)/) {
     $dx = 1;
     $dx_case = $1;
     $case = "weak_form_0"; 
+    ${$dx_case} = 1;
+    $synchro = 1 if $allf;
 }
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 
@@ -112,6 +114,12 @@ octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
 # <:pr('dx_case'):> 
 # <:pr('dx'):> 
+# <:pr('file0'):> 
+# <:pr('file1'):> 
+# <:pr('file2'):> 
+# <:pr('file3'):> 
+# <:pr('synchro'):> 
+# <:pr('allf'):> 
 #================================================================
 global_options
 
@@ -185,11 +193,15 @@ nrec 1
 nfile 100000
 #endif
 
-#if $dx_case eq 'file1' || $dx_case eq 'file3'
+#if $file1 || $file3 || $synchro
 hook_list ns_dx_hook my_dx_hook
+#if !$allf
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
+#endif
+#endif
+#if $file1 || $file3
 dx_read_state_from_file
 #endif
 

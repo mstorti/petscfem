@@ -474,7 +474,7 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("distmap/distcont.sal.tmp",
-       "Distributed container class.",read_file("distcont.ans.txt"));
+       "Distributed container class.",read_file("distmap/distcont.ans.txt"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("distmap/distmapg.sal.tmp",
@@ -503,7 +503,7 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/output.CASE_sqcav.np_1.case_lu.out.tmp",
-       "Measure performance test.",read_file("test_meas_perf.ans.txt"));
+       "Measure performance test.",read_file("sqcav/test_meas_perf.ans.txt"));
 
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -567,11 +567,11 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sparse/output.sparse.superlu.tmp","Sparse Mat/Vec classes, SuperLU version",
-                        read_file("sparse.test"));
+                        read_file("sparse/sparse.test"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sparse/output.sparse.petsc.tmp","Sparse Mat/Vec classes, PETSc version",
-                        read_file("sparse.test"));
+                        read_file("sparse/sparse.test"));
 
 end_section();
 
@@ -1072,12 +1072,22 @@ begin_section('PETSc-FEM / DX coupling');
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/output.CASE_sqcav.np_1.case_dx_file1.out.tmp",
        "Reading states as records from a file",
-       read_file("pf_output.dx_file1.ans"));
+       read_file("sqcav/pf_output.dx_file1.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sqcav/output.CASE_sqcav.np_1.case_dx_file3.out.tmp",
        "Reading states from several files",
-       read_file("pf_output.dx_file3.ans"));
+       read_file("sqcav/pf_output.dx_file3.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_1.case_dx_synchro.out.tmp",
+       "Processing states synchronously",
+       read_file("sqcav/pf_output.dx_synchro.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/output.CASE_sqcav.np_1.case_dx_allf.out.tmp",
+       "Processing states synchronously. Sends only one field array.",
+       read_file("sqcav/pf_output.dx_allf.ans"));
 
 end_section();
 

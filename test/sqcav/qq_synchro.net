@@ -1,0 +1,22 @@
+// -*- mode: shell-script -*-
+//__INSERT_LICENSE__
+// $Id: qq_synchro.net,v 1.1 2003/02/19 12:45:58 mstorti Exp $ 
+macro mymac(steps) -> () {
+alist, flist, stepo = ExtProgImport(steps,NULL,5314,NULL,0,NULL,0);
+Print(alist,"r",NULL);
+Print(flist,"r",NULL);
+Print(stepo,"od",NULL);
+}
+
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(1);
+mymac(0); // pass to asynchronous communication
