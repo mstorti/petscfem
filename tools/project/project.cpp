@@ -1,10 +1,14 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.10 2005/02/25 01:16:13 mstorti Exp $
+// $Id: project.cpp,v 1.11 2005/02/25 01:30:41 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
+
+static double drand() { 
+  return double(rand())/double(RAND_MAX); 
+}
 
 int main() {
   int ndim = 3;
@@ -51,13 +55,23 @@ int main() {
   FastMat2 C(2,nd1,nd1),C2(2,nd1,nd1),
     invC(2,nd1,nd1), invC2(2,nd1,nd1),
     invCt(2,nd1,nd1),
-    x2(1,ndim),x12(1,ndim),
+    x2(1,ndim),x2prj(1,ndim),
+    x12(1,ndim),
     x13(1,ndim),x1(1,ndim),
     nor(1,ndim),L(1,ndim+1),
     b(1,ndim+1);
+#define NOD2_RAND
   vector<int> restricted(ndim);
+#ifdef NOD2_RAND
+  nnod2=100;
+#endif
   for (int n2=0; n2<nnod2; n2++) {
+#ifndef NOD2_RAND
     x2.set(&xnod2.e(n2,0));
+#else
+    for (int j=0; j<ndim; j++)
+      x2.setel(1.5*drand()-0.25,j+1);
+#endif
     for (int k=0; k<nelem1; k++) {
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
@@ -82,18 +96,18 @@ int main() {
 	restricted[j] = 0;
       invC.inv(C);
       C2.set(C);
-      b.print("b");
-      C.print("C");
+      // b.print("b");
+      // C.print("C");
       invCt.ctr(invC,2,1).scale(-1.0);
       invCt.ir(1,nd1).set(0.).rs();
-      invCt.print("invCt");
+      // invCt.print("invCt");
       int iter=0;
       while(true) {
 	iter++;
 	invC2.inv(C2);
 	L.prod(invC2,b,1,-1,-1);
-	C2.print("C2");
-	L.print("L");
+	// C2.print("C2");
+	// L.print("L");
 	int neg=0;
 	for (int j=1; j<=ndim; j++) {
 	  if (L.get(j)<0) {
@@ -104,11 +118,20 @@ int main() {
 	    C2.set(invCt);
 	  }
 	}
-	if (!neg || iter>ndim) break;
+	if (!neg) break;
+	assert(iter<=ndim);
 	C2.rs();
 	invCt.rs();
       }
-      printf("converged on iters %d\n",iter);
+      // printf("converged on iters %d\n",iter);
+      for (int j=0; j<ndim; j++) 
+	if (restricted[j]) L.setel(0.,j+1);
+      L.setel(0.,nd1);
+      C.is(1,1,ndim);
+      x2prj.prod(C,L,1,-1,-1);
+      C.rs();
+      x2.print("");
+      x2prj.print("");
     }
   }
 }
