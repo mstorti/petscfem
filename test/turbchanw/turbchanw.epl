@@ -4,7 +4,7 @@
 global_options
 
 <:require '../eperlini.pl'; # Initializes ePerl 
-$heat=0;
+$heat=1;
 if (!$heat) {
     import_vals('../shallowt.m');
     import_vals('./tcini.m');
@@ -14,6 +14,8 @@ if (!$heat) {
 require './tc.data.tmp';
 $Q=$q*$h;
 $N     = readm('N'    ,'./tcini.m');
+$use_log_vars=1;
+$heat_ini_val = ($use_log_vars? log(1.1) : 1.1);
 _:>// 
 
 #if !$heat
@@ -32,10 +34,11 @@ consistent_supg_matrix 1
 Dt 0.0001
 nstep 10
 #else
-Dt 0.1
+Dt 4
 nstep 1
 #endif
 alpha 1
+use_log_vars <:=$use_log_vars:>
 
 # para correr con mass lumping
 #if 1
@@ -51,6 +54,10 @@ nsave 10
 # initialization
 #initial_state "state.out.tmp"
 initial_state "tc.ini"
+#else
+#if !$use_log_vars
+initial_state "heat.ini"
+#endif
 #endif
 
 # "rotary saving" 
@@ -128,10 +135,10 @@ end_elemsets
 #================================================================
 fixa
 #if $heat
-1 1 1
-2 1 1
+1 1 <:=$heat_ini_val:>
+2 1 <:=$heat_ini_val:>
 #else
-1 1 <:=.5*$q*$h:>		# u = some value
+1 1 <:=.9*$q*$h:>		# u = some value
 1 2 0				# v = 0              at the wall
 
 <:=2*$N+1:> 2 0.		# v=0 at the outer region

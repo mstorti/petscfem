@@ -49,6 +49,35 @@ int AdvDif::ask(const char *jobinfo,int &skip_elemset) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Transforma state vector from logarithmic. The indices of fields
+    logarithmically tranformed are listed in \verb+log_vars+. 
+    @author M. Storti
+    CORREGIR:=
+    @param true_lstate (output) Transformed from logarithm
+    to positive variable. 
+    @param lstate (ouput) input state logarithmically transformed
+    (only those fields in \verb+log_vars+).
+    @param nlog_vars (input) number of fields logarithmically
+    transformed
+    @param log_vars (input) list of fields logarithmically
+    transformed.
+*/ 
+#undef __FUNC__
+#define __FUNC__ "void log_transf()"
+void log_transf(FastMat2 &true_lstate,const FastMat2 &lstate,
+		const int nlog_vars,const int *log_vars) {
+  // Copy to log_state
+  true_lstate.set(lstate);
+  // Transform only those fields in log_vars
+  for (int k=0; k<nlog_vars; k++) {
+    int dof=log_vars[k];
+    true_lstate.ir(2,dof);
+    true_lstate.fun(&exp);
+  }
+  true_lstate.ir(2);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "advective::assemble"
 void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
@@ -133,7 +162,25 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   NSGETOPTDEF(double,beta_supg,1.);
   //o Use lumped mass (used mainly to avoid oscillations for small time steps).
   NSGETOPTDEF(int,lumped_mass,0);
+  //o Use log_vars for k and epsilon
+  NSGETOPTDEF(int,use_log_vars,0);
+  int *log_vars, log_vars_swt[2]={4,5}, log_vars_sc=1, nlog_vars;
+  if (use_log_vars) {
+    // Bes sure that we are in shallow water.
+    // This would be returned by the flux function
+    if (ndof==5) {   // turbulent shallow water
+      nlog_vars=2;
+      log_vars = log_vars_swt; // Return dofs for k, epsilon
+    } else if (ndof==1) { // thermal problem
+      nlog_vars=1;
+      log_vars = &log_vars_sc;
+    } else { assert(0);} 
+  } else {
+    nlog_vars=0;
+    log_vars=NULL;
+  }
 
+  assert(lumped_mass); // Not implemented yet:= not lumped_mass + log-vars
   // lumped_mass:= If this options is activated then all the inertia
   // term matrix comtributions are added to 'matlocf_mass' and the
   // vector contribution terms are discarded. Then at the last moment
@@ -141,10 +188,11 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // Allocate local vecs
   FMatrix veccontr(nel,ndof),veccontr_mass(nel,ndof),
-    xloc(nel,ndim),locstate(nel,ndof), 
-    locstateo(nel,ndof),locstaten(nel,ndof),dUlocdt(nel,ndof),
+    xloc(nel,ndim),lstate(nel,ndof), 
+    lstateo(nel,ndof),lstaten(nel,ndof),dUlocdt(nel,ndof),
     matloc,eye_ndof(ndof,ndof);
-  FastMat2 locstateo2(2,nel,ndof);
+  FastMat2 true_lstate(2,nel,ndof), 
+    true_lstateo(2,nel,ndof),true_lstaten(2,nel,ndof);
 
   eye_ndof.set(0.).eye(1.);
   
@@ -196,12 +244,15 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     if (comp_res) {
       lambda_max=0;
-      locstateo.set(element.vector_values(*stateo));
-      locstaten.set(element.vector_values(*staten));
+      lstateo.set(element.vector_values(*stateo));
+      lstaten.set(element.vector_values(*staten));
+      // log_transf(true_lstaten,lstaten,nlog_vars,log_vars);
+      // log_transf(true_lstateo,lstateo,nlog_vars,log_vars);
     }
     
     // State at time t_{n+\alpha}
-    locstate.set(0.).axpy(locstaten,ALPHA).axpy(locstateo,(1-ALPHA));
+    lstate.set(0.).axpy(lstaten,ALPHA).axpy(lstateo,(1-ALPHA));
+    log_transf(true_lstate ,lstate ,nlog_vars,log_vars);
 
     veccontr.set(0.);
     mass.set(0.);
@@ -242,12 +293,18 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       if (comp_res) {
 	// state variables and gradient
 
-	Un.prod(SHAPE,locstaten,-1,-1,1);
-	Uo.prod(SHAPE,locstateo,-1,-1,1);
+	Un.prod(SHAPE,lstaten,-1,-1,1);
+	Uo.prod(SHAPE,lstateo,-1,-1,1);
 	U.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
 	dUdt.set(Un).rest(Uo).scale(1./DT);
+	for (int k=0; k<nlog_vars; k++) {
+	  int jdof=log_vars[k];
+	  double UU=exp(U.get(jdof));
+	  dUdt.ir(1,jdof).scale(UU);
+	}
+	dUdt.rs();
 
-	grad_U.prod(dshapex,locstate,1,-1,-1,2) ;
+	grad_U.prod(dshapex,true_lstate,1,-1,-1,2) ;
 
 	delta_sc=0;
 	double lambda_max_pg;
@@ -427,15 +484,38 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	}
 	matlocf_mass.rs().reshape(4,nel,ndof,nel,ndof);
 #endif
-	// Add to matrix contribution to be returned
-	matlocf.add(matlocf_mass);
 	// Compute derivative of local element state
 	// The Dt is already included in the mass matrix
-	dUlocdt.set(locstaten).rest(locstateo);
+	dUlocdt.set(lstaten).rest(lstateo);
+	// correct the logarithmic variables for a factor $U^{n+\alpha}$
+	for (int k=0; k<nlog_vars; k++) {
+	  int jdof=log_vars[k];
+	  true_lstate.ir(2,jdof);
+	  dUlocdt.ir(2,jdof).mult(true_lstate);
+	}
+	dUlocdt.rs();
+	true_lstate.rs();
 	// Compute inertia term with lumped mass
 	veccontr_mass.prod(matlocf_mass,dUlocdt,1,2,-1,-2,-1,-2);
 	// Add (rest) to vector contribution to be returned
 	veccontr.rest(veccontr_mass);
+	// Scale mass matrix by $U^{n+\alpha}/Dt*(1+alpha\DU)$
+	for (int k=0; k<nlog_vars; k++) {
+	  int jdof=log_vars[k];
+	  for (int j=1; j<=nel; j++) {
+	    // Raw mass matrix value
+	    double m = matlocf_mass.get(j,jdof,j,jdof);
+	    // True (positive variable) value
+	    double UU = true_lstate.get(j,jdof);
+	    // Difference of log variable
+	    double DU = dUlocdt.get(j,jdof);
+	    // Correction factor
+	    double f=UU*(1+ALPHA*DU);
+	    matlocf_mass.setel(m*f,j,jdof,j,jdof);
+	  }
+	}
+	// Add to matrix contribution to be returned
+	matlocf.add(matlocf_mass);
       }
 
       veccontr.export_vals(element.ret_vector_values(*retval));
