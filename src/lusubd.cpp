@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.18 2001/07/23 17:28:09 mstorti Exp $
+//$Id: lusubd.cpp,v 1.19 2001/07/23 18:45:17 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -657,7 +657,8 @@ int IISDMat::solve(Vec res,Vec dx) {
     for (int j = 0; j < neqp; j++) {
       kloc = map[k1+j] - n_locp;
       // y_loc_seq_a[kloc] = res_a[k1+j];
-      ierr = VecSetValues(y_loc_seq,1,&kloc,&res_a[k1+j],INSERT_VALUES); CHKERRQ(ierr);
+      ierr = VecSetValues(y_loc_seq,1,&kloc,&res_a[k1+j],
+			  INSERT_VALUES); CHKERRQ(ierr);
     }
     
     ierr = VecRestoreArray(res,&res_a); CHKERRQ(ierr); 
@@ -828,7 +829,7 @@ void PETScMat::clear() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
-void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
+int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
   static int warn_iisdmat=0;
   int ierr;
@@ -869,24 +870,32 @@ void PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   char *preco_type_ = new char[preco_type.size()+1];
   strcpy(preco_type_,preco_type.c_str());
 
-  ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRA(ierr);
+  ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
-			  P,SAME_NONZERO_PATTERN); CHKERRA(ierr);
-  ierr = SLESGetKSP(sles,&ksp); CHKERRA(ierr);
-  ierr = SLESGetPC(sles,&pc); CHKERRA(ierr);
+			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
+  ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
+  ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
 
-  ierr = KSPSetType(ksp,KSPGMRES); CHKERRA(ierr);
+  ierr = KSPSetType(ksp,KSPGMRES); CHKERRQ(ierr);
 
   ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
-  ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRA(ierr);
+  ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
 
-  ierr = PCSetType(pc,preco_type_); CHKERRA(ierr);
+  ierr = PCSetType(pc,preco_type_); CHKERRQ(ierr);
   delete[] preco_type_;
   ierr = KSPSetMonitor(ksp,PFMat_default_monitor,this);
   sles_was_built = 1;
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int PFMat::destroy_sles()"
+int PFMat::destroy_sles() {
+  int ierr = SLESDestroy(sles); CHKERRQ(ierr);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

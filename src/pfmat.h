@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.4 2001/07/23 15:53:05 mstorti Exp $
+// $Id: pfmat.h,v 1.5 2001/07/23 18:45:26 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -71,7 +71,10 @@ public:
       @param name (input) a string to be prepended to all options that
       apply to the operator. (not implemented yet)
   */ 
-  virtual void build_sles(TextHashTable *thash,char *name=NULL);
+  virtual int build_sles(TextHashTable *thash,char *name=NULL);
+  /** Destroy the SLES associated with the operator. 
+  */ 
+  virtual int destroy_sles();
   /** Defines how to report convergence in the internal loop. 
       Derive this function to obtain a different effect from the
       default one. 
