@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.7 2002/02/04 19:04:12 mstorti Exp $
+// $Id: stream.h,v 1.8 2002/02/05 00:58:24 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -247,7 +247,7 @@ class stream_ff : public AdvDifFFWEnth {
   /// The local depth of the fluid
   double u;
   /// The slope of the channel
-  double S;
+  // double S;
   /** Local state of the fluid obtained from geometrical parameters
       from the water depth `u'
   */
@@ -259,7 +259,7 @@ class stream_ff : public AdvDifFFWEnth {
   /// Pointer to the channel shape object
   ChannelShape *channel;
   /// Properties related to friction
-  Property slope_prop;
+  //   Property slope_prop;
 public:
   stream_ff(const NewAdvDif *e);
 

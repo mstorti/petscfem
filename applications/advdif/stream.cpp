@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.10 2002/02/04 19:04:12 mstorti Exp $
+//$Id: stream.cpp,v 1.11 2002/02/05 00:58:24 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -30,7 +30,7 @@ void DummyEnthalpyFun
 void DummyEnthalpyFun
 ::comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg) {
   s->comp_P_Cp(P_Cp,P_supg);
-};
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::start_chunk(int &ret_options) {
@@ -42,35 +42,15 @@ void stream_ff::start_chunk(int &ret_options) {
     friction_law = FrictionLaw::factory(elemset);
   friction_law->init();
 
-  elemset->get_prop(slope_prop,"slope");
-  assert(slope_prop.length==1);
-
-#if 0
-  /// Friction related stuff
-  string f = "Chezy";
-  elemset->get_string("friction_law",f,1);
-  if (f=="Chezy") {
-    friction_law = Chezy;
-    elemset->get_prop(Ch_prop,"Ch");
-  } else if (f=="Manning") {
-    friction_law = Manning;
-    elemset->get_prop(roughness_prop,"roughness");
-  } else assert(0);
-#endif
+  // elemset->get_prop(slope_prop,"slope");
+  // assert(slope_prop.length==1);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void stream_ff::element_hook(ElementIterator &element) {
-  S = elemset->prop_val(element,slope_prop);
+  // S = elemset->prop_val(element,slope_prop);
   channel->element_hook(element);
   friction_law->element_hook(element);
-#if 0
-  if (friction_law==Chezy) {
-    Ch = elemset->prop_val(element,Ch_prop);
-  } else {
-    Ch = elemset->prop_val(element,Ch_prop);
-  }
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -137,12 +117,17 @@ void stream_ff
   // a:= the jacobian `dQ/du = dQ/dA * dA/du = C * M' is the
   //                  jacobian
   // M= `dA/du = wl_width:= ' is the analogous to `mass' or specific heat.
-  double Q,CC,a;
+  double Q,CC,a,S;
 
   options |= SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a scalar tau
   // calls the `channel_shape' object
   set_state(U,grad_U);
+  // slope is computed from the gradient of the bottom height (entered
+  // as third component in the `nodes' section
+  S = -grad_H.get(1,1);
+  assert(S>=0.); // slope should be negative in the direction
+		 // of the stream
   // computes `Q' and `C'
   friction_law->flow(area,perimeter,S,Q,C);
   a = C * wl_width;
