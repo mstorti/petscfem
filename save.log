@@ -1649,3 +1649,6 @@ tag: beta-3.05.pl2 on Sat, 21 Sep 2002 10:54:02 -0300 by mstorti in spider
 ----------
 tag: beta-3.05.pl3 on Sun, 22 Sep 2002 06:07:33 -0300 by mstorti in spider
      > Changed printing dof statistics for IISD
+----------
+tag: beta-3.05.pl4 on Sun, 22 Sep 2002 10:18:36 -0300 by mstorti in spider
+     > Added ROSI_COUPLING_MODULE flag. 
