@@ -2200,3 +2200,6 @@ tag: beta-3.14.pl47 on Wed, 22 Jan 2003 16:06:49 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.14.pl48 on Fri, 24 Jan 2003 16:48:58 -0300 by mstorti in node1.beowulf.gtm
      > Fixed bug in processing `-bubbly' option
+----------
+tag: beta-3.14.pl49 on Fri, 24 Jan 2003 17:04:22 -0300 by mstorti in minerva.arcride.edu.ar
+     > Trying to move gatherer to all modules.
