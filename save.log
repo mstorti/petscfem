@@ -1047,3 +1047,6 @@ tag: beta-2.87 on Sun Feb 17 12:28:27 -0300 2002, by mstorti in spider
 tag: beta-2.88 on Sun Feb 17 21:21:24 -0300 2002, by mstorti in spider
      > Partially works separate compilation (`O' and `g'). 
      > Changed `ARST' and `ART' in logs and scripts. 
+----------
+tag: beta-2.88.pl1 on Mon Feb 18 09:25:10 -0300 2002 by mstorti in minerva.arcride.edu.ar
+     > Makes OK petscfem/html documentation
