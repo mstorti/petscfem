@@ -3205,3 +3205,6 @@ tag: beta-3.28 on Mon, 19 Jan 2004 18:55:10 -0300 by mstorti in spider
 ----------
 tag: beta-3.29.pl1 on Mon, 19 Jan 2004 19:03:18 -0300 by mstorti in spider
      > Administrative tag.
+----------
+tag: beta-3.29.pl2 on Mon, 26 Jan 2004 17:22:48 -0300 by mstorti in minerva.ceride.gov.ar
+     > Added `surf_gatherer'
