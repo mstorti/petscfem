@@ -21,23 +21,14 @@
     q))
 
 (define (prod-aux q G side)
-  (format #t "hi\n")
   (let loop ((g G)
 	     (qG '()))
-    (format #t "qG: ~A\n" qG)
     (cond ((null? g) qG)
 	  (else (let ((pair-prod (cond ((eq? side 'left (compose q (car g))))
 				       (else (compose (car g) q)))))
-		  (format #t "pair-prod: ~A\n" pair-prod)
-		  (format #t "G: ~A\n" G)
-		  (format #t "(member pair-prod G) : ~A\n" (member pair-prod G))
 		  (if (member pair-prod G) 
 		      (loop (cdr g) qG)
-		      (begin
-			(display "branching\n")
-			(format #t "qG inner: ~A\n" qG)
-			(format #t "(cons pair-prod qG): ~A\n" (cons pair-prod qG))
-			(loop (cdr g) (cons pair-prod qG)))))))))
+			(loop (cdr g) (cons pair-prod qG))))))))
 
 (define (prod arg1 arg2)
   (cond ((list? arg2) (prod-aux arg1 arg2 'left))
@@ -78,7 +69,6 @@
 			(else (loop (cdr q) uniq-list))))))))
 
 (define (prod g G)
-  (format #t "in prod, g: ~A, G ~A\n" g G)
   (let ((gGg (append G 
 		     (map (lambda (x) (compose g x)) G) 
 		     (map (lambda (x) (compose x g)) G))))
@@ -95,20 +85,15 @@
 (define G (list g))
 
 (define (generate-aux g G)
-  (format #t "in generate-aux, g: ~A, G ~A\n" g G)
   (let loop ((p1 G)
 	     (p2 (prod g G)))
 	(cond ((= (length p1) (length p2)) p1)
 	      (else (loop p2 (prod g p2))))))
 
-(format #t "(perm-id 5): ~A\n" (perm-id 5))
-
 (define (generate G)
-  (format #t "G here: ~A\n" G)
   (if (zero? (length G)) (error "G can't be null\n"))
   (let loop ((gen-G (list (perm-id (vector-length (car G)))))
 	     (g G))
-    (format #t "g here: ~A\n" g)
     (cond ((null? g) gen-G)
 	  (else (loop (generate-aux (car g) gen-G) (cdr g))))))
 
