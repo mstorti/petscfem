@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.2 2001/12/26 15:36:13 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.3 2001/12/27 10:12:37 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -55,7 +55,7 @@ public:
   ~PFPETScMat();
   void clear();
   int duplicate(MatDuplicateOption op,const PFMat &A);
-  int build_sles(TextHashTable *thash,char *name=NULL);
+  virtual int build_sles();
   int set_preco(const string & preco_type);
   int monitor(int n,double rnorm);
 
@@ -76,6 +76,11 @@ public:
   void get_option(const char *name,double *retval,int defval=0,int n=1) {
     ::get_double(&thash,name,retval,defval,n);
   }
+  void get_option(const char *name,string &retval,int defval=0,int
+		  n=1 ) {
+    get_string(&thash,name,retval,defval,n); }
+
+
   /// Not defined yet
   void set_option(const char *name,int *val,int n=1) {
     thash.add_entry(name,val,n); }

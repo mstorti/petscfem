@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.6 2001/12/26 15:36:13 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.7 2001/12/27 10:12:37 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -126,7 +126,7 @@ class IISDMat : public PFPETScMat {
   */ 
   int local_solve(Vec x_loc,Vec y_loc,int trans=0,double s=1.);
   /** Idem to #local_solve# but for SuperLU (Sparse::Mat)
-      representation of the local problem.
+g      representation of the local problem.
   */
   int local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.);
   /// Diagonal of Interface matrix to use as preconditioning
@@ -138,7 +138,7 @@ class IISDMat : public PFPETScMat {
   /** Performs all operations needed before permorming the solution of
       the linear system (creating the PETSc SLES, etc...). 
   */ 
-  int build_sles();
+  //  int build_sles();
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector

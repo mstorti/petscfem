@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.6 2001/12/26 15:36:13 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.7 2001/12/27 10:12:37 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -86,11 +86,6 @@ public:
   /// Sets all values of the operator to zero.
   virtual int zero_entries()=0;
 
-  /** Performs all operations needed before permorming the solution of
-      the linear system (creating the PETSc SLES, etc...).   
-  */ 
-  virtual int build_sles()=0;
-
   /// Destroy the SLES associated with the operator. 
   virtual int clean_factor()=0;
 
@@ -133,6 +128,8 @@ public:
 			 n=1)=0;
   virtual void get_option(const char *name,double *retval,int defval=0,int
 			 n=1)=0;
+  virtual void get_option(const char *name,string &retval,int defval=0,int
+			 n=1 )=0;
 
   virtual void print()=0;
 };

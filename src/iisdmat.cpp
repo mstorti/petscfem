@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.3 2001/12/26 15:36:13 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.4 2001/12/27 10:12:37 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -41,7 +41,7 @@ enum PETScFEMErrors {
 int PFPETScMat::solve(Vec &res,Vec &dx) {
   int retval;
   if (!factored) {
-    build_sles(&thash);
+    build_sles();
     retval = factor_and_solve(res,dx);
     factored=1;
     return retval;
@@ -88,30 +88,42 @@ int PFPETScMat::duplicate(MatDuplicateOption op,const PFMat &A) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::build_sles"
-int PFPETScMat::build_sles(TextHashTable *thash,char *name=NULL) {
+int PFPETScMat::build_sles() {
 
+#define TGETOPTDEF_ND_PF(thash,type,name,default)		\
+        name = default;						\
+        get_option(#name,&name); 
+  
+#define TGETOPTDEF_S_ND_PF(thash,type,name,default)	\
+        name = string(#default);			\
+        get_option(#name,name); 
+  
+#define TGETOPTDEF_S_PF(thash,type,name,default)	\
+        string name;					\
+        TGETOPTDEF_S_ND_PF(thash,type,name,default)
+  
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,double,atol,1e-6);
+  TGETOPTDEF_ND_PF(thash,double,atol,1e-6);
   //o Relative tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,double,rtol,1e-3);
+  TGETOPTDEF_ND_PF(thash,double,rtol,1e-3);
   //o Divergence tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,double,dtol,1e+3);
+  TGETOPTDEF_ND_PF(thash,double,dtol,1e+3);
   //o Krylov space dimension in solving the monolithic linear
   // system (Newton linear subiteration) by GMRES.
-  TGETOPTDEF_ND_PFMAT(thash,int,Krylov_dim,50);
+  TGETOPTDEF_ND_PF(thash,int,Krylov_dim,50);
   //o Maximum iteration number in solving the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,int,maxits,Krylov_dim);
+  TGETOPTDEF_ND_PF(thash,int,maxits,Krylov_dim);
   //o Prints convergence in the solution of the GMRES iteration. 
-  TGETOPTDEF_ND_PFMAT(thash,int,print_internal_loop_conv,0);
+  TGETOPTDEF_ND_PF(thash,int,print_internal_loop_conv,0);
   //o Defines the KSP method
-  TGETOPTDEF_S_ND_PFMAT(thash,string,KSP_method,gmres);
+  TGETOPTDEF_S_ND_PF(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
-  TGETOPTDEF_S_PFMAT(thash,string,preco_type,jacobi);
+  TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
 
   ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
@@ -574,6 +586,9 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
   double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
   Vec res_i,x_i,res_loc,x_loc,res_loc_i;
+
+  TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
+
   if (n_int_tot > 0 ) {
 
 #ifdef DEBUG_IISD
@@ -815,6 +830,7 @@ int IISDMat::clean_factor() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int IISDMat::warn_iisdmat=0;
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::build_sles"
@@ -824,6 +840,7 @@ int IISDMat::build_sles() {
   TGETOPTDEF_ND(&thash,double,pc_lu_fill,5.);
   return 0;
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.7 2001/12/26 15:35:44 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.8 2001/12/27 10:12:42 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -164,7 +164,7 @@ int main(int argc,char **args) {
       PetscPrintf(PETSC_COMM_WORLD,"||x-xex|| = %g,   "
 		  "||x-xex||/||xex|| = %g\n",norm,norm/normex);
     }
-    A.destroy_sles(); 
+    A.clean_factor(); 
   }
   PetscFinalize();
   exit(0);
