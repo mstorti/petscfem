@@ -1,5 +1,5 @@
 // Insert Debug Info for SMC Finite State Machine generated code
-// script version:  %Id: insdeb.pl,v 1.2 2002/01/14 03:45:06 mstorti Exp $ 
+// script version:  %Id: insdeb.pl,v 1.3 2002/09/20 21:25:38 mstorti Exp $ 
 #include "pfmatFSM.h"
 static char _versID[] = "No Version.";
 pfmatFSMfactoredState pfmatFSM::factoredState;
