@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.32 2001/08/07 19:54:07 mstorti Exp $
+//$Id: readmesh.cpp,v 1.33 2001/08/09 17:11:20 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -212,8 +212,10 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  phe->position = posit;
 	  posit += phe->width;
 
-	  // verificar que la propiedad no este duplicada
-	  pheold = (props_hash_entry *)g_hash_table_lookup(props,prop_name);
+	  // verify that property is not duplicated
+	  // fixme:= cast to `(char *)' is for avoiding a warning with
+	  // old compiler versions
+	  pheold = (props_hash_entry *)g_hash_table_lookup(props,(char *)prop_name);
 	  if (pheold) {
 	    PetscPrintf(PETSC_COMM_WORLD,
 			"duplicated elem properties label \"%s\"\n",prop_name);

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2001/08/09 15:15:15 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2001/08/09 17:11:22 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -10,8 +10,11 @@ NS:=$(NSO)
 endif
 
 run:
-	$(MAKE) NP=2 Re=1 preco=jacobi peri=1 part=random case=iisd \
-				case_size=small test_case
+	$(MAKE) NP=2 Re=1e4 preco=jacobi case=iisd case_size=large test_case
+
+run0:
+	$(MAKE) NP=2 Re=1e4 preco=jacobi part=random 
+				case_size=large test_case
 #	mv -f save.state save.state.iisd_vl.tmp
 
 #w All tests
@@ -77,7 +80,7 @@ NP := 1
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl  > output.case_$(case).tmp
+			-case $(NAME).depl  # > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

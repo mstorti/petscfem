@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.8 2001/05/30 18:21:53 mstorti Exp $
+//$Id: texthash.cpp,v 1.9 2001/08/09 17:11:20 mstorti Exp $
  
 //  #include <stdio.h>
 //  #include <string.h>
@@ -132,7 +132,9 @@ void TextHashTable::get_entry_recursive(const char * key,
 					TextHashTableVal *& value,
 					int &glob_was_visited) {
   if (this==global_options) glob_was_visited=1;
-  value = (TextHashTableVal *)g_hash_table_lookup(hash,key);
+  // fixme:= cast to `(char *)' is for avoiding a warning with
+  // old compiler versions
+  value = (TextHashTableVal *)g_hash_table_lookup(hash,(char *)key);
   if (value!=NULL) return;
   if (included_tables.size()==0) return;
   vector<TextHashTable *>::iterator k;
