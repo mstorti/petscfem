@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.34 2002/11/05 19:59:36 mstorti Exp $
+// $Id: sparse.h,v 1.35 2003/07/02 21:16:53 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -12,7 +12,15 @@
 #include <algorithm>
 
 #ifdef USE_SUPERLU
+#define MAX __MAX
+#define MAX __MIN
+#define FALSE __FALSE
+#define TRUE __TRUE
 #include <SRC/util.h>
+#undef MAX
+#undef MIN
+#undef FALSE
+#undef TRUE
 #include <SRC/dsp_defs.h>
 #endif
 
@@ -199,7 +207,7 @@ namespace Sparse {
     /// print elements
     void print(const char *s = NULL) {print_f(s);};
     /// export internal array
-    const double * get() const {return begin();};
+    const double * get() const {return &*begin();};
     /// Resize vector
     GenVec & resize(int n) {vector<double>::resize(n); return *this;};
   };
