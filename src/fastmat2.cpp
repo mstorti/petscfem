@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.14 2002/12/16 13:53:40 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.15 2002/12/16 14:42:45 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -392,6 +392,7 @@ FastMat2 & FastMat2::clear() {
 
   if (defined) {
     delete[] store;
+    store = NULL;
     defined=0;
   }
   return *this;
