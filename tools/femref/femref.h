@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.58 2005/01/16 14:34:15 mstorti Exp $
+// $Id: femref.h,v 1.59 2005/01/16 19:52:39 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -518,6 +518,7 @@ extern LinearCombiner linear_combiner;
 
 struct GetSurfCtx {
   UniformMesh *mesh;
+  int ndim, nnod;
   GetSurfCtx() : mesh(NULL) { }
   ~GetSurfCtx() { if (mesh) delete mesh; }
 };
@@ -527,5 +528,13 @@ void getsurf(GetSurfCtx &ctx,
 	     dvector<int> &surf_con,
 	     dvector<int> &surf_nodes, 
 	     int base, int verbose);
+
+void comp_matrices(GetSurfCtx &ctx,
+		   const dvector<int> &surf_con,
+		   const dvector<int> &surf_nodes, 
+		   dvector<double> &x, 
+		   dvector<double> &surf_mass,
+		   dvector<double> &node_mass,
+		   int verbose);
 
 #endif

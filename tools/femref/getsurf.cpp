@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.23 2005/01/16 19:06:05 mstorti Exp $
+// $Id: getsurf.cpp,v 1.24 2005/01/16 19:52:39 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -37,6 +37,7 @@ void getsurf(GetSurfCtx &ctx,
   char c;
 
   int ndof = 4, ndim = 3;
+  ctx.ndim = ndim;
   time_t start, end;
   assert(!ctx.mesh);
   const GeomObject::Template *mesh_tmpl = &OrientedTetraTemplate;
@@ -196,7 +197,7 @@ void getsurf(GetSurfCtx &ctx,
 void comp_matrices(GetSurfCtx &ctx,
 		   const dvector<int> &surf_con,
 		   const dvector<int> &surf_nodes, 
-		   const dvector<double> &x, 
+		   dvector<double> &x, 
 		   dvector<double> &surf_mass,
 		   dvector<double> &node_mass,
 		   int verbose) {
@@ -205,38 +206,41 @@ void comp_matrices(GetSurfCtx &ctx,
 	 surf_con.size(0),surf_con.size(1));
   printf("surf_nodes size %d\n",surf_nodes.size());
 
-#if 0
   UniformMesh &mesh = *ctx.mesh;
   UniformMesh::visitor vis, vis2;
   vis.visit_mode = UniformMesh::BreadthFirst;
   vis.init(mesh);
   vis2.init(mesh);
 
-  int ndim = x.size(1),
-    face_nel = surf_con.size(1);
+  int ndim = ctx.ndim;
+  assert(x.size() % ndim ==0);
+  ctx.nnod = x.size()/ndim;
+  int nnod = ctx.nnod;
+
+  x.reshape(2,nnod,ndim);
+  int face_nel = surf_con.size(1);
 
   assert(ndim == 3);
   assert(face_nel == 3);
-  FastMat2 X(2,face_nel,ndim+1), invX,
+  FastMat2 X(2,face_nel,ndim), 
     edgea(1,ndim), edgeb(1,ndim), surf(1,ndim);
-  X.ir(2,ndim+1).set(1.0).rs();
 
   int nsurf_nodes = surf_nodes.size();
-  int nfaces = surf_con.size(1);
+  int nfaces = surf_con.size(0);
   surf_mass.a_resize(1,nfaces);
   node_mass.resize(nsurf_nodes);
   double Area = 0.;
   for (int jface=0; jface<nfaces; jface++) {
-    X.is(2,1,ndim);
     for (int j=0; j<face_nel; j++) {
-      int node = surf_con.e(jface,j);
-      X.ir(1,j+1).set(x.e(node,0));
+      int rnode = surf_con.e(jface,j);
+      int node=surf_nodes.ref(rnode);
+      assert(node<nnod);
+      X.ir(1,j+1).set(&x.e(node,0));
     }
     X.rs();
-    invX.inv(X);
 
     // Compute surface area for surface mass matrix
-    X.is(2,1,ndim).ir(1,2);
+    X.ir(1,2);
     edgea.set(X);
 
     X.ir(1,3);
@@ -251,7 +255,7 @@ void comp_matrices(GetSurfCtx &ctx,
     double area = sqrt(surf.sum_square_all())/2.0;
     surf_mass.ref(jface) = area;
     Area += area;
+    printf("face %d, area %f\n",jface,area);
   }
   printf("total area %f\n",Area);
-#endif
 }

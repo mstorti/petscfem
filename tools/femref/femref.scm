@@ -27,7 +27,8 @@
 (define surf-mass (make-dvdbl))
 (define node-mass (make-dvdbl))
 
-(format #t "read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
+(format #t "icone: read ~A ints\n" (dvint-cat! icone "cube.con.tmp"))
+(format #t "xnod: read ~A dbls\n" (dvdbl-cat! x "cube.nod.tmp"))
 
 (getsurf ctx icone surf-con surf-nodes 1 0)
 (format #t "surf-con:\n")

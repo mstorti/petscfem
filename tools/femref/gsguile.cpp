@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gsguile.cpp,v 1.4 2005/01/16 19:06:05 mstorti Exp $
+// $Id: gsguile.cpp,v 1.5 2005/01/16 19:52:39 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -23,18 +23,31 @@ using namespace std;
 
 typedef SCM(*scm_fun)();
 
+#define MY_SCM_GET_ARG(name,tag,ctype,pos)	\
+  SCM_ASSERT (SCM_SMOB_PREDICATE(tag,s_##name),	\
+              s_##name, pos, FUNC_NAME);	\
+  ctype name =					\
+          (ctype)SCM_SMOB_DATA (s_##name)
+
 #define DVDBLARG(name,pos)					\
-  { SCM_ASSERT (SCM_SMOB_PREDICATE(dvdbl_tag,s_##name),		\
+  SCM_ASSERT(SCM_SMOB_PREDICATE(dvdbl_tag,s_##name),		\
               s_##name, pos, FUNC_NAME);			\
   dvector<double> *name =					\
-          (dvector<double> *)SCM_SMOB_DATA (s_##name); }
+          (dvector<double> *)SCM_SMOB_DATA (s_##name)
 
-#define DVINTARG(name,pos)					\
-  { SCM_ASSERT (SCM_SMOB_PREDICATE(dvint_tag,s_##name),	\
+#define DVINTARG(name,pos)				\
+   SCM_ASSERT (SCM_SMOB_PREDICATE(dvint_tag,s_##name),	\
               s_##name, pos, FUNC_NAME);		\
   dvector<int> *name =					\
-          (dvector<int> *)SCM_SMOB_DATA (s_##name); }
+          (dvector<int> *)SCM_SMOB_DATA (s_##name); 
 
+#define MY_SCM_GET_INT_DEF(name,def,pos)			\
+  int name;							\
+  if (s_##name == SCM_UNDEFINED) name = def;			\
+  else {							\
+    SCM_ASSERT(SCM_INUMP(s_##name),s_##name,pos, __FUN__);	\
+    name = SCM_INUM(s_##name);					\
+  }
 
 scm_t_bits GetSurfCtxTag;
 
@@ -118,12 +131,15 @@ SCM_DEFINE(comp_matrices_w, "comp-matrices", 6, 1, 0,
 	   "Compute mass matrices.")
 #define FUNC_NAME s_comp_matrices_w
 {
-  printf("in comp-matrices ... \n");
+  MY_SCM_GET_ARG(ctx,GetSurfCtxTag,GetSurfCtx *,1);
   DVINTARG(surf_con,2);
   DVINTARG(surf_nodes,3);
   DVDBLARG(x,4);
   DVDBLARG(surf_mass,5);
   DVDBLARG(node_mass,6);
+  MY_SCM_GET_INT_DEF(verbose,0,7);
+  comp_matrices(*ctx,*surf_con,*surf_nodes,
+		*x,*surf_mass,*node_mass,verbose);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
