@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.15 2002/11/02 15:11:26 mstorti Exp $
+//$Id: spsolve.cpp,v 1.16 2002/11/05 16:12:52 mstorti Exp $
 
 #include "sparse2.h"
 
@@ -99,7 +99,7 @@ namespace Sparse {
     clean_factor();
 
 #else
-    int j,m,nnz,curs,info;
+    int m,nnz,info;
 
     m = rows();
     assert(m == cols());
@@ -215,7 +215,7 @@ namespace Sparse {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   void PETScMat::solve_only() {
 
-    int m,j,ierr,k,its;
+    int m,ierr,its;
     double *xx,*bb;
     ::Vec b_vec,x_vec;
 
