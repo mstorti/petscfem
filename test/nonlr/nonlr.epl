@@ -19,13 +19,12 @@ maxits 100
 save_file_pattern "outvector%d.out"
 #nsaverot 1000000
 
-#initial_state "pp.tmp"
 initial_state "nonlr.ini"
 print_some_file "nonlr.some"
 save_file_some "nonlr.some.tmp"
 nsome 1
 
-nnwt 1
+nnwt 5
 tol_newton 0
 preco_type "lu"
 
@@ -33,7 +32,7 @@ preco_type "lu"
 #solve_system 0
 
 Dt 0.1
-nstep 100
+nstep 1
 alpha 1.
 viscosity 1.
 
@@ -72,11 +71,11 @@ __END_HASH__
 33 35 36 34 
 __END_ELEMSET__
 
-#  elemset wall_law_res 2
-#  __END_HASH__
-#  3 1 
-#  4 2 
-#  __END_ELEMSET__
+elemset wall_law_res 2
+__END_HASH__
+3 1 
+4 2 
+__END_ELEMSET__
 
 end_elemsets
 
@@ -85,48 +84,27 @@ fixa
 # El nodo uno esta todo impuesto
 # el nodo 3 impongo todo menos el g.d.l. 5 (eps) que
 # tiene que salir de la restriccion
-#  1 2  0.
-#  1 3  0.
-#  1 4  0.
-#  1 5  0.
+1 2  0.
+1 3  0.
+1 4  0.
+1 5  0.
+
+# u v fijo a la entrada
 3 1  1.
 3 2  0.
+# p fijo a la salida (no se debe
+# imponer p a la entrada)
 #3 3  0.
 35 3  0.
-#if $ke
+
+# k fijo a la entrada
 3 4  1.
-3 5  1.
-#endif
-
-#__INCLUDE__ pp.fix
-
-# porque hay que poner este?
-#35 1  1.
-
-#  2 2  0.
-#  2 3  0.
-#  2 4  0.
-#  2 5  0.
-#  4 1  1.
-#  4 2  0.
-
 
 __END_FIXA__
 
 constraint
 
-# Ultimo nodo puesto periodico con el primero
-#  -1. 35 1    1. 3 1
-#  -1. 35 2    1. 3 2
-#  -1. 35 3    1. 3 3
-#  -1. 35 4    1. 3 4
-#  -1. 35 5    1. 3 5
-
-#if $ke
 __INCLUDE__ nonlr.peri
-#else
-__INCLUDE__ nonlr.peri.noke
-#endif
 
 __END_CONSTRAINT__
 

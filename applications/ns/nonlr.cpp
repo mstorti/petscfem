@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.7 2001/06/01 18:56:12 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.8 2001/06/01 20:09:16 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -138,10 +138,10 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 		       FastMat2 & lambda,FastMat2 & jac) {
   double k = U.get(1,nk);
   double eps = U.get(1,ne);
-  double rr = eps - k;
+  double rr = 2.*eps*eps - k;
   r.setel(rr,1);
   lambda.set(0.).setel(1.,ne,1);
-  jac.setel(1.,1,nk);
+  jac.setel(4.*eps,1,nk);
   jac.setel(-1.,1,ne);
 }
 
