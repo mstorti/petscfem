@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.2 2005/01/07 23:39:09 mstorti Exp $
+// $Id: lagmul.h,v 1.3 2005/01/23 13:59:04 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -9,8 +9,7 @@
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Generic nonlinear restriction element. 
     It may not work for restrictions that involve
-    fields in more that one node. 
-*/ 
+    fields in more than one node. */ 
 class LagrangeMult : public Elemset {
  private:
   /// Stores internal matrix with coordinates of nodes

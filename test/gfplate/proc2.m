@@ -1,4 +1,4 @@
-## $Id: proc2.m,v 1.7 2005/01/22 22:10:20 mstorti Exp $
+## $Id: proc2.m,v 1.8 2005/01/23 13:59:07 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -12,7 +12,7 @@ gasdata.uref = uref;
 gasdata.rhoref = rhoref;
 gasdata.cref = cref;
 
-primi = 0;
+primi = 1;
 if primi
   U = Uprimi;
   field = 4;
@@ -48,4 +48,5 @@ for k=1:m:nt
   title(sprintf("step %d",k));
   plot(x,Unorm((k-1)*(Nx+1)+(1:Nx+1),:))
   pause(0.1);
+#  pause;
 endfor

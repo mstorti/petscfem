@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.13 2005/01/22 22:10:17 mstorti Exp $
+//$Id: gasflow.cpp,v 1.14 2005/01/23 13:59:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -684,7 +684,8 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 	    -dUabso.get(ndof)/rhoaref,1);
   Rie.setel(nx*dUabso.get(2)
 	    +dUabso.get(ndof)/rhoaref,2);
-  Rie.setel(aref2*dUabso.get(1)-dUabso.get(ndof),3);
+  Rie.setel(dUabso.get(1)
+	    -dUabso.get(ndof)/aref2,3);
   for (int k=2; k<=ndim; k++)
     Rie.setel(vel.get(k),2+k);
 
@@ -697,8 +698,8 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
   drdU.setel(nx,2,2);
   drdU.setel(+1.0/rhoaref,2,ndof);
 
-  drdU.setel(aref2,3,1);
-  drdU.setel(-1.0,3,ndof);
+  drdU.setel(1.0,3,1);
+  drdU.setel(-1.0/aref2,3,ndof);
 
   for (int k=2; k<=ndim; k++) 
     drdU.setel(1.0,k+2,k+1);

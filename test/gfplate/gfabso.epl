@@ -7,11 +7,11 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 1
+nstep 1000
 alpha 1.
 
-## initial_state "gfabso.ini.tmp"
-initial_state "gfabso.state.tmp"
+initial_state "gfabso.ini.tmp"
+## initial_state "gfabso.state.tmp"
 nsave 1
 save_file "gfabso.state.tmp"
 
@@ -44,12 +44,12 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 10
+nnwt 3
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 1e-4
+Dt 0.05
 shocap 0.0
 weak_form 0
 temporal_stability_factor 0
@@ -61,7 +61,8 @@ cond 0.001
 steady 0
 Uref <:=$rhoref:> <:=$uref:> 0 <:=$pref:> 
 
-lagrange_diagonal_factor 1e-4
+lagrange_diagonal_factor 1e-3
+# lagrange_residual_factor 1.0
 
 #if $dx
 # Para DX
@@ -117,6 +118,8 @@ __INCLUDE__ ./gfabso.fixa-ref.tmp
 __INCLUDE__ ./gfabso.fixa-outlet.tmp
 __INCLUDE__ ./gfabso.fixa-in.tmp
 #endif
+#if 0
 __INCLUDE__ ./gfabso.fixa-slip.tmp
+#endif
 __END_FIXA__
 #endif

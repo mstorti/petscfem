@@ -5,11 +5,11 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $Lx = 4;
 $Nx = 50;
 
-$Machin = -0.5;
+$Machin = 0.5;
 $gamma = 1.4;
-$Rgas = 287;
+$Rgas = 1;
 $rhoref = 1;
-$Tref = 300;
+$Tref = 1;
 $dufac = 0.01;
 $sigma = 0.3;
 $abso = 1;

@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.8 2005/01/22 22:10:17 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.9 2005/01/23 13:59:01 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -197,7 +197,10 @@ void AdvDiff_Abs_Nl_Res::new_assemble(arg_data_list &arg_data_v,const Nodedata *
 	res_fd_jac.ir(3,jele).ir(2,jdof).set(res_pert).rs();
       }
     }
+    res_fd_jac.rest(jac);
     eps_fd=1e-4; // para parar
+    double erro = res_fd_jac.sum_abs_all();
+    // printf("error %g\n",erro);
 #endif	
   }
   FastMat2::void_cache();
