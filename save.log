@@ -3896,3 +3896,7 @@ tag: beta-3.41.15 on Fri, 28 Jan 2005 14:52:37 -0300 by mstorti in minerva.cerid
 tag: beta-3.41.16 on Fri, 28 Jan 2005 15:17:03 -0300 by mstorti in minerva.ceride.gov.ar
      > Working linear absorbing boundary condition based on 
      > old state. 
+----------
+tag: beta-3.41.17 on Fri, 28 Jan 2005 16:08:55 -0300 by mstorti in minerva.ceride.gov.ar
+     > Tested linear absorbing boundary condition based on 
+     > old state on circular cylinder.
