@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.5 2003/02/05 19:28:42 mstorti Exp $
+//$Id: dxhook.cpp,v 1.6 2003/02/06 20:33:21 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/fem.h>
@@ -59,10 +59,11 @@ time_step_post(double time,int step,
     srvr = Saccept(srvr_root);
     assert(srvr);
     // Send node coordinates
-    Sprintf(srvr,"nodes %d %d\n",ndim,nnod);
+    Sprintf(srvr,"nodes nodes %d %d\n",ndim,nnod);
     for (int node=0; node<nnod; node++)
       Swrite(srvr,xnod+node*nu,ndim*sizeof(double));
   }
+#if 0
   // Send results
   int ndof = dofmap->ndof;
   
@@ -81,6 +82,7 @@ time_step_post(double time,int step,
     Elemset *e = *(Elemset **)da_ref(elist,j);
     e->dx(srvr,nodedata,fields);
   }
+#endif
 
   // Send termination signal
   Sprintf(srvr,"end\n");

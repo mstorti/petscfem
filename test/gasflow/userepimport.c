@@ -18,7 +18,7 @@ void DXEntry()
     {
         extern Error m_ExtProgImport(Object *, Object *);
         DXAddModule("ExtProgImport", m_ExtProgImport, 0,
-            1, "socket_name",
+            2, "serverhost", "port",
             1, "output_field");
     }
 }

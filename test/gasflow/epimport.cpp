@@ -41,6 +41,7 @@ if(!(cond)) {									\
 void tokenize(const char *line,vector<string> &tokens) {
   // Make a local copy (input is read only)
   char *copy = new char[strlen(line)+1];
+  strcpy(copy,line);
   // White space pattern
   char spc[] = "[ \t\n]";
   // Clear tokens arg
@@ -49,6 +50,7 @@ void tokenize(const char *line,vector<string> &tokens) {
   int j=0;
   while(1) {
     char *token = strtok((j ? NULL : copy),spc);
+    if (!token) break;
     tokens.push_back(token);
     j++;
   }
@@ -197,6 +199,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     Sgetline(&buf,&Nbuf,clnt);
     DXMessage("Got buf %s",buf);
     tokenize(buf,tokens);
+    DXMessage("After tokenize");
     
     if (tokens[0]=="end") break;
     else if (tokens[0]=="nodes") {
