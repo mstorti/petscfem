@@ -1,0 +1,6 @@
+// -*- mode: shell-script -*-
+//__INSERT_LICENSE__
+// $Id: qq3.net,v 1.1 2003/02/17 21:09:24 mstorti Exp $ 
+alist, flist, stepo = ExtProgImport(steps=1,serverhost=NULL,port=5314,options=NULL,
+	step=0,state_file="sqcav.weak_form_0.tmp",record=0);
+Print(alist,"r",NULL);
