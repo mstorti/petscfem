@@ -444,8 +444,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	u.prod(SHAPE,locstate,-1,-1,1);
 	locstate.rs();
 
-	// tmp14.set(u_star).rest(u).axpy(grad_p,-Dt*(alphap/rho)); !! fixme:=
-	tmp14.set(u_star).rest(u).axpy(grad_p,+Dt*(alphap/rho));
+	// Which is the correct?
+	tmp14.set(u_star).rest(u).axpy(grad_p,-Dt*(alphap/rho)); // fixme:=
+	// tmp14.set(u_star).rest(u).axpy(grad_p,+Dt*(alphap/rho)); 
 	tmp15.prod(SHAPE,tmp14,1,2);
 	resmom.axpy(tmp15,wpgdet);
 
