@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.5 2001/10/06 23:39:59 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.6 2001/10/07 21:12:52 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -122,27 +122,28 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     if (comp_mat_res) {
       res(k,U,r,w,jac);
-      for (jr=0; jr<nr; jr++) {
+      for (jr=1; jr<=nr; jr++) {
 	// get node/field of the Lag.mul.
 	lag_mul_dof(jr,jfic,dofic);
 
 	lambda = U.get(jfic,dofic);
 	w.rs().ir(3,jr);
 	R.axpy(w,lambda*lagrange_scale_factor);
-	rr = r.get(jr) + lagrange_scale_factor*U.get(jfic,dofic);
+	rr = r.get(jr) - lagrange_diagonal_factor
+	  *lagrange_residual_factor*U.get(jfic,dofic);
 	R.addel(rr,jfic,dofic);
 
 	matloc.rs().ir(3,jfic).
-	  ir(4,dofic).axpy(w,lagrange_scale_factor);
-	matloc.rs().addel(lagrange_diagonal_factor*lagrange_residual_factor,
+	  ir(4,dofic).axpy(w,-lagrange_scale_factor);
+	matloc.rs().addel(lagrange_diagonal_factor,
 			  jfic,dofic,jfic,dofic);
 	jac.rs().ir(1,jr);
-	matloc.ir(1,jfic).ir(2,dofic).add(jac);
+	matloc.ir(1,jfic).ir(2,dofic).rest(jac);
       }
       
-      R.export_vals(&(RETVAL(ielh,0,0)));
+      R.rs().export_vals(&(RETVAL(ielh,0,0)));
       // matloc.set(0.);
-      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      matloc.rs().export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
   }
   FastMat2::void_cache();

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssup.cpp,v 1.2 2001/10/07 00:53:32 mstorti Exp $
+//$Id: nssup.cpp,v 1.3 2001/10/07 21:12:52 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -102,7 +102,8 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if(comp_mat) {
 
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-
+      matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+      
     } else if (comp_mat_res || comp_res) {
 
       locstate.set(&(LOCST(ielh,0,0)));
@@ -118,10 +119,12 @@ int ns_sup::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       res = -(eta_new-eta)*rec_Dt + w_star;
       veccontr.setel(res,2,1);
       matlocf.setel(rec_Dt/alpha,2,1,2,1).setel(-alpha,2,1,1,ndim);
+      veccontr.export_vals(&(RETVAL(ielh,0,0)));
+      if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
+
     }
-    veccontr.export_vals(&(RETVAL(ielh,0,0)));
-    if (update_jacobian) matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
   }
+
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;

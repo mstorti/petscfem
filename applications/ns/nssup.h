@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.3 2001/10/07 00:55:58 mstorti Exp $
+//$Id: nssup.h,v 1.4 2001/10/07 21:12:52 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -16,16 +16,24 @@
 
 #include <applications/ns/nsi_tet.h>
 
+/// Restriction for linearized free surface boundary condition
 class ns_sup_res : public LagrangeMult {
 private:
-  double gravity, rho;
+  /// The dimension of the problem
+  int ndim;
+  /// The index (number of degree of freedom) for pressure
+  int p_indx;
+  /// Gravity acceleration
+  double gravity;
+  // Density
+  double rho;
 public:
   /// Number of restrictions per node pair
   int nres() {return 1;};
   /** Return the node/dof pair to be used as lagrange multiplier for
       the #jr#-th restriction. 
   */
-  void lag_mul_dof(int jr,int &node,int &dof) {node=2; dof=2;};
+  void lag_mul_dof(int jr,int &node,int &dof) {assert(jr==1); node=2; dof=2; };
   /// Initialize the elemset (maybe reads hash table)
   void init();
   /// computes the residual and jacobian of the function to be imposed
