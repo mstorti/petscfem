@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.78 2003/11/15 17:32:54 mstorti Exp $
+//$Id: advdife.cpp,v 1.79 2003/11/15 22:21:03 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -116,14 +116,14 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   //  analytical jacobian #|A_a|# , numerical jacobian #|A_n|# and te
   //  difference #|A_a-A_n|# . Incrementing #compute_fd_adv_jacobian==1#
   //  increases the verbosity. If #=1# the maximum values over all the
-  //  elemset are printed. If #=2# only those whose relative errors are
-  //  greater than #compute_fd_adv_jacobian_rel_err_threshold# are
-  //  reported. If #=3# the errors for all elements are
-  //  reported. Finally, if #=4# also the jacobians themselves are
-  //  printed. For 3 and 4, if #compute_fd_adv_jacobian_elem_list# is
-  //  set, then only those elements are printed. Also, be warned that when
-  //  run in parallel, printing for a lot of elements in different
-  //  processors may be messy.
+  //  elemset are printed. If #=2# the errors for all elements are
+  //  reported. Finally, if #=3# also the jacobians themselves are
+  //  printed. For 2 and 3, if #compute_fd_adv_jacobian_elem_list# is
+  //  set, then only those elements are printed. If
+  //  #compute_fd_adv_jacobian_rel_err_threshold# is set then only those
+  //  elements for which the error is greater than the given threshold
+  //  are reported.  Also, be warned that when run in parallel, printing
+  //  for a lot of elements in different processors may be messy.
   NSGETOPTDEF_ND(int,compute_fd_adv_jacobian,0);
   //o The perturbation scale for computing the numerical jacobian
   //  (see #compute_fd_adv_jacobian# ).
@@ -131,7 +131,7 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   assert(compute_fd_adv_jacobian_eps > 0.);
   //o Report elements whose relative error in computing
   //  flux jacobians exceed these value. 
-  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,1e-4);
+  NSGETOPTDEF_ND(double,compute_fd_adv_jacobian_rel_err_threshold,0.);
 
   A_fd_jac_norm_max = 0.;
   A_fd_jac_norm_min = DBL_MAX;
@@ -139,10 +139,10 @@ before_assemble(arg_data_list &arg_datav,Nodedata *nodedata,
   A_jac_norm_min = DBL_MAX;
   A_jac_err_norm_max = 0.;
   A_jac_err_norm_min = DBL_MAX;
-  A_jac_rel_err_min = 0.;
-  A_jac_rel_err_max = DBL_MAX;
-  checked=0;
-
+  A_rel_err_max = 0.;
+  A_rel_err_min = DBL_MAX;
+  comp_checked=0;
+  comp_total=0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -537,9 +537,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
 
-	int check_this = 1, print_this=1;
+	int check_this = 1;
+	comp_total++;
 	if (compute_fd_adv_jacobian && check_this) {
-	  checked++;
+	  comp_checked++;
 	  double &eps_fd = compute_fd_adv_jacobian_eps;
 	  for (int jdof=1; jdof<=ndof; jdof++) {
 	    U_pert.set(U).is(1,jdof).add(eps_fd).rs();
@@ -565,20 +566,25 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  double A_jac_norm = A_jac.FM2_NORM();
 	  double A_jac_err_norm = A_jac_err.FM2_NORM();
 	  double A_fd_jac_norm = A_fd_jac.FM2_NORM();
+	  double A_rel_err = A_jac_err_norm/A_fd_jac_norm;
 
-#define CHK_MAX(cur,val) if(val>cur) cur=val
-#define CHK_MIN(cur,val) if(val<cur) cur=val
-	  CHK_MAX(A_jac_norm_max,A_jac_norm);
-	  CHK_MIN(A_jac_norm_min,A_jac_norm);
-	  CHK_MAX(A_jac_err_norm_max,A_jac_norm);
-	  CHK_MIN(A_jac_err_norm_min,A_jac_norm);
+#define CHK_MAX(v) if(v>v##_max) v##_max=v
+#define CHK_MIN(v) if(v<v##_min) v##_min=v
+#define CHK(v) CHK_MAX(v); CHK_MIN(v)
+	  CHK(A_jac_norm);
+	  CHK(A_jac_err_norm);
+	  CHK(A_fd_jac_norm);
+	  CHK(A_rel_err);
 #undef CHK_MAX
 #undef CHK_MIN
+#undef CHK
 
+	  int print_this = 
+	    A_rel_err >= compute_fd_adv_jacobian_rel_err_threshold;
 	  if (compute_fd_adv_jacobian>=2 && print_this) {
 	    printf("elem %d, |A_a|=%g, |A_n|=%g, |A_a-A_n|=%g, (rel.err %g)\n",
 		   k_elem,A_jac_norm,A_fd_jac_norm,A_jac_err_norm,
-		   A_jac_err_norm/A_fd_jac_norm);
+		   A_rel_err);
 	  }
 	  if (compute_fd_adv_jacobian>=3  && print_this) {
 	    A_jac.print("A_a: ");
@@ -831,6 +837,21 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define __FUNC__ "NewAdvDif::after_assemble"
 void NewAdvDif::
 after_assemble(const char *jobinfo) {
+  if (compute_fd_adv_jacobian && !MY_RANK 
+      && !strcmp(jobinfo,"comp_res")) {
+    assert(SIZE==1); // should code after the MPI_Reduce's
+    printf("Flux jacobian comps: total %d, checked %d (%5.2f%%)\n",
+	   comp_total,comp_checked,double(comp_checked)/
+	   double(comp_total)*100.0);
+#undef PRINT
+#define PRINT(label,val) \
+printf(label ": min %g, max %g\n",val##_min,val##_max)
+    PRINT("|A_a|",A_jac_norm);
+    PRINT("|A_n|",A_fd_jac_norm);
+    PRINT("|A_a - A_n|",A_jac_err_norm);
+    PRINT("|A_a - A_n|/|A_n|",A_rel_err);
+#undef PRINT
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
