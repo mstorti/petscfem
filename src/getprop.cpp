@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: getprop.cpp,v 1.7 2001/05/30 03:58:50 mstorti Exp $
+//$Id: getprop.cpp,v 1.8 2001/05/30 17:30:58 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -203,9 +203,3 @@ int get_prop(int & iprop,GHashTable *props,TextHashTable *thash,
   }
   return 0;
 }
-
-
-# Local Variables: $
-# mode: c++ $
-# End: $
-*/
