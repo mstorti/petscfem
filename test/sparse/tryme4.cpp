@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.19 2002/07/21 04:51:17 mstorti Exp $
+// $Id: tryme4.cpp,v 1.20 2002/07/21 04:53:13 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -259,7 +259,7 @@ void v_print(dvector<int> v) {
 
 int main(int argc, char **argv) {
   dvector<int> v;
-  int M=10;
+  int M=1000;
   for (int j=0; j<M; j++) v.push(j*j);
   for (int j=0; j<M; j++) {
     if (j % (M/10) ==0 ) 
@@ -281,10 +281,8 @@ int main(int argc, char **argv) {
   }
   v.clear();
   for (int j=0; j<M; j++) v.push(irand(1,M));
-  v_print(v);
   v.sort();
-  printf("=======================\n");
-  v_print(v);
+  for (int j=1; j<M; j++) assert(v.ref(j)>=v.ref(j-1));
 
 #if 0
   graph_da g;
