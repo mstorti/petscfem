@@ -2988,3 +2988,6 @@ tag: beta-3.23.pl1 on Sun, 14 Sep 2003 10:59:22 -0300 by mstorti in spider
 tag: beta-3.23.pl2 on Sun, 14 Sep 2003 18:49:26 -0300 by mstorti in spider
      > Settled version policy in `notes.txt'
      > Added test for exception handling in `advdif'. 
+----------
+tag: beta-3.23.pl3 on Sun, 14 Sep 2003 22:18:36 -0300 by mstorti in spider
+     > Written `odoc.pl' complete list of options. 
