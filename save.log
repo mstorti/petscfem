@@ -3170,3 +3170,6 @@ tag: beta-3.27.pl5 on Mon, 08 Dec 2003 20:25:33 -0300 by mstorti in spider
 ----------
 tag: beta-3.27.pl6 on Wed, 10 Dec 2003 20:04:36 -0300 by mstorti in node1.beowulf.gtm
      > Added constant bubble radius option to `gaschem'. 
+----------
+tag: beta-3.27.pl7 on Sun, 11 Jan 2004 12:01:46 -0300 by mstorti in spider
+     > Starts working `KeyedOutputBuffer'. 
