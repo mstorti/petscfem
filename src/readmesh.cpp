@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.51 2002/08/27 00:16:15 mstorti Exp $
+//$Id: readmesh.cpp,v 1.52 2002/08/27 00:33:42 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -123,22 +123,17 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       xnod = da_create(nu*sizeof(double));
       while (1) {
 	fstack->get_line(line);
+	astr_copy_s(linecopy, line);
 	if (strstr("__END_NODES__",line)) break;
 	node++;
 	for (int kk=0; kk<nu; kk++) {
 	  token = strtok((kk==0 ? line : NULL),bsp);
-	  if (token==NULL) {
-	    PetscPrintf(PETSC_COMM_WORLD,
-			"Error reading coordinates in line:\n\"%s\"\n"
-			"Not enough values in line!!\n",line);
-	    CHKERRQ(1);
-	  }
+	  PETSCFEM_ASSERT(token!=NULL,
+			  "Error reading coordinates in line:\n\"%s\"\n"
+			  "Not enough values in line!!\n",astr_chars(linecopy));
 	  int nread = sscanf(token,"%lf",row+kk);
-	  if (nread != 1) {
-	    PetscPrintf(PETSC_COMM_WORLD,
-			"Error reading coordinates in line:\n\"%s\"",line);
-	    CHKERRQ(1);
-	  }
+	  PETSCFEM_ASSERT(nread != 1,
+			  "Error reading coordinates in line:\n\"%s\"",line);
 	}
 	int indx = da_append (xnod,row);
 	if (indx<0) PFEMERRQ("Insufficient memory reading nodes");

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2002/08/27 00:16:15 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2002/08/27 00:33:42 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -20,7 +20,7 @@ export NAME NP
 
 LOC_PROG = ns$(osfx)
 PROG = $(PETSCFEM_DIR)/applications/ns/$(LOC_PROG).bin
-CASE_NAME = closcyl
+CASE_NAME = strip
 
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-2.94.pl8
 include $(PETSCFEM_DIR)/Makefile.base

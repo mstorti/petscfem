@@ -5,8 +5,6 @@ TODO: [Mainly fixes go here...]
 
 * Changing 'distmap.h' launches recompilation of almost all
    PETSc-FEM. 
-* the name for the elemsets doesn't accept the quotes "name" feature
-   (see readmesh.cpp:191). 
 * int FastMat2: `mydetsur' with masks can't be cached (loses cached
       dims and claims dimensioning errors. See version "tag:
       beta-3.02.pl11 on Wed, 7 Aug 2002 16:31:37 -0300 by mstorti in
@@ -27,9 +25,6 @@ TODO: [Mainly fixes go here...]
 > tag: v0.08.pl58 on Tue, 11 Jun 2002 21:05:52 -0300 by mstorti in spider
 >      > Reads data from initialization files
 * Add test for axisymmetric option in nsi_tet_les_fm2
-* A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
-  SIGSEGV (note the line starts with a space). 
-  Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
 * generate tests for gatherer
 * generate a test for Levi-Civita (eps_LC())
 * Make dof map to a `fixation_entry_list', that contains many entries
@@ -91,6 +86,12 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
+  SIGSEGV (note the line starts with a space). 
+  Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
+  NOW: gives error. 
+* the name for the elemsets doesn't accept the quotes "name" feature
+   (see readmesh.cpp:191). NOW: read with `get_string'.
 * latex2html doesn't work with `algorithmic' environment. 
 	FIXED:      Latex2html doesn't like the `algorithm' (it is like a figure
      environment) environment, but DO support the `algorithmic'
