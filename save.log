@@ -1233,3 +1233,6 @@ tag: beta-2.98.pl3 on Sun, 14 Jul 2002 22:12:01 -0300 by mstorti in spider
 ----------
 tag: beta-2.98.pl4 on Mon, 15 Jul 2002 21:08:56 -0300 by mstorti in spider
      > Computation of Poisson matrix seems to work. 
+----------
+tag: beta-2.98.pl5 on Mon, 15 Jul 2002 21:22:41 -0300 by mstorti in spider
+     > Solves Poisson system OK. 
