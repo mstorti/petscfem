@@ -6,17 +6,9 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('casen',undef);
 $casename = $casen;
 $steady = 1;
-if ($casen eq 'transient') {
-    $casen = 'plain';
-    $steady = 0;
-    $eta0=-100;
-    $alpha=0.6;
-    $nstep = 20;
-} else {
-    $eta0=-0.5;
-    $alpha=1;
-    $nstep=1;
-}
+$eta0=-0.5;
+$alpha=1;
+$nstep=10;
 $var_eta=0;
 $etaL = $eta0;
 if ($casen eq 'var_eta0') {
@@ -35,7 +27,7 @@ $hratio = 1;			# refinement (h_center/h_wall)
 $K = 1.5;
 $S = 2.3;
 $eta = $eta0;
-$Dt = 0.001;			# time step
+$Dt = 0.1;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
@@ -55,6 +47,9 @@ global_options
 ndim 2
 
 nsave 5
+nsaverot 1
+save_file_pattern "aquist.rot%d.tmp"
+
 <:pr('nstep'):> 
 initial_state aquist.ini.tmp
 <:pr('save_file'):> 
@@ -126,6 +121,7 @@ width 1.
 # slope 0.01
 shape "circular"
 radius 5
+weak_form 0
 __END_HASH__
 __INCLUDE__ aquist.con.stream.tmp
 __END_ELEMSET__
@@ -143,8 +139,10 @@ __END_ELEMSET__
 end_elemsets
 
 fixa
-__INCLUDE__ aquist.fixa.tmp
+# __INCLUDE__ aquist.fixa.tmp
 
 ## set water depth at the inlet
-<:=($Nx+1)*($Ny+1)+1:> 1 1.
+# Nx <:=$Nx:>
+# Ny <:=$Ny:>
+<:=(($Nx+1)*($Ny+1)+1):> 1 1.
 __END_FIXA__
