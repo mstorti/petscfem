@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.15 2001/07/05 02:30:03 mstorti Exp $
+//$Id: nsi_tet.h,v 1.16 2001/07/06 19:30:50 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -211,6 +211,8 @@ class NonLinearRes : public Elemset {
  public:
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
+  /// 
+  double 
   /// Number of restrictions
   virtual int nres()=0;
   /// Initialize the elemset (maybe reads hash table)
@@ -260,7 +262,7 @@ class wall_law_res : public NonLinearRes {
   double turbulence_coef;
   /// Specific wall function
   WallFun *wf;
-  /** Wall function with secand solver if use $y=$cnst
+  /** Wall function with secant solver if use $y=$cnst
       instead of $y^+=$cnst
   */
   WallFunSecant *wfs;

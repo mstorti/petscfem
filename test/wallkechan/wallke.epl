@@ -55,14 +55,15 @@ octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy
 global_options
 ndim 2
 
-save_file "save.state"
+#save_file "save.state"
+save_file "pp.tmp"
 nsave 5
 
 #rtol 1e-2
 rtol 0
 atol 0
 maxits 200
-#print_internal_loop_conv
+print_internal_loop_conv
 
 save_file_pattern "outvector%d.out"
 nsaverot 1
@@ -81,7 +82,7 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 100
+nstep 1
 nnwt 4
 tol_newton 0
 preco_type <:print ($iterative ? "\"jacobi\"" : "\"lu\""); :>
@@ -136,8 +137,8 @@ __END_ELEMSET__
 
 elemset wall_law_res 2
 props u_wall[2]
-lagrange_diagonal_factor <: print ($iterative ? 0 : 1e-5 ); :>
-lagrange_residual_factor 1. # be non consistent, but truly Newton
+lagrange_diagonal_factor <: print ($iterative ? 1e-5 : 1e-5 ); :>
+#lagrange_residual_factor 1. # be non consistent, but truly Newton
 __END_HASH__
 __INCLUDE__ wallke.nonlr.tmp
 __END_ELEMSET__
