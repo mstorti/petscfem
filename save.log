@@ -2432,3 +2432,6 @@ tag: beta-3.18.pl6 on Wed, 19 Feb 2003 14:40:29 -0300 by mstorti in spider
 tag: beta-3.18.pl7 on Wed, 19 Feb 2003 19:20:57 -0300 by mstorti in spider
      > -- STABLE VERSION -- 
      > Fixed few errors. Runs all tests with g_c++ and O_c++
+----------
+tag: beta-3.18.pl8 on Sat, 22 Feb 2003 01:21:18 -0300 by mstorti in spider
+     > Fixed a bug in `inviscid.cpp'. 
