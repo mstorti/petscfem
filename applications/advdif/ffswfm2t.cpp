@@ -87,18 +87,43 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     }
     AJACX(2,3) = 1.;
     AJACY(3,2) = 1.;
-    sigma_k=1.;
-    sigma_e=1.3;
-    C_mu = 0.09;
-    C_1=1.44;
-    C_2=1.92;
-    D = 1.;
-    Chezy = 110;
+
+    //      sigma_k=1.;
+    //      sigma_e=1.3;
+    //      C_mu = 0.09;
+    //      C_1=1.44;
+    //      C_2=1.92;
+    //      D = 1.;
+    //      Chezy = 110;
+    //      eps_min = 1e-6;
+    //      ket_min = 1e-6;
+    //      h_min   = 1e-6;
+    //      vel_min = 1e-6;
+
+    //o Correcting factor for diffusion in the $k$ transport equation
+    EGETOPTDEF_ND(elemset,double,sigma_k,1.);
+    //o Correcting factor for diffusion in the $\epsilon$ transport equation
+    EGETOPTDEF_ND(elemset,double,sigma_e,1.3);
+    //o Coefficient for shallow water turbulent model
+    EGETOPTDEF_ND(elemset,double,C_mu,0.09);
+    //o Coefficient for shallow water turbulent model
+    EGETOPTDEF_ND(elemset,double,C_1,1.44);
+    //o Coefficient for shallow water turbulent model
+    EGETOPTDEF_ND(elemset,double,C_2,1.92);
+    //o Coefficient for shallow water turbulent model
+    EGETOPTDEF_ND(elemset,double,D,1.);
+    //o Chezy coefficient for bottom friction modelling
+    EGETOPTDEF_ND(elemset,double,Chezy,110);
+    //o Threshold value for $\epsilon$ (clip below this)
+    EGETOPTDEF_ND(elemset,double,eps_min,1e-6);
+    //o Threshold value for $k$ while computing turbulence model.
+    EGETOPTDEF_ND(elemset,double,ket_min,1e-6);
+    //o Threshold value for $h$ while computing turbulence model.
+    EGETOPTDEF_ND(elemset,double,h_min,1e-6);
+    //o Threshold value for velocity while computing turbulence model.
+    EGETOPTDEF_ND(elemset,double,h_min,1e-6);
+
     C_P_e = C_2*sqrt(C_mu)*pow(g,1.25)/sqrt(D)/pow(Chezy,2.5);
-    eps_min = 1e-6;
-    ket_min = 1e-6;
-    h_min   = 1e-6;
-    vel_min = 1e-6;
   }
   FastMat2::leave();
 

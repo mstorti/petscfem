@@ -200,3 +200,6 @@ tag: beta-1.23 on Tue Jan 23 22:51:27 ARST 2001, by mstorti in spider
      > Turbulent Shallow Water is working.
      > Fixed a bug in elemlist, get_node_data. Didn't compute well Hloc.
      > Added a test for advdif: turbchan
+----------
+tag: beta-1.24 on Sun Feb  4 22:51:24 ARST 2001, by mstorti in spider
+     > Added option documentation ('odoc.pl') to ffswfm2t.cpp

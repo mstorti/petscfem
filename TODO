@@ -3,16 +3,14 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Add options for turbulent shallow water
 * add wall laws to turbulent shallow water
 * Should State have a TimeData instead of a Time
 * Why not to do a single loop over node_list in the print_some()
        routines?  
-* Check no memory leaks in constructing and destruting filters.
+* Check for memory leaks in constructing and destructing filters.
 * sqcav and burgers test
-* ffswfm2t test
-* Document sttilter etc...
-* Document the element locker function
+* Document sttfilter etc...
+* Document the element locker feature
 * Fix problems with b.c.'s when Dirichlet and periodic superimposed. 
 * Making html doc, doesn't reuse the generated gifs, which is very
            time consuming.
@@ -21,8 +19,10 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Add options for turbulent shallow water
 * Fix error while opening data file, when no case gives
            "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!
 * Add targets to the Makefile like `distrib' `almost_clean' etc...
 * Find a better hash function for the text hashes. 
 * Put `const' keyword in `get_entry' and friends.
+* ffswfm2t test

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2001/01/20 19:27:15 mstorti Exp $ 
+# $Id: Makefile,v 1.17.2.1 2001/02/05 12:34:36 mstorti Exp $ 
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
@@ -37,7 +37,12 @@ applications:
 	for dir in $(APPDIRS) ; do $(MAKE) -C $$dir distclean ; done
 
 #w Builds a package + doc + applications 
-distrib: sw doc pflib applications
+distrib: sw finaldoc pflib applications
+
+#w Uncomments \input lines for partial processing and then makes doc
+finaldoc:
+	$(MAKE) -C doc uncomment
+	$(MAKE) doc
 
 #w Builds the doc
 doc:

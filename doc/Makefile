@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.10 2001/01/23 13:25:31 mstorti Exp $
+#$Id: Makefile,v 1.10.2.1 2001/02/05 12:34:45 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -15,6 +15,11 @@ ODOCFILES = odocadv.tex odocadve.tex odocadvfe.tex odocadvfs.tex \
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
+
+uncomment:
+	perl -p -e 's/^%+\s*(.*%__UNCOMMENT_IN_FINAL_VERSION__)$$/$$1/;' \
+			-e 's/^([^%].*%__COMMENT_IN_FINAL_VERSION__)$$/%$$1/;' \
+			petscfem.tex
 
 #w make petscfem.ps.gz, manual.ps.gz
 ps: petscfem.ps.gz manual.ps.gz
