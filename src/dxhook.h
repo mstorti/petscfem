@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.12 2003/02/17 01:27:58 mstorti Exp $
+//$Id: dxhook.h,v 1.13 2003/02/17 02:09:34 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -38,6 +38,7 @@ private:
   int step_cntr, steps, ierr, dx_auto_combine;
   FieldGenList field_gen_list;
   string state_file;
+  int ndim,nnod,ndof;
 
 #ifdef USE_PTHREADS
   enum connection_state_t {

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: autostr.h,v 1.2 2003/02/16 15:15:53 mstorti Exp $
+// $Id: autostr.h,v 1.3 2003/02/17 02:09:34 mstorti Exp $
 #ifndef PETSCFEM_AUTOSTR_H
 #define PETSCFEM_AUTOSTR_H
 #include <cstdarg>
@@ -23,6 +23,7 @@ public:
   void cat_sprintf(char *,...);
   void vcat_sprintf(char *,va_list ap);
   void cat(AutoString &s);
+  void getline(FILE *fid);
 };
 
 #endif

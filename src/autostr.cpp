@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: autostr.cpp,v 1.2 2003/02/16 15:15:53 mstorti Exp $
+// $Id: autostr.cpp,v 1.3 2003/02/17 02:09:34 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstring>
@@ -72,3 +72,6 @@ void AutoString::cat_sprintf(char *f,...) {
   va_start(ap,f);
   vcat_sprintf(f,ap);
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int AutoString::getline(FILE *fid) { return ::getline(&s,&n,fid); }

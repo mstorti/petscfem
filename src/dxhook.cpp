@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.29 2003/02/17 01:27:58 mstorti Exp $
+//$Id: dxhook.cpp,v 1.30 2003/02/17 02:09:34 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -247,14 +247,25 @@ int dx_hook::build_state_from_state(double *state_p) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int dx_hook::build_state_from_file(double *state_p) {
-  return 1;
-}
-
 class GenericError : public string { 
 public:
   GenericError(char *s) : string(s) { }
 };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int dx_hook::build_state_from_file(double *state_p) {
+  FILE *fid = fopen(state_file.c_str(),"r");
+  if(!fid) throw GenericError("Can't open file.");
+  for (int j=0; j<nnod*ndof; j++) {
+    int nread = fscanf(fid,"%lf",&state_p[j]);
+    if(nread!=1) {
+      fclose(fid);
+      throw GenericError("Can't read line.");
+    }
+  }
+  fclose(fid);
+  return 0;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
@@ -301,8 +312,9 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   vector<string> tokens;
   Nodedata *nodedata = mesh->nodedata;
   double *xnod = nodedata->nodedata;
-  int ndim = nodedata->ndim;
-  int nnod = nodedata->nnod;
+  ndim = nodedata->ndim;
+  nnod = nodedata->nnod;
+  ndof = dofmap->ndof;
   int nu = nodedata->nu;
   int stepso;
 
@@ -365,8 +377,6 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
   }
 
   // Send results
-  int ndof = dofmap->ndof;
-
   double *state_p=NULL;
   dvector<double> state_v(ndof*nnod);
   if (!MY_RANK) {
