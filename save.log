@@ -4038,3 +4038,6 @@ tag: 3.43.4 on Sun, 20 Feb 2005 12:39:04 -0300 by mstorti in spider
 tag: 3.43.5 on Sun, 20 Feb 2005 13:55:47 -0300 by mstorti in spider
      > Runs OK ADRE problem (gasflow on compression corner) with the 
      > new `dofmap->solve' with iterative solution of the least squares eqs.
+----------
+tag: 3.43.6 on Sun, 20 Feb 2005 20:20:23 -0300 by mstorti in spider
+     > Runs all tests (stable version). 
