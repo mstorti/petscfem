@@ -1,13 +1,25 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme3.cpp,v 1.12 2002/07/24 15:46:11 mstorti Exp $
+// $Id: tryme3.cpp,v 1.13 2002/07/24 16:42:58 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
-#include <src/debug.h>
 #include <src/linkgraph.h>
 
 int MY_RANK,SIZE;
-const int M=10;
+const int M = 30;
+const int N = 5;
+
+#define modulo modulo__
+inline int modulo(int k, int n, int *div=NULL) {
+  int m = k % n;
+  int d = k / n;
+  if (m<0) {
+    m += n;
+    d -= 1;
+  }
+  if (div) *div = d;
+  return m;
+}
 
 void row_print(LinkGraphRow row) {
   LinkGraphRow::iterator q;
@@ -78,6 +90,16 @@ void graph_print(LinkGraphDis &graph, char *s=NULL) {
   }
 }
 
+void graph_print_dis(LinkGraphDis &graph, char *s=NULL) {
+  if (MY_RANK==0) printf("%s",s);
+  for (int p=0; p<SIZE; p++) {
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (MY_RANK==0) printf("On [%d]\n",p);
+    if (p==MY_RANK) graph_print(graph);
+    fflush(stdout);
+  }
+}
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc, char **args) {
 
@@ -133,35 +155,19 @@ int main(int argc, char **args) {
 
   // ================================================================
   // TRY SCATTER
-#if 0
-  Debug debug;
-  debug.activate();
-  Debug::init();
-  debug.trace("start? ");
-#endif
-
   LinkGraphDis graph(&part,MPI_COMM_WORLD), graph2(&part,MPI_COMM_WORLD);
   
   graph.init(M);
   for (int j=0; j<M; j++) {
-    graph.add(j,modulo(j+1,M));
-    graph.add(j,modulo(j-1,M));
+    for (int k=-N; k<=N; k++) 
+      if (modulo(j+k,SIZE)==MY_RANK) 
+	graph.add(j,modulo(j+k,M));
   }
 
-  if (MY_RANK==0) printf("-----------\nBefore scatter:\n");
-  for (int p=0; p<SIZE; p++) {
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (p==MY_RANK) graph_print(graph,"------------\n");
-  }
-
+  graph_print_dis(graph,"-----------\nBefore scatter:\n");
   graph.scatter();
+  graph_print_dis(graph,"-----------\nAfter scatter:\n");
 
-  if (MY_RANK==0) printf("-----------\nAfter scatter:\n");
-  LinkGraphDis::iterator k;
-  for (int p=0; p<SIZE; p++) {
-    MPI_Barrier(MPI_COMM_WORLD);
-    if (p==MY_RANK) graph_print(graph,"------------\n");
-  }
   MPI_Finalize();
 #endif
 
