@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.8 2003/01/21 10:42:17 mstorti Exp $
+## $Id: mkvtube.m,v 1.8.2.1 2003/01/22 13:26:03 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -90,7 +90,7 @@ for k=1:nn
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
     fprintf(fid,"%d %d   %f\n",k,u_dof+2,0);
     n_h = n_h+1;
-  elseif inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
+  elseif 0 && inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
     fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;

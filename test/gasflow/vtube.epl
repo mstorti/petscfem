@@ -29,7 +29,7 @@ if (0) {
 }
 
 ## Mesh parameters
-$refine = 1;			# scale all N's by this
+$refine = 2;			# scale all N's by this
 $Nz = 8*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
@@ -38,7 +38,7 @@ $Nphi = 16*$refine;		# number of elements in circumferential direction
 
 $mass_flow_in = 0.12;		# [kg/s] mass flow at inlet
 $p_in = 200000;			# [N/m2] pressure at inlet
-$T_in = 294;			# [K] temperature at inlet
+$T_in = 500;			# [K] temperature at inlet
 
 ## PHYSICAL DATA
 $Pr      =  0.72;		# [1] Prandtl
@@ -54,10 +54,7 @@ $gravity = -9.8;		# [m/s2] normal acceleration of gravity
 $rho_in = $p_in/($Rgas*$T_in);	# [kg/m3] density
 $u_rad_in = $mass_flow_in/
     ($A_in*$rho_in);		# [m/s] radial velocity
-
-$rho_in = 1;
-$u_rad_in = 10;
-$u_circunf_in = 40;		# [m/s] tangential velocity
+$u_circunf_in = 200;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
 $Re = 1e3;			# [1] Reynolds based on diameter
@@ -86,12 +83,13 @@ if ($use_tetra) {
 }
 :>//                            # ends ePerl block
 
-# <:pr('incomp'):>
+# <:pr('u_rad_in'):>
+# <:pr('u_circunf_in'):>
 # <:pr('compressible'):>
 ##================================================================
 global_options
 
-nstep 1000
+nstep 100
 alpha 1.
 
 initial_state "vtube.ini.tmp"
@@ -126,7 +124,7 @@ nnwt 5
 
 print_internal_loop_conv
 
-Dt 0.0005
+Dt 0.0001
 weak_form 0
 temporal_stability_factor 0
 
