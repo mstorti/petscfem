@@ -1,9 +1,10 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.1 2002/07/28 20:30:17 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.2 2002/07/28 20:51:36 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <src/utils.h>
 #include <src/linkgraph.h>
+#include <src/dvector.h>
 
 int MY_RANK,SIZE;
 
@@ -33,6 +34,11 @@ int main(int argc, char **args) {
   size_t ll=0;
 #define NEL 8
   int nodes[NEL],node,nnod=0;
+  dvector<int> icone;
+#define MIN_CHUNK_SIZE 40000
+  icone.set_chunk_size(MIN_CHUNK_SIZE);
+  // Incompatible nodes in a hexa
+  int incompat[] = {0,1,0,1,1,0,1,0};
 
   FILE *fid = fopen(args[1],"r");
   assert(fid);
@@ -45,9 +51,28 @@ int main(int argc, char **args) {
     for (int k=0; k<NEL; k++) {
       token = strtok((k==0? line : NULL)," ");
       int nread = sscanf(token,"%d",&node);
-      if (node>nnod) nnod=node;
       assert(nread==1);
+      icone.push(node);
+      if (node>nnod) nnod=node;
     }
   }
   printf("read %d elems, %d nodes\n",nelem,nnod);
+
+  fclose(fid);
+  graph.set_chunk_size(nnod/2 < MIN_CHUNK_SIZE ? MIN_CHUNK_SIZE : nnod/2);
+  graph.init(nnod);
+  for (int e=0; e<nelem; e++) {
+    int *row = &icone.ref(e*NEL);
+    for (int j=0; j<NEL; j++) 
+      for (int k=0; k<NEL; k++) 
+	if (incompat[j]!=incompat[k]) graph.add(row[j]-1,row[k]-1);
+  }
+  for (int q=0; q<nnod; q++) {
+    GSet row;
+    graph.set_ngbrs(q,row);
+    printf("row %d: ",q);
+    for (GSet::iterator r=row.begin(); r!=row.end(); r++) 
+      printf("%d ",*r);
+    printf("\n");
+  }
 }
