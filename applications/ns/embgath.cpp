@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.18 2002/08/13 18:42:32 mstorti Exp $
+//$Id: embgath.cpp,v 1.19 2002/08/13 22:14:48 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,6 +12,50 @@
 extern Mesh *GLOBAL_MESH;
 extern int MY_RANK,SIZE;
 
+double my_power(double x,void* p) {
+  return pow(x,*(double *)p);
+}
+
+class cloud {
+private:
+  int nderiv, npol, nx;
+  double nderiv_fact;
+  FastMat2 A, xi, H, iH, AA;
+public:
+  void init(int nx_a, int nderiv_a,int npol_a) {
+    nderiv = nderiv_a;
+    npol = npol_a;
+    nx = nx_a;
+    A.resize(2,nx,npol+1);
+    AA.resize(2,nx,npol+1);
+    xi.resize(1,nx);
+    H.resize(2,npol+1,npol+1);
+    iH.resize(2,npol+1,npol+1);
+    nderiv_fact = 1.;
+    for (int k=2; k<=nderiv; k++)
+      nderiv_fact *= double(k);
+  }
+  void coef(FastMat2 &x, FastMat2 &w,double x0=0.) {
+    A.ir(2,1).set(1.);
+    xi.set(x).add(-x0);
+    double h = xi.max_abs_all();
+    xi.scale(1./h);
+    for (int k=2; k<=npol+1; k++) {
+      double exp = double(k);
+      A.ir(2,k).set(xi).fun(&my_power,&exp);
+    }
+    H.prod(A,A,-1,1,-1,2);
+    iH.inv(H);
+    AA.prod(A,iH,1,-1,2,-1);
+    AA.ir(2,nderiv+1);
+    w.set(AA).scale(nderiv_fact/pow(h,nderiv));
+  }
+  void clear() { 
+    A.clear(); 
+    xi.clear(); 
+    C.clear();
+  }
+}
 #if 0
 // usage w=cloud(x,nderiv,npol)
 //
@@ -20,12 +64,10 @@ extern int MY_RANK,SIZE;
 // the nderiv derivative of x at x=0 fitting a polynomial of degree
 // npol by least squares.
 //
-void cloud(FastMat2 &w,FastMat2 &A,
+void cloud(FastMat2 &w,
 	   FastMat2 &x,int nderiv,int npol) {
 
-  nx=x.dim(1);
-  A=zeros(nx,npol+1);
-  A(:,1)=ones(nx,1);
+  A.=ones(nx,1);
   h=max(abs(x));
   for k=1:npol
     A(:,k+1)=(x/h).^k;
