@@ -152,6 +152,8 @@ DONE:
   > 	  Error reading coordinates in line:
   > 	  " 186.479250051526 0 65.8289085858449 5 0 100526.561473902"
   > 	  Not enough values in line!!
+	  FIXED: Sat, 06 Dec 2003 12:12:37 -0300
+	  added GenericError(char *,...) and PETSCFEM_ASSERT_GE()
 * Write test for `compute_fd_adv_jacobian'. 
 	DONE: Wed, 26 Nov 2003 21:03:25 -0300
 * Advdif crashes when no filename is pased via the -case option

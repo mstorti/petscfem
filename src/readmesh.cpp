@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.103 2003/12/06 15:11:09 mstorti Exp $
+//$Id: readmesh.cpp,v 1.104 2003/12/06 16:00:25 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -67,26 +67,6 @@ void metis_part(int nelemfat,Mesh *mesh,
 #define CHECK_PAR_ERR(ierro,text)				\
       ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
       PETSCFEM_ASSERT0(!ierro,text);  
-
-#define NEW
-#ifdef NEW
-
-void petscfem_check_par_err(int ierro,GenericError &ge,int myrank) {
-  int ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	
-  PETSCFEM_ASSERT(!ierro,"%s",ge.c_str());
-}
-
-#define CHECK_PAR_ERR_GE			\
-catch(GenericError e) { ierro = 1; ge=e; }	\
-petscfem_check_par_err(ierro,ge,myrank);
-
-#define PETSCFEM_ASSERT_GE(cond,templ,...)		\
-if (!(cond)) { throw GenericError(templ,__VA_ARGS__); }
-
-#define PETSCFEM_ASSERT_GE0(cond,templ)		\
-if (!(cond)) { throw GenericError(templ); }
-  GenericError ge;
-#endif /* not NEW */
 
 #define RM_ASSERT(cond,mess)					\
 PETSCFEM_ASSERT(cond,mess "%s:%d: at (or after) line: \"%s\"",	\
@@ -243,7 +223,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	ierro = !fstack_nodes_data->ok();
       }
       CHECK_PAR_ERR(ierro,"Error reading nodes");
-#ifdef NEW
       if (!myrank) try {
 	xnod = da_create(nu*sizeof(double));
 	while (!fstack_nodes_data->get_line(line)) {
@@ -269,34 +248,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	delete fstack_nodes_data;
       } 
       CHECK_PAR_ERR_GE;
-#else /* not NEW */
-      if (!myrank) {
-	xnod = da_create(nu*sizeof(double));
-	while (!fstack_nodes_data->get_line(line)) {
-	  astr_copy_s(linecopy, line);
-	  node++;
-	  for (int kk=0; kk<nu; kk++) {
-	    token = strtok((kk==0 ? line : NULL),bsp);
-	    PETSCFEM_ASSERT(token!=NULL,
-			    "Error reading coordinates in line:\n\"%s\"\n"
-			    "Not enough values in line!!\n",astr_chars(linecopy));
-	    int nread = sscanf(token,"%lf",row+kk);
-	    PETSCFEM_ASSERT(nread == 1,
-			    "Error reading coordinates in line:\n\"%s\"",line);
-	  }
-	  int indx = da_append (xnod,row);
-	  if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
-	}
-	ierro = fstack_nodes_data->last_error()!=FileStack::eof;
-	if (ierro) printf("Couldn't process correctly node data file %s\n",
-			 fstack_nodes_data->file_name());
-	nnod=node;
-	fstack_nodes_data->close();
-	delete fstack_nodes_data;
-      }
-      CHECK_PAR_ERR(ierro,"Error reading nodes");
 
-#endif /* not NEW */
       ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;

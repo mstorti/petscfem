@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.35 2003/09/13 00:27:52 mstorti Exp $
+//$Id: fem.h,v 1.36 2003/12/06 16:00:25 mstorti Exp $
 
 #ifndef FEM_H
 #define FEM_H
@@ -22,11 +22,12 @@ using namespace std;
 #include <libretto/darray.h>
 
 #undef HAVE_MEMMOVE // para que no chille
-#include "gpdata.h"
-#include "texthash.h"
-#include "vecmacros.h"
-#include "dofmap.h"
-#include "buffpack.h"
+#include <src/gpdata.h>
+#include <src/texthash.h>
+#include <src/vecmacros.h>
+#include <src/dofmap.h>
+#include <src/buffpack.h>
+#include <src/generror.h>
 
 /**@name fem.h */
 //@{
