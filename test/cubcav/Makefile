@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.96 2004/10/21 17:12:21 mstorti Exp $ 
+# $Id: Makefile,v 1.97 2004/10/22 10:28:55 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -35,7 +35,6 @@ ifneq ($(HOSTNAME),node1.beowulf.gtm)
 NP := $(shell procsel ./proctable.itc)
 NL :=
 MCH := -machinefile ./machi.dat
-NP := 1
 endif
 
 run_subdir_test:
