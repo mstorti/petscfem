@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.4 2002/08/07 11:47:26 mstorti Exp $
+//$Id: embgath.h,v 1.5 2002/08/07 18:17:11 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -8,6 +8,7 @@
 class Surf2Vol : public GPdata {
 private:
   int use_exterior_normal_m;
+  Surf2Vol *sv_gp_data;
 public:
   Surf2Vol(const char *geom,int ndim,int nel,
 	   int npg,int mat_version=GP_NEWMAT,
@@ -41,7 +42,11 @@ public:
     that returns scalar values.
 */
 class embedded_gatherer : public Elemset { 
+  Surf2Vol *sv_gp_data;
+  int npg;
 public: 
+  embedded_gatherer() : sv_gp_data(NULL) { }
+  ~embedded_gatherer() { delete sv_gp_data; }
   void initialize();
   int gather_length;
   /// This should not be defined by the user

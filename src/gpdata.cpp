@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.11 2002/08/07 11:47:29 mstorti Exp $
+//$Id: gpdata.cpp,v 1.12 2002/08/07 18:17:15 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -420,9 +420,24 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       
   } else if (!strcmp("quad2hexa",geom)) {
     
+    assert(ndimel==3);
+    assert(nel==8);
+    assert(npg==4); // other cases may be considered
+
+    GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
+
     for (int ipg=0; ipg<npg; ipg++) {
       shape[ipg] = RowVector(nel);
+      shape[ipg].Columns(1,4) = quad.shape[ipg];
+
       dshapexi[ipg]= Matrix(ndimel,nel);
+      dshapexi[ipg]= 0.;
+      dshapexi[ipg].SubMatrix(1,2,1,4) = quad.dshapexi[ipg];
+      dshapexi[ipg].SubMatrix(3,3,1,4) = -0.5*quad.shape[ipg];
+      dshapexi[ipg].SubMatrix(3,3,5,8) = +0.5*quad.shape[ipg];
+
+      wpg[ipg] = 1;
+
       dshapex[ipg]= Matrix(ndimel,nel);
     }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.12 2002/05/19 19:36:57 mstorti Exp $
+//$Id: gatherer.cpp,v 1.13 2002/08/07 18:17:11 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -37,9 +37,9 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   TGETOPTDEF_ND(thash,int,gather_length,0);
   //o Number of Gauss points.
   TGETOPTNDEF(thash,int,npg,none);
-  //o Dimension od the embedding space
+  //o Dimension of the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
-  //o Dimenson od the element
+  //o Dimenson of the element
   TGETOPTDEF(thash,int,ndimel,ndim-1); 
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
