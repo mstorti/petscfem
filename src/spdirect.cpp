@@ -1,10 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: spdirect.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+//$Id: spdirect.cpp,v 1.4 2002/09/05 18:23:52 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
-#include <mat.h>
+#include <petscmat.h>
 
 #include <src/fem.h>
 #include <src/utils.h>

@@ -1,14 +1,14 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.9 2002/08/26 02:39:28 mstorti Exp $
+//$Id: arglist.h,v 1.10 2002/09/05 18:23:52 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
 
 #include <vector>
 #include <string>
-#include <mat.h>
-#include <vec.h>
+#include <petscmat.h>
+#include <petscvec.h>
 
 #include "libretto.h"
 #include "pfmat.h"

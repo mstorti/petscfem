@@ -1,10 +1,10 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spdirect.h,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+// $Id: spdirect.h,v 1.4 2002/09/05 18:23:52 mstorti Exp $
 #ifndef SPDIRECT_H
 #define SPDIRECT_H
 
-#include <mat.h>
+#include <petscmat.h>
 
 #include <src/pfmat.h>
 #include <src/sparse.h>

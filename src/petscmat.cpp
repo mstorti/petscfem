@@ -1,10 +1,10 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.8 2002/07/29 20:17:39 mstorti Exp $
+//$Id: petscmat.cpp,v 1.9 2002/09/05 18:23:52 mstorti Exp $
 
 // fixme:= this may not work in all applications
 
 #include <typeinfo>
-#include <mat.h>
+#include <petscmat.h>
 
 #include <src/libretto.h>
 

@@ -1,14 +1,14 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglistn.h,v 1.3 2001/05/30 03:58:50 mstorti Exp $
+//$Id: arglistn.h,v 1.4 2002/09/05 18:23:52 mstorti Exp $
 
 #ifndef ARGLISTN_H
 #define ARGLISTN_H
 
 #include <vector>
 #include <string>
-#include <mat.h>
-#include <vec.h>
+#include <petscmat.h>
+#include <petscvec.h>
 #include "libretto.h"
 
 class ArgEntry {

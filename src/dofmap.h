@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.11 2002/08/28 01:59:37 mstorti Exp $
+//$Id: dofmap.h,v 1.12 2002/09/05 18:23:52 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -10,7 +10,7 @@
 #include <string>
 
 #include <petsc.h>
-#include <vec.h>
+#include <petscvec.h>
 
 #include <src/part.h>
 #include <src/texthash.h>

@@ -1,11 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse2.h,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+// $Id: sparse2.h,v 1.3 2002/09/05 18:23:52 mstorti Exp $
 #ifndef SPARSE2_H
 #define SPARSE2_H
 
 #include <src/sparse.h>
-#include <sles.h>
+#include <petscsles.h>
 
 using namespace Random;
 

@@ -1,13 +1,13 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.25 2002/08/07 23:11:35 mstorti Exp $
+//$Id: fem.h,v 1.26 2002/09/05 18:23:52 mstorti Exp $
  
 
 #ifndef FEM_H
 #define FEM_H
 
 #include <newmatio.h>
-#include <sles.h>
+#include <petscsles.h>
 #include <stdlib.h>
 
 // para Libretto!!!

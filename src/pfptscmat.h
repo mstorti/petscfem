@@ -1,13 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.12 2002/07/25 22:35:31 mstorti Exp $
+// $Id: pfptscmat.h,v 1.13 2002/09/05 18:23:52 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
 #include <vector>
 
 #include <petsc.h>
-#include <sles.h>
+#include <petscsles.h>
 
 #include <src/iisdgraph.h>
 #include <src/graphdv.h>

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.4 2001/05/30 18:21:53 mstorti Exp $
+//$Id: idmap.cpp,v 1.5 2002/09/05 18:23:52 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -10,7 +10,7 @@
 #include <cassert>
 #include <math.h>
 
-#include <sles.h>
+#include <petscsles.h>
 
 #ifdef RH60
 #include "libretto.h"

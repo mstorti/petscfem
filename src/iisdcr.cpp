@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.29 2002/08/28 00:48:18 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.30 2002/09/05 18:23:52 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -11,7 +11,7 @@ extern int MY_RANK,SIZE;
 #else
 #include <libretto/libretto.h>
 #endif
-#include <mat.h>
+#include <petscmat.h>
 
 #include <src/debug.h>
 #include <src/fem.h>

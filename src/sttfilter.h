@@ -1,6 +1,6 @@
 // -*-mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: sttfilter.h,v 1.8 2001/05/30 03:58:50 mstorti Exp $
+//$Id: sttfilter.h,v 1.9 2002/09/05 18:23:52 mstorti Exp $
  
 #ifndef STTFILTER_H
 #define STTFILTER_H
@@ -9,7 +9,7 @@
 #include <cmath>
 #include <vector>
 
-#include <vec.h>
+#include <petscvec.h>
 
 #include "fem.h"
 #include "dofmap.h"

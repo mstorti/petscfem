@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+//$Id: pfmat.cpp,v 1.4 2002/09/05 18:23:52 mstorti Exp $
 
-#include <mat.h>
+#include <petscmat.h>
 
 #include <src/fem.h>
 #include <src/utils.h>

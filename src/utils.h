@@ -1,13 +1,13 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.14 2002/07/24 17:24:46 mstorti Exp $
+//$Id: utils.h,v 1.15 2002/09/05 18:23:52 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
 
 #include <set>
 
-#include <vec.h>
+#include <petscvec.h>
 
 #include "fem.h"
 #include "fstack.h"

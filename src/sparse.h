@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.31 2002/01/14 03:45:06 mstorti Exp $
+// $Id: sparse.h,v 1.32 2002/09/05 18:23:52 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -14,7 +14,7 @@
 #include <SRC/util.h>
 #include <SRC/dsp_defs.h>
 
-#include <sles.h>
+#include <petscsles.h>
 
 #include <src/texthash.h>
 #include <src/getprop.h>

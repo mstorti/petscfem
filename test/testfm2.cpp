@@ -1,10 +1,10 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.12 2002/08/30 01:43:32 mstorti Exp $
+//$Id: testfm2.cpp,v 1.13 2002/09/05 18:23:52 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
 
-#include <sles.h>
+#include <petscsles.h>
 
 #include <src/fastmat2.h>
 #include <src/fem.h>
