@@ -28,7 +28,7 @@ hook_list dl_generic_hook coupling_inv_hook
 
 coupling_inv_hook.filename ./inviscid.efn
 coupling_inv_hook.prefix   coupling_inv_hook
-omega_coupling 0.
+omega_coupling 0.5
 
 __END_HASH__
 

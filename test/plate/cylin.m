@@ -70,6 +70,9 @@ H = [1 2 Nr/2;
 external = mesher_bound(mesh,[5 3 8 19 14 16]);
 outlet = mesher_bound(mesh,[16 15 11 4 5]);
 skin = mesher_bound(mesh,[9 1 6 17 12 9]);
+axis_nodes = mesher_bound(mesh,[9 10 11]);
+
+asave("cylin.axis_nodes.tmp",axis_nodes);
 
 ## Add a fictitious node for the constraints
 nnod_ext = length(external);
@@ -113,16 +116,22 @@ endfor
 fclose(fid);
 
 fid = fopen("cylin.nod_ext_fix.tmp","w");
-fid2 = fopen("ext.coupling_normal_vel.tmp","w");
 for k=1:length(normal)
   nod_fic = nod_fic_ext(k);
   fprintf(fid,"%d %d   %f\n",nod_fic,1,1.);
   fprintf(fid,"%d %d   %f\n",nod_fic,2,1.);
   fprintf(fid,"%d %d   %f\n",nod_fic,3,1.);
-  fprintf(fid2,"%d %f\n",nod_fic,normal(k,1));
 endfor
 fclose(fid);
-fclose(fid2);
+
+if !re_start
+  fid2 = fopen("ext.coupling_normal_vel.tmp","w");
+  for k=1:length(normal)
+    nod_fic = nod_fic_ext(k);
+    fprintf(fid2,"%d %f\n",nod_fic,normal(k,1));
+  endfor
+  fclose(fid2);
+endif
 
 fid = fopen("cylin.skin.tmp","w");
 for k=1:length(skin)

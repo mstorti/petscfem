@@ -6,7 +6,7 @@ $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
 require './data.pl';
 #__END_TRANSCRIPT__
-@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert Next);
+@vars = qw(Rint Rext Rext2 L Ntheta Nr Nx du_ini_pert Next re_start);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH cylin.m";
@@ -17,14 +17,20 @@ $nnod = count_lines("./cylin.nod.tmp");
 #===========================================================
 global_options
 ndim 2
+
+print_some_file "cylin.axis_nodes.tmp"
+save_file_some "cylin.axis_nodes.rslt.tmp"
+nsome 1
+
 save_file "cylin.state.tmp"
 nsave 1
+
 save_file_pattern "cylin.state_%d.tmp"
-nsaverot 1
+nsaverot 20
 nrec 1
 nfile 100000000
-# initial_state "cylin.state.tmp"
-initial_state "cylin.ini.tmp"
+
+initial_state <:= ($re_start ? "cylin.state.tmp" : "cylin.ini.tmp") :>
 nstep 300
 # steady
 solver "iisd"
