@@ -4201,3 +4201,6 @@ tag: beta-3.45.3 on Mon, 28 Mar 2005 00:29:43 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.4 on Mon, 28 Mar 2005 13:43:08 -0300 by mstorti in minerva.ceride.gov.ar
      > Runs `cond_wall' in open mode. 
+----------
+tag: beta-3.45.5 on Mon, 28 Mar 2005 15:19:32 -0300 by mstorti in minerva.ceride.gov.ar
+     > `cond_wall' is working. 
