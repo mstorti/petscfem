@@ -354,3 +354,7 @@ tag: beta-1.63 on Sat Apr  7 17:44:32 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added enthalpies of different types. 
      > It remains to add enthalpies to the SUPG term!!!
+----------
+tag: beta-1.64 on Sun Apr  8 09:40:02 ART 2001, by mstorti in spider
+     > Fixed bug in enthalpy module.
+     > Passes all tests in newff. QUASI-STABLE
