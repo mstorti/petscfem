@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.68.4.3 2003/08/18 16:18:38 mstorti Exp $ 
+# $Id: Makefile,v 1.68.4.4 2003/08/18 20:00:11 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -7,7 +7,7 @@
 default: isp_test
 
 isp_test:
-	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
+	$(MAKE) CASE=qharm np=2 case=iisd_sbp2 run
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf		\

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.48.2.1 2003/08/18 16:18:38 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.48.2.2 2003/08/18 20:00:07 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -22,6 +22,9 @@ extern int MY_RANK,SIZE;
 #include <src/graph.h>
 #include <src/distmap2.h>
 #include <src/distcont2.h>
+
+//#define PF_CHKERRQ(ierr) assert(ierr)
+#define PF_CHKERRQ(ierr) CHKERRQ(ierr)
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -264,6 +267,9 @@ int petscfem_null_monitor(KSP ksp,int n,
 IISDMat::~IISDMat() {
   delete A_LL_other;
   A_LL_other = NULL;
+  int ierr;
+  ierr = VecDestroy_maybe(wb); assert(!ierr); 
+  ierr = VecDestroy_maybe(xb); assert(!ierr); 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -402,9 +408,6 @@ int IISDMat::mult_trans(Vec x,Vec y) {
   ierr = MatMultTransposeAdd(A_LI,x_loc,y,y); CHKERRQ(ierr); 
   return 0;
 }
-
-//#define PF_CHKERRQ(ierr) assert(ierr)
-#define PF_CHKERRQ(ierr) CHKERRQ(ierr)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -642,7 +645,7 @@ int IISDMat::isp_set_value(int row,int col,PetscScalar value,
   int cindx = isp_map[col];
   if (cindx<0) return 0;
 
-  printf("setting: (%d,%d) -> (%d,%d) -> %f\n",row,col,rindx,cindx,value);
+  // printf("setting: (%d,%d) -> (%d,%d) -> %f\n",row,col,rindx,cindx,value);
   ierr = MatSetValues(A_II_isp,
 			1,&rindx,1,&cindx,&value,mode);
   CHKERRQ(ierr);
@@ -717,7 +720,7 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
     *x_loc_seq_a,*x_loc_a,*dx_a,scal,*x_a,*x_i_a;
   Vec res_i=NULL,x_i=NULL,res_loc=NULL,x_loc=NULL,res_loc_i=NULL;
 
-#if 1
+#if 0
     ierr = PetscViewerASCIIOpen(PETSC_COMM_SELF,
 				"aiiisp.dat",&matlab); PF_CHKERRQ(ierr);
     ierr = PetscViewerSetFormat(matlab,
@@ -763,8 +766,9 @@ int IISDMat::maybe_factor_and_solve(Vec &res,Vec &dx,int factored=0) {
       if (use_interface_full_preco) {
 	ierr = SLESDestroy_maybe(sles_ii); PF_CHKERRQ(ierr); 
 	ierr = SLESCreate(comm,&sles_ii); PF_CHKERRQ(ierr); 
-	ierr = SLESSetOperators(sles_ii,A_II,
-				A_II,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
+	Mat A_II_g = (nlay>1 ? A_II_isp : A_II);
+	ierr = SLESSetOperators(sles_ii,A_II_g,
+				A_II_g,SAME_NONZERO_PATTERN); PF_CHKERRQ(ierr); 
 	ierr = SLESGetKSP(sles_ii,&ksp_ii); PF_CHKERRQ(ierr); 
 	ierr = SLESGetPC(sles_ii,&pc_ii); PF_CHKERRQ(ierr); 
 	// ierr = KSPSetType(ksp_ii,KSPGMRES); PF_CHKERRQ(ierr); 
@@ -984,8 +988,8 @@ int IISDMat::set_preco(const string & preco_type) {
   int ierr;
   if (preco_type=="jacobi" || preco_type=="") {
     ierr = PCSetType(pc,PCSHELL); CHKERRQ(ierr);
-    ierr = PCShellSetApply(pc,&iisd_jacobi_pc_apply,this); 
-    // printf("[%d] setting apply to %p\n",MY_RANK,&iisd_jacobi_pc_apply);
+    ierr = PCShellSetApply(pc,&iisd_pc_apply,this); 
+    // printf("[%d] setting apply to %p\n",MY_RANK,&iisd_pc_apply);
   } else if (preco_type=="none" ) {
     ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
   } else {
@@ -1003,27 +1007,86 @@ int IISDMat::set_preco(const string & preco_type) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "iisd_jacobi_pc_apply"
-int iisd_jacobi_pc_apply(void *ctx,Vec x ,Vec y) {
+#define __FUNC__ "iisd_pc_apply"
+int iisd_pc_apply(void *ctx,Vec x ,Vec y) {
   int ierr;
   PFMat *A = (PFMat *) ctx;
   IISDMat *AA;
   AA = dynamic_cast<IISDMat *> (A);
   ierr = (AA==NULL); CHKERRQ(ierr);
-  AA->jacobi_pc_apply(x,y);
+  AA->pc_apply(x,y);
   return 0;
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::jacobi_pc_apply"
-int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
+#define __FUNC__ "IISDMat::pc_apply"
+int IISDMat::pc_apply(Vec x,Vec w) {
   int ierr;
   if (use_interface_full_preco) {
     int its;
-    // Solves `w = A_II \ x' iteratively. 
-    ierr = SLESSolve(sles_ii,x,w,&its);
-    CHKERRQ(ierr);  
+    if (nlay==1) {
+      // Solves `w = A_II \ x' iteratively. 
+      ierr = SLESSolve(sles_ii,x,w,&its);
+      CHKERRQ(ierr);
+    } else {
+      const int &neq = M;
+      // Injects `x' in `xb'. Solves `A_II_isp wb = xb'
+      // and then takes `w' from `wb'
+
+      int myrank;
+      MPI_Comm_rank(comm, &myrank);
+
+      double scal = 0.;
+      ierr = VecSet(&scal,xb); 
+      PF_CHKERRQ(ierr); 
+      
+      // Injects `x' in `xb'.
+      double *xbp, *wbp, *xp, *wp;
+      ierr = VecGetArray(xb,&xbp); PF_CHKERRQ(ierr); 
+      ierr = VecGetArray(x,&xp); PF_CHKERRQ(ierr); 
+      int n_int = n_int_v[myrank+1]-n_int_v[myrank];
+      int n_int_p = n_int_v[myrank];
+      int n_lay1_here = n_band_p[myrank] - n_lay1_p[myrank];
+      int n_lay1_ph = n_lay1_p[myrank];
+      int mapped=0;
+      for (int keq=0; keq<neq; keq++) {
+	int iisd_indx = map_dof[keq];
+	if (!(iisd_indx>=n_int_p && iisd_indx<n_int_v[myrank+1])) continue;
+	int j = iisd_indx-n_int_p;
+	// indx in local part of `xb' array
+	int xb_ndx = isp_map[keq] - n_lay1_ph;
+	assert(xb_ndx>=0 && xb_ndx<n_lay1_here);
+	mapped++;
+	xbp[xb_ndx] = xp[j];
+      }
+      assert(mapped==n_lay1_here);
+      ierr = VecRestoreArray(xb,&xbp); PF_CHKERRQ(ierr); 
+      ierr = VecRestoreArray(x,&xp); PF_CHKERRQ(ierr); 
+
+      //Solves `A_II_isp wb = xb'
+      ierr = SLESSolve(sles_ii,xb,wb,&its);
+      CHKERRQ(ierr);
+
+      // Takes `w' from `wb'
+      ierr = VecGetArray(wb,&wbp); PF_CHKERRQ(ierr); 
+      ierr = VecGetArray(w,&wp); PF_CHKERRQ(ierr); 
+      mapped=0;
+      for (int keq=0; keq<neq; keq++) {
+	int iisd_indx = map_dof[keq];
+	// indx in local part of `xb' array
+	if (!(iisd_indx>=n_int_p && iisd_indx<n_int_v[myrank+1])) continue;
+	int j = iisd_indx-n_int_p;
+	int xb_ndx = isp_map[keq] - n_lay1_ph;
+	assert(xb_ndx>=0 && xb_ndx<n_lay1_here);
+	mapped++;
+	wp[j] = wbp[xb_ndx];
+      }
+      assert(mapped==n_lay1_here);
+      ierr = VecRestoreArray(wb,&wbp); PF_CHKERRQ(ierr); 
+      ierr = VecRestoreArray(w,&wp); PF_CHKERRQ(ierr); 
+      //# Current line ===========       
+    }  
     
   } else {
     // Computes the componentwise division w = x/y. 

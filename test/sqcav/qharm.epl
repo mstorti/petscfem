@@ -110,6 +110,8 @@ shell_hook "echo stage %s, step %d, time %f"
 #endif
 
 # print_dofmap_id
+use_interface_full_preco
+use_interface_full_preco_nlay 2
 __END_HASH__
 
 # ndim nu ndof
@@ -130,7 +132,7 @@ __END_ELEMSET__
 
 end_elemsets
 
-#if 0
+#if 1
 fixa
 # Set value at the wall
 __INCLUDE__ qharm.fixa.tmp

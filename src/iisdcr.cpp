@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.7 2003/08/18 16:18:38 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.8 2003/08/18 20:00:07 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -471,9 +471,10 @@ int IISDMat::create_a() {
   }
 #if 0
   if (!myrank) {
-    printf("j, isp_lay_map[j], isp_map[j]\n");
+    printf("j, map_dof[j], isp_lay_map[j], isp_map[j]\n");
     for (int j=0; j<neq; j++) {
-      printf("%d %d %d\n",j, isp_lay_map[j], isp_map[j]);
+      printf("%5d %5d %5d %5d\n",j, 
+	     map_dof[j], isp_lay_map[j], isp_map[j]);
     }
   }
 #endif
@@ -734,6 +735,10 @@ int IISDMat::create_a() {
     CHKERRQ(ierr); 
     // ierr = MatSetStashInitialSize(A_II,300000,0);
     // CHKERRQ(ierr); 
+    // Create aux vectors for solving the band problem
+    ierr = VecCreateMPI(comm,n_isp_here,PETSC_DETERMINE,&wb);
+    CHKERRQ(ierr); 
+    ierr = VecDuplicate(wb,&xb); CHKERRQ(ierr); 
   }
   
   ierr = MatCreateShell(comm,n_int,n_int,

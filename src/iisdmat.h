@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.27.2.1 2003/08/18 16:18:38 mstorti Exp $
+// $Id: iisdmat.h,v 1.27.2.2 2003/08/18 20:00:07 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -39,7 +39,7 @@
         string name;					\
         TGETOPTDEF_S_ND_PF(thash,type,name,default)
   
-int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
+int iisd_pc_apply(void *ctx,Vec,Vec);
 
 /** Solves iteratively on the `interface' (between subdomain) nodes
     and solving by a direct method in the internal nodes.
@@ -225,6 +225,12 @@ class IISDMat : public PFPETScMat {
   /** Dof's in band/processor #p#: are in range 
       #n_band_p[p] <= keq < n_lay1_p[p+1]# */
   vector<int> n_band_p;
+  /** Auxiliay vectors for solving the interface
+      ISP preconditioning problem */
+  Vec wb;
+  /** Auxiliay vectors for solving the interface
+      ISP preconditioning problem */
+  Vec xb;
   //@}
 
 public:
@@ -292,7 +298,7 @@ public:
     local_solver(PETSc), sles_ll(NULL), sles_ii(NULL),
     use_interface_full_preco(0) {};
   /// The PETSc wrapper function calls this
-  int jacobi_pc_apply(Vec x,Vec y); 
+  int pc_apply(Vec x,Vec y); 
   /// Destructor
   ~IISDMat();
 };
