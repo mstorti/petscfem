@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.28 2001/07/16 14:14:44 mstorti Exp $
+//$Id: ns.cpp,v 1.29 2001/07/16 20:27:45 mstorti Exp $
  
 #include <malloc.h>
 
@@ -44,20 +44,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
 	exit(1);
 	}
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** For a given state vector, prints the state for some nodes.
-    @author M. Storti
-    @param (input) filename file where to write the vector. May contain
-    relative directories. 
-    @param s (input) State vector
-    @param dofmap (input) corresponding dofmap 
-    @param node_list (input) set of nodes to print. 
-*/ 
-int print_some(const char *filename,const State &s,Dofmap *dofmap,
-	       set<int> & node_list);
-#endif
 
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
@@ -422,9 +408,7 @@ int main(int argc,char **args) {
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"atet"); CHKERRA(ierr);
 	ierr =  SLESView(sles_tet,VIEWER_STDOUT_SELF);
-
 	ierr = MatView(A_tet,matlab);
-
 	ierr = ViewerSetFormat(matlab,
 			       VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
 	ierr = VecView(res,matlab);
@@ -468,7 +452,8 @@ int main(int argc,char **args) {
     PetscPrintf(PETSC_COMM_WORLD,"============= delta_u = %10.3e\n",norm);
     if (normres_external < tol_newton) {
       PetscPrintf(PETSC_COMM_WORLD,
-		  "Tolerance on newton loop reached:  || R ||_0,  norm_res =%g < tol = %g\n",
+		  "Tolerance on newton loop reached:  "
+		  "|| R ||_0,  norm_res =%g < tol = %g\n",
 		  normres_external,tol_newton);
       break;
     }

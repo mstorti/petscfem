@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.36 2001/07/14 23:55:43 mstorti Exp $
+#$Id: Makefile.base,v 1.37 2001/07/16 20:27:32 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -82,10 +82,14 @@ ifneq ($(SRCS),)
 	etags *.cpp *.h $(TAGFLAGS)
 endif
 
-# Create preprocessed files
+#w Create preprocessed files
 %.cppi: %.cpp force
 	if [ -e $@ ] ; then chmod +w $@ ; fi
 	g++ -E $(CFLAGS) $(CPPFLAGS) $< > $@ ; chmod u-w $@
+
+# Create preprocessed files
+print_cppflags_for_emacs_macro_expansion: 
+	@echo $(CFLAGS) $(CPPFLAGS)
 
 # general elements to be removed in all cases.
 general_clean: 

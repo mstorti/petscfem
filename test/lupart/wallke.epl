@@ -1,12 +1,15 @@
 <:
-require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+#require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+# because when running the beta-1.82 version
+# `octave-export_vars()' is not available. 
+require "$ENV{'HOME'}/PETSC/petscfem/test/eperlini.pl";       # Initializes ePerl 
 #
 $L = 1;                         # Semi distance between plates
 $N = 16;                        # Number of elements in transversal 'x' direction
 $hratio = 20;                   # refinement near the wall
 $hratioy = 20;                  # refinement to the exit
-$Ny = 100;                      # Number of elements in y dir
-$Ny_eq = 20;                    # last elements that are equal in size
+$Ny = 10;                      # Number of elements in y dir
+$Ny_eq = 3;                    # last elements that are equal in size
                                 # in the y direction
 $Ly = 30;                       # longitudinal length 
 $Re = 100;                     # laminar Re
@@ -36,14 +39,16 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 4
-nnwt 1
+nstep 3
+nnwt 3
 tol_newton 0
-preco_type <:= ($iterative ? "\"jacobi\"" : "\"lu\""); :>
+preco_type "jacobi"
+#preco_type "lu"
 Dt 1
 steady
 newton_relaxation_factor 1
 
+print_internal_loop_conv
 #verify_jacobian_with_numerical_one
 #print_linear_system_and_stop
 #solve_system 0

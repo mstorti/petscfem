@@ -1,20 +1,16 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/07/13 03:49:16 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/07/16 20:27:52 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 all: test_case_poiseuille
 
-PETSCFEM_DIR = ../..
+#PETSCFEM_DIR = ../..
+PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-1.82
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
-
-ifeq ($(case),"test_case_a")
-NAME = nonlr
-else
 NAME = wallke
-endif
 
 PROG = $(NS)
 LOC_PROG = ns
@@ -36,7 +32,7 @@ $(NAME).depl: force
 
 test_case_%: test_case_%_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
-	-$(MPIRUN) -np 2 -machinefile machi.dat $(PROG) \
+	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl | tee output.case_$*.tmp
 
 local_clean::

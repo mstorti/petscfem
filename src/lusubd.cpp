@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.5 2001/07/16 14:14:16 mstorti Exp $
+//$Id: lusubd.cpp,v 1.6 2001/07/16 20:27:48 mstorti Exp $
 
 #ifdef RH60
 #include "libretto.h"
@@ -388,7 +388,7 @@ int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
 int PFMat::monitor(KSP ksp,int n,double rnorm) {
   int ierr;
   if (print_internal_loop_conv) {
-    if (n==1) PetscPrintf(PETSC_COMM_WORLD,
+    if (n==0) PetscPrintf(PETSC_COMM_WORLD,
 			  " Begin internal iterations "
 			  "--------------------------------------\n");
     PetscPrintf(PETSC_COMM_WORLD,
