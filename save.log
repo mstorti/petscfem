@@ -3429,3 +3429,7 @@ tag: beta-3.36 on Thu, 11 Nov 2004 22:16:43 -0300 by mstorti in spider
      > Rus big cubcav example (11.5Mtet). 
      > Added test for Fractional Step sqcav at Re=1000. 
      > Fixed error in `elmsupl.cpp' 
+----------
+tag: beta-3.36.1 on Fri, 18 Feb 2005 06:03:42 -0300 by mstorti in spider
+     > Fixed some C++ stuff that prevents compilation in 
+     >   GCC 3.3.3 (Fedora Core 2 Tettnang). Patch gcc-3.3.3.patch
