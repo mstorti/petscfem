@@ -62,7 +62,7 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
     u.resize(2,ndof,ndim);
     //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
     //  _N: advective_jacobians _D: no default  _DOC: 
-    //i_tex advdif.tex advective_jacobians
+    //i_tex ../../doc/advdifop.tex advective_jacobians
     //  _END
     const char *advje;
     VOID_IT(ajacv);
@@ -72,9 +72,10 @@ int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
     // Read diffusive jacobians (diffusivity matrices)
     D_jac_l.resize(4,ndim,ndim,ndof,ndof);
-    //o _T: double[ndof]/double[ndim*ndim*ndof]/double[ndim*ndim*ndof*ndof] 
+    // o _T: double[ndof]/double[ndim*ndim*ndof]/double[ndim*ndim*ndof*ndof] 
+    //o _T: double[var_len] 
     //  _N: diffusive_jacobians _D: no default  _DOC: 
-    //i_tex advdif.tex advective_jacobians
+    //i_tex ../../doc/advdifop.tex diffusive_jacobians
     //  _END
     const char *difje;
     VOID_IT(djacv);

@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.4 2001/01/04 22:46:02 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.5 2001/01/11 21:54:47 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -238,7 +238,7 @@ int main(int argc,char **args) {
   //o Sets the save frequency in iterations 
   GETOPTDEF(int,nsave,10);
   //o Sets the frequency save for the ``rotary save'' mechanism. 
-  //i_tex nsdoc.tex rotary_save
+  //i_tex ../../doc/nsdoc.tex rotary_save
   GETOPTDEF(int,nsaverot,100);
   //o Sets the number of states saved in a given file
   // in the ``rotary save'' mechanism (see \ref{sec:rotary_save}
@@ -249,7 +249,7 @@ int main(int argc,char **args) {
 
   //o Sets the save frequency in iterations for the ``print some''
   // mechanism. 
-  //i_tex nsdoc.tex print_some
+  //i_tex ../../doc/nsdoc.tex print_some
   GETOPTDEF(int,nsome,10000);
   //o The number of time steps. 
   GETOPTDEF(int,nstep,10000);

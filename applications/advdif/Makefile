@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.5 2001/01/10 15:36:48 mstorti Exp $ 
+ # $Id: Makefile,v 1.6 2001/01/11 21:54:42 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -26,16 +26,18 @@ ffeuler.o: ffeuler.cpp
 odocadvdif: ../../doc/odocadvdif.tex  ../../doc/odocadvdife.tex \
 	../../doc/odocadvfm2.tex ../../doc/odocburgers.tex 
 
-../../doc/odocadvdif.tex: advdif.cpp
+dd := ../../doc
+
+$(dd)/odocadvdif.tex: advdif.cpp $(dd)/advdif.tex
 	$(run_odoc)
 
-../../doc/odocadvdife.tex: advdife.cpp
+../../doc/odocadvdife.tex: advdife.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
-../../doc/odocadvfm2.tex: ffadvfm2.cpp
+../../doc/odocadvfm2.tex: ffadvfm2.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
-../../doc/odocburgers.tex: ffburg.cpp
+../../doc/odocburgers.tex: ffburg.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
 #lclean: general_clean
