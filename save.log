@@ -1346,3 +1346,6 @@ tag: beta-3.01 on Thu, 25 Jul 2002 19:36:18 -0300, by mstorti in minerva.arcride
 ----------
 tag: beta-3.01.pl1 on Thu, 25 Jul 2002 21:57:44 -0300 by mstorti in spider
      > Some more fixes in compiling programs for test.
+----------
+tag: beta-3.01.pl2 on Thu, 25 Jul 2002 22:59:15 -0300 by mstorti in spider
+     > FastMat2 version of fractional step compiles.
