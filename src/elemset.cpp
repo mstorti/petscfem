@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.14 2001/05/30 18:21:53 mstorti Exp $
+//$Id: elemset.cpp,v 1.15 2001/07/13 03:48:23 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -11,6 +11,7 @@
 #include "dofmap.h"
 #include "arglist.h"
 #include "readmesh.h"
+#include "lusubd.h"
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -639,9 +640,11 @@ int assemble(Mesh *mesh,arg_list argl,
     }
 
     if (argl[j].options & UPLOAD_PROFILE) {
+      PFMatLU pfmat(dofmap,ARGVJ.da);
       ierr = compute_prof(ARGVJ.da,dofmap,
 			  myrank,(Mat *)(argl[j].arg),
 			  debug_compute_prof);
+      
     }
 
     if (argl[j].options & VECTOR_ASSOC ) {
