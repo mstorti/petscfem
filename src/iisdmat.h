@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.10 2001/12/28 21:13:17 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.11 2001/12/30 20:00:25 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -225,7 +225,7 @@ public:
     PFPETScMat(MM,pp,comm_), 
     M(MM), N(NN), 
     A_LL_other(NULL), A_LL(NULL), 
-    local_solver(PETSc) {};
+    local_solver(PETSc), sles_ll(NULL) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor

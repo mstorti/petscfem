@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.10 2001/12/29 23:59:35 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.11 2001/12/30 20:00:37 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -21,13 +21,15 @@ public:
   ~Part() {}
 } part;
 
-#define CHKOPT(name)  assert(!strcmp(#name,args[++arg]))
+#define CHKOPT(name)  if (myrank==0) assert(!strcmp(#name,args[++arg]))
 
 int main(int argc,char **args) {
 
   PFMat *A_p;
   Vec x,b,xex;
-  int ierr,iisd_subpart,nsolve,rand_rhs,mat_type;
+  int ierr,iisd_subpart,nsolve,rand_flag,mat_type,q_type,
+    tests_ok=1;
+  double tol=1e-10;
   // debug.activate();
   int myrank,size;
   PetscInitialize(&argc,&args,NULL,NULL);
@@ -40,7 +42,7 @@ int main(int argc,char **args) {
   int arg=0;
 
   // usage: pfmat.bin ne <Nelem> deb <debug_print> nsl <nsolve> sbdp
-  // <iisd_subpart> nmat <nmat> rrhs <rand_rhs> mtyp <mat_type>
+  // <iisd_subpart> nmat <nmat> rrhs <rand_flag> mtyp <mat_type>
 
   CHKOPT(ne);
   if (myrank==0 && argc>++arg)
@@ -48,12 +50,15 @@ int main(int argc,char **args) {
   ierr = MPI_Bcast (&Nelem, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   int N=Nelem-1;
+  PetscPrintf(PETSC_COMM_WORLD,"Nelem %d  (Number of elements)\n",Nelem);
 
   CHKOPT(deb);
   if (myrank==0 && argc>++arg)
     sscanf(args[arg],"%d",&debug_print);
   ierr = MPI_Bcast (&debug_print, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"debug_print %d  "
+	      "(print debugging information)\n",debug_print);
 
   CHKOPT(nsl);
   nsolve=1;
@@ -61,6 +66,9 @@ int main(int argc,char **args) {
     sscanf(args[arg],"%d",&nsolve);
   ierr = MPI_Bcast (&nsolve, 1, 
 		    MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "nsolve %d  (repeats solution stage nsolve times\n",
+	      nsolve);
     
   CHKOPT(sbdp);
   iisd_subpart=1;
@@ -68,6 +76,9 @@ int main(int argc,char **args) {
     sscanf(args[arg],"%d",&iisd_subpart);
   ierr = MPI_Bcast (&iisd_subpart, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"iisd_subpart %d  "
+	      "(number of partitions for subpartitioning"
+	      " inside each processor)\n",iisd_subpart);
 
   CHKOPT(nmat);
   nmat=1;
@@ -75,13 +86,16 @@ int main(int argc,char **args) {
     sscanf(args[arg],"%d",&nmat);
   ierr = MPI_Bcast (&nmat, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"nmat %d  (solve with nmat matrices)\n",nmat);
 
   CHKOPT(rrhs);
-  rand_rhs=0;
+  rand_flag=0;
   if (myrank==0 && argc>++arg) 
-    sscanf(args[arg],"%d",&rand_rhs);
-  ierr = MPI_Bcast (&rand_rhs, 
+    sscanf(args[arg],"%d",&rand_flag);
+  ierr = MPI_Bcast (&rand_flag, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"rand_flag %d  (use a randomly "
+	      "perturbated Q, k and L\n",rand_flag);
 
   CHKOPT(mtyp);
   mat_type=0; // 0 -> IISDMat, 1 -> PETScMat
@@ -89,10 +103,19 @@ int main(int argc,char **args) {
     sscanf(args[arg],"%d",&mat_type);
   ierr = MPI_Bcast (&mat_type, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
-
   PetscPrintf(PETSC_COMM_WORLD,
-	      "iisd_subpart %d, nsolve %d, debug_print %d, Nelem %d\n",
-	      iisd_subpart, nsolve, debug_print, Nelem);
+	      "mat_type %d (0 -> IISDMat, 1 -> PETScMat)\n",mat_type);
+
+  CHKOPT(q);
+  q_type=0; // 0 -> cnst, 1 -> propto x
+  if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&q_type);
+  ierr = MPI_Bcast (&q_type,1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"q_type %d  (Q/x dependency, "
+	      "0 -> cnst, 1 -> propto x)\n",q_type);
+
+//    PetscPrintf(PETSC_COMM_WORLD,
+//  	      "iisd_subpart %d, nsolve %d, debug_print %d, Nelem %d\n",
+//  	      iisd_subpart, nsolve, debug_print, Nelem);
 
   part.comm_size = size;
   part.N = N;
@@ -119,7 +142,7 @@ int main(int argc,char **args) {
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
   A.create();
-  if (debug_print) A.view();
+  // if (debug_print) A.view();
 
   int nhere=0;
   for (int k=0; k<N; k++) 
@@ -162,10 +185,10 @@ int main(int argc,char **args) {
       if (myrank==0) {
 	for (int j=0; j<N; j++) {
 	  double x = double(j+1)/double(Nelem)*L;
-	  double Qx = Q*(x-L/2);
+	  double Qx = (q_type==0 ? Q : Q*(x-L/2));
 	  ierr = VecSetValues(b,1,&j,&Qx,INSERT_VALUES); CHKERRA(ierr);
-	  // double val = x*(L-x)*Q/cond/2.;
-	  double val=Q/cond*x*(L-x)*(x-L/2.)/6.;
+	  double val = (q_type==0 ? x*(L-x)*Q/cond/2.
+			: Q/cond*x*(L-x)*(x-L/2.)/6.);
 	  ierr = VecSetValues(xex,1,&j,&val,INSERT_VALUES); CHKERRA(ierr);
 	}
       }
@@ -194,11 +217,15 @@ int main(int argc,char **args) {
       ierr = VecAXPY(&scal,xex,x); CHKERRA(ierr);
       ierr  = VecNorm(x,NORM_2,&norm); CHKERRA(ierr);
 
-      PetscPrintf(PETSC_COMM_WORLD,"||x-xex|| = %g,   "
-		  "||x-xex||/||xex|| = %g\n",norm,norm/normex);
+      int this_ok = norm/normex<=tol;
+      PetscPrintf(PETSC_COMM_WORLD,"test OK: %d, ||x-xex|| = %g,   "
+		  "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
+		  norm,norm/normex,tol);
+      if (!this_ok) tests_ok = 0;
     }
     A.clean_factor(); 
   }
+  PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
   PetscFinalize();
   exit(0);
  
