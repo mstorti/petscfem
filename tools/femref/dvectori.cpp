@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: dvectori.cpp,v 1.10 2005/01/17 15:43:26 mstorti Exp $
+// $Id: dvectori.cpp,v 1.11 2005/01/17 16:01:23 mstorti Exp $
 
 #define DV_INT
 #define TYPE int
@@ -12,6 +12,7 @@
 #define MAKE_DVECTOR_FUN make_dvint
 #define FREE_DVECTOR_FUN free_dvint
 
+#define DVECTOR_CLONE_FUN dvint_clone
 #define DVECTOR_PUSH_FUN dvint_push
 #define DVECTOR_SIZE_FUN dvint_size
 #define DVECTOR_PRINT_FUN dvint_print

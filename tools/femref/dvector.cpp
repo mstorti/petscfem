@@ -37,6 +37,24 @@ FREE_DVECTOR_FUN(SCM s_w) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
+#define __FUN__ DVTYPE "-clone!"
+static SCM
+DVECTOR_CLONE_FUN(SCM s_v,SCM s_w) {
+
+  SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_v),
+              s_v, SCM_ARG1, __FUN__);
+  dvector_t *v = (dvector_t *) SCM_SMOB_DATA(s_v);
+
+  SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
+              s_w, SCM_ARG1, __FUN__);
+  dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
+
+  v->clone(*w);
+  return SCM_UNSPECIFIED;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
 #define __FUN__ DVTYPE "-resize-w!"
 static SCM
 DVECTOR_RESIZE_FUN(SCM s_w,SCM s_n) {
@@ -322,6 +340,7 @@ INIT_DVECTOR_FUN(void) {
   scm_set_smob_free(TAG,FREE_DVECTOR_FUN);
   scm_set_smob_print (TAG,DVECTOR_PRINT_FUN);
   scm_c_define_gsubr("make-" DVTYPE, 0, 0, 0, scm_fun(MAKE_DVECTOR_FUN));
+  scm_c_define_gsubr(DVTYPE "-clone!", 2, 0, 0, scm_fun(DVECTOR_CLONE_FUN));
   scm_c_define_gsubr(DVTYPE "-push!", 2, 0, 0, scm_fun(DVECTOR_PUSH_FUN));
   scm_c_define_gsubr(DVTYPE "-size", 1, 0, 0, scm_fun(DVECTOR_SIZE_FUN));
   scm_c_define_gsubr(DVTYPE "-resize-w!", 2, 0, 0, scm_fun(DVECTOR_RESIZE_FUN));
