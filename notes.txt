@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $
+$Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
+! # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.237 2003/01/25 12:40:06 mstorti Exp $ 
+  # $Id: notes.txt,v 1.238 2003/01/26 21:12:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6024,6 +6024,11 @@ entrada y la salida no da del todo bien, pero tambien hay que ver que
 el numero de elementos que hay en una salida es muy bajo (3). Ahora
 voy a agregar la salida fria y tratar de regular el corte
 automaticamente. 
+%
+17:53:19: Anda informaticamente el acoplamiento caudal/presion via
+hooks, pero ahora realizo que conviene hacerlo mas a pata, ya que por
+ejemplo hay que tener en cuenta la axisimetria. 
+
 
 # Current line ===========  %
 # Local Variables: $

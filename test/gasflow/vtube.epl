@@ -9,7 +9,7 @@ $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 $hot_outlet = 1;
-$cold_outlet = 0;
+$cold_outlet = 1;
 $small_test = 1;
 
 $R0 = 0.047;			# [m] Radius of tube
@@ -41,6 +41,7 @@ $Nphi = 16*$refine;		# number of elements in circumferential direction
 $mass_flow_in = 0.12;		# [kg/s] mass flow at inlet
 $p_in = 200000;			# [N/m2] pressure at inlet
 $T_in = 500;			# [K] temperature at inlet
+$cut = 0.5;			# [1] ratio of cold to hot flow rate
 
 ## PHYSICAL DATA
 $Pr      =  0.72;		# [1] Prandtl
@@ -83,12 +84,21 @@ $weak_form  = 0;
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
+require './vtube.data.tmp';
+#
+## Mass flow per circumferential slab
+$Q = $mass_flow_in*$Dphi/(2.0*$PI);
 if ($use_tetra) {
     system "../../tools/hexasplit.bin -i vtube.con.tmp -o vtube.con-tetra.tmp".
     " > hexasplit.out.tmp";
 }
 :>//                            # ends ePerl block
 
+## Derived quantities:
+## ==================
+# <:pr('cut'):>
+# <:pr('Q'):>
+# <:pr('Dphi'):>
 # <:pr('u_rad_in'):>
 # <:pr('u_circunf_in'):>
 # <:pr('compressible'):>
@@ -98,10 +108,9 @@ global_options
 nstep 1000
 alpha 1.
 
-# initial_state "vtube.ini.tmp"
-initial_state "vtube.state.tmp"
+initial_state "vtube.ini.tmp"
+# initial_state "vtube.state.tmp"
 # initial_state "vtube.hot_only.tmp"
-save_file "vtube.state.tmp" 
 nsave 50
 
 save_file_pattern "vtube.state_%d.tmp"
@@ -152,11 +161,30 @@ axisymmetric "z"
 gather_file "vtube.mass_flow_rate.tmp"
 ngather 3
 
-hook_list dl_generic_hook gasflow_hook 
-gasflow_hook.filename ./gasflow.efn
-gasflow_hook.prefix   gasflow_hook
+hook_list dl_generic_hook hot_outlet \
+          dl_generic_hook cold_outlet
 
+hot_outlet.filename ./gasflow.efn
+hot_outlet.prefix   gasflow_hook
 
+cold_outlet.filename ./gasflow.efn
+cold_outlet.prefix   gasflow_hook
+__END_HASH__
+
+##================================================================
+table hot_outlet
+initial_pressure <:=$p_h:>
+flow_rate <:=((1.-$cut)*$Q):>
+gather_pos 1
+flow_coef -1e3
+__END_HASH__
+
+##================================================================
+table cold_outlet
+initial_pressure <:=$p_c:>
+flow_rate <:=$cut*$Q:>
+gather_pos 2
+flow_coef -1e3
 __END_HASH__
 
 ##================================================================
@@ -206,21 +234,40 @@ gather_length 1
 gather_pos 2
 module "compressible_NS"
 npg 4
+gather_pos 2
 __END_HASH__
-__INCLUDE__ "vtube.flow_rate_inlet.tmp"
+__INCLUDE__ "vtube.inlet_flow_rate.tmp"
 __END_ELEMSET__
 #endif
 
 end_elemsets
 
 ##================================================================
+fixa_amplitude dl_generic
+ext_filename "./gasflow.efn"
+function_name "flow_controller"
+outlet_name "hot_outlet"
+__END_HASH__
+__INCLUDE__ vtube.fixa_hot_outlet.tmp
+__END_FIXA__
+
+##================================================================
+fixa_amplitude dl_generic
+ext_filename "./gasflow.efn"
+function_name "flow_controller"
+outlet_name "cold_outlet"
+__END_HASH__
+__INCLUDE__ vtube.fixa_cold_outlet.tmp
+__END_FIXA__
+
+#if !$compressible
+##================================================================
 fixa
 __INCLUDE__ vtube.fixa.tmp
-#if !$compressible
 ## Fix pressure at some node
 <:=($Nr+2):> 4 0.
-#endif
 __END_FIXA__
+#endif
 
 ##================================================================
 constraint

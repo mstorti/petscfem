@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2003/01/25 21:25:49 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2003/01/26 21:12:43 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -12,7 +12,7 @@ gasflow:
 nozzle:
 	$(MAKE) CASE_NAME=$@ run
 
-vtube:
+vtube: gasflow.efn
 	$(MAKE) CASE_NAME=$@ run
 
 vtubei:

@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.14 2003/01/25 12:40:06 mstorti Exp $
+## $Id: mkvtube.m,v 1.15 2003/01/26 21:12:43 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -22,6 +22,9 @@ hz = L0/Nz;			# z msh size
 h = sqrt(hr*hz);		# typical mesh size
 r_av = sqrt(R0*Rin);		# typical radius
 Dphi = h/r_av/(2*pi);
+fid = fopen("vtube.data.tmp","w");
+fprintf(fid,"$Dphi=%f;\n",Dphi);
+fclose(fid);
 if axisymm
   Nphi=1;
   [x3d,ic3d] = extrude(xnod,icone,1,Dphi);
@@ -71,7 +74,6 @@ endif
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 ## Writes integrator connectivities
-
 n_in=n_h=n_c=n_wall=0;
 inlet_nodes=[];
 hot_outlet_nodes=[];
@@ -99,7 +101,6 @@ for k=1:nn
     n_in = n_in+1;
   elseif hot_outlet && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
     hot_outlet_nodes=[hot_outlet_nodes; k];
-    fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
     fprintf(fid,"%d %d   %f\n",k,u_dof+2,0);
     n_h = n_h+1;
   elseif cold_outlet && z(k)<tol && rho(k)<=Rc
@@ -135,6 +136,11 @@ if hot_outlet
     fprintf(fid,"%d %d %d %d\n",n1,n2,n2+nn,n1+nn);
   endfor
   fclose(fid);
+  fid = fopen("vtube.fixa_hot_outlet.tmp","w");
+  for k=1:length(hot_outlet_nodes)
+    fprintf(fid,"%d %d   %f\n",k,p_dof,1);
+  endfor
+  fclose(fid);
 endif
 
 ###<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
@@ -146,8 +152,14 @@ if cold_outlet
     fprintf(fid,"%d %d %d %d\n",n1,n2,n2+nn,n1+nn);
   endfor
   fclose(fid);
+  fid = fopen("vtube.fixa_cold_outlet.tmp","w");
+  for k=1:length(cold_outlet_nodes)
+    fprintf(fid,"%d %d   %f\n",k,p_dof,1);
+  endfor
+  fclose(fid);
 endif
 
+###<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 ## axisymmetric constraints
 if axisymm
   fid = fopen("vtube.peri.tmp","w");
