@@ -106,7 +106,8 @@ octave_export_vars(">data.m.tmp",@vars);
 global_options
 
 nsave 5
-<:pr('nstep'):> 
+# <:pr('nstep'):> 
+nstep 5
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
@@ -162,7 +163,7 @@ measure_performance_loop_length 10
 G_body 0 -1.
 #endif
 
-hook_list ns_dx_hook my_dx_hook
+# hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof
@@ -171,7 +172,7 @@ __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
 elemset nsi_tet_les_fm2 4 
-name visc_fluid
+# name visc_fluid
 
 dx 1
 dx_indices 1 2 4 3
@@ -190,6 +191,26 @@ LES 0
 __END_HASH__
 __INCLUDE__ sqcav.con.tmp
 __END_ELEMSET__
+
+<: $elemset = <<'EOM';
+elemset nsi_tet_les_fm2 4 
+geometry cartesian2d
+ndim 2
+npg 4
+viscosity 1
+__END_HASH__
+__END_ELEMSET__
+EOM
+
+print $elemset;
+print $elemset;
+print $elemset;
+print $elemset;
+print $elemset;
+print $elemset;
+print $elemset;
+print $elemset;
+:>//
 
 end_elemsets
 
