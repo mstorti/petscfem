@@ -1,5 +1,6 @@
+# -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.2 2002/07/27 15:32:50 mstorti Exp $
+#$Id: gmv.pl,v 1.3 2002/07/27 18:31:07 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -115,6 +116,7 @@ if ($rslt) {
 	$line || die "end of archive detected\n";
 	my @val = split " ",$line;
 	splice @val,$#val-$nficdof+1,$nficcon;
+	$nfield = scalar @val;
 	if ($j==0) { $nrslt = $#val+1; }
 	push @rslt,@val;
     }
@@ -133,7 +135,6 @@ if ($rslt) {
 	print_rslt(\@rslt,$nrslt,$nnod,$dim,$dim,0,GMV);
 
     } elsif ($fields eq 'scalar' || ! defined $fields) {
-	my $nfield = scalar @$rslt[0];
 	
 	print GMV "variables\n";
 	for (my $f=1; $f<=$nfield; $f++) {
@@ -142,7 +143,7 @@ if ($rslt) {
 	}
 	print GMV "endvars\n";
 
-    } else die "unknown fields: \"$fields\"\n";
+    } else { die "unknown fields: \"$fields\"\n"; }
 
 }
 

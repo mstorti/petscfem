@@ -7,7 +7,8 @@ get_var_env('weak_form',0);
 get_var_env('case',undef);
 $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
-$use_tetra = 1;
+$use_tetra = 0;
+$use_prismatic = 1;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
     $use_tetra = 1;
@@ -15,7 +16,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 30;			# Number of elements per dimension
+$N = 20;			# Number of elements per dimension
 $graph_chunk_size  = $N**3;
 $graph_chunk_size = 
     ($graph_chunk_size < 20000 ? 20000 : 
@@ -83,14 +84,14 @@ $maxits=100;
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
 octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity 
-    h Co Dt hratio leaky tol use_tetra));
+    h Co Dt hratio leaky tol use_prismatic use_tetra));
 :>//                            # ends ePerl block
 
 global_options
 
 <:pr('ndim'):>
 nsave 5
-nstep 1000
+nstep 1
 # initial_state cubcav.state
 <:pr('save_file'):> 
 save_file_pattern "outvector%d.out.tmp"
@@ -107,11 +108,11 @@ solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 100
+iisd_subpart 50
 maxits 200
 report_consumed_time
 activate_debug_print
-use_interface_full_preco 1
+use_interface_full_preco 0
 print_interface_full_preco_conv 0
 interface_full_preco_maxits 3
 # activate_debug
@@ -128,7 +129,7 @@ max_partgraph_vertices_proc 10000
 tol_tet 1e-5
 tol_newton 1e-10
 atol 0
-rtol 1e-6
+rtol 1e-3
 dtol 1e3
 nnwt 1
 
@@ -139,7 +140,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady 0
+steady 1
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -173,16 +174,16 @@ __END_ELEMSET__
 
 #else
 
-elemset qharm <:=($use_tetra ? 4 : 8):>
+elemset qharm <:=($use_prismatic? 6 : $use_tetra ? 4 : 8):>
 name malla
 # report_consumed_time
-geometry <:=($use_tetra ?  "tetra" : "cartesian3d"):>
-npg <:=($use_tetra ? 1 : 8):>
+geometry <:=($use_prismatic? "prismatic" : $use_tetra ?  "tetra" : "cartesian3d"):>
+npg <:=($use_prismatic? 6 : $use_tetra ? 1 : 8):>
 #
 # Datos fisicos
 #
 __END_HASH__
-__INCLUDE__ cubcav.con<:=($use_tetra ? "-tetra" : ""):>.tmp
+__INCLUDE__ cubcav.con<:=($use_prismatic ? "-prism" : $use_tetra ? "-tetra" : ""):>.tmp
 __END_ELEMSET__
 #endif
 

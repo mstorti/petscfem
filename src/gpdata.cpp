@@ -1,13 +1,18 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.7 2002/02/15 19:55:53 mstorti Exp $
+//$Id: gpdata.cpp,v 1.8 2002/07/27 18:31:07 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
 #include <fnmatch.h>
 
-#include "fem.h"
-#include "util2.h"
-#include "gpdata.h"
+#include <src/fem.h>
+#include <src/util2.h>
+#include <src/utils.h>
+#include <src/gpdata.h>
+
+void nmprint(Matrix &A);
+#define SHV(pp) { if (SHV_debug) cout << #pp << endl << pp << endl ; }
+int SHV_debug = 1;
 
 #define GPERROR \
     {PFEM_TRACE(""); \
@@ -81,7 +86,48 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
   //    with respect to global coordinates
   dshapex = new Matrix[npg];
 
-  if ( !(strcmp(geom,"triangle")) ) {
+  if ( !(strcmp(geom,"prismatic")) ) {
+
+    // A prisma with triangular base, useful when extruding
+    // triangular meshes
+    master_volume = 1;		// that is 0.5(tri)*2(1d-segment)
+    assert(ndimel==3);
+    assert(nel==6);
+    assert(npg==1 || npg==6); // other cases may be considered
+    int npg_seg, npg_tri;
+    if (npg==1) { npg_seg=1; npg_tri=1; }
+    else if (npg==6) { npg_seg=2; npg_tri=3; }
+    GPdata gp_seg("cartesian1d",1,2,npg_seg);
+    GPdata gp_tri("triangle",2,3,npg_tri);
+
+    int ipg = 0;
+    for (int ipg_seg=0; ipg_seg<npg_seg; ipg_seg++) {
+      for (int ipg_tri=0; ipg_tri<npg_tri; ipg_tri++,ipg++) {
+	// Weights are simply the poduct of the seg/tri weights
+	wpg[ipg] = gp_seg.wpg[ipg_seg]*gp_tri.wpg[ipg_tri];
+	// Shape fuction are the kronecker product also
+	shape[ipg] = kron(gp_seg.shape[ipg_seg],gp_tri.shape[ipg_tri]);
+	// x,y gradients of shape functions are the poduct of the
+	// gradients of the triangle and the shape function of the segment
+
+	SHV_debug=0;
+	SHV(gp_seg.shape[ipg_seg]);
+	SHV(gp_tri.dshapexi[ipg_tri]);
+	SHV(dshapexi[ipg].Rows(1,2));
+	dshapexi[ipg]= Matrix(ndimel,nel);
+	dshapexi[ipg].Rows(1,2) = kron(gp_seg.shape[ipg_seg],gp_tri.dshapexi[ipg_tri]);
+	// `z' gradients of shape functions are the poduct of the
+	// shape functions of the triangle and the gradient of the
+	// shape function of the segment
+	dshapexi[ipg].Row(3) = kron(gp_seg.dshapexi[ipg_seg],gp_tri.shape[ipg_tri]);
+	// global gradients have only to be defined (they are computed with the actual
+	// coordinates. (this should be done once fo all geometries. Currently the
+	// code is duplicated for each geometry :-(  )
+	dshapex[ipg]= Matrix(ndimel,nel);
+      }
+    }
+
+  } else if ( !(strcmp(geom,"triangle")) ) {
     master_volume = 0.5;
 
     double xipg,etapg;

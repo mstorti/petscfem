@@ -30,7 +30,11 @@ endif
 
 asave("cubcav.nod.tmp",x3);
 asave("cubcav.con.tmp",i3);
-if use_tetra
+if use_prismatic
+  ico_prism = [i3(:,[1 2 3 5 6 7]);
+	       i3(:,[3 4 1 7 8 5])];
+  asave("cubcav.con-prism.tmp",ico_prism);
+elseif use_tetra
   system("../../tools/hexasplit.bin -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
 endif
 

@@ -1,14 +1,14 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.5 2002/02/19 01:38:22 mstorti Exp $
+//$Id: gpdata.h,v 1.6 2002/07/27 18:31:07 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
 #include <stdio.h>
 #include <newmatio.h>
 
-#include "fastmat.h"
-#include "fastmat2.h"
+#include <src/fastmat.h>
+#include <src/fastmat2.h>
 
 // Options for GPdata
 #define GP_NEWMAT 0
