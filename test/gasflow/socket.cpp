@@ -40,7 +40,7 @@ void init_sockaddr (struct sockaddr_in *name,
 
   name->sin_family = AF_INET;
   name->sin_port = htons (port);
-#if 0
+#if 1
   hostinfo = gethostbyname (hostname);
   if (hostinfo == NULL) {
       fprintf (stderr, "Unknown host %s.\n", hostname);
@@ -83,14 +83,55 @@ int read_from_client (int filedes) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int read_data(int s,char *buf,int n) {
+  /*s =  connected socket */
+  /* buf = pointer to the buffer */
+  /* n = number of characters (bytes) we want */
+  int bcount, br;/* counts bytes read, bytes read this pass */
+  
+  bcount= 0;
+  br= 0;
+  while (bcount < n) {             /* loop until full buffer */
+    if ((br= read(s,buf,n-bcount)) > 0) {
+      bcount += br;                /* increment byte counter */
+      buf += br;                   /* move buffer ptr for next read */
+    }
+    if (br < 0) return(-1);        /* signal an error to the caller */
+  }
+  return(bcount);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int write_data(int s,char *buf,int n) {
+  /* s = connected socket */
+  /* buf = pointer to the buffer */
+  /* n = number of characters (bytes) we want */
+  int bcount, br;/* counts bytes read, bytes read this pass */
+  
+  bcount= 0;
+  br= 0;
+  while (bcount < n) {             /* loop until full buffer */
+    if ((br= write(s,buf,n-bcount)) > 0) {
+      bcount += br;                /* increment byte counter */
+      buf += br;                   /* move buffer ptr for next read */
+    }
+    if (br < 0) return(-1);        /* signal an error to the caller */
+  }
+  return(bcount);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PORT 5555
 #define SERVERHOST "spider"
+#define BUFSIZE 15
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **args) {
   int sock;
-  fd_set active_fd_set, read_fd_set;
+  // fd_set active_fd_set, read_fd_set;
   sockaddr_in servername, clientname;
+  char buf[BUFSIZE];
+  buf[BUFSIZE-1]='\0';
   if(argc>1 && !strcmp(args[1],"-server")) {
     sock = make_socket (PORT);
     printf("server: trace 0\n");
@@ -99,43 +140,35 @@ int main(int argc,char **args) {
 	exit (EXIT_FAILURE);
     }
     printf("server: trace 0.1\n");
-    FD_ZERO (&active_fd_set);
-    FD_SET (sock, &active_fd_set);
-    read_fd_set = active_fd_set;
-    if (select (FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0) {
-      perror ("select");
+    size_t size = sizeof(clientname);
+    if (accept(sock,(struct sockaddr *)&clientname,&size) < 0) {
+      perror ("accept");
       exit (EXIT_FAILURE);
     }
-    if (FD_ISSET (sock, &read_fd_set)) {
-      /* Connection request on original socket. */
-      size_t size = sizeof (clientname);
-      if (accept (sock, (struct sockaddr *) &clientname, &size) < 0) {
-	perror ("accept");
-	exit (EXIT_FAILURE);
-      }
-      printf("server: trace 1\n");
-      fprintf (stderr,
-	       "Server: connect from host %s, port %hd.\n",
-	       inet_ntoa (clientname.sin_addr),
-	       ntohs (clientname.sin_port));
-      printf("server: trace 2\n");
-    }
-    /* Initialize the set of active sockets. */
-    // FD_ZERO (&active_fd_set);
-    // FD_SET (sock, &active_fd_set);
+    printf("server: trace 1\n");
+    // while (1) {
+    // read_data(sock,buf,BUFSIZE);
+    int nread = read(sock,buf,BUFSIZE);
+    printf("%s",buf);
+    // }
   } else{
     sock = socket (PF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
-      perror ("socket (client)");
-      exit (EXIT_FAILURE);
+      perror("socket (client)");
+      exit(EXIT_FAILURE);
     }
     /* Connect to the server. */
     init_sockaddr(&servername, SERVERHOST, PORT);
+    if (0 > connect (sock, (struct sockaddr *) &servername, sizeof (servername))) {
+      perror ("connect (client)");
+      exit (EXIT_FAILURE);
+    }
     printf("client: trace 0\n");
-    write_to_server (sock);
-    printf("client: trace 1\n");
-    close (sock);
-    printf("client: trace 2\n");
-    exit (EXIT_SUCCESS);
+    sprintf(buf,"Hello socket!\n");
+    // write_data(sock,buf,BUFSIZE);
+    int nsent = write(sock,buf,BUFSIZE);
+    printf("Sending: %s",buf);
+    close(sock);
+    exit(EXIT_SUCCESS);
   }
 }
