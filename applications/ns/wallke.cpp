@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.20 2002/02/04 18:39:40 mstorti Exp $
+//$Id: wallke.cpp,v 1.21 2002/08/27 02:53:49 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -290,7 +290,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       for (ipg=0; ipg<npg; ipg++) {
 
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-	detJaco = mydetsur(Jaco,normal);
+	detJaco = Jaco.detsur(&normal);
 	wpgdet = detJaco * WPG;
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 

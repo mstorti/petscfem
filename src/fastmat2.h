@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.15 2002/05/16 18:43:56 mstorti Exp $
+//$Id: fastmat2.h,v 1.16 2002/08/27 02:53:49 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -916,7 +916,14 @@ public:
    */ 
   double det(void) const;
 
-  double detsur();
+  /** For a matrix of size #A# of #(n-1)* n# computes the determinant
+      #sqrt(det(A*A'))#. This is useful when integrating on surfaces
+      in 3D and lines in 2D. If #nor# is not null then computes #nor#
+      as the normal to the surface. 
+      @param nor (ouput) the normal to the surface
+      @return determinant of the surface Jacobian
+  */ 
+  double detsur(FastMat2 *nor=NULL);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** The inverse of a matrix. {\tt (*this) = inverse of A}

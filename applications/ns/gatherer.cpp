@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.13 2002/08/07 18:17:11 mstorti Exp $
+//$Id: gatherer.cpp,v 1.14 2002/08/27 02:53:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -111,9 +111,9 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       double detJaco;
       if (ndimel==ndim) {
-	detJaco = Jaco.detsur();
+	detJaco = Jaco.det();
       } else if (ndimel==ndim-1) {
-	detJaco = mydetsur(Jaco,n);
+	detJaco = Jaco.detsur(&n);
 	n.scale(1./detJaco);
 	n.scale(-1.);		// fixme:= This is to compensate a bug in mydetsur
       }

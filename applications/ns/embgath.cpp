@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.22 2002/08/14 14:23:03 mstorti Exp $
+//$Id: embgath.cpp,v 1.23 2002/08/27 02:53:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -363,7 +363,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   Cloud cloud;
   cloud.init(layers+1,1,layers);
   
-  FastMat2 Jaco(2,ndim,ndim),Jacosur(2,ndimel,ndim),
+  FastMat2 Jaco(2,ndim,ndim),
     iJaco(2,ndim,ndim),staten(3,layers+1,nel_surf,ndof), 
     stateo(3,layers+1,nel_surf,ndof),
     u_old_l(2,layers+1,ndof),u_l(2,layers+1,ndof),
@@ -417,8 +417,7 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
       // In surface jacobian
       double detJaco;
-      Jacosur.set(Jaco);
-      detJaco = mydetsur(Jacosur,n);
+      detJaco = Jaco.detsur(&n);
       Jaco.rs();
       n.scale(1./detJaco);
       if (detJaco <= 0.) {

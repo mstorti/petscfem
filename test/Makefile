@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.58 2002/08/19 03:36:12 mstorti Exp $ 
+# $Id: Makefile,v 1.59 2002/08/27 02:53:50 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -320,7 +320,6 @@ fastmat2: fastmat2a fastmat2b fastmat2c
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
 #w FastMat2 test a 
 fastmat2a: testfm2a.bin
-	echo $(LD_LIBRARY_PATH)
 	testfm2a.bin > fastmat2a.sal
 
 testfm2a.bin: testfm2a.o libpetscfem

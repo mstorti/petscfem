@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.10 2002/05/16 18:43:23 mstorti Exp $
+//$Id: testfm2.cpp,v 1.11 2002/08/27 02:53:50 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -57,6 +57,7 @@ int main() {
   FMatrix Z7(3,3),Z8,Z9,Z10(2,2),Z11,Z12,Z15(4,4),Z16,Z17,Z18,
     Z116,Z117,Z118,Z19(3,3),Z30(3,3),Z31,Z32, Z40(3,3), Z41(3,3), Z42(3,3),
     Z43(3,3);
+  FastMat2 Z50(2,3,3),Z51,Z54(2,3,2),Z52,Z53(1,3);
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -66,7 +67,7 @@ int main() {
   init123(Z15);
   Z15.setel(20.,1,1).setel(20.,2,2);
   double e[] = {1.,2.,4.,5.,3.,2.,3.,2.,1.};
-  double pp[9],dz8,z12,z121,z13,z14,z15,z115,z31,z32;
+  double pp[9],dz8,z12,z121,z13,z14,z15,z115,z31,z32,z50,z51;
   chrono.start();
   srand(time(0));
   double z10[] = {1.,2.,3.,4.};
@@ -77,6 +78,7 @@ int main() {
   
   init123(Z40);
   Z41.set(Z40).add(1);
+  init123(Z50);
 
   double d[4];
   
@@ -302,6 +304,21 @@ int main() {
       d[1]=Z30.detsur();
       Z30.rs();
 
+      // Now tests the computation of the normal to the surface
+      // Takes the detsur (generalized determinant for surfaces)
+      // of a 2x3 subblock of a 3x3 matrix
+      z50 = Z50.is(1,1,2).detsur(&Z51);// Z51 auto dimensioned
+      Z54.ir(2,1);
+      Z50.detsur(&Z54);		// puts normal on columns of Z54
+      Z54.ir(2,2);
+      Z50.detsur(&Z54);
+      Z54.rs();
+      // does the same with the old mydetsur routine to check
+      // backward compatibility
+      Z52.set(Z50);
+      z51 = mydetsur(Z52,Z53);
+      Z50.rs();
+
       // checks L_p norm functions
       Z31.norm_p(Z30,2.3,-1,1);
       Z32.norm_p(Z30,5,-1,1);
@@ -323,6 +340,7 @@ int main() {
 	Z43.rs().ir(2,l);
 	Z43.cross(Z40,Z41);
       }
+
     }
     FastMat2::void_cache();
   }
@@ -403,6 +421,10 @@ int main() {
   SH(Z41);
   SH(Z42);
   SH(Z43);
+
+  SHV(z50);
+  SH(Z51);
+  SH(Z54);
 
 #undef SH
 

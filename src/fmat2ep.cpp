@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.12 2002/05/16 18:43:56 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.13 2002/08/27 02:53:50 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1341,12 +1341,13 @@ class detsur_cache : public FastMatSubCache {
 public:
   FastMat2 g;
   int m,n;
+  double *v[6], *nor_p[3];
   ~detsur_cache() {};
 };
 
 //<$detsur=<<'//EOF';
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double FastMat2::detsur() {
+double FastMat2::detsur(FastMat2 *nor=NULL) {
   __CACHE_OPERATIONS__;
 
   detsur_cache * dsc;
@@ -1356,17 +1357,70 @@ double FastMat2::detsur() {
     assert(fdims.size()==2);
 
     dsc = new detsur_cache();
-    dsc->n = dim(2);
     dsc->m = dim(1);
+    dsc->n = dim(2);
     if (dsc->m>0) dsc->g.resize(2,dsc->m,dsc->m);
     cache->sc = dsc;
+    if (nor) {
+      // The jacobian should be n-1 x n
+      assert(dsc->m == dsc->n-1);
+      // only dimensions 2 and 3 are allowed
+      assert(dsc->n==2 || dsc->n==3);
+      if (nor->defined) {
+	// Check the normal has to be a vector
+	assert(nor->n()==1);
+	// the dimension of nor has to be of size #n#
+	assert(nor->dim(1)==dsc->n);
+      } else {
+	// Create a vector of length dsc->n
+	Indx nor_dims;
+	nor_dims.push_back(dsc->n);
+	nor->create_from_indx(nor_dims);
+      }
+      // cached vector of pointers to elements in the Jacobian
+      double **w = dsc->v;
+      Indx indx,indx_n;
+      for (int k=1; k<=dsc->n-1; k++) {
+	for (int l=1; l<=dsc->n; l++) {
+	  indx.reset();
+	  indx.push_back(k);
+	  indx.push_back(l);
+	  *w++ = location(indx);
+	}
+      }
+
+      // cached vector of pointers to elements in normal vector
+      w = dsc->nor_p;
+      for (int l=1; l<=dsc->n; l++) {
+	indx.reset();
+	indx.push_back(l);
+	*w++ = nor->location(indx);
+      }
+    }
   }
 
   dsc = dynamic_cast<detsur_cache *> (cache->sc);
   if (dsc->m == 0) return 1.;
   dsc->g.prod(*this,*this,1,-1,2,-1);
-  return sqrt(dsc->g.det());
-
+  double **nn = dsc->nor_p;
+  double **vv = dsc->v;
+  if (nor) {
+#define VV(j) (*vv[j])
+#define NN(j) (*nn[j])
+    if (dsc->n==2) {
+      *nn[0] = +VV(1);
+      *nn[1] = -VV(0);
+      return sqrt(NN(0)*NN(0)+NN(1)*NN(1));
+    } else {
+#define JACO(j,k) (*vv[((j)-1)*3+(k)-1])
+      NN(0) = -JACO(1,2)*JACO(2,3)+JACO(1,3)*JACO(2,2);
+      NN(1) = -JACO(1,3)*JACO(2,1)+JACO(1,1)*JACO(2,3);
+      NN(2) = -JACO(1,1)*JACO(2,2)+JACO(1,2)*JACO(2,1);
+      return sqrt(NN(0)*NN(0)+NN(1)*NN(1)+NN(2)*NN(2));
+    }
+  } else {
+    return sqrt(dsc->g.det());
+  }
 }
 //EOF
 _//>

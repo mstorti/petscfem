@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.18 2002/02/06 02:37:10 mstorti Exp $
+//$Id: genload.cpp,v 1.19 2002/08/27 02:53:46 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -234,8 +234,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       xloc.is(1,1,nel2);
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       xloc.rs();
-      // detJ = mydetsur(Jaco,S);
-      // detJ = detsur(Jaco,S);
+
       detJ = Jaco.detsur();
 
       U_in.prod(SHAPE,u_in,-1,-1,1);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wall.cpp,v 1.14 2002/01/14 03:45:05 mstorti Exp $
+//$Id: wall.cpp,v 1.15 2002/08/27 02:53:49 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -254,7 +254,7 @@ int wall::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       for (ipg=0; ipg<npg; ipg++) {
 
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-	detJaco = mydetsur(Jaco,normal);
+	detJaco = Jaco.detsur(&normal);
 	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);

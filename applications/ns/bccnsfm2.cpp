@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.12 2002/04/08 19:39:57 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.13 2002/08/27 02:53:49 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -191,7 +191,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-      detJaco = mydetsur(Jaco,normal);
+      detJaco = Jaco.detsur(&normal);
       normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"

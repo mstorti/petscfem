@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.15 2002/02/03 23:48:12 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.16 2002/08/27 02:53:46 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -172,7 +172,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       // normal:= normal vector times the surface of the element
-      detJaco = mydetsur(Jaco,normal);
+      detJaco = Jaco.detsur(&normal);
       normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnstherfm2.cpp,v 1.5 2002/01/14 03:45:05 mstorti Exp $
+//$Id: bccnstherfm2.cpp,v 1.6 2002/08/27 02:53:49 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -212,7 +212,7 @@ int bcconv_nsther_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
-      detJaco = mydetsur(Jaco,normal);
+      detJaco = Jaco.detsur(&normal);
       if (detJaco <= 0.) {
 	cout << "bcconv: Jacobian of element " << k << " is negative or null\n"
 	     << " Jacobian: " << detJaco << endl ;
