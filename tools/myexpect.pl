@@ -9,12 +9,14 @@ $OK= 1;
 $NOT_OK= 2;
 $CANT_OPEN= 3;
 
+$COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
+
 @stack=();
 
 sub expect {
     ($file,$descr,$pattern_list) = @_;
-    open (SAL,$file) || do {print "can't open $file\n";
-    cant_open(); return;};
+    open (SAL,$file) || do {print "can't open $file\n" unless ! $COMPLAIN_ON_CANT_OPEN;
+			    cant_open(); return;};
     @sal=(<SAL>);
     close SAL;
     print "Testing: \"$descr\" on file \"$file\"...";
@@ -86,10 +88,11 @@ sub begin_section {
 
 sub end_section {
     my $t = pop @stack;
-    $total = $t->[1]+$t->[2]+$t->[3];
+    my $total = $t->[1]+$t->[2]+$t->[3];
+    my $total_open = $t->[$OK] + $t->[$NOT_OK];
     print "Summary: \"$t->[0]\"",
     " -- OK: $t->[$OK].  Not OK: $t->[$NOT_OK]. ",
-    "Couldn't open: $t->[$CANT_OPEN]. Total: $total\n";
+    "Couldn't open: $t->[$CANT_OPEN]. Total: $total\n" if $total_open || $COMPLAIN_ON_CANT_OPEN;
     if ($#stack>=0) {
 	my $tt = pop @stack;
 	$tt->[$OK] += $t->[$OK];
@@ -145,7 +148,7 @@ small perl program like this
 
    final_check();
 
-In the default mode, C<expexct()> takes the first pattern at a time
+In the default mode, C<expect()> takes the first pattern at a time
 and starts scanning the file from the beginning, each lie at a time
 until it finds a line that matches the pattern. Patterns are the usual
 Perl patterns. So that remember to escape asterisks 'C<*>', question
@@ -209,6 +212,16 @@ down.
 =item __SKIP__
 
 Return to skip mode. 
+
+=back
+
+=head2 Sections
+
+Sometimes it is useful to divide tests into sections. For this call
+C<begin_section("section name")> before each section, and
+C<end_section()> at the end.  All enclosed calls to C<expect()> are
+assumed to be in the same logical section of tests and a summary is
+reported for that section.
 
 =head1 AUTHOR
 

@@ -1,6 +1,6 @@
 <:
-$one_elemset=0;
 require '../eperlini.pl';       # Initializes ePerl 
+doc_vals(qw(case));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -16,7 +16,7 @@ rtol 1e-2
 maxits 100
 
 save_file_pattern "outvector%d.sal"
-nsaverot 1000000
+#nsaverot 1000000
 
 nnwt 1
 tol_newton 0
@@ -28,19 +28,20 @@ auto_time_step 0
 #print_linear_system_and_stop
 
 Dt 1000.
-nstep 1
+nstep 4
 alpha 1.
 tau_fac 0.
 
 weak_form 1
 
-diffusive_jacobians 3.
+diffusive_jacobians_type "scalar_per_field"
+diffusive_jacobians 3. 1.
 
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
-nodes   2  2  1
+nodes   2  2  2
 __INCLUDE__ genload.nod
 __END_NODES__
 
@@ -73,32 +74,52 @@ __END_HASH__
 33 35 36 34 
 __END_ELEMSET__
 
-#if $lin_gen_load_e
 elemset lin_gen_load 4
-#Datos del elemento
 geometry cartesian1d
 npg 2
 double_layer
-hfilm_coeff 3.
+hfilm_coeff 3. 0. 0. 1.
 __END_HASH__
 17 18 19 20 
 __END_ELEMSET__
+
+elemset lin_gen_load <:= $case eq '2b' ? 2 : 4 :>
+geometry cartesian1d
+npg 2
+#if $case ne '2b'
+double_layer
 #endif
+#if $case eq '1'
+hfilm_coeff 3. 0. 0. 1.
+#elsif $case =~ /^2/ 
+hfilm_source -3. -1.
+#endif
+__END_HASH__
+#if $case ne '2b'
+35 36 37 38
+#else
+35 36
+#endif
+__END_ELEMSET__
 
 end_elemsets
 
 #===========================================================
 fixa
-#if 1
 1 1  1.
 2 1  1.
-35 1 -1.
-36 1 -1.
-#else
-1 1 1.
-2 1 1.
-35 1 1.
-36 1 1.
+1 2  6.
+2 2  6.
+#if $case eq '1'
+37 1 -2.
+38 1 -2.
+37 2 3.
+38 2 3.
+#elsif $case eq '2a'
+37 1 0.
+38 1 0.
+37 2 0.
+38 2 0.
 #endif
 __END_FIXA__
 

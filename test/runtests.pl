@@ -3,6 +3,8 @@
 
 require '../tools/myexpect.pl';
 
+$COMPLAIN_ON_CANT_OPEN=0;
+
 begin_section('All tests');
 
 begin_section('FastMat2');
@@ -977,6 +979,35 @@ EOT
 
 end_section();
 
+begin_section('Generic Load element');
+
+$genl_check = <<'EOT';
+5.62.*e\-01  5.562.*e\+00  
+__NO_SKIP__
+5.62.*e-01  5.562.*e\+00  
+.
+.
+.
+.
+-5.62.*e-01  4.43.*e\+00  
+-5.62.*e-01  4.43.*e\+00  
+__SKIP__
+-8.7.*e-01  4.12.*e\+00  
+__NO_SKIP__
+-8.7.*e-01  4.12.*e\+00  
+-9.37.*e-01  4.062.*e\+00  
+-9.37.*e-01  4.062.*e\+00  
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("genload/save.case_1.tmp",
+       "Generic Load element one gen.load.- double layer hfilm elem. at the end",$genl_check);
+expect("genload/save.case_2a.tmp",
+       "Generic Load element one gen.load.- double layer with source elem. at the end",$genl_check);
+expect("genload/save.case_2b.tmp",
+       "Generic Load element one gen.load.- single layer with source elem. at the end",$genl_check);
+
+end_section();
 print "\n",'-' x 50,"\n\n";
 end_section();
 

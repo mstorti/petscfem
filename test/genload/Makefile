@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/05/24 17:40:02 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/05/25 21:29:54 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -11,15 +11,22 @@ include ../Makefile.base.test
 SRCS = 
 
 #s Test/Advdif tests
+tests: test_case_1 test_case_2a test_case_2b
 
+.PHONY: data force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
-genload.depl: force
-run: genload.depl
+test_case_%: 
+	$(MAKE) EPERLFLAGS='-d case=$*' data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case genload.depl #> output.tmp
+			-case genload.depl > output.tmp
+	mv save.state.tmp save.case_$*.tmp
+
+data: genload.depl
+
+genload.depl: force
 
 local_clean::
-	-rm -rf mat.output
+	-rm -rf mat.output 
 
 auxi:
 	if [ ! -L advdif ] ; \
