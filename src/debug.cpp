@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.11 2002/09/30 02:30:51 mstorti Exp $
+//$Id: debug.cpp,v 1.12 2003/02/08 14:27:53 mstorti Exp $
  
 #include <src/debug.h>
 #include <sys/resource.h>
@@ -9,7 +9,7 @@
 
 #include <petsc.h>
 
-Debug debug;
+Debug *GLOBAL_DEBUG=NULL;
 
 int Debug::stop_f=0;
 

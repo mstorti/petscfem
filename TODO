@@ -1,15 +1,16 @@
 -*- mode: text -*-
 
-### Current line =========== 
+################################################################
 TODO: [Mainly fixes go here...]
 =====
 
+### Current line =========== 
 * DX: make `dxhook' to auto-recognize geometries from the "geometry"
           option and dimensionality. 
 * DX: check for memory leaks, both in `epimport.cpp' and in  petscfem
           itself. 
 * DX: Code asynchronous visualization with threads. 
-* DX: make protocol more robust by sending acknowledgments from the client.
+* DX: check if runs OK in parallel. 
 * Why it takes so much time after "Start partitioning" when running
     large problems in one proc.
 * Generate test for LES 
@@ -89,10 +90,12 @@ TODO: [Mainly fixes go here...]
 * Making html doc, doesn't reuse the generated gifs, which is _very_
            time consuming.
 
-### Current line =========== 
+################################################################
 DONE:
 =====
 
+### Current line =========== 
+* DX: make protocol more robust by sending acknowledgments from the client.
 * DX: Make auto naming of elemsets od the form <elemset_type>_xxx
 * DX: make two outputs to ExtProgImport: one with all the fields and
            other with all the arrays

@@ -1,10 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.33 2002/09/22 09:07:21 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.34 2003/02/08 14:27:53 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
-#include <src/debug.h>
 #include <typeinfo>
 #ifdef RH60
 #include "libretto.h"
@@ -13,7 +12,6 @@ extern int MY_RANK,SIZE;
 #endif
 #include <petscmat.h>
 
-#include <src/debug.h>
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/elemset.h>

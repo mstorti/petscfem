@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.54 2003/02/04 23:28:44 mstorti Exp $
+//$Id: advdif.cpp,v 1.55 2003/02/08 14:27:53 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -87,7 +87,8 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  Debug debug2(0,PETSC_COMM_WORLD);
+  Debug debug(0,PETSC_COMM_WORLD);
+  GLOBAL_DEBUG = &debug;
 
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg); CHKERRA(ierr);
   if (!flg) {
@@ -104,15 +105,15 @@ int main(int argc,char **args) {
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
-    debug2.activate();
+    debug.activate();
     Debug::init();
   }
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
-  if (activate_debug_print) debug2.activate("print");
+  if (activate_debug_print) debug.activate("print");
   //o Activate report of memory usage
   GETOPTDEF(int,activate_debug_memory_usage,0);
-  if (activate_debug_memory_usage) debug2.activate("memory_usage");
+  if (activate_debug_memory_usage) debug.activate("memory_usage");
 
   //o Absolute tolerance when solving a consistent matrix
   GETOPTDEF(double,atol,1e-6);
@@ -305,11 +306,11 @@ int main(int argc,char **args) {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
-  debug2.trace("Computing profiles...");
+  debug.trace("Computing profiles...");
   VOID_IT(argl);
   argl.arg_add(A,PROFILE|PFMAT);
   ierr = assemble(mesh,argl,dofmap,"comp_prof",&time); CHKERRA(ierr);
-  debug2.trace("After computing profile.");
+  debug.trace("After computing profile.");
 
 #ifdef CHECK_JAC
   VOID_IT(argl);
@@ -392,14 +393,14 @@ int main(int argc,char **args) {
 	  PetscFinalize();
 	  exit(0);
 	}
-	debug2.trace("Before residual computation...");
+	debug.trace("Before residual computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_res",&time_star); CHKERRA(ierr);
-	debug2.trace("After residual computation.");
+	debug.trace("After residual computation.");
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  debug2.trace("Before solving linear system...");
+	  debug.trace("Before solving linear system...");
 	  ierr = A->solve(res,dx); CHKERRA(ierr); 
-	  debug2.trace("After solving linear system.");
+	  debug.trace("After solving linear system.");
 	}
 	// ierr = SLESDestroy(sles);
 	// ierr = A->destroy_sles(); CHKERRA(ierr); 

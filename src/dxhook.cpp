@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.12 2003/02/08 14:25:40 mstorti Exp $
+//$Id: dxhook.cpp,v 1.13 2003/02/08 14:27:53 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/debug.h>
@@ -124,7 +124,6 @@ time_step_post(double time,int step,
   ierr = MPI_Bcast (&steps, 1, MPI_INT, 0,PETSC_COMM_WORLD);
 
   step_cntr = steps-1;
-  GLOBAL_DEBUG->trace("dxhook 0");
   
   if (!MY_RANK) {
     // Send node coordinates
@@ -146,7 +145,6 @@ time_step_post(double time,int step,
 
   // Send results
   int ndof = dofmap->ndof;
-  GLOBAL_DEBUG->trace("dxhook 1");
   
   double *state_p = NULL;
   if (!MY_RANK) state_p = new double[ndof*nnod];
@@ -165,7 +163,6 @@ time_step_post(double time,int step,
     CHECK_COOKIE(state);
   }
   delete[] state_p;
-  GLOBAL_DEBUG->trace("dxhook 2");
 
   // Send connectivities for each elemset
   Darray *elist = mesh->elemsetlist;
@@ -173,20 +170,17 @@ time_step_post(double time,int step,
     Elemset *e = *(Elemset **)da_ref(elist,j);
     e->dx(srvr,nodedata,state_p);
   }
-  GLOBAL_DEBUG->trace("dxhook 3");
 
   // Send termination signal
   if (!MY_RANK) {
     Sprintf(srvr,"end\n");
     Sclose(srvr);
   }
-  GLOBAL_DEBUG->trace("dxhook 4");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::close() { 
   if (!MY_RANK) Sclose(srvr_root); 
-  GLOBAL_DEBUG->trace("dxhook 5");
 }
 
 #endif

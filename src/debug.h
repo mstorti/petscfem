@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.6 2002/09/12 11:40:05 mstorti Exp $
+// $Id: debug.h,v 1.7 2003/02/08 14:27:53 mstorti Exp $
 #ifndef DEBUG_H
 #define DEBUG_H
 
@@ -46,6 +46,6 @@ class Debug {
   Debug(int active_=0,MPI_Comm comm_=PETSC_COMM_WORLD);
 };
 
-extern Debug debug;
+extern Debug *GLOBAL_DEBUG;
 #endif
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.121 2003/02/07 18:51:43 mstorti Exp $
+//$Id: ns.cpp,v 1.122 2003/02/08 14:27:53 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -76,7 +76,8 @@ int main(int argc,char **args) {
   MPI_Comm_size(PETSC_COMM_WORLD,&SIZE);
   MPI_Comm_rank(PETSC_COMM_WORLD,&MY_RANK);
 
-  Debug debug2(0,PETSC_COMM_WORLD);
+  Debug debug(0,PETSC_COMM_WORLD);
+  GLOBAL_DEBUG = &debug;
 
   //  if (size != 1) SETERRA(1,0,"This is a uniprocessor example only!");
   ierr = PetscOptionsGetString(PETSC_NULL,"-case",fcase,FLEN,&flg);
@@ -127,15 +128,15 @@ int main(int argc,char **args) {
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
-    debug2.activate();
+    debug.activate();
     Debug::init();
   }
   //o Activate printing in debugging
   GETOPTDEF(int,activate_debug_print,0);
-  if (activate_debug_print) debug2.activate("print");
+  if (activate_debug_print) debug.activate("print");
   //o Activate report of memory usage
   GETOPTDEF(int,activate_debug_memory_usage,0);
-  if (activate_debug_memory_usage) debug2.activate("memory_usage");
+  if (activate_debug_memory_usage) debug.activate("memory_usage");
 
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
@@ -322,7 +323,7 @@ int main(int argc,char **args) {
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Compute  profiles
-  debug2.trace("Computing profiles...");
+  debug.trace("Computing profiles...");
   if (!fractional_step) {
     argl.clear();
     argl.arg_add(A_tet,PROFILE|PFMAT);
@@ -335,7 +336,7 @@ int main(int argc,char **args) {
     argl.arg_add(A_prj,PROFILE|PFMAT);
     ierr = assemble(mesh,argl,dofmap,"comp_mat_prof",&time); CHKERRA(ierr); 
   }
-  debug2.trace("After computing profile.");
+  debug.trace("After computing profile.");
   int update_jacobian_step=0;
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Build octree for nearest neighbor calculation
@@ -479,10 +480,10 @@ int main(int argc,char **args) {
 	  exit(0);
 	}
 
-	debug2.trace("Before residual computation...");
+	debug.trace("Before residual computation...");
 	ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star);
 	CHKERRA(ierr);
-	debug2.trace("After residual computation.");
+	debug.trace("After residual computation.");
 
 #if 0
 	ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -548,9 +549,9 @@ int main(int argc,char **args) {
 	}
 
 	if (!print_linear_system_and_stop || solve_system) {
-	  debug2.trace("Before solving linear system...");
+	  debug.trace("Before solving linear system...");
 	  ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
-	  debug2.trace("After solving linear system.");
+	  debug.trace("After solving linear system.");
 	}
 
 	if (print_linear_system_and_stop) {
@@ -635,10 +636,10 @@ int main(int argc,char **args) {
       argl.arg_add(&res,OUT_VECTOR);
       argl.arg_add(A_mom,OUT_MATRIX|PFMAT);
       argl.arg_add(&glob_param,USER_DATA);
-      debug2.trace("-PREDICTOR- Before residual computation...");
+      debug.trace("-PREDICTOR- Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_res_mom",&time_star);
       CHKERRA(ierr);
-      debug2.trace("-PREDICTOR- After residual computation.");
+      debug.trace("-PREDICTOR- After residual computation.");
 
 #if 0
       ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -656,11 +657,11 @@ int main(int argc,char **args) {
       exit(0);
 #endif
 
-      debug2.trace("-PREDICTOR- Before solving linear system...");
+      debug.trace("-PREDICTOR- Before solving linear system...");
       ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
       // Frees memory 
       ierr = A_mom->clean_mat(); CHKERRA(ierr); 
-      debug2.trace("-PREDICTOR- After solving linear system.");
+      debug.trace("-PREDICTOR- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
@@ -674,10 +675,10 @@ int main(int argc,char **args) {
       if (tstep==1) {
 	argl.clear();
 	argl.arg_add(A_poi,OUT_MATRIX|PFMAT);
-	debug2.trace("-POISSON- Before matrix computation...");
+	debug.trace("-POISSON- Before matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_poi",&time_star);
 	CHKERRA(ierr);
-	debug2.trace("-POISSON- After matrix computation.");
+	debug.trace("-POISSON- After matrix computation.");
       }
 
       argl.clear();
@@ -686,14 +687,14 @@ int main(int argc,char **args) {
       argl.arg_add(&state,IN_VECTOR|USE_TIME_DATA);
       argl.arg_add(&res,OUT_VECTOR);
       argl.arg_add(&glob_param,USER_DATA);
-      debug2.trace("-POISSON- Before residual computation...");
+      debug.trace("-POISSON- Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_res_poi",&time_star);
       CHKERRA(ierr);
-      debug2.trace("-POISSON- After residual computation.");
+      debug.trace("-POISSON- After residual computation.");
       
-      debug2.trace("-POISSON- Before solving linear system...");
+      debug.trace("-POISSON- Before solving linear system...");
       ierr = A_poi->solve(res,dx); CHKERRA(ierr); 
-      debug2.trace("-POISSON- After solving linear system.");
+      debug.trace("-POISSON- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
@@ -723,10 +724,10 @@ int main(int argc,char **args) {
 	argl.clear();
 	statep.set_time(time);	// fixme:= what time?
 	argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
-	debug2.trace("-PROJECTION- Before matrix computation...");
+	debug.trace("-PROJECTION- Before matrix computation...");
 	ierr = assemble(mesh,argl,dofmap,"comp_mat_prj",&time_star);
 	CHKERRA(ierr);
-	debug2.trace("-PROJECTION- After matrix computation.");
+	debug.trace("-PROJECTION- After matrix computation.");
       }
 
       argl.clear();
@@ -736,15 +737,15 @@ int main(int argc,char **args) {
       argl.arg_add(&res,OUT_VECTOR);
       if (!reuse_mat) argl.arg_add(A_prj,OUT_MATRIX|PFMAT);
       argl.arg_add(&glob_param,USER_DATA);
-      debug2.trace("-PROJECTION- Before residual computation...");
+      debug.trace("-PROJECTION- Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,"comp_res_prj",&time_star);
       CHKERRA(ierr);
-      debug2.trace("-PROJECTION- After residual computation.");
+      debug.trace("-PROJECTION- After residual computation.");
       
-      debug2.trace("-PROJECTION- Before solving linear system...");
+      debug.trace("-PROJECTION- Before solving linear system...");
       ierr = A_prj->solve(res,dx); CHKERRA(ierr); 
       if (!reuse_mat) { ierr = A_prj->clean_mat(); CHKERRA(ierr); }
-      debug2.trace("-PROJECTION- After solving linear system.");
+      debug.trace("-PROJECTION- After solving linear system.");
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
