@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.22 2002/08/08 14:21:35 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.23 2002/08/08 16:19:52 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -132,7 +132,13 @@ int PFPETScMat::build_sles() {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S_PF(thash,string,preco_type,jacobi);
   //o Uses right or left preconditioning
-  TGETOPTDEF_S_PF(thash,string,preco_side,"right");
+  TGETOPTDEF_S_PF(thash,string,preco_side,right);
+
+  if (KSP_method == "cg" && preco_side == "right") {
+    PetscPrintf(PETSC_COMM_WORLD,__FUNC__ 
+		": can't choose \"right\" preconditioning with KSP CG\n");
+    preco_side = "left";
+  }
 
   ierr = SLESDestroy_maybe(sles); CHKERRQ(ierr);
   ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
