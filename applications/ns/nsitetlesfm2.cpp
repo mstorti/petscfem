@@ -1,11 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.38 2001/10/07 20:59:41 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.39 2001/10/09 02:37:58 mstorti Exp $
 
-#include "../../src/fem.h"
-#include "../../src/utils.h"
-#include "../../src/readmesh.h"
-#include "../../src/getprop.h"
-#include "../../src/fastmat2.h"
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/readmesh.h>
+#include <src/getprop.h>
+#include <src/fastmat2.h>
 
 #include "nsi_tet.h"
 
@@ -54,8 +54,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define ELEMIPROPS_ADD(j,k) VEC2(elemiprops_add,j,k,neliprops_add)
 #define NN_IDX(j) ELEMIPROPS_ADD(j,0)
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
-#define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
-
 
   int locdof,kldof,lldof;
   char *value;
