@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.9 2002/07/27 22:26:05 mstorti Exp $
+//$Id: gpdata.cpp,v 1.10 2002/07/30 22:30:55 mstorti Exp $
 
 #include "sles.h"
 #include <math.h>
@@ -83,6 +83,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
   dshapex = new Matrix[npg];
 
   if ( !(strcmp(geom,"prismatic")) ) {
+    assert(nel==6);
 
     // A prisma with triangular base, useful when extruding
     // triangular meshes
@@ -120,6 +121,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     }
 
   } else if ( !(strcmp(geom,"triangle")) ) {
+    assert(nel==3);
     master_volume = 0.5;
 
     double xipg,etapg;
@@ -203,7 +205,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     }
 
   } else if ( !(strcmp(geom,"tetra")) ) {
-
+    assert(nel==4);
     master_volume = 1./3.;
     double xipg,etapg,zetapg;
     for (ipg=0; ipg<npg; ipg++) {
@@ -296,6 +298,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     // npg:= npg1d^ndimel total number of Gauss points
     int ndimel;
     sscanf(geom,"cartesian%dd",&ndimel);
+    assert(nel==int_pow(2,ndimel));
     master_volume = pow(0.5,ndimel);
     int npg1d=int(pow(double(npg),1./double(ndimel)));
     // AGREGAR lin1d y brick integrations!!
