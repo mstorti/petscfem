@@ -3015,3 +3015,6 @@ tag: beta-3.23.pl9 on Sat, 11 Oct 2003 20:57:33 -0300 by mstorti in spider
 ----------
 tag: beta-3.23.pl10 on Sat, 11 Oct 2003 21:02:10 -0300 by mstorti in spider
      > Added Rodrigo Paz to several doc files. 
+----------
+tag: beta-3.23.pl11 on Sat, 11 Oct 2003 21:10:33 -0300 by mstorti in spider
+     > Making VERSION to work with the newline at the end. 
