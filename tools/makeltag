@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-#$Id: makeltag,v 1.8 2002/04/07 15:29:11 mstorti Exp $
+#$Id: makeltag,v 1.9 2002/04/13 01:29:23 mstorti Exp $
 
 sub ask {
     my $ans;
@@ -33,12 +33,26 @@ $tmp = "./tmp_file_log.txt.tmp";
 system "echo n | cvs rel .";
 ask "\nContinue ? ";
 $|=1;
-$t = `grep "^tag: " $save_log | tail`;
-print "Last tags :\n$t",;
 
-print "Enter new tag: > ";
+open SVL,"$save_log";
+print "Last tags :\n";
+@svl=();
+while (<SVL>) {
+    push @svl,$_ if /^tag/;
+    ($last_tag,$pl) = ($1,$2) if /(\S*\.)pl(\d*)/;
+}
+close SVL;
+$n = $#svl-10;
+$n = 0 if $n<0;
+for ($j=$n; $j<=$#svl; $j++) { print $svl[$j]; }
+
+$new_tag = $last_tag."pl".($pl+1);
+print "Enter new tag: [def $new_tag]> ";
 $newtag = <STDIN>;
 chomp $newtag;
+if (! $newtag) {
+    $newtag = $new_tag;
+}
 $newtag_ = $newtag;
 $newtag =~ s/\-/--/g; 
 $newtag =~ s/\./-/g;
