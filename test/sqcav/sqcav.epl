@@ -39,8 +39,9 @@ if (scalar $case =~ /weak_form_(\d)/) {
     if ($case=~/_uj/) {
 	$update_jacobian = 1;
 	$nstep = 2000;
-	$maxits=3;
-	$iisd_subpart = 2;
+	$maxits=100;
+	$iisd_subpart = 20;
+	$N = 200;
     }
     $preco_type = "jacobi";
 } elsif ($case eq 'big') {
@@ -79,6 +80,8 @@ nsave 5
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
 update_jacobian_steps 3
+report_consumed_time
+activate_debug_print
 #endif
 
 # file containing the weight (speed) of processors
