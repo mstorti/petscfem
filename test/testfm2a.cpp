@@ -1,8 +1,9 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2a.cpp,v 1.5 2002/01/14 03:45:06 mstorti Exp $
+//$Id: testfm2a.cpp,v 1.6 2002/09/21 04:23:32 mstorti Exp $
  
 #include <stdio.h>
 #include <src/fastmat2.h>
+#include <src/fastlib2.h>
 
 void init123(FastMat2 & A) {
   Indx dims,indx;
