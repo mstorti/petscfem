@@ -544,3 +544,6 @@ tag: beta-2.12 on Sun Sep 30 18:53:30 ART 2001, by mstorti in spider
 tag: beta-2.13 on Tue Oct  2 23:39:28 ART 2001, by mstorti in spider
      > Added a TextHashTableFilter class.
      > Working on `rocket' version of `ns'. 
+----------
+tag: beta-2.14 on Sat Oct  6 20:54:11 ART 2001, by mstorti in spider
+     > NS with lagrange multiplier for surface restriction compiles.
