@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: burgers.h,v 1.5 2002/02/03 12:38:56 mstorti Exp $
+//$Id: burgers.h,v 1.6 2002/02/17 02:18:05 mstorti Exp $
 #ifndef BURGERS_H
 #define BURGERS_H
 
@@ -16,7 +16,7 @@ class burgers_ff : public advdif_wjac_ff {
   GlobalScalarDJac g_d_jac;
   IdentityEF identity_ef;
  public:
-  burgers_ff(NewElemset *elemset_) 
+  burgers_ff(const NewAdvDif *elemset_) 
     : advdif_wjac_ff(elemset_,&g_d_jac,&u_a_jac,&n_c_jac,&st) {};
   void start_chunk(int &ret_options);
   void set_state(const FastMat2 &U,const FastMat2 &grad_U) {}

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: diff.cpp,v 1.3 2002/02/03 23:48:12 mstorti Exp $
+//$Id: diff.cpp,v 1.4 2002/02/17 02:18:05 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -86,6 +86,8 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   double lambda_max;
   int jdtmin;
   GlobParam *glob_param;
+  double alpha,rec_Dt;
+
   // The trapezoidal rule integration parameter 
   arg_data *staten_a,*stateo_a,*retval,*fdj_jac,*jac_prof,*Ajac;
   if (comp_res) {
@@ -101,12 +103,11 @@ void Diff::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
+    // make local copies of global params
+    alpha = glob_param->alpha;
+    rec_Dt = 1./glob_param->Dt;
+    if (glob_param->steady) rec_Dt=0.;
   }
-
-  // make local copies of global params
-  double alpha = glob_param->alpha;
-  double rec_Dt = 1./glob_param->Dt;
-  if (glob_param->steady) rec_Dt=0.;
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),
     matlocf_mass(4,nel,ndof,nel,ndof);

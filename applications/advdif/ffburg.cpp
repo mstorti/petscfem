@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffburg.cpp,v 1.17 2002/01/17 12:58:19 mstorti Exp $
+//$Id: ffburg.cpp,v 1.18 2002/02/17 02:18:05 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -86,7 +86,7 @@ void GlobalScalarDJac
 }  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-advdif_wjac_ff::advdif_wjac_ff(NewElemset *elemset_,
+advdif_wjac_ff::advdif_wjac_ff(const NewAdvDif *elemset_,
 			       DJac *d=NULL,AJac *a=NULL, 
 			       CJac *c=NULL, SourceTerm *st=NULL) 
   : NewAdvDifFF(elemset_), a_jac(a),
