@@ -1,9 +1,12 @@
-## $Id: proc7.m,v 1.8 2005/02/27 17:42:02 mstorti Exp $
+## $Id: proc7.m,v 1.9 2005/03/02 12:08:24 mstorti Exp $
 
 source("data.m.tmp");
 
 if !exist("do_load") || do_load || !exist("U0");
-  U0 = aload("gfshock3d.some-rslt.tmp");
+  load -force ./gfshock3d.some-rslt.tmp
+  U0 = gfshock3d;
+  clear gfshock3d;
+  ##  U0 = aload("gfshock3d.some-rslt.tmp");
   nod_some = create_set(U0(:,1))';
   nsome = length(nod_some);
   all(U0(1:nsome,1)==nod_some) || error("bad some nodes");

@@ -1,0 +1,44 @@
+# -*- mode: shell-script -*- 
+# $Id: proctable,v 1.1 2005/03/02 12:08:24 mstorti Exp $
+# Processor -  weight   table 
+#
+# Script `procsel' generates weigths.dat
+# (for Petscfem) and `machi.dat' for MPI
+#
+# Script `bw <command>' reads it for issuing a
+#            command in each processor, for instance
+#            `$ bw uptime'
+# Script `killpar <string>' kills processes
+#            at each node, for instance
+#            `$ killpar sqcav' . Type `$ killpar -h' for help. 
+#
+# If you modify this, please do a `$ make sync' in order to 
+#   synchronize `machi.dat'
+#================================================================
+# NOTAS:
+#
+#================================================================
+node1      1.3   server
+# Los tiempos estan calculados en base a lo que tarda PETSc-FEM 
+# en calcular el elemento de NS en forma secuencial 
+#
+#================================================================
+# Peso:  9.09 Pentium 4 de 2.4 GHz, 1 GB RAM (DDR, 333 MHz)
+# Peso: 12.00 Pentium 4 de 2.8 GHz, 2 GB RAM (DDR, 333 MHz)
+# A node 16 se le saco 1 GB
+node9     12.00
+node10    12.00
+node11    12.00
+# node12     9.09
+node13    12.00
+# node14     9.09
+# node15     9.09
+node16    12.00
+# node17     9.09
+# node18     9.09
+# node19     9.09
+# node20     9.09
+# node21     9.09
+# node22     9.09
+# node23     9.09
+# node24    12.00

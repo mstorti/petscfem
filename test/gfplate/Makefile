@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.59 2005/02/27 22:54:06 mstorti Exp $ 
+# $Id: Makefile,v 1.60 2005/03/02 12:08:24 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
@@ -6,8 +6,8 @@ default: run_shock3d
 
 BOPT := O_c++
 SRCS = 
-# PETSCFEM_DIR = $(PETSC_ROOT_DIR)/petscfem-beta-3.40
-PETSCFEM_DIR = ../..
+PETSCFEM_DIR = /u/nnigro/PETSC/petscfem-bubbly9
+# PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
@@ -17,9 +17,11 @@ endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
 PROG := $(ADVDIF)
-NL :=
-NP := 1
 endif
+
+NP := $(procsel -n ./proctable)
+NP := 5
+NL := -nolocal
 
 viewer.dx.tmp: viewer.dx
 	make-depl $< $@

@@ -7,7 +7,7 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 1000
+nstep 10000000
 alpha 1.
 
 initial_state "gfshock3d.ini.tmp"
@@ -20,7 +20,7 @@ save_file_some "gfshock3d.some-rslt.tmp"
 nsome 1
 
 save_file_pattern "STEPS/gfshock3d.state_%d.tmp"
-nsaverot 1
+nsaverot 10
 nrec 1
 nfile 100000000
 
@@ -50,8 +50,8 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-shocap 0.2
-shocap_aniso 0.2
+shocap 0.1
+shocap_aniso 0.1
 lumped_mass
 weak_form 0
 temporal_stability_factor 0
@@ -63,6 +63,7 @@ cond 1e-8
 steady 0
 gamma <:=$ga:>
 axisymmetric y
+p_thrsh 1.0e-7
 
 # lagrange_diagonal_factor 1e-5
 
