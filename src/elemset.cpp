@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.72 2003/08/28 15:37:25 mstorti Exp $
+//$Id: elemset.cpp,v 1.73 2003/08/29 15:47:05 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -690,7 +690,7 @@ int assemble(Mesh *mesh,arg_list argl,
       total = MPI_Wtime() - tot_s;
       double other = total-(compt+upload+assmbly);
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			      "[proc %d]  %7d  %7.2g/%3.0f%%(%7.2g)  "
+			      "[%d]  %7d  %7.2g/%3.0f%%(%7.2g)  "
 			      "%7.2g/%3.0f%%  %7.2g/%3.0f%%  %7.2g/%3.0f%%\n",
 			      myrank,elemset->nelem_here,
 			      compt,100.0*compt/total,rate,
