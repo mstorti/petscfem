@@ -3268,3 +3268,6 @@ tag: beta-3.31.5 on Wed, 28 Jul 2004 11:59:53 -0300 by mstorti in node1.beowulf.
 ----------
 tag: beta-3.31.6 on Sun, 01 Aug 2004 21:03:25 -0300 by mstorti in spider
      > Working on large assembly times
+----------
+tag: beta-3.31.7 on Sat, 14 Aug 2004 19:58:31 -0300 by mstorti in spider
+     > Fixed a problem with PetscPrintf in NS main (`ns.cpp'). 
