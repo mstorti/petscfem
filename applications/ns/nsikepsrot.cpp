@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.7 2002/04/08 19:39:57 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.8 2002/04/08 20:04:35 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -233,7 +233,7 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   Omega_M.set(0.);
   Alfa_M.set(0.);
     
-  if (!glob_param->steady) {
+  if (comp_mat_res && !glob_param->steady) {
      time_alpha = time_np - (1.-alpha)/rec_Dt;
   } else {
      time_alpha = time_np;
