@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.15 2003/07/13 17:19:53 mstorti Exp $
+//$Id: tempfun.cpp,v 1.14.8.1 2003/07/22 15:49:59 mstorti Exp $
 
 #include <math.h>
 
