@@ -392,3 +392,6 @@ tag: beta-1.73 on Sat May  5 07:49:42 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Tests ran on spider.
      > Redefined 'VOID_IT' to 'clear()'. 
+----------
+tag: beta-1.74 on Sun May  6 21:55:12 ART 2001, by mstorti in spider
+     > Writing example of stability analysis.
