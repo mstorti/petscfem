@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.6 2005/01/21 18:23:08 mstorti Exp $
+## $Id: mkgfabso.m,v 1.7 2005/01/21 22:32:07 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -49,9 +49,12 @@ nnod = size(xnod,1);
 Uini = Uref(ones(nnod,1),:);
 
 x = xnod(:,1);
-du = dufac*uini;
-Uini(:,2) = Uini(:,2) + du*exp(-((x-Lx/2)/sigma).^2);
-## Uini(:,2) = Uini(:,2) + dufac*uini;
+drho = 0.01;
+dw = drho*[1 0 0 0]; ## entropy wave
+## dw = drho*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
+## dw = drho*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
+dfx = exp(-((x-Lx/2)/sigma).^2);
+Uini = Uini + dfx*dw;
 
 ## Nodes for Lagrange multipliers
 fic_lag = [Nx;2*Nx+1];
@@ -59,3 +62,4 @@ Uini(fic_lag,:) = 0;
 
 asave("gfabso.ini.tmp",Uini);
 
+ 
