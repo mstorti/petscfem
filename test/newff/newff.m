@@ -178,15 +178,11 @@ yy=xnod(1:ny+1,2);
 
 
 ## left to right peri
-peri=[(ny+1)*nx+(1:ny)' (1:ny)'];
+peri=[(ny+1)*nx+(1:ny+1)' (1:ny+1)'];
 ## upper to lower
 nnod=(nx+1)*(ny+1);
-stride = (0:nx-1)'*(ny+1)+1;
 peri=[peri;
-      ny+stride  stride];
-## opsite corner
-peri = [peri;
-	nnod 1];
+      ny+(1:(ny+1):nnod)'  (1:(ny+1):nnod)'];
 fid=fopen("newff.peri.tmp","w");
 for j=1:ndof
   for k=1:rows(peri);
