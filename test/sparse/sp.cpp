@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.12 2001/09/24 03:42:17 mstorti Exp $
+// $Id: sp.cpp,v 1.13 2001/09/24 20:14:58 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -30,10 +30,13 @@ double power_nth(double v,void *u) {
 int main() {
   int j,k,m,N;
 
-  Vec v(5),w(4),u;
+  Vec v(5),w(4),u,res_v;
+  GenVec &res = res_v;
+  FullVec uu_f;
+  GenVec &uu = uu_f;
   Mat a,b,c;
   Indx I(14,17),J(8,14,2),K(0,4,2);
-  double d1,d2,tol=1e-10,p;
+  double d1,d2,tol=1e-13,p,err;
 
   v.set(2,1.).set(3,2.).print("set values ...  ");
   v.set(10,10.).set(11,11.).print("set at 10 11 ...  ");
@@ -169,9 +172,26 @@ int main() {
   N=5;
   b.clear().resize(N,N).id(1.3);
   a.clear().random_fill(.6).scale(.1).print("0.1*rand(5) (fill .6):");
-  a.axpy(1.,b).print("Id + 0.1 * rand: ");
+  a.axpy(1.,b).print_f("Id + 0.1 * rand: ");
 
-  u.resize(N).random_fill().print("u:");
-  a.solve(u);
+  res_v.resize(N);
+
+  u.resize(N).random_fill(.5).print("b:");
+  uu.set(u);
+  a.solve(uu_f);
+  uu.print("sol:");
+  res_v.prod(a,uu);
+  res_v.axpy(-1.,u);
+  err = res_v.sum_abs();
+  printf("error: %g, < tol ? %d \n",err, err<tol);
+
+  u.clear().random_fill(.5).print("b:");
+  uu.set(u);
+  a.solve(uu_f);
+  uu.print("sol:");
+  res_v.prod(a,uu);
+  res_v.axpy(-1.,u);
+  err = res_v.sum_abs();
+  printf("error: %g, < tol ? %d \n",err, err<tol);
 
 }

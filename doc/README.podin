@@ -88,6 +88,11 @@ and can be found at C<http://www.mcs.anl.gov/petsc/>.
 This is, in fact, a prerequisiste to install PETSc and can be found at 
 C<http://www.netlib.org/lapack/>. 
 
+=item SuperLU
+
+A collection of ANSI C routines to solve sparse linear systems of
+equations. Can be found at C<http://www.nersc.gov/~xiaoye/SuperLU/>
+
 =item Libretto
 
 This is a C library of generic containers and can be found at
@@ -180,7 +185,7 @@ The root of the PETSc-FEM package
 =item C<$(PETSC_ARCH)>, C<$(PETSC_HOME)>
 
 These are variables relative to PETSc. See documentation.
- -
+
 =back
 
 =head2 Configuring

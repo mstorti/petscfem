@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.16 2001/09/24 03:42:14 mstorti Exp $
+//$Id: sparse.cpp,v 1.17 2001/09/24 20:14:51 mstorti Exp $
 
 #include "sparse.h"
 
@@ -85,6 +85,21 @@ namespace Sparse {
     for (j=0; j<m; j++) 
       s[j] = get(j);
   }
+
+  FullVec::FullVec(GenVec &v) {
+    GenVec::set(v);
+  };
+
+  GenVec & GenVec::set(const GenVec &v) {
+    int j,m;
+
+    m=v.length();
+    resize(m);
+    for (j=0; j<m; j++) {
+      set(j,v.get(j));
+    }
+    return *this;
+  };
 
   Indx::Indx(int m,int n,int k=1) {
     int j,v;

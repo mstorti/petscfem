@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.15 2001/09/24 03:42:14 mstorti Exp $
+// $Id: sparse.h,v 1.16 2001/09/24 20:14:51 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -160,14 +160,42 @@ namespace Sparse {
     /// Set element at position j
     virtual GenVec & set(int j,double v)=0;
     /// Matrix vector product
-    GenVec & prod(const Mat & a,const GenVec & v);
+    virtual GenVec & prod(const Mat & a,const GenVec & v);
     /// print elements
     virtual void print(const char *s = NULL)=0;
     /// print elements
     virtual void print_f(const char *s = NULL);
     /// export to array
     virtual void get(double *s) const;
+    /// Resize vector
+    virtual GenVec & resize(int n)=0;
+    /// export internal array
+    virtual const double * get() const {assert(0);};
+    /// generic copy vector
+    virtual GenVec & set(const GenVec &v);
     
+  };
+
+  class FullVec : public vector<double>, public GenVec {
+  public:
+    /// Constructor
+    FullVec() {};
+    /// Constructor from GenVec
+    FullVec(GenVec &);
+    /// Copy from GenVec
+    //    FullVec & set(GenVec & v);
+    /// Return length of the vector 
+    int length() const {return size();};
+    /// Get element at specified position
+    double get(int j) const {return (*this)[j];};
+    /// Set element at position j
+    FullVec & set(int j,double v) {(*this)[j] = v; return *this;};
+    /// print elements
+    void print(const char *s = NULL) {print_f(s);};
+    /// export internal array
+    const double * get() const {return begin();};
+    /// Resize vector
+    GenVec & resize(int n) {vector<double>::resize(n); return *this;};
   };
 
   class Indx : public vector<int> {
@@ -200,6 +228,7 @@ namespace Sparse {
     int length() const {return len;};
     /// Constructor from another vector
     Vec(const Vec &v) {*this = v;};
+
     /* Insert contents of vector v at position I.
 	Length of vector is that of the maximum index in I. 
     */
@@ -310,8 +339,9 @@ namespace Sparse {
     /// Value of those elements that are not represented
     static double not_represented_val;
 
+    /// Factored matrix
     SuperMatrix A,L,U,B;
-
+    int *perm_r, *perm_c;
   public:
 
     enum Status {clean, filled, factored} status;
@@ -409,7 +439,7 @@ namespace Sparse {
     /// Number of non null elements
     int size() const;
     /// Solve the linear system 
-    void solve(GenVec &b);
+    void solve(FullVec &b);
 
   };
 

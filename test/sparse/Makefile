@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2001/09/24 03:42:17 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/09/24 20:14:58 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -24,6 +24,9 @@ sp.bin: sp.o ../../src/libpetscfem.a(sparse.o) \
 		../../src/libpetscfem.a(spsolve.o)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ sp.o  $(LDFLAGS) # $(SUPERLU)/SRC/util.o
+
+sparse: sp.bin
+	sp.bin > output.sparse.tmp
 
 tryme.bin: tryme.o
 	g++ -g -o $@ $<

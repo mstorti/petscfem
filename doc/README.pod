@@ -94,6 +94,11 @@ and can be found at C<http://www.mcs.anl.gov/petsc/>.
 This is, in fact, a prerequisiste to install PETSc and can be found at 
 C<http://www.netlib.org/lapack/>. 
 
+=item SuperLU
+
+A collection of ANSI C routines to solve sparse linear systems of
+equations. Can be found at C<http://acts.nersc.gov/superlu/>
+
 =item Libretto
 
 This is a C library of generic containers and can be found at
@@ -166,13 +171,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-1.83.tar.gz> package,
+Once you got the I<petscfem-beta-2.07.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-1.83.tar.gz
-  $ tar xvf petscfem-beta-1.83.tar
+  $ gunzip petscfem-beta-2.07.tar.gz
+  $ tar xvf petscfem-beta-2.07.tar
 
-This will create a I<petscfem-beta-1.83> directory with
+This will create a I<petscfem-beta-2.07> directory with
 all the source files included.
 
 =head2 Makefile variables
@@ -185,7 +190,7 @@ The root of the PETSc-FEM package
 
 =item C<$(PETSC_ARCH)>, C<$(PETSC_HOME)>
 
-These are variables relative to PETSc. See the PETSc documentation.
+These are variables relative to PETSc. See documentation.
 
 =back
 
@@ -278,7 +283,7 @@ manual written in I<LaTeX> (F<doc/petscfem.tex>), and embedded
 documentation for the routines to be used with C<Doc++>. In the
 standard distrib you should find both of them converted to HTML
 (C<LaTeX> is converted with C<latex2html>) and accessible from
-F<doc/index.html>. Other formats (perhaps PostScript) may be also
+F<doc/index.html>. Other formats (perhaps PostScript and PDF) may be also
 found in the C<doc> directory.
 
 =head1 TESTS AND EXAMPLES
