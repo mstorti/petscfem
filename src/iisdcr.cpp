@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.4 2001/11/26 22:33:37 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.5 2001/11/27 02:46:59 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -7,8 +7,7 @@ extern int MY_RANK,SIZE;
 //  #define DEBUG_IISD
 //  #define DEBUG_IISD_DONT_SET_VALUES
 
-// for inclusion of asprintf
-// #define _GNU_SOURCE
+#include <src/debug.h>
 #include <typeinfo>
 #ifdef RH60
 #include "libretto.h"
@@ -31,9 +30,10 @@ private:
   Node *nodep;
   int vrtxf;
 public:
-  int *flag,k1,k2;
+  const int *flag;
+  int k1,k2;
   /// Auxiliary functions
-  int *dof2loc,*loc2dof;
+  const int *dof2loc,*loc2dof;
   /// Libretto dynamic array that contains the graph adjacency matrix
   Darray *da;
   /// callback user function to return the neighbors for a 
@@ -163,8 +163,8 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // Allreduce
   MPI_Allreduce(flag0.begin(), flag.begin(), neq, MPI_INT, 
 		MPI_MAX, PETSC_COMM_WORLD);
-  flag0.clear();
 
+#if 0
   // SUBPARTITIONING. //---:---<*>---:---<*>---:---<*>---:---<*>---:
   // We partition the graph of those vertices (dof's) that are local
   // to this processor. Those that result in internal interfaces are
@@ -201,7 +201,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   TGETOPTDEF_ND_PFMAT(&thash,int,max_partgraph_vertices,INF);
 #undef INF
   TGETOPTDEF_ND_PFMAT(&thash,int,iisd_subpart,1);
-  assert(iisd_subpart!=1);
+  // assert(iisd_subpart!=1);
 
   graph.part(n_loc_pre,max_partgraph_vertices,iisd_subpart);
   // Mark those local dofs that are connected to a local dof in a
@@ -213,15 +213,28 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
       if (graph.vrtx_part(*q)<subdoj) {
-	flag[k] = 1;
+	printf("[%d] marking %d as interface\n",myrank,k1+loc2dof[k]);
+	flag[k1+loc2dof[k]] = 1;
 	break;
       }
     }
   }
 
+  debug.trace("after remarking flag");
   graph.clear();
   dof2loc.clear();
   loc2dof.clear();
+
+  // We have to combine all them again with an Allreduce
+  debug.trace("before allreduce");
+  MPI_Allreduce(flag.begin(), flag0.begin(), neq, MPI_INT, 
+		MPI_MAX, PETSC_COMM_WORLD);
+  debug.trace("after allreduce");
+  // recopy on `flag'...
+  memcpy(flag.begin(),flag0.begin(),neq*sizeof(int));
+  flag0.clear();
+#endif
+
   // map:= map[k] is the location of dof `k1+k' in reordering such
   // that the `local' dofs are the first `n_loc' and the `interface'
   // dofs are the last n_int.
@@ -293,6 +306,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   }
 #endif
 
+  debug.trace("trace 0");
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
   // PETSc sense)
@@ -311,6 +325,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     }
   }
     
+  debug.trace("trace 0.1");
   // For each dof in this processor we scan all connected dof's and
   // add the corresponding element in the `d_nnz' or `o_nnz' vectors. 
   for (k = 0; k < neqp; k++) {
@@ -350,6 +365,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     }
   }
 
+  debug.trace("trace 1");
   // deallocate Libretto dynamic darray
   da_destroy(da);
 
@@ -381,6 +397,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   exit(0);
 #endif
 
+  debug.trace("trace 2");
 //    ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 //   			 nnz[D][L][L].begin(),&A_LL); 
 //    PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix\n"); 
@@ -405,6 +422,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 			 &A_II);
   PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
   
+  debug.trace("trace 3");
   // extern int mult(Mat,Vec,Vec);
   ierr = MatCreateShell(PETSC_COMM_WORLD,n_int,n_int,
 			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
