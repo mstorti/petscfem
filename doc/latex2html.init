@@ -23,20 +23,8 @@ EOM
 sub top_navigation_panel {
 
     # Now add a few buttons with a space between them
-    "$NEXT $UP $PREVIOUS $CONTENTS $INDEX $CUSTOM_BUTTONS" . <<END_OF_TEXT .
-       
-<hr>
-<form method="post" action="http://minerva.arcride.edu.ar/cgi-bin/htsearch">
-<input type="hidden" name="config" value="htdig">
-<input type="hidden" name="restrict" value="http://minerva.arcride.edu.ar/petscfem">
-<input type="hidden" name="exclude" value="">
-Search:
-<input type="text" size="30" name="words" value="">
-<input type="submit" value="Search">
-</form>
-<hr>
-END_OF_TEXT
-    
+    "$NEXT $UP $PREVIOUS $CONTENTS $INDEX $CUSTOM_BUTTONS" .     
+
     "<BR>\n" .		# Line break
 	
     # If ``next'' section exists, add its title to the navigation panel
@@ -49,62 +37,20 @@ END_OF_TEXT
     ($PREVIOUS_TITLE ? "<B> Previous:</B> $PREVIOUS_TITLE\n" : undef) .
    
     #  Line Break, horizontal rule (3-d dividing line) and new paragraph  
-    "<BR> <P>\n"		
-}
-
-sub bot_navigation_panel {
-
-    #  Start with a horizontal rule (3-d dividing line)
-    "<HR>".			
-    
-    # Now add a few buttons with a space between them
-    "$NEXT $UP $PREVIOUS $CONTENTS $INDEX $CUSTOM_BUTTONS" .
-    
-    "<BR>\n" .		# Line break
-	
-    # If ``next'' section exists, add its title to the navigation panel
-    ($NEXT_TITLE ? "<B> Next:</B> $NEXT_TITLE\n" : undef) . 
-    
-    # Similarly with the ``up'' title ...
-    ($UP_TITLE ? "<B>Up:</B> $UP_TITLE\n" : undef) . 
- 
-    # ... and the ``previous'' title
-	($PREVIOUS_TITLE ? "<B> Previous:</B> $PREVIOUS_TITLE\n" : undef) . <<END_OF_TEXT;
-<!--
-<hr>
+	"\n" . <<END_OF_TEXT;
+       
 <form method="post" action="http://minerva.arcride.edu.ar/cgi-bin/htsearch">
-<font size="-1">
-Match: <select name="method">
-<option value="and">All
-<option value="or">Any
-<option value="boolean">Boolean
-</select>
-Format: <select name="format">
-<option value="builtin-long">Long
-<option value="builtin-short">Short
-</select>
-Sort by: <select name="sort">
-<option value="score">Score
-<option value="time">Time
-<option value="title">Title
-<option value="revscore">Reverse Score
-<option value="revtime">Reverse Time
-<option value="revtitle">Reverse Title
-</select>
-</font>
 <input type="hidden" name="config" value="htdig">
 <input type="hidden" name="restrict" value="http://minerva.arcride.edu.ar/petscfem">
 <input type="hidden" name="exclude" value="">
-
-Search:
 <input type="text" size="30" name="words" value="">
-<input type="submit" value="Search">
+<input type="submit" value="Quick search">
+| <a href="http://minerva.arcride.edu.ar/petscfem"> Advanced search</a>
 </form>
-<hr> -->
+<hr>
 END_OF_TEXT
-   
-}
 
+}
 
 # OK. This is tricky... \frc{} does nothing but helps us force
 # Latex2html to put some eqs or other material in a bitmap. 
