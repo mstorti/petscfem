@@ -2728,3 +2728,6 @@ tag: beta-3.19.pl26 on Wed,  2 Jul 2003 17:00:59 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.19.pl27 on Wed, 02 Jul 2003 20:22:28 -0300 by mstorti in spider
      > Compiles all sources but doesn't link
+----------
+tag: beta-3.19.pl28 on Thu, 03 Jul 2003 01:32:48 -0300 by mstorti in spider
+     > Runs allmost all tests with g_c++
