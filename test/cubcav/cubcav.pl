@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.10 2004/01/29 00:12:48 mstorti Exp $
+# $Id: cubcav.pl,v 1.11 2004/01/29 01:05:26 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -39,11 +39,13 @@ $iisd_subpart = $subpart;
 get_var_env2('nlay',1);
 get_var_env2('isp_maxits',12);
 get_var_env2('nu',1/100.);
+$nnwt = 5;
 
 if ($srfgath) {
-    $N = 4;
-    $hratio = 1;
-    $geom = 'prismatic';
+    $N = 20;
+    $hratio = 3;
+    $geom = 'tetra';
+    $nnwt = 1;
 }
 
 $use_tetra = $use_prismatic = 0;

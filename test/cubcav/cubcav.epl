@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.106 2004/01/29 00:12:48 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.107 2004/01/29 01:05:26 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -70,7 +70,7 @@ nnwt 1
 steady 0
 Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
 >>else
-nnwt 5
+nnwt <:=$nnwt:>
 steady 1
 >>endif
 temporal_stability_factor 0
@@ -116,10 +116,10 @@ name integrator
 geometry <:=$geom:>
 npg <:=$npg:>
 data <:=$icone:>
-surf_fun_type "plane"
+surf_fun_type "cylinder"
 gather_pos 0
 vals_per_plane 1
-f_vals 0.12
+f_vals 0.8
 __END_HASH__
 
 end_elemsets

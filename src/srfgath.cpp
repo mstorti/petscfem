@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.8 2004/01/28 20:26:38 mstorti Exp $
+//$Id: srfgath.cpp,v 1.9 2004/01/29 01:05:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -41,6 +41,52 @@ double plane::f(const FastMat2 &x) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class sphere : public SurfGatherer::SurfFunction {
+private:
+  int ndim;
+  FastMat2 x0,dx,tmp;
+public:
+  void init(const TextHashTable *thash);
+  double f(const FastMat2 &x);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void sphere::init(const TextHashTable *thash) {
+  ndim = 3;
+  x0.resize(1,ndim);
+  x0.set(0.);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double sphere::f(const FastMat2 &x) {
+  dx.set(x).rest(x0);
+  return dx.norm_p_all(2.0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class cylinder : public SurfGatherer::SurfFunction {
+private:
+  int ndim;
+  FastMat2 x0,n,dx,tmp;
+public:
+  void init(const TextHashTable *thash);
+  double f(const FastMat2 &x);
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void cylinder::init(const TextHashTable *thash) {
+  ndim = 3;
+  x0.resize(1,ndim).set(0.);
+  n.resize(1,ndim).set(0.).setel(1.0,3);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double cylinder::f(const FastMat2 &x) {
+  dx.set(x).rest(x0);
+  tmp.prod(dx,n,-1,-1);
+  return sqrt(dx.sum_square_all()-square(tmp.get())/n.sum_square_all());
+}
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 SurfGatherer::SurfFunction* 
 SurfGatherer::SurfFunction::factory(const TextHashTable *thash) {
   int ierr;
@@ -48,9 +94,16 @@ SurfGatherer::SurfFunction::factory(const TextHashTable *thash) {
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,surf_fun_type,<none>);
   assert(surf_fun_type!="<none>");
-  if (surf_fun_type =="plane") {
-    sf = new plane;
-  } else 
+
+#define CHECK_SURF_TYPE(name)			\
+  else if (surf_fun_type == #name)		\
+   { sf = new name; }
+
+  if (0) {}
+  CHECK_SURF_TYPE(plane)
+  CHECK_SURF_TYPE(sphere)
+  CHECK_SURF_TYPE(cylinder)
+  else 
     PETSCFEM_ERROR("SurfGatherer::SurfFunction::factory: "
 		   "unknown surf_fun_type \"%s\"\n",surf_fun_type.c_str());
   return sf;
