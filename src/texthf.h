@@ -12,19 +12,23 @@ class TextHashTableFilter {
 private:
   TextHashTable * thash;
   vector<string> prefix;
-  string result;
+  mutable string key,result;
+  void set_key(const char *name,string &s) const;
 public:
   TextHashTableFilter(TextHashTable *thash_p) : thash(thash_p) {};
   TextHashTableFilter &push(const char *s) {prefix.push_back(string(s)); return *this;};
   TextHashTableFilter &pop() {prefix.pop_back(); return *this;};
-  void get_entry(const char *,const char *&);
+  TextHashTableFilter &clear() {prefix.clear(); return *this;}
+  void get_entry(const char *,const char *&) const;
   int get_int(const char *name,
 	      int &retval,int defval=0,int n=1) const {
-    return ::get_int(thash,name,&retval,defval,n);
+    set_key(name,key);
+    return ::get_int(thash,key.c_str(),&retval,defval,n);
   };
   int get_double(const char *name,
 		 double &retval,int defval=0,int n=1) const {
-    return ::get_double(thash,name,&retval,defval,n);
+    set_key(name,key);
+    return ::get_double(thash,key.c_str(),&retval,defval,n);
   };
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Gets a vector of double properties whose length is unknown. 
@@ -36,11 +40,14 @@ public:
       you have to set it to its default value. Give an error if
       #defval!=0# 
   */ 
+#if 0
   int get_vec_double(const char *name,
 		     vector<double> &retval,int defval=0) const;
+#endif
   int get_string(const char *name,
 		 string &ret,int defval=0,int n=1) const {
-    return ::get_string(thash,name,ret,defval,n);
+    set_key(name,key);
+    return ::get_string(thash,key.c_str(),ret,defval,n);
   };
 };
 

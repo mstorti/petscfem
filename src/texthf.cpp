@@ -2,12 +2,22 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
+#define __FUNC__ "TextHashTableFilter::set_key"
+void TextHashTableFilter::set_key(const char *name,string &kk) const {
+  vector<string>::const_iterator k;
+  kk.erase();
+  for (k=prefix.begin(); k!=prefix.end(); k++) {
+    kk +=  *k; 
+    kk += string(".");
+  }
+  kk += string(name);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "TextHashTableFilter::get_entry"
-void TextHashTableFilter::get_entry(const char *kk,const char *&val) {
-  string key;
-  vector<string>::iterator k;
-  for (k=prefix.end(); k!=prefix.begin(); k--)
-    key += *k + string(".");
-  key += string(kk);
+void TextHashTableFilter::get_entry(const char *kk,const char *&val)
+  const {
+  set_key(kk,key);
   get_entry(key.c_str(),val);
 }
