@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.1 2005/01/06 18:02:16 mstorti Exp $
+// $Id: getsurf.cpp,v 1.2 2005/01/07 01:01:11 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -18,9 +18,9 @@ int main() {
 #define DATA "/u/mstorti/PETSC/GARIBA/DATA"
   mesh.read(DATA "/proy.nod.tmp",DATA "/proy.con.tmp");
 #else
-  mesh.read("coord.dat","icone.dat");
+  mesh.read("tetra.nod","tetra.con");
 #endif
-  UniformMesh::nat_visitor vis;
+  UniformMesh::visitor vis;
   vis.init(mesh);
   while (vis.next()) {  
     UniformMesh::RefPathNode &w 

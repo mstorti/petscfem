@@ -1,11 +1,12 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.47 2005/01/06 18:02:30 mstorti Exp $
+// $Id: femref.h,v 1.48 2005/01/07 01:01:11 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
 #include <list>
 #include <multimap.h>
+#include <deque>
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <src/generror.h>
@@ -406,6 +407,10 @@ public:
   };
 
   friend class visitor;
+  friend class nat_visitor;
+  friend class breadth_visitor;
+
+  enum VisitMode { Natural=0, BreadthFirst };
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Refines mesh acording to #RefineFunction#
       @param rf (input) function that indicates 
@@ -425,8 +430,11 @@ public:
     /// Go to next basic element. This is a callback
     /// for defining breadth first and natural order traversing
     /// algorithms. 
-    virtual int next_elem(int elem)=0;
+    bool next_elem();
+    dvector<int> visited;
+    deque<int> element_stack;
   public: 
+    VisitMode visit_mode;
     /// The type for the refinement stack
     typedef list<RefPathNode> RefStackT;
     /// Flags whether we print the elements as they are visited
@@ -440,10 +448,12 @@ public:
     /// Stack containing the elements in the refinement tree
     RefStackT ref_stack;
     /// Inits the visitor to the base element of index #elem#
-    void init(UniformMesh &mesh_a,int elem);
+    void init(UniformMesh &mesh_a,int elem=0);
+#if 0
     /** Inits the visitor to the base element of the
 	first element. */
     void init(UniformMesh &mesh_a);
+#endif
     /** Pass to the following subobject of the 
 	same element. Return false if reached the end. */
     bool so_next();
@@ -470,9 +480,6 @@ public:
     void refine(const Splitter* s);
     /** The refinement level for this node. */ 
     int ref_level();
-  };
-  class nat_visitor : public visitor {
-    int next_elem(int elem) { return elem+1; }
   };
   friend class LinearCombiner;
 };

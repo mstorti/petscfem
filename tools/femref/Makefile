@@ -17,7 +17,7 @@ all: $(scripts:pl=1) $(scripts:pl=txt)
 
 CPP_FILES := femref2 hasher md5r gtemplates visitor combiner
 
-SRCS := $(CPP_FILES=.cpp) femref.cpp  myhash.cpp myhash2.cpp \
+SRCS := $(CPP_FILES=.cpp) getsurf.cpp femref.cpp  myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
 
 BOPT := g_c++

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.20 2005/01/06 18:02:30 mstorti Exp $
+// $Id: visitor.cpp,v 1.21 2005/01/07 01:01:11 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -14,10 +14,18 @@ using namespace std;
 UniformMesh::visitor::visitor() 
   : at_end(true), mesh(NULL), 
     etree_p(NULL), trace(0),
-    node_comb(NULL) { }
+    node_comb(NULL), visit_mode(UniformMesh::Natural) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void UniformMesh::visitor::init(UniformMesh &mesh_a,int elem_a) {
+  if (visit_mode==UniformMesh::Natural) {
+    elem = elem_a;
+  } else if (visit_mode==UniformMesh::BreadthFirst) {
+    int stat=0;
+    visited.resize(mesh->nelem,stat);
+    elem = elem_a;
+    visited.ref(elem_a) = 1;
+  }
   elem = elem_a;
   while(!ref_stack.empty()) pop();
   mesh  = &mesh_a;
@@ -126,17 +134,10 @@ bool UniformMesh::visitor::so_next() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void UniformMesh::visitor::
-init(UniformMesh &mesh_a) { 
-  init(mesh_a,0);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 bool UniformMesh::visitor::
 next() { 
   if (so_next()) return true;
-  elem = next_elem(elem);
-  if (elem >= mesh->nelem) return false;
+  if(!next_elem()) return false;
   init(*mesh,elem);
   return true;
 }
@@ -333,4 +334,14 @@ pop() {
     }
   }
   ref_stack.pop_front();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+bool UniformMesh::visitor::next_elem() { 
+  if (visit_mode==UniformMesh::Natural) {
+    elem++;
+    return elem < mesh->nelem;
+  } else if (visit_mode==UniformMesh::BreadthFirst) {
+    assert(0);
+  }
 }
