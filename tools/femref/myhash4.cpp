@@ -10,10 +10,13 @@
 using namespace std;
 
 int main() {
-  MD5SumHasher hash;
+  BasicSumHasher hash;
+  // SumHasher hash;
+  // MD5SumHasher hash;
+  // PowSumHasher hash;
   time_t start, end;
-  int N=20, M=10, NN=1000, 
-    ntime=10, NBUFF=N*NN;
+  int N=20, M=10, NN=10000, 
+    ntime=1000, NBUFF=N*NN;
   vector<int> buffer(NBUFF);
   for (int j=0; j<NBUFF; j++)
     buffer[j] = rand() % M;

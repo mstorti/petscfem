@@ -35,7 +35,6 @@ SumHasher::SumHasher() {
   result = 0 ;
   memset(&buffer,'\0',
 	 sizeof(struct drand48_data));
-  modulus = 1403711496;
 }
 
 void SumHasher::reset() {
@@ -47,10 +46,8 @@ void SumHasher::hash(int w) {
   memset(&xsubi,'\0',
 	 3*sizeof(unsigned short int));
   memcpy(&xsubi,&w,sizeof(int));
-  for (int j=0; j<10; j++) 
-    nrand48_r(xsubi,&buffer,&val);
-  result += val % modulus;
-  printf("hash(%d) -> %d, cum %d\n",w,val, result);
+  nrand48_r(xsubi,&buffer,&val);
+  result += val;
 }
 
 void SumHasher::hash(int *w,int n) {
