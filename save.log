@@ -555,3 +555,8 @@ tag: beta-2.16 on Thu Nov  1 16:21:32 ART 2001, by mstorti in minerva.arcride.ed
      > -- STABLE VERSION -- 
      > Working on sloshing. Added `.profile' member to arguments
      > to assemble (class `arg_data'). 
+----------
+tag: beta-2.17 on Fri Nov  9 09:30:27 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Included a PETSc version of the SparseDirect matrix. 
+     > Quasi stable version. Apparently runs most tests but stopped because
+     > of Makefile conflicts. 
