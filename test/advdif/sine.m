@@ -27,7 +27,7 @@ bcconv = [nx*Ny+(1:Ny)';
           (nx*Ny:-Ny:Ny)'];
 
 some = Nx*Ny;
-asave2("sine.some.tmp",some);
+asave("sine.some.tmp",some);
 
 nbc=rows(bcconv);
 bcconv = [bcconv(1:nbc-1) bcconv(2:nbc)];

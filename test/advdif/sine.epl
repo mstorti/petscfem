@@ -5,8 +5,9 @@ require '../eperlini.pl';       # Initializes ePerl
 @read_var = @{readm_all("$case.data")};# read all variables in octave file
 $char_T_conv_i = $u/$Lx;        # conv char. time
 $char_T_diff_i = $D/$Lx**2;     # diff char. time
-$char_T = 1/max($char_T_diff_i,
-                $char_T_conv_i);# char. time
+#$char_T = 1/max($char_T_diff_i,
+#                $char_T_conv_i);# char. time
+$char_T = 
 $T = $char_T;                   # period
 $Dt = $T/$N_step_period;        # time step
 $nstep = $N_step_period * $N_period;
