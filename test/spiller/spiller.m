@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spiller.m,v 1.5 2003/03/17 03:00:24 mstorti Exp $
+## $Id: spiller.m,v 1.6 2003/03/17 20:44:44 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spiller, mesh
@@ -71,8 +71,8 @@ ICONE = [1 2 5 4;
 	 2 3 6 5];
 
 H = [1 4 Ny 1 4 1;
-     1 2 round(0.8*Nx) 1 0 4;
-     2 3 round(0.2*Nx) 1 0 2];
+     1 2 round(0.6*Nx) 1 0 4;
+     2 3 round(0.4*Nx) 1 0 2];
 
 [xnod,icone,mesh] = mesher(XNOD,ICONE,H,"spiller_mapbou");
 
