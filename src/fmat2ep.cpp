@@ -2,12 +2,13 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.13 2002/08/27 02:53:50 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.14 2002/08/28 01:59:37 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
-#include "fem.h"
-#include "fastmat2.h"
+#include <src/fem.h>
+#include <src/fastmat2.h>
+#include <src/fastlib2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int mem_size(const Indx & indx) {

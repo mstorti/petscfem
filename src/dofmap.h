@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.10 2002/05/12 15:10:28 mstorti Exp $
+//$Id: dofmap.h,v 1.11 2002/08/28 01:59:37 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -16,6 +16,7 @@
 #include <src/texthash.h>
 #include <src/fstack.h>
 #include <src/idmap.h>
+#include <src/fastlib2.h>
 
 class TimeData {};
 

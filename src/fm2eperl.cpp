@@ -4,12 +4,13 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.14 2002/08/27 02:53:50 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.15 2002/08/28 01:59:37 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
-#include "fem.h"
-#include "fastmat2.h"
+#include <src/fem.h>
+#include <src/fastmat2.h>
+#include <src/fastlib2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int mem_size(const Indx & indx) {
