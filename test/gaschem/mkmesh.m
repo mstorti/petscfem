@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkmesh.m,v 1.7 2003/11/12 19:44:46 mstorti Exp $
+## $Id: mkmesh.m,v 1.8 2003/11/13 14:26:42 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -31,15 +31,18 @@ endfor
 fclose(fid);
 fclose(fidlat);
 
+NN = 256;
+x = (0:NN-1)'/NN*Lx;
+fac2 = abs(x-x_inject)<L_inject/2;
+fac2 = smooth(fac2,0.003);
+fac1=interp(x,fac2,xnod(1:Nx+1,1));
+
 ## Imposed values at bottom
 ## Only impose Nb at inlet
 fid = fopen("pool.fixa.tmp","w");
 for k=1:Nx+1
   node = k;
-  fac = Nb_fac;
-  if abs(xnod(node,1)-x_inject)<L_inject/2
-    fac = 1;
-  endif
+  fac = Nb_fac+(1-Nb_fac)*fac1(k);
   fprintf(fid,"%d %d %f\n",node,1,Nb*fac);
   fprintf(fid,"%d %d %f\n",node,2,CO*fac);
   fprintf(fid,"%d %d %f\n",node,3,CN*fac);
