@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.12 2003/01/22 19:09:16 mstorti Exp $
+## $Id: mkvtube.m,v 1.13 2003/01/24 19:52:36 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -78,22 +78,22 @@ for k=1:nn
 	     abs(rho(k)-Rin)<tol);
   if !is_wall
     continue;			# for efficiency
-  elseif !closed_tube && abs(rho(k)-R0)<tol && z(k)<=Dz_in
+  elseif abs(rho(k)-R0)<tol && z(k)<=Dz_in
     ## Inlet
     er = x3d(k,[1 2]);
     er = er/l2(er);
     et = [-er(2) +er(1)];
     u = -u_rad_in * er + u_circunf_in * et;
-    if inlets && compressible; fprintf(fid,"%d %d    %f\n",k,1,rho_in); endif
+    if compressible; fprintf(fid,"%d %d    %f\n",k,1,rho_in); endif
     fprintf(fid,"%d %d    %f\n",k,u_dof,u(1));
     fprintf(fid,"%d %d    %f\n",k,u_dof+1,u(2));
     fprintf(fid,"%d %d    %f\n",k,u_dof+2,0);
     n_in = n_in+1;
-  elseif inlets && !closed_tube && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
+  elseif hot_oulet && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
     fprintf(fid,"%d %d   %f\n",k,u_dof+2,0);
     n_h = n_h+1;
-  elseif inlets && !closed_tube && z(k)<tol && rho(k)<=Rc
+  elseif cold_oulet && z(k)<tol && rho(k)<=Rc
     fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
     fprintf(fid,"%d %d   %f\n",k,u_dof,0);
     n_c = n_c+1;

@@ -4,16 +4,15 @@
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 
-$closed_tube = 0;		# simulate the tube closed (no inlet/outlet)
 $use_tetra = 0;
 $axisymm = 1;			# do an axisymmetric calculation with
 				# one layer of elements
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
-$inlets = 1;
+$hot_oulet = 1;
+$cold_oulet = 0;
 
 $R0 = 0.047;			# [m] Radius of tube
-# $L0 = 0.520;			# [m] Length of tube
-$L0 = 2*$R0;			# [m] Length of tube
+$L0 = 0.520;			# [m] Length of tube
 $Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
 $z_ratio = 8;			# refinement in `z' (axial) direction
@@ -29,8 +28,8 @@ if (0) {
 }
 
 ## Mesh parameters
-$refine = 12;			# scale all N's by this
-$Nz = 8*$refine;		# number of elements in axial direction
+$refine = 8;			# scale all N's by this
+$Nz = 32*$refine;		# number of elements in axial direction
 $Nr = 4*$refine;		# number of elements in radial direction
 $Nphi = 16*$refine;		# number of elements in circumferential direction
 
@@ -42,7 +41,6 @@ $T_in = 500;			# [K] temperature at inlet
 
 ## PHYSICAL DATA
 $Pr      =  0.72;		# [1] Prandtl
-$Pr      = 10*$Pr;		# ??
 $Rgas    =  287.;		# [J/K kg] Gas constant for air
 $ga      =   1.4;		# [1] gamma (Cp/Cv)
 $Cv      = $Rgas/($ga-1);	# [J/K kg] specific heat at constant volume
@@ -57,9 +55,10 @@ $u_rad_in = $mass_flow_in/
 $u_circunf_in = 200;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
-$Re = 1e3;			# [1] Reynolds based on diameter
-$visco = $rho_in
-    *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
+#  $Re = 1e3;			# [1] Reynolds based on diameter
+#  $visco = $rho_in
+#      *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
+$visco = 1e-3;			# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
@@ -77,7 +76,7 @@ $weak_form  = 0;
 #__END_TRANSCRIPT__
 @vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
 		rho_in u_rad_in u_circunf_in p_in p_h p_c 
-		closed_tube compressible axisymm inlets);
+		compressible axisymm hot_oulet cold_oulet);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkvtube.m > mkvtube.out.tmp";
@@ -96,9 +95,9 @@ global_options
 nstep 100
 alpha 1.
 
-# initial_state "vtube.ini.tmp"
-# initial_state "vtube.state.tmp"
-initial_state "vtube.hot_only.tmp"
+initial_state "vtube.ini.tmp"
+# initial_state "vtube.state_60.tmp"
+# initial_state "vtube.hot_only.tmp"
 save_file "vtube.state.tmp" 
 nsave 1
 
@@ -111,7 +110,7 @@ nfile 100000000
 solver "iisd"
 preco_type "jacobi"
 
-maxits 100
+maxits 200
 iisd_subpart_auto 2000
 
 # file containing the weight (speed) of processors
@@ -123,12 +122,12 @@ tol_newton 1e-10
 atol 0
 rtol 0
 dtol 1e3
-nnwt 5
+nnwt 3
 # omega_newton 0.01
 
 print_internal_loop_conv
 
-Dt 0.00005
+Dt 0.00001
 weak_form 0
 temporal_stability_factor 0
 
@@ -169,7 +168,7 @@ end_elemsets
 ##================================================================
 fixa
 __INCLUDE__ vtube.fixa.tmp
-#if !$compressible && !$inlets
+#if !$compressible
 ## Fix pressure at some node
 <:=($Nr+2):> 4 0.
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.49 2003/01/21 17:47:19 mstorti Exp $
+//$Id: advdif.cpp,v 1.50 2003/01/24 19:52:36 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -33,15 +33,19 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 #define PetscViewerSetFormat_WRAPPER(viewer,format,name) \
           PetscViewerSetFormat(viewer,format)
 
-int bubbly_main(int argc,char **args);
+int bubbly_main();
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
-  if(argc>=2 && !strcmp(args[1],"-bubbly")) 
-    return bubbly_main(argc-1,args+1);
+  PetscInitialize(&argc,&args,(char *)0,help);
+  int bubbly=0;
+  if (MY_RANK==0 && argc>=2 && !strcmp(args[1],"-bubbly")) bubbly=1;
+  MPI_Bcast(&bubbly,1,MPI_INT,0,PETSC_COMM_WORLD);
+
+  if (bubbly) return bubbly_main();
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
@@ -69,7 +73,6 @@ int main(int argc,char **args) {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // elemsetlist =  da_create(sizeof(Elemset *));
-  PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive  module ---------\n");

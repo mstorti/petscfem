@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif_bubbly.cpp,v 1.5 2003/01/21 18:16:55 mstorti Exp $
+//$Id: advdif_bubbly.cpp,v 1.6 2003/01/24 19:52:36 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -38,7 +38,7 @@ ierr = VecView(name,matlab); CHKERRA(ierr)
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 #undef __FUNC__
 #define __FUNC__ "main"
-int bubbly_main(int argc,char **args) {
+int bubbly_main() {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   Vec     dx_out,res_out; 
@@ -68,7 +68,7 @@ int bubbly_main(int argc,char **args) {
   // euler_absorb::flux_fun = &flux_fun_euler;
 
   // elemsetlist =  da_create(sizeof(Elemset *));
-  PetscInitialize(&argc,&args,(char *)0,help);
+  // PetscInitialize(&argc,&args,(char *)0,help);
   print_copyright();
   PetscPrintf(PETSC_COMM_WORLD,
 	      "-------- Generic Advective-Diffusive / Bubbly module ---------\n");
