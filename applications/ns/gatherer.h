@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.11 2002/05/17 00:37:59 mstorti Exp $
+//$Id: gatherer.h,v 1.12 2002/05/19 19:46:17 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -55,11 +55,15 @@ public:
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Computes the force that the container is
     performing on the wall. 
-    # force = \int_\surf - p * normal \dS #, where
+    # force = - \int_\surf p * normal \dS #, where
     #force# is the computed force, #surf# is the
-    surface of the elemset, #p# is pressure #normal#
-    is the unit vector \emph{exterior} to the fluid.
-    #\dS# is the diferential os surface. 
+    surface of the elemset, #p# is pressure, #normal#
+    is the unit vector \emph{exterior} to the fluid. The convention is
+    that quad and triangular panels in 3D are numbered
+    counterclock-wise when viewed from the exterior to the fluid. In
+    2D linear elements are numbered following the countour curve in
+    such a way as to leave the fluid at the left. 
+    #\dS# is the diferential of surface. 
 */ 
 class force_integrator : public gatherer {
 private:
@@ -69,7 +73,7 @@ private:
   */
   FastMat2 force,moment,x_center,dx;
   /// Flag to compute moments or not, number of dimensions
-  int compute_moment,ndim_m;
+  int compute_moment, ndim_m;
 public:
   /// perform several checks and initialization
   void init();
