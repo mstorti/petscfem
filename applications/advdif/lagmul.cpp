@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.2 2005/01/07 20:10:44 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.3 2005/01/07 22:24:44 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,6 +9,7 @@
 #include <src/fastmat2.h>
 
 #include <src/lagmul.h>
+#include "./lagmul.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
@@ -36,24 +37,25 @@ void
 AdvdifLagrangeMult::
 get_data(arg_data_list &arg_data_v,
 	 double *&locst,double *&retval,
-	 double *&retvalmat,double *&rec_Dt) {
-  GlobParam *glob_param;
+	 double *&retvalmat) {
   // The trapezoidal rule integration parameter
   // arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   int j=-1;
   j++; // `locst2' not used
-  locst = &arg_data_v[++j].locst; //[1]
-  retval  = &arg_data_v[++j].retval;//[2]
+  locst = arg_data_v[++j].locst; //[1]
+  retval  = arg_data_v[++j].retval;//[2]
   ++j;//[3]
-  retvalmat = &arg_data_v[++j].retval;//[4]
+  retvalmat = arg_data_v[++j].retval;//[4]
+#if 0
   glob_param = (GlobParam *)arg_data_v[++j].user_data;;
   rec_Dt = 1./glob_param->Dt;
   if (glob_param->steady) rec_Dt = 0.;
+#endif
 }
 
 void
 AdvdifLagrangeMult::
-virtual get_data(arg_data_list &arg_data_v,
-		 double *&retvalmat) {
-  double *jac_prof = &arg_data_v[0].retval;
+get_data(arg_data_list &arg_data_v,
+	 double *&retvalmat) {
+  retvalmat = arg_data_v[0].retval;
 }
