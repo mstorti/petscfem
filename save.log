@@ -3886,3 +3886,6 @@ tag: beta-3.41.12 on Fri, 28 Jan 2005 09:06:55 -0300 by mstorti in spider
 tag: beta-3.41.13 on Fri, 28 Jan 2005 13:09:42 -0300 by mstorti in minerva.ceride.gov.ar
      > Fixed `fastmat2-eig-crev' bug in `src/fmat2ep2.cpp'. 
      > Working on `gasflow_abso2'. 
+----------
+tag: beta-3.41.14 on Fri, 28 Jan 2005 14:34:51 -0300 by mstorti in minerva.ceride.gov.ar
+     > Runs `gasflow_abso2' OK for cylinder at Mach=0.7. 
