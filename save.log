@@ -3807,3 +3807,6 @@ tag: beta-3.39.68 on Mon, 24 Jan 2005 14:35:41 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.39.69 on Mon, 24 Jan 2005 15:36:40 -0300 by mstorti in minerva.ceride.gov.ar
      > Working on `gasflow'. 
+----------
+tag: beta-3.39.70 on Mon, 24 Jan 2005 16:23:40 -0300 by mstorti in spider
+     > Restored 2D example as `test/gfplate/gfabso2d'. 
