@@ -63,7 +63,9 @@ $visco = $rho_in
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
-$p_c = 1.013e5;			# [N/m2] outlet cold pressure
+## $p_c = 1.013e5;			# [N/m2] outlet cold pressure
+## $p_c = 1.2e5;			# [N/m2] outlet cold pressure
+$p_c = 1.3e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
 $p_h = 1.38e5;			# [N/m2] outlet cold pressure
@@ -92,14 +94,14 @@ global_options
 nstep 100
 alpha 1.
 
-initial_state "vtube.ini.tmp"
+# initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
-# initial_state "vtube.steady_hot_outlet.tmp"
+initial_state "vtube.hot_outlet.state"
 save_file "vtube.state.tmp" 
 nsave 1
 
 save_file_pattern "vtube.state_%d.tmp"
-nsaverot 10
+nsaverot 1
 nrec 1
 nfile 100000000
 
@@ -124,7 +126,7 @@ nnwt 5
 
 print_internal_loop_conv
 
-Dt 0.0001
+Dt 0.00005
 weak_form 0
 temporal_stability_factor 0
 
