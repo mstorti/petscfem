@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.8 2001/12/27 19:55:47 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.9 2001/12/28 07:45:41 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -133,7 +133,7 @@ void IISDMat::create() {
   // (has a non zero matrix value) with a dof in a processor with a lower index "k'<k"
   for (k=0; k < neqp; k++) {
     // keq:= number of dof
-    keq = dofs_proc[k];
+    keq = dofs_proc_v[k];
     ngbrs_v.clear();
     lgraph.set_ngbrs(keq,ngbrs_v);
     qe = ngbrs_v.end();
@@ -174,7 +174,7 @@ void IISDMat::create() {
   n_loc_pre = 0;
   dof2loc.resize(neqp,-1);
   for (k=0;k<neqp;k++) {
-    if (flag[ dofs_proc[k] ]==0) dof2loc[k] = n_loc_pre++;
+    if (flag[ dofs_proc_v[k] ]==0) dof2loc[k] = n_loc_pre++;
   }
   loc2dof.resize(n_loc_pre);
   for (dof = 0; dof < neqp; dof++) {
@@ -209,7 +209,7 @@ void IISDMat::create() {
     qe = ngbrs_v.end();
     for (q=ngbrs_v.begin(); q!=qe; q++) {
       if (local_graph.vrtx_part(*q)<subdoj) {
-	flag[dofs_proc[ loc2dof[k] ] ] = 1;
+	flag[dofs_proc_v[ loc2dof[k] ] ] = 1;
 	break;
       }
     }
@@ -291,7 +291,7 @@ void IISDMat::create() {
   // add the corresponding element in the `d_nnz' or `o_nnz' vectors. 
   for (k = 0; k < neqp; k++) {
     // keq:= number of dof
-    keq = dofs_proc[k];
+    keq = dofs_proc_v[k];
     // type of dof (local or interface)
     // row_t = (flag[keq] ? I : L);
     // Index in the local PETSc matrices (maped index)
