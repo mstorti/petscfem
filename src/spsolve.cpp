@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.3 2001/09/25 03:02:43 mstorti Exp $
+//$Id: spsolve.cpp,v 1.4 2001/09/28 17:13:25 mstorti Exp $
 
 #include "sparse.h"
 
@@ -70,7 +70,18 @@ namespace Sparse {
 
   Mat & Mat::clear() {
 
+    fsm.clean_factor();
+    fsm.clean_mat();
+
+  }
+
+  void Mat::clean_mat() {
+    
     map<int,Vec>::clear();
+
+  }
+
+  void Mat::clean_factor() {
 
 #if 0
     dPrint_CompCol_Matrix("A", &A);
@@ -82,17 +93,13 @@ namespace Sparse {
     delete[] a;
 #endif
 
-    if (status == factored) {
-      Destroy_CompCol_Matrix(&A);
-      Destroy_SuperMatrix_Store(&B);
-      Destroy_SuperNode_Matrix(&L);
-      Destroy_CompCol_Matrix(&U);
-
-      delete[] perm_r;
-      delete[] perm_c;
-    }
-
-    status = clean;
+    Destroy_CompCol_Matrix(&A);
+    Destroy_SuperMatrix_Store(&B);
+    Destroy_SuperNode_Matrix(&L);
+    Destroy_CompCol_Matrix(&U);
+    
+    delete[] perm_r;
+    delete[] perm_c;
     return *this;
   }
     

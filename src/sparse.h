@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.18 2001/09/27 03:43:57 mstorti Exp $
+// $Id: sparse.h,v 1.19 2001/09/28 17:13:25 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -333,11 +333,10 @@ namespace Sparse {
   public:
     Mat * matrix_p;
     MatFSMContext() {};
-    void factor() {};
-    void back_subst() {};
-    void clean_factor() {}; 
-    void clean_mat() {};
-
+    void clear(matrix_p->clear(););
+    void clean_factor() {matrix_p->clean_factor()}; 
+    void clean_mat() {matrix_p->clean_mat()};
+    void solve()
     void FSMError(const char *e,const char *s) { 
       printf("Not valid \"%s\" event in state \"%s\"",e,s);
     }
@@ -460,6 +459,9 @@ namespace Sparse {
     int size() const;
     /// Solve the linear system 
     void solve(FullVec &b);
+
+    /// Clean the factored part
+    void clean_factor();
 
   };
 
