@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.13 2001/07/22 20:52:22 mstorti Exp $
+//$Id: lusubd.cpp,v 1.14 2001/07/22 23:20:25 mstorti Exp $
 
 #include <typeinfo>
 #ifdef RH60
@@ -41,6 +41,22 @@ int IISD_mult(Mat A,Vec x,Vec y) {
   return 0;
 }
 
+#if 0
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat_monitor(KSP,int,double,void *)"
+int IISDMat_monitor(KSP ksp,int n,double rnorm,void *dummy) {
+  int      ierr;
+  // if (print_internal_loop_conv_g) 
+  PetscPrintf(PETSC_COMM_WORLD,
+	      "iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+  return 0;
+}
+#endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void IISDMat::create(Darray *,const Dofmap *,int)"
 void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
   int myrank,size;
@@ -140,6 +156,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   n_int = n_int_v[myrank+1]-n_int_v[myrank];
   n_loc = n_loc_v[myrank+1]-n_loc_v[myrank];
   n_locp = n_loc_v[myrank];
+  n_intp = n_int_v[myrank];
 
 #if 0 // Debug
   int ldof,type;
@@ -356,33 +373,7 @@ void IISDMat::mult(Vec x,Vec y) {
   ierr = MatMult(A_LI,x,x_loc);
   PETSCFEM_ASSERT0(ierr==0,"Error performing `A_LI*x' product.\n"); 
 
-#if 0
-  // Localize on procesor and make y_loc_seq <- - A_LI * XI
-  ierr = VecGetArray(x_loc,&a);
-  PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
-
-  ierr = VecGetArray(y_loc_seq,&aa);
-  PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
-
-  for (j = 0; j < n_loc; j++) aa[j] = -a[j];
-
-  ierr = VecRestoreArray(y_loc_seq,&aa);
-
-  // Solve local system: x_loc_seq <- XL
-  ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_); 
-  PETSCFEM_ASSERT0(ierr==0,"Error solving subdomain problem.\n"); 
-  
-  // Pass to global vector: x_loc <- XL
-  ierr = VecGetArray(x_loc_seq,&aa);
-  PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
-
-  for (j = 0; j < n_loc; j++) a[j] = aa[j];
-
-  ierr = VecRestoreArray(x_loc_seq,&aa);
-  ierr = VecRestoreArray(x_loc,&a);
-#else
   local_solve(x_loc,x_loc,-1.);
-#endif
 
   ierr = MatMult(A_II,x,y);
   PETSCFEM_ASSERT0(ierr==0,"Error performing `A_II*x' product.\n"); 
@@ -510,9 +501,9 @@ void IISDMat::set_value(int row,int col,Scalar value,
 #define __FUNC__ "void IISDMat::solve(Vec res,Vec dx)"
 void IISDMat::solve(Vec res,Vec dx) {
       
-  int ierr,kloc,itss,j;
-  double *res_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a,scal;
-  Vec res_i,x_i;
+  int ierr,kloc,itss,j,jj;
+  double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,*x_loc_seq_a,*dx_a,scal;
+  Vec res_i,res_loc,x_i;
   if (n_int_tot > 0 ) {
     ierr = VecCreateMPI(PETSC_COMM_WORLD,n_int,PETSC_DETERMINE,&res_i);
     PETSCFEM_ASSERT0(ierr==0,"Error creating `res_i' vector\n"); 
@@ -540,35 +531,71 @@ void IISDMat::solve(Vec res,Vec dx) {
     ierr = KSPSetMonitor(ksp_ll,petscfem_null_monitor,PETSC_NULL);
 
 #if 1 // To print the Schur matrix by columns
-    for (j = 0; j < n_int_tot; j++) {
-      scal = 0.;
-      ierr = VecSet(&scal,x_i); 
-      PETSCFEM_ASSERT0(ierr==0,"Error setting value on `x_i' (1).\n"); 
-      scal = 1.;
-      ierr = VecSetValues(x_i,1,&j,&scal,INSERT_VALUES);
-      PETSCFEM_ASSERT0(ierr==0,"Error setting value on `x_i' (2).\n"); 
+    for (int kk=1; kk<=2; kk++) {
+      for (j = 0; j < n_int_tot; j++) {
+	scal = 0.;
+	ierr = VecSet(&scal,x_i); 
+	PETSCFEM_ASSERT0(ierr==0,"Error setting value on `x_i' (1).\n"); 
+	scal = 1.;
+	ierr = VecSetValues(x_i,1,&j,&scal,INSERT_VALUES);
+	PETSCFEM_ASSERT0(ierr==0,"Error setting value on `x_i' (2).\n"); 
       
-      ierr = MatMult(A,x_i,res_i);
-      PetscPrintf(PETSC_COMM_WORLD,"For j = %d, column:\n",j);
+	ierr = MatMult(A,x_i,res_i);
+	PetscPrintf(PETSC_COMM_WORLD,"For j = %d, column:\n",j);
 
-      ierr = VecView(res_i,VIEWER_STDOUT_SELF);
-      PETSCFEM_ASSERT0(ierr==0,"Error viewing `res_i'\n"); 
+	ierr = VecView(res_i,VIEWER_STDOUT_SELF);
+	PETSCFEM_ASSERT0(ierr==0,"Error viewing `res_i'\n"); 
+      }
     }
 #endif
 
+    ierr = VecCreateMPI(PETSC_COMM_WORLD,n_loc,PETSC_DETERMINE,&res_loc);
+    PETSCFEM_ASSERT0(ierr==0,"Error creating `res_loc' vector\n"); 
+    
+    ierr = VecGetArray(res,&res_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+    ierr = VecGetArray(res_loc,&res_loc_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+    ierr = VecGetArray(res_i,&res_i_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+    
+    for (j=0; j<neqp; j++) {
+      jj = map[k1+j];
+      if (jj < n_loc_tot) {
+	jj -= n_locp;
+	res_loc_a[jj] = res_a[j];
+      } else {
+	jj -= n_intp;
+	res_i_a[jj] = res_a[j];
+      }
+    }
+
+    ierr = VecRestoreArray(res,&res_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
+    ierr = VecRestoreArray(res_loc,&res_loc_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
+    ierr = VecRestoreArray(res_i,&res_i_a);
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray'.\n"); 
+
+    local_solve(res_loc,res_loc,-1.);
+    ierr = MatMultAdd(A_IL,res_loc,res_i,res_i);
+
+    ierr = VecView(res_i,VIEWER_STDOUT_SELF);
+    PETSCFEM_ASSERT0(ierr==0,"Error viewing `res_i'\n"); 
+
+    ierr = SLESSolve(sles,res_i,x_i,&itss); 
+    PETSCFEM_ASSERT0(ierr==0,"Error performing `SLESSolve'.\n"); 
+    
+    ierr = VecView(x_i,VIEWER_STDOUT_SELF);
+    PETSCFEM_ASSERT0(ierr==0,"Error viewing `x_i'\n"); 
+
     PetscFinalize();
     exit(0);
-#if 0
-    ierr = SLESSolve(sles,res,dx,&itss); 
-    PETSCFEM_ASSERT0(ierr==0,"Error solving linear system"); 
-#endif
+
   } else {
+
     ierr = VecGetArray(res,&res_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `res'.\n"); 
-#if 0
-    ierr = VecGetArray(y_loc_seq,&y_loc_seq_a);
-    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `y_loc_seq'.\n"); 
-#endif
 
     scal=0.;
     ierr = VecSet(&scal,y_loc_seq); 
@@ -582,10 +609,7 @@ void IISDMat::solve(Vec res,Vec dx) {
     
     ierr = VecRestoreArray(res,&res_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `res'.\n"); 
-#if 0
-    ierr = VecRestoreArray(y_loc_seq,&y_loc_seq_a);
-    PETSCFEM_ASSERT0(ierr==0,"Error performing `VecRestoreArray' on `y_loc_seq'.\n"); 
-#endif
+
     if (n_loc > 0) {
       SLES sles_lll;
       KSP ksp_lll;
@@ -614,15 +638,9 @@ void IISDMat::solve(Vec res,Vec dx) {
       ierr = SLESSolve(sles_lll,y_loc_seq,x_loc_seq,&itss); 
       PETSCFEM_ASSERT0(ierr==0,"Error solving local system"); 
 
+      ierr = SLESDestroy(sles_lll); CHKERRA(ierr);
+      PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES"); 
     }
-#if 0
-    ierr = VecView(y_loc_seq,VIEWER_STDOUT_SELF);
-    ierr = VecView(x_loc_seq,VIEWER_STDOUT_SELF);
-    ierr = MatView(A_LL,VIEWER_STDOUT_SELF);
-
-    PetscFinalize();
-    exit(0);
-#endif
 
     ierr = VecGetArray(dx,&dx_a);
     PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray' on `dx'.\n"); 
