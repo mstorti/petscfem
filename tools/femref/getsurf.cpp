@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.27 2005/01/16 23:40:13 mstorti Exp $
+// $Id: getsurf.cpp,v 1.28 2005/01/17 03:45:45 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -267,20 +267,35 @@ elem2nod_proj(GetSurfCtx &ctx,
 	      const dvector<int> &icone,
 	      const dvector<double> &ue,
 	      dvector<double> &un) {
+#if 0
   printf("icone shape %d, %d\n",
 	 icone.size(0),icone.size(1));
-  dvector<int> *uee = (dvector<int> *)&ue;
-
-  int ndof = 3;
-  assert(ue.size()%ndof==0);
-
+  printf("ue shape %d, %d\n",
+	 ue.size(0),ue.size(1));
+#endif
 #if 0
-  uee->reshape(2,ue.size()/ndof,ndof);
-#else
-  vector<int> shape(2);
-  shape[0] = ue.size()/ndof;
-  shape[1] = ndof;
-  uee->reshape(shape);
+  int nfaces = icone.size(0);
+  assert(ue.size(0)==nfaces);
+  int ndof = ue.size(1);
+  un.clear();
+  
+  for (int jface=0; jface<nfaces; jface++) {
+    double nod_area = elem_mass.ref(jface)/double(face_nel);
+    for (int j=0; j<face_nel; j++) {
+      int node = surf_con.e(jface,j);
+      if (jiter==0) node_mass.ref(node) += nod_area;
+      double 
+	*to = &us.e(node,0),
+	*from = &ue.e(jface,0);
+      for (int k=0; k<ndim*ndof; k++) 
+	to[k] += from[k]*nod_area;
+    }
+  }
+  for (int node=0; node<nsurf_nodes; node++) {
+    double nod_area = node_mass.ref(node);
+    for (int k=0; k<ndim*ndof; k++) 
+      us.e(node,k) /= nod_area;
+  }
 #endif
 }
 

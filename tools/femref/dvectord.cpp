@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 //__INSERT_LICENSE__
-// $Id: dvectord.cpp,v 1.8 2005/01/17 02:47:47 mstorti Exp $
+// $Id: dvectord.cpp,v 1.9 2005/01/17 03:45:45 mstorti Exp $
 
 #define DV_DBL
 #define TYPE double
@@ -16,11 +16,13 @@
 #define DVECTOR_SIZE_FUN dvdbl_size
 #define DVECTOR_PRINT_FUN dvdbl_print
 #define DVECTOR_RESIZE_FUN dvdbl_resize
-#define DVECTOR_SET_FUN dvdbl_set
+#define DVECTOR_SET_W1_FUN dvdbl_set_w1
+#define DVECTOR_SET_W2_FUN dvdbl_set_w2
 #define DVECTOR_READ_FUN dvdbl_read_x
 #define DVECTOR_CAT_FUN dvdbl_cat_x
 #define DVECTOR_DUMP_FUN dvdbl_dump
 #define DVECTOR_RESHAPE_FUN dvdbl_reshape
+#define DVECTOR_SHAPE_FUN dvdbl_shape
 
 #define INIT_DVECTOR_FUN dvdbl_init
 

@@ -1,4 +1,5 @@
-;;; $Id: getsurf.scm,v 1.4 2005/01/17 02:47:47 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.5 2005/01/17 03:45:45 mstorti Exp $
+(load "./dvector.scm")
 (load "./femref.scm")
 
 (define ctx (make-get-surf-ctx))
@@ -21,6 +22,7 @@
 
 (comp-matrices ctx surf-con
 	       surf-nodes x surf-mass node-mass)
+(define nnod (car (dvdbl-shape x)))
 
 (format #t "\n\nsurf-mass:\n")
 (dvdbl-dump surf-mass)
@@ -32,13 +34,18 @@
 (define ue (make-dvdbl))
 (dvdbl-reshape! ue 0 ndof)
 (dvdbl-cat! ue "cube.state-elem.tmp")
-(format #t "\n\nue:\n")
-(dvdbl-dump ue)
 (define un (make-dvdbl))
+(dvdbl-resize! un nnod ndof)
+(dvdbl-set! un 0.0)
 
+(format #t "\n\nun:\n")
+(dvdbl-dump un)
+
+#!
 (elem->nod-proj ctx surf-con ue un)
 (format #t "\n\nue:\n")
 (dvdbl-dump ue)
+!#
 
 ; (fem-smooth ctx surf-con surf-nodes
 ; 	    surf-mass node-mass u us #:verbose #f)

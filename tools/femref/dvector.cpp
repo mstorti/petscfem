@@ -37,7 +37,7 @@ FREE_DVECTOR_FUN(SCM s_w) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
-#define __FUN__ DVTYPE "-resize!"
+#define __FUN__ DVTYPE "-resize-w!"
 static SCM
 DVECTOR_RESIZE_FUN(SCM s_w,SCM s_n) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
@@ -68,6 +68,22 @@ DVECTOR_RESHAPE_FUN(SCM s_w,SCM s_shape) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
+#define __FUN__ DVTYPE "-shape"
+static SCM
+DVECTOR_SHAPE_FUN(SCM s_w) {
+  SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
+              s_w, SCM_ARG1, __FUN__);
+  dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
+  vector<int> shape;
+  int n = w->rank();
+  shape.resize(n);
+  for (int j=0; j<n; j++)
+    shape[j] = w->size(j);
+  return vec2scmlist(shape);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
 #define __FUN__ DVTYPE "?"
 static SCM
 DVECTOR_P_FUN(SCM s_w) {
@@ -76,9 +92,33 @@ DVECTOR_P_FUN(SCM s_w) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUN__
-#define __FUN__ DVTYPE "-set!"
+#define __FUN__ DVTYPE "-set-w1"
 static SCM
-DVECTOR_SET_FUN(SCM s_w,SCM s_j,SCM s_v) {
+DVECTOR_SET_W1_FUN(SCM s_w,SCM s_v) {
+  SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
+              s_w, SCM_ARG1, __FUN__);
+  dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
+
+  TYPE v;
+#if defined DV_INT
+  SCM_ASSERT(SCM_INUMP (s_v),s_v,SCM_ARG3,__FUN__);
+  v = SCM_INUM(s_v);
+#elif defined DV_DBL
+  SCM_ASSERT(scm_real_p (s_v),s_v,SCM_ARG3, __FUN__);
+  v = scm_num2dbl(s_v,__FUN__);
+#else
+#error undefined type!! 
+#endif
+
+  w->set(v);
+  return SCM_UNSPECIFIED;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
+#define __FUN__ DVTYPE "-set-w2"
+static SCM
+DVECTOR_SET_W2_FUN(SCM s_w,SCM s_j,SCM s_v) {
   SCM_ASSERT (SCM_SMOB_PREDICATE(TAG, s_w),
               s_w, SCM_ARG1, __FUN__);
   dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
@@ -285,9 +325,11 @@ INIT_DVECTOR_FUN(void) {
   scm_c_define_gsubr("make-" DVTYPE, 0, 0, 0, scm_fun(MAKE_DVECTOR_FUN));
   scm_c_define_gsubr(DVTYPE "-push!", 2, 0, 0, scm_fun(DVECTOR_PUSH_FUN));
   scm_c_define_gsubr(DVTYPE "-size", 1, 0, 0, scm_fun(DVECTOR_SIZE_FUN));
-  scm_c_define_gsubr(DVTYPE "-resize!", 2, 0, 0, scm_fun(DVECTOR_RESIZE_FUN));
+  scm_c_define_gsubr(DVTYPE "-resize-w!", 2, 0, 0, scm_fun(DVECTOR_RESIZE_FUN));
   scm_c_define_gsubr(DVTYPE "-reshape!", 1, 0, 1, scm_fun(DVECTOR_RESHAPE_FUN));
-  scm_c_define_gsubr(DVTYPE "-set!", 3, 0, 0, scm_fun(DVECTOR_SET_FUN));
+  scm_c_define_gsubr(DVTYPE "-shape", 1, 0, 0, scm_fun(DVECTOR_SHAPE_FUN));
+  scm_c_define_gsubr(DVTYPE "-set-w1", 2, 0, 0, scm_fun(DVECTOR_SET_W1_FUN));
+  scm_c_define_gsubr(DVTYPE "-set-w2", 3, 0, 0, scm_fun(DVECTOR_SET_W2_FUN));
   scm_c_define_gsubr(DVTYPE "-ref", 2, 0, 0, scm_fun(DVECTOR_REF_FUN));
   scm_c_define_gsubr(DVTYPE "-read!", 2, 0, 0, scm_fun(DVECTOR_READ_FUN));
   scm_c_define_gsubr(DVTYPE "-cat!", 2, 0, 0, scm_fun(DVECTOR_CAT_FUN));

@@ -1,4 +1,4 @@
-// $Id: dvector2.cpp,v 1.3 2005/01/17 02:47:47 mstorti Exp $
+// $Id: dvector2.cpp,v 1.4 2005/01/17 03:45:45 mstorti Exp $
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -21,4 +21,11 @@ void scmlist2vec(SCM s_list,vector<int> &v) {
     v.push_back(w);
     q = SCM_CDR(q);
   }
+}
+
+SCM vec2scmlist(vector<int> &v) {
+  SCM s_list = SCM_EOL;
+  for (int j=v.size()-1; j>=0; j--) 
+    s_list = scm_cons(SCM_MAKINUM(v[j]),s_list);
+  return s_list;
 }
