@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fem.h,v 1.18 2001/05/12 22:33:21 mstorti Exp $
+//$Id: fem.h,v 1.19 2001/05/22 02:21:10 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -301,10 +301,12 @@
     usage: #PETSCFEM_ASSERT(bool_cond,printf_args)#;
 */ 
 #ifdef USE_VARARG_MACROS
-#define PETSCFEM_ASSERT(bool_cond,templ,...)		\
-if (!(bool_cond)) {PETSCFEM_ERROR(templ,__VA_ARGS__);}
-#define PETSCFEM_ASSERT0(bool_cond,templ)		\
-if (!(bool_cond)) {PETSCFEM_ERROR0(templ);}
+#define PETSCFEM_ASSERT(bool_cond,templ,...)				\
+if (!(bool_cond)) {PETSCFEM_ERROR("Assertion failed: \"" #bool_cond	\
+       ".\"\n" templ,__VA_ARGS__);}
+#define PETSCFEM_ASSERT0(bool_cond,templ)				\
+if (!(bool_cond)) {PETSCFEM_ERROR0("Assertion failed: \"" #bool_cond	\
+       ".\"\n" templ);}
 #else
 #define PETSCFEM_ASSERT petscfem_assert
 #define PETSCFEM_ASSERT0 petscfem_assert
