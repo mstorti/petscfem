@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.17 2001/07/04 18:37:55 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.18 2001/07/10 00:54:33 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -70,8 +70,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retvalmat = arg_data_v[0].retval;
   }
 
-  //o Using Lagrange multipliers leads to diagonal null terms This can
-  // lead, to zero pitvots when using direct methods. With this option
+  //o Using Lagrange multipliers leads to diagonal null terms, which can
+  // cause zero pivots when using direct methods. With this option
   // a small term is added to the diagonal in order to fix this. The
   // term is added only in the Jacobian or also in the residual (which
   // results would be non-consistent). See option
@@ -85,6 +85,12 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // not (\verb+lagrange_residual_factor=0+) then the restriction is
   // consistently satisfied but with a non exact Newton-Raphson. 
   TGETOPTDEF(thash,double,lagrange_residual_factor,0.);
+  //o Using Lagrange multipliers can lead to bad conditioning, which
+  // cuases poor convergence with iterative methods or amplification
+  // of rounding errors. This factor scales the columns in the matrix
+  // that correspond to the lagrange multipliers and can help in
+  // better conditioning the system. 
+  TGETOPTDEF(thash,double,lagrange_scale_factor,1.);
 
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,2,ndof),R(2,2,ndof);
@@ -118,15 +124,16 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     if (comp_mat_res) {
       res(k,U,r,lambda,jac);
       U.ir(1,2).is(2,1,nr);
-      R.ir(1,1).prod(lambda,U,1,-1,-1);
+      R.ir(1,1).prod(lambda,U,1,-1,-1).scale(lagrange_scale_factor);
       
       R.rs().ir(1,2).is(2,1,nr).set(r)
 	.axpy(U,-lagrange_diagonal_factor*lagrange_residual_factor).rs();
       
-      matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda).scale(-1.).rs();
+      matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda)
+	.scale(-lagrange_scale_factor).rs();
       matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).scale(-1.).rs();
-      matloc.ir(1,2).ir(3,2).d(2,4).is(2,1,nr).
-	set(lagrange_diagonal_factor).rs();
+      matloc.ir(1,2).ir(3,2).d(2,4).is(2,1,nr)
+	.set(lagrange_diagonal_factor).rs();
 
       R.export_vals(&(RETVAL(ielh,0,0)));
       // matloc.set(0.);

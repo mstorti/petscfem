@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.16 2001/07/06 19:30:50 mstorti Exp $
+//$Id: nsi_tet.h,v 1.17 2001/07/10 00:54:33 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -211,8 +211,6 @@ class NonLinearRes : public Elemset {
  public:
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
-  /// 
-  double 
   /// Number of restrictions
   virtual int nres()=0;
   /// Initialize the elemset (maybe reads hash table)
