@@ -34,9 +34,9 @@ nsaverot 1
 nrec  100
 nfile 2
 
-nstep 1
+nstep 20
 #nstep <:=$Nper*$N_dt_per:>
-nnwt 10
+nnwt 2
 tol_newton 0
 preco_type "lu"
 
@@ -44,17 +44,16 @@ local_time_step 0
 consistent_supg_matrix 1
 auto_time_step 0
 
-steady
 Dt 0.5
 alpha 1.0
 diffusivity <:=$diff:>
 flux_law_coefficient 1.
 u0   1. 0.
-tau_fac 0.
+#tau_fac 0.
 weak_form <:=$weak_form:>
 
-# solve_system 0
-# print_linear_system_and_stop
+#solve_system 0
+#print_linear_system_and_stop
 initial_state "burgers.ini.tmp"
 __END_HASH__
 
@@ -88,6 +87,6 @@ end_elemsets
 fixa
 1 1 1.
 2 1 1.
-<:=2*$N+1:> 1 0.5
-<:=2*$N+2:> 1 0.5
+<:=2*$N+1:> 1 -1.
+<:=2*$N+2:> 1 -1.
 __END_FIXA__

@@ -1,7 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2003/11/14 02:26:21 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2003/11/15 16:04:10 mstorti Exp $ 
 
 .PHONY: force all run tests data
+
+default: test__d01_wf
 
 all: run
 
@@ -32,7 +34,7 @@ SRCS =
 # ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
 OF = burgers.nod.tmp burgers.con.tmp burgers.ini.tmp
-$(OF): mmesh.m
+$(OF): mmesh.m data.m
 	$(OCTAVE) mmesh.m
 
 data: burgers.depl $(OF) 
@@ -44,12 +46,17 @@ burgers.depl: burgers.epl data.m force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case burgers.depl # > burgers.$(CASE).out.tmp
+			-case burgers.depl > burgers.$(CASE).out.tmp
 	mv -f save.state.tmp save.state.$(CASE).tmp
 
 local_clean::
 
 PROG := $(ADVDIF)
-LOCAL_PROG := advdif
+LOC_PROG := advdif
+
+#w Makes local link for running with debugger
+link:
+	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
+	ln -f $(PROG) $(LOC_PROG)
 
 #s
