@@ -23,5 +23,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 femref.bin: femref.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
+myhash.bin: myhash.cpp
+	g++ -o $@ $<
 
 #s
