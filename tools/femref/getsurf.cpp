@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.13 2005/01/13 20:12:27 mstorti Exp $
+// $Id: getsurf.cpp,v 1.14 2005/01/13 23:14:41 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -307,9 +307,8 @@ int main(int argc,char **argv) {
   fclose(fid);
 
   // Loop over smoothing steps
-  int niter=1;
-  node_mass.set(0.);
-  for (int jiter=0; jiter<niter; jiter++) {
+  int niter=2, jiter=0;
+  while (true) {
     grad_Un.set(0.);
     for (int jface=0; jface<nfaces; jface++) {
       double nod_area = surf_mass.ref(jface)/double(face_nel);
@@ -328,6 +327,8 @@ int main(int argc,char **argv) {
       for (int k=0; k<ndim*ndof; k++) 
 	grad_Un.e(node,k) /= nod_area;
     }
+    jiter++;
+    if (jiter==niter) break;
 
     grad_Ue.set(0.);
     for (int jface=0; jface<nfaces; jface++) {

@@ -1,6 +1,6 @@
 source("data.m.tmp");
 h = 2/N;
-dd = 0.5;
+dd = 0.1;
 
 w=zhomo([-1 1 -1 1],N+1,N+1);
 [x2,i2] = pfcm2fem(w);
@@ -28,11 +28,20 @@ if 1
   rho = l2(v);
   v = leftscal(1./(dd^2+rho.^2),v);
 else
-  v = xnod;
+  v = pvec([0,0,1],xnod);
 endif
 asave("cube.state.tmp",[v,zeros(nnod,1)]);
 
 system("make getsurf");
+
+grad_ue = aload("cube.grad-u.tmp");
+
+we = [+grad_ue(:,10)-grad_ue(:,7), \
+     -grad_ue(:,3)+grad_ue(:,9), \
+     +grad_ue(:,5)-grad_ue(:,2)];
+awe = l2(we);
+
+asave("cube.awe.tmp",awe);
 
 grad_u = aload("cube.grad-un.tmp");
 

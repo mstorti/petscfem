@@ -1,5 +1,5 @@
 #-*- shell-script -*-
-# $Id: cube.dx.epl,v 1.3 2005/01/13 20:12:27 mstorti Exp $
+# $Id: cube.dx.epl,v 1.4 2005/01/13 23:14:41 mstorti Exp $
 
 # <: require 'data.pl'; :>//
 
@@ -14,7 +14,7 @@ attribute "element type" string "triangles"
 attribute "ref" string "positions"
 
 object "u" class array type float rank 0
-     items <:=$nfaces_ext:> data file "./cube.aw.tmp"
+     items <:=$nfaces_ext:> data file "./cube.awe.tmp"
 attribute "dep" string "connections"
 
 object "ns_field_t" class field
