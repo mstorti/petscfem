@@ -183,7 +183,8 @@ EOM
     close OCT if $octtmpfile;
 }
 
-# Added 'octave_string' that strips quotes from arguments read from
+# Added 'octave_string' that strips double quotes from
+# arguments read from
 # Octave data files. 
 # usage octave_string(IDENTIFIERS...).
 # e.g.: octave_string(qw(var1 var2 var3))
