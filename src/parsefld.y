@@ -17,7 +17,7 @@
 
 %token <gen_ptr> IDENT
 %token <num> LENGTH
-%type <num> field_block_list field_block input subs_l subs
+%type <gen_ptr> field_block_list field_block input subs_l subs
      
 %%
 /* GRAMMAR RULES */
@@ -27,7 +27,7 @@ input:  /* empty */ { $$ = 0;}
 ;
 
 field_block_list: field_block { $$=$1;}
-       | field_block_list field_block {add_block($1,$2);}
+       | field_block_list field_block {$$ = add_block($1,$2);}
 ;
 
 field_block: IDENT {$$ = create_list($1);}

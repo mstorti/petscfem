@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2001/04/14 13:20:06 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/04/15 22:39:03 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -89,7 +89,7 @@ tryme.o: tryme.cpp
 	g++ -c $<
 
 local_clean::
-	-rm -rf *.tab.* parsefld.bin
+	-rm -rf *.tab.* parsefldm.bin
 
 local_depend: getarrgr.tab.c getarrgr.tab.h parsefld.tab.c parsefld.tab.h
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.14 2001/04/14 13:20:06 mstorti Exp $
+//$Id: readmesh.cpp,v 1.15 2001/04/15 22:39:03 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -66,7 +66,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   Elemset *elemset;
   int *icone,etype,*dof_here;
   mesh = new Mesh;
-  mesh->nodedata = new NodeData;
+  // mesh->nodedata = new NodeData;
   mesh->elemsetlist = da_create(sizeof(Elemset *));
 
   // Read data
@@ -97,60 +97,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     } else if (!strcmp(token,"nodes")) {
 
       PetscPrintf(PETSC_COMM_WORLD," -- Reading nodes:\n");
-      token = strtok(NULL,bsp); sscanf(token,"%d",&ndim);
-      token = strtok(NULL,bsp); sscanf(token,"%d",&nu);
-      token = strtok(NULL,bsp); sscanf(token,"%d",&ndof);
-      PetscPrintf(PETSC_COMM_WORLD, 
-		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
-      mesh->nodedata->nu = nu;
-      mesh->nodedata->ndim = ndim;
-
-      dofmap->ndof = ndof;
-      node = 0;
-      double *row = new double[nu];
-      darray *xnod;
-      xnod = da_create(nu*sizeof(double));
-      while (1) {
-	fstack->get_line(line);
-	if (strstr("__END_NODES__",line)) break;
-	node++;
-	for (int kk=0; kk<nu; kk++) {
-	  token = strtok((kk==0 ? line : NULL),bsp);
-	  if (token==NULL) {
-	    PetscPrintf(PETSC_COMM_WORLD,
-			"Error reading coordinates in line:\n\"%s\"\n"
-			"Not enough values in line!!\n",line);
-	    CHKERRQ(1);
-	  }
-	  int nread = sscanf(token,"%lf",row+kk);
-	  if (nread != 1) {
-	    PetscPrintf(PETSC_COMM_WORLD,
-			"Error reading coordinates in line:\n\"%s\"",line);
-	    CHKERRQ(1);
-	  }
-	}
-	int indx = da_append (xnod,row);
-	if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
-      }
-
-      // wait_from_console("after reading nodes"); 
-
-      nnod=node;
-      dofmap->nnod = nnod;
-      mesh->nodedata->nnod = nnod;
-      PetscPrintf(PETSC_COMM_WORLD,"Read %d nodes\n",nnod);
       
-      delete[] row;
-      mesh->nodedata->nodedata = new double[nnod*nu];
-      for (node=0; node<nnod; node++) {
-	row = (double *) da_ref(xnod,node);
-	for (int kk=0; kk<nu; kk++) {
-	  NODEDATA(node,kk) = row[kk];
-	}
-      }
-      da_destroy(xnod);
-
+      mesh->nodedata = new Nodedata(fstack);
       // calling dofmap constructor
+      int nnod = mesh->nodedata->size();
+      int ndof = mesh->nodedata->fields();
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
 
     } else if (!strcmp(token,"table")) {
@@ -1169,7 +1120,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   dofmap->startproc = startproc;
   dofmap->neqproc = neqproc;
   dofmap->size = size;
-  dofmap->npart = npart;
+  // dofmap->npart = npart;
+  delete[] npart; // Is this OK?
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   //                        DEFINE SCATTER

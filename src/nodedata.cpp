@@ -106,6 +106,7 @@ NodeData::NodeData(FileStack &fstack) {
 
 }
 
+#if 0
 void NodeData::set_part_mode(int part_) {
   part=part_;
   if (part) {
@@ -113,3 +114,12 @@ void NodeData::set_part_mode(int part_) {
   }
 }
 
+/// returns the processor where this node (base 0) lives.
+int NodeData::proc(int node) {
+  if (part) {
+    return npart[node];
+  } else {
+    return 1;
+  }
+}
+#endif
