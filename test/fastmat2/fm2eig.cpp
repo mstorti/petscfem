@@ -14,4 +14,14 @@ int main() {
   int info,lwork = 5*N;
   dsyev2_(&N,&a[0][0],w,work,&lwork,&info);
   for (int j=0; j<N; j++) printf("%f\n",w[j]);
+  for (int j=0; j<N; j++) {
+    for (int k=0; k<N; k++) 
+      printf("%f ",a[k][j]);
+    printf("\n");
+  }
+}
+
+extern "C" 
+void qq_(int *v) {
+  int k=3;
 }
