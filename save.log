@@ -4034,3 +4034,7 @@ tag: 3.43.4 on Sun, 20 Feb 2005 12:39:04 -0300 by mstorti in spider
      > `dofmap->solve' with iterative solution of the least squares eqs.
      > 	works OK (solutions converges) in large gasflow problem.
      > Later fails with "free(): invalid pointer 0xea316008!"
+----------
+tag: 3.43.5 on Sun, 20 Feb 2005 13:55:47 -0300 by mstorti in spider
+     > Runs OK ADRE problem (gasflow on compression corner) with the 
+     > new `dofmap->solve' with iterative solution of the least squares eqs.
