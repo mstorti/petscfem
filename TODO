@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Fix makefile: runs bison and compiles getarray.cpp even it's not
+  necessary
 * document coding of fastmat2. Document the eperl utilities.
 * write diag-like fastmat2 functions. 
 * Make readmesh check dof numbers not being greater than... 
