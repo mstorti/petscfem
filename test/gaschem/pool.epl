@@ -1,4 +1,3 @@
-# -*- mode: shell-script -*-
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
@@ -23,6 +22,8 @@ $alpha = 0.1;			# gas fraction at inlet
 $patm = 1e5;			# Atmosferic pressure
 $ctff_fac = 1e-3;		# Cutoff threshold for $XX is $ctff_fac*$XX
 $Nb_fac = 1e-3;			# Non perturbed flow has Nb scaled bu this
+
+
 
 ## At inlet ===============================================
 #
@@ -53,6 +54,7 @@ $CdN_ctff = $ctff_fac*$CdN;
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
+$
 #================================================================
 global_options
 
