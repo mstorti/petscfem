@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.12 2002/08/07 23:53:01 mstorti Exp $
+//$Id: embgath.cpp,v 1.13 2002/08/08 00:56:46 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -377,6 +377,8 @@ void visc_force_integrator::init() {
   moment.resize(1,ndim);
   x_center.resize(1,ndim).set(0.);
   dx.resize(1,ndim);
+  strain_rate.resize(2,ndim,ndim);
+  sigma.resize(2,ndim,ndim);
   //o _T: double[ndim] _N: moment_center _D: null vector 
   // _DOC: Center of moments. _END
   get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
@@ -389,11 +391,23 @@ void visc_force_integrator
 		FastMat2 &xpg,FastMat2 &n,
 		double wpgdet,double time) {
 
+  //#define SHV(pp) pp.print(#pp ": ")
+#define SHV(pp) {}
+  SHV(grad_u);
+  grad_u.is(2,1,ndim_m);
+  strain_rate.set(grad_u);
+  grad_u.t();
+  strain_rate.add(grad_u).scale(0.5);
+  grad_u.rs();
+  SHV(strain_rate);
+  sigma.set(strain_rate).scale(2.*viscosity);
+  sigma.d(1,2).add(-u.get(ndim_m+1)).rs();
+  SHV(sigma);
+  
   // Force contribution = normal * pressure * weight of Gauss point
-  force.set(n).scale(-wpgdet*u.get(4));
+  force.prod(sigma,n,1,-1,-1).scale(wpgdet);
   // export forces to return vector
   force.export_vals(pg_values.begin());
-#define SHV(pp) pp.print(#pp ": ")
   SHV(force);
 
   if (compute_moment) {
