@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.34 2003/07/02 23:22:19 mstorti Exp $
+//$Id: sparse.cpp,v 1.35 2003/08/12 02:35:50 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -58,7 +58,7 @@ namespace Sparse {
     int m = length();
     for (int j=0; j<m; j++) {
       v = get(j);
-      if (v!=0.) printf("%d %f\n",j,v);
+      if (v!=0.) printf("%d %.10g\n",j,v);
     }
   }
     
