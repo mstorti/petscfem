@@ -3,7 +3,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Use lapack lib for `daxpy' in `test/Makefile:testfm2d'
 * Generate test for LES 
 * Generate test for SuperLU implementation. 
 * `html' target in `doc' is duplicated and `make' complains. 
@@ -86,6 +85,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Use lapack lib for `daxpy' in `test/Makefile:testfm2d'
 * recover test `thash2.cpp'
 * Changing 'distmap.h' launches recompilation of almost all
    PETSc-FEM. 

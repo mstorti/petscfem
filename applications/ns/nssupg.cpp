@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.11 2002/10/18 00:44:14 mstorti Exp $
+//$Id: nssupg.cpp,v 1.12 2002/11/04 02:52:45 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -133,6 +133,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 
+  printf("average_elevation: %g\n",average_elevation);
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
