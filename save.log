@@ -3903,3 +3903,6 @@ tag: beta-3.41.17 on Fri, 28 Jan 2005 16:08:55 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.18 on Fri, 28 Jan 2005 21:39:38 -0300 by mstorti in spider
      > Runs cylinder asymmetric, with von Karman vortex street. 
+----------
+tag: beta-3.41.19 on Sat, 29 Jan 2005 12:36:52 -0300 by mstorti in spider
+     > Now `G_body' is a `Property' in gasflow. 
