@@ -53,7 +53,7 @@
 //@Include: ../../src/sparse.h
 //@}
 
-/** @name Navier-Stokes abd general non-linear module */
+/** @name Navier-Stokes and general non-linear module */
 //@{
 //@Include: ../../applications/ns/adaptor.h
 //@Include: ../../applications/ns/elast.h
