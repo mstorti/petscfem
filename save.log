@@ -3698,3 +3698,6 @@ tag: beta-3.38.36 on Sun, 16 Jan 2005 20:40:32 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.37 on Sun, 16 Jan 2005 23:48:10 -0300 by mstorti in spider
      > Implemented `dvector-reshape!'. 
+----------
+tag: beta-3.38.38 on Mon, 17 Jan 2005 00:46:02 -0300 by mstorti in spider
+     > Written `dvector-set! v val'. 
