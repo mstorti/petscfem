@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.3 2002/02/17 03:59:51 mstorti Exp $
+// $Id: bubbly.h,v 1.4 2002/02/17 15:27:40 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
@@ -21,7 +21,7 @@ private:
   double alpha_l,alpha_g,arho_l,arho_g,p,k,eps,
     visco_l,visco_g,visco_l_eff,visco_g_eff,
     C_mu,C_1,C_2,sigma_k,sigma_e,P_k,tau_fac,
-    visco_t;
+    visco_t,temporal_stability_factor;
 
   double rho_l,rho_g;
     

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.3 2002/02/17 03:59:51 mstorti Exp $
+//$Id: bubbly.cpp,v 1.4 2002/02/17 15:27:40 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -30,14 +30,28 @@ void bubbly_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,sigma_k,1.);
   //o sigma_e 
   EGETOPTDEF_ND(elemset,double,sigma_e,1.3);
-
   //o sigma_e 
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
+
+  //o Adjust the stability parameters, taking into account
+  // the time step. If the \verb+steady+ option is in effect,
+  // (which is equivalent to $\Dt=\infty$) then
+  // \verb+temporal_stability_factor+ is set to 0.
+  EGETOPTDEF_ND(elemset,double,temporal_stability_factor,1.);
+
+  //o _T: double[ndim] _N: G_body _D: null vector 
+  // _DOC: Vector of gravity acceleration (must be constant). _END
+  G_body.resize(1,ndim);
+  G_body.set(0.);
+  ierr = elemset->get_double("G_body",
+			     *G_body.storage_begin(),1,ndim);
 
   assert(ndim>0);
   assert(ndof==4+2*ndim);
   assert(rho_l>0.);
+  assert(visco_l>0.);
   assert(rho_g>0.);
+  assert(visco_g>0.);
   vl_indx = 3;
   vl_indxe = 3+ndim-1;
   vg_indx = vl_indx+ndim;
@@ -71,7 +85,6 @@ void bubbly_ff::start_chunk(int &ret_options) {
   IdId.prod(Id,Id,1,3,2,4);
   tmp5.prod(Id,Id,2,3,1,4);
   IdId.add(tmp5);
-  G_body.resize(1,ndim);
 
   uintri.resize(1,ndim);
   svec.resize(1,ndim);
@@ -149,7 +162,7 @@ void bubbly_ff
 	       double &lam_max,FastMat2 &nor, FastMat2 &lambda,
 	       FastMat2 &Vr, FastMat2 &Vr_inv,int options) {
 
-  double arho_l,arho_g,strain_rate_scalar;
+  double strain_rate_scalar;
 
   options &= ~SCALAR_TAU;	// tell the advective element routine
 				// that we are returning a MATRIX tau
@@ -177,8 +190,8 @@ void bubbly_ff
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Advective fluxes
-  flux.ir(1,1).set(v_l).scale(rho_l*alpha_l);
-  flux.ir(1,2).set(v_g).scale(rho_g*alpha_g);
+  flux.ir(1,1).set(v_l).scale(arho_l);
+  flux.ir(1,2).set(v_g).scale(arho_g);
 
   flux.rs();
   Amoml.prod(v_l,v_l,1,2).scale(rho_l)
@@ -192,8 +205,9 @@ void bubbly_ff
 
   // TUrb
   flux.rs();
-  flux.ir(1,k_indx).set(v_l).scale(rho_l*alpha_l*k);
-  flux.ir(1,e_indx).set(v_l).scale(rho_l*alpha_l*eps);
+  flux.ir(1,k_indx).set(v_l).scale(arho_l*k);
+  flux.ir(1,e_indx).set(v_l).scale(arho_l*eps);
+  flux.rs();
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Adjective Jacobians
@@ -290,15 +304,6 @@ void bubbly_ff
   Djac.rs().ir(2,e_indx).ir(4,e_indx).set(Id).scale(alpha_l*visco_l_eff/sigma_e);
   Djac.rs();
   
-  if (options & COMP_SOURCE) {
-    G_source.set(0.);
-    G_source.is(1,vl_indx,vl_indxe).set(G_body).scale(arho_l);
-    G_source.rs().is(1,vg_indx,vg_indxe).set(G_body).scale(arho_g);
-    G_source.rs()
-      .setel(P_k-rho_l*eps,k_indx)
-      .setel(eps/k*(C_1*P_k-C_2*rho_l*eps),e_indx);
-  }
-
   // Reactive terms
   Cjac.set(0.);
   // fixme:= verificar en las dos sig. lineas que es la primera columna
@@ -357,12 +362,14 @@ void bubbly_ff
 
     double Peclet = velmod * h_supg / (2. * visco_l_eff);
     double rec_Dt = advdf_e->rec_Dt();
-    double tau_supg_a =  square(2.*rec_Dt)+square(2.*velmod/h_supg)
+    double tsf = temporal_stability_factor;
+    if (rec_Dt==0.) tsf = 0.;
+    double tau_supg_a =  tsf * square(2.*rec_Dt)+square(2.*velmod/h_supg)
       +9.*square(4.*visco_l_eff/square(h_supg));
     tau_supg_a = 1./sqrt(tau_supg_a);
 
     double pspg_advection_factor=1.,pspg_factor=1.;
-    double tau_pspg = square(2.*rec_Dt)
+    double tau_pspg = tsf * square(2.*rec_Dt)
       +square(pspg_advection_factor*2.*velmod/h_pspg)
       +9.*square(4.*visco_l_eff/square(h_pspg));
     tau_pspg = pspg_factor/sqrt(tau_pspg);
@@ -374,8 +381,15 @@ void bubbly_ff
       tau_pspg *= tau_fac;
       tau_supg_a *= tau_fac;
     }
-  
     tau_supg.eye(tau_supg_a).setel(tau_pspg,1,1).setel(tau_pspg,2,2);
+  }
+  if (options & COMP_SOURCE) {
+    G_source.set(0.);
+    G_source.is(1,vl_indx,vl_indxe).set(G_body).scale(arho_l);
+    G_source.rs().is(1,vg_indx,vg_indxe).set(G_body).scale(arho_g);
+    G_source.rs()
+      .setel(P_k-rho_l*eps,k_indx)
+      .setel(eps/k*(C_1*P_k-C_2*rho_l*eps),e_indx);
   }
 }
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.34 2002/02/09 22:22:39 mstorti Exp $
+//$Id: advdif.cpp,v 1.35 2002/02/17 15:27:39 mstorti Exp $
 
 #include <set>
 
@@ -35,7 +35,7 @@ int main(int argc,char **args) {
 
   Vec     x, dx, xold, res; /* approx solution, RHS, residual*/
   PFMat *A,*AA;			// linear system matrix 
-  double  *sol, scal;	/* norm of solution error */
+  double  *sol, scal, normres, normres_ext;    /* norm of solution error */
   int     ierr, i, n = 10, col[3], its, flg, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, ndim, nel, nen, neq, nu,
@@ -200,6 +200,8 @@ int main(int argc,char **args) {
   //o Tolerance when solving the non-linear problem
   // for the implicit case.
   GETOPTDEF(double,tol_newton,1e-3);
+  //o Tolerance when solving for a steady state
+  GETOPTDEF(double,tol_steady,0.);
   //o Relaxation factor for the Newton iteration
   GETOPTDEF(double,omega_newton,1.);
 
@@ -374,8 +376,8 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      double normres;
       ierr  = VecNorm(res,NORM_2,&normres); CHKERRA(ierr);
+      if (inwt==0) normres_ext = normres;
       PetscPrintf(PETSC_COMM_WORLD,
 		  "Newton subiter %d, norm_res  = %10.3e\n",
 		  inwt,normres);
@@ -429,7 +431,9 @@ int main(int argc,char **args) {
     }
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
-
+    
+    if (normres_ext < tol_steady) break;
+      
   }
   print_vector(save_file.c_str(),x,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();

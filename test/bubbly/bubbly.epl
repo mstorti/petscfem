@@ -7,23 +7,23 @@ get_var_env('case',undef);
 get_var_env('meas_perf',undef);
 $save_file = ($case ? "bubbly.$case.tmp" : "bubbly.state.tmp");
 ## Test the 'G_body' feature. 
-$g_body= 0;
+$g_body= 1;
 if ($case eq 'g_body') {
     $case='lu';
     $g_body=1;
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;
-$hratio = 10;			# refinement (h_center/h_wall)
+$N = 20;
+$hratio = 5;			# refinement (h_center/h_wall)
 $Re = 1;			# Reynolds number
-$viscosity = $L/$Re;		# viscosity
+$visco_l = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 100;
-$alpha_l = 0.9;
+$nstep = 1;
+$alpha_l = 1.0;
 $u_g=0;
 $v_g=0;
 $k = 0.1;
@@ -37,10 +37,9 @@ $update_jacobian =0;
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
-$nstep = 2;
 #
 #__END_TRANSCRIPT__
-@vars = qw(U L N Re viscosity h Co Dt hratio 
+@vars = qw(U L N Re visco_l h Co Dt hratio 
 		g_body alpha_l u_g v_g k eps);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
@@ -48,6 +47,7 @@ octave_export_vars(">data.m.tmp",@vars);
 
 global_options
 
+alpha 1.
 nsave 5
 <:pr('nstep'):> 
 # initial_state bubbly.state
@@ -76,14 +76,15 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 1
+nnwt 4
 
 Krylov_dim <:=$maxits:>
-print_internal_loop_conv 1
-#print_linear_system_and_stop 1
-#verify_jacobian_with_numerical_one 1
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+# verify_jacobian_with_numerical_one 1
 
-#print_nodal_partitioning 1
+# print_nodal_partitioning 1
 Dt <:=$Dt:>
 steady
 temporal_stability_factor 0
@@ -115,7 +116,8 @@ npg 4
 #
 # Datos fisicos
 #
-<:pr('viscosity'):> 
+<:pr('visco_l'):> 
+visco_g <:=$visco_l/1000;:>
 <:pr('weak_form'):>
 rho_l 1.
 rho_g 0.001

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.49 2002/02/15 19:55:49 mstorti Exp $
+//$Id: advdife.cpp,v 1.50 2002/02/17 15:27:40 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -328,8 +328,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       // because we should loop over Gauss points.
       // Correct for simplices (tris and tetras) and not
       // deformed quads and hexas. 
-      Volume = double(npg)*wpgdet/gp_data.master_volume;
+      Volume = double(npg)*wpgdet;
       volume_flag = 1;
+
+      // This is incorrect. Master elment volume is included in the
+      // Gauss point weight. 
+      // Volume = double(npg)*wpgdet/gp_data.master_volume; 
       
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
 
