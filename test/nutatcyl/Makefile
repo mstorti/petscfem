@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2002/12/02 19:09:46 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2002/12/25 22:16:10 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -35,7 +35,7 @@ run: data
 	if [ -e $(NAME).force.tmp ] ; then rm $(NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) $(NL) $(MACHI) $(PROG) \
-		 -case $(NAME).depl > petscfem.output.tmp
+		 -case $(NAME).depl # > petscfem.output.tmp
 
 local_clean::
 	-putex
@@ -59,7 +59,7 @@ test_rigid:
 test_strip: 
 	-rm -f strip.force.tmp strip.verif.tmp
 	$(MAKE) NAME=strip run
-	octave -qH checkstrip.m > strip.verif.tmp
+#	octave -qH checkstrip.m > strip.verif.tmp
 
 figure:
 	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.67 2002/12/22 19:45:42 mstorti Exp $
+//$Id: readmesh.cpp,v 1.68 2002/12/25 22:16:07 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -73,8 +73,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   double *dptr,dval; 
   TextHashTable *thash;
   Nodedata *nodedata;
-  // este despues habria que borrarlo
-  map<int,int> fixed_dofs;
 
   row_t row,col,row0;
   row_t::iterator kndx;
@@ -650,7 +648,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			fstack->line_read());
 	
 	dofmap->fixed.push_back(fixation_entry(dval));
-	fixed_dofs[keq]=dofmap->fixed.size()-1;
+	dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 
       }
       PetscPrintf(PETSC_COMM_WORLD,"Total fixations: %d\n",nfixa);
@@ -708,7 +706,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			fstack->line_read());
 	
 	dofmap->fixed.push_back(fixation_entry(dval,amp));
-	fixed_dofs[keq]=dofmap->fixed.size()-1;
+	dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 
       }
       PetscPrintf(PETSC_COMM_WORLD,
@@ -725,7 +723,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       }
 
       // Read constraints
-      int node1,kdof1,nconstr=0;
+      int node1,kdof1,nconstr=0,nlindep=0;
       Constraint constraint;
       while (1) {
 	
@@ -736,6 +734,10 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	double coef;
 	int node,field;
 	rflag=0;
+
+#define PETSCFEM_WARNING(bool_cond,templ,...)					\
+if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
+				"PETSc-FEM warning: " templ,__VA_ARGS__);}
 
 	while (1) { 
 	  ierr = readval(rflag,line,coef); if(ierr) break;
@@ -753,9 +755,20 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			  fstack->line_read());
 	  constraint.add_entry(node,field,coef);
 	}
-	dofmap->set_constraint(constraint);
+	if (dofmap->set_constraint(constraint)) {
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "Linearly dependent fixation discarded. \n"
+		      "%s:%d: \"%s\"\n",
+		      fstack->file_name(),
+		      fstack->line_number(),
+		      fstack->line_read());
+	  nlindep++;
+	}
       }
-      PetscPrintf(PETSC_COMM_WORLD,"Total constraints: %d\n",nconstr);
+      dofmap->id->print("");
+      PetscPrintf(PETSC_COMM_WORLD,"Total entered constraint lines: %d.\n",nconstr);
+      PetscPrintf(PETSC_COMM_WORLD,"-- Linearly dependent %d, linearly independent %d\n",
+		  nlindep,nconstr-nlindep);
 #undef ERRLINE
 
     } else {
@@ -1159,7 +1172,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
   int field;
   map<int,int>::iterator end_fix;
-  end_fix = fixed_dofs.end();
+  end_fix = dofmap->fixed_dofs.end();
   
   TRACE(-2.3);
   // First, put perm = to minus the corresponding processor. 
@@ -1167,7 +1180,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   for (k=1; k<=nnod*ndof; k++) {
     dofmap->id->get_col(k,col);
     if (col.size()==0) continue;
-    if (fixed_dofs.find(k) != end_fix) {
+    if (dofmap->fixed_dofs.find(k) != end_fix) {
       perm[k-1] = -(size+1);
       continue;
     }
@@ -1239,7 +1252,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 #if 0  // debug:=
   {
     map<int,int>::iterator jjjj;
-    for (jjjj=fixed_dofs.begin(); jjjj!=end_fix; jjjj++) 
+    for (jjjj=dofmap->fixed_dofs.begin(); jjjj!=end_fix; jjjj++) 
       printf("%d -> fix %d\n",jjjj->first,jjjj->second);
 
     for (int kkk=0; kkk<nnod*ndof; kkk++) {
@@ -1252,7 +1265,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   int nfixed = dofmap->fixed.size();
   vector<fixation_entry> fixed_remapped(nfixed);
   //  fixed_remapped.reserve(nfixed);
-  for (jj=fixed_dofs.begin(); jj!=fixed_dofs.end(); jj++) {
+  for (jj=dofmap->fixed_dofs.begin(); jj!=dofmap->fixed_dofs.end(); jj++) {
     int newjeq = perm[jj->first -1];
     if (newjeq==0) continue;
     int indx= newjeq - neq - 1;
@@ -1267,7 +1280,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // swap fixed with fixed_remapped (reordered)
   dofmap->fixed.swap(fixed_remapped);
   VOID_IT(fixed_remapped);
-  VOID_IT(fixed_dofs);
+  VOID_IT(dofmap->fixed_dofs);
 
 #if 0
   //debug:= Verificar como quedaron las fijaciones

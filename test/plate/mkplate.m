@@ -30,18 +30,23 @@ for k=1:Nx+1
   endif
 endfor
 
+V = aload("v.tmp");
 for k=2:Nx+1
   ## On the external boundary
-  fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+k,2,0.);
+  fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+k,2,V(k));
 endfor
 
-for k=2:Ny+1
+for k=2:Ny
   ## u=1, v=0 at the inlet
   fprintf(fid,"%d %d %f\n",(k-1)*(Nx+1)+1,1,1.);
   fprintf(fid,"%d %d %f\n",(k-1)*(Nx+1)+1,2,0.);
   ## v=0 at the outlet
   fprintf(fid,"%d %d %f\n",k*(Nx+1),2,0.);
 endfor
+
+fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+1,1,0.);
+fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+1,2,V(1));
+fprintf(fid,"%d %d %f\n",(Ny+1)*(Nx+1),2,0.);
 
 for k=1:Ny+1
   ## p=0 at the outlet

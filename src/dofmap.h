@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.13 2002/09/30 02:30:51 mstorti Exp $
+//$Id: dofmap.h,v 1.14 2002/12/25 22:16:07 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -25,8 +25,7 @@ class TimeData {};
 //   virtual double time() const;
 // };
 
-class Time : public TimeData{
-public:
+class Time : public TimeData{public:
   double time() const {return time_;};
   void set(const double t) {time_=t;};
   void inc(const double dt) {time_+=dt;};
@@ -189,8 +188,7 @@ public:
 
   /** identifier of whether the node/field pair is free,
 	fixed, or special. (This will be included in an
-	idmap object in the future. 
-  */
+	idmap object in the future.) */
   // fixme:= borrar este despues de pasar a idmap!!
   int *ident;
 
@@ -225,13 +223,16 @@ public:
   /// scatter to print
   VecScatter *scatter_print;
 
+  // This is used temporarily in order to store the mappings between
+  // edofs and fixations
+  map<int,int> fixed_dofs;
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Gets a row of the mapping matrix, only free (jeq<=neq) dofs are returned.
       @author M. Storti
       @param node (input) the node number to get the row
       @param kdof (input) the field number to get the row
-      @param row (output) the rwtrieved row
-  */ 
+      @param row (output) the rwtrieved row */ 
   void get_row_free(int const & node,int const & kdof,row_t &row) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -239,8 +240,7 @@ public:
       @author M. Storti
       @param node (input) the node number to get the row
       @param kdof (input) the field number to get the row
-      @param row (output) the retrieved row
-  */ 
+      @param row (output) the retrieved row */ 
   void get_row(int const & node,int const & kdof,row_t &row) const;
 
   void get_row(int const & node,int const & kdof,IdMapRow &row) const;
@@ -250,8 +250,7 @@ public:
       @author M. Storti
       @param node (input) the node number to get the row
       @param kdof (input) the field number to get the row
-      @param row (input) the retrieved row
-  */ 
+      @param row (input) the retrieved row */ 
   void row_set(const int & node,const int & kdof,const row_t &row);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -262,8 +261,7 @@ public:
       @param sstate (input) the state vector
       @param ghost_vals (input) double array containing scattered ghost values
       @param time_data (input) a pointer to a struct that tipically is a time
-      @return the double value corresonding to that dof
-  */ 
+      @return the double value corresonding to that dof */ 
   double get_dofval(const int & jeq,double const *sstate, double const
 		    *ghost_vals,const TimeData *time_data) const;
 
@@ -275,8 +273,7 @@ public:
       @param sstate (input) the state vector containing all values,
       scattered to processor 0. 
       @param time_data (input) a pointer to a struct that tipically is a time
-      @return the double value corresonding to that dof
-  */ 
+      @return the double value corresonding to that dof */ 
   double get_dofval(const int & jeq,const double *sstate,
 		     const TimeData *time_data) const;
 
@@ -289,8 +286,7 @@ public:
       @param ghost_vals (input) double array containing scattered ghost values
       @param time_data (input) a pointer to a struct that tipically is a time
       @param val (output) the double value corresonding to this
-      node/field pair. 
-   */ 
+      node/field pair. */ 
   int get_nodal_value(const int & node,const int & kdof,double const *sstate,
 		      double const *ghost_vals,const TimeData *time_data,double & val
 		      ) const;
@@ -304,8 +300,7 @@ public:
       0. 
       @param time_data (input) a pointer to a struct that tipically is a time
       @param val (output) the double value corresonding to this
-      node/field pair. 
-   */ 
+      node/field pair. */ 
   int get_nodal_value(const int & node,const int & kdof,
 		      const double * sstate,const TimeData *time_data,
 		      double & value) const;
@@ -315,8 +310,7 @@ public:
       @author M. Storti
       @param node (input) the node number to set
       @param kdof (input) the field number to set
-      @param val (input) the value to be set. 
-   */ 
+      @param val (input) the value to be set. */ 
   void set_fixation(int node,int kdof,double val);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -325,8 +319,7 @@ public:
       @author M. Storti
       @param node (input) the node 
       @param kdof (input) the field 
-      @return the unique number
-   */ 
+      @return the unique number */ 
   int edof(const int node,const int field) const;
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -334,8 +327,7 @@ public:
       @author M. Storti
       @param edof (input) the nodf unique value
       @param node (output) the node 
-      @param kdof (output) the field 
-   */ 
+      @param kdof (output) the field */ 
   int nodf(const int edof, int &node,int &field) {
     field = (edof-1) % ndof +1;
     node = (edof-field)/ndof +1;
@@ -344,16 +336,16 @@ public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns true if col j is null. 
       @author M. Storti
-      @param j (input) the column index. 
-   */ 
+      @param j (input) the column index. */ 
   int col_is_null(int j);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Sets a constraint from the list of node/field/coefficients. 
       @author M. Storti
       @param constraint (input) list of node/field/coefficients. 
-  */ 
-  void set_constraint(const Constraint &constraint);
+      @return 0/1 if the linear constraint has been detected to be
+      linearly dependent with the preexisting constraints. */
+  int set_constraint(const Constraint &constraint);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns the range of dofs that belong to a given processor. 
@@ -361,22 +353,19 @@ public:
       @author M. Storti
       @param myrank (input) the identifier of this processor. 
       @param dof1 (input) the start of the dof range. 
-      @param dof2 (input) the end of the dof range. 
-  */ 
+      @param dof2 (input) the end of the dof range. */ 
   void dof_range(int myrank,int &dof1,int &dof2);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Creates an MPI vector.
       @author M. Storti
-      @param v (output) the vector to be created. 
-  */ 
+      @param v (output) the vector to be created. */ 
   int create_MPI_vector(Vec &v);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Creates an MPI vector with the ghost values. 
       @author M. Storti
-      @param v (output) the vector to be created. 
-  */ 
+      @param v (output) the vector to be created. */ 
   int create_MPI_ghost_vector(Vec &v);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
