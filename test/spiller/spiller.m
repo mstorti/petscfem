@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spiller.m,v 1.8 2003/03/19 19:06:41 mstorti Exp $
+## $Id: spiller.m,v 1.9 2003/03/19 20:19:43 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spiller, mesh
@@ -10,7 +10,7 @@ global spiller_data
 
 source("data.m.tmp");
 initia = str2num(getenv("initia"));
-printf("# initia: %d\n",initia);
+## printf("# initia: %d\n",initia);
 
 ## H = bottom height
 ## h = water height
@@ -88,7 +88,9 @@ else
     normal_pc(k,:) = [-dfdx 1]/sqrt(1+dfdx^2);
   endfor
   xfs(2:npc-1,:) = xfs(2:npc-1,:) + fs_relax * Dt*leftscal(vn_pc(2:npc-1),normal_pc(2:npc-1,:));
-  save spiller.tmp xfs vn_pc 
+  ##  save spiller.tmp xfs vn_pc 
+  printf("spiller.m: convergence on free surface control points: %g\n",
+	 merr(xfs-xfs_old));
 endif
 asave("spiller.xfs.tmp",xfs);
 
