@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.23 2001/07/20 11:44:29 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.24 2001/07/20 11:48:51 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -324,9 +324,10 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
-    FastMat2::activate_cache(); // pos 1,2
+    FastMat2::activate_cache();
     for (ipg=0; ipg<npg; ipg++) {
 
+      FastMat2::deactivate_cache();
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 
       detJaco = Jaco.det();
@@ -572,8 +573,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	CHKERRQ(ierr);
       }
 
+      FastMat2::activate_cache();
     }
-    // FastMat2::deactivate_cache();
 
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
