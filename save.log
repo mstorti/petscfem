@@ -689,3 +689,8 @@ tag: beta-2.52 on Tue Dec  4 17:28:46 ART 2001, by mstorti in minerva.arcride.ed
 tag: beta-2.53 on Fri Dec  7 21:42:43 ARST 2001, by mstorti in spider
      > IISD with `solve()' splitted in `factor_and_solve()' and
      > `solve_only()' (dummy so far) compiles.
+----------
+tag: beta-2.54 on Sat Dec  8 09:31:21 ARST 2001, by mstorti in spider
+     > IISD solver (for `n_int_tot>0') is working with `update_jacobian'. But
+     > it must be rewritten more clearly and, if possible, with the Finite
+     > State Machine code.
