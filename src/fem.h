@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fem.h,v 1.29 2002/09/30 02:30:52 mstorti Exp $
+//$Id: fem.h,v 1.30 2002/10/24 22:38:43 mstorti Exp $
  
 
 #ifndef FEM_H
@@ -344,6 +344,7 @@ class Nodedata {
 public:
   double *nodedata;
   int nnod,ndim,nu;
+  TextHashTable *options;
   Nodedata();
   ~Nodedata();
 };

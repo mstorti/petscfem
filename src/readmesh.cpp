@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.58 2002/09/30 14:16:11 mstorti Exp $
+//$Id: readmesh.cpp,v 1.59 2002/10/24 22:38:43 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -153,6 +153,68 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	}
       }
       da_destroy(xnod);
+
+      // calling dofmap constructor
+      dofmap->id = new idmap(nnod*ndof,NULL_MAP);
+
+    } else if (!strcmp(token,"nodedata")) {
+
+      PetscPrintf(PETSC_COMM_WORLD," -- Reading nodes:\n");
+      token = strtok(NULL,bsp); sscanf(token,"%d",&ndim);
+      token = strtok(NULL,bsp); sscanf(token,"%d",&nu);
+      token = strtok(NULL,bsp); sscanf(token,"%d",&ndof);
+      PetscPrintf(PETSC_COMM_WORLD, 
+		  "Dimension: %d, Size of nodedata vector: %d\n",ndim,nu);
+      read_hash_table(fstack,mesh->nodedata->options);
+      mesh->nodedata->nu = nu;
+      mesh->nodedata->ndim = ndim;
+
+      dofmap->ndof = ndof;
+      node = 0;
+      double *row = new double[nu];
+      darray *xnod;
+      const char *data = NULL;
+      mesh->nodedata->options->get_entry("data",data);
+      assert(data);
+      if (!myrank) {
+	xnod = da_create(nu*sizeof(double));
+	FileStack fstack_nodes_data(data);
+	while (!fstack_nodes_data.get_line(line)) {
+	  astr_copy_s(linecopy, line);
+	  node++;
+	  for (int kk=0; kk<nu; kk++) {
+	    token = strtok((kk==0 ? line : NULL),bsp);
+	    PETSCFEM_ASSERT(token!=NULL,
+			    "Error reading coordinates in line:\n\"%s\"\n"
+			    "Not enough values in line!!\n",astr_chars(linecopy));
+	    int nread = sscanf(token,"%lf",row+kk);
+	    PETSCFEM_ASSERT(nread == 1,
+			    "Error reading coordinates in line:\n\"%s\"",line);
+	  }
+	  int indx = da_append (xnod,row);
+	  if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
+	}
+	nnod=node;
+      }
+      ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
+      dofmap->nnod = nnod;
+      mesh->nodedata->nnod = nnod;
+      PetscPrintf(PETSC_COMM_WORLD,"Read %d nodes\n",nnod);
+      
+      delete[] row;
+      mesh->nodedata->nodedata = new double[nnod*nu];
+      if (!myrank) {
+	for (node=0; node<nnod; node++) {
+	  row = (double *) da_ref(xnod,node);
+	  for (int kk=0; kk<nu; kk++) {
+	    NODEDATA(node,kk) = row[kk];
+	  }
+	}
+	da_destroy(xnod);
+      }
+
+      ierr = MPI_Bcast (mesh->nodedata->nodedata,nnod*nu,
+			MPI_DOUBLE,0,PETSC_COMM_WORLD);
 
       // calling dofmap constructor
       dofmap->id = new idmap(nnod*ndof,NULL_MAP);
