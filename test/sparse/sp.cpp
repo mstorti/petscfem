@@ -1,20 +1,18 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.6 2001/09/21 22:47:40 mstorti Exp $
+// $Id: sp.cpp,v 1.7 2001/09/22 04:29:44 mstorti Exp $
 
 #include <cmath>
 #include <vector>
 
 #include <sparse.h>
 
-double drand() {  
-  return ((double)(rand()))/((double)(RAND_MAX));
-}
-
-int irand(int imin,int imax) {
-  return int(rint(drand()*double(imax-imin+1)-0.5))+imin;
-}
-
 using namespace Sparse;
+
+namespace Random {
+  class LogGen : public Generator {
+    double map(double x) {return exp(-20.*x);};
+  } log_gen;
+}
 
 void my_set(Vec &v,int k=1) {
   v.clear();
@@ -47,9 +45,9 @@ int main() {
   v.print("v:");
   u.axpy(3.,v).print("u = u+3*v ... ");
 
-  printf("u empty? %d\n",u.empty());
+  printf("u empty OK ? %d\n",!u.empty());
   u.clear();
-  printf("u empty after clear() ? %d\n",u.empty());
+  printf("u empty after clear() OK ? %d\n",u.empty());
 
   m=5;
   a.resize(m,m);
@@ -73,6 +71,16 @@ int main() {
   u.setc(a,3).print("u = 3rd col of a\n");
 
   b.setr(a,K).print_f("b set to rows 0 2 4 of a");
+  printf("size of b: %d\n",b.size());
   b.setc(a,K).print_f("b set to cols 0 2 4 of a");
+  printf("size of b: %d\n",b.size());
+  
+  printf("b not empty OK ? %d\n",!b.empty());
+  b.clear();
+  printf("b empty OK ? %d\n",b.empty());
+
+  u.clear().resize(100).random_fill(.1,Random::log_gen)
+    .print("random fill 100 elements 10\% fill");
+  u.purge(1e-2).print("purged to 1e-2");
 
 }

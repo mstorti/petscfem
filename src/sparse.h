@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.9 2001/09/21 22:47:33 mstorti Exp $
+// $Id: sparse.h,v 1.10 2001/09/22 04:29:36 mstorti Exp $
 #ifndef SEQMAT_H
 #define SEQMAT_H
 
@@ -9,6 +9,10 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+
+#include <randomg.h>
+
+using namespace Random;
 
 namespace Sparse {
 
@@ -89,8 +93,11 @@ namespace Sparse {
     Vec & resize(int n);
     /// Flags if the vector is empty or not
     int empty() const;
+    /// Purge elements below a given tolerance value
+    Vec & purge(double tol = 1e-10);
 //      /// Equal operator
 //      Vec operator=(Vec v) { *this = v; return *this;}
+    Vec & random_fill(double fill=0.1,Generator & g = uniform);
 
   };
   
@@ -144,6 +151,12 @@ namespace Sparse {
     Mat & resize(int m,int n);
     /// Clears all elements
     Mat & clear() {map<int,Vec>::clear(); return *this;}
+    /// Set mode if can grow automatically or not
+    Mat & grow(int g) { grow_m=g; return *this;};
+    /// Flags if the vector is empty or not
+    int empty() const;
+    /// Number of non null elements
+    int size() const;
   };
 
 }

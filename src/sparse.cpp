@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.10 2001/09/21 22:47:33 mstorti Exp $
+//$Id: sparse.cpp,v 1.11 2001/09/22 04:29:36 mstorti Exp $
 
 #include "sparse.h"
 
@@ -31,6 +31,7 @@ void SeqMat::create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0) {
 }
 #endif
 
+using namespace Random;
 
 namespace Sparse {
 
@@ -217,6 +218,95 @@ namespace Sparse {
     return *this;
   }
 
+  int Vec::empty() const {
+    VecCIt i,e;
+    
+    e = end();
+    for (i=begin(); i!=e; i++) 
+      if (i->second != 0.) return 0;
+    return 1;
+  }
+
+  Vec & Vec::setc(const Mat &a,int j) {
+    RowCIt r,e;
+
+    assert (j < a.ncols ) ;
+
+    clear();
+    resize(a.ncols);
+    // Clear the column
+    e = a.end();
+    for (r = a.begin(); r!=e; r++) 
+      set(r->first,r->second.get(j));
+    return *this;
+  }
+
+  Vec & Vec::set(const Mat & a,int j) {
+    RowCIt it;
+    clear();
+    it = a.find(j);
+    if (it!=a.end()) 
+      copy(it->second).resize(a.ncols);
+    return *this;
+  }
+
+#if 1
+  double TOL;
+  int purge_fun(pair<const int,double> &p) {
+    // double v = fabs(p.second);
+    // printf("v %f, TOL %f, v<tol %d\n",v,TOL,v<TOL);
+    return fabs(p.second)<TOL;
+  }
+#endif
+
+  Vec & Vec::purge(double tol = 1e-10) {
+    VecIt i,e;
+#if 0 // This doesn't compile. I think there is some problem
+      // with the remove_if algorithm with maps
+    i = remove_if(begin(),end(),&purge_fun);
+    erase(i,end());
+#elsif 0
+    e = end();
+    for (i=begin(); i!=end(); i++) {
+      printf("second %f, erase ? %d\n",i->second,fabs(i->second)<tol);
+      if (fabs(i->second) < tol) erase(i);
+    }
+#else
+    VecIt j;
+    TOL = tol;
+    // Advance to the first remaining item
+    while (1) {
+      i = begin();
+      if (!purge_fun(*i)) break;
+      erase(i);
+    }
+    if (i!=end()) {
+      while (1) {
+	// look ahead at following item
+	j = i; j++;
+	if (j==end()) break;
+	if (purge_fun(*j)) {
+	  // erase it ...
+	  erase(j);
+	} else {
+	  // ... or advance iterator 
+	  i=j;
+	}
+      }
+    }
+#endif
+    return *this;
+  }
+
+  Vec & Vec::random_fill(double fill=0.1,Generator & g=uniform) {
+    int j,k;
+    for (j=0; j<fill*len; j++) {
+      k = irand(0,len-1);
+      set(k,g.get());
+    }
+    return *this;
+  }
+
   double Mat::get(int j,int k) const {
     assert(j<nrows);
     assert(k<ncols);
@@ -226,15 +316,6 @@ namespace Sparse {
     } else {
       return J->second.get_nc(k);
     }
-  }
-
-  int Vec::empty() const {
-    VecCIt i,e;
-    
-    e = end();
-    for (i=begin(); i!=e; i++) 
-      if (i->second != 0.) return 0;
-    return 1;
   }
 
   /// Set element at position j
@@ -362,35 +443,12 @@ namespace Sparse {
     return *this;
   }
 
-  Vec & Vec::setc(const Mat &a,int j) {
-    RowCIt r,e;
-
-    assert (j < a.ncols ) ;
-
-    clear();
-    resize(a.ncols);
-    // Clear the column
-    e = a.end();
-    for (r = a.begin(); r!=e; r++) 
-      set(r->first,r->second.get(j));
-    return *this;
-  }
-
   void Mat::getr(int j,Vec & v) const {
     RowCIt it;
     v.clear();
     it = find(j);
     if (it!=end()) 
       v.copy(it->second).resize(ncols);
-  }
-
-  Vec & Vec::set(const Mat & a,int j) {
-    RowCIt it;
-    clear();
-    it = a.find(j);
-    if (it!=a.end()) 
-      copy(it->second).resize(a.ncols);
-    return *this;
   }
 
   Mat & Mat::setr(const Mat & a,Indx &J) {
@@ -425,6 +483,26 @@ namespace Sparse {
     }
     return *this;
   }
+
+  int Mat::empty() const {
+    RowCIt i,e;
+    
+    e = end();
+    for (i=begin(); i!=e; i++) 
+      if (!(i->second.empty())) return 0;
+    return 1;
+  }
+
+  int Mat::size() const {
+    RowCIt r,e;
+    int s=0;
+    
+    e = end();
+    for (r=begin(); r!=end(); r++) 
+      s += r->second.size();
+    return s;
+  }
+
 }
 
 /*
