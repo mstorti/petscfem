@@ -26,6 +26,6 @@ void Hasher::hash(int *w,int n) {
   for (int j=0; j<n; j++) hash(w[j]);
 }
 
-long int Hasher::hash_val() {
+long int Hasher::val() {
   return result;
 }
