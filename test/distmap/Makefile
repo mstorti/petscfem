@@ -1,13 +1,13 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2001/08/21 02:10:07 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/08/22 02:25:27 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
 tests: distmap distmat
 
-dm: distmap2.bin
-	$(MPIRUN) -np 2 -machinefile machi.dat distmap2.bin \
-		10 100 1e-12  # > distmap2.sal.tmp
+dm: distcont.bin
+	$(MPIRUN) -np 2 -machinefile machi.dat distcont.bin \
+		10 100 1e-12  # > distcont.sal.tmp
 
 dm2: distmat.bin
 	$(MPIRUN) -np 2 -machinefile machi.dat distmat.bin \
@@ -43,11 +43,11 @@ distmap.bin: distmap.o
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmap.o   $(LDFLAGS)
 
-distmap2.bin: distmap2.o 
+distcont.bin: distcont.o 
 	-rm -f $@
-	${CXX_CLINKER} -o $@ distmap2.o   $(LDFLAGS)
+	${CXX_CLINKER} -o $@ distcont.o   $(LDFLAGS)
 
-distmap2.o: ../../src/distmap2.h
+distcont.o: ../../src/distcont.h
 
 ../../src/libpetscfem.a(%.o): 
 	$(MAKE) -C ../../src/ 'libpetscfem.a(%.o)'

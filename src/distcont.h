@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap2.h,v 1.5 2001/08/22 02:19:43 mstorti Exp $
-#ifndef DISTMAP2_H
-#define DISTMAP2_H
+// $Id: distcont.h,v 1.1 2001/08/22 02:25:25 mstorti Exp $
+#ifndef DISTCONT_H
+#define DISTCONT_H
 
 #include <vector>
 //#include <algorithm>
