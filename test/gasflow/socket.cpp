@@ -102,7 +102,7 @@ int read_data(int s,char *buf,int n) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int write_data(int s,char *buf,int n) {
+int write_data(int s,const char *buf,int n) {
   /* s = connected socket */
   /* buf = pointer to the buffer */
   /* n = number of characters (bytes) we want */
@@ -127,11 +127,12 @@ int write_data(int s,char *buf,int n) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **args) {
-  int sock;
+  int s, sock;
   // fd_set active_fd_set, read_fd_set;
   sockaddr_in servername, clientname;
-  char buf[BUFSIZE];
-  buf[BUFSIZE-1]='\0';
+  // char buf[BUFSIZE];
+  const char *buf = "Hello socket!\n\0";
+  char buf2[100];
   if(argc>1 && !strcmp(args[1],"-server")) {
     sock = make_socket (PORT);
     printf("server: trace 0\n");
@@ -141,17 +142,15 @@ int main(int argc,char **args) {
     }
     printf("server: trace 0.1\n");
     size_t size = sizeof(clientname);
-    if (accept(sock,(struct sockaddr *)&clientname,&size) < 0) {
+    s = accept(sock,(struct sockaddr *)&clientname,&size);
+    if (s < 0) {
       perror ("accept");
       exit (EXIT_FAILURE);
     }
-    printf("server: trace 1\n");
-    // while (1) {
-    // read_data(sock,buf,BUFSIZE);
-    int nread = read(sock,buf,BUFSIZE);
-    printf("%s",buf);
-    // }
-  } else{
+    printf("Sending: %s",buf);
+    int nw = write_data(s,buf,strlen(buf)+1);
+    assert(nw == strlen(buf)+1);
+  } else {
     sock = socket (PF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
       perror("socket (client)");
@@ -164,10 +163,12 @@ int main(int argc,char **args) {
       exit (EXIT_FAILURE);
     }
     printf("client: trace 0\n");
-    sprintf(buf,"Hello socket!\n");
-    // write_data(sock,buf,BUFSIZE);
-    int nsent = write(sock,buf,BUFSIZE);
-    printf("Sending: %s",buf);
+
+    int nr = read_data(sock,buf2,strlen(buf)+1);
+    printf("Read %d bytes\n",nr);
+    assert(nr==strlen(buf)+1);
+    printf("Got from server: %s",buf2);
+
     close(sock);
     exit(EXIT_SUCCESS);
   }
