@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.11 2001/11/20 02:29:00 mstorti Exp $
+//$Id: utils.cpp,v 1.12 2001/11/21 19:35:59 mstorti Exp $
  
 #include <stdio.h>
 
@@ -244,6 +244,8 @@ int wait_from_console(char *s=NULL) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// this stuff moved to `debug.cpp'
+#if 0
 Debug debug;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -272,6 +274,7 @@ void Debug::wait(const char *s=NULL) {
   ierr = MPI_Barrier(comm);
   assert(ierr==0);  
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Estos templates no se si van en los header o en los .cpp (???)

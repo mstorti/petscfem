@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.47 2001/11/20 16:30:02 mstorti Exp $
+//$Id: ns.cpp,v 1.48 2001/11/21 19:35:59 mstorti Exp $
  
 #include <malloc.h>
 
@@ -107,6 +107,9 @@ int main(int argc,char **args) {
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) debug.activate();
+  //o Activate printing in debugging
+  GETOPTDEF(int,activate_debug_print,0);
+  if (activate_debug_print) debug.activate("print");
 
   //o Dimension of the problem.
   GETOPTDEF(int,ndim,3);
@@ -243,9 +246,9 @@ int main(int argc,char **args) {
   // COMPUTE ACTIVE PROFILE
   VOID_IT(argl);
   argl.arg_add(A_tet,PROFILE|PFMAT);
-  debug.wait("Computing profile...");
+  debug.trace("Computing profile...");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
-  debug.wait("After computing profile.");
+  debug.trace("After computing profile.");
 
 #if 0 //dbg
   VOID_IT(argl);
@@ -375,9 +378,9 @@ int main(int argc,char **args) {
 	exit(0);
       }
 
-      debug.wait("Before residual computation...");
+      debug.trace("Before residual computation...");
       ierr = assemble(mesh,argl,dofmap,jobinfo,&time_star); CHKERRA(ierr);
-      debug.wait("After residual computation.");
+      debug.trace("After residual computation.");
 
 #if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -441,9 +444,9 @@ int main(int argc,char **args) {
 
       if (!print_linear_system_and_stop || solve_system) {
 	// ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
-	debug.wait("Before solving linear system...");
+	debug.trace("Before solving linear system...");
 	ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
-	debug.wait("After solving linear system.");
+	debug.trace("After solving linear system.");
       }
 
       if (print_linear_system_and_stop) {

@@ -1,8 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.1 2001/11/20 02:28:59 mstorti Exp $
+// $Id: debug.h,v 1.2 2001/11/21 19:35:59 mstorti Exp $
 #ifndef DEBUG_H
 #define DEBUG_H
+
+#include <mpi.h>
+#include <string>
+#include <map>
 
 /// Puts barriers so that all processes are synchronized
 class Debug {
@@ -10,15 +14,15 @@ class Debug {
   /** Flags whether the system should stop or not at each 
       call to `wait' or not 
   */
-  int active_;
+  map<string,int> active_flags;
   MPI_Comm comm;
+  int myrank;
  public:
-  int active() const { return active_;} 
-  void activate() { active_=1;}
-  void deactivate() { active_=0;}
-  void wait(const char *s=NULL);
-  Debug(int active__=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
-    active_(active__), comm(comm_) {}
+  int active(const char *s=NULL) const;
+  void activate(const char *s=NULL);
+  void deactivate(const char *s=NULL);
+  void trace(const char *s=NULL);
+  Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD);
 };
 
 extern Debug debug;

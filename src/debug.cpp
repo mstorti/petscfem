@@ -1,32 +1,40 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.1 2001/11/21 17:53:13 mstorti Exp $
+//$Id: debug.cpp,v 1.2 2001/11/21 19:35:59 mstorti Exp $
  
+#include <cstdio>
+#include <petsc.h>
 #include <src/debug.h>
+
+Debug debug;
 
 int Debug::active(const char *s=NULL) const {
   string ss = string(s!=NULL ? s : "");
-  map<string,int>::iterator k;
-  k = active_flags[ss];
-  if (k != active_flags.end() || ! k->second) {
+  map<string,int>::const_iterator k;
+  k = active_flags.find(ss);
+  if (k == active_flags.end() || ! k->second) {
     return 0;
   } else {
     return 1;
   }
 }
 
-void activate(const char *=NULL) {
+void Debug::activate(const char *s=NULL) {
   string ss = string(s!=NULL ? s : "");
   active_flags[ss] = 1;
 }
 
-void activate(const char *=NULL) {
+void Debug::deactivate(const char *s=NULL) {
   string ss = string(s!=NULL ? s : "");
   active_flags[ss] = 0;
 }
 
-void trace(const char *s=NULL) {
-  if (active() || active("print")) printf("%s --- ",s);
-  if (!active()) return;
+void Debug::trace(const char *s=NULL) {
+  if ((active() || active("print")) && myrank==0) 
+    printf("-- %s -- ",s);
+  if (!active()) {
+    printf("\n");
+    return;
+  }
   MPI_Comm_rank(comm,&myrank);
   int ierr;
   char ans;
@@ -49,9 +57,8 @@ void trace(const char *s=NULL) {
   assert(ierr==0);  
 }
 
-Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
+Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
   comm(comm_) {
   if (active_) activate();
+  MPI_Comm_rank(comm,&myrank);
 }
-
-
