@@ -190,15 +190,14 @@ public:
 		    int el_start,int el_last,int iter_mode,
 		    int klocc=0,int kdofc=0);
 
-  /** Return the ``locker'' for the element, that is a (void *) where tu
+  /** Return the $``locker'' for the element, that is a (void *) where to
       put data. Only for elements local to this processor. 
       @author M. Storti
-      @param local_elem (input) the index 
-      (local to the processor) of the element
+      @param global_elem (input) the index of the element in the elemset
       @return the address (void *) of the locker
   */
-  void *& local_store_address(int local_elem) {
-    return local_store[local_elem];
+  void *& local_store_address(int global_elem) {
+    return local_store[global_elem];
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
