@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.8 2002/07/24 19:59:15 mstorti Exp $
+//$Id: iisdgraph.h,v 1.9 2004/11/04 22:03:13 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -19,7 +19,7 @@ extern int MY_RANK,SIZE;
 //#include <src/graphdv.h>
 
 /// The storage area type
-typedef map<int, GSet, less<int>, STL_ALLOCATOR > GMap;
+typedef map<int, GSet, less<int> > GMap;
 /// An individual set of the storage map. 
 typedef pair<int, GSet > GRow;
 /// Partitioner for the scatter operation. 
@@ -33,6 +33,14 @@ public:
   virtual void add(int i, int j)=0;
   virtual void scatter()=0;
 };
+
+int DGMap::size_of_pack(const GRow &q) const;
+
+void DGMap::pack(const GRow &p,char *&buff) const;
+
+void DGMap::unpack(GRow &p,const char *&buff);
+
+void DGMap::combine(const GRow &p);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** This `Graph' class has internal storage, which you can fill with
