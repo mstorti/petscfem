@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.40 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.41 2003/01/15 23:50:33 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -64,3 +64,6 @@ nettest = $(PETSCFEM_DIR)/tools/nettest.bin
 nettest:
 	NP=`procsel -n ./proctable.geronimo` ;  \
 	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
+
+dx:
+	eperl -P viewer.dx > viewer.dx.tmp

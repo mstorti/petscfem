@@ -1,0 +1,69 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};                   # case name
+print "# case_name $case_name\n";
+$case_name = 'smoke' unless $case_name;
+$N = $M = 20;
+$Lx = $Ly = 1;
+$alpha = 1;
+$Courant = 0.5;
+$hx = $Lx/$N;
+$Dt = 1/$N;
+#__END_TRANSCRIPT__
+@vars = qw(N M Lx Ly case_name);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH smoke.m";
+:>//                            # ends ePerl block
+
+# <:pr('case_name'):>
+#===========================================================
+global_options
+ndim 2
+
+save_file "save.state.tmp"
+<:pr('Dt'):>
+nsave 10
+
+nsaverot 1
+nrec 1
+nfile 1000000
+save_file_pattern "smoke.state.%d.tmp"
+
+initial_state "smoke.ini.tmp"
+nstep 20
+solver "iisd"
+iisd_subpart 1
+nnwt 1
+<:pr('alpha'):>
+weak_form 0
+__END_HASH__
+
+#===========================================================
+# ndim nu ndof
+nodedata   2  2  1
+data smoke.nod.tmp
+__END_HASH__
+
+#===========================================================
+elemset newadvdif_advecfm2 3
+props advective_jacobians[2]
+geometry triangle
+npg 3
+diffusive_jacobians 1e-3
+__END_HASH__
+__INCLUDE__ smoke.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+__INCLUDE__ "smoke.fixa.tmp"
+__END_FIXA__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

@@ -1,74 +1,36 @@
 #-*- shell-script -*-
 <: 
-$ndim=3;
-$N=10;
-$nnod = ($N+1)**$ndim;
-$case='cubcav';
-$in = "$case.con-tetra.tmp";
-
-open IN,$in;
-open OUT,">$case.con-tetra0.tmp";
-while (<IN>) {
-    my @l = split " ";
-    for my $ll (@l) { $ll = $ll-1; }
-    print OUT "$l[0] $l[1] $l[2] $l[3]\n";
-}
-close IN;
-close OUT;
-
-open IN,"outvector0.out.tmp";
-open OUT,">results.tmp";
-open OUTP,">resultsp.tmp";
-while (<IN>) {
-    my @l = split " ";
-    print OUT "$l[0] $l[1] $l[2]\n" ;
-    print OUTP "$l[3]\n" ;
-}
-close IN;
-close OUT;
-close OUTP;
-
+require '../../tools/dx.pl';
+connect_0("./cubcav.con-tetra.tmp","./cubcav.con-tetra0.tmp");
+$nnod = count_lines("cubcav.nod.tmp");
+$nelem = count_lines("cubcav.con-tetra0.tmp");
+ns_extract("./cubcav.state.tmp","u.dat","p.dat");
 :>//
 # The following example describes an irregular grid. Note that the values
 # of the "positions" component and "connections" component are irregular,
 # and so must be enumerated.
 #
 # The irregular positions, which are ... three-dimensional points.
-object "nodes" class array type float rank 1 shape <:=$ndim:>
-         items <:=$nnod:> data file <:=$case:>.nod.tmp
+object "xnod" class array type float rank 1 shape 3 
+	items <:=$nnod:> data file cubcav.nod.tmp
 
 # The irregular connections, which are tetrahedra
 object "icone" class array type int rank 1 shape 4
-        items <:=5*$N**$ndim:> data file <:=$case:>.con-tetra0.tmp
-
+	items <:=$nelem:> data file "cubcav.con-tetra0.tmp"
 attribute "element type" string "tetrahedra"
 attribute "ref" string "positions"
+
 # The data, which is in a one-to-one correspondence with the positions
-object "result" class array type float rank 1 shape <:=$ndim:>
-	    items <:=$nnod:> data file results.tmp
-
-# pressure
-object "resultp" class array type float rank 0 items <:=$nnod:> data file resultsp.tmp
-
+object "u" class array type float rank 1 shape 3 items <:=$nnod:> data file "u.dat"
 attribute "dep" string "positions"
 
-# the field, with three components: "positions", "connections", and
-# "data"
-object "my_v_field" class field
-component "positions" value "nodes"
+# The data, which is in a one-to-one correspondence with the positions
+object "p" class array type float rank 0 items <:=$nnod:> data file "p.dat"
+attribute "dep" string "positions"
+
+object "irregular positions irregular connections" class field
+component "positions" value "xnod"
 component "connections" value "icone"
-component "data" value "result"
-
-# the field, with three components: "positions", "connections", and
-# "data"
-object "my_p_field" class field
-component "positions" value "nodes"
-component "connections" value "icone"
-component "data" value "resultp"
-
-object "ns_result" class group
-  member "v_field" value "my_v_field" 
-  member "p_field" value "my_p_field"
-
+component "data" value "u"
+component "p" value "p"
 end
-
