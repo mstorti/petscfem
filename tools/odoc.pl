@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.13 2003/09/11 01:05:57 mstorti Exp $
+# $Id: odoc.pl,v 1.14 2003/09/11 01:10:18 mstorti Exp $
 
 @odoc=();
 
@@ -56,8 +56,17 @@ sub wiki2 {
     $$ref = "$processed$text";
 }
 
+sub wiki {
+    my $ref = shift();
+    foreach my $t (@$ref) {
+	wiki2(\$t,"#","\\verb+","+");
+	wiki2(\$t,"\\*","\\textbf{","}");
+	wiki2(\$t,"_","\\emph{","}");
+    }
+}
+
 /`/;
-$text = <<EOM;
+@text = split "\n",<<EOM;
   //o Read states from file instead of computing them . Normally
   //  this is done to analyze a previous run. If 1 the file is
   //  ASCII, if 2 then it is a binary file. In both cases the order
@@ -66,23 +75,10 @@ $text = <<EOM;
   //  the value of field #j# at node #i.#
 EOM
 /`/;
-wiki2(\$text,"#","\\verb+","+");
-print $text;
+wiki(\@text,"#","\\verb+","+");
+print join("\n",@text);
 
 __END__
-
-sub wiki {
-    my $ref = shift();
-    foreach my $t (@$ref) {
-	wiki2(\$t,"#","\\verb+","+");
-# 	$t =~ s/(\s)\#(\S)\#(\s)/$1\\verb+$2+$3/g;
-# 	$t =~ s/(\s)\#(\S.*?\S)\#(\s)/$1\\verb+$2+$3/g;
-# 	$t =~ s/(\s)_(\S)_(\s)/$1\\emph{$2}$3/g;
-# 	$t =~ s/(\s)_(\S.*?\S)_(\s)/$1\\emph{$2}$3/g;
-# 	$t =~ s/(\s)\*(\S)\*(\s)/$1\\textbf{$2}$3/g;
-# 	$t =~ s/(\s)\*(\S.*?\S)\*(\s)/$1\\textbf{$2}$3/g;
-    }
-}
 
 $otargetf="";
 @doclist=();
