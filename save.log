@@ -410,3 +410,8 @@ tag: beta-1.77 on Mon May 21 22:54:07 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.78 on Fri May 25 00:13:08 ART 2001, by mstorti in spider
      > `genload' starts working.
+----------
+tag: beta-1.79 on Fri May 25 17:31:06 ART 2001, by mstorti in spider
+     > Generic load element works 
+     > Added a header for advdif. 
+     > Added tests for generic load element.
