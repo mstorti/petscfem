@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: getprop.cpp,v 1.13 2004/01/26 20:22:34 mstorti Exp $
+//$Id: getprop.cpp,v 1.14 2004/01/30 03:44:29 mstorti Exp $
   
 #include "fem.h"
 #include "readmesh.h"
@@ -69,7 +69,7 @@ int get_double(TextHashTable *thash,const char *name,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "get_int"
-int get_int(TextHashTable *thash,const char *name,
+int get_int(const TextHashTable *thash,const char *name,
 	       int *retval,int defval,int n) {
   if (n==0) return 0;
   const char *value; 

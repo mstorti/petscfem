@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.109 2004/01/30 02:24:02 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.110 2004/01/30 03:44:33 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -124,6 +124,8 @@ geometry <:=$geom:>
 npg <:=$npg:>
 data <:=$icone:>
 surf_fun_type "plane"
+normal 1. 0. 0.
+x0 0. 0. 0.
 gather_pos 0
 f_vals 0.12 0.35
 __END_HASH__

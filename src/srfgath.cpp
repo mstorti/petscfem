@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.11 2004/01/30 02:23:59 mstorti Exp $
+//$Id: srfgath.cpp,v 1.12 2004/01/30 03:44:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -25,12 +25,37 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void plane::init(const TextHashTable *thash) {
-  ndim = 3;
+
+  int ierr;
+  TGETOPTDEF(thash,int,ndim,0);
+  PETSCFEM_ASSERT0(ndim>0,
+		   "SurfGatherer:plane: `ndim' must specified and >0\n");
+  vector<double> v;
+
   x0.resize(1,ndim);
-  n.resize(1,ndim);
-  dx.resize(1,ndim);
   x0.set(0.);
-  n.set(0.).setel(1.,1);
+  const char *line;
+  thash->get_entry("x0",line);
+  if(line) {
+    v.clear();
+    read_double_array(v,line);
+    PETSCFEM_ASSERT(v.size()==ndim,
+		    "SurfGatherer:plane: `x0' must be length ndim\n"
+		    "length %d, ndim %d\n",v.size(),ndim);
+    x0.set(&*v.begin());
+  }
+
+  n.resize(1,ndim);
+  thash->get_entry("normal",line);
+  PETSCFEM_ASSERT0(line,
+		   "SurfGatherer:plane: `normal' must be specified\n");
+  v.clear();
+  read_double_array(v,line);
+  PETSCFEM_ASSERT(v.size()==ndim,
+		  "SurfGatherer:plane: `normal' must be length ndim\n"
+		  "length %d, ndim %d\n",v.size(),ndim);
+  n.set(&*v.begin());
+  dx.resize(1,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -52,9 +77,24 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void sphere::init(const TextHashTable *thash) {
-  ndim = 3;
+  int ierr;
+  TGETOPTDEF(thash,int,ndim,0);
+  PETSCFEM_ASSERT0(ndim>0,
+		   "SurfGatherer:plane: `ndim' must specified and >0\n");
+  vector<double> v;
+
   x0.resize(1,ndim);
   x0.set(0.);
+  const char *line;
+  thash->get_entry("x0",line);
+  if(line) {
+    v.clear();
+    read_double_array(v,line);
+    PETSCFEM_ASSERT(v.size()==ndim,
+		    "SurfGatherer:plane: `x0' must be length ndim\n"
+		    "length %d, ndim %d\n",v.size(),ndim);
+    x0.set(&*v.begin());
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -75,9 +115,36 @@ public:
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void cylinder::init(const TextHashTable *thash) {
-  ndim = 3;
-  x0.resize(1,ndim).set(0.);
-  n.resize(1,ndim).set(0.).setel(1.0,3);
+  int ierr;
+  TGETOPTDEF(thash,int,ndim,0);
+  PETSCFEM_ASSERT0(ndim>0,
+		   "SurfGatherer:plane: `ndim' must specified and >0\n");
+  vector<double> v;
+
+  x0.resize(1,ndim);
+  x0.set(0.);
+  const char *line;
+  thash->get_entry("x0",line);
+  if(line) {
+    v.clear();
+    read_double_array(v,line);
+    PETSCFEM_ASSERT(v.size()==ndim,
+		    "SurfGatherer:plane: `x0' must be length ndim\n"
+		    "length %d, ndim %d\n",v.size(),ndim);
+    x0.set(&*v.begin());
+  }
+
+  n.resize(1,ndim);
+  thash->get_entry("normal",line);
+  PETSCFEM_ASSERT0(line,
+		   "SurfGatherer:plane: `normal' must be specified\n");
+  v.clear();
+  read_double_array(v,line);
+  PETSCFEM_ASSERT(v.size()==ndim,
+		  "SurfGatherer:plane: `normal' must be length ndim\n"
+		  "length %d, ndim %d\n",v.size(),ndim);
+  n.set(&*v.begin());
+  dx.resize(1,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

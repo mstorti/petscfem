@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: getprop.h,v 1.6 2004/01/26 20:22:34 mstorti Exp $
+//$Id: getprop.h,v 1.7 2004/01/30 03:44:29 mstorti Exp $
  
 
 #ifndef GETPROP_H
@@ -76,7 +76,7 @@ int get_string(const TextHashTable *thash,const char *name,
     then assign 1 (to be used as a `get\_flag()' function). 
     @param n number of integers to be read
 */
-int get_int(TextHashTable *thash,const char *name,
+int get_int(const TextHashTable *thash,const char *name,
 	       int *retval,int defval=0,int n=1);
 
 #if 0
