@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.5 2002/02/18 17:45:50 mstorti Exp $
+// $Id: bubbly.h,v 1.6 2002/02/19 18:08:59 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
@@ -111,17 +111,27 @@ public:
   void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 		  FastMat2 &N,double w);
 
+  /// Computes the enthalpy 
   void enthalpy(FastMat2 &H);
+  /** Computes the product of the enthalpy jacobian matrix 
+      with a shape function and a weight function. 
+  */
   void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,
 		   double w);
+  /** Computes the product of the enthalpy jacobian 
+      matrix with an SUPG weight function 
+  */
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/// The `stream' (river or channel) element.
+/// The elemset corresponding to the `bubbly_ff' flux function. 
 class bubbly : public NewAdvDif {
 public:
+  /** Constructor, creates the fluc function object. 
+      fixme:= should destroy the flux functin. 
+  */
   bubbly() :  NewAdvDif(new bubbly_ff(this)) {};
 };
 

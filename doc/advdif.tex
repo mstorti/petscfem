@@ -6,7 +6,7 @@
 
 Advective system of equations are of the form
 %
-\begin{equation} 
+\begin{equation} \label{eq:advdif} 
  \dep{!H(!U)_\mu}t + \dep{}{x_i}\F^\conv_{i\mu}(!U) +
              \dep{}{x_i}\F^\diff_{i\mu}(!U,\nabla !U) = G_\mu(!U)
 \end{equation}
@@ -17,7 +17,7 @@ variables''} $!U$ and the \emph{``conservation variables''}
 $!H$. $\F^{\diff,\conv}$ are the convective and diffusive fluxes
 respectively. We use the SUPG variational formulation
 %
-\begin{equation} 
+\begin{equation} \label{eq:advdifstab} 
 \begin{split}
  \int_\Omega N_p (\dep{!H_\mu}t & - G_\mu
         +\cswf \, \dep{}{x_i}\F^\conv_{i\mu} ) \di\Omega + \\
@@ -39,8 +39,8 @@ where
 \item The variational formulation represents an equation for each node
 $p$ and equation $\mu$. 
 \index{weak_form@\verb+weak_form+}
-\item $\swf$ is the \emph{``weak form selector''} (option
-\verb+weak_form+).  It may take the values $0,1$ and $!\swf = 1-\swf$
+\item $\swf$ is the \emph{``weak form switch''} (option
+\verb+weak_form+).  It may take the values $0,1$ and $\cswf = 1-\swf$
 is its complement. It controls the integration by parts (or not) of
 the advective term.
 \index{beta_supg@\verb+beta_supg+}
@@ -149,7 +149,7 @@ the jacobians are sparse or null. For instance the function
 \verb+comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N)+ should
 return the product (\verb+A_grad_N+)$_{p\mu\nu}$ = $A_{i\mu\nu}\,
 \deps{N_p}{x_i}$ of size $\nel\times\ndof\times\ndof$ on output when
-passed a matrix (\verb+grad_N+)$_{ip} = \deps{N_p}{x_i}$ of size
+passed a matrix ${\tt grad\_N}_{ip} = \deps{N_p}{x_i}$ of size
 $\ndim\times\nel$. The details of the dimension in each matrix shell
 may vary, accordingly to the evolution of the elemset. Please consult
 the \manpages. In some cases the matrix shell may define more complex
@@ -476,6 +476,158 @@ of temperature.
 
 \end{description}
 
+%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+\SSection{Generic diffusive element}
+
+An equation of similar to (\ref{eq:advdif}) where the second term in
+the left hand side (i.e. the \emph{``convective''} term) is missing is
+called of \emph{``pure diffusive''} type. Think for instance at the
+Laplace o elasticity equation. This equation doesn't need
+the last stabilization term in the variational formulation
+(\ref{eq:advdifstab}). So that, even if such a pure diffusive equation
+could be included as a particular case of the advective-diffusive
+equation, there is a specific elemset for this kind of operators,
+namely the \verb+Diff+ class for efficiency reasons. 
+
+\SSSection{Related Options}
+
+\begin{itemize}
+\input odocdiff
+\end{itemize}
+
+%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+\SSection{The hydrology module} \label{sec:hydro}
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/aquifer.\EPSPDF}}
+\caption{Aquifer/stream system. }
+\label{fg:aquifer}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/stream.\EPSPDF}}
+\caption{Aquifer/stream system. Transverse 2D view}
+\label{fg:stream}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/aquist.\EPSPDF}}
+\caption{Aquifer/stream system. Discretization.}
+\label{fg:aquist}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+This module solves the problem of subsurface flow in a free aquifer,
+coupled with a surface net of 1D streams. To model such system three
+elemsets must be used: an \verb+aquifer+ system representing the
+subsurface aquifer, a \verb+stream+ elemset representing the 1D stream
+and a \verb+stream_loss+ elemset representing the losses from the
+stream to the aquifer (or vice versa) see figures~\ref{fg:aquifer} 
+and~\ref{fg:stream}.
+
+The \verb+aquifer+ elemset is a 2D elemset with triangle or quadrangle
+elements (see figure~\ref{fg:aquist}). A per-element property
+\verb+eta+ represents the height of the aquifer bottom to a given
+datum. The corresponding unknown for each node is the piezometric
+height or the level of the freatic surface at that point $\phi$. On
+the other hand, the \verb+stream+ elemset represents a 1D stream of
+water. It has its own nodes, separate from the aquifer nodes, whose
+coordinates must coincide with some corresponding node in the
+aquifer. For instance, the aquifer element in the figure is connected
+to nodes $n1$, $n2$ and $n3$, while the stream element is connected to
+nodes $n4$ and $n5$. $n1$ and $n4$ have the same coordinates (but
+different unknowns) and also $n2$ and $n5$. 
+A node constant field (so called ``H-fields'') represents the
+stream bottom height $h_b$, with reference to the datum. So that,
+normally, we have for each node two coordinates and the stream bottom
+height. ({\tt ndim=2 nu=3 ndof=1}).  The unknown for these nodes is
+the height $u$ of the stream free water surface with reference to the
+stream bottom. The channel shape and friction model and coefficients
+are entered via properties described below. If the stream level is
+above the freatic aquifer level ($h_b+u > \phi$) then the stream
+losses water to the aquifer and vice versa.
+
+The equation for the aquifer integrated in th verical direction is
+%
+\begin{equation} 
+  \dep{}{t} \LL(S(\phi-\eta)\phi\RR) =
+  \nabla\cdot(K(\phi-\eta)\nabla\phi) + \sum G_a
+\end{equation}
+%
+where $S$ is the storativity and $G$ is a source term, due to rain,
+losses from streams or other aquifers. 
+
+The equation for the stream is, according to the \emph{``Kinematic
+Wave Model'' KWM} approach (\cite{rodriguez}),
+%
+\begin{equation} 
+   \dep {A(u)}t + \dep {Q(A(u))}{s} = G_s
+\end{equation}
+%
+Where $u$ is the unknown field that represents the height of the water
+in the channel with respect to the channel bottom as a function of
+time and a linear arc coordinate along the stream, $A$ is the
+transverse cross section of the stream and depends, through the
+geometry of the channel, on the channel water height $u$. $Q$ is the
+flow rate and, under the KWM model is a function only of $A$
+through the friction law. 
+%
+\begin{equation} 
+   Q = \gamma A^m
+\end{equation}
+%
+where $\gamma=C_h\,S^{1/2}\,P\muno$ and $m=\sfr32$ for the Ch\`ezy
+friction model, and $\gamma=\bar a\,n\muno\,S^{1/2}\,P^{-2/3}$ and
+$m=\sfr53$ for the Manning model, where $S = \dtots{h_b}{s}$ is the
+slope of the stream bottom, $P$ is the wetted perimeter, and $C_h$,
+$\bar a$ and $n$ are model constants. $G_s$ represent the gain or loss
+of the stream, and the main component is the loss to the aquifer
+%
+\begin{equation} 
+  G_s = P/R_f (\phi-h_b-u)
+\end{equation}
+%
+where $R_f$ is the resistivity factor per unit arc length of the
+perimeter. The corresponding gain to the aquifer is 
+%
+\begin{equation} 
+  G_a = -G_s \, \delta_{\Gs}
+\end{equation}
+%
+where $\Gs$ represents the planar curve of the stream and $\delta_\Gs$
+is a Dirac's delta distribution  with a unit intensity per unit
+length, i.e.
+%
+\begin{equation} 
+  \int f(!x) \, \delta_\Gs \dS = \int_0^L f(!x(s)) \di{s}
+\end{equation}
+%
+The \verb+stream_loss+ elemset represents this loss, and a typical
+discretization is shown in figure~\ref{fg:aquist}. The stream loss
+element is connected to two nodes on the stream  and two on the
+aquifer and must be entered in that order in the element connectivity
+table, for instance
+%
+\begin{alltt} 
+elemset stream_loss 4
+\Arg{.... elemset properties...}
+__END__HASH__
+...
+\Arg{n5} \Arg{n4} \Arg{n1} \Arg{n2}
+...
+__END__ELEMSET__
+\end{alltt}
+
+\SSSection{Related Options}
+
+\begin{itemize}
+\input odocstream
+\end{itemize}
 
 %
 % Local Variables: *

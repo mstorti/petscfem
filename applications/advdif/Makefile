@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.29 2002/02/18 17:45:50 mstorti Exp $ 
+ # $Id: Makefile,v 1.30 2002/02/19 18:08:59 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -46,6 +46,14 @@ $(dd)/odocswfm2t.tex: ffswfm2t.cpp  $(dd)/advdif.tex
 	$(run_odoc)
 
 $(dd)/odocgenl.tex: genload.cpp linhff.cpp
+	-chmod +w $@
+	$(ODOC) -o $@ $^
+	-chmod -w $@
+
+$(dd)/odocdiff.tex: diff.cpp
+	$(run_odoc)
+
+$(dd)/odocstream.tex: stream.h stream.cpp
 	-chmod +w $@
 	$(ODOC) -o $@ $^
 	-chmod -w $@

@@ -93,6 +93,9 @@
 \newcommand{\nproc}{{n_{\mathrm{proc}}}}
 %
 \newcommand{\AFS}{{Algebraic Fractional Step}}
+%---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+% Hydrology module
+\newcommand{\Gs}{{\Gamma_s}}
 %
 % \newcommand{\ttlb}{\char'173} 
 % \newcommand{\ttrb}{\char'175} 
@@ -142,7 +145,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.7 2002/02/18 23:17:10 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.8 2002/02/19 18:07:16 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -172,9 +175,9 @@ keeping in mind the scope of efficiency.
 % \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 % \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
 % \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
@@ -189,10 +192,11 @@ keeping in mind the scope of efficiency.
 \SSection{Acronyms} 
 \begin{description}
 \item[CFD:] Computational Fluid Dynamics
-\item[eperl:] embedded Perl
+\item[ePerl:] embedded Perl
 \item[FDM:] Finite Difference Method
 \item[FEM:] Finite Element Method
 \item[IISD:] Interface Iterative -- Sub-domain Direct method
+\item[KWM:] Kinematic Wave Model (see \ref{sec:hydro})
 \item[MPI:] Message Passing Interface
 \item[OOP:] Object Oriented Programming
 \item[Perl:] Practical Extraction and Report Language
@@ -242,6 +246,10 @@ t_0
 t_1
 %:eps:phi:
 \phi
+%:eps:eta:
+\eta
+%:eps:hb:
+h_b
 %:eps:bphi:
 \bar\phi
 %:eps:phi0:
@@ -266,6 +274,6 @@ T_s
 # eval: (setq outline-regexp "\\(\\\\\\|%\\)S*ection{") $
 # eval: (setq current-pos-regexp "^%# Current line ===========") $
 # eval: (font-lock-fontify-buffer) $
-# eval: (setq latex-run-command "make petscfem.tex ; latex petscfem") $
+# eval: (setq latex-run-command "make dvi") $
 # eval: (setq tex-command "make petscfem.tex ; latex petscfem") $
 # End: $

@@ -1,10 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.13 2002/02/17 03:59:51 mstorti Exp $
+// $Id: stream.h,v 1.14 2002/02/19 18:08:59 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
 #include "advective.h"
+
+#define GETOPT_PROP(type,name,default) elemset->get_prop(name##_prop,#name) //nd
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class AdvDifFFWEnth;
@@ -72,7 +74,11 @@ public:
   rect_channel(const NewElemset *e) : ChannelShape(e) {}
 
   /// Initializes the object
-  void init() { elemset->get_prop(width_prop,"width"); }
+  void init() { 
+    //o Width of the channel
+    GETOPT_PROP(double,width,<required>);
+    elemset->get_prop(width_prop,"width"); 
+  }
 
   /// Read local element properties
   void element_hook(ElementIterator element) {
@@ -105,7 +111,9 @@ public:
   circular_channel(const NewElemset *e) : ChannelShape(e) {}
 
   /// Initializes the object
-  void init() { elemset->get_prop(radius_prop,"radius"); }
+  void init() { 
+    //o Radius of the channel
+    GETOPT_PROP(double,radius,<required>); }
 
   /// Read local element properties
   void element_hook(ElementIterator element) {
@@ -175,7 +183,9 @@ public:
   Chezy(const NewElemset *e) : FrictionLaw(e) {}
 
   // Initialize properties
-  void init() { elemset->get_prop(Ch_prop,"Ch"); }
+  void init() { 
+    //o Chezy roughness coefficient
+    GETOPT_PROP(double,Ch,<required>); }
 
   /// Read local element properties
   void element_hook(ElementIterator element) {
@@ -384,8 +394,15 @@ public:
 	 FastMat2 &jacin,FastMat2 &jacout);
 
   void init() { 
+    //o _T: double
+    // _N: Rf
+    // _D: 1.
+    // _DOC: Resistivity (including perimeter) of the stream to 
+    //          loss to the aquifer. 
+    // _END
     elemset->get_prop(Rf_prop,"Rf"); 
     int ierr;
+    //o Flag whether the element is impermeable ($R_f\to\infty$) or not. 
     EGETOPTDEF_ND(elemset,int,impermeable,0);
     assert(ierr==0);
     if (impermeable) k=0.;

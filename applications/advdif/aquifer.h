@@ -1,12 +1,17 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.3 2002/01/15 19:40:59 mstorti Exp $
+// $Id: aquifer.h,v 1.4 2002/02/19 18:08:59 mstorti Exp $
 #ifndef AQUIFER_H
 #define AQUIFER_H
 
 #include "advective.h"
 #include "diff.h"
 
+/** This is the flux function for a 
+    quasi-harmonic equation with a conductivity proportional to the 
+    difference between the free surface of the aquifer and its bottom 
+    (a known quantity dependent on coordinates)
+*/
 class aquifer_ff : public DiffFF {
   // K:= eta:=  
   /**  Basic properties, vertical position of aquifer bottom, hydraulic
@@ -75,10 +80,11 @@ public:
   aquifer_ff(const Diff *e) : DiffFF(e) {}
 };
 
+/// This is the elenset derived from the #aquifer_ff# flux function
 class aquifer : public Diff {
  public:
+  /// Constructor, creates the flux function object. 
   aquifer() :  Diff(new aquifer_ff(this)) {};
-  // ~aquifer() { delete adv_diff_ff; }
 };
 
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: stream.cpp,v 1.14 2002/02/06 14:34:05 mstorti Exp $
+//$Id: stream.cpp,v 1.15 2002/02/19 18:08:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -181,6 +181,8 @@ void stream_ff::comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 ChannelShape *ChannelShape::factory(const NewElemset *elemset) {
   int ierr;
+  //o Choose channel section shape, may be {\tt circular}
+  // or {\tt rectangular}
   EGETOPTDEF(elemset,string,shape,string("undefined"));
   if (shape=="rectangular" || shape=="undefined")  {
     return new rect_channel(elemset);
@@ -195,6 +197,7 @@ FrictionLaw::FrictionLaw(const NewElemset *e) : elemset(e) {}
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FrictionLaw *FrictionLaw::factory(const NewElemset *elemset) {
   int ierr;
+  //o Choose friction law, may be {\tt manning} or {\tt chezy}
   EGETOPTDEF(elemset,string,friction_law,string("undefined"));
   if (friction_law=="Chezy" || friction_law=="undefined")  {
     return new Chezy(elemset);
@@ -206,7 +209,10 @@ FrictionLaw *FrictionLaw::factory(const NewElemset *elemset) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Manning::init() { 
   int ierr;
-  elemset->get_prop(roughness_prop,"roughness"); 
+  //o Roughness coefficient for the Manning formula (a.k.a. $n$)
+  GETOPT_PROP(double,roughness,1.);
+  // elemset->get_prop(roughness_prop,"roughness");
+  //o Unit conversion factor for Manning friction law.
   EGETOPTDEF_ND(elemset,double,a_bar,1.);
   assert(ierr==0);
 }
