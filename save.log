@@ -1804,3 +1804,6 @@ tag: beta-3.08.pl11 on Sat, 30 Nov 2002 11:55:01 -0300 by mstorti in spider
 ----------
 tag: beta-3.08.pl12 on Sat, 30 Nov 2002 19:31:58 -0300 by mstorti in spider
      > Runs 3D cube example. 
+----------
+tag: beta-3.08.pl13 on Sat, 30 Nov 2002 20:42:27 -0300 by mstorti in spider
+     > Runs 3D example on 10^3 mesh with large deformation. 
