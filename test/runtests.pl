@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.122 2004/09/24 20:44:31 mstorti Exp $
+#$Id: runtests.pl,v 1.123 2004/09/25 11:32:26 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -653,8 +653,8 @@ end_section();
 begin_section('Advdif tests');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
-       read_file("sw_abso/test_abso.verif.ans"));
+# expect("sw_abso/test_abso.verif.tmp","Shallow water + abs.b.c.",
+#        read_file("sw_abso/test_abso.verif.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<'EOT');

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.94 2004/09/24 12:00:59 mstorti Exp $ 
+# $Id: Makefile,v 1.95 2004/09/25 11:32:29 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -43,7 +43,7 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
-NP := 4
+NP := 1
 export NP
 
 run_subdir_test:

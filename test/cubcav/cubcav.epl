@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.115 2004/09/24 12:00:59 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.116 2004/09/25 11:32:29 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -19,7 +19,7 @@ save_file cubcav.state.<:=$case_in:>.tmp
 nsave 1
 >>endif
 
-nstep 1
+# nstep 1
 chunk_size 40000
 
 >>if $iisd_subpart
@@ -97,10 +97,12 @@ hook_list shell_hook cubcav
 
 ngather 10
 
+>>if 0
 compact_profile_graph_chunk_size 40000
 max_partgraph_vertices 5000
 max_partgraph_vertices_proc 5000
 chunk_size 500
+>>endif
 
 __END_HASH__
 
