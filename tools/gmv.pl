@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.3 2002/07/27 18:31:07 mstorti Exp $
+#$Id: gmv.pl,v 1.4 2002/08/03 00:48:12 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -133,6 +133,7 @@ if ($rslt) {
 	print GMV "variables\n";
 	print GMV "pressure 1\n";
 	print_rslt(\@rslt,$nrslt,$nnod,$dim,$dim,0,GMV);
+	print GMV "endvars\n";
 
     } elsif ($fields eq 'scalar' || ! defined $fields) {
 	
