@@ -1406,3 +1406,6 @@ tag: beta-3.02.pl5 on Wed, 31 Jul 2002 17:35:54 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.02.pl6 on Mon,  5 Aug 2002 00:06:19 -0300 by mstorti in spider
      > Now `sin' and `cos' temporal functions are defined as a class. 
+----------
+tag: beta-3.02.pl7 on Tue,  6 Aug 2002 17:49:39 -0300 by mstorti in minerva.arcride.edu.ar
+     > Writing `embedded_gatherer'
