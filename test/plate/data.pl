@@ -1,13 +1,13 @@
-$Re = 100;
+$Re = 1000;
 $Co = 2;
 $re_start = 0;
 
 if (1) {   ## large mesh
     $Rint=1;
-    $Rext=2;
+    $Rext=3;
     $L = 10;
     $Ntheta = 80;
-    $Nr=20;
+    $Nr=30;
     $Nx=100;
     $du_ini_pert = 0.3;
 } else {  ## small mesh, small domain

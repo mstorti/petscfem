@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.m,v 1.16 2003/01/08 15:49:04 mstorti Exp $
+## $Id: cylin.m,v 1.17 2003/01/11 15:24:08 mstorti Exp $
 global Rint Rext Rext2 L Rmean
 
 source("data.m.tmp");
@@ -147,7 +147,7 @@ fid = fopen("cylin.skin_int.tmp","w");
 for k=1:length(skin)-1
   n1 = skin(k);
   n2 = skin(k+1);
-  fprintf(fid,"%d %d  ",n1,n2);
+  fprintf(fid,"%d %d  ",n2,n1);
   for k=1:layers
     fprintf(fid,"1 1 ");
   endfor

@@ -30,10 +30,15 @@ coupling_inv_hook.filename ./inviscid.efn
 coupling_inv_hook.prefix   coupling_inv_hook
 
 # Filter
-<: $omega=0.5; $xif=1; :>
+<: $omega=0.25; $xif=1; :>
 n_coef 3
-a_coef <:=1./$omega**2+$xif/$omega+0.5:> <:=-2/$omega**2:> <:=1./$omega**2-$xif/$omega+0.5:> 
-b_coef 0.5 0. 0.5
+a_coef <:=1./$omega**2+$xif/$omega+0.5:> \
+       <:=-2/$omega**2:>                 \
+       <:=1./$omega**2-$xif/$omega+0.5:> 
+b_coef <:=0.5+$xif/$omega:> \
+       0.                   \
+       <:=0.5-$xif/$omega:>
+# b_coef 0.5 0. 0.5
 __END_HASH__
 
 #===========================================================

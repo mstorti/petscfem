@@ -1,16 +1,16 @@
 #-*- shell-script -*-
 <: 
 require '../../tools/dx.pl';
-connect_0("./plate.con.tmp","./plate.con0.tmp",quad_hook);
-$nnod = count_lines("plate.nod.tmp");
-$nelem = count_lines("plate.con0.tmp");
-ns_extract("./save.state.tmp","u.dat","p.dat");
+connect_0("./cylin.con.tmp","./cylin.con0.tmp",quad_hook);
+$nnod = count_lines("cylin.nod.tmp") - count_lines('ext.coupling_nodes.tmp');
+$nelem = count_lines("cylin.con0.tmp");
+ns_extract("./cylin.state.tmp","u.dat","p.dat");
 :>//
 object "nodes" class array type float rank 1 shape 2 
-         items <:=$nnod:> data file plate.nod.tmp
+         items <:=$nnod:> data file cylin.nod.tmp
 
 object "icone" class array type int rank 1 shape 4 
-        items <:=$nelem:> data file plate.con0.tmp
+        items <:=$nelem:> data file cylin.con0.tmp
 attribute "element type" string "quads"
 attribute "ref" string "positions"
 

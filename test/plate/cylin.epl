@@ -55,8 +55,9 @@ hook_list dl_generic_hook coupling_visc_hook
 coupling_visc_hook.filename ./inviscid.efn
 coupling_visc_hook.prefix   coupling_visc_hook
 
-ngather <:=$ndim:>
-gather_file "cylinder.force.tmp"
+ngather 3
+gather_file "cylin.force.tmp"
+viscosity <:=2*$Rint/$Re:>
 
 __END_HASH__
 
@@ -71,20 +72,18 @@ elemset nsi_tet_les_fm2 4
 name viscous_fluid_elemset
 geometry cartesian2d
 npg 4
-viscosity <:=2*$Rint/$Re:>
 data cylin.con.tmp
 __END_HASH__
 
-#if 0
 #===========================================================
 ## Because we have no more surface integrators
-elemset visc_force_integrator <:=2**($ndim-1)*($layers+1):>
+elemset visc_force_integrator <:=2*(1+$layers):>:
 gather_pos 0
 is_fat 0
 geometry "line2quad"
-npg <:=2**($ndim-1):>
-ndimel <:=$ndim-1:>
-gather_length <:=2*$ndim:>
+npg 2
+ndimel 1
+gather_length 3
 volume_elemset viscous_fluid_elemset
 # use_exterior_normal 0
 <:pr('layers'):>
@@ -92,7 +91,6 @@ identify_volume_elements 1
 __END_HASH__
 __INCLUDE__ "cylin.skin_int.tmp"
 __END_ELEMSET__
-#endif
 
 elemset ns_id 1
 ns_id_fac 0.

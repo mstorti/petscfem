@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.20 2003/01/10 12:27:54 mstorti Exp $
+//$Id: inviscid.cpp,v 1.21 2003/01/11 15:24:08 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -31,7 +31,7 @@ ext_node::ext_node() : dpot_dx(NULL), dpot_dx_filt(NULL) {
   dpot_dx = new double[NDIM*n_coef];
   dpot_dx_filt = new double[NDIM*n_coef];
   for (int j=0; j<NDIM*n_coef; j++) {
-#if 0
+#if 1
     dpot_dx[j] = 0.;
     dpot_dx_filt[j] = 0.;
 #endif
@@ -431,7 +431,7 @@ void coupling_inv_hook::time_step_post(double time,int step,
   double dphidn;
 
   assert(fid = fopen("ext.coupling_normal_vel.tmp","w"));
-#if 0
+#if 1
   printf("using filter:\n j      a[j]      b[j]\n");
   for (int j=0; j<n_coef; j++) printf("%d   %f  %f\n",j,a_coef[j],b_coef[j]);
 #endif
