@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
+//$Id: qharmm.cpp,v 1.10 2004/10/13 20:03:13 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -53,6 +53,20 @@ void qharmm::elemset_init() {
   x_ref.resize(1,ndof).set(0.);
   ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
   assert(!ierr);
+
+  const char *line;
+  thash->get_entry("source",line);  
+  G.resize(1,ndof).set(0.);
+  if (line) {
+    vector<double> v;
+    read_double_array(v,line);
+    if (v.size()==1) {
+      G.set(v[0]);
+    } else if (v.size()==ndof) {
+      cond.set(&v[0]);
+    } else PETSCFEM_ERROR("Number of elements in source line inappropriate\n"
+			  "entered %d values\n", v.size()); 
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -70,7 +84,7 @@ void qharmm::pg_connector(const FastMat2 &xpg,
   tmp(3).prod(C,tmp(6),1,-1,-1);
   tmp(7).prod(shape(),tmp(3),1,2);
   tmp(8).set(state_new_pg).rest(state_old_pg).scale(1./Dt);
-  tmp(9).prod(Cp,tmp(8),1,-1,-1);
+  tmp(9).prod(Cp,tmp(8),1,-1,-1).rest(G);
   tmp(11).prod(shape(),tmp(9),1,2);
   res_pg.rest(tmp(7)).rest(tmp(11));
 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: qharmm.h,v 1.4 2003/04/17 00:40:54 mstorti Exp $
+// $Id: qharmm.h,v 1.5 2004/10/13 20:03:13 mstorti Exp $
 #ifndef PETSCFEM_QHARMM_H
 #define PETSCFEM_QHARMM_H
 
@@ -11,7 +11,7 @@
 class qharmm : public adaptor_pg {
 private:
   double Dt;
-  FastMat2 cond,C,Cp,x_ref;
+  FastMat2 cond,C,Cp,x_ref,G;
   FastMat2Tmp tmp;
 public:
   void elemset_init();
