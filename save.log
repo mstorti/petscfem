@@ -3879,3 +3879,6 @@ tag: beta-3.41.10 on Thu, 27 Jan 2005 14:33:19 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.11 on Thu, 27 Jan 2005 17:57:17 -0300 by mstorti in minerva.ceride.gov.ar
      > Running cylinder example with `gasflow_abso2'. 
+----------
+tag: beta-3.41.12 on Fri, 28 Jan 2005 09:06:55 -0300 by mstorti in spider
+     > Debugging `gasflow_abso2'. 
