@@ -29,52 +29,10 @@ Update jacobian only until n-th Newton subiteration.
 Don't update if null. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{atol@\verb+atol+}
-\item\verb+double atol+ {\rm(default=\verb|1e-6|)}:
+\index{newton\_relaxation\_factor@\verb+newton_relaxation_factor+}
+\item\verb+double newton_relaxation_factor+ {\rm(default=\verb|1.|)}:
 
-Absolute tolerance to solve the monolithic linear
-system (Newton linear subiteration).
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{rtol@\verb+rtol+}
-\item\verb+double rtol+ {\rm(default=\verb|1e-3|)}:
-
-Relative tolerance to solve the monolithic linear
-system (Newton linear subiteration).
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{dtol@\verb+dtol+}
-\item\verb+double dtol+ {\rm(default=\verb|1e+3|)}:
-
-Divergence tolerance to solve the monolithic linear
-system (Newton linear subiteration).
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{Krylov\_dim@\verb+Krylov_dim+}
-\item\verb+int Krylov_dim+ {\rm(default=\verb|50|)}:
-
-Krylov space dimension in solving the monolithic linear
-system (Newton linear subiteration) by GMRES.
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{maxits@\verb+maxits+}
-\item\verb+int maxits+ {\rm(default=\verb|Krylov_dim|)}:
-
-Maximum iteration number in solving the monolithic linear
-system (Newton linear subiteration).
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{print\_internal\_loop\_conv@\verb+print_internal_loop_conv+}
-\item\verb+int print_internal_loop_conv+ {\rm(default=\verb|0|)}:
-
-Prints convergence in the solution of the GMRES iteration. 
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{verify\_jacobian\_with\_numerical\_one@\verb+verify_jacobian_with_numerical_one+}
-\item\verb+int verify_jacobian_with_numerical_one+ {\rm(default=\verb|0|)}:
-
-After computing the analytic Jacobian, Computes the
-Jacobian in order to verify the analytic one. 
+Relaxation parameter for Newton iteration. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{print\_linear\_system\_and\_stop@\verb+print_linear_system_and_stop+}
@@ -84,16 +42,16 @@ After computing the linear system solves it and prints Jacobian,
 right hand side and solution vector, and stops. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{solve\_system@\verb+solve_system+}
+\item\verb+int solve_system+ {\rm(default=\verb|1|)}:
+
+Solve system before \verb+print\_linear_system_and_stop+
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{measure\_performance@\verb+measure_performance+}
 \item\verb+int measure_performance+ {\rm(default=\verb|0|)}:
 
 Measure performance of the 'comp\_mat\_res' jobinfo. 
-
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{preco\_type@\verb+preco_type+}
-\item\verb+string preco_type+ {\rm(default=\verb|jacobi|)}:
-
-Chooses the preconditioning operator. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nsave@\verb+nsave+}
@@ -205,6 +163,12 @@ Backward Euler. \verb+alpha=0+: Forward Euler.
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
 Use the LES/Smagorinsky turbulence model. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{use\_iisd@\verb+use_iisd+}
+\item\verb+int use_iisd+ {\rm(default=\verb|0|)}:
+
+Use IISD (Interface Iterative Subdomain Direct) or not.
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{save\_file\_pattern@\verb+save_file_pattern+}

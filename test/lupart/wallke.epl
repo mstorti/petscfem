@@ -2,15 +2,16 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 #
 $case = $ENV{'case'};
+$Re = $ENV{'Re'};
 $L = 1;                         # Semi distance between plates
-$N = 4;                        # Number of elements in transversal 'x' direction
+$N = 4;                         # Number of elements in transversal 'x' direction
 $hratio = 1;                    # refinement near the wall
 $hratioy = 1;                   # refinement to the exit
-$Ny = 2;                       # Number of elements in y dir
+$Ny = 2;                        # Number of elements in y dir
 $Ny_eq = 1;                     # last elements that are equal in size
                                 # in the y direction
 $Ly = 1;                        # longitudinal length 
-$Re = 10000;                        # laminar Re
+$Re = 10000 unless $Re;         # laminar Re
 $Uav = 1;                       # 
 $nu = $Uav*2*$L/$Re;            # kinematic visc.
 $part_case = ($case =~ /^(.*)_part$/);
@@ -75,7 +76,7 @@ nnwt 2
 nstep 1
 nnwt 1
 partitioning_method "<:=$part_method:>"
-debug_element_partitioning
+#debug_element_partitioning
 #elsif $peri
 nstep 1
 nnwt 1

@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.40 2001/07/28 20:03:56 mstorti Exp $
+#$Id: Makefile.base,v 1.41 2001/08/06 01:07:27 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -51,6 +51,7 @@ TARFILE = $(PETSCFEM_DIR)/../source
 APPDIR = $(PETSCFEM_DIR)/applications
 
 ODOC = $(PETSCFEM_DIR)/tools/odoc.pl
+DOC_DIR = $(PETSCFEM_DIR)/doc
 
 INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
 
@@ -79,9 +80,12 @@ ifneq ($(DEPEND_DIRS),)
 	done
 endif
 
+ifeq ($(ETAGS),GNU)
+TAGFLAGS := --regex='/.*[^a-zA-Z0-9_]\([a-zA-Z0-9][a-zA-Z0-9_]*\) *:=/\1/' 
+endif
 TAGS: force
 ifneq ($(SRCS),)
-	etags *.cpp *.h $(TAGFLAGS)
+	etags $(TAGFLAGS) *.cpp *.h 
 endif
 
 #w Create preprocessed files

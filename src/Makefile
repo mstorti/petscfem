@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.24 2001/08/02 01:54:01 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2001/08/06 01:07:36 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -102,4 +102,13 @@ getarrgr.tab.o: getarrgr.tab.c
 %.o: %.c
 	$(GNU_C_COMPILER) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
+odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex
 
+$(DOC_DIR)/odociisd.tex: lusubd.cpp
+	$(run_odoc)
+
+$(DOC_DIR)/odocelems.tex: elemset.cpp 
+	$(run_odoc)
+
+$(DOC_DIR)/odocrmsh.tex: readmesh.cpp
+	$(run_odoc)

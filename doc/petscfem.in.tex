@@ -66,6 +66,7 @@
 \newcommand{\bPi}{\boldsymbol{\Pi}}
 \newcommand{\btau}{\boldsymbol{\tau}}
 \newcommand{\pfem}{PETSc-FEM}
+\newcommand{\PETSc}{PETSc}
 \newcommand{\F}{\mathcal{F}}
 %\newcommand{\Hen}{\mathcal{H}} % enthalpy
 \newcommand{\D}{\mathcal{D}}
@@ -84,6 +85,10 @@
 \newcommand{\dS}{{\di\Sigma}}
 \newcommand{\ustar}{{u^*}}
 \newcommand{\Dt}{{\Delta t}}
+% IISD DistMap
+\newcommand{\btA}{{\tilde{!A}}}
+\newcommand{\btb}{{\tilde{!b}}}
+\newcommand{\nproc}{{n_{\mathrm{proc}}}}
 %
 \newcommand{\AFS}{{Algebraic Fractional Step}}
 %
@@ -135,7 +140,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.1 2001/05/30 17:27:24 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.2 2001/08/06 01:06:10 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -159,17 +164,18 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
@@ -184,6 +190,7 @@ keeping in mind the scope of efficiency.
 \item[eperl:] embedded Perl
 \item[FDM:] Finite Difference Method
 \item[FEM:] Finite Element Method
+\item[IISD:] Interface Iterative -- Sub-domain Direct method
 \item[MPI:] Message Passing Interface
 \item[OOP:] Object Oriented Programming
 \item[Perl:] Practical Extraction and Report Language
@@ -257,5 +264,5 @@ T_s
 # eval: (setq outline-regexp "\\(\\\\\\|%\\)S*ection{") $
 # eval: (setq current-pos-regexp "^%# Current line ===========") $
 # eval: (font-lock-fontify-buffer) $
-# eval: (setq tex-run-command "make petscfem.tex ; latex petscfem") $
+# eval: (setq latex-run-command "make petscfem.tex ; latex petscfem") $
 # End: $

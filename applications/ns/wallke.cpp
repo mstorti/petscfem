@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.16 2001/07/05 02:30:04 mstorti Exp $
+//$Id: wallke.cpp,v 1.17 2001/08/06 01:07:33 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -23,8 +23,9 @@ extern int TSTEP; //debug:=
 #define IDENT(j,k) (ident[ndof*(j)+(k)]) 
 #define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
 
+// eckel:= 
 // This is required!! See `Thinking in C++, 2nd ed. Volume 1', 
-// (http://www.MindView.net)
+// by Bruce Eckel (http://www.MindView.net)
 // Chapter 15: `Polymorphism &  Virtual Functions', 
 // paragraph `Pure virtual destructors' 
 WallFun::~WallFun() {}; 

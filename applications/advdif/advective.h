@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.35 2001/05/30 03:58:35 mstorti Exp $
+//$Id: advective.h,v 1.36 2001/08/06 01:07:30 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -206,7 +206,7 @@ public:
 
   /** Define the list of variables that are 
       treated logarithmically. Reads from the options 
-      #nlog_vars" and #log_vars#. 
+      #nlog_vars# and #log_vars#. 
   */
   virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
   /** This is called before any other in a loop and may help in

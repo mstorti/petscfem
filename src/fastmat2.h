@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.9 2001/06/08 14:25:56 mstorti Exp $
+//$Id: fastmat2.h,v 1.10 2001/08/06 01:07:36 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -664,7 +664,7 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Norm p of matrix (per column). 
-      $(\sum_j |a_j|^p)^\sfr 1p$
+      $(\sum_j |a_j|^p)^{\frac 1p}$
       @author M. Storti
       @param A (input) matrix to contract
       @param p (input) exponent of norm
@@ -674,8 +674,9 @@ public:
   FastMat2 & norm_p(const FastMat2 & A,double p,const int m=0,INT_VAR_ARGS);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  /** Norm p of matrix (per column) for p integer (more efficient)
-      $(\sum_j |a_j|^p)^\sfr 1p$
+  /** Norm #p# of matrix (per column) for #p# integer (more efficient
+      than the version for #p# real)
+      $(\sum_j |a_j|^p)^{\frac 1p}$
       @author M. Storti
       @param A (input) matrix to contract
       @param p (input) exponent of norm

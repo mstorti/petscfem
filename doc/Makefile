@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.20 2001/05/30 13:01:49 mstorti Exp $
+#$Id: Makefile,v 1.21 2001/08/06 01:06:10 mstorti Exp $
 
 .PHONY: html clean lclean all icons latex force ps readme
 
@@ -15,7 +15,8 @@ include $(PETSCFEM_DIR)/Makefile.base
 ODOCFILES = odocadv.tex odocadvdif.tex odocadvdife.tex \
 	odocadve.tex odocadvfe.tex odocadvfm2.tex odocadvfs.tex \
 	odocburgers.tex odocgenl.tex \
-	odocns.tex odocnsb.tex odocnse.tex odocnsw.tex odocswfm2t.tex
+	odocns.tex odocnsb.tex odocnse.tex odocnsw.tex odocswfm2t.tex \
+	odociisd.tex
 
 TEXFILES = prev1 layout thash idmap compprof advec \
 		ns tests fastmat2 $(ODOCFILES:.tex=)
@@ -99,6 +100,7 @@ petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 
 #w Make all documentation files for program options with 'odoc.pl'
 odoc:
+	$(MAKE) -C ../src odocsrc
 	$(MAKE) -C ../applications/ns odocns
 	$(MAKE) -C ../applications/advective odocadv
 	$(MAKE) -C ../applications/advdif odocadvdif

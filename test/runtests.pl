@@ -800,6 +800,12 @@ IISD on 2 processors with CGS OK \? > 1,
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("lupart/check_peri.verif.tmp",
+       "IISD solver",<<'EOT');
+IISD on 2 processors with periodic b.c.'s OK \? > 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("lupart/check_part.verif.tmp",
        "Partitioning test",<<'EOT');
 Hitchhiking partitioning OK \? > 1

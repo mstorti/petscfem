@@ -1,18 +1,23 @@
 %__INSERT_LICENSE__
 
+\index{PFMat@\verb+PFMat+}
 \Section{The PFMat class} 
 
-\index{PFMat@\verb+PFMat+} The \verb+PFMat+ class is a matrix class
-that acts either as a wrapper to the \PETSc{} \verb+Mat+ or to other
-representations of matrix/solvers. Currently there is the basic
-\PETSc{} class named \verb+PETScMat+ and a class called \verb+IISDMat+
-(for \emph{``Interface Iterative -- Sub-domain Direct''}, method)
-that has a special solver that solves the linear system by solving
-iteratively over the interface nodes, while solving with a direct
-method in the sub-domain interiors. 
+\index{IISDMat}
+\index{PFMat@\verb+PFMat+} 
+The \verb+PFMat+ class is a matrix class that acts either as a wrapper
+to the \PETSc{} \verb+Mat+ or to other representations of
+matrix/solvers. Currently there is the basic \PETSc{} class named
+\verb+PETScMat+ and a class called \verb+IISDMat+ (for
+\emph{``Interface Iterative -- Sub-domain Direct''}, method) that has
+a special solver that solves the linear system by solving iteratively
+over the interface nodes, while solving with a direct method in the
+sub-domain interiors.
 
 \SSection{The PFMat abstract interface} 
 
+\index{d_nnz@\verb+d_nnz+}
+\index{o_nnz@\verb+o_nnz+}
 The \verb+create(...)+ member should create the matrix from the matrix
 profile \verb+da+ and the \verb+dofmap'. For the \verb+PETScMat+
 matrix class it calls the old \verb+compute_prof+ routine calculating
@@ -51,6 +56,15 @@ The \verb+view()+ member prints operator information to the output.
 
 \SSection{IISD solver} 
 
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/iisd.eps}}
+\caption{IISD deccomposition by subdomains}
+\label{fg:iisd}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+\index{connected dof's}
 Let's consider a mesh as in figure ~\ref{fg:iisd}, partitioned such
 that a certain number of elements and nodes belong to processor 0 and
 others to processor 1. We assume that one unknown is associated to
@@ -58,8 +72,8 @@ each node and no Dirichlet boundary conditions are imposed so that
 each node corresponds to one unknown. We split the nodes unknowns in
 three disjoint subsets $L_{1,2}$ and $I$ such that the nodes in $L_1$
 are not connected to those in $L_2$ (i.e. they not share an element,
-and then, the FEM matrix element $A_{i,j}$ with $i\in L_1$ and $j\in
-L_2$ are null. The matrix is split in blocks as follows
+and then, the FEM matrix elements $A_{i,j}$ and $A_{j,i}$ with $i\in
+L_1$ and $j\in L_2$ are null. The matrix is split in blocks as follows
 %
 \begin{equation} 
 \begin{split}
@@ -102,7 +116,7 @@ which is split as
 Now consider eliminating $!x_L$ from the first equation and replacing
 in the second so that, we have an equation for $!x_I$
 %
-\begin{equation} 
+\begin{equation}  \label{eq:interfp}  
 \begin{split}
   (!A_{II} - !A_{IL} \, !A_{LL}\muno \, !A_{LI}) \, !x_I 
         &= (!b_I - !A_{IL} \, !A_{LL}\muno \, !b_L)\\
@@ -129,14 +143,215 @@ $!A_{LI}$ and to solve the system with $!A_{LL}$. As the matrix
 $!A_{LL}$ has no elements connecting unknowns in different processors
 the solution system may be computed very efficiently in parallel.
 
+\SSection{Implementation details of the IISD solver} 
+
+\begin{itemize}
+\item Currently unknowns and elements are partitioned in the same way
+as for the PETSc solver. The best partitioning criteria could be
+different for this solver than for the \PETSc{} iterative solver. 
+
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \begin{figure*}[htb]
-\centerline{\includegraphics{./OBJ/iisd.eps}}
-\caption{IISD deccomposition by subdomains}
-\label{fg:iisd}
+\centerline{\includegraphics{./OBJ/iisd2.eps}}
+\caption{IISD deccomposition by subdomains. Actual decomposition.}
+\label{fg:iisd2}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+\index{partitioning}
+\item Selecting \emph{``interface''} and \emph{``local''} dof's:
+One strategy could be to mark all dof's that are connected to a dof in
+other processor as \emph{``interface''}. However this could lead to an
+\emph{``interface''} dof set twice larger in the average than the minimum
+needed. As the number of nodes in the \emph{``interface''} set
+determines the size of the interface problem (\ref{eq:interfp}) it is
+clear that we should try to choose an interface set as small as
+possible. 
+
+In \verb+read_mesh()+ partitioning is done on the dual graph, i.e. on
+the elements. Nodes are then partitioned in the following way: A node
+that is connected to elements in different processors is assigned to
+the highest numbered processor. Referring to the mesh in
+figure~\ref{fg:iisd} and with the same element partitioning all
+nodes in the interface would belong to processor 1, as shown in
+figure~\ref{fg:iisd2}. 
+
+Now, if a dof $i$ is connected to a dof $j$ on other processor
+we mark as \emph{``interface''} that dof that belongs to the highest
+numbered processor. So, in the mesh of figure~\ref{fg:iisd2} all dof's
+in the interface between element sub-domains are marked to belong to
+processor 1. The nodes in the shadowed strip belong to processor 0 and
+are connected to nodes in processor 1 but they are not marked as
+\emph{``interface''} since they belong to the lowest numbered
+processor. Note that this strategy leads to an interface set of 4
+nodes, whereas the simpler strategy mentioned first would lead to an
+interface set of 4 (i.e. including the nodes in the shadowed strip),
+which is two times larger. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/iisd3.eps}}
+\caption{Non local element contribution due to bad partitioning}
+\label{fg:iisd3}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+\index{DistMatrix@\verb+DistMatrix+}
+\index{A_LL_other@\verb+A_LL_other+}
+\item The \verb+IISDMat+ matrix object contains three \verb+MPI+
+\PETSc{} matrices for the $A_{LI}$, $A_{IL}$ and $A_{II}$ blocks and a
+sequential \PETSc{} matrix in each processor for the local part of the
+$A_{LL}$ block. The $A_{LL}$ block must be defined as sequential
+because otherwise we couldn't factorize it with the LU solver of
+\PETSc{}. However this constrains that \verb+MatSetValues+ has to be
+called in each processor for the matrix that belongs to its block,
+i.e. elements in a given processor shouldn't contribute to $A_{LL}$
+elements in other processors.  Normally, this is so, but for some
+reasons this condition may be violated. One, is periodic boundary
+conditions and constraints in general (they are not taken into account
+for the partitioning). Another reasons is very bad partitioning that
+may arise in some not so common situations. Consider for instance
+figure~\ref{fg:iisd3}. Due to bad partitioning a rather isolated
+element $e$ belongs to processor 0, while being surrounded by elements
+in processor 1. Now, as nodes are assigned to the highest numbered
+processor of the elements connected to the node, nodes $p$, $q$ and
+$r$ are assigned to processor 1. But then, nodes $q$ and $r$ will
+belong to the local subset of processor 1 but will receive
+contributions from element $e$ in processor 0. However, the solution
+is not to define this matrices as \PETSc{} because, so far, \PETSc{}
+doesn't support for a distributed LU factorization. The solution we
+devised is to store those $A_{LL}$ contributions that belong to other
+processors in a temporary buffer and after, to send those
+contributions to the correct processors directly with MPI
+messages. This is performed with the DistMatrix object
+\verb+A_LL_other+. 
+\end{itemize}
+
+\Section{The DistMap class} 
+
+\index{DistMap@\verb+DistMap+}
+\index{STL@\verb+STL+}
+%
+This class is an STL \verb+map<Key,Val>+ template container, where
+each process can insert values and, at a certain point a
+\verb+scatter()+ call sends contributions to the corresponding
+processor. 
+
+\SSection{Abstract interface} 
+
+\index{BufferPack@\verb+BufferPack+}
+To insert or access values one uses the standard \verb+insert()+
+member or the \verb+[]+ operator of the basic class. The
+\verb+processor(iterator k)+ member (to be defined by the user of the
+template) should return the process rank to which the pair
+\verb+(key,val)+ pointed by \verb+k+ should belong. After calling the
+\verb+scatter()+ member by all processes, all entries are sent to
+their processors. In order to send the data across processors, the
+user has to define the \verb+size_of_pack()+ and \verb+pack()+
+routines. The \verb+pack()+ and \verb+unpack()+ functions in the
+\verb+BufferPack+ namespace can help to do that for basic types
+(i.e. those for which the \verb+sizeof()+ operator and the \verb+libc+
+\verb+memcpy()+ routine work). Finally the \verb+combine+ member
+defines how new entries that have been sent from other processors have
+to be merged in the local object. 
+
+\SSection{Implementation details} 
+
+When calling the \verb+scatter+ member, each entry in the basic
+container is scanned and if it doesn't belong to the processor it is
+buffered (using the \verb+pack+ member) to a buffer to be sent to
+the other processor. Once all the data to be sent is buffered, the
+entries are scanned again and the entries that have been buffered are
+deleted. 
+
+The buffers are sent to the other processors following an strategy
+preventing deadlock in $\nproc-1$ stages, where $\nproc$ is the number
+of processors. In the $k$-th stage, data is sent from processor $j$ to
+processor $(j+k) \% \nproc$ where $\%$ is the remainder operator as in
+the C language. In each stage, all processors other than the server do first a
+\verb+MPI_Recv()+ and after a \verb+MPI_Send()+, while the server does
+in the other sense, i.e. first a \verb+MPI_Send()+ and after a
+\verb+MPI_Recv()+, initiating the process 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/sched.eps}}
+\caption{Simple scheduling algorithm for transferring data among processors}
+\label{fg:sched}
 \end{figure*}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
  
+This is a rather inefficient strategy because at each stage all
+sending is tied to the previous one, making the whole process
+$\sim\nproc^2 T)$ where $T$ is the time needed to send a typical
+individual buffer from one process to other. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{figure*}[htb]
+\centerline{\includegraphics{./OBJ/sched2.eps}}
+\caption{Improved scheduling algorithm for transferring data among processors}
+\label{fg:sched2}
+\end{figure*}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+
+An improved strategy consists in a multilevel scheduling
+algorithm. Assume first that $\nproc$ is even and divide processors in
+subsets $S_1 = \{0,1,\ldots,\nproc/2\}$, $S_2 =
+\{n/2,n/2+1,\ldots,\nproc-1\}$. We first exchange all information
+between processors in $S_1$ with those in $S_2$ in $\nproc/2-1$ stages. In
+a first stage (see figure~\ref{fg:sched2}) processor $0$ exchanges
+data with $n/2$, 1 with $\nproc/2+1$, $\ldots$ and $n/2-1$ with $\nproc$. 
+i.e. processor 0 calls \verb+exchange+$(n/2)$ and
+processor $n/2$ calls \verb+exchange+$(0)$, the code of procedure
+\verb+exchange()+ is shown in \label{lb:exch}. In the second stage
+processor 0
+exchanges with $\nproc/2+2$, 1 with $\nproc/2+3$, $\nproc/2-2$ with
+$\nproc$ and $\nproc/2-1$ with $\nproc/2$, i.e. processor
+$j$ exchanges with $(n/2)+(j+1)\%(\nproc/2)$. In general, in stage $k$
+processor $j$ exchanges with processor $(n/2)+(j+k)\%(\nproc/2)$. Note
+that in each stage all communications are paired and can be performed
+simultaneously, so that each stage can be performed in $2T$ (sending
+plus receiving). This $\nproc/2-1$ stages take then a total of
+$2(\nproc/2-1)T$. Now, all communication between processors in $S_1$ and
+$S_2$ has been performed, it only remains to perform the communication
+between processors in $S_1$ and processors in $S_2$. But then, we can
+apply this idea recursively and divide the processors in $S_1$ in two
+subsets $S_{11}$ and $S_{12}$ with $\nproc/4$ each (let's assume that
+the number of processors is a power of 2, $\nproc = 2^m$). Applying
+the idea recursively we arrive to an estimation of a total time of
+%
+\begin{equation} 
+\begin{split}
+  T(n) &= [(\nproc/2-1) + (\nproc/4-1) + \ldots + 1 ]2T\\
+        &= 2T \,(\nproc-\log_2\nproc)\\
+        &\sim 2\nproc T
+\end{split}
+\end{equation}
+%
+Then, it is significantly better than the previous algorithm. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+\begin{algorithm}[htb]
+\label{lb:exch}
+\caption{Scheduling algorithm for exchanging data between processors}
+\begin{algorithmic}
+\STATE {\textbf{procedure exchange}(j)}
+  \IF{{\tt myrank}$>j$}
+    \STATE send to $j$
+    \STATE receive from $j$
+  \ELSE
+    \STATE receive from $j$
+    \STATE send to $j$
+  \ENDIF
+\end{algorithmic}
+\end{algorithm}
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
+ 
+
+
+
+
+
 % Local Variables: *
 % mode: latex *
 % tex-main-file: "petscfem.tex" *

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2001/08/03 17:07:34 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2001/08/06 01:07:43 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -10,11 +10,19 @@ run:
 #w All tests
 tests: test_iisd test_partitioning
 
-#w Tests 
-test_distmap: 
-	$(MAKE) NP=2 peri=1 case=iisd case_size=small2 test_case
-	mv -f save.state save.state.iisd.np2.tmp
+test_eff: 
+	$(MAKE) NP=2 Re=100 case=iisd case_size=large test_case
+	mv -f save.state save.state.iisd_peri.np2.tmp
 
+#w Tests IISD with periodic boundary conditions
+test_distmap: 
+	$(MAKE) NP=2 Re=100 peri=1 case=iisd case_size=small2 test_case
+	mv -f save.state save.state.iisd_peri.np2.tmp
+	$(MAKE) NP=1 Re=100 peri=1 case=iisd case_size=small2 test_case
+	mv -f save.state save.state.iisd_peri.np1.tmp
+	octave -q check_peri.m > check_peri.verif.tmp
+
+#w Tests IISD 
 test_iisd:
 	$(MAKE) NP=2 case=iisd case_size=small test_case
 	mv -f save.state save.state.iisd.np2.tmp
@@ -63,8 +71,7 @@ endif
 test_case: test_case_data
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) \
-			-case $(NAME).depl # > output.case_$(case).tmp
-#			-case $(NAME).depl | tee output.case_$(case).tmp
+			-case $(NAME).depl  > output.case_$(case).tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m

@@ -13,16 +13,17 @@ all: html ps
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 
+#w generate HTML
 html:
-	$(DOCXX) -p -d html $(DOCF)
+	$(DOCXX) -p -a -ep mstorti -d html $(DOCF)
 
+#w Generate PS
 ps: ../manual.ps.gz
 
 .INTERMEDIATE: ../manual.ps 
 ../manual.ps.gz: ../manual.ps
 .SECONDARY: manual.tex
 
-#w Generate PS
 ../manual.ps: manual.dvi
 	dvips -o $@ $<
 
@@ -44,7 +45,7 @@ local_dist_clean::
 	-rm -f manual.tex.bak
 
 local_clean:: local_dist_clean
-	-rm manual.tex 
+	-rm -f manual.tex manual.pdf
 	if [ -d html ] ; then rm -rf html ; fi
 
 html_clean:

@@ -12,6 +12,11 @@
 //@Include: ../../src/readlist.h
 //@Include: ../../src/readmesh.h
 //@Include: ../../src/getprop.h
+//@Include: ../../src/buffpack.h
+//@Include: ../../src/maximizr.h
+//@Include: ../../src/pfmat.h
+//@Include: ../../src/distmap.h
+//@Include: ../../src/distmat.h
 //@Include: ../../src/dofmap.h
 //@Include: ../../src/idmap.h
 //@Include: ../../src/vecmacros.h

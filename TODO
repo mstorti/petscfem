@@ -3,10 +3,11 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* document distributed map
+* Use IISD `inside processors'. 
+* interface preconditioning for IISD
 * Put order in the headers. Now, a modification in some header launchs
     recompilation of almost the whole code. 
-* IISD: Code for element contributions to `local-local' matrices in other
-   processors. 
 * make `da' in profiles to be dimensioned of size `neqp' (number of
    dofs in local processor, not of size `neq' (number of total dofs)
 * write better error messages in FM2 (with threads??)
@@ -46,6 +47,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* IISD: Code for element contributions to `local-local' matrices in other
+   processors. 
 * Control no memory losses in IISDMat
 * Make readmesh check dof numbers not being greater than... 
 * while reading constraints complain if dofs out of range

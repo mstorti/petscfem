@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.5 2001/08/04 13:21:12 mstorti Exp $
+// $Id: distmat.cpp,v 1.6 2001/08/06 01:07:36 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -97,9 +97,12 @@ combine(const pair<int,Row> &p) {
       // r iterator to that key in the old row
       r = oldr.find(q->first);
       if (r == oldr.end()) {
-	r->second += q->second;
-      } else {
+	// the col is not in the row
+	// insert a new entry
 	oldr.insert(*q);
+      } else {
+	// add to the existing 
+	r->second += q->second;
       }
     }
   }

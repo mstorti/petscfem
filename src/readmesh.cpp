@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.28 2001/08/01 20:08:20 mstorti Exp $
+//$Id: readmesh.cpp,v 1.29 2001/08/06 01:07:36 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -134,8 +134,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	int indx = da_append (xnod,row);
 	if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
       }
-
-      // wait_from_console("after reading nodes"); 
 
       nnod=node;
       dofmap->nnod = nnod;
@@ -433,7 +431,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
       // nothing is done here
       PetscPrintf(PETSC_COMM_WORLD,"End elemsets section\n");
-      // wait_from_console("reading end_elemset"); 
 
     } else if (!strcmp(token,"fixa")) {
 
@@ -722,8 +719,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // partflag = 0 -> METIS partition;
   // partflag = 1 -> Hitchhiking partition;
   // partflag = 2 -> Neighbor partition. 
-  // Set partition method
   int partflag;
+  //o Set partitioning method. May be set to \verb+metis+,
+  // \verb+hitchhiking+ or \verb+nearest_neighbor+.
   TGETOPTDEF_S(mesh->global_options,string,partitioning_method,metis);
   if (partitioning_method == string("metis")) {
     partflag = 0;
@@ -735,7 +733,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     PETSCFEM_ERROR("partitioning method not known \"%s\"\n",
 		   partitioning_method.c_str());
   }
-  //wait_from_console("before partitioning"); 
   PetscPrintf(PETSC_COMM_WORLD,"Starts partitioning.\n"); 
 
 #define USE_METIS_PARTITION
@@ -756,7 +753,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // mark:= auxiliary vector that flags if an element has been marked
       // already as a linked node in the graph
       int *mark = new int[nelemfat];
-      //wait_from_console("antes de crear las adyacencias");
       for (int ielgj=0; ielgj<nelemfat; ielgj++) 
       mark[ielgj]=-1;
 
@@ -803,10 +799,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	nel = elemset->nel;
 	for (int iel=0; iel<elemset->nelem; iel++) {
 	  int ielgj = nelemsetptr[ielset]+iel;
-	  //if (iel % 25000 == 0) {
-	  //PetscPrintf(PETSC_COMM_WORLD,"iel= %d\n",iel);
-	  //wait_from_console("");
-	  //}
 	  xadj[ielgj+1]=xadj[ielgj];
 	  // loop over the connected nodes
 	  for (int iloc=0; iloc<elemset->nel; iloc++) {
@@ -829,7 +821,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  }
 	}
       }
-      //wait_from_console("despues de crear las adyacencias");
       delete[] mark;
 
 #if 0
@@ -849,7 +840,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  METIS_WPartGraphKway(&nelemfat,xadj,adjncy,NULL, 
 			       NULL,&wgtflag,&numflag,&size, 
 			       tpwgts,&options,&edgecut,vpart);
-	  //	  wait_from_console("salida de MEtis");
 	} else { // partflag=2
 	  if (myrank==0) printf("Neighbor Partition - partflag = %d\n",partflag);
 	    int *mnnel = new int [size+1];
@@ -913,14 +903,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       if (myrank==0) printf("vpart[%d]= %d\n",jm,vpart[jm]);
     }
 #endif
-    // wait_from_console("antes de borrar cosas para part.");
     assert(vecinos.empty());
     delete[] xadj;
-    //wait_from_console("despues de particionar");
-    // delete[] tpwgts; // don't delete, keep it in dofmap
-    // wait_from_console("despues de borrar cosas para part.");  
   }
-  // wait_from_console("despues de borrar adjncy");  
 
 #else //USE_METIS_PARTITION
   int *vpart = new int[nelemfat];
@@ -961,8 +946,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   // connected to any fat elemset or not. 
   int node_not_connected_to_fat=0;
   
-  // wait_from_console("trace 0");  
-
   int print_nodal_partitioning=0;
   ierr = get_int(mesh->global_options,
 		 "print_nodal_partitioning",
@@ -1032,15 +1015,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     exit(0);
   }
 
-  // wait_from_console("trace 1");  
-
   delete[] n2eptr;
   delete[] node2elem;
   delete[] nelemsetptr;
   delete[] vpart;
   delete[] nelem_part;
-
-  // wait_from_console("trace 2");  
 
   // Number degrees of freedom
   int proc,*neqproc, *startproc;
@@ -1050,8 +1029,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   for (k=0; k<ndof*nnod; k++) {
     perm[k]=0;
   }
-
-  // wait_from_console("trace 3");  
 
   // First number all the edof's in processor 0, then on 1, etc...
   // perm contains the permutation. 
@@ -1079,7 +1056,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     perm[k-1] = - npart[node-1];
   }
 
-  wait_from_console("despues de numerar nodos");
   // Now, number first all the dofs in processor 0, then on 1, and so
   // on until processor size-1, and finally those fixed (set to perm=size)
   jdof=0;
@@ -1115,11 +1091,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   dofmap->id = idnew;
 #endif
  
+  //o Checks that the \verb+idmap+ has been correctly generated. 
   TGETOPTDEF(mesh->global_options,int,check_dofmap_id,0);
   if (check_dofmap_id && myrank==0) {
     dofmap->id->check();
     dofmap->id->print_statistics();
   }
+
+  //o Prints the dofmap \verb+idmap+ object. 
   TGETOPTDEF(mesh->global_options,int,print_dofmap_id,0);
   if (print_dofmap_id && myrank==0) {
     dofmap->id->print("dofmap->id: ");
@@ -1153,8 +1132,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       (dofmap->fixed)[jj->second];
   }
 
-  // wait_from_console("trace 6");  
-
   // swap fixed with fixed_remapped (reordered)
   dofmap->fixed.swap(fixed_remapped);
   VOID_IT(fixed_remapped);
@@ -1187,8 +1164,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   dofmap->dof2 = dof2;
   set<int> ghost_dof_set;
     
-  // wait_from_console("trace 7");  
-
   // dof_here:= dof_here_list := Auxiliary vectors to define the
   // scatter needed for the ghost values
   for (int ielset=0; ielset<nelemsets; ielset++) {
@@ -1255,8 +1230,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     // Loops for defining profiles of matrices must loop over them
     // also. 
 
-    // wait_from_console("trace 8");  
-
     elemset->ghost_elems = da_create(sizeof(int));
 
     for (iele=0; iele<nelem; iele++) {
@@ -1300,8 +1273,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
   }
   
-  // wait_from_console("trace 10");  
-
   // Convert ghost_dof_set en dofmap
   set<int>::iterator it;
   dofmap->ghost_dofs = new vector<int>;
@@ -1331,8 +1302,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   delete[] dof_here;
   delete[] dof_here_list;
 
-  // wait_from_console("trace 11");  
-
   // Defines certain quantities in dofmap
   dofmap->neq= neq;
   dofmap->startproc = startproc;
@@ -1343,8 +1312,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   //                        DEFINE SCATTER
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-  // wait_from_console("trace 12");  
 
   PetscPrintf(PETSC_COMM_WORLD,"Defining scatters...\n");
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.27 2001/08/03 17:07:25 mstorti Exp $
+//$Id: lusubd.cpp,v 1.28 2001/08/06 01:07:36 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -462,7 +462,8 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
 	       J->first,col_indx,n_loc,n_locp);
 	MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
       } 
-      printf("[%d] debuffering (%d,%d) -> %f\n",MY_RANK,I->first,J->first,J->second);
+      // printf("[%d] debuffering (%d,%d) -> %f\n",
+      // MY_RANK,I->first,J->first,J->second);
       v = J->second;
       MatSetValues(A_LL,1,&row_indx,1,&col_indx,&v,insert_mode);
     }
@@ -574,7 +575,7 @@ void IISDMat::set_value(int row,int col,Scalar value,
     col_indx -= n_locp;
     if (row_indx < 0 || row_indx >= n_loc
 	|| col_indx < 0 || col_indx >= n_loc) {
-      printf("[%d] buffering (%d,%d) -> %f\n",MY_RANK,row,col,value);
+      // printf("[%d] buffering (%d,%d) -> %f\n",MY_RANK,row,col,value);
       A_LL_other->insert_val(row,col,value);
     }
   } 

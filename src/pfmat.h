@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.9 2001/08/02 19:50:22 mstorti Exp $
+// $Id: pfmat.h,v 1.10 2001/08/06 01:07:36 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -9,8 +9,9 @@
 #include <distmap.h>
 #include <distmat.h>
 
-// This is a wrapper to the PETSc Matrix class and allows us to define
-// new types
+/** This is a wrapper to the PETSc Matrix class and allows us to define
+    new types
+*/
 class PFMat {
 protected:
   /// We will have always a PETSc matrix for the system and for the preconditioner

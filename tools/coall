@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+$file = shift();
+$output = `cvs log $file`;
+@output = split "\n",$output;
+for $l (@output) {
+#    print "l: >$l<\n";
+    if ($l =~ /^RCS file:\s*(\S*)\s*$/) {
+	$rcsfile = $1;
+	print "Rcsfile: $rcsfile\n";
+    } elsif ($l =~ /^total revisions:\s*(\d*);/) {
+	print "$l\n";;
+    } elsif ($l =~ /^revision\s*(\S+)\s*$/) {
+	$rev = $1;
+	$out = `co -p$rev $rcsfile`;
+	print "out on file \">$file.~$rev~\"\n";
+	open O,">$file.~$rev~";
+	print O $out;
+	closeO;
+    }
+}
+

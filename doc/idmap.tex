@@ -50,13 +50,16 @@ operations.
 \label{fg:idmap}
 \end{figure*}
  
+\index{degree of freedom}
+\index{dof}
 Permutation matrices are very common in FEM applications for
 describing the relation between node/field pairs and degrees of
-freedom. For instance consider a flow NS or Euler application in a
-mesh like that shown in figure~\ref{fg:idmap}. At each node we have a
-set of unknown ``fields'' (both components of velocity and pressure,
-\lfrc{$u$}, \lfrc{$v$} and \lfrc{$p$}).  In a first description, we may arrange the vector
-of unknowns as 
+freedom (abbrev. \emph{``dof''}'s). For instance consider a flow NS or
+Euler application in a mesh like that shown in
+figure~\ref{fg:idmap}. At each node we have a set of unknown
+``fields'' (both components of velocity and pressure, \lfrc{$u$},
+\lfrc{$v$} and \lfrc{$p$}).  In a first description, we may arrange
+the vector of unknowns as
 %
 \begin{equation} 
    !U_\NF = \begin{sqmat}{c}

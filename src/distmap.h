@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.10 2001/08/03 17:07:25 mstorti Exp $
+// $Id: distmap.h,v 1.11 2001/08/06 01:07:36 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -10,18 +10,41 @@
 
 #include <vecmacros.h>
 
+/** This object class gives information to to which processor belongs
+    a dof, a node a processor or whatever. (Currently is only
+    implemented for dof's).  
+*/
 class Partitioner {
 public:
+  /// Make it pure virtual
   virtual ~Partitioner()=0;
-  virtual int epart(int elem) {return 0;};
+  /* To which processor belongs an element.
+     NOT IMPLEMENTED YET
+     @param element (input) the element to ask
+     @return the processor to which #element# belongs
+  */ 
+  // virtual int epart(ElementIterator &element) {return 0;};
+
+  /* To which processor belongs a node.
+     NOT IMPLEMENTED YET
+     @param node (input) the node to ask
+     @return the processor to which #node# belongs
+  */ 
   virtual int npart(int node) {return 0;};
-  virtual int dofpart(int node) {return 0;};
+
+  /* To which processor belongs a dof.
+     NOT IMPLEMENTED YET
+     @param dof (input) the dof to ask
+     @return the processor to which #dof# belongs
+  */ 
+  virtual int dofpart(int dof) {return 0;};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard
     `map' and, after, a `scatter' operation allows items in the map to
-    be passed from one processor to other. 
+    be passed from one processor to other. The #Partitioner# object
+    determines to which processor belongs each dof. 
 */
 template <class Key,class Val>
 class DistMap : public map<Key,Val> {
@@ -78,8 +101,10 @@ class DistMap : public map<Key,Val> {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class Key,class Val> DistMap<Key,Val>::
 DistMap<Key,Val>(Partitioner *p=NULL,MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
+  // Determine size of the communicator and rank of the processor
   MPI_Comm_size (comm, &size);
   MPI_Comm_rank (comm, &myrank);
+  // initialize the partitioner 
   part=p;
 };
 
@@ -127,7 +152,7 @@ void DistMap<Key,Val>::scatter() {
   // recopy `to_send_buff' to `to_send'
   memcpy(to_send,to_send_buff,size*size*sizeof(int));
 
-#if 1
+#if 0
   // debug: print the `to_send' table
   if (myrank==0) {
     for (j=0; j<size; j++) {
