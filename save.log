@@ -358,3 +358,6 @@ tag: beta-1.63 on Sat Apr  7 17:44:32 ART 2001, by mstorti in spider
 tag: beta-1.64 on Sun Apr  8 09:40:02 ART 2001, by mstorti in spider
      > Fixed bug in enthalpy module.
      > Passes all tests in newff. QUASI-STABLE
+----------
+tag: beta-1.65 on Mon Apr  9 00:04:04 ART 2001, by mstorti in spider
+     > Adding doc for new flux functions
