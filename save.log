@@ -2940,3 +2940,8 @@ tag: beta-3.20.pl7 on Wed, 10 Sep 2003 20:18:55 -0300 by mstorti in minerva.ceri
 ----------
 tag: beta-3.20.pl8 on Thu, 11 Sep 2003 13:02:16 -0300 by mstorti in minerva.ceride.gov.ar
      > Now PETSc-FEM prints the day of the run. 
+----------
+tag: beta-3.20.pl9 on Thu, 11 Sep 2003 14:47:31 -0300 by mstorti in minerva.ceride.gov.ar
+     > Changed set_error() for all detJaco checks. 
+     > Default A_van_Driest=0 now. 
+     > No wall_data sets error. 
