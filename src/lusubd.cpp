@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.50 2001/10/06 23:37:08 mstorti Exp $
+//$Id: lusubd.cpp,v 1.51 2001/11/01 19:19:27 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -1138,6 +1138,7 @@ void PETScMat::create(Darray *da,const Dofmap *dofmap,
   ierr =  MatCreateMPIAIJ(PETSC_COMM_WORLD,dofmap->neqproc[myrank],
 			  dofmap->neqproc[myrank],neq,neq,
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A); 
+  ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
   // P and A are pointers (in PETSc), otherwise this may be somewhat risky
   P=A;
   PETSCFEM_ASSERT0(ierr==0,"Error creating PETSc matrix\n");

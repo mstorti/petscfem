@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.35 2001/09/21 15:37:53 mstorti Exp $ 
+# $Id: Makefile,v 1.36 2001/11/01 19:19:28 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -55,9 +55,10 @@ tests: runtests
 #w Runs the tests
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	idmap fastvec chunk_size_process constraint_bug fstack triangle \
+	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
+	sparse
+runtests_p:  fastmat2 triangle \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap
-runtests_p: idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers bug100
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -311,6 +312,7 @@ fastmat2: fastmat2a fastmat2b fastmat2c
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>------
 #w FastMat2 test a 
 fastmat2a: testfm2a.bin
+	echo $(LD_LIBRARY_PATH)
 	testfm2a.bin > fastmat2a.sal
 
 testfm2a.bin: testfm2a.o libpetscfem

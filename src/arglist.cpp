@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: arglist.cpp,v 1.5 2001/07/16 14:14:16 mstorti Exp $
+//$Id: arglist.cpp,v 1.6 2001/11/01 19:19:27 mstorti Exp $
 #include "fem.h"
 #include "dofmap.h"
 #include "elemset.h"
@@ -27,6 +27,7 @@ arg_data::arg_data(void) {
   retval=NULL;
   sstate=NULL;
   vector_assoc=NULL;
+  profile=NULL;
 }  
 
 #undef __FUNC__

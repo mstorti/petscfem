@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.6 2001/07/16 14:14:16 mstorti Exp $
+//$Id: arglist.h,v 1.7 2001/11/01 19:19:27 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -120,6 +120,8 @@ public:
   Mat *A;
   /// PETSc-FEM Matrix 
   PFMat *pfA;
+  /// Profile of matrix
+  double *profile;
   /// Returned local values(one row per element) . 
   double *retval;
   /// reference state for finite difference calculation of jacobians.

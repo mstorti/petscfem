@@ -1,12 +1,10 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2001/04/01 03:11:09 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/11/01 19:19:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest gprof
 
 all: run
-
-gprof: petscfem.prof
 
 PETSCFEM_DIR = ..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -44,10 +42,6 @@ run: $(DATAFILE) force
 	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(DATAFILE) #&> salida.sal
 # 	if [ -e tmp_file*.tmp ] ; then rm tmp_file*.tmp ; fi
 # 	if [ -e gmon.out ] ; then $(MAKE) gprof ; fi
-
-petscfem.prof: gmon.out
-	@if [ -e gmon.out ] ; then echo "running gprof..." ; \
-		gprof $(PROG) gmon.out >$@ ; fi
 
 ctest: $(DATAFILE) force
 	$(MAKE) $(NS)

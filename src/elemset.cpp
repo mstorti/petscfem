@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.29 2001/11/01 12:43:48 mstorti Exp $
+//$Id: elemset.cpp,v 1.30 2001/11/01 19:19:27 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -25,10 +25,8 @@ extern int MY_RANK,SIZE;
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
 #define RETVALMAT(iele,j,k,p,q) VEC5(retval,iele,j,nel,k,ndof,p,nel,q,ndof)
+#define MASK(j,k,p,q) VEC4(argd.profile,j,k,ndof,p,nel,q,ndof)
 #define ICONE(j,k) VEC2(icone,j,k,nel)
-
-HPChrono chrono;
-extern TimeStat time_stat;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -182,17 +180,14 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      val = entry_v->coef * entryc_v->coef * vall;
 
 	      int kd=locdof-1,kdl=locdofl-1;
-	      if (1 || val != 0) {
+	      if (MASK(kloc,kdof,klocc,kdofc)) {
 		if (comp_prof) {
 		  node_insert(argd.da,kd,kdl);
 		  node_insert(argd.da,kdl,kd); // be sure that profile
 				// is symmetric
 		} else {
 		  if (pfmat) {
-		    chrono.start();
 		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
-		    double t = chrono.elapsed();
-		    time_stat.add(t);
 		  } else {
 		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
 		  }
@@ -215,7 +210,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		if (locdofl>neq) continue; // only load for free dof's
 		
 		val = (entry_v->coef) * (entryc_v->coef) * vall;
-		if (1 || val != 0) {
+		if (MASK(kloc,kdof,lloc,ldof)) {
 		  if (comp_prof) {
 		    int kd=locdof-1,kdl=locdofl-1;
 		    // be sure that profile is symmetric
@@ -314,7 +309,7 @@ int assemble(Mesh *mesh,arg_list argl,
   int j;
   int iter_mode = NOT_INCLUDE_GHOST_ELEMS;
   // any_fdj:= (boolean) flags if the call includes a "perturbed
-  // vector". This implies the calaculation of matrices by finite
+  // vector". This implies the calculation of matrices by finite
   // difference approximation to jacobian. 
   // j_pert:= this points to which argument is the vector to be
   // perturbed. 
@@ -448,8 +443,12 @@ int assemble(Mesh *mesh,arg_list argl,
 	ARGVJ.retval = new double[chunk_size*ndoft];
 	ARGVJ.refres = new double[chunk_size*ndoft];
       }
-      if (argl[j].options & ALLOC_MATRIX) 
-	ARGVJ.retval = new double[chunk_size*ndoft*ndoft];
+      if (argl[j].options & ALLOC_MATRIX)
+	ARGVJ.retval  = new double[chunk_size*ndoft*ndoft];
+      if (argl[j].options & (ASSEMBLY_MATRIX | UPLOAD_PROFILE)) {
+	ARGVJ.profile = new double[ndoft*ndoft];
+	for (int kk=0; kk<ndoft*ndoft; kk++) ARGVJ.profile[kk] = 1.;
+      }
     }
 
     if (any_fdj) pref = new double[chunk_size*ndoft];
@@ -546,7 +545,7 @@ int assemble(Mesh *mesh,arg_list argl,
 	for (kloc=0; kloc<nel; kloc++) {
 	  for (kdof=0; kdof<ndof; kdof++) {
 
-#define DEBUG_ME
+	    //#define DEBUG_ME
 #ifdef DEBUG_ME
 	    printf("kloc %d, kdof %d\n",kloc,kdof);
 #endif
@@ -580,8 +579,7 @@ int assemble(Mesh *mesh,arg_list argl,
 		  for (kdoft=0; kdoft<ndoft; kdoft++) {
 		    fdj = -(RETVALT(iele_here,kdoft)-
 			    REFREST(iele_here,kdoft))/epsilon_fdj;
-		    //#ifdef DEBUG_ME
-#if 0
+#ifdef DEBUG_ME
 		    printf("ref, new, jac: %g %g %g\n",
 			   REFREST(iele_here,kdoft),
 			   RETVALT(iele_here,kdoft),fdj);
@@ -594,6 +592,7 @@ int assemble(Mesh *mesh,arg_list argl,
 		elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
 				       myrank,el_start,el_last,iter_mode,
 				       kloc,kdof);
+
 	      }
 	    }
 	  }
@@ -670,6 +669,8 @@ int assemble(Mesh *mesh,arg_list argl,
 	delete[] ARGVJ.retval;
 	delete[] ARGVJ.refres;
       }
+      delete[] ARGVJ.profile;
+      ARGVJ.profile = NULL;
     }
   }
 
