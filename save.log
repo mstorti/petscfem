@@ -873,3 +873,7 @@ tag: pfmat-rewrite-1.29 on Sun Jan 13 23:46:34 ARST 2002, by mstorti in spider
      > Runs all tests `from start' (i.e. `$make lclean sw ;
      > cd test ; make tests' is fine).
      > -- STABLE VERSION -- 
+----------
+tag: beta-2.63 on Mon Jan 14 05:02:47 ARST 2002, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Merged from the `pfmat-rewrite-branch'.
