@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2002/02/17 15:27:10 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/02/18 18:35:03 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -12,7 +12,7 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-LOC_PROG := advdif
+LOC_PROG := advdif_g
 #CASE_NAME := qharm
 CASE_NAME := bubbly
 PROG := $(ADVDIF)

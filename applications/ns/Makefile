@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.26 2002/02/18 00:02:28 mstorti Exp $ 
+ # $Id: Makefile,v 1.27 2002/02/18 18:34:59 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -22,7 +22,7 @@ TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"
 
 # for makedepend
-SRCS := $(MYOBJS:.o=.cpp)
+SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 

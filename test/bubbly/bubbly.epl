@@ -7,7 +7,7 @@ get_var_env('case',undef);
 get_var_env('meas_perf',undef);
 $save_file = ($case ? "bubbly.$case.tmp" : "bubbly.state.tmp");
 ## Test the 'G_body' feature. 
-$g_body= 1;
+$g_body= 0;
 if ($case eq 'g_body') {
     $case='lu';
     $g_body=1;
@@ -16,20 +16,20 @@ $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
 $N = 20;
 $hratio = 5;			# refinement (h_center/h_wall)
-$Re = 1;			# Reynolds number
+$Re = 0.001;			# Reynolds number
 $visco_l = $L/$Re;		# viscosity
-$Dt = 0.01;			# time step
+$Dt = 1e12;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
 $nstep = 1;
-$alpha_l = 1.0;
+$alpha_l = 1.;
 $u_g=0;
 $v_g=0;
 $k = 0.1;
 $eps = 0.1;
 #
-$weak_form = 0;
+$weak_form = 1;
 $cache_gdu = 0;
 $update_jacobian =0;
 # `scalar' avoids returning the first match, which can be zero
@@ -50,7 +50,8 @@ global_options
 alpha 1.
 nsave 5
 <:pr('nstep'):> 
-# initial_state bubbly.state
+initial_state "bubbly.ini.tmp"
+# initial_state "bubbly.state1"
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -76,17 +77,19 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 dtol 1e3
-nnwt 4
+nnwt 10
 
+# omega_newton 0.5
 Krylov_dim <:=$maxits:>
 print_internal_loop_conv
+print_residual
 # print_linear_system_and_stop
 # solve_system 0
 # verify_jacobian_with_numerical_one 1
 
 # print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady
+# steady
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -118,9 +121,10 @@ npg 4
 #
 <:pr('visco_l'):> 
 visco_g <:=$visco_l/1000;:>
+C_mu 0.
 <:pr('weak_form'):>
 rho_l 1.
-rho_g 0.001
+rho_g 1e-3
 __END_HASH__
 __INCLUDE__ bubbly.con.tmp
 __END_ELEMSET__
@@ -129,7 +133,7 @@ end_elemsets
 
 fixa
 # fijacion en la presion
-1 2 0.
+1 1 0.
 # fijaciones de velocidad en las paredes
 __INCLUDE__ bubbly.fixa.tmp
 

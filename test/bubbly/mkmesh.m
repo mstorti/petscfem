@@ -37,13 +37,19 @@ fixa=[lid' ones(nlid,2)*diag([ul utop]);
 asave("bubbly.fixa.tmp",fixa);
 fid = fopen("bubbly.fixa_all.tmp","w");
 for j=1:(N+1)^2;
-  fprintf(fid,"%d %d %f\n",j,1,alpha_l);
+  fprintf(fid,"%d %d %f\n",j,2,alpha_l);
+#  fprintf(fid,"%d %d %f\n",j,3,0.);
+#  fprintf(fid,"%d %d %f\n",j,4,0.);
   fprintf(fid,"%d %d %f\n",j,5,u_g);
   fprintf(fid,"%d %d %f\n",j,6,v_g);
   fprintf(fid,"%d %d %f\n",j,7,k);
   fprintf(fid,"%d %d %f\n",j,8,eps);
 endfor
 fclose(fid);
+
+uini = [0. alpha_l 0. 0. 0. 0. 0.1 0.1];
+uini=uini(ones(rows(x),1),:);
+asave("bubbly.ini.tmp",uini);
 
 ## fix all quantities not liquid velocity and pressure
 
