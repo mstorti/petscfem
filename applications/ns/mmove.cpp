@@ -1,12 +1,14 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.2 2002/11/27 19:13:42 mstorti Exp $
+//$Id: mmove.cpp,v 1.3 2002/11/28 17:53:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
 #include <src/getprop.h>
 #include <src/fastmat2.h>
+#ifdef USE_NEWMAT
 #include <newmatap.h>
+#endif
 
 #include "nsi_tet.h"
 #include "adaptor.h"
@@ -41,8 +43,10 @@ void mesh_move::init() {
   J.resize(2,ndim,ndim);
   dNdxi.resize(2,ndim,nel);
 
+#ifdef USE_NEWMAT
   GG.ReSize(ndim);
   D.ReSize(ndim);
+#endif
 
   if (ndim==2) {
     dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
@@ -64,7 +68,6 @@ void mesh_move::init() {
     dNdxi.set(C);
   }
   res_Dir.resize(2,nel,ndim);
-  
 }
 
 double mesh_move::distor_fun(FastMat2 & xlocp) {
@@ -73,6 +76,7 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
   xlocp.reshape(2,nel,ndim);
   J.prod(xlocp,dNdxi,-1,1,2,-1);
   G.prod(J,J,-1,1,-1,2);
+#ifdef USE_NEWMAT
   for (int i=1; i<=ndim; i++) {
     for (int j=1; j<=ndim; j++) {
       GG(i,j) = G.get(i,j);
@@ -82,6 +86,12 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
   la1 = D(1,1);
   la2 = D(2,2);
   if (ndim==3) la3 = D(3,3);
+#else
+  D.seig(G);
+  la1=D.get(1);
+  la2=D.get(2);
+  if (ndim==3) la3=D.get(3);
+#endif
 
   volref=1.;
   if (ndim==2) {

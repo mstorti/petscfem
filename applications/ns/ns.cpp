@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.114 2002/11/27 19:13:42 mstorti Exp $
+//$Id: ns.cpp,v 1.115 2002/11/28 17:53:03 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -568,10 +568,6 @@ int main(int argc,char **args) {
 	exit(0);
 #endif
 
-	update_mesh(dx,dofmap,mesh,displ_factor);
-	write_mesh("remeshing.dat",dofmap,mesh,1);
-	write_mesh("lastmesh.dat",dofmap,mesh,0);
-
 	PetscViewer matlab;
 	if (verify_jacobian_with_numerical_one) {
 	  ierr = PetscViewerASCIIOpen(PETSC_COMM_WORLD,
@@ -831,6 +827,10 @@ int main(int argc,char **args) {
 #endif
 
     }
+
+    update_mesh(dx,dofmap,mesh,displ_factor);
+    write_mesh("remeshing.dat",dofmap,mesh,1);
+    write_mesh("lastmesh.dat",dofmap,mesh,0);
 
     // error difference
     scal = -1.0;
