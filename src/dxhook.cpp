@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.24 2003/02/16 01:42:01 mstorti Exp $
+//$Id: dxhook.cpp,v 1.25 2003/02/16 15:36:07 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -9,6 +9,7 @@
 #include <src/texthf.h>
 #include <src/hook.h>
 #include <src/dxhook.h>
+#include <src/autostr.h>
 
 #ifdef USE_SSL
 
@@ -356,20 +357,20 @@ time_step_post(double time,int step,
 	int size=1;
 	q->field(jf,name,rank);
 	vector<double> in(ndof),out(size);
-	char buff[2000];
+	AutoString buff;
 	// Sends name and rank of entity
-	sprintf(buff,"state %s %d",name.c_str(),rank.size());
+	buff.sprintf("state %s %d",name.c_str(),rank.size());
 
 	// Sends the list of dimensions and total size
 	for (int jd=0; jd<rank.size(); jd++) {
-	  sprintf(buff+strlen(buff)," %d",rank[jd]);
+	  buff.cat_sprintf(" %d",rank[jd]);
 	  size *= rank[jd];
 	}
 	
 	// Send number of nodes and cookie
-	sprintf(buff+strlen(buff)," %d %d",nnod,cookie);
-	printf("sending state line \"%s\"\n",buff);
-	Sprintf(srvr,"%s\n",buff);
+	buff.cat_sprintf(" %d %d",nnod,cookie);
+	printf("sending state line \"%s\"\n",buff.str());
+	Sprintf(srvr,"%s\n",buff.str());
 
 	// Send values 
 	for (int j=0; j<nnod; j++) {

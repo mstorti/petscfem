@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.7 2003/02/16 15:15:49 mstorti Exp $
+// $Id: epimport.cpp,v 1.8 2003/02/16 15:36:03 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -510,7 +510,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       o = (Object)field->dx_object();
       flist = DXSetMember(flist,name,o);
       if (!flist) goto error;
-      DXMessage("#%d. Field ptr. %p, member name \"%s\"",fields_n,o,name);
+      DXMessage("(%d). Field ptr. %p, member name \"%s\"",fields_n,o,name);
     } else {
       if (!arrays_n++) {
 	alist = DXNewGroup();
@@ -519,7 +519,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       o = (Object)q->second->dx_object();
       alist = DXSetMember(alist,name,o);
       if (!alist) goto error;
-      DXMessage("#%d Array ptr. %p, member name \"%s\"",arrays_n,o,name);
+      DXMessage("(%d). Array ptr. %p, member name \"%s\"",arrays_n,o,name);
     }
   }
 
