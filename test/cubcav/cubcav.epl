@@ -19,11 +19,12 @@ get_var_env2('subpart',350);
 $subpart_entered = $subpart;
 $subpart = ceil($subpart/$NP);
 $iisd_subpart = $subpart;
+$nu = 1e-5;
 get_var_env2('nlay',1);
 get_var_env2('isp_maxits',12);
 #
 #__END_TRANSCRIPT__
-transcript("", qw(viscosity Dt));	# print variables on output
+transcript("", qw(nu Dt));	# print variables on output
 octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity 
     h Co Dt hratio leaky tol use_prismatic use_tetra));
 system "octave -qH mkmesh.m > mkmesh.output.tmp";
@@ -43,7 +44,7 @@ nstep 10000
 nsaverot 20
 nfile 2000000
 nrec 1
-# initial_state "cubcav-steady-Re1000"
+initial_state "cubcav-steady-Re1000"
 # initial_state "outvector.out"
 save_file_pattern "STEPS/cubcav.state_%d.tmp"
 
@@ -94,8 +95,11 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 rho 1
-viscosity <:=($conf eq 'small' ? 1e-1 : 1e-4):>
-Dt 0.1
+Dt 0.05
+viscosity <:=$nu:>
+
+LES <:($nu < 1e-4 ? 1 : 0):>
+C_smag 0.1
 steady 0
 temporal_stability_factor 0
 
