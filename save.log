@@ -2748,3 +2748,6 @@ tag: beta-3.19.pl32 on Sun, 06 Jul 2003 12:11:24 -0300 by mstorti in spider
      > Added `interface_full_preco_pc' option, allows
      > user to change the preconditioner for the A_II
      > diagonal block matrix (not the Schur matrix).
+----------
+tag: beta-3.19.pl33 on Fri, 11 Jul 2003 11:03:33 -0300 by mstorti in minerva.arcride.edu.ar
+     > Fixed bug in Makefile.base, LIBRETTO_I variable. 
