@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.23 2001/07/28 20:03:59 mstorti Exp $
+//$Id: lusubd.cpp,v 1.24 2001/08/01 20:08:20 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -535,14 +535,15 @@ void IISDMat::set_value(int row,int col,Scalar value,
     row_indx -= n_locp;
     col_indx -= n_locp;
     if (!(row_indx >= 0 && row_indx < n_loc)) {
-      printf("LL element not in this proc, "
-	     "global row: %d, local row: %d, "
-	     "n_locp: %d\n",row,row_indx,n_locp);
+      printf("[%d] LL element not in this proc, "
+	     "global row: %d, local row: %d, n_loc: %d, "
+	     "n_locp: %d\n",MY_RANK,row,row_indx,n_loc,n_locp);
       MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
     }
     if (!(col_indx >= 0 && col_indx < n_loc)) {
-      printf("LL element not in this proc, "
-	     "global col: %d, local col: %d, n_locp: %d\n",col,col_indx,n_locp);
+      printf("[%d] LL element not in this proc, "
+	     "global col: %d, local col: %d, n_loc: %d, "
+	     "n_locp: %d\n",MY_RANK,col,col_indx,n_loc,n_locp);
       MPI_Abort(PETSC_COMM_WORLD,iisdmat_set_value_out_of_range);
     }
   } 

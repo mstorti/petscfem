@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.27 2001/08/01 20:05:30 mstorti Exp $
+//$Id: readmesh.cpp,v 1.28 2001/08/01 20:08:20 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -981,10 +981,16 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       // elements in other processors, which is not contemplated now. 
       int ele = n2eptr[node];
       int proc = vpart[node2elem[ele]]+1;
-      for (ele = n2eptr[node]+1; ele < n2eptr[node+1]; ele++) 
+      for (ele = n2eptr[node]+1; ele < n2eptr[node+1]; ele++) {
+	if (vpart[node2elem[ele]]+1 != proc) 
+	  PetscPrintf(PETSC_COMM_WORLD,
+		      "proc: %d, otro proc: %d\n",proc,vpart[node2elem[ele]]+1);
 	if (vpart[node2elem[ele]]+1 > proc) 
 	  proc = vpart[node2elem[ele]]+1;
+      }
       npart[node] = proc;
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "node: %d, proc: %d\n",node+1,proc);
     }
     if (print_nodal_partitioning)
       PetscPrintf(PETSC_COMM_WORLD,
@@ -1073,6 +1079,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
     perm[k-1] = - npart[node-1];
   }
 
+  wait_from_console("despues de numerar nodos");
   // Now, number first all the dofs in processor 0, then on 1, and so
   // on until processor size-1, and finally those fixed (set to perm=size)
   jdof=0;
@@ -1091,7 +1098,12 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      "Total number of degrees of freedom neq:     %d\n"
 	      "Total number of independent fixations neqf: %d\n",
 	      neq,dofmap->neqf);
-
+  if (size>1) {
+    for (proc=0; proc<size; proc++) 
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "[%d] number of dof's: %d\n",proc,neqproc[proc]);
+  }
+  
 #if 0
   // This is the old version related to the remap_cols() bug. A leak
   // of memory due to the memory management of the STL map routines. 

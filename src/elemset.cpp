@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.21 2001/07/25 17:29:45 mstorti Exp $
+//$Id: elemset.cpp,v 1.22 2001/08/01 20:08:20 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -504,10 +504,12 @@ int assemble(Mesh *mesh,arg_list argl,
       }
 
       // Upload return values
+      wait_from_console("antes de llamar a assemble");
       for (j=0; j<narg; j++) 
 	if (argl[j].options & UPLOAD_RETVAL) 
 	  elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
 				 myrank,el_start,el_last,iter_mode);
+      wait_from_console("despues de llamar a assemble");
 
       // compute columns of jacobian matrices by perturbing each
       // local degree of freedom
