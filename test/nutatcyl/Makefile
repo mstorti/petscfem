@@ -1,11 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.15 2003/01/10 15:29:54 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2003/01/10 16:28:52 mstorti Exp $ 
 
-.PHONY: force all run nutcyl tests test_rigid test_strip test_strip2d
+.PHONY: force all run nutcyl tests test_rigid test_strip test_strip2d test_strip2d_inv
 
 PETSCFEM_DIR := ../..
 
-tests: nutcyl test_rigid test_strip test_strip2d
+tests: nutcyl test_rigid test_strip test_strip2d test_strip2d_inv
 
 outfile = system.dat.tmp
 
@@ -18,7 +18,7 @@ ifeq ($(NP),1)
 MACHI = -machinefile machi.dat
 endif
 
-export CASE_NAME NP
+export CASE_NAME NP use_en
 
 LOC_PROG = ns
 PROG = $(NS)
@@ -36,7 +36,7 @@ run: data
 	if [ -e $(CASE_NAME).force.tmp ] ; then rm $(CASE_NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) $(NL) $(MACHI) $(PROG) \
-		 -case $(CASE_NAME).depl > petscfem.output.tmp
+		 -case $(CASE_NAME).depl # > petscfem.output.tmp
 
 local_clean::
 	-putex
@@ -64,8 +64,13 @@ test_strip:
 
 test_strip2d: 
 	-rm -f strip2d.force.tmp strip2d.verif.tmp
-	$(MAKE) CASE_NAME=strip2d run
+	$(MAKE) CASE_NAME=strip2d use_en=1 run
 	$(OCTAVE) checkstrip2d.m > strip2d.verif.tmp
+
+test_strip2d_inv: 
+	-rm -f strip2di.force.tmp strip2di.verif.tmp
+	$(MAKE) CASE_NAME=strip2d use_en=0 run
+	$(OCTAVE) checkstrip2d.m > strip2di.verif.tmp
 
 figure:
 	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run

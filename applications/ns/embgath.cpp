@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.31 2003/01/10 15:48:17 mstorti Exp $
+//$Id: embgath.cpp,v 1.32 2003/01/10 16:28:52 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -148,17 +148,25 @@ void Line2Quad::surface_nodes(int &nel_surf,int &nel_vol) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Line2Quad::face(int j,const int *&fc,const int *&vol) {
-  static int fc_c[2], vol_c[4];
+  static int fc_c[2], vol_c[4], fc_cr[2], vol_cr[4];
   static const int vol_cc[4] = {0, 1, 3, 2};
-  for (int k=0; k<2; k++) {
-    int l = (use_exterior_normal() ? k : 1-k);
-    fc_c[l] = (j+k) % 4;
+  int fc_rot[] = {1,0};
+  for (int k=0; k<2; k++) fc_c[k] = (j+k) % 4;
+  for (int k=0; k<4; k++) vol_c[k] = (vol_cc[k]+j) % 4;
+  if (use_exterior_normal()) {
+    fc = fc_c;
+    vol = vol_c;
+  } else {
+    fc_cr[1] = fc_c[0];
+    fc_cr[0] = fc_c[1];
+
+    vol_cr[1] = vol_c[0];
+    vol_cr[0] = vol_c[1];
+    vol_cr[2] = vol_c[3];
+    vol_cr[3] = vol_c[2];
+    fc = fc_cr;
+    vol = vol_cr;
   }
-  for (int k=0; k<4; k++) {
-    vol_c[k] = (vol_cc[k]+j) % 4;
-  }
-  fc = fc_c;
-  vol = vol_c;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

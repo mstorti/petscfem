@@ -420,6 +420,12 @@ Fx \[constant acceleration\] OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("nutatcyl/strip2di.verif.tmp",
+       "Viscous force intgrator on linear 2D strip (inv. normal)",<<'EOT');
+Fx \[constant acceleration\] OK \? 1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("mmove/step.verif.tmp",
        "Max volume ratio large deformation mesh mov.",<<'EOT');
 Mesh OK \(all areas >0\) \? 1
