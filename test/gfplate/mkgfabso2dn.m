@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.11 2005/01/29 16:51:34 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.12 2005/02/03 23:37:54 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -88,7 +88,20 @@ fclose(fid);
 ## Fixa on reference nodes
 Uref = [rhoref,[uref,0]*Orot,pref];
 ref = [Nx+1;2*Nx+2];
-pffixa("gfabso2dn.fixa-ref.tmp",nnod+[2,4,6,8],1:4,Uref)
+pffixa("gfabso2dn.fixa-ref.tmp",nnod+[2,4,6,8],1:4,Uref);
+
+## Fix all fields at outlet and fictitious values
+## nodes = [1,Nx+1,Nx+2,2*Nx+2,nnod+(1:8)]';
+nodes = [1,Nx+2,Nx+1,2*Nx+2]';
+U1 = Uref;
+U2 = Uref;
+U2(4) = 1.1*U2(4);
+U = [U1;
+     U1;
+     U2;
+     U2];
+pffixa("gfabso2dn.fixa-all.tmp", \
+       nodes,1:4,U);
 
 asave("gfabso2dn.some-nodes.tmp",(1:nnod/2)');
 
