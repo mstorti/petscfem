@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.62 2002/02/12 20:33:30 mstorti Exp $
+//$Id: ns.cpp,v 1.63 2002/02/18 16:44:00 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -170,7 +170,7 @@ int main(int argc,char **args) {
   //o After computing the linear system solves it and prints Jacobian,
   // right hand side and solution vector, and stops. 
   GETOPTDEF(int,print_linear_system_and_stop,0);
-  //o Print the residual eac \verb+nsave+ steps. 
+  //o Print the residual each \verb+nsave+ steps. 
   GETOPTDEF(int,print_residual,0);
   //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
