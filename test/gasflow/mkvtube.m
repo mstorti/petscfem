@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.16 2003/01/27 00:37:11 mstorti Exp $
+## $Id: mkvtube.m,v 1.17 2003/01/28 02:37:07 mstorti Exp $
 source("data.m.tmp");
 
 XNOD = [1 0 Rin;
@@ -139,7 +139,7 @@ if hot_outlet
   fclose(fid);
   fid = fopen("vtube.fixa_hot_outlet.tmp","w");
   for k=1:length(hot_outlet_nodes)
-    fprintf(fid,"%d %d   %f\n",k,p_dof,1);
+    fprintf(fid,"%d %d   %f\n",hot_outlet_nodes(k),p_dof,1);
   endfor
   fclose(fid);
 endif
@@ -155,7 +155,7 @@ if cold_outlet
   fclose(fid);
   fid = fopen("vtube.fixa_cold_outlet.tmp","w");
   for k=1:length(cold_outlet_nodes)
-    fprintf(fid,"%d %d   %f\n",k,p_dof,1);
+    fprintf(fid,"%d %d   %f\n",cold_outlet_nodes(k),p_dof,1);
   endfor
   fclose(fid);
 endif

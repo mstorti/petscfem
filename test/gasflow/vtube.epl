@@ -10,7 +10,7 @@ $axisymm = 1;			# do an axisymmetric calculation with
 $compressible = ("$ENV{'incomp'}" ? 0 : 1);
 $hot_outlet = 1;
 $cold_outlet = 0;
-$small_test = 0;
+$small_test = 1;
 
 $R0 = 0.047;			# [m] Radius of tube
 $L0 = ($small_test ? 
@@ -111,10 +111,11 @@ alpha 1.
 initial_state "vtube.ini.tmp"
 # initial_state "vtube.state.tmp"
 # initial_state "vtube.hot_only.tmp"
-nsave 50
+nsave 1
+save_file "vtube.state.tmp"
 
 save_file_pattern "vtube.state_%d.tmp"
-nsaverot 50
+nsaverot 1
 nrec 1
 nfile 100000000
 
