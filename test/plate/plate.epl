@@ -3,13 +3,13 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
-$Lx = 5;
-$Ly = 1;
+$Lx = 4;
+$Ly = 0.5;
 $Nx = 100;
-$Ny = 16;
+$Ny = 20;
 $xini = 1;
 $Lplate = 1;
-$yratio = 4;
+$yratio = 8;
 $t = 0.1;                       # thickness of bump
 #__END_TRANSCRIPT__
 @vars = qw(Nx Ny Lx Ly xini Lplate yratio t);

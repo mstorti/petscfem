@@ -1,9 +1,9 @@
 #-*- shell-script -*-
 <: 
 require '../../tools/dx.pl';
+connect_0("./plate.con.tmp","./plate.con0.tmp",quad_hook);
 $nnod = count_lines("plate.nod.tmp");
 $nelem = count_lines("plate.con0.tmp");
-connect_0("./plate.con.tmp","./plate.con0.tmp",quad_hook);
 ns_extract("./save.state.tmp","u.dat","p.dat");
 :>//
 object "nodes" class array type float rank 1 shape 2 
@@ -19,7 +19,7 @@ object "pdat" class array type float rank 0
 attribute "dep" string "positions"
 
 object "udat" class array type float rank 1 shape 2
-     items 1717 data file u.dat
+     items  <:=$nnod:>  data file u.dat
 attribute "dep" string "positions"
 
 object "p_field" class field
