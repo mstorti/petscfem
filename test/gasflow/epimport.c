@@ -30,8 +30,9 @@ Error
 m_ExtProgImport(Object *in, Object *out)
 {
   int i;
-  int N=10, *icone_p, j,k,base, elem=0;
-  Array icone=NULL; 
+  int N=10, *icone_p, j,k,base, elem=0, node;
+  float *xnod_p,x,y;
+  Array icone=NULL,xnod=NULL; 
   Field f=NULL; 
 
   /*
@@ -53,6 +54,7 @@ m_ExtProgImport(Object *in, Object *out)
   f = DXNewField();
   if (!f) goto error;
 
+  /* ====================================================== */
   icone = DXNewArray(TYPE_INT, CATEGORY_REAL, 1,4);
   if (!icone) goto error;
   icone = DXAddArrayData(icone, 0, N*N, NULL);
@@ -70,6 +72,26 @@ m_ExtProgImport(Object *in, Object *out)
   }
   /* Set `connections' component */
   f = DXSetComponentValue(f,"connections",(Object)icone); if (!f) goto error;
+
+  /* ====================================================== */
+  xnod = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 1,2);
+  if (!xnod) goto error;
+  xnod = DXAddArrayData(xnod, 0, (N+1)*(N+1), NULL);
+  if (!xnod) goto error;
+  xnod_p = (float *)DXGetArrayData(xnod);
+  /* Define positions */
+  for (j=0; j<=N; j++) {
+    x = (float)j/(float)N;
+    for (k=0; k<=N; k++) {
+      y = (float)k/(float)N;
+      *xnod_p++ = x;
+      *xnod_p++ = y;
+    }
+  }
+  /* Set `connections' component */
+  f = DXSetComponentValue(f,"positions",(Object)xnod); if (!f) goto error;
+
+  /* ====================================================== */
   f = DXEndField(f); if (!f) goto error;
   out[0] = (Object)f;
 
