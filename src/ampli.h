@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.6 2002/02/10 15:29:12 mstorti Exp $
+// $Id: ampli.h,v 1.7 2002/02/10 19:42:04 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -60,34 +60,62 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Generic amplitude function that dynamically loads functions
 class DLGeneric : public Amplitude {
 private:
+  /// Options table
   TextHashTable *thash;
-  typedef double EvalFun(double,void *);
+  /// Initialization function prototype
   typedef void InitFun(TextHashTable *,void *&);
+  /// Evaluation function prototype
+  typedef double EvalFun(double,void *);
+  /// Cleanup function prototype
   typedef void ClearFun(void *);
-  EvalFun *eval_fun;
+
+  /// Initialization function
   InitFun *init_fun;
+  /// Evaluation function
+  EvalFun *eval_fun;
+  /// Cleanup function
   ClearFun *clear_fun;
 
+  /// Contains pointers for a given set of functions
   struct FunHandle {
-    EvalFun *eval_fun;
     InitFun *init_fun;
+    EvalFun *eval_fun;
     ClearFun *clear_fun;
   };
 
+  /// This is the internal table that is kept for each file
   typedef map<string,FunHandle> FunTable;
+  /** For each file we keep a handle (from `dlopen()') 
+      table of pointers to functions
+  */
   struct FileHandle {
+    /// handle obtained from `dlopen()'
     void *handle;
+    /// table of functions for each file
     FunTable *fun_table;
   };
 
+  /** We keep a static table filename -> file_handle. 
+      This is the generic type for this table.
+  */
   typedef map<string,FileHandle> FileHandleTable;
+  /// The actual handle for this instance
   void *handle;
-  void *fun_data; // store data
+  /** This generic pointer may be used to store internal values
+      for the functions
+  */
+  void *fun_data;
+  /// This is the actual table
   static FileHandleTable file_handle_table;
+
+  string function_name,ext_filename;
 public:
+  /// Constructor (initializes `fun_data')
   DLGeneric() : fun_data(NULL) {}
+  /// Prints 
   void print() const;
   void init(TextHashTable *thash_);
   virtual void clear() {};

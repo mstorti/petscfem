@@ -12,7 +12,7 @@ $shape = $subcases[1];
 $Nx = 50;
 $Lx = 1;			# Side of the cavity
 $Dt = 0.1;			# time step
-$nstep = 50;
+$nstep = 20;
 $t = $nstep*$Dt;
 $slope = 0.01;			# Slope of the bottom
 $circular_path = 1;		# Use a circular stream instead of
@@ -113,7 +113,8 @@ __END_HASH__
 __END_FIXA__
 
 fixa_amplitude dl_generic
-ext_filename "/home/mstorti/PETSC/petscfem/test/aquifer/fun.efn"
+ext_filename "./fun.efn"
+function_name "smramp"
 t0 0.
 f0 1.
 t1 0.8
