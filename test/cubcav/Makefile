@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.104 2004/11/09 11:37:19 mstorti Exp $ 
+# $Id: Makefile,v 1.105 2004/11/09 11:38:48 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -13,7 +13,7 @@ export case
 tests: block_uploading
 
 BOPT := O_c++
-# PETSCFEM_DIR = ../..
+PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -26,13 +26,11 @@ PROG := $(NS)
 
 CASE := $(CASE_NAME)
 ################################################################
-ifeq (1,0)
-NP := $(shell procsel -n ./proctable.itc)
+ifeq ($(HOSTNAME),node1.beowulf.gtm)
+NP := $(shell procsel -n ./proctable.geronimo)
 NL := -nolocal
 MCH := -machinefile ./machi.dat
-endif
-
-ifneq ($(HOSTNAME),node1.beowulf.gtm)
+else
 NP := $(shell procsel ./proctable.mono)
 NL :=
 MCH := -machinefile ./machi.dat
@@ -139,8 +137,10 @@ cubcav_init:
 	mkstepsdir.pl
 
 cubcav_pre:
-cubcav_post:
-	for f in `find STEPS -name '$(CASE_NAME).state_*.tmp'` ; \
+cubcav_post: zipall
+
+zipall:
+	for f in `find STEPS -name '*.state_*.tmp'` ; \
 		do echo "gzipping $$f" ; gzip -f $$f ; done
 
 cubcav_close:
@@ -170,7 +170,7 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=60 run
+	$(MAKE) N=100 run
 
 sync:
 	chmod 755 *.pl *.sh
