@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.12 2001/06/08 14:25:52 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.13 2001/06/20 02:14:53 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -72,8 +72,19 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   //o Using Lagrange multipliers leads to diagonal null terms This can
   // lead, to zero pitvots when using direct methods. With this option
-  // a small term is added to the diagonal in order to fix this. 
+  // a small term is added to the diagonal in order to fix this. The
+  // term is added only in the Jacobian or also in the residual (which
+  // results would be non-consistent). See option
+  // \verb+lagrange_residual_factor+. 
   TGETOPTDEF(thash,double,lagrange_diagonal_factor,0.);
+  //o The diagonal term proportional to  \verb+lagrange_diagonal_factor+ 
+  // may be also entered in the residual. If this is so
+  // (\verb+lagrange_residual_factor=1+, then the
+  // method is ``non-consistent'', i.e. the restriction is not exactly
+  // satisfied by the non-linear scheme is exactly Newton-Raphson. If
+  // not (\verb+lagrange_residual_factor=0+) then the restriction is
+  // consistently satisfied but with a non exact Newton-Raphson. 
+  TGETOPTDEF(thash,double,lagrange_residual_factor,0.);
 
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,2,ndof),R(2,2,ndof);
@@ -109,7 +120,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       U.ir(1,2).is(2,1,nr);
       R.ir(1,1).prod(lambda,U,1,-1,-1);
       
-      R.rs().ir(1,2).is(2,1,nr).set(r).rs();
+      R.rs().ir(1,2).is(2,1,nr).set(r)
+	.axpy(U,-lagrange_diagonal_factor*lagrange_residual_factor).rs();
       
       matloc.ir(1,1).ir(3,2).is(4,1,nr).set(lambda).scale(-1.).rs();
       matloc.ir(1,2).ir(3,1).is(2,1,nr).set(jac).scale(-1.).rs();
@@ -145,6 +157,8 @@ void wall_law_res::init() {
   TGETOPTDEF_ND(thash,double,viscosity,1.);
   //o von Karman constant (law of the wall - turbulence model)
   TGETOPTDEF_ND(thash,double,von_Karman_cnst,0.4);
+  //o Do not impose the relation between k,epsilon at the wall. 
+  TGETOPTDEF_ND(thash,double,turbulence_coef,1.);
 
   coef_k = -2./(fwall*fwall*sqrt(C_mu));
   coef_e = 1./(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
@@ -155,31 +169,51 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
   U.ir(1,1);
   double u = sqrt(U.is(1,1,ndim).sum_square_all());
   U.is(1);
-  double ustar = u/fwall;
-  double kw = int_pow(ustar,2)/sqrt(C_mu);
-  double epsw = int_pow(ustar,4)/(von_Karman_cnst*y_wall_plus*viscosity);
+  if (turbulence_coef != 0.) {
+    // turbulent case
+    double ustar = u/fwall;
+    double kw = int_pow(ustar,2)/sqrt(C_mu);
+    double epsw = int_pow(ustar,4)/(von_Karman_cnst*y_wall_plus*viscosity);
+  
+    double k = U.get(nk);
+    double eps = U.get(ne);
+
+    // Discard k and eps eqs.
+    lambda.set(0.).setel(1.,nk,1).setel(1.,ne,2);
     
-  double k = U.get(nk);
-  double eps = U.get(ne);
+    // set U to the velocity part
+    U.is(2,1,ndim);
 
-  // Discard k and eps eqs.
-  lambda.set(0.).setel(1.,nk,1).setel(1.,ne,2);
+    // k eq. on the wall: k = 
+    r.setel(k-kw,1);
+    jac.ir(1,1).is(2,1,ndim).set(U).scale(-coef_k)
+      .is(2).setel(1.,nk);
 
-  // set U to the velocity part
-  U.is(2,1,ndim);
+    // eps eq. on the wall
+    r.setel(eps-epsw,2);
+    double cc = -4*u*u/(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
+    jac.rs().ir(1,2).is(2,1,ndim).set(U).scale(cc).is(2).setel(1.,ne);
 
-  // k eq. on the wall: k = 
-  r.setel(k-kw,1);
-  jac.ir(1,1).is(2,1,ndim).set(U).scale(-coef_k)
-    .is(2).setel(1.,nk);
+    jac.rs();
+    U.rs();
 
-  // eps eq. on the wall
-  r.setel(eps-epsw,2);
-  double cc = -4*u*u/(int_pow(fwall,4)*von_Karman_cnst*y_wall_plus*viscosity);
-  jac.rs().ir(1,2).is(2,1,ndim).set(U).scale(cc).is(2).setel(1.,ne);
+  } else {
 
-  jac.rs();
-  U.rs();
+    // laminar case
+    double k = U.get(nk);
+    double eps = U.get(ne);
+
+    lambda.set(0.).setel(1.,nk,1).setel(1.,ne,2);
+    r.setel(k-1.,1);
+    jac.ir(1,1).is(2).setel(1.,nk);
+
+    // eps eq. on the wall
+    r.setel(eps-1.,2);
+    jac.rs().ir(1,2).setel(1.,ne);
+
+    jac.rs();
+    U.rs();
+  }
 }
 
 #undef SHAPE    

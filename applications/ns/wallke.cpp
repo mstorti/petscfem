@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.5 2001/06/03 23:37:03 mstorti Exp $
+//$Id: wallke.cpp,v 1.6 2001/06/20 02:14:53 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -84,7 +84,17 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   Elemset *elemset;
 
   //o The $y^+$ coordinate of the computational boundary
-  TGETOPTDEF(thash,double,y_wall_plus,30.);
+  SGETOPTDEF(double,y_wall_plus,30.);
+  //o The $y$ (normal) coordinate of the computational boundary. 
+  // Only for laminar computations.
+  SGETOPTDEF(double,y_wall,1e-3);
+  //o Use laminar relation
+  SGETOPTDEF(double,turbulence_coef,1.);
+
+  SGETOPTDEF(double,viscosity,0.); //o
+  PETSCFEM_ASSERT0(viscosity>0.,
+		   "Not entered `viscosity' property or "
+		   "null value  entered.\n");
   WallFun1 wf1(this);
   WallFun *wf = &wf1;
   wf->init();
@@ -192,10 +202,10 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
     
     if (comp_mat_res) {
-      // loop over Gauss points
       veccontr.is(2,1,ndim);
       matloc.is(2,1,ndim).is(4,1,ndim);
 
+      // loop over Gauss points
       // Guarda que hay que invertir la direccion de la traccion!!!!
       for (ipg=0; ipg<npg; ipg++) {
 
@@ -208,6 +218,10 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	double gfun,gprime;
 	gprime = rho / (fwall*fwall);
 	gfun = gprime * Ustar;
+	if (turbulence_coef == 0.) {
+	  gprime = 0.;
+	  gfun = rho * viscosity / y_wall;
+	}
 
 	tmp1.prod(SHAPE,SHAPE,1,2);
 	matlocmom.axpy(tmp1,gfun*detJaco);

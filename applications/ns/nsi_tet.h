@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.10 2001/06/03 23:37:03 mstorti Exp $
+//$Id: nsi_tet.h,v 1.11 2001/06/20 02:14:53 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -160,7 +160,8 @@ class NonLinearRes : public Elemset {
 class wall_law_res : public NonLinearRes {
   int nk,ne,ndim;
   double y_wall_plus,fwall,fprime,C_mu,
-    viscosity,von_Karman_cnst,coef_k,coef_e;
+    viscosity,von_Karman_cnst,coef_k,coef_e,
+    turbulence_coef;
   WallFun *wf;
 public:
   int nres() {return 2;};

@@ -4,7 +4,6 @@ TODO: [Mainly fixes go here...]
 =====
 
 * write better error messages in FM2
-* while reading constraints complain if dofs out of range
 * new scheduling algorithm for load balancing in `elemset.cpp'
 * adapt generic non-linear restriction element to general case
     (arbitrary argument list)
@@ -26,7 +25,6 @@ TODO: [Mainly fixes go here...]
 * Fix makefile: runs bison and compiles getarray.cpp even it's not
   necessary
 * document coding of fastmat2. Document the eperl utilities.
-* Make readmesh check dof numbers not being greater than... 
 * Should State have a TimeData instead of a Time
 * Why not to do a single loop over node_list in the print_some()
        routines?  
@@ -42,6 +40,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Make readmesh check dof numbers not being greater than... 
+* while reading constraints complain if dofs out of range
 * Write a norm_p function (like sum_square_all...)
 * write a generic non-linear restriction element
 * escribir una funcion "double pow_int(double base,int exp)"

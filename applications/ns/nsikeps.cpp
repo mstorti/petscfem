@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.7 2001/06/15 17:42:15 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.8 2001/06/20 02:14:53 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -455,9 +455,9 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
         } 
         if (comp_mat_res_ke || comp_res_ke) {
-	  diff_coe_kap=VISC+nu_t/sigma_k;
+	  diff_coe_kap=VISC+turbulence_coef*nu_t/sigma_k;
           diff_coe_kap = (diff_coe_kap < tol ? tol : diff_coe_kap);
-	  diff_coe_eps=VISC+nu_t/sigma_e;
+	  diff_coe_eps=VISC+turbulence_coef*nu_t/sigma_e;
           diff_coe_eps = (diff_coe_eps < tol ? tol : diff_coe_eps);
 	  FastMat2::branch();
 	  if(velmod>tol) {

@@ -1,13 +1,13 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2001/06/05 03:28:51 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/06/20 02:16:41 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 all: run
 
-PETSCFEM_DIR = ../..
+#PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
-include ../Makefile.base.test
+include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
 ifeq ($(case),"test_case_a")
@@ -35,9 +35,9 @@ $(NAME).depl: force
 #	$(MAKE) $(NAME).depl
 
 test_case_%: test_case_%_data
+	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(PROG) \
 			-case $(NAME).depl #> output.case_$*.tmp
-	cp save.state save.state.tmp
 
 local_clean::
 	-rm -rf mat.output system.dat save.state data.m
