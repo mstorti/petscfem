@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.21 2001/08/09 17:11:22 mstorti Exp $ 
+# $Id: Makefile,v 1.22 2001/08/10 02:07:20 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -10,7 +10,7 @@ NS:=$(NSO)
 endif
 
 run:
-	$(MAKE) NP=2 Re=1e4 preco=jacobi case=iisd case_size=large test_case
+	$(MAKE) NP=3 Re=1e4 preco=jacobi case=iisd case_size=large test_case
 
 run0:
 	$(MAKE) NP=2 Re=1e4 preco=jacobi part=random 

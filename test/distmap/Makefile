@@ -1,11 +1,14 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2001/08/02 19:50:26 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/08/10 02:07:17 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
 tests: distmap distmat
 
-#w Runs test
+dm: distmap.bin
+	$(MPIRUN) -np 6 -machinefile machi.dat distmap.bin \
+		100 10000 1e-12 # > distmap.sal.tmp
+
 distmap: distmap.bin
 	$(MPIRUN) -np 3 -machinefile machi.dat distmap.bin \
 		100 10000 1e-12 > distmap.sal.tmp
@@ -26,9 +29,9 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 #w Builds binary 
-distmap.bin: distmap.o  libpetscfem
+distmap.bin: distmap.o # libpetscfem
 	-rm -f $@
-	${CXX_CLINKER} -o $@ distmap.o $(LIBPETSCFEM) $(LDFLAGS)
+	${CXX_CLINKER} -o $@ distmap.o  $(LDFLAGS)
 
 #w Builds binary 
 distmat.bin: distmat.o  libpetscfem

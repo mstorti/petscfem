@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.12 2001/08/10 00:00:15 mstorti Exp $
+// $Id: distmap.h,v 1.13 2001/08/10 02:07:14 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -214,15 +214,24 @@ void DistMap<Key,Val>::scatter() {
   // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
   // eproc
   int sproc,mproc,eproc,band,stage,s1,s2,nrecv,rank,
-    size_here,max_local_size;
+    size_here,max_local_size,max_recv_buff_size;
+
+  // Maximu recv buffer size
+  max_recv_buff_size=0;
+  for (rank=0; rank < size; rank++) {
+    if (SEND(rank,myrank) > max_recv_buff_size)
+      max_recv_buff_size = SEND(rank,myrank);
+  }
+
+  // Alloc recv buffer
+  recv_buff = new char[max_recv_buff_size];
 
   // initially...
   sproc=0;
   eproc=size;
   while (1) {
     size_here = eproc-sproc;
-    PetscSynchronizedPrintf(comm,
-			    "[%d] size here %d\n",myrank,size_here);
+    printf("[%d] size here %d\n",myrank,size_here);
     MPI_Allreduce(&size_here,&max_local_size,1,MPI_INT,MPI_MAX,
 		  comm);
     if (max_local_size<=1) break;
@@ -230,8 +239,8 @@ void DistMap<Key,Val>::scatter() {
     if ( size_here> 1) {
       mproc = (sproc+eproc)/2;
       band = (myrank >= mproc);
-      PetscSynchronizedPrintf(comm,"[%d] sproc %d, mproc %d, eproc %d\n",
-			      myrank,sproc,mproc,eproc);
+      printf("[%d] sproc %d, mproc %d, eproc %d\n",
+	     myrank,sproc,mproc,eproc);
       for (stage=0; stage<2; stage++) {
 	// Range and number of procs in the other band
 	if (band==0) {
@@ -243,11 +252,35 @@ void DistMap<Key,Val>::scatter() {
 
 	if (stage == band) {
 	  // Send stage. Send to s1 <= rank < s2
-	  for (rank = s1; rank < s2; rank++) 
-	    PetscSynchronizedPrintf(comm,"[%d] Sending to %d\n",myrank,rank);
+	  for (dest = s1; dest < s2; dest++) {
+	    printf("[%d] Sending to %d\n",myrank,dest);
+	    MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
+		     dest,myrank,comm);
+	  }
 	} else {
-	  PetscSynchronizedPrintf(comm,"[%d] Receive from %d procs.\n",
-				  myrank,nrecv);
+	  // Receive stage
+	  printf("[%d] Receive from %d procs.\n",myrank,nrecv);
+	  for (rank = 0; rank < nrecv; rank++) {
+	    MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
+		     MPI_ANY_SOURCE,MPI_ANY_TAG,
+		     comm,&status);
+	    source = status.MPI_SOURCE;
+	    printf("[%d] received source %d, tag %d\n",
+		   myrank,status.MPI_SOURCE,status.MPI_TAG);
+	    assert(status.MPI_TAG == source);
+	    
+	    MPI_Get_count(&status,MPI_CHAR,&nsent);
+	    assert(nsent == SEND(source,myrank));
+
+	    recv_buff_pos = recv_buff;
+	    recv_buff_pos_end = recv_buff + nsent;
+	    while (recv_buff_pos < recv_buff_pos_end ) {
+	      unpack(p.first,p.second,recv_buff_pos);
+//  	      printf("[%d] unpacking: key %d, val %f\n",
+//  		     myrank,p.first,p.second);
+	      combine(p);
+	    }
+	  }
 	}
       }
 
@@ -257,10 +290,10 @@ void DistMap<Key,Val>::scatter() {
 	sproc = mproc;
       }
     }
-    PetscSynchronizedFlush(comm);
+    // MPI_Barrier(PETSC_COMM_WORLD);
   }
-  PetscFinalize();
-  exit(0);
+
+  delete[] recv_buff;
 
 #else // old scheduling algorithm
 
