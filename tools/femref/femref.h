@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.38 2004/12/19 23:16:04 mstorti Exp $
+// $Id: femref.h,v 1.39 2004/12/20 03:15:40 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -13,6 +13,7 @@
 
 extern MD5Hasher hasher;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Represents a geomtric object `outside' its container.
     Basically, it represents a sequence of nodes and a 
     topological shape (template). */ 
@@ -122,16 +123,31 @@ typedef double
 (*RefineFunction)(GeomObject &go,const double *xnod);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** The data to be stored for a node. Data for
+    derived nodes (created during refinement) are
+    computed through recursive use of a 
+    #NodeInfoCombineFunction#. */ 
 class NodeInfo {
 public:
   virtual ~NodeInfo()=0;
   virtual void print() { };
 };
 
-typedef NodeInfo*
-(*NodeInfoCombineFunction) 
-  (const NodeInfo &ni1,
-   const NodeInfo &ni2);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Model class that combines the data
+    for two nodes and then creates the data for
+    the combined node. */ 
+class NodeCombiner {
+public:
+  
+  virtual ~NodeCombiner()=0;
+  virtual combine(int tag,int nnodes,
+		  const int *nodes)=0;
+};
+// typedef NodeInfo*
+// (*NodeInfoCombineFunction) 
+//   (const NodeInfo &ni1,
+//    const NodeInfo &ni2);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** A mesh is a container of geometrical objects
@@ -321,6 +337,7 @@ public:
   };
 
   friend class visitor;
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Refines mesh acording to #RefineFunction#
       @param rf (input) function that indicates 
       the desired mehs size (#h#) for this element. */ 

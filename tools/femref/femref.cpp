@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.30 2004/12/19 23:16:04 mstorti Exp $
+// $Id: femref.cpp,v 1.31 2004/12/20 03:15:40 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -95,6 +95,13 @@ node_sum(const NodeInfo &ni1,
   ni12_p->sum = ni1_p->sum + ni2_p->sum;
   return ni12_p;
 }
+
+class NodeCombiner {
+public:
+  virtual ~NodeCombiner()=0;
+  virtual combine(int tag,int nnodes,
+		  const int *nodes)=0;
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main() { 
