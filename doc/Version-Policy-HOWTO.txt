@@ -1,4 +1,4 @@
-$Id: Version-Policy-HOWTO.txt,v 1.5 2004/09/25 16:33:30 mstorti Exp $
+$Id: Version-Policy-HOWTO.txt,v 1.6 2004/11/09 20:48:58 mstorti Exp $
 
 These are the steps for saving a new stable version of PETSc-FEM. The
 policy version herself is described in the doc. Say that we are
@@ -12,8 +12,9 @@ stable version 3.22 (unstable 3.23)
 *./ Make a new directory in PETSC/ with the new stable release
     $ cvs co -d petscfem-beta-3.22 -r beta--3-22 petscfem
 *./ In that directory replace 3.23 by 3.22 in files `stable.log' and
-         `save.log' and commit. 
-*./ Same in files on the HEAD branch (probably directory PETSC/petscfem)
+         `save.log'. Set BOPT to O_c++ in Makefile.base. Commit. 
+*./ Replace 3.23 by 3.22 in files `stable.log' and `save.log' on 
+	    the HEAD branch (probably directory PETSC/petscfem)
 *./ Create a new `light' administrative version on the `HEAD' branch
        with numbering 3.23.pl1 (WARNING: the script will suggest 3.22.pl1).
 *./ Update `doc/versions-tree.fig'
