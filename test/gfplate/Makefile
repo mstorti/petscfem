@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.24 2005/01/27 17:33:09 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2005/01/27 20:57:03 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runa2dn
+default: runc
 
 BOPT := O_c++
 SRCS = 
@@ -24,6 +24,9 @@ endif
 runa2d:
 	$(MAKE) CASE_NAME=gfabso2d run
 
+runa:
+	$(MAKE) CASE_NAME=gfabso run
+
 runa2dn:
 	$(MAKE) CASE_NAME=gfabso2dn run
 
@@ -38,19 +41,17 @@ run:
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
-runa: 
-	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	echo -n > $(CASE_NAME).some-rslt.tmp
-	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
-	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
-
+STEPS_DIR := ./STEPS
+## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
 dx_make_command:
-	@state=STEPS/cylabso.state_$$dx_step.tmp ;	\
-	if [ -f $$state ] ; then			\
-		cp $$state ./cylabso.dx-state.tmp ;	\
-	else if [ -f $$state.gz ] ; then		\
-		gunzip -c $$state.gz >			\
-		./cylabso.dx-state.tmp ; fi ; fi ;	\
+	@state=$(STEPS_DIR)/cylabso.state_$$dx_step.tmp ;	\
+	if [ -f $$state ] ; then				\
+		echo "state file: $$state"  ;			\
+		cp $$state ./cylabso.dx-state.tmp ;		\
+	else if [ -f $$state.gz ] ; then			\
+		echo "state file: $$state.gz " ;		\
+		gunzip -c $$state.gz >				\
+		./cylabso.dx-state.tmp ; fi ; fi ;		\
 	echo in target dx_make_command: dx_step: $$dx_step
 
 dx: 

@@ -1,4 +1,4 @@
-## $Id: mkgfabso.m,v 1.18 2005/01/23 23:08:31 mstorti Exp $
+## $Id: mkgfabso.m,v 1.19 2005/01/27 20:57:03 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -56,9 +56,11 @@ asave("gfabso.con.tmp",icone);
 ## Absorbing b.c.'s
 abso1 = [nnod+(0:-1:-2), nnod+[1,2]];
 asave("gfabso.con-abso1.tmp",abso1);
+asave("gfabso.con-nabso1.tmp",abso1(:,[1 4 5]));
 
 abso0 = [1:3,nnod+[3,4]];
 asave("gfabso.con-abso0.tmp",abso0);
+asave("gfabso.con-nabso0.tmp",abso0(:,[1 4 5]));
 
 ## Fixa on reference nodes
 Uref = [rhoref,(uref/sqrt(2))*[1,1,0]*Orot',pref];
@@ -71,7 +73,11 @@ nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
 Uini(nnod+[1,3],:) = 0;		# lagrange multipliers to 0
 
-dw = 0.5*[0 0 1 0 0]; ## perturbation
+du = 0.2;
+dw = du*[0 0 0 0 1]; ## perturbation for all waves
+## dw = du*[1 0 0 0 0]; ## entropy wave
+## dw = du*[1 cref/rhoref 0 0 cref^2]; ## forward acoustic wave
+## dw = du*[-1 cref/rhoref 0 0 -cref^2]; ## backward acoustic wave
 dw(2:4) = dw(2:4)*Orot';
 
 dfx = exp(-((x-Lx/2)/sigma).^2);

@@ -9,13 +9,13 @@ $Nr = 20;
 $Nphi = $Nr;
 $rratio = 5;
 
-$Machin = 0.5;
+$Machin = 0.7;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
 $Tref = 1;
 $abso = 1;
-$restart = 1;
+$restart = 0;
 
 $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);

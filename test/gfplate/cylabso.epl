@@ -53,7 +53,7 @@ nnwt 4
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.02
+Dt 0.05
 shocap 0.
 weak_form 0
 temporal_stability_factor 0
@@ -103,7 +103,7 @@ data ./cylabso.con.tmp
 __END_HASH__
 
 #if !$dx && $abso
-#if 0
+#if 1
 elemset gasflow_abso 5
 props normal[2]
 dx 0

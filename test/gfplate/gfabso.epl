@@ -95,19 +95,35 @@ data ./gfabso.con.tmp
 __END_HASH__
 
 #if $abso
+#if 1
 elemset gasflow_abso 5
 dx 0
-normaln <:=-$norx:> <:=-$nory:> <:=-$norz:>
+normal <:=-$norx:> <:=-$nory:> <:=-$norz:>
 __END_HASH__
 __INCLUDE__ gfabso.con-abso0.tmp
 __END_ELEMSET__
 
 elemset gasflow_abso 5
 dx 0
-normaln <:=$norx:> <:=$nory:> <:=$norz:>
+normal <:=$norx:> <:=$nory:> <:=$norz:>
 __END_HASH__
 __INCLUDE__ gfabso.con-abso1.tmp
 __END_ELEMSET__
+#else
+elemset gasflow_abso2 3
+dx 0
+normal <:=-$norx:> <:=-$nory:> <:=-$norz:>
+__END_HASH__
+__INCLUDE__ gfabso.con-nabso0.tmp
+__END_ELEMSET__
+
+elemset gasflow_abso2 3
+dx 0
+normal <:=$norx:> <:=$nory:> <:=$norz:>
+__END_HASH__
+__INCLUDE__ gfabso.con-nabso1.tmp
+__END_ELEMSET__
+#endif
 #endif
 
 end_elemsets
