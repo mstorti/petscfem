@@ -494,3 +494,6 @@ tag: beta-1.98 on Thu Aug 16 15:25:50 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-1.99 on Sat Aug 18 10:10:47 ART 2001, by mstorti in spider
      > Adding `set_fill' to (full) LU PETSc solver. Will go back to beta-1.98.
+----------
+tag: beta-2.00 on Sun Aug 19 11:56:23 ART 2001, by mstorti in spider
+     > `pc_lu_fill' and `PCLUSetUseInPlace()' work. 
