@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gaschem.h,v 1.1 2003/11/10 20:10:17 mstorti Exp $
+// $Id: gaschem.h,v 1.2 2003/11/11 02:15:43 mstorti Exp $
 #ifndef PETSCFEM_GASCHEM_H
 #define PETSCFEM_GASCHEM_H
 
@@ -17,7 +17,7 @@ class gaschem_ff : public AdvDifFFWEnth {
 private:
   const NewAdvDif *advdf_e;
   FastMat2 tmp1, tmp2, tmp3, W_N, Cp, Ajac, Djac, Cjac,
-    u_liq, u_gas, U;
+    u_liq, u_gas, U, Uintri, tmp0;
   int nelprops,nel,ndof,ndim,g_dir;
   double Rgas,Tgas,nu_t,Sc,KO, KN;
 public:

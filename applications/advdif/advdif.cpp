@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.57 2003/10/16 19:13:42 mstorti Exp $
+//$Id: advdif.cpp,v 1.58 2003/11/11 02:15:43 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -218,7 +218,7 @@ int main(int argc,char **args) {
   glob_param.steady = steady;
   //o The parameter of the trapezoidal rule
   // for temporal integration. 
-  GETOPTDEF(double,alpha,0.);
+  GETOPTDEF(double,alpha,1.);
   glob_param.alpha=alpha;
 #define ALPHA (glob_param.alpha)
   if (ALPHA>0.) {

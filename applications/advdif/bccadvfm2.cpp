@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.20 2003/10/16 19:13:42 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.21 2003/11/11 02:15:43 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -168,7 +168,7 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   int elem, ipg,node, jdim, kloc,lloc,ldof;
 
-  FMatrix Jaco(ndimel,ndim),flux(ndof,ndimel),fluxd(ndof,ndimel),grad_U(ndim,ndof),
+  FMatrix Jaco(ndimelf,ndim),flux(ndof,ndimel),fluxd(ndof,ndimel),grad_U(ndim,ndof),
     A_grad_U(ndof),G_source(ndof),tau_supg(ndof,ndof),    
     fluxn(ndof),iJaco,normal(ndim),nor,lambda,Vr,Vr_inv,U(ndof);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.2 2003/11/10 21:30:10 mstorti Exp $
+//$Id: gaschem.cpp,v 1.3 2003/11/11 02:15:43 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -45,6 +45,8 @@ void gaschem_ff::start_chunk(int &ret_options) {
 
   Djac.resize(4,ndim,ndof,ndim,ndof).set(0.);
   Cjac.resize(2,ndof,ndof).set(0.);
+  Uintri.resize(1,ndim);
+  tmp0.resize(1,ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -132,6 +134,8 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   for (int j=4; j<=5; j++) Ajac.ir(2,j).ir(3,j).set(u_liq);
   Ajac.rs();
 
+  A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
+
   for (int j=1; j<=3; j++) flux.ir(1,j).set(u_gas).scale(U.get(j));
   for (int j=4; j<=5; j++) flux.ir(1,j).set(u_liq).scale(U.get(j));
   flux.rs();
@@ -147,23 +151,89 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   for (int j=1; j<=5; j++) Djac.ir(2,j).ir(4,j).eye(Dg);
   Djac.rs();
 
-  // Source terms ================
-  // Film coefficient
-  double rb_crit = 6.67e-4;
-  double hm = (rb < rb_crit ? (rb/rb_crit)*4e-4 : 4e-4);
+  if (options & COMP_UPWIND) {
+    advdf_e = new_adv_dif_elemset;
+#define pi M_PI
+    double Volume = advdf_e->volume();
+    int axi = advdf_e->axi;
+    double h_pspg;
 
-  double coef = 3.0*(CO+CN)*Rgas*Tgas*hm/(pgas*rb);
-  double xO = CO/(CO+CN);
-  double xN = 1.0-xO;
+    if (ndim==2 | (ndim==3 && axi>0)) {
+      h_pspg = sqrt(4.*Volume/pi);
+    } else if (ndim==3) {
+      h_pspg = cbrt(6*Volume/pi);
+    } else {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Only dimensions 2 and 3 allowed for this element.\n");
+    }
 
-  double SO = coef*(CdO-KO*pgas*xO);
-  double SN = coef*(CdN-KN*pgas*xN);
-  
-  G_source.setel(0.,1);
-  G_source.setel(SO,2);
-  G_source.setel(SN,3);
-  G_source.setel(-SO,4);
-  G_source.setel(-SN,5);
+    Uintri.prod(iJaco,u_gas,1,-1,-1);
+
+    // this is approx. 2*U/h
+    double Uh = sqrt(Uintri.sum_square_all());
+    double tau, tau_fac=1.0;
+    double vel = sqrt(u_gas.sum_square_all());
+    lam_max = vel;
+
+    FastMat2::branch();
+    if (vel*vel > 1e-5*Uh*Dg) { // remove singularity when v=0
+      FastMat2::choose(0);
+      double Pe  = vel*vel/(Uh*Dg);	// Peclet number
+      // magic function
+      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
+      tau = tau_fac/Uh*magic; // intrinsic time
+    } else {
+      FastMat2::choose(1);
+      double h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());
+      tau = tau_fac*h*h/(12.*Dg);
+    }
+    FastMat2::leave();
+
+    tau_supg.d(1,2).is(1,1,3).set(tau);
+    
+    Uintri.prod(iJaco,u_liq,1,-1,-1);
+
+    // this is approx. 2*U/h
+    Uh = sqrt(Uintri.sum_square_all());
+    vel = sqrt(u_liq.sum_square_all());
+    if (vel>lam_max) lam_max = vel;
+
+    FastMat2::branch();
+    if (vel*vel > 1e-5*Uh*Dg) { // remove singularity when v=0
+      FastMat2::choose(0);
+      double Pe  = vel*vel/(Uh*Dg);	// Peclet number
+      // magic function
+      double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
+      tau = tau_fac/Uh*magic; // intrinsic time
+    } else {
+      FastMat2::choose(1);
+      double h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());
+      tau = tau_fac*h*h/(12.*Dg);
+    }
+    FastMat2::leave();
+    tau_supg.is(1,4,5).set(tau).rs();
+
+  }
+
+  if (options & COMP_SOURCE) {
+    // Source terms ================
+    // Film coefficient
+    double rb_crit = 6.67e-4;
+    double hm = (rb < rb_crit ? (rb/rb_crit)*4e-4 : 4e-4);
+    
+    double coef = 3.0*(CO+CN)*Rgas*Tgas*hm/(pgas*rb);
+    double xO = CO/(CO+CN);
+    double xN = 1.0-xO;
+    
+    double SO = coef*(CdO-KO*pgas*xO);
+    double SN = coef*(CdN-KN*pgas*xN);
+    
+    G_source.setel(0.,1);
+    G_source.setel(SO,2);
+    G_source.setel(SN,3);
+    G_source.setel(-SO,4);
+    G_source.setel(-SN,5);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
