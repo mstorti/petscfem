@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.29 2001/08/07 17:09:31 mstorti Exp $
+//$Id: lusubd.cpp,v 1.30 2001/08/08 20:04:26 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -493,6 +493,9 @@ int IISDMat::assembly_end(MatAssemblyType type) {
   ierr = MatAssemblyEnd(A_II,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
+
+  int MatGetDiagonal(Mat mat,Vec v)
+
   return 0;
 };
 
@@ -634,6 +637,10 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = VecCreateMPI(PETSC_COMM_WORLD,n_int,PETSC_DETERMINE,&res_i); CHKERRQ(ierr); 
     ierr = VecDuplicate(res_i,&x_i); CHKERRQ(ierr); 
 
+    // Get diagonal part of A_II matrix for preconditioning
+    ierr = VecDuplicate(res_i,&A_II_diag); CHKERRQ(ierr); 
+    ierr = MatGetDiagonal(A_II,A_II_diag); CHKERRQ(ierr);
+
     ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); CHKERRQ(ierr); 
     ierr = SLESSetOperators(sles_ll,A_LL,
 			    A_LL,SAME_NONZERO_PATTERN); CHKERRQ(ierr); 
@@ -736,6 +743,7 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
     ierr = VecDestroy(res_i); CHKERRQ(ierr); 
     ierr = VecDestroy(x_i); CHKERRQ(ierr); 
+    ierr = VecDestroy(A_II_diag); CHKERRQ(ierr); 
     ierr = VecDestroy(res_loc); CHKERRQ(ierr); 
     ierr = VecDestroy(x_loc); CHKERRQ(ierr); 
     ierr = VecDestroy(res_loc_i); CHKERRQ(ierr); 
@@ -947,16 +955,7 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
 
-  if (typeid(*this)==typeid(IISDMat) && preco_type != "none") {
-    preco_type = "none";
-    if ( !warn_iisdmat ) {
-      warn_iisdmat=1;
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "PETScFEM warning: IISD operator does not support any\n"
-		  "preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
-		  preco_type.c_str());
-    }
-  }
+  set_preco(preco_type);
 
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
@@ -973,11 +972,60 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
 
-  // warning:= avoiding `const' restriction!!
-  ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
   ierr = KSPSetMonitor(ksp,PFMat_default_monitor,this);
   sles_was_built = 1;
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
+int PETScMat::set_preco(const string & preco_type) {
+  // warning:= avoiding `const' restriction!!
+  ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+}
+
+
+
+int IISDMat::warn_iisdmat=0;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#define DEFAULT_IISD_PC "jacobi"
+#undef __FUNC__
+#define __FUNC__ "int PETScMat::build_sles(TextHashTable *,char *=NULL)"
+int IISDMat::set_preco(const string & preco_type) {
+  if (preco_type=="jacobi" || preco_type=="") {
+    ierr = PCShellSetApply(pc,int (*apply)(void *ctx,Vec,Vec),NULL); 
+  } else if (preco_type=="none" ) {
+    ierr = PCSetType(pc,PCNONE); CHKERRQ(ierr);
+  } else {
+    if ( !warn_iisdmat ) {
+      warn_iisdmat=1;
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "PETScFEM warning: IISD operator does not support any\n"
+		  "preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
+		  preco_type.c_str());
+    }
+  }
+  // warning:= avoiding `const' restriction!!
+  ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+int iisd_jacobi_pc_apply(void *ctx,Vec x ,Vec y) {
+  PFMat *A = (PFMat *A) ctx;
+  ierr = (typeid(*A)!=typeid(IISDMat)); CHKERRQ(ierr);  
+  A->jacobi_pc_apply(x,y);
+}
+  
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISDMat::jacobi_pc_apply(Vec,Vec)"
+int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
+  // Computes the componentwise division w = x/y. 
+  ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

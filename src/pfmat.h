@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.10 2001/08/06 01:07:36 mstorti Exp $
+// $Id: pfmat.h,v 1.11 2001/08/08 20:04:26 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -152,6 +152,8 @@ public:
   int view(Viewer viewer);
 };
 
+int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
+
 /** Solves iteratively on the `interface' (between subdomain) nodes
     and solving by a direct method in the internal nodes.
  */
@@ -226,6 +228,8 @@ class IISDMat : public PFMat {
   PC pc_ll;
   /// KSP for local solution (en each processor)
   KSP ksp_ll;
+  /// Warn if not appropriate setting for preconditioning type
+  static int warn_iisdmat;
   /** For a global dof #gdof# gives the #block# (`local' or
       `interface') and the number in that block. 
       @param gdof (input) dof in old numbering
@@ -242,6 +246,10 @@ class IISDMat : public PFMat {
       @param s (input) scale factor (usually for changing sign)
   */ 
   int local_solve(Vec x_loc,Vec y_loc,int trans,double s);
+
+  Vec A_II_diag;
+  int jacobi_pc_apply(Vec x,Vec y); 
+  
 public:
 
   /** Creates the matrix from the profile computed in #da#
