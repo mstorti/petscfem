@@ -2,30 +2,11 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Can't open `weights.dat' gives a SIGSEGV and not in parallel. 
-> Couldn't open file "weights.dat"!!
-> --------------------------------------------------------------------------
-> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
->        The PETSc Team
-> ...
-> --------------- Stack Frames ---------------
-> Couldn't open file "weights.dat"!!
-> --------------------------------------------------------------------------
-> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
->        The PETSc Team
->     petsc-maint@mcs.anl.gov
-> ...
-* When can't open a file (included with __INCLUDE__) it reports 
-> Assertion failed: "ierr==0"
-> Can't find __END_FIXA__ tag
-> ---------------
-  which is confuse. 
 * Read  `sqcav', `cubcav', `pfmat2' to test/Makefile
 * USE_DX should be tied to USE_PTHREADS. Also it gives an error with
     `make depend' if DXARCH is not set and USE_SSL is set (Or
     something like that). 
 * make `epsilon' relative in `srfgath' 
-* `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
 * `advdif/id' elemset does some `proj' task or something. We should write
     an `ask' function for it. 
 * Add `start_step' feature. 
@@ -162,6 +143,27 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Can't open `weights.dat' gives a SIGSEGV and not in parallel. 
+> Couldn't open file "weights.dat"!!
+> --------------------------------------------------------------------------
+> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
+>        The PETSc Team
+> ...
+> --------------- Stack Frames ---------------
+> Couldn't open file "weights.dat"!!
+> --------------------------------------------------------------------------
+> Petsc Version 2.1.6, Patch 4, Released Aug 14, 2003
+>        The PETSc Team
+>     petsc-maint@mcs.anl.gov
+> ...
+* When can't open a file (included with __INCLUDE__) it reports 
+> Assertion failed: "ierr==0"
+> Can't find __END_FIXA__ tag
+> ---------------
+  which is confuse. 
+  Mon Feb 21 16:11:32 2005: FIXED
+* `gatherer.cpp' doesn't use `set_error' for handling detjaco<0
+  Mon Feb 21 15:55:02 2005: FIXED
 * Not reporting error in 
   parallel "Couldn't open file "../proy.skin.tmp"!!" while reading
   fixations. 
