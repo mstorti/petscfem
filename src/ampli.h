@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.7 2002/02/10 19:42:04 mstorti Exp $
+// $Id: ampli.h,v 1.8 2002/02/10 19:52:17 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -115,11 +115,15 @@ private:
 public:
   /// Constructor (initializes `fun_data')
   DLGeneric() : fun_data(NULL) {}
-  /// Prints 
+  /// Prints information about the function
   void print() const;
+  /// Initializes values 
   void init(TextHashTable *thash_);
+  /// Clears the object 
   virtual void clear() {};
+  /// Computes the value of the Dirichlet b.c. at the specified time
   double eval(const TimeData *time_data);
+  /// Destructor
   ~DLGeneric();
 };
 
