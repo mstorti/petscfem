@@ -1,8 +1,18 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.3 2001/11/23 20:53:07 mstorti Exp $
+// $Id: tryme.cpp,v 1.4 2001/11/24 00:04:18 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
+
+/// Cyclic `rem' 
+int crem(int j, int m) {
+  int mm = (m>0 ? m : -m);
+  if (j>=0 ) {
+    return j % mm;
+  } else {
+    return mm + (j % mm);
+  }
+}
 
 class TGraph : public Graph {
 public:
@@ -12,8 +22,8 @@ public:
 };
 
 void TGraph::set_ngbrs(int elem,vector<int> &ngbrs_v) {
-  ngbrs_v.push_back(elem+1 % N);
-  ngbrs_v.push_back(elem-1 % N);
+  ngbrs_v.push_back(crem(elem+1,N));
+  ngbrs_v.push_back(crem(elem-1,N));
 }
 
 int main(int argc, char **args) {
@@ -22,4 +32,6 @@ int main(int argc, char **args) {
   Graph &G = GG;
   GG.N = N;
   G.part(N,N,2);
+  for (int j=0; j<N; j++) 
+    printf("vrtx %d in proc %d\n",j,G.vrtx_part(j));
 }

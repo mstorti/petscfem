@@ -1,8 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.4 2001/11/23 20:53:04 mstorti Exp $
+//$Id: graph.cpp,v 1.5 2001/11/24 00:04:57 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
+extern "C" {
+#include <metis.h>
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Graph::~Graph() {}
@@ -17,7 +20,8 @@ double Graph::weight(int elem) {return weight_scale;}
 void Graph::part(int nelemfat,int max_partgraph_vertices,
   int npart,float *tpwgts=NULL) {
 
-  int visited,elem,elemk,vrtx,vrtxj,vrtxjj,p,j,k;
+  int visited,elem,elemk,vrtx,vrtxj,vrtxjj,p,j,k,
+    edgecut,options=0,numflag=0,wgtflag=2;
   vector<int>::iterator n,ne;
   set<int>::iterator q,qe;
   // if tpwgts is not passed then define a local one
@@ -140,7 +144,7 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
 
   // mark:= auxiliary vector that flags if an element has been marked
   // already as a linked node in the graph
-#if 1
+#if 0
   int *mark = new int[nelemfat];
   for (int ielgj=0; ielgj<nelemfat; ielgj++) mark[ielgj]=-1;
 #endif
@@ -153,6 +157,7 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
     vrtxj = el2vrtx[elem];
     ngbrs_v.clear();
     set_ngbrs(elem,ngbrs_v);
+    ne = ngbrs_v.end();
     for (n=ngbrs_v.begin(); n!=ne; n++) {
       int &elemk = *n;
       vrtxjj = el2vrtx[elemk];
@@ -176,6 +181,7 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
     for (q=adj.begin(); q!=qe; q++) adjncy[p++] = *q;
   }
 
+  adjncy_v.clear();
 #if 1
   // print the graph
   for (int ielgj=0; ielgj<nvrtx; ielgj++) {
@@ -192,23 +198,10 @@ void Graph::part(int nelemfat,int max_partgraph_vertices,
     tpwgts = tpwgts_v.begin();
   }
 
-#if 0
-  for (j=0; j<nvsubdo; j++) 
-    tpwgts_d[j] = tpwgts[subd2proc[j]/iisd_subpart]/float(iisd_subpart);
-  if (size*iisd_subpart > 1) {
-    if (myrank==0) {
-      if (partflag==0) {
-	if (myrank==0) printf("METIS partition - partflag = %d\n",partflag);
-	METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
-			     NULL,&wgtflag,&numflag,&nvsubdo, 
-			     tpwgts_d,&options,&edgecut,vpart);
-      
-      } else { // partflag=2
-	assert(0);
-      }
-    }
-  }  
-#endif
+  METIS_WPartGraphKway(&nvrtx,xadj,adjncy,vwgt, 
+		       NULL,&wgtflag,&numflag,&npart, 
+		       tpwgts,&options,&edgecut,vpart);
+
   delete[] adjncy;
   delete[] xadj;
   delete[] vwgt;
