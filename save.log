@@ -3094,3 +3094,7 @@ tag: beta-3.25.pl6 on Mon, 24 Nov 2003 00:41:46 -0300 by mstorti in spider
      > Wrote `petscfem-mode' for Emacs support.
      > Creates a texinfo file for browsing options and pasting
      > 	into data file. 
+----------
+tag: beta-3.25.pl7 on Mon, 24 Nov 2003 21:17:21 -0300 by mstorti in spider
+     > Now odoc.pl generates several instances of the same
+     > option in onyly one page. 
