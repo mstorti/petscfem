@@ -1991,3 +1991,9 @@ tag: beta-3.12.pl2 on Wed, 25 Dec 2002 21:31:40 -0300 by mstorti in spider
 ----------
 tag: beta-3.12.pl3 on Thu, 26 Dec 2002 07:55:26 -0300 by mstorti in spider
      > Runs OK all tests except those in test/sector
+----------
+tag: beta-3.13 on Thu, 26 Dec 2002 11:36:50 -0300, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Now can have more general constraints and fixations. 
+     > Runs OK plate with coupling with exterior potential solution 
+     > with relaxation. 

@@ -270,3 +270,8 @@ tag: beta-3.12 on Mon Dec 23 07:58:26 GMT+3 2002, by mstorti in spider
      > Fixing problems with circular constraints. 
      > Added test for cyclic constraints.
      > Now FastMat2::inv() uses lapack
+----------
+tag: beta-3.13 on Thu Dec 26 11:36:50 -0300 2002, by mstorti in minerva.arcride.edu.ar
+     > Now can have more general constraints and fixations. 
+     > Runs OK plate with coupling with exterior potential solution 
+     > with relaxation. 
