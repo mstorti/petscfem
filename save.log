@@ -3307,3 +3307,6 @@ tag: beta-3.32 on Sat, 25 Sep 2004 13:22:40 -0300 by mstorti in spider
      > Fixed in some docs the CIMEC URL was erroneously www.cimec.com.ar, 
      >    instead of www.cimec.org.ar.
      > Fixed `delayed_flush' problem. 
+----------
+tag: beta-3.32.1 on Mon, 27 Sep 2004 08:30:25 -0300 by mstorti in minerva.ceride.gov.ar
+     > Administrative tag
