@@ -526,3 +526,6 @@ tag: beta-2.07 on Sun Sep 23 12:07:26 ART 2001, by mstorti in spider
 ----------
 tag: beta-2.08 on Mon Sep 24 23:11:26 ART 2001, by mstorti in spider
      > Added SuperLU interface to Sparse
+----------
+tag: beta-2.09 on Sat Sep 29 09:35:56 ART 2001, by mstorti in spider
+     > Finite State Machine in Sparse::Mat seems to work well.
