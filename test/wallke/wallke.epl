@@ -1,0 +1,142 @@
+<:
+require '../eperlini.pl';       # Initializes ePerl 
+doc_vals(qw(case));
+:>//                            # ends ePerl block
+
+#default definitions
+#===========================================================
+global_options
+ndim 2
+
+save_file "save.state"
+nsave 20
+
+#rtol 1e-2
+rtol 0
+atol 0
+maxits 100
+
+save_file_pattern "outvector%d.out"
+#nsaverot 1000000
+
+#initial_state "wallke.ini"
+initial_state "save.state"
+print_some_file "wallke.some"
+save_file_some "wallke.some.tmp"
+nsome 1
+
+alpha 1.
+nstep 40
+nnwt 3
+tol_newton 0
+preco_type "lu"
+Dt 0.1
+
+#print_linear_system_and_stop
+#solve_system 0
+
+#<:
+$L = 1;                         # Semi distance between plates
+$Re_l = 100000;                 # laminar Re
+$Umax = 1;                      # Max vel in the channel
+$Uav = 1.5*$Umax;               # Aver vel 
+$nu = $Uav*2*$L/$Re_l;          # kinematic visc.
+$g = $nu*2*$Umax/$L**2;         # body force
+$N = 16;
+octave_export_vars("data.m.tmp",qw(nu g));
+:>//
+
+y_wall_plus 5
+turbulence_coef 0.
+viscosity <:=$nu:>
+G_body 0. <:=$g:>
+
+weak_form 0 # todavia no tenemos el weak form para k-e (???)
+
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  2  5
+__INCLUDE__ wallke.nod
+__END_NODES__
+
+#===========================================================
+elemset nsi_tet_keps 4
+#Datos del elemento
+geometry cartesian2d
+npg 4
+__END_HASH__
+1 3 4 2
+3 5 6 4 
+5 7 8 6 
+7 9 10 8 
+9 11 12 10 
+11 13 14 12 
+13 15 16 14 
+15 17 18 16 
+17 19 20 18
+19 21 22 20 
+21 23 24 22 
+23 25 26 24 
+25 27 28 26 
+27 29 30 28 
+29 31 32 30 
+31 33 34 32 
+__END_ELEMSET__
+
+#<:$wall_ke=1;:>
+#if $wall_ke
+elemset wallke 2
+geometry cartesian1d
+npg 2
+__END_HASH__
+1 2 
+__END_ELEMSET__
+#endif
+
+elemset wall_law_res 2
+lagrange_diagonal_factor 1e-3
+__END_HASH__
+1 <:=2*$N+3:> 
+2 <:=2*$N+4:> 
+__END_ELEMSET__
+
+end_elemsets
+
+#===========================================================
+fixa
+
+# pressure fixed at some node
+<:=2*$N+1:> 3  0.
+
+#if !$wall_ke
+1 2 0.
+#endif
+1 1 0.
+#1 4 1.
+#1 5 1.
+
+# Fictitious node (leave 2 dof's for the wall eqs.)
+<:=2*$N+3:> 3 0.
+<:=2*$N+3:> 4 0.
+<:=2*$N+3:> 5 0.
+
+__END_FIXA__
+
+constraint
+
+__INCLUDE__ wallke.peri
+
+# Fictitious node periodic 
+-1. <:=2*$N+4:> 1 1. <:=2*$N+3:> 1
+-1. <:=2*$N+4:> 2 1. <:=2*$N+3:> 2
+-1. <:=2*$N+4:> 3 1. <:=2*$N+3:> 3
+-1. <:=2*$N+4:> 4 1. <:=2*$N+3:> 4
+-1. <:=2*$N+4:> 5 1. <:=2*$N+3:> 5
+
+__END_CONSTRAINT__
+
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $
