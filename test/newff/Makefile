@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2002/12/02 19:09:46 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2002/12/23 02:13:42 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -88,7 +88,7 @@ local_clean::
 	-rm -f data.m save.state*
 
 LOC_PROG = advdif
-PROG = ../../applications/advdif/advdif.bin
+PROG = $(ADVDIF)
 CASE_NAME = newff
 
 #s
