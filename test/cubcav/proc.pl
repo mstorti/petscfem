@@ -11,9 +11,10 @@ sub averg {
     return $sum/$count;
 }
 
-open IN,"isp2.stat";
-$stream = IN;
+# open IN,"isp2.stat";
+# $stream = IN;
 
+$stream = STDIN;
 print "nlay sbp ispits mem iter av. tav\n";
 while (<$stream>) {
     my @items = split(" ",$_);

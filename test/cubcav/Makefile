@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.47 2003/08/25 02:49:16 mstorti Exp $ 
+# $Id: Makefile,v 1.48 2003/08/25 10:52:53 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -70,3 +70,6 @@ dxo:
 dx:
 	$(EPERL) -P -d dx=1 cubcav.epl > cubcav_dx.depl
 	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl
+
+k:
+	-killall ns_O.bin job.pl

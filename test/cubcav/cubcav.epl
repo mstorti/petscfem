@@ -5,7 +5,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 $case = 'laplace' unless $case;
 get_var_env2('NP',undef);
 $CASE = $case;
-$N = 20 unless defined $N;
+get_var_env2('N',20);
 $hratio = 1;
 $use_tetra = 1;
 $maxits = 600;
