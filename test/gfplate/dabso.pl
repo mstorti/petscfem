@@ -4,6 +4,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 4;
 $Nx = 50;
+$rotay = 1;
 
 $Machin = 0.5;
 $gamma = 1.4;
@@ -21,7 +22,7 @@ $Uref = [$rhoref,$uref,0,$pref];
 
 @vars = qw(sigma Rgas Nx Lx Machin gamma
 	   Rgas rhoref Tref dufac abso uref
-	   pref cref Uref);
+	   pref cref Uref rotay);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mkgfabso.m";

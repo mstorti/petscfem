@@ -59,7 +59,7 @@ Rgas <:=$Rgas:>
 visco 0.001
 cond 0.001
 steady 0
-Uref <:=$rhoref:> <:=$uref:> 0 <:=$pref:> 
+# Uref <:=$rhoref:> <:=$uref:> 0 <:=$pref:> 
 
 lagrange_diagonal_factor 1e-3
 # lagrange_residual_factor 1.0
@@ -95,14 +95,22 @@ __END_HASH__
 #if $abso
 elemset gasflow_abso 5
 dx 0
+#if !$rotay
 normaln -1. 0.
+#else
+normaln 0. -1.
+#endif
 __END_HASH__
 __INCLUDE__ gfabso.con-abso0.tmp
 __END_ELEMSET__
 
 elemset gasflow_abso 5
 dx 0
+#if !$rotay
 normaln 1. 0.
+#else
+normaln 0. 1.
+#endif
 __END_HASH__
 __INCLUDE__ gfabso.con-abso1.tmp
 __END_ELEMSET__

@@ -1,4 +1,4 @@
-## $Id: proc2.m,v 1.8 2005/01/23 13:59:07 mstorti Exp $
+## $Id: proc2.m,v 1.9 2005/01/23 18:44:57 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -16,9 +16,10 @@ primi = 1;
 if primi
   U = Uprimi;
   field = 4;
-  indx = [1 2 4];
-  scale = [rhoref cref pref];
+  indx = [1 2 3 4];
+  scale = [rhoref cref cref pref];
 else
+  error("not more supported!!");
   Uri = primi2ri(Uprimi,gasdata);
   U = Uri;
   field = 1;
@@ -30,8 +31,9 @@ Uref = mean(U);
 maxbound = max(U);
 minbound = min(U);
 
-Unorm = zeros(rows(U),3);
-for k=1:3
+m = length(indx);
+Unorm = zeros(rows(U),m);
+for k=1:m
   field = indx(k);
   Unorm(:,k) = (U(:,field)-Uref(field))/scale(k);
 endfor
@@ -39,7 +41,11 @@ endfor
 rem(rows(U),Nx+1)==0 || error("not correct size");
 nt = rows(U)/(Nx+1);
 x = aload("gfabso.nod.tmp");
-x = x(1:Nx+1,1);
+if !rotay
+  x = x(1:Nx+1,1);
+else
+  x = x(1:Nx+1,2);
+endif
 
 axis([0 Lx min(min(Unorm)) max(max(Unorm))])
 m=5;

@@ -1,6 +1,5 @@
-## $Id: mkgfabso.m,v 1.10 2005/01/23 13:59:07 mstorti Exp $
+## $Id: mkgfabso.m,v 1.11 2005/01/23 18:44:57 mstorti Exp $
 source("data.m.tmp");
-
 
 poutlet = pref;
 
@@ -8,18 +7,28 @@ w = zhomo([0 Lx/Nx 0 Lx ],2,Nx+1);
 [xnod,icone] = pfcm2fem(w);
 xnod = xnod(:,[2 1]);
 nnod = size(xnod,1);
+x = xnod(1:nnod,1);
+
+if rotay
+  longindx = 2;			# Longitudinal indx
+  Orot = [0 1;-1 0];		# Rotation matrix
+else
+  longindx = 1;
+  Orot = eye(2);
+endif
+xnod = xnod*Orot;
 
 ## rho,u,v at inlet
 inlet = [1;Nx+2];
-pffixa("gfabso.fixa-in.tmp",inlet,1:3,[rhoref uref 0.0])
+pffixa("gfabso.fixa-in.tmp",inlet,1:3,[rhoref [uref 0]*Orot])
 
-## rho,u,v at inlet
+## p at outlet
 outlet = [Nx+1;2*Nx+2];
 pffixa("gfabso.fixa-outlet.tmp",outlet,4,pref)
 
 ## other
 slip = (1:nnod)';
-pffixa("gfabso.fixa-slip.tmp",slip,3)
+pffixa("gfabso.fixa-slip.tmp",slip,1+longindx)
 
 ## Fictitious nodes at outlet 
 ## ... 2*Nx+2 nnod+3 nnod+4
@@ -49,7 +58,7 @@ abso0 = [1:3,nnod+[5,6];
 asave("gfabso.con-abso0.tmp",abso0);
 
 ## Fixa on reference nodes
-Uref = [rhoref,uref,0,pref];
+Uref = [rhoref,[uref,0]*Orot,pref];
 ref = [Nx+1;2*Nx+2];
 pffixa("gfabso.fixa-ref.tmp",nnod+[2,4,6,8],1:4,Uref)
 
@@ -59,10 +68,11 @@ nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
 Uini(nnod+[1:2:7],:) = 0;	# lagrange multipliers to 0
 
-x = xnod(1:nnod,1);
 dw = 0.3*[0 1 0 0]; ## entropy wave
 ## dw = drho*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
 ## dw = drho*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
+dw(2:3) = dw(2:3)*Orot;
+
 dfx = exp(-((x-Lx/2)/sigma).^2);
 Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
 
