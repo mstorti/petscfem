@@ -4,6 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* verify `nsid.cpp' (ns_id_fac*ns_id_cn1) and `lumped_vc'
+* Print a banner saying if a version is stable/unstable. 
 * revert changes for locker in adaptor, etc...
 * replace epart2 -> epart in readmesh.cpp and other parts of elemset,
      etc... 

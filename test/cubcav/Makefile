@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.65 2003/09/17 00:51:42 mstorti Exp $ 
+# $Id: Makefile,v 1.66 2003/09/19 22:28:32 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -23,7 +23,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 LOC_PROG := ns
 #CASE_NAME := qharm
 CASE_NAME := cubcav
-PROG := $(NS)
+PROG := $(NS_O)
 
 CASE := $(CASE_NAME)
 ################################################################
@@ -47,8 +47,6 @@ NP := 1
 endif
 
 export NP
-
-PROG := $(NS)
 
 #w Runs program
 run: 
@@ -81,6 +79,7 @@ dx:
 	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl
 
 #================================================================
+#w 
 dx_make_command: dx_make_command2
 
 dx_make_command1:
@@ -106,7 +105,7 @@ k:
 	-killall ns_O.bin job.pl
 
 #================================================================
-# For the shell-hook
+#w For the shell-hook
 cubcav_init:
 	perl $(HOME)/ROCKET/ALE/mkstepsdir.pl
 
@@ -116,7 +115,7 @@ cubcav_post:
 		do echo "gzipping $$f" ; gzip -f $$f ; done
 
 cubcav_close:
-
+#w
 fifo:
 	fifo="comp_server.fifo" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
@@ -131,5 +130,6 @@ clean_fifo:
 	fifo="comp_server.fifo2" ;			\
 	if [ -e $$fifo ] ; then rm $$fifo ; fi ;	\
 
+#w 
 step_server:
 	octave -qH comp_step2.m
