@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.29 2001/12/09 13:40:20 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.1 2001/12/09 14:00:20 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.10 2001/12/08 20:30:56 mstorti Exp $
+//$Id: graph.cpp,v 1.9.4.1 2001/12/09 14:00:20 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>

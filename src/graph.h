@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.9 2001/12/08 20:30:56 mstorti Exp $
+// $Id: graph.h,v 1.8.4.1 2001/12/09 14:00:20 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 

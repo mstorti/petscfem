@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.15 2001/12/09 13:40:20 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.1 2001/12/09 14:00:20 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.10 2001/12/09 13:40:20 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.1 2001/12/09 14:00:20 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme.cpp,v 1.9 2001/12/08 20:31:00 mstorti Exp $
+// $Id: tryme.cpp,v 1.8.4.1 2001/12/09 14:00:20 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
