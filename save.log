@@ -1776,3 +1776,6 @@ tag: beta-3.08.pl2 on Mon, 11 Nov 2002 19:55:06 -0300 by mstorti in node1.beowul
 ----------
 tag: beta-3.08.pl3 on Mon, 18 Nov 2002 23:51:55 -0300 by mstorti in spider
      > Visualization with DX
+----------
+tag: beta-3.08.pl4 on Sat, 23 Nov 2002 16:27:56 -0300 by mstorti in spider
+     > Can use LES without the van Driest dmping factor. 
