@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2002/08/27 00:33:42 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2002/10/10 23:34:43 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -35,7 +35,7 @@ run: data
 	if [ -e $(NAME).force.tmp ] ; then rm $(NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) $(NL) $(MACHI) $(PROG) \
-		 -case $(NAME).depl # > petscfem.output.tmp
+		 -case $(NAME).depl > petscfem.output.tmp
 
 local_clean::
 	-putex

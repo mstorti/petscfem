@@ -34,8 +34,8 @@ if ($casen eq 'var_eta0') {
 }
 $save_file = ($casen ? "aqui.$casen.tmp" : "aqui.state.tmp");
 ## Test the 'G_body' feature. 
-$Nx = 100;
-$Ny = 40;
+$Nx = 20;
+$Ny = 1;
 $Lx = 1;				# Side of the cavity
 $Ly = $Lx/$Nx;				# Side of the cavity
 $hratio = 1;			# refinement (h_center/h_wall)
@@ -60,8 +60,7 @@ octave_export_vars(">data.m.tmp",@vars);
 global_options
 
 nsave 5
-# <:pr('nstep'):> 
-nstep 1000
+<:pr('nstep'):> 
 # initial_state aqui.state
 <:pr('save_file'):> 
 
@@ -101,8 +100,6 @@ Dt <:=$Dt:>
 steady <:=$steady:>
 <:pr('alpha'):>
 
-# activate_debug_print
-activate_debug_memory_usage
 __END_HASH__
 
 # ndim nu ndof
