@@ -1,4 +1,4 @@
-# $Id: math.pl,v 1.6 2002/08/18 15:03:51 mstorti Exp $
+# $Id: math.pl,v 1.7 2002/11/19 21:35:46 mstorti Exp $
 # Some useful definitions for use with ePerl
 #
 
@@ -70,11 +70,12 @@ sub atanh {
     return log((1+$y)/(1-$y))/2.;
 }
 
-
+=cut
 sub asin {
     my $y=shift();
     return atan2($y,sqrt(1-$y**2));
 }
+=cut
 
 sub log10 {
     my $y=shift();
@@ -190,7 +191,7 @@ sub irand {
 # compute nearer point from values in @v to $x
 sub distance {
     my ($x,$v) = @_;
-    my $dist_min, $nearer, $dist;
+    my ($dist_min, $nearer, $dist);
     for ($k=0; $k<=$#$v; $k++) {
 	$dist = abs($x-$v->[$k]);
 	if (!defined $dist_min || $dist < $dist_min) {
@@ -258,7 +259,7 @@ sub refine2 {
     push @v,$v1,$v2;
     for (my $j=0; $j<$#vv; $j++) { push @v,($vv[$j]+$vv[$j+1])/2.; }
     undef @vv;
-    my $dmax, $wref;
+    my ($dmax, $wref);
     foreach $w (@v) {
 	my ($d,$n) = distance($w,$v);
 	if (!defined $dmax || $d > $dmax) {
