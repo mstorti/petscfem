@@ -5,15 +5,21 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 get_var_env('weak_form',0);
 get_var_env('case',undef);
+$case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
+$use_tetra = 0;
+if ($case eq 'laplace_tetra') {
+    $case = 'laplace';
+    $use_tetra = 1;
+}
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;			# Number of elements per dimension
+$N = 50;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = 0.01;			# time step
+$Dt = ($case eq 'laplace' ? 10 : 0.01);# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
@@ -47,6 +53,12 @@ if (scalar $case =~ /weak_form_(\d)/) {
 	$iisd_subpart = 10;
     }
     $preco_type = "jacobi";
+} elsif ($case eq 'laplace') {
+    $solver = "iisd";
+    $iisd_subpart = 60;
+    $maxits = 200;
+    $nstep = 3;
+    $preco_type = "jacobi";
 } elsif ($case eq 'big') {
     $N = 40;
 #      $solver = "iisd";
@@ -60,10 +72,12 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case \"$case\"\n";
 }
+$CASE = $case;
 #
 #__END_TRANSCRIPT__
 transcript("", qw(viscosity Dt));	# print variables on output
-octave_export_vars(">data.m.tmp",qw(U L N Re viscosity h Co Dt hratio leaky tol));
+octave_export_vars(">data.m.tmp",qw(CASE U L N Re viscosity 
+    h Co Dt hratio leaky tol use_tetra));
 :>//                            # ends ePerl block
 
 global_options
@@ -80,16 +94,22 @@ nsave 5
 <:pr('maxits'):> 
 # Number of subdomains
 <:pr('iisd_subpart'):>
+report_consumed_time
+activate_debug_print
+#if 1
+iisdmat_print_statistics
+print_partitioning_statistics
+#endif
 #if $update_jacobian
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
 update_jacobian_steps 3
-report_consumed_time
-activate_debug_print
 #endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
+max_partgraph_vertices 2000
+max_partgraph_vertices_proc 2000
 
 #    Iterative parameters
 tol_tet 1e-5
@@ -106,7 +126,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady
+steady <:=($case eq 'laplace' ? 0 : 1):>
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -118,10 +138,11 @@ cache_grad_div_u
 __END_HASH__
 
 # ndim nu ndof
-nodes  3  3  4
+nodes  3  3  <:=($case eq 'laplace' ? 1 : 4):>
 __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
+#if $case ne 'laplace'
 elemset nsi_tet_les_fm2 8
 name malla
 # report_consumed_time
@@ -137,11 +158,28 @@ __END_HASH__
 __INCLUDE__ cubcav.con.tmp
 __END_ELEMSET__
 
+#else
+
+elemset qharm <:=($use_tetra ? 4 : 8):>
+name malla
+# report_consumed_time
+geometry <:=($use_tetra ?  "tetra" : "cartesian3d"):>
+npg <:=($use_tetra ? 1 : 8):>
+#
+# Datos fisicos
+#
+__END_HASH__
+__INCLUDE__ cubcav.con<:=($use_tetra ? "-tetra" : ""):>.tmp
+__END_ELEMSET__
+#endif
+
 end_elemsets
 
 fixa
 # fijacion en la presion
+#if $case ne 'laplace'
 1 <:=$ndim+1:> 0.
+#endif
 # fijaciones de velocidad en las paredes
 __INCLUDE__ cubcav.fixa.tmp
 __END_FIXA__
