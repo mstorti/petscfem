@@ -1,0 +1,81 @@
+// -*-mode: c++ -*-
+#ifndef GENLOAD_H
+#define GENLOAD_H
+
+#define FASTMAT2SHELL FastMat2Shell_t
+class FASTMAT2SHELL {
+public:
+  virtual void prod(FastMat2 &Ax, FastMat2 &x) {
+    PETSCFEM_ERROR0("Not overloaded prod for this FastMat2Shell.");
+  }
+  void add(FastMat2 &S) {
+    PETSCFEM_ERROR0("Not overloaded 'add' for this FastMat2Shell.");
+  }
+  virtual void init() {};
+  //  virtual ~FASTMAT2SHELL()=0;
+};
+
+/// Generic surface flux function (film function) element
+class LinearHFilmFun : public HFilmFun {
+private:
+  FastMat2 dU;
+
+  class H;
+  class S;
+  friend class H;
+  friend class S;
+
+  class H : public FASTMAT2SHELL {
+  public:
+    LinearHFilmFun* l;
+    virtual void prod(FastMat2 &Ax, FastMat2 &x)=0;
+    virtual void init() {};
+    H(LinearHFilmFun *l_) : l(l_) {};
+  };
+  
+  class HFull : public H {
+  private:
+    FastMat2 HH;
+  public:
+    void prod(FastMat2 &Ax, FastMat2 &x) {Ax.prod(HH,x,1,-1,-1);};
+    void init();
+    HFull(LinearHFilmFun *l) : H(l) {};
+  };
+
+  class S : public FASTMAT2SHELL {
+  public:
+    LinearHFilmFun* l;
+    virtual void add(FastMat2 &S)=0;
+    virtual void init() {};
+    S(LinearHFilmFun *l_) : l(l_) {};
+  };
+
+  class SNull : public S {
+  public:
+    void add(FastMat2 &S) {};
+    SNull(LinearHFilmFun *l_) : S(l_) {};
+  };
+  
+  int nel, ndof, nelprops;
+  H *h;
+  S *s;
+  Property hfilm_coeff_prop, 
+    source_term_prop;
+public:
+  void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
+	 FastMat2 &jacin,FastMat2 &jacout);
+  void init();
+  LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
+  ~LinearHFilmFun();
+};
+
+
+/// Linear surface flux element
+class lin_gen_load : public GenLoad { 
+public: 
+  LinearHFilmFun linear_h_film_fun;
+  lin_gen_load() : linear_h_film_fun(this) {h_film_fun = &linear_h_film_fun;};
+  ~lin_gen_load() {};
+};
+
+#endif

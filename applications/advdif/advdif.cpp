@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.21 2001/05/12 15:28:37 mstorti Exp $
+//$Id: advdif.cpp,v 1.22 2001/05/23 20:23:42 mstorti Exp $
 
 #include <set>
 
@@ -13,6 +13,7 @@
 #include "nwadvdif.h"
 #include "nwadvdifj.h"
 #include "burgers.h"
+#include "genload.h"
 #include <time.h>
 
 static char help[] = "Basic finite element program.\n\n";
@@ -38,20 +39,6 @@ int MyKSPMonitor(KSP ksp,int n,double rnorm,void *dummy) {
 #undef __FUNC__
 #define __FUNC__ "bless_elemset"
 void bless_elemset(char *type,Elemset *& elemset) {
-#if 0
-  SET_ELEMSET_TYPE(volume_euler)
-    SET_ELEMSET_TYPE(absorb_euler)
-    SET_ELEMSET_TYPE(bcconv_adv_euler)
-    SET_ELEMSET_TYPE(bcconv_adv_eulerfm2)
-    SET_ELEMSET_TYPE(volume_eulerfm2)
-    // SET_ELEMSET_TYPE(absorb_eulerfm2)
-    SET_ELEMSET_TYPE(volume_shallow)
-    SET_ELEMSET_TYPE(absorb_shallow)
-    SET_ELEMSET_TYPE(bcconv_adv_shallow)
-    SET_ELEMSET_TYPE(bcconv_adv_shallowfm2)
-    SET_ELEMSET_TYPE(volume_shallowfm2)
-    SET_ELEMSET_TYPE(volume_shallowfm2t)
-#endif
     // General linear advective-diffusive system
     SET_ELEMSET_TYPE(advdif_advecfm2)
     SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
@@ -68,6 +55,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(bcconv_adv_swfm2t)
     SET_ELEMSET_TYPE(advdif_swfm2t)
     SET_ELEMSET_TYPE(wall_swfm2t)
+
+    SET_ELEMSET_TYPE(lin_gen_load)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.30 2001/05/22 21:20:40 mstorti Exp $
+//$Id: advective.h,v 1.31 2001/05/23 20:23:42 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -414,8 +414,8 @@ public:
 class GenLoad : public NewElemset { 
 public: 
   HFilmFun *h_film_fun;
-  virtual NewAssembleFunction new_assemble;
-  virtual ASK_FUNCTION;
+  NewAssembleFunction new_assemble;
+  ASK_FUNCTION;
   virtual ~GenLoad()=0;
 };
 

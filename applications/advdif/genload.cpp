@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.4 2001/05/23 16:37:30 mstorti Exp $
+//$Id: genload.cpp,v 1.5 2001/05/23 20:23:42 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -13,91 +13,21 @@ extern int MY_RANK,SIZE;
 #include "../../src/fastmat2.h"
 
 #include "advective.h"
+#include "genload.h"
 
-#define FASTMAT2SHELL FastMat2Shell_t
-class FASTMAT2SHELL {
-public:
-  virtual void prod(FastMat2 &Ax, FastMat2 &x) {
-    PETSCFEM_ERROR0("Not overloaded prod for this FastMat2Shell.");
-  }
-  void add(FastMat2 &S) {
-    PETSCFEM_ERROR0("Not overloaded 'add' for this FastMat2Shell.");
-  }
-  virtual void init() {};
-  virtual ~FASTMAT2SHELL()=0;
-};
-
-/// Generic surface flux function (film function) element
-class LinearHFilmFun : public HFilmFun {
-private:
-  FastMat2 dU;
-
-  class H;
-  class S;
-  friend class H;
-  friend class S;
-
-  class H : public FASTMAT2SHELL {
-  public:
-    LinearHFilmFun* l;
-    virtual void prod(FastMat2 &Ax, FastMat2 &x)=0;
-    virtual void init()=0;
-    H(LinearHFilmFun *l_) : l(l_) {};
-  };
-  
-  class Hfull : public H {
-  private:
-    FastMat2 HH;
-  public:
-    void prod(FastMat2 &Ax, FastMat2 &x);
-    void init();
-    Hfull(LinearHFilmFun *l) : H(l) {};
-  };
-
-  class S : public FASTMAT2SHELL {
-  public:
-    LinearHFilmFun* l;
-    virtual void add(FastMat2 &S)=0;
-    virtual void init()=0;
-    S(LinearHFilmFun *l_) : l(l_) {};
-  };
-
-  class Snull : public S {
-  public:
-    void add(FastMat2 &S) {};
-    void init();
-    Snull(LinearHFilmFun *l) : S(l) {};
-  };
-  
-  int nel, ndof, nelprops;
-  H *h;
-  S *s;
-  Property hfilm_coeff_prop, 
-    source_term_prop;
-public:
-  void q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
-	 FastMat2 &jacin,FastMat2 &jacout);
-  void init();
-  LinearHFilmFun(GenLoad *e) : HFilmFun(e) {};
-};
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinearHFilmFun::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
 		       FastMat2 &jacin,FastMat2 &jacout) {
 
-  flux.set(0.);
-  
+  dU.set(uout).rest(uin);
+  h->prod(flux,dU);
+  s->add(flux);
 }
 
-void LinearHFilmFun::Hfull::init() {
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LinearHFilmFun::HFull::init() {
   HH.resize(2,l->ndof,l->ndof);
 }
-
-/// Linear surface flux element
-class LinGenLoad : public GenLoad { 
-public: 
-  LinearHFilmFun linear_h_film_fun;
-  LinGenLoad() : linear_h_film_fun(this) {h_film_fun = &linear_h_film_fun;};
-};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -110,13 +40,24 @@ void LinearHFilmFun::init() {
   // Defines coeffcients for the flim flux function. 
   //  _END
   elemset->get_prop(hfilm_coeff_prop,"hfilm_coeff");
-  if (hfilm_coeff_prop.length == 0) {
+  if (hfilm_coeff_prop.length == ndof*ndof) {
+    h= new HFull(this);
+  } else {
+    PETSCFEM_ERROR("Not valid size of hfilm_coeff: %d, ndof: %d\n",
+		   hfilm_coeff_prop.length,ndof);
   }
+  s= new SNull(this);
 
+  dU.resize(1,ndof);
   h->init();
   s->init();
 }  
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+LinearHFilmFun::~LinearHFilmFun() {
+  if (h) delete h;
+  if (s) delete s;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -167,7 +108,7 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   // Gauss Point data
   //o Type of element geometry to define Gauss Point data
-  NGETOPTDEF_S(string,geometry,cartesian2d);
+  NGETOPTDEF_S(string,geometry,cartesian1d);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
   
   double detJ;
