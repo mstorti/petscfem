@@ -63,4 +63,8 @@ makewhat.txt: makewhat.pl
 hexasplit.bin: hexasplit.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
+#w 
+nettest.bin: nettest.o
+	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
+
 #s

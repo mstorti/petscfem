@@ -33,7 +33,7 @@ int irand(int imin,int imax) {
 int main(int argc,char **argv) {
 
   int size,rank,p1=0,p2=1;
-  int chunk_size=1000,ntimes=10;
+  int chunk_size=100000,ntimes=10;
   double tol=1e-10,sum_check;
 
   MPI_Status stat;
@@ -64,7 +64,7 @@ int main(int argc,char **argv) {
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	gettimeofday (&start,NULL);
-	for (int jtime=0; jtime<ntimes; jtime++) {
+	for (int jtime=0; jtime < ntimes; jtime++) {
 	  if (rank==p1) {
 	    
 	    MPI_Send(buff,chunk_size,MPI_DOUBLE,p2,p1,MPI_COMM_WORLD);
@@ -84,7 +84,6 @@ int main(int argc,char **argv) {
 	    for (int j=0; j<chunk_size; j++) sum += buff[j];
 	    assert(fabs(sum-sum_check)<tol);
 #endif
-	    
 	    MPI_Send(buff,chunk_size,MPI_DOUBLE,p1,p2,MPI_COMM_WORLD);
 	    
 	  }

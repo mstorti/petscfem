@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.29 2002/09/12 21:41:05 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2002/09/13 21:04:34 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -59,3 +59,9 @@ local_clean::
 hexasplit.bin: hexasplit.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
+nettest = $(PETSCFEM_DIR)/tools/nettest.bin
+
+.PHONY: nettest
+nettest:
+	NP=`procsel -n ./proctable.geronimo` ;  \
+	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
