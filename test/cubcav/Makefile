@@ -1,20 +1,17 @@
-# $Id: Makefile,v 1.80 2003/12/07 18:39:11 mstorti Exp $ 
+# $Id: Makefile,v 1.81 2003/12/08 12:33:08 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
 
 default: plain
 
-plain:
-	$(MAKE) CASE=cubcav case=plain_bupl0 run # > cubcav.out.plain_bpl0.tmp
-#	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bpl1.tmp
-
 #default case
 # case := laplace
 # case := iisd_sbp1_uj
 export case
 
-tests: test_re1000 test_iisd
+tests: block_uploading
+# tests: test_re1000 test_iisd
 
 PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
@@ -125,6 +122,14 @@ yuv_compress:
 #================================================================
 k:
 	-killall ns_O.bin job.pl
+
+#================================================================
+#w Basic test for block uploading. This somewhat trivial since
+#w for NS the profile is full. 
+block_uploading:
+	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bpl0.tmp
+	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bpl1.tmp
+	$(OCTAVE) check_plain.m > cubcav.plain-bupl.verif.tmp
 
 #================================================================
 #w For the shell-hook

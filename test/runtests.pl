@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.116 2003/11/16 15:32:46 mstorti Exp $
+#$Id: runtests.pl,v 1.117 2003/12/08 12:33:05 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -393,6 +393,11 @@ end_section();
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 
 begin_section('Misc tests.');
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("cubcav/cubcav.plain-bupl.verif.tmp",
+       "Block uploading in cubcav",
+       read_file("cubcav/cubcav.plain-bupl.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("aquifer/output.stream2.out.tmp",
