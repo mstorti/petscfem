@@ -36,8 +36,8 @@ nnwt 1
 maxits 1
 Krylov_dim 1
 print_internal_loop_conv 1
-print_linear_system_and_stop 1
-verify_jacobian_with_numerical_one 1
+#print_linear_system_and_stop 1
+#verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>

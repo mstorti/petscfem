@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2001/01/05 23:26:39 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2001/01/08 12:12:17 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -8,7 +8,7 @@ all: run
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 
-NS    = $(PETSCFEM_DIR)/applications/ns/ns.bin
+NS = $(PETSCFEM_DIR)/applications/ns/ns.bin
 
 ################################################################
 NP = 1
@@ -31,4 +31,3 @@ run: $(CASE).depl force ns
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
-
