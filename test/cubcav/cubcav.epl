@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 50;			# Number of elements per dimension
+$N = 20;			# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)
@@ -181,8 +181,9 @@ __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
 elemset \
- <:=($case eq 'laplace'? 'qharm' : $fracstep? 'fracstep_fm2' : 'nsi_tet_les_fm2'); :> \
+ <:=($case eq 'laplace'? 'qharm' : $fracstep? 'fracstep_fm2' : 'ns_id'); :> \
 	<:=($use_prismatic? 6 : $use_tetra? 4 : 8):>
+ns_id_fac 1.
 name malla
 # report_consumed_time
 geometry <:=($use_prismatic? 'prismatic' : $use_tetra ?  'tetra' : 'cartesian3d'):>

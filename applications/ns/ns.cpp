@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.108 2002/09/30 14:16:11 mstorti Exp $
+//$Id: ns.cpp,v 1.109 2002/10/03 02:45:45 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -527,7 +527,7 @@ int main(int argc,char **args) {
 	if (!print_linear_system_and_stop || solve_system) {
 	  // ierr = SLESSolve(sles_tet,res,dx,&its); CHKERRA(ierr); 
 	  debug2.trace("Before solving linear system...");
-	  ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
+	  // ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
 	  debug2.trace("After solving linear system.");
 	}
 
