@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $
+$Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
+! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
+! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
+! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
+! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
+  # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.275 2003/04/03 21:37:33 mstorti Exp $ 
+  # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6503,6 +6503,16 @@ inestabiliza por una frecuencia muy cercana a pi (tal vez sea
 pi). Entonces le pruebo a aplicarle el filtro varias veces (3). Con un
 solo filtrado suena en step=77. Vamos a ver si puede avanzar mas con 3
 filtrados. 
+
+%===Fri,  4 Apr 2003 07:14:49 -0300 mstorti@spider
+%
+Con 3 fitrados se mantiene estable. Si bajo Dt=0.02 entonces puedo
+correr con fs_smoothing_coef = 0.1. Quiere decir que efectivamente es
+un problema de inestabilidad temporal regulado por el
+Froude_h. Tambien verifico que el hecho de que las variaciones de `h' en
+la superficie son muy pequenhas es razonable. Si aplicamos Bernoulli
+entonces tenemos "0.5*Delta(v^2) = g*Delta h" de donde Delta h =
+0.5*.3/10 = 0.015 que es lo que se oberva. 
 
 # Current line ===========  %
 # Local Variables: $
