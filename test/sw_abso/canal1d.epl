@@ -1,8 +1,33 @@
-# -*- mode: shell-script -*-
-#
-#===========================================================
-global_options
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};                   # case name
+print "# case_name $case_name\n";
+$case_name = 'canal1d' unless $case_name;
 
+$nx=20;
+$Nx=$nx+1;
+$L=10;
+$u0=0.;
+$h0=1.;
+$alpha = 1;
+$Courant=1.;
+$h = $L/$Nx;
+$urms=0.4;
+$Dt = $Courant*$h/$urms;
+$Tend = 15.;
+$nstep = ceil($Tend/$Dt);
+$gravity = 1.;
+
+#__END_TRANSCRIPT__
+@vars = qw(nx Nx L u0 h0 nstep case_name Courant alpha Tend Dt gravity);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">canal1d.data.m.tmp",@vars);
+system "octave -qH canal1d.m";
+:>//                            # ends ePerl block
+
+global_options
+ndim 2
 use_log_vars 0
 
 # SUPG conf
@@ -10,92 +35,61 @@ weak_form 0
 
 # time stepping
 nnwt 3
-nstep 500
-#nstep 1
+<:pr('nstep'):>
 alpha 1
-
 steady 0
 
-initial_state "canal1d.ini"
-#initial_state "outvector.out"
+initial_state "canal1d.ini.tmp"
 
 # "rotary saving" 
 nsaverot 1
 nfile 1
 nrec 1000
-save_file_pattern "canal1d%d.out"
-# omega_newton 0.3
+save_file_pattern "canal1d%d.out.tmp"
+save_file "save.state.tmp"
+
 tol_newton 0
-# solver "iisd"
-#preco_type "jacobi"
 solver "petsc"
 preco_type "lu"
-
-# print_linear_system_and_stop
-# solve_system 0
-# time_step_stop 25
-# inwt_stop 2
 
 # convergence parameters. Internal GMRES loop. 
 rtol 0
 atol 0
 dtol 1e10
-maxits 1
-Krylov_dim 100
-# print_internal_loop_conv 1
-Dt 0.05
+maxits 20
+Krylov_dim 150
+#print_internal_loop_conv 1
+<:pr('Dt'):>
 tau_fac 0.
 
 __END_HASH__
 
 # ndim nu ndof
 nodes   2  3  2
-__INCLUDE__ canal1d.nod
+__INCLUDE__ canal1d.nod.tmp
 
 __END_NODES__
 
-
 #===========================================================
 table physical_data
-gravity 1.
-
+<:pr('gravity'):>
 friction_law "Chezy"
 Ch 110.
-
 shape "rectangular"
 width 10.
-#shape "circular"
-#radius 10.
-
-#shape "triangular"
-#width 30.
-#height 3.
-
-#angle in radians
-#wall_angle 0.1
 cfric 0.
 ndim 2
 __END_HASH__
 
 #===========================================================
 elemset streamsw1d 2
-#elemset id 2
 geometry cartesian1d
 npg 2
 _table_include physical_data
-#id_fac 0.
 __END_HASH__
-__INCLUDE__ canal1d.con
+__INCLUDE__ canal1d.con.tmp
 __END_ELEMSET__
 
-#===========================================================
-#elemset id 1
-#id_fac 0.
-#__END_HASH__
-#102
-#__END_ELEMSET__
-
-#===========================================================
 
 elemset streamsw1d_abso 5
 geometry cartesian1d
@@ -104,16 +98,12 @@ lagrange_residual_factor 1.0
 props U_ref[2] normaln[1]
 _table_include physical_data
 __END_HASH__
-__INCLUDE__ canal1d.rest
+__INCLUDE__ canal1d.rest.tmp
 __END_ELEMSET__
 
 end_elemsets
 
-#fixa
-#__INCLUDE__ canal1d.fixa
-#__END_FIXA__
-
-#constraint
-#__INCLUDE__ canal1d.const
-#__END_CONSTRAINT__
-
+# Local Variables: $
+# mode: shell-script $
+# eval: (setq indent-tabs-mode nil) $
+# End: $

@@ -2,7 +2,8 @@ tests: test_abso
 
 CASE=canal1d
 
-PETSCFEM_DIR := /u/rodrigop/PETSC/petscfem-hydro
+# PETSCFEM_DIR := /u/rodrigop/PETSC/petscfem-hydro
+PETSCFEM_DIR := ../..
 
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 NP := 1
@@ -15,7 +16,7 @@ SRCS =
 CLEAN_DIRS = 
 DEPEND_DIRS = $(CLEAN_DIRS)
 
-ADVDIF = $(APPDIR)/advdif/advdif_g.bin
+# ADVDIF = $(APPDIR)/advdif/advdif_g.bin
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 # Test for abso shallow water 1d
