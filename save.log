@@ -622,3 +622,6 @@ tag: beta-2.33 on Sun Nov 25 22:36:06 ARST 2001, by mstorti in spider
 tag: beta-2.34 on Mon Nov 26 19:34:05 ARST 2001, by mstorti in spider
      > IISD with subpartitioning (inside processors, with Graph class) is
      > working. Compiles and runs simples cases. 
+----------
+tag: beta-2.35 on Mon Nov 26 23:47:22 ARST 2001, by mstorti in spider
+     > Working on IISD subpartitioning
