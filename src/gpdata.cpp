@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.17 2002/12/16 16:21:32 mstorti Exp $
+//$Id: gpdata.cpp,v 1.18 2003/01/07 01:12:53 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -53,7 +53,7 @@ int cartesian_2d_shape(RowVector &shape,Matrix &dshapexi,
   return 0;
 }
 
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double xipgf(int ipg,int npg1d) {
   if (npg1d==2) {
     return (2*ipg-1)/sqrt(3.);
@@ -62,6 +62,39 @@ double xipgf(int ipg,int npg1d) {
   }
 }
 
+void cart_prod(int npg,int nel,int nel_lay,
+	       int ndim,RowVector *shape,Matrix *dshapexi,double *wpg,
+	       GPdata &base_gp) {
+  int ndimel = ndim-1;
+  for (int ipg=0; ipg<npg; ipg++) {
+    shape[ipg] = RowVector(nel);
+    shape[ipg].Columns(1,nel_lay) = base_gp.shape[ipg];
+
+    dshapexi[ipg]= Matrix(ndimel,nel);
+    dshapexi[ipg]= 0.;
+    dshapexi[ipg].SubMatrix(1,ndimel,1,nel_lay) = base_gp.dshapexi[ipg];
+    assert(nel % nel_lay ==0);
+    int nlay = nel/nel_lay;
+    int *coef[3];
+    double coef2[] = {-0.5, 0.5};
+    double coef3[] = {-1.5,2.0,-0.5};
+    double coef4[] = {-(11./6.), +(18./6.), -( 9./6.), +( 2./6.)};
+    double *coef;
+    if (nlay == 2) 
+    else if (nlay==3) 
+    else if (nlay==4) 
+    else assert(0);
+    for (int lay=0; lay<nlay; lay++)
+      dshapexi[ipg].	
+	SubMatrix(ndim,ndim,lay*nel_lay,(lay+1)*nel_lay) = 
+	coef[lay]*base_gp.shape[ipg];
+
+    wpg[ipg] = base_gp.wpg[ipg];
+    dshapex[ipg]= Matrix(ndimel,nel);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	       mat_version_=GP_NEWMAT) {
   mat_version = mat_version_;
@@ -435,31 +468,7 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 
     GPdata quad("cartesian2d",ndimel-1,4,npg,GP_NEWMAT);
 
-    for (int ipg=0; ipg<npg; ipg++) {
-      shape[ipg] = RowVector(nel);
-      shape[ipg].Columns(1,4) = quad.shape[ipg];
-
-      dshapexi[ipg]= Matrix(ndimel,nel);
-      dshapexi[ipg]= 0.;
-      dshapexi[ipg].SubMatrix(1,2,1,4) = quad.dshapexi[ipg];
-      if (nel==8) {
-	dshapexi[ipg].SubMatrix(3,3,1,4) = -0.5*quad.shape[ipg];
-	dshapexi[ipg].SubMatrix(3,3,5,8) = +0.5*quad.shape[ipg];
-      } else if (nel==12) {
-	dshapexi[ipg].SubMatrix(3,3,1,4)  = -1.5*quad.shape[ipg];
-	dshapexi[ipg].SubMatrix(3,3,5,8)  = +2.0*quad.shape[ipg];
-	dshapexi[ipg].SubMatrix(3,3,9,12) = -0.5*quad.shape[ipg];
-      } else if (nel==16) {
-	dshapexi[ipg].SubMatrix(3,3,1,4)   = -(11./6.)*quad.shape[ipg];
-	dshapexi[ipg].SubMatrix(3,3,5,8)   = +(18./6.)*quad.shape[ipg];
-	dshapexi[ipg].SubMatrix(3,3,9,12)  = -( 9./6.)*quad.shape[ipg];
-	dshapexi[ipg].SubMatrix(3,3,13,16) = +( 2./6.)*quad.shape[ipg];
-      } else assert(0);
-
-      wpg[ipg] = 1;
-
-      dshapex[ipg]= Matrix(ndimel,nel);
-    }
+    cart_prod(npg,nel,nel_lay,ndim,shape,dshapexi,wpg,quad);
 
   } else GPERROR;
   
