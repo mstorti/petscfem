@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.20 2001/07/24 01:20:01 mstorti Exp $
+//$Id: lusubd.cpp,v 1.21 2001/07/25 19:16:13 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -97,8 +97,9 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // dimensioning PETSc matrices
   // nnz[diagonal/off-diagonal][row-block-type][column-block-type]
   // For instance nnz[D][L][L] = d_nn_z for the 'local-local' block. 
-  vector<int> nnz[2][2][2],flag0(dofmap->neq,0),flag(dofmap->neq,0),
-    *d_nnz,*o_nnz;
+  vector<int> nnz[2][2][2],flag0,flag,*d_nnz,*o_nnz;
+  flag0.resize(dofmap->neq,0);
+  flag.resize(dofmap->neq,0);
 
   // First, decide which dof's are marked as `interface' and which as `local'. 
 
