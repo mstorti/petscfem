@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.3 2002/12/16 16:21:28 mstorti Exp $
+//$Id: genload.cpp,v 1.4 2002/12/16 17:26:03 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -99,7 +99,7 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Whether there is a double or single layer of nodes
   TGETOPTDEF(thash,int,double_layer,0);
 
-  int nel2;
+  nel2;
   if (double_layer) {
     PETSCFEM_ASSERT0(nel % 2 ==0,"Number of nodes per element has to be even for "
 		    "double_layer mode");
@@ -244,18 +244,35 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #undef SQ
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void lin_gen_load::
-q(FastMat2 &U_in,FastMat2 &U_out,FastMat2 &flux_in,FastMat2 &flux_out,
-  FastMat2 &jac) {
+void ConsGenLoad::q(FastMat2 &uin,FastMat2 &uout,
+		    FastMat2 &flux_in, FastMat2 &flux_out, 
+		    FastMat2 &jac) {
+  q(uin,uout,flux_in,jac_aux);
+  flux_out.set(flux_in).scale(-1.);
+
+  // Jac(2,:) = -Jac(1,:)
+  jac.ir(1,1).set(jac_aux)
+    .ir(1,2).set(jac_aux).scale(-1).rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void ConsGenLoad::start_chunk() {
+  jac_aux.resize(3,2,ndof,ndof);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
+		     FastMat2 &flux_in,FastMat2 &jac) {
   double h=1.;
   flux_in.set(U_out).rest(U_in).scale(h);
-  jac.ir(1,1).ir(2,1).eye(h)
-    .rs().ir(1,1).ir(2,2).eye(-h).rs();
+  jac.ir(1,1).eye(h).rs().ir(1,2).eye(-h).rs();
 
+#if 0
   flux_out.set(flux_in).scale(-1.);
   jac.ir(1,1);
   jac_aux.set(jac);
 
   // Jac(2,:) = -Jac(1,:)
   jac.ir(1,2).set(jac_aux).scale(-1).rs();
+#endif
 }
