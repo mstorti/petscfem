@@ -2,7 +2,7 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-$Nx = 80;			# nbr of elements in x-y dir
+$Nx = 30;			# nbr of elements in x-y dir
 $Ny = $Nx;
 $Ly = 20;			# length of mesh in x-y
 $Lx = 20;
@@ -13,7 +13,7 @@ $KO = 1.3516e-5;		# Henry constant O2 - N2
 $KN = 0.6788e-5; 
 $Rgas = 8.314;			# Gas const
 $Tgas = 293.0;			# Temperature
-$nu_t = 0.001;			# turbulent viscosity
+$nu_t = 0.1;			# turbulent viscosity
 $hm_fac = 1.0;			# factor controlling gas-liquid exchange
 $L_inject = 4;			# Length of injection
 $x_inject = 6;			# Position of center of injection
@@ -65,8 +65,8 @@ save_file_pattern pool.state_%d.tmp
 nrec 1
 nfile 100000
 
-# initial_state "pool.ini.tmp"
-initial_state "pool.state.tmp"
+initial_state "pool.ini.tmp"
+# initial_state "pool.state.tmp"
 
 #if 1
 solver "iisd"
@@ -101,6 +101,7 @@ print_partitioning_statistics
 proc_weights weights.dat
 max_partgraph_vertices 4000
 max_partgraph_vertices_proc 4000
+fast_uploading 0
 __END_HASH__
 
 # ndim nu ndof

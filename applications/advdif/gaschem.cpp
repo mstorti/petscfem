@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.6 2003/11/12 19:44:46 mstorti Exp $
+//$Id: gaschem.cpp,v 1.7 2003/11/13 02:49:39 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -111,6 +111,7 @@ void gaschem_ff::compute_tau(int ijob) {
 // compute the profile for each specific subproblem according to jobinfo value
 void gaschem_ff::set_profile(FastMat2 &seed) {
   seed.eye();
+  // seed.set(1);
 }
 
 

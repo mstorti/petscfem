@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2003/11/12 22:21:15 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/11/13 02:48:26 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -18,7 +18,7 @@ MCH = -machinefile ./machi.dat
 NPMAX := 10
 PETSCFEM_PROCTABLE := ./proctable
 
-ifeq (1,0)
+ifeq (1,1)
 NP := $(shell procsel -l $(PETSCFEM_PROCTABLE))
 NOLOCAL := 
 NPMAX := 1
@@ -31,7 +31,6 @@ NP := $(shell perl -e "print $(NP)> $(NPMAX) ? $(NPMAX) : $(NP);")
 
 #w Runs program
 run:
-	echo "in Makefile: start target run"
 	-rrm -f pool.state_*.tmp
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.357 2003/11/11 15:41:05 mstorti Exp $
+$Id: notes.txt,v 1.358 2003/11/13 02:49:39 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.357 2003/11/11 15:41:05 mstorti Exp $ 
+! # $Id: notes.txt,v 1.358 2003/11/13 02:49:39 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.357 2003/11/11 15:41:05 mstorti Exp $ 
+! # $Id: notes.txt,v 1.358 2003/11/13 02:49:39 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.357 2003/11/11 15:41:05 mstorti Exp $ 
+  # $Id: notes.txt,v 1.358 2003/11/13 02:49:39 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -7661,6 +7661,11 @@ solo proc en cubcac/spider.
 gaschem: corre caso simple 1D. Agrego un hm_fac para regular el
 intercambio entre las fases, ahora voy a agregar una corriente
 lateral. 
+
+%===Wed, 12 Nov 2003 21:47:47 -0300 mstorti@spider
+%
+Ahora se puede elegir entre la version de como cargar las matrices
+(fast uploading o slow uploading) (opcion fast_uploading). 
 
 # Current line ===========  %
 # Local Variables: $

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.36 2003/10/11 14:08:14 mstorti Exp $
+//$Id: elemset.h,v 1.37 2003/11/13 02:49:28 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -192,6 +192,25 @@ public:
 		      int myrank,int el_start,int el_last,int iter_mode,
 		      const TimeData *time_data=NULL);
 
+private:
+  /** This is the fast version, calls only MateSetValues 
+      once per element with a block. However it is 
+      constrained to have a whole block. Wether this or 
+      #upload_vector_slow# are used depends on the 
+      #fast_uploading# option for the elemset. */
+  int upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
+		    int options,arg_data &argd,int myrank,
+		    int el_start,int el_last,int iter_mode,
+		    int klocc=0,int kdofc=0);
+
+  /** Makes a MatsSetValue for each element of the matrix. 
+      Slower but accept arbitrary masks. */
+  int upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
+		    int options,arg_data &argd,int myrank,
+		    int el_start,int el_last,int iter_mode,
+		    int klocc=0,int kdofc=0);
+
+public:
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Put localized values (nod/field representation) returned by
       elemset assembles in the global residual vector. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.22 2003/11/13 02:49:28 mstorti Exp $
+//$Id: elmsupl.cpp.new,v 1.1 2003/11/13 02:49:28 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -34,27 +34,32 @@ extern int MY_RANK,SIZE;
 #define MASK(j,k,p,q) VEC4(argd.profile,j,k,ndof,p,nel,q,ndof)
 #define ICONE(j,k) VEC2(icone,j,k,nel)
 
-int Elemset::
-upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
-		   int options,arg_data &argd,int myrank,
-		   int el_start,int el_last,int iter_mode,
-		   int klocc,int kdofc) { }
-
-int Elemset::
-upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
-		   int options,arg_data &argd,int myrank,
-		   int el_start,int el_last,int iter_mode,
-		   int klocc,int kdofc) { }
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "upload_vector"
-#if 0
-// New Fast PETSc matrix loading version (uses MatSetValues)
-
-extern int any_A_LL_other_stop;
-
 int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
+		  int options,arg_data &argd,int myrank,
+		  int el_start,int el_last,int iter_mode,
+		  int klocc,int kdofc) {
+
+  int ierr;
+  //o Use Fast up-loading method or not 
+  TGETOPTDEF(thash,int,fast_uploading,1);
+
+#define ARGS nel,ndof,dofmap,options,argd,myrank, \
+             el_start,el_last,iter_mode,klocc,kdofc
+  if (fast_uploading) ierr = upload_vector_fast(ARGS);
+  else ierr = upload_vector_slow(ARGS);
+
+  return ierr;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "upload_vector_fast"
+// New Fast PETSc matrix loading version (uses MatSetValues)
+extern int any_A_LL_other_stop;
+int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
@@ -420,10 +425,14 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
     }
   }
 #endif
+  return 0;
 }
-#else
+
 // Old slow PETSc matrix loading version (uses MatSetValue)
-int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "upload_vector_slow"
+int Elemset::upload_vector_slow(int nel,int ndof,Dofmap *dofmap,
 		  int options,arg_data &argd,int myrank,
 		  int el_start,int el_last,int iter_mode,
 		  int klocc,int kdofc) {
@@ -554,5 +563,5 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
+  return 0;
 }
-#endif
