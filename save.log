@@ -155,3 +155,6 @@ tag: beta-1.10 on Thu Jan 11 08:36:22 ARST 2001, by  mstorti in minerva.arcride.
 tag: beta-1.11 on Thu Jan 11 12:56:03 ARST 2001, by mstorti in minerva.arcride.edu.ar
      > -- STABLE VERSION -- 
      > Added two examples for advdif.
+----------
+tag: beta-1.12 on Thu Jan 11 18:59:14 ARST 2001, by mstorti in minerva.arcride.edu.ar
+     > Improved options doc, mainly fixd bugs in odoc.pl
