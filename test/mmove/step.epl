@@ -4,7 +4,7 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
 $disp = 0.9;
-$slope = 4;
+$slope = 2;
 # $shape = 'quad';
 #
 octave_export_vars(">data.m.tmp",qw(N disp shape slope));
@@ -14,8 +14,9 @@ global_options
 
 ndim 2
 nsave 5
+nsaverot 0
 steady
-<:$nstep=20;:>
+<:$nstep=40;:>
 nstep <:=$nstep+4:>
 Dt <:=1./$nstep:>
 
@@ -56,7 +57,7 @@ name malla
 # report_consumed_time
 geometry triangle
 npg 1
-c_volume 0.
+distor_exp 1.
 __END_HASH__
 __INCLUDE__ step.con.tmp
 __END_ELEMSET__

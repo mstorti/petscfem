@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.16 2002/12/11 21:50:04 mstorti Exp $
+//$Id: mmove.cpp,v 1.17 2002/12/12 19:35:19 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -17,9 +17,10 @@
 
 extern GlobParam *GLOB_PARAM;
 
-void mesh_move::init() {
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void mesh_move_eig_anal::init() {
   int ierr;
+  // The constitutive eq. is stress = C strain
   FastMat2 C;
   double c1 = sqrt(1./3.), c2 = sqrt(1./6.);
   // These are the gradient of shape functions for a master
@@ -37,11 +38,6 @@ void mesh_move::init() {
   J.resize(2,ndim,ndim);
   dNdxi.resize(2,ndim,nel);
 
-#ifdef USE_NEWMAT
-  GG.ReSize(ndim);
-  D.ReSize(ndim);
-#endif
-
   if (ndim==2) {
     if (nel==3) {
       dNdxi.setel(-sin(M_PI/3)*cos(M_PI/6),1,1);
@@ -56,160 +52,155 @@ void mesh_move::init() {
       dNdxi.set(C);
     } else PETSCFEM_ERROR("Only tringles ad quads in 2D: nel %d\n",nel);
   } else {
-#if 0
-    dNdxi.set(0.);
-    for (int k=1; k<=3; k++) dNdxi.setel(1.,k,k);
-    dNdxi.setel(-1.,1,4);
-    dNdxi.setel(-1.,2,4);
-    dNdxi.setel(-1.,3,4);
-#endif
-    
     C.resize(2,nel,ndim).set(c).t();
     dNdxi.set(C);
   }
-  res_Dir.resize(2,nel,ndim);
-  init_dfun();
+  // gradient of eigenvalues
+  glambda.resize(3,ndim,nel,ndim);
+  // Gradient and Hessian of functional (w.r.t. eigenvalues)
+  dFdl.resize(1,ndim);
+  d2Fdl2.resize(2,ndim,ndim);
+
   //o Perturbation scale length for increment in computing
   // the Jacobian with finite differences. 
-  TGETOPTDEF_ND(thash,double,epsilon_x,1.e-4);
-}
-
-void mesh_move_eig::init_dfun() {
-  int ierr;
-  //o Distortion coefficient
-  TGETOPTDEF_ND(thash,double,c_distor,1.);
-  //o Functional exponent
+  TGETOPTDEF(thash,double,epsilon_x,1.e-4);
+  eps = epsilon_x;
+  //o The functional to be minimized is $\Phi = \sum_{e=1,...,Nel} \phi_e^r#,
+  // where #\phi_e = \sum_{i\neq j} (\lambda_i-\lambda_j)^2/Vol^{2/n_d},
+  // and $r={\tt distor\_exp}$. 
   TGETOPTDEF_ND(thash,double,distor_exp,1.);
-  //o Distortion coefficient
-  TGETOPTDEF_ND(thash,double,c_volume,1.);
+  //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala. 
+  TGETOPTDEF_ND(thash,double,c_volume,0.);
+  //o Compute an initial ``predictor'' step with this relaxation scale. 
+  TGETOPTDEF_ND(thash,double,c_relax,1.);
+  //o Scales distortion function
+  TGETOPTDEF_ND(thash,double,c_distor,1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double mesh_move::distor_fun(FastMat2 & xlocp) {
-  xlocp.reshape(2,nel,ndim);
-  J.prod(xlocp,dNdxi,-1,1,2,-1);
-  xlocp.reshape(1,nel*ndim);
-  G.prod(J,J,-1,1,-1,2);
-  return distor_fun_G(G);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double mesh_move_eig::distor_fun_G(FastMat2 &G) {
-  double df,la1,la2,la3,vol;
-#ifdef USE_NEWMAT
-  for (int i=1; i<=ndim; i++) {
-    for (int j=1; j<=ndim; j++) {
-      GG(i,j) = G.get(i,j);
-    }
+void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
+				 FastMat2 &glambda) {
+  // Computes jacobian of master element
+  //        -> actual element transformation
+  J.prod(dNdxi,x,2,-1,-1,1);
+  double detJaco;
+  detJaco = J.det();
+  if (detJaco <= 0.) {
+    PETSCFEM_ERROR("Jacobian of element %d is negative or null\n"
+		   " Jacobian: %f\n",elem,detJaco);  
   }
-  EigenValues(GG,D);
-  la1 = D(1,1);
-  la2 = D(2,2);
-  if (ndim==3) la3 = D(3,3);
-#else
-  D.seig(G);
-  la1=D.get(1);
-  la2=D.get(2);
-  if (ndim==3) la3=D.get(3);
+  G.prod(J,J,-1,1,-1,2);
+  lambda.seig(G,V);
+  tmp3.prod(G,V,1,-1,-1,2);
+  tmp4.prod(V,tmp3,-1,1,-1,2);
+#define SHF(n) n.print(#n ": ")
+#ifdef DEBUG_ANAL
+  tmp4.print("V' G V (D?): ");
+  SHF(J);
+  SHF(G);
+  SHF(lambda);
+  SHF(V);
 #endif
+  tmp1.prod(J,V,1,-1,-1,2);
+  tmp2.prod(dNdxi,V,-1,1,-1,2);
+  for (int q=1; q<=ndim; q++) {
+    glambda.ir(1,q);
+    tmp1.ir(2,q);
+    tmp2.ir(2,q);
+    glambda.prod(tmp1,tmp2,2,1);
+  }
+  glambda.rs().scale(2.);
+  tmp1.rs();
+  tmp2.rs();
+}
+
+class Prod : public FastMat2::Fun2 {
+public:
+  void pre() { set(1.); }
+  double fun2(double a,double val) { return val*a; }
+} prod;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double mesh_move_eig_anal::dfun(const FastMat2 &D) {
 #if 1
-  double diffla;
-  if (ndim==2) {
-    vol = la1*la2;
-    diffla = (la1-la2)*(la1-la2);
-    diffla /= vol;
-  } else if (ndim==3) {
-    diffla = (la1-la2)*(la1-la2) + (la2-la3)*(la2-la3) + (la1-la3)*(la1-la3);
-    vol = la1*la2*la3;
-    diffla /= pow(vol,2./3.);
-  } else assert(0);
-  df = c_distor * pow(diffla,distor_exp) + c_volume * pow(vol,2.*distor_exp/double(ndim));
-  return df;
+  double F=0;
+  double vol=1.;
+  for (int k=1; k<=ndim; k++) vol *= D.get(k);
+  for (int k=2; k<=ndim; k++)
+    for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
+  F /= pow(vol,2./double(ndim));
+  return pow(F,distor_exp);
 #elif 0
-  double p = 1.;
+  double p=distor_exp;
   double norm_D = D.norm_p_all(p);
   double norm_iD = D.norm_p_all(-p);
-  return pow(norm_D * norm_iD, 1./p);
+  return norm_D*norm_iD;
 #else
-  return D.max_all()/D.min_all();
+  return D.sum_all()*sqrt(D.assoc_all(prod));
 #endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double mesh_move_rcond::distor_fun_G(FastMat2 & G) {
-  iG.inv(G);
-  double norm_G = G.max_abs_all();
-  double norm_iG = iG.max_abs_all();
-  return norm_G*norm_iG + 0.001*norm_G;
+void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &dFdx) {
+  la_grad(x,lambda,glambda);
+  double F, F0 = dfun(lambda);
+  for (int k=1; k<=ndim; k++) {
+    lambdap.set(lambda).addel(eps,k);
+    F  = dfun(lambdap);
+    dFdl.setel((F-F0)/eps,k);
+  }
+  dFdx.prod(dFdl,glambda,-1,-1,1,2);
+#ifdef DEBUG_ANAL
+    x.print("x:");
+    lambda.print("lambda:");
+    glambda.print("glambda:");
+    dFdl.print("dFdl:");
+    dFdx.print("dFdx:");
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move::element_connector(const FastMat2 &xloc,
-				   const FastMat2 &state_old,
-				   const FastMat2 &state_new,
-				   FastMat2 &res,FastMat2 &mat){
+void mesh_move_eig_anal::
+element_connector(const FastMat2 &xloc,
+		  const FastMat2 &state_old,
+		  const FastMat2 &state_new,
+		  FastMat2 &res,FastMat2 &mat) {
 
-  double distor,distor_p,distor_m,
-    distor_pp,distor_pm,distor_mp,distor_mm, d2f;
-  double eps = epsilon_x;
-  int nen = nel*ndim;
-  xloc0.reshape(2,nel,ndim).set(xloc).add(state_new).reshape(1,nel*ndim);
-  distor = distor_fun(xloc0);
-
-  res.reshape(1,nel*ndim);
+  x0.set(xloc).add(state_old);
+  df_grad(x0,res);
+  x0.reshape(1,nel*ndim);
+  mat.reshape(3,nel,ndim,nel*ndim);
   for (int k=1; k<=nel*ndim; k++) {
-    xlocp.set(xloc0);
-    xlocp.setel(xloc0.get(k)+eps,k);
-    distor_p = distor_fun(xlocp);
-
-    xlocp.set(xloc0);
-    xlocp.setel(xloc0.get(k)-eps,k);
-    distor_m = distor_fun(xlocp);
-
-    res.setel(-(distor_p-distor_m)/(2*eps),k);
-  }
-  res.reshape(2,nel,ndim);
-
-  const FastMat2 *state = (glob_param->inwt==0 ? &state_old : &state_new);
-  xloc0.reshape(2,nel,ndim).set(xloc).add(*state).reshape(1,nel*ndim);
-  mat.reshape(2,nen,nen);
-  for (int k=1; k<=nel*ndim; k++) {
-    for (int l=k; l<=nel*ndim; l++) {
-      xlocp.set(xloc0);
-      xlocp.setel(xloc0.get(k)+eps,k);
-      xlocp.setel(xlocp.get(l)+eps,l);
-      distor_pp = distor_fun(xlocp);
-      
-      xlocp.set(xloc0);
-      xlocp.setel(xloc0.get(k)+eps,k);
-      xlocp.setel(xlocp.get(l)-eps,l);
-      distor_pm = distor_fun(xlocp);
-      
-      xlocp.set(xloc0);
-      xlocp.setel(xloc0.get(k)-eps,k);
-      xlocp.setel(xlocp.get(l)+eps,l);
-      distor_mp = distor_fun(xlocp);
-      
-      xlocp.set(xloc0);
-      xlocp.setel(xloc0.get(k)-eps,k);
-      xlocp.setel(xlocp.get(l)-eps,l);
-      distor_mm = distor_fun(xlocp);
-
-      d2f = (distor_pp - distor_pm - distor_mp + distor_mm)/(4.*eps*eps);
-      mat.setel(d2f,k,l);
-    }
-  }
-
-  for (int k=2; k<=nel*ndim; k++) {
-    for (int l=1; l<=k-1; l++) {
-      d2f = mat.get(l,k);
-      mat.setel(d2f,k,l);
-    }
-  }
-
-  mat.reshape(4,nel,ndim,nel,ndim);
+    xp.set(x0).addel(eps,k).reshape(2,nel,ndim);
+    df_grad(xp,resp);
+    xp.reshape(1,nel*ndim);
 #ifdef DEBUG_ANAL
-  xloc.print("eig: xloc");
+    printf("k %d\n",k);
+    x0.print("x0:");
+    xp.print("xp:");
+    resp.print("resp:");
+    res.print("res:");
+#endif
+    mat.ir(3,k).set(resp).rest(res).rs();
+  }
+  mat.scale(1/eps);
+  x0.reshape(2,nel,ndim);
+  mat.rs().reshape(4,nel,ndim,nel,ndim);
+
+  if (0 && !glob_param->inwt) {
+    x0.set(xloc).axpy(state_new,c_relax)
+      .axpy(state_old,1.-c_relax);
+    df_grad(x0,res);
+    res.scale(1./c_relax);
+  } 
+  res.scale(-1.);
+
+  dstate.set(state_new).rest(state_old);
+  res_Dir.prod(mat,dstate,1,2,-1,-2,-1,-2);
+  res.axpy(res_Dir,-1.);
+  
+#ifdef DEBUG_ANAL
+  xloc.print("eig_anal: xloc");
   xloc.print("state_new");
   res.print("res:");
   mat.reshape(2,nel*ndim,nel*ndim).print("mat: ");
@@ -218,61 +209,3 @@ void mesh_move::element_connector(const FastMat2 &xloc,
   exit(0);
 #endif
 }
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int mmove_hook::write_mesh(const State &s,const char *filename,
-			   const int append=0) {
-#define XNOD(j,k) VEC2(xnod,j,k,dofmap->ndof)
-  int myrank;
-  double *vseq_vals,*sstate,*xnod;
-  Vec vseq;
-  const Vec &x = s.v();
-
-  MPI_Comm_rank(PETSC_COMM_WORLD,&myrank);
-
-  // fixme:= Now we can make this without a scatter. We can use
-  // the version of get_nodal_value() with ghost_values. 
-  int neql = (myrank==0 ? dofmap->neq : 0);
-  int ierr = VecCreateSeq(PETSC_COMM_SELF,neql,&vseq);  CHKERRQ(ierr);
-  ierr = VecScatterBegin(x,vseq,INSERT_VALUES,
-			 SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecScatterEnd(x,vseq,INSERT_VALUES,
-		       SCATTER_FORWARD,*dofmap->scatter_print); CHKERRA(ierr); 
-  ierr = VecGetArray(vseq,&vseq_vals); CHKERRQ(ierr);
-
-  xnod = mesh->nodedata->nodedata;
-
-  if (myrank==0) {
-    printf("Writing vector to file \"%s\"\n",filename);
-    FILE *output;
-    output = fopen(filename,(append == 0 ? "w" : "a" ) );
-    if (output==NULL) {
-      printf("Couldn't open output file\n");
-      // fixme:= esto esta mal. Todos los procesadores
-      // tienen que llamar a PetscFinalize()
-      exit(1);
-    }
-
-    int ndof=dofmap->ndof;
-    double dval;
-    const Time *t = &s.t();
-    for (int k=1; k<=dofmap->nnod; k++) {
-      for (int kldof=1; kldof<=ndof; kldof++) {
-	dofmap->get_nodal_value(k,kldof,vseq_vals,t,dval);
-	fprintf(output,"%12.10e  ",XNOD(k-1,kldof-1)+dval);
-      }
-      fprintf(output,"\n");
-    }
-    fclose(output);
-  }
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mmove_hook::time_step_post(double time,int step,
-				const vector<double> &gather_values) {
-  int ierr = write_mesh(*GLOB_PARAM->state,"remeshing.dat",1); 
-  assert(ierr=0);
-}
-#endif
