@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.12 2001/10/07 00:53:39 mstorti Exp $
+// $Id: distmat.cpp,v 1.13 2002/09/06 02:50:22 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -12,7 +12,8 @@
 #include <src/distmap.h>
 #include <src/distmat.h>
 
-int SIZE, MYRANK, M;
+extern int SIZE, MY_RANK;
+int M;
 
 class TrivialPartitioner : public IntRowPartitioner {
 public:
@@ -52,11 +53,11 @@ int main(int argc,char **argv) {
   DistMatrix S(&part);
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
-  MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
+  MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
   // Rotate seeds
   int seed = time (0);
-  for (int rank=0; rank<MYRANK; rank++) seed = new_seed(seed);
+  for (int rank=0; rank<MY_RANK; rank++) seed = new_seed(seed);
   srand (seed);
 
   if (argc!=5) {
@@ -93,7 +94,7 @@ int main(int argc,char **argv) {
     if (debug_v)
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "[%d]  (%d,%d) -> %f\n",
-			      MYRANK,row,col,e);
+			      MY_RANK,row,col,e);
     S.insert_val(row,col,e);
     MAT(row,col) += e;
   }
@@ -105,7 +106,7 @@ int main(int argc,char **argv) {
 
   maxerr.reset();
   for (j=0; j<M; j++) {
-    if (part.processor(j)==MYRANK) {
+    if (part.processor(j)==MY_RANK) {
       err = 0;
       for (k=0; k<M; k++) {
 	e = S.val(j,k);
@@ -121,7 +122,7 @@ int main(int argc,char **argv) {
     }
   }
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			  "[%d] max error at (%d,%d) -> %g\n",MYRANK,
+			  "[%d] max error at (%d,%d) -> %g\n",MY_RANK,
 			  maxerr.t.first,maxerr.t.second,err);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 

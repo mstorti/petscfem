@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.61 2002/09/05 22:28:35 mstorti Exp $ 
+# $Id: Makefile,v 1.62 2002/09/06 02:50:22 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -71,15 +71,14 @@ runtests: compile lap_per sector oscplate_all fastmat2 plano \
 	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
 	sparse graph sqcav pfmat aquifer nutatcyl
 
-runtests_p: constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl
+runtests_p: sparse graph sqcav pfmat aquifer nutatcyl
 
 #s Specific tests
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Lapace on a square with periodic b.c.'s
 lap_per: lap_per.dat laplace
-	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
+	echo $(MPIRUN)
+#	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Check bug100 (don't allocate chunk_size see notes.txt)
