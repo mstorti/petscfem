@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.58 2003/04/17 10:48:52 mstorti Exp $ 
+# $Id: Makefile,v 1.59 2003/04/17 22:50:39 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -70,7 +70,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	   # > $(output_file)
+	 	    > $(output_file)
 
 export CASE
 runs: CASE := sqcav

@@ -1,0 +1,37 @@
+Preprocessing directive '#elsif' didn't wotk in the Perl based version
+of eperl, because 
+
+	#elif <condition>
+
+expanded to 
+
+	 elsif (<condition>) {
+
+instead of 
+
+	 } elsif (<condition>) {
+
+Note the missing closing brace. This patch fixes that.
+
+Index: eperl
+===================================================================
+RCS file: /home/mstorti/cvsroot/petscfem/tools/eperl,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -u -u -r1.1 -r1.2
+--- eperl	23 Mar 2003 20:10:48 -0000	1.1
++++ eperl	17 Apr 2003 09:32:57 -0000	1.2
+@@ -817,9 +817,10 @@
+   }
+ 
+   # if-elsif-else-endif
+-  s/^\s*#(elsif|if)\s+(\S.*)$/$opt_H->{'BeginDelimiter'} $1 ($2) { _$opt_H->{'EndDelimiter'}\/\//g;
+-  s/^\s*#else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
+-  s/^\s*#endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
++  s/^\s*\#if\s+(\S.*)$/$opt_H->{'BeginDelimiter'} if ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
++  s/^\s*\#elsif\s+(\S.*)$/$opt_H->{'BeginDelimiter'} } elsif ($1) { _$opt_H->{'EndDelimiter'}\/\//g;
++  s/^\s*\#else\s*/$opt_H->{'BeginDelimiter'} } else { _$opt_H->{'EndDelimiter'}\/\//g;
++  s/^\s*\#endif\s*/$opt_H->{'BeginDelimiter'} } _$opt_H->{'EndDelimiter'}\/\//g;
+ 
+   # sinclude needs to replace delimiters
+   if ($opt_H->{'sinclude'} && $opt_H->{'sinclude'}[0]) {

@@ -5,7 +5,7 @@ $case_name = $ENV{'case_name'};                   # case name
 print "# case_name $case_name\n";
 $case_name = 'skew' unless $case_name;
 $noise = 0.;
-$video = 1;
+$video = 0;
 if ($case_name =~ /^(.*)_noise$/) {
     $noise = 0.25;
     $case_name = $1;

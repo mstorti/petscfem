@@ -109,7 +109,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case $case\n";
 }
-$use_qharmm = 1;
+$use_qharmm = 0;
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re viscosity h Co Dt hratio g_body use_triangles);
@@ -211,11 +211,12 @@ dx_read_state_from_file
 # activate_debug
 
 # Use DX for visualization
-#if 1
+#if $use_qharmm
 hook_list ns_dx_hook my_dx_hook
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
+dx_steps 1
 #endif
 
 __END_HASH__

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.7 2003/03/22 22:20:32 mstorti Exp $
+//$Id: nsid.cpp,v 1.8 2003/04/17 22:50:36 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -89,11 +89,13 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o see doc for #ns_id_fac#
   SGETOPTDEF(double,ns_id_lumped_cn1,0.);
 
-  FastMat2 x_ref(1,ndof);
+  FastMat2 x_ref(2,nel,ndof),x_ref1(1,ndof);
   //o _T: double[ndof] _N: state_ref _D: null vector 
   // _DOC: Reference state value. _END
-  x_ref.set(0.);
-  ierr = get_double(thash,"state_ref",x_ref.storage_begin(),1,ndof);
+  x_ref1.set(0.);
+  ierr = get_double(thash,"state_ref",x_ref1.storage_begin(),1,ndof);
+  for (int j=1; j<=nel; j++) x_ref.ir(1,j).set(x_ref1);
+  x_ref.rs();
 
   // allocate local vecs
   FastMat2 veccontr(2,nel,ndof), locstate2(2,nel,ndof),

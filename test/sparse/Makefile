@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2003/02/28 15:37:41 mstorti Exp $ 
+# $Id: Makefile,v 1.21 2003/04/17 22:50:39 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
-tests: sparse dvector
+tests: sparse dvector test_cloud
 
 sp: sp.bin
 
