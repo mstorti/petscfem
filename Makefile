@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.26 2001/05/30 03:58:31 mstorti Exp $
+#$Id: Makefile,v 1.27 2001/05/30 17:46:02 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -42,6 +42,9 @@ applications:
 	for dir in $(APPDIRS) ; do $(MAKE) -C $$dir distclean ; done
 
 #w Builds a package + doc + applications 
+bin_distrib: license sw finaldoc pflib applications
+
+#w Builds a package + doc 
 distrib: license sw finaldoc pflib applications
 
 C_LICENSE_FILE = tools/license.c
