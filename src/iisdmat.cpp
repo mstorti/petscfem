@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.12 2002/01/05 14:48:19 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.13 2002/01/07 16:26:00 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -28,9 +28,13 @@ int SCHED_ALG=1;
 #include <src/iisdmat.h>
 #include <src/graph.h>
 
-PFMat::PFMat() {}
+// PFMat::PFMat() : fsm(this) {}
 
 PFMat::~PFMat() {}
+
+#define PF_ACTION(name) PF_ACTION_DEF(name) 
+PF_ACTION_LIST;
+#undef PF_ACTION
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -500,8 +504,8 @@ void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
 }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::set_value"
-void IISDMat::set_value(int row,int col,Scalar value,
+#define __FUNC__ "IISDMat::set_value_a"
+void IISDMat::set_value_a(int row,int col,Scalar value,
 			InsertMode mode=ADD_VALUES) {
   int row_indx,col_indx,row_t,col_t;
   double val;
@@ -552,15 +556,7 @@ int type##Destroy_maybe(type &v) {		\
 
 PETSC_OBJECT_DESTROY_MAYBE(Vec);
 PETSC_OBJECT_DESTROY_MAYBE(Mat);
-//PETSC_OBJECT_DESTROY_MAYBE(SLES);
-
-int SLESDestroy_maybe(SLES &v) {
-  if (v) {
-    int ierr = SLESDestroy(v); CHKERRQ(ierr);
-    v = NULL;
-  }
-  return 0;
-}
+PETSC_OBJECT_DESTROY_MAYBE(SLES);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -855,6 +851,8 @@ void IISDMat::print(void) {
   lgraph.print();
 }
 #endif
+
+#include "pfmatFSM.cpp"
 
 /*
   Local Variables: 

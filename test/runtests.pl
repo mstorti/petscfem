@@ -1232,6 +1232,20 @@ for ($case=1; $case<=8; $case++) {
       "All tests OK.*1");
 }
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=4; $case++) {
+   expect("pfmat/output2.case${case}.tmp",
+       "PFMat(2)/case$case/(local_solver=PETSc)",
+       "All tests OK.*1");
+}
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=4; $case++) {
+   expect("pfmat/output2.case${case}s.tmp",
+       "PFMat(2)/case$case/(local_solver=SuperLU)",
+       "All tests OK.*1");
+}
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.7 2002/01/04 23:29:43 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.8 2002/01/07 16:26:00 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -69,6 +69,8 @@ protected:
   virtual int solve_only(Vec &res,Vec &dx)=0;
   int clean_factor();
 
+  /// Derive this if you want to manage directly the preconditioning. 
+  // virtual int set_preco(const string & preco_type)=0;
 public:
 
   int solve(Vec &res,Vec &dx);
@@ -83,11 +85,11 @@ public:
   void clear();
   int duplicate(MatDuplicateOption op,const PFMat &A);
   virtual int build_sles();
-  int set_preco(const string & preco_type);
+  virtual int set_preco(const string & preco_type);
   int monitor(int n,double rnorm);
 
   /// Adds an element to the matrix profile
-  int set_profile(int j,int k) {
+  int set_profile_a(int j,int k) {
     lgraph.add(j,k);
   }
 

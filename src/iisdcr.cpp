@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.11 2002/01/05 14:48:19 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.12 2002/01/07 16:26:00 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -84,7 +84,7 @@ void LocalGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::create"
-void IISDMat::create() {
+void IISDMat::create_a() {
 
   int myrank,size,max_partgraph_vertices_proc,proc_l;
   int k,pos,keq,leq,jj,row,row_t,col_t,od,

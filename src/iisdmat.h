@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.12 2002/01/04 23:29:42 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.13 2002/01/07 16:26:00 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -190,7 +190,7 @@ public:
       @param debug_compute_prof (input) flag for debugging the process
       of building the operator.
   */ 
-  void create();
+  void create_a();
 
   /** Applies the Schur operator #y = S * x#
       @param x (input) a given interface vector
@@ -211,8 +211,8 @@ public:
       @param value (input) the value to be set
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
-  void set_value(int row,int col,Scalar value,
-		 InsertMode mode=ADD_VALUES);
+  void set_value_a(int row,int col,Scalar value,
+		   InsertMode mode=ADD_VALUES);
   /// Clear the object (almost destructor)
   void clear();
   /// Sets the underlying matrices to zero
@@ -239,9 +239,5 @@ public:
   /// Destructor
   ~IISDMat();
 };
-
-int VecDestroy_maybe(Vec &v);
-int MatDestroy_maybe(Mat &v);
-int SLESDestroy_maybe(SLES &v);
 
 #endif

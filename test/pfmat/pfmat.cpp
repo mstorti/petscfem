@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.16 2002/01/05 23:50:26 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.17 2002/01/07 16:23:52 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -9,7 +9,7 @@
 #include <src/pfmat.h>
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
-#include <src/petscmat.h>
+//#include <src/petscmat.h>
 #include <src/graph.h>
 
 // Runs a simple example for testing the PFMat matrix classes.
@@ -141,11 +141,12 @@ int main(int argc,char **args) {
   SIZE = size;
 
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
-  PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
+  // PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
   if (mat_type==0) {
     A_p = &AA;
   } else if (mat_type==1) {
-    A_p = &AAA;
+    assert(0);
+    // A_p = &AAA;
   } else assert(0);
   PFMat &A = *A_p;
 

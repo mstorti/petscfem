@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.56.2.1 2002/01/05 20:44:25 mstorti Exp $
+#$Id: Makefile.base,v 1.56.2.2 2002/01/07 16:27:07 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -98,6 +98,11 @@ endif
 
 #w Create preprocessed files
 %.cppi: %.cpp force
+	if [ -e $@ ] ; then chmod +w $@ ; fi
+	g++ -E $(CFLAGS) $(CPPFLAGS) $< > $@ ; chmod u-w $@
+
+#w Create preprocessed files
+%.hi: %.h force
 	if [ -e $@ ] ; then chmod +w $@ ; fi
 	g++ -E $(CFLAGS) $(CPPFLAGS) $< > $@ ; chmod u-w $@
 

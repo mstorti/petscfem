@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.30 2001/11/19 03:35:06 mstorti Exp $
+// $Id: sparse.h,v 1.30.4.1 2002/01/07 16:26:00 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -395,7 +395,7 @@ void MatFSMContext::action() {			\
 
 #include "matFSM.h"
 
-    // Simple sparse matrix class. 
+  /// Simple sparse matrix class. 
   class Mat : public map< int, Vec >  {
 
     /// Dimensions

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: util2.h,v 1.9.4.1 2001/12/09 14:00:20 mstorti Exp $
+//$Id: util2.h,v 1.9.4.2 2002/01/07 16:26:00 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 
@@ -113,4 +113,17 @@ double int_pow(double base,int exp);
     {-1,0,-2,-1,0,1,2,0,1}# whereas #crem (*,3) = {2,0,1,2,0,1,2,0}#
 */
 int crem(int j, int m);
+
+/** @name Wrapper to PETSc destroy functions 
+    @doc Check if the pointer is NULL.
+*/
+//@{
+/// VecDestroy wrapper
+int VecDestroy_maybe(Vec &v);
+/// MatDestroy wrapper
+int MatDestroy_maybe(Mat &v);
+/// SLESDestroy wrapper
+int SLESDestroy_maybe(SLES &v);
+//@}
+
 #endif
