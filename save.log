@@ -1035,3 +1035,7 @@ tag: beta-2.85 on Fri Feb 15 09:48:15 ART 2002, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-2.85.pl1 on Fri Feb 15 16:57:06 ART 2002 by mstorti in minerva.arcride.edu.ar
      > bubbly.cpp compiles
+----------
+tag: beta-2.86 on Sun Feb 17 01:00:18 ARST 2002, by mstorti in spider
+     > Debugging `bubbly'. Runs but gives zero pivot in factor 
+     > while solving the linbear system. 
