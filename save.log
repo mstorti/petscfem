@@ -3889,3 +3889,6 @@ tag: beta-3.41.13 on Fri, 28 Jan 2005 13:09:42 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.41.14 on Fri, 28 Jan 2005 14:34:51 -0300 by mstorti in minerva.ceride.gov.ar
      > Runs `gasflow_abso2' OK for cylinder at Mach=0.7. 
+----------
+tag: beta-3.41.15 on Fri, 28 Jan 2005 14:52:37 -0300 by mstorti in minerva.ceride.gov.ar
+     > Tested `gasflow_abso2' in 1D, supersonic flow (Mach=2). 
