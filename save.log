@@ -3089,3 +3089,8 @@ tag: beta-3.25.pl4 on Sun, 16 Nov 2003 18:43:34 -0300 by mstorti in spider
 ----------
 tag: beta-3.25.pl5 on Wed, 19 Nov 2003 14:56:57 -0300 by mstorti in minerva.ceride.gov.ar
      > Added Nb_source to `gaschem'
+----------
+tag: beta-3.25.pl6 on Mon, 24 Nov 2003 00:41:46 -0300 by mstorti in spider
+     > Wrote `petscfem-mode' for Emacs support.
+     > Creates a texinfo file for browsing options and pasting
+     > 	into data file. 
