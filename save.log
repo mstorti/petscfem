@@ -804,3 +804,6 @@ tag: pfmat-rewrite-1.22 on Wed Jan  9 10:14:31 ARST 2002, by mstorti in spider
 tag: pfmat-rewrite-1.23 on Wed Jan  9 13:32:12 ARST 2002, by mstorti in spider
      > Passes all tests (with `IISDMat').
      > Will add FSM sypport to `PETScMat'. 
+----------
+tag: pfmat-rewrite-1.23.pl1 on Wed Jan  9 17:34:57 ARST 2002 by mstorti in spider
+     > Runs a test with `PETScMat' and doesn't leak memory.
