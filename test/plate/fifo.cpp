@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: fifo.cpp,v 1.2 2003/03/30 15:55:08 mstorti Exp $
+// $Id: fifo.cpp,v 1.3 2003/07/05 03:28:35 mstorti Exp $
 #include "./fifo.h"
 #include <cstdlib>
 
@@ -29,7 +29,7 @@ void read_doubles(const char *line,const char *name,
 }
 
 void read_doubles(FILE *fid,const char *name, vector<double> &v,
-		  int n=-1) {
+		  int n) {
   static char *line=NULL;
   static size_t N=0;
   // if (!line) 
@@ -59,7 +59,7 @@ double read_doubles2(FILE *fid,const char *name) {
 }
 
 void read_doubles2(FILE *fid,const char *name, vector<double> &v,
-		  int n=-1) {
+		  int n) {
   static char *line=NULL;
   static size_t N=0;
   // if (!line) 

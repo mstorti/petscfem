@@ -1,6 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.23 2003/02/22 16:44:01 mstorti Exp $
+//$Id: inviscid.cpp,v 1.24 2003/07/05 03:28:35 mstorti Exp $
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 extern int MY_RANK,SIZE;
 
@@ -181,8 +183,8 @@ void coupling_inv_hook::init(Mesh &mesh,Dofmap &dofmap,
   a_coef.resize(n_coef);
   b_coef.resize(n_coef);
 
-  get_double(options,"a_coef",a_coef.begin(),1,n_coef);  
-  get_double(options,"b_coef",b_coef.begin(),1,n_coef);  
+  get_double(options,"a_coef",&*a_coef.begin(),1,n_coef);  
+  get_double(options,"b_coef",&*b_coef.begin(),1,n_coef);  
   printf("using filter:\n j      a[j]      b[j]\n");
   for (int j=0; j<n_coef; j++) printf("%d   %f  %f\n",j,a_coef[j],b_coef[j]);
 

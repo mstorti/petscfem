@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.8 2003/03/12 21:29:38 mstorti Exp $ 
+## $Id: wave.epl,v 1.9 2003/07/05 03:28:35 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -38,7 +38,7 @@ nrec 1
 nfile 100000000
 
 initial_state "wave.ini.tmp"
-# initial_state "wave.state.tmp"
+initial_state "wave.state.tmp"
 nstep 1000
 solver "iisd"
 iisd_subpart_auto 2000
@@ -59,11 +59,11 @@ print_partitioning_statistics
 activate_debug_print
 # print_dofmap_id
 
-hook_list ns_dx_hook my_dx_hook
+# hook_list ns_dx_hook my_dx_hook
 viscosity <:=$H/$Re:>
 
 # Para DX
-hook_list ns_dx_hook my_dx_hook
+# hook_list ns_dx_hook my_dx_hook
 dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
