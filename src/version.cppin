@@ -1,6 +1,8 @@
 // -*- mode: c++ -*-
 #include <petsc.h>
 
+#define STR(pp) #pp
+
 void print_copyright() { 
   PetscPrintf(PETSC_COMM_WORLD,
 "______________________________________________________________________
@@ -10,7 +12,8 @@ void print_copyright() {
           / ____/ /___  / /  ___/ / /__ /___// __/ / /___/ /  / /
          /_/   /_____/ /_/  /____/\\___/     /_/   /_____/_/  /_/
 -----------------------------<http://minerva.ceride.gov.ar/petscfem>--
-This is PETSc-FEM, version <:=`cat ../VERSION`:>
+This is PETSc-FEM, version <:$t=`cat ../VERSION`; chomp $t; print $t:>\
+              (BOPT=\"<: print $ENV{'BOPT'}:>\")
 Copyright (C) 1999-2001 Mario A. Storti, Norberto M. Nigro, CIMEC-CONICET-UNL
 PETSc-FEM comes with ABSOLUTELY NO WARRANTY.  This is free software,
 and you are welcome to redistribute it under certain conditions.
