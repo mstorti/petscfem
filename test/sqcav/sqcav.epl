@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.22 2002/07/29 03:13:47 mstorti Exp $
+#$Id: sqcav.epl,v 1.23 2002/09/07 15:33:50 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -14,16 +14,21 @@ if ($case eq 'g_body') {
     $case='lu';
     $g_body=1;
 }
+$fractional_step = 0;
+if ($case eq 'fractional_step') {
+    $case='lu';
+    $fractional_step=1;
+}
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;
-$hratio = 4;			# refinement (h_center/h_wall)
-$Re = 100;			# Reynolds number
+$N = 20;
+$hratio = 10;			# refinement (h_center/h_wall)
+$Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = 0.05;			# time step
+$Dt = 0.01;			# time step
 $solver = "petsc";
-$preco_type = "jacobi";
-$maxits = 20;
+$preco_type = "lu";
+$maxits = 1;
 $nstep = 100;
 #
 $weak_form = 0;
@@ -65,8 +70,6 @@ if (scalar $case =~ /weak_form_(\d)/) {
 } else {
     die "don't know case $case\n";
 }
-$fractional_step = 1;
-# if ($fractional_step) { $solver = "iisd"; }
 #
 #__END_TRANSCRIPT__
 @vars = qw(U L N Re viscosity h Co Dt hratio g_body);
@@ -80,11 +83,14 @@ global_options
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
-nstep 20
+<:pr('nstep'):>
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
+<:pr('solver'):>
+<:pr('preco_type'):> 
+#if 0
 #if 1
 #<:$maxits=1;:>
 solver "petsc"
@@ -95,10 +101,11 @@ solver "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 #endif
+#endif
 <:pr('maxits'):> 
 
 # Number of subdomains
-iisd_subpart 1
+<:pr('iisd_subpart'):>
 #if $update_jacobian
 # update_jacobian_iters 3
 update_jacobian_start_steps 3
@@ -127,7 +134,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-# steady
+steady <:= ($fractional_step? 0 : 1):>
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -170,11 +177,9 @@ __END_ELEMSET__
 
 end_elemsets
 
-#if 1
 fixa
 # fijacion en la presion
 1 3 0.
 # fijaciones de velocidad en las paredes
 __INCLUDE__ sqcav.fixa.tmp
 __END_FIXA__
-#endif

@@ -39,6 +39,10 @@ int main(int argc,char **args) {
 //      ierr = PCLUSetUseInPlace(pc); CHKERRA(ierr);
 #else
     ierr = KSPSetType(ksp,KSPGMRES); CHKERRA(ierr); 
+    if (KSP_method=="gmres") {
+      ierr = KSPGMRESSetOrthogonalization(ksp,KSPGMRESIROrthogonalization);
+      CHKERRQ(ierr);
+    }
     ierr = KSPSetTolerances(ksp,0,0,1e10,1); CHKERRA(ierr); 
     ierr = PCSetType(pc,PCLU); CHKERRA(ierr); 
 #endif

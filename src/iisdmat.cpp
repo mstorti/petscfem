@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.30 2002/09/07 13:57:05 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.31 2002/09/07 15:33:50 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -161,13 +161,11 @@ int PFPETScMat::build_sles() {
     TGETOPTDEF_S_PF(thash,string,gmres_orthogonalization,ir_orthog);
 
 #define SETORTH(key,fun) if (gmres_orthogonalization==key) fcn = &fun
-    SETORTH
-    if (gmres_orthogonalization=="ir_orthog") 
-      fcn = &KSPGMRESIROrthogonalization;
-    else if (gmres_orthogonalization=="unmodified_gram_schmidt") 
-      fcn = &KSPGMRESUnmodifiedGramSchmidtOrthogonalization;
-    else if (gmres_orthogonalization=="modified_gram_schmidt") 
-      fcn = &KSPGMRESModifiedGramSchmidtOrthogonalization;
+    SETORTH("ir_orthog",KSPGMRESIROrthogonalization);
+    else SETORTH("unmodified_gram_schmidt",
+		 KSPGMRESUnmodifiedGramSchmidtOrthogonalization);
+    else SETORTH("modified_gram_schmidt",
+		 KSPGMRESModifiedGramSchmidtOrthogonalization);
     else PETSCFEM_ERROR("PFPETScMat::build_sles():: "
 			"Bad \"gmres_orthogonalization\": %s\n",
 			gmres_orthogonalization.c_str());  

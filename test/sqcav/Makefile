@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2002/08/18 19:20:48 mstorti Exp $ 
+# $Id: Makefile,v 1.27 2002/09/07 15:33:50 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -7,9 +7,6 @@ runn:
 	$(MAKE) case=weak_form_1 runs
 
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body
-
-test_fs:
-	make case=weak_form_1 runs
 
 PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 include $(PETSCFEM_DIR)/Makefile.base
@@ -87,19 +84,19 @@ test_iisd:
 	$(MAKE) case=iisd_sbp16 runs
 	octave -q < check_iisd.m > check.iisd.verif.np1.tmp
 
+#w Tests Fractional step solver
+test_fs:
+	$(MAKE) case=fractional_step runs
+
 #w Makes local link for running with debugger
 link:
 	ln -sf $(PROG) ns
 
 data: force
-	echo in target data: CASE = $(CASE)
 	$(MAKE) $(CASE).depl
-	echo "in target data : CASE $(CASE)"
 	octave -q mk$(CASE).m
 
-# EPERLFLAGS = -d case=$$case
 $(CASE).depl: force
-#	echo in target \$(CASE).depl : CASE $(CASE)
 
 local_clean::
 	-chmod +w *.depl

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.54 2002/09/05 19:24:01 mstorti Exp $
+//$Id: readmesh.cpp,v 1.55 2002/09/07 15:33:50 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -587,7 +587,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 
     } else {
       PetscPrintf(PETSC_COMM_WORLD,"Bad section name in data file.\n"
-		  "line: \"%s\"",line);
+		  "line: \"%s\"\n",line);
       CHKERRQ(1);
     }
 
