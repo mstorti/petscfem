@@ -25,6 +25,7 @@ else
   nonlr=[(1:Ny+1)',(N+1)*(Ny+1)+(1:Ny+1)'];
   lagr = (N+1)*(Ny+1)+(1:Ny+1);
 endif
+#nonlr(rows(nonlr),:)=[]; 
 wallke = [(1:Ny)' (2:Ny+1)'];
 
 fid = fopen("wallke.fixa_lag.tmp","w");
@@ -35,7 +36,8 @@ for k = lagr
 endfor
 fclose(fid);
 
-uin=[0. 2/3 0. 2e-4  1e-05];  
+#uin=[0. 2/3 0. 2e-4  1e-05];  
+uin=[0. 2/3 0. 0.1 0.1];  
 fid = fopen("wallke.fixa_in.tmp","w");
 for k=1:(Ny+1):(N+1)*(Ny+1)
   for j=[1 2 4 5]
@@ -70,7 +72,7 @@ fclose(fiduout);
 fclose(fidpout);
 fclose(fidp2out);
 
-uini=[0. 2/3 0. 0.1 0.05];
+uini=[0. 2/3 0. uin(4:5)];
 uini=[uini(ones((N+1)*(Ny+1),1),:);
       zeros(Ny+1,5)];
 

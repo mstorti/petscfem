@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikeps.cpp,v 1.9 2001/06/21 01:49:56 mstorti Exp $ */
+/* $Id: nsikeps.cpp,v 1.10 2001/06/21 16:30:55 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -145,6 +145,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Do not add turbulent viscosity for the momentum eq. (for
   //   debugging). 
   SGETOPTDEF(double,turbulence_coef,1.);
+  //o Mask to the production terms in the k and epsilon
+  // equations. This terms are then scaled by
+  // \verb+turbulence_coef*turb_prod_coef+. 
+  SGETOPTDEF(double,turb_prod_coef,1.);
   //o Density
   SGETOPTDEF(double,rho,1.);
   //o C_mu
@@ -369,6 +373,7 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       dshapex_c.set(dshapex);
 
       double Area   = npg*wpgdet;
+      double wpgdet_c = wpgdet * turbulence_coef * turb_prod_coef;
       double h_pspg,Delta;
       if (ndim==2) {
 	h_pspg = sqrt(4.*Area/pi);
@@ -585,10 +590,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
           Peps_2 = C_2*eps_over_kap*eps_star;
 
           tmp6_ke.set(W_supg_k).scale(Pkap-eps_star);
-          reskap.axpy(tmp6_ke,wpgdet*turbulence_coef);
+          reskap.axpy(tmp6_ke,wpgdet_c);
 
           tmp6_ke.set(W_supg_e).scale(Peps-Peps_2);
-          reseps.axpy(tmp6_ke,wpgdet*turbulence_coef);
+          reseps.axpy(tmp6_ke,wpgdet_c);
 
 	  // kappa-epsilon matrix
 
@@ -605,10 +610,10 @@ int nsi_tet_keps::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
           Jaco_k.ir(1,1).set(Jaco_kk).rs();
           Jaco_k.ir(1,2).set(Jaco_ke).rs();
-	  Jaco_k.scale(turbulence_coef);
+	  Jaco_k.scale(turbulence_coef*turb_prod_coef);
           Jaco_e.ir(1,1).set(Jaco_ek).rs();
           Jaco_e.ir(1,2).set(Jaco_ee).rs();
-	  Jaco_e.scale(turbulence_coef);
+	  Jaco_e.scale(turbulence_coef*turb_prod_coef);
 
           tmp9_ke.prod(tmp7_ke,Jaco_k,1,2,3);
           matlocf.ir(2,ndof-1).is(4,ndof-1,ndof).axpy(tmp9_ke,wpgdet).rs();

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.25 2001/06/01 03:30:50 mstorti Exp $
+//$Id: ns.cpp,v 1.26 2001/06/21 16:30:55 mstorti Exp $
  
 #include <malloc.h>
 
@@ -270,14 +270,13 @@ int main(int argc,char **args) {
   scal=0;
   ierr = VecSet(&scal,x); CHKERRA(ierr);
 
-  PetscPrintf(PETSC_COMM_WORLD,"Before computing profile.\n");
-
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // COMPUTE ACTIVE PROFILE
-
   VOID_IT(argl);
   argl.arg_add(&A_tet,PROFILE);
+  PetscPrintf(PETSC_COMM_WORLD,"Computing profile...\n");
   ierr = assemble(mesh,argl,dofmap,"comp_mat",&time); CHKERRA(ierr); 
+  PetscPrintf(PETSC_COMM_WORLD,"... Done.\n");
 
 #if 0 //dbg
   VOID_IT(argl);
@@ -289,9 +288,6 @@ int main(int argc,char **args) {
   PetscFinalize();
   exit(0);
 #endif
-
-  // ierr =  MatSetOption(A_tet,MAT_NEW_NONZERO_ALLOCATION_ERR);
-  PetscPrintf(PETSC_COMM_WORLD,"After computing profile.\n");
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Build octree for nearest neighbor calculation
@@ -349,7 +345,8 @@ int main(int argc,char **args) {
     if (print_internal_loop_conv_g) 
       PetscPrintf(PETSC_COMM_WORLD,
 		  " --------------------------------------\n");
-    PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g\n",tstep,time.time());
+    PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g %s\n",
+		tstep,time.time(),(steady ? " (steady) " : ""));
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     // TET ALGORITHM
 

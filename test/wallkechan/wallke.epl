@@ -11,6 +11,7 @@ $Ly = 20;                        # longitudinal length
 $wall_ke=1;                     # set non-slip condition or
                                 # mixed type (wall_ke) boundary condition
 $peri = 0;                      # Set periodic in the `y' direction or not
+$turb_prod_coef=1;              # activate/deactivate turbulence production terms
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
     $Re_l = 5;                 # laminar Re
@@ -23,13 +24,16 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-    $Re_l = 4.7719e+05;         # laminar Re
+#    $Re_l = 4.7719e+05;         # laminar Re
+    $Re_l = 3;                  # laminar Re
     $Umax = 1;                  # Max vel in the channel
     $Uav = 1.5*$Umax;           # Aver vel 
     $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
     $g = 0;                     # body force
     $y_wall_plus = 50;          # non-dim. distance to the wall
-    $turbulence_coef=1;         # activate turbulence
+#    $turbulence_coef=1;         # activate turbulence
+    $turbulence_coef=0;         # activate turbulence
+    $turb_prod_coef=0;          # activate/deactivate turbulence production terms
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
     $Uwall = 1;                 # half relative velocity of the plates
@@ -73,20 +77,21 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 10
-nnwt 2
+nstep 1
+nnwt 1
 tol_newton 0
 preco_type "lu"
-Dt 1
+Dt 0.1
 #steady
 
 #verify_jacobian_with_numerical_one
-#print_linear_system_and_stop
+print_linear_system_and_stop
 #solve_system 0
 
 y_wall_plus <:=$y_wall_plus:>
 y_wall 1e-3
 turbulence_coef <:=$turbulence_coef:>
+turb_prod_coef <:=$turb_prod_coef:>
 viscosity <:=$nu:>
 G_body 0. <:=$g:>
 
@@ -101,7 +106,6 @@ __END_NODES__
 
 #===========================================================
 elemset nsi_tet_keps 4
-#Datos del elemento
 geometry cartesian2d
 npg 4
 __END_HASH__
@@ -135,11 +139,11 @@ fixa
 # pressure fixed at some node
 #<:print (($Ny+1)*($N-1)+2):> 3  0.
 
-# u velocity imposed to 0 in all the center line (left)
-__INCLUDE__ wallke.u0.tmp
-
-# u velocity imposed to 0 in all the right wall
+# u velocity imposed to 0 in all the center line (right)
 __INCLUDE__ wallke.u_0_right_wall.tmp
+
+# u velocity imposed to 0 in all the left wall
+__INCLUDE__ wallke.u0.tmp
 
 # v velocity imposed to 0 in all the left wall
 # in turbulent case this should be done via wall functions
@@ -158,8 +162,15 @@ __INCLUDE__ wallke.p_out_0.tmp
 #if !$peri
 __INCLUDE__ wallke.fixa_in.tmp
 #endif
+
 __END_FIXA__
 #endif
+
+constraint
+# ultimo nodo en la pared periodico en k y epsilon con respecto al anterior
+-1. <:=$Ny+1:> 4 +1. <:=$Ny:> 4 
+-1. <:=$Ny+1:> 5 +1. <:=$Ny:> 5 
+__END_CONSTRAINT__
 
 #if 0
 constraint
