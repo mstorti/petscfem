@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.140 2004/01/26 20:22:06 mstorti Exp $
+//$Id: ns.cpp,v 1.140.4.1 2004/08/14 22:44:39 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -417,8 +417,8 @@ int main(int argc,char **args) {
     time_old.set(time.time());
     time_star.set(time.time()+alpha*Dt);
     time.inc(Dt);
-    PetscPrintf(PETSC_COMM_WORLD,"Time step: %d, time: %g %s\n",
-		tstep,time.time(),(steady ? " (steady) " : ""));
+    if (!MY_RANK) printf("Time step: %d, time: %g %s\n",
+			 tstep,time.time(),(steady ? " (steady) " : ""));
     hook_list.time_step_pre(time_star.time(),tstep);
     // Jacobian update logic
     update_jacobian_this_step = (tstep < update_jacobian_start_steps) 
