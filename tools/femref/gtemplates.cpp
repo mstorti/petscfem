@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.6 2004/12/14 18:05:54 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.7 2004/12/14 22:32:42 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -26,13 +26,14 @@ Tetra2TetraSplitter_v[]
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Tetra2TetraSplitterClass::
 Tetra2TetraSplitterClass() {
-  subobj_conn.a_resize(2,8,4,2);
+  subobj_conn.a_resize(3,8,4,2);
   int nel = 4;
   int nso = 8;
   int nelso = 4;
   for (int j=0; j<nso; j++) {
     for (int k=0; k<nelso; k++) {
-      int n2=0, n1 = Tetra2TetraSplitter_v[nelso*j+k];
+      int n2=GeomObject::NULL_NODE, 
+	n1 = Tetra2TetraSplitter_v[nelso*j+k];
       if (n1>=nel) switch(n1) {
       case 4: n1=0; n2=1; break;
       case 5: n1=1; n2=2; break;
@@ -51,7 +52,7 @@ Tetra2TetraSplitterClass() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int Tetra2TetraSplitterClass::
 size(GeomObject::Type t) const { 
-  if (t==GeomObject::TetraT) return 8;
+  if (t==GeomObject::OrientedTetraT) return 8;
   else return 0;
 };
 
@@ -60,7 +61,7 @@ const int*
 Tetra2TetraSplitterClass::
 nodes(GeomObject::Type t,int j) const { 
   if (t==GeomObject::TetraT) 
-    return &subobj_conn.e(j,0);
+    return &subobj_conn.e(j,0,0);
   else assert(0);
 }
 
@@ -72,6 +73,6 @@ size() const { return 8; };
 const int* 
 Tetra2TetraSplitterClass::
 nodes(int j,GeomObject::Type &t) const { 
-  t=GeomObject::TetraT;
-  return &subobj_conn.e(j,0);
+  t=GeomObject::OrientedTetraT;
+  return &subobj_conn.e(j,0,0);
 }

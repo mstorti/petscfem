@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref2.cpp,v 1.12 2004/12/14 18:05:54 mstorti Exp $
+// $Id: femref2.cpp,v 1.13 2004/12/14 22:32:42 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -545,6 +545,7 @@ refine(RefineFunction f) {
     while(!done) {
       w = go_stack.begin();
       // here visit w...
+      w->print("");
       ElemRef::iterator q, qs, qs2, qfather;
       q = split_stack.front();
       int j = split_indx_stack.front();
@@ -593,18 +594,20 @@ refine(RefineFunction f) {
 	  if (split_stack.size()<=1) {
 	    done = true; break;
 	  }
-	  qfather = q;
-	  qfather++;
+	  list<ElemRef::iterator>::iterator 
+	    qit = split_stack.begin();
+	  qfather = *(++qit);
 	  assert(qfather != etree.end());
 	  s = qfather->splitter;
 
 	  go_stack.pop_front();
 	  split_stack.pop_front();
 	  split_indx_stack.pop_front();
-	  if (j<s->size()) {
+	  if (j<s->size()-1) {
 	    int jsib = j+1;
 	    go_stack.push_front(GeomObject());
 	    ws = go_stack.begin();
+	    w = ws; w++;
 	    // Build `ws' from GeomObject `w' (parent) and splitter `s'
 	    // and subobject index `jsib'
 	    set(*w,s,jsib,*ws);
@@ -696,17 +699,20 @@ set(const GeomObject &go,const Splitter *s,
   for (int k=0; k<so_sz; k++) {
     int ln1 = local_nodes[2*k];
     int n1 = go_nodes[ln1];
-    if (ln1>=sz) {
-      int ln2 = local_nodes[2*k+1];
-      int n2 = go_nodes[ln2];
+    int ln2 = local_nodes[2*k+1], n2;
+    if (ln2!=GeomObject::NULL_NODE) {
+      n2 = go_nodes[ln2];
       int node_hash = combine(n1,n2);
       map<int,int>::const_iterator it 
 	= hash2node.find(node_hash);
       if (it != hash2node.end()) {
 	n1 = it->second;
       } else {
+	int on1=n1;
 	n1 = last_ref_node++;
 	hash2node[node_hash] = n1;
+	printf("adding new ref node %d, (fathers %d %d)\n",
+	       n1,on1,n2);
       }
     }
     sgo_nodes.e(k) = n1;
