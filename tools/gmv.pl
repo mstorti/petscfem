@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: gmv.pl,v 1.9 2003/01/17 19:03:00 mstorti Exp $
+#$Id: gmv.pl,v 1.10 2003/07/21 04:22:33 mstorti Exp $
 
 if (! defined $fields) { $fields = 'ns'; }
 
@@ -160,6 +160,15 @@ if ($rslt) {
 	print GMV "pressure 1\n";
 	print_rslt(\@rslt,$nrslt,$nnod,$dim,$dim,0,GMV);
 	print GMV "endvars\n";
+
+    } elsif ($fields eq 'elasticity') {
+	print GMV "velocity 1\n";
+	print_rslt(\@rslt,$nrslt,$nnod,0,$dim-1,0,GMV);
+	for (my $j=$dim; $j<3; $j++) {
+	    for (my $i=0; $i<$nnod; $i++) {
+		print GMV "0.\n";
+	    }
+	}
 
     } elsif ($fields eq 'nsc') {
 	print GMV "velocity 1\n";
