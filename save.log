@@ -274,3 +274,7 @@ tag: beta-1.43 on Thu Mar 22 22:11:27 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.44 on Thu Mar 22 22:40:18 ART 2001, by mstorti in spider
      > Works scalar per field reactive jacobian.
+----------
+tag: beta-1.45 on Fri Mar 23 20:11:19 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > Fixed the 'mydetsur' bug.
+     > Making stable version with new flux functions.
