@@ -24,13 +24,12 @@ if ($case eq 'poi_lam') {
     $case = 'poiseuille';       # redirect case
     $turbulence_coef=0;         # no turbulence
 } elsif ($case eq 'poiseuille') {
-#    $Re_l = 4.7719e+05;         # laminar Re
-    $Re_l = 3;                  # laminar Re
-    $Umax = 1;                  # Max vel in the channel
-    $Uav = 1.5*$Umax;           # Aver vel 
-    $nu = $Uav*2*$L/$Re_l;      # kinematic visc.
+    $Re = 1;                    # laminar Re
+    $Uav = 1;
+    $nu = $Uav*2*$L/$Re;      # kinematic visc.
     $g = 0;                     # body force
     $y_wall_plus = 50;          # non-dim. distance to the wall
+    $y_wall = 1e-1;
 #    $turbulence_coef=1;         # activate turbulence
     $turbulence_coef=0;         # activate turbulence
     $turb_prod_coef=0;          # activate/deactivate turbulence production terms
@@ -44,7 +43,8 @@ if ($case eq 'poi_lam') {
     $turbulence_coef=1;               # activates turbulence
 }
 $ocase = $case;    
-octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy L Ly peri Ny_eq));
+octave_export_vars("data.m.tmp",qw(nu g N Ny hratio hratioy 
+    L Ly peri Ny_eq Uav));
 :>//                            # ends ePerl block
 
 #default definitions
@@ -78,15 +78,16 @@ nsome 1
 
 alpha 1.
 nstep 1
-nnwt 1
+nnwt 5
 tol_newton 0
 preco_type "lu"
 Dt 0.1
 #steady
 
 #verify_jacobian_with_numerical_one
-print_linear_system_and_stop
+#print_linear_system_and_stop
 #solve_system 0
+#print_dofmap_id
 
 y_wall_plus <:=$y_wall_plus:>
 y_wall 1e-3
@@ -166,11 +167,13 @@ __INCLUDE__ wallke.fixa_in.tmp
 __END_FIXA__
 #endif
 
+#if 0
 constraint
 # ultimo nodo en la pared periodico en k y epsilon con respecto al anterior
 -1. <:=$Ny+1:> 4 +1. <:=$Ny:> 4 
 -1. <:=$Ny+1:> 5 +1. <:=$Ny:> 5 
 __END_CONSTRAINT__
+#endif
 
 #if 0
 constraint
