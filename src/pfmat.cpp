@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.6 2002/09/20 21:25:38 mstorti Exp $
+//$Id: pfmat.cpp,v 1.7 2002/09/20 22:51:33 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -69,9 +69,9 @@ void report_transition_event(const char *from, const char *event,
   } else if (mode==2) {
     if (!(!strcmp(from,from_g) && !strcmp(event,event_g) && !strcmp(to,to_g))) {
       if (transition_counter) 
-	printf("[%d] from: \"%s\", event \"%s\", to \"%s\"\n",
+	printf("[%d] from: \"%s\", event \"%s\", to \"%s\"",
 	       MY_RANK,from_g,event_g,to_g);
-      if (transition_counter>1) printf(", [%d times]",transition_counter);
+      if (transition_counter>1) printf(" (%d times)",transition_counter);
       printf("\n");
       transition_counter = 0;
       from_g = from;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.101 2002/09/20 21:25:38 mstorti Exp $
+//$Id: ns.cpp,v 1.102 2002/09/20 22:51:30 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -431,7 +431,7 @@ int main(int argc,char **args) {
 	scal=0;
 	ierr = VecSet(&scal,res); CHKERRA(ierr);
 	if (update_jacobian_this_iter) {
-	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	  // ierr = A_tet->clean_mat(); CHKERRA(ierr); 
 	}
 
 	argl.clear();
