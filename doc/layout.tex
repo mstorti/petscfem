@@ -4,7 +4,7 @@
 \index{user input data file}
 %
 Input to application packages (like \verb+ns+, \verb+advective+ or
-\verb+laplace+) is feedvia input data files, usually with extension
+\verb+laplace+) is feed via input data files, usually with extension
 \verb+.dat+. This file contains global options, node coordinates,
 element connectivities, physical properties, fixations and boundary
 conditions, etc... Even if the precise format of the file may be
@@ -19,8 +19,8 @@ Each section starts with the keyword identifying the section in a
 separate line, followed by several parameters in the same
 line. Follows several lines that makes the section, ending with a
 terminator of the form \verb+__END_<+\emph{some-identifier}\verb+>__+,
-for instance \verb+__END_HASH_TABLE__+. (Note that these terminators
-start with double underscores (\verb+__+) while single underscores are
+for instance \verb+__END_HASH__+. (Note that these terminators
+start and end with double underscores (\verb+__+) while single underscores are
 used to separate words inside the keyword).  For instance, an elemset
 section is of the form
 

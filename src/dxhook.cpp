@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.19 2003/02/11 13:24:53 mstorti Exp $
+//$Id: dxhook.cpp,v 1.20 2003/02/15 02:29:39 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -26,6 +26,101 @@ extern int MY_RANK, SIZE;
 // it happens in th moment of doing `DXBoundingBox()'. So that
 // I will use only floats. 
 #define DX_USE_FLOATS
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FieldGenList::~FieldGenList() {
+  for (int j=0; j<size(); j++) {
+    delete (*this)[j];
+    (*this)[j] = NULL;
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class FieldGenDefault : public FieldGen {
+  int ndof;
+  string name;
+public:
+  void init(int ndof_a,TextHashTable* options,char *name_a) { 
+    ndof=ndof_a; 
+    name = string(name_a);
+  }
+  int n() { return 1; }
+  void field(int j,string &name,vector<int> &rank) {
+    name = "state";
+    rank.clear();
+    rank.push_back(ndof);
+  }
+  void values(int j,vector<double> &in,vector<double> &out) {
+    for (int k=0; k<ndof; k++) out[k] = in[k];
+  }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class FieldGenLine : public FieldGen {
+  int ndof;
+  string name;
+  struct entry {
+    string name;
+    vector<int> rank;
+    vector<int> dof_list;
+    int size;
+  };
+  vector<entry> field_list;
+public:
+  void parse(const char *line);
+  void init(int ndof_a,TextHashTable* options,char *name_a) { 
+    ndof=ndof_a; 
+    name = string(name_a);
+  }
+  int n() { return field_list.size(); }
+  void field(int j,string &name,vector<int> &rank) {
+    const entry &e = field_list[j];
+    name = e.name;
+    rank = e.rank;
+  }
+  void values(int jf,vector<double> &in,vector<double> &out) {
+    const vector<int> &dof_list = field_list[jf].dof_list;
+    for (int j=0; j<dof_list.size(); j++) out[j] = in[dof_list[j]];
+  }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void FieldGenLine::parse(const char *line) {
+  vector<string> tokens;
+  tokenize(line,tokens);
+  int ierr;
+  int jtok=0;
+  int ntoks = tokens.size();
+  while (jtok < ntoks) {
+    entry e;
+    int rank;
+    ierr = string2int(tokens[jtok++],rank);
+    assert(!ierr);
+    assert(rank>=0);
+    assert(jtok+rank <= ntoks);
+    e.size = 1;
+    for (int j=0; j<rank; j++) {
+      int dim;
+      ierr = string2int(tokens[jtok++],dim);
+      assert(!ierr);
+      assert(dim>0);
+      e.rank.push_back(dim);
+      e.size *= dim;
+    }
+    assert(jtok + e.size <= ntoks);
+    e.dof_list.resize(e.size);
+    for (int j=0; j<e.size; j++) {
+      int dof;
+      ierr = string2int(tokens[jtok++],dof);
+      assert(!ierr);
+      assert(dof>=0 && dof<ndof);
+      e.dof_list[j] = dof;
+    }
+    assert(jtok<ntoks);
+    e.name = tokens[jtok++];
+    field_list.push_back(e);
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 dx_hook::dx_hook() : 
@@ -59,6 +154,12 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
   }
   mesh = &mesh_a;
   dofmap = &dofmap_a;
+  // FieldGen *fg = new FieldGenDefault;
+  FieldGenLine *fgl = new FieldGenLine;
+  FieldGen *fg = fgl;
+  fg->init(dofmap->ndof,mesh_a.global_options,"ns2d");
+  fgl->parse("1 2 0 1 u 1 1 2 p");
+  field_gen_list.push_back(fg);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -228,16 +329,36 @@ time_step_post(double time,int step,
   ierr = state2fields(state_p,state(),dofmap,time_data()); assert(!ierr);
   if (!MY_RANK) {
     cookie = rand();
-    Sprintf(srvr,"state state %d %d %d\n",ndof,nnod,cookie);
-#ifndef DX_USE_FLOATS
-    Swrite(srvr,state_p,ndof*nnod*sizeof(double));
+    FieldGenList::iterator qp, qe = field_gen_list.end();
+    for (qp=field_gen_list.begin(); qp!=qe; qp++) {
+      FieldGen *q = *qp;
+      int nf = q->n();
+      for (int jf=0; jf<nf; jf++) {
+	vector<int> rank;
+	string name;
+	q->field(jf,name,rank);
+	assert(rank.size()==1);
+	int size=1;
+	for (int jd=0; jd<rank.size(); jd++) size *= rank[jd];
+	vector<double> in(ndof),out(size);
+	printf("sending \"state %s %d %d %d\"\n",name.c_str(),size,nnod,cookie);
+	Sprintf(srvr,"state %s %d %d %d\n",name.c_str(),size,nnod,cookie);
+	for (int j=0; j<nnod; j++) {
+	  double *base_node = state_p+j*ndof;
+	  for (int l=0; l<ndof; l++) in[l] = *(base_node+l);
+	  q->values(jf,in,out);
+#ifdef DX_USE_FLOATS
+	  for (int l=0; l<size; l++) {
+	    float val = (float)out[l];
+	    Swrite(srvr,&val,sizeof(float));
+	  }
 #else
-    for (int j=0; j<ndof*nnod; j++) {
-      float val = (float)*(state_p+j);
-      Swrite(srvr,&val,sizeof(float));
-    }
+	  Swrite(srvr,out.begin(),sizeof(double));
 #endif
-    CHECK_COOKIE(state);
+	}
+	CHECK_COOKIE(state);
+      }
+    }
   }
   delete[] state_p;
 

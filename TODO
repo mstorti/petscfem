@@ -5,12 +5,11 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line ===========
-* if it can't open the connectivity file, it hangs with a SIGSEGV
-  write test
 * DX: make `dxhook' to be launched through a flag of type `dx' not
           through the standard `hook-list' option line. 
 * DX: check for memory leaks, both in `epimport.cpp' and in  petscfem
           itself. 
+* DX: let the user to dynamically split fields in scalar, vectors, etc...
 * Convert all `assert()' macros to a PETSCFEM_ASSERT or similar. 
 * Why it takes so much time after "Start partitioning" when running
     large problems in one proc.
@@ -96,6 +95,8 @@ DONE:
 =====
 
 ### Current line =========== 
+* if it can't open the connectivity file, it hangs with a SIGSEGV
+  write test. FIXED
 * DX: Make a hook class for generating fields directly from
           PETSc-FEM. 
 * change 2002 -> 2003 everywhere

@@ -7,6 +7,7 @@ get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
 get_var_env('use_triangles',0);
+get_var_env('dx',0);
 
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 
@@ -38,7 +39,7 @@ if ($case eq 'zwproc') {
     $maxits = 100;
 }
 
-$steady = 1 unless defined $steady;
+$steady = 1 unless defined $steady || $dx; 
 
 ## Test the 'G_body' feature. 
 $g_body= 0;
@@ -162,7 +163,7 @@ measure_performance_loop_length 10
 G_body 0 -1.
 #endif
 
-# hook_list ns_dx_hook my_dx_hook
+hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof

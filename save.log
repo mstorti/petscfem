@@ -2362,5 +2362,6 @@ tag: beta-3.17.pl1 on Wed, 12 Feb 2003 11:26:43 -0300 by mstorti in spider
      > Runs all tests with O_c++
 ----------
 tag: beta-3.17.pl2 on Thu, 13 Feb 2003 11:12:27 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
      > Aborts `synchronizedly' if error in reading connectivities 
      > or coordinates with the `data' option. 

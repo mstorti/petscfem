@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.6 2003/02/09 22:39:57 mstorti Exp $
+//$Id: dxhook.h,v 1.7 2003/02/15 02:29:39 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -13,6 +13,21 @@
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class FieldGen {
+public:
+  virtual void init(int ndof,TextHashTable* options,char *name)=0;
+  virtual int n()=0;
+  virtual void field(int j,string &name,vector<int> &rank)=0;
+  virtual void values(int j,vector<double> &in,vector<double> &out)=0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class FieldGenList : public vector<FieldGen *> {
+public:
+  ~FieldGenList();
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class dx_hook : public Hook {
 #ifdef USE_SSL
 private:
@@ -21,6 +36,7 @@ private:
   Mesh *mesh;
   Dofmap *dofmap;
   int step_cntr, steps, ierr;
+  FieldGenList field_gen_list;
 
 #ifdef USE_PTHREADS
   enum connection_state_t {

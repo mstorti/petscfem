@@ -17,7 +17,7 @@ FILES_epimport = userepimport.$(OBJEXT) epimport.$(OBJEXT)
 
 BIN = $(BASE)/bin
 
-CFLAGS = -I./ -I$(BASE)/include $(DX_CFLAGS) -I$(SSL) -I$(PETSCFEM_DIR)
+CFLAGS = -I./ -I$(BASE)/include $(DX_CFLAGS) -DUSE_SSL -I$(SSL) -I$(PETSCFEM_DIR)
 
 LDFLAGS = -L$(BASE)/lib_$(DXARCH)
 

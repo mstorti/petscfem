@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.47 2003/02/12 12:02:32 mstorti Exp $ 
+# $Id: Makefile,v 1.48 2003/02/15 02:29:39 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook
 
 dxhook:
-	$(MAKE) case=weak_form_0 runs
+	$(MAKE) case=weak_form_0 dx=1 runs
 
 runn: 
 	$(MAKE) case=weak_form_1 runs
@@ -36,7 +36,7 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	 > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+	 	 # > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav

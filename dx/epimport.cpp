@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.3 2003/02/11 13:24:53 mstorti Exp $
+// $Id: epimport.cpp,v 1.4 2003/02/15 02:29:39 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -22,6 +22,7 @@
 #include <HDR/sockets.h>
 #undef or
 #undef string
+#define USE_SSL
 #include <src/util3.h>
 
 static Error traverse(Object *, Object *);
@@ -328,6 +329,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
+    DXMessage("Got line \"%s\"",buf);
     tokenize(buf,tokens);
 
     if (tokens[0]=="end") break;

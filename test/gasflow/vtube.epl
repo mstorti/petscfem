@@ -165,7 +165,7 @@ dx_steps 1
 __END_HASH__
 
 ##================================================================
-table cut_regulator
+_table cut_regulator
 #if $cold_outlet
 nstream 2
 initial_pressure <:=$p_h:> <:=$p_c:>
