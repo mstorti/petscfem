@@ -49,5 +49,7 @@
 
 ;; global binding
 (global-set-key "\C-cr" 'toggle-read-only)
+;; para configurar make
+(setq compile-command "make -C $HOME/PETSC/petscfem/")
 
 ;;  (read-kbd-macro "C-x n n <home> C-M-% , SPC * C-q LFD RET ! RET <home> ESC % , RET C-q LFD RET ! RET <home> C-x n w"))
