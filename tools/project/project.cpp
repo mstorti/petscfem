@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.17 2005/02/25 17:07:43 mstorti Exp $
+// $Id: project.cpp,v 1.18 2005/02/25 17:11:29 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -21,8 +21,8 @@ int main() {
 #if 1
 #define XNOD1 DATA_DIR "static_p_blade.nod"
 #define ICONE1 DATA_DIR "blade.con"
-  //#define XNOD2 DATA_DIR "patran.nod"
-#define XNOD2 "./patran.nod"
+#define XNOD2 DATA_DIR "patran.nod"
+  // #define XNOD2 "./patran.nod"
 #else
 #define XNOD1 "mesh1.nod"
 #define ICONE1 "mesh1.con"
@@ -69,9 +69,13 @@ int main() {
   FastMatCachePosition cp,cp1;
   FastMatCacheList cache_list;
   int use_cache;
+#if 0
   printf("use cache > ");
   scanf("%d",&use_cache);
   printf("use_cache %d\n",use_cache);
+#else
+  use_cache = 1;
+#endif
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
     if(use_cache) FastMat2::activate_cache(&cache_list);
