@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: hook.cpp,v 1.2 2002/09/23 17:11:27 mstorti Exp $
+//$Id: hook.cpp,v 1.3 2002/09/23 21:18:16 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/readmesh.h>
@@ -14,13 +14,13 @@ private:
   int petscfem2pfm_verbose_m;
   FILE *petscfem2pfm;
 public:
-  void init(Mesh &mesh,Dofmap &dofmap);
+  void init(Mesh &mesh,Dofmap &dofmap,const char *name);
   void time_step_post(double time,int step,
 		      const vector<double> &gather_values);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void rosi_hook::init(Mesh &mesh,Dofmap &dofmap) {
+void rosi_hook::init(Mesh &mesh,Dofmap &dofmap,const char *name) {
   // File to send forces and moments to "PFM"
   int ierr;
   TextHashTable *t = mesh.global_options;
@@ -70,7 +70,9 @@ void HookList::init(Mesh &mesh,Dofmap &dofmap) {
 		     "Unknown hook \"%s\nLine: \"%s\"\n",
 		     token,line);
     PETSCFEM_ASSERT(hook,"Couldn't create hook \"%s\"\n",token);
-    hook->init(mesh,dofmap);
+
+    token = strtok((n++ == 0 ? lcpy : NULL),"[ \t\n]");
+    hook->init(mesh,dofmap,token);
     push_back(hook);
   }
   delete[] lcpy;
