@@ -717,3 +717,6 @@ tag: pfmat-rewrite-1.03 on Tue Dec 18 10:01:07 ARST 2001, by mstorti in spider
 ----------
 tag: pfmat-rewrite-1.04 on Thu Dec 20 21:13:58 ARST 2001, by mstorti in spider
      > Changed '../../src/<header>' by '<src/header>' in all application modules. 
+----------
+tag: pfmat-rewrite-1.05 on Mon Dec 24 01:01:10 ARST 2001, by mstorti in spider
+     > Adding `release-by-proc' feature for `Debug' class.
