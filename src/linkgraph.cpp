@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.5 2002/07/23 12:27:50 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.6 2002/07/23 17:06:59 mstorti Exp $
 
 #include <src/linkgraph.h>
 
@@ -49,4 +49,13 @@ void LinkGraph::set_ngbrs(int v,GSet &ngbrs) {
     ngbrs.insert(p->i);
     p = &da.ref(p->j);
   }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int LinkGraph::size(int r) {
+  int s=0;
+  assert(s>=0 && s<M);
+  int_pair *p = &da.ref(r);
+  while (p->j != null) { s++; p = &da.ref(p->j); }
+  return s;
 }

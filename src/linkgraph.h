@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.7 2002/07/23 16:39:59 mstorti Exp $
+// $Id: linkgraph.h,v 1.8 2002/07/23 17:06:59 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -57,6 +57,8 @@ public:
       return row_;
     }
     int operator==(const_iterator q) const { return r==q.r; }
+    /// returns number of adjacents elements in the row
+    int size() const { graph->size(r); }
   };
   class iterator : public const_iterator {
     friend class LinkGraph;
@@ -71,8 +73,8 @@ public:
   };    
   iterator begin() { return iterator(0,this); }
   iterator end() { return iterator(M,this); }
-  void erase(iterator q) {}
-  void erase(iterator first,iterator last) {}
+  void erase(iterator q) { assert(0); } // not coded yet...
+  void erase(iterator first,iterator last) { assert(0); } // not coded yet...
   /// cuasi constructor
   void init(int MM);
   /** Set new chunk size (container must be empty).
@@ -94,8 +96,17 @@ public:
   void set_ngbrs(int v,GSet &ngbrs);
   /// Return number of edges
   int size() { return da.size(); } // not implemented yet
+  /// number of vertices adjacent to vertex r
+  int size(int r);
   /// Clear all edges
   void clear() { M=0; da.clear(); }
+#if 0
+  int size_of_pack(const_iterator iter) const {
+    int n = iter->second.size();
+    // size + row number + size*(int+double)
+    return (n+2)*sizeof(int)+n*sizeof(double);
+  }
+#endif
 };
 
 typedef LinkGraph::Row LinkGraphRow; 
