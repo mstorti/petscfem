@@ -1,4 +1,11 @@
-###key spiller.m
+## Copyright (C) 2003 Mario A. Storti
+##
+## This file is part of PETSc-FEM.
+##__INSERT_LICENSE__
+## $Id: spiller.m,v 1.3 2003/03/16 00:44:57 mstorti Exp $
+
+## Author: Mario Storti
+## Keywords: spiller, mesh
 global spiller_data
 
 ## H = bottom height
@@ -13,6 +20,9 @@ L1 = 26.48;			# Distance from top of spiller to start
 L2 = 50;			# Flat bottom length
 h1 = 4;				# water height at top of spiller
 y2 = 60;			# restitution height
+
+Ny = 20;
+Nx = 50;
 
 h2 = y2-H2;
 s.C = C;
@@ -48,7 +58,7 @@ for j=1:3
 endfor
 spiller_data.xfs = xfs;
 
-x5 = projectd([L1;H2],[1;1],10,"fs_eq");
+x5 = projectd([L1;H2],[1;3],10,"fs_eq");
 
 XNOD = [1 0 H1;
 	2 L1 H2;
@@ -56,11 +66,21 @@ XNOD = [1 0 H1;
 	4 0 H1+h1;
 	5 x5';
 	6 L y2];
+XNOD = XNOD(:,2:3);
 
-if 1
+if 0
   xx=(0:100)'/100*L;
   yy=spline(xfs(:,1),xfs(:,2),xx);
 
   y=spiller_fun(xx);
-  plot(xx,yy,xfs(:,1),xfs(:,2),'o',xx,y,XNOD(:,2),XNOD(:,3),'og');
+  plot(xx,yy,xfs(:,1),xfs(:,2),'o',xx,y,XNOD(:,1),XNOD(:,2),'og');
 endif
+
+ICONE = [1 2 5 4;
+	 2 3 6 5];
+
+H = [1 4 Ny;
+     1 2 Nx/2;
+     2 3 Nx/2];
+
+[xnod,icone,mesh] = mesher(XNOD,ICONE,H,"spiller_mapbou");
