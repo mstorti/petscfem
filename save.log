@@ -3167,3 +3167,6 @@ tag: beta-3.27.pl5 on Mon, 08 Dec 2003 20:25:33 -0300 by mstorti in spider
      > Added test for shallow water 1D + absorbing b.c.
      > Added `ask' function for `advdif/id'.
      > 
+----------
+tag: beta-3.27.pl6 on Wed, 10 Dec 2003 20:04:36 -0300 by mstorti in node1.beowulf.gtm
+     > Added constant bubble radius option to `gaschem'. 
