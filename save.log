@@ -673,3 +673,6 @@ tag: beta-2.48 on Sun Dec  2 15:47:33 ARST 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Added test for sqcav with IISD. 
      > Working on adaptors. 
+----------
+tag: beta-2.49 on Sun Dec  2 17:54:38 ARST 2001, by mstorti in spider
+     > `qharm', a test class for `adaptor_pg' comiples.
