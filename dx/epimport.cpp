@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.15 2003/09/03 23:05:05 mstorti Exp $
+// $Id: epimport.cpp,v 1.16 2003/09/06 22:11:43 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -424,7 +424,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       Nodes *nodes = new Nodes(ndim,nnod,array);
       ierr = dx_objects_table.load_new(name,nodes);
       if(ierr!=OK) return ierr;
-      nodes->stat();
+      // nodes->stat();
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
       Sprintf(clnt,"nodes_OK %d\n",cookie);
@@ -447,7 +447,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       State *state = new State(rank,shape,size,nnod,array);
       ierr = dx_objects_table.load_new(name,state);
-      state->stat();
+      // state->stat();
       if(ierr!=OK) return ierr;
       AutoString buff;
       buff.sprintf("Got new \"State\" name %s, ptr %p, rank %d, dims (",
@@ -475,7 +475,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       DXMessage("Got new \"Elemset\" name %s, ptr %p, nel %d, nelem %d",
 		name.c_str(),array,nel,nelem);
       Sprintf(clnt,"elemset_OK %d\n",cookie);
-      elemset->stat();
+      // elemset->stat();
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="field") {
       // Get components 
@@ -513,7 +513,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     } else if (tokens[0]=="fields_auto") {
 
       if (string2int(tokens[1],cookie)) goto error;
-      DXMessage("Trace 0");
       DXMessage("Got \"fields_auto\" directive, cookie %d",cookie);
 
       Object positions,connections,data;
@@ -521,55 +520,43 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       ierr = dx_objects_table.get_positions(p,positions);
       if(ierr!=OK) return ierr;
 
-      DXMessage("Trace 1");
       qe=dx_objects_table.end();
       for (q=dx_objects_table.begin(); q!=qe; q++) {
-	DXMessage("Trace 1.1");
 	Elemset *elemset = dynamic_cast<Elemset *>(q->second);
 	if (!elemset) continue;
 	DXMessage("Elemset is nel %d, nelem %d, type %s",elemset->nel,
 		  elemset->nelem,elemset->dx_type.c_str());
-	elemset->stat();
+	// elemset->stat();
 	Object connections = elemset->dx_object();
 	for (r=dx_objects_table.begin(); r!=qe; r++) {
-	  DXMessage("Trace 1.2");
 	  State *state = dynamic_cast<State *>(r->second);
 	  if (!state) continue;
-	  state->stat();
+	  // state->stat();
 	  Object data = state->dx_object();
-	  DXMessage("Trace 1.2.1 state %p, array %p",state,state->array);
 
 	  DXMessage("Data is rank %d, size %d, nnod %d",state->rank,state->size,state->nnod);
 
 	  Field field = DXNewField();
 	  if (!field) goto error;
-	  DXMessage("Trace 1.2.2");
 	  field = DXSetComponentValue(field,"positions",(Object)positions); 
 	  if (!field) goto error;
-	  DXMessage("Trace 1.2.3");
 	  field = DXSetComponentValue(field,"connections",connections); 
 	  if (!field) goto error;
-	  DXMessage("Trace 1.2.4");
 	  field = DXSetComponentValue(field,"data",data); 
 	  if (!field) goto error;
-	  DXMessage("Trace 1.2.5");
 
 	  field = DXEndField(field); if (!field) goto error;
-	  DXMessage("Trace 1.2.6");
 
 	  // Load new field in table
 	  string n("nodes");
 	  string cname(q->first);
 	  string dname(r->first);
 	  DXField *dxf = new DXField(n,cname,dname,field);
-	  DXMessage("Trace 1.2.7");
 	  string fname = cname + "_" + dname;
 	  DXMessage("Builds field %s",fname.c_str());
 	  ierr = dx_objects_table.load_new(fname,dxf);
-	  DXMessage("Trace 1.3");
 	  if(ierr!=OK) return ierr;
 	}
-	DXMessage("Trace 1.4");
       }      
 
       DXMessage("Ends processing fields_auto directive, cookie %d",cookie);
