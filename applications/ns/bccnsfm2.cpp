@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccnsfm2.cpp,v 1.14 2002/08/30 02:19:35 mstorti Exp $
+//$Id: bccnsfm2.cpp,v 1.15 2002/10/08 20:00:07 mstorti Exp $
   
 #include <src/fem.h>
 #include <src/utils.h>
@@ -120,7 +120,7 @@ int bcconv_ns_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
-  GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
+  GPdata gp_data(geometry.c_str(),ndimel,nel,npg,GP_FASTMAT2);
 
   // Definiciones para descargar el lazo interno
   double detJaco,p_star,wpgdet;
