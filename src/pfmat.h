@@ -1,11 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.23 2001/10/06 23:37:08 mstorti Exp $
+// $Id: pfmat.h,v 1.24 2001/11/15 02:49:01 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
 #include <vector>
 
+#include <src/texthash.h>
+#include <src/getprop.h>
 #include <src/distmap.h>
 #include <src/distmat.h>
 
@@ -61,6 +63,8 @@ protected:
   int sles_was_built;
   /// Defines the KSP method
   string KSP_method;
+  /// The options database
+  TextHashTable thash;
 public:
   /// Constructor, initialize variables
   PFMat() : sles_was_built(0), A(NULL), P(NULL) {};
@@ -125,6 +129,17 @@ public:
   virtual int set_preco(const string & preco_type);
   /// Duplicate matrices (currently not implemented for IISDMat)
   virtual int duplicate(MatDuplicateOption op,const PFMat &A);
+  void set_option(const char *key,const char *value) {
+    thash.get_entry(key,value);
+  }
+  void get_option(const char *key,const char *&value) const {
+    // Remove constness asuming this is OK.
+    // (Should fix the `TextHashTable' class
+    ((TextHashTable &)thash).get_entry(key,value);
+  }
+  int get_int(const char *name,int *retval,int defval=0,int n=1) {
+    ::get_int(&thash,name,retval,defval,n);
+  }
 };
 
 PFMat * PFMat_dispatch(const char *s);

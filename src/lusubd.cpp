@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.52 2001/11/09 03:05:41 mstorti Exp $
+//$Id: lusubd.cpp,v 1.53 2001/11/15 02:49:01 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -1183,28 +1183,43 @@ void PETScMat::clear() {
 #define __FUNC__ "PETScMat::build_sles"
 int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
+#define TGETOPTDEF_ND_PFMAT(thash,type,name,default)		\
+        name = default;						\
+        ierr = ::get_##type(thash,#name,&name,1);		\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+#define TGETOPTDEF_S_ND_PFMAT(thash,type,name,default)		\
+        name=type(#default);					\
+        ierr = ::get_##type(thash,#name,name,1);		\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
+#define TGETOPTDEF_S_PFMAT(thash,type,name,default)		\
+        type name=type(#default);				\
+        ierr = get_##type(thash,#name,name,1);			\
+        PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
+
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND(thash,double,atol,1e-6);
+  TGETOPTDEF_ND_PFMAT(thash,double,atol,1e-6);
   //o Relative tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND(thash,double,rtol,1e-3);
+  TGETOPTDEF_ND_PFMAT(thash,double,rtol,1e-3);
   //o Divergence tolerance to solve the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND(thash,double,dtol,1e+3);
+  TGETOPTDEF_ND_PFMAT(thash,double,dtol,1e+3);
   //o Krylov space dimension in solving the monolithic linear
   // system (Newton linear subiteration) by GMRES.
-  TGETOPTDEF_ND(thash,int,Krylov_dim,50);
+  TGETOPTDEF_ND_PFMAT(thash,int,Krylov_dim,50);
   //o Maximum iteration number in solving the monolithic linear
   // system (Newton linear subiteration).
-  TGETOPTDEF_ND(thash,int,maxits,Krylov_dim);
+  TGETOPTDEF_ND_PFMAT(thash,int,maxits,Krylov_dim);
   //o Prints convergence in the solution of the GMRES iteration. 
-  TGETOPTDEF_ND(thash,int,print_internal_loop_conv,0);
+  TGETOPTDEF_ND_PFMAT(thash,int,print_internal_loop_conv,0);
   //o Defines the KSP method
-  TGETOPTDEF_S_ND(thash,string,KSP_method,gmres);
+  TGETOPTDEF_S_ND_PFMAT(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
-  TGETOPTDEF_S(thash,string,preco_type,jacobi);
+  TGETOPTDEF_S_PFMAT(thash,string,preco_type,jacobi);
 
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,

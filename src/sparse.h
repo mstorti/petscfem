@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.28 2001/11/13 17:34:25 mstorti Exp $
+// $Id: sparse.h,v 1.29 2001/11/15 02:49:01 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -16,7 +16,9 @@
 
 #include <sles.h>
 
-#include "randomg.h"
+#include <src/texthash.h>
+#include <src/getprop.h>
+#include <src/randomg.h>
 
 using namespace Random;
 
@@ -402,8 +404,13 @@ void MatFSMContext::action() {			\
     int grow_m; 
     /// Value of those elements that are not represented
     static double not_represented_val;
-
+    /// The options hash table
+    TextHashTable thash;
     void init_fsm(Mat *) {fsm.matrix_p = this;};
+    /// print elements (compact sparse version)
+    void print_compact(const char *s = NULL) const;
+    /// print elements (matlab sparse version)
+    void print_matlab(const char *s = NULL) const;
   public:
 
     static Mat *dispatch(char *opt = "PETSc");
@@ -523,9 +530,13 @@ void MatFSMContext::action() {			\
     void clean_mat();
     virtual void solve_only()=0;
     virtual void fact_and_solve()=0;
+    void set_option(const char *key,const char *value);
+    void get_option(const char *key,const char *&value) const;
+    int get_int(const char *name,int *retval,int defval=0,int n=1) {
+      ::get_int(&thash,name,retval,defval,n);
+    }
 
   };
-
 }
 
 #endif

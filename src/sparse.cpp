@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.26 2001/11/14 01:52:27 mstorti Exp $
+//$Id: sparse.cpp,v 1.27 2001/11/15 02:49:01 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -477,7 +477,7 @@ namespace Sparse {
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  void Mat::print(const char *s = NULL) const {
+  void Mat::print_compact(const char *s = NULL) const {
     RowCIt i,e;
     if (s) printf("%s\n",s);
 
@@ -488,6 +488,26 @@ namespace Sparse {
       i->second.print_g(0,NULL,": ","  ","\n");
     }
     printf("-- end mat --\n");
+  }
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  void Mat::print_matlab(const char *s = NULL) const {
+    RowCIt i,e;
+    VecCIt q,qe;
+    int j;
+    
+    if (s) printf("%s = [\n",s);
+
+    e = end();
+    for (i=begin(); i!=e; i++) {
+      j = i->first;
+      const Vec &row = i->second;
+      qe = row->end();
+      for (q=row->begin(); row!=qe; row++) {
+	printf("%d %d %g;\n",j,qe->first,qe->second);
+      }
+    }
+    printf("];\n");
   }
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -953,4 +973,17 @@ namespace Sparse {
     fsm.fill();
 
   }
+
+  void Mat::set_option(const char *key,const char *value) {
+    // Remove constness
+    // This should change in the `TextHashTable' class
+    thash.add_entry((char *)key,(char *)value);
+  }
+
+  void Mat::get_option(const char *key,const char *&value) const {
+    // Remove constness
+    // This should change in the `TextHashTable' class
+    ((TextHashTable *)&thash)->get_entry(key,value);
+  }
+
 }
