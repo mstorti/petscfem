@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharm.cpp,v 1.1 2001/12/02 20:46:12 mstorti Exp $
+//$Id: qharm.cpp,v 1.2 2001/12/02 20:54:08 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,19 +9,7 @@
 
 #include "nsi_tet.h"
 #include "adaptor.h"
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class qharm : public adaptor_pg {
-public:
-  double conductivity,rho_Cp;
-  void elemset_init();
-  void pg_connector(const FastMat2 &xpg,
-		    const FastMat2 &state_old_pg,
-		    const FastMat2 &grad_state_old_pg,
-		    const FastMat2 &state_new_pg,
-		    const FastMat2 &grad_state_new_pg,
-		    FastMat2 &res_pg,FastMat2 &mat_pg);
-};
+#include "qharm.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void qharm::elemset_init() {

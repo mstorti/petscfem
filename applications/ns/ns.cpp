@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.50 2001/11/30 12:41:08 mstorti Exp $
+//$Id: ns.cpp,v 1.51 2001/12/02 20:54:08 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -15,6 +15,7 @@
 #include "nsi_tet.h"
 #include "adaptor.h"
 #include "elast.h"
+#include "qharm.h"
 
 #include <applications/ns/nsi_tet.h>
 #include <applications/ns/nssup.h>
@@ -36,6 +37,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
   // hagamos la interfase
   // SET_ELEMSET_TYPE(nsi_tet)
   //  SET_ELEMSET_TYPE(nsi_tet_les)
+    SET_ELEMSET_TYPE(qharm)
     SET_ELEMSET_TYPE(ns_id)
     SET_ELEMSET_TYPE(ns_sup)
     SET_ELEMSET_TYPE(ns_sup_res)
