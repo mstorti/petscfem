@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.4 2001/01/10 22:40:46 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/01/11 15:50:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5 \
-	constraint_bug fstack sector triangle
+	constraint_bug fstack sector triangle advdif
 
 run: sqcav5
 
@@ -35,7 +35,8 @@ compile:
 # All tests
 
 runtests: compile lap_per sector oscplate_all fastmat2 plano \
-	idmap fastvec chunk_size_process constraint_bug fstack triangle
+	idmap fastvec chunk_size_process constraint_bug fstack triangle \
+	advdif
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 LIBPFM = ../src/libpetscfem.a
@@ -266,4 +267,7 @@ tests: runtests
 iterator: iterator.cpp
 	g++ -o $@ $<
 
-#
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+# tests for the advdif module
+advdif:
+	$(MAKE) -C advdif tests

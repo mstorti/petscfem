@@ -759,6 +759,18 @@ line 18 : <3 third line>
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("advdif/sine_fine_mesh.out","Advdif // conv. to analytic in fine mesh",<<EOT);
+Dt=.* error=.* \< tol_error=.* OK\?.*1
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("advdif/sine_crank_nic.out","Advdif // quad. conv. for Crank Nic.",<<EOT);
+||u_16-u_128|| = 
+||u_32-u_128|| = 
+||u_32-u_128|| / ||u_16-u_128|| = .*, < 0.25 OK\? 1 
+EOT
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs
 
 
