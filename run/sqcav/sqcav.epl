@@ -19,7 +19,7 @@ transcript("", qw(visco Dt));	# print variables on output
 global_options
 
 nsave 1
-nstep 20
+nstep 1
 #initial_state sqcav.ini
 preco_type "lu"
 
@@ -36,7 +36,8 @@ nnwt 1
 maxits 1
 Krylov_dim 1
 print_internal_loop_conv 1
-#print_linear_system_and_stop
+print_linear_system_and_stop 1
+verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
