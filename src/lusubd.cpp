@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.21 2001/07/25 19:16:13 mstorti Exp $
+//$Id: lusubd.cpp,v 1.22 2001/07/28 15:54:15 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -97,7 +97,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   // dimensioning PETSc matrices
   // nnz[diagonal/off-diagonal][row-block-type][column-block-type]
   // For instance nnz[D][L][L] = d_nn_z for the 'local-local' block. 
-  vector<int> nnz[2][2][2],flag0,flag,*d_nnz,*o_nnz;
+  vector<int> nnz[2][2][2],flag0,flag;
   flag0.resize(dofmap->neq,0);
   flag.resize(dofmap->neq,0);
 
@@ -232,8 +232,11 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
     row_t = (row < n_loc_tot ? L : I);
     
     // Correct dof's
-    if (row >= n_loc_tot) row = row - n_int_v[myrank];
-    row = row - n_loc_v[myrank];
+    if (row < n_loc_tot) {
+      row = row - n_loc_v[myrank];
+    } else {
+      row = row - n_int_v[myrank];
+    }
     // loop over the connected dof's
     pos = keq;
     while (1) {
@@ -250,6 +253,10 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       // diagonal part
       assert(!(od==O && row_t==L && col_t==L));
       // count 
+      if (!(row>=0 && row < nnz[od][row_t][col_t].size())) {
+	printf("row %d, size: %d\n",row,nnz[od][row_t][col_t].size());
+	MPI_Abort(PETSC_COMM_WORLD,1);
+      }
       nnz[od][row_t][col_t][row]++;
       // next link
       pos = nodep->next;
@@ -434,6 +441,7 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
   ierr = MatAssemblyBegin(A_II,type); CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_IL,type); CHKERRQ(ierr);
   ierr = MatAssemblyBegin(A_LL,type); CHKERRQ(ierr);
+  return 0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -445,6 +453,7 @@ int IISDMat::assembly_end(MatAssemblyType type) {
   ierr = MatAssemblyEnd(A_II,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_IL,type); CHKERRQ(ierr);
   ierr = MatAssemblyEnd(A_LL,type); CHKERRQ(ierr);
+  return 0;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -456,6 +465,7 @@ int IISDMat::zero_entries() {
   ierr=MatZeroEntries(A_IL); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_LI); CHKERRQ(ierr);
   ierr=MatZeroEntries(A_II); CHKERRQ(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -479,6 +489,7 @@ int IISDMat::view(Viewer viewer) {
   ierr = MatView(A_IL,viewer); CHKERRQ(ierr);
   ierr = MatView(A_II,viewer); CHKERRQ(ierr);
 
+  return 0;
 //    ViewerASCIIPrintf(viewer,"% IISD SLES\n");
 //    ierr =  SLESView(sles,viewer);
 }
@@ -936,12 +947,14 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
 #define __FUNC__ "int PFMat::destroy_sles()"
 int PFMat::destroy_sles() {
   int ierr = SLESDestroy(sles); CHKERRQ(ierr);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
   PFMat *A = (PFMat *)A_;
   return A->monitor(ksp,n,rnorm);
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -964,6 +977,7 @@ int PFMat::monitor(KSP ksp,int n,double rnorm) {
 #define __FUNC__ "void PETScMat::solve(Vec res,Vec dx)"
 int PFMat::solve(Vec res,Vec dx) {
   int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -972,6 +986,15 @@ int PFMat::solve(Vec res,Vec dx) {
 int PETScMat::view(Viewer viewer) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
 //    ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
+  return 0;
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ ""
+int PETScMat::zero_entries() {
+  ierr=MatZeroEntries(A); CHKERRQ(ierr);
+  return 0;
 };
 
 /*
