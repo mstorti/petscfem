@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.6 2002/07/16 00:22:24 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.7 2002/07/16 00:33:54 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -92,7 +92,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
   double Dt;
-  arg_data *A_mom_arg,*A_poi_arg;
+  arg_data *A_mom_arg,*A_poi_arg,*A_prj_arg;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;
@@ -118,6 +118,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     retval = arg_data_v[ja++].retval;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     Dt = glob_param->Dt;
+  } else if (comp_mat_prj) {
+    int ja=0;
+    A_prj_arg = &arg_data_v[ja];
+    retvalmat_prj = arg_data_v[ja].retval;
   } else assert(0); // Not implemented yet!!
 
   Matrix veccontr(nel,ndof),xloc(nel,ndim),
@@ -194,10 +198,12 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   } else if (comp_mat_poi) {
     poi_profile >> A_poi_arg->profile;
   } else if (comp_res_poi) {
+  } else if (comp_mat_prj) {
+    mom_profile >> A_prj_arg->profile;
   } else assert(0);
 
   Matrix seed;
-  if (comp_res_mom) {
+  if (comp_res_mom || comp_mat_prj) {
     seed= Matrix(ndof,ndof);
     seed=0;
     for (int j=1; j<=ndim; j++) {
@@ -396,6 +402,9 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     } else if (comp_res_poi) {
       veccontr.Column(ndim+1) = rescont;
       veccontr >> &(RETVAL(ielh));
+    } else if (comp_mat_prj) {
+      matloc = kron(matlocmom,seed) + mom_mat_fix;
+      matloc >> &(RETVALMAT_PRJ(ielh));
     } else assert(0);
 
   }

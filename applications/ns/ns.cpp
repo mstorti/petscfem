@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.5 2002/07/16 00:22:25 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.6 2002/07/16 00:33:54 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -656,7 +656,7 @@ int main(int argc,char **args) {
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);
 
-#if 1
+#if 0
       ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			     "system.dat",&matlab); CHKERRA(ierr);
       ierr = ViewerSetFormat(matlab,
@@ -686,6 +686,16 @@ int main(int argc,char **args) {
 	CHKERRA(ierr);
 	debug.trace("After projection matrix computation.");
       }
+
+#if 1
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"aprj"); CHKERRA(ierr);
+      ierr = A_prj->view(matlab);
+      PetscFinalize();
+      exit(0);
+#endif
 
       VOID_IT(argl);
       statep.set_time(time);	// fixme:= what time?
