@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.49 2001/10/02 16:02:39 mstorti Exp $
+//$Id: lusubd.cpp,v 1.50 2001/10/06 23:37:08 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -16,12 +16,12 @@ int SCHED_ALG=1;
 #endif
 #include <mat.h>
 
-#include <fem.h>
-#include <utils.h>
-#include <dofmap.h>
-#include <elemset.h>
-#include <pfmat.h>
-#include <iisdmat.h>
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/dofmap.h>
+#include <src/elemset.h>
+#include <src/pfmat.h>
+#include <src/iisdmat.h>
 
 enum PETScFEMErrors {
   iisdmat_set_value_out_of_range

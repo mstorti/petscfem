@@ -1,16 +1,16 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.10 2001/08/16 18:24:46 mstorti Exp $
+// $Id: distmat.cpp,v 1.11 2001/10/06 23:37:08 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
 #include <petsc.h>
 
-#include <utils.h>
-#include <distmap.h>
-#include <buffpack.h>
-#include <maximizr.h>
-#include <distmat.h>
+#include <src/utils.h>
+#include <src/distmap.h>
+#include <src/buffpack.h>
+#include <src/maximizr.h>
+#include <src/distmat.h>
 
 extern int MYRANK,SIZE;
 

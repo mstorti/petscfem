@@ -1,13 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.22 2001/09/30 22:52:23 mstorti Exp $
+// $Id: pfmat.h,v 1.23 2001/10/06 23:37:08 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
 #include <vector>
 
-#include <distmap.h>
-#include <distmat.h>
+#include <src/distmap.h>
+#include <src/distmat.h>
 
 /// This partitioner is based on the dofmap of the mesh. 
 class DofmapPartitioner : public IntRowPartitioner {

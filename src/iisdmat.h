@@ -1,13 +1,13 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.6 2001/10/02 19:31:24 mstorti Exp $
+// $Id: iisdmat.h,v 1.7 2001/10/06 23:37:08 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
 #include <vector>
 
-#include <pfmat.h>
-#include <sparse.h>
+#include <src/pfmat.h>
+#include <src/sparse.h>
 
 // This is the OO wrapper to PETSc matrix
 class PETScMat : public PFMat {
@@ -230,7 +230,7 @@ public:
   /// Destroy the SLES associated with the operator. 
   virtual int destroy_sles();
   IISDMat() : A_LL_other(NULL), A_LL(NULL), part(NULL),
-  local_solver(SuperLU) {};
+  local_solver(PETSc) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.22 2001/08/16 03:54:48 mstorti Exp $
+// $Id: distmap.h,v 1.23 2001/10/06 23:37:08 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -8,7 +8,7 @@
 #include <vector>
 #include <mpi.h>
 
-#include <vecmacros.h>
+#include <src/vecmacros.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Distributed map class. Elements can be assigned as for a standard

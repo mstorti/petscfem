@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.1 2001/09/30 22:52:23 mstorti Exp $
+//$Id: pfmatsp.cpp,v 1.2 2001/10/06 23:37:08 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -12,12 +12,12 @@ extern int MY_RANK,SIZE;
 #endif
 #include <mat.h>
 
-#include <fem.h>
-#include <utils.h>
-#include <dofmap.h>
-#include <elemset.h>
-#include <pfmat.h>
-#include <iisdmat.h>
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/dofmap.h>
+#include <src/elemset.h>
+#include <src/pfmat.h>
+#include <src/iisdmat.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
