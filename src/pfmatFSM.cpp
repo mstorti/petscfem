@@ -4,8 +4,8 @@
 static char _versID[] = "No Version.";
 pfmatFSMfactoredState pfmatFSM::factoredState;
 pfmatFSMassembledState pfmatFSM::assembledState;
-pfmatFSMin_scatterState pfmatFSM::in_scatterState;
 pfmatFSMin_assemblyState pfmatFSM::in_assemblyState;
+pfmatFSMin_scatterState pfmatFSM::in_scatterState;
 pfmatFSMprofiledState pfmatFSM::profiledState;
 pfmatFSMprofilingState pfmatFSM::profilingState;
 pfmatFSMcleanState pfmatFSM::cleanState;
@@ -27,10 +27,12 @@ void pfmatFSMState::clean_factor(pfmatFSM& s)
   {s.FSMError("clean_factor", s.GetState().StateName());}
 void pfmatFSMState::set_value(pfmatFSM& s)
   {s.FSMError("set_value", s.GetState().StateName());}
-void pfmatFSMState::create(pfmatFSM& s)
-  {s.FSMError("create", s.GetState().StateName());}
 void pfmatFSMState::clear(pfmatFSM& s)
   {s.FSMError("clear", s.GetState().StateName());}
+void pfmatFSMState::asssemly_begin(pfmatFSM& s)
+  {s.FSMError("asssemly_begin", s.GetState().StateName());}
+void pfmatFSMState::create(pfmatFSM& s)
+  {s.FSMError("create", s.GetState().StateName());}
 void pfmatFSMState::set_profile(pfmatFSM& s)
   {s.FSMError("set_profile", s.GetState().StateName());}
 void pfmatFSMfactoredState::clear(pfmatFSM& s) {
@@ -144,6 +146,12 @@ void pfmatFSMin_assemblyState::set_value(pfmatFSM& s) {
            "to: \"in_assembly\"\n");
   s.SetState(pfmatFSM::in_assemblyState);
 }
+void pfmatFSMprofiledState::assembly_begin(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"profiled\", event: \"assembly_begin\", "
+           "to: \"in_scatter\"\n");
+  s.SetState(pfmatFSM::in_scatterState);
+}
 void pfmatFSMprofiledState::set_value(pfmatFSM& s) {
   if (s.matrix_p->print_fsm_transition_info_f())
     printf("from: \"profiled\", event: \"set_value\", "
@@ -202,6 +210,18 @@ void pfmatFSMcleanState::clear(pfmatFSM& s) {
     printf("from: \"clean\", event: \"clear\", "
            "to: \"clean\"\n");
   s.SetState(pfmatFSM::cleanState);
+}
+void pfmatFSMcleanState::asssemly_begin(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"clean\", event: \"asssemly_begin\", "
+           "to: \"in_scatter\"\n");
+  s.SetState(pfmatFSM::in_scatterState);
+}
+void pfmatFSMcleanState::create(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"clean\", event: \"create\", "
+           "to: \"profiled\"\n");
+  s.SetState(pfmatFSM::profiledState);
 }
 void pfmatFSMcleanState::set_profile(pfmatFSM& s) {
   if (s.matrix_p->print_fsm_transition_info_f())
