@@ -533,3 +533,7 @@ tag: beta-2.09 on Sat Sep 29 09:35:56 ART 2001, by mstorti in spider
 tag: beta-2.10 on Sun Sep 30 13:18:46 ART 2001, by mstorti in spider
      > IISD/SuperLU is working. Some bugs fixed. 
      > Memory leak is not checked.
+----------
+tag: beta-2.11 on Sun Sep 30 15:06:16 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > IISD with SuperLU is working. Added a test. 
