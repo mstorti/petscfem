@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.15 2003/01/07 10:33:42 mstorti Exp $
+//$Id: embgath.h,v 1.16 2003/01/09 02:37:42 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -50,6 +50,9 @@ public:
       element in order to rotate it to a standard position. 
   */ 
   virtual void face(int j,const int *&fc,const int *&vol)=0;
+  /** Number of surface nodes, desired number of
+      nodes in the volume element. */
+  virtual void surface_nodes(int &nel_surf,int &nel_vol)=0;
   //@}
   /** Rotates the connectivity in #vol_map# according to
       the surface rotation #surf_map#.
@@ -101,6 +104,7 @@ public:
   void face(int j,const int *&fc,const int *&vol);
   /** Returns number of elements, surface nodes and volume nodes. */
   int nfaces(int &nel_surf,int &nel_vol) { nel_surf=4; nel_vol=8; return 24; }
+  void surface_nodes(int &nel_surf,int &nel_vol);
   //@}
 };
 
@@ -126,6 +130,7 @@ public:
   void face(int j,const int *&fc,const int *&vol);
   /** Returns number of elements, surface nodes and volume nodes. */
   int nfaces(int &nel_surf,int &nel_vol) { nel_surf=2; nel_vol=4; return 4; }
+  void surface_nodes(int &nel_surf,int &nel_vol);
   //@}
 };
 
@@ -166,9 +171,6 @@ public:
       functions you can define several integrators.
   */
   //@{
-  /** Number of surface nodes, desired number of
-      nodes in the volume element. */
-  virtual void surface_nodes(int &nel_surf,int &nel_vol)=0;
   /// Called \emph{before} the element loop. 
   virtual void init() { }
 

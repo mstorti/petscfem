@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.26 2003/01/07 10:33:42 mstorti Exp $
+//$Id: embgath.cpp,v 1.27 2003/01/09 02:37:42 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -104,6 +104,12 @@ int Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Quad2Hexa::surface_nodes(int &nel_surf,int &nel_vol) { 
+  nel_surf=4; 
+  nel_vol=8; 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) { 
   // Changes quad numbering orientation. 
   int spin_map[] = {0,3,2,1};
@@ -132,6 +138,12 @@ void Quad2Hexa::face(int j,const int *&fc,const int *&vol_ret) {
     this_face[k] = (use_exterior_normal() ? 
 		    vol_ret[spin_map[k]] : vol_ret[k]);
   fc = this_face;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Line2Quad::surface_nodes(int &nel_surf,int &nel_vol) { 
+  nel_surf=2; 
+  nel_vol=4; 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -211,7 +223,7 @@ void embedded_gatherer::initialize() {
 			       GP_FASTMAT2,use_exterior_normal);
   } else PETSCFEM_ERROR("embedded_gatherer: unknown geometry %s\n",geometry.c_str());
 
-  surface_nodes(nel_surf,nel_vol);
+  sv_gp_data->surface_nodes(nel_surf,nel_vol);
   assert(nel_surf>0 && nel_surf<=nel);
   assert(nel_vol <= nel); //
   assert(nel_vol <= vol_elem->nel);
@@ -555,13 +567,6 @@ void visc_force_integrator
     // export forces to return vector
     moment.export_vals(pg_values.begin()+ndim_m);
   }
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void visc_force_integrator
-::surface_nodes(int &nel_surf,int &nel_vol) { 
-  nel_surf=4; 
-  nel_vol=8; 
 }
 
 #undef SHAPE    

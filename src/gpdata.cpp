@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.20 2003/01/09 00:24:16 mstorti Exp $
+//$Id: gpdata.cpp,v 1.21 2003/01/09 02:37:45 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -91,7 +91,7 @@ void cart_prod(int npg,int nel,int nel_lay,
 	coef[lay]*base_gp.shape[ipg];
     
     wpg[ipg] = base_gp.wpg[ipg];
-    dshapex[ipg]= Matrix(ndim,nel);
+     dshapex[ipg]= Matrix(ndim,nel);
   }
 }
 
@@ -461,6 +461,17 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       }
     } else GPERROR;
       
+  } else if (!strcmp(geom,"line2quad")) {
+    
+    assert(ndimel==2);
+    assert(nel % 2==0);
+    int nlay = nel/2;
+    assert(nlay>=2);
+    assert(nlay<=4);
+    assert(npg==2); // other cases may be considered
+    GPdata line("cartesian1d",1,2,npg,GP_NEWMAT);
+    cart_prod(npg,nel,2,ndimel,shape,dshapexi,dshapex,wpg,line);
+
   } else if (!strcmp(geom,"quad2hexa")) {
     
     assert(ndimel==3);

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2003/01/08 15:54:26 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2003/01/09 02:37:45 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -9,33 +9,35 @@ tests: nutcyl test_rigid test_strip
 
 outfile = system.dat.tmp
 
-NAME := closcyl
+ifeq ($(CASE_NAME),)
+#CASE_NAME := closcyl
+CASE_NAME := strip2d
+endif
 NP := 1
 
 ifeq ($(NP),1)
 MACHI = -machinefile machi.dat
 endif
 
-export NAME NP
+export CASE_NAME NP
 
-LOC_PROG = ns$(osfx)
-PROG = $(PETSCFEM_DIR)/applications/ns/$(LOC_PROG).bin
-CASE_NAME = strip
+LOC_PROG = ns
+PROG = $(NS)
 
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-2.94.pl8
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
 
-data: $(NAME).depl force
-$(NAME).depl: force
+data: $(CASE_NAME).depl force
+$(CASE_NAME).depl: force
 
 run: data
-	-rm -f $(NAME).some_rslt.tmp
-	if [ -e $(NAME).force.tmp ] ; then rm $(NAME).force.tmp ; fi
+	-rm -f $(CASE_NAME).some_rslt.tmp
+	if [ -e $(CASE_NAME).force.tmp ] ; then rm $(CASE_NAME).force.tmp ; fi
 	if [ -e save.state ] ; then cp save.state save.state.tmp ; fi
 	-$(MPIRUN) -np $(NP) $(NL) $(MACHI) $(PROG) \
-		 -case $(NAME).depl > petscfem.output.tmp
+		 -case $(CASE_NAME).depl > petscfem.output.tmp
 
 local_clean::
 	-putex
@@ -58,8 +60,13 @@ test_rigid:
 
 test_strip: 
 	-rm -f strip.force.tmp strip.verif.tmp
-	$(MAKE) NAME=strip run
+	$(MAKE) CASE_NAME=strip run
 	$(OCTAVE) checkstrip.m > strip.verif.tmp
+
+test_strip2d: 
+	-rm -f strip2d.force.tmp strip2d.verif.tmp
+	$(MAKE) CASE_NAME=strip2d run
+#	$(OCTAVE) checkstrip2d.m > strip2d.verif.tmp
 
 figure:
 	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run

@@ -1,7 +1,7 @@
 # -*- shell-script -*-
 __ECHO_ON__
 <:
-#$Id: closcyl.epl,v 1.4 2002/12/26 14:36:13 mstorti Exp $
+#$Id: closcyl.epl,v 1.5 2003/01/09 02:37:45 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
@@ -20,7 +20,7 @@ die "bad \"mesh\" val: $mesh\n"
 ($n,$nz,$solve) = ($1,$2,$3);
 print "# mesh,n,nz,solve: $mesh,$n,$nz,$solve\n";
 
-$casename = $ENV{'NAME'};       # This is used in the `proc?.m' scripts
+$casename = $ENV{'CASE_NAME'};       # This is used in the `proc?.m' scripts
 $ini = $ENV{'ini'};             # Run the initialization step
 
 $layers = 2;                    # Element layers for computing viscous force

@@ -1,6 +1,6 @@
 __ECHO_ON__
 <:
-#$Id: strip.epl,v 1.5 2003/01/09 02:37:45 mstorti Exp $
+#$Id: strip2d.epl,v 1.1 2003/01/09 02:37:45 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
@@ -8,11 +8,11 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 $casename = $ENV{'CASE_NAME'};       # This is used in the `proc?.m' scripts
 $ini = $ENV{'ini'};             # Run the initialization step
 die "bad CASE_NAME=\"$casename\" name\n" 
-    if $casename ne 'strip';
+    if $casename ne 'strip2d';
 $L = 1;
 $N=10;
 $h=$L/$N;
-$ndim = 3;
+$ndim = 2;
 $Dt=0.1;          # Time step
 $maxits = 100;
 $xratio = 5;
@@ -21,17 +21,7 @@ $layers = 2;
 @vars = qw(L N h xratio);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
-system "octave -qH mkstrip.m >mkstrip.out.tmp";
-
-# Read `nodf_u' value 
-open FIC,"strip.fic.tmp";
-$l = <FIC>;
-die "Couldn't find nodf_u in strip.fic.tmp" unless $l =~ /^\s*(\S*)\s*$/;
-$nodf_u = $1;
-$l = <FIC>;
-die "Couldn't find nodf_r in strip.fic.tmp" unless $l =~ /^\s*(\S*)\s*$/;
-$nodf_r = $1;
-close FIC;
+system "octave -qH mkstrip2d.m >mkstrip2d.out.tmp";
 :>
 
 #default definitions
@@ -40,11 +30,6 @@ global_options
 
 ndim <:=$ndim:>
 
-# initial_state "strip.ini.tmp"
-# kill turbulence
-turbulence_coef 0.
-non_inertial_frame
-# non_inertial_frame_reverse_sign
 steady 1
 nstep 1
 # nnwt <:= ($ini ? 5 : 1); :>
@@ -102,69 +87,49 @@ solve_system 0
 
 viscosity 1.
 ngather <:=2*$ndim:>
-gather_file "strip.force.tmp"
+gather_file "strip2d.force.tmp"
 __ECHO_OFF__
 __END_HASH__
 
 #===========================================================
 # ndim nu ndof
-nodes  <:=$ndim:> <:=$ndim:> <:=$ndim+3:>
-__INCLUDE__ strip.nod.tmp
+nodes  <:=$ndim:> <:=$ndim:> <:=$ndim+1:>
+__INCLUDE__ "strip2d.nod.tmp"
 __END_NODES__
 
 #===========================================================
-elemset nsi_tet_keps_rot <:=($ndim==2 ? 6 : 10):>
+elemset nsi_tet_les_fm2 4
 name "viscous_fluid_elemset"
-geometry cartesian<:=$ndim:>d
-npg <:=($ndim==2 ? 4 : 8):>
+geometry cartesian2d
+npg 4
 __END_HASH__
-__INCLUDE__ strip.con.tmp
+__INCLUDE__ strip2d.con.tmp
 __END_ELEMSET__
 
 #===========================================================
-elemset visc_force_integrator <:=((1+$layers)*4):>
-geometry "quad2hexa"
-npg <:=2**($ndim-1):>
-ndimel <:=$ndim-1:>
+elemset visc_force_integrator 6
+geometry "line2quad"
+npg 2
+ndimel 1
 gather_length <:=2*$ndim:>
-moment_center 0. 0. 0.5
+moment_center 0. 0.5
 volume_elemset "viscous_fluid_elemset"
-use_exterior_normal 0
 identify_volume_elements 1
 <:pr('layers'):>
 __END_HASH__
-<: 
-$ficti = "";
-for ($j=0; $j<4*$layers; $j++) { $ficti .= " 1"; }
-print join(" ",1,2*$N+3,3*$N+4,$N+2),$ficti,"\n";
-print join(" ",$N+1,2*$N+2,4*$N+4,3*$N+3),$ficti,"\n";
-:>
+1           <:=$N+2:>   1 1 1 1
+<:=2*$N+2:> <:=2*$N+1:> 1 1 1 1
 __END_ELEMSET__
 
 end_elemsets
 
 # Impose b.c.'s on the walls 
 fixa
-__INCLUDE__ strip.bc.tmp
-
-<:=$nodf_u:> 1 0.
-<:=$nodf_u:> 2 0.
-<:=$nodf_u:> 3 0.
-<:=$nodf_u:> 4 0.
-<:=$nodf_u:> 5 0.
-<:=$nodf_u:> 6 0.
-
-<:=$nodf_r:> 1 0.
-<:=$nodf_r:> 2 0.
-<:=$nodf_r:> 3 0.
-<:=$nodf_r:> 4 0.
-<:=$nodf_r:> 5 0.
-<:=$nodf_r:> 6 0.
-
+__INCLUDE__ strip2d.bc.tmp
 __END_FIXA__
 
 constraint
-__INCLUDE__ strip.cnstr.tmp
+__INCLUDE__ strip2d.cnstr.tmp
 __END_CONSTRAINT__
 
 # Local Variables: $
