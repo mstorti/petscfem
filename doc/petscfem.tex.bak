@@ -97,7 +97,7 @@ http://venus.arcride.edu.ar/CIMEC\\
 }
 \date{\today}
 \maketitle 
-{\tiny\verb+$Id: petscfem.tex,v 1.7 2001/02/05 13:09:27 mstorti Exp $+}
+{\tiny\verb+$Id$+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -130,12 +130,15 @@ keeping in mind the scope of efficiency.
 % \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 % \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests            %__UNCOMMENT_IN_FINAL_VERSION__
 % \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
-\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
+% \subsection{contents of nsdoc.tex}    %__COMMENT_IN_FINAL_VERSION__
+% \input nsdoc.tex                      %__COMMENT_IN_FINAL_VERSION__
+% \subsection{contents of advdif.tex}   %__COMMENT_IN_FINAL_VERSION__
+% \input advdifop.tex                   %__COMMENT_IN_FINAL_VERSION__
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \Section{Symbols and Acronyms}
