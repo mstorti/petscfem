@@ -258,3 +258,6 @@ tag: beta-1.38 on Wed Mar 21 11:44:32 ART 2001, by mstorti in spider
 tag: beta-1.39 on Wed Mar 21 12:29:09 ART 2001, by mstorti in spider
      > Added diffusive jacobian scalar per field.
      > Works for the simple case of only one field.
+----------
+tag: beta-1.40 on Wed Mar 21 20:35:00 ART 2001, by mstorti in spider
+     > Tested new flux functions with scalar dif per field
