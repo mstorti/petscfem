@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.6 2003/02/06 20:33:21 mstorti Exp $
+//$Id: dxhook.cpp,v 1.7 2003/02/07 18:51:47 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/fem.h>
@@ -63,26 +63,24 @@ time_step_post(double time,int step,
     for (int node=0; node<nnod; node++)
       Swrite(srvr,xnod+node*nu,ndim*sizeof(double));
   }
-#if 0
   // Send results
   int ndof = dofmap->ndof;
   
-  double *fields = NULL;
-  if (!MY_RANK) fields = new double[ndof*nnod];
-  int ierr = state2fields(fields,state(),dofmap,time_data()); assert(!ierr);
+  double *state_p = NULL;
+  if (!MY_RANK) state_p = new double[ndof*nnod];
+  int ierr = state2fields(state_p,state(),dofmap,time_data()); assert(!ierr);
   if (!MY_RANK) {
-    Sprintf(srvr,"fields %d %d\n",ndof,nnod);
-    Swrite(srvr,fields,ndof*nnod*sizeof(double));
+    Sprintf(srvr,"state state %d %d\n",ndof,nnod);
+    Swrite(srvr,state_p,ndof*nnod*sizeof(double));
   }
-  delete[] fields;
+  delete[] state_p;
 
   // Send connectivities for each elemset
   Darray *elist = mesh->elemsetlist;
   for (int j=0; j<da_length(elist); j++) {
     Elemset *e = *(Elemset **)da_ref(elist,j);
-    e->dx(srvr,nodedata,fields);
+    e->dx(srvr,nodedata,state_p);
   }
-#endif
 
   // Send termination signal
   Sprintf(srvr,"end\n");

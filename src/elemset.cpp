@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.54 2003/02/05 19:28:42 mstorti Exp $
+//$Id: elemset.cpp,v 1.55 2003/02/07 18:51:47 mstorti Exp $
 
 #ifdef USE_DLEF
 #include <dlfcn.h>
@@ -1019,7 +1019,8 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   vector<int> node_indices;
   dx_indices(dx_type,node_indices);
 
-  Sprintf(sock,"icone %d %d %s %s\n",nelem,node_indices.size(),name());
+  Sprintf(sock,"elemset %s %s %d %d\n",name(),dx_type.c_str(),
+	  node_indices.size(),nelem);
   for (int j=0; j<nelem; j++) {
     int *row = icone+j*nel;
     for (int n=0; n<node_indices.size(); n++) {
@@ -1029,6 +1030,7 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
       Swrite(sock,&node,sizeof(int));
     }
   }
+  Sprintf(sock,"field %s_field nodes %s state\n",name(),name());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.40 2003/02/04 23:28:47 mstorti Exp $
+//$Id: nsi_tet.h,v 1.41 2003/02/07 18:51:43 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -381,11 +381,5 @@ double ctff(double x, double & diff_ctff, double tol=1e-5);
     @return a reference to the matrix. */ 
 void read_cond_matrix(TextHashTable *thash, const char *s,
 		      int ndof,FastMat2 &cond);
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Creates hooks depending on the name. 
-    @param name (input) the name of the hook. 
-    @return a pointer to eh created hook. */ 
-Hook *ns_hook_factory(const char *name);
 
 #endif

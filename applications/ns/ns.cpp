@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.120 2003/01/25 17:15:10 mstorti Exp $
+//$Id: ns.cpp,v 1.121 2003/02/07 18:51:43 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -21,6 +21,12 @@
 static char help[] = "PETSc-FEM Navier Stokes module\n\n";
 
 extern int MY_RANK,SIZE;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Creates hooks depending on the name. 
+    @param name (input) the name of the hook. 
+    @return a pointer to eh created hook. */ 
+Hook *ns_hook_factory(const char *name);
 
 //debug:=
 int TSTEP=0;
@@ -103,7 +109,7 @@ int main(int argc,char **args) {
   GLOBAL_OPTIONS = mesh->global_options;
 
   HookList hook_list;
-  hook_list.init(*mesh,*dofmap);
+  hook_list.init(*mesh,*dofmap,ns_hook_factory);
 
 #if 0
   //o If set, redirect output to this file.

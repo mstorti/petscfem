@@ -1,5 +1,5 @@
 //
-// time: Thu Feb  6 17:17:31 2003
+// time: Fri Feb  7 15:40:23 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -13,7 +13,8 @@ macro main(
 ) {
     // 
     // node ExtProgImport[1]: x = 169, y = 117, inputs = 2, label = ExtProgImport
-    // input[1]: defaulting = 0, visible = 1, type = 32, value = "localhost:5315"
+    // input[1]: defaulting = 0, visible = 1, type = 32, value = "localhost"
+    // input[2]: defaulting = 0, visible = 1, type = 1, value = 5315
     //
 main_ExtProgImport_1_out_1 = 
     ExtProgImport(
@@ -31,8 +32,8 @@ main_ExtProgImport_1_out_1 =
     ) [instance: 1, cache: 1];
 // network: end of macro body
 }
-main_ExtProgImport_1_in_1 = "localhost:5315";
-main_ExtProgImport_1_in_2 = NULL;
+main_ExtProgImport_1_in_1 = "localhost";
+main_ExtProgImport_1_in_2 = 5315;
 main_ExtProgImport_1_out_1 = NULL;
 main_Print_1_in_2 = "od";
 main_Print_1_in_3 = NULL;

@@ -159,6 +159,8 @@ measure_performance_loop_length 10
 #if $g_body
 G_body 0 -1.
 #endif
+
+hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof
@@ -167,8 +169,11 @@ __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
 elemset nsi_tet_les_fm2 4 
+name visc_fluid
 
-name malla
+dx 1
+dx_indices 1 2 4 3
+dx_type "quads"
 
 # report_consumed_time
 geometry cartesian2d

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.10 2003/02/07 14:41:31 mstorti Exp $
+// $Id: epimport.cpp,v 1.11 2003/02/07 18:51:47 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -272,6 +272,7 @@ int DXObjectsTable::get_state(string &name,Object &object) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
   array = NULL;
   array = DXNewArray(TYPE_DOUBLE, CATEGORY_REAL, 1,shape);
@@ -284,6 +285,26 @@ Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
   if (nread==EOF) return ERROR;
   return OK;
 }
+#else
+Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
+  array = NULL;
+  array = DXNewArray(TYPE_FLOAT, CATEGORY_REAL, 1,shape);
+  if (!array) return ERROR;
+  array = DXAddArrayData(array, 0, size, NULL);
+  if (!array) return ERROR;
+  float *array_p = (float *)DXGetArrayData(array);
+
+  int N = shape*size;
+  double *buffer = new double[N];
+  int nread = Sreadbytes(clnt,buffer,N*sizeof(double));
+  if (nread==EOF) return ERROR;
+
+  for (int j=0; j<N; j++) array_p[j] = (float) buffer[j];
+
+  delete[] buffer;
+  return OK;
+}
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Error build_dx_array_int(Socket *clnt,int shape,int size, Array &array) {
@@ -386,16 +407,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[4],nelem)) goto error;
       ierr = build_dx_array_int(clnt,nel,nelem,array);
       if(ierr!=OK) return ierr;
-#if 1
-      char * dx_type_s = strdup(dx_type.c_str());
-      if(!dx_type_s) return ierr;
-      array = (Array)
-	DXSetStringAttribute((Object)array,"element type",dx_type_s); 
-#else
       array = (Array)
  	DXSetStringAttribute((Object)array,
  			     "element type",(char *)dx_type.c_str()); 
-#endif
       if (!array) goto error;
       ierr = dx_objects_table
 	.load_new(name,new Elemset(nel,nelem,dx_type,array));
@@ -410,30 +424,35 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       string &pname = tokens[2];	// name of "positions" component
       ierr = dx_objects_table.get_positions(pname,positions);
       if(ierr!=OK) return ierr;
-      DXMessage("trace 0");
       string &cname = tokens[3];
       ierr = dx_objects_table.get_connections(cname,connections);
-      DXMessage("trace 1");
       if(ierr!=OK) return ierr;
       string &fname = tokens[4];
       ierr = dx_objects_table.get_state(fname,data);
-      DXMessage("trace 2");
       if(ierr!=OK) return ierr;
 
       // Build new field
       Field field = DXNewField();
       if (!field) goto error;
       field = DXSetComponentValue(field,"positions",(Object)positions); 
-      DXMessage("trace 3, positions %p",positions);
       if (!field) goto error;
       field = DXSetComponentValue(field,"connections",(Object)connections); 
       if (!field) goto error;
-      DXMessage("trace 4, connections %p",connections);
       field = DXSetComponentValue(field,"data",(Object)data); 
       if (!field) goto error;
       DXMessage("trace 5, data %p",data);
+
+#if 0
+      Point *box;
+      field = (Field)DXBoundingBox((Object)field,box);
+      if (!field) goto error;
+      DXMessage("trace 6.0, field %p",field);
+#endif
+
+#if 1
       field = DXEndField(field); if (!field) goto error;
       DXMessage("trace 6");
+#endif
 
       // Load new field in table
       ierr = dx_objects_table.load_new(name,new DXField(pname,cname,fname,field));

@@ -189,6 +189,7 @@ __END_HASH__
 ##================================================================
 elemset <:=($compressible ? 'gasflow' : 'nsi_tet_les_fm2'):> \
 			    <:= ($use_tetra ? 4 : 8):>
+name gasflow
 dx 1
 dx_indices 1 2 4 3
 dx_type "quads"
