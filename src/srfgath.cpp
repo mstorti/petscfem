@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.5 2004/01/28 01:19:54 mstorti Exp $
+//$Id: srfgath.cpp,v 1.6 2004/01/28 01:23:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -280,7 +280,7 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xi.rs();
 
       for (int j=0; j<nint; j++) indx[j] = j;
-#if 1
+#if 0
       printf("sorting angles\n");
       for (int j=0; j<nint; j++) printf("(%d,%g) ",j,alpha[j]);
       printf("\n");
@@ -302,11 +302,10 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	indx[kmin] = indx[j];
 	indx[j] = tmp;
       }
-#if 1
+#if 0
       for (int j=0; j<nint; j++) printf("(%d,%g) ",indx[j],alpha[j]);
       printf("\n");
 #endif
-      double AA = 0.;
       // Loop over subtriangles
       for (int j=0; j<nint; j++) {
 	// Value of u at the center of the triangle
@@ -331,14 +330,12 @@ int SurfGatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	xi.rs();
 	c.cross(a,b);
 	double area = c.norm_p_all(2.0)/2.0;
-	AA += area;
 
 	set_ip_values(ip_values,ut,xpg,n,t);
 	int pos = gather_pos + vals_per_plane * jval;
 	for (int j=0; j<vals_per_plane; j++) 
 	  (*values)[pos+j] += ip_values[j]*area;
       }
-      printf("area: %f\n",AA);
     }
   }  
  
