@@ -9,6 +9,13 @@ function [xnod,icone]= isomap(XNOD,ICONE,HH)
   edgey = min(edgey)+maxnode*(max(edgey)-1);
   n = HH(edgey);
 
+  if m==0 || n==0; 
+    printf("Not defined refinement"); 
+    ICONE,m,n;
+    if m==0, m=10; endif
+    if n==0, n=10; endif
+  endif
+
   w = zhomo([0 1 0 1],m+1,n+1);
   [xinod,icone] = pfcm2fem(w);
 
@@ -39,24 +46,22 @@ function [xnod,icone]= isomap(XNOD,ICONE,HH)
   X4 = X14(n+1,  :);
 
   xnod = zeros(size(xinod));
-  for k=1:rows(xnod);
-    xi  = xinod(k,1);
-    eta = xinod(k,2);
-    ii = 1+round(xi*m);
-    jj = 1+round(eta*n);
-    XBL = \
-	X1*(1-xi)*(1-eta)+ \
-	X2*    xi*(1-eta)+ \
-	X3*    xi*   eta + \
-	X4*(1-xi)*   eta;
-    XS = X1*(1-xi)+X2*xi;
-    XN = X4*(1-xi)+X3*xi;
-    XW = X1*(1-eta)+X4*eta;
-    XE = X2*(1-eta)+X3*eta;
-    XPL = \
-	(1-eta)*(X12(ii,:)-XS) + eta*(X43(ii,:)-XN) + \
-	(1-xi)*(X14(jj,:)-XW) + xi*(X23(jj,:)-XE);
-    xnod(k,:) = XBL + XPL;
-  endfor
+  xi  = xinod(:,1);
+  eta = xinod(:,2);
+  ii = 1+round(xi*m);
+  jj = 1+round(eta*n);
+  XBL = \
+      (1-xi).*(1-eta)*X1+ \
+      xi.*(1-eta)*X2+     \
+      xi.*eta*X3 +        \
+      (1-xi).*eta*X4;
+  XS = (1-xi)*X1+xi*X2;
+  XN = (1-xi)*X4+xi*X3;
+  XW = (1-eta)*X1+eta*X4;
+  XE = (1-eta)*X2+eta*X3;
+  XPL = \
+      leftscal((1-eta),(X12(ii,:)-XS)) + leftscal(eta,(X43(ii,:)-XN)) + \
+      leftscal((1-xi),(X14(jj,:)-XW)) + leftscal(xi,(X23(jj,:)-XE));
+  xnod = XBL + XPL;
 
 endfunction
