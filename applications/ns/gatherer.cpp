@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.8 2002/05/16 18:44:54 mstorti Exp $
+//$Id: gatherer.cpp,v 1.9 2002/05/16 19:24:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -154,6 +154,12 @@ void force_integrator::init() {
   compute_moment = (gather_length==2*ndim);
   force.resize(1,ndim);
   moment.resize(1,ndim);
+  x_center.resize(1,ndim).set(0.);
+  dx.resize(1,ndim);
+  dm.resize(1,ndim);
+  //o _T: double[ndim] _N: moment_center _D: null vector 
+  // _DOC: Center of moments. _END
+  get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -163,9 +169,17 @@ void force_integrator::set_pg_values(vector<double> &pg_values,FastMat2 &u,
   force.set(n).scale(-wpgdet*u.get(4));
   force.export_vals(pg_values.begin());
   if (compute_moment) {
-    force.set(n).scale(-wpgdet*u.get(4));
-  
-  // pg_values[0] = wpgdet;	// compute total area
+    dx.set(xpg).rest(x_center);
+    dm.cross(force,dx);
+    moment.add(dm);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void force_integrator::clean() {
+  force.clear();
+  x_center.clear();
+  moment.clear();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

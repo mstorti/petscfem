@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.10 2002/05/16 18:43:56 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.11 2002/05/16 19:24:57 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -708,8 +708,11 @@ FastMatCache::FastMatCache() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMatCache::~FastMatCache() {
   delete A;
+  A = NULL;
   delete B;
+  B = NULL;
   delete sc;
+  sc = NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.9 2002/05/16 18:44:54 mstorti Exp $
+//$Id: gatherer.h,v 1.10 2002/05/16 19:24:54 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -63,7 +63,7 @@ public:
 */ 
 class force_integrator : public gatherer {
 private:
-  FastMat2 force,moment;
+  FastMat2 force,moment,x_center,dx,dm;
   int compute_moment;
 public:
   /// perform several checks and initialization
@@ -72,6 +72,8 @@ public:
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
 		     double wpgdet,double time);
+  /// perform some cleaning
+  void clean();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
