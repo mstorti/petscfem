@@ -415,3 +415,8 @@ tag: beta-1.79 on Fri May 25 17:31:06 ART 2001, by mstorti in spider
      > Generic load element works 
      > Added a header for advdif. 
      > Added tests for generic load element.
+----------
+tag: beta-1.80 on Sat May 26 16:55:19 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added generic load element. 
+     > Run tests.
