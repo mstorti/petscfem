@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.2 2001/12/24 18:18:22 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.3 2001/12/26 15:36:13 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -145,8 +145,8 @@ int PFPETScMat::set_preco(const string & preco_type) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFPETScMat::destroy_sles"
-int PFPETScMat::destroy_sles() {
+#define __FUNC__ "PFPETScMat::clean_factor"
+int PFPETScMat::clean_factor() {
   if (sles_was_built) {
     int ierr = SLESDestroy(sles); CHKERRQ(ierr);
     sles=NULL;
@@ -158,12 +158,14 @@ int PFPETScMat::destroy_sles() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::destroy_sles"
-int IISDMat::destroy_sles() {
+#define __FUNC__ "IISDMat::clean_factor"
+int IISDMat::clean_factor() {
   int ierr;
-  clean_factor();
+  if (factored && local_solver == PETSc) {
+    ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
+  }
   if (sles_was_built) {
-    PFPETScMat::destroy_sles();
+    PFPETScMat::clean_factor();
     if (local_solver == PETSc) {
       ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
       A_LL = NULL;
@@ -796,10 +798,9 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
   }
   return 0;
-
 }
 
-
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::clean_factor"
@@ -809,6 +810,7 @@ int IISDMat::clean_factor() {
     ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
   }
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int IISDMat::warn_iisdmat=0;

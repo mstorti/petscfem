@@ -1,7 +1,9 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.11 2001/11/19 03:35:06 mstorti Exp $
+//$Id: texthash.cpp,v 1.11.4.1 2001/12/26 15:36:13 mstorti Exp $
  
-//  #include <stdio.h>
+#include <iostream>
+#include <strstream>
+#include <string>
 //  #include <string.h>
 //  #include "util2.h"
 #include "texthash.h"
@@ -94,6 +96,25 @@ void TextHashTable::add_entry(const char * key,const char * value) {
   g_hash_table_insert (hash,keycp,vnew);
 }
 
+void TextHashTable
+::add_entry(const char *key,const int *value,int n=1) {
+  ostrstream s;
+  for (int j=0; j<n; j++) s << value[j] << " ";
+  s << ends;
+  char *val = s.str();
+  add_entry(key,val);
+  s.freeze(0);
+}
+
+void TextHashTable
+::add_entry(const char *key,const double *value,int n=1) {
+  ostrstream s;
+  for (int j=0; j<n; j++) s << value[j] << " ";
+  s << ends;
+  char *val = s.str();
+  add_entry(key,val);
+  s.freeze(0);
+}
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

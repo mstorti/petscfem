@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.6 2001/12/25 22:14:26 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.7 2001/12/26 15:35:44 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -75,14 +75,17 @@ int main(int argc,char **args) {
   part.N = N;
   MY_RANK = myrank;
   SIZE = size;
-  IISDMat A(N,N,part,PETSC_COMM_WORLD);
+  IISDMat AA(N,N,part,PETSC_COMM_WORLD);
+  PFMat &A = AA;
   for (int j=0; j<N; j++) {
     if (j % size != myrank) continue; // Load periodically
     if (j+1<N) A.set_profile(j,j+1);
     if (j-1>=0) A.set_profile(j,j-1);
   }
-  A.set_option("iisd_subpart","2");
-  A.set_option("print_internal_loop_conv","1");
+  A.set_option("iisd_subpart",iisd_subpart);
+  A.set_option("print_internal_loop_conv",debug_print);
+  A.set_option("rtol",1e-8);
+  A.set_option("atol",0);
   A.create();
   if (debug_print) A.print();
 
@@ -95,7 +98,7 @@ int main(int argc,char **args) {
   ierr = VecDuplicate(b,&x); CHKERRA(ierr); 
   ierr = VecDuplicate(b,&xex); CHKERRA(ierr); 
 
-  for (int imat=1; imat<=nmat; imat++) {
+  for (int imat=0; imat<nmat; imat++) {
     A.zero_entries();
     if (myrank==0) {
       cond = 1. + ::drand();
@@ -109,7 +112,7 @@ int main(int argc,char **args) {
 
     for (int j=0; j<N; j++) {
       if (j % size != myrank) continue; // Load periodically
-    
+      if (j % 100 == 0) printf("adding %d\n",j);
       A.set_value(j,j,2.*coef);
       if (j+1 <  N ) A.set_value(j,j+1,-coef);
       if (j-1 >= 0 ) A.set_value(j,j-1,-coef);

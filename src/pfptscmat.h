@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.1 2001/12/24 03:59:56 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.2 2001/12/26 15:36:13 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -46,7 +46,7 @@ protected:
 
   virtual int factor_and_solve(Vec &res,Vec &dx)=0;
   virtual int solve_only(Vec &res,Vec &dx)=0;
-  virtual int clean_factor() {assert(0);}; // fixme:= make it pure
+  int clean_factor();
 
 public:
 
@@ -57,7 +57,6 @@ public:
   int duplicate(MatDuplicateOption op,const PFMat &A);
   int build_sles(TextHashTable *thash,char *name=NULL);
   int set_preco(const string & preco_type);
-  int destroy_sles();
   int monitor(int n,double rnorm);
 
   /// returns the number of iterations spent in the last solve
@@ -78,8 +77,10 @@ public:
     ::get_double(&thash,name,retval,defval,n);
   }
   /// Not defined yet
-  void set_option(const char *name,int *val,int n=1) { assert(0); };
-  void set_option(const char *name,double *val,int n=1) { assert(0); };
+  void set_option(const char *name,int *val,int n=1) {
+    thash.add_entry(name,val,n); }
+  void set_option(const char *name,double *val,int n=1) {
+    thash.add_entry(name,val,n); }
 
 };
 

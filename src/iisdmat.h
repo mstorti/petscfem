@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.5 2001/12/24 18:18:22 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.6 2001/12/26 15:36:13 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -150,6 +150,7 @@ class IISDMat : public PFPETScMat {
   */ 
   int solve_only(Vec &res,Vec &dx);
 
+  /// Clean all data related to factorization
   int clean_factor();
 
   /// The partitioner object
@@ -238,8 +239,6 @@ public:
   int view(Viewer viewer);
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
-  /// Destroy the SLES associated with the operator. 
-  int destroy_sles();
 
   void print(void);
   /// Constructor

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.5 2001/12/24 03:59:56 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.6 2001/12/26 15:36:13 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -92,7 +92,7 @@ public:
   virtual int build_sles()=0;
 
   /// Destroy the SLES associated with the operator. 
-  virtual int destroy_sles()=0;
+  virtual int clean_factor()=0;
 
   /** Defines how to report convergence in the internal loop. 
       Derive this function to obtain a different effect from the

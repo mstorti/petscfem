@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.2 2001/12/24 04:00:44 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.3 2001/12/26 15:35:44 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -17,7 +17,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 SRC_DIR = $(PETSCFEM_DIR)/src
 LIB := $(SRC_DIR)/libpetscfem.a
 LIB_OBJS := graph util2 iisdmat sparse spsolve distmat iisdcr \
-		iisdgraph spline seval debug
+		iisdgraph spline seval debug texthash
 LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
 
 $(LIB)(%.o):
