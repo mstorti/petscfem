@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: cloud2.cpp,v 1.1 2003/02/27 03:32:41 mstorti Exp $
+// $Id: cloud2.cpp,v 1.2 2003/02/28 15:37:37 mstorti Exp $
 #include <cmath>
 #include <src/util2.h>
 #include <src/dvector.h>
@@ -94,11 +94,14 @@ void Cloud2FastMat2::init(int ndim_a, int nx_a,
   n_fact.resize(nderiv);
   for (int j=0; j<nderiv; j++) {
     int index = derivs.e(j,0);
-    int f = 1;
-    int ee = 0;
     for (int l=1; l<ndim; l++) {
       assert(derivs.e(j,l)<=npol.e(l));
       index = index * (npol.e(l)+1) + derivs.e(j,l);
+    }
+
+    int f = 1;
+    int ee = 0;
+    for (int l=0; l<ndim; l++) {
       f *= facto(derivs.e(j,l));
       ee += derivs.e(j,l);
     }

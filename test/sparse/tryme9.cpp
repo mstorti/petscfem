@@ -1,12 +1,12 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme9.cpp,v 1.2 2003/02/27 14:55:07 mstorti Exp $
+// $Id: tryme9.cpp,v 1.3 2003/02/28 15:37:41 mstorti Exp $
 
 #include <src/cloud2.h>
 
 int main(int argc, char **argv) {
   Cloud2 cloud;
-  int nderiv = 5, nx = 9, ndim=2;
-  int derivs[] = {1,0,0,1,2,0,0,2,0,0};
+  int nderiv = 7, nx = 9, ndim=2;
+  int derivs[] = {0,0,1,0,0,1,2,0,0,2,1,1,2,2};
   int npol[] = {2,2};
   FastMat2 x(3,3,3,2), x0(1,2), w(2,nx,nderiv);
   for (int j=1; j<=3; j++) {
@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
     }
   }
   x.reshape(2,nx,ndim);
-  cloud.init(2,nx,ndim,derivs,npol);
+  cloud.init(ndim,nx,nderiv,derivs,npol);
   cloud.coef(x,w,x0);
-  w.print("w: ");
+  w.print();
 
 }

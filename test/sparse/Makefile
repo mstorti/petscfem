@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.19 2003/02/27 03:32:41 mstorti Exp $ 
+# $Id: Makefile,v 1.20 2003/02/28 15:37:41 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -77,11 +77,19 @@ tryme8.o: tryme8.cpp
 tryme8.bin: tryme8.o
 	g++ $(CXXOPTFLAGS) -o $@ $< 
 
-#w Checks for dvector class
+#w Checks for cloud class
 tryme9.o: tryme9.cpp 
 	g++ -c $(CXXOPTFLAGS) $(CPPFLAGS) -o $@ $<
 
-tryme9.bin: tryme9.o
-	$(MAKE) -C $(PETSCFEM_DIR)/src compile
+tryme9.bin: tryme9.o $(LIB_P)
 	g++ $(CXXOPTFLAGS) -o $@ $< $(LDFLAGS_NO_PROG_LIB)
+
+link9:
+	$(MAKE) -C $(PETSCFEM_DIR)/src compile
+	$(MAKE) tryme9.bin
+
+test_cloud: link9
+	tryme9.bin > tryme9.output.tmp
+	octave -qH check_cloud.m > verif.cloud.tmp
+
 #s

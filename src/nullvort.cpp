@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.7 2003/02/27 03:32:41 mstorti Exp $
+// $Id: nullvort.cpp,v 1.8 2003/02/28 15:37:38 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -7,6 +7,7 @@
 #include <src/surf2vol.h>
 #include <src/util2.h>
 #include <src/linkgraph.h>
+#include <src/cloud2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 null_vort::null_vort() { }
@@ -108,7 +109,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   // Maps a surface node to an index in coupling_nodes_table
   map<int,int> coupling_nodes_map;
 
-  set<int>::iterator q,qe=coupling_nodes.end();
+  set<int>::iterator q, qe=coupling_nodes.end();
   int cn_indx=0;
 
   // Fill with -1 in order to know which are already filled
@@ -143,14 +144,71 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     }
   }
 
+#if 0 // Prints table of node rows. 
   for (cn_indx=0; cn_indx<n_coupling_nodes; cn_indx++) {
     printf("row %d: ",cn_indx);
     for (int l=0; l<=layers; l++) 
       printf("%d ",coupling_nodes_table.e(cn_indx,l));
     printf("\n");
   }
+#endif
+
+  dvector<double> xnod;
+  xnod.a_resize(2,mesh->nodedata->nnod,mesh->nodedata->nu);
+  xnod.set(mesh->nodedata->nodedata);
+  int ndim = mesh->nodedata->ndim;
+
+  // Loop over nodes on the coupling surface
+  GSet ngb;
+  for (cn_indx=0; cn_indx<n_coupling_nodes; cn_indx++) {
+    // Node number (0-based)
+    int node = coupling_nodes_table.e(cn_indx,0);
+    // get neighbors (on the surface)
+    ngb.clear();
+    graph.set_ngbrs(node,ngb);
+    // Number of neighbors. We have a grid of
+    // ngb.size() nodes on the surface. For each
+    // node on the surface there is a row of (layers+1) nodes
+    // (including the surface node) in the direction
+    // nomal to the surface. This makes a total amount
+    // of `n_cloud = ngb.size()*(layers+1)' nodes. 
+    if (ngb.size()!=3) {
+      printf("No 3 ngbrs node: %d\n",node);
+      continue;
+    }
+    int nx = ngb.size() * (layers+1);
+
+    // Build the cloud 
+    Cloud2 cloud;
+    int derivs[] = {1,0,0,1};
+    int npol[] = {2,2};
+    cloud.init(ndim,nx,2,derivs,npol);
+    FastMat2 x(2,nx,ndim), x0(1,ndim), w(2,nx,2);
+    // Coordinates of surface node
+    x0.set(&xnod.e(node,0));
+    // Coordinates of nodes in the cloud
+    int k=0;
+    GSet::iterator q, qe=ngb.end();
+    for (q=ngb.begin(); q!=qe; q++) {
+      int sf_node = *q;
+      assert(coupling_nodes_map.find(sf_node)
+	     !=coupling_nodes_map.end());
+      cn_indx = coupling_nodes_map[sf_node];
+      for (int j=0; j<=layers; j++) {
+	// node in the cloud (0-based) (??)
+	int node2 = coupling_nodes_table.e(cn_indx,j);
+	x.ir(1,++k).set(&xnod.e(node2,0));
+      }
+    }
+    x.rs();
+    cloud.coef(x,w,x0);
+    x0.print("x0: ");
+    x.print("x: ");
+    w.print("w: ");
+  }
 
   icone.clear();
+  xnod.clear();
   coupling_nodes_table.clear();
   coupling_nodes_map.clear();
   graph.clear();
