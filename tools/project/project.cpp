@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project.cpp,v 1.14 2005/02/25 02:20:03 mstorti Exp $
+// $Id: project.cpp,v 1.15 2005/02/25 13:42:40 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -56,7 +56,7 @@ int main() {
     invC(2,nd1,nd1), invC2(2,nd1,nd1),
     invCt(2,nd1,nd1),
     x2(1,ndim),dx2(1,ndim),
-    x2prj(1,ndim), x12(1,ndim),
+    x2prj(1,ndim),x2prjmin(1,ndim), x12(1,ndim),
     x13(1,ndim),x1(1,ndim),
     nor(1,ndim),L(1,nd1),
     b(1,ndim+1);
@@ -67,7 +67,6 @@ int main() {
   FastMat2 Lmin(1,nd1);
   for (int n2=0; n2<nnod2; n2++) {
     x2.set(&xnod2.e(n2,0));
-    x2.print("x2");
     for (int k=0; k<nelem1; k++) {
       C.is(1,1,ndim);
       for (int j=0; j<nel; j++) {
@@ -140,9 +139,11 @@ int main() {
 	d2min = d2;
 	k1min = k;
 	Lmin.set(L);
-	x2prj.print("x2prj");
+	x2prjmin.set(x2prj);
       }
     }
+    x2.print("x2");
+    x2prjmin.print("x2prjmin");
     printf("node2 %d, dist min %f\n",n2,d2min);
   }
 }
