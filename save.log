@@ -3860,3 +3860,6 @@ tag: beta-3.41.4 on Wed, 26 Jan 2005 21:48:33 -0300 by mstorti in spider
 tag: beta-3.41.5 on Wed, 26 Jan 2005 22:16:10 -0300 by mstorti in spider
      > Works `gftwall' (Dirichlet b.c. on temperature) 
      > with the new `src/lagmul' class (based on `NewElemset'). 
+----------
+tag: beta-3.41.6 on Wed, 26 Jan 2005 22:49:33 -0300 by mstorti in spider
+     > Works `gasflow_abso' (based on `applications/advdif/nonlres'). 
