@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.20 2003/02/25 03:14:01 mstorti Exp $
+//$Id: embgath.h,v 1.21 2003/03/21 20:29:27 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -83,6 +83,10 @@ private:
   int compute_moment, ndim_m;
   /// Viscosity
   double viscosity;
+  /// Mask for deviatoric component of stress tensor 
+  double dev_comp_mask;
+  /// Mask for pressure (normal) component of stress tensor 
+  double pressure_comp_mask;
 public:
   /// Get dimension number, define #compute_moment#, viscosity
   void init();
