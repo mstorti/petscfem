@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: advabso.h,v 1.1 2005/01/25 23:27:53 mstorti Exp $
+// $Id: advabso.h,v 1.1.2.1 2005/01/27 01:37:50 mstorti Exp $
 #ifndef PETSCFEM_ADVABSO_H
 #define PETSCFEM_ADVABSO_H
 
@@ -66,5 +66,7 @@ public:
   gasflow_abso() 
     :  AdvectiveAbso(new gasflow_ff()) { } 
 };
+
+#undef gasflow_abso
 
 #endif
