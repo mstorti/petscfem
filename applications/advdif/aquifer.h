@@ -1,13 +1,58 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: aquifer.h,v 1.1 2002/01/14 10:37:05 mstorti Exp $
+// $Id: aquifer.h,v 1.2 2002/01/15 16:25:54 mstorti Exp $
 #ifndef AQUIFER_H
 #define AQUIFER_H
 
 #include "advective.h"
 
-class aquifer_ff : public NewAdvDifFF {
- public:
+class NewAdvDifFFEnth : public NewAdvDifFF {
+public:
+  /** Allows updating the data for the object. 
+      @param e (input) cofficients for updating the object
+  */ 
+  void update(const double *e) {};
+  /** Computes the enthalpy vector from the state vector
+      @param H (output) the enthalpy content vector
+      @param U (input) the state vector
+  */ 
+  virtual void enthalpy(FastMat2 &H, FastMat2 &U)=0;
+  /** Computes the product #(W_Cp_N)_(p,mu,q,nu) = W_p N_q Cp_(mu,nu)#
+      @param W_Cp_N (output) size #nel# x #ndof# x #nel# x #ndof#
+      @param W (input) weight function, size #nel#
+      @param N (input) interpolation function, size #nel#
+      @param w (input) scalar weight
+  */ 
+  virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+			   double w)=0;
+  /** Computes the product #(P_Cp)_(mu,nu) = (P_supg)_(mu,lambda) 
+      Cp_(lambda,nu)#
+      @param P_Cp (output) size #ndof# x #ndof#
+      @param P_supg (input) matricial weight function, size #ndof# x #ndof#
+  */ 
+  virtual void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg)=0;
+};
+
+class IncludedEnthalpyFun : EnthalpyFun {
+   NewAdvDifFFEnth 
+}
+
+
+class aquifer_ff : public NewAdvDifFFEnth {
+  // K:= eta:=  
+  /**  Basic properties, vertical position of aquifer bottom, hydraulic
+       permeability, storativity 
+  */
+  Property eta_pr,K_pr,S_pr;
+  /// Values of properties at an element
+  double eta,K,S;
+  /// Dimension of the problem (should be always 2)
+  int ndim;
+  /** Number of nodes per element, number of dof's per node, number of
+      propoerties per element
+  */
+  int nel,ndof,nelprops;
+public:
   /** This is called before any other in a loop and may help in
       optimization 
       @param ret_options (input/output) this is used by the flux
@@ -75,6 +120,28 @@ class aquifer_ff : public NewAdvDifFF {
   void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 		  FastMat2 &N,double w);
   //@}
+
+  /** @name Enthaply related functios */
+  //@{
+  /** Computes the enthalpy vector from the state vector
+      @param H (output) the enthalpy content vector
+      @param U (input) the state vector
+  */ 
+  void enthalpy(FastMat2 &H, FastMat2 &U);
+  /** Computes the product #(W_Cp_N)_(p,mu,q,nu) = W_p N_q Cp_(mu,nu)#
+      @param W_Cp_N (output) size #nel# x #ndof# x #nel# x #ndof#
+      @param W (input) weight function, size #nel#
+      @param N (input) interpolation function, size #nel#
+      @param w (input) scalar weight
+  */ 
+  void comp_W_Cp_N(FastMat2 &W_Cp_N,FastMat2 &W,FastMat2 &N,
+			   double w);
+  /** Computes the product #(P_Cp)_(mu,nu) = (P_supg)_(mu,lambda) 
+      Cp_(lambda,nu)#
+      @param P_Cp (output) size #ndof# x #ndof#
+      @param P_supg (input) matricial weight function, size #ndof# x #ndof#
+  */ 
+  void comp_P_Cp(FastMat2 &P_Cp,FastMat2 &P_supg);
 
   aquifer_ff(const NewAdvDif *e) : NewAdvDifFF(e) {}
 };
