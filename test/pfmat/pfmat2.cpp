@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.6 2003/07/03 04:32:11 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.7 2004/11/07 13:06:48 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -221,7 +221,7 @@ int main(int argc,char **args) {
       A.assembly_end(MAT_FINAL_ASSEMBLY); 
       if (myrank==0) {
 	fclose(fid);
-	if (oct_check) system("octave -q < checkpf.m >/dev/null");
+	if (oct_check) system("octave -qH < checkpf.m >/dev/null");
       }
       // A.view();
 
