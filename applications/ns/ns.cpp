@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.100 2002/09/18 20:53:17 mstorti Exp $
+//$Id: ns.cpp,v 1.101 2002/09/20 21:25:38 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -405,7 +405,7 @@ int main(int argc,char **args) {
 	    || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
 
 	if (update_jacobian_this_iter) {
-	  // ierr = A_tet->clean_factor(); CHKERRA(ierr); 
+	  ierr = A_tet->clean_mat(); CHKERRA(ierr); 
 	}
 
 	// Compute wall stresses

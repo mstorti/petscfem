@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.31 2002/09/05 19:24:01 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.32 2002/09/20 21:25:38 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -122,8 +122,6 @@ int IISDMat::create_a() {
   TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
   //o Print the Schur matrix (don't try this for big problems).
   TGETOPTDEF_ND_PF(thash,int,print_Schur_matrix,0);
-  //o Print Finite State Machine transitions
-  TGETOPTDEF_ND_PF(thash,int,print_fsm_transition_info,0);
   //o Print dof statistics, number of dofs local and interface in each
   // processor. 
   TGETOPTDEF(&thash,int,iisdmat_print_statistics,0);

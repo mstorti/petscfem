@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.5 2002/09/05 18:34:18 mstorti Exp $
+//$Id: pfmat.cpp,v 1.6 2002/09/20 21:25:38 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -50,6 +50,37 @@ PF_ACTION_LIST;
 class PFMat;
 
 #include "pfmatFSM.h"
+
+const char *from_g = "START", *event_g = "START", *to_g = "START";
+int transition_counter = 0;
+
+#define DEBUG_FSM_TRANSITION
+#ifdef DEBUG_FSM_TRANSITION
+#define PRINT_FSM_TRANSITION_INFO(from,event,to)	\
+  int mode = s.matrix_p->print_fsm_transition_info_f();	\
+  report_transition_event(from,event,to,mode)
+#endif
+
+void report_transition_event(const char *from, const char *event,
+			     const char *to,int mode) {
+  if (mode==1) {
+      printf("[%d] from: \"%s\", event \"%s\", to \"%s\"\n",
+	     MY_RANK,from_g,event_g,to_g);
+  } else if (mode==2) {
+    if (!(!strcmp(from,from_g) && !strcmp(event,event_g) && !strcmp(to,to_g))) {
+      if (transition_counter) 
+	printf("[%d] from: \"%s\", event \"%s\", to \"%s\"\n",
+	       MY_RANK,from_g,event_g,to_g);
+      if (transition_counter>1) printf(", [%d times]",transition_counter);
+      printf("\n");
+      transition_counter = 0;
+      from_g = from;
+      to_g = to;
+      event_g = event;
+    }
+    transition_counter++;
+  }
+}
 
 #include "pfmatFSM.cpp"
 

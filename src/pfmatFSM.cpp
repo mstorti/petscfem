@@ -29,204 +29,147 @@ void pfmatFSMState::set_value(pfmatFSM& s)
   {s.FSMError("set_value", s.GetState().StateName());}
 void pfmatFSMState::clear(pfmatFSM& s)
   {s.FSMError("clear", s.GetState().StateName());}
-void pfmatFSMState::asssemly_begin(pfmatFSM& s)
-  {s.FSMError("asssemly_begin", s.GetState().StateName());}
+void pfmatFSMState::asssembly_begin(pfmatFSM& s)
+  {s.FSMError("asssembly_begin", s.GetState().StateName());}
 void pfmatFSMState::create(pfmatFSM& s)
   {s.FSMError("create", s.GetState().StateName());}
 void pfmatFSMState::set_profile(pfmatFSM& s)
   {s.FSMError("set_profile", s.GetState().StateName());}
 void pfmatFSMfactoredState::clear(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"factored\", event: \"clear\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("factored","clear","factored");
   s.SetState(pfmatFSM::factoredState);
   s.clean_factor();
   s.clear();
 }
 void pfmatFSMfactoredState::set_value(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"factored\", event: \"set_value\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("factored","set_value","factored");
   s.SetState(pfmatFSM::factoredState);
   s.clean_factor();
 }
 void pfmatFSMfactoredState::clean_factor(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"factored\", event: \"clean_factor\", "
-           "to: \"assembled\"\n");
+  PRINT_FSM_TRANSITION_INFO("factored","clean_factor","assembled");
   s.SetState(pfmatFSM::assembledState);
   s.clean_factor_a();
   s.clean_mat_a();
 }
 void pfmatFSMfactoredState::solve(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"factored\", event: \"solve\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("factored","solve","factored");
   s.SetState(pfmatFSM::factoredState);
   s.solve_only_A();
 }
 void pfmatFSMfactoredState::solve_only(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"factored\", event: \"solve_only\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("factored","solve_only","factored");
   s.SetState(pfmatFSM::factoredState);
   s.solve_only_A();
 }
 void pfmatFSMfactoredState::clean_mat(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"factored\", event: \"clean_mat\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("factored","clean_mat","factored");
   s.SetState(pfmatFSM::factoredState);
+  s.clean_factor();
 }
 void pfmatFSMassembledState::assembly_begin(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"assembled\", event: \"assembly_begin\", "
-           "to: \"in_scatter\"\n");
+  PRINT_FSM_TRANSITION_INFO("assembled","assembly_begin","in_scatter");
   s.SetState(pfmatFSM::in_scatterState);
 }
 void pfmatFSMassembledState::solve(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"assembled\", event: \"solve\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("assembled","solve","factored");
   s.SetState(pfmatFSM::factoredState);
   s.factor_and_solve_A();
 }
 void pfmatFSMassembledState::factor_and_solve(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"assembled\", event: \"factor_and_solve\", "
-           "to: \"factored\"\n");
+  PRINT_FSM_TRANSITION_INFO("assembled","factor_and_solve","factored");
   s.SetState(pfmatFSM::factoredState);
   s.factor_and_solve_A();
 }
 void pfmatFSMassembledState::clear(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"assembled\", event: \"clear\", "
-           "to: \"assembled\"\n");
+  PRINT_FSM_TRANSITION_INFO("assembled","clear","assembled");
   s.SetState(pfmatFSM::assembledState);
   s.clean_mat();
   s.clean_prof();
 }
 void pfmatFSMassembledState::clean_mat(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"assembled\", event: \"clean_mat\", "
-           "to: \"profiled\"\n");
+  PRINT_FSM_TRANSITION_INFO("assembled","clean_mat","profiled");
   s.SetState(pfmatFSM::profiledState);
   s.clean_mat_a();
 }
 void pfmatFSMassembledState::set_value(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"assembled\", event: \"set_value\", "
-           "to: \"in_assembly\"\n");
+  PRINT_FSM_TRANSITION_INFO("assembled","set_value","in_assembly");
   s.SetState(pfmatFSM::in_assemblyState);
 }
 void pfmatFSMin_scatterState::assembly_end(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"in_scatter\", event: \"assembly_end\", "
-           "to: \"assembled\"\n");
+  PRINT_FSM_TRANSITION_INFO("in_scatter","assembly_end","assembled");
   s.SetState(pfmatFSM::assembledState);
 }
 void pfmatFSMin_assemblyState::clean_mat(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"in_assembly\", event: \"clean_mat\", "
-           "to: \"in_assembly\"\n");
+  PRINT_FSM_TRANSITION_INFO("in_assembly","clean_mat","in_assembly");
   s.SetState(pfmatFSM::in_assemblyState);
   s.assembly_begin();
   s.assembly_end();
   s.clean_mat();
 }
 void pfmatFSMin_assemblyState::assembly_begin(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"in_assembly\", event: \"assembly_begin\", "
-           "to: \"in_scatter\"\n");
+  PRINT_FSM_TRANSITION_INFO("in_assembly","assembly_begin","in_scatter");
   s.SetState(pfmatFSM::in_scatterState);
 }
 void pfmatFSMin_assemblyState::set_value(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"in_assembly\", event: \"set_value\", "
-           "to: \"in_assembly\"\n");
+  PRINT_FSM_TRANSITION_INFO("in_assembly","set_value","in_assembly");
   s.SetState(pfmatFSM::in_assemblyState);
 }
 void pfmatFSMprofiledState::assembly_begin(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiled\", event: \"assembly_begin\", "
-           "to: \"in_scatter\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiled","assembly_begin","in_scatter");
   s.SetState(pfmatFSM::in_scatterState);
 }
 void pfmatFSMprofiledState::set_value(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiled\", event: \"set_value\", "
-           "to: \"in_assembly\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiled","set_value","in_assembly");
   s.SetState(pfmatFSM::in_assemblyState);
 }
 void pfmatFSMprofiledState::clear(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiled\", event: \"clear\", "
-           "to: \"profiled\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiled","clear","profiled");
   s.SetState(pfmatFSM::profiledState);
   s.clean_mat();
 }
 void pfmatFSMprofiledState::clean_prof(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiled\", event: \"clean_prof\", "
-           "to: \"clean\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiled","clean_prof","clean");
   s.SetState(pfmatFSM::cleanState);
   s.clean_prof_a();
 }
 void pfmatFSMprofiledState::clean_mat(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiled\", event: \"clean_mat\", "
-           "to: \"profiled\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiled","clean_mat","profiled");
   s.SetState(pfmatFSM::profiledState);
   s.clean_mat_a();
 }
 void pfmatFSMprofiledState::clean_factor(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiled\", event: \"clean_factor\", "
-           "to: \"profiled\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiled","clean_factor","profiled");
   s.SetState(pfmatFSM::profiledState);
 }
 void pfmatFSMprofilingState::set_value(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiling\", event: \"set_value\", "
-           "to: \"profiling\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiling","set_value","profiling");
   s.SetState(pfmatFSM::profilingState);
   s.create();
   s.set_value();
 }
 void pfmatFSMprofilingState::create(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiling\", event: \"create\", "
-           "to: \"profiled\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiling","create","profiled");
   s.SetState(pfmatFSM::profiledState);
 }
 void pfmatFSMprofilingState::set_profile(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"profiling\", event: \"set_profile\", "
-           "to: \"profiling\"\n");
+  PRINT_FSM_TRANSITION_INFO("profiling","set_profile","profiling");
   s.SetState(pfmatFSM::profilingState);
 }
 void pfmatFSMcleanState::clear(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"clean\", event: \"clear\", "
-           "to: \"clean\"\n");
+  PRINT_FSM_TRANSITION_INFO("clean","clear","clean");
   s.SetState(pfmatFSM::cleanState);
 }
-void pfmatFSMcleanState::asssemly_begin(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"clean\", event: \"asssemly_begin\", "
-           "to: \"in_scatter\"\n");
+void pfmatFSMcleanState::asssembly_begin(pfmatFSM& s) {
+  PRINT_FSM_TRANSITION_INFO("clean","asssembly_begin","in_scatter");
   s.SetState(pfmatFSM::in_scatterState);
 }
 void pfmatFSMcleanState::create(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"clean\", event: \"create\", "
-           "to: \"profiled\"\n");
+  PRINT_FSM_TRANSITION_INFO("clean","create","profiled");
   s.SetState(pfmatFSM::profiledState);
 }
 void pfmatFSMcleanState::set_profile(pfmatFSM& s) {
-  if (s.matrix_p->print_fsm_transition_info_f())
-    printf("from: \"clean\", event: \"set_profile\", "
-           "to: \"profiling\"\n");
+  PRINT_FSM_TRANSITION_INFO("clean","set_profile","profiling");
   s.SetState(pfmatFSM::profilingState);
 }
 pfmatFSM::pfmatFSM() : itsState(&cleanState) {}

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.33 2002/09/16 00:16:29 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.34 2002/09/20 21:25:38 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -61,6 +61,11 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   lgraph(&lgraph_lkg), 
   // lgraph(&lgraph_dv), 
   A(NULL), P(NULL), factored(0), mat_size(MM) { 
+  int use_compact_profile,compact_profile_graph_chunk_size;
+
+  //o Print Finite State Machine transitions for PFPETScMat matrices.
+  // 1: print inmediately, 2: gather events (non immediate printing). 
+  TGETOPTDEF_ND_PF(thash,int,print_fsm_transition_info,0);
   //o Choice representation of the profile graph. Possible values are:
   // 0) Adjacency graph classes
   // based on STL map+set, demands too much memory, CPU time OK.
@@ -70,10 +75,10 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   // adjacent nodes. Each insertion is $O(m^2)$ where $m$ is the average
   // number of adjacent vertices. This seems to be optimal for
   // FEM connectivities.
-  TGETOPTDEF(GLOBAL_OPTIONS,int,use_compact_profile,LINK_GRAPH);
+  TGETOPTDEF_ND_PF(GLOBAL_OPTIONS,int,use_compact_profile,LINK_GRAPH);
   //o Size of chunk for the dynamic vector used in computing the
   // mstrix profile. 
-  TGETOPTDEF(GLOBAL_OPTIONS,int,compact_profile_graph_chunk_size,0);
+  TGETOPTDEF_ND_PF(GLOBAL_OPTIONS,int,compact_profile_graph_chunk_size,0);
   if (use_compact_profile==GRAPH_DV) {
 
     lgraph = &lgraph_dv;
@@ -910,8 +915,9 @@ int IISDMat::set_preco(const string & preco_type) {
     if ( !warn_iisdmat ) {
       warn_iisdmat=1;
       PetscPrintf(comm,
-		  "PETScFEM warning: IISD solver only support any\n"
-		  "preconditioning. Entered \"%s\", switching to \"PCNONE\"\n",
+		  "PETScFEM warning: only \"jacobi\" and \"none\" preconditionings "
+		  " allowed for IISD solver\n"
+		  "Entered \"%s\", switching to \"none\"\n",
 		  preco_type.c_str());
     }
   }

@@ -18,7 +18,7 @@ public:
   virtual void clean_factor(pfmatFSM& s);
   virtual void set_value(pfmatFSM& s);
   virtual void clear(pfmatFSM& s);
-  virtual void asssemly_begin(pfmatFSM& s);
+  virtual void asssembly_begin(pfmatFSM& s);
   virtual void create(pfmatFSM& s);
   virtual void set_profile(pfmatFSM& s);
 };
@@ -89,7 +89,7 @@ public:
   virtual const char* StateName() const
   {return("clean");};
   virtual void clear(pfmatFSM&);
-  virtual void asssemly_begin(pfmatFSM&);
+  virtual void asssembly_begin(pfmatFSM&);
   virtual void create(pfmatFSM&);
   virtual void set_profile(pfmatFSM&);
 };
@@ -113,7 +113,7 @@ class pfmatFSM : public pfmatFSMContext {
   void clean_factor() {itsState->clean_factor(*this);}
   void set_value() {itsState->set_value(*this);}
   void clear() {itsState->clear(*this);}
-  void asssemly_begin() {itsState->asssemly_begin(*this);}
+  void asssembly_begin() {itsState->asssembly_begin(*this);}
   void create() {itsState->create(*this);}
   void set_profile() {itsState->set_profile(*this);}
   void SetState(pfmatFSMState& theState) {itsState=&theState;}
