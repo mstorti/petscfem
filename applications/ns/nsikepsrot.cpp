@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.3 2002/04/05 20:13:00 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.4 2002/04/05 23:08:46 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -931,22 +931,16 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    }
 	  }
 
-// old version but wrong
-	 //  tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-	 //  matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
+	  if (weak_form) {
+	    tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
+	    tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
+	    matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16)
+	      .add(tmp162).rs();
+	  } else {
+	    tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
+	    matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
+	  }
  
-// new version (Mario) I hope it is OK
-        if (weak_form) {
-           tmp16.prod(P_supg,dshapex,1,2,3).scale(wpgdet);
-           tmp162.prod(dshapex,SHAPE,2,1,3).scale(-wpgdet);
-           matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16)
-                                            .add(tmp162).rs();
-       } else {
-           tmp16.prod(W_supg,dshapex,1,2,3).scale(wpgdet);
-           matlocf.is(2,1,ndim).ir(4,ndim+1).add(tmp16).rs();
-       }
- 
-	  //matlocf.ir(2,ndof).is(4,1,ndim);
 	  matlocf.ir(2,ndim+1).is(4,1,ndim);
 	  tmp17.prod(P_pspg,dmatw,3,1,2).scale(wpgdet);
 	  matlocf.rest(tmp17);
