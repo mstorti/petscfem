@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme6.cpp,v 1.2 2002/07/21 14:50:08 mstorti Exp $
+// $Id: tryme6.cpp,v 1.3 2002/07/21 16:00:36 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -9,6 +9,7 @@
 #include <set>
 
 #include "graphdv.h"
+#include "graphs.h"
 
 double drand() {  
   return ((double)(rand()))/((double)(RAND_MAX));
@@ -25,9 +26,9 @@ void v_print(dvector<int> v) {
 
 int main(int argc, char **argv) {
   graphdv g;
-  graphdv gg;
+  graph_stl gg;
   int kk;
-  int N = 100, M = int(N/10), NN = int(sqrt(N/2));
+  int N = 100000, M = int(N/10), NN = int(sqrt(N/2));
   for (kk=1; kk<=N; kk++) { 
     int k = irand(1,NN);
     int l = irand(1,NN);

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.4 2002/07/21 14:50:08 mstorti Exp $
+// $Id: dvector.h,v 1.5 2002/07/21 16:00:36 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 
@@ -22,7 +22,7 @@ private:
       @param chunk (output) number of chunk
       @param k (output) the position in chunk
   */ 
-  void reff(int j,int &chunk,int &k) {
+  inline void reff(int j,int &chunk,int &k) {
     chunk = j/chunk_size;
     k = j % chunk_size;
   }
@@ -86,7 +86,7 @@ public:
       @param j (input) position in the vector
       @return a reference to the object inside the vector 
   */ 
-  T &ref(int j) {
+  inline T &ref(int j) {
     assert(j>=0 && j<size_m);
     int chunk,k;
     reff(j,chunk,k);

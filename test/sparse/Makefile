@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2002/07/21 14:50:08 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2002/07/21 16:00:36 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -37,8 +37,6 @@ tryme2.bin: tryme2.o
 
 tryme3.bin: tryme3.o
 	${CXX_CLINKER} -o $@ $< 
-
-CXXOPTFLAGS = -g
 tryme4.o: tryme4.cpp dvector.h
 	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
 
@@ -49,8 +47,11 @@ tryme5.o: CPPFLAGS = -I/u/mstorti/SOFT/boost_1_28_0/ -ftemplate-depth-30
 tryme5.bin: tryme5.o
 	g++ -g -o $@ $<
 
+CXXOPTFLAGS = -O2
 tryme6.o: tryme6.cpp dvector.h graphdv.h
+	g++ -c $(CXXOPTFLAGS) -o $@ $< -I$(PETSCFEM_DIR)
+
 tryme6.bin: tryme6.o
-	g++ -g -o $@ $< 
+	g++ $(CXXOPTFLAGS) -o $@ $< 
 
 #s

@@ -1,21 +1,11 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graphdv.h,v 1.1 2002/07/21 14:50:08 mstorti Exp $
+// $Id: graphdv.h,v 1.2 2002/07/21 16:00:36 mstorti Exp $
 #ifndef GRAPHDV_H
 #define GRAPHDV_H
 
+#include "graphs.h"
 #include "dvector.h"
-
-double drand();
-int irand(int imin,int imax);
-
-class graph {
-public:
-  virtual void add(int j,int k)=0;
-  virtual void clear()=0;
-  virtual int size()=0;
-  virtual void print(const char *s= NULL)=0;
-};
 
 class int_pair { 
 public: 
@@ -41,15 +31,17 @@ private:
   int modif;
   void resync() { 
     if (modif) {
+      // printf("resyncing at size: %d\n",da.size());
       da.sort();
       da.shrink(da.remove_unique());
       modif = 0;
+      // printf("end resync.\n",da.size());
     }
   }
   // T* at(int q) { return (T*) da_ref(da,q); }
   void print2dv();
  public:
-  graphdv() { 
+  graphdv() : da (10000) { 
     ordered = 0; MAX_INIT = 1000; 
     max=MAX_INIT; modif=0; 
   }
@@ -60,11 +52,12 @@ private:
       da.push(p); modif=1;      
       int ds = da.size();
       if (ds > max) {
+	// launch automatic resync
 	resync();
-	int new_max = 2*ds;
-	if (new_max>max) {
+	int new_max = 2 * da.size();
+	if (new_max > max) {
 	  max = new_max;
-	  printf("new size %d\n",max);
+	  // printf("new size %d\n",max);
 	}
       }
     }  // else printf("already in set...\n");
