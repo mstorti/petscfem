@@ -3556,3 +3556,6 @@ tag: beta-3.37.40 on Sun, 19 Dec 2004 17:46:46 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.41 on Sun, 19 Dec 2004 19:58:01 -0300 by mstorti in spider
      > Written `NodeInfo' stuff. Compiles.
+----------
+tag: beta-3.37.42 on Sun, 19 Dec 2004 20:16:16 -0300 by mstorti in spider
+     > Working on `NodeInfo' stuff. 
