@@ -27,12 +27,8 @@
 
 ;;; Code:
 
-;;; $Id: petscfem-init.el,v 1.2 2003/11/24 00:06:50 mstorti Exp $
+;;; $Id: petscfem-init.el,v 1.3 2003/11/24 00:23:50 mstorti Exp $
 
-;; Load info-look if not already loaded. 
-(load-library "info-look")
-
-;; Add PETSc-FEM mode to the list of modes supported by info-look
 ;; You can replace this by a straight path, i.e. 
 ;; (defvar petscfem-info-file "/home/bob/petscfem/options.info")
 
@@ -44,11 +40,15 @@
 ;; is defined and want to point to the  `tools/options.info'
 ; (setq petscfem-info-file "/home/bob/petscfem/tools/options.info")
 
+;; Load info-look if not already loaded. 
+(load-library "info-look")
+
+;; Add PETSc-FEM mode to the list of modes supported by info-look
 ;; Load `info-look' definitions for `info-lookup'
 (info-lookup-maybe-add-help
  :mode 'petscfem-mode 
  :regexp "[_a-zA-Z0-9./+-]+"
- :doc-spec (list (list (concat petscfem-info-file "Options Index")))
+ :doc-spec (list (list (concat "(" petscfem-info-file ")Options Index"))))
 
 ;; This key bindings are util for pasting option names into the
 ;; data file. See the Emacs section in the PETSc-FEM documentation. 
