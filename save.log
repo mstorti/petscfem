@@ -2542,3 +2542,7 @@ tag: beta-3.18.pl39 on Thu, 20 Mar 2003 15:23:09 -0300 by mstorti in node1.beowu
 tag: beta-3.18.pl40 on Thu, 20 Mar 2003 19:58:47 -0300 by mstorti in spider
      > Renamed `spiller->spillway'. Changed `p=patm' condition
      > on free surface for slip. 
+----------
+tag: beta-3.18.pl41 on Thu, 20 Mar 2003 22:47:21 -0300 by mstorti in spider
+     > Found a bug in spiller data. `G_body' goes
+     > in the global options. 
