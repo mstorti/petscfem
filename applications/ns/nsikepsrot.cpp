@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.27 2002/10/13 13:59:46 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.28 2002/11/02 20:51:57 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -360,11 +360,15 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     if (get_nearest_wall_element) {
       assert(LES);
+#ifdef USE_ANN
       xc.sum(xloc,-1,1).scale(1./double(nelr));
       int nn;
       wall_data->nearest(xc.storage_begin(),nn);
       NN_IDX(k) = nn;
       continue;
+#else
+      PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
     }
 
     double grad_div_u_coef=0.;	// multiplies grad_div_u term
@@ -526,11 +530,15 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     double shear_vel;
     int wall_elem;
     if (LES && comp_mat_res) {
+#ifdef USE_ANN
       Elemset *wall_elemset;
       const double *wall_coords_;
       wall_data->nearest_elem_info(NN_IDX(k),wall_elemset,wall_elem,wall_coords_);
       wall_coords.set(wall_coords_);
       shear_vel = wall_elemset->elemprops_add[wall_elem];
+#else
+      PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
     }
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])

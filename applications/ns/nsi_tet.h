@@ -1,10 +1,12 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.34 2002/10/07 00:26:08 mstorti Exp $
+//$Id: nsi_tet.h,v 1.35 2002/11/02 20:51:57 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
+#ifdef USE_ANN
 #include <ANN/ANN.h>			// ANN declarations
+#endif
 #include <vector>			// ANN declarations
 
 #include <src/secant.h>
@@ -84,10 +86,12 @@ typedef vector<ElemToPtr> ElemToPtrV;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class WallData {
 private:
+#ifdef USE_ANN
   /// The octree
   ANNkd_tree *kd_tree;                 // search structure
   /// The position of the points
   ANNpointArray	data_pts;		// data points
+#endif
   /// Number of points
   int npoints;
   /// number of spacial dimensions
@@ -100,9 +104,11 @@ public:
   /// constructor from a vector of coordinates, pointers and dimensions
   WallData(vector<double> *data_pts_,vector<ElemToPtr>
 	   *elemset_pointer,int ndim_);
+#if USE_ANN
   /// find the nearest neighbor
   void nearest(const ANNpoint &point, Elemset *& elemset, int &elem, ANNidx &nn_idx,
 	       ANNpoint &nn,ANNdist &dist);
+#endif
   /// find the nearest neighbor (short version) only returns the index.
   void nearest(double *point,int &nn);
   /** Give wall element info. 

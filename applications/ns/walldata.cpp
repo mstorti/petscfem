@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: walldata.cpp,v 1.7 2002/01/14 03:45:05 mstorti Exp $
+//$Id: walldata.cpp,v 1.8 2002/11/02 20:51:57 mstorti Exp $
  
 #include <src/fem.h>
 //  #include <src/readmesh.h>
@@ -16,6 +16,7 @@ extern int MY_RANK,SIZE;
 #define __FUNC__ "WallData::WallData()"
 WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
 		   *elemset_pointer_,int ndim_) {
+#ifdef USE_ANN
 #ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
   ndim=ndim_;
   npoints = data_pts_->size()/ndim;
@@ -36,10 +37,14 @@ WallData::WallData(vector<double> *data_pts_,vector<ElemToPtr>
 #else
   assert(0); // I Think this is a compiler bug see 'notes.txt'
 #endif
+#else
+  PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
 }
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#ifdef USE_ANN
 #undef __FUNC__
 #define __FUNC__ "void WallData::nearest()"
 void WallData::nearest(const ANNpoint &point, Elemset *& elemset, int &elem, ANNidx &nn_idx,
@@ -58,7 +63,7 @@ void WallData::nearest(const ANNpoint &point, Elemset *& elemset, int &elem, ANN
   if (kk>0) prev = elemset_pointer[kk-1].first;
   elem = nn_idx-prev;
 }
-    
+#endif
 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -66,9 +71,13 @@ void WallData::nearest(const ANNpoint &point, Elemset *& elemset, int &elem, ANN
 #define __FUNC__ "void WallData::nearest()"
 void WallData::nearest(double *point,int &nn) {
 
+#ifdef USE_ANN
   static int KNBR=1;
   double dist;
   kd_tree->annkSearch(point,KNBR,&nn,&dist,0);
+#else
+  PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
 }
     
 
@@ -77,6 +86,7 @@ void WallData::nearest(double *point,int &nn) {
 #define __FUNC__ "void WallData::nearest_elem_info"
 void WallData::nearest_elem_info(const int nn, Elemset *& elemset,
 				 int &elem, const double *& coords) {
+#ifdef USE_ANN
   int kk;
   for (kk=0; kk<nelemset; kk++) {
     if (nn< elemset_pointer[kk].first) break;
@@ -86,5 +96,7 @@ void WallData::nearest_elem_info(const int nn, Elemset *& elemset,
   if (kk>0) prev = elemset_pointer[kk-1].first;
   elem = nn-prev;
   coords = data_pts[kk];
+#else
+    PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
 }
-    

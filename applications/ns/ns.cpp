@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.111 2002/10/13 13:59:46 mstorti Exp $
+//$Id: ns.cpp,v 1.112 2002/11/02 20:51:57 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -326,6 +326,7 @@ int main(int argc,char **args) {
   vector<ElemToPtr> elemset_pointer;
   WallData *wall_data=NULL;
   if (LES) {
+#ifdef USE_ANN
     argl.clear();
     argl.arg_add(&data_pts,USER_DATA);
     argl.arg_add(&elemset_pointer,USER_DATA);
@@ -342,9 +343,12 @@ int main(int argc,char **args) {
     argl.arg_add(wall_data,USER_DATA);
     ierr = assemble(mesh,argl,dofmap,"get_nearest_wall_element",
 		    &time); CHKERRA(ierr); 
+#else
+    PETSCFEM_ERROR0("Not compiled with ANN library!!\n");
+#endif
   }
 
-#if 0 
+#if 0 && defined USE_ANN
   ANNpoint point = annAllocPt(ndim);
   ANNidx nn_idx;
   ANNpoint nn = annAllocPt(ndim);

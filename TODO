@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* `html' target in `doc' is duplicated and `make' complains. 
 * Add a test for advdif with null weight processor
 * Add edge weights to graph partitioning in `metisprt.cpp'
 * Make `report_consumed_time' to report the time spent in computing

@@ -223,26 +223,18 @@ is defined in <CODE>$(PETSC_HOME)/bmake/$(PETSC_ARCH)</CODE>).</P>
 The <CODE>PROF_FLAGS</CODE> variables allows you to turn on profiling. By default, profiling is deactivated.
 <P></P>
 <LI>
-The remaining are Makefile variables that point to directories
-containing headers or libaries of required software. The lines come
-commented out and a line like this
-<PRE>
-   include $(PETSCFEM_DIR)/../Makefile.defs</PRE>
-<P>includes a file containing the definitions. You have to either</P>
-<UL>
-<LI>
-Comment the <CODE>include</CODE> file out, uncomment the variable
-definition lines and set the appropriate values, or
-<P></P>
-<LI>
-Edit a file <EM>$(PETSCFEM_DIR)/../Makefiles.defs</EM> (i.e., in the
-directory inmediately above the <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> directory)
-containing the appropriate definitions.
+Other configuration variables are defined in a file <CODE>Makefile.defs</CODE>,
+but normally they are set only when you first install PETSc-FEM, so
+the best is to put <CODE>Makefile.defs</CODE> in the directory inmediately above
+PETSc-FEM directory (i.e. <CODE>$(PETSCFEM_DIR)/..</CODE>).  So that, if you
+install another version of PETSc-FEM, the settings will be seen
+immediately by the new version. A version of <CODE>Makefile.defs</CODE> is
+included in the PETSc-FEM directory.  Copy it to the directory _above_
+the PETSC-FEM directory and configure the variables inside. If you
+install another version of PETSc-FEM then probably you have not to
+configure again these variables, unless a new package has been added
+or you have moved it.
 <P></P></UL>
-<P>This last strategy allows you to configure several versions of
-<STRONG>PETSc-FEM</STRONG> at the same directory, or changing the <STRONG>PETSc-FEM</STRONG>
-version without having to reenter the variables.</P>
-</UL>
 <P>
 <H2><A NAME="compiling">Compiling</A></H2>
 <P><CODE>cd</CODE> to directory <A HREF="#item_%24%28PETSCFEM_DIR%29"><CODE>$(PETSCFEM_DIR)</CODE></A> and do</P>

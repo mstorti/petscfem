@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.102 2002/11/02 16:09:13 mstorti Exp $
+#$Id: Makefile.base,v 1.103 2002/11/02 20:51:54 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -60,7 +60,7 @@ endif
 # If the $(ANN_HOME) variable is not set then doesn't compile with the
 # ANN library
 ifneq ($(ANN_HOME),)
-ANN_CPPFLAGS = -I$(ANN_HOME)/include $(CPPFLAGS) 
+ANN_CPPFLAGS = -DUSE_ANN -I$(ANN_HOME)/include
 ANN_LDFLAGS = -lANN -L$(ANN_HOME)/lib 
 endif
 
