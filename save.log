@@ -2984,3 +2984,7 @@ tag: beta-3.23 on Sun, 14 Sep 2003 10:59:22 -0300 by mstorti in spider
 ----------
 tag: beta-3.23.pl1 on Sun, 14 Sep 2003 10:59:22 -0300 by mstorti in spider
      > Administrative ltag. 
+----------
+tag: beta-3.23.pl2 on Sun, 14 Sep 2003 18:49:26 -0300 by mstorti in spider
+     > Settled version policy in `notes.txt'
+     > Added test for exception handling in `advdif'. 
