@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.3 2004/01/11 17:13:52 mstorti Exp $
+// $Id: syncbuff.h,v 1.4 2004/01/11 17:31:01 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -94,8 +94,8 @@ private:
       @param s (input) the line of the text */ 
   void build(int key,const char *s);
 public:
-  /// Flags whether lines are printed to the output
-  static int print_line_numbers;
+  /// Flags whether the keys are printed to the output
+  static int print_keys;
   /// The output stream
   static FILE *output;
   /// Default constructor 

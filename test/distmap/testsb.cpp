@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.1 2004/01/11 16:22:09 mstorti Exp $
+// $Id: testsb.cpp,v 1.2 2004/01/11 17:31:04 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -11,6 +11,7 @@
 #include <cstdio>
 
 #include <src/syncbuff.h>
+#include <src/syncbuff2.h>
 
 int SIZE, MY_RANK;
 
@@ -132,11 +133,11 @@ int main(int argc,char **argv) {
 #if 0
   FILE *out = fopen("output.dat","w");
   KeyedLine::output = out;
-  KeyedLine::print_line_numbers = 0;
-  kbuff.print();
+  KeyedLine::print_keys = 0;
+  kbuff.flush();
   fclose(out);
 #else
-  kbuff.print();
+  kbuff.flush();
 #endif
 
 #endif

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.2 2004/01/11 16:22:04 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.3 2004/01/11 17:31:01 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -11,43 +11,57 @@
 #include <cstdio>
 
 #include <src/syncbuff.h>
+#include <src/syncbuff2.h>
 
 using namespace std;
 
+/// This is the stream where all elements are printed. 
 FILE * KeyedLine::output = stdout;
-int KeyedLine::print_line_numbers = 1;
+/// Flags whether line numbers are printed. 
+int KeyedLine::print_keys = 1;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int operator<(const KeyedLine& left, const KeyedLine& right) {
+  // Simply compare the keys
   return left.key < right.key;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int KeyedLine::size_of_pack() const {
+  // To pack, we could store only the key and the
+  // string, since we could deduce the length in unpack
+  // with strlen. But we add the length for better checking. 
   return 2*sizeof(int)+strlen(line)+1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void KeyedLine::pack(char *&buff) const {
+  // Pack the key
   memcpy(buff,&key,sizeof(int));
   buff += sizeof(int);
 
+  // Pack the string length
   int len = strlen(line);
   memcpy(buff,&len,sizeof(int));
   buff += sizeof(int);
 
+  // Pack the string itself
   memcpy(buff,line,strlen(line)+1);
   buff += strlen(line)+1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void KeyedLine::unpack(const char *& buff) {
+  // Unpack the key
   memcpy(&key,buff,sizeof(int));
   buff += sizeof(int);
 
+  // Unpack the string length
   int len;
   memcpy(&len,buff,sizeof(int));
   buff += sizeof(int);
+
+  // Unpack the string
   assert(!line);
   line = new char[len+1];
   memcpy(line,buff,len+1);
@@ -56,7 +70,8 @@ void KeyedLine::unpack(const char *& buff) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void KeyedLine::print() {
-  if (print_line_numbers) 
+  // Prints the line with or without the keys. 
+  if (print_keys) 
     fprintf(output,"%d: %s\n",key,line);
   else 
     fprintf(output,"%s\n",line);
@@ -64,8 +79,11 @@ void KeyedLine::print() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 KeyedLine::KeyedLine(const KeyedLine &kl) {
+  // Copys constructor
+  // Cosnider the self copy case. 
   if (this==&kl) return;
   key = kl.key;
+  // Consider the special case of a void object
   if (kl.line) {
     line = new char[strlen(kl.line)+1];
     memcpy(line,kl.line,strlen(kl.line)+1);
@@ -74,6 +92,7 @@ KeyedLine::KeyedLine(const KeyedLine &kl) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void KeyedLine::build(int k,const char *s) {
+  // Internal function that builds an instance from key and C-string. 
   key = k;
   int len = strlen(s);
   line = new char[len+1];
@@ -81,21 +100,34 @@ void KeyedLine::build(int k,const char *s) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// Ctor 
 KeyedLine::KeyedLine(int k,const char *s) { build(k,s); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// Ctor 
 KeyedLine::KeyedLine(int k,const AutoString &as) { 
   build(k,as.str()); 
 }
 
+// This is the tricky part due to the problem
+// with partial template specializations
 SYNC_BUFFER_FUNCTIONS(KeyedLine);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// Special shortcut to the push functions
 void KeyedOutputBuffer::push(int k,const AutoString &as) {
   push_back(KeyedLine(k,as.str()));
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+// Special shortcut to the push functions
 void KeyedOutputBuffer::push(int k,const char *s) {
   push_back(KeyedLine(k,s));
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::flush() {
+  // Print and clear
+  print();
+  clear();
 }
