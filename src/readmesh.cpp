@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.74 2003/02/12 19:32:09 mstorti Exp $
+//$Id: readmesh.cpp,v 1.75 2003/02/13 14:11:46 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -59,6 +59,10 @@ void metis_part(int nelemfat,Mesh *mesh,
 #define ELEMIPROPS(j,k) VEC2(elemiprops,j,k,neliprops)
 #define NODEDATA(j,k) VEC2(mesh->nodedata->nodedata,j,k,nu)
 
+#define CHECK_PAR_ERR(ierro)					\
+      ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
+      PETSCFEM_ASSERT0(!ierro,"");  
+      
 // fixme:= aca no se porque tuve que pasar neq por referenciar
 // porque sino no pasaba correctamente el valor. 
 #undef __FUNC__
@@ -195,10 +199,15 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       const char *data = NULL;
       mesh->nodedata->options->get_entry("data",data);
       assert(data);
+      FileStack *fstack_nodes_data;
+      if (!myrank) {
+	fstack_nodes_data = new FileStack(data);
+	ierro = !fstack_nodes_data->ok();
+      }
+      CHECK_PAR_ERR(ierro);
       if (!myrank) {
 	xnod = da_create(nu*sizeof(double));
-	FileStack fstack_nodes_data(data);
-	while (!fstack_nodes_data.get_line(line)) {
+	while (!fstack_nodes_data->get_line(line)) {
 	  astr_copy_s(linecopy, line);
 	  node++;
 	  for (int kk=0; kk<nu; kk++) {
@@ -213,16 +222,14 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	  int indx = da_append (xnod,row);
 	  if (indx<0) PFEMERRQ("Insufficient memory reading nodes");
 	}
-	ierro = fstack_nodes_data.last_error()!=FileStack::eof;
+	ierro = fstack_nodes_data->last_error()!=FileStack::eof;
 	if (ierro) printf("Couldn't process correctly node data file %s\n",
-			 fstack_nodes_data.file_name());
+			 fstack_nodes_data->file_name());
 	nnod=node;
+	fstack_nodes_data->close();
+	delete fstack_nodes_data;
       }
-#define CHECK_PAR_ERR(ierro)					\
-      ierr = MPI_Bcast (&ierro,1,MPI_INT,0,PETSC_COMM_WORLD);	\
-      PETSCFEM_ASSERT0(!ierro,"");  
       CHECK_PAR_ERR(ierro);
-      
       ierr = MPI_Bcast (&nnod,1,MPI_INT,0,PETSC_COMM_WORLD);
       dofmap->nnod = nnod;
       mesh->nodedata->nnod = nnod;
@@ -449,19 +456,24 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       DONE:;
       } else {
 	Autobuf *tempo = abuf_create();
+	FileStack *file_connect;
 	if (!myrank) {
-	  FileStack file_connect(data);
+	  file_connect = new FileStack(data);
+	  ierro = !file_connect->ok();
+	}
+	CHECK_PAR_ERR(ierro);
+	if (!myrank) {
 	  nelem=0;
-	  while (!file_connect.get_line(line)) {
+	  while (!file_connect->get_line(line)) {
 	    // reading element connectivities
 	    for (int jel=0; jel<nel; jel++) {
 	      token =  strtok(( jel==0 ? line : NULL),bsp);
-	      if (!token) file_connect.print();
+	      if (!token) file_connect->print();
 	      PETSCFEM_ASSERT(token,
 			      "Error reading element connectivities at\n"
-			      "%s:%d: \"%s\"",file_connect.file_name(),
-			      file_connect.line_number(),
-			      file_connect.line_read());
+			      "%s:%d: \"%s\"",file_connect->file_name(),
+			      file_connect->line_number(),
+			      file_connect->line_read());
 	      sscanf(token ,"%d",&node);
 	      icorow[jel]= node;
 	    }
@@ -500,10 +512,11 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	    CHKERRQ(ierr);
 	    nelem++;
 	  }
-	  ierro = file_connect.last_error()!=FileStack::eof;
+	  ierro = file_connect->last_error()!=FileStack::eof;
 	  if (ierro) printf("Couldn't process correctly connectivity file%s\n",
-			    file_connect.file_name());
-	  file_connect.close();
+			    file_connect->file_name());
+	  file_connect->close();
+	  delete file_connect;
 	}
 	CHECK_PAR_ERR(ierro);
 	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSC_COMM_WORLD);
