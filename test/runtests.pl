@@ -1220,7 +1220,15 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 for ($case=1; $case<=8; $case++) {
-   expect("pfmat/output.case$case.tmp","PFMat abstract class/Case $case",
+   expect("pfmat/output.case$case.tmp",
+       "PFMat/case$case/(local_solver=PETsc)",
+      "All tests OK.*1");
+}
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=8; $case++) {
+   expect("pfmat/output.case${case}s.tmp",
+       "PFMat/case$case/(local_solver=SuperLU)",
       "All tests OK.*1");
 }
 

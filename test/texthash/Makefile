@@ -1,5 +1,7 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.2 2001/04/01 03:11:48 mstorti Exp $ 
+# $Id: Makefile,v 1.2.12.1 2002/01/05 23:50:26 mstorti Exp $ 
+
+tests: texthash
 
 #s Local Targets
 #w Runs the test
@@ -7,6 +9,7 @@ texthash: tthash.bin
 	$< >tthash.sal
 
 SRCS = tthash.cpp
+LIB_OBJS := texthash
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -16,7 +19,7 @@ CLEAN_DIRS =
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 #w Builds the binary of the test
-tthash.bin: tthash.o libpetscfem
+tthash.bin: $(LIB_OBJS_LIB)  tthash.o 
 	-rm -f $@
 	${CXX_CLINKER} -o $@ tthash.o $(LIBPETSCFEM) $(LDFLAGS)
 

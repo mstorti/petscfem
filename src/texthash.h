@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: texthash.h,v 1.7.4.1 2001/12/26 15:36:13 mstorti Exp $
+//$Id: texthash.h,v 1.7.4.2 2002/01/05 23:50:19 mstorti Exp $
 
 #ifndef __TEXTHASH_H__
 #define __TEXTHASH_H__
@@ -56,7 +56,7 @@ public:
   // Constructor from the string
   TextHashTableVal(const char *s_=NULL);
   // Destructor
-  ~TextHashTableVal() {delete s;};
+  ~TextHashTableVal() {delete[] s;};
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

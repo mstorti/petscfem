@@ -29,6 +29,14 @@ $(ADVDIF): force
 local_clean::
 	-rm -f *.o *.sal tmp_file_*.tmp *.bin *~ *.tmp \
 		machi.dat weights.dat rm *.depl .gdbinit
+
+SRC_DIR = $(PETSCFEM_DIR)/src
+LIB := $(SRC_DIR)/libpetscfem.a
+LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
+
+$(LIB)(%.o):
+	$(MAKE) -C $(SRC_DIR) 'libpetscfem.a($*.o)'
+
 #	-chmod +w *.depl ; 
 #	for dir in $(CLEAN_DIRS) ; \
 #		do $(MAKE) -C $$dir lclean ;\

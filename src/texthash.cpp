@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: texthash.cpp,v 1.11.4.1 2001/12/26 15:36:13 mstorti Exp $
+//$Id: texthash.cpp,v 1.11.4.2 2002/01/05 23:50:19 mstorti Exp $
  
 #include <iostream>
 #include <strstream>
@@ -79,20 +79,26 @@ TextHashTable::TextHashTable () {
 #define __FUNC__ "void TextHashTable::add_entry"
 void TextHashTable::add_entry(const char * key,const char * value) {
   TextHashTableVal *vold,*vnew;
-  int keylen;
+  char *orig_key, *keycp;
+  void *orig_key_v, *vold_v;
+  int keylen, exists;
   keylen=strlen(key);
-  vnew = new TextHashTableVal(value);
-  vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
-  if (vold) {
+  exists = g_hash_table_lookup_extended (hash,key,&orig_key_v,&vold_v);
+  // vold = (TextHashTableVal *)g_hash_table_lookup(hash,key);
+  if (exists) {
+    vold = (TextHashTableVal *) vold_v;
+    orig_key = (char *) orig_key_v;
+    if (!strcmp(vold->s,value)) return;
     printf("warning: redefining entry\n"
 	   "key: %s\n"
 	   "old value: %s\n"
-	   "new value: %s\n",key,vold->s,vnew->s);
+	   "new value: %s\n",key,vold->s,value);
     delete vold;
-  }
+    keycp = orig_key; // reuse old key
+  } else keycp = local_copy(key);
+
+  vnew = new TextHashTableVal(value);
   // copy strings on new 
-  char *keycp;
-  keycp = local_copy(key);
   g_hash_table_insert (hash,keycp,vnew);
 }
 

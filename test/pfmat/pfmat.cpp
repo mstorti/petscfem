@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.15 2002/01/05 14:48:19 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.16 2002/01/05 23:50:26 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -130,7 +130,7 @@ int main(int argc,char **args) {
 
   CHKOPT(ls);
   local_solver=0;
-  if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&q_type);
+  if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&local_solver);
   ierr = MPI_Bcast (&local_solver,1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,"local_solver %d  "
 	      "(0 -> PETSc, 1 -> SuperLU)\n",local_solver);
@@ -219,7 +219,6 @@ int main(int argc,char **args) {
 
       // A.view(VIEWER_STDOUT_WORLD);
       ierr = A.solve(b,x); CHKERRA(ierr); 
-#if 1
 
       if (debug_print) {
 	PetscPrintf(PETSC_COMM_WORLD,"b: \n");
@@ -242,9 +241,7 @@ int main(int argc,char **args) {
 		  "||x-xex||/||xex|| = %g, tol %g\n",this_ok,
 		  norm,norm/normex,tol);
       if (!this_ok) tests_ok = 0;
-#endif
     }
-
     A.clean_factor(); 
   }
   PetscPrintf(PETSC_COMM_WORLD,"All tests OK ?  %d\n",tests_ok);
