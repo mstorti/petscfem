@@ -11,6 +11,7 @@ $file = shift();
 open LICENSE,$license_file;
 $pattern = <LICENSE>;
 chomp $pattern;
+$pattern =~ s/<L>/INSERT_LICENSE/g;
 $tag  = <LICENSE>;
 @license=<LICENSE>;
 close LICENSE;

@@ -17,8 +17,8 @@ licenses: license.script license.c license.tex
 
 #w license for makefiles and scripts
 license.script: license.txt
-	echo "#__INSERT_LICENSE__" > $@
-	echo "#__INSERT_LICENSE__" >> $@
+	echo "#__<L>__" > $@
+	echo "#__<L>__" >> $@
 	perl -p -e 's/^/\#  /' license.txt >> $@
 	echo >>$@
 	echo >>$@
@@ -26,8 +26,8 @@ license.script: license.txt
 
 #w license for C and C++
 license.c: license.txt
-	echo "\/.__INSERT_LICENSE__" > $@ 
-	echo "/*__INSERT_LICENSE__*/" >> $@
+	echo "\/.__<L>__" > $@ 
+	echo "/*__<L>__*/" >> $@
 	echo '/*' >>$@
 	perl -p -e 's/^/  /' license.txt >> $@
 	echo '*/' >>$@
@@ -37,8 +37,8 @@ license.c: license.txt
 
 #w license for C and C++
 license.tex: license.txt
-	echo "%__INSERT_LICENSE__" > $@
-	echo "%__INSERT_LICENSE__" >> $@
+	echo "%__<L>__" > $@
+	echo "%__<L>__" >> $@
 	perl -p -e 's/^/%  /' license.txt >> $@
 	echo >>$@
 	echo >>$@
