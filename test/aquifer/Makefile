@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2002/10/10 23:34:43 mstorti Exp $ 
+# $Id: Makefile,v 1.27 2002/12/02 19:09:45 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -46,20 +46,20 @@ endif
 #w case with constant aquifer depth
 test_plain:
 	$(MAKE) casen=plain run
-	octave -q check.m > plain.verif.tmp
+	octave -qH check.m > plain.verif.tmp
 	$(MAKE) casen=var_eta0 run
-	octave -q check.m > var_eta0.verif.tmp
-	octave -q checkc.m > const.verif.tmp
+	octave -qH check.m > var_eta0.verif.tmp
+	octave -qH checkc.m > const.verif.tmp
 
 #w case with variable aquifer depth
 test_var_eta:
 	$(MAKE) casen=var_eta1 run
-	octave -q check.m > var_eta1.verif.tmp
+	octave -qH check.m > var_eta1.verif.tmp
 
 #w Test transient with constant depth
 test_transient:
 	$(MAKE) casen=transient run
-	octave -q checku.m > transient.verif.tmp
+	octave -qH checku.m > transient.verif.tmp
 
 #w Test for the stream elemset
 test_stream_chezy_rect: fun.efn fun2.efn fun3.efn
@@ -69,12 +69,12 @@ test_stream_chezy_rect: fun.efn fun2.efn fun3.efn
 test_stream:
 	$(MAKE) fric=chezy shape=rect casen=chezy_rect runs
 	$(MAKE) fric=manning shape=circular casen=mann_circ runs
-	octave -q checks.m > stream.verif.tmp
+	octave -qH checks.m > stream.verif.tmp
 
 #w Test the coupled aquifer+stream test
 test_as:
 	$(MAKE) casen=aquist runas
-	octave -q checkas.m > aquist.verif.tmp
+	octave -qH checkas.m > aquist.verif.tmp
 
 .PHONY: funs test_dl_fun1 test_dl_fun2 test_dl_fun3
 funs: fun.efn fun2.efn fun3.efn
@@ -84,28 +84,28 @@ test_dl_fun: test_dl_fun1 test_dl_fun2 test_dl_fun3
 #w Test `dl_generic' amplitude function. Test `fun1'
 test_dl_fun1: funs 
 	$(MAKE) fric=chezy shape=rect casen=fun1 runs
-	octave -q checkdlf.m > output.dl_fun1.verif.tmp
+	octave -qH checkdlf.m > output.dl_fun1.verif.tmp
 
 #w Test `dl_generic' amplitude function. Test `fun2'
 test_dl_fun2: funs 
 	$(MAKE) fric=chezy shape=rect casen=fun2 runs
-	octave -q checkdlf.m > output.dl_fun2.verif.tmp
+	octave -qH checkdlf.m > output.dl_fun2.verif.tmp
 
 #w Test `dl_generic' amplitude function.  Test `fun3'
 test_dl_fun3: funs 
 	$(MAKE) fric=chezy shape=rect casen=fun3 runs
-	octave -q checkdlf.m > output.dl_fun3.verif.tmp
+	octave -qH checkdlf.m > output.dl_fun3.verif.tmp
 
 #w case with constant aquifer depth
 test_var_rain: rain2.efn
 	-rm -f var_rain.some_out.tmp
 	$(MAKE) casen=var_rain run
-	octave -q check_var_rain.m > var_rain.verif.tmp
+	octave -qH check_var_rain.m > var_rain.verif.tmp
 
 #w Make data
 data: force
 	$(MAKE) -W $(CASE).epl $(CASE).depl
-	octave -q $(mkm).m
+	octave -qH $(mkm).m
 
 #w Runs program
 rung: data force

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2001/07/28 20:04:28 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/12/02 19:09:46 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -26,7 +26,7 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 test_case_%_data: 
 	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) EPERLFLAGS='-d case=$* -d cont=$(cont)' data
-	octave -q mkmesh.m
+	octave -qH mkmesh.m
 
 data: $(NAME).depl force
 $(NAME).depl: force

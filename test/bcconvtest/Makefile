@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2002/10/09 13:38:44 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2002/12/02 19:09:45 mstorti Exp $ 
 
 .PHONY: force all run runo tests data
 
@@ -10,14 +10,14 @@ export nomega
 export jomega
 runf:
 	$(MAKE) NAME=sloshf PROG=$(NSFREQ) MKMESH=mkmeshf.m NP=1 test_case
-	octave -q procf.m 
+	octave -qH procf.m 
 
 runfa:
 	for jomega in `seq 1 $$nomega` ; do \
 	echo jomega: $$jomega ; \
 	$(MAKE) NAME=sloshf PROG=$(NSFREQ) MKMESH=mkmeshf.m NP=1 test_case ; \
 	grep omega sloshf.depl ; \
-	octave -q procf.m ; \
+	octave -qH procf.m ; \
 	mv sloshfa.rslt.tmp sloshfa.$$jomega.tmp ; \
 	mv sloshf.state.tmp sloshfa.state.$$jomega.tmp ; \
 	done
@@ -53,7 +53,7 @@ CLEAN_DIRS =
 test_case_data: 
 #	-if [ ! "$(cont)" = "y" ] ; then rm -f *.tmp ; fi 
 	$(MAKE) data
-	octave -q $(MKMESH) > /dev/null
+	octave -qH $(MKMESH) > /dev/null
 
 data: $(NAME).depl force
 $(NAME).depl: force

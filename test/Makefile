@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.69 2002/11/05 21:57:00 mstorti Exp $ 
+# $Id: Makefile,v 1.70 2002/12/02 19:09:45 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -96,7 +96,7 @@ oscplate2: ns
 	-rm -f tmp_file*.tmp oscsome2.sal
 	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
-	octave -q oscplate2.m &> oscplate2o.sal
+	octave -qH oscplate2.m &> oscplate2o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with sinusoidal oscillation
@@ -129,7 +129,7 @@ oscplate3: ns
 	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
 	mv oscplate.sal oscplate_128.sal
 #
-	octave -q oscplate3.m &> oscplate3o.sal
+	octave -qH oscplate3.m &> oscplate3o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Oscillating plate with piecewise constant function
@@ -146,7 +146,7 @@ oscplate4: ns
 	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
 	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
 	mv oscsome.sal oscsome4.sal
-	octave -q oscplate4.m &> oscplate4o.sal
+	octave -qH oscplate4.m &> oscplate4o.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w `cos(2*pi*t/T)' case
@@ -262,7 +262,7 @@ sqcav5: ns sqcav5_dat
 	-$(MPIRUN) -np 3 $(NSO) -case sqcav5.dat | tee sqcav5.out
 
 sqcav5_dat: mksqcav5.m
-	octave -q  mksqcav5.m >/dev/null
+	octave -qH  mksqcav5.m >/dev/null
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Tests processing of chunks

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2002/10/10 23:34:43 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2002/12/02 19:09:46 mstorti Exp $ 
 
 .PHONY: force all run nutcyl tests
 
@@ -48,18 +48,18 @@ nutcyl:
 	-rm -f cylinder.force.nuta0.tmp
 	$(MAKE) nuta=0 mesh=4-10-I run
 	cp cylinder.force.tmp cylinder.force.nuta0.tmp
-	octave -q checknutcyl.m > checknutcyl.verif.tmp
+	octave -qH checknutcyl.m > checknutcyl.verif.tmp
 
 test_rigid:
 	-rm -f cylinder.force.rigid.tmp rigid.verif.tmp
 	$(MAKE) rigid_body_test=1 mesh=4-10-I run
 	cp cylinder.force.tmp cylinder.force.rigid.tmp
-	octave -q checkrigid.m > rigid.verif.tmp
+	octave -qH checkrigid.m > rigid.verif.tmp
 
 test_strip: 
 	-rm -f strip.force.tmp strip.verif.tmp
 	$(MAKE) NAME=strip run
-	octave -q checkstrip.m > strip.verif.tmp
+	octave -qH checkstrip.m > strip.verif.tmp
 
 figure:
 	$(MAKE) BOPT=O_c++ Omega=3000 Omega_nut=500 nu=0.0572 nuta=20 mesh=10-30-I run

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.38 2002/11/05 19:25:38 mstorti Exp $ 
+# $Id: Makefile,v 1.39 2002/12/02 19:09:46 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -63,7 +63,7 @@ test_big:
 
 test_g_body:
 	$(MAKE) case=g_body runs
-	octave -q < check.g_body.m > check.g_body.verif.tmp
+	octave -qH < check.g_body.m > check.g_body.verif.tmp
 
 # tests the square cavity in a 20x20 mesh at Re=1000
 # with respect with a reference solution obtained also with Petscfem and
@@ -72,7 +72,7 @@ test_g_body:
 test_re1000:
 	$(MAKE) case=weak_form_0 runs
 	$(MAKE) case=weak_form_1 runs
-	octave -q < check_re1000.m > check.re1000.verif.tmp
+	octave -qH < check_re1000.m > check.re1000.verif.tmp
 
 #w IISD for square cavity test in 20x20 mesh on two processors
 test_iisd2: 
@@ -80,7 +80,7 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp1 runs
 	$(MAKE) case=iisd_sbp4 runs
 	$(MAKE) case=iisd_sbp16 runs
-	octave -q < check_iisd2.m > check.iisd.verif.np2.tmp
+	octave -qH < check_iisd2.m > check.iisd.verif.np2.tmp
 
 REDIR := >
 # REDIR := | tee
@@ -104,7 +104,7 @@ test_zero_w_proc:
 	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc.out.tmp
 #
-	octave -q check_zwproc.m > check.zwproc.tmp
+	octave -qH check_zwproc.m > check.zwproc.tmp
 
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc2: CASE := sqcav
@@ -126,7 +126,7 @@ test_zero_w_proc2:
 	-${MPIRUN} -np 2 -machinefile ./machi.dat $(PROG) -case $(CASE).depl \
 	$(REDIR) output.zwproc2.out.tmp
 #
-	octave -q check_zwproc2.m > check.zwproc2.tmp
+	octave -qH check_zwproc2.m > check.zwproc2.tmp
 
 test_meas_perf:
 	$(MAKE) case=lu np=1 meas_perf=1 runs
@@ -139,12 +139,12 @@ test_iisd:
 	$(MAKE) case=iisd_sbp4 runs
 	$(MAKE) case=iisd_sbp8 runs
 	$(MAKE) case=iisd_sbp16 runs
-	octave -q < check_iisd.m > check.iisd.verif.np1.tmp
+	octave -qH < check_iisd.m > check.iisd.verif.np1.tmp
 
 #w Tests square cavity at Re=400 with fractional step solver. 
 test_fs:
 	make case=fractional_step_re400 runs2
-	octave -q < check_fs.m > check.fs.verif.tmp
+	octave -qH < check_fs.m > check.fs.verif.tmp
 
 #w Makes local link for running with debugger
 link:
@@ -152,7 +152,7 @@ link:
 
 data: force
 	$(MAKE) $(CASE).depl
-	octave -q mk$(CASE).m
+	octave -qH mk$(CASE).m
 
 # EPERLFLAGS = -d case=$$case
 $(CASE).depl: force

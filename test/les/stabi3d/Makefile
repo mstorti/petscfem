@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.12 2002/11/25 20:32:34 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2002/12/02 19:09:46 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -16,7 +16,7 @@ include ./Makefile.parproc
 stabi: 	
 	saverot stabi.some_rslt%d.tmp
 	$(MAKE) $(CASE).depl
-	octave -q < mkmesh.m 
+	octave -qH < mkmesh.m 
 	-$(MPIRUN) -machinefile ./machi.dat -np $(NP) -nolocal $(PROG) -case stabi.depl
 
 stabi.con-tet.tmp: stabi.con.tmp
