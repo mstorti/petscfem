@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dxhook.h,v 1.14.2.1 2003/07/23 00:30:05 mstorti Exp $
+//$Id: dxhook.h,v 1.14.2.2 2003/07/23 03:08:57 mstorti Exp $
 
 #ifndef DXHOOK_H
 #define DXHOOK_H
@@ -59,6 +59,8 @@ private:
   double coef0, coef;
   int read_coords;
   dvector<double> x0;
+  // The step solicited by DX
+  int dx_step;
 #ifdef USE_PTHREADS
   enum connection_state_t {
     not_launched, not_connected, connected} connection_state_m,

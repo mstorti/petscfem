@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.41.2.1 2003/07/23 00:30:05 mstorti Exp $
+//$Id: dxhook.cpp,v 1.41.2.2 2003/07/23 03:08:57 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -221,20 +221,6 @@ void dx_hook::init(Mesh &mesh_a,Dofmap &dofmap_a,
     if (steps==0) steps = 1;
     int step=0;
     while(1) {
-      if (read_coords) {
-	AutoString coord_file;
-	coord_file.sprintf(dx_node_coordinates.c_str(),step);
-	FILE *fid = fopen(coord_file.str(),"r");
-	assert(fid);
-	double d;
-	double *x = mesh->nodedata->nodedata;
-	for (int k=0; k<nnod; k++) {
-	  for (int j=0; j<ndim; j++) {
-	    fscanf(fid,"%lf",&d);
-	    x[k*nu+j] = coef0*x0.e(k,j) + coef*d;
-	  }
-	}
-      }
       send_state(step++,&dx_hook::build_state_from_file);
       if (record==-1) {
 	PetscFinalize();
@@ -333,7 +319,7 @@ int dx_hook::build_state_from_file(double *state_p) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
 #define sock srvr
-  int cookie, cookie2, dx_step;
+  int cookie, cookie2;
   if (steps && step_cntr--) return;
   if (!steps) {
 #ifdef USE_PTHREADS
@@ -402,6 +388,21 @@ void dx_hook::send_state(int step,build_state_fun_t build_state_fun) try {
     }
     printf("dx_hook: Got steps %d, dx_step %d, state_file %s, record %d\n",
 	   steps,dx_step,state_file.c_str(),record);
+
+    if (read_coords) {
+      AutoString coord_file;
+      coord_file.sprintf(dx_node_coordinates.c_str(),dx_step);
+      FILE *fid = fopen(coord_file.str(),"r");
+      assert(fid);
+      double d;
+      double *x = mesh->nodedata->nodedata;
+      for (int k=0; k<nnod; k++) {
+	for (int j=0; j<ndim; j++) {
+	  fscanf(fid,"%lf",&d);
+	  x[k*nu+j] = coef0*x0.e(k,j) + coef*d;
+	}
+      }
+    }
   }
 
   // Options are read in master and
