@@ -69,7 +69,8 @@ while (<>) {
 	if ($doc[0] =~ /\s*_T:(.*)/) {
 	    @docf=@doc;
 	    $doc=join("",@doc);
-	    die "not \"_T:\" tag in explicit doc: \n",@docf unless $doc=~/_T:(.*) _N:/;
+	    die "not \"_T:\" tag in explicit doc: \n",
+	    @docf unless $doc=~/_T:(.*) _N:/;
 	    $type=$1;
 	    $doc=$';
 	    die "not \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/(.*) _D:/;
@@ -78,11 +79,11 @@ while (<>) {
 	    die "not \"_DOC:\" tag in explicit doc: ",@docf unless $doc=~/(.*) _DOC:/;
 	    $default=$1;
 	    $doc=$';
-	    print "doc antes de quitar text: $doc\n";
+#	    print "doc antes de quitar text: $doc\n";
 	    die "not \"_END\" tag in explicit doc: ",
 	    @docf unless $doc=~/_END\s*$/;
 	    $doc=$`;
-	    print "text in doc: $doc\n";
+#	    print "text in doc: $doc\n";
 	    $text = join("","\\item\\verb+$type $name+ ",
 			 "{\\rm(default=\\verb|$default|)}:\n",
 			 $doc,$sep);
