@@ -3765,3 +3765,6 @@ tag: beta-3.39.57 on Sun, 23 Jan 2005 15:25:20 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.58 on Sun, 23 Jan 2005 15:45:05 -0300 by mstorti in spider
      > Coded absorbing b.c. axis independent. Not tested. 
+----------
+tag: beta-3.39.59 on Sun, 23 Jan 2005 16:17:59 -0300 by mstorti in spider
+     > Absorbing b.c. tested with rotations. 
