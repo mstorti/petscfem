@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.14 2003/06/06 23:06:35 mstorti Exp $ 
+# $Id: Makefile,v 1.15 2003/06/08 13:12:38 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -58,6 +58,6 @@ run: $(CASE_NAME).depl alehook.efn
 $(CASE_NAME).depl: force
 
 local_clean::
-	-rm -rf mat.output *.fifo
+	-rm -rf mat.output *.fifo *.efn
 
 #s
