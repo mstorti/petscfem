@@ -25,7 +25,7 @@ nrec 1
 nfile 100000000
 # initial_state "cylin.state.tmp"
 initial_state "cylin.ini.tmp"
-nstep 200
+nstep 300
 # steady
 solver "iisd"
 iisd_subpart_auto 2000

@@ -1,4 +1,4 @@
-if 0
+if 1
   x = aload("cylin.nod.tmp");
   nod_ext = aload("ext.coupling_nodes.tmp");
   nod_ext = nod_ext(:,1);

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2003/01/01 16:16:36 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2003/01/05 12:53:06 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid
 
@@ -8,7 +8,7 @@ all: run
 tests: 
 
 inviscid:
-	$(MAKE) CASE_NAME=ext run
+	$(MAKE) CASE_NAME=ext run > inviscid.output.tmp
 
 viscous:
 	if [ -e visc2inv.fifo ] ; then rm visc2inv.fifo ; fi
@@ -27,7 +27,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-PROG := $(NS)
+PROG := $(NS_O)
 
 .PHONY: force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))

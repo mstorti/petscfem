@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: inviscid.cpp,v 1.13 2003/01/04 16:21:45 mstorti Exp $
+//$Id: inviscid.cpp,v 1.14 2003/01/05 12:53:06 mstorti Exp $
 #define _GNU_SOURCE
 
 extern int MY_RANK,SIZE;
@@ -44,6 +44,25 @@ int computed_coupling_visc_vel=0;
 void coupling_visc_hook::init(Mesh &mesh,Dofmap &dofmap,
 		     TextHashTableFilter *options,const char *name) {
   if (!MY_RANK) {
+
+    if (1) {
+      printf("VISCOUS: Starting INVISCID...\n");
+      pid_t pid = fork();
+      if (pid==-1) {
+	printf("VISCOUS: Couldn't fork INVISCID process...\n");
+	abort();
+      }
+      if (pid==0) {
+	char * const argv[] = {"/usr/bin/make","inviscid",NULL};
+	int stat = execv(argv[0],argv);
+	if (stat==-1) {
+	  printf("VISCOUS: Couldn't \"execv\" INVISCID  process...\n");
+	  abort();
+	}
+      } else printf("VISCOUS: INVISCID pid is %d\n",pid);
+      printf("VISCOUS: Done.\n");
+    }
+
     printf("VISCOUS: Opening fifos for communicating with INVISCID.\n");
 
     visc2inv = fopen("visc2inv.fifo","w");
@@ -429,7 +448,6 @@ void coupling_inv_hook::time_step_post(double time,int step,
     psi.rs();
     xi.rs();
 
-    double omega=0.1;
     ipsi.inv(psi);
     a.prod(ipsi,pot,1,-1,-1);
     dpot_dxi.setel(a.get(2),1).setel(a.get(4),2);
