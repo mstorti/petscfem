@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.4 2001/12/21 01:29:34 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.5 2001/12/24 03:59:56 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -12,23 +12,6 @@
 #include <src/distmap.h>
 #include <src/distmat.h>
 #include <src/graph.h>
-
-/// This partitioner is based on the dofmap of the mesh. 
-class DofmapPartitioner : public IntRowPartitioner {
-  /// Pointer to the dofmap 
-  const Dofmap *dofmap;
-public:
-  /// Dof partitioning (currently based on ranges of the dof's).  
-  int dofpart(int row);
-  /// Constructor from the dofmap
-  DofmapPartitioner(const Dofmap *dfm);
-  /// Destructor
-  ~DofmapPartitioner();
-  /// interfaces with the DistMap class
-  int processor(map<int,Row>::iterator k) {
-    return dofpart(k->first);
-  }
-};
 
 //#define PFFSM
 #ifdef PFFSM
@@ -56,54 +39,27 @@ public:
 */
 class PFMat {
 protected:
-#ifdef PFFSM
-  /// The Finite State Machine Object
-  friend class pfmatFSM;
-  pfmatFSM fsm;
-#endif
-  /// We will have always a PETSc matrix for the system and for the preconditioner
-  Mat A,P;
-  /// The PETSc linear solver
-  SLES sles;
-  /// The PETSc preconditioner
-  PC pc;
-  /// Krylov subspace method context
-  KSP ksp;
-  /// PETSc absolute tolerance
-  double atol;
-  /// PETSc relative tolerance
-  double rtol;
-  /// PETSc divergence tolerance
-  double dtol;
-  /// Krylov space dimension
-  int Krylov_dim;
-  /// Maximum number of iterations
-  int maxits;
-  /// flags whether the internal convergence is print or not
-  int print_internal_loop_conv;
-  /// number of iterations done
-  int its_;
-  /// flags whether the system was built or not
-  int sles_was_built;
-  /// Defines the KSP method
-  string KSP_method;
-  /// The options database
-  TextHashTable thash;
-  /// These are the actions for the state machine
-  int factored;
-  virtual int factor_and_solve(Vec &res,Vec &dx)=0;
-  virtual int solve_only(Vec &res,Vec &dx)=0;
-  virtual int clean_factor() {assert(0);}; // fixme:= make it pure
   // virtual after
 public:
+  /// Returns the size of the j-th dimension
+  virtual int size(int j)=0;
+
+  /// Return both sizes
+  void size(int &m, int&n) {
+    m = size(1); n=size(2);
+  }
+
+  PFMat() ;
+#if 0
   /// Constructor, initialize variables
-  PFMat(DofPartitioner &pp);
+  PFMat(int m, int n,DofPartitioner &pp);
+#endif
 
   /// Virtual destructor
-  virtual ~PFMat();
+  virtual ~PFMat()=0;
 
   /// clear memory (almost destructor)
-  virtual void clear();
+  virtual void clear()=0;
 
   /// calls MatAssemblyBegin on internal matrices, see PETSc doc
   virtual int assembly_begin(MatAssemblyType type)=0;
@@ -112,11 +68,11 @@ public:
   virtual int assembly_end(MatAssemblyType type)=0;
 
   /// Adds an element to the matrix profile
-  set_profile(int j,int k);
+  virtual int set_profile(int j,int k)=0;
 
   /** Creates the matrix from the profile graph computed in #g#
   */ 
-  virtual void create();
+  virtual void create()=0;
 
   /** Sets individual values on the operator #A(row,col) = value#
       @param row (input) first index
@@ -131,58 +87,59 @@ public:
   virtual int zero_entries()=0;
 
   /** Performs all operations needed before permorming the solution of
-      the linear system (creating the PETSc SLES, etc...). Sets
-      oprtions from the #thash# table. 
-      @param name (input) a string to be prepended to all options that
-      apply to the operator. (not implemented yet)
+      the linear system (creating the PETSc SLES, etc...).   
   */ 
-  virtual int build_sles(TextHashTable *thash,char *name=NULL);
+  virtual int build_sles()=0;
 
   /// Destroy the SLES associated with the operator. 
-  virtual int destroy_sles();
+  virtual int destroy_sles()=0;
 
   /** Defines how to report convergence in the internal loop. 
       Derive this function to obtain a different effect from the
       default one. 
-      @param ksp (input) the KSP of the linear solver
       @param n (input) current iteration number
       @param rnorm (input) norm of the residual for the current
       iteration 
       @return A PETSc error code 
   */ 
-  virtual int monitor(KSP ksp,int n,double rnorm);
+  virtual int monitor(int n,double rnorm) {}
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector
   */ 
-  virtual int solve(Vec &res,Vec &dx);
+  virtual int solve(Vec &res,Vec &dx)=0;
   /// returns the number of iterations spent in the last solve
-  virtual int its() {return its_;};
+  virtual int its() {return 0;};
   /// Prints the matrix to a PETSc viewer
   virtual int view(Viewer viewer)=0;
   /// Derive this if you want to manage directly the preconditioning. 
-  virtual int set_preco(const string & preco_type);
+  virtual int set_preco(const string & preco_type)=0;
   /// Duplicate matrices (currently not implemented for IISDMat)
-  virtual int duplicate(MatDuplicateOption op,const PFMat &A);
-  void set_option(const char *key,const char *value) {
-    thash.add_entry(key,value);
+  virtual int duplicate(MatDuplicateOption op,const PFMat &A)=0;
+  virtual void set_option(const char *key,const char *value)=0;
+  virtual void set_option(const char *name,int *val,int n=1)=0;
+  void set_option(const char *name,int val) {
+    int val_ = val;
+    return set_option(name,&val_);
   }
-  void get_option(const char *key,const char *&value) const {
-    // Remove constness asuming this is OK.
-    // (Should fix the `TextHashTable' class
-    ((TextHashTable &)thash).get_entry(key,value);
+  virtual void set_option(const char *name,double *val,int n=1)=0;
+  void set_option(const char *name,double val) {
+    double val_ = val;
+    return set_option(name,&val_);
   }
-  int get_int(const char *name,int *retval,int defval=0,int n=1) {
-    ::get_int(&thash,name,retval,defval,n);
-  }
+
+  virtual void get_option(const char *key,const char *&value) const=0;
+  virtual void get_option(const char *name,int *retval,int defval=0,int
+			 n=1)=0;
+  virtual void get_option(const char *name,double *retval,int defval=0,int
+			 n=1)=0;
+
+  virtual void print()=0;
 };
 
+#if 0
 PFMat * PFMat_dispatch(const char *s);
-
-/** Wrapper monitor. You customize the monitor by deriving the
-    #monitor# function member. 
-*/
-int PFMat_default_monitor(KSP ksp,int n,double rnorm,void *);
+#endif
 
 
 #endif

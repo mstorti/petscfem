@@ -1,11 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.1 2001/12/09 14:00:20 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.2 2001/12/24 04:00:44 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
-tests: sparse
-
-pfmat: pfmat.bin
+tests: pfmat
 
 SRCS = pfmat.cpp
 
@@ -18,7 +16,8 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 
 SRC_DIR = $(PETSCFEM_DIR)/src
 LIB := $(SRC_DIR)/libpetscfem.a
-LIB_OBJS := graph util2
+LIB_OBJS := graph util2 iisdmat sparse spsolve distmat iisdcr \
+		iisdgraph spline seval debug
 LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
 
 $(LIB)(%.o):
@@ -26,8 +25,11 @@ $(LIB)(%.o):
 
 pfmat.bin: $(LIB_OBJS_LIB) pfmat.o
 	-rm -f $@
-	${CXX_CLINKER} -o $@ pfmat.o  $(LDFLAGS) # $(SUPERLU)/SRC/util.o
+	${CXX_CLINKER} -o $@ pfmat.o  $(LDFLAGS)
 
-pfmat: pfmat.bin
-	./pfmat.bin
+NP := $(shell procsel $(PETSCFEM_PROCTABLE))
+
+pfmat: # pfmat.bin
+	$(MPIRUN) -np 2 -machinefile machi.dat ./pfmat.bin
+
 #s

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.11 2001/10/06 23:37:08 mstorti Exp $
+// $Id: distmat.cpp,v 1.11.4.1 2001/12/24 03:59:56 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -161,18 +161,3 @@ combine(const pair<int,Row> &p) {
   }
 }
 
-DofmapPartitioner::
-DofmapPartitioner(const Dofmap *dfm) :  dofmap(dfm) {};
-
-int DofmapPartitioner::dofpart(int row) {
-  const int *startproc = dofmap->startproc;
-  const int *neqproc = dofmap->neqproc;
-  int proc;
-  for (proc = 0; proc < dofmap->size; proc++) 
-    if (row < startproc[proc]+neqproc[proc]) 
-      break;
-  // printf("[%d] row %d belongs to [%d]\n",MYRANK,row,proc);
-  return proc;
-}
-
-DofmapPartitioner::~DofmapPartitioner() {};

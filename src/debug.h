@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.4 2001/11/25 22:44:21 mstorti Exp $
+// $Id: debug.h,v 1.4.4.1 2001/12/24 03:59:56 mstorti Exp $
 #ifndef DEBUG_H
 #define DEBUG_H
 
@@ -26,10 +26,16 @@ class Debug {
   */
   map<string,int> active_flags;
   MPI_Comm comm;
-  int myrank;
+  int myrank,size;
   HPChrono chrono;
   static int stop_f;
   static sighandler_t orig_handler;
+  char *line;
+  size_t N;
+  int was_initialized;
+  vector<int> flags;
+  void release_proc(int proc=0);
+  int dummy;
  public:
   static void init();
   static void set_signal(int signal);

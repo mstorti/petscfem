@@ -1,5 +1,8 @@
+// -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.1.2.4 2001/12/21 01:29:34 mstorti Exp $
+//$Id: iisdgraph.h,v 1.1.2.5 2001/12/24 03:59:56 mstorti Exp $
+#ifndef IISDGRAPH_H
+#define IISDGRAPH_H
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -13,20 +16,6 @@ extern int MY_RANK,SIZE;
 #include <src/part.h>
 #include <src/graph.h>
 #include <src/distcont.h>
-
-template <typename ImgValueType>
-class Partitioner  {
-private:
-  typedef pair<int,ImgValueType> ValueType;
-public:
-  DofPartitioner *part;
-  void processor(const ValueType &p,int &nproc,int *plist) const {
-    nproc = 1;
-    plist[0] = part->processor(p.first);
-  }
-  Partitioner<ImgValueType> (DofPartitioner *pp) 
-    : part(pp) { assert(pp!=NULL) ; }
-};
 
 /// The storage area type
 typedef map<int, set<int> > GMap;
@@ -61,7 +50,7 @@ class StoreGraph : public Graph {
   /// Clean all memory related 
   ~StoreGraph() { lgraph.clear(); };
   /// Constructor
-  StoreGraph(int N=0,DofPartitioner *pp=NULL,
+  StoreGraph(int N=0,const DofPartitioner *pp=NULL,
 	     MPI_Comm comm_=MPI_COMM_WORLD) :
     g_part(pp),
     lgraph(&g_part,comm_), comm(comm_) { init(N); }
@@ -71,3 +60,4 @@ class StoreGraph : public Graph {
   void print() const;
 };
 
+#endif

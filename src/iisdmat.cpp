@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.63.2.2 2001/12/24 03:59:56 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.1 2001/12/24 03:59:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -22,9 +22,15 @@ int SCHED_ALG=1;
 #include <src/utils.h>
 #include <src/dofmap.h>
 #include <src/elemset.h>
+// #pragma implementation "PFMat"
 #include <src/pfmat.h>
+#include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/graph.h>
+
+PFMat::PFMat() {}
+
+PFMat::~PFMat() {}
 
 DofPartitioner::~DofPartitioner() {}
 
@@ -32,41 +38,7 @@ enum PETScFEMErrors {
   iisdmat_set_value_out_of_range
 };
 
-#if 0
-PFMat * PFMat_dispatch(const char *s) {
-  PFMat *A;
-  IISDMat *AA;
-  // IISD solver with PETSc or SuperLU local solver
-  if (!strcmp(s,"iisd_superlu")) {
-    AA =  new IISDMat;
-    AA->local_solver = IISDMat::SuperLU;
-    return AA;
-  } else if (!strcmp(s,"iisd_petsc")) {
-    AA =  new IISDMat;
-    AA->local_solver = IISDMat::PETSc;
-    return AA;
-  } else if (!strcmp(s,"iisd")) {
-    // local solver is chosen by default
-    AA =  new IISDMat;
-    return AA;
-  } else if (!strcmp(s,"petsc")) {
-    // PETSc (iterative) solver 
-    A = new PETScMat;
-    return A;
-  } else if (!strcmp(s,"direct_superlu")) {
-    A = new SparseDirect("SuperLU");
-    return A;
-  } else if (!strcmp(s,"direct") || 
-	     !strcmp(s,"direct_petsc")) {
-    A = new SparseDirect("PETSc");
-    return A;
-  } else {
-    PETSCFEM_ERROR("PFMat type not known: %s\n",s);
-  }
-}
-#endif
-
-int PFMat::solve(Vec &res,Vec &dx) {
+int PFPETScMat::solve(Vec &res,Vec &dx) {
   int retval;
   if (!factored) {
     build_sles(&thash);
@@ -79,8 +51,18 @@ int PFMat::solve(Vec &res,Vec &dx) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PFMat::PFMat() : sles_was_built(0), 
-  A(NULL), P(NULL), factored(0) {
+#undef __FUNC__
+#define __FUNC__ "PFMat::clear"
+void PFPETScMat::clear() {
+  if (sles_was_built) {
+    int ierr = SLESDestroy(sles); 
+    PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+PFPETScMat::PFPETScMat(MPI_Comm comm_) : sles_was_built(0), 
+  A(NULL), P(NULL), factored(0), comm(comm_)  {
 #if 0
   char *s;
   int n = asprintf(&s,"PFMat matrix %p",this);
@@ -91,15 +73,127 @@ PFMat::PFMat() : sles_was_built(0),
 #endif
 };
 
-PFMat::~PFMat() {clear();};
+PFPETScMat::~PFPETScMat() {clear();};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PFMat::duplicate"
-int PFMat::duplicate(MatDuplicateOption op,const PFMat &A) {
+int PFPETScMat::duplicate(MatDuplicateOption op,const PFMat &A) {
   PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
 		 "for \"%s\" PFMat derived type\n",
 		 typeid(*this).name());
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::build_sles"
+int PFPETScMat::build_sles(TextHashTable *thash,char *name=NULL) {
+
+  int ierr;
+  //o Absolute tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND_PFMAT(thash,double,atol,1e-6);
+  //o Relative tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND_PFMAT(thash,double,rtol,1e-3);
+  //o Divergence tolerance to solve the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND_PFMAT(thash,double,dtol,1e+3);
+  //o Krylov space dimension in solving the monolithic linear
+  // system (Newton linear subiteration) by GMRES.
+  TGETOPTDEF_ND_PFMAT(thash,int,Krylov_dim,50);
+  //o Maximum iteration number in solving the monolithic linear
+  // system (Newton linear subiteration).
+  TGETOPTDEF_ND_PFMAT(thash,int,maxits,Krylov_dim);
+  //o Prints convergence in the solution of the GMRES iteration. 
+  TGETOPTDEF_ND_PFMAT(thash,int,print_internal_loop_conv,0);
+  //o Defines the KSP method
+  TGETOPTDEF_S_ND_PFMAT(thash,string,KSP_method,gmres);
+  //o Chooses the preconditioning operator. 
+  TGETOPTDEF_S_PFMAT(thash,string,preco_type,jacobi);
+
+  ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
+  ierr = SLESSetOperators(sles,A,
+			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
+  ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
+  ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
+
+  set_preco(preco_type);
+
+  // warning:= avoiding `const' restriction!!
+  ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
+
+  ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
+  ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
+  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
+
+  ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this);
+  sles_was_built = 1;
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::set_preco"
+int PFPETScMat::set_preco(const string & preco_type) {
+  // warning:= avoiding `const' restriction!!
+  int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::destroy_sles"
+int PFPETScMat::destroy_sles() {
+  if (sles_was_built) {
+    int ierr = SLESDestroy(sles); CHKERRQ(ierr);
+    sles=NULL;
+    sles_was_built = 0;
+    factored = 0;
+  }
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFMat::destroy_sles"
+int IISDMat::destroy_sles() {
+  int ierr;
+  clean_factor();
+  if (sles_was_built) {
+    PFPETScMat::destroy_sles();
+    if (local_solver == PETSc) {
+      ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
+      A_LL = NULL;
+    }
+  }
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PPETScFMat_default_monitor"
+int PFPETScMat_default_monitor(KSP ksp,int n,double rnorm,void *A_) {
+  PFPETScMat *A = dynamic_cast<PFPETScMat *>((PFMat *)A_);
+  assert(A);
+  return A->monitor(n,rnorm);
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PFPETScMat::monitor"
+int PFPETScMat::monitor(int n,double rnorm) {
+  int ierr;
+  if (print_internal_loop_conv) {
+    if (n==0) PetscPrintf(comm,
+			  " Begin internal iterations "
+			  "--------------------------------------\n");
+    PetscPrintf(comm,
+		"iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
+  }
   return 0;
 }
 
@@ -114,28 +208,9 @@ const int IISDMat::I=1;
 int petscfem_null_monitor(KSP ksp,int n,
 			  double rnorm,void *A_) {return 0;}
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::duplicate"
-int PETScMat::duplicate(MatDuplicateOption op,const PFMat &B) {
-  const PETScMat *BB = dynamic_cast<const PETScMat *> (&B);
-  if (!BB) {
-    PETSCFEM_ERROR("Not implemented yet!! duplicate operation \n"
-		   "for \"%s\" PFMat derived type\n",
-		   typeid(*this).name());
-    return 1;
-  }
-  ierr = MatDuplicate(BB->A,op,&A); CHKERRA(ierr);
-  P = A;
-  return 0;
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 IISDMat::~IISDMat() {
-  delete part;
-  part=NULL;
   delete A_LL_other;
   A_LL_other = NULL;
 }
@@ -408,7 +483,7 @@ void IISDMat::clear() {
   // P is not destroyed, since P points to A
   int ierr;
 
-  PFMat::clear();
+  PFPETScMat::clear();
   if (local_solver == PETSc) {
     if (A_LL) {
       int ierr = MatDestroy(A_LL); 
@@ -736,18 +811,17 @@ int IISDMat::warn_iisdmat=0;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::build_sles"
-int IISDMat::build_sles(TextHashTable *thash,char *name=NULL) {
+int IISDMat::build_sles() {
   int ierr;
-  ierr = PFMat::build_sles(thash,name); CHKERRQ(ierr);
   //o Chooses the preconditioning operator. 
-  TGETOPTDEF_ND(thash,double,pc_lu_fill,5.);
+  TGETOPTDEF_ND(&thash,double,pc_lu_fill,5.);
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"
 #undef __FUNC__
-#define __FUNC__ "PETScMat::build_sles"
+#define __FUNC__ "IISDMat::set_preco"
 int IISDMat::set_preco(const string & preco_type) {
   int ierr;
   if (preco_type=="jacobi" || preco_type=="") {
@@ -788,280 +862,12 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
 }
 
-#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFMatPETSc::create"
-void PETScMat::create(Darray *da,const Dofmap *dofmap,
-		     int debug_compute_prof=0) {
-  int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
-
-  MPI_Comm_rank (comm, &myrank);
-  Node *nodep;
-  // range of dofs in this processor: k1 <= dof <= k2
-  k1=dofmap->startproc[myrank];
-  neqp=dofmap->neqproc[myrank];
-  k2=k1+neqp-1;
-
-  // vectors for dimensioning the PETSc matrix
-  int *d_nnz,*o_nnz,diag_ok;
-  d_nnz = new int[neqp];
-  o_nnz = new int[neqp];
-  //loop over local dof's
-  for (k=0;k<neqp;k++) {
-    // initialize vector
-    d_nnz[k]=0;
-    o_nnz[k]=0;
-    // global dof number
-    keq=k1+k;
-    if (debug_compute_prof) printf("-------- keq = %d: ",keq);
-    // dofs connected to a particular dof are stored in the Darray as
-    // a single linked list of integers. `pos' is a cursor to the
-    // cells
-    // The list for dof `keq' starts at position `keq' and is linked
-    // by the `next' field. 
-    // fixme:= we could have only the headers for the local dof's
-    pos=keq;
-    // PETSc doc says that you have to add room for the diagonal entry
-    // even if it doesn't exist. But apparently it isn't needed. 
-    // diag_ok=0;
-    while (1) {
-      // Recover cell
-      nodep = (Node *)da_ref(da,pos);
-      // Is the terminator cell?
-      if (nodep->next==-1) break;
-      // connected dof
-      leq = nodep->val;
-      if (debug_compute_prof) printf("%d ",leq);
-      // if (leq==keq) diag_ok=1;
-      if (k1<=leq && leq<=k2) {
-	// Count in `diagonal' part (i.e. `leq' in the same processor
-	// than `keq')
-	d_nnz[k]++;
-      } else {
-	// Count in `off-diagonal' part (i.e. `leq' NOT in the same
-	// processor than `keq')
-	o_nnz[k]++;
-      }	
-      // Follow link
-      pos = nodep->next;
-    }
-    if (debug_compute_prof) 
-      printf("     --    d_nnz %d   o_nnz %d\n",d_nnz[k],o_nnz[k]);
-    //d_nnz[k] += 1;
-    //o_nnz[k] += 1;
-    // To add room for the diagonal entry, even if it doesn't exist
-    // if (!diag_ok) {
-    //      printf("No diagonal element for dof %d in proc %d\n",keq,myrank);
-    // fixme:= Do not add room for the diagonal term. 
-    // d_nnz[k]+=1; 
-    // }
-    // For statistics
-    sumd += d_nnz[k];
-    sumdcorr += d_nnz[k];
-    sumo += o_nnz[k];
-  }
-
-  // deallocate darray
-  da_destroy(da);
-
-  // Print statistics
-  double avo,avd,avdcorr;
-  avo = double(sumo)/double(neqp); // Average off-diag
-  avd = double(sumd)/double(neqp); // Average diag
-  avdcorr = double(sumdcorr)/double(neqp); // Average corrected
-					   // (Used no more)
-  PetscSynchronizedPrintf(comm,
-			  "On processor %d,\n"
-			  "       diagonal block terms: %d, (%f av.)\n"
-			  // Corrected does not make sense anymore
-			  // since it seems that PETSc does not need
-			  // the diagonal terms. 
-			  // "                (corrected): %d, (%f av.)\n"
-			  "   off diagonal block terms: %d, (%f av.)\n",
-			  // myrank,sumd,avd,sumdcorr,avdcorr,sumo,avo);
-			  myrank,sumd,avd,sumo,avo);
-  PetscSynchronizedFlush(comm);
-  
-  // Create matrices
-  int neq=dofmap->neq;
-  ierr =  MatCreateMPIAIJ(comm,dofmap->neqproc[myrank],
-			  dofmap->neqproc[myrank],neq,neq,
-			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A); 
-  ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
-  // P and A are pointers (in PETSc), otherwise this may be somewhat risky
-  P=A;
-  PETSCFEM_ASSERT0(ierr==0,"Error creating PETSc matrix\n");
-  delete[] d_nnz;
-  delete[] o_nnz;
+#define __FUNC__ "IISDMat::jacobi_pc_apply"
+void IISDMat::print(void) {
+  lgraph.print();
 }
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::clear"
-void PFMat::clear() {
-  if (sles_was_built) {
-    int ierr = SLESDestroy(sles); 
-    PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
-  }
-}
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::clear"
-void PETScMat::clear() {
-  PFMat::clear();
-  // P is not destroyed, since P points to A
-  if (A) {
-    int ierr = MatDestroy(A); 
-    PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix \"A\"\n");
-  }
-#if 0    // Should us destroy P ?
-  if (P) {
-    int ierr = MatDestroy(P); 
-    PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix \"P\"\n");
-  }
-#endif
-}
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::build_sles"
-int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
-
-  int ierr;
-  //o Absolute tolerance to solve the monolithic linear
-  // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,double,atol,1e-6);
-  //o Relative tolerance to solve the monolithic linear
-  // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,double,rtol,1e-3);
-  //o Divergence tolerance to solve the monolithic linear
-  // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,double,dtol,1e+3);
-  //o Krylov space dimension in solving the monolithic linear
-  // system (Newton linear subiteration) by GMRES.
-  TGETOPTDEF_ND_PFMAT(thash,int,Krylov_dim,50);
-  //o Maximum iteration number in solving the monolithic linear
-  // system (Newton linear subiteration).
-  TGETOPTDEF_ND_PFMAT(thash,int,maxits,Krylov_dim);
-  //o Prints convergence in the solution of the GMRES iteration. 
-  TGETOPTDEF_ND_PFMAT(thash,int,print_internal_loop_conv,0);
-  //o Defines the KSP method
-  TGETOPTDEF_S_ND_PFMAT(thash,string,KSP_method,gmres);
-  //o Chooses the preconditioning operator. 
-  TGETOPTDEF_S_PFMAT(thash,string,preco_type,jacobi);
-
-  ierr = SLESCreate(comm,&sles); CHKERRQ(ierr);
-  ierr = SLESSetOperators(sles,A,
-			  P,SAME_NONZERO_PATTERN); CHKERRQ(ierr);
-  ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
-  ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
-
-  set_preco(preco_type);
-
-  // warning:= avoiding `const' restriction!!
-  ierr = KSPSetType(ksp,(char *)KSP_method.c_str()); CHKERRQ(ierr);
-
-  ierr = KSPSetPreconditionerSide(ksp,PC_RIGHT);
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-
-  ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
-  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
-
-  ierr = KSPSetMonitor(ksp,PFMat_default_monitor,this);
-  sles_was_built = 1;
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::set_preco"
-int PFMat::set_preco(const string & preco_type) {
-  // warning:= avoiding `const' restriction!!
-  int ierr = PCSetType(pc,(char *)preco_type.c_str()); CHKERRQ(ierr);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::destroy_sles"
-int PFMat::destroy_sles() {
-  if (sles_was_built) {
-    int ierr = SLESDestroy(sles); CHKERRQ(ierr);
-    sles=NULL;
-    sles_was_built = 0;
-    factored = 0;
-  }
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::destroy_sles"
-int IISDMat::destroy_sles() {
-  int ierr;
-  clean_factor();
-  if (sles_was_built) {
-    PFMat::destroy_sles();
-    if (local_solver == PETSc) {
-      ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
-      A_LL = NULL;
-    }
-  }
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PFMat::monitor"
-int PFMat::monitor(KSP ksp,int n,double rnorm) {
-  int ierr;
-  if (print_internal_loop_conv) {
-    if (n==0) PetscPrintf(comm,
-			  " Begin internal iterations "
-			  "--------------------------------------\n");
-    PetscPrintf(comm,
-		"iteration %d KSP Residual_norm = %14.12e \n",n,rnorm);
-  }
-  return 0;
-}
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::factor_and_solve"
-int PETScMat::factor_and_solve(Vec &res,Vec &dx) {
-  int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::solve_only"
-int PETScMat::solve_only(Vec &res,Vec &dx) {
-  return factor_and_solve(res,dx);
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::view"
-int PETScMat::view(Viewer viewer) {
-  ierr = MatView(A,viewer); CHKERRQ(ierr); 
-//    ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
-  return 0;
-};
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "PETScMat::zero_entries"
-int PETScMat::zero_entries() {
-  ierr=MatZeroEntries(A); CHKERRQ(ierr);
-  return 0;
-};
-#endif
 
 /*
   Local Variables: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.3 2001/12/21 01:29:34 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.4 2001/12/24 03:59:56 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -9,6 +9,8 @@
 #include <src/pfmat.h>
 #include <src/sparse.h>
 #include <src/sparse2.h>
+#include <src/iisdgraph.h>
+#include <src/pfptscmat.h>
 
 #define TGETOPTDEF_ND_PFMAT(thash,type,name,default)		\
         name = default;						\
@@ -25,87 +27,17 @@
         ierr = get_##type(thash,#name,name,1);			\
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
-// This is the OO wrapper to PETSc matrix
-class PETScMat : public PFMat {
-  /// PETSc error code 
-  int ierr;
-#if 0
-  /** Performs all operations needed before permorming the solution of
-      the linear system (creating the PETSc SLES, etc...). Sets
-      oprtions from the #thash# table. 
-      @param name (input) a string to be prepended to all options that
-      apply to the operator. (not implemented yet)
-  */ 
-  int build_sles(TextHashTable *thash,char *name=NULL);
-#endif
-  /** Solve the linear system 
-      @param res (input) the rhs vector
-      @param dx (input) the solution vector
-  */ 
-  int factor_and_solve(Vec &res,Vec &dx);
-  /** Solve the linear system 
-      @param res (input) the rhs vector
-      @param dx (input) the solution vector
-  */ 
-  int solve_only(Vec &res,Vec &dx);
-  /// This is the partitioner object
-  DofPartitioner &dofpart;
-public:
-  /// Destructor (calls almost destructor)
-  ~PETScMat() {clear();};
-  /// clear memory (almost destructor)
-  void clear();
-  /// Constructor 
-  PETScMat() : PFMat() {};
-  /** Call the assembly begin function for the underlying PETSc matrices
-      @param type (input) PETSc assembly type
-      @return A PETSc error code 
-  */ 
-  int assembly_begin(MatAssemblyType type) {
-    return MatAssemblyBegin(A,type);};
-  /** Call the assembly end function for the underlying PETSc matrices
-      @param type (input) PETSc assembly type
-      @return A PETSc error code 
-  */ 
-  int assembly_end(MatAssemblyType type) {
-    return MatAssemblyEnd(A,type);};
-  /** Sets individual values on the operator #A(row,col) = value#
-      @param row (input) first index
-      @param col (input) second index
-      @param value (input) the value to be set
-      @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
-  */ 
-  void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
-    MatSetValues(A,1,&row,1,&col,&value,mode);};
-  /// Sets all values of the operator to zero.
-  int zero_entries();
-  /** Creates the matrix from the profile computed in #da#
-      @param da (input) dynamic array containing the adjacency matrix
-      of the operator
-      @param dofmap (input) the dofmap of the operator (contains
-      information about range of dofs per processor. 
-      @param debug_compute_prof (input) flag for debugging the process
-      of building the operator.
-  */ 
-  void create(Darray *da,const Dofmap *dofmap_,int
-	      debug_compute_prof=0);
-  /// Duplicate matrices 
-  int duplicate(MatDuplicateOption op,const PFMat &A);
-  int view(Viewer viewer);
-};
-
 int iisd_jacobi_pc_apply(void *ctx,Vec,Vec);
 
 /** Solves iteratively on the `interface' (between subdomain) nodes
     and solving by a direct method in the internal nodes.
  */
-class IISDMat : public PFMat {
-  /** Type of nodes, L: local, I: internal.
+class IISDMat : public PFPETScMat {
+  int M,N;
+  /** Type of dofs: L: local, I: interface
       Type of block (PETSc sense) D: diagonal, O: off-diagonal. 
-   */
+  */
   static const int D,O,L,I;
-  /// The dofmap of the related mesh (this should be changed)!!
-  const Dofmap *dofmap;
   /// Number of interface nodes 
   int n_int;
   /// Number of local nodes
@@ -156,8 +88,6 @@ class IISDMat : public PFMat {
   Mat A_II;
   /// Shortcuts to the #A_LL#, #A_IL#, #A_LI# and #A_II# matrices. 
   Mat *AA[2][2];
-  /// Partitioner
-  DofmapPartitioner *part;
   
   /** Here we put all non-local things that are in the loca-local
       block on other processors
@@ -210,12 +140,9 @@ class IISDMat : public PFMat {
   /// Layers of nodes of the preconditioning
   vector< set<int> > int_layers;
   /** Performs all operations needed before permorming the solution of
-      the linear system (creating the PETSc SLES, etc...). Sets
-      oprtions from the #thash# table. 
-      @param name (input) a string to be prepended to all options that
-      apply to the operator. (not implemented yet)
+      the linear system (creating the PETSc SLES, etc...). 
   */ 
-  int build_sles(TextHashTable *thash,char *name=NULL);
+  int build_sles();
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector
@@ -230,15 +157,47 @@ class IISDMat : public PFMat {
   int clean_factor();
 
   /// The partitioner object
-  DofPartitioner &part;
+  const DofPartitioner &part;
 
   /// The graph storing the profile object
   StoreGraph lgraph;
 
+  /// IntRowPartitioner based on a DofPartitioner
+  class IISDPart : public IntRowPartitioner {
+  public:
+    const DofPartitioner &part;
+    int processor( ::map<int,Row>::iterator k) {
+      return part.processor(k->first);
+    }
+    IISDPart(const DofPartitioner & p) : part(p) {};
+    ~IISDPart() {}
+  } iisd_part;
+
+  /// Maps dofs in this processors to global dofs
+  vector<int> dofs_proc;
+  /// Poitner to the storage area in `dofs_proc'
+  int *dofs_proc_v;
+
+  /** Maps dof's in this processor to global
+      ones. The inverse of `dofs_proc'. 
+  */
+  ::map<int,int> proc2glob;
+
 public:
+
+  // returns the j-th dimension
+  int size(int j) { 
+    assert(j==1 || j==2);
+    return (j==1 ? M : N);
+  }
 
   /// Local solver type
   enum LocalSolver {PETSc, SuperLU} local_solver;
+
+  /// Adds an element to the matrix profile
+  int set_profile(int j,int k) {
+    lgraph.add(j,k);
+  }
 
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
@@ -248,9 +207,7 @@ public:
       @param debug_compute_prof (input) flag for debugging the process
       of building the operator.
   */ 
-#if 0
   void create();
-#endif
 
   /** Applies the Schur operator #y = S * x#
       @param x (input) a given interface vector
@@ -258,13 +215,13 @@ public:
       #x#. Usually involves a solution (by a direct method) on each
       subdomain. 
   */ 
-  virtual int mult(Vec x,Vec y);
+  int mult(Vec x,Vec y);
   /** Applies the traspose of the Schur operator (see #mult#). 
       @param x (input) a given interface vector
       @param y (output) the result of applying the Schur operator on
       #x#. 
   */ 
-  virtual int mult_trans(Vec x,Vec y);
+  int mult_trans(Vec x,Vec y);
   /** Sets individual values on the operator #A(row,col) = value#
       @param row (input) first index
       @param col (input) second index
@@ -286,61 +243,21 @@ public:
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type);
   /// Destroy the SLES associated with the operator. 
-  virtual int destroy_sles();
-  IISDMat(int NN,DofPartitioner &pp) : part(pp), lgraph(part
-    A_LL_other(NULL), A_LL(NULL), part(NULL),
-    local_solver(PETSc) {};
+  int destroy_sles();
+
+  void print(void);
+  /// Constructor
+  IISDMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
+	  PETSC_COMM_WORLD) : 
+    PFPETScMat(comm_), 
+    M(MM), N(NN), 
+    part(pp), lgraph(M,&part,comm), 
+    A_LL_other(NULL), A_LL(NULL), 
+    local_solver(PETSc), iisd_part(pp) {};
   /// The PETSc wrapper function calls this
   int jacobi_pc_apply(Vec x,Vec y); 
   /// Destructor
   ~IISDMat();
-};
-
-/// Direct solver. (May be PETSc or SuperLU)
-class SparseDirect : public PFMat {
-  // Does nothing
-  int build_sles(TextHashTable *thash,char *name=NULL) {return 0;};
-public:
-  SparseDirect(char * opt = "PETSc") {
-    A_p = Sparse::Mat::dispatch(opt,&thash);
-  }
-  // Sparse::SuperLUMat A;
-  Sparse::Mat *A_p;
-  /// destructor
-  ~SparseDirect() { A_p->clear(); delete A_p;};
-  /// clear memory (almost destructor)
-  void clear() { A_p->clear(); };
-  /// does nothing here (only sequential use...)
-  int assembly_begin(MatAssemblyType type) { return 0;};
-  /// does nothing here (only sequential use...)
-  int assembly_end(MatAssemblyType type) { return 0;};
-  /// Resizes the underlying #A# matrix. 
-  void create(Darray *da,const Dofmap *dofmap_,
-		      int debug_compute_prof=0);
-  void set_value(int row,int col,Scalar value,
-		 InsertMode mode=ADD_VALUES);
-  /// Sets all values of the operator to zero.
-  int zero_entries() {A_p->clear(); return 0;};
-  // Does nothing
-  int destroy_sles() {return 0;};
-  /** Solve the linear system 
-      @param res (input) the rhs vector
-      @param dx (input) the solution vector
-  */ 
-  int factor_and_solve(Vec &res,Vec &dx);
-  /** Solve the linear system 
-      @param res (input) the rhs vector
-      @param dx (input) the solution vector
-  */ 
-  int solve_only(Vec &res,Vec &dx);
-  /// returns the number of iterations spent in the last solve
-  int its() {return 1;};
-  /// Prints the matrix to a PETSc viewer
-  int view(Viewer viewer=NULL) {A_p->print(); return 0;};
-  /// Derive this if you want to manage directly the preconditioning. 
-  int set_preco(const string & preco_type) {return 0;};
-  /// Duplicate matrices (currently not implemented for IISDMat)
-  int duplicate(MatDuplicateOption op,const PFMat &B);
 };
 
 #endif

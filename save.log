@@ -713,7 +713,7 @@ tag: pfmat-rewrite-1.02 on Mon Dec 17 23:02:32 ARST 2001, by mstorti in spider
      > Working on the distributed graph class.
 ----------
 tag: pfmat-rewrite-1.03 on Tue Dec 18 10:01:07 ARST 2001, by mstorti in spider
-     > Distributed graph `StoreGraph' working.
+     > Distributed graph `StoreGraph' is working.
 ----------
 tag: pfmat-rewrite-1.04 on Thu Dec 20 21:13:58 ARST 2001, by mstorti in spider
      > Changed '../../src/<header>' by '<src/header>' in all application modules. 

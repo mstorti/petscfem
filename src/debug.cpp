@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: debug.cpp,v 1.5.4.1 2001/12/18 01:58:40 mstorti Exp $
+//$Id: debug.cpp,v 1.5.4.2 2001/12/24 03:59:56 mstorti Exp $
  
 #include <src/debug.h>
 #include <cstdio>
@@ -10,6 +10,8 @@
 Debug debug;
 
 int Debug::stop_f=0;
+
+enum PF_MPI_tags { release_barrier };
 
 void Debug::set_signal(int sig) {
   stop_f++;
@@ -40,12 +42,35 @@ void Debug::deactivate(const char *s=NULL) {
   active_flags[ss] = 0;
 }
 
+void Debug::release_proc(int proc=0) {
+  if (proc<0 || proc>=size) {
+    printf("bad procesor number: %d",proc);
+    return;
+  }
+  if (proc==0) {
+    for (int k=1; k<size; k++) 
+      release_proc(k);
+    return;
+  }
+  if (!flags[proc])
+    MPI_Send(&dummy,1,MPI_INT,proc,release_barrier,comm);
+  flags[proc]=1;
+}
+
 void Debug::trace(const char *s=NULL) {
   time_t tt;
   int stopp;
+  char *token;
 #define MXTM 100
   char t[MXTM];
-  MPI_Comm_rank(comm,&myrank);
+  char *wsp = " \n\t"; // whitespace
+
+  if (! was_initialized) {
+    MPI_Comm_rank(comm,&myrank);
+    MPI_Comm_size(comm,&size);
+    was_initialized = 1;
+  }
+
   MPI_Allreduce(&stop_f,&stopp,1,MPI_INT,
 		MPI_MAX,comm);
   stop_f = stopp;
@@ -59,7 +84,7 @@ void Debug::trace(const char *s=NULL) {
     }
   }
   if (!active()) return;
-  int ierr;
+  int ierr,nread,proc;
   char ans,c;
   ierr = MPI_Barrier(comm);
   assert(ierr==0);
@@ -67,13 +92,9 @@ void Debug::trace(const char *s=NULL) {
     if (myrank==0) {
       printf("Command? (cqpd) > ");
       fflush(stdout);
-      scanf("%c",&ans);
-      printf("\n");
-      while (1) { // flush stdin unil newline is found
-	scanf("%c",&c);
-	if (c=='\n') break;
-      }
-      // printf("char %c,ord %d\n",ans,ans);
+      getline (&line,&N,stdin);
+      ans = line[0];
+      // printf("\n");
     }
     ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,comm);
     assert(ierr==0); 
@@ -91,11 +112,47 @@ void Debug::trace(const char *s=NULL) {
       PetscPrintf(comm,"Deactivate debugging mode...\n");
       deactivate();
       break;
-    } else if (ans=='c' || ans=='\n') {
+    } else if (ans=='c') {
+      if (myrank==0) {
+	flags.clear();
+	flags.resize(size,0);
+	while (true) {
+	  int ntoken=0;
+	  token = strtok(&line[1],wsp);
+	  while (token!=NULL) {
+	    ntoken++;
+	    nread = sscanf(token,"%d",&proc);
+	    if (nread<=0) break;
+	    release_proc(proc);
+	    token = strtok(NULL,wsp);
+	  }
+	  // If no token has been entered then release all processors
+	  if (ntoken==0) release_proc();
+	  // done:= flags[0] && flags[1] && ... && flags[size-1]
+	  int done=1;
+	  for (int procc=1; procc<size; procc++) {
+	    done = done && flags[procc];
+	    if (!done) break;
+	  }
+	  // If all processors have been released then
+	  // release root processor
+	  if (done) break;
+	  // Expexct for more processors to release
+	  printf("release procs > ");
+	  fflush(stdout);
+	  getline (&line,&N,stdin);
+	}
+      } else {
+	MPI_Status stat;
+	int flag;
+	MPI_Recv(&dummy,1,MPI_INT,0,release_barrier,comm,&stat);
+      }
+      break;
+    } else if (ans=='\n') {
       break;
     } 
   }
-  ierr = MPI_Barrier(comm);
+
   assert(ierr==0);  
 }
 
@@ -104,10 +161,11 @@ sighandler_t Debug::orig_handler = NULL;
 void Debug::init() {
   orig_handler = signal(SIGINT,&Debug::set_signal);
 }
-    
 
 Debug::Debug(int active_=0,MPI_Comm comm_=MPI_COMM_WORLD) : 
-  comm(comm_) {
+  comm(comm_), was_initialized(0) {
+  N = 100;
+  line = (char *)malloc(sizeof(char)*N);
   if (active_) {
     activate();
   } else {
