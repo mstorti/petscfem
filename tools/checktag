@@ -12,7 +12,7 @@ sub count_match {
 	$rest = $POSTMATCH;
 	$count++;
     }
-    print "s: $s, patt:$pat, count $count\n";
+##    print "s: $s, patt:$pat, count $count\n";
     return $count;
 }
 
