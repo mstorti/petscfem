@@ -3,7 +3,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* document distributed map
 * Use IISD `inside processors'. 
 * interface preconditioning for IISD
 * Put order in the headers. Now, a modification in some header launchs
@@ -47,6 +46,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* document distributed map
 * IISD: Code for element contributions to `local-local' matrices in other
    processors. 
 * Control no memory losses in IISDMat
