@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: project4.cpp,v 1.4 2005/03/09 01:52:25 mstorti Exp $
+// $Id: project4.cpp,v 1.5 2005/03/09 21:23:23 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
@@ -54,6 +54,7 @@ int main() {
 #define XNOD1 DATA_DIR "/fluent.nod"
 #define STATE1 DATA_DIR "/fluent.forces"
 #define ICONE1 DATA_DIR "/fluent.con"
+#define ICONE2 DATA_DIR "/patran.con"
 #define XNOD2 DATA_DIR "/patran.nod"
 #endif
 
@@ -77,7 +78,7 @@ int main() {
   int ndof = 3;
 
   dvector<double> xnod1, xnod2, u1, u2,
-    area1;
+    area1, area2;
   dvector<int> ico1;
 
   read_mesh(xnod1,XNOD1, xnod2,XNOD2,
@@ -95,4 +96,19 @@ int main() {
   u2.clear();
   fem_interp.interp(xnod2,u1,u2);
   u2.print(DATA_DIR "/u2-interp.dat");
+
+  dvector<int> ico2;
+  ico2.cat(ICONE2).defrag();
+  assert(ico2.size() % nel ==0);
+  int nelem2 = ico2.size()/nel;
+  ico2.reshape(2,nelem2,nel);
+  printf("mesh 2, %d elements read\n",nelem2);
+
+  nod_vol(xnod2,ico2,area2);
+  int nnod2 = xnod2.size(0);
+  for (int j=0; j<nnod2; j++)
+    for (int k=0; k<ndof; k++)
+      u2.e(j,k) *= area2.e(j);
+  u2.print("u2n.dat");
+  
 }

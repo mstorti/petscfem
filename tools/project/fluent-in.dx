@@ -4,15 +4,18 @@
 # and so must be enumerated.
 #
 # The irregular positions, which are ... three-dimensional points.
-# 
+# <: 
+require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl"; 
+$DIR = "/u/mstorti/PETSC/tatuus/data";
+:>
 
 #================================================================
 object "nodes2" class array type float rank 1 shape 3
-         items 4870 data file "/u/mstorti/PETSC/tatuus/data/patran.nod"
+         items 4870 data file "<:=$DIR:>/patran.nod"
 
 # The irregular connections, which are tetrahedra
 object "icone_t2" class array type int rank 1 shape 3
-        items 9736 data file "/u/mstorti/PETSC/tatuus/data/patran.con0"
+        items 9736 data file "<:=$DIR:>/patran.con0"
 attribute "element type" string "triangles"
 attribute "ref" string "positions"
 
@@ -31,7 +34,7 @@ object "nodes" class array type float rank 1 shape 3
 
 # The irregular connections, which are tetrahedra
 object "icone" class array type int rank 1 shape 3
-        items 7416 data file "/u/mstorti/PETSC/tatuus/data/blade.con0"
+        items 7416 data file "<:=$DIR:>/blade.con0"
 attribute "element type" string "triangles"
 attribute "ref" string "positions"
 

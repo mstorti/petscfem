@@ -1,9 +1,4 @@
 #-*- shell-script -*-
-# The following example describes an irregular grid. Note that the values
-# of the "positions" component and "connections" component are irregular,
-# and so must be enumerated.
-#
-# The irregular positions, which are ... three-dimensional points.
 object "nodes" class array type float rank 1 shape 3
          items 3753 data file "./static_p_blade.nod"
 

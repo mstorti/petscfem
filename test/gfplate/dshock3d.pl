@@ -38,7 +38,7 @@ $h = $Lx/$Nx;
 $Dt = $Co*$h/($uin0+1);
 $tramp = 20*$Dt;
 
-$Rscale = 0.05;
+$Rscale = 0.02;
 
 @vars = qw(Nr Dt ga Lx Nx Rgas pin0 rhoin0 uin0
 	   pout0 rhoout0 tramp dtheta Rscale);
