@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.1 2003/08/17 23:27:24 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.2 2003/08/17 23:43:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -330,28 +330,35 @@ int IISDMat::create_a() {
   n_intp = n_int_v[myrank];
 
   // isp_lay_map:= contains the layer number for dof k
-  vector<int> isp_lay_map(neq,0);
-  int nlay = 3;
+  // isp_lay_map2:= auxiliary for reduce operations
+  vector<int> isp_lay_map(neq,0), isp_lay_map2(neq,0);
+  int nlay=4;
   // mark layer 1
   for (int j=0; j<neq; j++) isp_lay_map[j] = map_dof[j]>=n_loc_tot;
 
-  // mark layer `lay'
-  int lay=2;
-  for (int j=0; j<neq; j++) {
-    if (isp_lay_map[j]==lay-1 && part.processor(j)==myrank) {
-      ngbrs_v.clear();
-      lgraph->set_ngbrs(j,ngbrs_v);
-      qe = ngbrs_v.end();
-      for (q=ngbrs_v.begin(); q!=qe; q++) {
-	int jj = *q;
-	if (isp_lay_map[jj]==0) isp_lay_map[jj]=lay;
+  // mark layers `2 <= lay <= nlay'
+  for (int lay=2; lay<=nlay; lay++) {
+    for (int j=0; j<neq; j++) {
+      if (isp_lay_map[j]==lay-1 && part.processor(j)==myrank) {
+	ngbrs_v.clear();
+	lgraph->set_ngbrs(j,ngbrs_v);
+	qe = ngbrs_v.end();
+	for (q=ngbrs_v.begin(); q!=qe; q++) {
+	  int jj = *q;
+	  if (isp_lay_map[jj]==0) isp_lay_map[jj]=lay;
+	}
+	MPI_Allreduce(&*isp_lay_map.begin(), &*isp_lay_map2.begin(), 
+		      neq, MPI_INT, MPI_MAX, comm);
+	memcpy(&*isp_lay_map.begin(),&*isp_lay_map2.begin(),neq*sizeof(int));
       }
     }
   }
-
-  printf("j, map_dof, isp_lay_map\n");
-  for (int j=0; j<neq; j++)
-    printf("%d %d %d\n",j,map_dof[j],isp_lay_map[j]);
+  if (!myrank) {
+    printf("j, map_dof, isp_lay_map\n");
+    for (int j=0; j<neq; j++)
+      printf("%d %d %d\n",j,map_dof[j],isp_lay_map[j]);
+  }
+  isp_lay_map2.clear();
 
   //# Current line =========== 
   PetscFinalize();
