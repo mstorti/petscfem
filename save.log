@@ -2368,3 +2368,9 @@ tag: beta-3.17.pl2 on Thu, 13 Feb 2003 11:12:27 -0300 by mstorti in spider
 ----------
 tag: beta-3.17.pl3 on Sat, 15 Feb 2003 22:42:15 -0300 by mstorti in spider
      > Splits fields 
+----------
+tag: beta-3.17.pl4 on Sun, 16 Feb 2003 14:03:21 -0300 by mstorti in spider
+     > Now the state is build in `dx_hook' through calling a function pointer
+     > to member `build_state'. The idea is to write a
+     > `build_state_from_state' for use when PETSc-FEM is runninf and
+     > `build_state_from_file' for post-run analysis.
