@@ -1,17 +1,12 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distcont.h,v 1.7 2002/07/24 15:46:11 mstorti Exp $
+// $Id: distcont.h,v 1.8 2002/07/24 16:56:59 mstorti Exp $
 #ifndef DISTCONT_H
 #define DISTCONT_H
 
 #include <cstdio>
 #include <vector>
-//#include <algorithm>
-
-//#define USE_BELONG
-
 #include <mpi.h>
-
 #include <src/vecmacros.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -20,7 +15,8 @@
     be passed from one processor to other. The #Partitioner# object
     determines to which processor belongs each dof. 
 */
-template <typename Container,typename ValueType,typename Partitioner>
+template <typename Container,typename ValueType,typename Partitioner,
+  int random_iter_mode=0>
 class DistCont : public Container {
 private:
   int belongs(typename Container::const_iterator k,int *plist) const;
@@ -68,27 +64,6 @@ public:
       @param p (input) the pair to be inserted.
   */ 
   void combine(const ValueType &p);
-#ifdef USE_BELONG
-  class Belongs {
-    DistCont *dm;
-    int *plist,size,myrank;
-  public:
-    bool operator() (const ValueType &p) const {
-      // bool operator() (typename Container::const_iterator p) const {
-      int nproc;
-      dm->processor(p,nproc,plist);
-      for (int j=0; j<nproc; j++) 
-	if (plist[j]==myrank) return false;
-      return true;
-    }
-    void init(DistCont *dm_c,int size_c) {
-      dm = dm_c;
-      size = size_c;
-      plist = new int[size];
-    };
-    ~Belongs() {delete[] plist;};
-  };
-#endif
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -208,55 +183,41 @@ void DistCont<Container,ValueType,Partitioner>::scatter() {
     }
   }
 
-  // USE_BELONG:= At this point we have to remove all items of the
-  // container that do not belong to this processor. For containers
-  // like linked lists or vectors this could be done with a
-  // `remove_if' and a `erase', but for containers like `set' or `map'
-  // this can't be done, since implies breaking the internal order
-  // (perhaps classified). So that, I implemented an alternative
-  // `remove_if' algorithm. (BTW this could be put in the form of an
-  // abstract algorithm). 
-
-  // Erase members that do not belong to this processor.
-  // This implementation may be very slow for non-linked containers. 
-#ifdef USE_BELONG
-  iter = remove_if(begin(),end(),belongs);
-  erase(iter,end());
-#else
-#if 0
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // FOR ASSOCIATIVE CONTAINERS (`erase()' does remove the object)
-  // Advance until find the first element that remains here
-  while (1) {
-    iter = begin();
-    if (belongs(iter,plist) || iter == end()) break;
-    erase(iter);
-  }
-  if (iter != end()) {
-    // This implementation is very careful with respect to not reusing
-    // iterators that have been deleted. (That may cause problems). 
+  if (random_iter_mode) {
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+    // FOR NON-ASSOCIATIVE CONTAINERS (`erase()' doesn't remove the object,
+    // i.e. random-access containers like vectors-deques.)
+    for (iter=begin(); iter!=end(); iter++) 
+      if (!belongs(iter,plist)) erase(iter);
+  } else {
+    //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+    //FOR ASSOCIATIVE CONTAINERS (`erase()' does remove the object,
+    //for instance lists and maps), Advance until find the first
+    //element that remains here
+    while (1) {
+      iter = begin();
+      if (belongs(iter,plist) || iter == end()) break;
+      erase(iter);
+    }
+    if (iter != end()) {
+      // This implementation is very careful with respect to not reusing
+      // iterators that have been deleted. (That may cause problems). 
 
     // iter:= keeps on the last element that remains here
     // next:= we compute `next' as `iter++' and check if belongs or
     // not. Then we remove it or advance iter. 
-    while (1) {
-      next = iter;
-      next++;
-      if (next == end()) break; // Reaches container end
-      if (belongs(next,plist)) {
-	iter = next;		// advance iterator
-      } else {
-	erase(next);		// remove item
+      while (1) {
+	next = iter;
+	next++;
+	if (next == end()) break; // Reaches container end
+	if (belongs(next,plist)) {
+	  iter = next;		// advance iterator
+	} else {
+	  erase(next);		// remove item
+	}
       }
     }
   }
-#else
-  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-  // FOR NON-ASSOCIATIVE CONTAINERS (`erase()' doesn't remove the object)
-  for (iter=begin(); iter!=end(); iter++) 
-    if (!belongs(iter,plist)) erase(iter);
-#endif
-#endif
 
   // Check that all buffers must remain at the end
   for (k=0; k<size; k++) {
