@@ -2863,3 +2863,6 @@ tag: beta-3.19.pl56 on Sun, 31 Aug 2003 18:22:50 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl57 on Sun, 31 Aug 2003 22:10:38 -0300 by mstorti in spider
      > Fixed a bug in iisdmat::set_values_a()
+----------
+tag: beta-3.19.pl58 on Mon, 01 Sep 2003 07:46:10 -0300 by mstorti in spider
+     > Runs many tests in spider.
