@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.11 2004/11/20 21:15:27 mstorti Exp $
+// $Id: femref.h,v 1.12 2004/11/21 14:51:54 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -18,28 +18,52 @@ class GeomObject {
 private:
   GeomObjectBasic *gobj;
 public:
+  /// Types of objects
   enum Type { NULL_TYPE=0, OrientedEdgeT, EdgeT, OrientedTriT, TriT };
+  /// Ctor of empty object
   GeomObject();
+  /// Set object to especific instance
   void init(int sz,const int *nodes,Type t);
+  /// Constructor
   GeomObject(int sz,const int *nodes,
 	     Type t) { init(sz,nodes,t); }
+  /// Compare two objects
   bool equal(GeomObject &go);
+  /// Dimension of the object
   int dim();
+  /** Check sum of the object, may be used as 
+      a weaker comparison operator. */ 
   int csum();
+  /// Number of objects of type #t# adjacent to this object. 
   static int size(Type t);
+  /// Number of nodes adjacent to this object. 
   static int size();
+  /// Type of this object. 
   int GeomObject::Type type();
+  /// Clears the object and set to the empty object. 
   void clear();
+  /// Dtor. 
   ~GeomObject();
 };
 
+/** Geometric objects are stored via a kind of
+    smart pointer. This is the real object stored 
+    via an indirect pointer in a #GeomObject#. */ 
 class GeomObjectBasic {
 public:
+  /// Compares two objects
   virtual bool equal(GeomObjectBasic &)=0;
+  /// Returns the dimension of the object
   virtual int dim()=0;
+  /// Returns the a fast check sum for the object. 
   virtual int csum()=0;
+  /// Returns the number of nodes connected to this object. 
   virtual static int size();
-  virtual static int size(GeomObject::Type t) {return 0; }
+  /** Returns the number of object of type #t#
+      connected to #*this#. */ 
+  virtual static 
+  int size(GeomObject::Type t) {return 0; }
+  
   virtual GeomObject::Type type() { 
     return GeomObject::NULL_TYPE; 
   }
@@ -173,7 +197,7 @@ private:
     GeomObject operator*();
   };
   dvector<double> coords;
-  dvector<int> tri;
+  dvector<int> connec;
   dvector<int> n2e;
   dvector<int> n2e_ptr;
   int ndim;
@@ -189,23 +213,24 @@ public:
     GeomObject* operator->() { return &goa; }
   };
 #endif
+  GeomObject id2obj(GeomObjectId id);
   void get_adjacency(const GeomObject &g1,int dim,
 		     std::list<GeomObjectId> &li) { }
   Mesh(int ndim_a,int nel_a) 
     : ndim(ndim_a), nel(nel_a) { 
     coords.reshape(2,0,ndim);
-    tri..reshape(2,0,nel);
+    connec..reshape(2,0,nel);
   }
   void read(const char *node_file,const char *conn_file) {
     coords.cat(node_file).defrag();
-    tri.cat(conn_file).defrag();
+    connec.cat(conn_file).defrag();
     nnod = coords.size(0);
-    nel = tri.size(1);
+    nel = connec.size(1);
     lgraph.init(nnod);
-    nelem = tri.size(0);
+    nelem = connec.size(0);
     for (int ele=0; ele<nelem; ele++) {
       for (int k=0; k<nel; k++) {
-	int node = tri.e(ele,k);
+	int node = connec.e(ele,k);
 	printf("add node %d, elem %d\n",node,ele);
 	lgraph.add(node,ele);
       }
@@ -240,13 +265,13 @@ public:
   void list_faces() {
     GeomObject elem;
     for (int e=0; e<nelem; e++) {
-      elem.init(e,tri.e(e,0),OrientedTriT);
+      elem.init(e,connec.e(e,0),OrientedTriT);
       int nedge = elem.size(Edge);
       for (int le=0; le<nedge; le++) {
 	GeomObjectId lid(e,le,EdgeT);
 	int nodes[2];
-	nodes[0] = tri.e(ele,0);
-	nodes[1] = tri.e(ele,1);
+	nodes[0] = connec.e(ele,0);
+	nodes[1] = connec.e(ele,1);
 	Edge edge(2,nodes);
 	int csum = nodes[1] + nodes[1];
 	int p0 = n2e_ptr.ref(nodes[0]);
