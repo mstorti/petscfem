@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.12 2003/03/31 22:05:04 mstorti Exp $
+//$Id: alehook.cpp,v 1.13 2003/03/31 22:37:45 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -306,6 +306,9 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,cyclic_fs,0);
   //o Assume problem is periodic 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,cyclic_length,0);
+  //o Assume problem is periodic 
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,restart,0);
+  if 
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

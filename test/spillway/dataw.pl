@@ -1,7 +1,7 @@
 $h = 1;                         # Mean water height
 $Lx = 5;			# Length of domain (wave-length)
 $Re = 100;			# Reynolds number
-$Froude = 0.1;			# Froude number
+$Froude = 2;			# Froude number
 
 $yratio = 4;			# refinement towards top and bottom
 $ref = 1;                       # Refinement parameter
@@ -24,7 +24,7 @@ $fs_relax = 1;                  # relaxation factor for the
                                 # free surface evolution eq. 
 
 $Dt = 0.05;			# time step
-$eta0 = 0.1;			# amplitude of free surface elevation
+$eta0 = 0.05;			# amplitude of free surface elevation
 				# perturbation
 $dx_steps = 1;			# visualize with DX
 

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $
+$Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
+! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
+! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
+! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
+! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
+  # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.268 2003/03/31 22:05:01 mstorti Exp $ 
+  # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6444,6 +6444,12 @@ Con lo cual se deberian desprender dos ondas con velocidad 0.47 +/-
 2.8. O sea que es casi una onda estacionaria. Se observa un
 amortiguamiento razonable: en 6 periodos se amortigua la amplitud baja
 un 30% mas o menos. Ahora voy a probar con un Froude mayor. 
+%
+19:24:47: Con Fr=2 no hay problemas pero es raro que se frena bastante
+(la velocidad media da bastante menor que la estacionaria
+calculada). La amplitud de la onda parece crecer.  No se observa un
+movimiento notable de la onda. Voy a probar a correr con una
+perturbacion menor, y despues con un fondo variable.
 
 # Current line ===========  %
 # Local Variables: $
