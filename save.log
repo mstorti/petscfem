@@ -910,3 +910,6 @@ tag: beta-2.69.pl4 on Sun Feb  3 09:40:09 ARST 2002 by mstorti in spider
 ----------
 tag: beta-2.70 on Sun Feb  3 20:25:21 ARST 2002, by mstorti in spider
      > `stream' class is working. Runs OK for simple problems. 
+----------
+tag: beta-2.70.pl1 on Sun Feb  3 20:39:55 ARST 2002 by mstorti in spider
+     > Added Id CVS tag
