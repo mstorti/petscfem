@@ -4,7 +4,7 @@ u_iisd2=aload("save.state.iisd.np2.tmp");
 u_iisd2r=aload("save.state.iisd.np2.rand.tmp");
 u_iisd_cgs=aload("save.state.iisd.cgs.np2.tmp");
 
-tol = 1e-8;
+tol = 1e-7;
 
 err = merr(u_iisd1-u_lu);
 printf("IISD on 1 processors OK ? > %d, [error: %g]\n",err<tol,err);

@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.22 2001/09/30 17:17:51 mstorti Exp $
+//$Id: sparse.cpp,v 1.23 2001/11/09 03:05:42 mstorti Exp $
 
-#include "sparse.h"
+#include <src/sparse2.h>
 
 using namespace Random;
 
@@ -921,4 +921,13 @@ namespace Sparse {
 
 #define FSM_OP(action) FSM_ACTION_DEF(action)
     FSM_ACTIONS;
+
+  Mat *Mat::dispatch(char *opt) {
+    if (!strcmp(opt,"PETSc")) {
+      return new SuperLUMat;
+    } else if (!strcmp(opt,"SuperLU")) {
+      return new PETScMat;
+    } else assert(0);
+  }  
+
 }

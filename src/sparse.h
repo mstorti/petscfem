@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.25 2001/11/08 21:30:52 mstorti Exp $
+// $Id: sparse.h,v 1.26 2001/11/09 03:05:42 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -406,6 +406,8 @@ void MatFSMContext::action() {			\
     void init_fsm(Mat *) {fsm.matrix_p = this;};
   public:
 
+    static Mat *dispatch(char *opt);
+
     double *b;
 
     friend class MatFSM;
@@ -521,30 +523,6 @@ void MatFSMContext::action() {			\
     virtual void solve_only()=0;
     virtual void fact_and_solve()=0;
 
-  };
-
-  class SuperLUMat : public Mat {
-  private:
-    /// Factored matrix
-    SuperMatrix A,L,U,B;
-    int *perm_r, *perm_c;
-  public:
-    void clean_factor();
-    void solve_only();
-    void fact_and_solve();
-  };
-
-  class PETScMat : public Mat {
-  private:
-    /// Factored matrix
-    ::Mat A;
-    SLES sles;
-    KSP ksp;
-    PC pc;
-  public:
-    void clean_factor();
-    void solve_only();
-    void fact_and_solve();
   };
 
 }

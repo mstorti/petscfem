@@ -1,7 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: spsolve.cpp,v 1.10 2001/11/08 21:30:52 mstorti Exp $
+//$Id: spsolve.cpp,v 1.11 2001/11/09 03:05:42 mstorti Exp $
 
-#include "sparse.h"
+#include "sparse2.h"
 
 extern "C" {
   int PrintInt10(char *name, int len, int *x);

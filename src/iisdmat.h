@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.9 2001/11/08 21:30:52 mstorti Exp $
+// $Id: iisdmat.h,v 1.10 2001/11/09 03:05:41 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -8,6 +8,7 @@
 
 #include <src/pfmat.h>
 #include <src/sparse.h>
+#include <src/sparse2.h>
 
 // This is the OO wrapper to PETSc matrix
 class PETScMat : public PFMat {
@@ -102,7 +103,7 @@ class IISDMat : public PFMat {
   vector<int> n_int_v;
   /// The PETSc nnz vector for the local part
   vector<int> d_nnz_LL;
-  /// Version SuperLU of the local matrix
+  /// Version  of the local matrix
   Sparse::SuperLUMat A_LL_SLU;
   /// Local-Local matrix (sequential matrix on each processor). 
   Mat A_LL;
@@ -240,12 +241,15 @@ public:
 /// Direct solver. (May be PETSc or SuperLU)
 class SparseDirect : public PFMat {
 public:
+  SparseDirect(char * opt = "PETSc") {
+    A_p = Sparse::Mat::dispatch(opt);
+  }
   // Sparse::SuperLUMat A;
-  Sparse::PETScMat A;
+  Sparse::Mat *A_p;
   /// destructor
-  ~SparseDirect() {A.clear();};
+  ~SparseDirect() { A_p->clear(); delete A_p;};
   /// clear memory (almost destructor)
-  void clear() {A.clear();};
+  void clear() { A_p->clear(); };
   /// does nothing here (only sequential use...)
   int assembly_begin(MatAssemblyType type) { return 0;};
   /// does nothing here (only sequential use...)
@@ -256,7 +260,7 @@ public:
   void set_value(int row,int col,Scalar value,
 		 InsertMode mode=ADD_VALUES);
   /// Sets all values of the operator to zero.
-  int zero_entries() {A.clear(); return 0;};
+  int zero_entries() {A_p->clear(); return 0;};
   // Does nothing
   int build_sles(TextHashTable *thash,char *name=NULL) {return 0;};
   // Does nothing
@@ -266,7 +270,7 @@ public:
   /// returns the number of iterations spent in the last solve
   int its() {return 1;};
   /// Prints the matrix to a PETSc viewer
-  int view(Viewer viewer=NULL) {A.print(); return 0;};
+  int view(Viewer viewer=NULL) {A_p->print(); return 0;};
   /// Derive this if you want to manage directly the preconditioning. 
   int set_preco(const string & preco_type) {return 0;};
   /// Duplicate matrices (currently not implemented for IISDMat)

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.51 2001/11/01 19:19:27 mstorti Exp $
+//$Id: lusubd.cpp,v 1.52 2001/11/09 03:05:41 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -48,7 +48,11 @@ PFMat * PFMat_dispatch(const char *s) {
     A = new PETScMat;
     return A;
   } else if (!strcmp(s,"direct_superlu")) {
-    A = new SparseDirect;
+    A = new SparseDirect("SuperLU");
+    return A;
+  } else if (!strcmp(s,"direct") || 
+	     !strcmp(s,"direct_petsc")) {
+    A = new SparseDirect("PETSc");
     return A;
   } else {
     PETSCFEM_ERROR("PFMat type not known: %s\n",s);

@@ -825,6 +825,12 @@ expect("lupart/check_direct_superlu.verif.tmp",
 Direct/SuperLU  OK \? > 1, 
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("lupart/check_direct_petsc.verif.tmp",
+       "PETSc direct solver (SparseDirect class)",<<'EOT');
+Direct/PETSc  OK \? > 1, 
+EOT
+
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
@@ -922,7 +928,11 @@ PETSC-FEM error at file "readmesh.cpp"
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sparse/output.sparse.tmp","Sparse Mat/Vec classes",
+expect("sparse/output.sparse.superlu.tmp","Sparse Mat/Vec classes, SuperLU version",
+                        read_file("sparse.test"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sparse/output.sparse.petsc.tmp","Sparse Mat/Vec classes, PETSc version",
                         read_file("sparse.test"));
 
 end_section();

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmatsp.cpp,v 1.2 2001/10/06 23:37:08 mstorti Exp $
+//$Id: pfmatsp.cpp,v 1.3 2001/11/09 03:05:42 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -28,7 +28,7 @@ void SparseDirect::create(Darray *da,const Dofmap *dofmap,
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
   assert(size==1); // Only sequential use
   const int &neq = dofmap->neq;
-  A.resize(neq,neq);
+  A_p->resize(neq,neq);
 
 }
 
@@ -38,10 +38,10 @@ int SparseDirect::solve(Vec res,Vec dx) {
 
   ierr = VecGetArray(res,&res_p); CHKERRQ(ierr); 
   ierr = VecGetArray(dx,&dx_p); CHKERRQ(ierr); 
-  m = A.rows();
+  m = A_p->rows();
   for (j=0; j<m; j++) 
     dx_p[j] = res_p[j];
-  A.solve(dx_p);
+  A_p->solve(dx_p);
   ierr = VecRestoreArray(res,&res_p); CHKERRQ(ierr); 
   ierr = VecRestoreArray(dx,&dx_p); CHKERRQ(ierr); 
   return 0;
@@ -51,13 +51,13 @@ void SparseDirect::set_value(int row,int col,Scalar value,
 			     InsertMode mode=ADD_VALUES) {
   double val = value;
   if (mode==ADD_VALUES)
-    val += A.get(row,col);
-  A.set(row,col,val);
+    val += A_p->get(row,col);
+  A_p->set(row,col,val);
 }
 
 int SparseDirect::duplicate(MatDuplicateOption op,const PFMat &B) {
   const SparseDirect * BB = dynamic_cast<const SparseDirect *>(&B);
   assert(BB);
-  A = BB->A;
+  *A_p = *(BB->A_p);
   return 0;
 }

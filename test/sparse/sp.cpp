@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: sp.cpp,v 1.19 2001/11/09 00:11:04 mstorti Exp $
+// $Id: sp.cpp,v 1.20 2001/11/09 03:05:46 mstorti Exp $
 
 #include <cmath>
 #include <vector>
@@ -28,23 +28,26 @@ double power_nth(double v,void *u) {
 
 #define M 1000
 int main(int argc, char **args) {
-  int j,k,m,N;
 
-  PetscInitialize(&argc,&args,NULL,NULL);
+  int j,k,m,N;
   Sparse::Vec v(5),w(4),u,res_v;
   GenVec &res = res_v;
   FullVec uu_f;
   GenVec &uu = uu_f;
+  char *mat_type;
 
-#ifdef MAT_TYPE
-#define MAT_TYPE_T MAT_TYPE
-#else
-#define MAT_TYPE_T "PETSc"
-#endif
+  PetscInitialize(&argc,&args,NULL,NULL);
+
+  if (argc==1 || !strcmp(args[1],"PETSc")) {
+    mat_type = "PETSc";
+  } else if (!strcmp(args[1],"SuperLU")) {
+    mat_type = "SuperLU";
+  } else assert(0);
+
   Sparse::Mat *a_p,*b_p,*c_p;
-  a_p = Sparse::Mat::dispatch(MAT_TYPE_T);
-  b_p = Sparse::Mat::dispatch(MAT_TYPE_T);
-  c_p = Sparse::Mat::dispatch(MAT_TYPE_T);
+  a_p = Sparse::Mat::dispatch(mat_type);
+  b_p = Sparse::Mat::dispatch(mat_type);
+  c_p = Sparse::Mat::dispatch(mat_type);
 
   Sparse::Mat &a = *a_p;
   Sparse::Mat &b = *b_p;
@@ -233,4 +236,5 @@ int main(int argc, char **args) {
 #endif
   PetscFinalize();
   exit(0);
+
 }
