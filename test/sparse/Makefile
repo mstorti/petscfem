@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2002/07/18 20:01:44 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2002/07/19 02:00:43 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -35,18 +35,9 @@ tryme.bin: tryme.o
 tryme2.bin: tryme2.o
 	g++ -g -o $@ $<
 
-LDFLAGS =						\
-	  -L$(PETSCFEM_DIR)/src				\
-          -lpetscfem$(osfx)				\
-          -L$(METIS) -L/usr/local/lib			\
-          -lmetis  -L$(NEWMAT)  -lnewmat		\
-          -lglib -L$(LIBRETTO_LIB) -libretto		\
-          -lANN -L$(ANN_HOME)/lib			\
-          -lc ${PETSC_SLES_LIB}				\
-          $(MESCHACH)/libmes.a				\
-          $(SUPERLULIB)
-
-
 tryme3.bin: tryme3.o
-	${CXX_CLINKER} -o $@ $<  $(LDFLAGS)
+	${CXX_CLINKER} -o $@ $< 
+
+tryme4.bin: tryme4.cpp
+	g++ -g -o $@ $<
 #s

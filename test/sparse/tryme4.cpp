@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.3 2002/07/19 00:31:39 mstorti Exp $
+// $Id: tryme4.cpp,v 1.4 2002/07/19 02:00:43 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -26,7 +26,7 @@ private:
   // will resort if size passes max
   int max;
   void sort_m() { 
-    print2();
+    // print2();
     sort(d.begin(),d.end());
     cont_it p=d.begin(), e=d.end(), q;
     if (p==e) {
@@ -37,7 +37,7 @@ private:
     while (++q!=e) if (*q!=*p) *++p = *q;
     d.erase(++p,e);
     end_ord = p;
-    print2();
+    // print2();
   }
 public:
   SET() { end_ord = d.end(); max=10; }
@@ -68,11 +68,26 @@ int main(int argc, char **argv) {
   SET<int> g;
   set<int> gg;
   int k;
-  for (int j=0; j<1000; j++) { 
-    k = irand(1,1000);
+  //  printf("insertando: ");
+  int M=800;
+  for (int j=0; j<M; j++) { 
+    k = irand(1,M);
+    // printf("%d ",k);
     g.insert(k); 
     gg.insert(k); 
   }
+  // printf("\n");
   g.print();
-  assert(g.size()==gg.size());
+
+  printf("usando set<int>: ");
+  for (set<int>::iterator q=gg.begin(); q!=gg.end(); q++) printf("%d ",*q);
+  printf("\n");
+
+  printf("g.size()!: %d, gg.size() %d\n",g.size(),gg.size());
+#if 0  
+  set<int>::iterator q=gg.begin();
+  if (g.size()!=gg.size()) {
+    for (j=0; j<g.size() && q!=gg.end(); j++, q++) {
+      printf(
+#endif
 }

@@ -1,14 +1,14 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.13 2002/07/18 20:01:40 mstorti Exp $
+// $Id: graph.h,v 1.14 2002/07/19 02:00:43 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
 #include <queue>
 #include <set>
 
-//#define STL_ALLOCATOR malloc_alloc
-#define STL_ALLOCATOR single_client_alloc 
+#define STL_ALLOCATOR malloc_alloc
+//#define STL_ALLOCATOR single_client_alloc 
 
 /// A set of neighbors. 
 typedef set<int,less<int>,STL_ALLOCATOR> GSet;

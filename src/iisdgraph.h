@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.4 2002/07/18 20:01:40 mstorti Exp $
+//$Id: iisdgraph.h,v 1.5 2002/07/19 02:00:43 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -58,6 +58,17 @@ class StoreGraph : public Graph {
   void print() const;
   /// Clean all memory related 
   void clear();
+};
+
+class StoreGraph2 : public GMap {
+public:
+  StoreGraph2(int N=0,const DofPartitioner *pp=NULL,
+    MPI_Comm comm_=MPI_COMM_WORLD) {}
+  void add(int i,int j) { (*this)[i].insert(j); }
+  void set_ngbrs(int j,GSet &ngbrs_v) {}
+  ~StoreGraph2() { clear(); };
+  void scatter() {}
+  void print() {}
 };
 
 #endif
