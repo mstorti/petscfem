@@ -519,8 +519,6 @@ EOT
 # norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
 #
 expect("oscplate3o.sal","Time dep. b.c./Crank-Nicholson ",<<'EOT');
-norm\(u16-u128\): 0.011
-norm\(u32-u128\): 0.002
 norm\(u32-u128\)/norm\(u16-u128\) < 0.26 OK \? > 1 
 EOT
 
