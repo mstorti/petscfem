@@ -518,3 +518,14 @@ tag: beta-3.38 on Thu Dec 23 12:00:02 GMT+3 2004, by mstorti in spider
      >    when the vector is not `shaped' (shape.size()>
      > Merged a fix to the Fractional Step solver (Beto).
      > Added the bcconv for FS (Beto).
+----------
+tag: beta-3.41 on Wed Jan 26 08:05:23 GMT+3 2005, by mstorti in spider
+     > Working on adaptive refinement library (tools/femref). 
+     > Implemeneted fixed wall temperature 
+     >     (Dirichlet b.c.) for gasflow. 
+     > Merged `bubbly4-branch'.
+     > Implemented smoothing based on `femref'. 
+     > Modified `dvector<>' library. 
+     > Wrapped `dvector<>' in scheme. 
+     > Implemented general absorbing boundary condition,
+     > 	    and implemented for gasflow. 
