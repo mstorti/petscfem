@@ -3652,3 +3652,6 @@ tag: beta-3.38.22 on Thu, 13 Jan 2005 17:12:36 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.38.23 on Thu, 13 Jan 2005 17:25:11 -0300 by mstorti in minerva.ceride.gov.ar
      > Smoothing seems to start working. 
+----------
+tag: beta-3.38.24 on Thu, 13 Jan 2005 20:15:22 -0300 by mstorti in spider
+     > Good smoothing with `getsurf'. 
