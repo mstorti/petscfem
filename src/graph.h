@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: graph.h,v 1.16 2003/07/02 02:32:47 mstorti Exp $
+// $Id: graph.h,v 1.17 2003/07/02 20:00:42 mstorti Exp $
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -32,10 +32,14 @@ using namespace std;
 //  information from bounds-checking or leak-detection tools while you
 //  are debugging.
 
+#if __GNUC__ > 2
+#define STL_ALLOCATOR __single_client_alloc 
 //#define STL_ALLOCATOR __alloc
 //#define STL_ALLOCATOR __new_alloc
 //#define STL_ALLOCATOR __malloc_alloc
-#define STL_ALLOCATOR __single_client_alloc 
+#else
+#define STL_ALLOCATOR alloc
+#endif
 
 /// A set of neighbors. 
 typedef set<int,less<int>,STL_ALLOCATOR> GSet;

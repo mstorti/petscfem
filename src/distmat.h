@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmat.h,v 1.10 2001/08/16 18:24:46 mstorti Exp $
+// $Id: distmat.h,v 1.11 2003/07/02 20:00:42 mstorti Exp $
 #ifndef DISTMAT_H
 #define DISTMAT_H
 
@@ -21,7 +21,7 @@ public:
 class IntRowPartitioner {
 public:
   virtual ~IntRowPartitioner()=0;
-  virtual int processor(map<int,Row>::iterator k)=0;
+  virtual int processor(map<int,Row>::const_iterator k)=0;
 };
 
 typedef DistMap<int,Row,IntRowPartitioner> DistMat;
