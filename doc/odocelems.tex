@@ -15,11 +15,28 @@ Debug the process of building the matrix profile.
 Chunk size for the elemset. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{epsilon\_fdj@\verb+epsilon_fdj+}
+\item\verb+double epsilon_fdj+ {\rm(default=\verb|EPSILON_FDJ|)}:
+
+The increment in the variables in order to
+compute the finite difference approximation to the
+Jacobian. Should be order epsilon=sqrt(precision)*(typical
+magnitude of the variable). Normally, precision=1e-15 so
+that epsilon=1e-7*(typical magnitude of the
+variable)
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{report\_consumed\_time@\verb+report_consumed_time+}
 \item\verb+int report_consumed_time+ {\rm(default=\verb|0|)}:
 
 Report consumed time for the elemset. Useful for building
 the table of weights per processor. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{element\_weight@\verb+element_weight+}
+\item\verb+int element_weight+ {\rm(default=\verb|1|)}:
+
+Element weight for the processor
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>

@@ -42,6 +42,12 @@ After computing the linear system solves it and prints Jacobian,
 right hand side and solution vector, and stops. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{print\_residual@\verb+print_residual+}
+\item\verb+int print_residual+ {\rm(default=\verb|0|)}:
+
+Print the residual eac \verb+nsave+ steps. 
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{solve\_system@\verb+solve_system+}
 \item\verb+int solve_system+ {\rm(default=\verb|1|)}:
 
@@ -169,6 +175,12 @@ Use the LES/Smagorinsky turbulence model.
 \item\verb+int use_iisd+ {\rm(default=\verb|0|)}:
 
 Use IISD (Interface Iterative Subdomain Direct) or not.
+
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{solver@\verb+solver+}
+\item\verb+string solver+ {\rm(default=\verb|petsc|)}:
+
+Type of solver. May be \verb+iisd+ or \verb+petsc+. 
 
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{save\_file\_pattern@\verb+save_file_pattern+}
