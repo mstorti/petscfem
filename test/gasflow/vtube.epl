@@ -160,7 +160,7 @@ hook_list dl_generic_hook cut_regulator \
 
 cut_regulator.filename ./gasflow.efn
 cut_regulator.prefix   cut_regulator_hook
-dx_port 5314
+dx_port 5315
 dx_steps 1
 __END_HASH__
 
@@ -191,9 +191,8 @@ __END_HASH__
 elemset <:=($compressible ? 'gasflow' : 'nsi_tet_les_fm2'):> \
 			    <:= ($use_tetra ? 4 : 8):>
 name gasflow
-dx 1
-dx_indices 1 2 4 3
-dx_type "quads"
+dx
+dx_indices 1 2 4 3 quads
 geometry <:=($use_tetra ? "tetra" : "cartesian3d"):>
 npg <:= ($use_tetra ? 4 : 8):>
 # report_consumed_time

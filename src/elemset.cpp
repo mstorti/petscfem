@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.59 2003/02/10 03:45:56 mstorti Exp $
+//$Id: elemset.cpp,v 1.60 2003/02/11 11:34:00 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -1004,36 +1004,49 @@ Elemset::~Elemset() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Nodedata::Nodedata() : nodedata(NULL) { }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+Nodedata::~Nodedata() { DELETE_VCTR(nodedata); }
+
+#ifdef USE_DX
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
-  string dx_type;
   int ierr, cookie, cookie2;
 
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
   static size_t Nbuf = BUFSIZE;
-
   vector<string> tokens;
 
-  //o Flags whether the element should return a connection array for this elemset. 
+  //o Flags whether the element should return a connection array
+  //   for this elemset. 
   TGETOPTDEF(thash,int,dx,0);
   if (!dx) return;
-  //o _T: vector<int>  _N: dx_indices _D: (empty array)
-  // _DOC: list of indices of the nodes to be passed to DX
-  // as connectivity table _END
+
+  string type;
+  int subnel,nsubelem;
   vector<int> node_indices;
-  dx_indices(dx_type,node_indices);
+  assert(dx_types_n()==1);
+
+  dx_type(0,type,subnel,node_indices);
+  assert(subnel>0);
+  assert(node_indices.size() % subnel == 0);
+  nsubelem = node_indices.size()/subnel;
 
   if (!MY_RANK) {
     cookie = rand();
-    Sprintf(sock,"elemset %s %s %d %d %d\n",name(),dx_type.c_str(),
-	    node_indices.size(),nelem,cookie);
+    Sprintf(sock,"elemset %s %s %d %d %d\n",name(),type.c_str(),
+	    node_indices.size(),nelem*nsubelem,cookie);
     for (int j=0; j<nelem; j++) {
       int *row = icone+j*nel;
-      for (int n=0; n<node_indices.size(); n++) {
-	int k = node_indices[n];
-	// Convert to 0 based (DX) node numbering
-	int node = *(row+k-1)-1;
-	Swrite(sock,&node,sizeof(int));
+      for (int j=0; j<nsubelem; j++) {
+	for (int n=0; n<subnel; n++) {
+	  int k = node_indices[j*subnel+n];
+	  // Convert to 0 based (DX) node numbering
+	  int node = *(row+k)-1;
+	  Swrite(sock,&node,sizeof(int));
+	}
       }
     }
     CHECK_COOKIE(elemset);
@@ -1044,40 +1057,37 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Elemset::dx_indices(string &dx_type,vector<int>& node_indices) {
-  int ierr;
+int Elemset::dx_types_n() {
   const char *line;
-  // Nodes returned in the connectivity table
+  //o _T: <string:type> <integer array>
+  //  _N: dx_indices 
+  //  _D: (empty array)
+  //  _DOC: list of indices of the nodes to be passed to DX 
+  //        as connectivity table. Note that the order the nodes
+  //        are entered in DX is not the same that in PETSc-FEM.
+  //        For instance, in  PETSc-FEM the nodes of a quad are entered
+  //        counter-clockwise, and it they are (in that order) 1, 2, 3, 4, then
+  //        for DX they are entered in the order: 1, 2, 4, 3. Also DX wants 0-based
+  //        (C-sytle) node numbers, whereas PETSc-FEM uses 1-based (Fortran style).
+  //        However they must be entered 1-based for this option. For instance,
+  //        for quads one should enter {\tt dx_indices 1 2 4 3} and for cubes
+  //        {\tt dx_indices 1 2 4 3 5 6 8 7}. 
+  //  _END
   thash->get_entry("dx_indices",line);
   // Reads list of indices from `dx_indices' option line
   // othewise, use standard numeration from geometry
   if (!line) {
-    assert(0);// not fully implemented yet
-    for (int k=0; k<nel; k++) node_indices.push_back(k);
+    assert(0);
+    // for (int k=0; k<nel; k++) node_indices.push_back(k);
   } else {
-    read_int_array(node_indices,line);
-    for (int k=0; k<node_indices.size(); k++) {
-      PETSCFEM_ASSERT(node_indices[k]>=1,
-		      "Node indices should be entered 1 based (1<=indx<=nel)."
-		      "Entered %d\n",node_indices[k]);
-      PETSCFEM_ASSERT(node_indices[k]<=nel,
-		      "Node indices should be entered 1 based (1<=indx<=nel)."
-		      "Entered %d\n",node_indices[k]);
-    }
-    //o DX connection type for this elemset (quads, cubes,
-    //  triangles or tetrahedra). 
-    TGETOPTDEF_S_ND(thash,string,dx_type,none);
+    splitting.parse(line);
+    return splitting.dx_types_n();
   }
-  int dx_nel = node_indices.size();
-  if (! ( (dx_type=="quads" && dx_nel==4) 
-	  || (dx_type=="cubes" && dx_nel==8) 
-	  || (dx_type=="triangles" && dx_nel==3) 
-	  || (dx_type=="tetrahedra" && dx_nel==4) ))
-    PETSCFEM_ERROR("Not known dx_type: \"%s\"",dx_type.c_str());
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Nodedata::Nodedata() : nodedata(NULL) { }
+void Elemset::dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes) {
+  return splitting.dx_type(j,dx_type,subnel,nodes);
+}
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Nodedata::~Nodedata() { DELETE_VCTR(nodedata); }
+#endif

@@ -1,12 +1,13 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.3 2003/02/09 14:50:57 mstorti Exp $
+// $Id: util3.cpp,v 1.4 2003/02/11 11:34:00 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
 #include <vector>
 #include <mpi.h>
-
 #include <HDR/sockets.h>
+
+#include <src/util3.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int string2int(string s,int &n) {
@@ -95,3 +96,51 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   return strlen(*lineptr)+1;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int DXSplit::parse(const char *line) {
+  vector<string> tokens;
+  string *token;
+  tokenize(line,tokens);
+  int ntoken = tokens.size();
+  vector<int> nodes;
+  int j=0, ierr, node, subnel;
+  Subelem se;
+
+  splitting.clear();
+
+#undef DX_CHECK
+#define DX_CHECK(type,nel) else if (*token==#type ) { subnel=nel; break; }
+
+  while (j<ntoken) {
+    nodes.clear();
+    while (j<ntoken) {
+      token = &tokens[j++];
+      if (0) {} // tricky
+      DX_CHECK(quads,4)
+	DX_CHECK(cubes,8)
+	DX_CHECK(triangles,3)
+	DX_CHECK(tetrahedra,4)
+      else {
+	ierr = string2int(*token,node);
+	if (ierr) return ierr;
+	nodes.push_back(node-1);
+      }
+    }
+    assert(nodes.size() % subnel == 0);
+    se.indices = nodes;
+    se.type = *token;
+    se.subnel = subnel;
+    splitting.push_back(se);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int DXSplit::dx_types_n() { return splitting.size(); }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void DXSplit::dx_type(int j,string &dx_type,int &subnel,vector<int> &nodes) {
+  Subelem &se = splitting[j];
+  dx_type = se.type;
+  subnel = se.subnel;
+  nodes = se.indices;
+}

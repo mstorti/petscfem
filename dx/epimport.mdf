@@ -1,9 +1,9 @@
 # -*- mode: shell-script -*-
-# $Id: epimport.mdf,v 1.1 2003/02/10 03:45:56 mstorti Exp $ 
+# $Id: epimport.mdf,v 1.2 2003/02/11 11:34:00 mstorti Exp $ 
 MODULE ExtProgImport
 CATEGORY Import and Export
 DESCRIPTION Imports data from a fifo/socket
-LOADABLE epimport;
+LOADABLE ./epimport;
 INPUT steps; integer; 0; Visualize each "steps" time steps. (0 means asynchronously)
 INPUT serverhost; string;  "localhost"; Name of host where the external program is running
 INPUT port; integer; 5314; Port number

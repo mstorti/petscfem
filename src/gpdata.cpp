@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.23 2003/02/10 22:41:35 mstorti Exp $
+//$Id: gpdata.cpp,v 1.24 2003/02/11 11:34:00 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -8,7 +8,6 @@
 #include <src/fem.h>
 #include <src/util2.h>
 #include <src/utils.h>
-#include <src/gpdata.h>
 #include <src/gpdata.h>
 
 #define GPERROR \
@@ -97,24 +96,8 @@ void cart_prod(int npg,int nel,int nel_lay,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class GeometrySplit {
-private:
-  class G {
-  public:
-    string shape;
-    vector<int> nodes;
-  };
-  vector<G> split;
-public:
-  clear() { split.clear(); }
-  add(string s,
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	       mat_version_=GP_NEWMAT) {
-  string type;
-  vector<indices> indices;
   mat_version = mat_version_;
   npg= npg_;
   int ipg;
@@ -149,8 +132,6 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
     master_volume = 1;		// that is 0.5(tri)*2(1d-segment)
     assert(ndimel==3);
     assert(nel==6);
-    if (npg==0) npg=6;
-    
     assert(npg==1 || npg==6); // other cases may be considered
     int npg_seg, npg_tri;
     if (npg==1) { npg_seg=1; npg_tri=1; }

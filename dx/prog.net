@@ -1,5 +1,5 @@
 //
-// time: Fri Jan 31 16:29:04 2003
+// time: Mon Feb 10 23:21:24 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -11,51 +11,82 @@
 // comment: The control panels allow you to choose which variable to visualize as a deformed surface, which variable to visualize as colors on the surface, and which variable to visualize as contour lines (for scalar data) or glyphs (for vector or connection-dependent data). You can also set the contour line values.
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
-// page assignment: image	order=4, windowed=0, showing=1
-// page assignment: import	order=2, windowed=0, showing=0
+// page assignment: image	order=4, windowed=0, showing=0
+// page assignment: import	order=1, windowed=0, showing=0
+// page assignment: proc_u	order=2, windowed=0, showing=0
 // page assignment: scalar	order=3, windowed=0, showing=0
-// workspace: width = 1128, height = 702
+// workspace: width = 556, height = 502
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
 ) -> (
 ) {
     // 
-    // node String[1]: x = 320, y = 0, inputs = 0, label = String
-    // output[1]: visible = 1, type = 32, value = "!eperl -P  -d step=-1 viewer.dx"
+    // node ExtProgImport[1]: x = 40, y = 20, inputs = 6, label = ExtProgImport
+    // input[1]: defaulting = 0, visible = 1, type = 1, value = 1
+    // input[3]: defaulting = 0, visible = 1, type = 1, value = 5315
     // page group: import
     //
-    // 
-    // node Import[1]: x = 180, y = 40, inputs = 6, label = Import
-    // input[1]: defaulting = 1, visible = 1, type = 32, value = "viewer_tmp.dx"
-    // input[3]: defaulting = 1, visible = 1, type = 32, value = NULL
-    // page group: import
-    //
-main_Import_1_out_1 = 
-    Import(
-    main_String_1_out_1,
-    main_Import_1_in_2,
-    main_Import_1_in_3,
-    main_Import_1_in_4,
-    main_Import_1_in_5,
-    main_Import_1_in_6
+main_ExtProgImport_1_out_1,
+main_ExtProgImport_1_out_2 = 
+    ExtProgImport(
+    main_ExtProgImport_1_in_1,
+    main_ExtProgImport_1_in_2,
+    main_ExtProgImport_1_in_3,
+    main_ExtProgImport_1_in_4,
+    main_ExtProgImport_1_in_5,
+    main_ExtProgImport_1_in_6
     ) [instance: 1, cache: 1];
     // 
-    // node Select[5]: x = 200, y = 200, inputs = 3, label = Select
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "u"
+    // node Select[9]: x = 60, y = 100, inputs = 3, label = Select
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "state"
     // page group: import
     //
-main_Select_5_out_1 = 
+main_Select_9_out_1 = 
     Select(
-    main_Import_1_out_1,
-    main_Select_5_in_2,
-    main_Select_5_in_3
-    ) [instance: 5, cache: 1];
+    main_ExtProgImport_1_out_1,
+    main_Select_9_in_2,
+    main_Select_9_in_3
+    ) [instance: 9, cache: 1];
     // 
-    // node Transmitter[8]: x = 560, y = 300, inputs = 1, label = u
+    // node Compute[28]: x = 460, y = 120, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "[$0.1,$0.2,$0.3]"
+    // page group: import
+    // expression: value = [s.1,s.2,s.3]
+    // name[2]: value = s
+    //
+main_Compute_28_out_1 = 
+    Compute(
+    main_Compute_28_in_1,
+    main_Select_9_out_1
+    ) [instance: 28, cache: 1];
+    // 
+    // node Select[7]: x = 160, y = 120, inputs = 3, label = Select
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "gasflow_field"
     // page group: import
     //
-u = main_Select_5_out_1;
+main_Select_7_out_1 = 
+    Select(
+    main_ExtProgImport_1_out_2,
+    main_Select_7_in_2,
+    main_Select_7_in_3
+    ) [instance: 7, cache: 1];
+    // 
+    // node Replace[7]: x = 460, y = 200, inputs = 4, label = Replace
+    // page group: import
+    //
+main_Replace_7_out_1 = 
+    Replace(
+    main_Compute_28_out_1,
+    main_Select_7_out_1,
+    main_Replace_7_in_3,
+    main_Replace_7_in_4
+    ) [instance: 7, cache: 1];
+    // 
+    // node Transmitter[27]: x = 480, y = 320, inputs = 1, label = u
+    // page group: import
+    //
+u = main_Replace_7_out_1;
     // 
     // node Receiver[11]: x = 340, y = 240, inputs = 1, label = u
     // page group: image
@@ -115,20 +146,6 @@ main_AutoGlyph_1_out_1 =
     main_AutoGlyph_1_in_7
     ) [instance: 1, cache: 1];
     // 
-    // node AutoGlyph[2]: x = 60, y = 100, inputs = 7, label = AutoGlyph
-    // page group: import
-    //
-main_AutoGlyph_2_out_1 = 
-    AutoGlyph(
-    main_AutoGlyph_2_in_1,
-    main_AutoGlyph_2_in_2,
-    main_AutoGlyph_2_in_3,
-    main_AutoGlyph_2_in_4,
-    main_AutoGlyph_2_in_5,
-    main_AutoGlyph_2_in_6,
-    main_AutoGlyph_2_in_7
-    ) [instance: 2, cache: 1];
-    // 
     // node Selector[1]: x = 40, y = 180, inputs = 7, label = Selector
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Selector_1"
     // input[2]: defaulting = 0, visible = 0, type = 32, value = "Temperature" 
@@ -140,59 +157,66 @@ main_AutoGlyph_2_out_1 =
     // page group: scalar
     //
     // 
-    // node Select[6]: x = 320, y = 120, inputs = 3, label = Select
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "rho"
+    // node Compute[26]: x = 60, y = 180, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.0"
     // page group: import
+    // expression: value = s.0
+    // name[2]: value = s
     //
-main_Select_6_out_1 = 
-    Select(
-    main_Import_1_out_1,
-    main_Select_6_in_2,
-    main_Select_6_in_3
-    ) [instance: 6, cache: 1];
+main_Compute_26_out_1 = 
+    Compute(
+    main_Compute_26_in_1,
+    main_Select_9_out_1
+    ) [instance: 26, cache: 1];
     // 
-    // node Select[4]: x = 60, y = 200, inputs = 3, label = Select
-    // input[2]: defaulting = 0, visible = 1, type = 32, value = "p"
+    // node Replace[5]: x = 140, y = 240, inputs = 4, label = Replace
     // page group: import
     //
-main_Select_4_out_1 = 
-    Select(
-    main_Import_1_out_1,
-    main_Select_4_in_2,
-    main_Select_4_in_3
-    ) [instance: 4, cache: 1];
-    // 
-    // node Transmitter[7]: x = 60, y = 300, inputs = 1, label = p
-    // page group: import
-    //
-p = main_Select_4_out_1;
-    // 
-    // node Receiver[22]: x = 500, y = 60, inputs = 1, label = p
-    // page group: import
-    //
-main_Receiver_22_out_1[cache: 0] = p;
-    // 
-    // node Replace[4]: x = 460, y = 160, inputs = 4, label = Replace
-    // input[3]: defaulting = 0, visible = 1, type = 32, value = NULL
-    // page group: import
-    //
-main_Replace_4_out_1 = 
+main_Replace_5_out_1 = 
     Replace(
-    main_Select_6_out_1,
-    main_Receiver_22_out_1,
-    main_Replace_4_in_3,
-    main_Replace_4_in_4
-    ) [instance: 4, cache: 1];
+    main_Compute_26_out_1,
+    main_Select_7_out_1,
+    main_Replace_5_in_3,
+    main_Replace_5_in_4
+    ) [instance: 5, cache: 1];
     // 
-    // node Transmitter[13]: x = 600, y = 200, inputs = 1, label = rho
+    // node Transmitter[25]: x = 160, y = 360, inputs = 1, label = rho
     // page group: import
     //
-rho = main_Replace_4_out_1;
+rho = main_Replace_5_out_1;
     // 
     // node Receiver[23]: x = 200, y = 20, inputs = 1, label = rho
     // page group: scalar
     //
 main_Receiver_23_out_1[cache: 0] = rho;
+    // 
+    // node Compute[27]: x = 280, y = 120, inputs = 2, label = Compute
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.4"
+    // page group: import
+    // expression: value = s.4
+    // name[2]: value = s
+    //
+main_Compute_27_out_1 = 
+    Compute(
+    main_Compute_27_in_1,
+    main_Select_9_out_1
+    ) [instance: 27, cache: 1];
+    // 
+    // node Replace[6]: x = 300, y = 200, inputs = 4, label = Replace
+    // page group: import
+    //
+main_Replace_6_out_1 = 
+    Replace(
+    main_Compute_27_out_1,
+    main_Select_7_out_1,
+    main_Replace_6_in_3,
+    main_Replace_6_in_4
+    ) [instance: 6, cache: 1];
+    // 
+    // node Transmitter[26]: x = 320, y = 340, inputs = 1, label = p
+    // page group: import
+    //
+p = main_Replace_6_out_1;
     // 
     // node Receiver[24]: x = 240, y = 20, inputs = 1, label = p
     // page group: scalar
@@ -213,20 +237,25 @@ main_Compute_13_out_1 =
     main_Receiver_24_out_1
     ) [instance: 13, cache: 1];
     // 
-    // node Compute[8]: x = 460, y = 300, inputs = 2, label = Compute
+    // node Receiver[35]: x = 200, y = 20, inputs = 1, label = u
+    // page group: proc_u
+    //
+main_Receiver_35_out_1[cache: 0] = u;
+    // 
+    // node Compute[8]: x = 360, y = 100, inputs = 2, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.y"
-    // page group: import
+    // page group: proc_u
     // expression: value = u.y
     // name[2]: value = u
     //
 main_Compute_8_out_1 = 
     Compute(
     main_Compute_8_in_1,
-    main_Select_5_out_1
+    main_Receiver_35_out_1
     ) [instance: 8, cache: 1];
     // 
-    // node Transmitter[11]: x = 460, y = 460, inputs = 1, label = v
-    // page group: import
+    // node Transmitter[11]: x = 300, y = 240, inputs = 1, label = v
+    // page group: proc_u
     //
 v = main_Compute_8_out_1;
     // 
@@ -480,14 +509,14 @@ main_Switch_9_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_2"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 214.62134
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 312.15515
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 162.85477
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 297.09558
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 214.62134 312.15515 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 214.62134
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 312.15515
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 162.85477 297.09558 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 162.85477
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 297.09558
     // page group: scalar
-    // window: position = (0.4941,0.0117), size = 0.5371x0.3906
+    // window: position = (0.4938,0.0117), size = 0.5375x0.3900
     //
 main_Colormap_2_out_1[cache: 2],
 main_Colormap_2_out_2[cache: 2] = 
@@ -608,7 +637,7 @@ u2d = main_Compute_11_out_1;
     //
 main_Receiver_19_out_1[cache: 0] = u2d;
     // 
-    // node Compute[9]: x = 200, y = 120, inputs = 2, label = Compute
+    // node Compute[9]: x = 240, y = 140, inputs = 2, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "[$0.x-1,$0.y]"
     // page group: image
     // expression: value = [u.x-1,u.y]
@@ -797,20 +826,20 @@ main_Collect_2_out_1 =
     main_Receiver_32_out_1
     ) [instance: 2, cache: 1];
     // 
-    // node Compute[6]: x = 200, y = 300, inputs = 2, label = Compute
+    // node Compute[6]: x = 160, y = 100, inputs = 2, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.x"
-    // page group: import
+    // page group: proc_u
     // expression: value = u.x
     // name[2]: value = u
     //
 main_Compute_6_out_1 = 
     Compute(
     main_Compute_6_in_1,
-    main_Select_5_out_1
+    main_Receiver_35_out_1
     ) [instance: 6, cache: 1];
     // 
-    // node Gradient[1]: x = 200, y = 400, inputs = 2, label = Gradient
-    // page group: import
+    // node Gradient[1]: x = 40, y = 180, inputs = 2, label = Gradient
+    // page group: proc_u
     //
 main_Gradient_1_out_1 = 
     Gradient(
@@ -818,20 +847,20 @@ main_Gradient_1_out_1 =
     main_Gradient_1_in_2
     ) [instance: 1, cache: 1];
     // 
-    // node Compute[7]: x = 360, y = 300, inputs = 2, label = Compute
+    // node Compute[7]: x = 260, y = 100, inputs = 2, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.y"
-    // page group: import
+    // page group: proc_u
     // expression: value = u.y
     // name[2]: value = u
     //
 main_Compute_7_out_1 = 
     Compute(
     main_Compute_7_in_1,
-    main_Select_5_out_1
+    main_Receiver_35_out_1
     ) [instance: 7, cache: 1];
     // 
-    // node Gradient[2]: x = 360, y = 400, inputs = 2, label = Gradient
-    // page group: import
+    // node Gradient[2]: x = 200, y = 180, inputs = 2, label = Gradient
+    // page group: proc_u
     //
 main_Gradient_2_out_1 = 
     Gradient(
@@ -839,9 +868,9 @@ main_Gradient_2_out_1 =
     main_Gradient_2_in_2
     ) [instance: 2, cache: 1];
     // 
-    // node Compute[4]: x = 300, y = 500, inputs = 3, label = Compute
+    // node Compute[4]: x = 140, y = 280, inputs = 3, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "$0.y-$1.x"
-    // page group: import
+    // page group: proc_u
     // expression: value = gu.y-gv.x
     // name[2]: value = gu
     // name[3]: value = gv
@@ -853,9 +882,9 @@ main_Compute_4_out_1 =
     main_Gradient_2_out_1
     ) [instance: 4, cache: 1];
     // 
-    // node Compute[10]: x = 300, y = 600, inputs = 2, label = Compute
+    // node Compute[10]: x = 140, y = 380, inputs = 2, label = Compute
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "log10(max(abs($0),0.01))"
-    // page group: import
+    // page group: proc_u
     // expression: value = log10(max(abs(w),0.01))
     // name[2]: value = w
     //
@@ -879,13 +908,13 @@ main_Compute_10_out_1 =
     // node Image[4]: x = 160, y = 640, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.488563 0.0306103 0.500115]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.488563 0.0306103 1.98269]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 0.0650532
-    // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
-    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.6975
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 2.51365
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.0317059 -0.00289135 0.0255406]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.0317059 1.47969 0.0255406]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 0.332729
+    // input[8]: defaulting = 0, visible = 0, type = 1, value = 778
+    // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.688
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0.999802 6.12182e-17 -0.0198878]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 12.8051
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -900,7 +929,7 @@ main_Compute_10_out_1 =
     // output[3]: visible = 0
     // page group: image
     // depth: value = 16
-    // window: position = (0.0000,0.0000), size = 0.9902x0.9648
+    // window: position = (0.0000,0.0000), size = 0.9900x0.9650
     // internal caching: 1
     //
 main_Image_4_out_1,
@@ -958,18 +987,28 @@ main_Image_4_out_3 =
     main_Image_4_in_49
     ) [instance: 4, cache: 1];
     // 
+    // node Print[2]: x = 120, y = 440, inputs = 3, label = Print
+    // input[2]: defaulting = 0, visible = 1, type = 32, value = "rd"
+    // page group: import
+    //
+    Print(
+    main_Replace_5_out_1,
+    main_Print_2_in_2,
+    main_Print_2_in_3
+    ) [instance: 2, cache: 1];
+    // 
     // node Receiver[14]: x = 240, y = 20, inputs = 1, label = u
     // page group: image
     //
 main_Receiver_14_out_1[cache: 0] = u;
     // 
-    // node Transmitter[9]: x = 460, y = 600, inputs = 1, label = w
-    // page group: import
+    // node Transmitter[9]: x = 300, y = 380, inputs = 1, label = w
+    // page group: proc_u
     //
 w = main_Compute_4_out_1;
     // 
-    // node Transmitter[10]: x = 460, y = 700, inputs = 1, label = log_abs_w
-    // page group: import
+    // node Transmitter[10]: x = 300, y = 480, inputs = 1, label = log_abs_w
+    // page group: proc_u
     //
 log_abs_w = main_Compute_10_out_1;
     // 
@@ -995,17 +1034,26 @@ Mach = main_Compute_25_out_1;
 // network: end of macro body
 CacheScene(main_Image_4_in_1, main_Image_4_out_1, main_Image_4_out_2);
 }
-main_String_1_out_1 = "!eperl -P  -d step=-1 viewer.dx";
-main_Import_1_in_2 = NULL;
-main_Import_1_in_3 = NULL;
-main_Import_1_in_4 = NULL;
-main_Import_1_in_5 = NULL;
-main_Import_1_in_6 = NULL;
-main_Import_1_out_1 = NULL;
-main_Select_5_in_2 = "u";
-main_Select_5_in_3 = NULL;
-main_Select_5_out_1 = NULL;
-main_Transmitter_8_out_1 = NULL;
+main_ExtProgImport_1_in_1 = 1;
+main_ExtProgImport_1_in_2 = NULL;
+main_ExtProgImport_1_in_3 = 5315;
+main_ExtProgImport_1_in_4 = NULL;
+main_ExtProgImport_1_in_5 = NULL;
+main_ExtProgImport_1_in_6 = NULL;
+main_ExtProgImport_1_out_1 = NULL;
+main_ExtProgImport_1_out_2 = NULL;
+main_Select_9_in_2 = "state";
+main_Select_9_in_3 = NULL;
+main_Select_9_out_1 = NULL;
+main_Compute_28_in_1 = "[$0.1,$0.2,$0.3]";
+main_Compute_28_out_1 = NULL;
+main_Select_7_in_2 = "gasflow_field";
+main_Select_7_in_3 = NULL;
+main_Select_7_out_1 = NULL;
+main_Replace_7_in_3 = NULL;
+main_Replace_7_in_4 = NULL;
+main_Replace_7_out_1 = NULL;
+main_Transmitter_27_out_1 = NULL;
 main_Receiver_11_out_1 = NULL;
 main_Compute_11_in_1 = "[$0.z,$0.x]";
 main_Compute_11_out_1 = NULL;
@@ -1029,13 +1077,6 @@ main_AutoGlyph_1_in_5 = NULL;
 main_AutoGlyph_1_in_6 = NULL;
 main_AutoGlyph_1_in_7 = NULL;
 main_AutoGlyph_1_out_1 = NULL;
-main_AutoGlyph_2_in_1 = NULL;
-main_AutoGlyph_2_in_2 = NULL;
-main_AutoGlyph_2_in_3 = NULL;
-main_AutoGlyph_2_in_4 = NULL;
-main_AutoGlyph_2_in_5 = NULL;
-main_AutoGlyph_2_in_6 = NULL;
-main_AutoGlyph_2_in_7 = NULL;
 main_Selector_1_in_1 = "Selector_1";
 main_Selector_1_in_2 = "Temperature" ;
 main_Selector_1_in_3 = 3 ;
@@ -1045,22 +1086,23 @@ main_Selector_1_in_6 = NULL;
 main_Selector_1_in_7 = NULL;
 main_Selector_1_out_1 = 3 ;
 main_Selector_1_out_2 = "Temperature" ;
-main_Select_6_in_2 = "rho";
-main_Select_6_in_3 = NULL;
-main_Select_6_out_1 = NULL;
-main_Select_4_in_2 = "p";
-main_Select_4_in_3 = NULL;
-main_Select_4_out_1 = NULL;
-main_Transmitter_7_out_1 = NULL;
-main_Receiver_22_out_1 = NULL;
-main_Replace_4_in_3 = NULL;
-main_Replace_4_in_4 = NULL;
-main_Replace_4_out_1 = NULL;
-main_Transmitter_13_out_1 = NULL;
+main_Compute_26_in_1 = "$0.0";
+main_Compute_26_out_1 = NULL;
+main_Replace_5_in_3 = NULL;
+main_Replace_5_in_4 = NULL;
+main_Replace_5_out_1 = NULL;
+main_Transmitter_25_out_1 = NULL;
 main_Receiver_23_out_1 = NULL;
+main_Compute_27_in_1 = "$0.4";
+main_Compute_27_out_1 = NULL;
+main_Replace_6_in_3 = NULL;
+main_Replace_6_in_4 = NULL;
+main_Replace_6_out_1 = NULL;
+main_Transmitter_26_out_1 = NULL;
 main_Receiver_24_out_1 = NULL;
 main_Compute_13_in_1 = "$1/$0/287.0";
 main_Compute_13_out_1 = NULL;
+main_Receiver_35_out_1 = NULL;
 main_Compute_8_in_1 = "$0.y";
 main_Compute_8_out_1 = NULL;
 main_Transmitter_11_out_1 = NULL;
@@ -1150,13 +1192,13 @@ main_Colormap_2_in_8 = NULL;
 main_Colormap_2_in_9 = NULL;
 main_Colormap_2_in_10 = NULL;
 main_Colormap_2_in_11 = NULL;
-main_Colormap_2_in_12 = { 214.62134 312.15515 };
+main_Colormap_2_in_12 = { 162.85477 297.09558 };
 main_Colormap_2_in_13 = NULL;
 main_Colormap_2_in_14 = NULL;
 main_Colormap_2_in_15 = NULL;
 main_Colormap_2_in_16 = NULL;
-main_Colormap_2_in_17 = 214.62134;
-main_Colormap_2_in_18 = 312.15515;
+main_Colormap_2_in_17 = 162.85477;
+main_Colormap_2_in_18 = 297.09558;
 main_Colormap_2_in_19 = NULL;
 main_Colormap_2_out_1 = NULL;
 main_Color_1_in_3 = NULL;
@@ -1596,12 +1638,12 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [0.488563 0.0306103 0.500115];
-main_Image_4_in_6 = [0.488563 0.0306103 1.98269];
-main_Image_4_in_7 = 0.0650532;
-main_Image_4_in_8 = 1000;
-main_Image_4_in_9 = 0.6975;
-main_Image_4_in_10 = [0 1 0];
+main_Image_4_in_5 = [0.0317059 -0.00289135 0.0255406];
+main_Image_4_in_6 = [0.0317059 1.47969 0.0255406];
+main_Image_4_in_7 = 0.332729;
+main_Image_4_in_8 = 778;
+main_Image_4_in_9 = 0.688;
+main_Image_4_in_10 = [0.999802 6.12182e-17 -0.0198878];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
 main_Image_4_in_13 = NULL;
@@ -1639,6 +1681,8 @@ main_Image_4_in_46 = NULL;
 main_Image_4_in_47 = NULL;
 main_Image_4_in_48 = NULL;
 main_Image_4_in_49 = NULL;
+main_Print_2_in_2 = "rd";
+main_Print_2_in_3 = NULL;
 Executive("product version 4 2 0");
 $sync
 main();
