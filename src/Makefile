@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.34 2001/11/01 19:19:27 mstorti Exp $ 
+# $Id: Makefile,v 1.35 2001/11/07 18:05:55 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -80,7 +80,7 @@ version.cpp: version.cppin ../VERSION
 	eperl version.cppin >version.cpp
 	-chmod -w version.cpp
 
-.SECONDARY: tryme.o secant.o
+.SECONDARY: tryme.o 
 tryme: CPPFLAGS = 
 tryme: secant.o tryme.o
 	g++ -o tryme tryme.o secant.o 
