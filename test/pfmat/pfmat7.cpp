@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat7.cpp,v 1.3 2004/10/24 17:51:09 mstorti Exp $
+// $Id: pfmat7.cpp,v 1.4 2004/10/25 02:09:38 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -44,7 +44,8 @@ int main(int argc,char **args) {
   part.N = N;
   MY_RANK = myrank;
   SIZE = size;
-  PFSymmPETScMat AA(N,N,part,PETSC_COMM_WORLD);
+  PETScSymmMat AA(N,N,part,PETSC_COMM_WORLD);
+  AA.set_option("debug_compute_prof","1");
   PFMat &A = AA;
 
   int nhere=0;

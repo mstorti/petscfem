@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.150 2004/10/24 16:25:17 mstorti Exp $
+//$Id: ns.cpp,v 1.151 2004/10/25 02:09:29 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -320,12 +320,14 @@ int main(int argc,char **args) {
     A_mom->set_option("KSP_method",KSPBCGS);
     A_mom->set_option("preco_side","left");
 
-    A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-    A_poi->set_option("KSP_method","cg");
-    A_poi->set_option("preco_side","left");
+    // A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+    A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
+    A_poi->set_option("KSP_method",KSPCG);
+    // A_poi->set_option("preco_side","left");
     // A_poi->set_option("symmetric","1");
 
-    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+    // A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
     A_prj->set_option("KSP_method",KSPCG);
     // A_prj->set_option("symmetric","1");
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);

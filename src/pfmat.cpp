@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.13 2003/08/28 22:43:16 mstorti Exp $
+//$Id: pfmat.cpp,v 1.14 2004/10/25 02:09:32 mstorti Exp $
 
 #include <petscmat.h>
 
@@ -12,6 +12,7 @@
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/petscmat.h>
+#include <src/spetscmat.h>
 #include <src/spdirect.h>
 
 #define PF_ACTION_DECL(action) void action() 
@@ -283,6 +284,11 @@ PFMat * PFMat::dispatch(int N,DofPartitioner &part,const char *s) {
   } else if (!strcmp(s,"petsc")) {
     // PETSc (iterative) solver 
     A = new PETScMat(N,N,part,PETSC_COMM_WORLD);
+    return A;
+  } else if (!strcmp(s,"petsc_symm")) {
+    // PETSc (iterative) solver, symmetric matrix,
+    // only iterative solvers (e.g. CG) allowed
+    A = new PETScSymmMat(N,N,part,PETSC_COMM_WORLD);
     return A;
   } else if (!strcmp(s,"direct_superlu")) {
 #ifdef USE_SUPERLU

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: spetscmat.cpp,v 1.4 2004/10/24 21:46:26 mstorti Exp $
+//$Id: spetscmat.cpp,v 1.5 2004/10/25 02:09:32 mstorti Exp $
 
 #include <src/petscmat.h>
 #include <src/pfmat.h>
@@ -11,9 +11,9 @@ static int spetscmat_mult(Mat A,Vec x,Vec y);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFSymmPETScMat::build_sles"
-PFSymmPETScMat
-::PFSymmPETScMat(int MM,int NN,
+#define __FUNC__ "PETScSymmMat::build_sles"
+PETScSymmMat
+::PETScSymmMat(int MM,int NN,
 		 const DofPartitioner &part_a,
 		 MPI_Comm comm_a) 
   : PETScMat(MM,NN,part_a,comm_a) {
@@ -24,8 +24,8 @@ PFSymmPETScMat
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFSymmPETScMat::build_sles"
-int PFSymmPETScMat::build_sles() {
+#define __FUNC__ "PETScSymmMat::build_sles"
+int PETScSymmMat::build_sles() {
 
   int ierr;
   //o Absolute tolerance to solve the monolithic linear
@@ -80,8 +80,8 @@ int PFSymmPETScMat::build_sles() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFSymmPETScMat::mult"
-int PFSymmPETScMat::mult(Vec x,Vec y) {
+#define __FUNC__ "PETScSymmMat::mult"
+int PETScSymmMat::mult(Vec x,Vec y) {
   ierr = MatMult(A,x,y); CHKERRQ(ierr); 
   ierr = MatMultTransposeAdd(A,x,y,y); CHKERRQ(ierr); 
   double scal=0.5;
@@ -90,22 +90,41 @@ int PFSymmPETScMat::mult(Vec x,Vec y) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int PFSymmPETScMat::split(int row,int col) {
+int PETScSymmMat::insert_p(int row,int col) {
 #if 0
   return col>=row;
 #else
-  return ((col%size)>=(row%size));
+  return (col-row) % 2;
 #endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int PETScSymmMat::insert_p2(int row,int col) {
+  int x;
+  if (row==col) x = 1;
+  else if (col>row) x = insert_p(row,col);
+  else x = !insert_p(col,row);
+  return x;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFSymmPETScMat::set_value_a"
-int PFSymmPETScMat
+#define __FUNC__ "PETScSymmMat::set_profile_a"
+int PETScSymmMat
+::set_profile_a(int row,int col) {
+  if (insert_p2(row,col)) lgraph->add(row,col);
+  return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "PETScSymmMat::set_value_a"
+int PETScSymmMat
 ::set_value_a(int row,int col,PetscScalar value,
 	      InsertMode mode) {
   int roww = row, coll = col;
-  if (!split(row,col)) { roww=col; coll=row; }
+  if (!insert_p2(row,col)) { roww=col; coll=row; }
+  // printf("MatSetValue at %d, %d\n",roww,coll);
   ierr = MatSetValues(A,1,&roww,1,&coll,&value,mode); 
   CHKERRQ(ierr); 
   return 0;
@@ -113,21 +132,12 @@ int PFSymmPETScMat
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFSymmPETScMat::set_profile_a"
-int PFSymmPETScMat
-::set_profile_a(int row,int col) {
-  if (split(row,col)) lgraph->add(row,col);
-  return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
 #define __FUNC__ "spetscmat_mult"
 static int spetscmat_mult(Mat A,Vec x,Vec y) {
   void *ctx;
-  PFSymmPETScMat *pfsA;
+  PETScSymmMat *pfsA;
   int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
-  pfsA = (PFSymmPETScMat *) ctx;
+  pfsA = (PETScSymmMat *) ctx;
   ierr = pfsA->mult(x,y); CHKERRQ(ierr); 
   return 0;
 }

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.99 2004/10/24 16:24:43 mstorti Exp $ 
+# $Id: Makefile,v 1.100 2004/10/25 02:09:35 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -20,7 +20,8 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
 #CASE_NAME := qharm
-CASE_NAME := cubcav
+#CASE_NAME := cubcav
+CASE_NAME := cubcav-fs
 PROG := $(NS)
 
 CASE := $(CASE_NAME)
@@ -45,14 +46,14 @@ run_subdir_test:
 	for n in $(node_list) ;						\
 		do grep $$n ./proctable >> $(sub_dir)/proctable ;	\
 	done ;								\
-	cp cubcav.epl $(sub_dir) ;					\
+	cp $(CASE_NAME).epl $(sub_dir) ;					\
 	cp Makefile.sub-dir  $(sub_dir)/Makefile ;			\
 	echo $(MAKE) -C $(sub_dir) data_dir=.. mkmesh=0
 
 #w Makes only the mesh
 mesh:
 	$(MAKE) -C ../../tools hexasplit.bin
-	make-depl cubcav.epl cubcav.depl -d case=ns -p '>>'
+	make-depl $(CASE_NAME).epl $(CASE_NAME).depl -d case=ns -p '>>'
 
 #w Runs program, use `mkmesh=0' or 1 to control mesh creation
 run: 
@@ -82,8 +83,8 @@ viewer.dx.tmp: viewer.dx
 	$(EPERL) -P viewer.dx > viewer.dx.tmp
 
 dx:
-	$(EPERL) -P -d dx=1 cubcav.epl > cubcav_dx.depl
-	${MPIRUN} -np 1 $(PROG) -case cubcav_dx.depl
+	$(EPERL) -P -d dx=1 $(CASE_NAME).epl > $(CASE_NAME)_dx.depl
+	${MPIRUN} -np 1 $(PROG) -case $(CASE_NAME)_dx.depl
 
 #================================================================
 #w 
@@ -95,7 +96,7 @@ dx_make_command1:
 
 dx_make_command2:
 #	echo $$dx_step >> comp_server.fifo 
-	if [ -f cubcav.tiff ] ; then rm cubcav.tiff ; fi ;	\
+	if [ -f $(CASE_NAME).tiff ] ; then rm $(CASE_NAME).tiff ; fi ;	\
 	sendstep.pl $$dx_step					\
 		comp_server.fifo comp_server2.fifo
 
@@ -118,9 +119,11 @@ k:
 #w Basic test for block uploading. This somewhat trivial since
 #w for NS the profile is full. 
 block_uploading:
-	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bupl0.tmp
-	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bupl1.tmp
-	$(OCTAVE) check_plain.m > cubcav.plain-bupl.verif.tmp
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl0 run \
+		> $(CASE_NAME).out.plain_bupl0.tmp
+	$(MAKE) CASE=$(CASE_NAME) case=plain_bupl1 run \
+		> $(CASE_NAME).out.plain_bupl1.tmp
+	$(OCTAVE) check_plain.m > $(CASE_NAME).plain-bupl.verif.tmp
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 #w Checks the surf-gatherer class
@@ -165,4 +168,4 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=40 run
+	$(MAKE) N=64 run

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: spetscmat.h,v 1.3 2004/10/24 21:46:26 mstorti Exp $
+// $Id: spetscmat.h,v 1.4 2004/10/25 02:09:32 mstorti Exp $
 #ifndef PETSCFEM_SPETSCMAT_H
 #define PETSCFEM_SPETSCMAT_H
 
@@ -15,17 +15,18 @@
 #include <src/linkgraph.h>
 #include <src/pfmat.h>
 
-class PFSymmPETScMat : public PETScMat {
+class PETScSymmMat : public PETScMat {
 
 protected:
   Mat Asymm;
   int myrank, size;
 
-  int split(int row,int col);
+  int insert_p(int row,int col);
+  int insert_p2(int row,int col);
 
 public:
 
-  PFSymmPETScMat(int MM,int NN,const DofPartitioner &part_a,
+  PETScSymmMat(int MM,int NN,const DofPartitioner &part_a,
 		 MPI_Comm comm_a = PETSC_COMM_WORLD);
 
   int mult(Vec x,Vec y);
