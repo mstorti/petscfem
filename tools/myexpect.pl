@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.14 2003/11/16 13:19:54 mstorti Exp $
+#$Id: myexpect.pl,v 1.15 2003/11/16 14:29:03 mstorti Exp $
 
 use English;
 ## position in count record
@@ -15,6 +15,7 @@ $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 
 $PRE = "{{";
 $POST = "}}";
+$COMMENT = "#>>";
 $WD = "";
 
 sub P { print @_; }
@@ -113,6 +114,7 @@ sub expect {
     my $match_fun = \&match_regexp;
     my $file_changed = 0;
     while ($pattern=shift @pattern) {
+	if ($pattern =~ /^$COMMENT/) { next; }
 	if ($pattern =~ /^__REWIND__$/) {
 	    $inc=1;
 	    $record=0;
