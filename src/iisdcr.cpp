@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.2 2003/08/17 23:43:22 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.3 2003/08/18 00:01:08 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -332,7 +332,7 @@ int IISDMat::create_a() {
   // isp_lay_map:= contains the layer number for dof k
   // isp_lay_map2:= auxiliary for reduce operations
   vector<int> isp_lay_map(neq,0), isp_lay_map2(neq,0);
-  int nlay=4;
+  int nlay=5;
   // mark layer 1
   for (int j=0; j<neq; j++) isp_lay_map[j] = map_dof[j]>=n_loc_tot;
 
@@ -347,17 +347,19 @@ int IISDMat::create_a() {
 	  int jj = *q;
 	  if (isp_lay_map[jj]==0) isp_lay_map[jj]=lay;
 	}
-	MPI_Allreduce(&*isp_lay_map.begin(), &*isp_lay_map2.begin(), 
-		      neq, MPI_INT, MPI_MAX, comm);
-	memcpy(&*isp_lay_map.begin(),&*isp_lay_map2.begin(),neq*sizeof(int));
       }
     }
+    MPI_Allreduce(&*isp_lay_map.begin(), &*isp_lay_map2.begin(), 
+		  neq, MPI_INT, MPI_MAX, comm);
+    memcpy(&*isp_lay_map.begin(),&*isp_lay_map2.begin(),neq*sizeof(int));
   }
+#if 1
   if (!myrank) {
     printf("j, map_dof, isp_lay_map\n");
     for (int j=0; j<neq; j++)
       printf("%d %d %d\n",j,map_dof[j],isp_lay_map[j]);
   }
+#endif
   isp_lay_map2.clear();
 
   //# Current line =========== 
