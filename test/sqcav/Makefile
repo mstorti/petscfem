@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.60 2003/04/18 04:10:34 mstorti Exp $ 
+# $Id: Makefile,v 1.61 2003/05/04 16:20:18 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -10,6 +10,9 @@ runn:
 
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
 	test_zero_w_proc test_zero_w_proc2 test_triangle dx_tests test_qharm_3d
+
+test_shell_hook:
+	$(MAKE) CASE=qharm case=shell_hook run
 
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 #w Tests the adaptor_pg class when ndimel<ndim (quad panels in 3D). 
@@ -282,3 +285,6 @@ $(CASE).depl: force
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.sal tmp_file*.tmp &> /dev/null
+
+shell_hook2_%:
+	@echo target $@, step: $$petscfem_step, time: $$petscfem_time
