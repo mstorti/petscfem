@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.14.2.2 2001/09/10 03:17:42 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.14.2.3 2001/09/17 20:30:06 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -150,6 +150,9 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   double &alpha = glob_param->alpha;
   //o Scale the SUPG upwind term. 
   SGETOPTDEF(double,tau_fac,1.);  // Scale upwind
+  //o Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
+  //  independently of $h$. (Mainly for debugging purposes). 
+  SGETOPTDEF(double,additional_tau_pspg,0.);  // Scale upwind
   //o Adjust the stability parameters, taking into account
   // the time step. If the \verb+steady+ option is in effect,
   // (which is equivalent to $\Dt=\infty$) then
@@ -455,7 +458,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	PFEMERRQ("Not implemented yet shock capturing with standard upwind\n");
 	double delta_supg=1e-8;
 #endif
-
+	tau_pspg += additional_tau_pspg;
+	
 	delta_supg *= shock_capturing_factor;
 	
 	// P_supg es un vector fila
