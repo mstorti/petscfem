@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 16:49:18 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/02 22:27:47 mstorti Exp $ 
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
 		sw startwork fm2new
@@ -63,11 +63,6 @@ CLEANDIRS = src applications/laplace applications/advective \
 
 SRCDIRS = src applications/ns applications/advective applications/advdif \
 		applications/laplace test 
-
-lclean: 
-	-rm *~
-	for dir in $(CLEANDIRS) ; do $(MAKE) -C $$dir lclean  ; done
-	-rm `find . -name 'makefile.d'`
 
 DEPEND_DIRS = $(SRCDIRS)
 
