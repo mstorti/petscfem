@@ -1,0 +1,69 @@
+# -*- mode: shell-script -*-
+#$Id: condwall.epl,v 1.1 2005/03/28 02:27:45 mstorti Exp $
+# case: <:=$ENV{'case'}:>
+#<: require './condwall.pl'; :>
+global_options
+
+nsave 5
+nstep 1
+save_file condwall.state.tmp
+
+solver "iisd"
+solver_mom "petsc"
+preco_type "jacobi"
+maxits 100
+
+proc_weights weights.dat
+max_partgraph_vertices 2000
+max_partgraph_vertices_proc 2000
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-6
+dtol 1e3
+nnwt 5
+
+Krylov_dim 100
+print_internal_loop_conv 1
+
+steady
+
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ condwall.nod.tmp
+_END_NODES__
+
+elemset <:=(!$fractional_step ? nsi_tet_les_fm2 : fracstep_fm2):> 4 
+name malla
+
+# report_consumed_time
+geometry cartesian2d
+ndim 2
+npg 4
+#
+# Datos fisicos
+#
+viscosity 10
+weak_form 0
+LES 0
+__END_HASH__
+__INCLUDE__ condwall.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+__INCLUDE__ ./condwall.fixa-in.tmp
+__INCLUDE__ ./condwall.fixa-out.tmp
+__INCLUDE__ ./condwall.fixa-wall2.tmp
+__INCLUDE__ ./condwall.fixa-wall1.tmp
+__END_FIXA__
+
+constraint
+__INCLUDE__ ./condwall.peri2.tmp
+__INCLUDE__ ./condwall.peri1.tmp
+__END_CONSTRAINT__
