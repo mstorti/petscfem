@@ -3468,3 +3468,6 @@ tag: beta-3.37.11 on Mon, 22 Nov 2004 18:44:15 -0300 by mstorti in minerva.cerid
 tag: beta-3.37.12 on Mon, 22 Nov 2004 20:13:48 -0300 by mstorti in spider
      > Correctly finds elements connected 
      > to a set of nodes. 
+----------
+tag: beta-3.37.13 on Mon, 22 Nov 2004 22:51:33 -0300 by mstorti in spider
+     > Writing `find' and `set' methods. 
