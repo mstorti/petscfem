@@ -1956,3 +1956,6 @@ tag: beta-3.11 on Wed, 18 Dec 2002 21:56:52 -0300, by mstorti in spider
      > Runs qharmm wiwth ndof=2 and lin_gen_load (hfilm) example.
      > Added doc for NS genload
      > Added tests for NS genload
+----------
+tag: beta-3.11.pl1 on Thu, 19 Dec 2002 00:18:03 -0300 by mstorti in spider
+     > Added plate example. 
