@@ -1,5 +1,5 @@
 // -*- mode: c++ -*- 
-// $Id: pfmat.sm,v 1.2.2.5 2002/01/09 16:31:07 mstorti Exp $
+// $Id: pfmat.sm,v 1.2.2.6 2002/01/13 14:27:29 mstorti Exp $
 // This file is to be processed by SMC (State Machine Compiler)
 Context pfmatFSMContext         // name of the context class
 FSMName pfmatFSM                // name of the FSM to create
@@ -22,7 +22,9 @@ Header  pfmat.h                 // the name of the header file
 	      set_value   profiling { create set_value }
   } 
 
-  profiled { clean_prof   clean { clean_prof_a }
+  profiled { clean_factor profiled { }
+             clean_mat    profiled { clean_mat_a }
+             clean_prof   clean { clean_prof_a }
              clear        profiled { clean_mat }
              set_value    in_assembly { }
   }
@@ -43,6 +45,7 @@ Header  pfmat.h                 // the name of the header file
   factored { solve_only     factored { solve_only_A }
              solve          factored { solve_only_A }
              clean_factor   assembled { clean_factor_a clean_mat_a }
+	     set_value      factored { clean_factor }
              clear          factored { clean_factor clear }
   }
 

@@ -1,5 +1,5 @@
 // Insert Debug Info for SMC Finite State Machine generated code
-// $Id: pfmatFSM.cpp,v 1.1.2.6 2002/01/09 20:33:09 mstorti Exp $
+// script version:  %Id: insdeb.pl,v 1.1.2.5 2002/01/12 00:26:14 mstorti Exp $ 
 #include "pfmatFSM.h"
 static char _versID[] = "No Version.";
 pfmatFSMfactoredState pfmatFSM::factoredState;
@@ -9,22 +9,22 @@ pfmatFSMin_assemblyState pfmatFSM::in_assemblyState;
 pfmatFSMprofiledState pfmatFSM::profiledState;
 pfmatFSMprofilingState pfmatFSM::profilingState;
 pfmatFSMcleanState pfmatFSM::cleanState;
-void pfmatFSMState::clean_factor(pfmatFSM& s)
-  {s.FSMError("clean_factor", s.GetState().StateName());}
 void pfmatFSMState::solve_only(pfmatFSM& s)
   {s.FSMError("solve_only", s.GetState().StateName());}
 void pfmatFSMState::solve(pfmatFSM& s)
   {s.FSMError("solve", s.GetState().StateName());}
 void pfmatFSMState::factor_and_solve(pfmatFSM& s)
   {s.FSMError("factor_and_solve", s.GetState().StateName());}
-void pfmatFSMState::clean_mat(pfmatFSM& s)
-  {s.FSMError("clean_mat", s.GetState().StateName());}
 void pfmatFSMState::assembly_end(pfmatFSM& s)
   {s.FSMError("assembly_end", s.GetState().StateName());}
 void pfmatFSMState::assembly_begin(pfmatFSM& s)
   {s.FSMError("assembly_begin", s.GetState().StateName());}
 void pfmatFSMState::clean_prof(pfmatFSM& s)
   {s.FSMError("clean_prof", s.GetState().StateName());}
+void pfmatFSMState::clean_mat(pfmatFSM& s)
+  {s.FSMError("clean_mat", s.GetState().StateName());}
+void pfmatFSMState::clean_factor(pfmatFSM& s)
+  {s.FSMError("clean_factor", s.GetState().StateName());}
 void pfmatFSMState::set_value(pfmatFSM& s)
   {s.FSMError("set_value", s.GetState().StateName());}
 void pfmatFSMState::create(pfmatFSM& s)
@@ -40,6 +40,13 @@ void pfmatFSMfactoredState::clear(pfmatFSM& s) {
   s.SetState(pfmatFSM::factoredState);
   s.clean_factor();
   s.clear();
+}
+void pfmatFSMfactoredState::set_value(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"factored\", event: \"set_value\", "
+           "to: \"factored\"\n");
+  s.SetState(pfmatFSM::factoredState);
+  s.clean_factor();
 }
 void pfmatFSMfactoredState::clean_factor(pfmatFSM& s) {
   if (s.matrix_p->print_fsm_transition_info_f())
@@ -135,6 +142,19 @@ void pfmatFSMprofiledState::clean_prof(pfmatFSM& s) {
            "to: \"clean\"\n");
   s.SetState(pfmatFSM::cleanState);
   s.clean_prof_a();
+}
+void pfmatFSMprofiledState::clean_mat(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"profiled\", event: \"clean_mat\", "
+           "to: \"profiled\"\n");
+  s.SetState(pfmatFSM::profiledState);
+  s.clean_mat_a();
+}
+void pfmatFSMprofiledState::clean_factor(pfmatFSM& s) {
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \"profiled\", event: \"clean_factor\", "
+           "to: \"profiled\"\n");
+  s.SetState(pfmatFSM::profiledState);
 }
 void pfmatFSMprofilingState::set_value(pfmatFSM& s) {
   if (s.matrix_p->print_fsm_transition_info_f())

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.12 2002/01/09 16:31:07 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.13 2002/01/13 14:27:29 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -56,6 +56,7 @@ class PFMat {
   /// Pointers to pass args to solver routines through the FSM layer
   Vec *res_p,*dx_p;
 protected:
+
   /// Print Finite State Machine transitions
   int print_fsm_transition_info;
   /// Allows to pass PETSc error codes through the FSM layer
@@ -103,6 +104,9 @@ protected:
   int solve_only_A() { solve_only_a(*res_p,*dx_p); }
 
 public:
+  /// This is the `factory' of `PFMat' matrices.
+  static PFMat *dispatch(int N,DofPartitioner &part,const char *s);
+
   /// Returns the size of the j-th dimension
   virtual int size(int j)=0;
 

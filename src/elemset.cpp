@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.34 2001/12/03 19:48:41 mstorti Exp $
+//$Id: elemset.cpp,v 1.34.4.1 2002/01/13 14:27:29 mstorti Exp $
 
 #include <vector>
 #include <set>
@@ -182,12 +182,18 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      int kd=locdof-1,kdl=locdofl-1;
 	      if (MASK(kloc,kdof,klocc,kdofc)) {
 		if (comp_prof) {
-		  node_insert(argd.da,kd,kdl);
-		  node_insert(argd.da,kdl,kd); // be sure that profile
+		  if (pfmat) {
+		    argd.pfA->set_profile(kd,kdl);
+		  } else {
+		    node_insert(argd.da,kd,kdl);
+		    node_insert(argd.da,kdl,kd); // be sure that
+		    // profile
+		  }
 				// is symmetric
 		} else {
 		  if (pfmat) {
-		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
+		    ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
+		    CHKERRQ(ierr); 
 		  } else {
 		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
 		  }
@@ -214,12 +220,17 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  if (comp_prof) {
 		    int kd=locdof-1,kdl=locdofl-1;
 		    // be sure that profile is symmetric
-		    node_insert(argd.da,locdof-1,locdofl-1);
-		    node_insert(argd.da,locdofl-1,locdof-1); 
+		    if (pfmat) {
+		      argd.pfA->set_profile(locdof-1,locdofl-1);
+		    } else {
+		      node_insert(argd.da,locdof-1,locdofl-1);
+		      node_insert(argd.da,locdofl-1,locdof-1); 
+		    }
 		  } else {
 		    // printf("(%d,%d) -> %f\n",locdof,locdofl,val);
 		    if (pfmat) {
-		      argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
+		      ierr = argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
+		      CHKERRQ(ierr); 
 		    } else {
 		      MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
 		    }
@@ -374,7 +385,12 @@ int assemble(Mesh *mesh,arg_list argl,
   // difference approximation to jacobian. 
   // j_pert:= this points to which argument is the vector to be
   // perturbed. 
-  int any_fdj = 0,j_pert;
+  int any_fdj = 0,j_pert;  
+  // any_include_ghost_elems:= any_not_include_ghost_elems=0:=
+  // Flag whether any argument corresponds to that iteration mode. 
+  // Iteration modes are mutually exclusive, so that we must check
+  // that `!any_not_include_ghost_elems || !any_not_include_ghost_elems'
+  int any_include_ghost_elems=0, any_not_include_ghost_elems=0; 
   for (j=0; j<narg; j++) {
     /// Copy the options to the arg_data_v structure. 
     ARGVJ.options = argl[j].options; 
@@ -408,12 +424,16 @@ int assemble(Mesh *mesh,arg_list argl,
       }
     }
 
-    if (argl[j].options & UPLOAD_PROFILE ) {
-      iter_mode = INCLUDE_GHOST_ELEMS;
-      ARGVJ.da= da_create_len(sizeof(Node),dofmap->neq);
-      Node nodeq = Node(-1,0);
-      for (k=0; k < dofmap->neq; k++) {
-	da_set(ARGVJ.da,k,&nodeq);
+    if (argl[j].options & UPLOAD_PROFILE) {
+      if (argl[j].options & PFMAT) {
+	ARGVJ.pfA = (PFMat *) (argl[j].arg);
+      } else {
+	iter_mode = INCLUDE_GHOST_ELEMS;
+	ARGVJ.da= da_create_len(sizeof(Node),dofmap->neq);
+	Node nodeq = Node(-1,0);
+	for (k=0; k < dofmap->neq; k++) {
+	  da_set(ARGVJ.da,k,&nodeq);
+	}
       }
     }
 
@@ -430,7 +450,18 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (argl[j].options & USER_DATA ) 
       arg_data_v[j].user_data = (void *)(argl[j].arg);
+
+    /// Set the appropriate flag
+    if (iter_mode == INCLUDE_GHOST_ELEMS) {
+      any_include_ghost_elems=1;
+    } else {
+      any_not_include_ghost_elems=1;
+    }
+
   }
+
+  // Check that iteration modes are not mixed
+  assert(!any_include_ghost_elems || !any_not_include_ghost_elems);
 
   for (int ielset=0; ielset<da_length(elemsetlist); ielset++) {
     
@@ -780,7 +811,8 @@ int assemble(Mesh *mesh,arg_list argl,
 
     if (argl[j].options & UPLOAD_PROFILE) {
       if (argl[j].options & PFMAT) {
-	((PFMat *)(argl[j].arg))->create(ARGVJ.da,dofmap,debug_compute_prof);
+	// ((PFMat *)(argl[j].arg))->create(ARGVJ.da,dofmap,debug_compute_prof);
+	((PFMat *)(argl[j].arg))->create();
       } else {
         ierr = compute_prof(ARGVJ.da,dofmap,
 			    myrank,(Mat *)(argl[j].arg),

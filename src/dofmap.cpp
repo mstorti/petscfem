@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.6 2001/06/05 02:16:23 mstorti Exp $
+//$Id: dofmap.cpp,v 1.6.8.1 2002/01/13 14:27:29 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -435,3 +435,12 @@ int Dofmap::create_MPI_ghost_vector(Vec &v) {
 			  ghost_dofs->size(),&v); CHKERRQ(ierr);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Dofmap::processor(int j) const {
+  int size,rank;
+  MPI_Comm_size(PETSC_COMM_WORLD, &size);
+
+  for (rank=0; rank<size; rank++)
+    if (j>=startproc[rank] && j<startproc[rank+1]) break;
+  return rank;
+}

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.58 2001/12/08 00:42:22 mstorti Exp $
+//$Id: ns.cpp,v 1.58.2.1 2002/01/13 14:27:24 mstorti Exp $
  
 #include <src/debug.h>
 #include <malloc.h>
@@ -237,8 +237,8 @@ int main(int argc,char **args) {
   
   // Use IISD (Interface Iterative Subdomain Direct) or not.
   // A_tet = (use_iisd ? &IISD_A_tet : &PETSc_A_tet);
-  A_tet = PFMat_dispatch(solver.c_str());
-  A_tet_c = PFMat_dispatch(solver.c_str());
+  A_tet = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+  A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
 
 #if 0
   const int NT=200;
@@ -368,7 +368,7 @@ int main(int argc,char **args) {
 	  || ((inwt - update_jacobian_start_iters) % update_jacobian_iters == 0) );
 
       if (update_jacobian_this_iter) {
-	ierr = A_tet->destroy_sles(); CHKERRA(ierr); 
+	// ierr = A_tet->clean_factor(); CHKERRA(ierr); 
       }
 
       // Compute wall stresses
@@ -394,7 +394,7 @@ int main(int argc,char **args) {
       scal=0;
       ierr = VecSet(&scal,res); CHKERRA(ierr);
       if (update_jacobian_this_iter) {
-	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
+	ierr = A_tet->clean_mat(); CHKERRA(ierr); 
       }
 
       VOID_IT(argl);
@@ -456,8 +456,8 @@ int main(int argc,char **args) {
 	ierr = A_tet->view(matlab); CHKERRQ(ierr); 
 	
 	ierr = A_tet_c->duplicate(MAT_DO_NOT_COPY_VALUES,*A_tet); CHKERRA(ierr);
-	ierr = A_tet->zero_entries(); CHKERRA(ierr); 
-	ierr = A_tet_c->zero_entries(); CHKERRA(ierr); 
+	ierr = A_tet->clean_mat(); CHKERRA(ierr); 
+	ierr = A_tet_c->clean_mat(); CHKERRA(ierr); 
 
 	VOID_IT(argl);
 	argl.arg_add(&x,PERT_VECTOR);

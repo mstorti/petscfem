@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.1.2.5 2002/01/09 20:33:09 mstorti Exp $
+// $Id: petscmat.h,v 1.1.2.6 2002/01/13 14:27:29 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -68,7 +68,7 @@ public:
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
   int set_value_a(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
-    MatSetValues(A,1,&row,1,&col,&value,mode); CHKERRQ(ierr); 
+    ierr = MatSetValues(A,1,&row,1,&col,&value,mode); CHKERRQ(ierr); 
     return 0;
   };
   /// Sets all values of the operator to zero.

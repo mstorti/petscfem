@@ -8,14 +8,14 @@ class pfmatFSMState {
 public:
 
   virtual const char* StateName() const = 0;
-  virtual void clean_factor(pfmatFSM& s);
   virtual void solve_only(pfmatFSM& s);
   virtual void solve(pfmatFSM& s);
   virtual void factor_and_solve(pfmatFSM& s);
-  virtual void clean_mat(pfmatFSM& s);
   virtual void assembly_end(pfmatFSM& s);
   virtual void assembly_begin(pfmatFSM& s);
   virtual void clean_prof(pfmatFSM& s);
+  virtual void clean_mat(pfmatFSM& s);
+  virtual void clean_factor(pfmatFSM& s);
   virtual void set_value(pfmatFSM& s);
   virtual void create(pfmatFSM& s);
   virtual void clear(pfmatFSM& s);
@@ -27,6 +27,7 @@ public:
   virtual const char* StateName() const
   {return("factored");};
   virtual void clear(pfmatFSM&);
+  virtual void set_value(pfmatFSM&);
   virtual void clean_factor(pfmatFSM&);
   virtual void solve(pfmatFSM&);
   virtual void solve_only(pfmatFSM&);
@@ -65,6 +66,8 @@ public:
   virtual void set_value(pfmatFSM&);
   virtual void clear(pfmatFSM&);
   virtual void clean_prof(pfmatFSM&);
+  virtual void clean_mat(pfmatFSM&);
+  virtual void clean_factor(pfmatFSM&);
 };
 
 class pfmatFSMprofilingState : public pfmatFSMState {
@@ -93,14 +96,14 @@ class pfmatFSM : public pfmatFSMContext {
   static pfmatFSMprofilingState profilingState;
   static pfmatFSMcleanState cleanState;
   pfmatFSM();// default constructor
-  void clean_factor() {itsState->clean_factor(*this);}
   void solve_only() {itsState->solve_only(*this);}
   void solve() {itsState->solve(*this);}
   void factor_and_solve() {itsState->factor_and_solve(*this);}
-  void clean_mat() {itsState->clean_mat(*this);}
   void assembly_end() {itsState->assembly_end(*this);}
   void assembly_begin() {itsState->assembly_begin(*this);}
   void clean_prof() {itsState->clean_prof(*this);}
+  void clean_mat() {itsState->clean_mat(*this);}
+  void clean_factor() {itsState->clean_factor(*this);}
   void set_value() {itsState->set_value(*this);}
   void create() {itsState->create(*this);}
   void clear() {itsState->clear(*this);}

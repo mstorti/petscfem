@@ -1,8 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.1.2.6 2001/12/19 03:10:42 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.1.2.7 2002/01/13 14:27:29 mstorti Exp $
 
 // fixme:= this may not work in all applications
-int MY_RANK,SIZE;
+extern int MY_RANK,SIZE;
 
 //#define DEBUG_SG  // debug:=
 //  #define DEBUG_IISD
