@@ -4,8 +4,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Wheb .ini file is not found advdif (don't know NS) 
-       aborts only in server. 
 * Printing "For elemset ..." element partitioning should
 	   give the elemset name and pointer. 
 * List grants in doc
@@ -133,6 +131,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* FIXED: When .ini file is not found advdif (don't know NS) 
+       aborts only in server. 
 * Put `COMPUTE_FD_ADV_JACOBIAN' in `advdife' as a elemset flag. 
 * Gather several instances of the same keyword in the same
      options.info page. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.99 2003/11/25 01:13:36 mstorti Exp $
+//$Id: readmesh.cpp,v 1.100 2003/11/26 00:18:06 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -1553,7 +1553,9 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 
     TRACE(5);
     if (size>1) {
-      PetscPrintf(PETSC_COMM_WORLD,"For elemset \"%s\"\n",elemset->type);
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "For elemset type \"%s\", name \"%s\"\n",
+		  elemset->type,elemset->name());
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
 			      "On processor [%d], %d local elements,"
 			      " %d ghost elements.\n",
