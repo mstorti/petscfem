@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.2 2002/07/14 23:30:21 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.3 2002/07/15 01:10:41 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -600,8 +600,24 @@ int main(int argc,char **args) {
       debug.trace("After -mom- residual computation.");
 
       debug.trace("Before solving -mom- linear system...");
-      ierr = A_tet->solve(res,dx); CHKERRA(ierr); 
+      ierr = A_mom->solve(res,dx); CHKERRA(ierr); 
       debug.trace("After solving -mom- linear system.");
+
+#if 1
+      ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
+			     "system.dat",&matlab); CHKERRA(ierr);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"amom"); CHKERRA(ierr);
+      ierr = A_mom->view(matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"res"); CHKERRA(ierr);
+      ierr = VecView(res,matlab);
+      ierr = ViewerSetFormat(matlab,
+			     VIEWER_FORMAT_ASCII_MATLAB,"dx"); CHKERRA(ierr);
+      ierr = VecView(dx,matlab);
+      PetscFinalize();
+      exit(0);
+#endif
 
       scal= 1.0;
       ierr = VecAXPY(&scal,dx,x);

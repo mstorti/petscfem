@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.2 2002/07/14 23:30:21 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.3 2002/07/15 01:10:41 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -13,6 +13,16 @@
 #define MAXPROP 100
 
 void nmprint(Matrix &A) { cout << A << endl; }
+
+void fix_null_diagonal_entries(Matrix &A,Matrix &B,int n) {
+  B = 0;
+  for (int j=1; j<=n; j++) {
+    if (A(j,j)==0.) {
+      A(j,j) = 1.;
+      B(j,j) = 1.;
+    }
+  }
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int fracstep::ask(const char *jobinfo,int &skip_elemset) {
@@ -46,6 +56,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define LOCST(iele,j,k) VEC3(locst,iele,j,nel,k,ndof)
 #define LOCST2(iele,j,k) VEC3(locst2,iele,j,nel,k,ndof)
 #define RETVAL(iele,j,k) VEC3(retval,iele,j,nel,k,ndof)
+#define RETVALMAT(iele,j) VEC2(retvalmat,iele,j,nen*nen)
 #define RETVALMAT_MOM(iele,j,k,p,q) VEC5(retvalmat_mom,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define RETVALMAT_POI(iele,j,k,p,q) VEC5(retvalmat_poi,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define RETVALMAT_PRJ(iele,j,k,p,q) VEC5(retvalmat_prj,iele,j,nel,k,ndof,p,nel,q,ndof)
@@ -81,12 +92,21 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // for steady solutions it is set to 0. (Dt=inf)
   GlobParam *glob_param=NULL;
   double Dt;
-  int ja_hmin;
+  arg_data *A_mom_arg;
   if (comp_mat_prof) {
     int ja=0;
     retvalmat_mom = arg_data_v[ja++].retval;
     retvalmat_poi = arg_data_v[ja++].retval;
     retvalmat_prj = arg_data_v[ja++].retval;
+  } else if (comp_res_mom) {
+    int ja=0;
+    locst = arg_data_v[ja++].locst;
+    locst2 = arg_data_v[ja++].locst;
+    retval = arg_data_v[ja++].retval;
+    A_mom_arg = &arg_data_v[ja];
+    retvalmat = arg_data_v[ja++].retval;
+    glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
+    Dt = glob_param->Dt;
   } else assert(0); // Not implemented yet!!
 
   Matrix veccontr(nel,ndof),xloc(nel,ndim),
@@ -99,20 +119,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   nen = nel*ndof;
   Matrix matloc(nen,nen), matlocmom(nel,nel), masspg(nel,nel),
-    matlocmom2(nen,nen),grad_u_ext(ndof,ndof);
+    matlocmom2(nen,nen), grad_u_ext(ndof,ndof),
+    mom_profile(nen,nen), poi_profile(nen,nen),
+    mom_mat_fix(nen,nen), poi_mat_fix(nen,nen);
   grad_u_ext = 0;
-  Matrix seed,mat_prof_mom,mat_prof_poi;
-  if (comp_mat_prof) {
-    seed = Matrix(ndof,ndof);
-    seed = 0;
-    for (int j=1; j<=ndim; j++) {
-      seed(j,j)=1;
-    }
 
-    seed =0;
-    seed(ndof,ndof)=1;
-  }
-    
   // Physical properties
   int iprop=0, elprpsindx[MAXPROP]; double propel[MAXPROP];
 
@@ -151,20 +162,38 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   ColumnVector grad_p(ndim);
   ColumnVector u(ndim),u_star(ndim),uintri(ndim),rescont(nel);
   
-  if (comp_mat_prof) {
-    masspg=1;
-    grad_u_ext=0;
-    if (couple_velocity) grad_u_ext.SubMatrix(1,ndim,1,ndim) = 1;
-    else for (jdim=1; jdim<=ndim; jdim++) grad_u_ext(jdim,jdim) = 1;
-    matlocmom = kron(masspg,grad_u_ext.t());
-    matlocmom >> arg_data_v[0].profile; // A_mom
-    matlocmom >> arg_data_v[2].profile;	// A_prj
+  masspg=1;
+  grad_u_ext=0;
+  if (couple_velocity) grad_u_ext.SubMatrix(1,ndim,1,ndim) = 1;
+  else for (jdim=1; jdim<=ndim; jdim++) grad_u_ext(jdim,jdim) = 1;
+  mom_profile = kron(masspg,grad_u_ext.t());
+  fix_null_diagonal_entries(mom_profile,mom_mat_fix,nen);
+  
+  grad_u_ext=0;
+  grad_u_ext(ndim+1,ndim+1) = 1;
+  poi_profile = kron(masspg,grad_u_ext);
+  fix_null_diagonal_entries(poi_profile,poi_mat_fix,nen);
 
-    grad_u_ext=0;
-    grad_u_ext(ndim+1,ndim+1) = 1;
-    matlocmom = kron(masspg,grad_u_ext);
-    matlocmom >> arg_data_v[1].profile; // A_poi
-  } 
+  if (comp_mat_prof) {
+    mom_profile >> arg_data_v[0].profile; // A_mom
+    poi_profile >> arg_data_v[1].profile; // A_poi
+    mom_profile >> arg_data_v[2].profile;	// A_prj
+  } else if (comp_res_mom) {
+    mom_profile >> A_mom_arg->profile;
+  }
+
+  Matrix seed;
+  if (comp_res_mom) {
+    seed= Matrix(ndof,ndof);
+    seed=0;
+    for (int j=1; j<=ndim; j++) {
+      seed(j,j)=1;
+    }
+  } else if (comp_mat_poi) {
+    seed= Matrix(ndof,ndof);
+    seed=0;
+    seed(ndof,ndof)=1;
+  }
 
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
@@ -173,17 +202,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     ielh++;
 
     if (comp_mat_prof) {
-      masspg=1;
-      grad_u_ext=0;
-      if (couple_velocity) grad_u_ext.SubMatrix(1,ndim,1,ndim) = 1;
-      else for (jdim=1; jdim<=ndim; jdim++) grad_u_ext(jdim,jdim) = 1;
-      matlocmom = kron(masspg,grad_u_ext.t());
+      // We export anything, because in fact `upload_vector'
+      // doesn't even look at the `retvalmat' values. It looks at the
+      // .profile member in the argument value
       matlocmom >> &(RETVALMAT_MOM(ielh,0,0,0,0));
       matlocmom >> &(RETVALMAT_PRJ(ielh,0,0,0,0));
-
-      grad_u_ext=0;
-      grad_u_ext(ndim+1,ndim+1) = 1;
-      matlocmom = kron(masspg,grad_u_ext);
       matlocmom >> &(RETVALMAT_POI(ielh,0,0,0,0));
       continue;
     } 
@@ -348,15 +371,12 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
     }
-    if (comp_res_mom || comp_res_prj) {
+    if (comp_res_mom) {
       veccontr.Columns(1,ndim) = resmom;
-    } else if (comp_res_poi) {
-      veccontr.Column(ndim+1) = rescont;
-    } else if (comp_mat_poi || comp_mat_prj ) {
-      matloc = kron(matlocmom,seed);
-    } else if (comp_res_mom) {
-      matloc = kron(matlocmom,seed) + matlocmom2;
-    }
+      matloc = kron(matlocmom,seed) + mom_mat_fix;
+      veccontr >> &(RETVAL(ielh,0,0));
+      matloc >> &(RETVALMAT(ielh,0));
+    } else assert(0);
 
   }
   return 0;
