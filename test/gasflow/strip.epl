@@ -2,33 +2,15 @@
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
-require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-
-$closed_tube = 1;		# simulate the tube closed (no inlet/outlet)
-$use_tetra = 0;
-$compressible = ("$ENV{'incomp'}" ? 0 : 1);
+require "../../test/eperlini.pl";# Initializes ePerl 
+$compressible = 1;
+## Mesh parameters
+$Nr = 40;			# number of elements in radial direction
 
 $R0 = 0.047;			# [m] Radius of tube
-$L0 = 0.520;			# [m] Length of tube
-$L0 = 2*$R0;			# debug...
-$Rc = 0.0175;			# [m] Radius of cold outlet
 $Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
-$z_ratio = 4;			# refinement in `z' (axial) direction
 $r_ratio = 4;			# refinement in radial direction
 
-$Dz_h = 0.02*$L0;		# [m] Axial span of hot outlet
-$A_in = 3.63e-4;		# [m2] inlet area
-$Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
-
-## Mesh parameters
-$refine = 1;			# scale all N's by this
-$Nz = 8*$refine;		# number of elements in axial direction
-$Nr = 4*$refine;		# number of elements in radial direction
-$Nphi = 16*$refine;		# number of elements in circumferential direction
-
-# $Dz_in = $Dz_h; # [m] Axial span of inlet (temporarily set equal to the outlet 
-
-$mass_flow_in = 0.12;		# [kg/s] mass flow at inlet
 $p_in = 200000;			# [N/m2] pressure at inlet
 $T_in = 294;			# [K] temperature at inlet
 
@@ -42,59 +24,34 @@ $Cp      = $ga*$Cv;		# [J/K kg] specific heat at constant pressure
 $g_body  =  0;			# [N/m3] force per volume (may be gravity)
 $gravity = -9.8;		# [m/s2] normal acceleration of gravity
 
-## INLET
-$rho_in = $p_in/($Rgas*$T_in);	# [kg/m3] density
-$u_rad_in = $mass_flow_in/
-    ($A_in*$rho_in);		# [m/s] radial velocity
-$u_circunf_in = 10*$u_rad_in;	# [m/s] tangential velocity
-
-if ($closed_tube) {
-    ##INLET
-    $u_rad_in = 0.;		# [m/s] radial velocity
-    $u_circunf_in = 1;		# [m/s] tangential velocity
-}
-
-# viscosity (set by Re number)
-$u_circunf_in = 1;		# [m/s] tangential velocity
-$Re = 1e4;			# [1] Reynolds based on diameter
+$rho_in = 1.;			# [kg/m3]
+$u_circunf_in = 200;		# [m/s] radial velocity at exterior radius
+$Re = 1e6;			# [1] Reynolds based on diameter
 $visco   =  $rho_in
     *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
+$W = $u_circunf_in/$R0;		# [1/s] rotation angular velocity
 
-## COLD OUTLET
-$p_c = 1.013e5;			# [N/m2] outlet cold pressure
-
-## HOT OUTLET
-$p_h = 1.38e5;			# [N/m2] outlet cold pressure
-
-# require './data.pl';
-$weak_form  = 0;
 #__END_TRANSCRIPT__
-@vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
-		rho_in u_rad_in u_circunf_in p_in p_h p_c 
-		closed_tube compressible);
+@vars = qw(R0 Rin r_ratio Nr rho_in u_rad_in u_circunf_in p_in p_h p_c W);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
-system "octave -qH mkvtube.m > mkvtube.out.tmp";
-if ($use_tetra) {
-    system "../../tools/hexasplit.bin -i vtube.con.tmp -o vtube.con-tetra.tmp".
-    " > hexasplit.out.tmp";
-}
+system "octave -qH mkstrip.m > mkstrip.out.tmp";
 :>//                            # ends ePerl block
 
 ##================================================================
 global_options
 
-nstep 1000
+nstep 50
 alpha 1.
 
-initial_state "vtube.ini.tmp"
-# initial_state "vtube.state.tmp"
-save_file "vtube.state.tmp" 
+initial_state "strip.ini.tmp"
+# initial_state "strip.state.tmp"
+save_file "strip.state.tmp" 
 nsave 1
 
-save_file_pattern "vtube.state_%d.tmp"
-nsaverot 10
+save_file_pattern "strip.state_%d.tmp"
+nsaverot 1
 nrec 1
 nfile 100000000
 
@@ -119,7 +76,7 @@ nnwt 2
 
 print_internal_loop_conv
 
-Dt 0.01
+Dt 0.001
 weak_form 0
 temporal_stability_factor 0
 
@@ -141,7 +98,7 @@ __END_HASH__
 ##================================================================
 # ndim nu ndof
 nodedata  3  3  <:=($compressible ? 5 : 4):>
-data vtube.nod.tmp
+data strip.nod.tmp
 __END_HASH__
 
 ##================================================================
@@ -149,16 +106,21 @@ elemset <:=($compressible ? 'gasflow' : 'nsi_tet_les_fm2'):> \
 			    <:= ($use_tetra ? 4 : 8):>
 geometry <:=($use_tetra ? "tetra" : "cartesian3d"):>
 npg <:= ($use_tetra ? 4 : 8):>
-data vtube.con<:=($use_tetra ? "-tetra" : ""):>.tmp
+data strip.con<:=($use_tetra ? "-tetra" : ""):>.tmp
 __END_HASH__
 
 end_elemsets
 
 ##================================================================
 fixa
-__INCLUDE__ vtube.fixa.tmp
+__INCLUDE__ strip.fixa.tmp
 #if !$compressible
 ## Fix pressure at some node
 1 4 0.
 #endif
 __END_FIXA__
+
+##================================================================
+constraint
+__INCLUDE__ strip.peri.tmp
+__END_CONSTRAINT__

@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2003/01/17 03:13:15 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/01/19 02:25:49 mstorti Exp $ 
 
-.PHONY: force all run tests
+.PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: vtube
+default: strip
 
 tests: 
 
@@ -16,18 +16,24 @@ nozzle:
 vtube:
 	$(MAKE) CASE_NAME=$@ run
 
+vtubei:
+	$(MAKE) CASE_NAME=vtube incomp=1 PROG=$(NS_O) run
+
+strip:
+	$(MAKE) CASE_NAME=$@ run
+
 SRCS = 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := vtube
-# CASE_NAME := nozzle
-# CASE_NAME := gasflow_test_2d
+CASE_NAME := strip
 endif
 LOC_PROG := advdif
-PROG := ../../applications/advdif/advdif_O.bin
+ifeq ($(PROG),)
+PROG := $(ADVDIF_O)
+endif
 
 # NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: $(CASE_NAME).depl

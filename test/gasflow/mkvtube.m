@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkvtube.m,v 1.2 2003/01/17 19:03:00 mstorti Exp $
+## $Id: mkvtube.m,v 1.3 2003/01/19 02:25:49 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -39,13 +39,21 @@ asave("vtube.con.tmp",ic3d);
 fid = fopen("vtube.fixa.tmp","w");
 tol = 1e-7;
 #wall = find((abs(rho-R0)<tol || z<tol || abs(z-L0)<tol)
+ndim = 3;
+u_dof = 1;
+if compressible
+  u_dof = 2;
+endif
+p_dof = u_dof+ndim;
+
 done = 0;
 for k=1:rows(x3d);
   if k/rows(x3d) > done+0.1;
     done = done+0.1;
     printf("%3d%% done\n",round(100*done));
   endif
-  is_wall = (abs(rho(k)-R0)<tol || z(k)<tol || abs(z(k)-L0)<tol);
+  is_wall = (abs(rho(k)-R0)<tol || z(k)<tol || abs(z(k)-L0)<tol || \
+	     abs(rho(k)-Rin)<tol);
   if !is_wall
     continue;			# for efficiency
   elseif !closed_tube && abs(rho(k)-R0)<tol && z(k)<=Dz_in
@@ -54,24 +62,26 @@ for k=1:rows(x3d);
     er = er/l2(er);
     et = [-er(2) +er(1)];
     u = -u_rad_in * er + u_circunf_in * et;
-    fprintf(fid,"%d %d    %f\n",k,1,rho_in);
-    fprintf(fid,"%d %d    %f\n",k,2,u(1));
-    fprintf(fid,"%d %d    %f\n",k,3,u(2));
-    fprintf(fid,"%d %d    %f\n",k,4,0);
+    if compressible, fprintf(fid,"%d %d    %f\n",k,1,rho_in); endif
+    fprintf(fid,"%d %d    %f\n",k,u_dof,u(1));
+    fprintf(fid,"%d %d    %f\n",k,u_dof+1,u(2));
+    fprintf(fid,"%d %d    %f\n",k,u_dof+2,0);
   elseif !closed_tube && abs(rho(k)-R0)<tol && z(k)>=L0-Dz_h
-    fprintf(fid,"%d %d   %f\n",k,5,p_h);
+    fprintf(fid,"%d %d   %f\n",k,p_dof,p_h);
   elseif !closed_tube && z(k)<tol && rho(k)<=Rc
-    fprintf(fid,"%d %d   %f\n",k,5,p_c);
+    fprintf(fid,"%d %d   %f\n",k,p_dof,p_c);
   elseif is_wall
-    fprintf(fid,"%d %d    %f\n",k,2,0);
-    fprintf(fid,"%d %d    %f\n",k,3,0);
-    fprintf(fid,"%d %d    %f\n",k,4,0);
+    for l=1:3; fprintf(fid,"%d %d    %f\n",k,u_dof+l-1,0); endfor
   endif
 endfor
 fclose(fid);
 
 Omega = u_circunf_in/R0;
 nnod = rows(x3d);
-uini = ones(nnod,5)*diag([rho_in,0,0,0,p_in]);
-uini(:,2:3) = [-Omega*x3d(:,2),+Omega*x3d(:,1)];
+if !compressible, p_in=0; endif
+uini = ones(nnod,4)*diag([0,0,0,p_in]);
+uini(:,1:2) = [-Omega*x3d(:,2),+Omega*x3d(:,1)];
+if compressible
+  uini = [rho_in*ones(nnod,1) uini];
+endif
 asave("vtube.ini.tmp",uini);
