@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.18 2001/10/04 20:43:37 mstorti Exp $
+//$Id: nsi_tet.h,v 1.19 2001/10/05 17:52:10 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -308,8 +308,18 @@ class LagrangeMult : public Elemset {
  public:
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
-  /// Returns number of restrictions
-  virtual int nres()=0;
+  /** Returns data (to be derived)
+      @param nr (output) number of restrictions
+      @param nfic (output) number of fictitious nodes
+   */
+  virtual void dims(int &nr,int &nfic)=0;
+  /** Return the node/dof pair to be used as lagrange multiplier for
+      the #jr#-th restriction. 
+      @param jr (input) Number of restriction
+      @param node (output) number of node for multiplier
+      @param dof (output) number of field for multiplier
+  */ 
+  virtual void lag_mul_dof(int jr,int &node,int &dof)=0;
   /// Initialize the elemset (maybe reads hash table)
   virtual void init()=0;
   /** Computes the residual and jacobian of the function to be
@@ -319,12 +329,12 @@ class LagrangeMult : public Elemset {
       @param U (input) state vector at all nodes
       @param r (output) a vector of length #nres*nel/2# containing the
       residuals for each restriction at each node.
-      @param lambda (input) the state of the Lagrange multipliers 
+      @param w (input) the state of the Lagrange multipliers 
       @param jac (output) the jacobian of the residuals with respect
       to the node state. (size #nel/2 * nres* nel/2 x ndof#)
   */ 
   virtual void res(int k,FastMat2 &U,FastMat2 & r,
-		   FastMat2 & lambda,FastMat2 & jac)=0;
+		   FastMat2 & w,FastMat2 & jac)=0;
   /// Make it pure virtual. 
   virtual ~LagrangeMult()=0;
 };

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.3 2001/10/05 12:29:13 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.4 2001/10/05 17:52:10 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -34,13 +34,8 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 			   int el_start,int el_last,int iter_mode,
 			   const TimeData *time_) {
 
-  int nelr,nfic; // number of real/fictitious nodes
+  int nelr,nfic,nr; // number of real/fictitious nodes, number of restrictions
 
-  // Verify that the number of nodes is even
-  // (a fictitious node for each real node)
-  PETSCFEM_ASSERT0(nel % 2 == 0,"");
-  nel2 = nel/2;
-  
   GET_JOBINFO_FLAG(comp_mat);
   GET_JOBINFO_FLAG(comp_mat_ke);
   GET_JOBINFO_FLAG(comp_mat_res);
@@ -52,10 +47,10 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define RETVALMAT(iele,j,k,p,q) VEC5(retvalmat,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
 
-  int ierr=0;
+  int ierr=0,nr,jr,jfic,dofic;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsikeps\n");
 
-  double *locst,*locst2,*retval,*retvalmat;
+  double *locst,*locst2,*retval,*retvalmat,lambda;
   GlobParam *glob_param;
   double *hmin,Dt,rec_Dt;
   int ja_hmin;
@@ -97,13 +92,15 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // better conditioning the system. 
   TGETOPTDEF(thash,double,lagrange_scale_factor,1.);
 
+  init();
+  dims(nr,nfic); // Get dimensions of problem
+  nelr = nel-nfic;
+
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
   if (comp_mat) matloc_prof.set(1.);
 
-  init();
-  int nr = nres();
-  FastMat2 r(1,nr),lambda(3,nel2,ndof,nr),jac(3,nr,nel2,ndof);
+  FastMat2 r(1,nr),w(3,nelr,ndof,nr),jac(3,nr,nelr,ndof);
   jac.set(0.);
 
   FastMatCacheList cache_list;
@@ -126,17 +123,21 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     R.set(0.);
 
     if (comp_mat_res) {
-      res(k,U,r,lambda,jac);
-      U.is(1,nel2+1,nel).is(2,1,nr);
-      R.is(1,1,nel2).prod(lambda,U,1,2,-1,-2,-1,-2).scale(lagrange_scale_factor);
+      res(k,U,r,w,jac);
+      for (jr=0; jr<nr; jr++) {
+	// get node/field of the Lag.mul.
+	lag_mul_dof(jr,jfic,dofic);
+	
+	lambda = U.get(nelr+jfic,dofic);
+	R.is(1,1,nelr).prod(w,U,1,2,-1,-2,-1,-2).scale(lagrange_scale_factor);
       
-      R.rs().is(1,nel2+1,nel).is(2,1,nr).set(r)
+      R.rs().is(1,nelr+1,nel).is(2,1,nr).set(r)
 	.axpy(U,-lagrange_diagonal_factor*lagrange_residual_factor).rs();
       
-      matloc.is(1,1,nel2).is(3,nel2+1,nel).is(4,1,nr).set(lambda)
+      matloc.is(1,1,nelr).is(3,nelr+1,nel).is(4,1,nr).set(w)
 	.scale(-lagrange_scale_factor).rs();
-      matloc.is(1,nel2+1,nel).is(3,1,nel2).is(2,1,nr).set(jac).scale(-1.).rs();
-      matloc.is(1,nel2+1,nel).is(3,nel2+1,nel).d(2,4).is(2,1,nr)
+      matloc.is(1,nelr+1,nel).is(3,1,nelr).is(2,1,nr).set(jac).scale(-1.).rs();
+      matloc.is(1,nelr+1,nel).is(3,nelr+1,nel).d(2,4).is(2,1,nr)
 	.set(lagrange_diagonal_factor).rs();
 
       R.export_vals(&(RETVAL(ielh,0,0)));
