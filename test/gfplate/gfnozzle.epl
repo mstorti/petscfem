@@ -1,6 +1,6 @@
 # -*- mode: shell-script -*-
 # case: <:=$ENV{'case'}:>
-# <: require './data.pl'; :>
+# <: require './dnozzle.pl'; :>
 ## Derived quantities:
 ## ==================
 global_options
@@ -10,13 +10,13 @@ global_options
 nstep 10000
 alpha 1.
 
-initial_state "gfplate.ini.tmp"
-# initial_state "gfplate.state-q0.tmp"
-# initial_state "gfplate.state.tmp"
+initial_state "gfnozzle.ini.tmp"
+# initial_state "gfnozzle.state-q0.tmp"
+# initial_state "gfnozzle.state.tmp"
 nsave 1
-save_file "gfplate.state.tmp"
+save_file "gfnozzle.state.tmp"
 
-save_file_pattern "STEPS/gfplate.state_%d.tmp"
+save_file_pattern "STEPS/gfnozzle.state_%d.tmp"
 nsaverot 1
 nrec 1
 nfile 100000000
@@ -48,7 +48,7 @@ weak_form 0
 temporal_stability_factor 0
 
 ndim 2
-<:pr('Rgas'):>
+Rgas 1.0
 visco 0.001
 cond 0.001
 steady 0
@@ -72,9 +72,9 @@ __END_HASH__
 # ndim nu ndof
 nodedata 2 2 4
 #if $dx
-data ./gfplate.dx-nod.tmp
+data ./gfnozzle.dx-nod.tmp
 #else
-data ./gfplate.nod.tmp
+data ./gfnozzle.nod.tmp
 #endif
 __END_HASH__
 
@@ -83,7 +83,7 @@ elemset gasflow 4
 geometry cartesian2d
 dx 1
 npg 4
-data ./gfplate.con.tmp
+data ./gfnozzle.con.tmp
 __END_HASH__
 
 #if !$dx
@@ -91,7 +91,7 @@ __END_HASH__
 ##================================================================
 elemset gasflow_twall 2
 dx 0
-data ./gfplate.twall.tmp
+data ./gfnozzle.twall.tmp
 __END_HASH__
 #endif
 
@@ -102,7 +102,7 @@ normal 1 0
 dx 0
 use_old_state_as_ref 1
 __END_HASH__
-__INCLUDE__ gfplate.abso-con.tmp
+__INCLUDE__ gfnozzle.abso-con.tmp
 __END_ELEMSET__
 #endif
 
@@ -110,14 +110,14 @@ __END_ELEMSET__
 
 #if !$dx
 fixa
-__INCLUDE__ ./gfplate.fixa-in.tmp
-__INCLUDE__ ./gfplate.fixa-outer.tmp
-__INCLUDE__ ./gfplate.fixa-outlet.tmp
-__INCLUDE__ ./gfplate.fixa-slip.tmp
-__INCLUDE__ ./gfplate.fixa-wall.tmp
+__INCLUDE__ ./gfnozzle.fixa-in.tmp
+__INCLUDE__ ./gfnozzle.fixa-outer.tmp
+__INCLUDE__ ./gfnozzle.fixa-outlet.tmp
+__INCLUDE__ ./gfnozzle.fixa-slip.tmp
+__INCLUDE__ ./gfnozzle.fixa-wall.tmp
 #if $Twall
-__INCLUDE__ ./gfplate.fixa-twall.tmp
+__INCLUDE__ ./gfnozzle.fixa-twall.tmp
 #endif
-# __INCLUDE__ ./gfplate.fixa-lagmul-tw.tmp
+# __INCLUDE__ ./gfnozzle.fixa-lagmul-tw.tmp
 __END_FIXA__
 #endif

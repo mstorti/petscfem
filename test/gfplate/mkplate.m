@@ -1,4 +1,4 @@
-## $Id: mkplate.m,v 1.5 2005/01/30 03:23:07 mstorti Exp $
+## $Id: mkplate.m,v 1.6 2005/01/31 02:20:52 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -11,14 +11,14 @@ w = zhomo([0 Lx 0 Ly],Nx+1,Ny+1,[1 0 1 1 0 yratio]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
-indx = find(xnod(:,1)<Lplate);
-x1 = [Lplate;xnod(indx,1)];
+indx = find(xnod(:,1)<Lslip);
+x1 = [Lslip;xnod(indx,1)];
 x1 = onedstr([10 0 1],x1);
 x1(1) = [];
 xnod(indx,1) = x1;
 
-indx = find(xnod(:,1)>=Lplate);
-x1 = [Lplate;xnod(indx,1)];
+indx = find(xnod(:,1)>=Lslip);
+x1 = [Lslip;xnod(indx,1)];
 x1 = onedstr([1 0 10],x1);
 x1(1) = [];
 xnod(indx,1) = x1;
@@ -28,7 +28,8 @@ inlet = find(abs(xnod(:,1))<tol);
 outlet = find(abs(xnod(:,1)-Lx)<tol);
 
 wall = find(abs(xnod(:,2))<tol);
-slip = find(xnod(wall,1)<Lplate);
+slip = find(xnod(wall,1)<Lslip \
+	    || xnod(wall,1)>Lslip+Lplate);
 slip = wall(slip);
 wall = complement(slip,wall);
 outer = find(abs(xnod(:,2)-Ly)<tol);
@@ -49,9 +50,9 @@ tmp = complement(inlet,outer);
 pffixa("gfplate.fixa-outer.tmp",tmp,3);
 
 ## p fixed at outlet
-outlet = complement(wall,outlet)';
+## outlet = complement(wall,outlet)';
 pffixa("gfplate.fixa-outlet.tmp", \
-       tmp,[3,4],[0,pref]);
+       outlet,4,pref);
 
 nnod = size(xnod,1);
 
@@ -81,6 +82,10 @@ fclose(fid);
 
 pffixa("gfplate.fixa-twall.tmp", \
        ficwall,2:4,[Tref,0,0]);
+
+## This is used if not Twall imposed
+pffixa("gfplate.fixa-lagmul-tw.tmp", \
+       ficwall,1);
 
 asave("gfplate.nod.tmp",xnod);
 asave("gfplate.dx-nod.tmp",xnod(1:nnod,:));
