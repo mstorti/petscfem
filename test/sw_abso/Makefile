@@ -2,7 +2,7 @@ tests: test_abso
 
 CASE=canal1d
 
-PETSCFEM_DIR := /u/mstorti/PETSC/petscfem-hydro
+PETSCFEM_DIR := ../..
 
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 NP := 1

@@ -1,10 +1,10 @@
 ###key proc.m
 ##__INSERT_LICENSE__
-## $Id: proc2.m,v 1.6 2003/11/12 19:44:46 mstorti Exp $
+## $Id: proc2.m,v 1.7 2003/11/12 22:21:15 mstorti Exp $
 source("data.m.tmp");
 
-U=aload_any("pool.state_%d.tmp",0);
-## U=aload("pool.state_3.tmp");
+## U=aload_any("pool.state_%d.tmp",0);
+U = aload("pool.state.tmp");
 
 Nb = reshape(U(:,1),Nx+1,Ny+1)*Nb_scale;
 CO = reshape(U(:,2),Nx+1,Ny+1);

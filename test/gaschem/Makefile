@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2003/11/12 19:44:46 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2003/11/12 22:21:15 mstorti Exp $ 
 
 .PHONY: run default
 
@@ -31,9 +31,11 @@ NP := $(shell perl -e "print $(NP)> $(NPMAX) ? $(NPMAX) : $(NP);")
 
 #w Runs program
 run:
+	echo "in Makefile: start target run"
 	-rrm -f pool.state_*.tmp
 	make-depl $(CASE).epl $(CASE).depl
 	octave -qH mkmesh.m
+	echo in Makefile  mpirun
 	-${MPIRUN} $(NOLOCAL) -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 #w Makes local link for running with debugger
