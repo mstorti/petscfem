@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.5 2002/11/29 12:34:02 mstorti Exp $
+//$Id: testfm2.cpp,v 1.6 2002/11/29 12:56:29 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -60,8 +60,11 @@ int main() {
   FastMat2 Z50(2,3,3),Z51,Z54(2,3,2),Z52,Z53(1,3);
   FastMat2 Z55(2,3,3),Z56(1,3),Z59,Z57(2,3,3),Z58;
   double z60[]={1.,.1,.1,-.1,1.,.1,-.1,-.1,1.};
+  double z60b[]={1.,.1,.1,-.1,2.,.1,-.1,-.1,3.};
   FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
     Z69;
+  FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
+    Z69b;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -360,9 +363,24 @@ int main() {
       Z60.set(z60);
       // Compute eigenvals, and left/right eigenvectors
       Z61.eig(Z60,&Z62,&Z63,1,1);
+      // Compute eigenvals only
       Z69.eig(Z60);
+      // Compute eigenvals, and right eigenvectors
       Z67.eig(Z60,Z64);
+      // Compute eigenvals, and left/right eigenvectors
       Z68.eig(Z60,Z65,Z66);
+
+      // Same as before with real eigenvalues
+      // Define non-symmetric 3x3 matrix
+      Z60b.set(z60b);
+      // Compute eigenvals, and right/left eigenvectors
+      Z61b.eig(Z60b,&Z62b,&Z63b,1,1);
+      // Compute eigenvals only
+      Z69b.eig(Z60b);
+      // Compute eigenvals, and right eigenvectors
+      Z67b.eig(Z60b,Z64b);
+      // Compute eigenvals, and left/right eigenvectors
+      Z68b.eig(Z60b,Z65b,Z66b);
 
     }
     FastMat2::void_cache();
@@ -463,6 +481,17 @@ int main() {
   SH(Z67);
   SH(Z68);
   SH(Z69);
+
+  SH(Z60b);
+  SH(Z61b);
+  SH(Z62b);
+  SH(Z63b);
+  SH(Z64b);
+  SH(Z65b);
+  SH(Z66b);
+  SH(Z67b);
+  SH(Z68b);
+  SH(Z69b);
 
 #undef SH
 

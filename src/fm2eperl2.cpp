@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl2.cpp,v 1.4 2002/11/29 12:34:02 mstorti Exp $
+//$Id: fm2eperl2.cpp,v 1.5 2002/11/29 12:56:29 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -45,8 +45,8 @@ void dgeev_(const char *jobvl,const char *jobvr,int *n,double *a,int *lda,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 &
-FastMat2::eig(const FastMat2 & A, FastMat2 *VL=NULL, FastMat2 *VR=NULL, 
-	      int clev=0, int crev=0) { 
+FastMat2::eig(const FastMat2 & A, FastMat2 *VR=NULL, FastMat2 *VL=NULL, 
+	      int crev=0, int clev=0) { 
 
   FastMatCache *cache;
 
@@ -138,8 +138,8 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       Windx[0] = 2;
       sc->W[m+j-1] = location(Windx);
       for (int k=1; k<=m; k++) {
-	Aindx[0]=j;
-	Aindx[1]=k;
+	Aindx[0]=k;
+	Aindx[1]=j;
 	sc->A[jj] = A.location(Aindx);
 	if (clev) sc->VL[jj] = VL->location(Aindx);
 	if (crev) sc->VR[jj] = VR->location(Aindx);
@@ -170,14 +170,14 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::eig(const FastMat2 & A, FastMat2 &VL) {
-  eig(A,&VL);
+FastMat2 & FastMat2::eig(const FastMat2 & A, FastMat2 &VR) {
+  eig(A,&VR);
   return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-FastMat2 & FastMat2::eig(const FastMat2 & A, FastMat2 &VL, FastMat2 &VR) {
-  eig(A,&VL,&VR);
+FastMat2 & FastMat2::eig(const FastMat2 & A, FastMat2 &VR, FastMat2 &VL) {
+  eig(A,&VR,&VL);
   return *this;
 }
 

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.20 2002/11/29 12:34:02 mstorti Exp $
+//$Id: fastmat2.h,v 1.21 2002/11/29 12:56:29 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -936,26 +936,26 @@ public:
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for non-symmetric matrix #A# and 
-      compute left eigenvectors. (see 
-      #eig(const FastMat2 & A, FastMat2 *VL=NULL,...)# below).
+      compute right eigenvectors. (see 
+      #eig(const FastMat2 & A, FastMat2 *VR=NULL,...)# below).
       @author M. Storti
       @param A (input) the matrix to take the eigenvalues
-      @param VL (output) the matrix with the left eigenvectors
+      @param VR (output) the matrix with the right eigenvectors
       @returns a reference to a vector containing the eigenvalues. 
   */ 
-  FastMat2 & eig(const FastMat2 & A, FastMat2 &VL);
+  FastMat2 & eig(const FastMat2 & A, FastMat2 &VR);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for non-symmetric matrix #A# and 
-      compute left and eigenvectors. (see 
-      #eig(const FastMat2 & A, FastMat2 *VL=NULL,...)# below).
+      compute right and left eigenvectors. (see 
+      #eig(const FastMat2 & A, FastMat2 *VR=NULL,...)# below).
       @author M. Storti
       @param A (input) the matrix to take the eigenvalues
+      @param VR (output) the matrix with the right eigenvectors
       @param VL (output) the matrix with the left eigenvectors
-      @param VR (output) the matrix with the left eigenvectors
       @returns a reference to a vector containing the eigenvalues. 
   */ 
-  FastMat2 & eig(const FastMat2 & A, FastMat2 &VL, FastMat2 &VR);
+  FastMat2 & eig(const FastMat2 & A, FastMat2 &VR, FastMat2 &VL);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for non-symmetric matrix #A#.
@@ -965,14 +965,14 @@ public:
       can be computed independently. Based on the #DGEEV# #LAPACK# routine. 
       @author M. Storti
       @param A (input) the matrix to take the eigenvalues
-      @param VL (output) the matrix with the left eigenvectors
       @param VR (output) the matrix with the right eigenvectors
-      @param clev (input) compute the left eigenvectors flag
+      @param VL (output) the matrix with the left eigenvectors
       @param crev (input) compute the right eigenvectors flag
+      @param clev (input) compute the left eigenvectors flag
       @returns a reference to a vector containing the eigenvalues. 
   */ 
-  FastMat2 & eig(const FastMat2 & A, FastMat2 *VL=NULL, FastMat2 *VR=NULL, 
-		 int clev=0, int crev=0);
+  FastMat2 & eig(const FastMat2 & A, FastMat2 *VR=NULL, FastMat2 *VL=NULL, 
+		 int crev=0, int clev=0);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Solve the eigenvalue problem for symmetric matrix #A#.
