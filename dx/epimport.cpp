@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.11 2003/05/04 16:43:50 mstorti Exp $
+// $Id: epimport.cpp,v 1.12 2003/06/16 19:55:58 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -392,10 +392,12 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       ierr = dx_objects_table.
 	load_new(name,new State(rank,shape,size,nnod,array));
       if(ierr!=OK) return ierr;
-      DXMessage("Got new \"State\" name %s, ptr %p, rank %d, dims (",
-		name.c_str(),array,rank);
-      for (int j=0; j<rank; j++) DXMessage(" %d",shape[j]);
-      DXMessage("), size %d, nnod %d",size,nnod);
+      AutoString buff;
+      buff.sprintf("Got new \"State\" name %s, ptr %p, rank %d, dims (",
+		   name.c_str(),array,rank);
+      for (int j=0; j<rank; j++) buff.cat_sprintf(" %d",shape[j]);
+      buff.cat_sprintf("), size %d, nnod %d",size,nnod);
+      DXMessage((char *)buff.str());
       Sprintf(clnt,"state_OK %d\n",cookie);
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="elemset") {
