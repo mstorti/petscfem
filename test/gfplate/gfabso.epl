@@ -7,11 +7,11 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 1000
+nstep 1
 alpha 1.
 
-initial_state "gfabso.ini.tmp"
-# initial_state "gfabso.state.tmp"
+## initial_state "gfabso.ini.tmp"
+initial_state "gfabso.state.tmp"
 nsave 1
 save_file "gfabso.state.tmp"
 
@@ -44,7 +44,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 10
 
 print_internal_loop_conv
 # print_linear_system_and_stop
@@ -55,10 +55,11 @@ weak_form 0
 temporal_stability_factor 0
 
 ndim 2
-<:=$Rgas:>
+Rgas <:=$Rgas:>
 visco 0.001
 cond 0.001
 steady 0
+Uref <:=$rhoref:> <:=$uref:> 0 <:=$pref:> 
 
 lagrange_diagonal_factor 1e-4
 

@@ -1,4 +1,4 @@
-## $Id: proc2.m,v 1.6 2005/01/22 12:01:51 mstorti Exp $
+## $Id: proc2.m,v 1.7 2005/01/22 22:10:20 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -7,9 +7,10 @@ field = 1;
 Uprimi = aload("gfabso.some-rslt.tmp");
 Uprimi(:,1)=[];
 gasdata.gamma = gamma;
-
-pref = Rgas*Tref*rhoref;
-cref = sqrt(gamma*Tref*Rgas);
+gasdata.pref = pref;
+gasdata.uref = uref;
+gasdata.rhoref = rhoref;
+gasdata.cref = cref;
 
 primi = 0;
 if primi

@@ -1,10 +1,7 @@
-## $Id: mkgfabso.m,v 1.8 2005/01/22 12:01:51 mstorti Exp $
+## $Id: mkgfabso.m,v 1.9 2005/01/22 22:10:20 mstorti Exp $
 source("data.m.tmp");
 
-pref = Rgas*Tref*rhoref;
-cref = sqrt(gamma*Tref*Rgas);
 
-uini = Machin*cref;
 poutlet = pref;
 
 w = zhomo([0 Lx/Nx 0 Lx ],2,Nx+1);
@@ -14,7 +11,7 @@ nnod = size(xnod,1);
 
 ## rho,u,v at inlet
 inlet = [1;Nx+2];
-pffixa("gfabso.fixa-in.tmp",inlet,1:3,[rhoref uini 0.0])
+pffixa("gfabso.fixa-in.tmp",inlet,1:3,[rhoref uref 0.0])
 
 ## rho,u,v at inlet
 outlet = [Nx+1;2*Nx+2];
@@ -52,11 +49,11 @@ abso0 = [1:3,nnod+[5,6];
 asave("gfabso.con-abso0.tmp",abso0);
 
 ## Fixa on reference nodes
-Uref = [rhoref,uini,0,pref];
+Uref = [rhoref,uref,0,pref];
 ref = [Nx+1;2*Nx+2];
 pffixa("gfabso.fixa-ref.tmp",nnod+[2,4,6,8],1:4,Uref)
 
-asave("gfabso.some-nodes.tmp",(1:nnod)');
+asave("gfabso.some-nodes.tmp",(1:nnod/2)');
 
 nnod2 = size(xnod,1);
 Uini = Uref(ones(nnod2,1),:);
@@ -65,11 +62,9 @@ Uini(nnod+[1:2:7],:) = 0;	# lagrange multipliers to 0
 x = xnod(1:nnod,1);
 drho = 0.01;
 ## dw = drho*[1 0 0 0]; ## entropy wave
-## dw = drho*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
-dw = drho*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
+dw = drho*[1 cref/rhoref 0 cref^2]; ## forward acoustic wave
+## dw = drho*[-1 cref/rhoref 0 -cref^2]; ## backward acoustic wave
 dfx = exp(-((x-Lx/2)/sigma).^2);
 Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
 
 asave("gfabso.ini.tmp",Uini);
-
- 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: gasflow.h,v 1.12 2005/01/20 22:50:54 mstorti Exp $
+// $Id: gasflow.h,v 1.13 2005/01/22 22:10:17 mstorti Exp $
 #ifndef gasflow_H
 #define gasflow_H
 
@@ -34,7 +34,7 @@ private:
   double shocap_beta,shocap_factor;
   const NewAdvDif *advdf_e;
   FastMat2 jvec;
-  FastMat2 tmp20;
+  FastMat2 tmp20,dUabso,Uref;
 
   void compute_tau(int ijob,double &delta_sc);
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.12 2005/01/22 12:01:47 mstorti Exp $
+//$Id: gasflow.cpp,v 1.13 2005/01/22 22:10:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -69,6 +69,13 @@ void gasflow_ff::start_chunk(int &ret_options) {
   G_body.set(0.);
   ierr = elemset->get_double("G_body",
 			     *G_body.storage_begin(),1,ndim);
+
+  //o _T: double[ndof] _N: Uref _D: <none>
+  // _DOC: reference state for absorbing b.c.'s. _END
+  Uref.resize(1,ndof).set(0.);
+  ierr = elemset->
+    get_double("Uref",*Uref.storage_begin(),1,ndof);
+  dUabso.resize(1,ndof);
 
   assert(ndim>0);
   assert(ndof==2+ndim);
@@ -616,15 +623,17 @@ void gasflow_ff::comp_P_supg(FastMat2 &P_supg) {
 void gasflow_ff::
 Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 	    FastMat2 &Rie, FastMat2 &drdU, FastMat2 &C) {
+  // Right now, verify that `normaln' is aligned with `x'
+  for (int k=2; k<=ndim; k++)
+    assert(normaln.get(k)==0.0);
+  double nx = normaln.get(1);
+#if 0
   // Speed of sound
   double a = sqrt(ga*p/rho);
   
   tmp20.prod(vel,normaln,-1,-1);
   double un = tmp20.get();
-  // Right now, verify that `normaln' is aligned with `x'
-  for (int k=2; k<=ndim; k++)
-    assert(normaln.get(k)==0.0);
-  double nx = normaln.get(1);
+  // Riemman based b.c.'s
   double a2g = 2*a/g1;
 
   // Riemman Invariants
@@ -660,4 +669,46 @@ Riemann_Inv(const FastMat2 &U, const FastMat2 &normaln,
 
   for (int k=3; k<=ndof; k++) 
     C.setel(un,k);
+#else
+  // Standard (linear) absorbing b.c.'s
+  double rhoref = Uref.get(1);
+  double uref = Uref.get(2)*nx;
+  double pref = Uref.get(ndof);
+  double aref = sqrt(ga*pref/rhoref);
+  double rhoaref = rhoref*aref;
+  double aref2 = aref*aref;
+  dUabso.set(U).rest(Uref);
+
+  // Riemman Invariants
+  Rie.setel(nx*dUabso.get(2)
+	    -dUabso.get(ndof)/rhoaref,1);
+  Rie.setel(nx*dUabso.get(2)
+	    +dUabso.get(ndof)/rhoaref,2);
+  Rie.setel(aref2*dUabso.get(1)-dUabso.get(ndof),3);
+  for (int k=2; k<=ndim; k++)
+    Rie.setel(vel.get(k),2+k);
+
+  // Jacobians
+  drdU.set(0.);
+
+  drdU.setel(nx,1,2);
+  drdU.setel(-1.0/rhoaref,1,ndof);
+
+  drdU.setel(nx,2,2);
+  drdU.setel(+1.0/rhoaref,2,ndof);
+
+  drdU.setel(aref2,3,1);
+  drdU.setel(-1.0,3,ndof);
+
+  for (int k=2; k<=ndim; k++) 
+    drdU.setel(1.0,k+2,k+1);
+
+  // Characteristic speeds
+  
+  C.setel(uref-aref,1);
+  C.setel(uref+aref,2);
+
+  for (int k=3; k<=ndof; k++) 
+    C.setel(uref,k);
+#endif
 }

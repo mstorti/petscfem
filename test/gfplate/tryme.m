@@ -1,4 +1,4 @@
-## $Id: tryme.m,v 1.1 2005/01/22 12:01:51 mstorti Exp $
+## $Id: tryme.m,v 1.2 2005/01/22 22:10:20 mstorti Exp $
 source("data.m.tmp");
 
 pref = Rgas*Tref*rhoref;
@@ -9,4 +9,5 @@ A = [uini rhoref 0;
      0 uini 1/rhoref;
      0 rhoref*cref^2 uini];
 
-[v,d] = eig(A);
+[v,la] = eig(A);
+la = diag(la);

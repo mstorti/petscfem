@@ -1,4 +1,4 @@
-/* $Id: nonlres.cpp,v 1.7 2005/01/21 17:11:12 mstorti Exp $ */
+/* $Id: nonlres.cpp,v 1.8 2005/01/22 22:10:17 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -277,7 +277,7 @@ res(ElementIterator &element, FastMat2 &U,
     C_U_.ir(2,j).set(C_U_tmp).rs();
     drdU_.ir(3,j).set(drdU_tmp).rs();
   }
-  jac.set(drdU_);
+  // jac.set(drdU_);
   double c, rj=0., tmp=0., tmp2=0.;  
   C_U_.ir(2,1);
   for (int j=1;j<=nr;j++) {
@@ -310,15 +310,14 @@ res(ElementIterator &element, FastMat2 &U,
       // Incoming wave. Value at node 1
       // must be equal to reference value. 
       FastMat2::choose(1);
-      RI_.ir(2,1);
-      tmp = RI_.get(j);tmp2 = RI_ref.get(j);
-      rj = tmp-tmp2;
-      RI_.rs();
+      rj = RI_.get(j,1) - RI_ref.get(j);
       r.setel(rj,j);
-      for(int k=1;k<=nel-1;k++) {
-	jac.ir(1,j).ir(3,k+1);
-	jac.set(0.).rs();
-      }
+      drdU_.ir(1,j).ir(3,1);
+      jac.ir(1,j).ir(3,1).set(drdU_);
+      drdU_.ir(3,nel);
+      jac.ir(3,nel).set(drdU_).scale(-1.0);
+      drdU_.rs();
+      jac.rs();
     }
     FastMat2::leave();
     RI_.rs();
