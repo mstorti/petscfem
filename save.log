@@ -2673,3 +2673,6 @@ tag: beta-3.19.pl8 on Sun,  4 May 2003 13:44:41 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl9 on Sun, 11 May 2003 14:14:27 -0300 by mstorti in spider
      > Running bump example without `cyclic_fs'. 
+----------
+tag: beta-3.19.pl10 on Sun, 11 May 2003 22:34:13 -0300 by mstorti in spider
+     > Runs test for new `read_vector' function. 
