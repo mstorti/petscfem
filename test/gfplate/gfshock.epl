@@ -111,9 +111,9 @@ fixa
 __END_FIXA__
 
 constraint
-gfshock.peri.tmp
-gfshock.v-peri.tmp
-gfshock.slip.tmp
+__INCLUDE__ gfshock.peri.tmp
+__INCLUDE__ gfshock.v-peri.tmp
+__INCLUDE__ gfshock.slip.tmp
 __END_CONSTRAINT__
 
 #endif

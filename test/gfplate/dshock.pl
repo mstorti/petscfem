@@ -3,7 +3,7 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 1.8;
-$Nx = 50;
+$Nx = 200;
 
 $ga = 1.17;
 $Molw = 27.5;
@@ -28,17 +28,17 @@ if (0) {
     $pout = 143; 
     $Tout = 262;
 } else { 
-    $pout = 0.99*$pin; 
+    $pout = 0.1*$pin; 
     $Tout = 262;
     $rhoout = $pout/($Rgas*$Tout);
 }
 $pout0 = $pout/$pref;
 $rhoout0 = $rhoout/$rhoref;
 
-$Co = 0.2;
+$Co = 0.5;
 $h = 1/$Nx;
-$Dt = $Co*$h/2;
-$tramp = $100*$Dt;
+$Dt = $Co*$h/($uin0+1);
+$tramp = 10*$Dt;
 
 @vars = qw(Dt ga Lx Nx Rgas pin0 rhoin0 uin0 pout0 rhoout0 tramp);
 octave_export_vars(">data.m.tmp",@vars);
