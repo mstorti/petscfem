@@ -1718,3 +1718,7 @@ tag: beta-3.06.pl3 on Sun, 13 Oct 2002 11:00:04 -0300 by mstorti in spider
 ----------
 tag: beta-3.06.pl4 on Sun, 13 Oct 2002 12:52:23 -0300 by mstorti in spider
      > Verifies invariance with respect to change in length and time scale.
+----------
+tag: beta-3.06.pl5 on Sun, 13 Oct 2002 17:46:38 -0300 by mstorti in spider
+     > Works length and time scaling, not density. Checked translation and
+     > rotation oscillation.
