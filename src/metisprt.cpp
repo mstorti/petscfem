@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.8 2001/11/12 16:52:35 mstorti Exp $
+//$Id: metisprt.cpp,v 1.9 2001/11/12 18:29:41 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -94,7 +94,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
   // coalesced. In this case, for the last elements the computational
   // effort may be high, since the probability of getting a hole is
   // very low. 
-  nvrtx = (nelemfat > 2*max_partgraph_vertices ?
+  nvrtx = (nelemfat/2 > max_partgraph_vertices ?
 	    max_partgraph_vertices : nelemfat);
 
   // Create adjacency table for partitioning with Metis. In the
