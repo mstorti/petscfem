@@ -2577,3 +2577,6 @@ tag: beta-3.18.pl50 on Mon, 31 Mar 2003 14:08:30 -0300 by mstorti in spider
 ----------
 tag: beta-3.18.pl51 on Mon, 31 Mar 2003 18:20:36 -0300 by mstorti in spider
      > Added ePerl license to README. 
+----------
+tag: beta-3.18.pl52 on Mon, 31 Mar 2003 19:05:16 -0300 by mstorti in spider
+     > Runs example with low Froude. 
