@@ -1511,3 +1511,6 @@ tag: beta-3.03.pl9 on Wed, 28 Aug 2002 16:55:49 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.03.pl10 on Thu, 29 Aug 2002 22:43:44 -0300 by mstorti in spider
      > Solved memory leak in `FastMat2::cross' and `FastMat2::detsur'. 
+----------
+tag: beta-3.03.pl11 on Thu, 29 Aug 2002 23:19:49 -0300 by mstorti in spider
+     > All elemsets now use FastMat2 cache. 
