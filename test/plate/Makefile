@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2002/12/30 03:06:31 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2002/12/31 13:15:05 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid
 
@@ -33,7 +33,7 @@ run: $(CASE_NAME).depl
 $(CASE_NAME).depl: force
 
 local_clean::
-	-rm -rf mat.output visc2inv inv2visc
+	-rm -rf mat.output *.fifo
 
 dx:
 	eperl -P viewer.dx > viewero.dx
