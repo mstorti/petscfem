@@ -1,4 +1,4 @@
-## $Id: mkgfmovshock.m,v 1.4 2005/02/08 01:53:03 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.5 2005/02/08 02:51:40 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
@@ -23,10 +23,6 @@ pfperi("gfmovshock.peri-y.tmp", \
 ## Periodic b.c. along x
 pfperi("gfmovshock.peri-x.tmp", \
        (Nx+1)*(1:pery),1+(Nx+1)*(0:pery-1),1:4);
-
-## Save mesh
-asave("gfmovshock.nod.tmp",xnod);
-asave("gfmovshock.con.tmp",icone);
 
 ## Normal to the shock wave
 nor = [pery,-perx]';
@@ -65,25 +61,20 @@ vmax = max([abs(u1)+c1,abs(u2)+c2]);
 Dt = hx/vmax;
 fid = fopen("gfmovshock.octave-out.tmp","w");
 fprintf(fid,"$Dt = %f;\n",Dt);
+fprintf(fid,"$norx = %f;\n",nor(1));
+fprintf(fid,"$nory = %f;\n",nor(2));
+fprintf(fid,"1;\n");
 fclose(fid);
 
 U1 = [rho1,u1+du*nor',p1];
 U2 = [rho2,u2+du*nor',p2];
 
-## Coordinate normal to shock
-xx = xnod*nor;
-
 nnod = rows(xnod);
 Lnor = Lx*nor(1);		# Domain length along
 				# normal direction
-dfx = (xx>0.1*Lnor) & (xx<0.4*Lnor);
-Uini(1:nnod,:) = U2(ones(nnod,1),:);
-dw = U1-U2;
-Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
-
-asave("gfmovshock.ini.tmp",Uini);
 
 nnod2 = nnod;
+xx = xnod*nor;
 
 ## Aborbing nodes at outlet
 tol = 1e-7;
@@ -92,4 +83,44 @@ nficout = length(nodes_out);
 ficout = nnod+(1:nficout)';
 nnod2 = nnod2 + nficout;
 xnod = [xnod;
-	xnod(ind
+	xnod(nodes_out,:)];
+asave("gfmovshock.abso-con-out.tmp", \
+      [nodes_out,ficout]);
+
+## Aborbing nodes at outlet
+tol = 1e-7;
+nodes_out = find(xx>Lnor-tol);	# Nodes at outlet
+nficout = length(nodes_out);
+ficout = nnod2+(1:nficout)';
+nnod2 = nnod2 + nficout;
+xnod = [xnod;
+	xnod(nodes_out,:)];
+asave("gfmovshock.abso-con-out.tmp", \
+      [nodes_out,ficout,ficout]);
+
+## Aborbing nodes at inlet
+nodes_in = find(xx<+tol);	# Nodes at inlet
+nficin = length(nodes_in);
+ficin = nnod2 + (1:nficin)';
+nnod2 = nnod2 + nficin;
+xnod = [xnod;
+	xnod(nodes_in,:)];
+asave("gfmovshock.abso-con-in.tmp", \
+      [nodes_in,ficin,ficin]);
+
+## Coordinate normal to shock
+xx = xnod*nor;
+dfx = (xx>0.3*Lnor);
+Uini = U2(ones(nnod2,1),:);
+Uini(1:nnod,:) = U2(ones(nnod,1),:);
+dw = U1-U2;
+Uini = Uini + dfx*dw;
+
+Uini(ficout,:) = 0.;
+Uini(ficin,:) = 0.;
+
+asave("gfmovshock.ini.tmp",Uini);
+
+## Save mesh
+asave("gfmovshock.nod.tmp",xnod);
+asave("gfmovshock.con.tmp",icone);

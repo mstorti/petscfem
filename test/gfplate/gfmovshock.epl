@@ -6,7 +6,6 @@
 global_options
 
 # dx <:=$dx:>
-# <:pr('all_fields'):>
 
 nstep 5000
 alpha 1.
@@ -80,7 +79,7 @@ dx_cache_coords 0
 dx_cache_connectivities 0
 partitioning_method natural
 #endif
-
+use_old_state_as_ref
 __END_HASH__
 
 ##================================================================
@@ -98,11 +97,27 @@ npg 4
 data ./gfmovshock.con.tmp
 __END_HASH__
 
+##================================================================
+elemset gasflow_abso2 3
+normal <:=+$norx:> <:=+$nory:>
+dx 0
+__END_HASH__
+__INCLUDE__ ./gfmovshock.abso-con-out.tmp
+__END_ELEMSET__
+
+##================================================================
+elemset gasflow_abso2 3
+normal <:=-$norx:> <:=-$nory:>
+dx 0
+__END_HASH__
+__INCLUDE__ ./gfmovshock.abso-con-in.tmp
+__END_ELEMSET__
+
 end_elemsets
 
 #if !$dx
 constraint
-__INCLUDE__ gfmovshock.peri-x.tmp
+# __INCLUDE__ gfmovshock.peri-x.tmp
 __INCLUDE__ gfmovshock.peri-y.tmp
 __END_CONSTRAINT__
 #endif
