@@ -1,22 +1,17 @@
-#$Id: proc3.m,v 1.1 2003/06/06 17:36:02 mstorti Exp $
+##$Id: proc3.m,v 1.2 2003/06/06 18:12:52 mstorti Exp $
 source("data.m.tmp");
-N==M || error("not implementeed yet!!");
-U=aload("smoke.state.0.tmp");
 ref = 4;
 
-u = reshape(U(:,1),N+1,N+1);
-NN = ref*N;
+N==M || error("not implementeed yet!!");
+for s=0:0
 
-uu(1:ref:NN+1,1:ref:NN+1) = u;
+  U=aload(["STEPS/smoke.state." int2str(s) ".tmp"]);
+  NN = ref*N;
+  UU = zeros((NN+1)^2);
+  for k=1:4
+    UU(:,k) = refin(U(:,k),ref);
+  endfor
+  asave(["STEPS_REF/smoke.state." int2str(s) ".tmp"]);
 
-for k=2:NN
-  kk = floor((k-1)/ref)+1;
-  alpha = (k-(kk-1)*ref)/ref;
-  uu(k,:) = (1-alpha)*uu(kk,:) + alpha * uu(kk+1,:);
 endfor
 
-for k=2:NN
-  kk = floor((k-1)/ref)+1;
-  alpha = (k-kk)/ref;
-  uu(:,k) = (1-alpha)*uu(:,kk) + alpha * uu(:,kk+1);
-endfor
