@@ -121,7 +121,7 @@
         PFEMERRCA(ierr,"Error getting option \"" #name "\"\n") 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Gets a value of type int or double from the element hash table. 
+/** Gets a value of type int or double from the global hash table. 
     Example: GETOPTDEF(int,n,10) 
     @author M. Storti
     @param type may be `int' or `double'
