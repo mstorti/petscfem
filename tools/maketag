@@ -43,9 +43,6 @@ if [ ! $answer = "y" ] ; then \
 	exit 1
 fi
 
-#cvs tag $newtag_ .
-cvs rtag $newtag_ petscfem
-
 echo "updating VERSION..."
 echo $newtag > VERSION 
 
@@ -57,3 +54,8 @@ if [ $stable = "y" ] ; then \
 fi 
 cat $tmp | perl -ne "next if /^#/; s/^/$sep/; print;" | cat >> $savelog
 rm $tmp
+
+cvs ci -m "Administrative files" save.log VERSION
+
+#cvs tag $newtag_ .
+cvs rtag $newtag_ petscfem
