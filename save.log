@@ -691,3 +691,6 @@ tag: mesh-move-1.00 on Wed Dec 19 23:33:57 ARST 2001, by mstorti in spider
 ----------
 tag: mesh-move-1.01 on Thu Dec 20 15:22:28 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Re-meshing works.
+----------
+tag: mesh-move-1.02 on Thu Dec 20 17:32:08 ART 2001, by mstorti in node1.beowulf.gtm
+     > Added shape functions for regular tetra. 
