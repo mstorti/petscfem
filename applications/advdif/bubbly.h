@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.4 2002/02/17 15:27:40 mstorti Exp $
+// $Id: bubbly.h,v 1.5 2002/02/18 17:45:50 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
@@ -18,6 +18,7 @@ private:
     Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
     grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
     uintri,svec,tmp9;
+  FastMat2 Cpc,Ajacc,Djacc,Cjacc;
   double alpha_l,alpha_g,arho_l,arho_g,p,k,eps,
     visco_l,visco_g,visco_l_eff,visco_g_eff,
     C_mu,C_1,C_2,sigma_k,sigma_e,P_k,tau_fac,

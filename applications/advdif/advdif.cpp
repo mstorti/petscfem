@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.35 2002/02/17 15:27:39 mstorti Exp $
+//$Id: advdif.cpp,v 1.36 2002/02/18 17:45:50 mstorti Exp $
 
 #include <set>
 
@@ -52,6 +52,7 @@ int main(int argc,char **args) {
   vector<double> dtmin(1,0.);
   Vec a;
   GlobParam glob_param;
+  string save_file_res;
 
   // euler_volume::set_flux_fun(&flux_fun_euler);
   // euler_absorb::flux_fun = &flux_fun_euler;
@@ -118,6 +119,8 @@ int main(int argc,char **args) {
   GETOPTDEF(int,print_linear_system_and_stop,0);
   //o Solve system before \verb+print\_linear_system_and_stop+
   GETOPTDEF(int,solve_system,1);
+  //o Print the residual each \verb+nsave+ steps. 
+  GETOPTDEF(int,print_residual,0);
 
   //o Sets the save frequency in iterations for the ``print some''
   // mechanism. (see doc in the Navier-Stokes module)
@@ -220,6 +223,7 @@ int main(int argc,char **args) {
 
   //o Filename for saving the state vector.
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,save_file,outvector.out);
+  save_file_res = save_file + string(".res");
 
 #if 0
   Viewer matlab;
@@ -428,6 +432,8 @@ int main(int argc,char **args) {
 		  tstep);
 
       print_vector(save_file.c_str(),x,dofmap,&time);
+      if (print_residual) 
+	print_vector(save_file_res.c_str(),res,dofmap,&time);
     }
     if (print_some_file!="" && tstep % nsome == 0)
       print_some(save_file_some.c_str(),x,dofmap,node_list,&time);
@@ -436,6 +442,8 @@ int main(int argc,char **args) {
       
   }
   print_vector(save_file.c_str(),x,dofmap,&time);
+  if (print_residual) 
+    print_vector(save_file_res.c_str(),res,dofmap,&time);
   if (report_option_access && MY_RANK==0) TextHashTable::print_stat();
 
   ierr = VecDestroy(x); CHKERRA(ierr); 

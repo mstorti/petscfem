@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.5 2002/02/18 15:33:12 mstorti Exp $
+//$Id: bubbly.cpp,v 1.6 2002/02/18 17:45:50 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -62,7 +62,9 @@ void bubbly_ff::start_chunk(int &ret_options) {
   v_g.resize(1,ndim);
   v_mix.resize(1,ndim);
   Cp.resize(2,ndof,ndof);
+  Cpc.resize(2,ndof,ndof);
   Ajac.resize(3,ndim,ndof,ndof);
+  Ajacc.resize(3,ndim,ndof,ndof);
   Id.resize(2,ndim,ndim).eye();
   Amoml.resize(2,ndim,ndim);
   Amomg.resize(2,ndim,ndim);
@@ -71,6 +73,7 @@ void bubbly_ff::start_chunk(int &ret_options) {
   Djac.resize(4,ndim,ndof,ndim,ndof);
   tmp1.resize(4,nel,ndof,ndim,ndof);
   Cjac.resize(2,ndof,ndof);
+  Cjacc.resize(2,ndof,ndof);
   tmp2.resize(2,nel,nel);
   tmp3.resize(2,ndof,ndof);
 
@@ -89,6 +92,8 @@ void bubbly_ff::start_chunk(int &ret_options) {
   uintri.resize(1,ndim);
   svec.resize(1,ndim);
   tmp9.resize(1,nel);
+
+  Djacc.resize(4,ndim,ndof,ndim,ndof);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -105,16 +110,16 @@ bubbly_ff::~bubbly_ff() { }
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void bubbly_ff::set_state(const FastMat2 &UU) {
   U.set(UU);
+
   // Scalar variables
-  alpha_l = U.get(1);
+  p = U.get(1);
+  alpha_l = U.get(2);
   alpha_g = 1.-alpha_l;
   arho_l = alpha_l*rho_l;
   arho_g = alpha_g*rho_g;
 
-  p = U.get(2);
   k = U.get(k_indx);
   eps = U.get(e_indx);
-  p = U.get(2);
   // Velocities
   U.is(1,vl_indx,vl_indxe);
   v_l.set(U);
@@ -188,6 +193,10 @@ void bubbly_ff
   Cp.setel(arho_l,k_indx,k_indx);
   Cp.setel(arho_l,e_indx,e_indx);
 
+  Cpc.set(Cp).is(2,2).is(2,1).is(2,3,ndof);
+  Cp.set(Cpc);
+  Cpc.rs();
+  
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Advective fluxes
   flux.set(0.);
@@ -251,6 +260,10 @@ void bubbly_ff
   Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(alpha_g*rho_l);
   Ajac.rs();
 
+  Ajacc.set(Ajac).is(3,2).is(3,1).is(3,3,ndof);
+  Ajac.set(Ajacc);
+  Ajacc.rs();
+
   A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
 
   // Strain rate for the liquid
@@ -306,6 +319,10 @@ void bubbly_ff
   Djac.rs().ir(2,k_indx).ir(4,k_indx).set(Id).scale(alpha_l*visco_l_eff/sigma_k);
   Djac.rs().ir(2,e_indx).ir(4,e_indx).set(Id).scale(alpha_l*visco_l_eff/sigma_e);
   Djac.rs();
+
+  Djacc.set(Djac).is(4,2).is(4,1).is(4,3,ndof);
+  Djac.set(Djacc);
+  Djacc.rs();
   
   // Reactive terms
   Cjac.set(0.);
@@ -322,6 +339,10 @@ void bubbly_ff
   Cjac.setel(-2*eps*C_2*rho_l/k,e_indx,e_indx);
   // fixme:= No sabemos esto bien con que signo va... 
   Cjac.scale(-1.);
+
+  Cjacc.set(Cjac).is(2,2).is(2,1).is(2,3,ndof);
+  Cjac.set(Cjacc);
+  Cjacc.rs();
   
   if (options & COMP_UPWIND) {
     const NewAdvDif *advdf_e = dynamic_cast<const NewAdvDif *>(elemset);

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.28 2002/02/18 00:02:28 mstorti Exp $ 
+ # $Id: Makefile,v 1.29 2002/02/18 17:45:50 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -16,7 +16,7 @@ LIBOBJS = advdife.o advdifeo.o advdif.o ffadvfm2_old.o  ffburg.o ffswfm2t.o \
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 
-SRCS := $(MYOBJS:.o=.cpp)
+SRCS := $(MYOBJS:.o=.cpp) $(LIBOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 
