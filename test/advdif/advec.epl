@@ -11,21 +11,18 @@ global_options
 ndim 2
 
 chunk_size 4
-save_file "save.state"
+save_file "save.state.tmp"
+save_file_pattern "outvector.out.tmp"
 steady
 nstep 1
 solver "iisd"
 iisd_subpart 1
-
 nnwt 1
-
 local_time_step 0
 consistent_supg_matrix 1
 auto_time_step 0
-
 alpha 1.
 weak_form 1
-
 __END_HASH__
 
 #===========================================================
