@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.6 2001/07/16 20:27:48 mstorti Exp $
+//$Id: lusubd.cpp,v 1.7 2001/07/17 02:29:03 mstorti Exp $
 
 #ifdef RH60
 #include "libretto.h"
@@ -15,18 +15,29 @@
 
 PFMat::~PFMat() {};
 
-#if 0
-void LUsubdMat::create(Darray *da,const Dofmap *dofmap_,
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "int IISD_mult(Mat A,Vec x,Vec y)"
+int IISD_mult(Mat A,Vec x,Vec y) {
+  void *ctx;
+  IISDMat *pfA;
+  int ierr = MatShellGetContext(A,&ctx); CHKERRQ(ierr); 
+  pfA = (IISDMat *) ctx;
+  pfA->mult(x,y);
+  return 0;
+}
+
+void IISDMat::create(Darray *da,const Dofmap *dofmap_,
 		int debug_compute_prof) {
   int myrank,size;
   int k,k1,k2,neqp,pos,keq,leq,jj,row,row_t,col_t,od,
-    d_nz,o_nz,nrows,ierr;
+    d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank;
+  const int &neq = dofmap->neq;
   MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
   MPI_Comm_size (PETSC_COMM_WORLD, &size);
 
   dofmap = dofmap_;
   
-  const int &neq=dofmap->neq;
   Node *nodep;
   // neqp:= k2:= k1:= unknowns in this processor are thos in the range
   // k1 <= k <= k2 = k1+neqp-1
@@ -87,14 +98,23 @@ void LUsubdMat::create(Darray *da,const Dofmap *dofmap_,
   // dofs are the last n_int.
   // n_int := number of nodes in this processor that are `interface'
   // n_loc := number of nodes in this processor that are `local'
-  map.resize(neqp,0);
-  n_loc=0;
-  for (k = 0; k < neqp; k++) if(flag[k1+k] == 0) map[k] = n_loc++;
-  jj=n_loc;
-  for (k = 0; k < neqp; k++) if(flag[k1+k] == 1) map[k] = jj++;
-  assert(jj == neqp);
+  map.resize(neq,0);
+  n_int_v.resize(size,0);
+  n_loc_v.resize(size,0);
 
-  n_int = neqp - n_loc;
+  for (rank=0; rank<size; rank++) {
+    n_loc_h=0;
+    k1h = dofmap->startproc[rank];
+    for (k = 0; k < dofmap->neqproc[myrank]; k++) 
+      if(flag[k1h+k] == 0) map[k1h+k] = n_loc_h++;
+    jj=n_loc_h;
+    for (k = 0; k < dofmap->neqproc[myrank]; k++) 
+      if(flag[k1h+k] == 1) map[k1h+k] = jj++;
+    n_loc_v[rank]=n_loc_h;
+    n_int_v[rank] = dofmap->neqproc[myrank] - n_loc_h;
+  }
+  n_loc = n_loc_v[myrank];
+  n_int = n_int_v[myrank];
 
   // Now we have to construct the `d_nnz' and `o_nnz' vectors
   // od:= may be `D' (0) or `I' (1). Diagonal or off-diagonal (in the
@@ -173,31 +193,140 @@ void LUsubdMat::create(Darray *da,const Dofmap *dofmap_,
 #endif
   ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			 nnz[D][L][L].begin(),&A_LL); 
-  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix"); 
+  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-loc matrix\n"); 
 
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_loc,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][L][I].begin(),
 			 PETSC_NULL,nnz[O][L][I].begin(),
 			 &A_LI);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix"); 
+  PETSCFEM_ASSERT0(ierr==0,"Error creating loc-int matrix\n"); 
     
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_int,n_loc,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][L].begin(),
 			 PETSC_NULL,nnz[O][I][L].begin(),
 			 &A_IL);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix"); 
+  PETSCFEM_ASSERT0(ierr==0,"Error creating int-loc matrix\n"); 
     
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,n_int,n_int,
 			 PETSC_DETERMINE,PETSC_DETERMINE,
 			 PETSC_NULL,nnz[D][I][I].begin(),
 			 PETSC_NULL,nnz[O][I][I].begin(),
 			 &A_II);
-  PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix"); 
-    
+  PETSCFEM_ASSERT0(ierr==0,"Error creating int-int matrix\n"); 
+  
+  // extern int mult(Mat,Vec,Vec);
+  ierr = MatCreateShell(PETSC_COMM_WORLD,n_int,n_int,
+			PETSC_DETERMINE,PETSC_DETERMINE,this,&A);
+  PETSCFEM_ASSERT0(ierr==0,"Error creating shell matrix\n"); 
+  P=A;
+  MatShellSetOperation(A,MATOP_MULT,(void *)(&IISD_mult));
+  ierr = VecCreateMPI(PETSC_COMM_WORLD,n_loc,PETSC_DETERMINE,&x_loc);
+  PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc' vector\n"); 
+  ierr = VecCreateSeq(PETSC_COMM_SELF,n_loc,&y_loc_seq);
+  PETSCFEM_ASSERT0(ierr==0,"Error creating `y_loc_seq' vector\n"); 
+  ierr = VecDuplicate(y_loc_seq,&x_loc_seq);
+  PETSCFEM_ASSERT0(ierr==0,"Error creating `x_loc_seq' vector\n"); 
+
+  ierr = SLESCreate(PETSC_COMM_SELF,&sles_ll); 
+  PETSCFEM_ASSERT0(ierr==0,"Error creating SLES.\n"); 
+  ierr = SLESSetOperators(sles_ll,A_LL,
+			  A_LL,SAME_NONZERO_PATTERN);
+  PETSCFEM_ASSERT0(ierr==0,"Error with `SLESSetOperators'.\n"); 
+  ierr = SLESGetKSP(sles_ll,&ksp_ll); 
+  PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetKSP'.\n"); 
+  ierr = SLESGetPC(sles_ll,&pc_ll);
+  PETSCFEM_ASSERT0(ierr==0,"Error with `SLESGetPC'.\n"); 
+
+  ierr = KSPSetType(ksp_ll,KSPGMRES);
+  PETSCFEM_ASSERT0(ierr==0,"Error with `KSPSetType'.\n"); 
+
+  ierr = KSPSetTolerances(ksp_ll,0,0,1e10,1);
+  PETSCFEM_ASSERT0(ierr==0,"Error setting tolerances.\n"); 
+
+  ierr = PCSetType(pc,PCLU);
+  PETSCFEM_ASSERT0(ierr==0,"Error setting PC type.\n"); 
+  ierr = KSPSetMonitor(ksp,PETSC_NULL,PETSC_NULL);
+
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void IISDMat::mult(Vec x,Vec y)"
+void IISDMat::mult(Vec x,Vec y) {
+
+  int myrank;
+  MPI_Comm_rank(PETSC_COMM_WORLD, &myrank);
+  const int &neqp = dofmap->neqproc[myrank];
+  // We are solving the kernel of the linear system
+  //
+  // ALL XL + ALI XI = 0
+  // AIL XL + AII XI = RI
+  //
+  // XI comes in x (interface nodes) and we have to compute y = RI 
+  
+  int j,ierr,its_;
+  double *a,*aa;;
+
+  // x_loc <- A_LI * XI
+  ierr = MatMult(A_LI,x,x_loc);
+  PETSCFEM_ASSERT0(ierr==0,"Error performing `A_LI*x' product.\n"); 
+
+  // Localize on procesor and make y_loc_seq <- - A_LI * XI
+  ierr = VecGetArray(x_loc,&a);
+  PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+
+  ierr = VecGetArray(y_loc_seq,&aa);
+  PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+
+  for (j=0; j<neqp; j++) aa[j] = -a[j];
+
+  ierr = VecRestoreArray(y_loc_seq,&aa);
+
+  // Solve local system: x_loc_seq <- XL
+  ierr = SLESSolve(sles_ll,y_loc_seq,x_loc_seq,&its_); 
+  PETSCFEM_ASSERT0(ierr==0,"Error solving subdomain problem.\n"); 
+  
+  // Pass to global vector: x_loc <- XL
+  ierr = VecGetArray(x_loc_seq,&aa);
+  PETSCFEM_ASSERT0(ierr==0,"Error performing `VecGetArray'.\n"); 
+
+  for (j=0; j<neqp; j++) a[j] = aa[j];
+
+  ierr = VecRestoreArray(x_loc_seq,&aa);
+  ierr = VecRestoreArray(x_loc,&a);
+
+  // 
+  ierr = MatMult(A_II,x,y);
+  PETSCFEM_ASSERT0(ierr==0,"Error performing `A_II*x' product.\n"); 
+
+  ierr = MatMultAdd(A_IL,x_loc,y,y);
+}
+
+#if 0
+void IISDMat::set_value(int row,int col,double value,
+			InsertMode mode=ADD_VALUES) {
 #endif
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "void IISDMat::clear()"
+void IISDMat::clear() {
+  // P is not destroyed, since P points to A
+  PFMat::clear();
+  int ierr = MatDestroy(A_LL); 
+  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LL (loc-loc)\n");
+  ierr = MatDestroy(A_LI); 
+  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LI (loc-int)\n");
+  ierr = MatDestroy(A_IL); 
+  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_IL (int-loc)\n");
+  ierr = MatDestroy(A_II); 
+  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
+
+  ierr = MatDestroy(A); 
+  PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -319,6 +448,7 @@ void PFMat::clear() {
 #undef __FUNC__
 #define __FUNC__ "void PETScMat::clear()"
 void PETScMat::clear() {
+  PFMat::clear();
   // P is not destroyed, since P points to A
   int ierr = MatDestroy(A); 
   PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix\n");
