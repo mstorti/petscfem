@@ -17,6 +17,44 @@ $\beta=0$ is equivalent to waight the temporal term a la
 Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian@\verb+compute_fd_adv_jacobian+}
+\item\verb+int compute_fd_adv_jacobian+ {\rm(default=\verb|0|)}:
+
+Compute finite difference jacobian of fluxes for checking the
+ analytical one. For each element the following norms are printed:
+ analytical jacobian \verb+|A_a|+ , numerical jacobian \verb+|A_n|+ and te
+ difference \verb+|A_a-A_n|+ . Incrementing \verb+compute_fd_adv_jacobian==1+
+ increases the verbosity. If \verb+=1+ the maximum values over all the
+ elemset are printed. If \verb+=2+ the errors for all elements are
+ reported. Finally, if \verb+=3+ also the jacobians themselves are
+ printed. For 2 and 3, if \verb+compute_fd_adv_jacobian_elem_list+ is
+ set, then only those elements are printed. If
+ \verb+compute_fd_adv_jacobian_rel_err_threshold+ is set then only those
+ elements for which the error is greater than the given threshold
+ are reported.  Also, be warned that when run in parallel, printing
+ for a lot of elements in different processors may be messy.
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_eps@\verb+compute_fd_adv_jacobian_eps+}
+\item\verb+double compute_fd_adv_jacobian_eps+ {\rm(default=\verb|1e-4|)}:
+
+The perturbation scale for computing the numerical jacobian
+ (see \verb+compute_fd_adv_jacobian+ ).
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_random@\verb+compute_fd_adv_jacobian_random+}
+\item\verb+double compute_fd_adv_jacobian_random+ {\rm(default=\verb|1.0|)}:
+
+Report jacobians on random elements (should be in range 0-1).
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{compute\_fd\_adv\_jacobian\_rel\_err\_threshold@\verb+compute_fd_adv_jacobian_rel_err_threshold+}
+\item\verb+double compute_fd_adv_jacobian_rel_err_threshold+ {\rm(default=\verb|0.|)}:
+
+Report elements whose relative error in computing
+ flux jacobians exceed these value. 
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
 \item\verb+string geometry+ {\rm(default=\verb|cartesian2d|)}:
 
