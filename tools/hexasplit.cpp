@@ -1,9 +1,11 @@
 //__INSERT_LICENSE__
-//$Id: hexasplit.cpp,v 1.1 2002/07/13 22:07:01 mstorti Exp $
+//$Id: hexasplit.cpp,v 1.2 2002/07/13 22:18:49 mstorti Exp $
 #include <stdio.h>
+#include <unistd.h>
 #include <vector>
 #include <set>
 #include <deque>
+#include <string>
 
 #define NEL (8) // number of nodes per element
 #define NFACES (6) // number of faces per element
@@ -76,13 +78,28 @@ void print_face(set<int> face) {
   printf("\n");
 }
 
-int main () {
+int main (int argc, char **argv) {
+  char c;
+  string icone_file = "icone";
+  string icone_tetra = "icone_tetra";
+  while ((c = getopt (argc, argv, "i:o:")) != -1) {
+    switch (c) {
+    case 'i':
+      icone_file = string(optarg);
+      break;
+    case 'o':
+      icone_tetra = string(optarg);
+      break;
+    default:
+      abort ();
+    }
+  }
   vector<row> icone;
   // int row[NEL]={0,0,0,0,0,0,0,0};
   // vector<double[3]> xnod;
   
   FILE *ico_file;
-  ico_file = fopen("icone","r");
+  ico_file = fopen(icone_file.c_str(),"r");
 
   int val;
   int iele=0;
@@ -265,7 +282,7 @@ int main () {
 
   int (*tet_split)[5][4] ;
 
-  FILE *tetras = fopen("icone_tetras","w");
+  FILE *tetras = fopen(icone_tetra.c_str(),"w");
   for (int j=0; j<nelem; j++) {
     tet_split = (pflag[j]==SPLIT_P ? &tet_split_p : &tet_split_m);
     for (int jj=0; jj<NSUBEL; jj++) {
