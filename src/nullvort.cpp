@@ -1,8 +1,9 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.2 2003/02/25 20:34:22 mstorti Exp $
+// $Id: nullvort.cpp,v 1.3 2003/02/26 00:54:50 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
+#include <src/dvector2.h>
 #include <src/surf2vol.h>
 #include <src/util2.h>
 
@@ -20,7 +21,8 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     use_exterior_normal,  ndimel;
   Surf2Vol *sv_gp_data;
   Elemset *vol_elem;
-  Surf2Vol::factory(&thash, volume_elemset, sv_gp_data, 
+  Surf2Vol::factory(&thash, volume_elemset, 
+		    nel_surf, sv_gp_data, 
 		    vol_elem, identify_volume_elements, layers,
 		    use_exterior_normal,  ndimel);
   int nel = nel_surf*(layers+1);

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: surf2vol.cpp,v 1.3 2003/02/25 20:34:22 mstorti Exp $
+// $Id: surf2vol.cpp,v 1.4 2003/02/26 00:54:50 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/surf2vol.h>
@@ -26,7 +26,8 @@ const int Quad2Hexa::faces[][8] = {
     standard position. 
 */ 
 int Surf2Vol::map_mask(const int *surf_map,int *vol_conn) {
-  int nel_surf, nel_vol, nf = nfaces(nel_surf,nel_vol);
+  int nel_surf, nel_vol;
+  int nf = nfaces(nel_surf,nel_vol);
   int match=0;
   const int *fc, *vol;
   // Loop over all face orientation posibilities until
@@ -263,7 +264,8 @@ void identify_volume_elements_fun(int nnod, int nel_surf, int layers,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Surf2Vol::factory(TextHashTable *thash, string &volume_elemset,
-		       Surf2Vol *sv_gp_data, Elemset *& vol_elem,
+		       int nel_surf,
+		       Surf2Vol *&sv_gp_data, Elemset *& vol_elem,
 		       int &identify_volume_elements,int &layers,
 		       int &use_exterior_normal,int &ndimel) {
   int ierr;

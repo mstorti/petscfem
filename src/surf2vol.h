@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: surf2vol.h,v 1.3 2003/02/25 20:34:22 mstorti Exp $
+// $Id: surf2vol.h,v 1.4 2003/02/26 00:54:50 mstorti Exp $
 #ifndef PETSCFEM_SURF2VOL_H
 #define PETSCFEM_SURF2VOL_H
 
@@ -65,7 +65,8 @@ public:
   int use_exterior_normal() { return (use_exterior_normal_m); }
 
   static void factory(TextHashTable *thash, string &volume_elemset,
-		      Surf2Vol *sv_gp_data, Elemset *& vol_elem,
+		      int nel_surf,
+		      Surf2Vol *& sv_gp_data, Elemset *& vol_elem,
 		      int &identify_volume_elements,int &layers,
 		      int &use_exterior_normal,int &ndimel);
 
