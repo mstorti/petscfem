@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.1.2.3 2002/01/09 01:30:56 mstorti Exp $
+//$Id: petscmat.cpp,v 1.1.2.4 2002/01/09 20:33:09 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -13,7 +13,7 @@ extern int MY_RANK,SIZE;
 #include <src/petscmat.h>
 #include <src/graph.h>
 
-PETScMat::~PETScMat() {clear();};
+PETScMat::~PETScMat() {clear(*gu);};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -26,16 +26,16 @@ int PETScMat::duplicate(MatDuplicateOption op,const PFMat &B) {
 		   typeid(*this).name());
     return 1;
   }
-  ierr = MatDuplicate(BB->A,op,&A); CHKERRA(ierr);
+  ierr = MatDuplicate(BB->A,op,&A); CHKERRQ(ierr);
   P = A;
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::create"
-void PETScMat::create() {
-  int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank,
+#define __FUNC__ "PETScMat::create_a"
+int PETScMat::create_a() {
+  int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank,
     debug_compute_prof=0;
   set<int> ngbrs_v;
   set<int>::iterator q,qe;
@@ -128,40 +128,44 @@ void PETScMat::create() {
   
   // Create matrices
   ierr =  MatCreateMPIAIJ(comm,neqp,neqp,neq,neq,
-			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A); 
+			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A);
+  CHKERRQ(ierr); 
   ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
+  CHKERRQ(ierr); 
   // P and A are pointers (in PETSc), otherwise this may be somewhat risky
   P=A;
-  PETSCFEM_ASSERT0(ierr==0,"Error creating PETSc matrix\n");
   delete[] d_nnz;
   delete[] o_nnz;
+  return 0;
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::clear"
 void PETScMat::clear() {
-  PFPETScMat::clear();
+  ierr = PFPETScMat::clear(); CHKERRQ(ierr); 
   // P is not destroyed, since P points to A
-  if (A) {
-    int ierr = MatDestroy(A); 
-    PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix \"A\"\n");
-  }
+  int ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
+  CHKERRQ(ierr); 
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::factor_and_solve"
-int PETScMat::factor_and_solve(Vec &res,Vec &dx) {
-  int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
+int PETScMat::factor_and_solve_a(Vec &res,Vec &dx) {
+  ierr = build_sles(); CHKERRQ(ierr); 
+  ierr = solve_only_a(res,dx); CHKERRQ(ierr); 
   return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::solve_only"
-int PETScMat::solve_only(Vec &res,Vec &dx) {
-  return factor_and_solve(res,dx);
+int PETScMat::solve_only_a(Vec &res,Vec &dx) {
+  int ierr = SLESSolve(sles,res,dx,&its_); CHKERRQ(ierr); 
+  return 0;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -175,8 +179,8 @@ int PETScMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PETScMat::clean_mat"
-int PETScMat::clean_mat() {
+#define __FUNC__ "PETScMat::clean_mat_a"
+int PETScMat::clean_mat_a() {
   ierr=MatZeroEntries(A); CHKERRQ(ierr);
   return 0;
 };

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.1.2.4 2002/01/09 01:30:56 mstorti Exp $
+// $Id: petscmat.h,v 1.1.2.5 2002/01/09 20:33:09 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
@@ -18,12 +18,12 @@ class PETScMat : public PFPETScMat {
       @param res (input) the rhs vector
       @param dx (input) the solution vector
   */ 
-  int factor_and_solve(Vec &res,Vec &dx);
+  int factor_and_solve_a(Vec &res,Vec &dx);
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector
   */ 
-  int solve_only(Vec &res,Vec &dx);
+  int solve_only_a(Vec &res,Vec &dx);
 
   /// Maps dofs in this processors to global dofs
   vector<int> dofs_proc;
@@ -38,8 +38,6 @@ class PETScMat : public PFPETScMat {
 public:
   /// Destructor (calls almost destructor)
   ~PETScMat();
-  /// clear memory (almost destructor)
-  void clear();
 
   PETScMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
 	  PETSC_COMM_WORLD) : 
@@ -55,13 +53,13 @@ public:
       @param type (input) PETSc assembly type
       @return A PETSc error code 
   */ 
-  int assembly_begin(MatAssemblyType type) {
+  int assembly_begin_a(MatAssemblyType type) {
     return MatAssemblyBegin(A,type);};
   /** Call the assembly end function for the underlying PETSc matrices
       @param type (input) PETSc assembly type
       @return A PETSc error code 
   */ 
-  int assembly_end(MatAssemblyType type) {
+  int assembly_end_a(MatAssemblyType type) {
     return MatAssemblyEnd(A,type);};
   /** Sets individual values on the operator #A(row,col) = value#
       @param row (input) first index
@@ -69,10 +67,12 @@ public:
       @param value (input) the value to be set
       @param mode (input) either #ADD_VALUES# (default) or #INSERT_VALUES#
   */ 
-  void set_value(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
-    MatSetValues(A,1,&row,1,&col,&value,mode);};
+  int set_value_a(int row,int col,Scalar value,InsertMode mode=ADD_VALUES) {
+    MatSetValues(A,1,&row,1,&col,&value,mode); CHKERRQ(ierr); 
+    return 0;
+  };
   /// Sets all values of the operator to zero.
-  int clean_mat();
+  int clean_mat_a();
   /** Creates the matrix from the profile computed in #da#
       @param da (input) dynamic array containing the adjacency matrix
       of the operator
@@ -81,7 +81,7 @@ public:
       @param debug_compute_prof (input) flag for debugging the process
       of building the operator.
   */ 
-  void create();
+  int create_a();
   /// Duplicate matrices 
   int duplicate(MatDuplicateOption op,const PFMat &A);
   int view(Viewer viewer=VIEWER_STDOUT_WORLD);

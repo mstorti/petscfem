@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.9 2002/01/09 01:30:56 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.10 2002/01/09 20:33:09 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -83,7 +83,7 @@ public:
     A(NULL), P(NULL), factored(0) {}
 
   ~PFPETScMat();
-  void clear();
+  // void clear();
   int duplicate(MatDuplicateOption op,const PFMat &A);
   virtual int build_sles();
   virtual int set_preco(const string & preco_type);

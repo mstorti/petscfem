@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.15 2002/01/09 02:00:25 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.16 2002/01/09 20:33:09 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -125,9 +125,10 @@ int PFPETScMat::build_sles() {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
   ierr = KSPGMRESSetRestart(ksp,Krylov_dim); CHKERRQ(ierr);
-  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
+  ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits); CHKERRQ(ierr); 
 
   ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this);
+  CHKERRQ(ierr); 
   // sles_was_built = 1; // included in `factored'
   return 0;
 }
@@ -461,7 +462,7 @@ int IISDMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::clear"
+#define __FUNC__ "IISDMat::clean_prof_a"
 int IISDMat::clean_prof_a() {
   // P is not destroyed, since P points to A
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.10 2002/01/09 16:31:12 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.11 2002/01/09 20:33:14 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -8,10 +8,7 @@ tests: pfmat pfmat2
 
 SRCS = pfmat.cpp pfmat2.cpp 
 
-# LIB_OBJS := graph util2 iisdmat petscmat sparse spsolve distmat iisdcr
-
-# This is the definitive one
-LIB_OBJS := graph util2 iisdmat sparse spsolve distmat iisdcr \
+LIB_OBJS := graph util2 iisdmat petscmat sparse spsolve distmat iisdcr \
 		iisdgraph spline seval debug texthash utils util2 fm2eperl \
 		fastmat2 fstack fem getprop mainutl dofmap idmap tempfun
 
