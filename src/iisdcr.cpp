@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.17 2002/06/02 23:33:44 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.18 2002/07/18 02:57:30 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -60,14 +60,14 @@ public:
   map<int,int> *proc2glob;
   const DofPartitioner *partit;
   int myrank;
-  void set_ngbrs(int vrtx_f,set<int> &ngbrs_v);
+  void set_ngbrs(int vrtx_f,GSet &ngbrs_v);
   /// Auixiliary set ot ngbrs
-  set<int> ngbrs_v_aux;
+  GSet ngbrs_v_aux;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void LocalGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
-  set<int>::const_iterator q,qe;
+void LocalGraph::set_ngbrs(int loc1,GSet &ngbrs_v) {
+  GSet::const_iterator q,qe;
   int keq,dof2,loc2;
   // loc1 is a `local' dof numbering. Map to global.
   keq = dofs_proc[ loc2dof[loc1] ];
@@ -96,8 +96,8 @@ int IISDMat::create_a() {
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
     n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
   vector<int> dof2loc,loc2dof;
-  set<int> ngbrs_v;
-  set<int>::iterator q,qe;
+  GSet ngbrs_v;
+  GSet::iterator q,qe;
   LocalGraph local_graph;
 
   // this is a trick to avoid the collision of `local_solver' both

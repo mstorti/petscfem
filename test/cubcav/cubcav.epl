@@ -95,7 +95,7 @@ solver     "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
 rtol 1e-6
-iisd_subpart 50
+iisd_subpart 20
 maxits 100
 report_consumed_time
 activate_debug_print
@@ -140,11 +140,11 @@ __INCLUDE__ cubcav.nod.tmp
 _END_NODES__
 
 #if $case ne 'laplace'
-elemset fracstep 8
+elemset fracstep <:=($use_tetra ? 4 : 8):>
 name malla
 # report_consumed_time
-geometry cartesian3d
-npg 8
+geometry <:=($use_tetra ?  "tetra" : "cartesian3d"):>
+npg <:=($use_tetra ? 4 : 8):>
 #
 # Datos fisicos
 #
@@ -152,7 +152,7 @@ npg 8
 <:pr('weak_form'):>
 LES 0
 __END_HASH__
-__INCLUDE__ cubcav.con.tmp
+__INCLUDE__ cubcav.con<:=($use_tetra ? "-tetra" : ""):>.tmp
 __END_ELEMSET__
 
 #else

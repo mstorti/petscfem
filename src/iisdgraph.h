@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 //__INSERT_LICENSE__
-//$Id: iisdgraph.h,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: iisdgraph.h,v 1.3 2002/07/18 02:57:30 mstorti Exp $
 #ifndef IISDGRAPH_H
 #define IISDGRAPH_H
 
@@ -18,13 +18,11 @@ extern int MY_RANK,SIZE;
 #include <src/distcont.h>
 
 /// The storage area type
-typedef map<int, set<int> > GMap;
+typedef map<int, GSet, less<int>, malloc_alloc > GMap;
 /// An individual set of the storage map. 
-typedef pair<int, set<int> > GRow;
-/// A set of neighbors. 
-typedef set<int> GSet;
+typedef pair<int, GSet > GRow;
 /// Partitioner for the scatter operation. 
-typedef Partitioner< set<int> > GPartitioner;
+typedef Partitioner< GSet > GPartitioner;
 /// The basic container for the distributed graph class.
 typedef DistCont<GMap,GRow,GPartitioner> DGMap;
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -46,7 +44,7 @@ class StoreGraph : public Graph {
   /// Adds an edge to the graph
   void add(int i, int j) { lgraph[i].insert(j); }
   /// callback function, returns the set of neighbors to #j# vertex. 
-  void set_ngbrs(int j,set<int> &ngbrs_v);
+  void set_ngbrs(int j,GSet &ngbrs_v);
   /// Clean all memory related 
   ~StoreGraph() { lgraph.clear(); };
   /// Constructor

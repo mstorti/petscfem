@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdgraph.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: iisdgraph.cpp,v 1.3 2002/07/18 02:57:30 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -19,7 +19,7 @@ extern int MY_RANK,SIZE;
 #include <src/buffpack.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void StoreGraph::set_ngbrs(int j,set<int> &ngbrs_v) {
+void StoreGraph::set_ngbrs(int j,GSet &ngbrs_v) {
   GMap::iterator q;
   q = lgraph.find(j);
   if (q != lgraph.end()) ngbrs_v = q->second;
@@ -37,9 +37,9 @@ int DGMap::size_of_pack(const GRow &q) const {
 void DGMap::pack(const GRow &p,char *&buff) const {
   // number of rows in the map
   int n;
-  set<int>::const_iterator q,qe;
+  GSet::const_iterator q,qe;
   // the set of integers pointed to p.first
-  const set<int> &w = p.second;
+  const GSet &w = p.second;
   // Pack the row number
   BUFFER_PACK(p.first,buff);
   n = w.size();
@@ -59,7 +59,7 @@ void DGMap::pack(const GRow &p,char *&buff) const {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DGMap::unpack(GRow &p,const char *&buff) {
   // The et of neighbors
-  set<int> &w = p.second;
+  GSet &w = p.second;
   int k,n,q;
 
   // unpack the row number
@@ -82,12 +82,12 @@ void DGMap::unpack(GRow &p,const char *&buff) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void DGMap::combine(const GRow &p) {
   GMap::iterator iter;
-  set<int>::const_iterator q,qe;
+  GSet::const_iterator q,qe;
   // Look if the row number is already in the graph
   iter = find(p.first);
   if (iter != end()) {
     // set of integers for this row
-    const set<int> &r = p.second;
+    const GSet &r = p.second;
     // loop over the set of ngbr to merge
     qe = r.end();
     for (q=r.begin(); q!=qe; q++) {
@@ -99,7 +99,7 @@ void DGMap::combine(const GRow &p) {
     }
   } else {
 #ifdef DEBUG_SG // debug:=
-    const set<int> &r = p.second;
+    const GSet &r = p.second;
     qe = r.end();
     for (q=r.begin(); q!=qe; q++) {
       printf("[%d] adding %d -> %d\n",MY_RANK,p.first,*q);
@@ -115,12 +115,12 @@ void StoreGraph::print() const {
   // print the map using `PetscSynchronizedPrintf'
   int p;
   DGMap::const_iterator q,qe;
-  set<int>::const_iterator s,se;
+  GSet::const_iterator s,se;
 
   // loop over rows
   qe = lgraph.end();
   for (q = lgraph.begin(); q!=qe; q++) {
-    const set<int> &w = q->second;
+    const GSet &w = q->second;
     // print processor and row number
     PetscSynchronizedPrintf(comm,"[%d] %d -> ",MY_RANK,q->first);
     // loop over ngbrs
@@ -135,7 +135,7 @@ void StoreGraph::print() const {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
 #if 0
-void StoreGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
+void StoreGraph::set_ngbrs(int loc1,GSet &ngbrs_v) {
   int pos,loc2,dof2;
   pos = loc2dof[loc1]+k1;
   while (1) {

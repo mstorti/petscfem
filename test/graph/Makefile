@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2001/11/27 23:18:54 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/07/18 02:57:33 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -26,5 +26,10 @@ tryme.bin: tryme.o ../../src/libpetscfem.a(graph.o)
 # Test Graph class
 graph: tryme.bin
 	sh graph.sh
+
+LDFLAGS = -lglib 
+
+tryme2: tryme2.o
+	${CXX_CLINKER} -o $@ tryme2.o  $(LDFLAGS)
 
 #s

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.15 2002/05/10 21:19:21 mstorti Exp $
+//$Id: graph.cpp,v 1.16 2002/07/18 02:57:30 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -39,11 +39,11 @@ void Graph::part(int max_partgraph_vertices,
 
   int visited,vrtx_f,vrtx_fk,vrtx,vrtxj,vrtxjj,p,j,k,
     edgecut,options=0,numflag=0,wgtflag=2;
-  set<int>::iterator q,qe;
+  GSet::iterator q,qe;
   // if tpwgts is not passed then define a local one
   vector<float> tpwgts_v;
   // Stores the graph `adjncy' in STL format
-  vector< set<int> > adjncy_v;
+  vector< GSet > adjncy_v;
 
   weight_scale = 1.;
 
@@ -72,7 +72,7 @@ void Graph::part(int max_partgraph_vertices,
   el2vrtx = new int[nvrtx_f];
   // vpart:= partitioning of vertices
   vpart = new int[nvrtx];
-  set<int> ngbrs_v;
+  GSet ngbrs_v;
 
   // Initialize 
   for (j=0; j<nvrtx_f; j++) el2vrtx[j] = -1;
@@ -191,7 +191,7 @@ void Graph::part(int max_partgraph_vertices,
   // Once computed the adjncy size, it is created.
   adjncy = new int[xadj[nvrtx]];
   for (vrtxj=0; vrtxj<nvrtx; vrtxj++) {
-    set<int> &adj = adjncy_v[vrtxj];
+    GSet &adj = adjncy_v[vrtxj];
     qe = adj.end();
     p = xadj[vrtxj];
     for (q=adj.begin(); q!=qe; q++) adjncy[p++] = *q;
@@ -246,8 +246,8 @@ const int *Graph::vrtx_part() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Graph::print() {
-  set<int> ngbrs_v;
-  set<int>::iterator q,qe;
+  GSet ngbrs_v;
+  GSet::iterator q,qe;
   int j;
   for (j=0; j<nvrtx_f; j++) {
     printf("row %d:  ",j);

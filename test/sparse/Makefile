@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2001/11/09 03:05:45 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/07/18 02:57:33 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -30,5 +30,8 @@ sparse: sp.bin
 	sp.bin SuperLU > output.sparse.superlu.tmp
 
 tryme.bin: tryme.o
+	g++ -g -o $@ $<
+
+tryme2.bin: tryme2.o
 	g++ -g -o $@ $<
 #s
