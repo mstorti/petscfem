@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsid.cpp,v 1.4 2003/03/10 00:17:31 mstorti Exp $
+//$Id: nsid.cpp,v 1.5 2003/03/10 03:00:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -58,7 +58,7 @@ int ns_id::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int ierr=0;
   // PetscPrintf(PETSC_COMM_WORLD,"entrando a nsi_tet\n");
 
-  TGETOPTNDEF(thash,int,ndim,none); //nd
+  // TGETOPTDEF(thash,int,ndim,0); //nd
   int nen = nel*ndof;
 
   // Unpack Dofmap
