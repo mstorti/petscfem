@@ -1,0 +1,110 @@
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
+$case_name = $ENV{'case_name'};                   # case name
+print "# case_name $case_name\n";
+$case_name = 'centerflux' unless $case_name;
+
+$nx=200;
+$Nx=$nx+1;
+$L=10;
+$u0=.1;
+$h0=1.;
+$alpha = 1.0;
+$Courant = 2.0;
+$h = $L/$Nx;
+$gravity = 1.;
+#$urms=sqrt($gravity*$h0);
+$urms=$u0+sqrt($h0);
+$Dt = $Courant*$h/$urms;
+#$Dt = 2.;
+$Tend = 4.;
+$nstep = ceil($Tend/$Dt);
+#$nstep = 1;
+$wall_angle = 20;
+$pi = 3.14159;
+#__END_TRANSCRIPT__
+@vars = qw(nx Nx L u0 h0 nstep case_name Courant alpha Tend Dt gravity);
+transcript("", @vars);	# print variables on output and transcript this block
+octave_export_vars(">centerflux.data.m.tmp",@vars);
+#system "octave -qH centerflux.m";
+:>//                            # ends ePerl block
+
+global_options
+ndim 2
+use_log_vars 0
+
+# SUPG conf
+weak_form 1
+
+# time stepping
+#nnwt 5
+<:pr('nstep'):>
+
+alpha 1
+
+steady 0
+
+initial_state "centerflux.ini.tmp"
+
+# "rotary saving" 
+nsaverot 1
+nfile 1
+nrec 10000
+save_file_pattern "centerflux%d.tmp"
+save_file "save.state.tmp"
+
+tol_newton 0
+solver "petsc"
+preco_type "jacobi"
+#solver "iisd"
+#iisd_subpart 1
+nnwt 1
+print_linear_system_and_stop 1
+solve_system 1
+print_internal_loop_conv 1
+
+
+# convergence parameters. Internal GMRES loop. 
+rtol 0
+atol 0
+dtol 1e10
+maxits 200
+Krylov_dim 150
+<:pr('Dt'):>
+tau_fac 1
+
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  2
+__INCLUDE__ centerflux.nod.tmp
+
+__END_NODES__
+
+#===========================================================
+table physical_data
+<:pr('gravity'):>
+friction_law "Chezy"
+Ch 110.
+shape "rectangular"
+width 10.
+#shape "triangular"
+#wall_angle <:=$wall_angle*$pi/180:>
+cfric 0.
+ndim 2
+shocap 0
+__END_HASH__
+
+#===========================================================
+elemset streamsw1d 2
+geometry cartesian1d
+npg 2
+_table_include physical_data
+__END_HASH__
+__INCLUDE__ centerflux.con.tmp
+__END_ELEMSET__
+
+fixa
+__INCLUDE__ centerflux.fixa.tmp
+__END_FIXA__

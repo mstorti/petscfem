@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.7 2004/02/11 18:19:29 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2004/07/07 16:56:14 rodrigop Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -111,9 +111,27 @@ pfmat2.bin: $(LIB_OBJS_LIB) pfmat2.o
 	-rm -f $@
 	${CXX_CLINKER} -o $@ pfmat2.o  $(LDFLAGS_NO_PROG_LIB)
 
-pfmat5.bin: $(LIB_OBJS_LIB) pfmat5.o
+#w Build executable
+pfmat4.bin: $(LIB_OBJS_LIB) pfmat4.o
+	-rm -f $@
+	${CXX_CLINKER} -o $@ pfmat4.o  $(LDFLAGS_NO_PROG_LIB)
+
+pfmat5.bin: pfmat5.o
+	$(MAKE) -C ../../src compile
 	-rm -f $@
 	${CXX_CLINKER} -o $@ pfmat5.o  $(LDFLAGS_NO_PROG_LIB)
+	-rm -f pfmat5.o
+
+sw_nn_preco.bin: sw_nn_preco.o
+	$(MAKE) -C ../../src compile
+	-rm -f $@
+	${CXX_CLINKER} -o $@ sw_nn_preco.o  $(LDFLAGS_NO_PROG_LIB)
+	-rm -f sw_nn_preco.o
+
+try.bin: try.o
+	-rm -f $@
+	${CXX_CLINKER} -o $@ try.o  $(LDFLAGS_NO_PROG_LIB)
+
 
 debug.o pfmat2.o: CPPFLAGS += -O0
 
