@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.46 2003/02/10 03:45:52 mstorti Exp $
+#$Id: Makefile,v 1.47 2003/02/17 12:39:25 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -215,5 +215,8 @@ tag:
 #w Makes a new (light) release
 ltag:
 	./tools/makeltag save.log
+
+torture:
+	$(MAKE) -C test torture
 
 #s

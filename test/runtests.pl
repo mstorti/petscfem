@@ -97,106 +97,14 @@ begin_section('Oscplate tests. Time dep. b.c.s and N.S.');
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Here we check only the $y$ components of velocity, since the others are
 # rather spurious. 
-expect("oscplate1.sal","Time dependent boundary conditions",<<'EOT');
-4.76.*-01  
-1.53.*-01  
-2.38.*-03
--4.38.*-02 
--4.25.*-02 
--2.74.*-02 
--1.36.*-02 
--5.14.*-03 
--1.33.*-03 
-EOT
-
-#  5.100.*e-01
-#  1.819.*e-01
-#  1.980.*e-02
-#  -3.595.*e-02
-#  -4.028.*e-02
-#  -2.769.*e-02
-#  -1.451.*e-02
-#  -5.920.*e-03
-#  -1.748.*e-03
-
-#   5\.1008.*e-01 
-#   1\.8209.*e-01 
-#   1\.9983.*e-02 
-#  -3\.5744.*e-02 
-#  -4\.0064.*e-02 
-#  -2\.7483.*e-02
-#  -1\.4343.*e-02
-#  -5\.7924.*e-03
-#  -1\.6814.*e-03
-
+expect("oscplate/oscplate1.sal","Time dependent boundary conditions",
+             read_file("oscplate/oscplate1.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Same as before, but here the movemente of the plate is of
 # saw-teeth wave-form. ($u=\pm constant$). 
-expect("oscplate2o.sal","Time dependent boundary conditions (2)",<<'EOT');
-size is OK\? 1
-max\(u\)<tol OK\? 1, 
-max\(p\)<tol OK\? 1, 
-
-v en la pared, primer periodo
-  -0.50000
-  -0.50000
-  -0.50000
-  -0.50000
-  -0.50000
-  -0.50000
-  -0.50000
-  -0.50000
-   0.50000
-   0.50000
-   0.50000
-   0.50000
-   0.50000
-   0.50000
-   0.50000
-  -0.50000
-
-v en x=0.5, primer periodo
-
-   -7.2990e-04
-   -3.4210e-03
-   -8.7188e-03
-   -1.6379e-02
-   -2.5714e-02
-   -3.6017e-02
-   -4.6734e-02
-   -5.7488e-02
-   -6.6576e-02
-   -7.1393e-02
-   -7.0570e-02
-   -6.4555e-02
-   -5.4713e-02
-   -4.2461e-02
-   -2.8916e-02
-   -1.6314e-02
-
-v en la pared
-  -0.50000
-   0.50000
-  -0.50000
-  -0.50000
-   0.50000
-   0.00000
-   0.00000
-   0.00000
-
-v en x=0.5
-    2.3506e-02
-   -2.1951e-02
-    4.6242e-02
-    1.1459e-02
-    2.5354e-03
-    5.6099e-04
-    1.2413e-04
-    2.7464e-05
-    6.0768e-06
-    1.3452e-06
-EOT
+expect("oscplate/oscplate2o.sal","Time dependent boundary conditions (2)",
+             read_file("oscplate/oscplate2o.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
@@ -206,28 +114,28 @@ EOT
 # considered the exact, and it is checked in Octave that
 # norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
 #
-expect("oscplate3o.sal","Time dep. b.c./Crank-Nicholson ",<<'EOT');
+expect("oscplate/oscplate3o.sal","Time dep. b.c./Crank-Nicholson ",<<'EOT');
 norm\(u32-u128\)/norm\(u16-u128\) < 0.26 OK \? > 1 
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "sin" case
-expect("oscplate4o.sal","Time dep. b.c., spline_periodic function/sin",<<'EOT');
+expect("oscplate/oscplate4o.sal","Time dep. b.c., spline_periodic function/sin",<<'EOT');
 error = .*,  < .* OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "cos" case
-expect("oscplate4co.sal","Time dep. b.c., spline_periodic function/cos",<<'EOT');
+expect("oscplate/oscplate4co.sal","Time dep. b.c., spline_periodic function/cos",<<'EOT');
 error = .*,  < .* OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 # Oscillating plate with sinusoidal oscillation
 # periodic function interpolated with splines - "sin shift 30 dg" case
-expect("oscplate4_30dego.sal",
+expect("oscplate/oscplate4_30dego.sal",
 "Time dep. b.c., spline_periodic function/sin shift",<<'EOT');
 error = .*,  < .* OK \? 1
 EOT

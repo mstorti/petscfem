@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.7 2002/11/30 20:56:47 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.8 2003/02/17 12:39:28 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <vector>
@@ -8,6 +8,7 @@
 #include <src/utils.h>
 #include <src/linkgraph.h>
 #include <src/dvector.h>
+#include <src/dvector2.h>
 
 int MY_RANK,SIZE;
 

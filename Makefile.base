@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.114 2003/02/16 22:03:15 mstorti Exp $
+#$Id: Makefile.base,v 1.115 2003/02/17 12:39:25 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -171,9 +171,7 @@ libpetscfem: force
 	$(MAKE) -C $(PETSCFEM_DIR)/src compile
 
 local_depend: force 	
-	@echo in base: $(SRCS)
 ifneq ($(SRCS),)	
-	@echo trace
 	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > makefile.d
 endif
 

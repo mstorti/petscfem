@@ -1,12 +1,12 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.84 2003/02/16 22:03:18 mstorti Exp $ 
+# $Id: Makefile,v 1.85 2003/02/17 12:39:28 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
 	constraint_bug fstack sector triangle advdif texthash log_vars		\
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
-	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow
+	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate
 
 SRCS = $(wildcard *.cpp)
 
@@ -23,10 +23,6 @@ run: sqcav5
 
 include Makefile.base.test
 
-LOC_PROG := ns
-CASE_NAME := oscplate3
-PROG := $(NS)
-
 #s Main targets
 #w Makes all tests and report succes
 all: tests
@@ -34,10 +30,6 @@ all: tests
 PETSCFEM_DIR = ..
 #PFEMUP = ../..
 include $(PETSCFEM_DIR)/Makefile.base
-
-ctest: $(DATAFILE) force
-	$(MAKE) $(NS)
-	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl
 
 #w Builds all applications
 compile:
@@ -49,11 +41,31 @@ compile:
 local_clean::
 	-rm -f ns advdif adv laplace
 
+.PHONY: torture_1 torture_g torture_O torture
+
+#---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
+#w Make all tests for a particular BOPT and keep log
+#w and make a tar with the results
+torture_1:
+	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
+	-runtests.pl | tee make-tests-$(BOPT).log
+	tar czvf ../make-tests-$(BOPT).tar.gz .
+
+#w torture for BOPT=g_c++
+torture_g:
+	$(MAKE) BOPT=g_c++ torture_1
+
+#w torture for BOPT=O_c++
+torture_O:
+	$(MAKE) BOPT=O_c++ torture_1
+
+#w torture for BOPT=g_c++ and BOPT=g_c++,
+#w store results in tars and logs.
 torture:
 	$(MAKE) lclean
-	$(MAKE) BOPT=g_c++ -k tests 2>&1 | tee make-tests-g_c++.log
+	$(MAKE) BOPT=O_c++ torture_1
 	$(MAKE) lclean
-	$(MAKE) BOPT=O_c++ -k tests 2>&1 | tee make-tests-O_c++.log
+	$(MAKE) BOPT=g_c++ torture_1
 	$(MAKE) lclean
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
@@ -68,10 +80,10 @@ tests: runtests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Runs the tests
-runtests: compile lap_per sector oscplate_all fastmat2 plano \
-	idmap fastvec chunk_size_process constraint_bug fstack triangle \
-	advdif texthash log_vars newff burgers bug100 genload lupart distmap \
-	sparse graph sqcav pfmat aquifer nutatcyl mmove advec nsgenload
+runtests: compile lap_per sector oscplate fastmat2 plano idmap fastvec		\
+	chunk_size_process constraint_bug fstack triangle advdif texthash	\
+	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
+	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate
 
 runtests_p:   
 
@@ -91,90 +103,6 @@ bug100: $(ADVDIF)
 #w with periodic b.c.'s
 sector: 
 	$(MAKE) -C sector sector
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w All oscillating plate tests
-#w saco oscplate2b 
-oscplate_all: oscplate3 oscplate2 oscplate2b oscplate4 \
-	oscplate4cos oscplate4_30deg oscplate
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Oscillating plate with piecewise constant function
-oscplate2: ns
-	-rm -f tmp_file*.tmp oscsome2.sal
-	eperl -P -d piecewise_fun=1  oscplate.epl >oscplate2.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate2.depl >/dev/null
-	$(OCTAVE) oscplate2.m &> oscplate2o.sal
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Oscillating plate with sinusoidal oscillation
-oscplate: ns
-	-rm -f tmp_file*.tmp oscplate1.sal
-	eperl -P -d Nperiods=20 oscplate.epl >oscplate.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate.depl >/dev/null
-	mv oscplate.sal oscplate1.sal
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Oscillating plate with sinusoidal oscillation
-#w Verifies quadratic convergence of the
-#w Crank Nicholson method. Runs a case with N=16,
-#w 32 and 128 time steps. The solution for N=128 is
-#w considered the exact, and it is checked in Octave that
-#w norm(u32-u128)/norm(u16-u128) < 0.30 (it should be <0.25). 
-oscplate3: ns
-	-rm -f tmp_file*.tmp oscsome3.sal oscsome.sal
-	-chmod +w oscplate3.depl
-#
-	eperl -P -d alpha=0.5 -d N=16 oscplate.epl >oscplate3.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
-	mv oscplate.sal oscplate_16.sal
-#
-	eperl -P -d alpha=0.5 -d N=32 oscplate.epl >oscplate3.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
-	mv oscplate.sal oscplate_32.sal
-#
-	eperl -P -d alpha=0.5 -d N=128 oscplate.epl >oscplate3.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate3.depl  >/dev/null
-	mv oscplate.sal oscplate_128.sal
-#
-	$(OCTAVE) oscplate3.m &> oscplate3o.sal
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Oscillating plate with piecewise constant function
-oscplate2b: ns
-	-rm -f tmp_file*.tmp oscsome2b.sal oscsome.sal
-	eperl -P -d spline_fun=1  oscplate.epl >oscplate2b.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate2b.depl >/dev/null
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Oscillating plate with piecewise constant periodic function
-#w `sin(t/T)' case
-oscplate4: ns
-	-rm -f tmp_file*.tmp oscsome4.sal oscsome.sal
-	eperl -P -d spline_periodic_fun=1 oscplate.epl >oscplate4.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate4.depl >/dev/null
-	mv oscsome.sal oscsome4.sal
-	$(OCTAVE) oscplate4.m &> oscplate4o.sal
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w `cos(2*pi*t/T)' case
-oscplate4cos: ns
-	-rm -f tmp_file*.tmp oscsome4c.sal oscsome.sal
-	eperl -P -d spline_periodic_fun=1  -d cos_case=1 \
-			oscplate.epl >oscplate4c.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate4c.depl >/dev/null
-	mv oscsome.sal oscsome4c.sal
-	$(OCTAVE) oscplate4c.m &> oscplate4co.sal
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w `sin(2*pi*t/T-pi/6)' case
-oscplate4_30deg: ns
-	-rm -f tmp_file*.tmp oscsome4_30deg.sal oscsome.sal
-	eperl -P -d spline_periodic_fun=1 -d cos_case=0 -d sin30deg_case=1 \
-			oscplate.epl >oscplate4_30deg.depl
-	-$(MPIRUN) -np 1 $(NS) -case oscplate4_30deg.depl >/dev/null
-	mv oscsome.sal oscsome4_30deg.sal
-	$(OCTAVE) oscplate4_30deg.m &> oscplate4_30dego.sal
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 .PHONY: $(plano_list)
@@ -378,6 +306,11 @@ mmove:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Linear advection 
 advec:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Oscillating plate tests
+oscplate:
 	$(MAKE) -C $@ tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--

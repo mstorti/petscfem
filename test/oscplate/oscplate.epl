@@ -1,6 +1,6 @@
 # -*- mode: shell-script -*-
 #
-<:require 'eperlini.pl':>// # Initializes ePerl 
+<:require '../eperlini.pl':>// # Initializes ePerl 
 
 # Synchronize the time step with external frequency
 <:
