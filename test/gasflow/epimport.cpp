@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.16 2003/02/08 13:08:37 mstorti Exp $
+// $Id: epimport.cpp,v 1.17 2003/02/08 16:08:48 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -250,13 +250,15 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   // Inputs
   int in_index = 0;
-  Object steps_o = in[in_index++];
-  Object hostname_o = in[in_index++];
-  Object port_o = in[in_index++];
-  Object options_o = in[in_index++];
+  Object steps_o          = in[in_index++];
+  Object hostname_o       = in[in_index++];
+  Object port_o           = in[in_index++];
+  Object options_o        = in[in_index++];
+  Object step_o           = in[in_index++];
+  Object state_file_o     = in[in_index++];
 
-  int steps, port;
-  char *options, *hostname;
+  int steps, port, step;
+  char *options, *hostname, *state_file;
   if (!steps_o) steps = 0;
   else if (!DXExtractInteger(steps_o,&steps)) {
     DXSetError(ERROR_DATA_INVALID,
@@ -295,8 +297,19 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     goto error;
   }
 
-  DXMessage("Got steps %d, hostname \"%s\", port %d, options \"%s\", ",
-	    steps,hostname,port,options);
+  if (!step_o) step = -1;
+  else if (!DXExtractInteger(step_o,&step)) {
+    DXSetError(ERROR_DATA_INVALID,
+	       "Couldn't find an integer on \"step\" entry");
+    goto error;
+  }
+
+  state_file = DXGetString((String)state_file_o); 
+  if (!state_file) state_file="<no-state>";
+
+  DXMessage("Got steps %d, hostname \"%s\", port %d, "
+	    "step %d, state_file \"%s\", other options \"%s\"",
+	    steps,hostname,port,step,state_file,options);
   char sktport[20];
   sprintf(sktport,"c%d",port);
 
@@ -307,7 +320,8 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   }
 
   DXMessage("Sending steps %d %s",steps,options);
-  Sprintf(clnt,"steps %d %s\n",steps,options);
+  Sprintf(clnt,"steps %d step %d state_file %s %s\n",
+	  steps,step,state_file,options);
 
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);

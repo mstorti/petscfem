@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-# $Id: epimport.mdf,v 1.7 2003/02/08 01:08:35 mstorti Exp $ 
+# $Id: epimport.mdf,v 1.8 2003/02/08 16:08:48 mstorti Exp $ 
 MODULE ExtProgImport
 CATEGORY Import and Export
 DESCRIPTION Imports data from a fifo/socket
@@ -8,5 +8,7 @@ INPUT steps; integer; 0; Visualize each "steps" time steps. (0 means asynchronou
 INPUT serverhost; string;  "localhost"; Name of host where the external program is running
 INPUT port; integer; 5314; Port number
 INPUT options; string; NULL; Options to be passed to the external program
+INPUT step; integer; -1; Input for sequencer. This value is passed to "dx_hook"
+INPUT state_file; string; NULL; 
 OUTPUT output_array_list; field;  Imported arrays
 OUTPUT output_field_list; field;  Imported fields

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.13 2003/02/08 14:27:53 mstorti Exp $
+//$Id: dxhook.cpp,v 1.14 2003/02/08 16:08:48 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/debug.h>
@@ -66,7 +66,8 @@ time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
   // this is for CHECK_COOKIE
 #define sock srvr
-  int ierr, cookie, cookie2;
+  int ierr, cookie, cookie2, dx_step;
+  string state_file;
   if (steps && step_cntr--) return;
 
 #define BUFSIZE 512
@@ -88,14 +89,6 @@ time_step_post(double time,int step,
     assert(srvr);
 
     Sgetline(&buf,&Nbuf,srvr);
-#if 0
-    int Nbuff = Nbuf;
-    ierr = MPI_Bcast (&Nbuf, 1, MPI_INT, 0,PETSC_COMM_WORLD);
-    if (MY_RANK && Nbuf>Nbuff) {
-      free(buf); buf = (char *)malloc(Nbuf);
-    }
-    ierr = MPI_Bcast (buf, Nbuf, MPI_CHAR, 0,PETSC_COMM_WORLD);
-#endif
     tokenize(buf,tokens);
 
     // Parse DX options
@@ -107,22 +100,28 @@ time_step_post(double time,int step,
 	assert(!string2int(tokens[++j],stepso));
 	if (stepso>=0) {
 	  if (stepso!=steps) 
-	    PetscPrintf(PETSC_COMM_WORLD,
-			"dx_hook: changed \"steps\" %d -> %d from DX\n",
-			steps,stepso);
+	    printf("dx_hook: changed \"steps\" %d -> %d from DX\n",
+		   steps,stepso);
 	  steps=stepso;
 	}
+      } else if (tokens[j]=="step") {
+	assert(!string2int(tokens[++j],dx_step));
+      } else if (tokens[j]=="state_file") {
+	state_file = tokens[++j];
       } else {
-	PetscPrintf(PETSC_COMM_WORLD,
-		    "Unknown option \"%s\"\n",tokens[j].c_str());
+	printf("Unknown option \"%s\"\n",tokens[j].c_str());
       }
       j++;
     }
+    printf("dx_hook: Got steps %d, dx_step %d, state_file %s\n",
+	   steps,dx_step,state_file.c_str());
   }
   // Options are read in master and
   // each option is sent to the slaves with MPI_Bcast
   ierr = MPI_Bcast (&steps, 1, MPI_INT, 0,PETSC_COMM_WORLD);
-
+  ierr = MPI_Bcast (&dx_step, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+  ierr = string_bcast(state_file,0,PETSC_COMM_WORLD);
+  
   step_cntr = steps-1;
   
   if (!MY_RANK) {

@@ -1,9 +1,10 @@
 //__INSERT_LICENSE__
-// $Id: util3.cpp,v 1.1 2003/02/08 13:08:37 mstorti Exp $
+// $Id: util3.cpp,v 1.2 2003/02/08 16:08:48 mstorti Exp $
 #include <cstring>
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <mpi.h>
 
 #include <HDR/sockets.h>
 
@@ -92,4 +93,20 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   }
   // return number of bytes read
   return strlen(*lineptr)+1;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int string_bcast(string &s,int master,MPI_Comm comm) {
+  int myrank,len, ierr;
+  char *copy=NULL;
+  MPI_Comm_rank(comm,&myrank);
+  if (myrank==master) len = strlen(s.c_str());
+  ierr = MPI_Bcast (&len, 1, MPI_INT, master,comm);
+  if (ierr) return ierr;
+  copy = new char[len+1];
+  if (myrank==master) strcpy(copy,s.c_str());
+  ierr = MPI_Bcast (copy,len+1, MPI_CHAR, master,comm);
+  if (ierr) return ierr;
+  if (myrank!=master) s = string(copy);
+  delete[] copy;
 }
