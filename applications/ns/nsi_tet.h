@@ -1,16 +1,15 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.46 2003/03/13 19:52:12 mstorti Exp $
-#ifndef PETSCFEM_NSI_TET_H  
-#define PETSCFEM_NSI_TET_H
+//$Id: nsi_tet.h,v 1.35.2.1 2003/06/13 16:10:37 mstorti Exp $
+#ifndef NSI_TET_H  
+#define NSI_TET_H
 
 #ifdef USE_ANN
 #include <ANN/ANN.h>			// ANN declarations
 #endif
-#include <vector>
+#include <vector>			// ANN declarations
 
 #include <src/secant.h>
-#include <src/pfobject.h>
 
 extern int fractional_step;
 extern int reuse_mat;
@@ -75,10 +74,7 @@ public:
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
 class wall : public Elemset { 
-private:
-  int ndim;
 public: 
-  void initialize();
   ASK_FUNCTION;
   ASSEMBLE_FUNCTION;
 };
@@ -141,8 +137,6 @@ struct GlobParam {
   int steady;
   /// Newton iteration
   int inwt;
-  // States
-  State *state,*state_old;
 };
 
 void wall_fun(double yp,double &f,double &fprime);
@@ -322,8 +316,50 @@ public:
   ASSEMBLE_FUNCTION;
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Generic nonlinear restriction element. 
+    It may not work for restrictions that involve
+    fields in more that one node. 
+*/ 
+class LagrangeMult : public Elemset {
+ public:
+  ASK_FUNCTION;
+  ASSEMBLE_FUNCTION;
+  /** Returns data (to be derived)
+      @param nr (output) number of restrictions
+      @param nfic (output) number of fictitious nodes
+   */
+  virtual int nres()=0;
+  /** Return the node/dof pair to be used as lagrange multiplier for
+      the #jr#-th restriction. 
+      @param jr (input) Number of restriction
+      @param node (output) number of node for multiplier
+      @param dof (output) number of field for multiplier
+  */ 
+  virtual void lag_mul_dof(int jr,int &node,int &dof)=0;
+  /// Initialize the elemset (maybe reads hash table)
+  virtual void init()=0;
+  /** Computes the residual and jacobian of the function to be
+      imposed. Usually you derive #NonLinearRes# and instantiate this
+      function that defines the restriction to be imposed. 
+      @param k (input) element number in elemset
+      @param U (input) state vector at all nodes
+      @param r (output) a vector of length #nres*nel/2# containing the
+      residuals for each restriction at each node.
+      @param w (input) the vector of reactions of the Lagrange multipliers 
+      @param jac (output) the jacobian of the residuals with respect
+      to the node state. (size #nel/2 * nres* nel/2 x ndof#)
+  */ 
+  virtual void res(int k,FastMat2 &U,FastMat2 & r,
+		   FastMat2 & w,FastMat2 & jac)=0;
+  /// Called after the loop over all elements
+  virtual void close() {}
+  /// Make it pure virtual. 
+  virtual ~LagrangeMult()=0;
+};
+
 /** Cutoff function used in turbulence calculations. It is very near
-    to ${\rm ctff}(x)\approx \rm tol$ for $x<0$ and ${\rm ctff}(x)=x$
+    to ${\rm ctff(x)\approx \rm tol$ for $x<0$ and ${\rm ctff}(x)=x$
     for $x\gg \rm tol$.  
     @param x (input) the argument where to compute the cutoff fuction
     @param (output) the derivative of the cutoff function at $x$
@@ -332,22 +368,21 @@ public:
 */ 
 double ctff(double x, double & diff_ctff, double tol=1e-5);
 
-/** Reads a #FastMat2# matrix from a #TextHashTable# entry. 
-    @param thash (input) the options table
-    @param s (input) the key in the table where to extract the matrix coefficients
-    @param ndof (input) Let #coef[]# be the list of coefficients entered in
-    the line and #ncoef# the length of #coef#. 
-    If #ncoef=1# then #cond = v[0] * Id(ndof)#, else if #ncoef=ndof# then, 
-    #cond = diag(v)#, else if #ncoef=ndof*ndof# then #cond(i,j) = v[ndof*i+j]# 
-    (rowwise). Any other causes an error. 
-    @param ndof (input) the number of fields
-    @param cond (output) the matrix to be read
-    @return a reference to the matrix. */ 
-void read_cond_matrix(TextHashTable *thash, const char *s,
-		      int ndof,FastMat2 &cond);
+class Hook {
+public:
+  virtual void init(Mesh &mesh,Dofmap &dofmap,const char *name) {}
+  virtual void time_step_pre(double time,int step) {}
+  virtual void time_step_post(double time,int step,
+			      const vector<double> &gather_values) {}
+};
 
-/** This is the factory of BasicObjects (Objects that are read from
-    the user data file), specific for the NS module */ 
-BasicObject_factory_t BasicObject_ns_factory;
+class HookList : public vector<Hook *> {
+public:
+  void init(Mesh &mesh,Dofmap &dofmap);
+  void time_step_pre(double time,int step);
+  void time_step_post(double time,int step,
+		      const vector<double> &gather_values);
+  ~HookList();
+};
 
 #endif

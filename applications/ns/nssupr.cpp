@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.10.6.1 2003/06/12 20:53:06 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.10.6.2 2003/06/13 16:10:37 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -45,9 +45,9 @@ void ns_sup_res::init() {
   // the acceleration has been set.
   MPI_Allreduce(&axial_accel_rank_a,&axial_accel_rank,1,MPI_INT,
 		MPI_MAX,PETSC_COMM_WORLD);
-  assert(axial_accel_rank>=0);
-  // And we make a broadcast from that processor
-  MPI_Bcast(&AXIAL_ACCELERATION,1,MPI_DOUBLE,axial_accel_rank,PETSC_COMM_WORLD);
+  if (axial_accel_rank>=0)
+    // And we make a broadcast from that processor
+    MPI_Bcast(&AXIAL_ACCELERATION,1,MPI_DOUBLE,axial_accel_rank,PETSC_COMM_WORLD);
 #endif
   p_indx = ndim+1;
 }
@@ -78,7 +78,17 @@ void ns_sup_res::res(int k,FastMat2 & U,FastMat2 & r,
 
   p = U.get(1,p_indx);
   eta = U.get(2,1);
+  //#define DEBUG_AXIAL_ACC
+#if DEBUG_AXIAL_ACC
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"k %d, gravity %f, rho %f, p %f, eta %f\n",
+			  k, gravity, rho, p, eta);
+#endif
   r.setel(p-rho*gravity*eta,1);
   jac.setel(1.,1,1,p_indx).setel(-rho*gravity,1,2,1);
 }
 
+void ns_sup_res::close() {
+#if DEBUG_AXIAL_ACC
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
+#endif
+}

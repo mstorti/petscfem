@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.9 2003/03/07 21:23:51 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.8.6.1 2003/06/13 16:10:37 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -8,8 +8,7 @@
 #include <src/getprop.h>
 #include <src/fastmat2.h>
 
-#include <applications/ns/nsi_tet.h>
-#include <applications/ns/lagmul.h>
+#include "nsi_tet.h"
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
@@ -96,16 +95,12 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   // of rounding errors. This factor scales the row in the matrix
   // that correspond to the new equation. 
   TGETOPTDEF(thash,double,lagrange_row_scale_factor,1.);
-  // Dimension of the embedding space (position vector of nodes)
-  TGETOPTDEF(thash,int,ndim,0); //nd
 
-  // Call callback function defined by user initializing the elemset
   init();
   nr = nres(); // Get dimensions of problem
 
   FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
     matloc(4,nel,ndof,nel,ndof), U(2,nel,ndof),R(2,nel,ndof);
-  xloc_m.resize(2,nel,ndim);
   if (comp_mat) matloc_prof.set(1.);
 
   FastMat2 r(1,nr),w(3,nel,ndof,nr),jac(3,nr,nel,ndof);
@@ -113,10 +108,8 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
+  int elem;
   int ielh=-1;
-  xnod = nodedata->nodedata;
-  nu=nodedata->nu;
-  
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
@@ -162,20 +155,6 @@ int LagrangeMult::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+  close();
   return 0;
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#define ICONE(j,k) (icone[nel*(j)+(k)]) 
-#define NODEDATA(j,k) VEC2(xnod,j,k,nu)
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// Load local node coordinates in local vector
-const FastMat2 &LagrangeMult::xloc() {
-  for (int kloc=0; kloc<nel; kloc++) {
-    int node = ICONE(elem,kloc);
-    xloc_m.ir(1,kloc+1).set(&NODEDATA(node-1,0));
-  }
-  xloc_m.rs();
-  return xloc_m;
 }

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nssup.h,v 1.10 2003/03/07 21:23:52 mstorti Exp $
+//$Id: nssup.h,v 1.9.6.1 2003/06/13 16:10:37 mstorti Exp $
 #ifndef ROCKNS_H
 #define ROCKNS_H
 
@@ -15,7 +15,6 @@
 #include <src/iisdmat.h>
 
 #include <applications/ns/nsi_tet.h>
-#include <applications/ns/lagmul.h>
 
 /// Restriction for linearized free surface boundary condition
 class ns_sup_res : public LagrangeMult {
@@ -43,6 +42,8 @@ public:
   /// computes the residual and jacobian of the function to be imposed
   void res(int k,FastMat2 &U,FastMat2 & r,FastMat2 & lambda,
 	   FastMat2 & jac);
+  /// Called after the loop over all elements
+  void close();
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
