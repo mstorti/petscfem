@@ -178,6 +178,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   
   //o Density
   TGETOPTDEF(thash,double,rho,1.);
+  //o Factor masking the fractional step stabilization term. 
+  TGETOPTDEF(thash,double,dt_art_fac,1.);
   //o Type of element geometry to define Gauss Point data
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
 
@@ -388,48 +390,41 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Parte temporal
 	matlocmom.axpy(masspg,wpgdet/Dt);
        
-      } else if (comp_res_poi) {
+      } else if (comp_res_poi || comp_mat_poi) {
 
-	//double h_max = 2*Jaco.Norm1();
-	//double Dt_crit = h_max*h_max/VISC;
+	double dt_fac = 1.0;
+	if (dt_art_fac > 0.0) {
+	  double area = detJaco * gp_data.wpg_sum;
+	  double h = pow(area,1.0/double(ndim));
+	  dt_fac += dt_art_fac*h*h/VISC;
+	} 
 
-	//double Dt_art= ( Dt<Dt_crit ? Dt_crit : Dt);
-	double Dt_art=Dt;
-
-	// printf("Dt %f, h_max %f, Dt_crit %f, Dt_art %f\n",
-	// Dt, h_max, Dt_crit, Dt_art);
-	locstate.ir(2,ndof);
-	grad_p.prod(dshapex,locstate,1,-1,-1);
-	locstate.rs();
-
-	// fixme:= Debilito el termino de la divergencia en el miembro
-	// derecho de Poisson para que me de un r.h.s. con suma nula y
-	// asi el Poisson sea independiente del nodo que se fija. 
-
-	// version debilitada
-	if (weak_poisson) {
-
+	if (comp_res_poi) {
+	  locstate.ir(2,ndof);
+	  grad_p.prod(dshapex,locstate,1,-1,-1);
+	  locstate.rs();
+	  
+	  // The Poisson equation is treated in weak form. This
+	  // guarantees that the solution of the Poisson equation is
+	  // independent of which node is fixed its pressure. 
 	  locstate2.is(2,1,ndim);
 	  u_star.prod(SHAPE,locstate2,-1,-1,1);
 	  locstate2.rs();
-	  tmp12.set(u_star).scale(-rho/Dt_art).axpy(grad_p,1.0-gammap);
+	  tmp12.set(u_star).scale(-rho/Dt).axpy(grad_p,dt_fac-gammap);
 	  tmp11.prod(dshapex,tmp12,-1,1,-1);
 	  rescont.axpy(tmp11,-wpgdet);
-
-	} else {
-	  assert(0); // not coded yet
 #if 0
-	  // version no debilitada
+	  // No-weak form
 	  div_u_star = (dshapex * ustate2).Trace();
 	  rescont -= wpgdet * ((rho/Dt_art) * SHAPE.t() * div_u_star
 			       + dshapex.t() * grad_p);
 #endif
 	}
 
-      } else if (comp_mat_poi) {
-
-	tmp13.prod(dshapex,dshapex,-1,1,-1,2);
-	matlocmom.axpy(tmp13,wpgdet);
+	if (comp_mat_poi) {
+	  tmp13.prod(dshapex,dshapex,-1,1,-1,2);
+	  matlocmom.axpy(tmp13,dt_fac*wpgdet);
+	}
  
       } else if (comp_res_prj) {
 
