@@ -356,6 +356,8 @@ private:
   /// Rank of element in the elemset
   int rank_in_elemset;
 public:
+  /// Default Constructor
+  ElementIterator() {};
   /// Constructor
   ElementIterator(const ElementList *el, const int rie,const int ric) 
     : elemlist(el), rank_in_elemset(rie), rank_in_chunk(ric) {};
@@ -616,9 +618,9 @@ public:
   };
 
   /// Creates a Property object from his name
-  void get_prop(Property &prop,const char *prop_name,int n=1);
-  double prop_val(ElementIterator &element,Property &prop);
-  const double *prop_array(ElementIterator &element,Property &prop);
+  void get_prop(Property &prop,const char *prop_name,int n=1) const;
+  double prop_val(ElementIterator &element,Property &prop) const;
+  const double *prop_array(ElementIterator &element,Property &prop) const;
 };
 
 #if 0

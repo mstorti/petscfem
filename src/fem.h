@@ -274,7 +274,7 @@
     @author M. Storti
     @param ierr error code (input)
     @param s string of error message */
-#define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); CHKERRA(ierr);}
+#define PFEMERRCA(ierr,s) if (ierr) {PetscPrintf(PETSC_COMM_WORLD,s); assert(1);}
 
 #define PFEM_TRACE(s) PetscPrintf(PETSC_COMM_WORLD, \
 			       "<%s>. At file " __FILE__ ", line %d\n",s,__LINE__)

@@ -674,7 +674,7 @@ void Elemset::print() {
   thash->print();
 }
 
-void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) {
+void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
   // looks int the properties-per-element table
   props_hash_entry *phe = (props_hash_entry *)
     g_hash_table_lookup(elem_prop_names,(void *)prop_name);
@@ -694,12 +694,12 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) {
   }
 }
 
-double NewElemset::prop_val(ElementIterator &element,Property &prop) {
+double NewElemset::prop_val(ElementIterator &element,Property &prop) const {
   return *prop_array(element,prop);
 }
 
 const double *NewElemset::prop_array(ElementIterator &element,
-				     Property &prop) {
+				     Property &prop) const {
   if (prop.indx<0) {
     return prop.ptr;
   } else {
