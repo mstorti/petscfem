@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.7 2001/11/27 16:07:01 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8 2001/11/27 19:59:39 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -37,7 +37,7 @@ public:
   /// Libretto dynamic array that contains the graph adjacency matrix
   Darray *da;
   /// callback user function to return the neighbors for a 
-  void set_ngbrs(int vrtx_f,vector<int> &ngbrs_v);
+  void set_ngbrs(int vrtx_f,set<int> &ngbrs_v);
   /// Callback user function for the user to set the weight of a given fine vertex. 
   double weight(int vrtx_f);
   /// Clean all memory related 
@@ -47,7 +47,7 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void IISDGraph::set_ngbrs(int loc1,vector<int> &ngbrs_v) {
+void IISDGraph::set_ngbrs(int loc1,set<int> &ngbrs_v) {
   int pos,loc2,dof2;
   pos = loc2dof[loc1]+k1;
   while (1) {
@@ -57,7 +57,7 @@ void IISDGraph::set_ngbrs(int loc1,vector<int> &ngbrs_v) {
     dof2 = nodep->val;
     if (k1<=dof2 && dof2<=k2 && !flag[dof2] ) {
       loc2 = dof2loc[dof2-k1];
-      ngbrs_v.push_back(loc2);
+      ngbrs_v.insert(loc2);
     }
     pos = nodep->next;
   }
@@ -102,8 +102,9 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   int k,pos,keq,leq,jj,row,row_t,col_t,od,
     d_nz,o_nz,nrows,ierr,n_loc_h,n_int_h,k1h,k2h,rank,
     n_loc_pre,loc,dof,subdoj,subdok,vrtx_k;
-  vector<int> dof2loc,loc2dof,ngbrs_v;
-  vector<int>::iterator q,qe;
+  vector<int> dof2loc,loc2dof;
+  set<int> ngbrs_v;
+  set<int>::iterator q,qe;
   IISDGraph graph;
 
   MPI_Comm_rank (PETSC_COMM_WORLD, &myrank);
@@ -228,6 +229,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
       }
     }
   }
+  ngbrs_v.clear();
 
   debug.trace("after remarking flag");
   graph.clear();
