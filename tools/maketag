@@ -1,6 +1,6 @@
 #!/bin/bash
 #__INSERT_LICENSE__
-#$Id: maketag,v 1.8 2002/02/10 21:15:20 mstorti Exp $
+#$Id: maketag,v 1.9 2002/02/10 21:36:37 mstorti Exp $
 
 tmp=tmp_file_log.txt
 savelog=save.log
@@ -21,6 +21,8 @@ echo -n "Enter new tag: > "
 read newtag 
 newtag_=`echo $newtag | perl -pe 's/\-/--/g; s/\./-/g;'` 
 echo "encoded tag: $newtag_" 
+
+./tools/checktag $tag ./save.log
 
 stable="n"
 echo -n "Is it a stable version? (y/n) > " 

@@ -1,0 +1,23 @@
+#!/usr/bin/perl
+
+$is_light=0;
+
+$tag = shift();
+if ($tag eq '-l') {
+    $is_light = 1;
+    $tag = shift();
+}
+$savelog = shift();
+
+print "'hard' tag \"$tag\" contains \".pl\".",
+    " Please check!\n" if !$is_light && $tag=~/\.pl/;
+print "'light' tag \"$tag\" doesn't contain \".pl\".",
+    " Please check!\n" if $is_light && $tag!~/\.pl/;
+
+open SV,$savelog;
+while (<SV>) {
+    if (/^tag: $tag /) {
+	print "Already used tag. Please check!\n",
+	"line: $_";
+    }
+}
