@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.4 2002/02/17 15:27:40 mstorti Exp $
+//$Id: bubbly.cpp,v 1.5 2002/02/18 15:33:12 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -190,6 +190,7 @@ void bubbly_ff
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   // Advective fluxes
+  flux.set(0.);
   flux.ir(1,1).set(v_l).scale(arho_l);
   flux.ir(1,2).set(v_g).scale(arho_g);
 
@@ -250,6 +251,8 @@ void bubbly_ff
   Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(alpha_g*rho_l);
   Ajac.rs();
 
+  A_grad_U.prod(Ajac,grad_U,-1,1,-2,-1,-2);
+
   // Strain rate for the liquid
   // fixme:= not clear which indices are... But resulting matrix is
   // symmetric so that it should not matter
@@ -265,7 +268,7 @@ void bubbly_ff
   // fixme:= la tasa de deformacion se toma la del liquido??
   strain_rate_scalar = strain_rate_l.sum_square_all();
   // fixme:= esto no compila 
-  //  visco_t = C_mu*rho_l * square(k)/eps;
+  visco_t = C_mu*rho_l * square(k)/eps;
   P_k = 2*visco_t*strain_rate_scalar;
 
   visco_l_eff = visco_l + visco_t;
@@ -317,6 +320,8 @@ void bubbly_ff
   double Cek = (-2.*rho_l*C_1*strain_rate_scalar*square(k)+C_2*rho_l*square(eps))/square(k);
   Cjac.setel(-Cek,e_indx,k_indx);
   Cjac.setel(-2*eps*C_2*rho_l/k,e_indx,e_indx);
+  // fixme:= No sabemos esto bien con que signo va... 
+  Cjac.scale(-1.);
   
   if (options & COMP_UPWIND) {
     const NewAdvDif *advdf_e = dynamic_cast<const NewAdvDif *>(elemset);

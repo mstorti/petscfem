@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.50 2002/02/17 15:27:40 mstorti Exp $
+//$Id: advdife.cpp,v 1.51 2002/02/18 15:33:12 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -153,11 +153,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #define WAS_SET arg_data_v[jdtmin].was_set
     Ajac = &arg_data_v[++j];
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
+    rec_Dt_m = 1./DT;
+    if (glob_param->steady) rec_Dt_m = 0.;
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
 #endif
   }
-  rec_Dt_m = 1./DT;
 
   FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
   if (comp_prof) {
@@ -349,7 +350,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	Uo.prod(SHAPE,lstateo,-1,-1,1);
 	adv_diff_ff->enthalpy_fun->enthalpy(Ho,Uo);
 	Ualpha.set(0.).axpy(Uo,1-ALPHA).axpy(Un,ALPHA);
-	dUdt.set(Hn).rest(Ho).scale(1./DT);
+	dUdt.set(Hn).rest(Ho).scale(rec_Dt_m);
 	for (int k=0; k<nlog_vars; k++) {
 	  int jdof=log_vars[k];
 	  double UU=exp(Ualpha.get(jdof));
@@ -384,10 +385,10 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
 	}
 
-	// tmp15.set(SHAPE).scale(wpgdet/DT);
+	// tmp15.set(SHAPE).scale(wpgdet*rec_Dt_m);
 	// tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
 	// tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
-	adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet/DT);
+	adv_diff_ff->enthalpy_fun->comp_W_Cp_N(N_Cp_N,SHAPE,SHAPE,wpgdet*rec_Dt_m);
 	if (lumped_mass) {
 	  matlocf_mass.add(N_Cp_N);
 	} else {
@@ -481,7 +482,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
 	  matlocf.add(N_P_C);
 
-	  tmp21.set(SHAPE).scale(beta_supg*wpgdet/DT);
+	  tmp21.set(SHAPE).scale(beta_supg*wpgdet*rec_Dt_m);
 	  adv_diff_ff->enthalpy_fun->comp_P_Cp(P_Cp,P_supg);
 	  tmp22.prod(P_Cp,tmp21,1,3,2);
 	  if (lumped_mass) {

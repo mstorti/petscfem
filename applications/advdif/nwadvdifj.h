@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: nwadvdifj.h,v 1.5 2002/02/17 03:59:51 mstorti Exp $
+//$Id: nwadvdifj.h,v 1.6 2002/02/18 15:33:12 mstorti Exp $
 #ifndef NWADVDIFJ_H
 #define NWADVDIFJ_H
 
@@ -71,7 +71,8 @@ public:
 		 DJac *d=NULL,AJac *a_jac_=NULL, 
 		 CJac *c=NULL, SourceTerm *st=NULL);
 
-  /** Compute $!A\dot \nor = \sum_j A_j n_j$. Often, $\nor$ is a
+  /** Compute $!A\dot {\hat{\mathbf{n}}}  = \sum_j A_j n_j$.
+      Often, ${\hat{\mathbf{n}}}$ is a
       normal vector, but you can't assume that it is of unit length.
       @param A_jac_n (output) The contraction of the advective
       jacobian with the #nornal# vector.
@@ -91,7 +92,7 @@ public:
     a_jac->comp_A_grad_N(A_grad_N,grad_N);
   }
 
-  /** Compute $\sum_{ij} w D_{ij} \dep_i N \dep_j N $. $w$ is a scalar weight,
+  /** Compute $\sum_{ij} w D_{ij} \partial_i N \partial_j N $. $w$ is a scalar weight,
       normally the weight of the Gauss point times the determinant of
       the transformation.
       @param grad_N_D_grad_N (output) the result.
