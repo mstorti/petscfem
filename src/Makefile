@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2001/03/18 16:48:09 mstorti Exp $ 
+# $Id: Makefile,v 1.13 2001/03/28 12:36:48 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -91,7 +91,7 @@ local_clean::
 
 local_depend: getarrgr.tab.c getarrgr.tab.h
 
-.INTERMEDIATE: *.tab.*
+#.INTERMEDIATE: *.tab.*
 %.tab.c %.tab.h: %.y
 	$(BISON) $<
 
