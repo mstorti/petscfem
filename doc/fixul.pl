@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+#__INSERT_LICENSE__
+# $Id: fixul.pl,v 1.2 2003/02/10 14:52:41 mstorti Exp $
 use strict;
 
 my $name = shift();
