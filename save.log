@@ -1061,3 +1061,8 @@ tag: beta-2.88.pl3 on Mon Feb 18 20:17:44 -0300 2002 by mstorti in spider
 ----------
 tag: beta-2.89 on Mon Feb 18 22:38:48 -0300 2002, by mstorti in spider
      > Improving doc
+----------
+tag: beta-2.90 on Tue Feb 19 22:48:07 -0300 2002, by mstorti in spider
+     > Added doc for dynamically loaded functions. 
+     > Changed `eval_fun' to `eval' in 
+     > `DEFINE_EXTENDED_AMPLITUDE_FUNCTION(class_name)'. 
