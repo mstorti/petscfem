@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.9 2003/04/01 22:47:19 mstorti Exp $ 
+## $Id: wave.epl,v 1.10 2003/04/02 14:11:46 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -7,6 +7,7 @@ require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl
 $initia = ($ENV{'initia'} ? 1 : 0);
 require 'dataw.pl';
 $fs_relax = 0 if $initia;
+$dx = 1;
 #__END_TRANSCRIPT__
 @vars = qw(Lx h Ny Nx fs_relax Dt gravity p_const_bc patm slope
     yratio initia eta0 L_bump t);
@@ -61,7 +62,7 @@ ngather 1
 gather_file "wave.volume.tmp"
 
 hook_list ns_dx_hook my_dx_hook <:=($initia ? "" : "dl_generic_hook my_ale_hook"):>
-#if !$initia
+#if !$initia && !$dx
 my_ale_hook.filename ./alehook.efn
 my_ale_hook.prefix   ale_hook2
 #endif
@@ -78,7 +79,7 @@ dx_split_state "1 2 0 1 u 1 1 2 p"
 dx_auto_combine
 dx_state_all_fields 0
 <:pr('dx_steps'):>
-# dx_read_state_from_file 1
+dx_read_state_from_file <:=$dx:>
 __END_HASH__
 
 #===========================================================

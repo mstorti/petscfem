@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $
+$Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $ 
+! # $Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $ 
+  # $Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.271 2003/04/01 02:03:56 mstorti Exp $ 
+  # $Id: notes.txt,v 1.272 2003/04/02 14:11:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6458,6 +6458,11 @@ se hace muy delgada en el vertedero.
 %
 23:02:55: Con t=0.4 tambinen termina divirgiendo, tambien por `secado'
 aparentemente. 
+%
+10:30:54: Corro un caso con mas de 1000 pasos de tiempo. Termina dando
+un SISEGV, pero todavia no se porque. El nivel de la FS se mantiene
+mas o menos bien. spillway.02-Apr-2003.tgz (45MB gzipped). 
+
 
 # Current line ===========  %
 # Local Variables: $
