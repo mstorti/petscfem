@@ -6,31 +6,43 @@ scripts = odoc.pl makewhat.pl
 #v $hdrmxlen += 3;
 #p [in tools]
 #w Builds all doc in this directory
-all: $(scripts:pl=1) $(scripts:pl=txt)
+all: $(scripts:pl=1) $(scripts:pl=txt) 
 
 PETSCFEM_DIR = ..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 
+#w all license files
+licenses: license.script license.c license.tex
+
 #w license for makefiles and scripts
 license.script: license.txt
-	perl -p -e 's/^/\#  /' license.txt >$@
+	echo "#__INSERT_LICENSE__" > $@
+	echo "#__INSERT_LICENSE__" >> $@
+	perl -p -e 's/^/\#  /' license.txt >> $@
 	echo >>$@
 	echo >>$@
+#	echo "#--------------------------------" >>$@
 
 #w license for C and C++
 license.c: license.txt
-	echo '/*' >$@
+	echo "\/.__INSERT_LICENSE__" > $@ 
+	echo "/*__INSERT_LICENSE__*/" >> $@
+	echo '/*' >>$@
 	perl -p -e 's/^/  /' license.txt >> $@
 	echo '*/' >>$@
 	echo >>$@
 	echo >>$@
+#	echo "/*------------------------------*/" >>$@
 
 #w license for C and C++
 license.tex: license.txt
+	echo "%__INSERT_LICENSE__" > $@
+	echo "%__INSERT_LICENSE__" >> $@
 	perl -p -e 's/^/%  /' license.txt >> $@
 	echo >>$@
 	echo >>$@
+#	echo "%--------------------------------" >>$@
 
 #w Builds man page from POD documentation in <script>.pl
 #e <script>.1

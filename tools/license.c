@@ -1,3 +1,5 @@
+\/.__INSERT_LICENSE__
+/*__INSERT_LICENSE__*/
 /*
   This  file  belongs  to  the  PETSc  -  FEM  package,  a  library  and
   application  suite oriented  to  the Finite  Element  Method based  on
