@@ -53,8 +53,8 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.02
-shocap 0.2
+Dt 0.05
+shocap 0.
 weak_form 0
 temporal_stability_factor 0
 
@@ -114,6 +114,7 @@ __END_ELEMSET__
 elemset gasflow_abso2 3
 props normal[2]
 dx 0
+use_old_state_as_ref
 __END_HASH__
 __INCLUDE__ cylabso.nabso-con.tmp
 __END_ELEMSET__

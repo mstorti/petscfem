@@ -1,15 +1,17 @@
-## $Id: proc5.m,v 1.7 2005/01/28 12:06:47 mstorti Exp $
+## $Id: proc5.m,v 1.8 2005/01/28 19:08:40 mstorti Exp $
 
 source("data.m.tmp");
 
-line = "upstream";
+## line = "upstream";
 ## line = "downstream";
+line = "axis";
 
 U = aload("cylabso.some-rslt.tmp");
 nline = Nphi+1;
 nnod = nline*(Nr+1);
 downstream = 1+nline*(0:Nr)';
 upstream = nline*(1:Nr+1)';
+xaxis = [nline*(Nr+1:-1:1),1+nline*(0:Nr)]';
 skin = (1:Nphi+1);
 
 U(:,1)=[];
@@ -37,6 +39,9 @@ if strcmp(line,"upstream")
   x = x(plotindx,1);
 elseif strcmp(line,"downstream")
   plotindx = downstream;
+  x = x(plotindx,1);
+elseif strcmp(line,"axis")
+  plotindx = xaxis;
   x = x(plotindx,1);
 elseif strcmp(line,"skin")
   plotindx = skin;
