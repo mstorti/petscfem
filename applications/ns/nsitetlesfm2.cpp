@@ -1,4 +1,4 @@
-/* $Id: nsitetlesfm2.cpp,v 1.3 2001/01/19 12:49:41 mstorti Exp $ */
+/* $Id: nsitetlesfm2.cpp,v 1.2.2.1 2001/01/19 16:36:11 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -251,15 +251,24 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       locstate2.set(&(LOCST2(ielh,0,0)));
 
       if (cache_grad_div_u) {
-	grad_div_u_cache = (double *)local_store_address(ielh);
+	grad_div_u_cache = (double *)local_store_address(k);
 	grad_div_u_was_cached = (grad_div_u_cache!=NULL);
 	if (!grad_div_u_was_cached) {
-	  local_store_address(ielh) 
+	  local_store_address(k) 
 	    = grad_div_u_cache 
 	    = new double[ndim*ndim*nel*nel];
 	}
-	// debug := 
-	grad_div_u_was_cached = 0;
+	//#define DEBUG_CACHE_GRAD_DIV_U
+#ifdef 	DEBUG_CACHE_GRAD_DIV_U	// debug:=
+	if (k<2 && grad_div_u_was_cached) {
+	  printf("element %d, cached grad_div_u: ",k);
+	  for (int kkkk=0; kkkk<ndim*ndim*nel*nel; kkkk++)
+	    printf("%f  ",grad_div_u_cache[kkkk]);
+	  printf("\n");
+	}
+	grad_div_u_was_cached = 0; // In order to recompute always
+				   // the grad_div_u operator
+#endif
       }
     }
 
@@ -616,6 +625,14 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  .axpy(grad_div_u,grad_div_u_coef).rs();
 	if (!grad_div_u_was_cached) {
 	  grad_div_u.export_vals(grad_div_u_cache);
+#ifdef 	DEBUG_CACHE_GRAD_DIV_U	// debug:=
+	if (k<2) {
+	  printf("element %d, computed grad_div_u: ",k);
+	  for (int kkkk=0; kkkk<ndim*ndim*nel*nel; kkkk++)
+	    printf("%f  ",grad_div_u_cache[kkkk]);
+	  printf("\n");
+	}
+#endif
 	}
       }
       veccontr.is(2,1,ndim).set(resmom)
