@@ -3,6 +3,7 @@
 \index{PFMat@\verb+PFMat+}
 \Section{The PFMat class} 
 
+\index{domain decomposition}
 \index{IISDMat}
 \index{PFMat@\verb+PFMat+} 
 The \verb+PFMat+ class is a matrix class that acts either as a wrapper
@@ -12,7 +13,8 @@ matrix/solvers. Currently there is the basic \PETSc{} class named
 \emph{``Interface Iterative -- Sub-domain Direct''}, method) that has
 a special solver that solves the linear system by solving iteratively
 over the interface nodes, while solving with a direct method in the
-sub-domain interiors.
+sub-domain interiors (this is commonly referred as the \emph{``Domain
+Decomposition Method''}).
 
 \SSection{The PFMat abstract interface} 
 
@@ -142,6 +144,49 @@ involving three matrix products with matrices $!A_{II}$, $!A_{IL}$ and
 $!A_{LI}$ and to solve the system with $!A_{LL}$. As the matrix
 $!A_{LL}$ has no elements connecting unknowns in different processors
 the solution system may be computed very efficiently in parallel.
+
+\SSSection{Interface preconditioning} 
+
+\index{interface preconditioning} 
+\index{Schur matrix} 
+To improve convergence of the interface problem(\ref{eq:interfp}) some
+preconditioning can be introduced. As the interface matrix is never
+built, true Jacobi preconditioning (i.e. using the diagonal part of
+the Schur complement, $!P=\diag{\btA}$, where $!P$ is the
+preconditioning matrix), can not be used. However we can use the
+diagonal part of the interface matrix ($!P=\diag{!A_{II}}$) matrix or
+even the whole interface matrix ($!P=!A_{II}$). Using the diagonal
+preconditining helps to reduce bad conditioning due to refinement and
+inter-equation bad scaling.  If the whole interface matrix is used
+($!P=!A_{II}$) then the linear system $!A_{II}!w = !x$ has to be
+solved at each iteration. This can be done with a direct solver or
+iteratively. In the 2D case the connectivity of the interface matrix
+is 1D or 1D like, so that the direct option is possible. However in 3D
+the connectiviy is 2D like, and the direct solver is much more
+expensive. In addition the interface matrix is scattered among all
+processors. The iterative solution is much more appealing since the
+fact that the matrix is scattered among processors is not a
+problem. In addition the interface matrix is usually diagonally
+dominant, even when the whole matrix is not. For instance for the
+Laplace equation in 2D the stencil of the interface matrix on a planar
+interface in a homogeneous grid of step $h$ with bilinear quad
+elements is $[-1 8 -1]/3h^2$. Such matrix has a condition number which
+is independent of $h$ and is asymptotically $\kappa(A_{II}) = 5/3$. In
+the case of using triangular elements (by the way, this is equivalent
+to the finite difference case) the stencil is $[-1 4 -1]/2h^2$ whose
+condition number is $\kappa(A_{II}) = 3$. This low condition number
+also favors the use of an iterative method. However a disdvantage for
+the iterative solution is that non-stationary iterative solvers (i.e.,
+those where the next iteration $x^{k+1}$ doesn't depend only on the
+previous one: $x^{k+1} = f(x^k)$, like CG or GMRES) can not be nested
+inside other non-stationary method, unless the inner preconditioning
+loop is iterated to a very low error. This is because the conjugate
+gradient directions will lose orthogonality. But using a very low
+error bound for the preconditioning problem may be expensive so that
+non-stationary iterative methods are discarded. Then, the use of
+Richardson iteration is suggested. Sometimes this can diverge and some
+under-relaxation must be used. Options controlling iteration for the
+preconditioning problem can be found in section \S~\ref{sec:iisdopt}.
 
 \SSection{Implementation details of the IISD solver} 
 

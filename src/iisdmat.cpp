@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.19 2002/07/27 22:26:05 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.20 2002/07/28 16:45:46 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -63,12 +63,12 @@ PFPETScMat::PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_)
   // lgraph(&lgraph_dv), 
   A(NULL), P(NULL), factored(0), mat_size(MM) { 
   //o Choice representation of the profile graph. Possible values are:
-  // #0#: Adjacency graph classes
-  // based on STL map+set, demands too much memory, CPU time OK
-  // #1#: Based on dynamic vector of pair of indices with resorting,
+  // 0) Adjacency graph classes
+  // based on STL map+set, demands too much memory, CPU time OK.
+  // 1) Based on dynamic vector of pair of indices with resorting,
   // demands too much CPU time, RAM is OK
-  // #2#: For each vertex wee keep a linked list of cells containing the
-  // adjacent nodes. Each insertion is O(m^2) where `m' is the average
+  // 2) For each vertex wee keep a linked list of cells containing the
+  // adjacent nodes. Each insertion is $O(m^2)$ where $m$ is the average
   // number of adjacent vertices. This seems to be optimal for
   // FEM connectivities.
   TGETOPTDEF(GLOBAL_OPTIONS,int,use_compact_profile,LINK_GRAPH);
@@ -914,9 +914,3 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   }
   return 0;
 }
-
-/*
-  Local Variables: 
-  eval: (setq c-macro-preprocessor "/home/mstorti/PETSC/petscfem/tools/pfcpp")
-  End: 
-*/

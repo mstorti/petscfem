@@ -7,8 +7,8 @@
 % 2./ Be careful with calls to $!a$ for vector a. Sometimes if
 %     the material inside an equation is too simple latex2html may
 %     not process it.
-% 3./ Do not use the `algorithmic' environment. Latex2Html soen't like
-%     it. However you can use the `algorithm' environment.
+% 3./ Do not use the `algorithmic' and 'algorithm. environments.
+%     Latex2Html soen't like it. 
 % 4./ After adding documentation, please check that it process
 %     OK. That equation numbering is OK in the HTML output. Also that
 %     image processing in the generation of the manual is OK. 
@@ -16,22 +16,15 @@
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 %Section{
 %<: if (!$html) { :>
-\newif\ifpdf 
-\ifx\pdfoutput\undefined
-  \pdffalse % Not running PDFLaTeX 
-  \usepackage[dvips]{graphicx}
-  \def\EPSPDF{eps}
-\else
-  \pdfoutput=1 % Running PDFLaTeX 
-  \pdftrue 
-  \usepackage[pdftex]{graphicx} \pdfcompresslevel=9
-  \def\EPSPDF{pdf}
-\fi
+\newif\ifpdf \ifx\pdfoutput\undefined \pdffalse % Not running PDFLaTeX
+\usepackage[dvips]{graphicx} \def\EPSPDF{eps} \else \pdfoutput=1 %
+Running PDFLaTeX \pdftrue \usepackage[pdftex]{graphicx}
+\pdfcompresslevel=9 \def\EPSPDF{pdf} \fi
 %<: } else { :>
 \usepackage[dvips]{graphicx}
 \newcommand{\EPSPDF}{eps}
 %<: } :>
-%\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
+\usepackage{showkeys}   %__COMMENT_IN_FINAL_VERSION__
 \usepackage{makeidx}
 %\usepackage[dvips]{graphicx}
 %\usepackage[dvips]{changebar}
@@ -140,7 +133,8 @@
 \begin{document}
 \sloppy
 %
-\title{\pfem: A General Purpose, Parallel, Multi-Physics FEM Program.\\
+\title{\pfem: A General Purpose, Parallel, \\
+Multi-Physics FEM Program.\\
 User's Guide}
 \author{
 Mario Storti and N. Nigro\\ 
@@ -151,7 +145,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.14 2002/07/28 14:45:17 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.15 2002/07/28 16:45:42 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -181,7 +175,8 @@ keeping in mind the scope of efficiency.
 % \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+
+% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
 % \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
 % \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
