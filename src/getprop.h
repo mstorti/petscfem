@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: getprop.h,v 1.4 2001/05/30 03:58:50 mstorti Exp $
+//$Id: getprop.h,v 1.5 2001/06/29 16:34:57 mstorti Exp $
  
 
 #ifndef GETPROP_H
@@ -18,6 +18,11 @@
   int name##_indx = iprop; \
   ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, \
 		  #name,1); \
+
+#define DEFPROPN(name,n) \
+  int name##_indx = iprop; \
+  ierr = get_prop(iprop,elem_prop_names,thash,elprpsindx,propel, \
+		  #name,(n)); \
 
 #define USE_DEFAULT 1
 #define DONT_USE_DEFAULT 0
