@@ -4,3 +4,4 @@ PI*
 *.tmp
 STEPS*
 YUV*
+nohup*.log

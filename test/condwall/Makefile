@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.4 2005/03/29 04:01:36 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2005/03/29 12:47:01 mstorti Exp $ 
 
 default: condwall
 
-# BOPT = g_c++
+BOPT = O_c++
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
@@ -29,6 +29,16 @@ run: movwall.efn
 	make-depl $(CASE).epl $(CASE).depl
 	-${MPIRUN} $(MCH) -np $(NP) $(PROG) -case $(CASE).depl
 
+#w Makes some cleaning
+cw_shell_hook_init:
+	mkstepsdir.pl
+
+cw_shell_hook_pre:
+
+cw_shell_hook_post: zip
+
+cw_shell_hook_close:
+
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
 #w Runs PETSc-FEM instance for DX
 dx:
@@ -36,7 +46,7 @@ dx:
 	-${MPIRUN} -np 1 $(PROG) -case $(CASE)-dx.depl
 
 zip:
-	for f in STEPS/$(CASE).state_*.tmp ; \
+	@for f in STEPS/$(CASE).state_*.tmp ; \
 	do echo gzipping $$f ; gzip -f $$f ; done
 
 dx_make_command:

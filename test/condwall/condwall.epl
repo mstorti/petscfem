@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.4 2005/03/29 04:01:36 mstorti Exp $
+#$Id: condwall.epl,v 1.5 2005/03/29 12:47:01 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -35,9 +35,9 @@ nnwt 2
 lagrange_diagonal_factor 1e-6
 
 Krylov_dim 100
-print_internal_loop_conv 1
+# print_internal_loop_conv 1
 
-Dt 0.1
+Dt 0.01
 # steady
 
 #if 0
@@ -46,6 +46,7 @@ solver_system 0
 #endif
 
 ##<:add_hook('dl_generic_hook mov_wall'):>
+##<:add_hook('shell_hook cw_shell_hook'):>
 mov_wall.filename ./movwall.efn
 mov_wall.prefix mov_wall
 use_vector_resistance

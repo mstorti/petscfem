@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkcondwall.m,v 1.4 2005/03/29 04:01:36 mstorti Exp $
+## $Id: mkcondwall.m,v 1.5 2005/03/29 12:47:01 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -73,6 +73,8 @@ fic2 = fic2_base+(1:Ny+1)';
 ## Connectivities for the `cond_wall' elemeset
 icowall = [right1,left2,fic1,fic2];
 asave("condwall.condwall-con.tmp",icowall);
+
+asave("condwall.wall-nod.tmp",xnod(right1,:));
 
 asave("condwall.nod.tmp",xnod);
 asave("condwall.con.tmp",icone);
