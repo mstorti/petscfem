@@ -2467,3 +2467,7 @@ tag: beta-3.18.pl16 on Wed, 26 Feb 2003 11:17:17 -0300 by mstorti in spider
 tag: beta-3.18.pl17 on Thu, 27 Feb 2003 00:32:54 -0300 by mstorti in spider
      > `Cloud2' computes approximations for first derivatives
      > in a regular mesh. 
+----------
+tag: beta-3.18.pl18 on Fri, 28 Feb 2003 13:18:09 -0300 by mstorti in spider
+     > Added coef(x,w) (x0=0 by default.
+     > Added a test for x0=0 and x0!=0. 
