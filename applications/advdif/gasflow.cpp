@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.29 2005/02/16 20:07:45 mstorti Exp $
+//$Id: gasflow.cpp,v 1.30 2005/02/19 16:36:54 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -438,27 +438,28 @@ void gasflow_ff::compute_flux(const FastMat2 &U,
 
   if (LES) {
     advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
-    assert(advdf_e);
+    if (advdf_e) {
 #define pi M_PI
-    double Volume = advdf_e->volume();
-    int axi = advdf_e->axi;
-    double h_grid;
-
-    if (ndim==2 | (ndim==3 && axi>0)) {
-      h_grid = sqrt(4.*Volume/pi);
-    } else if (ndim==3) {
-      h_grid = cbrt(6*Volume/pi);
-    } else {
-      PetscPrintf(PETSC_COMM_WORLD,
-		  "Only dimensions 2 and 3 allowed for this element.\n");
+      double Volume = advdf_e->volume();
+      int axi = advdf_e->axi;
+      double h_grid;
+      
+      if (ndim==2 | (ndim==3 && axi>0)) {
+	h_grid = sqrt(4.*Volume/pi);
+      } else if (ndim==3) {
+	h_grid = cbrt(6*Volume/pi);
+      } else {
+	PetscPrintf(PETSC_COMM_WORLD,
+		    "Only dimensions 2 and 3 allowed for this element.\n");
+      }
+      double strain_rate_abs = strain_rate.sum_square_all();
+      
+      strain_rate_abs = sqrt(strain_rate_abs);
+      double nu_t = C_smag*strain_rate_abs*h_grid*h_grid;
+      visco_t = rho*nu_t;
+      double Cp = ga*Cv;
+      cond_t = Cp*visco_t/Pr_t;
     }
-    double strain_rate_abs = strain_rate.sum_square_all();
-
-    strain_rate_abs = sqrt(strain_rate_abs);
-    double nu_t = C_smag*strain_rate_abs*h_grid*h_grid;
-    visco_t = rho*nu_t;
-    double Cp = ga*Cv;
-    cond_t = Cp*visco_t/Pr_t;
   }
 
   // Sutherland law for thermal correction of laminar viscosity
