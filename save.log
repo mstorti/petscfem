@@ -4169,3 +4169,6 @@ tag: beta-3.43.43 on Wed, 02 Mar 2005 20:16:17 -0300 by mstorti in spider
 ----------
 tag: beta-3.43.44 on Wed, 02 Mar 2005 20:26:44 -0300 by mstorti in spider
      > Making `project' a library for later wrapping with Scheme.
+----------
+tag: beta-3.43.45 on Tue, 08 Mar 2005 22:29:36 -0300 by mstorti in spider
+     > Writing a routine `nod_area()' that computes the area of the nodes. 
