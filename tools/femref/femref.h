@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.23 2004/11/23 12:37:30 mstorti Exp $
+// $Id: femref.h,v 1.24 2004/11/23 13:05:37 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -78,6 +78,7 @@ public:
   };
   virtual void set(iterator it,GeomObject &go)=0;
   virtual iterator find(GeomObject &go)=0;
+  virtual void find(GeomObject &go,list<iterator> &its)=0;
   virtual void get_adjacency(iterator it,GeomObject::Type t,
 			     list<iterator> &adj)=0;
   virtual bool is_end(iterator it)=0;
@@ -93,6 +94,7 @@ private:
   LinkGraph lgraph;
   int nnod, nelem, nel;
   const GeomObject::Template *tmpl;
+  void find(GeomObject &go,list<iterator> *its,iterator &it);
 
 public:
   UniformMesh(GeomObject::Template &tmpl_a,int ndim_a) 
@@ -144,6 +146,7 @@ public:
   
   void set(iterator it,GeomObject &go);
   iterator find(GeomObject &go);
+  void find(GeomObject &go,list<iterator> &its);
   void get_adjacency(iterator it,GeomObject::Type t,
 		     list<iterator> &adj) { }
   bool is_end(iterator it) { 

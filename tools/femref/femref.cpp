@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.15 2004/11/23 12:37:30 mstorti Exp $
+// $Id: femref.cpp,v 1.16 2004/11/23 13:05:37 mstorti Exp $
 
 #include <string>
 #include <limits.h>
@@ -262,8 +262,25 @@ void UniformMesh::set(iterator it,GeomObject &go) {
   go.init(it.t,so_nodes.buff());
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void 
+UniformMesh::find(GeomObject &go,list<iterator> &its) {
+  iterator it;
+  its.clear();
+  find(go,&its,it);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 Mesh::iterator 
 UniformMesh::find(GeomObject &go) { 
+  iterator it;
+  find(go,NULL,it);
+  return it;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void UniformMesh::
+find(GeomObject &go,list<iterator> *its,iterator &it) {
   int sz = go.size();
   assert(sz>0);
   dvector<int> p, pe, vals;
@@ -277,7 +294,6 @@ UniformMesh::find(GeomObject &go) {
     pe.e(j) = n2e_ptr.e(node+1);
     assert(pe.e(j)>p.e(j));
   }
-  bool found = false, done = false;
 #if 1
   for (int j=0; j<sz; j++) {
     printf("ngbrs elems for node %d: ",nodes_p[j]);
@@ -287,7 +303,7 @@ UniformMesh::find(GeomObject &go) {
     printf("\n");
   }
 #endif
-  while (!done) {
+  while (1) {
     // Search for min and max elements
     printf("elems in ptrs: ");
     for (int j=0; j<sz; j++) {
@@ -307,16 +323,20 @@ UniformMesh::find(GeomObject &go) {
       GeomObject super(tmpl->type,&connec.e(emin,0));
       indx = super.find(go);
       if (indx>=0) {
-	found = true;
-	return iterator(emin,go.type(),indx);
+	if (!its) {
+	  it = iterator(emin,go.type(),indx);
+	  return;
+	} else {
+	  its->push_back(iterator(emin,go.type(),indx));
+	}
       }
     } 
     for (int j=0; j<sz; j++) {
       int pp = p.e(j);
       if (n2e.e(pp) == emin) {
 	if (++p.e(j) >= pe.e(j)) {
-	  done = true;
-	  return iterator();
+	  if (!its) it = iterator();
+	  return;
 	} 
       }
     }
@@ -365,14 +385,30 @@ int main() {
   mesh.read("tetra.nod","tetra.con");
   GeomObject go;
   Mesh::iterator it;
+  list<Mesh::iterator> its;
   for (int j=0; j<5; j++) {
     for (int k=0; k<4; k++) {
       it.set(j,GeomObject::OrientedTriT,k);
       mesh.set(it,go);
       go.print();
+#if 0
       it = mesh.find(go);
       if (mesh.is_end(it)) printf("not found\n");
       else printf("found at elem %d, position %d\n",it.obj,it.subobj);
+#else
+      mesh.find(go,its);
+      if (its.begin()==its.end()) 
+	printf("not found\n");
+      else {
+	printf("found at: ");
+	list<Mesh::iterator>::iterator q = its.begin();
+	while (q!=its.end()) {
+	  printf("(elem %d, position %d) ",q->obj,q->subobj);
+	  q++;
+	}
+	printf("\n");
+      }
+#endif
     }
   }
 }
