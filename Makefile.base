@@ -61,7 +61,7 @@ libpetscfem: force
 
 local_depend: force 
 ifneq ($(SRCS),)
-	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > makefile.d
+	${CXX} -M  ${CFLAGS} ${CCPPFLAGS} $(SRCS) > makefile.d 
 endif
 
 #w Creates the dependency file makefile.d
