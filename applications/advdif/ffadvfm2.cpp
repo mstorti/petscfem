@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ffadvfm2.cpp,v 1.39 2001/05/25 15:14:50 mstorti Exp $
+//$Id: ffadvfm2.cpp,v 1.40 2001/05/27 23:25:38 mstorti Exp $
 
 #include <stdio.h>
 #include <string.h>
@@ -15,6 +15,8 @@
 #include "../../src/fastmat2.h"
 
 #include "nwadvdif.h"
+
+virtual NewAdvDifFF:;~NewAdvDifFF() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

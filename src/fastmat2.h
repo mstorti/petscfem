@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: fastmat2.h,v 1.5 2001/05/27 17:14:47 mstorti Exp $
+//$Id: fastmat2.h,v 1.6 2001/05/27 23:26:01 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -199,6 +199,11 @@ public:
 class FastMatCacheList;
 typedef pair<FastMatCacheList *,int> FastMatCachePosition;
 
+class FastMatSubCache {
+public:
+  virtual ~FastMatSubCache()=0;
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class FastMatCache {
 public:
@@ -214,6 +219,7 @@ public:
   int nlines,line_size;
   vector<FastMatCacheList *> branch;
   Matrix *A,*B;
+  FastMatSubCache *sc;
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -845,6 +851,8 @@ public:
       @return the determinant of the matrix.
    */ 
   double det(void) const;
+
+  double detsur();
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** The inverse of a matrix. {\tt (*this) = inverse of A}

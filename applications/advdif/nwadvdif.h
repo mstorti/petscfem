@@ -309,6 +309,7 @@ public:
   ScalarDifPerField scalar_dif_per_field;
 
   newadvecfm2_ff_t(NewElemset *elemset);
+  newadvecfm2_ff_t(NewElemset *elemset);
   void start_chunk(int &ret_options);
   void element_hook(ElementIterator &element);
   void compute_flux(COMPUTE_FLUX_ARGS);

@@ -2,7 +2,7 @@
 //<=$warn_dont_modify //>
 
 //__INSERT_LICENSE__
-//$Id: fmat2ep.cpp,v 1.4 2001/05/27 17:14:47 mstorti Exp $
+//$Id: fmat2ep.cpp,v 1.5 2001/05/27 23:26:01 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1324,6 +1324,42 @@ FastMat2 & FastMat2::eye(const double a=1.) {
 _//>
 
 //< print template_subst($eye); //>//
+
+class detsur_cache : public FastMatSubCache {
+public:
+  FastMat2 g;
+  int m,n;
+  ~detsur_cache() {};
+};
+
+//<$detsur=<<'//EOF';
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double FastMat2::detsur() {
+  __CACHE_OPERATIONS__;
+
+  detsur_cache * dsc;
+  if (!was_cached) {
+    Indx fdims;
+    get_dims(fdims);
+    assert(fdims.size()==2);
+
+    dsc = new detsur_cache();
+    dsc->n = dim(2);
+    dsc->m = dim(1);
+    dsc->g.resize(2,dsc->m,dsc->m);
+    cache->sc = dsc;
+  }
+
+  dsc = dynamic_cast<detsur_cache *> (cache->sc);
+  if (dsc->m == 0) return 1.;
+  dsc->g.prod(*this,*this,1,-1,2,-1);
+  return sqrt(dsc->g.det());
+
+}
+//EOF
+_//>
+
+//< print template_subst($detsur); //>//
 
 //<=$warn_dont_modify //>
 

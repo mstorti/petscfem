@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.11 2001/05/27 17:13:49 mstorti Exp $
+//$Id: genload.cpp,v 1.12 2001/05/27 23:25:38 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -44,6 +44,7 @@ int GenLoad::ask(const char *jobinfo,int &skip_elemset) {
    return 0;
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "double detsur(FastMat2 &Jaco, FastMat2 &S)"
@@ -56,6 +57,7 @@ double detsur(FastMat2 &Jaco, FastMat2 &S) {
   g.prod(Jaco,Jaco,1,-1,2,-1);
   return sqrt(g.det());
 }
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -192,7 +194,8 @@ void GenLoad::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       xloc.rs();
       // detJ = mydetsur(Jaco,S);
-      detJ = detsur(Jaco,S);
+      // detJ = detsur(Jaco,S);
+      detJ = Jaco.detsur();
 
       U_in.prod(SHAPE,u_in,-1,-1,1);
       if (double_layer) {

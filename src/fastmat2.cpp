@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.4 2001/05/27 17:14:47 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.5 2001/05/27 23:26:01 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -353,6 +353,9 @@ FastMat2 & FastMat2::reshape(const int ndims, INT_VAR_ARGS) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMatSubCache::~FastMatSubCache() {};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMat2 & FastMat2::resize(const int ndims, INT_VAR_ARGS) {
 
   // This can't be cached
@@ -656,6 +659,7 @@ FastMatCache::FastMatCache() {
   line_cache_start=NULL;
   A=NULL;
   B=NULL;
+  sc=NULL;
 
   nelems=0;
   nlines=0;
@@ -664,11 +668,10 @@ FastMatCache::FastMatCache() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 FastMatCache::~FastMatCache() {
-  if (A) delete A;
-  if (B) delete B;
+  delete A;
+  delete B;
+  delete sc;
 }
-
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #if 0

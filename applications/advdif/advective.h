@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-//$Id: advective.h,v 1.33 2001/05/25 21:29:09 mstorti Exp $
+//$Id: advective.h,v 1.34 2001/05/27 23:25:38 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -271,6 +271,8 @@ public:
   */ 
   virtual void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
 			  FastMat2 &N,double w)=0;
+
+  virtual ~NewAdvDifFF()=0;
   //@}
 };
 
@@ -288,7 +290,7 @@ public:
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
     adv_diff_ff(adv_diff_ff_) {};
   /// Destructor. Destroys the flux function object. 
-  ~NewAdvDif() {if (adv_diff_ff) delete adv_diff_ff;}
+  ~NewAdvDif() {delete adv_diff_ff;}
   /// The assemble function for the elemset. 
   NewAssembleFunction new_assemble;
   /// The ask function for the elemset. 
