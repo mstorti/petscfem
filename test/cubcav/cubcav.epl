@@ -15,11 +15,11 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 50;			# Number of elements per dimension
+$N = 60;			# Number of elements per dimension
 $hratio = 5;			# refinement (h_center/h_wall)
 $Re = 1000;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = ($case eq 'laplace' ? 10 : 0.01);# time step
+$Dt = ($case eq 'laplace' ? 1 : 0.01);# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
@@ -57,7 +57,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
     $solver = "iisd";
     $iisd_subpart = 60;
     $maxits = 200;
-    $nstep = 3;
+    $nstep = 1;
     $preco_type = "jacobi";
 } elsif ($case eq 'big') {
     $N = 40;
@@ -126,7 +126,7 @@ print_internal_loop_conv 1
 
 #print_nodal_partitioning 1
 Dt <:=$Dt:>
-steady <:=($case eq 'laplace' ? 0 : 1):>
+steady 0
 temporal_stability_factor 0
 
 shock_capturing_factor 0

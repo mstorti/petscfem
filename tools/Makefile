@@ -59,4 +59,8 @@ odoc.txt: odoc.pl
 makewhat.1: makewhat.pl
 makewhat.txt: makewhat.pl
 
+#w Hexasplit program splits a mesh of hexas in tetras
+hexasplit: hexasplit.cpp
+	g++ -o $@ -O2 $<
+
 #s

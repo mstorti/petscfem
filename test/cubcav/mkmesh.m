@@ -31,7 +31,7 @@ endif
 asave("cubcav.nod.tmp",x3);
 asave("cubcav.con.tmp",i3);
 if use_tetra
-  system("../../tools/hexasplit -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
+  system("../../tools/hexasplit.bin -i cubcav.con.tmp -o cubcav.con-tetra.tmp");
 endif
 
 

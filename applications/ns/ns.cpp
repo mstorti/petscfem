@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.86 2002/07/01 00:12:22 mstorti Exp $
+//$Id: ns.cpp,v 1.87 2002/07/14 01:18:06 mstorti Exp $
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
 #include <src/debug.h>
@@ -94,6 +94,7 @@ int main(int argc,char **args) {
 
   // File to send forces and moments to "PFM"
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,petscfem2pfm_file,);
+  TGETOPTDEF(GLOBAL_OPTIONS,int,petscfem2pfm_verbose,0);
   FILE *petscfem2pfm=NULL;
   if (petscfem2pfm_file != "") {
     petscfem2pfm = fopen(petscfem2pfm_file.c_str(),"w");
@@ -628,11 +629,12 @@ int main(int argc,char **args) {
 	}
 	if (petscfem2pfm) {
 	  assert(ngather>=6);
-	  printf("sending to PFM: time %f, forces %f %f %f\n",
-		  time.time(),gather_values[0],gather_values[1],gather_values[2]);
-	  printf("sending to PFM: moments %f %f %f\n",
-		  gather_values[3],gather_values[4],gather_values[5]);
-
+	  if (petscfem2pfm_verbose) {
+	    printf("sending to PFM: time %f, forces %f %f %f\n",
+		   time.time(),gather_values[0],gather_values[1],gather_values[2]);
+	    printf("sending to PFM: moments %f %f %f\n",
+		   gather_values[3],gather_values[4],gather_values[5]);
+	  }
 	  fprintf(petscfem2pfm,"time %e\n",time.time());
 	  fprintf(petscfem2pfm,"forces %e %e %e\n",
 		  gather_values[0],gather_values[1],gather_values[2]);
