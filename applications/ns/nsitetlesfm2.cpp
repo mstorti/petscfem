@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.19 2001/07/11 21:48:25 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.20 2001/07/20 11:35:57 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -178,7 +178,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     p_star,wpgdet,velmod,tol,h_supg,fz,delta_supg,Uh;
 
   FastMat2 P_supg, W_supg, W_supg_t, dmatw,
-    grad_div_u(4,nel,ndim,nel,ndim);
+    grad_div_u(4,nel,ndim,nel,ndim),P_pspg(2,ndim,nel);
   double *grad_div_u_cache;
   int grad_div_u_was_cached;
 
@@ -186,7 +186,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   FMatrix dshapex,dshapext,Jaco(ndim,ndim),iJaco(ndim,ndim),
     grad_u(ndim,ndim),grad_u_star,strain_rate(ndim,ndim),resmom(nel,ndim),
-    dresmom(nel,ndim),matij(ndof,ndof),Uintri,P_pspg,svec;
+    dresmom(nel,ndim),matij(ndof,ndof),Uintri,svec;
 
   FMatrix grad_p_star(ndim),u,u_star,du,
     uintri(ndim),rescont(nel),dmatu(ndim),ucols,ucols_new,
@@ -323,6 +323,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
+    FastMat2::deactivate_cache();
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
@@ -337,7 +338,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       wpgdet = detJaco*WPG;
       iJaco.inv(Jaco);
       dshapex.prod(iJaco,DSHAPEXI,1,-1,-1,2);
-      dshapex_c.set(dshapex);
+      // dshapex_c.set(dshapex);
 
       double Area   = npg*wpgdet;
       double h_pspg,Delta;
@@ -367,6 +368,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	p_star = double(tmp8.prod(SHAPE,pcol_star,-1,-1));
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
+
 
 	grad_u.prod(dshapex,ucols,1,-1,-1,2);
 	grad_u_star.prod(dshapex,ucols_star,1,-1,-1,2);
@@ -472,7 +474,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #else
 	dmatu.prod(u,grad_u_star,-1,-1,1);
 #endif
-
+	
 	du.set(u_star).rest(u);
 	dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
@@ -570,6 +572,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
 
     }
+    FastMat2::activate_cache();
 
     if(comp_mat) {
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
