@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.8 2002/09/29 18:28:04 mstorti Exp $
+//$Id: nssupg.cpp,v 1.9 2002/09/30 21:45:32 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -39,13 +39,16 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   //o Add LES for this particular elemset.
   GGETOPTDEF(int,LES,0);
   assert(!LES);
-  //o This factor scales the temporal derivative term
-  // int the free surface equation $w = f \dot p$ equation,
-  // so that for $f=0$ we recover the slip boundary
-  // condition $w=0$. 
+  //o $\Cnst{eq}$=\alltt{fs_eq_factor} (see doc for {\tt
+  // free\_surface\_damp} option) is a factor that scales the free
+  // surface ``rigidity''. $\Cnst{eq}=1$ (which is the default) means
+  // no scaling, a zero value means infinitely rigid (as for an
+  // inifinite gravity).
   TGETOPTDEF(thash,double,fs_eq_factor,1.);
-  //o Scales a diffusion term on the surface that
-  // tends to smooth the free surface equation. 
+  //o $\Cnst{lf}=$\altt{free\_surface\_set\_level\_factor} tries to
+  // keep the free surface level constant by adding a term $\propto
+  // \bar\eta$ to the free surface level.  (see doc //for {\tt
+  // free\_surface\_damp}})
   TGETOPTDEF(thash,double,free_surface_damp,0.);
   //o This adds a $\Cnst{lf}\eta$ term in the free surface equation
   // in order to have the total meniscus volume constant. 

@@ -1,4 +1,4 @@
-r$Id: notes.txt,v 1.182 2002/09/30 14:16:07 mstorti Exp $
+r$Id: notes.txt,v 1.183 2002/09/30 21:45:28 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.182 2002/09/30 14:16:07 mstorti Exp $ 
+! # $Id: notes.txt,v 1.183 2002/09/30 21:45:28 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.182 2002/09/30 14:16:07 mstorti Exp $ 
+! # $Id: notes.txt,v 1.183 2002/09/30 21:45:28 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.182 2002/09/30 14:16:07 mstorti Exp $ 
+  # $Id: notes.txt,v 1.183 2002/09/30 21:45:28 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5371,6 +5371,30 @@ manual de `ld':
 >      linking the program itself.
 %
 11:13:26: Compruebo que pierde igual. 
+%
+11:37:39: Corre todos los ejemplos en `test/aquifer' (que tiene varios
+casos con funciones dinamicas (.efn). 
+%
+11:49:00: Pierde tambien para cubcav. Voy a probar a recuperar
+versiones viejas para ver cuando empezo a perder. 
+%
+13:34:08: Con la version estable 3.05 tambien pierde!!
+%
+14:09:22: Pruebo con el programa de prueba `pfmat.cpp' en `test/pfmat'
+y tambien pierde. Asi que debe ser algo relacionado con `pfmat' en
+PETSc (ya que el LeakTracer no lo detecta). Ahora voy a probar con la
+3.03 que fue antes de hacer la migracion a PETSc 2.1.3. Efectivamente
+con la 3.03 parece no perder. 
+%
+14:48:09: Con la 3.03.pl16 tampoco parece perder. Verifico nuevamente
+que con la actual (beta-3.05.pl13) pierde. Ahora voy a probar con la
+3.04. 
+%
+16:38:13: La `beta-3.04' tambien pierde. 
+%
+17:08:08: Corre la 3.04 con `-log_summary' y no detecta ninguna
+perdida de memoria (no constante). Voy a probar a correr asi la
+actual. 
 
 
 %# Current line ===========  

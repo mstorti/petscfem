@@ -94,11 +94,9 @@ means: take $w=0.5$ for the first 3 steps, and then use $w=1$.
 %end_section
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
-%section print_some
+%section free_surface_damp
 \label{sec:free_surface}
-
-\def\Cnst#1{C_{\mathrm{#1}}}
-The equation of the free surface is 
+The equation of the free surface is
 %
 \begin{equation} 
 \dtots\eta t = w
@@ -110,29 +108,18 @@ surface. We modify this as follows
 %
 \begin{equation} \label{eq:fsmod}  
 \Cnst{eq}\,\dtotd\eta t 
-   + \Cnst{lf} \eta + \Cnst{damp} \, \Delta \eta = w
+   + \Cnst{lf} \bar{\eta} + \Cnst{damp} \, \Delta \eta = w
 \end{equation}
 %
-Where
-%
-\begin{itemize}
-\item $\Cnst{damp}=\alltt{free_surface_damp}$ smoothes the free
-surface adding a Laplacian filter. Note that if only the temporal
-derivative and the Laplace term are present in (\ref{eq:fsmod}) then
-the equation is a heat equation. A null value (which is the default)
-means no filtering. A high value means high filtering. (Warning: A
-high value may result in unstability).  $\Cnst{damp}$ has dimensions
-of $L^2/T$ (like a diffusivity). One possibility is to scale with mesh
-parameters like $h^2/\Delta t$, other is to scale with $h^1.5 \,
+Where $\bar\eta$ is the average value of eta on the free surface, and:
+$\Cnst{damp}=\alltt{free_surface_damp}$ smoothes the free surface
+adding a Laplacian filter.  Note that if only the temporal derivative
+and the Laplace term are present in (\ref{eq:fsmod}) then the equation
+is a heat equation. A null value (which is the default) means no
+filtering. A high value means high filtering. (Warning: A high value
+may result in unstability).  $\Cnst{damp}$ has dimensions of $L^2/T$
+(like a diffusivity). One possibility is to scale with mesh parameters
+like $h^2/\Delta t$, other is to scale with $h^1.5 \,
 g^0.5$. Currently, we are using $\Cnst{damp} = \Cnst{damp}' h^1.5 *
 g^0.5$ with $\Cnst{damp}'\approx 2$.
-
-\item $\Cnst{eq}=\alltt{fs_eq_factor}$ (see doc for this option) is a
-factor that scales the free surface 
-``rigidity''. $\Cnst{eq}=1$ (which is the default) means no scaling, a
-zero value means infinitely rigid (as for an inifinite gravity). 
-
-\item clf=free_surface_set_level_factor# (see doc for that option) tries to
-keep the free surface level constant.
-
 %end_section
