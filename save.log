@@ -10,3 +10,6 @@ tag: beta-3.20.pl3 on Mon, 08 Sep 2003 07:20:55 -0300 by mstorti in spider
 ----------
 tag: beta-3.20.pl4 on Mon,  8 Sep 2003 12:18:15 -0300 by mstorti in node1.beowulf.gtm
      > Added simple error handling in elemset. 
+----------
+tag: beta-3.20.pl5 on Mon,  8 Sep 2003 16:59:54 -0300 by mstorti in node1.beowulf.gtm
+     > Fixed disconnected graph bug.
