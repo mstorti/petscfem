@@ -445,11 +445,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  matlocf.add(tmp20);
 
           // Reactive term in matrix (SUPG term)
-#if 0
-          tmp26.set(P_supg).scale(wpgdet*ALPHA);
-          tmp27.prod(SHAPE,C_jac,1,2,3); // tmp27 = SHAPE * C_jac 
-	  tmp28.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * SHAPE
-#endif
 	  adv_diff_ff->comp_N_P_C(N_P_C,P_supg,SHAPE,wpgdet*ALPHA);
 	  matlocf.add(N_P_C);
 

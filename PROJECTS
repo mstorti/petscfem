@@ -3,9 +3,9 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
+* Scripting interface with SWIG or GUILE.
 * Make Makefile not that verbose. 
 * Read data with a 'bison' generated parser
-* Add a 'mass' to 'advdife' (non conservative?)
 * In TextHashTable: Print a warning if some option is not used and a
   doc when an option was got the first time. 
 * Use a more consistent system for reporting errors and
@@ -39,6 +39,7 @@ PROJECTS: [These are new improvements to be done in a future...]
 DONE:
 =====
 
+* Add a 'mass' to 'advdife' (non conservative?)
 * Fix Makefile in ./doc (it repeats many times the rules)
 * Access connectivities and properties for elements as methods of the
       elemset. 
@@ -56,7 +57,6 @@ DONE:
 * Write doc for LES.
 * Write doc for new features in TextHashTable
 * Fix bug when an option is a string and there are trailing spaces
-* Scripting interface with SWIG. [NOT DONE}
 * Include a call to Visual3. [NOT DONE}
 * add the "father" and "include" feature for the hashes
 * Introduce features in order to process LES
