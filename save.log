@@ -1997,3 +1997,6 @@ tag: beta-3.13 on Thu, 26 Dec 2002 11:36:50 -0300, by mstorti in minerva.arcride
      > Now can have more general constraints and fixations. 
      > Runs OK plate with coupling with exterior potential solution 
      > with relaxation. 
+----------
+tag: beta-3.13.pl1 on Thu, 26 Dec 2002 13:23:33 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs OK all tests with BOPT=O_c++
