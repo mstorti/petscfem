@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#__INSERT_LICENSE__
 
 open SAL,"salida.sal";
 open ID,">id.dat";

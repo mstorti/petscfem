@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#__INSERT_LICENSE__
 
 $pattern=shift();
 $license_file=shift();
@@ -25,7 +26,7 @@ rename $file,"$file~";
 open INFILE,"$file~";
 open OUTFILE,">$file";
 while (<INFILE>) {
-    if (m|$pattern|) {
+    if (m|$pattern| && !/__NO_INSERT__/) {
 	print OUTFILE @license;
     } else {
 	print OUTFILE $_;
@@ -33,4 +34,8 @@ while (<INFILE>) {
 }
 close INFILE;
 close OUTFILE;
+
+@l=stat("$file~");
+chmod $l[2],$file;
+
 unlink "$file~";

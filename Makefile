@@ -1,5 +1,7 @@
+# mode: -*- makefile -*-
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.20 2001/04/01 03:10:39 mstorti Exp $ 
+#$Id: Makefile,v 1.21 2001/04/01 04:46:39 mstorti Exp $
+
 SHELL = /bin/bash
 
 .PHONY: all run lclean save libpetscfem ns adv laplace doc newdepend tags \
@@ -40,10 +42,26 @@ applications:
 #w Builds a package + doc + applications 
 distrib: license sw finaldoc pflib applications
 
+C_LICENSE_FILE = tools/license.c
+SCRIPT_LICENSE_FILE = tools/license.script
+TEX_LICENSE_FILE = tools/license.tex
+
 #w Includes license in all .cpp and .h files
 license:
-	find . -type f -name '*.cpp' -print0 | xargs -0 -e \
-		$(INSERT_LICENSE) '__INSERT_LICENSE__' $(CPP_LICENSE_FILE)
+	find . -type f -name '*.cpp' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(C_LICENSE_FILE)
+	find . -type f -name '*.h' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(C_LICENSE_FILE)
+	find . -type f -name '*.y' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(C_LICENSE_FILE)
+	find . -type f -name 'Makefile*' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE)
+	find . -type f -name '*.m' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE)
+	find . -type f -name '*.pl' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE)
+	find . -type f -name '*.tex' -print0 | xargs -0 -n 1 -e \
+		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(TEX_LICENSE_FILE)
 
 #w Uncomments \input lines for partial processing and then makes doc
 finaldoc:

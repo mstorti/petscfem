@@ -1,3 +1,5 @@
+#__INSERT_LICENSE__
+
 # usage: expect($file,$pattern);
 #Advances $file until finds a little of "\n" delimited $pattern's. 
 $DEBUG_EXPECT = 0;

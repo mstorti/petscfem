@@ -1,5 +1,5 @@
-<:$version=`cat ../VERSION`; chomp $version; :>
 %        -*- mode: text -*-
+<:$version=`cat ../VERSION`; chomp $version; :>
 This is the README file for PETSc-FEM in POD (Plain Old Documentation)
 format (this is the standard embedding doc system in the Perl world).
 It can be converted to text, latex and html with specific conversion

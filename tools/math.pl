@@ -1,3 +1,4 @@
+#__INSERT_LICENSE__
 #
 # Some useful definitions for use with ePerl
 #

@@ -1,3 +1,5 @@
+#__INSERT_LICENSE__
+
 sub pp {
     my $a = shift();
     my $b = shift();

@@ -1,5 +1,4 @@
 #__INSERT_LICENSE__
-#__INSERT_LICENSE__
 .PHONY: all
 
 scripts = odoc.pl makewhat.pl
@@ -12,6 +11,26 @@ all: $(scripts:pl=1) $(scripts:pl=txt)
 PETSCFEM_DIR = ..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
+
+#w license for makefiles and scripts
+license.script: license.txt
+	perl -p -e 's/^/\#  /' license.txt >$@
+	echo >>$@
+	echo >>$@
+
+#w license for C and C++
+license.c: license.txt
+	echo '/*' >$@
+	perl -p -e 's/^/  /' license.txt >> $@
+	echo '*/' >>$@
+	echo >>$@
+	echo >>$@
+
+#w license for C and C++
+license.tex: license.txt
+	perl -p -e 's/^/%  /' license.txt >> $@
+	echo >>$@
+	echo >>$@
 
 #w Builds man page from POD documentation in <script>.pl
 #e <script>.1

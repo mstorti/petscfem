@@ -1,5 +1,5 @@
-#__INSERT_LICENSE__
 # -*- mode: makefile -*-
+#__INSERT_LICENSE__
 LAPLACE = $(PETSCFEM_DIR)/applications/laplace/laplace.bin
 NS    = $(PETSCFEM_DIR)/applications/ns/ns.bin
 NS_STBL    = $(PETSCFEM_DIR)/../petscfem/applications/ns/ns.bin

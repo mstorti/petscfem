@@ -1,3 +1,5 @@
+#__INSERT_LICENSE__
+
 require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
 #print "# PETSCFEM_DIR: $ENV{'PETSCFEM_DIR'}\n";
 

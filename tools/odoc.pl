@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#__INSERT_LICENSE__
 
 @odoc=();
 

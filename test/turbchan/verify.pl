@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+#__INSERT_LICENSE__
 
 open OUT,"turbchan.out";
 while (<OUT>) {
