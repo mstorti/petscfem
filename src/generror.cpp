@@ -1,12 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: generror.cpp,v 1.3 2003/12/06 16:00:25 mstorti Exp $
+// $Id: generror.cpp,v 1.4 2004/11/17 23:41:02 mstorti Exp $
 
 #include <string>
 
 using namespace std;
 
 #include <petsc.h>
-#include <src/generror.h>
 #include <src/generror.h>
 #include <src/autostr.h>
 
