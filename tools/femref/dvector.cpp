@@ -61,7 +61,6 @@ DVECTOR_RESHAPE_FUN(SCM s_w,SCM s_shape) {
   dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
   vector<int> shape;
   scmlist2vec(s_shape,shape);
-  printf("rank %d\n",shape.size());
   w->reshape(shape);
   return SCM_UNSPECIFIED;
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.28 2005/01/17 03:45:45 mstorti Exp $
+// $Id: getsurf.cpp,v 1.29 2005/01/17 15:43:26 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -192,6 +192,8 @@ void getsurf(GetSurfCtx &ctx,
     }
     surf_elem++;
   }
+  printf("surf-con shape %d, %d\n",
+	 surf_con.size(0),surf_con.size(1));
 }
 
 void 
@@ -265,6 +267,8 @@ comp_matrices(GetSurfCtx &ctx,
 void 
 elem2nod_proj(GetSurfCtx &ctx,
 	      const dvector<int> &icone,
+	      const dvector<double> &elem_mass,
+	      const dvector<double> &node_mass,
 	      const dvector<double> &ue,
 	      dvector<double> &un) {
 #if 0
@@ -273,45 +277,43 @@ elem2nod_proj(GetSurfCtx &ctx,
   printf("ue shape %d, %d\n",
 	 ue.size(0),ue.size(1));
 #endif
-#if 0
-  int nfaces = icone.size(0);
-  assert(ue.size(0)==nfaces);
+#if 1
+  assert(icone.rank()==2);
+  int nelem = icone.size(0);
+  int nel = icone.size(1);
+  assert(ue.size(0)==nelem);
   int ndof = ue.size(1);
-  un.clear();
+  assert(un.rank()==2);
+  assert(un.size(1)==ndof);
+  int nnod = un.size(0);
   
-  for (int jface=0; jface<nfaces; jface++) {
-    double nod_area = elem_mass.ref(jface)/double(face_nel);
-    for (int j=0; j<face_nel; j++) {
-      int node = surf_con.e(jface,j);
-      if (jiter==0) node_mass.ref(node) += nod_area;
-      double 
-	*to = &us.e(node,0),
-	*from = &ue.e(jface,0);
-      for (int k=0; k<ndim*ndof; k++) 
+  for (int jface=0; jface<nelem; jface++) {
+    double nod_area = elem_mass.ref(jface)/double(nel);
+    for (int j=0; j<nel; j++) {
+      int node = icone.e(jface,j);
+      double *to = &un.e(node,0);
+      const double *from = &ue.e(jface,0);
+      for (int k=0; k<ndof; k++) 
 	to[k] += from[k]*nod_area;
     }
   }
-  for (int node=0; node<nsurf_nodes; node++) {
+  for (int node=0; node<nnod; node++) {
     double nod_area = node_mass.ref(node);
-    for (int k=0; k<ndim*ndof; k++) 
-      us.e(node,k) /= nod_area;
+    for (int k=0; k<ndof; k++) 
+      un.e(node,k) /= nod_area;
   }
 #endif
 }
 
 void 
 fem_smooth(GetSurfCtx &ctx,
-	   const dvector<int> &surf_con,
+	   const dvector<int> &surf_cono,
 	   const dvector<double> &elem_mass,
 	   const dvector<double> &node_mass,
 	   const dvector<double> &u,
 	   dvector<double> &us,
 	   int niter,
 	   int verbose) {
-
-  printf("surf_con shape %d, %d\n",
-	 surf_con.size(0),surf_con.size(1));
-  printf("niter %d, verbose %d\n",niter,verbose);
 
 #if 0
   int jiter=0;

@@ -1,4 +1,4 @@
-;;; $Id: getsurf.scm,v 1.6 2005/01/17 14:23:12 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.7 2005/01/17 15:43:26 mstorti Exp $
 (load "./dvector.scm")
 (load "./femref.scm")
 
@@ -14,35 +14,23 @@
 (format #t "xnod: read ~A dbls\n" (dvdbl-cat! x "cube.nod.tmp"))
 
 (getsurf ctx icone surf-con surf-nodes 1 0)
-(format #t "surf-con:\n")
-(dvint-dump surf-con)
-
-(format #t "surf-nodes:\n")
-(dvint-dump surf-nodes)
+(define nfaces (car (dvint-shape surf-con)))
 
 (comp-matrices ctx surf-con
 	       surf-nodes x surf-mass node-mass)
 (define nnod (car (dvdbl-shape x)))
-
-(format #t "\n\nsurf-mass:\n")
-(dvdbl-dump surf-mass)
-
-(format #t "\n\nnode-mass:\n")
-(dvdbl-dump node-mass)
+(define nsurf-nodes (dvint-size surf-nodes))
 
 (define ndof 3)
 (define ue (make-dvdbl))
-(dvdbl-reshape! ue 0 ndof)
-(dvdbl-cat! ue "cube.state-elem.tmp")
+(dvdbl-resize! ue nfaces ndof)
+(dvdbl-set! ue 5)
 (define un (make-dvdbl))
-(dvdbl-resize! un nnod ndof)
+(dvdbl-resize! un nsurf-nodes ndof)
 
+(elem->nod-proj ctx surf-con surf-mass node-mass ue un)
 (format #t "\n\nun:\n")
 (dvdbl-dump un)
-
-(elem->nod-proj ctx surf-con ue un)
-(format #t "\n\nue:\n")
-(dvdbl-dump ue)
 
 ; (fem-smooth ctx surf-con surf-nodes
 ; 	    surf-mass node-mass u us #:verbose #f)
