@@ -1,5 +1,6 @@
 <:
 require '../eperlini.pl';       # Initializes ePerl 
+$hy=0.0625;
 doc_vals(qw(case));
 # case fstack is to check if report errors when number or nodes in
 # connect. lines i not equal to those reported
@@ -90,6 +91,7 @@ __END_HASH__
 17 18 19 20 
 __END_ELEMSET__
 
+#if $case !~ /^genl/
 elemset lin_gen_load <:= defined $ne ? $ne : $case eq '2b' ? 2 : 4 :>
 geometry cartesian1d
 npg 2
@@ -108,6 +110,22 @@ __END_HASH__
 35 36
 #endif
 __END_ELEMSET__
+#else
+elemset lin_gen_load 2
+geometry cartesian0d
+npg 1
+ndimel 0
+double_layer
+#if $case eq 'genl1d'
+hfilm_source <:= -3.*$hy/2.:>  <:= -1.*$hy/2.:>
+#else
+hfilm_coeff <:= 3.*$hy/2.:> 0. 0. <:= 1.*$hy/2.:>
+#endif
+__END_HASH__
+35 37
+36 38
+__END_ELEMSET__
+#endif
 
 end_elemsets
 
@@ -117,12 +135,12 @@ fixa
 2 1  1.
 1 2  6.
 2 2  6.
-#if $case eq '1'
+#if $case eq '1' || $case eq 'genl1dh'
 37 1 -2.
 38 1 -2.
 37 2 3.
 38 2 3.
-#elsif $case eq '2a'
+#elsif $case eq '2a' || $case eq 'genl1d'
 37 1 0.
 38 1 0.
 37 2 0.

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.24 2001/05/26 22:20:25 mstorti Exp $ 
+# $Id: Makefile,v 1.25 2001/05/27 17:15:23 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -313,7 +313,10 @@ fastmat2a: testfm2a.bin
 
 testfm2a.bin: testfm2a.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2a.bin testfm2a.o $(LIBPETSCFEM) \
-		-L$(NEWMAT) -lnewmat
+		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}
+# testfm2a.bin: testfm2a.o
+# 	-rm $@
+# 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ testfm2a.o $(LDFLAGS)
 
 daxpy.o: daxpy.f
 	g77 -O3 -c daxpy.f
@@ -324,7 +327,7 @@ testfm2d: #testfm2d.bin
 
 testfm2d.bin: testfm2d.o daxpy.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2d.bin testfm2d.o daxpy.o $(LIBPETSCFEM) \
-		-L$(NEWMAT) -lnewmat 
+		-L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w FastMat2 test b
@@ -342,7 +345,7 @@ fastmat2c: testfm2c.bin
 
 testfm2c.bin: testfm2c.o libpetscfem
 	g++ $(PROF_FLAGS) -o testfm2c.bin testfm2c.o $(LIBPETSCFEM) \
-		 -L$(NEWMAT) -lnewmat
+		 -L$(NEWMAT) -lnewmat ${PETSC_SLES_LIB}
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w New flux functions

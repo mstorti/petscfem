@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2001/05/26 20:54:46 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/05/27 17:15:32 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -11,7 +11,8 @@ include ../Makefile.base.test
 SRCS = 
 
 #s Test/Advdif tests
-tests: test_case_1 test_case_2a test_case_2b test_case_fstack
+tests: test_case_1 test_case_2a test_case_2b test_case_fstack \
+	test_case_genl1d test_case_genl1dh
 
 .PHONY: data force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))

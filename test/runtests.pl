@@ -822,8 +822,8 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("genload/output.case_fstack.tmp","Report error for bad number of nodes in conn. line",<<'EOT');
 Assertion failed:
-Error reading element connectivities at line
-"35 36 37 38"
+Error reading .* at
+genload.depl:.*"35 36 37 38"
 PETSC-FEM error at file "readmesh.cpp"
 EOT
 
@@ -1014,11 +1014,18 @@ EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("genload/save.case_1.tmp",
-       "Generic Load element one gen.load.- double layer hfilm elem. at the end",$genl_check);
+       "Generic Load element one gen.load.- double".
+       " layer hfilm elem. at the end",$genl_check);
 expect("genload/save.case_2a.tmp",
-       "Generic Load element one gen.load.- double layer with source elem. at the end",$genl_check);
+       "Generic Load element one gen.load.- double".
+       " layer with source elem. at the end",$genl_check);
 expect("genload/save.case_2b.tmp",
-       "Generic Load element one gen.load.- single layer with source elem. at the end",$genl_check);
+       "Generic Load element one gen.load.- single".
+       " layer with source elem. at the end",$genl_check);
+expect("genload/save.case_genl1d.tmp",
+       "Generic Load, 0d element with source term",$genl_check);
+expect("genload/save.case_genl1dh.tmp",
+       "Generic Load, 0d element with hfilm coeff",$genl_check);
 
 end_section();
 print "\n",'-' x 50,"\n\n";
