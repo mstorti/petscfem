@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.1 2001/07/30 00:17:12 mstorti Exp $
+// $Id: distmap.h,v 1.2 2001/07/30 03:42:27 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -73,7 +73,7 @@ DistMap<Key,Val>(MPI_Comm comm_=MPI_COMM_WORLD) : comm(comm_) {
 template <class Key,class Val>
 void DistMap<Key,Val>::scatter() {
   map<Key,Val>::iterator iter;
-  int *to_send,*to_send_buff,*recv_ok,n_recv_ok;
+  int *to_send,*to_send_buff,*recv_ok,n_recv_ok,send_ok;
   char **send_buff,**send_buff_pos,**recv_buff,**recv_buff_pos;
   MPI_Request *send_rq,*recv_rq;
   MPI_Status status;
@@ -107,7 +107,7 @@ void DistMap<Key,Val>::scatter() {
   // recopy `to_send_buff' to `to_send'
   memcpy(to_send,to_send_buff,size*size*sizeof(int));
 
-#if 0
+#if 1
   // debug: print the `to_send' table
   if (myrank==0) {
     for (j=0; j<size; j++) {
@@ -175,6 +175,7 @@ void DistMap<Key,Val>::scatter() {
   // Send all buffers non-blocking
   for (k=0; k<size; k++) {
     if (k!=myrank) {
+      printf("[%d] sending %d\n",myrank,k);
       MPI_Isend(send_buff[k],SEND(myrank,k),MPI_CHAR,
 	       k,myrank,comm,&send_rq[k]);
     }
@@ -183,6 +184,7 @@ void DistMap<Key,Val>::scatter() {
   // receive all buffers non-blocking
   for (k=0; k<size; k++) {
     if (k!=myrank) {
+      printf("[%d] receiving %d\n",myrank,k);
       MPI_Irecv(recv_buff[k],SEND(k,myrank),MPI_CHAR,k,myrank,
 		comm,&recv_rq[k]);
     }
@@ -194,7 +196,8 @@ void DistMap<Key,Val>::scatter() {
   n_recv_ok = 0;
   while (1) {
     // test only non-received buffers
-    if (recv_ok[k]) continue;
+    if (k==myrank || recv_ok[k]) continue;
+    printf("[%d] testing %d\n",myrank,k);
     // test unreceived buffer
     MPI_Test(&recv_rq[k],&recv_ok[k],&status);
     if (recv_ok[k]) {
@@ -202,6 +205,7 @@ void DistMap<Key,Val>::scatter() {
       n_recv_ok++;
       // check that the length of the received message is the expected 
       MPI_Get_count(&status,MPI_CHAR,&nsent);
+      printf("[%d] %d received from %d\n",myrank,nsent,k);
       if (nsent!=SEND(myrank,k)) 
 	printf("Didn't receive expected amount of data\n");
       // Exit if all buffers have been received
@@ -209,7 +213,17 @@ void DistMap<Key,Val>::scatter() {
     }
     k++;
     // k goes cyclically until all messages have been received
-    if (k>size) k = 0;
+    if (k==size) k = 0;
+  }
+
+  // Check that all data buffers sent have been sent
+  for (k=0; k<size; k++) {
+    if (k!=myrank) {
+      MPI_Test(&send_rq[k],&send_ok,&status);
+      printf("[%d] sent to %d OK ? %d\n",myrank,k,send_ok);
+      if (!send_ok) 
+	printf("[%d] not sent OK data to %d\n",myrank,k);
+    }
   }
 
   // Delete all sent and received buffers
