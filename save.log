@@ -4166,3 +4166,6 @@ tag: beta-3.43.42 on Wed, 02 Mar 2005 08:19:00 -0300 by mstorti in minerva.cerid
 ----------
 tag: beta-3.43.43 on Wed, 02 Mar 2005 20:16:17 -0300 by mstorti in spider
      > Working version of `project3.cpp'. 
+----------
+tag: beta-3.43.44 on Wed, 02 Mar 2005 20:26:44 -0300 by mstorti in spider
+     > Making `project' a library for later wrapping with Scheme.
