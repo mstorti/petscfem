@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: linkgraph.cpp,v 1.9 2002/07/24 12:08:37 mstorti Exp $
+//$Id: linkgraph.cpp,v 1.10 2002/07/24 22:35:13 mstorti Exp $
 
 #include <src/linkgraph.h>
 
@@ -34,6 +34,7 @@ void LinkGraph::erase(iterator first,iterator last) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void LinkGraph::init(int MM) {
   M=MM;
+  if (MM==0) return;
   da.resize(M+1);		// cell `M' is for the `free' cell list
   int_pair p(0,null);
   for (int j=0; j<=M; j++) da.ref(j) = p; // fill initial adjacency table
@@ -86,3 +87,40 @@ int LinkGraph::size(int r) {
   return s;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Size of packed row (plus header)
+int LinkGraphDis::size_of_pack(Row const & row) const {
+  int n = row.size();
+  // size + row number + size*(int+double)
+  return (n+2)*sizeof(int);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Pack the row
+void LinkGraphDis::pack(const Row & row,char *&buff) const {
+  int n=row.size();
+  BUFFER_PACK<int>(row.row,buff);
+  BUFFER_PACK<int>(n,buff);
+  Row::iterator q;
+  for (q=row.begin(); q!=row.end(); q++)
+    BUFFER_PACK<int>(*q,buff);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void LinkGraphDis::unpack(Row & row,const char *&buff)  {
+  int n,k;
+  BUFFER_UNPACK<int>(row.row,buff);
+  BUFFER_UNPACK<int>(n,buff);
+  for (int j=0; j<n; j++) {
+    BUFFER_UNPACK<int>(k,buff);
+    row.insert(k);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// combine a row in the container
+void LinkGraphDis::combine(const Row &row) {
+  int j=row.row;
+  Row::iterator q;
+  for (q=row.begin(); q!=row.end(); q++) list_insert(j,*q);
+}

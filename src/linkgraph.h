@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: linkgraph.h,v 1.11 2002/07/24 19:59:15 mstorti Exp $
+// $Id: linkgraph.h,v 1.12 2002/07/24 22:35:13 mstorti Exp $
 #ifndef LINKGRAPH_H
 #define LINKGRAPH_H
 
@@ -145,6 +145,8 @@ class LinkGraphWrapper : public StoreGraph {
       @param new_chunk_size (input) new chunk size for the vector.
   */
   void set_chunk_size(int new_chunk_size) { lgd.set_chunk_size(new_chunk_size); }
+  /// 
+  void init(int MM) { Graph::init(MM); lgd.init(MM); }
 };
 
 #endif
