@@ -821,6 +821,7 @@ sub check_newff {
 
 check_newff('dif_temp');
 check_newff('adv_dif_temp');
+check_newff('pure_adv');
 check_newff('reac_adv_dif_temp_y');
 check_newff('reac_steady');
 check_newff('reac_dif_temp');
@@ -828,6 +829,8 @@ check_newff('std_ard_x_y');
 check_newff('full_jacs');
 check_newff('full_full_jacs');
 check_newff('full_full_jacs_wf');
+check_newff('full_full_jacs_t');
+check_newff('full_full_jacs_tr');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 /'/; # to disable auto-filling an indenting in Emacs

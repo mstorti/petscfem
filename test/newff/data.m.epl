@@ -47,6 +47,19 @@ nx=32;
 u=1;
 adv_type="global_vector";
 tol=0.04;
+#elsif $CASE eq 'pure_adv'
+## Pure advection
+steady=1;
+Dt=1e6;
+nstep=1;
+nx=32;
+u=1;
+s=1;
+D=0;
+adv_type="global_vector";
+dif_type="null";
+tol=0.01;
+fix_some_node=1;
 #elsif $CASE eq 'adv_dif_stdy'
 ## Advection diffusion
 steady=1;
@@ -197,8 +210,8 @@ nx=16;
 kx=1;
 ky=0;
 Lx=1;
-ny=8;
-Ly=1/2;
+ny=16;
+Ly=1;
 R=0;
 Rfluc=.0;
 D=.1;
@@ -211,6 +224,31 @@ s=1;
 sfluc=0;
 source_type="full";
 fix_some_node=1;
+#tau_fac=0;
+#elsif $CASE eq 'full_full_jacs_tr'
+steady=1;
+full_jacs=2;
+Dt=1e7;
+nstep=1;
+tol=0.04;
+nx=16;
+kx=1;
+ky=0;
+Lx=1;
+ny=16;
+Ly=1;
+R=1.1;
+Rfluc=1.1;
+D=.1;
+Dfluc=1;
+u=1.5;
+v=-1.2;
+ufluc=1;
+adv_type="vector_per_field";
+s=1.5;
+sfluc=1;
+source_type="full";
+#fix_some_node=1;
 #tau_fac=0;
 #else 
 <:die("not implemented test case '$CASE'"):>

@@ -38,6 +38,7 @@
 newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_) 
   : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
   full_adv_jac(*this), full_dif_jac(*this),
+  null_d_jac(*this),
   scalar_dif_per_field(*this), global_scalar_djac(*this),
   global_dif_tensor(*this), per_field_dif_tensor(*this),
   full_c_jac(*this), scalar_c_jac(*this),
@@ -149,6 +150,23 @@ comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
   ff.N_C.set(0.).d(3,2).prod(N,ff.C_jac,1,2).rs();
   N_P_C.prod(tmp26,ff.N_C,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * N
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::NullDjac
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
+  fluxd.set(0.);
+}
+
+void newadvecfm2_ff_t::NullDjac
+::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+		       FastMat2 & dshapex,double w) {
+  grad_N_D_grad_N.set(0.);
+}
+
+void newadvecfm2_ff_t::NullDjac
+::comp_dif_per_field(FastMat2 &dif_per_field) {
+  dif_per_field.set(0.);
+}  
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::GlobalScalar
@@ -440,21 +458,21 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   ret_options &= !SCALAR_TAU; // tell the advective element routine
 
   // Read advective jacobians
-  //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
+  //o _T: double[var_len]
   //  _N: advective_jacobians _D: no default  _DOC: 
   //i_tex ../../doc/advdifop.tex advective_jacobians
   //  _END
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
 
   //o Set advective jacobian to the desired type. May be one of 
-  // ``null'', ``global_vector'', ``vector_per_field'' or ``full''. 
+  // ``\verb+null+'', ``\verb+global_vector+'', ``\verb+vector_per_field+'' or ``\verb+full+''. 
   // See documentation for the \verb+advective_jacobians+ option. 
   EGETOPTDEF(elemset,string,advective_jacobians_type,string("undefined"));
   string advective_jacobians_type_s = advective_jacobians_type;
 
   if (advective_jacobians_type==string("undefined")) {
     if (advective_jacobians_prop.length == 0) {
-      advective_jacobians_type=string("global_vector");
+      advective_jacobians_type=string("null");
     } else if (advective_jacobians_prop.length == ndim) {
       advective_jacobians_type=string("global_vector");
     } else if (advective_jacobians_prop.length == ndim*ndof) {
@@ -499,30 +517,39 @@ void newadvecfm2_ff_t::start_chunk(int &ret_options) {
   elemset->get_prop(diffusive_jacobians_prop,"diffusive_jacobians");
 
   //o Set diffusive jacobian to the desired type
+  //o May be one of 
+  // ``\verb+null+'', ``\verb+global_vector+'',
+  // ``\verb+vector_per_field+'' or ``\verb+full+''. 
+  // See documentation for the \verb+advective_jacobians+ option. 
   EGETOPTDEF(elemset,string,diffusive_jacobians_type,string("undefined"));
   string diffusive_jacobians_type_s=diffusive_jacobians_type;
 
   if (diffusive_jacobians_type==string("undefined")) {
-    if (diffusive_jacobians_prop.length == 1) {
+    if (diffusive_jacobians_prop.length == 0) {
+      diffusive_jacobians_type=string("null");
+    } else if (diffusive_jacobians_prop.length == 1) {
       diffusive_jacobians_type=string("global_scalar");
     } else if (diffusive_jacobians_prop.length == ndim*ndim) {
       diffusive_jacobians_type=string("global_tensor");
     } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof) {
-      diffusive_jacobians_type=string("per_field_tensor");
+      diffusive_jacobians_type=string("tensor_per_field");
     } else if (diffusive_jacobians_prop.length == ndof) {
       diffusive_jacobians_type=string("scalar_per_field");
     } else if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
       diffusive_jacobians_type=string("full");
     }
   }
-  if (diffusive_jacobians_type==string("global_scalar") &&
+  if (diffusive_jacobians_type==string("null") &&
+      diffusive_jacobians_prop.length == 0) {
+    d_jac =  &null_d_jac;
+  } else if (diffusive_jacobians_type==string("global_scalar") &&
       diffusive_jacobians_prop.length == 1) {
     d_jac =  &global_scalar_djac;
   } else if (diffusive_jacobians_type==string("global_tensor") &&
 	     diffusive_jacobians_prop.length == ndim*ndim) {
     D_jac.resize(2,ndim,ndim);
     d_jac =  &global_dif_tensor;
-  } else if (diffusive_jacobians_type==string("per_field_tensor") &&
+  } else if (diffusive_jacobians_type==string("tensor_per_field") &&
 	     diffusive_jacobians_prop.length == ndim*ndim*ndof) {
     D_jac.resize(3,ndof,ndim,ndim);
     d_jac =  &per_field_dif_tensor;
@@ -674,14 +701,17 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 				// approx. 2*U/h
       double tau;
       FastMat2::branch();
-      if (vel*vel > 1e-5*Uh*alpha) {		// remove singularity when v=0
-	FastMat2::choose(0);
+      if (vel*vel > 20*Uh*alpha) { // remove singularity when D=0
+	FastMat2::choose(0);	// magic=1
+	tau = tau_fac/Uh;	// intrinsic time
+      } else if (vel*vel > 1e-5*Uh*alpha) {		// remove singularity when v=0
+	FastMat2::choose(1);
 	double Pe  = vel*vel/(Uh*alpha);	// Peclet number
 	// magic function
 	double magic = (fabs(Pe)>1.e-4 ? 1./tanh(Pe)-1./Pe : Pe/3.); 
 	tau = tau_fac/Uh*magic; // intrinsic time
       } else {
-	FastMat2::choose(1);
+	FastMat2::choose(2);
 	double h = 2./sqrt(tmp0.sum_square(iJaco,1,-1).max_all());
 	tau = tau_fac*h*h/(12.*alpha);
       }

@@ -73,7 +73,7 @@ while (<>) {
 	    @docf unless $doc=~/_T:(.*\s)_N:/s;
 	    $type=$1;
 	    $doc=$';
-	    $type =~s/\n/\s/g;
+	    $type =~s/\n/ /g;
 	    $type =~ s/\s*$//;
 	    die "no \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/_D:/s;
 	    $name=$`;

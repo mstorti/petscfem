@@ -63,7 +63,9 @@ advective_jacobians <:=$u:> <:=$v:>
 #---<*>---// DIFFUSIVE JACOBIANS  ---<*>---//---<*>---//
 #---<*>---//---<*>---//---<*>---//---<*>---//---<*>---// 
 diffusive_jacobians_type "<:=$dif_type:>"
-#if $dif_type eq 'global_scalar'
+#if $dif_type eq 'null'
+# no line for diff values here
+#elsif $dif_type eq 'global_scalar'
 diffusive_jacobians <:=$D:>
 #elsif $dif_type eq 'scalar_per_field'
 diffusive_jacobians <:=$D:> <:=$D*2:> <:=$D*3:>

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/03/30 21:53:36 mstorti Exp $ 
+# $Id: Makefile,v 1.8 2001/03/31 01:24:37 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -22,18 +22,12 @@ newff.depl: data.m force
 
 ################################################################
 # TESTS FOR THE NEW FLUX FUNCTIONS...
-# 1./ DRS: Diffusion reaction with source term. All
-#         combinations of possibilities in the representation. 
-# 2./ AD: Advection-diffusion. All
-#         combinations of possibilities in the representation. 
-# 3./ The same, with mesh rotated 45 deg. (non-isotropic diffusion). 
-# 4./ The same with full jacobians obtained rotating
-#        the components. 
 
-tests: test_dif_temp test_adv_dif_temp test_reac_adv_dif_temp_y \
+tests: test_dif_temp test_adv_dif_temp test_pure_adv test_reac_adv_dif_temp_y \
 	test_reac_steady test_reac_dif_temp test_std_ard_x_y \
 	test_full_jacs test_full_full_jacs \
-	test_full_full_jacs_wf test_full_full_jacs_t
+	test_full_full_jacs_wf test_full_full_jacs_t \
+	test_full_full_jacs_tr
 
 test_%: 
 	$(MAKE) CASE=$* run

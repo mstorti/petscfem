@@ -252,6 +252,22 @@ public:
   };
   PerFieldDifTensor per_field_dif_tensor;
 
+  /// Null diffusion
+  class NullDjac;
+  friend class NullDjac;
+  class NullDjac : public DJac {
+    newadvecfm2_ff_t &ff;
+    FastMat2 tmp;
+  public:
+    NullDjac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    FastMat2Shell comp_fluxd;
+    void comp_dif_per_field(FastMat2 &dif_per_field);
+    void comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+			      FastMat2 & dshapex,double w);
+    void update(const double *difjac) {};
+  };
+  NullDjac null_d_jac;
+
   /// Global scalar diffusion
   class GlobalScalar;
   friend class GlobalScalar;
