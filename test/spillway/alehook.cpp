@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.19 2003/04/04 10:22:06 mstorti Exp $
+//$Id: alehook.cpp,v 1.20 2003/04/04 20:43:34 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -92,6 +92,8 @@ DL_GENERIC_HOOK(ale_hook);
 
 const vector<double> *gather_values = NULL;
 
+dvector<double> time_bottom_vel, bottom_vel;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class ale_hook2 {
 private:
@@ -101,6 +103,16 @@ private:
   dvector<double> xnod0;
   int nnod,ndim,nu;
   void read_mesh();
+
+  /// -- Data for the volume correction --
+  /// Position in `gather_values', `steady' flag
+  int volume_gather_pos, steady;
+  /// Desired reference volume 
+  double volume_ref;
+  /// Length of the bottom, time step, velocity at bottom
+  double bottom_length, Dt;
+  //o Coefficient for relax in the volume correction
+  double volume_relax_coef;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -164,6 +176,28 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
   //o Restart previous run
   TGETOPTDEF(GLOBAL_OPTIONS,int,restart,0);
   if (restart) read_mesh();
+
+  // For the volume correction
+  //o Position of the computed volume in the gather vector
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,volume_gather_pos,-1);
+  assert(volume_gather_pos>=0);
+  //o Reference volume. Fluxes are injected to the bottom in order
+  //  to reach this value/
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,volume_ref,0.);
+  assert(volume_ref>0.);
+  //o Reference volume. Fluxes are injected to the bottom in order
+  //  to reach this value/
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,bottom_length,0.);
+  assert(bottom_length>0.);
+  //o Time step
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
+  assert(Dt>0.);
+  //o Steady flag
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,steady,0);
+  //o Coefficient for relax in the volume correction
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,volume_relax_coef,1.);
+  time_bottom_vel.push(0.);
+  bottom_vel.push(0.);
 }
 
 void ale_hook2::time_step_pre(double time,int step) {}
@@ -208,6 +242,16 @@ void ale_hook2::time_step_post(double time,int step,
   }
   int ierr = MPI_Bcast(mesh->nodedata->nodedata, nnod*nu, MPI_DOUBLE, 0,PETSC_COMM_WORLD);
   assert(!ierr);
+
+  // Volume correction
+  int ntime = time_bottom_vel.size();
+  if (time_bottom_vel.e(ntime-1) < time) {
+    double volume = (*gather_values)[volume_gather_pos];
+    double bottom_vel_now = -(volume-volume_ref)/bottom_length/Dt;
+    time_bottom_vel.push(time);
+    bottom_vel.push(bottom_vel_now);
+    // printf("adding t=%f, bot_vel=%f\n",time,bottom_vel_now);
+  }
 }
 
 void ale_hook2::close() {
@@ -602,12 +646,6 @@ DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_coupling);
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class fs_bottom : public DLGenericTmpl {
 private:
-  /// Position in `gather_values', `steady' flag
-  int volume_gather_pos, steady;
-  /// Desired reference volume 
-  double volume_ref;
-  /// Length of the bottom, time step, velocity at bottom
-  double bottom_length, Dt, bottom_vel;
 public:
   fs_bottom() { }
   void init(TextHashTable *thash);
@@ -616,45 +654,31 @@ public:
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void fs_bottom::init(TextHashTable *thash) {
-  int ierr;
-  //o Position of the computed volume in the gather vector
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,volume_gather_pos,-1);
-  assert(volume_gather_pos>=0);
-  //o Reference volume. Fluxes are injected to the bottom in order
-  //  to reach this value/
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,volume_ref,0.);
-  assert(volume_ref>0.);
-  //o Reference volume. Fluxes are injected to the bottom in order
-  //  to reach this value/
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,bottom_length,0.);
-  assert(bottom_length>0.);
-  //o Time step
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,Dt,0.);
-  assert(Dt>0.);
-  //o Steady flag
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,steady,0);
-  //o Steady flag
-  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,volume_relax_coef,1.);
-  bottom_vel = 0.;
-}
+void fs_bottom::init(TextHashTable *thash) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double fs_bottom::eval(double) { 
-  double val = 0.;
-  if (!steady && gather_values) {
-    double volume = (*gather_values)[volume_gather_pos];
-    double bottom_vel_now = -(volume-volume_ref)/bottom_length/Dt;
-    double w = volume_relax_coef;
-    // We apply a sub-relaxation in order to filter high frequencies. 
-    bottom_vel = w*bottom_vel_now+(1.-w)*bottom_vel;
-  }
-  double val=0.;
+double fs_bottom::eval(double t) { 
+  static double last_time = DBL_MAX, last_val=0.;
   int f = field();
   assert(f==1 || f==2);
-  if (f==2) val = bottom_vel;
+  double tol = 1e-10;
+  if (f==2) {
+    // return cached value
+    if (t==last_time) return last_val;
+    // search vector of previously times for computed bottom velocities
+    int ntime = time_bottom_vel.size();
+    if (ntime==0) return 0.;	// probably `ale_hook2' is not running
+    int j;
+    for (j=ntime-1; j>=0; j--) {
+      if (t >= time_bottom_vel.e(j)-tol) break;
+    }
+    last_time = t;
+    last_val = 0.;		// Should interpolate, though
+    // printf("found t=%f at %d (%d steps behind)\n",t,j,j-ntime+1);
+    // printf("t(j)=%f\n",time_bottom_vel.e(j));
+  }
   // printf("node %d, field %d, val %f\n",node(),f,val);
-  return val;
+  return 0.;
 }
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_bottom);

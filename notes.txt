@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $
+$Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
+! # $Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
+  # $Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.276 2003/04/04 10:18:59 mstorti Exp $ 
+  # $Id: notes.txt,v 1.277 2003/04/04 20:43:31 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6513,6 +6513,9 @@ Froude_h. Tambien verifico que el hecho de que las variaciones de `h' en
 la superficie son muy pequenhas es razonable. Si aplicamos Bernoulli
 entonces tenemos "0.5*Delta(v^2) = g*Delta h" de donde Delta h =
 0.5*.3/10 = 0.015 que es lo que se oberva. 
+%
+15:35:12: Es estable for Fr=1.0 y Dt=0.1 con filtrado. 
+
 
 # Current line ===========  %
 # Local Variables: $
