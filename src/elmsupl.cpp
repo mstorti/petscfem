@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.26 2003/11/16 00:35:21 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.27 2004/11/08 02:41:18 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -88,7 +88,7 @@ int Elemset::upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
   pfmat = (options & PFMAT);
 
   // In order to compute profiles (comp_prof==1) we have to do all the
-  // work in all th processors
+  // work in all the processors
   comp_prof= (options & UPLOAD_PROFILE); // to be defined later
 
   InsertMode mode = ADD_VALUES;
