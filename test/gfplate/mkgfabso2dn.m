@@ -1,4 +1,4 @@
-## $Id: mkgfabso2dn.m,v 1.4 2005/01/27 17:33:09 mstorti Exp $
+## $Id: mkgfabso2dn.m,v 1.5 2005/01/28 02:16:58 mstorti Exp $
 source("data.m.tmp");
 
 poutlet = pref;
@@ -60,6 +60,13 @@ asave("gfabso2dn.con-nabso1.tmp",abso1);
 abso0 = [1,nnod+[5,6];
 	 Nx+2,nnod+[7,8]];
 asave("gfabso2dn.con-nabso0.tmp",abso0);
+
+fid = fopen("gfabso2dn.con-nabso.tmp","w");
+fprintf("%d %d %d     %g %g\n",1:3,nnod+[5,6],-1,0)
+fprintf("%d %d %d     %g %g\n",Nx+2,nnod+[7,8],-1,0)
+fprintf("%d %d %d     %g %g\n",Nx+1 nnod+[1,2],+1,0)
+fprintf("%d %d %d     %g %g\n",2*Nx+2,nnod+[3,4],+1,0)
+fclose(fid);
 
 ## Fixa on reference nodes
 Uref = [rhoref,[uref,0]*Orot,pref];
