@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesther.cpp,v 1.17 2002/01/14 03:45:05 mstorti Exp $
+//$Id: nsilesther.cpp,v 1.18 2002/03/30 12:08:03 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -523,7 +523,7 @@ int nsi_tet_les_ther::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  du.set(u_star).rest(u);
 	  dmatu.axpy(du,rec_Dt/alpha).rest(G_body);
 	
-	  div_u_star = double(tmp10.prod(dshapex,ucols_new,-1,-2,-2,-1));
+	  div_u_star = double(tmp10.prod(dshapex,ucols_star,-1,-2,-2,-1));
 
 	  // Galerkin - momentum
 	  // resmom tiene que tener nel*ndim
