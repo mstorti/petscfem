@@ -98,15 +98,16 @@ int main() {
   int v1[] = {1,1,1,1,1,1,1,2,2,2};
   int v2[] = {0,0,1,1,1,2,2,2,2,2};
 
-  SumHasher hasher;
+  MD5SumHasher hasher;
+  // SumHasher hasher;
 
   hasher.reset();
   hasher.hash(v1,10);
-  printf("hash-sum for v1: %d\n",hasher.val());
+  printf("hash-sum for v1: 0x%08x\n",hasher.val());
 
   hasher.reset();
   hasher.hash(v2,10);
-  printf("hash-sum for v2: %d\n",hasher.val());
+  printf("hash-sum for v2: 0x%08x\n",hasher.val());
 #endif
 
 #if 0

@@ -1,11 +1,13 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.4 2004/11/28 13:31:54 mstorti Exp $
+// $Id: hasher.h,v 1.5 2004/11/28 13:43:43 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
 #include <cstdlib>
+extern "C" {
 #include "./md5.h"
+}
 
 class BaseHasher {
 public:

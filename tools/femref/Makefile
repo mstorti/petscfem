@@ -10,7 +10,7 @@ scripts = odoc.pl makewhat.pl
 #w Builds all doc in this directory
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
-SRCS := femref.cpp hasher.cpp myhash.cpp myhash2.cpp
+SRCS := femref.cpp hasher.cpp myhash.cpp myhash2.cpp myhash3.cpp
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -36,7 +36,10 @@ myhash.bin: myhash.o hasher.o
 myhash2.bin: myhash2.o hasher.o
 	g++ -o $@ $^
 
-myhash3.bin: myhash3.o hasher.o
+md5r.o: md5r.c
+	gcc -g -c -o $@ $<
+
+myhash3.bin: myhash3.o hasher.o md5r.o
 	g++ -o $@ $^
 
 md5.bin:
