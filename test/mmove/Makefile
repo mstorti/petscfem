@@ -1,18 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.11 2002/12/12 03:10:08 mstorti Exp $ 
+# $Id: Makefile,v 1.12 2002/12/12 13:33:22 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
 run: test_case
 
-OLD_MMOVE := 0
-export OLD_MMOVE
-ifeq ($(OLD_MMOVE),1)
-PETSCFEM_DIR = $(HOME)/PETSC/petscfem-mesh-move
-else
 PETSCFEM_DIR = ../..
-endif
-# PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-1.82
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 SRCS = 
@@ -27,11 +20,7 @@ endif
 
 LOC_PROG := ns
 CASE_NAME := $(NAME)
-ifeq ($(OLD_MMOVE),1)
-PROG := $(PETSCFEM_DIR)/applications/ns/ns.bin
-else
-PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin
-endif
+PROG := $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 
 # ifeq ($(NAME),step)
 # PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin

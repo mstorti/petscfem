@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $N=10;
-$disp = 0.3;
+$disp = 0.95;
 $slope = 2;
 # $shape = 'quad';
 #
@@ -40,8 +40,9 @@ print_internal_loop_conv
 debug_activate_print
 debug_activate_memory_usage
 
-<:$nstep=20; pr('nstep');:>
+<:$nstep=40:>
 Dt <:= 1./$nstep;:>
+nstep <:=$nstep+3:>
 __END_HASH__
 
 # ndim nu ndof
@@ -50,18 +51,16 @@ __INCLUDE__ "step3d.nod.tmp"
 __END_NODES__
 
 #===========================================================
-elemset mesh_move_eig_anal 4
+elemset mesh_move 4
 geometry tetra
 npg 1
-c_volume 1.
-c_relax 0.01
-# distor_exp 2.
 epsilon_x 1e-5
 __END_HASH__
 __INCLUDE__ "step3d.con-tet.tmp"
 __END_ELEMSET__
 
 #===========================================================
+#if 0
 elemset elasticity 4
 geometry tetra
 npg 1
@@ -70,6 +69,7 @@ Poisson_ratio 0.3
 __END_HASH__
 __INCLUDE__ "step3d.con-tet.tmp"
 __END_ELEMSET__
+#endif
 
 end_elemsets
 

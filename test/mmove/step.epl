@@ -6,12 +6,10 @@ $N=10;
 $disp = 0.9;
 $slope = 4;
 # $shape = 'quad';
-$old_mmove = $ENV{'OLD_MMOVE'};
 #
 octave_export_vars(">data.m.tmp",qw(N disp shape slope));
 :>//                            # ends ePerl block
 
-# <: pr('old_mmove') :>
 global_options
 
 ndim 2
@@ -19,11 +17,7 @@ nsave 5
 steady
 <:$nstep=20;:>
 nstep <:=$nstep+4:>
-#if $old_mmove
-displ_factor <:=1./$nstep:>
-#else
 Dt <:=1./$nstep:>
-#endif
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -57,8 +51,7 @@ nodes  2 2 2
 __INCLUDE__ step.nod.tmp
 _END_NODES__
 
-# elemset mesh_move<:= ($old_mmove ? '' : '_old') :> 3
-elemset mesh_move_eig_anal 3
+elemset mesh_move 3
 name malla
 # report_consumed_time
 geometry triangle
@@ -70,14 +63,8 @@ __END_ELEMSET__
 
 end_elemsets
 
-#if !$old_mmove
 fixa_amplitude piecewise_linear
 filename "piecewise.dat.tmp"
 __END_HASH__
 __INCLUDE__ step.fixa.tmp
 __END_FIXA__
-#else
-fixa
-__INCLUDE__ step.fixa.tmp
-__END_FIXA__
-#endif
