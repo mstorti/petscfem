@@ -1,5 +1,5 @@
-N = 200;
-nnod2 = 1000;
+N = 100;
+nnod2 = 4000;
 w = zhomo([0 1 0 1],N+1,N+1);
 
 [xnod,icone] = pfcm2fem(w);

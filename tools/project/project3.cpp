@@ -1,15 +1,11 @@
 //__INSERT_LICENSE__
-// $Id: project3.cpp,v 1.7 2005/03/02 21:31:59 mstorti Exp $
+// $Id: project3.cpp,v 1.8 2005/03/02 23:16:06 mstorti Exp $
 
 #include <cstdio>
 #include <src/fastmat2.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
 #include <ANN/ANN.h>
-
-#define KNBR 10
-
-// ANNidx nn_idx[KNBR];
 
 class FemInterp {
 private:
@@ -365,6 +361,7 @@ int main() {
 	    u2b,ico1b,"squareb1.con.tmp",
 	    ndim,ndimel,nel,ndof);
 
+#define KNBR 10
   while (1) {
     FemInterp fem_interp;
     fem_interp.init(KNBR,2,2,xnod1,ico1);
