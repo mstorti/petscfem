@@ -1442,3 +1442,6 @@ tag: beta-3.02.pl16 on Wed,  7 Aug 2002 23:16:29 -0300 by mstorti in spider
 ----------
 tag: beta-3.02.pl17 on Thu,  8 Aug 2002 13:20:02 -0300 by mstorti in minerva.arcride.edu.ar
      > Fixed some options for KSP_method CG
+----------
+tag: beta-3.02.pl18 on Mon, 12 Aug 2002 22:38:25 -0300 by mstorti in spider
+     > Computes `embedded_gatherer' with two layers.
