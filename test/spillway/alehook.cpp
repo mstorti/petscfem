@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.20 2003/04/04 20:43:34 mstorti Exp $
+//$Id: alehook.cpp,v 1.21 2003/04/06 16:09:26 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -245,12 +245,14 @@ void ale_hook2::time_step_post(double time,int step,
 
   // Volume correction
   int ntime = time_bottom_vel.size();
-  if (time_bottom_vel.e(ntime-1) < time) {
+  double tol=1e-10;
+  if (time > time_bottom_vel.e(ntime-1) + tol) {
     double volume = (*gather_values)[volume_gather_pos];
     double bottom_vel_now = -(volume-volume_ref)/bottom_length/Dt;
+    bottom_vel_now = volume_relax_coef * bottom_vel_now 
+      + (1. - volume_relax_coef) * bottom_vel.e(ntime-1);
     time_bottom_vel.push(time);
     bottom_vel.push(bottom_vel_now);
-    // printf("adding t=%f, bot_vel=%f\n",time,bottom_vel_now);
   }
 }
 
@@ -295,6 +297,8 @@ private:
   double cyclic_length;
   /// Restart a previous run
   int restart;
+  /// Number of times the filter is applied
+  int nfilt;
   /// temporary buffer
   dvector<double> displ_old, dn, sn, ds, ds2;
 public:
@@ -406,6 +410,8 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,cyclic_length,0);
   //o Assume problem is periodic 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,restart,0);
+  //o Number of times the filter is applied
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,nfilt,1);
 
   if (!MY_RANK && !restart) {
     // This is to rewind the file
@@ -576,7 +582,7 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
 
   // Smoothing and updating
   assert(cyclic_fs);		// Not implemented yet: FS not cyclic
-  for (int k=0; k<3; k++) {
+  for (int k=0; k<nfilt; k++) {
     for (int indx1=0; indx1<nfs; indx1++) {
       int indx0 = modulo(indx1-1,nfs);
       int indx2 = modulo(indx1+1,nfs);
@@ -658,27 +664,28 @@ void fs_bottom::init(TextHashTable *thash) { }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double fs_bottom::eval(double t) { 
+#if 0
   static double last_time = DBL_MAX, last_val=0.;
   int f = field();
-  assert(f==1 || f==2);
+  if (f==1) return 0.;
+  assert(f==2);
   double tol = 1e-10;
-  if (f==2) {
-    // return cached value
-    if (t==last_time) return last_val;
-    // search vector of previously times for computed bottom velocities
-    int ntime = time_bottom_vel.size();
-    if (ntime==0) return 0.;	// probably `ale_hook2' is not running
-    int j;
-    for (j=ntime-1; j>=0; j--) {
-      if (t >= time_bottom_vel.e(j)-tol) break;
-    }
-    last_time = t;
-    last_val = 0.;		// Should interpolate, though
-    // printf("found t=%f at %d (%d steps behind)\n",t,j,j-ntime+1);
-    // printf("t(j)=%f\n",time_bottom_vel.e(j));
+  // return cached value
+  if (t==last_time) return last_val;
+  // search vector of previously times for computed bottom velocities
+  int ntime = time_bottom_vel.size();
+  if (ntime==0) return 0.;	// probably `ale_hook2' is not running
+  int j;
+  for (j=ntime-1; j>=0; j--) {
+    if (t >= time_bottom_vel.e(j)-tol) break;
   }
+  last_time = t;
+  last_val = bottom_vel.e(j); // Should interpolate, though
   // printf("node %d, field %d, val %f\n",node(),f,val);
+  return last_val;
+#else
   return 0.;
+#endif
 }
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_bottom);

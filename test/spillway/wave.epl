@@ -1,12 +1,18 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.12 2003/04/04 21:36:47 mstorti Exp $ 
+## $Id: wave.epl,v 1.13 2003/04/06 16:09:26 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
+use File::Copy;
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl 
 $initia = ($ENV{'initia'} ? 1 : 0);
 require 'dataw.pl';
 $fs_relax = 0 if $initia;
+
+if ($restart) {
+    copy("$restart_dir/wave.state_$restart_step.tmp","wave.state.tmp");
+    copy("$restart_dir/wave_mmv.state_$restart_step.tmp","wave_mmv.state.tmp");
+}
 $dx = 0;
 #__END_TRANSCRIPT__
 @vars = qw(Lx h Ny Nx fs_relax Dt gravity p_const_bc patm slope
@@ -16,6 +22,7 @@ octave_export_vars(">data.m.tmp",@vars);
 system "initia=1 octave -qH mkwave.m";
 :>//                            # ends ePerl block
 
+# <:pr('volume_ref'):>
 # <:pr('initia'):>
 # <:pr('slope'):>
 # <:pr('viscosity'):>
@@ -28,7 +35,7 @@ ndim 2
 save_file "wave.state.tmp"
 nsave 1
 
-save_file_pattern "RUN1/wave.state_%d.tmp"
+save_file_pattern "RUN/wave.state_%d.tmp"
 nsaverot 1
 nrec 1
 nfile 100000000
@@ -70,7 +77,7 @@ my_ale_hook.filename ./alehook.efn
 my_ale_hook.prefix   ale_hook2
 #endif
 
-<:=pr('viscosity'):>
+<:pr('viscosity'):>
 G_body <:=$slope*$gravity:> <:=-$gravity:>
 
 volume_gather_pos 0

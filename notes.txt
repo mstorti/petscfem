@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $
+$Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
+! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
+! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
+! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
+! # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
+  # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.279 2003/04/04 21:36:40 mstorti Exp $ 
+  # $Id: notes.txt,v 1.280 2003/04/06 16:09:25 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6527,7 +6527,25 @@ especie de continuacion.
 pequenha. Ahora voy a aumentar la pendiente al doble, rearrancando de
 la solucion anterior. (La solucion no habia convergido demasiado. 
 
+%===Sat,  5 Apr 2003 20:18:00 -0300 mstorti@spider
+%
+Le baje le viscosidad un factor 100 (esta en 6.26e-5), y se mantiene
+estable, pero las perturbaciones a la sup. libre bajan mucho en
+tamanho. 
 
+%===Sun,  6 Apr 2003 10:36:59 -0300 mstorti@spider
+%
+Aumente la pendiente mucho (antes estaba por debajo de 1/1000 y ahora
+lo subi a 10% y daba mas o menos pero despues se
+desestabilizaba. Lo baje a 5% y finalmente se sigue desestabilizando. 
+%
+12:46:13: Rearrancando, anda bien al principio, la convergencia se
+empieza a deteriorar y finalmente diverge. La divergencia se produce en
+un modo relativamente suave y se produce bastante
+espontaneamente. Curiosamente parece que uno lo restartea y avanza
+mas, hasta que de nuevo diverge. Voy a empezar  estudiar mejor el tema
+del Courant critico sobre un problema mas simple, un bump de menor
+espesor. 
 
 # Current line ===========  %
 # Local Variables: $

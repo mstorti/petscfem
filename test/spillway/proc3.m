@@ -15,11 +15,13 @@ while 1
 endwhile
 endif
 
-xfs = aload("wave.fsh.tmp");
-nfs = Nx;
-rem(rows(xfs),nfs)==0 || error("bad number of rows in .fsh file");
-yfs = reshape(xfs(:,2),nfs,rows(xfs)/nfs);
-xfs = reshape(xfs(:,1),nfs,rows(xfs)/nfs);
+if 1
+  xfs = aload("wave.fsh.tmp");
+  nfs = Nx;
+  rem(rows(xfs),nfs)==0 || error("bad number of rows in .fsh file");
+  yfs = reshape(xfs(:,2),nfs,rows(xfs)/nfs);
+  xfs = reshape(xfs(:,1),nfs,rows(xfs)/nfs);
+endif
 
 x=xfs(:,1);
 xbini = (Lx-L_bump)/2;		# start of bump
