@@ -1,4 +1,4 @@
-## $Id: proc.m,v 1.3 2004/11/25 00:10:18 mstorti Exp $
+## $Id: proc.m,v 1.4 2004/11/25 00:11:47 mstorti Exp $
 
 ## N | collisions with hash | colls. with random
 a=[16 0            2 	   
@@ -28,3 +28,6 @@ yana = bb.*2^(-32)*(2.^a(:,1)).^aa;
 
 loglog(2.^a(:,1),[a(:,2:3),yana]);
 ## plot(a,[y yana])
+
+## produces aa=1.97, bb=1.52
+## nbr of collisions is bb*m^aa/N

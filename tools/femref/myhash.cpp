@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 #include <vector>
 #include <algorithm>
 #include "./hasher.h"
@@ -8,14 +9,16 @@ using namespace std;
 
 int main() {
   Hasher hash;
-  for (int N=16; N<24; N++) {
+  for (int N=26; N<27; N++) {
     // printf("N %d\n",N);
     vector<int> vec(N);
-    vector<int> hashset;
+    int NN = int(pow(2.0,N));
+    vector<int> hashset(NN);
     for (int j=0; j<N; j++) vec[j]=0;
     int count=0;
     int print=0;
     while (1) {
+#if 0
       hash.reset();
       hash.hash(&vec[0],vec.size());
       int h = hash.hash_val();
@@ -25,7 +28,10 @@ int main() {
 	  printf("%d ",vec[j]);
 	printf(", hash: %x\n",h);
       }
-      hashset.push_back(h);
+      hashset[count] = h;
+#else
+      hashset[count] = rand();
+#endif
       count++;
       int j;
       for (j=0; j<N; j++) {
@@ -37,6 +43,7 @@ int main() {
       }
       if (j>=N) break;
     }
+    assert(count==NN);
     sort(hashset.begin(),hashset.end());
     vector<int>::iterator
       last_diff = unique(hashset.begin(),hashset.end());

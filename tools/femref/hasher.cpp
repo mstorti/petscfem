@@ -3,12 +3,15 @@
 #include "./hasher.h"
 
 Hasher::Hasher() {
-  memset(&xsubi,'\0',3*sizeof(unsigned short int));
-  memset(&buffer,'\0',sizeof(struct drand48_data));
+  memset(&xsubi,'\0',
+	 3*sizeof(unsigned short int));
+  memset(&buffer,'\0',
+	 sizeof(struct drand48_data));
 }
 
 void Hasher::reset() {
-  memset(&buffer,'\0',sizeof(struct drand48_data));
+  memset(&buffer,'\0',
+	 sizeof(struct drand48_data));
 }
 
 void Hasher::hash(int w) {
