@@ -3726,3 +3726,6 @@ tag: beta-3.39.45 on Mon, 17 Jan 2005 18:52:35 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.46 on Mon, 17 Jan 2005 20:51:34 -0300 by mstorti in spider
      > Implemented `dvector<>::scale(alpha)' and `dv*-scale!'. 
+----------
+tag: beta-3.39.47 on Mon, 17 Jan 2005 23:30:09 -0300 by mstorti in spider
+     > Written many functions to `dvdbl'. 
