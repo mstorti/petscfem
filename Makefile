@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.24 2001/05/29 23:11:55 mstorti Exp $
+#$Id: Makefile,v 1.25 2001/05/29 23:21:25 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -52,19 +52,19 @@ TEX_LICENSE_FILE = tools/license.tex
 #w Includes license in all .cpp and .h files
 license:
 	find . -type f -name '*.cpp' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(C_LICENSE_FILE)
+		$(INSERT_LICENSE) $(C_LICENSE_FILE)
 	find . -type f -name '*.h' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(C_LICENSE_FILE)
+		$(INSERT_LICENSE) $(C_LICENSE_FILE)
 	find . -type f -name '*.y' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(C_LICENSE_FILE)
+		$(INSERT_LICENSE) $(C_LICENSE_FILE)
 	find . -type f -name 'Makefile*' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE)
+		$(INSERT_LICENSE) $(SCRIPT_LICENSE_FILE)
 	find . -type f -name '*.m' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE)
+		$(INSERT_LICENSE) $(SCRIPT_LICENSE_FILE)
 	find . -type f -name '*.pl' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE)
+		$(INSERT_LICENSE) $(SCRIPT_LICENSE_FILE)
 	find . -type f -name '*.tex' -print0 | xargs -0 -n 1 -e \
-		$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(TEX_LICENSE_FILE)
+		$(INSERT_LICENSE) $(TEX_LICENSE_FILE)
 
 try:
 	$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE) Makefile.bck
