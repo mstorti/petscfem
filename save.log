@@ -948,3 +948,8 @@ tag: beta-2.75 on Sat Feb  9 19:23:39 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.76 on Sat Feb  9 21:20:30 ARST 2002, by mstorti in spider
      > Dynamic linking for extension functions is working
+----------
+tag: beta-2.76.pl1 on Sat Feb  9 23:33:51 ARST 2002 by mstorti in spider
+     > Trying to use `TextHashTable' objects inside dynamically linked 
+     > extension functions. When using `TextHashTable *' argument to 
+     > `init_fun' it refuses to open with `dlopen'.
