@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.35 2003/10/16 19:13:46 mstorti Exp $
+#$Id: Makefile,v 1.36 2003/10/17 19:28:24 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -99,7 +99,8 @@ petscfem.tex: petscfem.in.tex force
 # Run  `$ make ltx2h_opt=-no_images' in order to not wait so much time...
 petscfem/petscfem.html: odoc eps petscfem.in.tex $(TEXFILES:=.tex)
 	$(MAKE) EPERLFLAGS="-d html=1" petscfem.tex
-	/usr/bin/latex2html/latex2html $(ltx2h_opt) -init_file latex2html.init petscfem
+	/usr/local/latex2html/latex2html $(ltx2h_opt) \
+			-init_file latex2html.init petscfem
 # balance tags due to a bug in latex2html. 
 	cd petscfem ; for f in *.html ; do  ../fixul.pl $$f ; done
 
@@ -119,7 +120,8 @@ odocall.tex: $(allcpp)
 
 #w Make html home-page
 index.html: index.tex
-	/usr/bin/latex2html/latex2html -init_file latex2html.init -no_subdir -split 0 index
+	/usr/local/latex2html/latex2html -init_file latex2html.init \
+		-no_subdir -split 0 index
 
 #w Make the README in text and html format
 readme: ../README ../README.html

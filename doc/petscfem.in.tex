@@ -53,7 +53,6 @@
 \advance\voffset by -2truecm
 }
 %<*>---<*>---<*>- MATH DEFINITIONS --<*>---<*>---<*>---<*>---<*> 
-\newcommand{\mbf}[1]{{\mathbf{#1}}}
 \newcommand{\Nnod}{{N_{\mathrm{nod}}}}
 \newcommand{\dof}{{\mathrm{d.o.f.}}}
 \newcommand{\conv}{{\mathrm{conv}}}
@@ -99,6 +98,9 @@
 \newcommand{\nproc}{{n_{\mathrm{proc}}}}
 %
 \newcommand{\AFS}{{Algebraic Fractional Step}}
+\newcommand{\mbf}[1]{{\mathbf{#1}}}
+\newcommand{\refecu}[1]{{eq. (\ref{#1})}}
+\newcommand{\reffig}[1]{{fig.~\ref{#1}}}
 %---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 % Hydrology module
 \newcommand{\Gs}{{\Gamma_s}}
@@ -153,7 +155,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.24 2003/10/17 18:32:47 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.25 2003/10/17 19:28:24 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -177,24 +179,24 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-%% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input advdif2        %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
-%% \input dx             %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
+\input advdif2        %__UNCOMMENT_IN_FINAL_VERSION__
+\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input dx             %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
-\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
+%\input trygetopt.tex %__COMMENT_IN_FINAL_VERSION__
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \Section{Authors}
@@ -211,11 +213,11 @@ AdvDif module, specially the hydrology module.
 Also many people from the following institutions has contributed
 directly or indirectly to the generation of this code:
 %
-\begin{description
+\begin{description}
 \item[CIMEC] \emph{International Center for
 Computational Methods in Engineering, Santa Fe, Argentina} 
 \url{http://www.cimec.org.ar}
-\item[INTEC] \emp{Instituto de Desarrollo Tecnol\'ogico para la
+\item[INTEC] \emph{Instituto de Desarrollo Tecnol\'ogico para la
   Industria Qu\'\i{}mica}
 \url{http://www.intec.unl.edu.ar}
 \item[CONICET] \emph{Consejo Nacional de Investigaciones

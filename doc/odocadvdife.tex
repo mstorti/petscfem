@@ -13,7 +13,7 @@ Add axisymmetric version for this particular elemset.
 \item\verb+double beta_supg+ {\rm(default=\verb|1.|)}:
 
 Weights the temporal term with $N+\beta P$, i.e.
-$\beta=0$ is equivalent to waight the temporal term a la 
+$\beta=0$ is equivalent to waight the temporal term a la
 Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -29,6 +29,12 @@ Type of element geometry to define Gauss Point data
 Use lumped mass (used mainly to avoid oscillations for small time steps).
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
+
+Add a shock capturing term
+ (found in file: \verb+advdife.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_log\_vars@\verb+use_log_vars+}
 \item\verb+int use_log_vars+ {\rm(default=\verb|0|)}:
 
@@ -38,7 +44,7 @@ Use log-vars for $k$ and $\epsilon$
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
-Use the weak form for the Galerkin part of the advective term. 
+Use the weak form for the Galerkin part of the advective term.
  (found in file: \verb+advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>

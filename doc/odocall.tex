@@ -95,12 +95,6 @@ Coefficient for shallow water turbulent model
 \item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
 
 C_1
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_1@\verb+C_1+}
-\item\verb+double C_1+ {\rm(default=\verb|1.44|)}:
-
-C_1
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_1@\verb+C_1+}
@@ -131,12 +125,6 @@ Coefficient for shallow water turbulent model
 \item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
 
 C_2
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_2@\verb+C_2+}
-\item\verb+double C_2+ {\rm(default=\verb|1.92|)}:
-
-C_2
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_2@\verb+C_2+}
@@ -162,12 +150,6 @@ Coefficient for shallow water turbulent model
 
 Coefficient for shallow water turbulent model
  (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{C\_mu@\verb+C_mu+}
-\item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
-
-C_mu
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_mu@\verb+C_mu+}
 \item\verb+double C_mu+ {\rm(default=\verb|0.09|)}:
@@ -186,6 +168,12 @@ C_mu
 
 C_mu
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{C\_smag@\verb+C_smag+}
+\item\verb+double C_smag+ {\rm(default=\verb|0.09|)}:
+
+C_smag
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{C\_smag@\verb+C_smag+}
 \item\verb+double C_smag+ {\rm(default=\verb|0.18|)}:
@@ -338,6 +326,12 @@ system (Newton linear subiteration) by GMRES.
 \index{LES@\verb+LES+}
 \item\verb+int LES+ {\rm(default=\verb|0|)}:
 
+Activates LES turbulence model
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{LES@\verb+LES+}
+\item\verb+int LES+ {\rm(default=\verb|0|)}:
+
 Use the LES/Smagorinsky turbulence model. 
  (found in file: \verb+../applications/ns/ns.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -388,6 +382,12 @@ Add LES for this particular elemset.
 
 Poisson ratio
  (found in file: \verb+../applications/ns/elast.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{Pr\_t@\verb+Pr_t+}
+\item\verb+double Pr_t+ {\rm(default=\verb|1.|)}:
+
+Turbulent Prandtl number
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{Pr\_t@\verb+Pr_t+}
 \item\verb+double Pr_t+ {\rm(default=\verb|1.0|)}:
@@ -879,7 +879,7 @@ base value
 \item\verb+double beta_supg+ {\rm(default=\verb|1.|)}:
 
 Weights the temporal term with $N+\beta P$, i.e.
-$\beta=0$ is equivalent to waight the temporal term a la 
+$\beta=0$ is equivalent to waight the temporal term a la
 Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -1293,7 +1293,7 @@ Coefficient affecting the original coordinates. See doc for
 \index{dx\_do\_make\_command@\verb+dx_do_make_command+}
 \item\verb+int dx_do_make_command+ {\rm(default=\verb|0|)}:
 
-If true, then issue a ``make dx_step=#step dx_make_command''
+If true, then issue a \verb+make dx_step=<step> dx_make_command+
  (found in file: \verb+../src/dxhook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \item\verb+ mixed string/integer array+ \verb+ dx_indices+ {\rm(default=\verb| (none)|)}:
@@ -1893,6 +1893,36 @@ surfaces. May be of length 0 (null load) or \verb+ndof+
 which represents a geven load per field. 
   (found in file: \verb+../applications/advdif/linhff.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{id\_cn@\verb+id_cn+}
+\item\verb+double id_cn+ {\rm(default=\verb|0.|)}:
+
+see doc for \verb+id_fac+
+ (found in file: \verb+../applications/advdif/id.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{id\_cn1@\verb+id_cn1+}
+\item\verb+double id_cn1+ {\rm(default=\verb|1.|)}:
+
+see doc for \verb+id_fac+
+ (found in file: \verb+../applications/advdif/id.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{id\_fac@\verb+id_fac+}
+\item\verb+double id_fac+ {\rm(default=\verb|1.|)}:
+
+Residual value is \verb+id_fac*(id_cn * x^n + id_cn1 * x^{n+1})+
+ (found in file: \verb+../applications/advdif/id.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{id\_lumped\_cn@\verb+id_lumped_cn+}
+\item\verb+double id_lumped_cn+ {\rm(default=\verb|0.|)}:
+
+see doc for \verb+id_fac+
+ (found in file: \verb+../applications/advdif/id.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{id\_lumped\_cn1@\verb+id_lumped_cn1+}
+\item\verb+double id_lumped_cn1+ {\rm(default=\verb|0.|)}:
+
+see doc for \verb+id_fac+
+ (found in file: \verb+../applications/advdif/id.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{identify\_volume\_elements@\verb+identify_volume_elements+}
 \item\verb+int identify_volume_elements+ {\rm(default=\verb|0|)}:
 
@@ -1917,7 +1947,7 @@ processor.
 \index{interface\_full\_preco\_fill@\verb+interface_full_preco_fill+}
 \item\verb+double interface_full_preco_fill+ {\rm(default=\verb|1.|)}:
 
-The ILU fill to be used for the A_II problem if the
+The ILU fill to be used for the \verb+A_II+ problem if the
 ILU preconditioning is used
  (found in file: \verb+../src/iisdcr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -1995,6 +2025,17 @@ Threshold value for $k$ while computing turbulence model.
  (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_diagonal\_factor@\verb+lagrange_diagonal_factor+}
+\item\verb+double lagrange_diagonal_factor+ {\rm(default=\verb|0.0|)}:
+
+Using Lagrange multipliers leads to diagonal null terms, which can
+cause zero pivots when using direct methods. With this option
+a small term is added to the diagonal in order to fix this. The
+term is added only in the Jacobian or also in the residual (which
+results would be non-consistent). See option
+\verb+lagrange_residual_factor+. 
+ (found in file: \verb+../applications/advdif/nonlres.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{lagrange\_diagonal\_factor@\verb+lagrange_diagonal_factor+}
 \item\verb+double lagrange_diagonal_factor+ {\rm(default=\verb|0.|)}:
 
 Using Lagrange multipliers leads to diagonal null terms, which can
@@ -2015,6 +2056,18 @@ term is added only in the Jacobian or also in the residual (which
 results would be non-consistent). See option
 \verb+lagrange_residual_factor+. 
  (found in file: \verb+../applications/ns/nonlr.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{lagrange\_residual\_factor@\verb+lagrange_residual_factor+}
+\item\verb+double lagrange_residual_factor+ {\rm(default=\verb|0.0|)}:
+
+The diagonal term proportional to  \verb+lagrange_diagonal_factor+ 
+may be also entered in the residual. If this is so
+(\verb+lagrange_residual_factor=1+, then the
+method is ``non-consistent'', i.e. the restriction is not exactly
+satisfied by the non-linear scheme is exactly Newton-Raphson. If
+not (\verb+lagrange_residual_factor=0+) then the restriction is
+consistently satisfied but with a non exact Newton-Raphson. 
+ (found in file: \verb+../applications/advdif/nonlres.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_residual\_factor@\verb+lagrange_residual_factor+}
 \item\verb+double lagrange_residual_factor+ {\rm(default=\verb|0.|)}:
@@ -2048,6 +2101,16 @@ causes poor convergence with iterative methods or amplification
 of rounding errors. This factor scales the row in the matrix
 that correspond to the new equation. 
  (found in file: \verb+../applications/ns/lagmul.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{lagrange\_scale\_factor@\verb+lagrange_scale_factor+}
+\item\verb+double lagrange_scale_factor+ {\rm(default=\verb|1.|)}:
+
+Using Lagrange multipliers can lead to bad conditioning, which
+causes poor convergence with iterative methods or amplification
+of rounding errors. This factor scales the columns in the matrix
+that correspond to the lagrange multipliers and can help in
+better conditioning the system. 
+ (found in file: \verb+../applications/advdif/nonlres.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{lagrange\_scale\_factor@\verb+lagrange_scale_factor+}
 \item\verb+double lagrange_scale_factor+ {\rm(default=\verb|1.|)}:
@@ -2343,6 +2406,12 @@ Dimenson of the element
 Dimenson of the element
  (found in file: \verb+../src/gatherer.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{ndimelf@\verb+ndimelf+}
+\item\verb+int ndimelf+ {\rm(default=\verb|ndimel-1|)}:
+
+Dimension of bcconv element
+ (found in file: \verb+../applications/advdif/bccadvfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{nel\_surf@\verb+nel_surf+}
 \item\verb+int nel_surf+ {\rm(default=\verb|0|)}:
 
@@ -2460,6 +2529,12 @@ accelerations represent the movement of the container with
 respect to an instantaneous inertial frame. 
  (found in file: \verb+../applications/ns/nsikepsrot.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{normal\_1d@\verb+normal_1d+}
+\item\verb+double normal_1d+ {\rm(default=\verb|0.|)}:
+
+Normal (only makes sense in 1D). 
+ (found in file: \verb+../applications/advdif/bccadvfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{npg@\verb+npg+}
 \item\verb+int npg+ {\rm(default=\verb|0|)}:
 
@@ -2569,7 +2644,8 @@ see doc for \verb+ns_id_fac+
 \index{ns\_id\_fac@\verb+ns_id_fac+}
 \item\verb+double ns_id_fac+ {\rm(default=\verb|1.|)}:
 
-Residual value is \verb+ns_id_fac*(ns_id_cn * (x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))+
+Residual value is
+#ns_id_fac*(ns_id_cn *(x^n-x_ref) + ns_id_cn1 * (x^{n+1}-x_ref))#
  (found in file: \verb+../applications/ns/nsid.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{ns\_id\_lumped\_cn@\verb+ns_id_lumped_cn+}
@@ -2784,6 +2860,12 @@ Relaxation factor for the Newton iteration
 
 Relaxation factor for the Newton iteration
  (found in file: \verb+../applications/advdif/advdif_bubbly.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{p\_thrsh@\verb+p_thrsh+}
+\item\verb+double p_thrsh+ {\rm(default=\verb|0.|)}:
+
+Threshold value for pressure. See doc for rho_thrsh.
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{part\_include\_fic@\verb+part_include_fic+}
 \item\verb+int part_include_fic+ {\rm(default=\verb|1|)}:
@@ -3237,6 +3319,14 @@ Density
 Specific heat
  (found in file: \verb+../applications/ns/qharm.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{rho\_thrsh@\verb+rho_thrsh+}
+\item\verb+double rho_thrsh+ {\rm(default=\verb|0.|)}:
+
+Threshold value for density. If density goes belows this value
+ then a cutoff function is applied. This is a simple way to prevent
+ crashing of the code due to taking square root of negative values.
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{roughness@\verb+roughness+}
 \item\verb+double roughness+ {\rm(default=\verb|1.|)}:
 
@@ -3371,9 +3461,15 @@ Access mode to the ``some'' file. If 0 rewind file. If 1
 \index{shape@\verb+shape+}
 \item\verb+string shape+ {\rm(default=\verb|string("undefined")|)}:
 
-Choose channel section shape, may be {\tt circular}
-or {\tt rectangular}
+Choose channel section shape, may be {\tt circular},
+ {\tt rectangular} or {\tt triangular}.
  (found in file: \verb+../applications/advdif/stream.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{shocap@\verb+shocap+}
+\item\verb+double shocap+ {\rm(default=\verb|0.0|)}:
+
+Add a shock capturing term
+ (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{shock\_capturing@\verb+shock_capturing+}
 \item\verb+int shock_capturing+ {\rm(default=\verb|0|)}:
@@ -3483,12 +3579,6 @@ Correcting factor for diffusion in the $\epsilon$ transport equation
 \index{sigma\_e@\verb+sigma_e+}
 \item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
 
-sigma_e
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{sigma\_e@\verb+sigma_e+}
-\item\verb+double sigma_e+ {\rm(default=\verb|1.3|)}:
-
 sigma_e 
  (found in file: \verb+../applications/ns/nsikeps.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -3515,12 +3605,6 @@ Correcting factor for diffusion in the $k$ transport equation
 
 Correcting factor for diffusion in the $k$ transport equation
  (found in file: \verb+../applications/advdif/ffswfm2t.cpp+)
-%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
-\index{sigma\_k@\verb+sigma_k+}
-\item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
-
-sigma_k
- (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{sigma\_k@\verb+sigma_k+}
 \item\verb+double sigma_k+ {\rm(default=\verb|1.|)}:
@@ -3685,6 +3769,14 @@ is not set and \verb+steady+ is set then \verb+Dt+ is set to one.
 Steady flag
  (found in file: \verb+../test/spillway/alehook.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{stop\_on\_neg\_val@\verb+stop_on_neg_val+}
+\item\verb+int stop_on_neg_val+ {\rm(default=\verb|1|)}:
+
+If this flag is activated the code stops when a negative 
+ value for density or pressure is found. Setting either
+ \verb+p_thrsh+ or \verb+rho_thrsh+ deactivates #stop_on_neg_val#. 
+ (found in file: \verb+../applications/advdif/gasflow.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{t0@\verb+t0+}
 \item\verb+double t0+ {\rm(default=\verb|0.|)}:
 
@@ -3759,7 +3851,7 @@ Scale the SUPG upwind term.
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-sigma_e
+Mask for stabilization term
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{tau\_fac@\verb+tau_fac+}
@@ -3825,7 +3917,7 @@ the time step. If the \verb+steady+ option is in effect,
 Adjust the stability parameters, taking into account
 the time step. If the \verb+steady+ option is in effect,
 (which is equivalent to $\Dt=\infty$) then
-\verb+temporal_stability_factor+ is set to 0.
+#temporal_stability_factor# is set to 0.
  (found in file: \verb+../applications/advdif/gasflow.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
@@ -3998,7 +4090,20 @@ Mask for using laminar relation (\verb+turbulence_coef=0+).
 
 Update jacobian only until n-th Newton subiteration. 
 Don't update if null. 
+ (found in file: \verb+../applications/advdif/advdif.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_iters@\verb+update_jacobian_iters+}
+\item\verb+int update_jacobian_iters+ {\rm(default=\verb|1|)}:
+
+Update jacobian only until n-th Newton subiteration. 
+Don't update if null. 
  (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_start\_iters@\verb+update_jacobian_start_iters+}
+\item\verb+int update_jacobian_start_iters+ {\rm(default=\verb|INF|)}:
+
+Update jacobian each $n$-th Newton iteration
+ (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{update\_jacobian\_start\_iters@\verb+update_jacobian_start_iters+}
 \item\verb+int update_jacobian_start_iters+ {\rm(default=\verb|INF|)}:
@@ -4010,7 +4115,19 @@ Update jacobian each $n$-th Newton iteration
 \item\verb+int update_jacobian_start_steps+ {\rm(default=\verb|INF|)}:
 
 Update jacobian each $n$-th time step. 
+ (found in file: \verb+../applications/advdif/advdif.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_start\_steps@\verb+update_jacobian_start_steps+}
+\item\verb+int update_jacobian_start_steps+ {\rm(default=\verb|INF|)}:
+
+Update jacobian each $n$-th time step. 
  (found in file: \verb+../applications/ns/ns.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{update\_jacobian\_steps@\verb+update_jacobian_steps+}
+\item\verb+int update_jacobian_steps+ {\rm(default=\verb|0|)}:
+
+Update jacobian each $n$-th time step. 
+ (found in file: \verb+../applications/advdif/advdif.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{update\_jacobian\_steps@\verb+update_jacobian_steps+}
 \item\verb+int update_jacobian_steps+ {\rm(default=\verb|0|)}:
@@ -4069,7 +4186,7 @@ Chooses the preconditioning operator.
  (found in file: \verb+../src/iisdcr.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{use\_interface\_full\_preco\_nlay@\verb+use_interface_full_preco_nlay+}
-\item\verb+int use_interface_full_preco_nlay+ {\rm(default=\verb|2|)}:
+\item\verb+int use_interface_full_preco_nlay+ {\rm(default=\verb|1|)}:
 
 Number of layers in the preconditioning band (should
  be \verb+nlay>=1+.) 
@@ -4164,7 +4281,7 @@ von Karman constant (law of the wall - turbulence model)
 \index{weak\_form@\verb+weak_form+}
 \item\verb+int weak_form+ {\rm(default=\verb|1|)}:
 
-Use the weak form for the Galerkin part of the advective term. 
+Use the weak form for the Galerkin part of the advective term.
  (found in file: \verb+../applications/advdif/advdife.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}
