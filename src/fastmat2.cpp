@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.17 2003/07/02 03:36:13 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.18 2005/03/23 01:45:28 mstorti Exp $
 
 #include <cmath>
 #include <cstdio>
@@ -161,6 +161,7 @@ FastMatCache **FastMat2::cache_list_begin=NULL;
 int FastMat2::cache_list_size;
 vector<FastMatCachePosition> FastMat2::cache_list_stack;
 OperationCount FastMat2::op_count;
+int FastMat2::stat_mode=0;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void FastMat2::reset_cache(void) {
