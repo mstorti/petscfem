@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.58 2002/07/11 00:34:32 mstorti Exp $
+//$Id: advdife.cpp,v 1.59 2002/07/11 18:31:47 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -94,6 +94,9 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 			     const Dofmap *dofmap,const char *jobinfo,
 			     const ElementList &elemlist,
 			     const TimeData *time_data) {
+
+  // This is ugly!!
+  new_adv_dif_elemset = dynamic_cast<const NewAdvDif *>(elemset); 
 
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
@@ -236,7 +239,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     flux(ndof,ndimel),fluxd(ndof,ndimel),mass(nel,nel),
     grad_U(ndimel,ndof), A_grad_U(ndof),
     G_source(ndof), dUdt(ndof), Un(ndof), 
-    Ho(ndof),Hn(ndof), tau_supg(ndof,ndof);
+    Ho(ndof),Hn(ndof);
   // These are edclared but not used
   FMatrix nor,lambda,Vr,Vr_inv,U(ndof),Ualpha(ndof),
     lmass(nel),Id_ndof(ndof,ndof),
@@ -244,10 +247,12 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndimel),tmp12,tmp14,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24;
-  FastMat2 P_supg(3,nel,ndof,ndof),A_grad_N(3,nel,ndof,ndof), Ao_grad_N(3,nel,ndof,ndof),
+  FastMat2 P_supg(3,nel,ndof,ndof),A_grad_N(3,nel,ndof,ndof), 
     grad_N_D_grad_N(4,nel,ndof,nel,ndof),N_N_C(4,nel,ndof,nel,ndof),
     N_P_C(3,ndof,nel,ndof),N_Cp_N(4,nel,ndof,nel,ndof),
     P_Cp(2,ndof,ndof);
+  Ao_grad_N.resize(3,nel,ndof,ndof);
+  tau_supg.resize(ndof,ndof);
 
   //#define COMPUTE_FD_ADV_JACOBIAN
 #ifdef COMPUTE_FD_ADV_JACOBIAN
@@ -480,13 +485,6 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	adv_diff_ff->comp_N_N_C(N_N_C,SHAPE,wpgdet*ALPHA);
 	matlocf.add(N_N_C);
 
-	if (ret_options & SCALAR_TAU) {
-	  double tau_supg_d = tau_supg.get(1,1);
-	  P_supg.set(Ao_grad_N).scale(tau_supg_d);
-	} else {
-	  P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
-	}
-
 	// If you want to define a formulation for the SUPG
 	// perturbation function that can't be cast in the standard
 	// form (i.e. it is not of the form #tau * A * grad_N# then
@@ -647,9 +645,18 @@ const FastMat2 *NewAdvDif::grad_N() const {
   return &dshapex;
 }
 
-//  FastMat2 &NewAdvDif::Uold() const {
-//    return Uo;
-//  }
+void NewAdvDif::comp_P_supg(int is_tau_scalar) {
+  if (is_tau_scalar) {
+    double tau_supg_d = tau_supg.get(1,1);
+    P_supg.set(Ao_grad_N).scale(tau_supg_d);
+  } else {
+    P_supg.prod(Ao_grad_N,tau_supg,1,2,-1,-1,3);
+  }
+}
+
+void NewAdvDifFF::comp_P_supg(FastMat2 &P_supg) {
+  new_adv_dif_elemset->comp_P_supg();
+}
 
 #undef SHAPE    
 #undef DSHAPEXI 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: advec.h,v 1.4 2002/07/11 17:38:33 mstorti Exp $
+//$Id: advec.h,v 1.5 2002/07/11 18:31:47 mstorti Exp $
 #ifndef ADVEC_H
 #define ADVEC_H
 
@@ -34,10 +34,6 @@ class advec_ff : public NewAdvDifFF {
   FastMat2 tmp1,tmp0;
   /// Velocity vector in intrinsic (master element) coordinates
   FastMat2 Uintri;
-  /** Pointer to NewAdvDif elemset (FIXME:= `elemset' doesn't serve because
-      it is a pointer to `NewElemset')
-  */
-  const NewAdvDif* e;
  public:
   /// Constructor
   advec_ff(const NewAdvDif *e) : NewAdvDifFF(e) {}
@@ -65,8 +61,6 @@ class advec_ff : public NewAdvDifFF {
     A.resize(1,ndim).set(u).reshape(3,ndim,1,1);
     // Diffusive Jacobian
     D.resize(2,ndim,ndim).eye(diff).reshape(4,ndim,ndim,1,1);
-    // This is ugly!!
-    e = dynamic_cast<const NewAdvDif *>(elemset); 
     // Intrinsic velocity
     Uintri.resize(1,ndim);
     // Get element integer props
@@ -149,7 +143,7 @@ class advec_ff : public NewAdvDifFF {
   }
 #ifdef USE_COMP_P_SUPG
   void comp_P_supg(FastMat2 &P_supg) {
-    P_supg.prod(A,*e->grad_N(),-1,2,3,-1,1).scale(tau);
+    P_supg.prod(A,*new_adv_dif_elemset->grad_N(),-1,2,3,-1,1).scale(tau);
   }
 #endif
 };

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.52 2002/07/11 16:35:53 mstorti Exp $
+//$Id: advective.h,v 1.53 2002/07/11 18:31:47 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -227,6 +227,10 @@ private:
 public:
   /// The elemset associated with the flux function
   const NewElemset *elemset;
+  /** Pointer to NewAdvDif elemset (FIXME:= `elemset' doesn't serve because
+      it is a pointer to `NewElemset')
+  */
+  const NewAdvDif* new_adv_dif_elemset;
   /// The enthalpy function for this flux function
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
@@ -322,7 +326,7 @@ public:
       shape function.
       @param P_supg (output) the SUPG perturbation function
   */ 
-  virtual void comp_P_supg(FastMat2 &P_supg) {}
+  virtual void comp_P_supg(FastMat2 &P_supg);
 
   /** Returns the dimension of the element (May be different from the
       dimension space). For instance, a river may be a 1D elemset in a
@@ -347,7 +351,7 @@ class NewAdvDif : public NewElemset {
   NewAdvDifFF *adv_diff_ff;
   int volume_flag;
   double Volume,rec_Dt_m;
-  FastMat2 dshapex,Uo;
+  FastMat2 dshapex,Uo,Ao_grad_N,tau_supg;
 public:
   /// Contructor from the pointer to the fux function
   NewAdvDif(NewAdvDifFF *adv_diff_ff_=NULL) :
@@ -367,6 +371,7 @@ public:
   const FastMat2 *grad_N() const ;
   double rec_Dt() const { return rec_Dt_m; }
   const FastMat2 &Uold() const { return Uo; }
+  void comp_P_supg();
 };
 
 /** This is the companion elemset to advdif that computes the boundary
