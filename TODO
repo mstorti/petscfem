@@ -2,6 +2,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Breaks uncleanly when include directive is pasted to filename, e.g. 
+            __INCLUDE__xxxxxx.file ???
 * Readd  `sqcav', `cubcav', `pfmat2' to test/Makefile
 * Add test for `surf_gatherer' in test/cubcav. Apparently it is
        almost already done. 
