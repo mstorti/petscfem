@@ -1,5 +1,5 @@
 //
-// time: Thu Jun 26 12:56:05 2003
+// time: Fri Jun 27 17:32:20 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -20,7 +20,7 @@ include "systemdi.net"
 // page assignment: plot	order=4, windowed=0, showing=0
 // page assignment: proc_u	order=3, windowed=0, showing=0
 // page assignment: scalar	order=5, windowed=0, showing=0
-// workspace: width = 373, height = 642
+// workspace: width = 500, height = 642
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
@@ -43,10 +43,10 @@ macro main(
     // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 10
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 10 0 265 1 }
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 10 0 279 1 }
     // page group: import
-    // vcr[4]: min = 0, max = 1000, beg = 0, end = 265, cur = 0, inc = 10, loop = off, step = off, pal = off
-    // window: position = (0.2080,0.3997), size = 0.2734x0.1042
+    // vcr[4]: min = 0, max = 1000, beg = 0, end = 279, cur = 0, inc = 10, loop = off, step = off, pal = off
+    // window: position = (0.3770,0.1510), size = 0.2734x0.1042
     //
     main_Sequencer_4_in_3 = @frame;
 main_Sequencer_4_out_1[cache: 2] = 
@@ -303,11 +303,11 @@ main_Collect_4_out_1 =
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_1"
     // input[7]: defaulting = 1, visible = 0, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 7.7378411
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 7.7410369
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 7.7378411 }
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 7.7410369 }
     // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.0
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 7.7378411
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 7.7410369
     // page group: scalar
     // window: position = (0.0771,0.2070), size = 0.6348x0.5859
     //
@@ -1159,12 +1159,12 @@ main_Sequencer_4_in_3 = NULL;
 main_Sequencer_4_in_4 = 0;
 main_Sequencer_4_in_5 = 1000;
 main_Sequencer_4_in_6 = NULL;
-main_Sequencer_4_in_7 = { 0 1000 10 0 265 1 };
+main_Sequencer_4_in_7 = { 0 1000 10 0 279 1 };
 main_Sequencer_4_out_1 = NULL;
 
 @startframe = 0;
 @nextframe  = @startframe;
-@endframe   = 265;
+@endframe   = 279;
 @deltaframe = 10;
 main_Integer_1_in_1 = "Integer_1";
 main_Integer_1_in_2 = NULL;
@@ -1255,13 +1255,13 @@ main_Colormap_1_in_8 = NULL;
 main_Colormap_1_in_9 = NULL;
 main_Colormap_1_in_10 = NULL;
 main_Colormap_1_in_11 = NULL;
-main_Colormap_1_in_12 = { 0.0 7.7378411 };
+main_Colormap_1_in_12 = { 0.0 7.7410369 };
 main_Colormap_1_in_13 = NULL;
 main_Colormap_1_in_14 = NULL;
 main_Colormap_1_in_15 = NULL;
 main_Colormap_1_in_16 = NULL;
 main_Colormap_1_in_17 = 0.0;
-main_Colormap_1_in_18 = 7.7378411;
+main_Colormap_1_in_18 = 7.7410369;
 main_Colormap_1_in_19 = NULL;
 main_Colormap_1_out_1 = NULL;
 main_Color_1_in_3 = 1.0;
