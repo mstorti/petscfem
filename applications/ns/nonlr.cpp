@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.18 2001/07/10 00:54:33 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.19 2001/09/18 18:24:33 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -214,10 +214,15 @@ void wall_law_res::res(int k,FastMat2 & U,FastMat2 & r,
     }
 
     double kw = int_pow(ustar,2)/sqrt(C_mu);
-    double dkw_du = 2.*kw/ustar*dustar_du;
+    double dkw_du = 2.*ustar/sqrt(C_mu)*dustar_du;
 
     double epsw = int_pow(ustar,4)/(von_Karman_cnst*y_wall_plus*viscosity);
-    double depsw_du = 4*epsw/ustar*dustar_du;
+    double depsw_du;
+    if (y_wall>0) {
+      depsw_du = 3*int_pow(ustar,2)/von_Karman_cnst/y_wall*dustar_du;
+    } else {
+      depsw_du = 4*epsw/ustar*dustar_du;
+    }
   
     double k = U.get(nk);
     double eps = U.get(ne);
