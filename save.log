@@ -2561,3 +2561,6 @@ tag: beta-3.18.pl45 on Tue, 25 Mar 2003 19:31:53 -0300 by mstorti in node1.beowu
 ----------
 tag: beta-3.18.pl46 on Wed, 26 Mar 2003 15:38:42 -0300 by mstorti in node1.beowulf.gtm
      > Added fix for `nsilesther.cpp' and `wall.cpp'
+----------
+tag: beta-3.18.pl47 on Sun, 30 Mar 2003 13:29:31 -0300 by mstorti in spider
+     > Writing `wave' example for FS movement. 
