@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.13 2002/08/08 00:56:46 mstorti Exp $
+//$Id: embgath.cpp,v 1.14 2002/08/08 02:16:17 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -379,6 +379,9 @@ void visc_force_integrator::init() {
   dx.resize(1,ndim);
   strain_rate.resize(2,ndim,ndim);
   sigma.resize(2,ndim,ndim);
+  //o Viscosity of the fluid
+  TGETOPTDEF_ND(thash,double,viscosity,0.);
+  PETSCFEM_ASSERT0(viscosity>0.,"Viscosity should be positive.");  
   //o _T: double[ndim] _N: moment_center _D: null vector 
   // _DOC: Center of moments. _END
   get_double(thash,"moment_center",x_center.storage_begin(),1,ndim);  
@@ -420,7 +423,6 @@ void visc_force_integrator
     moment.cross(force,dx);
     SHV(moment);
     // export forces to return vector
-    printf("ndim_m: %d\n",ndim_m);
     moment.export_vals(pg_values.begin()+ndim_m);
   }
 }
