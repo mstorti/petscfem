@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.1.2.1 2001/12/27 19:55:47 mstorti Exp $
+//$Id: petscmat.cpp,v 1.1.2.2 2001/12/28 21:13:17 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -12,6 +12,8 @@ extern int MY_RANK,SIZE;
 #include <src/pfptscmat.h>
 #include <src/petscmat.h>
 #include <src/graph.h>
+
+PETScMat::~PETScMat() {clear();};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -33,14 +35,29 @@ int PETScMat::duplicate(MatDuplicateOption op,const PFMat &B) {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::create"
 void PETScMat::create() {
-  int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
+  int k,k1,k2,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank,
+    debug_compute_prof=0;
+  set<int> ngbrs_v;
+  set<int>::iterator q,qe;
 
   MPI_Comm_rank (comm, &myrank);
-  Node *nodep;
-  // range of dofs in this processor: k1 <= dof <= k2
-  k1=dofmap->startproc[myrank];
-  neqp=dofmap->neqproc[myrank];
-  k2=k1+neqp-1;
+
+  // Scatter the profile graph
+  lgraph.scatter();
+
+  const int &neq = M;
+  
+  // number of dofs in this processor
+  neqp = 0;
+  dofs_proc.clear();
+  proc2glob.clear();
+  for (k=0; k<neq; k++) {
+    if (part.processor(k)==myrank) {
+      dofs_proc.push_back(k);
+      proc2glob[k] = neqp++;
+    }
+  }
+  dofs_proc_v = dofs_proc.begin();
 
   // vectors for dimensioning the PETSc matrix
   int *d_nnz,*o_nnz,diag_ok;
@@ -52,28 +69,20 @@ void PETScMat::create() {
     d_nnz[k]=0;
     o_nnz[k]=0;
     // global dof number
-    keq=k1+k;
+    keq = dofs_proc_v[k];
     if (debug_compute_prof) printf("-------- keq = %d: ",keq);
-    // dofs connected to a particular dof are stored in the Darray as
-    // a single linked list of integers. `pos' is a cursor to the
-    // cells
-    // The list for dof `keq' starts at position `keq' and is linked
-    // by the `next' field. 
-    // fixme:= we could have only the headers for the local dof's
-    pos=keq;
+    ngbrs_v.clear();
+    lgraph.set_ngbrs(keq,ngbrs_v);
     // PETSc doc says that you have to add room for the diagonal entry
     // even if it doesn't exist. But apparently it isn't needed. 
     // diag_ok=0;
-    while (1) {
-      // Recover cell
-      nodep = (Node *)da_ref(da,pos);
-      // Is the terminator cell?
-      if (nodep->next==-1) break;
-      // connected dof
-      leq = nodep->val;
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) {
+      // leq:= number of dof connected to `keq'
+      leq = *q;
       if (debug_compute_prof) printf("%d ",leq);
       // if (leq==keq) diag_ok=1;
-      if (k1<=leq && leq<=k2) {
+      if (part.processor(leq) == myrank) {
 	// Count in `diagonal' part (i.e. `leq' in the same processor
 	// than `keq')
 	d_nnz[k]++;
@@ -82,8 +91,6 @@ void PETScMat::create() {
 	// processor than `keq')
 	o_nnz[k]++;
       }	
-      // Follow link
-      pos = nodep->next;
     }
     if (debug_compute_prof) 
       printf("     --    d_nnz %d   o_nnz %d\n",d_nnz[k],o_nnz[k]);
@@ -100,9 +107,6 @@ void PETScMat::create() {
     sumdcorr += d_nnz[k];
     sumo += o_nnz[k];
   }
-
-  // deallocate darray
-  da_destroy(da);
 
   // Print statistics
   double avo,avd,avdcorr;
@@ -123,9 +127,7 @@ void PETScMat::create() {
   PetscSynchronizedFlush(comm);
   
   // Create matrices
-  int neq=dofmap->neq;
-  ierr =  MatCreateMPIAIJ(comm,dofmap->neqproc[myrank],
-			  dofmap->neqproc[myrank],neq,neq,
+  ierr =  MatCreateMPIAIJ(comm,neqp,neqp,neq,neq,
 			  PETSC_NULL,d_nnz,PETSC_NULL,o_nnz,&A); 
   ierr =  MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR);
   // P and A are pointers (in PETSc), otherwise this may be somewhat risky
@@ -139,7 +141,7 @@ void PETScMat::create() {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::clear"
 void PETScMat::clear() {
-  PFMat::clear();
+  PFPETScMat::clear();
   // P is not destroyed, since P points to A
   if (A) {
     int ierr = MatDestroy(A); 
@@ -165,7 +167,7 @@ int PETScMat::solve_only(Vec &res,Vec &dx) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "PETScMat::view"
-int PETScMat::view(Viewer viewer) {
+int PETScMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
   ierr = MatView(A,viewer); CHKERRQ(ierr); 
 //    ierr = SLESView(sles,VIEWER_STDOUT_SELF); CHKERRQ(ierr); 
   return 0;

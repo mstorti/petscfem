@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.8 2001/12/27 19:55:47 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.9 2001/12/28 21:13:17 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -105,7 +105,7 @@ public:
   /// returns the number of iterations spent in the last solve
   virtual int its() {return 0;};
   /// Prints the matrix to a PETSc viewer
-  virtual int view(Viewer viewer)=0;
+  virtual int view(Viewer viewer=VIEWER_STDOUT_WORLD)=0;
   /// Derive this if you want to manage directly the preconditioning. 
   virtual int set_preco(const string & preco_type)=0;
   /// Duplicate matrices (currently not implemented for IISDMat)
@@ -130,7 +130,7 @@ public:
   virtual void get_option(const char *name,string &retval,int defval=0,int
 			 n=1 )=0;
 
-  virtual void print()=0;
+  // virtual void print()=0;
 };
 
 #if 0

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.8 2001/12/27 10:12:42 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.9 2001/12/28 21:13:24 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -9,6 +9,7 @@
 #include <src/pfmat.h>
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
+#include <src/petscmat.h>
 #include <src/graph.h>
 
 extern int MY_RANK,SIZE;
@@ -76,9 +77,11 @@ int main(int argc,char **args) {
   MY_RANK = myrank;
   SIZE = size;
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
-  PFMat &A = AA;
+  PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
+  PFMat &A = AAA;
   for (int j=0; j<N; j++) {
     if (j % size != myrank) continue; // Load periodically
+    A.set_profile(j,j);
     if (j+1<N) A.set_profile(j,j+1);
     if (j-1>=0) A.set_profile(j,j-1);
   }
@@ -87,7 +90,7 @@ int main(int argc,char **args) {
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
   A.create();
-  if (debug_print) A.print();
+  if (debug_print) A.view();
 
   int nhere=0;
   for (int k=0; k<N; k++) 

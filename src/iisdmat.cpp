@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.5 2001/12/27 19:55:47 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.6 2001/12/28 21:13:17 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -457,7 +457,7 @@ int IISDMat::zero_entries() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::view"
-int IISDMat::view(Viewer viewer) {
+int IISDMat::view(Viewer viewer=VIEWER_STDOUT_WORLD) {
   int ierr;
   Viewer matlab;
   if (local_solver == PETSc) {
@@ -879,12 +879,14 @@ int IISDMat::jacobi_pc_apply(Vec x,Vec w) {
   ierr = VecPointwiseDivide(x,A_II_diag,w); CHKERRQ(ierr);  
 }
 
+#if 0
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
 #define __FUNC__ "IISDMat::jacobi_pc_apply"
 void IISDMat::print(void) {
   lgraph.print();
 }
+#endif
 
 /*
   Local Variables: 

@@ -1,21 +1,19 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: petscmat.h,v 1.1.2.2 2001/12/27 21:35:27 mstorti Exp $
+// $Id: petscmat.h,v 1.1.2.3 2001/12/28 21:13:17 mstorti Exp $
 #ifndef PETSCMAT_H
 #define PETSCMAT_H
 
 #include <vector>
 
+#include <src/fem.h>
 #include <src/pfmat.h>
 #include <src/pfptscmat.h>
 
 // This is the OO wrapper to PETSc matrix
-class PETScMat : public PFMat {
+class PETScMat : public PFPETScMat {
   int M,N;
-  /// PETSc error code 
   int ierr;
-  /// The graph storing the profile object
-  StoreGraph lgraph;
   /** Solve the linear system 
       @param res (input) the rhs vector
       @param dx (input) the solution vector
@@ -26,23 +24,33 @@ class PETScMat : public PFMat {
       @param dx (input) the solution vector
   */ 
   int solve_only(Vec &res,Vec &dx);
+
+  /// Maps dofs in this processors to global dofs
+  vector<int> dofs_proc;
+  /// Poitner to the storage area in `dofs_proc'
+  int *dofs_proc_v;
+
+  /** Maps dof's in this processor to global
+      ones. The inverse of `dofs_proc'. 
+  */
+  map<int,int> proc2glob;
+
 public:
   /// Destructor (calls almost destructor)
-  ~PETScMat() {clear();};
+  ~PETScMat();
   /// clear memory (almost destructor)
   void clear();
 
   PETScMat(int MM,int NN,const DofPartitioner &pp,MPI_Comm comm_ =
 	  PETSC_COMM_WORLD) : 
-    PFPETScMat(comm_), 
-    M(MM), N(NN), 
-    part(pp), lgraph(M,&part,comm), 
-    A_LL_other(NULL), A_LL(NULL), 
-    local_solver(PETSc), pf_part(pp) {};
+    PFPETScMat(MM,pp,comm_), 
+    M(MM), N(NN) {};
 
-  /// Constructor 
-  PETScMat() : PFMat() {};
-
+  // returns the j-th dimension
+  int size(int j) { 
+    assert(j==1 || j==2);
+    return (j==1 ? M : N);
+  }
   /** Call the assembly begin function for the underlying PETSc matrices
       @param type (input) PETSc assembly type
       @return A PETSc error code 
@@ -73,10 +81,10 @@ public:
       @param debug_compute_prof (input) flag for debugging the process
       of building the operator.
   */ 
-  void create(Darray *da,const Dofmap *dofmap_,int debug_compute_prof=0);
+  void create();
   /// Duplicate matrices 
   int duplicate(MatDuplicateOption op,const PFMat &A);
-  int view(Viewer viewer);
+  int view(Viewer viewer=VIEWER_STDOUT_WORLD);
 };
 
 #endif
