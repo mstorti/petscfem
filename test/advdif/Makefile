@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2001/03/22 00:34:33 mstorti Exp $ 
+# $Id: Makefile,v 1.19 2001/03/24 01:41:16 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -82,6 +82,7 @@ sine_crank_nic:
 sine_crank_nic_npp:
 	eperl -d nx=10 -d ny=5 -d N_step_period=$(N_step_period) -d tol_error=0 \
 			sine.data.epl >sine.data
+	-rm -f save.state
 	$(MAKE) case=sine run
 	mv -fv save.state save.state.$(N_step_period)
 
