@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: tryme4.cpp,v 1.7 2002/07/19 13:47:11 mstorti Exp $
+// $Id: tryme4.cpp,v 1.8 2002/07/19 15:59:57 mstorti Exp $
 
 #include <cassert>
 #include <cstdio>
@@ -23,8 +23,28 @@ void print_set(set<int> &gg,const char *s=NULL) {
     printf("%d ",*q);
 }
 
+typedef pair<int,int> int_pair2;
+void print_set(set<int_pair2> &gg,const char *s=NULL) { 
+    if (s) printf("%s",s);
+    for (set<int_pair2>::iterator q=gg.begin(); q!=gg.end(); q++) 
+    printf("(%d,%d) ",q->first,q->second);
+}
+
+class int_pair { 
+public: 
+  int i,j; 
+  int_pair(int ii,int jj) { i=ii; j=jj; }
+  bool operator<(int_pair q) const {
+    if (i!=q.i) return i<q.i;
+    else return j<q.j;
+  }
+  bool operator==(int_pair q) const {
+    return i==q.i && j==q.j;
+  }
+};
+
 template<class T>
-class SET {
+class Set {
 private:
   typedef vector<T> cont;
   typedef cont::iterator cont_it;
@@ -36,8 +56,8 @@ private:
   int modif;
   void resync() { 
     if (modif) {
-      printf("before: ");
-      print2();
+      // printf("before: ");
+      // print2();
       sort(d.begin(),d.end());
       cont_it p=d.begin(), e=d.end(), q;
       if (p==e) {
@@ -49,14 +69,14 @@ private:
       d.erase(++p,e);
       ordered = p-d.begin();
       modif = 0;
-      printf("after: ");
-      print2();
-      printf("resyncing, size %d\n",d.size());
+      // printf("after: ");
+      // print2();
+      // printf("resyncing, size %d\n",d.size());
     }
   }
 public:
-  SET() { ordered = 0; max=10; modif=0; }
-  ~SET() { d.clear(); }
+  Set() { ordered = 0; max=10; modif=0; }
+  ~Set() { d.clear(); }
   void insert(T t) {
     if (!binary_search(d.begin(),d.begin()+ordered,t)) {
       d.push_back(t); modif=1;
@@ -65,10 +85,10 @@ public:
 	int new_max = 2*d.size();
 	if (new_max>max) {
 	  max = new_max;
-	  printf("new size %d\n",max);
+	  // printf("new size %d\n",max);
 	}
       }
-    } else printf("already in set...\n");
+    } // else printf("already in set...\n");
   }
   void print(const char *s=NULL) { 
     resync(); 
@@ -79,38 +99,41 @@ public:
   int size() { resync(); return d.size(); }
 };
 
-void SET<int>::print2() {
+void Set<int>::print2() {
   for (int j=0; j<d.size(); j++) {
     printf("%d ",d[j]);
   }
   printf("\n");
 }
 
-int main(int argc, char **argv) {
-  SET<int> g;
-  set<int> gg;
-  int k;
-  int M=10;
-  int l=0;
-  for (int j=0; j<2; j++) { 
-    for (int kk=0; kk<500; kk++) { 
-      l++;
-      k = irand(1,1000);
-      printf("insertando: %d\n",k);
-      g.insert(k); 
-      gg.insert(k); 
-    }
-    if (g.size()!=gg.size()) {
-      printf("on l=%d bad: g.size(): %d, gg.size() %d\n",l, g.size(),gg.size());
-      g.print("usando my_set<int>: ");
-      print_set(gg,"usando set<int>: ");
-      exit(0);
-    } else printf("on l=%d OK: g.size(): %d, gg.size() %d\n",l, g.size(),gg.size());
-
+void Set<int_pair>::print2() {
+  for (int j=0; j<d.size(); j++) {
+    printf("(%d,%d) ",d[j].i,d[j].j);
   }
+  printf("\n");
+}
 
-  g.print("usando my_set<int>: ");
-  print_set(gg,"usando set<int>: ");
+int main(int argc, char **argv) {
+  Set<int_pair> g;
+  set<int_pair2> gg;
+  int kk;
+  for (kk=0; kk<1000000; kk++) { 
+    int k = irand(1,1000);
+    int l = irand(1,1000);
+    g.insert(int_pair(k,l)); 
+    gg.insert(int_pair2(k,l)); 
+    if (kk % 100000 == 0 ) {
+      if (g.size()!=gg.size()) {
+	printf("on kk=%d bad: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
+	g.print("usando my_set<int>: ");
+	print_set(gg,"usando set<int>: ");
+	exit(0);
+      } else printf("on kk=%d OK: g.size(): %d, gg.size() %d\n",kk, g.size(),gg.size());
+    }
+  }
+  
+  // g.print("usando my_set<int>: ");
+  // print_set(gg,"usando set<int>: ");
 
   printf("g.size(): %d, gg.size() %d\n",g.size(),gg.size());
 }
