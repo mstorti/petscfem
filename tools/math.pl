@@ -1,5 +1,4 @@
-#__INSERT_LICENSE__
-#
+# $Id: math.pl,v 1.5 2002/08/01 00:20:11 mstorti Exp $
 # Some useful definitions for use with ePerl
 #
 
@@ -26,6 +25,8 @@ sub floor {
 sub ceil {
     return floor(@_)+1;
 }
+
+sub tan { return sin($_[0])/cos($_[0]); }
 
 sub asin {
     my $x=shift();
@@ -165,7 +166,7 @@ sub refine {
 
 sub max {
     my $maxx = $_[0];
-    for (my $j=1; $j<$#_; $j++ ) {
+    for (my $j=1; $j<=$#_; $j++ ) {
 	$maxx = $_[$j] if $_[$j]>$maxx;
     }
     return $maxx;
@@ -173,11 +174,16 @@ sub max {
 
 sub min {
     my $minn = $_[0];
-    for (my $j=1; $j<$#_; $j++ ) {
-	print "minn: cur val: $_[$j]\n";
+    for (my $j=1; $j<=$#_; $j++ ) {
 	$minn = $_[$j] if $_[$j]<$minn;
     }
     return $minn;
+}
+
+sub irand {
+    if ($#_ == 0) { return int(rand()*$_[0]); }
+    elsif ($#_ == 1) { return $_[0]+irand($_[1]-$_[0]+1); }
+    else { die "usage: irand(n) or irand(i,j)\n"; }
 }
 
 1;
