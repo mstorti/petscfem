@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.48.2.2 2003/08/18 20:00:07 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.48.2.3 2003/08/18 20:41:15 mstorti Exp $
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
 
@@ -268,8 +268,10 @@ IISDMat::~IISDMat() {
   delete A_LL_other;
   A_LL_other = NULL;
   int ierr;
-  ierr = VecDestroy_maybe(wb); assert(!ierr); 
-  ierr = VecDestroy_maybe(xb); assert(!ierr); 
+  if (nlay>1) {
+    ierr = VecDestroy_maybe(wb); assert(!ierr); 
+    ierr = VecDestroy_maybe(xb); assert(!ierr); 
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -698,15 +700,25 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define PETSC_OBJECT_DESTROY_MAYBE(type)	\
 int type##Destroy_maybe(type &v) {		\
+  int ierr=0;					\
   if (v) {					\
-    int ierr = type##Destroy(v); CHKERRQ(ierr);	\
+    ierr = type##Destroy(v); CHKERRQ(ierr);	\
     v = NULL;					\
   }						\
-  return 0;					\
+  return ierr;					\
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
+#define __FUNC__ "VecDestroy_maybe"
 PETSC_OBJECT_DESTROY_MAYBE(Vec);
+
+#undef __FUNC__
+#define __FUNC__ "MatDestroy_maybe"
 PETSC_OBJECT_DESTROY_MAYBE(Mat);
+
+#undef __FUNC__
+#define __FUNC__ "SLESDestroy_maybe"
 PETSC_OBJECT_DESTROY_MAYBE(SLES);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

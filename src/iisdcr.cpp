@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.8 2003/08/18 20:00:07 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.9 2003/08/18 20:41:15 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -397,7 +397,7 @@ int IISDMat::create_a() {
     float nb_pc = 100.0*float(nb)/aneq;
     float nr_pc = 100.0*float(nr)/aneq;
     printf("IISDMat - full preco statistics: "
-	   "int %d (%.2f%%), band %d (%.2f%%), rest %d (%f%%)\n",
+	   "int %d (%.2f%%), band %d (%.2f%%), rest %d (%2f%%)\n",
 	   ni,ni_pc,nb,nb_pc,nr,nr_pc);
   }
 #endif

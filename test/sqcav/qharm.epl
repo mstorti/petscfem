@@ -112,6 +112,7 @@ shell_hook "echo stage %s, step %d, time %f"
 # print_dofmap_id
 use_interface_full_preco
 use_interface_full_preco_nlay 2
+# print_interface_full_preco_conv
 __END_HASH__
 
 # ndim nu ndof
