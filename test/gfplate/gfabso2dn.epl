@@ -50,20 +50,20 @@ nnwt 2
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.1
-shocap 0.05
+Dt 0.005
+shocap 0.
 weak_form 0
 temporal_stability_factor 0
 
 ndim 2
 Rgas <:=$Rgas:>
-visco 1
-cond 1
+visco 0.0001
+cond 0.0001
 steady 0
 Uref <:=$rhoref:> <:=$uref*$norx:> <:=$uref*$nory:> <:=$pref:> 
 linear_abso 1
 
-lagrange_diagonal_factor 1e-3
+lagrange_diagonal_factor 1e-5
 # lagrange_residual_factor 1.0
 
 #if $dx
@@ -145,10 +145,12 @@ __END_ELEMSET__
 #endif
 #endif
 
+#if 0
 elemset gasflow_twall 2
 dx 0
 data ./gfabso2dn.twall-con.tmp
 __END_HASH__
+#endif
 
 end_elemsets
 

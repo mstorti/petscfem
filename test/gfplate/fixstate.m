@@ -1,7 +1,8 @@
 ###key fixstate.m
-### $Id: fixstate.m,v 1.2 2005/02/07 13:13:23 mstorti Exp $
+### $Id: fixstate.m,v 1.3 2005/02/07 16:04:34 mstorti Exp $
 
-file = "comp_corner_Ma_10_Euler.state.tmp";
+file = getenv("state_file");
+## file = "comp_corner_Ma_10_Euler.state.tmp";
 u = aload(file);
 indx = find(u(:,1)==0);
 uref = u(1,:);

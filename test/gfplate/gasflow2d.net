@@ -1,5 +1,5 @@
 //
-// time: Sun Feb  6 17:57:05 2005
+// time: Mon Feb  7 12:30:58 2005
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -28,9 +28,9 @@ macro main(
     // input[4]: defaulting = 0, visible = 1, type = 1, value = 0
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 1000
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 5
-    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 5 0 0 1 }
+    // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 1000 5 0 100 1 }
     // page group: import
-    // vcr[3]: min = 0, max = 1000, beg = 0, end = 0, cur = 5, inc = 5, loop = off, step = on, pal = off
+    // vcr[3]: min = 0, max = 1000, beg = 0, end = 100, cur = 38, inc = 5, loop = off, step = on, pal = off
     // window: position = (0.4600,0.0000), size = 0.3477x0.1328
     //
     main_Sequencer_3_in_3 = @frame;
@@ -57,12 +57,12 @@ main_Receiver_36_out_1[cache: 0] = dx_step;
     // 
     // node Selector[1]: x = 112, y = 198, inputs = 7, label = Selector
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Selector_1"
-    // input[2]: defaulting = 0, visible = 0, type = 32, value = "abs(u)" 
-    // input[3]: defaulting = 0, visible = 0, type = 29, value = 1 
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "density" 
+    // input[3]: defaulting = 0, visible = 0, type = 29, value = 7 
     // input[4]: defaulting = 1, visible = 1, type = 16777248, value = { "none" "abs(u)" "pressure" "vorticity" "abs(vort)" "log(abs(vort))" "total press" "density" "temperature" "entropy" "Mach" }
     // input[5]: defaulting = 1, visible = 0, type = 16777245, value = { 0 1 2 3 4 5 6 7 8 10 9 }
-    // output[1]: visible = 1, type = 29, value = 1 
-    // output[2]: visible = 1, type = 32, value = "abs(u)" 
+    // output[1]: visible = 1, type = 29, value = 7 
+    // output[2]: visible = 1, type = 32, value = "density" 
     // page group: scalar
     //
     // 
@@ -107,7 +107,7 @@ main_Caption_2_out_1 =
     // input[1]: defaulting = 0, visible = 1, type = 1, value = 1
     // input[3]: defaulting = 0, visible = 1, type = 1, value = 5320
     // input[5]: defaulting = 1, visible = 1, type = 1, value = 1
-    // input[6]: defaulting = 0, visible = 1, type = 32, value = "comp_corner_Ma_10_Euler.state.tmp"
+    // input[6]: defaulting = 0, visible = 1, type = 32, value = "cylabso.dx-state.tmp"
     // page group: import
     //
 main_ExtProgImport_1_out_1,
@@ -500,12 +500,12 @@ main_Compute_44_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_2"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 0.90624112
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 1.8619847
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = 0.11902104
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 3.0921311
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.90624112 1.8619847 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.90624112
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.8619847
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.11902104 3.0921311 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = 0.11902104
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 3.0921311
     // page group: scalar
     // window: position = (0.4941,0.0117), size = 0.6875x0.5000
     //
@@ -546,12 +546,30 @@ main_Color_1_out_1 =
     main_Color_1_in_5
     ) [instance: 1, cache: 1];
     // 
-    // node RubberSheet[1]: x = 66, y = 767, inputs = 4, label = RubberSheet
+    // node ShowConnections[2]: x = 476, y = 739, inputs = 1, label = ShowConnections
+    // page group: scalar
+    //
+main_ShowConnections_2_out_1 = 
+    ShowConnections(
+    main_Compute_44_out_1
+    ) [instance: 2, cache: 1];
+    // 
+    // node Collect[8]: x = 58, y = 716, inputs = 3, label = Collect
+    // page group: scalar
+    //
+main_Collect_8_out_1 = 
+    Collect(
+    main_Color_1_out_1,
+    main_ShowConnections_2_out_1,
+    main_Collect_8_in_3
+    ) [instance: 8, cache: 1];
+    // 
+    // node RubberSheet[1]: x = 23, y = 787, inputs = 4, label = RubberSheet
     // page group: scalar
     //
 main_RubberSheet_1_out_1 = 
     RubberSheet(
-    main_Color_1_out_1,
+    main_Collect_8_out_1,
     main_RubberSheet_1_in_2,
     main_RubberSheet_1_in_3,
     main_RubberSheet_1_in_4
@@ -730,13 +748,13 @@ main_Compute_8_out_1 =
     // node Image[4]: x = 142, y = 474, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.55 0.25 0.174987]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.287824 0.512066 3.43753]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.75965
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [-0.759921 -0.437028 0.438115]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [8.61789 -36.575 9.55094]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 5.06639
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
-    // input[10]: defaulting = 0, visible = 0, type = 8, value = [0.00284529 0.996804 -0.0798402]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 30.0001
+    // input[10]: defaulting = 0, visible = 0, type = 8, value = [-0.124226 0.212189 0.969301]
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 7.54244
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -746,9 +764,9 @@ main_Compute_8_out_1 =
     // input[19]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[20]: defaulting = 0, visible = 0, type = 64, value = NULL
     // input[21]: defaulting = 0, visible = 1, type = 3, value = 0
-    // input[25]: defaulting = 0, visible = 0, type = 32, value = "cylabso-press"
+    // input[25]: defaulting = 0, visible = 0, type = 32, value = "cylabso-dens-33-lumped"
     // input[26]: defaulting = 0, visible = 0, type = 32, value = "tiff"
-    // input[29]: defaulting = 0, visible = 0, type = 3, value = 1
+    // input[29]: defaulting = 0, visible = 0, type = 3, value = 0
     // input[41]: defaulting = 0, visible = 0, type = 32, value = "rotate"
     // output[1]: visible = 0
     // output[3]: visible = 0
@@ -862,15 +880,7 @@ main_ShowConnections_1_out_1 =
     main_Compute_33_out_1
     ) [instance: 1, cache: 1];
     // 
-    // node ShowConnections[2]: x = 476, y = 739, inputs = 1, label = ShowConnections
-    // page group: scalar
-    //
-main_ShowConnections_2_out_1 = 
-    ShowConnections(
-    main_Compute_44_out_1
-    ) [instance: 2, cache: 1];
-    // 
-    // node ShowConnections[2]: x = 476, y = 739, inputs = 1, label = ShowConnections
+    // node ShowConnections[2]: x = 629, y = 739, inputs = 1, label = ShowConnections
     // page group: scalar
     //
 main_ShowConnections_2_out_1 = 
@@ -901,24 +911,24 @@ main_Sequencer_3_in_3 = NULL;
 main_Sequencer_3_in_4 = 0;
 main_Sequencer_3_in_5 = 1000;
 main_Sequencer_3_in_6 = NULL;
-main_Sequencer_3_in_7 = { 0 1000 5 0 0 1 };
+main_Sequencer_3_in_7 = { 0 1000 5 0 100 1 };
 main_Sequencer_3_out_1 = NULL;
 
 @startframe = 0;
 @nextframe  = @startframe;
-@endframe   = 0;
+@endframe   = 100;
 @deltaframe = 5;
 main_Transmitter_39_out_1 = NULL;
 main_Receiver_36_out_1 = NULL;
 main_Selector_1_in_1 = "Selector_1";
-main_Selector_1_in_2 = "abs(u)" ;
-main_Selector_1_in_3 = 1 ;
+main_Selector_1_in_2 = "density" ;
+main_Selector_1_in_3 = 7 ;
 main_Selector_1_in_4 = NULL;
 main_Selector_1_in_5 = NULL;
 main_Selector_1_in_6 = NULL;
 main_Selector_1_in_7 = NULL;
-main_Selector_1_out_1 = 1 ;
-main_Selector_1_out_2 = "abs(u)" ;
+main_Selector_1_out_1 = 7 ;
+main_Selector_1_out_2 = "density" ;
 main_Transmitter_21_out_1 = NULL;
 main_Receiver_30_out_1 = NULL;
 main_Format_1_in_1 = "Step %d, Color=%s";
@@ -936,7 +946,7 @@ main_ExtProgImport_1_in_1 = 1;
 main_ExtProgImport_1_in_2 = NULL;
 main_ExtProgImport_1_in_3 = 5320;
 main_ExtProgImport_1_in_4 = NULL;
-main_ExtProgImport_1_in_6 = "comp_corner_Ma_10_Euler.state.tmp";
+main_ExtProgImport_1_in_6 = "cylabso.dx-state.tmp";
 main_ExtProgImport_1_in_7 = NULL;
 main_ExtProgImport_1_out_2 = NULL;
 main_Select_9_in_2 = "gasflow_state";
@@ -1032,19 +1042,22 @@ main_Colormap_2_in_8 = NULL;
 main_Colormap_2_in_9 = NULL;
 main_Colormap_2_in_10 = NULL;
 main_Colormap_2_in_11 = NULL;
-main_Colormap_2_in_12 = { 0.90624112 1.8619847 };
+main_Colormap_2_in_12 = { 0.11902104 3.0921311 };
 main_Colormap_2_in_13 = NULL;
 main_Colormap_2_in_14 = NULL;
 main_Colormap_2_in_15 = NULL;
 main_Colormap_2_in_16 = NULL;
-main_Colormap_2_in_17 = 0.90624112;
-main_Colormap_2_in_18 = 1.8619847;
+main_Colormap_2_in_17 = 0.11902104;
+main_Colormap_2_in_18 = 3.0921311;
 main_Colormap_2_in_19 = NULL;
 main_Colormap_2_out_1 = NULL;
 main_Color_1_in_3 = NULL;
 main_Color_1_in_4 = NULL;
 main_Color_1_in_5 = NULL;
 main_Color_1_out_1 = NULL;
+main_ShowConnections_2_out_1 = NULL;
+main_Collect_8_in_3 = NULL;
+main_Collect_8_out_1 = NULL;
 main_RubberSheet_1_in_2 = NULL;
 main_RubberSheet_1_in_3 = NULL;
 main_RubberSheet_1_in_4 = NULL;
@@ -1437,12 +1450,12 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [0.55 0.25 0.174987];
-main_Image_4_in_6 = [0.287824 0.512066 3.43753];
-main_Image_4_in_7 = 1.75965;
+main_Image_4_in_5 = [-0.759921 -0.437028 0.438115];
+main_Image_4_in_6 = [8.61789 -36.575 9.55094];
+main_Image_4_in_7 = 5.06639;
 main_Image_4_in_8 = 1000;
 main_Image_4_in_9 = 0.697;
-main_Image_4_in_10 = [0.00284529 0.996804 -0.0798402];
+main_Image_4_in_10 = [-0.124226 0.212189 0.969301];
 main_Image_4_in_11 = NULL;
 main_Image_4_in_12 = 0;
 main_Image_4_in_13 = NULL;
@@ -1456,11 +1469,11 @@ main_Image_4_in_20 = NULL;
 main_Image_4_in_21 = 0;
 main_Image_4_in_22 = NULL;
 main_Image_4_in_23 = NULL;
-main_Image_4_in_25 = "cylabso-press";
+main_Image_4_in_25 = "cylabso-dens-33-lumped";
 main_Image_4_in_26 = "tiff";
 main_Image_4_in_27 = NULL;
 main_Image_4_in_28 = NULL;
-main_Image_4_in_29 = 1;
+main_Image_4_in_29 = 0;
 main_Image_4_in_30 = NULL;
 main_Image_4_in_31 = NULL;
 main_Image_4_in_32 = NULL;

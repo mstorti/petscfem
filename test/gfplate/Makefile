@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.42 2005/02/07 13:13:23 mstorti Exp $ 
+# $Id: Makefile,v 1.43 2005/02/07 16:04:33 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: run_cyl
+default: run_abso2dn
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := comp_corner
+CASE_NAME := cylabso
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -53,10 +53,11 @@ run:
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
 
-STEPS_DIR := ./STEPS
+## STEPS_DIR := ./STEPS
+STEPS_DIR := ./STEPS-consistent-mass
 ## STEPS_DIR := $(HOME)/PETSC/gfplate/STEPS
 dx_make_command:
-ifeq (1,0)
+ifeq (1,1)
 	@state=$(STEPS_DIR)/$(CASE_NAME).state_$$dx_step.tmp ;	\
 	if [ -f $$state ] ; then				\
 		echo "state file: $$state"  ;			\
@@ -67,7 +68,8 @@ ifeq (1,0)
 		./$(CASE_NAME).dx-state.tmp ;			\
 	else echo "ERROR: NO STATE FILE FOUND!!" ;		\
 		echo "tried  $$state and  $$state.gz" ; fi ;	\
-	octave -qH fixstate.m ;					\
+	state_file=./$(CASE_NAME).dx-state.tmp			\
+		octave -qH fixstate.m ;				\
 	echo in target dx_make_command: dx_step: $$dx_step
 endif
 

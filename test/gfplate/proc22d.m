@@ -1,4 +1,4 @@
-## $Id: proc22d.m,v 1.7 2005/02/04 12:22:21 mstorti Exp $
+## $Id: proc22d.m,v 1.8 2005/02/07 16:04:34 mstorti Exp $
 
 source("data.m.tmp");
 nsome = Nx+1;
@@ -37,7 +37,7 @@ scale = ones(size(scale));
 
 ndof = columns(U);
 Uref = mean(U);
-Uref = zeros(1,ndof);
+## Uref = zeros(1,ndof);
 maxbound = max(U);
 minbound = min(U);
 

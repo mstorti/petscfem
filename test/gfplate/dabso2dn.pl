@@ -6,15 +6,15 @@ $Lx = 4;
 $Nx = 100;
 $rota = 0;
 
-$Machin = 0.0;
+$Machin = 0.7;
 $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
 $Tref = 1;
 $dufac = 0.01;
 $sigma = 0.3;
-$abso = 0;
-$all_fields = 1;
+$abso = 1;
+$all_fields = 0;
 
 $pref = $rhoref*$Rgas*$Tref;
 $cref = sqrt($gamma*$pref/$rhoref);

@@ -6,11 +6,11 @@ $R = 1;				# Radius of cylinder
 $Rext = 5;			# radius of external cylinder
 				# (external boundary)
 
-$Nr = 30;			# Number of nodes along radial direction
+$Nr = 20;			# Number of nodes along radial direction
 $Nphi = 2*$Nr;			# Number of nodes along skin
 $rratio = 5;			# Refinement in radial direction
 
-$Machin = 0.;			# Mach at inlet
+$Machin = 2;			# Mach at inlet
 $gamma = 1.4;			# Cp/Cv for gas
 $Rgas = 1;			# Gas constant
 $rhoref = 1;			# Reference density
@@ -20,9 +20,9 @@ $Twall = 1.5;			# Temperature at wall
 $abso = 1;			# Use absorbing b.c.'s?
 $restart = 0;			# Is this a restart?
 $use_symm = 0;			# Use symmery?
-$use_twall = 1;			# Impose T on cylinder skin?
-$use_non_slip = 1;		# Impose v=0 on skin?
-$dv_pert_symm = 0.1; 		# Non symmetric perturbation
+$use_twall = 0;			# Impose T on cylinder skin?
+$use_non_slip = 0;		# Impose v=0 on skin?
+$dv_pert_symm = 0.; 		# Non symmetric perturbation
 				# to initiate unsteady flow
 
 $pref = $rhoref*$Rgas*$Tref;
