@@ -2,29 +2,18 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spiller.m,v 1.4 2003/03/16 15:40:30 mstorti Exp $
+## $Id: spiller.m,v 1.5 2003/03/17 03:00:24 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spiller, mesh
 global spiller_data
 
+source("data.m.tmp");
+
 ## H = bottom height
 ## h = water height
 ## y = H + h position of free surface
 
-C=0.053547;			# Constants of spiller expr.
-E = 1.85;
-H1 = 66.50;			# vertical position of spiller top position
-L1 = 26.48;			# Distance from top of spiller to start
-				# of flat bottom
-L2 = 50;			# Flat bottom length
-h1 = 4;				# water height at top of spiller
-y2 = 60;			# restitution height
-
-Ny = 10;
-Nx = 120;
-
-uin = 1.;
 
 H2 = H1-C*L1^E;			# Height of spiller w.r.t. flat bottom
 h2 = y2-H2;			# water height at outlet
