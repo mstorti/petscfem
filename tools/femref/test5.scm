@@ -1,6 +1,4 @@
-;;; $Id: test5.scm,v 1.16 2005/02/18 10:11:40 mstorti Exp $
-
-(use-modules (srfi srfi-1))
+;;; $Id: test5.scm,v 1.17 2005/02/18 10:52:55 mstorti Exp $
 
 ;;---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 ;;; Generate all partitions of 'n' We represente a partition as non
@@ -110,3 +108,9 @@
 	    (#t 
 	     (np-set! (compute-1 m p) m p)
 	     (loop m (+ p 1)))))))
+
+(let loop ((n 1))
+  (cond ((> n 15))
+	(#t (format #t "(~A -> ~A ~A ~A)\n" 
+		    n (nparts n) (nparts2 n) (nparts3 n))
+	    (loop (+ n 1)))))

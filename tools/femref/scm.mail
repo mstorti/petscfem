@@ -1,0 +1,38 @@
+Hi Jens,
+
+I saw your contribution on generating random number in the Schematics
+Scheme CookBook. Somewhat inspired by this, I wrote a little function
+`(weight-rand a-list)' that takes a list of scheme objects with a
+certain probability and returns a function that, when called returns
+one of those objects with the given probability. For instance
+if you do
+
+(define foo-rand (weight-rand '((foo . 0.7) (bar . 0.3))))
+
+then after that you can call 'foo-rand' an obtain 'foo with 70%
+probability and 'bar with 30% probability. 
+
+The function generates a random uniform number `x' between 0 and 1,
+and traverses the a-list until the cumulated sum of weights is higher
+than x. 
+
+I'm rather new to Scheme and I found the example exciting because of
+storing the `a-list' internally and returning a function. Do you think
+it is worth to add in the Comments section of the node in the
+Scheme CookBook?
+
+(define weight-rand-l
+  (lambda (w-alist-a)
+    (let ((w-alist (list-copy w-alist-a)))
+      (lambda ()
+	(let ((x (random:uniform)))
+	  (let loop ((q w-alist)
+		     (cum-w 0))
+	    (let ((cum-w-new (+ cum-w (cdar q))))
+	      (cond ((null? q) (error "not normalized weights"))
+		    ((< x cum-w-new) (caar q))
+		    (#t (loop (cdr q) cum-w-new))))))))))
+
+Thanks for your time.
+
+Mario
