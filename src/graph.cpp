@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.9.4.1 2001/12/09 14:00:20 mstorti Exp $
+//$Id: graph.cpp,v 1.9.4.2 2001/12/24 18:18:22 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -14,8 +14,20 @@ Graph::~Graph() {}
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Graph::init(int N) {
   weight_scale = 1.;
+  vpart = NULL;
   vpartf = NULL;
+  el2vrtx = NULL;
   nvrtx_f = N;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
+void Graph::clear() {
+  delete[] el2vrtx;
+  el2vrtx = NULL;
+  delete[] vpart;
+  vpart = NULL;
+  delete[] vpartf;
+  vpartf = NULL;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -226,16 +238,7 @@ const int *Graph::vrtx_part() {
   return vpartf;
 }
 
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
-void Graph::clear() {
-  delete[] el2vrtx;
-  el2vrtx = NULL;
-  delete[] vpart;
-  vpart = NULL;
-  delete[] vpartf;
-  vpartf = NULL;
-}
-
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Graph::print() {
   set<int> ngbrs_v;
   set<int>::iterator q,qe;

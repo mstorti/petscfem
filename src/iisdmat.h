@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.4 2001/12/24 03:59:56 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.5 2001/12/24 18:18:22 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -42,10 +42,6 @@ class IISDMat : public PFPETScMat {
   int n_int;
   /// Number of local nodes
   int n_loc;
-  /// Dof's in this processor begin here (#k1<= k <=k2#)
-  int k1;
-  /// Dof's in this processor end here (#k1<= k <=k2#)
-  int k2;
   /// Number of interface dof's in all processors
   int n_int_tot;
   /// Number of local dof's in all processors
@@ -65,7 +61,7 @@ class IISDMat : public PFPETScMat {
   */
   int iisd_subpart;
   /// Maps old numbering in new numbering 
-  vector<int> map;
+  vector<int> map_dof;
   /** Local dof's in this processor are in the range
       #n_loc_v[myrank] <= dof < #n_loc_v[myrank+1]
    */
@@ -120,7 +116,7 @@ class IISDMat : public PFPETScMat {
       @param ldof (input) number of dof in new ordering relative to
       its block 
   */ 
-  void map_dof(int gdof,int &block,int &ldof);
+  void map_dof_fun(int gdof,int &block,int &ldof);
   /** Solves the local problem #A_LL x_loc = s * y_loc# for #x_loc#. 
       #x_loc# and #y_loc# may be aliased. 
       @param x_loc (output) the solution vector
@@ -166,7 +162,7 @@ class IISDMat : public PFPETScMat {
   class IISDPart : public IntRowPartitioner {
   public:
     const DofPartitioner &part;
-    int processor( ::map<int,Row>::iterator k) {
+    int processor(map<int,Row>::iterator k) {
       return part.processor(k->first);
     }
     IISDPart(const DofPartitioner & p) : part(p) {};
@@ -181,7 +177,7 @@ class IISDMat : public PFPETScMat {
   /** Maps dof's in this processor to global
       ones. The inverse of `dofs_proc'. 
   */
-  ::map<int,int> proc2glob;
+  map<int,int> proc2glob;
 
 public:
 

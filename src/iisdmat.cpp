@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.1 2001/12/24 03:59:56 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.2 2001/12/24 18:18:22 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -87,7 +87,7 @@ int PFPETScMat::duplicate(MatDuplicateOption op,const PFMat &A) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFMat::build_sles"
+#define __FUNC__ "PFPETScMat::build_sles"
 int PFPETScMat::build_sles(TextHashTable *thash,char *name=NULL) {
 
   int ierr;
@@ -145,7 +145,7 @@ int PFPETScMat::set_preco(const string & preco_type) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFMat::destroy_sles"
+#define __FUNC__ "PFPETScMat::destroy_sles"
 int PFPETScMat::destroy_sles() {
   if (sles_was_built) {
     int ierr = SLESDestroy(sles); CHKERRQ(ierr);
@@ -158,7 +158,7 @@ int PFPETScMat::destroy_sles() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "PFMat::destroy_sles"
+#define __FUNC__ "IISDMat::destroy_sles"
 int IISDMat::destroy_sles() {
   int ierr;
   clean_factor();
@@ -364,13 +364,13 @@ int IISDMat::assembly_begin(MatAssemblyType type) {
   I1 = A_LL_other->begin();
   I2 = A_LL_other->end();
   for (I = I1; I != I2; I++) {
-    map_dof(I->first,row_t,row_indx);
+    map_dof_fun(I->first,row_t,row_indx);
     row_indx -= n_locp;
     const Row &row = I->second;
     J1 = row.begin();
     J2 = row.end();
     for (J = J1; J != J2; J++) {
-      map_dof(J->first,col_t,col_indx);
+      map_dof_fun(J->first,col_t,col_indx);
       assert (row_t == L && col_t == L);
       col_indx -= n_locp;
       if (row_indx < 0 || row_indx >= n_loc
@@ -509,9 +509,9 @@ void IISDMat::clear() {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "IISDMat::map_dof"
-void IISDMat::map_dof(int gdof,int &block,int &ldof) {
-  ldof = map[gdof];
+#define __FUNC__ "IISDMat::map_dof_fun"
+void IISDMat::map_dof_fun(int gdof,int &block,int &ldof) {
+  ldof = map_dof[gdof];
   if (ldof < n_loc_tot) {
     block = L;
   } else {
@@ -527,8 +527,8 @@ void IISDMat::set_value(int row,int col,Scalar value,
   int row_indx,col_indx,row_t,col_t;
   double val;
 
-  map_dof(row,row_t,row_indx);
-  map_dof(col,col_t,col_indx);
+  map_dof_fun(row,row_t,row_indx);
+  map_dof_fun(col,col_t,col_indx);
   insert_mode = mode;  
   if (row_t == L && col_t == L) {
     row_indx -= n_locp;
@@ -566,7 +566,7 @@ int IISDMat::solve_only(Vec &res,Vec &dx) {
 #undef __FUNC__
 #define __FUNC__ "IISDMat::factor_and_solve"
 int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
-      
+
   int ierr,kloc,itss,j,jj;
   Viewer matlab;
   double *res_a,*res_i_a,*res_loc_a,*y_loc_seq_a,
@@ -581,7 +581,7 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
 	      "# Created by PETSc-FEM \n# name: %s\n# type: matrix\n"
 	      "# rows: %d\n# columns: %d\n","map",dofmap->neq,2);
       for (j=0; j<dofmap->neq; j++) 
-	fprintf(fid,"%d %d\n",j,map[j]+1);
+	fprintf(fid,"%d %d\n",j,map_dof[j]+1);
       fprintf(fid,
 	      "# Created by PETSc-FEM \n# name: %s\n# type: matrix\n"
 	      "# rows: %d\n# columns: %d\n","n_int_v",SIZE+1,1);
@@ -653,7 +653,8 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecGetArray(res_i,&res_i_a); CHKERRQ(ierr); 
     
     for (j=0; j<neqp; j++) {
-      jj = map[k1+j];
+      int dof = dofs_proc[j];
+      jj = map_dof[dof];
       if (jj < n_loc_tot) {
 	jj -= n_locp;
 	res_loc_a[jj] = res_a[j];
@@ -698,7 +699,8 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecGetArray(x_i,&x_i_a); CHKERRQ(ierr); 
     
     for (j=0; j<neqp; j++) {
-      jj = map[k1+j];
+      int dof = dofs_proc[j];
+      jj = map_dof[dof];
       if (jj < n_loc_tot) {
 	jj -= n_locp;
 	dx_a[j] = x_loc_a[jj];
@@ -734,9 +736,10 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     scal=0.;
     ierr = VecSet(&scal,y_loc_seq); CHKERRQ(ierr);
     for (int j = 0; j < neqp; j++) {
-      kloc = map[k1+j] - n_locp;
+      int dof = dofs_proc[j];
+      kloc = map_dof[dof] - n_locp;
       // y_loc_seq_a[kloc] = res_a[k1+j];
-      ierr = VecSetValues(y_loc_seq,1,&kloc,&res_a[k1+j],
+      ierr = VecSetValues(y_loc_seq,1,&kloc,&res_a[dof],
 			  INSERT_VALUES); CHKERRQ(ierr);
     }
     
@@ -784,14 +787,16 @@ int IISDMat::factor_and_solve(Vec &res,Vec &dx) {
     ierr = VecGetArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
 
     for (int j = 0; j < neqp; j++) {
-      kloc = map[k1+j] - n_locp;
-      dx_a[k1+j] = x_loc_seq_a[kloc];
+      int dof = dofs_proc[j];
+      kloc = map_dof[dof] - n_locp;
+      dx_a[dof] = x_loc_seq_a[kloc];
     }
 
     ierr = VecRestoreArray(dx,&dx_a); CHKERRQ(ierr); 
     ierr = VecRestoreArray(x_loc_seq,&x_loc_seq_a); CHKERRQ(ierr); 
   }
   return 0;
+
 }
 
 
