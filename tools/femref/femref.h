@@ -1,98 +1,180 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.24 2004/11/23 13:05:37 mstorti Exp $
+// $Id: femref.h,v 1.25 2004/11/23 13:53:58 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
 #include <list>
 #include <src/dvector.h>
 #include <src/dvector2.h>
-#include <src/linkgraph.h>
 #include <src/generror.h>
+#include <src/linkgraph.h>
 
+/** Represents a geomtric object `outside' its container.
+    Basically, it represents a sequence of nodes and a 
+    topological shape (template). */ 
 class GeomObject {
 public:
-  /// Types of objects
+  /** Types of objects may be identified by a #Type#
+      value, or as a pointer to a #Template# class. 
+   */ 
   enum Type { NULL_TYPE=0, 
 	      OrientedEdgeT, EdgeT, 
 	      OrientedTriT, TriT,
 	      OrientedTetraT, TetraT};
+  /// This is a value that a real node can't take. 
   static int NULL_NODE;
+  /// Contains information about a shape
   class Template {
   public:
-    friend class GeomObject;
-    friend class Mesh;
+    // friend class GeomObject;
+    // friend class Mesh;
+    /// Contains the permutations that leave the shape invariant
     dvector<int> perms_v;
+    /// Number of nodes, dimension, number of permutations
     int size_m,dim_m,nperms_m;
+    /// The corresponding enum #Type#. 
     GeomObject::Type type;
+    /// The name of the shape
     const char *label;
+    /// Ctor from info
     Template(int sz,GeomObject::Type t,
 	     int dim_a,int nperms_a,
 	     const int *perms,const char *label_a);
+    /// The number of objects of type #t# this shape has. 
     virtual int size(Type t) const { return 0; }
+    /// Local nodes connected to subobject #j# of type #t#. 
     virtual const int* nodes(Type t,int j) const { assert(0); }
   };
+  /// Ptr to shape structure
   Template *go_template;
+  /** This function returns the shape ptr for a given
+      enum #Type# */ 
   static Template* get_template(Type t);
 private:
+  /// The check-sum for this object, has been converted to canonical?
   int cs, canonical;
+  /// The nodes for this object
   dvector<int> nodes_m;
 public:
+  /// Number of nodes for this object
   int size() const { return go_template->size_m; }
+  /// The number of objects of type #t# this shape has. 
   int size(Type t) const { return go_template->size(t); }
+  /// The checksum for this object
   int csum() const { return cs; }
+  /// Dimension of the object
   int dim() const { return go_template->dim_m; }
+  /// Number of permutations that leave this object invariant. 
   int nperms() const { return go_template->nperms_m; }
+  /// Reset to the empty object
   void clear() { go_template=NULL; nodes_m.clear(); canonical=0; cs=0; }
+  /// Set to an object with the specific info
   void init(Type t,const int *nodes_a=NULL);
-  const int* perm(int perm_indx) const {
-    return &(go_template->perms_v.e(perm_indx,0)); 
+  /// Local nodes for #j# permutation 
+  const int* perm(int j) const {
+    return &(go_template->perms_v.e(j,0)); 
   }
+  /// Returns the #enum# type. 
   Type type() const { return go_template->type;}
+  /// Constructor of empty object
   GeomObject() : canonical(0), go_template(NULL) { }
+  /// Constructor with info
   GeomObject(Type t,const int *nodes_a=NULL);
+  /** Bring to canonical ordering by permuting the
+      nodes.  The canonical ordering is that
+      permutation of the nodes that gives the lowest
+      lexicographical order of the sequence of nodes.
+      The sequence of nodes in canonical order is
+      a unique identification of the object. 
+   */ 
   void make_canonical();
   /// Compare two objects
   bool equal(GeomObject &go);
+  /// Finds the subobject that matches object #go#. 
   int find(GeomObject &go) const;
+  /// Prints the object
   void print(const char*s = NULL) const;
+  /// The nodes of this object
   const int* nodes() const { return nodes_m.buff(); }
+  /** Set #go# to be the #j#-th subobject of type #t# in
+      #*this# */ 
   void set(Type t,int j,GeomObject &go) const;
 };
 
+/** A mesh is a container of geometrical objects
+    linked (as in a graph).  Two objects are linked
+    if they share a node. For reasons of efficiency,
+    meshes are not stored by storing the whole graph. */ 
 class Mesh {
 public:
+  /** An iterator is a position in the
+      graph. Basically it is the number of element
+      in the mesh plus the number that identifies
+      the subobject inside the element. Iterators do
+      not represent uniquely the object,
+      i.e. several iterators can point to the same
+      object. */ 
   class iterator {
   public:
-    friend class Mesh;
+    // friend class Mesh;
+    /// The big object number in the mesh
     int obj;
+    /** The type of the geometric object
+	identified by this iterator */ 
     GeomObject::Type t;
+    /// The position of the subobject in the large object
     int subobj;
+    /// Ctor from the data
     iterator(int obj_a,GeomObject::Type ta,int subobj_a)
       : obj(obj_a), t(ta), subobj(subobj_a) { }
+    /// Ctor of empty iterator
     iterator() : obj(-1), t(GeomObject::NULL_TYPE), 
 		 subobj(-1) { }
+    /// Set to data 
     void set(int obj_a,GeomObject::Type ta,int subobj_a) {
       obj = obj_a; t = ta; subobj = subobj_a; 
     }
   };
+  /** Set object #go# to the object pointed
+      by iterator #it# */
   virtual void set(iterator it,GeomObject &go)=0;
+  /** Returns one iterator that points to the 
+      specified object. Remember that may be many. */ 
   virtual iterator find(GeomObject &go)=0;
+  /** Finds the list of all iterators that point to
+      object #go#. */ 
   virtual void find(GeomObject &go,list<iterator> &its)=0;
+  /** Get list #adj# of iterators of shape #t# that
+      that are connected to iterator #t#  */ 
   virtual void get_adjacency(iterator it,GeomObject::Type t,
 			     list<iterator> &adj)=0;
+  /// Determine whether this iterator is empty. 
   virtual bool is_end(iterator it)=0;
 };
 
+/** This is a container of objects formed by 
+    all large objects of shape #tmpl#. */ 
 class UniformMesh : public Mesh {
 private:
+  /// The coordinates of the nodes
   dvector<double> coords;
+  /** The connectivities of the mesh. List of
+      nodes of each large object. */
   dvector<int> connec;
+  /** Adjacency list node-to-element. Stores the list of
+      elements connected to a given node. */ 
   dvector<int> n2e;
+  /** Pointers to ranges in #n2e#, elements connected 
+      to node #j# are in range #[n2e_ptr[j],n2e_ptr[j+1])#. 
+      (#n2e_ptr# is size #nnod+1#). */
   dvector<int> n2e_ptr;
+  /// The dimension of the space
   int ndim;
-  LinkGraph lgraph;
+  /** Number of nodes, number of elements, number of
+      nodes connected to an element */
   int nnod, nelem, nel;
+  
   const GeomObject::Template *tmpl;
   void find(GeomObject &go,list<iterator> *its,iterator &it);
 
@@ -104,6 +186,7 @@ public:
   }
 
   void read(const char *node_file,const char *conn_file) {
+    LinkGraph lgraph;
     coords.cat(node_file).defrag();
     connec.cat(conn_file).defrag();
     nnod = coords.size(0);
