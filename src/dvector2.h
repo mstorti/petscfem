@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.29 2005/01/17 14:23:31 mstorti Exp $
+// $Id: dvector2.h,v 1.30 2005/01/17 16:02:12 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -319,6 +319,19 @@ dvector<T>& dvector<T>::cat(const T* in,T term) {
   const T *q = in;
   while (*q!=term) push(*q++);
   return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+dvector<T>& dvector<T>::
+clone(const dvector<T> &w) {
+  clear();
+  set_chunk_size(w.chunk_size);
+  resize(w.size());
+  reshape(w.shape);
+  int n = w.size();
+  for (int j=0; j<n; j++)
+    ref(j) = w.ref(j);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.24 2005/01/17 14:23:31 mstorti Exp $
+// $Id: dvector.h,v 1.25 2005/01/17 16:02:12 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -169,6 +169,12 @@ public:
       @param term (output) the element that indicates the end. 
       @return reference to self  */ 
   dvector<T>& cat(const T* in,T term);
+
+  /** Clone from #w#, with the same size and shape, 
+      making #*this=w#. 
+      @param w (input) the vector to clone. 
+      @return reference to self  */ 
+  dvector<T>& clone(const dvector<T> &w);
 
   /// Write to a stream
   dvector<T>& print(FILE *fid=stdout,int rowsz=0);
