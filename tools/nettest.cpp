@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nettest.cpp,v 1.4 2003/09/23 22:04:00 mstorti Exp $
+//$Id: nettest.cpp,v 1.5 2004/07/12 17:42:21 mstorti Exp $
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
@@ -30,7 +30,7 @@ int irand(int imin,int imax) {
 int main(int argc,char **argv) {
 
   int size,rank,p1=0,p2=1;
-  int chunk_size=100000,ntimes=10;
+  int chunk_size=100000,ntimes=3;
   double tol=1e-10,sum_check;
 
   MPI_Status stat;
@@ -45,7 +45,12 @@ int main(int argc,char **argv) {
 
   MPI_Comm_size(MPI_COMM_WORLD,&size);
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-
+#define MAXNAME 100
+  char name[MAXNAME];
+  int resultlen, ierr;
+  ierr =  MPI_Get_processor_name(name,&resultlen);
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] name: \"%s\"\n",rank,name);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD); 
   while (chunk_size>1) {
   
     PetscPrintf(MPI_COMM_WORLD,
