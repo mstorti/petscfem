@@ -1,3 +1,7 @@
+source("data.m.tmp");
+U=aload("save.state.tmp");
+u=reshape(U(:,1),Nx+1,Ny+1)';
+
 U=u(Ny+1,:)';
 U=[U;
    U(Nx:-1:1)];
@@ -17,4 +21,4 @@ for k=1:nnodx
 endfor
 
 V=V(1:Nx+1);
-asave("v.tmp",V);
+asave("v.tmp",0.1*V);

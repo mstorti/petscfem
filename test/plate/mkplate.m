@@ -44,7 +44,7 @@ for k=2:Ny
   fprintf(fid,"%d %d %f\n",k*(Nx+1),2,0.);
 endfor
 
-fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+1,1,0.);
+fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+1,1,1.);
 fprintf(fid,"%d %d %f\n",Ny*(Nx+1)+1,2,V(1));
 fprintf(fid,"%d %d %f\n",(Ny+1)*(Nx+1),2,0.);
 
