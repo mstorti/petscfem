@@ -5,6 +5,7 @@ use Getopt::Std;
 getopts("lLpP");
 
 sub count_match {
+    print "d: $s, patt:$patt\n";
     my ($s,$pat) = @_;
     my $rest = $s;
     my $count = 0;
