@@ -1728,3 +1728,6 @@ tag: beta-3.06.pl6 on Thu, 17 Oct 2002 15:57:29 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.06.pl7 on Sun, 20 Oct 2002 11:00:05 -0300 by mstorti in spider
      > Adding TextHashTable::find(char *name)
+----------
+tag: beta-3.06.pl8 on Sun, 20 Oct 2002 22:58:53 -0300 by mstorti in spider
+     > Adding TextHashTable::find(char *name)
