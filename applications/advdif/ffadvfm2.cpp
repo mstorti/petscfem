@@ -34,21 +34,59 @@
 #include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_) 
+  : NewAdvDifFF(elemset_), u_per_field(*this), u_global(*this), 
+  full_adv_jac(*this), full_dif_jac(*this) {};
 
-#undef __FUNC__
-#define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
-// This is to pass to the advective function the element
-void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
-  element = element_;
-  advjac = elemset->prop_array(element,advective_jacobians_prop);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::FullDifJac
+::comp_fluxd(FastMat2 &fluxd,FastMat2 &grad_U) {
+  fluxd.prod(ff.D_jac,grad_U,2,-1,1,-2,-1,-2);
+}
+
+void newadvecfm2_ff_t::FullDifJac
+::comp_D_grad_N(FastMat2 &D_grad_N,FastMat2 & dshapex) {
+  D_grad_N.prod(ff.D_jac,dshapex,1,-1,2,3,-1,4);
+}
+
+void newadvecfm2_ff_t::FullDifJac
+::comp_dif_per_field(FastMat2 &dif_per_field) {
+  ff.D_jac.d(4,3);
+  dif_per_field.sum_abs(ff.D_jac,-1,-2,1).scale(1./ff.elemset->ndim);
+  ff.D_jac.rs();
 }  
 
-void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux_,FastMat2 &U) {
-  flux_.set(ff.u);
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::FullAdvJac::comp_flux(FastMat2 &flux,FastMat2 &U) {
+  flux.prod(ff.u,U,2,1,-1,-1);
+}
+
+void newadvecfm2_ff_t::FullAdvJac::
+comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
+  A_grad_U.prod(ff.u,grad_U,-1,1,-2,-1,-2);
+}
+  
+void newadvecfm2_ff_t::FullAdvJac::
+comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
+  A_grad_N.prod(dshapex,ff.u,-1,1,-1,2,3);
+}
+
+void newadvecfm2_ff_t::FullAdvJac::
+comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
+  // Here we take the diagonal of each Jacobian as the component
+  // of a per field vector velocity
+  ff.u.d(3,2);
+  Uintri.prod(iJaco,ff.u,2,-1,-1,1);
+  ff.u.rs();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::UPerField::comp_flux(FastMat2 &flux,FastMat2 &U) {
+  flux.set(ff.u);
   for (int j=1; j<=ff.elemset->ndof; j++) {
-    flux_.ir(1,j).scale(U.get(j));
+    flux.ir(1,j).scale(U.get(j));
   }
-  flux_.rs();
+  flux.rs();
 }
 
 void newadvecfm2_ff_t::UPerField::
@@ -75,8 +113,8 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
-void newadvecfm2_ff_t::UGlobal::comp_flux(FastMat2 &flux_,FastMat2 &U) {
-  flux_.prod(U,ff.u,1,2);
+void newadvecfm2_ff_t::UGlobal::comp_flux(FastMat2 &flux,FastMat2 &U) {
+  flux.prod(U,ff.u,1,2);
 }
 
 void newadvecfm2_ff_t::UGlobal::
@@ -101,6 +139,18 @@ comp_Uintri(FastMat2 &Uintri,FastMat2 &iJaco) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
+#define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
+// This is to pass to the advective function the element
+void newadvecfm2_ff_t::element_hook(ElementIterator &element_) {
+  element = element_;
+  advjac = elemset->prop_array(element,advective_jacobians_prop);
+  difjac = elemset->prop_array(element,diffusive_jacobians_prop);
+  u.set(advjac);
+  D_jac.set(difjac);
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::start_chunk(int ret_options)"
 void newadvecfm2_ff_t::start_chunk(int ret_options) {
   // FastMat2Shell *A_jac_l = elemset->A_jac;
@@ -108,6 +158,9 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   ndof = elemset->ndof;
   Uintri.resize(2,ndof,ndim);
   tmp2.resize(1,ndof).set(1.);
+  dif_per_field.resize(1,ndof);
+
+  ret_options &= !SCALAR_TAU; // tell the advective element routine
 
   // Read advective jacobians
   //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
@@ -116,45 +169,38 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   //  _END
   elemset->get_prop(advective_jacobians_prop,"advective_jacobians");
 
-  if ( advective_jacobians_prop.length == ndim) {
+  if (advective_jacobians_prop.length == ndim) {
     u.resize(1,ndim);
     a_jac =  &u_global;
   } else if (advective_jacobians_prop.length == ndim*ndof) {
     u.resize(2,ndof,ndim);
     a_jac =  &u_per_field;
+  } else if (advective_jacobians_prop.length == ndim*ndof*ndof) {
+    u.resize(3,ndim,ndof,ndof);
+    a_jac =  &full_adv_jac;
   } else {
     assert(0);
   }
-  ret_options &= !SCALAR_TAU; // tell the advective element routine
-
-#if 0
-  const char *advje;
-  VOID_IT(ajacv);
-  elemset->get_entry("advective_jacobians",advje); CHKERRQ(advje==0);
-  read_double_array(ajacv,advje);
-  ajacvp=ajacv.begin();
-#endif
 
   // Read diffusive jacobians (diffusivity matrices)
-  D_jac_l.resize(4,ndim,ndim,ndof,ndof);
-  // o _T: double[ndof]/double[ndim*ndim*ndof]/double[ndim*ndim*ndof*ndof] 
   //o _T: double[var_len] 
   //  _N: diffusive_jacobians _D: no default  _DOC: 
   //i_tex ../../doc/advdifop.tex diffusive_jacobians
   //  _END
-  const char *difje;
-  VOID_IT(djacv);
-  elemset->get_entry("diffusive_jacobians",difje); 
-  assert(difje!=0);
-  read_double_array(djacv,difje); 
-  djacvp=djacv.begin();
-  D_jac_l.set(0.);
+  elemset->get_prop(diffusive_jacobians_prop,"diffusive_jacobians");
 
-    // Read reactive jacobians (reactive  matrix)
-    //o _T: double[var_len] 
-    //  _N: reactive_jacobians _D: all zero  _DOC: 
-    //  FIXME:= TO BE DOCUMENTED LATER
-    //  _END
+  if (diffusive_jacobians_prop.length == ndim*ndim*ndof*ndof) {
+    D_jac.resize(4,ndim,ndim,ndof,ndof);
+    d_jac =  &full_dif_jac;
+  } else {
+    assert(0);
+  }
+
+  // Read reactive jacobians (reactive  matrix)
+  //o _T: double[var_len] 
+  //  _N: reactive_jacobians _D: all zero  _DOC: 
+  //  FIXME:= TO BE DOCUMENTED LATER
+  //  _END
   C_jac_l.resize(2,ndof,ndof);
   const char *reaje;
   VOID_IT(cjacv);
@@ -171,81 +217,21 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
   int ierr;
   EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
-  nd = djacv.size();
   nc = cjacv.size();
 
-  if (nd==ndof && nc==ndof) {
+  if (nc==ndof) {
     ret_options &= !SCALAR_TAU; // tell the advective element routine
 				// that we are returning a non-scalar tau
-    D_jac_l.set(0.);
     C_jac_l.set(0.);
     for (int k=1; k<=ndof; k++) {
-      double alpha=djacv[k-1];
       double beta=cjacv[k-1];
-      for (int j=1; j<=ndim; j++) {
-	D_jac_l.setel(alpha,j,j,k,k);
-      }
       C_jac_l.setel(beta,k,k);
     }
 
-  } else if (na==ndim && (nd==1 || nd==ndof)) {
-    // An advection velocity for all fields is entered
-    assert(0);
-#if 0 // Por ahora nos concentramos en el caso na==ndim*ndof
-    vel = 0.;
-    FastMat2 u(ndim),Uintri(ndim);
-    Uintri.prod(iJaco,u,1,-1,-1);
-    u.set(ajacv.begin());
-    for (int j=1; j<=ndim; j++) {
-      A_jac_l.ir(1,j).eye(ajacv[j-1]);
-      vel += SQ(ajacv[j-1]);
-    }
-    vel=sqrt(vel);
-
-      //        for (int k=1; k<=ndof; k++) {
-      //  	double tau_a = tau_fac * h_supg/(2.* lam_max);
-      //  	tau_supg.setel(
-      //  		       }
-
-
-    if (nd==1) {
-      ret_options |= SCALAR_TAU; // tell the advective element routine
-				// that we are returning a scalar tau
-    } else {
-      ret_options &= !SCALAR_TAU; // tell the advective element routine
-				// that we are returning a scalar tau
-    }
-	
-    A_jac_l.rs();
-
-    h_supg = 2.*vel/sqrt(Uintri.sum_square_all());
-#endif
-
-  } else if (na==ndim*ndof*ndof) {
-    assert(0);
-    // The full jacobian for each dimension
-#if 0
-    A_jac_l.set(ajacv.begin());
-    double vel=0.;
-    for (int k=1; k<=ndim; k++) {
-      A_jac_l.ir(1,k);
-      AA.sum_abs(A_jac_l,1,-1);
-      double a = AA.max_all();
-      vel += a*a;
-    }
-    // I put a scalar tau by the moment
-    vel = sqrt(vel);
-#endif
   } else {
-    PetscPrintf(PETSC_COMM_WORLD,
-		"Not a valid number of elements  while entering\n"
-		"the advective jacobians. Entered na=%d elements,\n"
-		"and ndim: %d, ndof %d\n"
-		"Allowed possibilities are: na=ndim, ndim*ndof, ndim*ndof*ndof\n",
-		na,ndim,ndof);
-    PetscFinalize();
-    exit(0);
+    assert(0); // Not implemented yet
   }
+
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -255,15 +241,14 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
 
   // Unfortunately we have to use copies of U and
   // iJaco due to const'ness restrictions.
+
   Ucpy.set(U);
   iJaco_cpy.set(iJaco);
-  u.set(advjac);
   a_jac->comp_flux(flux,Ucpy);
 
   if (options & COMP_UPWIND) {
 
-    D_jac.set(D_jac_l);
-    fluxd.prod(D_jac,grad_U,2,-1,1,-2,-1,-2);
+    d_jac->comp_fluxd(fluxd,grad_U);
 
     // A_grad_U es ndof x 1
     // A_grad_U.rs().prod(A_jac.rs(),grad_U,-1,1,-2,-1,-2);
@@ -273,13 +258,12 @@ void newadvecfm2_ff_t::compute_flux(COMPUTE_FLUX_ARGS) {
     tau_supg.set(0.);
 
     a_jac->comp_Uintri(Uintri,iJaco_cpy);
-    // Uintri.prod(iJaco,u,2,-1,1,-1);
+    d_jac->comp_dif_per_field(dif_per_field);
 
     for (int k=1; k<=ndof; k++) {
       
-      assert(nd==ndof);
       Uintri.ir(1,k);
-      double alpha=djacvp[k-1];
+      double alpha=dif_per_field.get(k);
       double vel = sqrt(u.sum_square_all());
 
       // double h_supg = 2.*vel/sqrt(Uintri.sum_square_all());

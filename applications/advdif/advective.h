@@ -111,17 +111,17 @@ public:
 #endif
 typedef void FastMat2Shell(FastMat2 & A,FastMat2 & B);
 
-#define COMPUTE_FLUX_ARGS							\
-		const FastMat2 &U,						\
-		const FastMat2 &iJaco, FastMat2 &H,				\
-		FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,		\
-		FastMat2 &A_grad_U,						\
-		FastMat2 &grad_U, FastMat2 &G_source,				\
-		FastMat2 &D_jac, FastMat2 &C_jac,				\
-		FastMat2 &tau_supg, double &delta_sc,				\
-		double &lam_max,						\
-		FastMat2 &nor, FastMat2 &lambda,				\
-		FastMat2 &Vr, FastMat2 &Vr_inv,					\
+#define COMPUTE_FLUX_ARGS						\
+		const FastMat2 &U,					\
+		const FastMat2 &iJaco, FastMat2 &H,			\
+		FastMat2 &grad_H, FastMat2 &flux, FastMat2 &fluxd,	\
+		FastMat2 &A_grad_U,					\
+		FastMat2 &grad_U, FastMat2 &G_source,			\
+		FastMat2 &C_jac,					\
+		FastMat2 &tau_supg, double &delta_sc,			\
+		double &lam_max,					\
+		FastMat2 &nor, FastMat2 &lambda,			\
+		FastMat2 &Vr, FastMat2 &Vr_inv,				\
 		int options
 
 // This is the flux function for a given physical problem. 
@@ -138,13 +138,6 @@ public:
 			    const int *& log_vars);
 };
 
-class AJac {
-public:
-  virtual FastMat2Shell comp_A_grad_U=0,comp_A_grad_N=0,
-    comp_Uintri=0;
-  virtual void comp_flux(FastMat2 & A,FastMat2 & B) =0 ;
-};
-
 class NewAdvDif;
 
 // This is the flux function for a given physical problem. 
@@ -154,10 +147,11 @@ private:
   vector<int> log_vars_v;
 public:
   const NewAdvDif *elemset;
-  AJac *a_jac;
   NewAdvDifFF(NewAdvDif *elemset_) : elemset(elemset_) {};
   virtual void start_chunk(int ret_options) =0;
   virtual void element_hook(ElementIterator &element) =0;
+  virtual void comp_A_grad_N(FastMat2 & A,FastMat2 & B)=0;
+  virtual void comp_D_grad_N(FastMat2 & A,FastMat2 & B) =0 ;
   virtual void compute_flux(COMPUTE_FLUX_ARGS) =0;
   virtual void get_log_vars(int &nlog_vars,const int *& log_vars);
 };

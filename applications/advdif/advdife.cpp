@@ -270,8 +270,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp8,tmp9,tmp10,tmp11(ndof,ndim),tmp12,tmp13,tmp14,
     tmp15,tmp16,tmp17,tmp18,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24,tmp25,tmp26,tmp27,tmp28;
-  FastMat2 D_jac(4,ndim,ndim,ndof,ndof),
-    C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof);
+  FastMat2 C_jac(2,ndof,ndof),A_grad_N(3,nel,ndof,ndof);
 
   Id_ndof.set(0.);
   for (int j=1; j<=ndof; j++) Id_ndof.setel(1.,j,j);
@@ -370,7 +369,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	double lambda_max_pg;
 
 	adv_diff_ff->compute_flux(U,iJaco,H,grad_H,flux,fluxd,
-				  A_grad_U,grad_U,G_source,D_jac,
+				  A_grad_U,grad_U,G_source,
 				  C_jac,tau_supg,delta_sc,
 				  lambda_max_pg, nor,lambda,Vr,Vr_inv,
 				  COMP_SOURCE | COMP_UPWIND);
@@ -438,7 +437,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	// Diffusive term in matrix
 	tmp17.set(dshapex).scale(wpgdet*ALPHA);
-	tmp16.prod(D_jac,tmp17,1,-1,2,3,-1,4);
+	adv_diff_ff->d_jac->comp_D_grad_N(tmp16,tmp17);
 	tmp18.prod(tmp16,dshapex,-1,2,4,1,-1,3);
 	matlocf.add(tmp18);
 
