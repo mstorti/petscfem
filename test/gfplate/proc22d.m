@@ -1,17 +1,23 @@
-## $Id: proc22d.m,v 1.5 2005/01/29 16:51:34 mstorti Exp $
+## $Id: proc22d.m,v 1.6 2005/01/29 21:00:06 mstorti Exp $
 
 source("data.m.tmp");
+nsome = Nx+1;
 
-field = 1;
-
-U = aload("gfabso2dn.some-rslt.tmp");
-U(:,1)=[];
-# gasdata.gamma = gamma;
-# gasdata.pref = pref;
-# gasdata.uref = uref;
-# gasdata.rhoref = rhoref;
-# gasdata.cref = cref;
-
+if !exist("do_load") || do_load || !exist("U0");
+  U0 = aload("gfabso2dn.some-rslt.tmp");
+  rem(rows(U0),nsome)==0 \
+      || error("U0 not correct size.");
+  nt = rows(U0)/nsome;
+  U0(:,1)=[];
+  if exist("discard") && discard>0
+    printf("discarding %d steps\n",discard);
+    U0 = U0((1:(nt-discard)*nsome),:);
+    clear discard
+  endif
+endif
+U=U0;
+rem(rows(U),nsome)==0 || error("not correct size");
+nt = rows(U)/nsome;
 scale = [rhoref cref cref pref];
 
 if 1
@@ -20,6 +26,8 @@ if 1
   Ma = U(:,2)./c;
   U = [U,Ma];
   scale = [scale,1];
+  U = U(:,[1,2,4,5]);
+  scale = scale([1,2,4,5]);
 endif
 
 ## Do not scale
@@ -37,17 +45,20 @@ for k=1:m
   Unorm(:,k) = (U(:,k)-Uref(k))/scale(k);
 endfor
 
-rem(rows(U),Nx+1)==0 || error("not correct size");
-nt = rows(U)/(Nx+1);
 x = aload("gfabso2dn.nod.tmp");
-x = x(1:Nx+1,longindx);
+x = x(1:nsome,longindx);
+
+Ue1 = U(nsome*(1:nt),:);
+Ue0 = U(1+nsome*(0:nt-1),:);
+rho = reshape(U(:,1),nsome,nt);
 
 axis([min(x) max(x) min(min(Unorm)) max(max(Unorm))]);
-m=3;
+m=5;
 
 for k=1:m:nt
   title(sprintf("step %d",k));
-  plot(x,Unorm((k-1)*(Nx+1)+(1:Nx+1),:))
+  plot(x,Unorm((k-1)*(nsome)+(1:nsome),:))
   pause(0.1);
   ## pause;
 endfor
+axis

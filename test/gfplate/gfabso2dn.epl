@@ -7,7 +7,7 @@ global_options
 
 # dx <:=$dx:>
 
-nstep 1000
+nstep 5000
 alpha 1.
 
 initial_state "gfabso2dn.ini.tmp"
@@ -19,10 +19,10 @@ print_some_file "gfabso2dn.some-nodes.tmp"
 save_file_some "gfabso2dn.some-rslt.tmp"
 nsome 1
 
-save_file_pattern "gfabso2dn.state_%d.tmp"
-nsaverot 20
-nrec 1
-nfile 100000000
+# save_file_pattern "gfabso2dn.state_%d.tmp"
+# nsaverot 20
+# nrec 1
+# nfile 100000000
 
 #if 0
 solver "iisd"
@@ -44,13 +44,13 @@ tol_newton 1e-10
 atol 0
 rtol 1e-7
 dtol 1e3
-nnwt 3
+nnwt 2
 
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.025
-shocap 0.02
+Dt 0.05
+shocap 0.05
 weak_form 0
 temporal_stability_factor 0
 
