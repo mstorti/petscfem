@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.16 2003/01/15 23:50:33 mstorti Exp $ 
+# $Id: Makefile,v 1.17 2003/01/25 17:26:21 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
@@ -30,7 +30,7 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-PROG := $(NS_O)
+PROG := $(NS)
 
 .PHONY: force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))

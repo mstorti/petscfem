@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdif.cpp,v 1.52 2003/01/25 12:40:06 mstorti Exp $
+//$Id: advdif.cpp,v 1.53 2003/01/25 17:26:17 mstorti Exp $
 
 #include <src/debug.h>
 #include <set>
@@ -10,6 +10,7 @@
 #include <src/utils.h>
 #include <src/util2.h>
 #include <src/pfmat.h>
+#include <src/hook.h>
 
 #include "advective.h"
 
@@ -310,6 +311,11 @@ int main(int argc,char **args) {
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
 
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  // Hook stuff
+  HookList hook_list;
+  hook_list.init(*mesh,*dofmap);
+
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
   // This is for taking statistics of the
   // CPU time consumed by a time steptime
@@ -339,6 +345,7 @@ int main(int argc,char **args) {
     }
     chrono.start();
     ierr = VecCopy(x,xold);
+    hook_list.time_step_pre(time_star.time(),tstep);
 
     for (int inwt=0; inwt<nnwt; inwt++) {
 
@@ -486,6 +493,8 @@ int main(int argc,char **args) {
       CHKERRA(ierr);
     }
 
+    hook_list.time_step_post(time_star.time(),tstep,gather_values);
+
     if (ngather>0) {
       // Print gathered values
       if (MY_RANK==0) {
@@ -526,6 +535,8 @@ int main(int argc,char **args) {
     if (normres_ext < tol_steady) break;
       
   }
+  hook_list.close();
+
   print_vector(save_file.c_str(),x,dofmap,&time);
   if (print_residual) 
     print_vector(save_file_res.c_str(),res,dofmap,&time);
