@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Changing 'distmap.h' launches recompilation of almost all
+   PETSc-FEM. 
 * the name for the elemsets doesn't accept the quotes "name" feature
    (see readmesh.cpp:191). 
 * int FastMat2: `mydetsur' with masks can't be cached (loses cached
@@ -26,7 +28,8 @@ TODO: [Mainly fixes go here...]
 >      > Reads data from initialization files
 * Add test for axisymmetric option in nsi_tet_les_fm2
 * A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
-  SIGSEGV. Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
+  SIGSEGV (note the line starts with a space). 
+  Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
 * generate tests for gatherer
 * generate a test for Levi-Civita (eps_LC())
 * Make dof map to a `fixation_entry_list', that contains many entries
