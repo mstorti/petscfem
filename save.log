@@ -1195,3 +1195,6 @@ tag: beta-2.94.pl22 on Wed, 26 Jun 2002 17:59:26 -0300 by mstorti in minerva.arc
      > ADD_GRAD_DIV_U_TERM was not defined in some elemsets.
      > Improves to `bubbly' elemset.
      > Axisymmetric option added to some NS elemsets. 
+----------
+tag: beta-2.94.pl23 on Sat, 29 Jun 2002 11:20:25 -0300 by mstorti in spider
+     > Added fixes for the `alpha' bug to other elements (nsikeps.cpp, nsirot.cpp)
