@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add options for turbulent shallow water
+* add wall laws to turbulent shallow water
 * Should State have a TimeData instead of a Time
 * Why not to do a single loop over node_list in the print_some()
        routines?  

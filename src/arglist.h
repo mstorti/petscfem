@@ -118,7 +118,7 @@ public:
 */ 
 class arg_data {
 public:
-  /// A copy of the options for the corresponding \verb+arg_entry+ value. 
+  /// A copy of the options for the corresponding arg\_entry value. 
   int options;
   /// The MPI vector.
   Vec *x;

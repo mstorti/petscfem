@@ -98,7 +98,7 @@ int print_some(const char *filename,const State &s,Dofmap *dofmap,
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-/** Initializes the verb+print_some+ saving mechnism. 
+/** Initializes the print\_some saving mechanism. 
     Basically reads the nodes to be printed at each time step. 
     @author M. Storti
     @param thash (input) the text hash from where to get properties. 

@@ -190,7 +190,7 @@ public:
 		    int el_start,int el_last,int iter_mode,
 		    int klocc=0,int kdofc=0);
 
-  /** Return the $``locker'' for the element, that is a (void *) where to
+  /** Return the ``locker'' for the element, that is a (void *) where to
       put data. Only for elements local to this processor. 
       @author M. Storti
       @param global_elem (input) the index of the element in the elemset

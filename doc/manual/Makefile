@@ -20,13 +20,16 @@ ps: ../manual.ps.gz
 .INTERMEDIATE: ../manual.ps 
 ../manual.ps.gz: ../manual.ps
 
+#w Generate PS
 ../manual.ps: manual.dvi
 	dvips -o $@ $<
 
+#w TeX compile manual.tex
 manual.dvi: manual.tex
 	-latex \\nonstopmode\\input manual
 	-latex \\nonstopmode\\input manual
 
+#w make the tex from the doc++ comments
 manual.tex:
 	$(DOCXX) -d tex -v -t -p -o manual.tex -ep a4wide $(DOCF)
 # Fix some error in DOC++
