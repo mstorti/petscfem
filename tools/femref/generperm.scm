@@ -98,15 +98,36 @@
 	  (else (loop (generate-aux (car g) gen-G) (cdr g))))))
 
 (define (check-gen gen-list s)
-  (let ((gen (generate gen-list)))
-    (format #t "total oriented %s perms: ~A\n" (length gen))
+  (let* ((gen (generate gen-list))
+	 (n (vector-length (car gen))))
+    (format #t "total ~A perms: ~A, (of ~A! = ~A)\n" 
+	    s (length gen) n (factorial n))
     (map (lambda (x) (format #t "~A\n" x)) gen)))
 
-(check-gen (list (vector 1 3 2 0) (vector 1 2 0 3)) "tetra")
+(define (factorial n)
+  (let loop ((fact 1)
+	     (count 1))
+    (cond ((> count n) fact)
+	  (else (loop (* fact count) (+ 1 count))))))
+
+; (format #t "(factorial 5): ~A\n" (factorial 5))
+
+(check-gen (list (vector 1 2 0)) "tri")
+
+(check-gen (list (vector 1 2 0)
+		 (vector 1 0 2)) "unoriented tri")
+
+(check-gen (list (vector 1 2 3 0)) "quad")
+
+(check-gen (list (vector 1 2 3 0)
+		 (vector 0 3 2 1)) "unoriented quad")
+
+(check-gen (list (vector 1 3 2 0) 
+		 (vector 1 2 0 3)) "tetra")
 
 (check-gen (list (vector 1 3 2 0) 
 		 (vector 1 2 0 3)
-		 (vector 1 0 2 3)) "tetra")
+		 (vector 1 0 2 3)) "unoriented tetra")
 
 (check-gen (list (vector 1 2 3 0 5 6 7 0)
 		 (vector 1 5 6 2 0 4 7 3)) "hexa")
@@ -114,3 +135,10 @@
 (check-gen (list (vector 1 2 3 0 5 6 7 0)
 		 (vector 1 5 6 2 0 4 7 3)
 		 (vector 1 0 3 2 5 4 7 6)) "unoriented hexa")
+
+(check-gen (list (vector 4 3 5 1 0 2)
+		 (vector 1 2 0 4 5 3)) "oriented prism")
+
+(check-gen (list (vector 4 3 5 1 0 2)
+		 (vector 1 2 0 4 5 3)
+		 (vector 1 0 2 4 3 5)) "unoriented prism")
