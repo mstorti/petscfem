@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.18 2001/07/19 23:53:18 mstorti Exp $
+//$Id: elemset.cpp,v 1.19 2001/07/19 23:55:11 mstorti Exp $
 
 #include "fem.h"
 #include <vector>
@@ -331,8 +331,13 @@ int assemble(Mesh *mesh,arg_list argl,
     if (argl[j].options & UPLOAD_VECTOR) 
       ARGVJ.x = (Vec *) (argl[j].arg);
 
-    if (argl[j].options & (UPLOAD_MATRIX | IS_FDJ_MATRIX))
-      ARGVJ.pfA = (PFMat *) (argl[j].arg);
+    if (argl[j].options & (UPLOAD_MATRIX | IS_FDJ_MATRIX)) {
+      if (argl[j].options & PFMAT) {
+	ARGVJ.pfA = (PFMat *) (argl[j].arg);
+      } else {
+	ARGVJ.A = (Mat *) (argl[j].arg);
+      }
+    }
 
     if (argl[j].options & UPLOAD_PROFILE ) {
       iter_mode = INCLUDE_GHOST_ELEMS;
