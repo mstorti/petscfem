@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.71 2002/02/20 01:47:29 mstorti Exp $
+#$Id: Makefile.base,v 1.72 2002/02/25 02:15:28 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -213,7 +213,7 @@ PROG_BIN = $(PROG)$(osfx).bin
 $(PROG): $(PROG_bin)
 
 # general program 
-$(PROG_BIN): $(MYOBJS) $(PROG_LIB)
+$(PROG_BIN): $(MYOBJS) $(PROG_LIB) $(LIBPETSCFEM)
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 
