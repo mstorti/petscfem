@@ -3849,3 +3849,7 @@ tag: beta-3.41.2 on Wed, 26 Jan 2005 08:48:40 -0300 by mstorti in spider
 ----------
 tag: beta-3.41.3 on Wed, 26 Jan 2005 17:02:35 -0300 by mstorti in minerva.ceride.gov.ar
      > Working on `advabso'. 
+----------
+tag: beta-3.41.4 on Wed, 26 Jan 2005 21:48:33 -0300 by mstorti in spider
+     > New version of `src/lagmul.h' based on 
+     > `NewElemset' (migrated from `Elemset') compiles. 
