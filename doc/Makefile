@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.32 2003/03/23 20:52:43 mstorti Exp $
+#$Id: Makefile,v 1.33 2003/06/12 21:04:38 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -59,7 +59,10 @@ icons:
 		tar -xzvf icons.tgz ; rm icons.tgz ; fi
 
 #w make html for reference and manual
-doc_html: index.html petscfem_html manual_html
+doc_html: README.html index.html petscfem_html manual_html
+
+README.html: readme
+	cp ../README.html .
 
 #w make html for reference only
 petscfem_html: latex icons petscfem/petscfem.html 
@@ -136,7 +139,8 @@ CLEAN_DIRS = manual OBJ
 local_clean:: local_dist_clean
 	-rm -rf *.ps.gz index petscfem icons index.html index.css \
 		version.tex *.pdf petscfem.tex \
-		contents.pl images.pl index.pl labels.pl sections.pl WARNINGS
+		contents.pl images.pl index.pl labels.pl sections.pl WARNINGS \
+		README.html
 
 #w Clean leaving PS and HTML
 local_dist_clean::

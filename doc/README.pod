@@ -348,7 +348,7 @@ B<e-mail:> C<<mstorti@intec.unl.edu.ar>>
 
 =item *
 
-B<www:> C<http://minerva.ceride.gov.ar/petscfem>
+B<www:> C<http://www.cimec.org.ar/petscfem>
 
 =item *
 
