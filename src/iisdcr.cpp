@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8 2001/11/27 19:59:39 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.9 2001/12/08 20:30:56 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -43,7 +43,7 @@ public:
   /// Clean all memory related 
   ~IISDGraph() {clear();}
   /// Constructor
-  IISDGraph() : Graph() {}
+  IISDGraph(int N=0) {init(N);}
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:   
@@ -190,6 +190,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   }
   
   // Fill Graph class members 
+  graph.init(n_loc_pre);
   graph.da = da;
   graph.dof2loc = dof2loc.begin();
   graph.loc2dof = loc2dof.begin();
@@ -209,7 +210,7 @@ void IISDMat::create(Darray *da,const Dofmap *dofmap_,
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #endif
 
-  graph.part(n_loc_pre,max_partgraph_vertices_proc,iisd_subpart);
+  graph.part(max_partgraph_vertices_proc,iisd_subpart);
   // Mark those local dofs that are connected to a local dof in a
   // subdomain with lower index in the subpartitioning as interface.
   for (k=0; k<n_loc_pre; k++) {

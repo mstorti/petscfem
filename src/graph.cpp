@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.9 2001/11/27 17:26:06 mstorti Exp $
+//$Id: graph.cpp,v 1.10 2001/12/08 20:30:56 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -12,13 +12,17 @@ extern "C" {
 Graph::~Graph() {}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-Graph::Graph() : weight_scale(1.), vpartf(NULL) {}
+void Graph::init(int N) {
+  weight_scale = 1.;
+  vpartf = NULL;
+  nvrtx_f = N;
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double Graph::weight(int vrtx_f) {return weight_scale;}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Graph::part(int nvrtx_f,int max_partgraph_vertices,
+void Graph::part(int max_partgraph_vertices,
   int npart,float *tpwgts=NULL) {
 
   int visited,vrtx_f,vrtx_fk,vrtx,vrtxj,vrtxjj,p,j,k,
@@ -230,4 +234,18 @@ void Graph::clear() {
   vpart = NULL;
   delete[] vpartf;
   vpartf = NULL;
+}
+
+void Graph::print() {
+  set<int> ngbrs_v;
+  set<int>::iterator q,qe;
+  int j;
+  for (j=0; j<nvrtx_f; j++) {
+    printf("row %d:  ",j);
+    ngbrs_v.clear();
+    set_ngbrs(j,ngbrs_v);
+    qe = ngbrs_v.end();
+    for (q=ngbrs_v.begin(); q!=qe; q++) printf("%d ",*q);
+    printf("\n");
+  }
 }

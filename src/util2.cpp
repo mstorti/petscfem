@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: util2.cpp,v 1.11 2001/11/19 03:35:06 mstorti Exp $
+//$Id: util2.cpp,v 1.12 2001/12/08 20:30:56 mstorti Exp $
   
 #include <stdio.h>
 #include <cassert>
@@ -298,3 +298,12 @@ double int_pow(double base,int exp) {
   } 
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int crem(int j, int m) {
+  int mm = (m>0 ? m : -m);
+  if (j>=0 ) {
+    return j % mm;
+  } else {
+    return mm -1 + ((j+1) % mm);
+  }
+}
