@@ -3344,3 +3344,6 @@ tag: beta-3.33.8 on Fri, 01 Oct 2004 20:43:30 -0300 by mstorti in spider
 ----------
 tag: beta-3.33.9 on Wed, 13 Oct 2004 17:04:49 -0300 by mstorti in minerva.ceride.gov.ar
      > Added `source' option to qharmm'
+----------
+tag: beta-3.33.10 on Sat, 23 Oct 2004 15:35:15 -0300 by mstorti in spider
+     > Runs cubcav with 900Ktetra in spider (512<B RAM). 
