@@ -248,3 +248,9 @@ tag: beta-1.36 on Tue Mar 20 22:38:09 ART 2001, by mstorti in spider
 tag: beta-1.37 on Wed Mar 21 10:32:50 ART 2001, by mstorti in spider
      > Anda el jacobiano difusivo GlobalScalar para un caso simple 
      > con un solo grado de libertad.
+----------
+tag: beta-1.38 on Wed Mar 21 11:44:32 ART 2001, by mstorti in spider
+     > Now the flux function class has a function
+     > comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
+     > 				    FastMat2 & dshapex,double w)
+     > instead of doing this in two steps
