@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.58 2003/11/24 03:40:58 mstorti Exp $
+#$Id: Makefile,v 1.59 2004/07/20 11:39:53 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -236,5 +236,9 @@ clean_O:
 
 clean_g:
 	-rm -f `find . -name '*_g.a'` `find . -name '*_g.bin'` 
+
+#w Updates working directory
+sync:
+	cvs up .
 
 #s
