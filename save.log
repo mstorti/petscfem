@@ -2206,3 +2206,8 @@ tag: beta-3.14.pl49 on Fri, 24 Jan 2003 17:04:22 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.14.pl50 on Sat, 25 Jan 2003 09:41:18 -0300 by mstorti in spider
      > Gatherer is now in src/ (works for both `advdif' and `ns'). 
+----------
+tag: beta-3.14.pl51 on Sat, 25 Jan 2003 12:29:10 -0300 by mstorti in spider
+     > Compiles changed file location for `gatherer'. 
+     > generic class `gatherer' in src/ and implementations in 
+     > `applications/ns' and  `applications/advdif'. 
