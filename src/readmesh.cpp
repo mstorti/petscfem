@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.52 2002/08/27 00:33:42 mstorti Exp $
+//$Id: readmesh.cpp,v 1.53 2002/08/27 13:47:38 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -132,7 +132,7 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			  "Error reading coordinates in line:\n\"%s\"\n"
 			  "Not enough values in line!!\n",astr_chars(linecopy));
 	  int nread = sscanf(token,"%lf",row+kk);
-	  PETSCFEM_ASSERT(nread != 1,
+	  PETSCFEM_ASSERT(nread == 1,
 			  "Error reading coordinates in line:\n\"%s\"",line);
 	}
 	int indx = da_append (xnod,row);

@@ -84,7 +84,7 @@ nodes  2  2  3
   0.90000  0.10000
   1.00000  0.00000
   1.00000  0.10000
-_END_NODES__
+__END_NODES__
 
 elemset nsi_tet_les_fm2 4
 props 

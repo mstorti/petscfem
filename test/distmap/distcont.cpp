@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distcont.cpp,v 1.3 2001/10/07 00:53:39 mstorti Exp $
+// $Id: distcont.cpp,v 1.4 2002/08/27 13:47:38 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -7,12 +7,14 @@
 
 #include <map>
 
+extern int SIZE, MY_RANK;
 #include <src/distcont.h>
 #include <petsc.h>
 
-int SIZE, MYRANK, M;
+int M;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 int wait_from_console(char *s=NULL) {
   static int deac=0;
   if (deac) return 0;
@@ -38,8 +40,9 @@ int wait_from_console(char *s=NULL) {
   ierr = MPI_Barrier(PETSC_COMM_WORLD);
   CHKERRQ(ierr);  
 }
+#endif
 
-typedef map<int,double> Map;
+typedef map<int,double> Map_id;
 typedef pair<int,double> VT; // ValueType
 
 class TrivialPartitioner {
@@ -60,14 +63,14 @@ TrivialPartitioner::processor(const VT &k,int &nproc,int *plist) {
 
 // Simply returns the size of the int+ double
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int DistCont<Map,VT,TrivialPartitioner>
+int DistCont<Map_id,VT,TrivialPartitioner>
 ::size_of_pack(const VT &p) const {
   return sizeof(int)+sizeof(double);
 }
 
 // Copy the int and double to the buffer. Update pointer *buff
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistCont<Map,VT,TrivialPartitioner>::
+void DistCont<Map_id,VT,TrivialPartitioner>::
 pack(const VT &p,char *&buff) const {
   memcpy(buff,&p.first,sizeof(int));
   buff += sizeof(int);
@@ -76,7 +79,7 @@ pack(const VT &p,char *&buff) const {
 }
   
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistCont<Map,VT,TrivialPartitioner>::
+void DistCont<Map_id,VT,TrivialPartitioner>::
 unpack(VT &p,const char *& buff) {
   memcpy(&p.first,buff,sizeof(int)); // debug:=
   buff += sizeof(int);
@@ -85,9 +88,9 @@ unpack(VT &p,const char *& buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void DistCont<Map,VT,TrivialPartitioner>::
+void DistCont<Map_id,VT,TrivialPartitioner>::
 combine(const VT &p) {
-  Map::iterator iter = find(p.first);
+  Map_id::iterator iter = find(p.first);
   if (iter != end()) {
     iter->second += p.second;
   } else {
@@ -96,6 +99,7 @@ combine(const VT &p) {
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 double maxd(int n,...) {
   va_list list;
   va_start(list,n);
@@ -107,15 +111,16 @@ double maxd(int n,...) {
   va_end(list);
   return max;
 }
+#endif
 
-typedef DistCont<Map,VT,TrivialPartitioner> Mapp;
+typedef DistCont<Map_id,VT,TrivialPartitioner> Mapp;
 
 int main(int argc,char **argv) {
   int j,N,row,root=0;
   double d,e,err,errb,tol;
   TrivialPartitioner part;
   
-  Map::iterator k;
+  Map_id::iterator k;
   vector<double> vec,vecc;
   srand (time (0));
   /// Initializes MPI
@@ -125,7 +130,7 @@ int main(int argc,char **argv) {
 
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
-  MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
+  MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
   if (argc!=4) {
     PetscPrintf(PETSC_COMM_WORLD,"argc: %d\n",argc);
@@ -157,7 +162,7 @@ int main(int argc,char **argv) {
     e = double(rand())/double(RAND_MAX);
     S[row] += e;
     vec[row] += e;
-    // printf("[%d] loading S[%d] += %f\n",MYRANK,row,e);
+    // printf("[%d] loading S[%d] += %f\n",MY_RANK,row,e);
   }
 
   S.scatter();
@@ -165,19 +170,19 @@ int main(int argc,char **argv) {
 
   err = 0;
   for (j=0; j<N; j++) {
-    if (part.processor(j)==MYRANK) {
+    if (part.processor(j)==MY_RANK) {
       k = S.find(j);
       d = (k!=S.end() ? k->second : 0);
       e = vecc[j];
       err = maxd(2,err,fabs(d-e));
 //        if (d!=0 || e!=0) printf("[%d]  S[%d] = %f, (expected %f)\n",
-//  			       MYRANK,j,d,vecc[j]);
+//  			       MY_RANK,j,d,vecc[j]);
       if (fabs(d-e)>tol ) printf("[%d]  S[%d] = %f, (expected %f, err %f)\n",
-			       MYRANK,j,d,e,fabs(d-e));
+			       MY_RANK,j,d,e,fabs(d-e));
     }
   }
   PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			  "[%d] max error -> %g\n",MYRANK,err);
+			  "[%d] max error -> %g\n",MY_RANK,err);
   PetscSynchronizedFlush(PETSC_COMM_WORLD);
 
   MPI_Reduce(&err,&errb,1,MPI_DOUBLE,MPI_MAX,root,MPI_COMM_WORLD);
