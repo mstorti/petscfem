@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.29 2003/12/08 16:38:04 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2004/01/19 21:50:09 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -16,13 +16,7 @@ SRCS =
 #s Test/Advdif tests
 # ADVDIF    = $(PETSCFEM_DIR)/applications/advdif/advdif.bin 
 
-EPERLFLAGS = -d $(CASE)=1
-DF = newff.depl
-OF = newff.nod.tmp newff.con.tmp 
-data:  $(OF) $(DF) #auxi_dat # para que genere .gdbinit y el link
-
-data.m.tmp: data.m.epl force
-newff.depl: data.m.tmp force
+EPERLFLAGS = 
 
 ################################################################
 # TESTS FOR THE NEW FLUX FUNCTIONS...
@@ -73,7 +67,7 @@ endif
 run: 
 	@make-depl data.m.epl data.m.tmp -d CASE=$(CASE) ;		\
 	$(OCTAVE) -qH newff.m ;						\
-	make-depl newff.epl newff.$(CASE).depl ;			\
+	make-depl newff.epl newff.$(CASE).depl -d $(CASE)=1 ;		\
 	if [ -f save.state.tmp ] ; then rm -f save.state.tmp ; fi ;	\
 	$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF)		\
 			-case newff.$(CASE).depl > newff.$(CASE).out ;	\

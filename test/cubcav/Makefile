@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.83 2003/12/08 13:34:05 mstorti Exp $ 
+# $Id: Makefile,v 1.84 2004/01/19 21:50:06 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -127,8 +127,8 @@ k:
 #w Basic test for block uploading. This somewhat trivial since
 #w for NS the profile is full. 
 block_uploading:
-	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bpl0.tmp
-	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bpl1.tmp
+	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bupl0.tmp
+	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bupl1.tmp
 	$(OCTAVE) check_plain.m > cubcav.plain-bupl.verif.tmp
 
 #================================================================

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.119 2004/01/18 22:53:27 mstorti Exp $
+#$Id: runtests.pl,v 1.120 2004/01/19 21:50:02 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -477,7 +477,7 @@ expect("newff/newff.check_fields.out",
        "Check fields<ndof in constraints",<<'EOT');
 Assertion failed: 
 read_mesh: Read field
-newff.depl:
+newff.check_fields.depl:
 PETSC-FEM error 
 EOT
 
@@ -486,7 +486,7 @@ expect("newff/newff.check_nodes.out",
        "Check node<nnod in constraints",<<'EOT');
 Assertion failed: "node<=nnod"
 read_mesh: Read node= 35 greater than nnod= 34
-newff.depl:.*: "1. 35 1 \-1. 33 1"
+newff.check_nodes.depl:.*: "1. 35 1 \-1. 33 1"
 ---------------
 PETSC-FEM error at file "readmesh.cpp", line 
 EOT

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.100 2003/12/08 23:24:45 mstorti Exp $ 
+# $Id: Makefile,v 1.101 2004/01/19 21:50:02 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -7,7 +7,7 @@
 	constraint_bug fstack sector triangle advdif texthash log_vars		\
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
 	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
-	idmap sw_abso
+	idmap sw_abso cubcav
 
 SRCS = $(wildcard *.cpp)
 
@@ -90,7 +90,7 @@ runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	chunk_size_process constraint_bug fstack triangle advdif texthash	\
 	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
 	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap	\
-	sw_abso
+	sw_abso cubcav
 
 rp: runtests_p
 runtests_p: sw_abso
@@ -234,5 +234,10 @@ nsgenload:
 # sw absorbent bc
 sw_abso:
 	$(MAKE) -C sw_abso tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+# Tests in cubic (3D) cavity
+cubcav:
+	$(MAKE) -C cubcav tests
 
 #s
