@@ -3,6 +3,7 @@
  */
 #include <string>
 #include <vector>
+#include <map>
 
 // `or' and `string' are used in DX so that one possibility is to
 // use a namespace for DX or to remap this colliding names with
@@ -111,15 +112,16 @@ ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock) {
   return strlen(*lineptr)+1;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#if 0
 class GenericError : public string {};
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int string2int(string s) throw (GenericError) try {
-  int n;
+int string2int(string s,int &n) {
   int nread = sscanf(s.c_str(),"%d",&n);
-  if (nread!=1) throw string(string(": can't convert to string token")+s);
-  return n;
-} catch (...) { throw; }
+  return (nread!=1);
+} 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 typedef map<string,Array> positions_table_t;
@@ -131,15 +133,15 @@ Error build_dx_array(Socket *clnt,int shape,int size, Array &array) {
   if (!array) return ERROR;
   array = DXAddArrayData(array, 0, size, NULL);
   if (!array) return ERROR;
-  array_p = (double *)DXGetArrayData(array);
+  double *array_p = (double *)DXGetArrayData(array);
 
-  nread = Sreadbytes(clnt,array_p,shape*size*sizeof(double));
+  int nread = Sreadbytes(clnt,array_p,shape*size*sizeof(double));
   if (nread==EOF) return ERROR;
   return OK;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-extern "C" Error m_ExtProgImport(Object *in, Object *out) try {
+extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   int i,N, *icone_p,node,nread,nnod,nnod2,ndim,ndof,
     nelem,nel;
   double *xnod_p,*data_p;
@@ -149,14 +151,22 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) try {
   String s;
   Type t;
   Socket *clnt = NULL;
+  vector<string> tokens;
+  string name; 
+  positions_table_t positions_table;
+  positions_table_t::iterator q, qe=positions_table.end();
+  Array array = NULL;
+  Error err;
+  char spc[] = " \t\n";
+
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
-  static int Nbuf = 0;
+  static size_t Nbuf = 0;
 
   out[0] = NULL;
 
   char *hostname = DXGetString((String)in[0]); 
-  DXMessage("got hostname: %s",hostname);
+  DXMessage("Got hostname: %s",hostname);
   int port;
   if (!in[1]) port = 5314;
   else if (!DXExtractInteger(in[1],&port)) {
@@ -170,7 +180,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) try {
 	       "Invalid port %d, should be in range 5000 < port < 65536",port);
     goto error;
   }
-  DXMessage("Got hostname: %s, port: %d",hostname,port);
+  DXMessage("Got port: %d",port);
   char sktport[20];
   sprintf(sktport,"c%d",port);
 
@@ -183,31 +193,28 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) try {
   g = DXNewGroup();
   if (!g) goto error;
 
-  vector<string> tokens;
-  string name; 
-  positions_table_t positions_table;
-  Array array = NULL;
-  Error err;
-  char spc[] = " \t\n";
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
+    DXMessage("Got buf %s",buf);
     tokenize(buf,tokens);
     
-    try {
-      if (tokens[0]=="end") break;
-      else if (tokens[0]=="nodes") {
-	name = tokens[1];
-	int ndim = string2int(tokens[2]);
-	int nnod = string2int(tokens[3]);
-	DXMessage("Got nnod %d, ndim %d",nnod,ndim);
-	err = build_dx_array(clnt,ndim,nnod,array);
-	if(err!=OK) return err;
-	positions_table[name] = array;
-      };
-    } catch(GenericError e) {
-      throw(e+string("\nProcessing line: ")+string(buf));
-    }
+    if (tokens[0]=="end") break;
+    else if (tokens[0]=="nodes") {
+      name = tokens[1];
+      if (string2int(tokens[2],ndim)) goto error;
+      if (string2int(tokens[3],nnod)) goto error;
+      DXMessage("Got nnod %d, ndim %d",nnod,ndim);
+      err = build_dx_array(clnt,ndim,nnod,array);
+      if(err!=OK) return err;
+      positions_table[name] = array;
+    };
   }
+
+  for (q=positions_table.begin(); q!=qe; q++) {
+    g = DXSetMember(g,(char *)(q->first.c_str()),
+		    (Object)q->second);
+  }
+
 #if 0
   g = DXSetMember(g,"nodes",(Object)xnod);
   if (!g) goto error;
@@ -258,9 +265,9 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) try {
   g = DXSetMember(g,(char *)ename.c_str(),(Object)icone);
   if (!g) goto error;
 
+#endif
   out[0] = (Object)g;
 
-#endif
   if (!clnt) Sclose(clnt);
   clnt = NULL;
   return OK;
@@ -270,7 +277,4 @@ error:
   delete[] hostname;
   hostname = NULL;
   return ERROR;
-
-} catch(GenericError) {
-  
-}
+} 
