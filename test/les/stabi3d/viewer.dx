@@ -1,17 +1,29 @@
+#-*- shell-script -*-
+<: require './data.pl';
+$nnod = (($Nx+1)*($Ny+1)*($Nz+1));
+open IN,"stabi.state.tmp";
+open OUT,">dxdata.tmp";
+while(<IN>) {
+    @l = split " ";
+    print OUT "$l[0]\n";
+}
+close IN;
+close OUT;
+:>//
 # The following example describes an irregular grid. Note that the values
 # of the "positions" component and "connections" component are irregular,
 # and so must be enumerated.
 #
 # The irregular positions, which are ... three-dimensional points.
-object 1 class array type float rank 1 shape 3 items 1331 data file stabi.nod.tmp
+object 1 class array type float rank 1 shape 3 items <:=$nnod:> data file stabi.nod.tmp
 
 # The irregular connections, which are tetrahedra
-object 2 class array type int rank 1 shape 4 items 5000 data file stabi.con-tet.tmp
+object 2 class array type int rank 1 shape 4 items <:=5*$Nx*$Ny*$Nz:> data file stabi.con-tet.tmp
 
 attribute "element type" string "tetrahedra"
 attribute "ref" string "positions"
 # The data, which is in a one-to-one correspondence with the positions
-object 3 class array type float rank 0 items 1331 data file pp.tmp
+object 3 class array type float rank 0 items <:=$nnod:> data file dxdata.tmp
 
 attribute "dep" string "positions"
 # the field, with three components: "positions", "connections", and

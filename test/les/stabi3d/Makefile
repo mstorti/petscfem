@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2002/11/11 12:50:19 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/11/11 22:50:41 mstorti Exp $ 
 
 .PHONY: force tangent stabi data auxi
 
@@ -15,8 +15,15 @@ NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
 stabi: 	
 	$(MAKE) $(CASE).depl
 	octave -q < mkmesh.m 
-	-$(MPIRUN) -machinefile ./machi.dat \
-		-np $(NP) -nolocal $(PROG) -case stabi.depl # >stabi.out.tmp
+	-$(MPIRUN) -machinefile ./machi.dat -np $(NP) -nolocal $(PROG) -case stabi.depl
+
+stabi.con-tet.tmp: stabi.con.tmp
+	$(PETSCFEM_DIR)/tools/hexasplit.bin -xi $< -o $@
+
+dx: viewer_tmp.dx
+
+viewer_tmp.dx: stabi.con-tet.tmp stabi.state.tmp viewer.dx
+	eperl -P viewer.dx > $@
 
 LOC_PROG := ns
 CASE_NAME := stabi

@@ -6,14 +6,7 @@
 __ECHO_ON__
 <: 
 #__TRANSCRIPT__
-$hratio=4;			# refinement ratio center/wall
-$Rel=10000;			# Reynolds number
-$Lx=4;				# Length in the longitudinal direction
-$Ly=1;				# Plate separation
-$Lz=$Lx;			# Length in transversal (periodic)  direction
-$Nx=40;				# number of elements in x direction
-$Ny=40;				# number of elements in y direction
-$Nz=40;				# number of elements in z direction
+require('./data.pl');
 
 $hav = $Ly/$Ny;			# typical mesh size in `y' direction
 $havx = $Lx/$Nx;		# typical mesh size in `x' direction
@@ -43,6 +36,8 @@ print_some_file "stabi.some.tmp"
 save_file_some "stabi.some_rslt.tmp"
 nsome 1
 Krylov_dim 200
+activate_debug_print
+activate_debug_memory_usage
 
 #    Iterative parameters
 #if 0
@@ -50,7 +45,7 @@ nnwt 5
 steady
 nstep 1
 #else
-nnwt 2
+nnwt 1
 steady 0
 nstep 1000
 #endif

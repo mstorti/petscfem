@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.5 2002/07/28 23:31:38 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.6 2002/11/11 22:50:41 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <vector>
@@ -32,13 +32,19 @@ int main (int argc, char **argv) {
   char c;
   string icone_file = "icone";
   string icone_tetra = "icone_tetra";
-  while ((c = getopt (argc, argv, "i:o:")) != -1) {
+  int dx; // Flags whether the mesh is being generated for opendx data explorer
+  while ((c = getopt (argc, argv, "i:o:x")) != -1) {
     switch (c) {
     case 'i':
       icone_file = string(optarg);
       break;
     case 'o':
       icone_tetra = string(optarg);
+      break;
+    case 'x':
+      printf("Using 0-base (C-style) numeration for "
+	     "nodes (OpenDX Data Explorer)\n");
+      dx = 1;
       break;
     default:
       abort ();
@@ -178,7 +184,7 @@ int main (int argc, char **argv) {
       // loop over nodes in the tetra
       for (int q=0; q<4; q++) 
 	// node of local tetra, eventually remapped
-	fprintf(fid,"%d ",row[map[tetra[t][q]]]);
+	fprintf(fid,"%d ",row[map[tetra[t][q]]] - (dx ? 1 : 0));
       fprintf(fid,"\n");
     }
   }
