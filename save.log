@@ -2052,3 +2052,7 @@ tag: beta-3.14.pl1 on Thu,  2 Jan 2003 23:21:31 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl2 on Thu,  2 Jan 2003 23:52:42 -0300 by mstorti in spider
      > Computes OK normal gradient of potential at coupling nodes. 
+----------
+tag: beta-3.14.pl3 on Fri,  3 Jan 2003 21:50:07 -0300 by mstorti in spider
+     > Runs coupled viscous/inviscid coupling problem. 
+     > Modified strategy for choosing node to be eliminated in constraints. 
