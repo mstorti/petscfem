@@ -1278,3 +1278,6 @@ tag: beta-3.00.pl7 on Sun, 21 Jul 2002 23:50:00 -0300 by mstorti in spider
 ----------
 tag: beta-3.00.pl8 on Mon, 22 Jul 2002 00:16:57 -0300 by mstorti in spider
      > There was ea bug in the contructor of the StoreGraph1 graph
+----------
+tag: beta-3.00.pl9 on Mon, 22 Jul 2002 12:45:28 -0300 by mstorti in minerva.arcride.edu.ar
+     > New graph class `link_graph' compiles. 
