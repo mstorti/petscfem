@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsilesasm_2.cpp,v 1.2 2003/12/04 12:21:04 mstorti Exp $
+//$Id: nsilesasm_2.cpp,v 1.3 2004/10/01 00:20:54 mstorti Exp $
 
 //---<Archivos de Cabecera>---//
 #include <src/fem.h>
@@ -113,11 +113,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     locst2 = arg_data_v[ja++].locst;
     retval = arg_data_v[ja++].retval;
     if (update_jacobian) retvalmat = arg_data_v[ja++].retval;
-#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
     hmin = &*(arg_data_v[ja++].vector_assoc)->begin();
-#else
-    ja++;
-#endif
     ja_hmin=ja;
     glob_param = (GlobParam *)(arg_data_v[ja++].user_data);
     rec_Dt = 1./glob_param->Dt;
@@ -485,9 +481,7 @@ int nsi_tet_les_asm::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// computes the minimum size of the mesh
 	if (!WAS_SET || h_pspg<*hmin) {
 	  WAS_SET = 1;
-#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
 	  *hmin = h_pspg;
-#endif
 	}
 
 	//----------------------------------------------------//
