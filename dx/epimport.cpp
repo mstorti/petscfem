@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.21 2003/09/07 17:16:34 mstorti Exp $
+// $Id: epimport.cpp,v 1.22 2003/10/04 21:00:35 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -458,11 +458,11 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	  DXMessage("Ends requesting nodes.. OK");
 	  ierr = DXSetCacheEntry((Object)array,
 				 CACHE_PERMANENT,NODES_KEY,0,0);
+	  if (ierr!=OK) {
+	    DXMessage("Couldn't create cache entry");
+	    goto error;
+	  } else DXMessage("Putting cached_nodes in cache %p",array);
 	}
-	if (ierr!=OK) {
-	  DXMessage("Couldn't create cache entry");
-	  goto error;
-	} else DXMessage("Putting cached_nodes in cache %p",array);
 	tempo_list.push_back((Object)array);
       } else {
 	  ierr = build_dx_array(clnt,ndim,nnod,array);
