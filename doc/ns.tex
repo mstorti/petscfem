@@ -1,6 +1,12 @@
 %__INSERT_LICENSE__
 \Section{The Navier-Stokes module}
 
+\def\nel{{n_{\mathrm{el}}}}
+\def\ndof{{n_{\mathrm{dof}}}}
+\def\ndim{{n_{\mathrm{dim}}}}
+\def\nen{{n_{\mathrm{en}}}}
+%
+
 \SSection{LES implementation}
 
 The Smagorisky LES model for the Navier-Stokes module follows ...
@@ -252,6 +258,156 @@ This element imposes a linearized  free surface boundary condition.
 
 \end{description}
 \latex{\end{flushleft}}
+
+\SSection{Mesh movement}
+
+Sometimes one has a mesh (connectivity and node coordinates) and wants
+a mesh for a slightly modified domain. If $!u$ is the displacement of
+the boundaries, then we can pose the problem of finding a mesh
+topologically equal to the original one, but with a slight
+displacement of the nodes so that the boundaries are in the new
+position. This is termed \emph{``mesh relocation''}. One way to do this
+is to solve a elasticity problem where the displacements at the
+boundaries are the prescribed displacement of the boundary. 
+This problem has been included by convenience in the Navier-Stokes
+module, even if at this stage it has little to do with the
+Navier-Stokes eqs.
+
+Once the displacement is computed by a standard finite element
+computation, we can compute the new mesh node coordinates by adding
+simply the computed displacement to the original node coordinate. The
+elastic constants can be chosen arbitrarily. If an isotropic material
+is considered, then the unique relevant non-dimensional parameter is
+the Poisson ratio, controlling the incompressibility of the fictituos
+material. However, if the distortion is too large, this linear simple
+strategy ca break down, when some element collapses and has a negative
+Jacobian. A simple idea to fix this is to somewhat rigidize the
+elastic constants of the fictituos material in order to minimize the
+distortion of the elements. Designing this nonlinear material
+behaviour should guarantee a unique solution and a relatively easy way
+to compute the Jacobian. A possibility is to have an hyperelastic
+material, i.e. to define an \emph{``energy functional''} $F(\epsilon_{ij})$ as
+function of the strain tensor. One should guarantee that this
+functional is convex, and one should have an easy way to compute its
+derivatives and second derivatives.
+
+A related approach, implemented in PETSc-FEM, is to compute (for
+simplices) the transformation from a regular master element to the
+actual element, and to define the energy functional to be minimized as
+a function of the associated matrix tensor. If $J_{ij} = \dep
+{x_i}{\xi_j}$ where $x_i$ are the spatial coordinates and $\xi_j$ the
+master coordinates, then the metric tensor is 
+%
+\begin{equation} \label{eq:gij}  
+G_{ij} = \dep{x_k}{\xi_i}  \, \dep{x_k}{\xi_j}.
+\end{equation}
+%
+The Jacobian of the transformation may be computed by differentiating
+the interpolated displacements
+%
+\begin{equation} 
+  x_i(\xi_j) = \sum_\mu x_{\mu i} N_\mu)\xi_j),
+\end{equation}
+%
+with respect to the master coordinates, so that
+%
+\begin{equation} 
+  J_{ij} = \dep {x_i}{\xi_j} = \sum_\mu x_{\mu i} \dep{N_\mu}{\xi_j}.
+\end{equation}
+%
+We want to compute the distortion function to be minimized as a
+fuction of the eigenvalues of the metric tensor $G_{ij}$. The
+eigenvalues $!v_q$ of $!G$ are such that
+%
+\begin{equation} 
+  G_{ij} v_{qj} = \lambda_q v_{qj} 
+\end{equation}
+%
+so that,
+%
+\begin{equation} 
+  \lambda_q  = v_{qi} \, G_{ij} \, v_{qj} 
+\end{equation}
+%
+(no sum over $q$) since the $!v_q$ are orthogonal. Now if the
+functional $F$ is a function of the element node coordinates through
+the eigenvalues $\lambda_q$ then we can compute the new coordinates
+$x'$ as
+%
+\begin{equation} 
+  \dep F {x_{\mu j}} = 0.
+\end{equation}
+%
+A possible distortion functional is
+%
+\begin{equation} 
+   F(\{\lambda_q\}) = \LL(\Pi_q \lambda_q \RR)^{-2/\ndim} \, 
+      \sum_{qr} (\lambda_q-\lambda_r)^2
+\end{equation}
+%
+This fuctional has several nice features. Is minimal whenever all the
+eigenvalues are equal (the distortion is minimal). It is
+non-dimensional, so that an isotropic dilatation or contraction
+doesn't produce a change in the functional. 
+%
+This can be solved by, a Newton strategy, by computing the first 
+and second derivatives of $F$ with respect to the node displacements
+(the residual and Jacobian of the system of equations)
+by finite difference approximations. However, this turns to be too
+costly in CPU time for the second derivatives, 
+since we should compute for each second derivative three evaluations
+of the functional, there are $\nen(\nen+1)/2$ (where $\nen=\ndof\nel$ is the
+number of unknowns  per element, $\nel$ is the number of nodes per
+element, and $\ndof$ the number of unknowns per node, here $\ndof=\ndim$)
+second derivatives to
+compute, and we have to compute an eigenvaue problem for each
+functional evaluation, and an analytical expression is desired. The
+derivatives of the distortion functional can be computed as
+%
+\begin{equation} 
+  \dep F {x_j} = \dep F {\lambda_q} \dep{\lambda_q}{x_{\mu j}}
+\end{equation}
+%
+and then the derivatives with respect to the eigenvalues can be
+computed still numerically, while we will show that the derivatives of
+the eigenvalues with respect to the node coordinates (which are the
+most expensive part) can be computed analytically. In this way, we can
+compute the derivatives of the functional with the solution of only
+one eigenvalue problem. The second derivatives can be computed
+similarly as
+%
+\begin{equation} 
+  \dep {^2F} {x_{\mu i} x_{\nu j}} = 
+  \dep {^2F}{\lambda_q\lambda_r} \, \dep{\lambda_q}{x_{\mu i}} \,
+  \dep{\lambda_r}{x_{\mu j}} + 
+     \dep F {\lambda_q} \, \dep{^2\lambda_q}{x_{\mu i} x_{\nu j}}. 
+\end{equation}
+%
+The first and second derivatives of $F$ with respect to the
+eigenvalues are cheap to compute numerically, whilst the second 
+derivatives of the eigenvalues can be computed by differentiating
+numerically the first derivatives. This amounts to $\nen$ eigenvalue
+problems for computing the first and second derivatives of the
+distortion functional (the residual and Jacobian). It can be shown
+that 
+%
+\begin{equation} 
+  \dep{\lambda_q}{x_{\mu k}}  = v_{qi} \, \dep{G_{ij}}{x_{\mu k}} \, v_{qj},
+\end{equation}
+%
+but, from (\ref{eq:gij})
+%
+\begin{equation} 
+\dep{G_{ij}}{x_{\mu l}} = J_{li} \, \dep {N_\mu}{\xi_j} + 
+        J_{lj} \, \dep {N_\mu}{\xi_i}
+\end{equation}
+%
+so that
+%
+\begin{equation} 
+  \dep{\lambda_q}{x_{\mu l}}  = \LL(v_{ql} \, J_{li}\RR) \, 
+                \LL(\dep{N_\mu}{\xi_j} \, v_{qj}\RR),
+\end{equation}
 
 % Local Variables: *
 % mode: latex *
