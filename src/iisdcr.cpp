@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.37.2.4 2003/08/18 14:11:46 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.37.2.5 2003/08/18 14:38:46 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -418,9 +418,9 @@ int IISDMat::create_a() {
   vector<int> n_lay1(size,0), n_band(size,0), n_rest(size,0), n_isp(size,0);
 
   // n_lay1_p:= Dof's in interface/processor `p': are in 
-  //                                  range n_lay1_p[p] <= keq < n_lay1_p[p+1] 
+  //                                  range n_lay1_p[p] <= keq < n_band_p[p] 
   // n_band_p:= Dof's in band/processor `p': are in 
-  //                                  range n_band_p[p] <= keq < n_band_p[p+1] 
+  //                                  range n_band_p[p] <= keq < n_lay1_p[p+1] 
   vector<int> n_lay1_p(size+1,0), n_band_p(size+1,0);
 
   // isp_map:= isp_map[j] is the position in the PETSc `A_isp' matrix
@@ -438,17 +438,17 @@ int IISDMat::create_a() {
   // interface, proc=p, etc...
   // Now build the pointers (cumsum)
   n_lay1_p[0]=0;
-  n_band_p[0]=n_lay1[0];
   for (int p=0; p<size; p++) {
-    n_lay1_p[p+1] = n_band_p[p] + n_lay1[p];
-    n_band_p[p+1] = n_lay1_p[p+1] + n_band[p];
+    n_band_p[p] = n_lay1_p[p] + n_lay1[p];
+    n_lay1_p[p+1] = n_band_p[p] + n_band[p];
   }
 #if 1
   if (!myrank) {
-    printf("proc, n_lay1_p, n_band_p\n");
-    for (int p=0; p<=size; p++) {
-      printf("%d %d %d\n",p,n_lay1_p[p], n_band_p[p]);
-    }
+    printf("proc, lay1, band, rest, n_lay1_p, n_band_p\n");
+    for (int p=0; p<size; p++)
+      printf("%7d %7d %7d %7d %7d %7d\n",p,n_lay1[p],n_band[p],n_rest[p],
+	     n_lay1_p[p], n_band_p[p]);
+    printf("%7d %7d %7d %7d %7d %7d\n",size,0,0,0,n_lay1_p[size],0);
   }
 #endif
 
@@ -457,14 +457,14 @@ int IISDMat::create_a() {
   for (int j=0; j<neq; j++) {
     int lay = isp_lay_map[j];
     int proc = part.processor(j);
-    if (lay==1) isp_map[j] += n_lay1[proc];
-    else if (lay>1) isp_map[j] += n_band[proc];
+    if (lay==1) isp_map[j] += n_lay1_p[proc];
+    else if (lay>1) isp_map[j] += n_band_p[proc];
   }
 #if 1
   if (!myrank) {
-    printf("j, isp_map[j]");
+    printf("j, isp_lay_map[j], isp_map[j]\n");
     for (int j=0; j<neq; j++) {
-      printf("%d %d\n",j, isp_map[j]);
+      printf("%d %d %d\n",j, isp_lay_map[j], isp_map[j]);
     }
   }
 #endif
@@ -478,7 +478,7 @@ int IISDMat::create_a() {
     // Only process dof's in the int+band, here
     if (!(isp_lay_map[j] && part.processor(j)==myrank)) continue;
     // PETSc index (relative to processor range)
-    int ispj = isp_map[j]-
+    int ispj = isp_map[j]-n_lay1_p[proc];
     ngbrs_v.clear();
     lgraph->set_ngbrs(j,ngbrs_v);
     qe = ngbrs_v.end();
