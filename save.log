@@ -1483,3 +1483,7 @@ tag: beta-3.03.pl1 on Mon, 19 Aug 2002 00:36:26 -0300 by mstorti in spider
 ----------
 tag: beta-3.03.pl2 on Mon, 19 Aug 2002 13:18:24 -0300 by mstorti in spider
      > Added rotating rigid cylinder.
+----------
+tag: beta-3.03.pl3 on Mon, 19 Aug 2002 13:49:22 -0300 by mstorti in spider
+     > Added test for `viscous_force_integrator' based on a strip of 3D hexas
+     > in Poiseuille flow.
