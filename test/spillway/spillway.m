@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: spillway.m,v 1.2 2003/03/21 01:46:35 mstorti Exp $
+## $Id: spillway.m,v 1.3 2003/03/21 10:04:49 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: spillway, mesh
@@ -181,7 +181,6 @@ endfor
 fclose(fid);
 
 ## SF  p = p_atm = 0.
-patm = 0.;
 fid = fopen("spillway.patm.tmp","w");
 for j=2:length(fs)-1
   k= fs(j);

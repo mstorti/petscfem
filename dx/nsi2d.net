@@ -1,5 +1,5 @@
 //
-// time: Thu Mar 20 19:57:40 2003
+// time: Thu Mar 20 23:49:40 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -12,10 +12,10 @@
 // comment: 
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
 // page assignment: image	order=5, windowed=0, showing=0
-// page assignment: import	order=2, windowed=0, showing=0
+// page assignment: import	order=2, windowed=0, showing=1
 // page assignment: proc_u	order=3, windowed=0, showing=0
-// page assignment: scalar	order=4, windowed=0, showing=1
-// workspace: width = 640, height = 782
+// page assignment: scalar	order=4, windowed=0, showing=0
+// workspace: width = 433, height = 682
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
@@ -151,12 +151,12 @@ main_AutoGlyph_1_out_1 =
     // 
     // node Selector[1]: x = 160, y = 100, inputs = 7, label = Selector
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Selector_1"
-    // input[2]: defaulting = 0, visible = 0, type = 32, value = "abs(u)" 
-    // input[3]: defaulting = 0, visible = 0, type = 29, value = 1 
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "log(abs(vort))" 
+    // input[3]: defaulting = 0, visible = 0, type = 29, value = 4 
     // input[4]: defaulting = 1, visible = 1, type = 16777248, value = { "none" "abs(u)" "pressure" "vorticity" "log(abs(vort))" }
     // input[5]: defaulting = 1, visible = 0, type = 16777245, value = { 0 1 2 3 4 }
-    // output[1]: visible = 1, type = 29, value = 1 
-    // output[2]: visible = 1, type = 32, value = "abs(u)" 
+    // output[1]: visible = 1, type = 29, value = 4 
+    // output[2]: visible = 1, type = 32, value = "log(abs(vort))" 
     // page group: scalar
     //
     // 
@@ -383,12 +383,12 @@ main_Caption_2_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_2"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 0.0
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 10.0
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = -2.0
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = 1.8512321
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 0.0 10.0 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = -846.43823
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 277.70154
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -2.0 1.8512321 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = -2.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = 1.8512321
     // page group: scalar
     // window: position = (0.4075,0.0650), size = 0.6875x0.5000
     //
@@ -400,7 +400,7 @@ main_Colormap_2_out_2[cache: 2] =
     main_Colormap_2_in_3,
     main_Colormap_2_in_4,
     main_Colormap_2_in_5,
-    main_Colormap_2_in_6,
+    main_Switch_5_out_1,
     main_Colormap_2_in_7,
     main_Colormap_2_in_8,
     main_Colormap_2_in_9,
@@ -765,13 +765,13 @@ main_Compute_8_out_1[cache: 0] =
     // node Image[4]: x = 160, y = 640, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [27.5242 64.5432 -1e-05]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [27.5242 64.5432 191.755]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 62.3494
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [34.1685 73.6064 -9.96095e-06]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [34.1685 73.6064 191.755]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 69.4923
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 778
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.688
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 18.4682
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 20.5412
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -913,14 +913,14 @@ main_AutoGlyph_1_in_6 = NULL;
 main_AutoGlyph_1_in_7 = NULL;
 main_AutoGlyph_1_out_1 = NULL;
 main_Selector_1_in_1 = "Selector_1";
-main_Selector_1_in_2 = "abs(u)" ;
-main_Selector_1_in_3 = 1 ;
+main_Selector_1_in_2 = "log(abs(vort))" ;
+main_Selector_1_in_3 = 4 ;
 main_Selector_1_in_4 = NULL;
 main_Selector_1_in_5 = NULL;
 main_Selector_1_in_6 = NULL;
 main_Selector_1_in_7 = NULL;
-main_Selector_1_out_1 = 1 ;
-main_Selector_1_out_2 = "abs(u)" ;
+main_Selector_1_out_1 = 4 ;
+main_Selector_1_out_2 = "log(abs(vort))" ;
 main_Receiver_38_out_1 = NULL;
 main_Compute_29_in_1 = "mag($0)";
 main_Compute_29_out_1 = NULL;
@@ -976,19 +976,18 @@ main_Colormap_2_in_2 = { [0.0 1.0] [1.0 1.0] };
 main_Colormap_2_in_3 = { [0.0 1.0] [1.0 1.0] };
 main_Colormap_2_in_4 = { [0.0 1.0] [1.0 1.0] };
 main_Colormap_2_in_5 = "Colormap_2";
-main_Colormap_2_in_6 = NULL;
 main_Colormap_2_in_7 = NULL;
 main_Colormap_2_in_8 = NULL;
 main_Colormap_2_in_9 = NULL;
 main_Colormap_2_in_10 = NULL;
 main_Colormap_2_in_11 = NULL;
-main_Colormap_2_in_12 = { 0.0 10.0 };
+main_Colormap_2_in_12 = { -2.0 1.8512321 };
 main_Colormap_2_in_13 = NULL;
 main_Colormap_2_in_14 = NULL;
 main_Colormap_2_in_15 = NULL;
 main_Colormap_2_in_16 = NULL;
-main_Colormap_2_in_17 = -846.43823;
-main_Colormap_2_in_18 = 277.70154;
+main_Colormap_2_in_17 = -2.0;
+main_Colormap_2_in_18 = 1.8512321;
 main_Colormap_2_in_19 = NULL;
 main_Colormap_2_out_1 = NULL;
 main_Color_1_in_3 = NULL;
@@ -1429,9 +1428,9 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [27.5242 64.5432 -1e-05];
-main_Image_4_in_6 = [27.5242 64.5432 191.755];
-main_Image_4_in_7 = 62.3494;
+main_Image_4_in_5 = [34.1685 73.6064 -9.96095e-06];
+main_Image_4_in_6 = [34.1685 73.6064 191.755];
+main_Image_4_in_7 = 69.4923;
 main_Image_4_in_8 = 778;
 main_Image_4_in_9 = 0.688;
 main_Image_4_in_10 = [0 1 0];
