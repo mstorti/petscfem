@@ -1528,3 +1528,7 @@ tag: beta-3.03.pl14 on Sat, 31 Aug 2002 17:15:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.03.pl15 on Sun,  1 Sep 2002 22:48:27 -0300 by mstorti in spider
      > `read_mesh' returns a PETSc error code. 
+----------
+tag: beta-3.03.pl16 on Mon,  2 Sep 2002 13:14:13 -0300 by mstorti in minerva.arcride.edu.ar
+     > Make aquifer not to stop if `phi<eta' and set a positive small value
+     > for the transmisivity. Also, stop if `u<0' in a stream. 
