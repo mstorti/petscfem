@@ -96,7 +96,8 @@ diffusive_jacobians \
 
 #reactive_jacobians_type "<:=$reac_type="full":>"
 #reactive_jacobians_type "<:=$reac_type="global_scalar":>"
-reactive_jacobians_type "<:=$reac_type="scalar_per_field":>"
+#reactive_jacobians_type "<:=$reac_type="scalar_per_field":>"
+reactive_jacobians_type "<:=$reac_type="null":>"
 
 #if $reac_type eq 'full'
 reactive_jacobians <:=$R:>  0. 0. 0. <:=$R:>  0. 0. 0. <:=$R:>
@@ -105,6 +106,8 @@ reactive_jacobians <:=$R:>  0. 0. 0. <:=$R:>  0. 0. 0. <:=$R:>
 reactive_jacobians <:=$R:>
 #elsif $reac_type eq 'scalar_per_field'
 reactive_jacobians <:=$R:> <:=3*$R:> <:=10*$R:>
+#elsif $reac_type eq 'null'
+# no line for null reactive jacobian
 #else
 <:die "not known reac_type: $reac_type\n":>
 #endif

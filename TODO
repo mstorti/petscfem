@@ -3,16 +3,16 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Include an S_body for ffadvfm2
+* Add doc for new flux functions
+* Throw an error if nothing is read (a void file).
+* Check headers for functions (the __FUNC__ macro). 
 * A faster (cached version) of mydet and mydetsur
-* corregir normales en mydetsur y otros ... 
-* How to choose the correct jacobian when different combinations (eg:
-* ndim*ndim, ndof, etc...) coincide...
 * Fix makefile: runs bison and compiles getarray.cpp even it's not
   necessary
 * document coding of fastmat2. Document the eperl utilities.
 * write diag-like fastmat2 functions. 
 * Make readmesh check dof numbers not being greater than... 
-* Include an S_body for ffadvfm2
 * test for burgers
 * move 'awatch' from test/
 * add wall laws to turbulent shallow water
@@ -31,6 +31,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* How to choose the correct jacobian when different combinations (eg:
+    ndim*ndim, ndof, etc...) coincide...
+* corregir normales en mydetsur y otros ... 
 * Add options for turbulent shallow water
 * Fix error while opening data file, when no case gives
            "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!

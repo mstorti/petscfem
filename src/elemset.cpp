@@ -688,9 +688,14 @@ void NewElemset::get_prop(Property &prop,const char *prop_name,int n=1) const {
   } else {
     // If it was not found in the per element properties table then it
     // should be found as a general property in the text_hash_table. 
-    get_vec_double(prop_name,prop.val,0);
-    prop.ptr = prop.val.begin();
-    prop.length = prop.val.size();
+    int ierr = get_vec_double(prop_name,prop.val,0);
+    if (ierr) {
+      prop.ptr = NULL;
+      prop.length = 0;
+    } else {
+      prop.ptr = prop.val.begin();
+      prop.length = prop.val.size();
+    }
   }
 }
 
@@ -717,47 +722,9 @@ int NewElemset::get_vec_double(const char *name,
   const char *value;
   if (!defval) retval.clear();
   get_entry(name,value);
-  assert(defval || value);	// Either we have a default value or
+  if (!defval & !value) return 1;// Either we have a default value or
 				// the user enters an entry
   if (!value ) return 0;
   read_double_array(retval,value);
+  return 0;
 }
-
-#if 0
-void NewElemset::prop_init(void) {
-  VOID_IT(propel);
-  begin_propel=NULL;
-  VOID_IT(elprpsindx);
-}
-
-const double *NewElemset::PerElemProperty::ptr(ElementIterator &element) {
-  int pos_in_elemset,pos_in_chunk;
-  element.position(pos_in_elemset,pos_in_chunk);
-  return NewElemset::elemprops+pos_in_elemset*NewElemset::nelprops+indx;
-}
-
-NewElemset::ElemProperty * NewElemset::get_prop(const char *name,int n=1) {
-  props_hash_entry *phe;
-
-  // looks int the properties-per-element table
-  phe = (props_hash_entry *)
-    g_hash_table_lookup(elem_prop_names,(void *)name);
-  // If the name is found in the per element properties table
-  // (the line props in the text_hash_table) then we store the
-  // position in the table and the value will be loaded with
-  // 'load_props' for each element
-  if(phe!=NULL) {
-    //    printf("entry phe is: %d %d\n",phe->width,phe->position);
-    int w = phe->width;
-    assert(n==w);
-    for (int k=0; k<w; k++) propel.push_back(0.);
-    return new PerElemProperty(phe->position);
-  } else {
-    // If it was not found in the per element properties table then it
-    // should be found as a general property in the text_hash_table. 
-    double *val = new double[n];
-    get_double(name,val,1,n);
-    return PerElemsetProperty(val);
-  }
-}  
-#endif

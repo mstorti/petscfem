@@ -94,6 +94,20 @@ public:
   ScalarCJac scalar_c_jac;
 
   /// Global scalar reactive Jacobian
+  class NullCJac;
+  friend class NullCJac;
+  class NullCJac : public CJac {
+    newadvecfm2_ff_t &ff;
+  public:
+    NullCJac(newadvecfm2_ff_t &ff_) : ff(ff_) {};
+    void comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w);
+    void comp_G_source(FastMat2 &G_source, FastMat2 &U);
+    void comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+		    FastMat2 &N,double w);
+  };
+  NullCJac null_c_jac;
+
+  /// Global scalar reactive Jacobian
   class ScalarPerFieldCjac;
   friend class ScalarPerFieldCjac;
   class ScalarPerFieldCjac : public CJac {

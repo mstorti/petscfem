@@ -41,8 +41,27 @@ newadvecfm2_ff_t::newadvecfm2_ff_t(NewAdvDif *elemset_)
   scalar_dif_per_field(*this), global_scalar_djac(*this),
   global_dif_tensor(*this), per_field_dif_tensor(*this),
   full_c_jac(*this), scalar_c_jac(*this),
-  scalar_per_field_c_jac(*this)
+  scalar_per_field_c_jac(*this),
+  null_c_jac(*this)
 {};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void newadvecfm2_ff_t::NullCJac
+::comp_N_N_C(FastMat2 &N_N_C,FastMat2 &N,double w) {
+  N_N_C.set(0.);
+}
+
+void newadvecfm2_ff_t::NullCJac::
+comp_G_source(FastMat2 &G_source, FastMat2 &U) {
+  G_source.set(0.);
+}
+
+
+void newadvecfm2_ff_t::NullCJac::
+comp_N_P_C(FastMat2 &N_P_C, FastMat2 &P_supg,
+	   FastMat2 &N,double w) {
+  N_P_C.set(0.);
+}
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void newadvecfm2_ff_t::FullCJac
@@ -465,9 +484,14 @@ void newadvecfm2_ff_t::start_chunk(int ret_options) {
       reactive_jacobians_type=string("scalar_per_field");
     } else if (reactive_jacobians_prop.length == ndof*ndof) {
       reactive_jacobians_type=string("full");
+    } else if (reactive_jacobians_prop.length == 0) {
+      reactive_jacobians_type=string("null");
     }
   }
-  if (reactive_jacobians_type==string("global_scalar") &&
+  if (reactive_jacobians_type==string("null") &&
+      reactive_jacobians_prop.length == 0) {
+    c_jac =  &null_c_jac;
+  } else if (reactive_jacobians_type==string("global_scalar") &&
       reactive_jacobians_prop.length == 1) {
     c_jac =  &scalar_c_jac;
   } else if (reactive_jacobians_type==string("scalar_per_field") &&
