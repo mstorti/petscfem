@@ -1909,3 +1909,6 @@ tag: beta-3.10.pl4 on Sat, 14 Dec 2002 11:43:00 -0300 by mstorti in spider
 ----------
 tag: beta-3.10.pl5 on Sun, 15 Dec 2002 01:01:58 -0300 by mstorti in spider
      > Runs `rotating_cone' example
+----------
+tag: beta-3.10.pl6 on Sun, 15 Dec 2002 11:28:58 -0300 by mstorti in spider
+     > Runs large example with the rotating cone (160x160 mesh, 838 steps).
