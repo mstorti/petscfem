@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.5 2002/08/07 18:17:11 mstorti Exp $
+//$Id: embgath.h,v 1.6 2002/08/07 19:31:22 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -96,6 +96,8 @@ public:
 };
 
 class visc_force_integrator : public embedded_gatherer { 
+private:
+  FastMat2 force;
 public:
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.8 2002/08/07 18:17:11 mstorti Exp $
+//$Id: embgath.cpp,v 1.9 2002/08/07 19:31:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -300,10 +300,10 @@ int embedded_gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       xpg.prod(SHAPE,xloc,-1,-1,1);
       // Jacobian master coordinates -> real coordinates
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
+      iJaco.inv(Jaco);
       
       double detJaco;
       Jaco.is(1,1,ndimel);
-      iJaco.inv(Jaco);
       detJaco = mydetsur(Jaco,n);
       Jaco.rs();
       n.scale(1./detJaco);
@@ -346,6 +346,29 @@ void visc_force_integrator
 		FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
 		FastMat2 &xpg,FastMat2 &n,
 		double wpgdet,double time) {
+
+  // Force contribution = normal * pressure * weight of Gauss point
+  force.set(n).scale(-wpgdet*u.get(4));
+  // export forces to return vector
+  force.export_vals(pg_values.begin());
+
+#if 0
+  if (compute_moment) {
+    // Position offset of local point to center of moments
+    dx.set(xpg).rest(x_center);
+    // Moment contribution = force X dx
+    moment.cross(force,dx);
+    // export forces to return vector
+    moment.export_vals(pg_values.begin()+ndim_m);
+#if 0
+#define SHM(name) name.print(#name ": ")
+    SHM(xpg);
+    SHM(dx);
+    SHM(force);
+    SHM(moment);
+#endif
+  }
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
