@@ -2411,3 +2411,6 @@ tag: beta-3.18 on Mon, 17 Feb 2003 11:57:38 -0300, by mstorti in spider
 ----------
 tag: beta-3.18.pl1 on Mon, 17 Feb 2003 13:06:02 -0300 by mstorti in spider
      > Runs all tests with O_c++
+----------
+tag: beta-3.18.pl2 on Mon, 17 Feb 2003 19:36:47 -0300 by mstorti in spider
+     > Runs dxhook with a DX script for debugging. 
