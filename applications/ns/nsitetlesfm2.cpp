@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.27 2001/07/20 12:01:31 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.28 2001/07/20 12:06:05 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -296,6 +296,7 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
     }
 
+    FastMat2::activate_cache();
     if (comp_res || comp_mat_res) {
       ucols.set(locstate2.is(2,1,ndim));
       pcol.set(locstate2.rs().ir(2,ndof));
@@ -324,7 +325,6 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define WPG      (gp_data.wpg[ipg])
 
     // loop over Gauss points
-    FastMat2::activate_cache();
     for (ipg=0; ipg<npg; ipg++) {
 
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
