@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: testsb.cpp,v 1.4 2004/01/18 20:18:35 mstorti Exp $
+// $Id: testsb.cpp,v 1.5 2004/01/18 21:38:43 mstorti Exp $
 
 #include <unistd.h>
 #include <list>
@@ -20,28 +20,28 @@ int SIZE, MY_RANK;
 using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-class PO  {
+class KeyedObject  {
 public:
   int k;
   int *elems;
   int nelem;
-  PO() : k(0), elems(NULL), nelem(0) {}
-  ~PO() { if(elems) delete[] elems; }
-  PO(const PO &po);
+  KeyedObject() : k(0), elems(NULL), nelem(0) {}
+  ~KeyedObject() { if(elems) delete[] elems; }
+  KeyedObject(const KeyedObject &po);
   void print();
-  friend int operator<(const PO& left, const PO& right);
+  friend int operator<(const KeyedObject& left, const KeyedObject& right);
   int size_of_pack() const;
   void pack(char *&buff) const;
   void unpack(const char *& buff);
 };
 
-SYNC_BUFFER_FUNCTIONS(PO);
+SYNC_BUFFER_FUNCTIONS(KeyedObject);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int PO::size_of_pack() const { return (2+nelem)*sizeof(int); }
+int KeyedObject::size_of_pack() const { return (2+nelem)*sizeof(int); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void PO::pack(char *&buff) const {
+void KeyedObject::pack(char *&buff) const {
   memcpy(buff,&k,sizeof(int));
   buff += sizeof(int);
   memcpy(buff,&nelem,sizeof(int));
@@ -51,7 +51,7 @@ void PO::pack(char *&buff) const {
 }
   
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void PO::unpack(const char *& buff) {
+void KeyedObject::unpack(const char *& buff) {
   memcpy(&k,buff,sizeof(int));
   buff += sizeof(int);
   memcpy(&nelem,buff,sizeof(int));
@@ -63,12 +63,12 @@ void PO::unpack(const char *& buff) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-int operator<(const PO& left, const PO& right) {
+int operator<(const KeyedObject& left, const KeyedObject& right) {
   return left.k<right.k;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-PO::PO(const PO &po) {
+KeyedObject::KeyedObject(const KeyedObject &po) {
   if (this==&po) return;
   *this = po;
   elems = new int[nelem];
@@ -76,7 +76,7 @@ PO::PO(const PO &po) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void PO::print() {
+void KeyedObject::print() {
   for (int j=0; j<nelem; j++) cout << elems[j] << " ";
   cout << endl;
 }
@@ -84,85 +84,103 @@ void PO::print() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int main(int argc,char **argv) {
 
-  int c,m=7,N=10,k=0,ierr=0;
+  // Checks the Syncbuffer (k=0) and KeyedOutputBuffer (k=1) classes.
+  // N rows of integers are loaded. Row `j' goes from `j' to
+  // `k - (k % m) +m' i.e. to the next integer multiple of `m'.
+  // For instance, for `m=7, N=15' the following rows are loaded
+
+  // row 0: 0 1 2 3 4 5 6 
+  // row 1: 1 2 3 4 5 6 
+  // row 2: 2 3 4 5 6 
+  // row 3: 3 4 5 6 
+  // row 4: 4 5 6 
+  // row 5: 5 6 
+  // row 6: 6 
+  // row 7: 7 8 9 10 11 12 13 
+  // row 8: 8 9 10 11 12 13 
+  // row 9: 9 10 11 12 13 
+  // row 10: 10 11 12 13 
+  // row 11: 11 12 13 
+  // row 12: 12 13 
+  // row 13: 13 
+  // row 14: 14 15 16 17 18 19 20 
+
+  // Row `j' is loaded in processor `j % SIZE', where `SIZE' is the
+  // number of processors. Then the rows are scattered to the master
+  // processor and printed.
+
+  // For `k=0' a `KeyedObject' class is defined which is a dynamic
+  // integer vector with a print function. For the `KeyedOutputBuffer'
+  // class the integers are printed in the text line with the help of
+  // an `AutoString' object. 
+
+  int k,output=0,m=7,N=10,keyed=0,ierr=0,
+    sort_by_key=1,print_keys=1;
+
   PetscTruth flg;
   PetscInitialize(&argc,&argv,NULL,NULL);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MY_RANK);
 
-  ierr = PetscOptionsGetInt(PETSC_NULL,"m",&m,&flg);
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-m",&m,&flg);
+  CHKERRA(ierr); 
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-N",&N,&flg);
+  CHKERRA(ierr); 
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-k",&keyed,&flg);
+  CHKERRA(ierr); 
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-o",&output,&flg);
+  CHKERRA(ierr); 
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-s",&sort_by_key,&flg);
+  CHKERRA(ierr); 
+  ierr = PetscOptionsGetInt(PETSC_NULL,"-p",&print_keys,&flg);
   CHKERRA(ierr); 
 
-  while ((c = getopt (argc, argv, "m:N:k:")) != -1) {
-    switch (c) {
-    case 'm':
-      sscanf(optarg,"%d",&m);
-      break;
-    case 'N':
-      sscanf(optarg,"%d",&N);
-      break;
-    case 'k':
-      sscanf(optarg,"%d",&k);
-      break;
-    default:
-      PetscPrintf(PETSC_COMM_WORLD,"bad option: \"%c\"\n",c);
-      abort();
+  if (!keyed) {
+    PetscPrintf(PETSC_COMM_WORLD,"Testing basic SyncBuffer class\n");
+    SyncBuffer<KeyedObject> sb;
+    
+    k=MY_RANK;
+    while (k<N) {
+      sb.push_back();
+      sb.back().k = k;
+      int roof = k - (k % m) +m;
+      int nelem = roof-k;
+      sb.back().nelem = nelem;
+      int *elems = new int[nelem];
+      sb.back().elems = elems;
+      for (int jj=0; jj<nelem; jj++) elems[jj] = k+jj;
+      sb.back().print();
+      k += SIZE;
     }
-  }
-  PetscSynchronizedPrintf(PETSC_COMM_WORLD,"[%d] m %d, N %d, k %d\n",MY_RANK,m,N,k);
-  PetscSynchronizedFlush(PETSC_COMM_WORLD);
-  PetscFinalize();
-  exit(0);
-			  
-#if 0
-  SyncBuffer<PO> sb;
 
-  for (int j=0; j<N; j++) {
-    sb.push_back();
-    int k = SIZE*j+MY_RANK;
-    sb.back().k = k;
-    int roof = k - (k % m) +m;
-    int nelem = roof-k;
-    sb.back().nelem = nelem;
-    int *elems = new int[nelem];
-    sb.back().elems = elems;
-    for (int jj=0; jj<nelem; jj++) elems[jj] = k+jj;
-    sb.back().print();
-  }
+    sb.print();
 
-  sb.print();
+  } else {
 
-  // sb.check_pack();
-#else
-  KeyedOutputBuffer kbuff;
-  AutoString s;
+    PetscPrintf(PETSC_COMM_WORLD,"Testing KeyedOutputBuffer class\n");
+
+    KeyedOutputBuffer kbuff;
   
-  for (int j=0; j<N; j++) {
-    int k = SIZE*j+MY_RANK;
+    k=MY_RANK;
+    while (k<N) {
+      int roof = k - (k % m) +m;
+      int nelem = roof-k;
 
-    int roof = k - (k % m) +m;
-    int nelem = roof-k;
+      for (int jj=0; jj<nelem; jj++) kbuff.cat_printf("%d ",k+jj);
+      kbuff.push(k);
+      k += SIZE;
+    }
 
-    s.clear();
-    for (int jj=0; jj<nelem; jj++) s.cat_sprintf("%d ",k+jj);
-    kbuff.push(k,s);
-    // kbuff.back().print();
+    kbuff.sort_by_key = sort_by_key;
+    KeyedLine::print_keys = print_keys;
+    if (output) {
+      FILE *out = fopen("testsb.output.tmp","w");
+      KeyedLine::output = out;
+      kbuff.flush();
+      fclose(out);
+    } else kbuff.flush();
+
   }
-  // kbuff.check_pack();
-
-#if 1
-  FILE *out = fopen("output.dat","w");
-  KeyedLine::output = out;
-  KeyedLine::print_keys = 0;
-  // kbuff.sort_by_key = 0;
-  kbuff.flush();
-  fclose(out);
-#else
-  kbuff.flush();
-#endif
-
-#endif
-
   PetscFinalize();
   exit(0);
 }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.cpp,v 1.3 2004/01/11 17:31:01 mstorti Exp $
+// $Id: syncbuff.cpp,v 1.4 2004/01/18 21:38:59 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -130,4 +130,33 @@ void KeyedOutputBuffer::flush() {
   // Print and clear
   print();
   clear();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::vprintf(const char * tmplt,va_list ap) { 
+  as.vsprintf(tmplt,ap); 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::printf(const char * tmplt, ...) { 
+  va_list ap;
+  va_start(ap,tmplt);
+  vprintf(tmplt,ap);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::vcat_printf(const char * tmplt,va_list ap) { 
+  as.vcat_sprintf(tmplt,ap); 
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::cat_printf(const char * tmplt, ...) { 
+  va_list ap;
+  va_start(ap,tmplt);
+  vcat_printf(tmplt,ap);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void KeyedOutputBuffer::push(int k) { 
+  push(k,as); as.clear(); 
 }

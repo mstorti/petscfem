@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.6 2004/01/18 20:57:41 mstorti Exp $
+// $Id: syncbuff.h,v 1.7 2004/01/18 21:38:59 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -138,20 +138,26 @@ class KeyedOutputBuffer : public SyncBuffer<KeyedLine> {
 private:
   AutoString as;
 public:
-  void vprintf(const char * tmplt,va_list ap) { as.vsprintf(tmplt,ap); }
-  void printf(const char * tmplt, ...) { 
-    va_list ap;
-    va_start(ap,tmplt);
-    vprintf(tmplt,ap);
-  }
-  void vcat_printf(const char * tmplt,va_list ap) { as.vcat_sprintf(tmplt,ap); }
-  void cat_printf(const char * tmplt, ...) { 
-    va_list ap;
-    va_start(ap,tmplt);
-    vcat_printf(tmplt,ap);
-  }
-  
-  void push(int k) { push(k,as); as.clear(); }
+  /** Sets buffer to string created like #printf#. 
+      @param tmplt (input) the printf-like template 
+      @param VARARGS (input) the items to be printed. */
+  void printf(const char * tmplt, ...);
+  /** Explicit variadic form of #printf(...)#
+      @param tmplt (input) the printf-like template 
+      @param ap (input) variadic vector of items to be printed. */
+  void vprintf(const char * tmplt,va_list ap);
+  /** Appends to buffer a string created like #printf#. 
+      @param tmplt (input) the printf-like template 
+      @param VARARGS (input) the items to be printed. */
+  void cat_printf(const char * tmplt, ...);
+  /** Explicit variadic form of #vcat_printf(...)#
+      @param tmplt (input) the printf-like template 
+      @param ap (input) variadic vector of items to be printed. */
+  void vcat_printf(const char * tmplt,va_list ap);
+  /** Flushes the current string in the internal buffer to the
+      buffer with given key. 
+      @param key (input) the key associated with the current string. */
+  void push(int k);
   /** Inserts a line in the buffer. 
       @param k (input) the key of the line
       @param s (input) the line of text */ 
