@@ -3,8 +3,8 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
 $Lx = 1.797525440;
-$Nx = 50;
-$Nr = 5;
+$Nx = 100;
+$Nr = 10;
 $dtheta = 1*$PI/180;
 
 $ga = 1.17;
@@ -32,18 +32,17 @@ if (0) {
 } else { 
 ## 0.00023833 is the target $pin/$pout
 #    $pout = 143;
-    $pout = 0.2*$pin;
+    $pout = 0.01*$pin;
     $Tout = 262;
-    $Tout = $Tin;
     $rhoout = $pout/($Rgas*$Tout);
 }
 $pout0 = $pout/$pref;
 $rhoout0 = $rhoout/$rhoref;
 
-$Co = 2;
+$Co = 0.5;
 $h = 1/$Nx;
 $Dt = $Co*$h/($uin0+1);
-$tramp = 20*$Dt;
+$tramp = 100000*$Dt;
 
 @vars = qw(Nr Dt ga Lx Nx Rgas pin0 rhoin0 uin0
 	   pout0 rhoout0 tramp dtheta);

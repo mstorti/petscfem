@@ -20,7 +20,7 @@ save_file_some "gfshock3d.some-rslt.tmp"
 nsome 1
 
 save_file_pattern "STEPS/gfshock3d.state_%d.tmp"
-nsaverot 20
+nsaverot 1
 nrec 1
 nfile 100000000
 
@@ -52,7 +52,6 @@ print_internal_loop_conv
 # solve_system 0
 shocap 0.1
 shocap_aniso 0.1
-# use_log_vars
 lumped_mass
 # tau_fac 4
 weak_form 0
@@ -106,6 +105,15 @@ start_time 0.0
 end_time <:=$tramp:>
 __END_HASH__
 __INCLUDE__ ./gfshock3d.fixa-p-in.tmp
+__END_FIXA__
+
+fixa_amplitude ramp
+start_value <:=$rhoout0:>
+end_value <:=$rhoin0:>
+start_time 0.0
+end_time <:=$tramp:>
+__END_HASH__
+__INCLUDE__ ./gfshock3d.fixa-in.tmp
 __END_FIXA__
 
 fixa

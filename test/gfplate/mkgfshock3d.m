@@ -1,4 +1,4 @@
-## $Id: mkgfshock3d.m,v 1.2 2005/02/27 14:46:01 mstorti Exp $
+## $Id: mkgfshock3d.m,v 1.3 2005/02/27 18:41:51 mstorti Exp $
 source("data.m.tmp");
 
 ## Tuyere data
@@ -65,8 +65,7 @@ pfconstr("gfshock3d.peri-v.tmp", \
 
 ## rho,u,v at inlet
 inlet = 1+(0:Nr)'*Nx1;
-pffixa("gfshock3d.fixa-in.tmp", \
-       inlet,[1],[rhoin0]);
+pffixa("gfshock3d.fixa-rho-in.tmp", inlet,1,1.0);
 
 ## p at inlet (will be scaled by a ramp, though)
 inlet = 1+(0:Nr)'*Nx1;
