@@ -221,3 +221,6 @@ tag: beta-1.28 on Sat Mar  3 05:21:53 ARST 2001, by mstorti in spider
 tag: beta-1.29 on Mon Mar  5 00:19:47 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > Converting the per-element property feature to OOP.
+----------
+tag: beta-1.30 on Sun Mar 11 22:10:52 ART 2001, by mstorti in spider
+     > Adding parser for props line
