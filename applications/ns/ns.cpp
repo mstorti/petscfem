@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.70 2002/03/18 00:34:59 mstorti Exp $
+//$Id: ns.cpp,v 1.71 2002/03/28 18:11:33 mstorti Exp $
 
 //#define ROCKET_MODULE 
 #ifndef ROCKET_MODULE 
@@ -224,7 +224,7 @@ int main(int argc,char **args) {
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,gather_file,"");
   // Initialize gather_file
   FILE *gather_file_f;
-  if (MY_RANK==0 && gather_file!="") {
+  if (MY_RANK==0 && strcmp(gather_file.c_str(),"")) {
     gather_file_f = fopen(gather_file.c_str(),"w");
     fprintf(gather_file_f,"");
     fclose(gather_file_f);
