@@ -35,8 +35,9 @@
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
-#define __FUNC__ "flux_fun_advecfm2" 
-int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
+#define __FUNC__ "advdif_advecfm2::operator()" 
+//int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
+int advecfm2_ff_t::operator()(ADVDIFFF_ARGS) {
 
   static double ajacx[9],ajacy[9];
   int ierr;
@@ -64,9 +65,9 @@ int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
     //  _N: advective_jacobians _D: no default  _DOC: 
     //i_tex advdif.tex advective_jacobians
     //  _END
-    char *advje;
+    const char *advje;
     VOID_IT(ajacv);
-    thash->get_entry("advective_jacobians",advje); CHKERRQ(advje==0);
+    elemset->get_entry("advective_jacobians",advje); CHKERRQ(advje==0);
     read_double_array(ajacv,advje);
     ajacvp=ajacv.begin();
 
@@ -76,15 +77,15 @@ int flux_fun_advecfm2(AD_FLUX_FUN_ARGS) {
     //  _N: diffusive_jacobians _D: no default  _DOC: 
     //i_tex advdif.tex advective_jacobians
     //  _END
-    char *difje;
+    const char *difje;
     VOID_IT(djacv);
-    thash->get_entry("diffusive_jacobians",difje); CHKERRQ(difje==0);
+    elemset->get_entry("diffusive_jacobians",difje); CHKERRQ(difje==0);
     read_double_array(djacv,difje); 
     djacvp=djacv.begin();
     D_jac_l.set(0.);
 
     //o Scale the SUPG upwind term. 
-    SGETOPTDEF_ND(double,tau_fac,1.);
+    EGETOPTDEF_ND(elemset,double,tau_fac,1.);
 
     na = ajacv.size();
     nd = djacv.size();

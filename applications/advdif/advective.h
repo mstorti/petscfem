@@ -21,7 +21,7 @@
 
 */
  
-#define CHECK_JAC // Computes also the FD Jacobian for debugging
+//#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
 #ifndef ADVECTIVE_H
 #define ADVECTIVE_H
@@ -78,9 +78,9 @@
 
 #define FLUX_FUN_CALL_ARGS_FM2 FLUX_FUN_CALL_ARGS_GENER(_FM2)
 
-#define FLUX_FUN_CALL_ARGS U,ndim,iJaco,H,grad_H,flux,A_jac,A_grad_U, \
-	      grad_U,G_source,tau_supg,delta_sc,lam_max,thash, \
-              nor,lambda,Vr,Vr_inv,propel,user_data, \
+#define FLUX_FUN_CALL_ARGS U,ndim,iJaco,H,grad_H,flux,A_jac,A_grad_U,	\
+	      grad_U,G_source,tau_supg,delta_sc,lam_max,thash,		\
+              nor,lambda,Vr,Vr_inv,propel,user_data,			\
 	      options,start_chunk,ret_options
 	      
 /// Type of flux function. 
@@ -91,55 +91,44 @@ typedef int FluxFunction (FLUX_FUN_ARGS);
 typedef int FluxFunctionFM2 (FLUX_FUN_ARGS_FM2);
 #endif
 
+#define ADVDIFFF_ARGS const NewElemset *elemset,const  FastMat2  &U,		\
+	   int ndim, const  FastMat2  &iJaco,  FastMat2  &H,			\
+	   FastMat2  &grad_H,  FastMat2  &flux, FastMat2 &fluxd,		\
+	   FastMat2  &A_jac,  FastMat2  &A_grad_U,				\
+	   FastMat2  &grad_U,  FastMat2  &G_source,				\
+	   FastMat2  &D_jac,							\
+	   FastMat2  &tau_supg, double &delta_sc, double &lam_max,		\
+	   FastMat2  &nor, FastMat2  &lambda,					\
+	   FastMat2  &Vr, FastMat2  &Vr_inv, double *propel,			\
+	   void *user_data,int options,int &start_chunk, int & ret_options
+
+// This is the flux function for a given physical problem. 
+class AdvDifFF {
+public:
+  virtual int operator() (ADVDIFFF_ARGS) {
+    PetscPrintf(PETSC_COMM_WORLD,"Undefined flux function\n");
+    return 0;
+  }
+};
+
 /** The class AdvDif is a NewElemset class plus a
-    pointer to a flux function. 
+    advdif flux function object.
 */
 class AdvDif : public NewElemset { 
 public:
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
-  AdvDifFluxFunction *flux_fun;
+  AdvDifFF adv_diff_ff;
 };
 
 #if 0
-class Advective : public Elemset { 
-public:
-  ASSEMBLE_FUNCTION;
-  ASK_FUNCTION;
-  FluxFunction *flux_fun;
-};
-
-class AdvectiveFM2 : public Elemset { 
-public:
-  ASSEMBLE_FUNCTION;
-  ASK_FUNCTION;
-  FluxFunctionFM2 *flux_fun;
-};
-
-class BcconvAdvFM2 : public Elemset { 
-public:
-  ASSEMBLE_FUNCTION;
-  ASK_FUNCTION;
-  FluxFunctionFM2 *flux_fun;
-};
-
-/** The class Absorb is an Elemset class plus a
-    pointer to a flux function. 
-*/
-class Absorb : public Elemset { 
-public:
-  ASSEMBLE_FUNCTION;
-  ASK_FUNCTION;
-  FluxFunction *flux_fun;
-};
-#endif
-
 class BcconvAdv : public NewElemset { 
 public:
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
   AdvDifFluxFunction *flux_fun;
 };
+#endif
 
 enum flux_fun_opt {
   DEFAULT     = 0x0000,
@@ -206,14 +195,22 @@ ADVDIF_ELEMSET(shallowfm2t);    // con FastMat2 / turbulento
 /// Advection of multiple scalar fields with a velocity field. 
 ADVECTIVE_ELEMSET(advec);
 #endif
-ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
-ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
+//ADVDIF_ELEMSET(advecfm2);	// linear advective diffusive 
+//ADVDIF_ELEMSET(burgers);	// 1D scalar Burgers equation
 
+class advecfm2_ff_t : public AdvDifFF {
+public:
+  int operator()(ADVDIFFF_ARGS);
+} advecfm2_ff;
+
+class advdif_advecfm2 : public AdvDif {
+public:
+  advdif_advecfm2() {adv_diff_ff=advecfm2_ff;}
+};
+  
 // Global parameters
 struct GlobParam {
   double alpha,Dt;
 };
 
 #endif
-
-

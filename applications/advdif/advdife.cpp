@@ -59,24 +59,19 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   GET_JOBINFO_FLAG(comp_res);
   GET_JOBINFO_FLAG(comp_prof);
 
-#define RETVALMAT(iele,j,k,p,q) VEC5(retval,iele,j,nel,k,ndof,p,nel,q,ndof)
-#define RETVALMATT(iele,j,k,p,q) VEC5(retvalt,iele,j,nel,k,ndof,p,nel,q,ndof)
-#define RETVAL_FDJ(iele,j,k) VEC3(retval_fdj,iele,j,nel,k,ndof)
-
   int ierr=0;
 
-#define NODEDATA(j,k) VEC2(nodedata->nodedata,j,k,nu)
-#define ICONE(j,k) (icone[nel*(j)+(k)]) 
-#define ELEMPROPS(j,k) VEC2(elemprops,j,k,nelprops)
-#define JDOFLOC(j,k) VEC2(jdofloc,j,k,ndof)
-  
   int locdof,kldof,lldof;
-  char *value;
 
-  // Unpack Elemset
-  int npg,ndim;
-  ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
-  ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
+  NSGETOPTDEF(int,npg,0); //nd
+  NSGETOPTDEF(int,ndim,0); //nd
+  assert(npg>0);
+  assert(ndim>0);
+  // ierr = get_int(thash,"npg",&npg); CHKERRA(ierr);
+  // ierr = get_int(thash,"ndim",&ndim); CHKERRA(ierr);
+  
+  int nel,ndof,nelprops;
+  elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 
   // Unpack Dofmap
@@ -110,7 +105,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   // The trapezoidal rule integration parameter 
 #define ALPHA (glob_param->alpha)
 #define DT (glob_param->Dt)
-  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof;
+  arg_data *staten,*stateo,*retval,*fdj_jac,*jac_prof,*Ajac;
   if (comp_res) {
     int j=-1;
     stateo = &arg_data_v[++j];
@@ -119,7 +114,10 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     jdtmin = ++j;
 #define DTMIN ((*(arg_data_v[jdtmin].vector_assoc))[0])
 #define WAS_SET arg_data_v[jdtmin].was_set
-    if (comp_mat_each_time_step_g) retvalt = arg_data_v[++j].retval;
+    if (comp_mat_each_time_step_g) {
+      // retvalt = arg_data_v[++j].retval;
+      Ajac = &arg_data_v[++j];
+    }
     glob_param = (GlobParam *)arg_data_v[++j].user_data;;
 #ifdef CHECK_JAC
     fdj_jac = &arg_data_v[++j];
@@ -129,19 +127,18 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMat2 matlocf(4,nel,ndof,nel,ndof);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
-    retvalt = arg_data_v[0].retval;
     matlocf.set(1.);
   }
 
   //o Use the weak form for the Galerkin part of the advective term. 
-  SGETOPTDEF(int,weak_form,1);
+  NSGETOPTDEF(int,weak_form,1);
   //o Use lumped mass.
-  SGETOPTDEF(int,lumped_mass,1);
+  NSGETOPTDEF(int,lumped_mass,1);
   //o Parameter to control the amount of SUPG perturbation 
   //     added to the mass matrix to be consistent SUPG
   //     \verb+beta_supg+=0 implies consistent Galerkin and
   //     \verb+beta_supg+=1 implies full consistent SUPG. 
-  SGETOPTDEF(double,beta_supg,0.8);
+  NSGETOPTDEF(double,beta_supg,0.8);
  
   // allocate local vecs
   int kdof;
@@ -158,7 +155,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   nen = nel*ndof;
 
   //o Type of element geometry to define Gauss Point data
-  TGETOPTDEF_S(thash,string,geometry,cartesian2d);
+  NGETOPTDEF_S(string,geometry,cartesian2d);
   // char *geom;
   // thash->get_entry("geometry",geom);
   GPdata gp_data(geometry.c_str(),ndim,nel,npg,GP_FASTMAT2);
@@ -193,27 +190,14 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     // if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     int k,ielh;
     element.position(k,ielh);
-    // printf("[%d] glob: %d loc: %d\n",MY_RANK,k,ielh);
 
     FastMat2::reset_cache();
 
-#if 0
-    for (kloc=0; kloc<nel; kloc++) {
-      node = ICONE(k,kloc);
-      for (jdim=0; jdim<ndim; jdim++) 
-	xloc.setel(NODEDATA(node-1,jdim),kloc+1,jdim+1);
-      for (int ih=1; ih<=nH; ih++) 
-	Hloc.setel(NODEDATA(node-1,ndim+ih-1),kloc+1,ih);
-    }
-
-    element_node_data(element,nodedata,xloc.storage_begin(),
-		      Hloc.storage_begin());
-#endif
     element.node_data(nodedata,xloc.storage_begin(),
 		       Hloc.storage_begin());
 
     if (comp_prof) {
-      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
       continue;
     }
 
@@ -274,12 +258,12 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	delta_sc=0;
 	double lambda_max_pg;
 
-	ierr =  (*flux_fun)(U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
-			    A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
-			    lambda_max_pg,
-			    thash,nor,lambda,Vr,Vr_inv,
-			    &(ELEMPROPS(k,0)),NULL,COMP_SOURCE |
-			    COMP_UPWIND,start_chunk,ret_options);
+	adv_diff_ff(this,U,ndim,iJaco,H,grad_H,flux,fluxd,A_jac,
+		    A_grad_U,grad_U,G_source,D_jac,tau_supg,delta_sc,
+		    lambda_max_pg,
+		    nor,lambda,Vr,Vr_inv,
+		    element.props(),NULL,COMP_SOURCE |
+		    COMP_UPWIND,start_chunk,ret_options);
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
@@ -415,9 +399,11 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
       if (comp_mat_each_time_step_g) 
-	matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+	//matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+	matlocf.export_vals(element.ret_mat_values(*Ajac));
     } else if (comp_prof) {
-      matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+      // matlocf.export_vals(&(RETVALMATT(ielh,0,0,0,0)));
+      matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }
 
   }

@@ -66,11 +66,14 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(volume_shallowfm2)
     SET_ELEMSET_TYPE(volume_shallowfm2t)
 #endif
-    SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
-    SET_ELEMSET_TYPE(advdif_advecfm2)
-
-    SET_ELEMSET_TYPE(bcconv_adv_burgers)
-    SET_ELEMSET_TYPE(advdif_burgers)
+    //    SET_ELEMSET_TYPE(bcconv_adv_advecfm2)
+    // SET_ELEMSET_TYPE(advdif_advecfm2)
+    if ( ! strcmp(type,"advdif_advecfm2")) { 
+      advdif_advecfm2 * pp = new advdif_advecfm2; 
+      elemset = pp;
+    } else
+//      SET_ELEMSET_TYPE(bcconv_adv_burgers)
+//      SET_ELEMSET_TYPE(advdif_burgers)
     {
       printf("not known elemset \"type\": %s\n",type);
       exit(1);
