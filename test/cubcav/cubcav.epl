@@ -8,7 +8,7 @@ $case = 'laplace' unless $case;
 get_var_env2('job',undef);
 $CASE = $case;
 get_var_env2('N',60);
-$N = 4 if $conf eq 'small';
+$N = 10 if $conf eq 'small';
 $nelem = $N**3.0;
 $cs = 0.2*$nelem;		# desired chunk_size
 $chunk_size = ($cs < 5000 ? 5000 : $cs > 40000 ? 40000 : $cs);
@@ -96,7 +96,7 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 rho 1
-viscosity <:=($conf eq 'small' ? 1e-3 : 1e-4):>
+viscosity <:=($conf eq 'small' ? 1e-1 : 1e-4):>
 Dt 0.1
 steady 0
 temporal_stability_factor 0

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.55 2003/08/29 14:52:23 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.56 2003/08/29 15:29:04 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -799,12 +799,20 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 	int *jndx = jndxc[col_t]->buff();
 	for (int jcl=0; jcl<ncc; jcl++) {
 	  int jc = jndx[jcl];
-	  vvv[jrl*nrr+jcl] = values[jr*nrows+jc];
+	  vvv[jrl*ncc+jcl] = values[jr*ncols+jc];
 	}
       }
+#if 0
+      for (int jj=0; jj<nrr; jj++) {
+	for (int kk=0; kk<ncc; kk++) {
+	  printf("(%d,%d) -> %f\n",indxr[row_t]->e(jj),indxc[col_t]->e(kk),
+		 vvv[jj*
+	}
+      }
+#endif
       ierr = MatSetValues(*(AA[row_t][col_t]),
 			  nrr,indxr[row_t]->buff(),ncc,
-			  indxc[col_t]->buff(),values,mode);
+			  indxc[col_t]->buff(),vvv,mode);
       if (ierr) return ierr;
     }
   }    
@@ -821,7 +829,7 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
     int *jndx = jndxc[L]->buff();
     for (int jcl=0; jcl<ncc; jcl++) {
       int jc = jndx[jcl];
-      vvv[jrl*nrr+jcl] = values[jr*nrows+jc];
+      vvv[jrl*ncc+jcl] = values[jr*ncols+jc];
     }
   }
 
@@ -840,31 +848,10 @@ int IISDMat::set_values_a(int nrows,int *idxr,int ncols,int *idxc,
 
   ierr = MatSetValues(*(AA[L][L]),
 		      nrr,indxr[L]->buff(),ncc,
-		      indxc[L]->buff(),values,mode);
+		      indxc[L]->buff(),vvv,mode);
   if (ierr) return ierr;
 
   return 0;
-
-#if 0
-  // We conside first all non LL elements (they are considered aside). 
-  for (row_t=0; row_t<2; row_t++) {
-    for (col_t=0; col_t<2; col_t++) {
-      if (col_t==L && row_t==L) continue;
-      dvector<int> *indxc_p = indxc[col_t];
-      dvector<double> *vv = v[row_t][col_t];
-      int nrr = nr[row_t];
-      int ncc = nc[col_t];
-      // Load values in matrix
-      grow_mono(*vv,nr[row_t]*nc[col_t]);
-      doubl *w = values;
-      for (int jr=0; jr<nrr; jr++) 
-	for (int jc=0; jc<ncc; jc++) 
-	  vv.e(jr,jc) = *w++;
-      ierr = MatSetValues(*(AA[row_t][col_t]),
-			  nrr,&row_indx,1,&col_indx,&value,mode);
-    }
-  }    
-#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

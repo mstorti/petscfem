@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.41 2003/08/29 02:33:27 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.42 2003/08/29 15:29:04 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -110,7 +110,6 @@ int IISDMat::create_a() {
   //o Chooses the local solver (may be "PETSc" or "SuperLU")
   TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
   }
-  // printf("&localsolver %p\n",&local_solver);
   if (local_solver_s == "PETSc") local_solver = PETSc;
   else if (local_solver_s == "SuperLU") local_solver = SuperLU;
   else assert(0);
@@ -234,7 +233,7 @@ int IISDMat::create_a() {
 		  "nlay %d\n",nlay);  
   if (!nlay && use_interface_full_preco) {
     PetscPrintf(PETSC_COMM_WORLD,
-		"nlay=0 Using 'nlay=0' forces 'use_interface_full_preco=0\n");
+		"Using 'nlay=0' forces 'use_interface_full_preco=0'\n");
     use_interface_full_preco=0;
   }
   //o Number of iters in solving the preconditioning for the 
@@ -347,7 +346,7 @@ int IISDMat::create_a() {
   // isp_lay_map:= contains the layer number for dof k
   // isp_lay_map2:= auxiliary for reduce operations
   vector<int> isp_lay_map(neq,0), isp_lay_map2(neq,0);
-  if (nlay<1) nlay=1;
+  // if (nlay<1) nlay=1;
   // mark layer 1
   for (int j=0; j<neq; j++) isp_lay_map[j] = map_dof[j]>=n_loc_tot;
 
@@ -777,29 +776,29 @@ int IISDMat::create_a() {
 
   // Initialize PETSc fast loading stuff
 #define INIT_CS 100
-  indxr_L.set_chunk_size(INIT_CS);
-  indxr_I.set_chunk_size(INIT_CS);
-  indxc_L.set_chunk_size(INIT_CS);
-  indxc_I.set_chunk_size(INIT_CS);
+  indxr_L.mono(INIT_CS);
+  indxr_I.mono(INIT_CS);
+  indxc_L.mono(INIT_CS);
+  indxc_I.mono(INIT_CS);
   indxr[L] = &indxr_L;
   indxr[I] = &indxr_I;
   indxc[L] = &indxc_L;
   indxc[I] = &indxc_I;
 
-  jndxr_L.set_chunk_size(INIT_CS);
-  jndxr_I.set_chunk_size(INIT_CS);
-  jndxc_L.set_chunk_size(INIT_CS);
-  jndxc_I.set_chunk_size(INIT_CS);
+  jndxr_L.mono(INIT_CS);
+  jndxr_I.mono(INIT_CS);
+  jndxc_L.mono(INIT_CS);
+  jndxc_I.mono(INIT_CS);
   jndxr[L] = &jndxr_L;
   jndxr[I] = &jndxr_I;
   jndxc[L] = &jndxc_L;
   jndxc[I] = &jndxc_I;
 
 #define INIT_CS2 2000
-  v_LL.set_chunk_size(INIT_CS2);
-  v_LI.set_chunk_size(INIT_CS2);
-  v_IL.set_chunk_size(INIT_CS2);
-  v_II.set_chunk_size(INIT_CS2);
+  v_LL.mono(INIT_CS2);
+  v_LI.mono(INIT_CS2);
+  v_IL.mono(INIT_CS2);
+  v_II.mono(INIT_CS2);
   v[L][L] = &v_LL;
   v[I][L] = &v_IL;
   v[L][I] = &v_LI;
