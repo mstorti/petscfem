@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2003/11/13 23:11:19 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2003/11/14 02:26:21 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -8,15 +8,18 @@ all: run
 test_%:
 	$(MAKE) CASE=$* run
 
-# tests: test__d05 test__d01 test__d001
+#w tests: test__d05 test__d01 test__d001
 tests: test__d01 test__d001
 
+#w Burger test with viscosity 0.1
 test__d01: test__d01_wf test__d01_nwf 
 	CASE=_d01 $(OCTAVE) verif.m > $@.out.tmp
 
+#w Burger test with viscosity 0.5
 test__d05: test__d05_wf test__d05_nwf 
 	CASE=_d05 $(OCTAVE) verif.m > $@.out.tmp
 
+#w Burger test with viscosity 0.01
 test__d001: test__d001_wf test__d001_nwf 
 	CASE=_d001 $(OCTAVE) verif.m > $@.out.tmp
 
@@ -41,7 +44,7 @@ burgers.depl: burgers.epl data.m force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 run: data
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case burgers.depl > burgers.$(CASE).out.tmp
+			-case burgers.depl # > burgers.$(CASE).out.tmp
 	mv -f save.state.tmp save.state.$(CASE).tmp
 
 local_clean::

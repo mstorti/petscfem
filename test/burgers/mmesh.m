@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mmesh.m,v 1.2 2003/01/08 15:49:03 mstorti Exp $
+## $Id: mmesh.m,v 1.3 2003/11/14 02:26:21 mstorti Exp $
 data
 
 w=zhomo([0 1 0 1/N],N+1,2);
@@ -11,6 +11,7 @@ asave("burgers.con.tmp",icone);
 
 x=xnod(:,1);
 u=1-2*x;
+u=1-0*x;
 asave("burgers.ini.tmp",u);
 
 u=ones(size(u));
