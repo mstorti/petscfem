@@ -21,45 +21,35 @@ int yylex (void) {
   int j;
   
   c = getchar();
-  if (c == ' ') 
-    { 
-      while (c == ' ') {c = getchar (); }
-      ungetc(c,stdin);
-      yylval.string=NULL;
-      return SPACE;
+  // skip whitespace 
+  while (c == ' ' || c == '\t') {c = getchar (); }
+
+  if (isalpha (c)) { 
+    s="";
+    j=0; 
+    while (isalpha(c) || isdigit(c) || c=='_') {
+      s.push_back(c);
+      c = getchar();
     }
-  else if (isalpha (c))
-    { 
-      s="";
-      j=0; 
-      while (isalpha(c) || isdigit(c) || c=='_') {
-	s.push_back(c);
-	c = getchar();
-      }
-      ungetc(c,stdin);
-      yylval.string = new char[s.size()+1];
-      strcpy(yylval.string,s.c_str());
-      return IDENT;
+    ungetc(c,stdin);
+    yylval.string = new char[s.size()+1];
+    strcpy(yylval.string,s.c_str());
+    return IDENT;
+  } else if (isdigit (c)) { 
+    int len;
+    s="";
+    j=0; 
+    while (isdigit(c)) {
+      s.push_back(c);
+      c = getchar();
     }
-  else if (isdigit (c))
-    { 
-      int len;
-      s="";
-      j=0; 
-      while (isdigit(c)) {
-	s.push_back(c);
-	c = getchar();
-      }
-      ungetc(c,stdin);
-      sscanf(s.c_str(),"%d",&len);
-      yylval.num=len;
-      return LENGTH;
-    }
-  else if (c == '[' || c == ']') 
-    {
-      return c;
-    }
-  else if (c == '\n') {
+    ungetc(c,stdin);
+    sscanf(s.c_str(),"%d",&len);
+    yylval.num=len;
+    return LENGTH;
+  } else if (c == '[' || c == ']') {
+    return c;
+  } else if (c == '\n') {
     return 0;
   }
   return 1;

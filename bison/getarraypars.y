@@ -3,6 +3,7 @@
 %{
 #include <stdio.h>
 #include <ctype.h>
+#include "getarray.h"
 %}
 
 /* BISON DECLARATIONS */
@@ -13,15 +14,13 @@
 }
 
 %token <string> IDENT
-%token <string> SPACE
 %token <num> LENGTH
      
 %%
 /* GRAMMAR RULES */
 
 input:  /* empty */
-      | opt_def
-      | input SPACE opt_def
+      | input opt_def
 ;
 
 opt_def: IDENT '[' LENGTH ']' { add_entry($1,$3);
