@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: laplace.cpp,v 1.6 2001/05/30 18:21:48 mstorti Exp $
+//$Id: laplace.cpp,v 1.7 2001/06/01 02:24:51 mstorti Exp $
  
 #include "../../src/fem.h"
 #include "../../src/readmesh.h"
@@ -73,7 +73,7 @@ int main(int argc,char **args) {
 
   ierr = VecDuplicate(x,&res); CHKERRA(ierr);
 
-  string save_file = string("save_file.sal");
+  string save_file = string("save_file.out");
   get_string(mesh->global_options,"save_file",save_file,1,1);
   printf("retornado por get_string: \"%s\"\n",save_file.c_str());
 
