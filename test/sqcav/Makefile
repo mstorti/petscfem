@@ -1,10 +1,11 @@
-# $Id: Makefile,v 1.79 2004/09/25 09:38:04 mstorti Exp $ 
+# $Id: Makefile,v 1.80 2004/10/25 02:43:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
 	dx_hook_test_post_run_file_record test_read_ini 		\
 	test_disconnected_graph
 
+BOPT := g_c++
 default: 
 	$(MAKE) case=iisd_sbp1 np=2 runs
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.152 2004/10/25 02:23:03 mstorti Exp $
+//$Id: ns.cpp,v 1.153 2004/10/25 02:43:24 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -137,6 +137,8 @@ int main(int argc,char **args) {
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,fractional_step,0);
   //o Use fractional step or TET algorithm
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,reuse_mat,0);
+  //o Fractional step uses symmetric matrices (only CG iterative KSP).
+  TGETOPTDEF(GLOBAL_OPTIONS,int,fractional_step_use_petsc_symm,1);
   //o Activate debugging
   GETOPTDEF(int,activate_debug,0);
   if (activate_debug) {
@@ -317,21 +319,28 @@ int main(int argc,char **args) {
     A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
   } else {
     A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
-    A_mom->set_option("KSP_method",KSPBCGS);
-    A_mom->set_option("preco_side","left");
-
-    // A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-    A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
-    A_poi->set_option("KSP_method",KSPCG);
-    A_poi->set_option("preco_type","jacobi");
-    // A_poi->set_option("preco_side","left");
-    // A_poi->set_option("symmetric","1");
-
-    // A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
-    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
-    A_prj->set_option("KSP_method",KSPCG);
-    A_prj->set_option("preco_type","jacobi");
-    // A_prj->set_option("symmetric","1");
+    if (!fractional_step_use_petsc_symm) {
+      A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+      A_poi->set_option("KSP_method","cg");
+      A_poi->set_option("preco_side","left");
+      A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
+    } else {
+      A_mom->set_option("KSP_method",KSPBCGS);
+      A_mom->set_option("preco_side","left");
+      
+      // A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+      A_poi = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
+      A_poi->set_option("KSP_method",KSPCG);
+      A_poi->set_option("preco_type","jacobi");
+      // A_poi->set_option("preco_side","left");
+      // A_poi->set_option("symmetric","1");
+      
+      // A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc");
+      A_prj = PFMat::dispatch(dofmap->neq,*dofmap,"petsc_symm");
+      A_prj->set_option("KSP_method",KSPCG);
+      A_prj->set_option("preco_type","jacobi");
+      // A_prj->set_option("symmetric","1");
+    }
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }
 

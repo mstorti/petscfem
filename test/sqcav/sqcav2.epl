@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav2.epl,v 1.4 2003/02/12 12:02:32 mstorti Exp $
+#$Id: sqcav2.epl,v 1.5 2004/10/25 02:43:27 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -80,7 +80,10 @@ octave_export_vars(">data.m.tmp",@vars);
 
 global_options
 
-<:pr('fractional_step'):> 
+#if $fractional_step
+fractional_step 1
+fractional_step_use_petsc_symm 0
+#endif
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
@@ -94,7 +97,8 @@ nsave 5
 solver "petsc"
 solver_mom "petsc"
 preco_type "lu"
-#else
+#endif
+#if 0
 solver "iisd"
 solver_mom "petsc"
 preco_type "jacobi"
