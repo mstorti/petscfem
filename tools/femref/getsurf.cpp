@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.16 2005/01/14 23:26:26 mstorti Exp $
+// $Id: getsurf.cpp,v 1.17 2005/01/15 11:55:48 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -19,6 +19,7 @@ using namespace std;
 
 #include "./femref.h"
 #include "./gtemplates.h"
+#include "./dvector.h"
 
 typedef SCM(*scm_fun)();
 
@@ -30,10 +31,9 @@ struct FaceIterator {
 typedef multimap<int,FaceIterator> face_table_t;
 typedef pair<int,FaceIterator> ft_pair_t;
 
-extern "C"
-void getsurf(SCM s_iconef,SCM s_xnodf, SCM s_statef,
-	     SCM s_sconf, SCM s_graduf, SCM s_base) {
-
+SCM getsurf(SCM s_iconef,SCM s_xnodf, SCM s_statef,
+	    SCM s_sconf, SCM s_graduf, SCM s_base) {
+  
   const char *iconef = SCM_STRING_CHARS(s_iconef);
   const char *xnodf  = SCM_STRING_CHARS(s_xnodf);
   const char *statef = SCM_STRING_CHARS(s_statef);
@@ -339,7 +339,21 @@ void getsurf(SCM s_iconef,SCM s_xnodf, SCM s_statef,
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#undef __FUN__
+#define __FUN__ "my-dv-print"
+SCM my_dv_print(SCM s_w) {
+  SCM_ASSERT (SCM_SMOB_PREDICATE(dvdbl_tag,s_w),
+              s_w, SCM_ARG1, __FUN__);
+  dvector<double> *w = (dvector<double> *)SCM_SMOB_DATA (s_w);
+  for (int j=0; j<w->size(); j++) {
+    printf("j: %g\n",w->ref(j));
+  }
+  return SCM_UNSPECIFIED;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 extern "C" void
 init_femref(void) {
   scm_c_define_gsubr("getsurf",6,0,0,scm_fun(getsurf));
+  scm_c_define_gsubr("my-dv-print",1,0,0,scm_fun(my_dv_print));
 }

@@ -15,7 +15,16 @@ scripts = odoc.pl makewhat.pl
 #w Builds all doc in this directory
 all: $(scripts:pl=1) $(scripts:pl=txt) 
 
-CPP_FILES := femref2 hasher md5r gtemplates visitor combiner
+dvectori.cpp: dvector-epl.cpp
+	make-depl $< $@ -d type=int -p '^\s*//PP>'
+
+dvectord.cpp: dvector-epl.cpp
+	make-depl $< $@ -d type=double -d sfx=dbl -p '^\s*//PP>'
+
+dvectori.o: dvectori.cpp
+dvectord.o: dvectord.cpp
+
+CPP_FILES := femref2 hasher md5r gtemplates visitor combiner dvectori dvectord
 
 SRCS := $(CPP_FILES=.cpp) getsurf.cpp femref.cpp  myhash.cpp myhash2.cpp \
 	myhash3.cpp myhash4.cpp myhash5.cpp trytree.cpp 
