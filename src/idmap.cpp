@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: idmap.cpp,v 1.9 2003/07/02 23:22:19 mstorti Exp $
+//$Id: idmap.cpp,v 1.10 2003/09/02 01:38:43 mstorti Exp $
  
 #include <stdio.h>
 #include <map>
@@ -154,7 +154,7 @@ void idmap::solve(double *x,double *y) {
   for (int j=1; j<=n; j++) {
     VOID_IT(iindx);
     VOID_IT(jindx);
-    if (!done[j+1]) {
+    if (!done[j-1]) {
       get_block_matrix(j,iindx,jindx,qq);
       mm = iindx.size();
       nn = jindx.size();
@@ -168,11 +168,16 @@ void idmap::solve(double *x,double *y) {
       }
 
       xr = (qq.t()*qq).i() * (qq.t()*yr);
+#if 0
+      cout << yr << endl;
+      cout << qq << endl;
+      cout << xr << endl;
+#endif
 
       ll=0;
       for (it=jindx.begin(); it!=jindx.end(); it++) {
 	  x[*it-1] = xr(++ll);
-	  if (nn>1) done[*it+1] = 1;
+	  if (nn>1) done[*it-1] = 1;
       }
     }
   }
