@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $
+$Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
+! # $Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
+  # $Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.269 2003/03/31 22:37:42 mstorti Exp $ 
+  # $Id: notes.txt,v 1.270 2003/04/01 01:27:39 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6450,6 +6450,11 @@ un 30% mas o menos. Ahora voy a probar con un Froude mayor.
 calculada). La amplitud de la onda parece crecer.  No se observa un
 movimiento notable de la onda. Voy a probar a correr con una
 perturbacion menor, y despues con un fondo variable.
+%
+22:24:48: A Fr=2, Re=500 y con un bump de t=0.6 anda bien unos cuantos
+pasos (190) y despues revienta. Parece que el nivel de agua va bajando
+(por falta de conservatividad) y entonces finalmente la capa de agua
+se hace muy delgada en el vertedero. 
 
 # Current line ===========  %
 # Local Variables: $
