@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.14 2002/05/05 22:01:50 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.15 2002/05/06 21:55:41 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,6 +10,8 @@
 
 #include "nsi_tet.h"
 #include "nsikepsrot.h"
+
+extern int MY_RANK,SIZE;
 
 //#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
@@ -322,8 +324,10 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
                  10.*C_1*C_2+9.*pow(C_2,2.)));
 
   int ielh=-1;
+  int computed_elems=0;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
+    computed_elems++;
     FastMat2::reset_cache();
     ielh++;
     load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
@@ -1057,6 +1061,9 @@ int nsi_tet_keps_rot::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
     }
   }
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD, 
+			  "[%d] computed_elems %d\n",MY_RANK,computed_elems);
+  PetscSynchronizedFlush(PETSC_COMM_WORLD);
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 }
