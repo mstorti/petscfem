@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <TITLE>PETSc-FEM - a general  purpose,  parallel, multi-physics  FEM program</TITLE>
-<LINK REV="made" HREF="mailto:bhcompile@stripples.devel.redhat.com">
+<LINK REV="made" HREF="mailto:prospector@porky.devel.redhat.com">
 </HEAD>
 
 <BODY>
@@ -94,40 +94,42 @@ packages correctly installed in your system.</P>
 <DT><STRONG><A NAME="item_MPI">MPI</A></STRONG><BR>
 <DD>
 This is the Message Passing Interface. We are currently using MPICH
-(http://www.mcs.anl.gov/mpich) but I think there will be not problem
+(<CODE>http://www.mcs.anl.gov/mpich</CODE>) but I think there will be not problem
 with LAM MPI.
 <P></P>
 <DT><STRONG><A NAME="item_PETSC">PETSC</A></STRONG><BR>
 <DD>
 This is the 'Portable, Extensible Toolkit for Scientific Computation'
-and can be found at <A HREF="http://www.mcs.anl.gov/petsc/">http://www.mcs.anl.gov/petsc/</A>
+and can be found at <CODE>http://www.mcs.anl.gov/petsc/</CODE>.
 <P></P>
 <DT><STRONG><A NAME="item_LAPACK">LAPACK</A></STRONG><BR>
 <DD>
 This is, in fact, a prerequisiste to install PETSc and can be found at 
-<A HREF="http://www.netlib.org/lapack/">http://www.netlib.org/lapack/</A>
+<CODE>http://www.netlib.org/lapack/</CODE>.
 <P></P>
 <DT><STRONG><A NAME="item_Libretto">Libretto</A></STRONG><BR>
 <DD>
 This is a C library of generic containers and can be found at
-<A HREF="http://pobox.com/~aaronc/tech/libretto/">http://pobox.com/~aaronc/tech/libretto/</A> I have learned recently
+<CODE>http://pobox.com/~aaronc/tech/libretto/</CODE>. I have learned recently
 that development of Libretto has been stopped since it has been
 superseded by <STRONG>GLIB</STRONG>, so that I think that in a future I will replace
 the Libretto code by <STRONG>GLIB</STRONG>. Also, the STL library (that comes with
-gcc) can replace all or some of the features provided by <STRONG>Libretto</STRONG>.
+gcc) can replace all or some of the features provided by <STRONG>Libretto</STRONG>
+but I found that the STL implementation (at least that one that comes
+with gcc) is rather inefficient.
 <P></P>
 <DT><STRONG><A NAME="item_GLIB">GLIB</A></STRONG><BR>
 <DD>
 GLIB is a library which includes support routines for C such as lists,
 trees, hashes, memory allocation, and many other things. The official
-web site is <A HREF="http://www.gtk.org/">http://www.gtk.org/</A> [RedHat RPM packages: <A HREF="#item_GLIB"><CODE>GLIB</CODE></A>,
+web site is <CODE>http://www.gtk.org/</CODE>. [RedHat RPM packages: <A HREF="#item_GLIB"><CODE>GLIB</CODE></A>,
 <CODE>glib-devel</CODE>]
 <P></P>
 <DT><STRONG><A NAME="item_Newmat">Newmat</A></STRONG><BR>
 <DD>
 This is a matrix library to be used mainly at the element routine
 level, i.e. for small matrices and can be found at
-<A HREF="http://webnz.com/robert/">http://webnz.com/robert/</A> It is not mandatory to use Newmat for all
+<CODE>http://webnz.com/robert/</CODE>. It is not mandatory to use Newmat for all
 element calculations. In fact there is included a matrix class called
 FastMat2 that is more performant, but Newmat is still used in some
 internal parts and has much more functions, so that you have to
@@ -140,7 +142,7 @@ documentation for reasons why to use FastMat2 instead of Newmat.
 <DD>
 METIS is a software package for partitioning unstructured graphs,
 partitioning meshes, and computing fill-reducing orderings of sparse
-matrices. It can be found at <A HREF="http://www.cs.umn.edu/~metis">http://www.cs.umn.edu/~metis</A>
+matrices. It can be found at <CODE>http://www.cs.umn.edu/~metis</CODE>.
 <P></P>
 <DT><STRONG><A NAME="item_Meschach">Meschach</A></STRONG><BR>
 <DD>
@@ -155,7 +157,7 @@ could be replaced by calls to LAPACK.
 <DD>
 <STRONG>ePerl</STRONG> (for <EM>embedded Perl</EM>) is a preprocessor much like the <STRONG>C</STRONG>
 language preprocessor (home page:
-<A HREF="http://www.engelschall.com/sw/eperl/">http://www.engelschall.com/sw/eperl/</A> ). <STRONG>ePerl</STRONG> allows you to embed
+<CODE>http://www.engelschall.com/sw/eperl/</CODE>). <STRONG>ePerl</STRONG> allows you to embed
 arbitrary <STRONG>Perl</STRONG> code in your document. It is not required at all,
 but is is very useful for preprocessing the data files. 
 [RedHat RPM package: <CODE>eperl</CODE>]. NEW: from version 3.18.pl44 on the
@@ -165,7 +167,7 @@ marginally different from the <CODE>C</CODE> version. If you want to specify you
 own <CODE>eperl</CODE> preprocessor then you have to modify the <CODE>EPERL</CODE>
 variable in <CODE>Makefile.base</CODE>. The Perl version of ePerl is written
 and maintained by David Ljung Madison <CODE>&lt;DaveSource.com&gt;</CODE>
-<A HREF="http://MarginalHacks.com">http://MarginalHacks.com</A> . License: GPL (See <CODE>tools/eperl_license.txt</CODE>).
+<CODE>http://MarginalHacks.com</CODE>. License: GPL (See <CODE>tools/eperl_license.txt</CODE>).
 <P></P>
 <DT><STRONG><A NAME="item_Perl">Perl</A></STRONG><BR>
 <DD>
@@ -175,14 +177,14 @@ installed. [RedHat RPM package: <CODE>perl</CODE>].
 <DT><STRONG><A NAME="item_SuperLU">SuperLU (optional)</A></STRONG><BR>
 <DD>
 A collection of ANSI C routines to solve sparse linear systems of
-equations. Can be found at <A HREF="http://www.nersc.gov/~xiaoye/SuperLU/">http://www.nersc.gov/~xiaoye/SuperLU/</A>
+equations. Can be found at <CODE>http://www.nersc.gov/~xiaoye/SuperLU/</CODE>. 
 This package is optional, install it if you think that SuperLU is faster
 than PETSc for direct factorization of sparse matrices.
 <P></P>
 <DT><STRONG><A NAME="item_ANN">ANN (optional)</A></STRONG><BR>
 <DD>
 This is the <EM>Approximate Nearest Neighbor Library</EM> and can be found
-at <A HREF="http://www.cs.umd.edu/~mount/ANN">http://www.cs.umd.edu/~mount/ANN</A> . Currently it is only used in
+at <CODE>http://www.cs.umd.edu/~mount/ANN</CODE>. Currently it is only used in
 the Navier-Stokes module for calculating the damping functions in the
 Smagorinsky model. However, in a future it may be used more widely for
 some mesh manipulations. Currently it is optional.
@@ -327,10 +329,10 @@ Center for Computational Methods in Engineering, Santa Fe, Argentina.</P>
 <H1><A NAME="contacts">CONTACTS</A></H1>
 <UL>
 <LI>
-<STRONG>e-mail:</STRONG> &lt;<A HREF="mailto:mstorti@intec.unl.edu.ar">mstorti@intec.unl.edu.ar</A>&gt;
+<STRONG>e-mail:</STRONG> <CODE>&lt;mstorti@intec.unl.edu.ar</CODE>&gt;
 <P></P>
 <LI>
-<STRONG>www:</STRONG> <A HREF="http://www.cimec.org.ar/petscfem">http://www.cimec.org.ar/petscfem</A>
+<STRONG>www:</STRONG> <CODE>http://www.cimec.org.ar/petscfem</CODE>
 <P></P>
 <LI>
 <STRONG>ordinary mail:</STRONG> Mario Storti, Guemes 3450, 3000 Santa Fe, Argentina.
