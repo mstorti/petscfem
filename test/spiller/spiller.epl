@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spiller.epl,v 1.7 2003/03/17 21:54:37 mstorti Exp $ 
+## $Id: spiller.epl,v 1.8 2003/03/17 22:49:31 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -19,10 +19,11 @@ $L2 = 50;			# Flat bottom length
 $h1 = 4;                        # Water height at top of spiller
 $y2 = 60;			# restitution height
 
-$Ny = 30;
-$Nx = 160;
+$ref = 1;
+$Ny = 10*$ref;
+$Nx = 50*$ref;
 
-$uin = 1.;
+$uin = 5.;
 $gravity = 9.8;
 
 #__END_TRANSCRIPT__
@@ -101,11 +102,12 @@ fixa
 __INCLUDE__ "spiller.fixa_in.tmp"
 __INCLUDE__ "spiller.fixa_out.tmp"
 __INCLUDE__ "spiller.fixa_bot.tmp"
+__INCLUDE__ "spiller.patm.tmp"
 __END_FIXA__
 
 #===========================================================
 constraint
-__INCLUDE__ "spiller.slip.tmp"
+# __INCLUDE__ "spiller.slip.tmp"
 __END_CONSTRAINT__
 
 
