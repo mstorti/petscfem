@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: wallke.cpp,v 1.3 2001/05/30 18:21:50 mstorti Exp $
+//$Id: wallke.cpp,v 1.4 2001/05/31 13:56:08 mstorti Exp $
 #include "../../src/fem.h"
 #include "../../src/utils.h"
 #include "../../src/readmesh.h"
@@ -173,10 +173,15 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }      
 
     if (build_nneighbor_tree) {
+      // This doesn't compile under RH 5.2
+#ifdef RH60    // fixme:= STL vector compiler bug??? see notes.txt
       xc.sum(xloc,-1,1).scale(i_nel);
       double *xc_ = xc.storage_begin();
       data_pts->insert(data_pts->end(),xc_,xc_+ndim);
       continue;
+#else
+      assert(0);
+#endif
     }
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
@@ -193,6 +198,7 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
 	detJaco = mydetsur(Jaco,normal);
+	normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 	double Ustar = sqrt(u_star.sum_square_all());
@@ -220,7 +226,6 @@ int wallke::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       veccontr.export_vals(&(RETVAL(ielh,0,0)));
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
     }
-    
 
   }
   if (elemset!=this) {
