@@ -3153,3 +3153,6 @@ tag: beta-3.26 on Sun, 07 Dec 2003 21:18:04 -0300 by mstorti in spider
 ----------
 tag: beta-3.26.pl1 on Sun, 07 Dec 2003 21:20:33 -0300 by mstorti in spider
      > Administrative tag.
+----------
+tag: beta-3.26.pl2 on Thu, 11 Dec 2003 14:02:31 -0300 by mstorti in node1.beowulf.gtm
+     > Fixed FastMat2 error in `applications/ns/nsilesther.cpp'
