@@ -9,8 +9,8 @@ get_var_env('NP',undef);
 $NP = 1 unless $NP;
 $case_orig = $case;
 $case =~ s/^\s*(.*)\s*$/$1/;
-$use_tetra = 0;
-$use_prismatic = 1;
+$use_tetra = 1;
+$use_prismatic = 0;
 $fracstep = 0;
 if ($case eq 'laplace_tetra') {
     $case = 'laplace';
@@ -19,7 +19,7 @@ if ($case eq 'laplace_tetra') {
 $ndim = 3;			# Number of spatial dimensions
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 10;			# Number of elements per dimension
+$N = 4;				# Number of elements per dimension
 
 $nelem = $N**3.;		# Number of hexas
 $nelem_subd = 500;		# Desired amount of elements per subdomain (in hexas)

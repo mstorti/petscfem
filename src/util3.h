@@ -1,8 +1,12 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: util3.h,v 1.4 2003/02/11 11:34:00 mstorti Exp $
-#ifndef UTIL3_H
-#define UTIL3_H
+// $Id: util3.h,v 1.5 2003/02/12 00:36:27 mstorti Exp $
+#ifndef PETSCFEM_UTIL3_H
+#define PETSCFEM_UTIL3_H
+#include <string>
+#ifdef USE_SSL
+#include <HDR/sockets.h>
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int string2int(string s,int &n);
@@ -24,6 +28,7 @@ void tokenize(const char *line,vector<string> &tokens);
 		     "Bad response from DX client sending " #keyword "\n"); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+#ifdef USE_SSL
 #define SGETLINE_FACTOR 2
 #define SGETLINE_INIT_SIZE 512
 #define SGETLINE_MAX_SIZE INT_MAX
@@ -36,6 +41,7 @@ void tokenize(const char *line,vector<string> &tokens);
     @param (input) the socket where the line is read. 
     @return number of bytes read */ 
 ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock);
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class DXSplit {
@@ -47,7 +53,8 @@ class DXSplit {
   vector<Subelem> splitting;
 public:
   /** Parses a line of the form #dx_type_1 dx_type_2 ... dx_type_n#
-      where each #dx_type_j# is of the form #dx_type nsubelem subnel n1 n2 ... nk#,
+      where each #dx_type_j# is of the form #subel_1 subel_2 ...  dx_type#,
+      #dx_type# may be #quads#, #cubes#, 
       with #k = nsubelem * subnel#. For instance
       a prism may be slit in 3 tetras with a line like #tetrahedra 3 4 1 2 3 4 
       5 4 6 2 2 6 3 4#. 

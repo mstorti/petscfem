@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mksqcav.m,v 1.4 2003/01/08 15:49:05 mstorti Exp $
+## $Id: mksqcav.m,v 1.5 2003/02/12 00:36:27 mstorti Exp $
 source("data.m.tmp");
 
 ## rem(N,2)==0 || warning("N should be even");
@@ -7,6 +7,11 @@ source("data.m.tmp");
 w=zhomo([0 1 0 1],N+1,N+1,[1 hratio 1 1 hratio 1]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
+
+if use_triangles
+  icone = [icone(:,[1 2 3]);
+	   icone(:,[3 4 1])];
+endif
 
 asave("sqcav.nod.tmp",xnod);
 asave("sqcav.con.tmp",icone);

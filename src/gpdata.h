@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gpdata.h,v 1.8 2003/02/11 11:34:00 mstorti Exp $
+//$Id: gpdata.h,v 1.9 2003/02/12 00:36:27 mstorti Exp $
  
 #ifndef GPDATA_H
 #define GPDATA_H
@@ -9,6 +9,9 @@
 
 #include <src/fastmat.h>
 #include <src/fastmat2.h>
+#ifdef USE_DX
+#include <src/util3.h>
+#endif
 
 // Options for GPdata
 #define GP_NEWMAT 0
@@ -56,6 +59,11 @@ public:
   int mat_version;
   /// The volume of the reference (master) element
   double master_volume;
+#ifdef USE_DX
+  /** This represents how the element is mapped onto Data
+      Explorer connections. */
+  DXSplit splitting;
+#endif
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

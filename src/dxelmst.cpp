@@ -1,13 +1,15 @@
 //__INSERT_LICENSE__
-//$Id: dxelmst.cpp,v 1.1 2003/02/11 21:37:00 mstorti Exp $
+//$Id: dxelmst.cpp,v 1.2 2003/02/12 00:36:27 mstorti Exp $
 
+#ifdef USE_DX
 #include <vector>
 
 #include <src/fem.h>
 #include <src/elemset.h>
 #include <src/util3.h>
 
-#ifdef USE_DX
+extern int MY_RANK,SIZE;
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
   int ierr, cookie, cookie2;
@@ -59,30 +61,34 @@ void Elemset::dx(Socket *sock,Nodedata *nd,double *field_state) {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int Elemset::dx_types_n() {
   const char *line;
-  //o _T: <string:type> <integer array>
+  int ierr;
+  //o _T: mixed string/integer array
   //  _N: dx_indices 
-  //  _D: (empty array)
-  //  _DOC: list of indices of the nodes to be passed to DX 
-  //        as connectivity table. Note that the order the nodes
-  //        are entered in DX is not the same that in PETSc-FEM.
-  //        For instance, in  PETSc-FEM the nodes of a quad are entered
-  //        counter-clockwise, and it they are (in that order) 1, 2, 3, 4, then
-  //        for DX they are entered in the order: 1, 2, 4, 3. Also DX wants 0-based
-  //        (C-sytle) node numbers, whereas PETSc-FEM uses 1-based (Fortran style).
-  //        However they must be entered 1-based for this option. For instance,
-  //        for quads one should enter {\tt dx_indices 1 2 4 3} and for cubes
-  //        {\tt dx_indices 1 2 4 3 5 6 8 7}. 
+  //  _D: (none)
+  //  _DOC: 
+  //i_tex ../doc/nsdoc.tex dx_line
   //  _END
   thash->get_entry("dx_indices",line);
   // Reads list of indices from `dx_indices' option line
   // othewise, use standard numeration from geometry
   if (!line) {
-    assert(0);
-    // for (int k=0; k<nel; k++) node_indices.push_back(k);
+    // Uses splitting from the GPdata object
+    const char *geom;
+    thash->get_entry("geometry",geom);
+    assert(geom);
+    // Number of Gauss points.
+    TGETOPTDEF(thash,int,npg,0); //nd
+    // Dimension of the problem
+    TGETOPTDEF(thash,int,ndim,0); //nd
+    // Dimension of the element
+    TGETOPTDEF(thash,int,ndimel,0); //nd
+    if (ndimel==0) ndimel=ndim;
+    GPdata gpdata(geom,ndimel,nel,npg);
+    splitting = gpdata.splitting;
   } else {
     splitting.parse(line);
-    return splitting.dx_types_n();
   }
+  return splitting.dx_types_n();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $
+$Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $ 
+! # $Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $ 
+  # $Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.248 2003/02/11 21:07:38 mstorti Exp $ 
+  # $Id: notes.txt,v 1.249 2003/02/12 00:36:23 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6147,6 +6147,8 @@ reales y aumentar un poco el radio interior.
 
 %===Tue, 11 Feb 2003 10:53:35 -0300 mstorti@spider
 Tested splittings for 
+triangle
+  dx_indices 1 2 3 triangles
 cartesian2d: 
   dx_indices 1 2 4 3 quads
   dx_indices 1 2 3 3 4 1 triangles
@@ -6154,7 +6156,9 @@ cartesian3d:
   dx_indices 1 2 4 3 5 6 8 7 cubes
 tetra:
   dx_indices 1 2 3 4 tetrahedra
-	
+prism  (not conforming though)
+  dx_indices 1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra
+
 
 
 # Current line ===========  %

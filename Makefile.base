@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.112 2003/02/09 22:39:53 mstorti Exp $
+#$Id: Makefile.base,v 1.113 2003/02/12 00:36:22 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -126,6 +126,15 @@ endif
 ifneq ($(SSL),)
 CPPFLAGS += -DUSE_SSL -I$(SSL)
 SSL_LDFLAGS := $(SSL)/simpleskts.a
+ifeq ($(USE_DX),)
+USE_DX := yes
+endif
+else
+USE_DX := no
+endif
+
+ifeq ($(USE_DX),yes)
+CPPFLAGS += -DUSE_DX
 endif
 
 ifeq ($(USE_PTHREADS),yes)

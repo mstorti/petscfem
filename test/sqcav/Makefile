@@ -1,13 +1,16 @@
-# $Id: Makefile,v 1.45 2003/02/11 21:07:43 mstorti Exp $ 
+# $Id: Makefile,v 1.46 2003/02/12 00:36:27 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
-        ctest gprof
+        ctest gprof dxhook
+
+dxhook:
+	$(MAKE) case=weak_form_0 runs
 
 runn: 
 	$(MAKE) case=weak_form_1 runs
 
 tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body test_fs \
-	test_zero_w_proc test_zero_w_proc2
+	test_zero_w_proc test_zero_w_proc2 test_triangle
 
 
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem
@@ -23,7 +26,6 @@ PROG := $(NS)
 ################################################################
 NP = 1
 
-PROG := $(NS)
 MCH = -machinefile ./machi.dat
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
@@ -34,7 +36,7 @@ endif
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	> output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
+	 # > output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE
 runs: CASE := sqcav
@@ -82,8 +84,8 @@ test_iisd2:
 	$(MAKE) case=iisd_sbp16 runs
 	$(OCTAVE) < check_iisd2.m > check.iisd.verif.np2.tmp
 
-REDIR := >
-# REDIR := | tee
+# REDIR := >
+REDIR := | tee
 
 #w Tests processors with zero eqs./elements (zero weight)
 test_zero_w_proc: CASE := sqcav
@@ -145,6 +147,10 @@ test_iisd:
 test_fs:
 	make case=fractional_step_re400 runs2
 	$(OCTAVE) < check_fs.m > check.fs.verif.tmp
+
+#w Tests triangles
+test_triangle:
+	$(MAKE) case=weak_form_1 use_triangles=1 runs
 
 #w Makes local link for running with debugger
 link:

@@ -1,16 +1,12 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.27 2003/02/10 22:42:34 mstorti Exp $
+//$Id: elemset.h,v 1.28 2003/02/12 00:36:27 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
 
-#ifdef USE_SSL
-#define USE_DX
-#endif
-
 #include "libretto.h"
-#ifdef USE_DX
+#ifdef USE_SSL
 #include <HDR/sockets.h>
 #endif
 #include <glib.h>

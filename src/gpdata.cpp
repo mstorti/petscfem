@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gpdata.cpp,v 1.24 2003/02/11 11:34:00 mstorti Exp $
+//$Id: gpdata.cpp,v 1.25 2003/02/12 00:36:27 mstorti Exp $
 
 #include "petscsles.h"
 #include <math.h>
@@ -161,6 +161,9 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	dshapex[ipg]= Matrix(ndimel,nel);
       }
     }
+#ifdef USE_DX
+    splitting.parse("1  2  3  4   5  4  6  2   2  6  3  4 tetrahedra");
+#endif
 
   } else if ( !(strcmp(geom,"triangle")) ) {
     assert(nel==3);
@@ -247,6 +250,9 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       dshapexi[ipg](2,3)=-1.;
     }
 
+#ifdef USE_DX
+    splitting.parse("1  2  3  triangles");
+#endif
   } else if ( !(strcmp(geom,"tetra")) ) {
     assert(nel==4);
     master_volume = 1./3.;
@@ -298,6 +304,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
       dshapexi[ipg](3,1)=-1.;
     }
 
+#ifdef USE_DX
+    splitting.parse("1  2  3  4  tetrahedra");
+#endif
+
   } else if (!fnmatch("cartesian*d_face",geom,0)) {
 
     // This is for integration over the face of an
@@ -329,13 +339,10 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 
 	cartesian_2d_shape(shape[ipg],dshapexi[ipg],xipg,etapg);
       }
-
-    } else {
-      
-      GPERROR;
-       
-    } 
-
+    } else { GPERROR; } 
+#ifdef USE_DX
+    splitting.parse("1  2  4  3 quads");
+#endif
   } else if (!fnmatch("cartesian*d",geom,0)) {
 
     // npg1d:= number of points per dimensional direction
@@ -416,6 +423,9 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	  }
 	}
       }
+#ifdef USE_DX
+    splitting.parse("1  2  4  3 quads");
+#endif
     } else if (ndimel==3) {
       Matrix xinode(3,8);
       xinode << -1 << 1 << 1 << -1 << -1 << 1 << 1 << -1 
@@ -459,6 +469,9 @@ GPdata::GPdata(const char *geom,int ndimel,int nel,int npg_,int
 	  }
 	}
       }
+#ifdef USE_DX
+    splitting.parse("1 2 4 3  5 6 8 7 cubes");
+#endif
     } else GPERROR;
       
   } else if (!strcmp(geom,"line2quad")) {

@@ -5,15 +5,15 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line =========== 
-* DX: test splitting with triangles
-* DX: Make a hook class for generating fields directly from
-          PETSc-FEM. 
-* DX: make `dxhook' to be launched though a flag of type `dx' not
-          through the standard `hook-list' option line. 
 * DX: make `dxhook' to auto-recognize geometries from the "geometry"
           option and dimensionality. 
+* DX: Make a hook class for generating fields directly from
+          PETSc-FEM. 
+* DX: make `dxhook' to be launched through a flag of type `dx' not
+          through the standard `hook-list' option line. 
 * DX: check for memory leaks, both in `epimport.cpp' and in  petscfem
           itself. 
+* Convert all `assert()' macros to a PETSCFEM_ASSERT or similar. 
 * Why it takes so much time after "Start partitioning" when running
     large problems in one proc.
 * Generate test for LES 
@@ -98,6 +98,7 @@ DONE:
 =====
 
 ### Current line =========== 
+* DX: test splitting with triangles
 * DX: Code asynchronous visualization with threads. 
 * DX: write documentation for `dx_hook' and `ExtProgImport'. 
 * DX: check runs auto with sequencer

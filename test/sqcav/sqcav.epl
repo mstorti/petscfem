@@ -6,6 +6,7 @@ require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl
 get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
+get_var_env('use_triangles',undef);
 
 $save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
 
@@ -98,7 +99,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
 }
 #
 #__END_TRANSCRIPT__
-@vars = qw(U L N Re viscosity h Co Dt hratio g_body);
+@vars = qw(U L N Re viscosity h Co Dt hratio g_body use_triangles);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -108,6 +109,7 @@ global_options
 nsave 5
 <:pr('nstep'):> 
 # initial_state sqcav.state
+# initial_state sqcav.weak_form_0.tmp
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -141,8 +143,10 @@ print_internal_loop_conv 1
 #verify_jacobian_with_numerical_one 1
 
 #print_nodal_partitioning 1
-Dt <:=$Dt:>
-<:pr('steady'):>
+# Dt <:=$Dt:>
+#<:pr('steady'):>
+steady 0
+Dt 0.1
 temporal_stability_factor 0
 
 shock_capturing_factor 0
@@ -159,6 +163,8 @@ measure_performance_loop_length 10
 #if $g_body
 G_body 0 -1.
 #endif
+
+hook_list ns_dx_hook my_dx_hook
 __END_HASH__
 
 # ndim nu ndof
@@ -166,17 +172,13 @@ nodes  2  2  3
 __INCLUDE__ sqcav.nod.tmp
 _END_NODES__
 
-elemset nsi_tet_les_fm2 4 
-
-name malla
-
+elemset nsi_tet_les_fm2 <:=($use_triangles ? 3 : 4):>
+name visc_fluid
+dx
 # report_consumed_time
-geometry cartesian2d
+geometry <:=($use_triangles ? "triangle" : "cartesian2d"):>
 ndim 2
-npg 4
-#
-# Datos fisicos
-#
+npg <:=($use_triangles ? 3 : 4):>
 <:pr('viscosity'):> 
 <:pr('weak_form'):>
 LES 0
