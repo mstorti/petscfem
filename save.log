@@ -2176,3 +2176,6 @@ tag: beta-3.14.pl40 on Tue, 21 Jan 2003 13:09:28 -0300 by mstorti in minerva.arc
      > Compiles OLD_VERSION (multi-stage bubbly) and NEW_VERSION (gasflow) of
      > advdif.
      > Running vtube example with NS incompressible. 
+----------
+tag: beta-3.14.pl41 on Tue, 21 Jan 2003 14:47:59 -0300 by mstorti in minerva.arcride.edu.ar
+     > Runs old advdif applications and also new bubbly main example. 
