@@ -4,12 +4,6 @@ TODO: [Mainly fixes go here...]
 =====
 
 * Add edge weights to graph partitioning in `metisprt.cpp'
-* Changing 'distmap.h' launches recompilation of almost all
-   PETSc-FEM. 
-* int FastMat2: `mydetsur' with masks can't be cached (loses cached
-      dims and claims dimensioning errors. See version "tag:
-      beta-3.02.pl11 on Wed, 7 Aug 2002 16:31:37 -0300 by mstorti in
-      minerva.arcride.edu.ar"
 * Make `report_consumed_time' to report the time spent in computing
         residues, and assembly. 
 * Document new options for IISDMat
@@ -87,6 +81,12 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Changing 'distmap.h' launches recompilation of almost all
+   PETSc-FEM. 
+* int FastMat2: `mydetsur' with masks can't be cached (loses cached
+      dims and claims dimensioning errors. See version "tag:
+      beta-3.02.pl11 on Wed, 7 Aug 2002 16:31:37 -0300 by mstorti in
+      minerva.arcride.edu.ar"
 * A line like this: ' __INCLUDE__ cylinder.bott_no_slip.tmp' causes a
   SIGSEGV (note the line starts with a space). 
   Fix. See ROCKET/ident -D 'Sun, 14 Apr 2002 16:37:51 -0300'
