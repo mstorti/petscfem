@@ -1,0 +1,40 @@
+#-*- shell-script -*-
+<: 
+require '../../tools/dx.pl';
+$nnod = count_lines("plate.nod.tmp");
+$nelem = count_lines("plate.con0.tmp");
+connect_0("./plate.con.tmp","./plate.con0.tmp",quad_hook);
+ns_extract("./save.state.tmp","u.dat","p.dat");
+:>//
+object "nodes" class array type float rank 1 shape 2 
+         items <:=$nnod:> data file plate.nod.tmp
+
+object "icone" class array type int rank 1 shape 4 
+        items <:=$nelem:> data file plate.con0.tmp
+attribute "element type" string "quads"
+attribute "ref" string "positions"
+
+object "pdat" class array type float rank 0 
+     items <:=$nnod:> data file p.dat
+attribute "dep" string "positions"
+
+object "udat" class array type float rank 1 shape 2
+     items 1717 data file u.dat
+attribute "dep" string "positions"
+
+object "p_field" class field
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "pdat"
+
+object "u_field" class field
+component "positions" value "nodes"
+component "connections" value "icone"
+component "data" value "udat"
+
+object "results" class group
+member "u" value "u_field"
+member "p" value "p_field"
+
+end
+

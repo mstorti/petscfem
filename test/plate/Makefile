@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1 2002/12/19 03:17:53 mstorti Exp $ 
+# $Id: Makefile,v 1.2 2002/12/19 18:51:25 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full
 
@@ -27,4 +27,6 @@ $(CASE_NAME).depl: force
 local_clean::
 	-rm -rf mat.output 
 
+dx:
+	eperl -P viewer.dx > viewero.dx
 #s

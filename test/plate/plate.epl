@@ -3,12 +3,16 @@
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
-$Lx = 10;
-$Ly = 3;
+$Lx = 5;
+$Ly = 1;
 $Nx = 100;
-$Ny = 30;
+$Ny = 16;
+$xini = 1;
+$Lplate = 1;
+$yratio = 4;
+$t = 0.1;                       # thickness of bump
 #__END_TRANSCRIPT__
-@vars = qw(Nx Ny Lx Ly);
+@vars = qw(Nx Ny Lx Ly xini Lplate yratio t);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "octave -qH mkplate.m";
@@ -42,7 +46,7 @@ __END_HASH__
 elemset nsi_tet_les_fm2 4
 geometry cartesian2d
 npg 4
-viscosity <:=1./100:>
+viscosity <:=1./1000:>
 data plate.con.tmp
 __END_HASH__
 
