@@ -375,9 +375,9 @@ Weak form 1. error < tol OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("sqcav/check.re_1000_fs.verif.tmp",
-       "Square cavity with fract. step, Re1000, N=20",<<'EOT');
-Fractional step error < tol OK \? 1 
+expect("sqcav/check.fs.verif.tmp",
+       "Square cavity with fract. step, Re400, N=20",<<'EOT');
+Square cavity at Re=400. Error < tol OK \? 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
