@@ -10,7 +10,6 @@ TODO: [Mainly fixes go here...]
 * Let `upload_vector_fast' to have several masks with integer values,
     e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
 * Finish completing_read with petscfem_options
-* Make use FastMat2 cache optional in advdife via an option
 * There is a conflict between the computation of residual jacobians 
 	  in advdif and the use of masks/profiles for element
 	  uploading. 
@@ -151,6 +150,8 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Make use FastMat2 cache optional in advdife via an option
+    DONE: Mon, 08 Dec 2003 20:33:59 -0300
 * Add `sw_abso' to tests
     DONE: Mon, 08 Dec 2003 20:24:09 -0300
 * `advdif/id' elemset does some `proj' task or something. We should write
