@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.17 2003/11/16 15:32:54 mstorti Exp $
+#$Id: myexpect.pl,v 1.18 2003/11/16 19:51:05 mstorti Exp $
 
 use English;
 ## position in count record
@@ -282,7 +282,7 @@ contains:
   Total impedance: 46.4
   more lines here...
 
-You yount to chech that the figures in lines C<Total...> are precise
+You want to check that figures in lines C<Total...> are precise
 to the first digit. The ouput is in file C<QBFG.out> and you write a
 small perl program like this
 
@@ -317,12 +317,14 @@ the test is counted as a succes. If C<FILE> can't be opened, then this
 is reported separately from error. The final count is reported by a
 call to C<final_check()>.
 
-You can alter this default behavior adding I<magic tokens> in
-the pattern list. The magic tokens are
+=head2 Special directives
+
+You can alter this default behavior adding I<special directives> in
+the pattern list. They are
 
 =over 4
 
-=item __REWIND__
+=item C<__REWIND__>
 
 Rewind the file, i.e. scan for the next match starting from the
 beginning of the file, rather than from the last match. This is useful
@@ -343,44 +345,150 @@ matches the following call
    line at the beginning
    EOT
   
-thanks to the presence of the C<__REWIND__> directive. 
+thanks to the presence of the L<__REWIND__> directive. 
 
-=item __BACKWARD__
+=item C<__BACKWARD__>
 
 Scan the file backward for the next and subsequent patterns.
 
-=item __FORWARD__
+=item C<__FORWARD__>
 
-Cancel the C<__BACKWARD__> directive and continue scanning forward. 
+Cancel the L<__BACKWARD__> directive and continue scanning forward. 
 
-=item __NO_SKIP__
+=item C<__NO_SKIP__>
 
-In no-skip mode the following pattern is found to match with exactly
-the following line, rather to scan the file from the following line
-down. 
+In no-skip mode the following pattern line is checked to match with
+exactly the following output line, rather to scan the whole output
+file from the following line down.
 
-=item __SKIP__
+=item C<__SKIP__>
 
 Return to skip mode. 
 
-=item __EXACT_MATCH__
+=item C<__EXACT_MATCH__>
 
 Pattern has to match exactly the beginning of the line. (No special 
 meaning for characters like C<.>, C<*>, etc...
 
-=item __REGEXP_MATCH__
+=item C<__REGEXP_MATCH__>
 
 Go back to regexp match. 
 
+=item C<__SWITCH_FILE__ <file>>
+
+Stop reading this output file and switch over to C<file>. File 
+name is taken absolute if starts with C</> otherwise relative to the 
+current working directory. The working directory is taken from the
+first file entered or changed with the C<<< __CONFIG_ WD "<dir>" >>> 
+(directive. Example:
+ 
+   __SWITCH_FILE__ foodir/foofile.out
+
+=item C<__CONFIG__>
+
+Allows changing configuration variables. Syntax is
+
+      __CONFIG__  var "value" ...
+
+Set configuration variable C<$var> to C<value>. Current configuration
+variables are
+
+=over 8
+
+=item C<PRE>, C<SEP>, C<POST>
+
+The patterns that matches for the start, end and separator 
+of an embedded block. (See below)
+
+=item C<COMMENT>
+
+The pattern that, when at the start of a line means a
+comment. Default: C<<< #>> >>>.
+
+=item C<WD>
+
+The working directory.
+
 =back
+
+The double quote delimiter around C<value> may be changed by any
+non-blank character. Examples:
+
+   __CONFIG__ PRE "<<" SEP "><" POST ">>" WD "foodir/bardir" COMMENT "#"
+   __CONFIG__ PRE COMMENT |#:|
+
+The last one sets comment start to C<#:>. 
+
+=back
+
+=head2 Embedded blocks
+
+You can embed Perl code blocks in the pattern for checking the result
+of the matches themselves. The syntax is C<{{CONDITION}}> or
+C<{{PATTERN}{CONDITION}}>. In the first form the C<{{...}}> block is
+replaced with C<(.*)>. If the output line matches, then every
+C<CONDITION> is evaluated and the line matches if every condition
+returns true. Inside the condition the special variable C<$W> takes 
+the value of the matching string. Example: the following output lines
+
+  Total mass: 0.356, 
+    max density: 0.48956, min density: 0.001234
+
+match the following pattern lines
+
+  Total mass: {{abs($W-0.355)<2e-3}}, 
+    max density: {{abs($W-0.4)<0.1}}, min density: {{$W<2e-3}}
+
+In the second form the C<PATTERN> section allows to specify the pattern 
+which replaces the block. Example: the output line
+
+  Processed case: ABC890
+
+matches
+
+  Processed case: {{[A-Z]*}{$W eq 'ABC'}}{{\d*}{$W>800 && $W < 1000}}
+
+The syntax of the block may be changed with the L<C<__CONFIG__>>
+directive. The corresponding variables are C<PRE>, C<SEP> y 
+<POST>. Possible choices are 
+
+  #>> Following three examples use matching delimiters (like <>, () or[])
+  #>> warning: angles (<>) may collide with comparison expressions
+  __CONFIG__ PRE "((" SEP ")(" POST "))"
+  __CONFIG__ PRE "<<" SEP "><" POST ">>"
+  __CONFIG__ PRE "[[" SEP "][" POST "]]"
+  #>> This is very simple
+  __CONFIG__ PRE "{" SEP "," POST "}"
+  #>> Another simple one
+  __CONFIG__ PRE "<" SEP "|" POST "}"
+
+In order to avoid collision you can increase the delimiter levels, e.g.
+
+  #>> Very paranoid
+  __CONFIG__ PRE "{{{{" SEP "}}{{" POST "}}}}"
+  #>> Combines with colon
+  __CONFIG__ PRE "<<:" SEP ":><:" POST ":>>"
 
 =head2 Sections
 
-Sometimes it is useful to divide tests into sections. For this call
-C<begin_section("section name")> before each section, and
-C<end_section()> at the end.  All enclosed calls to C<expect()> are
-assumed to be in the same logical section of tests and a summary is
-reported for that section.
+Sometimes it is useful to divide tests into sections. Start sections
+with C<begin_section(<section name>)>, and end with C<end_section()>.
+All enclosed calls to C<expect()> are assumed to be in the same
+logical section of tests and a summary is reported for that section.
+Example:
+
+ begin_section("Navier stokes tests");
+ expect("NS/output1.txt","NS Test 1","NS Test 1 OK");
+ expect("NS/output1.txt","NS Test 2","NS Test 2 OK");
+ expect("NS/output1.txt","NS Test 3","NS Test 3 OK");
+ end_section();
+
+ begin_section("Electro-magnetic tests");
+ expect("EM/output1.txt","EM Test 1","EM Test 1 OK");
+ expect("EM/output1.txt","EM Test 2","EM Test 2 OK");
+ expect("EM/output1.txt","EM Test 3","EM Test 3 OK");
+ expect("EM/output1.txt","EM Test 4","EM Test 4 OK");
+ end_section();
 
 =head1 AUTHOR
 
