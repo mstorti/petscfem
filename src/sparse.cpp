@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: seqmat.cpp,v 1.2 2001/09/20 04:08:21 mstorti Exp $
+//$Id: sparse.cpp,v 1.1 2001/09/20 18:49:40 mstorti Exp $
 
 #include "seqmat.h"
 
