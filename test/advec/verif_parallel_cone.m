@@ -6,7 +6,7 @@ proc
 err_x = abs((xc(1)-xc0(1))-(ux*Tend))/traversed_length;
 err_y = abs((xc(2)-xc0(2))-(uy*Tend))/traversed_length;
 
-tol = 2e-2;
+tol = 4e-2;
 printf("Error in x position < tol OK ? %d (err_x %f, tol %f)\n",
        err_x<tol, err_x, tol);
 tol = 1e-4;

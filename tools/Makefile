@@ -12,7 +12,7 @@ PETSCFEM_DIR = ..
 include $(PETSCFEM_DIR)/Makefile.base
 OMKFLS = 
 
-local_sw:: licenses
+# local_sw:: licenses
 
 #w all license files
 licenses: license.script license.c license.tex license.cpp

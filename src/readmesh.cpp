@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.68 2002/12/25 22:16:07 mstorti Exp $
+//$Id: readmesh.cpp,v 1.69 2002/12/26 16:23:12 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -744,7 +744,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	  ierr = readval(rflag,line,node); ERRLINE;
 	  ierr = readval(rflag,line,field); ERRLINE;
 	  PETSCFEM_ASSERT(node<=nnod,"read_mesh: "
-			  "Read node= %d greater that nnod= %d\n"
+			  "Read node= %d greater than nnod= %d\n"
 			  "%s:%d: \"%s\"",node,nnod,fstack->file_name(),
 			  fstack->line_number(),
 			  fstack->line_read());
@@ -765,7 +765,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
 	  nlindep++;
 	}
       }
-      dofmap->id->print("");
+      // dofmap->id->print("");
       PetscPrintf(PETSC_COMM_WORLD,"Total entered constraint lines: %d.\n",nconstr);
       PetscPrintf(PETSC_COMM_WORLD,"-- Linearly dependent %d, linearly independent %d\n",
 		  nlindep,nconstr-nlindep);

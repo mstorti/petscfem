@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.6 2002/12/25 22:16:10 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2002/12/26 16:23:12 mstorti Exp $ 
 
 .PHONY: force all run tests data scalar diag full constraint default
 
@@ -14,7 +14,7 @@ SRCS =
 
 LOC_PROG := ns
 CASE_NAME := genload
-PROG := $(NS_G)
+PROG := $(NS)
 
 .PHONY: force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))

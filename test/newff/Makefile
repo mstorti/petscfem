@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.22 2002/12/25 22:14:22 mstorti Exp $ 
+# $Id: Makefile,v 1.24 2002/12/26 16:23:12 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -56,7 +56,7 @@ data_%:
 #w Test for per-element properties 
 $(OF): newff.m data.m.tmp
 	touch fulljacdef.tmp	# because it is needed by eperl!!
-	octave -q newff.m >/dev/null
+	octave -qH newff.m >/dev/null
 
 #w makes auxiliary files .gdbinit and link advdif
 auxi_dat: advdif .gdbinit
@@ -81,7 +81,7 @@ run: data
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(ADVDIF) \
 			-case newff.depl > newff.$(CASE).out
 	if [ -e save.state.tmp ] ; then \
-		octave -q verif.m | tee  $(CASE).vrf.tmp ; fi
+		octave -qH verif.m > $(CASE).vrf.tmp ; fi
 
 local_clean::
 	-chmod +w newff.data.res
