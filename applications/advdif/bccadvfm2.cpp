@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bccadvfm2.cpp,v 1.26 2003/12/08 16:38:31 mstorti Exp $
+//$Id: bccadvfm2.cpp,v 1.27 2004/09/30 16:52:35 mstorti Exp $
 
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
@@ -66,9 +66,13 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   //  you generated, by mistake, the wrong sense of
   //  numeration of nodes in the connectivities. 
   NSGETOPTDEF(int,reverse_normal,0);
+
   int  nel,ndof,nelprops;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
+  FastMat2 bcconv_factor;
+
+  adv_diff_ff->get_bcconv_factor(bcconv_factor);
 
   // Unpack Dofmap
   int neq,nnod;
@@ -129,15 +133,25 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   matlocf_fix.prod(prof_fields_diag_fixed,Id_nel,2,4,1,3);
 
   matlocf.prod(prof_fields,prof_nodes,2,4,1,3);
-
-  matlocf_fix.add(matlocf);
-
-  if (comp_res) 
-    matlocf_fix.export_vals(Ajac->profile);
-  if (comp_prof) {
-    jac_prof = &arg_data_v[0];
-    matlocf_fix.export_vals(jac_prof->profile);
+  
+  if (0) {
+    matlocf_fix.add(matlocf);
+    if (comp_res) 
+      matlocf_fix.export_vals(Ajac->profile);
+    if (comp_prof) {
+      jac_prof = &arg_data_v[0];
+      matlocf_fix.export_vals(jac_prof->profile);
+    }
+  } else {
+    matlocf.add(matlocf_fix);
+    if (comp_res) 
+      matlocf.export_vals(Ajac->profile);
+    if (comp_prof) {
+      jac_prof = &arg_data_v[0];
+      matlocf.export_vals(jac_prof->profile);
+    }
   }
+
 
   //  if (comp_prof) {
   //   jac_prof = &arg_data_v[0];
@@ -267,13 +281,21 @@ void NewBcconv::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
     }
 
+    // apply bcconv_factor to mask residual and matrix contributions
+    for (int j=1; j<=ndof; j++) {      
+      veccontr.ir(2,j).scale(bcconv_factor.get(j)).rs();
+      matlocf.ir(2,j).scale(bcconv_factor.get(j)).rs();
+    }
+
     if (comp_res) {
       veccontr.export_vals(element.ret_vector_values(*retval));
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*retval));
 #endif
-      if (comp_mat_each_time_step_g) 
+      if (comp_mat_each_time_step_g) {
+	matlocf.add(matlocf_fix);
 	matlocf.export_vals(element.ret_mat_values(*Ajac));
+      }
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
     }

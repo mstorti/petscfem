@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.17 2004/07/07 17:54:31 mstorti Exp $
+//$Id: blessf.cpp,v 1.18 2004/09/30 16:52:35 mstorti Exp $
 
 #include <set>
 
@@ -18,7 +18,12 @@
 #include "genload.h"
 #include "aquifer.h"
 #include "stream.h"
-#include "bubbly.h"
+
+//#include "bubbly.h"
+#include "bubbly_asm.h"
+#include "bubbly_asm_mix.h"
+#include "bubbly_full.h"
+
 #include "advec.h"
 #include "gasflow.h"
 #include "advdfgth.h"
@@ -27,7 +32,6 @@
 #include "nonlres.h"
 #include "id.h"
 #include "gaschem.h"
-// #include "godunov.h"
 
 #include <time.h>
 
@@ -56,7 +60,6 @@ void bless_elemset(char *type,Elemset *& elemset) {
       //    SET_ELEMSET_TYPE(advdif_swfm1t)
     SET_ELEMSET_TYPE(streamsw1d)
     SET_ELEMSET_TYPE(streamsw1d_abso)
-      //    SET_ELEMSET_TYPE(streamsw1d_abso_godunov)
 
     SET_ELEMSET_TYPE(wall_swfm2t)
 
@@ -66,8 +69,14 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(stream)
     SET_ELEMSET_TYPE(stream_loss)
 
-    SET_ELEMSET_TYPE(bubbly)
-    SET_ELEMSET_TYPE(bubbly_bcconv)
+    SET_ELEMSET_TYPE(bubbly_full)
+    SET_ELEMSET_TYPE(bubbly_bcconv_full)
+
+    SET_ELEMSET_TYPE(bubbly_asm)
+    SET_ELEMSET_TYPE(bubbly_bcconv_asm)
+
+    SET_ELEMSET_TYPE(bubbly_asm_mix)
+    SET_ELEMSET_TYPE(bubbly_bcconv_asm_mix)
 
     SET_ELEMSET_TYPE(advec)
     SET_ELEMSET_TYPE(gasflow)

@@ -1,8 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.11 2004/05/22 11:24:18 mstorti Exp $
-#ifndef BUBBLY_H
-#define BUBBLY_H
+// $Id: bubbly.h,v 1.12 2004/09/30 16:52:35 mstorti Exp $
 
 #include "./advective.h"
 #include "./stream.h"
@@ -20,6 +18,7 @@ private:
     Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
     grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
     uintri,svec,tmp9,W_N,grad_alpha_g,grad_alpha_l,grad_p,tmp6,tmp7,tmp10;
+  double alpha_source;
   FastMat2 Cpc,Ajacc,Djacc,Cjacc;
   FastMat2 Phi_1,Phi_2,v_g_l;
   FastMat2 tau_supg_c, vel_supg;
@@ -41,7 +40,7 @@ private:
   double A_van_Driest,C_smag;
   int LES, g_dir;
   FastMat2 tmp15;
-  double vslip, Sato_model_coef;
+  double vslip, vslip_user, Sato_model_coef, vslip_m;
   double Sc_number;
 
   double tmp1_drag,tmp2_drag,tmp3_drag,tmp4_drag,C1_drag,v_slip,Rey_bubble;
@@ -51,6 +50,7 @@ private:
   double factor_alpha_liq;
   double flag_grad_alpha_source , flag_interfacial_pressure;
   double factor_liq_mass_eq_mod;
+  int flag_predictor_scheme;
 
   int comp_interphase_terms,mask_matrix,use_pspg_for_gas,use_pmm_method,use_alpha_grad_p;
   int drag_model, upwind_gas_matrix;
@@ -85,6 +85,22 @@ private:
   double beta_pmm, cc;
 
   FastMat2 temp_tau_A, temp2_tau_A, tau_A;
+
+  // added for ASM based on mixture velocity
+  double rho_m, visco_m_eff ;
+  int alpha_indx , nphases;
+
+  // extended to N phases
+  vector<int> alpha_indx_vp;
+  FastMat2 alpha_g_vp,alpha_g_vp_ctf,rho_g_vp,visco_g_vp,v_g_vp,v_g_vp_old,v_rel_vp;
+  FastMat2 arho_g_vp,Id_vp,vslip_vp,vslip_user_vp,d_bubble_vp,vslip_m_vp,ones_vp,grad_alpha_g_vp,grad_alpha_l_vp;
+  FastMat2 alpha_source_vp,visco_g_eff_vp,delta_supg_vp;
+  double alpha_l_ctf, alpha_g_ctf;
+
+//   void compute_beta_pmm();
+//   void compute_tau_beta();
+//   void compute_tau_gas();
+//   void compute_tau(int ijob);
 
 public:
   bubbly_ff(NewElemset *elemset_);
@@ -194,6 +210,7 @@ public:
 
   void get_Cp(FastMat2 &Cp);
 
+  void compute_delta_sc_v(FastMat2 &delta_sc_v);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -204,6 +221,8 @@ public:
       fixme:= should destroy the flux functin.
   */
   bubbly() :  NewAdvDif(new bubbly_ff(this)) {};
+
+  int ask(const char *jobinfo,int &skip_elemset);
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:
@@ -212,4 +231,4 @@ public:
   bubbly_bcconv() : NewBcconv(new bubbly_ff(this)) {};
 };
 
-#endif
+
