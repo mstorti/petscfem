@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: embgath.cpp,v 1.6 2002/08/07 11:47:26 mstorti Exp $
+//$Id: embgath.cpp,v 1.7 2002/08/07 15:26:33 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -10,6 +10,7 @@
 
 #include "embgath.h"
 extern Mesh *GLOBAL_MESH;
+extern int MY_RANK,SIZE;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 const int Quad2Hexa::faces[][8] = {
@@ -159,7 +160,8 @@ void embedded_gatherer::initialize() {
     LinkGraphRow row;
     assert(nel_surf>0);
     // Take list for first node
-    int sf_node = icorow[0]-1;
+    int node = icorow[0]-1;
+    int sf_node = surface[node]-1;
     graph.set_ngbrs(sf_node,row);
     LinkGraphRow::iterator q;
     int found=0;
@@ -190,10 +192,25 @@ void embedded_gatherer::initialize() {
       PetscFinalize();
       exit(0);
     }
+    for (int j=0; j<nel_vol; j++) icorow[j] = vicorow[j];
     // Volume element was found, find map and
-    sv_gp_data->map_mask(mask.begin());
+    sv_gp_data->map_mask(mask.begin(),icorow);
   }
 
+#if 1
+  if (MY_RANK==0) {
+    printf("Surface element connectivities: \n");
+    for (int e=0; e<nelem; e++) {
+      int *icorow = icone + nel*e;
+      printf("surf.el. %d:",e+1);
+      for (int j=0; j<nel_vol; j++) printf("%d ",icorow[j]);
+      printf("\n");
+    }
+  }
+#endif
+  PetscFinalize();
+  exit(0);
+ 
   graph.clear();
   surface.clear();
   srf2glb.clear();
