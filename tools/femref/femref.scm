@@ -20,6 +20,6 @@
 !#
 
 (define v (make-dvdbl))
-(dvdbl-resize! v 10)
-(dvdbl-read! v "data.dat.tmp")
+; (dvdbl-resize! v 10)
+(format #t "read ~A dbls\n" (dvdbl-cat! v "data.dat.tmp"))
 (my-dv-print v)
