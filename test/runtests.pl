@@ -4,7 +4,7 @@
 require '../tools/myexpect.pl';
 
 use Getopt::Std;
-getopts("hon");
+getopts("hond");
 
 if ($opt_h) {
     print <<'EOM';
@@ -13,6 +13,7 @@ usage: ` $ runtests.pl [OPTIONS]'
 OPTIONS: -h print help
          -o complain when can't open files
          -n report only 'Not OK' tests
+         -d debug
 EOM
     exit;
 }
@@ -437,16 +438,26 @@ begin_section('Oscplate tests. Time dep. b.c.s and N.S.');
 # Here we check only the $y$ components of velocity, since the others are
 # rather spurious. 
 expect("oscplate1.sal","Time dependent boundary conditions",<<'EOT');
-5.100.*e-01
-1.819.*e-01
-1.980.*e-02
--3.595.*e-02
--4.028.*e-02
--2.769.*e-02
--1.451.*e-02
--5.920.*e-03
--1.748.*e-03
+4.76.*-01  
+1.53.*-01  
+2.38.*-03
+-4.38.*-02 
+-4.25.*-02 
+-2.74.*-02 
+-1.36.*-02 
+-5.14.*-03 
+-1.33.*-03 
 EOT
+
+#  5.100.*e-01
+#  1.819.*e-01
+#  1.980.*e-02
+#  -3.595.*e-02
+#  -4.028.*e-02
+#  -2.769.*e-02
+#  -1.451.*e-02
+#  -5.920.*e-03
+#  -1.748.*e-03
 
 #   5\.1008.*e-01 
 #   1\.8209.*e-01 

@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-#$Id: myexpect.pl,v 1.10 2002/08/18 15:03:51 mstorti Exp $
+#$Id: myexpect.pl,v 1.11 2002/08/18 19:20:48 mstorti Exp $
 
 # usage: expect($file,$pattern);
 #Advances $file until finds a little of "\n" delimited $pattern's. 
-$DEBUG_EXPECT = 0;
+$opt_d = 0;
 
 ## position in count record
 $OK= 1;
@@ -71,7 +71,7 @@ sub expect {
     @sal=(<SAL>);
     close SAL;
     printo "Testing: \"$descr\" on file \"$file\"...";
-    printo "\n" if $DEBUG_EXPECT;
+    printo "\n" if $opt_d;
     @pattern = split("\n",$pattern_list);
     $record=0;
     my $inc=1;
@@ -107,13 +107,13 @@ sub expect {
 	    $match_fun = \&match_regexp;
 	    next;
 	}
-	printo "trying pattern: \"$pattern\"...  \n" if $DEBUG_EXPECT;
+	printo "trying pattern: \"$pattern\"...  \n" if $opt_d;
 	while ($record<=$#sal) {
 	    $_ = $sal[$record];
 	    $record += $inc;
-	    printo "$record: $_" if $DEBUG_EXPECT;
+	    printo "$record: $_" if $opt_d;
 	    do {chomp; 
-		printo "        -> found: \"$_\"\n" if $DEBUG_EXPECT; 
+		printo "        -> found: \"$_\"\n" if $opt_d; 
 		goto NEXT;} if &{$match_fun}($_,$pattern);
 	    last unless $skip;
 	}

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: graph.cpp,v 1.17 2002/07/18 20:01:40 mstorti Exp $
+//$Id: graph.cpp,v 1.18 2002/08/18 19:20:39 mstorti Exp $
 
 #include <src/utils.h>
 #include <src/graph.h>
@@ -8,6 +8,7 @@ extern "C" {
 #include <metis.h>
 }
 
+extern int SIZE, MY_RANK;
 SeqPartitioner seq_partitioner;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -251,12 +252,19 @@ void Graph::print() {
   GSet ngbrs_v;
   GSet::iterator q,qe;
   int j;
-  for (j=0; j<nvrtx_f; j++) {
-    printf("row %d:  ",j);
-    ngbrs_v.clear();
-    set_ngbrs(j,ngbrs_v);
-    qe = ngbrs_v.end();
-    for (q=ngbrs_v.begin(); q!=qe; q++) printf("%d ",*q);
-    printf("\n");
+  for (int proc=0; proc<SIZE; proc++) {
+    if (MY_RANK==proc) {
+      MPI_Barrier(MPI_COMM_WORLD);
+      if (SIZE>0) printf("[%d] proc\n",proc);
+      for (j=0; j<nvrtx_f; j++) {
+	printf("row %d:  ",j);
+	ngbrs_v.clear();
+	set_ngbrs(j,ngbrs_v);
+	qe = ngbrs_v.end();
+	for (q=ngbrs_v.begin(); q!=qe; q++) printf("%d ",*q);
+	printf("\n");
+      }
+    }
+    if (MY_RANK==0) fflush(stdout);
   }
 }

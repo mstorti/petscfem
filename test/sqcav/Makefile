@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.25 2002/07/29 03:13:47 mstorti Exp $ 
+# $Id: Makefile,v 1.26 2002/08/18 19:20:48 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -11,17 +11,14 @@ tests: test_re1000 test_iisd test_iisd2 test_meas_perf test_g_body
 test_fs:
 	make case=weak_form_1 runs
 
-# PETSCFEM_DIR = $(HOME)/PETSC/petscfem
-PETSCFEM_DIR = $(HOME)/PETSC/petscfem-beta-3.01.pl5
+PETSCFEM_DIR = $(HOME)/PETSC/petscfem
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
 #CASE_NAME := qharm
 CASE_NAME := sqcav
-# NS    = $(PETSCFEM_DIR)/applications/ns/ns_O.bin
 PROG := $(NS)
-
 
 ################################################################
 NP = 1
@@ -36,7 +33,7 @@ endif
 
 #w Runs program
 run:  data
-	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl 
+	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
 	> output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 
 export CASE

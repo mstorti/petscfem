@@ -1,24 +1,7 @@
 __EXACT_MATCH__
-row 0:  
-row 1:  
-row 2:  
-row 3:  
-row 4:  
-row 5:  
-row 6:  
-row 7:  
-row 8:  
-row 9:  
-row 10:  9 11 
-row 11:  10 12 
-row 12:  11 13 
-row 13:  12 14 
-row 14:  13 15 
-row 15:  14 16 
-row 16:  15 17 
-row 17:  16 18 
-row 18:  17 19 
-row 19:  18 
+j 0
+[0] proc
+__NO_SKIP__
 row 0:  1 
 row 1:  0 2 
 row 2:  1 3 
@@ -39,3 +22,27 @@ row 16:
 row 17:  
 row 18:  
 row 19:  
+__REWIND__
+__SKIP__
+[1] proc
+__NO_SKIP__
+row 0:  
+row 1:  
+row 2:  
+row 3:  
+row 4:  
+row 5:  
+row 6:  
+row 7:  
+row 8:  
+row 9:  
+row 10:  9 11 
+row 11:  10 12 
+row 12:  11 13 
+row 13:  12 14 
+row 14:  13 15 
+row 15:  14 16 
+row 16:  15 17 
+row 17:  16 18 
+row 18:  17 19 
+row 19:  18 
