@@ -1,6 +1,14 @@
-;;; $Id: getsurf.scm,v 1.9 2005/01/17 18:37:04 mstorti Exp $
+;;; $Id: getsurf.scm,v 1.10 2005/01/17 19:26:30 mstorti Exp $
 (load "./dvector.scm")
 (load "./femref.scm")
+
+(define (ddump s v)
+  (format #t "~A: \n" s)
+  (dvdbl-dump v))
+
+(define (idump s v)
+  (format #t "~A: \n" s)
+  (dvint-dump v))
 
 (define ctx (make-get-surf-ctx))
 (define icone (make-dvint))
@@ -26,36 +34,22 @@
 
 (define un (make-dvdbl))
 (dvdbl-resize! un nsurf-nodes ndof)
+;(define unn (make-dvdbl))
+;(dvdbl-clone! unn un)
 
-#!
 (do ((j 0 (+ j 1))) ((= j nsurf-nodes)) 
   (let ((node (dvint-ref surf-nodes j)))
     (do ((k 0 (+ k 1))) ((= k ndim))
-      (dvdbl-set! un j 
-    
-  (format #t "j ~A\n" j)
-!#
+      (dvdbl-set! un (list j k) (dvdbl-ref x (list node k))))))
+(ddump "un" un)
 
-; (backtrace)
 (define ue (make-dvdbl))
 (dvdbl-resize! ue nfaces ndof)
-(dvdbl-set! ue 5)
-(dvdbl-set! ue '(1 2) 35)
-(format #t "\n\nue:\n")
-(dvdbl-dump ue)
-(quit)
-
-(elem->nod-proj ctx surf-con surf-mass node-mass ue un)
-(format #t "\n\nun:\n")
-(dvdbl-dump un)
-
 (define uee (make-dvdbl))
 (dvdbl-clone! uee ue)
 
 (nod->elem-proj ctx surf-con un uee)
+;(ddump "uee" uee)
 
-(format #t "\n\nuee:\n")
-(dvdbl-dump uee)
-
-; (fem-smooth ctx surf-con surf-nodes
-; 	    surf-mass node-mass u us #:verbose #f)
+(elem->nod-proj ctx surf-con surf-mass node-mass uee un)
+(ddump "un" un)

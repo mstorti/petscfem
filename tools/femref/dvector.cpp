@@ -173,10 +173,18 @@ DVECTOR_REF_FUN(SCM s_w,SCM s_j) {
               s_w, SCM_ARG1, __FUN__);
   dvector_t *w = (dvector_t *) SCM_SMOB_DATA(s_w);
 
-  SCM_ASSERT(SCM_INUMP(s_j),s_j,SCM_ARG2,__FUN__);
-  int j = SCM_INUM(s_j);
+  TYPE v;
+  if (SCM_INUMP(s_j)) {
+    int j = SCM_INUM(s_j);
+    v = w->ref(j);
+  } else if (scm_list_p(s_j)) {
+    vector<int> indx;
+    scmlist2vec(s_j,indx);
+    v = w->e(indx);
+  } else {
+    scm_wrong_type_arg(__FUN__,2,s_j);
+  }
 
-  TYPE v = w->ref(j);
 #if defined DV_INT
   return SCM_MAKINUM(v);
 #elif defined DV_DBL
