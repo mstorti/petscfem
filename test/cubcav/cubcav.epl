@@ -1,19 +1,23 @@
-#$Id: cubcav.epl,v 1.97 2003/11/27 03:52:20 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.98 2003/11/28 03:13:13 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
 # <:prc('dx case subpart_entered NP N subpart nlay'):>
 ndim 3
-nsave 1000000
-nstep <:= ($case eq 'plain' ? 1 : 10000):>
+
+>>if $case ne 'plain'
 nfile 2000000
 nrec 1
-
-#if $case ne 'plain'
+nsave 1000000
+nstep 10000
 nsaverot <:= ($endur_test  ? 50000000 : 20) :>
 save_file_pattern \
       <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>
-#endif
+>>else
+nstep 1
+save_file cubcav.state.<:=$case_in:>.tmp
+nsave 1
+>>endif
 
 chunk_size 40000
 
@@ -51,7 +55,7 @@ tol_newton -1.
 atol 0
 rtol 1e-3
 dtol 1e3
-nnwt 1
+block_uploading <:=$bupl:>
 
 print_internal_loop_conv 1
 # print_linear_system_and_stop 1
@@ -60,8 +64,14 @@ print_internal_loop_conv 1
 
 rho 1
 viscosity <:=$nu:>
-Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
+>>if $case ne 'plain'
+nnwt 1
 steady 0
+Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
+>>else
+nnwt 5
+steady 1
+>>endif
 temporal_stability_factor 0
 LES <:=($nu < 1e-4 ? 1 : 0):>
 C_smag 0.1
@@ -79,7 +89,9 @@ dx_cache_coords
 dx_cache_connectivities
 partitioning_method natural
 >>else
+>>if $case ne 'plain'
 hook_list shell_hook cubcav
+>>endif
 >>endif
 
 __END_HASH__
@@ -89,11 +101,11 @@ nodedata  3 3 4
 data <:=$data_dir:>/cubcav.nod.tmp
 __END_HASH__
 
-elemset nsi_tet_les_fm2 4
+elemset nsi_tet_les_fm2 <:=($use_tetra ? 4 : 8):>
 name fluid
-geometry tetra
-npg 4
-data <:=$data_dir:>/cubcav.con-tetra.tmp
+geometry <:=($use_tetra ? 'tetra' : 'cartesian3d'):>
+npg <:=($use_tetra ? 4 : 8):>
+data <:=$data_dir:>/cubcav.con<:=($use_tetra ? '-tetra' : ''):>.tmp
 dx 1
 __END_HASH__
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.76 2003/11/27 03:52:20 mstorti Exp $ 
+# $Id: Makefile,v 1.77 2003/11/28 03:13:13 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -6,7 +6,8 @@
 default: plain
 
 plain:
-	$(MAKE) CASE=cubcav case=plain run
+	$(MAKE) CASE=cubcav case=plain_bupl0 run > cubcav.out.plain_bpl0.tmp
+	$(MAKE) CASE=cubcav case=plain_bupl1 run > cubcav.out.plain_bpl1.tmp
 
 #default case
 # case := laplace
