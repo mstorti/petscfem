@@ -109,6 +109,7 @@
 % \newcommand{\tl}{`\<}
 % \newcommand{\tg}{`\>}
 \newcommand{\Arg}[1]{{\rm\slshape \html{[#1]}\latex{\textless#1\textgreater}}}
+\newcommand{\vrbsl}[1]{{\rm\slshape \html{\*#1\*}\latex{#1}}}
 %\newcommand{\Arg}[1]{{{\tt\char`\<}{\rm\slshape #1}{\tt\char`\>}}}
 %\newcommand{\Arg}[1]{{\rm\slshape \textless#1\textgreater}}
 %# Current line ===========  
@@ -150,7 +151,7 @@ http://venus.ceride.gov.ar/CIMEC, http://www.cimec.com.ar\\
 }
 \date{\today}
 \maketitle 
-%{\tiny\verb+$Id: petscfem.in.tex,v 1.12 2002/04/09 13:39:04 mstorti Exp $+}
+%{\tiny\verb+$Id: petscfem.in.tex,v 1.13 2002/07/28 12:44:26 mstorti Exp $+}
 %
 \begin{abstract}
 %fixme:= incluir referencia a PETSc
@@ -174,18 +175,18 @@ keeping in mind the scope of efficiency.
 % we run from the Makefile a one-liner Perl script ($ perl -pi.bak -e
 % 's/...') that uncomment this lines.
 %
-% \input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
-% \input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input layout         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input thash          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
-% \input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input advec          %__UNCOMMENT_IN_FINAL_VERSION__
+\input gpl            %__UNCOMMENT_IN_FINAL_VERSION__
+\input prev1          %__UNCOMMENT_IN_FINAL_VERSION__
+\input layout         %__UNCOMMENT_IN_FINAL_VERSION__
+\input thash          %__UNCOMMENT_IN_FINAL_VERSION__
+\input idmap          %__UNCOMMENT_IN_FINAL_VERSION__
+\input compprof       %__UNCOMMENT_IN_FINAL_VERSION__
+\input pfmat          %__UNCOMMENT_IN_FINAL_VERSION__
+\input advec          %__UNCOMMENT_IN_FINAL_VERSION__
 \input advdif         %__UNCOMMENT_IN_FINAL_VERSION__
-% \input ns             %__UNCOMMENT_IN_FINAL_VERSION__
-% \input tests          %__UNCOMMENT_IN_FINAL_VERSION__
-% \input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
+\input ns             %__UNCOMMENT_IN_FINAL_VERSION__
+\input tests          %__UNCOMMENT_IN_FINAL_VERSION__
+\input fastmat2       %__UNCOMMENT_IN_FINAL_VERSION__
 %
 % These have to be commented out
 %%%% THIS IS TO TRY OUT THE AUXILIARY FILES FOR DOC OPTIONS %%%%%%
