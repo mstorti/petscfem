@@ -3701,3 +3701,6 @@ tag: beta-3.38.37 on Sun, 16 Jan 2005 23:48:10 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.38 on Mon, 17 Jan 2005 00:46:02 -0300 by mstorti in spider
      > Written `dvector-set! v val'. 
+----------
+tag: beta-3.38.39 on Mon, 17 Jan 2005 11:23:40 -0300 by mstorti in minerva.ceride.gov.ar
+     > Now `dvector::resize()' fills with zeros, by default. 
