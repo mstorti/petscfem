@@ -970,3 +970,7 @@ tag: beta-2.78.pl1 on Sun Feb 10 16:42:48 ARST 2002 by mstorti in spider
 ----------
 tag: beta-2.78.pl2 on Sun Feb 10 16:52:47 ARST 2002 by mstorti in spider
      > Added doc to DLGeneric class, tested several cases. 
+----------
+tag: beta-2.78.pl3 on Sun Feb 10 17:12:15 ARST 2002 by mstorti in spider
+     > Added INIT_FUN, EVAL_FUN, CLEAR_FUN, INIT_FUN1, 
+     > EVAL_FUN1 and CLEAR_FUN1  macros
