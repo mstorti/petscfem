@@ -217,3 +217,15 @@ tag: beta-3.06 on Thu Oct 10 20:38:40 GMT+3 2002, by mstorti in spider
      > in size).
      > Fixed `ndimel' errors in `bccnsfm2.cpp' and `bccnstherfm2.cpp'. 
      > Aded `bcconv' test from Beto.
+----------
+tag: beta-3.07 on Sun Nov  3 00:52:22 GMT+3 2002, by mstorti in spider
+     > Merged some fixes from hydrology module
+     > Some fixes related with ROSI interaction. 
+     > Verifies invariance with respect to change in length and time scale.
+     > Works length and time scaling, not density. Checked translation and
+     > rotation oscillation.
+     > Added search to doc.
+     > Added TextHashTable::find(char *name)
+     > Reads nodes and elemset in proc 0 and send to others via MPI. 
+     > Modified test/cubcav.epl so as to use the MPI reading of files. 
+     > Compiles without ANN and `libretto'

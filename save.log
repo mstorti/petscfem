@@ -1743,3 +1743,16 @@ tag: beta-3.06.pl11 on Sat,  2 Nov 2002 17:52:08 -0300 by mstorti in spider
 ----------
 tag: beta-3.06.pl12 on Sat,  2 Nov 2002 22:35:25 -0300 by mstorti in spider
      > Runs all tests
+----------
+tag: beta-3.07 on Sun,  3 Nov 2002 00:52:22 -0300, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Merged some fixes from hydrology module
+     > Some fixes related with ROSI interaction. 
+     > Verifies invariance with respect to change in length and time scale.
+     > Works length and time scaling, not density. Checked translation and
+     > rotation oscillation.
+     > Added search to doc.
+     > Added TextHashTable::find(char *name)
+     > Reads nodes and elemset in proc 0 and send to others via MPI. 
+     > Modified test/cubcav.epl so as to use the MPI reading of files. 
+     > Compiles without ANN and `libretto'
