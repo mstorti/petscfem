@@ -1,5 +1,6 @@
-system("./cpustat.pl nohup.log > stat.dat");
-a=aload("stat.dat");
+system("./cpustat.pl nohup-fs-N125.log > stat.dat.tmp");
+a=aload("stat.dat.tmp");
+unlink("stat.dat.tmp");
 a = [a sum(a,2)];
 a(1,:) = [];
 t = mean(a);
