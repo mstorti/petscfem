@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.2 2003/02/24 23:19:34 mstorti Exp $
+## $Id: mkwave.m,v 1.3 2003/03/07 18:35:39 mstorti Exp $
 global H L 
 
 source("data.m.tmp");
@@ -17,7 +17,7 @@ ICONE = [1 2 3 4];
 H = [1 2 Nx 1 0 xratio;
      2 3 Ny 1 0 1];
 
-[xnod,icone,mesh] = mesher(XNOD,ICONE,H);
+[xnod,icone,mesh] = mesher(XNOD,ICONE,H,"mapbou_linear");
 inlet = mesher_bound(mesh,[1 4]);
 outlet = mesher_bound(mesh,[2 3]);
 bottom = mesher_bound(mesh,[1 2]);
