@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.34 2001/08/17 18:42:02 mstorti Exp $
+//$Id: lusubd.cpp,v 1.35 2001/08/17 22:15:53 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -950,6 +950,8 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   TGETOPTDEF_S_ND(thash,string,KSP_method,gmres);
   //o Chooses the preconditioning operator. 
   TGETOPTDEF_S(thash,string,preco_type,jacobi);
+  //o Sets the expexted LU fill ratio (see Petsc doc.). 
+  TGETOPTDEF(thash,double,pc_lu_fill,5.);
 
   ierr = SLESCreate(PETSC_COMM_WORLD,&sles); CHKERRQ(ierr);
   ierr = SLESSetOperators(sles,A,
@@ -957,7 +959,7 @@ int PFMat::build_sles(TextHashTable *thash,char *name=NULL) {
   ierr = SLESGetKSP(sles,&ksp); CHKERRQ(ierr);
   ierr = SLESGetPC(sles,&pc); CHKERRQ(ierr);
   ierr = PCLUSetUseInPlace(pc); CHKERRQ(ierr);
-
+  ierr = PCLUSetFill(pc,pc_lu_fill); CHKERRQ(ierr); 
   set_preco(preco_type);
 
   // warning:= avoiding `const' restriction!!
@@ -1087,6 +1089,6 @@ int PETScMat::zero_entries() {
 
 /*
   Local Variables: 
-  eval: (setq c-macro-preprocessor "/u/mstorti/PETSC/petscfem-beta-1.93/tools/pfcpp")
+  eval: (setq c-macro-preprocessor "~mstorti/PETSC/petscfem/tools/pfcpp")
   End: 
 */
