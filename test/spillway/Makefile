@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2003/04/02 18:05:19 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2003/06/06 23:06:35 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere spillway_mmv
 
@@ -18,6 +18,7 @@ copy:
 	cp wave_mmv.state.tmp.orig  wave_mmv.state.tmp
 	cp wave.state.tmp.orig wave.state.tmp
 
+## Initialization. Computes steady state with fixed mesh. 
 wavei:
 	$(MAKE) initia=1 wave
 
