@@ -2803,3 +2803,6 @@ tag: beta-3.19.pl43 on Tue, 12 Aug 2003 18:21:03 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl44 on Thu, 14 Aug 2003 08:37:10 -0300 by mstorti in node1.beowulf.gtm
      > Fixed some incnsistencies in dvector<>::print
+----------
+tag: beta-3.19.pl45 on Sun, 17 Aug 2003 12:11:21 -0300 by mstorti in spider
+     > Fixed a bug in dxhook when reading mesh. 
