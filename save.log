@@ -2827,3 +2827,6 @@ tag: beta-isp.pl6 on Mon, 18 Aug 2003 21:53:53 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl46 on Mon, 18 Aug 2003 22:18:02 -0300 by mstorti in spider
      > Merged from `isp-branch' branch
+----------
+tag: beta-3.19.pl47 on Sun, 24 Aug 2003 23:52:30 -0300 by mstorti in spider
+     > Runs cubcab example for statistics. 
