@@ -2390,3 +2390,6 @@ tag: beta-3.17.pl8 on Sun, 16 Feb 2003 23:47:30 -0300 by mstorti in spider
 ----------
 tag: beta-3.17.pl9 on Mon, 17 Feb 2003 09:39:40 -0300 by mstorti in spider
      > Moved oscplate tests to directory test/oscplate
+----------
+tag: beta-3.17.pl10 on Mon, 17 Feb 2003 11:53:36 -0300 by mstorti in spider
+     > Moved all tests (oscplate, plano, idmap) to subdirs in test/
