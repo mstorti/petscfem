@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.61 2002/10/24 23:55:26 mstorti Exp $
+//$Id: readmesh.cpp,v 1.62 2002/10/25 11:45:54 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -423,14 +423,9 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	TRACE(-5.3.2.1);
       DONE:;
       } else {
-	FileStack *file_connect=NULL;
-	if (!myrank) file_connect = new FileStack(data);
-	while (1) {
-	  int read_ok;
-	  if (!myrank) read_ok = !file_connect->get_line(line);
-	  ierr = MPI_Bcast (&read_ok,1,MPI_INT,0,PETSC_COMM_WORLD);
-	  if (!read_ok) break;
-	  if (!myrank) {
+	if (!myrank) {
+	  FileStack file_connect(data);
+	  while (!file_connect->get_line(line)) {
 	    // reading element connectivities
 	    for (int jel=0; jel<nel; jel++) {
 	      token =  strtok(( jel==0 ? line : NULL),bsp);
@@ -443,20 +438,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      sscanf(token ,"%d",&node);
 	      icorow[jel]= node;
 	    }
-	  }
-	  if (nel) ierr = MPI_Bcast(icorow,nel,MPI_INT,0,PETSC_COMM_WORLD);
-	  // This should be done AFTER reading the nodes 
-	  // Set all nodes that are connected to an element as degrees of freedom
-	  for (int jel=0; jel<nel; jel++) {
-	    node = icorow[jel];
-	    for (int kdof=1; kdof<=ndof; kdof++) {
-	      edof = dofmap->edof(node,kdof);
-	      dofmap->id->set_elem(edof,edof,1.);
-	    }
-	  }
 
-	  // reading element properties
-	  if (!myrank) {
+	    // reading element properties
 	    for (int jprop=0; jprop<nelprops; jprop++) {
 	      token = strtok(NULL,bsp);
 	      if (token==NULL) {
@@ -467,12 +450,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      }
 	      sscanf(token,"%lf",proprow+jprop);
 	    }
-	  }
-	  if (nelprops) 
-	    ierr = MPI_Bcast(proprow,nelprops,MPI_DOUBLE,0,PETSC_COMM_WORLD);
 
-	  // reading integer element properties
-	  if (!myrank) {
+	    // reading integer element properties
 	    for (int jprop=0; jprop<neliprops; jprop++) {
 	      token = strtok(NULL,bsp);
 	      if (token==NULL) {
@@ -484,23 +463,46 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	      }
 	      sscanf(token,"%d",iproprow+jprop);
 	    }
-	  }
-	  if (neliprops) 
-	    ierr = MPI_Bcast(iproprow,neliprops,MPI_INT,0,PETSC_COMM_WORLD);
 	
-	  // Copying to buffer
+	    // Copying to buffer
+	    abuf_zero (buff);
+	    abuf_cat_buf (buff,(unsigned char *)icorow,nel*sizeof(int));
+	    abuf_cat_buf (buff,(unsigned char *)proprow,nelprops*sizeof(double));
+	    abuf_cat_buf (buff,(unsigned char *)iproprow,neliprops*sizeof(int));
+	    unsigned char *pp = abuf_data(buff);
+	    
+	    int indxi = da_append(da_icone,abuf_data(buff));
+	    if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
+	  }
+	  file_connect.close();
+	  nelem = da_length(da_icone);
+	}
+	ierr = MPI_Bcast (&nelem,1,MPI_INT,0,PETSC_COMM_WORLD);
+	// Resize `da_icone' in other processors
+	if (myrank) 
 	  abuf_zero (buff);
 	  abuf_cat_buf (buff,(unsigned char *)icorow,nel*sizeof(int));
 	  abuf_cat_buf (buff,(unsigned char *)proprow,nelprops*sizeof(double));
 	  abuf_cat_buf (buff,(unsigned char *)iproprow,neliprops*sizeof(int));
-	  unsigned char *pp = abuf_data(buff);
-	    
-	  int indxi = da_append(da_icone,abuf_data(buff));
-	  if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
-	}
-	if (!myrank) {
-	  file_connect->close();
-	  delete file_connect;
+	  for (int jel=0; jel<nelem; jel++) {
+	    int indxi = da_append(da_icone,abuf_data(buff));
+	    if ( indxi==-1 ) PFEMERRQ("Insufficient memory reading elements");
+	  }
+	} 
+	  
+	// Broadcast all `icone' data using MPI
+	ierr = MPI_Bcast (abuf_data(da_icone),nelem*rowsize,MPI_CHAR,0,PETSC_COMM_WORLD);
+
+	// This should be done AFTER reading the nodes 
+	// Set all nodes that are connected to an element as degrees of freedom
+	for (int e=0; e<nelem; e++) {
+	  for (int jel=0; jel<nel; jel++) {
+	    node = icorow[jel];
+	    for (int kdof=1; kdof<=ndof; kdof++) {
+	      edof = dofmap->edof(node,kdof);
+	      dofmap->id->set_elem(edof,edof,1.);
+	    }
+	  }
 	}
       }	
     
