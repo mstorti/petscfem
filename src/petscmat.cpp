@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.1.2.4 2002/01/09 20:33:09 mstorti Exp $
+//$Id: petscmat.cpp,v 1.1.2.5 2002/01/12 00:26:14 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -13,7 +13,7 @@ extern int MY_RANK,SIZE;
 #include <src/petscmat.h>
 #include <src/graph.h>
 
-PETScMat::~PETScMat() {clear(*gu);};
+PETScMat::~PETScMat() {clear();};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -1,9 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.16 2002/01/09 20:33:09 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.17 2002/01/12 00:26:14 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
-int SCHED_ALG=1;
 
 //  #define DEBUG_IISD
 //  #define DEBUG_IISD_DONT_SET_VALUES
@@ -220,7 +219,9 @@ int IISDMat::local_solve_SLU(Vec x_loc,Vec y_loc,int trans=0,double c=1.) {
     a = aa;
   }
   for (j = 0; j < n_loc; j++) a[j] = c*aa[j];
+
   A_LL_SLU.solve(a);
+
   if (x_loc != y_loc) {
     ierr = VecRestoreArray(x_loc,&a); CHKERRQ(ierr); 
   }
@@ -422,9 +423,10 @@ int IISDMat::clean_mat_a() {
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,n_loc,n_loc,PETSC_NULL,
 			   d_nnz_LL.begin(),&A_LL); PF_CHKERRQ(ierr); 
     ierr=MatZeroEntries(A_LL); PF_CHKERRQ(ierr);
-  } else {
+  } else if (local_solver == SuperLU) {
     A_LL_SLU.clear().resize(n_loc,n_loc);
-  }
+  } else assert(0);
+
   ierr=MatZeroEntries(A_IL); PF_CHKERRQ(ierr);
   ierr=MatZeroEntries(A_LI); PF_CHKERRQ(ierr);
   ierr=MatZeroEntries(A_II); PF_CHKERRQ(ierr);
@@ -468,25 +470,20 @@ int IISDMat::clean_prof_a() {
 
   ierr = PFPETScMat::clean_prof_a(); CHKERRQ(ierr); 
   if (local_solver == PETSc) {
-    if (A_LL) {
-      int ierr = MatDestroy(A_LL); CHKERRQ(ierr); 
-//        PETSCFEM_ASSERT0(ierr==0,
-//  		       "Error destroying PETSc matrix A_LL (loc-loc)\n");
-      A_LL=NULL;
-    }
+    int ierr = MatDestroy_maybe(A_LL); CHKERRQ(ierr); 
   } else {
     A_LL_SLU.clear();
   }
-  ierr = MatDestroy(A_LI); CHKERRQ(ierr); 
+  ierr = MatDestroy_maybe(A_LI); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_LI (loc-int)\n");
 
-  ierr = MatDestroy(A_IL); CHKERRQ(ierr); 
+  ierr = MatDestroy_maybe(A_IL); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_IL (int-loc)\n");
 
-  ierr = MatDestroy(A_II); CHKERRQ(ierr); 
+  ierr = MatDestroy_maybe(A_II); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix A_II (int-int)\n");
 
-  ierr = MatDestroy(A); CHKERRQ(ierr); 
+  ierr = MatDestroy_maybe(A); CHKERRQ(ierr); 
   // PETSCFEM_ASSERT0(ierr==0,"Error destroying PETSc matrix shell A\n");
 
   delete A_LL_other;
@@ -789,32 +786,8 @@ int IISDMat::solve_only_a(Vec &res,Vec &dx) {
   return 0;
 }
 
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "IISDMat::clean_factor"
-int IISDMat::clean_factor() {
-  int ierr;
-  if (factored && local_solver == PETSc) {
-    ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
-  }
-}
-#endif
-
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int IISDMat::warn_iisdmat=0;
-
-#if 0
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#undef __FUNC__
-#define __FUNC__ "IISDMat::build_sles"
-int IISDMat::build_sles() {
-  int ierr;
-  //o Chooses the preconditioning operator. 
-  TGETOPTDEF_ND(&thash,double,pc_lu_fill,5.);
-  return 0;
-}
-#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define DEFAULT_IISD_PC "jacobi"

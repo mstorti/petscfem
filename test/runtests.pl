@@ -1219,26 +1219,41 @@ IISD/Subpartitioning  OK \? > 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for $mtyp ((0,1)) {
-  for $s (("","s")) {
-    for ($case=1; $case<=4; $case++) {
-        $solver = ($s eq "s" ? "SuperLU" : "PETSc");
-        expect("pfmat/output.case$case$s.m$mtyp.tmp",
-            "PFMat/case$case/(local_solver=$solver)",
-            "All tests OK.*1");
-        }
-    }
+for ($case=1; $case<=4; $case++) {
+#    print "checking pfmat/output.case${case}iip.tmp\n";
+    expect("pfmat/output.case${case}iip.tmp",
+          "PFMat/case$case/(local_solver=petsc)",
+          "All tests OK.*1");
+}
+
+=cut
+# Unfortunately, this doesn't work.
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=4; $case++) {
+#    print "checking pfmat/output.case${case}iip.tmp\n";
+    expect("pfmat/output.case${case}iip.tmp",
+          "PFMat/case$case/(local_solver=petsc)",
+          "All tests OK.*1");
+}
+=cut
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+for ($case=1; $case<=2; $case++) {
+#    print "checking pfmat/output.case${case}p.tmp\n";
+    expect("pfmat/output.case${case}iip.tmp",
+          "PETScMat/case$case",
+          "All tests OK.*1");
 }
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-for $s (("","s")) {
- for ($case=1; $case<=4; $case++) {
-   $solver = ($s eq "s" ? "SuperLU" : "PETSc");
-   expect("pfmat/output2.case${case}$s.tmp",
-       "PFMat(2)/case$case/(local_solver=$solver)",
+expect("pfmat/output.case1sdp.tmp",
+       "SparseDirect(solver PETSc)",
        "All tests OK.*1");
- }
-}
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("pfmat/output.case1sds.tmp",
+       "SparseDirect(solver SuperLU)",
+       "All tests OK.*1");
 
 end_section();
 

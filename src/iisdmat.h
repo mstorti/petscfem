@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: iisdmat.h,v 1.14.2.14 2002/01/09 01:30:56 mstorti Exp $
+// $Id: iisdmat.h,v 1.14.2.15 2002/01/12 00:26:14 mstorti Exp $
 #ifndef IISDMAT_H
 #define IISDMAT_H
 
@@ -100,7 +100,8 @@ class IISDMat : public PFPETScMat {
   vector<int> d_nnz_LL;
 
   /// Version  of the local matrix
-  Sparse::SuperLUMat A_LL_SLU;
+  Sparse::SuperLUMat A_LL_SLU; // However, this ha problems.
+  // Sparse::PETScMat A_LL_SLU;
 
   /// Local-Local matrix (sequential matrix on each processor). 
   Mat A_LL;

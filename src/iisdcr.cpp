@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.14 2002/01/09 16:31:07 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.15 2002/01/12 00:26:14 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -102,10 +102,12 @@ int IISDMat::create_a() {
   //o Chooses the local solver (may be "PETSc" or "SuperLU")
   TGETOPTDEF_S_ND_PF(thash,string,local_solver,PETSc);
   }
-  if (local_solver_s == string("PETSc")) local_solver = PETSc;
-  else if (local_solver_s == string("SuperLU")) local_solver = SuperLU;
+  printf("&localsolver %p\n",&local_solver);
+  if (local_solver_s == "PETSc") local_solver = PETSc;
+  else if (local_solver_s == "SuperLU") local_solver = SuperLU;
   else assert(0);
 
+#if 1
   //o PETSc parameter related to the efficiency in growing
   //   the factored profile.
   TGETOPTDEF_ND_PF(thash,double,pc_lu_fill,5.);
@@ -430,6 +432,6 @@ int IISDMat::create_a() {
   d_nnz_LL = nnz[D][L][L];
 
   ierr = clean_mat_a(); CHKERRQ(ierr);
-
+#endif
   return 0;
 }

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.21 2002/01/09 20:33:14 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.22 2002/01/12 00:25:17 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -10,6 +10,7 @@
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
 #include <src/petscmat.h>
+#include <src/spdirect.h>
 #include <src/graph.h>
 
 // Runs a simple example for testing the PFMat matrix classes.
@@ -119,7 +120,12 @@ int main(int argc,char **args) {
   ierr = MPI_Bcast (&mat_type, 
 		    1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
   PetscPrintf(PETSC_COMM_WORLD,
-	      "mat_type %d (0 -> IISDMat, 1 -> PETScMat)\n",mat_type);
+	      "mat_type %d (%s)\n",mat_type,
+	      (mat_type==0 ? "IISDMat/PETSc" :
+	       mat_type==1 ? "IISDMat/PETSc" :
+	       mat_type==2 ? "PETScMat" :
+	       mat_type==3 ? "SparseDirect/PETSc" :
+	       mat_type==4 ? "SparseDirect/SuperLU" : "error!!: unknown"));
 
   CHKOPT(q);
   q_type=0; // 0 -> cnst, 1 -> propto x
@@ -128,13 +134,6 @@ int main(int argc,char **args) {
   PetscPrintf(PETSC_COMM_WORLD,"q_type %d  (Q0/x dependency, "
 	      "0 -> cnst, 1 -> propto x)\n",q_type);
 
-  CHKOPT(ls);
-  local_solver=0;
-  if (myrank==0 && argc>++arg) sscanf(args[arg],"%d",&local_solver);
-  ierr = MPI_Bcast (&local_solver,1, MPI_INT, 0,MPI_COMM_WORLD); CHKERRA(ierr); 
-  PetscPrintf(PETSC_COMM_WORLD,"local_solver %d  "
-	      "(0 -> PETSc, 1 -> SuperLU)\n",local_solver);
-
   part.comm_size = size;
   part.N = N;
   MY_RANK = myrank;
@@ -142,10 +141,22 @@ int main(int argc,char **args) {
 
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
   PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
+  SparseDirect Aspd(N,"PETSc");
+  SparseDirect Aspdl(N,"SuperLU");
   if (mat_type==0) {
     A_p = &AA;
+    A_p->set_option("local_solver","PETSc");
   } else if (mat_type==1) {
+    A_p = &AA;
+    A_p->set_option("local_solver","SuperLU");
+  } else if (mat_type==2) {
     A_p = &AAA;
+  } else if (mat_type==3) {
+    A_p = &Aspd;
+    assert(size==1);
+  } else if (mat_type==4) {
+    A_p = &Aspdl;
+    assert(size==1);
   } else assert(0);
   PFMat &A = *A_p;
 
@@ -159,10 +170,12 @@ int main(int argc,char **args) {
   A.set_option("print_internal_loop_conv",debug_print);
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
-  A.set_option("local_solver","PETSc");
   A.set_option("print_Schur_matrix",0);
   A.set_option("print_fsm_transition_info",0);
+  printf("A %p\n",&A);
   A.create();
+  printf("A %p\n",&A);
+ 
   // if (debug_print) A.view();
 
   int nhere=0;

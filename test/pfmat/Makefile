@@ -1,10 +1,11 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.13 2002/01/10 08:21:36 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.14 2002/01/12 00:25:17 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
 
-.PHONY: pfmat pfmat2 force
+.PHONY: pfmat pfmat2 force iisdmat_petsc iisdmat_slu petscmat \
+			spd_petsc spd_slu
 
 SRCS = pfmat.cpp pfmat2.cpp 
 
@@ -29,15 +30,41 @@ NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
 args = ne 20 deb 0 nsl 2 $(1) nmat 2 rnd 1 $(2) q 1 $(3)
 
-pfmat = rm -f $$out ;						\
-	echo " args: $$args > $$out ;				\
-	$(MPIRUN) -np $(1) -machinefile				\
-        machi.dat ./pfmat.bin $(2)  >> $$out " \
-	  $(call pfmat,$$np,$(call args,sbdp $$sbdp,	\
-			mtyp $$mtyp, ls 0)) ;		\
+pfmat = out=output.$(3).tmp ; rm -f $$out ;	\
+	echo   args: $(2) > $$out ;			\
+	$(MPIRUN) -np $(1) -machinefile			\
+        machi.dat ./pfmat.bin $(2)  >> $$out
 
+pfmat: iisdmat_petsc petscmat spd_petsc spd_slu
 
-pfmat: 
+#w IISDMat/PETSc  matrix tests
+iisdmat_petsc:
+	$(call pfmat,1,$(call args,sbdp 4, mtyp 0),case1iip)
+	$(call pfmat,2,$(call args,sbdp 4, mtyp 0),case2iip)
+	$(call pfmat,1,$(call args,sbdp 1, mtyp 0),case3iip)
+	$(call pfmat,2,$(call args,sbdp 1, mtyp 0),case4iip)
+
+#w IISDMat/SuperLU  matrix tests
+iisdmat_slu:
+	$(call pfmat,1,$(call args,sbdp 4, mtyp 1),case1iis)
+	$(call pfmat,2,$(call args,sbdp 4, mtyp 1),case2iis)
+	$(call pfmat,1,$(call args,sbdp 1, mtyp 1),case3iis)
+	$(call pfmat,2,$(call args,sbdp 1, mtyp 1),case4iis)
+
+#w PETScMat  matrix tests
+petscmat:
+	$(call pfmat,1,$(call args,sbdp 1, mtyp 2),case1p)
+	$(call pfmat,2,$(call args,sbdp 1, mtyp 2),case2p)
+
+#w SparseDirect/PETSc  matrix tests
+spd_petsc:
+	$(call pfmat,1,$(call args,sbdp 1, mtyp 3),case1sdp)
+
+#w SparseDirect/Superlu matrix tests
+spd_slu:
+	$(call pfmat,1,$(call args,sbdp 1, mtyp 4),case1sds)
+
+pp:
 #	Try all combinations of: np=1,2, iisd_subpart=1,4, mtyp=0,1
 	for np in 1 2 ; do					\
 		for sbdp in 1 4 ; do				\

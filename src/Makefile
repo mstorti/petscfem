@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.40.2.7 2002/01/09 16:31:07 mstorti Exp $ 
+# $Id: Makefile,v 1.40.2.8 2002/01/12 00:26:13 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -11,8 +11,8 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
 	  measperf mainutl sttfilter state secant getarray \
-	distmat sparse randomg spsolve pfmatsp texthf timestat \
-	metisprt debug graph iisdcr iisdgraph iisdmat petscmat
+	distmat sparse randomg spsolve texthf timestat \
+	metisprt debug graph iisdcr iisdgraph iisdmat petscmat spdirect
 
 # C files
 CLIBOBJS_ =  getarrgr.tab
@@ -126,7 +126,7 @@ getarrgr.tab.o: getarrgr.tab.c
 
 odocsrc: $(DOC_DIR)/odociisd.tex $(DOC_DIR)/odocelems.tex $(DOC_DIR)/odocrmsh.tex
 
-$(DOC_DIR)/odociisd.tex: lusubd.cpp
+$(DOC_DIR)/odociisd.tex: iisdcr.cpp
 	$(run_odoc)
 
 $(DOC_DIR)/odocelems.tex: elemset.cpp 
