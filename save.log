@@ -3853,3 +3853,7 @@ tag: beta-3.41.3 on Wed, 26 Jan 2005 17:02:35 -0300 by mstorti in minerva.ceride
 tag: beta-3.41.4 on Wed, 26 Jan 2005 21:48:33 -0300 by mstorti in spider
      > New version of `src/lagmul.h' based on 
      > `NewElemset' (migrated from `Elemset') compiles. 
+----------
+tag: beta-3.41.5 on Wed, 26 Jan 2005 22:16:10 -0300 by mstorti in spider
+     > Works `gftwall' (Dirichlet b.c. on temperature) 
+     > with the new `src/lagmul' class (based on `NewElemset'). 
