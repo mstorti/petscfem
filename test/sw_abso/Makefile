@@ -9,7 +9,7 @@ CASE=canal1d
 PETSCFEM_DIR := ../..
 
 NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-#NP := 1
+#NP := 3
 
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test

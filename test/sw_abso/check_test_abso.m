@@ -1,5 +1,5 @@
 ###key check_test_abso.m
-
+format long;
 uref = aload("state_h_step10.dat");
 
 u=aload("canal1d.rslt.tmp");
