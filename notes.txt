@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $
+$Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $ 
+! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $ 
+! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $ 
+! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $ 
+! # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $ 
+  # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.273 2003/04/02 18:05:19 mstorti Exp $ 
+  # $Id: notes.txt,v 1.274 2003/04/02 20:46:50 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6468,7 +6468,16 @@ FS, ya que no estaba calculando bien las normales. Ahora el movimiento
 es bastante fisico (las ondas van en el sentido correcto) pero la FS
 se hace inestable y eventulamente colapsa. Voy a probar a bajar el
 Froude. 
-
+%
+15:51:20: Con Fr=0.5 no hay problema, la perturbacion a al sup. libre
+es muy pequenha. 
+%
+16:07:26: Para un Fr inicial de 0.7 y mayores se hace
+inestable. Mientras que para 0.5 no. Voy a verificar esto bien de
+nuevo. 
+%
+16:58:48: Con Fr=0.5 no se hace inestable y parece llegar a un regimen
+periodico (o caotico) pero estable. 
 
 # Current line ===========  %
 # Local Variables: $
