@@ -1,19 +1,21 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat3.cpp,v 1.1 2004/01/20 17:57:56 mstorti Exp $
+// $Id: pfmat3.cpp,v 1.2 2004/01/20 22:44:11 mstorti Exp $
 
 // Tests for the `PFMat' class
 
 #if 1
 #include <ext/hash_map>
-#include <iostream>
+#include <cstdio>
 
 using namespace __gnu_cxx;
 using namespace std;
 
-int main() {
-  hash<const char*> H;
-  cout << "foo -> " << H("foo") << endl;
-  cout << "bar -> " << H("bar") << endl;
+int main(int argc,char **args) {
+  hash<int> H;
+  for (int j=0; j<1000; j++) {
+    int h = H(j);
+    printf("%d -> %d\n",j,h);
+  }
 }
 
 #else
