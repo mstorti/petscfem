@@ -3,24 +3,16 @@
 PROJECTS: [These are new improvements to be done in a future...]
 =========
 
-* adapt `advdif' to IISD
-* Add doc for IISD
 * Interface preconditioning for IISD
-* Allow several subdomains in one processor in IISD
 * Modify 'elemset.cpp' so that processing of several elemsets 
   is non blocking, for instance using a self-scheduling algorllithm. 
-* Scripting interface with SWIG or GUILE.
+* Scripting interface with Perl (SWIG?)
 * Make Makefile not that verbose. 
-* Read data with a 'bison' generated parser
-* In TextHashTable: Print a warning if some option is not used and a
-  doc when an option was got the first time. 
 * Use a more consistent system for reporting errors and
        aborting. Maybe using more advanced C++ exception handling.
 * Adaptive refinement
 * Filter functions for getting averages in LES
 * Absorbing b.c.'s for NS and in general
-* For boundary dependent temporal conditions we should have arguments
-    that are a vector and a time.
 * Code a log option for the *GETOPT* functions so that they write a
      log that tells in which hash-table they found the key. 
 * overload () operator on FM2 so that we can write expressions as 
@@ -45,6 +37,15 @@ PROJECTS: [These are new improvements to be done in a future...]
 DONE:
 =====
 
+* For boundary dependent temporal conditions we should have arguments
+    that are a vector and a time.
+* In TextHashTable: Print a warning if some option is not used and a
+  doc when an option was got the first time. 
+* Read data with a 'bison' generated parser 
+  NO: use a Perl interface. 
+* Allow several subdomains in one processor in IISD
+* adapt `advdif' to IISD
+* Add doc for IISD
 * write the transpose matrix product for IISD so that methods like
     CGS, BiCG, etc... may be used.
 * Add a 'mass' to 'advdife' (non conservative?)
