@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: syncbuff.h,v 1.2 2004/01/11 16:22:04 mstorti Exp $
+// $Id: syncbuff.h,v 1.3 2004/01/11 17:13:52 mstorti Exp $
 #include <list>
 #include <iostream>
 #include <src/distcont.h>
@@ -16,35 +16,47 @@ extern int SIZE, MY_RANK;
 using namespace std;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Trivial partitioning class for use with the 
+    syncronized buffer classes. All elements belong 
+    to processor 0. 
+    @param NAME (input) TEXT
+    @return RETURN-TEXT */ 
 template<typename T>
 class TrivialPartitioner {
 public:
-  void processor(const T &t,int &nproc,int *plist) {
-    nproc=1;
-    plist[0] = 0;
-  }
+  /** All elements belong to processor 0. 
+      @param t (input) the element to be scattered
+      @param nproc (output) number of processors to 
+      which this element belongs
+      @param plist (output) user sets ths first nproc values 
+      of this array to the number of processes owners */
+  void processor(const T &t,int &nproc,int *plist);
 };
 
+/** I had trouble in make a partial specialization of #DistCont<>#
+    for #DistCont<list<T>,T,TrivialPartitioner<T> ># 
+    and I finally wrote this macro for defining the wrappers to 
+    the pack/unpack functions specific to this case. 
+    @param T (input) the ValueType class
+    @return definitions of functions */ 
 #define SB(T) DistCont<list<T>,T,TrivialPartitioner<T> >
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** A distributed container based on #list# that receives elements
+    and then a #scatter# sends all of them to the master node, 
+    probably for printing.  */ 
 template<typename T>
 class SyncBuffer : public DistCont<list<T>,T,TrivialPartitioner<T> > {
+  /// The partitioner (all elements belong to the master)
   TrivialPartitioner<T> part;
 public:
-  SyncBuffer() : 
-    DistCont<list<T>,T,TrivialPartitioner<T> >() {}
-  void print() { 
-    scatter(); 
-    sort();
-    if (!MY_RANK) {
-      typename list<T>::iterator q;
-      for (q=begin(); q!=end(); q++) { q->print(); }
-    }
-  }
+  /// Constructor
+  SyncBuffer() : DistCont<list<T>,T,TrivialPartitioner<T> >() {}
+  /// Prints all elements to the output stream
+  void print();
+  /// This is for checking the pack/unpack routines. 
   void check_pack();
 };
-
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define SYNC_BUFFER_FUNCTIONS(T)		\
@@ -68,54 +80,65 @@ void SB(T)					\
 push_back(t); };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-template<typename T>
-void SyncBuffer<T>::check_pack() {
-  print();
-  int bufsize = 0;
-  typename list<T>::iterator q;
-  for (q=begin(); q!=end(); q++) 
-    bufsize += q->size_of_pack();
-  char *buff = new char[bufsize], *p=buff, *pe = buff+bufsize;
-  printf("%d elems in buffer\n",list<T>::size());
-  for (q =begin(); q!=end(); q++) q->pack(p);
-  assert(p == pe);
-  clear();
-  const char *pp = buff;
-  int nelems=0;
-  while (pp<pe) {
-    nelems++;
-    push_back();
-    back().unpack(pp);
-  }
-  assert(pp==pe);
-  print();
-  printf("%d elems recovered from buffer\n",list<T>::size());
-}
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** A line with an integer key (see doc for 
+    #KeyedOutputBuffer#) and a string. All lines are ordered by the
+    key and printed to the output stream. */ 
 class KeyedLine {
 private:
+  /// The key to order lines
   int key;
+  /// The string to be printed
   char *line;
+  /** Builds an instance from an integer key and a external string
+      @param key (input) the key of the line
+      @param s (input) the line of the text */ 
   void build(int key,const char *s);
 public:
+  /// Flags whether lines are printed to the output
   static int print_line_numbers;
+  /// The output stream
   static FILE *output;
+  /// Default constructor 
   KeyedLine() : key(0), line(NULL) {}
+  /// Copy Ctor
   KeyedLine(const KeyedLine &kl);
+  /// Constructor from autostring
   KeyedLine(int key,const AutoString &as);
+  /// Constructor from key and C-string. 
   KeyedLine(int key,const char *s);
+  /// Dtor.
   ~KeyedLine() { if (line) delete[] line; }
+  /// Used for sorting the lines
   friend int operator<(const KeyedLine& left, const KeyedLine& right);
+  /**  Call back for the distributed container. Returns
+       size of the buffer needed to store this element.  */ 
   int size_of_pack() const;
+  /** Effectively packs the object into the buffer, 
+      upgrading the pointer. 
+      @param buff (input/output) the output buffer. 
+      @return RETURN-TEXT */ 
   void pack(char *&buff) const;
+  /** Extracts the object from the buffer, upgading the buffer. 
+      @param buff (input) the output buffer */ 
   void unpack(const char *& buff);
+  /// Print the object
   void print();
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Synchronized printing buffer. Objects are added with 
+    a #push# operation and then a #print# operation dos the 
+    scatter, sorting according to the keys and printing.  */ 
 class KeyedOutputBuffer : public SyncBuffer<KeyedLine> {
 public:
+  /** Inserts a line in the buffer. 
+      @param k (input) the key of the line
+      @param s (input) the line of text */ 
   void push(int k,const AutoString &s);
+  /** Inserts a line in the buffer. 
+      @param k (input) the key of the line
+      @param s (input) the line of text */ 
   void push(int k,const char *s);
+  /// Makes the scatter and prints the output. 
+  void flush();
 };
