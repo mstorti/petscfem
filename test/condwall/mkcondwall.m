@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkcondwall.m,v 1.5 2005/03/29 12:47:01 mstorti Exp $
+## $Id: mkcondwall.m,v 1.6 2005/04/01 19:54:41 mstorti Exp $
 
 source("data.m.tmp");
 
@@ -83,3 +83,6 @@ asave("condwall.nod-dx.tmp",xnod(1:(nnod1+nnod2),:));
 
 ## Connectivities for the `cond_wall' elemeset
 pfperi("condwall.wall-peri.tmp",right1,left2,(1:ndof)');
+
+icoinlet = [(1:Ny)',1+(1:Ny)'];
+asave("condwall.con-inlet.tmp",icoinlet);

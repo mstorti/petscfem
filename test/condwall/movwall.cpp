@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: movwall.cpp,v 1.9 2005/04/01 16:08:14 mstorti Exp $
+// $Id: movwall.cpp,v 1.10 2005/04/01 19:54:41 mstorti Exp $
 
 #include <cstdio>
 #include <cassert>
@@ -78,13 +78,13 @@ void mov_wall::time_step_pre(double time,int step) {
     double v=0;
     if (in_plate2) v=Uwall;
     if (in_plate1) v=0.;
-    data_p->u2.e(j,1) = v;
+    // data_p->u2.e(j,1) = v;
 
     // Velocity on inlet side
     v=0;
     if (in_plate1) v=0.;
     if (in_plate2) v=Uwall;
-    data_p->u1.e(j,1) = v;
+    // data_p->u1.e(j,1) = v;
 
   }
 }

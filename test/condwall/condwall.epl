@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: condwall.epl,v 1.10 2005/04/01 16:08:14 mstorti Exp $
+#$Id: condwall.epl,v 1.11 2005/04/01 19:54:41 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 #<: require './condwall.pl'; :>
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -30,7 +30,7 @@ tol_newton 1e-10
 atol 0
 rtol 1e-6
 tol 1e3
-nnwt 2
+nnwt 4
 lagrange_diagonal_factor 1e-6
 
 Krylov_dim 300
@@ -89,26 +89,13 @@ npg 4
 #
 # Datos fisicos
 #
-viscosity 0.1
+viscosity 0.01
 weak_form 0
 LES 0
 dx 1
 __END_HASH__
 __INCLUDE__ condwall.con.tmp
 __END_ELEMSET__
-
-##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-#if 0
-elemset qharmm 4 
-geometry cartesian2d
-npg 4
-conductivity 0.
-C 0.001 0.001 0.
-Cp 0.
-__END_HASH__
-__INCLUDE__ condwall.con.tmp
-__END_ELEMSET__
-#endif
 
 #if !$dx && !$use_peri
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -119,6 +106,28 @@ __INCLUDE__ condwall.condwall-con.tmp
 __END_ELEMSET__
 #endif
 
+#if 0
+elemset field_surf_integrator 4
+name integrator
+geometry <:=$geom:>
+npg <:=$npg:>
+data <:=$icone:>
+surf_fun_type "plane"
+normal 1. 0. 0.
+x0 0. 0. 0.
+gather_pos 0
+f_vals 0.12 0.35
+__END_HASH__
+#endif
+
+name "inlet_mass_flow"
+gather_length 1
+gather_pos 0
+npg 2
+__END_HASH__
+__INCLUDE__ "condwall.con-inlet.tmp"
+__END_ELEMSET__
+
 end_elemsets
 
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -126,8 +135,6 @@ end_elemsets
 fixa
 __INCLUDE__ ./condwall.fixa-in.tmp
 __INCLUDE__ ./condwall.fixa-out.tmp
-# __INCLUDE__ ./condwall.fixa-wall2.tmp
-# __INCLUDE__ ./condwall.fixa-wall1.tmp
 __END_FIXA__
 
 ##---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
