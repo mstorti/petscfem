@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: tcini.m,v 1.4 2003/01/08 15:49:05 mstorti Exp $
+## $Id: tcini.m,v 1.5 2003/02/17 14:53:21 mstorti Exp $
 use_log_vars=1;                 # use logarithmic variables in order to
                                 # enforce positivity
 #__ENDS_READING_VARS__
@@ -10,7 +10,7 @@ slope=1e-4;			# bottom slope
 h=0.1;				# water height
 N=20;				# number of elements in y direction
 
-source("../shallowt.m");
+source("./shallowt.m");
 q=sqrt(Chezy^2*h*slope);
 Fr=q/sqrt(gravity*h);
 

@@ -8,7 +8,7 @@ $heat=0 unless $heat;		# Chooses between a heat eq. test
 				# and a shallow water test
 %vars=();
 if (!$heat) {
-    import_vals('../shallowt.m',\%vars);
+    import_vals('./shallowt.m',\%vars);
     $slope = readm('slope','./tcini.m');
     $h     = readm('h'    ,'./tcini.m');
 }

@@ -47,5 +47,14 @@ userepimport.c: epimport.mdf
 userepimport.o: userepimport.c
 	cc -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) userepimport.c 
 
+dxdumm: dxdumm.o $(PETSCFEM_DIR)/src/libpetscfem$(osfx).a
+	g++ $(DXABI) $(LDFLAGS) -o epimport			\
+		dxdumm.o $(DX_RTL_LDFLAGS) $(SYSLIBS)		\
+		$(SSL)/simpleskts.a $(LIBPETSCFEM) -lstdc++
+
+dxdumm.o: dxdumm.cpp
+	g++ -c $(DXABI) $(DX_RTL_CFLAGS) $(CFLAGS) $<
+
+
 local_clean::
 	-rm -f epimport

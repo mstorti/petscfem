@@ -1,14 +1,14 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2002/12/26 14:36:13 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2003/02/17 14:53:21 mstorti Exp $ 
 
-.PHONY: constraint_bug chunk_size_process sector iprops triangle
+.PHONY: constraint_bug chunk_size_process sector iprops triangle lap_per
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
 
-tests: sector chunk_size_process triangle
+tests: sector chunk_size_process triangle lap_per
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 sector: sector.depl $(LAPLACE)
@@ -70,6 +70,11 @@ iprops:
 	chmod +w sector.depl
 	eperl -P -d chunk_size=10 -d iprops=1 sector.epl >sector.depl
 	chmod -w sector.depl
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Lapace on a square with periodic b.c.'s
+lap_per: lap_per.dat laplace
+	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
 
 LOC_PROG := laplace
 PROG := $(LAPLACE)

@@ -74,7 +74,7 @@ EOT
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sector/sector0.sal","Periodic boundary conditions (1)",$sector_test);
 
-expect("lap_per.sal","Periodic boundary conditions (2)",<<'EOT');
+expect("sector/lap_per.sal","Periodic boundary conditions (2)",<<'EOT');
 -8\.3417.*-02  8\.3417.*-02  
 -1\.6401.*-01  1\.6401.*-01  
 -2\.3928.*-01  2\.3928.*-01  
@@ -149,7 +149,7 @@ end_section();
 begin_section('Plano tests on advdif');
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_local.sal","Adv/Sh.Water FastMat2/local_time_step",<<'EOT');
+expect("plano/plano_local.sal","Adv/Sh.Water FastMat2/local_time_step",<<'EOT');
 consistent_supg_matrix -> 0
 __REWIND__
 Courant -> 0.6
@@ -174,7 +174,7 @@ time_step 5, time: 3, res = 2.6234
 PEPE
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_auto.sal","Adv/Sh.Water FastMat2/auto_time_step",<<'EOT');
+expect("plano/plano_auto.sal","Adv/Sh.Water FastMat2/auto_time_step",<<'EOT');
 consistent_supg_matrix -> 0
 __REWIND__
 Courant -> 0.6
@@ -191,7 +191,7 @@ time_step 5, time: 0.0983473, res = 2.53256.*e-02
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_local_nm.sal",
+expect("plano/plano_local_nm.sal",
        "Adv/Sh.Water Newmat/local_time_step",<<'EOT');
 consistent_supg_matrix -> 0
 __REWIND__
@@ -208,7 +208,7 @@ time_step 5, time: 3, res = 2.5327.*e-02
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_cons.sal",
+expect("plano/plano_cons.sal",
        "Adv/Sh.Water FastMat2/cons_supg",<<'EOT');
 consistent_supg_matrix -> 1
 __REWIND__
@@ -225,7 +225,7 @@ time_step 5, time: 0.5, res = 5.30517.*-02
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_cons_auto.sal",
+expect("plano/plano_cons_auto.sal",
        "Adv/Sh.Water FastMat2/cons_supg/auto",<<'EOT');
  -- Global_options: 
 auto_time_step -> 1
@@ -239,7 +239,7 @@ time_step 5, time: 0.0163972, res = 2.56242.*-02
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_local_weak.sal",
+expect("plano/plano_local_weak.sal",
        "Adv/Sh.Water FastMat2/local_step/auto",<<'EOT');
  -- Global_options: 
 __REWIND__
@@ -254,7 +254,7 @@ time_step 5, time: 3, res = .*e-(15|16|17)
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("plano_fm2_weak.sal",
+expect("plano/plano_fm2_weak.sal",
        "Adv/Sh.Water FastMat2/weak/bcconv_adv_fm2",<<'EOT');
  -- Global_options: 
 __REWIND__
@@ -418,67 +418,7 @@ with doubles  3.3  3.3  3.3  3.3  3.3  3.3  3.3  3.3  3.3  3.3
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
-expect("tidmap.sal",
-       "Idmap class",<<'EOT');
-testing for size of idmap n=5, number of operations 100
-before permutations
-checking consistency by rows: 
- ------------> OK\? : YES
-checking consistency by cols: 
- ------------> OK\? : YES
-Row permutations: maximum error: 
-OK\? : YES
-After 
-checking consistency by rows: 
- ------------> OK\? : YES
-checking consistency by cols: 
- ------------> OK\? : YES
-Column permutations: maximum error: 
-OK\? : YES
-After set_elem\(\): maximum error:
-OK\? : YES
-After get_val\(\): maximum error: 
-OK\? : YES
-matrix for solve\(\)
-After permuting and setting random: maximum error: 
-OK\? : YES
-After matrix solving: maximum error: 
-OK\? : YES
-testing for size of idmap n=.*, number of operations .*
-checking consistency by rows: 
- ------------> OK\? : YES
-checking consistency by cols: 
- ------------> OK\? : YES
-Row permutations: maximum error: 
-OK\? : YES
-checking consistency by rows: 
- ------------> OK\? : YES
-checking consistency by cols: 
- ------------> OK\? : YES
-Column permutations: maximum error: 
-OK\? : YES
-checking consistency by rows: 
- ------------> OK\? : YES
-checking consistency by cols: 
- ------------> OK\? : YES
-Row rotations: maximum error: 
-OK\? : YES
-checking consistency by rows: 
- ------------> OK\? : YES
-checking consistency by cols: 
- ------------> OK\? : YES
-Column rotations: maximum error: 
-OK\? : YES
-After set_elem\(\): maximum error: 
-OK\? : YES
-After get_val\(\): maximum error: 
-OK\? : YES
-After permuting and setting random: maximum error: 
-OK\? : YES
-After matrix solving: maximum error: 
-OK\? : YES
-EOT
-
+expect("idmap/tidmap.sal","Idmap class",read_file("idmap/tidmap.ans"));
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("circ/check_circ.sal","Constraint bug, cant have null rows in idmap class",<<'EOT');

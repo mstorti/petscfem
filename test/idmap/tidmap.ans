@@ -1,0 +1,57 @@
+testing for size of idmap n=5, number of operations 100
+before permutations
+checking consistency by rows: 
+ ------------> OK\? : YES
+checking consistency by cols: 
+ ------------> OK\? : YES
+Row permutations: maximum error: 
+OK\? : YES
+After 
+checking consistency by rows: 
+ ------------> OK\? : YES
+checking consistency by cols: 
+ ------------> OK\? : YES
+Column permutations: maximum error: 
+OK\? : YES
+After set_elem\(\): maximum error:
+OK\? : YES
+After get_val\(\): maximum error: 
+OK\? : YES
+matrix for solve\(\)
+After permuting and setting random: maximum error: 
+OK\? : YES
+After matrix solving: maximum error: 
+OK\? : YES
+testing for size of idmap n=.*, number of operations .*
+checking consistency by rows: 
+ ------------> OK\? : YES
+checking consistency by cols: 
+ ------------> OK\? : YES
+Row permutations: maximum error: 
+OK\? : YES
+checking consistency by rows: 
+ ------------> OK\? : YES
+checking consistency by cols: 
+ ------------> OK\? : YES
+Column permutations: maximum error: 
+OK\? : YES
+checking consistency by rows: 
+ ------------> OK\? : YES
+checking consistency by cols: 
+ ------------> OK\? : YES
+Row rotations: maximum error: 
+OK\? : YES
+checking consistency by rows: 
+ ------------> OK\? : YES
+checking consistency by cols: 
+ ------------> OK\? : YES
+Column rotations: maximum error: 
+OK\? : YES
+After set_elem\(\): maximum error: 
+OK\? : YES
+After get_val\(\): maximum error: 
+OK\? : YES
+After permuting and setting random: maximum error: 
+OK\? : YES
+After matrix solving: maximum error: 
+OK\? : YES

@@ -1,6 +1,6 @@
 # -*- mode: shell-script -*-
 #
-<:require 'eperlini.pl':>// # Initializes ePerl 
+<:require '../eperlini.pl':>// # Initializes ePerl 
 
 #default definitions
 <:$weak_form=0;

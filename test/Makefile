@@ -1,23 +1,24 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.85 2003/02/17 12:39:28 mstorti Exp $ 
+# $Id: Makefile,v 1.86 2003/02/17 14:53:21 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
 	chunk_size_process fastmat2 fastmat2a fastmat2b fastmat2c sqcav5	\
 	constraint_bug fstack sector triangle advdif texthash log_vars		\
 	newff burgers bug100 nonlr genload lupart distmap sparse graph sqcav	\
-	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate
+	pfmat  aquifer nutatcyl mmove advec nsgenload plate gasflow oscplate \
+	idmap
 
 SRCS = $(wildcard *.cpp)
 
 DIRS = circ fstack sector les turbchan turbchanw advdif texthash		\
 		newff burgers les/stabi genload bug100 nonlr wallke		\
 		wkepipe wallkechan lupart distmap sparse graph sqcav		\
-		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2 mmove advec \
-		nsgenload plate gasflow
+		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2		\
+		nsgenload plate gasflow idmap mmove advec plano oscplate
 
 CLEAN_DIRS = $(DIRS)
-DEPEND_DIRS = texthash distmap sparse aquifer plate fstack
+DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
 
 run: sqcav5
 
@@ -80,19 +81,16 @@ tests: runtests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Runs the tests
-runtests: compile lap_per sector oscplate fastmat2 plano idmap fastvec		\
+runtests: compile sector oscplate fastmat2 plano idmap fastvec			\
 	chunk_size_process constraint_bug fstack triangle advdif texthash	\
 	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
-	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate
+	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
 
-runtests_p:   
+runtests_p:   texthash	\
+	log_vars newff burgers bug100 genload lupart distmap sparse graph	\
+	sqcav pfmat aquifer nutatcyl mmove advec nsgenload oscplate idmap
 
 #s Specific tests
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Lapace on a square with periodic b.c.'s
-lap_per: lap_per.dat laplace
-	-$(MPIRUN) -np 1 $(LAPLACE) -case lap_per.dat >/dev/null
-
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Check bug100 (don't allocate chunk_size see notes.txt)
 bug100: $(ADVDIF)
@@ -103,87 +101,6 @@ bug100: $(ADVDIF)
 #w with periodic b.c.'s
 sector: 
 	$(MAKE) -C sector sector
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-.PHONY: $(plano_list)
-plano_list = plano_cons plano_cons_auto plano_local plano_auto plano_local_nm \
-		plano_local_weak plano_fm2_weak 
-
-#w Test for shallow water
-plano: adv $(plano_list)
-
-plano.depl: force
-
-ADVO = $(PETSCFEM_DIR)/../petscfem-beta-1.14/applications/advective/adv.bin
-
-export EPERLFLAGS
-
-ifneq ($(RH60),) 
-
-plano_cons:       EPERLFLAGS = "-d consistent_supg=1"
-plano_cons_auto:  EPERLFLAGS = "-d consistent_supg_auto=1"
-plano_local:      EPERLFLAGS = "-d local_time_step=1"
-plano_auto:       EPERLFLAGS = "-d auto_time_step=1"
-plano_local_nm:   EPERLFLAGS = "-d local_time_step_nm=1"
-plano_local_weak: EPERLFLAGS = "-d local_time_step_weak=1"
-plano_fm2_weak:   EPERLFLAGS = "-d fm2_weak=1"
-
-plano_%: 
-	$(MAKE) EPERLFLAGS=$(EPERLFLAGS) plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-else
-
-plano_cons:
-	$(MAKE) EPERLFLAGS="-d consistent_supg=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-plano_cons_auto:
-	$(MAKE) EPERLFLAGS="-d consistent_supg_auto=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-plano_local:      
-	$(MAKE) EPERLFLAGS="-d local_time_step=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-plano_auto:       
-	$(MAKE) EPERLFLAGS="-d auto_time_step=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-plano_local_nm:
-	$(MAKE) EPERLFLAGS="-d local_time_step_nm=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-plano_local_weak: 
-	$(MAKE) EPERLFLAGS="-d local_time_step_weak=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-plano_fm2_weak:   
-	$(MAKE) EPERLFLAGS="-d fm2_weak=1" plano.depl
-	-$(MPIRUN) -np 1 $(ADV) -case plano.depl &> $@.sal
-
-endif
-
-
-#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
-#w Idmap class
-idmap: tidmap.bin
-	tidmap.bin >tidmap.sal
-
-../src/%.o: force
-	$(MAKE) -C ../src $@
-
-# tidmap.bin: tidmap.o ../src/idmap.o ../src/utils.o 
-# #	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
-# 	${CXX_CLINKER} -o $@ tidmap.o ../src/idmap.o ../src/utils.o \
-# 	../src/fastmat2.o ../src/fm2eperl.o \
-# 		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat
-
-tidmap.bin: tidmap.o $(LIBPETSCFEM)
-#	g++ -o tidmap.bin   -L$(NEWMAT) -lnewmat
-	${CXX_CLINKER} -o $@ tidmap.o $(LIBPETSCFEM) \
-		-lc ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat  $(MESCHACH)/libmes.a
-
-
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Checks the constraint bug feature
@@ -311,6 +228,16 @@ advec:
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
 #w Oscillating plate tests
 oscplate:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Oscillating plate tests
+idmap:
+	$(MAKE) -C $@ tests
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
+#w Make advective plano tests
+plano:
 	$(MAKE) -C $@ tests
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
