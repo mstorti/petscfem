@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nsitetlesfm2.cpp,v 1.43 2001/11/05 18:38:18 mstorti Exp $
+//$Id: nsitetlesfm2.cpp,v 1.44 2001/11/05 23:32:22 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -9,7 +9,7 @@
 
 #include "nsi_tet.h"
 
-//#define ADD_GRAD_DIV_U_TERM
+#define ADD_GRAD_DIV_U_TERM
 #define STANDARD_UPWIND
 #define USE_FASTMAT
 
