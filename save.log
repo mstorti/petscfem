@@ -1043,3 +1043,7 @@ tag: beta-2.86 on Sun Feb 17 01:00:18 -0300 2002, by mstorti in spider
 tag: beta-2.87 on Sun Feb 17 12:28:27 -0300 2002, by mstorti in spider
      > `bubbly' is partially working. Runs and give results, but Newton loop
      > doesn't converge. 
+----------
+tag: beta-2.88 on Sun Feb 17 21:21:24 -0300 2002, by mstorti in spider
+     > Partially works separate compilation (`O' and `g'). 
+     > Changed `ARST' and `ART' in logs and scripts. 
