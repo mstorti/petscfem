@@ -3,10 +3,10 @@
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 $N=10;
-$disp = 0.3;
+$disp = 0.9;
 # $df = 'rcond';
-$df = 'eig';
-$slope = 5;
+# $df = 'eig';
+# $slope = 5;
 # $shape =ns 'quad';
 #
 octave_export_vars(">data.m.tmp",qw(N disp shape slope));
@@ -16,11 +16,10 @@ global_options
 
 ndim 2
 nsave 5
-displ_factor 0.1
 steady
-<:$nstep=1;:>
+<:$nstep=60;:>
 <:pr('nstep'):>
-Dt <:=1./$nstep:>
+displ_factor <:=1./$nstep:>
 
 # file containing the weight (speed) of processors
 proc_weights weights.dat
@@ -32,6 +31,7 @@ atol 0
 rtol 1e-6
 dtol 1e3
 nnwt 1
+# newton_relaxation_factor 0.1 2 1.
 
 solver "iisd"
 iisd_subpart 40
@@ -69,7 +69,8 @@ __INCLUDE__ step.fixa.tmp
 __END_FIXA__
 
 #===========================================================
+#if 0
 constraint
 __INCLUDE__ step.constrs.tmp
 __END_CONSTRAINT__
-
+#endif
