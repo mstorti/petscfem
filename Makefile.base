@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.56 2001/12/05 15:27:56 mstorti Exp $
+#$Id: Makefile.base,v 1.56.2.1 2002/01/05 20:44:25 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -112,7 +112,7 @@ general_clean:
 
 local_clean:: 
 	-@rm -f *~ *.o $(OBJS) $(PROG).bin octave-core *.cppi \
-		outvector.sal *.sal *.out TAGS makefile.d &> /dev/null
+		outvector.sal *.sal *.out TAGS makefile.d leak.out &> /dev/null
 	for link in * ; do if [ -L $$link ] ; then rm $$link ; fi ; done
 
 local_dist_clean::
