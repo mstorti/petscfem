@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $
+$Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $ 
+! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $ 
+! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $ 
+! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $ 
+! # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $ 
+  # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.240 2003/01/28 19:53:02 mstorti Exp $ 
+  # $Id: notes.txt,v 1.241 2003/01/29 18:06:27 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6035,9 +6035,31 @@ de regular solo el corte (no el caudal para cada corriente).
 %===Tue, 28 Jan 2003 16:02:03 -0300 mstorti@node1.beowulf.gtm
 %
 Corro el ejemplo grande. Llega el estado estacionario con solo salida
-claiente OK. Cuando le agrego la salida fria a p_c=1.1e5 el flujo en
+caliente OK. Cuando le agrego la salida fria a p_c=1.1e5 el flujo en
 la salida caliente se tiende a invertir asi que ahora voy a probar con
 p_c=1.15e5. 
+
+%===Wed, 29 Jan 2003 09:48:19 -0300 mstorti@node1.beowulf.gtm
+%
+Tambien se invierte voy a probar con 1.3e5.
+%
+11:32:05: Se invierte la salida fria. Pruebo con 1.22e5. 
+%
+13:39:36: Con 1.22e5 se invierte la fria. Guarda que tambien modifique
+el paso de tiempo. (1e-5 -> 5e-5). 
+%
+14:11:28: Tambien diverge pero no es facil cual de las dos salidas da
+mal. Asumo que es la fria (como pasaba con el otro Dt.). 
+%
+14:49:14: Tambien diverge. No veo que se invierta. Voy a probar a bajarle mas el Dt. 
+%
+15:00:01: Veo que diverge cerca de la salida fria sobre el eje. Me
+pregunto si es por imponer condicion de pared solida sobre el eje. Una
+posibilidad podria ser poner condcion slip ahi. Es lo que voy a tratar
+ahora. 
+
+
+
 
 # Current line ===========  %
 # Local Variables: $

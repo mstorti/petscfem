@@ -66,11 +66,7 @@ $visco = 1e-3;			# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
 
 ## COLD OUTLET
-## $p_c = 1.013e5;			# [N/m2] outlet cold pressure
-## $p_c = 1.2e5;			# [N/m2] outlet cold pressure
-## $p_c = 1.33e5;			# [N/m2] outlet cold pressure
-## $p_c = 1.3e5;			# [N/m2] outlet cold pressure
-$p_c = 1.15e5;			# [N/m2] outlet cold pressure
+$p_c = 1.2e5;			# [N/m2] outlet cold pressure
 
 ## HOT OUTLET
 $p_h = 1.38e5;			# [N/m2] outlet cold pressure
@@ -109,8 +105,8 @@ nstep 1000
 alpha 1.
 
 # initial_state "vtube.ini.tmp"
-initial_state "vtube.state.tmp"
-# initial_state "vtube.hot_only.tmp"
+# initial_state "vtube.state.tmp"
+initial_state "vtube.state_hot_only"
 nsave 1
 save_file "vtube.state.tmp"
 
@@ -133,14 +129,14 @@ proc_weights weights.dat
 tol_tet 1e-5
 tol_newton 1e-10
 atol 0
-rtol 0
+rtol 1e-7
 dtol 1e3
 nnwt 3
 # omega_newton 0.01
 
 print_internal_loop_conv
 
-Dt 0.00001
+Dt 1e-5
 weak_form 0
 temporal_stability_factor 0
 

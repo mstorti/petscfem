@@ -1,6 +1,6 @@
 # -*- perl -*-
 #__INSERT_LICENSE__
-#$Id: dx.pl,v 1.2 2003/01/22 19:09:16 mstorti Exp $
+#$Id: dx.pl,v 1.3 2003/01/29 18:06:27 mstorti Exp $
 
 sub connect_0 {
     my ($file,$file_out,$hook) = @_;
@@ -68,6 +68,26 @@ sub nsc_extract {
     close FU;
     close FP;
     close FRHO;
+}
+
+sub nsther_extract {
+    my ($fin,$uf,$pf,$Tf) = @_;
+    open FIN,"$fin";
+    open FU,">$uf";
+    open FP,">$pf";
+    open FT,">$Tf";
+    my $ndim;
+    while (<FIN>) {
+	my @l = split " ";
+	if (!defined $ndim) { $ndim = @l-2; }
+	for ($j=0; $j<$ndim; $j++) { print FU "$l[$j] "; }
+	print FP "$l[$ndim]\n";
+	print FT "$l[$ndim+1]\n";
+    }
+    close FIN;
+    close FU;
+    close FP;
+    close FT;
 }
 
 sub count_lines {

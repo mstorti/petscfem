@@ -1,0 +1,23 @@
+MODULE_NAME = ExtProgImport
+CATEGORY = Import and Export
+MODULE_DESCRIPTION = Imports data from a fifo/socket 
+PINNED = FALSE
+SIDE_EFFECT = FALSE
+ASYNCHRONOUS = FALSE
+LOADABLE_EXECUTABLE = epimport
+
+INPUT = socket_name
+DESCRIPTION =  
+REQUIRED = TRUE
+TYPES = string
+STRUCTURE = Value
+DATA_TYPE = string
+DATA_SHAPE = Scalar
+
+OUTPUT = value
+DESCRIPTION =  
+TYPES = integer
+STRUCTURE = Value
+DATA_TYPE = int
+DATA_SHAPE = Scalar
+
