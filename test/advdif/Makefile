@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2001/01/09 17:01:06 mstorti Exp $ 
+# $Id: Makefile,v 1.7 2001/01/09 17:09:36 mstorti Exp $ 
 
 .PHONY: plano data 
 
@@ -70,5 +70,4 @@ testanal:
 
 local_clean::
 	-chmod +w sine.data.res
-	-rm sine.data.res sine.ini 
-
+	-rm sine.data.res sine.ini mat.output sine.some save.state
