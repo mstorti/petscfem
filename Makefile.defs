@@ -1,25 +1,26 @@
 # -*- mode: makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.defs,v 1.6 2002/11/04 12:17:08 mstorti Exp $
+#$Id: Makefile.defs,v 1.7 2004/07/15 18:56:24 rodrigop Exp $
 
 # This is PETSc-FEM `Makefile.defs' file for host: generic
 
 
 # Points to the directory `src' in the Newmat directory
-NEWMAT = $(HOME)/SOFT/NEWMAT/src
+NEWMAT = $(HOME)/PETSC/NEWMAT/src
 
 # Point to the Meschach home directory 
-MESCHACH = $(HOME)/SOFT/meschach-1.2
+MESCHACH = $(HOME)/PETSC/meschach-1.2
 
 # Glib headers are in two separate directories. Put them as here
 GLIB   = /usr/include/glib-1.2 -I/usr/lib/glib/include
 
 # Points to the Metis home directory
-METIS  = $(HOME)/SOFT/metis-4.0
+METIS  = $(HOME)/PETSC/metis-4.0
 
 # Point to the directory where the Libretto headers live after
 # installation
-LIBRETTO_I = /usr/local/include
+#LIBRETTO_I = /usr/local/include
+LIBRETTO_I = 
 
 # Point where the Libretto libraries are installed after installation
 LIBRETTO_LIB = /usr/local/lib
