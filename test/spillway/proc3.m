@@ -11,3 +11,8 @@ while 1
   vfs = [vfs U(fs,2)];
   k = k+1;
 endwhile
+
+xfs = aload("wave.fsh.tmp");
+nfs = 100;
+rem(rows(xfs),nfs)==0 || error("bad number of rows in .fsh file");
+yfs = reshape(xfs(:,2),nfs,rows(xfs)/nfs);

@@ -1,10 +1,10 @@
 $h = 1;                         # Mean water height
 $Lx = 5;			# Length of domain (wave-length)
-$Re = 100;			# Reynolds number
+$Re = 500;			# Reynolds number
 $Froude = 2;			# Froude number
 
 $yratio = 4;			# refinement towards top and bottom
-$ref = 1;                       # Refinement parameter
+$ref = 2;                       # Refinement parameter
 $Ny = 10*$ref;                  # Number of elements along vert. direction
 $Nx = 50*$ref;                  # Number of elements along horiz. direction
 
@@ -27,5 +27,9 @@ $Dt = 0.05;			# time step
 $eta0 = 0.05;			# amplitude of free surface elevation
 				# perturbation
 $dx_steps = 1;			# visualize with DX
+
+$L_bump = 1;			# length of the bump
+$t = 0.1;			# thickness
+$restart = 0;			# flags whether to restart a previous run
 
 1;

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.13 2003/03/31 22:37:45 mstorti Exp $
+//$Id: alehook.cpp,v 1.14 2003/03/31 23:47:32 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -154,6 +154,7 @@ void ale_hook2::init(Mesh &mesh_a,Dofmap &dofmap,
     for (int k=0; k<nnod; k++) 
       for (int j=0; j<ndim; j++) 
 	xnod0.e(k,j) = mesh->nodedata->nodedata[k*nu+j];
+
     printf("ALE_HOOK2: ending init()\n");
   }
 }
@@ -233,6 +234,8 @@ private:
   int cyclic_fs;
   // If the problem is cyclic then this is the period 
   double cyclic_length;
+  // Restart a previous run
+  int restart;
 public:
   void init(Mesh &mesh_a,Dofmap &dofmap,
 	    TextHashTableFilter *options,const char *name);
@@ -308,7 +311,11 @@ void ale_mmv_hook::init(Mesh &mesh_a,Dofmap &dofmap,
   TGETOPTDEF_ND(GLOBAL_OPTIONS,double,cyclic_length,0);
   //o Assume problem is periodic 
   TGETOPTDEF_ND(GLOBAL_OPTIONS,int,restart,0);
-  if 
+  if (!restart && !MY_RANK) {
+    // This is to rewind the file
+    FILE *fid = fopen(CASE_NAME ".fsh.tmp","w");
+    fclose(fid);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -419,6 +426,16 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     if (debug) printf("%f %f\n",displ.e(indx,0),displ.e(indx,1));
   }
   fclose(fid);
+  if (!MY_RANK) {
+    fid = fopen(CASE_NAME ".fsh.tmp","a");
+    for (int indx=0; indx<nfs; indx++) {
+      int node = fs.e(indx);
+      for (int j=0; j<ndim; j++) 
+	fprintf(fid,"%f ",nodedata[nu*(node-1)+j]+displ.e(indx,j));
+      fprintf(fid,"\n");
+    }
+    fclose(fid);
+  }
   PetscPrintf(PETSC_COMM_WORLD,"ALE_MMV_HOOK: time_step_pre() ends.\n");
 }
 

@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.3 2003/03/31 00:01:08 mstorti Exp $
+## $Id: mkwave.m,v 1.4 2003/03/31 23:47:32 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
@@ -11,11 +11,20 @@ w = zhomo([0 Lx 0 h],Nx+1,Ny+1,[1 0 1 1 yratio 1]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
-if !initia
+## This is deactivated, now we add a perturbation to the bottom
+if 0 && !initia
   x = xnod(:,1);
   y = xnod(:,2);
   xnod(:,2) = y + eta0 * sin(2*pi/Lx*x) .* (y/h);
 endif
+
+## Add parabolic bump to the bottom
+x = xnod(:,1);
+y = xnod(:,2);
+xbini = (Lx-L_bump)/2;		# start of bump
+xbend = xbini+L_bump;		# end of bump
+ybump = choose(x<xbini,0*y,x>xbend,0*y,4*t*(x-xbini).*(xbend-x)/L_bump^2);
+xnod(:,2) = y + ybump .* (1-y/h);
 
 asave("wave.nod.tmp",xnod);
 asave("wave.con.tmp",icone);
