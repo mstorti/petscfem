@@ -28,7 +28,8 @@ CLEAN_DIRS =
 DEPEND_DIRS = $(CLEAN_DIRS)
 
 #w 
-femref.bin: femref.o femref2.o hasher.o md5r.o gtemplates.o visitor.o
+femref.bin: femref.o femref2.o hasher.o md5r.o gtemplates.o \
+		visitor.o
 	${CXX_CLINKER} -o $@ $^  $(LDFLAGS_NO_PROG_LIB)
 
 hasher.o: hasher.cpp

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.4 2004/12/19 15:34:28 mstorti Exp $
+// $Id: visitor.cpp,v 1.5 2004/12/19 15:55:30 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -53,6 +53,7 @@ bool UniformMesh::visitor::so_next() {
     // Build `ws' from GeomObject `w' (parent) and
     // splitter `s' and subobject index `j'
     mesh->set(w->go,q->splitter,j,ws->go);
+    ws->splitter = qs;
     ws->go.make_canonical();
     ws->so_indx = 0;
   } else {
@@ -123,9 +124,8 @@ refine() {
   list<RefPathNode>::iterator 
     w = ref_stack.begin();
   ElemRef::iterator 
-    q = w->splitter;
+    &q = w->splitter;
   q = etree_p->insert(q,ElemRefNode());
-  w->splitter = q;
   int j = w->so_indx;
   // The splitter should be returned
   // by the refinement function
