@@ -1,4 +1,4 @@
-## $Id: interp3d.m,v 1.3 2005/02/24 22:30:29 mstorti Exp $
+## $Id: interp3d.m,v 1.4 2005/02/24 22:31:57 mstorti Exp $
 
 if 0
   xnod1 = aload("static_p_blade.nod");
@@ -32,9 +32,9 @@ xeh=[];
 xprojh=[];
 maxit=0;
 tol = 1e-6;
-for j=1:1
-  ##  xe = 1.5*rand(1,3)-0.25;			# point to project
-  xe = [0.25,1.4,1];
+for j=1:1000
+  xe = 1.5*rand(1,3)-0.25;			# point to project
+  ## xe = [0.25,1.4,1];
   for k=1:nelem1
     nodes = ico1(k,:);
     C = [xnod1(nodes,:)';
