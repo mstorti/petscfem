@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: lagmul.h,v 1.5 2005/01/26 20:02:25 mstorti Exp $
+// $Id: lagmul.h,v 1.6 2005/01/27 00:48:12 mstorti Exp $
 #ifndef PETSCFEM_LAGMUL_H
 #define PETSCFEM_LAGMUL_H
 
@@ -14,8 +14,6 @@ class LagrangeMult : public NewElemset {
  private:
   /// Stores internal matrix with coordinates of nodes
   FastMat2 xloc_m;
-  /// Coordinates of nodes
-  double *xnod;
   /// Row dimension of coordinates vector
   int nu;
   /// The element actually visited

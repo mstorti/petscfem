@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: lagmul.cpp,v 1.4 2005/01/26 20:02:25 mstorti Exp $ */
+/* $Id: lagmul.cpp,v 1.5 2005/01/27 00:48:12 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -95,7 +95,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
   int ielh=-1;
-  xnod = nodedata->nodedata;
   nu=nodedata->nu;
   
   int k_chunk;
@@ -153,7 +152,6 @@ new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #define ICONE(j,k) (icone[nel*(j)+(k)]) 
-#define NODEDATA(j,k) VEC2(xnod,j,k,nu)
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // Load local node coordinates in local vector

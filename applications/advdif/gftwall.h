@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gftwall.h,v 1.3 2005/01/25 23:27:53 mstorti Exp $
+// $Id: gftwall.h,v 1.4 2005/01/27 00:48:08 mstorti Exp $
 #ifndef PETSCFEM_GFTWALL_H
 #define PETSCFEM_GFTWALL_H
 
@@ -29,10 +29,10 @@ public:
   void lm_initialize() { }
   void init() {
     int ierr;
-    TGETOPTDEF_ND(thash,int,ndim,0);
+    NSGETOPTDEF_ND(int,ndim,0);
     //o Constant of a particular gas for ideal gas
     //  law (state equation for the gas)
-    TGETOPTDEF_ND(thash,double,Rgas,287.);
+    NSGETOPTDEF_ND(double,Rgas,287.);
   }
   void res(int k,FastMat2 &U,FastMat2 & r,
 	   FastMat2 & w,FastMat2 & jac) {
