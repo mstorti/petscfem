@@ -424,3 +424,9 @@ tag: beta-1.80 on Sat May 26 16:55:19 ART 2001, by mstorti in spider
 tag: beta-1.81 on Sat May 26 18:21:15 ART 2001, by mstorti in spider
      > generates PDF now.
      > cleans `test/bug100' also
+----------
+tag: beta-1.82 on Sun May 27 13:16:06 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added support to ndimel<ndim 
+     > Added support to 0 length indices.
+     > Added tests for ndimel<ndim in genload.
