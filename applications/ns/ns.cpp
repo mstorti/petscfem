@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.87.2.8 2002/07/16 03:29:13 mstorti Exp $
+//$Id: ns.cpp,v 1.87.2.9 2002/07/16 15:32:57 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -232,6 +232,10 @@ int main(int argc,char **args) {
   //o Type of solver. May be \verb+iisd+ or \verb+petsc+. 
   TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver,petsc);
   if (use_iisd) solver = string("iisd");
+  //o Type of solver for the projection and momentum steps
+  // (fractional-step). May be \verb+iisd+ or \verb+petsc+.
+  TGETOPTDEF_S(GLOBAL_OPTIONS,string,solver_mom,petsc);
+  if (use_iisd) solver_mom = string("iisd");
 
   //o The pattern to generate the file name to save in for
   // the rotary save mechanism.
@@ -272,9 +276,9 @@ int main(int argc,char **args) {
     A_tet = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
     A_tet_c = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
   } else {
-    A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+    A_mom = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     A_poi = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
-    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver.c_str());
+    A_prj = PFMat::dispatch(dofmap->neq,*dofmap,solver_mom.c_str());
     ierr = VecDuplicate(x,&xp); CHKERRA(ierr);
   }
 
@@ -791,11 +795,21 @@ int main(int argc,char **args) {
   print_vector(save_file.c_str(),x,dofmap,&time);
 
   // ierr = VecDestroy(x); CHKERRA(ierr); 
+  ierr = VecDestroy(x); CHKERRA(ierr); 
+  ierr = VecDestroy(xold); CHKERRA(ierr); 
   ierr = VecDestroy(dx); CHKERRA(ierr); 
+  ierr = VecDestroy(dx_step); CHKERRA(ierr); 
   ierr = VecDestroy(res); CHKERRA(ierr); 
 
-  delete A_tet;
-  delete A_tet_c;
+  if (!fractional_step) {
+    delete A_tet;
+    delete A_tet_c;
+  } else {
+    delete A_mom;
+    delete A_poi;
+    delete A_prj;
+    ierr = VecDestroy(xp); CHKERRA(ierr); 
+  }
 
 #ifdef DEBUG_MALLOC_USE
   fclose(malloc_log);
