@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gasflow.cpp,v 1.26.2.1 2005/02/11 23:21:32 mstorti Exp $
+//$Id: gasflow.cpp,v 1.26.2.2 2005/02/12 14:23:34 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -306,13 +306,10 @@ compute_tau(int ijob,double &delta_sc) {
 
     tau_supg_a = h_supg/2./velmax;
 
-#if 0
-    if (shocap_scheme==0) {
-      double fz = (Peclet < 3. ? Peclet/3. : 1.);
-      delta_sc = 0.5*h_supg*velmax*fz;
-    } 
-#endif
-    // antes era shocap_scheme==1
+    double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
+    delta_sc = 0.5*h_supg*velmax*fz2;
+
+    // Before, this was shocap_scheme==1
     double tol_shoc = 1e-010;
     // compute j direction , along density gradient
     double h_shoc, grad_rho_mod = sqrt(grad_rho.sum_square_all());
@@ -325,6 +322,7 @@ compute_tau(int ijob,double &delta_sc) {
       h_shoc = (h_shoc < tol ? tol : h_shoc);
       h_shoc = 2./h_shoc;
     } else {
+      FastMat2::choose(1);
       jvec.set(0.);
       h_shoc = h_supg;
     }
@@ -332,9 +330,6 @@ compute_tau(int ijob,double &delta_sc) {
     double fz = grad_rho_mod*h_shoc/rho;
     fz = pow(fz,shocap_beta);
     delta_sc_aniso = 0.5*h_shoc*velmax*fz;
-    
-    double fz2 = (Peclet < 3. ? Peclet/3. : 1.);
-    delta_sc = shocap_factor*0.5*h_supg*velmax*fz2;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:

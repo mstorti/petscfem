@@ -55,9 +55,9 @@ nnwt 3
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.05
-shocap 0.1
-# shocap_aniso 0.05
+Dt 0.1
+shocap 0.02
+shocap_aniso 0.5
 weak_form 0
 temporal_stability_factor 0
 

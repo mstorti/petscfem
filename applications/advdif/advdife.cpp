@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.94.2.1 2005/02/11 23:21:32 mstorti Exp $
+//$Id: advdife.cpp,v 1.94.2.2 2005/02/12 14:23:34 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -382,7 +382,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     tmp15,tmp17,tmp19,tmp20,tmp21,tmp22,tmp23,
     tmp24,tmp_sc,tmp_sc_aniso,tmp_sc_v,tmp_matloc_aniso,
     tmp_sc_v_aniso,tmp_shc_grad_U,
-    tmp_j_grad_U(1,ndof),tmp_j_gradN;
+    tmp_j_grad_U(ndof),tmp_j_gradN;
   FMatrix tmp_ALE_01,tmp_ALE_02,
     tmp_ALE_03,tmp_ALE_04,tmp_ALE_05,
     tmp_ALE_06,tmp_ALE_07;
