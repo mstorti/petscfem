@@ -3800,3 +3800,7 @@ tag: beta-3.39.66 on Sun, 23 Jan 2005 21:48:40 -0300 by mstorti in spider
 ----------
 tag: beta-3.39.67 on Mon, 24 Jan 2005 13:06:31 -0300 by mstorti in minerva.ceride.gov.ar
      > Working on `gasflow_abso', cylinder example. 
+----------
+tag: beta-3.39.68 on Mon, 24 Jan 2005 14:35:41 -0300 by mstorti in minerva.ceride.gov.ar
+     > Cylinder example starts working. Fixed a bug in `nonlres' 
+     > jacobian building. Unstable due to nonlinear errors (maybe?).  
