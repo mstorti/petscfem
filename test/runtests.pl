@@ -721,6 +721,18 @@ error in v symmetry = .* OK . 1
 error in h symmetry = .* OK . 1
 EOT
 
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("bug100/save.state.tmp",
+       "Advdif check bug100 is fixed",<<'EOT');
+1.230.*e-01
+1.230.*e-01
+__NO_SKIP__
+1.249.*e-01
+1.249.*e-01
+1.230.*e-01
+1.230.*e-01
+EOT
+
 end_section();
 
 begin_section('Laplace tests. ');
@@ -965,7 +977,7 @@ EOT
 
 end_section();
 
-print "\n",'-' x 80,"\n\n";
+print "\n",'-' x 50,"\n\n";
 end_section();
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
