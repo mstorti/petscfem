@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.69 2002/12/26 16:23:12 mstorti Exp $
+//$Id: readmesh.cpp,v 1.70 2003/01/01 16:17:07 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -705,7 +705,8 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 			fstack->line_number(),
 			fstack->line_read());
 	
-	dofmap->fixed.push_back(fixation_entry(dval,amp));
+	edof = dofmap->edof(node,kdof);
+	dofmap->fixed.push_back(fixation_entry(dval,amp,edof));
 	dofmap->fixed_dofs[keq]=dofmap->fixed.size()-1;
 
       }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.9 2002/09/25 18:38:56 mstorti Exp $
+//$Id: amplidl.cpp,v 1.10 2003/01/01 16:17:06 mstorti Exp $
 
 #ifdef USE_DLEF
 
@@ -128,8 +128,10 @@ DLGeneric::~DLGeneric() {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-double DLGeneric::eval(const TimeData *time_data) {
+double DLGeneric::eval(const TimeData *time_data,int node_a, int field_a) {
   double t = double(* (const Time *) time_data);
+  node_m = node_a;
+  field_m = field_a;
   // call eval function defined by user
   return (*eval_fun)(t,fun_data);
 }

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap2.cpp,v 1.8 2002/12/25 22:16:07 mstorti Exp $
+//$Id: dofmap2.cpp,v 1.9 2003/01/01 16:17:07 mstorti Exp $
 
 #include <cassert>
 #include <deque>
@@ -26,12 +26,28 @@
 
 using namespace std;
 
-// Computes the inverse of `edof': given an edof value gives
-// the node/field combination
-void edofi(int edof, int ndof, int &node,int &field) {
-  field = modulo(edof-1,ndof,&node)+1;
-  node = node+1;
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double Amplitude::eval(const TimeData *time_data) {
+  PETSCFEM_ERROR0("Not implemented eval(const TimeData *time_data)");
+  return 0.;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/// Eval the amplitude of the function at this time (needs node and field)
+double Amplitude::eval(const TimeData *time_data,int node,int field) {
+  PETSCFEM_ERROR0("Not implemented eval(const TimeData *time_data,"
+		  "int node,int field)");
+  return 0.;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Amplitude::needs_dof_field_q() { return 0; }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void Dofmap::nodf(int edof, int &node,int &field) {
+  field = (edof-1) % ndof +1;
+  node = (edof-field)/ndof +1;
+};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -88,7 +104,7 @@ int Dofmap::set_constraint(const Constraint &constraint) {
   qe = col.end();
   for (q=col.begin(); q!=qe; q++) {
     int node,field;
-    edofi(q->first,ndof,node,field);
+    nodf(q->first,node,field);
     row.clear();
     get_row(node,field,row);
     row_t::iterator r = row.find(edof0);
@@ -106,7 +122,7 @@ int Dofmap::set_constraint(const Constraint &constraint) {
   if (w!=fixed_dofs.end()) {
     // `edof0' had a fixation, move...
     int node,field;
-    edofi(edof0,ndof,node,field);
+    nodf(edof0,node,field);
     get_row(node,field,row);
     // Check that it is really a simple mapping (only one entry in row with coef = 1.)
     assert(row.size()==1);

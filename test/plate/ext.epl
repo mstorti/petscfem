@@ -5,10 +5,8 @@ save_file "ext.state.tmp"
 save_file_pattern "outvector.out.tmp"
 nsave 10
 nsaverot 10
-# initial_state "ext.state.tmp"
-initial_state "ext.ini.tmp"
 nstep 1000
-# steady
+steady
 solver "iisd"
 iisd_subpart_auto 2000
 print_internal_loop_conv 1
@@ -21,10 +19,10 @@ rtol 1e-4
 atol 1e-10
 iisdmat_print_statistics
 print_partitioning_statistics
-hook_list dl_generic_hook coupling_visc_hook 
+hook_list dl_generic_hook coupling_inv_hook 
 
-coupling_visc_hook.filename ./inviscid.efn
-coupling_visc_hook.prefix   coupling_visc_hook
+coupling_inv_hook.filename ./inviscid.efn
+coupling_inv_hook.prefix   coupling_inv_hook
 
 __END_HASH__
 
@@ -46,16 +44,10 @@ end_elemsets
 #===========================================================
 fixa_amplitude dl_generic
 ext_filename "./inviscid.efn"
-function_name ""
-field 6
-Omega_spin 2.51327412287183
-Omega_trans 6.28318530717959
-translation_ampl 1.96
+function_name "coupling"
 __END_HASH__
-14055 3 1
+__INCLUDE__ "ext.fixa_ext.tmp"
 __END_FIXA__
-
-
 
 # Local Variables: $
 # mode: shell-script $

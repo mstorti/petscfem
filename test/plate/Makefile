@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.8 2002/12/31 13:15:05 mstorti Exp $ 
+# $Id: Makefile,v 1.9 2003/01/01 16:16:36 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid
 
@@ -17,13 +17,17 @@ viscous:
 	mkfifo inv2visc.fifo
 	$(MAKE) CASE_NAME=cylin run
 
+inviscid.efn: EFN_LDFLAGS = ./fifo.o
+inviscid.efn: fifo.o
+fifo.o: fifo.cpp
+
 SRCS = inviscid.cpp
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 LOC_PROG := ns
-PROG := $(NS_O)
+PROG := $(NS)
 
 .PHONY: force
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))

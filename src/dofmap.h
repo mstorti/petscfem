@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: dofmap.h,v 1.14 2002/12/25 22:16:07 mstorti Exp $
+//$Id: dofmap.h,v 1.15 2003/01/01 16:17:07 mstorti Exp $
  
 #ifndef DOFMAP_H
 #define DOFMAP_H
@@ -45,7 +45,14 @@ public:
   static Amplitude *factory(char *& label,TextHashTable *tht_=NULL);
   static Amplitude *old_factory(char *& label,FileStack &fstack);
   /// Eval the amplitude of the function at this time. 
-  virtual double eval(const TimeData *time_data)=0;
+  virtual double eval(const TimeData *time_data);
+  /// Eval the amplitude of the function at this time (needs node and field)
+  virtual double eval(const TimeData *time_data,int node,int field);
+  /** Callback function defined by the user -- returns
+      whether this amplitude function needs to be passed the
+      node/field combination. 
+  */
+  virtual int needs_dof_field_q();
   /** Initializes the object. Table t should be deleted if not
       incorporated in the created object. If it is deleted set it to
       NULL. 
@@ -109,10 +116,11 @@ public:
 class fixation_entry {
 private:
   double val;
+  int edof;
   Amplitude *amp;
 public:
-  fixation_entry(double val_=0.,Amplitude *amp_=NULL) :
-    val(val_),amp(amp_) {};
+  fixation_entry(double val_=0.,Amplitude *amp_=NULL,int edof_a=-1) :
+    val(val_), amp(amp_), edof(edof_a) {};
   double value(const TimeData *time_data) const;
   void print(void) const;
 };
@@ -328,10 +336,7 @@ public:
       @param edof (input) the nodf unique value
       @param node (output) the node 
       @param kdof (output) the field */ 
-  int nodf(const int edof, int &node,int &field) {
-    field = (edof-1) % ndof +1;
-    node = (edof-field)/ndof +1;
-  };
+  void nodf(int edof,int &node,int &field);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Returns true if col j is null. 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dofmap.cpp,v 1.12 2002/12/22 06:20:40 mstorti Exp $
+//$Id: dofmap.cpp,v 1.13 2003/01/01 16:17:07 mstorti Exp $
 
 #include <cassert>
 #include <algorithm>
@@ -46,7 +46,14 @@ double fixation_entry::value(const TimeData *time_data) const {
     return val;
   } else {
     assert(time_data);
-    return val*amp->eval(time_data);
+    double v;
+    if (!amp->needs_dof_field_q()) {
+      v = val*amp->eval(time_data);
+    } else {
+      int node,field;
+      v = val*amp->eval(time_data,node,field);
+    }
+    return v;
   }
 }
 

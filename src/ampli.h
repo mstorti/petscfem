@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.15 2002/11/05 19:59:33 mstorti Exp $
+// $Id: ampli.h,v 1.16 2003/01/01 16:17:06 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -126,6 +126,8 @@ private:
   static FileHandleTable file_handle_table;
 
   string function_name,ext_filename;
+  int node_m,field_m;
+  int needs_dof_field_q() { return 1; }
 public:
   /// Constructor (initializes `fun_data')
   DLGeneric() : fun_data(NULL) {}
@@ -136,7 +138,9 @@ public:
   /// Clears the object 
   virtual void clear() {};
   /// Computes the value of the Dirichlet b.c. at the specified time
-  double eval(const TimeData *time_data);
+  double eval(const TimeData *time_data,int node,int field);
+  int node() { return node_m; }
+  int field() { return field_m; }
   /// Destructor
   virtual ~DLGeneric();
 };
