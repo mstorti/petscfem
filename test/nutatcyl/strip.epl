@@ -1,6 +1,6 @@
 __ECHO_ON__
 <:
-#$Id: strip.epl,v 1.3 2002/12/25 22:16:10 mstorti Exp $
+#$Id: strip.epl,v 1.4 2002/12/26 14:36:13 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 #
@@ -21,7 +21,7 @@ $layers = 2;
 @vars = qw(L N h xratio);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
-system "octave -q mkstrip.m >mkstrip.out.tmp";
+system "octave -qH mkstrip.m >mkstrip.out.tmp";
 
 # Read `nodf_u' value 
 open FIC,"strip.fic.tmp";

@@ -1,7 +1,7 @@
 # -*- shell-script -*-
 __ECHO_ON__
 <:
-#$Id: closcyl.epl,v 1.3 2002/08/19 16:03:18 mstorti Exp $
+#$Id: closcyl.epl,v 1.4 2002/12/26 14:36:13 mstorti Exp $
 # Initializes ePerl 
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";
 
@@ -140,7 +140,7 @@ die "viscosity should be >0\n" unless $nu>0;
 
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
-system "octave -q mkcloscyl.m >mkcloscyl.out.tmp";
+system "octave -qH mkcloscyl.m >mkcloscyl.out.tmp";
 
 # Read 'nodf_u' value 
 open FIC,"cylinder.fic.tmp";

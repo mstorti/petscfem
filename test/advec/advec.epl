@@ -44,7 +44,7 @@ if ($case_name eq 'parallel_cone') {
     $Ly = 1;
     $ux = 1;
     $uy = 0;
-    if (1) {   # Run larger problem
+    if (0) {   # Run larger problem
         my $scale = 2;
         $M *= $scale;
         $Lx *= $scale;

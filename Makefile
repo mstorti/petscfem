@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.44 2002/11/04 20:29:13 mstorti Exp $
+#$Id: Makefile,v 1.45 2002/12/26 14:36:06 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -93,9 +93,6 @@ unlicense:
 		$(INSERT_LICENSE) -u $(SCRIPT_LICENSE_FILE)
 	find . -type f -name '*.tex' -print0 | xargs -0 -n 1 -e \
 		$(INSERT_LICENSE) -u $(TEX_LICENSE_FILE)
-
-try:
-	$(INSERT_LICENSE) '__INSERT_''LICENSE__' $(SCRIPT_LICENSE_FILE) Makefile.bck
 
 #w Uncomments \input lines for partial processing and then makes doc
 finaldoc:

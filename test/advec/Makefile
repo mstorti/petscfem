@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.9 2002/12/15 21:40:42 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2002/12/26 14:36:13 mstorti Exp $ 
 
 .PHONY: force all run default
 
@@ -18,7 +18,7 @@ SRCS =
 #s Linear Advection tests
 LOC_PROG := advdif
 CASE_NAME := advec
-PROG := $(ADVDIF_O)
+PROG := $(ADVDIF)
 
 skew:
 	$(MAKE) case_name=$@ run

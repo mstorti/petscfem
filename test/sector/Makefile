@@ -1,12 +1,14 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2002/12/26 10:54:40 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/12/26 14:36:13 mstorti Exp $ 
 
-.PHONY: constraint_bug chunk_size_process sector iprops
+.PHONY: constraint_bug chunk_size_process sector iprops triangle
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include ../Makefile.base.test
 SRCS = 
+
+tests: sector chunk_size_process triangle
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 sector: sector.depl $(LAPLACE)

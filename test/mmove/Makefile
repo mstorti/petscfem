@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.13 2002/12/12 20:30:21 mstorti Exp $ 
+# $Id: Makefile,v 1.14 2002/12/26 14:36:13 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -22,11 +22,8 @@ endif
 
 LOC_PROG := ns
 CASE_NAME := $(NAME)
-PROG := $(PETSCFEM_DIR)/applications/ns/ns_O.bin
+PROG := $(NS)
 
-# ifeq ($(NAME),step)
-# PROG := $(PETSCFEM_DIR)/applications/ns/ns_g.bin
-# endif
 step3d:
 	@$(MAKE) -C ../../tools hexasplit.bin >/dev/null
 	$(MAKE) NAME=step3d OCT_SCRIPT=mkstep3d.m test_case > step3d.out.tmp
