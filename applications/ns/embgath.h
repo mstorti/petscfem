@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: embgath.h,v 1.2 2002/08/06 15:31:20 mstorti Exp $
+//$Id: embgath.h,v 1.3 2002/08/06 20:49:27 mstorti Exp $
 #ifndef EMBGATH_H
 #define EMBGATH_H
 
@@ -22,6 +22,9 @@ public:
       functions you can define several integrators.
   */
   //@{
+  /** Number of surface nodes, desired number of
+      nodes in the volume element. */
+  virtual void surface_nodes(int &nel_surf,int &nel_vol)=0;
   /// Called \textbf{before} the element loop. 
   virtual void init() { }
 
@@ -57,10 +60,11 @@ public:
 
 class visc_force_integrator : public embedded_gatherer { 
 public:
-  virtual void set_pg_values(vector<double> &pg_values,FastMat2 &u,
-			     FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
-			     FastMat2 &xpg,FastMat2 &n,
-			     double wpgdet,double time) {}
+  void set_pg_values(vector<double> &pg_values,FastMat2 &u,
+		     FastMat2 &uold,FastMat2 &grad_u, FastMat2 &grad_uold, 
+		     FastMat2 &xpg,FastMat2 &n,
+		     double wpgdet,double time) {}
+  void surface_nodes(int &nel_surf,int &nel_vol) { nel_surf=4; nel_vol=8; }
 };
 
 #endif
