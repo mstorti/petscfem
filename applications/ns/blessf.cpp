@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: blessf.cpp,v 1.7 2002/10/07 00:26:08 mstorti Exp $ */
+/* $Id: blessf.cpp,v 1.8 2002/11/27 19:13:42 mstorti Exp $ */
 
 #include <src/debug.h>
 #include <malloc.h>
@@ -22,6 +22,7 @@
 #include "nsikepsrot.h"
 #include "fracstep.h"
 #include "nsid.h"
+#include "./mmove.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -55,6 +56,8 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(visc_force_integrator)
     SET_ELEMSET_TYPE(flow_rate_integrator)
     SET_ELEMSET_TYPE(free_surface_level_integrator)
+
+    SET_ELEMSET_TYPE(mesh_move)
 	{
 	printf("not known elemset type: \"%s\"\n",type);
 	exit(1);

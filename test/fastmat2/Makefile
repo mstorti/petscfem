@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2002/11/03 12:07:22 mstorti Exp $ 
+# $Id: Makefile,v 1.4 2002/11/27 19:13:42 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -52,3 +52,8 @@ tfastvec.bin: tfastvec.o
 	g++ -o tfastvec.bin tfastvec.o 
 
 tfastvec.o: tfastvec.cpp
+
+#----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
+#w Eigenvalues
+fm2eig.bin: fm2eig.o dsyev2.o
+	g++ -o $@ fm2eig.o dsyev2.o $(LDFLAGS_NO_PROG) -lblas -llapack -lg2c 
