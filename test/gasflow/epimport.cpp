@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.13 2003/02/07 23:18:32 mstorti Exp $
+// $Id: epimport.cpp,v 1.14 2003/02/08 01:08:35 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -316,7 +316,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
     nelem,nel;
   double *xnod_p,*data_p;
   Array icone=NULL,xnod=NULL,data=NULL; 
-  Group g=NULL;
+  Group g=NULL,flist=NULL;
   char *token;
   String s;
   Type t;
@@ -396,10 +396,10 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
   DXMessage("Sending steps %d options %s",steps,options);
   Sprintf(clnt,"steps %d options %s\n",steps,options);
 
-#if 1
   while(1) {
     Sgetline(&buf,&Nbuf,clnt);
     tokenize(buf,tokens);
+    int cookie;
 
     if (tokens[0]=="end") break;
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -413,6 +413,7 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if(ierr!=OK) return ierr;
       DXMessage("Got new \"Nodes\" name %s, ptr %p, ndim %d, nnod %d",
 		name.c_str(),array,ndim,nnod);
+      Sprintf(clnt,"nodes OK\n");
     //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
     } else if (tokens[0]=="state") {
       name = tokens[1];
@@ -482,16 +483,24 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   g = DXNewGroup();
   if (!g) goto error;
+  flist = DXNewGroup();
+  if (!flist) goto error;
 
   for (q=dx_objects_table.begin(); q!=qe; q++) {
-    g = DXSetMember(g,(char *)(q->first.c_str()),
-		    (Object)q->second->dx_object());
+    DXField *field = dynamic_cast<DXField *>(q->second);
+    if (field) {
+      flist = DXSetMember(flist,(char *)(q->first.c_str()),
+			  (Object)field->dx_object());
+      if (!flist) goto error;
+    } else {
+      g = DXSetMember(g,(char *)(q->first.c_str()),
+		      (Object)q->second->dx_object());
+      if (!g) goto error;
+    }
   }
 
   out[0] = (Object)g;
-#else
-  out[0] = NULL;
-#endif
+  out[1] = (Object)flist;
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;

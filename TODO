@@ -4,13 +4,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* DX: make two outputs to ExtProgImport: one with all the fields and
-           other with all the arrays
 * DX: make `dxhook' to auto-recognize geometries from the "geometry"
           option and dimensionality. 
 * DX: check for memory leaks, both in `epimport.cpp' and in  petscfem
           itself. 
-* DX: Make auto naming of elemsets od the form <elemset_type>_xxx
 * DX: Code asynchronous visualization with threads. 
 * DX: make protocol more robust by sending aclnolwdgements from the client.
 * Why it takes so much time after "Start partitioning" when running
@@ -96,6 +93,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* DX: Make auto naming of elemsets od the form <elemset_type>_xxx
+* DX: make two outputs to ExtProgImport: one with all the fields and
+           other with all the arrays
 * DX: Delete comments in `epimport.cpp'
 * Generate test for SuperLU implementation. 
 * Use lapack lib for `daxpy' in `test/Makefile:testfm2d'

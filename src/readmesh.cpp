@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.72 2003/02/08 00:49:57 mstorti Exp $
+//$Id: readmesh.cpp,v 1.73 2003/02/08 01:08:35 mstorti Exp $
 #define _GNU_SOURCE 
 #include "fem.h"
 #include "utils.h"
@@ -274,7 +274,6 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
 	int j;
 	for (j=0; j<MAX_ELEMSET_SFX; j++) {
 	  int Nbuf = asprintf(&ename,"%s_%d",type,j);
-	  printf("trying %s\n",ename);
 	  assert(Nbuf>=0);
 	  if (elemset_table.find(ename)
 	      ==elemset_table.end()) break;
@@ -613,15 +612,13 @@ int read_mesh(Mesh *& mesh,char *fcase,Dofmap *& dofmap,
       TRACE(-5.3.8);
 
       PetscPrintf(PETSC_COMM_WORLD,
-		  "elemset number %d, pointer %p, number of elements %d\n",
-		  elemsetnum,elemset,nelem);
+		  "elemset number %d, name \"%s\", pointer %p, number of elements %d\n",
+		  elemsetnum,name.c_str(),elemset,nelem);
       
       // Append to the list
       da_append(mesh->elemsetlist,&elemset);
       PetscPrintf(PETSC_COMM_WORLD,"Ends reading  elemset\n");
 
-      printf("adding \"%s\" -> %p to elemset_table\n",
-	     name.c_str(),elemset);
       elemset_table[name] = elemset;
       TRACE(-5.4);
     } else if (!strcmp(token,"end_elemsets")) {
