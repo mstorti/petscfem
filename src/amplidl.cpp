@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.8 2002/02/10 23:30:55 mstorti Exp $
+//$Id: amplidl.cpp,v 1.9 2002/09/25 18:38:56 mstorti Exp $
 
 #ifdef USE_DLEF
 
@@ -49,7 +49,12 @@ void DLGeneric::init(TextHashTable *thash) {
   } else {
     // Get `dlopen()' handle to the extension function
     handle = dlopen (ext_filename.c_str(),RTLD_LAZY);
-    assert(handle);
+    error = dlerror();
+    PETSCFEM_ASSERT(!error && handle,
+		    "Can't dlopen() file \"%s\".\n"
+		    "  dlerror(): \"%s\"\n",
+		    ext_filename.c_str(),error);  
+    
     // Build FileHandle
     fh.handle = handle;
     fh.fun_table = new FunTable;
@@ -77,24 +82,30 @@ void DLGeneric::init(TextHashTable *thash) {
     init_fun = fuh.init_fun;
     clear_fun = fuh.clear_fun;
   } else {
+
+#define DL_FUN_ASSERT								\
+    error = dlerror();								\
+    PETSCFEM_ASSERT(!error,							\
+		    "Can't load dynamic function \"%s\" in file \"%s\".\n"	\
+		    "  dlerror(): \"%s\"\n",					\
+		    s.c_str(),ext_filename.c_str(),error)
+
     // If it was not loaded then get pointers with `dlsym()' and
     // insert in table
     s = name + string("eval_fun");
     eval_fun = (EvalFun *) dlsym(handle,s.c_str());
     // if `eval_fun' is not defined then give error
-    if ((error = dlerror()) != NULL)  {
-      fputs(error, stderr);
-      printf("\n");
-      exit(1);
-    }
+    DL_FUN_ASSERT;
 
     // Look for `init_fun'
     s = name + string("init_fun");
     init_fun = (InitFun *) dlsym(handle,s.c_str());
+    DL_FUN_ASSERT;
 
     // Look for `clear_fun'
     s = name + string("clear_fun");
     clear_fun = (ClearFun *) dlsym(handle,s.c_str());
+    DL_FUN_ASSERT;
 
     // Set pointers in handle and insert handle in table
     fuh.eval_fun  = eval_fun ;

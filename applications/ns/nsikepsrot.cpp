@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nsikepsrot.cpp,v 1.25 2002/09/23 21:17:10 mstorti Exp $ */
+/* $Id: nsikepsrot.cpp,v 1.26 2002/09/25 18:38:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -16,6 +16,7 @@
 
 extern TextHashTable *GLOBAL_OPTIONS;
 
+#undef ROSI_COUPLING_MODULE
 #ifdef ROSI_COUPLING_MODULE
 double AXIAL_ACCELERATION, GLOBAL_TIME=-DBL_MAX;
 #endif

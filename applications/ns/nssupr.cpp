@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nssupr.cpp,v 1.7 2002/09/23 21:17:10 mstorti Exp $ */
+/* $Id: nssupr.cpp,v 1.8 2002/09/25 18:38:56 mstorti Exp $ */
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -15,7 +15,7 @@ extern TextHashTable *GLOBAL_OPTIONS;
 
 #ifdef ROSI_COUPLING_MODULE
 #warning Compiling with ROSI_COUPLING_MODULE enabled
-extern double AXIAL_ACCELERATION, GLOBAL_TIME;
+double AXIAL_ACCELERATION, GLOBAL_TIME;
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
