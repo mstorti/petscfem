@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.1.2.9 2002/01/07 16:23:52 mstorti Exp $ 
+# $Id: Makefile,v 1.1.2.10 2002/01/09 16:31:12 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -44,20 +44,20 @@ pfmat:  pfmat.bin force
 	$(call pfmat,1,$(call args,sbdp 1, mtyp 0, ls 0),case3)
 	$(call pfmat,2,$(call args,sbdp 1, mtyp 0, ls 0),case4)
 #		       	       	      
-	$(call pfmat,1,$(call args,sbdp 4, mtyp 1, ls 0),case5)
-	$(call pfmat,2,$(call args,sbdp 4, mtyp 1, ls 0),case6)
-	$(call pfmat,1,$(call args,sbdp 1, mtyp 1, ls 0),case7)
-	$(call pfmat,2,$(call args,sbdp 1, mtyp 1, ls 0),case8)
+# 	$(call pfmat,1,$(call args,sbdp 4, mtyp 1, ls 0),case5)
+# 	$(call pfmat,2,$(call args,sbdp 4, mtyp 1, ls 0),case6)
+# 	$(call pfmat,1,$(call args,sbdp 1, mtyp 1, ls 0),case7)
+# 	$(call pfmat,2,$(call args,sbdp 1, mtyp 1, ls 0),case8)
 #
 	$(call pfmat,1,$(call args,sbdp 4, mtyp 0, ls 1),case1s)
 	$(call pfmat,2,$(call args,sbdp 4, mtyp 0, ls 1),case2s)
 	$(call pfmat,1,$(call args,sbdp 1, mtyp 0, ls 1),case3s)
 	$(call pfmat,2,$(call args,sbdp 1, mtyp 0, ls 1),case4s)
 #		       	       	      
-	$(call pfmat,1,$(call args,sbdp 4, mtyp 1, ls 1),case5s)
-	$(call pfmat,2,$(call args,sbdp 4, mtyp 1, ls 1),case6s)
-	$(call pfmat,1,$(call args,sbdp 1, mtyp 1, ls 1),case7s)
-	$(call pfmat,2,$(call args,sbdp 1, mtyp 1, ls 1),case8s)
+# 	$(call pfmat,1,$(call args,sbdp 4, mtyp 1, ls 1),case5s)
+# 	$(call pfmat,2,$(call args,sbdp 4, mtyp 1, ls 1),case6s)
+# 	$(call pfmat,1,$(call args,sbdp 1, mtyp 1, ls 1),case7s)
+# 	$(call pfmat,2,$(call args,sbdp 1, mtyp 1, ls 1),case8s)
 
 args2 = ne 100 deb 0 nsl 2 $(1) nmat 2 nprof 2 $(2) f 0.9
 

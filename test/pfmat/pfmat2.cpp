@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat2.cpp,v 1.1.2.5 2002/01/04 02:43:55 mstorti Exp $
+// $Id: pfmat2.cpp,v 1.1.2.6 2002/01/09 16:31:12 mstorti Exp $
 
 // Tests for the `PFMat' class
 
@@ -12,7 +12,7 @@
 #include <src/pfmat.h>
 #include <src/pfptscmat.h>
 #include <src/iisdmat.h>
-#include <src/petscmat.h>
+//#include <src/petscmat.h>
 #include <src/graph.h>
 
 // Runs a simple example for testing the PFMat matrix classes.
@@ -145,11 +145,12 @@ int main(int argc,char **args) {
   SIZE = size;
 
   IISDMat AA(N,N,part,PETSC_COMM_WORLD);
-  PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
+  //  PETScMat AAA(N,N,part,PETSC_COMM_WORLD);
   if (mat_type==0) {
     A_p = &AA;
   } else if (mat_type==1) {
-    A_p = &AAA;
+    // A_p = &AAA;
+    assert(0);
   } else assert(0);
   PFMat &A = *A_p;
 
@@ -157,6 +158,7 @@ int main(int argc,char **args) {
   A.set_option("print_internal_loop_conv",debug_print);
   A.set_option("rtol",1e-8);
   A.set_option("atol",0);
+  A.set_option("print_fsm_transition_info",0);
 
   for (int jprof=0; jprof<nprof; jprof++) {
 
@@ -197,7 +199,7 @@ int main(int argc,char **args) {
     ierr = VecDuplicate(b,&xex); CHKERRA(ierr); 
 
     for (int imat=0; imat<nmat; imat++) {
-      A.zero_entries();
+      // A.zero_entries();
 
       if (myrank==0) {
 	fid = fopen("data.tmp","w");
@@ -286,6 +288,4 @@ int main(int argc,char **args) {
   if (oct_check) PetscPrintf(PETSC_COMM_WORLD,
 			     "All tests OK ?  %d\n",tests_ok);
   PetscFinalize();
-  exit(0);
- 
 }

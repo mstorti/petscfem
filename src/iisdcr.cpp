@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.8.4.13 2002/01/09 01:30:56 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.8.4.14 2002/01/09 16:31:07 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -112,6 +112,9 @@ int IISDMat::create_a() {
 
   //o Print the Schur matrix (don't try this for big problems).
   TGETOPTDEF_ND_PF(thash,int,print_Schur_matrix,0);
+
+  //o Print Finite State Machine transitions
+  TGETOPTDEF_ND_PF(thash,int,print_fsm_transition_info,0);
 
   // Scatter the profile graph
   lgraph.scatter();

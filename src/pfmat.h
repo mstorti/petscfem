@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28.2.11 2002/01/09 01:30:56 mstorti Exp $
+// $Id: pfmat.h,v 1.28.2.12 2002/01/09 16:31:07 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -53,9 +53,12 @@ class pfmatFSM;
 */
 class PFMat {
   friend class pfmatFSMContext;
-
+  /// Pointers to pass args to solver routines through the FSM layer
   Vec *res_p,*dx_p;
 protected:
+  /// Print Finite State Machine transitions
+  int print_fsm_transition_info;
+  /// Allows to pass PETSc error codes through the FSM layer
   int ierr;
   pfmatFSM fsm;
 
@@ -108,7 +111,8 @@ public:
     m = size(1); n=size(2);
   }
 
-  PFMat() : ierr(0) { fsm.matrix_p = this; }
+  PFMat() : ierr(0), 
+    print_fsm_transition_info(0) { fsm.matrix_p = this; }
 
   /// Virtual destructor
   virtual ~PFMat()=0;
@@ -301,7 +305,8 @@ public:
   virtual void get_option(const char *name,string &retval,int defval=0,int
 			 n=1 )=0;
 
-  // virtual void print()=0;
+  int print_fsm_transition_info_f() { 
+    return print_fsm_transition_info; };
 };
 
 #if 0

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.cpp,v 1.1.2.19 2002/01/09 13:14:03 mstorti Exp $
+// $Id: pfmat.cpp,v 1.1.2.20 2002/01/09 16:31:12 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <src/debug.h>
@@ -162,7 +162,7 @@ int main(int argc,char **args) {
   A.set_option("atol",0);
   A.set_option("local_solver","PETSc");
   A.set_option("print_Schur_matrix",0);
-  // A.set_option("preco_type","none");
+  A.set_option("print_fsm_transition_info",0);
   A.create();
   // if (debug_print) A.view();
 

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.40.2.6 2002/01/09 13:13:57 mstorti Exp $ 
+# $Id: Makefile,v 1.40.2.7 2002/01/09 16:31:07 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -74,7 +74,7 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 	if [ -f $*FSM.h ] ; then chmod +w $*FSM.h ; fi 
 	$(SMC) < $<
 	-rm -f $*FSM.cpp
-	insdeb.pl $*FSM.cc $*FSM.cpp
+	insdeb.pl $*FSM.cc $*FSM.cpp > /dev/null
 	if [ ! -f $*FSM.cpp ] ; then cp -f $*FSM.cc $*FSM.cpp ; fi
 	-rm -f $*FSM.cc
 	chmod -w $*FSM.cpp $*FSM.h

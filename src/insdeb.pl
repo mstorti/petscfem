@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: insdeb.pl,v 1.1.2.3 2002/01/09 12:30:26 mstorti Exp $
+# $Id: insdeb.pl,v 1.1.2.4 2002/01/09 16:31:07 mstorti Exp $
 
 sub flushin { print OUT @in; @in = (); }
 
@@ -18,7 +18,7 @@ open IN,"$in";
 open OUT,">$out";
 
 print OUT "// Insert Debug Info for SMC Finite State Machine generated code\n",
-    "// ",'$Id: insdeb.pl,v 1.1.2.3 2002/01/09 12:30:26 mstorti Exp $',"\n";
+    "// ",'$Id: insdeb.pl,v 1.1.2.4 2002/01/09 16:31:07 mstorti Exp $',"\n";
     "// $key\n";
 
 @in = ();
@@ -34,10 +34,13 @@ while(<IN>) {
 	    unless $next =~ /\s*s\.SetState\(\S*::(.*)State\)/;
 	$to = $1;
 	print "Inserting debug info: from \"$from\" to \"$to\"\n";
-	print OUT 
-	    "  printf(\"from: \\\"$from\\\", event: \\\"$event\\\",\"\n",
-	    "         \"to: \\\"$to\\\"\\n\");\n";
-	flushin();
+	/`/; print OUT <<EOF;
+  if (s.matrix_p->print_fsm_transition_info_f())
+    printf("from: \\"$from\\", event: \\"$event\\", "
+           "to: \\"$to\\"\\n");
+EOF
+    /`/;
+    flushin();
     } else {
 	print OUT;
     }	
