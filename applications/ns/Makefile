@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.16 2001/11/30 12:41:08 mstorti Exp $ 
+ # $Id: Makefile,v 1.17 2001/12/02 18:46:52 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -10,8 +10,7 @@ MYOBJS = ns.o nsitetlesfm2.o					\
 		bccnsfm2.o wall.o nsvol.o walldata.o		\
 		nsilesther.o bccnstherfm2.o nsikeps.o		\
 		wallke.o nonlr.o lagmul.o nssup.o nssupr.o	\
-		nsid.o nsres.o adaptor.o elast.o 
-
+		nsid.o nsres.o adaptor.o elast.o # adappg.o
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"

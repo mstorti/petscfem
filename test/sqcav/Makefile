@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.4 2001/12/02 15:55:46 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2001/12/02 18:46:52 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
 
-tests: test_re1000
+tests: test_re1000 test_iisd
 
 all: run
 

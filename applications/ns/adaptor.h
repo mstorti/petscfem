@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.3 2001/11/30 13:22:24 mstorti Exp $
+//$Id: adaptor.h,v 1.4 2001/12/02 18:46:52 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
@@ -71,6 +71,7 @@ public:
   virtual void elem_init() {};
   virtual void elemset_end() {};
   virtual void elem_end() {};
+  /// Warning: this function should *accumulate* on `mat' and `res'
   virtual void pg_connector(const FastMat2 &xloc,
 			    const FastMat2 &state_old,
 			    const FastMat2 &grad_state_old,
