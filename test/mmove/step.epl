@@ -2,6 +2,14 @@
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+$N=10;
+$disp = 0.3;
+# $df = 'rcond';
+$df = 'eig';
+$slope = 5;
+# $shape =ns 'quad';
+#
+octave_export_vars(">data.m.tmp",qw(N disp shape slope));
 :>//                            # ends ePerl block
 
 global_options
@@ -56,11 +64,12 @@ __END_ELEMSET__
 
 end_elemsets
 
-fixa_amplitude ramp
-start_time 0.
-start_value 0.
-end_time 1.
-end_value 0.
-__END_HASH__
+fixa
 __INCLUDE__ step.fixa.tmp
 __END_FIXA__
+
+#===========================================================
+constraint
+__INCLUDE__ step.constrs.tmp
+__END_CONSTRAINT__
+
