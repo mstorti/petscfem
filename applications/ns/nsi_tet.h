@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.36 2002/11/30 14:54:47 mstorti Exp $
+//$Id: nsi_tet.h,v 1.37 2002/12/18 20:59:32 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
@@ -384,5 +384,8 @@ public:
 		      const vector<double> &gather_values);
   ~HookList();
 };
+
+void read_cond_matrix(TextHashTable *thash, const char *s,
+		      int ndof,FastMat2 &cond);
 
 #endif

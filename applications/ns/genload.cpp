@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: genload.cpp,v 1.7 2002/12/17 02:35:10 mstorti Exp $
+//$Id: genload.cpp,v 1.8 2002/12/18 20:59:32 mstorti Exp $
 #include <src/fem.h>
 #include <src/utils.h>
 #include <src/readmesh.h>
@@ -23,12 +23,16 @@ int GenLoad::ask(const char *jobinfo,int &skip_elemset) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void GenLoad::q(FastMat2 &uin,FastMat2 &uout,FastMat2 &flux,
-		FastMat2 &jacin,FastMat2 &jacout) {
+		FastMat2 &jacin,FastMat2 &jacout) { 
+  // This is default, we should never enter herer. Flux function
+  // writer defines either the one layer flux function or 
+  // the other. 
   PETSCFEM_ERROR0("Not defined one layer flux function!\n");
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void GenLoad::q(FastMat2 &uin,FastMat2 &flux,FastMat2 &jacin) {
+  // Ditto
   PETSCFEM_ERROR0("Not defined double layer flux function!\n");
 }
 
@@ -113,37 +117,57 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
   GPdata gp_data(geometry.c_str(),ndimel,nel2,npg,GP_FASTMAT2);
 
-  FastMat2 matloc_prof(4,nel,ndof,nel,ndof),
+  FastMat2 
+    // Profile (mask of 1/0's)
+    matloc_prof(4,nel,ndof,nel,ndof),
+    // Element matrix
     matlocf(4,nel,ndof,nel,ndof),
-    state_star(2,nel,ndof), state_old(2,nel,ndof),
+    // State at n-1, n
+    state_old(2,nel,ndof), state_star(2,nel,ndof), 
+    // State at the inner/outer layer of nodes
     u_in(2,nel2,ndof), u_out(2,nel2,ndof), 
-    U_in(1,ndof), U_out(1,ndof), 
+    // State at the inner /outer layer at a given Gauss point
+    U_in(1,ndof), U_out(1,ndof),
+    // Fluxes to the inner and outer layer
+    // (should be flux_out = -flux_in for a conservative film
     flux_in(1,ndof), flux_out(1,ndof), 
-    jac(2,ndof,ndof), veccontr(2,nel,ndof), 
-    Jaco, iJaco, dshapex(2,ndimel,nel2), xloc(2,nel2,ndim),
-    h_in, h_out, flux, jac_in, jac_out, tmp1,
-    tmp2, tmp3, tmp4, vecc2;
+    // Jacobian of fluxes
+    jac(2,ndof,ndof), 
+    // Residual 
+    veccontr(2,nel,ndof), 
+    // Jacobian of the master to global coordiantes, inverse
+    Jaco, iJaco, 
+    // Gradient of shape functions w.r.t. global coordinates
+    dshapex(2,ndimel,nel2), 
+    // Coords. of nodes
+    xloc(2,nel2,ndim),
+    // H values at the inner/outer layer
+    h_in, h_out, 
+    // Auxiliary matrices
+    tmp1, tmp2, tmp3, tmp4, vecc2;
 
   if (double_layer) {
+    // there are 2x2 ndofxndof matrices
     jac.resize(4,2,2,ndof,ndof);
   }
 
-  veccontr.set(0.);
-  matlocf.set(0.);
-
+  // Assume all dofs connected
   if (comp_mat) matloc_prof.set(1.);
+  // Call user callback function
   start_chunk();
 
+  // Initialize FastMat2 cache stuff
   FastMatCacheList cache_list;
   FastMat2::activate_cache(&cache_list);
 
+  // Element loop
   int ielh=-1;
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     FastMat2::reset_cache();
     ielh++;
-    // load_props(propel,elprpsindx,nprops,&(ELEMPROPS(k,0)));
     int elem = k;
+    // Call user callback function
     element_hook(k);
 
     // Load local node coordinates in local vector
@@ -153,16 +177,21 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
     }
     xloc.rs();
 
+    // Initialize residual and Jacobian contribution
     matlocf.set(0.);
     veccontr.set(0.);
 
     if(comp_mat) {
+      // return profile only
       matloc_prof.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       continue;
     }
 
+    // Get nodal values for this element
     state_old.set(&(LOCST2(ielh,0,0)));
+    // Compute values at t^{n+alpha}
     state_star.set(&(LOCST(ielh,0,0))).scale(alpha).axpy(state_old,1.-alpha);
+    // Split inner and outer layer nodal values
     state_star.is(1,1,nel2);
     u_in.set(state_star);
     if (double_layer) {
@@ -174,8 +203,10 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 #define SHAPE    (*gp_data.FM2_shape[ipg])
 #define WPG      (gp_data.wpg[ipg])
 
+    // Gauss point loop
     for (int ipg=0; ipg<npg; ipg++) {
 
+      // Jacobian of master to global elements
       Jaco.prod(DSHAPEXI,xloc,1,-1,-1,2);
       double detJaco = Jaco.detsur();
       if (detJaco <= 0.) {
@@ -186,22 +217,31 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       double wpgdet = detJaco*WPG;
 
+      // Interpolate state at this Gauss point
       U_in.prod(SHAPE,u_in,-1,-1,1);
+      // Interpolate H values
       if (nH>0) H_m.prod(SHAPE,h_in,-1,-1,1);
       if (double_layer) {
+	// Interpolate state and H values at this Gauss point (outer layer)
 	U_out.prod(SHAPE,u_out,-1,-1,1);
 	if (nH>0) H_out_m.prod(SHAPE,h_out,-1,-1,1);
+	// Compute double layer flux function
 	q(U_in,U_out,flux_in,flux_out,jac);
       } else {
+	// Compute single layer flux function
+	// (Not implemented yet)
 	assert(0);
 	// q(U_in,flux,jac_in);
       }
-      
+
+      // Computes contribution to \int N_j f_\mu
       tmp1.set(SHAPE).scale(wpgdet);
       vecc2.prod(tmp1,flux_in,1,2);
 
+      // Add to residual vector
       veccontr.is(1,1,nel2).add(vecc2);
       veccontr.rs();
+
       // Contribution to jacobian from interior side
       tmp2.set(SHAPE).scale(wpgdet);
       tmp3.prod(SHAPE,tmp2,1,2);
@@ -209,8 +249,12 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       tmp4.prod(tmp3,jac,1,3,2,4);
       matlocf.is(1,1,nel2).is(3,1,nel2).add(tmp4);
       jac.rs();
+
       if (double_layer) {
+	// Easier if matlocf is reshaped
 	matlocf.reshape(6,2,nel2,ndof,2,nel2,ndof);
+	// b,bb are `layer' indices b,bb=1 -> inner layer,
+	//                              =2 -> outer layer
 	for (int b=1; b<=2; b++) {
 	  for (int bb=1; bb<=2; bb++) {
 	    if (b==1 && bb==1) continue;
@@ -230,11 +274,14 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       matlocf.rs();
     }
+    // Export residual and jacobian values
     veccontr.export_vals(&(RETVAL(ielh,0,0)));
     matlocf.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
   }
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
+  // Call user callback function for cleanup
+  end_chunk();
   return 0;
 }
 
@@ -247,9 +294,11 @@ int GenLoad::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 void ConsGenLoad::q(FastMat2 &uin,FastMat2 &uout,
 		    FastMat2 &flux_in, FastMat2 &flux_out, 
 		    FastMat2 &jac) {
+  // Call conservative fluxes
   q(uin,uout,flux_in,jac_aux);
-  flux_out.set(flux_in).scale(-1.);
 
+  // Basically, do f_out = -f_in and related jacobian ops.
+  flux_out.set(flux_in).scale(-1.);
   // Jac(2,:) = -Jac(1,:)
   jac.ir(1,1).set(jac_aux)
     .ir(1,2).set(jac_aux).scale(-1).rs();
@@ -257,6 +306,7 @@ void ConsGenLoad::q(FastMat2 &uin,FastMat2 &uout,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void ConsGenLoad::start_chunk() {
+  // Init jac_aux and call user callback function
   jac_aux.resize(3,2,ndof,ndof);
   start_chunk_c();
 }
@@ -264,15 +314,27 @@ void ConsGenLoad::start_chunk() {
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::start_chunk_c() {
   int ierr;
-  //o The film coefficient constant
-  TGETOPTDEF_ND(thash,double,h_film,0);
-  assert(h_film>=0.);
+  //o The film coefficient constant matrix. 
+  // _T: double array
+  // _N: h_film
+  // _D: <none>
+  // _DOC: $f_{\mathrm{in}} = !h \, (!u_{\mathrm{out}} - !u_{\mathrm{in}})$ 
+  // The length of the array may be a) Only one element, then 
+  // $!h$ is a multiple of the identity. b) $\ndof$ values, then is diagonal, 
+  // or c) $\ndof^2$ e full matrix (entered by rows, however,
+  // normally $!h$ should be a symmeteic, positive definite matrix. 
+  // _END
+  read_cond_matrix(thash,"h_film",ndof,h_film);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void lin_gen_load::q(FastMat2 &U_in,FastMat2 &U_out,
 		     FastMat2 &flux_in,FastMat2 &jac) {
-  flux_in.set(U_out).rest(U_in).scale(h_film);
-  jac.ir(1,1).eye(h_film).rs().ir(1,2).eye(-h_film).rs();
+  // Compute state difference at the Gauss point
+  tmp1.set(U_out).rest(U_in);
+  // Scale by film coefficient matrix. 
+  flux_in.prod(h_film,tmp1,1,-1,-1);
+  // Fill Jaocbian
+  jac.ir(1,1).set(h_film).rs()
+    .ir(1,2).set(h_film).scale(-1.).rs();
 }
-
