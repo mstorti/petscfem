@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id: runtests.pl,v 1.106 2003/05/04 16:43:50 mstorti Exp $
+#$Id: runtests.pl,v 1.107 2003/05/12 01:33:58 mstorti Exp $
 #__INSERT_LICENSE__
 
 require '../tools/myexpect.pl';
@@ -602,6 +602,10 @@ expect("sparse/output.sparse.petsc.tmp","Sparse Mat/Vec classes, PETSc version",
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("sparse/tryme8.output.tmp","Resize of non-empty dvectors.",
                         read_file("sparse/tryme8.ans"));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("sqcav/verif.read_ini.tmp","Read_vector function.",
+                        read_file("sqcav/verif.read_ini.ans"));
 
 end_section();
 

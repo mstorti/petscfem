@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $
+$Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
+! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
+! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
+! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
+! # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
+  # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.284 2003/05/11 17:14:10 mstorti Exp $ 
+  # $Id: notes.txt,v 1.285 2003/05/12 01:33:54 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6568,6 +6568,12 @@ para en el paso 18.
 %
 Retomando el tema del spillway. No lo logro hacer andar sin
 `cyclic_fs'. Vuelvo a como estaba antes. 
+%
+14:44:13: Recupero `beta-3.18.pl67' y poniendo `slope=0.03' reproduce
+lo que dice en el `notes.txt' es decir que anda el FS hasta el paso
+18. Voy a tratar de recuperar estos datos pero sin condiciones
+periodicas. 
+
 
 # Current line ===========  %
 # Local Variables: $

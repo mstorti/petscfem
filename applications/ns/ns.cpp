@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.130 2003/03/13 21:46:07 mstorti Exp $
+//$Id: ns.cpp,v 1.131 2003/05/12 01:33:58 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -394,6 +394,11 @@ int main(int argc,char **args) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
+#if 0
+  print_vector("qq.tmp",x,dofmap,&time);
+  PetscFinalize();
+  exit(0);
+#endif
 
   // Filter *filter(x,*mesh);
 

@@ -1,16 +1,16 @@
-# $Id: Makefile,v 1.64 2003/05/04 16:43:50 mstorti Exp $ 
+# $Id: Makefile,v 1.65 2003/05/12 01:33:58 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
-	dx_hook_test_post_run_file_record
+	dx_hook_test_post_run_file_record test_read_ini
+
+default: test_read_ini
 
 ###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
-runn: 
-	$(MAKE) case=weak_form_1 runs
-
-tests: test_re1000 test_iisd test_iisd2 test_meas_perf 		\
-	test_g_body test_fs test_zero_w_proc test_zero_w_proc2 	\
-	test_triangle dx_tests test_qharm_3d test_shell_hook
+tests: test_re1000 test_iisd test_iisd2 test_meas_perf		\
+	test_g_body test_fs test_zero_w_proc test_zero_w_proc2	\
+	test_triangle dx_tests test_qharm_3d test_shell_hook 	\
+	test_read_ini
 
 test_shell_hook: test_shell_hook1 test_shell_hook2
 
@@ -81,7 +81,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	    > $(output_file)
+	 	   #  > $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -296,3 +296,8 @@ local_clean::
 
 shell_hook_%:
 	@echo target $@, step: $$petscfem_step, time: $$petscfem_time
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>--------<*> 
+test_read_ini:
+	$(MAKE) case=read_ini np=4 runs
+	octave -qH check.read_ini.m > verif.read_ini.tmp

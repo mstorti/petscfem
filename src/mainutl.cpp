@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mainutl.cpp,v 1.12 2003/02/04 23:28:47 mstorti Exp $
+//$Id: mainutl.cpp,v 1.13 2003/05/12 01:33:58 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -244,6 +244,7 @@ int print_some(const char *filename,const Vec x,Dofmap *dofmap,
 #undef __FUNC__
 #define __FUNC__ "read_vector" 
 #define X_EXT(i,j) VEC2(x_ext,i,j,ndof)
+#if 0
 int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
   int ndof = dofmap->ndof;
@@ -252,9 +253,11 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 
   PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
   if (myrank==0) {
+    printf("trace 0\n");
     FILE *fid;
     xdof = new double[dofmap->neqtot];
     x_ext = new double[dofmap->nnod * ndof];
+    printf("trace 1\n");
     fid = fopen(filename,"r");
     if (fid==NULL) {
       PetscPrintf(PETSC_COMM_WORLD,
@@ -262,8 +265,10 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 		  filename);
       CHKERRA(1);
     }
+    printf("trace 2\n");
     double dval;
     for (int k=1; k<=dofmap->nnod; k++) {
+      if (k % 1000 == 0) printf("%d node values read...\n",k);
       for (int kldof=1; kldof<=ndof; kldof++) {
 	code = fscanf(fid,"%lf",&(X_EXT(k-1,kldof-1)));
 	if (code==EOF) {
@@ -272,6 +277,7 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
 	}
       }
     }
+    printf("%d node values read...\n",dofmap->nnod);
     if (warn_flag) 
       PetscPrintf(PETSC_COMM_WORLD,
 		  "PETScFEM warning: not enough values"
@@ -280,14 +286,75 @@ int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
     for (int k=0; k<dofmap->neq; k++) {
       VecSetValue(x,k,xdof[k],INSERT_VALUES);
     }
+    printf("Values set.\n",dofmap->nnod);
     delete[] x_ext;
     delete[] xdof;
     fclose(fid);
   }
   ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
   ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
+  PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
 
 }
+#else
+
+int read_vector(const char *filename,Vec x,Dofmap *dofmap,int myrank) {
+
+  int ndof = dofmap->ndof;
+  int ierr,code,warn_flag=0;
+  double *xdof, *x_ext;
+
+  PetscPrintf(PETSC_COMM_WORLD,"Reading vector from file \"%s\"\n",filename);
+  xdof = new double[dofmap->neqtot];
+  x_ext = new double[dofmap->nnod * ndof];
+  if (myrank==0) {
+    printf("trace 0\n");
+    FILE *fid;
+    printf("trace 1\n");
+    fid = fopen(filename,"r");
+    if (fid==NULL) {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "read_vector: couldn't open file %s\n",
+		  filename);
+      CHKERRA(1);
+    }
+    printf("trace 2\n");
+    double dval;
+    for (int k=1; k<=dofmap->nnod; k++) {
+      if (k % 1000 == 0) printf("%d node values read...\n",k);
+      for (int kldof=1; kldof<=ndof; kldof++) {
+	code = fscanf(fid,"%lf",&(X_EXT(k-1,kldof-1)));
+	if (code==EOF) {
+	  warn_flag=1;
+	  X_EXT(k-1,kldof-1) = 0.;
+	}
+      }
+    }
+    fclose(fid);
+    printf("%d node values read...\n",dofmap->nnod);
+    if (warn_flag) 
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "PETScFEM warning: not enough values"
+		  " read while reading vector. Filling with 0's.\n");
+    dofmap->id->solve(xdof,x_ext);
+  }
+
+  ierr = MPI_Bcast (xdof,dofmap->neqtot,MPI_DOUBLE,0,PETSC_COMM_WORLD);
+
+  for (int k=0; k<dofmap->neq; k++) {
+    if (dofmap->dof1 <= k+1 <= dofmap->dof2) {
+      VecSetValue(x,k,xdof[k],INSERT_VALUES);
+    }
+  }
+  PetscPrintf(PETSC_COMM_WORLD,"Values set.\n",dofmap->nnod);
+  ierr = VecAssemblyBegin(x); CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(x); CHKERRQ(ierr);
+  PetscPrintf(PETSC_COMM_WORLD,"Done.\n",filename);
+  delete[] x_ext;
+  delete[] xdof;
+}
+
+#endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__

@@ -8,6 +8,12 @@ print "# case: $case\n";
 get_var_env('meas_perf',undef);
 get_var_env('use_triangles',0);
 
+$u_rini = 0.5;
+if ($case eq 'read_ini') {
+    $case = 'iisd_sbp2';
+    $save_file = "sqcav.read_ini.state.tmp";
+}
+
 $dx = 0;
 if ($case =~ /^dx_(.*)/) {
     $dx = 1;
@@ -20,7 +26,7 @@ if ($case =~ /^dx_(.*)/) {
     $steady = 0;
     $nstep = 20;
 }
-$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
+$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp") unless $save_file;
 
 if ($case eq 'other') {
     $case = 'weak_form_1';
@@ -112,7 +118,7 @@ if (scalar $case =~ /weak_form_(\d)/) {
 $use_qharmm = 0;
 #
 #__END_TRANSCRIPT__
-@vars = qw(U L N Re viscosity h Co Dt hratio g_body use_triangles);
+@vars = qw(U L N Re viscosity h Co Dt hratio g_body use_triangles u_rini);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -128,8 +134,9 @@ octave_export_vars(">data.m.tmp",@vars);
 global_options
 
 nsave 5
-<:pr('nstep'):> 
-# initial_state sqcav.state
+# <:pr('nstep'):> 
+nstep 0
+initial_state "sqcav.ini.tmp"
 # initial_state sqcav.weak_form_0.tmp
 <:pr('save_file'):> 
 
