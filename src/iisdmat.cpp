@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.61 2003/08/31 21:22:34 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.62 2003/09/01 01:10:26 mstorti Exp $
 // fixme:= this may not work in all applications
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -682,8 +682,10 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
     col_indx -= n_locp;
     if (row_indx < 0 || row_indx >= n_loc
 	|| col_indx < 0 || col_indx >= n_loc) {
+#if 0
       printf("[%d] OLD, sending to A_LL_other %d,%d,%g\n",
 	     MY_RANK,row,col,value);
+#endif
       A_LL_other->insert_val(row,col,value);
       return 0;
     } 
@@ -701,6 +703,10 @@ int IISDMat::set_value_a(int row,int col,PetscScalar value,
 #endif
     }
   } 
+#if 1
+  if (row_t == L && col_t == L) 
+    printf("<dbg> [%d] OLD %d,%d %g\n",MY_RANK,row_indx,col_indx,value);
+#endif
 #ifndef DEBUG_IISD_DONT_SET_VALUES
   ierr = MatSetValues(*(AA[row_t][col_t]),
 		      1,&row_indx,1,&col_indx,&value,mode);

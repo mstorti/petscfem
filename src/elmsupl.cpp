@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.15 2003/08/31 21:22:34 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.16 2003/09/01 01:10:26 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -393,6 +393,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
   }
+#if 1
   if (load_mat) {
     PetscSynchronizedFlush(PETSC_COMM_WORLD); 
     int any_A_LL_other_stop_all;
@@ -400,12 +401,13 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		  &any_A_LL_other_stop_all,1,MPI_INT,MPI_MAX,PETSC_COMM_WORLD);
     if (any_A_LL_other_stop_all) {
       PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			      "any_A_LL_other: %d\n",any_A_LL_other_stop);
+			      "[%d] any_A_LL_other: %d\n",MY_RANK,any_A_LL_other_stop);
       PetscSynchronizedFlush(PETSC_COMM_WORLD); 
       PetscFinalize();
       exit(0);
     }
   }
+#endif
 }
 #else
 // Old slow PETSc matrix loading version (uses MatSetValue)
@@ -539,6 +541,10 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	}
       }
     }
+  }
+  if (load_mat && ! comp_prof) {
+    PetscFinalize();
+    exit(0);
   }
 }
 #endif
