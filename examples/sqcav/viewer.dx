@@ -1,0 +1,20 @@
+#-*- shell-script -*-
+# $Id: viewer.dx,v 1.1 2004/09/03 15:31:36 mstorti Exp $ 
+
+object "xnod" class array type float rank 1 shape 2
+        items 1681 data file sqcav.nod.tmp
+
+object "icone" class array type int rank 1 shape 4
+	items 1600 data file "sqcav.con0.tmp"
+attribute "element type" string "quads"
+attribute "ref" string "positions"
+
+object "u" class array type float rank 1 shape 3
+     items 1681 data file "sqcav.state.tmp"
+attribute "dep" string "positions"
+
+object "ufield" class field
+component "positions" value "xnod"
+component "connections" value "icone"
+component "data" value "u"
+end

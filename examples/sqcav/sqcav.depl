@@ -1,0 +1,59 @@
+# -*- mode: shell-script -*-
+global_options
+
+ndim 2
+
+nsave 1
+nstep 1000
+initial_state sqcav.state.tmp
+save_file "sqcav.state.tmp"
+
+# type of solver (may be "iisd", "petsc"...)
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart 4
+
+# Lazo sobre Dt
+tol_tet 1e-5
+Dt 0.1
+steady 1
+
+# Lazo de Newton
+tol_newton 1e-10
+nnwt 1
+
+# Lazo GMRES
+atol 0
+rtol 1e-6
+dtol 1e3
+Krylov_dim 300
+maxits 300
+print_internal_loop_conv 1
+
+shock_capturing_factor 0
+__END_HASH__
+
+# ndim nu ndof
+nodes  2  2  3
+__INCLUDE__ sqcav.nod.tmp
+__END_NODES__
+
+elemset nsi_tet_les_fm2 4
+name visc_fluid
+geometry cartesian2d
+npg 4
+viscosity 0.001
+LES 0
+__END_HASH__
+__INCLUDE__ sqcav.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+fixa
+# fijacion en la presion
+21 3 0.
+# fijaciones de velocidad en las paredes
+__INCLUDE__ sqcav.fixa-wall.tmp
+__INCLUDE__ sqcav.fixa-top.tmp
+__END_FIXA__
