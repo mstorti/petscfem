@@ -38,7 +38,7 @@ if (0) {   ## large mesh
     $Ntheta = 80;
     $Nr=30;
     $Nx=100;
-} elsif (0) {   ## intermediate
+} elsif (1) {   ## intermediate
     $Rint=1;
     $Rext=2;
     $L = 8;

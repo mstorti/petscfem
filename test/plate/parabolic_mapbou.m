@@ -1,5 +1,5 @@
 #usage: 
-function x = mapbou (nodi,nodj,xi,XNOD)
+function x = parabolic_mapbou (nodi,nodj,xi,XNOD)
 
   global Rint Rext L Rmean Rext2 
 
@@ -11,7 +11,7 @@ function x = mapbou (nodi,nodj,xi,XNOD)
   x16 = XNOD(16,:)';
 
   if nodi>nodj
-    x = mapbou (nodj,nodi,1-xi,XNOD);
+    x = parabolic_mapbou (nodj,nodi,1-xi,XNOD);
     return;
   endif
 
@@ -57,7 +57,7 @@ function x = mapbou (nodi,nodj,xi,XNOD)
   elseif nodi==22 && nodj==23
     x = mapbou_circle(22,23,xi,XNOD);
   elseif nodi==23 && nodj==24
-    x = mapbou(21,22,1-xi,XNOD) .* reflex;
+    x = parabolic_mapbou(21,22,1-xi,XNOD) .* reflex;
   else
     x = XNOD(nodi,:)+xi*(XNOD(nodj,:)-XNOD(nodi,:));
   endif
