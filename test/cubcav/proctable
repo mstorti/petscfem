@@ -17,12 +17,12 @@ node1     1.0       server
 node12    9.09    
 node14    9.09
 node15    9.09
-node4     4.00    
-node5     4.00    
-node6     4.00    
-node11    4.00    
-node13    4.00    
-node16    4.00    
+node4     3.00    
+node5     3.00    
+node6     3.00    
+node11    3.00    
+node13    3.00    
+node16    3.00    
 # A estos dos tambien le bajamos el peso por memoria
 # node7     2.00    
 # node10    2.00    
