@@ -473,3 +473,7 @@ tag: beta-1.92 on Sat Jul 28 16:05:04 ART 2001, by mstorti in spider
 tag: beta-1.93 on Fri Aug  3 15:58:36 ART 2001, by mstorti in spider
      > -- STABLE VERSION -- 
      > IISD with distributed map is working.
+----------
+tag: beta-1.94 on Tue Aug  7 20:48:32 ART 2001, by mstorti in spider
+     > Added a test for the IISD bug.
+     > Added `random' partitioning.
