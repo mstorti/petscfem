@@ -2,7 +2,7 @@
 ##
 ## This file is part of PETSc-FEM.
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.7 2003/04/11 23:08:29 mstorti Exp $
+## $Id: mkwave2.m,v 1.1 2003/04/11 23:08:29 mstorti Exp $
 
 ## Author: Mario Storti
 ## Keywords: wave, mesh
@@ -41,9 +41,7 @@ fid2 = fopen("wave.fixa_top.tmp","w");
 fid3 = fopen("wave.patm.tmp","w");
 fid4 = fopen("wave.mmv_top.tmp","w");
 fid5  = fopen("wave_mmv.fixa_bot.tmp","w");
-NN = Nx;
-if !cyclic_fs; NN = Nx+1; endif
-for k=1:NN
+for k=1:Nx+1
   node = (k-1)*(Ny+1)+1;
   fprintf(fid,"%d %d %f\n",node,1,1.);
   fprintf(fid,"%d %d %f\n",node,2,1.);

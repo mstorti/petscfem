@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: alehook.cpp,v 1.21 2003/04/06 16:09:26 mstorti Exp $
+//$Id: alehook.cpp,v 1.22 2003/04/11 23:08:29 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <cstdio>
@@ -487,23 +487,24 @@ void ale_mmv_hook::time_step_pre(double time,int step) {
     // -- Compute normal --
     // FS nodes at the end of the FS must be treated specially.
     // Currently assumes cyclic FS
-    assert(cyclic_fs);
     // Compute coordinates of three nodes on the free surface
     // Node at the center
     dx1.set(&displ_old.e(indx,0));
     x1.set(&nodedata[nu*(node-1)]).add(dx1);
 
     // Previous node
-    int div0,div2;
-    int indx0 = modulo(indx-1,nfs,&div0);
+    int div0=0,div2=0;
+    int indx0 = indx-1;
+    if (indx0<0) indx0 = (cyclic_fs ? modulo(indx0,nfs,&div2) : 0);
+
     int node0 = fs.e(indx0);
     x0.set(&nodedata[nu*(node0-1)]);
     dx0.set(&displ_old.e(indx0,0));
     x0.addel(div0*cyclic_length,1).add(dx0);
 
     // Next node
-    int indx2 = modulo(indx+1,nfs,&div2);
-    int node2 = fs.e(indx2);
+    int indx2 = indx+1;
+    if (indx2>=nfs) indx2 = (cyclic_fs ? modulo(indx2,nfs,&div2) :nfs-1);
     x2.set(&nodedata[nu*(node2-1)]);
 #if 0
     printf("indx0 %d, indx %d, indx2 %d\n",indx0,indx,indx2);
@@ -689,3 +690,46 @@ double fs_bottom::eval(double t) {
 }
 
 DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(fs_bottom);
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+class press_out : public DLGenericTmpl {
+private:
+  int ndim, node_fs;
+  double gravity,rho;
+public:
+  press_out() { }
+  void init(TextHashTable *thash);
+  double eval(double);
+  ~press_out() { }
+};
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void press_out::init(TextHashTable *thash) {  
+  int ierr;
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,rho,0.);
+  assert(rho>0.);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,double,gravity,0.);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,ndim,0);
+  assert(ndim>0);
+  TGETOPTDEF_ND(GLOBAL_OPTIONS,int,node_fs,0);
+  assert(node_fs>0);
+}
+
+extern Mesh * GLOBAL_MESH;
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double press_out::eval(double t) { 
+  double *nodedata = GLOBAL_MESH->nodedata->nodedata;
+  int nu = GLOBAL_MESH->nodedata->nu;
+  int n = node();
+  int f = field();
+  assert(f==ndim+1);
+  double z_fs = nodedata[(node_fs-1)*nu+ndim-1];
+  double z = nodedata[(n-1)*nu+ndim-1];
+  double phydr = rho*gravity*(z_fs-z);
+  printf("node %, node_fs %d, z %f, z_fs %f, phydr %f\n",
+	 n,node_fs,z,z_fs,phydr);
+  return phydr;
+}
+
+DEFINE_EXTENDED_AMPLITUDE_FUNCTION2(press_out);

@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.15 2003/04/07 21:28:43 mstorti Exp $ 
+## $Id: wave.epl,v 1.16 2003/04/11 23:08:29 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 use File::Copy;
@@ -16,7 +16,7 @@ if ($restart) {
 $dx = 0;
 #__END_TRANSCRIPT__
 @vars = qw(Lx h Ny Nx fs_relax Dt gravity p_const_bc patm slope
-    yratio initia eta0 L_bump t uini);
+    yratio initia eta0 L_bump t uini cyclic_fs);
 transcript("", @vars);	# print variables on output and transcript this block
 octave_export_vars(">data.m.tmp",@vars);
 system "initia=1 octave -qH mkwave.m";
@@ -82,6 +82,8 @@ my_ale_hook.prefix   ale_hook2
 
 <:pr('viscosity'):>
 G_body <:=$slope*$gravity:> <:=-$gravity:>
+<:pr('gravity'):>
+node_fs <:=($Ny+1)*($Nx+1):>
 
 volume_gather_pos 0
 volume_ref <:=$Lx*$h-$L_bump*$h*$t*2/3.:>
@@ -142,6 +144,14 @@ ext_filename "./alehook.efn"
 function_name "fs_bottom"
 __END_HASH__
 __INCLUDE__ "wave.fixa_bot.tmp"
+__END_FIXA__
+
+#===========================================================
+fixa_amplitude dl_generic
+ext_filename "./alehook.efn"
+function_name "press_out"
+__END_HASH__
+__INCLUDE__ "wave.out.tmp"
 __END_FIXA__
 
 #===========================================================

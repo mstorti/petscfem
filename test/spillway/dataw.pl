@@ -40,5 +40,6 @@ $restart_dir = "RUN2";
 $restart_step = -1;		# restart from a previous run
 
 $restart = ($restart_step>=0 ? 1 : 0);	# flags whether to 
+$cyclic_fs = 0;
 
 1;
