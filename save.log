@@ -2852,3 +2852,7 @@ tag: beta-3.19.pl53 on Sun, 31 Aug 2003 10:24:08 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl54 on Sun, 31 Aug 2003 10:54:08 -0300 by mstorti in spider
      > Found bug in efficiency improvement.
+----------
+tag: beta-3.19.pl55 on Sun, 31 Aug 2003 12:31:07 -0300 by mstorti in spider
+     > Fixed a bug in Dofmap::get_nodal_value. Runs `sector' example
+     > checking constraints.
