@@ -3359,3 +3359,6 @@ tag: beta-3.33.13 on Sun, 24 Oct 2004 13:49:33 -0300 by mstorti in spider
 ----------
 tag: beta-3.33.14 on Sun, 24 Oct 2004 14:51:20 -0300 by mstorti in spider
      > PFSymmPETScMat class works in simple sequential example. 
+----------
+tag: beta-3.33.15 on Sun, 24 Oct 2004 14:56:13 -0300 by mstorti in spider
+     > PFSymmPETScMat class works in simple parallel example. 
