@@ -6,12 +6,10 @@ TODO: [Mainly fixes go here...]
 * fix some incompatibilities that exclude compilation with LES under old RH5.2
          of some STL vector usage.
 * generate doc in PDF
-* fix the __VA_ARG__ incompatibility with older cpp (???)
 * Dofmap may be eliminated of the arguments to the elemset 'assemble'
      routine (not from the global assemble)
 * classify sections in doc as user / application developper / programmer.
 * Review impact of '-funroll-loops' in FastMat2 efficiency. 
-* add doc for enthalpy jacobians
 * Make ElementIterator a nested class of Elemset
 * Convert flux functions (burgers, shallow water), to new ff's...
 * In the advective elemsets we don't destroy the flux function objects
@@ -28,7 +26,6 @@ TODO: [Mainly fixes go here...]
 * Fix makefile: runs bison and compiles getarray.cpp even it's not
   necessary
 * document coding of fastmat2. Document the eperl utilities.
-* write diag-like fastmat2 functions. 
 * Make readmesh check dof numbers not being greater than... 
 * test for burgers
 * move 'awatch' from test/
@@ -48,6 +45,9 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* write diag-like fastmat2 functions. 
+* add doc for enthalpy jacobians
+* fix the __VA_ARG__ incompatibility with older cpp (???)
 * Add a "mass" to the advective dffusive eq.??
 * Add enthalpy contrib to the P_supg term
 * Add doc for new flux functions
