@@ -15,9 +15,9 @@ initial_state "cylabso.ini.tmp"
 nsave 1
 save_file "cylabso.state.tmp"
 
-# print_some_file "cylabso.some-nodes.tmp"
-# save_file_some "cylabso.some-rslt.tmp"
-# nsome 1
+print_some_file "cylabso.some-nodes.tmp"
+save_file_some "cylabso.some-rslt.tmp"
+nsome 1
 
 save_file_pattern "STEPS/cylabso.state_%d.tmp"
 nsaverot 10
@@ -74,6 +74,7 @@ dx_read_state_from_file 1
 dx_do_make_command
 dx_cache_coords 0
 dx_cache_connectivities 0
+dx_port 5315
 partitioning_method natural
 #endif
 

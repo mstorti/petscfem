@@ -1,4 +1,4 @@
-## $Id: mkcyl.m,v 1.1 2005/01/24 00:48:32 mstorti Exp $
+## $Id: mkcyl.m,v 1.2 2005/01/24 16:06:09 mstorti Exp $
 source("data.m.tmp");
 
 w = zhomo([log(R) log(Rext) 0 pi],Nr+1,Nphi+1);
@@ -55,7 +55,6 @@ for k=1:Nphi+1
 	  rnodes,lagmulnd,refstnode,nor);
 endfor
 fclose(fid);
-## asave("cylabso.abso-con.tmp",abso_con);
 
 asave("cylabso.nod.tmp",xnod);
 asave("cylabso.con.tmp",icone);
@@ -68,3 +67,6 @@ nnod2 = rows(xnod);
 uini = uini(ones(nnod2,1),:);
 uini(lm_nodes,:) = 0;
 asave("cylabso.ini.tmp",uini);
+
+some = create_set([1:Nphi+1,1:nline:nnod,nline-1+(1:nline:nnod)])';
+asave("cylabso.some-nodes.tmp",some);

@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.10 2005/01/24 00:48:32 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2005/01/24 16:06:09 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
 default: runc
 
-BOPT := O_c++
+# BOPT := O_c++
 SRCS = 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
