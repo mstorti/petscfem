@@ -10,7 +10,7 @@
 class NewAdvDif : public NewElemset { 
   NewAdvDifFF *adv_diff_ff;
 public:
-  int ndim,ndof;
+  int ndim,ndof,nel;
   NewAdvDif(NewAdvDifFF *adv_diff_ff_) : adv_diff_ff(adv_diff_ff_) {};
   NewAssembleFunction new_assemble;
   ASK_FUNCTION;
@@ -28,7 +28,7 @@ private:
   ElementIterator element;
   Property advective_jacobians_prop;
   const double *advjac;
-  int ndim,ndof;
+  int ndim,ndof,nel;
 public:
 
   /// One velocity for all the fields

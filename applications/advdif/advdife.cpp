@@ -60,6 +60,7 @@ int NewAdvDif::ask(const char *jobinfo,int &skip_elemset) {
 #define __FUNC__ "void AdvDifFF::get_log_vars(int,const int*)"
 void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
   const char *log_vars_entry;
+  const int &ndof=elemset->ndof;
   elemset->get_entry("log_vars_list",log_vars_entry); 
   VOID_IT(log_vars_v);
   string s;
@@ -67,8 +68,6 @@ void NewAdvDifFF::get_log_vars(int &nlog_vars,const int *& log_vars) {
     s=string(log_vars_entry);	// Save local copy
     read_int_array(log_vars_v,log_vars_entry); 
   }
-  int nel,ndof,nelprops;
-  elemset->elem_params(nel,ndof,nelprops);
   nlog_vars=log_vars_v.size();
   log_vars = log_vars_v.begin();
   int ierr=0;
@@ -144,7 +143,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
   assert(npg>0);
   assert(ndim>0);
   
-  int nel,nelprops;
+  int nelprops;
   elem_params(nel,ndof,nelprops);
   int nen = nel*ndof;
 

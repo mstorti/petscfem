@@ -9,15 +9,20 @@ w=zhomo([0 Lx 0 Ly],nx+1,ny+1);
 icone=icone(:,[1 4 3 2]);
 
 yy=xnod(1:ny+1,2);
-yyamp=sin(yy*pi/2);
-fixa=[(1:ny+1)' ones(ny+1,1) yyamp];
 
-fixa=[fixa;
-      (Ny+1:Ny:Nx*Ny)' ones(nx,1) zeros(nx,1)];
+if per_elem_prop
+  fixa=[(1:ny+1)' ones(ny+1,2)];
+else
+  yyamp=sin(yy*pi/2);
+  fixa=[(1:ny+1)' ones(ny+1,1) yyamp];
+  fixa=[fixa;
+	(Ny+1:Ny:Nx*Ny)' ones(nx,1) zeros(nx,1)];
+endif
 
 fid=fopen("sine.fixa.tmp","w");
 fprintf(fid,"%d %d %f\n",fixa');
 fclose(fid);
+
 
 nele=rows(icone);
 if per_elem_prop

@@ -34,6 +34,7 @@
 #include "nwadvdif.h"
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+
 #undef __FUNC__
 #define __FUNC__ "void advecfm2_ff_t::element_hook(ElementIterator &)"
 // This is to pass to the advective function the element
@@ -86,7 +87,7 @@ comp_A_grad_U(FastMat2 &A_grad_U,FastMat2 &grad_U) {
 void newadvecfm2_ff_t::UGlobal::
 comp_A_grad_N(FastMat2 &A_grad_N,FastMat2 &dshapex) {
   tmp.prod(ff.u,dshapex,-1,-1,1);
-  for (int j=1; j<=ff.ndim; j++) {
+  for (int j=1; j<=ff.elemset->nel; j++) {
     A_grad_N.ir(1,j).eye(tmp.get(j));
   }
   A_grad_N.rs();

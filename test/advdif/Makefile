@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2001/03/19 01:20:32 mstorti Exp $ 
+# $Id: Makefile,v 1.16 2001/03/20 15:17:11 mstorti Exp $ 
 
 .PHONY: plano data run
 
@@ -96,13 +96,18 @@ plano.con plano.nod: plano.m
 	echo file advdif >$@
 	echo set args -case per_elem_prop.depl >> $@
 
+DF = per_elem_prop.depl
 #w Test for per-element properties 
-per_elem_prop: .gdbinit advdif.link
+$(DF): sine.epl
+	if [ -e $(DF) ] ; then chmod +w $(DF) ; fi
+	eperl -P -d perl_elem_prop=1 sine.epl > $(DF)
+	chmod -w $(DF)
+
+per_elem_prop: .gdbinit advdif.link $(DF)
 	eperl -d per_elem_prop=1 sine.data.epl >sine.data
-	eperl -P -d perl_elem_prop=1 sine.epl > per_elem_prop.depl
 	octave -q sine.m
 	-$(MPIRUN) -np 1 -machinefile machi.dat $(ADVDIF) \
-			-case per_elem_prop.depl > per_elem_prop.out.tmp
+			-case $(DF) > per_elem_prop.out.tmp
 
 # lclean:
 # 	-chmod +w sine.depl
