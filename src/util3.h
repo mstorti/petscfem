@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: util3.h,v 1.2 2003/02/08 16:08:48 mstorti Exp $
+// $Id: util3.h,v 1.3 2003/02/09 14:50:57 mstorti Exp $
 #ifndef UTIL3_H
 #define UTIL3_H
 
@@ -36,12 +36,5 @@ void tokenize(const char *line,vector<string> &tokens);
     @param (input) the socket where the line is read. 
     @return number of bytes read */ 
 ssize_t Sgetline(char **lineptr, size_t *N_a,Socket *sock);
-
-/** Broadcasts a string from the master to the slaves
-    @param s (input/output) the string to be broadcasted
-    @param master (input) the index of the master
-    @param comm (input) the MPI communicator
-    @return error code */ 
-int string_bcast(string &s,int master,MPI_Comm comm);
 
 #endif

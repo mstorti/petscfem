@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: utils.cpp,v 1.14 2002/05/10 21:19:21 mstorti Exp $
+//$Id: utils.cpp,v 1.15 2003/02/09 14:50:57 mstorti Exp $
  
 #include <src/debug.h>
 #include <stdio.h>
@@ -248,50 +248,17 @@ int wait_from_console(char *s=NULL) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// this stuff moved to `debug.cpp'
-#if 0
-Debug debug;
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void Debug::wait(const char *s=NULL) {
-  if (!active()) return;
-  int myrank;
+int string_bcast(string &s,int master,MPI_Comm comm) {
+  int myrank,len, ierr;
+  char *copy=NULL;
   MPI_Comm_rank(comm,&myrank);
-  int ierr;
-  char ans;
-  ierr = MPI_Barrier(comm);
-  assert(ierr==0);
-  if (myrank==0) {
-    if (s!=NULL) printf("%s --- ",s);
-    printf("Continue? (n/RET=y) > ");
-    fflush(stdout);
-    scanf("%c",&ans);
-  }
-  ierr = MPI_Bcast (&ans, 1, MPI_CHAR, 0,comm);
-  assert(ierr==0); 
-  if (ans=='n') {
-    PetscFinalize();
-    exit(0);
-  } else if (ans=='d') {
-    deactivate();
-  } 
-  ierr = MPI_Barrier(comm);
-  assert(ierr==0);  
+  if (myrank==master) len = strlen(s.c_str());
+  ierr = MPI_Bcast (&len, 1, MPI_INT, master,comm);
+  if (ierr) return ierr;
+  copy = new char[len+1];
+  if (myrank==master) strcpy(copy,s.c_str());
+  ierr = MPI_Bcast (copy,len+1, MPI_CHAR, master,comm);
+  if (ierr) return ierr;
+  if (myrank!=master) s = string(copy);
+  delete[] copy;
 }
-#endif
-
-//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-// Estos templates no se si van en los header o en los .cpp (???)
-#if 0
-template<class T> 
-class T random_pop(set<T> &Tset) {
-  T retval;
-  int n=Tset.size();
-  int j = irand(1,n);
-  set<T>::iterator it=Tset.begin();
-  for (int k=1; k<j; k++) it++;
-  retval = *it;
-  Tset.erase(it);
-  return retval;
-}
-#endif

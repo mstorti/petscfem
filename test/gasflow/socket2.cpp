@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: socket2.cpp,v 1.9 2003/02/08 23:12:57 mstorti Exp $
+// $Id: socket2.cpp,v 1.10 2003/02/09 14:50:57 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <cstdlib>
@@ -107,7 +107,7 @@ void *wait_connection(void *arg) {
 int main(int argc,char **args) {
   comm_mode mode;
   Socket *clnt = NULL;
-  pthread_t *thread;
+  pthread_t thread;
   double inside=0., counter=0.;
   int ierr;
   if(argc>1 && !strcmp(args[1],"-server")) {
@@ -117,7 +117,7 @@ int main(int argc,char **args) {
     while (1) {
       printf("Waiting connection...\n");
       connected=0;
-      ierr =  pthread_create(thread,NULL,&wait_connection,NULL);
+      ierr =  pthread_create(&thread,NULL,&wait_connection,NULL);
       int computed=0;
       while (1) {
 	int chunk = 100;
@@ -134,6 +134,10 @@ int main(int argc,char **args) {
       double cpi = 4.*inside/counter;
       printf("computed %d, current pi %f, error %g\n",
 	     computed,cpi,fabs(cpi-M_PI));
+
+      void *retval;
+      ierr = pthread_join(thread,&retval);
+      assert(!ierr);
 
       mode = SEND;
       while (!talk(srvr,mode));

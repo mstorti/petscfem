@@ -1,8 +1,8 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: debug.h,v 1.7 2003/02/08 14:27:53 mstorti Exp $
-#ifndef DEBUG_H
-#define DEBUG_H
+// $Id: debug.h,v 1.8 2003/02/09 14:50:57 mstorti Exp $
+#ifndef PF_DEBUG_H
+#define PF_DEBUG_H
 
 #define _GNU_SOURCE
 

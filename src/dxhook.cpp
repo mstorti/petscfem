@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.14 2003/02/08 16:08:48 mstorti Exp $
+//$Id: dxhook.cpp,v 1.15 2003/02/09 14:50:57 mstorti Exp $
 #ifdef USE_SSL
 
 #include <src/debug.h>
@@ -61,15 +61,64 @@ PetscSynchronizedFlush(PETSC_COMM_WORLD);
 #define PF_DBG_DBL(name)  PF_DBG(name,%f) 
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+static void *wait_connection(void *arg) {
+  dx_hook *hook = (dx_hook *)arg;
+  return hook->wait_connection();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void *dx_hook::wait_connection() {
+  srvr = Saccept(srvr_root);
+  connection_state_master = connected;
+  return NULL;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+dx_hook::connection_state_t 
+dx_hook::connection_state() {
+  if (!MY_RANK) connection_state_m = connection_state_master;
+  ierr = MPI_Bcast (&connection_state_m, 1, MPI_INT, 0,PETSC_COMM_WORLD);
+  return connection_state_m;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::set_connection_state(connection_state_t s) {
+  connection_state_m = connection_state_master = s;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void dx_hook::re_launch_connection() {
+  set_connection_state(not_connected);
+  if (!MY_RANK) {
+    ierr = pthread_create(&thread,NULL,&::wait_connection,this);
+    assert(!ierr);
+  }
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void dx_hook::
 time_step_post(double time,int step,
 	       const vector<double> &gather_values) {
   // this is for CHECK_COOKIE
 #define sock srvr
-  int ierr, cookie, cookie2, dx_step;
+  int cookie, cookie2, dx_step;
   string state_file;
   if (steps && step_cntr--) return;
-
+  if (!steps) {
+    if(connection_state() == not_launched) {
+      re_launch_connection();
+      sleep(1);
+    }
+    if (connection_state()==not_connected) return;
+    else if (connection_state()==connected) {
+      void *retval;
+      if (!MY_RANK) {
+	ierr = pthread_join(thread,&retval);
+	assert(!ierr);
+      }
+      set_connection_state(not_launched);
+    } else assert(0);
+  }
 #define BUFSIZE 512
   static char *buf = (char *)malloc(BUFSIZE);
   static size_t Nbuf = BUFSIZE;
@@ -175,10 +224,22 @@ time_step_post(double time,int step,
     Sprintf(srvr,"end\n");
     Sclose(srvr);
   }
+  if(connection_state() == not_launched) re_launch_connection();
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void dx_hook::close() { 
+void dx_hook::close() {
+  // I'm not too much sure how to do this correctly
+  if (connection_state()==connected) {
+    // Here we should shut down the connection
+    // sending some message to the client
+    set_connection_state(not_connected);
+  }
+  if (connection_state()==not_connected) {
+    pthread_cancel(thread);
+    set_connection_state(not_launched);
+  }
+  assert(connection_state()==not_launched);
   if (!MY_RANK) Sclose(srvr_root); 
 }
 

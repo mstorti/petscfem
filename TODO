@@ -5,6 +5,7 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line =========== 
+* DX: write documentation for `dx_hook' and `ExtProgImport'. 
 * DX: make `dxhook' to be launched though a flag of type `dx' not
           through the standard `hook-list' option line. 
 * DX: make `dxhook' to auto-recognize geometries from the "geometry"

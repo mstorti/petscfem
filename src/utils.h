@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: utils.h,v 1.15 2002/09/05 18:23:52 mstorti Exp $
+//$Id: utils.h,v 1.16 2003/02/09 14:50:57 mstorti Exp $
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -135,6 +135,7 @@ T random_pop(set<T> &Tset) {
   return retval;
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Voids a generic container.
     @author M. Storti
     @param x generic container (set, list, etc...)
@@ -147,6 +148,13 @@ T random_pop(set<T> &Tset) {
 int wait_from_console(char *s=NULL);
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Performs the modulo operation, in the sense of number theory. 
+    Given integers #k# and #n>0#, we find #m# and #div# such that
+    #k = m * div + n# with #0 <= m < n#
+    @param k (input) the number to take the modulo
+    @param n (input) the modulo
+    @param div (input) pointer to an integer where to put the divisor
+    @return the result of the modulo operation */ 
 inline int modulo(int k, int n, int *div=NULL) {
   int m = k % n;
   int d = k / n;
@@ -157,5 +165,13 @@ inline int modulo(int k, int n, int *div=NULL) {
   if (div) *div = d;
   return m;
 }
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/** Broadcasts a string from the master to the slaves
+    @param s (input/output) the string to be broadcasted
+    @param master (input) the index of the master
+    @param comm (input) the MPI communicator
+    @return error code */ 
+int string_bcast(string &s,int master,MPI_Comm comm);
 
 #endif
