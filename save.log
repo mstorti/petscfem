@@ -491,3 +491,6 @@ tag: beta-1.97 on Sun Aug 12 20:13:02 ART 2001, by mstorti in spider
 ----------
 tag: beta-1.98 on Thu Aug 16 15:25:50 ART 2001, by mstorti in minerva.arcride.edu.ar
      > DistMap is working in IISD with a more ellegant relation with the partitioner
+----------
+tag: beta-1.99 on Sat Aug 18 10:10:47 ART 2001, by mstorti in spider
+     > Adding `set_fill' to (full) LU PETSc solver. Will go back to beta-1.98.
