@@ -24,7 +24,7 @@ print_some_file "nonlr.some"
 save_file_some "nonlr.some.tmp"
 nsome 1
 
-nnwt 5
+nnwt 3
 tol_newton 0
 preco_type "lu"
 
@@ -32,7 +32,7 @@ preco_type "lu"
 #solve_system 0
 
 Dt 0.1
-nstep 1
+nstep 40
 alpha 1.
 viscosity 1.
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-/* $Id: nonlr.cpp,v 1.8 2001/06/01 20:09:16 mstorti Exp $ */
+/* $Id: nonlr.cpp,v 1.9 2001/06/01 22:51:19 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -118,8 +118,8 @@ int NonLinearRes::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       R.export_vals(&(RETVAL(ielh,0,0)));
       // matloc.set(0.);
       matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
-      pp.set(matloc.storage_begin());
-      pp.print("matloc: ");
+      // pp.set(matloc.storage_begin());
+      // pp.print("matloc: ");
     }
   }
   FastMat2::void_cache();
@@ -138,11 +138,16 @@ void wall_law_res::res(FastMat2 & U,FastMat2 & r,
 		       FastMat2 & lambda,FastMat2 & jac) {
   double k = U.get(1,nk);
   double eps = U.get(1,ne);
+#if 0
+  double rr = 1.1*eps - k;
+  jac.setel(1.1,1,ne);
+#else
   double rr = 2.*eps*eps - k;
-  r.setel(rr,1);
+  jac.setel(4.*eps,1,ne);
+#endif
   lambda.set(0.).setel(1.,ne,1);
-  jac.setel(4.*eps,1,nk);
-  jac.setel(-1.,1,ne);
+  r.setel(rr,1);
+  jac.setel(-1.,1,nk);
 }
 
 #undef SHAPE    
