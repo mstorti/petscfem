@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* How to choose the correct jacobian when different combinations (eg:
+* ndim*ndim, ndof, etc...) coincide...
 * Fix makefile: runs bison and compiles getarray.cpp even it's not
   necessary
 * document coding of fastmat2. Document the eperl utilities.
