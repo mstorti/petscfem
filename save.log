@@ -244,3 +244,7 @@ tag: beta-1.35 on Tue Mar 20 20:23:46 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-1.36 on Tue Mar 20 22:38:09 ART 2001, by mstorti in spider
      > Writing advdif flux functions more OOP
+----------
+tag: beta-1.37 on Wed Mar 21 10:32:50 ART 2001, by mstorti in spider
+     > Anda el jacobiano difusivo GlobalScalar para un caso simple 
+     > con un solo grado de libertad.
