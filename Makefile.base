@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.68 2002/02/13 17:24:13 mstorti Exp $
+#$Id: Makefile.base,v 1.69 2002/02/17 03:59:47 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -166,10 +166,9 @@ distclean:
 	$(MAKE) clean local_dist_clean &> /dev/null
 	for dir in $(CLEAN_DIRS) ; do $(MAKE) -C $$dir distclean  ; done
 
-LDFLAGS = 					\
-          $(PROG_LIB)				\
-	  -L$(PETSCFEM_DIR)/src			\
+LDFLAGS = -L$(PETSCFEM_DIR)/src			\
           -lpetscfem_$(opt_level)		\
+          $(PROG_LIB)				\
           -L$(METIS) -L/usr/local/lib		\
           -lmetis  -L$(NEWMAT)  -lnewmat	\
           -lglib -L$(LIBRETTO_LIB) -libretto	\
@@ -180,23 +179,6 @@ LDFLAGS = 					\
 
 # general program 
 $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM) $(PROG_LIB)
-	$(MAKE) $(PROG_LIB)
-#	If object does not have the appropriate debugging level recompile	\
-#	[ OK. This is very tricky... I don't know the portability of this ]	\
-# 	@for o in $(MYOBJS) ; do							\
-# 	if objdump -g $$f 2>&1 | grep 'no recognized debugging information'	\
-# 		> /dev/null ; then						\
-# 		obj_optl='O' ;							\
-# 		else								\
-# 		obj_optl='g' ;							\
-# 	fi ;									\
-# 	if [ ! "x$(opt_level)"="x$$obj_optl" ] ; then				\
-# 		echo "OptLevelCheck: object $< does not match optimization "	\
-# 				"level BOPT: $(BOPT)" ;				\
-# 		rm $< ;								\
-# 		$(MAKE) $$f ;							\
-# 	fi ;									\
-# 	done 
 	-rm $@
 	${CXX_CLINKER} $(PROF_FLAGS) -o $@ $(MYOBJS) $(OTHER_OBJS) $(LDFLAGS)
 

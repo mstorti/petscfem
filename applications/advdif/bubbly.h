@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: bubbly.h,v 1.2 2002/02/15 19:55:49 mstorti Exp $
+// $Id: bubbly.h,v 1.3 2002/02/17 03:59:51 mstorti Exp $
 #ifndef BUBBLY_H
 #define BUBBLY_H
 
@@ -17,10 +17,11 @@ private:
   FastMat2 U,v_l,v_g,v_mix,Cp,Ajac,Id,Amoml,Amomg,Y,
     Djac,tmp1,Cjac,tmp2,tmp3,grad_v_l,strain_rate_l,
     grad_v_g,strain_rate_g,grad_k,grad_e,IdId,G_body,
-    visco_t,uintri,svec,tmp9;
+    uintri,svec,tmp9;
   double alpha_l,alpha_g,arho_l,arho_g,p,k,eps,
     visco_l,visco_g,visco_l_eff,visco_g_eff,
-    C_mu,C_1,C_2,sigma_k,sigma_e,P_k,tau_fac;
+    C_mu,C_1,C_2,sigma_k,sigma_e,P_k,tau_fac,
+    visco_t;
 
   double rho_l,rho_g;
     
@@ -114,10 +115,6 @@ public:
 		   double w);
   void comp_P_Cp(FastMat2 &P_Cp,const FastMat2 &P_supg);
 
-  /** This stream elemset is essentially 1D.
-      @return the dimension of this element that is 1
-  */
-  int dim() const { return 1; }
 };
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

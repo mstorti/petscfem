@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: stream.h,v 1.12 2002/02/15 19:55:49 mstorti Exp $
+// $Id: stream.h,v 1.13 2002/02/17 03:59:51 mstorti Exp $
 #ifndef STREAM_H
 #define STREAM_H
 
@@ -27,7 +27,7 @@ class AdvDifFFWEnth : public NewAdvDifFF {
   FastMat2 UU;
 public:
   friend class DummyEnthalpyFun;
-  AdvDifFFWEnth(const NewAdvDif *elemset_=NULL) 
+  AdvDifFFWEnth(const NewElemset *elemset_=NULL) 
     : NewAdvDifFF(elemset_), ef(this) { enthalpy_fun = &ef; }
   virtual void enthalpy(FastMat2 &H)=0;
   virtual void comp_W_Cp_N(FastMat2 &W_Cp_N,const FastMat2 &W,const FastMat2 &N,

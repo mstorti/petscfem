@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.31 2002/01/14 03:45:01 mstorti Exp $
+#$Id: Makefile,v 1.32 2002/02/17 03:59:47 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -32,6 +32,13 @@ all: sw doc pflib $(APPS)
 local_sw:: sync_version depend tags 
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
 	$(MAKE) -C doc readme
+# make scripts executable
+	chmod 755 ./make/appatch ./make/mkpatch ./make/mkvers \
+		./src/insdeb.pl ./test/runtests.pl ./test/turbchan/verify.pl \
+		./tools/coall ./tools/checktag \
+		./tools/insert_license.pl ./tools/makeltag \
+		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl \
+		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident

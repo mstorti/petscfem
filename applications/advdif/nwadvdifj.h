@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-//$Id: nwadvdifj.h,v 1.4 2002/02/17 02:18:05 mstorti Exp $
+//$Id: nwadvdifj.h,v 1.5 2002/02/17 03:59:51 mstorti Exp $
 #ifndef NWADVDIFJ_H
 #define NWADVDIFJ_H
 
@@ -67,7 +67,7 @@ public:
   SourceTerm *source_term;
 
   /// Contructor from the objects
-  advdif_wjac_ff(const NewAdvDif *elemset_,
+  advdif_wjac_ff(NewElemset *elemset_,
 		 DJac *d=NULL,AJac *a_jac_=NULL, 
 		 CJac *c=NULL, SourceTerm *st=NULL);
 

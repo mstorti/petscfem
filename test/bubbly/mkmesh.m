@@ -6,8 +6,8 @@ w=zhomo([0 1 0 1],N+1,N+1,[1 hratio 1 1 hratio 1]);
 [xnod,icone] = pfcm2fem(w);
 icone = icone(:,[1 4 3 2]);
 
-asave("sqcav.nod.tmp",xnod);
-asave("sqcav.con.tmp",icone);
+asave("bubbly.nod.tmp",xnod);
+asave("bubbly.con.tmp",icone);
 
 x=xnod(:,1);
 y=xnod(:,2);
@@ -27,15 +27,29 @@ else
   utop = 1;
 endif
 
-fixa=[lid' ones(nlid,2)*diag([1 utop]);
-      lid' ones(nlid,2)*diag([2 0]);
-      b' ones(nb,2)*diag([1 0]);
-      b' ones(nb,2)*diag([2 0])];
+ul=3;
+vl=4;
+fixa=[lid' ones(nlid,2)*diag([ul utop]);
+      lid' ones(nlid,2)*diag([vl 0]);
+      b' ones(nb,2)*diag([ul 0]);
+      b' ones(nb,2)*diag([vl 0])];
 
-asave("sqcav.fixa.tmp",fixa);
+asave("bubbly.fixa.tmp",fixa);
+fid = fopen("bubbly.fixa_all.tmp","w");
+for j=1:(N+1)^2;
+  fprintf(fid,"%d %d %f\n",j,1,alpha_l);
+  fprintf(fid,"%d %d %f\n",j,5,u_g);
+  fprintf(fid,"%d %d %f\n",j,6,v_g);
+  fprintf(fid,"%d %d %f\n",j,7,k);
+  fprintf(fid,"%d %d %f\n",j,8,eps);
+endfor
+fclose(fid);
+
+## fix all quantities not liquid velocity and pressure
+
 
 ## y coordinates of nodes on the centerline
 ny = (N/2)*(N+1)+(1:N+1)';
 yh = xnod(ny,2);
 
-save sqcav.ny.tmp  ny yh
+save bubbly.ny.tmp  ny yh

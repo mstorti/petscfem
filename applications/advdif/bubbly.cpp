@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: bubbly.cpp,v 1.2 2002/02/15 19:55:49 mstorti Exp $
+//$Id: bubbly.cpp,v 1.3 2002/02/17 03:59:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -41,7 +41,7 @@ void bubbly_ff::start_chunk(int &ret_options) {
   vl_indx = 3;
   vl_indxe = 3+ndim-1;
   vg_indx = vl_indx+ndim;
-  vg_indxe = vg_indxe;
+  vg_indxe = vg_indx+ndim-1;
   k_indx = vg_indx+ndim;
   e_indx = k_indx+1;
   v_l.resize(1,ndim);
@@ -55,9 +55,9 @@ void bubbly_ff::start_chunk(int &ret_options) {
   Y.resize(3,ndim,ndim,ndim);
 
   Djac.resize(4,ndim,ndof,ndim,ndof);
-  tmp1.resize(4,ndim,nel,ndof,ndof);
+  tmp1.resize(4,nel,ndof,ndim,ndof);
   Cjac.resize(2,ndof,ndof);
-  tmp2.resize(3,ndof,nel,ndof);
+  tmp2.resize(2,nel,nel);
   tmp3.resize(2,ndof,ndof);
 
   grad_v_l.resize(2,ndim,ndim);
@@ -75,7 +75,7 @@ void bubbly_ff::start_chunk(int &ret_options) {
 
   uintri.resize(1,ndim);
   svec.resize(1,ndim);
-  tmp9.resize(nel);
+  tmp9.resize(1,nel);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -234,9 +234,12 @@ void bubbly_ff
 
   Ajac.rs().ir(2,k_indx).ir(3,k_indx).set(v_l).scale(arho_l);
   Ajac.rs().ir(2,e_indx).ir(3,e_indx).set(v_l).scale(alpha_g*rho_l);
+  Ajac.rs();
 
   // Strain rate for the liquid
-  grad_U.is(1,vl_indx,vl_indxe);
+  // fixme:= not clear which indices are... But resulting matrix is
+  // symmetric so that it should not matter
+  grad_U.is(2,vl_indx,vl_indxe);
   grad_v_l.set(grad_U);
   grad_U.rs();
   strain_rate_l.set(grad_v_l);
@@ -256,7 +259,7 @@ void bubbly_ff
   fluxd.set(0.);
 
   // Strain rate for the gas
-  grad_U.is(1,vg_indx,vg_indxe);
+  grad_U.is(2,vg_indx,vg_indxe);
   grad_v_g.set(grad_U);
   grad_U.rs();
   strain_rate_g.set(grad_v_g);
@@ -269,13 +272,14 @@ void bubbly_ff
   fluxd.rs();
 
   // Turbulent diffusion for k-e
-  grad_U.ir(1,k_indx);
+  grad_U.ir(2,k_indx);
   grad_k.set(grad_U);
   fluxd.ir(1,k_indx).set(grad_k).scale(alpha_l*visco_l_eff/sigma_k);
   
-  grad_U.ir(1,e_indx);
+  grad_U.ir(2,e_indx);
   grad_e.set(grad_U);
   fluxd.ir(1,e_indx).set(grad_e).scale(alpha_l*visco_l_eff/sigma_e);
+  fluxd.rs();
   grad_U.rs();
   
   // Diffusive jacobians
@@ -292,13 +296,14 @@ void bubbly_ff
     G_source.rs().is(1,vg_indx,vg_indxe).set(G_body).scale(arho_g);
     G_source.rs()
       .setel(P_k-rho_l*eps,k_indx)
-      .setel(eps/k*(C_1*P_k-C_2*rho_l*eps));
+      .setel(eps/k*(C_1*P_k-C_2*rho_l*eps),e_indx);
   }
 
   // Reactive terms
   Cjac.set(0.);
-  Cjac.is(1,vl_indx,vl_indxe).set(G_body).scale(rho_l);
-  Cjac.rs().is(1,vg_indx,vl_indxe).set(G_body).scale(-rho_g);
+  // fixme:= verificar en las dos sig. lineas que es la primera columna
+  Cjac.is(1,vl_indx,vl_indxe).ir(2,1).set(G_body).scale(rho_l);
+  Cjac.rs().is(1,vg_indx,vg_indxe).ir(2,1).set(G_body).scale(-rho_g);
   Cjac.rs();
 
   Cjac.setel(4.*rho_l*C_mu*strain_rate_scalar*k/eps,k_indx,k_indx);
@@ -308,66 +313,70 @@ void bubbly_ff
   Cjac.setel(-Cek,e_indx,k_indx);
   Cjac.setel(-2*eps*C_2*rho_l/k,e_indx,e_indx);
   
+  if (options & COMP_UPWIND) {
+    const NewAdvDif *advdf_e = dynamic_cast<const NewAdvDif *>(elemset);
+    assert(advdf_e);
 #define pi M_PI
-  double Volume = elemset->volume();
-  double h_pspg,Delta;
-  if (ndim==2) {
-    h_pspg = sqrt(4.*Volume/pi);
-    Delta = sqrt(Volume);
-  } else if (ndim==3) {
-    // h_pspg = pow(6*Volume/pi,1./3.);
-    // El pow() da segmentation violation cuando corro con -O !!
-    h_pspg = cbrt(6*Volume/pi);
-    Delta = cbrt(Volume);
-  } else {
-    PetscPrintf(PETSC_COMM_WORLD,
-		"Only dimensions 2 and 3 allowed for this element.\n");
-  }
+    double Volume = advdf_e->volume();
+    double h_pspg,Delta;
+    if (ndim==2) {
+      h_pspg = sqrt(4.*Volume/pi);
+      Delta = sqrt(Volume);
+    } else if (ndim==3) {
+      // h_pspg = pow(6*Volume/pi,1./3.);
+      // El pow() da segmentation violation cuando corro con -O !!
+      h_pspg = cbrt(6*Volume/pi);
+      Delta = cbrt(Volume);
+    } else {
+      PetscPrintf(PETSC_COMM_WORLD,
+		  "Only dimensions 2 and 3 allowed for this element.\n");
+    }
 
-  // fixme:= Deberia estar pesado por las densidades ???
-  v_mix.set(v_l).scale(alpha_l).axpy(v_g,alpha_g);
-  uintri.prod(iJaco,v_mix,1,-1,-1);
-  double Uh = uintri.sum_square_all();
-  Uh = sqrt(Uh)/2;
-  double velmod = sqrt(v_mix.sum_square_all());
+    // fixme:= Deberia estar pesado por las densidades ???
+    v_mix.set(v_l).scale(alpha_l).axpy(v_g,alpha_g);
+    uintri.prod(iJaco,v_mix,1,-1,-1);
+    double Uh = uintri.sum_square_all();
+    Uh = sqrt(Uh)/2;
+    double velmod = sqrt(v_mix.sum_square_all());
 
-  double tol=1.0e-16;
-  double h_supg=0;
-  const FastMat2 &grad_N = *elemset->grad_N();
-  FastMat2::branch();
-  if(velmod>tol) {
-    FastMat2::choose(0);
-    // svec:= a streamline oriented unit vector
-    svec.set(v_mix).scale(1./velmod);
-    h_supg = tmp9.prod(grad_N,svec,-1,1,-1).sum_abs_all();
-    h_supg = (h_supg < tol ? tol : h_supg);
-    h_supg = 2./h_supg;
-  } else {
-    h_supg = h_pspg;
-  }
-  FastMat2::leave();
+    double tol=1.0e-16;
+    double h_supg=0;
+    const FastMat2 &grad_N = *advdf_e->grad_N();
+    FastMat2::branch();
+    if(velmod>tol) {
+      FastMat2::choose(0);
+      // svec:= a streamline oriented unit vector
+      svec.set(v_mix).scale(1./velmod);
+      h_supg = tmp9.prod(grad_N,svec,-1,1,-1).sum_abs_all();
+      h_supg = (h_supg < tol ? tol : h_supg);
+      h_supg = 2./h_supg;
+    } else {
+      h_supg = h_pspg;
+    }
+    FastMat2::leave();
 
-  double Peclet = velmod * h_supg / (2. * visco_l_eff);
-  double rec_Dt = elemset->rec_Dt();
-  double tau_supg_a =  square(2.*rec_Dt)+square(2.*velmod/h_supg)
-    +9.*square(4.*visco_l_eff/square(h_supg));
-  tau_supg_a = 1./sqrt(tau_supg_a);
+    double Peclet = velmod * h_supg / (2. * visco_l_eff);
+    double rec_Dt = advdf_e->rec_Dt();
+    double tau_supg_a =  square(2.*rec_Dt)+square(2.*velmod/h_supg)
+      +9.*square(4.*visco_l_eff/square(h_supg));
+    tau_supg_a = 1./sqrt(tau_supg_a);
 
-  double pspg_advection_factor=1.,pspg_factor=1.;
-  double tau_pspg = square(2.*rec_Dt)
-    +square(pspg_advection_factor*2.*velmod/h_pspg)
-    +9.*square(4.*visco_l_eff/square(h_pspg));
-  tau_pspg = pspg_factor/sqrt(tau_pspg);
+    double pspg_advection_factor=1.,pspg_factor=1.;
+    double tau_pspg = square(2.*rec_Dt)
+      +square(pspg_advection_factor*2.*velmod/h_pspg)
+      +9.*square(4.*visco_l_eff/square(h_pspg));
+    tau_pspg = pspg_factor/sqrt(tau_pspg);
 
-  double fz = (Peclet < 3. ? Peclet/3. : 1.);
-  double delta_supg = 0.5*h_supg*velmod*fz;
+    double fz = (Peclet < 3. ? Peclet/3. : 1.);
+    double delta_supg = 0.5*h_supg*velmod*fz;
 	
-  if (tau_fac != 1.) {
-    tau_pspg *= tau_fac;
-    tau_supg_a *= tau_fac;
-  }
+    if (tau_fac != 1.) {
+      tau_pspg *= tau_fac;
+      tau_supg_a *= tau_fac;
+    }
   
-  tau_supg.eye(tau_supg_a).setel(tau_pspg,1,1).setel(tau_pspg,2,2);
+    tau_supg.eye(tau_supg_a).setel(tau_pspg,1,1).setel(tau_pspg,2,2);
+  }
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -385,7 +394,7 @@ void bubbly_ff::comp_A_grad_N(FastMat2 & A_grad_N,FastMat2 & grad_N) {
 void bubbly_ff::comp_grad_N_D_grad_N(FastMat2 &grad_N_D_grad_N,
 				     FastMat2 &dshapex,double w) {
   tmp1.prod(Djac,dshapex,-1,2,3,4,-1,1).scale(w);
-  grad_N_D_grad_N.prod(Djac,dshapex,1,2,-1,4,-1,3);
+  grad_N_D_grad_N.prod(tmp1,dshapex,1,2,-1,4,-1,3);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

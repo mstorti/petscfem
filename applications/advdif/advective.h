@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: advective.h,v 1.45 2002/02/15 19:55:49 mstorti Exp $
+//$Id: advective.h,v 1.46 2002/02/17 03:59:51 mstorti Exp $
  
 //#define CHECK_JAC // Computes also the FD Jacobian for debugging
  
@@ -218,8 +218,6 @@ public:
 
 extern IdentityEF identity_ef;
 
-class NewAdvDif;
-
 /// This is the flux function for a given physical problem. 
 class NewAdvDifFF {
 private:
@@ -227,11 +225,11 @@ private:
   vector<int> log_vars_v;
 public:
   /// The elemset associated with the flux function
-  const NewAdvDif *elemset;
+  const NewElemset *elemset;
   /// The enthalpy function for this flux function
   EnthalpyFun *enthalpy_fun;
   /// Constructor from the elemset
-  NewAdvDifFF(const NewAdvDif *elemset_=NULL) 
+  NewAdvDifFF(const NewElemset *elemset_=NULL) 
     : elemset(elemset_), enthalpy_fun(NULL) {};
 
   /** Define the list of variables that are 

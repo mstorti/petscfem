@@ -3,10 +3,9 @@
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
-get_var_env('weak_form',0);
 get_var_env('case',undef);
 get_var_env('meas_perf',undef);
-$save_file = ($case ? "sqcav.$case.tmp" : "sqcav.state.tmp");
+$save_file = ($case ? "bubbly.$case.tmp" : "bubbly.state.tmp");
 ## Test the 'G_body' feature. 
 $g_body= 0;
 if ($case eq 'g_body') {
@@ -15,58 +14,34 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 20;
+$N = 10;
 $hratio = 10;			# refinement (h_center/h_wall)
-$Re = 1000;			# Reynolds number
+$Re = 1;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
 $Dt = 0.01;			# time step
 $solver = "petsc";
 $preco_type = "lu";
 $maxits = 1;
 $nstep = 100;
+$alpha_l = 0.9;
+$u_g=0;
+$v_g=0;
+$k = 0.1;
+$eps = 0.1;
 #
 $weak_form = 0;
 $cache_gdu = 0;
 $update_jacobian =0;
 # `scalar' avoids returning the first match, which can be zero
 # and then can be interpreted as `false' 
-if (scalar $case =~ /weak_form_(\d)/) {
-    $weak_form = $1;
-} elsif ($case eq 'lu') {
-    $solver = "petsc";
-    $preco_type = "lu";
-    $maxits = 1;
-    $nstep = 2;
-} elsif ($case =~ /^iisd/) {
-    $solver = "iisd";
-    $iisd_subpart = 2;
-    $maxits = 200;
-    $nstep = 2;
-    $iisd_subpart = $1 if $case=~/_sbp(\d*)/;
-    if ($case=~/_uj/) {
-	$update_jacobian = 1;
-	$nstep = 2000;
-	$maxits=100;
-	$iisd_subpart = 20;
-	$N = 200;
-    }
-    $preco_type = "jacobi";
-} elsif ($case eq 'big') {
-    $N = 40;
-#      $solver = "iisd";
-#      $preco_type = "jacobi";
-    $solver = "petsc";
-    $preco_type = "lu";
-    $maxits = 1;
-    $nstep = 20;
-    $cache_gdu = 0;
-    $iisd_subpart = 10;
-} else {
-    die "don't know case $case\n";
-}
+$solver = "petsc";
+$preco_type = "lu";
+$maxits = 1;
+$nstep = 2;
 #
 #__END_TRANSCRIPT__
-@vars = qw(U L N Re viscosity h Co Dt hratio g_body);
+@vars = qw(U L N Re viscosity h Co Dt hratio 
+		g_body alpha_l u_g v_g k eps);
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
@@ -75,7 +50,7 @@ global_options
 
 nsave 5
 <:pr('nstep'):> 
-# initial_state sqcav.state
+# initial_state bubbly.state
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
@@ -119,22 +94,17 @@ local_store
 cache_grad_div_u
 #endif
 
-#if $meas_perf
-measure_performance
-measure_performance_loop_length 10
-#endif
-
 #if $g_body
 G_body 0 -1.
 #endif
 __END_HASH__
 
 # ndim nu ndof
-nodes  2  2  3
-__INCLUDE__ sqcav.nod.tmp
+nodes  2  2  8
+__INCLUDE__ bubbly.nod.tmp
 _END_NODES__
 
-elemset nsi_tet_les_fm2 4 
+elemset bubbly 4 
 
 name malla
 
@@ -147,16 +117,19 @@ npg 4
 #
 <:pr('viscosity'):> 
 <:pr('weak_form'):>
-LES 0
+rho_l 1.
+rho_g 0.001
 __END_HASH__
-__INCLUDE__ sqcav.con.tmp
+__INCLUDE__ bubbly.con.tmp
 __END_ELEMSET__
 
 end_elemsets
 
 fixa
 # fijacion en la presion
-1 3 0.
+1 2 0.
 # fijaciones de velocidad en las paredes
-__INCLUDE__ sqcav.fixa.tmp
+__INCLUDE__ bubbly.fixa.tmp
+
+__INCLUDE__ bubbly.fixa_all.tmp
 __END_FIXA__

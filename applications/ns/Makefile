@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
- # $Id: Makefile,v 1.24 2002/02/13 19:46:22 mstorti Exp $ 
+ # $Id: Makefile,v 1.25 2002/02/17 03:59:51 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -7,69 +7,21 @@ PROG = ns
 PETSCFEM_DIR   = ../..
 #MYOBJS = ns.o fracstep.o nsi_tet.o
 
-LIBOBJS = ns.o nsitetlesfm2.o					\
+LIBOBJS = nsitetlesfm2.o					\
 		bccnsfm2.o wall.o nsvol.o walldata.o		\
 		nsilesther.o bccnstherfm2.o nsikeps.o		\
 		wallke.o nonlr.o lagmul.o nssup.o nssupr.o	\
 		nsid.o nsres.o adaptor.o elast.o adappg.o	\
 		qharm.o
 
-MYOBJS = 
-#MYOBJS = ns.$(opt_level).o 
+MYOBJS = ns.o 
 
-%.g.o: %.o
-#	If object does not have the appropriate debugging level recompile
-#	[ OK. This is very tricky... I don't know the portability of this ]
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
-		> /dev/null ; then						\
-		obj_optl='O' ;							\
-		else								\
-		obj_optl='g' ;							\
-	fi ;									\
-	if [ ! "xg"="x$$obj_optl" ] ; then					\
-		echo "OptLevelCheck: object $< does not match optimization "	\
-				"level BOPT: $(BOPT)" ;				\
-		rm $< ;								\
-		$(MAKE) $< ;							\
-#	If object does not have the appropriate debugging level recompile	\
-#	[ OK. This is very tricky... I don't know the portability of this ]	\
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
-		> /dev/null ; then						\
-		obj_optl='O' ;							\
-		else								\
-		obj_optl='g' ;							\
-	fi ;									\
-	if [ ! "x$(opt_level)"="x$$obj_optl" ] ; then				\
-		echo "OptLevelCheck: object $< does not match optimization "	\
-				"level BOPT: $(BOPT)" ;				\
-		rm $< ;								\
-		$(MAKE) $< ;							\
-	fi ;									\
-	fi ;									\
-	mv -fv $< $@
-
-%.O.o: %.o
-#	If object does not have the appropriate debugging level recompile
-#	[ OK. This is very tricky... I don't know the portability of this ]
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
-		> /dev/null ; then						\
-		obj_optl='O' ;							\
-		else								\
-		obj_optl='g' ;							\
-	fi ;									\
-	if [ ! "xO"="x$$obj_optl" ] ; then					\
-		echo "OptLevelCheck: object $< does not match optimization "	\
-				"level BOPT: $(BOPT)" ;				\
-		rm $< ;								\
-		$(MAKE) $< ;							\
-	fi ;									\
-	mv -fv $< $@
 
 TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 #TAGFLAGS = --include="../../src/TAGS"
 
 # for makedepend
-SRCS := $(MYOBJS:.$(opt_level).o=.cpp)
+SRCS := $(MYOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
 
@@ -81,11 +33,14 @@ $(PROG_LIB): $(PROG_LIB)($(LIBOBJS))
 $(PROG_LIB)(%.o): %.o
 	ar ru $@ $<
 
+pp:
+	echo $(PROG_LIB)
+
 $(PROG) compile: $(PROG).bin
 
 %.cppi: %.cpp
-	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/		\
-		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/		\
+	g++ $(CPPFLAGS) -I /usr/local/mpich-1.2.0/include/ \
+		-I/home/mstorti/PETSC/petsc-2.0.24/bmake/linux/ \
 		-I/home/mstorti/PETSC/petsc-2.0.24/include/ -E $< > $@
 
 # documentation of options with the script `odoc.pl'
