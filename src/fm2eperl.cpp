@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.29 2005/03/23 01:47:47 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.27.62.1 2005/03/23 01:49:53 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -2951,6 +2951,38 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 }  
 
 
+/** This stores the satistics for a matrix product, of 
+    the number of terms that are nul, w.r.t. those that are 
+    non-null. This will help in implementing a sparse 
+    version of the product. */ 
+struct prod_cache : public FastMatSubCache {
+  /// The number of times this product was called
+  int times;
+  /// Number of products that have been processed
+  int proc;
+  /** Number of products that have been processed 
+      and result in a non-null contribution */
+  int non_null;
+  /// Minimum number of non-null products in a call
+  int non_null_min;
+  /// Maximum number of non-null products in a call
+  int non_null_max;
+  /// Statitics mode
+  int this_stat_mode;
+  /// Ctor
+  prod_cache() :
+    times(0), proc(0), non_null(0), 
+    non_null_max(0), non_null_min(INT_MAX),
+    this_stat_mode(0) { }
+  /// Dtor
+  ~prod_cache() {
+    if(this_stat_mode && proc>0) {
+      printf("times %d, proc %d, non_null %d, ratio %f\n",
+	     times,proc,non_null,double(non_null)/double(proc));
+    }
+  }
+};
+
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 
 
@@ -2982,9 +3014,17 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 #endif
 ;
 
+  prod_cache *pc;
   if (!was_cached  ) {
-    Indx ia,ib,ii;
+    
+    // Define `sub-cache' for statistics
+    pc = new prod_cache();
+    assert(pc);
+    assert(!cache->sc);
+    cache->sc = pc;
+    pc->this_stat_mode = stat_mode;
 
+    Indx ia,ib,ii;
     Indx Afdims,Bfdims,fdims;
     A.get_dims(Afdims);
     B.get_dims(Bfdims);
@@ -3149,6 +3189,11 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
 
   }
 
+  pc = dynamic_cast<prod_cache *>(cache->sc);
+#define DO_PROD_STAT
+#ifdef DO_PROD_STAT
+  pc->times++;
+#endif
   // Perform computations using cached addresses
   int nlines = cache->nlines;
   double **pa,**pb,**pa_end,sum,*paa,*pbb,*paa_end;
@@ -3162,6 +3207,11 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       paa_end = paa + lc->inca * cache->line_size;
       sum=0.;
       while (paa<paa_end) {
+#define DO_PROD_STAT
+#ifdef DO_PROD_STAT
+	if ((*paa)*(*pbb)) pc->non_null++;
+	pc->proc++;
+#endif
 	sum += (*paa)*(*pbb);
 	paa += lc->inca;
 	pbb += lc->incb;
@@ -3170,6 +3220,11 @@ printf(" cache_list %p, cache %p, position_in_cache %d\n",
       pa_end = pa + cache->line_size;
       sum=0.;
       while (pa<pa_end) {
+#define DO_PROD_STAT
+#ifdef DO_PROD_STAT
+	if ((**pa)*(**pb)) pc->non_null++;
+	pc->proc++;
+#endif
 	sum += (**pa++)*(**pb++);
       }
     }

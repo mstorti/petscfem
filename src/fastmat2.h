@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.32 2005/03/23 01:47:47 mstorti Exp $
+//$Id: fastmat2.h,v 1.30.14.1 2005/03/23 01:49:53 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -1160,6 +1160,11 @@ public:
   static void resync_was_cached(void);
   //@}
 
+  /// Activate the statistics mode. 
+  static void stat(int mode=1) {
+    stat_mode = mode;
+  }
+
 private:
 
   /// Total storage. Should be the product of `dims'. 
@@ -1200,6 +1205,8 @@ private:
   static int was_cached_save;
   /// Operation count
   static OperationCount op_count;
+  /// Is the statitics mode activated or not
+  static int stat_mode;
   int comp_storage_size(const Indx & indx) const;
   /// creates storage and freezes dimensions
   void define_matrix(void);
