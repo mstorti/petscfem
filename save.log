@@ -1833,3 +1833,14 @@ tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.g
      > Runs test with large distortions in 10x10 2D mesh. 
      > Added FastMat2::rcp() function.
      > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.
+----------
+tag: beta-3.09 on Mon,  2 Dec 2002 17:28:19 -0300, by mstorti in node1.beowulf.gtm
+     > -- STABLE VERSION -- 
+     > Visualization with DX
+     > Can use LES without the van Driest dmping factor. 
+     > Made some experiments with DNS/LES.
+     > FastMat2::seig() computes eigenvectors 
+     > Resurrected mesh-move
+     > Runs test with large distortions in 10x10 2D mesh. 
+     > Added FastMat2::rcp() function.
+     > Changed  all occurrences of `octave -q' by `octave -qH' calls in Makefiles.

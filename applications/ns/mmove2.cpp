@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.3 2002/12/02 03:27:56 mstorti Exp $
+//$Id: mmove2.cpp,v 1.4 2002/12/03 23:35:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -17,6 +17,7 @@
 
 extern GlobParam *GLOB_PARAM;
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_eig_anal::init() {
   int ierr;
   FastMat2 C;
@@ -56,10 +57,11 @@ void mesh_move_eig_anal::init() {
   glambda.resize(3,ndim,nel,ndim);
   dFdl.resize(1,ndim);
   d2Fdl2.resize(2,ndim,ndim);
+  eps = 1e-5;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &lambda,
+void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
 				 FastMat2 &glambda) {
   J.prod(x,dNdxi,-1,1,2,-1);
   G.prod(J,J,-1,1,-1,2);
@@ -80,10 +82,26 @@ void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &lambda,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double mesh_move_eig_anal::dfun(const FastMat2 &D) {
   double F=0;
-  for (int k=1; k<=ndim; k++) 
+  double vol=1.;
+  for (int k=1; k<=ndim; k++) {
+    vol *= D.get(k);
     for (int l=1; l<=ndim; l++) 
       F += square(D.get(k)-D.get(l));
+  }
+  F /= pow(vol,2./double(ndim));
   return F;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void mesh_move_eig_anal::df_grad(const FastMat2 &x,FastMat2 &dFdx) {
+  la_grad(x,lambda,glambda);
+  double F, F0 = dfun(lambda);
+  for (int k=1; k<=ndim; k++) {
+    lambdap.set(lambda).addel(eps,k);
+    F  = dfun(lambdap);
+    dFdl.setel((F-F0)/eps,k);
+  }
+  dFdx.prod(dFdl,glambda,-1,-1,1,2);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -91,32 +109,26 @@ void mesh_move_eig_anal::element_connector(const FastMat2 &xloc,
 					   const FastMat2 &state_old,
 					   const FastMat2 &state_new,
 				   FastMat2 &res,FastMat2 &mat){
-  df_grad(xloc,lambda,glambda);
-  double F, F0 = dfun(lambda);
-  double eps=1e-4;
-  for (int k=1; k<=ndim; k++) {
-    lambdap.set(lambda);
-    lambdap.ir(1,k).add(eps);
-    F  = dfun(lambdap);
-    dFdl.setel((F-F0)/eps,k);
-  }
-  res.prod(dFdl,glambda,-1,-1,1,2);
 
-#if 0
-  x0.set(xloc);
+  const FastMat2 *state = (glob_param->inwt ? &state_new : &state_old);
+  x0.set(xloc).add(*state);
+  df_grad(x0,res);
   x0.reshape(1,nel*ndim);
-  double epsilon=1e-4;
-  glambda_diff.set(glambda).set(0.).reshape(2,ndim,nel*ndim);
-  glp.set(glambda);
+  mat.reshape(3,nel,ndim,nel*ndim);
   for (int k=1; k<=nel*ndim; k++) {
-    xp.set(x0);
-    xp.ir(1,k).add(epsilon).rs();
-    xp.reshape(2,nel,ndim);
-    df_grad(xp,lambdap,glp);
-    glambda_diff.ir(2,k).set(lambdap).rest(lambda).scale(1/epsilon);
+    xp.set(x0).addel(eps,k).reshape(2,nel,ndim);
+    df_grad(xp,resp);
     xp.reshape(1,nel*ndim);
+    mat.ir(3,k).set(resp).rest(res).scale(1/eps);
   }
   x0.reshape(2,nel,ndim);
-  glambda_diff.rs().reshape(3,ndim,nel,ndim);
-#endif
+  mat.rs().reshape(4,nel,ndim,nel,ndim);
+
+  if (!glob_param->inwt) {
+    x0.set(xloc).add(state_new);
+    df_grad(x0,res);
+  } else {
+    double q=1;
+  }
+  res.scale(-1.);
 }

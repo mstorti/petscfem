@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: mmove.h,v 1.9 2002/12/02 21:51:44 mstorti Exp $
+//$Id: mmove.h,v 1.10 2002/12/03 23:35:02 mstorti Exp $
 
 #ifndef MMOVE_H
 #define MMOVE_H
@@ -43,9 +43,11 @@ class  mesh_move_eig_anal : public adaptor {
 private:
   FastMat2 G, lambda, glambda, V, J, tmp1, tmp2, 
     dNdxi, xlocp, xloc0, x0,xp,lambdap,glp,glambda_diff,
-    dFdl, d2Fdl2;
-  void df_grad(const FastMat2 &x,FastMat2 &lambda,
+    dFdl, d2Fdl2, resp;
+  double eps;
+  void la_grad(const FastMat2 &x,FastMat2 &lambda,
 	       FastMat2 &glambda);
+  void df_grad(const FastMat2 &x,FastMat2 &dFdx);
   double dfun(const FastMat2 &D);
 public: 
   void init();

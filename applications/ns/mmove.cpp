@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove.cpp,v 1.12 2002/12/02 21:51:44 mstorti Exp $
+//$Id: mmove.cpp,v 1.13 2002/12/03 23:35:02 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -93,6 +93,7 @@ double mesh_move::distor_fun(FastMat2 & xlocp) {
   return distor_fun_G(G);
 }
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double mesh_move_eig::distor_fun_G(FastMat2 &G) {
   double df,la1,la2,la3,vol;
 #ifdef USE_NEWMAT

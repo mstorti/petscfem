@@ -49,7 +49,7 @@ __INCLUDE__ "step3d.nod.tmp"
 __END_NODES__
 
 #===========================================================
-elemset mesh_move_eig 4
+elemset mesh_move_eig_anal 4
 geometry tetra
 npg 1
 __END_HASH__
