@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.3 2003/08/28 18:39:40 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.4 2003/08/28 20:42:39 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -73,15 +73,36 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
   InsertMode mode = ADD_VALUES;
   if (options & UPLOAD_VECTOR_LOCST) mode = INSERT_VALUES;
   
-  dvector<int> row_map, row_map2;
-  dvector<double> coef2;
+  dvector<int> row_map, row_map2, indxr, lnodr, dofr, indxc, lnodc, dofc;
+  dvector<double> coefr, coefc, values;
   dvector<int> row_mask, col_mask;
-  row_map.set_chunk_size(nel*ndof);
-  row_map2.mono(1,nel*ndof);
-  row_mask.mono(2,nel,ndof);
-  row_mask.set(0.);
-  col_mask.mono(2,nel,ndof);
-  col_mask.set(0.);
+  // These flag whether a given (lnod,dof) is
+  // being loaded or not. By row or by column. 
+  row_mask.mono(nel*ndof).reshape(2,nel,ndof).set(0);
+  col_mask.mono(nel*ndof).reshape(2,nel,ndof).set(0);
+
+  // This is an initial size (usually should be enough).
+  // Anyway the vector grows if needed. 
+  // int rsize = 2*nel*ndof;
+  int rsize = 1;
+  // List of row eqs. to be loaded
+  indxr.mono(rsize);
+  // For each row eq. the local node index ...
+  lnodr.mono(rsize);
+  // row dof indx ...
+  dofr.mono(rsize);
+  // and coef (usually 1.)
+  coefr.mono(rsize);
+
+  int csize = rsize;
+  // Same for columns
+  indxc.mono(csize);
+  // For each row eq. the local node index ...
+  lnodc.mono(csize);
+  // row dof indx ...
+  dofc.mono(csize);
+  // and coef (usually 1.)
+  coefc.mono(csize);
 
   // Compute row and column masks.
   for (kloc=0; kloc<nel; kloc++) {
@@ -97,18 +118,59 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
     }
   }
 
+  for (kloc=0; kloc<nel; kloc++) {
+    for (kdof=0; kdof<ndof; kdof++) {
+      printf("(lnod=%d,dof=%d) row/col mask: %d %d\n",
+	     kloc,kdof,row_mask.e(kloc,kdof),col_mask.e(kloc,kdof));
+    }
+  }
+
   iele_here=-1;
   for (iele=el_start; iele<=el_last; iele++) {
     if (!compute_this_elem(iele,this,myrank,iter_mode)) continue;
     iele_here++;
 
-    for (kloc=0; kloc<nel; kloc++) {
-      for (kdof=0; kdof<ndof; kdof++) {
-      }
-    }
-
+    // Build row map
+    int jr=0,nr;
     for (kloc=0; kloc<nel; kloc++) {
       node = ICONE(iele,kloc);
+      for (kdof=0; kdof<ndof; kdof++) {
+	if (!row_mask.e(kloc,kdof)) continue;
+	dofmap->get_row(node,kdof+1,row_v);
+	for (int ientry=0; ientry<row_v.size(); ientry++) {
+	  entry_v = &row_v[ientry];
+	  locdof = entry_v->j;
+	  if (locdof>neq) continue; // ony load free nodes
+	  if (jr==rsize) {
+	    // Make arrays grow if needed
+	    printf("resize %d -> %d\n",rsize,2*rsize);
+	    rsize = 2*rsize;
+	    indxr.resize(rsize);
+	    lnodr.resize(rsize);
+	    dofr.resize(rsize);
+	    coefr.resize(rsize);
+	  }
+	  indxr.e(jr) = locdof;
+	  lnodr.e(jr) = kloc;
+	  dofr.e(jr) = kdof;
+	  coefr.e(jr) = entry_v->coef;
+	  jr++;
+	}
+      }
+    }
+    nr = jr;
+
+#if 1
+    printf("iele %d\n",iele);
+    for (jr=0; jr<nr; jr++) {
+      printf("jr %d, lnod %d, dof %d, coef %f\n",jr,
+	     lnodr.e(jr),dofr.e(jr),coefr.e(jr));
+    }
+#endif
+    PetscFinalize();
+    exit(0);
+ 
+    for (kloc=0; kloc<nel; kloc++) {
       for (kdof=0; kdof<ndof; kdof++) {
 	dofmap->get_row(node,kdof+1,row_v);
 
