@@ -173,13 +173,13 @@ installed. [RedHat RPM package: C<perl>].
 
 =head2 Unpacking
 
-Once you got the I<petscfem-beta-3.02.pl17.tar.gz> package,
+Once you got the I<petscfem-beta-3.03.tar.gz> package,
 gunzip and untar it like this:
 
-  $ gunzip petscfem-beta-3.02.pl17.tar.gz
-  $ tar xvf petscfem-beta-3.02.pl17.tar
+  $ gunzip petscfem-beta-3.03.tar.gz
+  $ tar xvf petscfem-beta-3.03.tar
 
-This will create a I<petscfem-beta-3.02.pl17> directory with
+This will create a I<petscfem-beta-3.03> directory with
 all the source files included.
 
 =head2 Makefile variables

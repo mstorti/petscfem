@@ -188,3 +188,4 @@ tag: beta-3.01 on Thu Jul 25 19:36:18 -0300 2002, by mstorti in minerva.arcride.
 ----------
 tag: beta-3.03 on Sun Aug 18 20:40:26 GMT+3 2002, by mstorti in spider
      > Runs all tests.
+     > Runs all tests with BOPT=O_c++
