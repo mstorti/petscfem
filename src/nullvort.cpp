@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: nullvort.cpp,v 1.13 2003/03/06 01:31:26 mstorti Exp $
+// $Id: nullvort.cpp,v 1.14 2003/03/06 18:58:38 mstorti Exp $
 
 #include <src/nullvort.h>
 #include <src/dvector.h>
@@ -32,6 +32,8 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   TGETOPTNDEF(&thash,int,fic_dof,<none>);
 
   // Call the `factory' (constructor) for the Surf2Vol object. 
+  // layers:= number of *element* layers, so that the number
+  // of node layers is layers+1
   int identify_volume_elements, layers,
     use_exterior_normal,  ndimel;
   Surf2Vol *sv_gp_data=NULL;
@@ -63,7 +65,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     row.clear();
     read_int_array(row,line);
     assert(row.size()==2);
-    coupl2fic[row[0]] = row[1];
+    coupl2fic[row[0]-1] = row[1]-1;
   }
   map<int,int>::iterator r,re;
   re = coupl2fic.end();
@@ -174,6 +176,7 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
   dvector<int> icone_stencil;
   // The number of nodes for the Lagrange multiplier elemset
   // is the number of nodes in the stencil +1 (the fictitious node).
+  // 1-based (because we have to send it to the elemset)
   icone_stencil.reshape(2,0,nx+1);
   // Neighbors (on surface) of node
   GSet ngb;
@@ -206,34 +209,35 @@ void null_vort::read(FileStack *fstack,Mesh *mesh,Dofmap *dofmap) {
     // We put first the nodes on the surface
     // (the first layerxs)
     GSet::iterator q, qe=ngb.end();
-    icone_stencil.push(node);
+    icone_stencil.push(node+1);
     for (q=ngb.begin(); q!=qe; q++) {
       // surface node
       int sf_node = *q;
       if (sf_node==node) continue;
       assert(coupling_nodes_map.find(sf_node)
 	     !=coupling_nodes_map.end());
-      icone_stencil.push(sf_node);
+      icone_stencil.push(sf_node+1);
     }
     for (int j=0; j<n_stencil; j++) {
-      int sf_node = icone_stencil.e(nelem_nlr,j);
+      int sf_node = icone_stencil.e(nelem_nlr,j)-1;
       assert(coupling_nodes_map.find(sf_node)
 	     !=coupling_nodes_map.end());
       int cn_indx2 = coupling_nodes_map[sf_node];
-      for (int l=1; l<=layers+1; l++) 
-	icone_stencil.push(coupling_nodes_table.e(cn_indx2,l));
+      for (int l=1; l<=layers; l++) 
+	icone_stencil.push(coupling_nodes_table.e(cn_indx2,l)+1);
     }
     // Add fictitious node to stencil
     r = coupl2fic.find(node);
     assert(r!=re);
-    icone_stencil.push(r->second);
+    icone_stencil.push(r->second+1);
+    nelem_nlr++;
   }
 
 #if 1
   printf("nx: %d, nelem_nlr %d, size of icone %d\n",nx,nelem_nlr,icone_stencil.size());
   for (int j=0; j<nelem_nlr; j++) {
     printf("e=%d:",j);
-    for (int l=0; l<=layers; l++) 
+    for (int l=0; l<nx+1; l++) 
       printf(" %d",icone_stencil.e(j,l));
     printf("\n");
   }

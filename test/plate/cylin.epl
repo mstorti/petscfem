@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: cylin.epl,v 1.21 2003/03/01 23:26:18 mstorti Exp $ 
+## $Id: cylin.epl,v 1.22 2003/03/06 18:58:42 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -129,6 +129,20 @@ data cylin.coupler.tmp
 __END_HASH__
 #endif
 
+#===========================================================
+null_vort
+geometry "line2quad"
+ndimel 1
+npg 2
+nel_surf 2
+volume_elemset viscous_fluid_elemset
+fic_dof 2
+__END_HASH__
+__INCLUDE__ "cylin.coupler.tmp"
+__END_DATA__
+__INCLUDE__ "cylin.coupl2fic.tmp"
+__END_DATA__
+
 end_elemsets
 
 #===========================================================
@@ -149,17 +163,6 @@ __END_FIXA__
 constraint
 __INCLUDE__ "cylin.normal.tmp"
 __END_CONSTRAINT__
-
-#===========================================================
-null_vort
-geometry "line2quad"
-ndimel 1
-npg 2
-nel_surf 2
-volume_elemset viscous_fluid_elemset
-__END_HASH__
-__INCLUDE__ "cylin.coupler.tmp"
-__END_DATA__
 
 
 # Local Variables: $

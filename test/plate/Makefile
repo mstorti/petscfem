@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.28 2003/03/05 21:00:40 mstorti Exp $ 
+# $Id: Makefile,v 1.29 2003/03/06 18:58:42 mstorti Exp $ 
 
 .PHONY: force all run tests data viscous inviscid sphere
 
-default: wave
+default: viscous
 
 tests: 
 
@@ -42,9 +42,11 @@ LOC_PROG := ns
 PROG := $(NS)
 
 .PHONY: force
-ifeq ($(NP),)
-NP := $(shell procsel ./proctable)
-endif
+# Currently the coupled version doesn't work in parallel
+# ifeq ($(NP),)
+# NP := $(shell procsel ./proctable)
+# endif
+NP := 1
 run: $(CASE_NAME).depl
 	-$(MPIRUN) -np $(NP) -machinefile machi.dat $(PROG) -case $< 
 
