@@ -1,17 +1,20 @@
 //__INSERT_LICENSE__
-//$Id: elemset.cpp,v 1.28 2001/10/31 02:51:22 mstorti Exp $
+//$Id: elemset.cpp,v 1.29 2001/11/01 12:43:48 mstorti Exp $
 
-#include "fem.h"
 #include <vector>
 #include <set>
-#include "utils.h"
-#include "getprop.h"
-#include "elemset.h"
-#include "idmap.h"
-#include "dofmap.h"
-#include "arglist.h"
-#include "readmesh.h"
-#include "pfmat.h"
+
+#include <src/fem.h>
+#include <src/utils.h>
+#include <src/getprop.h>
+#include <src/elemset.h>
+#include <src/idmap.h>
+#include <src/dofmap.h>
+#include <src/arglist.h>
+#include <src/readmesh.h>
+#include <src/pfmat.h>
+
+#include <src/timestat.h>
 
 // iteration modes
 #define NOT_INCLUDE_GHOST_ELEMS 0
@@ -24,8 +27,8 @@ extern int MY_RANK,SIZE;
 #define RETVALMAT(iele,j,k,p,q) VEC5(retval,iele,j,nel,k,ndof,p,nel,q,ndof)
 #define ICONE(j,k) VEC2(icone,j,k,nel)
 
-Chrono chrono;
-double t_min=1e20,t_max=0;
+HPChrono chrono;
+extern TimeStat time_stat;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -179,7 +182,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	      val = entry_v->coef * entryc_v->coef * vall;
 
 	      int kd=locdof-1,kdl=locdofl-1;
-	      if (val != 0) {
+	      if (1 || val != 0) {
 		if (comp_prof) {
 		  node_insert(argd.da,kd,kdl);
 		  node_insert(argd.da,kdl,kd); // be sure that profile
@@ -189,8 +192,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		    chrono.start();
 		    argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
 		    double t = chrono.elapsed();
-		    if (t>t_max) t_max=t;
-		    if (t<t_min) t_min=t;
+		    time_stat.add(t);
 		  } else {
 		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
 		  }
@@ -213,7 +215,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		if (locdofl>neq) continue; // only load for free dof's
 		
 		val = (entry_v->coef) * (entryc_v->coef) * vall;
-		if (val != 0) {
+		if (1 || val != 0) {
 		  if (comp_prof) {
 		    int kd=locdof-1,kdl=locdofl-1;
 		    // be sure that profile is symmetric
@@ -562,11 +564,9 @@ int assemble(Mesh *mesh,arg_list argl,
 	    }
 
 	    // compute perturbed residual
-	    printf("trace 0\n");
 	    elemset->assemble(arg_data_v,nodedata,dofmap,
 			      jobinfo,myrank,el_start,el_last,iter_mode,
 			      time_data);
-	    printf("trace 1\n");
 
 #define RETVALT(iele,jk) VEC2(ARGVJ.retval,iele,jk,ndoft)
 #define REFREST(iele,jk) VEC2(ARGVJ.refres,iele,jk,ndoft)
@@ -591,12 +591,9 @@ int assemble(Mesh *mesh,arg_list argl,
 		}
 
 		// load on Petsc matrix
-		printf("trace 2\n");
 		elemset->upload_vector(nel,ndof,dofmap,argl[j].options,ARGVJ,
 				       myrank,el_start,el_last,iter_mode,
 				       kloc,kdof);
-		printf("trace 3\n");
-
 	      }
 	    }
 	  }
@@ -713,6 +710,10 @@ int assemble(Mesh *mesh,arg_list argl,
         ierr = compute_prof(ARGVJ.da,dofmap,
 			    myrank,(Mat *)(argl[j].arg),
 			    debug_compute_prof);
+	// fixme:= should this go here also ???
+	// ierr =  MatSetOption((Mat *)(argl[j].arg),
+	// MAT_NEW_NONZERO_ALLOCATION_ERR);
+
       }
     }
 
