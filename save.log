@@ -935,3 +935,6 @@ tag: beta-2.73 on Tue Feb  5 23:37:37 ARST 2002, by mstorti in spider
 ----------
 tag: beta-2.73.pl1 on Tue Feb  5 23:54:59 ARST 2002 by mstorti in spider
      > Added `Rf' and `impermeable' properties to `stream_loss' class.
+----------
+tag: beta-2.73.pl2 on Wed Feb  6 10:27:30 ART 2002 by mstorti in minerva.arcride.edu.ar
+     > Test for aquifer+stream (decoupled) is OK.
