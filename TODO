@@ -4,6 +4,10 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Add doc for new features in `myexpect.pl' (__SWITCH_FILE__, 
+      variable match, working directory)
+* Add doc for block_uploading
+* Finish completing_read with petscfem_options
 * Make use FastMat2 cache optional in advdife via an option
 * There is a conflict between the computation of residual jacobians 
 	  in advdif and the use of masks/profiles for element
