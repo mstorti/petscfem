@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.5 2003/08/28 21:35:29 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.6 2003/08/28 22:22:05 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -121,12 +121,14 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       }
     }
 
+#if 0
     for (kloc=0; kloc<nel; kloc++) {
       for (kdof=0; kdof<ndof; kdof++) {
 	printf("(lnod=%d,dof=%d) row/col mask: %d %d\n",
 	       kloc,kdof,row_mask.e(kloc,kdof),col_mask.e(kloc,kdof));
       }
     }
+#endif
   }
 
   iele_here=-1;
@@ -157,7 +159,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		dofr.resize(rsize);
 		coefr.resize(rsize);
 	      }
-	      indxr.e(jr) = locdof;
+	      indxr.e(jr) = locdof-1;
 	      lnodr.e(jr) = kloc;
 	      dofr.e(jr) = kdof;
 	      coefr.e(jr) = entry_v->coef;
@@ -172,7 +174,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 		dofc.resize(csize);
 		coefc.resize(csize);
 	      }
-	      indxc.e(jc) = locdof;
+	      indxc.e(jc) = locdof-1;
 	      lnodc.e(jc) = kloc;
 	      dofc.e(jc) = kdof;
 	      coefc.e(jc) = entry_v->coef;
@@ -184,7 +186,7 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
       nr = jr;
       nc = jc;
 
-#if 1
+#if 0
       printf("iele %d\n",iele);
       for (jr=0; jr<nr; jr++) {
 	printf("jr %d, lnod %d, dof %d, coef %f\n",jr,
@@ -201,11 +203,12 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	  locdof = indxr.e(jr);
 	  for (jc=0; jc<nc; jc++) {
 	    locdofl = indxc.e(jc);
+	    // printf("set prof: %d, %d\n",locdof-1,locdofl-1);
 	    if (pfmat) {
-	      argd.pfA->set_profile(ldofr1-1,locdofl-1);
+	      argd.pfA->set_profile(locdof,locdofl);
 	    } else {
-	      node_insert(argd.da,locdof-1,locdofl-1);
-	      node_insert(argd.da,locdofl-1,locdof-1); 
+	      node_insert(argd.da,locdof,locdofl);
+	      node_insert(argd.da,locdofl,locdof); 
 	    }
 	  }
 	}
@@ -220,16 +223,20 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 	    int dofc1 = dofc.e(jc);
 	    double coefc1 = coefc.e(jc);
 	    if (!MASK(lnodr1,dofr1,lnodc1,dofc1)) continue;
-	    values.e(jr,jc) = coefr1*coefc1*RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
+	    values.e(jr,jc) = coefr1*coefc1
+	      *RETVALMAT(iele_here,lnodr1,dofr1,lnodc1,dofc1);
 	  }      
 	}
+	values.print();
 	if (pfmat) {
-	  ierr = argd.pfA->set_value(locdof-1,locdofl-1,val,ADD_VALUES); 
+	  ierr = argd.pfA->set_values(nr,indxr.buff(),nc,indxc.buff(),
+				      values.buff(),ADD_VALUES); 
 	  CHKERRQ(ierr); 
 	} else {
-	  MatSetValue(*argd.A,locdof-1,locdofl-1,val,ADD_VALUES);
+	  ierr = MatSetValues(*argd.A,nr,indxr.buff(),nc,indxc.buff(),
+			      values.buff(),ADD_VALUES);
+	  CHKERRQ(ierr); 
 	}
-	values.print();
 	PetscFinalize();
 	exit(0);
       }
