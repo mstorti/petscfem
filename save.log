@@ -278,3 +278,8 @@ tag: beta-1.44 on Thu Mar 22 22:40:18 ART 2001, by mstorti in spider
 tag: beta-1.45 on Fri Mar 23 20:11:19 ART 2001, by mstorti in minerva.arcride.edu.ar
      > Fixed the 'mydetsur' bug.
      > Making stable version with new flux functions.
+----------
+tag: beta-1.46 on Sat Mar 24 10:52:07 ART 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > New flux functions for linear advection-diffusion are working. 
+     > Fixed the 'mydetsur' bug.
