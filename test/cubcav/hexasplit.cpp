@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: hexasplit.cpp,v 1.5 2002/07/28 22:38:24 mstorti Exp $
+// $Id: hexasplit.cpp,v 1.6 2002/07/28 23:25:01 mstorti Exp $
 #define _GNU_SOURCE
 
 #include <vector>
@@ -61,7 +61,7 @@ int main (int argc, char **argv) {
   int incompat[] = {0,1,0,1,1,0,1,0};
 
   // Reads connectivities
-  FILE *fid = fopen(icone_file,"r");
+  FILE *fid = fopen(icone_file.c_str(),"r");
   assert(fid);
   int nelem=0;
   while(1) {
@@ -118,9 +118,11 @@ int main (int argc, char **argv) {
 
   // Arbitrarily start from node `0'.
   // Split start node as `up'
+#define QUEUED (-2)
   front.push_back(0);
   split[0]=1;
   while (front.size()) {
+    // printf("front.size %d\n",front.size());
     // Take same node from the queue
     int node = front.front();
     front.pop_front();
@@ -129,10 +131,13 @@ int main (int argc, char **argv) {
     graph.set_ngbrs(node,s);
     // iterate on the neighbors of `node'
     for (GSet::iterator r=s.begin(); r!=s.end(); r++) {
-      if (!split[*r]) {
+      if (split[*r]==0) {
 	// If not already split put it in the queue
 	front.push_back(*r);
-      } else if (!split[node]) {
+	split[*r]=QUEUED;
+      } else if (split[*r]==QUEUED) {
+	// do nothing
+      } else if (split[node]==0 || split[node]==QUEUED) {
 	// if not already marked, mark as the opposite of the neighbor
 	split[node] = -split[*r];
       } else if (split[*r] == split[node]) {
@@ -158,11 +163,11 @@ int main (int argc, char **argv) {
   int *map;
   // Standard split of an hexa in tetras. 
   int tetra[][4]={{0,2,5,1},
-		  {0,2,7,3},
+		  {0,7,2,3},
 		  {2,7,5,6},
 		  {0,5,7,4},
 		  {0,5,2,7}};
-  fid = fopen(icone_tetra,"w");
+  fid = fopen(icone_tetra.c_str(),"w");
   for (int k=0; k<nelem; k++) {
     // Connectivity row
     int *row = &icone.ref(k*NEL);
@@ -173,8 +178,8 @@ int main (int argc, char **argv) {
       // loop over nodes in the tetra
       for (int q=0; q<4; q++) 
 	// node of local tetra, eventually remapped
-	fprintf(fid,"%d ",row[map[tetra[t][q]]]-1);
-      printf("\n");
+	fprintf(fid,"%d ",row[map[tetra[t][q]]]);
+      fprintf(fid,"\n");
     }
   }
   fclose(fid);
