@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: spillway.epl,v 1.9 2003/03/25 21:23:22 mstorti Exp $ 
+## $Id: spillway.epl,v 1.10 2003/03/27 02:34:07 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -28,8 +28,8 @@ nrec 1
 nfile 100000000
 
 # initial_state "./RUN1/spillway.state_21.tmp"
-# initial_state "spillway.state.tmp"
-initial_state "spillway.ini.tmp"
+initial_state "spillway.steady_state.tmp"
+# initial_state "spillway.ini.tmp"
 nstep 10000
 # steady
 solver "iisd"
