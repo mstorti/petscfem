@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.59 2003/04/17 22:50:39 mstorti Exp $ 
+# $Id: Makefile,v 1.60 2003/04/18 04:10:34 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx \
@@ -115,9 +115,9 @@ test_re1000:
 #w IISD for square cavity test in 20x20 mesh on two processors
 test_iisd2: 
 	$(MAKE) case=lu np=1 runs
-	$(MAKE) case=iisd_sbp1 runs
-	$(MAKE) case=iisd_sbp4 runs
-	$(MAKE) case=iisd_sbp16 runs
+	$(MAKE) case=iisd_sbp1 np=2 runs
+	$(MAKE) case=iisd_sbp4 np=2 runs
+	$(MAKE) case=iisd_sbp16 np=2 runs
 	$(OCTAVE) < check_iisd2.m > check.iisd.verif.np2.tmp
 
 REDIR := >

@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.92 2003/04/17 22:50:39 mstorti Exp $ 
+# $Id: Makefile,v 1.93 2003/04/18 04:10:31 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force		\
         ctest runtests clean fastmat2_obj plano idmap fastvec			\
@@ -15,7 +15,8 @@ DIRS = circ fstack sector les turbchan turbchanw advdif texthash		\
 		newff burgers les/stabi genload bug100 nonlr wallke		\
 		wkepipe wallkechan lupart distmap sparse graph sqcav		\
 		pfmat cubcav aquifer bubbly nutatcyl aquifer fastmat2		\
-		nsgenload plate gasflow idmap mmove advec plano oscplate spiller
+		nsgenload plate gasflow idmap mmove advec plano oscplate 	\
+		spillway
 
 CLEAN_DIRS = $(DIRS)
 DEPEND_DIRS = texthash distmap sparse aquifer plate fstack idmap
@@ -53,7 +54,7 @@ local_clean::
 #w and make a tar with the results
 torture_1:
 	$(MAKE) -k runtests 2>&1 | tee make-tests-$(BOPT).log
-	-runtests.pl | tee -a make-tests-$(BOPT).log
+	-runtests.pl -o | tee -a make-tests-$(BOPT).log
 	tar czvf ../make-tests-$(BOPT).tar.gz .
 
 #w torture for BOPT=g_c++
