@@ -3,6 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* merge turbulence enhancements.
+* merge adaptors developed in Chile
 * Fix documentation. New version of latex2html screwed all up. 
 * Write tests for IISD with subpartitioning.
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
