@@ -1,20 +1,57 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: adaptor.h,v 1.2 2001/11/30 12:41:08 mstorti Exp $
+//$Id: adaptor.h,v 1.3 2001/11/30 13:22:24 mstorti Exp $
 #ifndef ADAPTOR_H
 #define ADAPTOR_H
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
+/** Generic class that allows the user not make explicitly the element
+    loop, but instead he has to code the `element_connector' function
+    tha computes the residual vector and jacobian of the element. 
+*/
 class adaptor : public ns_volume_element { 
 public: 
-  double rec_Dt;
-  int npg,ndim,elem;
-  FastMat2 shape,dshapexi,wpg,dshapex;
-  GlobParam *glob_param;
-
+  /// This should not be defined by the user...
   ASSEMBLE_FUNCTION;
+  /// the reciprocal of the time step. (May be null for steady problems)
+  double rec_Dt;
+  /// The number of Gauss points
+  int npg;
+  /// The dimension od the element
+  int ndim;
+  /// The element number (may be used for printing errors, for instance)
+  int elem;
+  ///  Shape function
+  FastMat2 shape;
+  /// Gradient with respect to master element coordinates 
+  FastMat2 dshapexi;
+  /** Gradient with respect to global coordinates. It is only
+      dimensioned but it should be computed by the user.
+  */
+  FastMat2 dshapex;
+  /// Gauss points weights
+  FastMat2 wpg;
+  /// Parameters passed to the element from the main
+  GlobParam *glob_param;
+  /** User defined callback function to be defined by the
+      user. Called \textbf{before} the element loop. 
+  */
   virtual void init()=0;
+  /** User defined callback function to be defined by the
+      user. Called \textbf{after} the element loop. May be used for
+      clean-up operations. 
+  */
   virtual void clean() {};
+  /** User defined callback function to be defined by the
+      user. Called \textbf{after} the element loop. May be used for
+      clean-up operations. 
+      @param xloc (input) Coordinates of the nodes.
+      @param state_old (input) The state at time $t^n$
+      @param state_new (input) The state at time $t^{n+1}$
+      @param res (output) residual vector
+      @param mat (input) jacobian of the residual with respect to
+      $x^{n+1}$
+  */
   virtual void element_connector(const FastMat2 &xloc,
 				 const FastMat2 &state_old,
 				 const FastMat2 &state_new,
@@ -22,27 +59,24 @@ public:
 };
 
 //-------<*>-------<*>-------<*>-------<*>-------<*>------- 
-class adaptor_f : public adaptor { 
+/// 
+class adaptor_pg : public adaptor { 
 public: 
-  // Double pointers for interface with Fortran
-  double *shape_p,*dshapexi_p,*wpg_p,*dshapex_p;
-  // As FORTRAN can't manipulate directly FastMat2 objects
-  // we pass the corresponding storage area
+  FastMat2 Jaco,iJaco;
   void element_connector(const FastMat2 &xloc,
 			 const FastMat2 &state_old,
 			 const FastMat2 &state_new,
-			 FastMat2 &res,FastMat2 &mat) {
-    // This `(FastMat2 &)' explicit cast is for removing the
-    // `const' qualifiers
-    element_connector_f(((FastMat2 &)xloc).storage_begin(),
-			((FastMat2 &)state_old).storage_begin(),
-			((FastMat2 &)state_new).storage_begin(),
-			res.storage_begin(),
-			mat.storage_begin());
-  }
-  virtual void element_connector_f(double *xloc,double *state_old,
-				   double *state_new,double *res,
-				   double *mat)=0;
+			 FastMat2 &res,FastMat2 &mat);
+  virtual void elemset_init() {};
+  virtual void elem_init() {};
+  virtual void elemset_end() {};
+  virtual void elem_end() {};
+  virtual void pg_connector(const FastMat2 &xloc,
+			    const FastMat2 &state_old,
+			    const FastMat2 &grad_state_old,
+			    const FastMat2 &state_new,
+			    const FastMat2 &grad_state_new,
+			    FastMat2 &res,FastMat2 &mat)=0;
 };
 
 #endif

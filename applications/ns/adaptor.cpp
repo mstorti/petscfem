@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adaptor.cpp,v 1.2 2001/11/30 12:41:08 mstorti Exp $
+//$Id: adaptor.cpp,v 1.3 2001/11/30 13:22:24 mstorti Exp $
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -156,6 +156,7 @@ int adaptor::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
 
+  if (comp_mat_res) clean();
   return 0;
 }
 
