@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.10 2002/02/25 02:15:45 mstorti Exp $
+//$Id: tempfun.cpp,v 1.11 2002/04/10 19:25:26 mstorti Exp $
 
 #include <math.h>
 
@@ -547,6 +547,7 @@ public:
     }
     fclose(fid);
     assert (ntime == t_v.size());
+    assert (ntime>1);
     // Store pointers
     first = t_v.begin();
     end = t_v.end();
