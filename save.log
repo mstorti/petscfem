@@ -2781,3 +2781,6 @@ tag: beta-3.19.pl36 on Fri, 25 Jul 2003 23:00:14 -0300 by mstorti in spider
 ----------
 tag: beta-3.19.pl37 on Tue, 29 Jul 2003 17:52:43 -0300 by mstorti in node1.beowulf.gtm
      > Added a shell command to the `dx_hook'
+----------
+tag: beta-3.19.pl38 on Wed,  6 Aug 2003 19:39:27 -0300 by mstorti in node1.beowulf.gtm
+     > Now dx-hook doesn't stop if it doesn't find the state file. 
