@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.5 2002/02/10 12:47:00 mstorti Exp $
+// $Id: ampli.h,v 1.6 2002/02/10 15:29:12 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
 
@@ -66,11 +66,26 @@ private:
   typedef double EvalFun(double,void *);
   typedef void InitFun(TextHashTable *,void *&);
   typedef void ClearFun(void *);
-  EvalFun *fun;
+  EvalFun *eval_fun;
   InitFun *init_fun;
   ClearFun *clear_fun;
+
+  struct FunHandle {
+    EvalFun *eval_fun;
+    InitFun *init_fun;
+    ClearFun *clear_fun;
+  };
+
+  typedef map<string,FunHandle> FunTable;
+  struct FileHandle {
+    void *handle;
+    FunTable *fun_table;
+  };
+
+  typedef map<string,FileHandle> FileHandleTable;
   void *handle;
   void *fun_data; // store data
+  static FileHandleTable file_handle_table;
 public:
   DLGeneric() : fun_data(NULL) {}
   void print() const;

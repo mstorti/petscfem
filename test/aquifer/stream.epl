@@ -103,10 +103,22 @@ __END_ELEMSET__
 end_elemsets
 
 fixa_amplitude dl_generic
+ext_filename "/home/mstorti/PETSC/petscfem/test/aquifer/fun.efn"
 t0 0.
 f0 1.
 t1 1.8
 f1 0.5
 __END_HASH__
-1 1 1.
+# 1 1 1.
 __END_FIXA__
+
+fixa_amplitude dl_generic
+ext_filename "/home/mstorti/PETSC/petscfem/test/aquifer/fun.efn"
+t0 0.
+f0 1.
+t1 0.8
+f1 0.2
+__END_HASH__
+ 1 1 1.
+__END_FIXA__
+
