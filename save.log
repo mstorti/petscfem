@@ -700,3 +700,9 @@ tag: beta-2.55 on Sat Dec  8 17:35:05 ARST 2001, by mstorti in spider
 ----------
 tag: beta-2.56 on Sun Dec  9 10:43:58 ARST 2001, by mstorti in spider
      > Discarding modifications to the `pfmat' class.
+----------
+tag: beta-2.57 on Sun Dec  9 11:07:45 ARST 2001, by mstorti in spider
+     > I tried to make `pfmat' more independent of Petscfem, i.e. not based
+     > on `dofmap', but on a graph and a partitioner class. This finally
+     > proved to be too much work and I made it this branch. Then I went back
+     > to version beta-2.54.
