@@ -9,7 +9,7 @@ getopts("s:o:h");
 #  /`/;
 #    print <<'EOM';
 
-$tgetopt_pat='TGETOPT\w*\(\S*,(\w*),(\w*),([^ ,]*)\)';
+$tgetopt_pat='(?:T|E)GETOPT\w*\(\S*,(\w*),(\w*),([^ ,]*)\)';
 $getopt_pat='GETOPT\w*\((\w*),(\w*),([^ ,]*)\)';
 
 $otarget = ($opt_s ? $opt_s : "");
@@ -50,46 +50,45 @@ while (<>) {
     }
     if (m|^\s*//o (.*)|) {
 	@doc=();
-	push @doc,$1;
+	push @doc,"$1\n";
 	while (<>) {
 	    if (m|^\s*// (.*)|) {
-		push @doc,$1;
+		push @doc,"$1\n";
 		last if /_END\s*$/;
 	    } elsif (m|^\s*//i_tex\s*(\S*)\s*(\w*)|) {
 		$texfile=$1;
 		$section=$2;
 		$tex = get_section($texfile,$section);
-		print "tex: @{$tex}\n";
 		my $l;
-		foreach $l (@{$tex}) {
-		    chomp $l;
-		}
 		push @doc,@{$tex};
 	    } else {
 		last;
 	    }
 	}
-#  	if (/GETOPT.*_ND\(\S*,(\w*),(\w*),(\S*)\)/ 
-#  	    || /GETOPT.*\((\w*),(\w*),(\S*)\)/) {
-	if ($doc[0] =~ /\s*_T:(.*)/) {
+
+	if ($doc[0] =~ /\s*_T:(.*)/s) {
 	    @docf=@doc;
 	    $doc=join("",@doc);
-	    die "not \"_T:\" tag in explicit doc: \n",
-	    @docf unless $doc=~/_T:(.*) _N:/;
+	    die "no \"_T:\" tag in explicit doc: \n",
+	    @docf unless $doc=~/_T:(.*\s)_N:/s;
 	    $type=$1;
 	    $doc=$';
-	    die "not \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/(.*) _D:/;
-	    $name=$1;
+	    $type =~s/\n/\s/g;
+	    $type =~ s/\s*$//;
+	    die "no \"_D:\" tag in explicit doc: \n",@docf unless $doc=~/_D:/s;
+	    $name=$`;
 	    $doc=$';
-	    die "not \"_DOC:\" tag in explicit doc: ",@docf unless $doc=~/(.*) _DOC:/;
-	    $default=$1;
+	    $name =~s/\n/\s/g;
+	    $name =~ s/\s*$//;
+	    die "no \"_DOC:\" tag in explicit doc: ",@docf unless $doc=~/_DOC:/s;
+	    $default=$`;
 	    $doc=$';
-#	    print "doc antes de quitar text: $doc\n";
-	    die "not \"_END\" tag in explicit doc: ",
-	    @docf unless $doc=~/_END\s*$/;
+	    $default =~s/\n/\s/g;
+	    $default =~ s/\s*$//;
+	    die "no \"_END\" tag in explicit doc: ",
+	    @docf unless $doc=~/_END\s*$/s;
 	    $doc=$`;
-#	    print "text in doc: $doc\n";
-	    $text = join("","\\item\\verb+$type $name+ ",
+	    $text = join("","\\item\\verb+$type+ \\verb+$name+ ",
 			 "{\\rm(default=\\verb|$default|)}:\n",
 			 $doc,$sep);
 	    push @doclist,[$name,$type,$default,$text];
@@ -100,7 +99,7 @@ while (<>) {
 	    $tname=$name;
 	    $tname =~ s/_/\\_/g;
 	    /`/;
-	    $text = join("",<<EOT,join("\n",@doc),"\n",$sep);
+	    $text = join("",<<EOT,join("",@doc),"\n",$sep);
 \\index{$tname@\\verb+$name+}
 \\item\\verb+$type $name+ {\\rm(default=\\verb|$default|)}:\n
 EOT
