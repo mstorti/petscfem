@@ -1,0 +1,129 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+<:                              # starts ePerl block
+#__TRANSCRIPT__
+require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
+$R0 = 0.047;			# [m] Radius of tube
+$L0 = 0.520;			# [m] Length of tube
+$Rc = 0.0175;			# [m] Radius of cold outlet
+$Rin = 0.003;			# [m] Radius of small excluded cylinder at axis
+$z_ratio = 10;			# refinement in `z' (axial) direction
+$r_ratio = 4;			# refinement in radial direction
+$Nz = 50;			# number of elements in axial direction
+$Nr = 10;			# number of elements in radial direction
+$Nphi = 20;			# number of elements in circumferential direction
+$Dz_h = 0.02*$L0;		# [m] Axial span of hot outlet
+$A_in = 3.63e-4;		# [m2] inlet area
+$Dz_in = $A_in/(2*$PI*$R0);	# [m] Axial span of inlet
+# $Dz_in = $Dz_h; # [m] Axial span of inlet (temporarily set equal to the outlet 
+
+$mass_flow_in = 0.12;		# [kg/s] mass flow at inlet
+$p_in = 200000;			# [N/m2] pressure at inlet
+$T_in = 294;			# [K] temperature at inlet
+
+## PHYSICAL DATA
+$visco   =  1e-02;		# [kg/m s]viscosity
+$Pr      =  0.72;		# [1] Prandtl
+$Pr      = 10*$Pr;		# ??
+$Rgas    =  287.;		# [J/K kg] Gas constant for air
+$ga      =   1.4;		# [1] gamma (Cp/Cv)
+$Cv      = $Rgas/($ga-1);	# [J/K kg] specific heat at constant volume
+$Cp      = $ga*$Cv;		# [J/K kg] specific heat at constant pressure
+$cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
+$g_body  =  0;			# [N/m3] force per volume (may be gravity)
+$gravity = -9.8;		# [m/s2] normal acceleration of gravity
+
+## INLET
+$rho_in = $p_in/($Rgas*$T_in);	# [kg/m3] density
+$u_rad_in = $mass_flow_in/
+    ($A_in*$rho_in);		# [m/s] radial velocity
+$u_circunf_in = 10*$u_rad_in;	# [m/s] tangential velocity
+
+## COLD OUTLET
+$p_c = 1.013e5;			# [N/m2] outlet cold pressure
+
+## HOT OUTLET
+$p_h = 1.38e5;			# [N/m2] outlet cold pressure
+
+# require './data.pl';
+$weak_form  = 0;
+#__END_TRANSCRIPT__
+@vars = qw(R0 L0 Rc Rin z_ratio r_ratio Nr Nz Nphi Dz_h Dz_in
+		rho_in u_rad_in u_circunf_in p_in p_h p_c);
+transcript("", @vars);	# print variables on output
+octave_export_vars(">data.m.tmp",@vars);
+system "octave -qH mkvtube.m > mkvtube.out.tmp";
+:>//                            # ends ePerl block
+
+##================================================================
+global_options
+
+nstep 1000
+alpha 1.
+
+initial_state "vtube.ini.tmp"
+# initial_state "vtube.state.tmp"
+save_file "vtube.state.tmp" 
+nsave 10
+
+save_file_pattern "vtube.state_%d.tmp"
+nsaverot 10
+nrec 1
+nfile 100000000
+
+# type of solver (may be "iisd", "petsc"...)
+solver "iisd"
+preco_type "jacobi"
+
+maxits 100
+Krylov_dim 100
+iisd_subpart_auto 2000
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 0
+dtol 1e3
+nnwt 5
+
+print_internal_loop_conv
+
+Dt 0.0005
+weak_form 0
+temporal_stability_factor 0
+
+shock_capturing_factor 0
+
+ndim 3
+<:pr('visco'):> 
+<:pr('Rgas'):> 
+C_mu 0.
+<:pr('ga'):> 
+<:pr('cond'):> 
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodes  3  3  5
+__INCLUDE__ vtube.nod.tmp
+__END_NODES__
+
+##================================================================
+elemset gasflow 8 
+geometry cartesian3d
+npg 8
+__END_HASH__
+__INCLUDE__ vtube.con.tmp
+__END_ELEMSET__
+
+end_elemsets
+
+##================================================================
+fixa
+__INCLUDE__ vtube.fixa.tmp
+__END_FIXA__

@@ -1,14 +1,20 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.5 2003/01/16 02:08:22 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2003/01/17 03:13:15 mstorti Exp $ 
 
 .PHONY: force all run tests
 
-all: run
+default: vtube
 
 tests: 
 
 gasflow:
 	$(MAKE) CASE_NAME=gasflow_test_2d run
+
+nozzle:
+	$(MAKE) CASE_NAME=$@ run
+
+vtube:
+	$(MAKE) CASE_NAME=$@ run
 
 SRCS = 
 PETSCFEM_DIR = ../..
@@ -16,7 +22,8 @@ include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
-CASE_NAME := nozzle
+CASE_NAME := vtube
+# CASE_NAME := nozzle
 # CASE_NAME := gasflow_test_2d
 endif
 LOC_PROG := advdif

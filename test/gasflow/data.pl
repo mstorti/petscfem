@@ -13,20 +13,8 @@ $Nx = 40;			# number of elements in x direction
 $r_ratio = 8;			# hr(axis)/hr(wall)
 $x_ratio = 16;			# hx(inlet) / hx(throttle)
 
-## PHYSICAL DATA
-$visco   =  1e-02;		# viscosity
-$Pr      =  0.72;
-$Pr      = 10*$Pr;
-$Rgas    =  287.;
-$ga      =   1.4;
-$Cv      = $Rgas/($ga-1);
-$Cp      = $ga*$Cv;
-$cond    = $Cp*$visco/$Pr;
-$g_body  =  0;
-$gravity = -9.8;
-
 # BOUNDARY CONDITIONS
-$Mach_ref   = 0.5;
+$Mach_ref   = 0.4;
 $rho_ini    = 1.15;
 $p_ini      = 1.0e5; 
 $p_ref      = 1.0e5;
