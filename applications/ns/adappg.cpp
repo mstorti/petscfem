@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: adappg.cpp,v 1.4 2001/12/03 02:59:49 mstorti Exp $
+//$Id: adappg.cpp,v 1.5 2003/02/22 22:09:38 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -12,8 +12,16 @@
 #include "elast.h"
 
 void adaptor_pg::init() {
+  int ierr;
+  TGETOPTDEF_ND(thash,int,ndimel,ndim);
+  // This covers may real cases, it only remains lines in 3D.
+  // But maybe it should work also. 
+  assert(ndimel==ndim || ndimel==ndim-1);
   xpg.resize(1,ndim);
-  Jaco.resize(2,ndim,ndim);
+  normal.resize(1,ndim);
+  g.resize(2,ndimel,ndimel);
+  ig.resize(2,ndimel,ndimel);
+  Jaco.resize(2,ndimel,ndim);
   dshapex.resize(2,ndim,nel);  
   grad_state_new_pg.resize(2,ndim,ndof);
   grad_state_old_pg.resize(2,ndim,ndof);
@@ -21,11 +29,13 @@ void adaptor_pg::init() {
   state_old_pg.resize(1,ndof);
   res_pg.resize(2,nel,ndof);
   mat_pg.resize(4,nel,ndof,nel,ndof);
+  tmp.resize(2,ndimel,nel);
 
   elemset_init();
 }
 
 void adaptor_pg::clean() {
+  // Clean up local functions
   xpg.clear();
   Jaco.clear();
   dshapex.clear();  
@@ -35,6 +45,10 @@ void adaptor_pg::clean() {
   state_old_pg.clear();
   res_pg.clear();
   mat_pg.clear();
+  normal.clear();
+  g.clear();
+  ig.clear();
+  tmp.clear();
 
   elemset_end();
 }
@@ -48,10 +62,17 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
   elem_init();
   for (int ipg=0; ipg<npg; ipg++) {
     
-    dshapexi.ir(3,ipg+1); // restriccion del indice 3 a ipg+1
+    // Select the column of dshapexi correponding to this GP
+    dshapexi.ir(3,ipg+1);
     Jaco.prod(dshapexi,xloc,1,-1,-1,2);
     
-    double detJaco = Jaco.det();
+    double detJaco;
+    if (ndimel==ndim) {
+      detJaco = Jaco.det();
+    } else {
+      detJaco = Jaco.detsur(&normal);
+      normal.scale(-1.); // fixme:= This is to compensate a bug in mydetsur
+    }
     if (detJaco <= 0.) {
       printf("Jacobian of element %d is negative or null\n"
 	     " Jacobian: %f\n",elem,detJaco);
@@ -59,8 +80,11 @@ void adaptor_pg::element_connector(const FastMat2 &xloc,
       exit(0);
     }
     double wpgdet = detJaco*wpg.get(ipg+1);
-    iJaco.inv(Jaco);
-    dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
+    
+    g.prod(Jaco,Jaco,1,-1,2,-1);
+    ig.inv(g);
+    tmp.prod(ig,dshapexi,1,-1,-1,2);
+    dshapex.prod(Jaco,dshapexi,-1,1,-1,2);
 
     grad_state_new_pg.prod(dshapex,state_new,1,-1,-1,2);
     grad_state_old_pg.prod(dshapex,state_old,1,-1,-1,2);
