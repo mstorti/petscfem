@@ -1,16 +1,17 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.56 2002/09/08 16:28:11 mstorti Exp $ 
+# $Id: Makefile,v 1.57 2002/11/28 15:13:25 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
 PETSCFEM_DIR = ..
 
 # Add new files here
-LIBOBJS_ = amplidl arglist debug distmat dofmap elemlist elemset fastmat fastmat2	\
-fem fm2eperl fstack getarray getprop gpdata graph graphdv idmap iisdcr			\
-iisdgraph iisdmat linkgraph mainutl measperf metisprt petscmat pfmat			\
-propef randomg readmesh secant sparse spdirect spsolve state sttfilter			\
-tempfun tempfun2 texthash texthf timestat util2 utils version
+LIBOBJS_ = amplidl arglist debug distmat dofmap elemlist elemset	\
+fastmat fastmat2 fem fm2eperl fm2eperl2 fstack getarray getprop gpdata	\
+graph graphdv idmap iisdcr iisdgraph iisdmat linkgraph mainutl		\
+measperf metisprt petscmat pfmat propef randomg readmesh secant sparse	\
+spdirect spsolve state sttfilter tempfun tempfun2 texthash texthf	\
+timestat util2 utils version
 
 # C files
 CLIBOBJS_ =  getarrgr.tab
@@ -48,6 +49,11 @@ $(LIBPETSCFEM)(%.o): %.o
 
 fm2eperl$(osfx).o: fm2eperl.cpp
 fm2eperl.cpp: fmat2ep.cpp prep.pl
+	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
+	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
+
+fm2eperl2$(osfx).o: fm2eperl2.cpp
+fm2eperl2.cpp: fmat2ep2.cpp prep.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2002/11/27 19:13:42 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/11/28 15:12:31 mstorti Exp $ 
 
 .PHONY:  force data test_plain test_var_eta test_transient rung run runs
 
@@ -29,9 +29,10 @@ testfm2d.bin: testfm2d.o
 fastmat2b: testfm2.bin
 	testfm2.bin > fastmat2.out.tmp
 
-testfm2.bin: testfm2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o util2.o) 
-	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin testfm2.o \
-		$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat \
+testfm2.bin: testfm2.o $(LIBPETSCFEM)(fastmat2.o fm2eperl.o fm2eperl2.o util2.o) 
+	${CXX_CLINKER} $(PROF_FLAGS) -o testfm2.bin testfm2.o	\
+	-Wl,-E,-rpath,$(LD_LIBRARY_PATH)			\
+	$(LIBPETSCFEM) ${PETSC_SLES_LIB} -L$(NEWMAT) -lnewmat	\
 		$(MESCHACH)/libmes.a
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>--
@@ -55,5 +56,5 @@ tfastvec.o: tfastvec.cpp
 
 #----<*>----------<*>----------<*>----------<*>----------<*>----------<*>-----
 #w Eigenvalues
-fm2eig.bin: fm2eig.o dsyev2.o
-	g++ -o $@ fm2eig.o dsyev2.o $(LDFLAGS_NO_PROG) -lblas -llapack -lg2c 
+fm2eig.bin: fm2eig.o 
+	g++ -o $@ fm2eig.o $(LDFLAGS_NO_PROG) -lblas -llapack -lg2c 

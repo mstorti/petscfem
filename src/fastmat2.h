@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.17 2002/10/21 21:51:43 mstorti Exp $
+//$Id: fastmat2.h,v 1.18 2002/11/28 15:13:25 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -933,6 +933,48 @@ public:
       @return a reference to the matrix.
   */ 
   FastMat2 & inv(const FastMat2 & A);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solve the eigenvalue problem for non-symmetric matrix #A#.
+      #A# has to be square. 
+      @author M. Storti
+      @param A (input) the matrix to take the eigenvalues
+      @returns a reference to a vector containing the eigenvalues. 
+  */ 
+  FastMat2 & eig(const FastMat2 & A);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solve the eigenvalue problem for non-symmetric matrix #A#.
+      #A# has to be square. 
+      @author M. Storti
+      @param A (input) the matrix to take the eigenvalues
+      @param V (otuput) the matrix with the eigenvectors
+      @param compute_eigen_vectors (input) flags whether
+      to compute the eigenvectors or not
+      @returns a reference to a vector containing the eigenvalues. 
+  */ 
+  FastMat2 & eig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors=1);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solve the eigenvalue problem for symmetric matrix #A#.
+      Note: #A# is NOT checked for symmetry. #A# has to be square. 
+      @author M. Storti
+      @param A (input) the matrix to take the eigenvalues
+      @returns a reference to a vector containing the eigenvalues. 
+  */ 
+  FastMat2 & seig(const FastMat2 & A);
+
+  //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  /** Solve the eigenvalue problem for symmetric matrix #A#.
+      Note: #A# is NOT checked for symmetry. #A# has to be square. 
+      @author M. Storti
+      @param A (input) the matrix to take the eigenvalues
+      @param V (otuput) the matrix with the eigenvectors
+      @param compute_eigen_vectors (input) flags whether
+      to compute the eigenvectors or not
+      @returns a reference to a vector containing the eigenvalues. 
+  */ 
+  FastMat2 & seig(const FastMat2 & A, FastMat2 &V,int compute_eigen_vectors=1);
 
   //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   /** Converts to double, for zero dimension matrices.

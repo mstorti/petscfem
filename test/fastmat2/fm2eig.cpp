@@ -1,8 +1,7 @@
 #include <cstdio>
-extern "C" void dsyev2_(int *N,double *a, double *w, double *work,int *lwork,int *info);
 
-//  void dsyev_(int *jobz,int *uplo,int *n,double *a,int *lda,
-//  	    double *w,double *work, int *lwork, int *info);
+extern "C" void dsyev_(const char*jobz,const char *uplo,int *n,double *a,int *lda,
+		       double *w,double *work, int *lwork, int *info);
 
 int main() {
   int N=3;
@@ -12,7 +11,7 @@ int main() {
     a[j][j] = 1.;
   }
   int info,lwork = 5*N;
-  dsyev2_(&N,&a[0][0],w,work,&lwork,&info);
+  dsyev_("V","U",&N,&a[0][0],&N,w,work,&lwork,&info);
   for (int j=0; j<N; j++) printf("%f\n",w[j]);
   for (int j=0; j<N; j++) {
     for (int k=0; k<N; k++) 
@@ -21,7 +20,3 @@ int main() {
   }
 }
 
-extern "C" 
-void qq_(int *v) {
-  int k=3;
-}
