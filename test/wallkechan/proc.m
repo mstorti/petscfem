@@ -2,23 +2,17 @@ source("data.m.tmp");
 NN=(N+1);
 NNy = Ny+1;
 nnod = NN*NNy;
-xx=aload("wallke.nod.tmp");
-x=xx(1:NNy:nnod,1);
+x=aload("wallke.nod.tmp");
+y=x(1:NNy,2);
+x=x(1:NNy:nnod,1);
 u=aload("save.state");
 out=NNy:NNy:nnod;
 vout=u(out,2);
-cntr=(NN-1)*NNy+(1:NNy)';
-yc=xx(cntr,2);
-uc=u(cntr,2);
+uc=u(1:NNy,2);
 
 plot(x,vout);
 pause
-plot(yc,uc);
-
-U=reshape(u(1:NNy*NN,1),NNy,NN)';
-V=reshape(u(1:NNy*NN,2),NNy,NN)';
-P=reshape(u(1:NNy*NN,3),NNy,NN)';
-
+plot(y,uc);
 return
 
 #  C_mu=0.09;
