@@ -1,7 +1,7 @@
 <:
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
 $N=10;
-$disp = 0.05;
+$disp = 0.5;
 # $df = 'rcond';
 $df = 'eig';
 $slope = 5;
@@ -26,7 +26,7 @@ solver "petsc"
 iisd_subpart 1
 #endif
 
-nnwt 20
+nnwt 5
 # newton_relaxation_factor 0.1 10 1.
 pc_lu_fill 8.
 rtol 1e-4
@@ -37,7 +37,7 @@ steady
 c_volume 0.1
 # distor_exp 1.
 
-<:$nstep=1; pr('nstep');:>
+<:$nstep=4; pr('nstep');:>
 Dt <:= 1./$nstep;:>
 __END_HASH__
 

@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-//$Id: testfm2.cpp,v 1.7 2002/12/01 16:07:26 mstorti Exp $
+//$Id: testfm2.cpp,v 1.8 2002/12/07 21:10:55 mstorti Exp $
 
 #include <stdio.h>
 #include <time.h>
@@ -44,6 +44,12 @@ double myfun(double x,void *user_args) {
 
 }
 
+class Prod : public FastMat2::Fun2 {
+public:
+  void init() { set(1.); }
+  double fun2(double a,double val) { return val*a; }
+} prod;
+
 int main() {
 
   Chrono chrono;
@@ -64,7 +70,8 @@ int main() {
   FastMat2 Z60(2,3,3),Z61(2,2,3),Z62(2,3,3),Z63(2,3,3),Z64,Z65,Z66,Z67,Z68,
     Z69;
   FastMat2 Z60b(2,3,3),Z61b(2,2,3),Z62b(2,3,3),Z63b(2,3,3),Z64b,Z65b,Z66b,Z67b,Z68b,
-    Z69b,Z70,Z71,Z72;
+    Z69b,Z70,Z71,Z72,Z73(2,3,3),Z74,Z75;
+  double z76;
   Matrix NA(3,3),NB;
   NA << 1. << 3. << 5. << 7. << 9. << 11. << 13. << 15. << 17;
   A.set(NA);
@@ -86,6 +93,7 @@ int main() {
   init123(Z40);
   Z41.set(Z40).add(1);
   init123(Z50);
+  init123(Z73);
 
   double d[4];
   
@@ -389,6 +397,12 @@ int main() {
       // In one op
       Z72.rcp(Z60,3.);
 
+      // Computes product of all elements by columns
+      Z74.assoc(Z73,prod,-1,1);
+      // by rows
+      Z75.assoc(Z73,prod,1,-1);
+      // compute prod of all elements
+      z76 = Z73.assoc_all(prod);
     }
     FastMat2::void_cache();
   }
@@ -503,6 +517,11 @@ int main() {
   SH(Z70);
   SH(Z71);
   SH(Z72);
+
+  SH(Z73);
+  SH(Z74);
+  SH(Z75);
+  SHV(z76);
 
 #undef SH
 

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elast.cpp,v 1.3 2002/12/05 22:15:28 mstorti Exp $
+//$Id: elast.cpp,v 1.4 2002/12/07 21:10:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -90,10 +90,25 @@ void elasticity::element_connector(const FastMat2 &xloc,
     dshapex.prod(iJaco,dshapexi,1,-1,-1,2);
     
     // construccion de matriz B
-    B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
-    B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
-    B.ir(1,3).ir(3,1).set(dshapex.ir(1,2));
-    B.ir(1,3).ir(3,2).set(dshapex.ir(1,1));
+    if (ndim==2) {
+      B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
+      B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
+      B.ir(1,3).ir(3,1).set(dshapex.ir(1,2));
+      B.ir(1,3).ir(3,2).set(dshapex.ir(1,1));
+    } else if (ndim==3) {
+      B.ir(1,1).ir(3,1).set(dshapex.ir(1,1));
+      B.ir(1,2).ir(3,2).set(dshapex.ir(1,2));
+      B.ir(1,3).ir(3,3).set(dshapex.ir(1,3));
+
+      B.ir(1,4).ir(3,2).set(dshapex.ir(1,1));
+      B.ir(1,4).ir(3,1).set(dshapex.ir(1,2));
+
+      B.ir(1,5).ir(3,3).set(dshapex.ir(1,1));
+      B.ir(1,5).ir(3,1).set(dshapex.ir(1,3));
+
+      B.ir(1,6).ir(3,3).set(dshapex.ir(1,2));
+      B.ir(1,6).ir(3,2).set(dshapex.ir(1,3));
+    }
 
     dshapex.rs();
     

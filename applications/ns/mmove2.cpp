@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: mmove2.cpp,v 1.7 2002/12/05 22:15:28 mstorti Exp $
+//$Id: mmove2.cpp,v 1.8 2002/12/07 21:10:51 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -68,12 +68,20 @@ void mesh_move_eig_anal::init() {
   TGETOPTDEF_ND(thash,double,distor_exp,1.);
   //o Adds a term $\propto {\tt c\_volume}\,{\rm volume}$ to the functionala. 
   TGETOPTDEF_ND(thash,double,c_volume,0.);
+  //o Compute an initial ``predictor'' step with this relaxation scale. 
+  TGETOPTDEF_ND(thash,double,c_relax,1.);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
 				 FastMat2 &glambda) {
-  J.prod(x,dNdxi,-1,1,2,-1);
+  J.prod(dNdxi,x,2,-1,-1,1);
+  double detJaco;
+  detJaco = J.det();
+  if (detJaco <= 0.) {
+    PETSCFEM_ERROR("Jacobian of element %d is negative or null\n"
+		   " Jacobian: %f\n",elem,detJaco);  
+  }
   G.prod(J,J,-1,1,-1,2);
   lambda.seig(G,V);
   tmp3.prod(G,V,1,-1,-1,2);
@@ -101,6 +109,7 @@ void mesh_move_eig_anal::la_grad(const FastMat2 &x,FastMat2 &lambda,
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 double mesh_move_eig_anal::dfun(const FastMat2 &D) {
+#if 0
   double F=0;
   double vol=1.;
   for (int k=1; k<=ndim; k++) vol *= D.get(k);
@@ -108,6 +117,14 @@ double mesh_move_eig_anal::dfun(const FastMat2 &D) {
     for (int l=1; l<k; l++) F += square(D.get(k)-D.get(l));
   F /= pow(vol,2./double(ndim));
   return pow(F,distor_exp);
+#elif 0
+  double p=distor_exp;
+  double norm_D = 
+  double norm_iD = D.norm_p_all(-p);
+  return (norm_D*norm_iD)/square(double(ndim));
+#else
+  return D.sum_square_all();
+#endif
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -136,7 +153,6 @@ element_connector(const FastMat2 &xloc,
 		  const FastMat2 &state_new,
 		  FastMat2 &res,FastMat2 &mat) {
 
-#define eps 1e-10
   x0.set(xloc).add(glob_param->inwt ? 
 		   state_new : state_old);
   df_grad(x0,res);
@@ -160,8 +176,10 @@ element_connector(const FastMat2 &xloc,
   mat.rs().reshape(4,nel,ndim,nel,ndim);
 
   if (!glob_param->inwt) {
-    x0.set(xloc).add(state_new);
+    x0.set(xloc).axpy(state_new,c_relax)
+      .axpy(state_old,1.-c_relax);
     df_grad(x0,res);
+    res.scale(1./c_relax);
   } 
   res.scale(-1.);
 #ifdef DEBUG_ANAL

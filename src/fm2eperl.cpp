@@ -4,7 +4,7 @@
 
 
 //__INSERT_LICENSE__
-//$Id: fm2eperl.cpp,v 1.20 2002/12/01 16:07:26 mstorti Exp $
+//$Id: fm2eperl.cpp,v 1.21 2002/12/07 21:10:54 mstorti Exp $
 #include <math.h>
 #include <stdio.h>
 
@@ -1724,6 +1724,177 @@ op_count.abs += ntot;
 double FastMat2::norm_p_all(const int p) const {
   static FastMat2 retval(0);
   retval.norm_p(*this , p);
+  return *retval.store;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+/* Obtained from pattern $gen_sum with args;
+   'INI_LOOP' => 'f.init()'
+   'NAME' => 'assoc'
+   'ELEM_OPERATIONS' => 'f.set(f.fun2(**pa++,f.v()))'
+   'COUNT_OPER' => 'op_count.mult += 1;
+'
+   'OTHER_ARGS' => 'Fun2 &f'
+   'C' => ','
+   'POST_LOOP_OPS' => 'f.post(); val = f.v()'
+*/
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+FastMat2 & FastMat2::assoc(const FastMat2 & A, Fun2 &f , 
+			      const int m=0,INT_VAR_ARGS) {
+
+  FastMatCache *cache;
+
+if (was_cached) {
+  cache = cache_list_begin[position_in_cache++];
+#ifdef FM2_CACHE_DBG
+  printf ("reusing cache: ");
+#endif
+} else if (!use_cache) {
+  cache = new FastMatCache;
+} else {
+  cache = new FastMatCache;
+  cache_list->push_back(cache);
+  cache_list_begin = cache_list->begin();
+  cache_list->list_size =
+    cache_list_size = cache_list->size();
+  position_in_cache++;
+#ifdef FM2_CACHE_DBG
+  printf ("defining cache: ");
+#endif
+}
+#ifdef FM2_CACHE_DBG
+printf(" cache_list %p, cache %p, position_in_cache %d\n",
+       cache_list,cache,position_in_cache-1);
+#endif
+;
+
+  if (!was_cached  ) {
+    Indx sindx,fdims,Afdims;
+    assert(A.defined);
+    A.get_dims(Afdims);
+
+    if (m!=0) {
+      sindx.push_back(m);
+#ifdef USE_VAR_ARGS
+      va_list ap;
+      va_start(ap,m);
+      read_int_list(Afdims.size()-1,ap,&sindx);
+#else
+      READ_INT_ARG_LIST(sindx);
+      assert(sindx.size() == Afdims.size());
+#endif
+    } else {
+      sindx = Indx(Afdims.size(),-1);
+    }
+
+    int nfree=0,nc=0;
+    for (int j=0; j<sindx.size(); j++) {
+      int k = sindx[j];
+      if (k>0 && k>nfree) nfree = k;
+      if (k<0) nc++;
+    }
+
+    Indx ifree(nfree,0),icontr(nc,0);
+    int ic=0;
+    for (int j=0; j<sindx.size(); j++) {
+      int k = sindx[j];
+      if (k>0) {
+	ifree[k-1] = j+1;
+      } else {
+	icontr[ic++] = j+1;
+      }
+    }
+  
+    Indx ndimsf(nfree,0),ndimsc(nc,0);
+    int nlines=1;
+    for (int j=0; j<nfree; j++) {
+      int k = ifree[j];
+      ndimsf[j] = Afdims[k-1];
+      nlines *= ndimsf[j];
+    }
+
+    // Dimension B (*this) if necessary
+    if (!defined) {
+      create_from_indx(ndimsf);
+    }
+
+    get_dims(fdims);
+    assert(ndimsf == fdims);
+
+    int line_size=1;
+    for (int j=0; j<nc; j++) {
+      int k = icontr[j];
+      ndimsc[j] = Afdims[k-1];
+      line_size *= ndimsc[j];
+    }
+
+    int ndims = Afdims.size();
+    Indx findx(nfree,1),cindx(nc,1),tot_indx(ndims,0);
+
+    // Loading addresses in cache
+    // For each element in the distination target, we store the complete
+    // list of addresses of the lines of elements that contribute to
+    // it. 
+    cache->prod_cache.resize(nlines);
+    cache->line_cache_start = cache->prod_cache.begin();
+    cache->nlines = nlines;
+    cache->line_size = line_size;
+    LineCache *lc;
+    for (int jlc=0; jlc<nlines; jlc++) {
+      lc = cache->line_cache_start + jlc;
+      lc->linea.resize(line_size);
+      // cache->prod_cache.push_back(LineCache());
+      lc->target = location(findx);
+      // findx.print("for free indx: ");
+
+      cindx= Indx(nc,1);
+      for (int j=0; j<nfree; j++)
+	tot_indx[ifree[j]-1] = findx[j];
+
+      int kk=0;
+      while(1) {
+	for (int j=0; j<nc; j++) {
+	  int k=icontr[j];
+	  tot_indx[k-1] = cindx[j];
+	}
+	// tot_indx.print("tot_indx: ");
+
+	lc->linea[kk++] = A.location(tot_indx);
+	if (!inc(cindx,ndimsc)) break;
+      }
+      lc->starta = lc->linea.begin();
+      if (!inc(findx,ndimsf)) break;
+    }
+    int ntot = nlines*line_size;
+    op_count.get += ntot;
+    op_count.put += nlines;
+    op_count.mult += 1;
+;
+  }
+
+  LineCache *lc;
+  double **pa,**pe,val;
+  ;
+  for (int j=0; j<cache->nlines; j++) {
+    lc = cache->line_cache_start+j;
+    pa = lc->starta;
+    pe = pa + cache->line_size;
+    // val=0;
+    f.init();
+    while (pa<pe) {
+      f.set(f.fun2(**pa++,f.v()));
+    }
+    f.post(); val = f.v();
+    *lc->target = val;
+  }
+  if (!use_cache) delete cache;
+  return *this;
+}  
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+double FastMat2::assoc_all(Fun2 &f) const {
+  static FastMat2 retval(0);
+  retval.assoc(*this , f);
   return *retval.store;
 }
 

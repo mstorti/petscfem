@@ -145,6 +145,11 @@ sub gen_sum_all {
 	    {'OTHER_ARGS'=>'const int p',
 	     'OTHER_ARGS_P'=>'p',
 	     'POST_LOOP_OPS'=>'val = pow(val,1./double(p))'});
+    gen_sum('assoc','f.set(f.fun2(**pa++,f.v()))','',
+	    {INI_LOOP => 'f.init()', 
+	     OTHER_ARGS=>'Fun2 &f',
+	     OTHER_ARGS_P=>'f',
+	     POST_LOOP_OPS=>'f.post(); val = f.v()'});
     gen_max('max','val=**pa++;','aux=**pa++; if (aux>val) val=aux',copg(qw(sum fun)));
     gen_max('min','val=**pa++;','aux=**pa++; if (aux<val) val=aux',copg(qw(sum fun)));
     gen_max('max_abs','val=fabs(**pa++);',

@@ -2,11 +2,10 @@ source("data.m.tmp");
 w = zhomo([0 1 0 1],N+1,N+1);
 [xnod,icone] = pfcm2fem(w);
 
-if strcmp(shape,"quad")
   icone = icone(:,[1 4 3 2]);
-else
-  icone=[icone(:,[1 3 2]);
-	 icone(:,[1 3 4])];
+if !strcmp(shape,"quad")
+  icone=[icone(:,[2 3 1]);
+	 icone(:,[4 1 3])];
 endif
 
 asave("step.nod.tmp",xnod);
