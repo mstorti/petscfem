@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl.cpp,v 1.27 2004/11/08 02:41:18 mstorti Exp $
+//$Id: elmsupl.cpp,v 1.28 2004/11/08 18:13:40 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -48,7 +48,9 @@ int Elemset::upload_vector(int nel,int ndof,Dofmap *dofmap,
 
 #define ARGS nel,ndof,dofmap,options,argd,myrank, \
              el_start,el_last,iter_mode,klocc,kdofc
-  if (block_uploading) ierr = upload_vector_fast(ARGS);
+
+  if (block_uploading==1) ierr = upload_vector_fast(ARGS);
+  else if (block_uploading==2) ierr = upload_vector_fast_mb(ARGS);
   else ierr = upload_vector_slow(ARGS);
 
   return ierr;

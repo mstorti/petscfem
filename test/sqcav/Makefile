@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.81 2004/11/06 13:22:27 mstorti Exp $ 
+# $Id: Makefile,v 1.82 2004/11/08 18:13:40 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force	\
         ctest gprof dxhook dx_tests dx_hook_test_post_run dx		\
@@ -6,8 +6,7 @@
 	test_disconnected_graph
 
 BOPT := g_c++
-default: 
-	$(MAKE) case=iisd_sbp1 np=2 runs
+default: dbg
 
 isp_test:
 	$(MAKE) CASE=qharm np=1 case=iisd_sbp2 run
@@ -87,7 +86,7 @@ output_file := output.CASE_$(CASE).np_$(np).case_$(case)$(meas_perf).out.tmp
 #w Runs program
 run:  data
 	-${MPIRUN} -np $(np) $(MCH) $(PROG) -case $(CASE).depl \
-	 	      	  > $(output_file)
+	 	      	 #  > $(output_file)
 
 export CASE
 runs: CASE := sqcav
@@ -318,3 +317,8 @@ test_disconnected_graph:
 link:
 	$(MAKE) -C $(PETSCFEM_DIR) $(LOC_PROG)
 	ln -f $(PROG) $(LOC_PROG)
+
+###--------<*>--------<*>--------<*>--------<*>--------<*>--------<*>
+#w Debugging target
+dbg:
+	$(MAKE) case=fractional_step_re400 runs2

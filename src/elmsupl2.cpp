@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: elmsupl2.cpp,v 1.1 2004/11/08 16:13:44 mstorti Exp $
+//$Id: elmsupl2.cpp,v 1.2 2004/11/08 18:13:40 mstorti Exp $
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -206,7 +206,7 @@ upload_vector_fast_1b(int color,
 	    locdof = dofv[j];
 	    coef = coefv[j];
 #endif
-	    if (locdof>neq) continue; // ony load free nodes
+	    if (locdof>neq) continue; // only load free nodes
 	    if (*rm) {
 	      if (jr==rsize) {
 		// Make arrays grow if needed
@@ -368,33 +368,32 @@ upload_vector_fast_1b(int color,
 	  // load finite difference jacobian computed by differences
 	  if (load_mat_col) {
 	    nodel = ICONE(iele,klocc);
-	      vall = RETVAL(iele_here,kloc,kdof);
-	      dofmap->get_row(nodel,kdofc+1,rowc_v);
+	    vall = RETVAL(iele_here,kloc,kdof);
+	    dofmap->get_row(nodel,kdofc+1,rowc_v);
 
-	      for (int ientryc=0; ientryc<rowc_v.size(); ientryc++) {
-		entryc_v = &rowc_v[ientryc];
-		locdofl = entryc_v->j;
-		if (locdofl>neq) continue;
-		val = entry_v->coef * entryc_v->coef * vall;
+	    for (int ientryc=0; ientryc<rowc_v.size(); ientryc++) {
+	      entryc_v = &rowc_v[ientryc];
+	      locdofl = entryc_v->j;
+	      if (locdofl>neq) continue;
+	      val = entry_v->coef * entryc_v->coef * vall;
 
-		int kd=locdof-1,kdl=locdofl-1;
-		if (MASK(kloc,kdof,klocc,kdofc)) {
-		  if (comp_prof) {
-		    if (pfmat) {
-		      argd.pfA->set_profile(kd,kdl);
-		    } else {
-		      node_insert(argd.da,kd,kdl);
-		      node_insert(argd.da,kdl,kd); // be sure that
-		      // profile
-		    }
-		    // is symmetric
+	      int kd=locdof-1,kdl=locdofl-1;
+	      if (MASK(kloc,kdof,klocc,kdofc)) {
+		if (comp_prof) {
+		  if (pfmat) {
+		    argd.pfA->set_profile(kd,kdl);
 		  } else {
-		    if (pfmat) {
-		      ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
-		      CHKERRQ(ierr); 
-		    } else {
-		      MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
-		    }
+		    node_insert(argd.da,kd,kdl);
+		    node_insert(argd.da,kdl,kd); // be sure that
+		    // profile
+		  }
+		  // is symmetric
+		} else {
+		  if (pfmat) {
+		    ierr = argd.pfA->set_value(kd,kdl,val,ADD_VALUES); 
+		    CHKERRQ(ierr); 
+		  } else {
+		    MatSetValue(*argd.A,kd,kdl,val,ADD_VALUES); 
 		  }
 		}
 	      }

@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: elemset.h,v 1.39 2004/05/28 16:51:13 mstorti Exp $
+//$Id: elemset.h,v 1.40 2004/11/08 18:13:40 mstorti Exp $
 
 #ifndef ELEMSET_H
 #define ELEMSET_H
@@ -202,6 +202,20 @@ private:
       #upload_vector_slow# are used depends on the 
       #fast_uploading# option for the elemset. */
   int upload_vector_fast(int nel,int ndof,Dofmap *dofmap,
+		    int options,arg_data &argd,int myrank,
+		    int el_start,int el_last,int iter_mode,
+		    int klocc=0,int kdofc=0);
+
+  /** Fast version, like #upload_vector_fast# but allows mutiple
+      blocks by introducing a different mask value for each block. */
+  int upload_vector_fast_mb(int nel,int ndof,Dofmap *dofmap,
+		    int options,arg_data &argd,int myrank,
+		    int el_start,int el_last,int iter_mode,
+		    int klocc=0,int kdofc=0);
+
+  /** Auxiliary function for #upload_vector_fast_mb#  
+      loads blocked values for a specific value of the mask. */
+  int upload_vector_fast_1b(int mask_val,int nel,int ndof,Dofmap *dofmap,
 		    int options,arg_data &argd,int myrank,
 		    int el_start,int el_last,int iter_mode,
 		    int klocc=0,int kdofc=0);

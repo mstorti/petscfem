@@ -20,15 +20,22 @@ const double FIX = 0.1;
     @param A (input) matrix to be fixed.
     @param B (input) mask for A
 */ 
-void fix_null_diagonal_entries(FastMat2 &A,FastMat2 &B) {
+static void 
+fix_null_diagonal_entries(FastMat2 &A,FastMat2 &B,int &nc) {
   int n = A.dim(1);
   B.set(0.);
   for (int j=1; j<=n; j++) {
     if (A.get(j,j)==0.) {
-      A.setel(FIX,j,j);
+      A.setel((nc==-1? FIX : ++nc),j,j);
       B.setel(FIX,j,j);
     }
   }
+}
+
+static void 
+fix_null_diagonal_entries(FastMat2 &A,FastMat2 &B) {
+  int nc=-1;
+  fix_null_diagonal_entries(A,B,nc);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -207,10 +214,20 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   grad_u_ext.rs();
 
   // grad_u_ext was transposed in the Newmat version. Why? if it's symmetric
+#if 0
   mom_profile.prod(masspg,grad_u_ext,1,3,4,2);
+#else
+  mom_profile.set(0.);
+  for (int j=1; j<=ndim; j++) {
+    double w = j;
+    mom_profile.ir(2,j).ir(4,j).set(w);
+  }
+  mom_profile.rs();
+#endif
 
+  int nc = ndim;
   mom_profile.reshape(2,nen,nen);
-  fix_null_diagonal_entries(mom_profile,mom_mat_fix);
+  fix_null_diagonal_entries(mom_profile,mom_mat_fix,nc);
   mom_profile.reshape(4,nel,ndof,nel,ndof);
   mom_mat_fix.reshape(4,nel,ndof,nel,ndof);
   
