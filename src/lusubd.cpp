@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: lusubd.cpp,v 1.16 2001/07/23 15:52:11 mstorti Exp $
+//$Id: lusubd.cpp,v 1.17 2001/07/23 17:20:51 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -535,12 +535,8 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = ViewerASCIIOpen(PETSC_COMM_WORLD,
 			   "debug_iisd.dat",&matlab); CHKERRQ(ierr);
     ierr = ViewerSetFormat(matlab,
-			   VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); CHKERRQ(ierr);
-    ierr = VecView(dx,matlab);
-    ierr = ViewerSetFormat(matlab,
 			   VIEWER_FORMAT_ASCII_MATLAB,"resiisd"); CHKERRQ(ierr);
     ierr = VecView(res,matlab); CHKERRQ(ierr); 
-    ierr = ViewerDestroy(matlab);
 #endif
     
     ierr = VecCreateMPI(PETSC_COMM_WORLD,n_int,PETSC_DETERMINE,&res_i); CHKERRQ(ierr); 
@@ -581,7 +577,8 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = VecCreateMPI(PETSC_COMM_WORLD,
 			n_loc,PETSC_DETERMINE,&res_loc); CHKERRQ(ierr); 
     ierr = VecDuplicate(res_loc,&x_loc); CHKERRQ(ierr); 
-    
+
+    // res -> (res_loc, res_i)
     ierr = VecGetArray(res,&res_a); CHKERRQ(ierr); 
     ierr = VecGetArray(res_loc,&res_loc_a); CHKERRQ(ierr); 
     ierr = VecGetArray(res_i,&res_i_a); CHKERRQ(ierr); 
@@ -601,6 +598,12 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = VecRestoreArray(res_loc,&res_loc_a); CHKERRQ(ierr); 
     ierr = VecRestoreArray(res_i,&res_i_a); CHKERRQ(ierr); 
 
+    // Solves system for `x_loc':
+    // `x_loc   <-   - A_LL \ res_loc'
+    local_solve(x_loc,res_loc,-1.);
+    ierr = MatMultAdd(A_IL,x_loc,res_i,res_i);
+
+    // Solves the interface problem (iteratively)
     ierr = SLESSolve(sles,res_i,x_i,&itss); CHKERRQ(ierr); 
     
     ierr = VecDuplicate(res_loc,&res_loc_i); CHKERRQ(ierr); 
@@ -610,8 +613,7 @@ int IISDMat::solve(Vec res,Vec dx) {
     scal = -1.;
     ierr = VecAXPY(&scal,res_loc_i,res_loc); CHKERRQ(ierr);
     
-    // Warning: x_loc is -x_loc !1
-    local_solve(res_loc,x_loc,-1.);
+    local_solve(x_loc,res_loc);
     
     ierr = VecGetArray(dx,&dx_a); CHKERRQ(ierr); 
     ierr = VecGetArray(x_loc,&x_loc_a); CHKERRQ(ierr); 
@@ -631,7 +633,14 @@ int IISDMat::solve(Vec res,Vec dx) {
     ierr = VecRestoreArray(dx,&dx_a); CHKERRQ(ierr); 
     ierr = VecRestoreArray(x_loc,&x_loc_a); CHKERRQ(ierr); 
     ierr = VecRestoreArray(x_i,&x_i_a); CHKERRQ(ierr); 
-    
+
+#ifdef DEBUG_IISD    
+    ierr = ViewerSetFormat(matlab,
+			   VIEWER_FORMAT_ASCII_MATLAB,"dxiisd"); CHKERRQ(ierr);
+    ierr = VecView(dx,matlab);
+    ierr = ViewerDestroy(matlab);
+#endif
+
     ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
     ierr = VecDestroy(res_i); CHKERRQ(ierr); 
     ierr = VecDestroy(x_i); CHKERRQ(ierr); 
