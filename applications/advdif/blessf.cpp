@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: blessf.cpp,v 1.12 2003/10/16 19:13:42 mstorti Exp $
+//$Id: blessf.cpp,v 1.13 2003/11/10 20:10:17 mstorti Exp $
 
 #include <set>
 
@@ -26,6 +26,7 @@
 #include "streamsw1d.h"
 #include "nonlres.h"
 #include "id.h"
+#include "gaschem.h"
 
 #include <time.h>
 
@@ -71,6 +72,7 @@ void bless_elemset(char *type,Elemset *& elemset) {
     SET_ELEMSET_TYPE(id)
 
     SET_ELEMSET_TYPE(smoke)
+    SET_ELEMSET_TYPE(gaschem)
     {
       printf("not known elemset type: \"%s\"\n",type);
       exit(1);
