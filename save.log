@@ -2812,3 +2812,6 @@ tag: beta-isp.pl1 on Mon, 18 Aug 2003 00:21:00 -0300 by mstorti in spider
 ----------
 tag: beta-isp.pl2 on Mon, 18 Aug 2003 12:01:28 -0300 by mstorti in spider
      > Builds OK the `d_nnz' and `o_nnz' vectors for A_isp. 
+----------
+tag: beta-isp.pl3 on Mon, 18 Aug 2003 13:19:20 -0300 by mstorti in spider
+     > Loads OK values on the A_II_isp matrix. 
