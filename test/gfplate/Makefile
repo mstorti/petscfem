@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.9 2005/01/23 20:19:38 mstorti Exp $ 
+# $Id: Makefile,v 1.10 2005/01/24 00:48:32 mstorti Exp $ 
 
 .PHONY: force all run tests default strip gasflow nozzle  vtubei
 
-default: runa
+default: runc
 
 BOPT := O_c++
 SRCS = 
@@ -12,7 +12,7 @@ include $(PETSCFEM_DIR)/test/Makefile.base.test
 
 ifeq ($(CASE_NAME),) 
 # CASE_NAME := gfplate
-CASE_NAME := gfabso
+CASE_NAME := cylabso
 endif
 LOC_PROG := advdif
 ifeq ($(PROG),)
@@ -28,9 +28,18 @@ run:
 
 runa: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
-	echo -n > gfabso.some-rslt.tmp
+	echo -n > $(CASE_NAME).some-rslt.tmp
 	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
 	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+
+runc: 
+	make-depl $(CASE_NAME).epl $(CASE_NAME).depl
+	echo -n > $(CASE_NAME).some-rslt.tmp
+	-$(MPIRUN) $(NL) -np $(NP) -machinefile		\
+	machi.dat $(PROG) -case $(CASE_NAME).depl # > $(CASE_NAME).log
+
+dx_make_command:
+	cp STEPS/cylabso.state_$$dx_step.tmp ./cylabso.dx-state.tmp
 
 dx: 
 	make-depl $(CASE_NAME).epl $(CASE_NAME)-dx.depl -d dx=1

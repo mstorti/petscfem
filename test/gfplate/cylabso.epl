@@ -1,0 +1,118 @@
+# -*- mode: shell-script -*-
+# case: <:=$ENV{'case'}:>
+# <: require './datcyl.pl'; :>
+## Derived quantities:
+## ==================
+global_options
+
+# dx <:=$dx:>
+
+nstep 1000
+alpha 1.
+
+initial_state "cylabso.ini.tmp"
+## initial_state "cylabso.state.tmp"
+nsave 1
+save_file "cylabso.state.tmp"
+
+# print_some_file "cylabso.some-nodes.tmp"
+# save_file_some "cylabso.some-rslt.tmp"
+# nsome 1
+
+save_file_pattern "STEPS/cylabso.state_%d.tmp"
+nsaverot 10
+nrec 1
+nfile 100000000
+
+#if 0
+solver "iisd"
+preco_type "jacobi"
+iisd_subpart_auto 4000
+maxits 100
+#else
+solver "petsc"
+preco_type "lu"
+maxits 1
+#endif
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton 1e-10
+atol 0
+rtol 1e-7
+dtol 1e3
+nnwt 2
+
+print_internal_loop_conv
+# print_linear_system_and_stop
+# solve_system 0
+Dt 0.01
+shocap 0.0
+weak_form 0
+temporal_stability_factor 0
+
+ndim 2
+Rgas <:=$Rgas:>
+visco 0.001
+cond 0.001
+steady 0
+Uref <:=$rhoref:> <:=$uref:> 0. <:=$pref:> 
+linear_abso 1
+
+lagrange_diagonal_factor 1e-3
+# lagrange_residual_factor 1.0
+
+#if $dx
+# Para DX
+hook_list advdif_dx_hook my_dx_hook
+dx_auto_combine
+dx_steps 1
+dx_read_state_from_file 1
+dx_do_make_command
+dx_cache_coords 0
+dx_cache_connectivities 0
+partitioning_method natural
+#endif
+
+__END_HASH__
+
+##================================================================
+# ndim nu ndof
+nodedata 2 2 4
+data ./cylabso.nod.tmp
+__END_HASH__
+
+##================================================================
+elemset gasflow 4
+geometry cartesian2d
+dx 1
+npg 4
+data ./cylabso.con.tmp
+__END_HASH__
+
+#if $abso
+elemset gasflow_abso 5
+props normaln[2]
+dx 0
+__END_HASH__
+__INCLUDE__ cylabso.abso-con.tmp
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+#if !$dx
+fixa
+__INCLUDE__ ./cylabso.fixa-ups.tmp
+__INCLUDE__ ./cylabso.fixa-down.tmp
+__INCLUDE__ ./cylabso.fixa-ref.tmp
+__END_FIXA__
+
+constraint
+__INCLUDE__ ./cylabso.fixa-skin.tmp
+__END_CONSTRAINT__
+
+#endif
