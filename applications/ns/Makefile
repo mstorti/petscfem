@@ -1,4 +1,4 @@
- # $Id: Makefile,v 1.3 2001/01/02 22:28:05 mstorti Exp $ 
+ # $Id: Makefile,v 1.4 2001/01/19 12:49:41 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -15,6 +15,10 @@ TAGFLAGS = $(TAGINCL)="../../src/TAGS"
 SRCS := $(MYOBJS:.o=.cpp)
 
 include $(PETSCFEM_DIR)/Makefile.base
+
+# If nsi_tet.cpp doesn't compile ...
+#nsi_tet.o: nsi_tet.cpp
+#	-${CC} -c ${COPTFLAGS} ${CFLAGS} ${CCPPFLAGS} -O1 $<
 
 $(PROG) compile: $(PROG).bin
 

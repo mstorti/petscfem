@@ -23,6 +23,18 @@
       (setq current-pos-regexp "^ *// Current line ===========")
        ))
 
+;;
+;; Reemplazar identificadores
+;;
+(defun query-replace-identifier()
+  (interactive)
+  (query-replace-regexp (concat "\\([^a-zA-Z]\\)"
+				(read-from-minibuffer "replace identifier: ") 
+				"\\([^a-zA-Z0-9]\\)")
+			(concat "\\1" (read-from-minibuffer "with: ") 
+				 "\\2")
+			)
+)
 ;
 ; This way it works for any kind of machine name
 ;

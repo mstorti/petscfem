@@ -1,4 +1,4 @@
-/* $Id: ns.cpp,v 1.5 2001/01/11 21:54:47 mstorti Exp $ */
+/* $Id: ns.cpp,v 1.6 2001/01/19 12:49:41 mstorti Exp $ */
 
 /*
   This file belongs to he PETSc - FEM package a library and
@@ -28,6 +28,8 @@
 #include "../../src/getprop.h"
 #include "../../src/utils.h"
 #include "../../src/util2.h"
+#include "../../src/sttfilter.h"
+
 #include "fracstep.h"
 #include "nsi_tet.h"
 
@@ -150,12 +152,13 @@ void bless_elemset(char *type,Elemset *& elemset) {
 #define __FUNC__ "main"
 int main(int argc,char **args) {
 
-  Vec     x, dx, xold, dx_step, res;  /* approx solution, RHS, residual*/
-  Mat     A_tet;                          /* linear system matrix */
-  SLES    sles_tet;                       /* linear solver context */
-  PC      pc_tet;                         /* preconditioner context */
-  KSP     ksp_tet;                        /* Krylov subspace method context */
-  double  norm, *sol, scal; /* norm of solution error */
+  Vec     x, dx, xold,
+    dx_step, res;		// approx solution, RHS, residual
+  Mat     A_tet;		// linear system matrix 
+  SLES    sles_tet;		// linear solver context
+  PC      pc_tet;		// preconditioner context 
+  KSP     ksp_tet;		// Krylov subspace method context
+  double  norm, *sol, scal;	// norm of solution error
   int     ierr, i, n = 10, col[3], its, flg, size, node,
     jdof, k, kk, nfixa,
     kdof, ldof, lloc, nel, nen, neq, nu,
@@ -283,6 +286,7 @@ int main(int argc,char **args) {
 
   // initialize vectors
   dofmap->create_MPI_vector(x);
+  State sx(x,time);		// convert to State
   ierr = VecDuplicate(x,&xold); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx_step); CHKERRA(ierr);
   ierr = VecDuplicate(x,&dx); CHKERRA(ierr);
@@ -362,6 +366,8 @@ int main(int argc,char **args) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
+
+  // Filter *filter(x,*mesh);
 
   for (int tstep=1; tstep<=nstep; tstep++) {
     TSTEP=tstep; //debug:=

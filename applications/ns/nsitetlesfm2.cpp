@@ -1,4 +1,4 @@
-/* $Id: nsitetlesfm2.cpp,v 1.2 2001/01/04 20:06:18 mstorti Exp $ */
+/* $Id: nsitetlesfm2.cpp,v 1.3 2001/01/19 12:49:41 mstorti Exp $ */
 
 #include "../../src/fem.h"
 #include "../../src/utils.h"
@@ -258,6 +258,8 @@ int nsi_tet_les_fm2::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	    = grad_div_u_cache 
 	    = new double[ndim*ndim*nel*nel];
 	}
+	// debug := 
+	grad_div_u_was_cached = 0;
       }
     }
 
