@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: metisprt.cpp,v 1.3 2001/11/12 01:50:29 mstorti Exp $
+//$Id: metisprt.cpp,v 1.4 2001/11/12 12:47:57 mstorti Exp $
  
 #include "fem.h"
 #include "utils.h"
@@ -95,12 +95,12 @@ void  metis_part(int nelemfat,Mesh *mesh,
   nvrtx = (nelemfat > 2*max_partgraph_vertices ?
 	    max_partgraph_vertices : nelemfat);
 
-  // Create adjacency table for partitioning with Metis. In the adjacency
-  // graph the nodes are the elements of the FEM mesh. Two nodes of
-  // the graph (elements of the mesh) have are linked if they share a
-  // node. 
+  // Create adjacency table for partitioning with Metis. In the
+  // adjacency graph the nodes are elements or group of elments of the
+  // FEM mesh. Two nodes of the graph (elements of the mesh) have are
+  // linked if they share a node.
 
-  // adjncy:= xadj:= graph desdcribed in CSR format (as defined in
+  // adjncy:= xadj:= graph described in CSR format (as defined in
   // Metis documentation)
   int *xadj = new int[nvrtx+1],*adjncy;
   // vwgt:= weights for the vertices (elements) of the graph
@@ -121,16 +121,23 @@ void  metis_part(int nelemfat,Mesh *mesh,
 #else
   while (!ngbrs.empty()) ngbrs.pop();
 #endif
-  while(1) {
-    elem = irand(nelemfat);
-    if (el2vrtx[elem]!=-1) continue;
-    el2vrtx[elem]=vrtx++;
-    find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
-    vwgt[vrtx] += int(elemset->weight()/weight_scale);
-    ngbrs.push(elem);
-    if (vrtx==nvrtx) break;
+
+  if (nelemfat!=nvrtx) {
+    // Take nvrtx `seeds' for growing the groups 
+    while(1) {
+      elem = irand(nelemfat);
+      if (el2vrtx[elem]!=-1) continue;
+      el2vrtx[elem]=vrtx++;
+      find_elem(elem,nelemsetptr,nelemsets,mesh,elemset,locel);
+      vwgt[vrtx] += int(elemset->weight()/weight_scale);
+      ngbrs.push(elem);
+      if (vrtx==nvrtx) break;
+    }
+  } else {
+    // Take a group for each element
+    for (elem=0; elem<nelemfat; elem++) el2vrtx[elem] = elem;
+    visited=nelemfat;
   }
-  visited=nvrtx;
   
   // Start coalescing neighbor elements until all elements are
   // assigned a vertex
@@ -263,6 +270,8 @@ void  metis_part(int nelemfat,Mesh *mesh,
 			   tpwgts_d,&options,&edgecut,vpart);
       
     } else { // partflag=2
+      assert(0);
+#if 0
       if (myrank==0) printf("Neighbor Partition - partflag = %d\n",partflag);
       int *mnnel = new int [size+1];
       for (int nnod=0; nnod<size; nnod++) {
@@ -296,6 +305,7 @@ void  metis_part(int nelemfat,Mesh *mesh,
       for (int cnod=0; cnod<nelemfat; cnod++) {
 	vpart[cnod]=vpart[cnod]-1;
       }
+#endif
     }
     // length(vpart) = number of nelemfat in the graph
   } else {
