@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: advhookf.cpp,v 1.2 2004/07/07 16:41:39 rodrigop Exp $
+// $Id: advhookf.cpp,v 1.3 2004/07/07 17:54:31 mstorti Exp $
 #include <src/fem.h>
 #include <src/readmesh.h>
 #include <src/util2.h>
@@ -21,6 +21,6 @@ Hook *advdif_hook_factory(const char *name) {
   Hook *hook=NULL;
   if CHECK_HOOK(advdif_dx_hook);
   // else if CHECK_HOOK(dx_hook);
-  else if CHECK_HOOK(godunov_hook);
+  // else if CHECK_HOOK(godunov_hook);
   return hook;
 }
