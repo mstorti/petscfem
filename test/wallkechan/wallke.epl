@@ -14,6 +14,7 @@ $peri = 0;                      # Set periodic in the `y' direction or not
 $turb_prod_coef=1;              # activate/deactivate turbulence production terms
 $uwall_match_len = 0.5;         # u at the wall is matched to 0 (from the inlet) at
                                 # this distance 
+$iterative = 0;                 # use iterative or direct solver 'lu'
 if ($case eq 'poi_lam') {
 #    $wall_ke=1;
     $Re_l = 5;                  # laminar Re
@@ -34,6 +35,7 @@ if ($case eq 'poi_lam') {
     $y_wall = .01;
     $turbulence_coef=1;         # mask turbulence
     $turb_prod_coef=1;          # mask turbulence production terms
+    $iterative = 1;
 } elsif ($case eq 'couette') {
     $Re_l = 34000;              # laminar Re
     $Uwall = 1;                 # half relative velocity of the plates
@@ -59,12 +61,13 @@ nsave 5
 #rtol 1e-2
 rtol 0
 atol 0
-maxits 100
+maxits 200
+#print_internal_loop_conv
 
 save_file_pattern "outvector%d.out"
 nsaverot 1
 
-#if 0
+#if 1
 initial_state "save.state"
 #elsif $case eq 'poiseuille'
 initial_state "wallke.ini.tmp"
@@ -78,13 +81,13 @@ save_file_some "wallke.some.tmp"
 nsome 1
 
 alpha 1.
-nstep 1
+nstep 100
 nnwt 4
 tol_newton 0
-preco_type "lu"
+preco_type <:print ($iterative ? "\"jacobi\"" : "\"lu\""); :>
 Dt 1
 #steady
-newton_relaxation_factor 0.1
+newton_relaxation_factor 1
 kap_ctff_val 1e-5
 eps_ctff_val 1e-5
 #pspg_advection_factor 0.
@@ -133,7 +136,7 @@ __END_ELEMSET__
 
 elemset wall_law_res 2
 props u_wall[2]
-lagrange_diagonal_factor 1e-5
+lagrange_diagonal_factor <: print ($iterative ? 0 : 1e-5 ); :>
 lagrange_residual_factor 1. # be non consistent, but truly Newton
 __END_HASH__
 __INCLUDE__ wallke.nonlr.tmp
