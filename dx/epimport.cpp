@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: epimport.cpp,v 1.17 2003/09/07 13:18:58 mstorti Exp $
+// $Id: epimport.cpp,v 1.18 2003/09/07 15:01:07 mstorti Exp $
 #include <string>
 #include <vector>
 #include <map>
@@ -424,7 +424,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
       if (string2int(tokens[4],cookie)) goto error;
       ierr = build_dx_array(clnt,ndim,nnod,array);
       if(ierr!=OK) return ierr;
-      Object cached_nodes = DXGetCacheEntry("ExtProgImport",0,0);
 
       Nodes *nodes = new Nodes(ndim,nnod,array);
       ierr = dx_objects_table.load_new(name,nodes);
@@ -434,9 +433,10 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 		name.c_str(),array,ndim,nnod);
       Sprintf(clnt,"nodes_OK %d\n",cookie);
 
-      if (gpositions) { DXMessage("Multiple position objects"); }
+      if (gpositions) DXMessage("Multiple position objects");
       else {
 	gpositions = nodes->dx_object();
+	Object cached_nodes = DXGetCacheEntry("ExtProgImport",0,0);
 	if (!cached_nodes) {
 	  Error err = DXSetCacheEntry(gpositions,CACHE_PERMANENT,"ExtProgImport",0,0);
 	  if (err!=OK) {
@@ -444,11 +444,12 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 	    goto error;
 	  } else 
 	    DXMessage("Putting cached_nodes in cache %p",gpositions);
+	} else {
+	  DXMessage("Found cached nodes %p",cached_nodes);
+	  DXDelete(nodes->dx_object());
+	  DXReference(cached_nodes);
+	  nodes->array = (Array)cached_nodes;
 	}
-      }
-      if (cached_nodes) {
-	DXMessage("Found cached nodes %p",cached_nodes);
-	DXDelete(cached_nodes);
       }
 
       //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -628,21 +629,6 @@ extern "C" Error m_ExtProgImport(Object *in, Object *out) {
 
   if (!clnt) Sclose(clnt);
   clnt = NULL;
-
-#if 0
-  ck = DXGetCacheEntry("ExtProgImport",0,0);
-  DXMessage("Cookie found ? %d",(ck ? 1 : 0));
-  if (ck) {
-    int c;
-    DXExtractInteger(ck,&c);
-    DXMessage("Found ck: %d",c);
-    DXDelete(ck);
-  } else {
-    int c = 42152346;
-    Array my_ck = DXMakeInteger(c);
-    // DXSetCacheEntry((Object)my_ck,CACHE_PERMANENT,"ExtProgImport",0,0);
-  }
-#endif
 
   return OK;
   
