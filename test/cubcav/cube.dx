@@ -1,0 +1,25 @@
+#-*- shell-script -*-
+# $Id: cube.dx,v 1.1 2003/09/16 13:28:56 mstorti Exp $
+object "cube_nodes" class array type float rank 1 shape 3
+         items 8 data follows
+0. 0. 0.
+1. 0. 0.
+0. 1. 0.
+1. 1. 0.
+0. 0. 1.
+1. 0. 1.
+0. 1. 1.
+1. 1. 1.
+
+object "cube_con" class array type int rank 1 shape 8
+        items 1 data follows
+0 1 2 3 4 5 6 7
+attribute "element type" string "cubes"
+attribute "ref" string "positions"
+
+object "cube" class field
+component "positions" value "cube_nodes"
+component "connections" value "cube_con"
+
+end
+
