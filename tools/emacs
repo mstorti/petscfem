@@ -4,6 +4,12 @@
  " C-q ` ESC C-s [ SPC C-q TAB C-q LFD ] RET <left> ' "))
 ;(global-set-key "C-`" 'single-quote-balanced) 
 (global-set-key [?\C-`] 'single-quote-balanced) 
+;
+(defalias 'single-quote-balanced-pos (read-kbd-macro
+  "<left> ESC C-r [ SPC C-q LFD C-q TAB ] RET <right> ` C-x C-x <right> '"))
+(global-set-key [?\C-'] 'single-quote-balanced-pos) 
+;;
+
 ; (defun single-quote-balanced()
 ;   "Introduces a balanced `' pair with the cursor within."
 ;   (interactive)
