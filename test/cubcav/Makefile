@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.95 2004/09/25 11:32:29 mstorti Exp $ 
+# $Id: Makefile,v 1.96 2004/10/21 17:12:21 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -12,6 +12,7 @@ export case
 
 tests: block_uploading
 
+# BOPT := O_c++
 PETSCFEM_DIR = ../..
 # PETSCFEM_DIR = $(HOME)/PETSC/petscfem-stable
 include $(PETSCFEM_DIR)/Makefile.base
@@ -24,27 +25,18 @@ PROG := $(NS)
 
 CASE := $(CASE_NAME)
 ################################################################
-ifeq (1,1)
-NP := $(shell procsel -n $(PETSCFEM_PROCTABLE))
-# NP := $(shell procsel -n ./proctable)
+ifeq (1,0)
+NP := $(shell procsel -n ./proctable.itc)
 NL := -nolocal
 MCH := -machinefile ./machi.dat
 endif
 
-ifeq (1,0)
-NP := 1
-MCH :=
-endif
-
 ifneq ($(HOSTNAME),node1.beowulf.gtm)
-NP := $(shell procsel ./proctable.mono)
+NP := $(shell procsel ./proctable.itc)
 NL :=
 MCH := -machinefile ./machi.dat
 NP := 1
 endif
-
-NP := 1
-export NP
 
 run_subdir_test:
 	if [ -e $(sub_dir) ] ; then rrm -rf $(sub_dir) ; fi ;		\
@@ -139,7 +131,7 @@ srfgath:
 #================================================================
 #w For the shell-hook
 cubcav_init:
-	perl $(HOME)/ROCKET/ALE/mkstepsdir.pl
+	mkstepsdir.pl
 
 cubcav_pre:
 cubcav_post:
@@ -173,4 +165,4 @@ link:
 
 #w performance test:
 test_perfo:
-	$(MAKE) N=20 run
+	$(MAKE) N=4 run

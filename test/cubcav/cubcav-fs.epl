@@ -1,0 +1,159 @@
+#$Id: cubcav-fs.epl,v 1.1 2004/10/21 17:12:21 mstorti Exp $ 
+<:require "./cubcav.pl";:>//
+global_options
+
+# <:prc('dx case subpart_entered NP N subpart nlay surfgath use_tetra use_prismatic'):>
+ndim 3
+
+>>if $case ne 'plain'
+nfile 2000000
+nrec 1
+nsave 1000000
+nstep 10000
+nsaverot <:= ($endur_test  ? 50000000 : 20) :>
+save_file_pattern \
+      <:= ("\"".($endur_test ? "." : "STEPS")."/cubcav.state_%d.tmp\"") :>
+>>else
+nstep 1
+save_file cubcav.state.<:=$case_in:>.tmp
+nsave 1
+>>endif
+
+# nstep 1
+chunk_size 40000
+
+>>if $iisd_subpart
+solver "iisd"
+# <:pr('iisd_subpart'):>
+iisd_subpart_auto 1000
+use_interface_full_preco 1
+use_interface_full_preco_nlay <:=$nlay:>
+print_interface_full_preco_conv 0
+interface_full_preco_maxits <:=$isp_maxits:>
+interface_full_preco_relax_factor 0.5
+>>else
+solver "petsc"
+>>endif
+Krylov_dim <:=$maxits:>
+<:pr('maxits'):>
+report_consumed_time
+#
+activate_debug_print
+activate_debug_memory_usage
+# activate_debug
+
+iisdmat_print_statistics
+print_partitioning_statistics
+
+# file containing the weight (speed) of processors
+proc_weights weights.dat
+max_partgraph_vertices 4000
+max_partgraph_vertices_proc 4000
+
+#    Iterative parameters
+tol_tet 1e-5
+tol_newton -1.
+atol 0
+rtol 1e-3
+dtol 1e3
+block_uploading 0
+
+print_internal_loop_conv 1
+# print_linear_system_and_stop 1
+# solve_system 0
+#verify_jacobian_with_numerical_one 1
+
+rho 1
+>>if $case ne 'plain'
+nnwt 1
+steady 0
+# Dt <:=($nu < 1e-4 ? 0.025 : 0.1):>
+Dt 0.1
+>>else
+nnwt <:=$nnwt:>
+steady 1
+Dt 1.
+>>endif
+temporal_stability_factor 0
+LES <:=($nu < 1e-4 ? 1 : 0):>
+C_smag 0.1
+A_van_Driest 0.
+
+>>if $dx
+hook_list ns_dx_hook my_dx_hook
+dx_split_state "1 3 0 1 2 u 1 1 3 p"
+dx_auto_combine
+dx_state_all_fields 0
+dx_steps 1
+dx_read_state_from_file 1
+dx_do_make_command
+dx_cache_coords
+dx_cache_connectivities
+partitioning_method natural
+>>else
+>>if $case ne 'plain'
+hook_list shell_hook cubcav
+>>endif
+>>endif
+
+ngather 10
+
+>>if 0
+compact_profile_graph_chunk_size 40000
+max_partgraph_vertices 5000
+max_partgraph_vertices_proc 5000
+chunk_size 500
+>>endif
+
+fractional_step
+solver petsc
+
+__END_HASH__
+
+# ndim nu ndof
+nodedata  3 3 4
+data <:=$data_dir:>/cubcav.nod.tmp
+__END_HASH__
+
+elemset fracstep_fm2 <:=$nel:>
+name fluid
+geometry <:=$geom:>
+npg <:=$npg:>
+data <:=$icone:>
+dx 1
+>>if $srfgath
+conductivity 1.
+C 0.
+Cp 0.
+>>else
+viscosity 0.01
+>>endif
+__END_HASH__
+
+elemset field_surf_integrator <:=$nel:>
+name integrator
+geometry <:=$geom:>
+npg <:=$npg:>
+data <:=$icone:>
+surf_fun_type "plane"
+normal 1. 0. 0.
+x0 0. 0. 0.
+gather_pos 0
+f_vals 0.12 0.35
+__END_HASH__
+
+end_elemsets
+
+>>if !$srfgath
+
+fixa
+# fijaciones de velocidad en las paredes
+__INCLUDE__ <:=$data_dir:>/cubcav.fixa.tmp
+# fijacion en la presion
+1 4 0.
+__END_FIXA__
+>>else
+fixa
+__INCLUDE__ <:=$data_dir:>/cubcav.fixa-srfgath.tmp
+__END_FIXA__
+>>endif
