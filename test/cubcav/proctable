@@ -16,10 +16,9 @@
 node1         1.3   server
 # Los tiempos estan calculados en base a lo que tarda PETSc-FEM en
 # calcular el elemento de NS en forma secuencial 
-#node12    9.09    
-#node14    9.09
+node12    9.09    
+node14    9.09
 node15    9.09
-## Guarda que este por ahora tiene solo 512MB
 node17    9.09
 node4     4.00    
 node5     4.00    
