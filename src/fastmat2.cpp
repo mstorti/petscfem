@@ -1,5 +1,5 @@
 ///__INSERT_LICENSE__
-//$Id: fastmat2.cpp,v 1.13 2002/12/04 03:14:12 mstorti Exp $
+//$Id: fastmat2.cpp,v 1.14 2002/12/16 13:53:40 mstorti Exp $
 
 #include <math.h>
 #include <stdio.h>
@@ -436,6 +436,7 @@ FastMat2::FastMat2(const int m,INT_VAR_ARGS) {
 FastMat2 & FastMat2::is(const int index,const int start=0,const int finish=0,
 	       const int step=1) {
   if (was_cached) return *this;
+  assert(defined);
   if (start==0) {
     // If start ==0 resets the filter
     dims[index-1].reset();
