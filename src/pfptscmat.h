@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfptscmat.h,v 1.1.2.5 2001/12/27 21:35:27 mstorti Exp $
+// $Id: pfptscmat.h,v 1.1.2.6 2001/12/31 04:01:26 mstorti Exp $
 #ifndef PFPTSCMAT_H
 #define PFPTSCMAT_H
 
@@ -37,7 +37,7 @@ protected:
   /// number of iterations done
   int its_;
   /// flags whether the system was built or not
-  int sles_was_built;
+  // int sles_was_built; // now included in `factored'
   /// Defines the KSP method
   string KSP_method;
   /// The options database
@@ -75,7 +75,7 @@ public:
 
   PFPETScMat(int MM,const DofPartitioner &pp,MPI_Comm comm_) 
     : comm(comm_), part(pp), pf_part(part), lgraph(MM,&part,comm_), 
-    sles_was_built(0), 
+    // sles_was_built(0), // now included in `factored'
     A(NULL), P(NULL), factored(0) {}
 
   ~PFPETScMat();

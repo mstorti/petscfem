@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdmat.cpp,v 1.1.2.8 2001/12/30 20:00:25 mstorti Exp $
+//$Id: iisdmat.cpp,v 1.1.2.9 2001/12/31 04:01:26 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -54,7 +54,7 @@ int PFPETScMat::solve(Vec &res,Vec &dx) {
 #undef __FUNC__
 #define __FUNC__ "PFMat::clear"
 void PFPETScMat::clear() {
-  if (sles_was_built) {
+  if (factored) {
     int ierr = SLESDestroy(sles); 
     PETSCFEM_ASSERT0(ierr==0,"Error destroying SLES\n");
   }
@@ -136,7 +136,7 @@ int PFPETScMat::build_sles() {
   ierr = KSPSetTolerances(ksp,rtol,atol,dtol,maxits);
 
   ierr = KSPSetMonitor(ksp,PFPETScMat_default_monitor,this);
-  sles_was_built = 1;
+  // sles_was_built = 1; // included in `factored'
   return 0;
 }
 
@@ -152,10 +152,10 @@ int PFPETScMat::set_preco(const string & preco_type) {
 #undef __FUNC__
 #define __FUNC__ "PFPETScMat::clean_factor"
 int PFPETScMat::clean_factor() {
-  if (sles_was_built) {
+  if (factored) {
     int ierr = SLESDestroy(sles); CHKERRQ(ierr);
     sles=NULL;
-    sles_was_built = 0;
+    // sles_was_built = 0; // now included in `factored'
     factored = 0;
   }
   return 0;
@@ -170,7 +170,7 @@ int IISDMat::clean_factor() {
     ierr = SLESDestroy(sles_ll); CHKERRQ(ierr); 
     sles_ll = NULL;
   }
-  if (sles_was_built) {
+  if (factored) {
     PFPETScMat::clean_factor();
     if (local_solver == PETSc) {
       ierr = MatDestroy(A_LL); CHKERRQ(ierr); 

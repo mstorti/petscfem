@@ -1,5 +1,13 @@
 ; -*- mode: lisp -*-
 
+(defun single-quote-balanced()
+  "Introduces a balanced `' pair with the cursor within."
+  (interactive)
+  (insert "`'")
+  (backward-char)
+)
+(local-set-key "`" 'single-quote-balanced) 
+
 (setq c-macro-preprocessor "/home/mstorti/PETSC/petscfem-pfmat/tools/pfcpp")
 ;
 (setq c-macro-preprocessor (concat (getenv "PETSCFEM_DIR") 
