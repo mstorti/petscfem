@@ -1095,3 +1095,7 @@ tag: beta-2.93.pl1 on Wed Mar 13 16:41:31 -0300 2002 by mstorti in minerva.arcri
      > defined in the makefile rather than from an environment variable. The
      > other way it happened that the string remained in the same state as
      > when version.cpp was created by ePerl from version.cppin. 
+----------
+tag: beta-2.93.pl2 on Thu Mar 14 10:37:50 -0300 2002 by mstorti in minerva.arcride.edu.ar
+     > Will merge contributions from Beto to non-inertial frame 
+     > terms in NS. 
