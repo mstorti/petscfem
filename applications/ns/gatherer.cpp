@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gatherer.cpp,v 1.3 2002/03/17 14:19:58 mstorti Exp $
+//$Id: gatherer.cpp,v 1.4 2002/03/17 15:11:01 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -31,12 +31,16 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   GET_JOBINFO_FLAG(gather);
   assert(gather);
 
+  //o Position in gather vector
+  TGETOPTDEF(thash,int,gather_pos,0);
+  //o How many gather values will be contributed by this elemset
+  TGETOPTDEF_ND(thash,int,gather_length,0);
   //o Number of Gauss points.
   TGETOPTNDEF(thash,int,npg,none);
   //o Dimension od the embedding space
   TGETOPTNDEF(thash,int,ndim,none);
   //o Dimenson od the element
-  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+  TGETOPTDEF(thash,int,ndimel,ndim-1); 
   //o Defines the geomtry of the element
   TGETOPTDEF_S(thash,string,geometry,cartesian2d);
 
@@ -61,7 +65,10 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   int options = arg_data_v[ja].options;
   vector<double> *values = arg_data_v[ja++].vector_assoc;
   int nvalues = values->size();
-  vector<double> pg_values(nvalues);
+  assert(gather_pos+gather_length <= nvalues); // check that we don't put values
+				   // beyond the end of global vector
+				   // `values'
+  vector<double> pg_values(gather_length);
 
   FastMat2 xloc(2,nel,ndim);
 
@@ -118,27 +125,14 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
       }
       double wpgdet = detJaco*WPG;
 
-#if 0
-      if (ndim==ndimel) {
-	detJaco = Jaco.det();
-      } else if (ndimel==1) {
-	// This allows to solve problems on streams like rivers or
-	// ducts or advective problems on plane surfaces (not
-	// implemented yet). Also, it could be used also for advective
-	// problems on arbitrary surfaces (ndim=3 and ndimel=2) but I
-	// don't know how to do that yet. (tensorial calculus...)
-	detJaco = Jaco.norm_p_all(2);
-      }
-#endif
-      
       // Values of variables at Gauss point
       u.prod(SHAPE,staten,-1,-1,1);
       u_old.prod(SHAPE,stateo,-1,-1,1);
 
       set_pg_values(pg_values,u,u_old,xpg,n,wpgdet,t);
       if (options & VECTOR_ADD) {
-	for (int j=0; j<nvalues; j++) {
-	  (*values)[j] += pg_values[j];
+	for (int j=0; j<gather_length; j++) {
+	  (*values)[gather_pos+j] += pg_values[j];
 	}
       } else assert(0);
     }
@@ -146,6 +140,17 @@ int gatherer::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
   return 0;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+void force_integrator::init() {
+  int ierr;
+  //o Dimension od the embedding space
+  TGETOPTNDEF(thash,int,ndim,none);
+  //o Dimenson od the element
+  TGETOPTNDEF(thash,int,ndimel,ndim-1); 
+  assert(ndimel==ndim-1);
+  assert(gather_length==ndim);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: gatherer.h,v 1.3 2002/03/17 14:19:58 mstorti Exp $
+//$Id: gatherer.h,v 1.4 2002/03/17 15:11:01 mstorti Exp $
 #ifndef GATHERER_H
 #define GATHERER_H
 
@@ -10,6 +10,7 @@
 */
 class gatherer : public Elemset { 
 public: 
+  int gather_length;
   /// This should not be defined by the user
   ASSEMBLE_FUNCTION;
   /// Return which "jobinfos" will process
@@ -51,8 +52,13 @@ public:
   //@}
 };
 
+/** Integrates forces on walls
+*/ 
 class force_integrator : public gatherer {
 public:
+  /// perform several checks and initialization
+  virtual void init();
+  /// set forces 
   void set_pg_values(vector<double> &pg_values,FastMat2 &u,
 		     FastMat2 &uold,FastMat2 &xpg,FastMat2 &Jaco,
 		     double wpgdet,double time);
