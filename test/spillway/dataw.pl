@@ -16,7 +16,7 @@ $gravity = 9.8;                 # Gravity acceleration (magnitude)
 $viscosity = 1e-2;		# Fluid viscosity
 
 #$slope = (3*$u_av*$viscosity/($gravity*$h**2));                 
-$slope = 0.1;
+$slope = 0.03;
 				# simulated bottom slope. A term g_x = slope*g is added
 				# adjusted so as to give the desired Re and Froude number
 $uini = 1;			# Initial velocity
@@ -28,7 +28,7 @@ $fs_relax = 1.0;		# relaxation factor for the
 $fs_smoothing_coef = 0.1;	# FS smoothing coeficient (heat equation like)
 $nfilt = 20;			# Number of times the filter is applied
 
-$Dt = 0.05;			# time step
+$Dt = 0.02;			# time step
 $eta0 = 0.05;			# amplitude of free surface elevation
 				# perturbation
 $dx_steps = 0;			# visualize with DX
