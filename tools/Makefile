@@ -68,4 +68,8 @@ hexasplit.bin: hexasplit.o
 nettest.bin: nettest.o
 	${CXX_CLINKER} -o $@ $<  $(LDFLAGS_NO_PROG_LIB)
 
+NP = $(shell procsel -n $(PETSCFEM_PROCTABLE))
+run_nettest: nettest.bin
+	$(MPIRUN) -np $(NP) -nolocal -machinefile ./machi.dat $<
+
 #s
