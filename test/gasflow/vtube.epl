@@ -55,11 +55,11 @@ $u_rad_in = $mass_flow_in/
     ($A_in*$rho_in);		# [m/s] radial velocity
 
 $rho_in = 1;
-$u_rad_in = 0;
+$u_rad_in = 1;
 $u_circunf_in = 40;		# [m/s] tangential velocity
 
 # viscosity (set by Re number)
-$Re = 1e4;			# [1] Reynolds based on diameter
+$Re = 1e1;			# [1] Reynolds based on diameter
 $visco = $rho_in
     *$u_circunf_in*2*$R0/$Re;	# [kg/m s]viscosity
 $cond    = $Cp*$visco/$Pr;	# [W/m K] conductivity of air
@@ -141,7 +141,7 @@ C_mu 0.
 viscosity <:=$visco:>
 #endif
 report_consumed_time
-#if $axisymm
+#if $compressible && $axisymm
 axisymmetric "z"
 #endif
 __END_HASH__
@@ -167,7 +167,7 @@ fixa
 __INCLUDE__ vtube.fixa.tmp
 #if !$compressible
 ## Fix pressure at some node
-1 4 0.
+<:=($Nr+2):> 4 0.
 #endif
 __END_FIXA__
 

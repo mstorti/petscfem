@@ -8,7 +8,7 @@ if (1) {
     $rslt = "$case.state.tmp"; # petscfem result file
 #    $rslt = "$case.ini.tmp"; # petscfem result file
     $rec = 0;
-    $fields = 'nsc';
+    $fields = 'ns';
 }
 
 require "./data.pl";
