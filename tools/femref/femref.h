@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.28 2004/12/05 22:49:42 mstorti Exp $
+// $Id: femref.h,v 1.29 2004/12/06 02:47:53 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
@@ -111,6 +111,10 @@ public:
   virtual int size(GeomObject::Type t) const { assert(0); }
   /// Local nodes connected to subobject #j# of type #t#. 
   virtual const int* nodes(GeomObject::Type t,int j) { assert(0); }
+  /// Total number of subobjetcs
+  virtual int size() const { assert(0); }
+  /// Local nodes connected to subobject #j# and type
+  virtual const int *nodes(int j,GeomObject::Type &t) { assert(0); }
 };
 
 typedef double
@@ -205,6 +209,11 @@ private:
       @param it (output) if #its=NULL# then return the 
       first iterator found here. */ 
   void find(GeomObject &go,list<iterator> *its,iterator &it);
+  /// Stores the correspondence between 
+  map<int,int> hash2node;
+  /** Nodes obtained by refinement are in the range 
+      #[nnod,last_ref_node)# */ 
+  int last_ref_node;
 
 public:
   /// Ctor from dimensions and shape

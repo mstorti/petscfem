@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: gtemplates.cpp,v 1.3 2004/12/05 22:49:42 mstorti Exp $
+// $Id: gtemplates.cpp,v 1.4 2004/12/06 02:47:53 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -62,4 +62,16 @@ nodes(GeomObject::Type t,int j) {
   if (t==GeomObject::TetraT) 
     return &subobj_conn.e(j,0);
   else assert(0);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+int Tetra2TetraSplitterClass::
+size() const { return 8; };
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+const int* 
+Tetra2TetraSplitterClass::
+nodes(int j,GeomObject::Type &t) { 
+  t=GeomObject::TetraT;
+  return &subobj_conn.e(j,0);
 }

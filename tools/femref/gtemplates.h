@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: gtemplates.h,v 1.5 2004/12/05 22:49:42 mstorti Exp $
+// $Id: gtemplates.h,v 1.6 2004/12/06 02:47:53 mstorti Exp $
 #ifndef PETSCFEM_GTEMPLATES_H
 #define PETSCFEM_GTEMPLATES_H
 
@@ -77,6 +77,8 @@ public:
   Tetra2TetraSplitterClass();
   int size(GeomObject::Type t) const;
   const int* nodes(GeomObject::Type t,int j);
+  int size() const;
+  const int* nodes(int j,GeomObject::Type &t);
 };
 
 extern Tetra2TetraSplitterClass 
