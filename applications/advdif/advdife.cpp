@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: advdife.cpp,v 1.79 2003/11/15 22:21:03 mstorti Exp $
+//$Id: advdife.cpp,v 1.80 2003/11/16 00:38:19 mstorti Exp $
 extern int comp_mat_each_time_step_g,
   consistent_supg_matrix_g,
   local_time_step_g;
@@ -554,7 +554,7 @@ void NewAdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	    A_fd_jac.ir(3,jdof).set(flux_pert).rs();
 	    flux_pert.rs();
 	  }
-	  for (int j=1; j<=ndof; j++) {
+	  for (int j=1; j<=ndim; j++) {
 	    Id_ndim.ir(2,j);
 	    A_jac.ir(1,j);
 	    adv_diff_ff->comp_A_jac_n(A_jac,Id_ndim);
