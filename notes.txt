@@ -1,4 +1,4 @@
-r$Id: notes.txt,v 1.184 2002/10/01 02:47:03 mstorti Exp $
+r$Id: notes.txt,v 1.185 2002/10/02 09:54:56 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2465,13 +2465,13 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables	Sun Jan 14 14:51:45 2001
 ***************
 *** 1,4 ****
-! # $Id: notes.txt,v 1.184 2002/10/01 02:47:03 mstorti Exp $ 
+! # $Id: notes.txt,v 1.185 2002/10/02 09:54:56 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
 --- 1,5 ----
 ! # -*- mode: makefile -*-
-! # $Id: notes.txt,v 1.184 2002/10/01 02:47:03 mstorti Exp $ 
+! # $Id: notes.txt,v 1.185 2002/10/02 09:54:56 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
   #
@@ -2562,7 +2562,7 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 *** 1,3 ****
 --- 1,4 ----
 + # -*- mode: makefile -*-
-  # $Id: notes.txt,v 1.184 2002/10/01 02:47:03 mstorti Exp $ 
+  # $Id: notes.txt,v 1.185 2002/10/02 09:54:56 mstorti Exp $ 
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
 ***************
@@ -5404,6 +5404,30 @@ Memory usage(kB): 31696 32148 32148 32148 32148 32148 32148 32932
 Con solver 'petsc': 30088 30428 30432 30432 30432 30432 30432 30432
 30432 30432. O sea que debe haber una perdida de memoria en el IISD. 
 
+%===Tue,  1 Oct 2002 19:33:28 -0300 mstorti@spider
+%
+Ahora voy a probar con el IISD con y sin subpart. Con iisd_subpart=15
+(elegido automaticamente) tenemos 31700 32152 32152 32152 32152 32152
+32152 32936 32992 33000 33008 33016 33020, o sea que parece perder. 
+%
+Con IISD y un solo subdo tambien pierde. Con una malla de 6x6x6 en
+cubcav pierde linealmente a razon de 8.3KB por iteracion. 
+%
+21:18:59: Si hago que no resuelva comentando la linea correspondiente
+en `ns.cpp' entonces pierde a una tasa de 2.83KB/iter. 
+%
+21:33:08: Si aumento el tamanho de la malla a 12x12x12 entonces pierde
+a una tasa de 2.93KB/iter lo cual indicaria que es una perdida
+constante. Sera una especie de book-keeping del PETSc? Ahora voy a
+probar con el iisd_subpart.
+%
+21:58:40: Con `iisd_subpart=4' pierde a razon de 13.4KB por
+iter. Pareceria perder proporcional al numero de subdo's?
+%
+22:48:48: Con 20 subdo's parece perder tambien a 13.4KB/iter.
+%
+06:52:31: Con una malla de 30x30x30 tambien pierde lo mismo, a razon
+de 1.33KB/iter. 
 
 %# Current line ===========  
 # Local Variables: $
