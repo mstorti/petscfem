@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.18 2003/08/30 18:02:13 mstorti Exp $
+// $Id: dvector2.h,v 1.19 2003/09/02 21:59:02 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -379,12 +379,12 @@ dvector<T>::reshapev(int rank_a,va_list ap) {
   shape.clear();
   for (int j=0; j<rank; j++) {
     int d = va_arg (ap, int);
-    assert(j==0 || d>0);
+    assert(j==0 || d>=0);
     new_size *= d;
     shape.push_back(d);
   }
   shape_p = &*shape.begin();
-  assert(new_size<0 || new_size==size());
+  assert(new_size<=0 || new_size==size());
   return *this;
 }
 
@@ -410,7 +410,7 @@ dvector<T>::a_resize(int rank_a,...) {
   for (int j=0; j<rank; j++) {
     int d = va_arg (ap, int);
     new_size *= d;
-    assert(d>0);
+    assert(d>=0);
   }
   resize(new_size);
 

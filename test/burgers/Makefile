@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2003/04/17 22:50:39 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2003/09/02 21:59:02 mstorti Exp $ 
 
 .PHONY: force all run tests data
 
@@ -45,5 +45,8 @@ run: data
 	mv -f save.state.tmp save.state.$(CASE).tmp
 
 local_clean::
+
+PROG := $(ADVDIF)
+LOCAL_PROG := advdif
 
 #s
