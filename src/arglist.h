@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: arglist.h,v 1.8 2002/03/13 02:04:59 mstorti Exp $
+//$Id: arglist.h,v 1.9 2002/08/26 02:39:28 mstorti Exp $
 
 #ifndef ARGLIST_H
 #define ARGLIST_H
@@ -52,6 +52,8 @@ enum arg_options {
   PROFILE = ALLOC_MATRIX | UPLOAD_PROFILE,
   FDJ_PROFILE = IS_FDJ_PROFILE | UPLOAD_PROFILE
 };
+
+class PFMat;
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 /** Individual entry in the argument

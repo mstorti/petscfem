@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.25 2002/08/24 00:59:46 mstorti Exp $ 
+# $Id: Makefile,v 1.26 2002/08/26 02:39:28 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -16,7 +16,7 @@ PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 include $(PETSCFEM_DIR)/test/Makefile.base.test
 
-NS = $(PETSCFEM_DIR)/applications/ns/ns_O.bin
+NS = $(PETSCFEM_DIR)/applications/ns/ns_g.bin
 
 LOC_PROG := ns
 #CASE_NAME := qharm
@@ -25,8 +25,8 @@ PROG := $(NS)
 
 CASE := $(CASE_NAME)
 ################################################################
-NP = $(shell procsel -n ./proctable)
-# NP = 1
+NP = $(shell procsel ./proctable)
+NP = 2
 export NP
 
 PROG := $(NS)
@@ -36,8 +36,8 @@ MCH = -machinefile ./machi.dat
 $(CASE).depl: force
 run: $(CASE).depl
 #	$(MAKE) mesh
-	-${MPIRUN} -nolocal -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
-#	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+#	-${MPIRUN} -nolocal -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
+	-${MPIRUN} -np $(NP) $(MCH) $(PROG) -case $(CASE).depl
 
 mesh: cubcav.depl
 	octave -q mkmesh.m

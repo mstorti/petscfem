@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: distmap.h,v 1.24 2002/08/24 00:59:46 mstorti Exp $
+// $Id: distmap.h,v 1.25 2002/08/26 02:39:28 mstorti Exp $
 #ifndef DISTMAP_H
 #define DISTMAP_H
 
@@ -211,7 +211,9 @@ void DistMap<Key,Val,Partitioner>::scatter() {
     sproc=0;
     eproc=size;
     // now loop until all groups of processor are of size 1
-    hpc.start();
+    HPChrono hpc2;
+    double tsend,trecv;
+    hpc2.start();
     while (1) {
       // sproc:= mproc:= eproc:= Processes in the lower band (band=0) are
       // s1<= proc< mproc and higher band (band=1) are mproc<= proc <
@@ -261,8 +263,10 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	      // my_band_start sends to s1+1 and so on...
 	      dest = s1 + ((myrank-my_band_start) + jd) % nrecv;
 	      // printf("[%d] Sending to %d\n",myrank,dest);
+	      hpc.start();
 	      MPI_Send(send_buff[dest],SEND(myrank,dest),MPI_CHAR,
 		       dest,myrank,comm);
+	      tsend += hpc.elapsed();
 	    }
 	  } else {
 	    // Receive stage
@@ -272,9 +276,11 @@ void DistMap<Key,Val,Partitioner>::scatter() {
 	      // possibility of error since they are tagged with the
 	      // source. But we wait for receiving all the packets in
 	      // this stage. 
+	      hpc.start();
 	      MPI_Recv(recv_buff,max_recv_buff_size,MPI_CHAR,
 		       MPI_ANY_SOURCE,MPI_ANY_TAG,
 		       comm,&status);
+	      trecv += hpc.elapsed();
 	      // Get rank of source 
 	      source = status.MPI_SOURCE;
 	      // printf("[%d] received source %d, tag %d\n",
@@ -311,7 +317,8 @@ void DistMap<Key,Val,Partitioner>::scatter() {
       }
     }
     PetscSynchronizedPrintf(PETSC_COMM_WORLD,
-			    "[%d] in distmap.h %f\n",MY_RANK,hpc.elapsed());
+			    "[%d] in distmap.h, send %f, recv %f, total %f\n",
+			    MY_RANK,tsend,trecv,hpc2.elapsed());
     PetscSynchronizedFlush(PETSC_COMM_WORLD);
  
     // free memory
