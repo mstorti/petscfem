@@ -1,4 +1,4 @@
-% $Id: femref.tex,v 1.9 2004/12/02 23:53:03 mstorti Exp $
+% $Id: femref.tex,v 1.10 2004/12/03 02:30:59 mstorti Exp $
 \SSection{Mesh refinement} \label{sec:femref}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 
@@ -338,22 +338,34 @@ where \verb+f(v,x)+ is some binary functions that combines the values
 of the current state \verb+v+ and the incoming sequence element
 \verb+x[j]+. The \emph{rand48} hasher is based on the random function
 based on the SVID library coming with the GNU C library (version
-5.3.12 at the moment of writing this). 
+5.3.12 at the moment of writing this).
 
-\item \textbf{{\tt FastHasher}} This is based in a simple pseudo
-  random function of the form
+\item \textbf{{\tt FastHasher}} This is based in a simple
+pseudo-random function of the form
 %
-\medskip
 \begin{verbatim}
 int rand(int v,int x) {
+  v ^= x;
   int y = (v+x)^2;
   y = y % MAX;
   y = y ^ m;
 }
-\end{verbatim}
-\medskip
-%
-where \verb+MAX+=$2^{32}$ y 
 
+int hash(int *w,int n) {
+  int v = c;
+  for (int j=0; j<n; j++) {
+    v = rand(v,x);
+  }
+}
+\end{verbatim}
+%
+where \verb+MAX+=$2^{32}$ and \verb+c = 0x238e1f29+,
+\verb+m = 0x6b8b4567+. 
+
+\item \textbf{{\tt MD5Hasher}} This is based on the MD5 routines from
+  RSA. This is an elaborated algorithm that creates a 16~byte hash
+  value from a string of characters. We take as hash value the first
+  4~bytes from this digest. 
 
 \end{itemize}
+

@@ -25,17 +25,11 @@ void print_vec(const vector<int> &v) {
 
 int main() {
 
-#if 1
   MD5SumHasher hash;
   FastSumHasher phasher;
   int N=20, M=10, NN=10000;
   vector<int>  stat(M);
   set<int> shash, phash;
-  //#define EXACT_CHECK
-#ifdef EXACT_CHECK
-  set< vector<int> > val_set;
-  map<int, set< vector<int> > > hash_collisions;
-#endif
   for (int j=0; j<NN; j++) {
     hash.reset();
     phasher.reset();
@@ -58,6 +52,4 @@ int main() {
 	 perf_coll,NN-phash.size(), NN-shash.size(),
 	 phash.size()-shash.size());
 
-#endif
-  
 }

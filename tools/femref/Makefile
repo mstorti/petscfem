@@ -1,7 +1,7 @@
 #__INSERT_LICENSE__
 .PHONY: all
 
-N := 4
+N := 5
 OPT := -O2 -funroll-loops
 # OPT := -g
 
@@ -45,7 +45,7 @@ md5r.o: md5r.c
 	gcc $(OPT) -c -o $@ $<
 
 myhash$(N).bin: myhash$(N).o hasher.o md5r.o
-	g++ -o $@ $^
+	g++ $(OPT) -o $@ $^
 
 md5.bin:
 	gcc -o md5 md5.c md5r.c

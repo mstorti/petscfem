@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: hasher.h,v 1.8 2004/11/29 03:42:10 mstorti Exp $
+// $Id: hasher.h,v 1.9 2004/12/03 02:30:31 mstorti Exp $
 #ifndef PETSCFEM_HASHER_H
 #define PETSCFEM_HASHER_H
 
@@ -76,7 +76,6 @@ class FastHasher : public BaseHasher {
 private:
   const unsigned int c,m,n;
   int state;
-#if 1
   void hashf(int x) {
     unsigned long int tmp;
     state ^= x;
@@ -86,18 +85,6 @@ private:
       state ^= m;
     }
   }
-#else
-  void hashf(int x) {
-    unsigned long int tmp1,tmp2;
-    state ^= x;
-    for (int j=0; j<n; j++) {
-      memcpy(&tmp1,&state,2);
-      memcpy(&tmp2,&state+2,2);
-      state = tmp1*tmp1+tmp2*tmp2;
-      state ^= m;
-    }
-  }
-#endif
 public:
   FastHasher() 
     : state(0), 
