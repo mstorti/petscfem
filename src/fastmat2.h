@@ -1,6 +1,6 @@
 // -*- mode: c++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: fastmat2.h,v 1.27 2003/07/02 03:36:13 mstorti Exp $
+//$Id: fastmat2.h,v 1.28 2003/10/08 11:45:58 mstorti Exp $
 
 #ifndef FASTMAT2_H
 #define FASTMAT2_H
@@ -9,6 +9,7 @@
 #include <vector>
 #include <deque>
 #include <cassert>
+#include <cstdarg>
 
 using namespace std;
 

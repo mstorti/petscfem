@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.56 2003/10/04 23:28:10 mstorti Exp $
+//$Id: dxhook.cpp,v 1.57 2003/10/08 11:45:58 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -12,11 +12,11 @@
 #include <src/autostr.h>
 #include <src/dvector.h>
 #include <src/dvector2.h>
-#include <src/sockbuff.h>
 #include <src/generror.h>
 
 #ifdef USE_SSL
 
+#include <src/sockbuff.h>
 #include <HDR/sockets.h>
 
 extern int MY_RANK, SIZE;
