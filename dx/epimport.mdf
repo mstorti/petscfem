@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-# $Id: epimport.mdf,v 1.4 2003/02/17 02:40:10 mstorti Exp $ 
+# $Id: epimport.mdf,v 1.5 2003/02/17 22:36:32 mstorti Exp $ 
 MODULE ExtProgImport
 CATEGORY Import and Export
 DESCRIPTION Imports data from a fifo/socket
@@ -8,9 +8,9 @@ INPUT steps; integer; 0; Visualize each "steps" time steps. (0 means asynchronou
 INPUT serverhost; string;  "localhost"; Name of host where the external program is running
 INPUT port; integer; 5314; Port number
 INPUT options; string; NULL; Options to be passed to the external program
-INPUT step; integer; -1; Input for sequencer. This value is passed to "dx_hook"
+INPUT dx_step; integer; -1; Input for sequencer. This value is passed to "dx_hook"
 INPUT state_file; string; NULL; If set, then PETSc-FEM reads a state from this file
 INPUT record; integer; 0; Number of record inside "state_file"
 OUTPUT output_array_list; field;  Imported arrays
 OUTPUT output_field_list; field;  Imported fields
-OUTPUT step; integer;  Computation time step as received from the external program. 
+OUTPUT c_step; integer;  Computation time step as received from the external program. 

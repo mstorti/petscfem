@@ -1,6 +1,28 @@
 // -*- mode: shell-script -*-
 //__INSERT_LICENSE__
-// $Id: qq3.net,v 1.1 2003/02/17 21:09:24 mstorti Exp $ 
-alist, flist, stepo = ExtProgImport(steps=1,serverhost=NULL,port=5314,options=NULL,
-	step=0,state_file="sqcav.weak_form_0.tmp",record=0);
+// $Id: qq3.net,v 1.2 2003/02/17 22:36:32 mstorti Exp $ 
+macro mymac(record) -> () {
+alist, flist, stepo = ExtProgImport(1,NULL,5314,NULL,0,
+	"sqcav.state_0.tmp",record);
 Print(alist,"r",NULL);
+Print(flist,"r",NULL);
+Print(stepo,"od",NULL);
+}
+
+// @startframe=0;
+// @endframe=10;
+// @nextframe=@startframe;
+// sequence mymac(@frame);
+// play;
+
+mymac(0);
+mymac(1);
+mymac(2);
+mymac(3);
+mymac(4);
+mymac(5);
+mymac(6);
+mymac(7);
+mymac(8);
+mymac(9);
+mymac(-1);

@@ -1,18 +1,18 @@
 //
-// time: Sun Feb 16 12:46:54 2003
+// time: Mon Feb 17 17:34:50 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
 //
 // MODULE main
-// workspace: width = 315, height = 323
+// workspace: width = 339, height = 323
 // layout: snap = 0, width = 50, height = 50, align = NN
 //
 macro main(
 ) -> (
 ) {
     // 
-    // node ExtProgImport[1]: x = 171, y = 149, inputs = 6, label = ExtProgImport
+    // node ExtProgImport[1]: x = 171, y = 149, inputs = 7, label = ExtProgImport
     // input[1]: defaulting = 0, visible = 1, type = 1, value = NULL
     // input[3]: defaulting = 0, visible = 1, type = 1, value = 5314
     // input[5]: defaulting = 0, visible = 1, type = 1, value = 456
@@ -27,7 +27,8 @@ main_ExtProgImport_1_out_3 =
     main_ExtProgImport_1_in_3,
     main_ExtProgImport_1_in_4,
     main_ExtProgImport_1_in_5,
-    main_ExtProgImport_1_in_6
+    main_ExtProgImport_1_in_6,
+    main_ExtProgImport_1_in_7
     ) [instance: 1, cache: 1];
     // 
     // node Print[1]: x = 199, y = 261, inputs = 3, label = Print
@@ -40,12 +41,13 @@ main_ExtProgImport_1_out_3 =
     ) [instance: 1, cache: 1];
 // network: end of macro body
 }
-main_ExtProgImport_1_in_1 = NULL;
+main_ExtProgImport_1_in_1 = 1;
 main_ExtProgImport_1_in_2 = NULL;
 main_ExtProgImport_1_in_3 = 5314;
 main_ExtProgImport_1_in_4 = NULL;
 main_ExtProgImport_1_in_5 = 456;
-main_ExtProgImport_1_in_6 = "my_state_file";
+main_ExtProgImport_1_in_6 = "sqcav.weak_form_0.tmp";
+main_ExtProgImport_1_in_7 = NULL;
 main_ExtProgImport_1_out_2 = NULL;
 main_Print_1_in_2 = "r";
 main_Print_1_in_3 = NULL;
