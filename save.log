@@ -520,3 +520,6 @@ tag: beta-2.05 on Tue Aug 21 23:10:29 ART 2001, by mstorti in spider
 tag: beta-2.06 on Sat Aug 25 12:15:29 ART 2001, by mstorti in spider
      > Adding Finite Difference Jacobian support to PFMat.
      > Will come back to version beta-1.82 for working in sloshing.
+----------
+tag: beta-2.07 on Sun Sep 23 12:07:26 ART 2001, by mstorti in spider
+     > Added Sparse class. Now will add SuperLU factorization.
