@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001/01/02 16:52:05 mstorti Exp $ 
+# $Id: Makefile,v 1.3 2001/01/04 20:08:26 mstorti Exp $ 
 
 .PHONY: all run  compile lclean ns laplace adv nso laplace_tests force \
         ctest runtests clean fastmat2_obj plano idmap fastvec \
@@ -14,8 +14,7 @@ PETSCFEM_DIR = ..
 #PFEMUP = ../..
 include $(PETSCFEM_DIR)/Makefile.base
 
-SRCS = testfm2.cpp  testfm2a.cpp testfm2d.cpp  tfastvec.cpp  tidmap.cpp \
-                 tryme.cpp tryme1.cpp tryme2.cpp fstackchk.cpp
+SRCS = $(wildcard *.cpp)
 
 CLEAN_DIRS = circ fstack sector les turbchan advdif
 DEPEND_DIRS = $(CLEAN_DIRS)
