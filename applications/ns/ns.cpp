@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: ns.cpp,v 1.132 2003/05/14 15:16:53 mstorti Exp $
+//$Id: ns.cpp,v 1.133 2003/05/19 02:51:11 mstorti Exp $
 #include <src/debug.h>
 #include <malloc.h>
 
@@ -393,14 +393,9 @@ int main(int argc,char **args) {
 #endif
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+  debug.trace("Before reading initial vector...");
   ierr = opt_read_vector(mesh,x,dofmap,MY_RANK); CHKERRA(ierr);
-#if 0
-  print_vector("qq.tmp",x,dofmap,&time);
-  PetscFinalize();
-  exit(0);
-#endif
-
-  // Filter *filter(x,*mesh);
+  debug.trace("After reading initial vector...");
 
   // update_jacobian_this_step:= Flags whether this step the
   // jacobian should be updated or not 
