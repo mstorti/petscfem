@@ -1264,3 +1264,6 @@ tag: beta-3.00.pl3 on Thu, 18 Jul 2002 17:01:59 -0300 by mstorti in minerva.arcr
 ----------
 tag: beta-3.00.pl4 on Sun, 21 Jul 2002 12:06:17 -0300 by mstorti in spider
      > Writing new graph class.
+----------
+tag: beta-3.00.pl5 on Sun, 21 Jul 2002 16:02:07 -0300 by mstorti in spider
+     > `graphdv' computes neighbors with test.
