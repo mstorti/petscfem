@@ -38,3 +38,9 @@
 (dvint-dump surf-nodes)
 
 (comp-matrices ctx surf-con surf-nodes x surf-mass node-mass)
+
+(format #t "\n\nsurf-mass:\n")
+(dvdbl-dump surf-mass)
+
+(format #t "\n\nnode-mass:\n")
+(dvdbl-dump node-mass)

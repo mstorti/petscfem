@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: getsurf.cpp,v 1.24 2005/01/16 19:52:39 mstorti Exp $
+// $Id: getsurf.cpp,v 1.25 2005/01/16 19:59:02 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -254,8 +254,13 @@ void comp_matrices(GetSurfCtx &ctx,
     surf.cross(edgea,edgeb);
     double area = sqrt(surf.sum_square_all())/2.0;
     surf_mass.ref(jface) = area;
+    double nod_area = area/face_nel;
+    for (int j=0; j<face_nel; j++) {
+      int rnode = surf_con.e(jface,j);
+      node_mass.ref(rnode) += nod_area;
+    }
     Area += area;
-    printf("face %d, area %f\n",jface,area);
+    // printf("face %d, area %f\n",jface,area);
   }
-  printf("total area %f\n",Area);
+  // printf("total area %f\n",Area);
 }
