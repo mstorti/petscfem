@@ -4195,3 +4195,6 @@ tag: beta-3.45.1 on Wed, 09 Mar 2005 07:56:56 -0300 by mstorti in spider
 ----------
 tag: beta-3.45.2 on Sun, 27 Mar 2005 23:28:04 -0300 by mstorti in spider
      > Working on periodic duct with sliding aperture. 
+----------
+tag: beta-3.45.3 on Mon, 28 Mar 2005 00:29:43 -0300 by mstorti in spider
+     > Working on periodic `cond_wall' elemset. 
