@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: mkwave.m,v 1.3 2003/03/07 18:35:39 mstorti Exp $
+## $Id: mkwave.m,v 1.4 2003/03/12 21:29:38 mstorti Exp $
 global H L 
 
 source("data.m.tmp");
@@ -29,7 +29,9 @@ asave("wave.con.tmp",icone);
 fid = fopen("wave.fixa_in.tmp","w");
 for k=inlet'
   uu = 1+du*cos(pi*xnod(k,2)/Hy);
+  vv = du*sin(pi*xnod(k,2)/Hy);
   fprintf(fid,"%d %d  %f\n",k,1,uu);
+  fprintf(fid,"%d %d  %f\n",k,2,vv);
 endfor
 fclose(fid);
 

@@ -1,5 +1,5 @@
 //
-// time: Tue Mar 11 19:02:53 2003
+// time: Wed Mar 12 13:28:37 2003
 //
 // version: 3.1.2 (format), 4.2.0 (DX)
 //
@@ -13,10 +13,10 @@
 // comment: If you would like to modify or use this visual program in the future, choose Open Visual Program Editor from the Windows menu, and then choose Save As from the File menu of the VPE.
 // page assignment: external	order=3, windowed=0, showing=0
 // page assignment: image	order=6, windowed=0, showing=0
-// page assignment: import	order=2, windowed=0, showing=1
-// page assignment: proc_u	order=4, windowed=0, showing=0
+// page assignment: import	order=2, windowed=0, showing=0
+// page assignment: proc_u	order=4, windowed=0, showing=1
 // page assignment: scalar	order=5, windowed=0, showing=0
-// workspace: width = 433, height = 522
+// workspace: width = 469, height = 542
 // layout: snap = 1, width = 20, height = 20, align = UL
 //
 macro main(
@@ -25,12 +25,12 @@ macro main(
     // 
     // node Selector[1]: x = 160, y = 100, inputs = 7, label = Selector
     // input[1]: defaulting = 0, visible = 0, type = 32, value = "Selector_1"
-    // input[2]: defaulting = 0, visible = 0, type = 32, value = "abs(vort)" 
-    // input[3]: defaulting = 0, visible = 0, type = 29, value = 4 
+    // input[2]: defaulting = 0, visible = 0, type = 32, value = "log(abs(vort))" 
+    // input[3]: defaulting = 0, visible = 0, type = 29, value = 5 
     // input[4]: defaulting = 1, visible = 1, type = 16777248, value = { "none" "abs(u)" "pressure" "vorticity" "abs(vort)" "log(abs(vort))" "log(abs(u))" }
     // input[5]: defaulting = 1, visible = 0, type = 16777245, value = { 0 1 2 3 4 5 6 }
-    // output[1]: visible = 1, type = 29, value = 4 
-    // output[2]: visible = 1, type = 32, value = "abs(vort)" 
+    // output[1]: visible = 1, type = 29, value = 5 
+    // output[2]: visible = 1, type = 32, value = "log(abs(vort))" 
     // page group: scalar
     //
     // 
@@ -41,8 +41,8 @@ macro main(
     // input[6]: defaulting = 1, visible = 0, type = 1, value = 1
     // input[7]: defaulting = 0, visible = 0, type = 16777217, value = { 0 100 1 0 100 1 }
     // page group: import
-    // vcr[3]: min = 0, max = 100, beg = 0, end = 100, cur = 0, inc = 1, loop = off, step = off, pal = off
-    // window: position = (0.4531,0.0326), size = 0.3496x0.1328
+    // vcr[3]: min = 0, max = 100, beg = 0, end = 100, cur = 2, inc = 1, loop = off, step = off, pal = off
+    // window: position = (0.5352,0.0221), size = 0.3496x0.1328
     //
     main_Sequencer_3_in_3 = @frame;
 main_Sequencer_3_out_1[cache: 2] = 
@@ -245,9 +245,9 @@ abs_w = main_Compute_35_out_1;
 main_Receiver_44_out_1[cache: 0] = abs_w;
     // 
     // node Compute[10]: x = 140, y = 380, inputs = 2, label = Compute
-    // input[1]: defaulting = 0, visible = 0, type = 32, value = "log10(max(abs($0),0.01))"
+    // input[1]: defaulting = 0, visible = 0, type = 32, value = "log10(max(abs($0),0.00001))"
     // page group: proc_u
-    // expression: value = log10(max(abs(w),0.01))
+    // expression: value = log10(max(abs(w),0.00001))
     // name[2]: value = w
     //
 main_Compute_10_out_1 = 
@@ -409,12 +409,12 @@ main_Compute_19_out_1 =
     // input[3]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[4]: defaulting = 0, visible = 0, type = 16777224, value = { [0.0 1.0] [1.0 1.0] }
     // input[5]: defaulting = 0, visible = 0, type = 32, value = "Colormap_2"
-    // input[7]: defaulting = 1, visible = 0, type = 5, value = 2.1839514e-07
-    // input[8]: defaulting = 1, visible = 0, type = 5, value = 0.59810758
+    // input[7]: defaulting = 1, visible = 0, type = 5, value = -2.0
+    // input[8]: defaulting = 1, visible = 0, type = 5, value = -2.0
     // input[9]: defaulting = 1, visible = 0, type = 1, value = 20
-    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { 2.1839514e-07 0.59810758 }
-    // input[17]: defaulting = 0, visible = 0, type = 5, value = 2.1839514e-07
-    // input[18]: defaulting = 0, visible = 0, type = 5, value = 0.59810758
+    // input[12]: defaulting = 0, visible = 0, type = 16777221, value = { -2.0 -2.0 }
+    // input[17]: defaulting = 0, visible = 0, type = 5, value = -2.0
+    // input[18]: defaulting = 0, visible = 0, type = 5, value = -2.0
     // page group: scalar
     // window: position = (0.4941,0.0117), size = 0.6875x0.5000
     //
@@ -902,13 +902,13 @@ main_Compute_8_out_1 =
     // node Image[4]: x = 160, y = 640, inputs = 49, label = Image
     // input[1]: defaulting = 0, visible = 0, type = 67108863, value = "Image_4"
     // input[4]: defaulting = 0, visible = 0, type = 1, value = 1
-    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.262123 0.558557 -1e-05]
-    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.262123 0.558557 7478.89]
-    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.58441
+    // input[5]: defaulting = 0, visible = 0, type = 8, value = [0.725819 0.533154 -1e-05]
+    // input[6]: defaulting = 0, visible = 0, type = 8, value = [0.725819 0.533154 7478.89]
+    // input[7]: defaulting = 0, visible = 0, type = 5, value = 1.63051
     // input[8]: defaulting = 0, visible = 0, type = 1, value = 1000
     // input[9]: defaulting = 0, visible = 0, type = 5, value = 0.697
     // input[10]: defaulting = 0, visible = 0, type = 8, value = [0 1 0]
-    // input[11]: defaulting = 1, visible = 0, type = 5, value = 0.0121382
+    // input[11]: defaulting = 1, visible = 0, type = 5, value = 0.0124913
     // input[12]: defaulting = 0, visible = 0, type = 1, value = 0
     // input[14]: defaulting = 0, visible = 0, type = 1, value = 1
     // input[15]: defaulting = 1, visible = 0, type = 32, value = "none"
@@ -1059,14 +1059,14 @@ log_abs_u = main_Compute_37_out_1;
 CacheScene(main_Image_4_in_1, main_Image_4_out_1, main_Image_4_out_2);
 }
 main_Selector_1_in_1 = "Selector_1";
-main_Selector_1_in_2 = "abs(vort)" ;
-main_Selector_1_in_3 = 4 ;
+main_Selector_1_in_2 = "log(abs(vort))" ;
+main_Selector_1_in_3 = 5 ;
 main_Selector_1_in_4 = NULL;
 main_Selector_1_in_5 = NULL;
 main_Selector_1_in_6 = NULL;
 main_Selector_1_in_7 = NULL;
-main_Selector_1_out_1 = 4 ;
-main_Selector_1_out_2 = "abs(vort)" ;
+main_Selector_1_out_1 = 5 ;
+main_Selector_1_out_2 = "log(abs(vort))" ;
 main_Sequencer_3_in_1 = "Sequencer_3";
 main_Sequencer_3_in_2 = NULL;
 main_Sequencer_3_in_3 = NULL;
@@ -1120,7 +1120,7 @@ main_Compute_35_in_1 = "abs($0)";
 main_Compute_35_out_1 = NULL;
 main_Transmitter_34_out_1 = NULL;
 main_Receiver_44_out_1 = NULL;
-main_Compute_10_in_1 = "log10(max(abs($0),0.01))";
+main_Compute_10_in_1 = "log10(max(abs($0),0.00001))";
 main_Compute_10_out_1 = NULL;
 main_Transmitter_10_out_1 = NULL;
 main_Receiver_40_out_1 = NULL;
@@ -1183,13 +1183,13 @@ main_Colormap_2_in_8 = NULL;
 main_Colormap_2_in_9 = NULL;
 main_Colormap_2_in_10 = NULL;
 main_Colormap_2_in_11 = NULL;
-main_Colormap_2_in_12 = { 2.1839514e-07 0.59810758 };
+main_Colormap_2_in_12 = { -2.0 -2.0 };
 main_Colormap_2_in_13 = NULL;
 main_Colormap_2_in_14 = NULL;
 main_Colormap_2_in_15 = NULL;
 main_Colormap_2_in_16 = NULL;
-main_Colormap_2_in_17 = 2.1839514e-07;
-main_Colormap_2_in_18 = 0.59810758;
+main_Colormap_2_in_17 = -2.0;
+main_Colormap_2_in_18 = -2.0;
 main_Colormap_2_in_19 = NULL;
 main_Colormap_2_out_1 = NULL;
 main_Color_1_in_3 = NULL;
@@ -1681,9 +1681,9 @@ macro Image(
 main_Image_4_in_1 = "Image_4";
 main_Image_4_in_3 = "X16,,";
 main_Image_4_in_4 = 1;
-main_Image_4_in_5 = [0.262123 0.558557 -1e-05];
-main_Image_4_in_6 = [0.262123 0.558557 7478.89];
-main_Image_4_in_7 = 1.58441;
+main_Image_4_in_5 = [0.725819 0.533154 -1e-05];
+main_Image_4_in_6 = [0.725819 0.533154 7478.89];
+main_Image_4_in_7 = 1.63051;
 main_Image_4_in_8 = 1000;
 main_Image_4_in_9 = 0.697;
 main_Image_4_in_10 = [0 1 0];

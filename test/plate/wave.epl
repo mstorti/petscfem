@@ -1,5 +1,5 @@
 ##__INSERT_LICENSE__
-## $Id: wave.epl,v 1.7 2003/03/11 22:03:31 mstorti Exp $ 
+## $Id: wave.epl,v 1.8 2003/03/12 21:29:38 mstorti Exp $ 
 <:                              # starts ePerl block
 #__TRANSCRIPT__
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";       # Initializes ePerl 
@@ -7,9 +7,9 @@ require "$ENV{'PETSCFEM_DIR'}/tools/dx.pl";       # Initializes ePerl
 $case_name = $ENV{'case_name'};
 $case_name = 'default' unless defined $case_name;
 $H = 1;
-$L = 3;
+$L = 1.5;
 $Ny = $Nx = 30;
-$xratio = 5;
+$xratio = 3;
 $Re = 1000;
 $du = 0.1;                      # u at inlet goes from 1-du to 1+du
 $read_from_file = 0;
@@ -47,10 +47,11 @@ Krylov_dim 200
 nnwt 4
 alpha 1
 weak_form 0
-Dt 0.05
-# steady
+Dt 0.01
+steady
 rtol 1e-4
 atol 1e-10
+tol_newton 0
 iisdmat_print_statistics
 print_partitioning_statistics
 # print_linear_system_and_stop
@@ -106,7 +107,7 @@ fixa
 ## u imposed at inlet
 __INCLUDE__ "wave.fixa_in.tmp"
 ## 
-__INCLUDE__ "wave.fixa_out.tmp"
+# __INCLUDE__ "wave.fixa_out.tmp"
 __INCLUDE__ "wave.fixa_top.tmp"
 __INCLUDE__ "wave.fixa_bot.tmp"
 __END_FIXA__
