@@ -3587,3 +3587,6 @@ tag: beta-3.38.1 on Thu, 23 Dec 2004 12:08:24 -0300 by mstorti in spider
 ----------
 tag: beta-3.38.2 on Fri, 24 Dec 2004 18:18:54 -0300 by mstorti in spider
      > Writing `node-comb' stuff. 
+----------
+tag: beta-3.38.3 on Fri, 24 Dec 2004 23:11:00 -0300 by mstorti in spider
+     > Starts working `NodeInfo' stuff. 
