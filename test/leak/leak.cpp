@@ -1,8 +1,10 @@
 /*__INSERT_LICENSE__*/
-// $Id: leak.cpp,v 1.1 2002/10/06 20:24:01 mstorti Exp $
+// $Id: leak.cpp,v 1.2 2002/10/06 20:31:43 mstorti Exp $
 
 // Tests for the `PFMat' class
 #include <petscsles.h>
+#include <src/utils.h>
+#include <src/util2.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 #undef __FUNC__
@@ -16,7 +18,7 @@ int main(int argc,char **args) {
   PC pc;
   KSP ksp;
 
-  const int N=10;
+  const int N=100000;
   double h = 1./double(N);
   
   int ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,N,N,N,N,
@@ -32,7 +34,7 @@ int main(int argc,char **args) {
   ierr = KSPSetType(ksp,KSPCG); CHKERRQ(ierr); 
   ierr = PCSetType(pc,PCJACOBI); CHKERRQ(ierr); 
 
-  int niter=2;
+  int niter=200;
 
   for (int iter=0; iter<=niter; iter++) {
     for (int k=0; k<N; k++) {
@@ -45,7 +47,7 @@ int main(int argc,char **args) {
       l=k-1;
       if (l<0) l+=N;
       ierr = MatSetValue(A,k,l,-0.1,INSERT_VALUES); CHKERRQ(ierr); 
-      ierr = VecSetValue(b,k,1.,INSERT_VALUES); CHKERRQ(ierr);
+      ierr = VecSetValue(b,k,2.*drand()-1,INSERT_VALUES); CHKERRQ(ierr);
     }
     ierr = VecAssemblyBegin(b);
     ierr = VecAssemblyEnd(b);
@@ -53,13 +55,15 @@ int main(int argc,char **args) {
     ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr); 
     ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr); 
     
-    ierr = MatView(A,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr); 
-
     int its;
     ierr = SLESSolve(sles,b,x,&its); CHKERRQ(ierr); 
 
+    PetscPrintf(PETSC_COMM_WORLD,"iter %d, converged on %d CG iters\n",
+		iter,its);
+#if 0
+    ierr = MatView(A,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr); 
     ierr = VecView(x,PETSC_VIEWER_STDOUT_WORLD); CHKERRQ(ierr); 
-
+#endif
   }
   ierr = MatDestroy(A);
   ierr = VecDestroy(x);
