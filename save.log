@@ -1734,3 +1734,6 @@ tag: beta-3.06.pl8 on Sun, 20 Oct 2002 22:58:53 -0300 by mstorti in spider
 ----------
 tag: beta-3.06.pl9 on Fri, 25 Oct 2002 11:44:29 -0300 by mstorti in node1.beowulf.gtm
      > Reads nodes and elemset in proc 0 and send to others via MPI. 
+----------
+tag: beta-3.06.pl10 on Sat,  2 Nov 2002 08:43:04 -0300 by mstorti in minerva.arcride.edu.ar
+     > Modified test/cubcav.epl so as to use the MPI reading of files. 
