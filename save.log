@@ -3526,3 +3526,6 @@ tag: beta-3.37.31 on Tue, 14 Dec 2004 19:32:50 -0300 by mstorti in spider
 ----------
 tag: beta-3.37.32 on Tue, 14 Dec 2004 20:47:47 -0300 by mstorti in spider
      > Improved the traversing of the tree. 
+----------
+tag: beta-3.37.33 on Sun, 19 Dec 2004 11:29:10 -0300 by mstorti in spider
+     > Starts working visitor class. 
