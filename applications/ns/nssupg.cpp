@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: nssupg.cpp,v 1.5 2002/07/31 02:52:42 mstorti Exp $
+//$Id: nssupg.cpp,v 1.6 2002/07/31 02:59:29 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -193,7 +193,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	res_pg.prod(tmp,SHAPE,-1,-1);
 	res_pgg.set(SHAPE).scale(res_pg.get()*wpgdet);
 
-#if 0	
+#if 1
 	grad_eta.prod(DSHAPEXI,eta_star,1,-1,-1);
 	tmp2.prod(DSHAPEXI,grad_eta,-1,1,-1);
 	res_pgg.axpy(tmp2,-free_surface_damp*wpgdet);
@@ -203,7 +203,7 @@ int ns_sup_g::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// Jacobian term
 	tmp3.prod(SHAPE,SHAPE,1,2);
 	mass_mat.axpy(tmp3,wpgdet);
-#if 0
+#if 1
 	tmp4.prod(DSHAPEXI,DSHAPEXI,-1,1,-1,2);
 	lap_mat.axpy(tmp4,wpgdet);
 #endif
