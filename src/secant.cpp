@@ -1,3 +1,6 @@
+//__INSERT_LICENSE__
+//$Id: secant.cpp,v 1.2 2001/04/01 01:35:06 mstorti Exp $
+
 #include <cstdio>
 #include "secant.h"
 

@@ -1,4 +1,6 @@
 // -*- mode: c++ -*-
+//__INSERT_LICENSE__
+//$Id: util2.h,v 1.5 2001/04/01 01:35:06 mstorti Exp $
 #ifndef UTIL2_H
 #define UTIL2_H
 

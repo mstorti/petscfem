@@ -3,6 +3,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* Convert flux functions (burgers, shallow water), to new ff's...
 * Cambiar la licencia en todos los archivos
 * Add a "mass" to the advective dffusive eq.??
 * Add weak_form support to the new flux functions

@@ -1,3 +1,6 @@
+//__INSERT_LICENSE__
+//$Id: iterator.cpp,v 1.2 2001/04/01 01:35:07 mstorti Exp $
+
 #include <stdio.h>
 #include <vector>
 

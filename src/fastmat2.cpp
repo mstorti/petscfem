@@ -1,3 +1,6 @@
+//__INSERT_LICENSE__
+//$Id: fastmat2.cpp,v 1.3 2001/04/01 01:35:06 mstorti Exp $
+
 #include <math.h>
 #include <stdio.h>
 

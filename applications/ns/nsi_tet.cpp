@@ -1,4 +1,5 @@
-/* $Id: nsi_tet.cpp,v 1.4 2001/01/10 22:40:32 mstorti Exp $ */
+//__INSERT_LICENSE__
+//$Id: nsi_tet.cpp,v 1.5 2001/04/01 01:34:59 mstorti Exp $
 
 #include <string>
 

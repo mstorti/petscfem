@@ -53,6 +53,8 @@ APPDIR = $(PETSCFEM_DIR)/applications
 
 ODOC = $(PETSCFEM_DIR)/tools/odoc.pl
 
+INSERT_LICENSE = $(PETSCFEM_DIR)/tools/insert_license.pl
+
 include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
 G_COPTFLAGS      = -ggdb
 

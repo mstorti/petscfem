@@ -1,3 +1,5 @@
+//__INSERT_LICENSE__
+//$Id: fracstep.h,v 1.2 2001/04/01 01:34:59 mstorti Exp $
 #ifndef FRACSTEP_H
 #define FRACSTEP_H
 

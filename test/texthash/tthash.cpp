@@ -1,3 +1,6 @@
+//__INSERT_LICENSE__
+//$Id: tthash.cpp,v 1.2 2001/04/01 01:35:09 mstorti Exp $
+
 #include <cstdio>
 #include <cmath>
 #include <map>

@@ -1,4 +1,6 @@
 // -*- mode: C++ -*- 
+//__INSERT_LICENSE__
+//$Id: getarray.h,v 1.2 2001/04/01 01:35:06 mstorti Exp $
 #ifndef GETARRAY_H
 #define GETARRAY_H
 
