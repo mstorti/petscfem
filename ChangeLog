@@ -1,4 +1,190 @@
+2001-12-02  mstorti@spider  <mstorti@spider>
+
+	* Makefile, adappg.cpp, adaptor.h: *** empty log message ***
+
+2001-12-01  mstorti@spider  <mstorti@spider>
+
+	* nsikeps.cpp, nsitetlesfm2.cpp: Incorporated changes in
+	turbulence from Beto.  Merged sources (tests not run yet).
+
+	* ns.cpp, nsikeps.cpp, nsilesther.cpp, nsitetlesfm2.cpp,
+	nonlr.cpp: Incorporated changes in turbulence from Beto.
+
+2001-11-30  mstorti@spider  <mstorti@spider>
+
+	* adappg.cpp, adaptor.cpp, adaptor.h, adaptorf.cpp, elast.h:
+	Writing adaptors.
+
+	* Makefile, adaptor.cpp, adaptor.h, adaptorf.cpp, elast.cpp,
+	elast.h, ns.cpp, nsi_tet.h, nsilesther.cpp: Merged from
+	Chile. Included adaptor class.
+
+	* nsitetlesfm2.cpp: Fixed a serious bug in `nsitetlesfm2.cpp'. The
+	material derivative `dmatu' was set to zero for debugging purposes
+	and if was left so for mistake.  Added a test for the square
+	cavity
+
+2001-11-25  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Debug now intercepts signals,so that you can activate
+	debugging with `C-c'
+
+2001-11-21  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Added debug_print facility
+
+2001-11-20  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Added debug
+
+	* ns.cpp: *** empty log message ***
+
+2001-11-09  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Adding matrices
+
+2001-11-06  mstorti@spider  <mstorti@spider>
+
+	* nsitetlesfm2.cpp: Working on sloshing
+
+2001-11-05  mstorti@spider  <mstorti@spider>
+
+	* nsitetlesfm2.cpp: Change to full implicit method.
+
+	* nsitetlesfm2.cpp: *** empty log message ***
+
+2001-10-29  mstorti@spider  <mstorti@spider>
+
+	* Makefile-MAC, adaptor.cpp, adaptor.h, adaptorf.cpp, addi_om.f,
+	auxl_om.f, elast.cpp, elast.h, elastf.cpp, gend_om.f, initf.f,
+	inpo_om.f, inte_om.f, list_modf, ns.cpp-MAC, nuec_om.f, nued_om.f,
+	nuee_om.f, nuef_om.f, para_om.f, prob_om.f: New file.
+
+	* Makefile, Makefile-MAC, adaptor.cpp, adaptor.h, adaptorf.cpp,
+	addi_om.f, auxl_om.f, elast.cpp, elast.h, elastf.cpp, gend_om.f,
+	initf.f, inpo_om.f, inte_om.f, list_modf, ns.cpp, ns.cpp-MAC,
+	nsi_tet.h, nsilesther.cpp, nuec_om.f, nued_om.f, nuee_om.f,
+	nuef_om.f, para_om.f, prob_om.f: Work on adaptor to FORTRAN C and
+	others.
+
+2001-10-16  mstorti@spider  <mstorti@spider>
+
+	* Makefile, nsres.cpp, nssup.h: Writing a linear restriction
+	element that can be loaded from a file for coupling NS with
+	potential.
+
+	* nsres.cpp, nssup.h: Debugging NS freq
+
+2001-10-15  mstorti@spider  <mstorti@spider>
+
+	* nsid.cpp, nsitetlesfm2.cpp: Debugging NS freq
+
+	* Makefile, ns.cpp, nsi_tet.h: Debugging the frequency elemeset.
+
+	* nsid.cpp: This is a trivial dummy elemset so that you can
+	replace any other NS elemset with this one for debugging.
+
+2001-10-13  mstorti@spider  <mstorti@spider>
+
+	* nsi_tet.h, nsitetlesfm2.cpp: Sloshing in frequency with NS is
+	compiling, some problems remain.  Added a `residual_factor'
+	option.
+
+2001-10-09  mstorti@spider  <mstorti@spider>
+
+	* nsitetlesfm2.cpp: Added patch from Beto for viscous term.
+
+	* nsilesther.cpp: Added patch for viscous term from Beto.
+
+	* nsitetlesfm2.cpp: *** empty log message ***
+
+2001-10-07  mstorti@spider  <mstorti@spider>
+
+	* lagmul.cpp, nssup.cpp, nssup.h, nssupr.cpp: Fixed a bug for
+	`weak_form=1' in the jacobian terms in nsitetlesfm2.cpp.
+
+	* nsitetlesfm2.cpp:
+	There was an error in the matrix for the weak_form=1 case??
+
+	* nssup.h: Added header
+
+	* Makefile, nssup.cpp, nssup.h, nssupr.cpp: NS with lagrange
+	multiplier for surface restriction compiles.
+
+2001-10-06  mstorti@spider  <mstorti@spider>
+
+	* Makefile, lagmul.cpp, ns.cpp, nsi_tet.h, nsitetlesfm2.cpp,
+	nssup.cpp, nssup.h, nssupr.cpp: Converting headers to
+	<src/header...> convention.
+
+2001-10-05  mstorti@spider  <mstorti@spider>
+
+	* lagmul.cpp, nsi_tet.h: Working on lagrange multipliers.
+
+	* lagmul.cpp: *** empty log message ***
+
+2001-10-04  mstorti@spider  <mstorti@spider>
+
+	* Makefile, lagmul.cpp, nonlr.cpp, nsi_tet.h, pp.m:
+	*** empty log message ***
+
+2001-10-03  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Working on free surface element.
+
+2001-09-19  mstorti@spider  <mstorti@spider>
+
+	* nsitetlesfm2.cpp: Added the `additional_tau_pspg' feature for
+	sloshing.
+
+	* ns.cpp: Printing the finite difference jacobian with
+	`verify_jacobian_with_numerical_one' printed two times the
+	analytical Jacobian.
+
+	* ns.cpp: Fixed a bug. `A_tet' was passed as `&A_tet' and now is
+	already a pointer.
+
+2001-09-18  mstorti@spider  <mstorti@spider>
+
+	* nonlr.cpp: Fixed bug in nonlr wall.
+
+2001-09-17  mstorti@spider  <mstorti@spider>
+
+	* nsitetlesfm2.cpp: Added a additional_tau_pspg parameter to NS.
+
+2001-09-10  mstorti@spider  <mstorti@spider>
+
+	* nsitetlesfm2.cpp: Somewhat modified
+
+2001-09-08  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Changed `ateta, atetne'  to `atet, atet_fdj'
+
+	* ns.cpp: *** empty log message ***
+
+2001-09-07  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp, nsitetlesfm2.cpp:
+	Fixed bug with finite difference jacobians in NS.
+
+2001-08-25  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Adding Finite Difference Jacobian support to PFMat.
+
+2001-08-20  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp:
+	Added a `pc_lu_fill' option in order to get better efficiency.
+
+2001-08-19  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: `pc_lu_fill' and `PCLUSetUseInPlace()' work.
+
 2001-08-07  mstorti@spider  <mstorti@spider>
+
+	* ns.cpp: Fixed bug for IISD
+
+dapo	2001-08-07  mstorti@spider  <mstorti@spider>
 
 	* test/lupart/Makefile, test/lupart/check_part.m,
 	test/lupart/wallke.epl, test/runtests.pl, src/readmesh.cpp: Adding
