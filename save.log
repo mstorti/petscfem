@@ -609,3 +609,6 @@ tag: beta-2.29 on Thu Nov 22 16:50:40 ART 2001, by mstorti in minerva.arcride.ed
 ----------
 tag: beta-2.30 on Thu Nov 22 23:13:55 ARST 2001, by mstorti in spider
      > Writing `Graph' class
+----------
+tag: beta-2.31 on Fri Nov 23 21:05:19 ARST 2001, by mstorti in spider
+     > `Graph' class is working (partitioning)
