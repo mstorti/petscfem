@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: visitor.cpp,v 1.5 2004/12/19 15:55:30 mstorti Exp $
+// $Id: visitor.cpp,v 1.6 2004/12/19 16:17:44 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -68,7 +68,9 @@ bool UniformMesh::visitor::so_next() {
 	return false;
       }
       
-      w = ref_stack.begin(); w++;
+      ws = ref_stack.begin(); 
+      j = ws->so_indx;
+      w=ws; w++;
       qfather = w->splitter;
       assert(qfather != etree_p->end());
       const Splitter *s = qfather->splitter;
@@ -77,6 +79,7 @@ bool UniformMesh::visitor::so_next() {
 
       if (j<s->size()-1) {
 	int jsib = j+1;
+	qrsib = ws->splitter;
 	ref_stack.push_front(RefPathNode());
 	ws = ref_stack.begin();
 	w = ws; w++;
@@ -86,7 +89,6 @@ bool UniformMesh::visitor::so_next() {
 	ws->go.make_canonical();
 
 	// Find next node on the splitting tree or end()
-	qrsib = ws->splitter;
 	while (qrsib != etree_p->end()) {
 	  if (qrsib->so_indx >= jsib) break;
 	  qrsib++;

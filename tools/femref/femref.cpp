@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: femref.cpp,v 1.23 2004/12/19 15:34:28 mstorti Exp $
+// $Id: femref.cpp,v 1.24 2004/12/19 16:17:44 mstorti Exp $
 
 #include <string>
 #include <list>
@@ -82,7 +82,7 @@ int main() {
   vis.init(mesh,0);
   while (!vis.so_end()) {
     GeomObject &go = vis.ref_stack.front().go;
-    go.print();
+    // go.print();
     if (vis.is_leave() && vis.ref_level()<=1)
       vis.refine();
     vis.so_next();
