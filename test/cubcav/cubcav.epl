@@ -1,4 +1,4 @@
-#$Id: cubcav.epl,v 1.107 2004/01/29 01:05:26 mstorti Exp $ 
+#$Id: cubcav.epl,v 1.108 2004/01/29 21:07:30 mstorti Exp $ 
 <:require "./cubcav.pl";:>//
 global_options
 
@@ -119,7 +119,7 @@ data <:=$icone:>
 surf_fun_type "cylinder"
 gather_pos 0
 vals_per_plane 1
-f_vals 0.8
+f_vals 0.12
 __END_HASH__
 
 end_elemsets

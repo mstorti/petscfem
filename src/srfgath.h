@@ -1,6 +1,6 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: srfgath.h,v 1.3 2004/01/27 19:54:12 mstorti Exp $
+//$Id: srfgath.h,v 1.4 2004/01/29 21:07:30 mstorti Exp $
 #ifndef PETSCFEM_SRF_GATH_H
 #define PETSCFEM_SRF_GATH_H
 
@@ -73,12 +73,11 @@ public:
   void handle_error(int error);
 };
 
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 class field_surf_integrator : public SurfGatherer {
 public:
   void set_ip_values(vector<double> &pg_values,FastMat2 &u,
-		     FastMat2 &xpg,FastMat2 &n,double time) {
-    pg_values[0] = 1.0;
-  }
+		     FastMat2 &xpg,FastMat2 &n,double time);
 };
 
 #endif

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: gaschem.cpp,v 1.14 2004/01/27 19:58:01 mstorti Exp $
+//$Id: gaschem.cpp,v 1.15 2004/01/29 21:04:59 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/texthash.h>
@@ -30,15 +30,15 @@ void gaschem_ff::start_chunk(int &ret_options) {
   EGETOPTDEF_ND(elemset,double,hm_fac,1.0);
 
   //o Cutoff value for Nb
-  EGETOPTDEF_ND(elemset,double,Nb_ctff,0.0);
+  EGETOPTDEF_ND(elemset,double,Nb_ctff,DBL_MAX);
   //o Cutoff value for CO
-  EGETOPTDEF_ND(elemset,double,CO_ctff,0.0);
+  EGETOPTDEF_ND(elemset,double,CO_ctff,DBL_MAX);
   //o Cutoff value for CN
-  EGETOPTDEF_ND(elemset,double,CN_ctff,0.0);
+  EGETOPTDEF_ND(elemset,double,CN_ctff,DBL_MAX);
   //o Cutoff value for CdO
-  EGETOPTDEF_ND(elemset,double,CdO_ctff,0.0);
+  EGETOPTDEF_ND(elemset,double,CdO_ctff,DBL_MAX);
   //o Cutoff value for CdN
-  EGETOPTDEF_ND(elemset,double,CdN_ctff,0.0);
+  EGETOPTDEF_ND(elemset,double,CdN_ctff,DBL_MAX);
   //o Scale Nb eq. with this
   EGETOPTDEF_ND(elemset,double,Nb_scale,1.0);
   //o A source for #Nb# ([=] #bubbles/m3 sec# ).
@@ -146,7 +146,10 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
   H.rs();
 
   double diff;
-#define GC_VAR(name,indx) double name = ctff(U.get(indx),diff,name##_ctff);
+#define GC_VAR(name,indx)				\
+    double name;					\
+    if (name##_ctff!=DBL_MAX)  				\
+      name = ctff(U.get(indx),diff,name##_ctff);
   GC_VAR(Nb,1);
   GC_VAR(CO,2);
   GC_VAR(CN,3);
@@ -261,17 +264,18 @@ void gaschem_ff::compute_flux(const FastMat2 &U,
     double rb_crit = 6.67e-4;
     double hm = hm_fac*(rb < rb_crit ? (rb/rb_crit)*4e-4 : 4e-4);
 
-    double coef = 3.0*(CO+CN)*Rgas*Tgas*hm/(pgas*rb);
-    double xO = CO/(CO+CN);
-    double xN = 1.0-xO;
+    double C =CO+CN;
+    double coef = 3.0*Rgas*Tgas*hm/(pgas*rb);
+    // double xO = CO/(CO+CN);
+    // double xN = 1.0-xO;
 
     double fac = pgas*vb/(Rgas*Tgas)*Nb_source;
     double SO_source = fac * XO_source;
     double SN_source = fac * (1.0-XO_source);
 //    double SO = coef*(CdO-KO*pgas*xO) + SO_source;
 //    double SN = coef*(CdN-KN*pgas*xN) + SN_source;
-    double SO = coef*(CdO-KO*pgas*xO);
-    double SN = coef*(CdN-KN*pgas*xN);
+    double SO = coef*(CdO*C-KO*pgas*CO);
+    double SN = coef*(CdN*C-KN*pgas*CN);
 
     G_source.setel(Nb_source,1);
     G_source.setel(SO,2);

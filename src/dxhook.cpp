@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: dxhook.cpp,v 1.60 2003/11/25 02:10:22 mstorti Exp $
+//$Id: dxhook.cpp,v 1.61 2004/01/29 21:07:30 mstorti Exp $
 
 #include <src/debug.h>
 #include <src/fem.h>
@@ -309,7 +309,8 @@ int dx_hook::build_state_from_file(double *state_p) {
   if (!MY_RANK) {
     FILE *fid = fopen(state_file.c_str(),"r");
     if(!fid) {
-      printf("Can't open file \"%s\". Sending null state file. \n",state_file.c_str());
+      printf("Can't open file \"%s\". Sending null state file. \n",
+	     state_file.c_str());
       for (int j=0; j<(recl+1)*nnod*ndof; j++) state_p[j] = 0.;
     } else {
       int base = recl*nnod*ndof;
@@ -322,7 +323,7 @@ int dx_hook::build_state_from_file(double *state_p) {
 	  nread = fscanf(fid,"%lf",&val);
 	  if(nread!=1) {
 	    fclose(fid);
-	    throw GenericError("Can't read line.");
+	    throw GenericError(__FILE__ ":%d: Can't read line.",__LINE__);
 	  }
 	  if (j>=base) state_p[j-base] = val;
 	}

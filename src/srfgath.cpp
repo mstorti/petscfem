@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: srfgath.cpp,v 1.9 2004/01/29 01:05:22 mstorti Exp $
+//$Id: srfgath.cpp,v 1.10 2004/01/29 21:07:30 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -414,6 +414,14 @@ void SurfGatherer::handle_error(int error) {
   else if (error) Elemset::handle_error(error);
   PETSCFEM_ERROR("%s",s.c_str());  
 }
+
+void field_surf_integrator
+::set_ip_values(vector<double> &pg_values,FastMat2 &u,
+		FastMat2 &xpg,FastMat2 &n,double time) {
+    pg_values[0] = 1.0;
+//     pg_values[1] = xpg.get(1);
+//     pg_values[2] = xpg.get(2);
+  }
 
 #undef SHAPE    
 #undef DSHAPEXI 

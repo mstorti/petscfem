@@ -1,4 +1,4 @@
-# $Id: cubcav.pl,v 1.11 2004/01/29 01:05:26 mstorti Exp $
+# $Id: cubcav.pl,v 1.12 2004/01/29 21:07:30 mstorti Exp $
 require "$ENV{'PETSCFEM_DIR'}/test/eperlini.pl";# Initializes ePerl 
 require "math.pl";
 
@@ -42,7 +42,7 @@ get_var_env2('nu',1/100.);
 $nnwt = 5;
 
 if ($srfgath) {
-    $N = 20;
+    $N = 10;
     $hratio = 3;
     $geom = 'tetra';
     $nnwt = 1;
