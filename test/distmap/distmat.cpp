@@ -1,13 +1,11 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.6 2001/08/13 00:12:43 mstorti Exp $
+// $Id: distmat.cpp,v 1.7 2001/08/13 01:33:28 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
 #include <petsc.h>
 
-#include <fem.h>
-#include <elemset.h>
 #include <utils.h>
 #include <maximizr.h>
 #include <buffpack.h>
@@ -16,10 +14,12 @@
 
 int SIZE, MYRANK, M;
 
-class TrivialPartitioner : public Partitioner {
-  int processor(int dof) {
-    return int((dof*SIZE)/M);
-  }
+class TrivialPartitioner  {
+public:
+  int processor(int dof) { return int((dof*SIZE)/M); };
+  int processor(map<int,Row>::iterator k) {
+    return processor(k->first);
+  };
 };
 
 #define MAT(i,j) VEC2(mat,i,j,M)
@@ -36,7 +36,7 @@ int main(int argc,char **argv) {
   /// Initializes MPI
   PetscInitialize(&argc,&argv,0,0);
 
-  DistMatrix S(part);
+  DistMatrix<TrivialPartitioner> S(&part);
   // MPI_Init(&argc,&argv);
   MPI_Comm_size (MPI_COMM_WORLD, &SIZE);
   MPI_Comm_rank (MPI_COMM_WORLD, &MYRANK);
@@ -87,7 +87,7 @@ int main(int argc,char **argv) {
 
   maxerr.reset();
   for (j=0; j<M; j++) {
-    if (proc(j)==MYRANK) {
+    if (part.processor(j)==MYRANK) {
       err = 0;
       for (k=0; k<M; k++) {
 	e = S.val(j,k);

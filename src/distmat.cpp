@@ -1,5 +1,5 @@
 /*__INSERT_LICENSE__*/
-// $Id: distmat.cpp,v 1.8 2001/08/07 17:09:31 mstorti Exp $
+// $Id: distmat.cpp,v 1.9 2001/08/13 01:33:25 mstorti Exp $
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -13,13 +13,6 @@
 #include <distmat.h>
 
 extern int MY_RANK,SIZE;
-
-// eckel:=  
-// This is required!! See `Thinking in C++, 2nd ed. Volume 1', 
-// by Bruce Eckel (http://www.MindView.net)
-// Chapter 15: `Polymorphism &  Virtual Functions', 
-// paragraph `Pure virtual destructors' 
-Partitioner::~Partitioner() {};
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int DistMat::
@@ -111,35 +104,6 @@ combine(const pair<int,Row> &p) {
     }
   }
 }
-
-void DistMatrix::insert_val(int i,int j,double v) {
-  DistMat::iterator I = find(i);
-  Row::iterator J;
-  if (I == end()) {
-    insert(pair<int,Row>(i,Row()));
-    I = find(i);
-  }
-  Row &row = I->second;
-  J = row.find(j);
-  if (J == row.end()) {
-    row.insert(pair<int,double>(j,v));
-  } else {
-    J->second += v;
-  }
-}
-
-double DistMatrix::val(int i,int j) {
-  Row::iterator J;
-  DistMat::iterator I = find(i);
-  if (I == end()) return 0.;
-  Row &row = I->second;
-  J = row.find(j);
-  if (J == row.end()) {
-    return 0.;
-  } else {
-    return J->second;
-  }
-}  
 
 DofmapPartitioner::
 DofmapPartitioner(const Dofmap *dfm) :  dofmap(dfm) {};

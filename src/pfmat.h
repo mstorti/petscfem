@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.12 2001/08/09 15:15:12 mstorti Exp $
+// $Id: pfmat.h,v 1.13 2001/08/13 01:33:25 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -8,6 +8,26 @@
 
 #include <distmap.h>
 #include <distmat.h>
+
+/// This partitioner is based on the dofmap of the mesh. 
+class DofmapPartitioner  {
+  /// Pointer to the dofmap 
+  const Dofmap *dofmap;
+public:
+  /// Dof partitioning (currently based on ranges of the dof's).  
+  int dofpart(int row);
+  /// Constructor from the dofmap
+  DofmapPartitioner(const Dofmap *dfm);
+  /// Destructor
+  ~DofmapPartitioner();
+  /// interfaces with the DistMap class
+  int processor(map<int,Row>::iterator k) {
+    return dofpart(k->first);
+  }
+};
+
+/// This is the basic distributed matrix class. 
+typedef DistMatrix<DofmapPartitioner> DistMat;
 
 /** This is a wrapper to the PETSc Matrix class and allows us to define
     new types
@@ -211,7 +231,7 @@ class IISDMat : public PFMat {
   /** Here we put all non-local things that are in the loca-local
       block on other processors
   */
-  DistMatrix *A_LL_other;
+  DistMat *A_LL_other;
   /// The mode we are inserting values
   InsertMode insert_mode;
   /// Auxiliar MPI vector that contains all local dof's

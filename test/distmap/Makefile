@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.10 2001/08/13 00:12:43 mstorti Exp $ 
+# $Id: Makefile,v 1.11 2001/08/13 01:33:28 mstorti Exp $ 
 
 #s Local Targets
 #w all tests
@@ -32,7 +32,7 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 
 NPP := $(shell procsel $(PETSCFEM_PROCTABLE))
 
-LDFLAGS := -L/usr/local/lib -lc ${PETSC_SLES_LIB}
+#LDFLAGS := -L/usr/local/lib -lc ${PETSC_SLES_LIB}
 
 #w Builds binary 
 distmap.bin: distmap.o # libpetscfem
@@ -47,7 +47,7 @@ distmat.bin: distmat.o ../../src/libpetscfem.a(lusubd.o)
 	-rm -f $@
 	${CXX_CLINKER} -o $@ distmat.o $(LIBPETSCFEM) $(LDFLAGS) 
 
-tryme: tryme.cpp
-	g++ -o tryme tryme.cpp
+tryme.bin: tryme.cpp
+	g++ -o tryme.bin tryme.cpp
 
 #s
