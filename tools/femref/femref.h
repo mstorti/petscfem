@@ -1,12 +1,13 @@
 // -*- mode: c++ -*-
 //__INSERT_LICENSE__
-// $Id: femref.h,v 1.7 2004/11/18 21:05:31 mstorti Exp $
+// $Id: femref.h,v 1.8 2004/11/18 23:34:05 mstorti Exp $
 #ifndef PETSCFEM_FEMREF_H
 #define PETSCFEM_FEMREF_H
 
 #include <list>
 #include <src/dvector.h>
 #include <src/dvector2.h>
+#include <src/linkgraph.h>
 #include <src/generror.h>
 
 typedef unsigned int Node;
@@ -133,6 +134,8 @@ private:
   dvector<int> tri;
   dvector<int> nod_adj;
   int ndim;
+  LinkGraph lgraph;
+  int nnod, nelem, nel;
 public:
   class iterator { 
   private:
@@ -143,13 +146,34 @@ public:
   };
   void get_adacency(const GeomObject &g1,int dim,
 		    std::list<iterator> &li) { }
-  Mesh() { 
-    coords.reshape(2,ndim,0);
-    tri.reshape(2,3,0);
+  Mesh(int ndim_a,int nel_a) 
+    : ndim(ndim_a), nel(nel_a) { 
+    coords.reshape(2,0,ndim);
+    tri.reshape(2,0,nel);
   }
   void read(const char *node_file,const char *conn_file) {
     coords.cat(node_file);
     tri.cat(conn_file);
+    nnod = coords.size(0);
+    nel = tri.size(1);
+    lgraph.init(nnod);
+    nelem = tri.size(0);
+    for (int ele=0; ele<nelem; ele++) {
+      for (int k=0; k<nel; k++) {
+	int node = tri.e(ele,k);
+	printf("add node %d, elem %d\n",node,ele);
+	lgraph.add(node,ele);
+      }
+    }
+    GSet ngbrs;
+    for (int node=0; node<nnod; node++) {
+      printf("node %d, elems ",node);
+      ngbrs.clear();
+      lgraph.set_ngbrs(node,ngbrs);
+      GSet::iterator p = ngbrs.begin();
+      while (p!=ngbrs.end()) printf("%d ",*p++);
+      printf("\n");
+    }
   }
 };
 

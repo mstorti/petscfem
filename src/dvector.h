@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector.h,v 1.16 2003/08/14 11:37:07 mstorti Exp $
+// $Id: dvector.h,v 1.17 2004/11/18 23:34:17 mstorti Exp $
 #ifndef DVECTOR_H
 #define DVECTOR_H
 #include <cstdarg>
@@ -26,7 +26,7 @@ private:
   /// Pointer to the shape vector
   int *shape_p;
   /// rank of the tensor (number of indices)
-  int rank;
+  int rank_m;
   /// pointer to STL storage array in chunk_vector
   T **chunks;
   /** Find in what chunk, in what position 'k' is 'j'
@@ -197,6 +197,19 @@ public:
       @param rank (input) number of dimensions. 
       @param ap (input) the list of dimensions, as a variadic macro */ 
   dvector<T> &reshapev(int rank_a,va_list ap);
+
+  /** Returns the dimension of the #dim# index. 
+      @param dim (input) the index. 
+      @return The dimension for index #dim# */ 
+  int size(int dim) const;
+
+  /** Returns the rank of the array. 
+      @return the rank of the array. */ 
+  int rank() const;
+
+  /** Recompute the shape vector. Verify that
+      #size()# is comptaible with the given shape. */ 
+  void recompute_shape();
 
   /** Array resize the dynamic vector. Resizes and reshapes the vector
       by defining its rank and list of dimensions. 

@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: dvector2.h,v 1.20 2004/10/22 17:33:53 mstorti Exp $
+// $Id: dvector2.h,v 1.21 2004/11/18 23:34:17 mstorti Exp $
 #ifndef PETSCFEM_DVECTOR2_H
 #define PETSCFEM_DVECTOR2_H
 
@@ -77,7 +77,7 @@ dvector<T>::dvector(int cs) {
   chunks = NULL;
   size_m = nchunks = 0;
   shape_p = &*shape.begin();
-  rank = 1;
+  rank_m = 1;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -227,12 +227,13 @@ int dvector<T>::print(FILE *fid,T t) { return 1; }
 template<class T>
 dvector<T>& dvector<T>::read(FILE *fid) {
   // Currently for vectors only (reshape after)
-  // assert(rank==1);
+  // assert(rank_m==1);
   int m=size();
   for (int j=0; j<m; j++) {
     int ierr = read(fid,ref(j));
     assert(!ierr);
   }
+  recompute_shape();
   return *this;
 }
 
@@ -261,6 +262,7 @@ dvector<T>& dvector<T>::cat(FILE *fid) {
     push(val);
     nread++;
   }
+  recompute_shape();
   return *this;
 }
 
@@ -374,11 +376,11 @@ int dvector<T>::remove_unique(int first, int last) {
 template<class T>
 dvector<T> &
 dvector<T>::reshapev(int rank_a,va_list ap) {
-  rank = rank_a;
-  assert(rank>0);
+  rank_m = rank_a;
+  assert(rank_m>0);
   int new_size=1;
   shape.clear();
-  for (int j=0; j<rank; j++) {
+  for (int j=0; j<rank_m; j++) {
     int d = va_arg (ap, int);
     assert(j==0 || d>=0);
     new_size *= d;
@@ -401,14 +403,36 @@ dvector<T>::reshape(int rank_a,...) {
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 template<class T>
+void dvector<T>::recompute_shape() {
+  int odim = 1;
+  for (int k=1; k<rank_m; k++) odim *= shape[k];
+  assert(size() % odim ==0);
+  shape[0] = size()/odim;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+int dvector<T>::size(int dim) const {
+  assert(dim<shape.size());
+  return shape[dim];
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
+int dvector<T>::rank() const {
+  return shape.size();
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+template<class T>
 dvector<T> &
 dvector<T>::a_resize(int rank_a,...) {
-  rank = rank_a;
+  rank_m = rank_a;
   va_list ap;
   va_start(ap,rank_a);
-  assert(rank>0);
+  assert(rank_m>0);
   int new_size=1;
-  for (int j=0; j<rank; j++) {
+  for (int j=0; j<rank_m; j++) {
     int d = va_arg (ap, int);
     new_size *= d;
     assert(d>=0);
@@ -416,7 +440,7 @@ dvector<T>::a_resize(int rank_a,...) {
   resize(new_size);
 
   va_start(ap,rank_a);
-  reshapev(rank,ap);
+  reshapev(rank_m,ap);
   return *this;
 }
 
@@ -428,7 +452,7 @@ const T& dvector<T>::ev(int j,va_list ap) const { return ev(j,ap); }
 template<class T>
 T& dvector<T>::ev(int j,va_list ap) {
   int pos = j;
-  for (int k=1; k<rank; k++) pos = pos*shape_p[k]+va_arg(ap,int);
+  for (int k=1; k<rank_m; k++) pos = pos*shape_p[k]+va_arg(ap,int);
   return ref(pos);
 }
 
@@ -492,3 +516,4 @@ dvector<T>::export_vals(T* array) const {
 }
 
 #endif
+
