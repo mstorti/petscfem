@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.57 2003/11/16 13:19:46 mstorti Exp $
+#$Id: Makefile,v 1.58 2003/11/24 03:40:58 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -20,7 +20,7 @@ SRCS :=
 
 DEPEND_DIRS := $(SRCDIRS)
 
-SWDIRS := tools test 
+SWDIRS := tools test doc
 
 #p [in Makefile]
 
@@ -43,7 +43,6 @@ local_sw::
 		./doc/manual/vrfdocpp.pl ./src/insdeb.pl ./doc/fixul.pl
 	$(MAKE) sync_version depend tags 
 	cd tools; ln -sf hexenco.pl ident2iso ; ln -sf hexenco.pl iso2ident
-	$(MAKE) -C doc readme
 
 local_clean::
 	cd tools ; rm -f ident2iso ; rm -f iso2ident

@@ -44,8 +44,7 @@
   "Basic colorization scheme for PETSc-FEM. ")
 ;;
 (defvar petscfem-dir
-  (let ((dir (getenv "PETSCFEM_DIR")))
-    (when dir (setq petscfem-dir dir)))
+  (getenv "PETSCFEM_DIR")
   "The root directory of the PETSc-FEM installation.")
 ;;
 (defvar petscfem-info-file
@@ -74,7 +73,7 @@
       (error "Probably not in a PETSc-FEM options info buffer!!"))
     (forward-char 2)
     (let ((beg (point)))
-      (cond (not (search-forward ">>"))
+      (when (not (search-forward ">>"))
 	    (error "Probably not in a PETSc-FEM options info buffer!!"))
       (forward-char -2)
       (princ (format "Yanked: \"%s\"" (buffer-substring beg (point))))

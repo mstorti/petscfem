@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-;;; $Id: petscfem-init.el,v 1.3 2003/11/24 00:23:50 mstorti Exp $
+;;; $Id: petscfem-init.el,v 1.4 2003/11/24 03:40:58 mstorti Exp $
 
 ;; You can replace this by a straight path, i.e. 
 ;; (defvar petscfem-info-file "/home/bob/petscfem/options.info")
@@ -54,6 +54,10 @@
 ;; data file. See the Emacs section in the PETSc-FEM documentation. 
 (define-key Info-mode-map (kbd "c") 'my-Info-lookup-copy-keyword)
 (define-key Info-mode-map (kbd "x") 'my-Info-bury-and-kill)
+
+;; Associate `.epl' and `.depl' extensions with PETSc-FEM 
+(setq auto-mode-alist 
+      (cons '("\\.\\(\\|d\\)epl$" . petscfem-mode) auto-mode-alist))
 
 (provide 'petscfem-init)
 ;;; petscfem-init.el ends here

@@ -23,8 +23,6 @@ $patm = 1e5;			# Atmosferic pressure
 $ctff_fac = 1e-3;		# Cutoff threshold for $XX is $ctff_fac*$XX
 $Nb_fac = 1e-3;			# Non perturbed flow has Nb scaled bu this
 
-
-
 ## At inlet ===============================================
 #
 $vb = 4/3*$PI*$rb**3.0;		# bubble volume
@@ -54,7 +52,7 @@ $CdN_ctff = $ctff_fac*$CdN;
 transcript("", @vars);	# print variables on output
 octave_export_vars(">data.m.tmp",@vars);
 :>//                            # ends ePerl block
-$
+
 #================================================================
 global_options
 

@@ -4,9 +4,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* List grants in docx
+* List grants in doc
 * Add `dataflow.obj' to doc.
-* Document `shell-hooks'. 
 * Let `upload_vector_fast' to have several masks with integer values,
   e.g. [1 1 1 0 0; 1 1 1 0 0; 1 1 1 2 2; 0 0 2 2 2; 0 0 2 2 2]
 * Finish completing_read with petscfem_options
@@ -131,6 +130,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Document `shell-hooks'. 
 * Add doc for block_uploading
 * Add doc for new features in `myexpect.pl' (__SWITCH_FILE__, 
       variable match, working directory)

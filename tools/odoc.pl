@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #__INSERT_LICENSE__
-# $Id: odoc.pl,v 1.20 2003/11/19 02:25:08 mstorti Exp $
+# $Id: odoc.pl,v 1.21 2003/11/24 03:40:58 mstorti Exp $
 
 @odoc=();
 
@@ -169,8 +169,9 @@ EOT
 
 #foreach my $r (@doclist) { print "$r->[0]\n"; }
 
-die "couldn't open $opt_o\n" unless open TEXOUT,">$opt_o";
-/`/;
+if ($opt_o) {
+    die "couldn't open \"$opt_o\"\n" unless open TEXOUT,">$opt_o";
+    /`/;
 $warn = <<EOT;
 %-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>-----<>
 % DON'T EDIT MANUALLY THIS FILE !!!!!!
@@ -180,14 +181,15 @@ $warn = <<EOT;
 EOT
 /`/;
 
-print TEXOUT $warn;
-foreach $doc (@doclist) {
-    print TEXOUT "$doc->[3]";
+    print TEXOUT $warn;
+    foreach $doc (@doclist) {
+	print TEXOUT "$doc->[3]";
+    }
+    print TEXOUT $warn;
+    close TEXOUT;
 }
-print TEXOUT $warn;
-close TEXOUT;
 
-## No more used now a tags table is generated below
+## No more used now an info file is generated below
 if (0 && $opt_e) {
     my %h = ();
     foreach $doc (@doclist) { $h{$doc->[0]} = 1; }
@@ -203,7 +205,7 @@ if (0 && $opt_e) {
 
 %marked = ();
 if ($opt_e) {
-    open TEXI,">options2.texi";
+    die "can't open \"$opt_e\"" unless open TEXI,">$opt_e";
     foreach $doc (@doclist) { 
 	my $d = $doc->[5];
 	$d =~ s/@/@@/g;

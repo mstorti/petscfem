@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: shllhook.cpp,v 1.4 2003/07/29 20:47:52 mstorti Exp $
+//$Id: shllhook.cpp,v 1.5 2003/11/24 03:40:58 mstorti Exp $
 
 #include <string>
 #include <cstdlib>
@@ -44,7 +44,7 @@ void shell_hook::time_step_post(double time,int step,
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 void shell_hook::close() {
   if (!MY_RANK) {
-    command.sprintf(command_pattern.str(),"close",-1,0.);
+    command.sprintf(command_pattern.str(),"close",-2,0.);
     system(command.str());
     command.clear();
     command_pattern.clear();
