@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: pfmat.h,v 1.28 2001/12/08 12:29:56 mstorti Exp $
+// $Id: pfmat.h,v 1.29 2001/12/09 13:40:20 mstorti Exp $
 #ifndef PFMAT_H
 #define PFMAT_H
 
@@ -10,6 +10,7 @@
 #include <src/getprop.h>
 #include <src/distmap.h>
 #include <src/distmat.h>
+#include <src/graph.h>
 
 /// This partitioner is based on the dofmap of the mesh. 
 class DofmapPartitioner : public IntRowPartitioner {
@@ -27,6 +28,12 @@ public:
     return dofpart(k->first);
   }
 };
+
+class DofPartitioner {
+public:
+  ~DofPartitioner()=0;
+  virtual int processor(int j)=0;
+}
 
 //#define PFFSM
 #ifdef PFFSM
@@ -121,6 +128,17 @@ public:
   */ 
   virtual void create(Darray *da,const Dofmap *dofmap_,
 		      int debug_compute_prof=0)=0;
+
+  /** Creates the matrix from the profile graph computed in #g#
+      @param graph (input) the graph defining the profile of the
+      matrix. 
+      @param part (input) a partitioner that determines to which
+      processor belongs each unknown
+      @param debug_compute_prof (input) flags whether to print
+      debugging information or not
+  */ 
+  virtual void create(Graph &graph,DofPartitioner &part,
+		      int debug_compute_prof=0);
 
   /** Sets individual values on the operator #A(row,col) = value#
       @param row (input) first index
