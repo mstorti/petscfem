@@ -27,7 +27,7 @@ if ($case_name =~ /cone/) {
     $nstep = ceil($Tend/$Dt);
     $case_name = 'cone';
 } 
-
+#
 if ($case_name =~ /rotating_cone/) {
     $N = 150;
     $M = 30;
@@ -57,16 +57,17 @@ save_file "save.state.tmp"
 save_file_pattern "outvector.out.tmp"
 #if $case_name eq 'skew'
 steady
+nstep 1
 #elsif $case_name =~ /cone/
 <:pr('Dt'):>
 nsave 10
 nsaverot 10
 initial_state "advec.ini.tmp"
+<:pr('nstep'):>
 #endif
 solver "iisd"
 iisd_subpart 1
 nnwt 1
-<:pr('nstep'):>
 <:pr('alpha'):>
 weak_form 0
 __END_HASH__

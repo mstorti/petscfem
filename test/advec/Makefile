@@ -1,9 +1,9 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.4 2002/12/14 14:42:49 mstorti Exp $ 
+# $Id: Makefile,v 1.5 2002/12/14 21:19:05 mstorti Exp $ 
 
 .PHONY: force all run default
 
-default: rotating_cone
+default: skew
 
 PETSCFEM_DIR = ../..
 include $(PETSCFEM_DIR)/Makefile.base
@@ -13,7 +13,10 @@ SRCS =
 #s Linear Advection tests
 LOC_PROG := advdif
 CASE_NAME := advec
-PROG := $(ADVDIF_O)
+PROG := $(ADVDIF_G)
+
+skew:
+	$(MAKE) case_name=skew run
 
 cone:
 	$(MAKE) case_name=cone run
