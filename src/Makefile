@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.29 2001/09/24 03:42:14 mstorti Exp $ 
+# $Id: Makefile,v 1.30 2001/09/27 03:43:57 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -11,7 +11,7 @@ LIBOBJS_ = gpdata texthash readmesh elemset elemlist \
 	  dofmap fem idmap arglist version util2 \
 	  fstack tempfun fastmat2 fm2eperl \
 	  measperf mainutl sttfilter state secant getarray lusubd \
-	distmat sparse randomg spsolve
+	distmat sparse randomg spsolve sparseMatrixFSM
 
 # C files
 CLIBOBJS_ =  getarrgr.tab
@@ -56,6 +56,11 @@ fm2eperl.o: fm2eperl.cpp
 fm2eperl.cpp: fmat2ep.cpp prep.pl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	eperl -B '//<' -E '//>' $< > $@ ; chmod -w $@
+
+FSM = matFSM
+$(FSM).cpp $(FSM).h: sparse.sm
+	$(SMC) < $<
+	mv -f $(FSM).cc $(FSM).cpp
 
 # This doesn't compile with -O2
 #measperf.o: CCPPFLAGS += -O1 // this doesn't work with the old 'make'

@@ -1,0 +1,15 @@
+
+Context MatFSMContext   // the name of the context class
+FSMName MatFSM // the name of the FSM to create
+Initial clean
+Header  sparse.h      // the name of the header file of the context class
+
+{
+clean fill filled {}
+filled solve factored { factor back_subst }
+factored solve factored back_subst
+filled factor factored factor
+factored fill filled clean_factor
+factored clear clean { clean_factor clean_mat }
+filled clear clean { clean_mat }
+}

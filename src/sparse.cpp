@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.17 2001/09/24 20:14:51 mstorti Exp $
+//$Id: sparse.cpp,v 1.18 2001/09/27 03:43:57 mstorti Exp $
 
 #include "sparse.h"
 
@@ -426,6 +426,7 @@ namespace Sparse {
 
   /// Set element at position j
   Mat & Mat::set(int j,int k,double v) {
+    fsm.fill();
     RowIt J;
     Vec row;
     if (j >= nrows ) {
@@ -456,7 +457,7 @@ namespace Sparse {
     return *this;
   }
 
-  void Mat::print(const char *s = NULL) {
+  void Mat::print(const char *s = NULL) const {
     RowCIt i,e;
     if (s) printf("%s\n",s);
 
@@ -469,7 +470,7 @@ namespace Sparse {
     printf("-- end mat --\n");
   }
 
-  void Mat::print_f(const char *s = NULL) {
+  void Mat::print_f(const char *s = NULL) const {
     RowCIt i,e;
     int j,k;
     if (s) printf("%s\n",s);
@@ -486,6 +487,7 @@ namespace Sparse {
 
   /// Resize vectors, truncates elements if greater than this value
   Mat & Mat::resize(int m,int n) {
+    fsm.fill();
     RowIt i,e;
 
     i = lower_bound(m);
@@ -499,6 +501,7 @@ namespace Sparse {
   }
 
   Mat & Mat::setr(int j,Vec &v) {
+    fsm.fill();
     RowIt J = find(j);
     int v_empty;
 
@@ -524,6 +527,7 @@ namespace Sparse {
   }
 
   Mat & Mat::setc(int j,const Vec &v) {
+    fsm.fill();
     RowIt r;
     VecCIt k,e;
 
@@ -558,6 +562,7 @@ namespace Sparse {
   }
 
   Mat & Mat::setr(const Mat & a,Indx &J) {
+    fsm.fill();
     int j,m,p;
     Vec row;
     
@@ -574,6 +579,7 @@ namespace Sparse {
   }
 
   Mat & Mat::setc(const Mat & a,Indx &J) {
+    fsm.fill();
     RowCIt r,e;
     int m;
     Vec row;
@@ -591,6 +597,7 @@ namespace Sparse {
   }
 
   Mat & Mat::id(double a=1.) {
+    fsm.fill();
     assert(nrows==ncols);
     clear();
     for (int j=0; j<nrows; j++) set(j,j,a);
@@ -598,6 +605,7 @@ namespace Sparse {
   }
 
   Mat & Mat::diag(const Vec & v) {
+    fsm.fill();
     int m,j;
     VecCIt i,e;
 
@@ -634,6 +642,7 @@ namespace Sparse {
   Mat & Mat::random_fill(double fill=0.1,Generator & g=uniform) {
     int j,k,l,m,n;
 
+    fsm.fill();
     clear();
     m = rows();
     n = cols();
@@ -653,6 +662,7 @@ namespace Sparse {
     int j,k,n,m,p;
     double a_jk;
 
+    fsm.fill();
     m = rows();
     n = cols();
     p = a.cols();
@@ -681,6 +691,7 @@ namespace Sparse {
 
   Vec & Vec::apply(const ScalarFunObj & fun) {
     VecIt i;
+
     for (i=begin(); i!=end(); i++) 
       i->second = fun.fun(i->second);
     return *this;
@@ -747,6 +758,8 @@ namespace Sparse {
 
   Mat & Mat::apply(const ScalarFunObj & fun) {
     RowIt i;
+
+    fsm.fill();
     for (i=begin(); i!=end(); i++) 
       i->second.apply(fun);
     return *this;
@@ -754,6 +767,8 @@ namespace Sparse {
 
   /// Apply a scalar function with args to all elements
   Mat & Mat::apply(ScalarFunD *fun,void * user_data = NULL) {
+
+    fsm.fill();
     scalar_fun_wrapper.user_data = user_data;
     scalar_fun_wrapper.sf = NULL;
     scalar_fun_wrapper.sfd = fun;
@@ -762,6 +777,8 @@ namespace Sparse {
 
   /// Apply a scalar function with no args to all elements
   Mat & Mat::apply(ScalarFun *fun) {
+
+    fsm.fill();
     scalar_fun_wrapper.user_data = NULL;
     scalar_fun_wrapper.sf = fun;
     scalar_fun_wrapper.sfd = NULL;
@@ -830,6 +847,7 @@ namespace Sparse {
     Vec row,rowa;
     int n,jj;
 
+    fsm.fill();
     n=cols();
     assert(a.cols()==n);
     assert(rows()==a.rows());
@@ -851,6 +869,11 @@ namespace Sparse {
     }
     return *this;
   }
+
+#include "matFSM.h"
+#include "matFSM.cpp"
+
+
 
 }
 

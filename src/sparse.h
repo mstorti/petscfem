@@ -1,6 +1,6 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: sparse.h,v 1.17 2001/09/25 03:02:43 mstorti Exp $
+// $Id: sparse.h,v 1.18 2001/09/27 03:43:57 mstorti Exp $
 #ifndef SPARSE_H
 #define SPARSE_H
 
@@ -14,7 +14,7 @@
 #include <SRC/util.h>
 #include <SRC/dsp_defs.h>
 
-#include <randomg.h>
+#include "randomg.h"
 
 using namespace Random;
 
@@ -329,6 +329,22 @@ namespace Sparse {
   typedef pair<int,Vec> RowP;
   typedef pair<const int,Vec> RowCP;
 
+  class MatFSMContext {
+  public:
+    Mat * matrix_p;
+    MatFSMContext() {};
+    void factor() {};
+    void back_subst() {};
+    void clean_factor() {}; 
+    void clean_mat() {};
+
+    void FSMError(const char *e,const char *s) { 
+      printf("Not valid \"%s\" event in state \"%s\"",e,s);
+    }
+  };
+
+#include "matFSM.h"
+
     // Simple sparse matrix class. 
   class Mat : public map< int, Vec >  {
 
@@ -342,22 +358,26 @@ namespace Sparse {
     /// Factored matrix
     SuperMatrix A,L,U,B;
     int *perm_r, *perm_c;
+    
+    void init_fsm(Mat *) {fsm.matrix_p = this;};
   public:
 
-    enum Status {clean, filled, factored} status;
+    friend class MatFSM;
+    MatFSM fsm;
 
     friend class GenVec;
     friend class Vec;
 
     /// Constructor from the length
-    Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n), status(clean) {};
+    Mat(int m=0,int n=0) : grow_m(1), nrows(m), ncols(n)
+			   { init_fsm(this);};
 
     /// Return row dimension
     int rows() const {return nrows;};
     /// Return column dimension
     int cols() const {return ncols;};
     /// Constructor from another vector
-    Mat(const Mat &a) {*this = a;};
+    Mat(const Mat &a) {*this = a; init_fsm(this);};
 
     /// Get element at specified position: v = w(j,k)
     double get(int j,int k) const;
@@ -424,9 +444,9 @@ namespace Sparse {
     accum(v,sum_pow_accum); return v;};
 
     /// print elements (sparse version)
-    void print(const char *s = NULL);
+    void print(const char *s = NULL) const;
     /// print elements (full version)
-    void print_f(const char *s = NULL);
+    void print_f(const char *s = NULL) const;
 
     /// Resize vectors, truncates elements if greater than this value
     Mat & resize(int m,int n);
