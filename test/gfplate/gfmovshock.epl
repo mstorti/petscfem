@@ -23,7 +23,7 @@ nsome 1
 #endif
 
 save_file_pattern "STEPS/gfmovshock.state_%d.tmp"
-nsaverot 20
+nsaverot 1
 nrec 1
 nfile 100000000
 
@@ -52,8 +52,8 @@ nnwt 2
 print_internal_loop_conv
 # print_linear_system_and_stop
 # solve_system 0
-Dt 0.004
-shocap 0.5
+<:pr('Dt'):>
+shocap 0.1
 weak_form 0
 temporal_stability_factor 0
 
@@ -97,7 +97,6 @@ npg 4
 # lumped_mass
 data ./gfmovshock.con.tmp
 __END_HASH__
-
 
 end_elemsets
 

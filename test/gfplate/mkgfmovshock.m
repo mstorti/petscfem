@@ -1,11 +1,14 @@
-## $Id: mkgfmovshock.m,v 1.2 2005/02/08 01:03:14 mstorti Exp $
+## $Id: mkgfmovshock.m,v 1.3 2005/02/08 01:49:15 mstorti Exp $
 source("data.m.tmp");
 
 ## Nbr of elements along `y' 
 Ny = pery;
 
+## Mesh step in `x' direction
+hx = Lx/Nx;
+
 ## Basic mesh
-w = zhomo([0 pery*Lx/Nx 0 Lx],pery+1,Nx+1);
+w = zhomo([0,pery*Lx/Nx,0,Lx],pery+1,Nx+1);
 [xnod,icone] = pfcm2fem(w);
 xnod = xnod(:,[2 1]);
 nnod = size(xnod,1);
@@ -57,6 +60,13 @@ c2 = u2/M2;
 rho2 = u1*rho1/u2;
 p2 = c2^2*rho2/gamma;
 
+## Maximum velocity for computing time step
+vmax = max([abs(u1)+c1,abs(u2)+c2]);
+Dt = hx/vmax;
+fid = fopen("gfmovshock.octave-out.tmp","w");
+fprintf(fid,"$Dt = %f;\n",Dt);
+fclose(fid);
+
 U1 = [rho1,u1+du*nor',p1];
 U2 = [rho2,u2+du*nor',p2];
 
@@ -67,9 +77,8 @@ nnod = rows(xnod);
 Lnor = Lx*nor(1);		# Domain length along
 				# normal direction
 dfx = (xx>0.1*Lnor) & (xx<0.4*Lnor);
-Uini(1:nnod,:) = U1(ones(nnod,1),:);
-dw = U2-U1;
+Uini(1:nnod,:) = U2(ones(nnod,1),:);
+dw = U1-U2;
 Uini(1:nnod,:) = Uini(1:nnod,:) + dfx*dw;
-
 
 asave("gfmovshock.ini.tmp",Uini);

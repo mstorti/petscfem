@@ -14,12 +14,15 @@ $gamma = 1.4;
 $Rgas = 1;
 $rhoref = 1;
 $Tref = 1;
+$Co = 1;			# Courant number
 
 @vars = qw(Lx Nx perx pery Machin
-	   gamma Rgas rhoref Tref);
+	   gamma Rgas rhoref Tref Co);
 octave_export_vars(">data.m.tmp",@vars);
 
 system "octave -qH mkgfmovshock.m";
 system "echo -n > gfmovshock.some-rslt.tmp";
+
+require './gfmovshock.octave-out.tmp';
 
 1;
