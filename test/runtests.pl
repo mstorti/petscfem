@@ -561,6 +561,10 @@ file ok. 1
 EOT
 
 #------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
+expect("fstack/test_autostr.output.tmp","AutoString class.",
+               read_file('fstack/test_autostr.output.ans'));
+
+#------/*/------/*/------/*/------/*/------/*/------/*/------/*/ 
 expect("texthash/tthash.sal","TextHashTable class",<<'EOT');
 Global counting OK
 EOT

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-// $Id: autostr.cpp,v 1.5 2003/05/04 16:20:18 mstorti Exp $
+// $Id: autostr.cpp,v 1.6 2003/05/04 16:28:15 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdlib>
 #include <cstring>
@@ -34,44 +34,47 @@ void AutoString::resize(int m) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::clear() {
+AutoString & AutoString::clear() {
   resize(1);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::cat(const AutoString &as) { 
+AutoString & AutoString::cat(const AutoString &as) { 
   int my_len = len();
   resize(my_len + as.len()+1);
   strcpy(s+my_len, as.str());
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::vsprintf(const char *f,va_list ap) { 
+AutoString &  AutoString::vsprintf(const char *f,va_list ap) { 
   n = vasprintf(&s,f,ap);
+  return *this;
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::sprintf(const char *f,...) {
+AutoString &  AutoString::sprintf(const char *f,...) {
   va_list ap;
   va_start(ap,f);
-  vsprintf(f,ap);
+  return vsprintf(f,ap);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 int AutoString::len() const { return strlen(s); }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::vcat_sprintf(const char *f,va_list ap) {
+AutoString & AutoString::vcat_sprintf(const char *f,va_list ap) {
   AutoString t;
   t.vsprintf(f,ap);
-  cat(t);
+  return cat(t);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::cat_sprintf(const char *f,...) {
+AutoString &  AutoString::cat_sprintf(const char *f,...) {
   va_list ap;
   va_start(ap,f);
-  vcat_sprintf(f,ap);
+  return vcat_sprintf(f,ap);
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
@@ -83,8 +86,46 @@ int AutoString::getline(FILE *fid) {
 }
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
-void AutoString::cat(const char *ss) { 
+AutoString & AutoString::cat(const char *ss) { 
   int my_len = len();
   resize(my_len + strlen(ss)+1);
   strcpy(s+my_len,ss);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+AutoString &  AutoString::set(const char *ss) { 
+  clear();
+  return cat(ss);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+AutoString & AutoString::set(const AutoString &as) { 
+  clear();
+  return cat(as);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+AutoString & AutoString::vfprintf(FILE *fid,va_list ap) {
+  ::vfprintf(fid,str(),ap);
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+AutoString & AutoString::fprintf(FILE *fid,...) {
+  va_list ap;
+  va_start(ap,fid);
+  return vfprintf(fid,ap);
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+const AutoString & AutoString::print() const {
+  printf("%s",str());
+  return *this;
+}
+
+//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
+AutoString & AutoString::print() {
+  printf("%s",str());
+  return *this;
 }

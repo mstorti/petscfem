@@ -1,15 +1,25 @@
 /*__INSERT_LICENSE__*/
-//$Id: tautostr.cpp,v 1.1 2003/02/16 15:15:53 mstorti Exp $
+//$Id: tautostr.cpp,v 1.2 2003/05/04 16:28:15 mstorti Exp $
 #define _GNU_SOURCE
 #include <cstdio>
 #include <src/autostr.h>
 
 int main () {
-  AutoString s,t;
+  AutoString s,t,u;
   int k=4,l=5,m=45,n=456;
-  s.sprintf("<asjhas ajhs ajsh %d ajsh %d %d %d>",k,l,m,n);
-  t.sprintf("<asjhas ajhs ajsh %d ajsh %d wewe we %d wewe wwewe we %d>",k,l,m,n);
-  s.cat(t);
-  s.cat_sprintf("<asjhas %d %d ajsh %d we %d>",k,l,m,n);
-  printf("\"%s\"\n",s.str());
+  s.sprintf("<This is string 1. A number: %d, other nubers: %d, %d, %d.>",k,l,m,n);
+  t.sprintf("<This is string 2. Numbers: %d, %d, %d, %d.>",k,l,m,n);
+  s.cat("\n")
+    .cat(t)
+    .cat("\n")
+    .cat_sprintf("<String 3. Numbers %d, %d. Other %d, and %d.>",k,l,m,n)
+    .cat("\n")
+    .print();
+
+  printf("\n\ns 2 times:\n");
+  u.set(s)
+    .cat("\n")
+    .set(s)
+    .cat("\n")
+    .print();
 }
