@@ -3190,3 +3190,15 @@ tag: beta-3.27.pl11 on Sun, 18 Jan 2004 19:54:12 -0300 by mstorti in spider
 ----------
 tag: beta-3.27.pl12 on Sun, 18 Jan 2004 20:25:43 -0300 by mstorti in spider
      > Moved EPSI directory from doc/EPSI to doc/OBJ/EPSI
+----------
+tag: beta-3.29 on Mon, 19 Jan 2004 18:55:10 -0300 by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Fixed `bcconv' normal orientation policy. 
+     > Added test with reference solution for cubic cavity at Re=100. 
+     > Modified the Makefile structure for the `newff' tests directory. 
+     > Added test for shallow water 1D + absorbing b.c.
+     > Added `ask' function for `advdif/id'.
+     > Added constant bubble radius option to `gaschem'. 
+     > Written `SyncBuffer' and `KeyedOutputBuffer' classes. 
+     >    (Replace PetscSynchronizedPrintf)
+     > Moved EPSI directory from doc/EPSI to doc/OBJ/EPSI
