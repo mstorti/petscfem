@@ -72,6 +72,7 @@ sub optval {
     return $option;
 }
 
+# usage readm(IDENT,FILE)
 sub readm {
     my ($ident,$file)=@_;
     die "Couldn't open file $file\n" unless open MFILE,"$file";
@@ -85,6 +86,32 @@ sub readm {
     die "Couldn't find line \"$ident = <value>\"";
     
 }
+
+sub import_vals {
+    my %vars=();
+    my ($file)=@_;
+    die "Couldn't open file $file\n" unless open MFILE,"$file";
+    my $read=1;
+    print "# --- START READ FROM \"$file\" ----\n";
+    while (<MFILE>) {
+	if (/^.__ENDS_READING_VARS__$/) {
+	    $read=0;
+	    next;
+	}
+	if (/^.__START_READING_VARS__$/) {
+	    $read=1;
+	    next;
+	}
+	next if !$read;
+	if (/^\s*(\w*)\s*=(\S*);/) {
+	    $vars{$1} = $2;
+	    print "$1 $2\n"
+	}
+    }
+    print "# --- END READ FROM \"$file\" ----\n";
+    return \%vars;
+}
+    
 
 sub readm_all {
     my @read_var=();

@@ -119,7 +119,7 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 #endif
   }
 
-  FastMat2 matlocf(4,nel,ndof,nel,ndof),matlocf_mass(4,nel,ndof,nel,ndof);
+  FastMat2 matlocf(4,nel,ndof,nel,ndof);
   if (comp_prof) {
     jac_prof = &arg_data_v[0];
     matlocf.set(1.);
@@ -127,18 +127,6 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
   //o Use the weak form for the Galerkin part of the advective term. 
   NSGETOPTDEF(int,weak_form,1);
-  //o Weights the temporal term with $N+\beta P$, i.e.
-  // $\beta=0$ is equivalent to waight the temporal term a la 
-  // Galerkin and $\beta=1$ is equivalent to do the consistent SUPG weighting.
-  NSGETOPTDEF(double,beta_supg,1.);
-  //o Use lumped mass (used mainly to avoid oscillations for small time steps).
-  NSGETOPTDEF(int,lumped_mass,0);
-
-  // lumped_mass:= If this options is activated then all the inertia
-  // term matrix comtributions are added to 'matlocf_mass' and the
-  // vector contribution terms are discarded. Then at the last moment
-  // matlocf_mass*(Un-Uo)/Dt is added.
-
   // Allocate local vecs
   FMatrix veccontr(nel,ndof),xloc(nel,ndim),locstate(nel,ndof), 
     locstateo(nel,ndof),locstaten(nel,ndof),
@@ -206,7 +194,6 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
     mass.set(0.);
     lmass.set(0.);
     matlocf.set(0.);
-    if (lumped_mass) matlocf_mass.set(0.);
 
 #define DSHAPEXI (*gp_data.FM2_dshapexi[ipg])
 #define SHAPE    (*gp_data.FM2_shape[ipg])
@@ -260,28 +247,18 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 
 	if (lambda_max_pg>lambda_max) lambda_max=lambda_max_pg;
 
-	tmp10.set(G_source);	// tmp10 = G - dUdt
-	if (!lumped_mass) tmp10.rest(dUdt);
-	if (beta_supg==1.) {
-	  tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
-	} else {
-	  tmp1.set(dUdt).scale(-beta_supg).add(G_source);
-	}
+	tmp10.set(G_source).rest(dUdt);	// tmp10 = G - dUdt
+	tmp1.rs().set(tmp10).rest(A_grad_U); //tmp1= G - dUdt - A_grad_U
 
 	tmp15.set(SHAPE).scale(wpgdet/DT);
 	tmp12.prod(SHAPE,tmp15,1,2); // tmp12 = SHAPE' * SHAPE
 	tmp13.prod(tmp12,eye_ndof,1,3,2,4); // tmp13 = SHAPE' * SHAPE * I
-	if (lumped_mass) {
-	  matlocf_mass.add(tmp13);
-	} else {
-	  matlocf.add(tmp13);
-	}
+	matlocf.add(tmp13);
 
 	A_grad_N.prod(dshapex,A_jac,-1,1,-1,2,3);
 
 	// Termino Galerkin
 	if (weak_form) {
-	  assert(!lumped_mass && beta_supg==1.); // Not implemented yet!!
 	  // weak version
 	  tmp11.set(flux).rest(fluxd); // tmp11 = flux_c - flux_d
 
@@ -358,16 +335,9 @@ void AdvDif::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedata,
 	  tmp28.prod(tmp26,tmp27,1,-1,2,-1,3); // tmp28 = P_supg * C_jac * SHAPE
 	  matlocf.add(tmp28);
 
-	  tmp21.set(SHAPE).scale(beta_supg*wpgdet/DT);
+	  tmp21.set(SHAPE).scale(wpgdet/DT);
 	  tmp22.prod(P_supg,tmp21,1,3,2);
-	  if (lumped_mass) {
-	    // I think that if 'lumped_mass' is used then the
-	    // contribution to the mass matrix from the SUPG
-	    // perturbation term is null, but I include it. 
-	    matlocf_mass.ir(1,jel).add(tmp22).rs();
-	  } else {
-	    matlocf.add(tmp22);
-	  }
+	  matlocf.add(tmp22);
 	  matlocf.rs();
 	}
 

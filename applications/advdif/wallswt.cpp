@@ -98,10 +98,10 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
 
   // Get arguments from arg_list
 
-  Swfm2tSecant swfm2t;
+  SwtWallFun swt_wall_fun;
 
 #undef GETOPTDEF_HOOK
-#define GETOPTDEF_HOOK(name) (swfm2t.name)
+#define GETOPTDEF_HOOK(name) (swt_wall_fun.name)
   // Parameters for the wall law function
   //o Viscosity
   NSGETOPTDEF_ND(double,viscosity,1);
@@ -236,8 +236,8 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
 
 	u_star.prod(SHAPE,ucols_star,-1,-1,1);
 	double Ustar = sqrt(u_star.sum_square_all());
-	swt->vwall = Ustar;
-	g = swfm2t_secant->sol(&swt_data);
+	swt_wall_fun.vwall = Ustar;
+	double g = swt_wall_fun.sol();
 #if 0
 	gprime = rho / (fwall*fwall);
 	gfun = gprime * Ustar;
@@ -264,8 +264,6 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
 #ifdef CHECK_JAC
       veccontr.export_vals(element.ret_fdj_values(*fdj_jac));
 #endif
-      veccontr.export_vals(&(RETVAL(ielh,0,0)));
-      matloc.export_vals(&(RETVALMAT(ielh,0,0,0,0)));
       matlocf.export_vals(element.ret_mat_values(*Ajac));
     } else if (comp_prof) {
       matlocf.export_vals(element.ret_mat_values(*jac_prof));
@@ -276,7 +274,6 @@ void wall_swfm2t::new_assemble(arg_data_list &arg_data_v,const Nodedata *nodedat
       
   FastMat2::void_cache();
   FastMat2::deactivate_cache();
-  return 0;
 }
 #undef SHAPE    
 #undef DSHAPEXI 

@@ -28,6 +28,7 @@
 #include "../../src/texthash.h"
 #include "../../src/getprop.h"
 #include "../../src/util2.h"
+#include "../../src/utils.h"
 
 #include "advective.h"
 
@@ -54,7 +55,8 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     P_h,P_e,P_k,h_min,vel_min;
   double tau_a, tau_delta, gU, A01v[9];
   static int shock_capturing;
-  // static FastMat2 C_jac;
+  static vector<double> bottom_slope_v;
+  static FastMat2 bottom_slope(1,ndim);
 
   // Load properties only once.
 
@@ -79,26 +81,27 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
     EGETOPTDEF_ND(elemset,int,shock_capturing,0);
     //o Add shock-capturing term if relative variation of variables
     // inside the element exceeds this.
-    EGETOPTDEF_ND(elemset,double,shock_capturing_threshold,0.1);
-
+    //o _T: double[ndim]/double[ndim*ndof]/double[ndim*ndof*ndof] 
+    //  _N: advective_jacobians _D: no default  _DOC: 
+    //i_tex ../../doc/advdifop.tex advective_jacobians
+    //  _END
+    const char *bs;
+    VOID_IT(bottom_slope_v);
+    elemset->get_entry("bottom_slope",bs); 
+    bottom_slope.set(0.);
+    if (bs!=NULL) {
+      read_double_array(bottom_slope_v,bs);
+      assert(bottom_slope_v.size()==ndim);
+      bottom_slope.set(bottom_slope_v.begin());
+    }
+    
+    
     for (int jj=0; jj<NDOF*NDOF; jj++) {
       ajacx[jj]=0.;
       ajacy[jj]=0.;
     }
     AJACX(2,3) = 1.;
     AJACY(3,2) = 1.;
-
-    //      sigma_k=1.;
-    //      sigma_e=1.3;
-    //      C_mu = 0.09;
-    //      C_1=1.44;
-    //      C_2=1.92;
-    //      D = 1.;
-    //      Chezy = 110;
-    //      eps_min = 1e-6;
-    //      ket_min = 1e-6;
-    //      h_min   = 1e-6;
-    //      vel_min = 1e-6;
 
     //o Correcting factor for diffusion in the $k$ transport equation
     EGETOPTDEF_ND(elemset,double,sigma_k,1.);
@@ -362,9 +365,14 @@ int swfm2t_ff_t::operator()(ADVDIFFF_ARGS) {
   } 
 
   if (options & COMP_SOURCE) {
-    G_source.set(0.);
-    G_source.is(1,1,ndim).set(grad_H.ir(2,1)).scale(-g*h)
-      .axpy(u,-g/SQ(Chezy)*q).rs();
+    grad_H.ir(2,1);
+    G_source
+      .set(0.)
+      .is(1,1,ndim)
+      .add(bottom_slope)
+      .scale(-g*h)
+      .axpy(u,-g/SQ(Chezy)*q)
+      .rs();
     grad_H.rs();
     G_source.setel(P_h+P_k-h*eps,4);
     G_source.setel((C_1*P_h-C_2*eps*h)*eps/(ket<ket_min ? ket_min : ket)+P_e,5);

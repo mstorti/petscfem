@@ -1,0 +1,114 @@
+# -*- mode: shell-script -*-
+#
+#================================================================
+global_options
+
+<:require '../eperlini.pl'; # Initializes ePerl 
+import_vals('../shallowt.m');
+import_vals('./tcini.m');
+$slope = readm('slope','./tcini.m');
+$h     = readm('h'    ,'./tcini.m');
+$N     = readm('N'    ,'./tcini.m');
+require './tc.data.tmp';
+$Q=$q*$h;
+_:>// 
+
+bottom_slope <:=-$slope:> 0
+
+# SUPG conf
+weak_form 0
+addvisc 0.
+
+# time stepping
+local_time_step 0
+auto_time_step 0
+consistent_supg_matrix 1
+Dt 4
+nstep 100
+alpha 1
+
+# standard saving
+save_file "state.out.tmp"
+nsave 10
+
+# initialization
+initial_state "state.out.tmp"
+#initial_state "tc.ini"
+
+# "rotary saving" 
+save_file_pattern "outvector%d.out"
+nsaverot 100
+nrec  100
+nfile 2
+
+# saving some
+nsome 1
+print_some_file "nodes.some"
+save_file_some "some.tmp"
+
+# Newton loop
+nnwt 3
+omega_newton 0.3
+tol_newton 1e-10
+preco_type "lu"
+
+# convergence parameters. Internal GMRES loop. 
+rtol 0
+atol 0
+dtol 1e10
+maxits 2
+print_internal_loop_conv 0
+
+__END_HASH__
+
+# ndim nu ndof
+nodes   2  3  5
+__INCLUDE__ turbchanw.nod.tmp
+
+__END_NODES__
+#===========================================================
+#elemset volume_shallowfm2t 4
+elemset advdif_swfm2t 4
+#Datos del elemento
+geometry cartesian2d
+ndim 2
+npg 4
+
+#lumped_mass 0
+chunk_size 500
+__END_HASH__
+__INCLUDE__ turbchanw.con.tmp
+__END_ELEMSET__
+
+#================================================================
+#if 0
+elemset bcconv_adv_swfm2t 2
+npg 2
+ndim 2
+geometry cartesian1d
+
+__END_HASH__
+
+2 1
+<:=2*$N+2:>  <:=2*$N+1:> 
+__END_ELEMSET__
+#endif
+
+end_elemsets
+
+#================================================================
+fixa
+1 1 <:=.5*$q*$h:>		# u = some value
+1 2 0				# v = 0              at the wall
+
+<:=2*$N+1:> 2 0.		# v=0 at the outer region
+
+
+__END_FIXA__
+
+#================================================================
+constraint
+__INCLUDE__ turbchanw.peri.tmp
+
+__END_CONSTRAINT__
+
