@@ -1,8 +1,8 @@
 //__INSERT_LICENSE__
-//$Id: petscmat.cpp,v 1.3 2002/02/20 22:13:06 mstorti Exp $
+//$Id: petscmat.cpp,v 1.3.2.1 2002/07/14 22:46:15 mstorti Exp $
 
 // fixme:= this may not work in all applications
-extern int MY_RANK,SIZE;
+
 #include <typeinfo>
 #include <mat.h>
 
@@ -12,6 +12,9 @@ extern int MY_RANK,SIZE;
 #include <src/pfptscmat.h>
 #include <src/petscmat.h>
 #include <src/graph.h>
+
+extern int MY_RANK,SIZE;
+extern TextHashTable *GLOBAL_OPTIONS;
 
 PETScMat::~PETScMat() {clear();};
 
@@ -35,8 +38,9 @@ int PETScMat::duplicate_a(MatDuplicateOption op,const PFMat &B) {
 #undef __FUNC__
 #define __FUNC__ "PETScMat::create_a"
 int PETScMat::create_a() {
-  int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank,
-    debug_compute_prof=0;
+  int k,neqp,keq,leq,pos,sumd=0,sumdcorr=0,sumo=0,ierr,myrank;
+
+  TGETOPTDEF(GLOBAL_OPTIONS,int,debug_compute_prof,0);
   set<int> ngbrs_v;
   set<int>::iterator q,qe;
 
