@@ -1,4 +1,4 @@
-$Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $
+$Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $
 OK. This is mostly in spanish...  Sorry :-)
 ================================================================
 
@@ -2466,9 +2466,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 ***************
 *** 1,4 ****
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2476,9 +2476,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck /home/ms
 --- 1,5 ----
 ! # -*- mode: makefile -*-
 <<<<<<< notes.txt
-! # $Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
 =======
-! # $Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $ 
+! # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -2571,9 +2571,9 @@ diff -c /home/mstorti/PETSC/petsc-2.0.24/bmake/linux/base_variables.bck2 /home/m
 --- 1,4 ----
 + # -*- mode: makefile -*-
 <<<<<<< notes.txt
-  # $Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $ 
+  # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
 =======
-  # $Id: notes.txt,v 1.258 2003/03/10 20:09:27 mstorti Exp $ 
+  # $Id: notes.txt,v 1.259 2003/03/10 21:10:35 mstorti Exp $ 
 >>>>>>> 1.228.2.1
   #
   #     See the file bmake/base_variables.defs for a complete explanation of all these fields
@@ -6163,7 +6163,7 @@ prism  (not conforming though)
 %
 Retomo el tema del acoplamiento viscoso inviscido. Visualizo con DX el
 campo de velocidades viscoso junto con el potencial y  detecto gran
-diferencia entre ambos campos. Descrubro que esta mail inicializado el
+diferencia entre ambos campos. Descrubro que esta mal inicializado el
 campo. EL uini en los nodos ficticios tiene que tener n_x en la
 componente 1 y lo demas no importa. Ademas habia un error por el cual
 no se calculaba bien el potencial. sobre la sup. de
