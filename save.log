@@ -3870,3 +3870,6 @@ tag: beta-3.41.7 on Thu, 27 Jan 2005 02:48:47 -0300 by mstorti in spider
 tag: beta-3.41.8 on Thu, 27 Jan 2005 11:11:46 -0300 by mstorti in minerva.ceride.gov.ar
      > Linear absorbing b.c.'s without extrapolation are 
      > working OK in 1D problem. 
+----------
+tag: beta-3.41.9 on Thu, 27 Jan 2005 12:35:14 -0300 by mstorti in minerva.ceride.gov.ar
+     > New absorbing b.c.'s (without interpolation) are working OK. 
