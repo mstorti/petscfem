@@ -129,7 +129,7 @@ $(PROG).bin: $(MYOBJS) $(LIBPETSCFEM)
 EPERLFLAGS = 
 #w Builds <file>.depl from <file>.epl using ePerl
 #e <file>.depl
-%.depl: %.epl 
+%.depl: %.epl
 	if [ -e $@ ] ; then chmod +w $@ ; rm $@ ; fi
 	eperl -P $(EPERLFLAGS) $< > $@
 	chmod -w $@

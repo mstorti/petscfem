@@ -1,6 +1,8 @@
 PROJECTS: 
 =========
 
+* Fix error while opening data file, when no case gives
+           "Couldn't open file "^&*&^*&^ <garbage> *^%&^()#*$"!!
 * Adaptive refinement
 * Filter functions for getting averages in LES
 * Absorbing b.c.'s for NS and in general
