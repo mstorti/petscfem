@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: sparse.cpp,v 1.30 2002/01/14 03:45:06 mstorti Exp $
+//$Id: sparse.cpp,v 1.31 2002/06/02 23:33:44 mstorti Exp $
 
 #include <src/sparse2.h>
 
@@ -345,7 +345,7 @@ namespace Sparse {
       // with the remove_if algorithm with maps
     i = remove_if(begin(),end(),&purge_fun);
     erase(i,end());
-#elsif 0
+#elif 0
     e = end();
     for (i=begin(); i!=end(); i++) {
       printf("second %f, erase ? %d\n",i->second,fabs(i->second)<tol);

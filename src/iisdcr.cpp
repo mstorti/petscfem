@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.16 2002/05/12 23:30:03 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.17 2002/06/02 23:33:44 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -339,7 +339,7 @@ int IISDMat::create_a() {
 	       (block==0 ? "L" : "I"));
       }
     }
-#elsif 0
+#elif 0
     // printing by rows (node/field)
     PetscPrintf(PETSC_COMM_WORLD,
 		"--- Local/interface partitioning\n"
