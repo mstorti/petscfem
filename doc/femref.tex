@@ -1,4 +1,4 @@
-% $Id: femref.tex,v 1.7 2004/11/27 16:08:01 mstorti Exp $
+% $Id: femref.tex,v 1.8 2004/11/27 19:27:20 mstorti Exp $
 \SSection{Mesh refinement} \label{sec:femref}
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
 
@@ -244,9 +244,46 @@ objects are the same.
 
 Another possibility to determine whether two node oderings are
 congruent is to have a uniquely determined ordering that can be
-determined from the nodes sequence itself. We we call this ordering
+computed from the node sequence itself. We we call this ordering
 the \emph{``canonical''} ordering for the geometrical object. If this
 is possible, then given two orderings we can bring both of them to the
 canonical ordering and then compare them as plain sequences. One
-possibility os to take the caonical order as that one that gives the
+possibility is to take the caonical order as that one that gives the
 lower node sequence, in lexicographical order. 
+
+This has the advantage that one the canonical orderign is known for
+both objects, the comparison is very cheap. Also, it can be used 
+as a comparison operator for sorting geometrical objects, i.e. the
+order between two objects is the lexicographical order between the two
+node sequences in its canonical form. 
+
+The canonical order can be computed efficientlyusing the permutation
+tree described above. 
+
+%<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>
+\SSection{Object hashing} 
+
+Another useful technique for comparing objects is by comparing first
+some scalar function of the node indices. For instance we can compute
+a \emph{``hash-sum''} for the object ${\tt go}$ as
+%
+\begin{equation} 
+  H({\tt go}) = \sum_{j=0}^{n-1} h({\tt (node go j)})
+\end{equation
+%
+where \verb+(node go j)+ is the \verb+j+ node of object \verb+go+. $H$
+is the hash-sum for the geometrical object \verb+go+, whereas $h$ is a
+\emph{``scalar hashing function''}. A very simple possibility is to
+take $h$ as the identity $h(x)=x$. In that case the hash of the object
+is simply the sum of their node indices. The idea is that, even for
+this simple hashing function we can compare first the hash-sums of two
+objects for determining if they are equal. If there is a high
+probability of the objects being unequal, then in most cases this
+simple check will suffice. If the hash-sum are equal, then the full
+comparision procedure, as described above, must be performed. Note
+that the hash-sum is (and must be) independent of the ordering. 
+
+In order to reduce the probability that unequal objects give the same
+hash-sum we can device better hashing functions. 
+
+ 
