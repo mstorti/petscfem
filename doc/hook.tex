@@ -47,7 +47,7 @@ that hook unique.
 hook_list \Arg{hook-type-1} \Arg{hook-name-1} \Arg{hook-type-2} \Arg{hook-name-2} ...
 \end{alltt}
 %
-For isntance:
+For instance:
 %
 \begin{verbatim}
 hook_list shell_hook compress     \
@@ -64,7 +64,7 @@ The \verb+hook_list+ entry must be unique, so that you have to group
 all your hooks in a \emph{single} \verb+hook_list+ entry. 
 This is not limiting, because you can add as much hooks as you want,
 but it is rather syntactically cumbersome, because you end up with a
-long string. Also difficults to comment out some hooks while keeping
+long string. Also it becomes difficult to comment out some hooks while keeping
 others. 
 
 The hooks are executed in the order as you entered them in the hook
@@ -109,10 +109,10 @@ DL_GENERIC_HOOK(hello_world_hook);
 \end{verbatim}
 
 You can use almost any conceivable C/C++ library within your hooks. Take
-into acount that the program may be called in a parallel environment so,
+into account that the program may be called in a parallel environment so,
 for instance, if you will compress a certain file, then you should
 take care of doing that \emph{only} at the master process by, e.g.,
-enclosing te code with a \verb+if (!!MY_RANK) { ... }+ construct. 
+enclosing the code with a \verb+if (!!MY_RANK) { ... }+ construct. 
 
 %<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*>---<*> 
 \SSection{Shell hook} 
@@ -174,7 +174,7 @@ hello "echo Hello world, stage %s, step %d, time %f"
 \end{verbatim}
 %
 The order is important!! That is, the first argument is the step (a
-C string), the second teh time step (an integer) and the last the
+C string), the second the time step (an integer) and the last the
 simulation time (a double). 
 
 In fact, basically, what PETSc-FEM does is to build string with
@@ -285,7 +285,7 @@ Inside the \verb+Makefile+ you can use the \verb+make+ variables
 can do the \emph{``Hello world''} trick by adding the targets
 %
 %
-\begin{equation} 
+\begin{verbatim}
 # In Makefile
 hello_init:
         echo "In init"
@@ -306,10 +306,9 @@ hello_close:
         echo "In close"
         ## Do more things in `close' stage
         ## ....
-
-\end{equation} 
+\end{verbatim}
 %
-For instance, I love to gzip my state files whith a command like this
+For instance, I love to gzip my state files with a command like this
 %
 \begin{verbatim}
 ## In the PETSc-FEM data file

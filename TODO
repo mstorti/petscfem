@@ -4,6 +4,7 @@
 TODO: [Mainly fixes go here...]
 =====
 
+* List grants in docx
 * Add `dataflow.obj' to doc.
 * Document `shell-hooks'. 
 * Let `upload_vector_fast' to have several masks with integer values,
