@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.3 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.3.2.1 2002/02/15 21:55:31 mstorti Exp $ 
 #s Local Targets
 #w all tests
 tests: pfmat pfmat2
@@ -25,6 +25,8 @@ DEPEND_DIRS = $(CLEAN_DIRS)
 pfmat.bin: $(LIB_OBJS_LIB) pfmat.o
 	-rm -f $@
 	${CXX_CLINKER} -o $@ pfmat.o  $(LDFLAGS)
+
+pfmat.o: CCPPFLAGS += -O0
 
 NP := $(shell procsel $(PETSCFEM_PROCTABLE))
 

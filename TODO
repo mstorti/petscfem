@@ -3,7 +3,6 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* Write a script that retrieves date corresponding to a light tag
 * Fix `delete' and `new' not balanced in `NewAdvDifFF' derived
          classes. 
 * add tests  `cubcav' 
@@ -52,6 +51,7 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* Write a script that retrieves date corresponding to a light tag
 * What happens to the `G_body' item in `nsi_tet_les_fm2' ??
   It works... Added a test Wed Dec 19 21:33:23 ARST 2001
 * Write tests for IISD with subpartitioning.

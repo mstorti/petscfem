@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.47 2002/02/13 16:21:21 mstorti Exp $ 
+# $Id: Makefile,v 1.46.2.1 2002/02/15 21:55:30 mstorti Exp $ 
 
 .PHONY: all run lclean save compile
 
@@ -45,19 +45,17 @@ $(LIBPETSCFEM): $(LIBPETSCFEM)($(LIBOBJS))
 
 $(LIBPETSCFEM)(%.o): %.o
 #	If object does not have the appropriate debugging level recompile
-#	[ OK. This is very tricky... I don't know the portability of this ]
-	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'	\
-		> /dev/null ; then						\
-		obj_optl='O' ;							\
-		else								\
-		obj_optl='g' ;							\
-	fi ;									\
-	if [ ! "x$(opt_level)"="x$$obj_optl" ] ; then				\
-		echo "OptLevelCheck: object $< does not match optimization "	\
-				"level BOPT: $(BOPT)" ;				\
-		rm $< ;								\
-		$(MAKE) $< ;							\
-	fi ;									\
+	@if objdump -g $< 2>&1 | grep 'no recognized debugging information'		\
+		> /dev/null ; then							\
+		obj_optl='O' ;								\
+		else									\
+		obj_optl='g' ;								\
+	fi ;										\
+	if [ ! "x$(opt_level)"="x$(obj_optl)" ] ;					\
+		echo "object $< does not match optimization level BOPT: $(BOPT)" ;	\
+		then rm $< ;								\
+		$(MAKE) $< ;								\
+	fi ;										\
 	ar ru $@ $<
 
 .SECONDARY: fm2eperl.cpp
@@ -95,6 +93,9 @@ pfmatFSM.cpp  pfmatFSM.h: pfmat.sm
 
 local_clean:: local_dist_clean
 	-rm -f version.cpp $(LIBPETSCFEM) # &> /dev/null
+debug.o: CCPPFLAGS += -O0
+pfmat.o: CCPPFLAGS += -g
+
 readlist.h: readlist.eperl
 	if [ -e readlist.h ] ; then chmod +w readlist.h ; fi
 	eperl readlist.eperl > readlist.h

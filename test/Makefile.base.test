@@ -31,11 +31,11 @@ local_clean::
 		machi.dat weights.dat rm *.depl .gdbinit
 
 SRC_DIR = $(PETSCFEM_DIR)/src
-LIB := $(SRC_DIR)/libpetscfem.a
+LIB := $(SRC_DIR)/libpetscfem_$(opt_level).a
 LIB_OBJS_LIB := $(patsubst %,$(LIB)(%.o),$(LIB_OBJS))
 
 $(LIB)(%.o):
-	$(MAKE) -C $(SRC_DIR) 'libpetscfem.a($*.o)'
+	$(MAKE) -C $(SRC_DIR) 'libpetscfem_$(opt_level).a($*.o)'
 
 #	-chmod +w *.depl ; 
 #	for dir in $(CLEAN_DIRS) ; \

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: pfmat.cpp,v 1.2 2002/01/14 03:45:06 mstorti Exp $
+//$Id: pfmat.cpp,v 1.2.2.1 2002/02/15 21:55:30 mstorti Exp $
 
 #include <mat.h>
 
@@ -131,6 +131,7 @@ int PFMat::assembly(MatAssemblyType type) {
 int PFMat::solve(Vec &res,Vec &dx) {
   res_p = &res;
   dx_p = &dx;
+  ierr=0;
   fsm->solve(); CHKERRQ(ierr); 
   return 0;
 }

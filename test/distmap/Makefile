@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-# $Id: Makefile,v 1.17 2002/01/14 03:45:06 mstorti Exp $ 
+# $Id: Makefile,v 1.17.2.1 2002/02/15 21:55:31 mstorti Exp $ 
 
 .PHONY: distcont distmap distmat dist_graph
 
@@ -52,9 +52,6 @@ distcont.bin: distcont.o
 	${CXX_CLINKER} -o $@ distcont.o   $(LDFLAGS)
 
 distcont.o: ../../src/distcont.h
-
-../../src/libpetscfem.a(%.o): 
-	$(MAKE) -C ../../src/ 'libpetscfem.a(%.o)'
 
 #w Builds binary 
 distmat.bin: distmat.o ../../src/libpetscfem.a(utils.o) \
