@@ -3,10 +3,8 @@
 TODO: [Mainly fixes go here...]
 =====
 
-* add tests with `sqcav' and several processors
-* Check if the `-O1 measperf.cpp' problem is fixed.
+* add tests  `cubcav' 
 * Fix documentation. New version of latex2html screwed all up. 
-* Write tests for IISD with subpartitioning.
 * write doc for Sparse::Mat, IISD with SuperLU local solver. 
 * put `const A' in the argument to PFMat::duplicate
 * interface preconditioning for IISD
@@ -51,6 +49,11 @@ TODO: [Mainly fixes go here...]
 DONE:
 =====
 
+* What happens to the `G_body' item in `nsi_tet_les_fm2' ??
+  It works... Added a test Wed Dec 19 21:33:23 ARST 2001
+* Write tests for IISD with subpartitioning.
+* Check if the `-O1 measperf.cpp' problem is fixed.
+* add tests with `sqcav' and several processors
 * merge turbulence enhancements.
 * merge adaptors developed in Chile
 * reenable the `cache_grad_div_u' feature. It works, but there is not

@@ -832,3 +832,38 @@ tag: pfmat-rewrite-1.27 on Sun Jan 13 17:57:52 ARST 2002, by mstorti in spider
 tag: pfmat-rewrite-1.28 on Sun Jan 13 23:18:27 ARST 2002, by mstorti in spider
      > -- STABLE VERSION -- 
      > Runs the `sqcav' test, but gives some `PFMat' bad errors.
+----------
+tag: beta-2.55 on Sat Dec  8 17:35:05 ARST 2001, by mstorti in spider
+     > Modified the Graph class. Writing a test for PFMat matrices.
+----------
+tag: beta-2.56 on Sun Dec  9 10:43:58 ARST 2001, by mstorti in spider
+     > Discarding modifications to the `pfmat' class.
+----------
+tag: beta-2.57 on Sun Dec  9 11:07:45 ARST 2001, by mstorti in spider
+     > I tried to make `pfmat' more independent of Petscfem, i.e. not based
+     > on `dofmap', but on a graph and a partitioner class. This finally
+     > proved to be too much work and I made it this branch. Then I went back
+     > to version beta-2.54.
+----------
+tag: beta-2.58 on Sun Dec  9 23:11:09 ARST 2001, by mstorti in spider
+     > Deleted call to `PFMat::build_sles' since now this is inside either
+     > the destructor or the `clear()' method. Now working for `PETScMat' and
+     > `IISDMat' matrices. Runs all `oscplate_all' tests. 
+----------
+tag: beta-2.59 on Wed Dec 12 22:27:38 ARST 2001, by mstorti in spider
+     > Added `test_iisd', basically the same as `test_isid' but for 2 processors.
+----------
+tag: beta-2.60 on Wed Dec 12 23:11:37 ARST 2001, by mstorti in spider
+     > -- STABLE VERSION -- 
+     > Added `test_iisd', basically the same as `test_iisd' but for 2 processors.
+     > Tests run.
+----------
+tag: beta-2.61 on Tue Dec 18 18:12:38 ART 2001, by mstorti in minerva.arcride.edu.ar
+     > -- STABLE VERSION -- 
+     > Removed `iisd_superlu' test.
+----------
+tag: beta-2.62 on Wed Dec 19 21:34:02 ARST 2001, by mstorti in spider
+     > Added test for the `G_body' options in NS. 
+----------
+tag: beta-2.63 on Thu Dec 20 18:59:44 ARST 2001, by mstorti in spider
+     > Changed '../../src/<header>' by '<src/header>' in all application modules. 

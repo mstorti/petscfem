@@ -1,13 +1,13 @@
 // -*- mode: C++ -*-
 /*__INSERT_LICENSE__*/
-//$Id: nsi_tet.h,v 1.23 2001/11/30 12:41:08 mstorti Exp $
+//$Id: nsi_tet.h,v 1.23.4.1 2002/01/14 02:44:35 mstorti Exp $
 #ifndef NSI_TET_H  
 #define NSI_TET_H
 
 #include <ANN/ANN.h>			// ANN declarations
 #include <vector>			// ANN declarations
 
-#include "../../src/secant.h"
+#include <src/secant.h>
 
 //---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 // This is the typical element for volume computations. The `ask'
