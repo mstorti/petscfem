@@ -1879,3 +1879,6 @@ tag: beta-3.09.pl9 on Thu, 12 Dec 2002 00:11:05 -0300 by mstorti in spider
 tag: beta-3.09.pl10 on Thu, 12 Dec 2002 09:59:41 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs OK large deformation problem (step.epl at 95%) with 
      > the analytically computed element. 
+----------
+tag: beta-3.09.pl11 on Thu, 12 Dec 2002 17:30:38 -0300 by mstorti in minerva.arcride.edu.ar
+     > Added `mmove' 2D/3D tests. 
