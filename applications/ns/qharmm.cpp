@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: qharmm.cpp,v 1.7 2003/04/17 00:40:54 mstorti Exp $
+//$Id: qharmm.cpp,v 1.8 2003/04/17 10:48:52 mstorti Exp $
 
 #include <src/fem.h>
 #include <src/utils.h>
@@ -45,7 +45,7 @@ void qharmm::elemset_init() {
   read_cond_matrix(thash,"Cp",ndof,Cp);
 
   //o Time step
-  TGETOPTDEF(thash,double,Dt,0.);
+  TGETOPTDEF_ND(thash,double,Dt,0.);
   assert(Dt>0.);
 
   //o _T: double[ndof] _N: state_ref _D: null vector 

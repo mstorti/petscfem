@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.50 2003/03/25 22:46:01 mstorti Exp $
+#$Id: Makefile,v 1.51 2003/04/17 10:48:48 mstorti Exp $
 
 SHELL = /bin/bash
 
@@ -36,7 +36,7 @@ local_sw:: sync_version depend tags
 # make scripts executable
 	chmod 755 ./make/appatch ./make/mkpatch ./make/mkvers			\
 		./src/insdeb.pl ./test/runtests.pl ./test/turbchan/verify.pl	\
-		./tools/coall ./tools/checktag					\
+		./tools/coall ./tools/checktag ./tools/eperl			\
 		./tools/insert_license.pl ./tools/makeltag			\
 		./tools/maketag ./tools/makewhat.pl ./tools/myexpect.pl		\
 		./tools/odoc.pl ./tools/petscload.pl ./tools/pfcpp		\
