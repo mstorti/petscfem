@@ -12,14 +12,25 @@ $CANT_OPEN= 3;
 $COMPLAIN_ON_CANT_OPEN= 1 unless defined($COMPLAIN_ON_CANT_OPEN);
 
 @stack=();
+@output=();
+
+sub printo {
+    push @output,@_;
+}
+
+sub flush {
+    print @output;
+    @output=();
+}
 
 sub expect {
     ($file,$descr,$pattern_list) = @_;
-    open (SAL,$file) || do {print "can't open $file\n" unless ! $COMPLAIN_ON_CANT_OPEN;
+    open (SAL,$file) || do {printo "can't open $file\n" 
+				unless ! $COMPLAIN_ON_CANT_OPEN;
 			    cant_open(); return;};
     @sal=(<SAL>);
     close SAL;
-    print "Testing: \"$descr\" on file \"$file\"...";
+    printo "Testing: \"$descr\" on file \"$file\"...";
     print "\n" if $DEBUG_EXPECT;
     @pattern = split("\n",$pattern_list);
     $record=0;
@@ -53,16 +64,16 @@ sub expect {
 	    $record += $inc;
 	    print "$record: $_" if $DEBUG_EXPECT;
 	    do {chomp; 
-		print "        -> found: \"$_\"\n" if $DEBUG_EXPECT; 
+		printo "        -> found: \"$_\"\n" if $DEBUG_EXPECT; 
 		goto NEXT;} if /$pattern/;
 	    last unless $skip;
 	}
 	not_ok();
-	print "not OK.\n        --->  Couldn't find \"$pattern\"\n";
+	printo "not OK.\n        --->  Couldn't find \"$pattern\"\n";
 	return;
       NEXT:;
     }
-    print "OK. \n";
+    printo "OK. \n";
     ok();
 }
 
@@ -82,7 +93,6 @@ sub cant_open { inc($CANT_OPEN);}
 
 sub begin_section {
     my $s=shift();
-    print "--------\nStart section: \"$s\"\n";
     push @stack,[$s,0,0,0];
 }
 
@@ -90,9 +100,13 @@ sub end_section {
     my $t = pop @stack;
     my $total = $t->[1]+$t->[2]+$t->[3];
     my $total_open = $t->[$OK] + $t->[$NOT_OK];
-    print "Summary: \"$t->[0]\"",
-    " -- OK: $t->[$OK].  Not OK: $t->[$NOT_OK]. ",
-    "Couldn't open: $t->[$CANT_OPEN]. Total: $total\n" if $total_open || $COMPLAIN_ON_CANT_OPEN;
+    if ($total_open || $COMPLAIN_ON_CANT_OPEN) {
+	print "--------\nStart section: \"$t->[0]\"\n";
+	flush();
+	print "Summary: \"$t->[0]\"",
+	" -- OK: $t->[$OK].  Not OK: $t->[$NOT_OK]. ",
+	"Couldn't open: $t->[$CANT_OPEN]. Total: $total\n";
+    }
     if ($#stack>=0) {
 	my $tt = pop @stack;
 	$tt->[$OK] += $t->[$OK];
