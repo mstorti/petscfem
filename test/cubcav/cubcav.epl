@@ -45,7 +45,7 @@ nstep 10
 nsaverot 5
 nfile 2000000
 nrec 1
-# initial_state "cubcav-steady-Re1000"
+initial_state "cubcav-steady-Re1000"
 # initial_state "outvector.out"
 save_file_pattern "STEPS/cubcav.state_%d.tmp"
 
