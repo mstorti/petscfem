@@ -5,6 +5,8 @@ TODO: [Mainly fixes go here...]
 =====
 
 ### Current line =========== 
+* DX: make `dxhook' to be launched though a flag of type `dx' not
+          through the standard `hook-list' option line. 
 * DX: make `dxhook' to auto-recognize geometries from the "geometry"
           option and dimensionality. 
 * DX: check for memory leaks, both in `epimport.cpp' and in  petscfem
