@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2001/01/04 20:08:31 mstorti Exp $ 
+# $Id: Makefile,v 1.6 2001/01/09 17:01:06 mstorti Exp $ 
 
 .PHONY: plano data 
 
@@ -22,7 +22,10 @@ data: $(data_file) $(octave_files)
 #data: plano.depl plano.con plano.nod
 
 $(data_file): $(case).epl $(case).data
-	-if [ -e $@ ] ; then chmod +w $(data_file) ; rm $(data_file) ; fi
+	echo $(data_file)
+	-for f in $(data_file) ; do \
+		if [ -e $$f  ] ; then chmod +w $$f ; rm $$f ; fi ; \
+	done
 	eperl -P $< > $@
 	-chmod -w $(data_file)
 

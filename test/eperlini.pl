@@ -1,4 +1,5 @@
-require "$ENV{'HOME'}/perl/math.pl";
+require "$ENV{'PETSCFEM_DIR'}/tools/math.pl";
+print "# PETSCFEM_DIR: $ENV{'PETSCFEM_DIR'}\n";
 
 sub heredoc {
     my $txt = shift();
