@@ -1,5 +1,5 @@
 # -*- mode: shell-script -*-
-#$Id: sqcav.epl,v 1.16.6.6 2002/07/16 03:29:16 mstorti Exp $
+#$Id: sqcav.epl,v 1.16.6.7 2002/07/16 22:00:54 mstorti Exp $
 # case: <:=$ENV{'case'}:>
 <:                              # starts ePerl block
 #__TRANSCRIPT__
@@ -16,11 +16,11 @@ if ($case eq 'g_body') {
 }
 $U = 1;				# typical velocity scale
 $L = 1;				# Side of the cavity
-$N = 40;
-$hratio = 40;			# refinement (h_center/h_wall)
+$N = 10;
+$hratio = 1;			# refinement (h_center/h_wall)
 $Re = 1;			# Reynolds number
 $viscosity = $L/$Re;		# viscosity
-$Dt = 1;			# time step
+$Dt = 0.05;			# time step
 $solver = "petsc";
 $preco_type = "jacobi";
 $maxits = 20;
@@ -80,16 +80,25 @@ global_options
 # mat_new_nonzero_allocation_err 0
 # debug_compute_prof
 nsave 5
-<:pr('nstep'):> 
+nstep 10
 # initial_state sqcav.state
 <:pr('save_file'):> 
 
 # type of solver (may be "iisd", "petsc"...)
-<:pr('solver'):>
-<:pr('preco_type'):> 
+#if 1
+#<:$maxits=1;:>
+solver "petsc"
+solver_mom "petsc"
+preco_type "lu"
+#else
+solver "iisd"
+solver_mom "petsc"
+preco_type "jacobi"
+#endif
 <:pr('maxits'):> 
+
 # Number of subdomains
-<:pr('iisd_subpart'):>
+iisd_subpart 1
 #if $update_jacobian
 # update_jacobian_iters 3
 update_jacobian_start_steps 3

@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: fracstep.cpp,v 1.8.2.9 2002/07/16 03:29:13 mstorti Exp $
+//$Id: fracstep.cpp,v 1.8.2.10 2002/07/16 22:00:54 mstorti Exp $
  
 #include <src/fem.h>
 #include <src/utils.h>
@@ -14,12 +14,13 @@
 
 void nmprint(Matrix &A) { cout << A << endl; }
 
+const double FIX = 0.1;
 void fix_null_diagonal_entries(Matrix &A,Matrix &B,int n) {
   B = 0;
   for (int j=1; j<=n; j++) {
     if (A(j,j)==0.) {
-      A(j,j) = 1.;
-      B(j,j) = 1.;
+      A(j,j) = FIX;
+      B(j,j) = FIX;
     }
   }
 }
@@ -224,6 +225,8 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
   }
 
   int ielh=-1;
+  int SHV_debug=0;
+#define SHV(pp) { if (SHV_debug) cout << #pp ": " << endl << pp << endl; }
   for (int k=el_start; k<=el_last; k++) {
     if (!compute_this_elem(k,this,myrank,iter_mode)) continue;
     //if (epart[k] != myrank+1) continue;
@@ -294,6 +297,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	grad_u = dshapex * ustate2;
 	grad_u_star = dshapex * locstate.Columns(1,ndim);
 	grad_p = dshapex * locstate2.Column(ndim+1);
+	SHV(grad_p);
 
 	double u2 = u.SumSquare();
 	uintri = iJaco * u;
@@ -317,6 +321,7 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	  (- ((1-alpha) * u.t() * grad_u
 	      + alpha * u_star.t() * grad_u_star)
 	   - ((1-alphap)/rho)* grad_p.t());
+	SHV(resmom);
 	// sacamos gradiente de presion en la ec. de momento (conf. Codina)
 	//- (1/rho)* grad_p.t());
 
@@ -326,9 +331,11 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 	// version Crank-Nicholson 
 	resmom -= wpgdet * VISC * dshapex.t() *
 	  ((1-alpha) * grad_u+ alpha * grad_u_star);
+	SHV(resmom);
 	
 	// Parte temporal
 	resmom -= (wpgdet/Dt) * W.t() * (u_star-u).t();
+	SHV(resmom);
 
 	//---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---:---<*>---: 
 	// JACOBIAN CALCULATION
@@ -387,6 +394,10 @@ int fracstep::assemble(arg_data_list &arg_data_v,Nodedata *nodedata,
 
 	resmom += wpgdet * SHAPE.t() *
 	  (-(alphap/rho) *grad_p - (u - u_star)/Dt).t();
+	SHV(resmom);
+	SHV(SHAPE);
+	SHV(u);
+	SHV(u_star);
 
       } else if (comp_mat_prj) {
 
