@@ -2171,3 +2171,8 @@ tag: beta-3.14.pl38 on Tue, 21 Jan 2003 07:43:57 -0300 by mstorti in spider
 ----------
 tag: beta-3.14.pl39 on Tue, 21 Jan 2003 10:38:02 -0300 by mstorti in minerva.arcride.edu.ar
      > Running vtube example with NS incompressible. 
+----------
+tag: beta-3.14.pl40 on Tue, 21 Jan 2003 13:09:28 -0300 by mstorti in minerva.arcride.edu.ar
+     > Compiles OLD_VERSION (multi-stage bubbly) and NEW_VERSION (gasflow) of
+     > advdif.
+     > Running vtube example with NS incompressible. 
