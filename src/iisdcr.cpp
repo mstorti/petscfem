@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: iisdcr.cpp,v 1.45 2003/10/17 19:28:49 mstorti Exp $
+//$Id: iisdcr.cpp,v 1.46 2003/11/03 03:51:35 mstorti Exp $
 
 // fixme:= this may not work in all applications
 extern int MY_RANK,SIZE;
@@ -272,6 +272,15 @@ int IISDMat::create_a() {
   }
 
   local_graph.part(max_partgraph_vertices_proc,iisd_subpart);
+
+#if 1
+  printf("n_loc_pre: %d\n",n_loc_pre);
+  for (k=0; k<n_loc_pre; k++) 
+    printf("%d %d\n",k,local_graph.vrtx_part(k));
+  PetscFinalize();
+  exit(0);
+#endif
+
   // Mark those local dofs that are connected to a local dof in a
   // subdomain with lower index in the subpartitioning as interface.
   for (k=0; k<n_loc_pre; k++) {

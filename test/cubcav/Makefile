@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.73 2003/10/24 22:51:19 mstorti Exp $ 
+# $Id: Makefile,v 1.74 2003/11/03 03:51:35 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof
@@ -46,6 +46,7 @@ MCH := -machinefile ./machi.dat
 NP := 1
 endif
 
+NP := 1
 export NP
 
 run_subdir_test:
@@ -86,7 +87,9 @@ nettest:
 	NP=`procsel -n ./proctable.geronimo` ;  \
 	$(MPIRUN) -np $$NP -machinefile machi.dat $(nettest)
 
-dxo:
+dxo: viewer.dx.tmp
+
+viewer.dx.tmp: viewer.dx
 	$(EPERL) -P viewer.dx > viewer.dx.tmp
 
 dx:
@@ -95,7 +98,8 @@ dx:
 
 #================================================================
 #w 
-dx_make_command: dx_make_command2
+dx_make_command:
+# dx_make_command: # dx_make_command2
 
 dx_make_command1:
 	octave -qH comp_step.m
@@ -107,6 +111,8 @@ dx_make_command2:
 		comp_server.fifo comp_server2.fifo
 
 #================================================================
+yuv_compress2:
+
 yuv_compress:
 	yuv=YUV/$(CASE_NAME).$$dx_step.yuv ;			\
 	tiff=$(CASE_NAME).tiff ;				\

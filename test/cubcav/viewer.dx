@@ -1,5 +1,8 @@
 #-*- shell-script -*-
-<: require '../../tools/dx.pl'; :>//
+<: require 'math.pl'; 
+require '../../tools/dx.pl'; 
+$nnod = count_lines("cubcav.nod.tmp");
+:>//
 
 # The following example describes an irregular grid. Note that the values
 # of the "positions" component and "connections" component are irregular,
@@ -11,15 +14,3 @@ object "xnod" class array type float rank 1 shape 3
 
 # The irregular connections, which are tetrahedra
 <: require './parti.pl'; :>//
-
-# The data, which is in a one-to-one correspondence with the positions
-object "p" class array type float rank 0 items <:=$nelem:> 
-           data file "epart.dat"
-attribute "dep" string "connections"
-
-object "part" class field 
-# irregular positions irregular connections
-component "positions" value "xnod"
-component "connections" value "icone"
-component "data" value "p"
-end

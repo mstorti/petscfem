@@ -1,5 +1,5 @@
 #!/bin/bash
-#$Id: mkmpeg2.sh,v 1.8 2003/09/20 23:07:06 mstorti Exp $
+#$Id: mkmpeg2.sh,v 1.9 2003/11/03 03:51:35 mstorti Exp $
 
 nstep=360
 
@@ -23,7 +23,13 @@ yuv_cat() {
 # yuv_cat YUV-iso2
 # yuv_cat YUV-iso3
 
-nstep=330
-yuv_cat YUV-Re1e6-z0.5
-yuv_cat YUV-Re1e6-z0.25
-yuv_cat YUV-Re1e6-z0.01
+nstep=2000
+yuv_cat YUV-streamlines-z05
+yuv_cat YUV-streamlines-z01
+yuv_cat YUV-limit-streamlines2
+yuv_cat YUV-limit-streamlines-below
+yuv_cat YUV-core-streamlines
+# yuv_cat YUV
+
+#yuv_cat YUV-Re1e6-z0.25
+#yuv_cat YUV-Re1e6-z0.01

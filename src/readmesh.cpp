@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: readmesh.cpp,v 1.96 2003/10/12 00:49:37 mstorti Exp $
+//$Id: readmesh.cpp,v 1.97 2003/11/03 03:51:35 mstorti Exp $
 #ifndef _GNU_SOURCE 
 #define _GNU_SOURCE 
 #endif
@@ -9,7 +9,7 @@
 #include "readmesh.h"
 #include "idmap.h"
 
-// Apaprently __log2 from Metis collides with some name in the GNU package.
+// Apparently __log2 from Metis collides with some name in the GNU package.
 // This is a workaround. 
 #define __log2 ____log2
 extern "C" {
@@ -957,7 +957,7 @@ if (!(bool_cond)) { PetscPrintf(PETSC_COMM_WORLD, 				\
   // raise error if not defined at least one fat elemset
   PFEMERRCQ(size>1 && !is_any_fat,
 	    "At least one elemset has to be set as fat (is_fat property)\n"
-	    "if numbre of processors is np>1\n");
+	    "if number of processors is np>1\n");
 
   // cumulated sum 
   for (node=0; node<nnod; node++) 
