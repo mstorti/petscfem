@@ -27,7 +27,7 @@ Add LES for this particular elemset.
 \index{additional\_tau\_pspg@\verb+additional_tau_pspg+}
 \item\verb+double additional_tau_pspg+ {\rm(default=\verb|0.|)}:
 
-Add to the \verb+tau_pspg+ term, so that you can stabilize with a term
+Add to the  \verb+tau_pspg+  term, so that you can stabilize with a term
  independently of $h$. (Mainly for debugging purposes). 
  (found in file: \verb+nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
@@ -40,7 +40,7 @@ Add axisymmetric version for this particular elemset.
 \index{cache\_grad\_div\_u@\verb+cache_grad_div_u+}
 \item\verb+int cache_grad_div_u+ {\rm(default=\verb|0|)}:
 
-Cache \verb+grad_div_u+ matrix
+Cache  \verb+grad_div_u+  matrix
  (found in file: \verb+nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{geometry@\verb+geometry+}
@@ -88,16 +88,22 @@ Add shock-capturing term.
 \index{tau\_fac@\verb+tau_fac+}
 \item\verb+double tau_fac+ {\rm(default=\verb|1.|)}:
 
-Scale the SUPG upwind term. 
+Scale the SUPG and PSPG stabilization term. 
+ (found in file: \verb+nsitetlesfm2.cpp+)
+%----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
+\index{tau\_pspg\_fac@\verb+tau_pspg_fac+}
+\item\verb+double tau_pspg_fac+ {\rm(default=\verb|1.|)}:
+
+Scales the PSPG stabilization term. 
  (found in file: \verb+nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{temporal\_stability\_factor@\verb+temporal_stability_factor+}
 \item\verb+double temporal_stability_factor+ {\rm(default=\verb|0.|)}:
 
 Adjust the stability parameters, taking into account
-the time step. If the \verb+steady+ option is in effect,
+the time step. If the  \verb+steady+  option is in effect,
 (which is equivalent to $\Dt=\infty$) then
-\verb+temporal_stability_factor+ is set to 0.
+ \verb+temporal_stability_factor+  is set to 0.
  (found in file: \verb+nsitetlesfm2.cpp+)
 %----<>----<>----<>----<>----<>----<>----<>----<>----<>----<>
 \index{weak\_form@\verb+weak_form+}

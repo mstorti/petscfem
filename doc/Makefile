@@ -1,5 +1,5 @@
 #__INSERT_LICENSE__
-#$Id: Makefile,v 1.48 2005/02/04 19:57:57 mstorti Exp $
+#$Id: Makefile,v 1.49 2005/02/09 01:52:13 mstorti Exp $
 
 .PHONY: all_html clean lclean all icons latex force ps readme
 
@@ -46,7 +46,7 @@ petscfem.ps: petscfem.dvi
 
 dvi: petscfem.dvi
 
-latex-petscfem: 
+latex-petscfem: petscfem.tex
 	pdflatex petscfem
 
 petscfem.dvi: *.tex
