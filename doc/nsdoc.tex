@@ -133,17 +133,17 @@ PETSc-FEM the nodes of a quad are entered counter-clockwise, and, if
 they are (in that order) 1, 2, 3, 4, then for DX they are entered in
 the order: 1, 2, 4, 3. Secondly, DX has only four basic interpolations
 (quads, cubes, triangles and tetras) so that other interpolations, as
-prisms must be splitted in some number of these basic DX geometries.
+prisms must be split in some number of these basic DX geometries.
 For the more usual interpolations this is automatically generated.
 The line has the following syntax, {\tt node-list dx-geometry}.  Where
 {\tt node-list} is a list of (1-based) nodes and {\tt dx-geom} the
 corresponding gometry. For instance, for the {\tt cartesian2d}
-PETSc-FEM geometry, one could use the line {\tt 1 2 4 3 quads}. That
-that element is equivalent to one quad, with a node
+PETSc-FEM geometry, one could use the line {\tt 1 2 4 3 quads}. 
+That element is equivalent to one quad, with a node
 renumbering. (However this conversion is made automatically by
 PETSc-FEM). If we wanted to split the quad in two triangles, say
 triangle (1 2 3) and (3 4 1), we should enter {\tt 1 2 3 3 4 1
-triangles}. As another example, the prism element is splitted in 3
+triangles}. As another example, the prism element may be split in 3
 tetras according to the rule. {\tt 1 2 3 4 5 4 6 2 2 6 3 4
 tetrahedra}. If you need to split the element in different geometries,
 you can use the syntax {\tt node-list-1 dx-geom-1 node-list-2
