@@ -192,3 +192,16 @@ tag: beta-3.03 on Sun Aug 18 20:40:26 GMT+3 2002, by mstorti in spider
 ----------
 tag: beta-3.04 on Fri Sep  6 11:35:46 -0300 2002, by mstorti in minerva.arcride.edu.ar
      > Updated to PETSc 2.1.3
+----------
+tag: beta-3.05 on Fri Sep 20 23:21:29 GMT+3 2002, by mstorti in spider
+     > Updated to PETSc 2.1.3
+     > Fixed the `KSPGMRESSetOrthogonalization()' bug. 
+     > Added fractional step test. 
+     > Dynamically linked functions OK for constant rain. 
+     > Added test for dynamically variable properties.
+     > Fixed a bug in src/iisdmat.cpp:688, `sles_ii' should be created on
+     > communicator `comm'.
+     > Added `lagrange_row_scale_factor'. 
+     > Now `A_poi' in fractional step is solved with CG. 
+     > Can run with weight 0 in processors. (Simulates -nolocal)
+     > Can have 0 weight processors. 
