@@ -30,4 +30,3 @@ test_abso:
 local_clean::
 	-chmod +w *.depl
 	-rm *.depl *.tmp &> /dev/null
-###end
