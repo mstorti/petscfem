@@ -3391,3 +3391,9 @@ tag: beta-3.34 on Mon, 25 Oct 2004 01:23:21 -0300 by mstorti in spider
      > Added option `fractional_step_use_petsc_symm'
      > Passes FS test with LU. 
      > Solution coincides with previous one with CG. 
+----------
+tag: beta-3.35.1 on Mon, 25 Oct 2004 01:26:53 -0300 by mstorti in spider
+     > Administrative tag
+----------
+tag: beta-3.35.2 on Sat, 06 Nov 2004 20:13:04 -0300 by mstorti in spider
+     > Fixed FS solver. 
