@@ -1655,3 +1655,6 @@ tag: beta-3.05.pl4 on Sun, 22 Sep 2002 10:18:36 -0300 by mstorti in spider
 ----------
 tag: beta-3.05.pl5 on Mon, 23 Sep 2002 14:11:37 -0300 by mstorti in minerva.arcride.edu.ar
      > Runs OK interaction with PFM via `rosi_hook'
+----------
+tag: beta-3.05.pl6 on Mon, 23 Sep 2002 18:18:27 -0300 by mstorti in minerva.arcride.edu.ar
+     > Adding hooks. 
