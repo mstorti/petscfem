@@ -758,3 +758,6 @@ tag: pfmat-rewrite-1.10 on Sun Dec 30 18:27:49 ARST 2001, by mstorti in spider
 tag: pfmat-rewrite-1.11 on Sun Dec 30 18:29:48 ARST 2001, by mstorti in spider
      > PETScMat and IISDMat work. 
      > Made a test for both
+----------
+tag: pfmat-rewrite-1.12 on Sun Dec 30 20:07:31 ARST 2001, by mstorti in spider
+     > Added the test to the test routine.
