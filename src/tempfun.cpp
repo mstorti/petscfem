@@ -1,5 +1,5 @@
 //__INSERT_LICENSE__
-//$Id: tempfun.cpp,v 1.8 2002/02/10 00:20:10 mstorti Exp $
+//$Id: tempfun.cpp,v 1.9 2002/02/10 23:30:55 mstorti Exp $
 
 #include <math.h>
 
@@ -488,7 +488,15 @@ Amplitude *Amplitude::factory(char *& label,
   if (!strcmp(label,"gaussian")) {
     amp = new gaussian;
   } else if (!strcmp(label,"dl_generic")) {
+#ifdef USE_DLEF
     amp = new DLGeneric;
+#else
+    PetscPrintf(PETSC_COMM_WORLD,
+		"This version is not compiled with dynamically"
+		" loaded extended functions!!\n"
+		" Enable the 'USE_DLEF' flag and recompile.\n");
+    assert(0);
+#endif
   } else {
     PetscPrintf(PETSC_COMM_WORLD,
 		"Not known fixa_amplitude \"%s\"\n",label);

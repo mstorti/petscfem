@@ -1,8 +1,14 @@
 // -*- mode: C++ -*- 
 /*__INSERT_LICENSE__*/
-// $Id: ampli.h,v 1.10 2002/02/10 23:03:47 mstorti Exp $
+// $Id: ampli.h,v 1.11 2002/02/10 23:30:55 mstorti Exp $
 #ifndef AMPLI_H
 #define AMPLI_H
+
+// Preprocessor macro `USE_DLEF' flags using dynamically loaded
+// extended functions via `dlopen()' or not.
+// If don't use this extensions then this file has little to give.
+
+#ifdef USE_DLEF
 
 #include <math.h>
 #include <src/fem.h>
@@ -166,6 +172,7 @@ EVAL_FUN1(fun_obj_class) {					\
 CLEAR_FUN1(fun_obj_class) {					\
   fun_obj_class *fun_obj_ptr = (fun_obj_class *) fun_data;	\
   delete fun_obj_ptr;						\
-}								\
+}
+#endif
 
 #endif

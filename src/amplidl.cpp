@@ -1,5 +1,7 @@
 //__INSERT_LICENSE__
-//$Id: amplidl.cpp,v 1.7 2002/02/10 23:03:47 mstorti Exp $
+//$Id: amplidl.cpp,v 1.8 2002/02/10 23:30:55 mstorti Exp $
+
+#ifdef USE_DLEF
 
 #include <math.h>
 
@@ -120,3 +122,5 @@ double DLGeneric::eval(const TimeData *time_data) {
   // call eval function defined by user
   return (*eval_fun)(t,fun_data);
 }
+
+#endif

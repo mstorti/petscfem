@@ -1,6 +1,6 @@
 # mode: -*- makefile -*-
 #__INSERT_LICENSE__
-#$Id: Makefile.base,v 1.64 2002/02/10 02:49:51 mstorti Exp $
+#$Id: Makefile.base,v 1.65 2002/02/10 23:30:49 mstorti Exp $
 
 #p [in Makefile.base]
 #s General
@@ -17,7 +17,7 @@ GNU_C_COMPILER = gcc  # gcc or egcs
 
 # read variables from file
 include $(PETSCFEM_DIR)/../Makefile.defs
-######  end of CONGIGURATION VARIABLES sectio  ####################
+######  end of CONGIGURATION VARIABLES section  ####################
 
 export PETSCFEM_DIR
 
@@ -42,14 +42,20 @@ endif
 
 include ${PETSC_DIR}/bmake/${PETSC_ARCH}/base
 
-CPPFLAGS         := $(PROF_FLAGS) $(RH60) \
-		-I$(PETSC_DIR)/include -I$(PETSC_DIR)/bmake/$(PETSC_ARCH) \
-		-I$(MPI_HOME)/include \
-		${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT) \
-                     -I$(METIS)/Lib \
-                    -I$(PETSCFEM_DIR) -I$(MESCHACH) \
-                    -I$(LIBRETTO_I) -I$(ANN_HOME)/include $(CPPFLAGS) \
-		-I$(SUPERLU)
+CPPFLAGS         := $(PROF_FLAGS) $(RH60)					\
+                 -I$(PETSC_DIR)/include 					\
+                 -I$(PETSC_DIR)/bmake/$(PETSC_ARCH)				\
+                 -I$(MPI_HOME)/include						\
+                 ${BS_INCLUDE} -I$(GLIB) -I$(NEWMAT)				\
+                 -I$(METIS)/Lib							\
+                 -I$(PETSCFEM_DIR) -I$(MESCHACH)				\
+                 -I$(LIBRETTO_I) 						\
+                 -I$(ANN_HOME)/include $(CPPFLAGS)				\
+                 -I$(SUPERLU)
+
+ifeq ($(USE_DYNAMICALLY_LOADED_EXTENDED_FUNCTIONS),yes) 
+CPPFLAGS += -DUSE_DLEF
+endif
 
 FPPFLAGS         =
 
