@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.91 2004/07/30 22:12:28 mstorti Exp $ 
+# $Id: Makefile,v 1.92 2004/07/30 22:14:33 mstorti Exp $ 
 
 .PHONY: all run  compile lclean laplace adv nso laplace_tests force \
         ctest gprof srfgath
@@ -175,7 +175,7 @@ link:
 
 #w Prepare for jumpshot
 pj:
-#	rcp geronimo:PETSC/petscfem.mario/test/cubcav/ns.clog .
+	rcp geronimo:PETSC/petscfem.mario/test/cubcav/ns.clog .
 #	rcp geronimo:PETSC/curso_paralelo/curso-mpi-petsc/example/primes.clog .
 	/usr/local/mpi/bin/clog2slog ns.clog
 
