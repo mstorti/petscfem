@@ -2143,3 +2143,6 @@ tag: beta-3.14.pl29 on Thu, 16 Jan 2003 12:32:07 -0300 by mstorti in minerva.arc
 ----------
 tag: beta-3.14.pl30 on Sat, 18 Jan 2003 23:26:07 -0300 by mstorti in spider
      > Runnins 1D example with NSC (gasflow)
+----------
+tag: beta-3.14.pl31 on Sun, 19 Jan 2003 17:03:00 -0300 by mstorti in spider
+     > Runs slowing down rotating tube. 
